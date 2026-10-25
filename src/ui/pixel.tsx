@@ -50,12 +50,14 @@ function compile(key: string, rows: string[], pal: Pal, outline = true) {
   return out;
 }
 
-export function Sprite({ id, rows, pal, size, outline = true, cls = '', title }: {
+export function Sprite({ id, rows, pal, size, outline = true, cls = '', title, x, y }: {
   id: string; rows: string[]; pal: Pal; size: number; outline?: boolean; cls?: string; title?: string;
+  /** Position when nested inside another SVG (the market scene). */
+  x?: number; y?: number;
 }) {
   const { w, h, runs } = compile(id, rows, pal, outline);
   return (
-    <svg class={`px ${cls}`} width={size} height={(size * h) / w} viewBox={`0 0 ${w} ${h}`} shape-rendering="crispEdges" aria-label={title} role={title ? 'img' : undefined}>
+    <svg class={`px ${cls}`} x={x} y={y} width={size} height={(size * h) / w} viewBox={`0 0 ${w} ${h}`} shape-rendering="crispEdges" aria-label={title} role={title ? 'img' : undefined}>
       {runs.map(([x, y, l, c]) => <rect x={x} y={y} width={l} height={1} fill={c} />)}
     </svg>
   );
@@ -158,14 +160,35 @@ function spotted(rows: string[]): string[] {
   return rows.map((r, y) => r.split('').map((c, x) => (c !== '.' && c !== 'K' && spots.some(([sx, sy]) => sx === x && sy === y) ? 'X' : c)).join(''));
 }
 
-export function PixelFruit({ id, size = 24, stage = 'fresh' }: { id: FruitId; size?: number; stage?: Stage }) {
+export function PixelFruit({ id, size = 24, stage = 'fresh', x, y }: { id: FruitId; size?: number; stage?: Stage; x?: number; y?: number }) {
   const rows = stage === 'notso' ? spotted(FRUIT_MAPS[id]) : FRUIT_MAPS[id];
-  return <Sprite id={`f-${id}-${stage}`} rows={rows} pal={stagePal(id, stage)} size={size} cls="fruit" title={id} />;
+  return <Sprite id={`f-${id}-${stage}`} rows={rows} pal={stagePal(id, stage)} size={size} cls="fruit" title={id} x={x} y={y} />;
 }
 
 // ---------- icons ----------
 
 const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
+  // Upgrade illustrations (12px grid, light from the top left).
+  shelf: {
+    rows: ['BBBBBBBBBBBB', 'BLLLLLLLLLLB', 'BRRLGGLYYLLB', 'BBBBBBBBBBBB', 'BLLLLLLLLLLB', 'BLGGLRRLYYLB', 'BBBBBBBBBBBB', 'B..........B', 'B..........B'],
+    pal: { B: '#7a4a2e', L: '#c98a55', R: '#d6453b', G: '#6aa84f', Y: '#f0b33a' },
+  },
+  handcart: {
+    rows: ['..........KK', '.........K..', 'RRRRRRRRRK..', 'RWRWRWRWRK..', 'RRRRRRRRRK..', 'KKKKKKKKKK..', '.KK....KK...', '.KK....KK...'],
+    pal: { R: '#c8553d', W: '#f6ead2', K: '#3b3048' },
+  },
+  coolroom: {
+    rows: ['TTTTTTTTTTTT', 'TLLLLLLLLLLT', 'TL..W..W.LLT', 'TL.WWWWWW.LT', 'TL..WWWW..LT', 'TL.WWWWWW.LT', 'TL..W..W.LLT', 'TLLLLLLLLLLT', 'TTTTTTTTTTTT'],
+    pal: { T: '#2c6b69', L: '#7cc4c0', W: '#f6ead2' },
+  },
+  signboard: {
+    rows: ['YYYYYYYYYYYY', 'YCCCCCCCCCCY', 'YCRRCGGCRRCY', 'YCCCCCCCCCCY', 'YYYYYYYYYYYY', '.....BB.....', '.....BB.....', '....BBBB....'],
+    pal: { Y: '#e8b04b', C: '#f6ead2', R: '#c8553d', G: '#3e8f8c', B: '#7a4a2e' },
+  },
+  lantern: {
+    rows: ['.K.', 'KYK', 'YWY', 'KYK'],
+    pal: { K: '#3b3048', Y: '#f2c14e', W: '#fff2c2' },
+  },
   coin: {
     rows: ['..YYYY..', '.YWYYYY.', 'YWYDDYYO', 'YYYDYYYO', 'YYYDDYYO', 'YYYYDYYO', '.YYDDYO.', '..OOOO..'],
     pal: { Y: '#f2c14e', W: '#fff2c2', D: '#b8862b', O: '#c98f25' },
@@ -352,11 +375,11 @@ function humanRows(h: Human): string[] {
 }
 
 /** A pixel portrait for a player avatar (emoji key) or a customer name. */
-export function Portrait({ who, size = 32 }: { who: string; size?: number }) {
+export function Portrait({ who, size = 32, x, y }: { who: string; size?: number; x?: number; y?: number }) {
   const key = AVATAR_KEY[who] ?? who;
   const animal = ANIMALS[key];
-  if (animal) return <Sprite id={`a-${key}`} rows={animal.rows} pal={animal.pal} size={size} cls="portrait" title={key} />;
+  if (animal) return <Sprite id={`a-${key}`} rows={animal.rows} pal={animal.pal} size={size} cls="portrait" title={key} x={x} y={y} />;
   const h = HUMANS[key] ?? HUMANS.shopper;
   const pal: Pal = { ...BASE_PAL, s: h.skin, u: h.shirt, ...(h.pal ?? {}) };
-  return <Sprite id={`h-${key}`} rows={humanRows(h)} pal={pal} size={size} cls="portrait" title={key} />;
+  return <Sprite id={`h-${key}`} rows={humanRows(h)} pal={pal} size={size} cls="portrait" title={key} x={x} y={y} />;
 }

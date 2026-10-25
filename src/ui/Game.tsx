@@ -2,9 +2,9 @@
 // animation (delivery, buying, selling, night) before handing control back.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, freshPos, lookOf, type FruitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, type FruitId } from '../engine/data';
 import {
-  activePlayer, applyAction, canBuy, canPlayFavour, canUpgrade,
+  activePlayer, applyAction, canPlayFavour,
   effectiveMax, notSoCount, ranking, RuleError,
   type Action, type Customer, type GameState, type LineResult,
 } from '../engine/game';
@@ -14,11 +14,10 @@ import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
-import { BidSheet } from './BidSheet';
-import { ShopPanel } from './board';
+import { BuyCards, EveningPanel, FavourRow, InventorySheet, InventoryStrip, PricePanel } from './panel';
+import { MarketScene } from './scene';
 import { fx } from './fx';
 import { loadSettings } from './store';
-import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 
 interface Props {
   initial: GameState;
@@ -125,9 +124,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     let d = 0;
     for (const f of FRUITS) {
       const n = Math.min(g.delivery[f] ?? 0, 4);
-      const pos = g.deliveryUnripe === f ? g.market[f].length - 1 : freshPos(f);
       for (let i = 0; i < n; i++) {
-        jobs.push(A.fly('truck', `m-${f}-${pos}`, <Fruit id={f} size={26} stage={g.deliveryUnripe === f ? 'unripe' : 'fresh'} />, { delay: d, duration: 600 }));
+        jobs.push(A.fly('sky', [`cart-${f}`, 'truck'], <Fruit id={f} size={26} stage={g.deliveryUnripe === f ? 'unripe' : 'fresh'} />, { delay: d, duration: 600 }));
         d += 70;
       }
     }
@@ -146,8 +144,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         if (p < 0) continue;
         for (let k = 0; k < Math.min(Math.abs(diff), 5); k++) {
           const node = <Fruit id={f} size={30} stage={pos >= FRUIT[f].ripe.length ? 'unripe' : undefined} />;
-          if (diff > 0) jobs.push(A.fly(`m-${f}-${pos}`, [`p${p}-${f}-${pos}`, `p${p}-${f}`, `p${p}`], node, { delay: d }));
-          else jobs.push(A.fly([`p${p}-${f}-${pos}`, `p${p}-${f}`, `p${p}`], `m-${f}-${pos}`, node, { delay: d }));
+          if (diff > 0) jobs.push(A.fly([`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], [`p${p}-${f}`, `p${p}`], node, { delay: d }));
+          else jobs.push(A.fly([`p${p}-${f}`, `p${p}`], [`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], node, { delay: d }));
           d += 90;
         }
       }
@@ -254,7 +252,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       for (let k = 0; k < Math.min(n, 3); k++) { jobs.push(A.drop(anchor, <Fruit id={f} size={26} stage="notso" />, d)); d += 80; }
     };
     for (const f of FRUITS) {
-      spoil([`m-${f}-0`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
+      spoil([`cart-${f}`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
       g.players.forEach((pl, p) => {
         const cool = pl.upgrades.includes('coolroom') && g.day % 2 === 1;
         const steps = (cool ? 0 : 1) + heat;
@@ -416,85 +414,93 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     );
   }
 
-  const me = viewer;
-  const around = seats(s.players.length, me);
-  const top = around.find((x) => x.side === 'top');
-  const left = around.find((x) => x.side === 'left');
-  const right = around.find((x) => x.side === 'right');
-  const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const pl = s.players[active];
-  const showTray = !busy && myBidTurn;
+  const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const bidder = online ? viewer : active;
+  const others = s.players.map((_, i) => i).filter((i) => i !== viewer);
+  const order = [...others.slice(0, Math.ceil(others.length / 2)), viewer, ...others.slice(Math.ceil(others.length / 2))];
+  const limit = pl ? (pl.upgrades.includes('cart') ? 5 : 3) : 3;
+  const pricing = s.phase === 'bid' && myBidTurn && !busy;
+
+  const panel = (() => {
+    if (s.phase === 'morning') return busy ? <div class="info-card dim center-text">The farmer is unloading the cart…</div> : <MorningCard s={s} viewer={viewer} lost={lastNight} />;
+    if (s.phase === 'buy') {
+      return (
+        <>
+          <div class={`turn-card ${myBuyTurn ? 'mine' : ''}`}>
+            {activeHuman
+              ? <><b>{freeFruit !== null ? 'Pick your free fruit' : 'Your turn to buy'}</b><span>{pl.boughtToday} of {limit} bought · tap a price to buy one</span></>
+              : <><Face who={pl.avatar} size={28} /><b>{pl.name}</b><span>is buying…</span></>}
+          </div>
+          <BuyCards s={s} p={viewer} myTurn={myBuyTurn} free={freeFruit !== null} onBuy={pickMarket} />
+          <FavourRow s={s} p={viewer} phase="buy" onCard={playCard} />
+        </>
+      );
+    }
+    if (s.phase === 'bid') {
+      if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} />;
+      return (
+        <div class="locked-card">
+          <div class="lk-cards">{[0, 1, 2].map((i) => <span class="lk" style={{ transform: `rotate(${(i - 1) * 6}deg)` }}>🔒</span>)}</div>
+          <b>{online ? 'Your prices are locked in' : 'Rivals are choosing prices'}</b>
+          <span class={online ? 'waiting-dots' : ''}>{online ? `Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Secret until the reveal'}</span>
+        </div>
+      );
+    }
+    if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
+    if (s.phase === 'evening') {
+      return activeHuman && !busy
+        ? <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={playCard} />
+        : <div class="turn-card">{pl && <Face who={pl.avatar} size={28} />}<b>{pl?.name}</b><span>is closing up for the night…</span></div>;
+    }
+    return null;
+  })();
 
   return (
     <div class={`game ${night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
-      <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} />
-      {(s.event || s.nextEvent) && (
-        <div class="event-strip" onClick={(e) => { e.stopPropagation(); setEventInfo(!eventInfo); }}>
-          {s.event ? <><span>{s.event.icon}</span><b>{s.event.title}</b></> : <small>Calm day</small>}
-          {s.nextEvent && <span class="next">Tomorrow: {s.nextEvent.icon} {s.nextEvent.title}</span>}
-          <span class="info">ⓘ</span>
-        </div>
-      )}
+      <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} onEvent={() => setEventInfo(!eventInfo)} onRival={setRival} offline={offline.map((x) => x.seat)} />
       {eventInfo && (
         <div class="event-pop" onClick={() => setEventInfo(false)}>
-          {s.event && <p><b>{s.event.icon} Today: {s.event.title}.</b> {s.event.text}</p>}
+          {s.event ? <p><b>{s.event.icon} Today: {s.event.title}.</b> {s.event.text}</p> : <p><b>Today:</b> a calm day.</p>}
           {s.nextEvent && <p><b>{s.nextEvent.icon} Tomorrow: {s.nextEvent.title}.</b> {s.nextEvent.text}</p>}
         </div>
       )}
-
       {online && conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
       {online && conn === 'open' && offline.length > 0 && <div class="net-strip">{offline.map((x) => x.name).join(' and ')} {offline.length > 1 ? 'are' : 'is'} offline. The game will wait.</div>}
-      <div class="table">
-        {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => setRival(top.p)} /></div>}
-        <div class="street-wrap" data-a="street"><Street s={s} onTip={(c) => setTip(c)} /></div>
-        <PulseBar s={s} onTap={() => setPulseInfo(!pulseInfo)} />
-        <div class="mid">
-          {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => setRival(left.p)} /> : <span />}
-          <div class="centre">
-            <Market s={s} morning={s.phase === 'morning'}
-              onPick={myBuyTurn ? pickMarket : undefined}
-              canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
-            {s.phase === 'morning' && !busy && <MorningCard s={s} viewer={viewer} lost={lastNight} />}
-            {s.phase === 'reveal' && revealDone && <SalesSummary s={s} viewer={viewer} />}
-            {show && <Showdown s={s} a={show} viewer={viewer} />}
-          </div>
-          {right ? <RivalStall s={s} p={right.p} side="right" onOpen={() => setRival(right.p)} /> : <span />}
+
+      <div class="play">
+        <div class="stage">
+          <MarketScene s={s} viewer={viewer} order={order} activeP={(s.phase === 'buy' || s.phase === 'evening') ? active : -1}
+            onStall={(p) => setRival(p)} onCustomer={(c) => setTip(c)} rolling={s.phase === 'morning' && busy} />
+          <InventoryStrip s={s} p={viewer} onOpen={() => setRival(viewer)} />
         </div>
-        <MyStall s={s} p={me} onCard={activeHuman ? playCard : undefined} flashCards={freeFruit !== null} />
+        <div class="panel-area">{panel}</div>
       </div>
 
-      {showTray && s.phase === 'bid' && (
-        <div class="tray-wrap"><BidSheet key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} /></div>
+      {!pricing && (
+        <footer class="actionbar">
+          {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); }}>Skip ⏩</button>}
+          {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
+          {!busy && s.phase === 'morning' && (votedMe
+            ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
+            : <button class="btn primary wide big" onClick={proceed}>Open the market</button>)}
+          {!busy && s.phase === 'buy' && activeHuman && (
+            <>
+              {!online && <button class="btn ghost" aria-label="Undo purchases" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>}
+              <button class="btn primary wide big" onClick={() => { fx.tap(); setFreeFruit(null); act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying ➜' : 'Skip buying ➜'}</button>
+            </>
+          )}
+          {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
+          {!busy && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? 'Waiting for prices' : 'Prices are being set…'}</div>}
+          {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); act({ kind: 'endEvening' }); }}>Lights out · next day</button>}
+          {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
+          {!busy && s.phase === 'reveal' && (votedMe
+            ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
+            : <button class="btn primary wide big" onClick={() => { setHandedTo(null); proceed(); }}>
+                {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
+              </button>)}
+        </footer>
       )}
-
-      <footer class="actionbar">
-        {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); }}>Skip ⏩</button>}
-        {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The farmer is unloading…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
-        {!busy && s.phase === 'morning' && (votedMe
-          ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
-          : <button class="btn primary wide big" onClick={proceed}>Open the market</button>)}
-        {!busy && s.phase === 'buy' && activeHuman && (
-          <>
-            {!online && <button class="btn ghost" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>}
-            <div class="buy-hint"><b class="move">YOUR MOVE</b><small>Tap a crate to buy · {pl.boughtToday}/{pl.upgrades.includes('cart') ? 5 : 3} bought</small></div>
-            <button class="btn primary" onClick={() => { fx.tap(); setFreeFruit(null); act({ kind: 'endBuy' }); }}>Done ➜</button>
-          </>
-        )}
-        {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
-        {!busy && s.phase === 'bid' && !myBidTurn && (online
-          ? <div class="hint-bar waiting-dots"><span class="lock">🔒</span> Prices locked. Waiting for {waitingFor(humansMissingBids) || 'the market'}</div>
-          : <div class="hint-bar">Rivals are setting secret prices…</div>)}
-        {!busy && s.phase === 'evening' && activeHuman && (
-          <EveningDock s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onPriority={reallyPlay} onDone={() => act({ kind: 'endEvening' })} />
-        )}
-        {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
-        {!busy && s.phase === 'reveal' && (votedMe
-          ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
-          : <button class="btn primary wide big" onClick={() => { setHandedTo(null); proceed(); }}>
-              {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
-            </button>)}
-      </footer>
 
       <div class="fx-layer" ref={layerRef} />
       {banner && <div class="phase-banner" key={banner} aria-hidden="true"><span>{banner}</span></div>}
@@ -538,15 +544,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         </div>
       )}
 
-      {rival !== null && (
-        <div class="modal-bg" onClick={() => setRival(null)}>
-          <div class="modal" onClick={(e) => e.stopPropagation()}>
-            <ShopPanel s={s} p={rival} />
-            <p class="small muted">{s.players[rival].favours.length} secret favour card(s).</p>
-            <button class="btn wide" onClick={() => setRival(null)}>Close</button>
-          </div>
-        </div>
-      )}
+      {rival !== null && <InventorySheet s={s} p={rival} onClose={() => setRival(null)} />}
 
       {menu && (
         <div class="modal-bg" onClick={() => setMenu(false)}>
@@ -562,19 +560,34 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   );
 }
 
-function TopBar({ s, viewer, onMenu }: { s: GameState; viewer: number; onMenu: () => void }) {
+function TopBar({ s, viewer, onMenu, onEvent, onRival, offline = [] }: { s: GameState; viewer: number; onMenu: () => void; onEvent?: () => void; onRival?: (p: number) => void; offline?: number[] }) {
   const rem = s.config.days - s.day + 1;
   const st = standing(s, viewer);
   return (
     <header class="topbar">
-      <button class="icon-btn" onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Menu">☰</button>
-      <div class="day">
-        <span class="day-label">DAY {s.day}<small>/{s.config.days}</small></span>
-        <div class="days" aria-hidden="true">{Array.from({ length: s.config.days }, (_, i) => <i class={`${i + 1 < s.day ? 'past' : i + 1 === s.day ? 'now' : ''} ${s.config.days - i <= 3 ? 'end' : ''}`} />)}</div>
-        {s.phase !== 'over' && rem <= 3 ? <span class={`left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'FINAL DAY' : `${rem} DAYS LEFT`}</span> : <span class="phase">{PHASE[s.phase]}</span>}
+      <div class="tb-row">
+        <button class="icon-btn" onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Menu">☰</button>
+        <div class="tb-day">
+          <span class="day-label">Day {s.day}<small>/{s.config.days}</small></span>
+          {s.phase !== 'over' && rem <= 3 ? <span class={`left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'FINAL DAY' : `${rem} DAYS LEFT`}</span> : <span class="phase">{PHASE[s.phase]}</span>}
+        </div>
+        {s.players.length > 1 && <span class={`rank r${st.rank}`} title={st.text}>#{st.rank}</span>}
+        <div class="hud-cash" data-a={`p${viewer}-cash`} aria-label={`Cash $${s.players[viewer].cash}`}><Coin size={20} /><b>{s.players[viewer].cash}</b></div>
       </div>
-      {s.players.length > 1 && <span class={`rank r${st.rank}`} title={st.text}>#{st.rank}</span>}
-      <div class="hud-cash" aria-label={`Cash $${s.players[viewer].cash}`}><Coin size={20} /><b>{s.players[viewer].cash}</b></div>
+      {s.phase !== 'over' && (
+        <div class="tb-row sub">
+          <button type="button" class="ev-chip" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}>
+            {s.event ? <><span>{s.event.icon}</span>{s.event.title}</> : 'Calm day'}
+            {s.nextEvent && <small>· next: {s.nextEvent.icon}</small>}
+          </button>
+          <span class="spacer" />
+          {s.players.map((pl, i) => i === viewer ? null : (
+            <button type="button" class={`rv-chip ${offline.includes(i) ? 'off' : ''}`} onClick={(e) => { e.stopPropagation(); onRival?.(i); }} aria-label={`${pl.name}: $${pl.cash}`}>
+              <Face who={pl.avatar} size={20} /><b data-a={`p${i}-cash`}>${pl.cash}</b>
+            </button>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
@@ -615,10 +628,11 @@ function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer: number
     <div class={`auction ${done ? `tone-${a.story.tone}` : ''}`} role="status">
       <div class="au-top"><span>SHOWDOWN {a.n}/{a.of}</span><span>cheapest sells first</span></div>
       <div class="au-cust">
-        <span class="au-face"><Face who={l.name} size={44} />{done && a.cust && <span class="au-say">{a.cust}</span>}</span>
+        <span class="au-face"><Face who={l.name} size={44} /></span>
         <div class="au-ask">
           <b>{lookOf(l.name).title}</b>
           <span class="au-want"><Fruit id={l.fruit} size={20} /><b>×{l.want}</b><span class="au-cap">pays up to <b>${l.max}</b> each</span></span>
+          {done && a.cust && <span class="au-say">“{a.cust}”</span>}
         </div>
       </div>
       <div class="au-offers">
@@ -676,46 +690,6 @@ function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
         ))}
       </div>
       {s.players.length > 1 && <div class={`sc-standing r${st.rank}`}>{st.text}{rem > 0 ? ` · ${rem} day${rem > 1 ? 's' : ''} to go` : ''}</div>}
-    </div>
-  );
-}
-
-function EveningDock({ s, p, onUpgrade, onPriority, onDone }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onPriority: (i: number) => void; onDone: () => void }) {
-  const pl = s.players[p];
-  const [pick, setPick] = useState<UpgradeId | null>(null);
-  const rotting = FRUITS.filter((f) => pl.stock[f][0] > 0);
-  const fine = (s.event?.inspector ?? 0) * notSoCount(pl.stock);
-  const pri = pl.favours.indexOf('priority');
-  return (
-    <div class="dock">
-      <div class="dock-row">
-        {rotting.length > 0 && <span class="dock-warn">⚠️ spoils tonight {rotting.map((f) => <span><Fruit id={f} size={14} stage="notso" />{pl.stock[f][0]}</span>)}</span>}
-        {fine > 0 && <span class="dock-warn">🕵️ fine ${fine}</span>}
-        {!!s.event?.ageExtra && <span class="dock-warn">🔥 ages twice</span>}
-        {pri >= 0 && !canPlayFavour(s, p, pri) && <button class="fcard usable" onClick={() => onPriority(pri)}><span>⏩</span><small>Priority</small></button>}
-      </div>
-      {s.config.upgrades && (
-        <div class="dock-ups">
-          {(Object.keys(UPGRADES) as UpgradeId[]).map((u) => {
-            const d = UPGRADES[u];
-            const owned = pl.upgrades.includes(u);
-            return (
-              <button class={`dup ${owned ? 'owned' : ''} ${pick === u ? 'sel' : ''}`} onClick={() => setPick(pick === u ? null : u)}>
-                <span>{d.icon}</span><small>{owned ? '✓' : `$${d.cost}`}</small>
-              </button>
-            );
-          })}
-        </div>
-      )}
-      {pick && (
-        <div class="dock-info">
-          <span><b>{UPGRADES[pick].title}:</b> {UPGRADES[pick].text}</span>
-          {!pl.upgrades.includes(pick) && (
-            <button class="btn primary" disabled={!!canUpgrade(s, p, pick)} onClick={() => { onUpgrade(pick); setPick(null); }}>Build ${UPGRADES[pick].cost}</button>
-          )}
-        </div>
-      )}
-      <button class="btn primary wide" onClick={() => { fx.tap(); onDone(); }}>Lights out · next day</button>
     </div>
   );
 }

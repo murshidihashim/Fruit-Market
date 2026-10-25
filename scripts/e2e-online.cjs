@@ -37,7 +37,7 @@ const { chromium } = require('playwright');
   await shot(B, '02-lobby-guest');
   await A.page.waitForSelector('text=Start the match');
   await A.page.click('text=Start the match');
-  await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
+  await Promise.all([A.page.waitForSelector('.scene'), B.page.waitForSelector('.scene')]);
   console.log('match started on both devices');
 
   // Each device plays its own seat.
@@ -48,14 +48,14 @@ const { chromium } = require('playwright');
     const has = async (sel) => (await p.locator(sel).count()) > 0;
     if (await has('.results')) return 'done';
     if (await has('text=Open the market')) { await p.click('text=Open the market'); return 'moved'; }
-    if (await has('text=Done ➜')) {
-      const c = p.locator('.mk-cell.pick');
+    if (await has('text=/Done buying|Skip buying/')) {
+      const c = p.locator('.tier:not([disabled])');
       if ((await c.count()) && Math.random() < 0.6) { await c.first().click(); await p.waitForTimeout(250); return 'moved'; }
-      await p.click('text=Done ➜'); return 'moved';
+      await p.click('text=/Done buying|Skip buying/'); return 'moved';
     }
-    if (await has('.tray-foot .btn')) {
+    if (await has('.pp-lock .btn')) {
       if (!once.has(`tray-${P.tag}`)) { once.add(`tray-${P.tag}`); await shot(P, `03-pricing-${P.tag}`); }
-      await p.click('.tray-foot .btn'); return 'moved';
+      await p.click('.pp-lock .btn'); return 'moved';
     }
     if (await has('text=Lights out')) { await p.click('text=Lights out'); return 'moved'; }
     for (const t of ['Close for the day', 'See final results']) if (await has(`text=${t}`)) { await p.click(`text=${t}`); return 'moved'; }
@@ -63,19 +63,21 @@ const { chromium } = require('playwright');
     return 'idle';
   };
 
-  const deadline = Date.now() + 9 * 60 * 1000;
+  const deadline = Date.now() + (+process.env.E2E_MINUTES || 9) * 60 * 1000;
+  let lastShot = Date.now();
   let done = 0;
   while (Date.now() < deadline) {
     const [ra, rb] = [await step(A).catch(() => 'err'), await step(B).catch(() => 'err')];
     if (ra === 'done' && rb === 'done') { done = 1; break; }
     // Mid-game refresh on device A: the match must come back.
-    if (!refreshed && (await A.page.locator('.topbar .day-label').textContent().catch(() => '') || '').includes('DAY 2')) {
+    if (!refreshed && (await A.page.locator('.topbar .day-label').textContent().catch(() => '') || '').toUpperCase().includes('DAY 2')) {
       refreshed = true;
       await A.page.reload();
-      await A.page.waitForSelector('.market-stall', { timeout: 20000 });
+      await A.page.waitForSelector('.scene', { timeout: 20000 });
       console.log('A refreshed and is back at', await A.page.locator('.topbar .day-label').textContent());
       await shot(A, '05-after-refresh');
     }
+    if (process.env.E2E_DEBUG && Date.now() - lastShot > 30000) { lastShot = Date.now(); await shot(A, `dbg-A-${lastShot}`); await shot(B, `dbg-B-${lastShot}`); }
     await A.page.waitForTimeout(150);
   }
   await shot(A, '06-results-A');
@@ -99,7 +101,7 @@ const { chromium } = require('playwright');
     await A.page.click('text=/Rematch!|Defend your title/');
     await B.page.waitForSelector('text=wants a rematch');
     await B.page.click('text=/Rematch!|Defend your title/');
-    await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
+    await Promise.all([A.page.waitForSelector('.scene'), B.page.waitForSelector('.scene')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
   }
   console.log('page errors:', [...A.errors, ...B.errors]);

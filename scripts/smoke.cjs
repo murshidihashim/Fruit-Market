@@ -24,8 +24,8 @@ const path = require('path');
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
     if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Open the market'); continue; }
-    if (await has('text=Done ➜')) {
-      const cells = page.locator('.mk-cell.pick');
+    if (await has('text=/Done buying|Skip buying/')) {
+      const cells = page.locator('.tier:not([disabled])');
       const n = await cells.count();
       if (once('buyturn')) await shot('03-my-turn');
       if (n && Math.random() < 0.75) {
@@ -34,11 +34,11 @@ const path = require('path');
         await page.waitForTimeout(700);
         continue;
       }
-      await page.click('text=Done ➜');
+      await page.click('text=/Done buying|Skip buying/');
       continue;
     }
-    const lock = page.locator('.tray-foot .btn');
-    if (await has('.tray .bid, .tray-empty') && await lock.count()) {
+    const lock = page.locator('.pp-lock .btn');
+    if (await lock.count()) {
       if (once('bid')) await shot('05-pricing');
       await lock.click();
       if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }

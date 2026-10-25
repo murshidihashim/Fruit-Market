@@ -2,8 +2,8 @@
 import type { FruitId, Stage } from '../engine/data';
 import { Icon, PixelFruit, Portrait } from './pixel';
 
-export function Fruit({ id, size = 28, stage = 'fresh' }: { id: FruitId; size?: number; stage?: Stage }) {
-  return <PixelFruit id={id} size={size} stage={stage} />;
+export function Fruit({ id, size = 28, stage = 'fresh', x, y }: { id: FruitId; size?: number; stage?: Stage; x?: number; y?: number }) {
+  return <PixelFruit id={id} size={size} stage={stage} x={x} y={y} />;
 }
 
 export function Coin({ size = 16 }: { size?: number }) {
