@@ -1,13 +1,13 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
 import {
-  buyLimit, count, effectiveMax, marketCost, shelfSize, walkInsToday,
+  buyCost, buyLimit, count, effectiveMax, shelfSize, walkInsToday,
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
-import { UP_ICON } from './panel';
+import { TRAIT_ICON, UP_ICON } from './panel';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = ['#c8553d', '#3e8f8c', '#7d8c3a', '#3d4f86'];
@@ -29,8 +29,8 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 
 // ---------- market ----------
 
-export function Market({ s, onPick, canPick, morning }: {
-  s: GameState; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean; morning?: boolean;
+export function Market({ s, p, onPick, canPick, morning }: {
+  s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean; morning?: boolean;
 }) {
   return (
     <div class="market-stall">
@@ -50,9 +50,9 @@ export function Market({ s, onPick, canPick, morning }: {
                 return (
                   <button type="button" class={`mk-cell st-${stageAt(f, pos)} ${ok ? 'pick' : ''} ${n ? 'has' : ''}`}
                     data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                    aria-label={`${FRUIT[f].name}, $${marketCost(s, f, pos)}, ${n} left`}>
+                    aria-label={`${FRUIT[f].name}, $${buyCost(s, p, f, pos)}, ${n} left`}>
                     <Pile f={f} n={n} pos={pos} size={18} />
-                    <span class="price">${marketCost(s, f, pos)}</span>
+                    <span class="price">${buyCost(s, p, f, pos)}</span>
                   </button>
                 );
               })}
@@ -77,6 +77,7 @@ export function RivalStall({ s, p, side, onOpen }: { s: GameState; p: number; si
       <div class="rs-who">
         <span class="rs-face"><Face who={pl.avatar} size={side === 'top' ? 30 : 34} />{active && <i class="busy"><Icon name={s.phase === 'buy' ? 'cart' : 'lantern'} size={14} /></i>}{thinking && <i class="busy">💭</i>}</span>
         <span class="rs-name">{pl.name}</span>
+        {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={11} />{TRAITS[pl.trait].title}</span>}
         <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
       </div>
       <div class="rs-stock">
@@ -110,6 +111,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
       <div class="ms-head">
         <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
         <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>
+        {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
         <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>
         {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={16} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
         {s.day === s.config.days && s.phase !== 'over' && count(pl.stock) > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}

@@ -1,18 +1,17 @@
 // Balance report: plays many all-computer games and measures where the game is lopsided.
 // Run: npx vite-node scripts/balance.ts [games-per-test]
 // Prints JSON lines (one per test) followed by a readable summary.
-import { aiStep } from '../src/engine/ai';
-import { CUSTOMER_CARDS, EVENT_CARDS, FRUIT, FRUITS, UPGRADES, type FruitId, type UpgradeId } from '../src/engine/data';
+import { aiStep, pickUpgrade } from '../src/engine/ai';
+import { EVENT_CARDS, FRUITS, TRAITS, UPGRADES, type FruitId, type TraitId, type UpgradeId } from '../src/engine/data';
 
-function shiftMax(f: FruitId, d: number) { for (const c of CUSTOMER_CARDS) for (const w of c.wants) if (w.fruit === f) w.max += d; }
 import {
   beginBuying, buyUpgrade, canUpgrade, count, endEvening, finishReveal, newGame, ranking,
-  activePlayer, shelfSize, type GameState, type Level,
+  activePlayer, pickTrait, type GameState, type Level,
 } from '../src/engine/game';
 
 const G = Number(process.argv[2] ?? 400);
 const UPS = Object.keys(UPGRADES) as UpgradeId[];
-let ORDER_RULE: 'default' | 'poorestFirst' | 'snake' = 'default';
+let ORDER_RULE: 'default' | 'rotate' | 'snake' = 'default';
 
 interface Policy { upgrades?: 'ai' | 'none' | UpgradeId[]; ban?: UpgradeId }
 
@@ -30,11 +29,16 @@ interface Track {
 
 const zero = () => Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
 
-function play(levels: Level[], seed: number, days = 10, policy: Policy[] = [], opts: Partial<{ events: boolean; upgrades: boolean }> = {}) {
+function play(levels: Level[], seed: number, days = 10, policy: Policy[] = [], opts: Partial<{ events: boolean; upgrades: boolean; traits: TraitId[] }> = {}) {
   let s: GameState = newGame({
-    players: levels.map((l, i) => ({ name: `P${i}`, kind: 'ai' as const, level: l, avatar: '' })),
+    players: levels.map((l, i) => ({ name: `P${i}`, kind: (opts.traits ? 'human' : 'ai') as 'human' | 'ai', level: l, avatar: '' })),
     days, unripe: true, upgrades: opts.upgrades ?? true, events: opts.events ?? true, seed,
   });
+  if (opts.traits) {
+    // Hand out fixed traits, then let the computer play every seat.
+    opts.traits.forEach((t, i) => { s.players[i].traitOffer = [t]; s = pickTrait(s, i, t); });
+    s.players.forEach((pl) => { pl.kind = 'ai'; });
+  }
   const t: Track = {
     bought: zero(), cost: zero(), sold: zero(), revenue: zero(), dayIncome: [], dayEvent: [], cashByDay: [],
     firstBuyer: levels.map(() => 0), priceWar: 0, sales: 0, capSales: 0, demand: 0, served: 0, upgradeDay: {},
@@ -44,7 +48,8 @@ function play(levels: Level[], seed: number, days = 10, policy: Policy[] = [], o
       if (ORDER_RULE !== 'default' && s.day > 1) {
         s = JSON.parse(JSON.stringify(s));
         const ids = s.players.map((_, i) => i);
-        if (ORDER_RULE === 'poorestFirst') s.order = ids.sort((a, b) => s.players[a].cash - s.players[b].cash || s.order.indexOf(a) - s.order.indexOf(b));
+        // The old rule: first buyer simply rotates round the table.
+        if (ORDER_RULE === 'rotate') s.order = ids.map((_, k) => (s.firstPlayer + k) % ids.length);
         if (ORDER_RULE === 'snake' && s.day % 2 === 0) s.order = [...s.order].reverse();
       }
       t.firstBuyer[s.order[0]]++; s = beginBuying(s); continue;
@@ -71,11 +76,8 @@ function play(levels: Level[], seed: number, days = 10, policy: Policy[] = [], o
     if (s.phase === 'evening' && ban) {
       const next = aiStep(s)!;
       if (!(next.players[p].upgrades.length > s.players[p].upgrades.length)) { s = next; continue; }
-      // Same rule the computer uses, minus the banned upgrade.
-      const pl = s.players[p], left = s.config.days - s.day;
-      const pick = ([['cart', 4], ['signboard', 6], ['coolroom', 7], ['shelf', 5]] as [UpgradeId, number][])
-        .find(([u, d]) => u !== ban && left >= d && !canUpgrade(s, p, u) && !(u === 'shelf' && count(pl.stock) < shelfSize(pl) - 1) && pl.cash - UPGRADES[u].cost >= 6);
-      s = pick ? buyUpgrade(s, p, pick[0]) : endEvening(s, p);
+      const pick = pickUpgrade(s, p, ban);
+      s = pick ? buyUpgrade(s, p, pick) : endEvening(s, p);
       continue;
     }
     if (s.phase === 'evening' && pol !== 'ai') {
@@ -118,7 +120,7 @@ const median = (xs: number[]) => { const y = [...xs].sort((a, b) => a - b); retu
 const out: Record<string, unknown> = {};
 const log = (k: string, v: unknown) => { out[k] = v; console.log(JSON.stringify({ test: k, ...(v as object) })); };
 
-if (!process.env.ONLY_EXP) {
+if (!process.env.ONLY_EXP && !process.env.ONLY_TRAITS) {
 // 1. Turn order: identical computer players. Does buying first more often win?
 for (const n of [2, 3, 4]) {
   const wins = new Array(n).fill(0);
@@ -225,8 +227,7 @@ for (const n of [2, 4]) {
   const rules: [string, Policy['upgrades']][] = [
     ['ai (control)', 'ai'], ['never', 'none'],
     ...UPS.map((u) => [`rush ${u}`, [u]] as [string, UpgradeId[]]),
-    ['rush cart+signboard', ['cart', 'signboard']],
-    ['rush all', ['cart', 'shelf', 'signboard', 'coolroom']],
+    ['rush all', UPS],
   ];
   const bans: [string, UpgradeId][] = UPS.map((u) => [`ai but never ${u}`, u]);
   for (const [label, rule, ban] of [...rules.map(([l, r]) => [l, r, undefined] as const), ...bans.map(([l, u]) => [l, 'ai', u] as const)]) {
@@ -259,8 +260,28 @@ for (const [label, days, o] of [['8 days', 8, {}], ['10 days', 10, {}], ['14 day
   log(`length-${label}`, { avgCash: +avg(cash).toFixed(1), medianMargin: median(margins), closeGames: pct(margins.filter((m) => m <= 3).length, G), leadChangesPerGame: +(leadChanges / G).toFixed(2) });
 }
 
+}
+
 void EVENT_CARDS;
 
+// 7. Traits: one seat gets each trait, rivals get random other traits (3 players, mirror).
+if (!process.env.ONLY_EXP) {
+  const all = Object.keys(TRAITS) as TraitId[];
+  const res: Record<string, unknown> = {};
+  for (const t of all) {
+    let w = 0;
+    const gap: number[] = [];
+    for (let seed = 1; seed <= G; seed++) {
+      const seat = seed % 3;
+      const rest = all.filter((x) => x !== t);
+      const traits = [0, 1, 2].map((i) => (i === seat ? t : rest[(seed * 7 + i * 3) % rest.length]));
+      const { s } = play(['hard', 'hard', 'hard'], seed, 10, [], { traits });
+      if (ranking(s)[0] === seat) w++;
+      gap.push(s.players[seat].cash - avg(s.players.filter((_, i) => i !== seat).map((p) => p.cash)));
+    }
+    res[t] = { winRate: pct(w, G), avgCashGap: +avg(gap).toFixed(1) };
+  }
+  log('traits-3p', { fair: 33.3, ...res });
 }
 
 // 6. Experiments: try candidate rule tweaks and compare against the current rules (3 players, mirror).
@@ -295,15 +316,7 @@ function measure(label: string) {
   });
 }
 const tweak = (label: string, apply: () => () => void) => { const undo = apply(); measure(label); undo(); };
-measure(process.env.LABEL ?? 'current');
+if (!process.env.ONLY_TRAITS) measure(process.env.LABEL ?? 'current');
 if (!process.env.ONLY_EXP) {
-tweak('order: poorest buys first', () => { ORDER_RULE = 'poorestFirst'; return () => { ORDER_RULE = 'default'; }; });
-tweak('order: snake', () => { ORDER_RULE = 'snake'; return () => { ORDER_RULE = 'default'; }; });
-tweak('green mango costs $2', () => { FRUIT.mango.cost.unripe = 2; return () => { FRUIT.mango.cost.unripe = 1; }; });
-tweak('mango customers pay $1 less', () => { shiftMax('mango', -1); return () => shiftMax('mango', 1); });
-tweak('handcart costs $9', () => { UPGRADES.cart.cost = 9; return () => { UPGRADES.cart.cost = 6; }; });
-tweak('combo: poorest first + mango $2 + handcart $9', () => {
-  ORDER_RULE = 'poorestFirst'; FRUIT.mango.cost.unripe = 2; UPGRADES.cart.cost = 9;
-  return () => { ORDER_RULE = 'default'; FRUIT.mango.cost.unripe = 1; UPGRADES.cart.cost = 6; };
-});
+tweak('old order: first buyer rotates', () => { ORDER_RULE = 'rotate'; return () => { ORDER_RULE = 'default'; }; });
 }

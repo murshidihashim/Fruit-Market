@@ -2,7 +2,7 @@
 // and the full stall sheet that opens when you tap a stall.
 import { useMemo, useState } from 'preact/hooks';
 import { planBids } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
   allocate, bestCap, canPlayFavour, canUpgrade, count, effectiveMax, minPrice, notSoCount,
   servingCustomers, validateBids, type Bid, type GameState,
@@ -154,7 +154,8 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
 
 // ---------- evening ----------
 
-export const UP_ICON: Record<UpgradeId, 'shelf' | 'handcart' | 'coolroom' | 'signboard'> = { shelf: 'shelf', cart: 'handcart', coolroom: 'coolroom', signboard: 'signboard' };
+export const UP_ICON: Record<UpgradeId, 'shelf' | 'handcart' | 'coolroom' | 'signboard' | 'juicer' | 'bell'> = { shelf: 'shelf', cart: 'handcart', coolroom: 'coolroom', signboard: 'signboard', juicer: 'juicer', bell: 'bell' };
+export const TRAIT_ICON: Record<TraitId, 'scales' | 'crate' | 'tag' | 'heart' | 'star' | 'egg'> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg' };
 
 export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void }) {
   const pl = s.players[p];
@@ -172,9 +173,9 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
       )}
       {s.config.upgrades && (
         <>
-          <div class="pp-intro"><b>Upgrade your stall</b><span>Cash spent is cash you can't win with. {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
+          <div class="pp-intro"><b>Tonight's upgrades</b><span>3 builders call by each evening. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
           <div class="upgrade-grid">
-            {(Object.keys(UPGRADES) as UpgradeId[]).map((u) => {
+            {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => {
               const d = UPGRADES[u];
               const owned = pl.upgrades.includes(u);
               const why = canUpgrade(s, p, u);
@@ -190,6 +191,7 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
               );
             })}
           </div>
+          {pl.upgrades.length > 0 && <div class="owned-row">Built: {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={16} /> {UPGRADES[u].title}</span>)}</div>}
         </>
       )}
       <FavourRow s={s} p={p} phase="evening" onCard={onCard} />

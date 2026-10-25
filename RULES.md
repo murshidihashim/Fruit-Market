@@ -23,7 +23,7 @@ Each fruit plays differently. A customer's price is **per fruit, for a fresh one
 | 🫐 Blueberry | Cheap, popular, mushy in 3 days. High risk, high reward. | −$4 · −$2 · full | $2 / $1 / $1 | none |
 | 🍉 Watermelon | The steady seller. Loses value slowly. | −$3 · −$1 · −$1 · full · full | $3 / $2 / $1 | 1 night |
 | 🍎 Apple | Keeps a week, barely loses value, costs the most. Safe but thin margins. | −$2 · −$1 · −$1 · −$1 · full · full · full | $4 / $3 / $1 | none |
-| 🥭 Mango | Buy green for $1, ripens in 2 nights, sells at a premium, spoils fast once ripe. | −$3 · −$1 · full · full | $4 / $2 / $1 | 2 nights |
+| 🥭 Mango | Buy green for $2, ripens in 2 nights, sells at a premium, spoils fast once ripe. | −$3 · −$1 · full · full | $4 / $2 / $1 | 2 nights |
 
 Every night all fruit moves one space left. Fruit that falls off the left end spoils. Unripe fruit costs $1, can't be sold yet, and becomes fresh as nights pass.
 
@@ -31,7 +31,7 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 Demand follows how the game naturally builds up:
 - Early days bring one expected customer and one walk-in with small orders. From halfway through, **two walk-ins** come and orders get bigger.
-- Order sizes are tied to how much the shops can buy (3 fruit each a day, 5 with a Handcart). By the last day, customers want about as much as all shops can buy, so the market stays tight.
+- Order sizes are tied to how much the shops can buy (4 fruit each a day, 5 with a Handcart). By the last day, customers want about as much as all shops can buy, so the market stays tight.
 - Farmer deliveries grow the same way, a little ahead of what the shops can buy.
 
 ## Cards
@@ -39,7 +39,7 @@ Demand follows how the game naturally builds up:
 - **Farmer cards (20):** each lists three fruits, 4 to 6 of each. The fruit not on the card still arrives, 2 of it. Some cards mark one fruit as arriving unripe. With fewer players the farmers bring less: 80% for 3 players, 60% for 2.
 - **Customer cards (24):** a name and up to three fruits they want, each with an amount and the most they'll pay for a *fresh* one. With fewer players customers buy a little less.
 - **Event cards (12):** one is drawn each morning from Day 2 onward.
-- **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. You can hold up to 3.
+- **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. You can hold up to 3 (4 with the Charmer trait or a Shop Bell).
 
 ## A day
 
@@ -49,9 +49,9 @@ Demand follows how the game naturally builds up:
 3. Everyone can see the **expected customer** who arrives today. A second, **walk-in** customer is a surprise.
 
 ### 2. Buying
-In turn order, each shop buys **up to 3 fruits** (5 with a Handcart) from the farmers market, paying the cost shown for that fruit's freshness. Your shelf holds 8 fruits (14 with a Bigger Shelf). Fruit keeps its freshness when it moves to your shelf. Unbought fruit stays at the market and keeps ageing.
+In turn order, each shop buys **up to 4 fruits** (5 with a Handcart) from the farmers market, paying the cost shown for that fruit's freshness. Your shelf holds 8 fruits (14 with a Bigger Shelf). Fruit keeps its freshness when it moves to your shelf. Unbought fruit stays at the market and keeps ageing.
 
-The first buyer moves one seat clockwise each day.
+**The poorest shop buys first**, then the next poorest, and so on (ties go round the table). On Day 1 the first buyer is random. A Priority favour still jumps the queue.
 
 ### 3. Customers arrive
 The expected customer and a walk-in join the market as **New today**. Customers who weren't fully served yesterday are still there as **Waiting (last day)**. The next expected customer is revealed as **Tomorrow**.
@@ -63,7 +63,7 @@ Every shop secretly decides, for each customer and each fruit they want, **how m
 - There is **no lower limit** (except on a Minimum Price day). Sell for $1 if you want.
 - When you offer several fruits, your **oldest fruit that is fresh enough for your price** goes first.
 - The **cheapest offers sell first**, until the customer has what they want.
-- **Ties:** the fresher fruit wins. If still tied, a player with Favoured Trade wins, then turn order.
+- **Ties:** the fresher fruit wins. If still tied, a player with Favoured Trade wins (or a Haggler facing a richer shop), then turn order.
 - You're paid as soon as you sell.
 - Waiting customers are served before new ones.
 - **Favours:** if you serve a customer's entire remaining order by yourself, draw a favour card (at most one per day).
@@ -71,7 +71,7 @@ Every shop secretly decides, for each customer and each fruit they want, **how m
 A new customer who doesn't get everything comes back tomorrow as *Waiting*. A waiting customer leaves after today either way.
 
 ### 5. Evening
-In turn order, each shop may build **upgrades** and play a **Priority** favour.
+In turn order, each shop may build one of **tonight's 3 upgrades** and play a **Priority** favour.
 
 ### 6. Night
 All fruit at the market and in every shop ages one step. Spoiled fruit is thrown away. Then the next day begins.
@@ -111,16 +111,35 @@ Each morning from Day 2 an event changes the day. **Tomorrow's event is shown a 
 
 ## Upgrades (optional rule)
 
-Each can be built once, in the evening.
+Each evening, every shop is offered **3 random upgrades** it hasn't built yet (an upgrade draft). Each can be built once.
 
 | Upgrade | Cost | Effect |
 |---|---|---|
-| 🗄️ Bigger Shelf | $5 | Hold 14 fruits instead of 8. |
-| 🛒 Handcart | $6 | Buy up to 5 fruits a day instead of 3. |
+| 🛒 Handcart | $6 | Buy up to 5 fruits a day instead of 4. |
 | 🪧 Signboard | $8 | Earn a $1 tip on every fruit you sell. |
-| ❄️ Cool Room | $9 | Your fruit ages only every other night. |
+| ❄️ Cool Room | $7 | Your fruit ages only every other night, and heatwaves can't touch it. |
+| 🗄️ Bigger Shelf | $3 | Hold 14 fruits instead of 8. |
+| 🧃 Juice Press | $5 | Each night, up to 3 fruits that would spoil become juice: $2 each. |
+| 🔔 Shop Bell | $5 | Draw a favour card now, and hold up to 4. |
 
 Cash spent on upgrades is gone from your score, so build early or not at all.
+
+## Merchant traits
+
+On the first morning, each shop is dealt 3 traits and keeps one for the whole game. Everyone can see everyone's trait.
+
+| Trait | Effect |
+|---|---|
+| Haggler | You win tied prices against richer shops. |
+| Big Basket | Buy 1 extra fruit every day. |
+| Bargain Hunter | Your first fruit each day costs $1 less. |
+| Charmer | Start with 3 favour cards, and hold up to 4. |
+| Local Favourite | Customers you serve completely by yourself tip you $3. |
+| Nest Egg | Start with $16 instead of $10. |
+
+## Balance notes
+
+Tested with `npm run balance` (400 computer games per test). Compared with the old rules in 3-player games: the median winning margin fell from $24 to $16, wins by $20 or more from 59% to 43%, and comebacks from last place on day 5 rose from 18% to 27%. Every trait wins 30–39% of 3-player games (fair is 33%), and no single upgrade is compulsory.
 
 ## Daily challenge
 
@@ -137,4 +156,6 @@ Everyone in the world plays the same shuffled decks each day: you against Foxy R
 | Favour cards | Same six cards; Fridge now affects ripe fruit only | Keeps unripe fruit meaningful |
 | Event cards (6 types) | 13 stronger events, each announced a day early | Events now change decisions, not just numbers |
 | Unripe fruit (expansion idea) | Built in as an optional rule | From the design notes |
-| (none) | Shop upgrades | A second way to invest your cash |
+| (none) | Shop upgrades (drafted, 3 a night) | A second way to invest your cash |
+| First player rotates | Poorest shop buys first | Stops early leaders running away |
+| (none) | Merchant traits | Every game opens differently |

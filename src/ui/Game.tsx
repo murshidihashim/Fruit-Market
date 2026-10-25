@@ -2,9 +2,9 @@
 // animation (delivery, buying, selling, night) before handing control back.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, type FruitId, type TraitId } from '../engine/data';
 import {
-  activePlayer, applyAction, canBuy, canPlayFavour,
+  activePlayer, applyAction, buyLimit, canBuy, canPlayFavour,
   effectiveMax, notSoCount, ranking, RuleError,
   type Action, type Customer, type GameState, type LineResult,
 } from '../engine/game';
@@ -14,7 +14,7 @@ import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
-import { EveningPanel, InventorySheet, PricePanel } from './panel';
+import { EveningPanel, InventorySheet, PricePanel, TRAIT_ICON } from './panel';
 import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 import { fx } from './fx';
 import { loadSettings } from './store';
@@ -254,10 +254,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     for (const f of FRUITS) {
       spoil([`cart-${f}`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
       g.players.forEach((pl, p) => {
-        const cool = pl.upgrades.includes('coolroom') && g.day % 2 === 1;
-        const steps = (cool ? 0 : 1) + heat;
+        const room = pl.upgrades.includes('coolroom');
+        const steps = (room && g.day % 2 === 1 ? 0 : 1) + (room ? 0 : heat);
         const n = steps === 0 ? 0 : pl.stock[f][0] + (steps > 1 ? pl.stock[f][1] : 0);
-        spoil([`p${p}-${f}`, `sc${p}-${f}`], f, n);
+        spoil([`p${p}-${f}`], f, n);
       });
     }
     await Promise.all(jobs);
@@ -307,7 +307,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   }, [tick, online]);
 
   /** Every player decision goes through here: applied locally, or sent to the room server. */
-  const act = (a: Action) => {
+  const act = (a: Action, seat?: number) => {
     if (busyRef.current) return;
     if (online) {
       if (sending.current) return;
@@ -315,7 +315,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       sending.current = true;
       return;
     }
-    const who = a.kind === 'bids' ? activePlayer(sRef.current) : active;
+    const who = seat ?? (a.kind === 'bids' ? activePlayer(sRef.current) : active);
     attempt(() => applyAction(sRef.current, who, a));
   };
   const proceed = () => {
@@ -417,15 +417,20 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const pl = s.players[active];
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const bidder = online ? viewer : active;
+  // On the first morning each person picks a merchant trait (online: only your own seat).
+  const picker = s.phase !== 'morning' || s.day !== 1 ? -1
+    : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
+    : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
   const around = seats(s.players.length, viewer);
   const top = around.find((x) => x.side === 'top');
   const left = around.find((x) => x.side === 'left');
   const right = around.find((x) => x.side === 'right');
-  const limit = pl ? (pl.upgrades.includes('cart') ? 5 : 3) : 3;
+  const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && myBidTurn && !busy;
 
   // Cards that sit on top of the market in the middle of the table.
   const overlay = (() => {
+    if (s.phase === 'morning' && !busy && picker >= 0) return <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />;
     if (s.phase === 'morning' && !busy) return <MorningCard s={s} viewer={viewer} lost={lastNight} />;
     if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
     return null;
@@ -458,7 +463,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           <div class="mid">
             {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => setRival(left.p)} /> : <span />}
             <div class="centre">
-              <Market s={s} morning={s.phase === 'morning'}
+              <Market s={s} p={viewer} morning={s.phase === 'morning'}
                 onPick={myBuyTurn ? pickMarket : undefined}
                 canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
               {overlay}
@@ -476,6 +481,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
           {!busy && s.phase === 'morning' && (votedMe
             ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
+            : picker >= 0 ? <div class="hint-bar">Pick a trait to open the market</div>
             : <button class="btn primary wide big" onClick={proceed}>Open the market</button>)}
           {!busy && s.phase === 'buy' && activeHuman && (
             <>
@@ -607,6 +613,25 @@ function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number; lost: 
         <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
       )}
       {s.nextEvent && <div class="mc-next">Tomorrow: <b>{s.nextEvent.icon} {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
+    </div>
+  );
+}
+
+function TraitPick({ s, p, onPick }: { s: GameState; p: number; onPick: (t: TraitId) => void }) {
+  const pl = s.players[p];
+  const humans = s.players.filter((x) => x.kind === 'human').length;
+  return (
+    <div class="morning-card trait-pick">
+      <div class="mc-day">Choose your trait</div>
+      <small class="muted-ink">{humans > 1 ? `${pl.name}: ` : ''}one perk for the whole game. Rivals can see it.</small>
+      <div class="trait-list">
+        {(pl.traitOffer ?? []).map((t) => (
+          <button type="button" class="trait-card" onClick={() => onPick(t)}>
+            <Icon name={TRAIT_ICON[t]} size={30} />
+            <span><b>{TRAITS[t].title}</b><small>{TRAITS[t].text}</small></span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

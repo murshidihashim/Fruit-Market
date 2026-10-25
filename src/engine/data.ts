@@ -25,7 +25,7 @@ export interface FruitDef {
 //  blueberry  - cheap, big margin, but turns to mush in 3 days (high risk, high reward)
 //  watermelon - the steady middle: decent margin, loses value slowly
 //  apple      - keeps a week and barely loses value, but costs the most (safe, thin margin)
-//  mango      - arrives green for $1, ripens on your shelf, sells at a premium, then spoils fast
+//  mango      - arrives green for $2, ripens on your shelf, sells at a premium, then spoils fast
 export const FRUIT: Record<FruitId, FruitDef> = {
   blueberry: {
     id: 'blueberry', name: 'Blueberry', plural: 'Blueberries', color: '#4f5bd5',
@@ -47,9 +47,9 @@ export const FRUIT: Record<FruitId, FruitDef> = {
   },
   mango: {
     id: 'mango', name: 'Mango', plural: 'Mangoes', color: '#f2b705',
-    theme: 'Buy green for $1, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
+    theme: 'Buy green for $2, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
     ripe: ['notso', 'okay', 'fresh', 'fresh'], drop: [3, 1, 0, 0], unripeSlots: 2,
-    cost: { fresh: 4, okay: 2, notso: 1, unripe: 1 },
+    cost: { fresh: 4, okay: 2, notso: 1, unripe: 2 },
   },
 };
 
@@ -202,23 +202,44 @@ export const FAVOUR_DECK: FavourId[] = [
   'goodRiddance', 'goodRiddance', 'favouredTrade', 'favouredTrade', 'fridge', 'fridge',
 ];
 
-export type UpgradeId = 'shelf' | 'cart' | 'coolroom' | 'signboard';
+export type UpgradeId = 'shelf' | 'cart' | 'coolroom' | 'signboard' | 'juicer' | 'bell';
 
 export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: number; text: string }
 
+/** Every evening each shop is offered 3 of these it hasn't built yet (an upgrade draft). */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
-  shelf: { id: 'shelf', title: 'Bigger Shelf', icon: '🗄️', cost: 5, text: 'Hold 14 fruits instead of 8.' },
-  cart: { id: 'cart', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day instead of 3.' },
-  coolroom: { id: 'coolroom', title: 'Cool Room', icon: '❄️', cost: 9, text: 'Your fruit ages only every other night.' },
+  cart: { id: 'cart', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day instead of 4.' },
   signboard: { id: 'signboard', title: 'Signboard', icon: '🪧', cost: 8, text: 'Earn a $1 tip on every fruit you sell.' },
+  coolroom: { id: 'coolroom', title: 'Cool Room', icon: '❄️', cost: 7, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it.' },
+  shelf: { id: 'shelf', title: 'Bigger Shelf', icon: '🗄️', cost: 3, text: 'Hold 14 fruits instead of 8.' },
+  juicer: { id: 'juicer', title: 'Juice Press', icon: '🧃', cost: 5, text: 'Each night, up to 3 fruits that would spoil become juice: $2 each.' },
+  bell: { id: 'bell', title: 'Shop Bell', icon: '🔔', cost: 5, text: 'Draw a favour card now, and hold up to 4.' },
 };
+export const UPGRADE_OFFER = 3;
 
 export const BASE_SHELF = 8;
 export const BIG_SHELF = 14;
-export const BASE_BUY = 3;
+export const BASE_BUY = 4;
 export const CART_BUY = 5;
 export const START_CASH = 10;
 export const FAVOUR_HAND_LIMIT = 3;
+
+// ---------- merchant traits ----------
+// Each shop picks one of three at the start, so every game opens differently.
+
+export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite' | 'nestegg';
+
+export interface TraitDef { id: TraitId; title: string; text: string }
+
+export const TRAITS: Record<TraitId, TraitDef> = {
+  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against richer shops.' },
+  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day.' },
+  bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
+  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 3 favour cards, and hold up to 4.' },
+  favourite: { id: 'favourite', title: 'Local Favourite', text: 'Customers you serve completely by yourself tip you $3.' },
+  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $16 instead of $10.' },
+};
+export const TRAIT_OFFER = 3;
 
 // ---------- characters ----------
 

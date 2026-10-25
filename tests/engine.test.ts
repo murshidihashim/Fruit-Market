@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
-import { newGame, buy, beginBuying, endBuyTurn, submitBids, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
+import { newGame, buy, buyCost, buyLimit, beginBuying, endBuyTurn, submitBids, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
 import { freshPos } from '../src/engine/data';
 
 function cfg(n: number, seed = 1, extra: Partial<GameConfig> = {}): GameConfig {
@@ -34,10 +34,14 @@ describe('engine', () => {
     const p = s.order[0];
     s.players[p].cash = 99;
     s.market.apple[freshPos('apple')] = 5;
+    s.market.apple[freshPos('apple')] = 9;
     const before = s.players[p].cash;
-    for (let i = 0; i < 3; i++) s = buy(s, p, 'apple', freshPos('apple'));
-    expect(s.players[p].cash).toBe(before - 12);
-    expect(count(s.players[p].stock)).toBe(3);
+    const each = buyCost(s, p, 'apple', freshPos('apple'));
+    const limit = buyLimit(s.players[p]);
+    expect(limit).toBe(4);
+    for (let i = 0; i < limit; i++) s = buy(s, p, 'apple', freshPos('apple'));
+    expect(s.players[p].cash).toBe(before - each * limit);
+    expect(count(s.players[p].stock)).toBe(limit);
     expect(() => buy(s, p, 'apple', freshPos('apple'))).toThrow();
   });
 

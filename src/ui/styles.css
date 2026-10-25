@@ -229,7 +229,8 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 /* evening */
 .evening-panel { display: flex; flex-direction: column; gap: 10px; }
-.upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.upgrade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 8px; }
+.owned-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--muted); }
 .up-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 10px 10px; border-radius: 14px; background: var(--cream); color: var(--ink); text-align: center; box-shadow: 0 4px 0 var(--card-edge); }
 .up-card b { font-family: var(--f-pixel); }
 .up-text { font-size: 0.76rem; color: var(--ink-muted); min-height: 2.5em; line-height: 1.25; }
@@ -450,6 +451,17 @@ p { margin: 0.4em 0; line-height: 1.4; }
   .game .actionbar .btn.wide { flex: 0 1 456px; }
 }
 
+
+/* trait pick (first morning) */
+.trait-pick { gap: 6px; }
+.muted-ink { color: var(--ink-muted); font-size: 0.8rem; }
+.trait-list { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.trait-card { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; border: 0; border-radius: 12px; background: #fffaf0; color: var(--ink); text-align: left; font: inherit; cursor: pointer; box-shadow: 0 3px 0 var(--card-edge); }
+.trait-card:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--card-edge); }
+.trait-card span { display: flex; flex-direction: column; line-height: 1.2; }
+.trait-card b { font-family: var(--f-pixel); font-size: 1rem; }
+.trait-card small { font-size: 0.8rem; color: var(--ink-muted); }
+.trait-badge { display: inline-flex; align-items: center; gap: 3px; padding: 0 6px; border-radius: 999px; background: var(--night); color: var(--cream); font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
 
 /* ---------- the table: market in the middle, a stall on each player's side ---------- */
 .play { position: relative; }

@@ -3,8 +3,8 @@
 
 import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FruitId, type UpgradeId } from './data';
 import {
-  activePlayer, allocate, beginBuying, bestCap, buy, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, count, demandScale, priceMod, walkInsToday, effectiveMax, endBuyTurn, endEvening, finishReveal, marketCost, minPrice, playFavour,
+  activePlayer, allocate, beginBuying, bestCap, buy, buyCost, buyUpgrade, handLimit, canBuy, canPlayFavour, canUpgrade,
+  capAt, count, demandScale, priceMod, walkInsToday, effectiveMax, endBuyTurn, endEvening, finishReveal, minPrice, playFavour,
   servingCustomers, shelfSize, submitBids, validateBids, buyLimit,
   type Bid, type GameState, type Level, type Stock,
 } from './game';
@@ -90,7 +90,7 @@ function pickPurchase(s: GameState, p: number): { f: FruitId; pos: number; score
   for (const f of FRUITS) {
     for (let pos = 0; pos < s.market[f].length; pos++) {
       if (canBuy(s, p, f, pos)) continue;
-      const cost = marketCost(s, f, pos);
+      const cost = buyCost(s, p, f, pos);
       let score = fruitValue(s, p, f, pos, 0) - cost;
       if (lv === 'easy') score += (rand(s, p, f.length * 13 + pos) - 0.5) * 4;
       if (!best || score > best.score) best = { f, pos, score };
@@ -205,18 +205,25 @@ export function planBids(s: GameState, p: number): { bids: Bid[]; favoured: bool
   return { bids, favoured };
 }
 
-function pickUpgrade(s: GameState, p: number): UpgradeId | null {
+/** The upgrade this computer shop would build now (`skip` leaves one out, for balance tests). */
+export function pickUpgrade(s: GameState, p: number, skip?: UpgradeId): UpgradeId | null {
   const pl = s.players[p];
   const lv = level(s, p);
   const left = s.config.days - s.day;
   if (lv === 'easy' && rand(s, p, 99) < 0.6) return null;
-  const want: [UpgradeId, number][] = [
-    ['cart', 4], ['signboard', 6], ['coolroom', 7], ['shelf', 5],
+  const atRisk = FRUITS.reduce((a, f) => a + pl.stock[f][0] + (pl.stock[f][1] ?? 0), 0);
+  // [upgrade, fewest days left worth it, extra condition]
+  const want: [UpgradeId, number, boolean][] = [
+    ['cart', 4, true],
+    ['signboard', 6, true],
+    ['coolroom', 6, true],
+    ['juicer', 3, atRisk >= 2],
+    ['bell', 4, pl.favours.length >= handLimit(pl) - 1],
+    ['shelf', 3, count(pl.stock) >= shelfSize(pl) - 2],
   ];
-  for (const [u, minDays] of want) {
-    if (left < minDays) continue;
+  for (const [u, minDays, ok] of want) {
+    if (u === skip || left < minDays || !ok) continue;
     if (canUpgrade(s, p, u)) continue;
-    if (u === 'shelf' && count(pl.stock) < shelfSize(pl) - 1) continue;
     if (pl.cash - UPGRADES[u].cost < 6) continue;
     return u;
   }

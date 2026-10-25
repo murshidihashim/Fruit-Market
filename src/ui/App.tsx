@@ -221,7 +221,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         <section class="panel">
           <h3>Rules</h3>
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
-          <Toggle on={upgrades} set={setUpgrades} title="Shop upgrades" text="Spend cash on a cart, cool room and more." />
+          <Toggle on={upgrades} set={setUpgrades} title="Shop upgrades" text="Each evening, build one of 3 upgrades on offer." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
         </section>
         <button class="btn primary big wide" onClick={begin}>Open the shops</button>

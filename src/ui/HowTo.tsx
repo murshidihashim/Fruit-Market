@@ -37,7 +37,7 @@ const SLIDES = [
     body: (
       <>
         <p>The farmer delivers, and an <b>event card</b> changes the day. You can see tomorrow's event a day early, so plan ahead!</p>
-        <p>Taking turns, each shop buys <b>up to 3 fruits</b>. Fresh fruit costs more but customers pay more for it.</p>
+        <p>Taking turns, each shop buys <b>up to 4 fruits</b>. <b>The poorest shop buys first.</b> Fresh fruit costs more but customers pay more for it.</p>
         <p>You can see one customer who is coming today. A second <b>walk-in</b> is a surprise.</p>
       </>
     ),
@@ -59,7 +59,7 @@ const SLIDES = [
       <>
         <p>Serve a customer's <b>whole order by yourself</b> to draw a secret favour card:</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip">{f.icon} {f.title}</span>)}</div>
-        <p>In the evening, spend cash on upgrades:</p>
+        <p>Each evening, 3 of these upgrades are offered to you:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip">{u.icon} {u.title} ${u.cost}</span>)}</div>
       </>
     ),
@@ -71,7 +71,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival has a fruit, charge the full price.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
-        <li>Green mangoes cost $1 and ripen in 2 nights. Buy them before a Mango Craze!</li>
+        <li>Green mangoes cost $2 and ripen in 2 nights. Buy them before a Mango Craze!</li>
+        <li>On the first morning, pick a merchant trait. Rivals can see yours.</li>
         <li>Customers want more as the town grows, so later days are busier.</li>
         <li>On the last day, don't buy anything you can't sell today.</li>
       </ul>

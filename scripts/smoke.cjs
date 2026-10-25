@@ -23,6 +23,7 @@ const path = require('path');
     try {
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
+    if (await has('.trait-card')) { if (once('trait')) await shot('01b-trait'); await page.click('.trait-card'); continue; }
     if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Open the market'); continue; }
     if (await has('text=/Done buying|Skip buying/')) {
       const cells = page.locator('.mk-cell.pick');

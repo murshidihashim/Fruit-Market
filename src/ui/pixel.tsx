@@ -221,7 +221,28 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['.RR.RR.', 'RWRRRRR', 'RRRRRRR', '.RRRRR.', '..RRR..', '...R...'],
     pal: { R: '#d6453b', W: '#f59aa0' },
   },
+  juicer: {
+    rows: ['..KKKKKK....', '..KMMMMK....', '...KMMK.....', '....KK......', '..GGGGGG....', '..GOOOOG....', '..GOOOOG.KK.', '..GOOOOGK..K', '..GGGGGG....'],
+    pal: { K: '#3b3048', M: '#9aa0a6', G: '#f6ead2', O: '#f0a23a' },
+  },
+  bell: {
+    rows: ['.....KK.....', '....YYYY....', '...YWYYYY...', '...YWYYYY...', '..YYYYYYYY..', '..YYYYYYYY..', '.YYYYYYYYYY.', 'DDDDDDDDDDDD', '.....DD.....'],
+    pal: { Y: '#e8b04b', W: '#fff2c2', D: '#b07f27', K: '#3b3048' },
+  },
+  scales: {
+    rows: ['.....K.....', '.KKKKKKKKK.', '.K...K...K.', 'KYK..K..KYK', 'YYY..K..YYY', '.....K.....', '...KKKKK...'],
+    pal: { K: '#3b3048', Y: '#e8b04b' },
+  },
+  tag: {
+    rows: ['..RRRRRR', '.RRRRRRR', 'RRWRRRRR', 'RRRRRRRR', '.RRRRRRR', '..RRRRRR'],
+    pal: { R: '#c8553d', W: '#f6ead2' },
+  },
+  egg: {
+    rows: ['..CCC..', '.CCCCC.', '.CWCCC.', 'CCWCCCC', 'CCCCCCC', 'CCCCCCD', '.CCCCD.', '..DDD..'],
+    pal: { C: '#f6ead2', W: '#ffffff', D: '#d7c49e' },
+  },
 };
+
 
 export function Icon({ name, size = 16 }: { name: keyof typeof ICONS; size?: number }) {
   const i = ICONS[name];
