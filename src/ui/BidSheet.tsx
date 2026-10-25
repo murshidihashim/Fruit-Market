@@ -27,6 +27,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
     return out;
   });
   const [favoured, setFavoured] = useState(false);
+  const [folded, setFolded] = useState(false);
   const bids: Bid[] = lines.map(({ c, w }) => ({ customerId: c.id, fruit: w.fruit, ...vals[key(c.id, w.fruit)] }));
   const error = validateBids(s, p, bids);
   const set = (k: string, patch: Partial<{ qty: number; price: number }>) => setVals((v) => ({ ...v, [k]: { ...v[k], ...patch } }));
@@ -35,11 +36,12 @@ export function BidSheet({ s, p, onSubmit }: Props) {
   const others = lines.filter(({ w }) => count(pl.stock, w.fruit, true) === 0);
 
   return (
-    <div class="tray">
-      <div class="tray-head">
+    <div class={`tray ${folded ? 'folded' : ''}`}>
+      <button type="button" class="tray-head" onClick={() => setFolded(!folded)}>
         <b>🤫 Secret prices</b>
-        <span class="muted small">cheapest sells · fresher wins ties</span>
-      </div>
+        <span class="muted small">price is per fruit · cheapest sells</span>
+        <span class="fold">{folded ? '▲ show' : '▼ see board'}</span>
+      </button>
       <div class="tray-body">
         {sellable.length === 0 && <div class="tray-empty">You have nothing these customers want today.</div>}
         {sellable.map(({ c, w, max }) => {
@@ -57,7 +59,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
               <div class="bid-cust">
                 <span class="bc-face">{face(c.name)}</span>
                 <span class="bc-want"><Fruit id={f} size={16} />×{w.qty}</span>
-                <span class="bc-max">≤${max}</span>
+                <span class="bc-max">≤${max}/ea</span>
               </div>
               <div class="bid-fruits">
                 {Array.from({ length: top }, (_, i) => {
@@ -72,7 +74,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
               </div>
               <div class={`pricetag ${v.qty ? '' : 'off'}`}>
                 <button type="button" disabled={!v.qty || v.price <= floor} onClick={() => set(k, { price: v.price - 1 })}>−</button>
-                <span class="pt">${v.price}</span>
+                <span class="pt">${v.price}<small>{v.qty > 1 ? `×${v.qty} = $${v.price * v.qty}` : 'each'}</small></span>
                 <button type="button" disabled={!v.qty || v.price >= cap} onClick={() => set(k, { price: v.price + 1 })}>+</button>
               </div>
             </div>

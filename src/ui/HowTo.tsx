@@ -15,19 +15,20 @@ const SLIDES = [
     ),
   },
   {
-    title: 'Fruit goes bad',
+    title: 'Every fruit ages differently',
     body: (
       <>
-        <p>Every night, all fruit (yours <i>and</i> the market's) moves one step left. Off the end, it spoils.</p>
+        <p>Every night all fruit moves one step left. The number shows how much less a customer pays at that age. Off the end, it spoils.</p>
         {FRUITS.map((f) => (
-          <div class="demo-track">
-            <Fruit id={f} size={22} />
-            {FRUIT[f].ripe.map((_, i) => <i class={`st-${stageAt(f, i)}`} />)}
-            {Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe" />)}
-            <small>{FRUIT[f].ripe.length} days</small>
+          <div class="demo-fruit">
+            <div class="demo-track">
+              <Fruit id={f} size={22} />
+              {FRUIT[f].ripe.map((_, i) => <i class={`st-${stageAt(f, i)}`}>{FRUIT[f].drop[i] ? `−${FRUIT[f].drop[i]}` : ''}</i>)}
+              {Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe">🌱</i>)}
+            </div>
+            <small>{FRUIT[f].theme}</small>
           </div>
         ))}
-        <p class="small">🟩 Fresh · 🟨 Okay · 🟥 Not so · striped = Unripe (cheap, but can't be sold until it ripens).</p>
       </>
     ),
   },
@@ -35,7 +36,7 @@ const SLIDES = [
     title: 'Morning: buy fruit',
     body: (
       <>
-        <p>The farmer delivers, and an <b>event card</b> may shake things up.</p>
+        <p>The farmer delivers, and an <b>event card</b> changes the day. You can see tomorrow's event a day early, so plan ahead!</p>
         <p>Taking turns, each shop buys <b>up to 3 fruits</b>. Fresh fruit costs more but customers pay more for it.</p>
         <p>You can see one customer who is coming today. A second <b>walk-in</b> is a surprise.</p>
       </>
@@ -47,7 +48,7 @@ const SLIDES = [
       <>
         <p>Every shop secretly picks a price for each customer. Then all prices are shown at once.</p>
         <p><b>Cheapest price sells first.</b> On a tie, the fresher fruit wins.</p>
-        <p>Customers pay less for old fruit: an <i>okay</i> apple sells for $2 less than a fresh one, a <i>not so</i> apple for $4 less.</p>
+        <p>A customer's price is <b>per fruit</b>, for a fresh one. Older fruit sells for less: the −$ on each space of your stall shows how much.</p>
         <p>A customer who doesn't get everything comes back once more the next day, then leaves.</p>
       </>
     ),
@@ -70,7 +71,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival has a fruit, charge the full price.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
-        <li>Watch the "Tomorrow" customer and buy unripe fruit for them.</li>
+        <li>Green mangoes cost $1 and ripen in 2 nights. Buy them before a Mango Craze!</li>
+        <li>Customers want more as the town grows, so later days are busier.</li>
         <li>On the last day, don't buy anything you can't sell today.</li>
       </ul>
     ),

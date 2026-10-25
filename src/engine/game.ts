@@ -5,7 +5,7 @@ import {
   BASE_BUY, BASE_SHELF, BIG_SHELF, CART_BUY, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
   FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, START_CASH, UPGRADES,
   freshPos, stageAt, trackLength,
-  type EventCard, type FarmerCard, type FavourId, type FruitId, type Stage, type UpgradeId, type Want,
+  type EventCard, type FarmerCard, type FavourId, type FruitId, type UpgradeId, type Want,
 } from './data';
 import { Rng } from './rng';
 
@@ -66,6 +66,7 @@ export interface GameState {
   eventDeck: number[];
   favourDeck: FavourId[];
   event: EventCard | null;
+  nextEvent: EventCard | null;
   delivery: Partial<Record<FruitId, number>>;
   deliveryUnripe: FruitId | null;
   forecast: Customer | null;
@@ -111,16 +112,13 @@ export function buyLimit(p: Player): number {
 
 export function marketCost(s: GameState, f: FruitId, pos: number): number {
   const stage = stageAt(f, pos);
-  return FRUIT[f].cost[stage] + (s.event?.id === 'priceHike' ? 1 : 0);
+  return Math.max(1, FRUIT[f].cost[stage] + (s.event?.cost ?? 0));
 }
 
 export function priceMod(s: GameState, f: FruitId): number {
   const e = s.event;
   if (!e) return 0;
-  if (e.id === 'festive') return 2;
-  if (e.id === 'slow') return -2;
-  if (e.id === 'craze' && e.fruit === f) return 3;
-  return 0;
+  return (e.priceAll ?? 0) + (e.price?.[f] ?? 0);
 }
 
 export function effectiveMax(s: GameState, w: Want): number {
@@ -128,13 +126,14 @@ export function effectiveMax(s: GameState, w: Want): number {
 }
 
 export function minPrice(s: GameState, f: FruitId): number {
-  return s.event?.id === 'minPrice' && s.event.minPrice ? s.event.minPrice[f] : 1;
+  return s.event?.minPrice ? s.event.minPrice[f] : 1;
 }
 
-export function capFor(f: FruitId, stage: Stage, max: number): number {
-  if (stage === 'unripe') return -1;
-  if (stage === 'fresh') return max;
-  return max - FRUIT[f].penalty[stage];
+/** Most a customer pays for this fruit at this position on the track (unripe can't be sold). */
+export function capAt(f: FruitId, pos: number, max: number): number {
+  const d = FRUIT[f].drop;
+  if (pos >= d.length) return -1;
+  return max - d[pos];
 }
 
 /** Customers currently in the market, in the order they are served (waiting longest first). */
@@ -148,8 +147,40 @@ export function activePlayer(s: GameState): number {
   return -1;
 }
 
-const SUPPLY_SCALE: Record<number, number> = { 1: 0.5, 2: 0.6, 3: 0.8, 4: 1 };
-const DEMAND_SCALE: Record<number, number> = { 1: 0.6, 2: 0.75, 3: 0.9, 4: 1 };
+// ---------- pacing ----------
+// The town grows during the game: early days have few, small orders; later days bring more
+// customers who buy more. Demand and supply both follow what the shops can actually buy
+// (3 fruit each a day, 5 with a Handcart), so the market stays tight as shops upgrade.
+
+/** 0 on the first day, 1 on the last. */
+export function progress(s: GameState, day = s.day): number {
+  return s.config.days <= 1 ? 1 : Math.min(1, (day - 1) / (s.config.days - 1));
+}
+
+function buyCapacity(s: GameState): number {
+  return s.players.reduce((a, p) => a + buyLimit(p), 0);
+}
+
+function baseWalkIns(s: GameState, day = s.day): number {
+  return progress(s, day) >= 0.5 ? 2 : 1;
+}
+
+/** Walk-in customers arriving today (after event changes). */
+export function walkInsToday(s: GameState): number {
+  return Math.max(0, baseWalkIns(s) + (s.event?.walkIns ?? 0));
+}
+
+const CARD_AVG_QTY = CUSTOMER_CARDS.reduce((a, c) => a + c.wants.reduce((b, w) => b + w.qty, 0), 0) / CUSTOMER_CARDS.length;
+const FARMER_AVG_QTY = FARMER_CARDS.reduce((a, c) => a + Object.values(c.supply).reduce((b, n) => b + (n ?? 0), 0) + 2, 0) / FARMER_CARDS.length;
+
+export function demandScale(s: GameState, day = s.day): number {
+  const target = buyCapacity(s) * (0.4 + 0.45 * progress(s, day));
+  return target / (CARD_AVG_QTY * (1 + baseWalkIns(s, day)));
+}
+
+function supplyScale(s: GameState): number {
+  return (buyCapacity(s) * (1 + 0.5 * progress(s))) / FARMER_AVG_QTY;
+}
 
 function clone<T>(x: T): T {
   return JSON.parse(JSON.stringify(x));
@@ -162,13 +193,13 @@ function withRng<T>(s: GameState, fn: (r: Rng) => T): T {
   return out;
 }
 
-function drawCustomer(s: GameState): Customer {
+function drawCustomer(s: GameState, day = s.day): Customer {
   if (s.customerDeck.length === 0) {
     const inPlay = new Set([...s.firstMarket, ...s.secondMarket, s.forecast].filter(Boolean).map((c) => c!.name));
     s.customerDeck = withRng(s, (r) => r.shuffle(CUSTOMER_CARDS.map((_, i) => i).filter((i) => !inPlay.has(CUSTOMER_CARDS[i].name))));
   }
   const card = CUSTOMER_CARDS[s.customerDeck.shift()!];
-  const scale = DEMAND_SCALE[s.players.length] ?? 1;
+  const scale = demandScale(s, day);
   const wants = card.wants.map((w) => ({ ...w, qty: Math.max(1, Math.round(w.qty * scale)) }));
   return { id: s.nextId++, name: card.name, wants, original: clone(wants) };
 }
@@ -222,6 +253,7 @@ export function newGame(config: GameConfig): GameState {
     eventDeck: r.shuffle(EVENT_CARDS.map((_, i) => i)),
     favourDeck: r.shuffle([...FAVOUR_DECK]),
     event: null,
+    nextEvent: null,
     delivery: {},
     deliveryUnripe: null,
     forecast: null,
@@ -247,14 +279,21 @@ function startDay(s: GameState) {
   s.event = null;
   if (s.day > 1 && s.config.events) {
     if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
-    s.event = EVENT_CARDS[s.eventDeck.shift()!];
+    s.event = s.nextEvent ?? EVENT_CARDS[s.eventDeck.shift()!];
+  }
+  // Tomorrow's event is announced a day early so shops can plan for it.
+  s.nextEvent = null;
+  if (s.config.events && s.day < s.config.days) {
+    if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
+    s.nextEvent = EVENT_CARDS[s.eventDeck.shift()!];
   }
   s.delivery = {};
   s.deliveryUnripe = null;
-  if (s.event?.id !== 'strike') {
+  if (!s.event?.noDelivery) {
     const card = drawFarmer(s);
-    const scale = SUPPLY_SCALE[s.players.length] ?? 1;
-    const harvest = s.event?.id === 'goodHarvest' ? 2 : s.event?.id === 'badHarvest' ? -2 : 0;
+    const scale = supplyScale(s);
+    const harvest = s.event?.supply ?? 0;
+    const mult = s.event?.supplyMult ?? 1;
     const unripe = s.config.unripe && card.unripe ? card.unripe : null;
     s.deliveryUnripe = unripe;
     for (const f of FRUITS) {
@@ -262,6 +301,7 @@ function startDay(s: GameState) {
       const base = card.supply[f] ?? 2;
       let n = base > 0 ? Math.max(1, Math.round(base * scale)) : 0;
       if (harvest) n = Math.max(0, n + harvest);
+      n = Math.round(n * mult);
       if (n <= 0) continue;
       s.delivery[f] = n;
       const pos = f === unripe ? s.market[f].length - 1 : freshPos(f);
@@ -335,9 +375,13 @@ export function endBuyTurn(state: GameState, p: number): GameState {
 function customersArrive(s: GameState) {
   const arriving: Customer[] = [];
   if (s.forecast) arriving.push(s.forecast);
-  if (s.event?.id !== 'rainy') arriving.push(drawCustomer(s));
+  for (let i = 0; i < walkInsToday(s); i++) arriving.push(drawCustomer(s));
+  if (s.event?.extra) {
+    const wants = s.event.extra.wants.map((w) => ({ ...w }));
+    arriving.push({ id: s.nextId++, name: s.event.extra.name, wants, original: clone(wants) });
+  }
   s.firstMarket = arriving;
-  s.forecast = drawCustomer(s);
+  s.forecast = drawCustomer(s, s.day + 1);
   s.phase = 'bid';
   s.bids = s.players.map(() => null);
 }
@@ -420,7 +464,7 @@ export function allocate(stock: Stock, f: FruitId, qty: number, price: number, m
   const t = stock[f];
   const ripeLen = FRUIT[f].ripe.length;
   for (let i = 0; i < ripeLen && out.length < qty; i++) {
-    if (capFor(f, stageAt(f, i), max) < price) continue;
+    if (capAt(f, i, max) < price) continue;
     for (let k = 0; k < t[i] && out.length < qty; k++) out.push(i);
   }
   return out.length === qty ? out : null;
@@ -429,7 +473,7 @@ export function allocate(stock: Stock, f: FruitId, qty: number, price: number, m
 /** Highest price a player could ask for this want with their current stock. */
 export function bestCap(stock: Stock, f: FruitId, max: number): number {
   const ripeLen = FRUIT[f].ripe.length;
-  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0) return capFor(f, stageAt(f, i), max);
+  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0) return capAt(f, i, max);
   return 0;
 }
 
@@ -538,7 +582,8 @@ function resolve(s: GameState) {
       if (suppliers.size === 1 && unitsToCustomer > 0) {
         const p = [...suppliers][0];
         const pl = s.players[p];
-        if (pl.favours.length < FAVOUR_HAND_LIMIT) {
+        // At most one favour card per shop per day.
+        if (pl.favours.length < FAVOUR_HAND_LIMIT && !res.favours.some((x) => x.player === p)) {
           const fav = drawFavour(s);
           pl.favours.push(fav);
           pl.stats.favours++;
@@ -602,7 +647,17 @@ export function endEvening(state: GameState, p: number): GameState {
 }
 
 function nightfall(s: GameState): GameState {
-  const heat = s.event?.id === 'heatwave' ? 1 : 0;
+  const heat = s.event?.ageExtra ?? 0;
+  const fine = s.event?.inspector ?? 0;
+  if (fine) {
+    for (const pl of s.players) {
+      const n = notSoCount(pl.stock);
+      const paid = Math.min(pl.cash, n * fine);
+      pl.cash -= paid;
+      pl.stats.spent += paid;
+      if (paid) s.log.push(`${pl.name} was fined $${paid}`);
+    }
+  }
   age(s.market, 1 + heat);
   for (const pl of s.players) {
     const cool = pl.upgrades.includes('coolroom') && s.day % 2 === 1;
@@ -612,6 +667,12 @@ function nightfall(s: GameState): GameState {
   s.day++;
   startDay(s);
   return s;
+}
+
+export function notSoCount(stock: Stock): number {
+  let n = 0;
+  for (const f of FRUITS) FRUIT[f].ripe.forEach((st, i) => { if (st === 'notso') n += stock[f][i]; });
+  return n;
 }
 
 // ---------- end ----------

@@ -2,7 +2,7 @@
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FruitId } from '../engine/data';
 import {
-  buyLimit, count, effectiveMax, marketCost, shelfSize,
+  buyLimit, count, effectiveMax, marketCost, shelfSize, walkInsToday,
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Fruit } from './art';
@@ -32,7 +32,7 @@ export function Market({ s, onPick, canPick, morning }: {
       <div class="mk-head">
         <span class={`truck ${morning ? 'drive' : ''}`} data-a="truck">🚚</span>
         <b>Farmers Market</b>
-        {s.event?.id === 'priceHike' && <span class="chip warn">+$1</span>}
+        {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
       <div class="mk-rows">
         {FRUITS.map((f) => (
@@ -117,6 +117,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
             <div class="ms-cells" style={{ gridTemplateColumns: `repeat(${pl.stock[f].length}, 1fr)` }}>
               {pl.stock[f].map((n, pos) => (
                 <span class={`ms-cell st-${stageAt(f, pos)} ${n ? 'has' : ''} ${pos === 0 && n ? 'rotting' : ''}`} data-a={`p${p}-${f}-${pos}`}>
+                  <span class="drop">{pos >= FRUIT[f].drop.length ? '🌱' : FRUIT[f].drop[pos] ? `−$${FRUIT[f].drop[pos]}` : ''}</span>
                   <Pile f={f} n={n} pos={pos} size={16} />
                 </span>
               ))}
@@ -151,7 +152,7 @@ export function face(name: string) {
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
-export function CustomerChar({ s, c, kind }: { s: GameState; c?: Customer | null; kind: Kind }) {
+export function CustomerChar({ s, c, kind, onTip }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void }) {
   if (kind === 'mystery' || !c) {
     return (
       <div class="cust mystery">
@@ -162,32 +163,37 @@ export function CustomerChar({ s, c, kind }: { s: GameState; c?: Customer | null
     );
   }
   const done = c.wants.every((w) => w.qty <= 0);
+  const special = c.name === s.event?.extra?.name;
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''}`} data-a={`c${c.id}`}>
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+      onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
+      title={c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w)} each when fresh`).join('\n')}>
       <div class="bubble">
         {c.wants.map((w) => (
           <span class={`bw ${w.qty <= 0 ? 'done' : ''}`} data-a={`c${c.id}-${w.fruit}`}>
             <Fruit id={w.fruit} size={18} />
             <b>{w.qty <= 0 ? '✓' : `×${w.qty}`}</b>
-            <span class={`bp ${effectiveMax(s, w) > w.max ? 'up' : effectiveMax(s, w) < w.max ? 'down' : ''}`}>${effectiveMax(s, w)}</span>
+            <span class={`bp ${effectiveMax(s, w) > w.max ? 'up' : effectiveMax(s, w) < w.max ? 'down' : ''}`}>${effectiveMax(s, w)}<small>/ea</small></span>
           </span>
         ))}
       </div>
-      <div class="cface">{done ? '😊' : face(c.name)}{kind === 'waiting' && <i class="clock">⏳</i>}</div>
+      <div class="cface">{done ? '😊' : special ? s.event!.icon : face(c.name)}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : c.name}</small>
     </div>
   );
 }
 
-export function Street({ s }: { s: GameState }) {
+export function Street({ s, onTip }: { s: GameState; onTip?: (c: Customer) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
+  const extra = s.event?.extra;
   return (
     <div class="street">
-      {s.secondMarket.map((c) => <CustomerChar s={s} c={c} kind="waiting" />)}
-      {s.firstMarket.map((c) => <CustomerChar s={s} c={c} kind="new" />)}
-      {before && <CustomerChar s={s} c={s.forecast} kind="today" />}
-      {before && s.event?.id !== 'rainy' && <CustomerChar s={s} kind="mystery" />}
-      {!before && s.forecast && s.phase !== 'over' && <CustomerChar s={s} c={s.forecast} kind="tomorrow" />}
+      {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
+      {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
+      {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
+      {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants }} kind="today" onTip={onTip} />}
+      {before && Array.from({ length: walkInsToday(s) }, (_, i) => <CustomerChar key={`m${i}`} s={s} kind="mystery" />)}
+      {!before && s.forecast && s.phase !== 'over' && <CustomerChar key={s.forecast.id} s={s} c={s.forecast} kind="tomorrow" onTip={onTip} />}
     </div>
   );
 }

@@ -11,34 +11,45 @@ export interface FruitDef {
   name: string;
   plural: string;
   color: string;
+  /** One line on how this fruit behaves, shown in the rules. */
+  theme: string;
   /** Ripe track, oldest first. Unripe slots are added after this. */
   ripe: Stage[];
+  /** Dollars off the customer's price at each ripe position (same order as `ripe`). */
+  drop: number[];
   unripeSlots: number;
   cost: { fresh: number; okay: number; notso: number; unripe: number };
-  /** Taken off the customer's max price when the fruit is not fresh. */
-  penalty: { okay: number; notso: number };
 }
 
+// Each fruit plays differently:
+//  blueberry  - cheap, big margin, but turns to mush in 3 days (high risk, high reward)
+//  watermelon - the steady middle: decent margin, loses value slowly
+//  apple      - keeps a week and barely loses value, but costs the most (safe, thin margin)
+//  mango      - arrives green for $1, ripens on your shelf, sells at a premium, then spoils fast
 export const FRUIT: Record<FruitId, FruitDef> = {
   blueberry: {
     id: 'blueberry', name: 'Blueberry', plural: 'Blueberries', color: '#4f5bd5',
-    ripe: ['notso', 'okay', 'fresh'], unripeSlots: 0,
-    cost: { fresh: 2, okay: 1, notso: 1, unripe: 1 }, penalty: { okay: 1, notso: 3 },
+    theme: 'Cheap and popular, but mushy in 3 days. Sell fast!',
+    ripe: ['notso', 'okay', 'fresh'], drop: [4, 2, 0], unripeSlots: 0,
+    cost: { fresh: 2, okay: 1, notso: 1, unripe: 1 },
   },
   watermelon: {
     id: 'watermelon', name: 'Watermelon', plural: 'Watermelons', color: '#2e9e4f',
-    ripe: ['notso', 'okay', 'okay', 'fresh', 'fresh'], unripeSlots: 1,
-    cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 }, penalty: { okay: 2, notso: 3 },
+    theme: 'The steady seller. Loses value slowly over 5 days.',
+    ripe: ['notso', 'okay', 'okay', 'fresh', 'fresh'], drop: [3, 1, 1, 0, 0], unripeSlots: 1,
+    cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 },
   },
   apple: {
     id: 'apple', name: 'Apple', plural: 'Apples', color: '#e0393e',
-    ripe: ['notso', 'okay', 'okay', 'okay', 'fresh', 'fresh', 'fresh'], unripeSlots: 1,
-    cost: { fresh: 4, okay: 2, notso: 1, unripe: 1 }, penalty: { okay: 2, notso: 4 },
+    theme: 'Keeps for a week and hardly loses value, but costs the most.',
+    ripe: ['notso', 'okay', 'okay', 'okay', 'fresh', 'fresh', 'fresh'], drop: [2, 1, 1, 1, 0, 0, 0], unripeSlots: 0,
+    cost: { fresh: 4, okay: 3, notso: 1, unripe: 1 },
   },
   mango: {
     id: 'mango', name: 'Mango', plural: 'Mangoes', color: '#f2b705',
-    ripe: ['notso', 'notso', 'okay', 'okay', 'okay', 'fresh', 'fresh'], unripeSlots: 2,
-    cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 }, penalty: { okay: 2, notso: 3 },
+    theme: 'Buy green for $1, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
+    ripe: ['notso', 'okay', 'fresh', 'fresh'], drop: [3, 1, 0, 0], unripeSlots: 2,
+    cost: { fresh: 4, okay: 2, notso: 1, unripe: 1 },
   },
 };
 
@@ -64,19 +75,19 @@ export const FARMER_CARDS: FarmerCard[] = [
   { supply: { mango: 5, apple: 4, blueberry: 6 } },
   { supply: { mango: 6, watermelon: 5, apple: 4 }, unripe: 'mango' },
   { supply: { blueberry: 6, watermelon: 4, mango: 5 } },
-  { supply: { apple: 5, mango: 5, watermelon: 5 }, unripe: 'apple' },
+  { supply: { apple: 5, mango: 5, watermelon: 5 }, unripe: 'mango' },
   { supply: { blueberry: 5, apple: 5, mango: 4 } },
   { supply: { watermelon: 6, blueberry: 4, apple: 5 }, unripe: 'watermelon' },
   { supply: { mango: 4, apple: 6, blueberry: 5 } },
   { supply: { watermelon: 5, mango: 6, blueberry: 4 }, unripe: 'mango' },
   { supply: { apple: 4, watermelon: 5, mango: 6 } },
-  { supply: { blueberry: 6, mango: 6, apple: 4 }, unripe: 'apple' },
+  { supply: { blueberry: 6, mango: 6, apple: 4 }, unripe: 'mango' },
   { supply: { watermelon: 4, apple: 6, mango: 5 } },
   { supply: { blueberry: 5, watermelon: 6, mango: 4 }, unripe: 'watermelon' },
   { supply: { apple: 5, blueberry: 4, watermelon: 6 } },
   { supply: { mango: 5, blueberry: 5, apple: 5 }, unripe: 'mango' },
   { supply: { watermelon: 5, apple: 4, blueberry: 6 } },
-  { supply: { mango: 6, apple: 5, watermelon: 4 }, unripe: 'apple' },
+  { supply: { mango: 6, apple: 5, watermelon: 4 }, unripe: 'mango' },
   { supply: { blueberry: 4, mango: 5, watermelon: 6 } },
   { supply: { apple: 6, blueberry: 6, mango: 4 }, unripe: 'mango' },
   { supply: { watermelon: 6, mango: 4, apple: 5 } },
@@ -86,7 +97,7 @@ export interface Want { fruit: FruitId; qty: number; max: number }
 export interface CustomerCard { name: string; wants: Want[] }
 
 // 24 customers. Max price is what they pay for a fresh fruit.
-export const CUSTOMER_CARDS: CustomerCard[] = [
+const RAW_CUSTOMERS: CustomerCard[] = [
   { name: 'John', wants: [{ fruit: 'apple', qty: 3, max: 10 }, { fruit: 'watermelon', qty: 2, max: 6 }] },
   { name: 'Robert', wants: [{ fruit: 'blueberry', qty: 3, max: 7 }, { fruit: 'mango', qty: 2, max: 5 }] },
   { name: 'Daniel', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'apple', qty: 3, max: 9 }, { fruit: 'blueberry', qty: 2, max: 6 }] },
@@ -113,34 +124,64 @@ export const CUSTOMER_CARDS: CustomerCard[] = [
   { name: 'Osman', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
 ];
 
+const PRICE_SHIFT: Record<FruitId, number> = { blueberry: 0, watermelon: 0, apple: -1, mango: 2 };
+export const CUSTOMER_CARDS: CustomerCard[] = RAW_CUSTOMERS.map((c) => ({
+  ...c,
+  wants: c.wants.map((w) => ({ ...w, max: w.max + PRICE_SHIFT[w.fruit] })),
+}));
+
 export type EventId =
-  | 'minPrice' | 'goodHarvest' | 'badHarvest' | 'festive' | 'slow'
-  | 'priceHike' | 'heatwave' | 'rainy' | 'craze' | 'strike';
+  | 'festival' | 'slow' | 'heatwave' | 'rainy' | 'mangoCraze' | 'superfood' | 'goodHarvest'
+  | 'badHarvest' | 'priceHike' | 'minPrice' | 'inspector' | 'strike' | 'hotel';
 
 export interface EventCard {
   id: EventId;
   title: string;
   text: string;
   icon: string;
+  /** Added to every customer's price today. */
+  priceAll?: number;
+  /** Added to customers' price for one fruit today. */
+  price?: Partial<Record<FruitId, number>>;
+  /** Added to every farmers-market price today. */
+  cost?: number;
+  /** Extra fruit of each kind in today's delivery. */
+  supply?: number;
+  /** Multiplies today's delivery. */
+  supplyMult?: number;
+  noDelivery?: boolean;
+  /** Change to the number of walk-in customers today. */
+  walkIns?: number;
+  /** A special customer who also comes today. */
+  extra?: CustomerCard;
+  /** Extra ageing tonight. */
+  ageExtra?: number;
+  /** Fine per Not-so fruit on a shop's shelf tonight. */
+  inspector?: number;
   minPrice?: Record<FruitId, number>;
-  fruit?: FruitId;
 }
 
 export const EVENT_CARDS: EventCard[] = [
+  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 3, walkIns: 1, text: 'Customers pay $3 more per fruit, and an extra walk-in comes.' },
+  { id: 'slow', title: 'Slow Season', icon: '😴', priceAll: -2, walkIns: -1, text: 'No walk-in today, and customers pay $2 less per fruit.' },
+  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 4 }, ageExtra: 1, text: 'Watermelons sell for $4 more, but all fruit ages an extra step tonight.' },
+  { id: 'rainy', title: 'Rainy Day', icon: '🌧️', walkIns: -1, cost: -1, text: 'No walk-in today. Farmers sell everything $1 cheaper.' },
+  { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 3 },
+    extra: { name: 'Influencer', wants: [{ fruit: 'mango', qty: 3, max: 11 }] },
+    text: 'A viral video! Mangoes sell for $3 more, and an influencer wants 3.' },
+  { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 3 },
+    extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 4, max: 8 }] },
+    text: 'Blueberries sell for $3 more, and the gym club wants 4.' },
+  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supply: 3, cost: -1, text: 'Farmers bring 3 extra of every fruit, and everything costs $1 less.' },
+  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 2, text: 'Farmers bring half as much. Scarce fruit sells for $2 more.' },
+  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the farmers market costs $1 more today.' },
   { id: 'minPrice', title: 'Minimum Price', icon: '⚖️', text: 'No shop may sell below these prices today.',
-    minPrice: { watermelon: 5, apple: 6, mango: 4, blueberry: 5 } },
-  { id: 'minPrice', title: 'Minimum Price', icon: '⚖️', text: 'No shop may sell below these prices today.',
-    minPrice: { watermelon: 4, apple: 5, mango: 5, blueberry: 3 } },
-  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', text: 'The farmers bring 2 extra of every fruit.' },
-  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', text: 'The farmers bring 2 fewer of every fruit.' },
-  { id: 'festive', title: 'Festive Season', icon: '🎉', text: 'Every customer pays up to $2 more today.' },
-  { id: 'slow', title: 'Slow Season', icon: '😴', text: 'Every customer pays up to $2 less today.' },
-  { id: 'priceHike', title: 'Price Hike', icon: '📈', text: 'Every fruit at the farmers market costs $1 more today.' },
-  { id: 'heatwave', title: 'Heatwave', icon: '🔥', text: 'All fruit ages one extra step tonight.' },
-  { id: 'rainy', title: 'Rainy Day', icon: '🌧️', text: 'No walk-in customer today. Only the expected customer comes.' },
-  { id: 'craze', title: 'Mango Craze', icon: '📱', text: 'A video goes viral. Customers pay $3 more for mangoes today.', fruit: 'mango' },
-  { id: 'craze', title: 'Blueberry Craze', icon: '📱', text: 'Superfood trend! Customers pay $3 more for blueberries today.', fruit: 'blueberry' },
-  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', text: 'No farmer delivery today. Fruit already at the market stays.' },
+    minPrice: { watermelon: 5, apple: 5, mango: 6, blueberry: 4 } },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'Tonight every shop pays a $2 fine for each Not-so fruit on its shelf.' },
+  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
+  { id: 'hotel', title: 'Hotel Order', icon: '🏨',
+    extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 7 }] },
+    text: 'A hotel chef places a big order today.' },
 ];
 
 export type FavourId = 'freeCash' | 'freeFruit' | 'priority' | 'goodRiddance' | 'favouredTrade' | 'fridge';

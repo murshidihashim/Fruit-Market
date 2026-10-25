@@ -549,3 +549,55 @@ p { margin: 0.4em 0; line-height: 1.35; }
 .mk-cell { height: auto; min-height: 40px; }
 .my-stall { flex: none; }
 .ms-cell { height: 34px; }
+
+/* ---------- v3 fixes ---------- */
+.input { color: var(--ink); -webkit-text-fill-color: var(--ink); caret-color: var(--red); }
+.input::placeholder { color: var(--muted); -webkit-text-fill-color: var(--muted); }
+.bw .bp small { font-size: .6rem; font-weight: 400; opacity: .8; }
+.cust { cursor: pointer; }
+.cust.special .bubble { border-color: #f2c76b; background: #fffbe9; }
+.cface .star { position: absolute; left: -10px; top: -2px; font-size: 12px; font-style: normal; }
+.tip-pop, .event-pop { position: absolute; left: 12px; right: 12px; top: 96px; z-index: 9; background: #2f2a4a; color: #fff; border-radius: 14px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: pop .2s; display: flex; flex-direction: column; gap: 4px; font-size: .88rem; }
+.tip-pop small, .event-pop small { opacity: .75; }
+.tip-line { display: flex; align-items: center; gap: 6px; }
+.event-pop p { margin: 0; }
+.event-strip { cursor: pointer; }
+.event-strip .next { margin-left: auto; opacity: .85; font-size: .78rem; }
+.event-strip .info { opacity: .6; }
+.mc-next { display: flex; flex-direction: column; font-size: .85rem; background: #f4f0ff; border-radius: 10px; padding: 6px 10px; }
+.mc-next small { color: var(--muted); }
+.chip.good { background: #d7f2d0; color: #1f6332; }
+.ms-cell .drop { position: absolute; left: 2px; bottom: 0; font-size: .52rem; font-weight: 600; color: rgba(40,20,0,.45); pointer-events: none; }
+.ms-cell.has .drop { color: rgba(40,20,0,.6); }
+.ptag.lost-fine { background: #ffe0d6; border-color: var(--warn); }
+.card-pop { position: absolute; left: 10px; right: 10px; bottom: 84px; z-index: 9; display: flex; align-items: center; gap: 10px; background: #f4f0ff; border: 2px solid #8f7ad8; border-radius: 14px; padding: 8px 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); animation: pop .2s; }
+.cp-icon { font-size: 1.8rem; }
+.cp-text { flex: 1; display: flex; flex-direction: column; font-size: .85rem; }
+.cp-text small { color: var(--muted); }
+.cp-btns { display: flex; gap: 4px; }
+.actionbar:has(.dock) { padding-top: 6px; }
+.dock { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dock-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.dock-row:empty { display: none; }
+.dock-warn { display: inline-flex; align-items: center; gap: 3px; background: #ffe9e2; color: var(--warn); border-radius: 999px; padding: 2px 8px; font-size: .78rem; font-weight: 600; }
+.dock-ups { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.dup { display: flex; flex-direction: column; align-items: center; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 4px 0; box-shadow: 0 2px 0 var(--line); }
+.dup span { font-size: 1.4rem; line-height: 1.1; }
+.dup small { font-weight: 600; color: #7a5a0c; font-size: .75rem; }
+.dup.sel { border-color: var(--red); }
+.dup.owned { border-color: var(--good); background: #eefbe9; }
+.dock-info { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+.dock-info span { flex: 1; }
+.tray-wrap { max-height: 58%; }
+.tray-head { border: 0; background: none; text-align: left; font: inherit; color: inherit; width: 100%; cursor: pointer; flex-wrap: wrap; }
+.tray-head .fold { margin-left: auto; font-size: .78rem; color: var(--red-d); font-weight: 600; }
+.tray.folded .tray-body { display: none; }
+.pricetag .pt { display: flex; flex-direction: column; align-items: center; line-height: 1; padding: 2px 0; }
+.pricetag .pt small { font-size: .58rem; font-weight: 400; color: #8a6210; margin-top: 2px; }
+
+.demo-fruit { margin: 6px 0; }
+.demo-fruit small { display: block; color: var(--muted); font-size: .78rem; padding-left: 28px; }
+.demo-track i { font-style: normal; font-size: .6rem; font-weight: 600; display: inline-grid; place-items: center; color: rgba(40,20,0,.6); }
+
+/* the table scrolls rather than squashing the market when the bottom dock is tall */
+.mid { flex: 1 0 auto; min-height: auto; }

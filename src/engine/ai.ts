@@ -4,7 +4,7 @@
 import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, allocate, beginBuying, bestCap, buy, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, marketCost, minPrice, playFavour,
+  capAt, count, demandScale, priceMod, walkInsToday, effectiveMax, endBuyTurn, endEvening, finishReveal, marketCost, minPrice, playFavour,
   servingCustomers, shelfSize, submitBids, validateBids, buyLimit,
   type Bid, type GameState, type Level, type Stock,
 } from './game';
@@ -44,10 +44,16 @@ function outlook(s: GameState, f: FruitId) {
     maxSum += effectiveMax(s, w) * w.qty;
     maxN += w.qty;
   }
-  if (s.phase === 'buy' && s.event?.id !== 'rainy') {
-    qty += DECK_AVG[f].qty;
-    maxSum += DECK_AVG[f].max * DECK_AVG[f].qty;
-    maxN += DECK_AVG[f].qty;
+  if (s.phase === 'buy') {
+    const walk = DECK_AVG[f].qty * walkInsToday(s) * demandScale(s);
+    qty += walk;
+    maxSum += (DECK_AVG[f].max + priceMod(s, f)) * walk;
+    maxN += walk;
+    for (const w of s.event?.extra?.wants ?? []) if (w.fruit === f) {
+      qty += w.qty;
+      maxSum += effectiveMax(s, w) * w.qty;
+      maxN += w.qty;
+    }
   }
   return { qty, avgMax: maxN ? maxSum / maxN : DECK_AVG[f].max };
 }
@@ -68,9 +74,9 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   if (stage === 'unripe') {
     const ripenIn = pos - (FRUIT[f].ripe.length - 1);
     if (ripenIn > daysLeft) return -99;
-    return DECK_AVG[f].max * 0.55 - 2 - ripenIn * 0.3;
+    return (DECK_AVG[f].max - 1) * 0.6 - 2 - ripenIn * 0.3;
   }
-  const cap = capFor(f, stage, avgMax);
+  const cap = capAt(f, pos, avgMax);
   const price = ratio <= 1 ? cap - 0.5 : Math.max(1, cap - (ratio - 1) * 3.5);
   const pSell = Math.min(1, 1 / ratio);
   const laterDays = Math.min(pos, daysLeft);

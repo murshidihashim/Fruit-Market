@@ -5,8 +5,8 @@ import { aiStep } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, freshPos, type FruitId, type UpgradeId } from '../engine/data';
 import {
   activePlayer, beginBuying, buy, buyUpgrade, canBuy, canPlayFavour, canUpgrade, endBuyTurn, endEvening,
-  finishReveal, playFavour, ranking, submitBids, RuleError,
-  type GameState,
+  effectiveMax, finishReveal, notSoCount, playFavour, ranking, submitBids, RuleError,
+  type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Fruit } from './art';
 import * as A from './anim';
@@ -14,7 +14,7 @@ import { BidSheet } from './BidSheet';
 import { ShopPanel } from './board';
 import { fx } from './fx';
 import { loadSettings } from './store';
-import { Market, MyStall, RivalStall, Street, seats } from './table';
+import { Market, MyStall, RivalStall, Street, face, seats } from './table';
 
 interface Props { initial: GameState; onExit: () => void; onChange: (s: GameState) => void; onRematch: () => void }
 
@@ -34,6 +34,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [night, setNight] = useState(false);
   const [revealDone, setRevealDone] = useState(initial.phase === 'reveal');
   const [cardInfo, setCardInfo] = useState<number | null>(null);
+  const [tip, setTip] = useState<Customer | null>(null);
+  const [eventInfo, setEventInfo] = useState(false);
   const turnStart = useRef<GameState | null>(null);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -186,7 +188,14 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     setNight(true);
     fx.night();
     await A.wait(500);
-    const heat = g.event?.id === 'heatwave' ? 1 : 0;
+    const heat = g.event?.ageExtra ?? 0;
+    const fines: { t: { remove(): void } }[] = [];
+    if (g.event?.inspector) {
+      g.players.forEach((pl, p) => {
+        const paid = Math.min(pl.cash, notSoCount(pl.stock) * g.event!.inspector!);
+        if (paid) { fines.push({ t: A.tag(`p${p}`, `🕵️ fined $${paid}`, 'lost-fine') }); A.floatText(`p${p}-cash`, `−$${paid}`, 'minus'); }
+      });
+    }
     const jobs: Promise<void>[] = [];
     let d = 0;
     const spoil = (anchor: string[], f: FruitId, n: number) => {
@@ -203,6 +212,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     }
     await Promise.all(jobs);
     await A.wait(400);
+    fines.forEach((f) => f.t.remove());
   }
 
   // ---------- turn handling ----------
@@ -266,8 +276,13 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const playCard = (idx: number) => {
     const id = s.players[active]?.favours[idx];
     if (!id) return;
-    const why = canPlayFavour(s, active, idx);
-    if (why) { setCardInfo(idx); return; }
+    setCardInfo(idx);
+  };
+
+  const reallyPlay = (idx: number) => {
+    const id = s.players[active]?.favours[idx];
+    setCardInfo(null);
+    if (!id || canPlayFavour(s, active, idx)) return;
     if (id === 'freeFruit') {
       setFreeFruit(idx);
       return say('Tap a fruit at the market to take it free');
@@ -303,16 +318,28 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const right = around.find((x) => x.side === 'right');
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const pl = s.players[active];
-  const showTray = !busy && activeHuman && (s.phase === 'bid' || s.phase === 'evening');
+  const showTray = !busy && activeHuman && s.phase === 'bid';
 
   return (
     <div class={`game ${night ? 'is-night' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} />
-      {s.event && <div class="event-strip" title={s.event.text}><span>{s.event.icon}</span><b>{s.event.title}</b><small>{s.event.text}</small></div>}
+      {(s.event || s.nextEvent) && (
+        <div class="event-strip" onClick={(e) => { e.stopPropagation(); setEventInfo(!eventInfo); }}>
+          {s.event ? <><span>{s.event.icon}</span><b>{s.event.title}</b></> : <small>Calm day</small>}
+          {s.nextEvent && <span class="next">Tomorrow: {s.nextEvent.icon} {s.nextEvent.title}</span>}
+          <span class="info">ⓘ</span>
+        </div>
+      )}
+      {eventInfo && (
+        <div class="event-pop" onClick={() => setEventInfo(false)}>
+          {s.event && <p><b>{s.event.icon} Today: {s.event.title}.</b> {s.event.text}</p>}
+          {s.nextEvent && <p><b>{s.nextEvent.icon} Tomorrow: {s.nextEvent.title}.</b> {s.nextEvent.text}</p>}
+        </div>
+      )}
 
       <div class="table">
         {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => setRival(top.p)} /></div>}
-        <div class="street-wrap" data-a="street"><Street s={s} /></div>
+        <div class="street-wrap" data-a="street"><Street s={s} onTip={(c) => setTip(c)} /></div>
         <div class="mid">
           {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => setRival(left.p)} /> : <span />}
           <div class="centre">
@@ -330,9 +357,6 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       {showTray && s.phase === 'bid' && (
         <div class="tray-wrap"><BidSheet key={`${s.day}-${active}`} s={s} p={active} onSubmit={(bids, fav) => { fx.card(); attempt(() => submitBids(s, active, bids, fav)); }} /></div>
       )}
-      {showTray && s.phase === 'evening' && (
-        <div class="tray-wrap"><EveningTray s={s} p={active} onUpgrade={(u) => attempt(() => buyUpgrade(s, active, u))} onCard={playCard} onDone={() => attempt(() => endEvening(s, active))} /></div>
-      )}
 
       <footer class="actionbar">
         {busy && <div class="hint-bar">{night ? '🌙 Night falls…' : s.phase === 'morning' ? '🚚 The farmer is unloading…' : s.phase === 'reveal' ? '💰 Selling… tap to speed up' : `${pl?.avatar ?? ''} ${pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}`}</div>}
@@ -346,6 +370,9 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
         )}
         {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl?.avatar} {pl?.name} is shopping…</div>}
         {!busy && s.phase === 'bid' && !activeHuman && <div class="hint-bar">💭 Rivals are pricing…</div>}
+        {!busy && s.phase === 'evening' && activeHuman && (
+          <EveningDock s={s} p={active} onUpgrade={(u) => attempt(() => buyUpgrade(s, active, u))} onPriority={reallyPlay} onDone={() => attempt(() => endEvening(s, active))} />
+        )}
         {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">🔨 {pl?.name} is closing up…</div>}
         {!busy && s.phase === 'reveal' && (
           <button class="btn primary wide big" onClick={() => { fx.tap(); setHandedTo(null); attempt(() => finishReveal(s)); }}>
@@ -357,12 +384,31 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       <div class="fx-layer" ref={layerRef} />
       {toast && <div class="toast">{toast}</div>}
 
-      {cardInfo !== null && s.players[active]?.favours[cardInfo] && (
-        <div class="modal-bg" onClick={() => setCardInfo(null)}>
-          <div class="modal center">
-            {(() => { const d = FAVOURS[s.players[active].favours[cardInfo]]; return (<><div class="big-icon">{d.icon}</div><h2>{d.title}</h2><p>{d.text}</p><p class="muted small">{canPlayFavour(s, active, cardInfo)}</p></>); })()}
-            <button class="btn wide" onClick={() => setCardInfo(null)}>OK</button>
+      {cardInfo !== null && s.players[active]?.favours[cardInfo] && (() => {
+        const d = FAVOURS[s.players[active].favours[cardInfo]];
+        const why = canPlayFavour(s, active, cardInfo);
+        return (
+          <div class="card-pop" onClick={(e) => e.stopPropagation()}>
+            <span class="cp-icon">{d.icon}</span>
+            <div class="cp-text"><b>{d.title}</b><small>{d.text}</small>{why && <small class="warn-text">{why}</small>}</div>
+            <div class="cp-btns">
+              {!why && <button class="btn primary" onClick={() => reallyPlay(cardInfo)}>Play</button>}
+              <button class="btn ghost" onClick={() => setCardInfo(null)}>✕</button>
+            </div>
           </div>
+        );
+      })()}
+
+      {tip && (
+        <div class="tip-pop" onClick={() => setTip(null)}>
+          <b>{face(tip.name)} {tip.name}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
+          {tip.wants.map((w) => (
+            <div class="tip-line">
+              <Fruit id={w.fruit} size={18} />
+              <span>wants <b>{w.qty}</b> · pays up to <b>${effectiveMax(s, w)} for each</b> fresh one</span>
+            </div>
+          ))}
+          <small>Older fruit sells for less: the −$ on your stall shows how much less. Tap to close.</small>
         </div>
       )}
 
@@ -417,6 +463,7 @@ function MorningCard({ s }: { s: GameState }) {
       ) : (
         <div class="sunny">☀️ A calm day at the market</div>
       )}
+      {s.nextEvent && <div class="mc-next">Tomorrow: <b>{s.nextEvent.icon} {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
     </div>
   );
 }
@@ -437,41 +484,42 @@ function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   );
 }
 
-function EveningTray({ s, p, onUpgrade, onCard, onDone }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void; onDone: () => void }) {
+function EveningDock({ s, p, onUpgrade, onPriority, onDone }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onPriority: (i: number) => void; onDone: () => void }) {
   const pl = s.players[p];
+  const [pick, setPick] = useState<UpgradeId | null>(null);
   const rotting = FRUITS.filter((f) => pl.stock[f][0] > 0);
+  const fine = (s.event?.inspector ?? 0) * notSoCount(pl.stock);
   const pri = pl.favours.indexOf('priority');
   return (
-    <div class="tray">
-      <div class="tray-head"><b>🌙 Evening</b><span class="muted small">{s.config.days - s.day} days left</span></div>
-      <div class="tray-body">
-        {rotting.length > 0 && (
-          <div class="spoil-warn">⚠️ Spoils tonight: {rotting.map((f) => <span><Fruit id={f} size={18} stage="notso" />×{pl.stock[f][0]}</span>)}</div>
-        )}
-        {s.config.upgrades && (
-          <div class="up-grid">
-            {(Object.keys(UPGRADES) as UpgradeId[]).map((u) => {
-              const d = UPGRADES[u];
-              const owned = pl.upgrades.includes(u);
-              const why = canUpgrade(s, p, u);
-              return (
-                <button class={`up ${owned ? 'owned' : ''}`} disabled={!!why} onClick={() => onUpgrade(u)}>
-                  <span class="ui">{d.icon}</span>
-                  <b>{d.title}</b>
-                  <small>{d.text}</small>
-                  <span class="price">{owned ? '✓' : `$${d.cost}`}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-        {pri >= 0 && !canPlayFavour(s, p, pri) && (
-          <button class="fcard wide usable" onClick={() => onCard(pri)}><span>⏩</span><small>Play Priority: buy first tomorrow</small></button>
-        )}
+    <div class="dock">
+      <div class="dock-row">
+        {rotting.length > 0 && <span class="dock-warn">⚠️ spoils tonight {rotting.map((f) => <span><Fruit id={f} size={14} stage="notso" />{pl.stock[f][0]}</span>)}</span>}
+        {fine > 0 && <span class="dock-warn">🕵️ fine ${fine}</span>}
+        {!!s.event?.ageExtra && <span class="dock-warn">🔥 ages twice</span>}
+        {pri >= 0 && !canPlayFavour(s, p, pri) && <button class="fcard usable" onClick={() => onPriority(pri)}><span>⏩</span><small>Priority</small></button>}
       </div>
-      <div class="tray-foot">
-        <button class="btn primary big wide" onClick={() => { fx.tap(); onDone(); }}>Lights out 🌙</button>
-      </div>
+      {s.config.upgrades && (
+        <div class="dock-ups">
+          {(Object.keys(UPGRADES) as UpgradeId[]).map((u) => {
+            const d = UPGRADES[u];
+            const owned = pl.upgrades.includes(u);
+            return (
+              <button class={`dup ${owned ? 'owned' : ''} ${pick === u ? 'sel' : ''}`} onClick={() => setPick(pick === u ? null : u)}>
+                <span>{d.icon}</span><small>{owned ? '✓' : `$${d.cost}`}</small>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {pick && (
+        <div class="dock-info">
+          <span><b>{UPGRADES[pick].title}:</b> {UPGRADES[pick].text}</span>
+          {!pl.upgrades.includes(pick) && (
+            <button class="btn primary" disabled={!!canUpgrade(s, p, pick)} onClick={() => { onUpgrade(pick); setPick(null); }}>Build ${UPGRADES[pick].cost}</button>
+          )}
+        </div>
+      )}
+      <button class="btn primary wide" onClick={() => { fx.tap(); onDone(); }}>Lights out 🌙</button>
     </div>
   );
 }

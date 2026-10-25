@@ -16,16 +16,23 @@ Have the **most cash** at the end of the last day. Fruit left on your shelf and 
 
 ## The fruit
 
-| Fruit | Ripe days | Cost: Fresh / Okay / Not so | Unripe days | Price drop: Okay / Not so |
+Each fruit plays differently. A customer's price is **per fruit, for a fresh one**. Older fruit sells for less; the table shows how much less at each age (oldest on the left).
+
+| Fruit | Character | Track (oldest → freshest) | Cost: Fresh / Okay / Not so | Unripe |
 |---|---|---|---|---|
-| 🫐 Blueberry | 3 (1 fresh, 1 okay, 1 not so) | $2 / $1 / $1 | none | −$1 / −$3 |
-| 🍉 Watermelon | 5 (2 fresh, 2 okay, 1 not so) | $3 / $2 / $1 | 1 | −$2 / −$3 |
-| 🍎 Apple | 7 (3 fresh, 3 okay, 1 not so) | $4 / $2 / $1 | 1 | −$2 / −$4 |
-| 🥭 Mango | 7 (2 fresh, 3 okay, 2 not so) | $3 / $2 / $1 | 2 | −$2 / −$3 |
+| 🫐 Blueberry | Cheap, popular, mushy in 3 days. High risk, high reward. | −$4 · −$2 · full | $2 / $1 / $1 | none |
+| 🍉 Watermelon | The steady seller. Loses value slowly. | −$3 · −$1 · −$1 · full · full | $3 / $2 / $1 | 1 night |
+| 🍎 Apple | Keeps a week, barely loses value, costs the most. Safe but thin margins. | −$2 · −$1 · −$1 · −$1 · full · full · full | $4 / $3 / $1 | none |
+| 🥭 Mango | Buy green for $1, ripens in 2 nights, sells at a premium, spoils fast once ripe. | −$3 · −$1 · full · full | $4 / $2 / $1 | 2 nights |
 
-Every fruit sits on a **freshness track** at the farmers market and in each shop. Freshest is on the right, oldest on the left. **Every night, all fruit moves one space left.** Fruit that falls off the left end spoils and is thrown away.
+Every night all fruit moves one space left. Fruit that falls off the left end spoils. Unripe fruit costs $1, can't be sold yet, and becomes fresh as nights pass.
 
-**Unripe fruit** (optional rule) costs $1 at any stage. It sits to the right of fresh, can't be sold yet, and becomes fresh as the nights pass.
+## The town grows
+
+Demand follows how the game naturally builds up:
+- Early days bring one expected customer and one walk-in with small orders. From halfway through, **two walk-ins** come and orders get bigger.
+- Order sizes are tied to how much the shops can buy (3 fruit each a day, 5 with a Handcart). By the last day, customers want about as much as all shops can buy, so the market stays tight.
+- Farmer deliveries grow the same way, a little ahead of what the shops can buy.
 
 ## Cards
 
@@ -59,7 +66,7 @@ Every shop secretly decides, for each customer and each fruit they want, **how m
 - **Ties:** the fresher fruit wins. If still tied, a player with Favoured Trade wins, then turn order.
 - You're paid as soon as you sell.
 - Waiting customers are served before new ones.
-- **Favours:** if you serve a customer's entire remaining order by yourself, draw a favour card.
+- **Favours:** if you serve a customer's entire remaining order by yourself, draw a favour card (at most one per day).
 
 A new customer who doesn't get everything comes back tomorrow as *Waiting*. A waiting customer leaves after today either way.
 
@@ -73,18 +80,23 @@ After the last day's selling, the game ends. Count your cash.
 
 ## Event cards
 
+Each morning from Day 2 an event changes the day. **Tomorrow's event is shown a day early**, so you can stock up (or sell off) before it hits.
+
 | Card | Effect |
 |---|---|
-| ⚖️ Minimum Price (×2) | Nobody may sell a fruit below the price shown on the card today. |
-| 🌾 Good Harvest | Farmers bring 2 extra of every fruit. |
-| 🐛 Bad Harvest | Farmers bring 2 fewer of every fruit. |
-| 🎉 Festive Season | Every customer pays up to $2 more today. |
-| 😴 Slow Season | Every customer pays up to $2 less today. |
-| 📈 Price Hike | Every fruit at the farmers market costs $1 more today. |
-| 🔥 Heatwave | All fruit ages one extra step tonight. |
-| 🌧️ Rainy Day | No walk-in customer today. |
-| 📱 Mango Craze / Blueberry Craze | Customers pay $3 more for that fruit today. |
+| 🎉 Festival | Customers pay $3 more per fruit, and an extra walk-in comes. |
+| 😴 Slow Season | No walk-in, and customers pay $2 less per fruit. |
+| 🔥 Heatwave | Watermelons sell for $4 more, but all fruit ages an extra step tonight. |
+| 🌧️ Rainy Day | No walk-in. Farmers sell everything $1 cheaper. |
+| 📱 Mango Craze | Mangoes sell for $3 more, and an Influencer wants 3 at $11 each. |
+| 💪 Superfood Trend | Blueberries sell for $3 more, and the Gym Club wants 4 at $8 each. |
+| 🌾 Good Harvest | Farmers bring 3 extra of every fruit, and everything costs $1 less. |
+| 🐛 Bad Harvest | Farmers bring half as much. Scarce fruit sells for $2 more. |
+| 📈 Price Hike | Every fruit at the farmers market costs $1 more. |
+| ⚖️ Minimum Price | Nobody may sell below: watermelon $5, apple $5, mango $6, blueberry $4. |
+| 🕵️ Health Inspector | Tonight every shop pays $2 for each Not-so fruit on its shelf. |
 | 🚚 Lorry Breakdown | No farmer delivery today. |
+| 🏨 Hotel Order | A Hotel Chef wants 3 apples, 2 watermelons and 2 blueberries. |
 
 ## Favour cards (2 of each)
 
@@ -123,6 +135,6 @@ Everyone in the world plays the same shuffled decks each day: you against Rosa (
 | 2 rounds of the first-player token | Fixed 8, 10 or 14 days | 2 rounds is only 4 to 8 turns, too short to plan |
 | Farmer card fruits only | The missing fruit still arrives (2) | Prevents days where nobody can sell anything |
 | Favour cards | Same six cards; Fridge now affects ripe fruit only | Keeps unripe fruit meaningful |
-| Event cards (6 types) | 10 types (adds Heatwave, Rainy Day, Craze, Lorry Breakdown) | More variety and replay value |
+| Event cards (6 types) | 13 stronger events, each announced a day early | Events now change decisions, not just numbers |
 | Unripe fruit (expansion idea) | Built in as an optional rule | From the design notes |
 | (none) | Shop upgrades | A second way to invest your cash |

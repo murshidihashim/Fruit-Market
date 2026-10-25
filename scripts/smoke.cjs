@@ -20,6 +20,7 @@ const path = require('path');
   const seen = new Set();
   const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
   for (let i = 0; i < 4000; i++) {
+    try {
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
     if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); await page.click('text=Open the market'); continue; }
@@ -52,6 +53,10 @@ const path = require('path');
     for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await shot('07-summary'); await page.click(`text=${t}`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
+    } catch (e) {
+      // The board re-renders during animations; a click can miss. Try again.
+      await page.waitForTimeout(200);
+    }
   }
   await page.waitForTimeout(800);
   await shot('10-results');

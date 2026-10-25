@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
 import { newGame, buy, beginBuying, endBuyTurn, submitBids, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
-import { FRUITS, freshPos } from '../src/engine/data';
+import { freshPos } from '../src/engine/data';
 
 function cfg(n: number, seed = 1, extra: Partial<GameConfig> = {}): GameConfig {
   return {
@@ -32,12 +32,13 @@ describe('engine', () => {
   it('charges market cost and respects the buy limit', () => {
     let s = beginBuying(newGame({ ...cfg(2, 3), players: [{ name: 'A', kind: 'human', avatar: 'a' }, { name: 'B', kind: 'human', avatar: 'b' }] }));
     const p = s.order[0];
-    const f = FRUITS.find((x) => s.market[x][freshPos(x)] > 0)!;
+    s.players[p].cash = 99;
+    s.market.apple[freshPos('apple')] = 5;
     const before = s.players[p].cash;
-    for (let i = 0; i < 3; i++) s = buy(s, p, f, freshPos(f));
-    expect(s.players[p].cash).toBeLessThan(before);
+    for (let i = 0; i < 3; i++) s = buy(s, p, 'apple', freshPos('apple'));
+    expect(s.players[p].cash).toBe(before - 12);
     expect(count(s.players[p].stock)).toBe(3);
-    expect(() => buy(s, p, f, freshPos(f))).toThrow();
+    expect(() => buy(s, p, 'apple', freshPos('apple'))).toThrow();
   });
 
   it('cheapest offer wins and money is conserved through sales', () => {
@@ -57,5 +58,21 @@ describe('engine', () => {
     expect(line.offers.find((o) => o.player === 1)!.sold).toBe(want.qty);
     expect(line.offers.find((o) => o.player === 0)!.sold).toBe(0);
     expect(total(s)).toBeGreaterThanOrEqual(cashBefore + want.qty * 2);
+  });
+});
+
+describe('pacing', () => {
+  it('customers want more as the game goes on', () => {
+    let early = 0, late = 0;
+    for (let seed = 1; seed <= 60; seed++) {
+      let s = newGame(cfg(4, seed, { events: false }));
+      while (s.phase !== 'over') {
+        if (s.phase === 'bid' && s.day === 1) early += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
+        if (s.phase === 'bid' && s.day === 10) late += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
+        s = autoplay(s, 1);
+        if (s.phase === 'morning') s = beginBuying(s);
+      }
+    }
+    expect(late).toBeGreaterThan(early * 1.6);
   });
 });
