@@ -4,7 +4,7 @@ import {
   buyLimit, count, effectiveMax, marketCost, shelfSize,
   type Customer, type GameState, type Player, type Stock,
 } from '../engine/game';
-import { Coin, Fruit } from './art';
+import { Coin, Face, Fruit } from './art';
 
 export const STAGE_LABEL: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Not so', unripe: 'Unripe' };
 
@@ -83,7 +83,7 @@ export function ShopPanel({ s, p, title, children, flash }: { s: GameState; p: n
   return (
     <section class="panel shop">
       <h3>
-        <span class="avatar sm">{pl.avatar}</span> {title ?? `${pl.name}'s Shop`}
+        <span class="avatar sm"><Face who={pl.avatar} size={26} /></span> {title ?? `${pl.name}'s Shop`}
         <span class="spacer" />
         <span class="chip">🗃 {count(pl.stock)}/{shelfSize(pl)}</span>
         {s.phase === 'buy' && <span class="chip">🛍 {pl.boughtToday}/{buyLimit(pl)}</span>}
@@ -114,7 +114,7 @@ export function RivalStrip({ s, viewer, onOpen }: { s: GameState; viewer: number
       {s.players.map((pl, i) => i === viewer ? null : (
         <button type="button" class={`rival ${s.order[s.turn] === i && (s.phase === 'buy' || s.phase === 'evening') ? 'active' : ''}`} onClick={() => onOpen(i)}>
           <div class="rival-top">
-            <span class="avatar sm">{pl.avatar}</span>
+            <span class="avatar sm"><Face who={pl.avatar} size={26} /></span>
             <b>{pl.name}</b>
             <span class="chip cash"><Coin size={13} />{pl.cash}</span>
           </div>

@@ -8,17 +8,19 @@ import {
   effectiveMax, finishReveal, notSoCount, playFavour, ranking, submitBids, RuleError,
   type Customer, type GameState, type LineResult,
 } from '../engine/game';
-import { Coin, Fruit } from './art';
+import { Coin, Face, Fruit } from './art';
+import { Icon } from './pixel';
 import * as A from './anim';
 import { BidSheet } from './BidSheet';
 import { ShopPanel } from './board';
 import { fx } from './fx';
 import { loadSettings } from './store';
-import { Market, MyStall, PulseBar, RivalStall, Street, face, seats } from './table';
+import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 
 interface Props { initial: GameState; onExit: () => void; onChange: (s: GameState) => void; onRematch: () => void }
 
-const PHASE = { morning: '☀️ Morning', buy: '🛒 Buying', bid: '🤫 Pricing', reveal: '💰 Sales', evening: '🌙 Evening', over: '🏁 Closed' } as const;
+const PHASE = { morning: 'Morning', buy: 'Buying', bid: 'Pricing', reveal: 'Sales', evening: 'Evening', over: 'Closed' } as const;
+const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', bid: 'SET PRICES', reveal: 'SALES!', evening: 'EVENING', over: '' } as const;
 
 export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [s, setS] = useState(initial);
@@ -32,6 +34,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [handedTo, setHandedTo] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [night, setNight] = useState(false);
+  const [banner, setBanner] = useState<string | null>(null);
   const [revealDone, setRevealDone] = useState(initial.phase === 'reveal');
   const [cardInfo, setCardInfo] = useState<number | null>(null);
   const [tip, setTip] = useState<Customer | null>(null);
@@ -169,6 +172,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
         for (let k = 0; k < Math.min(o.sold, 4); k++) {
           jobs.push(A.fly([`p${o.player}-${l.fruit}`, `p${o.player}`], [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`], <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
         }
+        for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
         jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
           fx.coin();
           const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
@@ -270,7 +274,12 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
 
   useEffect(() => {
     if (s.phase === 'over') (ranking(s)[0] === viewer ? fx.win : fx.lose)();
-  }, [s.phase]);
+    const text = s.phase === 'morning' ? `DAY ${s.day}` : BANNER[s.phase];
+    if (!text) return;
+    setBanner(text);
+    const t = window.setTimeout(() => setBanner(null), 1100);
+    return () => window.clearTimeout(t);
+  }, [s.phase, s.day]);
 
   const pickMarket = (f: FruitId, pos: number) => {
     if (freeFruit !== null) {
@@ -302,7 +311,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     const pl = s.players[active];
     return (
       <div class="handoff" onClick={() => { fx.tap(); setHandedTo(active); }}>
-        <div class="avatar xl">{pl.avatar}</div>
+        <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
         <p>{s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
@@ -369,29 +378,30 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       )}
 
       <footer class="actionbar">
-        {busy && <div class="hint-bar">{night ? '🌙 Night falls…' : s.phase === 'morning' ? '🚚 The farmer is unloading…' : s.phase === 'reveal' ? '💰 Selling… tap to speed up' : `${pl?.avatar ?? ''} ${pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}`}</div>}
-        {!busy && s.phase === 'morning' && <button class="btn primary wide big" onClick={() => { fx.tap(); attempt(() => beginBuying(s)); }}>Open the market 🧺</button>}
+        {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The farmer is unloading…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
+        {!busy && s.phase === 'morning' && <button class="btn primary wide big" onClick={() => { fx.tap(); attempt(() => beginBuying(s)); }}>Open the market</button>}
         {!busy && s.phase === 'buy' && activeHuman && (
           <>
             <button class="btn ghost" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>
-            <div class="buy-hint"><b>Your turn</b><small>tap fruit to buy · {pl.boughtToday}/{pl.upgrades.includes('cart') ? 5 : 3}</small></div>
+            <div class="buy-hint"><b class="move">YOUR MOVE</b><small>Tap a crate to buy · {pl.boughtToday}/{pl.upgrades.includes('cart') ? 5 : 3} bought</small></div>
             <button class="btn primary" onClick={() => { fx.tap(); setFreeFruit(null); attempt(() => endBuyTurn(s, active)); }}>Done ➜</button>
           </>
         )}
-        {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl?.avatar} {pl?.name} is shopping…</div>}
-        {!busy && s.phase === 'bid' && !activeHuman && <div class="hint-bar">💭 Rivals are pricing…</div>}
+        {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
+        {!busy && s.phase === 'bid' && !activeHuman && <div class="hint-bar">Rivals are setting secret prices…</div>}
         {!busy && s.phase === 'evening' && activeHuman && (
           <EveningDock s={s} p={active} onUpgrade={(u) => attempt(() => buyUpgrade(s, active, u))} onPriority={reallyPlay} onDone={() => attempt(() => endEvening(s, active))} />
         )}
-        {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">🔨 {pl?.name} is closing up…</div>}
+        {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
         {!busy && s.phase === 'reveal' && (
           <button class="btn primary wide big" onClick={() => { fx.tap(); setHandedTo(null); attempt(() => finishReveal(s)); }}>
-            {s.day >= s.config.days ? 'Final results 🏆' : 'Close for the day 🌙'}
+            {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
           </button>
         )}
       </footer>
 
       <div class="fx-layer" ref={layerRef} />
+      {banner && <div class="phase-banner" key={banner} aria-hidden="true"><span>{banner}</span></div>}
       {toast && <div class="toast">{toast}</div>}
 
       {cardInfo !== null && s.players[active]?.favours[cardInfo] && (() => {
@@ -420,7 +430,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       )}
       {tip && (
         <div class="tip-pop" onClick={() => setTip(null)}>
-          <b>{face(tip.name)} {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
+          <b class="tip-head"><Face who={tip.name} size={32} /> {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
           <i class="quirk">“{lookOf(tip.name).quirk}”</i>
           {tip.wants.map((w) => (
             <div class="tip-line">
@@ -461,10 +471,11 @@ function TopBar({ s, viewer, onMenu }: { s: GameState; viewer: number; onMenu: (
     <header class="topbar">
       <button class="icon-btn" onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Menu">☰</button>
       <div class="day">
-        <div class="days">{Array.from({ length: s.config.days }, (_, i) => <i class={i + 1 < s.day ? 'past' : i + 1 === s.day ? 'now' : ''} />)}</div>
-        <span class="phase">Day {s.day} · {PHASE[s.phase]}</span>
+        <span class="day-label">DAY {s.day}<small>/{s.config.days}</small></span>
+        <div class="days" aria-hidden="true">{Array.from({ length: s.config.days }, (_, i) => <i class={i + 1 < s.day ? 'past' : i + 1 === s.day ? 'now' : ''} />)}</div>
+        <span class="phase">{PHASE[s.phase]}</span>
       </div>
-      <div class="chip cash big"><Coin size={18} />{s.players[viewer].cash}</div>
+      <div class="hud-cash" aria-label={`Cash $${s.players[viewer].cash}`}><Coin size={20} /><b>{s.players[viewer].cash}</b></div>
     </header>
   );
 }
@@ -481,43 +492,60 @@ function MorningCard({ s }: { s: GameState }) {
           {s.event.minPrice && <div class="minprices">{FRUITS.map((f) => <span><Fruit id={f} size={18} />${s.event!.minPrice![f]}</span>)}</div>}
         </div>
       ) : (
-        <div class="sunny">☀️ A calm day at the market</div>
+        <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
       )}
       {s.nextEvent && <div class="mc-next">Tomorrow: <b>{s.nextEvent.icon} {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
     </div>
   );
 }
 
+function offerReason(s: GameState, l: LineResult, o: LineResult['offers'][number]): string {
+  if (o.sold >= o.qty) return o.qty > 1 ? `SOLD ×${o.sold}` : 'SOLD';
+  if (o.sold > 0) return `sold ${o.sold}/${o.qty} · order filled`;
+  const cheaper = l.offers.find((w) => w.sold > 0 && w.price < o.price);
+  if (cheaper) return `beaten by $${cheaper.price}`;
+  const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
+  if (tie) return tie.freshness > o.freshness ? 'tie · theirs fresher' : `tie · ${s.players[tie.player].favouredTrade ? 'favoured trade' : 'turn order'}`;
+  return 'order filled';
+}
+
 function AuctionCard({ s, a, viewer }: { s: GameState; a: { line: LineResult; stage: 'sealed' | 'open' | 'done'; n: number; of: number }; viewer: number }) {
   const l = a.line;
   const sold = l.offers.reduce((x, o) => x + o.sold, 0);
-  const winners = l.offers.filter((o) => o.sold > 0);
+  const mine = l.offers.find((o) => o.player === viewer);
+  const open = a.stage !== 'sealed';
   return (
-    <div class="auction">
-      <div class="au-top"><small>Sale {a.n} of {a.of}</small><small>cheapest sells first</small></div>
+    <div class="auction" role="status">
+      <div class="au-top"><span>SALE {a.n}/{a.of}</span><span>cheapest sells first</span></div>
       <div class="au-cust">
-        <span class="au-face">{lookOf(l.name).icon}</span>
-        <div><b>{lookOf(l.name).title}</b><span class="au-want">wants <Fruit id={l.fruit} size={18} /> ×{l.want} · pays up to ${l.max} each</span></div>
+        <span class="au-face"><Face who={l.name} size={44} /></span>
+        <div class="au-ask">
+          <b>{lookOf(l.name).title}</b>
+          <span class="au-want"><Fruit id={l.fruit} size={20} /><b>×{l.want}</b><span class="au-cap">pays up to <b>${l.max}</b> each</span></span>
+        </div>
       </div>
       <div class="au-offers">
         {l.offers.map((o, i) => {
           const pl = s.players[o.player];
-          const open = a.stage !== 'sealed';
+          const res = a.stage === 'done' ? (o.sold ? 'won' : 'lost') : '';
           return (
-            <div class={`au-offer ${open ? 'open' : ''} ${a.stage === 'done' ? (o.sold ? 'won' : 'lost') : ''} ${o.player === viewer ? 'me' : ''}`} style={{ transitionDelay: `${i * 0.12}s` }}>
-              <span class="au-who">{pl.avatar}</span>
-              <span class="au-price">{open ? `$${o.price}` : '🔒'}</span>
-              <span class="au-qty">×{o.qty}</span>
-              {a.stage === 'done' && <span class="au-res">{o.sold ? `SOLD ${o.sold}` : 'too pricey'}</span>}
+            <div class={`au-offer ${open ? 'open' : ''} ${res} ${o.player === viewer ? 'me' : ''}`} style={{ animationDelay: `${i * 0.12}s` }}>
+              <span class="au-who"><Face who={pl.avatar} size={26} /></span>
+              <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>offers {o.qty}</small></span>
+              <span class="au-price">{open ? `$${o.price}` : '?'}</span>
+              {a.stage === 'done' && <span class="au-res">{offerReason(s, l, o)}</span>}
             </div>
           );
         })}
       </div>
       {a.stage === 'done' && (
-        <div class="au-why">
-          {winners.length ? <>✅ {winners.map((o) => `${s.players[o.player].name} sold ${o.sold} at $${o.price}`).join(', ')}.</> : 'Nobody sold.'}
-          {sold < l.want && ` ${l.want - sold} still wanted.`}
-          {l.offers.some((o) => !o.sold) && sold >= l.want && ' Higher prices missed out.'}
+        <div class={`au-why ${mine ? (mine.sold ? 'good' : 'bad') : ''}`}>
+          {mine
+            ? mine.sold
+              ? `You earned $${mine.sold * mine.price}.`
+              : `You missed out: ${offerReason(s, l, mine)}.`
+            : 'You had no offer here.'}
+          {sold < l.want ? ` ${l.want - sold} still wanted.` : ''}
         </div>
       )}
     </div>
@@ -526,16 +554,26 @@ function AuctionCard({ s, a, viewer }: { s: GameState; a: { line: LineResult; st
 
 function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const r = s.results!;
+  const soldMine = r.lines.reduce((a, l) => a + l.offers.filter((o) => o.player === viewer).reduce((b, o) => b + o.sold, 0), 0);
+  const rotting = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f][0], 0);
+  const best = Math.max(...r.income);
   return (
     <div class="sales-card">
-      <b>Today's takings</b>
+      <div class="sc-title">END OF DAY {s.day}</div>
       <div class="takings">
         {s.players.map((pl, i) => (
-          <span class={`tk ${i === viewer ? 'me' : ''} ${r.income[i] ? '' : 'zero'}`}>{pl.avatar}<b>+${r.income[i]}</b></span>
+          <span class={`tk ${i === viewer ? 'me' : ''} ${r.income[i] ? '' : 'zero'} ${r.income[i] === best && best > 0 ? 'top' : ''}`}>
+            <Face who={pl.avatar} size={26} /><b>+${r.income[i]}</b>
+          </span>
         ))}
       </div>
-      {r.leftAngry.length > 0 && <small>😠 {r.leftAngry.join(', ')} left unhappy</small>}
-      {r.movedToWaiting.length > 0 && s.day < s.config.days && <small>⏳ {r.movedToWaiting.join(', ')} will wait until tomorrow</small>}
+      <div class="sc-rows">
+        <span>You sold <b>{soldMine}</b> fruit</span>
+        {rotting > 0 && s.day < s.config.days && <span class="bad">{rotting} spoil tonight</span>}
+        {r.happy.length > 0 && <span class="good">{r.happy.length} happy customer{r.happy.length > 1 ? 's' : ''}</span>}
+        {r.leftAngry.length > 0 && <span class="bad">{r.leftAngry.length} left unhappy</span>}
+        {r.movedToWaiting.length > 0 && s.day < s.config.days && <span>{r.movedToWaiting.length} back tomorrow</span>}
+      </div>
     </div>
   );
 }
@@ -575,7 +613,7 @@ function EveningDock({ s, p, onUpgrade, onPriority, onDone }: { s: GameState; p:
           )}
         </div>
       )}
-      <button class="btn primary wide" onClick={() => { fx.tap(); onDone(); }}>Lights out 🌙</button>
+      <button class="btn primary wide" onClick={() => { fx.tap(); onDone(); }}>Lights out · next day</button>
     </div>
   );
 }
@@ -583,10 +621,10 @@ function EveningDock({ s, p, onUpgrade, onPriority, onDone }: { s: GameState; p:
 function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void }) {
   const order = ranking(s);
   const win = order[0] === viewer;
-  const medals = ['🥇', '🥈', '🥉', '4️⃣'];
+  const ranks = ['1ST', '2ND', '3RD', '4TH'];
   return (
     <section class="results">
-      <div class="trophy">{win ? '🏆' : '😅'}</div>
+      <div class="trophy"><Face who={s.players[order[0]].avatar} size={96} /><span class="crown"><Icon name="star" size={34} /></span></div>
       <h2>{win ? 'Top shop in town!' : `${s.players[order[0]].name} wins`}</h2>
       {s.config.daily && <p class="chip">📅 Daily challenge {s.config.daily}</p>}
       <div class="podium">
@@ -594,12 +632,12 @@ function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: numbe
           const pl = s.players[i];
           return (
             <div class={`pod ${i === viewer ? 'me' : ''}`}>
-              <span class="medal">{medals[k]}</span>
-              <span class="avatar sm">{pl.avatar}</span>
+              <span class={`medal r${k + 1}`}>{ranks[k]}</span>
+              <span class="avatar sm"><Face who={pl.avatar} size={26} /></span>
               <b>{pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>
-              <div class="pod-stats">🍎 sold {pl.stats.sold} · 🗑 spoiled {pl.stats.spoiled} · best ${pl.stats.bestSale} · {pl.upgrades.map((u) => UPGRADES[u].icon).join('')}</div>
+              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale} · {pl.upgrades.map((u) => UPGRADES[u].icon).join('')}</div>
             </div>
           );
         })}

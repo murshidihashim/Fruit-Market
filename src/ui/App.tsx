@@ -115,16 +115,16 @@ export function App() {
         <p class="tagline">Buy fresh. Sell fast. Undercut your rivals before it all goes bad!</p>
         <div class="fruit-parade">{FRUITS.map((f) => <Fruit id={f} size={36} />)}</div>
         {resumable && (
-          <button class="btn primary big wide" onClick={() => go('game')}>▶ Continue · Day {game!.day}/{game!.config.days}</button>
+          <button class="btn primary big wide" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
         )}
-        <button class={`btn ${resumable ? '' : 'primary'} big wide`} onClick={() => go('setup')}>🧺 New game</button>
+        <button class={`btn ${resumable ? '' : 'primary'} big wide`} onClick={() => go('setup')}>New game</button>
         <button class="btn wide daily" onClick={startDaily}>
-          <span>📅 Daily challenge</span>
+          <span>Daily challenge</span>
           <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · 🔥 ${streak}-day streak` : ''}</small>
         </button>
         <div class="row2">
-          <button class="btn" onClick={() => go('howto')}>📖 How to play</button>
-          <button class="btn" onClick={() => go('settings')}>⚙️ Settings</button>
+          <button class="btn" onClick={() => go('howto')}>How to play</button>
+          <button class="btn" onClick={() => go('settings')}>Settings</button>
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
           <Toggle on={upgrades} set={setUpgrades} title="Shop upgrades" text="Spend cash on a cart, cool room and more." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
         </section>
-        <button class="btn primary big wide" onClick={begin}>Open the shops 🧺</button>
+        <button class="btn primary big wide" onClick={begin}>Open the shops</button>
       </main>
     </div>
   );

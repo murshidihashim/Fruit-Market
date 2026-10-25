@@ -41,7 +41,7 @@ const path = require('path');
     if (await has('.tray .bid, .tray-empty') && await lock.count()) {
       if (once('bid')) await shot('05-pricing');
       await lock.click();
-      if (once('reveal-anim')) { await page.waitForTimeout(2600); await shot('06-reveal-anim'); }
+      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }
       continue;
     }
     if (await has('text=Lights out')) {

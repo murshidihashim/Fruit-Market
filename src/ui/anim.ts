@@ -43,7 +43,8 @@ function sprite(node: VNode | string, cls = 'sprite') {
 
 export function pulse(keys: string | string[]) {
   const el = find(keys);
-  el?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 260 * k() + 1 });
+  // Squash and stretch, like something landing in a crate.
+  el?.animate([{ transform: 'scale(1, 1)' }, { transform: 'scale(1.2, 0.82)' }, { transform: 'scale(0.92, 1.1)' }, { transform: 'scale(1, 1)' }], { duration: 300 * k() + 1, easing: 'steps(4)' });
 }
 
 interface FlyOpts { duration?: number; arc?: number; delay?: number; endScale?: number; fade?: boolean }

@@ -5,7 +5,8 @@ import {
   buyLimit, count, effectiveMax, marketCost, shelfSize, walkInsToday,
   type Customer, type GameState,
 } from '../engine/game';
-import { Coin, Fruit } from './art';
+import { Coin, Face, Fruit } from './art';
+import { Icon } from './pixel';
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
   if (n <= 0) return null;
@@ -30,7 +31,7 @@ export function Market({ s, onPick, canPick, morning }: {
     <div class="market-stall">
       <div class="mk-roof" />
       <div class="mk-head">
-        <span class={`truck ${morning ? 'drive' : ''}`} data-a="truck">🚚</span>
+        <span class={`truck ${morning ? 'drive' : ''}`} data-a="truck"><Icon name="truck" size={30} /></span>
         <b>Farmers Market</b>
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
@@ -69,7 +70,7 @@ export function RivalStall({ s, p, side, onOpen }: { s: GameState; p: number; si
     <button type="button" class={`rival-stall ${side} ${active ? 'active' : ''}`} data-a={`p${p}`} onClick={onOpen}>
       <div class="rs-awning" />
       <div class="rs-who">
-        <span class="rs-face">{pl.avatar}{active && <i class="busy">{s.phase === 'buy' ? '🛒' : '🔨'}</i>}{thinking && <i class="busy">💭</i>}</span>
+        <span class="rs-face"><Face who={pl.avatar} size={side === 'top' ? 30 : 34} />{active && <i class="busy">{s.phase === 'buy' ? '🛒' : '🔨'}</i>}{thinking && <i class="busy">💭</i>}</span>
         <span class="rs-name">{pl.name}</span>
         <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
       </div>
@@ -102,10 +103,10 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
     <div class={`my-stall ${active ? 'active' : ''}`} data-a={`p${p}`}>
       <div class="ms-awning" />
       <div class="ms-head">
-        <span class="ms-face">{pl.avatar}</span>
+        <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
         <b class="ms-name">{pl.name}</b>
-        <span class="chip" title="Shelf space">🗃 {count(pl.stock)}/{shelfSize(pl)}</span>
-        {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today">🛒 {pl.boughtToday}/{buyLimit(pl)}</span>}
+        <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>
+        {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={16} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
         <span class="spacer" />
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}>{UPGRADES[u].icon}</span>)}
         <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{pl.cash}</span>
@@ -154,7 +155,7 @@ export function CustomerChar({ s, c, kind, onTip }: { s: GameState; c?: Customer
     return (
       <div class="cust mystery">
         <div class="bubble"><span class="q">?</span></div>
-        <div class="cface">👤</div>
+        <div class="cface"><Face who="shopper" size={34} /></div>
         <small>walk-in</small>
       </div>
     );
@@ -174,7 +175,7 @@ export function CustomerChar({ s, c, kind, onTip }: { s: GameState; c?: Customer
           </span>
         ))}
       </div>
-      <div class="cface">{done ? '😊' : face(c.name)}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
+      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark">♥</i>}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
     </div>
   );

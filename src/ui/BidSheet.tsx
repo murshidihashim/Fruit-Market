@@ -7,7 +7,7 @@ import {
   type Bid, type GameState,
 } from '../engine/game';
 import { Fruit } from './art';
-import { face } from './table';
+import { Face } from './art';
 
 interface Props { s: GameState; p: number; onSubmit: (bids: Bid[], favoured: boolean) => void }
 
@@ -67,7 +67,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
           return (
             <div class={`bid ${v.qty ? 'on' : ''}`}>
               <div class="bid-cust">
-                <span class="bc-face">{face(c.name)}</span>
+                <span class="bc-face"><Face who={c.name} size={30} /></span>
                 <span class="bc-want"><Fruit id={f} size={16} />×{w.qty}</span>
                 <span class="bc-max">≤${max}/ea</span>
               </div>
@@ -88,7 +88,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
                   <span class="lad-end">${lo}</span>
                   <div class="lad-track">
                     <i class="lad-fill" style={{ width: at(v.price) }} />
-                    {rivalCaps.map((r) => <span class="lad-rival" style={{ left: at(r.cap) }} title={`${r.o.name} can ask up to $${r.cap}`}>{r.o.avatar}</span>)}
+                    {rivalCaps.map((r) => <span class="lad-rival" style={{ left: at(r.cap) }} title={`${r.o.name} can ask up to $${r.cap}`}><Face who={r.o.avatar} size={18} /></span>)}
                     {v.qty > 0 && <span class="lad-you" style={{ left: at(v.price) }}>you</span>}
                   </div>
                   <span class="lad-end">${max}</span>
@@ -106,7 +106,7 @@ export function BidSheet({ s, p, onSubmit }: Props) {
         {others.length > 0 && (
           <div class="bid-none-row">
             {others.map(({ c, w }) => (
-              <span class="nope"><span>{face(c.name)}</span><Fruit id={w.fruit} size={14} stage="notso" />×{w.qty}</span>
+              <span class="nope"><Face who={c.name} size={16} /><Fruit id={w.fruit} size={14} stage="notso" />×{w.qty}</span>
             ))}
             <small class="muted">you have none</small>
           </div>
