@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, freshPos, lookOf, type FruitId, type UpgradeId } from '../engine/data';
 import {
-  activePlayer, beginBuying, buy, buyUpgrade, canBuy, canPlayFavour, canUpgrade, endBuyTurn, endEvening,
-  effectiveMax, finishReveal, notSoCount, playFavour, ranking, submitBids, RuleError,
-  type Customer, type GameState, type LineResult,
+  activePlayer, applyAction, canBuy, canPlayFavour, canUpgrade,
+  effectiveMax, notSoCount, ranking, RuleError,
+  type Action, type Customer, type GameState, type LineResult,
 } from '../engine/game';
+import type { OnlineClient } from '../net/client';
+import type { RoomView } from '../net/protocol';
 import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
@@ -18,12 +20,19 @@ import { fx } from './fx';
 import { loadSettings } from './store';
 import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 
-interface Props { initial: GameState; onExit: () => void; onChange: (s: GameState) => void; onRematch: () => void }
+interface Props {
+  initial: GameState;
+  onExit: () => void;
+  onChange: (s: GameState) => void;
+  onRematch: () => void;
+  /** Online play: the server owns the game; this screen sends actions and animates the states it receives. */
+  online?: OnlineClient;
+}
 
 const PHASE = { morning: 'Morning', buy: 'Buying', bid: 'Pricing', reveal: 'Sales', evening: 'Evening', over: 'Closed' } as const;
 const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', bid: 'SET PRICES', reveal: 'SALES!', evening: 'EVENING', over: '' } as const;
 
-export function Game({ initial, onExit, onChange, onRematch }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const [s, setS] = useState(initial);
   const sRef = useRef(initial);
   const [busy, setBusy] = useState(false);
@@ -44,16 +53,29 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [show, setShow] = useState<ShowState | null>(null);
   const [lastNight, setLastNight] = useState(0);
   const turnStart = useRef<GameState | null>(null);
+  const [meta, setMeta] = useState<RoomView | null>(online?.view ?? null);
+  const [conn, setConn] = useState(online?.conn ?? 'open');
+  const queue = useRef<GameState[]>([]);
+  const lastVersion = useRef(online?.view?.version ?? 0);
+  const sending = useRef(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
   const active = activePlayer(s);
-  const activeHuman = active >= 0 && s.players[active].kind === 'human';
-  const lastViewer = useRef(humans[0]);
-  if (activeHuman) lastViewer.current = active;
-  const viewer = lastViewer.current;
-  const needHandoff = multi && activeHuman && handedTo !== active && !busy;
+  const seat = online?.seat ?? null;
+  const activeHuman = online ? active === seat && s.phase !== 'bid' : active >= 0 && s.players[active].kind === 'human';
+  const lastViewer = useRef(seat ?? humans[0]);
+  if (!online && activeHuman) lastViewer.current = active;
+  const viewer = seat ?? lastViewer.current;
+  const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
+  // Online: whose secret prices are still missing, and who still has to press continue.
+  const myBidTurn = online ? s.phase === 'bid' && !!meta && !meta.submitted[viewer] : s.phase === 'bid' && activeHuman;
+  const waitingFor = (idxs: number[]) => idxs.map((i) => s.players[i]?.name).filter(Boolean).join(' and ');
+  const humansMissingBids = online && meta ? humans.filter((i) => !meta.submitted[i]) : [];
+  const votedMe = !!online && !!meta && meta.votes.includes(viewer);
+  const humansNotVoted = online && meta ? humans.filter((i) => !meta.votes.includes(i)) : [];
+  const offline = online && meta ? meta.seats.filter((x) => !x.connected) : [];
 
   useEffect(() => {
     A.setLayer(layerRef.current);
@@ -262,8 +284,52 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     }
   };
 
+  // Online: queue every server state and animate them one at a time.
+  useEffect(() => {
+    if (!online) return;
+    const offView = online.onView((v) => {
+      setMeta(v);
+      sending.current = false;
+      if (v.game && v.version > lastVersion.current && v.game.config.seed === sRef.current.config.seed) {
+        lastVersion.current = v.version;
+        queue.current.push(v.game);
+        setTick((t) => t + 1);
+      }
+    });
+    const offErr = online.onError((msg) => { sending.current = false; fx.error(); say(msg); });
+    const offConn = online.subscribe(() => setConn(online.conn));
+    return () => { offView(); offErr(); offConn(); };
+  }, [online]);
+
+  useEffect(() => {
+    if (!online || busyRef.current || !queue.current.length) return;
+    const next = queue.current.shift()!;
+    if (JSON.stringify(next) === JSON.stringify(sRef.current)) { setTick((t) => t + 1); return; }
+    void apply(next);
+  }, [tick, online]);
+
+  /** Every player decision goes through here: applied locally, or sent to the room server. */
+  const act = (a: Action) => {
+    if (busyRef.current) return;
+    if (online) {
+      if (sending.current) return;
+      if (!online.act(a)) return say('Reconnecting…');
+      sending.current = true;
+      return;
+    }
+    const who = a.kind === 'bids' ? activePlayer(sRef.current) : active;
+    attempt(() => applyAction(sRef.current, who, a));
+  };
+  const proceed = () => {
+    if (busyRef.current) return;
+    fx.tap();
+    if (online) { online.continue(); return; }
+    act({ kind: s.phase === 'morning' ? 'begin' : 'finish' });
+  };
+
   // Computer players act one step at a time, after any animation finishes.
   useEffect(() => {
+    if (online) return;
     if (busyRef.current) return;
     if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return;
     if (active < 0 || s.players[active].kind !== 'ai') return;
@@ -302,11 +368,11 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
 
   const pickMarket = (f: FruitId, pos: number) => {
     if (freeFruit !== null) {
-      attempt(() => playFavour(s, active, freeFruit, { fruit: f, pos }));
+      act({ kind: 'favour', idx: freeFruit, args: { fruit: f, pos } });
       setFreeFruit(null);
       return;
     }
-    attempt(() => buy(s, active, f, pos));
+    act({ kind: 'buy', fruit: f, pos });
   };
 
   const playCard = (idx: number) => {
@@ -323,7 +389,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       setFreeFruit(idx);
       return say('Tap a fruit at the market to take it free');
     }
-    attempt(() => playFavour(s, active, idx));
+    act({ kind: 'favour', idx });
   };
 
   if (needHandoff) {
@@ -342,7 +408,10 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     return (
       <div class="game">
         <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} />
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onRematch={onRematch} /></main>
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
+          onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
+          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
+          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} /></main>
       </div>
     );
   }
@@ -354,7 +423,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const right = around.find((x) => x.side === 'right');
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const pl = s.players[active];
-  const showTray = !busy && activeHuman && s.phase === 'bid';
+  const showTray = !busy && myBidTurn;
+  const bidder = online ? viewer : active;
 
   return (
     <div class={`game ${night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
@@ -373,6 +443,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
         </div>
       )}
 
+      {online && conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
+      {online && conn === 'open' && offline.length > 0 && <div class="net-strip">{offline.map((x) => x.name).join(' and ')} {offline.length > 1 ? 'are' : 'is'} offline. The game will wait.</div>}
       <div class="table">
         {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => setRival(top.p)} /></div>}
         <div class="street-wrap" data-a="street"><Street s={s} onTip={(c) => setTip(c)} /></div>
@@ -393,31 +465,35 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       </div>
 
       {showTray && s.phase === 'bid' && (
-        <div class="tray-wrap"><BidSheet key={`${s.day}-${active}`} s={s} p={active} onSubmit={(bids, fav) => { fx.card(); attempt(() => submitBids(s, active, bids, fav)); }} /></div>
+        <div class="tray-wrap"><BidSheet key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} /></div>
       )}
 
       <footer class="actionbar">
         {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); }}>Skip ⏩</button>}
         {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The farmer is unloading…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
-        {!busy && s.phase === 'morning' && <button class="btn primary wide big" onClick={() => { fx.tap(); attempt(() => beginBuying(s)); }}>Open the market</button>}
+        {!busy && s.phase === 'morning' && (votedMe
+          ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
+          : <button class="btn primary wide big" onClick={proceed}>Open the market</button>)}
         {!busy && s.phase === 'buy' && activeHuman && (
           <>
-            <button class="btn ghost" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>
+            {!online && <button class="btn ghost" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>}
             <div class="buy-hint"><b class="move">YOUR MOVE</b><small>Tap a crate to buy · {pl.boughtToday}/{pl.upgrades.includes('cart') ? 5 : 3} bought</small></div>
-            <button class="btn primary" onClick={() => { fx.tap(); setFreeFruit(null); attempt(() => endBuyTurn(s, active)); }}>Done ➜</button>
+            <button class="btn primary" onClick={() => { fx.tap(); setFreeFruit(null); act({ kind: 'endBuy' }); }}>Done ➜</button>
           </>
         )}
         {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
-        {!busy && s.phase === 'bid' && !activeHuman && <div class="hint-bar">Rivals are setting secret prices…</div>}
+        {!busy && s.phase === 'bid' && !myBidTurn && (online
+          ? <div class="hint-bar waiting-dots"><span class="lock">🔒</span> Prices locked. Waiting for {waitingFor(humansMissingBids) || 'the market'}</div>
+          : <div class="hint-bar">Rivals are setting secret prices…</div>)}
         {!busy && s.phase === 'evening' && activeHuman && (
-          <EveningDock s={s} p={active} onUpgrade={(u) => attempt(() => buyUpgrade(s, active, u))} onPriority={reallyPlay} onDone={() => attempt(() => endEvening(s, active))} />
+          <EveningDock s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onPriority={reallyPlay} onDone={() => act({ kind: 'endEvening' })} />
         )}
         {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
-        {!busy && s.phase === 'reveal' && (
-          <button class="btn primary wide big" onClick={() => { fx.tap(); setHandedTo(null); attempt(() => finishReveal(s)); }}>
-            {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
-          </button>
-        )}
+        {!busy && s.phase === 'reveal' && (votedMe
+          ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
+          : <button class="btn primary wide big" onClick={() => { setHandedTo(null); proceed(); }}>
+              {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
+            </button>)}
       </footer>
 
       <div class="fx-layer" ref={layerRef} />
@@ -644,7 +720,7 @@ function EveningDock({ s, p, onUpgrade, onPriority, onDone }: { s: GameState; p:
   );
 }
 
-function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void }) {
+function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean }) {
   const order = ranking(s);
   const win = order[0] === viewer;
   const ranks = ['1ST', '2ND', '3RD', '4TH'];
@@ -678,7 +754,8 @@ function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: numbe
           {recap.worst.length > 0 && <><div class="rc-h bad">Next time, watch out for</div>{recap.worst.map((t) => <div class="rc-l">{t}</div>)}</>}
         </div>
       )}
-      <button class="btn primary big wide" onClick={onRematch}>{win ? 'Defend your title' : 'Rematch!'}</button>
+      {rematchNote && <p class="rematch-note">{rematchNote}</p>}
+      <button class="btn primary big wide" disabled={rematchSent} onClick={onRematch}>{win ? 'Defend your title' : 'Rematch!'}</button>
       <button class="btn wide" onClick={onExit}>Main menu</button>
     </section>
   );

@@ -693,3 +693,30 @@ export function ranking(s: GameState): number[] {
     .map((_, i) => i)
     .sort((a, b) => s.players[b].cash - s.players[a].cash || s.players[b].stats.sold - s.players[a].stats.sold);
 }
+
+// ---------- actions as data ----------
+// One entry point for every player decision, so the same code drives solo play and the
+// online server. Each action is validated by the rule functions above.
+
+export type Action =
+  | { kind: 'begin' }
+  | { kind: 'buy'; fruit: FruitId; pos: number }
+  | { kind: 'endBuy' }
+  | { kind: 'favour'; idx: number; args?: FavourArgs }
+  | { kind: 'bids'; bids: Bid[]; favoured: boolean }
+  | { kind: 'finish' }
+  | { kind: 'upgrade'; upgrade: UpgradeId }
+  | { kind: 'endEvening' };
+
+export function applyAction(s: GameState, p: number, a: Action): GameState {
+  switch (a.kind) {
+    case 'begin': return beginBuying(s);
+    case 'buy': return buy(s, p, a.fruit, a.pos);
+    case 'endBuy': return endBuyTurn(s, p);
+    case 'favour': return playFavour(s, p, a.idx, a.args ?? {});
+    case 'bids': return submitBids(s, p, a.bids, a.favoured);
+    case 'finish': return finishReveal(s);
+    case 'upgrade': return buyUpgrade(s, p, a.upgrade);
+    case 'endEvening': return endEvening(s, p);
+  }
+}

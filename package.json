@@ -4,21 +4,25 @@
   "description": "Fruit Market: buy fresh, sell fast, undercut your rivals.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && tsc -p server && vite build",
     "build:single": "vite build --mode single",
     "test": "vitest run",
     "simulate": "vite-node scripts/simulate.ts",
-    "android:sync": "npm run build && npx cap sync android"
+    "android:sync": "npm run build && npx cap sync android",
+    "dev:online": "vite build && wrangler dev --port 8787",
+    "deploy:web": "vite build && wrangler deploy"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
+    "@cloudflare/workers-types": "^5.20261006.1",
     "@preact/preset-vite": "^2.9.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vite-plugin-singlefile": "^2.0.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "wrangler": "^4.148.0"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

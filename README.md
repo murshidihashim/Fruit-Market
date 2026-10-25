@@ -5,6 +5,7 @@
 A quick trading game for Android, based on the Fruit Market board game designed by Murshidi bin Md Hashim. Play against computer shopkeepers, or pass the phone around with friends.
 
 - **Rules:** [RULES.md](RULES.md)
+- **Online multiplayer and web hosting:** [ONLINE.md](ONLINE.md)
 - **Publishing to Google Play:** [PUBLISHING.md](PUBLISHING.md)
 - **Store listing text and graphics:** [store/](store/)
 

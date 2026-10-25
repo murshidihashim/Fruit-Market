@@ -5,3 +5,5 @@ dist-single
 *.jks
 keystore.properties
 .DS_Store
+.wrangler
+.dev.vars

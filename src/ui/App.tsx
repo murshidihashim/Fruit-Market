@@ -7,13 +7,24 @@ import { FRUIT, FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Logo } from './art';
 import { Game } from './Game';
 import { HowTo } from './HowTo';
+import { Online } from './Online';
+import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx } from './fx';
 import {
   dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
 } from './store';
 
-type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings';
+type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings' | 'online';
+
+function roomFromUrl(): string | undefined {
+  try {
+    const c = normaliseCode(new URLSearchParams(location.search).get('room') ?? '');
+    return c.length === CODE_LENGTH ? c : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 const AI_ROSTER = RIVALS;
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
@@ -21,7 +32,8 @@ const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
 interface Seat { kind: 'human' | 'ai'; level: Level; name: string }
 
 export function App() {
-  const [screen, setScreen] = useState<Screen>('home');
+  const [invite] = useState(roomFromUrl);
+  const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
   const [game, setGame] = useState<GameState | null>(() => loadGame());
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
   const recorded = useRef<string | null>(null);
@@ -101,6 +113,7 @@ export function App() {
   if (screen === 'setup') return <Setup onBack={() => go('home')} onStart={start} />;
   if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
+  if (screen === 'online') return <Online initialCode={invite} onExit={() => go('home')} />;
 
   const daily = loadDaily();
   const today = todayKey();
@@ -118,6 +131,7 @@ export function App() {
           <button class="btn primary big wide" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
         )}
         <button class={`btn ${resumable ? '' : 'primary'} big wide`} onClick={() => go('setup')}>New game</button>
+        <button class="btn big wide online-btn" onClick={() => go('online')}>Play online with a friend</button>
         <button class="btn wide daily" onClick={startDaily}>
           <span>Daily challenge</span>
           <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · 🔥 ${streak}-day streak` : ''}</small>

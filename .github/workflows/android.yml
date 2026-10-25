@@ -29,6 +29,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+        env:
+          # The Android app needs the deployed web address to play online (see ONLINE.md).
+          VITE_SERVER_URL: ${{ vars.FM_SERVER_URL }}
       - run: npx cap sync android
 
       - name: Debug APK (install on your phone to test)
