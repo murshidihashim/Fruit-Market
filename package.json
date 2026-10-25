@@ -8,6 +8,7 @@
     "build:single": "vite build --mode single",
     "test": "vitest run",
     "simulate": "vite-node scripts/simulate.ts",
+    "balance": "vite-node scripts/balance.ts",
     "android:sync": "npm run build && npx cap sync android",
     "dev:online": "vite build && wrangler dev --port 8787",
     "deploy:web": "vite build && wrangler deploy"
