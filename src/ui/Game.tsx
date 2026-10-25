@@ -14,7 +14,7 @@ import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
-import { BuyCards, EveningPanel, FavourRow, InventorySheet, InventoryStrip, PricePanel } from './panel';
+import { BuyCards, EveningPanel, FavourRow, InventorySheet, PricePanel, StallsBoard } from './panel';
 import { MarketScene } from './scene';
 import { fx } from './fx';
 import { loadSettings } from './store';
@@ -257,7 +257,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         const cool = pl.upgrades.includes('coolroom') && g.day % 2 === 1;
         const steps = (cool ? 0 : 1) + heat;
         const n = steps === 0 ? 0 : pl.stock[f][0] + (steps > 1 ? pl.stock[f][1] : 0);
-        spoil([`p${p}-${f}-0`, `p${p}-${f}`], f, n);
+        spoil([`p${p}-${f}`, `sc${p}-${f}`], f, n);
       });
     }
     await Promise.all(jobs);
@@ -472,7 +472,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <div class="stage">
           <MarketScene s={s} viewer={viewer} order={order} activeP={(s.phase === 'buy' || s.phase === 'evening') ? active : -1}
             onStall={(p) => setRival(p)} onCustomer={(c) => setTip(c)} rolling={s.phase === 'morning' && busy} />
-          <InventoryStrip s={s} p={viewer} onOpen={() => setRival(viewer)} />
+          <StallsBoard s={s} viewer={viewer} active={active} onOpen={setRival} />
         </div>
         <div class="panel-area">{panel}</div>
       </div>

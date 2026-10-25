@@ -5,7 +5,7 @@ import { planBids } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type UpgradeId } from '../engine/data';
 import {
   allocate, bestCap, canBuy, canPlayFavour, canUpgrade, count, effectiveMax, marketCost, minPrice, notSoCount,
-  servingCustomers, validateBids, walkInsToday, type Bid, type GameState,
+  servingCustomers, shelfSize, validateBids, walkInsToday, type Bid, type GameState,
 } from '../engine/game';
 import { Coin, Face, Fruit } from './art';
 import { Track, TrackLegend } from './board';
@@ -90,26 +90,49 @@ export function BuyCards({ s, p, myTurn, free = false, onBuy }: { s: GameState; 
 
 // ---------- inventory ----------
 
-export function InventoryStrip({ s, p, onOpen }: { s: GameState; p: number; onOpen: () => void }) {
-  const pl = s.players[p];
+/** Every stall at a glance: your stock and your rivals', fruit by fruit, with freshness. Tap a row for the full shelf. */
+export function StallsBoard({ s, viewer, active, onOpen }: { s: GameState; viewer: number; active: number; onOpen: (p: number) => void }) {
+  const order = [viewer, ...s.players.map((_, i) => i).filter((i) => i !== viewer)];
   return (
-    <button type="button" class="inv-strip" onClick={onOpen} aria-label="Open your stall">
-      <span class="inv-label">Your stall</span>
-      {FRUITS.map((f) => {
-        const units: Stage[] = [];
-        pl.stock[f].forEach((n, pos) => { for (let i = 0; i < n; i++) units.push(stageAt(f, pos)); });
-        units.reverse();
-        const rotting = pl.stock[f][0] > 0;
+    <div class="stalls" role="table" aria-label="Every stall's stock">
+      <div class="st-head" role="row">
+        <span class="st-who st-title">Stalls</span>
+        {FRUITS.map((f) => {
+          const d = demandFor(s, f);
+          return (
+            <span class="st-col" title={`${FRUIT[f].name}: ${d.qty} wanted, ${d.shops} in shops`}>
+              <Fruit id={f} size={16} />
+              <small><b class={d.qty > d.shops ? 'short' : ''}>{d.qty ? `${d.qty}${d.more ? '+' : ''}` : d.more ? '?' : '0'}</b> want · {d.shops} in</small>
+            </span>
+          );
+        })}
+      </div>
+      {order.map((p) => {
+        const pl = s.players[p];
+        const me = p === viewer;
         return (
-          <span class={`inv-f ${units.length ? '' : 'none'} ${rotting ? 'rot' : ''}`} data-a={`inv-${f}`}>
-            <Fruit id={f} size={22} />
-            <b>{units.length}</b>
-            <span class="inv-bar">{units.slice(0, 6).map((st) => <i class={`st-${st}`} />)}</span>
-          </span>
+          <button type="button" role="row" class={`st-row ${me ? 'me' : ''} ${p === active ? 'turn' : ''}`} onClick={() => onOpen(p)}
+            aria-label={`${me ? 'Your' : `${pl.name}'s`} stall`}>
+            <span class="st-who">
+              <Face who={pl.avatar} size={24} />
+              <span class="st-name"><b>{me ? 'You' : pl.name}</b><small><Icon name="crate" size={10} /> {count(pl.stock)}/{shelfSize(pl)}</small></span>
+            </span>
+            {FRUITS.map((f) => {
+              const units: Stage[] = [];
+              pl.stock[f].forEach((n, pos) => { for (let i = 0; i < n; i++) units.push(stageAt(f, pos)); });
+              units.reverse();
+              const rotting = pl.stock[f][0] > 0;
+              return (
+                <span class={`st-cell ${units.length ? '' : 'none'} ${rotting ? 'rot' : ''}`} data-a={`p${p}-${f}`}>
+                  <b>{units.length}</b>
+                  <span class="st-pips">{units.slice(0, 5).map((st) => <i class={`st-${st}`} />)}{units.length > 5 && <em>+</em>}</span>
+                </span>
+              );
+            })}
+          </button>
         );
       })}
-      <span class="inv-more">›</span>
-    </button>
+    </div>
   );
 }
 

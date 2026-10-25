@@ -161,7 +161,7 @@ function Stall({ s, p, x, w, me, active, lit, onTap }: StallProps) {
         const n = count(pl.stock, f);
         const cxp = x + 2 + i * (crate + 0.5);
         return (
-          <g data-a={`p${p}-${f}`}>
+          <g data-a={`sc${p}-${f}`}>
             {R(cxp, counter - 4, crate - 1, 5, C.woodD)}
             {n > 0 && <Fruit id={f} size={crate - 1} x={cxp} y={counter - 9} />}
             {n > 2 && <Fruit id={f} size={crate - 2} x={cxp + 1} y={counter - 13} />}
