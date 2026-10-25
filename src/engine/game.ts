@@ -52,6 +52,8 @@ export interface DayResult {
   income: number[];
 }
 
+export interface DayRecord { day: number; lines: LineResult[]; income: number[]; cash: number[] }
+
 export type Phase = 'morning' | 'buy' | 'bid' | 'reveal' | 'evening' | 'over';
 
 export interface GameState {
@@ -78,6 +80,10 @@ export interface GameState {
   turn: number;
   bids: (Bid[] | null)[];
   results: DayResult | null;
+  /** One entry per finished day, for recaps. Presentation only; older saves may lack it. */
+  history?: DayRecord[];
+  /** Each shop's cash when the day began (for the day's net result). */
+  dayStartCash?: number[];
   log: string[];
   nextId: number;
 }
@@ -267,6 +273,7 @@ export function newGame(config: GameConfig): GameState {
     results: null,
     log: [],
     nextId: 1,
+    history: [],
   };
   s.rng = r.state;
   s.forecast = drawCustomer(s);
@@ -312,6 +319,7 @@ function startDay(s: GameState) {
     p.boughtToday = 0;
     p.favouredTrade = false;
   }
+  s.dayStartCash = s.players.map((p) => p.cash);
   const n = s.players.length;
   s.order = Array.from({ length: n }, (_, i) => (s.firstPlayer + i) % n);
   if (s.priorityNext !== null) {
@@ -603,6 +611,9 @@ function resolve(s: GameState) {
 export function finishReveal(state: GameState): GameState {
   if (state.phase !== 'reveal') throw new RuleError('Nothing to reveal');
   const s = clone(state);
+  if (s.results) {
+    s.history = [...(s.history ?? []), { day: s.day, lines: s.results.lines, income: s.results.income, cash: s.players.map((p) => p.cash) }];
+  }
   s.secondMarket = s.firstMarket.filter((c) => c.wants.some((w) => w.qty > 0));
   s.firstMarket = [];
   if (s.day >= s.config.days) {

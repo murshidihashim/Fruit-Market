@@ -107,6 +107,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
         <b class="ms-name">{pl.name}</b>
         <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>
         {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={16} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
+        {s.day === s.config.days && s.phase !== 'over' && count(pl.stock) > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}
         <span class="spacer" />
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}>{UPGRADES[u].icon}</span>)}
         <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{pl.cash}</span>

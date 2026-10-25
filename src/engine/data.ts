@@ -260,11 +260,48 @@ export function lookOf(name: string): Look {
 }
 
 /** Computer shopkeepers: a cast of animal traders, each with a victory line. */
-export const RIVALS: { name: string; avatar: string; quip: string }[] = [
-  { name: 'Foxy Rosa', avatar: '🦊', quip: 'Too easy!' },
-  { name: 'Big Benny', avatar: '🐻', quip: 'Grrreat deal!' },
-  { name: 'Panda Lim', avatar: '🐼', quip: 'Bamboo-zled you!' },
-  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!' },
-  { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!' },
-  { name: 'Pinky', avatar: '🐷', quip: 'Oink oink, money!' },
+export interface RivalLines {
+  /** Won by undercutting the player by a dollar or two. */
+  undercut: string[];
+  /** Sold at the customer's full price. */
+  fullPrice: string[];
+  /** Beaten narrowly by the player (by $1 or on a tie). */
+  stung: string[];
+  /** Beaten clearly. */
+  lost: string[];
+}
+
+/** Computer shopkeepers: a cast of animal traders. Their lines react to what actually happened;
+ *  their buying and pricing come from the difficulty level, not from these personalities. */
+export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
+  { name: 'Foxy Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
+    undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Outfoxed again!'],
+    fullPrice: ['Full price? Lovely.', 'They didn\'t even haggle!'],
+    stung: ['Hmph. Lucky.', 'That one was mine!', 'Next time, darling.'],
+    lost: ['Fine, keep your customer.', 'I meant to do that.'] } },
+  { name: 'Big Benny', avatar: '🐻', quip: 'Grrreat deal!', lines: {
+    undercut: ['Grrreat deal for me!', 'Bear market, baby!', 'Cheaper AND cuddlier.'],
+    fullPrice: ['Top dollar! Honey money!', 'Ka-ching, full price!'],
+    stung: ['Grrr! By one dollar?!', 'I want a recount.', 'Paws off my customers!'],
+    lost: ['Hibernating on that one.', 'Oof. Too pricey.'] } },
+  { name: 'Panda Lim', avatar: '🐼', quip: 'Bamboo-zled you!', lines: {
+    undercut: ['Bamboo-zled you!', 'Calm and cheap wins.', 'Patience pays.'],
+    fullPrice: ['Full price, very zen.', 'A fair price, gladly paid.'],
+    stung: ['So close... breathe.', 'You were quicker today.', 'Hmm. Well played.'],
+    lost: ['Nap time, I guess.', 'The market has spoken.'] } },
+  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!', lines: {
+    undercut: ['Ribbit! Ka-ching!', 'Hopped under your price!', 'Croak and cheap!'],
+    fullPrice: ['Full price! Toad-ally!', 'Ribbit-ing profit!'],
+    stung: ['Croak! One dollar!', 'You leapt first. Hmph.', 'My lily pad!'],
+    lost: ['Back to the pond.', 'Meh. Ribbit.'] } },
+  { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!', lines: {
+    undercut: ['Mine now, hehe!', 'Swiped it!', 'Sneaky cheap!'],
+    fullPrice: ['Full price, no questions.', 'Shiny coins!'],
+    stung: ['Hey! I was gonna swipe that!', 'Rats. Er, raccoons.', 'You sneaky thing!'],
+    lost: ['I\'ll rummage elsewhere.', 'Whatever, got snacks.'] } },
+  { name: 'Pinky', avatar: '🐷', quip: 'Oink oink, money!', lines: {
+    undercut: ['Oink oink, money!', 'Squeal of a deal!', 'Hog the market!'],
+    fullPrice: ['Full price! Pig out!', 'Bacon the money!'],
+    stung: ['Oink! So unfair!', 'By ONE dollar?', 'Pig-headed luck!'],
+    lost: ['Back to the mud.', 'Snort. Too much.'] } },
 ];

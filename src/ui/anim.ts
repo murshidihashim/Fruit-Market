@@ -102,8 +102,11 @@ export function tag(at: string | string[], text: string, cls = '') {
   if (!a) return { el: null as HTMLElement | null, remove() {}, set(_c: string) {} };
   const p = point(a, 'top');
   const el = sprite(text, `ptag ${cls}`);
-  el.style.left = `${p.x}px`;
-  el.style.top = `${Math.max(14, p.y)}px`;
+  // Keep the label fully on screen, even above a stall at the edge.
+  const half = el.offsetWidth / 2;
+  const width = layer!.clientWidth;
+  el.style.left = `${Math.min(Math.max(p.x, half + 6), width - half - 6)}px`;
+  el.style.top = `${Math.max(14 + el.offsetHeight, p.y)}px`;
   el.animate([{ transform: 'translate(-50%, -100%) scale(0)' }, { transform: 'translate(-50%, -100%) scale(1.2)' }, { transform: 'translate(-50%, -100%) scale(1)' }], { duration: 280 * k() + 1, fill: 'forwards' });
   return {
     el,

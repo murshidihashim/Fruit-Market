@@ -23,7 +23,7 @@ const path = require('path');
     try {
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
-    if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); await page.click('text=Open the market'); continue; }
+    if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Open the market'); continue; }
     if (await has('text=Done ➜')) {
       const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();
@@ -50,7 +50,7 @@ const path = require('path');
       if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); }
       continue;
     }
-    for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await shot('07-summary'); await page.click(`text=${t}`); break; }
+    for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`text=${t}`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
     } catch (e) {

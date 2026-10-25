@@ -10,6 +10,7 @@ import {
 } from '../engine/game';
 import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
+import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
 import { BidSheet } from './BidSheet';
 import { ShopPanel } from './board';
@@ -40,7 +41,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [tip, setTip] = useState<Customer | null>(null);
   const [eventInfo, setEventInfo] = useState(false);
   const [pulseInfo, setPulseInfo] = useState(false);
-  const [auction, setAuction] = useState<{ line: LineResult; stage: 'sealed' | 'open' | 'done'; n: number; of: number } | null>(null);
+  const [show, setShow] = useState<ShowState | null>(null);
+  const [lastNight, setLastNight] = useState(0);
   const turnStart = useRef<GameState | null>(null);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +74,10 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     setBusy(true);
     A.resetHurry();
     try {
-      if (next.day !== prev.day) await nightfall(prev);
+      if (next.day !== prev.day) {
+        await nightfall(prev);
+        setLastNight(overnightLoss(prev, next, viewer));
+      }
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -147,51 +152,64 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
     await Promise.all(jobs);
   }
 
+  async function flights(g: GameState, l: LineResult) {
+    const jobs: Promise<void>[] = [];
+    for (const o of l.offers) {
+      if (!o.sold) continue;
+      for (let k = 0; k < Math.min(o.sold, 4); k++) {
+        jobs.push(A.fly([`p${o.player}-${l.fruit}`, `p${o.player}`], [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`], <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
+      }
+      for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
+      jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
+        fx.coin();
+        const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
+        A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip}`);
+      }));
+    }
+    await Promise.all(jobs);
+  }
+
   async function reveal(g: GameState) {
     const r = g.results!;
     const lines = r.lines.filter((l) => l.offers.length > 0);
     if (!lines.length) {
-      const t = A.tag('street', 'No sales today 😶', 'big');
-      await A.wait(1200);
+      const t = A.tag('street', 'No sales today', 'big');
+      await A.wait(1100);
       t.remove();
       return;
     }
-    for (let li = 0; li < lines.length; li++) {
-      const l = lines[li];
-      setAuction({ line: l, stage: 'sealed', n: li + 1, of: lines.length });
+    // Routine sales (one rival, no contest, not you) settle together; showdowns get the stage.
+    const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
+    const routine = lines.filter((l) => !shows.includes(l));
+    if (routine.length) await Promise.all(routine.map((l, i) => A.wait(i * 120).then(() => flights(g, l))));
+    const used = new Set<string>();
+    for (let i = 0; i < shows.length; i++) {
+      const l = shows[i];
+      const story = explainLine(g, l, viewer);
+      const react = rivalReaction(g, l, viewer, used);
+      const base = { line: l, n: i + 1, of: shows.length, story, react, cust: customerReaction(g, l.customerId, l.name) };
+      setShow({ ...base, stage: 'intro', shown: 0 });
       A.pulse(`c${l.customerId}`);
       fx.card();
-      await A.wait(700);
-      setAuction({ line: l, stage: 'open', n: li + 1, of: lines.length });
-      fx.tap();
-      await A.wait(900);
-      setAuction({ line: l, stage: 'done', n: li + 1, of: lines.length });
-      const jobs: Promise<void>[] = [];
-      for (const o of l.offers) {
-        if (!o.sold) continue;
-        for (let k = 0; k < Math.min(o.sold, 4); k++) {
-          jobs.push(A.fly([`p${o.player}-${l.fruit}`, `p${o.player}`], [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`], <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
-        }
-        for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
-        jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
-          fx.coin();
-          const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
-          A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip}`);
-        }));
-        const q = g.players[o.player].quip;
-        if (q && li % 2 === 0) {
-          const t = A.tag(`p${o.player}`, q, 'quip');
-          jobs.push(A.wait(1300).then(() => t.remove()));
-        }
+      await A.wait(380);
+      for (let k = 1; k <= l.offers.length; k++) {
+        setShow({ ...base, stage: 'reveal', shown: k });
+        fx.tap();
+        await A.wait(240);
       }
-      await Promise.all(jobs);
-      await A.wait(700);
+      setShow({ ...base, stage: 'result', shown: l.offers.length });
+      if (story.tone === 'good') fx.coin();
+      const tags: { remove(): void }[] = [];
+      if (react) tags.push(A.tag(`p${react.player}`, react.text, 'quip'));
+      await flights(g, l);
+      await A.wait(story.detail ? 1100 : 800);
+      tags.forEach((t) => t.remove());
     }
-    setAuction(null);
+    setShow(null);
     for (const f of r.favours) {
-      const t = A.tag(`p${f.player}`, '🃏 Favour card!', 'favour');
+      const t = A.tag(`p${f.player}`, 'Favour card!', 'favour');
       fx.card();
-      await A.wait(900);
+      await A.wait(800);
       t.remove();
     }
   }
@@ -274,7 +292,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
 
   useEffect(() => {
     if (s.phase === 'over') (ranking(s)[0] === viewer ? fx.win : fx.lose)();
-    const text = s.phase === 'morning' ? `DAY ${s.day}` : BANNER[s.phase];
+    const rem = s.config.days - s.day + 1;
+    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : `DAY ${s.day}`) : BANNER[s.phase];
     if (!text) return;
     setBanner(text);
     const t = window.setTimeout(() => setBanner(null), 1100);
@@ -338,7 +357,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const showTray = !busy && activeHuman && s.phase === 'bid';
 
   return (
-    <div class={`game ${night ? 'is-night' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game ${night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} />
       {(s.event || s.nextEvent) && (
         <div class="event-strip" onClick={(e) => { e.stopPropagation(); setEventInfo(!eventInfo); }}>
@@ -364,9 +383,9 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
             <Market s={s} morning={s.phase === 'morning'}
               onPick={myBuyTurn ? pickMarket : undefined}
               canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
-            {s.phase === 'morning' && !busy && <MorningCard s={s} />}
+            {s.phase === 'morning' && !busy && <MorningCard s={s} viewer={viewer} lost={lastNight} />}
             {s.phase === 'reveal' && revealDone && <SalesSummary s={s} viewer={viewer} />}
-            {auction && <AuctionCard s={s} a={auction} viewer={viewer} />}
+            {show && <Showdown s={s} a={show} viewer={viewer} />}
           </div>
           {right ? <RivalStall s={s} p={right.p} side="right" onOpen={() => setRival(right.p)} /> : <span />}
         </div>
@@ -378,6 +397,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       )}
 
       <footer class="actionbar">
+        {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); }}>Skip ⏩</button>}
         {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The farmer is unloading…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
         {!busy && s.phase === 'morning' && <button class="btn primary wide big" onClick={() => { fx.tap(); attempt(() => beginBuying(s)); }}>Open the market</button>}
         {!busy && s.phase === 'buy' && activeHuman && (
@@ -467,23 +487,32 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
 }
 
 function TopBar({ s, viewer, onMenu }: { s: GameState; viewer: number; onMenu: () => void }) {
+  const rem = s.config.days - s.day + 1;
+  const st = standing(s, viewer);
   return (
     <header class="topbar">
       <button class="icon-btn" onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Menu">☰</button>
       <div class="day">
         <span class="day-label">DAY {s.day}<small>/{s.config.days}</small></span>
-        <div class="days" aria-hidden="true">{Array.from({ length: s.config.days }, (_, i) => <i class={i + 1 < s.day ? 'past' : i + 1 === s.day ? 'now' : ''} />)}</div>
-        <span class="phase">{PHASE[s.phase]}</span>
+        <div class="days" aria-hidden="true">{Array.from({ length: s.config.days }, (_, i) => <i class={`${i + 1 < s.day ? 'past' : i + 1 === s.day ? 'now' : ''} ${s.config.days - i <= 3 ? 'end' : ''}`} />)}</div>
+        {s.phase !== 'over' && rem <= 3 ? <span class={`left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'FINAL DAY' : `${rem} DAYS LEFT`}</span> : <span class="phase">{PHASE[s.phase]}</span>}
       </div>
+      {s.players.length > 1 && <span class={`rank r${st.rank}`} title={st.text}>#{st.rank}</span>}
       <div class="hud-cash" aria-label={`Cash $${s.players[viewer].cash}`}><Coin size={20} /><b>{s.players[viewer].cash}</b></div>
     </header>
   );
 }
 
-function MorningCard({ s }: { s: GameState }) {
+function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number; lost: number }) {
+  const rem = s.config.days - s.day + 1;
+  const st = standing(s, viewer);
+  const stock = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f].reduce((x, y) => x + y, 0), 0);
   return (
-    <div class="morning-card">
-      <div class="mc-day">Day {s.day}{s.day === s.config.days && <b> · last day!</b>}</div>
+    <div class={`morning-card ${rem <= 3 ? 'finale' : ''}`}>
+      <div class="mc-day">{rem === 1 ? 'FINAL DAY' : `Day ${s.day}`}<small>{rem === 1 ? '' : ` · ${rem} days left`}</small></div>
+      {s.day > 1 && <div class={`mc-standing r${st.rank}`}>{st.text}</div>}
+      {lost > 0 && <div class="mc-loss">{lost} of your fruit spoiled overnight.</div>}
+      {rem === 1 && stock > 0 && <div class="mc-loss">Anything unsold tonight is worth $0. Sell it all!</div>}
       {s.event ? (
         <div class="event-card flip">
           <div class="ei">{s.event.icon}</div>
@@ -499,53 +528,42 @@ function MorningCard({ s }: { s: GameState }) {
   );
 }
 
-function offerReason(s: GameState, l: LineResult, o: LineResult['offers'][number]): string {
-  if (o.sold >= o.qty) return o.qty > 1 ? `SOLD ×${o.sold}` : 'SOLD';
-  if (o.sold > 0) return `sold ${o.sold}/${o.qty} · order filled`;
-  const cheaper = l.offers.find((w) => w.sold > 0 && w.price < o.price);
-  if (cheaper) return `beaten by $${cheaper.price}`;
-  const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
-  if (tie) return tie.freshness > o.freshness ? 'tie · theirs fresher' : `tie · ${s.players[tie.player].favouredTrade ? 'favoured trade' : 'turn order'}`;
-  return 'order filled';
-}
+interface ShowState { line: LineResult; n: number; of: number; stage: 'intro' | 'reveal' | 'result'; shown: number; story: LineStory; react: Reaction | null; cust: string }
 
-function AuctionCard({ s, a, viewer }: { s: GameState; a: { line: LineResult; stage: 'sealed' | 'open' | 'done'; n: number; of: number }; viewer: number }) {
+function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer: number }) {
   const l = a.line;
-  const sold = l.offers.reduce((x, o) => x + o.sold, 0);
-  const mine = l.offers.find((o) => o.player === viewer);
-  const open = a.stage !== 'sealed';
+  // Reveal from the highest price down, so the winning price lands last.
+  const order = [...l.offers].map((o, i) => ({ o, i })).sort((x, y) => y.o.price - x.o.price || y.i - x.i);
+  const done = a.stage === 'result';
   return (
-    <div class="auction" role="status">
-      <div class="au-top"><span>SALE {a.n}/{a.of}</span><span>cheapest sells first</span></div>
+    <div class={`auction ${done ? `tone-${a.story.tone}` : ''}`} role="status">
+      <div class="au-top"><span>SHOWDOWN {a.n}/{a.of}</span><span>cheapest sells first</span></div>
       <div class="au-cust">
-        <span class="au-face"><Face who={l.name} size={44} /></span>
+        <span class="au-face"><Face who={l.name} size={44} />{done && a.cust && <span class="au-say">{a.cust}</span>}</span>
         <div class="au-ask">
           <b>{lookOf(l.name).title}</b>
           <span class="au-want"><Fruit id={l.fruit} size={20} /><b>×{l.want}</b><span class="au-cap">pays up to <b>${l.max}</b> each</span></span>
         </div>
       </div>
       <div class="au-offers">
-        {l.offers.map((o, i) => {
+        {order.map(({ o, i }, k) => {
           const pl = s.players[o.player];
-          const res = a.stage === 'done' ? (o.sold ? 'won' : 'lost') : '';
+          const open = k < a.shown;
+          const res = done ? (o.sold ? 'won' : 'lost') : '';
           return (
-            <div class={`au-offer ${open ? 'open' : ''} ${res} ${o.player === viewer ? 'me' : ''}`} style={{ animationDelay: `${i * 0.12}s` }}>
+            <div class={`au-offer ${open ? 'open' : 'sealed'} ${res} ${o.player === viewer ? 'me' : ''}`}>
               <span class="au-who"><Face who={pl.avatar} size={26} /></span>
               <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>offers {o.qty}</small></span>
               <span class="au-price">{open ? `$${o.price}` : '?'}</span>
-              {a.stage === 'done' && <span class="au-res">{offerReason(s, l, o)}</span>}
+              {done && <span class="au-res">{a.story.tags[i]}</span>}
             </div>
           );
         })}
       </div>
-      {a.stage === 'done' && (
-        <div class={`au-why ${mine ? (mine.sold ? 'good' : 'bad') : ''}`}>
-          {mine
-            ? mine.sold
-              ? `You earned $${mine.sold * mine.price}.`
-              : `You missed out: ${offerReason(s, l, mine)}.`
-            : 'You had no offer here.'}
-          {sold < l.want ? ` ${l.want - sold} still wanted.` : ''}
+      {done && (
+        <div class={`au-why ${a.story.tone}`}>
+          <b>{a.story.headline}</b>
+          {a.story.detail && <small>{a.story.detail}</small>}
         </div>
       )}
     </div>
@@ -554,26 +572,34 @@ function AuctionCard({ s, a, viewer }: { s: GameState; a: { line: LineResult; st
 
 function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const r = s.results!;
-  const soldMine = r.lines.reduce((a, l) => a + l.offers.filter((o) => o.player === viewer).reduce((b, o) => b + o.sold, 0), 0);
-  const rotting = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f][0], 0);
+  const start = s.dayStartCash?.[viewer];
+  const net = start === undefined ? null : s.players[viewer].cash - start;
+  const spent = net === null ? null : r.income[viewer] - net;
+  const highlights = dayHighlights(s, viewer);
+  const st = standing(s, viewer);
   const best = Math.max(...r.income);
+  const rem = s.config.days - s.day;
   return (
     <div class="sales-card">
-      <div class="sc-title">END OF DAY {s.day}</div>
+      <div class="sc-title">{rem === 0 ? 'MARKET CLOSED' : `END OF DAY ${s.day}`}</div>
+      <div class="sc-money">
+        <span>Sales <b class="good">+${r.income[viewer]}</b></span>
+        {spent !== null && spent > 0 && <span>Stock <b class="bad">−${spent}</b></span>}
+        {net !== null && <span>Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
+      </div>
+      {highlights.length > 0 && (
+        <div class="sc-high">
+          {highlights.map((h) => <div class={`hl ${h.tone}`}><span>{h.icon}</span>{h.text}</div>)}
+        </div>
+      )}
       <div class="takings">
         {s.players.map((pl, i) => (
           <span class={`tk ${i === viewer ? 'me' : ''} ${r.income[i] ? '' : 'zero'} ${r.income[i] === best && best > 0 ? 'top' : ''}`}>
-            <Face who={pl.avatar} size={26} /><b>+${r.income[i]}</b>
+            <Face who={pl.avatar} size={24} /><b>+${r.income[i]}</b>
           </span>
         ))}
       </div>
-      <div class="sc-rows">
-        <span>You sold <b>{soldMine}</b> fruit</span>
-        {rotting > 0 && s.day < s.config.days && <span class="bad">{rotting} spoil tonight</span>}
-        {r.happy.length > 0 && <span class="good">{r.happy.length} happy customer{r.happy.length > 1 ? 's' : ''}</span>}
-        {r.leftAngry.length > 0 && <span class="bad">{r.leftAngry.length} left unhappy</span>}
-        {r.movedToWaiting.length > 0 && s.day < s.config.days && <span>{r.movedToWaiting.length} back tomorrow</span>}
-      </div>
+      {s.players.length > 1 && <div class={`sc-standing r${st.rank}`}>{st.text}{rem > 0 ? ` · ${rem} day${rem > 1 ? 's' : ''} to go` : ''}</div>}
     </div>
   );
 }
@@ -622,11 +648,15 @@ function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: numbe
   const order = ranking(s);
   const win = order[0] === viewer;
   const ranks = ['1ST', '2ND', '3RD', '4TH'];
+  const champ = s.players[order[0]];
+  const margin = order.length > 1 ? champ.cash - s.players[order[1]].cash : 0;
+  const recap = gameRecap(s, viewer);
   return (
     <section class="results">
-      <div class="trophy"><Face who={s.players[order[0]].avatar} size={96} /><span class="crown"><Icon name="star" size={34} /></span></div>
-      <h2>{win ? 'Top shop in town!' : `${s.players[order[0]].name} wins`}</h2>
-      {s.config.daily && <p class="chip">📅 Daily challenge {s.config.daily}</p>}
+      <div class="trophy"><Face who={champ.avatar} size={96} /><span class="crown"><Icon name="star" size={34} /></span></div>
+      <h2>{win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`}</h2>
+      {order.length > 1 && <p class="margin">{margin === 0 ? 'A dead heat, decided on fruit sold!' : margin <= 5 ? `By just $${margin}. What a finish!` : `By $${margin}.`}</p>}
+      {s.config.daily && <p class="chip">Daily challenge {s.config.daily}</p>}
       <div class="podium">
         {order.map((i, k) => {
           const pl = s.players[i];
@@ -634,17 +664,22 @@ function Results({ s, viewer, onExit, onRematch }: { s: GameState; viewer: numbe
             <div class={`pod ${i === viewer ? 'me' : ''}`}>
               <span class={`medal r${k + 1}`}>{ranks[k]}</span>
               <span class="avatar sm"><Face who={pl.avatar} size={26} /></span>
-              <b>{pl.name}</b>
+              <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>
-              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale} · {pl.upgrades.map((u) => UPGRADES[u].icon).join('')}</div>
+              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{pl.upgrades.length ? ` · ${pl.upgrades.map((u) => UPGRADES[u].icon).join('')}` : ''}</div>
             </div>
           );
         })}
       </div>
-      <button class="btn primary big wide" onClick={onRematch}>Play again</button>
+      {(recap.best.length > 0 || recap.worst.length > 0) && (
+        <div class="recap">
+          {recap.best.length > 0 && <><div class="rc-h good">Your best moments</div>{recap.best.map((t) => <div class="rc-l">{t}</div>)}</>}
+          {recap.worst.length > 0 && <><div class="rc-h bad">Next time, watch out for</div>{recap.worst.map((t) => <div class="rc-l">{t}</div>)}</>}
+        </div>
+      )}
+      <button class="btn primary big wide" onClick={onRematch}>{win ? 'Defend your title' : 'Rematch!'}</button>
       <button class="btn wide" onClick={onExit}>Main menu</button>
     </section>
   );
 }
-

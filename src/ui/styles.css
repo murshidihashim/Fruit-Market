@@ -575,3 +575,54 @@ p { margin: 0.4em 0; line-height: 1.35; }
 .medal.r1 { background: var(--gold); }
 .medal.r2 { background: #d9d6e3; }
 .medal.r3 { background: #e0a272; }
+
+/* ---------- showdown & stakes ---------- */
+.btn.skip { flex: 0 0 auto; min-height: 40px; padding: 6px 12px; font-size: 0.9rem; }
+.days i.end { border-color: #ff9b7a; }
+.topbar .left { font-family: var(--f-pixel); font-size: 0.78rem; font-weight: 600; padding: 1px 6px; border-radius: 3px; background: #ffb37a; color: var(--ink); white-space: nowrap; }
+.topbar .left.last { background: var(--red); color: #fff8ec; animation: breathe 1.2s steps(2) infinite; }
+.rank { font-family: var(--f-pixel); font-weight: 700; font-size: 0.95rem; padding: 2px 6px; border: var(--frame); border-radius: var(--r); background: var(--paper-3); color: var(--ink); }
+.rank.r1 { background: var(--gold); }
+.finale .topbar { background: #4a2a3e; }
+.finale .event-strip { background: #6a3346; }
+.finale .table { background: linear-gradient(rgba(240, 140, 90, 0.10), rgba(240, 140, 90, 0.10)); }
+.final-day .hud-cash { box-shadow: 0 0 0 3px var(--red), 0 2px 0 var(--ink); }
+.zero-warn { animation: breathe 1.4s steps(2) infinite; }
+
+.mc-day small { font-family: var(--f-body); font-weight: 400; font-size: 0.85rem; color: var(--muted); }
+.morning-card.finale { border-color: var(--red-d); }
+.mc-standing, .sc-standing { font-family: var(--f-pixel); font-size: 0.9rem; padding: 2px 10px; border-radius: 3px; background: var(--paper-3); }
+.mc-standing.r1, .sc-standing.r1 { background: var(--gold-l); }
+.mc-loss { font-size: 0.85rem; font-weight: 600; color: var(--red-d); background: #ffe1d6; border-radius: 3px; padding: 2px 8px; }
+
+.auction.tone-good { box-shadow: 0 0 0 3px var(--green), 0 4px 0 var(--ink), 0 12px 24px rgba(0, 0, 0, 0.3); }
+.auction.tone-bad { box-shadow: 0 0 0 3px var(--red), 0 4px 0 var(--ink), 0 12px 24px rgba(0, 0, 0, 0.3); }
+.au-face { position: relative; }
+.au-say { position: absolute; left: 34px; top: -12px; z-index: 1; white-space: nowrap; background: #fffdf6; border: 2px solid var(--ink); border-radius: 3px; padding: 0 6px; font-size: 0.72rem; font-weight: 600; animation: pop 0.25s steps(3); }
+.au-offer.sealed { background: var(--night-2); border-color: var(--ink); color: #fff8ec; }
+.au-offer.sealed .au-name small { color: #cfc6e8; }
+.au-offer.sealed .au-price { color: var(--gold); }
+.au-offer.open .au-price { animation: flip 0.24s steps(3); }
+.au-why { display: flex; flex-direction: column; gap: 2px; }
+.au-why b { font-family: var(--f-body); font-size: 0.92rem; font-weight: 600; }
+.au-why small { font-size: 0.78rem; opacity: 0.9; }
+.au-why.neutral { background: var(--paper-3); color: var(--ink); }
+
+.sc-money { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 0.85rem; }
+.sc-money b { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sc-money .good { color: var(--green); }
+.sc-money .bad { color: var(--red-d); }
+.sc-high { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.hl { display: flex; align-items: center; gap: 6px; text-align: left; font-size: 0.85rem; font-weight: 600; border-radius: 3px; padding: 4px 8px; border-left: 4px solid var(--ink-2); background: var(--paper-3); animation: walkin 0.35s steps(4) backwards; }
+.hl:nth-child(2) { animation-delay: 0.15s; }
+.hl.good { background: var(--green-l); border-color: var(--green); color: #245c2a; }
+.hl.bad { background: #ffe1d6; border-color: var(--red); color: var(--red-d); }
+
+.results .margin { margin: 0; font-family: var(--f-pixel); color: var(--ink-2); }
+.recap { width: 100%; text-align: left; background: var(--paper-2); border: var(--frame); border-radius: var(--r); box-shadow: 0 2px 0 var(--ink); padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.rc-h { font-family: var(--f-pixel); font-weight: 600; font-size: 0.9rem; margin-top: 4px; }
+.rc-h.good { color: var(--green); }
+.rc-h.bad { color: var(--red-d); }
+.rc-l { font-size: 0.85rem; padding-left: 10px; border-left: 3px solid var(--paper-3); }
+.topbar .day { overflow: hidden; }
+.topbar .day:has(.left) .days { display: none; }
