@@ -1,140 +1,15 @@
-// The decision area: one dark panel whose cards change with the phase.
-// Buying → fruit cards. Pricing → price cards. Evening → upgrade cards. Inventory opens on tap.
+// Decision panels: price cards for setting secret prices, upgrade cards for the evening,
+// and the full stall sheet that opens when you tap a stall.
 import { useMemo, useState } from 'preact/hooks';
 import { planBids } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type UpgradeId } from '../engine/data';
 import {
-  allocate, bestCap, canBuy, canPlayFavour, canUpgrade, count, effectiveMax, marketCost, minPrice, notSoCount,
-  servingCustomers, shelfSize, validateBids, walkInsToday, type Bid, type GameState,
+  allocate, bestCap, canPlayFavour, canUpgrade, count, effectiveMax, minPrice, notSoCount,
+  servingCustomers, validateBids, type Bid, type GameState,
 } from '../engine/game';
 import { Coin, Face, Fruit } from './art';
 import { Track, TrackLegend } from './board';
 import { Icon } from './pixel';
-
-const STAGE_NAME: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Old', unripe: 'Unripe' };
-
-// ---------- demand per fruit ----------
-
-export function demandFor(s: GameState, f: FruitId) {
-  const before = s.phase === 'morning' || s.phase === 'buy';
-  const custs = [...servingCustomers(s), ...(before && s.forecast ? [s.forecast] : [])];
-  let qty = 0;
-  let top = 0;
-  for (const c of custs) for (const w of c.wants) if (w.fruit === f && w.qty > 0) { qty += w.qty; top = Math.max(top, effectiveMax(s, w)); }
-  if (before) for (const w of s.event?.extra?.wants ?? []) if (w.fruit === f) { qty += w.qty; top = Math.max(top, effectiveMax(s, w)); }
-  const shops = s.players.reduce((a, p) => a + count(p.stock, f, true), 0);
-  return { qty, top, more: before && walkInsToday(s) > 0, shops };
-}
-
-// ---------- buying ----------
-
-interface Tier { stage: Stage; pos: number; n: number; cost: number }
-
-function tiers(s: GameState, f: FruitId): Tier[] {
-  const by = new Map<Stage, Tier>();
-  s.market[f].forEach((n, pos) => {
-    if (!n) return;
-    const stage = stageAt(f, pos);
-    const t = by.get(stage);
-    // Ripe fruit: offer the freshest spot of that stage. Unripe: the one that ripens soonest.
-    if (!t) by.set(stage, { stage, pos, n, cost: marketCost(s, f, pos) });
-    else {
-      t.n += n;
-      if (stage === 'unripe' ? pos < t.pos : pos > t.pos) { t.pos = pos; t.cost = marketCost(s, f, pos); }
-    }
-  });
-  const order: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
-  return order.map((st) => by.get(st)).filter(Boolean) as Tier[];
-}
-
-export function BuyCards({ s, p, myTurn, free = false, onBuy }: { s: GameState; p: number; myTurn: boolean; free?: boolean; onBuy: (f: FruitId, pos: number) => void }) {
-  return (
-    <div class="fruit-grid">
-      {FRUITS.map((f) => {
-        const d = demandFor(s, f);
-        const ts = tiers(s, f);
-        const mine = count(s.players[p].stock, f);
-        return (
-          <div class={`fcard-big ${ts.length ? '' : 'empty'}`} data-a={`mk-${f}`}>
-            <div class="fc-head">
-              <Fruit id={f} size={44} />
-              <div class="fc-title">
-                <b>{FRUIT[f].name}</b>
-                <span class="fc-life">{FRUIT[f].ripe.length}-day life</span>
-              </div>
-              {mine > 0 && <span class="fc-mine" title="In your stall">{mine}</span>}
-            </div>
-            <div class="fc-demand">
-              {d.qty > 0 ? <><b>{d.qty}{d.more ? '+' : ''}</b> wanted · up to <b>${d.top}</b></> : <span class="dim">No orders yet{d.more ? ' (walk-ins coming)' : ''}</span>}
-            </div>
-            <div class="fc-tiers">
-              {ts.length === 0 && <span class="dim">Sold out</span>}
-              {ts.map((t) => {
-                const why = canBuy(s, p, f, t.pos);
-                return (
-                  <button type="button" class={`tier st-${t.stage}`} data-a={`m-${f}-${t.pos}`} disabled={!myTurn || (!free && !!why)}
-                    title={why ?? `Buy one ${STAGE_NAME[t.stage].toLowerCase()} ${FRUIT[f].name.toLowerCase()}`} onClick={() => onBuy(f, t.pos)}>
-                    <span class="t-stage">{STAGE_NAME[t.stage]}</span>
-                    <span class="t-cost">${t.cost}</span>
-                    <span class="t-n">×{t.n}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---------- inventory ----------
-
-/** Every stall at a glance: your stock and your rivals', fruit by fruit, with freshness. Tap a row for the full shelf. */
-export function StallsBoard({ s, viewer, active, onOpen }: { s: GameState; viewer: number; active: number; onOpen: (p: number) => void }) {
-  const order = [viewer, ...s.players.map((_, i) => i).filter((i) => i !== viewer)];
-  return (
-    <div class="stalls" role="table" aria-label="Every stall's stock">
-      <div class="st-head" role="row">
-        <span class="st-who st-title">Stalls</span>
-        {FRUITS.map((f) => {
-          const d = demandFor(s, f);
-          return (
-            <span class="st-col" title={`${FRUIT[f].name}: ${d.qty} wanted, ${d.shops} in shops`}>
-              <Fruit id={f} size={16} />
-              <small><b class={d.qty > d.shops ? 'short' : ''}>{d.qty ? `${d.qty}${d.more ? '+' : ''}` : d.more ? '?' : '0'}</b> want · {d.shops} in</small>
-            </span>
-          );
-        })}
-      </div>
-      {order.map((p) => {
-        const pl = s.players[p];
-        const me = p === viewer;
-        return (
-          <button type="button" role="row" class={`st-row ${me ? 'me' : ''} ${p === active ? 'turn' : ''}`} onClick={() => onOpen(p)}
-            aria-label={`${me ? 'Your' : `${pl.name}'s`} stall`}>
-            <span class="st-who">
-              <Face who={pl.avatar} size={24} />
-              <span class="st-name"><b>{me ? 'You' : pl.name}</b><small><Icon name="crate" size={10} /> {count(pl.stock)}/{shelfSize(pl)}</small></span>
-            </span>
-            {FRUITS.map((f) => {
-              const units: Stage[] = [];
-              pl.stock[f].forEach((n, pos) => { for (let i = 0; i < n; i++) units.push(stageAt(f, pos)); });
-              units.reverse();
-              const rotting = pl.stock[f][0] > 0;
-              return (
-                <span class={`st-cell ${units.length ? '' : 'none'} ${rotting ? 'rot' : ''}`} data-a={`p${p}-${f}`}>
-                  <b>{units.length}</b>
-                  <span class="st-pips">{units.slice(0, 5).map((st) => <i class={`st-${st}`} />)}{units.length > 5 && <em>+</em>}</span>
-                </span>
-              );
-            })}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 export function InventorySheet({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
   const pl = s.players[p];
@@ -279,7 +154,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
 
 // ---------- evening ----------
 
-const UP_ICON: Record<UpgradeId, 'shelf' | 'handcart' | 'coolroom' | 'signboard'> = { shelf: 'shelf', cart: 'handcart', coolroom: 'coolroom', signboard: 'signboard' };
+export const UP_ICON: Record<UpgradeId, 'shelf' | 'handcart' | 'coolroom' | 'signboard'> = { shelf: 'shelf', cart: 'handcart', coolroom: 'coolroom', signboard: 'signboard' };
 
 export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void }) {
   const pl = s.players[p];

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, type FruitId } from '../engine/data';
 import {
-  activePlayer, applyAction, canPlayFavour,
+  activePlayer, applyAction, canBuy, canPlayFavour,
   effectiveMax, notSoCount, ranking, RuleError,
   type Action, type Customer, type GameState, type LineResult,
 } from '../engine/game';
@@ -14,8 +14,8 @@ import { Coin, Face, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
-import { BuyCards, EveningPanel, FavourRow, InventorySheet, PricePanel, StallsBoard } from './panel';
-import { MarketScene } from './scene';
+import { EveningPanel, InventorySheet, PricePanel } from './panel';
+import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 import { fx } from './fx';
 import { loadSettings } from './store';
 
@@ -417,42 +417,24 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const pl = s.players[active];
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const bidder = online ? viewer : active;
-  const others = s.players.map((_, i) => i).filter((i) => i !== viewer);
-  const order = [...others.slice(0, Math.ceil(others.length / 2)), viewer, ...others.slice(Math.ceil(others.length / 2))];
+  const around = seats(s.players.length, viewer);
+  const top = around.find((x) => x.side === 'top');
+  const left = around.find((x) => x.side === 'left');
+  const right = around.find((x) => x.side === 'right');
   const limit = pl ? (pl.upgrades.includes('cart') ? 5 : 3) : 3;
   const pricing = s.phase === 'bid' && myBidTurn && !busy;
 
-  const panel = (() => {
-    if (s.phase === 'morning') return busy ? <div class="info-card dim center-text">The farmer is unloading the cart…</div> : <MorningCard s={s} viewer={viewer} lost={lastNight} />;
-    if (s.phase === 'buy') {
-      return (
-        <>
-          <div class={`turn-card ${myBuyTurn ? 'mine' : ''}`}>
-            {activeHuman
-              ? <><b>{freeFruit !== null ? 'Pick your free fruit' : 'Your turn to buy'}</b><span>{pl.boughtToday} of {limit} bought · tap a price to buy one</span></>
-              : <><Face who={pl.avatar} size={28} /><b>{pl.name}</b><span>is buying…</span></>}
-          </div>
-          <BuyCards s={s} p={viewer} myTurn={myBuyTurn} free={freeFruit !== null} onBuy={pickMarket} />
-          <FavourRow s={s} p={viewer} phase="buy" onCard={playCard} />
-        </>
-      );
-    }
-    if (s.phase === 'bid') {
-      if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} />;
-      return (
-        <div class="locked-card">
-          <div class="lk-cards">{[0, 1, 2].map((i) => <span class="lk" style={{ transform: `rotate(${(i - 1) * 6}deg)` }}>🔒</span>)}</div>
-          <b>{online ? 'Your prices are locked in' : 'Rivals are choosing prices'}</b>
-          <span class={online ? 'waiting-dots' : ''}>{online ? `Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Secret until the reveal'}</span>
-        </div>
-      );
-    }
+  // Cards that sit on top of the market in the middle of the table.
+  const overlay = (() => {
+    if (s.phase === 'morning' && !busy) return <MorningCard s={s} viewer={viewer} lost={lastNight} />;
     if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
-    if (s.phase === 'evening') {
-      return activeHuman && !busy
-        ? <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={playCard} />
-        : <div class="turn-card">{pl && <Face who={pl.avatar} size={28} />}<b>{pl?.name}</b><span>is closing up for the night…</span></div>;
-    }
+    return null;
+  })();
+
+  // Decisions that need more room slide up from the bottom (side panel on desktop).
+  const tray = (() => {
+    if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} />;
+    if (s.phase === 'evening' && activeHuman && !busy) return <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={playCard} />;
     return null;
   })();
 
@@ -468,13 +450,24 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       {online && conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
       {online && conn === 'open' && offline.length > 0 && <div class="net-strip">{offline.map((x) => x.name).join(' and ')} {offline.length > 1 ? 'are' : 'is'} offline. The game will wait.</div>}
 
-      <div class="play">
-        <div class="stage">
-          <MarketScene s={s} viewer={viewer} order={order} activeP={(s.phase === 'buy' || s.phase === 'evening') ? active : -1}
-            onStall={(p) => setRival(p)} onCustomer={(c) => setTip(c)} rolling={s.phase === 'morning' && busy} />
-          <StallsBoard s={s} viewer={viewer} active={active} onOpen={setRival} />
+      <div class={`play ${tray ? 'has-tray' : ''}`}>
+        <div class="table">
+          {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => setRival(top.p)} /></div>}
+          <div class="street-wrap" data-a="street"><Street s={s} onTip={(c) => setTip(c)} /></div>
+          <PulseBar s={s} onTap={() => setPulseInfo(!pulseInfo)} />
+          <div class="mid">
+            {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => setRival(left.p)} /> : <span />}
+            <div class="centre">
+              <Market s={s} morning={s.phase === 'morning'}
+                onPick={myBuyTurn ? pickMarket : undefined}
+                canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
+              {overlay}
+            </div>
+            {right ? <RivalStall s={s} p={right.p} side="right" onOpen={() => setRival(right.p)} /> : <span />}
+          </div>
+          <MyStall s={s} p={viewer} onCard={activeHuman ? playCard : undefined} flashCards={freeFruit !== null} />
         </div>
-        <div class="panel-area">{panel}</div>
+        {tray && <div class="tray-wrap">{tray}</div>}
       </div>
 
       {!pricing && (
@@ -487,11 +480,12 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           {!busy && s.phase === 'buy' && activeHuman && (
             <>
               {!online && <button class="btn ghost" aria-label="Undo purchases" disabled={!turnStart.current || turnStart.current === s} onClick={() => { if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); } setFreeFruit(null); }}>↶</button>}
-              <button class="btn primary wide big" onClick={() => { fx.tap(); setFreeFruit(null); act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying ➜' : 'Skip buying ➜'}</button>
+              <div class="buy-hint"><b class="move">{freeFruit !== null ? 'Pick a free fruit' : 'Your move'}</b><small>Tap a fruit in the market · {pl.boughtToday}/{limit} bought</small></div>
+              <button class="btn primary big" onClick={() => { fx.tap(); setFreeFruit(null); act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying ➜' : 'Skip buying ➜'}</button>
             </>
           )}
           {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
-          {!busy && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? 'Waiting for prices' : 'Prices are being set…'}</div>}
+          {!busy && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `🔒 Prices locked. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are setting secret prices…'}</div>}
           {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); act({ kind: 'endEvening' }); }}>Lights out · next day</button>}
           {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
           {!busy && s.phase === 'reveal' && (votedMe

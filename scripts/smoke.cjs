@@ -25,7 +25,7 @@ const path = require('path');
     const has = async (t) => (await page.locator(t).count()) > 0;
     if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Open the market'); continue; }
     if (await has('text=/Done buying|Skip buying/')) {
-      const cells = page.locator('.tier:not([disabled])');
+      const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();
       if (once('buyturn')) await shot('03-my-turn');
       if (n && Math.random() < 0.75) {

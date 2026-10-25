@@ -37,7 +37,7 @@ const { chromium } = require('playwright');
   await shot(B, '02-lobby-guest');
   await A.page.waitForSelector('text=Start the match');
   await A.page.click('text=Start the match');
-  await Promise.all([A.page.waitForSelector('.scene'), B.page.waitForSelector('.scene')]);
+  await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   console.log('match started on both devices');
 
   // Each device plays its own seat.
@@ -49,7 +49,7 @@ const { chromium } = require('playwright');
     if (await has('.results')) return 'done';
     if (await has('text=Open the market')) { await p.click('text=Open the market'); return 'moved'; }
     if (await has('text=/Done buying|Skip buying/')) {
-      const c = p.locator('.tier:not([disabled])');
+      const c = p.locator('.mk-cell.pick');
       if ((await c.count()) && Math.random() < 0.6) { await c.first().click(); await p.waitForTimeout(250); return 'moved'; }
       await p.click('text=/Done buying|Skip buying/'); return 'moved';
     }
@@ -73,7 +73,7 @@ const { chromium } = require('playwright');
     if (!refreshed && (await A.page.locator('.topbar .day-label').textContent().catch(() => '') || '').toUpperCase().includes('DAY 2')) {
       refreshed = true;
       await A.page.reload();
-      await A.page.waitForSelector('.scene', { timeout: 20000 });
+      await A.page.waitForSelector('.market-stall', { timeout: 20000 });
       console.log('A refreshed and is back at', await A.page.locator('.topbar .day-label').textContent());
       await shot(A, '05-after-refresh');
     }
@@ -101,7 +101,7 @@ const { chromium } = require('playwright');
     await A.page.click('text=/Rematch!|Defend your title/');
     await B.page.waitForSelector('text=wants a rematch');
     await B.page.click('text=/Rematch!|Defend your title/');
-    await Promise.all([A.page.waitForSelector('.scene'), B.page.waitForSelector('.scene')]);
+    await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
   }
   console.log('page errors:', [...A.errors, ...B.errors]);
