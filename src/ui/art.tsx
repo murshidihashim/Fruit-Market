@@ -8,9 +8,16 @@ const STAGE_FILTER: Record<Stage, string> = {
   unripe: 'hue-rotate(55deg) saturate(0.55) brightness(1.05)',
 };
 
+const UNRIPE: Record<FruitId, string> = {
+  blueberry: 'saturate(0.4) brightness(1.2)',
+  watermelon: 'saturate(0.45) brightness(1.15)',
+  apple: 'hue-rotate(95deg) saturate(0.75) brightness(1.1)',
+  mango: 'hue-rotate(50deg) saturate(0.8)',
+};
+
 export function Fruit({ id, size = 28, stage = 'fresh' }: { id: FruitId; size?: number; stage?: Stage }) {
   return (
-    <svg class="fruit" width={size} height={size} viewBox="0 0 40 40" style={{ filter: STAGE_FILTER[stage] }} aria-label={id}>
+    <svg class="fruit" width={size} height={size} viewBox="0 0 40 40" style={{ filter: stage === 'unripe' ? UNRIPE[id] : STAGE_FILTER[stage] }} aria-label={id}>
       {id === 'blueberry' && (
         <g>
           <circle cx="14" cy="24" r="9" fill="#3b46b8" />

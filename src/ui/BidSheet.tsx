@@ -1,13 +1,13 @@
-// Secret offers for every customer line. Pre-filled with a suggestion the player can change.
+// Secret prices, shown as a slide-up tray: tap fruit to choose how many, nudge the price tag.
 import { useMemo, useState } from 'preact/hooks';
-import { FRUIT, stageAt, type FruitId } from '../engine/data';
+import { stageAt, type FruitId } from '../engine/data';
 import { planBids } from '../engine/ai';
 import {
-  bestCap, capFor, count, effectiveMax, minPrice, servingCustomers, validateBids,
+  allocate, bestCap, count, effectiveMax, minPrice, servingCustomers, validateBids,
   type Bid, type GameState,
 } from '../engine/game';
 import { Fruit } from './art';
-import { FavourChip } from './board';
+import { face } from './table';
 
 interface Props { s: GameState; p: number; onSubmit: (bids: Bid[], favoured: boolean) => void }
 
@@ -27,81 +27,78 @@ export function BidSheet({ s, p, onSubmit }: Props) {
     return out;
   });
   const [favoured, setFavoured] = useState(false);
-
   const bids: Bid[] = lines.map(({ c, w }) => ({ customerId: c.id, fruit: w.fruit, ...vals[key(c.id, w.fruit)] }));
   const error = validateBids(s, p, bids);
-  const offered: Partial<Record<FruitId, number>> = {};
-  for (const b of bids) offered[b.fruit] = (offered[b.fruit] ?? 0) + b.qty;
-
   const set = (k: string, patch: Partial<{ qty: number; price: number }>) => setVals((v) => ({ ...v, [k]: { ...v[k], ...patch } }));
 
-  if (lines.length === 0) {
-    return (
-      <div class="bid-sheet">
-        <p class="empty">No customers today.</p>
-        <button class="btn primary big" onClick={() => onSubmit([], false)}>Continue</button>
-      </div>
-    );
-  }
+  const sellable = lines.filter(({ w }) => count(pl.stock, w.fruit, true) > 0);
+  const others = lines.filter(({ w }) => count(pl.stock, w.fruit, true) === 0);
 
   return (
-    <div class="bid-sheet">
-      <p class="hint">Set a secret price for each customer. <b>Cheapest wins</b>. On a tie, the fresher fruit wins. You can't charge more than the customer will pay for your fruit's freshness.</p>
-      {lines.map(({ c, w, max }) => {
-        const k = key(c.id, w.fruit);
-        const v = vals[k];
-        const f = w.fruit;
-        const have = count(pl.stock, f, true);
-        const cap = bestCap(pl.stock, f, max);
-        const stages = FRUIT[f].ripe.map((_, i) => i).filter((i) => pl.stock[f][i] > 0);
-        const rivals = s.players.filter((_, i) => i !== p).map((o) => count(o.stock, f, true)).filter((n) => n > 0);
-        const floor = minPrice(s, f);
-        return (
-          <div class={`bid-line ${v.qty > 0 ? 'on' : ''}`}>
-            <div class="bid-head">
-              <Fruit id={f} size={30} />
-              <div>
-                <b>{c.name}</b> wants <b>{w.qty}</b> {w.qty === 1 ? FRUIT[f].name.toLowerCase() : FRUIT[f].plural.toLowerCase()}
-                <div class="sub">Pays up to ${max} fresh{FRUIT[f].penalty.okay ? ` · $${max - FRUIT[f].penalty.okay} okay · $${max - FRUIT[f].penalty.notso} not so` : ''}</div>
+    <div class="tray">
+      <div class="tray-head">
+        <b>🤫 Secret prices</b>
+        <span class="muted small">cheapest sells · fresher wins ties</span>
+      </div>
+      <div class="tray-body">
+        {sellable.length === 0 && <div class="tray-empty">You have nothing these customers want today.</div>}
+        {sellable.map(({ c, w, max }) => {
+          const k = key(c.id, w.fruit);
+          const v = vals[k];
+          const f = w.fruit;
+          const have = count(pl.stock, f, true);
+          const cap = bestCap(pl.stock, f, max);
+          const floor = minPrice(s, f);
+          const top = Math.min(w.qty, have);
+          const used = v.qty ? allocate(pl.stock, f, v.qty, v.price, max) : null;
+          const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
+          return (
+            <div class={`bid ${v.qty ? 'on' : ''}`}>
+              <div class="bid-cust">
+                <span class="bc-face">{face(c.name)}</span>
+                <span class="bc-want"><Fruit id={f} size={16} />×{w.qty}</span>
+                <span class="bc-max">≤${max}</span>
+              </div>
+              <div class="bid-fruits">
+                {Array.from({ length: top }, (_, i) => {
+                  const pos = used?.[i];
+                  return (
+                    <button type="button" class={`bf ${i < v.qty ? 'sel' : ''}`} onClick={() => set(k, { qty: i + 1 === v.qty ? i : i + 1 })}>
+                      <Fruit id={f} size={26} stage={pos !== undefined ? stageAt(f, pos) : 'fresh'} />
+                    </button>
+                  );
+                })}
+                {rivals > 0 ? <span class="rivals-hint" title="Fruit rivals could sell">⚔️{rivals}</span> : <span class="rivals-hint none" title="No rival has any">✨</span>}
+              </div>
+              <div class={`pricetag ${v.qty ? '' : 'off'}`}>
+                <button type="button" disabled={!v.qty || v.price <= floor} onClick={() => set(k, { price: v.price - 1 })}>−</button>
+                <span class="pt">${v.price}</span>
+                <button type="button" disabled={!v.qty || v.price >= cap} onClick={() => set(k, { price: v.price + 1 })}>+</button>
               </div>
             </div>
-            <div class="bid-info">
-              <span>You have: {have ? stages.map((i) => <span class={`pill st-${stageAt(f, i)}`}>{pl.stock[f][i]} ≤${capFor(f, stageAt(f, i), max)}</span>) : <i>none</i>}</span>
-              <span class={rivals.length ? 'warn-text' : 'ok-text'}>{rivals.length ? `⚔️ ${rivals.length} rival${rivals.length > 1 ? 's' : ''} hold ${rivals.reduce((a, b) => a + b, 0)}` : '✨ No rival has any'}</span>
-            </div>
-            {have > 0 && cap >= floor ? (
-              <div class="bid-controls">
-                <Stepper label="Sell" value={v.qty} min={0} max={Math.min(w.qty, have)} onChange={(q) => set(k, { qty: q })} />
-                <Stepper label="Price $" value={v.price} min={floor} max={Math.max(floor, cap)} onChange={(pr) => set(k, { price: pr })} disabled={v.qty === 0} />
-              </div>
-            ) : (
-              <div class="bid-none">{have ? `Your ${FRUIT[f].plural.toLowerCase()} are too old for the minimum price.` : `You have no ripe ${FRUIT[f].plural.toLowerCase()}.`}</div>
-            )}
+          );
+        })}
+        {others.length > 0 && (
+          <div class="bid-none-row">
+            {others.map(({ c, w }) => (
+              <span class="nope"><span>{face(c.name)}</span><Fruit id={w.fruit} size={14} stage="notso" />×{w.qty}</span>
+            ))}
+            <small class="muted">you have none</small>
           </div>
-        );
-      })}
-      {pl.favours.includes('favouredTrade') && !pl.favouredTrade && (
-        <label class={`toggle-favour ${favoured ? 'on' : ''}`}>
-          <input type="checkbox" checked={favoured} onChange={(e) => setFavoured((e.target as HTMLInputElement).checked)} />
-          <FavourChip id="favouredTrade" /> <span>Play it now</span>
-        </label>
-      )}
-      <div class="bid-footer">
-        {error ? <div class="error">⚠️ {error}</div> : <div class="ok-text">Offering {Object.entries(offered).filter(([, n]) => n).map(([f, n]) => `${n} ${FRUIT[f as FruitId].name.toLowerCase()}`).join(', ') || 'nothing'}</div>}
-        <button class="btn primary big" disabled={!!error} onClick={() => onSubmit(bids.filter((b) => b.qty > 0), favoured)}>🔒 Lock in offers</button>
+        )}
+        {pl.favours.includes('favouredTrade') && !pl.favouredTrade && sellable.length > 0 && (
+          <button type="button" class={`fcard wide ${favoured ? 'usable on' : 'usable'}`} onClick={() => setFavoured(!favoured)}>
+            <span>🤝</span><small>{favoured ? 'Favoured Trade: ON (win ties today)' : 'Play Favoured Trade?'}</small>
+          </button>
+        )}
+      </div>
+      <div class="tray-foot">
+        {error && <div class="error">{error}</div>}
+        <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(bids.filter((b) => b.qty > 0), favoured)}>
+          {bids.some((b) => b.qty > 0) ? '🔒 Lock in prices' : 'Sell nothing today'}
+        </button>
       </div>
     </div>
   );
 }
 
-function Stepper({ label, value, min, max, onChange, disabled }: { label: string; value: number; min: number; max: number; onChange: (v: number) => void; disabled?: boolean }) {
-  const clamp = (x: number) => Math.max(min, Math.min(max, x));
-  return (
-    <div class={`stepper ${disabled ? 'disabled' : ''}`}>
-      <span class="st-label">{label}</span>
-      <button type="button" disabled={disabled || value <= min} onClick={() => onChange(clamp(value - 1))}>−</button>
-      <span class="st-val">{value}</span>
-      <button type="button" disabled={disabled || value >= max} onClick={() => onChange(clamp(value + 1))}>+</button>
-    </div>
-  );
-}
