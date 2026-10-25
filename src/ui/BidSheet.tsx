@@ -54,6 +54,16 @@ export function BidSheet({ s, p, onSubmit }: Props) {
           const top = Math.min(w.qty, have);
           const used = v.qty ? allocate(pl.stock, f, v.qty, v.price, max) : null;
           const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
+          const rivalCaps = s.players.map((o, i) => ({ o, i, cap: i === p ? 0 : bestCap(o.stock, f, max), n: i === p ? 0 : count(o.stock, f, true) })).filter((r) => r.n > 0 && r.cap > 0);
+          const fruitDemand = lines.filter((l) => l.w.fruit === f).reduce((a, l) => a + l.w.qty, 0);
+          const verdict = rivals === 0
+            ? { cls: 'safe', text: `No rival has any. Charge the full $${cap}!` }
+            : rivals + have <= fruitDemand
+              ? { cls: 'ok', text: `${rivals + have} for sale, ${fruitDemand} wanted. Enough buyers for everyone: price high.` }
+              : { cls: 'war', text: `${rivals} rival ${rivals === 1 ? 'fruit' : 'fruits'} chasing ${fruitDemand} wanted. Cheapest wins, so undercut.` };
+          const lo = Math.max(1, floor);
+          const span = Math.max(1, max - lo);
+          const at = (price: number) => `${Math.max(0, Math.min(100, ((price - lo) / span) * 100))}%`;
           return (
             <div class={`bid ${v.qty ? 'on' : ''}`}>
               <div class="bid-cust">
@@ -71,6 +81,19 @@ export function BidSheet({ s, p, onSubmit }: Props) {
                   );
                 })}
                 {rivals > 0 ? <span class="rivals-hint" title="Fruit rivals could sell">⚔️{rivals}</span> : <span class="rivals-hint none" title="No rival has any">✨</span>}
+              </div>
+              <div class="bid-read">
+                <span class={`verdict ${verdict.cls}`}>{verdict.text}</span>
+                <div class="ladder">
+                  <span class="lad-end">${lo}</span>
+                  <div class="lad-track">
+                    <i class="lad-fill" style={{ width: at(v.price) }} />
+                    {rivalCaps.map((r) => <span class="lad-rival" style={{ left: at(r.cap) }} title={`${r.o.name} can ask up to $${r.cap}`}>{r.o.avatar}</span>)}
+                    {v.qty > 0 && <span class="lad-you" style={{ left: at(v.price) }}>you</span>}
+                  </div>
+                  <span class="lad-end">${max}</span>
+                </div>
+                {rivalCaps.length > 0 && <small class="muted">Faces show the most each rival could ask. Go below them to win.</small>}
               </div>
               <div class={`pricetag ${v.qty ? '' : 'off'}`}>
                 <button type="button" disabled={!v.qty || v.price <= floor} onClick={() => set(k, { price: v.price - 1 })}>−</button>

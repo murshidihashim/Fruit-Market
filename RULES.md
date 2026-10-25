@@ -124,7 +124,7 @@ Cash spent on upgrades is gone from your score, so build early or not at all.
 
 ## Daily challenge
 
-Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Benny (Hard) and Kak Yah (Normal) over 10 days. Your best score for the day and your streak are saved on your phone.
+Everyone in the world plays the same shuffled decks each day: you against Foxy Rosa (Normal), Big Benny (Hard) and Panda Lim (Normal) over 10 days. Your best score for the day and your streak are saved on your phone.
 
 ## What changed from the paper draft
 

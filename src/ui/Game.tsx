@@ -2,11 +2,11 @@
 // animation (delivery, buying, selling, night) before handing control back.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, freshPos, type FruitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, freshPos, lookOf, type FruitId, type UpgradeId } from '../engine/data';
 import {
   activePlayer, beginBuying, buy, buyUpgrade, canBuy, canPlayFavour, canUpgrade, endBuyTurn, endEvening,
   effectiveMax, finishReveal, notSoCount, playFavour, ranking, submitBids, RuleError,
-  type Customer, type GameState,
+  type Customer, type GameState, type LineResult,
 } from '../engine/game';
 import { Coin, Fruit } from './art';
 import * as A from './anim';
@@ -14,7 +14,7 @@ import { BidSheet } from './BidSheet';
 import { ShopPanel } from './board';
 import { fx } from './fx';
 import { loadSettings } from './store';
-import { Market, MyStall, RivalStall, Street, face, seats } from './table';
+import { Market, MyStall, PulseBar, RivalStall, Street, face, seats } from './table';
 
 interface Props { initial: GameState; onExit: () => void; onChange: (s: GameState) => void; onRematch: () => void }
 
@@ -36,6 +36,8 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
   const [cardInfo, setCardInfo] = useState<number | null>(null);
   const [tip, setTip] = useState<Customer | null>(null);
   const [eventInfo, setEventInfo] = useState(false);
+  const [pulseInfo, setPulseInfo] = useState(false);
+  const [auction, setAuction] = useState<{ line: LineResult; stage: 'sealed' | 'open' | 'done'; n: number; of: number } | null>(null);
   const turnStart = useRef<GameState | null>(null);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -151,18 +153,19 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       t.remove();
       return;
     }
-    for (const l of lines) {
-      const tags = l.offers.map((o) => ({ o, t: A.tag(`p${o.player}`, `$${o.price}`, o.player === viewer ? 'mine' : '') }));
+    for (let li = 0; li < lines.length; li++) {
+      const l = lines[li];
+      setAuction({ line: l, stage: 'sealed', n: li + 1, of: lines.length });
       A.pulse(`c${l.customerId}`);
+      fx.card();
+      await A.wait(700);
+      setAuction({ line: l, stage: 'open', n: li + 1, of: lines.length });
       fx.tap();
-      await A.wait(650);
+      await A.wait(900);
+      setAuction({ line: l, stage: 'done', n: li + 1, of: lines.length });
       const jobs: Promise<void>[] = [];
-      for (const { o, t } of tags) {
-        if (!o.sold) {
-          t.set('lost');
-          continue;
-        }
-        t.set('won');
+      for (const o of l.offers) {
+        if (!o.sold) continue;
         for (let k = 0; k < Math.min(o.sold, 4); k++) {
           jobs.push(A.fly([`p${o.player}-${l.fruit}`, `p${o.player}`], [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`], <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
         }
@@ -171,11 +174,16 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
           const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
           A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip}`);
         }));
+        const q = g.players[o.player].quip;
+        if (q && li % 2 === 0) {
+          const t = A.tag(`p${o.player}`, q, 'quip');
+          jobs.push(A.wait(1300).then(() => t.remove()));
+        }
       }
       await Promise.all(jobs);
-      await A.wait(450);
-      tags.forEach(({ t }) => t.remove());
+      await A.wait(700);
     }
+    setAuction(null);
     for (const f of r.favours) {
       const t = A.tag(`p${f.player}`, '🃏 Favour card!', 'favour');
       fx.card();
@@ -340,6 +348,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
       <div class="table">
         {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => setRival(top.p)} /></div>}
         <div class="street-wrap" data-a="street"><Street s={s} onTip={(c) => setTip(c)} /></div>
+        <PulseBar s={s} onTap={() => setPulseInfo(!pulseInfo)} />
         <div class="mid">
           {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => setRival(left.p)} /> : <span />}
           <div class="centre">
@@ -348,6 +357,7 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
               canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
             {s.phase === 'morning' && !busy && <MorningCard s={s} />}
             {s.phase === 'reveal' && revealDone && <SalesSummary s={s} viewer={viewer} />}
+            {auction && <AuctionCard s={s} a={auction} viewer={viewer} />}
           </div>
           {right ? <RivalStall s={s} p={right.p} side="right" onOpen={() => setRival(right.p)} /> : <span />}
         </div>
@@ -399,9 +409,19 @@ export function Game({ initial, onExit, onChange, onRematch }: Props) {
         );
       })()}
 
+      {pulseInfo && (
+        <div class="tip-pop" onClick={() => setPulseInfo(false)}>
+          <b>📊 Demand vs supply</b>
+          <span><b>want</b> = fruit today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ = walk-ins not here yet)' : ''}.</span>
+          <span><b>in shops</b> = ripe fruit all shops (you included) could sell.</span>
+          <span class="pz-legend"><i class="good" /> enough buyers: prices stay high · <i class="war" /> more fruit than buyers: price war · <i class="open" /> nobody has any yet</span>
+          <small>Tap to close.</small>
+        </div>
+      )}
       {tip && (
         <div class="tip-pop" onClick={() => setTip(null)}>
-          <b>{face(tip.name)} {tip.name}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
+          <b>{face(tip.name)} {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
+          <i class="quirk">“{lookOf(tip.name).quirk}”</i>
           {tip.wants.map((w) => (
             <div class="tip-line">
               <Fruit id={w.fruit} size={18} />
@@ -464,6 +484,42 @@ function MorningCard({ s }: { s: GameState }) {
         <div class="sunny">☀️ A calm day at the market</div>
       )}
       {s.nextEvent && <div class="mc-next">Tomorrow: <b>{s.nextEvent.icon} {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
+    </div>
+  );
+}
+
+function AuctionCard({ s, a, viewer }: { s: GameState; a: { line: LineResult; stage: 'sealed' | 'open' | 'done'; n: number; of: number }; viewer: number }) {
+  const l = a.line;
+  const sold = l.offers.reduce((x, o) => x + o.sold, 0);
+  const winners = l.offers.filter((o) => o.sold > 0);
+  return (
+    <div class="auction">
+      <div class="au-top"><small>Sale {a.n} of {a.of}</small><small>cheapest sells first</small></div>
+      <div class="au-cust">
+        <span class="au-face">{lookOf(l.name).icon}</span>
+        <div><b>{lookOf(l.name).title}</b><span class="au-want">wants <Fruit id={l.fruit} size={18} /> ×{l.want} · pays up to ${l.max} each</span></div>
+      </div>
+      <div class="au-offers">
+        {l.offers.map((o, i) => {
+          const pl = s.players[o.player];
+          const open = a.stage !== 'sealed';
+          return (
+            <div class={`au-offer ${open ? 'open' : ''} ${a.stage === 'done' ? (o.sold ? 'won' : 'lost') : ''} ${o.player === viewer ? 'me' : ''}`} style={{ transitionDelay: `${i * 0.12}s` }}>
+              <span class="au-who">{pl.avatar}</span>
+              <span class="au-price">{open ? `$${o.price}` : '🔒'}</span>
+              <span class="au-qty">×{o.qty}</span>
+              {a.stage === 'done' && <span class="au-res">{o.sold ? `SOLD ${o.sold}` : 'too pricey'}</span>}
+            </div>
+          );
+        })}
+      </div>
+      {a.stage === 'done' && (
+        <div class="au-why">
+          {winners.length ? <>✅ {winners.map((o) => `${s.players[o.player].name} sold ${o.sold} at $${o.price}`).join(', ')}.</> : 'Nobody sold.'}
+          {sold < l.want && ` ${l.want - sold} still wanted.`}
+          {l.offers.some((o) => !o.sold) && sold >= l.want && ' Higher prices missed out.'}
+        </div>
+      )}
     </div>
   );
 }

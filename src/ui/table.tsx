@@ -1,6 +1,6 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
 import {
   buyLimit, count, effectiveMax, marketCost, shelfSize, walkInsToday,
   type Customer, type GameState,
@@ -143,11 +143,8 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
 
 // ---------- customers ----------
 
-const FACES = ['👩', '👨', '👵', '👴', '🧑', '👩‍🦱', '👨‍🦱', '🧔', '👱‍♀️', '👨‍🦳', '🧕', '👩‍🦰', '🧑‍🦲', '👱'];
 export function face(name: string) {
-  let h = 0;
-  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return FACES[h % FACES.length];
+  return lookOf(name).icon;
 }
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
@@ -177,8 +174,8 @@ export function CustomerChar({ s, c, kind, onTip }: { s: GameState; c?: Customer
           </span>
         ))}
       </div>
-      <div class="cface">{done ? '😊' : special ? s.event!.icon : face(c.name)}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
-      <small>{kind === 'tomorrow' ? 'tomorrow' : c.name}</small>
+      <div class="cface">{done ? '😊' : face(c.name)}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
+      <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
     </div>
   );
 }
@@ -203,4 +200,41 @@ export function seats(n: number, viewer: number): { p: number; side: 'top' | 'le
   const others = Array.from({ length: n - 1 }, (_, i) => (viewer + 1 + i) % n);
   const sides: ('top' | 'left' | 'right')[] = others.length === 1 ? ['top'] : others.length === 2 ? ['left', 'right'] : ['left', 'top', 'right'];
   return others.map((p, i) => ({ p, side: sides[i] }));
+}
+
+// ---------- demand vs supply ----------
+
+export interface Pulse { f: FruitId; demand: number; more: boolean; supply: number }
+
+/** Fruit customers want today vs ripe fruit sitting in all shops. */
+export function pulse(s: GameState): Pulse[] {
+  const before = s.phase === 'morning' || s.phase === 'buy';
+  const custs: Customer[] = [...s.secondMarket, ...s.firstMarket];
+  if (before && s.forecast) custs.push(s.forecast);
+  const extra = before ? s.event?.extra?.wants ?? [] : [];
+  return FRUITS.map((f) => {
+    let demand = 0;
+    for (const c of custs) for (const w of c.wants) if (w.fruit === f) demand += Math.max(0, w.qty);
+    for (const w of extra) if (w.fruit === f) demand += w.qty;
+    const supply = s.players.reduce((a, p) => a + count(p.stock, f, true), 0);
+    return { f, demand, more: before && walkInsToday(s) > 0, supply };
+  });
+}
+
+export function PulseBar({ s, onTap }: { s: GameState; onTap?: () => void }) {
+  return (
+    <button type="button" class="pulse" onClick={(e) => { e.stopPropagation(); onTap?.(); }}>
+      {pulse(s).map(({ f, demand, more, supply }) => {
+        const mood = demand === 0 ? 'none' : supply === 0 ? 'open' : supply <= demand ? 'good' : 'war';
+        return (
+          <span class={`pz ${mood}`}>
+            <Fruit id={f} size={18} />
+            <span class="pz-n"><b>{demand}{more ? '+' : ''}</b><small>want</small></span>
+            <span class="pz-vs">/</span>
+            <span class="pz-n"><b>{supply}</b><small>in shops</small></span>
+          </span>
+        );
+      })}
+    </button>
+  );
 }

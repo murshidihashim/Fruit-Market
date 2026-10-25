@@ -12,7 +12,7 @@ import { Rng } from './rng';
 export type Level = 'easy' | 'normal' | 'hard';
 export type Stock = Record<FruitId, number[]>;
 
-export interface PlayerConfig { name: string; kind: 'human' | 'ai'; level?: Level; avatar: string }
+export interface PlayerConfig { name: string; kind: 'human' | 'ai'; level?: Level; avatar: string; quip?: string }
 
 export interface GameConfig {
   players: PlayerConfig[];

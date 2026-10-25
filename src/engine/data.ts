@@ -219,3 +219,52 @@ export const BASE_BUY = 3;
 export const CART_BUY = 5;
 export const START_CASH = 10;
 export const FAVOUR_HAND_LIMIT = 3;
+
+// ---------- characters ----------
+
+export interface Look { icon: string; title: string; quirk: string }
+
+/** Every customer is a character. Unknown names fall back to a generic shopper. */
+export const CUSTOMER_LOOKS: Record<string, Look> = {
+  John: { icon: '🤠', title: 'Cowboy John', quirk: 'Pays with coins he panned from the river.' },
+  Robert: { icon: '🧛', title: 'Count Robert', quirk: 'Only shops after sunset. Hates garlic, loves blueberries.' },
+  Daniel: { icon: '🧙', title: 'Daniel the Wizard', quirk: 'Swears apples power his spells.' },
+  Chris: { icon: '🤡', title: 'Chris the Clown', quirk: 'Juggles every mango before he buys it.' },
+  Aisyah: { icon: '👩‍🚀', title: 'Astronaut Aisyah', quirk: 'Needs watermelon for zero-gravity snacks.' },
+  Ravi: { icon: '🦸', title: 'Super Ravi', quirk: 'Saves the day, one mango at a time.' },
+  'Mei Ling': { icon: '🧜‍♀️', title: 'Mei Ling the Mermaid', quirk: 'Splashes anyone selling soggy fruit.' },
+  Farid: { icon: '🥷', title: 'Ninja Farid', quirk: 'You never see him arrive. Or pay.' },
+  Siti: { icon: '👸', title: 'Princess Siti', quirk: 'Expects the royal treatment, and royal fruit.' },
+  Kumar: { icon: '🧞', title: 'Kumar the Genie', quirk: 'Grants three wishes. All of them are fruit.' },
+  Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Apples keep her voice sharp for the show.' },
+  Hafiz: { icon: '🦖', title: 'Hafiz in a Dino Suit', quirk: '"RAWR" means five blueberries, please.' },
+  'Wei Jie': { icon: '🕵️', title: 'Detective Wei Jie', quirk: 'Inspects every fruit with a magnifying glass.' },
+  Nurul: { icon: '🧚', title: 'Fairy Nurul', quirk: 'Sprinkles glitter on every watermelon.' },
+  Priya: { icon: '👩‍🔬', title: 'Dr Priya', quirk: 'Researching the perfect apple pie.' },
+  Ahmad: { icon: '🧑‍✈️', title: 'Captain Ahmad', quirk: 'Buying mangoes for the whole crew.' },
+  Sarah: { icon: '🦄', title: 'Sarah & Sparkles', quirk: 'Her unicorn eats all the blueberries.' },
+  Tan: { icon: '👴', title: 'Grandpa Tan', quirk: 'Remembers when apples cost ten cents.' },
+  Lina: { icon: '💃', title: 'Dancing Lina', quirk: 'Cha-chas all the way down the street.' },
+  Zul: { icon: '🧟', title: 'Zombie Zul', quirk: 'Wants fresh fruit. Brains are so last year.' },
+  Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints every mango before she eats it.' },
+  Vijay: { icon: '🤖', title: 'Robo-Vijay', quirk: 'Computes the optimal fruit salad.' },
+  'Hui Min': { icon: '🧝', title: 'Hui Min the Elf', quirk: 'Elves are wild about watermelon.' },
+  Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Cools down after every call with watermelon.' },
+  Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your shop if the mangoes are perfect.' },
+  'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
+  'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },
+};
+
+export function lookOf(name: string): Look {
+  return CUSTOMER_LOOKS[name] ?? { icon: '🧑', title: name, quirk: 'Just here for fruit.' };
+}
+
+/** Computer shopkeepers: a cast of animal traders, each with a victory line. */
+export const RIVALS: { name: string; avatar: string; quip: string }[] = [
+  { name: 'Foxy Rosa', avatar: '🦊', quip: 'Too easy!' },
+  { name: 'Big Benny', avatar: '🐻', quip: 'Grrreat deal!' },
+  { name: 'Panda Lim', avatar: '🐼', quip: 'Bamboo-zled you!' },
+  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!' },
+  { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!' },
+  { name: 'Pinky', avatar: '🐷', quip: 'Oink oink, money!' },
+];

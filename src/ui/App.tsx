@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { seedFromString } from '../engine/rng';
-import { FRUIT, FRUITS } from '../engine/data';
+import { FRUIT, FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Logo } from './art';
 import { Game } from './Game';
 import { HowTo } from './HowTo';
@@ -15,14 +15,7 @@ import {
 
 type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings';
 
-const AI_ROSTER = [
-  { name: 'Rosa', avatar: '👩‍🌾' },
-  { name: 'Benny', avatar: '🧔' },
-  { name: 'Kak Yah', avatar: '🧕' },
-  { name: 'Uncle Lim', avatar: '👴' },
-  { name: 'Priya', avatar: '👩🏽‍🍳' },
-  { name: 'Danny', avatar: '🧢' },
-];
+const AI_ROSTER = RIVALS;
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
 
 interface Seat { kind: 'human' | 'ai'; level: Level; name: string }
@@ -172,6 +165,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
       used.add(AI_ROSTER[k].name);
       p.name = AI_ROSTER[k].name;
       p.avatar = AI_ROSTER[k].avatar;
+      p.quip = AI_ROSTER[k].quip;
     }
     onStart({ players, days, unripe, upgrades, events, seed: (Math.random() * 2 ** 31) >>> 0 });
   };

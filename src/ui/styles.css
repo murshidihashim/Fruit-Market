@@ -601,3 +601,58 @@ p { margin: 0.4em 0; line-height: 1.35; }
 
 /* the table scrolls rather than squashing the market when the bottom dock is tall */
 .mid { flex: 1 0 auto; min-height: auto; }
+
+/* ---------- demand vs supply ---------- */
+.pulse { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; border: 0; background: none; padding: 0; font: inherit; color: inherit; }
+.pz { display: flex; align-items: center; justify-content: center; gap: 3px; border-radius: 10px; padding: 3px 2px; background: #fff; border: 2px solid var(--line); }
+.pz-n { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.pz-n b { font-size: .9rem; }
+.pz-n small { font-size: .5rem; color: var(--muted); }
+.pz-vs { color: var(--muted); font-size: .8rem; }
+.pz.good { border-color: #8fd48a; background: #effbea; }
+.pz.war { border-color: #f4a58f; background: #fff1ec; }
+.pz.open { border-color: #9fb4f0; background: #eef2ff; }
+.pz.none { opacity: .5; }
+.pz-legend { font-size: .78rem; }
+.pz-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin: 0 2px 0 6px; }
+.pz-legend i.good { background: #8fd48a; } .pz-legend i.war { background: #f4a58f; } .pz-legend i.open { background: #9fb4f0; }
+.tip-pop .quirk { opacity: .85; font-size: .82rem; }
+
+/* ---------- pricing read ---------- */
+.bid { grid-template-areas: "cust fruits tag" "read read read"; }
+.bid-cust { grid-area: cust; } .bid-fruits { grid-area: fruits; } .pricetag { grid-area: tag; }
+.bid-read { grid-area: read; display: flex; flex-direction: column; gap: 4px; }
+.verdict { font-size: .78rem; font-weight: 600; border-radius: 8px; padding: 3px 8px; }
+.verdict.safe { background: #eef2ff; color: #3b46b8; }
+.verdict.ok { background: #effbea; color: #1f6332; }
+.verdict.war { background: #fff1ec; color: var(--warn); }
+.ladder { display: flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--muted); padding-top: 12px; }
+.lad-track { position: relative; flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #d7f2d0, #fff1c7, #ffd8cc); }
+.lad-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: rgba(224,161,0,.35); }
+.lad-rival { position: absolute; top: -16px; transform: translateX(-50%); font-size: 15px; }
+.lad-you { position: absolute; top: 9px; transform: translateX(-50%); font-size: .62rem; font-weight: 700; color: #6b4a08; background: #ffd54a; border-radius: 6px; padding: 0 4px; }
+.lad-you::before { content: ''; position: absolute; top: -5px; left: 50%; margin-left: -4px; border: 4px solid transparent; border-bottom-color: #ffd54a; border-top: 0; }
+.ladder { padding-bottom: 12px; }
+
+/* ---------- auction card ---------- */
+.auction { position: absolute; inset: 18px 6px auto; z-index: 4; background: #fffaf0; border-radius: 16px; padding: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.3); border: 3px solid #f2c76b; animation: pop .25s; display: flex; flex-direction: column; gap: 8px; }
+.au-top { display: flex; justify-content: space-between; color: var(--muted); font-size: .7rem; }
+.au-cust { display: flex; align-items: center; gap: 8px; }
+.au-face { font-size: 34px; }
+.au-cust b { display: block; font-size: .9rem; }
+.au-want { display: flex; align-items: center; gap: 2px; font-size: .8rem; color: var(--muted); }
+.au-offers { display: flex; flex-direction: column; gap: 4px; }
+.au-offer { display: grid; grid-template-columns: 30px 1fr auto auto; align-items: center; gap: 6px; background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 3px 8px; transition: all .3s; }
+.au-offer.me { border-color: #e0a100; }
+.au-who { font-size: 20px; }
+.au-price { font-weight: 700; font-size: 1.1rem; }
+.au-offer:not(.open) .au-price { opacity: .6; }
+.au-offer.open .au-price { animation: pop .3s; }
+.au-qty { font-size: .75rem; color: var(--muted); }
+.au-res { font-size: .7rem; font-weight: 700; border-radius: 6px; padding: 1px 6px; }
+.au-offer.won { background: #e4f6dc; border-color: var(--good); }
+.au-offer.won .au-res { background: var(--good); color: #fff; }
+.au-offer.lost { opacity: .5; }
+.au-offer.lost .au-price { text-decoration: line-through; }
+.au-why { font-size: .78rem; background: #f6efe2; border-radius: 8px; padding: 5px 8px; }
+.ptag.quip { background: #fff8d6; border-color: #e0a100; font-size: .8rem; }
