@@ -1,6 +1,6 @@
 # Fruit Market · Cumulative decision register
 
-Updated 2026-10-26 13:45 (Asia/Kuala_Lumpur). Approval status and delivery status are tracked separately. Only the owner's explicit confirmation sets "Approved".
+Updated 2026-10-26 13:50 (Asia/Kuala_Lumpur). Approval status and delivery status are tracked separately. Only the owner's explicit confirmation sets "Approved".
 
 ## Current decisions and pending approvals
 
@@ -11,13 +11,17 @@ Updated 2026-10-26 13:45 (Asia/Kuala_Lumpur). Approval status and delivery statu
 | DEC-003 | Production deploys only on manual Deploy after `verify` | Approved (owner, 2026-10-26) | Verified | REP-001, REP-002 |
 | DEC-004 | PDF exports via pandoc + existing Playwright browser | Proposed | In use | REP-001 |
 | DEC-005 | RM500/month portfolio ceiling; Fruit Market spend unknown | Proposed (assumption) | Not started | REP-001 |
-| DEC-006 | Preview = separate staging Worker (per-version URLs don't support Durable Objects) | Awaiting confirmation | Implemented | REP-002 |
+| DEC-006 | Preview = separate staging Worker (per-version URLs don't support Durable Objects) | Approved (owner, 2026-10-26) | Verified | REP-002, REP-003 |
+| DEC-007 | Package B scope = PLAN-002 | Awaiting approval | Not started | REP-003 |
+| DEC-008 | Canonical records: JSON + Markdown reports, generated views | Awaiting approval | Not started | REP-003 |
+| DEC-009 | Records check in `verify` and CI | Awaiting approval | Not started | REP-003 |
 
 ## History (chronological)
 
 - 2026-10-26 13:15 · REP-001 created: DEC-001 to DEC-005 proposed.
 - 2026-10-26 13:20 · Owner: "Approve PLAN-001 only, including its listed tests and documentation" → DEC-002 and DEC-003 approved.
-- 2026-10-26 13:45 · REP-002: PLAN-001 implemented and verified (A4 pending the owner). DEC-006 recorded, awaiting confirmation. Earlier work (M0–M2, studio audit) predates this register and is recorded in `docs/studio/09` and `10` and in git history.
+- 2026-10-26 13:45 · REP-002: PLAN-001 implemented and verified (A4 pending the owner). DEC-006 recorded, awaiting confirmation.
+- 2026-10-26 13:50 · Owner: "Confirm DEC-006, and plan PLAN-002" → DEC-006 approved. REP-003: PLAN-002 proposed (DEC-007 to DEC-009 awaiting approval). Earlier work (M0–M2, studio audit) predates this register and is recorded in `docs/studio/09` and `10` and in git history.
 
 ---
 

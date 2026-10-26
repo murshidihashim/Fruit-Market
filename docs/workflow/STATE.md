@@ -4,9 +4,8 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
-- **Active package:** none. PLAN-001 (Package A) is implemented; see REP-002 for verification.
-- **Next planned packages:** PLAN-002 (Package B, records and PDF automation) and PLAN-003 (Package C:
-  real devices, backups, crash recovery, capacity, costs). Neither is approved.
+- **Active package:** none. PLAN-001 (Package A) is verified (REP-002). PLAN-002 (Package B) is proposed in REP-003 and awaiting approval.
+- **After that:** PLAN-003 (Package C: real devices, backups, crash recovery, capacity, costs). Not planned in detail.
 
 ## Builds
 | Copy | Address | Build |
@@ -23,7 +22,7 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
   PASS (crash recovery NOT RUN); release-ready not claimed (real devices, backups NOT RUN).
 
 ## Open items and known issues
-- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); confirm DEC-006 (staging Worker).
+- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); approve or revise PLAN-002.
 - Branch protection: instructions in `OWNER-BRIEF.md` §5. Not yet confirmed active.
 - Owner questions not yet answered: which real phones are available; Cloudflare plan (Free or Paid)
   and any other paid accounts. DEC-005 stays an assumption until then.
