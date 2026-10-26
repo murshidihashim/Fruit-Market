@@ -565,13 +565,14 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "going back to your mockup, i like it now, but tweak the layout so that the fruit market is more visible",
+        "date": "2026-10-27"
       },
       "delivery": "implemented",
       "reports": [
-        "REP-018"
+        "REP-018",
+        "REP-020"
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "Owner review of the cosy pixel mockups; if confirmed, DEC-022's plum layer is superseded."
@@ -590,13 +591,14 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "going back to your mockup, i like it now, but tweak the layout so that the fruit market is more visible",
+        "date": "2026-10-27"
       },
       "delivery": "implemented",
       "reports": [
-        "REP-019"
+        "REP-019",
+        "REP-020"
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "Owner review of the table mockups."
@@ -746,6 +748,10 @@
     {
       "at": "2026-10-27 00:25",
       "text": "Owner: \"revamp the current UI/UX to match the cosiness of the previous UI/UX board layout\" and \"the one currently feels very menu based, instead of board game\". Buying, pricing, reveal and evening mockups rebuilt around one shared market table (customers on the street, rival stalls either side of the market, your stall below), keeping the pixel art and warm frame. DEC-024 awaiting confirmation. REP-019."
+    },
+    {
+      "at": "2026-10-27 01:21",
+      "text": "Owner: \"going back to your mockup, i like it now, but tweak the layout so that the fruit market is more visible (now it feels to small/ narrow)\". DEC-023 (cosy pixel look) and DEC-024 (one shared table) approved. Rival stalls slimmed and the market widened with bigger crates and fruit; republished (version 13). REP-020. DEC-022's dark plum layer is superseded by DEC-023. Next: propose the 1.2.0 build plan."
     }
   ]
 }

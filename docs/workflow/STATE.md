@@ -53,8 +53,6 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
-- DEC-023: Look: cosy pixel edition of direction B (awaiting approval)
-- DEC-024: Layout: one shared market table (board game, not menus) (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-007: UI polish phase 1: fix what looks broken (awaiting approval)
 <!-- records:pending:end -->
