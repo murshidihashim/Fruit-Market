@@ -6,14 +6,14 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
-- **Proposed:** PLAN-005, 4-player clarity (REP-007), awaiting approval. Could ship together with the reconnect fix as 1.1.1.
-- **Then:** PREPARE RELEASE 1.1.1, and plan PLAN-003 (Package C).
+- **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
+- **Next:** owner preview playtest, then PREPARE RELEASE 1.1.1 (reconnect fix + 4-player clarity). Then plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
 |---|---|---|
 | Live | https://fruit-market.murshidi-hashim.workers.dev | `c915e49` (deployed 2026-10-26 by the old auto-deploy) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `cc27848` (includes the reconnect fix); updated by CI after each green push |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `04b72b5` (reconnect fix + 4-player clarity); updated by CI after each green push |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
@@ -31,10 +31,11 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
   and any other paid accounts. DEC-005 stays an assumption until then.
 - Pre-existing: game-screen open time is noisy (217–489 ms locally; CI limit 600 ms with one retry).
 - Fixed on the preview (PLAN-004): rejoining could stay on "Connecting to room…". Not live yet.
+- Store screenshot of the home screen is outdated (new button line); retake before the next Play listing update.
 - Telemetry and leaderboard data on the live server have no backup (Package C).
 
 ## Approvals
-- PLAN-001 and PLAN-002 approved by the owner on 2026-10-26 (exact words in `records/`).
+- PLAN-001, 002, 004 and 005 approved by the owner on 2026-10-26 (exact words in `records/`).
   Publication of the live game: **not approved**, not performed.
 
 ## Resume instruction

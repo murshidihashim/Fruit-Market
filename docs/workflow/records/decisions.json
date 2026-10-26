@@ -294,9 +294,10 @@
         "evidence": "Approve PLAN-005 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "implemented",
+      "delivery": "verified",
       "reports": [
-        "REP-007"
+        "REP-007",
+        "REP-008"
       ],
       "plan": "PLAN-005",
       "reviewTrigger": "If playtesters still miss how to invite more than one friend."
@@ -374,6 +375,10 @@
     {
       "at": "2026-10-26 18:44",
       "text": "PLAN-005 implemented: C1 to C5 PASS; C6 waiting for CI."
+    },
+    {
+      "at": "2026-10-26 19:01",
+      "text": "REP-008: PLAN-005 verified (C1 to C6 PASS). On the preview; goes live with the next release."
     }
   ]
 }
