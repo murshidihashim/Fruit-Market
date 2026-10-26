@@ -1,0 +1,44 @@
+{
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-022"
+  ],
+  "decisions": [
+    "DEC-023",
+    "DEC-024",
+    "DEC-025"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-010",
+  "title": "Cosy table build 2: the delivery lorry (outline)",
+  "problem": "At the start of buying, a lorry drives in, customers make room, crates drop onto the board; it leaves before selling (DEC-025).",
+  "scope": [
+    "Lorry art: the owner's Gemini picture or a pixel lorry in the game's sprite style (owner to choose)",
+    "About 2 seconds, skippable with a tap, off when reduced motion is on",
+    "Customers step aside and return",
+    "Crates land in their slots; online play stays in sync (animation only)"
+  ],
+  "exclusions": [
+    "Rules or timing changes",
+    "Sound (separate)"
+  ],
+  "acceptance": [
+    {
+      "id": "L1",
+      "text": "Skippable, under 2.5 s, reduced-motion respected; verify:full passes; performance budget holds",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

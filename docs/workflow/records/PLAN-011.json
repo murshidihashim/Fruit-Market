@@ -1,0 +1,43 @@
+{
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-022"
+  ],
+  "decisions": [
+    "DEC-023",
+    "DEC-024",
+    "DEC-025"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-011",
+  "title": "Cosy table build 3: pricing, reveal and evening on the table (outline)",
+  "problem": "Apply the mockup to the other phases (DEC-024): sealed boards in rival seats while pricing, boards flip in the seats at the reveal with the winner glowing and the customer walking over, lanterns and covered market in the evening; light sly touches ('Psst', 'Outfoxed by $1!').",
+  "scope": [
+    "Pricing: serve customers from the street; your price board at your stall; rivals' boards sealed",
+    "Reveal on the table; folds in PLAN-007's clipped-text and off-screen money fixes",
+    "Evening: upgrades at your stall, lanterns, covered market",
+    "Tap-to-expand rival stalls also while pricing"
+  ],
+  "exclusions": [
+    "Rules, balance, server"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "verify:full passes; secret prices never shown before the bell (leak check 0); screenshots at 3 sizes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

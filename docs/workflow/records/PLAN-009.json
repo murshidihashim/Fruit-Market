@@ -1,0 +1,88 @@
+{
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-022"
+  ],
+  "decisions": [
+    "DEC-023",
+    "DEC-024",
+    "DEC-025"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-009",
+  "title": "Cosy table build 1: seated rivals and the new market board",
+  "problem": "Build the approved mockup look (DEC-023, DEC-024, DEC-025; PLAN-008 versions 20 to 24) into the real game, starting with the table and the buying board. The game already has seats, a rival pop-up, a market and a demand/supply strip, so this restyles and rearranges them rather than rewriting them.",
+  "scope": [
+    "Rivals sit in one slim row across the top of the table (works for 1 to 3 rivals, so 2 to 4 players); each seat shows portrait, name, cash and what they hold",
+    "Tap a rival's name: a drop-down shows their stock as freshness chips with nights left, the same as your stall (public information only)",
+    "Market board full width: one column per fruit, left to right; each column top-aligned from newest to not-so-fresh; every slot colour-coded by freshness (empty slots tinted), with a colour key; the side freshness bar is not used",
+    "The want / in-shops chips sit on top of each fruit column (same numbers as today's strip)",
+    "Your stall shows freshness chips with nights left",
+    "Street customers drawn smaller (36px)",
+    "Colour-blind patterns on okay and not-so slots when the setting is on",
+    "Existing cards that sit on the board (morning, trait pick, showdown, summary) keep working; pricing and evening trays unchanged in this package",
+    "Update browser-test selectors and screenshots to the new layout"
+  ],
+  "exclusions": [
+    "Delivery lorry (PLAN-010)",
+    "Pricing, reveal and evening restyle (PLAN-011)",
+    "Game rules, balance, saves, server, online protocol (no RULES_VERSION change)",
+    "New dependencies",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "B1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B2",
+      "text": "npm run verify:full passes (solo, performance budget, online with a leaver, quick match, four players, reconnect)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B3",
+      "text": "Board slots and prices come from the engine tracks; unit test compares every fruit column with src/engine/data.ts",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B4",
+      "text": "Column chips show the same numbers as today's pulse(); unit test",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B5",
+      "text": "Screenshots of buying with 2, 3 and 4 players at 360x640, 390x844 and desktop; no clipping, overlap or sideways scrolling (automated check)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B6",
+      "text": "Rival drop-down shows only stock and cash; online secret-price leak check stays at 0",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "B7",
+      "text": "Old saves still load; RULES_VERSION unchanged",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
