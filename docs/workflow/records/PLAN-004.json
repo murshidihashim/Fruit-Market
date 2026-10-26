@@ -7,11 +7,12 @@
     "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "implemented",
+  "delivery": "verified",
   "release": "unreleased",
-  "build": "",
+  "build": "d7e5d24",
   "reports": [
-    "REP-005"
+    "REP-005",
+    "REP-006"
   ],
   "decisions": [
     "DEC-010",
@@ -65,8 +66,8 @@
     {
       "id": "R6",
       "text": "verify:full green on 3 consecutive CI runs; leak check stays 0; 63+ unit tests green; no rules or save changes",
-      "result": "NOT RUN",
-      "evidence": "Waiting for 3 consecutive CI runs on main"
+      "result": "PASS",
+      "evidence": "CI runs 7, 8 and 9 on d7e5d24 all green (leaks 0, 63 unit tests). Plus Reconnect stress run 40283316566 on a CI machine: 110 cycles, background tab and 4x slowdown, 0 failed"
     }
   ],
   "changes": {

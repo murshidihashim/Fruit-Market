@@ -5,7 +5,8 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
-- **Proposed next:** PLAN-004, the reconnect fix (REP-005), awaiting approval. Then PLAN-003 (Package C).
+- **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
+- **Next options:** PREPARE RELEASE 1.1.1 (to give players the fix), or plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -23,13 +24,12 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
   PASS (crash recovery NOT RUN); release-ready not claimed (real devices, backups NOT RUN).
 
 ## Open items and known issues
-- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); decide the pending items in the generated block below.
+- Owner to-dos: playtest the preview (OWNER-BRIEF §2, plus the reconnect steps in REP-006); decide the pending items in the generated block below.
 - Branch protection: instructions in `OWNER-BRIEF.md` §5. Not yet confirmed active.
 - Owner questions not yet answered: which real phones are available; Cloudflare plan (Free or Paid)
   and any other paid accounts. DEC-005 stays an assumption until then.
 - Pre-existing: game-screen open time is noisy (217–489 ms locally; CI limit 600 ms with one retry).
-- Known issue (pre-existing, intermittent, 2 of 5 CI runs): after rejoining an online room (quick
-  match, or a page reload mid-match) the game screen sometimes doesn't appear. Cause unknown.
+- Fixed on the preview (PLAN-004): rejoining could stay on "Connecting to room…". Not live yet.
 - Telemetry and leaderboard data on the live server have no backup (Package C).
 
 ## Approvals

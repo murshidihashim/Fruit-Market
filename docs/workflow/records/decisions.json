@@ -242,9 +242,10 @@
         "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "implemented",
+      "delivery": "verified",
       "reports": [
-        "REP-005"
+        "REP-005",
+        "REP-006"
       ],
       "plan": "PLAN-004",
       "reviewTrigger": "If not reproduced after 300 cycles: stop and report."
@@ -267,9 +268,10 @@
         "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "implemented",
+      "delivery": "verified",
       "reports": [
-        "REP-005"
+        "REP-005",
+        "REP-006"
       ],
       "plan": "PLAN-004",
       "reviewTrigger": "If reconnect bugs slip through between releases."
@@ -331,6 +333,10 @@
     {
       "at": "2026-10-26 15:01",
       "text": "PLAN-004: R1 to R5 PASS (165 hidden-tab cycles after the fix, 0 failed). R6 waiting for 3 CI runs."
+    },
+    {
+      "at": "2026-10-26 15:34",
+      "text": "REP-006: PLAN-004 verified (R1 to R6 PASS). The fix is on the preview; the live game is unchanged until a release is prepared and deployed."
     }
   ]
 }
