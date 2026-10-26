@@ -805,6 +805,10 @@
     {
       "at": "2026-10-27 01:43",
       "text": "Owner: move the other players off the left and right so the board is the main focus. Rivals now sit in a slim row of seats across the top of the table (portrait, cash, what they hold; sealed board when pricing, flipping board at the reveal, lantern at night). The market board takes the full width; the want / in-shops chips now sit on top of each fruit column. Applied to buying, pricing, reveal and evening. Version 20."
+    },
+    {
+      "at": "2026-10-27 01:46",
+      "text": "Owner: tap a rival's name in the buying phase to expand their stall tracker and see freshness. Added to the Buying mockup: tapping Foxy Rosa or Patches opens a drop-down decay tracker of their stall (same columns and colours as the market, counts per slot, a one-line summary); tap again or × to close. Shows only what the current game already shows about rival stock (no prices or choices). Version 21."
     }
   ]
 }
