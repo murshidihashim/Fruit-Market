@@ -7,3 +7,4 @@ keystore.properties
 .DS_Store
 .wrangler
 .dev.vars
+coverage/
