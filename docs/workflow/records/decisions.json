@@ -825,6 +825,10 @@
     {
       "at": "2026-10-27 01:58",
       "text": "Owner: \"ok now do this changes\", read as: build the mockup look into the game. Under the workflow this needs an approved plan, so PLAN-009 (table and board), PLAN-010 (lorry, outline) and PLAN-011 (pricing, reveal, evening, outline) were proposed; awaiting approval. No game code changed. REP-022."
+    },
+    {
+      "at": "2026-10-27 01:59",
+      "text": "Owner: \"yes\" to REP-022. Read as approval of PLAN-009 (started) and of folding PLAN-007's text fixes into PLAN-011. The lorry art choice (Gemini picture or pixel lorry) is still open; it only affects PLAN-010."
     }
   ]
 }

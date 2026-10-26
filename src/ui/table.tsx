@@ -9,6 +9,7 @@ import { Coin, Face, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
+import { lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from './boardModel';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = ['#c8553d', '#3e8f8c', '#7d8c3a', '#3d4f86'];
@@ -30,9 +31,12 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 
 // ---------- market ----------
 
-export function Market({ s, p, onPick, canPick, morning }: {
+/** The farmers market: one column per fruit, newest slot at the top, freshness by colour. */
+export function Market({ s, p, onPick, canPick, morning, onPulse }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean; morning?: boolean;
+  onPulse?: () => void;
 }) {
+  const pz = pulse(s);
   return (
     <div class="market-stall">
       <div class="mk-roof" />
@@ -41,63 +45,105 @@ export function Market({ s, p, onPick, canPick, morning }: {
         <b>Farmers Market</b>
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
-      <div class="mk-rows">
-        {FRUITS.map((f) => (
-          <div class="mk-row">
-            <span class="mk-crate" data-a={`mk-${f}`}><Fruit id={f} size={24} /></span>
-            <div class="mk-cells" style={{ gridTemplateColumns: `repeat(${s.market[f].length}, 1fr)` }}>
-              {s.market[f].map((n, pos) => {
-                const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
-                return (
-                  <button type="button" class={`mk-cell st-${stageAt(f, pos)} ${ok ? 'pick' : ''} ${n ? 'has' : ''}`}
-                    data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                    aria-label={`${FRUIT[f].name}, $${buyCost(s, p, f, pos)}, ${n} left`}>
-                    <Pile f={f} n={n} pos={pos} size={18} />
-                    <span class="price">${buyCost(s, p, f, pos)}</span>
-                  </button>
-                );
-              })}
-            </div>
+      <div class="mk-cols">
+        {FRUITS.map((f, i) => (
+          <div class="mk-col">
+            <button type="button" class={`pz ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
+              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in shops`}>
+              <Fruit id={f} size={18} />
+              <span class="pz-n"><span><b>{wantText(pz[i])}</b> want</span><span><b>{pz[i].supply}</b> in shops</span></span>
+            </button>
+            {marketColumn(s, f).map(({ pos, stage, n }) => {
+              const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
+              return (
+                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''}`}
+                  data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
+                  aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'not so fresh' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
+                  <Pile f={f} n={n} pos={pos} size={18} />
+                  <span class="price">${buyCost(s, p, f, pos)}</span>
+                </button>
+              );
+            })}
           </div>
         ))}
       </div>
-      <div class="mk-age"><span>spoils</span><i /><span>fresh</span></div>
+      <div class="mk-key" aria-hidden="true">
+        <span><i class="st-unripe" />unripe</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />not so</span>
+      </div>
     </div>
   );
 }
 
 // ---------- rivals ----------
 
-export function RivalStall({ s, p, side, onOpen }: { s: GameState; p: number; side: 'top' | 'left' | 'right'; onOpen: () => void }) {
+/** A rival's seat across the table. Tap it to open their stall below the seats. */
+export function RivalStall({ s, p, open, onOpen }: { s: GameState; p: number; open?: boolean; onOpen: () => void }) {
   const pl = s.players[p];
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   const thinking = s.phase === 'bid' && s.bids[p] === null;
   return (
-    <button type="button" class={`rival-stall ${side} ${active ? 'active' : ''}`} style={seat(p)} data-a={`p${p}`} onClick={onOpen}>
+    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''}`} style={seat(p)} data-a={`p${p}`}
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
       <div class="rs-awning" />
       <div class="rs-who">
-        <span class="rs-face"><Face who={pl.avatar} size={side === 'top' ? 30 : 34} />{active && <i class="busy"><Icon name={s.phase === 'buy' ? 'cart' : 'lantern'} size={14} /></i>}{thinking && <i class="busy">💭</i>}</span>
-        <span class="rs-name">{pl.name}</span>
-        {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={11} />{TRAITS[pl.trait].title}</span>}
-        <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
+        <span class="rs-face"><Face who={pl.avatar} size={26} />{active && <i class="busy"><Icon name={s.phase === 'buy' ? 'cart' : 'lantern'} size={14} /></i>}{thinking && <i class="busy">💭</i>}</span>
+        <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
       </div>
       <div class="rs-stock">
+        <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
         {FRUITS.map((f) => {
           const n = count(pl.stock, f);
-          return (
-            <span class={`rs-f ${n ? '' : 'zero'}`} data-a={`p${p}-${f}`}>
-              <Fruit id={f} size={side === 'top' ? 18 : 17} />{n}
-            </span>
-          );
+          // Empty fruits shrink to nothing but stay in place as animation anchors.
+          return <span class={`rs-f ${n ? '' : 'zero'}`} data-a={`p${p}-${f}`} aria-hidden={!n}><Fruit id={f} size={14} />{n}</span>;
         })}
+        {count(pl.stock) === 0 && <span class="rs-empty">empty</span>}
       </div>
+    </button>
+  );
+}
+
+/** A rival's stall, opened from their seat: the same freshness chips as your own stall. */
+export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
+  const pl = s.players[p];
+  return (
+    <div class="rival-drop" style={seat(p)} role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
+      <div class="rs-awning" />
+      <div class="rd-head">
+        <Face who={pl.avatar} size={30} />
+        <b>{pl.name}{pl.name.endsWith('s') ? "'" : "'s"} stall</b>
+        {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={11} />{TRAITS[pl.trait].title}</span>}
+        <span class="chip cash"><Coin size={12} />{pl.cash}</span>
+        <button type="button" class="rd-close" onClick={onClose} aria-label="Close">×</button>
+      </div>
+      <StockChips s={s} p={p} empty="Nothing on the shelf yet." />
       {(pl.upgrades.length > 0 || pl.favours.length > 0) && (
-        <div class="rs-extra">
-          {pl.upgrades.map((u) => <span title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={16} /></span>)}
-          {pl.favours.length > 0 && <span class="cards">🃏{pl.favours.length}</span>}
+        <div class="rd-extra">
+          {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={14} />{UPGRADES[u].title}</span>)}
+          {pl.favours.length > 0 && <span class="chip">🃏 {pl.favours.length} favour card{pl.favours.length > 1 ? 's' : ''}</span>}
         </div>
       )}
-    </button>
+    </div>
+  );
+}
+
+/** Freshness chips for a shop's stock. With `anchors`, fruit can fly to and from them. */
+export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; anchors?: boolean; empty: string }) {
+  const groups = stockChips(s.players[p].stock);
+  const any = groups.some((g) => g.chips.length > 0);
+  return (
+    <div class="stk">
+      {groups.map(({ f, chips }) => (
+        <span class="stk-f" data-a={anchors ? `p${p}-${f}` : undefined}>
+          {chips.map(({ pos, stage, n }) => (
+            <span class={`ms-cell has st-${stage} ${pos === 0 ? 'rotting' : ''}`} data-a={anchors ? `p${p}-${f}-${pos}` : undefined}
+              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'not so fresh' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
+              <Fruit id={f} size={20} stage={stage} />{n > 1 && <b>×{n}</b>}<span>{lifeLabel(f, pos)}</span>
+            </span>
+          ))}
+        </span>
+      ))}
+      {!any && <span class="stk-empty">{empty}</span>}
+    </div>
   );
 }
 
@@ -121,21 +167,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={20} /></span>)}
         <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{pl.cash}</span>
       </div>
-      <div class="ms-rows">
-        {FRUITS.map((f) => (
-          <div class="ms-row" data-a={`p${p}-${f}`}>
-            <span class="ms-label"><Fruit id={f} size={18} /></span>
-            <div class="ms-cells" style={{ gridTemplateColumns: `repeat(${pl.stock[f].length}, 1fr)` }}>
-              {pl.stock[f].map((n, pos) => (
-                <span class={`ms-cell st-${stageAt(f, pos)} ${n ? 'has' : ''} ${pos === 0 && n ? 'rotting' : ''}`} data-a={`p${p}-${f}-${pos}`}>
-                  <span class="drop">{pos >= FRUIT[f].drop.length ? '🌱' : FRUIT[f].drop[pos] ? `−$${FRUIT[f].drop[pos]}` : ''}</span>
-                  <Pile f={f} n={n} pos={pos} size={16} />
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+      <StockChips s={s} p={p} anchors empty="Empty shelf. Tap fruit in the market to buy." />
       {pl.favours.length > 0 && (
         <div class={`ms-cards ${flashCards ? 'glow' : ''}`}>
           {pl.favours.map((id, i) => {
@@ -206,46 +238,7 @@ export function Street({ s, onTip }: { s: GameState; onTip?: (c: Customer) => vo
   );
 }
 
-/** Where each rival sits around the market, from the viewer's point of view. */
-export function seats(n: number, viewer: number): { p: number; side: 'top' | 'left' | 'right' }[] {
-  const others = Array.from({ length: n - 1 }, (_, i) => (viewer + 1 + i) % n);
-  const sides: ('top' | 'left' | 'right')[] = others.length === 1 ? ['top'] : others.length === 2 ? ['left', 'right'] : ['left', 'top', 'right'];
-  return others.map((p, i) => ({ p, side: sides[i] }));
-}
-
-// ---------- demand vs supply ----------
-
-export interface Pulse { f: FruitId; demand: number; more: boolean; supply: number }
-
-/** Fruit customers want today vs ripe fruit sitting in all shops. */
-export function pulse(s: GameState): Pulse[] {
-  const before = s.phase === 'morning' || s.phase === 'buy';
-  const custs: Customer[] = [...s.secondMarket, ...s.firstMarket];
-  if (before && s.forecast) custs.push(s.forecast);
-  const extra = before ? s.event?.extra?.wants ?? [] : [];
-  return FRUITS.map((f) => {
-    let demand = 0;
-    for (const c of custs) for (const w of c.wants) if (w.fruit === f) demand += Math.max(0, w.qty);
-    for (const w of extra) if (w.fruit === f) demand += w.qty;
-    const supply = s.players.reduce((a, p) => a + count(p.stock, f, true), 0);
-    return { f, demand, more: before && walkInsToday(s) > 0, supply };
-  });
-}
-
-export function PulseBar({ s, onTap }: { s: GameState; onTap?: () => void }) {
-  return (
-    <button type="button" class="pulse" onClick={(e) => { e.stopPropagation(); onTap?.(); }}>
-      {pulse(s).map(({ f, demand, more, supply }) => {
-        const mood = demand === 0 ? 'none' : supply === 0 ? 'open' : supply <= demand ? 'good' : 'war';
-        return (
-          <span class={`pz ${mood}`}>
-            <Fruit id={f} size={18} />
-            <span class="pz-n"><b>{demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0'}</b><small>want</small></span>
-            <span class="pz-vs">/</span>
-            <span class="pz-n"><b>{supply}</b><small>in shops</small></span>
-          </span>
-        );
-      })}
-    </button>
-  );
+/** The other players in turn order after the viewer, as they sit across the table. */
+export function seats(n: number, viewer: number): { p: number }[] {
+  return Array.from({ length: n - 1 }, (_, i) => ({ p: (viewer + 1 + i) % n }));
 }

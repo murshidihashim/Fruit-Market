@@ -1,10 +1,9 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
-// a customer's order, a rival's stall and the pause menu.
+// a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
 import { FAVOURS, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { EventIcon, Face, FavourIcon, Fruit } from '../../art';
-import { InventorySheet } from '../../panel';
 import { markSeen, type Tip } from '../../tutorial';
 import type { GameController } from '../useGameController';
 
@@ -19,7 +18,7 @@ export function EventPop({ c }: { c: GameController }) {
 }
 
 export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip | null; onExit: () => void }) {
-  const { s, active, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, rival, setRival, menu, setMenu } = c;
+  const { s, active, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, menu, setMenu } = c;
   return (
     <>
   {coach && (
@@ -68,7 +67,6 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
     </div>
   )}
 
-  {rival !== null && <InventorySheet s={s} p={rival} onClose={() => setRival(null)} />}
 
   {menu && (
     <div class="modal-bg" onClick={() => setMenu(false)}>

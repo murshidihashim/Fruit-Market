@@ -20,7 +20,7 @@ const SLIDES = [
     title: 'Every fruit ages differently',
     body: (
       <>
-        <p>Every night all fruit moves one step left. The number shows how much less a customer pays at that age. Off the end, it spoils.</p>
+        <p>Every night all fruit gets one step older: on the market board it moves down its column. Below, oldest is on the left; the number shows how much less a customer pays at that age. Past the last step, it spoils.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <div class="demo-track">
@@ -50,7 +50,7 @@ const SLIDES = [
       <>
         <p>Every shop secretly picks a price for each customer. Then all prices are shown at once.</p>
         <p><b>Cheapest price sells first.</b> On a tie, the fresher fruit wins.</p>
-        <p>A customer's price is <b>per fruit</b>, for a fresh one. Older fruit sells for less: the −$ on each space of your stall shows how much.</p>
+        <p>A customer's price is <b>per fruit</b>, for a fresh one. Older fruit sells for less: the chart in “Every fruit ages differently” shows how much, and when you set prices you see what each of your fruit can fetch.</p>
         <p>A customer who doesn't get everything comes back once more the next day, then leaves.</p>
       </>
     ),

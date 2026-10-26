@@ -55,7 +55,6 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-007: UI polish phase 1: fix what looks broken (awaiting approval)
-- PLAN-009: Cosy table build 1: seated rivals and the new market board (awaiting approval)
 - PLAN-010: Cosy table build 2: the delivery lorry (outline) (awaiting approval)
 - PLAN-011: Cosy table build 3: pricing, reveal and evening on the table (outline) (awaiting approval)
 <!-- records:pending:end -->

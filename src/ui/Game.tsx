@@ -5,7 +5,7 @@ import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
 import { EveningPanel, PricePanel } from './panel';
-import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
+import { Market, MyStall, RivalDrop, RivalStall, Street, seats } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
@@ -67,10 +67,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: s.phase === 'bid' && c.myBidTurn,
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
   });
-  const around = seats(s.players.length, viewer);
-  const top = around.find((x) => x.side === 'top');
-  const left = around.find((x) => x.side === 'left');
-  const right = around.find((x) => x.side === 'right');
+  // Rivals sit across the table in one row, in turn order after you.
+  const rivals = seats(s.players.length, viewer).map((x) => x.p);
+  const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
 
@@ -104,18 +103,19 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
       <div class={`play ${tray ? 'has-tray' : ''}`}>
         <div class="table">
-          {top && <div class="seat-top"><RivalStall s={s} p={top.p} side="top" onOpen={() => c.setRival(top.p)} /></div>}
           <div class="street-wrap" data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /></div>
-          <PulseBar s={s} onTap={() => c.setPulseInfo(!c.pulseInfo)} />
-          <div class={`mid ${left ? '' : 'no-left'} ${right ? '' : 'no-right'}`}>
-            {left ? <RivalStall s={s} p={left.p} side="left" onOpen={() => c.setRival(left.p)} /> : <span />}
-            <div class="centre">
-              <Market s={s} p={viewer} morning={s.phase === 'morning'}
-                onPick={myBuyTurn ? c.pickMarket : undefined}
-                canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)} />
-              {overlay}
+          {rivals.length > 0 && (
+            <div class="seats">
+              {rivals.map((p) => <RivalStall s={s} p={p} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
+              {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
             </div>
-            {right ? <RivalStall s={s} p={right.p} side="right" onOpen={() => c.setRival(right.p)} /> : <span />}
+          )}
+          <div class="centre">
+            <Market s={s} p={viewer} morning={s.phase === 'morning'}
+              onPick={myBuyTurn ? c.pickMarket : undefined}
+              canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
+              onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
+            {overlay}
           </div>
           <MyStall s={s} p={viewer} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
         </div>

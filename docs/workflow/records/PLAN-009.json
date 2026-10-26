@@ -17,9 +17,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "yes (reply to REP-022: 'Reply \"Approve PLAN-009\" to start')",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-009",
   "title": "Cosy table build 1: seated rivals and the new market board",
   "problem": "Build the approved mockup look (DEC-023, DEC-024, DEC-025; PLAN-008 versions 20 to 24) into the real game, starting with the table and the buying board. The game already has seats, a rival pop-up, a market and a demand/supply strip, so this restyles and rearranges them rather than rewriting them.",

@@ -1,5 +1,5 @@
-// Decision panels: price cards for setting secret prices, upgrade cards for the evening,
-// and the full stall sheet that opens when you tap a stall.
+// Decision panels: price cards for setting secret prices and upgrade cards for the evening.
+// (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useMemo, useState } from 'preact/hooks';
 import { planBids } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
@@ -8,28 +8,7 @@ import {
   servingCustomers, validateBids, type Bid, type GameState,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
-import { Track, TrackLegend } from './board';
 import { Icon } from './pixel';
-
-export function InventorySheet({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
-  const pl = s.players[p];
-  return (
-    <div class="modal-bg" onClick={onClose}>
-      <div class="modal sheet" onClick={(e) => e.stopPropagation()}>
-        <h2>{p === 0 || pl.kind === 'human' ? 'Stall' : `${pl.name}'s stall`}: {pl.name}</h2>
-        <p class="small">Fruit moves one space left each night and spoils off the end. The −$ shows how much less a customer pays at that age.</p>
-        {FRUITS.map((f) => <Track f={f} stock={pl.stock} />)}
-        <TrackLegend />
-        <div class="sheet-row">
-          <span class="chip"><Icon name="crate" size={14} /> {count(pl.stock)} on shelf</span>
-          <span class="chip cash"><Coin /> {pl.cash}</span>
-          {pl.upgrades.map((u) => <span class="chip">{UPGRADES[u].title}</span>)}
-        </div>
-        <button class="btn wide" onClick={onClose}>Close</button>
-      </div>
-    </div>
-  );
-}
 
 // ---------- favour cards ----------
 
