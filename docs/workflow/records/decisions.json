@@ -550,6 +550,31 @@
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "If playtesters read the rivals as mean, or the plum screens feel too dark."
+    },
+    {
+      "id": "DEC-023",
+      "title": "Look: cosy pixel edition of direction B",
+      "question": "The cunning edition lost the cosy feel and the toy-box art moved too far from pixel art. What should the look be?",
+      "choice": "Go back to the first toy-box mockups (warm cream, teal and wood; the owner's own Evening layout edit) and use the game's own pixel characters, fruit and icons with its pixel heading font, inside the smooth, polished frame. Keep a light sly touch in warm colours: dotted 'Psst' whispers from Foxy Rosa, a sly-eyed Foxy Rosa and Patches, sealed prices, 'Outfoxed by $1!'. Drop the dark plum screens, curtain and spotlight.",
+      "rationale": "Owner feedback: the first toy-box version felt cosy; the cunning edition did not; balance the art back toward pixel art. Reusing the game's sprites also means far less redraw work than a full vector cast.",
+      "impact": {
+        "player": "Familiar pixel cast and fruit, cleaner screens, cosy warm colours, if built.",
+        "technical": "Much smaller art job than DEC-021: reuse and tidy the existing sprites; the UI frame is the main build.",
+        "data": "None. Whispers repeat only public information."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-018"
+      ],
+      "plan": "PLAN-008",
+      "reviewTrigger": "Owner review of the cosy pixel mockups; if confirmed, DEC-022's plum layer is superseded."
     }
   ],
   "history": [
@@ -688,6 +713,10 @@
     {
       "at": "2026-10-27 00:12",
       "text": "Owner on the REP-016 mockups: \"yes but align more with the cunning aesthetic given the undercut mechanism of the game\". DEC-022 approved (cunning edition of direction B). Mockups revised and republished at the same link; owner's Evening layout edit kept. REP-017. Waiting for the owner's review of the revision."
+    },
+    {
+      "at": "2026-10-27 00:17",
+      "text": "Owner: \"its still not enough, maybe balance the artstyle back to pixel art, the ui/ux here looks more polished but lacks the cosiness of how the previous board was set\", then \"no i meant the version before you tweaked here, that felt cosy\". Mockups rebuilt from the pre-cunning version (owner's Evening edit kept) with the game's pixel sprites and font and a light, warm sly touch; dark plum screens dropped. DEC-023 awaiting the owner's confirmation. REP-018."
     }
   ]
 }
