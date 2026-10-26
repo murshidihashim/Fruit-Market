@@ -52,10 +52,12 @@ How often, and a screenshot if possible:
 - Results are always reported as PASS, FAIL, NOT RUN or NOT APPLICABLE.
 
 ## 4 · Publish to players (only when you decide)
-1. Make sure the preview passed your checklist.
+1. Make sure the preview passed your checklist, and say "PREPARE RELEASE". Claude writes the release
+   notes and new version number; the Deploy button refuses to run without them.
 2. GitHub → **Actions** → **Deploy LIVE game** → **Run workflow**.
 3. In the box, type `PUBLISH` (capitals) → **Run workflow**.
-4. It checks the code again, publishes, then confirms the live site answers ("SMOKE OK").
+4. It checks the code again, publishes, confirms the live site answers ("SMOKE OK") and tags the
+   version (for example `v1.1.1`), so we always know which build players have.
    A red X means it stopped; the previous live version keeps running. Tell Claude.
 
 To undo a bad release, ask Claude to revert it. Claude prepares the old version; you press Deploy again.
@@ -72,7 +74,12 @@ This makes GitHub refuse changes to `main` that haven't passed CI.
 After this, Claude's changes arrive as pull requests: you press **Merge** when CI is green.
 As the owner you can still override in an emergency; avoid it.
 
-## 6 · Useful sentences
+## 6 · Where to read things
+- `CHANGELOG.md`: what changed for players, per release.
+- `docs/workflow/DECISIONS.md` (or the PDF `docs/workflow/pdf/DECISIONS-cumulative.pdf`): every
+  decision, pending approvals first, then the full history.
+
+## 7 · Useful sentences
 - "STATUS": where we are and the next step.
 - "PLAN an outcome: …": Claude proposes a small package and waits.
 - "Approve PLAN-00X only, including its listed tests and documentation."

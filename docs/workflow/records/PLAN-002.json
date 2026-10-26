@@ -2,12 +2,22 @@
   "id": "PLAN-002",
   "title": "Package B: canonical records, generated views and checks",
   "problem": "Decision statuses were typed by hand in several places with nothing checking that they agreed; no player changelog or release tags.",
-  "approval": { "status": "approved", "evidence": "Approve PLAN-002 only, including its listed tests and documentation", "date": "2026-10-26" },
-  "delivery": "in progress",
+  "approval": {
+    "status": "approved",
+    "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
+    "date": "2026-10-26"
+  },
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "",
-  "reports": ["REP-003"],
-  "decisions": ["DEC-007", "DEC-008", "DEC-009"],
+  "reports": [
+    "REP-003"
+  ],
+  "decisions": [
+    "DEC-007",
+    "DEC-008",
+    "DEC-009"
+  ],
   "scope": [
     "Canonical JSON records for decisions, packages and releases",
     "npm run records: DECISIONS.md, CHANGELOG.md, the STATE pending block and PDFs",
@@ -15,16 +25,71 @@
     "Release tagging when the owner deploys",
     "Migration of DEC-001 to DEC-006, PLAN-001 and REP-001 to REP-003"
   ],
-  "exclusions": ["Game code, rules, server, hosting", "Package C", "Cross-game studio register (not applicable yet)", "New installs; PDFs stay local"],
-  "acceptance": [
-    { "id": "B1", "text": "npm run records rebuilds all views; a second run changes nothing", "result": "NOT RUN", "evidence": "" },
-    { "id": "B2", "text": "records:check fails for a duplicate ID, an unknown reference, approval without evidence, an edited history line and a stale view", "result": "NOT RUN", "evidence": "" },
-    { "id": "B3", "text": "Without pandoc the export prints PDF EXPORT BLOCKED, exits non-zero and keeps the previous PDFs", "result": "NOT RUN", "evidence": "" },
-    { "id": "B4", "text": "The cumulative PDF opens with pending approvals and current decisions, then REP-001 to REP-003", "result": "NOT RUN", "evidence": "" },
-    { "id": "B5", "text": "Every decision, status and approval quote from REP-001 to REP-003 is in the records", "result": "NOT RUN", "evidence": "" },
-    { "id": "B6", "text": "verify and CI run records:check and stay green", "result": "NOT RUN", "evidence": "" },
-    { "id": "B7", "text": "A tagging dry run on a throwaway branch shows the tag and changelog entry", "result": "NOT RUN", "evidence": "" }
+  "exclusions": [
+    "Game code, rules, server, hosting",
+    "Package C",
+    "Cross-game studio register (not applicable yet)",
+    "New installs; PDFs stay local"
   ],
-  "changes": { "added": [], "changed": [], "fixed": [], "removed": [] },
+  "acceptance": [
+    {
+      "id": "B1",
+      "text": "npm run records rebuilds all views; a second run changes nothing",
+      "result": "PASS",
+      "evidence": "Second run of npm run records changed nothing (checksums of DECISIONS.md, CHANGELOG.md, STATE.md identical)"
+    },
+    {
+      "id": "B2",
+      "text": "records:check fails for a duplicate ID, an unknown reference, approval without evidence, an edited history line and a stale view",
+      "result": "PASS",
+      "evidence": "Each break failed with a plain message and exit 1: duplicate DEC-008; REP-003 mentioning DEC-012; DEC-001 approved without evidence; history line 1 edited; DECISIONS.md and STATE.md stale"
+    },
+    {
+      "id": "B3",
+      "text": "Without pandoc the export prints PDF EXPORT BLOCKED, exits non-zero and keeps the previous PDFs",
+      "result": "PASS",
+      "evidence": "PANDOC=/nonexistent: \"PDF EXPORT BLOCKED\", exit 1, all four PDFs byte-identical, no temp files left"
+    },
+    {
+      "id": "B4",
+      "text": "The cumulative PDF opens with pending approvals and current decisions, then REP-001 to REP-003",
+      "result": "NOT RUN",
+      "evidence": "Checked after the final export"
+    },
+    {
+      "id": "B5",
+      "text": "Every decision, status and approval quote from REP-001 to REP-003 is in the records",
+      "result": "PASS",
+      "evidence": "All DEC rows of the old hand-written register match. Differences: DEC-004 delivery \"In use\" is mapped to the allowed value \"implemented\"; DEC-007 to DEC-009 approved today (in history). Both owner quotes present"
+    },
+    {
+      "id": "B6",
+      "text": "verify and CI run records:check and stay green",
+      "result": "NOT RUN",
+      "evidence": "Waiting for CI on main"
+    },
+    {
+      "id": "B7",
+      "text": "A tagging dry run on a throwaway branch shows the tag and changelog entry",
+      "result": "PASS",
+      "evidence": "Throwaway branch: with 1.1.0 published, release check refused (exit 1); with a 1.1.1 candidate, \"RELEASE OK: would tag v1.1.1\" plus the changelog entry. Branch deleted; no tags created"
+    }
+  ],
+  "changes": {
+    "added": [
+      "Canonical records in docs/workflow/records (decisions, packages, releases)",
+      "npm run records and records:check",
+      "Generated CHANGELOG.md and decision register; STATE pending block",
+      "Release check and version tag in the Deploy workflow"
+    ],
+    "changed": [
+      "verify runs records:check first; CI compares records history with the previous commit",
+      "PDF export is all-or-nothing and reports PDF EXPORT BLOCKED"
+    ],
+    "fixed": [],
+    "removed": [
+      "Hand-edited DECISIONS.md"
+    ]
+  },
   "playerNotes": []
 }

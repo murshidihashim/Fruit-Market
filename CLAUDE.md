@@ -26,7 +26,8 @@ Short progress notes use STATUS, FINDING, NEXT. Plain English; the owner reads o
 | `npm run dev` | Local game at http://localhost:5173 (offline modes) |
 | `npm run dev:online` | Local game plus room server (wrangler dev) at http://127.0.0.1:8787 |
 | `npm run simulate` / `npm run balance` | Balance reports (AI games) |
-| `node docs/workflow/export-pdf.cjs` | Rebuild report PDFs and the cumulative decision register |
+| `npm run records` | Rebuild DECISIONS.md, CHANGELOG.md, the STATE pending block and all PDFs from `docs/workflow/records/` |
+| `npm run records:check` | Check records (part of `verify`): IDs, evidence, append-only history, views up to date |
 
 Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) without publication approval.
 
@@ -36,6 +37,9 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
 - The **live** game (https://fruit-market.murshidi-hashim.workers.dev) changes only through
   GitHub Actions → *Deploy LIVE game* → type `PUBLISH`. It runs `verify` and a smoke test.
 - The Android workflow builds an APK/AAB artifact on each push; it does not publish to Play.
+- PREPARE RELEASE: bump `version` in package.json, add a `candidate` entry with player notes to
+  `records/releases.json`, run `npm run records`. Deploy refuses without it and tags `v<version>` after.
+  After the owner deploys, mark the release `published` (date, commit, tagged) in a new commit.
 
 ## Preserve (change only with an approved plan)
 - Game rules and balance: `src/engine/*` (data in `src/engine/data.ts`), `RULES.md`. Deterministic and seeded.
@@ -61,8 +65,11 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
 - `docs/workflow/STATE.md`: active package, build, blockers, next action (about 500 words; keep it current).
 - `docs/workflow/GAME-BRIEF.md`: audience, core loop, exclusions.
 - `docs/workflow/OWNER-BRIEF.md`: owner's preview, playtest and publish guide.
-- `docs/workflow/reports/REP-###.md`: one per decision-bearing output; `DECISIONS.md` is the register.
-  Timestamps in Asia/Kuala_Lumpur. Approval status (proposed, awaiting approval, approved, rejected,
+- Source of truth: `docs/workflow/records/` (`decisions.json` with append-only `history`,
+  `PLAN-###.json`, `releases.json`). Edit these, then `npm run records`. Never hand-edit
+  `DECISIONS.md`, `CHANGELOG.md` or the generated STATE block. Corrections are new history lines.
+- `docs/workflow/reports/REP-###.md`: narrative snapshot per decision-bearing output; never rewritten.
+  Timestamps in Asia/Kuala_Lumpur (use real times from `TZ=Asia/Kuala_Lumpur date`). Approval status (proposed, awaiting approval, approved, rejected,
   superseded) is separate from delivery (not started, in progress, implemented, verified, released).
 - Commits are authored "Murshidi Hashim" <murshidi.hashim@gmail.com>. No model names in the repo.
 
