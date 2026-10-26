@@ -15,6 +15,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so the records check can compare with the previous commit
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -27,6 +29,8 @@ jobs:
           # CI machines vary; allow a little headroom over the local budget.
           MAX_TASK_MS: '250'
           MAX_ENTRY_MS: '600'
+          # Records history must only grow: compare with the commit before this push (or the PR base).
+          RECORDS_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       - name: Keep screenshots
         if: always()
         uses: actions/upload-artifact@v4

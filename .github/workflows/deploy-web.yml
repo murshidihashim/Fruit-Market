@@ -1,5 +1,7 @@
 # Publishes the LIVE game. Runs only when the owner presses "Run workflow" in GitHub Actions
 # (PLAN-001 / DEC-003): pushing to main never changes the live site.
+# Needs a release candidate for package.json's version in docs/workflow/records/releases.json
+# (Claude adds it during PREPARE RELEASE); after a good deploy it tags the commit v<version> (PLAN-002).
 name: Deploy LIVE game
 
 on:
@@ -13,6 +15,8 @@ jobs:
   deploy:
     if: inputs.confirm == 'PUBLISH'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to push the release tag
     env:
       LIVE_URL: https://fruit-market.murshidi-hashim.workers.dev
     steps:
@@ -22,8 +26,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Verify (lint, types, unit tests, build)
+      - name: Verify (records, lint, types, unit tests, build)
         run: npm run verify
+      - name: Release notes ready and version tag free?
+        run: node scripts/records.mjs --release-check
       - name: Deploy to Cloudflare (game + room server)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -31,3 +37,9 @@ jobs:
         run: npx wrangler deploy
       - name: Smoke test the live site
         run: node scripts/smoke-live.mjs "$LIVE_URL"
+      - name: Tag this release (records which commit is live)
+        run: |
+          V=$(node -p "require('./package.json').version")
+          git tag "v$V" && git push origin "v$V"
+          echo "Tagged v$V. Next: Claude marks release $V as published in docs/workflow/records/releases.json."
+

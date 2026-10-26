@@ -1,0 +1,16 @@
+{
+  "id": "PLAN-003",
+  "title": "Package C: online, capacity and release evidence (outline only)",
+  "problem": "Real-device behaviour, backups, crash recovery, capacity and costs have no evidence yet.",
+  "approval": { "status": "proposed", "note": "Outlined in REP-001; a detailed plan is still to be written." },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": ["REP-001"],
+  "decisions": [],
+  "scope": ["Real-device checklist runs", "Durable Object data export and restore drill", "Room crash-recovery test", "Small load test within an approved budget", "Cost record with a dated quote", "Live smoke test from CI"],
+  "exclusions": [],
+  "acceptance": [],
+  "changes": { "added": [], "changed": [], "fixed": [], "removed": [] },
+  "playerNotes": []
+}

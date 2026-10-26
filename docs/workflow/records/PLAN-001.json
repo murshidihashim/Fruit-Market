@@ -1,0 +1,33 @@
+{
+  "id": "PLAN-001",
+  "title": "Package A: baseline, one verification path, preview and owner brief",
+  "problem": "Updates reached players without approval or a single pass/fail check, and the owner had no short guide for trying a build.",
+  "approval": { "status": "approved", "evidence": "Approve PLAN-001 only, including its listed tests and documentation", "date": "2026-10-26" },
+  "delivery": "verified",
+  "release": "unreleased",
+  "build": "2e4b240",
+  "reports": ["REP-001", "REP-002"],
+  "decisions": ["DEC-002", "DEC-003", "DEC-006"],
+  "scope": [
+    "npm run verify and verify:full; CI runs verify:full",
+    "Live deploy only via the manual Deploy LIVE game workflow; preview copy updated after green CI",
+    "Branch protection instructions for the owner",
+    "CLAUDE.md, STATE.md, GAME-BRIEF.md",
+    "OWNER-BRIEF.md with preview, playtest and publish steps"
+  ],
+  "exclusions": ["Game rules, balance, art, saves, server protocol, hosting", "Paid services", "Publication", "Packages B and C"],
+  "acceptance": [
+    { "id": "A1", "text": "verify exits 0 on current code and non-zero with a broken test", "result": "PASS", "evidence": "Local: exit 0, then exit 1 with one test broken, then exit 0 once restored" },
+    { "id": "A2", "text": "A push to main does not change the live site; Deploy runs only after verify", "result": "PASS", "evidence": "Push of 2e4b240 started CI and Android only. The live Deploy itself was NOT RUN (no publication approval)" },
+    { "id": "A3", "text": "A preview lets the owner play the build before publication", "result": "PASS", "evidence": "CI run 40274184197 preview job: SMOKE OK, rules version 2" },
+    { "id": "A4", "text": "Owner opens the preview and finishes a match using the brief", "result": "NOT RUN", "evidence": "Needs the owner" },
+    { "id": "A5", "text": "CLAUDE.md under 120 lines; STATE about 500 words", "result": "PASS", "evidence": "72 lines; about 350 words" }
+  ],
+  "changes": {
+    "added": ["npm run verify / verify:full", "Preview copy of the game (fruit-market-staging)", "Live smoke test after deploys", "CLAUDE.md, state, game brief and owner brief"],
+    "changed": ["The live game updates only when the owner presses Deploy and types PUBLISH", "CI runs verify:full"],
+    "fixed": [],
+    "removed": ["Automatic live deploys on every push"]
+  },
+  "playerNotes": []
+}

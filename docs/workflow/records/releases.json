@@ -1,0 +1,20 @@
+{
+  "releases": [
+    {
+      "version": "1.1.0",
+      "status": "published",
+      "date": "2026-10-26",
+      "commit": "c915e49",
+      "tagged": false,
+      "source": "Published before this workflow by the old automatic deploy; summarised from git history.",
+      "notes": [
+        "Guided first game and a How to play screen",
+        "Play friends online by link, or tap Quick match to meet a stranger",
+        "If someone drops out of an online game, a computer finishes it for them after 75 seconds",
+        "Daily challenge with a shared leaderboard, and the Market League ladder",
+        "Achievements, a stronger Hard computer and new pixel art",
+        "Smoother on low-end phones; your saved game survives updates"
+      ]
+    }
+  ]
+}

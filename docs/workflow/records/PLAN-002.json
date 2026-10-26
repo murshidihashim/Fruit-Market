@@ -1,0 +1,30 @@
+{
+  "id": "PLAN-002",
+  "title": "Package B: canonical records, generated views and checks",
+  "problem": "Decision statuses were typed by hand in several places with nothing checking that they agreed; no player changelog or release tags.",
+  "approval": { "status": "approved", "evidence": "Approve PLAN-002 only, including its listed tests and documentation", "date": "2026-10-26" },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "",
+  "reports": ["REP-003"],
+  "decisions": ["DEC-007", "DEC-008", "DEC-009"],
+  "scope": [
+    "Canonical JSON records for decisions, packages and releases",
+    "npm run records: DECISIONS.md, CHANGELOG.md, the STATE pending block and PDFs",
+    "records:check inside verify and CI",
+    "Release tagging when the owner deploys",
+    "Migration of DEC-001 to DEC-006, PLAN-001 and REP-001 to REP-003"
+  ],
+  "exclusions": ["Game code, rules, server, hosting", "Package C", "Cross-game studio register (not applicable yet)", "New installs; PDFs stay local"],
+  "acceptance": [
+    { "id": "B1", "text": "npm run records rebuilds all views; a second run changes nothing", "result": "NOT RUN", "evidence": "" },
+    { "id": "B2", "text": "records:check fails for a duplicate ID, an unknown reference, approval without evidence, an edited history line and a stale view", "result": "NOT RUN", "evidence": "" },
+    { "id": "B3", "text": "Without pandoc the export prints PDF EXPORT BLOCKED, exits non-zero and keeps the previous PDFs", "result": "NOT RUN", "evidence": "" },
+    { "id": "B4", "text": "The cumulative PDF opens with pending approvals and current decisions, then REP-001 to REP-003", "result": "NOT RUN", "evidence": "" },
+    { "id": "B5", "text": "Every decision, status and approval quote from REP-001 to REP-003 is in the records", "result": "NOT RUN", "evidence": "" },
+    { "id": "B6", "text": "verify and CI run records:check and stay green", "result": "NOT RUN", "evidence": "" },
+    { "id": "B7", "text": "A tagging dry run on a throwaway branch shows the tag and changelog entry", "result": "NOT RUN", "evidence": "" }
+  ],
+  "changes": { "added": [], "changed": [], "fixed": [], "removed": [] },
+  "playerNotes": []
+}
