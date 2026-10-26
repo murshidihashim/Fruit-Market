@@ -7,7 +7,8 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
-- **Next:** owner preview playtest, then PREPARE RELEASE 1.1.1 (reconnect fix + 4-player clarity). Then plan PLAN-003 (Package C).
+- **Release 1.1.1 prepared** (REP-009): DEC-013 (publish) awaiting the owner's approval after the preview playtest; the owner presses Deploy.
+- **Then:** plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -48,5 +49,6 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-001: Adopt the personal workflow guide 1.2 for Fruit Market (proposed)
 - DEC-004: PDF exports with pandoc and the existing Playwright browser (proposed)
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
+- DEC-013: Publish version 1.1.1 to players (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 <!-- records:pending:end -->

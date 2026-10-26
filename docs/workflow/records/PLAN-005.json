@@ -8,7 +8,7 @@
     "date": "2026-10-26"
   },
   "delivery": "verified",
-  "release": "unreleased",
+  "release": "1.1.1 candidate",
   "build": "04b72b5",
   "reports": [
     "REP-007",

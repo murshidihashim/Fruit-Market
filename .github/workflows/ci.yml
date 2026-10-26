@@ -12,7 +12,7 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35 # the suite takes ~14 min; browser downloads have taken up to 16 min on slow runners
     steps:
       - uses: actions/checkout@v4
         with:

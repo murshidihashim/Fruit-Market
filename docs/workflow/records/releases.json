@@ -15,6 +15,24 @@
         "Achievements, a stronger Hard computer and new pixel art",
         "Smoother on low-end phones; your saved game survives updates"
       ]
+    },
+    {
+      "version": "1.1.1",
+      "status": "candidate",
+      "date": "",
+      "commit": "",
+      "tagged": false,
+      "plans": [
+        "PLAN-001",
+        "PLAN-002",
+        "PLAN-004",
+        "PLAN-005"
+      ],
+      "notes": [
+        "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room\u2026\", especially on slower phones or when the app was in the background",
+        "Clearer group play: the online lobby shows how many of the 4 seats are taken and which are still open, and the menus explain that 2 to 4 people can play together, online or by passing one phone",
+        "Behind the scenes: updates now reach players only after a preview and an owner's approval, with automatic checks before and after"
+      ]
     }
   ]
 }

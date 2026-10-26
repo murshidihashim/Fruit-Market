@@ -301,6 +301,28 @@
       ],
       "plan": "PLAN-005",
       "reviewTrigger": "If playtesters still miss how to invite more than one friend."
+    },
+    {
+      "id": "DEC-013",
+      "title": "Publish version 1.1.1 to players",
+      "question": "Should the 1.1.1 candidate (reconnect fix, 4-player clarity, release process) replace 1.1.0 on the live game?",
+      "choice": "Recommended after the owner's 15-minute preview playtest passes. Publication happens only when the owner runs Deploy LIVE game and types PUBLISH.",
+      "rationale": "Fixes a bug players can hit (stuck on Connecting after a reload or rejoin) and makes group play discoverable. The game-code change is small (4 files, about 40 lines), the server code is unchanged, and all automated checks pass.",
+      "impact": {
+        "player": "Fewer stuck online screens; clearer 2 to 4 player options.",
+        "technical": "Live Worker updated to the candidate commit and tagged v1.1.1.",
+        "data": "No data or storage format change; rolling back is safe."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-009"
+      ],
+      "reviewTrigger": "If the preview playtest finds a problem, or the post-deploy smoke test fails."
     }
   ],
   "history": [
@@ -383,6 +405,14 @@
     {
       "at": "2026-10-26 19:02",
       "text": "Correction: the REP-008 header time (19:05) was an estimate; the report was completed at 19:01. The report is left as written."
+    },
+    {
+      "at": "2026-10-26 20:26",
+      "text": "Owner: \"PREPARE RELEASE\". Version set to 1.1.1 (package and Android versionName); release candidate entry added; DEC-013 (publish 1.1.1) awaiting approval. REP-009."
+    },
+    {
+      "at": "2026-10-26 20:27",
+      "text": "CI run 13 (f472186, records-only commit) was cancelled: the browser download took 16 minutes, so the job hit its 20-minute limit. Not a code failure. Limit raised to 35 minutes in the 1.1.1 release commit."
     }
   ]
 }
