@@ -107,12 +107,12 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
         <>
           <section class="panel">
             <h3>Quick match</h3>
-            <p class="small muted">Play a stranger who's looking for a game right now.</p>
+            <p class="small muted">Play a stranger who's looking for a game right now. Always 2 players; for 3 or 4, start a private game below.</p>
             <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find an opponent'}</button>
           </section>
           <section class="panel">
             <h3>Start a private game</h3>
-            <p class="small muted">You'll get a link to send to a friend anywhere.</p>
+            <p class="small muted">You'll get a link to send to up to 3 friends, anywhere. 2 to 4 players.</p>
             <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
           </section>
           <section class="panel">
@@ -144,6 +144,9 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const link = inviteLink(v.code);
   const [copied, setCopied] = useState(false);
   const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);
+  // Computer shops take seats too, so they count toward the 4.
+  const openSeats = Math.max(0, MAX_SEATS - v.seats.length - v.config.ai);
+  const friendsAllowed = Math.max(1, MAX_SEATS - v.config.ai - 1);
   const set = (patch: Partial<RoomConfig>) => client.config({ ...v.config, ...patch });
 
   const copy = async () => {
@@ -172,7 +175,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
     <Shell title={`Room ${v.code}`} onBack={onExit}>
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
       <section class="panel invite">
-        <h3>Invite a friend</h3>
+        <h3>{friendsAllowed === 1 ? 'Invite a friend' : `Invite friends (up to ${friendsAllowed})`}</h3>
         <div class="room-code" aria-label="Room code">{v.code.split('').map((c) => <span>{c}</span>)}</div>
         <input id="invite-link" class="input" readOnly value={link} onFocus={(e) => (e.target as HTMLInputElement).select()} />
         <div class="row2">
@@ -182,7 +185,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       </section>
 
       <section class="panel">
-        <h3>Players <span class="muted small">{v.seats.length}/{MAX_SEATS - v.config.ai}</span></h3>
+        <h3>Players {v.seats.length + v.config.ai} of {MAX_SEATS}</h3>
         <div class="seat-list">
           {v.seats.map((x) => (
             <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
@@ -192,9 +195,10 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
           ))}
-          {v.seats.length < 2 && <div class="seat-row ghost waiting-dots">Waiting for a friend to join</div>}
           {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><span class="seat-name">Computer rival {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
+          {Array.from({ length: openSeats }, () => <div class="seat-row ghost open-seat">Open seat · send the link</div>)}
         </div>
+        {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
       </section>
 
       <section class="panel">

@@ -99,6 +99,8 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .btn.daily { flex-direction: column; gap: 0; }
 .btn.daily small { font-family: var(--f-body); font-weight: 400; color: var(--muted); font-size: 0.8rem; }
 .online-btn { background: var(--teal); box-shadow: 0 4px 0 #24605e; color: #fff6e8; }
+.online-btn.stacked { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.online-btn.stacked small { opacity: 0.85; font-weight: 400; font-size: 0.72rem; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 @keyframes bob { 50% { transform: translateY(-3px); } }
 
@@ -406,6 +408,8 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .seat-row.me { box-shadow: inset 0 0 0 2px var(--gold); }
 .seat-row.ghost { justify-content: center; color: var(--muted); background: transparent; border: 2px dashed var(--line); }
 .seat-row.ai { opacity: 0.7; }
+.room-full { margin: 8px 0 0; text-align: center; color: var(--gold); font-weight: 600; }
+.shop-total { margin: 8px 0 0; font-weight: 600; }
 .seat-name { flex: 1; font-family: var(--f-pixel); font-weight: 600; }
 .host-tag { margin-left: 6px; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; background: var(--teal); color: #fff6e8; }
 .dot { width: 10px; height: 10px; border-radius: 50%; }

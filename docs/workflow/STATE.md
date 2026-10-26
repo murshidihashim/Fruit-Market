@@ -47,7 +47,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-001: Adopt the personal workflow guide 1.2 for Fruit Market (proposed)
 - DEC-004: PDF exports with pandoc and the existing Playwright browser (proposed)
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
-- DEC-012: 4-player clarity scope = PLAN-005 (screen text only) (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
-- PLAN-005: 4-player clarity: make it obvious that up to 4 people can play (awaiting approval)
 <!-- records:pending:end -->

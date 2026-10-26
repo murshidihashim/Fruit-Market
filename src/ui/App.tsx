@@ -144,7 +144,7 @@ export function App() {
         </button>
         <div class="row2">
           <button class="btn online-btn" onClick={() => go('quick')}>Quick match</button>
-          <button class="btn online-btn" onClick={() => go('online')}>Play a friend</button>
+          <button class="btn online-btn stacked" onClick={() => go('online')}><span>Play a friend</span><small>2 to 4 players online</small></button>
         </div>
         <button class="btn wide daily" onClick={startDaily}>
           <span>Daily challenge</span>
@@ -210,6 +210,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         </section>
         <section class="panel">
           <h3>Rival shops</h3>
+          <p class="small muted">Up to 4 shops. Pick Friend to pass this phone around.</p>
           <div class="seg">{[1, 2, 3].map((n) => <button class={rivals === n ? 'on' : ''} onClick={() => setRivals(n)}>{n}</button>)}</div>
           {seats.slice(0, rivals).map((st, i) => (
             <div class="seat">
@@ -226,6 +227,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
               )}
             </div>
           ))}
+          <p class="small shop-total">{shopTotal(seats.slice(0, rivals))}</p>
           {seats.slice(0, rivals).some((s) => s.kind === 'human') && <p class="small muted">Friends share this phone and take turns. Secret prices are hidden between turns.</p>}
         </section>
         <section class="panel">
@@ -254,6 +256,14 @@ function Toggle({ on, set, title, text }: { on: boolean; set: (v: boolean) => vo
       <i />
     </label>
   );
+}
+
+/** "4 shops: you, 2 friends, 1 computer" for the new-game screen. */
+function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
+  const friends = rivals.filter((s) => s.kind === 'human').length;
+  const computers = rivals.length - friends;
+  const part = (n: number, word: string) => (n ? `, ${n} ${word}${n > 1 ? 's' : ''}` : '');
+  return `${rivals.length + 1} shops: you${part(friends, 'friend')}${part(computers, 'computer')}`;
 }
 
 function DailyPeek({ date }: { date: string }) {

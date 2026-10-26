@@ -3,9 +3,11 @@
   "title": "4-player clarity: make it obvious that up to 4 people can play",
   "problem": "The owner couldn't find how to play with 4 people. Online, the lobby says 'Invite a friend', shows one empty row ('Waiting for a friend to join') and a small grey '1/4'. On the same phone, 4 people means picking 3 rival shops and switching each to Friend, which nothing explains. 4-person online rooms work (checked 2026-10-26: four joined and played, a fifth was refused 'This room is full').",
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "Approve PLAN-005 only, including its listed tests and documentation",
+    "date": "2026-10-26"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "",
   "reports": [
@@ -31,45 +33,53 @@
     {
       "id": "C1",
       "text": "Lobby shows 'Players N of 4' and one open-seat row per free seat; numbers update as people join and when computer shops are added",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "e2e-four: host alone \"Players 1 of 4\" with 3 open seats; after Ben joined and +1 AI \"Players 3 of 4\", 1 open seat and \"Invite friends (up to 2)\""
     },
     {
       "id": "C2",
       "text": "With 4 people, no open seats remain and the lobby says the room is full",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "e2e-four: 4 people \"Players 4 of 4\", 0 open seats, \"Room full \u00b7 start when everyone is ready\""
     },
     {
       "id": "C3",
       "text": "A new browser test: 4 people join one room, all see the game, a 5th is refused",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "e2e-four: 5th person sees \"This room is full\"; all 4 reached the game with 3 rivals each"
     },
     {
       "id": "C4",
       "text": "Home, quick match and new game screens show the new lines on a 360 px wide phone without overflow (screenshots)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "360 px screenshots of home, online and new game: no overflow (page width 360 of 360); total line \"4 shops: you, 2 friends, 1 computer\""
     },
     {
       "id": "C5",
       "text": "Store screenshots change only where intended (home and lobby text)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Store screenshots vs cc27848: home 7.28% (intended: Play a friend gains a second line), all 6 game screens 0.00%"
     },
     {
       "id": "C6",
       "text": "verify:full green in CI; no rules, server or save changes",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Waiting for CI on main"
     }
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Open-seat rows and a 'Room full' line in the online lobby",
+      "Hints on the home, online and new-game screens",
+      "Automated test: four players in one room"
+    ],
+    "changed": [
+      "Lobby wording: 'Invite friends (up to 3)' and 'Players 1 of 4' (computer shops count toward the 4)"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Clearer group play: the online lobby now shows how many of the 4 seats are taken, with open seats to fill, and the menus explain that 2 to 4 people can play together (online, or passing one phone)"
+  ]
 }
