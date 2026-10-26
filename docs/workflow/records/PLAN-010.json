@@ -1,8 +1,9 @@
 {
   "release": "unreleased",
-  "build": "",
+  "build": "workflow/plan-010 bc2e760",
   "reports": [
-    "REP-022"
+    "REP-022",
+    "REP-026"
   ],
   "decisions": [
     "DEC-023",
@@ -10,18 +11,24 @@
     "DEC-025"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "The farmer's lorry delivers the morning fruit and leaves when buying ends"
+    ],
+    "changed": [
+      "Delivered fruit flies from the lorry into its own market slot"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": [],
+  "playerNotes": [
+    "Every morning the farmer's lorry pulls up and unloads fresh fruit onto the market, then drives off when buying is over"
+  ],
   "approval": {
     "status": "approved",
     "evidence": "approve (reply to: approve PLAN-010, the Gemini lorry)",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-010",
   "title": "Cosy table build 2: the delivery lorry (outline)",
   "problem": "At the start of buying, a lorry drives in, customers make room, crates drop onto the board; it leaves before selling (DEC-025).",
@@ -39,8 +46,8 @@
     {
       "id": "L1",
       "text": "Skippable, under 2.5 s, reduced-motion respected; verify:full passes; performance budget holds",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Lorry drive-in 0.9 s, unloading starts after 0.65 s (sped up by tap-to-skip), drive-out 1.1 s and never blocks play; reduced motion turns both off (CSS). verify (73 tests) and verify:full (BUDGET OK, leaks 0, four players, reconnect) pass on bc2e760. Screenshots at 390x844 and 1280x800: lorry parked during buying, customers moved aside, lorry leaving at pricing, no sideways scroll, no page errors (REP-026)"
     }
   ]
 }
