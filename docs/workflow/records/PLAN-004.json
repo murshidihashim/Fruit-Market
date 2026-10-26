@@ -7,8 +7,8 @@
     "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "verified",
-  "release": "1.1.1 candidate",
+  "delivery": "released",
+  "release": "1.1.1",
   "build": "d7e5d24",
   "reports": [
     "REP-005",
@@ -78,11 +78,11 @@
     ],
     "changed": [],
     "fixed": [
-      "After reloading or rejoining an online match, the screen could stay on \"Connecting to room\u2026\" even though the match was there; most likely in a background tab or on a slow phone"
+      "After reloading or rejoining an online match, the screen could stay on \"Connecting to room…\" even though the match was there; most likely in a background tab or on a slow phone"
     ],
     "removed": []
   },
   "playerNotes": [
-    "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room\u2026\", especially on slower phones or when the app was in the background"
+    "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room…\", especially on slower phones or when the app was in the background"
   ]
 }

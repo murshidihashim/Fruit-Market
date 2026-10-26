@@ -7,8 +7,8 @@
     "evidence": "Approve PLAN-005 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "verified",
-  "release": "1.1.1 candidate",
+  "delivery": "released",
+  "release": "1.1.1",
   "build": "04b72b5",
   "reports": [
     "REP-007",
@@ -41,7 +41,7 @@
       "id": "C2",
       "text": "With 4 people, no open seats remain and the lobby says the room is full",
       "result": "PASS",
-      "evidence": "e2e-four: 4 people \"Players 4 of 4\", 0 open seats, \"Room full \u00b7 start when everyone is ready\""
+      "evidence": "e2e-four: 4 people \"Players 4 of 4\", 0 open seats, \"Room full · start when everyone is ready\""
     },
     {
       "id": "C3",

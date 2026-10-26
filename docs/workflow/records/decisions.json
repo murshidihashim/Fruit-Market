@@ -320,7 +320,7 @@
         "evidence": "yes to 1 and 2 (1 = release 1.1.1: approve DEC-013, then the owner presses Deploy LIVE game)",
         "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-009",
         "REP-013"
@@ -841,6 +841,10 @@
     {
       "at": "2026-10-27 02:51",
       "text": "PLAN-011 built and verified on workflow/plan-009 (4408cd8): verify and verify:full PASS (leak check 0), screenshots at 3 sizes. PLAN-007 closed as superseded; its text fixes shipped in PLAN-011. Customers walking to the winner was not built (noted in scope). REP-024. Remaining for 1.2.0: PLAN-010 (lorry). Main still waits for the 1.1.1 deploy."
+    },
+    {
+      "at": "2026-10-27 03:26",
+      "text": "Owner: \"deploy\". Deploy LIVE game run 15 (40385840230) on main 83de99b succeeded, including its live smoke test; tagged v1.1.1. Release 1.1.1 marked published. Then workflow/plan-009 (PLAN-006 Patches rename, PLAN-009, PLAN-011, creative records) fast-forwarded into main so the preview updates; these will ship together as the next release (planned 1.2.0, with PLAN-010)."
     }
   ]
 }

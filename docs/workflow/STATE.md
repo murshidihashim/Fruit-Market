@@ -7,22 +7,22 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
-- **Release 1.1.1 approved** (DEC-013, REP-013): waiting for the owner to press Deploy LIVE game. Owner's own preview check: NOT RUN (not reported).
-- **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
+- **Release 1.1.1 published** 2026-10-27 (Deploy LIVE game run 15, live smoke test passed, tagged `v1.1.1` on `83de99b`). Triggered by Claude on the owner's instruction "deploy".
+- **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified (REP-012); now on `main`, shipping with the next release.
 - **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published (REP-016) and revised (cunning edition DEC-022, REP-017), then the cosy pixel edition (DEC-023, REP-018), then one shared market table so it plays like a board game (DEC-024, REP-019; both awaiting confirmation, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
-- **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) on branch `workflow/plan-009` (4408cd8 + records): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. Waiting for the 1.1.1 deploy before merging to main. Last package for 1.2.0: PLAN-010 (lorry, Gemini art; awaiting approval).
+- **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. Last package for 1.2.0: PLAN-010 (lorry, Gemini art; awaiting approval).
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
 |---|---|---|
-| Live | https://fruit-market.murshidi-hashim.workers.dev | `c915e49` (deployed 2026-10-26 by the old auto-deploy) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `04b72b5` (reconnect fix + 4-player clarity); updated by CI after each green push |
+| Live | https://fruit-market.murshidi-hashim.workers.dev | 1.1.1, `83de99b` (deployed 2026-10-27, tag `v1.1.1`) |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `main` after CI passes: 1.1.1 plus Patches rename, new table (PLAN-009) and phases on the table (PLAN-011); updated by CI after each green push |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
 ## Checks
-- `npm run verify`: records check, lint, types, 63 unit tests, build (about 8 s locally).
+- `npm run verify`: records check, lint, types, 73 unit tests, build (about 10 s locally).
 - `npm run records`: regenerate the register, changelog, this file's pending block and the PDFs.
 - `npm run verify:full`: plus browser tests (about 15 min). CI runs this on every push and pull request.
 - Readiness: build-ready PASS; play-ready needs the owner's preview playtest; online-ready mostly
@@ -40,7 +40,7 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
 
 ## Approvals
 - PLAN-001, 002, 004, 005 and 006 approved by the owner on 2026-10-26 (exact words in `records/`).
-  Publication of 1.1.1: **approved** (DEC-013), not yet performed (owner presses Deploy).
+  Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009 and PLAN-011 approved and verified; PLAN-010 (lorry) awaiting approval. Publishing the next release needs a new approval.
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we

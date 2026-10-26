@@ -7,8 +7,8 @@
     "evidence": "Approve PLAN-001 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "verified",
-  "release": "1.1.1 candidate",
+  "delivery": "released",
+  "release": "1.1.1",
   "build": "2e4b240",
   "reports": [
     "REP-001",

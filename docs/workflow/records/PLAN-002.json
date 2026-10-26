@@ -7,8 +7,8 @@
     "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "verified",
-  "release": "1.1.1 candidate",
+  "delivery": "released",
+  "release": "1.1.1",
   "build": "a7fa577",
   "reports": [
     "REP-003",
@@ -67,7 +67,7 @@
       "id": "B6",
       "text": "verify and CI run records:check and stay green",
       "result": "PASS",
-      "evidence": "CI run 40276699547 on a7fa577: \"RECORDS OK \u2026 history checked against 63c3682\", then the full suite green; preview updated"
+      "evidence": "CI run 40276699547 on a7fa577: \"RECORDS OK … history checked against 63c3682\", then the full suite green; preview updated"
     },
     {
       "id": "B7",
