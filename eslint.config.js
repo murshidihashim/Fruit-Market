@@ -25,9 +25,9 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.cjs', 'scripts/**/*.mjs'],
+    files: ['scripts/**/*.cjs', 'scripts/**/*.mjs', 'docs/**/*.cjs'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
-  { files: ['scripts/**/*.cjs'], languageOptions: { sourceType: 'commonjs' } },
+  { files: ['scripts/**/*.cjs', 'docs/**/*.cjs'], languageOptions: { sourceType: 'commonjs' } },
 );

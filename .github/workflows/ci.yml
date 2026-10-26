@@ -1,5 +1,7 @@
-# Checks every push and pull request: lint, types, unit tests, builds, and the browser tests
-# (solo playthrough, performance budget, online match with a player leaving, quick match).
+# Checks every push and pull request with `npm run verify:full`: lint, types, unit tests, build,
+# and the browser tests (solo game, performance budget, online match with a leaver, quick match).
+# After a push to main passes, the PREVIEW copy of the game is updated. The live game is not
+# touched: it only changes through the "Deploy LIVE game" workflow (PLAN-001 / DEC-003).
 name: CI
 on:
   push:
@@ -18,13 +20,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - name: Browser tests
-        run: npm run test:e2e
+      - name: Verify everything (lint, types, unit tests, build, browser tests)
+        run: npm run verify:full
         env:
           # CI machines vary; allow a little headroom over the local budget.
           MAX_TASK_MS: '250'
@@ -36,3 +34,25 @@ jobs:
           name: e2e-screenshots
           path: e2e-output/
           retention-days: 7
+
+  preview:
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      PREVIEW_URL: https://fruit-market-staging.murshidi-hashim.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Update the preview copy (separate Worker and data; not the live game)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy --env staging
+      - name: Smoke test the preview
+        run: node scripts/smoke-live.mjs "$PREVIEW_URL"

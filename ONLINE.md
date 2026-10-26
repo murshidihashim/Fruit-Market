@@ -18,7 +18,7 @@ Play Fruit Market in a browser and challenge a friend anywhere: create a private
 4. In GitHub: repo → Settings → Secrets and variables → Actions → **New repository secret**:
    - `CLOUDFLARE_API_TOKEN` = the token
    - `CLOUDFLARE_ACCOUNT_ID` = the account ID
-5. GitHub → Actions → **Deploy web + online server** → Run workflow (it also runs on every push to `main`).
+5. GitHub → Actions → **Deploy LIVE game** → Run workflow → type `PUBLISH`. This is the only way the live game changes; pushes to `main` update the separate **preview** copy instead (`https://fruit-market-staging.murshidi-hashim.workers.dev`). See `docs/workflow/OWNER-BRIEF.md`.
 6. The log ends with your URL, e.g. `https://fruit-market.<your-subdomain>.workers.dev`. Open it, tap **Play online with a friend**, create a room and share the link.
 
 Or deploy from your computer: `npx wrangler login`, then `npm run deploy:web`.

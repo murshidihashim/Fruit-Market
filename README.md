@@ -33,13 +33,15 @@ npm run dev          # play in the browser at http://localhost:5173
 npm test             # rules tests (plays 200 full games)
 npm run simulate     # balance report: AI win rates, average scores
 npm run build:single # one self-contained HTML file in dist-single/
+npm run verify       # the one check: lint, types, unit tests, build (stops at the first failure)
+npm run verify:full  # verify + browser tests (about 15 minutes)
 npm run lint         # ESLint (correctness rules; style is not enforced)
 npm run typecheck    # TypeScript for the app and the server
 npm run test:e2e     # browser tests: solo game, performance budget, online match, quick match
 npm run perf         # performance budget only (DOM size, long tasks at 4x CPU slowdown)
 ```
 
-Every push and pull request runs all of these in CI (`.github/workflows/ci.yml`).
+Every push and pull request runs `verify:full` in CI. After a push to `main` passes, CI updates the **preview** copy of the game; the **live** game changes only when the owner runs the *Deploy LIVE game* workflow. Owner guide: `docs/workflow/OWNER-BRIEF.md`. Working rules for Claude: `CLAUDE.md`.
 
 ## Android
 

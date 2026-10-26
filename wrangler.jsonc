@@ -27,5 +27,26 @@
     { "name": "RL_DAILY", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } },
     { "name": "RL_EVENTS", "namespace_id": "1003", "simple": { "limit": 30, "period": 60 } }
   ],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Preview copy for trying changes before they go live (PLAN-001). Its own Worker, so its rooms,
+  // leaderboard and stats are separate from the live game. Deployed by CI after checks pass on main.
+  // Cloudflare's per-version preview URLs don't work for Workers with Durable Objects, hence a copy.
+  "env": {
+    "staging": {
+      "name": "fruit-market-staging",
+      "durable_objects": {
+        "bindings": [
+          { "name": "ROOMS", "class_name": "RoomDO" },
+          { "name": "STATS", "class_name": "StatsDO" },
+          { "name": "BOARD", "class_name": "BoardDO" },
+          { "name": "MATCH", "class_name": "MatchDO" }
+        ]
+      },
+      "ratelimits": [
+        { "name": "RL_ROOMS", "namespace_id": "2001", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RL_DAILY", "namespace_id": "2002", "simple": { "limit": 5, "period": 60 } },
+        { "name": "RL_EVENTS", "namespace_id": "2003", "simple": { "limit": 30, "period": 60 } }
+      ]
+    }
+  }
 }
