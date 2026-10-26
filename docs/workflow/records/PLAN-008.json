@@ -3,7 +3,8 @@
   "build": "",
   "reports": [
     "REP-014",
-    "REP-015"
+    "REP-015",
+    "REP-016"
   ],
   "decisions": [
     "DEC-020",
@@ -17,16 +18,18 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "go with plan b (interpreted as: choose direction B and proceed with the design-only mockups; the A/B/C comparison is dropped)",
+    "date": "2026-10-26"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "id": "PLAN-008",
   "title": "UI polish: art-direction style test and layout mockups (design only)",
   "problem": "The table shows too much at once, repeats numbers, wastes width on rival stalls and has no single focus per phase; the visual system is inconsistent. The owner's priorities: clutter, lack of animation and feel, and the art style itself; reference: It Takes Two (qualities only, no assets).",
   "scope": [
-    "Style test: the same buying screen in three directions (A polished pixel, B toy-box tabletop, C 3D-diorama flat render) plus one fruit in four freshness stages, one customer and one rival in direction B, viewable on a phone",
-    "Layout mockups in the chosen direction for buy, price, reveal, evening and home: one top bar, slim rival stalls, plain-language demand, one focus per phase",
-    "Motion notes and a short animated example of the reveal flip",
+    "Style sample in direction B (toy-box tabletop): one fruit in four freshness stages, one customer, one rival, the stall and card materials",
+    "Interactive mockups in direction B for buy, price, reveal, evening and home: one top bar, slim rival stalls, plain-language demand, one focus per phase",
+    "Motion: a short animated example of the reveal flip and button and fruit feedback",
     "All art original; reference games are inspiration only"
   ],
   "exclusions": [
@@ -36,21 +39,21 @@
   "acceptance": [
     {
       "id": "M1",
-      "text": "Phone-viewable page with the style test (3 directions on one screen) and 5 mockup screens",
-      "result": "NOT RUN",
-      "evidence": ""
+      "text": "Phone-viewable interactive page with the B style sample and 5 mockup screens",
+      "result": "PASS",
+      "evidence": "Published https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB: style sample, home, buying, pricing, sales reveal, evening (390x844) plus a shared fruit part; owner review pending"
     },
     {
       "id": "M2",
       "text": "Every idea linked to a REP-014 problem or a REP-015 quality",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "REP-016 maps each screen to REP-014 problems and REP-015 qualities"
     },
     {
       "id": "M3",
       "text": "No game code changed",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "No changes under src/ or server/"
     }
   ]
 }
