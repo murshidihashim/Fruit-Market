@@ -813,6 +813,10 @@
     {
       "at": "2026-10-27 01:48",
       "text": "Owner: make the expanded rival tracker show freshness the same way as your stall. The rival drop-down now uses the same fruit chips as your stall (fruit at its freshness, plus nights left) instead of the grid. Version 22."
+    },
+    {
+      "at": "2026-10-27 01:48",
+      "text": "Owner: \"sort the fruit from top to bottom aligning at the top\". Market columns are now top-aligned: each starts with its newest slot and runs down to not-so-fresh; shorter tracks (blueberry) end early. Version 23."
     }
   ]
 }
