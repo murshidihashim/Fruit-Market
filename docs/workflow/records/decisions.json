@@ -829,6 +829,10 @@
     {
       "at": "2026-10-27 01:59",
       "text": "Owner: \"yes\" to REP-022. Read as approval of PLAN-009 (started) and of folding PLAN-007's text fixes into PLAN-011. The lorry art choice (Gemini picture or pixel lorry) is still open; it only affects PLAN-010."
+    },
+    {
+      "at": "2026-10-27 02:19",
+      "text": "PLAN-009 built and verified on branch workflow/plan-009 (b2b495a): verify and verify:full PASS, new board tests PASS, 9-size screenshot check PASS. Not merged: main holds the 1.1.1 candidate until the owner deploys it. REP-023."
     }
   ]
 }

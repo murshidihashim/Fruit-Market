@@ -1,8 +1,9 @@
 {
   "release": "unreleased",
-  "build": "",
+  "build": "workflow/plan-009 b2b495a",
   "reports": [
-    "REP-022"
+    "REP-022",
+    "REP-023"
   ],
   "decisions": [
     "DEC-023",
@@ -10,18 +11,32 @@
     "DEC-025"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Rivals seated in one row across the table; tap a seat to see their stall as freshness chips",
+      "Want / in-shops chips on top of each fruit column",
+      "Colour key under the market"
+    ],
+    "changed": [
+      "Market board: one column per fruit, newest at the top, every slot coloured by freshness",
+      "Your stall shows freshness chips with nights left",
+      "Tutorial and how-to wording for the new board"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "Side rival stalls and the full-screen stall sheet",
+      "Separate demand/supply strip (now on the columns)"
+    ]
   },
-  "playerNotes": [],
+  "playerNotes": [
+    "New table: your rivals sit across from you, and the market is bigger, with one column per fruit and freshness shown by colour",
+    "Tap a rival to see how fresh their fruit is; your own stall shows how many nights each fruit has left"
+  ],
   "approval": {
     "status": "approved",
     "evidence": "yes (reply to REP-022: 'Reply \"Approve PLAN-009\" to start')",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-009",
   "title": "Cosy table build 1: seated rivals and the new market board",
   "problem": "Build the approved mockup look (DEC-023, DEC-024, DEC-025; PLAN-008 versions 20 to 24) into the real game, starting with the table and the buying board. The game already has seats, a rival pop-up, a market and a demand/supply strip, so this restyles and rearranges them rather than rewriting them.",
@@ -47,44 +62,44 @@
     {
       "id": "B1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify: exit 0; records OK; 12 test files, 73 tests passed (includes 5 new board tests)"
     },
     {
       "id": "B2",
       "text": "npm run verify:full passes (solo, performance budget, online with a leaver, quick match, four players, reconnect)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify:full: exit 0, E2E OK. Solo game finished with no page errors; BUDGET OK; online match: 40 pricing frames checked, leaks 0, computer took over the leaver; quick match both in game; four players: lobby counts, 5th refused; reconnect: 5 cycles, 0 failed"
     },
     {
       "id": "B3",
       "text": "Board slots and prices come from the engine tracks; unit test compares every fruit column with src/engine/data.ts",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/boardModel.test.ts: every column matches s.market and stageAt for 30 seeds, newest slot first, bottom slot not-so-fresh"
     },
     {
       "id": "B4",
       "text": "Column chips show the same numbers as today's pulse(); unit test",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/boardModel.test.ts: pulse() demand and supply recomputed independently for 30 seeds; colour and wording rules tested"
     },
     {
       "id": "B5",
       "text": "Screenshots of buying with 2, 3 and 4 players at 360x640, 390x844 and desktop; no clipping, overlap or sideways scrolling (automated check)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Buying with 1, 2 and 3 rivals at 360x640, 390x844 and 1280x800 (9 runs): no sideways scroll, no page errors; the table scrolls vertically to reach your stall, as planned for small screens. Screenshots in REP-023"
     },
     {
       "id": "B6",
       "text": "Rival drop-down shows only stock and cash; online secret-price leak check stays at 0",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Rival drop-down renders only stock chips, cash, trait, upgrades and favour-card count (public in the current game); online leak check 0 (B2)"
     },
     {
       "id": "B7",
       "text": "Old saves still load; RULES_VERSION unchanged",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "No changes under src/engine, src/net or server in commit b2b495a; RULES_VERSION unchanged; save tests pass in verify"
     }
   ]
 }
