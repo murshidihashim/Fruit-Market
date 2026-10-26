@@ -817,6 +817,10 @@
     {
       "at": "2026-10-27 01:48",
       "text": "Owner: \"sort the fruit from top to bottom aligning at the top\". Market columns are now top-aligned: each starts with its newest slot and runs down to not-so-fresh; shorter tracks (blueberry) end early. Version 23."
+    },
+    {
+      "at": "2026-10-27 01:52",
+      "text": "Owner: remove the freshness bar beside the board and just colour-code freshness. Side bar removed; every market slot, empty ones included, is tinted by its freshness (unripe pale green, fresh green, okay gold, not so orange-brown) with a colour key under the board; your stall and rival chips use the same colours. Version 24."
     }
   ]
 }
