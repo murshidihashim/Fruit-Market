@@ -602,6 +602,31 @@
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "Owner review of the table mockups."
+    },
+    {
+      "id": "DEC-025",
+      "title": "Market board: vertical decay tracker and a delivery lorry",
+      "question": "How should the market look and how should fruit arrive each day?",
+      "choice": "The market is a vertical decay tracker: one column per fruit, left to right (blueberry, watermelon, apple, mango); new and ripening fruit at the top, spoiling fruit at the bottom; each slot shows its price, and empty slots stay visible. Your stall uses the same tracker in small strips. At the start of buying, a lorry drives in along the street, customers shuffle aside, and crates drop onto the board; it drives off when buying ends, before selling.",
+      "rationale": "Owner's explicit instruction. The tracker is the game's existing decay rule made visible, and the lorry turns the daily delivery into a moment.",
+      "impact": {
+        "player": "Easier to see what is fresh and what is about to spoil; a lively start to each day.",
+        "technical": "Visual only: the tracks follow src/engine/data.ts exactly; no rule or balance change.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "change the board layout to a vertical layout arranging the fruits from left to right instead, revert back to the decay style tracker for the game board, at the start of the buying turn, animate a lorry offloading the fruit on to the board, the customers are to make space accordingly, the lorry would leave before the selling turn",
+        "date": "2026-10-27"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-021"
+      ],
+      "plan": "PLAN-008",
+      "reviewTrigger": "If the vertical board is too tall on small phones, or the lorry slows down play (keep it skippable)."
     }
   ],
   "history": [
@@ -752,6 +777,10 @@
     {
       "at": "2026-10-27 01:21",
       "text": "Owner: \"going back to your mockup, i like it now, but tweak the layout so that the fruit market is more visible (now it feels to small/ narrow)\". DEC-023 (cosy pixel look) and DEC-024 (one shared table) approved. Rival stalls slimmed and the market widened with bigger crates and fruit; republished (version 13). REP-020. DEC-022's dark plum layer is superseded by DEC-023. Next: propose the 1.2.0 build plan."
+    },
+    {
+      "at": "2026-10-27 01:28",
+      "text": "Owner asked for a vertical decay-tracker market (fruits left to right), the decay tracker on your stall, and a delivery lorry that arrives at the start of buying (customers make space) and leaves before selling. DEC-025 approved by that instruction. Buying mockup rebuilt (version 14). REP-021."
     }
   ]
 }

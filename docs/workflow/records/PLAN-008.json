@@ -8,14 +8,16 @@
     "REP-017",
     "REP-018",
     "REP-019",
-    "REP-020"
+    "REP-020",
+    "REP-021"
   ],
   "decisions": [
     "DEC-020",
     "DEC-021",
     "DEC-022",
     "DEC-023",
-    "DEC-024"
+    "DEC-024",
+    "DEC-025"
   ],
   "changes": {
     "added": [],
@@ -85,6 +87,12 @@
       "text": "Market made more visible: wider market, bigger crates and fruit",
       "result": "PASS",
       "evidence": "Republished https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB (version 13): rival stalls 80px to 64px wide, market about 206px to 234px wide, crate fruit 28px to 42px, crate height 58px to 74px; scripts parse; REP-020"
+    },
+    {
+      "id": "M8",
+      "text": "Buying mockup: vertical decay tracker matching the game's tracks; lorry arrives, customers make space, lorry leaves on Done buying",
+      "result": "PASS",
+      "evidence": "Version 14 published; logic test: supply lands in the right slots, buying the fresh apple moves it to your apple track, Done buying starts the lorry's exit; REP-021"
     }
   ]
 }
