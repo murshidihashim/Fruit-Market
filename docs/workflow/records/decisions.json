@@ -789,6 +789,10 @@
     {
       "at": "2026-10-27 01:32",
       "text": "Owner supplied the delivery lorry art (\"use this as the lorry\"). Saved as docs/workflow/reports/img/owner-lorry.png; the Buying mockup uses a cut-out of it (background removed, resized). Version 16. Before the build, confirm the picture's origin and that we may use it in the game."
+    },
+    {
+      "at": "2026-10-27 01:35",
+      "text": "Owner: the lorry picture was made with Gemini; asked to trim it so no ground shows below. Ground and background removed (wheels kept); cut-out saved as docs/workflow/reports/img/owner-lorry-cutout.png; Buying mockup republished (version 17). Note for the build: AI-made art may not be protected by copyright, so others could reuse it; check Gemini's terms and Google Play's AI-content rules before publishing it in the game."
     }
   ]
 }
