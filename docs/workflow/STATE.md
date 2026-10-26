@@ -10,7 +10,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Release 1.1.1 approved** (DEC-013, REP-013): waiting for the owner to press Deploy LIVE game. Owner's own preview check: NOT RUN (not reported).
 - **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
 - **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published (REP-016) and revised (cunning edition DEC-022, REP-017), then the cosy pixel edition (DEC-023, REP-018), then one shared market table so it plays like a board game (DEC-024, REP-019; both awaiting confirmation, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
-- **PLAN-009 verified** (REP-023) on branch `workflow/plan-009` (b2b495a + records): seated rivals, column market board, freshness chips. Waiting for 1.1.1 deploy before merging to main. Next packages: PLAN-010 (lorry; art choice pending), PLAN-011 (pricing, reveal, evening).
+- **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) on branch `workflow/plan-009` (4408cd8 + records): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. Waiting for the 1.1.1 deploy before merging to main. Last package for 1.2.0: PLAN-010 (lorry, Gemini art; awaiting approval).
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds

@@ -1,8 +1,9 @@
 {
   "release": "unreleased",
-  "build": "",
+  "build": "workflow/plan-009 4408cd8",
   "reports": [
-    "REP-022"
+    "REP-022",
+    "REP-024"
   ],
   "decisions": [
     "DEC-023",
@@ -10,26 +11,41 @@
     "DEC-025"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Price boards on the seats: sealed while pricing, flipped open at the reveal",
+      "Lanterns, 'plotting…' and covered crates in the evening",
+      "'Psst…' whispers and 'Outfoxed!' when undercut"
+    ],
+    "changed": [
+      "Price panel: 'Seal your prices' and 'Seal my prices'",
+      "Favour cards in the evening under 'Up your sleeve'"
+    ],
+    "fixed": [
+      "'You offer' grammar in the showdown",
+      "Money pop-ups no longer go off screen",
+      "Showdown card scrolls instead of being cut off"
+    ],
     "removed": []
   },
-  "playerNotes": [],
+  "playerNotes": [
+    "The sales reveal now happens on the table: everyone's price board flips over on their stall, and the winner lights up",
+    "Evenings feel like evenings: lanterns on the stalls and the market covered for the night"
+  ],
   "approval": {
     "status": "approved",
     "evidence": "use the gemini lorry, approve PLAN-011",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-011",
   "title": "Cosy table build 3: pricing, reveal and evening on the table (outline)",
   "problem": "Apply the mockup to the other phases (DEC-024): sealed boards in rival seats while pricing, boards flip in the seats at the reveal with the winner glowing and the customer walking over, lanterns and covered market in the evening; light sly touches ('Psst', 'Outfoxed by $1!').",
   "scope": [
-    "Pricing: serve customers from the street; your price board at your stall; rivals' boards sealed",
-    "Reveal on the table; folds in PLAN-007's clipped-text and off-screen money fixes",
-    "Evening: upgrades at your stall, lanterns, covered market",
-    "Tap-to-expand rival stalls also while pricing"
+    "Pricing: each rival seat shows 'pricing…' then a sealed board (only whether a shop has finished is shown); the price panel becomes 'Seal your prices' with a 'Psst…' read of the competition and a 'Seal my prices' button",
+    "Reveal on the table: boards flip open on the seats and your stall, highest price first; the winner's seat glows; tags such as SOLD or '$1 too high' appear under the boards; 'Outfoxed!' above the headline when a rival undercuts you",
+    "Evening: lanterns and 'plotting…' on the rival seats, the market crates covered for the night, 'Up your sleeve' heading for favour cards, a 'Psst…' whisper",
+    "PLAN-007 fixes folded in: 'You offer' grammar, money pop-ups kept on screen, the showdown card scrolls instead of being cut off",
+    "Customers walking to the winner: not built (coins and fruit already fly between stall and customer); can follow later"
   ],
   "exclusions": [
     "Rules, balance, server"
@@ -38,8 +54,26 @@
     {
       "id": "T1",
       "text": "verify:full passes; secret prices never shown before the bell (leak check 0); screenshots at 3 sizes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "verify:full exit 0 on 4408cd8: solo game no errors, BUDGET OK, online 40 pricing frames leaks 0, computer took over leaver, quick match, four players, reconnect 5 cycles 0 failed. Screenshots of pricing, reveal and evening at 390x844 (2 players), 360x640 and 1280x800 (4 players): no sideways scroll, no page errors (REP-024)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "exit 0 on 4408cd8: records OK, 73 tests passed, build OK"
+    },
+    {
+      "id": "T3",
+      "text": "Rules, saves, server and protocol untouched",
+      "result": "PASS",
+      "evidence": "Commits f24e1cd and 4408cd8 change only src/ui and docs"
+    },
+    {
+      "id": "T4",
+      "text": "PLAN-007 text fixes: 'You offer', money pop on screen, showdown not clipped",
+      "result": "PASS",
+      "evidence": "Reveal screenshots show 'You · offer 1'; floatText clamped to the screen (anim.ts); auction card max-height with scrolling"
     }
   ]
 }

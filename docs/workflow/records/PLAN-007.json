@@ -16,7 +16,9 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "awaiting approval"
+    "status": "superseded",
+    "evidence": "Owner \"yes\" to REP-022 question 3 (fold PLAN-007's text fixes into PLAN-011 and close PLAN-007)",
+    "date": "2026-10-27"
   },
   "delivery": "not started",
   "id": "PLAN-007",
