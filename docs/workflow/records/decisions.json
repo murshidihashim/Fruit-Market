@@ -797,6 +797,10 @@
     {
       "at": "2026-10-27 01:36",
       "text": "Owner: \"rescale the customers, now it looks disproportionate to the lorry\". Street customers shrunk from 54px to 36px on buying, pricing and reveal so they match the lorry (68px tall). Version 18."
+    },
+    {
+      "at": "2026-10-27 01:38",
+      "text": "Owner: \"keep the demand supply indicator from the evening's build inside the buying phase\". The current game's want / in-shops strip (same meaning and colours as src/ui/table.tsx pulse) added to the Buying mockup above the stalls; it updates as you buy. The street notes it repeated were removed. Version 19."
     }
   ]
 }
