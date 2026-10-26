@@ -655,6 +655,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 /* ---------- PLAN-011: price boards on the seats, night on the table, whispers ---------- */
 .sb { flex: none; display: inline-flex; flex-direction: column; align-items: center; gap: 1px; }
+.rs-stock .sb { margin-left: auto; }
 .sb-face { min-width: 42px; height: 28px; padding: 0 6px; display: grid; place-items: center; border-radius: 6px; font-family: var(--f-pixel); font-size: 1rem; font-weight: 700; }
 .sb.sealed .sb-face { background: repeating-linear-gradient(90deg, var(--wood-d) 0 9px, #5e3622 9px 10px); box-shadow: 0 3px 0 #3c2417; }
 .sb.open .sb-face { background: #2f3a33; color: #f6efe0; border: 2px solid var(--wood-d); box-shadow: 0 3px 0 #3c2417; animation: flip 0.3s steps(3); }

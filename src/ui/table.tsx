@@ -107,7 +107,6 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
         <span class="rs-face"><Face who={pl.avatar} size={26} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
         <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
         {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
-        {board && <SeatBoard b={board} />}
       </div>
       <div class="rs-stock">
         <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
@@ -116,6 +115,7 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
           // Empty fruits shrink to nothing but stay in place as animation anchors.
           return <span class={`rs-f ${n ? '' : 'zero'}`} data-a={`p${p}-${f}`} aria-hidden={!n}><Fruit id={f} size={14} />{n}</span>;
         })}
+        {board && <SeatBoard b={board} />}
         {night ? <span class="rs-empty">{active ? 'building…' : 'plotting…'}</span> : count(pl.stock) === 0 && <span class="rs-empty">empty</span>}
       </div>
     </button>
