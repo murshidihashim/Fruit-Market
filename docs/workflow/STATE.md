@@ -12,7 +12,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 | Copy | Address | Build |
 |---|---|---|
 | Live | https://fruit-market.murshidi-hashim.workers.dev | `c915e49` (deployed 2026-10-26 by the old auto-deploy) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | Updated by CI after each green push to `main` |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `2e4b240` (version adf6c304); updated by CI after each green push to `main` |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
@@ -23,6 +23,7 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
   PASS (crash recovery NOT RUN); release-ready not claimed (real devices, backups NOT RUN).
 
 ## Open items and known issues
+- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); confirm DEC-006 (staging Worker).
 - Branch protection: instructions in `OWNER-BRIEF.md` §5. Not yet confirmed active.
 - Owner questions not yet answered: which real phones are available; Cloudflare plan (Free or Paid)
   and any other paid accounts. DEC-005 stays an assumption until then.
