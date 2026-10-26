@@ -33,7 +33,13 @@ npm run dev          # play in the browser at http://localhost:5173
 npm test             # rules tests (plays 200 full games)
 npm run simulate     # balance report: AI win rates, average scores
 npm run build:single # one self-contained HTML file in dist-single/
+npm run lint         # ESLint (correctness rules; style is not enforced)
+npm run typecheck    # TypeScript for the app and the server
+npm run test:e2e     # browser tests: solo game, performance budget, online match, quick match
+npm run perf         # performance budget only (DOM size, long tasks at 4x CPU slowdown)
 ```
+
+Every push and pull request runs all of these in CI (`.github/workflows/ci.yml`).
 
 ## Android
 

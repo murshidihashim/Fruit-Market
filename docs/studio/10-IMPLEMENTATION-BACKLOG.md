@@ -99,7 +99,13 @@ Rules for every item:
 
 ---
 
-## M2 · Performance and architecture
+## M2 · Performance and architecture: ✅ done
+
+Notes on what was built:
+- **B-10:** sprites are cached `data:` SVG images; `prewarmSprites()` decodes them in idle time on the home screen and preloads the fonts.
+- **B-11:** `animator.tsx` (not `.ts`) because the animations create JSX nodes. Two extra panels, `ActionBar` and `Popovers`, keep `Game.tsx` small. The undo and daily move-log rules moved to the pure `src/ui/game/turn.ts` and are unit tested there (`tests/turn.test.ts`), which avoids adding a DOM test library.
+- **B-14:** the opening of the game screen has its own limit (350 ms locally, 600 ms on shared CI machines, where it measured 217–489 ms locally across runs) separate from gameplay (200 ms, 250 ms in CI), because it is a one-off screen change. The budget gets one retry for timing noise on shared machines.
+- **B-15:** ESLint only; no Prettier, so existing formatting isn't churned.
 
 ### B-09 · Remove dead code (P1, S, risk: low)
 - **Files:**

@@ -1,0 +1,38 @@
+# Checks every push and pull request: lint, types, unit tests, builds, and the browser tests
+# (solo playthrough, performance budget, online match with a player leaving, quick match).
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests
+        run: npm run test:e2e
+        env:
+          # CI machines vary; allow a little headroom over the local budget.
+          MAX_TASK_MS: '250'
+          MAX_ENTRY_MS: '600'
+      - name: Keep screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e-output/
+          retention-days: 7

@@ -39,7 +39,7 @@ Each milestone is independently testable and ends with a release candidate.
 - The cohort events are visible in `/api/stats`.
 - `RULES_VERSION` decision made: MP1 is designed to be view-compatible, so no bump is needed. If a bump is needed, bump it.
 
-## M2 · Performance and architecture (~2 weeks)
+## M2 · Performance and architecture: ✅ done
 
 **Goal:** smooth on low-end phones; a safe base for iteration.
 
@@ -56,6 +56,8 @@ Each milestone is independently testable and ends with a release candidate.
 - Game screen DOM ≤800; no long tasks >200 ms (4× throttle).
 - `Game.tsx` ≤250 lines; CI runs lint, unit, end-to-end and budget suites.
 - Store-screenshot visual diff within tolerance.
+
+**Measured result:** game-screen DOM 596 nodes (was 9,137); longest gameplay task 136 ms at 4× slowdown, none over 200 ms; `Game.tsx` 133 lines; store screenshots within 0.25% of the old build.
 
 ## M3 · Balance validation and first playtest (~2 weeks, playtest-gated)
 

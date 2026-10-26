@@ -28,6 +28,7 @@ export function squash(name: string): string {
 /** Strips control characters and markup, trims, and limits the length. */
 export function tidy(raw: unknown): string {
   if (typeof raw !== 'string') return '';
+  // eslint-disable-next-line no-control-regex -- stripping control characters on purpose
   return raw.normalize('NFKC').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
 }
 

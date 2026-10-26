@@ -54,7 +54,7 @@ const path = require('path');
     for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`text=${t}`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
-    } catch (e) {
+    } catch {
       // The board re-renders during animations; a click can miss. Try again.
       await page.waitForTimeout(200);
     }

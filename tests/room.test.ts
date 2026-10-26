@@ -55,7 +55,7 @@ async function lobbyOf2(h: Harness) {
   return { a, b };
 }
 
-async function start(h: Harness, a: Client, b: Client, days: 8 | 10 | 14 = 8, ai = 0) {
+async function start(_h: Harness, a: Client, b: Client, days: 8 | 10 | 14 = 8, ai = 0) {
   await a.say({ t: 'config', config: { days, ai, unripe: true, upgrades: true, events: true } });
   await a.say({ t: 'ready', ready: true });
   await b.say({ t: 'ready', ready: true });
@@ -122,7 +122,7 @@ describe('online room', () => {
     const { a, b } = await lobbyOf2(h);
     await start(h, a, b, 8);
     // Play until prices are being set, then have A lock in first.
-    for (let i = 0; i < 200 && h.room.d.game!.phase !== 'bid'; i++) (await botStep(a)) || (await botStep(b));
+    for (let i = 0; i < 200 && h.room.d.game!.phase !== 'bid'; i++) if (!(await botStep(a))) await botStep(b);
     expect(h.room.d.game!.phase).toBe('bid');
     const g = a.view!.game!;
     const { bids } = planBids(g, 0);
@@ -153,7 +153,7 @@ describe('online room', () => {
     const h = new Harness();
     const { a, b } = await lobbyOf2(h);
     await start(h, a, b, 8);
-    for (let i = 0; i < 50 && h.room.d.game!.phase === 'morning'; i++) (await botStep(a)) || (await botStep(b));
+    for (let i = 0; i < 50 && h.room.d.game!.phase === 'morning'; i++) if (!(await botStep(a))) await botStep(b);
     const g = h.room.d.game!;
     const p = activePlayer(g);
     const c = p === 0 ? a : b;

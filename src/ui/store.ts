@@ -1,5 +1,6 @@
 // Local persistence: settings, stats, saved game, daily challenge records.
 import type { GameState } from '../engine/game';
+import { RULES_VERSION } from '../net/protocol';
 
 export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; patterns: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
@@ -31,15 +32,51 @@ export const saveSettings = (s: Settings) => write(K.settings, s);
 export const loadStats = () => read<Stats>(K.stats, { played: 0, wins: 0, bestCash: 0, totalSold: 0 });
 export const saveStats = (s: Stats) => write(K.stats, s);
 
+/** Bump when the saved-game format changes. Saves also record the rules version they were played under. */
+export const SAVE_VERSION = 2;
+interface SaveEnvelope { v: number; rules: number; game: GameState }
+
+let saveNotice: string | null = null;
+
+/** A message about a saved game that couldn't be resumed (shown once on the home screen). */
+export function consumeSaveNotice(): string | null {
+  const n = saveNotice;
+  saveNotice = null;
+  return n;
+}
+
+function looksLikeGame(g: unknown): g is GameState {
+  const x = g as GameState | null;
+  return !!x && typeof x === 'object' && Array.isArray(x.players) && typeof x.phase === 'string' && typeof x.day === 'number';
+}
+
+/**
+ * The saved game, if it can be resumed. Saves from different rules are set aside (a game must
+ * finish under the rules it started with), and unreadable saves are dropped instead of crashing.
+ */
 export function loadGame(): GameState | null {
-  try {
-    const raw = localStorage.getItem(K.save);
-    return raw ? (JSON.parse(raw) as GameState) : null;
-  } catch {
+  let raw: string | null = null;
+  try { raw = localStorage.getItem(K.save); } catch { return null; }
+  if (!raw) return null;
+  let data: unknown;
+  try { data = JSON.parse(raw); } catch { data = null; }
+  const env = data as SaveEnvelope | null;
+  if (env && typeof env === 'object' && 'game' in env && typeof env.v === 'number') {
+    if (env.rules === RULES_VERSION && looksLikeGame(env.game)) return env.game;
+    saveNotice = env.rules !== RULES_VERSION
+      ? 'Your unfinished game was from an older version of the rules, so it couldn\'t be resumed.'
+      : 'Your unfinished game couldn\'t be read, so it was cleared.';
+    write(K.save, null);
     return null;
   }
+  // Saves from before v1.2 were the bare game (rules version 2, the same rules as now).
+  if (looksLikeGame(data)) return data;
+  if (data !== null || raw) saveNotice = 'Your unfinished game couldn\'t be read, so it was cleared.';
+  write(K.save, null);
+  return null;
 }
-export const saveGame = (g: GameState | null) => write(K.save, g);
+
+export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, game: g } satisfies SaveEnvelope) : null);
 
 export const loadDaily = () => read<DailyRecord>(K.daily, {});
 export const saveDaily = (d: DailyRecord) => write(K.daily, d);

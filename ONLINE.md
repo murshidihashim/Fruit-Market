@@ -37,6 +37,8 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 ## Tests
 
 - `tests/room.test.ts`: full matches with and without computer rivals; secret prices never leaving the server; duplicate and stale actions rejected; reconnect by token, with a stranger holding only the code refused; full rooms; leaving the lobby; expiry; host-only start; rematch.
+- `npm run test:e2e` runs everything below against a local server; CI runs it on every push.
+- `scripts/e2e-quick.cjs`: two browsers press Quick match and must land in the same game.
 - `scripts/e2e-online.cjs`: two independent browser profiles create a room, join by link, play a full match, refresh mid-game, check every network message for leaks, compare final results, and rematch.
 
 ## When a player leaves

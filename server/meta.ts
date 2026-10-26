@@ -21,6 +21,7 @@ export function cleanIngest(body: unknown): Ingest {
   const b = (body ?? {}) as { events?: unknown; errors?: unknown };
   const events = Array.isArray(b.events) ? b.events.filter((e): e is string => typeof e === 'string' && EVENT_RE.test(e)).slice(0, MAX_EVENTS) : [];
   const errors = Array.isArray(b.errors)
+    // eslint-disable-next-line no-control-regex -- stripping control characters on purpose
     ? b.errors.filter((e): e is string => typeof e === 'string' && e.length > 0).slice(0, MAX_ERRORS).map((e) => e.replace(/[\u0000-\u001f]/g, ' ').slice(0, 200))
     : [];
   return { events, errors };

@@ -24,10 +24,6 @@ export function markSeen(id: string) {
   try { localStorage.setItem(KEY, JSON.stringify([...new Set([...load(), id])])); } catch { /* ignore */ }
 }
 
-export function tutorialDone(): boolean {
-  return load().includes('day2');
-}
-
 export function resetTutorial() {
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
 }

@@ -1,5 +1,6 @@
-// Pixel-art sprites drawn as crisp SVG rectangles from small text maps.
-// Every sprite gets a 1px ink outline so the whole cast reads as one set.
+// Pixel-art sprites drawn from small text maps. Every sprite gets a 1px ink outline so the whole
+// cast reads as one set. Each sprite is turned into a small SVG image once and cached, so the page
+// shows one <img> per sprite instead of hundreds of DOM rectangles (much lighter on phones).
 import type { FruitId, Stage } from '../engine/data';
 
 type Pal = Record<string, string>;
@@ -8,7 +9,8 @@ const INK = '#2b2438';
 
 // ---------- renderer ----------
 
-const cache = new Map<string, { w: number; h: number; runs: [number, number, number, string][] }>();
+interface Compiled { w: number; h: number; runs: [number, number, number, string][]; url: string }
+const cache = new Map<string, Compiled>();
 
 function compile(key: string, rows: string[], pal: Pal, outline = true) {
   const hit = cache.get(key);
@@ -45,21 +47,27 @@ function compile(key: string, rows: string[], pal: Pal, outline = true) {
       x = e;
     }
   }
-  const out = { w, h, runs };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" shape-rendering="crispEdges">`
+    + runs.map(([rx, ry, l, c]) => `<rect x="${rx}" y="${ry}" width="${l}" height="1" fill="${c}"/>`).join('')
+    + '</svg>';
+  const out: Compiled = { w, h, runs, url: `data:image/svg+xml,${encodeURIComponent(svg)}` };
   cache.set(key, out);
   return out;
 }
 
 export function Sprite({ id, rows, pal, size, outline = true, cls = '', title, x, y }: {
   id: string; rows: string[]; pal: Pal; size: number; outline?: boolean; cls?: string; title?: string;
-  /** Position when nested inside another SVG (the market scene). */
+  /** Position when nested inside another SVG. */
   x?: number; y?: number;
 }) {
-  const { w, h, runs } = compile(id, rows, pal, outline);
+  const { w, h, url } = compile(id, rows, pal, outline);
+  const height = (size * h) / w;
+  if (x !== undefined || y !== undefined) {
+    return <image class={`px ${cls}`} href={url} x={x} y={y} width={size} height={height} aria-label={title} />;
+  }
   return (
-    <svg class={`px ${cls}`} x={x} y={y} width={size} height={(size * h) / w} viewBox={`0 0 ${w} ${h}`} shape-rendering="crispEdges" aria-label={title} role={title ? 'img' : undefined}>
-      {runs.map(([x, y, l, c]) => <rect x={x} y={y} width={l} height={1} fill={c} />)}
-    </svg>
+    <img class={`px ${cls}`} src={url} alt={title ?? ''} draggable={false} decoding="async"
+      style={{ width: `${size}px`, height: `${height}px` }} />
   );
 }
 
@@ -479,4 +487,39 @@ export function Portrait({ who, size = 32, x, y }: { who: string; size?: number;
   const h = HUMANS[key] ?? HUMANS.shopper;
   const pal: Pal = { ...BASE_PAL, s: h.skin, u: h.shirt, ...(h.pal ?? {}) };
   return <Sprite id={`h-${key}`} rows={humanRows(h)} pal={pal} size={size} cls="portrait" title={key} x={x} y={y} />;
+}
+
+// ---------- warm-up ----------
+
+/**
+ * Builds and decodes the most common sprites ahead of time, a few per idle moment, so opening the
+ * game screen doesn't stall on dozens of first-time images. Safe to call more than once.
+ */
+export function prewarmSprites() {
+  if (typeof window === 'undefined') return;
+  // Load every font weight the game screen uses now, so opening it doesn't trigger font loads and re-layout.
+  for (const f of ['500 16px "Pixelify Sans"', '600 16px "Pixelify Sans"', '700 16px "Pixelify Sans"', '400 16px Fredoka', '600 16px Fredoka']) {
+    void document.fonts?.load(f).catch(() => {});
+  }
+  const jobs: (() => string)[] = [];
+  for (const f of Object.keys(FRUIT_MAPS) as FruitId[]) {
+    for (const st of ['fresh', 'okay', 'notso', 'unripe'] as Stage[]) {
+      jobs.push(() => compile(`f-${f}-${st}`, st === 'notso' ? spotted(FRUIT_MAPS[f]) : FRUIT_MAPS[f], stagePal(f, st), true).url);
+    }
+  }
+  for (const [k, i] of Object.entries(ICONS)) jobs.push(() => compile(`i-${k}`, i.rows, i.pal, true).url);
+  for (const [k, a] of Object.entries(ANIMALS)) jobs.push(() => compile(`a-${k}`, a.rows, a.pal, true).url);
+  type Deadline = { timeRemaining: () => number };
+  const ric = (window as { requestIdleCallback?: (f: (d: Deadline) => void) => void }).requestIdleCallback;
+  const idle = (cb: (d: Deadline) => void) => (ric ? ric(cb) : setTimeout(() => cb({ timeRemaining: () => 4 }), 50));
+  // One sprite at a time, only while the browser says it has spare time.
+  const run = (d: Deadline) => {
+    while (jobs.length && d.timeRemaining() > 4) {
+      const img = new Image();
+      img.src = jobs.shift()!();
+      void img.decode?.().catch(() => {});
+    }
+    if (jobs.length) idle(run);
+  };
+  idle(run);
 }

@@ -1,7 +1,7 @@
 // Small seeded RNG (mulberry32). The state is a plain number so a game can be saved as JSON.
 
 export function next(state: number): [number, number] {
-  let t = (state + 0x6d2b79f5) >>> 0;
+  const t = (state + 0x6d2b79f5) >>> 0;
   let r = Math.imul(t ^ (t >>> 15), t | 1);
   r ^= r + Math.imul(r ^ (r >>> 7), r | 61);
   return [((r ^ (r >>> 14)) >>> 0) / 4294967296, t];

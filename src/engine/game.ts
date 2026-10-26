@@ -615,7 +615,7 @@ function resolve(s: GameState) {
       if (w.qty <= 0) continue;
       const max = effectiveMax(s, w);
       const offers: Offer[] = [];
-      s.players.forEach((pl, p) => {
+      s.players.forEach((_, p) => {
         const b = (s.bids[p] ?? []).find((x) => x.customerId === c.id && x.fruit === w.fruit);
         if (!b) return;
         const used = plans[p].get(`${c.id}:${w.fruit}`) ?? [];

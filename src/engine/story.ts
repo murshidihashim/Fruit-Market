@@ -36,7 +36,7 @@ function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): s
   return `${nameOf(s, winner.player, viewer)} went earlier in turn order`;
 }
 
-function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string {
+function offerTag(l: LineResult, o: Offer, viewer: number): string {
   if (o.sold >= o.qty) return o.qty > 1 ? `SOLD ×${o.sold}` : 'SOLD';
   if (o.sold > 0) return `sold ${o.sold} of ${o.qty}`;
   const cheaper = l.offers.filter((w) => w.sold > 0 && w.price < o.price);
@@ -48,7 +48,7 @@ function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string
 }
 
 export function explainLine(s: GameState, l: LineResult, viewer: number): LineStory {
-  const tags = l.offers.map((o) => offerTag(s, l, o, viewer));
+  const tags = l.offers.map((o) => offerTag(l, o, viewer));
   const mine = l.offers.find((o) => o.player === viewer);
   const others = l.offers.filter((o) => o.player !== viewer);
   const winners = l.offers.filter((o) => o.sold > 0);

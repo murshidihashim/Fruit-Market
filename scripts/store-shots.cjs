@@ -8,6 +8,9 @@ const path = require('path');
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 360, height: 640 }, deviceScaleFactor: 3 });
   await p.addInitScript(() => {
+    // Same game every run (seeded random numbers), so screenshots can be compared between versions.
+    let seed = 12345;
+    Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
     localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'bid', 'reveal', 'evening', 'day2']));
     localStorage.setItem('fm.name', 'You');
@@ -36,7 +39,7 @@ const path = require('path');
         await p.click('text=/Done buying|Skip buying/'); continue;
       }
       if (await p.locator('.pp-lock .btn').count()) {
-        if ((await p.locator('.price-card').count()) >= 1 && once('price')) { await p.waitForTimeout(800); await shot('4-pricing'); }
+        if ((await p.locator('.price-card').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn'); await p.waitForTimeout(1800);
         if ((await p.locator('.auction').count()) && once('show')) await shot('5-showdown');
         continue;

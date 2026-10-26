@@ -5,6 +5,7 @@ import { newGame, ranking, type GameConfig, type GameState, type Level, type Pla
 import { dailyConfig } from '../engine/daily';
 import { FRUIT, FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Logo } from './art';
+import { prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { HowTo } from './HowTo';
 import { Online } from './Online';
@@ -15,7 +16,7 @@ import { track } from '../net/telemetry';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, saveColour, unlocked } from './progress';
 import {
-  dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, saveDaily, saveGame, saveName,
+  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
 } from './store';
 
@@ -39,6 +40,9 @@ export function App() {
   const [invite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
   const [game, setGame] = useState<GameState | null>(() => loadGame());
+  const [saveNotice] = useState(() => consumeSaveNotice());
+  // Get the common sprites ready while the player is on the home screen.
+  useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
   const recorded = useRef<string | null>(null);
 
@@ -129,6 +133,7 @@ export function App() {
         <h1>Fruit Market</h1>
         <p class="tagline">Buy fresh. Sell fast. Undercut your rivals before it all goes bad!</p>
         <div class="fruit-parade">{FRUITS.map((f) => <Fruit id={f} size={36} />)}</div>
+        {saveNotice && <p class="save-notice" role="status">{saveNotice}</p>}
         {resumable && (
           <button class="btn primary big wide" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
         )}

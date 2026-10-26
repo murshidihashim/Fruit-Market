@@ -8,3 +8,4 @@ keystore.properties
 .wrangler
 .dev.vars
 coverage/
+e2e-output/

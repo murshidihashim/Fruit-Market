@@ -176,7 +176,8 @@ for (const n of [2, 4]) {
   const evRel: Record<string, number[]> = {};
   const games: { inc: number[][]; evs: (string | null)[] }[] = [];
   const evSpread: Record<string, number[]> = {};
-  let priceWar = 0, sales = 0, capSales = 0, demand = 0, served = 0, spoiled = 0, endStock = 0, finalCash: number[] = [];
+  let priceWar = 0, sales = 0, capSales = 0, demand = 0, served = 0, spoiled = 0, endStock = 0;
+  const finalCash: number[] = [];
   const upDay: Record<string, number[]> = {};
   let deadDays = 0;
   for (let seed = 1; seed <= G; seed++) {
