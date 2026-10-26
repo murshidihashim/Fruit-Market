@@ -420,7 +420,8 @@
       "owner": "Murshidi",
       "cost": "RM0",
       "reports": [
-        "REP-011"
+        "REP-011",
+        "REP-012"
       ],
       "id": "DEC-018",
       "title": "Rename Panda Lim while keeping the cast coherent",
@@ -437,7 +438,7 @@
         "evidence": "Rename Panda Lim? - sure, but dont run away from the general theme coherence",
         "date": "2026-10-26"
       },
-      "delivery": "implemented",
+      "delivery": "verified",
       "plan": "PLAN-006",
       "reviewTrigger": "If the new name tests poorly with players."
     },
@@ -445,7 +446,8 @@
       "owner": "Murshidi",
       "cost": "RM0",
       "reports": [
-        "REP-011"
+        "REP-011",
+        "REP-012"
       ],
       "id": "DEC-019",
       "title": "Rename scope = PLAN-006, shipped in 1.1.2",
@@ -462,7 +464,7 @@
         "evidence": "Approve PLAN-006 only, including its listed tests and documentation, name: Patches",
         "date": "2026-10-26"
       },
-      "delivery": "implemented",
+      "delivery": "verified",
       "plan": "PLAN-006",
       "reviewTrigger": "If 1.1.1 is delayed for long."
     }
@@ -571,6 +573,10 @@
     {
       "at": "2026-10-26 22:18",
       "text": "PLAN-006 implemented on workflow/plan-006: N1 to N4 PASS (5 new tests); N5 waiting for CI."
+    },
+    {
+      "at": "2026-10-26 22:48",
+      "text": "REP-012: PLAN-006 verified (N1 to N5 PASS) on workflow/plan-006. Waits off main until 1.1.1 is live; then ships as 1.1.2."
     }
   ]
 }

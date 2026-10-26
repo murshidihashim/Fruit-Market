@@ -7,11 +7,12 @@
     "evidence": "Approve PLAN-006 only, including its listed tests and documentation, name: Patches",
     "date": "2026-10-26"
   },
-  "delivery": "implemented",
+  "delivery": "verified",
   "release": "unreleased",
-  "build": "",
+  "build": "f14245a",
   "reports": [
-    "REP-011"
+    "REP-011",
+    "REP-012"
   ],
   "decisions": [
     "DEC-018",
@@ -57,8 +58,8 @@
     {
       "id": "N5",
       "text": "verify:full green in CI; no rule, save-format or server-logic changes",
-      "result": "NOT RUN",
-      "evidence": "Waiting for CI"
+      "result": "PASS",
+      "evidence": "CI run 15 (40338476298) on f14245a green: 68 unit tests and the full browser suite"
     }
   ],
   "changes": {
