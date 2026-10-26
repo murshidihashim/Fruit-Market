@@ -476,6 +476,28 @@
       "delivery": "verified",
       "plan": "PLAN-006",
       "reviewTrigger": "If 1.1.1 is delayed for long."
+    },
+    {
+      "id": "DEC-020",
+      "title": "UI and UX polish in three phases",
+      "question": "How should the game's look and feel be made to feel finished?",
+      "choice": "Phase 1 fixes 9 visible defects (PLAN-007, ships in 1.1.2); phase 2 calms the table layout and phase 3 adds a design system, motion and sound, both designed as phone-viewable mockups first (PLAN-008) and built only after the owner picks; playtest before and after.",
+      "rationale": "The review found concrete causes (defects, clutter, no focus, inconsistent system). Fixing defects is cheap and safe; layout changes need the owner's eye and player evidence.",
+      "impact": {
+        "player": "A cleaner, clearer game in steps.",
+        "technical": "Presentation code only; no rules, saves or server.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-014"
+      ],
+      "reviewTrigger": "If the baseline playtest shows a different priority."
     }
   ],
   "history": [
@@ -594,6 +616,10 @@
     {
       "at": "2026-10-26 22:57",
       "text": "Correction: the REP-013 header time (22:58) was an estimate; the report was written at 22:56. The report is left as written."
+    },
+    {
+      "at": "2026-10-26 23:06",
+      "text": "Owner: the game doesn't feel polished; propose changes on the whole UI and UX. REP-014: review of all main screens at 360x640 and 390x844; DEC-020, PLAN-007 (phase 1 fixes) and PLAN-008 (mockups) awaiting approval. PDF export now inlines report images."
     }
   ]
 }

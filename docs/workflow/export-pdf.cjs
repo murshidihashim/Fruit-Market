@@ -13,9 +13,15 @@ const out = path.join(dir, 'pdf');
 const css = `body{font:11pt/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1d1d1f;max-width:none;margin:0}
 h1{font-size:19pt;border-bottom:2px solid #c0392b;padding-bottom:4px}h2{font-size:14pt;margin-top:22px;color:#7a2318}h3{font-size:12pt}
 table{border-collapse:collapse;width:100%;margin:8px 0;font-size:9.5pt}th,td{border:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}
-th{background:#f3eee8}code{font-size:9pt;background:#f4f4f4;padding:0 3px}hr{border:0;border-top:1px dashed #aaa;margin:24px 0}.pb{page-break-before:always}`;
+th{background:#f3eee8}img{max-width:46%;margin:4px 1%;border:1px solid #ccc;vertical-align:top}code{font-size:9pt;background:#f4f4f4;padding:0 3px}hr{border:0;border-top:1px dashed #aaa;margin:24px 0}.pb{page-break-before:always}`;
 
-const html = (md) => execFileSync(process.env.PANDOC || 'pandoc', ['-f', 'gfm', '-t', 'html'], { input: md }).toString();
+// Images next to the reports (reports/img/...) are inlined so each PDF is self-contained.
+const inlineImages = (md) => md.replace(/\]\((img\/[^)\s]+\.(png|jpe?g))\)/g, (m, rel, ext) => {
+  const file = path.join(dir, 'reports', rel);
+  if (!fs.existsSync(file)) throw new Error(`missing image ${rel}`);
+  return `](data:image/${ext === 'png' ? 'png' : 'jpeg'};base64,${fs.readFileSync(file).toString('base64')})`;
+});
+const html = (md) => execFileSync(process.env.PANDOC || 'pandoc', ['-f', 'gfm', '-t', 'html'], { input: inlineImages(md), maxBuffer: 64 * 1024 * 1024 }).toString();
 const page = (body, title) => `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body>${body}</body></html>`;
 
 (async () => {

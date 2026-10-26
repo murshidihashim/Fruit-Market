@@ -1,0 +1,72 @@
+{
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-014"
+  ],
+  "decisions": [
+    "DEC-020"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-007",
+  "title": "UI polish phase 1: fix what looks broken",
+  "problem": "The owner finds the game unpolished. Review found 9 presentation defects: clipped reveal text, money pop off-screen, 'You offers' grammar, pricing button over content, misaligned upgrade buttons, trait picker overlap, leftover emoji, placeholder ghosts, trophies without icons or locked state.",
+  "scope": [
+    "Reveal card fits all phones and does not cover the player's stall",
+    "Money pop stays on screen",
+    "Copy fixes ('You offer', and similar)",
+    "Pricing button in a solid footer",
+    "Upgrade cards aligned, shorter text",
+    "Trait picker fits",
+    "Remaining emoji replaced with pixel icons (B-33)",
+    "Proper art for walk-in and tomorrow placeholders",
+    "Trophies: icons and a clear locked state"
+  ],
+  "exclusions": [
+    "Layout changes to the table (phase 2)",
+    "Design system, motion, sound (phase 3)",
+    "Rules, saves, server"
+  ],
+  "acceptance": [
+    {
+      "id": "P1",
+      "text": "Before and after screenshots of every item at 360x640 and 390x844",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "P2",
+      "text": "No clipping, overlap or sideways scrolling on those sizes (automated check per phase screen)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "P3",
+      "text": "Visual diff changes only on the screens being fixed",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "P4",
+      "text": "Speed budget still passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "P5",
+      "text": "verify:full green; no rule, save or server changes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

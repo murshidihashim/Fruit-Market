@@ -1,0 +1,53 @@
+{
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-014"
+  ],
+  "decisions": [
+    "DEC-020"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-008",
+  "title": "UI polish phases 2-3: interactive mockups (design only)",
+  "problem": "The table shows too much at once, repeats numbers, wastes width on rival stalls and has no single focus per phase; the visual system is inconsistent.",
+  "scope": [
+    "Interactive mockups of buy, price, reveal, evening and home screens, viewable on a phone",
+    "Options where there is a real choice (for example the rival stalls)",
+    "Each idea mapped to a problem in REP-014"
+  ],
+  "exclusions": [
+    "Any game code",
+    "Building the chosen design (a separate plan after the owner picks)"
+  ],
+  "acceptance": [
+    {
+      "id": "M1",
+      "text": "A phone-viewable interactive page covering 5 screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "M2",
+      "text": "Options shown where a choice is needed; every idea linked to a REP-014 problem",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "M3",
+      "text": "No game code changed",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
