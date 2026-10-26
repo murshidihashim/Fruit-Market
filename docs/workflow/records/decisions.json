@@ -223,6 +223,52 @@
       ],
       "plan": "PLAN-002",
       "reviewTrigger": "If the check blocks urgent fixes for record reasons."
+    },
+    {
+      "id": "DEC-010",
+      "title": "Reconnect fix scope = PLAN-004 (evidence first, then fix)",
+      "question": "How should the intermittent rejoin failure be fixed?",
+      "choice": "Collect evidence and reproduce it with a stress test before changing game code; fix only the measured root cause, with a regression test.",
+      "rationale": "Reading the code didn't identify a certain cause, and two failures in five runs are too rare to debug by guessing. The workflow guide says to reproduce and isolate before fixing.",
+      "impact": {
+        "player": "Fewer stuck screens after a reload or dropped connection, once the fix is published.",
+        "technical": "New stress test and diagnostics; a small fix in the online client or room server.",
+        "data": "Diagnostics stay in CI artifacts for 7 days; they contain test players only."
+      },
+      "cost": "RM0 (GitHub Actions minutes are free for public repositories)",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-005"
+      ],
+      "plan": "PLAN-004",
+      "reviewTrigger": "If not reproduced after 300 cycles: stop and report."
+    },
+    {
+      "id": "DEC-011",
+      "title": "Stress test runs on demand, not on every push",
+      "question": "Should the long reconnect stress test run in every CI run?",
+      "choice": "No: a manual CI workflow plus local runs. Every-push CI keeps the existing tests (about 15 minutes).",
+      "rationale": "Hundreds of cycles would make every CI run far slower; the stress test is for investigation and before releases.",
+      "impact": {
+        "player": "None.",
+        "technical": "One extra manual workflow.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-005"
+      ],
+      "plan": "PLAN-004",
+      "reviewTrigger": "If reconnect bugs slip through between releases."
     }
   ],
   "history": [
@@ -265,6 +311,10 @@
     {
       "at": "2026-10-26 14:09",
       "text": "Known issue found: CI run 40275680793 (docs-only commit 63c3682) failed because the online test's page reload did not show the game within 20 s. Same symptom as the quick-match failure in CI run 1. Pre-existing and intermittent (2 of 5 CI runs); not part of PLAN-002. Proposed as the next package in REP-004."
+    },
+    {
+      "at": "2026-10-26 14:16",
+      "text": "Owner: \"PLAN the reconnect fix\". REP-005: PLAN-004 proposed; DEC-010 and DEC-011 awaiting approval."
     }
   ]
 }

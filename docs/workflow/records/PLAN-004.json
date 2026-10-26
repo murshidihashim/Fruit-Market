@@ -1,0 +1,35 @@
+{
+  "id": "PLAN-004",
+  "title": "Reconnect fix: the game screen sometimes doesn't return after rejoining an online room",
+  "problem": "In 2 of 5 CI runs the game screen didn't appear after rejoining a room (after quick match in 15 s; after a page reload mid-match in 20 s), with no game-code change between runs. Players could hit this after a reload or a dropped connection. The tests keep no evidence when it happens.",
+  "approval": { "status": "awaiting approval" },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": ["REP-005"],
+  "decisions": ["DEC-010", "DEC-011"],
+  "scope": [
+    "Step 1, evidence: on failure the online and quick-match tests save both players' screens, page text, browser console and received room messages; the local server log is kept as a CI artifact",
+    "Step 2, reproduce: a reconnect stress test (npm run test:reconnect) that repeats reload, connection drop and quick-match cycles, with and without a 4x CPU slowdown, and records time-to-game for each cycle; runnable locally and through a manual CI workflow",
+    "Step 3, isolate: compare failing and passing cycles to confirm or reject each hypothesis in REP-005",
+    "Step 4, fix the root cause with the smallest change, plus a regression test that fails before the fix",
+    "Step 5, prove it: repeated stress runs and consecutive green CI runs"
+  ],
+  "exclusions": [
+    "Game rules, balance, RULES_VERSION and saves",
+    "Message format changes old clients can't handle (would need a replan)",
+    "Publishing the fix to players (needs PREPARE RELEASE and your Deploy)",
+    "Package C work",
+    "Longer timeouts or retries in tests as the 'fix'"
+  ],
+  "acceptance": [
+    { "id": "R1", "text": "npm run test:reconnect runs N cycles and prints per-cycle time-to-game, failures and the 95th percentile", "result": "NOT RUN", "evidence": "" },
+    { "id": "R2", "text": "Root cause named with evidence (log or message excerpt from a failing cycle), or NOT REPRODUCED after at least 300 cycles with the conditions tried listed", "result": "NOT RUN", "evidence": "" },
+    { "id": "R3", "text": "If reproduced: failure rate before the fix recorded; after the fix at least 100 slowed-down cycles with 0 failures", "result": "NOT RUN", "evidence": "" },
+    { "id": "R4", "text": "A forced failure in the online test produces the diagnostics files and the server log artifact", "result": "NOT RUN", "evidence": "" },
+    { "id": "R5", "text": "A regression test (unit or browser) that fails on the old code and passes on the fixed code", "result": "NOT RUN", "evidence": "" },
+    { "id": "R6", "text": "verify:full green on 3 consecutive CI runs; leak check stays 0; 63+ unit tests green; no rules or save changes", "result": "NOT RUN", "evidence": "" }
+  ],
+  "changes": { "added": [], "changed": [], "fixed": [], "removed": [] },
+  "playerNotes": []
+}

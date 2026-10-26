@@ -5,8 +5,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
-- **Recommended next:** fix the intermittent "game screen doesn't come back after rejoining" issue
-  (REP-004, known issue), then PLAN-003 (Package C).
+- **Proposed next:** PLAN-004, the reconnect fix (REP-005), awaiting approval. Then PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -47,5 +46,8 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-001: Adopt the personal workflow guide 1.2 for Fruit Market (proposed)
 - DEC-004: PDF exports with pandoc and the existing Playwright browser (proposed)
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
+- DEC-010: Reconnect fix scope = PLAN-004 (evidence first, then fix) (awaiting approval)
+- DEC-011: Stress test runs on demand, not on every push (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
+- PLAN-004: Reconnect fix: the game screen sometimes doesn't return after rejoining an online room (awaiting approval)
 <!-- records:pending:end -->
