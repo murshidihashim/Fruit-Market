@@ -833,6 +833,10 @@
     {
       "at": "2026-10-27 02:19",
       "text": "PLAN-009 built and verified on branch workflow/plan-009 (b2b495a): verify and verify:full PASS, new board tests PASS, 9-size screenshot check PASS. Not merged: main holds the 1.1.1 candidate until the owner deploys it. REP-023."
+    },
+    {
+      "at": "2026-10-27 02:20",
+      "text": "Owner: \"use the gemini lorry, approve PLAN-011\". PLAN-011 approved and started (pricing, reveal and evening on the table). PLAN-010 will use the owner's Gemini lorry picture; owner accepts that AI-made art may not be protected by copyright."
     }
   ]
 }

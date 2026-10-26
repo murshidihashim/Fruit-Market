@@ -30,7 +30,7 @@ export function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer:
           return (
             <div class={`au-offer ${open ? 'open' : 'sealed'} ${res} ${o.player === viewer ? 'me' : ''}`}>
               <span class="au-who"><Face who={pl.avatar} size={26} /></span>
-              <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>offers {o.qty}</small></span>
+              <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>{o.player === viewer ? 'offer' : 'offers'} {o.qty}</small></span>
               <span class="au-price">{open ? `$${o.price}` : '?'}</span>
               {done && <span class="au-res">{a.story.tags[i]}</span>}
             </div>
@@ -39,6 +39,7 @@ export function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer:
       </div>
       {done && (
         <div class={`au-why ${a.story.tone}`}>
+          {a.story.tone === 'bad' && a.story.headline.includes('undercut you') && <span class="au-kick">Outfoxed!</span>}
           <b>{a.story.headline}</b>
           {a.story.detail && <small>{a.story.detail}</small>}
         </div>

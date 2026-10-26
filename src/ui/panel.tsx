@@ -58,7 +58,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
 
   return (
     <div class="price-panel">
-      <div class="pp-intro"><b>Set secret prices</b><span>Per fruit. Cheapest sells first; fresher fruit wins ties.</span></div>
+      <div class="pp-intro"><b>Seal your prices</b><span>Only you see this board until the bell. Price per fruit; cheapest sells first, fresher fruit wins ties.</span></div>
       {sellable.length === 0 && <div class="info-card dim">You have nothing today's customers want.</div>}
       {sellable.map(({ c, w, max }) => {
         const k = key(c.id, w.fruit);
@@ -103,7 +103,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
               </div>
             </div>
             <div class="pc-foot">
-              <span class={`read ${read.cls}`}>{read.t}</span>
+              <span class={`read ${read.cls}`}><b class="psst">Psst…</b> {read.t}</span>
               {rivalCaps.length > 0 && (
                 <span class="rival-caps">{rivalCaps.map((r) => <span title={`${r.o.name} can ask up to $${r.cap}`}><Face who={r.o.avatar} size={18} />≤${r.cap}</span>)}</span>
               )}
@@ -124,7 +124,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
       <div class="pp-lock">
         {error && <div class="error">{error}</div>}
         <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(bids.filter((b) => b.qty > 0), favoured)}>
-          {bids.some((b) => b.qty > 0) ? <>Lock in prices <small class="btn-sub">up to ${total}</small></> : 'Sell nothing today'}
+          {bids.some((b) => b.qty > 0) ? <>Seal my prices <small class="btn-sub">up to ${total}</small></> : 'Sell nothing today'}
         </button>
       </div>
     </div>
@@ -173,7 +173,9 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
           {pl.upgrades.length > 0 && <div class="owned-row">Built: {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={16} /> {UPGRADES[u].title}</span>)}</div>}
         </>
       )}
+      {pl.favours.length > 0 && <div class="pp-intro"><b>Up your sleeve</b><span>Favour cards you can play.</span></div>}
       <FavourRow s={s} p={p} phase="evening" onCard={onCard} />
+      {s.players.length > 1 && <div class="whisper"><b class="psst">Psst…</b> the rivals are plotting tonight too.</div>}
     </div>
   );
 }

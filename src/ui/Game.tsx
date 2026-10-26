@@ -5,7 +5,7 @@ import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
 import { EveningPanel, PricePanel } from './panel';
-import { Market, MyStall, RivalDrop, RivalStall, Street, seats } from './table';
+import { Market, MyStall, RivalDrop, RivalStall, Street, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
@@ -70,6 +70,19 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Rivals sit across the table in one row, in turn order after you.
   const rivals = seats(s.players.length, viewer).map((x) => x.p);
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
+  // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
+  // then flipped open one by one, highest price first, as each showdown is revealed.
+  const boards: Record<number, Board> = {};
+  if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed' }; });
+  if (show) {
+    const order = show.line.offers.map((o, i) => ({ o, i })).sort((x, y) => y.o.price - x.o.price || y.i - x.i);
+    order.forEach(({ o, i }, k) => {
+      const done = show.stage === 'result';
+      boards[o.player] = k < show.shown
+        ? { state: 'open', price: o.price, res: done ? (o.sold ? 'won' : 'lost') : undefined, tag: done ? show.story.tags[i] : undefined }
+        : { state: 'sealed' };
+    });
+  }
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
 
@@ -106,7 +119,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           <div class="street-wrap" data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /></div>
           {rivals.length > 0 && (
             <div class="seats">
-              {rivals.map((p) => <RivalStall s={s} p={p} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
+              {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
               {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
             </div>
           )}
@@ -117,7 +130,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
               onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
             {overlay}
           </div>
-          <MyStall s={s} p={viewer} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+          <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
         </div>
         {tray && <div class="tray-wrap">{tray}</div>}
       </div>

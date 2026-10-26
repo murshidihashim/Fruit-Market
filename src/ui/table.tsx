@@ -46,6 +46,9 @@ export function Market({ s, p, onPick, canPick, morning, onPulse }: {
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
       <div class="mk-cols">
+        {s.phase === 'evening' && (
+          <div class="mk-cover" aria-label="The market is closed for the night"><Icon name="moon" size={32} /><b>Crates covered</b><small>All fruit ages one night</small></div>
+        )}
         {FRUITS.map((f, i) => (
           <div class="mk-col">
             <button type="button" class={`pz ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
@@ -74,20 +77,37 @@ export function Market({ s, p, onPick, canPick, morning, onPulse }: {
   );
 }
 
+// ---------- price boards ----------
+
+/** A shop's price board for the current showdown: sealed while pricing, flipped open at the reveal. */
+export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; res?: 'won' | 'lost'; tag?: string }
+
+export function SeatBoard({ b }: { b: Board }) {
+  if (b.state === 'thinking') return <span class="sb thinking">pricing<span class="waiting-dots" /></span>;
+  return (
+    <span class={`sb ${b.state} ${b.res ?? ''}`}>
+      <span class="sb-face">{b.state === 'open' ? `$${b.price}` : <i class="seal" aria-label="Sealed price" />}</span>
+      {b.tag && <small>{b.tag}</small>}
+    </span>
+  );
+}
+
 // ---------- rivals ----------
 
 /** A rival's seat across the table. Tap it to open their stall below the seats. */
-export function RivalStall({ s, p, open, onOpen }: { s: GameState; p: number; open?: boolean; onOpen: () => void }) {
+export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board }) {
   const pl = s.players[p];
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const thinking = s.phase === 'bid' && s.bids[p] === null;
+  const night = s.phase === 'evening';
   return (
-    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''}`} style={seat(p)} data-a={`p${p}`}
+    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} style={seat(p)} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
       <div class="rs-awning" />
       <div class="rs-who">
-        <span class="rs-face"><Face who={pl.avatar} size={26} />{active && <i class="busy"><Icon name={s.phase === 'buy' ? 'cart' : 'lantern'} size={14} /></i>}{thinking && <i class="busy">💭</i>}</span>
+        <span class="rs-face"><Face who={pl.avatar} size={26} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
         <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
+        {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
+        {board && <SeatBoard b={board} />}
       </div>
       <div class="rs-stock">
         <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
@@ -96,7 +116,7 @@ export function RivalStall({ s, p, open, onOpen }: { s: GameState; p: number; op
           // Empty fruits shrink to nothing but stay in place as animation anchors.
           return <span class={`rs-f ${n ? '' : 'zero'}`} data-a={`p${p}-${f}`} aria-hidden={!n}><Fruit id={f} size={14} />{n}</span>;
         })}
-        {count(pl.stock) === 0 && <span class="rs-empty">empty</span>}
+        {night ? <span class="rs-empty">{active ? 'building…' : 'plotting…'}</span> : count(pl.stock) === 0 && <span class="rs-empty">empty</span>}
       </div>
     </button>
   );
@@ -149,7 +169,7 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 
 // ---------- your stall ----------
 
-export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean }) {
+export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
   const pl = s.players[p];
   const mine = loadColour();
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
@@ -164,6 +184,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
         {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={16} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
         {s.day === s.config.days && s.phase !== 'over' && count(pl.stock) > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}
         <span class="spacer" />
+        {board && <SeatBoard b={board} />}
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={20} /></span>)}
         <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{pl.cash}</span>
       </div>

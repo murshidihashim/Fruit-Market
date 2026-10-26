@@ -121,6 +121,10 @@ export function floatText(at: string | string[], text: string, cls = '') {
   if (!a) return;
   const p = point(a, 'top');
   const el = sprite(text, `floattext ${cls}`);
+  // Keep the number fully on screen, even next to the cash at the screen's edge.
+  const half = el.offsetWidth / 2;
+  p.x = Math.min(Math.max(p.x, half + 6), layer!.clientWidth - half - 6);
+  p.y = Math.max(p.y, 50);
   el.animate(
     [
       { transform: `translate(${p.x}px, ${p.y}px) translate(-50%, 0)`, opacity: 0 },

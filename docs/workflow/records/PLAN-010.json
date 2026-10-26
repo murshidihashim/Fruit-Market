@@ -24,7 +24,7 @@
   "title": "Cosy table build 2: the delivery lorry (outline)",
   "problem": "At the start of buying, a lorry drives in, customers make room, crates drop onto the board; it leaves before selling (DEC-025).",
   "scope": [
-    "Lorry art: the owner's Gemini picture or a pixel lorry in the game's sprite style (owner to choose)",
+    "Lorry art: the owner's Gemini picture (owner chose it; cut-out in docs/workflow/reports/img/owner-lorry-cutout.png)",
     "About 2 seconds, skippable with a tap, off when reduced motion is on",
     "Customers step aside and return",
     "Crates land in their slots; online play stays in sync (animation only)"
