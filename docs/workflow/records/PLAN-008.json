@@ -99,6 +99,12 @@
       "text": "Your stall back to fruit chips with nights left; market keeps the vertical tracker",
       "result": "PASS",
       "evidence": "Version 15 published; logic test: a bought unripe mango shows as 'ripening', the starting apple shows '5 nights'"
+    },
+    {
+      "id": "M10",
+      "text": "Owner's lorry art used in the Buying mockup",
+      "result": "PASS",
+      "evidence": "Version 16 published; source kept at docs/workflow/reports/img/owner-lorry.png"
     }
   ]
 }
