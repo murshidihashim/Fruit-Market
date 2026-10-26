@@ -2,10 +2,12 @@
   "release": "unreleased",
   "build": "",
   "reports": [
-    "REP-014"
+    "REP-014",
+    "REP-015"
   ],
   "decisions": [
-    "DEC-020"
+    "DEC-020",
+    "DEC-021"
   ],
   "changes": {
     "added": [],
@@ -19,12 +21,13 @@
   },
   "delivery": "not started",
   "id": "PLAN-008",
-  "title": "UI polish phases 2-3: interactive mockups (design only)",
-  "problem": "The table shows too much at once, repeats numbers, wastes width on rival stalls and has no single focus per phase; the visual system is inconsistent.",
+  "title": "UI polish: art-direction style test and layout mockups (design only)",
+  "problem": "The table shows too much at once, repeats numbers, wastes width on rival stalls and has no single focus per phase; the visual system is inconsistent. The owner's priorities: clutter, lack of animation and feel, and the art style itself; reference: It Takes Two (qualities only, no assets).",
   "scope": [
-    "Interactive mockups of buy, price, reveal, evening and home screens, viewable on a phone",
-    "Options where there is a real choice (for example the rival stalls)",
-    "Each idea mapped to a problem in REP-014"
+    "Style test: the same buying screen in three directions (A polished pixel, B toy-box tabletop, C 3D-diorama flat render) plus one fruit in four freshness stages, one customer and one rival in direction B, viewable on a phone",
+    "Layout mockups in the chosen direction for buy, price, reveal, evening and home: one top bar, slim rival stalls, plain-language demand, one focus per phase",
+    "Motion notes and a short animated example of the reveal flip",
+    "All art original; reference games are inspiration only"
   ],
   "exclusions": [
     "Any game code",
@@ -33,13 +36,13 @@
   "acceptance": [
     {
       "id": "M1",
-      "text": "A phone-viewable interactive page covering 5 screens",
+      "text": "Phone-viewable page with the style test (3 directions on one screen) and 5 mockup screens",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "M2",
-      "text": "Options shown where a choice is needed; every idea linked to a REP-014 problem",
+      "text": "Every idea linked to a REP-014 problem or a REP-015 quality",
       "result": "NOT RUN",
       "evidence": ""
     },

@@ -495,9 +495,33 @@
       },
       "delivery": "not started",
       "reports": [
-        "REP-014"
+        "REP-014",
+        "REP-015"
       ],
       "reviewTrigger": "If the baseline playtest shows a different priority."
+    },
+    {
+      "id": "DEC-021",
+      "title": "Art direction for the polish: explore A/B/C, recommend toy-box tabletop",
+      "question": "Which art direction should the polish follow, given the owner dislikes the current art style and points to It Takes Two?",
+      "choice": "Run a style test of A (polished pixel), B (toy-box tabletop 2D) and C (3D toy diorama) on one screen; recommendation B, drawn by Claude as vector art, with a paid illustrator as a later, separately priced option.",
+      "rationale": "B addresses clutter, feel and art style, keeps phones fast and costs nothing to test; C is too large and risky now; A does not answer the art-style concern.",
+      "impact": {
+        "player": "A warmer, toy-like look with more motion, if chosen and built.",
+        "technical": "Redraw of fruits, about 30 characters, rivals, about 40 icons and the UI (only after approval of a build plan).",
+        "data": "None."
+      },
+      "cost": "RM0 for the test; any illustrator needs a quote and approval",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-015"
+      ],
+      "plan": "PLAN-008",
+      "reviewTrigger": "After the style test, or if the owner wants a paid illustrator."
     }
   ],
   "history": [
@@ -620,6 +644,10 @@
     {
       "at": "2026-10-26 23:06",
       "text": "Owner: the game doesn't feel polished; propose changes on the whole UI and UX. REP-014: review of all main screens at 360x640 and 390x844; DEC-020, PLAN-007 (phase 1 fixes) and PLAN-008 (mockups) awaiting approval. PDF export now inlines report images."
+    },
+    {
+      "at": "2026-10-26 23:18",
+      "text": "Owner answers to REP-014: most bothered by clutter, lack of animation and feel, and the art style itself; polished reference: It Takes Two. REP-015: art-direction options; PLAN-008 revised to a style test plus mockups (still awaiting approval); DEC-021 awaiting approval; PLAN-007 suggested to shrink to 3 fixes. PLAN-007 and PLAN-008 not yet approved."
     }
   ]
 }

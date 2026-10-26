@@ -9,7 +9,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
 - **Release 1.1.1 approved** (DEC-013, REP-013): waiting for the owner to press Deploy LIVE game. Owner's own preview check: NOT RUN (not reported).
 - **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
-- **UI polish proposed** (REP-014): DEC-020, PLAN-007 (phase 1 fixes) and PLAN-008 (mockups) awaiting approval.
+- **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Awaiting: DEC-020, DEC-021 (art direction, B recommended), PLAN-008 (style test + mockups), PLAN-007 (suggested: 3 fixes only).
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds
@@ -53,7 +53,8 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
+- DEC-021: Art direction for the polish: explore A/B/C, recommend toy-box tabletop (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-007: UI polish phase 1: fix what looks broken (awaiting approval)
-- PLAN-008: UI polish phases 2-3: interactive mockups (design only) (awaiting approval)
+- PLAN-008: UI polish: art-direction style test and layout mockups (design only) (awaiting approval)
 <!-- records:pending:end -->
