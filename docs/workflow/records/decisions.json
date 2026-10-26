@@ -350,7 +350,8 @@
       "owner": "Murshidi",
       "cost": "RM0",
       "reports": [
-        "REP-010"
+        "REP-010",
+        "REP-011"
       ],
       "id": "DEC-015",
       "title": "Adopt three design pillars",
@@ -372,7 +373,8 @@
       "owner": "Murshidi",
       "cost": "RM0",
       "reports": [
-        "REP-010"
+        "REP-010",
+        "REP-011"
       ],
       "id": "DEC-016",
       "title": "First creative test: reveal-comprehension playtest",
@@ -389,6 +391,78 @@
       },
       "delivery": "not started",
       "reviewTrigger": "After the first playtest round."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-011"
+      ],
+      "id": "DEC-017",
+      "title": "Setting: a market where the whole world shops",
+      "question": "Where is Fruit Market's market?",
+      "choice": "Option C: a deliberate 'the whole world shops here' mix. A sunny harbour market; customers from every culture and fantasy role; seaside palette; plain market dollars.",
+      "rationale": "Keeps the existing art and cast, turns the mix into an intentional identity, and costs nothing now.",
+      "impact": {
+        "player": "No visible change now; guides future content.",
+        "technical": "None now; recorded in the creative bible.",
+        "data": "None."
+      },
+      "approval": {
+        "status": "approved",
+        "evidence": "1. Where is this market? C: a deliberate \u201cthe whole world shops here\u201d mix.",
+        "date": "2026-10-26"
+      },
+      "delivery": "implemented",
+      "reviewTrigger": "If playtesters find the setting confusing."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-011"
+      ],
+      "id": "DEC-018",
+      "title": "Rename Panda Lim while keeping the cast coherent",
+      "question": "Should the 'Panda Lim' rival be renamed?",
+      "choice": "Yes: an animal nickname that fits beside Foxy Rosa, Big Benny, Uncle Toad, Rocky and Pinky; picture and lines unchanged. Cast rules recorded in the creative bible.",
+      "rationale": "Avoids pairing a surname with a national symbol while preserving the animal-trader theme.",
+      "impact": {
+        "player": "New games show the new name.",
+        "technical": "One data line plus tests (PLAN-006).",
+        "data": "Saved games keep the old name until they end."
+      },
+      "approval": {
+        "status": "approved",
+        "evidence": "Rename Panda Lim? - sure, but dont run away from the general theme coherence",
+        "date": "2026-10-26"
+      },
+      "delivery": "not started",
+      "plan": "PLAN-006",
+      "reviewTrigger": "If the new name tests poorly with players."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-011"
+      ],
+      "id": "DEC-019",
+      "title": "Rename scope = PLAN-006, shipped in 1.1.2",
+      "question": "How and when should the rename be built?",
+      "choice": "As PLAN-006 (display name, reserved names, compatibility tests), released as 1.1.2 after 1.1.1 is live.",
+      "rationale": "Keeps the 1.1.1 candidate unchanged; the rename is small and safe but still needs its own checks.",
+      "impact": {
+        "player": "New name from 1.1.2.",
+        "technical": "Small data change plus tests.",
+        "data": "None."
+      },
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "plan": "PLAN-006",
+      "reviewTrigger": "If 1.1.1 is delayed for long."
     }
   ],
   "history": [
@@ -483,6 +557,10 @@
     {
       "at": "2026-10-26 21:47",
       "text": "Owner asked to apply the Game Concept and Theme Companion. REP-010: theme review (no changes made); DEC-014 proposed; DEC-015 (pillars) and DEC-016 (first playtest) awaiting approval. Open questions: setting identity, renaming Panda Lim, availability of 3 to 5 testers."
+    },
+    {
+      "at": "2026-10-26 22:14",
+      "text": "Owner answers to REP-010: setting C approved (DEC-017); rename Panda Lim approved, keeping the cast coherent (DEC-018); 3 to 5 first-time testers are available. REP-011: creative bible written; PLAN-006 (rename) and DEC-019 awaiting approval. DEC-015 and DEC-016 still await explicit approval."
     }
   ]
 }

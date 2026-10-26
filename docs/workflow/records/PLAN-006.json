@@ -1,0 +1,69 @@
+{
+  "id": "PLAN-006",
+  "title": "Rename the panda rival (cosmetic, within the animal-trader cast)",
+  "problem": "'Panda Lim' pairs a Chinese surname with a panda, which may read as an ethnic association. The owner agreed to rename it while keeping the cast coherent.",
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-011"
+  ],
+  "decisions": [
+    "DEC-018",
+    "DEC-019"
+  ],
+  "scope": [
+    "Change the panda rival's display name in src/engine/data.ts to the owner's chosen nickname; picture, lines and difficulty unchanged",
+    "Update the daily-challenge line in RULES.md",
+    "Keep 'Panda Lim' reserved so no player can take the old rival name",
+    "Unit tests: old saves naming 'Panda Lim' still get the panda's reaction lines; the daily-challenge score check gives the same result",
+    "Ship in 1.1.2, after 1.1.1 is live"
+  ],
+  "exclusions": [
+    "Other renames (Kumar the Genie reviewed: keep for now)",
+    "Art, lines, rules, AI or balance",
+    "Changing names inside games already in progress or saved"
+  ],
+  "acceptance": [
+    {
+      "id": "N1",
+      "text": "New solo games, daily challenges and online rooms show the new name",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "N2",
+      "text": "A saved game from before the rename loads, still shows 'Panda Lim', and the panda's lines still appear (test)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "N3",
+      "text": "Daily-challenge verification gives the same score for the same moves (test)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "N4",
+      "text": "Both 'Panda Lim' and the new name are refused as player names (test)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "N5",
+      "text": "verify:full green in CI; no rule, save-format or server-logic changes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

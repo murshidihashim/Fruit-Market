@@ -8,7 +8,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
 - **Release 1.1.1 prepared** (REP-009): DEC-013 (publish) awaiting the owner's approval after the preview playtest; the owner presses Deploy.
-- **Creative:** theme review done (REP-010, companion guide). Pillars and first playtest await the owner's choice. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
+- **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Awaiting: DEC-015 (pillars), DEC-016 (playtest), DEC-019/PLAN-006 (rename, for 1.1.2). Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds
@@ -54,5 +54,7 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-015: Adopt three design pillars (awaiting approval)
 - DEC-016: First creative test: reveal-comprehension playtest (awaiting approval)
+- DEC-019: Rename scope = PLAN-006, shipped in 1.1.2 (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
+- PLAN-006: Rename the panda rival (cosmetic, within the animal-trader cast) (awaiting approval)
 <!-- records:pending:end -->

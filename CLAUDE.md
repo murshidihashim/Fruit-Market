@@ -64,6 +64,8 @@ Never run `npm run deploy:web` or `wrangler deploy` (without `--env staging`) wi
 ## Records
 - `docs/workflow/STATE.md`: active package, build, blockers, next action (about 500 words; keep it current).
 - `docs/workflow/GAME-BRIEF.md`: audience, core loop, exclusions.
+- `docs/workflow/CREATIVE-BIBLE.md`: identity, pillars, cast rules (creative work follows the owner's
+  Concept and Theme Companion; same records and approvals).
 - `docs/workflow/OWNER-BRIEF.md`: owner's preview, playtest and publish guide.
 - Source of truth: `docs/workflow/records/` (`decisions.json` with append-only `history`,
   `PLAN-###.json`, `releases.json`). Edit these, then `npm run records`. Never hand-edit
