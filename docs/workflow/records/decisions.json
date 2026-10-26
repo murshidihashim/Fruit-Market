@@ -419,7 +419,7 @@
       },
       "approval": {
         "status": "approved",
-        "evidence": "1. Where is this market? C: a deliberate \u201cthe whole world shops here\u201d mix.",
+        "evidence": "1. Where is this market? C: a deliberate “the whole world shops here” mix.",
         "date": "2026-10-26"
       },
       "delivery": "implemented",
@@ -525,6 +525,31 @@
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "After the style test, or if the owner wants a paid illustrator."
+    },
+    {
+      "id": "DEC-022",
+      "title": "Look and tone: cunning edition of direction B",
+      "question": "How should direction B reflect the game's undercutting mechanic?",
+      "choice": "Keep the toy-box tabletop style and add a cheeky, scheming layer: plum and gold for secret moments (pricing, reveal, evening), wax-sealed face-down price boards, 'Psst' whisper bubbles that restate public facts, sly rival faces (Foxy Rosa winks), a spotlight reveal with an 'Outfoxed by $1!' headline, and the tagline 'Undercut. Outfox. Sell it fresh.'",
+      "rationale": "The owner asked for the look to match the undercut mechanic. Cheeky rather than mean keeps pillar 3 (a cheerful town market) and pillar 2 (outprice rivals in secret) aligned; the market stays sunny by day.",
+      "impact": {
+        "player": "Secret phases feel secret and the reveal feels like a showdown, if built.",
+        "technical": "Same redraw as DEC-021 plus a plum secret-phase theme; only after a build plan is approved.",
+        "data": "None. Whispers only restate information the game already shows; no hidden prices or choices."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "yes but align more with the cunning aesthetic given the undercut mechanism of the game",
+        "date": "2026-10-27"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-017"
+      ],
+      "plan": "PLAN-008",
+      "reviewTrigger": "If playtesters read the rivals as mean, or the plum screens feel too dark."
     }
   ],
   "history": [
@@ -659,6 +684,10 @@
     {
       "at": "2026-10-26 23:57",
       "text": "PLAN-008 mockups published (https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB): style sample plus home, buying, pricing, sales reveal and evening in direction B. REP-016. Waiting for the owner's review."
+    },
+    {
+      "at": "2026-10-27 00:12",
+      "text": "Owner on the REP-016 mockups: \"yes but align more with the cunning aesthetic given the undercut mechanism of the game\". DEC-022 approved (cunning edition of direction B). Mockups revised and republished at the same link; owner's Evening layout edit kept. REP-017. Waiting for the owner's review of the revision."
     }
   ]
 }

@@ -9,7 +9,7 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
 - **Release 1.1.1 approved** (DEC-013, REP-013): waiting for the owner to press Deploy LIVE game. Owner's own preview check: NOT RUN (not reported).
 - **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
-- **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published for review (REP-016, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
+- **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published (REP-016) and revised to the cunning edition at the owner's request (DEC-022, REP-017, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds

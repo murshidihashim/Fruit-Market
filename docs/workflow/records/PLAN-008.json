@@ -4,11 +4,13 @@
   "reports": [
     "REP-014",
     "REP-015",
-    "REP-016"
+    "REP-016",
+    "REP-017"
   ],
   "decisions": [
     "DEC-020",
-    "DEC-021"
+    "DEC-021",
+    "DEC-022"
   ],
   "changes": {
     "added": [],
@@ -54,6 +56,12 @@
       "text": "No game code changed",
       "result": "PASS",
       "evidence": "No changes under src/ or server/"
+    },
+    {
+      "id": "M4",
+      "text": "Owner feedback applied: cunning look aligned with the undercut mechanic, owner's own page edit kept",
+      "result": "PASS",
+      "evidence": "Republished https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB (version 9) with all six screens revised; Evening spacer edit preserved; REP-017. Owner review pending"
     }
   ]
 }
