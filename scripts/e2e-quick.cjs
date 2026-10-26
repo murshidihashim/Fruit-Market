@@ -1,6 +1,7 @@
 // Quick match: two strangers search at the same time and land in the same game.
 // Usage: node scripts/e2e-quick.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
+const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
 let base, out;
 const pages = [];
 (async () => {
@@ -9,8 +10,12 @@ const pages = [];
   const mk = async (name) => {
     const c = await b.newContext({ viewport: { width: 400, height: 820 } });
     const p = await c.newPage();
+    const P = { tag: name, page: p, frames: [], errors: [], consoleLog: [] };
+    p.on('pageerror', (e) => P.errors.push(String(e)));
+    p.on('console', (m) => P.consoleLog.push(`${m.type()}: ${m.text()}`));
+    p.on('websocket', (ws) => ws.on('framereceived', (f) => P.frames.push(typeof f.payload === 'string' ? f.payload : '')));
     await p.addInitScript((n) => { localStorage.setItem('fm.name', n); localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false })); }, name);
-    pages.push([name, p]); await p.goto(base); await p.click('text=Quick match'); return p;
+    pages.push(P); await p.goto(base); await p.click('text=Quick match'); return p;
   };
   const A = await mk('Alice'); await A.click('text=Find an opponent');
   await A.waitForSelector('text=Looking for an opponent'); await A.screenshot({ path: `${out}/q1-waiting.png` });
@@ -21,11 +26,6 @@ const pages = [];
   await b.close();
 })().catch(async (e) => {
   console.error('FAIL', e.message);
-  // Leave evidence: what each player saw when it failed.
-  for (const [name, p] of pages) {
-    const text = await p.locator('body').innerText().catch(() => '(page closed)');
-    console.error(`--- ${name} sees:`, text.replace(/\s+/g, ' ').slice(0, 300));
-    await p.screenshot({ path: `${out}/q-fail-${name}.png` }).catch(() => {});
-  }
+  await saveDiagnostics(pages, out, 'quick');
   process.exit(1);
 });

@@ -1,8 +1,10 @@
 // Two independent browsers play a full online match through the real server.
 // Usage: node scripts/e2e-online.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
+const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
+const players = [];
+const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 (async () => {
-  const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   const browser = await chromium.launch();
   const mk = async (tag) => {
     const ctx = await browser.newContext({ viewport: { width: 400, height: 820 }, deviceScaleFactor: 1 });
@@ -10,9 +12,13 @@ const { chromium } = require('playwright');
     const page = await ctx.newPage();
     const frames = [];
     const errors = [];
+    const consoleLog = [];
     page.on('pageerror', (e) => errors.push(`${tag}: ${e}`));
+    page.on('console', (m) => consoleLog.push(`${m.type()}: ${m.text()}`));
     page.on('websocket', (ws) => ws.on('framereceived', (f) => frames.push(typeof f.payload === 'string' ? f.payload : '')));
-    return { page, frames, errors, tag, ctx };
+    const P = { page, frames, errors, consoleLog, tag, ctx };
+    players.push(P);
+    return P;
   };
   const A = await mk('A');
   const B = await mk('B');
@@ -122,4 +128,8 @@ const { chromium } = require('playwright');
   }
   console.log('page errors:', [...A.errors, ...B.errors]);
   await browser.close();
-})();
+})().catch(async (e) => {
+  console.error('FAIL', e.message);
+  await saveDiagnostics(players, out, 'online');
+  process.exit(1);
+});

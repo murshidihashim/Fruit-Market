@@ -1,8 +1,10 @@
 // Runs every browser test against fresh builds:
 //   solo playthrough and the performance budget (single-file build),
-//   then the online match (with a player leaving) and quick match against a local server.
+//   then the online match (with a player leaving) and quick match against a local server
+//   (its log is kept in <out>/server.log).
 // Usage: npm run test:e2e        (set E2E_SKIP_ONLINE=1 to run only the offline part)
-import { spawn, execSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
+import { startServer } from './with-server.mjs';
 import { mkdirSync } from 'node:fs';
 
 const out = process.env.E2E_OUT ?? 'e2e-output';
@@ -18,18 +20,13 @@ step('performance budget', 'node scripts/perf-budget.cjs dist-single/index.html 
 
 if (!process.env.E2E_SKIP_ONLINE) {
   run('npx vite build');
-  const server = spawn('npx', ['wrangler', 'dev', '--port', '8787', '--ip', '127.0.0.1'], { stdio: 'ignore', detached: true });
-  const base = 'http://127.0.0.1:8787';
-  let up = false;
-  for (let i = 0; i < 60 && !up; i++) {
-    try { up = (await fetch(base)).ok; } catch { await new Promise((r) => setTimeout(r, 1000)); }
+  let server = null;
+  try { server = await startServer(out); } catch (e) { failures.push(e.message); }
+  if (server) {
+    step('online match', `node scripts/e2e-online.cjs ${server.base} ${out}`);
+    step('quick match', `node scripts/e2e-quick.cjs ${server.base} ${out}`);
+    server.stop();
   }
-  if (!up) failures.push('local server did not start');
-  else {
-    step('online match', `node scripts/e2e-online.cjs ${base} ${out}`);
-    step('quick match', `node scripts/e2e-quick.cjs ${base} ${out}`);
-  }
-  try { process.kill(-server.pid, 'SIGKILL'); } catch { /* already gone */ }
 }
 
 console.log(failures.length ? `\nE2E FAILED: ${failures.join(', ')}` : '\nE2E OK');

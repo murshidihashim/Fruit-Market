@@ -1,0 +1,57 @@
+# Reconnect stress test (PLAN-004 / DEC-011). Manual only: Actions → Reconnect stress → Run workflow.
+# "local" runs a local copy of the server on the CI machine (reloads, network drops, quick matches).
+# "preview" runs against the preview copy on Cloudflare (reloads and quick matches; drops need the local relay).
+name: Reconnect stress
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'local or preview'
+        default: local
+      reloads:
+        description: 'Reload cycles'
+        default: '60'
+      drops:
+        description: 'Network-drop cycles (local only)'
+        default: '60'
+      quicks:
+        description: 'Quick-match cycles (about 13 s each)'
+        default: '15'
+      throttle:
+        description: 'CPU slowdown (1 = none, 4 = cheap phone)'
+        default: '4'
+
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      RELOADS: ${{ inputs.reloads }}
+      DROPS: ${{ inputs.drops }}
+      QUICKS: ${{ inputs.quicks }}
+      THROTTLE: ${{ inputs.throttle }}
+      E2E_OUT: e2e-output
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Stress against a local server
+        if: inputs.target != 'preview'
+        run: npm run test:reconnect
+      - name: Stress against the preview copy
+        if: inputs.target == 'preview'
+        env:
+          NO_RELAY: '1'
+        run: node scripts/e2e-reconnect.cjs https://fruit-market-staging.murshidi-hashim.workers.dev e2e-output
+      - name: Keep evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reconnect-evidence
+          path: e2e-output/
+          retention-days: 7
