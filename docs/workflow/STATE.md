@@ -7,8 +7,8 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
-- **Release 1.1.1 prepared** (REP-009): DEC-013 (publish) awaiting the owner's approval after the preview playtest; the owner presses Deploy.
-- **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Awaiting: DEC-015 (pillars), DEC-016 (playtest). PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
+- **Release 1.1.1 approved** (DEC-013, REP-013): waiting for the owner to press Deploy LIVE game. Owner's own preview check: NOT RUN (not reported).
+- **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified on branch `workflow/plan-006` (REP-012), for 1.1.2 after 1.1.1. Kept on branch `workflow/creative-001` so `main` stays on the 1.1.1 candidate until it's deployed.
 - **Then:** plan PLAN-003 (Package C).
 
 ## Builds
@@ -37,8 +37,8 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
 - Telemetry and leaderboard data on the live server have no backup (Package C).
 
 ## Approvals
-- PLAN-001, 002, 004 and 005 approved by the owner on 2026-10-26 (exact words in `records/`).
-  Publication of the live game: **not approved**, not performed.
+- PLAN-001, 002, 004, 005 and 006 approved by the owner on 2026-10-26 (exact words in `records/`).
+  Publication of 1.1.1: **approved** (DEC-013), not yet performed (owner presses Deploy).
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we
@@ -50,9 +50,6 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-001: Adopt the personal workflow guide 1.2 for Fruit Market (proposed)
 - DEC-004: PDF exports with pandoc and the existing Playwright browser (proposed)
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
-- DEC-013: Publish version 1.1.1 to players (awaiting approval)
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
-- DEC-015: Adopt three design pillars (awaiting approval)
-- DEC-016: First creative test: reveal-comprehension playtest (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 <!-- records:pending:end -->

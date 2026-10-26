@@ -316,11 +316,14 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "yes to 1 and 2 (1 = release 1.1.1: approve DEC-013, then the owner presses Deploy LIVE game)",
+        "date": "2026-10-26"
       },
       "delivery": "not started",
       "reports": [
-        "REP-009"
+        "REP-009",
+        "REP-013"
       ],
       "reviewTrigger": "If the preview playtest finds a problem, or the post-deploy smoke test fails."
     },
@@ -351,7 +354,8 @@
       "cost": "RM0",
       "reports": [
         "REP-010",
-        "REP-011"
+        "REP-011",
+        "REP-013"
       ],
       "id": "DEC-015",
       "title": "Adopt three design pillars",
@@ -364,9 +368,11 @@
         "data": "None."
       },
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "yes to 1 and 2 (2 = approve DEC-015 and DEC-016)",
+        "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reviewTrigger": "If playtests show players value something the pillars exclude."
     },
     {
@@ -374,7 +380,8 @@
       "cost": "RM0",
       "reports": [
         "REP-010",
-        "REP-011"
+        "REP-011",
+        "REP-013"
       ],
       "id": "DEC-016",
       "title": "First creative test: reveal-comprehension playtest",
@@ -387,7 +394,9 @@
         "data": "Notes only; no personal data kept."
       },
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "yes to 1 and 2 (2 = approve DEC-015 and DEC-016)",
+        "date": "2026-10-26"
       },
       "delivery": "not started",
       "reviewTrigger": "After the first playtest round."
@@ -577,6 +586,10 @@
     {
       "at": "2026-10-26 22:48",
       "text": "REP-012: PLAN-006 verified (N1 to N5 PASS) on workflow/plan-006. Waits off main until 1.1.1 is live; then ships as 1.1.2."
+    },
+    {
+      "at": "2026-10-26 22:56",
+      "text": "Owner: \"yes to 1 and 2\". DEC-013 (publish 1.1.1) approved; the owner runs Deploy. The owner's own preview playtest result was not reported (recorded as NOT RUN). DEC-015 (pillars) and DEC-016 (first playtest) approved. Recorded on workflow/plan-006 so main stays on the 1.1.1 candidate."
     }
   ]
 }

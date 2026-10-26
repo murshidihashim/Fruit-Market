@@ -11,9 +11,9 @@ Creative approval never means implementation approval; changes to the game go th
   harbour that trades with everywhere explains why apples, mangoes, blueberries and watermelons sit side by side.
 - **Money** is plain market dollars ($), the same for every visitor, not a real-world currency.
 - **Rivals** are a cast of animal traders with friendly nicknames (Foxy Rosa, Big Benny, Uncle Toad,
-  Rocky, Pinky). Their personality shows in their lines, not in how they play (cosmetic).
+  Rocky, Pinky, Patches). Their personality shows in their lines, not in how they play (cosmetic).
 
-## Design pillars (proposed, DEC-015: awaiting approval)
+## Design pillars (owner approved, DEC-015)
 1. **Fresh fruit, fast money:** every decision is a race against spoilage.
 2. **Outprice rivals in secret:** commit a price blind, then see the reveal.
 3. **A cheerful town market:** playful, short sessions, readable on a phone.
