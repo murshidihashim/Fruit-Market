@@ -1,0 +1,75 @@
+{
+  "id": "PLAN-005",
+  "title": "4-player clarity: make it obvious that up to 4 people can play",
+  "problem": "The owner couldn't find how to play with 4 people. Online, the lobby says 'Invite a friend', shows one empty row ('Waiting for a friend to join') and a small grey '1/4'. On the same phone, 4 people means picking 3 rival shops and switching each to Friend, which nothing explains. 4-person online rooms work (checked 2026-10-26: four joined and played, a fifth was refused 'This room is full').",
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-007"
+  ],
+  "decisions": [
+    "DEC-012"
+  ],
+  "scope": [
+    "Online lobby: heading 'Invite friends (up to 3)'; a clear 'Players 1 of 4' count; one row per open seat ('Open seat: send the link'); when full, 'Room full: start when everyone is ready'",
+    "Home screen: a small line under 'Play a friend': '2 to 4 players online'",
+    "Quick match screen: one line 'Quick match is always 2 players. For 3 or 4, use Play a friend.'",
+    "New game screen: a line under 'Rival shops': 'Up to 4 shops. Pick Friend to pass this phone around.' and a total like '4 shops: you, 2 friends, 1 computer'",
+    "Automated 4-person online test added to the browser suite"
+  ],
+  "exclusions": [
+    "Rules, balance, the 4-player limit, quick match size",
+    "Server or message changes",
+    "Button labels used to navigate (kept so links and tests keep working)",
+    "Publishing"
+  ],
+  "acceptance": [
+    {
+      "id": "C1",
+      "text": "Lobby shows 'Players N of 4' and one open-seat row per free seat; numbers update as people join and when computer shops are added",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "C2",
+      "text": "With 4 people, no open seats remain and the lobby says the room is full",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "C3",
+      "text": "A new browser test: 4 people join one room, all see the game, a 5th is refused",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "C4",
+      "text": "Home, quick match and new game screens show the new lines on a 360 px wide phone without overflow (screenshots)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "C5",
+      "text": "Store screenshots change only where intended (home and lobby text)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "C6",
+      "text": "verify:full green in CI; no rules, server or save changes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

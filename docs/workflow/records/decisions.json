@@ -275,6 +275,29 @@
       ],
       "plan": "PLAN-004",
       "reviewTrigger": "If reconnect bugs slip through between releases."
+    },
+    {
+      "id": "DEC-012",
+      "title": "4-player clarity scope = PLAN-005 (screen text only)",
+      "question": "How should the game make 4-player play discoverable?",
+      "choice": "Clearer screen text and open-seat rows in the lobby, short hints on the home, quick-match and new-game screens, plus an automated 4-person test. No rule or server changes.",
+      "rationale": "4-player play already works; only discoverability is missing. Text changes are low risk and fast to verify.",
+      "impact": {
+        "player": "Groups of 3 or 4 can find how to play together.",
+        "technical": "src/ui/Online.tsx, src/ui/App.tsx, styles; one new browser test.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-007"
+      ],
+      "plan": "PLAN-005",
+      "reviewTrigger": "If playtesters still miss how to invite more than one friend."
     }
   ],
   "history": [
@@ -337,6 +360,10 @@
     {
       "at": "2026-10-26 15:34",
       "text": "REP-006: PLAN-004 verified (R1 to R6 PASS). The fix is on the preview; the live game is unchanged until a release is prepared and deployed."
+    },
+    {
+      "at": "2026-10-26 18:34",
+      "text": "Owner asked how to play with 4 people and requested a plan. Check: 4-person online room works locally (4 joined and played; a 5th refused). REP-007: PLAN-005 proposed; DEC-012 awaiting approval."
     }
   ]
 }

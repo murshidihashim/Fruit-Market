@@ -6,13 +6,14 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
 - **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
-- **Next options:** PREPARE RELEASE 1.1.1 (to give players the fix), or plan PLAN-003 (Package C).
+- **Proposed:** PLAN-005, 4-player clarity (REP-007), awaiting approval. Could ship together with the reconnect fix as 1.1.1.
+- **Then:** PREPARE RELEASE 1.1.1, and plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
 |---|---|---|
 | Live | https://fruit-market.murshidi-hashim.workers.dev | `c915e49` (deployed 2026-10-26 by the old auto-deploy) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | Latest green `main` (`a7fa577` at 14:08); updated by CI after each green push |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `cc27848` (includes the reconnect fix); updated by CI after each green push |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
@@ -46,5 +47,7 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-001: Adopt the personal workflow guide 1.2 for Fruit Market (proposed)
 - DEC-004: PDF exports with pandoc and the existing Playwright browser (proposed)
 - DEC-005: Budget interpretation: RM500 per month across all games (proposed)
+- DEC-012: 4-player clarity scope = PLAN-005 (screen text only) (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
+- PLAN-005: 4-player clarity: make it obvious that up to 4 people can play (awaiting approval)
 <!-- records:pending:end -->
