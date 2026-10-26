@@ -590,6 +590,10 @@
     {
       "at": "2026-10-26 22:56",
       "text": "Owner: \"yes to 1 and 2\". DEC-013 (publish 1.1.1) approved; the owner runs Deploy. The owner's own preview playtest result was not reported (recorded as NOT RUN). DEC-015 (pillars) and DEC-016 (first playtest) approved. Recorded on workflow/plan-006 so main stays on the 1.1.1 candidate."
+    },
+    {
+      "at": "2026-10-26 22:57",
+      "text": "Correction: the REP-013 header time (22:58) was an estimate; the report was written at 22:56. The report is left as written."
     }
   ]
 }
