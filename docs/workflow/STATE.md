@@ -4,36 +4,38 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
-- **Active package:** none. PLAN-001 (Package A) is verified (REP-002). PLAN-002 (Package B) is proposed in REP-003 and awaiting approval.
-- **After that:** PLAN-003 (Package C: real devices, backups, crash recovery, capacity, costs). Not planned in detail.
+- **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
+- **Recommended next:** fix the intermittent "game screen doesn't come back after rejoining" issue
+  (REP-004, known issue), then PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
 |---|---|---|
 | Live | https://fruit-market.murshidi-hashim.workers.dev | `c915e49` (deployed 2026-10-26 by the old auto-deploy) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `2e4b240` (version adf6c304); updated by CI after each green push to `main` |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | Latest green `main` (`a7fa577` at 14:08); updated by CI after each green push |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
 ## Checks
-- `npm run verify`: lint, types, 63 unit tests, build (about 7 s locally).
+- `npm run verify`: records check, lint, types, 63 unit tests, build (about 8 s locally).
+- `npm run records`: regenerate the register, changelog, this file's pending block and the PDFs.
 - `npm run verify:full`: plus browser tests (about 15 min). CI runs this on every push and pull request.
 - Readiness: build-ready PASS; play-ready needs the owner's preview playtest; online-ready mostly
   PASS (crash recovery NOT RUN); release-ready not claimed (real devices, backups NOT RUN).
 
 ## Open items and known issues
-- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); approve or revise PLAN-002.
+- Owner to-dos: playtest the preview (OWNER-BRIEF §2, acceptance A4); decide the pending items in the generated block below.
 - Branch protection: instructions in `OWNER-BRIEF.md` §5. Not yet confirmed active.
 - Owner questions not yet answered: which real phones are available; Cloudflare plan (Free or Paid)
   and any other paid accounts. DEC-005 stays an assumption until then.
 - Pre-existing: game-screen open time is noisy (217–489 ms locally; CI limit 600 ms with one retry).
-  Quick match failed once in CI on 2026-10-26 and passed on the rerun; the test now saves both
-  players' screens if it fails again.
+- Known issue (pre-existing, intermittent, 2 of 5 CI runs): after rejoining an online room (quick
+  match, or a page reload mid-match) the game screen sometimes doesn't appear. Cause unknown.
 - Telemetry and leaderboard data on the live server have no backup (Package C).
 
 ## Approvals
-- PLAN-001: approved by the owner on 2026-10-26 ("Approve PLAN-001 only, including its listed tests
-  and documentation"). Publication of the live game: **not approved**, not performed.
+- PLAN-001 and PLAN-002 approved by the owner on 2026-10-26 (exact words in `records/`).
+  Publication of the live game: **not approved**, not performed.
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we

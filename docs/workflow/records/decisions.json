@@ -164,9 +164,10 @@
         "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "in progress",
+      "delivery": "verified",
       "reports": [
-        "REP-003"
+        "REP-003",
+        "REP-004"
       ],
       "plan": "PLAN-002",
       "reviewTrigger": "If keeping records costs more than it saves."
@@ -189,9 +190,10 @@
         "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "in progress",
+      "delivery": "verified",
       "reports": [
-        "REP-003"
+        "REP-003",
+        "REP-004"
       ],
       "plan": "PLAN-002",
       "reviewTrigger": "If hand edits to JSON become a frequent source of errors."
@@ -214,9 +216,10 @@
         "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
         "date": "2026-10-26"
       },
-      "delivery": "in progress",
+      "delivery": "verified",
       "reports": [
-        "REP-003"
+        "REP-003",
+        "REP-004"
       ],
       "plan": "PLAN-002",
       "reviewTrigger": "If the check blocks urgent fixes for record reasons."
@@ -254,6 +257,14 @@
     {
       "at": "2026-10-26 13:52",
       "text": "PLAN-002 implemented on workflow/plan-002: records migrated; B1, B2, B3, B5 and B7 PASS; B4 and B6 pending."
+    },
+    {
+      "at": "2026-10-26 14:09",
+      "text": "PLAN-002 verified: B1 to B7 PASS (CI run 40276699547 on a7fa577). DEC-007, DEC-008 and DEC-009 delivered."
+    },
+    {
+      "at": "2026-10-26 14:09",
+      "text": "Known issue found: CI run 40275680793 (docs-only commit 63c3682) failed because the online test's page reload did not show the game within 20 s. Same symptom as the quick-match failure in CI run 1. Pre-existing and intermittent (2 of 5 CI runs); not part of PLAN-002. Proposed as the next package in REP-004."
     }
   ]
 }

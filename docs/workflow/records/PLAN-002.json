@@ -7,11 +7,12 @@
     "evidence": "Approve PLAN-002 only, including its listed tests and documentation",
     "date": "2026-10-26"
   },
-  "delivery": "implemented",
+  "delivery": "verified",
   "release": "unreleased",
-  "build": "",
+  "build": "a7fa577",
   "reports": [
-    "REP-003"
+    "REP-003",
+    "REP-004"
   ],
   "decisions": [
     "DEC-007",
@@ -53,8 +54,8 @@
     {
       "id": "B4",
       "text": "The cumulative PDF opens with pending approvals and current decisions, then REP-001 to REP-003",
-      "result": "NOT RUN",
-      "evidence": "Checked after the final export"
+      "result": "PASS",
+      "evidence": "Cumulative PDF (16 pages): pending approvals, current decisions, packages, details, history, then REP-001, REP-002, REP-003 in order"
     },
     {
       "id": "B5",
@@ -65,8 +66,8 @@
     {
       "id": "B6",
       "text": "verify and CI run records:check and stay green",
-      "result": "NOT RUN",
-      "evidence": "Waiting for CI on main"
+      "result": "PASS",
+      "evidence": "CI run 40276699547 on a7fa577: \"RECORDS OK \u2026 history checked against 63c3682\", then the full suite green; preview updated"
     },
     {
       "id": "B7",
