@@ -6,13 +6,15 @@
     "REP-015",
     "REP-016",
     "REP-017",
-    "REP-018"
+    "REP-018",
+    "REP-019"
   ],
   "decisions": [
     "DEC-020",
     "DEC-021",
     "DEC-022",
-    "DEC-023"
+    "DEC-023",
+    "DEC-024"
   ],
   "changes": {
     "added": [],
@@ -70,6 +72,12 @@
       "text": "Cosy pixel revision: first toy-box layout, game's pixel art, owner's page edit kept",
       "result": "PASS",
       "evidence": "Republished https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB (version 10): six screens plus a shared pixel-sprite part built from src/ui/pixel.tsx data; Evening spacer kept; REP-018. Owner review pending"
+    },
+    {
+      "id": "M6",
+      "text": "Board-game layout: buying, pricing, reveal and evening on one shared market table",
+      "result": "PASS",
+      "evidence": "Republished https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB (version 12); scripts of all four screens parse; REP-019. Owner review pending"
     }
   ]
 }

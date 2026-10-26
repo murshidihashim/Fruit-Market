@@ -575,6 +575,31 @@
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "Owner review of the cosy pixel mockups; if confirmed, DEC-022's plum layer is superseded."
+    },
+    {
+      "id": "DEC-024",
+      "title": "Layout: one shared market table (board game, not menus)",
+      "question": "The cosy pixel mockups still felt like menus. How should the game screens be laid out?",
+      "choice": "Every game screen is the same market table, like the current game: customers queue along the street at the top, Foxy Rosa's and Patches' stalls flank the market in the middle, your stall sits at the bottom. Pricing seals boards on each stall; the reveal flips the boards on the stalls themselves, the winner's stall glows, coins fly to it and the customer walks over; at night the stalls light lanterns and the market is covered. Keeps DEC-023's pixel art, warm colours and smooth buttons.",
+      "rationale": "Owner: \"revamp the current UI/UX to match the cosiness of the previous UI/UX board layout\" and \"the one currently feels very menu based, instead of board game\". Seeing everyone at one table is what made the current game feel cosy.",
+      "impact": {
+        "player": "The game feels like a board game you sit at, with less clutter than today.",
+        "technical": "Reuses the current game's table structure; the build restyles it rather than replacing it.",
+        "data": "None. Rival boards stay sealed until the bell; whispers repeat only public information."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-019"
+      ],
+      "plan": "PLAN-008",
+      "reviewTrigger": "Owner review of the table mockups."
     }
   ],
   "history": [
@@ -717,6 +742,10 @@
     {
       "at": "2026-10-27 00:17",
       "text": "Owner: \"its still not enough, maybe balance the artstyle back to pixel art, the ui/ux here looks more polished but lacks the cosiness of how the previous board was set\", then \"no i meant the version before you tweaked here, that felt cosy\". Mockups rebuilt from the pre-cunning version (owner's Evening edit kept) with the game's pixel sprites and font and a light, warm sly touch; dark plum screens dropped. DEC-023 awaiting the owner's confirmation. REP-018."
+    },
+    {
+      "at": "2026-10-27 00:25",
+      "text": "Owner: \"revamp the current UI/UX to match the cosiness of the previous UI/UX board layout\" and \"the one currently feels very menu based, instead of board game\". Buying, pricing, reveal and evening mockups rebuilt around one shared market table (customers on the street, rival stalls either side of the market, your stall below), keeping the pixel art and warm frame. DEC-024 awaiting confirmation. REP-019."
     }
   ]
 }
