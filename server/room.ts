@@ -8,22 +8,33 @@
 //   no deck order and no random seed (which would reveal future customers and events).
 // - Every action carries an id (duplicates are ignored) and the state version it was made on
 //   (stale actions are rejected), so double taps and replays can't apply twice.
+// - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
+//   computer plays their seat (they can reconnect and take it back at any time).
 
-import { aiStep } from '../src/engine/ai';
+import { aiActFor, aiStep } from '../src/engine/ai';
+import { safeName } from './names';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import {
   activePlayer, applyAction, newGame, RuleError, submitBids, validateBids,
   type Action, type Bid, type GameState, type PlayerConfig,
 } from '../src/engine/game';
 import {
-  DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, NAME_MAX, RULES_VERSION, UPDATE_MSG,
+  DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, RULES_VERSION, UPDATE_MSG,
   type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
 export const ROOM_TTL_MS = 24 * 60 * 60 * 1000;
+/** How long a dropped player has to reconnect before a computer takes over their seat. */
+export const GRACE_MS = 75_000;
 const MAX_MSG = 16_000;
 
-export interface SeatData { name: string; avatar: string; token: string; ready: boolean; host: boolean }
+export interface SeatData {
+  name: string; avatar: string; token: string; ready: boolean; host: boolean;
+  /** When this player's connection dropped during a match (cleared when they come back). */
+  offlineSince?: number;
+  /** A computer is playing this seat because its player left. */
+  bot?: boolean;
+}
 
 export interface RoomData {
   code: string;
@@ -84,10 +95,7 @@ export function redact(g: GameState, seat: number): GameState {
   return v;
 }
 
-function clean(name: unknown, fallback: string): string {
-  const s = typeof name === 'string' ? name.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, NAME_MAX) : '';
-  return s || fallback;
-}
+const clean = safeName;
 
 export class Room {
   constructor(public d: RoomData, private io: RoomIO) {}
@@ -105,7 +113,6 @@ export class Room {
     if (!m || typeof m !== 'object' || typeof (m as { t?: unknown }).t !== 'string') return conn.send({ t: 'error', msg: 'Bad message' });
     if (m.t === 'ping') return conn.send({ t: 'pong' });
     this.d.lastActive = this.io.now();
-    this.io.setAlarm(this.d.lastActive + ROOM_TTL_MS);
     if (m.t === 'hello') this.hello(conn, m);
     else if (conn.seat === null) return conn.send({ t: 'error', msg: 'Say hello first' });
     else {
@@ -116,18 +123,77 @@ export class Room {
         else throw e;
       }
     }
+    this.schedule();
     await this.io.persist(this.d);
   }
 
-  closed(_conn: Conn): void {
+  /** A connection went away. In a match the seat starts its grace period; in a quick lobby it's freed. */
+  async closed(conn: Conn): Promise<void> {
+    const d = this.d;
+    const seat = conn.seat;
+    if (seat !== null && seat < d.seats.length && !this.online().has(seat)) {
+      if (d.status === 'playing' && d.seats[seat].offlineSince === undefined) d.seats[seat].offlineSince = this.io.now();
+      if (d.status === 'lobby' && d.quick) this.removeSeat(seat);
+    }
+    this.schedule();
     this.broadcast();
+    await this.io.persist(d);
   }
 
   async alarm(): Promise<void> {
     if (this.io.now() - this.d.lastActive >= ROOM_TTL_MS) {
       for (const c of this.io.conns()) c.close(4000, 'Room expired');
       await this.io.destroy();
-    } else this.io.setAlarm(this.d.lastActive + ROOM_TTL_MS);
+      return;
+    }
+    this.takeOverDropped();
+    this.schedule();
+    await this.io.persist(this.d);
+  }
+
+  /** One alarm per room: the next grace deadline or the expiry, whichever comes first. */
+  private schedule() {
+    const d = this.d;
+    let at = d.lastActive + ROOM_TTL_MS;
+    if (d.status === 'playing') {
+      for (const x of d.seats) if (x.offlineSince !== undefined && !x.bot) at = Math.min(at, x.offlineSince + GRACE_MS);
+    }
+    this.io.setAlarm(at);
+  }
+
+  private online(): Set<number> {
+    return new Set(this.io.conns().map((c) => c.seat).filter((x): x is number => x !== null));
+  }
+
+  /** Seats whose grace period has run out are handed to the computer, and the match moves on. */
+  private takeOverDropped() {
+    const d = this.d;
+    if (d.status !== 'playing') return;
+    const now = this.io.now();
+    let changed = false;
+    d.seats.forEach((x) => {
+      if (!x.bot && x.offlineSince !== undefined && now - x.offlineSince >= GRACE_MS) { x.bot = true; changed = true; }
+    });
+    if (!changed) return;
+    d.version++;
+    this.broadcast();
+    this.advance();
+  }
+
+  /** People whose vote or prices the match waits for: every seat a computer isn't playing. */
+  private needed(): number[] {
+    return this.d.seats.map((x, i) => (x.bot ? -1 : i)).filter((i) => i >= 0);
+  }
+
+  private removeSeat(seat: number) {
+    const d = this.d;
+    d.seats.splice(seat, 1);
+    d.seen.splice(seat, 1);
+    if (d.seats.length && !d.seats.some((x) => x.host)) d.seats[0].host = true;
+    for (const c of this.io.conns()) {
+      if (c.seat === seat) { this.io.setSeat(c, null); c.close(4002, 'Left'); }
+      else if (c.seat !== null && c.seat > seat) this.io.setSeat(c, c.seat - 1);
+    }
   }
 
   // ---------- lobby ----------
@@ -153,10 +219,18 @@ export class Room {
       }
     }
     this.io.setSeat(conn, seat);
+    // Back in time (or later): the seat is theirs again.
+    if (d.seats[seat].offlineSince !== undefined || d.seats[seat].bot) {
+      delete d.seats[seat].offlineSince;
+      delete d.seats[seat].bot;
+      d.version++;
+    }
     conn.send({ t: 'welcome', seat, token: d.seats[seat].token, code: d.code });
     if (d.quick && d.status === 'lobby') {
       d.seats.forEach((x) => { x.ready = true; });
-      if (d.seats.length >= 2) {
+      const online = this.online();
+      // Only start when both strangers are actually here.
+      if (d.seats.length >= 2 && d.seats.every((_, i) => online.has(i))) {
         d.config = { ...DEFAULT_CONFIG };
         d.aiNames = [];
         this.newMatch();
@@ -183,14 +257,17 @@ export class Room {
         return this.broadcast();
       }
       case 'leave': {
-        if (d.status !== 'lobby') return; // during a match a seat waits for its player
-        d.seats.splice(seat, 1);
-        d.seen.splice(seat, 1);
-        if (d.seats.length && !d.seats.some((s) => s.host)) d.seats[0].host = true;
-        for (const c of this.io.conns()) {
-          if (c.seat === seat) { this.io.setSeat(c, null); c.close(4002, 'Left'); }
-          else if (c.seat !== null && c.seat > seat) this.io.setSeat(c, c.seat - 1);
+        if (d.status === 'playing') {
+          // Leaving a match on purpose: a computer takes the seat straight away.
+          me.bot = true;
+          me.offlineSince ??= this.io.now();
+          d.version++;
+          this.broadcast();
+          this.advance();
+          return;
         }
+        if (d.status !== 'lobby') return;
+        this.removeSeat(seat);
         return this.broadcast();
       }
       case 'start': {
@@ -207,7 +284,7 @@ export class Room {
       case 'rematch': {
         if (d.status !== 'finished') return;
         if (!d.rematch.includes(seat)) d.rematch.push(seat);
-        if (d.rematch.length >= d.seats.length) this.newMatch();
+        if (this.needed().every((i) => d.rematch.includes(i))) this.newMatch();
         else this.broadcast();
         return;
       }
@@ -216,10 +293,7 @@ export class Room {
         if (d.status !== 'playing' || !g || (g.phase !== 'morning' && g.phase !== 'reveal')) return;
         if (m.v !== d.version) return; // already moved on
         if (!d.votes.includes(seat)) d.votes.push(seat);
-        if (d.votes.length >= d.seats.length) {
-          d.votes = [];
-          this.commit(applyAction(g, seat, { kind: g.phase === 'morning' ? 'begin' : 'finish' }));
-        } else this.broadcast();
+        if (!this.tryContinue()) this.broadcast();
         return;
       }
       case 'act':
@@ -283,6 +357,18 @@ export class Room {
     this.commit(next);
   }
 
+  /** Morning and after-sales screens move on once everyone still playing has pressed continue. */
+  private tryContinue(): boolean {
+    const d = this.d;
+    const g = d.game;
+    if (!g || (g.phase !== 'morning' && g.phase !== 'reveal')) return false;
+    const need = this.needed();
+    if (!need.length || !need.every((i) => d.votes.includes(i))) return false;
+    d.votes = [];
+    this.commit(applyAction(g, need[0], { kind: g.phase === 'morning' ? 'begin' : 'finish' }));
+    return true;
+  }
+
   private remember(seat: number, id: string) {
     const seen = this.d.seen[seat];
     seen.push(id);
@@ -299,6 +385,9 @@ export class Room {
   /** Runs computer turns and resolves prices once every human has locked theirs in. */
   private advance() {
     const d = this.d;
+    // If every person has left, freeze: nobody is watching and the room will expire.
+    if (!this.needed().length) return;
+    const isBot = (p: number) => p < d.seats.length && !!d.seats[p].bot;
     for (let guard = 0; guard < 500; guard++) {
       const g = d.game;
       if (!g) return;
@@ -308,8 +397,8 @@ export class Room {
       }
       if (g.phase === 'buy' || g.phase === 'evening') {
         const p = activePlayer(g);
-        if (p < 0 || g.players[p].kind !== 'ai') return;
-        const n = aiStep(g);
+        if (p < 0 || (g.players[p].kind !== 'ai' && !isBot(p))) return;
+        const n = isBot(p) ? aiActFor(g, p) : aiStep(g);
         if (!n) return;
         d.game = n;
         d.version++;
@@ -317,15 +406,14 @@ export class Room {
         continue;
       }
       if (g.phase === 'bid') {
-        const humans = g.players.map((pl, i) => (pl.kind === 'human' ? i : -1)).filter((i) => i >= 0);
+        const humans = g.players.map((pl, i) => (pl.kind === 'human' && !isBot(i) ? i : -1)).filter((i) => i >= 0);
         if (humans.some((i) => !d.pending[i])) return;
         let s = g;
         for (let k = 0; k < 20 && s.phase === 'bid'; k++) {
           const p = activePlayer(s);
-          if (s.players[p].kind === 'human') {
-            const pb = d.pending[p]!;
-            s = submitBids(s, p, pb.bids, pb.favoured);
-          } else s = aiStep(s)!;
+          const pb = d.pending[p];
+          if (s.players[p].kind === 'human' && pb) s = submitBids(s, p, pb.bids, pb.favoured);
+          else s = (s.players[p].kind === 'ai' ? aiStep(s) : aiActFor(s, p))!;
         }
         d.game = s;
         d.pending = s.players.map(() => null);
@@ -334,8 +422,15 @@ export class Room {
         this.broadcast();
         continue;
       }
-      return; // morning / reveal wait for everyone to continue
+      // Morning / after sales: wait for everyone still playing to continue.
+      if (!this.tryContinue()) return;
     }
+  }
+
+  /** A quick-match lobby with exactly one connected player in it. */
+  waitingForOpponent(): boolean {
+    const d = this.d;
+    return !!d.quick && d.status === 'lobby' && d.seats.length === 1 && this.online().has(0);
   }
 
   // ---------- views ----------
@@ -343,7 +438,11 @@ export class Room {
   view(seat: number): RoomView {
     const d = this.d;
     const online = new Set(this.io.conns().map((c) => c.seat));
-    const seats: PublicSeat[] = d.seats.map((s, i) => ({ seat: i, name: s.name, avatar: s.avatar, ready: s.ready, connected: online.has(i), host: s.host }));
+    const seats: PublicSeat[] = d.seats.map((s, i) => ({
+      seat: i, name: s.name, avatar: s.avatar, ready: s.ready, connected: online.has(i), host: s.host,
+      ...(s.offlineSince !== undefined && !online.has(i) ? { offlineSince: s.offlineSince, takeoverAt: s.offlineSince + GRACE_MS } : {}),
+      ...(s.bot ? { bot: true } : {}),
+    }));
     const g = d.game;
     const submitted = g
       ? g.players.map((pl, i) => (g.phase === 'bid' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))

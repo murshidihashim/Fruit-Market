@@ -39,6 +39,26 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 - `tests/room.test.ts`: full matches with and without computer rivals; secret prices never leaving the server; duplicate and stale actions rejected; reconnect by token, with a stranger holding only the code refused; full rooms; leaving the lobby; expiry; host-only start; rematch.
 - `scripts/e2e-online.cjs`: two independent browser profiles create a room, join by link, play a full match, refresh mid-game, check every network message for leaks, compare final results, and rematch.
 
+## When a player leaves
+
+A dropped player has **75 seconds** (`GRACE_MS` in `server/room.ts`) to reconnect. Everyone else sees a countdown. After that a computer plays their seat, so the match always finishes. The player can reconnect at any time and take the seat back. Leaving a match on purpose hands the seat over at once.
+
+Votes ("Open the market", "Close for the day", rematch) and secret prices wait only for seats a person is playing. A quick match only starts when both strangers are actually connected, and a stranger who gave up is never matched.
+
+## Abuse protection
+
+- **Rate limits** (per IP, per minute, Cloudflare rate-limiting bindings in `wrangler.jsonc`, logic in `server/limits.ts`):
+
+  | Endpoint | Limit |
+  |---|---|
+  | Create room and quick match | 10 |
+  | Daily submissions | 5 |
+  | Stats | 30 (extra stats requests are dropped quietly) |
+
+  Requests over the limit get HTTP 429.
+- **Names** (`server/names.ts`): cleaned, checked against a blocklist (look-alike spellings such as "Sh1t" included) and reserved names (rival names, "admin"…). Rejected names become "Player N" in rooms and "Shopkeeper xxxx" on the leaderboard.
+- **Leaderboard ownership:** each device makes a random secret key once. The server stores only its SHA-256 hash. A name belongs to the first device that used it that day, and each device has one entry. Daily submissions must also carry the current `RULES_VERSION`; otherwise HTTP 409 and "please update".
+
 ## More online features
 
 - **Quick match:** `POST /api/quick` pairs two strangers. The first player waits in a fresh room for up to 90 seconds; the next player to search joins it and the match starts straight away (one `MatchDO` object holds the queue).
@@ -55,6 +75,6 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 ## Limits
 
 - Up to 4 seats per room (humans plus optional computer rivals).
-- A disconnected player is waited for; nobody is auto-forfeited.
+- A disconnected player gets 75 s to return, then a Normal-level computer plays for them until they reconnect.
 - No accounts or chat. Quick match pairs whoever is searching at the same moment, with no skill rating yet.
 - Stats and leaderboards each run in a single Durable Object, which is plenty for launch (hundreds of requests a second). Shard them by key if the game gets very big.

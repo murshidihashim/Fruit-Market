@@ -26,7 +26,7 @@ Each milestone is independently testable and ends with a release candidate.
 
 ---
 
-## M1 · Production safety (~1.5 weeks): **start here**
+## M1 · Production safety: ✅ done
 
 **Goal:** no stuck matches, no leaderboard abuse, telemetry that can answer "do players come back?".
 

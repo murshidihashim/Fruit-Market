@@ -3,7 +3,7 @@ import { planBids } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { activePlayer, canBuy } from '../src/engine/game';
 import { RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
-import { freshRoom, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
+import { freshRoom, GRACE_MS, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
   seat: number | null = null;
@@ -170,6 +170,81 @@ describe('online room', () => {
     await c.say({ t: 'act', id: 'stale-1', v, action: { kind: 'buy', ...target! } });
     expect(c.errors.slice(-1)[0]).toContain('moved on');
     expect(h.room.d.game!.players[p].boughtToday).toBe(1);
+  });
+
+  it('never starts a quick match with a player who already left', async () => {
+    const h = new Harness();
+    h.room = new Room(freshRoom('QUICK2', h.t, true), h);
+    const a = h.connect('A');
+    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'Gone', avatar: '🦸' });
+    a.close(); // gave up waiting
+    const b = h.connect('B');
+    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Here', avatar: '🐵' });
+    expect(b.view!.status).toBe('lobby');
+    expect(b.view!.seats.map((x) => x.name)).toEqual(['Here']);
+    expect(b.view!.seats[0].host).toBe(true);
+    expect(h.room.waitingForOpponent()).toBe(true);
+    const c = h.connect('C');
+    await c.say({ t: 'hello', rv: RULES_VERSION, name: 'New', avatar: '🦸' });
+    expect(c.view!.status).toBe('playing');
+  });
+
+  it('hands a dropped player\'s seat to a computer after the grace period, and the match finishes', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    b.close();
+    expect(a.view!.seats[1].connected).toBe(false);
+    expect(a.view!.seats[1].takeoverAt).toBe(h.t + GRACE_MS);
+    expect(h.alarmAt).toBeLessThanOrEqual(h.t + GRACE_MS);
+    // Before the grace period ends, the match still waits for B.
+    h.t += GRACE_MS - 1000;
+    await h.room.alarm();
+    expect(a.view!.seats[1].bot).toBeUndefined();
+    h.t += 2000;
+    await h.room.alarm();
+    expect(a.view!.seats[1].bot).toBe(true);
+    // A alone can now play the whole game to the end.
+    for (let i = 0; i < 3000 && a.view!.status !== 'finished'; i++) if (!(await botStep(a))) break;
+    expect(a.view!.status).toBe('finished');
+    expect(a.view!.game!.phase).toBe('over');
+  });
+
+  it('gives the seat back when the player reconnects', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    const token = b.token;
+    b.close();
+    h.t += GRACE_MS + 1;
+    await h.room.alarm();
+    expect(a.view!.seats[1].bot).toBe(true);
+    const b2 = h.connect('B2');
+    await b2.say({ t: 'hello', rv: RULES_VERSION, token, name: 'Friend', avatar: '👩‍🍳' });
+    expect(b2.seat).toBe(1);
+    expect(a.view!.seats[1].bot).toBeUndefined();
+    expect(a.view!.seats[1].connected).toBe(true);
+  });
+
+  it('moves on without votes from seats a computer is playing', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    expect(a.view!.game!.phase).toBe('morning');
+    await a.say({ t: 'continue', v: a.view!.version });
+    expect(a.view!.game!.phase).toBe('morning'); // still waiting for B, who is here
+    b.close();
+    h.t += GRACE_MS + 1;
+    await h.room.alarm();
+    expect(a.view!.game!.phase).not.toBe('morning');
+  });
+
+  it('a player who leaves a match on purpose is replaced at once', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    await b.say({ t: 'leave' });
+    expect(a.view!.seats[1].bot).toBe(true);
   });
 
   it('starts a quick-match room as soon as two strangers are in', async () => {

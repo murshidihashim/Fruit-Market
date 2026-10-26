@@ -19,7 +19,7 @@ import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 import { fx } from './fx';
 import { markSeen, tipFor } from './tutorial';
 import { checkAchievements, LEAGUE, recordLeague } from './progress';
-import { track } from '../net/telemetry';
+import { track, trackOnce } from '../net/telemetry';
 import { fetchDaily, shareText, submitDaily, type BoardResult } from '../net/daily';
 import { loadSettings } from './store';
 
@@ -76,10 +76,19 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Online: whose secret prices are still missing, and who still has to press continue.
   const myBidTurn = online ? s.phase === 'bid' && !!meta && !meta.submitted[viewer] : s.phase === 'bid' && activeHuman;
   const waitingFor = (idxs: number[]) => idxs.map((i) => s.players[i]?.name).filter(Boolean).join(' and ');
-  const humansMissingBids = online && meta ? humans.filter((i) => !meta.submitted[i]) : [];
+  // People the match is waiting on (a seat a computer is playing never holds things up).
+  const live = online && meta ? humans.filter((i) => !meta.seats[i]?.bot) : humans;
+  const humansMissingBids = online && meta ? live.filter((i) => !meta.submitted[i]) : [];
   const votedMe = !!online && !!meta && meta.votes.includes(viewer);
-  const humansNotVoted = online && meta ? humans.filter((i) => !meta.votes.includes(i)) : [];
-  const offline = online && meta ? meta.seats.filter((x) => !x.connected) : [];
+  const humansNotVoted = online && meta ? live.filter((i) => !meta.votes.includes(i)) : [];
+  const offline = online && meta ? meta.seats.filter((x) => !x.connected || x.bot) : [];
+  // Ticks once a second while someone is disconnected, for the takeover countdown.
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    if (!offline.some((x) => x.takeoverAt && !x.bot)) return;
+    const t = window.setInterval(() => setNowTick(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [offline.map((x) => `${x.seat}:${x.takeoverAt}:${x.bot}`).join()]);
 
   useEffect(() => {
     A.setLayer(layerRef.current);
@@ -402,12 +411,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   };
 
   // Anonymous funnel counters: how far games get, and how they end.
-  useEffect(() => { if (s.phase !== 'over') track('day_reached', s.day); }, [s.day]);
-  useEffect(() => { if (online) track('game_start', 'online'); }, []);
+  // Counted once per game even if the game is resumed or the online view reconnects.
+  const gameKey = `${s.config.seed}-${s.config.daily ?? ''}`;
+  useEffect(() => { if (s.phase !== 'over') trackOnce(`${gameKey}:day:${s.day}`, 'day_reached', s.day); }, [s.day]);
+  useEffect(() => { if (online) trackOnce(`${gameKey}:start`, 'game_start', 'online'); }, []);
   useEffect(() => {
     if (s.phase !== 'over') return;
-    track('game_end', ranking(s)[0] === viewer ? 'win' : 'lose');
-    track('final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
+    trackOnce(`${gameKey}:end`, 'game_end', ranking(s)[0] === viewer ? 'win' : 'lose');
+    trackOnce(`${gameKey}:cash`, 'final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
+    trackOnce('first_game_complete', 'first_game_complete');
   }, [s.phase]);
 
   if (needHandoff) {
@@ -477,7 +489,13 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         </div>
       )}
       {online && conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
-      {online && conn === 'open' && offline.length > 0 && <div class="net-strip">{offline.map((x) => x.name).join(' and ')} {offline.length > 1 ? 'are' : 'is'} offline. The game will wait.</div>}
+      {online && conn === 'open' && offline.map((x) => (
+        <div class="net-strip">
+          {x.bot ? `A computer is playing for ${x.name} until they come back.`
+            : x.takeoverAt ? `${x.name} disconnected. A computer takes over in ${Math.max(0, Math.ceil((x.takeoverAt - nowTick) / 1000))}s.`
+            : `${x.name} is offline.`}
+        </div>
+      ))}
 
       <div class={`play ${tray ? 'has-tray' : ''}`}>
         <div class="table">

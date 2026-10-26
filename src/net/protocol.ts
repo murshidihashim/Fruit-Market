@@ -14,7 +14,15 @@ export const DEFAULT_CONFIG: RoomConfig = { days: 10, ai: 0, unripe: true, upgra
 
 export type RoomStatus = 'lobby' | 'playing' | 'finished';
 
-export interface PublicSeat { seat: number; name: string; avatar: string; ready: boolean; connected: boolean; host: boolean }
+export interface PublicSeat {
+  seat: number; name: string; avatar: string; ready: boolean; connected: boolean; host: boolean;
+  /** Set while this player is disconnected during a match. */
+  offlineSince?: number;
+  /** When a computer takes over this seat if the player hasn't come back. */
+  takeoverAt?: number;
+  /** A computer is currently playing for this player. */
+  bot?: boolean;
+}
 
 /** What one browser receives. `game` is that player's own filtered view. */
 export interface RoomView {

@@ -1,6 +1,20 @@
 // Daily challenge leaderboard: submit a finished daily (the server replays it) and read the top scores.
 import type { GameState } from '../engine/game';
 import { serverBase } from './client';
+import { RULES_VERSION } from './protocol';
+
+/** A random secret made once per device. Its hash proves a leaderboard name belongs to this device. */
+export function deviceClaim(): string {
+  try {
+    const old = localStorage.getItem('fm.claim');
+    if (old && /^[0-9a-f]{32}$/.test(old)) return old;
+    const fresh = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+    localStorage.setItem('fm.claim', fresh);
+    return fresh;
+  } catch {
+    return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+  }
+}
 
 export interface BoardEntry { name: string; cash: number; sold: number }
 export interface BoardResult { rank?: number; top: BoardEntry[]; players?: number; error?: string }
@@ -12,7 +26,7 @@ export async function submitDaily(g: GameState): Promise<BoardResult> {
     const res = await fetch(`${serverBase()}/api/daily`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ date: g.config.daily, name: me.name, actions: g.moves ?? [] }),
+      body: JSON.stringify({ date: g.config.daily, name: me.name, actions: g.moves ?? [], rv: RULES_VERSION, claim: deviceClaim() }),
     });
     const body = (await res.json()) as BoardResult & { error?: string };
     return res.ok ? body : { top: [], error: body.error ?? 'Could not submit' };

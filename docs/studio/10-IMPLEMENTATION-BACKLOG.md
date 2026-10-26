@@ -11,7 +11,7 @@ Rules for every item:
 
 ---
 
-## M1 · Production safety
+## M1 · Production safety: ✅ done (B-01 to B-08 implemented and tested)
 
 ### B-01 · Grace period and computer takeover for players who leave (P0, M, risk: medium)
 - **Files:**

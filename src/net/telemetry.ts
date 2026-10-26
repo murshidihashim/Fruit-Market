@@ -3,6 +3,7 @@
 // Players can switch it off in Settings ("Share anonymous stats").
 import { loadSettings } from '../ui/store';
 import { serverBase } from './client';
+import { activeBucket, dayKey, daysBetween, isoWeek } from './cohort';
 
 const queue: string[] = [];
 const errors: string[] = [];
@@ -18,6 +19,36 @@ export function track(name: string, detail?: string | number) {
   queue.push(detail === undefined ? clean(name) : `${clean(name)}:${clean(String(detail))}`);
   if (queue.length >= 40) flush();
   else timer ??= setTimeout(flush, 20_000);
+}
+
+/** Counts an event only once per device for `key` (e.g. one "day 3 reached" per game, even after a resume). */
+export function trackOnce(key: string, name: string, detail?: string | number) {
+  if (!enabled()) return;
+  let sent: string[] = [];
+  try { sent = JSON.parse(localStorage.getItem('fm.sent') ?? '[]') as string[]; } catch { /* start fresh */ }
+  if (sent.includes(key)) return;
+  sent.push(key);
+  try { localStorage.setItem('fm.sent', JSON.stringify(sent.slice(-200))); } catch { /* ignore */ }
+  track(name, detail);
+}
+
+/**
+ * Install week once, then one "active" bucket per calendar day (d0 = install day).
+ * Players from before this version have no install date, so they report as "legacy".
+ */
+export function trackCohort(today = dayKey()) {
+  try {
+    let install = localStorage.getItem('fm.install');
+    if (!install) {
+      const veteran = localStorage.getItem('fm.stats') !== null || localStorage.getItem('fm.save') !== null;
+      install = veteran ? 'legacy' : today;
+      localStorage.setItem('fm.install', install);
+      if (!veteran) track('install_week', isoWeek(today));
+    }
+    if (localStorage.getItem('fm.lastActive') === today) return;
+    localStorage.setItem('fm.lastActive', today);
+    track('active', install === 'legacy' ? 'legacy' : activeBucket(daysBetween(install, today)));
+  } catch { /* storage unavailable */ }
 }
 
 export function reportError(err: unknown) {
@@ -50,6 +81,8 @@ export function installTelemetry() {
   window.addEventListener('error', (e) => reportError(e.error ?? e.message));
   window.addEventListener('unhandledrejection', (e) => reportError(e.reason));
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(); });
+  window.addEventListener('pagehide', () => flush()); // closing or reloading the page
   const native = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
   track('app_open', native ? 'android' : 'web');
+  trackCohort();
 }

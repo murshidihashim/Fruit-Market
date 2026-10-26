@@ -7,9 +7,12 @@
 //   GET  /api/daily?date=  -> top scores      POST /api/daily -> verified submission
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
+// Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
 import { DurableObject } from 'cloudflare:workers';
 import { CODE_ALPHABET, CODE_LENGTH, RULES_VERSION, normaliseCode } from '../src/net/protocol';
-import { addEntry, cleanIngest, KEEP_DAYS, quickMatch, utcDay, verifyDaily, type DailyEntry, type QuickState } from './meta';
+import { addEntry, cleanIngest, KEEP_DAYS, ownerOf, publicBoard, quickMatch, utcDay, verifyDaily, type DailyEntry, type QuickState } from './meta';
+import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
+import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
 import { freshRoom, Room, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
 
@@ -20,6 +23,15 @@ interface Env {
   MATCH: DurableObjectNamespace<MatchDO>;
   ASSETS: Fetcher;
   STATS_KEY?: string;
+  RL_ROOMS?: Limiter;
+  RL_DAILY?: Limiter;
+  RL_EVENTS?: Limiter;
+}
+
+/** null when the request may go ahead, or a 429 response. */
+async function limited(req: Request, env: Env, route: LimitedRoute): Promise<Response | null> {
+  const ok = await allowed(env[ROUTE_LIMITER[route]], route, req.headers.get('CF-Connecting-IP'));
+  return ok ? null : json({ error: 'Too many requests. Wait a minute and try again.' }, 429);
 }
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type' };
@@ -57,15 +69,20 @@ export default {
     if (url.pathname === '/api/version') return json({ rules: RULES_VERSION });
     if (url.pathname === '/api/rooms') {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      const stop = await limited(req, env, 'rooms');
+      if (stop) return stop;
       const code = await newRoom(env);
       return code ? json({ code }) : json({ error: 'Could not create a room, try again' }, 503);
     }
     if (url.pathname === '/api/quick') {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      const stop = await limited(req, env, 'quick');
+      if (stop) return stop;
       return env.MATCH.get(env.MATCH.idFromName('global')).fetch('https://match/quick', { method: 'POST' });
     }
     if (url.pathname === '/api/t') {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      if (await limited(req, env, 't')) return new Response(null, { status: 204, headers: CORS }); // drop quietly
       try {
         const body = cleanIngest(await readBody(req));
         if (body.events.length || body.errors.length) {
@@ -81,6 +98,8 @@ export default {
     if (url.pathname === '/api/daily') {
       const date = req.method === 'POST' ? null : url.searchParams.get('date') ?? utcDay(Date.now());
       if (req.method === 'POST') {
+        const stop = await limited(req, env, 'daily');
+        if (stop) return stop;
         let body: unknown;
         try { body = await readBody(req); } catch (e) { return json({ error: (e as Error).message }, 400); }
         const d = (body as { date?: unknown }).date;
@@ -163,6 +182,11 @@ export class RoomDO extends DurableObject<Env> {
       return new Response('Created', { status: 201 });
     }
     if (!this.data) return new Response('Unknown room', { status: 404 });
+    if (url.pathname === '/status') {
+      // Used by quick match: is someone still sitting alone in this lobby, waiting for an opponent?
+      const room = this.room()!;
+      return json({ waiting: room.waitingForOpponent() });
+    }
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     this.ctx.acceptWebSocket(server);
@@ -180,7 +204,7 @@ export class RoomDO extends DurableObject<Env> {
   async webSocketClose(ws: WebSocket): Promise<void> {
     const att = ws.deserializeAttachment() as Attachment | null;
     if (att) ws.serializeAttachment({ ...att, closed: true });
-    this.room()?.closed(this.conn(ws));
+    await this.room()?.closed(this.conn(ws));
   }
 
   async webSocketError(ws: WebSocket): Promise<void> {
@@ -235,16 +259,19 @@ export class BoardDO extends DurableObject<Env> {
     const board = (await this.ctx.storage.get<DailyEntry[]>('board')) ?? [];
     if (url.pathname === '/submit') {
       try {
-        const { entry } = verifyDaily((await req.json()) as never, Date.now());
+        const body = (await req.json()) as { claim?: unknown };
+        const owner = await ownerOf(body.claim);
+        const { entry } = verifyDaily(body as never, Date.now(), owner);
         const next = addEntry(board, entry);
         await this.ctx.storage.put('board', next);
-        const rank = next.findIndex((x) => x.name === entry.name) + 1;
-        return json({ ok: true, rank, cash: entry.cash, top: next.slice(0, 20) });
+        const rank = next.findIndex((x) => x.owner === owner) + 1;
+        return json({ ok: true, rank, cash: entry.cash, name: entry.name, top: publicBoard(next.slice(0, 20)), players: next.length });
       } catch (e) {
-        return json({ error: e instanceof RuleError ? e.message : 'Could not check that game' }, 400);
+        const msg = e instanceof RuleError ? e.message : 'Could not check that game';
+        return json({ error: msg }, msg === UPDATE_MSG ? 409 : 400);
       }
     }
-    return json({ top: board.slice(0, 20), players: board.length });
+    return json({ top: publicBoard(board.slice(0, 20)), players: board.length });
   }
 }
 
@@ -258,6 +285,9 @@ export class MatchDO extends DurableObject<Env> {
         const code = await newRoom(this.env, true);
         if (!code) throw new Error('no room');
         return code;
+      }, async (code) => {
+        const res = await this.env.ROOMS.get(this.env.ROOMS.idFromName(code)).fetch('https://room/status');
+        return res.ok && ((await res.json()) as { waiting?: boolean }).waiting === true;
       });
       await this.ctx.storage.put('q', r.q);
       return json({ code: r.code, host: r.host });

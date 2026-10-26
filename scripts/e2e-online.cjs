@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
     const errors = [];
     page.on('pageerror', (e) => errors.push(`${tag}: ${e}`));
     page.on('websocket', (ws) => ws.on('framereceived', (f) => frames.push(typeof f.payload === 'string' ? f.payload : '')));
-    return { page, frames, errors, tag };
+    return { page, frames, errors, tag, ctx };
   };
   const A = await mk('A');
   const B = await mk('B');
@@ -104,6 +104,21 @@ const { chromium } = require('playwright');
     await B.page.click('text=/Rematch!|Defend your title/');
     await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
+
+    // B closes the app mid-match. A must see a countdown, then a computer takes B's seat and A can finish.
+    if (!process.env.E2E_SKIP_ABANDON) {
+      await B.ctx.close();
+      await A.page.waitForSelector('text=/takes over in/', { timeout: 15000 });
+      await shot(A, '07-takeover-countdown');
+      const until = Date.now() + 5 * 60 * 1000;
+      let finished = false, sawBot = false;
+      while (Date.now() < until) {
+        if (!sawBot && (await A.page.locator('text=/A computer is playing for/').count())) { sawBot = true; await shot(A, '08-computer-playing'); }
+        if ((await step(A).catch(() => 'err')) === 'done') { finished = true; break; }
+        await A.page.waitForTimeout(150);
+      }
+      console.log('abandoned match: computer took over:', sawBot, '| A finished alone:', finished);
+    }
   }
   console.log('page errors:', [...A.errors, ...B.errors]);
   await browser.close();

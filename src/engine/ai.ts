@@ -245,6 +245,16 @@ export function aiStep(s: GameState): GameState | null {
   if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
   const p = activePlayer(s);
   if (p < 0 || s.players[p].kind !== 'ai') return null;
+  return aiActFor(s, p);
+}
+
+/**
+ * One computer action for player `p` whatever kind of player they are. The online server uses it
+ * to play for someone who has left the match. Only acts when it really is `p`'s turn.
+ */
+export function aiActFor(s: GameState, p: number): GameState | null {
+  if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
+  if (activePlayer(s) !== p) return null;
   const pl = s.players[p];
   if (s.phase === 'buy') {
     const fav = buyPhaseFavour(s, p);

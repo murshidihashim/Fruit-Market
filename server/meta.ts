@@ -4,7 +4,8 @@
 import { aiStep } from '../src/engine/ai';
 import { applyAction, beginBuying, finishReveal, newGame, RuleError, type Action, type GameState } from '../src/engine/game';
 import { dailyConfig } from '../src/engine/daily';
-import { NAME_MAX } from '../src/net/protocol';
+import { RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
+import { safeName, squash } from './names';
 
 // ---------- usage counters ----------
 
@@ -31,14 +32,27 @@ export function utcDay(now: number): string {
 
 // ---------- daily leaderboard ----------
 
-export interface DailyEntry { name: string; cash: number; sold: number; at: number }
-export interface DailySubmit { date: string; name: string; actions: Action[] }
+/** `owner` is a hash of the submitting device's secret key: it proves a name belongs to one device. */
+export interface DailyEntry { name: string; cash: number; sold: number; at: number; owner?: string }
+export interface PublicEntry { name: string; cash: number; sold: number }
+export interface DailySubmit { date: string; name: string; actions: Action[]; rv?: number; claim?: string }
 export const MAX_ACTIONS = 400;
 export const BOARD_SIZE = 100;
+export const NAME_TAKEN = 'Someone else already uses that name on today\'s board. Change your name in Settings and try again.';
 
-function cleanName(raw: unknown): string {
-  const s = typeof raw === 'string' ? raw.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, NAME_MAX) : '';
-  return s || 'Anonymous';
+/** SHA-256 of the device's secret key, so the key itself is never stored. */
+export async function ownerOf(claim: unknown): Promise<string> {
+  if (typeof claim !== 'string' || !/^[0-9a-f]{32,64}$/.test(claim)) throw new RuleError(UPDATE_MSG);
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(claim));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** Names that look the same count as the same name ("Bob", "bob", "B0b"). */
+const nameKey = (n: string) => squash(n) || n.toLowerCase();
+
+/** The board as everyone may see it: no owner hashes. */
+export function publicBoard(board: DailyEntry[]): PublicEntry[] {
+  return board.map(({ name, cash, sold }) => ({ name, cash, sold }));
 }
 
 /** Daily keys a player could honestly be on right now (time zones run from UTC-12 to UTC+14). */
@@ -50,11 +64,13 @@ export function acceptableDates(now: number): string[] {
  * Replays a daily challenge from the player's own moves and returns the result.
  * Computer turns are re-run on the server, so a score can't be made up.
  */
-export function verifyDaily(sub: DailySubmit, now: number): { entry: DailyEntry; state: GameState } {
-  if (!sub || typeof sub.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(sub.date)) throw new RuleError('Bad date');
+export function verifyDaily(sub: DailySubmit, now: number, owner: string): { entry: DailyEntry; state: GameState } {
+  // Daily games are replayed with the server's rules, so they must have been played by the same rules.
+  if (!sub || sub.rv !== RULES_VERSION) throw new RuleError(UPDATE_MSG);
+  if (typeof sub.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(sub.date)) throw new RuleError('Bad date');
   if (!acceptableDates(now).includes(sub.date)) throw new RuleError('That daily challenge is closed');
   if (!Array.isArray(sub.actions) || sub.actions.length > MAX_ACTIONS) throw new RuleError('Bad moves');
-  const name = cleanName(sub.name);
+  const name = safeName(sub.name, `Shopkeeper ${owner.slice(0, 4)}`);
   let s = newGame(dailyConfig(sub.date, name));
   const me = s.players.findIndex((p) => p.kind === 'human');
   const moves = [...sub.actions];
@@ -75,25 +91,38 @@ export function verifyDaily(sub: DailySubmit, now: number): { entry: DailyEntry;
   }
   if (s.phase !== 'over') throw new RuleError('The game did not finish');
   const pl = s.players[me];
-  return { entry: { name, cash: pl.cash, sold: pl.stats.sold, at: now }, state: s };
+  return { entry: { name, cash: pl.cash, sold: pl.stats.sold, at: now, owner }, state: s };
 }
 
-/** Adds a verified score, keeping each name's best and the top BOARD_SIZE overall. */
+/**
+ * Adds a verified score. A name belongs to the first device that used it today; each device keeps
+ * one entry (its best score, under its latest name); the board keeps the top BOARD_SIZE.
+ */
 export function addEntry(board: DailyEntry[], e: DailyEntry): DailyEntry[] {
-  const others = board.filter((x) => x.name !== e.name);
-  const old = board.find((x) => x.name === e.name);
-  const best = old && (old.cash > e.cash || (old.cash === e.cash && old.sold >= e.sold)) ? old : e;
-  return [...others, best].sort((a, b) => b.cash - a.cash || b.sold - a.sold || a.at - b.at).slice(0, BOARD_SIZE);
+  const key = nameKey(e.name);
+  const holder = board.find((x) => nameKey(x.name) === key);
+  if (holder?.owner && holder.owner !== e.owner) throw new RuleError(NAME_TAKEN);
+  const mine = board.filter((x) => (e.owner && x.owner === e.owner) || nameKey(x.name) === key);
+  const others = board.filter((x) => !mine.includes(x));
+  const best = [e, ...mine].reduce((a, b) => (b.cash > a.cash || (b.cash === a.cash && b.sold > a.sold) ? b : a));
+  const entry = { ...best, name: e.name, owner: e.owner };
+  return [...others, entry].sort((a, b) => b.cash - a.cash || b.sold - a.sold || a.at - b.at).slice(0, BOARD_SIZE);
 }
 
 // ---------- quick match ----------
 
-export const QUICK_WAIT_MS = 90_000;
+export const QUICK_WAIT_MS = 10 * 60_000;
 export interface QuickState { code: string | null; since: number }
 
-/** Returns the room to join: someone's waiting room, or a new one (made by `create`) to wait in. */
-export async function quickMatch(q: QuickState, now: number, create: () => Promise<string>): Promise<{ code: string; host: boolean; q: QuickState }> {
-  if (q.code && now - q.since < QUICK_WAIT_MS) return { code: q.code, host: false, q: { code: null, since: 0 } };
+/**
+ * Returns the room to join: the last quick room if someone is still waiting in it, or a new room
+ * (made by `create`) to wait in. `waiting(code)` asks the room itself, so a player who gave up and
+ * closed the app is never matched.
+ */
+export async function quickMatch(
+  q: QuickState, now: number, create: () => Promise<string>, waiting: (code: string) => Promise<boolean>,
+): Promise<{ code: string; host: boolean; q: QuickState }> {
+  if (q.code && now - q.since < QUICK_WAIT_MS && (await waiting(q.code))) return { code: q.code, host: false, q };
   const code = await create();
   return { code, host: true, q: { code, since: now } };
 }
