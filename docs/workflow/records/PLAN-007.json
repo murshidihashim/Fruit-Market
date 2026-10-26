@@ -71,5 +71,6 @@
       "result": "NOT RUN",
       "evidence": ""
     }
-  ]
+  ],
+  "supersededBy": "PLAN-011"
 }
