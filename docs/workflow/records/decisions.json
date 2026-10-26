@@ -323,6 +323,72 @@
         "REP-009"
       ],
       "reviewTrigger": "If the preview playtest finds a problem, or the post-deploy smoke test fails."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-010"
+      ],
+      "id": "DEC-014",
+      "title": "Use the Concept and Theme Companion for creative work",
+      "question": "Should Fruit Market's creative decisions follow the Game Concept and Theme Companion (edition 1.0) alongside the development workflow?",
+      "choice": "Yes, with one shared record system (same reports, register and PDFs); creative approval never implies implementation approval.",
+      "rationale": "Keeps creative and development decisions in one history and avoids a parallel register.",
+      "impact": {
+        "player": "None directly.",
+        "technical": "None; documentation process only.",
+        "data": "None."
+      },
+      "approval": {
+        "status": "proposed"
+      },
+      "delivery": "in progress",
+      "reviewTrigger": "If creative work starts needing its own package type."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-010"
+      ],
+      "id": "DEC-015",
+      "title": "Adopt three design pillars",
+      "question": "Which design pillars guide Fruit Market's creative choices?",
+      "choice": "1) Fresh fruit, fast money. 2) Outprice rivals in secret. 3) A cheerful town market. Each with inclusion and exclusion rules (REP-010 section 3).",
+      "rationale": "Derived from the actual rules and the strongest theme-to-mechanic matches found in the review.",
+      "impact": {
+        "player": "Future features and content are judged against these.",
+        "technical": "None now.",
+        "data": "None."
+      },
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reviewTrigger": "If playtests show players value something the pillars exclude."
+    },
+    {
+      "owner": "Murshidi",
+      "cost": "RM0",
+      "reports": [
+        "REP-010"
+      ],
+      "id": "DEC-016",
+      "title": "First creative test: reveal-comprehension playtest",
+      "question": "What is the smallest useful test of the riskiest creative hypothesis?",
+      "choice": "3 to 5 first-time players, Quick game vs 1 computer shop, no coaching; continue if at least 3 of 4 can explain a lost sale by day 3 (provisional, owner-set). No code.",
+      "rationale": "Pillar 2 depends on players understanding why they won or lost a sale; no player evidence exists yet.",
+      "impact": {
+        "player": "Testers play the existing game.",
+        "technical": "None.",
+        "data": "Notes only; no personal data kept."
+      },
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reviewTrigger": "After the first playtest round."
     }
   ],
   "history": [
@@ -413,6 +479,10 @@
     {
       "at": "2026-10-26 20:27",
       "text": "CI run 13 (f472186, records-only commit) was cancelled: the browser download took 16 minutes, so the job hit its 20-minute limit. Not a code failure. Limit raised to 35 minutes in the 1.1.1 release commit."
+    },
+    {
+      "at": "2026-10-26 21:47",
+      "text": "Owner asked to apply the Game Concept and Theme Companion. REP-010: theme review (no changes made); DEC-014 proposed; DEC-015 (pillars) and DEC-016 (first playtest) awaiting approval. Open questions: setting identity, renaming Panda Lim, availability of 3 to 5 testers."
     }
   ]
 }
