@@ -305,7 +305,7 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     fullPrice: ['Top dollar! Honey money!', 'Ka-ching, full price!'],
     stung: ['Grrr! By one dollar?!', 'I want a recount.', 'Paws off my customers!'],
     lost: ['Hibernating on that one.', 'Oof. Too pricey.'] } },
-  { name: 'Panda Lim', avatar: '🐼', quip: 'Bamboo-zled you!', lines: {
+  { name: 'Patches', avatar: '🐼', quip: 'Bamboo-zled you!', lines: {
     undercut: ['Bamboo-zled you!', 'Calm and cheap wins.', 'Patience pays.'],
     fullPrice: ['Full price, very zen.', 'A fair price, gladly paid.'],
     stung: ['So close... breathe.', 'You were quicker today.', 'Hmm. Well played.'],

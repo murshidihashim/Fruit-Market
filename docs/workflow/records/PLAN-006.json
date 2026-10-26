@@ -3,9 +3,11 @@
   "title": "Rename the panda rival (cosmetic, within the animal-trader cast)",
   "problem": "'Panda Lim' pairs a Chinese surname with a panda, which may read as an ethnic association. The owner agreed to rename it while keeping the cast coherent.",
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "Approve PLAN-006 only, including its listed tests and documentation, name: Patches",
+    "date": "2026-10-26"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "",
   "reports": [
@@ -31,39 +33,45 @@
     {
       "id": "N1",
       "text": "New solo games, daily challenges and online rooms show the new name",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rename.test.ts: the panda rival is \"Patches\"; no \"Panda Lim\" in the rival list; the daily challenge lineup includes Patches. Online rooms draw names from the same list"
     },
     {
       "id": "N2",
       "text": "A saved game from before the rename loads, still shows 'Panda Lim', and the panda's lines still appear (test)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rename.test.ts: a game saved with \"Panda Lim\" loads unchanged and keeps the old name; the panda's undercut line is still chosen (lines are matched by picture)"
     },
     {
       "id": "N3",
       "text": "Daily-challenge verification gives the same score for the same moves (test)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rename.test.ts: the same daily challenge played with either name ends with identical cash and sales for every shop"
     },
     {
       "id": "N4",
       "text": "Both 'Panda Lim' and the new name are refused as player names (test)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rename.test.ts: \"Patches\", \"Panda Lim\" and \"panda lim\" are refused as player names"
     },
     {
       "id": "N5",
       "text": "verify:full green in CI; no rule, save-format or server-logic changes",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Waiting for CI"
     }
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Tests for the rename (tests/rename.test.ts)"
+    ],
+    "changed": [
+      "The panda rival is now called Patches; old name kept reserved"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "The panda trader is now called Patches"
+  ]
 }

@@ -143,7 +143,7 @@ Tested with `npm run balance` (400 computer games per test). Compared with the o
 
 ## Daily challenge
 
-Everyone in the world plays the same shuffled decks each day: you against Foxy Rosa (Normal), Big Benny (Hard) and Panda Lim (Normal) over 10 days. Your best score for the day and your streak are saved on your phone.
+Everyone in the world plays the same shuffled decks each day: you against Foxy Rosa (Normal), Big Benny (Hard) and Patches (Normal) over 10 days. Your best score for the day and your streak are saved on your phone.
 
 ## What changed from the paper draft
 

@@ -9,8 +9,11 @@ const BLOCKED_ANYWHERE = ['fuck', 'shit', 'cunt', 'nigg', 'whore', 'slut', 'porn
 /** Words blocked only on their own, because they hide inside innocent names (grape, peacock, Nazir). */
 const BLOCKED_WORDS = ['dick', 'cock', 'rape', 'nazi', 'fag', 'pussy', 'bastard', 'kys', 'sex', 'penis', 'anal'];
 
+/** Former rival names, still shown in games saved before a rename (PLAN-006). */
+const FORMER_RIVALS = ['Panda Lim'];
+
 /** Names that would impersonate the game or its computer rivals. */
-const RESERVED = ['admin', 'moderator', 'mod', 'official', 'fruitmarket', 'system', ...RIVALS.map((r) => r.name)];
+const RESERVED = ['admin', 'moderator', 'mod', 'official', 'fruitmarket', 'system', ...RIVALS.map((r) => r.name), ...FORMER_RIVALS];
 
 const LOOKALIKE: Record<string, string> = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b', '@': 'a', '$': 's', '!': 'i', '|': 'i' };
 

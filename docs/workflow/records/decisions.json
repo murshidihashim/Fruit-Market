@@ -437,7 +437,7 @@
         "evidence": "Rename Panda Lim? - sure, but dont run away from the general theme coherence",
         "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "plan": "PLAN-006",
       "reviewTrigger": "If the new name tests poorly with players."
     },
@@ -458,9 +458,11 @@
         "data": "None."
       },
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "Approve PLAN-006 only, including its listed tests and documentation, name: Patches",
+        "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "plan": "PLAN-006",
       "reviewTrigger": "If 1.1.1 is delayed for long."
     }
@@ -561,6 +563,14 @@
     {
       "at": "2026-10-26 22:14",
       "text": "Owner answers to REP-010: setting C approved (DEC-017); rename Panda Lim approved, keeping the cast coherent (DEC-018); 3 to 5 first-time testers are available. REP-011: creative bible written; PLAN-006 (rename) and DEC-019 awaiting approval. DEC-015 and DEC-016 still await explicit approval."
+    },
+    {
+      "at": "2026-10-26 22:17",
+      "text": "Owner: \"Approve PLAN-006 only, including its listed tests and documentation, name: Patches\". PLAN-006 and DEC-019 approved; new name Patches."
+    },
+    {
+      "at": "2026-10-26 22:18",
+      "text": "PLAN-006 implemented on workflow/plan-006: N1 to N4 PASS (5 new tests); N5 waiting for CI."
     }
   ]
 }

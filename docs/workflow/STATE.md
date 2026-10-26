@@ -54,7 +54,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-015: Adopt three design pillars (awaiting approval)
 - DEC-016: First creative test: reveal-comprehension playtest (awaiting approval)
-- DEC-019: Rename scope = PLAN-006, shipped in 1.1.2 (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
-- PLAN-006: Rename the panda rival (cosmetic, within the animal-trader cast) (awaiting approval)
 <!-- records:pending:end -->
