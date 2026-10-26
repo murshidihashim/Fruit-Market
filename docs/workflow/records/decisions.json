@@ -238,9 +238,11 @@
       "cost": "RM0 (GitHub Actions minutes are free for public repositories)",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
+        "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-005"
       ],
@@ -261,9 +263,11 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
+        "date": "2026-10-26"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-005"
       ],
@@ -315,6 +319,18 @@
     {
       "at": "2026-10-26 14:16",
       "text": "Owner: \"PLAN the reconnect fix\". REP-005: PLAN-004 proposed; DEC-010 and DEC-011 awaiting approval."
+    },
+    {
+      "at": "2026-10-26 14:18",
+      "text": "Owner: \"Approve PLAN-004 only, including its listed tests and documentation\". PLAN-004, DEC-010 and DEC-011 approved. (Time approximate: between the REP-005 commit at 14:17 and the first work commit at 14:27.)"
+    },
+    {
+      "at": "2026-10-26 14:53",
+      "text": "PLAN-004: root cause reproduced (lost first update after rejoining; 20 of 20 hidden-tab reloads stuck before the fix) and fixed in the client (9d9e911)."
+    },
+    {
+      "at": "2026-10-26 15:01",
+      "text": "PLAN-004: R1 to R5 PASS (165 hidden-tab cycles after the fix, 0 failed). R6 waiting for 3 CI runs."
     }
   ]
 }

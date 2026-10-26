@@ -2,12 +2,21 @@
   "id": "PLAN-004",
   "title": "Reconnect fix: the game screen sometimes doesn't return after rejoining an online room",
   "problem": "In 2 of 5 CI runs the game screen didn't appear after rejoining a room (after quick match in 15 s; after a page reload mid-match in 20 s), with no game-code change between runs. Players could hit this after a reload or a dropped connection. The tests keep no evidence when it happens.",
-  "approval": { "status": "awaiting approval" },
-  "delivery": "not started",
+  "approval": {
+    "status": "approved",
+    "evidence": "Approve PLAN-004 only, including its listed tests and documentation",
+    "date": "2026-10-26"
+  },
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "",
-  "reports": ["REP-005"],
-  "decisions": ["DEC-010", "DEC-011"],
+  "reports": [
+    "REP-005"
+  ],
+  "decisions": [
+    "DEC-010",
+    "DEC-011"
+  ],
   "scope": [
     "Step 1, evidence: on failure the online and quick-match tests save both players' screens, page text, browser console and received room messages; the local server log is kept as a CI artifact",
     "Step 2, reproduce: a reconnect stress test (npm run test:reconnect) that repeats reload, connection drop and quick-match cycles, with and without a 4x CPU slowdown, and records time-to-game for each cycle; runnable locally and through a manual CI workflow",
@@ -23,13 +32,56 @@
     "Longer timeouts or retries in tests as the 'fix'"
   ],
   "acceptance": [
-    { "id": "R1", "text": "npm run test:reconnect runs N cycles and prints per-cycle time-to-game, failures and the 95th percentile", "result": "NOT RUN", "evidence": "" },
-    { "id": "R2", "text": "Root cause named with evidence (log or message excerpt from a failing cycle), or NOT REPRODUCED after at least 300 cycles with the conditions tried listed", "result": "NOT RUN", "evidence": "" },
-    { "id": "R3", "text": "If reproduced: failure rate before the fix recorded; after the fix at least 100 slowed-down cycles with 0 failures", "result": "NOT RUN", "evidence": "" },
-    { "id": "R4", "text": "A forced failure in the online test produces the diagnostics files and the server log artifact", "result": "NOT RUN", "evidence": "" },
-    { "id": "R5", "text": "A regression test (unit or browser) that fails on the old code and passes on the fixed code", "result": "NOT RUN", "evidence": "" },
-    { "id": "R6", "text": "verify:full green on 3 consecutive CI runs; leak check stays 0; 63+ unit tests green; no rules or save changes", "result": "NOT RUN", "evidence": "" }
+    {
+      "id": "R1",
+      "text": "npm run test:reconnect runs N cycles and prints per-cycle time-to-game, failures and the 95th percentile",
+      "result": "PASS",
+      "evidence": "npm run test:reconnect prints every cycle, failures, median, p95 and max; modes: CPU slowdown, hidden tab, preview target"
+    },
+    {
+      "id": "R2",
+      "text": "Root cause named with evidence (log or message excerpt from a failing cycle), or NOT REPRODUCED after at least 300 cycles with the conditions tried listed",
+      "result": "PASS",
+      "evidence": "Root cause: the online screen (useClient) and the game screen (useGameController) subscribed to the room client after the first paint, while the client was already connecting. If the room answered first, the update was lost. Evidence (reload, hidden tab): Ben received \"welcome seat=1\" and \"room v2 status=playing\" yet showed \"Connecting to room JFVQ4K\""
+    },
+    {
+      "id": "R3",
+      "text": "If reproduced: failure rate before the fix recorded; after the fix at least 100 slowed-down cycles with 0 failures",
+      "result": "PASS",
+      "evidence": "Before the fix: hidden-tab reloads 20 of 20 failed (all stuck on \"Connecting to room\"). After: 165 hidden-tab cycles, 0 failed, including 100 at 4x CPU slowdown (reload p95 590 ms, drop p95 626 ms, quick p95 1291 ms). Normal mode before the fix: 270 cycles, 0 failed"
+    },
+    {
+      "id": "R4",
+      "text": "A forced failure in the online test produces the diagnostics files and the server log artifact",
+      "result": "PASS",
+      "evidence": "Forced failure in the online test produced online-fail.txt (page text, room messages, console), screenshots of both players and server.log"
+    },
+    {
+      "id": "R5",
+      "text": "A regression test (unit or browser) that fails on the old code and passes on the fixed code",
+      "result": "PASS",
+      "evidence": "\"Rejoin from a background tab\" step in the e2e suite: fails on the old code (20 of 20 in the same mode), passes on the fixed code"
+    },
+    {
+      "id": "R6",
+      "text": "verify:full green on 3 consecutive CI runs; leak check stays 0; 63+ unit tests green; no rules or save changes",
+      "result": "NOT RUN",
+      "evidence": "Waiting for 3 consecutive CI runs on main"
+    }
   ],
-  "changes": { "added": [], "changed": [], "fixed": [], "removed": [] },
-  "playerNotes": []
+  "changes": {
+    "added": [
+      "Reconnect stress test (npm run test:reconnect) and a manual \"Reconnect stress\" workflow",
+      "Failure evidence for the online browser tests (screens, messages, console, server log)",
+      "Regression step: rejoin from a background tab"
+    ],
+    "changed": [],
+    "fixed": [
+      "After reloading or rejoining an online match, the screen could stay on \"Connecting to room\u2026\" even though the match was there; most likely in a background tab or on a slow phone"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room\u2026\", especially on slower phones or when the app was in the background"
+  ]
 }

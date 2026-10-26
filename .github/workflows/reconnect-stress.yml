@@ -21,6 +21,9 @@ on:
       throttle:
         description: 'CPU slowdown (1 = none, 4 = cheap phone)'
         default: '4'
+      hidden:
+        description: 'Simulate a background tab (1 = yes)'
+        default: '0'
 
 jobs:
   stress:
@@ -31,6 +34,7 @@ jobs:
       DROPS: ${{ inputs.drops }}
       QUICKS: ${{ inputs.quicks }}
       THROTTLE: ${{ inputs.throttle }}
+      HIDDEN: ${{ inputs.hidden == '1' && '1' || '' }}
       E2E_OUT: e2e-output
     steps:
       - uses: actions/checkout@v4
