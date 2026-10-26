@@ -1,6 +1,10 @@
 // Messages between browsers and the room server. Shared by both sides.
 import type { Action, GameState } from '../engine/game';
 
+/** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
+export const RULES_VERSION = 2;
+export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
+
 export const MAX_SEATS = 4;
 export const NAME_MAX = 14;
 export const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
@@ -27,10 +31,12 @@ export interface RoomView {
   /** Player indexes who pressed continue in the morning or after sales. */
   votes: number[];
   rematch: number[];
+  /** A quick-match room with a stranger: no lobby settings, it starts when two are in. */
+  quick?: boolean;
 }
 
 export type ClientMsg =
-  | { t: 'hello'; token?: string; name: string; avatar: string }
+  | { t: 'hello'; token?: string; name: string; avatar: string; rv?: number }
   | { t: 'ready'; ready: boolean }
   | { t: 'config'; config: RoomConfig }
   | { t: 'start' }
@@ -43,7 +49,7 @@ export type ClientMsg =
 export type ServerMsg =
   | RoomView
   | { t: 'welcome'; seat: number; token: string; code: string }
-  | { t: 'error'; msg: string; id?: string; fatal?: boolean }
+  | { t: 'error'; msg: string; id?: string; fatal?: boolean; update?: boolean }
   | { t: 'ack'; id: string }
   | { t: 'pong' };
 

@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
   const shot = (p, n) => p.page.screenshot({ path: `${out}/${n}.png` });
 
   await A.page.goto(base);
-  await A.page.click('text=Play online with a friend');
+  await A.page.click('text=Play a friend');
   await A.page.fill('#online-name', 'Murshidi');
   await A.page.click('text=Create room');
   await A.page.waitForSelector('#invite-link');

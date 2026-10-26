@@ -23,6 +23,8 @@ export interface GameConfig {
   seed: number;
   /** Date key (YYYY-MM-DD) when this is a daily challenge. */
   daily?: string;
+  /** Market League stage, when this game is part of the league. */
+  league?: number;
 }
 
 export interface Stats { sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number }
@@ -89,6 +91,8 @@ export interface GameState {
   history?: DayRecord[];
   /** Each shop's cash when the day began (for the day's net result). */
   dayStartCash?: number[];
+  /** The person's own moves in a daily challenge, so the server can replay the game to check the score. */
+  moves?: Action[];
   log: string[];
   nextId: number;
 }
@@ -720,7 +724,7 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
   pl.cash -= UPGRADES[u].cost;
   pl.stats.spent += UPGRADES[u].cost;
   pl.upgrades.push(u);
-  if (u === 'bell' && pl.favours.length < handLimit(pl)) pl.favours.push(drawFavour(s));
+  for (let k = 0; u === 'bell' && k < 2 && pl.favours.length < handLimit(pl); k++) pl.favours.push(drawFavour(s));
   s.log.push(`${pl.name} built a ${UPGRADES[u].title}`);
   return s;
 }

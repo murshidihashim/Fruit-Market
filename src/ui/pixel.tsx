@@ -221,6 +221,82 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['.RR.RR.', 'RWRRRRR', 'RRRRRRR', '.RRRRR.', '..RRR..', '...R...'],
     pal: { R: '#d6453b', W: '#f59aa0' },
   },
+  ev_festival: {
+    rows: ['K..........K', 'KRR......YYK', 'KRRR.GG.YYYK', 'KRR.GGG..YYK', 'K....GG....K', '.Y.....R..T.', '...T.......Y', '.R....Y..R..', '....T.....T.', '.Y...R.Y....'],
+    pal: { K: '#3b3048', R: '#c8553d', Y: '#e8b04b', G: '#3e8f8c', T: '#7d8c3a' },
+  },
+  ev_slow: {
+    rows: ['......K..K..', '......K..K..', '..BBBB.KKK..', '.BBWBBB.KK..', '.BWBBWB.KK..', '.BBWWBB.KK..', '.BBBBBB.KK..', 'GGGGGGGGGKK.', 'GGGGGGGGGGG.'],
+    pal: { K: '#3b3048', B: '#b07f27', W: '#e8b04b', G: '#9cca86' },
+  },
+  ev_heatwave: {
+    rows: ['R..R..R..R..', '.R..R..R..R.', '....OOOO....', '...OYYYYO...', '..OYYWYYYO..', '..OYYYYYYO..', '...OYYYYO...', '....OOOO....', 'R..R..R..R..'],
+    pal: { R: '#c8553d', O: '#f0a23a', Y: '#f2c14e', W: '#fff2c2' },
+  },
+  ev_rainy: {
+    rows: ['....WWWW....', '..WWWWWWWW..', '.WWLLWWWWWW.', 'WWWWWWWWWWWW', '.GGGGGGGGGG.', '............', '.B..B..B..B.', 'B..B..B..B..', '.B..B..B..B.'],
+    pal: { W: '#eadcbd', L: '#ffffff', G: '#a8a6bd', B: '#3e8f8c' },
+  },
+  ev_mangoCraze: {
+    rows: ['.Y......Y...', 'YWY..G...Y..', '.Y..GG......', '...OOOO.....', '..OYYYOO..Y.', '..OYWYYO.YWY', '..OYYYYO..Y.', '...OOOO.....', '............'],
+    pal: { Y: '#f2c14e', W: '#fff2c2', G: '#6aa84f', O: '#e0952a' },
+  },
+  ev_superfood: {
+    rows: ['.....GG.....', '....GGG..Y..', '..BBBGBB.YWY', '.BBWBBBBB.Y.', '.BWBBBBBB...', '.BBBBBBBB...', '..BBBBBB....', '...BBBB.....', '............'],
+    pal: { G: '#6aa84f', B: '#4f5bd5', W: '#8f98f0', Y: '#f2c14e' },
+  },
+  ev_goodHarvest: {
+    rows: ['..Y..Y..Y...', '.YYY.YYY.YY.', '..YY.YY.YY..', '...Y.YY.Y...', '....YYYY....', '.....GG.....', '....RRRR....', '.....GG.....', '....G..G....'],
+    pal: { Y: '#e8b04b', G: '#7d8c3a', R: '#c8553d' },
+  },
+  ev_badHarvest: {
+    rows: ['.......KK...', '......GGGK..', '.GG..GGWGK..', 'GGGGGGGGG...', 'GDGGDGGDG...', '.K.K.K.K....', '.....B......', '....BBB.....', '...BB.BB....'],
+    pal: { K: '#3b3048', G: '#6aa84f', W: '#ffffff', D: '#3f6b2a', B: '#7a4a2e' },
+  },
+  ev_priceHike: {
+    rows: ['.......RRRR.', '.........RR.', '........R.R.', '.......R..R.', '..R...R.....', '.R.R.R......', 'R...R.......', 'KKKKKKKKKKKK'],
+    pal: { R: '#c8553d', K: '#3b3048' },
+  },
+  ev_minPrice: {
+    rows: ['..YYYYYY....', '.YYYYYYYY...', 'YYWYKKYYYY..', 'YYYYKYYYYY..', 'YYYYKKYYYY..', '.YYYYYYYY...', '..YYYYYY....', 'KKKKKKKKKKK.', 'KKKKKKKKKKK.'],
+    pal: { Y: '#e8b04b', W: '#fff2c2', K: '#3b3048' },
+  },
+  ev_inspector: {
+    rows: ['..KKKK......', '.KLLLLK.....', 'KLWLLLLK....', 'KLLLLLLK....', 'KLLLLLLK....', '.KLLLLK.....', '..KKKKBB....', '......BBB...', '.......BBB..', '........BB..'],
+    pal: { K: '#3b3048', L: '#8fcac6', W: '#ffffff', B: '#7a4a2e' },
+  },
+  ev_strike: {
+    rows: ['...G.G......', '..G.G.......', 'RRRRRRR.WWW.', 'RWWRRWR.WBWW', 'RRRRRRRRWWWW', 'RRRRRRRRWWWW', '.KK....KK...', '.KK.........'],
+    pal: { G: '#a8a6bd', R: '#c8553d', W: '#f6ead2', B: '#3e8f8c', K: '#3b3048' },
+  },
+  ev_hotel: {
+    rows: ['.....YY.....', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTKKTWT..', '..TTTKKTTT..', 'KKKKKKKKKKKK'],
+    pal: { Y: '#e8b04b', T: '#3e8f8c', W: '#f6ead2', K: '#3b3048' },
+  },
+  fv_freeCash: {
+    rows: ['GGGGGGGGGGGG', 'GLLLLLLLLLLG', 'GLGGLYYLGGLG', 'GLGLYGGYLGLG', 'GLGGLYYLGGLG', 'GLLLLLLLLLLG', 'GGGGGGGGGGGG'],
+    pal: { G: '#3f7a3a', L: '#9cca86', Y: '#e8b04b' },
+  },
+  fv_freeFruit: {
+    rows: ['..R..R......', '...RR.......', 'RRRRYRRRRR..', 'RRRRYRRRRR..', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...'],
+    pal: { R: '#c8553d', Y: '#e8b04b', C: '#3e8f8c' },
+  },
+  fv_priority: {
+    rows: ['Y.....Y.....', 'YY....YY....', 'YYY...YYY...', 'YYYY..YYYY..', 'YYYYY.YYYYY.', 'YYYY..YYYY..', 'YYY...YYY...', 'YY....YY....', 'Y.....Y.....'],
+    pal: { Y: '#e8b04b' },
+  },
+  fv_goodRiddance: {
+    rows: ['...GGGG.....', '..G....G.G..', '.G......GG..', '.G.....GGG..', '..GGG.....G.', '..GG......G.', '..G.G....G..', '.....GGGG...'],
+    pal: { G: '#6aa84f' },
+  },
+  fv_favouredTrade: {
+    rows: ['............', '.SS......BB.', 'SSSS....BBBB', 'SSSSSSBBBBBB', '.SSSSSSBBBB.', '..SSSSSBBB..', '....SSBB....', '............'],
+    pal: { S: '#f0c09a', B: '#c98a55' },
+  },
+  fv_fridge: {
+    rows: ['TTTTTTTTTT', 'TLLLLLLLLT', 'TLLLLLLLLT', 'TTTTTTTTTT', 'TLLW..WLLT', 'TLL.WW.LLT', 'TLL.WW.LLT', 'TLLW..WLLT', 'TLLLLLLLLT', 'TTTTTTTTTT'],
+    pal: { T: '#2c6b69', L: '#8fcac6', W: '#ffffff' },
+  },
   juicer: {
     rows: ['..KKKKKK....', '..KMMMMK....', '...KMMK.....', '....KK......', '..GGGGGG....', '..GOOOOG....', '..GOOOOG.KK.', '..GOOOOGK..K', '..GGGGGG....'],
     pal: { K: '#3b3048', M: '#9aa0a6', G: '#f6ead2', O: '#f0a23a' },

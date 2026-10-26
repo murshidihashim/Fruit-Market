@@ -10,13 +10,17 @@ import {
 } from '../engine/game';
 import type { OnlineClient } from '../net/client';
 import type { RoomView } from '../net/protocol';
-import { Coin, Face, Fruit } from './art';
+import { Coin, EventIcon, Face, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { customerReaction, dayHighlights, explainLine, gameRecap, overnightLoss, rivalReaction, standing, type LineStory, type Reaction } from '../engine/story';
 import * as A from './anim';
-import { EveningPanel, InventorySheet, PricePanel, TRAIT_ICON } from './panel';
+import { EveningPanel, InventorySheet, PricePanel, TRAIT_ICON, UP_ICON } from './panel';
 import { Market, MyStall, PulseBar, RivalStall, Street, seats } from './table';
 import { fx } from './fx';
+import { markSeen, tipFor } from './tutorial';
+import { checkAchievements, LEAGUE, recordLeague } from './progress';
+import { track } from '../net/telemetry';
+import { fetchDaily, shareText, submitDaily, type BoardResult } from '../net/daily';
 import { loadSettings } from './store';
 
 interface Props {
@@ -49,6 +53,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const [tip, setTip] = useState<Customer | null>(null);
   const [eventInfo, setEventInfo] = useState(false);
   const [pulseInfo, setPulseInfo] = useState(false);
+  const [, setTipTick] = useState(0);
   const [show, setShow] = useState<ShowState | null>(null);
   const [lastNight, setLastNight] = useState(0);
   const turnStart = useRef<GameState | null>(null);
@@ -154,13 +159,13 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       const before = prev.players[i];
       if (pl.favours.length < before.favours.length) {
         const played = before.favours.find((id, k) => pl.favours[k] !== id) ?? before.favours[before.favours.length - 1];
-        const t = A.tag(`p${i}`, `${FAVOURS[played].icon} ${FAVOURS[played].title}!`, 'favour');
+        const t = A.tag(`p${i}`, `${FAVOURS[played].title}!`, 'favour');
         fx.card();
         jobs.push(A.wait(1100).then(() => t.remove()));
       }
       if (pl.upgrades.length > before.upgrades.length) {
         const u = pl.upgrades[pl.upgrades.length - 1];
-        const t = A.tag(`p${i}`, `${UPGRADES[u].icon} ${UPGRADES[u].title}`, 'upgrade');
+        const t = A.tag(`p${i}`, `Built: ${UPGRADES[u].title}`, 'upgrade');
         A.floatText(`p${i}-cash`, `−$${UPGRADES[u].cost}`, 'minus');
         fx.coin();
         jobs.push(A.wait(1100).then(() => t.remove()));
@@ -316,7 +321,13 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       return;
     }
     const who = seat ?? (a.kind === 'bids' ? activePlayer(sRef.current) : active);
-    attempt(() => applyAction(sRef.current, who, a));
+    attempt(() => {
+      const before = sRef.current;
+      const next = applyAction(before, who, a);
+      // Daily challenge: keep the person's moves so the leaderboard can verify the score.
+      if (before.config.daily && a.kind !== 'begin' && a.kind !== 'finish') next.moves = [...(before.moves ?? []), a];
+      return next;
+    });
   };
   const proceed = () => {
     if (busyRef.current) return;
@@ -390,6 +401,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     act({ kind: 'favour', idx });
   };
 
+  // Anonymous funnel counters: how far games get, and how they end.
+  useEffect(() => { if (s.phase !== 'over') track('day_reached', s.day); }, [s.day]);
+  useEffect(() => { if (online) track('game_start', 'online'); }, []);
+  useEffect(() => {
+    if (s.phase !== 'over') return;
+    track('game_end', ranking(s)[0] === viewer ? 'win' : 'lose');
+    track('final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
+  }, [s.phase]);
+
   if (needHandoff) {
     const pl = s.players[active];
     return (
@@ -409,7 +429,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
-          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} /></main>
+          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
       </div>
     );
   }
@@ -421,6 +441,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const picker = s.phase !== 'morning' || s.day !== 1 ? -1
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
+  const coach = online || busy ? null : tipFor(s, {
+    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: s.phase === 'bid' && myBidTurn,
+    picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
+  });
   const around = seats(s.players.length, viewer);
   const top = around.find((x) => x.side === 'top');
   const left = around.find((x) => x.side === 'left');
@@ -444,12 +468,12 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   })();
 
   return (
-    <div class={`game ${night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game ${night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => setMenu(true)} onEvent={() => setEventInfo(!eventInfo)} onRival={setRival} offline={offline.map((x) => x.seat)} />
       {eventInfo && (
         <div class="event-pop" onClick={() => setEventInfo(false)}>
-          {s.event ? <p><b>{s.event.icon} Today: {s.event.title}.</b> {s.event.text}</p> : <p><b>Today:</b> a calm day.</p>}
-          {s.nextEvent && <p><b>{s.nextEvent.icon} Tomorrow: {s.nextEvent.title}.</b> {s.nextEvent.text}</p>}
+          {s.event ? <p><b><EventIcon id={s.event.id} size={16} /> Today: {s.event.title}.</b> {s.event.text}</p> : <p><b>Today:</b> a calm day.</p>}
+          {s.nextEvent && <p><b><EventIcon id={s.nextEvent.id} size={16} /> Tomorrow: {s.nextEvent.title}.</b> {s.nextEvent.text}</p>}
         </div>
       )}
       {online && conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
@@ -505,13 +529,20 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="fx-layer" ref={layerRef} />
       {banner && <div class="phase-banner" key={banner} aria-hidden="true"><span>{banner}</span></div>}
       {toast && <div class="toast">{toast}</div>}
+      {coach && (
+        <div class="coach" role="note">
+          <b>{coach.title}</b>
+          <span>{coach.text}</span>
+          <button class="btn small" onClick={(e) => { e.stopPropagation(); markSeen(coach.id); track('tutorial', coach.id); setTipTick((n) => n + 1); }}>Got it</button>
+        </div>
+      )}
 
       {cardInfo !== null && s.players[active]?.favours[cardInfo] && (() => {
         const d = FAVOURS[s.players[active].favours[cardInfo]];
         const why = canPlayFavour(s, active, cardInfo);
         return (
           <div class="card-pop" onClick={(e) => e.stopPropagation()}>
-            <span class="cp-icon">{d.icon}</span>
+            <span class="cp-icon"><FavourIcon id={d.id} size={32} /></span>
             <div class="cp-text"><b>{d.title}</b><small>{d.text}</small>{why && <small class="warn-text">{why}</small>}</div>
             <div class="cp-btns">
               {!why && <button class="btn primary" onClick={() => reallyPlay(cardInfo)}>Play</button>}
@@ -577,8 +608,8 @@ function TopBar({ s, viewer, onMenu, onEvent, onRival, offline = [] }: { s: Game
       {s.phase !== 'over' && (
         <div class="tb-row sub">
           <button type="button" class="ev-chip" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}>
-            {s.event ? <><span>{s.event.icon}</span>{s.event.title}</> : 'Calm day'}
-            {s.nextEvent && <small>· next: {s.nextEvent.icon}</small>}
+            {s.event ? <><EventIcon id={s.event.id} size={16} />{s.event.title}</> : 'Calm day'}
+            {s.nextEvent && <small>· next: <EventIcon id={s.nextEvent.id} size={14} /></small>}
           </button>
           <span class="spacer" />
           {s.players.map((pl, i) => i === viewer ? null : (
@@ -604,7 +635,7 @@ function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number; lost: 
       {rem === 1 && stock > 0 && <div class="mc-loss">Anything unsold tonight is worth $0. Sell it all!</div>}
       {s.event ? (
         <div class="event-card flip">
-          <div class="ei">{s.event.icon}</div>
+          <div class="ei"><EventIcon id={s.event.id} size={44} /></div>
           <b>{s.event.title}</b>
           <p>{s.event.text}</p>
           {s.event.minPrice && <div class="minprices">{FRUITS.map((f) => <span><Fruit id={f} size={18} />${s.event!.minPrice![f]}</span>)}</div>}
@@ -612,7 +643,7 @@ function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number; lost: 
       ) : (
         <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
       )}
-      {s.nextEvent && <div class="mc-next">Tomorrow: <b>{s.nextEvent.icon} {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
+      {s.nextEvent && <div class="mc-next">Tomorrow: <b><EventIcon id={s.nextEvent.id} size={16} /> {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
     </div>
   );
 }
@@ -713,7 +744,44 @@ function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   );
 }
 
-function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean }) {
+function DailyResult({ s }: { s: GameState }) {
+  const [res, setRes] = useState<BoardResult | null>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void (s.moves ? submitDaily(s) : fetchDaily(s.config.daily!)).then((r) => { if (alive) setRes(r); });
+    return () => { alive = false; };
+  }, []);
+  const share = async () => {
+    const text = `${shareText(s, res?.rank)}\nPlay: https://fruit-market.murshidi-hashim.workers.dev`;
+    track('daily_share');
+    try {
+      if (navigator.share) await navigator.share({ text });
+      else { await navigator.clipboard.writeText(text); setCopied(true); }
+    } catch { /* cancelled */ }
+  };
+  return (
+    <div class="daily-result">
+      <p class="chip">Daily challenge {s.config.daily}</p>
+      {!res ? <p class="muted">Checking the leaderboard…</p>
+        : res.error ? <p class="muted">{res.error}</p>
+        : (
+          <>
+            {res.rank && <p class="dr-rank">You're <b>#{res.rank}</b> today</p>}
+            <ol class="board">
+              {res.top.slice(0, 5).map((e, i) => <li><span>{i + 1}. {e.name}</span><b>${e.cash}</b></li>)}
+            </ol>
+          </>
+        )}
+      <button class="btn wide" onClick={share}>{copied ? 'Copied! Paste it in a chat' : 'Share your result'}</button>
+    </div>
+  );
+}
+
+function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean }) {
+  // Checked once when the results first show; both only report what's new.
+  const [earned] = useState(() => checkAchievements(s, viewer, !!online));
+  const [cleared] = useState(() => recordLeague(s, viewer));
   const order = ranking(s);
   const win = order[0] === viewer;
   const ranks = ['1ST', '2ND', '3RD', '4TH'];
@@ -725,7 +793,7 @@ function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent }: { s
       <div class="trophy"><Face who={champ.avatar} size={96} /><span class="crown"><Icon name="star" size={34} /></span></div>
       <h2>{win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`}</h2>
       {order.length > 1 && <p class="margin">{margin === 0 ? 'A dead heat, decided on fruit sold!' : margin <= 5 ? `By just $${margin}. What a finish!` : `By $${margin}.`}</p>}
-      {s.config.daily && <p class="chip">Daily challenge {s.config.daily}</p>}
+      {s.config.daily && <DailyResult s={s} />}
       <div class="podium">
         {order.map((i, k) => {
           const pl = s.players[i];
@@ -736,7 +804,7 @@ function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent }: { s
               <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>
-              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{pl.upgrades.length ? ` · ${pl.upgrades.map((u) => UPGRADES[u].icon).join('')}` : ''}</div>
+              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{pl.upgrades.map((u) => <Icon name={UP_ICON[u]} size={14} />)}</div>
             </div>
           );
         })}
@@ -747,8 +815,21 @@ function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent }: { s
           {recap.worst.length > 0 && <><div class="rc-h bad">Next time, watch out for</div>{recap.worst.map((t) => <div class="rc-l">{t}</div>)}</>}
         </div>
       )}
+      {s.config.league !== undefined && (
+        <p class={`league-note ${cleared ? 'good' : ''}`}>
+          {cleared ? (s.config.league + 1 >= LEAGUE.length ? 'You are the Market League champion!' : `${LEAGUE[s.config.league].title} cleared! Next: ${LEAGUE[s.config.league + 1].title}`) : `Market League: win to clear ${LEAGUE[s.config.league].title}.`}
+        </p>
+      )}
+      {earned.length > 0 && (
+        <div class="ach-new">
+          <small>Achievement{earned.length > 1 ? 's' : ''} unlocked</small>
+          {earned.map((a) => <div class="ach got"><b>{a.title}</b><small>{a.text}</small></div>)}
+        </div>
+      )}
       {rematchNote && <p class="rematch-note">{rematchNote}</p>}
-      <button class="btn primary big wide" disabled={rematchSent} onClick={onRematch}>{win ? 'Defend your title' : 'Rematch!'}</button>
+      <button class="btn primary big wide" disabled={rematchSent} onClick={onRematch}>
+        {s.config.league !== undefined ? (cleared ? (s.config.league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Back to menu' : win ? 'Defend your title' : 'Rematch!'}
+      </button>
       <button class="btn wide" onClick={onExit}>Main menu</button>
     </section>
   );

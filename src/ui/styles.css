@@ -87,7 +87,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 /* ---------- home ---------- */
 .home { min-height: 100%; display: flex; flex-direction: column; background:
-  linear-gradient(var(--terra) 0 9%, #d7774f 9% 17%, #e39a63 17% 24%, #eab679 24% 30%, var(--night) 30%); }
+  linear-gradient(var(--terra) 0 70px, #d7774f 70px 118px, #e39a63 118px 162px, #eab679 162px 210px, var(--night) 210px); }
 .awning { height: 48px; flex: none; background: repeating-linear-gradient(90deg, var(--terra) 0 18px, var(--cream) 18px 36px); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); }
 .home-inner { padding: 10px 20px 28px; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; width: 100%; max-width: 480px; margin: 0 auto; }
 .logo { display: flex; flex-direction: column; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.25)); }
@@ -275,7 +275,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 .auction.tone-good { box-shadow: 0 4px 0 #6f9a5c, 0 0 0 3px var(--good); }
 .auction.tone-bad { box-shadow: 0 4px 0 var(--terra-d), 0 0 0 3px var(--bad); }
-.au-top { display: flex; justify-content: space-between; font-family: var(--f-pixel); font-size: 0.72rem; color: var(--ink-muted); letter-spacing: 0.5px; }
+.au-top { display: flex; flex-wrap: wrap; gap: 2px 8px; justify-content: space-between; font-family: var(--f-pixel); font-size: 0.72rem; color: var(--ink-muted); letter-spacing: 0.5px; }
 .au-cust { display: flex; align-items: center; gap: 10px; }
 .au-face { position: relative; display: inline-flex; }
 .au-say { align-self: flex-start; margin-top: 4px; background: var(--night); color: var(--cream); border-radius: 8px; padding: 2px 10px; font-size: 0.8rem; font-weight: 600; animation: pop 0.22s steps(3); }
@@ -452,6 +452,52 @@ p { margin: 0.4em 0; line-height: 1.4; }
 }
 
 
+/* colour-blind friendly freshness: okay = diagonal stripes, not so fresh = dots */
+.patterns .st-okay { background-image: repeating-linear-gradient(45deg, rgba(43, 36, 56, 0.16) 0 3px, transparent 3px 8px); }
+.patterns .st-notso { background-image: radial-gradient(rgba(43, 36, 56, 0.28) 1.5px, transparent 2px); background-size: 7px 7px; }
+
+/* home extras, trophies, league */
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+.row3 .btn { padding-left: 6px; padding-right: 6px; font-size: 0.9rem; }
+.league-btn { display: flex; flex-direction: column; gap: 2px; background: var(--teal); color: #fff8ec; }
+.league-btn small { opacity: 0.85; font-weight: 400; font-size: 0.78rem; }
+.daily-peek { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 12px; background: var(--surface); font-size: 0.84rem; text-align: left; }
+.daily-peek small { color: var(--muted); }
+.daily-peek b { color: var(--gold); font-weight: 600; }
+.league-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.league-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: var(--surface); opacity: 0.6; }
+.league-list li.done { opacity: 1; box-shadow: inset 0 0 0 2px var(--good); }
+.league-list li.now { opacity: 1; box-shadow: inset 0 0 0 2px var(--gold); }
+.league-list small { color: var(--muted); font-size: 0.74rem; }
+.ach-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ach { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--surface); opacity: 0.5; }
+.ach.got { opacity: 1; background: var(--cream); color: var(--ink); box-shadow: 0 3px 0 var(--card-edge); }
+.ach b { font-family: var(--f-pixel); font-size: 0.86rem; }
+.ach small { font-size: 0.74rem; line-height: 1.25; }
+.ach-new { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.ach-new > small { color: var(--gold); font-family: var(--f-pixel); text-align: center; }
+.colour-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.colour-pick button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 4px; border: 0; border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+.colour-pick button.on { box-shadow: inset 0 0 0 2px var(--gold); }
+.colour-pick button:disabled { opacity: 0.4; cursor: default; }
+.colour-pick i { width: 100%; height: 16px; border-radius: 4px; }
+.colour-pick small { font-size: 0.7rem; }
+.league-note { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--surface); text-align: center; }
+.league-note.good { background: var(--good-bg); color: #2c5e2c; font-weight: 600; }
+
+/* first-game coach */
+.coach { position: absolute; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20; width: min(92%, 420px); display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 12px; border-radius: 14px; background: var(--teal); color: #fff8ec; box-shadow: 0 4px 0 #24605e, 0 12px 28px rgba(0, 0, 0, 0.45); animation: pop 0.22s steps(3); }
+.coach b { font-family: var(--f-pixel); font-size: 1rem; }
+.coach span { font-size: 0.88rem; line-height: 1.35; }
+.coach .btn { align-self: flex-end; min-height: 36px; padding: 4px 16px; background: var(--cream); color: var(--ink); }
+
+/* daily result */
+.daily-result { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.dr-rank { margin: 0; font-size: 1.05rem; }
+.dr-rank b { font-family: var(--f-pixel); color: var(--gold); font-size: 1.3rem; }
+.board { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 3px; }
+.board li { display: flex; justify-content: space-between; padding: 4px 10px; border-radius: 8px; background: var(--surface); font-size: 0.88rem; }
+
 /* trait pick (first morning) */
 .trait-pick { gap: 6px; }
 .muted-ink { color: var(--ink-muted); font-size: 0.8rem; }
@@ -461,7 +507,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .trait-card span { display: flex; flex-direction: column; line-height: 1.2; }
 .trait-card b { font-family: var(--f-pixel); font-size: 1rem; }
 .trait-card small { font-size: 0.8rem; color: var(--ink-muted); }
-.trait-badge { display: inline-flex; align-items: center; gap: 3px; padding: 0 6px; border-radius: 999px; background: var(--night); color: var(--cream); font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
+.trait-badge { display: inline-flex; align-items: center; gap: 3px; max-width: 100%; padding: 0 6px; border-radius: 999px; background: var(--night); color: var(--cream); font-size: 0.68rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- the table: market in the middle, a stall on each player's side ---------- */
 .play { position: relative; }

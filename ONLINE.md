@@ -39,8 +39,22 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 - `tests/room.test.ts`: full matches with and without computer rivals; secret prices never leaving the server; duplicate and stale actions rejected; reconnect by token, with a stranger holding only the code refused; full rooms; leaving the lobby; expiry; host-only start; rematch.
 - `scripts/e2e-online.cjs`: two independent browser profiles create a room, join by link, play a full match, refresh mid-game, check every network message for leaks, compare final results, and rematch.
 
-## Limits (MVP)
+## More online features
+
+- **Quick match:** `POST /api/quick` pairs two strangers. The first player waits in a fresh room for up to 90 seconds; the next player to search joins it and the match starts straight away (one `MatchDO` object holds the queue).
+- **Daily leaderboard:** finishing a daily challenge sends your name and moves to `POST /api/daily`. The server **replays the whole game** from the shared seed (computer turns included), so a made-up score is impossible. One `BoardDO` object per date keeps the top 100. `GET /api/daily?date=YYYY-MM-DD` reads it.
+- **Version check:** every client sends `RULES_VERSION` (src/net/protocol.ts). Bump it whenever the rules change; older apps get a polite "please update" instead of a broken game.
+- **Anonymous stats and crash lines:** the app sends event counts like `day_reached:5` to `POST /api/t` (players can switch this off). A `StatsDO` object adds them into daily totals in SQLite and deletes them after 90 days. To read them, set a secret once: `npx wrangler secret put STATS_KEY`, then:
+
+  ```bash
+  curl -H "x-stats-key: YOUR_KEY" https://fruit-market.<you>.workers.dev/api/stats?days=14
+  ```
+
+  Useful funnel: `game_start` → `day_reached:1…10` → `game_end:*`, plus `tutorial:*`, `quit_day:*` and the error list.
+
+## Limits
 
 - Up to 4 seats per room (humans plus optional computer rivals).
 - A disconnected player is waited for; nobody is auto-forfeited.
-- No accounts, chat, matchmaking or leaderboards.
+- No accounts or chat. Quick match pairs whoever is searching at the same moment, with no skill rating yet.
+- Stats and leaderboards each run in a single Durable Object, which is plenty for launch (hundreds of requests a second). Shard them by key if the game gets very big.

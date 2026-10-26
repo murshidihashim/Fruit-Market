@@ -14,27 +14,30 @@ Every morning the farmers deliver blueberries, watermelons, apples and mangoes. 
 And hurry: fruit goes bad every night. Fresh becomes okay, okay becomes "not so", and then it's in the bin.
 
 🍎 QUICK, CLEVER TURNS
-Each day is short: buy up to 3 fruits, set your prices, see who sold what. A full game takes about 10 minutes.
+Each day is short: buy up to 4 fruits, set your prices, see who sold what. A full game takes about 10 minutes. A guided first game teaches you as you play.
 
 🤫 SECRET PRICE BATTLES
 Every shop bids at the same time. Will your rivals undercut you? Do you have the only mangoes in town? Fresher fruit wins ties.
 
 🤖 SMART COMPUTER RIVALS
-Play against Easy, Normal or Hard shopkeepers, each with their own style.
+Play against Easy, Normal or Hard shopkeepers. Hard ones read tomorrow's events and fight for every sale.
 
-👫 PASS-AND-PLAY
-Play with up to 3 friends on one phone. Prices stay hidden between turns.
+👫 PLAY FRIENDS OR STRANGERS
+Pass-and-play on one phone, send a friend a private room link, or tap Quick match to play someone new.
 
 🎲 SURPRISES EVERY DAY
 Festive seasons, heatwaves, price hikes, viral mango crazes and more.
 
-🃏 FAVOURS AND UPGRADES
-Serve a customer's whole order by yourself to earn secret favour cards. Build a handcart, cool room, signboard or bigger shelf.
+🃏 TRAITS, FAVOURS AND UPGRADES
+Pick a merchant trait at the start of every game. Earn secret favour cards. Each evening, choose from 3 stall upgrades on offer.
+
+🏆 MARKET LEAGUE AND TROPHIES
+Beat six markets of tougher rivals, unlock achievements and new awning colours.
 
 📅 DAILY CHALLENGE
-The same market for everyone, every day. Beat your best score and keep your streak going.
+The same market for everyone, every day. Climb the daily leaderboard, keep your streak going and share your result.
 
-✅ No ads. No accounts. Works offline. No data collected.
+✅ No ads. No accounts. Solo play works offline.
 
 Designed by Murshidi bin Md Hashim, from the original Fruit Market board game.
 
@@ -49,3 +52,14 @@ Designed by Murshidi bin Md Hashim, from the original Fruit Market board game.
 - `icon-512.png`: app icon (512×512)
 - `feature-graphic-1024x500.png`: feature graphic
 - `screenshots/`: phone screenshots (1080×1920)
+
+## Data safety form (Play Console)
+
+Answer for the current build:
+
+- **Does the app collect or share user data?** Yes, collects (not shared).
+- **App activity → Other user-generated content:** the player name and moves for the daily leaderboard and online play. Purpose: app functionality. Not linked to identity. Optional (only when you submit a daily or play online).
+- **App info and performance → Crash logs and Diagnostics:** anonymous event counts and short error messages. Purpose: analytics. Not linked to identity. Optional (Settings → Share anonymous stats).
+- **Is data encrypted in transit?** Yes (HTTPS).
+- **Can users request deletion?** Yes, by email (see privacy policy). Anonymous counts are deleted after 90 days.
+- No location, contacts, device IDs or advertising IDs are collected.

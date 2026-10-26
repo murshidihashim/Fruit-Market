@@ -6,6 +6,16 @@ export function Fruit({ id, size = 28, stage = 'fresh', x, y }: { id: FruitId; s
   return <PixelFruit id={id} size={size} stage={stage} x={x} y={y} />;
 }
 
+/** Pixel art for an event card (by its id). */
+export function EventIcon({ id, size = 20 }: { id: string; size?: number }) {
+  return <Icon name={`ev_${id}`} size={size} />;
+}
+
+/** Pixel art for a favour card. */
+export function FavourIcon({ id, size = 20 }: { id: string; size?: number }) {
+  return <Icon name={`fv_${id}`} size={size} />;
+}
+
 export function Coin({ size = 16 }: { size?: number }) {
   return <Icon name="coin" size={size} />;
 }

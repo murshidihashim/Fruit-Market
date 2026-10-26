@@ -4,7 +4,7 @@ import {
   buyLimit, count, effectiveMax, marketCost, shelfSize,
   type Customer, type GameState, type Player, type Stock,
 } from '../engine/game';
-import { Coin, Face, Fruit } from './art';
+import { Coin, Face, FavourIcon, Fruit } from './art';
 
 export const STAGE_LABEL: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Not so', unripe: 'Unripe' };
 
@@ -102,7 +102,7 @@ export function FavourChip({ id, onClick, disabled }: { id: keyof typeof FAVOURS
   const d = FAVOURS[id];
   return (
     <button type="button" class="favour" onClick={onClick} disabled={disabled || !onClick}>
-      <span class="fi">{d.icon}</span>
+      <span class="fi"><FavourIcon id={d.id} size={28} /></span>
       <span class="ft"><b>{d.title}</b><small>{d.text}</small></span>
     </button>
   );

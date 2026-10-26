@@ -1,6 +1,7 @@
 // Online multiplayer screens: create or join a private room, the lobby, then the shared match.
 import { useEffect, useState } from 'preact/hooks';
-import { createRoom, inviteLink, OnlineClient, onlineAvailable } from '../net/client';
+import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
+import { track } from '../net/telemetry';
 import { CODE_LENGTH, HUMAN_AVATARS, MAX_SEATS, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { fx } from './fx';
@@ -12,7 +13,7 @@ function useClient(client: OnlineClient | null) {
   useEffect(() => (client ? client.subscribe(() => force((n) => n + 1)) : undefined), [client]);
 }
 
-export function Online({ initialCode, onExit }: { initialCode?: string; onExit: () => void }) {
+export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
   const [name, setName] = useState(loadName());
   const [avatar, setAvatar] = useState(() => {
@@ -43,7 +44,15 @@ export function Online({ initialCode, onExit }: { initialCode?: string; onExit: 
   const create = async () => {
     fx.tap();
     setBusy(true);
+    track('online', 'create');
     try { begin(await createRoom()); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+  };
+
+  const findMatch = async () => {
+    fx.tap();
+    setBusy(true);
+    track('online', 'quick');
+    try { begin(await quickMatch()); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
   const exit = () => {
@@ -90,6 +99,11 @@ export function Online({ initialCode, onExit }: { initialCode?: string; onExit: 
       ) : (
         <>
           <section class="panel">
+            <h3>Quick match</h3>
+            <p class="small muted">Play a stranger who's looking for a game right now.</p>
+            <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find an opponent'}</button>
+          </section>
+          <section class="panel">
             <h3>Start a private game</h3>
             <p class="small muted">You'll get a link to send to a friend anywhere.</p>
             <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
@@ -134,6 +148,18 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const share = async () => {
     try { await navigator.share({ title: 'Fruit Market', text: `Join my Fruit Market game! Room ${v.code}`, url: link }); } catch { void copy(); }
   };
+
+  if (v.quick) {
+    return (
+      <Shell title="Quick match" onBack={onExit}>
+        <section class="panel center-text">
+          <h3>Looking for an opponent</h3>
+          <div class="waiting-dots big-wait">Waiting for someone to join</div>
+          <p class="small muted">The match starts as soon as another player taps Find an opponent. Tap ← to stop looking.</p>
+        </section>
+      </Shell>
+    );
+  }
 
   return (
     <Shell title={`Room ${v.code}`} onBack={onExit}>

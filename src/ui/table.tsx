@@ -5,9 +5,10 @@ import {
   buyCost, buyLimit, count, effectiveMax, shelfSize, walkInsToday,
   type Customer, type GameState,
 } from '../engine/game';
-import { Coin, Face, Fruit } from './art';
+import { Coin, Face, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
+import { loadColour } from './progress';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = ['#c8553d', '#3e8f8c', '#7d8c3a', '#3d4f86'];
@@ -104,9 +105,10 @@ export function RivalStall({ s, p, side, onOpen }: { s: GameState; p: number; si
 
 export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean }) {
   const pl = s.players[p];
+  const mine = loadColour();
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   return (
-    <div class={`my-stall ${active ? 'active' : ''}`} style={seat(p)} data-a={`p${p}`}>
+    <div class={`my-stall ${active ? 'active' : ''}`} style={mine ? ({ '--awn': mine } as any) : seat(p)} data-a={`p${p}`}>
       <div class="ms-awning" />
       <div class="ms-head">
         <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
@@ -140,7 +142,7 @@ export function MyStall({ s, p, onCard, flashCards }: { s: GameState; p: number;
             const usable = !!onCard && active && FAVOURS[id].when === s.phase;
             return (
               <button type="button" class={`fcard ${usable ? 'usable' : ''}`} onClick={() => onCard?.(i)} title={FAVOURS[id].text}>
-                <span>{FAVOURS[id].icon}</span><small>{FAVOURS[id].title}</small>
+                <FavourIcon id={id} size={20} /><small>{FAVOURS[id].title}</small>
               </button>
             );
           })}

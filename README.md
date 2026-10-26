@@ -2,7 +2,9 @@
 
 *Buy fresh. Sell fast. Undercut your rivals before it all goes bad.*
 
-A quick trading game for Android, based on the Fruit Market board game designed by Murshidi bin Md Hashim. Play against computer shopkeepers, or pass the phone around with friends.
+A quick trading game for Android and the web, based on the Fruit Market board game designed by Murshidi bin Md Hashim.
+
+**Modes:** solo vs computer shopkeepers (Easy/Normal/Hard), pass-and-play, private online rooms, quick match with strangers, the Market League (6 stages), and a daily challenge with a replay-checked leaderboard. A guided first game, achievements, unlockable stall colours, optional music and colour-blind freshness patterns are built in.
 
 - **Rules:** [RULES.md](RULES.md)
 - **Online multiplayer and web hosting:** [ONLINE.md](ONLINE.md)

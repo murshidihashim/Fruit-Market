@@ -16,7 +16,7 @@ import {
   type Action, type Bid, type GameState, type PlayerConfig,
 } from '../src/engine/game';
 import {
-  DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, NAME_MAX,
+  DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, NAME_MAX, RULES_VERSION, UPDATE_MSG,
   type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
@@ -39,6 +39,8 @@ export interface RoomData {
   rematch: number[];
   seen: string[][];
   aiNames: { name: string; avatar: string; quip: string }[];
+  /** A quick-match room: strangers are seated ready and the match starts as soon as two are in. */
+  quick?: boolean;
 }
 
 export interface Conn {
@@ -59,10 +61,10 @@ export interface RoomIO {
   destroy(): void | Promise<void>;
 }
 
-export function freshRoom(code: string, now: number): RoomData {
+export function freshRoom(code: string, now: number, quick = false): RoomData {
   return {
     code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG },
-    game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [],
+    game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
   };
 }
 
@@ -132,6 +134,7 @@ export class Room {
 
   private hello(conn: Conn, m: Extract<ClientMsg, { t: 'hello' }>) {
     const d = this.d;
+    if (m.rv !== RULES_VERSION) return conn.send({ t: 'error', msg: UPDATE_MSG, fatal: true, update: true });
     let seat = typeof m.token === 'string' ? d.seats.findIndex((s) => s.token === m.token) : -1;
     if (seat < 0) {
       if (d.status !== 'lobby') return conn.send({ t: 'error', msg: 'This game has already started.', fatal: true });
@@ -151,6 +154,15 @@ export class Room {
     }
     this.io.setSeat(conn, seat);
     conn.send({ t: 'welcome', seat, token: d.seats[seat].token, code: d.code });
+    if (d.quick && d.status === 'lobby') {
+      d.seats.forEach((x) => { x.ready = true; });
+      if (d.seats.length >= 2) {
+        d.config = { ...DEFAULT_CONFIG };
+        d.aiNames = [];
+        this.newMatch();
+        return;
+      }
+    }
     this.broadcast();
   }
 
@@ -338,7 +350,7 @@ export class Room {
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
-      game: g ? redact(g, seat) : null, submitted, votes: [...d.votes], rematch: [...d.rematch],
+      game: g ? redact(g, seat) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
     };
   }
 

@@ -1,14 +1,17 @@
 // Browser side of online play: one WebSocket to the room, automatic reconnects,
 // and a per-room seat token kept on this device so a refresh returns you to your seat.
 import type { Action } from '../engine/game';
-import type { ClientMsg, RoomConfig, RoomView, ServerMsg } from './protocol';
+import { RULES_VERSION, type ClientMsg, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
 
 export type ConnState = 'connecting' | 'open' | 'reconnecting' | 'failed';
 
 /** Where the room server lives: the page's own origin, or VITE_SERVER_URL (needed in the Android app). */
 export function serverBase(): string {
-  const env = (import.meta as { env?: Record<string, string | undefined> }).env?.VITE_SERVER_URL;
+  const meta = (import.meta as { env?: Record<string, string | undefined> }).env;
+  const env = meta?.VITE_SERVER_URL;
   if (env) return env.replace(/\/$/, '');
+  // The single-file preview build can be opened anywhere, so it never talks to a server.
+  if (meta?.MODE === 'single') return '';
   if (typeof location !== 'undefined' && /^https?:$/.test(location.protocol) && location.hostname !== 'localhost') return location.origin;
   if (typeof location !== 'undefined' && location.port && location.port !== '80') return location.origin;
   return '';
@@ -23,6 +26,14 @@ export async function createRoom(): Promise<string> {
   if (!res.ok) throw new Error('Could not create a room. Check your connection and try again.');
   const body = (await res.json()) as { code?: string };
   if (!body.code) throw new Error('Could not create a room.');
+  return body.code;
+}
+
+/** Joins a stranger who is waiting, or opens a room to wait in. */
+export async function quickMatch(): Promise<string> {
+  const res = await fetch(`${serverBase()}/api/quick`, { method: 'POST' });
+  const body = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
+  if (!res.ok || !body.code) throw new Error(body.error ?? 'Could not find a match. Try again.');
   return body.code;
 }
 
@@ -78,7 +89,7 @@ export class OnlineClient {
     this.emit();
     ws.onopen = () => {
       this.retry = 0;
-      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar });
+      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, rv: RULES_VERSION });
       if (this.ping) clearInterval(this.ping);
       this.ping = setInterval(() => this.send({ t: 'ping' }), 25_000);
     };

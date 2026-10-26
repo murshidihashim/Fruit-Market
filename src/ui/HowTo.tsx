@@ -1,7 +1,9 @@
 // Illustrated rules, one swipe-able card per idea.
 import { useState } from 'preact/hooks';
 import { FRUIT, FRUITS, FAVOURS, UPGRADES, stageAt } from '../engine/data';
-import { Coin, Fruit } from './art';
+import { Coin, FavourIcon, Fruit } from './art';
+import { Icon } from './pixel';
+import { UP_ICON } from './panel';
 
 const SLIDES = [
   {
@@ -58,9 +60,9 @@ const SLIDES = [
     body: (
       <>
         <p>Serve a customer's <b>whole order by yourself</b> to draw a secret favour card:</p>
-        <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip">{f.icon} {f.title}</span>)}</div>
+        <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
         <p>Each evening, 3 of these upgrades are offered to you:</p>
-        <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip">{u.icon} {u.title} ${u.cost}</span>)}</div>
+        <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
       </>
     ),
   },

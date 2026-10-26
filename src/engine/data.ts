@@ -212,8 +212,8 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   signboard: { id: 'signboard', title: 'Signboard', icon: '🪧', cost: 8, text: 'Earn a $1 tip on every fruit you sell.' },
   coolroom: { id: 'coolroom', title: 'Cool Room', icon: '❄️', cost: 7, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it.' },
   shelf: { id: 'shelf', title: 'Bigger Shelf', icon: '🗄️', cost: 3, text: 'Hold 14 fruits instead of 8.' },
-  juicer: { id: 'juicer', title: 'Juice Press', icon: '🧃', cost: 5, text: 'Each night, up to 3 fruits that would spoil become juice: $2 each.' },
-  bell: { id: 'bell', title: 'Shop Bell', icon: '🔔', cost: 5, text: 'Draw a favour card now, and hold up to 4.' },
+  juicer: { id: 'juicer', title: 'Juice Press', icon: '🧃', cost: 4, text: 'Each night, up to 3 fruits that would spoil become juice: $2 each.' },
+  bell: { id: 'bell', title: 'Shop Bell', icon: '🔔', cost: 4, text: 'Draw 2 favour cards now, and hold up to 4.' },
 };
 export const UPGRADE_OFFER = 3;
 

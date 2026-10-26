@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { planBids } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { activePlayer, canBuy } from '../src/engine/game';
-import type { ClientMsg, RoomView, ServerMsg } from '../src/net/protocol';
+import { RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import { freshRoom, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
@@ -50,8 +50,8 @@ const nid = () => `a${ids++}`;
 async function lobbyOf2(h: Harness) {
   const a = h.connect('A');
   const b = h.connect('B');
-  await a.say({ t: 'hello', name: 'Murshidi', avatar: '🧑‍🍳' });
-  await b.say({ t: 'hello', name: 'Friend', avatar: '👩‍🍳' });
+  await a.say({ t: 'hello', rv: RULES_VERSION, name: 'Murshidi', avatar: '🧑‍🍳' });
+  await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Friend', avatar: '👩‍🍳' });
   return { a, b };
 }
 
@@ -172,6 +172,26 @@ describe('online room', () => {
     expect(h.room.d.game!.players[p].boughtToday).toBe(1);
   });
 
+  it('starts a quick-match room as soon as two strangers are in', async () => {
+    const h = new Harness();
+    h.room = new Room(freshRoom('QUICK1', h.t, true), h);
+    const a = h.connect('A');
+    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'One', avatar: '🦸' });
+    expect(a.view!.status).toBe('lobby');
+    const b = h.connect('B');
+    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Two', avatar: '🐵' });
+    expect(b.view!.status).toBe('playing');
+    expect(b.view!.game!.players.length).toBe(2);
+  });
+
+  it('turns away an app built for older rules', async () => {
+    const h = new Harness();
+    const old = h.connect('O');
+    await old.say({ t: 'hello', name: 'Old app', avatar: '🦸' } as ClientMsg);
+    expect(old.errors.slice(-1)[0]).toContain('new version');
+    expect(old.seat).toBeNull();
+  });
+
   it('lets a player reconnect with their token but not with the room code alone', async () => {
     const h = new Harness();
     const { a, b } = await lobbyOf2(h);
@@ -180,11 +200,11 @@ describe('online room', () => {
     a.close();
     expect(b.view!.seats[0].connected).toBe(false);
     const stranger = h.connect('X');
-    await stranger.say({ t: 'hello', name: 'Sneaky', avatar: '🦸' });
+    await stranger.say({ t: 'hello', rv: RULES_VERSION, name: 'Sneaky', avatar: '🦸' });
     expect(stranger.errors.slice(-1)[0]).toContain('already started');
     expect(stranger.seat).toBeNull();
     const a2 = h.connect('A2');
-    await a2.say({ t: 'hello', token, name: 'Murshidi', avatar: '🧑‍🍳' });
+    await a2.say({ t: 'hello', rv: RULES_VERSION, token, name: 'Murshidi', avatar: '🧑‍🍳' });
     expect(a2.seat).toBe(0);
     expect(a2.view!.game!.day).toBe(1);
     expect(b.view!.seats[0].connected).toBe(true);
@@ -195,7 +215,7 @@ describe('online room', () => {
     const { a, b } = await lobbyOf2(h);
     await a.say({ t: 'config', config: { days: 8, ai: 2, unripe: true, upgrades: true, events: true } });
     const c = h.connect('C');
-    await c.say({ t: 'hello', name: 'Third', avatar: '🦸' });
+    await c.say({ t: 'hello', rv: RULES_VERSION, name: 'Third', avatar: '🦸' });
     expect(c.errors.slice(-1)[0]).toContain('full');
     await a.say({ t: 'leave' });
     expect(h.room.d.seats.length).toBe(1);

@@ -7,7 +7,7 @@ import {
   allocate, bestCap, canPlayFavour, canUpgrade, count, effectiveMax, minPrice, notSoCount,
   servingCustomers, validateBids, type Bid, type GameState,
 } from '../engine/game';
-import { Coin, Face, Fruit } from './art';
+import { Coin, Face, FavourIcon, Fruit } from './art';
 import { Track, TrackLegend } from './board';
 import { Icon } from './pixel';
 
@@ -43,7 +43,7 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
         const ok = d.when === phase && !canPlayFavour(s, p, i);
         return (
           <button type="button" class={`favour-card ${ok ? 'ready' : ''}`} onClick={() => onCard(i)}>
-            <span class="fv-icon">{d.icon}</span>
+            <span class="fv-icon"><FavourIcon id={d.id} size={22} /></span>
             <span class="fv-name">{d.title}</span>
           </button>
         );

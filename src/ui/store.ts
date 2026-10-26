@@ -1,7 +1,7 @@
 // Local persistence: settings, stats, saved game, daily challenge records.
 import type { GameState } from '../engine/game';
 
-export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean }
+export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; patterns: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
 export interface DailyRecord { [date: string]: number }
 
@@ -25,7 +25,7 @@ function write(key: string, value: unknown) {
   }
 }
 
-export const loadSettings = () => read<Settings>(K.settings, { sound: true, haptics: true, fast: false, tips: true });
+export const loadSettings = () => read<Settings>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, patterns: false });
 export const saveSettings = (s: Settings) => write(K.settings, s);
 
 export const loadStats = () => read<Stats>(K.stats, { played: 0, wins: 0, bestCash: 0, totalSold: 0 });

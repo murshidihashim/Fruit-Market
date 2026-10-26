@@ -119,8 +119,8 @@ Each evening, every shop is offered **3 random upgrades** it hasn't built yet (a
 | 🪧 Signboard | $8 | Earn a $1 tip on every fruit you sell. |
 | ❄️ Cool Room | $7 | Your fruit ages only every other night, and heatwaves can't touch it. |
 | 🗄️ Bigger Shelf | $3 | Hold 14 fruits instead of 8. |
-| 🧃 Juice Press | $5 | Each night, up to 3 fruits that would spoil become juice: $2 each. |
-| 🔔 Shop Bell | $5 | Draw a favour card now, and hold up to 4. |
+| 🧃 Juice Press | $4 | Each night, up to 3 fruits that would spoil become juice: $2 each. |
+| 🔔 Shop Bell | $4 | Draw 2 favour cards now, and hold up to 4. |
 
 Cash spent on upgrades is gone from your score, so build early or not at all.
 
@@ -139,7 +139,7 @@ On the first morning, each shop is dealt 3 traits and keeps one for the whole ga
 
 ## Balance notes
 
-Tested with `npm run balance` (400 computer games per test). Compared with the old rules in 3-player games: the median winning margin fell from $24 to $16, wins by $20 or more from 59% to 43%, and comebacks from last place on day 5 rose from 18% to 27%. Every trait wins 30–39% of 3-player games (fair is 33%), and no single upgrade is compulsory.
+Tested with `npm run balance` (400 computer games per test). Compared with the old rules in 3-player games: the median winning margin fell from $24 to $16, wins by $20 or more from 59% to 43%, and comebacks from last place on day 5 rose from 18% to 27%. Every trait wins about 29–42% of 3-player games (fair is 33%), and no single upgrade is compulsory. The Hard computer beats Normal in about 84% of 2-player and 79% of 3-player games.
 
 ## Daily challenge
 
