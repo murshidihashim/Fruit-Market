@@ -93,6 +93,12 @@
       "text": "Buying mockup: vertical decay tracker matching the game's tracks; lorry arrives, customers make space, lorry leaves on Done buying",
       "result": "PASS",
       "evidence": "Version 14 published; logic test: supply lands in the right slots, buying the fresh apple moves it to your apple track, Done buying starts the lorry's exit; REP-021"
+    },
+    {
+      "id": "M9",
+      "text": "Your stall back to fruit chips with nights left; market keeps the vertical tracker",
+      "result": "PASS",
+      "evidence": "Version 15 published; logic test: a bought unripe mango shows as 'ripening', the starting apple shows '5 nights'"
     }
   ]
 }
