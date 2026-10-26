@@ -136,7 +136,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // Online: queue every server state and animate them one at a time.
   useEffect(() => {
     if (!online) return;
-    const offView = online.onView((v) => {
+    const take = (v: RoomView) => {
       setMeta(v);
       sending.current = false;
       if (v.game && v.version > lastVersion.current && v.game.config.seed === sRef.current.config.seed) {
@@ -144,9 +144,14 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         queue.current.push(v.game);
         setTick((t) => t + 1);
       }
-    });
+    };
+    const offView = online.onView(take);
     const offErr = online.onError((msg) => { sending.current = false; fx.error(); say(msg); });
     const offConn = online.subscribe(() => setConn(online.conn));
+    // Anything that arrived between the first render and this effect would otherwise be missed
+    // until the next message, which may never come if the room is waiting on this player.
+    if (online.view) take(online.view);
+    setConn(online.conn);
     return () => { offView(); offErr(); offConn(); };
   }, [online]);
 

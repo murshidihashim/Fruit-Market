@@ -10,7 +10,14 @@ import { loadName, saveName } from './store';
 
 function useClient(client: OnlineClient | null) {
   const [, force] = useState(0);
-  useEffect(() => (client ? client.subscribe(() => force((n) => n + 1)) : undefined), [client]);
+  useEffect(() => {
+    if (!client) return;
+    const off = client.subscribe(() => force((n) => n + 1));
+    // The client starts connecting before this effect runs (later still in a background tab), so the
+    // room may already have answered: redraw once now, or the screen stays on "Connecting…".
+    force((n) => n + 1);
+    return off;
+  }, [client]);
 }
 
 export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {

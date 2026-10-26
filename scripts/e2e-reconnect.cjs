@@ -6,7 +6,8 @@
 //   quick:  two strangers press Quick match
 // Usage: node scripts/e2e-reconnect.cjs <base-url> <out-dir>
 // Env: RELOADS (default 40), DROPS (40), QUICKS (10), THROTTLE (CPU slowdown, default 1), LIMIT_MS (30000),
-//      NO_RELAY=1 to talk to <base-url> directly (needed for https targets such as the preview; skips drops)
+//      NO_RELAY=1 to talk to <base-url> directly (needed for https targets such as the preview; skips drops),
+//      HIDDEN=1 to suppress animation frames, as browsers do for background tabs and switched-off screens
 // Prints one line per cycle, then a summary; exits 1 if any cycle failed. Failures save diagnostics.
 const net = require('node:net');
 const { chromium } = require('playwright');
@@ -17,6 +18,7 @@ let base = server; // pages use the relay below, so the test can cut their conne
 const NO_RELAY = !!process.env.NO_RELAY;
 const N = { reload: +(process.env.RELOADS ?? 40), drop: NO_RELAY ? 0 : +(process.env.DROPS ?? 40), quick: +(process.env.QUICKS ?? 10) };
 const THROTTLE = +(process.env.THROTTLE ?? 1);
+const HIDDEN = !!process.env.HIDDEN;
 const LIMIT = +(process.env.LIMIT_MS ?? 30000);
 const PER_ROOM = 10; // fresh match every few cycles, so early-game and mid-game moments both get covered
 const QUICK_GAP = 13000; // quick match is limited to 10 requests a minute per address
@@ -30,6 +32,7 @@ async function player(name) {
     localStorage.setItem('fm.name', n);
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
   }, name);
+  if (HIDDEN) await ctx.addInitScript(() => { window.requestAnimationFrame = () => 0; });
   const page = await ctx.newPage();
   const P = { tag: name, ctx, page, frames: [], errors: [], consoleLog: [] };
   page.on('pageerror', (e) => P.errors.push(String(e)));
@@ -162,7 +165,7 @@ function summary() {
 (async () => {
   if (!NO_RELAY) { relay = await startRelay(server); base = relay.url; }
   browser = await chromium.launch();
-  console.log(`Reconnect stress: ${N.reload} reloads, ${N.drop} drops, ${N.quick} quick matches, CPU slowdown ${THROTTLE}x, limit ${LIMIT} ms`);
+  console.log(`Reconnect stress: ${N.reload} reloads, ${N.drop} drops, ${N.quick} quick matches, CPU slowdown ${THROTTLE}x${HIDDEN ? ', hidden tab (no animation frames)' : ''}, limit ${LIMIT} ms`);
   for (const [name, fn] of [['reload', reloads], ['drop', drops], ['quick', quicks]]) {
     if (!N[name]) continue;
     try { await fn(); } catch (e) { results.push({ type: name, ms: LIMIT, ok: false }); console.log(`${name}: setup FAILED: ${e.message.split('\n')[0]}`); }
