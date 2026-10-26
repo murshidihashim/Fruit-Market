@@ -1,5 +1,6 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
 import {
   buyCost, buyLimit, count, effectiveMax, shelfSize, walkInsToday,
@@ -10,6 +11,7 @@ import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from './boardModel';
+import lorryUrl from './img/lorry.png';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = ['#c8553d', '#3e8f8c', '#7d8c3a', '#3d4f86'];
@@ -32,8 +34,8 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 // ---------- market ----------
 
 /** The farmers market: one column per fruit, newest slot at the top, freshness by colour. */
-export function Market({ s, p, onPick, canPick, morning, onPulse }: {
-  s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean; morning?: boolean;
+export function Market({ s, p, onPick, canPick, onPulse }: {
+  s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
 }) {
   const pz = pulse(s);
@@ -41,7 +43,7 @@ export function Market({ s, p, onPick, canPick, morning, onPulse }: {
     <div class="market-stall">
       <div class="mk-roof" />
       <div class="mk-head">
-        <span class={`truck ${morning ? 'drive' : ''}`} data-a="truck"><Icon name="cart" size={28} /></span>
+        <span class="truck" data-a="truck"><Icon name="cart" size={28} /></span>
         <b>Farmers Market</b>
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
@@ -202,6 +204,27 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
         </div>
       )}
     </div>
+  );
+}
+
+// ---------- delivery lorry ----------
+
+/**
+ * The farmer's lorry: drives into the street with the morning delivery, stays while shops buy,
+ * and drives off when buying ends. Decoration only; fruit flies from it in animator.delivery().
+ */
+export function Lorry({ here }: { here: boolean }) {
+  const was = useRef(here);
+  const [leaving, setLeaving] = useState(false);
+  useEffect(() => {
+    if (was.current && !here) setLeaving(true);
+    if (here) setLeaving(false);
+    was.current = here;
+  }, [here]);
+  if (!here && !leaving) return null;
+  return (
+    <img class={`lorry ${here ? 'here' : 'leaving'}`} src={lorryUrl} alt="" aria-hidden="true" data-a="lorry"
+      width={150} height={58} onAnimationEnd={() => { if (!here) setLeaving(false); }} />
   );
 }
 

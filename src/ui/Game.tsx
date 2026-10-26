@@ -5,7 +5,7 @@ import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
 import { EveningPanel, PricePanel } from './panel';
-import { Market, MyStall, RivalDrop, RivalStall, Street, seats, type Board } from './table';
+import { Lorry, Market, MyStall, RivalDrop, RivalStall, Street, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
@@ -70,6 +70,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Rivals sit across the table in one row, in turn order after you.
   const rivals = seats(s.players.length, viewer).map((x) => x.p);
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
+  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
   // then flipped open one by one, highest price first, as each showdown is revealed.
   const boards: Record<number, Board> = {};
@@ -116,7 +117,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
       <div class={`play ${tray ? 'has-tray' : ''}`}>
         <div class="table">
-          <div class="street-wrap" data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /></div>
+          {/* The farmer's lorry parks in the street from the morning delivery until buying ends; customers step aside. */}
+          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /><Lorry here={lorryHere} /></div>
           {rivals.length > 0 && (
             <div class="seats">
               {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
@@ -124,7 +126,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
             </div>
           )}
           <div class="centre">
-            <Market s={s} p={viewer} morning={s.phase === 'morning'}
+            <Market s={s} p={viewer}
               onPick={myBuyTurn ? c.pickMarket : undefined}
               canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
               onPulse={() => c.setPulseInfo(!c.pulseInfo)} />

@@ -11,11 +11,15 @@ import type { ShowState } from './panels/Showdown';
 export async function delivery(g: GameState) {
   if (g.phase !== 'morning') return;
   const jobs: Promise<void>[] = [];
+  // Let the lorry pull up (its drive-in is CSS, about 0.9 s), then unload into each fruit's slot.
+  if (A.find('lorry')) await A.wait(650);
   let d = 0;
   for (const f of FRUITS) {
     const n = Math.min(g.delivery[f] ?? 0, 4);
+    const unripe = g.deliveryUnripe === f;
+    const pos = unripe ? g.market[f].length - 1 : FRUIT[f].ripe.length - 1;
     for (let i = 0; i < n; i++) {
-      jobs.push(A.fly('sky', [`cart-${f}`, 'truck'], <Fruit id={f} size={26} stage={g.deliveryUnripe === f ? 'unripe' : 'fresh'} />, { delay: d, duration: 600 }));
+      jobs.push(A.fly(['lorry', 'sky'], [`m-${f}-${pos}`, `mk-${f}`, 'truck'], <Fruit id={f} size={26} stage={unripe ? 'unripe' : 'fresh'} />, { delay: d, duration: 600 }));
       d += 70;
     }
   }

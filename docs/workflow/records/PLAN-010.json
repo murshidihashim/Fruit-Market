@@ -17,9 +17,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "approve (reply to: approve PLAN-010, the Gemini lorry)",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-010",
   "title": "Cosy table build 2: the delivery lorry (outline)",
   "problem": "At the start of buying, a lorry drives in, customers make room, crates drop onto the board; it leaves before selling (DEC-025).",
