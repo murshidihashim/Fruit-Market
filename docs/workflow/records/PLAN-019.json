@@ -3,7 +3,8 @@
   "build": "not started",
   "reports": [
     "REP-038",
-    "REP-039"
+    "REP-039",
+    "REP-040"
   ],
   "decisions": [
     "DEC-016",
@@ -29,7 +30,7 @@
   "scope": [
     "Write hypotheses and continue, revise or stop criteria before testing (DEC-016: at least 3 of 4 testers can explain a lost sale by day 3; provisional, owner-set)",
     "3 to 5 unfamiliar players, no coaching; each plays one digital Quick game against one computer shop on the preview",
-    "One paper round of the tabletop rules with 2 to 4 people; choose and record how nightly ageing is handled by hand for the test",
+    "One table round: 2 to 4 people play the current app (rules version 4, pass-and-play) as the paper round, exactly as it is now. No paper kit is made and the app is not changed. Hand-played ageing is therefore NOT tested by this plan",
     "One playtest report per session using the playtest template; observations kept separate from interpretation; tester count and build recorded",
     "Owner decision recorded: continue, revise or stop"
   ],
@@ -48,7 +49,7 @@
     },
     {
       "id": "T2",
-      "text": "3 to 5 digital sessions and 1 paper round have a saved report each, with tester count and build",
+      "text": "3 to 5 digital sessions, one of them a pass-and-play table round with 2 to 4 people, each have a saved report with tester count and build",
       "result": "NOT RUN",
       "evidence": ""
     },
