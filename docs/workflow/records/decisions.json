@@ -917,6 +917,10 @@
     {
       "at": "2026-10-27 16:56",
       "text": "Owner asked for a critical readiness rating for publishing both a physical and a digital version. REP-036: digital 5.5/10, tabletop 3/10. Main risks: rules version 4 never played by people; rules still changing; nightly ageing too fiddly by hand (date-stamped crates proposed, needs approval); balance gaps; missing commercial basics. Recommended path: freeze rules, digital and paper playtests, then balance, art and launch prep. No game change."
+    },
+    {
+      "at": "2026-10-27 17:02",
+      "text": "Owner asked to track balance, retention and data insights. REP-037 proposes PLAN-018: anonymous counters tagged by rules version (set-up, traits, specialities, computer levels, price and spoilage buckets, favours, online health, app version) and a weekly insights report via GitHub Actions. Data handling change: awaiting approval. Three questions: report location, retention 90 or 365 days, STATS_KEY as a GitHub secret."
     }
   ]
 }

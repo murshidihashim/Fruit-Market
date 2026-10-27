@@ -1,0 +1,64 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-037"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Anonymous balance and behaviour counters tagged by rules version",
+      "Weekly insights report (retention, funnel, balance, online health, errors)"
+    ],
+    "changed": [
+      "Analytics and privacy pages describe the new counters"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Anonymous game stats help us balance the game (you can still switch them off in Settings)"
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-018",
+  "title": "Data insights: balance, retention and online health from anonymous counters",
+  "problem": "Owner: \"can we track this please, for balance changes, user retention etc, generally data insights\". Today's counters show opens, games, retention and errors, but nothing about balance, they don't separate rules versions, and nobody reads them regularly.",
+  "scope": [
+    "New anonymous counters, each tagged with the rules version: game set-up (length, players, computer levels, options), your trait and whether you won, specialities built and won, favour cards played, final margin, fruit spoiled and sold-near-top-price buckets, Easy/Normal/Hard win rates",
+    "Online health counters: matches finished vs abandoned, computer takeovers, quick match found vs gave up, wait-time bucket",
+    "App version on app_open so retention can be split by release",
+    "Weekly insights report from the live and preview servers: retention day 1/7/30, first-game and tutorial funnel, quit days, win rates by trait, speciality and computer level (with sample sizes), errors",
+    "Update docs/ANALYTICS.md and docs/privacy.html; tests that no identifier can be sent"
+  ],
+  "exclusions": [
+    "User, device or advertising IDs",
+    "Any per-player history or replay logs",
+    "Third-party analytics services or new dependencies",
+    "Publishing to the live game (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Unit tests: every new event passes the server filter; nothing identifying is sent; opt-out still sends nothing",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "verify and verify:full pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Insights report runs on the preview server and shows the new counters",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

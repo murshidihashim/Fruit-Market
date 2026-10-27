@@ -59,4 +59,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
+- PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
 <!-- records:pending:end -->
