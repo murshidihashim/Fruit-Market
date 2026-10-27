@@ -893,6 +893,10 @@
     {
       "at": "2026-10-27 13:46",
       "text": "REP-031: final tabletop mechanics (rules version 4) and a concept and mechanics summary for benchmarking. Lab sweeps 16-18: fruit-specific events (Blueberry Glut, Apple Blight), Good Harvest scaled by players, no Inspector on the final day; Market Days kept as an optional rule (most even plans but computers can't plan ahead). Open: Shop Bell, Juice Press and Cool Room retune; Long games favour ripening. Also fixed the coach tip covering the Seal button (the cause of the stuck CI run)."
+    },
+    {
+      "at": "2026-10-27 14:36",
+      "text": "Owner shared a benchmark review of REP-031 and asked for tweaks plus a favour card that reveals the face-down demand. REP-032: five-beat day (open stalls, bell, rush), prototypes A/B/C, Market Gossip replacing Free Cash. Lab sweep 19: cash catch-up has no exploit (upgrader 33%); uniform freshness improves balance (26-38%); core without traits/favours/upgrades lets ripening dominate (60%). PLAN-015 proposed; PLAN-014 build held until the owner decides."
     }
   ]
 }

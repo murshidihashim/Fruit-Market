@@ -1,0 +1,75 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-031",
+    "REP-032"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Market Gossip favour card: secretly see tomorrow's face-down walk-ins",
+      "Open stalls: for-sale quantities public before the bell",
+      "Market Days on the day track; Last Call on the final day",
+      "Day ledger and rush view in the app; Core market and Market Days set-up toggles"
+    ],
+    "changed": [
+      "Uniform freshness: -$1 okay, -$2 not so for every fruit",
+      "Upgrades become four specialities (Cold Room, Juice Bar, Barrow, Premium Display), drafted after Market Days",
+      "Ties: fresher fruit, then poorer shop",
+      "Market pulse becomes an optional advanced rule"
+    ],
+    "fixed": [],
+    "removed": [
+      "Free Cash favour card",
+      "Shop Bell upgrade"
+    ]
+  },
+  "playerNotes": [
+    "A clearer daily price duel: open your stall, set your prices, ring the bell",
+    "Market Days give each game a rhythm",
+    "New favour card: Market Gossip"
+  ],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-015",
+  "title": "Readable price duel: five-beat day, prototypes A/B/C and the Market Gossip card",
+  "problem": "Owner's benchmark review: the strong pricing core risks being buried in market administration; undercutting needs a visible alternative; upgrades should change decisions; the session needs an arc; add one favour card that reveals the face-down demand.",
+  "scope": [
+    "Five-beat day with Open stalls and the bell (REP-032 section 2)",
+    "Prototype A: uniform freshness, optional street prices, simpler ties, cash catch-up kept",
+    "Prototype B: four stall specialities replacing the six upgrades",
+    "Prototype C: fixed Market Days and Last Call",
+    "Market Gossip favour replaces Free Cash (private reveal; online privacy and leak test)",
+    "App feedback: rush view, day ledger, missed-sale reasons, reveal pause, set-up toggles for playtests",
+    "Paper and app playtests in the order A, B, C, then Gossip"
+  ],
+  "exclusions": [
+    "More fruit, events or characters",
+    "Secret objectives, trading or manipulation cards",
+    "Publishing (separate approval)",
+    "Telemetry or new data collection"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lab: production equals the lab package; held-out balance within REP-032 figures",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "verify and verify:full pass, including a Market Gossip privacy leak check",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Playtests: teach in about 5 minutes; players explain their key decisions; replay requested",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
