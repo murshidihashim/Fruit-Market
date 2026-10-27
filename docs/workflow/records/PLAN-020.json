@@ -1,16 +1,24 @@
 {
   "release": "unreleased",
-  "build": "measurement only; no game change",
+  "build": "rules version 5 on local branch workflow/plan-020; not pushed, not on the preview",
   "reports": [
     "REP-047",
-    "REP-049"
+    "REP-049",
+    "REP-050"
   ],
   "decisions": [
-    "DEC-028"
+    "DEC-028",
+    "DEC-029"
   ],
   "changes": {
     "added": [],
-    "changed": [],
+    "changed": [
+      "The lorry comes every day, Market Days too",
+      "No extra walk-in in the second half: walk-ins are players minus 2 every day, plus 1 on a Market Day",
+      "Computer shops no longer treat Market Days as a no-lorry shortage",
+      "How to play, the set-up screen and the tomorrow strip describe the new Market Days",
+      "Rules version 5: saves from version 4 cannot be resumed, and daily boards are kept per rules version"
+    ],
     "fixed": [],
     "removed": []
   },
@@ -19,7 +27,7 @@
     "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-020",
   "title": "Supply and customer demand in 4-player games: measure first, then propose one fix",
   "problem": "Informal feedback (REP-045): \"supply cant keep up with demand\" from mid-game and players ended up with nothing to buy. By code: no lorry comes on Market Days (days 3, 6, 9, 12; game.ts), and 4 shops add 1 of each fruit (about 17 fruits on a lorry day against a buying capacity of 16 for four shops). This is a hypothesis; no one has measured it. Owner (same message): \"feels like theres too much customer towards the final few turns\". By code, walk-ins per day are players minus 2 in the first half and players minus 1 in the second half, plus 1 on a Market Day, and unserved customers wait one more day; so late days have more customers.",
@@ -44,14 +52,14 @@
     {
       "id": "T2",
       "text": "Owner sets a target (for example, the largest share of shop turns that may find nothing to buy) before any change is chosen",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Owner target, 2026-10-27 23:29: the market should not be empty so that people can always buy something. Set in the same message as choosing the option, before building. Measured as the share of shop turns that find an empty market."
     },
     {
       "id": "T3",
       "text": "After the change: same-seed comparison meets the owner target; verify and verify:full pass",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Partly done (2026-10-27 23:29): same seeds 1 to 300, empty-market turns 0.0% to 1.0% against up to 22% before (target met in simulation); lint, types, 92 unit tests and build PASS. Not done: verify:full (browser tests need Playwright browsers) and the repo records check inside verify, which fails on Windows paths (run separately with a patched copy and PASS)."
     },
     {
       "id": "T4",
@@ -60,5 +68,9 @@
       "evidence": ""
     }
   ],
-  "playerNotes": []
+  "playerNotes": [
+    "Fruit now arrives every day, even on Market Days, so the market is no longer empty mid-game",
+    "The last days are no longer flooded with customers: no extra walk-in in the second half",
+    "Games in progress from the old version can't be resumed"
+  ]
 }

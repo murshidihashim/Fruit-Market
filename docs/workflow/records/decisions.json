@@ -713,6 +713,31 @@
         "REP-047"
       ],
       "reviewTrigger": "If a rule change is made without a human playtest, or after the first structured playtest."
+    },
+    {
+      "id": "DEC-029",
+      "title": "Supply and demand: option A + C (rules version 5)",
+      "question": "Which fix for the empty market on Market Days and the late-game customer surge (PLAN-020 step 2)?",
+      "choice": "Option A + C. A: the lorry comes every day, Market Days included. C: no extra walk-in in the second half; walk-ins are players minus 2 every day, plus 1 on a Market Day. Rules version 5. Both are printed numbers, playable by hand (DEC-027). Target (owner): the market should not be empty, so that people can always buy something.",
+      "rationale": "Simulation with computer players (REP-049): in rules 4 with 4 shops, 22% of shop turns in the last 3 days faced an empty market, rising to 49% on day 9, and late-game customers nearly doubled. A + C removed the empty market and kept demand level. The owner asked that any rule be implementable on a real tabletop; both parts are.",
+      "impact": {
+        "player": "Fruit arrives every day, so shops can always buy something. The last days are no longer flooded with customers. Market Days keep only the extra walk-in and Last Call.",
+        "technical": "Rules version 5: saves from version 4 cannot resume, daily boards start fresh (keyed by rules version), and online players need the same version. RULES.md updated as the master for the tabletop.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "why is the number in decimal? remember that rules should be able to be implemented on a tabletop elsewhere, else do plan a + c, target is so that the board would not be empty / ppl cant buy anything",
+        "date": "2026-10-27"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-050"
+      ],
+      "plan": "PLAN-020",
+      "reviewTrigger": "After a structured human playtest, or if 2-shop games feel empty of customers (about 2 customers a day in the simulation)."
     }
   ],
   "history": [
@@ -1059,6 +1084,10 @@
     {
       "at": "2026-10-27 23:16",
       "text": "PLAN-020 step 1 done (REP-049): in simulation with 4 shops, last-3-day customers rise from 4.9 to 8.9 a day, fruit sold stays near 14 a day, and Market Days (no lorry) leave 15%, 41% and 49% of shop turns facing an empty market. Putting the lorry back on Market Days: shop turns short 35% to 8%, fill rate 30% to 59%. Computer players only. Awaiting the owner: option (A, A+C, A+D or other) and a target before any change. PLAN-021 findings and PLAN-023 design note (Design 1 recommended) are ready for the owner. No game change."
+    },
+    {
+      "at": "2026-10-27 23:29",
+      "text": "Owner: \"why is the number in decimal? remember that rules should be able to be implemented on a tabletop elsewhere, else do plan a + c, target is so that the board would not be empty / ppl cant buy anything\". Chosen: option A + C for PLAN-020. Target set by the owner: the market should not be empty so that people can always buy something (measured as the share of shop turns that find an empty market). Built on branch workflow/plan-020 as rules version 5, local only: lorry every day, walk-ins players minus 2 every day (+1 on Market Days). Lint, types, 92 unit tests and the build pass; browser tests (verify:full) NOT RUN. Simulation after the change (computer players, 300 games per setting): empty-market turns 0.0% to 1.0% (rules 4: up to 22%). Not on the preview, not pushed, not live (REP-050)."
     }
   ]
 }
