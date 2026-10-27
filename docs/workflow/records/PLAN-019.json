@@ -5,7 +5,8 @@
     "REP-038",
     "REP-039",
     "REP-040",
-    "REP-041"
+    "REP-041",
+    "REP-042"
   ],
   "decisions": [
     "DEC-016",
@@ -45,8 +46,8 @@
     {
       "id": "T1",
       "text": "Hypotheses and criteria are written and dated before the first session",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Questions and criteria locked 2026-10-27 20:09 (Asia/Kuala_Lumpur), before any tester was sent the link. Owner: \"The draft questions and criteria are fine. Lock them in as of today.\". Text recorded in REP-042."
     },
     {
       "id": "T2",

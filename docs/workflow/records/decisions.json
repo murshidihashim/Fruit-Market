@@ -998,6 +998,10 @@
     {
       "at": "2026-10-27 20:06",
       "text": "Owner: \"no, i'll get people to play it from the browser link\". PLAN-019 scope amended again: no table round; 3 to 5 unfamiliar players play the preview from a link on their own devices and answer a short set of questions. Evidence will be self-reported and unobserved unless the owner joins a call. Hand-played ageing (DEC-027) stays untested. No game change (REP-041)."
+    },
+    {
+      "at": "2026-10-27 20:09",
+      "text": "Owner: \"The draft questions and criteria are fine. Lock them in as of today.\" PLAN-019 questions and continue/revise/stop criteria locked (T1 PASS); full text in REP-042. Changing them after results arrive is not allowed without a recorded change made before the results are read. Open point for the owner: how to read \"x of 4\" if 3 or 5 people test (REP-042). No game change."
     }
   ]
 }
