@@ -8,7 +8,8 @@
     "REP-041",
     "REP-042",
     "REP-043",
-    "REP-044"
+    "REP-044",
+    "REP-046"
   ],
   "decisions": [
     "DEC-016",
@@ -27,7 +28,7 @@
     "evidence": "Approve PLAN-019 only.",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-019",
   "title": "First human playtest: digital and paper rounds (no game code)",
   "problem": "Rules version 4 has never been played by an unfamiliar person. Balance work so far used computer players only. DEC-016 approved a first playtest but it has not been run, and DEC-027 makes the tabletop rules the master, so a paper round is needed as well.",
@@ -55,19 +56,19 @@
       "id": "T2",
       "text": "3 to 5 remote digital sessions (tester plays one Quick game against three computer shops from the link) each have a saved report with the tester's answers, tester count and build",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Ended early by the owner (2026-10-27 22:20). No formal PLAN-019 session was run; the Tally form had no submissions. One informal 4-player game (REP-045) does not match the setup."
     },
     {
       "id": "T3",
       "text": "No change to src/, server/ or RULES.md between the first and last session (git diff shows none)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "git diff of src, server, RULES.md and package.json between origin/main and the records branch is empty (2026-10-27 22:20). No game file changed."
     },
     {
       "id": "T4",
       "text": "Owner decision (continue, revise, stop) recorded with the evidence",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Owner ended the plan early: \"the ones i entered here is the feedback, just end the testing\". No continue, revise or stop reading of the game was made."
     }
   ]
 }

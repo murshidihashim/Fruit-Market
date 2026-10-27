@@ -1014,6 +1014,10 @@
     {
       "at": "2026-10-27 22:18",
       "text": "Owner passed on informal feedback from one 4-player game (10 rounds, about 30 minutes; setup and tester unknown): supply cannot keep up with demand from mid-game; every player has the same icon; 10 rounds feels long; no undo after tapping a fruit before confirming a buy; cannot edit the game name in the room and the name defaults to \"You\". Logged in REP-045 as informal feedback, not counted as a PLAN-019 session. Supply and length are rules or balance and stay frozen (DEC-026); the other three are UI backlog items for after the playtest. No game change, no decision."
+    },
+    {
+      "at": "2026-10-27 22:20",
+      "text": "Owner: \"the ones i entered here is the feedback, just end the testing\". PLAN-019 ended early. No formal session was run and the Tally form had no submissions; the only feedback is the informal 4-player game in REP-045. T1 PASS, T3 PASS, T2 and T4 NOT RUN. Delivery shown as implemented only because the records have no ended-early value; the playtest goal was NOT met and no continue, revise or stop reading exists. DEC-016 (first playtest) is not satisfied. DEC-026 (rules freeze) review trigger reached: owner to say whether the freeze stays or is lifted (REP-046). No game change."
     }
   ]
 }

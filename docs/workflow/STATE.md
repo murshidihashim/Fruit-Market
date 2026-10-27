@@ -19,7 +19,8 @@ Updated 2026-10-27 16:56 (Asia/Kuala_Lumpur) by Claude.
 - **PLAN-019 criteria locked** 2026-10-27 20:09 (REP-042, T1 PASS). Reading for 3 or 5 testers confirmed (REP-043).
 - **Test design changed 21:18 (REP-044):** testers play one Quick game against three computer shops and answer seven simpler questions (Tally form). Locked criteria unchanged.
 - **Informal feedback logged 22:18 (REP-045):** one 4-player game: supply short from mid-game, same icon for everyone, 10 rounds about 30 minutes, no undo before confirming a buy, game name not editable and defaults to "You". Not a PLAN-019 session. Supply and length frozen; three UI items on the backlog until after the playtest.
-- **Then:** owner sends the preview link and the form link to 3 to 5 unfamiliar players; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
+- **PLAN-019 ended early 22:20 (REP-046):** owner: "the ones i entered here is the feedback, just end the testing". No formal session; goal not met; no continue/revise/stop reading. Open: owner decides whether the rules freeze (DEC-026) stays or is lifted.
+- **Then (superseded by the line above):** owner sends the preview link and the form link to 3 to 5 unfamiliar players; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
