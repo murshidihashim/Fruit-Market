@@ -994,6 +994,10 @@
     {
       "at": "2026-10-27 20:05",
       "text": "Owner asked for the paper round to be done with the app. Offered: worked example, play the app as the table, or build a table-helper mode. Owner answered \"as it is right now\" (taken as: play the current app as the table; no new app mode, no paper kit). PLAN-019 scope amended: the paper round becomes a pass-and-play table round on the current app; acceptance T2 updated. Hand-played ageing, the premise of DEC-027, stays untested and needs a later plan. No game change (REP-040)."
+    },
+    {
+      "at": "2026-10-27 20:06",
+      "text": "Owner: \"no, i'll get people to play it from the browser link\". PLAN-019 scope amended again: no table round; 3 to 5 unfamiliar players play the preview from a link on their own devices and answer a short set of questions. Evidence will be self-reported and unobserved unless the owner joins a call. Hand-played ageing (DEC-027) stays untested. No game change (REP-041)."
     }
   ]
 }
