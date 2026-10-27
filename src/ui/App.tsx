@@ -293,7 +293,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
           <Toggle on={upgrades && !core} set={setUpgrades} title="Stall specialities" text="After each Market Day, build one: Cold Room, Juice Bar, Barrow or Premium Display." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
-          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in and no lorry. Last Call on the final day: +$1, then the jam maker buys leftovers." />
+          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in. Last Call on the final day: +$1, then the jam maker buys leftovers." />
         </section>
         <section class="panel">
           <h3>Playtest options</h3>

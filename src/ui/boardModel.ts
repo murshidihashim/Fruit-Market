@@ -66,7 +66,7 @@ export function nextLorry(s: GameState): LorryLine[] | null {
   }));
 }
 
-/** Tomorrow is a Market Day: no lorry, one more walk-in. */
+/** Tomorrow is a Market Day: one more walk-in (the lorry still comes). */
 export function marketDayTomorrow(s: GameState): boolean {
   return s.day < s.config.days && isMarketDay(s, s.day + 1);
 }

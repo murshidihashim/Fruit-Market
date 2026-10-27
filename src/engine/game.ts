@@ -29,7 +29,7 @@ export interface GameConfig {
   upgrades: boolean;
   events: boolean;
   seed: number;
-  /** Market Days every 3rd day (+1 walk-in, no lorry) and Last Call on the final day. On unless set to false. */
+  /** Market Days every 3rd day (+1 walk-in) and Last Call on the final day. On unless set to false. */
   marketDays?: boolean;
   /** Core market (prototype A): no traits and no favour cards (switch upgrades off as well). */
   core?: boolean;
@@ -118,7 +118,7 @@ export interface GameState {
   nextEvent: EventCard | null;
   delivery: Partial<Record<FruitId, number>>;
   deliveryUnripe: FruitId | null;
-  /** Tomorrow's farmer card, drawn a day early and shown to everyone (null on the last day or before a Market Day). */
+  /** Tomorrow's farmer card, drawn a day early and shown to everyone (null on the last day). */
   nextFarmer?: FarmerCard | null;
   /** The next expected customer (face up). */
   forecast: Customer | null;
@@ -195,7 +195,7 @@ export function marketCost(s: GameState, f: FruitId, pos: number): number {
 
 export const marketDaysOn = (s: GameState): boolean => s.config.marketDays !== false;
 
-/** Market Day: every 3rd day (never the last). No lorry, and one more walk-in. */
+/** Market Day: every 3rd day (never the last). One more walk-in; the lorry still comes. */
 export function isMarketDay(s: GameState, day = s.day): boolean {
   return marketDaysOn(s) && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
 }
@@ -255,9 +255,9 @@ export function progress(s: GameState, day = s.day): number {
   return s.config.days <= 1 ? 1 : Math.min(1, (day - 1) / (s.config.days - 1));
 }
 
-/** Walk-ins on a day: players - 2 in the first half, players - 1 in the second; +1 on Market Days; plus that day's event. */
+/** Walk-ins on a day: players - 2 every day (rules 5: no extra walk-in in the second half); +1 on Market Days; plus that day's event. */
 export function walkInsOn(s: GameState, day: number, event: EventCard | null): number {
-  const base = Math.max(0, s.players.length - 2) + (progress(s, day) >= 0.5 ? 1 : 0);
+  const base = Math.max(0, s.players.length - 2);
   return Math.max(0, base + (isMarketDay(s, day) ? 1 : 0) + (event?.walkIns ?? 0));
 }
 
@@ -433,9 +433,9 @@ function startDay(s: GameState) {
   }
   s.delivery = {};
   s.deliveryUnripe = null;
-  // Today's lorry was announced yesterday. No lorry comes on a Market Day.
-  const card = isMarketDay(s) ? null : s.nextFarmer ?? drawFarmer(s);
-  s.nextFarmer = s.day < s.config.days && !isMarketDay(s, s.day + 1) ? drawFarmer(s) : null;
+  // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5).
+  const card = s.nextFarmer ?? drawFarmer(s);
+  s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
   if (card && !s.event?.noDelivery) {
     const e = s.event;
     const shops = s.players.length;

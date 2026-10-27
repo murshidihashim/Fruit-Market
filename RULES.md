@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 4).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 5).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -40,14 +40,14 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 Each morning shows tomorrow on the **Tomorrow strip**: the next farmer card, the next event, one **expected customer** face up, and the **walk-ins** face down. Walk-ins show only the fruit on their card backs.
 
-- Walk-ins per day: **players − 2** in the first half of the game, **players − 1** in the second half.
-- **Market Day:** one more walk-in (see below).
+- Walk-ins per day: **players − 2**, every day of the game.
+- **Market Day:** one more walk-in (see below). The lorry still comes.
 
 ## A day in five beats
 
 ### 1. Dawn
 1. Apply today's **event**.
-2. The farmer's lorry unloads today's card at the freshest position (or the unripe position). No lorry on a Market Day.
+2. The farmer's lorry unloads today's card at the freshest position (or the unripe position). The lorry comes every day, Market Days included.
 3. Draw tomorrow's farmer card, event and queue for the Tomorrow strip.
 
 ### 2. Market
@@ -76,7 +76,7 @@ Customers buy in queue order: waiting customers first, then new ones. For each f
 
 ## Market rhythm
 
-- **Market Days (days 3, 6, 9 and 12, never the last day):** one more walk-in, and no lorry. Stock you kept is all you have.
+- **Market Days (days 3, 6, 9 and 12, never the last day):** one more walk-in. The lorry still comes.
 - **Last Call (final day):** customers pay $1 more. Afterwards the **jam maker** buys every shop's leftover ripe fruit for $1 each.
 
 Market Days and Last Call are on by default and can be switched off in the set-up.
@@ -144,7 +144,7 @@ On the first morning, each shop is dealt 3 traits and keeps one for the whole ga
 
 ## Balance notes
 
-Rules version 4 (REP-031 to REP-033). See REP-033 for the computer-player checks of this edition.
+Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP-033) had no lorry on Market Days and one more walk-in from halfway; in computer-player games that left the market empty on Market Days and nearly doubled the customers in the last three days. Rules 5 brings the lorry every day and drops the second-half walk-in. See REP-049 for the numbers (computer players only).
 
 ## Daily challenge
 

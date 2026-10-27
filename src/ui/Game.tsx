@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { buyLimit, canBuy, isMarketDay, type GameState } from '../engine/game';
+import { buyLimit, canBuy, type GameState } from '../engine/game';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
@@ -70,7 +70,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Rivals sit across the table in one row, in turn order after you.
   const rivals = seats(s.players.length, viewer).map((x) => x.p);
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
-  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery && !isMarketDay(s);
+  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
   // then flipped open one by one, highest price first, as each showdown is revealed.
   const boards: Record<number, Board> = {};

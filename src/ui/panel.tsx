@@ -45,7 +45,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const [vals, setVals] = useState<Stall>(() => planStall(s, p));
   const set = (f: FruitId, n: number) => setVals((v) => ({ ...v, [f]: Math.max(0, Math.min(count(pl.stock, f, true), n)) }));
   const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
-  const tomorrow = s.day >= s.config.days ? 'Last Call: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: no lorry. Stock you keep is all you will have.' : null;
+  const tomorrow = s.day >= s.config.days ? 'Last Call: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
   return (
     <div class="price-panel stall-panel">
       <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>

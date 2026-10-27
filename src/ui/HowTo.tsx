@@ -58,7 +58,7 @@ const SLIDES = [
     title: 'Market Days and Last Call',
     body: (
       <>
-        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in, and <b>no lorry</b>. Keep stock back for them!</p>
+        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in. The lorry still comes.</p>
         <p>On the <b>final day</b>, customers pay $1 more, and then the jam maker buys leftover fruit for $1 each.</p>
       </>
     ),

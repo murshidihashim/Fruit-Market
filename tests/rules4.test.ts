@@ -46,14 +46,14 @@ describe('printed supply and demand', () => {
     for (const c of FARMER_CARDS) for (const n of Object.values(c.supply)) expect(n).toBeGreaterThanOrEqual(2);
   });
 
-  it('walk-ins: players - 2 in the first half, players - 1 in the second, +1 on Market Days', () => {
+  it('walk-ins: players - 2 every day (rules 5), +1 on Market Days', () => {
     const s = newGame(humans(3));
     expect(walkInsOn(s, 1, null)).toBe(1);
     expect(walkInsOn(s, 3, null)).toBe(2); // Market Day
-    expect(walkInsOn(s, 7, null)).toBe(2);
-    expect(walkInsOn(s, 9, null)).toBe(3); // Market Day in the second half
+    expect(walkInsOn(s, 7, null)).toBe(1); // no extra walk-in in the second half
+    expect(walkInsOn(s, 9, null)).toBe(2); // Market Day
     expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(0);
-    expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(3);
+    expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(2);
   });
 
   it('customer orders are used as printed (no scaling)', () => {
@@ -99,7 +99,7 @@ describe('the queue and Market Gossip', () => {
 });
 
 describe('Market Days, Last Call and the draft', () => {
-  it('Market Days fall on days 3, 6, 9 (never the last day): no lorry; specialities follow them', () => {
+  it('Market Days fall on days 3, 6, 9 (never the last day): the lorry still comes (rules 5); specialities follow them', () => {
     const s = newGame(humans(3));
     expect([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter((d) => isMarketDay(s, d))).toEqual([3, 6, 9]);
     expect([1, 2, 3, 6, 9, 10].filter((d) => isDraftNight(s, d))).toEqual([3, 6, 9]);
@@ -108,7 +108,7 @@ describe('Market Days, Last Call and the draft', () => {
     expect(isDraftNight(off, 3)).toBe(true);
     let g = autoplay(newGame(ais(3, 8, { events: false })), 1);
     while (!(g.day === 3 && g.phase === 'morning')) g = autoplay(g, 1);
-    expect(Object.keys(g.delivery).length).toBe(0);
+    expect(Object.keys(g.delivery).length).toBeGreaterThan(0);
   });
 
   it('Last Call: customers pay $1 more on the final day and the jam maker buys leftovers at $1', () => {
@@ -217,9 +217,9 @@ describe('options', () => {
   });
 });
 
-describe('rules version 4', () => {
+describe('rules version 5', () => {
   it('keeps daily boards for each rules version apart', () => {
-    expect(RULES_VERSION).toBe(4);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r4');
+    expect(RULES_VERSION).toBe(5);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r5');
   });
 });

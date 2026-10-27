@@ -84,16 +84,14 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
 export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
   const lines = nextLorry(s);
   if (s.phase === 'over') return null;
-  if (!lines) {
-    if (!marketDayTomorrow(s)) return null;
-    return <div class={`next-lorry market-day ${cls}`}><span class="nl-title">Tomorrow: Market Day</span><span class="nl-note">No lorry · one more walk-in</span></div>;
-  }
+  if (!lines) return null;
   return (
-    <div class={`next-lorry ${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.n} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
+    <div class={`next-lorry ${marketDayTomorrow(s) ? 'market-day ' : ''}${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.n} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
       <span class="nl-title">Tomorrow's lorry</span>
       {lines.map((l) => (
         <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />×{l.n}</span>
       ))}
+      {marketDayTomorrow(s) && <span class="nl-note">Market Day: one more walk-in</span>}
     </div>
   );
 }

@@ -67,7 +67,7 @@ describe('engine', () => {
 });
 
 describe('pacing', () => {
-  it('customers want more as the game goes on', () => {
+  it('customer demand stays level as the game goes on (rules 5: no second-half ramp)', () => {
     let early = 0, late = 0;
     for (let seed = 1; seed <= 60; seed++) {
       let s = newGame(cfg(4, seed, { events: false }));
@@ -78,7 +78,8 @@ describe('pacing', () => {
         if (s.phase === 'morning') s = beginBuying(s);
       }
     }
-    // Rules 4: one more walk-in from halfway (4 shops: 2 walk-ins, then 3), plus Last Call on the final day.
-    expect(late).toBeGreaterThan(early * 1.15);
+    // Rules 5: no extra walk-in from halfway (4 shops: 2 walk-ins every day). Day 10 may differ a little from day 1 by chance.
+    expect(late).toBeLessThan(early * 1.25);
+    expect(late).toBeGreaterThan(early * 0.75);
   });
 });

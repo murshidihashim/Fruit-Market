@@ -6,7 +6,7 @@
 import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JUICE_TIP, MARKET_DAY_EVERY, UPGRADES, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isMarketDay, minPrice,
+  capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, minPrice,
   openStall, playFavour, priceMod, servingCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   type Customer, type GameState, type Level, type Post, type Stall, type Stock,
 } from './game';
@@ -79,10 +79,9 @@ function outlook(s: GameState, p: number, f: FruitId) {
   return { qty, avgMax: maxN ? maxSum / maxN : WANT_AVG[f].max + priceMod(s, f) };
 }
 
-/** Will this fruit be scarce tomorrow? (No lorry on a Market Day; otherwise the card shows few of it.) */
+/** Will this fruit be scarce tomorrow? (The card shows few of it.) */
 function scarceTomorrow(s: GameState, f: FruitId): boolean {
   if (s.day >= s.config.days) return false;
-  if (isMarketDay(s, s.day + 1)) return true;
   return !!s.nextFarmer && (s.nextFarmer.supply[f] ?? 0) <= 3;
 }
 
@@ -121,11 +120,9 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
     const mod = (s.nextEvent.priceAll ?? 0) + (s.nextEvent.price?.[f] ?? 0);
     later += HARD.eventAware * mod * 0.5;
   }
-  // Fruit that will be scarce tomorrow (few on the next lorry, or a Market Day with no lorry) is worth keeping.
+  // Fruit that will be scarce tomorrow (few on the next lorry) is worth keeping.
   if (laterDays > 0 && planner && scarceTomorrow(s, f)) {
-    // A Market Day tomorrow (no lorry, one more walk-in) is worth stocking up for.
-    const md = isMarketDay(s, s.day + 1) ? 0.8 : 0.5;
-    later += md * Math.max(0, price - 1) * (1 - pSell * 0.5);
+    later += 0.5 * Math.max(0, price - 1) * (1 - pSell * 0.5);
   }
   return price * pSell + later;
 }
