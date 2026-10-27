@@ -2,7 +2,7 @@
 // reactions and highlights. Nothing here changes game state or re-implements pricing; every
 // sentence is derived from the recorded offers (price, units, sold, freshness) and the rules
 // the engine used to sort them (cheapest first; ties: Favoured Trade, then a Haggler, then fresher fruit,
-// then the poorer shop, then turn order).
+// then today's buying order, which was set at dawn with the poorest shop first).
 
 import { FRUIT, FRUITS, RIVALS, lookOf, type FruitId } from './data';
 import { minPrice, ranking, type GameState, type LineResult, type Offer } from './game';
@@ -37,8 +37,7 @@ function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): s
   if (w.favouredTrade && !l.favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
   if (haggled(s, winner, loser)) return `${nameOf(s, winner.player, viewer)} haggled (a Haggler wins ties)`;
   if (winner.freshness > loser.freshness) return `${possessive(s, winner.player, viewer)} fruit was fresher`;
-  if (w.cash < l.cash) return `${nameOf(s, winner.player, viewer)} ${winner.player === viewer ? 'are' : 'is'} the poorer shop`;
-  return `${nameOf(s, winner.player, viewer)} went earlier in turn order`;
+  return `${nameOf(s, winner.player, viewer)} bought earlier today`;
 }
 
 /** A Haggler wins ties (after Favoured Trade). */

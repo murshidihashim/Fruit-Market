@@ -65,7 +65,7 @@ Each shop secretly sets **one price per fruit** it put out, then everyone reveal
 ### 5. The rush
 Customers buy in queue order: waiting customers first, then new ones. For each fruit a customer wants, they buy from the **cheapest stall** that has fruit fresh enough for its price; leftover demand **spills to the next stall**.
 
-- **Ties:** Favoured Trade, then the Haggler, then fresher fruit, then the poorer shop, then turn order.
+- **Ties:** Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today. (Today's buying order was set at dawn, poorest shop first. Cash is not used, because it changes while customers are paid.)
 - You're paid as soon as you sell.
 - **Favours:** serve a customer's entire remaining order by yourself and draw a favour card (at most one per day).
 - A new customer who doesn't get everything comes back tomorrow as *waiting*. A waiting customer leaves after today either way.
@@ -141,6 +141,41 @@ On the first morning, each shop is dealt 3 traits and keeps one for the whole ga
 | Core market | No traits, favour cards or specialities: just buying, stalls and the bell. |
 | Street prices (beginner) | Every customer pays one street price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Cards with the "generous" icon pay $2 more. |
 | Market pulse (advanced) | After each day, a fruit that ran short gets a +$1 price marker (up to +$2); a fruit with a glut at the market gets −$1 (down to −$1); otherwise the marker drifts back to 0. |
+
+## Playing on a table
+
+The rules above are the same on a table and in the app. These are the ways to run them by hand (added in rules version 5; none of them changes a rule, apart from the tie-break line above).
+
+**Order of customers.** Lay the customer cards in one row, always in this order: waiting customers (yesterday's unserved), the expected customer, the walk-ins in the order they were drawn, then an event customer such as the Hotel Chef. Serve them left to right.
+
+**The reader.** One player reads the customers aloud and pays the shops from the bank, so shops never swap coins with each other. Use the player who bought last that morning. For each customer line the reader says the real top price for the day (card price plus any event, Last Call or Street Price change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies, at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each shop hands over its oldest piece that still qualifies.
+
+**Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
+
+**The sole-supplier cube.** The first shop to sell to a customer puts a cube of its colour on the card. If a second shop sells to the same customer, the cube comes off. When the order is complete, a cube left on the card means that shop served it alone: it draws a favour card (and a Local Favourite takes its $4 tip).
+
+**Dawn line-up.** At dawn every shop puts its cash in a pile in front of it. Shop tokens line up on a queue strip, fewest coins first, ties starting from the first-player token. Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
+
+**Evening.** Keep favour cards face down in front of you, so everyone can count them. Only shops holding a card, or with a speciality on offer after a Market Day, take an evening turn, in line-up order.
+
+**Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became fresh. A pile's **age** is the clock number minus its chip. A fruit bought **unripe** gets the chip of the clock number on which it ripens (the clock number now plus 1 for watermelon, plus 2 for mango); it is green until the clock reaches that number.
+
+| Age | Blueberry | Watermelon | Apple | Mango |
+|---|---|---|---|---|
+| 0 | fresh | fresh | fresh | fresh |
+| 1 | okay | fresh | fresh | fresh |
+| 2 | not so | okay | fresh | okay |
+| 3 | spoiled | okay | okay | not so |
+| 4 | | not so | okay | spoiled |
+| 5 | | spoiled | okay | |
+| 6 | | | not so | |
+| 7 | | | spoiled | |
+
+At dawn, throw away piles that have reached "spoiled". A Health Inspector counts the "not so" piles. A Juice Bar juices up to 3 fruits that spoil. A **Cold Room** shop has its own fruit clock that moves on only one night in two (the night after an even day) and never on a Heatwave night. When it buys fruit, it works out the age from the market clock and re-stamps the chip on its own clock. A **Fridge** adds 1 to the chips of that shop's ripe piles, never past today's clock number.
+
+**Waiting.** Customers who are not fully served go to a waiting pile with their pieces. A waiting customer that is not fully served the next day leaves.
+
+*Left out on purpose: a price ladder board for lining up posted prices. Sorting the price cards by hand works for 2 to 4 shops.*
 
 ## Balance notes
 

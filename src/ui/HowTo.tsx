@@ -49,7 +49,7 @@ const SLIDES = [
       <>
         <p>Customers arrive. Each shop secretly fills its <b>for-sale crate</b>; then everyone sees how many each stall put out.</p>
         <p>Then each shop sets <b>one secret price per fruit</b>. At the bell, all prices show together.</p>
-        <p>In the <b>rush</b>, customers buy from the <b>cheapest stall</b> first; leftover demand spills to the next. Ties: Favoured Trade, then the Haggler, then fresher fruit, then the poorer shop.</p>
+        <p>In the <b>rush</b>, customers buy from the <b>cheapest stall</b> first; leftover demand spills to the next. Ties: Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today (the poorest shop buys first).</p>
         <p>A customer who doesn't get everything comes back once more the next day, then leaves.</p>
       </>
     ),

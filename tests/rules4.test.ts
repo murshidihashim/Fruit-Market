@@ -153,7 +153,7 @@ describe('open stalls and posted prices', () => {
     expect(line.offers.find((o) => o.player === 1)!.sold).toBe(1);
   });
 
-  it('ties: fresher fruit wins; with the same freshness the poorer shop wins; a Haggler beats both', () => {
+  it('ties: fresher fruit wins; with the same freshness the shop that bought earlier today wins (rules 5); a Haggler beats both', () => {
     const run = (setup: (s: GameState) => void) => {
       let s = duel();
       setup(s);
@@ -164,7 +164,9 @@ describe('open stalls and posted prices', () => {
       return s.results!.lines[0].offers.find((o) => o.sold === 3)!.player;
     };
     expect(run((s) => { s.players[0].stock.apple[fresh('apple')] = 3; s.players[1].stock.apple[2] = 3; })).toBe(0);
-    expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.players[0].cash = 30; s.players[1].cash = 5; })).toBe(1);
+    // Same freshness: the earlier buyer wins, whatever the cash is (cash changes during the rush, so it is not used).
+    expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [1, 0]; s.players[0].cash = 5; s.players[1].cash = 30; })).toBe(1);
+    expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [0, 1]; s.players[0].cash = 30; s.players[1].cash = 5; })).toBe(0);
     expect(run((s) => { s.players[0].stock.apple[2] = 3; s.players[1].stock.apple[fresh('apple')] = 3; s.players[0].trait = 'haggler'; })).toBe(0);
     expect(TRAITS.haggler.text).toContain('fresher');
   });

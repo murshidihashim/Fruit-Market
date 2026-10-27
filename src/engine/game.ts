@@ -732,9 +732,10 @@ function resolve(s: GameState) {
         }
         offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
       });
-      // Cheapest first. Ties: Favoured Trade, then a Haggler, then fresher fruit, then the poorer shop, then turn order.
+      // Cheapest first. Ties: Favoured Trade, then a Haggler, then fresher fruit, then today's buying order (rules 5:
+      // cash changes while customers are paid, so it is no longer a tie-break; the order was set at dawn, poorest first).
       offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || tieWin(a.player, b.player)
-        || b.freshness - a.freshness || s.players[a.player].cash - s.players[b.player].cash || orderIdx(a.player) - orderIdx(b.player));
+        || b.freshness - a.freshness || orderIdx(a.player) - orderIdx(b.player));
       let need = w.qty;
       for (const o of offers) {
         if (need <= 0 || o.tooOld) continue;
