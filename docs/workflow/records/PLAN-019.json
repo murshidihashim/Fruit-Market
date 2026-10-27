@@ -7,7 +7,8 @@
     "REP-040",
     "REP-041",
     "REP-042",
-    "REP-043"
+    "REP-043",
+    "REP-044"
   ],
   "decisions": [
     "DEC-016",
@@ -32,7 +33,7 @@
   "problem": "Rules version 4 has never been played by an unfamiliar person. Balance work so far used computer players only. DEC-016 approved a first playtest but it has not been run, and DEC-027 makes the tabletop rules the master, so a paper round is needed as well.",
   "scope": [
     "Write hypotheses and continue, revise or stop criteria before testing (DEC-016: at least 3 of 4 testers can explain a lost sale by day 3; provisional, owner-set)",
-    "3 to 5 unfamiliar players, no coaching; each plays one digital Quick game against one computer shop on the preview",
+    "3 to 5 unfamiliar players, no coaching; each plays one digital Quick game against three computer shops (four shops in all) on the preview",
     "Testers play the preview (rules version 4) from a browser link on their own devices. The owner sends the link and a short set of questions; answers and any notes are saved as the session report. No in-person table round, no paper kit, no app change. Hand-played ageing is NOT tested by this plan",
     "One playtest report per session using the playtest template; observations kept separate from interpretation; tester count and build recorded",
     "Owner decision recorded: continue, revise or stop"
@@ -52,7 +53,7 @@
     },
     {
       "id": "T2",
-      "text": "3 to 5 remote digital sessions (tester plays from the link) each have a saved report with the tester's answers, tester count and build",
+      "text": "3 to 5 remote digital sessions (tester plays one Quick game against three computer shops from the link) each have a saved report with the tester's answers, tester count and build",
       "result": "NOT RUN",
       "evidence": ""
     },

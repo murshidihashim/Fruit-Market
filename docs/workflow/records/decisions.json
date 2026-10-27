@@ -1006,6 +1006,10 @@
     {
       "at": "2026-10-27 20:12",
       "text": "Owner: \"Yes, use the proposed reading for 3 or 5 testers.\" Confirmed for PLAN-019: with 3 or 5 testers, Continue needs at least three quarters (3 of 3, or 4 of 5); Revise needs at least half (2 of 3, or 3 of 5); anything lower is Stop or park. With 4 testers the locked thresholds apply as written (REP-043). No game change."
+    },
+    {
+      "at": "2026-10-27 21:18",
+      "text": "Owner: \"i feel like the questions need to be simpler to answer, and any particular reason we are asking for 1v1? make it 1v3 if possible\". Before any tester played: PLAN-019 testers now play one Quick game against three computer shops (four shops in all) instead of one, and the tester questions are replaced by seven simpler ones (four tap-to-answer, three short optional). Locked criteria (REP-042, REP-043) unchanged. DEC-016 said one computer shop; superseded for this test only. No game change (REP-044)."
     }
   ]
 }
