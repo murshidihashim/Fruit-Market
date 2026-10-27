@@ -1,10 +1,10 @@
 # Current state · Fruit Market
 
-Updated 2026-10-27 16:20 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 16:42 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
-- **Active package:** PLAN-016 (speciality price cut) and PLAN-015 (with PLAN-014), implemented; waiting for the owner's playtest. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
+- **Active package:** PLAN-017 (more fruit, smarter computers; REP-035) implemented; PLAN-016 verified; PLAN-015 (with PLAN-014) implemented; waiting for the owner's playtest. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
 - **Release 1.1.1 published** 2026-10-27 (Deploy LIVE game run 15, live smoke test passed, tagged `v1.1.1` on `83de99b`). Triggered by Claude on the owner's instruction "deploy".
@@ -13,7 +13,7 @@ Updated 2026-10-27 16:20 (Asia/Kuala_Lumpur) by Claude.
 - **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. PLAN-010 (lorry, Gemini art) verified (REP-026). All three are on `main`, ready to become 1.2.0 when the owner asks.
 - **Balance:** PLAN-012 approved and verified (REP-027 proposal, REP-028 build): rules version 3, tomorrow's lorry, retuned traits, Juice Press and league, cosy home screen. On `main` for the preview; **live game unchanged**. Open: owner playtest (T5 NOT RUN); skill gap 60% vs 65% aim (green mango $3 is the main cause); Long games still favour patient plans.
 - **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
-- **Tabletop rules (rules version 4):** PLAN-014 and PLAN-015 approved and **built** (REP-033): open stalls, the bell, Market Days, Last Call, four specialities, Market Gossip, day ledger, playtest options. verify and verify:full PASS (leak check 0). On `main` for the preview; **live game unchanged** (still rules version 3). Open: owner playtest (NOT RUN); Cold Room and Juice Bar weak for computers (price cut to $4 / $3 approved and built in PLAN-016, REP-034, but no measurable gain); little undercutting among computers; 2-player blowouts 34%.
+- **Tabletop rules (rules version 4):** PLAN-014 and PLAN-015 approved and **built** (REP-033): open stalls, the bell, Market Days, Last Call, four specialities, Market Gossip, day ledger, playtest options. verify and verify:full PASS (leak check 0). On `main` for the preview; **live game unchanged** (still rules version 3). Open: owner playtest (NOT RUN); Cold Room and Juice Bar weak for computers (price cut in PLAN-016 and smarter computers in PLAN-017 did not help: skipping them costs nothing); farmer cards +1 per listed fruit (PLAN-017) made Big Basket too strong (45%); little undercutting among computers; 2-player blowouts 34%.
 - **Then:** owner playtest of the preview (REP-032 section 8 order); PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
 
 ## Builds

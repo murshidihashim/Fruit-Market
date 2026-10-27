@@ -31,7 +31,7 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 ## Cards
 
-- **Farmer cards (20):** each lists three fruits, 2 to 4 of each, printed for 3 shops. The fruit not on the card arrives as 1. With **2 shops**, take 1 less of each listed fruit (minimum 1); with **4 shops**, add 1 of every fruit. Some cards mark one fruit as arriving unripe.
+- **Farmer cards (20):** each lists three fruits, 3 to 5 of each, printed for 3 shops. The fruit not on the card arrives as 1. With **2 shops**, take 1 less of each listed fruit (minimum 1); with **4 shops**, add 1 of every fruit. Some cards mark one fruit as arriving unripe.
 - **Customer cards (24):** a name and up to three fruits, each with an amount and the most they pay for a *fresh* one. The back of each card shows the fruits they want.
 - **Event cards (13):** one is drawn each morning from Day 2 onward and shown a day early.
 - **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. Hold up to 3 (4 with the Charmer trait).

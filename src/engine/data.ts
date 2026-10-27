@@ -69,29 +69,29 @@ export function freshPos(f: FruitId): number {
 
 export interface FarmerCard { supply: Partial<Record<FruitId, number>>; unripe?: FruitId }
 
-// 20 farmer cards, printed as they arrive with 3 shops: three fruits at 2-4 each; the fourth fruit comes as 1.
+// 20 farmer cards, printed as they arrive with 3 shops: three fruits at 3-5 each; the fourth fruit comes as 1.
 // With 2 shops, one less of each listed fruit (minimum 1); with 4 shops, one more of every fruit.
 export const FARMER_CARDS: FarmerCard[] = [
-  { supply: { apple: 4, watermelon: 4, blueberry: 3 } },
-  { supply: { mango: 3, apple: 2, blueberry: 4 } },
-  { supply: { mango: 4, watermelon: 3, apple: 2 }, unripe: 'mango' },
-  { supply: { blueberry: 4, watermelon: 2, mango: 3 } },
-  { supply: { apple: 3, mango: 3, watermelon: 3 }, unripe: 'mango' },
-  { supply: { blueberry: 3, apple: 3, mango: 2 } },
-  { supply: { watermelon: 4, blueberry: 2, apple: 3 }, unripe: 'watermelon' },
-  { supply: { mango: 2, apple: 4, blueberry: 3 } },
-  { supply: { watermelon: 3, mango: 4, blueberry: 2 }, unripe: 'mango' },
-  { supply: { apple: 2, watermelon: 3, mango: 4 } },
-  { supply: { blueberry: 4, mango: 4, apple: 2 }, unripe: 'mango' },
-  { supply: { watermelon: 2, apple: 4, mango: 3 } },
-  { supply: { blueberry: 3, watermelon: 4, mango: 2 }, unripe: 'watermelon' },
-  { supply: { apple: 3, blueberry: 2, watermelon: 4 } },
-  { supply: { mango: 3, blueberry: 3, apple: 3 }, unripe: 'mango' },
-  { supply: { watermelon: 3, apple: 2, blueberry: 4 } },
-  { supply: { mango: 4, apple: 3, watermelon: 2 }, unripe: 'mango' },
-  { supply: { blueberry: 2, mango: 3, watermelon: 4 } },
-  { supply: { apple: 4, blueberry: 4, mango: 2 }, unripe: 'mango' },
-  { supply: { watermelon: 4, mango: 2, apple: 3 } },
+  { supply: { apple: 5, watermelon: 5, blueberry: 4 } },
+  { supply: { mango: 4, apple: 3, blueberry: 5 } },
+  { supply: { mango: 5, watermelon: 4, apple: 3 }, unripe: 'mango' },
+  { supply: { blueberry: 5, watermelon: 3, mango: 4 } },
+  { supply: { apple: 4, mango: 4, watermelon: 4 }, unripe: 'mango' },
+  { supply: { blueberry: 4, apple: 4, mango: 3 } },
+  { supply: { watermelon: 5, blueberry: 3, apple: 4 }, unripe: 'watermelon' },
+  { supply: { mango: 3, apple: 5, blueberry: 4 } },
+  { supply: { watermelon: 4, mango: 5, blueberry: 3 }, unripe: 'mango' },
+  { supply: { apple: 3, watermelon: 4, mango: 5 } },
+  { supply: { blueberry: 5, mango: 5, apple: 3 }, unripe: 'mango' },
+  { supply: { watermelon: 3, apple: 5, mango: 4 } },
+  { supply: { blueberry: 4, watermelon: 5, mango: 3 }, unripe: 'watermelon' },
+  { supply: { apple: 4, blueberry: 3, watermelon: 5 } },
+  { supply: { mango: 4, blueberry: 4, apple: 4 }, unripe: 'mango' },
+  { supply: { watermelon: 4, apple: 3, blueberry: 5 } },
+  { supply: { mango: 5, apple: 4, watermelon: 3 }, unripe: 'mango' },
+  { supply: { blueberry: 3, mango: 4, watermelon: 5 } },
+  { supply: { apple: 5, blueberry: 5, mango: 3 }, unripe: 'mango' },
+  { supply: { watermelon: 5, mango: 3, apple: 4 } },
 ];
 
 export interface Want { fruit: FruitId; qty: number; max: number }

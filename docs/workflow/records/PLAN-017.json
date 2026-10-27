@@ -1,0 +1,67 @@
+{
+  "release": "unreleased",
+  "build": "workflow/plan-017",
+  "reports": [
+    "REP-034",
+    "REP-035"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Farmer cards bring 1 more of each listed fruit (printed 3-5)",
+      "Computer players plan for Market Days and play Cold Room and Juice Bar properly"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "The farmers bring more fruit",
+    "Computer rivals are sharper, and Easy is gentler by comparison"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "approve option 1 and 2",
+    "date": "2026-10-27"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-017",
+  "title": "More fruit on the farmer cards; computers that use Cold Room, Juice Bar and Market Days",
+  "problem": "REP-034: the speciality price cut had no effect; tight supply and computers that don't plan ahead leave Cold Room and Juice Bar idle.",
+  "scope": [
+    "Option 2: +1 of each listed fruit on every farmer card (rules)",
+    "Option 1: Normal and Hard computers value Juice Bar tips and juice, Cold Room holding, Market Day stocking, and pick suitable specialities",
+    "Same-seed comparisons for each step"
+  ],
+  "exclusions": [
+    "Trait or speciality changes",
+    "Easy computer changes",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Same-seed comparisons recorded for supply alone and both changes",
+      "result": "PASS",
+      "evidence": "REP-035 section 2"
+    },
+    {
+      "id": "T2",
+      "text": "Cold Room and Juice Bar become worth building (skipping either costs a shop at least 3 points)",
+      "result": "FAIL",
+      "evidence": "REP-035: skipping either still 33-34% (no difference)"
+    },
+    {
+      "id": "T3",
+      "text": "No trait above 40% in 3-player games",
+      "result": "FAIL",
+      "evidence": "REP-035: Big Basket 45%"
+    },
+    {
+      "id": "T4",
+      "text": "npm run verify passes; CI verify:full green on main",
+      "result": "NOT RUN",
+      "evidence": "verify PASS locally; CI pending at time of writing"
+    }
+  ]
+}
