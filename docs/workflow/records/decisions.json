@@ -763,6 +763,31 @@
       ],
       "plan": "PLAN-024",
       "reviewTrigger": "After a hand-played tabletop test, or if tie-breaks feel unfair in human games."
+    },
+    {
+      "id": "DEC-031",
+      "title": "Character cards: pick one of six characters on entering a room or the set-up screen",
+      "question": "Should each shop pick a character with a fixed perk instead of being dealt three traits?",
+      "choice": "Yes. Six characters (the six animals), each with one fixed perk (the six existing traits): Foxy Rosa Haggler, Big Benny Big Basket, Rocky Bargain Hunter, Patches Charmer, Pinky Local Favourite, Uncle Toad Nest Egg. Each shop picks a different character when it enters an online room (changeable in the lobby, taken ones greyed out) or on the set-up screen; computer shops take the rest. This replaces the first-morning \"deal 3, keep 1\" trait pick. The daily challenge and league keep the old trait pick for the person. Kept as rules version 5.",
+      "rationale": "Owner instruction, in their words, after the character-card proposal (Characters_and_Art). It also gives every seat a different icon. The perks were balanced in simulation (900 games, 4 shops, each trait first 22% to 28% against a fair 25%).",
+      "impact": {
+        "player": "Pick a character before the game; each has one perk for the whole game, visible to everyone. No two shops share a character. The first-morning trait pick no longer appears for characters.",
+        "technical": "New character data, fixed-trait start in the engine, a character message in the room protocol and server, a character picker in the room entry, lobby and set-up screens. Rules version stays 5 (unreleased).",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "make it so that character is selected when you enter the room instead apply all the changes and push it the game",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-052"
+      ],
+      "plan": "PLAN-025",
+      "reviewTrigger": "After a human playtest, or if one character proves too strong or too weak."
     }
   ],
   "history": [
@@ -1121,6 +1146,10 @@
     {
       "at": "2026-10-28 00:28",
       "text": "Owner: \"implement all the fix except for the price ladder, i dont get the problem and your solution\". Built on branch workflow/plan-024 (local, not pushed): tie-break by buying order instead of live cash, story and How to play text, tests, and a \"Playing on a table\" section in RULES.md. Price ladder and colour zones not built. Lint, types, 92 unit tests and the build pass; browser tests NOT RUN; hand-played tabletop test NOT RUN. Still rules version 5 (unreleased) (REP-051)."
+    },
+    {
+      "at": "2026-10-28 00:46",
+      "text": "Owner: \"make it so that character is selected when you enter the room instead apply all the changes and push it the game\". Character cards built on branch workflow/plan-025 (DEC-031): six characters with fixed perks, picked on entering a room or on the set-up screen. Lint, types, 100 unit tests and the build pass; browser tests NOT RUN locally (CI runs them on push). The owner also asked to push: the branch is pushed for CI, and merged to main (the preview) only if CI passes. The live game is not deployed; that needs the owner to run Deploy LIVE game and type PUBLISH (REP-052)."
     }
   ]
 }

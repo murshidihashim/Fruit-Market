@@ -1,0 +1,82 @@
+{
+  "release": "unreleased",
+  "build": "rules version 5 on local branch workflow/plan-025",
+  "reports": [
+    "REP-052"
+  ],
+  "decisions": [
+    "DEC-031"
+  ],
+  "changes": {
+    "added": [
+      "Character cards: pick one of six characters, each with one perk for the whole game"
+    ],
+    "changed": [
+      "Pick your character when you enter an online room or on the set-up screen; no two shops share one",
+      "Computer shops take the characters people did not pick"
+    ],
+    "fixed": [
+      "Every player no longer starts with the same icon"
+    ],
+    "removed": [
+      "The first-morning \"choose a trait\" step for characters"
+    ]
+  },
+  "playerNotes": [
+    "Pick a character before the game. Each has one perk, and no two players can share one",
+    "Everyone now has a different icon"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "make it so that character is selected when you enter the room instead apply all the changes and push it the game",
+    "date": "2026-10-28"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-025",
+  "title": "Character cards: six characters with fixed perks",
+  "problem": "Informal feedback (REP-045): every player has the same icon. The owner asked for character cards with perks to pick from when entering the room (Characters_and_Art), replacing the dealt traits.",
+  "scope": [
+    "Six characters, each with one fixed perk (the six traits); unique per table",
+    "Pick on the online room entry and in the lobby, and on the set-up screen",
+    "Server: unique characters, a character message in the lobby, computer shops take the rest",
+    "RULES.md Characters section; How to play text",
+    "Daily challenge and league unchanged for the person"
+  ],
+  "exclusions": [
+    "Powers beyond the perks",
+    "Changing the balance of any perk",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Each character gives its perk at the start and nobody is offered a choice",
+      "result": "PASS",
+      "evidence": "tests/characters.test.ts, 5 tests"
+    },
+    {
+      "id": "T2",
+      "text": "In a room, each seat gets a different character; switching and refusing a taken one work; computer shops take the rest",
+      "result": "PASS",
+      "evidence": "tests/room.test.ts, 3 new tests"
+    },
+    {
+      "id": "T3",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "100 of 100 unit tests; eslint and tsc clean; build ok (2026-10-28 00:46)"
+    },
+    {
+      "id": "T4",
+      "text": "The new screens look right and work on a phone",
+      "result": "NOT RUN",
+      "evidence": "Not seen on a screen; the CI browser tests cover the flow, not the look"
+    },
+    {
+      "id": "T5",
+      "text": "Browser tests (verify:full) pass in CI",
+      "result": "NOT RUN",
+      "evidence": "Run by CI after the push; result in REP-052 once known"
+    }
+  ]
+}
