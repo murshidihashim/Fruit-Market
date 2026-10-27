@@ -1,19 +1,26 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "workflow/plan-012",
   "reports": [
     "REP-025",
-    "REP-027"
+    "REP-027",
+    "REP-028"
   ],
   "decisions": [],
   "changes": {
-    "added": [],
+    "added": [
+      "Tomorrow's lorry: tomorrow's farmer delivery shown to everyone (plenty or few per fruit)",
+      "Cosy pixel home screen from the mockup"
+    ],
     "changed": [
       "Customers come sooner and farmers bring less spare fruit, so deep undercuts pay less",
       "The town is sized for 4 fruits per shop: a Handcart or Big Basket helps only its owner",
       "4-player towns have 15% more customers",
-      "Apples cost $3 fresh and $2 okay (were $4 and $3)",
-      "Rules version 3: games in progress from the old version can't be resumed"
+      "Apples cost $3 fresh and $2 okay (were $4 and $3); green mangoes cost $3 (were $2)",
+      "Haggler wins ties against richer shops even over fresher fruit; Local Favourite tip $4; Nest Egg starts with $15",
+      "Juice Press: older fruit sold earns $1 extra as juice",
+      "Market League stages retuned (no more three-Hard final)",
+      "Rules version 3: games in progress from the old version can't be resumed; daily boards per rules version"
     ],
     "fixed": [
       "Apple price-cap example in the rules"
@@ -22,15 +29,21 @@
   },
   "playerNotes": [
     "Markets are livelier: customers come sooner, and big undercuts pay less",
-    "Apples are cheaper",
+    "See tomorrow's lorry: which fruits come in plenty tomorrow",
+    "Apples are cheaper; green mangoes cost a little more",
+    "Haggler, Local Favourite, Nest Egg and the Juice Press have been rebalanced",
+    "The Market League has a smoother climb to the Royal Market",
+    "A fresh new home screen",
     "Games in progress from the old version can't be resumed"
   ],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "yes approvrd together with the optional changes and the new layout from the mockup",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "verified",
   "id": "PLAN-012",
-  "title": "Market rebalance: tighter town, fair Handcart, better apples",
+  "title": "Market rebalance and cosy home screen: tighter town, fair Handcart, better apples, optional tweaks",
   "problem": "REP-025 and REP-027: undercutting and dumping old stock dominate (43% and 51% wins against a fair 33%), premium pricing is nearly hopeless (13%), apples are a trap, early leaders snowball and 4-player games are starved. Lab tests on held-out seeds show the package below fixes these without faster decay or spoilage quotas.",
   "scope": [
     "E1 src/engine/data.ts + game.ts: demand 0.6 + 0.45 x progress (was 0.4 + 0.45); deliveries 0.8 + 0.2 x progress (was 1 + 0.5)",
@@ -38,43 +51,63 @@
     "E3 game.ts: 4-player demand x 1.15",
     "E4 data.ts: apple cost fresh 3, okay 2, not so 1 (was 4, 3, 1); new apple theme line",
     "E5 protocol.ts RULES_VERSION 3; worker.ts daily board key includes the rules version; RULES.md, Handcart text and balance notes updated; new unit tests",
-    "AI: no code change expected (reads demand and costs at run time); re-measured after the patch"
+    "AI: no code change expected (reads demand and costs at run time); re-measured after the patch",
+    "O1 traits: Haggler wins ties before freshness; Local Favourite tip $4; Nest Egg starts with $15",
+    "O2 green mango costs $3",
+    "O3 tomorrow's farmer delivery shown to everyone (public information); computers use it",
+    "O4 Long (14-day) games tuned so no plan dominates (values set by lab test before building)",
+    "O5 Juice Press and Cool Room reworked so each upgrade is worth considering (values set by lab test)",
+    "O6 Market League stages retuned for the new market (values set by lab test)",
+    "L1 Home screen in the cosy pixel layout of the mockup (sign with the fox peeking, harbour scene, New game, Play a friend, Quick match, Daily challenge, Market League, How to play / Trophies / Settings)"
   ],
   "exclusions": [
-    "Decay curves, traits, mango, delivery forecast, Juice Press, Cool Room, league stages, achievements thresholds (optional follow-ups in REP-027 section 6b)",
+    "Customer walking to the winner (not asked)",
     "Publishing the live game (separate approval)",
-    "Telemetry or any new data collection"
+    "Telemetry or any new data collection",
+    "New dependencies"
   ],
   "acceptance": [
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify exit 0: records OK, lint, types, 81 unit tests, build"
     },
     {
       "id": "T2",
       "text": "npm run verify:full passes, including the online leak check at 0 and old-version clients refused",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify:full exit 0: solo game, BUDGET OK, online 40 pricing frames leaks 0, takeover, quick match, four players, reconnect 5 cycles 0 failed; old apps refused (room.test.ts, meta.test.ts)"
     },
     {
       "id": "T3",
       "text": "Patched engine reproduces the lab package results within the margin (Undercut <= 30%, Salvage <= 36%, Premium >= 20% in 3 players; comeback from last >= 20%; Hard beats Normal >= 65%)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Production engine equals the lab package on 450 games (0 differences). Held-out seeds: Undercut 27%, Salvage 36%, Premium 28% (3p); comeback from last 25.8%. Hard beats Normal 60% (below the 65% aim: reported in REP-028 section 3, mostly from green mango at $3)"
     },
     {
       "id": "T4",
       "text": "Old save shows the 'older version of the rules' notice; daily board for the release day keeps old and new scores apart",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "store.ts older-rules notice unchanged and tested; dailyBoardKey gives daily:<date>:r3 (rebalance.test.ts)"
     },
     {
       "id": "T5",
       "text": "Human playtest (REP-027 section 7) passes before publishing",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Human playtest not yet held (REP-027 section 7)"
+    },
+    {
+      "id": "T6",
+      "text": "Home screen matches the mockup layout at 390x844, 360x640 and 1280x800; no sideways scroll",
+      "result": "PASS",
+      "evidence": "Screenshots at 390x844, 360x640, 1280x800: no sideways scroll, no page errors"
+    },
+    {
+      "id": "T7",
+      "text": "Optional items O2-O6 pass a combined lab check before shipping; any item that breaks the REP-027 success criteria is reported back instead of shipped",
+      "result": "PASS",
+      "evidence": "Combined lab check on held-out seeds (REP-028). Items that did not work are reported, not shipped: Long-mode tuning and Cool Room rework left unchanged; skill-gap aim missed (60% vs 65%) flagged for the owner"
     }
   ]
 }

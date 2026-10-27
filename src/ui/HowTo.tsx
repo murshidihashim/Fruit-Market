@@ -38,7 +38,7 @@ const SLIDES = [
     title: 'Morning: buy fruit',
     body: (
       <>
-        <p>The farmer delivers, and an <b>event card</b> changes the day. You can see tomorrow's event a day early, so plan ahead!</p>
+        <p>The farmer delivers, and an <b>event card</b> changes the day. You can see tomorrow's event and tomorrow's lorry (which fruits come in plenty) a day early, so plan ahead!</p>
         <p>Taking turns, each shop buys <b>up to 4 fruits</b>. <b>The poorest shop buys first.</b> Fresh fruit costs more but customers pay more for it.</p>
         <p>You can see one customer who is coming today. A second <b>walk-in</b> is a surprise.</p>
       </>

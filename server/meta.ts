@@ -56,6 +56,11 @@ export function publicBoard(board: DailyEntry[]): PublicEntry[] {
   return board.map(({ name, cash, sold }) => ({ name, cash, sold }));
 }
 
+/** One daily board per date and rules version, so scores under old and new rules never mix. */
+export function dailyBoardKey(date: string): string {
+  return `daily:${date}:r${RULES_VERSION}`;
+}
+
 /** Daily keys a player could honestly be on right now (time zones run from UTC-12 to UTC+14). */
 export function acceptableDates(now: number): string[] {
   return [-1, 0, 1].map((d) => utcDay(now + d * 86_400_000));

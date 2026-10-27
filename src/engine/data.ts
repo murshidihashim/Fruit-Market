@@ -24,8 +24,8 @@ export interface FruitDef {
 // Each fruit plays differently:
 //  blueberry  - cheap, big margin, but turns to mush in 3 days (high risk, high reward)
 //  watermelon - the steady middle: decent margin, loses value slowly
-//  apple      - keeps a week and barely loses value, but costs the most (safe, thin margin)
-//  mango      - arrives green for $2, ripens on your shelf, sells at a premium, then spoils fast
+//  apple      - the keeper: keeps a week and barely loses value; never the best price, never a loss
+//  mango      - arrives green for $3, ripens on your shelf, sells at a premium, then spoils fast
 export const FRUIT: Record<FruitId, FruitDef> = {
   blueberry: {
     id: 'blueberry', name: 'Blueberry', plural: 'Blueberries', color: '#4f5bd5',
@@ -41,15 +41,15 @@ export const FRUIT: Record<FruitId, FruitDef> = {
   },
   apple: {
     id: 'apple', name: 'Apple', plural: 'Apples', color: '#e0393e',
-    theme: 'Keeps for a week and hardly loses value, but costs the most.',
+    theme: 'The keeper: lasts a week and hardly loses value. Never the best price, never a loss.',
     ripe: ['notso', 'okay', 'okay', 'okay', 'fresh', 'fresh', 'fresh'], drop: [2, 1, 1, 1, 0, 0, 0], unripeSlots: 0,
-    cost: { fresh: 4, okay: 3, notso: 1, unripe: 1 },
+    cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 },
   },
   mango: {
     id: 'mango', name: 'Mango', plural: 'Mangoes', color: '#f2b705',
-    theme: 'Buy green for $2, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
+    theme: 'Buy green for $3, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
     ripe: ['notso', 'okay', 'fresh', 'fresh'], drop: [3, 1, 0, 0], unripeSlots: 2,
-    cost: { fresh: 4, okay: 2, notso: 1, unripe: 2 },
+    cost: { fresh: 4, okay: 2, notso: 1, unripe: 3 },
   },
 };
 
@@ -208,11 +208,11 @@ export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: 
 
 /** Every evening each shop is offered 3 of these it hasn't built yet (an upgrade draft). */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
-  cart: { id: 'cart', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day instead of 4.' },
+  cart: { id: 'cart', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day instead of 4. (The town doesn\'t grow with it.)' },
   signboard: { id: 'signboard', title: 'Signboard', icon: '🪧', cost: 8, text: 'Earn a $1 tip on every fruit you sell.' },
   coolroom: { id: 'coolroom', title: 'Cool Room', icon: '❄️', cost: 7, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it.' },
   shelf: { id: 'shelf', title: 'Bigger Shelf', icon: '🗄️', cost: 3, text: 'Hold 14 fruits instead of 8.' },
-  juicer: { id: 'juicer', title: 'Juice Press', icon: '🧃', cost: 4, text: 'Each night, up to 3 fruits that would spoil become juice: $2 each.' },
+  juicer: { id: 'juicer', title: 'Juice Press', icon: '🧃', cost: 4, text: 'Older fruit you sell (okay or not so) earns $1 extra as juice. Each night, up to 3 fruits that would spoil become juice: $2 each.' },
   bell: { id: 'bell', title: 'Shop Bell', icon: '🔔', cost: 4, text: 'Draw 2 favour cards now, and hold up to 4.' },
 };
 export const UPGRADE_OFFER = 3;
@@ -220,6 +220,17 @@ export const UPGRADE_OFFER = 3;
 export const BASE_SHELF = 8;
 export const BIG_SHELF = 14;
 export const BASE_BUY = 4;
+
+/**
+ * Town size (REP-027). Customers want (demandStart + demandGrowth x progress) of 4 fruits per shop,
+ * farmers bring (supplyStart + supplyGrowth x progress) of it; 4-player towns have 15% more customers.
+ * Handcarts and Big Baskets don't change these numbers.
+ */
+export const MARKET = { demandStart: 0.6, demandGrowth: 0.45, supplyStart: 0.8, supplyGrowth: 0.2, fourPlayerDemand: 1.15 };
+export const NEST_EGG_BONUS = 5;
+export const LOCAL_FAVOURITE_TIP = 4;
+/** Juice Press: extra dollars for each okay or not-so fruit sold. */
+export const JUICE_TIP = 1;
 export const CART_BUY = 5;
 export const START_CASH = 10;
 export const FAVOUR_HAND_LIMIT = 3;
@@ -232,12 +243,12 @@ export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite'
 export interface TraitDef { id: TraitId; title: string; text: string }
 
 export const TRAITS: Record<TraitId, TraitDef> = {
-  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against richer shops.' },
+  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against richer shops, even if their fruit is fresher.' },
   basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day.' },
   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
   charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 3 favour cards, and hold up to 4.' },
-  favourite: { id: 'favourite', title: 'Local Favourite', text: 'Customers you serve completely by yourself tip you $3.' },
-  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $16 instead of $10.' },
+  favourite: { id: 'favourite', title: 'Local Favourite', text: 'Customers you serve completely by yourself tip you $4.' },
+  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $15 instead of $10.' },
 };
 export const TRAIT_OFFER = 3;
 

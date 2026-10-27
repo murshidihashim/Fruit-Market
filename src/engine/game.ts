@@ -3,7 +3,7 @@
 
 import {
   BASE_BUY, BASE_SHELF, BIG_SHELF, CART_BUY, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
-  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, START_CASH, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
+  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, JUICE_TIP, LOCAL_FAVOURITE_TIP, MARKET, NEST_EGG_BONUS, START_CASH, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
   freshPos, stageAt, trackLength,
   type EventCard, type FarmerCard, type FavourId, type FruitId, type TraitId, type UpgradeId, type Want,
 } from './data';
@@ -48,7 +48,11 @@ export interface Customer { id: number; name: string; wants: Want[]; original: W
 
 export interface Bid { customerId: number; fruit: FruitId; qty: number; price: number }
 
-export interface Offer { player: number; qty: number; price: number; sold: number; freshness: number }
+export interface Offer {
+  player: number; qty: number; price: number; sold: number; freshness: number;
+  /** Extra cash from a Juice Press on older fruit (shown in the sale animation). */
+  juice?: number;
+}
 export interface LineResult { customerId: number; name: string; fruit: FruitId; want: number; max: number; offers: Offer[] }
 export interface DayResult {
   lines: LineResult[];
@@ -78,6 +82,8 @@ export interface GameState {
   nextEvent: EventCard | null;
   delivery: Partial<Record<FruitId, number>>;
   deliveryUnripe: FruitId | null;
+  /** Tomorrow's farmer card, drawn a day early and shown to everyone (null on the last day). */
+  nextFarmer?: FarmerCard | null;
   forecast: Customer | null;
   firstMarket: Customer[];
   secondMarket: Customer[];
@@ -175,16 +181,17 @@ export function activePlayer(s: GameState): number {
 
 // ---------- pacing ----------
 // The town grows during the game: early days have few, small orders; later days bring more
-// customers who buy more. Demand and supply both follow what the shops can actually buy
-// (3 fruit each a day, 5 with a Handcart), so the market stays tight as shops upgrade.
+// customers who buy more. Demand and supply are sized for 4 fruits per shop (MARKET in data.ts):
+// customers start at 60% of that and grow, farmers bring a little more than shops can buy.
 
 /** 0 on the first day, 1 on the last. */
 export function progress(s: GameState, day = s.day): number {
   return s.config.days <= 1 ? 1 : Math.min(1, (day - 1) / (s.config.days - 1));
 }
 
-function buyCapacity(s: GameState): number {
-  return s.players.reduce((a, p) => a + buyLimit(p), 0);
+/** Town size: 4 fruits per shop. Handcarts and Big Baskets help only their owner, not the town. */
+function marketCapacity(s: GameState): number {
+  return s.players.length * BASE_BUY;
 }
 
 function baseWalkIns(s: GameState, day = s.day): number {
@@ -200,12 +207,13 @@ const CARD_AVG_QTY = CUSTOMER_CARDS.reduce((a, c) => a + c.wants.reduce((b, w) =
 const FARMER_AVG_QTY = FARMER_CARDS.reduce((a, c) => a + Object.values(c.supply).reduce((b, n) => b + (n ?? 0), 0) + 2, 0) / FARMER_CARDS.length;
 
 export function demandScale(s: GameState, day = s.day): number {
-  const target = buyCapacity(s) * (0.4 + 0.45 * progress(s, day));
+  const playerBoost = s.players.length === 4 ? MARKET.fourPlayerDemand : 1;
+  const target = marketCapacity(s) * (MARKET.demandStart + MARKET.demandGrowth * progress(s, day)) * playerBoost;
   return target / (CARD_AVG_QTY * (1 + baseWalkIns(s, day)));
 }
 
 function supplyScale(s: GameState): number {
-  return (buyCapacity(s) * (1 + 0.5 * progress(s))) / FARMER_AVG_QTY;
+  return (marketCapacity(s) * (MARKET.supplyStart + MARKET.supplyGrowth * progress(s))) / FARMER_AVG_QTY;
 }
 
 function clone<T>(x: T): T {
@@ -258,7 +266,7 @@ function age(stock: Stock, steps: number): number {
 function applyTrait(s: GameState, p: number, t: TraitId) {
   const pl = s.players[p];
   pl.trait = t;
-  if (t === 'nestegg') pl.cash = START_CASH + 6;
+  if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
   if (t === 'charmer') pl.favours.push(drawFavour(s), drawFavour(s), drawFavour(s));
   s.dayStartCash = s.players.map((x) => x.cash);
   s.log.push(`${pl.name} is a ${TRAITS[t].title}`);
@@ -353,8 +361,10 @@ function startDay(s: GameState) {
   }
   s.delivery = {};
   s.deliveryUnripe = null;
+  // Tomorrow's farmer card is drawn a day early and shown to everyone, like the next event.
+  const card = s.nextFarmer ?? drawFarmer(s);
+  s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
   if (!s.event?.noDelivery) {
-    const card = drawFarmer(s);
     const scale = supplyScale(s);
     const harvest = s.event?.supply ?? 0;
     const mult = s.event?.supplyMult ?? 1;
@@ -588,7 +598,12 @@ export function submitBids(state: GameState, p: number, bids: Bid[], useFavoured
 
 /** Does `a` beat `b` on a tie? A Favoured Trade card today, or a Haggler facing a richer shop. */
 function tieEdge(a: Player, b: Player): boolean {
-  return a.favouredTrade || (a.trait === 'haggler' && b.cash > a.cash);
+  return a.favouredTrade || hagglerEdge(a, b);
+}
+
+/** A Haggler wins a tied price against a richer shop even when the rival's fruit is fresher. */
+function hagglerEdge(a: Player, b: Player): boolean {
+  return a.trait === 'haggler' && b.cash > a.cash;
 }
 
 function resolve(s: GameState) {
@@ -624,6 +639,7 @@ function resolve(s: GameState) {
       });
       offers.sort((a, b) =>
         a.price - b.price ||
+        Number(hagglerEdge(s.players[b.player], s.players[a.player])) - Number(hagglerEdge(s.players[a.player], s.players[b.player])) ||
         b.freshness - a.freshness ||
         Number(tieEdge(s.players[b.player], s.players[a.player])) - Number(tieEdge(s.players[a.player], s.players[b.player])) ||
         orderIdx(a.player) - orderIdx(b.player));
@@ -637,7 +653,10 @@ function resolve(s: GameState) {
         const used = plans[o.player].get(`${c.id}:${w.fruit}`)!.slice(0, n);
         for (const i of used) pl.stock[w.fruit][i]--;
         const tip = pl.upgrades.includes('signboard') ? 1 : 0;
-        const gain = n * (o.price + tip);
+        // Juice Press: each older fruit sold (okay or not so) earns a juice tip as well.
+        const juice = pl.upgrades.includes('juicer') ? JUICE_TIP * used.filter((i) => stageAt(w.fruit, i) === 'okay' || stageAt(w.fruit, i) === 'notso').length : 0;
+        if (juice) o.juice = juice;
+        const gain = n * (o.price + tip) + juice;
         pl.cash += gain;
         pl.stats.earned += gain;
         pl.stats.sold += n;
@@ -656,9 +675,9 @@ function resolve(s: GameState) {
         const p = [...suppliers][0];
         const pl = s.players[p];
         if (pl.trait === 'favourite') {
-          pl.cash += 3;
-          pl.stats.earned += 3;
-          res.income[p] += 3;
+          pl.cash += LOCAL_FAVOURITE_TIP;
+          pl.stats.earned += LOCAL_FAVOURITE_TIP;
+          res.income[p] += LOCAL_FAVOURITE_TIP;
         }
         // At most one favour card per shop per day.
         if (pl.favours.length < handLimit(pl) && !res.favours.some((x) => x.player === p)) {

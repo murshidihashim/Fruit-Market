@@ -10,7 +10,7 @@
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
 import { DurableObject } from 'cloudflare:workers';
 import { CODE_ALPHABET, CODE_LENGTH, RULES_VERSION, normaliseCode } from '../src/net/protocol';
-import { addEntry, cleanIngest, KEEP_DAYS, ownerOf, publicBoard, quickMatch, utcDay, verifyDaily, type DailyEntry, type QuickState } from './meta';
+import { addEntry, cleanIngest, dailyBoardKey, KEEP_DAYS, ownerOf, publicBoard, quickMatch, utcDay, verifyDaily, type DailyEntry, type QuickState } from './meta';
 import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
 import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
@@ -104,10 +104,10 @@ export default {
         try { body = await readBody(req); } catch (e) { return json({ error: (e as Error).message }, 400); }
         const d = (body as { date?: unknown }).date;
         if (typeof d !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return json({ error: 'Bad date' }, 400);
-        return env.BOARD.get(env.BOARD.idFromName(`daily:${d}`)).fetch('https://board/submit', { method: 'POST', body: JSON.stringify(body) });
+        return env.BOARD.get(env.BOARD.idFromName(dailyBoardKey(d))).fetch('https://board/submit', { method: 'POST', body: JSON.stringify(body) });
       }
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date!)) return json({ error: 'Bad date' }, 400);
-      return env.BOARD.get(env.BOARD.idFromName(`daily:${date}`)).fetch('https://board/top');
+      return env.BOARD.get(env.BOARD.idFromName(dailyBoardKey(date!))).fetch('https://board/top');
     }
     const m = url.pathname.match(/^\/ws\/([A-Za-z0-9-]+)$/);
     if (m) {

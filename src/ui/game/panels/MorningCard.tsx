@@ -4,6 +4,7 @@ import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 import { EventIcon, Fruit } from '../../art';
 import { Icon } from '../../pixel';
+import { NextLorry } from '../../table';
 
 export function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number; lost: number }) {
   const rem = s.config.days - s.day + 1;
@@ -26,6 +27,7 @@ export function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number;
         <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
       )}
       {s.nextEvent && <div class="mc-next">Tomorrow: <b><EventIcon id={s.nextEvent.id} size={16} /> {s.nextEvent.title}</b><small>{s.nextEvent.text}</small></div>}
+      <NextLorry s={s} cls="mc-lorry" />
     </div>
   );
 }

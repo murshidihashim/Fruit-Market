@@ -90,6 +90,10 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
     const mod = (s.nextEvent.priceAll ?? 0) + (s.nextEvent.price?.[f] ?? 0);
     later += HARD.eventAware * mod * 0.5;
   }
+  // With tomorrow's delivery shown, fruit that will be scarce tomorrow is worth keeping.
+  if (s.nextFarmer && laterDays > 0 && level(s, p) !== 'easy' && (s.nextFarmer.supply[f] ?? 2) <= 2) {
+    later += 0.5 * Math.max(0, price - 1) * (1 - pSell * 0.5);
+  }
   return price * pSell + later;
 }
 
@@ -172,7 +176,9 @@ export function planBids(s: GameState, p: number): { bids: Bid[]; favoured: bool
       // Best response: try every price and assume rivals undercut their own cap by a few dollars.
       const fruitDemand = lines.filter((l) => l.w.fruit === f).reduce((a, l) => a + l.w.qty, 0);
       const share = w.qty / Math.max(1, fruitDemand);
-      const keep = rotsTonight || lastDay ? 0 : (lv === 'hard' ? HARD.keep : 0.3) * myCap;
+      let keep = rotsTonight || lastDay ? 0 : (lv === 'hard' ? HARD.keep : 0.3) * myCap;
+      // Hold out for a better price when this fruit will be scarce tomorrow.
+      if (keep > 0 && s.nextFarmer && (s.nextFarmer.supply[f] ?? 2) <= 2) keep = Math.max(keep, 0.45 * myCap);
       const myQty = Math.min(w.qty, ripeCount(stock, f));
       const scenarios = [0, 1, 2, 3];
       // How far below their cap each rival tends to go, per scenario.

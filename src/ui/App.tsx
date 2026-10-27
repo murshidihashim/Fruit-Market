@@ -4,8 +4,8 @@ import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig } from '../engine/daily';
 import { FRUIT, FRUITS, RIVALS } from '../engine/data';
-import { Fruit, Logo } from './art';
-import { prewarmSprites } from './pixel';
+import { Fruit } from './art';
+import { Portrait, prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { HowTo } from './HowTo';
 import { Online } from './Online';
@@ -125,40 +125,87 @@ export function App() {
   const streak = dailyStreak(daily);
   const resumable = game && game.phase !== 'over';
   const league = leagueStage();
+  const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), loadName(), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
   return (
-    <div class="home">
-      <div class="awning" />
-      <div class="home-inner">
-        <div class="logo-wrap"><Logo size={130} /></div>
-        <h1>Fruit Market</h1>
-        <p class="tagline">Buy fresh. Sell fast. Undercut your rivals before it all goes bad!</p>
-        <div class="fruit-parade">{FRUITS.map((f) => <Fruit id={f} size={36} />)}</div>
+    <div class="home cosy">
+      <div class="harbour">
+        <HarbourScene />
+        <div class="hm-sign-wrap">
+          <Bunting />
+          <div class="hm-fox" aria-hidden="true"><Portrait who="fox" size={64} /></div>
+          <div class="hm-sign">
+            <h1>Fruit Market</h1>
+            <p>Where the whole world shops</p>
+            <p class="hm-secret">…and every price is a secret</p>
+          </div>
+        </div>
+        <div class="hm-fruit" aria-hidden="true">{FRUITS.map((f) => <Fruit id={f} size={40} />)}</div>
+      </div>
+      <div class="hm-actions">
         {saveNotice && <p class="save-notice" role="status">{saveNotice}</p>}
         {resumable && (
-          <button class="btn primary big wide" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
+          <button class="hm-btn hm-primary" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
         )}
-        <button class={`btn ${resumable ? '' : 'primary'} big wide`} onClick={() => go('setup')}>New game</button>
-        <button class="btn wide league-btn" onClick={() => start(leagueConfig(Math.min(league, LEAGUE.length - 1), loadName(), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0))}>
-          <span>Market League</span>
-          <small>{league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1}/${LEAGUE.length}: ${LEAGUE[league].title}`}</small>
-        </button>
-        <div class="row2">
-          <button class="btn online-btn" onClick={() => go('quick')}>Quick match</button>
-          <button class="btn online-btn stacked" onClick={() => go('online')}><span>Play a friend</span><small>2 to 4 players online</small></button>
+        <button class={`hm-btn ${resumable ? 'hm-secondary' : 'hm-primary'}`} onClick={() => go('setup')}>New game</button>
+        <div class="hm-grid2">
+          <button class="hm-btn hm-teal" onClick={() => go('online')}><span>Play a friend</span><small>2 to 4 players online</small></button>
+          <button class="hm-btn hm-teal" onClick={() => go('quick')}><span>Quick match</span><small>Meet a stranger</small></button>
         </div>
-        <button class="btn wide daily" onClick={startDaily}>
-          <span>Daily challenge</span>
-          <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · ${streak}-day streak` : ''}</small>
+        <button class="hm-btn hm-card" onClick={startDaily}>
+          <DailyIcon />
+          <span class="hm-card-text">
+            <span>Daily challenge</span>
+            <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · ${streak}-day streak` : ''}</small>
+          </span>
         </button>
         <DailyPeek date={today} />
-        <div class="row3">
-          <button class="btn" onClick={() => go('howto')}>How to play</button>
-          <button class="btn" onClick={() => go('trophies')}>Trophies</button>
-          <button class="btn" onClick={() => go('settings')}>Settings</button>
+        <button class="hm-btn hm-card" onClick={startLeague}>
+          <TrophyIcon />
+          <span class="hm-card-text">
+            <span>Market League</span>
+            <small>{league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}</small>
+          </span>
+        </button>
+        <div class="hm-grid3">
+          <button class="hm-btn hm-small" onClick={() => go('howto')}>How to play</button>
+          <button class="hm-btn hm-small" onClick={() => go('trophies')}>Trophies</button>
+          <button class="hm-btn hm-small" onClick={() => go('settings')}>Settings</button>
         </div>
       </div>
     </div>
   );
+}
+
+/** The harbour behind the home sign: sun, sea, two bobbing boats and the pier (decoration only). */
+function HarbourScene() {
+  return (
+    <svg class="hm-scene" viewBox="-445 0 1280 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <rect x="-445" width="1280" height="300" fill="#f3d9a4" />
+      <circle cx="300" cy="78" r="34" fill="#f7b955" />
+      <path d="M-480 170 Q-420 150 -360 168 T-240 164 T-120 166 T0 170 Q60 150 120 168 T240 164 T360 162 T480 166 T600 164 T720 166 T840 164 V300 H-480 Z" fill="#7fb6b0" />
+      <path d="M-480 196 Q-410 180 -340 196 T-200 192 T-60 194 T0 196 Q70 180 140 196 T280 192 T420 194 T560 192 T700 194 T840 192 V300 H-480 Z" fill="#2f7f7a" />
+      <g class="hm-bob"><path d="M54 186 H112 L102 202 H64 Z" fill="#c65a3a" /><rect x="80" y="150" width="3" height="36" fill="#6b4a2b" /><path d="M83 152 L106 180 H83 Z" fill="#fffaf0" /></g>
+      <g class="hm-bob hm-bob2"><path d="M272 194 H316 L309 206 H279 Z" fill="#e7a73a" /><rect x="292" y="166" width="3" height="28" fill="#6b4a2b" /><path d="M295 168 L312 188 H295 Z" fill="#fffaf0" /></g>
+      <g class="hm-bob hm-bob2"><path d="M-250 190 H-200 L-208 204 H-242 Z" fill="#e7a73a" /><rect x="-227" y="160" width="3" height="30" fill="#6b4a2b" /><path d="M-224 162 L-205 184 H-224 Z" fill="#fffaf0" /></g>
+      <g class="hm-bob"><path d="M600 192 H650 L642 206 H608 Z" fill="#c65a3a" /><rect x="623" y="162" width="3" height="30" fill="#6b4a2b" /><path d="M626 164 L645 186 H626 Z" fill="#fffaf0" /></g>
+      <rect x="-445" y="232" width="1280" height="68" fill="#b9824e" />
+      <rect x="-445" y="232" width="1280" height="6" fill="#8e5b33" />
+    </svg>
+  );
+}
+
+function Bunting() {
+  let d = 'M0 0 H320 V12';
+  for (let x = 320; x > 0; x -= 16) d += ` Q${x - 8} 30 ${x - 16} 12`;
+  return <svg class="hm-bunting" viewBox="0 0 320 30" aria-hidden="true"><path d={`${d} Z`} fill="#c65a3a" /></svg>;
+}
+
+function DailyIcon() {
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="5" fill="#e7a73a" /><rect x="4" y="6" width="24" height="7" rx="3" fill="#c65a3a" /><circle cx="16" cy="20" r="4" fill="#fffaf0" /></svg>;
+}
+
+function TrophyIcon() {
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill="#f2c14e" /><rect x="13" y="21" width="6" height="5" fill="#c98f1c" /><rect x="9" y="26" width="14" height="3" rx="1.5" fill="#8e5b33" /></svg>;
 }
 
 function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfig) => void }) {
