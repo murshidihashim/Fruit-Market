@@ -654,7 +654,7 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "approved",
+        "status": "superseded",
         "evidence": "1a (1A = freeze rules version 4 and run the first human playtest: 3 to 5 strangers plus a paper round)",
         "date": "2026-10-27"
       },
@@ -663,7 +663,8 @@
         "REP-038"
       ],
       "plan": "PLAN-019",
-      "reviewTrigger": "When the first playtest round is recorded, or if an S1 bug forces a rules fix."
+      "reviewTrigger": "When the first playtest round is recorded, or if an S1 bug forces a rules fix.",
+      "supersededBy": "DEC-028"
     },
     {
       "id": "DEC-027",
@@ -688,6 +689,30 @@
         "REP-038"
       ],
       "reviewTrigger": "If a rule that makes the game fun cannot be done by hand, or if physical-edition costs are not viable."
+    },
+    {
+      "id": "DEC-028",
+      "title": "Lift the rules freeze; plan fixes for supply, session length and UI requests",
+      "question": "Should rules version 4 stay frozen after PLAN-019 ended without a playtest result?",
+      "choice": "No. The freeze (DEC-026) is lifted. Fixes for supply, session length and the UI requests are to be planned. Nothing is built until the owner approves a named plan; every rule or balance change still needs its own plan, rules-version bump and approval.",
+      "rationale": "PLAN-019 ended early (REP-046), so the condition for the freeze (a recorded playtest round) cannot be met soon. The owner wants the issues from the informal feedback (REP-045) addressed. Risk accepted: further tuning rests on computer-player simulations plus one informal game, not on a structured human test.",
+      "impact": {
+        "player": "None until a plan is approved and built.",
+        "technical": "Allows plans PLAN-020 to PLAN-023 to be proposed and, once approved, built. DEC-027 (tabletop rules are the master; same mechanics in both editions) still applies to any rule change.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Lift the rules freeze (DEC-026). Plan fixes for supply, session length and the UI requests.",
+        "date": "2026-10-27"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-047"
+      ],
+      "reviewTrigger": "If a rule change is made without a human playtest, or after the first structured playtest."
     }
   ],
   "history": [
@@ -1018,6 +1043,10 @@
     {
       "at": "2026-10-27 22:20",
       "text": "Owner: \"the ones i entered here is the feedback, just end the testing\". PLAN-019 ended early. No formal session was run and the Tally form had no submissions; the only feedback is the informal 4-player game in REP-045. T1 PASS, T3 PASS, T2 and T4 NOT RUN. Delivery shown as implemented only because the records have no ended-early value; the playtest goal was NOT met and no continue, revise or stop reading exists. DEC-016 (first playtest) is not satisfied. DEC-026 (rules freeze) review trigger reached: owner to say whether the freeze stays or is lifted (REP-046). No game change."
+    },
+    {
+      "at": "2026-10-27 22:24",
+      "text": "Owner: \"Lift the rules freeze (DEC-026). Plan fixes for supply, session length and the UI requests.\" Rules freeze lifted: DEC-026 superseded by DEC-028 (approved). Plans proposed, not approved: PLAN-020 supply, PLAN-021 session length, PLAN-022 client-only UI requests, PLAN-023 undo a buy and rename in the room. Analysis from code reading only; nothing run or built (REP-047)."
     }
   ]
 }

@@ -1,0 +1,62 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-047"
+  ],
+  "decisions": [
+    "DEC-028"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-020",
+  "title": "Mid-game supply in 4-player games: measure first, then propose one fix",
+  "problem": "Informal feedback (REP-045): \"supply cant keep up with demand\" from mid-game and players ended up with nothing to buy. By code: no lorry comes on Market Days (days 3, 6, 9, 12; game.ts), and 4 shops add 1 of each fruit (about 17 fruits on a lorry day against a buying capacity of 16 for four shops). This is a hypothesis; no one has measured it.",
+  "scope": [
+    "Step 1, no game change: simulate 2, 3 and 4 shop games and measure, per day, how much of each fruit is on the market before each shop buys, how often a shop finds the fruit it wants gone, and how this differs on Market Days",
+    "Step 2: propose one change with options and same-seed before and after results (candidates: a smaller delivery on Market Days, or more supply for 4 shops); the owner picks",
+    "Step 3, after the owner picks: implement, bump RULES_VERSION, update RULES.md and data, run the checks",
+    "Any change must be playable by hand with cards (DEC-027)"
+  ],
+  "exclusions": [
+    "Changing customers, prices, specialities or computer players",
+    "Publishing to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Measurement report shows supply against demand per day for 2, 3 and 4 shops, with sample size",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Owner sets a target (for example, the largest share of shop turns that may find nothing to buy) before any change is chosen",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "After the change: same-seed comparison meets the owner target; verify and verify:full pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "A human playtest of the changed rules (not computer only) is recorded or explicitly deferred by the owner",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "playerNotes": []
+}

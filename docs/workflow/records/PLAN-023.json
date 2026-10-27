@@ -1,0 +1,55 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-047"
+  ],
+  "decisions": [
+    "DEC-028"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-023",
+  "title": "Undo a buy before confirming, and rename inside the room",
+  "problem": "Informal feedback (REP-045): no undo after tapping a fruit before the buy is confirmed; the game name cannot be edited in the room. By code, tapping a fruit sends the buy at once (useGameController.ts), so an undo needs a new legal action and, online, a server-checked change.",
+  "scope": [
+    "Step 1, no code: read useGameController.ts, turn.ts and server/room.ts, and propose how undo should work (undo the last buy only, until the turn ends) and what rename in a room needs; the owner approves the design",
+    "Step 2: implement with tests for illegal, duplicate and stale actions, and reconnect (the online-authority rules in CLAUDE.md)",
+    "Undo must not reveal hidden information or let a player gain by undoing"
+  ],
+  "exclusions": [
+    "Changing prices, rules or supply",
+    "Publishing to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Design note approved by the owner before any code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Online tests pass for undo, duplicates, stale actions and reconnect; the leak check stays at 0",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "verify and verify:full pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "playerNotes": []
+}

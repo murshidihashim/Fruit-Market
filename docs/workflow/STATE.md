@@ -20,7 +20,8 @@ Updated 2026-10-27 16:56 (Asia/Kuala_Lumpur) by Claude.
 - **Test design changed 21:18 (REP-044):** testers play one Quick game against three computer shops and answer seven simpler questions (Tally form). Locked criteria unchanged.
 - **Informal feedback logged 22:18 (REP-045):** one 4-player game: supply short from mid-game, same icon for everyone, 10 rounds about 30 minutes, no undo before confirming a buy, game name not editable and defaults to "You". Not a PLAN-019 session. Supply and length frozen; three UI items on the backlog until after the playtest.
 - **PLAN-019 ended early 22:20 (REP-046):** owner: "the ones i entered here is the feedback, just end the testing". No formal session; goal not met; no continue/revise/stop reading. Open: owner decides whether the rules freeze (DEC-026) stays or is lifted.
-- **Then (superseded by the line above):** owner sends the preview link and the form link to 3 to 5 unfamiliar players; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
+- **Freeze lifted 22:24 (DEC-028, REP-047):** DEC-026 superseded. Plans proposed, awaiting approval: PLAN-020 supply (measure first), PLAN-021 session length, PLAN-022 client-only UI (icons, blank name), PLAN-023 undo a buy and rename in the room. Nothing built.
+- **Then (superseded by the lines above):** owner sends the preview link and the form link to 3 to 5 unfamiliar players; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -61,4 +62,8 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
+- PLAN-020: Mid-game supply in 4-player games: measure first, then propose one fix (proposed)
+- PLAN-021: Session length: shorter default and faster turns before touching the rules (proposed)
+- PLAN-022: Client-only UI requests: different default icons, blank name that opens the keyboard (proposed)
+- PLAN-023: Undo a buy before confirming, and rename inside the room (proposed)
 <!-- records:pending:end -->

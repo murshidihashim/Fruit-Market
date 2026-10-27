@@ -1,0 +1,63 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-047"
+  ],
+  "decisions": [
+    "DEC-028"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-021",
+  "title": "Session length: shorter default and faster turns before touching the rules",
+  "problem": "Informal feedback (REP-045): 10 rounds with 4 players took about 30 minutes. The new-game screen defaults to 10 days (Standard) in App.tsx; Quick is 8 days. The brief assumed 10 to 20 minutes. One game is one data point.",
+  "scope": [
+    "Default the new-game length to Quick (8 days) when 3 or 4 shops are chosen, and show an expected time on the length buttons only after it has been timed",
+    "Make waiting skippable or faster where it can be (lorry, reveal, computer turns), without hiding information",
+    "Time a Quick 4-shop game on a real phone with a stopwatch before and after, and record it",
+    "Do not shorten the number of days or change rules in this plan; a shorter Quick is a rules change for a later plan"
+  ],
+  "exclusions": [
+    "Changing the number of days, supply or scoring",
+    "Changing online authority or protocol",
+    "Publishing to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Before timing recorded: Quick, 4 shops (1 human, 3 computers), real phone, stopwatch",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Owner sets a target time before the change (proposed: 20 minutes or less for Quick with 4 shops)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "After timing meets the target, or the owner accepts the result",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "verify and verify:full pass; no information hidden or rule changed",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "playerNotes": []
+}

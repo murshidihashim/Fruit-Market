@@ -1,0 +1,56 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-047"
+  ],
+  "decisions": [
+    "DEC-028"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-022",
+  "title": "Client-only UI requests: different default icons, blank name that opens the keyboard",
+  "problem": "Informal feedback (REP-045): every player has the same icon; the name defaults to \"You\" and the owner wants it blank with the keyboard popping up. By code: the default avatar is HUMAN_AVATARS[0] unless a player picks another in the online lobby (Online.tsx), and the name falls back to \"You\" (store.ts).",
+  "scope": [
+    "Each seat gets a different default icon (the first unused one) in online rooms and on one device",
+    "New-game and online name fields start blank, take focus and open the keyboard; if left blank the game still needs a name, so a fallback is shown and recorded",
+    "No server or protocol change in this plan; if the room needs a server change for icons, split it into PLAN-023"
+  ],
+  "exclusions": [
+    "Rules, balance or online authority",
+    "Renaming inside a room after joining (PLAN-023)",
+    "Publishing to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Four seats show four different icons by default (device test, one device and an online room)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Name field is blank and the keyboard opens on Android Chrome and iPhone Safari",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Saved names and old saves still load; verify and verify:full pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "playerNotes": []
+}
