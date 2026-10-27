@@ -857,6 +857,14 @@
     {
       "at": "2026-10-27 07:54",
       "text": "PLAN-010 built and verified (bc2e760): lorry with the owner's Gemini art; verify and verify:full PASS. Merged to main for the preview. All three cosy-table packages (PLAN-009, 010, 011) plus the Patches rename are now on main, ready to become release 1.2.0 when the owner asks."
+    },
+    {
+      "at": "2026-10-27 09:11",
+      "text": "Owner asked for a balance redesign (fruit identity, strategy depth, pacing) with analysis and a patch plan only. REP-027: 813 lab test cells (384,200 computer games) on a separate engine copy, validated on held-out seeds. Proposed PLAN-012 (tighter town, Handcart no longer grows the market, 4-player demand +15%, apple cost 3/2/1, RULES_VERSION 3). Production rules unchanged; awaiting approval."
+    },
+    {
+      "at": "2026-10-27 09:12",
+      "text": "Record note: the PLAN-010 verification (history line of 07:54) is written up in REP-026."
     }
   ]
 }

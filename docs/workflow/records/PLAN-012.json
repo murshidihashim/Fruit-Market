@@ -1,0 +1,80 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-025",
+    "REP-027"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Customers come sooner and farmers bring less spare fruit, so deep undercuts pay less",
+      "The town is sized for 4 fruits per shop: a Handcart or Big Basket helps only its owner",
+      "4-player towns have 15% more customers",
+      "Apples cost $3 fresh and $2 okay (were $4 and $3)",
+      "Rules version 3: games in progress from the old version can't be resumed"
+    ],
+    "fixed": [
+      "Apple price-cap example in the rules"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Markets are livelier: customers come sooner, and big undercuts pay less",
+    "Apples are cheaper",
+    "Games in progress from the old version can't be resumed"
+  ],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-012",
+  "title": "Market rebalance: tighter town, fair Handcart, better apples",
+  "problem": "REP-025 and REP-027: undercutting and dumping old stock dominate (43% and 51% wins against a fair 33%), premium pricing is nearly hopeless (13%), apples are a trap, early leaders snowball and 4-player games are starved. Lab tests on held-out seeds show the package below fixes these without faster decay or spoilage quotas.",
+  "scope": [
+    "E1 src/engine/data.ts + game.ts: demand 0.6 + 0.45 x progress (was 0.4 + 0.45); deliveries 0.8 + 0.2 x progress (was 1 + 0.5)",
+    "E2 game.ts: demand and deliveries sized from players x 4 (marketCapacity), not from upgraded buy limits",
+    "E3 game.ts: 4-player demand x 1.15",
+    "E4 data.ts: apple cost fresh 3, okay 2, not so 1 (was 4, 3, 1); new apple theme line",
+    "E5 protocol.ts RULES_VERSION 3; worker.ts daily board key includes the rules version; RULES.md, Handcart text and balance notes updated; new unit tests",
+    "AI: no code change expected (reads demand and costs at run time); re-measured after the patch"
+  ],
+  "exclusions": [
+    "Decay curves, traits, mango, delivery forecast, Juice Press, Cool Room, league stages, achievements thresholds (optional follow-ups in REP-027 section 6b)",
+    "Publishing the live game (separate approval)",
+    "Telemetry or any new data collection"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run verify:full passes, including the online leak check at 0 and old-version clients refused",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Patched engine reproduces the lab package results within the margin (Undercut <= 30%, Salvage <= 36%, Premium >= 20% in 3 players; comeback from last >= 20%; Hard beats Normal >= 65%)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Old save shows the 'older version of the rules' notice; daily board for the release day keeps old and new scores apart",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Human playtest (REP-027 section 7) passes before publishing",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

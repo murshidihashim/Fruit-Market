@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 09:11 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
@@ -10,8 +10,9 @@ Updated 2026-10-26 (Asia/Kuala_Lumpur) by Claude.
 - **Release 1.1.1 published** 2026-10-27 (Deploy LIVE game run 15, live smoke test passed, tagged `v1.1.1` on `83de99b`). Triggered by Claude on the owner's instruction "deploy".
 - **Creative:** theme review (REP-010); setting C and the panda rename approved (REP-011, `CREATIVE-BIBLE.md`). Pillars (DEC-015) and first playtest (DEC-016) approved; playtest kit in REP-013. PLAN-006 (Patches rename) verified (REP-012); now on `main`, shipping with the next release.
 - **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published (REP-016) and revised (cunning edition DEC-022, REP-017), then the cosy pixel edition (DEC-023, REP-018), then one shared market table so it plays like a board game (DEC-024, REP-019; both awaiting confirmation, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
-- **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. Last package for 1.2.0: PLAN-010 (lorry, Gemini art; awaiting approval).
-- **Then:** plan PLAN-003 (Package C).
+- **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. PLAN-010 (lorry, Gemini art) verified (REP-026). All three are on `main`, ready to become 1.2.0 when the owner asks.
+- **Balance:** audit REP-025; redesign proposal REP-027 with PLAN-012 (tighter town, fair Handcart, cheaper apples, rules version 3) **awaiting approval**. Production rules unchanged. Lab archived in `docs/workflow/reports/img/REP-027-lab.tar.gz`.
+- **Then:** PLAN-012 if approved; league fix (REP-025); plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -40,7 +41,7 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
 
 ## Approvals
 - PLAN-001, 002, 004, 005 and 006 approved by the owner on 2026-10-26 (exact words in `records/`).
-  Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009 and PLAN-011 approved and verified; PLAN-010 (lorry) awaiting approval. Publishing the next release needs a new approval.
+  Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009, 010 and 011 approved and verified. PLAN-012 (balance) awaiting approval. Publishing the next release needs a new approval.
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we
@@ -55,4 +56,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
+- PLAN-012: Market rebalance: tighter town, fair Handcart, better apples (awaiting approval)
 <!-- records:pending:end -->
