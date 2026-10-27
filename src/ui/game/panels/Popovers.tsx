@@ -3,16 +3,17 @@
 import { FAVOURS, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
-import { EventIcon, Face, FavourIcon, Fruit } from '../../art';
+import { Face, FavourIcon, Fruit } from '../../art';
 import { markSeen, type Tip } from '../../tutorial';
+import { MorningCard } from './MorningCard';
 import type { GameController } from '../useGameController';
 
-export function EventPop({ c }: { c: GameController }) {
-  const { s } = c;
+export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
+  // Fills the screen like the morning card (PLAN-013); tap anywhere or the button to go back.
   return (
-    <div class="event-pop" onClick={() => c.setEventInfo(false)}>
-      {s.event ? <p><b><EventIcon id={s.event.id} size={16} /> Today: {s.event.title}.</b> {s.event.text}</p> : <p><b>Today:</b> a calm day.</p>}
-      {s.nextEvent && <p><b><EventIcon id={s.nextEvent.id} size={16} /> Tomorrow: {s.nextEvent.title}.</b> {s.nextEvent.text}</p>}
+    <div class="full-sheet event-sheet" role="dialog" aria-label="Today and tomorrow" onClick={() => c.setEventInfo(false)}>
+      <MorningCard s={c.s} viewer={viewer} lost={0} />
+      <button type="button" class="btn primary big wide" onClick={() => c.setEventInfo(false)}>Back to the market</button>
     </div>
   );
 }

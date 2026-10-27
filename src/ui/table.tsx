@@ -97,14 +97,18 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
 // ---------- price boards ----------
 
 /** A shop's price board for the current showdown: sealed while pricing, flipped open at the reveal. */
-export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; res?: 'won' | 'lost'; tag?: string }
+export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; res?: 'won' | 'lost'; tag?: string; /** A computer prices after the people at the table. */ ai?: boolean }
 
 export function SeatBoard({ b }: { b: Board }) {
-  if (b.state === 'thinking') return <span class="sb thinking">pricing<span class="waiting-dots" /></span>;
+  if (b.state === 'thinking') {
+    return b.ai
+      ? <span class="sb thinking" aria-label="Prices next, after you"><i class="sb-hourglass" aria-hidden="true" />next in line</span>
+      : <span class="sb thinking" aria-label="Still deciding prices"><i class="sb-hourglass" aria-hidden="true" />deciding<span class="waiting-dots" /></span>;
+  }
   return (
     <span class={`sb ${b.state} ${b.res ?? ''}`}>
       <span class="sb-face">{b.state === 'open' ? `$${b.price}` : <i class="seal" aria-label="Sealed price" />}</span>
-      {b.tag && <small>{b.tag}</small>}
+      {b.tag ? <small>{b.tag}</small> : b.state === 'sealed' && <small>sealed</small>}
     </span>
   );
 }

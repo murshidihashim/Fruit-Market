@@ -74,7 +74,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
   // then flipped open one by one, highest price first, as each showdown is revealed.
   const boards: Record<number, Board> = {};
-  if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed' }; });
+  if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (show) {
     const order = show.line.offers.map((o, i) => ({ o, i })).sort((x, y) => y.o.price - x.o.price || y.i - x.i);
     order.forEach(({ o, i }, k) => {
@@ -90,12 +90,16 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Cards that sit on top of the market in the middle of the table.
   const overlay = (() => {
     if (s.phase === 'morning' && !busy && picker >= 0) return <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />;
-    if (s.phase === 'morning' && !busy) return <MorningCard s={s} viewer={viewer} lost={c.lastNight} />;
     if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
     return null;
   })();
 
-  // Decisions that need more room slide up from the bottom (side panel on desktop).
+  // The morning event card fills the screen above the action bar (PLAN-013).
+  const sheet = s.phase === 'morning' && !busy && picker < 0
+    ? <div class="full-sheet morning-sheet"><MorningCard s={s} viewer={viewer} lost={c.lastNight} /></div>
+    : null;
+
+  // Decisions that need more room: pricing fills the screen on phones (side panel on desktop).
   const tray = (() => {
     if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} />;
     if (s.phase === 'evening' && activeHuman && !busy) return <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} />;
@@ -105,7 +109,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   return (
     <div class={`game ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} onRival={c.setRival} offline={offline.map((x) => x.seat)} />
-      {c.eventInfo && <EventPop c={c} />}
+      {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && c.conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
       {online && c.conn === 'open' && offline.map((x) => (
         <div class="net-strip">
@@ -115,7 +119,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         </div>
       ))}
 
-      <div class={`play ${tray ? 'has-tray' : ''}`}>
+      <div class={`play ${tray ? 'has-tray' : ''} ${pricing ? 'tray-full' : ''}`}>
         <div class="table">
           {/* The farmer's lorry parks in the street from the morning delivery until buying ends; customers step aside. */}
           <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /><Lorry here={lorryHere} /></div>
@@ -135,6 +139,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
         </div>
         {tray && <div class="tray-wrap">{tray}</div>}
+        {sheet}
       </div>
 
       {!pricing && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}

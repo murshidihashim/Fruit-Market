@@ -1,0 +1,71 @@
+{
+  "release": "unreleased",
+  "build": "workflow/plan-013",
+  "reports": [
+    "REP-029"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Rivals strip on the pricing sheet: each rival's status (still deciding / prices sealed) and the wanted fruit they hold"
+    ],
+    "changed": [
+      "Pricing opens as a full-screen sheet (was the bottom half)",
+      "Morning event card and the event pop-up fill the screen",
+      "Seat badges while pricing: clearer 'deciding…' and 'sealed' badges"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Pricing and the day's event now open full screen",
+    "See at a glance which rivals have sealed their prices and what they could sell"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "edit the UI/UX so that 1. secret price and events pops up to fill the screen (instead of just the bottom half of the screen 2. rework the rivals indicator during secret price, now its not clear still",
+    "date": "2026-10-27"
+  },
+  "delivery": "verified",
+  "id": "PLAN-013",
+  "title": "Full-screen pricing and event sheets; clearer rival status while pricing",
+  "problem": "Owner: the secret-price panel and event pop-ups only use the bottom half of the screen, and it is still unclear what rivals are doing while you set prices.",
+  "scope": [
+    "Pricing sheet fills the phone screen below the top bar (desktop keeps the side panel)",
+    "Morning event card and the event pop-up (tap on the event chip) fill the screen; 'Open the market' stays at the bottom",
+    "Rivals strip at the top of the pricing sheet: portrait, name, status (still deciding / prices sealed, public information only) and the wanted fruit each rival holds, or 'nothing to sell'",
+    "Seat badges while pricing: larger 'deciding…' and 'sealed' badges",
+    "Browser tests and screenshots updated"
+  ],
+  "exclusions": [
+    "Rules, balance, server, online protocol (no RULES_VERSION change)",
+    "Showing any rival's price before the bell",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "npm run verify exit 0: 81 unit tests"
+    },
+    {
+      "id": "T2",
+      "text": "npm run verify:full passes; secret prices never shown before the bell (leak check 0)",
+      "result": "PASS",
+      "evidence": "npm run verify:full exit 0: online 40 pricing frames, leaks 0; takeover, quick match, four players, reconnect 5 cycles 0 failed"
+    },
+    {
+      "id": "T3",
+      "text": "Pricing and event sheets fill the screen at 390x844 and 360x640; no sideways scroll; desktop 1280x800 still works",
+      "result": "PASS",
+      "evidence": "Screenshots 390x844, 360x640, 1280x800: no sideways scroll, no page errors (REP-029)"
+    },
+    {
+      "id": "T4",
+      "text": "Rival status shows only public facts (whether a shop has sealed, its public stock)",
+      "result": "PASS",
+      "evidence": "RivalWatch reads only s.bids[i] !== null and public stock; no price is read or shown"
+    }
+  ]
+}
