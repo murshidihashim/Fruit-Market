@@ -1150,6 +1150,10 @@
     {
       "at": "2026-10-28 00:46",
       "text": "Owner: \"make it so that character is selected when you enter the room instead apply all the changes and push it the game\". Character cards built on branch workflow/plan-025 (DEC-031): six characters with fixed perks, picked on entering a room or on the set-up screen. Lint, types, 100 unit tests and the build pass; browser tests NOT RUN locally (CI runs them on push). The owner also asked to push: the branch is pushed for CI, and merged to main (the preview) only if CI passes. The live game is not deployed; that needs the owner to run Deploy LIVE game and type PUBLISH (REP-052)."
+    },
+    {
+      "at": "2026-10-28 01:03",
+      "text": "CI on branch workflow/plan-025 (rules 5, tabletop fixes and character cards together) passed in full, including the browser tests: PLAN-020 T3, PLAN-024 T4 and PLAN-025 T5 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. The new screens are still not seen on a phone (PLAN-025 T4 NOT RUN) (REP-052)."
     }
   ]
 }

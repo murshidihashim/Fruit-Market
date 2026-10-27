@@ -65,8 +65,8 @@
     {
       "id": "T4",
       "text": "verify and verify:full pass",
-      "result": "NOT RUN",
-      "evidence": "Lint, types, unit tests and build pass (run separately; the repo records check fails on Windows paths and was run with a patched copy and passes). Browser tests need Playwright browsers and were not run."
+      "result": "PASS",
+      "evidence": "GitHub CI run 40544411615 on branch workflow/plan-025 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-28 01:03). The repo records check inside verify runs on Linux in CI."
     },
     {
       "id": "T5",

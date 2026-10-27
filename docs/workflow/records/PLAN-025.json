@@ -75,8 +75,8 @@
     {
       "id": "T5",
       "text": "Browser tests (verify:full) pass in CI",
-      "result": "NOT RUN",
-      "evidence": "Run by CI after the push; result in REP-052 once known"
+      "result": "PASS",
+      "evidence": "GitHub CI run 40544411615 on branch workflow/plan-025 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-28 01:03)."
     }
   ]
 }

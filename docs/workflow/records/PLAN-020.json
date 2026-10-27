@@ -58,8 +58,8 @@
     {
       "id": "T3",
       "text": "After the change: same-seed comparison meets the owner target; verify and verify:full pass",
-      "result": "NOT RUN",
-      "evidence": "Partly done (2026-10-27 23:29): same seeds 1 to 300, empty-market turns 0.0% to 1.0% against up to 22% before (target met in simulation); lint, types, 92 unit tests and build PASS. Not done: verify:full (browser tests need Playwright browsers) and the repo records check inside verify, which fails on Windows paths (run separately with a patched copy and PASS)."
+      "result": "PASS",
+      "evidence": "Same seeds 1 to 300: empty-market turns 0.0% to 1.0% against up to 22% before. GitHub CI run 40544411615 on branch workflow/plan-025 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-28 01:03)."
     },
     {
       "id": "T4",
