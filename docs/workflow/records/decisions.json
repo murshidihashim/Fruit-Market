@@ -1088,6 +1088,10 @@
     {
       "at": "2026-10-27 23:29",
       "text": "Owner: \"why is the number in decimal? remember that rules should be able to be implemented on a tabletop elsewhere, else do plan a + c, target is so that the board would not be empty / ppl cant buy anything\". Chosen: option A + C for PLAN-020. Target set by the owner: the market should not be empty so that people can always buy something (measured as the share of shop turns that find an empty market). Built on branch workflow/plan-020 as rules version 5, local only: lorry every day, walk-ins players minus 2 every day (+1 on Market Days). Lint, types, 92 unit tests and the build pass; browser tests (verify:full) NOT RUN. Simulation after the change (computer players, 300 games per setting): empty-market turns 0.0% to 1.0% (rules 4: up to 22%). Not on the preview, not pushed, not live (REP-050)."
+    },
+    {
+      "at": "2026-10-27 23:29",
+      "text": "Correction: the header of REP-050 and the STATE line say 23:35; the true time of the DEC-029 and PLAN-020 build entry is 23:29. Reports are not rewritten. No game change."
     }
   ]
 }
