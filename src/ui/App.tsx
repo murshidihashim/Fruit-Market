@@ -220,6 +220,11 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
   const [unripe, setUnripe] = useState(true);
   const [upgrades, setUpgrades] = useState(true);
   const [events, setEvents] = useState(true);
+  // Playtest options (PLAN-015): compare versions of the rules at the table.
+  const [marketDays, setMarketDays] = useState(true);
+  const [core, setCore] = useState(false);
+  const [street, setStreet] = useState(false);
+  const [pulseRule, setPulseRule] = useState(false);
 
   const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
 
@@ -244,7 +249,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
       p.avatar = AI_ROSTER[k].avatar;
       p.quip = AI_ROSTER[k].quip;
     }
-    onStart({ players, days, unripe, upgrades, events, seed: (Math.random() * 2 ** 31) >>> 0 });
+    onStart({ players, days, unripe, upgrades: upgrades && !core, events, marketDays, core, street, pulse: pulseRule, seed: (Math.random() * 2 ** 31) >>> 0 });
   };
 
   return (
@@ -286,8 +291,15 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         <section class="panel">
           <h3>Rules</h3>
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
-          <Toggle on={upgrades} set={setUpgrades} title="Shop upgrades" text="Each evening, build one of 3 upgrades on offer." />
+          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall specialities" text="After each Market Day, build one: Cold Room, Juice Bar, Barrow or Premium Display." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
+          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in and no lorry. Last Call on the final day: +$1, then the jam maker buys leftovers." />
+        </section>
+        <section class="panel">
+          <h3>Playtest options</h3>
+          <Toggle on={core} set={setCore} title="Core market" text="No merchant traits, favour cards or specialities. Just buying, stalls and the bell." />
+          <Toggle on={street} set={setStreet} title="Street prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
+          <Toggle on={pulseRule} set={setPulseRule} title="Market pulse" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>
         <button class="btn primary big wide" onClick={begin}>Open the shops</button>
       </main>

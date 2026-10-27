@@ -12,7 +12,7 @@ const path = require('path');
     let seed = 12345;
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
-    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'bid', 'reveal', 'evening', 'day2']));
+    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2']));
     localStorage.setItem('fm.name', 'You');
   });
   await p.goto('file://' + path.resolve(file));

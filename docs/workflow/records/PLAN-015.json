@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "workflow/plan-015",
   "reports": [
     "REP-031",
     "REP-032"
@@ -31,9 +31,11 @@
     "New favour card: Market Gossip"
   ],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "approve plan 15",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-015",
   "title": "Readable price duel: five-beat day, prototypes A/B/C and the Market Gossip card",
   "problem": "Owner's benchmark review: the strong pricing core risks being buried in market administration; undercutting needs a visible alternative; upgrades should change decisions; the session needs an arc; add one favour card that reveals the face-down demand.",

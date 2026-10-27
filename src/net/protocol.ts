@@ -2,7 +2,7 @@
 import type { Action, GameState } from '../engine/game';
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
-export const RULES_VERSION = 3;
+export const RULES_VERSION = 4;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
 export const MAX_SEATS = 4;

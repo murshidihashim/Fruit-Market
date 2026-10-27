@@ -10,9 +10,10 @@ export const TIPS: Tip[] = [
   { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the market in the middle. Customers wait at the top. Tap Open the market.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a glowing fruit in the market. Each column is one fruit, newest at the top; fresh fruit costs more but customers pay more for it. Check the bubbles: buy what people want.' },
   { id: 'bought', title: 'Nice!', text: 'It\'s on your stall now, at the bottom. Each chip shows how many nights it has left. Tap Done buying when you\'re finished.' },
-  { id: 'bid', title: 'Secret prices', text: 'Set a price per fruit for each customer. The cheapest offer sells first, and nobody sees your price until the reveal.' },
-  { id: 'reveal', title: 'The showdown', text: 'Offers are opened from cheapest up. Ties go to the fresher fruit.' },
-  { id: 'evening', title: 'Evening', text: 'Build one of tonight\'s upgrades, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
+  { id: 'stall', title: 'Open your stall', text: 'Choose how many of each fruit to put out today. Everyone sees how many each stall puts out before anyone sets a price.' },
+  { id: 'bid', title: 'Secret prices', text: 'One price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
+  { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then the Haggler, then fresher fruit.' },
+  { id: 'evening', title: 'Evening', text: 'Play a favour card or build a speciality, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
   { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest shop buys first. Most cash after the last day wins. Good luck!' },
 ];
 
@@ -36,9 +37,9 @@ export function tipFor(s: GameState, ctx: { myBuyTurn: boolean; boughtToday: num
   if (ctx.picker) return pick('trait');
   if (s.phase === 'morning' && s.day === 1) return pick('morning');
   if (s.phase === 'buy' && ctx.myBuyTurn) return ctx.boughtToday > 0 ? pick('bought') : pick('buy');
-  if (ctx.pricing) return pick('bid');
+  if (ctx.pricing) return s.phase === 'stall' ? pick('stall') : pick('bid');
   if (s.phase === 'reveal' && s.day === 1) return pick('reveal');
-  if (ctx.evening && s.day === 1) return pick('evening');
+  if (ctx.evening) return pick('evening');
   if (s.day >= 2 && s.phase === 'morning') return pick('day2');
   return null;
 }

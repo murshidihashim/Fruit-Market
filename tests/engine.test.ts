@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
-import { newGame, buy, buyCost, buyLimit, beginBuying, endBuyTurn, submitBids, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
+import { newGame, buy, buyCost, buyLimit, beginBuying, endBuyTurn, openStall, submitPrices, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
 import { freshPos } from '../src/engine/data';
 
 function cfg(n: number, seed = 1, extra: Partial<GameConfig> = {}): GameConfig {
@@ -45,19 +45,20 @@ describe('engine', () => {
     expect(() => buy(s, p, 'apple', freshPos('apple'))).toThrow();
   });
 
-  it('cheapest offer wins and money is conserved through sales', () => {
+  it('cheapest posted price wins and money is conserved through sales', () => {
     let s = beginBuying(newGame({ ...cfg(2, 9, { events: false }), players: [{ name: 'A', kind: 'human', avatar: 'a' }, { name: 'B', kind: 'human', avatar: 'b' }] }));
-    // Give both players the same fruit directly.
-    for (const pl of s.players) pl.stock.apple[freshPos('apple')] = 3;
     s = endBuyTurn(s, s.order[0]);
     s = endBuyTurn(s, s.order[1]);
-    expect(s.phase).toBe('bid');
+    expect(s.phase).toBe('stall');
     const c = servingCustomers(s)[0];
     const want = c.wants[0];
     for (const pl of s.players) pl.stock[want.fruit][freshPos(want.fruit)] = 5;
     const cashBefore = total(s);
-    s = submitBids(s, 0, [{ customerId: c.id, fruit: want.fruit, qty: want.qty, price: 3 }]);
-    s = submitBids(s, 1, [{ customerId: c.id, fruit: want.fruit, qty: want.qty, price: 2 }]);
+    s = openStall(s, 0, { [want.fruit]: want.qty });
+    s = openStall(s, 1, { [want.fruit]: want.qty });
+    expect(s.phase).toBe('bid');
+    s = submitPrices(s, 0, [{ fruit: want.fruit, price: 3 }]);
+    s = submitPrices(s, 1, [{ fruit: want.fruit, price: 2 }]);
     const line = s.results!.lines.find((l) => l.customerId === c.id && l.fruit === want.fruit)!;
     expect(line.offers.find((o) => o.player === 1)!.sold).toBe(want.qty);
     expect(line.offers.find((o) => o.player === 0)!.sold).toBe(0);
@@ -71,13 +72,13 @@ describe('pacing', () => {
     for (let seed = 1; seed <= 60; seed++) {
       let s = newGame(cfg(4, seed, { events: false }));
       while (s.phase !== 'over') {
-        if (s.phase === 'bid' && s.day === 1) early += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
-        if (s.phase === 'bid' && s.day === 10) late += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
+        if (s.phase === 'stall' && s.day === 1) early += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
+        if (s.phase === 'stall' && s.day === 10) late += s.firstMarket.reduce((a, c) => a + c.original.reduce((b, w) => b + w.qty, 0), 0);
         s = autoplay(s, 1);
         if (s.phase === 'morning') s = beginBuying(s);
       }
     }
-    // Customers start at 60% of the town's buying power and grow to about 105% (MARKET in data.ts).
-    expect(late).toBeGreaterThan(early * 1.4);
+    // Rules 4: one more walk-in from halfway (4 shops: 2 walk-ins, then 3), plus Last Call on the final day.
+    expect(late).toBeGreaterThan(early * 1.15);
   });
 });

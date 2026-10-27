@@ -897,6 +897,10 @@
     {
       "at": "2026-10-27 14:36",
       "text": "Owner shared a benchmark review of REP-031 and asked for tweaks plus a favour card that reveals the face-down demand. REP-032: five-beat day (open stalls, bell, rush), prototypes A/B/C, Market Gossip replacing Free Cash. Lab sweep 19: cash catch-up has no exploit (upgrader 33%); uniform freshness improves balance (26-38%); core without traits/favours/upgrades lets ripening dominate (60%). PLAN-015 proposed; PLAN-014 build held until the owner decides."
+    },
+    {
+      "at": "2026-10-27 14:51",
+      "text": "Owner: \"approve plan 15\". PLAN-015 approved and started on workflow/plan-015; it is built together with the approved PLAN-014 items as rules version 4."
     }
   ]
 }

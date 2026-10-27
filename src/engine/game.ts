@@ -1,11 +1,19 @@
-// Core rules. Every action takes a state and returns a new state (the input is never changed),
-// so the UI can keep history and the whole game can be saved as JSON.
+// Core rules (rules version 4, "tabletop edition"). Every action takes a state and returns a new state
+// (the input is never changed), so the UI can keep history and the whole game can be saved as JSON.
+//
+// A day: morning (event, lorry, tomorrow's strip) -> buying (poorest first) -> customers arrive ->
+// open stalls (each shop puts fruit out for sale; quantities become public together) -> pricing
+// (one secret price per fruit, revealed together at the bell) -> sales (queue order, cheapest stall
+// first, leftover demand spills to the next stall) -> evening (specialities after Market Days,
+// evening favours) -> night (fruit ages).
 
 import {
-  BASE_BUY, BASE_SHELF, BIG_SHELF, CART_BUY, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
-  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, JUICE_TIP, LOCAL_FAVOURITE_TIP, MARKET, NEST_EGG_BONUS, START_CASH, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
+  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
+  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS,
+  LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
+  TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
   freshPos, stageAt, trackLength,
-  type EventCard, type FarmerCard, type FavourId, type FruitId, type TraitId, type UpgradeId, type Want,
+  type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type TraitId, type UpgradeId, type Want,
 } from './data';
 import { Rng } from './rng';
 
@@ -21,6 +29,14 @@ export interface GameConfig {
   upgrades: boolean;
   events: boolean;
   seed: number;
+  /** Market Days every 3rd day (+1 walk-in, no lorry) and Last Call on the final day. On unless set to false. */
+  marketDays?: boolean;
+  /** Core market (prototype A): no traits and no favour cards (switch upgrades off as well). */
+  core?: boolean;
+  /** Beginner option: one street price per fruit instead of each customer's own top price. */
+  street?: boolean;
+  /** Advanced option: market pulse markers move prices after shortages and gluts. */
+  pulse?: boolean;
   /** Date key (YYYY-MM-DD) when this is a daily challenge. */
   daily?: string;
   /** Market League stage, when this game is part of the league. */
@@ -35,23 +51,41 @@ export interface Player extends PlayerConfig {
   favours: FavourId[];
   upgrades: UpgradeId[];
   boughtToday: number;
+  /** What this shop paid for fruit today (for the day's ledger). */
+  spentToday: number;
   favouredTrade: boolean;
   stats: Stats;
   /** Merchant trait, picked from `traitOffer` on the first morning. */
   trait?: TraitId | null;
   traitOffer?: TraitId[];
-  /** Upgrades this shop may build tonight (an evening draft). Missing in older saves: anything goes. */
+  /** Specialities this shop may build tonight (empty on nights without a draft). */
   upgradeOffer?: UpgradeId[];
 }
 
-export interface Customer { id: number; name: string; wants: Want[]; original: Want[] }
+export interface Customer {
+  id: number;
+  name: string;
+  wants: Want[];
+  original: Want[];
+  /** A walk-in: drawn a day early and shown face down (only the fruits on the back) until they arrive. */
+  walkIn?: boolean;
+  /** Players who have seen this face-down card (Market Gossip). */
+  seenBy?: number[];
+  /** Street-price option: this customer pays $2 more than the street price. */
+  generous?: boolean;
+}
 
-export interface Bid { customerId: number; fruit: FruitId; qty: number; price: number }
+/** One secret price per fruit (the fruit a shop put out for sale). */
+export interface Post { fruit: FruitId; price: number }
+/** How many of each fruit a shop puts out for sale today (public once every shop has opened). */
+export type Stall = Partial<Record<FruitId, number>>;
 
 export interface Offer {
   player: number; qty: number; price: number; sold: number; freshness: number;
-  /** Extra cash from a Juice Press on older fruit (shown in the sale animation). */
+  /** Extra cash from a Juice Bar on older fruit (shown in the sale animation). */
   juice?: number;
+  /** Had this fruit out for sale, but none fresh enough for this customer at its price. */
+  tooOld?: boolean;
 }
 export interface LineResult { customerId: number; name: string; fruit: FruitId; want: number; max: number; offers: Offer[] }
 export interface DayResult {
@@ -61,11 +95,13 @@ export interface DayResult {
   leftAngry: string[];
   movedToWaiting: string[];
   income: number[];
+  /** What each shop paid for fruit today. */
+  spent: number[];
 }
 
 export interface DayRecord { day: number; lines: LineResult[]; income: number[]; cash: number[] }
 
-export type Phase = 'morning' | 'buy' | 'bid' | 'reveal' | 'evening' | 'over';
+export type Phase = 'morning' | 'buy' | 'stall' | 'bid' | 'reveal' | 'evening' | 'over';
 
 export interface GameState {
   config: GameConfig;
@@ -82,18 +118,28 @@ export interface GameState {
   nextEvent: EventCard | null;
   delivery: Partial<Record<FruitId, number>>;
   deliveryUnripe: FruitId | null;
-  /** Tomorrow's farmer card, drawn a day early and shown to everyone (null on the last day). */
+  /** Tomorrow's farmer card, drawn a day early and shown to everyone (null on the last day or before a Market Day). */
   nextFarmer?: FarmerCard | null;
+  /** The next expected customer (face up). */
   forecast: Customer | null;
+  /** The next walk-ins, face down: before the crowd arrives these are today's; afterwards tomorrow's. */
+  queue: Customer[];
   firstMarket: Customer[];
   secondMarket: Customer[];
   firstPlayer: number;
   priorityNext: number | null;
   order: number[];
   turn: number;
-  bids: (Bid[] | null)[];
+  /** What each shop put out for sale today (null until it has opened its stall). */
+  stalls: (Stall | null)[];
+  /** Each shop's secret prices (null until it has priced). */
+  bids: (Post[] | null)[];
   results: DayResult | null;
-  /** One entry per finished day, for recaps. Presentation only; older saves may lack it. */
+  /** Market pulse markers (advanced option). */
+  pulse?: Record<FruitId, number>;
+  /** Last Call: what the jam maker paid each shop for leftover fruit. */
+  jam?: number[];
+  /** One entry per finished day, for recaps. Presentation only. */
   history?: DayRecord[];
   /** Each shop's cash when the day began (for the day's net result). */
   dayStartCash?: number[];
@@ -124,15 +170,15 @@ export function count(stock: Stock, f?: FruitId, ripeOnly = false): number {
 }
 
 export function shelfSize(p: Player): number {
-  return p.upgrades.includes('shelf') ? BIG_SHELF : BASE_SHELF;
+  return p.upgrades.includes('barrow') ? BARROW_SHELF : BASE_SHELF;
 }
 
 export function buyLimit(p: Player): number {
-  return (p.upgrades.includes('cart') ? CART_BUY : BASE_BUY) + (p.trait === 'basket' ? 1 : 0);
+  return (p.upgrades.includes('barrow') ? BARROW_BUY : BASE_BUY) + (p.trait === 'basket' ? 1 : 0);
 }
 
 export function handLimit(p: Player): number {
-  return FAVOUR_HAND_LIMIT + (p.trait === 'charmer' ? 1 : 0) + (p.upgrades.includes('bell') ? 1 : 0);
+  return FAVOUR_HAND_LIMIT + (p.trait === 'charmer' ? 1 : 0);
 }
 
 /** What this shop pays for one fruit at the market (a Bargain Hunter's first fruit each day is $1 off). */
@@ -147,14 +193,30 @@ export function marketCost(s: GameState, f: FruitId, pos: number): number {
   return Math.max(1, FRUIT[f].cost[stage] + (s.event?.cost ?? 0));
 }
 
-export function priceMod(s: GameState, f: FruitId): number {
-  const e = s.event;
-  if (!e) return 0;
-  return (e.priceAll ?? 0) + (e.price?.[f] ?? 0);
+export const marketDaysOn = (s: GameState): boolean => s.config.marketDays !== false;
+
+/** Market Day: every 3rd day (never the last). No lorry, and one more walk-in. */
+export function isMarketDay(s: GameState, day = s.day): boolean {
+  return marketDaysOn(s) && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
 }
 
-export function effectiveMax(s: GameState, w: Want): number {
-  return Math.max(1, w.max + priceMod(s, w.fruit));
+/** Specialities are offered on the evening after each Market Day day (3, 6, 9, 12), whether or not Market Days are on. */
+export function isDraftNight(s: GameState, day = s.day): boolean {
+  return s.config.upgrades && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
+}
+
+export const isLastCall = (s: GameState, day = s.day): boolean => marketDaysOn(s) && day === s.config.days;
+
+/** Everything added to a customer's price for this fruit today: event, Last Call and (option) market pulse. */
+export function priceMod(s: GameState, f: FruitId): number {
+  const e = s.event;
+  return (e?.priceAll ?? 0) + (e?.price?.[f] ?? 0) + (isLastCall(s) ? LAST_CALL_BONUS : 0) + (s.config.pulse ? s.pulse?.[f] ?? 0 : 0);
+}
+
+/** A customer's top price for a fresh fruit today. */
+export function effectiveMax(s: GameState, w: Want, generous?: boolean): number {
+  const base = s.config.street ? STREET_PRICE[w.fruit] + (generous ? GENEROUS_BONUS : 0) : w.max;
+  return Math.max(1, base + priceMod(s, w.fruit));
 }
 
 export function minPrice(s: GameState, f: FruitId): number {
@@ -168,52 +230,49 @@ export function capAt(f: FruitId, pos: number, max: number): number {
   return max - d[pos];
 }
 
+/** As capAt, for this shop: a Premium Display lets fresh fruit go $1 higher. */
+export function capFor(pl: Player, f: FruitId, pos: number, max: number): number {
+  const c = capAt(f, pos, max);
+  return c > 0 && pl.upgrades.includes('premium') && stageAt(f, pos) === 'fresh' ? c + 1 : c;
+}
+
 /** Customers currently in the market, in the order they are served (waiting longest first). */
 export function servingCustomers(s: GameState): Customer[] {
   return [...s.secondMarket, ...s.firstMarket];
 }
 
 export function activePlayer(s: GameState): number {
+  if (s.phase === 'stall') return s.stalls.findIndex((x) => x === null);
   if (s.phase === 'bid') return s.bids.findIndex((b) => b === null);
   if (s.phase === 'buy' || s.phase === 'evening') return s.order[s.turn] ?? -1;
   return -1;
 }
 
-// ---------- pacing ----------
-// The town grows during the game: early days have few, small orders; later days bring more
-// customers who buy more. Demand and supply are sized for 4 fruits per shop (MARKET in data.ts):
-// customers start at 60% of that and grow, farmers bring a little more than shops can buy.
+// ---------- pacing (no formulas: everything is printed or counted) ----------
 
 /** 0 on the first day, 1 on the last. */
 export function progress(s: GameState, day = s.day): number {
   return s.config.days <= 1 ? 1 : Math.min(1, (day - 1) / (s.config.days - 1));
 }
 
-/** Town size: 4 fruits per shop. Handcarts and Big Baskets help only their owner, not the town. */
-function marketCapacity(s: GameState): number {
-  return s.players.length * BASE_BUY;
+/** Walk-ins on a day: players - 2 in the first half, players - 1 in the second; +1 on Market Days; plus that day's event. */
+export function walkInsOn(s: GameState, day: number, event: EventCard | null): number {
+  const base = Math.max(0, s.players.length - 2) + (progress(s, day) >= 0.5 ? 1 : 0);
+  return Math.max(0, base + (isMarketDay(s, day) ? 1 : 0) + (event?.walkIns ?? 0));
 }
 
-function baseWalkIns(s: GameState, day = s.day): number {
-  return progress(s, day) >= 0.5 ? 2 : 1;
-}
-
-/** Walk-in customers arriving today (after event changes). */
+/** Walk-ins arriving today (face down in the queue until the crowd comes). */
 export function walkInsToday(s: GameState): number {
-  return Math.max(0, baseWalkIns(s) + (s.event?.walkIns ?? 0));
+  return s.phase === 'morning' || s.phase === 'buy' ? s.queue.length : servingCustomers(s).filter((c) => c.walkIn).length;
 }
 
-const CARD_AVG_QTY = CUSTOMER_CARDS.reduce((a, c) => a + c.wants.reduce((b, w) => b + w.qty, 0), 0) / CUSTOMER_CARDS.length;
-const FARMER_AVG_QTY = FARMER_CARDS.reduce((a, c) => a + Object.values(c.supply).reduce((b, n) => b + (n ?? 0), 0) + 2, 0) / FARMER_CARDS.length;
-
-export function demandScale(s: GameState, day = s.day): number {
-  const playerBoost = s.players.length === 4 ? MARKET.fourPlayerDemand : 1;
-  const target = marketCapacity(s) * (MARKET.demandStart + MARKET.demandGrowth * progress(s, day)) * playerBoost;
-  return target / (CARD_AVG_QTY * (1 + baseWalkIns(s, day)));
-}
-
-function supplyScale(s: GameState): number {
-  return (marketCapacity(s) * (MARKET.supplyStart + MARKET.supplyGrowth * progress(s))) / FARMER_AVG_QTY;
+/** Fruit the farmers bring for one fruit on a card (printed for 3 shops; 2 shops one less, 4 shops one more). */
+export function printedSupply(card: FarmerCard, f: FruitId, shops: number): number {
+  const listed = card.supply[f];
+  let n = listed ?? 1;
+  if (shops === 2 && listed !== undefined) n = Math.max(1, n - 1);
+  if (shops >= 4) n += 1;
+  return n;
 }
 
 function clone<T>(x: T): T {
@@ -227,20 +286,31 @@ function withRng<T>(s: GameState, fn: (r: Rng) => T): T {
   return out;
 }
 
-function drawCustomer(s: GameState, day = s.day): Customer {
+function makeCustomer(s: GameState, card: CustomerCard, walkIn = false): Customer {
+  const wants = card.wants.map((w) => ({ ...w }));
+  const c: Customer = { id: s.nextId++, name: card.name, wants, original: clone(wants) };
+  if (walkIn) { c.walkIn = true; c.seenBy = []; }
+  // Street prices: customers whose card pays well are "generous".
+  if (wants.some((w) => w.max >= STREET_PRICE[w.fruit] + GENEROUS_BONUS)) c.generous = true;
+  return c;
+}
+
+function drawCustomer(s: GameState, walkIn = false): Customer {
   if (s.customerDeck.length === 0) {
-    const inPlay = new Set([...s.firstMarket, ...s.secondMarket, s.forecast].filter(Boolean).map((c) => c!.name));
+    const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast].filter(Boolean).map((c) => c!.name));
     s.customerDeck = withRng(s, (r) => r.shuffle(CUSTOMER_CARDS.map((_, i) => i).filter((i) => !inPlay.has(CUSTOMER_CARDS[i].name))));
   }
-  const card = CUSTOMER_CARDS[s.customerDeck.shift()!];
-  const scale = demandScale(s, day);
-  const wants = card.wants.map((w) => ({ ...w, qty: Math.max(1, Math.round(w.qty * scale)) }));
-  return { id: s.nextId++, name: card.name, wants, original: clone(wants) };
+  return makeCustomer(s, CUSTOMER_CARDS[s.customerDeck.shift()!], walkIn);
 }
 
 function drawFarmer(s: GameState): FarmerCard {
   if (s.farmerDeck.length === 0) s.farmerDeck = withRng(s, (r) => r.shuffle(FARMER_CARDS.map((_, i) => i)));
   return FARMER_CARDS[s.farmerDeck.shift()!];
+}
+
+function drawEvent(s: GameState): EventCard {
+  if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
+  return EVENT_CARDS[s.eventDeck.shift()!];
 }
 
 function drawFavour(s: GameState): FavourId {
@@ -283,6 +353,7 @@ export function newGame(config: GameConfig): GameState {
     favours: [],
     upgrades: [],
     boughtToday: 0,
+    spentToday: 0,
     favouredTrade: false,
     stats: { sold: 0, spoiled: 0, earned: 0, spent: 0, bestSale: 0, favours: 0 },
   }));
@@ -302,30 +373,34 @@ export function newGame(config: GameConfig): GameState {
     delivery: {},
     deliveryUnripe: null,
     forecast: null,
+    queue: [],
     firstMarket: [],
     secondMarket: [],
     firstPlayer: r.int(players.length),
     priorityNext: null,
     order: [],
     turn: 0,
+    stalls: players.map(() => null),
     bids: players.map(() => null),
     results: null,
     log: [],
     nextId: 1,
     history: [],
   };
+  if (config.pulse) s.pulse = Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
   const traitIds = Object.keys(TRAITS) as TraitId[];
   for (const pl of s.players) {
-    pl.traitOffer = r.shuffle([...traitIds]).slice(0, TRAIT_OFFER);
+    pl.traitOffer = config.core ? [] : r.shuffle([...traitIds]).slice(0, TRAIT_OFFER);
     pl.trait = null;
   }
   s.rng = r.state;
+  // Day 1's crowd: one expected customer (face up) and the walk-ins (face down).
   s.forecast = drawCustomer(s);
+  for (let i = 0; i < walkInsOn(s, 1, null); i++) s.queue.push(drawCustomer(s, true));
   startDay(s);
   // Computer shops pick their trait straight away; people pick on the first morning.
   s.players.forEach((pl, i) => {
-    // Offers are already shuffled, so taking the first gives every rival a random trait.
-    if (pl.kind === 'ai') applyTrait(s, i, pl.traitOffer![0]);
+    if (pl.kind === 'ai' && pl.traitOffer?.length) applyTrait(s, i, pl.traitOffer[0]);
   });
   return s;
 }
@@ -349,33 +424,29 @@ export function pickTrait(state: GameState, p: number, t: TraitId): GameState {
 function startDay(s: GameState) {
   s.phase = 'morning';
   s.event = null;
-  if (s.day > 1 && s.config.events) {
-    if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
-    s.event = s.nextEvent ?? EVENT_CARDS[s.eventDeck.shift()!];
-  }
-  // Tomorrow's event is announced a day early so shops can plan for it.
+  if (s.day > 1 && s.config.events) s.event = s.nextEvent ?? drawEvent(s);
+  // Tomorrow's event is announced a day early. A night-only event is never the last day's event.
   s.nextEvent = null;
   if (s.config.events && s.day < s.config.days) {
-    if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
-    s.nextEvent = EVENT_CARDS[s.eventDeck.shift()!];
+    s.nextEvent = drawEvent(s);
+    if (s.day + 1 === s.config.days && s.nextEvent.inspector) s.nextEvent = drawEvent(s);
   }
   s.delivery = {};
   s.deliveryUnripe = null;
-  // Tomorrow's farmer card is drawn a day early and shown to everyone, like the next event.
-  const card = s.nextFarmer ?? drawFarmer(s);
-  s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
-  if (!s.event?.noDelivery) {
-    const scale = supplyScale(s);
-    const harvest = s.event?.supply ?? 0;
-    const mult = s.event?.supplyMult ?? 1;
+  // Today's lorry was announced yesterday. No lorry comes on a Market Day.
+  const card = isMarketDay(s) ? null : s.nextFarmer ?? drawFarmer(s);
+  s.nextFarmer = s.day < s.config.days && !isMarketDay(s, s.day + 1) ? drawFarmer(s) : null;
+  if (card && !s.event?.noDelivery) {
+    const e = s.event;
+    const shops = s.players.length;
     const unripe = s.config.unripe && card.unripe ? card.unripe : null;
     s.deliveryUnripe = unripe;
     for (const f of FRUITS) {
-      // Fruits not on the card still trickle in, so no fruit is ever completely missing.
-      const base = card.supply[f] ?? 2;
-      let n = base > 0 ? Math.max(1, Math.round(base * scale)) : 0;
-      if (harvest) n = Math.max(0, n + harvest);
-      n = Math.round(n * mult);
+      let n = printedSupply(card, f, shops);
+      if (e?.supplyPerTwo) n += e.supplyPerTwo * Math.ceil(shops / 2);
+      if (e?.supplyPerShop?.[f]) n += e.supplyPerShop[f]! * shops;
+      if (e?.noFruit === f) n = 0;
+      if (e?.supplyMult) n = Math.ceil(n * e.supplyMult);
       if (n <= 0) continue;
       s.delivery[f] = n;
       const pos = f === unripe ? s.market[f].length - 1 : freshPos(f);
@@ -384,7 +455,9 @@ function startDay(s: GameState) {
   }
   for (const p of s.players) {
     p.boughtToday = 0;
+    p.spentToday = 0;
     p.favouredTrade = false;
+    p.upgradeOffer = [];
   }
   s.dayStartCash = s.players.map((p) => p.cash);
   const n = s.players.length;
@@ -396,6 +469,7 @@ function startDay(s: GameState) {
     s.priorityNext = null;
   }
   s.turn = 0;
+  s.stalls = s.players.map(() => null);
   s.bids = s.players.map(() => null);
   s.results = null;
 }
@@ -405,7 +479,7 @@ function startDay(s: GameState) {
 export function beginBuying(state: GameState): GameState {
   if (state.phase !== 'morning') throw new RuleError('Not morning');
   const s = clone(state);
-  s.players.forEach((pl, i) => { if (pl.traitOffer && !pl.trait) applyTrait(s, i, pl.traitOffer[0]); });
+  s.players.forEach((pl, i) => { if (pl.traitOffer?.length && !pl.trait) applyTrait(s, i, pl.traitOffer[0]); });
   s.phase = 'buy';
   s.turn = 0;
   return s;
@@ -438,6 +512,7 @@ export function buy(state: GameState, p: number, f: FruitId, pos: number): GameS
   pl.stock[f][pos]++;
   pl.cash -= cost;
   pl.stats.spent += cost;
+  pl.spentToday += cost;
   pl.boughtToday++;
   return s;
 }
@@ -451,16 +526,21 @@ export function endBuyTurn(state: GameState, p: number): GameState {
 }
 
 function customersArrive(s: GameState) {
+  // Today's crowd: the expected customer, the walk-ins (turned face up) and any event customer.
   const arriving: Customer[] = [];
   if (s.forecast) arriving.push(s.forecast);
-  for (let i = 0; i < walkInsToday(s); i++) arriving.push(drawCustomer(s));
-  if (s.event?.extra) {
-    const wants = s.event.extra.wants.map((w) => ({ ...w }));
-    arriving.push({ id: s.nextId++, name: s.event.extra.name, wants, original: clone(wants) });
-  }
+  for (const c of s.queue) arriving.push(c);
+  if (s.event?.extra) arriving.push(makeCustomer(s, s.event.extra));
   s.firstMarket = arriving;
-  s.forecast = drawCustomer(s, s.day + 1);
-  s.phase = 'bid';
+  // Tomorrow's queue: one expected customer face up, the walk-ins face down.
+  s.queue = [];
+  s.forecast = null;
+  if (s.day < s.config.days) {
+    s.forecast = drawCustomer(s);
+    for (let i = 0; i < walkInsOn(s, s.day + 1, s.nextEvent); i++) s.queue.push(drawCustomer(s, true));
+  }
+  s.phase = 'stall';
+  s.stalls = s.players.map(() => null);
   s.bids = s.players.map(() => null);
 }
 
@@ -474,9 +554,10 @@ export function canPlayFavour(s: GameState, p: number, idx: number): string | nu
   if (!id) return 'No such card';
   const def = FAVOURS[id];
   if (activePlayer(s) !== p) return 'Not your turn';
-  if (def.when !== s.phase) return `Play this during the ${def.when === 'bid' ? 'selling' : def.when} phase`;
+  if (def.when !== s.phase) return `Play this during the ${def.when === 'bid' ? 'pricing' : def.when} phase`;
   if (id === 'priority' && s.day >= s.config.days) return 'There is no tomorrow';
   if (id === 'favouredTrade' && pl.favouredTrade) return 'Already active';
+  if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins to hear about';
   return null;
 }
 
@@ -487,9 +568,9 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
   const pl = s.players[p];
   const id = pl.favours[idx];
   switch (id) {
-    case 'freeCash':
-      pl.cash += 3;
-      pl.stats.earned += 3;
+    case 'gossip':
+      // Only this shop learns what tomorrow's walk-ins want; everyone sees the card was played.
+      for (const c of s.queue) c.seenBy = [...new Set([...(c.seenBy ?? []), p])];
       break;
     case 'freeFruit': {
       const { fruit, pos } = args;
@@ -534,139 +615,150 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
   return s;
 }
 
-// ---------- selling ----------
+// ---------- open stalls ----------
 
-/** Positions (oldest first) a bid would use, or null if the player can't cover it. */
-export function allocate(stock: Stock, f: FruitId, qty: number, price: number, max: number): number[] | null {
-  const out: number[] = [];
-  const t = stock[f];
-  const ripeLen = FRUIT[f].ripe.length;
-  for (let i = 0; i < ripeLen && out.length < qty; i++) {
-    if (capAt(f, i, max) < price) continue;
-    for (let k = 0; k < t[i] && out.length < qty; k++) out.push(i);
-  }
-  return out.length === qty ? out : null;
-}
-
-/** Highest price a player could ask for this want with their current stock. */
-export function bestCap(stock: Stock, f: FruitId, max: number): number {
-  const ripeLen = FRUIT[f].ripe.length;
-  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0) return capAt(f, i, max);
-  return 0;
-}
-
-function sortBids(s: GameState, bids: Bid[]): Bid[] {
-  const order = servingCustomers(s).map((c) => c.id);
-  return [...bids].sort((a, b) => order.indexOf(a.customerId) - order.indexOf(b.customerId) || FRUITS.indexOf(a.fruit) - FRUITS.indexOf(b.fruit));
-}
-
-/** Checks a full set of bids for one player. Returns an error message or null. */
-export function validateBids(s: GameState, p: number, bids: Bid[]): string | null {
-  const stock = clone(s.players[p].stock);
-  const seen = new Set<string>();
-  for (const b of sortBids(s, bids)) {
-    if (b.qty <= 0) continue;
-    const c = servingCustomers(s).find((x) => x.id === b.customerId);
-    const w = c?.wants.find((x) => x.fruit === b.fruit);
-    if (!c || !w || w.qty <= 0) return 'That customer does not want this';
-    const key = `${b.customerId}:${b.fruit}`;
-    if (seen.has(key)) return 'Duplicate offer';
-    seen.add(key);
-    if (b.qty > w.qty) return `${c.name} only wants ${w.qty}`;
-    if (!Number.isInteger(b.price) || !Number.isInteger(b.qty)) return 'Whole numbers only';
-    if (b.price < minPrice(s, b.fruit)) return `Minimum price for ${FRUIT[b.fruit].plural.toLowerCase()} is $${minPrice(s, b.fruit)}`;
-    const used = allocate(stock, b.fruit, b.qty, b.price, effectiveMax(s, w));
-    if (!used) return `Not enough ${FRUIT[b.fruit].plural.toLowerCase()} fresh enough for $${b.price}`;
-    for (const i of used) stock[b.fruit][i]--;
+/** Checks what a shop puts out for sale. Returns an error message or null. */
+export function validateStall(s: GameState, p: number, stall: Stall): string | null {
+  const pl = s.players[p];
+  for (const [f, n] of Object.entries(stall) as [FruitId, number][]) {
+    if (!FRUITS.includes(f)) return 'Unknown fruit';
+    if (!Number.isInteger(n) || n < 0) return 'Whole numbers only';
+    if (n > count(pl.stock, f, true)) return `You only have ${count(pl.stock, f, true)} ripe ${FRUIT[f].plural.toLowerCase()}`;
   }
   return null;
 }
 
-export function submitBids(state: GameState, p: number, bids: Bid[], useFavouredTrade = false): GameState {
+export function openStall(state: GameState, p: number, stall: Stall): GameState {
+  requireActive(state, p, 'stall');
+  const err = validateStall(state, p, stall);
+  if (err) throw new RuleError(err);
+  const s = clone(state);
+  s.stalls[p] = Object.fromEntries(Object.entries(stall).filter(([, n]) => n > 0)) as Stall;
+  if (s.stalls.every((x) => x !== null)) startPricing(s);
+  return s;
+}
+
+/** Fruit a shop has out for sale today. */
+export function forSale(s: GameState, p: number, f: FruitId): number {
+  return s.stalls[p]?.[f] ?? 0;
+}
+
+function startPricing(s: GameState) {
+  s.phase = 'bid';
+  // A shop with nothing out for sale has nothing to price.
+  s.bids = s.players.map((_, p) => (FRUITS.some((f) => forSale(s, p, f) > 0) ? null : []));
+  if (s.bids.every((b) => b !== null)) resolve(s);
+}
+
+// ---------- pricing ----------
+
+/** Checks a shop's secret prices: one whole-dollar price for each fruit it put out. */
+export function validatePrices(s: GameState, p: number, posts: Post[]): string | null {
+  const seen = new Set<FruitId>();
+  for (const b of posts) {
+    if (!FRUITS.includes(b.fruit)) return 'Unknown fruit';
+    if (seen.has(b.fruit)) return 'One price per fruit';
+    seen.add(b.fruit);
+    if (forSale(s, p, b.fruit) <= 0) return `You have no ${FRUIT[b.fruit].plural.toLowerCase()} out for sale`;
+    if (!Number.isInteger(b.price)) return 'Whole numbers only';
+    if (b.price < minPrice(s, b.fruit)) return `Minimum price for ${FRUIT[b.fruit].plural.toLowerCase()} is $${minPrice(s, b.fruit)}`;
+    if (b.price > 30) return 'That price is too high';
+  }
+  for (const f of FRUITS) if (forSale(s, p, f) > 0 && !seen.has(f)) return `Set a price for your ${FRUIT[f].plural.toLowerCase()}`;
+  return null;
+}
+
+export function submitPrices(state: GameState, p: number, posts: Post[], useFavouredTrade = false): GameState {
   requireActive(state, p, 'bid');
   let s = clone(state);
   if (useFavouredTrade) {
     const idx = s.players[p].favours.indexOf('favouredTrade');
     if (idx >= 0) s = playFavour(s, p, idx);
   }
-  const err = validateBids(s, p, bids);
+  const err = validatePrices(s, p, posts);
   if (err) throw new RuleError(err);
-  s.bids[p] = bids.filter((b) => b.qty > 0);
+  s.bids[p] = posts.map((b) => ({ fruit: b.fruit, price: b.price }));
   if (s.bids.every((b) => b !== null)) resolve(s);
   return s;
 }
 
-/** Does `a` beat `b` on a tie? A Favoured Trade card today, or a Haggler facing a richer shop. */
-function tieEdge(a: Player, b: Player): boolean {
-  return a.favouredTrade || hagglerEdge(a, b);
+export function postedPrice(s: GameState, p: number, f: FruitId): number | null {
+  return s.bids[p]?.find((b) => b.fruit === f)?.price ?? null;
 }
 
-/** A Haggler wins a tied price against a richer shop even when the rival's fruit is fresher. */
-function hagglerEdge(a: Player, b: Player): boolean {
-  return a.trait === 'haggler' && b.cash > a.cash;
+/** Positions (oldest first) a shop would hand over for this customer at this price, up to `qty`. */
+export function eligible(pl: Player, stock: Stock, f: FruitId, qty: number, price: number, max: number): number[] {
+  const out: number[] = [];
+  const t = stock[f];
+  const ripeLen = FRUIT[f].ripe.length;
+  for (let i = 0; i < ripeLen && out.length < qty; i++) {
+    if (capFor(pl, f, i, max) < price) continue;
+    for (let k = 0; k < t[i] && out.length < qty; k++) out.push(i);
+  }
+  return out;
+}
+
+/** Highest price this shop could ask a customer with this top price, with its current stock. */
+export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player): number {
+  const ripeLen = FRUIT[f].ripe.length;
+  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0) return pl ? capFor(pl, f, i, max) : capAt(f, i, max);
+  return 0;
 }
 
 function resolve(s: GameState) {
-  const res: DayResult = { lines: [], favours: [], happy: [], leftAngry: [], movedToWaiting: [], income: s.players.map(() => 0) };
-  // Units each player reserved, in serving order, so earlier wins don't eat later offers.
-  const plans = s.players.map((_, p) => {
-    const stock = clone(s.players[p].stock);
-    const map = new Map<string, number[]>();
-    for (const b of sortBids(s, s.bids[p] ?? [])) {
-      const c = servingCustomers(s).find((x) => x.id === b.customerId)!;
-      const w = c.wants.find((x) => x.fruit === b.fruit)!;
-      const used = allocate(stock, b.fruit, b.qty, b.price, effectiveMax(s, w)) ?? [];
-      for (const i of used) stock[b.fruit][i]--;
-      map.set(`${b.customerId}:${b.fruit}`, used);
-    }
-    return map;
-  });
+  const res: DayResult = {
+    lines: [], favours: [], happy: [], leftAngry: [], movedToWaiting: [],
+    income: s.players.map(() => 0), spent: s.players.map((p) => p.spentToday),
+  };
+  const left = s.players.map((_, p) => Object.fromEntries(FRUITS.map((f) => [f, forSale(s, p, f)])) as Record<FruitId, number>);
   const orderIdx = (p: number) => s.order.indexOf(p);
+  const tieWin = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade)
+    || Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
 
   for (const c of servingCustomers(s)) {
     const suppliers = new Set<number>();
     let unitsToCustomer = 0;
     for (const w of c.wants) {
       if (w.qty <= 0) continue;
-      const max = effectiveMax(s, w);
-      const offers: Offer[] = [];
-      s.players.forEach((_, p) => {
-        const b = (s.bids[p] ?? []).find((x) => x.customerId === c.id && x.fruit === w.fruit);
-        if (!b) return;
-        const used = plans[p].get(`${c.id}:${w.fruit}`) ?? [];
-        if (used.length === 0) return;
-        offers.push({ player: p, qty: used.length, price: b.price, sold: 0, freshness: Math.max(...used) });
+      const max = effectiveMax(s, w, c.generous);
+      const offers: (Offer & { used: number[] })[] = [];
+      s.players.forEach((pl, p) => {
+        const price = postedPrice(s, p, w.fruit);
+        if (price === null || left[p][w.fruit] <= 0) return;
+        const used = eligible(pl, pl.stock, w.fruit, Math.min(left[p][w.fruit], w.qty), price, max);
+        if (used.length === 0) {
+          if (count(pl.stock, w.fruit, true) > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
+          return;
+        }
+        offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
       });
-      offers.sort((a, b) =>
-        a.price - b.price ||
-        Number(hagglerEdge(s.players[b.player], s.players[a.player])) - Number(hagglerEdge(s.players[a.player], s.players[b.player])) ||
-        b.freshness - a.freshness ||
-        Number(tieEdge(s.players[b.player], s.players[a.player])) - Number(tieEdge(s.players[a.player], s.players[b.player])) ||
-        orderIdx(a.player) - orderIdx(b.player));
-      let left = w.qty;
+      // Cheapest first. Ties: Favoured Trade, then a Haggler, then fresher fruit, then the poorer shop, then turn order.
+      offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || tieWin(a.player, b.player)
+        || b.freshness - a.freshness || s.players[a.player].cash - s.players[b.player].cash || orderIdx(a.player) - orderIdx(b.player));
+      let need = w.qty;
       for (const o of offers) {
-        if (left <= 0) break;
-        const n = Math.min(left, o.qty);
+        if (need <= 0 || o.tooOld) continue;
+        const n = Math.min(need, o.qty);
         o.sold = n;
-        left -= n;
+        need -= n;
         const pl = s.players[o.player];
-        const used = plans[o.player].get(`${c.id}:${w.fruit}`)!.slice(0, n);
-        for (const i of used) pl.stock[w.fruit][i]--;
-        const tip = pl.upgrades.includes('signboard') ? 1 : 0;
-        // Juice Press: each older fruit sold (okay or not so) earns a juice tip as well.
-        const juice = pl.upgrades.includes('juicer') ? JUICE_TIP * used.filter((i) => stageAt(w.fruit, i) === 'okay' || stageAt(w.fruit, i) === 'notso').length : 0;
+        const sold = o.used.slice(0, n);
+        for (const i of sold) pl.stock[w.fruit][i]--;
+        left[o.player][w.fruit] -= n;
+        // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well.
+        const juice = pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
         if (juice) o.juice = juice;
-        const gain = n * (o.price + tip) + juice;
+        const gain = n * o.price + juice;
         pl.cash += gain;
         pl.stats.earned += gain;
         pl.stats.sold += n;
-        pl.stats.bestSale = Math.max(pl.stats.bestSale, o.price + tip);
+        pl.stats.bestSale = Math.max(pl.stats.bestSale, o.price);
         res.income[o.player] += gain;
         suppliers.add(o.player);
         unitsToCustomer += n;
       }
-      res.lines.push({ customerId: c.id, name: c.name, fruit: w.fruit, want: w.qty, max, offers });
-      w.qty = left;
+      res.lines.push({ customerId: c.id, name: c.name, fruit: w.fruit, want: w.qty, max, offers: offers.map(({ used: _u, ...o }) => o) });
+      w.qty = need;
     }
     const done = c.wants.every((w) => w.qty <= 0);
     if (done) {
@@ -679,8 +771,8 @@ function resolve(s: GameState) {
           pl.stats.earned += LOCAL_FAVOURITE_TIP;
           res.income[p] += LOCAL_FAVOURITE_TIP;
         }
-        // At most one favour card per shop per day.
-        if (pl.favours.length < handLimit(pl) && !res.favours.some((x) => x.player === p)) {
+        // At most one favour card per shop per day (none in the core market).
+        if (!s.config.core && pl.favours.length < handLimit(pl) && !res.favours.some((x) => x.player === p)) {
           const fav = drawFavour(s);
           pl.favours.push(fav);
           pl.stats.favours++;
@@ -689,11 +781,23 @@ function resolve(s: GameState) {
       }
     }
   }
+  if (s.config.pulse) updatePulse(s);
   for (const c of s.secondMarket) if (c.wants.some((w) => w.qty > 0)) res.leftAngry.push(c.name);
   const waiting = s.firstMarket.filter((c) => c.wants.some((w) => w.qty > 0));
   res.movedToWaiting = waiting.map((c) => c.name);
   s.results = res;
   s.phase = 'reveal';
+}
+
+/** Market pulse: a shortage pushes a fruit's marker up $1, a glut (players + 1 ripe left at the market) down $1, else back toward 0. */
+function updatePulse(s: GameState) {
+  const pz = (s.pulse ??= Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>);
+  for (const f of FRUITS) {
+    const short = servingCustomers(s).some((c) => c.wants.some((w) => w.fruit === f && w.qty > 0));
+    const leftAtMarket = s.market[f].slice(0, FRUIT[f].ripe.length).reduce((a, b) => a + b, 0);
+    const m = pz[f] ?? 0;
+    pz[f] = short ? Math.min(PULSE_MAX, m + 1) : leftAtMarket >= s.players.length + 1 ? Math.max(PULSE_MIN, m - 1) : m > 0 ? m - 1 : m < 0 ? m + 1 : 0;
+  }
 }
 
 /** Customers still standing in the market after the reveal (used by the UI while showing results). */
@@ -706,13 +810,25 @@ export function finishReveal(state: GameState): GameState {
   s.secondMarket = s.firstMarket.filter((c) => c.wants.some((w) => w.qty > 0));
   s.firstMarket = [];
   if (s.day >= s.config.days) {
+    // Last Call: the jam maker buys leftover ripe fruit.
+    if (isLastCall(s)) {
+      s.jam = s.players.map((pl) => {
+        const n = count(pl.stock, undefined, true);
+        pl.cash += n * JAM_PRICE;
+        pl.stats.earned += n * JAM_PRICE;
+        return n * JAM_PRICE;
+      });
+    }
     s.phase = 'over';
     return s;
   }
   s.phase = 'evening';
   s.turn = 0;
-  if (s.config.upgrades) dealUpgrades(s);
-  if (!s.config.upgrades && !s.players.some((p) => p.favours.includes('priority'))) return nightfall(s);
+  if (isDraftNight(s)) dealUpgrades(s);
+  // Hold an evening whenever anyone has a favour card. Only the number of cards is public, so
+  // checking for evening cards would tell rivals what someone is holding.
+  const anyCard = s.players.some((p) => p.favours.length > 0);
+  if (!isDraftNight(s) && !anyCard) return nightfall(s);
   return s;
 }
 
@@ -727,8 +843,9 @@ function dealUpgrades(s: GameState) {
 
 export function canUpgrade(s: GameState, p: number, u: UpgradeId): string | null {
   const pl = s.players[p];
-  if (!s.config.upgrades) return 'Upgrades are off';
+  if (!s.config.upgrades) return 'Specialities are off';
   if (s.phase !== 'evening' || activePlayer(s) !== p) return 'Not your turn';
+  if (!isDraftNight(s)) return 'Specialities are offered after Market Days';
   if (pl.upgrades.includes(u)) return 'Already built';
   if (pl.upgradeOffer && !pl.upgradeOffer.includes(u)) return 'Not on offer tonight';
   if (pl.cash < UPGRADES[u].cost) return 'Not enough cash';
@@ -743,7 +860,6 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
   pl.cash -= UPGRADES[u].cost;
   pl.stats.spent += UPGRADES[u].cost;
   pl.upgrades.push(u);
-  for (let k = 0; u === 'bell' && k < 2 && pl.favours.length < handLimit(pl); k++) pl.favours.push(drawFavour(s));
   s.log.push(`${pl.name} built a ${UPGRADES[u].title}`);
   return s;
 }
@@ -777,11 +893,11 @@ function nightfall(s: GameState): GameState {
 }
 
 function ageShop(s: GameState, pl: Player, heat: number) {
-  const room = pl.upgrades.includes('coolroom');
+  const room = pl.upgrades.includes('coldroom');
   const steps = (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : heat);
   let spoiled = 0;
   for (const f of FRUITS) spoiled += ageFruit(pl.stock, f, steps);
-  if (pl.upgrades.includes('juicer') && spoiled > 0) {
+  if (pl.upgrades.includes('juicebar') && spoiled > 0) {
     const juiced = Math.min(3, spoiled);
     pl.cash += 2 * juiced;
     pl.stats.earned += 2 * juiced;
@@ -814,7 +930,8 @@ export type Action =
   | { kind: 'buy'; fruit: FruitId; pos: number }
   | { kind: 'endBuy' }
   | { kind: 'favour'; idx: number; args?: FavourArgs }
-  | { kind: 'bids'; bids: Bid[]; favoured: boolean }
+  | { kind: 'stall'; stall: Stall }
+  | { kind: 'prices'; posts: Post[]; favoured: boolean }
   | { kind: 'finish' }
   | { kind: 'upgrade'; upgrade: UpgradeId }
   | { kind: 'endEvening' }
@@ -826,7 +943,8 @@ export function applyAction(s: GameState, p: number, a: Action): GameState {
     case 'buy': return buy(s, p, a.fruit, a.pos);
     case 'endBuy': return endBuyTurn(s, p);
     case 'favour': return playFavour(s, p, a.idx, a.args ?? {});
-    case 'bids': return submitBids(s, p, a.bids, a.favoured);
+    case 'stall': return openStall(s, p, a.stall);
+    case 'prices': return submitPrices(s, p, a.posts, a.favoured);
     case 'finish': return finishReveal(s);
     case 'upgrade': return buyUpgrade(s, p, a.upgrade);
     case 'endEvening': return endEvening(s, p);

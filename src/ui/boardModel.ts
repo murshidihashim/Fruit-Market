@@ -1,7 +1,7 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import { FRUIT, FRUITS, stageAt, type FruitId, type Stage } from '../engine/data';
-import { count, walkInsToday, type Customer, type GameState } from '../engine/game';
+import { count, isMarketDay, printedSupply, walkInsToday, type Customer, type GameState } from '../engine/game';
 
 export interface Slot { pos: number; stage: Stage; n: number }
 
@@ -55,10 +55,25 @@ export function wantText({ demand, more }: Pulse): string {
   return demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0';
 }
 
-/** Tomorrow's farmer delivery in plain words: fruits on the card come in plenty, the others only a few. */
-export interface LorryLine { f: FruitId; plenty: boolean; green: boolean }
+/** Tomorrow's farmer delivery: fruits printed on the card come in plenty, the others as a single fruit. */
+export interface LorryLine { f: FruitId; plenty: boolean; green: boolean; n: number }
 export function nextLorry(s: GameState): LorryLine[] | null {
   const card = s.nextFarmer;
   if (!card) return null;
-  return FRUITS.map((f) => ({ f, plenty: (card.supply[f] ?? 0) > 2, green: !!s.config.unripe && card.unripe === f }));
+  return FRUITS.map((f) => ({
+    f, plenty: card.supply[f] !== undefined, green: !!s.config.unripe && card.unripe === f,
+    n: printedSupply(card, f, s.players.length),
+  }));
+}
+
+/** Tomorrow is a Market Day: no lorry, one more walk-in. */
+export function marketDayTomorrow(s: GameState): boolean {
+  return s.day < s.config.days && isMarketDay(s, s.day + 1);
+}
+
+/** Ripe fruit on its last day in a shop: it spoils tonight unless a Cold Room skips this night. */
+export function spoilsTonight(s: GameState, p: number): number {
+  const pl = s.players[p];
+  if (pl.upgrades.includes('coldroom') && s.day % 2 === 1) return 0;
+  return FRUITS.reduce((a, f) => a + (pl.stock[f][0] ?? 0), 0);
 }

@@ -58,5 +58,4 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
-- PLAN-015: Readable price duel: five-beat day, prototypes A/B/C and the Market Gossip card (awaiting approval)
 <!-- records:pending:end -->

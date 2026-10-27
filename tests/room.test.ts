@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { planBids } from '../src/engine/ai';
+import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
-import { activePlayer, canBuy } from '../src/engine/game';
+import { activePlayer, canBuy, newGame } from '../src/engine/game';
 import { RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
-import { freshRoom, GRACE_MS, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
+import { freshRoom, GRACE_MS, redact, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
   seat: number | null = null;
@@ -78,9 +78,13 @@ async function botStep(c: Client): Promise<boolean> {
     await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endBuy' } });
     return true;
   }
+  if (g.phase === 'stall' && !v.submitted[me]) {
+    await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'stall', stall: planStall(g, me) } });
+    return true;
+  }
   if (g.phase === 'bid' && !v.submitted[me]) {
-    const { bids } = planBids(g, me);
-    await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'bids', bids, favoured: false } });
+    const { posts } = planPrices(g, me);
+    await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'prices', posts, favoured: false } });
     return true;
   }
   if (g.phase === 'evening' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endEvening' } }); return true; }
@@ -125,10 +129,9 @@ describe('online room', () => {
     for (let i = 0; i < 200 && h.room.d.game!.phase !== 'bid'; i++) if (!(await botStep(a))) await botStep(b);
     expect(h.room.d.game!.phase).toBe('bid');
     const g = a.view!.game!;
-    const { bids } = planBids(g, 0);
-    const marked = bids.length ? bids : [];
+    const { posts } = planPrices(g, 0);
     const before = b.inbox.length;
-    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'bids', bids: marked, favoured: false } });
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts, favoured: false } });
     const after = b.inbox.slice(before).map((r) => JSON.parse(r)).filter((m) => m.t === 'room') as RoomView[];
     expect(after.length).toBeGreaterThan(0);
     for (const v of after) {
@@ -145,8 +148,44 @@ describe('online room', () => {
       expect(m.game.eventDeck).toEqual([]);
     }
     // A cannot change their mind or submit twice.
-    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'bids', bids: [], favoured: false } });
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [], favoured: false } });
     expect(a.errors.slice(-1)[0]).toContain('already locked');
+  });
+
+  it('keeps a for-sale crate hidden until every shop has opened', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    for (let i = 0; i < 200 && h.room.d.game!.phase !== 'stall'; i++) if (!(await botStep(a))) await botStep(b);
+    expect(h.room.d.game!.phase).toBe('stall');
+    const before = b.inbox.length;
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'stall', stall: planStall(a.view!.game!, 0) } });
+    const after = b.inbox.slice(before).map((r) => JSON.parse(r)).filter((m) => m.t === 'room') as RoomView[];
+    expect(after.length).toBeGreaterThan(0);
+    for (const v of after) {
+      expect(v.game!.phase).toBe('stall');
+      expect(v.game!.stalls.every((x) => x === null)).toBe(true);
+      expect(v.submitted[0]).toBe(true);
+    }
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'stall', stall: {} } });
+    expect(a.errors.slice(-1)[0]).toContain('already set out');
+  });
+
+  it('shows face-down walk-ins only to the player who heard the gossip', () => {
+    // Four shops: two walk-ins wait face down in the first queue.
+    const g = newGame({ players: ['A', 'B', 'C', 'D'].map((name) => ({ name, kind: 'human' as const, avatar: 'fox' })), days: 8, seed: 7, unripe: true, upgrades: true, events: true });
+    expect(g.queue.length).toBeGreaterThan(0);
+    g.queue.forEach((c) => { c.seenBy = [0]; });
+    const mine = redact(g, 0), theirs = redact(g, 1);
+    expect(mine.queue).toEqual(g.queue);
+    for (const [i, c] of theirs.queue.entries()) {
+      expect(c.walkIn).toBe(true);
+      expect(c.name).not.toBe(g.queue[i].name);
+      expect(c.wants.map((w) => w.fruit)).toEqual(g.queue[i].wants.map((w) => w.fruit));
+      expect(c.wants.every((w) => w.qty === 0 && w.max === 0)).toBe(true);
+    }
+    const leaked = JSON.stringify(theirs.queue);
+    for (const c of g.queue) expect(leaked).not.toContain(`"${c.name}"`);
   });
 
   it('applies a repeated action id only once and rejects stale versions', async () => {

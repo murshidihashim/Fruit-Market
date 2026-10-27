@@ -24,7 +24,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
     <>
   {coach && (
     // While pricing, the tip sits at the top so it never covers the Seal button.
-    <div class={`coach ${c.s.phase === 'bid' ? 'top' : ''}`} role="note">
+    <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note">
       <b>{coach.title}</b>
       <span>{coach.text}</span>
       <button class="btn small" onClick={(e) => { e.stopPropagation(); markSeen(coach.id); track('tutorial', coach.id); c.setTipTick((n) => n + 1); }}>Got it</button>

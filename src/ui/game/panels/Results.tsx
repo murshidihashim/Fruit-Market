@@ -34,7 +34,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
               <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>
-              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{pl.upgrades.map((u) => <Icon name={UP_ICON[u]} size={14} />)}</div>
+              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}{pl.upgrades.map((u) => <Icon name={UP_ICON[u]} size={14} />)}</div>
             </div>
           );
         })}

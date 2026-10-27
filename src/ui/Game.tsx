@@ -1,10 +1,10 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { buyLimit, canBuy, type GameState } from '../engine/game';
+import { buyLimit, canBuy, isMarketDay, type GameState } from '../engine/game';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
-import { EveningPanel, PricePanel } from './panel';
+import { EveningPanel, PricePanel, StallPanel } from './panel';
 import { Lorry, Market, MyStall, RivalDrop, RivalStall, Street, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
@@ -38,7 +38,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="handoff" onClick={() => { fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
-        <p>{s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
+        <p>{s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
       </div>
     );
@@ -64,17 +64,18 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
   const coach = online || busy ? null : tipFor(s, {
-    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: s.phase === 'bid' && c.myBidTurn,
+    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn,
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
   });
   // Rivals sit across the table in one row, in turn order after you.
   const rivals = seats(s.players.length, viewer).map((x) => x.p);
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
-  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery;
+  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery && !isMarketDay(s);
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
   // then flipped open one by one, highest price first, as each showdown is revealed.
   const boards: Record<number, Board> = {};
   if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
+  if (s.phase === 'stall') rivals.forEach((p) => { boards[p] = { state: s.stalls[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (show) {
     const order = show.line.offers.map((o, i) => ({ o, i })).sort((x, y) => y.o.price - x.o.price || y.i - x.i);
     order.forEach(({ o, i }, k) => {
@@ -86,6 +87,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   }
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
+  const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
 
   // Cards that sit on top of the market in the middle of the table.
   const overlay = (() => {
@@ -101,7 +103,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
   // Decisions that need more room: pricing fills the screen on phones (side panel on desktop).
   const tray = (() => {
-    if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(bids, fav) => { fx.card(); act({ kind: 'bids', bids, favoured: fav }); }} />;
+    if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall) => { fx.card(); act({ kind: 'stall', stall }); }} />;
+    if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
     if (s.phase === 'evening' && activeHuman && !busy) return <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} />;
     return null;
   })();
@@ -119,10 +122,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         </div>
       ))}
 
-      <div class={`play ${tray ? 'has-tray' : ''} ${pricing ? 'tray-full' : ''}`}>
+      <div class={`play ${tray ? 'has-tray' : ''} ${pricing || stalling ? 'tray-full' : ''}`}>
         <div class="table">
           {/* The farmer's lorry parks in the street from the morning delivery until buying ends; customers step aside. */}
-          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} onTip={(t) => c.setTip(t)} /><Lorry here={lorryHere} /></div>
+          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} /><Lorry here={lorryHere} /></div>
           {rivals.length > 0 && (
             <div class="seats">
               {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
