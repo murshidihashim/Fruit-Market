@@ -103,7 +103,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const error = validatePrices(s, p, posts);
   return (
     <div class="price-panel">
-      <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and fresher fruit wins ties.</span></div>
+      <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
       <RivalWatch s={s} p={p} wanted={FRUITS.filter((f) => wantsFor(s, f).length > 0)} step="bid" />
       {fruits.map((f) => {
         const price = vals[f];

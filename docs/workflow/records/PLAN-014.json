@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "workflow/plan-015",
   "reports": [
     "REP-030",
-    "REP-031"
+    "REP-031",
+    "REP-033"
   ],
   "decisions": [],
   "changes": {
@@ -32,7 +33,7 @@
     "evidence": "approve all the idea, work out the mechanics, and summarise to me  game back highlighting the concept and game mechanics as i want to benchmark against similar genre board games and traditional popular board games",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-014",
   "title": "Tabletop edition rules: printed supply and demand, posted prices, market pulse, fruit payouts",
   "problem": "REP-030: supply and demand come from formulas a table can't run; ~10 secret prices per player per day are too fiddly by hand; prices never react to shortage or glut; fruit payouts don't follow risk (blueberries best return, apples above watermelons).",
@@ -57,20 +58,20 @@
     {
       "id": "T1",
       "text": "npm run verify and verify:full pass (price leak check 0)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Built inside PLAN-015: verify and verify:full exit 0, leak check 0 (REP-033)"
     },
     {
       "id": "T2",
       "text": "Production equals the lab package; held-out results within the margin of REP-030 3b",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Superseded by PLAN-015 T1: production figures match REP-032 (REP-033 section 4)"
     },
     {
       "id": "T3",
       "text": "Computer posted pricing beats the crude stand-in (Hard beats Normal at least 62%)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "FAIL",
+      "evidence": "Hard beats Normal 56% with posted prices (aim 62%); accepted as fair practice, reported in REP-033"
     },
     {
       "id": "T4",

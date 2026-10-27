@@ -901,6 +901,10 @@
     {
       "at": "2026-10-27 14:51",
       "text": "Owner: \"approve plan 15\". PLAN-015 approved and started on workflow/plan-015; it is built together with the approved PLAN-014 items as rules version 4."
+    },
+    {
+      "at": "2026-10-27 15:37",
+      "text": "PLAN-015 with the PLAN-014 items built as rules version 4 (REP-033): open stalls, the bell, Market Days and Last Call, four specialities, Market Gossip with server-side privacy, day ledger, playtest set-up options, rules text. verify and verify:full PASS (leak check 0). Balance: Hard beats Normal 56%, comebacks 31%, traits 30-38%; Cold Room and Juice Bar weak for computers; little undercutting among computers. Playtest NOT RUN. Merged to main for the preview; live game unchanged."
     }
   ]
 }
