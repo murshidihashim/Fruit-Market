@@ -97,7 +97,7 @@ export const FARMER_CARDS: FarmerCard[] = [
 export interface Want { fruit: FruitId; qty: number; max: number }
 export interface CustomerCard { name: string; wants: Want[] }
 
-// 24 customers. Max price is what they pay for a fresh fruit.
+// 36 customers. Max price is what they pay for a fresh fruit.
 const RAW_CUSTOMERS: CustomerCard[] = [
   { name: 'John', wants: [{ fruit: 'apple', qty: 3, max: 10 }, { fruit: 'watermelon', qty: 2, max: 6 }] },
   { name: 'Robert', wants: [{ fruit: 'blueberry', qty: 3, max: 7 }, { fruit: 'mango', qty: 2, max: 5 }] },
@@ -123,6 +123,18 @@ const RAW_CUSTOMERS: CustomerCard[] = [
   { name: 'Vijay', wants: [{ fruit: 'apple', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 7 }, { fruit: 'mango', qty: 1, max: 9 }] },
   { name: 'Hui Min', wants: [{ fruit: 'watermelon', qty: 3, max: 7 }, { fruit: 'mango', qty: 1, max: 8 }] },
   { name: 'Osman', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
+  { name: 'Jia Wen', wants: [{ fruit: 'apple', qty: 2, max: 9 }, { fruit: 'mango', qty: 2, max: 7 }] },
+  { name: 'Rizal', wants: [{ fruit: 'blueberry', qty: 3, max: 6 }, { fruit: 'watermelon', qty: 2, max: 7 }] },
+  { name: 'Devi', wants: [{ fruit: 'mango', qty: 4, max: 7 }] },
+  { name: 'Marcus', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'mango', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
+  { name: 'Fatimah', wants: [{ fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 6 }] },
+  { name: 'Ben', wants: [{ fruit: 'watermelon', qty: 3, max: 7 }] },
+  { name: 'Yuki', wants: [{ fruit: 'mango', qty: 3, max: 6 }, { fruit: 'apple', qty: 2, max: 9 }] },
+  { name: 'Hadi', wants: [{ fruit: 'blueberry', qty: 4, max: 7 }] },
+  { name: 'Lakshmi', wants: [{ fruit: 'apple', qty: 2, max: 10 }, { fruit: 'watermelon', qty: 2, max: 8 }] },
+  { name: 'Kenji', wants: [{ fruit: 'mango', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 6 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
+  { name: 'Mira', wants: [{ fruit: 'mango', qty: 3, max: 7 }, { fruit: 'apple', qty: 1, max: 8 }] },
+  { name: 'Hock Seng', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }, { fruit: 'mango', qty: 1, max: 8 }] },
 ];
 
 const PRICE_SHIFT: Record<FruitId, number> = { blueberry: -1, watermelon: 0, apple: -2, mango: 2 };
@@ -293,6 +305,18 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   Vijay: { icon: '🤖', title: 'Robo-Vijay', quirk: 'Computes the optimal fruit salad.' },
   'Hui Min': { icon: '🧝', title: 'Hui Min the Elf', quirk: 'Elves are wild about watermelon.' },
   Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Cools down after every call with watermelon.' },
+  'Jia Wen': { icon: '🏴‍☠️', title: 'Pirate Jia Wen', quirk: 'Pays in doubloons. Insists on a treasure map of the mangoes.' },
+  Rizal: { icon: '🎧', title: 'DJ Rizal', quirk: 'Drops the beat, then drops by for blueberries.' },
+  Devi: { icon: '🧑‍🌾', title: 'Gardener Devi', quirk: 'Grows everything except mangoes. Buys them all.' },
+  Marcus: { icon: '🪓', title: 'Lumberjack Marcus', quirk: 'Chops wood all morning, then eats apples all afternoon.' },
+  Fatimah: { icon: '🎓', title: 'Professor Fatimah', quirk: 'Lectures on the science of the perfect watermelon.' },
+  Ben: { icon: '🛎️', title: 'Bellboy Ben', quirk: 'Rings a little bell for every watermelon he carries.' },
+  Yuki: { icon: '⚔️', title: 'Samurai Yuki', quirk: 'Slices mangoes in one clean stroke.' },
+  Hadi: { icon: '👷', title: 'Builder Hadi', quirk: 'Builds towers of blueberries on his lunch break.' },
+  Lakshmi: { icon: '🥐', title: 'Baker Lakshmi', quirk: 'Her famous apple tart starts at your stall.' },
+  Kenji: { icon: '🥋', title: 'Judoka Kenji', quirk: 'Flips a mango, catches it, pays for it.' },
+  Mira: { icon: '🧙‍♀️', title: 'Witch Mira', quirk: 'Brews a mango potion. Do not ask what is in it.' },
+  'Hock Seng': { icon: '🧓', title: 'Uncle Hock Seng', quirk: 'Has strong opinions about the price of apples.' },
   Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your shop if the mangoes are perfect.' },
   'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
   'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },

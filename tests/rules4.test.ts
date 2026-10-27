@@ -27,7 +27,7 @@ function duel(extra: Partial<GameConfig> = {}): GameState {
   s = structuredClone(s);
   s.firstMarket = [{ id: 900, name: 'Tester', wants: [{ fruit: 'apple', qty: 3, max: 8 }], original: [{ fruit: 'apple', qty: 3, max: 8 }] }];
   s.secondMarket = [];
-  for (const pl of s.players) pl.stock = { blueberry: [0, 0, 0], watermelon: [0, 0, 0, 0, 0, 0], apple: [0, 0, 0, 0, 0, 0, 0], mango: [0, 0, 0, 0, 0, 0] };
+  for (const pl of s.players) { pl.trait = null; pl.stock = { blueberry: [0, 0, 0], watermelon: [0, 0, 0, 0, 0, 0], apple: [0, 0, 0, 0, 0, 0, 0], mango: [0, 0, 0, 0, 0, 0] }; }
   return s;
 }
 const fresh = (f: FruitId) => FRUIT[f].ripe.length - 1;
