@@ -1047,6 +1047,10 @@
     {
       "at": "2026-10-27 22:24",
       "text": "Owner: \"Lift the rules freeze (DEC-026). Plan fixes for supply, session length and the UI requests.\" Rules freeze lifted: DEC-026 superseded by DEC-028 (approved). Plans proposed, not approved: PLAN-020 supply, PLAN-021 session length, PLAN-022 client-only UI requests, PLAN-023 undo a buy and rename in the room. Analysis from code reading only; nothing run or built (REP-047)."
+    },
+    {
+      "at": "2026-10-27 22:25",
+      "text": "Correction to REP-047, from reading the code after it was written: an undo button already exists for one-device games and is hidden in online rooms, so PLAN-023 is now \"undo in online rooms\" (not a new undo). The feedback mentions \"the room\", so the informal game was probably online with human players (inferred, not confirmed); PLAN-021 timing now includes a 4-human online room. PLAN-020, PLAN-021 and PLAN-023 amended while still proposed (REP-048). No game change."
     }
   ]
 }

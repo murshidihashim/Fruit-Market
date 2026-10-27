@@ -65,5 +65,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - PLAN-020: Mid-game supply in 4-player games: measure first, then propose one fix (proposed)
 - PLAN-021: Session length: shorter default and faster turns before touching the rules (proposed)
 - PLAN-022: Client-only UI requests: different default icons, blank name that opens the keyboard (proposed)
-- PLAN-023: Undo a buy before confirming, and rename inside the room (proposed)
+- PLAN-023: Undo a buy in online rooms, and rename inside the room (proposed)
 <!-- records:pending:end -->

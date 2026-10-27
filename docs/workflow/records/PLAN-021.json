@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-047"
+    "REP-047",
+    "REP-048"
   ],
   "decisions": [
     "DEC-028"
@@ -36,7 +37,7 @@
   "acceptance": [
     {
       "id": "T1",
-      "text": "Before timing recorded: Quick, 4 shops (1 human, 3 computers), real phone, stopwatch",
+      "text": "Before timing recorded: Quick with 4 shops on a real phone with a stopwatch, both 1 human plus 3 computers and a 4-human online room (human waiting adds time)",
       "result": "NOT RUN",
       "evidence": ""
     },

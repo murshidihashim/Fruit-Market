@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-047"
+    "REP-047",
+    "REP-048"
   ],
   "decisions": [
     "DEC-028"
@@ -20,11 +21,11 @@
   },
   "delivery": "not started",
   "id": "PLAN-023",
-  "title": "Undo a buy before confirming, and rename inside the room",
-  "problem": "Informal feedback (REP-045): no undo after tapping a fruit before the buy is confirmed; the game name cannot be edited in the room. By code, tapping a fruit sends the buy at once (useGameController.ts), so an undo needs a new legal action and, online, a server-checked change.",
+  "title": "Undo a buy in online rooms, and rename inside the room",
+  "problem": "Informal feedback (REP-045): no undo after tapping a fruit before the buy is confirmed; the game name cannot be edited in the room. By code, an undo button already exists for one-device games (ActionBar.tsx shows it only when not online; turn.ts undoPoint) but it is hidden in online rooms, where a tap sends the buy at once (useGameController.ts). The mention of \"the room\" suggests the feedback game was online (inferred, not confirmed). Online undo needs a new legal action checked by the server.",
   "scope": [
-    "Step 1, no code: read useGameController.ts, turn.ts and server/room.ts, and propose how undo should work (undo the last buy only, until the turn ends) and what rename in a room needs; the owner approves the design",
-    "Step 2: implement with tests for illegal, duplicate and stale actions, and reconnect (the online-authority rules in CLAUDE.md)",
+    "Step 1, no code: read server/room.ts and the online protocol, and propose how online undo should work (undo the last buy only, until the turn ends) and what rename in a room needs; the owner approves the design",
+    "Step 2: implement with tests for illegal, duplicate and stale actions, and reconnect (the online-authority rules in CLAUDE.md); keep the one-device undo unchanged",
     "Undo must not reveal hidden information or let a player gain by undoing"
   ],
   "exclusions": [

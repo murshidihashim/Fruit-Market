@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-047"
+    "REP-047",
+    "REP-048"
   ],
   "decisions": [
     "DEC-028"
