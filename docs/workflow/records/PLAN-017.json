@@ -60,8 +60,8 @@
     {
       "id": "T4",
       "text": "npm run verify passes; CI verify:full green on main",
-      "result": "NOT RUN",
-      "evidence": "verify PASS locally; CI pending at time of writing"
+      "result": "PASS",
+      "evidence": "CI run 27 on main (e7e5132) green; preview updated"
     }
   ]
 }
