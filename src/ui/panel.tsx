@@ -59,6 +59,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   return (
     <div class="price-panel">
       <div class="pp-intro"><b>Seal your prices</b><span>Only you see this board until the bell. Price per fruit; cheapest sells first, fresher fruit wins ties.</span></div>
+      <RivalWatch s={s} p={p} wanted={[...new Set(lines.map((l) => l.w.fruit))]} />
       {sellable.length === 0 && <div class="info-card dim">You have nothing today's customers want.</div>}
       {sellable.map(({ c, w, max }) => {
         const k = key(c.id, w.fruit);
@@ -128,6 +129,43 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
         </button>
       </div>
     </div>
+  );
+}
+
+/**
+ * Who you're up against while pricing: each rival's status and the wanted fruit they hold.
+ * Public facts only: whether a shop has sealed its prices, and its stock (never a price).
+ */
+export function RivalWatch({ s, p, wanted }: { s: GameState; p: number; wanted: FruitId[] }) {
+  const rivals = s.players.map((o, i) => ({ o, i })).filter(({ i }) => i !== p);
+  if (!rivals.length) return null;
+  const sealed = rivals.filter(({ i }) => s.bids[i] !== null).length;
+  return (
+    <section class="rival-watch" aria-label="Your rivals">
+      <div class="rw-head">
+        <b>Your rivals</b>
+        <span>{sealed === rivals.length ? 'All sealed: waiting for you' : `${sealed} of ${rivals.length} sealed · nobody sees a price until the bell`}</span>
+      </div>
+      <div class="rw-list">
+        {rivals.map(({ o, i }) => {
+          const done = s.bids[i] !== null;
+          const holds = wanted.map((f) => ({ f, n: count(o.stock, f, true) })).filter((x) => x.n > 0);
+          return (
+            <div class={`rw-card ${done ? 'done' : 'busy'} ${holds.length ? '' : 'out'}`}
+              aria-label={`${o.name}: ${done ? 'prices sealed' : o.kind === 'ai' ? 'prices next, after you' : 'still deciding'}; ${holds.length ? holds.map((x) => `${x.n} ${FRUIT[x.f].plural}`).join(', ') : 'nothing to sell today'}`}>
+              <Face who={o.avatar} size={32} />
+              <b class="rw-name">{o.name}</b>
+              <span class={`rw-status ${done ? 'sealed' : 'deciding'}`}>
+                {done ? <><i class="seal" aria-hidden="true" />sealed</> : o.kind === 'ai' ? <><i class="sb-hourglass" aria-hidden="true" />next in line</> : <><i class="sb-hourglass" aria-hidden="true" />deciding</>}
+              </span>
+              <span class="rw-holds">
+                {holds.length ? holds.map((x) => <span class="rw-f"><Fruit id={x.f} size={16} />{x.n}</span>) : <span class="rw-none">sits out</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

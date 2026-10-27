@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-10-27 10:47 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 12:21 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
@@ -12,6 +12,7 @@ Updated 2026-10-27 10:47 (Asia/Kuala_Lumpur) by Claude.
 - **UI polish proposed** (REP-014, REP-015): owner wants a new art style and more feel (reference: It Takes Two). Direction B approved (DEC-021); mockups published (REP-016) and revised (cunning edition DEC-022, REP-017), then the cosy pixel edition (DEC-023, REP-018), then one shared market table so it plays like a board game (DEC-024, REP-019; both awaiting confirmation, https://claude.ai/artifact/YQUpnHeNNWkAUqFhKRz9VB). Awaiting: owner's review; DEC-020; PLAN-007 (suggested: 3 fixes only).
 - **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. PLAN-010 (lorry, Gemini art) verified (REP-026). All three are on `main`, ready to become 1.2.0 when the owner asks.
 - **Balance:** PLAN-012 approved and verified (REP-027 proposal, REP-028 build): rules version 3, tomorrow's lorry, retuned traits, Juice Press and league, cosy home screen. On `main` for the preview; **live game unchanged**. Open: owner playtest (T5 NOT RUN); skill gap 60% vs 65% aim (green mango $3 is the main cause); Long games still favour patient plans.
+- **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
 - **Then:** owner playtest of the preview; PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
 
 ## Builds
@@ -41,7 +42,7 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
 
 ## Approvals
 - PLAN-001, 002, 004, 005 and 006 approved by the owner on 2026-10-26 (exact words in `records/`).
-  Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009, 010, 011 and 012 approved and verified. Publishing the next release needs a new approval.
+  Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009 to 013 approved and verified. Publishing the next release needs a new approval.
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we
