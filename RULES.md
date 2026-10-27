@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Digital edition rules (v1.0).*
+*Game design by Murshidi bin Md Hashim. Digital edition rules (v1.1, rules version 3).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit shop that buys from the farmers and sells to local customers. Fruit goes bad over time, so you have to turn it into cash fast. You can also undercut your rivals as low as you like.
 
@@ -21,22 +21,23 @@ Each fruit plays differently. A customer's price is **per fruit, for a fresh one
 | Fruit | Character | Track (oldest → freshest) | Cost: Fresh / Okay / Not so | Unripe |
 |---|---|---|---|---|
 | 🫐 Blueberry | Cheap, popular, mushy in 3 days. High risk, high reward. | −$4 · −$2 · full | $2 / $1 / $1 | none |
-| 🍉 Watermelon | The steady seller. Loses value slowly. | −$3 · −$1 · −$1 · full · full | $3 / $2 / $1 | 1 night |
-| 🍎 Apple | Keeps a week, barely loses value, costs the most. Safe but thin margins. | −$2 · −$1 · −$1 · −$1 · full · full · full | $4 / $3 / $1 | none |
-| 🥭 Mango | Buy green for $2, ripens in 2 nights, sells at a premium, spoils fast once ripe. | −$3 · −$1 · full · full | $4 / $2 / $1 | 2 nights |
+| 🍉 Watermelon | The steady seller. Loses value slowly. | −$3 · −$1 · −$1 · full · full | $3 / $2 / $1 | 1 night ($1) |
+| 🍎 Apple | The keeper: lasts a week and barely loses value. Never the best price, never a loss. | −$2 · −$1 · −$1 · −$1 · full · full · full | $3 / $2 / $1 | none |
+| 🥭 Mango | Buy green for $3, ripens in 2 nights, sells at a premium, spoils fast once ripe. | −$3 · −$1 · full · full | $4 / $2 / $1 | 2 nights ($3) |
 
-Every night all fruit moves one space left. Fruit that falls off the left end spoils. Unripe fruit costs $1, can't be sold yet, and becomes fresh as nights pass.
+Every night all fruit moves one space left. Fruit that falls off the left end spoils. Unripe fruit costs $1 (watermelon) or $3 (mango), can't be sold yet, and becomes fresh as nights pass.
 
 ## The town grows
 
 Demand follows how the game naturally builds up:
 - Early days bring one expected customer and one walk-in with small orders. From halfway through, **two walk-ins** come and orders get bigger.
-- Order sizes are tied to how much the shops can buy (4 fruit each a day, 5 with a Handcart). By the last day, customers want about as much as all shops can buy, so the market stays tight.
-- Farmer deliveries grow the same way, a little ahead of what the shops can buy.
+- Order sizes are tied to 4 fruits per shop a day. On Day 1 customers want about 60% of that; by the last day they want about as much as all shops can buy. Handcarts and Big Baskets don't make the town bigger: they only help their owner.
+- A 4-shop town has 15% more customers.
+- Farmer deliveries start a little below what the shops can buy (80%) and grow to match it, so spare fruit is rare and deep undercuts pay less.
 
 ## Cards
 
-- **Farmer cards (20):** each lists three fruits, 4 to 6 of each. The fruit not on the card still arrives, 2 of it. Some cards mark one fruit as arriving unripe. With fewer players the farmers bring less: 80% for 3 players, 60% for 2.
+- **Farmer cards (20):** each lists three fruits, 4 to 6 of each. The fruit not on the card still arrives, 2 of it. Some cards mark one fruit as arriving unripe. With fewer players the farmers bring less.
 - **Customer cards (24):** a name and up to three fruits they want, each with an amount and the most they'll pay for a *fresh* one. With fewer players customers buy a little less.
 - **Event cards (12):** one is drawn each morning from Day 2 onward.
 - **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. You can hold up to 3 (4 with the Charmer trait or a Shop Bell).
@@ -47,6 +48,7 @@ Demand follows how the game naturally builds up:
 1. Draw an **event card** (not on Day 1) and apply it.
 2. Draw a **farmer card** and add that fruit to the farmers market at the freshest position (or the unripe position).
 3. Everyone can see the **expected customer** who arrives today. A second, **walk-in** customer is a surprise.
+4. Everyone can also see **tomorrow's lorry**: which fruits come in plenty tomorrow and which only a few. Plan what to keep!
 
 ### 2. Buying
 In turn order, each shop buys **up to 4 fruits** (5 with a Handcart) from the farmers market, paying the cost shown for that fruit's freshness. Your shelf holds 8 fruits (14 with a Bigger Shelf). Fruit keeps its freshness when it moves to your shelf. Unbought fruit stays at the market and keeps ageing.
@@ -59,11 +61,11 @@ The expected customer and a walk-in join the market as **New today**. Customers 
 ### 4. Selling (secret prices)
 Every shop secretly decides, for each customer and each fruit they want, **how many to offer and at what price per fruit**. Then all offers are revealed at once.
 
-- **The price cap:** you can't ask more than the customer pays for your fruit's freshness. If John pays up to $10 for fresh apples, an *okay* apple can sell for at most $8 and a *not so* apple for at most $6.
+- **The price cap:** you can't ask more than the customer pays for your fruit's freshness. If John pays up to $10 for fresh apples, an *okay* apple can sell for at most $9 and a *not so* apple for at most $8 (see the track in the fruit table).
 - There is **no lower limit** (except on a Minimum Price day). Sell for $1 if you want.
 - When you offer several fruits, your **oldest fruit that is fresh enough for your price** goes first.
 - The **cheapest offers sell first**, until the customer has what they want.
-- **Ties:** the fresher fruit wins. If still tied, a player with Favoured Trade wins (or a Haggler facing a richer shop), then turn order.
+- **Ties:** a Haggler facing a richer shop wins first; otherwise the fresher fruit wins. If still tied, a player with Favoured Trade wins, then turn order.
 - You're paid as soon as you sell.
 - Waiting customers are served before new ones.
 - **Favours:** if you serve a customer's entire remaining order by yourself, draw a favour card (at most one per day).
@@ -115,11 +117,11 @@ Each evening, every shop is offered **3 random upgrades** it hasn't built yet (a
 
 | Upgrade | Cost | Effect |
 |---|---|---|
-| 🛒 Handcart | $6 | Buy up to 5 fruits a day instead of 4. |
+| 🛒 Handcart | $6 | Buy up to 5 fruits a day instead of 4. (The town doesn't grow with it.) |
 | 🪧 Signboard | $8 | Earn a $1 tip on every fruit you sell. |
 | ❄️ Cool Room | $7 | Your fruit ages only every other night, and heatwaves can't touch it. |
 | 🗄️ Bigger Shelf | $3 | Hold 14 fruits instead of 8. |
-| 🧃 Juice Press | $4 | Each night, up to 3 fruits that would spoil become juice: $2 each. |
+| 🧃 Juice Press | $4 | Older fruit you sell (okay or not so) earns $1 extra as juice. Each night, up to 3 fruits that would spoil become juice: $2 each. |
 | 🔔 Shop Bell | $4 | Draw 2 favour cards now, and hold up to 4. |
 
 Cash spent on upgrades is gone from your score, so build early or not at all.
@@ -130,16 +132,16 @@ On the first morning, each shop is dealt 3 traits and keeps one for the whole ga
 
 | Trait | Effect |
 |---|---|
-| Haggler | You win tied prices against richer shops. |
+| Haggler | You win tied prices against richer shops, even if their fruit is fresher. |
 | Big Basket | Buy 1 extra fruit every day. |
 | Bargain Hunter | Your first fruit each day costs $1 less. |
 | Charmer | Start with 3 favour cards, and hold up to 4. |
-| Local Favourite | Customers you serve completely by yourself tip you $3. |
-| Nest Egg | Start with $16 instead of $10. |
+| Local Favourite | Customers you serve completely by yourself tip you $4. |
+| Nest Egg | Start with $15 instead of $10. |
 
 ## Balance notes
 
-Tested with `npm run balance` (400 computer games per test). Compared with the old rules in 3-player games: the median winning margin fell from $24 to $16, wins by $20 or more from 59% to 43%, and comebacks from last place on day 5 rose from 18% to 27%. Every trait wins about 29–42% of 3-player games (fair is 33%), and no single upgrade is compulsory. The Hard computer beats Normal in about 84% of 2-player and 79% of 3-player games.
+Rules version 3 (REP-027, REP-028). Tested with computer players on 600 games per test, with seeds not used for tuning. In 3-player games every one of eight playing styles wins between 23% and 37% (fair is 33%); deep undercutting and dumping old stock no longer dominate, and holding out for a good price is a real plan. Comebacks from last place at half-time rose from 15% to 26% (3 players) and from 8% to 19% (4 players). Every trait wins about 30–38% of 3-player games, and every upgrade is worth more than building nothing. The Hard computer beats Normal in about 60% of 2-player games. Long (14-day) games still favour patient plans; this is being watched in playtests.
 
 ## Daily challenge
 

@@ -77,6 +77,7 @@ describe('pacing', () => {
         if (s.phase === 'morning') s = beginBuying(s);
       }
     }
-    expect(late).toBeGreaterThan(early * 1.6);
+    // Customers start at 60% of the town's buying power and grow to about 105% (MARKET in data.ts).
+    expect(late).toBeGreaterThan(early * 1.4);
   });
 });

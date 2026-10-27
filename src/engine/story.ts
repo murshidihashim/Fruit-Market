@@ -1,7 +1,8 @@
 // Presentation-only storytelling: turns the rules engine's results into short explanations,
 // reactions and highlights. Nothing here changes game state or re-implements pricing; every
 // sentence is derived from the recorded offers (price, units, sold, freshness) and the rules
-// the engine used to sort them (cheapest first, then fresher fruit, then Favoured Trade, then turn order).
+// the engine used to sort them (cheapest first, then a Haggler facing a richer shop, then fresher fruit,
+// then Favoured Trade, then turn order).
 
 import { FRUIT, FRUITS, RIVALS, lookOf, type FruitId } from './data';
 import { minPrice, ranking, type GameState, type LineResult, type Offer } from './game';
@@ -31,24 +32,30 @@ function hash(...xs: number[]): number {
 
 /** Why the winner beat this offer on a tie, following the engine's tie-break order. */
 function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): string {
+  if (haggled(s, winner, loser)) return `${nameOf(s, winner.player, viewer)} haggled (a Haggler wins ties against richer shops)`;
   if (winner.freshness > loser.freshness) return `${possessive(s, winner.player, viewer)} fruit was fresher`;
   if (s.players[winner.player].favouredTrade && !s.players[loser.player].favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
   return `${nameOf(s, winner.player, viewer)} went earlier in turn order`;
 }
 
-function offerTag(l: LineResult, o: Offer, viewer: number): string {
+/** The engine's first tie-break: a Haggler beats a richer shop (cash as it stands now). */
+function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
+  return s.players[winner.player].trait === 'haggler' && s.players[loser.player].cash > s.players[winner.player].cash;
+}
+
+function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string {
   if (o.sold >= o.qty) return o.qty > 1 ? `SOLD ×${o.sold}` : 'SOLD';
   if (o.sold > 0) return `sold ${o.sold} of ${o.qty}`;
   const cheaper = l.offers.filter((w) => w.sold > 0 && w.price < o.price);
   if (cheaper.length) return `$${o.price - Math.max(...cheaper.map((w) => w.price))} too high`;
   const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
-  if (tie) return tie.freshness > o.freshness ? 'lost tie: fresher won' : 'lost tie';
+  if (tie) return haggled(s, tie, o) ? 'lost tie: haggled' : tie.freshness > o.freshness ? 'lost tie: fresher won' : 'lost tie';
   void viewer;
   return 'order already filled';
 }
 
 export function explainLine(s: GameState, l: LineResult, viewer: number): LineStory {
-  const tags = l.offers.map((o) => offerTag(l, o, viewer));
+  const tags = l.offers.map((o) => offerTag(s, l, o, viewer));
   const mine = l.offers.find((o) => o.player === viewer);
   const others = l.offers.filter((o) => o.player !== viewer);
   const winners = l.offers.filter((o) => o.sold > 0);

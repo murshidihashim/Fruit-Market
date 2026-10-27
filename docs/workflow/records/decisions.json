@@ -865,6 +865,14 @@
     {
       "at": "2026-10-27 09:12",
       "text": "Record note: the PLAN-010 verification (history line of 07:54) is written up in REP-026."
+    },
+    {
+      "at": "2026-10-27 09:58",
+      "text": "Owner: \"yes approvrd together with the optional changes and the new layout from the mockup\" (reply to the PLAN-012 approval request). PLAN-012 approved and started, widened to the six optional items of REP-027 section 6b and the Home screen from the cosy pixel mockup (the only mockup screen not yet built; interpretation stated to the owner). Optional items still needing values are set by lab test first."
+    },
+    {
+      "at": "2026-10-27 10:47",
+      "text": "PLAN-012 built and verified on workflow/plan-012 (REP-028): rules version 3 with the market rebalance, trait and mango changes, tomorrow's lorry, Juice Press juice tip, retuned Market League and the cosy home screen. verify and verify:full PASS; production equals the lab package on 450 games. Not changed after lab tests failed: Long-mode tuning and Cool Room rework. Skill gap (Hard beats Normal) 60%, below the 65% aim, flagged to the owner. Playtest NOT RUN. Merged to main for the preview; the live game is unchanged."
     }
   ]
 }

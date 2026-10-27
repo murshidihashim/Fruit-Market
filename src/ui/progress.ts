@@ -79,13 +79,15 @@ export function unlockAchievement(id: string): Achievement | null {
 
 export interface Stage { title: string; rivals: { idx: number; level: Level }[]; days: 8 | 10 }
 
+// Retuned for rules version 3 (PLAN-012): a Normal-strength player wins about 64, 64, 52, 41, 33 and 20%
+// of games at each stage (computer stand-in, 300 games per stage), with no late cliff.
 export const LEAGUE: Stage[] = [
   { title: 'Village Square', rivals: [{ idx: 0, level: 'easy' }], days: 8 },
-  { title: 'Harbour Steps', rivals: [{ idx: 2, level: 'easy' }, { idx: 4, level: 'easy' }], days: 8 },
-  { title: 'Old Town', rivals: [{ idx: 1, level: 'normal' }], days: 10 },
-  { title: 'Spice Lane', rivals: [{ idx: 3, level: 'normal' }, { idx: 5, level: 'normal' }], days: 10 },
-  { title: 'Grand Bazaar', rivals: [{ idx: 1, level: 'hard' }, { idx: 0, level: 'normal' }], days: 10 },
-  { title: 'Royal Market', rivals: [{ idx: 2, level: 'hard' }, { idx: 3, level: 'hard' }, { idx: 4, level: 'hard' }], days: 10 },
+  { title: 'Harbour Steps', rivals: [{ idx: 2, level: 'easy' }], days: 8 },
+  { title: 'Old Town', rivals: [{ idx: 3, level: 'normal' }], days: 10 },
+  { title: 'Spice Lane', rivals: [{ idx: 1, level: 'easy' }, { idx: 4, level: 'easy' }], days: 10 },
+  { title: 'Grand Bazaar', rivals: [{ idx: 1, level: 'normal' }, { idx: 0, level: 'normal' }], days: 10 },
+  { title: 'Royal Market', rivals: [{ idx: 2, level: 'hard' }, { idx: 3, level: 'normal' }, { idx: 4, level: 'normal' }], days: 10 },
 ];
 
 export const leagueStage = (): number => readJson<number>(LADDER_KEY, 0);

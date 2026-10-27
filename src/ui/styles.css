@@ -417,6 +417,42 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .floattext { position: absolute; left: 0; top: 0; font-weight: 700; font-size: 1.25rem; color: var(--good); text-shadow: 0 2px 0 var(--night-0); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .floattext.minus { color: var(--bad); }
 
+/* ---------- cosy home (PLAN-012 L1, from the cosy pixel mockup) ---------- */
+.home.cosy { background: #f6ebd6; color: #2b2420; color-scheme: light; }
+.harbour { position: relative; height: 300px; flex: none; overflow: hidden; background: #f3d9a4; }
+.hm-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hm-bob { animation: hm-bob 3.2s ease-in-out infinite; }
+.hm-bob2 { animation-delay: 1.2s; }
+@keyframes hm-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.hm-sign-wrap { position: absolute; left: 50%; top: 92px; width: 320px; max-width: calc(100% - 32px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+.hm-bunting { width: 100%; height: 30px; display: block; }
+.hm-fox { position: absolute; right: 12px; top: 26px; animation: hm-peek 5s ease-in-out infinite; }
+@keyframes hm-peek { 0%, 55%, 100% { transform: translateX(0); } 65%, 90% { transform: translateX(30px) rotate(8deg); } }
+.hm-sign { margin-top: -4px; position: relative; z-index: 1; background: #fffaf0; border: 4px solid #8e5b33; border-radius: 18px; padding: 8px 22px; box-shadow: 0 6px 0 #8e5b33; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.hm-sign h1 { font-family: var(--f-pixel); font-weight: 700; font-size: 2.5rem; line-height: 1.05; color: #c65a3a; text-shadow: none; letter-spacing: 0; }
+.hm-sign p { margin: 0; font-size: 0.875rem; color: #5a4a3e; }
+.hm-sign p.hm-secret { font-size: 0.8125rem; font-weight: 600; color: #b14f32; }
+.hm-fruit { position: absolute; left: 0; right: 0; top: 234px; display: flex; justify-content: center; gap: 4px; }
+.hm-actions { padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 480px; margin: 0 auto; }
+.hm-btn { appearance: none; border: none; cursor: pointer; font-family: var(--f-pixel); font-weight: 700; color: #2b2420; min-height: 64px; border-radius: 18px; transition: transform 0.06s, box-shadow 0.06s; }
+.hm-btn:active { transform: translateY(4px); box-shadow: none !important; }
+.hm-btn:focus-visible { outline: 3px solid #2f7f7a; outline-offset: 3px; }
+.hm-btn small { font-family: var(--f-body); font-weight: 400; font-size: 0.8125rem; }
+.hm-primary { background: #c65a3a; color: #fff8ec; font-size: 1.625rem; border-radius: 20px; box-shadow: 0 6px 0 #8f3d26; }
+.hm-secondary { background: #fffaf0; color: #b14f32; font-size: 1.375rem; box-shadow: 0 5px 0 #e2d2b4; }
+.hm-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.hm-teal { background: #2f7f7a; color: #fff8ec; font-size: 1.1875rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 5px 0 #1f5753; }
+.hm-card { background: #fffaf0; display: flex; align-items: center; gap: 12px; padding: 8px 16px; text-align: left; box-shadow: 0 5px 0 #e2d2b4; }
+.hm-card-text { display: flex; flex-direction: column; font-size: 1.1875rem; }
+.hm-card-text small { color: #5a4a3e; }
+.hm-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.hm-small { min-height: 48px; border-radius: 14px; background: #e9dcc3; font-family: var(--f-body); font-weight: 600; font-size: 0.9375rem; box-shadow: 0 4px 0 #d3c1a1; padding: 0 4px; }
+.home.cosy .save-notice { background: #fff3dc; color: #2b2420; border: 2px dashed #d9895f; }
+.home.cosy .daily-peek { background: #fffaf0; color: #2b2420; box-shadow: 0 4px 0 #e2d2b4; }
+.home.cosy .daily-peek small { color: #5a4a3e; }
+.home.cosy .daily-peek b { color: #b14f32; }
+@media (prefers-reduced-motion: reduce) { .hm-bob, .hm-fox { animation: none; } }
+
 /* final days */
 .finale .topbar { background: #2b1a2e; }
 .final-day .hud-cash { box-shadow: 0 3px 0 var(--gold-d), 0 0 0 3px var(--terra); }
@@ -525,6 +561,12 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .mk-cell.pick:active { transform: translateY(2px); }
 @keyframes glow { 50% { box-shadow: 0 0 0 3px var(--gold); } }
 .mk-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; padding: 6px 2px 0; font-size: 0.72rem; color: var(--cream); font-family: var(--f-pixel); }
+.next-lorry { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 10px; margin-top: 6px; padding: 4px 8px; border-radius: 10px; background: rgba(0, 0, 0, 0.18); font-size: 0.75rem; color: var(--cream); }
+.next-lorry .nl-title { font-family: var(--f-pixel); font-weight: 600; }
+.nl-f { display: inline-flex; align-items: center; gap: 2px; }
+.nl-f.few { opacity: 0.75; }
+.nl-f.plenty { font-weight: 600; }
+.next-lorry.mc-lorry { background: var(--cream-2); color: var(--ink); }
 .mk-key i { display: inline-block; width: 11px; height: 11px; margin-right: 4px; border-radius: 3px; vertical-align: -1px; }
 
 /* fruit piles */

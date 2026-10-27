@@ -10,7 +10,7 @@ import { Coin, Face, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
-import { lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from './boardModel';
+import { lifeLabel, marketColumn, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import lorryUrl from './img/lorry.png';
 
 /** Each player's awning colour. */
@@ -75,6 +75,21 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
       <div class="mk-key" aria-hidden="true">
         <span><i class="st-unripe" />unripe</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />not so</span>
       </div>
+      <NextLorry s={s} />
+    </div>
+  );
+}
+
+/** What tomorrow's lorry brings (public: everyone sees the same). */
+export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
+  const lines = nextLorry(s);
+  if (!lines || s.phase === 'over') return null;
+  return (
+    <div class={`next-lorry ${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.plenty ? 'plenty of' : 'a few'} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
+      <span class="nl-title">Tomorrow's lorry</span>
+      {lines.map((l) => (
+        <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />{l.plenty ? 'lots' : 'few'}</span>
+      ))}
     </div>
   );
 }

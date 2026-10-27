@@ -44,12 +44,12 @@ describe('merchant traits', () => {
     expect(s.players.every((p) => p.trait)).toBe(true);
   });
 
-  it('Nest Egg starts with $16 and Bargain Hunter gets $1 off the first fruit each day', () => {
+  it('Nest Egg starts with $15 and Bargain Hunter gets $1 off the first fruit each day', () => {
     let s = newGame(humans(2));
     s.players[0].traitOffer = ['nestegg', 'bargain', 'haggler'];
     s.players[1].traitOffer = ['bargain', 'nestegg', 'haggler'];
     s = pickTrait(pickTrait(s, 0, 'nestegg'), 1, 'bargain');
-    expect(s.players[0].cash).toBe(16);
+    expect(s.players[0].cash).toBe(15);
     expect(buyCost(s, 1, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh - 1);
     expect(buyCost(s, 0, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh);
     s.players[1].boughtToday = 1;

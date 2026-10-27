@@ -54,3 +54,11 @@ export function mood({ demand, supply }: Pulse): Mood {
 export function wantText({ demand, more }: Pulse): string {
   return demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0';
 }
+
+/** Tomorrow's farmer delivery in plain words: fruits on the card come in plenty, the others only a few. */
+export interface LorryLine { f: FruitId; plenty: boolean; green: boolean }
+export function nextLorry(s: GameState): LorryLine[] | null {
+  const card = s.nextFarmer;
+  if (!card) return null;
+  return FRUITS.map((f) => ({ f, plenty: (card.supply[f] ?? 0) > 2, green: !!s.config.unripe && card.unripe === f }));
+}

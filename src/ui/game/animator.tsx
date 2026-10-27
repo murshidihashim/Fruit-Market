@@ -77,7 +77,7 @@ export async function flights(g: GameState, l: LineResult) {
     jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
       fx.coin();
       const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
-      A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip}`);
+      A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip + (o.juice ?? 0)}`);
     }));
   }
   await Promise.all(jobs);
