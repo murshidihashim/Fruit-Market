@@ -1002,6 +1002,10 @@
     {
       "at": "2026-10-27 20:09",
       "text": "Owner: \"The draft questions and criteria are fine. Lock them in as of today.\" PLAN-019 questions and continue/revise/stop criteria locked (T1 PASS); full text in REP-042. Changing them after results arrive is not allowed without a recorded change made before the results are read. Open point for the owner: how to read \"x of 4\" if 3 or 5 people test (REP-042). No game change."
+    },
+    {
+      "at": "2026-10-27 20:12",
+      "text": "Owner: \"Yes, use the proposed reading for 3 or 5 testers.\" Confirmed for PLAN-019: with 3 or 5 testers, Continue needs at least three quarters (3 of 3, or 4 of 5); Revise needs at least half (2 of 3, or 3 of 5); anything lower is Stop or park. With 4 testers the locked thresholds apply as written (REP-043). No game change."
     }
   ]
 }
