@@ -738,6 +738,31 @@
       ],
       "plan": "PLAN-020",
       "reviewTrigger": "After a structured human playtest, or if 2-shop games feel empty of customers (about 2 customers a day in the simulation)."
+    },
+    {
+      "id": "DEC-030",
+      "title": "Tabletop fixes: tie-break by buying order, and table procedures (no price ladder)",
+      "question": "Which of the tabletop fixes (Tabletop_Fixes) should be built into the rules and the app?",
+      "choice": "All except the price ladder board and the colour zones that depend on it. One rule line changes: a price tie, after Favoured Trade, Haggler and fresher fruit, goes to whoever bought earlier today (the poorer-shop-by-cash step is removed). The rest are table procedures written into RULES.md: order of customers, the reader, order circles, the sole-supplier cube, the dawn line-up, evening for card holders only, day chips with age cards, and a waiting pile. Kept as rules version 5 because version 5 is not released.",
+      "rationale": "Owner instruction, in their words. Cash changes while customers are paid, so the old tie-break was awkward on a table and decided about half of all ties. In simulation (same 300 games) the average final cash per shop did not move (4 shops $146.9 to $146.3; 2 shops $145.9 to $145.9). The price ladder was left out because the owner did not see the problem it solves.",
+      "impact": {
+        "player": "A tie after fresher fruit now goes to the shop that bought earlier today. Nothing else in the app changes; the table procedures are for the tabletop edition.",
+        "technical": "game.ts tie-break, story text and How to play text; RULES.md gains a \"Playing on a table\" section. The day-chip method is untested by hand.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "implement all the fix except for the price ladder, i dont get the problem and your solution",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-051"
+      ],
+      "plan": "PLAN-024",
+      "reviewTrigger": "After a hand-played tabletop test, or if tie-breaks feel unfair in human games."
     }
   ],
   "history": [
@@ -1092,6 +1117,10 @@
     {
       "at": "2026-10-27 23:29",
       "text": "Correction: the header of REP-050 and the STATE line say 23:35; the true time of the DEC-029 and PLAN-020 build entry is 23:29. Reports are not rewritten. No game change."
+    },
+    {
+      "at": "2026-10-28 00:28",
+      "text": "Owner: \"implement all the fix except for the price ladder, i dont get the problem and your solution\". Built on branch workflow/plan-024 (local, not pushed): tie-break by buying order instead of live cash, story and How to play text, tests, and a \"Playing on a table\" section in RULES.md. Price ladder and colour zones not built. Lint, types, 92 unit tests and the build pass; browser tests NOT RUN; hand-played tabletop test NOT RUN. Still rules version 5 (unreleased) (REP-051)."
     }
   ]
 }
