@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-038"
+    "REP-038",
+    "REP-039"
   ],
   "decisions": [
     "DEC-016",
@@ -17,11 +18,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Approve PLAN-019 only.",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-019",
   "title": "First human playtest: digital and paper rounds (no game code)",
   "problem": "Rules version 4 has never been played by an unfamiliar person. Balance work so far used computer players only. DEC-016 approved a first playtest but it has not been run, and DEC-027 makes the tabletop rules the master, so a paper round is needed as well.",

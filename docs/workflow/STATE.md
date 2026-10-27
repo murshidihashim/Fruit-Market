@@ -15,8 +15,8 @@ Updated 2026-10-27 16:56 (Asia/Kuala_Lumpur) by Claude.
 - **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
 - **Tabletop rules (rules version 4):** PLAN-014 and PLAN-015 approved and **built** (REP-033): open stalls, the bell, Market Days, Last Call, four specialities, Market Gossip, day ledger, playtest options. verify and verify:full PASS (leak check 0). On `main` for the preview; **live game unchanged** (still rules version 3). Open: owner playtest (NOT RUN); Cold Room and Juice Bar weak for computers (price cut in PLAN-016 and smarter computers in PLAN-017 did not help: skipping them costs nothing); farmer cards +1 per listed fruit (PLAN-017) made Big Basket too strong (45%); little undercutting among computers; 2-player blowouts 34%.
 - **Readiness review (REP-036):** digital 5.5/10, tabletop 3/10; recommended path: freeze rules, playtests (digital and paper with date-stamped crates), balance, art and launch prep.
-- **Direction (REP-038, 2026-10-27):** rules version 4 is **frozen** until the first human playtest (DEC-026). One game, two editions: tabletop and digital with identical mechanics, tabletop rules are the master, digital adds single-player (DEC-027). DEC-001, 004, 005 and 014 approved. PLAN-019 (first human playtest, no game code) proposed, awaiting approval.
-- **Then:** approve PLAN-019, run the playtest (digital and paper); PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
+- **Direction (REP-038, 2026-10-27):** rules version 4 is **frozen** until the first human playtest (DEC-026). One game, two editions: tabletop and digital with identical mechanics, tabletop rules are the master, digital adds single-player (DEC-027). DEC-001, 004, 005 and 014 approved. PLAN-019 (first human playtest, no game code) **approved** 2026-10-27 19:59 and in progress (REP-039).
+- **Then:** owner answers three questions (who the testers are, how nightly ageing works in the paper round, where sessions run) and confirms the draft questions and criteria; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
@@ -57,5 +57,4 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
-- PLAN-019: First human playtest: digital and paper rounds (no game code) (proposed)
 <!-- records:pending:end -->
