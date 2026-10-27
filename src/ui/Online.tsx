@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
 import { track } from '../net/telemetry';
-import { CODE_LENGTH, HUMAN_AVATARS, MAX_SEATS, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
+import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
+import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
 import { Game } from './Game';
 import { loadName, saveName } from './store';
@@ -23,8 +24,9 @@ function useClient(client: OnlineClient | null) {
 export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
   const [name, setName] = useState(loadName());
+  // The character you ask for when you enter a room; if another player already has it, the room gives you a free one.
   const [avatar, setAvatar] = useState(() => {
-    try { return localStorage.getItem('fm.avatar') || HUMAN_AVATARS[0]; } catch { return HUMAN_AVATARS[0]; }
+    try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
   });
   const [code, setCode] = useState(initialCode ?? '');
   const [busy, setBusy] = useState(false);
@@ -92,11 +94,9 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
       <section class="panel">
         <h3>You</h3>
         <input id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
-        <div class="avatar-pick">
-          {HUMAN_AVATARS.map((a) => (
-            <button type="button" class={a === avatar ? 'on' : ''} onClick={() => setAvatar(a)} aria-label="Choose shopkeeper"><Face who={a} size={40} /></button>
-          ))}
-        </div>
+        <h3>Your character</h3>
+        <p class="small muted">One perk for the whole game. If someone in the room already has your character, you will get a free one and can change it in the lobby.</p>
+        <CharacterPick value={avatar} onPick={setAvatar} />
       </section>
       {initialCode ? (
         <section class="panel">
@@ -199,6 +199,16 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           {Array.from({ length: openSeats }, () => <div class="seat-row ghost open-seat">Open seat · send the link</div>)}
         </div>
         {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
+      </section>
+
+      <section class="panel">
+        <h3>Your character</h3>
+        <p class="small muted">Pick one that is free. Each character has one perk for the whole game.</p>
+        <CharacterPick
+          value={me?.avatar ?? ''}
+          taken={Object.fromEntries(v.seats.filter((x) => x.seat !== v.you).map((x) => [x.avatar, x.name]))}
+          onPick={(a) => { fx.tap(); client.character(a); }}
+        />
       </section>
 
       <section class="panel">

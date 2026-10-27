@@ -83,7 +83,7 @@ const SLIDES = [
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
         <li>Green mangoes cost $3 and ripen in 2 nights. Buy them before a Mango Craze!</li>
         <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
-        <li>On the first morning, pick a merchant trait. Rivals can see yours.</li>
+        <li>Pick a character before the game. Each character has one perk for the whole game, and everyone can see it.</li>
         <li>Customers want more as the town grows, so later days are busier.</li>
         <li>On the last day, don't buy anything you can't sell today.</li>
       </ul>

@@ -316,6 +316,12 @@ export interface RivalLines {
 
 /** Computer shopkeepers: a cast of animal traders. Their lines react to what actually happened;
  *  their buying and pricing come from the difficulty level, not from these personalities. */
+// Character cards (rules 5). Each animal is also a character any shop can pick, and carries one fixed perk
+// (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon.
+export const CHARACTER_TRAIT: Record<string, TraitId> = {
+  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
+};
+
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
   { name: 'Foxy Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
     undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Outfoxed again!'],
@@ -348,3 +354,6 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     stung: ['Oink! So unfair!', 'By ONE dollar?', 'Pig-headed luck!'],
     lost: ['Back to the mud.', 'Snort. Too much.'] } },
 ];
+
+/** The six playable characters, in table order. */
+export const CHARACTER_AVATARS: string[] = RIVALS.map((r) => r.avatar);

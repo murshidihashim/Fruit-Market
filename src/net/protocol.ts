@@ -1,5 +1,8 @@
 // Messages between browsers and the room server. Shared by both sides.
+import { CHARACTER_AVATARS } from '../engine/data';
 import type { Action, GameState } from '../engine/game';
+
+export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
 export const RULES_VERSION = 5;
@@ -7,7 +10,6 @@ export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app 
 
 export const MAX_SEATS = 4;
 export const NAME_MAX = 14;
-export const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
 
 export interface RoomConfig { days: 8 | 10 | 14; ai: number; unripe: boolean; upgrades: boolean; events: boolean }
 export const DEFAULT_CONFIG: RoomConfig = { days: 10, ai: 0, unripe: true, upgrades: true, events: true };
@@ -45,6 +47,7 @@ export interface RoomView {
 
 export type ClientMsg =
   | { t: 'hello'; token?: string; name: string; avatar: string; rv?: number }
+  | { t: 'character'; avatar: string }
   | { t: 'ready'; ready: boolean }
   | { t: 'config'; config: RoomConfig }
   | { t: 'start' }

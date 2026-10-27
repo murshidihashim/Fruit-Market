@@ -121,24 +121,26 @@ Drafted on the evening after each Market Day. Each can be built once, and each c
 | 🛒 Barrow | $6 | Buy up to 5 fruits a day and hold 12. |
 | 🪧 Premium Display | $8 | Your fresh fruit may be priced $1 above a customer's normal limit. |
 
-## Merchant traits
+## Characters
 
-On the first morning, each shop is dealt 3 traits and keeps one for the whole game. Everyone can see everyone's trait.
+Before the game, each shop picks one of six characters. A character gives one perk for the whole game, and everyone can see it. **No two shops can be the same character.** Computer shops take the characters the people did not pick. On a table, lay the six character cards face up and pick in turn, starting with the player to the left of the first-player token. In the app, pick on the set-up screen, or when you enter an online room (a taken character is greyed out, and you can change yours in the lobby until the game starts).
 
-| Trait | Effect |
-|---|---|
-| Haggler | You win tied prices, even against fresher fruit. |
-| Big Basket | Buy 1 extra fruit every day. |
-| Bargain Hunter | Your first fruit each day costs $1 less. |
-| Charmer | Start with 3 favour cards, and hold up to 4. |
-| Local Favourite | Customers you serve completely by yourself tip you $4. |
-| Nest Egg | Start with $15 instead of $10. |
+| Character | Perk | Effect |
+|---|---|---|
+| 🦊 Foxy Rosa | Haggler | You win tied prices, even against fresher fruit. |
+| 🐻 Big Benny | Big Basket | Buy 1 extra fruit every day. |
+| 🦝 Rocky | Bargain Hunter | Your first fruit each day costs $1 less. |
+| 🐼 Patches | Charmer | Start with 3 favour cards, and hold up to 4. |
+| 🐷 Pinky | Local Favourite | Customers you serve completely by yourself tip you $4. |
+| 🐸 Uncle Toad | Nest Egg | Start with $15 instead of $10. |
+
+(Rules version 5. Before, each shop was dealt 3 traits on the first morning and kept one.)
 
 ## Playtest options
 
 | Option | Effect |
 |---|---|
-| Core market | No traits, favour cards or specialities: just buying, stalls and the bell. |
+| Core market | No characters, perks, favour cards or specialities: just buying, stalls and the bell. |
 | Street prices (beginner) | Every customer pays one street price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Cards with the "generous" icon pay $2 more. |
 | Market pulse (advanced) | After each day, a fruit that ran short gets a +$1 price marker (up to +$2); a fruit with a glut at the market gets −$1 (down to −$1); otherwise the marker drifts back to 0. |
 

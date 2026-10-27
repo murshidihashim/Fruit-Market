@@ -135,6 +135,7 @@ export class OnlineClient {
   }
   continue() { if (this.view) this.send({ t: 'continue', v: this.view.version }); }
   ready(ready: boolean) { this.send({ t: 'ready', ready }); }
+  character(avatar: string) { this.send({ t: 'character', avatar }); }
   config(config: RoomConfig) { this.send({ t: 'config', config }); }
   start() { this.send({ t: 'start' }); }
   rematch() { this.send({ t: 'rematch' }); }

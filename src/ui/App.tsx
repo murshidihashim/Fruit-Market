@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig } from '../engine/daily';
-import { FRUIT, FRUITS, RIVALS } from '../engine/data';
+import { CHARACTER_AVATARS, FRUIT, FRUITS, RIVALS } from '../engine/data';
 import { Fruit } from './art';
+import { CharacterPick } from './CharacterPick';
 import { Portrait, prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { HowTo } from './HowTo';
@@ -31,10 +32,10 @@ function roomFromUrl(): string | undefined {
   }
 }
 
-const AI_ROSTER = RIVALS;
+// The shopkeeper drawing used in the daily challenge and the league (the person there still picks a perk).
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
 
-interface Seat { kind: 'human' | 'ai'; level: Level; name: string }
+interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
 
 export function App() {
   const [invite] = useState(roomFromUrl);
@@ -210,6 +211,7 @@ function TrophyIcon() {
 
 function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfig) => void }) {
   const [name, setName] = useState(loadName());
+  const [myChar, setMyChar] = useState<string>(CHARACTER_AVATARS[0]);
   const [seats, setSeats] = useState<Seat[]>([
     { kind: 'ai', level: 'easy', name: 'Player 2' },
     { kind: 'ai', level: 'normal', name: 'Player 3' },
@@ -228,27 +230,34 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
 
   const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
 
+  // Character cards: you and each friend pick a different character; a friend who has not picked gets the first free one.
+  const humanSeats = seats.slice(0, rivals).map((st, i) => ({ st, i })).filter(({ st }) => st.kind === 'human');
+  const picks: Record<number, string> = {};
+  const usedChars = new Set<string>([myChar]);
+  for (const { st, i } of humanSeats) {
+    const a = st.avatar && CHARACTER_AVATARS.includes(st.avatar) && !usedChars.has(st.avatar) ? st.avatar : CHARACTER_AVATARS.find((c) => !usedChars.has(c))!;
+    picks[i] = a;
+    usedChars.add(a);
+  }
+  const seatName = (i: number) => seats[i].name.trim() || `Player ${i + 2}`;
+  const takenForMe: Record<string, string> = Object.fromEntries(humanSeats.map(({ i }) => [picks[i], seatName(i)]));
+  const takenFor = (i: number): Record<string, string> => ({
+    [myChar]: name.trim() || 'You',
+    ...Object.fromEntries(humanSeats.filter((h) => h.i !== i).map((h) => [picks[h.i], seatName(h.i)])),
+  });
+
   const begin = () => {
     saveName(name.trim() || 'You');
-    let ai = 0;
-    let hu = 1;
+    // Computer shops take the characters the people did not pick.
+    const pool = RIVALS.filter((r) => !usedChars.has(r.avatar)).sort(() => Math.random() - 0.5);
     const players: PlayerConfig[] = [
-      { name: name.trim() || 'You', kind: 'human', avatar: HUMAN_AVATARS[0] },
-      ...seats.slice(0, rivals).map((st): PlayerConfig => st.kind === 'ai'
-        ? { ...AI_ROSTER[(ai++ + Math.floor(Math.random() * 6)) % AI_ROSTER.length], kind: 'ai', level: st.level }
-        : { name: st.name.trim() || `Player ${hu + 1}`, kind: 'human', avatar: HUMAN_AVATARS[hu++ % HUMAN_AVATARS.length] }),
+      { name: name.trim() || 'You', kind: 'human', avatar: myChar },
+      ...seats.slice(0, rivals).map((st, i): PlayerConfig => {
+        if (st.kind === 'human') return { name: seatName(i), kind: 'human', avatar: picks[i] };
+        const r = pool.shift()!;
+        return { name: r.name, kind: 'ai', level: st.level, avatar: r.avatar, quip: r.quip };
+      }),
     ];
-    // Avoid duplicate computer names.
-    const used = new Set<string>();
-    for (const p of players) {
-      if (p.kind !== 'ai') continue;
-      let k = AI_ROSTER.findIndex((r) => r.name === p.name);
-      while (used.has(AI_ROSTER[k].name)) k = (k + 1) % AI_ROSTER.length;
-      used.add(AI_ROSTER[k].name);
-      p.name = AI_ROSTER[k].name;
-      p.avatar = AI_ROSTER[k].avatar;
-      p.quip = AI_ROSTER[k].quip;
-    }
     onStart({ players, days, unripe, upgrades: upgrades && !core, events, marketDays, core, street, pulse: pulseRule, seed: (Math.random() * 2 ** 31) >>> 0 });
   };
 
@@ -259,6 +268,9 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         <section class="panel">
           <h3>Your shop</h3>
           <input class="input" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
+          <h3>Your character</h3>
+          <p class="small muted">One perk for the whole game. The computer shops take the characters left over.</p>
+          <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
         </section>
         <section class="panel">
           <h3>Rival shops</h3>
@@ -275,7 +287,10 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
                   {(['easy', 'normal', 'hard'] as Level[]).map((l) => <button class={st.level === l ? 'on' : ''} onClick={() => setSeat(i, { level: l })}>{l[0].toUpperCase() + l.slice(1)}</button>)}
                 </div>
               ) : (
-                <input class="input" value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
+                <>
+                  <input class="input" value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
+                  <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
+                </>
               )}
             </div>
           ))}
@@ -297,7 +312,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         </section>
         <section class="panel">
           <h3>Playtest options</h3>
-          <Toggle on={core} set={setCore} title="Core market" text="No merchant traits, favour cards or specialities. Just buying, stalls and the bell." />
+          <Toggle on={core} set={setCore} title="Core market" text="No characters or perks, favour cards or specialities. Just buying, stalls and the bell." />
           <Toggle on={street} set={setStreet} title="Street prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
           <Toggle on={pulseRule} set={setPulseRule} title="Market pulse" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>

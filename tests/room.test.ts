@@ -370,3 +370,38 @@ describe('online room', () => {
     expect(h.room.d.status).toBe('lobby');
   });
 });
+
+describe('characters in a room', () => {
+  it('gives every seat its own character, even when two players ask for the same one', async () => {
+    const h = new Harness();
+    const a = h.connect('A');
+    const b = h.connect('B');
+    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'A', avatar: '🦊' });
+    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'B', avatar: '🦊' });
+    const seats = b.view!.seats;
+    expect(seats[0].avatar).toBe('🦊');
+    expect(new Set(seats.map((x) => x.avatar)).size).toBe(2);
+  });
+
+  it('lets a player switch to a free character in the lobby and refuses a taken one', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const mine = a.view!.seats[0].avatar;
+    await b.say({ t: 'character', avatar: mine });
+    expect(b.errors.slice(-1)[0]).toContain('taken');
+    const free = ['🐷', '🐸'].find((x) => x !== mine && x !== a.view!.seats[1].avatar)!;
+    await b.say({ t: 'character', avatar: free });
+    expect(a.view!.seats[1].avatar).toBe(free);
+    await b.say({ t: 'character', avatar: 'not a character' });
+    expect(b.errors.slice(-1)[0]).toContain('six characters');
+  });
+
+  it('gives the computer shops the characters the people did not pick', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8, 2);
+    const avatars = h.room.d.game!.players.map((p) => p.avatar);
+    expect(new Set(avatars).size).toBe(4);
+    expect(h.room.d.game!.players.every((p) => p.trait)).toBe(true);
+  });
+});

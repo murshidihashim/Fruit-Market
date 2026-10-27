@@ -19,7 +19,7 @@ import {
   type Action, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
-  DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, RULES_VERSION, UPDATE_MSG,
+  CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, RULES_VERSION, UPDATE_MSG,
   type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
@@ -218,7 +218,10 @@ export class Room {
     if (seat < 0) {
       if (d.status !== 'lobby') return conn.send({ t: 'error', msg: 'This game has already started.', fatal: true });
       if (d.seats.length >= MAX_SEATS - d.config.ai) return conn.send({ t: 'error', msg: 'This room is full.', fatal: true });
-      const avatar = HUMAN_AVATARS.includes(m.avatar) ? m.avatar : HUMAN_AVATARS[d.seats.length % HUMAN_AVATARS.length];
+      // Each seat gets its own character: the one asked for if it is free, otherwise the first free one.
+      const taken = new Set(d.seats.map((x) => x.avatar));
+      const free = CHARACTER_AVATARS.filter((a) => !taken.has(a));
+      const avatar = CHARACTER_AVATARS.includes(m.avatar) && !taken.has(m.avatar) ? m.avatar : (free[0] ?? CHARACTER_AVATARS[0]);
       d.seats.push({ name: clean(m.name, `Player ${d.seats.length + 1}`), avatar, token: this.io.randomHex(24), ready: false, host: d.seats.length === 0 });
       d.seen.push([]);
       seat = d.seats.length - 1;
@@ -257,6 +260,13 @@ export class Room {
     const d = this.d;
     const me = d.seats[seat];
     switch (m.t) {
+      case 'character': {
+        if (d.status !== 'lobby') return;
+        if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the six characters');
+        if (d.seats.some((x, i) => i !== seat && x.avatar === m.avatar)) throw new RuleError('That character is taken');
+        me.avatar = m.avatar;
+        return this.broadcast();
+      }
       case 'ready':
         if (d.status !== 'lobby') return;
         me.ready = !!m.ready;
@@ -289,7 +299,9 @@ export class Room {
         if (d.seats.some((s) => !s.ready)) throw new RuleError('Everyone must be ready');
         const online = new Set(this.io.conns().map((c) => c.seat));
         if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
-        const pool = [...RIVALS];
+        // Computer shops take the characters the people did not pick.
+        const usedByPeople = new Set(d.seats.map((x) => x.avatar));
+        const pool = RIVALS.filter((r) => !usedByPeople.has(r.avatar));
         d.aiNames = Array.from({ length: d.config.ai }, () => pool.splice(this.io.randomInt(pool.length), 1)[0]);
         this.newMatch();
         return;

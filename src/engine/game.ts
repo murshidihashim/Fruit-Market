@@ -11,7 +11,7 @@ import {
   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
   FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
-  TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
+  CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
   freshPos, stageAt, trackLength,
   type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type TraitId, type UpgradeId, type Want,
 } from './data';
@@ -390,7 +390,9 @@ export function newGame(config: GameConfig): GameState {
   if (config.pulse) s.pulse = Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
   const traitIds = Object.keys(TRAITS) as TraitId[];
   for (const pl of s.players) {
-    pl.traitOffer = config.core ? [] : r.shuffle([...traitIds]).slice(0, TRAIT_OFFER);
+    // Rules 5: a character card fixes the perk. Any other avatar (tests, daily challenge) still draws 3 traits to choose from.
+    const fixed = !config.core && CHARACTER_TRAIT[pl.avatar] !== undefined;
+    pl.traitOffer = config.core || fixed ? [] : r.shuffle([...traitIds]).slice(0, TRAIT_OFFER);
     pl.trait = null;
   }
   s.rng = r.state;
@@ -398,9 +400,11 @@ export function newGame(config: GameConfig): GameState {
   s.forecast = drawCustomer(s);
   for (let i = 0; i < walkInsOn(s, 1, null); i++) s.queue.push(drawCustomer(s, true));
   startDay(s);
-  // Computer shops pick their trait straight away; people pick on the first morning.
+  // A character's perk applies at once. Otherwise computer shops pick their trait straight away; people pick on the first morning.
   s.players.forEach((pl, i) => {
-    if (pl.kind === 'ai' && pl.traitOffer?.length) applyTrait(s, i, pl.traitOffer[0]);
+    const perk = config.core ? undefined : CHARACTER_TRAIT[pl.avatar];
+    if (perk) applyTrait(s, i, perk);
+    else if (pl.kind === 'ai' && pl.traitOffer?.length) applyTrait(s, i, pl.traitOffer[0]);
   });
   return s;
 }

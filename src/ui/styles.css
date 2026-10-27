@@ -383,6 +383,14 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .avatar-pick { display: flex; gap: 8px; margin-top: 10px; }
 .avatar-pick button { padding: 4px; border: 0; border-radius: 10px; background: var(--surface-2); }
 .avatar-pick button.on { background: var(--gold); }
+.char-pick { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 10px; }
+.char-card { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 10px; border: 0; border-radius: 12px; background: var(--surface-2); color: var(--ink); text-align: left; font: inherit; cursor: pointer; }
+.char-card.on { background: var(--gold); }
+.char-card:disabled { opacity: 0.5; cursor: default; }
+.char-card span { display: flex; flex-direction: column; line-height: 1.2; }
+.char-card b { font-family: var(--f-pixel); font-size: 1rem; }
+.char-card small { font-size: 0.78rem; color: var(--ink-muted); }
+.char-card small.taken { font-weight: 700; }
 .join-row { display: flex; gap: 8px; align-items: center; }
 .join-row .input { margin-top: 0; }
 .code-input { font-family: var(--f-pixel); font-size: 1.3rem; letter-spacing: 4px; text-transform: uppercase; }
