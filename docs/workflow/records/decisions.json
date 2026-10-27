@@ -16,11 +16,14 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed"
+        "status": "approved",
+        "evidence": "2a (2A = approve DEC-001, DEC-004, DEC-005 and DEC-014, answering the lifecycle trial decision card)",
+        "date": "2026-10-27"
       },
       "delivery": "in progress",
       "reports": [
-        "REP-001"
+        "REP-001",
+        "REP-038"
       ],
       "reviewTrigger": "If the process costs more time than it saves after three packages."
     },
@@ -90,11 +93,14 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed"
+        "status": "approved",
+        "evidence": "2a (2A = approve DEC-001, DEC-004, DEC-005 and DEC-014, answering the lifecycle trial decision card)",
+        "date": "2026-10-27"
       },
       "delivery": "implemented",
       "reports": [
-        "REP-001"
+        "REP-001",
+        "REP-038"
       ],
       "reviewTrigger": "If pandoc is unavailable on the machine that exports."
     },
@@ -112,11 +118,14 @@
       "cost": "Unknown; to be recorded.",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed"
+        "status": "approved",
+        "evidence": "2a (2A = approve DEC-001, DEC-004, DEC-005 and DEC-014, answering the lifecycle trial decision card)",
+        "date": "2026-10-27"
       },
       "delivery": "not started",
       "reports": [
-        "REP-001"
+        "REP-001",
+        "REP-038"
       ],
       "reviewTrigger": "When the owner states the Cloudflare plan and other paid accounts."
     },
@@ -331,7 +340,8 @@
       "owner": "Murshidi",
       "cost": "RM0",
       "reports": [
-        "REP-010"
+        "REP-010",
+        "REP-038"
       ],
       "id": "DEC-014",
       "title": "Use the Concept and Theme Companion for creative work",
@@ -344,7 +354,9 @@
         "data": "None."
       },
       "approval": {
-        "status": "proposed"
+        "status": "approved",
+        "evidence": "2a (2A = approve DEC-001, DEC-004, DEC-005 and DEC-014, answering the lifecycle trial decision card)",
+        "date": "2026-10-27"
       },
       "delivery": "in progress",
       "reviewTrigger": "If creative work starts needing its own package type."
@@ -627,6 +639,55 @@
       ],
       "plan": "PLAN-008",
       "reviewTrigger": "If the vertical board is too tall on small phones, or the lorry slows down play (keep it skippable)."
+    },
+    {
+      "id": "DEC-026",
+      "title": "Freeze rules version 4 until the first human playtest round is done",
+      "question": "Should rules stop changing until real players have tried rules version 4?",
+      "choice": "Yes. No rule, balance or content change until the first human playtest round (DEC-016) is complete and its result is recorded. Allowed during the freeze: fixes for bugs that stop play, lose data or break security (S1), documentation, records and playtest materials.",
+      "rationale": "Rules changed from version 2 to 4 in two days, tuned only against computer players. No unfamiliar player has played version 4, so further tuning has no human evidence behind it (lifecycle trial, G1 CONCERNS).",
+      "impact": {
+        "player": "No gameplay change while testing; testers play the preview as it is.",
+        "technical": "Pauses PLAN-016/017 follow-ups and any new rule work; PLAN-018 (data handling) is not part of the freeze unless it changes rules.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "1a (1A = freeze rules version 4 and run the first human playtest: 3 to 5 strangers plus a paper round)",
+        "date": "2026-10-27"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-038"
+      ],
+      "plan": "PLAN-019",
+      "reviewTrigger": "When the first playtest round is recorded, or if an S1 bug forces a rules fix."
+    },
+    {
+      "id": "DEC-027",
+      "title": "One game, two editions: tabletop and digital with identical mechanics",
+      "question": "What is the commercial and design direction for Fruit Market?",
+      "choice": "Fruit Market is developed as a tabletop game and a digital game at the same time, with the same mechanics. The tabletop rules (RULES.md, rules version 4 and later) are the master; the digital game implements exactly those rules. The digital edition adds single-player capability (computer shops, with modes such as the League and daily challenge) but no digital-only mechanics. A rule change is made once and applies to both editions.",
+      "rationale": "Owner direction, in their words: \"tabletop which can be translated into the game at the same time, both with the same mechanics but the digital version to have single player capability\". Interpretation to confirm: single-player already exists in the digital game; the requirement is that it follows the tabletop rules rather than adding its own.",
+      "impact": {
+        "player": "Both editions play the same; the digital game keeps solo play against computer shops.",
+        "technical": "Every future rule must be playable by hand. Open: nightly ageing is too fiddly by hand (REP-036; date-stamped crates proposed, undecided). Digital-only features are limited to presentation, modes and computer players.",
+        "data": "None."
+      },
+      "cost": "RM0 now. Physical-edition costs (printing, components, manufacturing, shipping, storage) are unknown and need a dated quote and a separate approval.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "1a 2a 3 tabletop which can be translated into the game at the same time, both with the same mechanics but the digital version to have single player capability",
+        "date": "2026-10-27"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-038"
+      ],
+      "reviewTrigger": "If a rule that makes the game fun cannot be done by hand, or if physical-edition costs are not viable."
     }
   ],
   "history": [
@@ -921,6 +982,10 @@
     {
       "at": "2026-10-27 17:02",
       "text": "Owner asked to track balance, retention and data insights. REP-037 proposes PLAN-018: anonymous counters tagged by rules version (set-up, traits, specialities, computer levels, price and spoilage buckets, favours, online health, app version) and a weekly insights report via GitHub Actions. Data handling change: awaiting approval. Three questions: report location, retention 90 or 365 days, STATS_KEY as a GitHub secret."
+    },
+    {
+      "at": "2026-10-27 19:45",
+      "text": "Owner answered the lifecycle trial decision card: \"1a 2a 3 tabletop which can be translated into the game at the same time, both with the same mechanics but the digital version to have single player capability\". Approved DEC-001, DEC-004, DEC-005 and DEC-014 (previously proposed). Recorded DEC-026 (freeze rules version 4 until the first human playtest) and DEC-027 (one game, two editions with identical mechanics; digital has single-player). PLAN-019 (first human playtest, no game code) proposed, awaiting approval (REP-038). No game change."
     }
   ]
 }

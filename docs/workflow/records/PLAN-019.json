@@ -1,0 +1,67 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-038"
+  ],
+  "decisions": [
+    "DEC-016",
+    "DEC-026",
+    "DEC-027"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-019",
+  "title": "First human playtest: digital and paper rounds (no game code)",
+  "problem": "Rules version 4 has never been played by an unfamiliar person. Balance work so far used computer players only. DEC-016 approved a first playtest but it has not been run, and DEC-027 makes the tabletop rules the master, so a paper round is needed as well.",
+  "scope": [
+    "Write hypotheses and continue, revise or stop criteria before testing (DEC-016: at least 3 of 4 testers can explain a lost sale by day 3; provisional, owner-set)",
+    "3 to 5 unfamiliar players, no coaching; each plays one digital Quick game against one computer shop on the preview",
+    "One paper round of the tabletop rules with 2 to 4 people; choose and record how nightly ageing is handled by hand for the test",
+    "One playtest report per session using the playtest template; observations kept separate from interpretation; tester count and build recorded",
+    "Owner decision recorded: continue, revise or stop"
+  ],
+  "exclusions": [
+    "Any change to rules, balance, content, art or code (rules freeze, DEC-026)",
+    "Collecting names or personal data (notes only)",
+    "Publishing or promoting the preview",
+    "Deciding the physical edition, printing or manufacturing"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Hypotheses and criteria are written and dated before the first session",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "3 to 5 digital sessions and 1 paper round have a saved report each, with tester count and build",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "No change to src/, server/ or RULES.md between the first and last session (git diff shows none)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Owner decision (continue, revise, stop) recorded with the evidence",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
