@@ -909,6 +909,10 @@
     {
       "at": "2026-10-27 16:20",
       "text": "Owner: \"approve the speciality price cut\". PLAN-016 approved and built (REP-034): Cold Room $4, Juice Bar $3. Same-seed comparison: no measurable gain for computer players (rush Cold Room 12%, Juice Bar 16%); no figure worse beyond the margin. Cause: tight supply means little old fruit or holding value for computers. RULES_VERSION stays 4 (version 4 never published live). Merged to main for the preview."
+    },
+    {
+      "at": "2026-10-27 16:42",
+      "text": "Owner: \"approve option 1 and 2\". PLAN-017 built (REP-035): farmer cards +1 per listed fruit; Normal/Hard computers use Juice Bar, Cold Room and Market Days. Same seeds: Hard beats Normal 60%, Easy 82%; comebacks 38%. Not fixed: Cold Room and Juice Bar add little (skipping costs nothing). New issue: Big Basket 45%, 2-player blowouts 42%. PLAN-016 CI green (verified). Options for volume and specialities put to the owner."
     }
   ]
 }
