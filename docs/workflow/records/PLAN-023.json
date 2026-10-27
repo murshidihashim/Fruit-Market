@@ -3,7 +3,8 @@
   "build": "not started",
   "reports": [
     "REP-047",
-    "REP-048"
+    "REP-048",
+    "REP-049"
   ],
   "decisions": [
     "DEC-028"
@@ -15,11 +16,11 @@
     "removed": []
   },
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-023",
   "title": "Undo a buy in online rooms, and rename inside the room",
   "problem": "Informal feedback (REP-045): no undo after tapping a fruit before the buy is confirmed; the game name cannot be edited in the room. By code, an undo button already exists for one-device games (ActionBar.tsx shows it only when not online; turn.ts undoPoint) but it is hidden in online rooms, where a tap sends the buy at once (useGameController.ts). The mention of \"the room\" suggests the feedback game was online (inferred, not confirmed). Online undo needs a new legal action checked by the server.",

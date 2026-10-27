@@ -1,8 +1,9 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "measurement only; no game change",
   "reports": [
-    "REP-047"
+    "REP-047",
+    "REP-049"
   ],
   "decisions": [
     "DEC-028"
@@ -14,19 +15,20 @@
     "removed": []
   },
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-020",
-  "title": "Mid-game supply in 4-player games: measure first, then propose one fix",
-  "problem": "Informal feedback (REP-045): \"supply cant keep up with demand\" from mid-game and players ended up with nothing to buy. By code: no lorry comes on Market Days (days 3, 6, 9, 12; game.ts), and 4 shops add 1 of each fruit (about 17 fruits on a lorry day against a buying capacity of 16 for four shops). This is a hypothesis; no one has measured it.",
+  "title": "Supply and customer demand in 4-player games: measure first, then propose one fix",
+  "problem": "Informal feedback (REP-045): \"supply cant keep up with demand\" from mid-game and players ended up with nothing to buy. By code: no lorry comes on Market Days (days 3, 6, 9, 12; game.ts), and 4 shops add 1 of each fruit (about 17 fruits on a lorry day against a buying capacity of 16 for four shops). This is a hypothesis; no one has measured it. Owner (same message): \"feels like theres too much customer towards the final few turns\". By code, walk-ins per day are players minus 2 in the first half and players minus 1 in the second half, plus 1 on a Market Day, and unserved customers wait one more day; so late days have more customers.",
   "scope": [
-    "Step 1, no game change: simulate 2, 3 and 4 shop games and measure, per day, how much of each fruit is on the market before each shop buys, how often a shop finds the fruit it wants gone, and how this differs on Market Days",
+    "Step 1, no game change: simulate 2, 3 and 4 shop games and measure, per day, how much of each fruit is on the market before each shop buys, how often a shop finds the fruit it wants gone, and how this differs on Market Days; and measure demand the same way: customers and fruit wanted per day, how much of it is served, and how the last few days compare with the early days",
     "Step 2: propose one change with options and same-seed before and after results (candidates: a smaller delivery on Market Days, or more supply for 4 shops); the owner picks",
     "Step 3, after the owner picks: implement, bump RULES_VERSION, update RULES.md and data, run the checks",
-    "Any change must be playable by hand with cards (DEC-027)"
+    "Any change must be playable by hand with cards (DEC-027)",
+    "The proposal in step 2 may change supply, demand, or both; the owner picks"
   ],
   "exclusions": [
     "Changing customers, prices, specialities or computer players",
@@ -35,9 +37,9 @@
   "acceptance": [
     {
       "id": "T1",
-      "text": "Measurement report shows supply against demand per day for 2, 3 and 4 shops, with sample size",
-      "result": "NOT RUN",
-      "evidence": ""
+      "text": "Measurement report shows supply and customer demand per day for 2, 3 and 4 shops, with sample size, including the last three days against the first three",
+      "result": "PASS",
+      "evidence": "REP-049 (2026-10-27 23:16): 2, 3 and 4 shops, 300 games each, all Normal computers; what-ifs 200 games; first 3 days against last 3 days; computer players only."
     },
     {
       "id": "T2",
