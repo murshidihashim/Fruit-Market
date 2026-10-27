@@ -503,6 +503,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 /* first-game coach */
 .coach { position: absolute; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20; width: min(92%, 420px); display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 12px; border-radius: 14px; background: var(--teal); color: #fff8ec; box-shadow: 0 4px 0 #24605e, 0 12px 28px rgba(0, 0, 0, 0.45); animation: pop 0.22s steps(3); }
+.coach.top { bottom: auto; top: 128px; }
 .coach b { font-family: var(--f-pixel); font-size: 1rem; }
 .coach span { font-size: 0.88rem; line-height: 1.35; }
 .coach .btn { align-self: flex-end; min-height: 36px; padding: 4px 16px; background: var(--cream); color: var(--ink); }

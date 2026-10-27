@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-10-27 13:00 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 13:46 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
@@ -13,7 +13,7 @@ Updated 2026-10-27 13:00 (Asia/Kuala_Lumpur) by Claude.
 - **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. PLAN-010 (lorry, Gemini art) verified (REP-026). All three are on `main`, ready to become 1.2.0 when the owner asks.
 - **Balance:** PLAN-012 approved and verified (REP-027 proposal, REP-028 build): rules version 3, tomorrow's lorry, retuned traits, Juice Press and league, cosy home screen. On `main` for the preview; **live game unchanged**. Open: owner playtest (T5 NOT RUN); skill gap 60% vs 65% aim (green mango $3 is the main cause); Long games still favour patient plans.
 - **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
-- **Tabletop rules:** REP-030 re-analysis; PLAN-014 (printed supply/demand, posted prices, market pulse, fruit payouts, rules version 4) **awaiting approval**. No code changed.
+- **Tabletop rules:** REP-030 re-analysis; PLAN-014 **approved**; final mechanics and benchmark summary in REP-031. Build not started (owner benchmarking first). Open: upgrade retune, Long-game ripening.
 - **Then:** owner playtest of the preview; PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
 
 ## Builds
@@ -58,5 +58,4 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
-- PLAN-014: Tabletop edition rules: printed supply and demand, posted prices, market pulse, fruit payouts (awaiting approval)
 <!-- records:pending:end -->

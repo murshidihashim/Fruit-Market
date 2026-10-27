@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-030"
+    "REP-030",
+    "REP-031"
   ],
   "decisions": [],
   "changes": {
@@ -27,9 +28,11 @@
     "Rules that also work as a board game"
   ],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "approve all the idea, work out the mechanics, and summarise to me  game back highlighting the concept and game mechanics as i want to benchmark against similar genre board games and traditional popular board games",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-014",
   "title": "Tabletop edition rules: printed supply and demand, posted prices, market pulse, fruit payouts",
   "problem": "REP-030: supply and demand come from formulas a table can't run; ~10 secret prices per player per day are too fiddly by hand; prices never react to shortage or glut; fruit payouts don't follow risk (blueberries best return, apples above watermelons).",
@@ -39,10 +42,14 @@
     "T3 one secret posted price per fruit plus how many to put out; new pricing screen; computer posted pricing",
     "T4 market pulse track per fruit (-1 to +2) shown on the board",
     "F1 blueberry customer prices -1, apple -1 more",
-    "RULES_VERSION 4, rules page and how-to rewrite, tests, lab parity check and held-out validation"
+    "RULES_VERSION 4, rules page and how-to rewrite, tests, lab parity check and held-out validation",
+    "Q1 The queue: tomorrow's walk-ins drawn face down, card backs show the fruits they want",
+    "M1 Market Days (numbers set by lab test)",
+    "C1 Crates: freshness by days since arrival (tabletop presentation; digital already equivalent)",
+    "E1 Event redesign: single-fruit shocks replace Slow Season and Rainy Day; Good Harvest scales with players; no night-only event on the final day (numbers set by lab test)",
+    "S1 Concept and mechanics summary for benchmarking against board games"
   ],
   "exclusions": [
-    "The queue (card backs), Market Days, crates and event redesign: paper playtest first (REP-030 3d)",
     "Publishing (separate approval)",
     "Telemetry or new data collection"
   ],

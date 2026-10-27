@@ -885,6 +885,14 @@
     {
       "at": "2026-10-27 13:00",
       "text": "Owner asked to re-analyse fruit pricing, decay, events, traits, upgrades and supply/demand against three guidelines (tabletop-playable, real market feel, fruit playstyle matching payout). REP-030: rules version 3 only partly meets them. Lab sweeps 12-15 (600 held-out games per test): printed numbers reproduce the formula flow; posted prices plus a market pulse plus blueberry/apple price trims give a 12-point plan spread and payouts ordered mango > blueberry > watermelon > apple. Proposed PLAN-014 (awaiting approval). No game code changed."
+    },
+    {
+      "at": "2026-10-27 13:23",
+      "text": "Owner: \"approve all the idea, work out the mechanics, and summarise to me  game back highlighting the concept and game mechanics as i want to benchmark against similar genre board games and traditional popular board games\". PLAN-014 approved including the supporting ideas (queue, Market Days, crates, event redesign). First deliverable: finalised mechanics and a concept summary for benchmarking; code build follows."
+    },
+    {
+      "at": "2026-10-27 13:46",
+      "text": "REP-031: final tabletop mechanics (rules version 4) and a concept and mechanics summary for benchmarking. Lab sweeps 16-18: fruit-specific events (Blueberry Glut, Apple Blight), Good Harvest scaled by players, no Inspector on the final day; Market Days kept as an optional rule (most even plans but computers can't plan ahead). Open: Shop Bell, Juice Press and Cool Room retune; Long games favour ripening. Also fixed the coach tip covering the Seal button (the cause of the stuck CI run)."
     }
   ]
 }
