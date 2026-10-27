@@ -881,6 +881,10 @@
     {
       "at": "2026-10-27 12:21",
       "text": "PLAN-013 built and verified (REP-029): full-screen pricing and event sheets, 'Your rivals' strip (sealed / deciding / next in line, wanted fruit held), matching seat badges. verify and verify:full PASS (price leaks 0). Merged to main for the preview; live game unchanged."
+    },
+    {
+      "at": "2026-10-27 13:00",
+      "text": "Owner asked to re-analyse fruit pricing, decay, events, traits, upgrades and supply/demand against three guidelines (tabletop-playable, real market feel, fruit playstyle matching payout). REP-030: rules version 3 only partly meets them. Lab sweeps 12-15 (600 held-out games per test): printed numbers reproduce the formula flow; posted prices plus a market pulse plus blueberry/apple price trims give a 12-point plan spread and payouts ordered mango > blueberry > watermelon > apple. Proposed PLAN-014 (awaiting approval). No game code changed."
     }
   ]
 }

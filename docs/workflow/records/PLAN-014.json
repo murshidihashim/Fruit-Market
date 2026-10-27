@@ -1,0 +1,75 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-030"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Market pulse: each fruit's price marker rises after a shortage and falls after a glut",
+      "Price board: one posted price per fruit"
+    ],
+    "changed": [
+      "Printed farmer and customer numbers replace the supply and demand formulas",
+      "Walk-ins: players - 2 in the first half, players - 1 in the second",
+      "Blueberry customers pay $1 less, apple customers $1 less again",
+      "Rules version 4"
+    ],
+    "fixed": [],
+    "removed": [
+      "Per-customer secret prices"
+    ]
+  },
+  "playerNotes": [
+    "One price per fruit, posted like a real market stall",
+    "Prices now rise after shortages and fall after gluts",
+    "Rules that also work as a board game"
+  ],
+  "approval": {
+    "status": "awaiting approval"
+  },
+  "delivery": "not started",
+  "id": "PLAN-014",
+  "title": "Tabletop edition rules: printed supply and demand, posted prices, market pulse, fruit payouts",
+  "problem": "REP-030: supply and demand come from formulas a table can't run; ~10 secret prices per player per day are too fiddly by hand; prices never react to shortage or glut; fruit payouts don't follow risk (blueberries best return, apples above watermelons).",
+  "scope": [
+    "T1 printed deliveries (card number - 2; 4th fruit 1; 2 players -1 per listed fruit, min 1; 4 players +1 each)",
+    "T2 printed orders; walk-ins players-2 then players-1 from halfway; remove x1.15",
+    "T3 one secret posted price per fruit plus how many to put out; new pricing screen; computer posted pricing",
+    "T4 market pulse track per fruit (-1 to +2) shown on the board",
+    "F1 blueberry customer prices -1, apple -1 more",
+    "RULES_VERSION 4, rules page and how-to rewrite, tests, lab parity check and held-out validation"
+  ],
+  "exclusions": [
+    "The queue (card backs), Market Days, crates and event redesign: paper playtest first (REP-030 3d)",
+    "Publishing (separate approval)",
+    "Telemetry or new data collection"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify and verify:full pass (price leak check 0)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Production equals the lab package; held-out results within the margin of REP-030 3b",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Computer posted pricing beats the crude stand-in (Hard beats Normal at least 62%)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Paper or preview playtest of posted prices and market pulse",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
