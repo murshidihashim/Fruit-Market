@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "workflow/plan-015",
   "reports": [
     "REP-031",
-    "REP-032"
+    "REP-032",
+    "REP-033"
   ],
   "decisions": [],
   "changes": {
@@ -11,13 +12,15 @@
       "Market Gossip favour card: secretly see tomorrow's face-down walk-ins",
       "Open stalls: for-sale quantities public before the bell",
       "Market Days on the day track; Last Call on the final day",
-      "Day ledger and rush view in the app; Core market and Market Days set-up toggles"
+      "Day ledger and rush view in the app; Core market and Market Days set-up toggles",
+      "Street prices and Market pulse set-up options; bell pause; \"too old\" missed-sale reason"
     ],
     "changed": [
       "Uniform freshness: -$1 okay, -$2 not so for every fruit",
       "Upgrades become four specialities (Cold Room, Juice Bar, Barrow, Premium Display), drafted after Market Days",
-      "Ties: fresher fruit, then poorer shop",
-      "Market pulse becomes an optional advanced rule"
+      "Ties: Favoured Trade, then Haggler, then fresher fruit, then poorer shop",
+      "Market pulse becomes an optional advanced rule",
+      "Evening is held whenever anyone has a favour card (privacy: no hint about which card)"
     ],
     "fixed": [],
     "removed": [
@@ -31,9 +34,11 @@
     "New favour card: Market Gossip"
   ],
   "approval": {
-    "status": "awaiting approval"
+    "status": "approved",
+    "evidence": "approve plan 15",
+    "date": "2026-10-27"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "id": "PLAN-015",
   "title": "Readable price duel: five-beat day, prototypes A/B/C and the Market Gossip card",
   "problem": "Owner's benchmark review: the strong pricing core risks being buried in market administration; undercutting needs a visible alternative; upgrades should change decisions; the session needs an arc; add one favour card that reveals the face-down demand.",
@@ -56,14 +61,14 @@
     {
       "id": "T1",
       "text": "Lab: production equals the lab package; held-out balance within REP-032 figures",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "REP-033 section 4: Hard beats Normal 56% (REP-032 56%), comebacks 31% (REP-032 32%), traits 30-38%. Specialities measured for the first time: Cold Room and Juice Bar weak for computers (open item)."
     },
     {
       "id": "T2",
       "text": "verify and verify:full pass, including a Market Gossip privacy leak check",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "verify and verify:full exit 0 on workflow/plan-015; online leak check 0 (crates, prices, face-down walk-ins); unit test: Gossip fronts only to the gossiper (REP-033 section 2-3)"
     },
     {
       "id": "T3",

@@ -20,7 +20,7 @@ const SLIDES = [
     title: 'Every fruit ages differently',
     body: (
       <>
-        <p>Every night all fruit gets one step older: on the market board it moves down its column. Below, oldest is on the left; the number shows how much less a customer pays at that age. Past the last step, it spoils.</p>
+        <p>Every night all fruit gets one step older. Every fruit follows one rule: full price when <b>fresh</b>, <b>$1 less</b> when okay, <b>$2 less</b> when not so. Fruits differ in how long they last. Oldest is on the left; past the last step, it spoils.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <div class="demo-track">
@@ -35,23 +35,31 @@ const SLIDES = [
     ),
   },
   {
-    title: 'Morning: buy fruit',
+    title: 'Dawn and market',
     body: (
       <>
-        <p>The farmer delivers, and an <b>event card</b> changes the day. You can see tomorrow's event and tomorrow's lorry (which fruits come in plenty) a day early, so plan ahead!</p>
-        <p>Taking turns, each shop buys <b>up to 4 fruits</b>. <b>The poorest shop buys first.</b> Fresh fruit costs more but customers pay more for it.</p>
-        <p>You can see one customer who is coming today. A second <b>walk-in</b> is a surprise.</p>
+        <p>The lorry unloads, and an <b>event card</b> changes the day. The <b>Tomorrow strip</b> shows tomorrow's lorry, event, one expected customer, and the walk-ins face down (you see only the fruit they want).</p>
+        <p>Taking turns, each shop buys <b>up to 4 fruits</b>. <b>The poorest shop buys first.</b></p>
       </>
     ),
   },
   {
-    title: 'Afternoon: secret prices',
+    title: 'Open stalls, then the bell',
     body: (
       <>
-        <p>Every shop secretly picks a price for each customer. Then all prices are shown at once.</p>
-        <p><b>Cheapest price sells first.</b> On a tie, the fresher fruit wins.</p>
-        <p>A customer's price is <b>per fruit</b>, for a fresh one. Older fruit sells for less: the chart in “Every fruit ages differently” shows how much, and when you set prices you see what each of your fruit can fetch.</p>
+        <p>Customers arrive. Each shop secretly fills its <b>for-sale crate</b>; then everyone sees how many each stall put out.</p>
+        <p>Then each shop sets <b>one secret price per fruit</b>. At the bell, all prices show together.</p>
+        <p>In the <b>rush</b>, customers buy from the <b>cheapest stall</b> first; leftover demand spills to the next. Ties: Favoured Trade, then the Haggler, then fresher fruit, then the poorer shop.</p>
         <p>A customer who doesn't get everything comes back once more the next day, then leaves.</p>
+      </>
+    ),
+  },
+  {
+    title: 'Market Days and Last Call',
+    body: (
+      <>
+        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in, and <b>no lorry</b>. Keep stock back for them!</p>
+        <p>On the <b>final day</b>, customers pay $1 more, and then the jam maker buys leftover fruit for $1 each.</p>
       </>
     ),
   },
@@ -61,7 +69,7 @@ const SLIDES = [
       <>
         <p>Serve a customer's <b>whole order by yourself</b> to draw a secret favour card:</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
-        <p>Each evening, 3 of these upgrades are offered to you:</p>
+        <p><b>Market Gossip</b> lets you secretly see tomorrow's walk-ins. After each Market Day, build one stall speciality:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
       </>
     ),
@@ -73,7 +81,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival has a fruit, charge the full price.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
-        <li>Green mangoes cost $2 and ripen in 2 nights. Buy them before a Mango Craze!</li>
+        <li>Green mangoes cost $3 and ripen in 2 nights. Buy them before a Mango Craze!</li>
+        <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
         <li>On the first morning, pick a merchant trait. Rivals can see yours.</li>
         <li>Customers want more as the town grows, so later days are busier.</li>
         <li>On the last day, don't buy anything you can't sell today.</li>

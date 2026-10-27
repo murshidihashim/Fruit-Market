@@ -303,16 +303,16 @@ function measure(label: string) {
     t.firstBuyer.forEach((k, p) => { if (k >= 4) { c4++; if (p === r[0]) w4++; } if (k <= 2) { c2++; if (p === r[0]) w2++; } });
     for (const f of FRUITS) { prof[f] += t.revenue[f] - t.cost[f]; bought[f] += t.bought[f]; }
   }
-  // Upgrade check: a player who never builds the Handcart.
+  // Upgrade check: a player who never builds the Barrow.
   let wNo = 0;
   for (let seed = 1; seed <= G; seed++) {
-    const seat = seed % n; const pol: Policy[] = []; pol[seat] = { ban: 'cart' };
+    const seat = seed % n; const pol: Policy[] = []; pol[seat] = { ban: 'barrow' };
     if (ranking(play(['hard', 'hard', 'hard'], seed, 10, pol).s)[0] === seat) wNo++;
   }
   log(`exp-${label}`, {
     medianMargin: median(margins), closeGames: pct(margins.filter((m) => m <= 3).length, G), blowouts: pct(margins.filter((m) => m >= 20).length, G),
     day5LeaderWins: pct(midLeader, G), comebackFromLast: pct(comeback, G),
-    winIfBuyFirst4Plus: pct(w4, c4), winIfBuyFirst2OrLess: pct(w2, c2), winWithoutHandcart: pct(wNo, G),
+    winIfBuyFirst4Plus: pct(w4, c4), winIfBuyFirst2OrLess: pct(w2, c2), winWithoutBarrow: pct(wNo, G),
     profitPerFruit: Object.fromEntries(FRUITS.map((f) => [f, +(prof[f] / Math.max(1, bought[f])).toFixed(2)])),
   });
 }

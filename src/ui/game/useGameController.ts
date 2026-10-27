@@ -17,7 +17,7 @@ import { delivery, moves, nightfall, reveal } from './animator';
 import { playLocal, undoPoint } from './turn';
 import type { ShowState } from './panels/Showdown';
 
-const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', bid: 'SET PRICES', reveal: 'SALES!', evening: 'EVENING', over: '' } as const;
+const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', stall: 'OPEN STALLS', bid: 'THE BELL',  reveal: 'SALES!', evening: 'EVENING', over: '' } as const;
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
   const [s, setS] = useState(initial);
@@ -52,13 +52,14 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const multi = humans.length > 1;
   const active = activePlayer(s);
   const seat = online?.seat ?? null;
-  const activeHuman = online ? active === seat && s.phase !== 'bid' : active >= 0 && s.players[active].kind === 'human';
+  const secret = s.phase === 'stall' || s.phase === 'bid';
+  const activeHuman = online ? active === seat && !secret : active >= 0 && s.players[active].kind === 'human';
   const lastViewer = useRef(seat ?? humans[0]);
   if (!online && activeHuman) lastViewer.current = active;
   const viewer = seat ?? lastViewer.current;
   const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
   // Online: whose secret prices are still missing, and who still has to press continue.
-  const myBidTurn = online ? s.phase === 'bid' && !!meta && !meta.submitted[viewer] : s.phase === 'bid' && activeHuman;
+  const myBidTurn = online ? secret && !!meta && !meta.submitted[viewer] : secret && activeHuman;
   const waitingFor = (idxs: number[]) => idxs.map((i) => s.players[i]?.name).filter(Boolean).join(' and ');
   // People the match is waiting on (a seat a computer is playing never holds things up).
   const live = online && meta ? humans.filter((i) => !meta.seats[i]?.bot) : humans;
@@ -104,7 +105,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         setNight(false);
         await delivery(next);
-      } else if (prev.phase === 'bid' && next.phase === 'reveal') {
+      } else if ((prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal') {
         setRevealDone(false);
         await reveal(next, viewer, setShow);
         setRevealDone(true);
@@ -171,7 +172,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       sending.current = true;
       return;
     }
-    const who = seat ?? (a.kind === 'bids' ? activePlayer(sRef.current) : active);
+    const who = seat ?? (a.kind === 'stall' || a.kind === 'prices' ? activePlayer(sRef.current) : active);
     attempt(() => playLocal(sRef.current, who, a));
   };
   const proceed = () => {

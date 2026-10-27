@@ -233,17 +233,17 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['K..........K', 'KRR......YYK', 'KRRR.GG.YYYK', 'KRR.GGG..YYK', 'K....GG....K', '.Y.....R..T.', '...T.......Y', '.R....Y..R..', '....T.....T.', '.Y...R.Y....'],
     pal: { K: '#3b3048', R: '#c8553d', Y: '#e8b04b', G: '#3e8f8c', T: '#7d8c3a' },
   },
-  ev_slow: {
-    rows: ['......K..K..', '......K..K..', '..BBBB.KKK..', '.BBWBBB.KK..', '.BWBBWB.KK..', '.BBWWBB.KK..', '.BBBBBB.KK..', 'GGGGGGGGGKK.', 'GGGGGGGGGGG.'],
-    pal: { K: '#3b3048', B: '#b07f27', W: '#e8b04b', G: '#9cca86' },
+  ev_glut: {
+    rows: ['..R.......R.', '..R..BB...R.', 'RRRRBWBB.RRR', '.RR.BBBB..R.', '...BBBBBB...', '..BWBBBWBB..', '.BBBBWBBBBB.', 'BBWBBBBBWBBB', 'KKKKKKKKKKKK'],
+    pal: { R: '#c8553d', B: '#4f5bd5', W: '#8f98f0', K: '#3b3048' },
   },
   ev_heatwave: {
     rows: ['R..R..R..R..', '.R..R..R..R.', '....OOOO....', '...OYYYYO...', '..OYYWYYYO..', '..OYYYYYYO..', '...OYYYYO...', '....OOOO....', 'R..R..R..R..'],
     pal: { R: '#c8553d', O: '#f0a23a', Y: '#f2c14e', W: '#fff2c2' },
   },
-  ev_rainy: {
-    rows: ['....WWWW....', '..WWWWWWWW..', '.WWLLWWWWWW.', 'WWWWWWWWWWWW', '.GGGGGGGGGG.', '............', '.B..B..B..B.', 'B..B..B..B..', '.B..B..B..B.'],
-    pal: { W: '#eadcbd', L: '#ffffff', G: '#a8a6bd', B: '#3e8f8c' },
+  ev_blight: {
+    rows: ['.....B......', '.....BGG....', '..RRRBRRR...', '.RRDRRRRDR..', '.RRRRRDRRR..', '.RDRRRRRRR..', '.RRRRDRRDR..', '..RRRRRRR...', '...RR.RR....'],
+    pal: { B: '#7a4a2e', G: '#6aa84f', R: '#b8833a', D: '#4a3a2a' },
   },
   ev_mangoCraze: {
     rows: ['.Y......Y...', 'YWY..G...Y..', '.Y..GG......', '...OOOO.....', '..OYYYOO..Y.', '..OYWYYO.YWY', '..OYYYYO..Y.', '...OOOO.....', '............'],
@@ -281,9 +281,9 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['.....YY.....', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTKKTWT..', '..TTTKKTTT..', 'KKKKKKKKKKKK'],
     pal: { Y: '#e8b04b', T: '#3e8f8c', W: '#f6ead2', K: '#3b3048' },
   },
-  fv_freeCash: {
-    rows: ['GGGGGGGGGGGG', 'GLLLLLLLLLLG', 'GLGGLYYLGGLG', 'GLGLYGGYLGLG', 'GLGGLYYLGGLG', 'GLLLLLLLLLLG', 'GGGGGGGGGGGG'],
-    pal: { G: '#3f7a3a', L: '#9cca86', Y: '#e8b04b' },
+  fv_gossip: {
+    rows: ['...SSSSS....', '..SPPPPPS...', '.SPSSSSPPS..', '.SPS...SPS..', '.SPS..SPPS..', '..SPSSPPS...', '...SPPPS..Y.', '...SPPS..YWY', '....SS....Y.'],
+    pal: { S: '#c9875a', P: '#f0b48c', Y: '#e8b04b', W: '#fff2c2' },
   },
   fv_freeFruit: {
     rows: ['..R..R......', '...RR.......', 'RRRRYRRRRR..', 'RRRRYRRRRR..', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...'],

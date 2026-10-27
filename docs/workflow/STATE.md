@@ -1,10 +1,10 @@
 # Current state · Fruit Market
 
-Updated 2026-10-27 14:36 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 15:37 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
-- **Active package:** none. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
+- **Active package:** PLAN-015 (with PLAN-014), implemented; waiting for the owner's playtest. PLAN-001 (Package A, REP-002) and PLAN-002 (Package B, REP-004) are verified.
 - **Done:** PLAN-004, the reconnect fix (REP-006), on the preview, not live.
 - **Done:** PLAN-005, 4-player clarity (REP-008), on the preview, not live.
 - **Release 1.1.1 published** 2026-10-27 (Deploy LIVE game run 15, live smoke test passed, tagged `v1.1.1` on `83de99b`). Triggered by Claude on the owner's instruction "deploy".
@@ -13,19 +13,19 @@ Updated 2026-10-27 14:36 (Asia/Kuala_Lumpur) by Claude.
 - **PLAN-009 and PLAN-011 verified** (REP-023, REP-024) now on `main` (merged after the 1.1.1 deploy): seated rivals, column board, freshness chips, price boards on the seats, night on the table. PLAN-007 superseded. PLAN-010 (lorry, Gemini art) verified (REP-026). All three are on `main`, ready to become 1.2.0 when the owner asks.
 - **Balance:** PLAN-012 approved and verified (REP-027 proposal, REP-028 build): rules version 3, tomorrow's lorry, retuned traits, Juice Press and league, cosy home screen. On `main` for the preview; **live game unchanged**. Open: owner playtest (T5 NOT RUN); skill gap 60% vs 65% aim (green mango $3 is the main cause); Long games still favour patient plans.
 - **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
-- **Tabletop rules:** REP-030 re-analysis; PLAN-014 **approved**; final mechanics and benchmark summary in REP-031. Build held: REP-032 proposes PLAN-015 (five-beat day, prototypes A/B/C, Market Gossip) **awaiting approval**. Open: upgrade retune, Long-game ripening.
-- **Then:** owner playtest of the preview; PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
+- **Tabletop rules (rules version 4):** PLAN-014 and PLAN-015 approved and **built** (REP-033): open stalls, the bell, Market Days, Last Call, four specialities, Market Gossip, day ledger, playtest options. verify and verify:full PASS (leak check 0). On `main` for the preview; **live game unchanged** (still rules version 3). Open: owner playtest (NOT RUN); Cold Room and Juice Bar weak for computers (retune needs approval); little undercutting among computers; 2-player blowouts 34%.
+- **Then:** owner playtest of the preview (REP-032 section 8 order); PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
 
 ## Builds
 | Copy | Address | Build |
 |---|---|---|
 | Live | https://fruit-market.murshidi-hashim.workers.dev | 1.1.1, `83de99b` (deployed 2026-10-27, tag `v1.1.1`) |
-| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `main` after CI passes: 1.1.1 plus Patches rename, cosy table (PLAN-009/010/011) and rules version 3 with the new home screen (PLAN-012); updated by CI after each green push |
+| Preview | https://fruit-market-staging.murshidi-hashim.workers.dev | `main` after CI passes: 1.1.1 plus Patches rename, cosy table (PLAN-009/010/011), new home screen (PLAN-012) and rules version 4 (PLAN-014/015); updated by CI after each green push |
 
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
 ## Checks
-- `npm run verify`: records check, lint, types, 81 unit tests, build (about 10 s locally).
+- `npm run verify`: records check, lint, types, 92 unit tests, build (about 20 s locally).
 - `npm run records`: regenerate the register, changelog, this file's pending block and the PDFs.
 - `npm run verify:full`: plus browser tests (about 15 min). CI runs this on every push and pull request.
 - Readiness: build-ready PASS; play-ready needs the owner's preview playtest; online-ready mostly
@@ -58,5 +58,4 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-014: Use the Concept and Theme Companion for creative work (proposed)
 - DEC-020: UI and UX polish in three phases (awaiting approval)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
-- PLAN-015: Readable price duel: five-beat day, prototypes A/B/C and the Market Gossip card (awaiting approval)
 <!-- records:pending:end -->

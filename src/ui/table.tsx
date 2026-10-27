@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
 import {
-  buyCost, buyLimit, count, effectiveMax, shelfSize, walkInsToday,
+  buyCost, buyLimit, count, effectiveMax, shelfSize,
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
-import { lifeLabel, marketColumn, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
+import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import lorryUrl from './img/lorry.png';
 
 /** Each player's awning colour. */
@@ -83,12 +83,16 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
 /** What tomorrow's lorry brings (public: everyone sees the same). */
 export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
   const lines = nextLorry(s);
-  if (!lines || s.phase === 'over') return null;
+  if (s.phase === 'over') return null;
+  if (!lines) {
+    if (!marketDayTomorrow(s)) return null;
+    return <div class={`next-lorry market-day ${cls}`}><span class="nl-title">Tomorrow: Market Day</span><span class="nl-note">No lorry · one more walk-in</span></div>;
+  }
   return (
-    <div class={`next-lorry ${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.plenty ? 'plenty of' : 'a few'} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
+    <div class={`next-lorry ${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.n} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
       <span class="nl-title">Tomorrow's lorry</span>
       {lines.map((l) => (
-        <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />{l.plenty ? 'lots' : 'few'}</span>
+        <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />×{l.n}</span>
       ))}
     </div>
   );
@@ -255,48 +259,55 @@ export function face(name: string) {
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
-export function CustomerChar({ s, c, kind, onTip }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void }) {
+export function CustomerChar({ s, c, kind, onTip, later, heard }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean }) {
   if (kind === 'mystery' || !c) {
+    // Face down: only the fruits printed on the card's back show.
+    const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
-      <div class="cust mystery">
-        <div class="bubble"><span class="q">?</span></div>
+      <div class={`cust mystery ${later ? 'tomorrow' : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}>
+        <div class="bubble">{backs.length ? backs.map((f) => <Fruit id={f} size={16} />) : <span class="q">?</span>}</div>
         <div class="cface"><Face who="shopper" size={34} /></div>
-        <small>walk-in</small>
+        <small>{later ? 'tomorrow' : 'walk-in'}</small>
       </div>
     );
   }
   const done = c.wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
-      title={c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w)} each when fresh`).join('\n')}>
+      title={c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w, c.generous)} each when fresh`).join('\n')}>
       <div class="bubble">
         {c.wants.map((w) => (
           <span class={`bw ${w.qty <= 0 ? 'done' : ''}`} data-a={`c${c.id}-${w.fruit}`}>
             <Fruit id={w.fruit} size={18} />
             <b>{w.qty <= 0 ? '✓' : `×${w.qty}`}</b>
-            <span class={`bp ${effectiveMax(s, w) > w.max ? 'up' : effectiveMax(s, w) < w.max ? 'down' : ''}`}>${effectiveMax(s, w)}<small>/ea</small></span>
+            <span class={`bp ${effectiveMax(s, w, c.generous) > w.max ? 'up' : effectiveMax(s, w, c.generous) < w.max ? 'down' : ''}`}>${effectiveMax(s, w, c.generous)}<small>/ea</small></span>
           </span>
         ))}
       </div>
-      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark">♥</i>}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}</div>
+      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark">♥</i>}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}{heard && <i class="ear" title="You heard about this walk-in (Market Gossip)">👂</i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
     </div>
   );
 }
 
-export function Street({ s, onTip }: { s: GameState; onTip?: (c: Customer) => void }) {
+export function Street({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
   const extra = s.event?.extra;
+  // Walk-ins wait face down; a player who heard the gossip sees their fronts.
+  const walkIn = (c: Customer, later: boolean) => c.seenBy?.includes(viewer)
+    ? <CustomerChar key={c.id} s={s} c={c} kind={later ? 'tomorrow' : 'today'} onTip={onTip} heard />
+    : <CustomerChar key={c.id} s={s} c={c} kind="mystery" later={later} />;
   return (
     <div class="street">
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
       {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
       {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants }} kind="today" onTip={onTip} />}
-      {before && Array.from({ length: walkInsToday(s) }, (_, i) => <CustomerChar key={`m${i}`} s={s} kind="mystery" />)}
+      {before && s.queue.map((c) => walkIn(c, false))}
       {!before && s.forecast && s.phase !== 'over' && <CustomerChar key={s.forecast.id} s={s} c={s.forecast} kind="tomorrow" onTip={onTip} />}
+      {!before && s.phase !== 'over' && s.queue.map((c) => walkIn(c, true))}
     </div>
   );
 }

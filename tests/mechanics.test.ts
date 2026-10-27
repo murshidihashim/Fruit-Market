@@ -72,32 +72,32 @@ describe('turn order', () => {
   });
 });
 
-describe('upgrade draft', () => {
-  it('offers 3 unbuilt upgrades each evening and only those can be built', () => {
-    const s = runTo(newGame(ais(2, 7)), 1, 'evening');
+describe('specialities draft', () => {
+  it('offers every unbuilt speciality on the evening after a Market Day, and only then', () => {
+    const s = runTo(newGame(ais(2, 7)), 3, 'evening');
     for (const pl of s.players) {
-      expect(pl.upgradeOffer!.length).toBe(3);
-      for (const u of pl.upgradeOffer!) expect(pl.upgrades).not.toContain(u);
+      expect(pl.upgradeOffer!.length).toBe((Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u)).length);
     }
     const p = s.order[s.turn];
-    const off = (Object.keys(UPGRADES) as UpgradeId[]).find((u) => !s.players[p].upgradeOffer!.includes(u) && !s.players[p].upgrades.includes(u))!;
     const rich = structuredClone(s);
     rich.players[p].cash = 99;
-    expect(canUpgrade(rich, p, off)).toBe('Not on offer tonight');
     expect(canUpgrade(rich, p, rich.players[p].upgradeOffer![0])).toBeNull();
+    const day2 = structuredClone(rich);
+    day2.day = 2;
+    expect(canUpgrade(day2, p, rich.players[p].upgradeOffer![0])).toBe('Specialities are offered after Market Days');
   });
 
-  it('the Juice Press turns spoiling fruit into $2 each, up to 3 a night', () => {
-    let s = runTo(newGame(ais(2, 9)), 1, 'evening');
+  it('the Juice Bar turns spoiling fruit into $2 each, up to 3 a night', () => {
+    let s = runTo(newGame(ais(2, 9)), 3, 'evening');
     const p = s.order[s.turn];
     s = structuredClone(s);
-    s.players[p].upgrades.push('juicer');
+    s.players[p].upgrades.push('juicebar');
     s.players[p].stock.blueberry[0] = 5; // all of these spoil tonight
     const cash = s.players[p].cash;
     const spoiled = s.players[p].stats.spoiled;
     // Everyone closes up without building anything.
     while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
-    expect(s.day).toBe(2);
+    expect(s.day).toBe(4);
     expect(s.players[p].cash).toBe(cash + 6);
     expect(s.players[p].stats.spoiled - spoiled).toBe(2);
   });

@@ -1,6 +1,6 @@
 // Server features outside rooms: telemetry cleaning, the replay-checked daily leaderboard, quick match.
 import { describe, expect, it } from 'vitest';
-import { aiStep, planBids } from '../src/engine/ai';
+import { aiStep, planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { dailyConfig } from '../src/engine/daily';
 import { applyAction, beginBuying, canBuy, finishReveal, newGame, type Action, type GameState } from '../src/engine/game';
@@ -28,9 +28,11 @@ function playDaily(name = 'Tester'): { s: GameState; moves: Action[] } {
       const pick = FRUITS.flatMap((f) => s.market[f].map((_, pos) => ({ f, pos }))).find(({ f, pos }) => !canBuy(s, me, f, pos));
       if (pick && s.players[me].boughtToday < 2) act({ kind: 'buy', fruit: pick.f, pos: pick.pos });
       else act({ kind: 'endBuy' });
+    } else if (s.phase === 'stall') {
+      act({ kind: 'stall', stall: planStall(s, me) });
     } else if (s.phase === 'bid') {
-      const { bids } = planBids(s, me);
-      act({ kind: 'bids', bids, favoured: false });
+      const { posts } = planPrices(s, me);
+      act({ kind: 'prices', posts, favoured: false });
     } else if (s.phase === 'evening') act({ kind: 'endEvening' });
   }
   return { s, moves };
@@ -55,7 +57,7 @@ describe('daily leaderboard', () => {
     expect(() => verifyDaily(sub(moves.slice(0, 10)), NOW, OWNER)).toThrow();
     const bad = [...moves];
     const i = bad.findIndex((a) => a.kind === 'buy');
-    bad.splice(i, 0, { kind: 'upgrade', upgrade: 'cart' });
+    bad.splice(i, 0, { kind: 'upgrade', upgrade: 'barrow' });
     expect(() => verifyDaily(sub(bad), NOW, OWNER)).toThrow();
     expect(() => verifyDaily(sub(moves, { date: '2020-01-01' }), NOW, OWNER)).toThrow();
   });

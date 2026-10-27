@@ -90,12 +90,15 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await shot(A, '06-results-A');
   await shot(B, '06-results-B');
 
-  // Secrecy: every frame B received while prices were being set hides all prices.
+  // Secrecy: every frame hides crates and prices until all shops commit, and face-down walk-ins.
   const views = (P) => P.frames.map((f) => { try { return JSON.parse(f); } catch { return null; } }).filter((m) => m && m.t === 'room' && m.game);
   let leaks = 0, bidFrames = 0;
   for (const P of [A, B]) for (const v of views(P)) {
     if (v.game.rng !== 0 || v.game.customerDeck.length || v.game.eventDeck.length) leaks++;
     if (v.game.phase === 'bid') { bidFrames++; if (v.game.bids.some((b) => b !== null)) leaks++; }
+    if (v.game.phase === 'stall') { bidFrames++; if (v.game.stalls.some((x) => x !== null)) leaks++; }
+    // Face-down walk-ins: only the fruit shows unless this seat heard the gossip.
+    for (const c of v.game.queue ?? []) if (c.walkIn && !(c.seenBy ?? []).includes(v.you) && c.wants.some((w) => w.qty || w.max)) leaks++;
     if (JSON.stringify(v).includes('"pending"')) leaks++;
   }
   const lastA = views(A).at(-1), lastB = views(B).at(-1);

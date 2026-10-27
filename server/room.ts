@@ -3,7 +3,7 @@
 //
 // Rules:
 // - The server owns the only real GameState. Clients send intentions; the shared rules engine applies them.
-// - Secret prices are held in `pending` (never sent to anyone) until every human has submitted.
+// - For-sale crates and secret prices are held in `pending` (never sent to anyone) until every human has submitted.
 // - Each browser receives its own filtered view: no pending prices, no hidden favour cards,
 //   no deck order and no random seed (which would reveal future customers and events).
 // - Every action carries an id (duplicates are ignored) and the state version it was made on
@@ -15,8 +15,8 @@ import { aiActFor, aiStep } from '../src/engine/ai';
 import { safeName } from './names';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import {
-  activePlayer, applyAction, newGame, RuleError, submitBids, validateBids,
-  type Action, type Bid, type GameState, type PlayerConfig,
+  activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validatePrices, validateStall,
+  type Action, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
   DEFAULT_CONFIG, HUMAN_AVATARS, MAX_SEATS, RULES_VERSION, UPDATE_MSG,
@@ -45,7 +45,8 @@ export interface RoomData {
   config: RoomConfig;
   game: GameState | null;
   version: number;
-  pending: ({ bids: Bid[]; favoured: boolean } | null)[];
+  /** Hidden submissions for the current simultaneous step: a for-sale crate, or secret prices. */
+  pending: ({ stall: Stall } | { posts: Post[]; favoured: boolean } | null)[];
   votes: number[];
   rematch: number[];
   seen: string[][];
@@ -79,6 +80,9 @@ export function freshRoom(code: string, now: number, quick = false): RoomData {
   };
 }
 
+/** Stands in for a rival's favour card: only the number of cards is public. */
+const HIDDEN_FAVOUR: FavourId = 'priority';
+
 /** The game as one player is allowed to see it. */
 export function redact(g: GameState, seat: number): GameState {
   const v: GameState = JSON.parse(JSON.stringify(g));
@@ -88,10 +92,19 @@ export function redact(g: GameState, seat: number): GameState {
   v.eventDeck = [];
   v.favourDeck = [];
   v.players.forEach((pl, i) => {
-    if (i !== seat) pl.favours = pl.favours.map(() => 'freeCash' as FavourId);
+    if (i !== seat) pl.favours = pl.favours.map(() => HIDDEN_FAVOUR);
   });
-  if (v.results) v.results.favours = v.results.favours.map((f) => (f.player === seat ? f : { ...f, favour: 'freeCash' as FavourId }));
+  if (v.results) v.results.favours = v.results.favours.map((f) => (f.player === seat ? f : { ...f, favour: HIDDEN_FAVOUR }));
+  // Simultaneous steps: nobody's crate or prices show until every shop has committed.
+  if (v.phase === 'stall') v.stalls = v.stalls.map(() => null);
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
+  // Face-down walk-ins: only the fruit on the back, unless this player heard about them (Market Gossip).
+  v.queue = v.queue.map((c) => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
+    id: c.id, name: 'Walk-in', walkIn: true,
+    wants: c.wants.map((w) => ({ fruit: w.fruit, qty: 0, max: 0 })),
+    original: c.original.map((w) => ({ fruit: w.fruit, qty: 0, max: 0 })),
+    ...(c.seenBy ? { seenBy: c.seenBy } : {}),
+  }));
   return v;
 }
 
@@ -333,20 +346,27 @@ export class Room {
     if (!a || typeof a !== 'object') throw new RuleError('Bad action');
     if (a.kind === 'begin' || a.kind === 'finish') throw new RuleError('Use continue');
 
-    if (a.kind === 'bids') {
+    if (a.kind === 'stall') {
+      if (g.phase !== 'stall') throw new RuleError('Stalls are not being set out now');
+      if (d.pending[seat]) throw new RuleError('Your crate is already set out');
+      if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Bad crate');
+      const stall: Stall = {};
+      for (const [f, n] of Object.entries(a.stall).slice(0, 8)) stall[f as keyof Stall] = Number(n);
+      const err = validateStall(g, seat, stall);
+      if (err) throw new RuleError(err);
+      d.pending[seat] = { stall };
+      return this.accepted(conn, seat, m.id);
+    }
+    if (a.kind === 'prices') {
       if (g.phase !== 'bid') throw new RuleError('Prices are not being set now');
       if (d.pending[seat]) throw new RuleError('Your prices are already locked in');
-      if (!Array.isArray(a.bids) || a.bids.length > 32) throw new RuleError('Bad prices');
-      const bids: Bid[] = a.bids.map((b) => ({ customerId: Number(b.customerId), fruit: b.fruit, qty: Number(b.qty), price: Number(b.price) }));
+      if (!Array.isArray(a.posts) || a.posts.length > 8) throw new RuleError('Bad prices');
+      const posts: Post[] = a.posts.map((b) => ({ fruit: b.fruit, price: Number(b.price) }));
       const favoured = !!a.favoured && g.players[seat].favours.includes('favouredTrade') && !g.players[seat].favouredTrade;
-      const err = validateBids(g, seat, bids);
+      const err = validatePrices(g, seat, posts);
       if (err) throw new RuleError(err);
-      d.pending[seat] = { bids: bids.filter((b) => b.qty > 0), favoured };
-      this.remember(seat, m.id);
-      conn.send({ t: 'ack', id: m.id });
-      this.advance();
-      this.broadcast();
-      return;
+      d.pending[seat] = { posts, favoured };
+      return this.accepted(conn, seat, m.id);
     }
 
     if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
@@ -355,6 +375,14 @@ export class Room {
     this.remember(seat, m.id);
     conn.send({ t: 'ack', id: m.id });
     this.commit(next);
+  }
+
+  /** A hidden submission was stored: acknowledge it and resolve the step if everyone is in. */
+  private accepted(conn: Conn, seat: number, id: string) {
+    this.remember(seat, id);
+    conn.send({ t: 'ack', id });
+    this.advance();
+    this.broadcast();
   }
 
   /** Morning and after-sales screens move on once everyone still playing has pressed continue. */
@@ -405,14 +433,16 @@ export class Room {
         this.broadcast();
         continue;
       }
-      if (g.phase === 'bid') {
+      if (g.phase === 'stall' || g.phase === 'bid') {
+        const step = g.phase;
         const humans = g.players.map((pl, i) => (pl.kind === 'human' && !isBot(i) ? i : -1)).filter((i) => i >= 0);
         if (humans.some((i) => !d.pending[i])) return;
         let s = g;
-        for (let k = 0; k < 20 && s.phase === 'bid'; k++) {
+        for (let k = 0; k < 20 && s.phase === step; k++) {
           const p = activePlayer(s);
           const pb = d.pending[p];
-          if (s.players[p].kind === 'human' && pb) s = submitBids(s, p, pb.bids, pb.favoured);
+          if (s.players[p].kind === 'human' && pb && 'stall' in pb) s = openStall(s, p, pb.stall);
+          else if (s.players[p].kind === 'human' && pb && 'posts' in pb) s = submitPrices(s, p, pb.posts, pb.favoured);
           else s = (s.players[p].kind === 'ai' ? aiStep(s) : aiActFor(s, p))!;
         }
         d.game = s;
@@ -445,7 +475,7 @@ export class Room {
     }));
     const g = d.game;
     const submitted = g
-      ? g.players.map((pl, i) => (g.phase === 'bid' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))
+      ? g.players.map((pl, i) => (g.phase === 'stall' || g.phase === 'bid' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,

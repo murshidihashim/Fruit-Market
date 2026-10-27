@@ -66,7 +66,7 @@ export async function moves(prev: GameState, next: GameState) {
   await Promise.all(jobs);
 }
 
-export async function flights(g: GameState, l: LineResult) {
+export async function flights(_g: GameState, l: LineResult) {
   const jobs: Promise<void>[] = [];
   for (const o of l.offers) {
     if (!o.sold) continue;
@@ -76,8 +76,7 @@ export async function flights(g: GameState, l: LineResult) {
     for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
     jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
       fx.coin();
-      const tip = g.players[o.player].upgrades.includes('signboard') ? o.sold : 0;
-      A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + tip + (o.juice ?? 0)}`);
+      A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + (o.juice ?? 0)}`);
     }));
   }
   await Promise.all(jobs);
@@ -92,6 +91,11 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     t.remove();
     return;
   }
+  // The bell: a short pause while every price board flips, before the rush starts.
+  const bell = A.tag('street', '🔔 The bell! Prices are out', 'big');
+  fx.card();
+  await A.wait(900);
+  bell.remove();
   // Routine sales (one rival, no contest, not you) settle together; showdowns get the stage.
   const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
   const routine = lines.filter((l) => !shows.includes(l));
@@ -148,7 +152,7 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   for (const f of FRUITS) {
     spoil([`cart-${f}`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
     g.players.forEach((pl, p) => {
-      const room = pl.upgrades.includes('coolroom');
+      const room = pl.upgrades.includes('coldroom');
       const steps = (room && g.day % 2 === 1 ? 0 : 1) + (room ? 0 : heat);
       const n = steps === 0 ? 0 : pl.stock[f][0] + (steps > 1 ? pl.stock[f][1] : 0);
       spoil([`p${p}-${f}`], f, n);

@@ -3,7 +3,7 @@ import { Coin, EventIcon, Face } from '../../art';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 
-const PHASE = { morning: 'Morning', buy: 'Buying', bid: 'Pricing', reveal: 'Sales', evening: 'Evening', over: 'Closed' } as const;
+const PHASE = { morning: 'Morning', buy: 'Buying', stall: 'Open stalls', bid: 'The bell', reveal: 'Sales', evening: 'Evening', over: 'Closed' } as const;
 
 export function TopBar({ s, viewer, onMenu, onEvent, onRival, offline = [] }: { s: GameState; viewer: number; onMenu: () => void; onEvent?: () => void; onRival?: (p: number) => void; offline?: number[] }) {
   const rem = s.config.days - s.day + 1;

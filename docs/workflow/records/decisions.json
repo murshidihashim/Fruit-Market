@@ -897,6 +897,14 @@
     {
       "at": "2026-10-27 14:36",
       "text": "Owner shared a benchmark review of REP-031 and asked for tweaks plus a favour card that reveals the face-down demand. REP-032: five-beat day (open stalls, bell, rush), prototypes A/B/C, Market Gossip replacing Free Cash. Lab sweep 19: cash catch-up has no exploit (upgrader 33%); uniform freshness improves balance (26-38%); core without traits/favours/upgrades lets ripening dominate (60%). PLAN-015 proposed; PLAN-014 build held until the owner decides."
+    },
+    {
+      "at": "2026-10-27 14:51",
+      "text": "Owner: \"approve plan 15\". PLAN-015 approved and started on workflow/plan-015; it is built together with the approved PLAN-014 items as rules version 4."
+    },
+    {
+      "at": "2026-10-27 15:37",
+      "text": "PLAN-015 with the PLAN-014 items built as rules version 4 (REP-033): open stalls, the bell, Market Days and Last Call, four specialities, Market Gossip with server-side privacy, day ledger, playtest set-up options, rules text. verify and verify:full PASS (leak check 0). Balance: Hard beats Normal 56%, comebacks 31%, traits 30-38%; Cold Room and Juice Bar weak for computers; little undercutting among computers. Playtest NOT RUN. Merged to main for the preview; live game unchanged."
     }
   ]
 }

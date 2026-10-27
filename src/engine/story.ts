@@ -1,8 +1,8 @@
 // Presentation-only storytelling: turns the rules engine's results into short explanations,
 // reactions and highlights. Nothing here changes game state or re-implements pricing; every
 // sentence is derived from the recorded offers (price, units, sold, freshness) and the rules
-// the engine used to sort them (cheapest first, then a Haggler facing a richer shop, then fresher fruit,
-// then Favoured Trade, then turn order).
+// the engine used to sort them (cheapest first; ties: Favoured Trade, then a Haggler, then fresher fruit,
+// then the poorer shop, then turn order).
 
 import { FRUIT, FRUITS, RIVALS, lookOf, type FruitId } from './data';
 import { minPrice, ranking, type GameState, type LineResult, type Offer } from './game';
@@ -32,18 +32,24 @@ function hash(...xs: number[]): number {
 
 /** Why the winner beat this offer on a tie, following the engine's tie-break order. */
 function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): string {
-  if (haggled(s, winner, loser)) return `${nameOf(s, winner.player, viewer)} haggled (a Haggler wins ties against richer shops)`;
+  const w = s.players[winner.player];
+  const l = s.players[loser.player];
+  if (w.favouredTrade && !l.favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
+  if (haggled(s, winner, loser)) return `${nameOf(s, winner.player, viewer)} haggled (a Haggler wins ties)`;
   if (winner.freshness > loser.freshness) return `${possessive(s, winner.player, viewer)} fruit was fresher`;
-  if (s.players[winner.player].favouredTrade && !s.players[loser.player].favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
+  if (w.cash < l.cash) return `${nameOf(s, winner.player, viewer)} ${winner.player === viewer ? 'are' : 'is'} the poorer shop`;
   return `${nameOf(s, winner.player, viewer)} went earlier in turn order`;
 }
 
-/** The engine's first tie-break: a Haggler beats a richer shop (cash as it stands now). */
+/** A Haggler wins ties (after Favoured Trade). */
 function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
-  return s.players[winner.player].trait === 'haggler' && s.players[loser.player].cash > s.players[winner.player].cash;
+  const w = s.players[winner.player];
+  const l = s.players[loser.player];
+  return w.trait === 'haggler' && l.trait !== 'haggler' && !l.favouredTrade;
 }
 
 function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string {
+  if (o.tooOld) return `too old for $${o.price}`;
   if (o.sold >= o.qty) return o.qty > 1 ? `SOLD ×${o.sold}` : 'SOLD';
   if (o.sold > 0) return `sold ${o.sold} of ${o.qty}`;
   const cheaper = l.offers.filter((w) => w.sold > 0 && w.price < o.price);
@@ -112,6 +118,13 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
   }
 
   // The viewer sold nothing.
+  if (mine.tooOld) {
+    return {
+      showdown, tone: 'bad', tags,
+      headline: `Your ${FRUIT[l.fruit].plural.toLowerCase()} were too old for ${cust} at $${mine.price}.`,
+      detail: `${cust} pays up to $${l.max} for fresh, $1 less for okay and $2 less for not-so fruit.`,
+    };
+  }
   const cheaper = winners.filter((o) => o.price < mine.price);
   if (cheaper.length) {
     const best = cheaper.reduce((a, o) => (o.price > a.price ? o : a));
