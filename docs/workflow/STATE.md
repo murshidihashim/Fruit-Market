@@ -18,6 +18,7 @@ Updated 2026-10-27 16:56 (Asia/Kuala_Lumpur) by Claude.
 - **Direction (REP-038, 2026-10-27):** rules version 4 is **frozen** until the first human playtest (DEC-026). One game, two editions: tabletop and digital with identical mechanics, tabletop rules are the master, digital adds single-player (DEC-027). DEC-001, 004, 005 and 014 approved. PLAN-019 (first human playtest, no game code) **approved** 2026-10-27 19:59 and in progress (REP-039). Scope amended 20:06 (REP-041): testers play the preview from a browser link on their own devices; no table round, no paper kit; hand-played ageing is not tested by this plan.
 - **PLAN-019 criteria locked** 2026-10-27 20:09 (REP-042, T1 PASS). Reading for 3 or 5 testers confirmed (REP-043).
 - **Test design changed 21:18 (REP-044):** testers play one Quick game against three computer shops and answer seven simpler questions (Tally form). Locked criteria unchanged.
+- **Informal feedback logged 22:18 (REP-045):** one 4-player game: supply short from mid-game, same icon for everyone, 10 rounds about 30 minutes, no undo before confirming a buy, game name not editable and defaults to "You". Not a PLAN-019 session. Supply and length frozen; three UI items on the backlog until after the playtest.
 - **Then:** owner sends the preview link and the form link to 3 to 5 unfamiliar players; then run 3 to 5 digital sessions and one paper round; PREPARE RELEASE 1.2.0 only when asked; plan PLAN-003 (Package C).
 
 ## Builds

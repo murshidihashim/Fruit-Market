@@ -1010,6 +1010,10 @@
     {
       "at": "2026-10-27 21:18",
       "text": "Owner: \"i feel like the questions need to be simpler to answer, and any particular reason we are asking for 1v1? make it 1v3 if possible\". Before any tester played: PLAN-019 testers now play one Quick game against three computer shops (four shops in all) instead of one, and the tester questions are replaced by seven simpler ones (four tap-to-answer, three short optional). Locked criteria (REP-042, REP-043) unchanged. DEC-016 said one computer shop; superseded for this test only. No game change (REP-044)."
+    },
+    {
+      "at": "2026-10-27 22:18",
+      "text": "Owner passed on informal feedback from one 4-player game (10 rounds, about 30 minutes; setup and tester unknown): supply cannot keep up with demand from mid-game; every player has the same icon; 10 rounds feels long; no undo after tapping a fruit before confirming a buy; cannot edit the game name in the room and the name defaults to \"You\". Logged in REP-045 as informal feedback, not counted as a PLAN-019 session. Supply and length are rules or balance and stay frozen (DEC-026); the other three are UI backlog items for after the playtest. No game change, no decision."
     }
   ]
 }
