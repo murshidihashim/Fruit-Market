@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-10-27 16:42 (Asia/Kuala_Lumpur) by Claude.
+Updated 2026-10-27 16:56 (Asia/Kuala_Lumpur) by Claude.
 
 ## Where we are
 - **Stage:** between MVP / private alpha and browser beta. Complete game; no unfamiliar-player playtests yet.
@@ -14,6 +14,7 @@ Updated 2026-10-27 16:42 (Asia/Kuala_Lumpur) by Claude.
 - **Balance:** PLAN-012 approved and verified (REP-027 proposal, REP-028 build): rules version 3, tomorrow's lorry, retuned traits, Juice Press and league, cosy home screen. On `main` for the preview; **live game unchanged**. Open: owner playtest (T5 NOT RUN); skill gap 60% vs 65% aim (green mango $3 is the main cause); Long games still favour patient plans.
 - **UI:** PLAN-013 verified (REP-029): full-screen pricing and event sheets, clearer rival status. On `main` for the preview.
 - **Tabletop rules (rules version 4):** PLAN-014 and PLAN-015 approved and **built** (REP-033): open stalls, the bell, Market Days, Last Call, four specialities, Market Gossip, day ledger, playtest options. verify and verify:full PASS (leak check 0). On `main` for the preview; **live game unchanged** (still rules version 3). Open: owner playtest (NOT RUN); Cold Room and Juice Bar weak for computers (price cut in PLAN-016 and smarter computers in PLAN-017 did not help: skipping them costs nothing); farmer cards +1 per listed fruit (PLAN-017) made Big Basket too strong (45%); little undercutting among computers; 2-player blowouts 34%.
+- **Readiness review (REP-036):** digital 5.5/10, tabletop 3/10; recommended path: freeze rules, playtests (digital and paper with date-stamped crates), balance, art and launch prep.
 - **Then:** owner playtest of the preview (REP-032 section 8 order); PREPARE RELEASE 1.2.0 when asked; plan PLAN-003 (Package C).
 
 ## Builds
