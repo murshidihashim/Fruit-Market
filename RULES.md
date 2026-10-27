@@ -116,8 +116,8 @@ Drafted on the evening after each Market Day. Each can be built once, and each c
 
 | Speciality | Cost | Effect |
 |---|---|---|
-| ❄️ Cold Room | $5 | Your fruit ages only every other night, and heatwaves can't touch it. |
-| 🧃 Juice Bar | $4 | +$1 for each okay or not-so fruit you sell. Each night up to 3 fruits that would spoil become juice: $2 each. |
+| ❄️ Cold Room | $4 | Your fruit ages only every other night, and heatwaves can't touch it. |
+| 🧃 Juice Bar | $3 | +$1 for each okay or not-so fruit you sell. Each night up to 3 fruits that would spoil become juice: $2 each. |
 | 🛒 Barrow | $6 | Buy up to 5 fruits a day and hold 12. |
 | 🪧 Premium Display | $8 | Your fresh fruit may be priced $1 above a customer's normal limit. |
 

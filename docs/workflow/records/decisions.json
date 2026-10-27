@@ -905,6 +905,10 @@
     {
       "at": "2026-10-27 15:37",
       "text": "PLAN-015 with the PLAN-014 items built as rules version 4 (REP-033): open stalls, the bell, Market Days and Last Call, four specialities, Market Gossip with server-side privacy, day ledger, playtest set-up options, rules text. verify and verify:full PASS (leak check 0). Balance: Hard beats Normal 56%, comebacks 31%, traits 30-38%; Cold Room and Juice Bar weak for computers; little undercutting among computers. Playtest NOT RUN. Merged to main for the preview; live game unchanged."
+    },
+    {
+      "at": "2026-10-27 16:20",
+      "text": "Owner: \"approve the speciality price cut\". PLAN-016 approved and built (REP-034): Cold Room $4, Juice Bar $3. Same-seed comparison: no measurable gain for computer players (rush Cold Room 12%, Juice Bar 16%); no figure worse beyond the margin. Cause: tight supply means little old fruit or holding value for computers. RULES_VERSION stays 4 (version 4 never published live). Merged to main for the preview."
     }
   ]
 }

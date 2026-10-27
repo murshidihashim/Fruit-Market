@@ -216,8 +216,8 @@ export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: 
  * after each Market Day (days 3, 6, 9, 12), whether or not Market Days are switched on.
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
-  coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 5, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
-  juicebar: { id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 4, text: 'Each okay or not-so fruit you sell earns $1 extra. Each night up to 3 fruits that would spoil become juice: $2 each.' },
+  coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 4, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
+  juicebar: { id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3, text: 'Each okay or not-so fruit you sell earns $1 extra. Each night up to 3 fruits that would spoil become juice: $2 each.' },
   barrow: { id: 'barrow', title: 'Barrow', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day and hold 12.' },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 8, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
 };
