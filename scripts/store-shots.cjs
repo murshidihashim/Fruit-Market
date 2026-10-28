@@ -20,7 +20,8 @@ const path = require('path');
   });
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(400);
-  const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
+  // animations: 'disabled' finishes running CSS animations first, so no coin or +$ label is caught mid-flight.
+  const shot = (name) => p.screenshot({ path: `${out}/${name}.png`, animations: 'disabled' });
   await shot('1-home');
   await p.click('text=New game');
   await p.locator('.seg').nth(0).locator('button', { hasText: '2' }).click();
