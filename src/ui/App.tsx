@@ -20,6 +20,7 @@ import {
   consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
 } from './store';
+import { C } from './palette';
 
 type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies';
 
@@ -33,7 +34,7 @@ function roomFromUrl(): string | undefined {
 }
 
 // The shopkeeper drawing used in the daily challenge and the league (the person there still picks a perk).
-const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵'];
+const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵']; // emoji-ok: avatar keys, never shown
 
 interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
 
@@ -181,16 +182,16 @@ export function App() {
 function HarbourScene() {
   return (
     <svg class="hm-scene" viewBox="-445 0 1280 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <rect x="-445" width="1280" height="300" fill="#f3d9a4" />
-      <circle cx="300" cy="78" r="34" fill="#f7b955" />
-      <path d="M-480 170 Q-420 150 -360 168 T-240 164 T-120 166 T0 170 Q60 150 120 168 T240 164 T360 162 T480 166 T600 164 T720 166 T840 164 V300 H-480 Z" fill="#7fb6b0" />
-      <path d="M-480 196 Q-410 180 -340 196 T-200 192 T-60 194 T0 196 Q70 180 140 196 T280 192 T420 194 T560 192 T700 194 T840 192 V300 H-480 Z" fill="#2f7f7a" />
-      <g class="hm-bob"><path d="M54 186 H112 L102 202 H64 Z" fill="#c65a3a" /><rect x="80" y="150" width="3" height="36" fill="#6b4a2b" /><path d="M83 152 L106 180 H83 Z" fill="#fffaf0" /></g>
-      <g class="hm-bob hm-bob2"><path d="M272 194 H316 L309 206 H279 Z" fill="#e7a73a" /><rect x="292" y="166" width="3" height="28" fill="#6b4a2b" /><path d="M295 168 L312 188 H295 Z" fill="#fffaf0" /></g>
-      <g class="hm-bob hm-bob2"><path d="M-250 190 H-200 L-208 204 H-242 Z" fill="#e7a73a" /><rect x="-227" y="160" width="3" height="30" fill="#6b4a2b" /><path d="M-224 162 L-205 184 H-224 Z" fill="#fffaf0" /></g>
-      <g class="hm-bob"><path d="M600 192 H650 L642 206 H608 Z" fill="#c65a3a" /><rect x="623" y="162" width="3" height="30" fill="#6b4a2b" /><path d="M626 164 L645 186 H626 Z" fill="#fffaf0" /></g>
-      <rect x="-445" y="232" width="1280" height="68" fill="#b9824e" />
-      <rect x="-445" y="232" width="1280" height="6" fill="#8e5b33" />
+      <rect x="-445" width="1280" height="300" fill={C.c_f3d9a4} />
+      <circle cx="300" cy="78" r="34" fill={C.c_f7b955} />
+      <path d="M-480 170 Q-420 150 -360 168 T-240 164 T-120 166 T0 170 Q60 150 120 168 T240 164 T360 162 T480 166 T600 164 T720 166 T840 164 V300 H-480 Z" fill={C.c_7fb6b0} />
+      <path d="M-480 196 Q-410 180 -340 196 T-200 192 T-60 194 T0 196 Q70 180 140 196 T280 192 T420 194 T560 192 T700 194 T840 192 V300 H-480 Z" fill={C.c_2f7f7a} />
+      <g class="hm-bob"><path d="M54 186 H112 L102 202 H64 Z" fill={C.c_c65a3a} /><rect x="80" y="150" width="3" height="36" fill={C.c_6b4a2b} /><path d="M83 152 L106 180 H83 Z" fill={C.c_fffaf0} /></g>
+      <g class="hm-bob hm-bob2"><path d="M272 194 H316 L309 206 H279 Z" fill={C.c_e7a73a} /><rect x="292" y="166" width="3" height="28" fill={C.c_6b4a2b} /><path d="M295 168 L312 188 H295 Z" fill={C.c_fffaf0} /></g>
+      <g class="hm-bob hm-bob2"><path d="M-250 190 H-200 L-208 204 H-242 Z" fill={C.c_e7a73a} /><rect x="-227" y="160" width="3" height="30" fill={C.c_6b4a2b} /><path d="M-224 162 L-205 184 H-224 Z" fill={C.c_fffaf0} /></g>
+      <g class="hm-bob"><path d="M600 192 H650 L642 206 H608 Z" fill={C.c_c65a3a} /><rect x="623" y="162" width="3" height="30" fill={C.c_6b4a2b} /><path d="M626 164 L645 186 H626 Z" fill={C.c_fffaf0} /></g>
+      <rect x="-445" y="232" width="1280" height="68" fill={C.c_b9824e} />
+      <rect x="-445" y="232" width="1280" height="6" fill={C.c_8e5b33} />
     </svg>
   );
 }
@@ -198,15 +199,15 @@ function HarbourScene() {
 function Bunting() {
   let d = 'M0 0 H320 V12';
   for (let x = 320; x > 0; x -= 16) d += ` Q${x - 8} 30 ${x - 16} 12`;
-  return <svg class="hm-bunting" viewBox="0 0 320 30" aria-hidden="true"><path d={`${d} Z`} fill="#c65a3a" /></svg>;
+  return <svg class="hm-bunting" viewBox="0 0 320 30" aria-hidden="true"><path d={`${d} Z`} fill={C.c_c65a3a} /></svg>;
 }
 
 function DailyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="5" fill="#e7a73a" /><rect x="4" y="6" width="24" height="7" rx="3" fill="#c65a3a" /><circle cx="16" cy="20" r="4" fill="#fffaf0" /></svg>;
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="5" fill={C.c_e7a73a} /><rect x="4" y="6" width="24" height="7" rx="3" fill={C.c_c65a3a} /><circle cx="16" cy="20" r="4" fill={C.c_fffaf0} /></svg>;
 }
 
 function TrophyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill="#f2c14e" /><rect x="13" y="21" width="6" height="5" fill="#c98f1c" /><rect x="9" y="26" width="14" height="3" rx="1.5" fill="#8e5b33" /></svg>;
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill={C.gold} /><rect x="13" y="21" width="6" height="5" fill={C.c_c98f1c} /><rect x="9" y="26" width="14" height="3" rx="1.5" fill={C.c_8e5b33} /></svg>;
 }
 
 function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfig) => void }) {
@@ -282,8 +283,8 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
           {seats.slice(0, rivals).map((st, i) => (
             <div class="seat">
               <div class="seg small">
-                <button class={st.kind === 'ai' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'ai' })}>🤖 Computer</button>
-                <button class={st.kind === 'human' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'human' })}>🙋 Friend</button>
+                <button class={st.kind === 'ai' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'ai' })}>Computer</button>
+                <button class={st.kind === 'human' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'human' })}>Friend</button>
               </div>
               {st.kind === 'ai' ? (
                 <div class="seg small">

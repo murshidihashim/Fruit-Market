@@ -27,7 +27,7 @@ export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
         {other - jam !== 0 && <span>Other <b class={other - jam > 0 ? 'good' : 'bad'}>{other - jam > 0 ? '+' : '−'}${Math.abs(other - jam)}</b></span>}
         {net !== null && <span class="net">Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
       </div>
-      {spoil > 0 && <div class="sc-waste">🗑️ {spoil} fruit on its last day spoils tonight</div>}
+      {spoil > 0 && <div class="sc-waste">{spoil} fruit on its last day spoils tonight</div>}
       {highlights.length > 0 && (
         <div class="sc-high">
           {highlights.map((h) => <div class={`hl ${h.tone}`}><span>{h.icon}</span>{h.text}</div>)}

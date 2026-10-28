@@ -3,6 +3,7 @@
 import { RIVALS } from '../engine/data';
 import { ranking, type GameConfig, type GameState, type Level } from '../engine/game';
 import { dailyStreak, loadDaily } from './store';
+import { C } from './palette';
 
 // ---------- achievements ----------
 
@@ -117,14 +118,14 @@ export function recordLeague(g: GameState, me: number): boolean {
 export interface Colour { id: string; name: string; hex: string; needs?: string }
 
 export const COLOURS: Colour[] = [
-  { id: 'terra', name: 'Terracotta', hex: '#c8553d' },
-  { id: 'teal', name: 'Harbour', hex: '#3e8f8c' },
-  { id: 'olive', name: 'Olive', hex: '#7d8c3a', needs: 'first_win' },
-  { id: 'gold', name: 'Saffron', hex: '#d99a2b', needs: 'big_day' },
-  { id: 'plum', name: 'Fig', hex: '#7b4a8c', needs: 'mango_mogul' },
-  { id: 'night', name: 'Midnight', hex: '#3d4f86', needs: 'beat_hard' },
-  { id: 'rose', name: 'Rose', hex: '#c9607a', needs: 'streak3' },
-  { id: 'royal', name: 'Royal', hex: '#5b3fa8', needs: 'league' },
+  { id: 'terra', name: 'Terracotta', hex: C.terracotta },
+  { id: 'teal', name: 'Harbour', hex: C.teal },
+  { id: 'olive', name: 'Olive', hex: C.c_7d8c3a, needs: 'first_win' },
+  { id: 'gold', name: 'Saffron', hex: C.c_d99a2b, needs: 'big_day' },
+  { id: 'plum', name: 'Fig', hex: C.c_7b4a8c, needs: 'mango_mogul' },
+  { id: 'night', name: 'Midnight', hex: C.c_3d4f86, needs: 'beat_hard' },
+  { id: 'rose', name: 'Rose', hex: C.c_c9607a, needs: 'streak3' },
+  { id: 'royal', name: 'Royal', hex: C.c_5b3fa8, needs: 'league' },
 ];
 
 export const colourUnlocked = (c: Colour) => !c.needs || unlocked().includes(c.needs);

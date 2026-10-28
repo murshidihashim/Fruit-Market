@@ -48,7 +48,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
 
   {pulseInfo && (
     <div class="tip-pop" onClick={() => setPulseInfo(false)}>
-      <b>📊 Demand vs supply</b>
+      <b>Demand vs supply</b>
       <span><b>want</b> = fruit today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ = walk-ins not here yet)' : ''}.</span>
       <span><b>in shops</b> = ripe fruit all shops (you included) could sell.</span>
       <span class="pz-legend"><i class="good" /> enough buyers: prices stay high · <i class="war" /> more fruit than buyers: price war · <i class="open" /> nobody has any yet</span>
@@ -57,7 +57,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
   )}
   {tip && (
     <div class="tip-pop" onClick={() => setTip(null)}>
-      <b class="tip-head"><Face who={tip.name} size={32} /> {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' ⭐ special order' : ''}</b>
+      <b class="tip-head"><Face who={tip.name} size={32} /> {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' (special order)' : ''}</b>
       <i class="quirk">“{lookOf(tip.name).quirk}”</i>
       {tip.wants.map((w) => (
         <div class="tip-line">

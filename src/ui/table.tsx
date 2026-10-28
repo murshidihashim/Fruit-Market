@@ -12,9 +12,10 @@ import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import lorryUrl from './img/lorry.png';
+import { C } from './palette';
 
 /** Each player's awning colour. */
-export const SEAT_COLOURS = ['#c8553d', '#3e8f8c', '#7d8c3a', '#3d4f86'];
+export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
 const seat = (p: number) => ({ '--awn': SEAT_COLOURS[p % SEAT_COLOURS.length] } as any);
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
@@ -162,7 +163,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
       {(pl.upgrades.length > 0 || pl.favours.length > 0) && (
         <div class="rd-extra">
           {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={14} />{UPGRADES[u].title}</span>)}
-          {pl.favours.length > 0 && <span class="chip">🃏 {pl.favours.length} favour card{pl.favours.length > 1 ? 's' : ''}</span>}
+          {pl.favours.length > 0 && <span class="chip">{pl.favours.length} favour card{pl.favours.length > 1 ? 's' : ''}</span>}
         </div>
       )}
     </div>
@@ -284,7 +285,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard }: { s: GameState
           </span>
         ))}
       </div>
-      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark">♥</i>}{kind === 'waiting' && <i class="clock">⏳</i>}{special && <i class="star">⭐</i>}{heard && <i class="ear" title="You heard about this walk-in (Market Gossip)">👂</i>}</div>
+      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}{kind === 'waiting' && <i class="clock"><Icon name="hourglass" size={14} /></i>}{special && <i class="star"><Icon name="star" size={14} /></i>}{heard && <i class="ear" title="You heard about this walk-in (Market Gossip)"><Icon name="ear" size={14} /></i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
     </div>
   );

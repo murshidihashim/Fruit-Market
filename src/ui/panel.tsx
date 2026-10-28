@@ -148,7 +148,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
       })}
       {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
         <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={() => setFavoured(!favoured)}>
-          <span class="fv-icon">🤝</span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
+          <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
         </button>
       )}
       <div class="pp-lock">

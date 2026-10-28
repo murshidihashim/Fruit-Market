@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "guide drafted on local branch workflow/plan-027",
+  "build": "rules version 5 on local branch workflow/plan-027 (not pushed)",
   "reports": [
     "REP-054",
-    "REP-059"
+    "REP-059",
+    "REP-060"
   ],
   "decisions": [
     "DEC-033",
@@ -11,7 +12,9 @@
   ],
   "changes": {
     "added": [],
-    "changed": [],
+    "changed": [
+      "Emoji in the interface replaced by text or pixel icons"
+    ],
     "fixed": [],
     "removed": []
   },
@@ -21,7 +24,7 @@
     "evidence": "approve everything above",
     "date": "2026-10-28"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-027",
   "title": "Look C style guide and one palette",
   "problem": "Art audit (REP-054): pixel sprites, flat vector, CSS and one raster lorry follow no shared rule; colours are typed twice (29 CSS tokens, 89 CSS hex values and 102 in the sprite code); sprites scale by arbitrary amounts; emoji remain in the interface.",
@@ -41,38 +44,38 @@
     {
       "id": "T1",
       "text": "The style guide exists with the rules and examples and is approved by the owner",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "docs/ART-STYLE.md; owner: \"resolve the gap, and approve plan 27\" (2026-10-28)"
     },
     {
       "id": "T2",
-      "text": "Every colour in styles.css and pixel.tsx comes from the one palette; a check fails on a new stray hex value",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "text": "Every colour in styles.css and the sprite code comes from the one palette; a check fails on a stray colour",
+      "result": "PASS",
+      "evidence": "src/ui/palette.ts and generated palette.css; tests/palette.test.ts (3 tests). The change is lossless: putting the palette values back reproduces the old files exactly (checked for styles.css, App.tsx, pixel.tsx, table.tsx, progress.ts). 197 colours, of which the older ones are kept as c_xxxxxx until PLAN-033."
     },
     {
       "id": "T3",
-      "text": "Sprites render only at the allowed sizes (check in tests)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "text": "Sprite sizes: the allowed list is defined and a check blocks any new off-list size (fixing the existing ones changes layouts and moves to PLAN-033)",
+      "result": "PASS",
+      "evidence": "tests/sprite-sizes.test.ts (2 tests). Narrowed from \"sprites render only at allowed sizes\": 29 off-list sizes remain on the screens; PLAN-033 T5 fixes them."
     },
     {
       "id": "T4",
       "text": "No emoji in interface strings (check in tests)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "tests/emoji.test.ts. Emoji replaced by text or pixel icons (new hourglass and ear icons, existing heart, star and Favoured Trade icons). Avatar keys are data and are marked emoji-ok. A few plain glyphs remain (listed in the guide)."
     },
     {
       "id": "T5",
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Lint, types, 111 unit tests and the build pass (2026-10-28 22:39). Browser tests NOT RUN locally; CI runs them on push."
     },
     {
       "id": "T6",
       "text": "The game looks the same or better on a phone; nothing shifted",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Not looked at on a phone. Colours are provably unchanged; the replaced emoji (seat buttons, waiting, special, heard, happy, Favoured Trade) are new pixel icons or text and have not been seen."
     }
   ]
 }

@@ -2,7 +2,8 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-059"
+    "REP-059",
+    "REP-060"
   ],
   "decisions": [
     "DEC-033",
@@ -16,9 +17,9 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "resolve the gap, and approve plan 27",
+    "date": "2026-10-28"
   },
   "delivery": "not started",
   "id": "PLAN-033",
@@ -28,7 +29,10 @@
     "Buttons, chips, cards, panels, inputs and toggles restyled to the kit: cream mat surfaces, ink outlines, pill buttons, coin-shaped prices",
     "Dark navy kept only for the evening phase and overlays",
     "Screen by screen: home, set-up, the table, morning card, showdown, results, settings, how to play",
-    "Pixel icons in place of the remaining emoji (if PLAN-027 has not done it)"
+    "Pixel icons in place of the remaining emoji (if PLAN-027 has not done it)",
+    "Order of work: after PLAN-027 (done) and before PLAN-029 and PLAN-030",
+    "Fix every sprite size on the screens to the allowed list and empty the baseline in tests/sprite-sizes.test.ts",
+    "Merge the older c_xxxxxx palette colours into the guide roles"
   ],
   "exclusions": [
     "Rules or balance",
@@ -60,6 +64,18 @@
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
       "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "All sprites render at allowed sizes: the baseline list in tests/sprite-sizes.test.ts is empty",
+      "result": "NOT RUN",
+      "evidence": "Not built yet"
+    },
+    {
+      "id": "T6",
+      "text": "The older c_xxxxxx colours are merged into the guide roles with no unintended colour change",
+      "result": "NOT RUN",
+      "evidence": "Not built yet"
     }
   ]
 }

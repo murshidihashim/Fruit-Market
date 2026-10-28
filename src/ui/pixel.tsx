@@ -2,10 +2,11 @@
 // cast reads as one set. Each sprite is turned into a small SVG image once and cached, so the page
 // shows one <img> per sprite instead of hundreds of DOM rectangles (much lighter on phones).
 import type { FruitId, Stage } from '../engine/data';
+import { C } from './palette';
 
 type Pal = Record<string, string>;
 
-const INK = '#2b2438';
+const INK = C.ink;
 
 // ---------- renderer ----------
 
@@ -138,17 +139,17 @@ const FRUIT_MAPS: Record<FruitId, string[]> = {
 };
 
 const FRUIT_PAL: Record<FruitId, Pal> = {
-  apple: { R: '#d6453b', D: '#9c2b32', H: '#f2a08c', S: '#6b4226', L: '#6aa84f' },
-  blueberry: { R: '#5562c9', D: '#353d8f', H: '#a9b3f2', K: '#232a63' },
-  watermelon: { R: '#e8505b', H: '#f59aa0', K: '#2b2438', L: '#d6efb4', G: '#3f8f4a' },
-  mango: { R: '#f0b33a', D: '#e0742c', H: '#fbe09a', S: '#6b4226', L: '#6aa84f' },
+  apple: { R: C.c_d6453b, D: C.c_9c2b32, H: C.c_f2a08c, S: C.c_6b4226, L: C.c_6aa84f },
+  blueberry: { R: C.c_5562c9, D: C.c_353d8f, H: C.c_a9b3f2, K: C.c_232a63 },
+  watermelon: { R: C.c_e8505b, H: C.c_f59aa0, K: C.ink, L: C.c_d6efb4, G: C.c_3f8f4a },
+  mango: { R: C.c_f0b33a, D: C.c_e0742c, H: C.c_fbe09a, S: C.c_6b4226, L: C.c_6aa84f },
 };
 
 const UNRIPE_PAL: Record<FruitId, Pal> = {
-  apple: { R: '#8fbf5a', D: '#5f8f3a', H: '#cfe6a3', S: '#6b4226', L: '#4f8a3b' },
-  blueberry: { R: '#9aa7c9', D: '#6f7aa0', H: '#d3d9ec', K: '#4a5275' },
-  watermelon: { R: '#f2c2b8', H: '#fbe3dc', K: '#c9b8a0', L: '#e6f2cf', G: '#6aa84f' },
-  mango: { R: '#9cc45a', D: '#6f9a3c', H: '#d5e8a6', S: '#6b4226', L: '#4f8a3b' },
+  apple: { R: C.c_8fbf5a, D: C.c_5f8f3a, H: C.c_cfe6a3, S: C.c_6b4226, L: C.c_4f8a3b },
+  blueberry: { R: C.c_9aa7c9, D: C.c_6f7aa0, H: C.c_d3d9ec, K: C.c_4a5275 },
+  watermelon: { R: C.c_f2c2b8, H: C.c_fbe3dc, K: C.c_c9b8a0, L: C.c_e6f2cf, G: C.c_6aa84f },
+  mango: { R: C.c_9cc45a, D: C.c_6f9a3c, H: C.c_d5e8a6, S: C.c_6b4226, L: C.c_4f8a3b },
 };
 
 function stagePal(f: FruitId, stage: Stage): Pal {
@@ -157,8 +158,8 @@ function stagePal(f: FruitId, stage: Stage): Pal {
   if (stage === 'fresh') return base;
   const t = stage === 'okay' ? 0.22 : 0.48;
   const out: Pal = {};
-  for (const [k, v] of Object.entries(base)) out[k] = k === 'K' ? v : mix(v, '#8a6a3a', t);
-  if (stage === 'notso') out.X = '#5b4022';
+  for (const [k, v] of Object.entries(base)) out[k] = k === 'K' ? v : mix(v, C.c_8a6a3a, t);
+  if (stage === 'notso') out.X = C.c_5b4022;
   return out;
 }
 
@@ -179,151 +180,159 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
   // Upgrade illustrations (12px grid, light from the top left).
   shelf: {
     rows: ['BBBBBBBBBBBB', 'BLLLLLLLLLLB', 'BRRLGGLYYLLB', 'BBBBBBBBBBBB', 'BLLLLLLLLLLB', 'BLGGLRRLYYLB', 'BBBBBBBBBBBB', 'B..........B', 'B..........B'],
-    pal: { B: '#7a4a2e', L: '#c98a55', R: '#d6453b', G: '#6aa84f', Y: '#f0b33a' },
+    pal: { B: C.c_7a4a2e, L: C.c_c98a55, R: C.c_d6453b, G: C.c_6aa84f, Y: C.c_f0b33a },
   },
   handcart: {
     rows: ['..........KK', '.........K..', 'RRRRRRRRRK..', 'RWRWRWRWRK..', 'RRRRRRRRRK..', 'KKKKKKKKKK..', '.KK....KK...', '.KK....KK...'],
-    pal: { R: '#c8553d', W: '#f6ead2', K: '#3b3048' },
+    pal: { R: C.terracotta, W: C.c_f6ead2, K: C.c_3b3048 },
   },
   coolroom: {
     rows: ['TTTTTTTTTTTT', 'TLLLLLLLLLLT', 'TL..W..W.LLT', 'TL.WWWWWW.LT', 'TL..WWWW..LT', 'TL.WWWWWW.LT', 'TL..W..W.LLT', 'TLLLLLLLLLLT', 'TTTTTTTTTTTT'],
-    pal: { T: '#2c6b69', L: '#7cc4c0', W: '#f6ead2' },
+    pal: { T: C.c_2c6b69, L: C.c_7cc4c0, W: C.c_f6ead2 },
   },
   signboard: {
     rows: ['YYYYYYYYYYYY', 'YCCCCCCCCCCY', 'YCRRCGGCRRCY', 'YCCCCCCCCCCY', 'YYYYYYYYYYYY', '.....BB.....', '.....BB.....', '....BBBB....'],
-    pal: { Y: '#e8b04b', C: '#f6ead2', R: '#c8553d', G: '#3e8f8c', B: '#7a4a2e' },
+    pal: { Y: C.c_e8b04b, C: C.c_f6ead2, R: C.terracotta, G: C.teal, B: C.c_7a4a2e },
   },
   lantern: {
     rows: ['.K.', 'KYK', 'YWY', 'KYK'],
-    pal: { K: '#3b3048', Y: '#f2c14e', W: '#fff2c2' },
+    pal: { K: C.c_3b3048, Y: C.gold, W: C.c_fff2c2 },
+  },
+  hourglass: {
+    rows: ['WWWWWWWWWWWW', '.WYYYYYYYYW.', '..WYYYYYYW..', '...WYYYYW...', '....WYYW....', '.....WW.....', '....WYYW....', '...WYYYYW...', '..WYYYYYYW..', 'WWWWWWWWWWWW'],
+    pal: { W: C.c_b07f27, Y: C.c_f2d77e },
+  },
+  ear: {
+    rows: ['...SSSS...', '..SPPPPS..', '.SPPSSPPS.', '.SPSPPSPS.', '.SPSPPSPS.', '.SPPSPPS..', '..SPPPS...', '...SPS....', '....S.....'],
+    pal: { S: C.c_c9875a, P: C.c_f0b48c },
   },
   coin: {
     rows: ['..YYYY..', '.YWYYYY.', 'YWYDDYYO', 'YYYDYYYO', 'YYYDDYYO', 'YYYYDYYO', '.YYDDYO.', '..OOOO..'],
-    pal: { Y: '#f2c14e', W: '#fff2c2', D: '#b8862b', O: '#c98f25' },
+    pal: { Y: C.gold, W: C.c_fff2c2, D: C.c_b8862b, O: C.c_c98f25 },
   },
   crate: {
     rows: ['BBBBBBBBBB', 'BLLLLLLLLB', 'BLDLLLLDLB', 'BBBBBBBBBB', 'BLLLLLLLLB', 'BLDLLLLDLB', 'BBBBBBBBBB'],
-    pal: { B: '#8a5a3b', L: '#c99563', D: '#6b4226' },
+    pal: { B: C.c_8a5a3b, L: C.c_c99563, D: C.c_6b4226 },
   },
   cart: {
     rows: ['KK........', '.K........', '.KRRRRRRR.', '.KRWRWRWR.', '..RRRRRRR.', '..KKKKKKK.', '...K...K..'],
-    pal: { K: '#4a4058', R: '#d6453b', W: '#f4ecd8' },
+    pal: { K: C.c_4a4058, R: C.c_d6453b, W: C.c_f4ecd8 },
   },
   truck: {
     rows: ['..........WWWW..', 'RRRRRRRRR.WBBWW.', 'RWWRRWWRR.WBBWWW', 'RRRRRRRRRRWWWWWW', 'RRRRRRRRRRWWWWWW', '.KK....KK...KK..', '.KK....KK...KK..'],
-    pal: { R: '#d6453b', W: '#f4ecd8', B: '#7fb3d5', K: '#2b2438' },
+    pal: { R: C.c_d6453b, W: C.c_f4ecd8, B: C.c_7fb3d5, K: C.ink },
   },
   star: {
     rows: ['....Y....', '...YYY...', 'YYYYWYYYY', '.YYYYYYY.', '..YYYYY..', '.YYY.YYY.', '.YY...YY.'],
-    pal: { Y: '#f2c14e', W: '#fff2c2' },
+    pal: { Y: C.gold, W: C.c_fff2c2 },
   },
   moon: {
     rows: ['..YYY..', '.YYW...', 'YYW....', 'YYW....', 'YYW....', '.YYW...', '..YYY..'],
-    pal: { Y: '#f2d77e', W: '#fff2c2' },
+    pal: { Y: C.c_f2d77e, W: C.c_fff2c2 },
   },
   sun: {
     rows: ['...Y...', '.Y.Y.Y.', '..OOO..', 'YOOWOOY', '..OOO..', '.Y.Y.Y.', '...Y...'],
-    pal: { Y: '#f2c14e', O: '#f0a23a', W: '#fff2c2' },
+    pal: { Y: C.gold, O: C.c_f0a23a, W: C.c_fff2c2 },
   },
   heart: {
     rows: ['.RR.RR.', 'RWRRRRR', 'RRRRRRR', '.RRRRR.', '..RRR..', '...R...'],
-    pal: { R: '#d6453b', W: '#f59aa0' },
+    pal: { R: C.c_d6453b, W: C.c_f59aa0 },
   },
   ev_festival: {
     rows: ['K..........K', 'KRR......YYK', 'KRRR.GG.YYYK', 'KRR.GGG..YYK', 'K....GG....K', '.Y.....R..T.', '...T.......Y', '.R....Y..R..', '....T.....T.', '.Y...R.Y....'],
-    pal: { K: '#3b3048', R: '#c8553d', Y: '#e8b04b', G: '#3e8f8c', T: '#7d8c3a' },
+    pal: { K: C.c_3b3048, R: C.terracotta, Y: C.c_e8b04b, G: C.teal, T: C.c_7d8c3a },
   },
   ev_glut: {
     rows: ['..R.......R.', '..R..BB...R.', 'RRRRBWBB.RRR', '.RR.BBBB..R.', '...BBBBBB...', '..BWBBBWBB..', '.BBBBWBBBBB.', 'BBWBBBBBWBBB', 'KKKKKKKKKKKK'],
-    pal: { R: '#c8553d', B: '#4f5bd5', W: '#8f98f0', K: '#3b3048' },
+    pal: { R: C.terracotta, B: C.c_4f5bd5, W: C.c_8f98f0, K: C.c_3b3048 },
   },
   ev_heatwave: {
     rows: ['R..R..R..R..', '.R..R..R..R.', '....OOOO....', '...OYYYYO...', '..OYYWYYYO..', '..OYYYYYYO..', '...OYYYYO...', '....OOOO....', 'R..R..R..R..'],
-    pal: { R: '#c8553d', O: '#f0a23a', Y: '#f2c14e', W: '#fff2c2' },
+    pal: { R: C.terracotta, O: C.c_f0a23a, Y: C.gold, W: C.c_fff2c2 },
   },
   ev_blight: {
     rows: ['.....B......', '.....BGG....', '..RRRBRRR...', '.RRDRRRRDR..', '.RRRRRDRRR..', '.RDRRRRRRR..', '.RRRRDRRDR..', '..RRRRRRR...', '...RR.RR....'],
-    pal: { B: '#7a4a2e', G: '#6aa84f', R: '#b8833a', D: '#4a3a2a' },
+    pal: { B: C.c_7a4a2e, G: C.c_6aa84f, R: C.c_b8833a, D: C.c_4a3a2a },
   },
   ev_mangoCraze: {
     rows: ['.Y......Y...', 'YWY..G...Y..', '.Y..GG......', '...OOOO.....', '..OYYYOO..Y.', '..OYWYYO.YWY', '..OYYYYO..Y.', '...OOOO.....', '............'],
-    pal: { Y: '#f2c14e', W: '#fff2c2', G: '#6aa84f', O: '#e0952a' },
+    pal: { Y: C.gold, W: C.c_fff2c2, G: C.c_6aa84f, O: C.c_e0952a },
   },
   ev_superfood: {
     rows: ['.....GG.....', '....GGG..Y..', '..BBBGBB.YWY', '.BBWBBBBB.Y.', '.BWBBBBBB...', '.BBBBBBBB...', '..BBBBBB....', '...BBBB.....', '............'],
-    pal: { G: '#6aa84f', B: '#4f5bd5', W: '#8f98f0', Y: '#f2c14e' },
+    pal: { G: C.c_6aa84f, B: C.c_4f5bd5, W: C.c_8f98f0, Y: C.gold },
   },
   ev_goodHarvest: {
     rows: ['..Y..Y..Y...', '.YYY.YYY.YY.', '..YY.YY.YY..', '...Y.YY.Y...', '....YYYY....', '.....GG.....', '....RRRR....', '.....GG.....', '....G..G....'],
-    pal: { Y: '#e8b04b', G: '#7d8c3a', R: '#c8553d' },
+    pal: { Y: C.c_e8b04b, G: C.c_7d8c3a, R: C.terracotta },
   },
   ev_badHarvest: {
     rows: ['.......KK...', '......GGGK..', '.GG..GGWGK..', 'GGGGGGGGG...', 'GDGGDGGDG...', '.K.K.K.K....', '.....B......', '....BBB.....', '...BB.BB....'],
-    pal: { K: '#3b3048', G: '#6aa84f', W: '#ffffff', D: '#3f6b2a', B: '#7a4a2e' },
+    pal: { K: C.c_3b3048, G: C.c_6aa84f, W: C.c_ffffff, D: C.c_3f6b2a, B: C.c_7a4a2e },
   },
   ev_priceHike: {
     rows: ['.......RRRR.', '.........RR.', '........R.R.', '.......R..R.', '..R...R.....', '.R.R.R......', 'R...R.......', 'KKKKKKKKKKKK'],
-    pal: { R: '#c8553d', K: '#3b3048' },
+    pal: { R: C.terracotta, K: C.c_3b3048 },
   },
   ev_minPrice: {
     rows: ['..YYYYYY....', '.YYYYYYYY...', 'YYWYKKYYYY..', 'YYYYKYYYYY..', 'YYYYKKYYYY..', '.YYYYYYYY...', '..YYYYYY....', 'KKKKKKKKKKK.', 'KKKKKKKKKKK.'],
-    pal: { Y: '#e8b04b', W: '#fff2c2', K: '#3b3048' },
+    pal: { Y: C.c_e8b04b, W: C.c_fff2c2, K: C.c_3b3048 },
   },
   ev_inspector: {
     rows: ['..KKKK......', '.KLLLLK.....', 'KLWLLLLK....', 'KLLLLLLK....', 'KLLLLLLK....', '.KLLLLK.....', '..KKKKBB....', '......BBB...', '.......BBB..', '........BB..'],
-    pal: { K: '#3b3048', L: '#8fcac6', W: '#ffffff', B: '#7a4a2e' },
+    pal: { K: C.c_3b3048, L: C.c_8fcac6, W: C.c_ffffff, B: C.c_7a4a2e },
   },
   ev_strike: {
     rows: ['...G.G......', '..G.G.......', 'RRRRRRR.WWW.', 'RWWRRWR.WBWW', 'RRRRRRRRWWWW', 'RRRRRRRRWWWW', '.KK....KK...', '.KK.........'],
-    pal: { G: '#a8a6bd', R: '#c8553d', W: '#f6ead2', B: '#3e8f8c', K: '#3b3048' },
+    pal: { G: C.c_a8a6bd, R: C.terracotta, W: C.c_f6ead2, B: C.teal, K: C.c_3b3048 },
   },
   ev_hotel: {
     rows: ['.....YY.....', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTTWTWT..', '..TTTTTTTT..', '..TWTKKTWT..', '..TTTKKTTT..', 'KKKKKKKKKKKK'],
-    pal: { Y: '#e8b04b', T: '#3e8f8c', W: '#f6ead2', K: '#3b3048' },
+    pal: { Y: C.c_e8b04b, T: C.teal, W: C.c_f6ead2, K: C.c_3b3048 },
   },
   fv_gossip: {
     rows: ['...SSSSS....', '..SPPPPPS...', '.SPSSSSPPS..', '.SPS...SPS..', '.SPS..SPPS..', '..SPSSPPS...', '...SPPPS..Y.', '...SPPS..YWY', '....SS....Y.'],
-    pal: { S: '#c9875a', P: '#f0b48c', Y: '#e8b04b', W: '#fff2c2' },
+    pal: { S: C.c_c9875a, P: C.c_f0b48c, Y: C.c_e8b04b, W: C.c_fff2c2 },
   },
   fv_freeFruit: {
     rows: ['..R..R......', '...RR.......', 'RRRRYRRRRR..', 'RRRRYRRRRR..', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...', '.CCCYCCCC...'],
-    pal: { R: '#c8553d', Y: '#e8b04b', C: '#3e8f8c' },
+    pal: { R: C.terracotta, Y: C.c_e8b04b, C: C.teal },
   },
   fv_priority: {
     rows: ['Y.....Y.....', 'YY....YY....', 'YYY...YYY...', 'YYYY..YYYY..', 'YYYYY.YYYYY.', 'YYYY..YYYY..', 'YYY...YYY...', 'YY....YY....', 'Y.....Y.....'],
-    pal: { Y: '#e8b04b' },
+    pal: { Y: C.c_e8b04b },
   },
   fv_goodRiddance: {
     rows: ['...GGGG.....', '..G....G.G..', '.G......GG..', '.G.....GGG..', '..GGG.....G.', '..GG......G.', '..G.G....G..', '.....GGGG...'],
-    pal: { G: '#6aa84f' },
+    pal: { G: C.c_6aa84f },
   },
   fv_favouredTrade: {
     rows: ['............', '.SS......BB.', 'SSSS....BBBB', 'SSSSSSBBBBBB', '.SSSSSSBBBB.', '..SSSSSBBB..', '....SSBB....', '............'],
-    pal: { S: '#f0c09a', B: '#c98a55' },
+    pal: { S: C.c_f0c09a, B: C.c_c98a55 },
   },
   fv_fridge: {
     rows: ['TTTTTTTTTT', 'TLLLLLLLLT', 'TLLLLLLLLT', 'TTTTTTTTTT', 'TLLW..WLLT', 'TLL.WW.LLT', 'TLL.WW.LLT', 'TLLW..WLLT', 'TLLLLLLLLT', 'TTTTTTTTTT'],
-    pal: { T: '#2c6b69', L: '#8fcac6', W: '#ffffff' },
+    pal: { T: C.c_2c6b69, L: C.c_8fcac6, W: C.c_ffffff },
   },
   juicer: {
     rows: ['..KKKKKK....', '..KMMMMK....', '...KMMK.....', '....KK......', '..GGGGGG....', '..GOOOOG....', '..GOOOOG.KK.', '..GOOOOGK..K', '..GGGGGG....'],
-    pal: { K: '#3b3048', M: '#9aa0a6', G: '#f6ead2', O: '#f0a23a' },
+    pal: { K: C.c_3b3048, M: C.c_9aa0a6, G: C.c_f6ead2, O: C.c_f0a23a },
   },
   bell: {
     rows: ['.....KK.....', '....YYYY....', '...YWYYYY...', '...YWYYYY...', '..YYYYYYYY..', '..YYYYYYYY..', '.YYYYYYYYYY.', 'DDDDDDDDDDDD', '.....DD.....'],
-    pal: { Y: '#e8b04b', W: '#fff2c2', D: '#b07f27', K: '#3b3048' },
+    pal: { Y: C.c_e8b04b, W: C.c_fff2c2, D: C.c_b07f27, K: C.c_3b3048 },
   },
   scales: {
     rows: ['.....K.....', '.KKKKKKKKK.', '.K...K...K.', 'KYK..K..KYK', 'YYY..K..YYY', '.....K.....', '...KKKKK...'],
-    pal: { K: '#3b3048', Y: '#e8b04b' },
+    pal: { K: C.c_3b3048, Y: C.c_e8b04b },
   },
   tag: {
     rows: ['..RRRRRR', '.RRRRRRR', 'RRWRRRRR', 'RRRRRRRR', '.RRRRRRR', '..RRRRRR'],
-    pal: { R: '#c8553d', W: '#f6ead2' },
+    pal: { R: C.terracotta, W: C.c_f6ead2 },
   },
   egg: {
     rows: ['..CCC..', '.CCCCC.', '.CWCCC.', 'CCWCCCC', 'CCCCCCC', 'CCCCCCD', '.CCCCD.', '..DDD..'],
-    pal: { C: '#f6ead2', W: '#ffffff', D: '#d7c49e' },
+    pal: { C: C.c_f6ead2, W: C.c_ffffff, D: C.c_d7c49e },
   },
 };
 
@@ -337,9 +346,9 @@ export function Icon({ name, size = 16 }: { name: keyof typeof ICONS; size?: num
 // Humans are built from a face plus layered parts; animals are hand-drawn.
 
 const BASE_PAL: Pal = {
-  K: INK, W: '#f4ecd8', E: '#2b2438', M: '#a8423f', C: '#f0a08c',
-  H: '#5b3a24', T: '#c9a46a', B: '#7a4f2e', Y: '#f2c14e', R: '#d6453b', P: '#7b5aa6',
-  N: '#2f4a7a', G: '#4f9a52', L: '#9ad0e6', O: '#e8873a', A: '#9aa3ad', V: '#e889b4', Q: '#3fa39a',
+  K: INK, W: C.c_f4ecd8, E: C.ink, M: C.c_a8423f, C: C.c_f0a08c,
+  H: C.c_5b3a24, T: C.c_c9a46a, B: C.c_7a4f2e, Y: C.gold, R: C.c_d6453b, P: C.c_7b5aa6,
+  N: C.c_2f4a7a, G: C.c_4f9a52, L: C.c_9ad0e6, O: C.c_e8873a, A: C.c_9aa3ad, V: C.c_e889b4, Q: C.c_3fa39a,
 };
 
 function face(skin: string, shirt: string): string[] {
@@ -398,86 +407,86 @@ const PARTS: Record<string, string[]> = {
 
 interface Human { skin: string; shirt: string; parts: string[]; pal?: Pal }
 
-const SKIN = { a: '#f6d2b0', b: '#e3b088', c: '#c48a5f', d: '#8f5e3c', pale: '#ece6e2', green: '#9db57a', blue: '#7aa6dc', grey: '#b8c0c9' };
+const SKIN = { a: C.c_f6d2b0, b: C.c_e3b088, c: C.c_c48a5f, d: C.c_8f5e3c, pale: C.c_ece6e2, green: C.c_9db57a, blue: C.c_7aa6dc, grey: C.c_b8c0c9 };
 
 const HUMANS: Record<string, Human> = {
-  John: { skin: SKIN.b, shirt: '#d6453b', parts: ['hairShort', 'cowboy'] },
-  Robert: { skin: SKIN.pale, shirt: '#2b2438', parts: ['hairSlick', 'collar'], pal: { H: '#2b2438' } },
-  Daniel: { skin: SKIN.a, shirt: '#7b5aa6', parts: ['longBeard', 'wizard'] },
-  Chris: { skin: '#fff2e6', shirt: '#4f9a52', parts: ['hairSpiky', 'nose'], pal: { H: '#e8873a' } },
-  Aisyah: { skin: SKIN.c, shirt: '#f4ecd8', parts: ['astro'] },
-  Ravi: { skin: SKIN.d, shirt: '#d6453b', parts: ['hairSpiky', 'mask', 'bolt'], pal: { H: '#2b2438' } },
-  'Mei Ling': { skin: SKIN.a, shirt: '#3fa39a', parts: ['hairLong', 'flower'], pal: { H: '#3fa39a' } },
-  Farid: { skin: SKIN.c, shirt: '#2b2438', parts: ['ninja'] },
-  Siti: { skin: SKIN.b, shirt: '#e889b4', parts: ['hairLong', 'crown'], pal: { H: '#3a2418' } },
-  Kumar: { skin: SKIN.blue, shirt: '#7b5aa6', parts: ['turban', 'mustache'], pal: { H: '#2b2438' } },
-  Grace: { skin: SKIN.a, shirt: '#2b2438', parts: ['hairSpiky', 'shades'], pal: { H: '#7b5aa6' } },
-  Hafiz: { skin: SKIN.c, shirt: '#4f9a52', parts: ['dino'] },
-  'Wei Jie': { skin: SKIN.a, shirt: '#8a6a3a', parts: ['hairShort', 'detective', 'glasses'], pal: { H: '#2b2438' } },
-  Nurul: { skin: SKIN.b, shirt: '#9ad0e6', parts: ['wings', 'hairBun'], pal: { H: '#5b3a24' } },
-  Priya: { skin: SKIN.c, shirt: '#f4ecd8', parts: ['hairBun', 'glasses'], pal: { H: '#2b2438' } },
-  Ahmad: { skin: SKIN.c, shirt: '#2f4a7a', parts: ['beard', 'captain'], pal: { H: '#3a2418' } },
-  Sarah: { skin: SKIN.a, shirt: '#e889b4', parts: ['hairLong', 'horn'], pal: { H: '#e889b4' } },
-  Tan: { skin: SKIN.a, shirt: '#8a6a3a', parts: ['hairSides', 'glasses', 'mustache'], pal: { H: '#f4ecd8' } },
-  Lina: { skin: SKIN.b, shirt: '#d6453b', parts: ['hairBun', 'flower'], pal: { H: '#2b2438' } },
-  Zul: { skin: SKIN.green, shirt: '#6b6f7a', parts: ['hairSpiky'], pal: { H: '#3d4a2a', M: '#5b4022' } },
-  Anna: { skin: SKIN.a, shirt: '#f2c14e', parts: ['hairLong', 'beret'], pal: { H: '#c4723a' } },
-  Vijay: { skin: SKIN.grey, shirt: '#6b6f7a', parts: ['antenna'], pal: { E: '#3fa39a', M: '#2b2438', C: '#b8c0c9' } },
-  'Hui Min': { skin: SKIN.a, shirt: '#4f9a52', parts: ['ears', 'hairLong'], pal: { H: '#f2d77e' } },
-  Osman: { skin: SKIN.d, shirt: '#d6453b', parts: ['mustache', 'helmet'], pal: { H: '#2b2438' } },
-  'Jia Wen': { skin: SKIN.a, shirt: '#2f4a7a', parts: ['hairLong', 'headband'], pal: { H: '#2b2438' } },
-  Rizal: { skin: SKIN.c, shirt: '#3fa39a', parts: ['hairShort', 'shades'], pal: { H: '#2b2438' } },
-  Devi: { skin: SKIN.d, shirt: '#4f9a52', parts: ['hairBun', 'flower'], pal: { H: '#2b2438' } },
-  Marcus: { skin: SKIN.b, shirt: '#d6453b', parts: ['hairShort', 'beard'], pal: { H: '#5b3a24' } },
-  Fatimah: { skin: SKIN.c, shirt: '#7b5aa6', parts: ['hairLong', 'glasses'], pal: { H: '#3a2418' } },
-  Ben: { skin: SKIN.pale, shirt: '#a8423f', parts: ['hairShort', 'beret'], pal: { H: '#c4723a' } },
-  Yuki: { skin: SKIN.a, shirt: '#2b2438', parts: ['hairSides', 'headband'], pal: { H: '#2b2438' } },
-  Hadi: { skin: SKIN.b, shirt: '#e8873a', parts: ['helmet', 'mustache'], pal: { H: '#3a2418', R: '#f2c14e' } },
-  Lakshmi: { skin: SKIN.d, shirt: '#f4ecd8', parts: ['hairBun', 'chef'], pal: { H: '#2b2438' } },
-  Kenji: { skin: SKIN.a, shirt: '#f4ecd8', parts: ['hairSpiky', 'headband'], pal: { H: '#2b2438' } },
-  Mira: { skin: SKIN.green, shirt: '#2b2438', parts: ['hairLong', 'wizard'], pal: { H: '#2b2438', P: '#2b2438' } },
-  'Hock Seng': { skin: SKIN.b, shirt: '#6b6f7a', parts: ['hairSides', 'glasses', 'beard'], pal: { H: '#f4ecd8' } },
-  Influencer: { skin: SKIN.b, shirt: '#e889b4', parts: ['hairLong', 'shades', 'phone'], pal: { H: '#f2d77e' } },
-  'Gym Club': { skin: SKIN.c, shirt: '#2f4a7a', parts: ['hairShort', 'headband'], pal: { H: '#2b2438' } },
-  'Hotel Chef': { skin: SKIN.a, shirt: '#f4ecd8', parts: ['mustache', 'chef'], pal: { H: '#3a2418' } },
+  John: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'cowboy'] },
+  Robert: { skin: SKIN.pale, shirt: C.ink, parts: ['hairSlick', 'collar'], pal: { H: C.ink } },
+  Daniel: { skin: SKIN.a, shirt: C.c_7b5aa6, parts: ['longBeard', 'wizard'] },
+  Chris: { skin: C.c_fff2e6, shirt: C.c_4f9a52, parts: ['hairSpiky', 'nose'], pal: { H: C.c_e8873a } },
+  Aisyah: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['astro'] },
+  Ravi: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['hairSpiky', 'mask', 'bolt'], pal: { H: C.ink } },
+  'Mei Ling': { skin: SKIN.a, shirt: C.c_3fa39a, parts: ['hairLong', 'flower'], pal: { H: C.c_3fa39a } },
+  Farid: { skin: SKIN.c, shirt: C.ink, parts: ['ninja'] },
+  Siti: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'crown'], pal: { H: C.c_3a2418 } },
+  Kumar: { skin: SKIN.blue, shirt: C.c_7b5aa6, parts: ['turban', 'mustache'], pal: { H: C.ink } },
+  Grace: { skin: SKIN.a, shirt: C.ink, parts: ['hairSpiky', 'shades'], pal: { H: C.c_7b5aa6 } },
+  Hafiz: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['dino'] },
+  'Wei Jie': { skin: SKIN.a, shirt: C.c_8a6a3a, parts: ['hairShort', 'detective', 'glasses'], pal: { H: C.ink } },
+  Nurul: { skin: SKIN.b, shirt: C.c_9ad0e6, parts: ['wings', 'hairBun'], pal: { H: C.c_5b3a24 } },
+  Priya: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['hairBun', 'glasses'], pal: { H: C.ink } },
+  Ahmad: { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['beard', 'captain'], pal: { H: C.c_3a2418 } },
+  Sarah: { skin: SKIN.a, shirt: C.c_e889b4, parts: ['hairLong', 'horn'], pal: { H: C.c_e889b4 } },
+  Tan: { skin: SKIN.a, shirt: C.c_8a6a3a, parts: ['hairSides', 'glasses', 'mustache'], pal: { H: C.c_f4ecd8 } },
+  Lina: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairBun', 'flower'], pal: { H: C.ink } },
+  Zul: { skin: SKIN.green, shirt: C.c_6b6f7a, parts: ['hairSpiky'], pal: { H: C.c_3d4a2a, M: C.c_5b4022 } },
+  Anna: { skin: SKIN.a, shirt: C.gold, parts: ['hairLong', 'beret'], pal: { H: C.c_c4723a } },
+  Vijay: { skin: SKIN.grey, shirt: C.c_6b6f7a, parts: ['antenna'], pal: { E: C.c_3fa39a, M: C.ink, C: C.c_b8c0c9 } },
+  'Hui Min': { skin: SKIN.a, shirt: C.c_4f9a52, parts: ['ears', 'hairLong'], pal: { H: C.c_f2d77e } },
+  Osman: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['mustache', 'helmet'], pal: { H: C.ink } },
+  'Jia Wen': { skin: SKIN.a, shirt: C.c_2f4a7a, parts: ['hairLong', 'headband'], pal: { H: C.ink } },
+  Rizal: { skin: SKIN.c, shirt: C.c_3fa39a, parts: ['hairShort', 'shades'], pal: { H: C.ink } },
+  Devi: { skin: SKIN.d, shirt: C.c_4f9a52, parts: ['hairBun', 'flower'], pal: { H: C.ink } },
+  Marcus: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'beard'], pal: { H: C.c_5b3a24 } },
+  Fatimah: { skin: SKIN.c, shirt: C.c_7b5aa6, parts: ['hairLong', 'glasses'], pal: { H: C.c_3a2418 } },
+  Ben: { skin: SKIN.pale, shirt: C.c_a8423f, parts: ['hairShort', 'beret'], pal: { H: C.c_c4723a } },
+  Yuki: { skin: SKIN.a, shirt: C.ink, parts: ['hairSides', 'headband'], pal: { H: C.ink } },
+  Hadi: { skin: SKIN.b, shirt: C.c_e8873a, parts: ['helmet', 'mustache'], pal: { H: C.c_3a2418, R: C.gold } },
+  Lakshmi: { skin: SKIN.d, shirt: C.c_f4ecd8, parts: ['hairBun', 'chef'], pal: { H: C.ink } },
+  Kenji: { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['hairSpiky', 'headband'], pal: { H: C.ink } },
+  Mira: { skin: SKIN.green, shirt: C.ink, parts: ['hairLong', 'wizard'], pal: { H: C.ink, P: C.ink } },
+  'Hock Seng': { skin: SKIN.b, shirt: C.c_6b6f7a, parts: ['hairSides', 'glasses', 'beard'], pal: { H: C.c_f4ecd8 } },
+  Influencer: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'shades', 'phone'], pal: { H: C.c_f2d77e } },
+  'Gym Club': { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['hairShort', 'headband'], pal: { H: C.ink } },
+  'Hotel Chef': { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['mustache', 'chef'], pal: { H: C.c_3a2418 } },
   // Player shopkeepers
-  you: { skin: SKIN.b, shirt: '#d6453b', parts: ['hairShort', 'chef'] },
-  you2: { skin: SKIN.c, shirt: '#4f9a52', parts: ['hairBun', 'headband'], pal: { H: '#2b2438' } },
-  you3: { skin: SKIN.a, shirt: '#2f4a7a', parts: ['hairSpiky', 'mask'], pal: { H: '#c4723a' } },
-  you4: { skin: SKIN.d, shirt: '#f2c14e', parts: ['beret', 'hairLong'], pal: { H: '#2b2438' } },
-  shopper: { skin: SKIN.b, shirt: '#8a6a3a', parts: ['hairShort'] },
+  you: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'chef'] },
+  you2: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['hairBun', 'headband'], pal: { H: C.ink } },
+  you3: { skin: SKIN.a, shirt: C.c_2f4a7a, parts: ['hairSpiky', 'mask'], pal: { H: C.c_c4723a } },
+  you4: { skin: SKIN.d, shirt: C.gold, parts: ['beret', 'hairLong'], pal: { H: C.ink } },
+  shopper: { skin: SKIN.b, shirt: C.c_8a6a3a, parts: ['hairShort'] },
 };
 
 const ANIMALS: Record<string, { rows: string[]; pal: Pal }> = {
   fox: {
     rows: ['................', '..K..........K..', '..KO........OK..', '..KOO......OOK..', '..KOOOOOOOOOOK..', '..OOOOOOOOOOOO..', '.OOOOOOOOOOOOOO.', '.OOOEOOOOOOEOOO.', '.OOOOOOOOOOOOOO.', '..OWWWOOOOWWWO..', '..WWWWWKKWWWWW..', '...WWWWWWWWWW...', '....WWWWWWWW....', '.....WWWWWW.....', '...GGGGGGGGGG...', '..GGGGGGGGGGGG..'],
-    pal: { O: '#e8873a', W: '#f4ecd8', K: '#2b2438', E: '#2b2438', G: '#4f9a52' },
+    pal: { O: C.c_e8873a, W: C.c_f4ecd8, K: C.ink, E: C.ink, G: C.c_4f9a52 },
   },
   bear: {
     rows: ['................', '..BBB......BBB..', '..BLB......BLB..', '..BBBBBBBBBBBB..', '..BBBBBBBBBBBB..', '.BBBBBBBBBBBBBB.', '.BBBEBBBBBBEBBB.', '.BBBBBBBBBBBBBB.', '.BBBBLLLLLLBBBB.', '.BBBLLLKKLLLBBB.', '..BBLLLLLLLLBB..', '..BBBLLMMLLBBB..', '...BBBBBBBBBB...', '....BBBBBBBB....', '..RRRRRRRRRRRR..', '.RRRRRRRRRRRRRR.'],
-    pal: { B: '#8a5a3b', L: '#d9b48a', K: '#2b2438', E: '#2b2438', M: '#a8423f', R: '#d6453b' },
+    pal: { B: C.c_8a5a3b, L: C.c_d9b48a, K: C.ink, E: C.ink, M: C.c_a8423f, R: C.c_d6453b },
   },
   panda: {
     rows: ['................', '..KKK......KKK..', '..KKK......KKK..', '..KKWWWWWWWWKK..', '...WWWWWWWWWW...', '..WWWWWWWWWWWW..', '..WKKKWWWWKKKW..', '..WKWKWWWWKWKW..', '..WKKKWWWWKKKW..', '..WWWWWKKWWWWW..', '..WWWWWWWWWWWW..', '...WWWWMMWWWW...', '....WWWWWWWW....', '...QQQQQQQQQQ...', '..QQQQQQQQQQQQ..', '..QQQQQQQQQQQQ..'],
-    pal: { W: '#f4ecd8', K: '#2b2438', M: '#a8423f', Q: '#3fa39a' },
+    pal: { W: C.c_f4ecd8, K: C.ink, M: C.c_a8423f, Q: C.c_3fa39a },
   },
   toad: {
     rows: ['................', '...TTTTTTTTT....', '..TTTTTTTTTTT...', '..GGG....GGG....', '.GWWKG..GWWKG...', '.GWWWG..GWWWG...', '.GGGGGGGGGGGG...', 'GGGGGGGGGGGGGG..', 'GGGDGGGGGGDGGG..', 'GGGGGGGGGGGGGG..', 'GKKKKKKKKKKKKG..', 'GGGGGGGGGGGGGG..', '.GYYYYYYYYYYG...', '..YYYYYYYYYY....', '.PPPPPPPPPPPP...', 'PPPPPPPPPPPPPP..'],
-    pal: { G: '#6aa84f', D: '#3f7a34', Y: '#e6d58a', W: '#f4ecd8', K: '#2b2438', T: '#8a5a3b', P: '#7b5aa6' },
+    pal: { G: C.c_6aa84f, D: C.c_3f7a34, Y: C.c_e6d58a, W: C.c_f4ecd8, K: C.ink, T: C.c_8a5a3b, P: C.c_7b5aa6 },
   },
   raccoon: {
     rows: ['................', '..AA........AA..', '..AKA......AKA..', '..AAAAAAAAAAAA..', '..AAAAAAAAAAAA..', '.AAAAAAAAAAAAAA.', '.AKKKKAAAAKKKKA.', '.AKWKKAAAAKKWKA.', '.AKKKKAWWAKKKKA.', '..AAAWWWWWWAAA..', '..AWWWWKKWWWWA..', '...WWWWWWWWWW...', '....WWWWWWWW....', '.....AAAAAA.....', '...NNNNNNNNNN...', '..NNNNNNNNNNNN..'],
-    pal: { A: '#8f949c', K: '#2b2438', W: '#f4ecd8', N: '#2f4a7a' },
+    pal: { A: C.c_8f949c, K: C.ink, W: C.c_f4ecd8, N: C.c_2f4a7a },
   },
   pig: {
     rows: ['................', '..PP........PP..', '..PDP......PDP..', '..PPPPPPPPPPPP..', '..PPPPPPPPPPPP..', '.PPPPPPPPPPPPPP.', '.PPPEPPPPPPEPPP.', '.PPPPPPPPPPPPPP.', '.PPPPDDDDDDPPPP.', '.PPPPDKDDKDPPPP.', '.PPPPDDDDDDPPPP.', '..PPPPPPPPPPPP..', '...PPPPPPPPPP...', '....PPPPPPPP....', '...YYYYYYYYYY...', '..YYYYYYYYYYYY..'],
-    pal: { P: '#eba3b0', D: '#d47d8f', K: '#2b2438', E: '#2b2438', Y: '#f2c14e' },
+    pal: { P: C.c_eba3b0, D: C.c_d47d8f, K: C.ink, E: C.ink, Y: C.gold },
   },
 };
 
 const AVATAR_KEY: Record<string, string> = {
-  '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🐸': 'toad', '🦝': 'raccoon', '🐷': 'pig',
-  '🧑‍🍳': 'you', '👩‍🍳': 'you2', '🦸': 'you3', '🐵': 'you4',
+  '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🐸': 'toad', '🦝': 'raccoon', '🐷': 'pig', // emoji-ok: avatar keys, never shown
+  '🧑‍🍳': 'you', '👩‍🍳': 'you2', '🦸': 'you3', '🐵': 'you4', // emoji-ok: avatar keys, never shown
 };
 
 function humanRows(h: Human): string[] {

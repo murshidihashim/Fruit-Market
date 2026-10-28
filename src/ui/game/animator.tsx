@@ -92,7 +92,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     return;
   }
   // The bell: a short pause while every price board flips, before the rush starts.
-  const bell = A.tag('street', '🔔 The bell! Prices are out', 'big');
+  const bell = A.tag('street', 'The bell! Prices are out', 'big');
   fx.card();
   await A.wait(900);
   bell.remove();
@@ -141,7 +141,7 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   if (g.event?.inspector) {
     g.players.forEach((pl, p) => {
       const paid = Math.min(pl.cash, notSoCount(pl.stock) * g.event!.inspector!);
-      if (paid) { fines.push({ t: A.tag(`p${p}`, `🕵️ fined $${paid}`, 'lost-fine') }); A.floatText(`p${p}-cash`, `−$${paid}`, 'minus'); }
+      if (paid) { fines.push({ t: A.tag(`p${p}`, `Fined $${paid}`, 'lost-fine') }); A.floatText(`p${p}-cash`, `−$${paid}`, 'minus'); }
     });
   }
   const jobs: Promise<void>[] = [];

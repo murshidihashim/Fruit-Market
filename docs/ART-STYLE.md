@@ -1,4 +1,4 @@
-# Fruit Market: art style guide (draft for the owner's approval)
+# Fruit Market: art style guide (approved by the owner, 2026-10-28)
 
 Decided by the owner: **Look C** (DEC-033), with the **soft tabletop mat** as the board look (**D**, DEC-034). The board is the proof of concept: everything else is derived from it. Sources: `Art_Style_Audit`, `Look_Comparison.html`, `Board_Look_Options.html` (Guides_v2).
 
@@ -45,7 +45,9 @@ Warm light for play, night blue for the evening. The dark information layer of t
 - **Scaling:** whole multiples only. Allowed on-screen widths: fruit 14 / 28 / 42 / 56 px; portraits 18 / 36 / 54 / 72 px; icons 12 / 24 / 36 px. Never 1.3× or 1.5×.
 - **Outline:** always 1 art pixel in Ink. Light from the top left; one highlight, one shadow side.
 - **Freshness:** shown by the sprite itself (bright, dulled, spotted, green), and by the slot's flag, never by colouring the object's background.
-- **No emoji** anywhere in the interface; pixel icons only.
+- **No emoji** anywhere in the interface; pixel icons only. A few plain glyphs (✕ ✓ ➜ ☰ ▴ ▾) stay until PLAN-033 replaces them with pixel icons. A test enforces this (`tests/emoji.test.ts`).
+- **Sizes today:** the screens still use sizes off this list (they are listed in `tests/sprite-sizes.test.ts`). A test blocks any new off-list size; PLAN-033 fixes the old ones screen by screen, because changing a size changes the layout.
+- **Colours in code:** every colour lives in `src/ui/palette.ts` (the `c_xxxxxx` entries are older colours kept exactly as they were; PLAN-033 merges them into the roles above). `palette.css` is generated (`npm run palette`).
 
 ## 5. Type
 

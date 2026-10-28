@@ -1289,6 +1289,10 @@
     {
       "at": "2026-10-28 22:28",
       "text": "Owner: \"approve everything above\", after the recap of DEC-034, PLAN-027, PLAN-029 and PLAN-030. Recorded: board look D chosen (DEC-034 approved), and PLAN-027 (style guide and palette), PLAN-029 (animated opening) and PLAN-030 (shared board) approved, to be built in that order. PLAN-027 started: the style guide is drafted from look D (docs/ART-STYLE.md) for the owner to approve. New proposed plan PLAN-033: restyle the other screens to the board look, which no approved plan covered (REP-059)."
+    },
+    {
+      "at": "2026-10-28 22:39",
+      "text": "Owner: \"resolve the gap, and approve plan 27\". PLAN-033 (restyle the other screens to the board look) approved, to be built after PLAN-027. The style guide is approved. PLAN-027 built on local branch workflow/plan-027 (not pushed): one palette with a lossless colour move, emoji replaced, new size and emoji checks. T3 narrowed to \"block new off-list sizes\" because fixing the existing ones changes layouts; PLAN-033 takes that over. Phone look and browser tests NOT RUN (REP-060)."
     }
   ]
 }

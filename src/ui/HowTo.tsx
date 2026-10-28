@@ -26,7 +26,7 @@ const SLIDES = [
             <div class="demo-track">
               <Fruit id={f} size={22} />
               {FRUIT[f].ripe.map((_, i) => <i class={`st-${stageAt(f, i)}`}>{FRUIT[f].drop[i] ? `−${FRUIT[f].drop[i]}` : ''}</i>)}
-              {Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe">🌱</i>)}
+              {Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe" aria-label="green" />)}
             </div>
             <small>{FRUIT[f].theme}</small>
           </div>
