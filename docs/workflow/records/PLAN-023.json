@@ -54,7 +54,7 @@
       "id": "T3",
       "text": "verify and verify:full pass",
       "result": "NOT RUN",
-      "evidence": "Lint, types, 122 unit tests and the build pass locally; browser tests (verify:full) run in CI on push. Not pushed."
+      "evidence": "First CI run (40724975276) failed one browser test (the lobby text the test looks for was replaced by an input); fixed by showing your name as text with a Rename button; CI re-run pending. Lint, types, 122 unit tests and the build pass locally."
     },
     {
       "id": "T4",

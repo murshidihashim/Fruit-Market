@@ -1478,6 +1478,10 @@
     {
       "at": "2026-10-29 00:18",
       "text": "Owner: \"ok\" to Design 1 for online undo and rename in the lobby only (PLAN-023). Built on local branch workflow/plan-023 (not pushed): the server keeps the state your own buying turn began in and puts you back to it on request (own turn only, refused if stale, repeated or out of turn); everyone sees a message; rename in the lobby only with the usual name cleaning; a new message version so old and new builds never share a room (the rules version is unchanged, so daily boards are not reset). Lint, types, 122 unit tests and the build pass; browser tests and phones NOT RUN (REP-068)."
+    },
+    {
+      "at": "2026-10-29 00:32",
+      "text": "CI on branch workflow/plan-023 (run 40724975276) failed in one browser test: the online match test looks for the text \"London Friend (you)\" in the lobby, and the new rename box put the name inside an input. Fixed: your own name is shown as text again, with a small Rename button that turns it into a box. Everything else in that run passed (quick match, four players, reconnect). Re-running CI (REP-068)."
     }
   ]
 }

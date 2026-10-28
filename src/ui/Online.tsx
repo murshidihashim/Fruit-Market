@@ -21,17 +21,26 @@ function useClient(client: OnlineClient | null) {
   }, [client]);
 }
 
-/** Your own name in the lobby: tap it to change it; the new name is sent when you finish typing. */
+/** Your own name in the lobby: shown as text; tap Rename to change it. The new name is sent when you finish typing. */
 function MyName({ name, host, onRename }: { name: string; host: boolean; onRename: (n: string) => void }) {
+  const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
-  useEffect(() => { setDraft(name); }, [name]);
-  const done = () => { const n = draft.trim(); if (n && n !== name) onRename(n); else setDraft(name); };
+  const box = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (editing) box.current?.focus(); }, [editing]);
+  const done = () => { const n = draft.trim(); setEditing(false); if (n && n !== name) onRename(n); else setDraft(name); };
+  if (!editing) {
+    return (
+      <span class="seat-name">
+        {name} (you){host && <small class="host-tag">HOST</small>}
+        <button type="button" class="seat-rename" onClick={() => { setDraft(name); setEditing(true); }}>Rename</button>
+      </span>
+    );
+  }
   return (
     <span class="seat-name">
-      <input class="seat-edit" aria-label="Your name" value={draft} maxLength={NAME_MAX}
+      <input ref={box} class="seat-edit" aria-label="Your name" value={draft} maxLength={NAME_MAX}
         onInput={(e) => setDraft((e.target as HTMLInputElement).value)} onBlur={done}
         onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
-      <small class="you-tag">(you)</small>{host && <small class="host-tag">HOST</small>}
     </span>
   );
 }
