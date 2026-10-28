@@ -1,7 +1,6 @@
 // Player-name policy for anything other people can see (online rooms, the daily leaderboard).
 // Names are cleaned, then checked against a small blocklist and a list of reserved names.
 // The lists are deliberately short; extend them as reports come in.
-import { RIVALS } from '../src/engine/data';
 import { NAME_MAX } from '../src/net/protocol';
 
 /** Fragments that are never innocent, so they're blocked anywhere in a name ("xXshitXx"). */
@@ -12,8 +11,8 @@ const BLOCKED_WORDS = ['dick', 'cock', 'rape', 'nazi', 'fag', 'pussy', 'bastard'
 /** Former rival names, still shown in games saved before a rename (PLAN-006). */
 const FORMER_RIVALS = ['Panda Lim', 'Foxy Rosa', 'Big Benny', 'Patches', 'Uncle Toad', 'Rocky', 'Pinky'];
 
-/** Names that would impersonate the game or its computer rivals. */
-const RESERVED = ['admin', 'moderator', 'mod', 'official', 'fruitmarket', 'system', ...RIVALS.map((r) => r.name), ...FORMER_RIVALS];
+/** Names that would impersonate the game or its old computer rivals. The computer shopkeepers' plain first names (Rosa, Chen...) are not reserved: real players use them. */
+const RESERVED = ['admin', 'moderator', 'mod', 'official', 'fruitmarket', 'system', ...FORMER_RIVALS];
 
 const LOOKALIKE: Record<string, string> = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b', '@': 'a', '$': 's', '!': 'i', '|': 'i' };
 

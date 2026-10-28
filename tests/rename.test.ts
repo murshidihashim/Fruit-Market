@@ -12,9 +12,9 @@ const panda = () => RIVALS.find((r) => r.avatar === '🐼')!;
 
 describe('panda rival rename', () => {
   it('new games use the new name (N1)', () => {
-    expect(panda().name).toBe('Charming Chen');
+    expect(panda().name).toBe('Chen');
     expect(RIVALS.some((r) => r.name === 'Panda Lim')).toBe(false);
-    expect(dailyConfig('2026-10-27', 'Me').players.map((p) => p.name)).toContain('Charming Chen');
+    expect(dailyConfig('2026-10-27', 'Me').players.map((p) => p.name)).toContain('Chen');
   });
 
   describe('games saved before the rename (N2)', () => {
@@ -54,7 +54,7 @@ describe('panda rival rename', () => {
     // The server re-plays daily scores with the new name, including moves recorded before the rename.
     const allAi = (c: GameConfig): GameConfig => ({ ...c, players: c.players.map((p) => ({ ...p, kind: 'ai', level: p.level ?? 'normal' })) });
     const now = allAi(dailyConfig('2026-10-27', 'Me'));
-    const before = { ...now, players: now.players.map((p) => (p.name === 'Charming Chen' ? { ...p, name: 'Panda Lim' } : p)) };
+    const before = { ...now, players: now.players.map((p) => (p.name === 'Chen' ? { ...p, name: 'Panda Lim' } : p)) };
     expect(before.players.map((p) => p.name)).toContain('Panda Lim');
     const cash = (c: GameConfig) => autoplay(newGame(c)).players.map((p) => [p.cash, p.stats.sold]);
     expect(cash(before)).toEqual(cash(now));
@@ -62,7 +62,6 @@ describe('panda rival rename', () => {
 
   it('both names are reserved for players (N4)', () => {
     expect(nameProblem('Patches')).toBe('reserved');
-    expect(nameProblem('Charming Chen')).toBe('reserved');
     expect(nameProblem('Panda Lim')).toBe('reserved');
     expect(nameProblem('panda lim')).toBe('reserved');
   });

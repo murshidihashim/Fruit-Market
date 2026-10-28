@@ -3,7 +3,8 @@
   "build": "rules version 5 on local branch workflow/plan-034 (not pushed)",
   "reports": [
     "REP-062",
-    "REP-063"
+    "REP-063",
+    "REP-065"
   ],
   "decisions": [
     "DEC-037",
@@ -11,7 +12,7 @@
   ],
   "changes": {
     "added": [
-      "Rara Jenab, a cheerleader customer"
+      "Rara Jenab, a customer, in place of Chris the Clown"
     ],
     "changed": [],
     "fixed": [],
@@ -20,7 +21,7 @@
     ]
   },
   "playerNotes": [
-    "Rara Jenab, a cheerleader, joins the customers in place of Chris the Clown"
+    "Rara Jenab joins the customers in place of Chris the Clown"
   ],
   "approval": {
     "status": "approved",

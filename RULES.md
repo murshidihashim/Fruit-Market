@@ -127,12 +127,12 @@ Before the game, each shop picks one of six characters. A character gives one pe
 
 | Character | Perk | Effect |
 |---|---|---|
-| Sharp Rosa | Haggler | You win tied prices, even against fresher fruit. |
-| Big Benny | Big Basket | Buy 1 extra fruit every day. |
-| Lucky Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
-| Charming Chen | Charmer | Start with 3 favour cards, and hold up to 4. |
-| Kind Kiran | Local Favourite | Customers you serve completely by yourself tip you $4. |
-| Thrifty Saleh | Nest Egg | Start with $15 instead of $10. |
+| Rosa | Haggler | You win tied prices, even against fresher fruit. |
+| Benny | Big Basket | Buy 1 extra fruit every day. |
+| Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
+| Chen | Charmer | Start with 3 favour cards, and hold up to 4. |
+| Kiran | Local Favourite | Customers you serve completely by yourself tip you $4. |
+| Saleh | Nest Egg | Start with $15 instead of $10. |
 
 (Rules version 5. Before, each shop was dealt 3 traits on the first morning and kept one.)
 
@@ -185,7 +185,7 @@ Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP
 
 ## Daily challenge
 
-Everyone in the world plays the same shuffled decks each day: you against Foxy Rosa (Normal), Big Benny (Hard) and Patches (Normal) over 10 days. Scores are kept per rules version.
+Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Benny (Hard) and Chen (Normal) over 10 days. Scores are kept per rules version.
 
 ## What changed from the paper draft
 

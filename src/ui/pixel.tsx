@@ -414,14 +414,14 @@ const SKIN = { a: C.c_f6d2b0, b: C.c_e3b088, c: C.c_c48a5f, d: C.c_8f5e3c, pale:
 
 const HUMANS: Record<string, Human> = {
   John: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'cowboy'] },
-  Robert: { skin: SKIN.pale, shirt: C.ink, parts: ['hairSlick', 'chef'], pal: { H: C.ink } },
+  Robert: { skin: SKIN.pale, shirt: C.c_8a6a3a, parts: ['hairSlick', 'glasses'], pal: { H: C.c_5b3a24 } },
   Daniel: { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['hairSides', 'glasses'], pal: { H: C.c_f4ecd8 } },
   'Rara Jenab': { skin: SKIN.b, shirt: C.c_3fa39a, parts: ['tudung', 'pompoms'], pal: { H: C.c_7b5aa6 } },
   Aisyah: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['hairLong', 'glasses'], pal: { H: C.c_3a2418 } },
   Ravi: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['hairSpiky', 'helmet'], pal: { H: C.ink, R: C.gold } },
   'Mei Ling': { skin: SKIN.a, shirt: C.c_3fa39a, parts: ['hairLong', 'headband'], pal: { H: C.c_3a2418, R: C.c_3fa39a } },
   Farid: { skin: SKIN.c, shirt: C.ink, parts: ['hairShort', 'helmet'], pal: { H: C.ink, R: C.c_d6453b } },
-  Siti: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'flower'], pal: { H: C.c_3a2418 } },
+  Siti: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'collar'], pal: { H: C.c_3a2418 } },
   Kumar: { skin: SKIN.d, shirt: C.c_7b5aa6, parts: ['tophat', 'mustache'], pal: { H: C.ink } },
   Grace: { skin: SKIN.a, shirt: C.ink, parts: ['hairSpiky', 'shades'], pal: { H: C.c_7b5aa6 } },
   Hafiz: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['hairShort', 'helmet', 'glasses'], pal: { H: C.c_3a2418, R: C.c_c9a46a } },
@@ -429,7 +429,7 @@ const HUMANS: Record<string, Human> = {
   Nurul: { skin: SKIN.b, shirt: C.c_9ad0e6, parts: ['hairBun', 'flower'], pal: { H: C.c_5b3a24 } },
   Priya: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['hairBun', 'glasses'], pal: { H: C.ink } },
   Ahmad: { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['beard', 'captain'], pal: { H: C.c_3a2418 } },
-  Sarah: { skin: SKIN.a, shirt: C.c_e889b4, parts: ['hairLong', 'helmet'], pal: { H: C.c_5b3a24, R: C.c_2f4a7a } },
+  Sarah: { skin: SKIN.a, shirt: C.c_2f4a7a, parts: ['hairLong', 'phone'], pal: { H: C.c_5b3a24 } },
   Tan: { skin: SKIN.a, shirt: C.c_8a6a3a, parts: ['hairSides', 'glasses', 'mustache'], pal: { H: C.c_f4ecd8 } },
   Lina: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairBun', 'flower'], pal: { H: C.ink } },
   Zul: { skin: SKIN.b, shirt: C.c_6b6f7a, parts: ['hairSpiky'], pal: { H: C.c_3a2418 } },
@@ -440,7 +440,7 @@ const HUMANS: Record<string, Human> = {
   'Jia Wen': { skin: SKIN.a, shirt: C.c_2f4a7a, parts: ['hairLong', 'headband'], pal: { H: C.ink } },
   Rizal: { skin: SKIN.c, shirt: C.c_3fa39a, parts: ['hairShort', 'shades'], pal: { H: C.ink } },
   Devi: { skin: SKIN.d, shirt: C.c_4f9a52, parts: ['hairBun', 'flower'], pal: { H: C.ink } },
-  Marcus: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'beard'], pal: { H: C.c_5b3a24 } },
+  Marcus: { skin: SKIN.b, shirt: C.c_2f4a7a, parts: ['hairShort', 'beard', 'cowboy'], pal: { H: C.c_5b3a24, T: C.gold } },
   Fatimah: { skin: SKIN.c, shirt: C.c_7b5aa6, parts: ['hairLong', 'glasses'], pal: { H: C.c_3a2418 } },
   Ben: { skin: SKIN.pale, shirt: C.c_a8423f, parts: ['hairShort', 'beret'], pal: { H: C.c_c4723a } },
   Yuki: { skin: SKIN.a, shirt: C.ink, parts: ['hairSides', 'headband'], pal: { H: C.ink } },
@@ -541,4 +541,6 @@ export function prewarmSprites() {
 
 /** Which portrait keys exist (the cast checks read this). */
 export const portraitKeys = () => ({ humans: Object.keys(HUMANS), animals: Object.keys(ANIMALS), avatarKey: AVATAR_KEY });
+
+
 

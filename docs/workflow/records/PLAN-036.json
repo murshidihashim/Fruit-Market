@@ -4,7 +4,8 @@
   "reports": [
     "REP-062",
     "REP-063",
-    "REP-064"
+    "REP-064",
+    "REP-065"
   ],
   "decisions": [
     "DEC-033",
@@ -97,7 +98,7 @@
       "id": "T9",
       "text": "The first-pass portraits are good enough or the owner lists fixes",
       "result": "NOT RUN",
-      "evidence": "Cast_After_T1.html is a first pass drawn from the existing parts; several faces with glasses read as sunglasses; the owner reviews"
+      "evidence": "Owner reviewed Cast_After_T1.html and asked for changes (done, REP-065); the rest of the review, the cast rules approval and the glasses that read as sunglasses are still open"
     }
   ]
 }

@@ -949,7 +949,7 @@
       "id": "DEC-038",
       "title": "Rara Jenab the Cheerleader replaces Chris the Clown",
       "question": "What should the Jenab customer be called and how should she be designed around her name?",
-      "choice": "Rara Jenab, \"Cheerleader Rara Jenab\". \"Rara\" gives the idea: a cheerful \"ra-ra\" cheerleader (and in Javanese \"rara\" means a young lady). Her quirk is about what she does: \"Cheers every mango she buys. 'Ra-ra, Jenab!'\" Portrait: a purple headscarf (tudung), a teal baju and gold-and-red pom-poms at her sides. She keeps Chris the Clown's order (4 mangoes and 1 blueberry), so demand is unchanged.",
+      "choice": "Rara Jenab (the title is just her name; the word \"cheerleader\" was dropped on the owner's review). \"Rara\" gives the idea: a cheerful \"ra-ra\" cheerleader (and in Javanese \"rara\" means a young lady). Her quirk is about what she does: \"Cheers every mango she buys. 'Ra-ra, Jenab!'\" Portrait: a purple headscarf (tudung), a teal baju and gold-and-red pom-poms at her sides. She keeps Chris the Clown's order (4 mangoes and 1 blueberry), so demand is unchanged.",
       "rationale": "Owner instruction (\"change it to Rara Jenab, design it around the name\"). Replaces the first design (Auntie Jenab, DEC-037).",
       "impact": {
         "player": "A customer called Rara Jenab, a cheerleader, in place of Chris the Clown.",
@@ -974,7 +974,7 @@
       "id": "DEC-039",
       "title": "Cast theme: one coherent theme for every character",
       "question": "Which single theme should every shopkeeper and customer follow?",
-      "choice": "T1, Townsfolk of the harbour market: every character is an ordinary person with a job or hobby and one playful detail. Nobody is an animal, creature, robot or monster. The 10 non-human and 8 costume customers became everyday roles (for example Night Baker Robert, Diver Mei Ling, Magician Kumar, Florist Nurul, Chemist Daniel, Delivery Rider Ravi).",
+      "choice": "T1, Townsfolk of the harbour market: every character is an ordinary person with a job or hobby and one playful detail. Nobody is an animal, creature, robot or monster. The 10 non-human and 8 costume customers became everyday roles (for example Night Baker Robert, Diver Mei Ling, Magician Kumar, Florist Nurul, Chemist Daniel, Delivery Rider Ravi). On the owner's review four roles were replaced: Tailor Siti, Fisherman Marcus, Librarian Robert and Photographer Sarah (names and orders unchanged).",
       "rationale": "Owner: \"customers should all be humans as well, design around the same coherent theme\". Today the cast is 6 animal shopkeepers, 10 non-human customers, 8 costume customers and 21 everyday ones (Cast_Coherence_Audit.html). T1 fits the calm flat look and the cast rule that a joke is about what someone does.",
       "impact": {
         "player": "Every customer a human; titles and quirks follow one pattern.",
@@ -999,7 +999,7 @@
       "id": "DEC-040",
       "title": "Shopkeepers become humans (replaces the animal rivals rule)",
       "question": "Should the six shopkeepers be humans instead of animals, keeping their perks?",
-      "choice": "Yes. The six shopkeepers are humans with a manner nickname and the perk unchanged: Sharp Rosa (Haggler), Big Benny (Big Basket), Charming Chen (Charmer), Thrifty Saleh (Nest Egg), Lucky Raj (Bargain Hunter), Kind Kiran (Local Favourite). DEC-018 (rivals are animal traders) is superseded. The internal avatar keys are unchanged so saves and rooms keep working; they are never shown. The home screen fox mascot stays until the animated opening replaces it (PLAN-029).",
+      "choice": "Yes. The six shopkeepers are humans with plain first names and the perk unchanged: Rosa (Haggler), Benny (Big Basket), Chen (Charmer), Saleh (Nest Egg), Raj (Bargain Hunter), Kiran (Local Favourite). The manner nicknames were dropped on the owner's review. DEC-018 (rivals are animal traders) is superseded. The internal avatar keys are unchanged so saves and rooms keep working; they are never shown. The home screen fox mascot stays until the animated opening replaces it (PLAN-029).",
       "rationale": "Owner: \"i dont like the fact that the characters are animal\". The perks were balanced in simulation and do not depend on the animal.",
       "impact": {
         "player": "The character pick shows six humans; the computer shops are human too.",
@@ -1437,6 +1437,10 @@
     {
       "at": "2026-10-28 23:14",
       "text": "Owner: \"t1 and proceed with dec040\". DEC-039 approved as T1 (townsfolk of the harbour market) and DEC-040 approved (shopkeepers become humans; DEC-018 superseded). First pass built on local branch workflow/plan-034 (not pushed): six human shopkeepers with the perks unchanged, the 18 non-human and costume customers turned into everyday roles, a draft Cast coherence section in the creative bible, and cast checks in tests. Portrait refinement, the bible approval and phone look remain (REP-064)."
+    },
+    {
+      "at": "2026-10-28 23:24",
+      "text": "Owner review of the cast: \"remove the manner nickname for shopkeepers, remove \"cheerleader\" from cheerleader Rara, replace the wedding planner, lumberjack, night baker, pony rider\". Done on local branch workflow/plan-034 (not pushed): shopkeepers are plain first names (Rosa, Benny, Chen, Saleh, Raj, Kiran); Rara Jenab no longer carries a role word; the wedding planner, lumberjack, night baker and pony rider became Tailor Siti, Fisherman Marcus, Librarian Robert and Photographer Sarah (names and orders unchanged, so demand is unchanged). Side effect: the shopkeepers' plain first names are no longer reserved player names; the old animal-era names stay reserved (REP-065)."
     }
   ]
 }
