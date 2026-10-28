@@ -50,8 +50,8 @@
     {
       "id": "T3",
       "text": "Browser tests (verify:full) pass in CI",
-      "result": "NOT RUN",
-      "evidence": "Not pushed; CI runs them on push"
+      "result": "PASS",
+      "evidence": "GitHub CI run 40716448881 on branch workflow/plan-034 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-28 23:44)."
     },
     {
       "id": "T4",

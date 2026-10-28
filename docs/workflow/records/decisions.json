@@ -1470,6 +1470,10 @@
     {
       "at": "2026-10-28 23:26",
       "text": "Owner: \"Approve rules\": the Cast coherence rules in the creative bible are approved (DEC-041). PLAN-036 T3 and T9 now PASS. The glasses part was recoloured to a brown frame so they read as spectacles (REP-066). Open in PLAN-036: a check that every quirk says what someone does (T5), the screen, printed cards, character pick and gallery drawing the same portraits (T6, only the sheet checked), phone look (T7) and browser tests (T8). Nothing pushed."
+    },
+    {
+      "at": "2026-10-28 23:44",
+      "text": "Owner: \"Push to preview\". Branch workflow/plan-034 (36 customers, blank name field, one palette and no emoji, Rara Jenab, the all-human cast and the cast rules) pushed; CI passed in full including the browser tests: PLAN-026 T3, PLAN-022 T4, PLAN-027 T5, PLAN-035 T4 and PLAN-036 T8 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. Phone look is still NOT RUN for these plans (REP-067)."
     }
   ]
 }

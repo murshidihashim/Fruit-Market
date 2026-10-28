@@ -93,8 +93,8 @@
     {
       "id": "T8",
       "text": "Lint, types, unit tests, build and browser tests pass",
-      "result": "NOT RUN",
-      "evidence": "Lint, types, 115 unit tests and the build pass; browser tests not run; not pushed"
+      "result": "PASS",
+      "evidence": "GitHub CI run 40716448881 on branch workflow/plan-034 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-28 23:44)."
     },
     {
       "id": "T9",
