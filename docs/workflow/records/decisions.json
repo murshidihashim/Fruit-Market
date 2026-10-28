@@ -1166,7 +1166,8 @@
       "delivery": "in progress",
       "reports": [
         "REP-075",
-        "REP-076"
+        "REP-076",
+        "REP-077"
       ],
       "reviewTrigger": "Morning review."
     }
@@ -1643,6 +1644,10 @@
     {
       "at": "2026-10-29 03:12",
       "text": "Overnight (DEC-046): pop-ups, trays, sheets and desktop margin restyled in look D (REP-075, branch CI green). Balance study: Good Riddance and shopkeeper perks measured, no rule changed (REP-076). Print kit and playtest pack built outside the repo (Print_Kit folder)."
+    },
+    {
+      "at": "2026-10-29 03:16",
+      "text": "Overnight (DEC-046): print kit built (mat and tokens, 36 customer cards, delivery, favour, event and shopkeeper cards, playtest pack) and two opening-animation designs drawn for the owner to choose (REP-077). Nothing built from the opening designs."
     }
   ]
 }

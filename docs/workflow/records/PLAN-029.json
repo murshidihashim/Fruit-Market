@@ -4,7 +4,8 @@
   "reports": [
     "REP-054",
     "REP-059",
-    "REP-069"
+    "REP-069",
+    "REP-077"
   ],
   "decisions": [
     "DEC-033",
