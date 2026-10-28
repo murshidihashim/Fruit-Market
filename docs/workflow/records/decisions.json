@@ -1069,6 +1069,31 @@
       ],
       "plan": "PLAN-031",
       "reviewTrigger": "When the owner changes the order or the rule."
+    },
+    {
+      "id": "DEC-043",
+      "title": "Table screen design approved (look D)",
+      "question": "Is the proposed table screen in look D approved for building?",
+      "choice": "Yes, as shown in Design_Proposal_Table_Screen.html: the Wholesale Market as pastel lanes with paper slots, coin-shaped prices, freshness corner flags and a gold outline on the slots the lorry delivers into; a flat smooth lorry on a road strip under the queue; the new human cast in the queue; paper rival stalls and your stall with striped awnings; ink-outlined pill buttons and top bar; a warm cream mat for everyday play. The trays and pop-ups keep their dark look until PLAN-033.",
+      "rationale": "Owner approval (\"okay approve this design\") of the design mock-up.",
+      "impact": {
+        "player": "The main game screen looks like the approved design: cream mat, paper slots, coin prices, flat lorry.",
+        "technical": "A look-D style block, the market markup (lane class, ghost fruit, delivery slots) and an inline flat lorry replace the wood board and the lorry picture; two scenery colours added to the palette.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "okay approve this design",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-071"
+      ],
+      "plan": "PLAN-030",
+      "reviewTrigger": "After the owner looks at the preview on a phone."
     }
   ],
   "history": [
@@ -1515,6 +1540,10 @@
     {
       "at": "2026-10-29 00:42",
       "text": "Rename pass (PLAN-031) built on local branch workflow/plan-031 (not pushed): Wholesale Market, stall, shopkeeper, Tired, piece, Stocking, The rush, Start buying and Start game, Delivery card, Gossip, Tip Jar, perk, stall upgrade, Handcart, regular, special guest, the crier, Closing Day, Daily market, Basic game, Price drift, Fixed prices, with a test that blocks the retired names. Good Riddance was left unrenamed while the owner decides its fate. PLAN-036 quirk check added (T5 PASS). PLAN-032 logic-level restore test and a device checklist added; the real server drills and phone runs are NOT RUN (REP-070)."
+    },
+    {
+      "at": "2026-10-29 00:55",
+      "text": "Owner: \"okay approve this design\": the table screen design is approved (DEC-043). Built on local branch workflow/plan-030 (not pushed; it sits on the rename pass): the Wholesale Market in look D, a flat lorry on a road strip, paper stalls, pill bars, cream mat. The e2e and smoke scripts clicked the old button labels (Open the shops, Open the market); updated to Start game and Start buying. The printed mat in look D and the shared slot data are still to do (REP-071)."
     }
   ]
 }

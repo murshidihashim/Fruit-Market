@@ -42,7 +42,7 @@ const MIN_TAP = Number(process.env.MIN_TAP ?? 40);
   await p.click('text=New game');
   await p.waitForTimeout(1500); // a player spends a moment choosing options on the setup screen
   await p.evaluate(() => { window.__entry = performance.now(); });
-  await p.click('text=Open the shops');
+  await p.click('text=Start game');
   const taps = {};
   let maxDom = 0;
   for (let i = 0; i < 3000; i++) {
@@ -50,7 +50,7 @@ const MIN_TAP = Number(process.env.MIN_TAP ?? 40);
       if (await p.locator('.results').count()) break;
       maxDom = Math.max(maxDom, await domCount());
       if (await p.locator('.trait-card').count()) { await p.click('.trait-card'); continue; }
-      if (await p.locator('text=Open the market').count()) { await p.click('text=Open the market'); continue; }
+      if (await p.locator('text=Start buying').count()) { await p.click('text=Start buying'); continue; }
       if (await p.locator('text=/Done buying|Skip buying/').count()) {
         taps.buy ??= await small();
         const t = p.locator('.mk-cell.pick');
@@ -67,7 +67,7 @@ const MIN_TAP = Number(process.env.MIN_TAP ?? 40);
   const { all, entry } = await p.evaluate(() => ({ all: window.__long, entry: window.__entry }));
   await b.close();
 
-  // Tasks in the first 1.5 s after "Open the shops" belong to opening the game screen.
+  // Tasks in the first 1.5 s after "Start game" belong to opening the game screen.
   const entryTasks = all.filter(([, t]) => t >= entry && t < entry + 1500).map(([d]) => d);
   const long = all.filter(([, t]) => t >= entry + 1500).map(([d]) => d);
   const longest = Math.max(0, ...long);

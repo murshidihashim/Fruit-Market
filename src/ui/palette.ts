@@ -190,6 +190,8 @@ export const C = {
   c_fbe7b5: '#fbe7b5',
   laneMango: '#fbecc4',
   mat: '#fbf3e1',
+  street: '#cfe7d8',
+  road: '#e2cc9c',
   c_ffd6c9: '#ffd6c9',
   c_ffe1d4: '#ffe1d4',
   c_fff2c2: '#fff2c2',
@@ -206,6 +208,8 @@ export const C = {
 export const GUIDE_ROLES = {
   "ink": "#2b2438",
   "mat": "#fbf3e1",
+  "street": "#cfe7d8",
+  "road": "#e2cc9c",
   "paper": "#fffdf7",
   "laneBlueberry": "#dfe3fa",
   "laneWatermelon": "#fbdcdd",

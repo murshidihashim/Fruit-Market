@@ -7,7 +7,7 @@ export interface Tip { id: string; title: string; text: string }
 
 export const TIPS: Tip[] = [
   { id: 'trait', title: 'Pick a perk', text: 'Each stall keeps one perk for the whole game. Rivals can see yours.' },
-  { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the Wholesale Market in the middle. Customers wait at the top. Tap Open the market.' },
+  { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the Wholesale Market in the middle. Customers wait at the top. Tap Start buying.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a glowing fruit in the market. Each column is one fruit, newest at the top; fresh fruit costs more but customers pay more for it. Check the bubbles: buy what people want.' },
   { id: 'bought', title: 'Nice!', text: 'It\'s on your stall now, at the bottom. Each chip shows how many nights it has left. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Open your stall', text: 'Choose how many of each fruit to put out today. Everyone sees how many each stall puts out before anyone sets a price.' },

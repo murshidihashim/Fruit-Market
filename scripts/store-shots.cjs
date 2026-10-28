@@ -21,7 +21,7 @@ const path = require('path');
   await shot('1-home');
   await p.click('text=New game');
   await p.locator('.seg').nth(0).locator('button', { hasText: '2' }).click();
-  await p.click('text=Open the shops');
+  await p.click('text=Start game');
   await p.waitForSelector('.trait-card');
   await p.waitForTimeout(1500);
   await shot('2-traits');
@@ -31,7 +31,7 @@ const path = require('path');
     try {
       if (await p.locator('.results').count()) break;
       if (await p.locator('.trait-card').count()) { await p.locator('.trait-card').nth(1).click(); continue; }
-      if (await p.locator('text=Open the market').count()) { await p.click('text=Open the market'); continue; }
+      if (await p.locator('text=Start buying').count()) { await p.click('text=Start buying'); continue; }
       if (await p.locator('text=/Done buying|Skip buying/').count()) {
         const t = p.locator('.mk-cell.pick');
         if (await p.locator('.my-stall .ms-cell.has').count() >= 2 && once('buy')) { await p.waitForTimeout(500); await shot('3-buying'); }

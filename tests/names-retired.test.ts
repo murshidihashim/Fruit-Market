@@ -9,7 +9,7 @@ const lines = (f: string) => readFileSync(f, 'utf8').split(/\r?\n/).map((l, i) =
 // PLAN-031 / DEC-035: the names players read. Retired words must not come back.
 const RETIRED: RegExp[] = [
   /Farmers[’']? [Mm]arket/, /farmers market/, /Market Gossip/, /Local Favourite/, /\bBarrow\b/, /[Ss]pecialit(y|ies)/, /Last Call/,
-  /Core market/, /Market pulse/, /Street prices?/, /Open stalls/, /\b[Nn]ot[- ]so\b/, /Daily challenge/, /Farmer cards?/,
+  /Core market/, /Market pulse/, /Street prices?/, /Open stalls/, /\b[Nn]ot[- ]so\b/, /Daily challenge/, /Farmer cards?/, /Open the (market|shops)/,
 ];
 const SHOP = /\bshops?\b/;
 const SHOP_OK = /world shops|shop-total|shopTotal/;

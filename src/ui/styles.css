@@ -805,3 +805,83 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .next-lorry .nl-note { font-size: 0.72rem; }
 .sc-money.ledger .net { padding-left: 10px; border-left: 2px solid rgba(0, 0, 0, 0.12); }
 .sc-waste { font-size: 0.8rem; color: var(--terra-d); }
+
+/* ---------- PLAN-030: look D, the table screen (approved design, DEC-034 and DEC-042) ----------
+   Warm cream mat, ink outlines, paper slots, coin-shaped prices, freshness flags. The trays and pop-ups stay as they are until PLAN-033. */
+.game { background: var(--c-fbf3e1); color: var(--ink); }
+.game .topbar { background: var(--c-fbf3e1); border-bottom: 0; }
+.game .topbar .icon-btn { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; }
+.game .topbar .day-label, .game .topbar .day-label small { color: var(--ink); }
+.game .topbar .phase, .game .topbar .rank, .game .topbar .left { border: 2px solid var(--ink); background: var(--c-fffdf7); color: var(--ink); }
+.game .topbar .rank.r1, .game .topbar .left { background: var(--c-f2c14e); }
+.game .topbar .left.last { background: var(--terra); color: var(--c-fff6e8); }
+.game .hud-cash { background: var(--c-f2c14e); border: 2px solid var(--ink); border-radius: 999px; box-shadow: none; }
+.game .ev-chip, .game .rv-chip { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); }
+.game .ev-chip small { color: var(--ink-muted); }
+.game .table { background: var(--c-fbf3e1); }
+.game .centre > .morning-card, .game .centre > .sales-card, .game .centre > .auction { border: 2px solid var(--ink); }
+
+/* the queue and the lorry on its road */
+.game .street-wrap { flex: none; min-height: 126px; position: relative; border: 2px solid var(--ink); border-radius: 14px; background: var(--c-cfe7d8); box-shadow: none; padding-bottom: 30px; overflow: hidden; }
+.game .street-wrap::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: var(--c-e2cc9c); border-top: 2px solid var(--ink); pointer-events: none; }
+.game .bubble { background: var(--c-fffdf7); border: 2px solid var(--ink); box-shadow: none; }
+.game .bubble::after { display: none; }
+.game .street-wrap .cust small { color: var(--ink-muted); }
+.game .lorry { bottom: 2px; z-index: 3; filter: none; }
+
+/* rival stalls and your stall */
+.game .rival-stall, .game .rival-drop, .game .my-stall { background: var(--c-fffdf7); border: 2px solid var(--ink); box-shadow: none; }
+.game .rival-stall.active, .game .my-stall.active { box-shadow: 0 0 0 3px var(--c-f2c14e); }
+.game .rival-stall.open { box-shadow: 0 0 0 3px var(--teal); background: var(--c-fffdf7); }
+.game .rs-awning, .game .ms-awning { border-bottom: 2px solid var(--ink); }
+.game .rs-f { background: var(--c-fffdf7); border: 1.5px solid var(--ink); border-radius: 999px; }
+.game .stk .ms-cell, .game .stk .ms-cell.st-fresh, .game .stk .ms-cell.st-okay, .game .stk .ms-cell.st-notso, .game .stk .ms-cell.st-unripe {
+  background: var(--c-fffdf7); border: 2px solid var(--ink); border-left-width: 7px; border-radius: 999px; box-shadow: none;
+}
+.game .stk .ms-cell.st-fresh { border-left-color: var(--c-9cca86); }
+.game .stk .ms-cell.st-okay { border-left-color: var(--c-e6c86f); }
+.game .stk .ms-cell.st-notso { border-left-color: var(--c-db8a6c); }
+.game .stk .ms-cell.st-unripe { border-left-color: var(--c-b8cf9a); }
+.game .ms-head .chip, .game .rd-head .chip { background: var(--c-fffdf7); border: 2px solid var(--ink); color: var(--ink); }
+.game .ms-head .chip.cash, .game .rival-stall .chip, .game .rd-head .chip.cash { background: var(--c-f2c14e); }
+.game .fcard { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); box-shadow: none; }
+.game .fcard.usable { background: var(--teal); color: var(--c-fff6e8); }
+
+/* the Wholesale Market */
+.game .market-stall { background: var(--c-fbf3e1); border: 2px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); padding: 0 6px 8px; }
+.game .mk-roof, .game .mk-head .truck { display: none; }
+.game .mk-head { justify-content: center; color: var(--ink); font-weight: 700; letter-spacing: 2px; padding: 9px 2px 3px; }
+.game .mk-cols { background: transparent; box-shadow: none; padding: 4px; gap: 5px; }
+.game .mk-col { border-radius: 12px; padding: 3px; gap: 3px; }
+.game .mk-col.blueberry { background: var(--c-dfe3fa); }
+.game .mk-col.watermelon { background: var(--c-fbdcdd); }
+.game .mk-col.apple { background: var(--c-f9e0d6); }
+.game .mk-col.mango { background: var(--c-fbecc4); }
+.game .pz { background: transparent; color: var(--ink); box-shadow: none; padding: 2px 4px; justify-content: space-between; }
+.game .pz-n, .game .pz-n b { color: var(--ink); }
+.game .pz-n { color: var(--ink-muted); }
+.game .pz.good { box-shadow: inset 0 0 0 2px var(--good); }
+.game .pz.war { box-shadow: inset 0 0 0 2px var(--bad); }
+.game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe {
+  background: var(--c-fffdf7); border: 1.5px solid var(--ink); border-radius: 9px; box-shadow: none; outline: 0; opacity: 0.62; min-height: 36px; justify-content: flex-start; padding: 0 0 0 5px; overflow: hidden;
+}
+.game .mk-cell.has { opacity: 1; }
+.game .mk-cell .gh { display: inline-flex; opacity: 0.22; }
+.game .mk-cell::after { content: ''; position: absolute; right: 0; top: 0; width: 0; height: 0; border-style: solid; border-width: 0 13px 13px 0; border-color: transparent; border-top-right-radius: 7px; }
+.game .mk-cell.st-fresh::after { border-right-color: var(--c-9cca86); }
+.game .mk-cell.st-okay::after { border-right-color: var(--c-e6c86f); }
+.game .mk-cell.st-notso::after { border-right-color: var(--c-db8a6c); }
+.game .mk-cell.st-unripe::after { border-right-color: var(--c-b8cf9a); }
+.game .mk-cell.entry { box-shadow: 0 0 0 2px var(--c-f2c14e); }
+.game .mk-cell.pick { opacity: 1; }
+.game .mk-cell .price { right: 3px; bottom: 2px; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; background: var(--c-f2c14e); border: 1.5px solid var(--ink); color: var(--ink); font-family: var(--f-pixel); font-size: 0.62rem; font-weight: 700; opacity: 1; }
+.game .mk-key, .game .next-lorry { color: var(--ink); }
+.game .next-lorry { background: transparent; }
+
+/* buttons in the bar along the bottom */
+.game .actionbar { background: var(--c-fbf3e1); border-top: 2px solid var(--ink); }
+.game .actionbar .btn { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; box-shadow: none; }
+.game .actionbar .btn.primary { background: var(--terra); color: var(--c-fff6e8); box-shadow: 0 3px 0 var(--ink); font-size: 1rem; white-space: nowrap; }
+.game .actionbar .btn.ghost, .game .actionbar .btn.skip { background: var(--c-fffdf7); box-shadow: none; }
+.game .buy-hint .move { color: var(--ink); }
+.game .buy-hint small, .game .hint-bar { color: var(--ink-muted); }

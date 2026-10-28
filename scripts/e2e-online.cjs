@@ -54,7 +54,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     const has = async (sel) => (await p.locator(sel).count()) > 0;
     if (await has('.results')) return 'done';
     if (await has('.trait-card')) { await p.click('.trait-card'); return 'moved'; }
-    if (await has('text=Open the market')) { await p.click('text=Open the market'); return 'moved'; }
+    if (await has('text=Start buying')) { await p.click('text=Start buying'); return 'moved'; }
     if (await has('text=/Done buying|Skip buying/')) {
       const c = p.locator('.mk-cell.pick');
       if ((await c.count()) && Math.random() < 0.6) { await c.first().click(); await p.waitForTimeout(250); return 'moved'; }

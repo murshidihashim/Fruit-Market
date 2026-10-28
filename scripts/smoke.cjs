@@ -14,7 +14,7 @@ const path = require('path');
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
   await page.click('text=New game');
   await page.locator('.seg').nth(0).locator('button', { hasText: rivals }).click();
-  await page.click('text=Open the shops');
+  await page.click('text=Start game');
   await page.waitForTimeout(250);
   await shot('01-delivery-anim');
   const seen = new Set();
@@ -24,7 +24,7 @@ const path = require('path');
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
     if (await has('.trait-card')) { if (once('trait')) await shot('01b-trait'); await page.click('.trait-card'); continue; }
-    if (await has('text=Open the market')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Open the market'); continue; }
+    if (await has('text=Start buying')) { if (once('morning')) await shot('02-morning'); if (await has('text=FINAL DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Start buying'); continue; }
     if (await has('text=/Done buying|Skip buying/')) {
       const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();

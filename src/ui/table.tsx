@@ -11,7 +11,6 @@ import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
-import lorryUrl from './img/lorry.png';
 import { C } from './palette';
 
 /** Each player's awning colour. */
@@ -53,7 +52,7 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
           <div class="mk-cover" aria-label="The market is closed for the night"><Icon name="moon" size={32} /><b>Crates covered</b><small>All fruit ages one night</small></div>
         )}
         {FRUITS.map((f, i) => (
-          <div class="mk-col">
+          <div class={`mk-col ${f}`}>
             <button type="button" class={`pz ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
               aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in stalls`}>
               <Fruit id={f} size={18} />
@@ -62,10 +61,10 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
             {marketColumn(s, f).map(({ pos, stage, n }) => {
               const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
               return (
-                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''}`}
+                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${pos === FRUIT[f].ripe.length - 1 || (FRUIT[f].unripeSlots > 0 && pos === FRUIT[f].ripe.length + FRUIT[f].unripeSlots - 1) ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'tired' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
-                  <Pile f={f} n={n} pos={pos} size={18} />
+                  {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
                   <span class="price">${buyCost(s, p, f, pos)}</span>
                 </button>
               );
@@ -245,8 +244,24 @@ export function Lorry({ here }: { here: boolean }) {
   }, [here]);
   if (!here && !leaving) return null;
   return (
-    <img class={`lorry ${here ? 'here' : 'leaving'}`} src={lorryUrl} alt="" aria-hidden="true" data-a="lorry"
-      width={150} height={58} onAnimationEnd={() => { if (!here) setLeaving(false); }} />
+    <svg class={`lorry ${here ? 'here' : 'leaving'}`} viewBox="0 0 150 58" width={150} height={58} aria-hidden="true" data-a="lorry"
+      onAnimationEnd={() => { if (!here) setLeaving(false); }}>
+      <defs>
+        <pattern id="lorry-stripe" width="12" height="10" patternUnits="userSpaceOnUse"><rect width="6" height="10" fill={C.terracotta} /><rect x="6" width="6" height="10" fill={C.paper} /></pattern>
+      </defs>
+      <rect x="52" y="4" width="94" height="10" rx="4" fill="url(#lorry-stripe)" />
+      <rect x="56" y="14" width="86" height="26" rx="3" fill={C.c_a86b45} />
+      <rect x="60" y="18" width="14" height="14" rx="3" fill={C.c_d6453b} />
+      <rect x="78" y="18" width="14" height="14" rx="3" fill={C.c_f0b33a} />
+      <rect x="96" y="18" width="14" height="14" rx="3" fill={C.c_5562c9} />
+      <rect x="114" y="18" width="14" height="14" rx="3" fill={C.c_e8505b} />
+      <path d="M6 40V24c0-4 3-8 8-8h30c4 0 6 2 8 6v18z" fill={C.paper} stroke={C.ink} stroke-width="1.5" />
+      <rect x="14" y="20" width="20" height="12" rx="3" fill={C.c_9ad0e6} />
+      <circle cx="22" cy="27" r="4" fill={C.c_f0b48c} />
+      <rect x="4" y="36" width="52" height="5" fill={C.teal} />
+      <circle cx="26" cy="44" r="9" fill={C.ink} /><circle cx="26" cy="44" r="3.5" fill={C.c_b8c0c9} />
+      <circle cx="112" cy="44" r="9" fill={C.ink} /><circle cx="112" cy="44" r="3.5" fill={C.c_b8c0c9} />
+    </svg>
   );
 }
 

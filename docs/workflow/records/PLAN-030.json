@@ -1,17 +1,19 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "the screen part is built on local branch workflow/plan-030 (not pushed); the printed set in look D and the shared slot data are still to do",
   "reports": [
     "REP-054",
     "REP-055",
     "REP-056",
     "REP-059",
-    "REP-069"
+    "REP-069",
+    "REP-071"
   ],
   "decisions": [
     "DEC-033",
     "DEC-034",
-    "DEC-042"
+    "DEC-042",
+    "DEC-043"
   ],
   "changes": {
     "added": [],
@@ -25,7 +27,7 @@
     "evidence": "approve everything above",
     "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-030",
   "title": "One Farmers Market board for the screen and the table (after the board look is chosen)",
   "problem": "The market is a grid of flat cells and the lorry is a smoothed picture; the owner wants the board to look the same in the game and on a real table (DEC-033).",
@@ -49,13 +51,13 @@
       "id": "T1",
       "text": "Screen and printed mat are generated from the same slot data (test compares track lengths and prices with the game data)",
       "result": "NOT RUN",
-      "evidence": "Printed prototype only: the A3 mat and tokens are generated from the game data (track lengths 3, 6, 7, 6; prices from the cost table). The screen market is not rebuilt yet, so the comparison cannot run."
+      "evidence": "Not done: the screen reads each slot from the game data; the printed mat is still the earlier prototype and is not yet generated from the same code"
     },
     {
       "id": "T2",
       "text": "Buying, putting back and the animations work as before on the new market (unit and browser tests)",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Buying, putting back and the animations were not changed in code (markup and styles only); unit tests pass; browser tests run in CI on push"
     },
     {
       "id": "T3",
@@ -73,13 +75,13 @@
       "id": "T5",
       "text": "The new market looks right and is easy to tap on a phone",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Looked at in a 390 px wide browser window (Table_Screen_Built_390px.png), not on a real phone"
     },
     {
       "id": "T6",
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Lint, types, 126 unit tests and the build pass locally; browser tests run in CI on push (not pushed)"
     }
   ]
 }
