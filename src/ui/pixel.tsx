@@ -403,6 +403,7 @@ const PARTS: Record<string, string[]> = {
   antenna: ['.......R........', '.......K........', '.......K........'],
   collar: ['', '', '', '', '', '', '', '', '', '', '', '', '', '..RR........RR..', '..RRR......RRR..', '..KKKKKKKKKKKKKK'],
   tudung: ['', '', '.....HHHHHH.....', '....HHHHHHHH....', '...HHHHHHHHHH...', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HH........HH..', '..HH........HH..', '..HHH......HHH..', '..HHHH....HHHH..', '..HHHHHHHHHHHH..'],
+  pompoms: ['', '', '', '', '', '', '', '', 'Y..............Y', 'YY............YY', 'RY............YR', 'YY............YY', '.Y............Y.'],
   bolt: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '.......YY.......'],
 };
 
@@ -414,7 +415,7 @@ const HUMANS: Record<string, Human> = {
   John: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'cowboy'] },
   Robert: { skin: SKIN.pale, shirt: C.ink, parts: ['hairSlick', 'collar'], pal: { H: C.ink } },
   Daniel: { skin: SKIN.a, shirt: C.c_7b5aa6, parts: ['longBeard', 'wizard'] },
-  Jenab: { skin: SKIN.b, shirt: C.c_3fa39a, parts: ['tudung'], pal: { H: C.c_7b5aa6 } },
+  'Rara Jenab': { skin: SKIN.b, shirt: C.c_3fa39a, parts: ['tudung', 'pompoms'], pal: { H: C.c_7b5aa6 } },
   Aisyah: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['astro'] },
   Ravi: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['hairSpiky', 'mask', 'bolt'], pal: { H: C.ink } },
   'Mei Ling': { skin: SKIN.a, shirt: C.c_3fa39a, parts: ['hairLong', 'flower'], pal: { H: C.c_3fa39a } },
@@ -545,4 +546,8 @@ export function prewarmSprites() {
   };
   idle(run);
 }
+
+
+
+
 

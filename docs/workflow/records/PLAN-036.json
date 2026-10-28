@@ -1,14 +1,17 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "cast audit done (no code changes); art and code wait for DEC-039 and DEC-040",
   "reports": [
-    "REP-062"
+    "REP-062",
+    "REP-063"
   ],
   "decisions": [
     "DEC-033",
     "DEC-034",
     "DEC-035",
-    "DEC-037"
+    "DEC-038",
+    "DEC-039",
+    "DEC-040"
   ],
   "changes": {
     "added": [],
@@ -18,21 +21,21 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "approve the above and then work on plan 36",
+    "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-036",
-  "title": "Character theming and portrait coherence",
-  "problem": "No plan covers the characters' look and theme as a whole. PLAN-027 and PLAN-033 handle the palette, sizes and screens; the naming plan handles words. Nobody owns: one portrait style for animals and humans, the costume and theme rules for customers, quirks and titles that follow the cast rules, a diversity pass over the 36 customers, and the same art on the screen, the printed cards and the gallery.",
+  "title": "Character coherence: one human cast, one theme, tied to the design style",
+  "problem": "There is no plan for how the characters look and read as a whole. Today there are three kinds of cast under one word (6 animal shopkeepers, 4 start icons, 39 customers of whom 10 are not human and 8 wear costumes), drawn in three ways, and the owner wants everyone human under one coherent theme tied to the design style.",
   "scope": [
-    "Update the creative bible (cast and portrait rules) for Look C and board look D: portrait grid, face template, outline, light direction, palette roles for skin, hair and costume",
-    "Customer theme rules: costume archetypes, a title and quirk pattern (\"what they do, not who they are\"), a diversity pass over all 36 customers and the three event customers",
-    "Shopkeepers stay animals (DEC-018); bring animals and humans to the same outline, light and palette rules",
-    "An audit sheet of every portrait against the rules, with a list of fixes the owner approves",
-    "Apply the fixes; the screen, the printed cards, the character pick and the gallery all draw from the same data",
-    "Optional, owner decides: idle, happy and sad frames for the shopkeepers"
+    "Cast audit of everyone (done: Cast_Coherence_Audit.html)",
+    "The owner decides the theme (DEC-039) and whether the shopkeepers become humans (DEC-040); no art or code changes before that",
+    "Creative bible update: one cast theme, portrait style rules tied to the style guide (grid, face template, outline, light, palette roles for skin, hair and costume), the title and quirk pattern, honorifics and a diversity check, DEC-018 superseded if DEC-040 is approved",
+    "Retheme or redraw the customers the theme changes; six human shopkeepers if approved; check the four start icons",
+    "The screen, the printed cards, the character pick and the gallery all draw the same portraits from the same data",
+    "Optional, owner decides: idle, happy and sad frames"
   ],
   "exclusions": [
     "Changing any perk, order or rule",
@@ -43,39 +46,51 @@
   "acceptance": [
     {
       "id": "T1",
-      "text": "The creative bible has the portrait and theme rules and the owner approves them",
-      "result": "NOT RUN",
-      "evidence": "Not started"
+      "text": "The cast audit exists and the owner has read it",
+      "result": "PASS",
+      "evidence": "Cast_Coherence_Audit.html (2026-10-28 23:03)"
     },
     {
       "id": "T2",
-      "text": "An audit sheet lists every portrait against the rules and the owner approves the fix list",
+      "text": "The owner decides DEC-039 (theme) and DEC-040 (shopkeepers) in writing",
       "result": "NOT RUN",
-      "evidence": "Not started"
+      "evidence": "Not run yet"
     },
     {
       "id": "T3",
-      "text": "The approved fixes are applied and the screen, printed cards, character pick and gallery show the same portraits",
+      "text": "The creative bible has the cast theme and portrait rules and the owner approves them",
       "result": "NOT RUN",
-      "evidence": "Not started"
+      "evidence": "Not run yet"
     },
     {
       "id": "T4",
-      "text": "Every customer title and quirk follows the cast rules (a check lists any that name who someone is)",
+      "text": "No customer or shopkeeper is non-human (a list check against the approved theme)",
       "result": "NOT RUN",
-      "evidence": "Not started"
+      "evidence": "Not run yet"
     },
     {
       "id": "T5",
-      "text": "Phone look checked on the character pick, the table and the results screen",
+      "text": "Every title and quirk follows the pattern (a check lists any that say who someone is)",
       "result": "NOT RUN",
-      "evidence": "Not started"
+      "evidence": "Not run yet"
     },
     {
       "id": "T6",
+      "text": "The screen, the printed cards, the character pick and the gallery show the same portraits",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T7",
+      "text": "Phone look checked on the character pick, the table and the results screen",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T8",
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
-      "evidence": "Not started"
+      "evidence": "Not run yet"
     }
   ]
 }

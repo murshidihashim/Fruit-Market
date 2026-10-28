@@ -2,23 +2,25 @@
   "release": "unreleased",
   "build": "rules version 5 on local branch workflow/plan-034 (not pushed)",
   "reports": [
-    "REP-062"
+    "REP-062",
+    "REP-063"
   ],
   "decisions": [
-    "DEC-037"
+    "DEC-037",
+    "DEC-038"
   ],
   "changes": {
     "added": [
-      "Auntie Jenab, a lady customer"
+      "Rara Jenab, a cheerleader customer"
     ],
     "changed": [],
     "fixed": [],
     "removed": [
-      "Chris the Clown (replaced by Auntie Jenab, same order)"
+      "Chris the Clown (replaced by Rara Jenab, same order)"
     ]
   },
   "playerNotes": [
-    "Auntie Jenab joins the customers in place of Chris the Clown"
+    "Rara Jenab, a cheerleader, joins the customers in place of Chris the Clown"
   ],
   "approval": {
     "status": "approved",
@@ -27,12 +29,12 @@
   },
   "delivery": "implemented",
   "id": "PLAN-035",
-  "title": "Auntie Jenab replaces Chris the Clown",
+  "title": "Rara Jenab replaces Chris the Clown",
   "problem": "The owner wants Jenab, a lady, among the characters; she is a customer.",
   "scope": [
-    "Replace one customer card with Auntie Jenab, keeping the order so demand does not change",
-    "A headscarf portrait in the existing pixel style",
-    "A title and a quirk",
+    "Replace one customer card with Rara Jenab, keeping the order so demand does not change",
+    "A headscarf and pom-pom portrait in the existing pixel style",
+    "A title and a quirk built around the name",
     "Regenerate the character sheet"
   ],
   "exclusions": [

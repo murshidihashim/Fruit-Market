@@ -932,7 +932,7 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "approved",
+        "status": "superseded",
         "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady; sorry jenab is a customer",
         "date": "2026-10-28"
       },
@@ -941,7 +941,83 @@
         "REP-062"
       ],
       "plan": "PLAN-035",
-      "reviewTrigger": "If the owner wants a different customer replaced, or a different look for her."
+      "reviewTrigger": "If the owner wants a different customer replaced, or a different look for her.",
+      "supersededBy": "DEC-038"
+    },
+    {
+      "id": "DEC-038",
+      "title": "Rara Jenab the Cheerleader replaces Chris the Clown",
+      "question": "What should the Jenab customer be called and how should she be designed around her name?",
+      "choice": "Rara Jenab, \"Cheerleader Rara Jenab\". \"Rara\" gives the idea: a cheerful \"ra-ra\" cheerleader (and in Javanese \"rara\" means a young lady). Her quirk is about what she does: \"Cheers every mango she buys. 'Ra-ra, Jenab!'\" Portrait: a purple headscarf (tudung), a teal baju and gold-and-red pom-poms at her sides. She keeps Chris the Clown's order (4 mangoes and 1 blueberry), so demand is unchanged.",
+      "rationale": "Owner instruction (\"change it to Rara Jenab, design it around the name\"). Replaces the first design (Auntie Jenab, DEC-037).",
+      "impact": {
+        "player": "A customer called Rara Jenab, a cheerleader, in place of Chris the Clown.",
+        "technical": "Her name, look and portrait entries; a new pom-poms part.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "change it to Rara Jenab, design it around the name",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-063"
+      ],
+      "plan": "PLAN-035",
+      "reviewTrigger": "If the owner wants a different role or look for her, or when PLAN-036 sets the cast theme."
+    },
+    {
+      "id": "DEC-039",
+      "title": "Cast theme: one coherent theme for every character",
+      "question": "Which single theme should every shopkeeper and customer follow?",
+      "choice": "Not chosen yet. T1 Townsfolk of the harbour market: everyone is an ordinary person with a job or hobby and one playful detail (changes the 10 non-human and the 8 costume customers). T2 Market-day fancy dress: everyone is human and costumes stay as a joke, but no robots, zombies or mermaids (changes the 10 non-humans only). Recommendation: T1.",
+      "rationale": "Owner: \"customers should all be humans as well, design around the same coherent theme\". Today the cast is 6 animal shopkeepers, 10 non-human customers, 8 costume customers and 21 everyday ones (Cast_Coherence_Audit.html). T1 fits the calm flat look and the cast rule that a joke is about what someone does.",
+      "impact": {
+        "player": "Every customer a human; titles and quirks follow one pattern.",
+        "technical": "Nothing built; portraits and titles change when approved.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "proposed",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-063"
+      ],
+      "plan": "PLAN-036",
+      "reviewTrigger": "When the owner chooses."
+    },
+    {
+      "id": "DEC-040",
+      "title": "Shopkeepers become humans (replaces the animal rivals rule)",
+      "question": "Should the six shopkeepers be humans instead of animals, keeping their perks?",
+      "choice": "Not decided yet. If yes: six human shopkeepers, each designed around their perk and a manner nickname (for example Rosa the Haggler, Benny Big-Basket), the perks unchanged, DEC-018 (rivals are animal traders) superseded, and the four start icons checked (one is keyed as a monkey).",
+      "rationale": "Owner: \"i dont like the fact that the characters are animal\". The perks were balanced in simulation and do not depend on the animal.",
+      "impact": {
+        "player": "The character pick shows six humans; the computer shops are human too.",
+        "technical": "Six new portraits, names and lines; RIVALS and the avatar keys change; tests and the rules table update.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "proposed",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-063"
+      ],
+      "plan": "PLAN-036",
+      "reviewTrigger": "When the owner chooses."
     }
   ],
   "history": [
@@ -1352,6 +1428,10 @@
     {
       "at": "2026-10-28 22:54",
       "text": "Owner: \"sorry jenab is a customer\". The shopkeeper reading was wrong: DEC-036 and PLAN-034 are closed as superseded (their approval is kept as recorded) and the Uncle Toad change is reverted in code. Jenab is now a customer: Auntie Jenab replaces Chris the Clown with the same order (DEC-037, PLAN-035, implemented on local branch workflow/plan-034, not pushed). The owner also asked which plan covers character theming and design coherence: none did, so PLAN-036 is proposed (REP-062)."
+    },
+    {
+      "at": "2026-10-28 23:03",
+      "text": "Owner: \"change it to Rara Jenab, design it around the name\". Auntie Jenab became Rara Jenab the Cheerleader, designed around \"ra-ra\" (DEC-038 refines DEC-037; PLAN-035). Owner also said the characters being animals is wrong, customers should all be humans and the whole cast should follow one coherent theme tied to the design style. Then: \"approve the above and then work on plan 36\" (PLAN-027, PLAN-033 and PLAN-031 were already approved, so nothing new was recorded for them). PLAN-036 approved and started as design work only: the cast audit is done (Cast_Coherence_Audit.html); the owner now decides DEC-039 (cast theme) and DEC-040 (shopkeepers become humans) before any art or code changes (REP-063)."
     }
   ]
 }
