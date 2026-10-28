@@ -1544,6 +1544,10 @@
     {
       "at": "2026-10-29 00:55",
       "text": "Owner: \"okay approve this design\": the table screen design is approved (DEC-043). Built on local branch workflow/plan-030 (not pushed; it sits on the rename pass): the Wholesale Market in look D, a flat lorry on a road strip, paper stalls, pill bars, cream mat. The e2e and smoke scripts clicked the old button labels (Open the shops, Open the market); updated to Start game and Start buying. The printed mat in look D and the shared slot data are still to do (REP-071)."
+    },
+    {
+      "at": "2026-10-29 01:14",
+      "text": "Owner: \"Push to preview\". PLAN-023 (online undo and lobby rename) is on the preview: CI passed on the branch and on main. Branch workflow/plan-030 (rename pass, quirk check, free drills, the table screen in look D) pushed; CI passed in full including the browser tests: PLAN-031 T3, PLAN-030 T2 and T6 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. Phone looks and two-phone undo are still NOT RUN (REP-072)."
     }
   ]
 }

@@ -56,8 +56,8 @@
     {
       "id": "T2",
       "text": "Buying, putting back and the animations work as before on the new market (unit and browser tests)",
-      "result": "NOT RUN",
-      "evidence": "Buying, putting back and the animations were not changed in code (markup and styles only); unit tests pass; browser tests run in CI on push"
+      "result": "PASS",
+      "evidence": "Buying and the animations were not changed in code; GitHub CI run 40731340121 on branch workflow/plan-030 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-29 01:14)."
     },
     {
       "id": "T3",
@@ -80,8 +80,8 @@
     {
       "id": "T6",
       "text": "Lint, types, unit tests, build and browser tests pass",
-      "result": "NOT RUN",
-      "evidence": "Lint, types, 126 unit tests and the build pass locally; browser tests run in CI on push (not pushed)"
+      "result": "PASS",
+      "evidence": "GitHub CI run 40731340121 on branch workflow/plan-030 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-29 01:14)."
     }
   ]
 }

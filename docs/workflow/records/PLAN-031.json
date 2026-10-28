@@ -57,8 +57,8 @@
     {
       "id": "T3",
       "text": "Lint, types, unit tests, build and browser tests pass",
-      "result": "NOT RUN",
-      "evidence": "Lint, types, 126 unit tests and the build pass locally; browser tests run in CI on push (not pushed)."
+      "result": "PASS",
+      "evidence": "GitHub CI run 40731340121 on branch workflow/plan-030 (manual start), conclusion success: lint, types, unit tests, build and browser tests (verify:full) (2026-10-29 01:14)."
     },
     {
       "id": "T4",

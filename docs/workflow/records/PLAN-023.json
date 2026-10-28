@@ -53,8 +53,8 @@
     {
       "id": "T3",
       "text": "verify and verify:full pass",
-      "result": "NOT RUN",
-      "evidence": "First CI run (40724975276) failed one browser test (the lobby text the test looks for was replaced by an input); fixed by showing your name as text with a Rename button; CI re-run pending. Lint, types, 122 unit tests and the build pass locally."
+      "result": "PASS",
+      "evidence": "GitHub CI run 40727099420 on branch workflow/plan-023 (manual start), conclusion success; and run 40729701598 on main, checks and preview jobs success (2026-10-29 01:14)."
     },
     {
       "id": "T4",
