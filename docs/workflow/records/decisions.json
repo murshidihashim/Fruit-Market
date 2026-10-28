@@ -846,8 +846,8 @@
       "id": "DEC-034",
       "title": "Board look: which of four looks the rest of the game follows",
       "question": "Which look should the Farmers Market board have, so the rest of the game is designed back from it?",
-      "choice": "Not chosen yet. Options (Board_Look_Options.html): A stall front, B chalkboard, C crate rack, D soft tabletop mat, or a mix.",
-      "rationale": "Owner: \"i want to decide on the board look first, then design the game back because that the proof of concept\". Recommendation: D (calmest, cheapest, prints lightest), with the market character carried by the scene around it.",
+      "choice": "D, the soft tabletop mat (Board_Look_Options.html): pastel lanes by fruit, paper slots with thin ink lines, a coin-shaped price and a freshness flag at each slot, cream mat surfaces, pill buttons with an ink outline. The market character is carried by the scene around the board (home scene, street, lorry), drawn flat and smooth; fruit, people and icons stay pixel.",
+      "rationale": "Owner: \"i want to decide on the board look first, then design the game back because that the proof of concept\". Recommendation: D (calmest, cheapest, prints lightest), with the market character carried by the scene around it. Owner approved the recommendation (\"approve everything above\", after the recap that named D as the pick).",
       "impact": {
         "player": "None yet. The chosen look becomes the palette, corner shape, line weight and button style for the whole game.",
         "technical": "Nothing built.",
@@ -856,11 +856,11 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "approve everything above",
+        "date": "2026-10-28"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "reports": [
         "REP-056"
       ],
@@ -1285,6 +1285,10 @@
     {
       "at": "2026-10-28 22:23",
       "text": "Owner: \"do per your suggestion\" after the recap of DEC-020, PLAN-022, PLAN-018 and PLAN-003. Done: DEC-020 closed as superseded by DEC-033 (it was never approved); PLAN-022 cut to the blank-name part, approved and built on local branch workflow/plan-022 (not pushed; keyboard on phones NOT RUN); PLAN-003 written up with checks and split into PLAN-032 (free drills) and PLAN-003 (the paid part, no spend until the owner sets a cap), both proposed. PLAN-018 left proposed: approve it when a live release is planned, because the data cannot be filled in later (REP-058)."
+    },
+    {
+      "at": "2026-10-28 22:28",
+      "text": "Owner: \"approve everything above\", after the recap of DEC-034, PLAN-027, PLAN-029 and PLAN-030. Recorded: board look D chosen (DEC-034 approved), and PLAN-027 (style guide and palette), PLAN-029 (animated opening) and PLAN-030 (shared board) approved, to be built in that order. PLAN-027 started: the style guide is drafted from look D (docs/ART-STYLE.md) for the owner to approve. New proposed plan PLAN-033: restyle the other screens to the board look, which no approved plan covered (REP-059)."
     }
   ]
 }

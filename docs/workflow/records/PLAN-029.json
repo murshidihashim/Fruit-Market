@@ -2,10 +2,12 @@
   "release": "unreleased",
   "build": "not started",
   "reports": [
-    "REP-054"
+    "REP-054",
+    "REP-059"
   ],
   "decisions": [
-    "DEC-033"
+    "DEC-033",
+    "DEC-034"
   ],
   "changes": {
     "added": [],
@@ -15,9 +17,9 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "approve everything above",
+    "date": "2026-10-28"
   },
   "delivery": "not started",
   "id": "PLAN-029",
@@ -27,7 +29,8 @@
     "Replace the harbour with a pixel market street loop: lorry arrives, fruit goes to stalls, customers order and pay, lorry leaves",
     "CSS-only motion, stepped like the rest of the game, no sound",
     "Still frame for reduced motion",
-    "The title and buttons stay usable from the first moment (nothing waits for the animation)"
+    "The title and buttons stay usable from the first moment (nothing waits for the animation)",
+    "Order of work: after PLAN-027, so it uses the final palette"
   ],
   "exclusions": [
     "Sound",

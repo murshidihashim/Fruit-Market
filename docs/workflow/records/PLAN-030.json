@@ -4,7 +4,8 @@
   "reports": [
     "REP-054",
     "REP-055",
-    "REP-056"
+    "REP-056",
+    "REP-059"
   ],
   "decisions": [
     "DEC-033",
@@ -18,9 +19,9 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "approve everything above",
+    "date": "2026-10-28"
   },
   "delivery": "not started",
   "id": "PLAN-030",
@@ -31,7 +32,8 @@
     "Board sprites and art in the chosen look",
     "Screen market rebuilt as slots with printed prices, keeping buy taps and animation anchors",
     "A printable board and token set generated from the same game data (the A3 prototype is one candidate look)",
-    "RULES.md \"Playing on a table\": the board and how nights are handled"
+    "RULES.md \"Playing on a table\": the board and how nights are handled",
+    "Order of work: last. A printed mat is tried on a table before the screen market is rebuilt"
   ],
   "exclusions": [
     "Skins for the other league stages",

@@ -1,11 +1,13 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "guide drafted on local branch workflow/plan-027",
   "reports": [
-    "REP-054"
+    "REP-054",
+    "REP-059"
   ],
   "decisions": [
-    "DEC-033"
+    "DEC-033",
+    "DEC-034"
   ],
   "changes": {
     "added": [],
@@ -15,11 +17,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "approve everything above",
+    "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-027",
   "title": "Look C style guide and one palette",
   "problem": "Art audit (REP-054): pixel sprites, flat vector, CSS and one raster lorry follow no shared rule; colours are typed twice (29 CSS tokens, 89 CSS hex values and 102 in the sprite code); sprites scale by arbitrary amounts; emoji remain in the interface.",
@@ -27,7 +29,8 @@
     "docs/ART-STYLE.md: flat and smooth for scenery and structure, pixel for objects; allowed sprite sizes in whole multiples; corner and type rules; no emoji",
     "One palette file read by both the stylesheet and the sprites",
     "Sprite sizes snapped to the allowed list",
-    "Replace the remaining emoji in the interface with pixel icons"
+    "Replace the remaining emoji in the interface with pixel icons",
+    "Order of work: first. The guide (docs/ART-STYLE.md) is drafted from board look D; the owner approves its content as acceptance T1"
   ],
   "exclusions": [
     "Any new artwork",

@@ -1,0 +1,65 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-059"
+  ],
+  "decisions": [
+    "DEC-033",
+    "DEC-034"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-033",
+  "title": "Restyle the screens to the board look (the kit)",
+  "problem": "The approved plans cover the guide, the board and the opening scene. Nobody yet restyles the other screens (buttons, chips, cards, panels, the dark information layer) to the board look, so the game would be half old and half new.",
+  "scope": [
+    "Buttons, chips, cards, panels, inputs and toggles restyled to the kit: cream mat surfaces, ink outlines, pill buttons, coin-shaped prices",
+    "Dark navy kept only for the evening phase and overlays",
+    "Screen by screen: home, set-up, the table, morning card, showdown, results, settings, how to play",
+    "Pixel icons in place of the remaining emoji (if PLAN-027 has not done it)"
+  ],
+  "exclusions": [
+    "Rules or balance",
+    "Layout changes beyond what the kit needs",
+    "New artwork other than the kit pieces",
+    "Publishing to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Every screen uses the palette, radii and outlines in docs/ART-STYLE.md (a check lists any stray values)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "No screen is harder to read or to tap than before (contrast and 44 px targets checked)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "Phone look checked on the home, set-up, table and results screens",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
+}
