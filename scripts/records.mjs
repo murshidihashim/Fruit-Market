@@ -7,8 +7,12 @@
 // Output depends only on the sources (no clock), so running it twice changes nothing.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { lf, repoRoot } from './paths.mjs';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+// A native path on every platform (PLAN-037: the old URL pathname broke on Windows drive letters and spaces).
+const ROOT = repoRoot(import.meta.url);
+const at = (f) => join(ROOT, f);
 const REC = 'docs/workflow/records';
 const REP = 'docs/workflow/reports';
 const OUT = { register: 'docs/workflow/DECISIONS.md', changelog: 'CHANGELOG.md', state: 'docs/workflow/STATE.md' };
@@ -17,7 +21,8 @@ const DELIVERY = ['not started', 'in progress', 'implemented', 'verified', 'rele
 const RESULTS = ['PASS', 'FAIL', 'NOT RUN', 'NOT APPLICABLE'];
 const PENDING = ['proposed', 'awaiting approval'];
 
-const read = (f) => readFileSync(ROOT + f, 'utf8');
+// LF everywhere, so a Windows checkout with CRLF line endings compares equal to the generated views.
+const read = (f) => lf(readFileSync(at(f), 'utf8'));
 const json = (f) => JSON.parse(read(f));
 const git = (...a) => execFileSync('git', a, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 
@@ -28,7 +33,7 @@ function load(base) {
   };
   const planFiles = base
     ? (() => { try { return git('ls-tree', '--name-only', base, `${REC}/`).split('\n').map((p) => p.split('/').pop()); } catch { return []; } })()
-    : readdirSync(ROOT + REC);
+    : readdirSync(at(REC));
   return {
     dec: get(`${REC}/decisions.json`),
     plans: planFiles.filter((f) => /^PLAN-\d{3}\.json$/.test(f)).sort().map((f) => get(`${REC}/${f}`)).filter(Boolean),
@@ -40,7 +45,7 @@ function load(base) {
 
 function validate({ dec, plans, rel }) {
   const errs = [];
-  const reports = readdirSync(ROOT + REP).filter((f) => /^REP-\d{3}\.md$/.test(f)).sort().map((f) => f.slice(0, 7));
+  const reports = readdirSync(at(REP)).filter((f) => /^REP-\d{3}\.md$/.test(f)).sort().map((f) => f.slice(0, 7));
   const seq = (ids, kind) => ids.forEach((id, i) => {
     const want = `${kind}-${String(i + 1).padStart(3, '0')}`;
     if (id !== want) errs.push(`${kind} IDs must run 001, 002, … without gaps or repeats: found ${id} where ${want} was expected.`);
@@ -180,7 +185,7 @@ function views(s) {
   return {
     [OUT.register]: register(s),
     [OUT.changelog]: changelog(s),
-    [OUT.state]: stateBlock(s, existsSync(ROOT + OUT.state) ? read(OUT.state) : ''),
+    [OUT.state]: stateBlock(s, existsSync(at(OUT.state)) ? read(OUT.state) : ''),
   };
 }
 
@@ -198,7 +203,7 @@ if (args.includes('--check')) {
   try { git('rev-parse', '--verify', `${base}^{commit}`); } catch { baseOk = false; }
   const problems = baseOk ? appendOnly(cur, load(base)) : [];
   for (const [file, text] of Object.entries(views(cur))) {
-    if (!existsSync(ROOT + file) || read(file) !== text) problems.push(`${file} is out of date. Run: npm run records`);
+    if (!existsSync(at(file)) || read(file) !== text) problems.push(`${file} is out of date. Run: npm run records`);
   }
   if (problems.length) fail('RECORDS CHECK FAILED:', problems);
   console.log(`RECORDS OK: ${cur.dec.decisions.length} decisions, ${cur.plans.length} packages, ${cur.rel.releases.length} releases${baseOk ? `; history checked against ${base}` : `; history not compared (${base} unavailable)`}.`);
@@ -215,9 +220,13 @@ if (args.includes('--check')) {
   console.log(`RELEASE OK: would tag v${version} at ${git('rev-parse', '--short', 'HEAD')}.\nChangelog entry:\n${r.notes.map((n) => `  - ${n}`).join('\n')}`);
 } else {
   for (const [file, text] of Object.entries(views(cur))) {
-    if (!existsSync(ROOT + file) || read(file) !== text) { writeFileSync(ROOT + file, text); console.log('updated', file); }
+    if (!existsSync(at(file)) || read(file) !== text) { writeFileSync(at(file), text); console.log('updated', file); }
   }
   if (!args.includes('--no-pdf')) {
-    try { execFileSync('node', ['docs/workflow/export-pdf.cjs'], { cwd: ROOT, stdio: 'inherit' }); } catch { process.exit(1); }
+    try { execFileSync(process.execPath, ['docs/workflow/export-pdf.cjs'], { cwd: ROOT, stdio: 'inherit' }); } catch {
+      // The views above are already written; only the PDFs are missing (they need pandoc and the Playwright browser).
+      console.error('The register, changelog and STATE block were updated; only the PDFs were not. To skip PDFs: npm run records -- --no-pdf');
+      process.exit(1);
+    }
   }
 }

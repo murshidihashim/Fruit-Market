@@ -19,7 +19,7 @@
     "records": "node scripts/records.mjs",
     "records:check": "node scripts/records.mjs --check",
     "test:e2e": "node scripts/e2e.mjs",
-    "test:reconnect": "vite build && node scripts/with-server.mjs 'node scripts/e2e-reconnect.cjs $BASE_URL ${E2E_OUT:-e2e-output}'",
+    "test:reconnect": "vite build && node scripts/with-server.mjs node scripts/e2e-reconnect.cjs @BASE_URL@ @E2E_OUT@",
     "perf": "vite build --mode single && node scripts/perf-budget.cjs dist-single/index.html",
     "palette": "node scripts/palette.mjs",
     "palette:check": "node scripts/palette.mjs --check"
