@@ -1,10 +1,13 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "logic-level drill and the checklist on local branch workflow/plan-031 (not pushed)",
   "reports": [
-    "REP-058"
+    "REP-058",
+    "REP-069"
   ],
-  "decisions": [],
+  "decisions": [
+    "DEC-042"
+  ],
   "changes": {
     "added": [],
     "changed": [],
@@ -13,11 +16,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "approve everything except plan 21, for the design related, require my approval on the design, else just run",
+    "date": "2026-10-29"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-032",
   "title": "Free evidence drills: backup restore, crash recovery, device checklist",
   "problem": "Backups, crash recovery and real-device behaviour have no evidence yet (the free half of PLAN-003).",
@@ -36,26 +39,26 @@
     {
       "id": "T1",
       "text": "A room restored from an export continues the game it held",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "At the logic level: tests/room.test.ts \"a room restored from its saved data\": the room data is copied as stored, a new room object is made from it, both players reconnect with their tokens and the match finishes. The real Durable Object export and restore on the preview server was NOT run."
     },
     {
       "id": "T2",
       "text": "After a forced room restart both players can continue the same game",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "Same test: a room object rebuilt from saved data (a restart) lets both players continue the same game. A forced restart of the real room on the preview server was NOT run."
     },
     {
       "id": "T3",
       "text": "The device checklist is run on at least two real phones and results are recorded",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "The checklist is written (docs/DEVICE-CHECKLIST.md); it has not been run on a phone."
     },
     {
       "id": "T4",
       "text": "The preview smoke test passes in CI",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Not added or run yet."
     }
   ]
 }

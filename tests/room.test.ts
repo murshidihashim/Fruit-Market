@@ -393,7 +393,7 @@ describe('characters in a room', () => {
     await b.say({ t: 'character', avatar: free });
     expect(a.view!.seats[1].avatar).toBe(free);
     await b.say({ t: 'character', avatar: 'not a character' });
-    expect(b.errors.slice(-1)[0]).toContain('six characters');
+    expect(b.errors.slice(-1)[0]).toContain('six shopkeepers');
   });
 
   it('gives the computer shops the characters the people did not pick', async () => {
@@ -541,5 +541,31 @@ describe('undo and rename in a room', () => {
     // the person leaves on purpose: a computer takes the seat and the old take-back point is gone
     await buyer.say({ t: 'leave' });
     expect(h.room.d.undo).toBeUndefined();
+  });
+});
+
+// PLAN-032 (free drills, logic level): a room that is saved and brought back keeps the match going.
+describe('a room restored from its saved data', () => {
+  it('lets both players reconnect with their tokens and finish the match', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8, 0);
+    for (let i = 0; i < 40; i++) { if (!((await botStep(a)) || (await botStep(b)))) break; }
+    expect(h.room.d.status).toBe('playing');
+    const day = h.room.d.game!.day;
+    // "export": the room data as stored; "restore": a new room object made from it, as after a restart
+    const saved = JSON.parse(JSON.stringify(h.room.d));
+    const h2 = new Harness();
+    h2.room = new Room(saved, h2);
+    const a2 = h2.connect('A2');
+    const b2 = h2.connect('B2');
+    await a2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token: a.token, name: 'Murshidi', avatar: '🦸' });
+    await b2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token: b.token, name: 'Friend', avatar: '🐵' });
+    expect(a2.view!.you).toBe(a.view!.you);
+    expect(b2.view!.you).toBe(b.view!.you);
+    expect(a2.view!.game!.day).toBe(day);
+    await playOut(h2, a2, b2);
+    expect(h2.room.d.status).toBe('finished');
+    expect(a2.view!.game!.phase).toBe('over');
   });
 });

@@ -84,7 +84,7 @@ describe('specialities draft', () => {
     expect(canUpgrade(rich, p, rich.players[p].upgradeOffer![0])).toBeNull();
     const day2 = structuredClone(rich);
     day2.day = 2;
-    expect(canUpgrade(day2, p, rich.players[p].upgradeOffer![0])).toBe('Specialities are offered after Market Days');
+    expect(canUpgrade(day2, p, rich.players[p].upgradeOffer![0])).toBe('Upgrades are offered after Market Days');
   });
 
   it('the Juice Bar turns spoiling fruit into $2 each, up to 3 a night', () => {

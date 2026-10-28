@@ -45,7 +45,7 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
       <div class="mk-roof" />
       <div class="mk-head">
         <span class="truck" data-a="truck"><Icon name="cart" size={28} /></span>
-        <b>Farmers Market</b>
+        <b>Wholesale Market</b>
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
       <div class="mk-cols">
@@ -55,16 +55,16 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
         {FRUITS.map((f, i) => (
           <div class="mk-col">
             <button type="button" class={`pz ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
-              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in shops`}>
+              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in stalls`}>
               <Fruit id={f} size={18} />
-              <span class="pz-n"><span><b>{wantText(pz[i])}</b> want</span><span><b>{pz[i].supply}</b> in shops</span></span>
+              <span class="pz-n"><span><b>{wantText(pz[i])}</b> want</span><span><b>{pz[i].supply}</b> in stalls</span></span>
             </button>
             {marketColumn(s, f).map(({ pos, stage, n }) => {
               const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
               return (
                 <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                  aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'not so fresh' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
+                  aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'tired' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
                   <Pile f={f} n={n} pos={pos} size={18} />
                   <span class="price">${buyCost(s, p, f, pos)}</span>
                 </button>
@@ -74,7 +74,7 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
         ))}
       </div>
       <div class="mk-key" aria-hidden="true">
-        <span><i class="st-unripe" />unripe</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />not so</span>
+        <span><i class="st-unripe" />green</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />tired</span>
       </div>
       <NextLorry s={s} />
     </div>
@@ -180,7 +180,7 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
         <span class="stk-f" data-a={anchors ? `p${p}-${f}` : undefined}>
           {chips.map(({ pos, stage, n }) => (
             <span class={`ms-cell has st-${stage} ${pos === 0 ? 'rotting' : ''}`} data-a={anchors ? `p${p}-${f}-${pos}` : undefined}
-              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'not so fresh' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
+              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'tired' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
               <Fruit id={f} size={20} stage={stage} />{n > 1 && <b>×{n}</b>}<span>{lifeLabel(f, pos)}</span>
             </span>
           ))}
@@ -285,7 +285,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard }: { s: GameState
           </span>
         ))}
       </div>
-      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}{kind === 'waiting' && <i class="clock"><Icon name="hourglass" size={14} /></i>}{special && <i class="star"><Icon name="star" size={14} /></i>}{heard && <i class="ear" title="You heard about this walk-in (Market Gossip)"><Icon name="ear" size={14} /></i>}</div>
+      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}{kind === 'waiting' && <i class="clock"><Icon name="hourglass" size={14} /></i>}{special && <i class="star"><Icon name="star" size={14} /></i>}{heard && <i class="ear" title="You heard about this walk-in (Gossip)"><Icon name="ear" size={14} /></i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
     </div>
   );

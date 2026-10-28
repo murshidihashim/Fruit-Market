@@ -5,11 +5,13 @@
     "REP-054",
     "REP-055",
     "REP-056",
-    "REP-059"
+    "REP-059",
+    "REP-069"
   ],
   "decisions": [
     "DEC-033",
-    "DEC-034"
+    "DEC-034",
+    "DEC-042"
   ],
   "changes": {
     "added": [],
@@ -33,7 +35,8 @@
     "Screen market rebuilt as slots with printed prices, keeping buy taps and animation anchors",
     "A printable board and token set generated from the same game data (the A3 prototype is one candidate look)",
     "RULES.md \"Playing on a table\": the board and how nights are handled",
-    "Order of work: last. A printed mat is tried on a table before the screen market is rebuilt"
+    "Order of work: last. A printed mat is tried on a table before the screen market is rebuilt",
+    "The owner approves the design (a mock-up) before anything is built (DEC-042)"
   ],
   "exclusions": [
     "Skins for the other league stages",

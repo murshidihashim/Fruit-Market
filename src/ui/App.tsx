@@ -156,7 +156,7 @@ export function App() {
         <button class="hm-btn hm-card" onClick={startDaily}>
           <DailyIcon />
           <span class="hm-card-text">
-            <span>Daily challenge</span>
+            <span>Daily market</span>
             <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · ${streak}-day streak` : ''}</small>
           </span>
         </button>
@@ -270,15 +270,15 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
       <header class="topbar"><button class="icon-btn" onClick={onBack}>←</button><div class="day"><b>New game</b></div><span /></header>
       <main class="scroll pad">
         <section class="panel">
-          <h3>Your shop</h3>
+          <h3>Your stall</h3>
           <input ref={nameRef} class="input" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
-          <h3>Your character</h3>
-          <p class="small muted">One perk for the whole game. The computer shops take the characters left over.</p>
+          <h3>Your shopkeeper</h3>
+          <p class="small muted">One perk for the whole game. The computer stalls take the shopkeepers left over.</p>
           <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
         </section>
         <section class="panel">
-          <h3>Rival shops</h3>
-          <p class="small muted">Up to 4 shops. Pick Friend to pass this phone around.</p>
+          <h3>Rival stalls</h3>
+          <p class="small muted">Up to 4 stalls. Pick Friend to pass this phone around.</p>
           <div class="seg">{[1, 2, 3].map((n) => <button class={rivals === n ? 'on' : ''} onClick={() => setRivals(n)}>{n}</button>)}</div>
           {seats.slice(0, rivals).map((st, i) => (
             <div class="seat">
@@ -310,17 +310,17 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
         <section class="panel">
           <h3>Rules</h3>
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
-          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall specialities" text="After each Market Day, build one: Cold Room, Juice Bar, Barrow or Premium Display." />
+          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall upgrades" text="After each Market Day, build one: Cold Room, Juice Bar, Handcart or Premium Display." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
-          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in. Last Call on the final day: +$1, then the jam maker buys leftovers." />
+          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in. Closing Day on the final day: +$1, then the jam maker buys leftovers." />
         </section>
         <section class="panel">
           <h3>Playtest options</h3>
-          <Toggle on={core} set={setCore} title="Core market" text="No characters or perks, favour cards or specialities. Just buying, stalls and the bell." />
-          <Toggle on={street} set={setStreet} title="Street prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
-          <Toggle on={pulseRule} set={setPulseRule} title="Market pulse" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
+          <Toggle on={core} set={setCore} title="Basic game" text="No shopkeeper perks, favour cards or upgrades. Just buying, stalls and the bell." />
+          <Toggle on={street} set={setStreet} title="Fixed prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
+          <Toggle on={pulseRule} set={setPulseRule} title="Price drift" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>
-        <button class="btn primary big wide" onClick={begin}>Open the shops</button>
+        <button class="btn primary big wide" onClick={begin}>Start game</button>
       </main>
     </div>
   );
@@ -341,7 +341,7 @@ function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
   const friends = rivals.filter((s) => s.kind === 'human').length;
   const computers = rivals.length - friends;
   const part = (n: number, word: string) => (n ? `, ${n} ${word}${n > 1 ? 's' : ''}` : '');
-  return `${rivals.length + 1} shops: you${part(friends, 'friend')}${part(computers, 'computer')}`;
+  return `${rivals.length + 1} stalls: you${part(friends, 'friend')}${part(computers, 'computer')}`;
 }
 
 function DailyPeek({ date }: { date: string }) {
@@ -350,7 +350,7 @@ function DailyPeek({ date }: { date: string }) {
   if (!res || res.error || !res.top.length) return null;
   return (
     <div class="daily-peek" aria-label="Today's leaderboard">
-      <small>Today's top shops{res.players ? ` · ${res.players} played` : ''}</small>
+      <small>Today's top stalls{res.players ? ` · ${res.players} played` : ''}</small>
       {res.top.slice(0, 3).map((e, i) => <span><b>{i + 1}.</b> {e.name} <b>${e.cash}</b></span>)}
     </div>
   );

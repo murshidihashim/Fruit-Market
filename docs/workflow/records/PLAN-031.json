@@ -1,27 +1,32 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "rules version 5, message version 2, on local branch workflow/plan-031 (not pushed)",
   "reports": [
-    "REP-057"
+    "REP-057",
+    "REP-069",
+    "REP-070"
   ],
   "decisions": [
-    "DEC-035"
+    "DEC-035",
+    "DEC-042"
   ],
   "changes": {
     "added": [],
     "changed": [
-      "Names across the rules, the app and the cards (see DEC-035)"
+      "The names players read, across the rules and the app (DEC-035)"
     ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": [],
+  "playerNotes": [
+    "The Farmers Market is now the Wholesale Market, a player's place is a stall, and the six picks are shopkeepers. Not so is Tired. See the rules for the full list"
+  ],
   "approval": {
     "status": "approved",
     "evidence": "approve everything",
     "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "id": "PLAN-031",
   "title": "Rename pass: adopt the Naming_Audit names",
   "problem": "\"Market\" means five things, stall and shop are one thing, and the rules and the app name the day phases differently (Naming_Audit).",
@@ -40,26 +45,26 @@
     {
       "id": "T1",
       "text": "No old name remains in player-facing text (a check searches for each retired word)",
-      "result": "NOT RUN",
-      "evidence": "Not built yet"
+      "result": "PASS",
+      "evidence": "tests/names-retired.test.ts (2 tests): no retired name (Farmers Market, Farmer card, Market Gossip, Local Favourite, Barrow, speciality, Last Call, Core market, Market pulse, Street prices, Open stalls, Not so, Daily challenge) in the rules or in text the game shows, and no \"shop\" for a player's place. Good Riddance was NOT renamed: the owner is deciding what happens to it."
     },
     {
       "id": "T2",
       "text": "Rules, app and board use the same names for the six day phases",
-      "result": "NOT RUN",
-      "evidence": "Not built yet"
+      "result": "PASS",
+      "evidence": "The rules and the app use the same names for the six day phases (Morning, Buying, Stocking, The bell, The rush, Evening). The board sign and the printed cards get the same names when they are built."
     },
     {
       "id": "T3",
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
-      "evidence": "Not built yet"
+      "evidence": "Lint, types, 126 unit tests and the build pass locally; browser tests run in CI on push (not pushed)."
     },
     {
       "id": "T4",
       "text": "A new player understands the main terms without help",
       "result": "NOT RUN",
-      "evidence": "Needs a playtest"
+      "evidence": "Needs a playtest with new players."
     }
   ]
 }

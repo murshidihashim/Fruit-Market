@@ -22,7 +22,7 @@ export function DailyResult({ s }: { s: GameState }) {
   };
   return (
     <div class="daily-result">
-      <p class="chip">Daily challenge {s.config.daily}</p>
+      <p class="chip">Daily market {s.config.daily}</p>
       {!res ? <p class="muted">Checking the leaderboard…</p>
         : res.error ? <p class="muted">{res.error}</p>
         : (

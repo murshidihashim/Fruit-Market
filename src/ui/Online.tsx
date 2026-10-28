@@ -120,8 +120,8 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
       <section class="panel">
         <h3>You</h3>
         <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
-        <h3>Your character</h3>
-        <p class="small muted">One perk for the whole game. If someone in the room already has your character, you will get a free one and can change it in the lobby.</p>
+        <h3>Your shopkeeper</h3>
+        <p class="small muted">One perk for the whole game. If someone in the room already has your shopkeeper, you will get a free one and can change it in the lobby.</p>
         <CharacterPick value={avatar} onPick={setAvatar} />
       </section>
       {initialCode ? (
@@ -230,8 +230,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       </section>
 
       <section class="panel">
-        <h3>Your character</h3>
-        <p class="small muted">Pick one that is free. Each character has one perk for the whole game.</p>
+        <h3>Your shopkeeper</h3>
+        <p class="small muted">Pick one that is free. Each shopkeeper has one perk for the whole game.</p>
         <CharacterPick
           value={me?.avatar ?? ''}
           taken={Object.fromEntries(v.seats.filter((x) => x.seat !== v.you).map((x) => [x.avatar, x.name]))}

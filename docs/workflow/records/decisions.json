@@ -1044,6 +1044,31 @@
       ],
       "plan": "PLAN-036",
       "reviewTrigger": "When a new character is added, or after a playtest."
+    },
+    {
+      "id": "DEC-042",
+      "title": "Order of work, the lorry direction, no portrait frames, and how design work is approved",
+      "question": "In what order are the approved plans built, and what needs the owner's approval before it is built?",
+      "choice": "Order: PLAN-031 (rename pass), then PLAN-030 (the screen board in look D, ahead of the printed-mat test), then PLAN-033 (restyle the screens), then PLAN-029 (animated opening). The lorry is redrawn flat and smooth as part of the scenery. Happy and sad portrait frames: no for now. PLAN-032 (free evidence drills) and the PLAN-036 quirk check are approved. PLAN-021 (session length) is NOT approved by this decision: its time target is still open. Rule for design work: anything about how the game looks (the board, the lorry, the restyle, the opening scene) is shown to the owner as a design first and built only after the owner approves that design; everything else is simply built.",
+      "rationale": "Owner instruction after the review list (\"approve everything except plan 21, for the design related, require my approval on the design, else just run\").",
+      "impact": {
+        "player": "Words change first (rename pass); then the new board, the restyled screens and the opening scene, each after the owner approves its design.",
+        "technical": "Sets the build order and the approval rule; nothing visual is built before a design is approved.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "approve everything except plan 21, for the design related, require my approval on the design, else just run",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-069"
+      ],
+      "plan": "PLAN-031",
+      "reviewTrigger": "When the owner changes the order or the rule."
     }
   ],
   "history": [
@@ -1482,6 +1507,14 @@
     {
       "at": "2026-10-29 00:32",
       "text": "CI on branch workflow/plan-023 (run 40724975276) failed in one browser test: the online match test looks for the text \"London Friend (you)\" in the lobby, and the new rename box put the name inside an input. Fixed: your own name is shown as text again, with a small Rename button that turns it into a box. Everything else in that run passed (quick match, four players, reconnect). Re-running CI (REP-068)."
+    },
+    {
+      "at": "2026-10-29 00:33",
+      "text": "Owner: \"approve everything except plan 21, for the design related, require my approval on the design, else just run\". Recorded as DEC-042: order PLAN-031, PLAN-030, PLAN-033, PLAN-029; the lorry is redrawn flat and smooth; no portrait frames; PLAN-032 and the PLAN-036 quirk check approved; PLAN-021 stays open (time target not set); design work (board, lorry, restyle, opening) is shown to the owner and built only after the design is approved, everything else is just built (REP-069)."
+    },
+    {
+      "at": "2026-10-29 00:42",
+      "text": "Rename pass (PLAN-031) built on local branch workflow/plan-031 (not pushed): Wholesale Market, stall, shopkeeper, Tired, piece, Stocking, The rush, Start buying and Start game, Delivery card, Gossip, Tip Jar, perk, stall upgrade, Handcart, regular, special guest, the crier, Closing Day, Daily market, Basic game, Price drift, Fixed prices, with a test that blocks the retired names. Good Riddance was left unrenamed while the owner decides its fate. PLAN-036 quirk check added (T5 PASS). PLAN-032 logic-level restore test and a device checklist added; the real server drills and phone runs are NOT RUN (REP-070)."
     }
   ]
 }

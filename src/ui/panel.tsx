@@ -45,7 +45,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const [vals, setVals] = useState<Stall>(() => planStall(s, p));
   const set = (f: FruitId, n: number) => setVals((v) => ({ ...v, [f]: Math.max(0, Math.min(count(pl.stock, f, true), n)) }));
   const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
-  const tomorrow = s.day >= s.config.days ? 'Last Call: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
+  const tomorrow = s.day >= s.config.days ? 'Closing Day: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
   return (
     <div class="price-panel stall-panel">
       <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>
@@ -115,7 +115,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
         const read = !want ? { cls: 'war', t: 'Nobody here wants these today' }
           : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
             : rivals + out <= want ? { cls: 'ok', t: `Enough buyers for everyone (${rivals + out} out for ${want})` }
-              : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'fruit' : 'fruits'} out, ${want} wanted` };
+              : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
         const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl)));
         return (
           <div class="price-card on">
@@ -221,7 +221,7 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
       )}
       {isDraftNight(s) && (
         <>
-          <div class="pp-intro"><b>Stall specialities</b><span>After each Market Day you may build specialities: each one changes how your stall works. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
+          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build upgrades: each one changes how your stall works. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
           <div class="upgrade-grid">
             {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => {
               const d = UPGRADES[u];

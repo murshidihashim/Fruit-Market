@@ -3,11 +3,13 @@
   "build": "not started",
   "reports": [
     "REP-054",
-    "REP-059"
+    "REP-059",
+    "REP-069"
   ],
   "decisions": [
     "DEC-033",
-    "DEC-034"
+    "DEC-034",
+    "DEC-042"
   ],
   "changes": {
     "added": [],
@@ -30,7 +32,8 @@
     "CSS-only motion, stepped like the rest of the game, no sound",
     "Still frame for reduced motion",
     "The title and buttons stay usable from the first moment (nothing waits for the animation)",
-    "Order of work: after PLAN-027, so it uses the final palette"
+    "Order of work: after PLAN-027, so it uses the final palette",
+    "The owner approves the design (a mock-up) before anything is built (DEC-042)"
   ],
   "exclusions": [
     "Sound",

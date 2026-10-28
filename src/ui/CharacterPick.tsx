@@ -5,7 +5,7 @@ import { Face } from './art';
 /** `taken` maps a character's avatar to the name of the shop that already has it. */
 export function CharacterPick({ value, taken = {}, onPick }: { value: string; taken?: Record<string, string>; onPick: (avatar: string) => void }) {
   return (
-    <div class="char-pick" role="group" aria-label="Choose your character">
+    <div class="char-pick" role="group" aria-label="Choose your shopkeeper">
       {RIVALS.map((r) => {
         const perk = TRAITS[CHARACTER_TRAIT[r.avatar]];
         const by = taken[r.avatar];

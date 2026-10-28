@@ -6,7 +6,9 @@
     "REP-063",
     "REP-064",
     "REP-065",
-    "REP-066"
+    "REP-066",
+    "REP-069",
+    "REP-070"
   ],
   "decisions": [
     "DEC-033",
@@ -15,7 +17,8 @@
     "DEC-038",
     "DEC-039",
     "DEC-040",
-    "DEC-041"
+    "DEC-041",
+    "DEC-042"
   ],
   "changes": {
     "added": [],
@@ -75,8 +78,8 @@
     {
       "id": "T5",
       "text": "Every title and quirk follows the pattern (a check lists any that say who someone is)",
-      "result": "NOT RUN",
-      "evidence": "The cast test checks titles and quirks for creatures and the shopkeeper name pattern; it does not yet check that every quirk says what someone does"
+      "result": "PASS",
+      "evidence": "tests/names-retired.test.ts: no customer quirk defines a person by what they are (is a, nationality, religion, age or looks words) and each contains an action word. This is a heuristic check, not a reading of every quirk; the owner approved the quirks in the cast review."
     },
     {
       "id": "T6",

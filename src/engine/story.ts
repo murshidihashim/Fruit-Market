@@ -121,7 +121,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     return {
       showdown, tone: 'bad', tags,
       headline: `Your ${FRUIT[l.fruit].plural.toLowerCase()} were too old for ${cust} at $${mine.price}.`,
-      detail: `${cust} pays up to $${l.max} for fresh, $1 less for okay and $2 less for not-so fruit.`,
+      detail: `${cust} pays up to $${l.max} for fresh, $1 less for okay and $2 less for tired fruit.`,
     };
   }
   const cheaper = winners.filter((o) => o.price < mine.price);

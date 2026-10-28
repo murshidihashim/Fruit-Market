@@ -6,15 +6,15 @@ const KEY = 'fm.tutorial';
 export interface Tip { id: string; title: string; text: string }
 
 export const TIPS: Tip[] = [
-  { id: 'trait', title: 'Pick a perk', text: 'Each shop keeps one trait for the whole game. Rivals can see yours.' },
-  { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the market in the middle. Customers wait at the top. Tap Open the market.' },
+  { id: 'trait', title: 'Pick a perk', text: 'Each stall keeps one perk for the whole game. Rivals can see yours.' },
+  { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the Wholesale Market in the middle. Customers wait at the top. Tap Open the market.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a glowing fruit in the market. Each column is one fruit, newest at the top; fresh fruit costs more but customers pay more for it. Check the bubbles: buy what people want.' },
   { id: 'bought', title: 'Nice!', text: 'It\'s on your stall now, at the bottom. Each chip shows how many nights it has left. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Open your stall', text: 'Choose how many of each fruit to put out today. Everyone sees how many each stall puts out before anyone sets a price.' },
   { id: 'bid', title: 'Secret prices', text: 'One price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
   { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then the Haggler, then fresher fruit.' },
-  { id: 'evening', title: 'Evening', text: 'Play a favour card or build a speciality, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
-  { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest shop buys first. Most cash after the last day wins. Good luck!' },
+  { id: 'evening', title: 'Evening', text: 'Play a favour card or build an upgrade, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
+  { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest stall buys first. Most cash after the last day wins. Good luck!' },
 ];
 
 function load(): string[] {

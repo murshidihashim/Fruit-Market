@@ -11,7 +11,7 @@ export interface Achievement { id: string; title: string; text: string }
 
 export const ACHIEVEMENTS: Achievement[] = [
   { id: 'first_win', title: 'Open for Business', text: 'Win a game.' },
-  { id: 'full_price', title: 'Name Your Price', text: 'Sell 5 fruits at a customer\'s top price in one game.' },
+  { id: 'full_price', title: 'Name Your Price', text: 'Sell 5 pieces of fruit at a customer\'s top price in one game.' },
   { id: 'no_waste', title: 'Nothing Wasted', text: 'Win without a single fruit spoiling.' },
   { id: 'big_day', title: 'Market Day', text: 'Earn $40 or more in one day.' },
   { id: 'comeback', title: 'Comeback Kid', text: 'Win after being last on day 5.' },
@@ -19,7 +19,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'mango_mogul', title: 'Mango Mogul', text: 'Sell 10 mangoes in one game.' },
   { id: 'beat_hard', title: 'Giant Slayer', text: 'Win against a Hard rival.' },
   { id: 'rich', title: 'Fruit Tycoon', text: 'Finish a game with $200 or more.' },
-  { id: 'streak3', title: 'Regular', text: 'Play the daily challenge 3 days in a row.' },
+  { id: 'streak3', title: 'Regular', text: 'Play the daily market 3 days in a row.' },
   { id: 'online_win', title: 'Town Favourite', text: 'Win an online match.' },
   { id: 'league', title: 'League Champion', text: 'Win every stage of the Market League.' },
 ];

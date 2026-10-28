@@ -13,8 +13,8 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
-        : picker >= 0 ? <div class="hint-bar">Pick a trait to open the market</div>
-        : <button class="btn primary wide big" onClick={c.proceed}>Open the market</button>)}
+        : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
+        : <button class="btn primary wide big" onClick={c.proceed}>Start buying</button>)}
       {!busy && s.phase === 'buy' && activeHuman && pl && (
         <>
           <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>

@@ -180,7 +180,7 @@ export interface EventCard {
 
 export const EVENT_CARDS: EventCard[] = [
   { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 3, walkIns: 1, text: 'Customers pay $3 more per fruit, and an extra walk-in comes.' },
-  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyPerShop: { blueberry: 1 }, price: { blueberry: -1 }, text: 'Farmers bring 1 extra blueberry per shop, and blueberry customers pay $1 less.' },
+  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyPerShop: { blueberry: 1 }, price: { blueberry: -1 }, text: 'Farmers bring 1 extra blueberry per stall, and blueberry customers pay $1 less.' },
   { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 4 }, ageExtra: 1, text: 'Watermelons sell for $4 more, but all fruit ages an extra step tonight.' },
   { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 1 }, text: 'No apples arrive today, and apple customers pay $1 more.' },
   { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 3 },
@@ -189,12 +189,12 @@ export const EVENT_CARDS: EventCard[] = [
   { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 3 },
     extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 4, max: 8 }] },
     text: 'Blueberries sell for $3 more, and the gym club wants 4.' },
-  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyPerTwo: 1, cost: -1, text: 'Farmers bring 1 extra of every fruit for every 2 shops, and everything costs $1 less.' },
+  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyPerTwo: 1, cost: -1, text: 'Farmers bring 1 extra of every fruit for every 2 stalls, and everything costs $1 less.' },
   { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 2, text: 'Farmers bring half as much (rounded up). Scarce fruit sells for $2 more.' },
-  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the farmers market costs $1 more today.' },
-  { id: 'minPrice', title: 'Minimum Price', icon: '⚖️', text: 'No shop may sell below these prices today.',
+  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the Wholesale Market costs $1 more today.' },
+  { id: 'minPrice', title: 'Minimum Price', icon: '⚖️', text: 'No stall may sell below these prices today.',
     minPrice: { watermelon: 5, apple: 5, mango: 6, blueberry: 4 } },
-  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'Tonight every shop pays a $2 fine for each Not-so fruit on its shelf. (Never the last day\'s event.)' },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'Tonight every stall pays a $2 fine for each tired piece on its shelf. (Never the last day\'s event.)' },
   { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
   { id: 'hotel', title: 'Hotel Order', icon: '🏨',
     extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 7 }] },
@@ -206,10 +206,10 @@ export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'goodRiddance' | 'f
 export interface FavourDef { id: FavourId; title: string; icon: string; text: string; when: 'buy' | 'bid' | 'evening' }
 
 export const FAVOURS: Record<FavourId, FavourDef> = {
-  gossip: { id: 'gossip', title: 'Market Gossip', icon: '👂', when: 'evening', text: 'Play in the evening: secretly see tomorrow\'s walk-ins: who they are, what they want, how many and their top price.' },
-  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take one fruit of your choice from the farmers market for free.' },
+  gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Play in the evening: secretly see tomorrow\'s walk-ins: who they are, what they want, how many and their top price.' },
+  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take one fruit of your choice from the Wholesale Market for free.' },
   priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'Play in the evening: you buy first tomorrow.' },
-  goodRiddance: { id: 'goodRiddance', title: 'Good Riddance', icon: '♻️', when: 'buy', text: 'Sell all your ripe stock back to the farmers market for $1 each.' },
+  goodRiddance: { id: 'goodRiddance', title: 'Good Riddance', icon: '♻️', when: 'buy', text: 'Sell all your ripe stock back to the Wholesale Market for $1 each.' },
   favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'bid', text: 'Play while pricing: you win every tied price today.' },
   fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'All your fruit becomes one step fresher.' },
 };
@@ -229,8 +229,8 @@ export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: 
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 4, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
-  juicebar: { id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3, text: 'Each okay or not-so fruit you sell earns $1 extra. Each night up to 3 fruits that would spoil become juice: $2 each.' },
-  barrow: { id: 'barrow', title: 'Barrow', icon: '🛒', cost: 6, text: 'Buy up to 5 fruits a day and hold 12.' },
+  juicebar: { id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3, text: 'Each okay or tired fruit you sell earns $1 extra. Each night up to 3 pieces of fruit that would spoil become juice: $2 each.' },
+  barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 5 pieces of fruit a day and hold 12.' },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 8, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
 };
 export const UPGRADE_OFFER = 4;
@@ -270,7 +270,7 @@ export const TRAITS: Record<TraitId, TraitDef> = {
   basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day.' },
   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
   charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 3 favour cards, and hold up to 4.' },
-  favourite: { id: 'favourite', title: 'Local Favourite', text: 'Customers you serve completely by yourself tip you $4.' },
+  favourite: { id: 'favourite', title: 'Tip Jar', text: 'Customers you serve completely by yourself tip you $4.' },
   nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $15 instead of $10.' },
 };
 export const TRAIT_OFFER = 3;
@@ -317,7 +317,7 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   Kenji: { icon: '🥋', title: 'Judoka Kenji', quirk: 'Flips a mango, catches it, pays for it.' },
   Mira: { icon: '🧑', title: 'Herbalist Mira', quirk: 'Brews a mango tonic. Do not ask what is in it.' },
   'Hock Seng': { icon: '🧓', title: 'Uncle Hock Seng', quirk: 'Has strong opinions about the price of apples.' },
-  Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your shop if the mangoes are perfect.' },
+  Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your stall if the mangoes are perfect.' },
   'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
   'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },
 };

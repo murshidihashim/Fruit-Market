@@ -411,7 +411,7 @@ export function newGame(config: GameConfig): GameState {
 
 export function canPickTrait(s: GameState, p: number, t: TraitId): string | null {
   const pl = s.players[p];
-  if (!pl || s.phase !== 'morning' || s.day !== 1) return 'Traits are picked on the first morning';
+  if (!pl || s.phase !== 'morning' || s.day !== 1) return 'Perks are picked on the first morning';
   if (pl.trait) return 'You already have a trait';
   if (!pl.traitOffer?.includes(t)) return 'That trait is not on offer';
   return null;
@@ -500,7 +500,7 @@ export function canBuy(s: GameState, p: number, f: FruitId, pos: number): string
   const pl = s.players[p];
   if (s.phase !== 'buy' || activePlayer(s) !== p) return 'Not your turn';
   if ((s.market[f][pos] ?? 0) <= 0) return 'None left';
-  if (pl.boughtToday >= buyLimit(pl)) return `You can buy ${buyLimit(pl)} fruits a day`;
+  if (pl.boughtToday >= buyLimit(pl)) return `You can buy ${buyLimit(pl)} pieces of fruit a day`;
   if (count(pl.stock) >= shelfSize(pl)) return 'Your shelf is full';
   if (pl.cash < buyCost(s, p, f, pos)) return 'Not enough cash';
   return null;
@@ -848,9 +848,9 @@ function dealUpgrades(s: GameState) {
 
 export function canUpgrade(s: GameState, p: number, u: UpgradeId): string | null {
   const pl = s.players[p];
-  if (!s.config.upgrades) return 'Specialities are off';
+  if (!s.config.upgrades) return 'Upgrades are off';
   if (s.phase !== 'evening' || activePlayer(s) !== p) return 'Not your turn';
-  if (!isDraftNight(s)) return 'Specialities are offered after Market Days';
+  if (!isDraftNight(s)) return 'Upgrades are offered after Market Days';
   if (pl.upgrades.includes(u)) return 'Already built';
   if (pl.upgradeOffer && !pl.upgradeOffer.includes(u)) return 'Not on offer tonight';
   if (pl.cash < UPGRADES[u].cost) return 'Not enough cash';

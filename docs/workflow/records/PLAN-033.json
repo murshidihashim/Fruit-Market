@@ -3,11 +3,13 @@
   "build": "not started",
   "reports": [
     "REP-059",
-    "REP-060"
+    "REP-060",
+    "REP-069"
   ],
   "decisions": [
     "DEC-033",
-    "DEC-034"
+    "DEC-034",
+    "DEC-042"
   ],
   "changes": {
     "added": [],
@@ -32,7 +34,8 @@
     "Pixel icons in place of the remaining emoji (if PLAN-027 has not done it)",
     "Order of work: after PLAN-027 (done) and before PLAN-029 and PLAN-030",
     "Fix every sprite size on the screens to the allowed list and empty the baseline in tests/sprite-sizes.test.ts",
-    "Merge the older c_xxxxxx palette colours into the guide roles"
+    "Merge the older c_xxxxxx palette colours into the guide roles",
+    "The owner approves the design (a mock-up) before anything is built (DEC-042)"
   ],
   "exclusions": [
     "Rules or balance",

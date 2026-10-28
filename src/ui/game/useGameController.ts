@@ -17,7 +17,7 @@ import { delivery, moves, nightfall, reveal } from './animator';
 import { playLocal, undoPoint } from './turn';
 import type { ShowState } from './panels/Showdown';
 
-const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', stall: 'OPEN STALLS', bid: 'THE BELL',  reveal: 'SALES!', evening: 'EVENING', over: '' } as const;
+const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', stall: 'STOCKING', bid: 'THE BELL',  reveal: 'THE RUSH', evening: 'EVENING', over: '' } as const;
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
   const [s, setS] = useState(initial);

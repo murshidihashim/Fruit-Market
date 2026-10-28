@@ -50,7 +50,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
     <div class="tip-pop" onClick={() => setPulseInfo(false)}>
       <b>Demand vs supply</b>
       <span><b>want</b> = fruit today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ = walk-ins not here yet)' : ''}.</span>
-      <span><b>in shops</b> = ripe fruit all shops (you included) could sell.</span>
+      <span><b>in stalls</b> = ripe fruit all stalls (you included) could sell.</span>
       <span class="pz-legend"><i class="good" /> enough buyers: prices stay high · <i class="war" /> more fruit than buyers: price war · <i class="open" /> nobody has any yet</span>
       <small>Tap to close.</small>
     </div>
