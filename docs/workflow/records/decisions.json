@@ -838,6 +838,31 @@
       ],
       "plan": "PLAN-027",
       "reviewTrigger": "After the board prototype is printed and seen on a phone."
+    },
+    {
+      "id": "DEC-034",
+      "title": "Board look: which of four looks the rest of the game follows",
+      "question": "Which look should the Farmers Market board have, so the rest of the game is designed back from it?",
+      "choice": "Not chosen yet. Options (Board_Look_Options.html): A stall front, B chalkboard, C crate rack, D soft tabletop mat, or a mix.",
+      "rationale": "Owner: \"i want to decide on the board look first, then design the game back because that the proof of concept\". Recommendation: D (calmest, cheapest, prints lightest), with the market character carried by the scene around it.",
+      "impact": {
+        "player": "None yet. The chosen look becomes the palette, corner shape, line weight and button style for the whole game.",
+        "technical": "Nothing built.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "proposed",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-056"
+      ],
+      "plan": "PLAN-030",
+      "reviewTrigger": "When the owner chooses."
     }
   ],
   "history": [
@@ -1216,6 +1241,14 @@
     {
       "at": "2026-10-28 20:49",
       "text": "PLAN-028 first step done: printable A3 board prototype and token sheets (Board_Prototype_A3, REP-055). Token counts measured in computer-player games: most of one fruit ever in play 27 blueberry, 25 watermelon, 23 apple, 23 mango; one slot up to 14. Not printed on paper, screen board not started, no game code changed."
+    },
+    {
+      "at": "2026-10-28 21:16",
+      "text": "Owner clarified \"Board first\": decide the board look first, then design the rest of the game back from it (the board is the proof of concept). The earlier reading (approve building the board, print prototype first) was wrong. PLAN-028 returned to proposed and not started; the printable prototype (REP-055) stays as one candidate look. Four board looks with the kit each would hand the rest of the game are ready for the owner to choose (DEC-034, REP-056)."
+    },
+    {
+      "at": "2026-10-28 21:16",
+      "text": "Records fix: approvals are never rewritten, so PLAN-028 keeps the owner words \"Board first\" and is marked superseded. The board work continues as PLAN-030 (proposed), to follow the board look the owner chooses (DEC-034)."
     }
   ]
 }

@@ -49,9 +49,11 @@ stopped and recommend the next small task. Wait for my approval before implement
 ## Pending approvals (generated)
 
 - DEC-020: UI and UX polish in three phases (awaiting approval)
+- DEC-034: Board look: which of four looks the rest of the game follows (proposed)
 - PLAN-003: Package C: online, capacity and release evidence (outline only) (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
 - PLAN-022: Client-only UI requests: different default icons, blank name that opens the keyboard (proposed)
 - PLAN-027: Look C style guide and one palette (proposed)
 - PLAN-029: Animated market opening on the home screen (proposed)
+- PLAN-030: One Farmers Market board for the screen and the table (after the board look is chosen) (proposed)
 <!-- records:pending:end -->

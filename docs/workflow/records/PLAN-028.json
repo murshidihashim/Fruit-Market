@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "printed prototype first, on local branch workflow/plan-026 (no game code changed yet)",
+  "build": "not started",
   "reports": [
     "REP-054",
-    "REP-055"
+    "REP-055",
+    "REP-056"
   ],
   "decisions": [
     "DEC-033"
@@ -16,13 +17,13 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "approved",
+    "status": "superseded",
     "evidence": "Board first",
     "date": "2026-10-28"
   },
-  "delivery": "in progress",
+  "delivery": "not started",
   "id": "PLAN-028",
-  "title": "One Farmers Market board for the screen and the table",
+  "title": "One Farmers Market board for the screen and the table (superseded by PLAN-030)",
   "problem": "The market is a grid of flat cells and the lorry is a smoothed picture; the owner wants the board to look the same in the game and on a real table (DEC-033).",
   "scope": [
     "New pixel sprites: awning, sign plank, price tag, shelf slot (and the lorry, style to be decided)",
@@ -74,5 +75,6 @@
       "result": "NOT RUN",
       "evidence": "Not run yet"
     }
-  ]
+  ],
+  "supersededBy": "PLAN-030"
 }
