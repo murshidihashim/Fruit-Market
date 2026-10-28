@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-10-28 (Asia/Kuala_Lumpur) by Claude, session checkpoint.
+Updated 2026-10-29 04:05 (Asia/Kuala_Lumpur) by Claude, session checkpoint (PLAN-037).
 
 ## Where we are
 - **Stage:** complete game. Rules version 5, the tabletop procedures and character cards are on `main` and on the preview (CI and preview smoke test green, 2026-10-28). The live game is unchanged (1.1.1). No unfamiliar-player playtest has happened (PLAN-019 ended early, REP-046), so the first-playtest gate is still CONCERNS.
@@ -10,7 +10,8 @@ Updated 2026-10-28 (Asia/Kuala_Lumpur) by Claude, session checkpoint.
 - **Art direction decided (DEC-033, REP-054):** Look C, calm flat scenery with pixel fruit, people and icons; one Farmers Market board shared by the screen and the printed table mat. Nothing built. Proposed for approval: PLAN-027 style guide and one palette, PLAN-028 shared board (Village Square skin), PLAN-029 animated market opening. Still open: the lorry style and the printed board size (A3 assumed, needs a print).
 - **Not approved:** PLAN-022 (icons and blank name; icons are now covered by characters, the blank name is not), PLAN-018 data counters, PLAN-003 online and capacity evidence, DEC-020 UI polish.
 - **Ideas discussed, no decision yet:** a Market Day tension mechanic (Rush Hour was simulated: it moves the slack to the day after and cuts cash about 9%; Blight Day, last-fruit-costs-more and Glut Day were not simulated), a Scout favour card replacing the dead Good Riddance, animation polish (audit done, the owner has not chosen the motion feel or a time target).
-- **Not done or not verified:** new character screens not seen on a phone; no hand-played tabletop test (day chips are the least proven part); hand-played ageing untested; PDF export blocked (pandoc missing); `scripts/records.mjs` fails on Windows paths (run a patched copy).
+- **Not done or not verified:** new character screens not seen on a phone; no hand-played tabletop test (day chips are the least proven part); hand-played ageing untested; PDF export needs pandoc on the owner's computer (`npm run records -- --no-pdf` skips PDFs). The Windows records bug is fixed on the PLAN-037 branch (not yet run on Windows).
+- **PLAN-037 release tools (approved 2026-10-29, implemented, branch only):** Windows fix for `npm run records` and the test server, `npm run store:shots`, `npm run build:itch` (offline itch.io zip, DEC-047) with `docs/ITCH.md`, and `docs/PLAY-CLOSED-TEST.md`. Branch `workflow/plan-037-release-tools`, pushed, not merged, no pull request. Nothing deployed or uploaded (REP-078).
 - **Reports:** REP-038 to REP-052 record the decisions since the lifecycle trial. Analysis files (turn flow, tabletop fixes, characters, favour cards, animation audit, simulation scripts and results) are in the owner's Google Drive folder `GameDev/Guides_v2`, outside this repo.
 
 ## Builds
@@ -34,12 +35,19 @@ The live game changes only through GitHub Actions → *Deploy LIVE game* → `PU
 - Owner questions not yet answered: which real phones are available; Cloudflare plan (Free or Paid) and any other paid accounts. DEC-005 stays an assumption until then.
 - The Tally feedback form (https://tally.so/r/rDDdWX) is still published with no submissions; delete or unpublish it when no longer needed.
 - Pre-existing: game-screen open time is noisy (217 to 489 ms locally; CI limit 600 ms with one retry).
-- Store screenshot of the home screen is outdated; retake before the next Play listing update.
+- Store screenshots: 1 to 6 retaken on the PLAN-037 branch; 7-trophies waits for its dark-on-grey league and achievement text to be fixed (look D, REP-078), then `npm run store:shots`.
+- `store/listing.md`: "No data collected" summary contradicts its data safety section; description still mentions merchant traits.
 - Telemetry and leaderboard data on the live server have no backup (Package C).
 
 ## Approvals
 - PLAN-001, 002, 004, 005 and 006 approved by the owner on 2026-10-26 (exact words in `records/`).
   Publication of 1.1.1: approved (DEC-013) and performed 2026-10-27. PLAN-009 to 013 approved and verified. Publishing the next release needs a new approval.
+
+## Checkpoint (PLAN-037)
+- Branch `workflow/plan-037-release-tools`, rebased on `main` @ `5977d79` (the overnight work, DEC-046, took REP-075 to REP-077, so this package is DEC-047 and REP-078). No uncommitted files.
+- Active approval: PLAN-037 / DEC-047, branch only: no push to main, no deploy, no Play or itch.io upload.
+- Checks: see PLAN-037 (T2 Windows NOT RUN; T6 FAIL for the Trophies screenshot).
+- Next: owner runs `npm run records:check` on Windows, reviews the branch, opens a pull request, merges when CI is green.
 
 ## Resume instruction
 "Read the project instructions and current state. Inspect the current Git state. Tell me where we

@@ -1,0 +1,117 @@
+{
+  "id": "PLAN-037",
+  "title": "Release tools: Windows records fix, store screenshots, itch.io web build, Play closed-test kit",
+  "problem": "Four release chores were open: scripts/records.mjs failed on Windows paths (the owner ran a patched copy), the store screenshots showed the old look and the retired animal cast, there was no way to make an itch.io web copy, and the owner had no kit for Google Play's closed test (12 testers for 14 days) that a new personal account needs before production.",
+  "approval": {
+    "status": "approved",
+    "evidence": "Fruit-Market package: Fix the Windows records.mjs bug, retake store screenshots, add an itch.io web build, Play closed-test tester kit. On a branch only, no deploy / \"do you approve changes on a new local branch (no push to main, no deploy, no Play upload), following the repo's own PLAN/records rules?\" Yes, branch only",
+    "date": "2026-10-29"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch workflow/plan-037-release-tools (pushed, not merged); no deploy, no Play or itch.io upload",
+  "reports": [
+    "REP-078"
+  ],
+  "decisions": [
+    "DEC-047"
+  ],
+  "scope": [
+    "Fix scripts/records.mjs on Windows (drive letters, spaces, CRLF checkouts) with a regression test; make the other scripts the owner runs work there too where the fix is small and safe",
+    "Say what PDF export needs and how records behaves without it",
+    "Update scripts/store-shots.cjs for the current game flow and retake the store screenshots; commit only the ones that are correct and better",
+    "npm run build:itch: an offline itch.io HTML5 zip with index.html at the root, a check that plays it inside a cross-origin frame, docs/ITCH.md and a manual-only GitHub workflow that uploads nothing",
+    "docs/PLAY-CLOSED-TEST.md: the Google rule with its source, Play Console steps, recruitment and tester messages in English and Bahasa Malaysia, a tracking table and what to submit after 14 days"
+  ],
+  "exclusions": [
+    "Game rules, balance, saves, online, server, privacy or the look (src/engine, src/net, server/*, src/ui)",
+    "Deploying the web game, uploading to itch.io or Google Play, adding secrets",
+    "Pushing to main, merging or opening a pull request",
+    "New dependencies"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "records works from a folder whose path has spaces or a drive letter, and accepts a CRLF checkout",
+      "result": "PASS",
+      "evidence": "tests/script-paths.test.ts (6 tests) passes. With the old records.mjs the folder-with-spaces test fails: \"ENOENT: no such file or directory, scandir '/tmp/fm%20records%20GsgEfw/docs/workflow/records'\" (the bug reproduced on Linux)."
+    },
+    {
+      "id": "T2",
+      "text": "npm run records:check and npm run records pass on the owner's Windows computer without a patched copy",
+      "result": "NOT RUN",
+      "evidence": "No Windows machine here. The Windows path conversion is covered by a unit test (fileURLToPath with windows: true); a real run needs the owner."
+    },
+    {
+      "id": "T3",
+      "text": "test:reconnect and the local test server no longer rely on POSIX quoting or POSIX-only process handling",
+      "result": "PASS",
+      "evidence": "On Linux: npm run test:reconnect with RELOADS=2 DROPS=1 QUICKS=0 gave \"RECONNECT OK: 3 cycles\" and the server stopped. The Windows branch (shell for npx, taskkill) is NOT RUN, see T2."
+    },
+    {
+      "id": "T4",
+      "text": "PDF needs are stated and records degrades clearly without pandoc",
+      "result": "PASS",
+      "evidence": "PDFs need pandoc (or PANDOC=<path>) and the Playwright Chromium. Without them the register, changelog and STATE block are still written, the last good PDFs are kept, and records now says how to skip PDFs (npm run records -- --no-pdf). It still exits 1 so a missing PDF is never silent."
+    },
+    {
+      "id": "T5",
+      "text": "store-shots runs on the current game and gives the same pictures twice",
+      "result": "PASS",
+      "evidence": "npm run store:shots saved all 7; screenshots are taken with CSS animations finished. scripts/visual-diff.cjs between two runs: 0.00-0.45% on 1-6."
+    },
+    {
+      "id": "T6",
+      "text": "Every store screenshot shows the current look and cast and is readable",
+      "result": "FAIL",
+      "evidence": "6 of 7 committed in the current look and human cast: 1-home, 2-characters (replaces 2-traits), 3-buying, 4-pricing, 5-showdown, 6-upgrades (4 and 6 became readable after main's PLAN-033 tray restyle, 5977d79). The 7-trophies retake shows the league names and locked achievement titles dark on grey, so the old one (old dark look, out-of-date league list) is kept. See REP-078."
+    },
+    {
+      "id": "T7",
+      "text": "npm run build:itch makes a zip with index.html at the root that never contacts a server",
+      "result": "PASS",
+      "evidence": "ITCH BUILD OK: release/itch/fruit-market-web.zip (221 KB; icon-512.png, index.html); unzip -t: no errors; index.html identical to dist-single. Built with VITE_SERVER_URL=https://example-server.test set: the address is absent from the zip (present in a plain single build)."
+    },
+    {
+      "id": "T8",
+      "text": "The zip plays in Chromium inside a frame on another address, like itch.io: a solo game, the save survives a reload, online fails politely",
+      "result": "PASS",
+      "evidence": "scripts/itch-smoke.cjs: ITCH SMOKE OK to the first evening and, with --full, to the results; Continue offered after reopening; no page errors; no requests outside the zip; Play a Friend shows \"Online play needs the web version or a configured server\"."
+    },
+    {
+      "id": "T9",
+      "text": "The itch.io GitHub workflow starts only by hand, uses no secret and uploads nothing",
+      "result": "PASS",
+      "evidence": ".github/workflows/itch-build.yml: on workflow_dispatch only, permissions contents: read, artifact upload only; the butler step is commented out with instructions. Not run on GitHub: it appears in Actions only after the file is on main."
+    },
+    {
+      "id": "T10",
+      "text": "The Play closed-test kit states Google's current rule with its source and covers recruit, test, track and apply",
+      "result": "PASS",
+      "evidence": "docs/PLAY-CLOSED-TEST.md; rule read from support.google.com/googleplay/android-developer/answer/14151465 on 2026-10-29: personal accounts created after 13 November 2023, at least 12 testers opted in continuously for at least 14 days, then apply for production on the Dashboard."
+    },
+    {
+      "id": "T11",
+      "text": "npm run verify and npm run verify:full pass",
+      "result": "PASS",
+      "evidence": "Local npm run verify:full on 52e75b4 (rebased on main 5977d79; 2026-10-29 04:04-04:17), exit 0: records check, palette, lint, types, 136 unit tests, build, solo game (no errors), performance budget (BUDGET OK), online match with a leaver (0 leaks), quick match, four players in one room, rejoin from a background tab (RECONNECT OK: 5 cycles), E2E OK. Also passed on the pre-rebase branch (7568061, 03:31-03:44). npm run verify passes on the final commit. GitHub CI not run: the branch has no pull request."
+    }
+  ],
+  "changes": {
+    "added": [
+      "npm run build:itch and docs/ITCH.md: an offline itch.io HTML5 zip, checked by scripts/itch-smoke.cjs; a manual-only GitHub workflow that builds it as an artifact",
+      "npm run store:shots",
+      "docs/PLAY-CLOSED-TEST.md: Google Play closed-test tester kit"
+    ],
+    "changed": [
+      "Store screenshots 1 to 6 retaken in the current look and cast (2 is now the shopkeeper picker)"
+    ],
+    "fixed": [
+      "npm run records and records:check on Windows (drive letters, spaces in the folder name, CRLF line endings)",
+      "test:reconnect and the local test server on Windows",
+      "store-shots.cjs followed the old game flow and timed out"
+    ],
+    "removed": []
+  },
+  "playerNotes": []
+}

@@ -1170,6 +1170,31 @@
         "REP-077"
       ],
       "reviewTrigger": "Morning review."
+    },
+    {
+      "id": "DEC-047",
+      "title": "Release tools package (PLAN-037): itch.io copy is offline only; branch only",
+      "question": "Approve a tooling and docs package (Windows records fix, store screenshots, itch.io web build, Play closed-test kit) on a branch, and how should the itch.io copy handle online play?",
+      "choice": "Yes, on a branch only: no push to main, no deploy, no Play or itch.io upload. The itch.io copy is offline only (solo, pass-and-play, league, daily market without its leaderboard; no server calls and no anonymous counters). Online on itch.io would need its own plan.",
+      "rationale": "Owner instruction (\"Fruit-Market package: ... On a branch only, no deploy\"; \"Yes, branch only\"). Offline only is Claude's choice within that approval: from an itch.io page, invite links would point at itch.io's game frame, the room server would get calls from another site, and the privacy note would need a check.",
+      "impact": {
+        "player": "None on the live game or the preview. An itch.io copy, if the owner uploads it, plays offline only.",
+        "technical": "Scripts, tests, docs, store screenshots and one manual-only workflow. No change to src/, server/ or the rules.",
+        "data": "None. The itch.io copy sends nothing."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Fruit-Market package: Fix the Windows records.mjs bug, retake store screenshots, add an itch.io web build, Play closed-test tester kit. On a branch only, no deploy / \"do you approve changes on a new local branch (no push to main, no deploy, no Play upload), following the repo's own PLAN/records rules?\" Yes, branch only",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-078"
+      ],
+      "plan": "PLAN-037",
+      "reviewTrigger": "When the owner wants online play on itch.io, or before uploading to itch.io."
     }
   ],
   "history": [
@@ -1648,6 +1673,10 @@
     {
       "at": "2026-10-29 03:16",
       "text": "Overnight (DEC-046): print kit built (mat and tokens, 36 customer cards, delivery, favour, event and shopkeeper cards, playtest pack) and two opening-animation designs drawn for the owner to choose (REP-077). Nothing built from the opening designs."
+    },
+    {
+      "at": "2026-10-29 03:56",
+      "text": "Owner (02:51): \"Fruit-Market package: Fix the Windows records.mjs bug, retake store screenshots, add an itch.io web build, Play closed-test tester kit. On a branch only, no deploy\" and \"Yes, branch only\". PLAN-037 and DEC-047 approved; built on branch workflow/plan-037-release-tools (REP-078), rebased on the overnight PLAN-033 restyle. Tooling, docs and store screenshots only; nothing deployed or uploaded."
     }
   ]
 }
