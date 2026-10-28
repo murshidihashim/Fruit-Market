@@ -343,7 +343,7 @@ export interface RivalLines {
 // Character cards (rules 5). Each animal is also a character any shop can pick, and carries one fixed perk
 // (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon.
 export const CHARACTER_TRAIT: Record<string, TraitId> = {
-  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
+  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🧕': 'nestegg',
 };
 
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
@@ -362,11 +362,11 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     fullPrice: ['Full price, very zen.', 'A fair price, gladly paid.'],
     stung: ['So close... breathe.', 'You were quicker today.', 'Hmm. Well played.'],
     lost: ['Nap time, I guess.', 'The market has spoken.'] } },
-  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!', lines: {
-    undercut: ['Ribbit! Ka-ching!', 'Hopped under your price!', 'Croak and cheap!'],
-    fullPrice: ['Full price! Toad-ally!', 'Ribbit-ing profit!'],
-    stung: ['Croak! One dollar!', 'You leapt first. Hmph.', 'My lily pad!'],
-    lost: ['Back to the pond.', 'Meh. Ribbit.'] } },
+  { name: 'Mak Jenab', avatar: '🧕', quip: 'Every sen counts!', lines: {
+    undercut: ['Cheaper, sayang. Every sen counts!', 'Jimat, jimat! Mine is cheaper.', 'Sorry dear, my price wins.'],
+    fullPrice: ['Full price? Terima kasih!', 'Rezeki! Full price today.'],
+    stung: ['Aiyo, that one was mine!', 'Next time, sayang.', 'You were quick, I will say that.'],
+    lost: ['Never mind, I saved for this.', 'Fine, fine. Tomorrow is another day.'] } },
   { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!', lines: {
     undercut: ['Mine now, hehe!', 'Swiped it!', 'Sneaky cheap!'],
     fullPrice: ['Full price, no questions.', 'Shiny coins!'],

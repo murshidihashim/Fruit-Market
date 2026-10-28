@@ -389,7 +389,7 @@ describe('characters in a room', () => {
     const mine = a.view!.seats[0].avatar;
     await b.say({ t: 'character', avatar: mine });
     expect(b.errors.slice(-1)[0]).toContain('taken');
-    const free = ['🐷', '🐸'].find((x) => x !== mine && x !== a.view!.seats[1].avatar)!;
+    const free = ['🐷', '🧕'].find((x) => x !== mine && x !== a.view!.seats[1].avatar)!;
     await b.say({ t: 'character', avatar: free });
     expect(a.view!.seats[1].avatar).toBe(free);
     await b.say({ t: 'character', avatar: 'not a character' });

@@ -891,6 +891,31 @@
       ],
       "plan": "PLAN-031",
       "reviewTrigger": "After a human playtest: do new players understand the names without help?"
+    },
+    {
+      "id": "DEC-036",
+      "title": "Replace Uncle Toad with Mak Jenab",
+      "question": "Which character becomes Jenab, and what is she like?",
+      "choice": "Uncle Toad is replaced by Mak Jenab, a lady stallholder. She keeps the Nest Egg perk (start with $15 instead of $10): a thrifty, experienced trader who saves every sen. Look: a human portrait with a purple headscarf (tudung) and a teal baju; her computer-shop lines are warm and thrifty (\"Every sen counts!\", \"Jimat, jimat!\", \"Terima kasih!\"). The other five characters and all perks are unchanged.",
+      "rationale": "Owner instruction (\"replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady\"). The owner left the choice of character and her attributes to the assistant. Uncle Toad (Nest Egg) was replaced because the saver perk fits her best and keeping a perk already balanced in simulation (22% to 28% first place) avoids a rebalance. A male animal was the natural one to replace for a lady.",
+      "impact": {
+        "player": "The sixth character on the character pick is Mak Jenab (human, headscarf). The Nest Egg perk is the same.",
+        "technical": "RIVALS and CHARACTER_TRAIT entries, a new headscarf part and portrait, RULES.md table, two tests updated. The frog sprite is removed. A saved game or room that used the frog avatar falls back to a plain shopper picture.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-061"
+      ],
+      "plan": "PLAN-034",
+      "reviewTrigger": "If the owner wants a different perk or a different look for her, or after a playtest."
     }
   ],
   "history": [
@@ -1293,6 +1318,10 @@
     {
       "at": "2026-10-28 22:39",
       "text": "Owner: \"resolve the gap, and approve plan 27\". PLAN-033 (restyle the other screens to the board look) approved, to be built after PLAN-027. The style guide is approved. PLAN-027 built on local branch workflow/plan-027 (not pushed): one palette with a lossless colour move, emoji replaced, new size and emoji checks. T3 narrowed to \"block new off-list sizes\" because fixing the existing ones changes layouts; PLAN-033 takes that over. Phone look and browser tests NOT RUN (REP-060)."
+    },
+    {
+      "at": "2026-10-28 22:48",
+      "text": "Owner: \"replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady\". Uncle Toad was replaced by Mak Jenab (DEC-036, PLAN-034): a lady stallholder with the Nest Egg perk, a headscarf portrait and thrifty lines. Built on local branch workflow/plan-034 (not pushed); phone look NOT RUN (REP-061)."
     }
   ]
 }

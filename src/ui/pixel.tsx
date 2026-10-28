@@ -402,6 +402,7 @@ const PARTS: Record<string, string[]> = {
   headband: ['', '', '', '', '', '', '...RRRRRRRRRR...'],
   antenna: ['.......R........', '.......K........', '.......K........'],
   collar: ['', '', '', '', '', '', '', '', '', '', '', '', '', '..RR........RR..', '..RRR......RRR..', '..KKKKKKKKKKKKKK'],
+  tudung: ['', '', '.....HHHHHH.....', '....HHHHHHHH....', '...HHHHHHHHHH...', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HH........HH..', '..HH........HH..', '..HHH......HHH..', '..HHHH....HHHH..', '..HHHHHHHHHHHH..'],
   bolt: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '.......YY.......'],
 };
 
@@ -446,6 +447,7 @@ const HUMANS: Record<string, Human> = {
   Kenji: { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['hairSpiky', 'headband'], pal: { H: C.ink } },
   Mira: { skin: SKIN.green, shirt: C.ink, parts: ['hairLong', 'wizard'], pal: { H: C.ink, P: C.ink } },
   'Hock Seng': { skin: SKIN.b, shirt: C.c_6b6f7a, parts: ['hairSides', 'glasses', 'beard'], pal: { H: C.c_f4ecd8 } },
+  jenab: { skin: SKIN.b, shirt: C.c_3fa39a, parts: ['tudung'], pal: { H: C.c_7b5aa6 } },
   Influencer: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'shades', 'phone'], pal: { H: C.c_f2d77e } },
   'Gym Club': { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['hairShort', 'headband'], pal: { H: C.ink } },
   'Hotel Chef': { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['mustache', 'chef'], pal: { H: C.c_3a2418 } },
@@ -470,10 +472,6 @@ const ANIMALS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['................', '..KKK......KKK..', '..KKK......KKK..', '..KKWWWWWWWWKK..', '...WWWWWWWWWW...', '..WWWWWWWWWWWW..', '..WKKKWWWWKKKW..', '..WKWKWWWWKWKW..', '..WKKKWWWWKKKW..', '..WWWWWKKWWWWW..', '..WWWWWWWWWWWW..', '...WWWWMMWWWW...', '....WWWWWWWW....', '...QQQQQQQQQQ...', '..QQQQQQQQQQQQ..', '..QQQQQQQQQQQQ..'],
     pal: { W: C.c_f4ecd8, K: C.ink, M: C.c_a8423f, Q: C.c_3fa39a },
   },
-  toad: {
-    rows: ['................', '...TTTTTTTTT....', '..TTTTTTTTTTT...', '..GGG....GGG....', '.GWWKG..GWWKG...', '.GWWWG..GWWWG...', '.GGGGGGGGGGGG...', 'GGGGGGGGGGGGGG..', 'GGGDGGGGGGDGGG..', 'GGGGGGGGGGGGGG..', 'GKKKKKKKKKKKKG..', 'GGGGGGGGGGGGGG..', '.GYYYYYYYYYYG...', '..YYYYYYYYYY....', '.PPPPPPPPPPPP...', 'PPPPPPPPPPPPPP..'],
-    pal: { G: C.c_6aa84f, D: C.c_3f7a34, Y: C.c_e6d58a, W: C.c_f4ecd8, K: C.ink, T: C.c_8a5a3b, P: C.c_7b5aa6 },
-  },
   raccoon: {
     rows: ['................', '..AA........AA..', '..AKA......AKA..', '..AAAAAAAAAAAA..', '..AAAAAAAAAAAA..', '.AAAAAAAAAAAAAA.', '.AKKKKAAAAKKKKA.', '.AKWKKAAAAKKWKA.', '.AKKKKAWWAKKKKA.', '..AAAWWWWWWAAA..', '..AWWWWKKWWWWA..', '...WWWWWWWWWW...', '....WWWWWWWW....', '.....AAAAAA.....', '...NNNNNNNNNN...', '..NNNNNNNNNNNN..'],
     pal: { A: C.c_8f949c, K: C.ink, W: C.c_f4ecd8, N: C.c_2f4a7a },
@@ -485,7 +483,7 @@ const ANIMALS: Record<string, { rows: string[]; pal: Pal }> = {
 };
 
 const AVATAR_KEY: Record<string, string> = {
-  '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🐸': 'toad', '🦝': 'raccoon', '🐷': 'pig', // emoji-ok: avatar keys, never shown
+  '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🦝': 'raccoon', '🐷': 'pig', '🧕': 'jenab', // emoji-ok: avatar keys, never shown
   '🧑‍🍳': 'you', '👩‍🍳': 'you2', '🦸': 'you3', '🐵': 'you4', // emoji-ok: avatar keys, never shown
 };
 

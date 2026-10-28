@@ -1,0 +1,69 @@
+{
+  "release": "unreleased",
+  "build": "rules version 5 on local branch workflow/plan-034 (not pushed)",
+  "reports": [
+    "REP-061"
+  ],
+  "decisions": [
+    "DEC-036"
+  ],
+  "changes": {
+    "added": [
+      "Mak Jenab, a lady stallholder, as one of the six characters"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": [
+      "Uncle Toad (replaced by Mak Jenab; same Nest Egg perk)"
+    ]
+  },
+  "playerNotes": [
+    "Mak Jenab replaces Uncle Toad. Same perk: start with $15 instead of $10"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady",
+    "date": "2026-10-28"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-034",
+  "title": "Replace Uncle Toad with Mak Jenab",
+  "problem": "The owner wants one of the characters to be Jenab, a lady.",
+  "scope": [
+    "Replace one character with Mak Jenab, keeping a balanced perk",
+    "A headscarf portrait in the existing pixel style",
+    "Her computer-shop lines",
+    "RULES.md and tests"
+  ],
+  "exclusions": [
+    "Changing any perk or any other character",
+    "Rebalancing",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The character list has Mak Jenab with the Nest Egg perk and no duplicates; the character tests and room tests pass",
+      "result": "PASS",
+      "evidence": "tests/characters.test.ts and tests/room.test.ts updated and passing (30 tests across the character, room, palette and emoji files; 111 in the full run before the last small change)"
+    },
+    {
+      "id": "T2",
+      "text": "The portrait looks right and reads as a lady in a headscarf",
+      "result": "PASS",
+      "evidence": "Seen in a rendered sheet next to the other five (headscarf, no glasses after the first look made them read as sunglasses)"
+    },
+    {
+      "id": "T3",
+      "text": "The portrait looks right in the game on a phone and in the character pick",
+      "result": "NOT RUN",
+      "evidence": "Not looked at on a phone"
+    },
+    {
+      "id": "T4",
+      "text": "Lint, types, unit tests and build pass; browser tests pass in CI",
+      "result": "NOT RUN",
+      "evidence": "Lint, types and the affected tests pass; the full unit run passed before the last one-line change; build and browser tests not rerun. Not pushed."
+    }
+  ]
+}
