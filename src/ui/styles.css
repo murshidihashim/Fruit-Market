@@ -947,3 +947,56 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .char-card.on { background: var(--c-fbecc4); box-shadow: 0 0 0 3px var(--c-f2c14e); }
 #app { background: var(--c-fbf3e1); }
 .game { background: var(--c-fbf3e1); }
+
+/* ---------- PLAN-033: look D, pop-ups, sheets and trays ---------- */
+.modal-bg { background: rgba(43, 36, 56, 0.55); }
+.modal { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 6px 0 var(--ink); }
+.modal h2, .modal h3 { color: var(--ink); }
+.modal .muted, .modal small, .modal p { color: var(--ink-muted); }
+.modal .btn { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; box-shadow: none; }
+.modal .btn.primary { background: var(--terra); color: var(--c-fff6e8); box-shadow: 0 3px 0 var(--ink); }
+.tip-pop, .event-pop, .card-pop { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); box-shadow: 0 4px 0 var(--ink); }
+.tip-pop small, .event-pop small, .tip-pop .quirk, .cp-text small { color: var(--ink-muted); }
+.toast { background: var(--ink); color: var(--c-fffdf7); }
+.coach { border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.full-sheet { background: var(--c-fbf3e1); color: var(--ink); }
+.full-sheet .muted, .pp-intro span, .owned-row { color: var(--ink-muted); }
+.pp-intro b { color: var(--ink); }
+.price-card, .up-card, .morning-card, .sales-card, .auction { border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); background: var(--c-fffdf7); }
+.price-card.on { box-shadow: 0 4px 0 var(--ink), 0 0 0 3px var(--gold); }
+.qt { background: var(--c-fbf3e1); }
+.pc-price { background: var(--ink); }
+.pp-lock { background: var(--c-fbf3e1); box-shadow: 0 -12px 12px -6px var(--c-fbf3e1); }
+.error { color: var(--terra-d); }
+.event-card { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); }
+.event-card p { color: var(--ink-muted); }
+.up-buy { border-radius: 999px; box-shadow: 0 3px 0 var(--ink); border: 2px solid var(--ink); }
+.dots span { background: var(--c-eadcbd); border: 2px solid var(--ink); width: 12px; height: 12px; box-sizing: border-box; }
+.dots span.on { background: var(--terra); }
+.howto h2, .howto .step h2, .howto .card h2, .howto b { color: var(--ink); }
+.howto .page-title, .howto h2 { color: var(--terra-d); }
+.page .error, .page .err { color: var(--terra-d); }
+.warn-text { color: var(--terra-d); }
+.coach { left: 0; right: 0; margin-inline: auto; transform: none; }
+.toast { left: 0; right: 0; margin-inline: auto; width: fit-content; transform: none; }
+.tray-wrap { background: var(--c-fbf3e1); color: var(--ink); border-top: 2px solid var(--ink); box-shadow: 0 -4px 0 rgba(43, 36, 56, 0.12); }
+.tray-wrap .muted, .tray-wrap small { color: var(--ink-muted); }
+.tray-wrap h2, .tray-wrap h3, .tray-wrap b { color: var(--ink); }
+.info-card { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); }
+.info-card.dim { color: var(--ink-muted); }
+.info-card.warn { background: var(--bad-bg); color: var(--terra-d); }
+.rival-watch { background: var(--c-fffdf7); border: 2px solid var(--ink); color: var(--ink); }
+.rw-head span { color: var(--ink-muted); }
+.rw-card { background: var(--c-fbf3e1); border-color: var(--ink); color: var(--ink); }
+.rw-card.busy { border-color: var(--gold-d); box-shadow: 0 0 0 2px var(--gold); }
+.rw-card.done { border-color: var(--c-2c5e2c); }
+.fcard { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); box-shadow: none; }
+.fcard.usable { background: var(--teal); color: var(--c-fff6e8); }
+.au-say { background: var(--ink); color: var(--c-fffdf7); }
+.au-offer.sealed { background: var(--c-eadcbd); color: var(--ink); }
+.actionbar .btn.ghost, .actionbar .btn.skip { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); box-shadow: none; }
+.rw-card { color: var(--ink-muted); }
+.rw-card.out { opacity: 0.9; }
+.rw-name { color: var(--ink); }
+.rw-none { color: var(--ink-muted); }
+body { background: var(--c-fbf3e1); }

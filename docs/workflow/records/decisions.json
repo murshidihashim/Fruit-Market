@@ -1144,6 +1144,28 @@
       ],
       "plan": "PLAN-033",
       "reviewTrigger": "After a phone playtest."
+    },
+    {
+      "id": "DEC-046",
+      "title": "Overnight work: scope and preview-push authority",
+      "question": "What may be done unattended, and may finished work be pushed to the preview?",
+      "choice": "Yes to: restyle of the remaining screens (covered by DEC-045), print kit, full QA sweep, balance simulations, tabletop playtest pack, and two opening-animation mock-ups for approval. Finished chunks may be pushed to the PREVIEW after green CI. Never live. No rule changes: simulations only. Good Riddance stays as it is until the owner decides.",
+      "rationale": "Owner instruction (\"give me 5 decisions which you can work for hours cause i wanna sleep do heavy bulk work as much as possible (answers: push to preview only; print kit, full QA sweep, balance simulations, tabletop playtest pack; two opening designs to approve; Good Riddance no preference)\").",
+      "impact": {
+        "player": "Preview may change (restyled screens, QA fixes). Rules unchanged.",
+        "technical": "Branches workflow/overnight-*, reports REP-075 onward.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "give me 5 decisions which you can work for hours cause i wanna sleep do heavy bulk work as much as possible (answers: push to preview only; print kit, full QA sweep, balance simulations, tabletop playtest pack; two opening designs to approve; Good Riddance no preference)",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [],
+      "reviewTrigger": "Morning review."
     }
   ],
   "history": [
@@ -1610,6 +1632,10 @@
     {
       "at": "2026-10-29 01:34",
       "text": "Owner: \"okay with the design, but include stats like the best moments fir the results\". DEC-045 approves both design proposals. PLAN-033 built on local branch workflow/plan-033 (home, set-up, results with stats and best moments, trays, pop-ups in look D); lint, types and 130 tests pass. Not pushed."
+    },
+    {
+      "at": "2026-10-29 02:49",
+      "text": "Owner approved overnight work (DEC-046): push to preview only, never live; no rule changes."
     }
   ]
 }
