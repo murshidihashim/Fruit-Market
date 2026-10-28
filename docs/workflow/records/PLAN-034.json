@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "rules version 5 on local branch workflow/plan-034 (not pushed)",
+  "build": "reverted: Jenab is a customer, not a shopkeeper",
   "reports": [
     "REP-061"
   ],
@@ -8,24 +8,18 @@
     "DEC-036"
   ],
   "changes": {
-    "added": [
-      "Mak Jenab, a lady stallholder, as one of the six characters"
-    ],
+    "added": [],
     "changed": [],
     "fixed": [],
-    "removed": [
-      "Uncle Toad (replaced by Mak Jenab; same Nest Egg perk)"
-    ]
+    "removed": []
   },
-  "playerNotes": [
-    "Mak Jenab replaces Uncle Toad. Same perk: start with $15 instead of $10"
-  ],
+  "playerNotes": [],
   "approval": {
-    "status": "approved",
+    "status": "superseded",
     "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "not started",
   "id": "PLAN-034",
   "title": "Replace Uncle Toad with Mak Jenab",
   "problem": "The owner wants one of the characters to be Jenab, a lady.",
@@ -65,5 +59,6 @@
       "result": "NOT RUN",
       "evidence": "Lint, types and the affected tests pass; the full unit run passed before the last one-line change; build and browser tests not rerun. Not pushed."
     }
-  ]
+  ],
+  "supersededBy": "PLAN-035"
 }

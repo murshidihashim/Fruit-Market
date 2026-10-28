@@ -1,0 +1,81 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-062"
+  ],
+  "decisions": [
+    "DEC-033",
+    "DEC-034",
+    "DEC-035",
+    "DEC-037"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-036",
+  "title": "Character theming and portrait coherence",
+  "problem": "No plan covers the characters' look and theme as a whole. PLAN-027 and PLAN-033 handle the palette, sizes and screens; the naming plan handles words. Nobody owns: one portrait style for animals and humans, the costume and theme rules for customers, quirks and titles that follow the cast rules, a diversity pass over the 36 customers, and the same art on the screen, the printed cards and the gallery.",
+  "scope": [
+    "Update the creative bible (cast and portrait rules) for Look C and board look D: portrait grid, face template, outline, light direction, palette roles for skin, hair and costume",
+    "Customer theme rules: costume archetypes, a title and quirk pattern (\"what they do, not who they are\"), a diversity pass over all 36 customers and the three event customers",
+    "Shopkeepers stay animals (DEC-018); bring animals and humans to the same outline, light and palette rules",
+    "An audit sheet of every portrait against the rules, with a list of fixes the owner approves",
+    "Apply the fixes; the screen, the printed cards, the character pick and the gallery all draw from the same data",
+    "Optional, owner decides: idle, happy and sad frames for the shopkeepers"
+  ],
+  "exclusions": [
+    "Changing any perk, order or rule",
+    "New customers beyond replacements the owner asks for",
+    "Animation beyond the optional frames",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The creative bible has the portrait and theme rules and the owner approves them",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    },
+    {
+      "id": "T2",
+      "text": "An audit sheet lists every portrait against the rules and the owner approves the fix list",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    },
+    {
+      "id": "T3",
+      "text": "The approved fixes are applied and the screen, printed cards, character pick and gallery show the same portraits",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    },
+    {
+      "id": "T4",
+      "text": "Every customer title and quirk follows the cast rules (a check lists any that name who someone is)",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    },
+    {
+      "id": "T5",
+      "text": "Phone look checked on the character pick, the table and the results screen",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    },
+    {
+      "id": "T6",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not started"
+    }
+  ]
+}

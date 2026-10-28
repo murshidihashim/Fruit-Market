@@ -51,4 +51,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - PLAN-003: Package C, paid part: capacity and cost evidence (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
 - PLAN-032: Free evidence drills: backup restore, crash recovery, device checklist (proposed)
+- PLAN-036: Character theming and portrait coherence (proposed)
 <!-- records:pending:end -->

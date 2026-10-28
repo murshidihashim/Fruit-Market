@@ -132,7 +132,7 @@ Before the game, each shop picks one of six characters. A character gives one pe
 | 🦝 Rocky | Bargain Hunter | Your first fruit each day costs $1 less. |
 | 🐼 Patches | Charmer | Start with 3 favour cards, and hold up to 4. |
 | 🐷 Pinky | Local Favourite | Customers you serve completely by yourself tip you $4. |
-| 🧕 Mak Jenab | Nest Egg | Start with $15 instead of $10. |
+| 🐸 Uncle Toad | Nest Egg | Start with $15 instead of $10. |
 
 (Rules version 5. Before, each shop was dealt 3 traits on the first morning and kept one.)
 

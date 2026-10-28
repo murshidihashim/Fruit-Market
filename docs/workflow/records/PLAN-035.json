@@ -1,0 +1,69 @@
+{
+  "release": "unreleased",
+  "build": "rules version 5 on local branch workflow/plan-034 (not pushed)",
+  "reports": [
+    "REP-062"
+  ],
+  "decisions": [
+    "DEC-037"
+  ],
+  "changes": {
+    "added": [
+      "Auntie Jenab, a lady customer"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": [
+      "Chris the Clown (replaced by Auntie Jenab, same order)"
+    ]
+  },
+  "playerNotes": [
+    "Auntie Jenab joins the customers in place of Chris the Clown"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady; sorry jenab is a customer",
+    "date": "2026-10-28"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-035",
+  "title": "Auntie Jenab replaces Chris the Clown",
+  "problem": "The owner wants Jenab, a lady, among the characters; she is a customer.",
+  "scope": [
+    "Replace one customer card with Auntie Jenab, keeping the order so demand does not change",
+    "A headscarf portrait in the existing pixel style",
+    "A title and a quirk",
+    "Regenerate the character sheet"
+  ],
+  "exclusions": [
+    "Changing any order or any other customer",
+    "Changing the shopkeepers",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The deck still has 36 customers with the same demand profile",
+      "result": "PASS",
+      "evidence": "Jenab keeps Chris's order exactly; 111 unit tests pass including the demand and character tests"
+    },
+    {
+      "id": "T2",
+      "text": "The portrait looks right and reads as a lady in a headscarf",
+      "result": "PASS",
+      "evidence": "Seen rendered next to six other customers; purple headscarf and teal baju so she is not confused with Mei Ling"
+    },
+    {
+      "id": "T3",
+      "text": "Her card and portrait look right in the game and on the printed sheet on a phone and on paper",
+      "result": "NOT RUN",
+      "evidence": "The character sheet is regenerated (Characters_Gallery.html) and was not printed or seen on a phone"
+    },
+    {
+      "id": "T4",
+      "text": "Lint, types, unit tests and build pass; browser tests pass in CI",
+      "result": "NOT RUN",
+      "evidence": "Lint, types and 111 unit tests pass; build and browser tests not rerun after the last change. Not pushed."
+    }
+  ]
+}

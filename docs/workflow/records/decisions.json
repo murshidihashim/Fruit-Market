@@ -906,16 +906,42 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "approved",
+        "status": "superseded",
         "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady",
         "date": "2026-10-28"
       },
-      "delivery": "implemented",
+      "delivery": "not started",
       "reports": [
         "REP-061"
       ],
       "plan": "PLAN-034",
-      "reviewTrigger": "If the owner wants a different perk or a different look for her, or after a playtest."
+      "reviewTrigger": "If the owner wants a different perk or a different look for her, or after a playtest.",
+      "supersededBy": "DEC-037"
+    },
+    {
+      "id": "DEC-037",
+      "title": "Jenab is a customer: Auntie Jenab replaces Chris the Clown",
+      "question": "Which customer becomes Jenab, and what is she like?",
+      "choice": "Chris the Clown becomes Auntie Jenab, a lady customer. She keeps Chris's order (4 mangoes at $9 and 1 blueberry at $6 for a fresh piece), so the customer demand profile does not change. Her quirk is about what she does: \"Sniffs every mango twice, then asks for a discount anyway.\" Her portrait is a human with a purple headscarf (tudung) and a teal baju. The six shopkeepers (the animals) are unchanged, Uncle Toad included.",
+      "rationale": "Owner instruction (\"replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady; sorry jenab is a customer\"). The owner left the choice of customer and her attributes open. Chris was chosen because his order is mango-heavy, which her mango quirk matches, and because the creative bible names Grandpa Tan as its sample customer and vampires, cowboys, astronauts and mermaids as examples, so Chris is the least disruptive to replace. Cast rules (DEC-018): customer jokes are about what someone does, never who they are; rivals stay animals.",
+      "impact": {
+        "player": "A new customer, Auntie Jenab, in the customer deck in place of Chris the Clown. Her order is the same as his.",
+        "technical": "One customer card, one look entry and one portrait (a new headscarf part); the shopkeeper change in DEC-036 was reverted.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady; sorry jenab is a customer",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-062"
+      ],
+      "plan": "PLAN-035",
+      "reviewTrigger": "If the owner wants a different customer replaced, or a different look for her."
     }
   ],
   "history": [
@@ -1322,6 +1348,10 @@
     {
       "at": "2026-10-28 22:48",
       "text": "Owner: \"replace one of the character with Jenab (add any suitable attributes for her name) jenab should be a lady\". Uncle Toad was replaced by Mak Jenab (DEC-036, PLAN-034): a lady stallholder with the Nest Egg perk, a headscarf portrait and thrifty lines. Built on local branch workflow/plan-034 (not pushed); phone look NOT RUN (REP-061)."
+    },
+    {
+      "at": "2026-10-28 22:54",
+      "text": "Owner: \"sorry jenab is a customer\". The shopkeeper reading was wrong: DEC-036 and PLAN-034 are closed as superseded (their approval is kept as recorded) and the Uncle Toad change is reverted in code. Jenab is now a customer: Auntie Jenab replaces Chris the Clown with the same order (DEC-037, PLAN-035, implemented on local branch workflow/plan-034, not pushed). The owner also asked which plan covers character theming and design coherence: none did, so PLAN-036 is proposed (REP-062)."
     }
   ]
 }

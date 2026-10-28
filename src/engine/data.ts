@@ -102,7 +102,7 @@ const RAW_CUSTOMERS: CustomerCard[] = [
   { name: 'John', wants: [{ fruit: 'apple', qty: 3, max: 10 }, { fruit: 'watermelon', qty: 2, max: 6 }] },
   { name: 'Robert', wants: [{ fruit: 'blueberry', qty: 3, max: 7 }, { fruit: 'mango', qty: 2, max: 5 }] },
   { name: 'Daniel', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'apple', qty: 3, max: 9 }, { fruit: 'blueberry', qty: 2, max: 6 }] },
-  { name: 'Chris', wants: [{ fruit: 'mango', qty: 4, max: 7 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
+  { name: 'Jenab', wants: [{ fruit: 'mango', qty: 4, max: 7 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
   { name: 'Aisyah', wants: [{ fruit: 'watermelon', qty: 3, max: 8 }] },
   { name: 'Ravi', wants: [{ fruit: 'mango', qty: 3, max: 9 }, { fruit: 'apple', qty: 1, max: 8 }] },
   { name: 'Mei Ling', wants: [{ fruit: 'blueberry', qty: 4, max: 6 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
@@ -284,7 +284,7 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   John: { icon: '🤠', title: 'Cowboy John', quirk: 'Pays with coins he panned from the river.' },
   Robert: { icon: '🧛', title: 'Count Robert', quirk: 'Only shops after sunset. Hates garlic, loves blueberries.' },
   Daniel: { icon: '🧙', title: 'Daniel the Wizard', quirk: 'Swears apples power his spells.' },
-  Chris: { icon: '🤡', title: 'Chris the Clown', quirk: 'Juggles every mango before he buys it.' },
+  Jenab: { icon: '🧕', title: 'Auntie Jenab', quirk: 'Sniffs every mango twice, then asks for a discount anyway.' },
   Aisyah: { icon: '👩‍🚀', title: 'Astronaut Aisyah', quirk: 'Needs watermelon for zero-gravity snacks.' },
   Ravi: { icon: '🦸', title: 'Super Ravi', quirk: 'Saves the day, one mango at a time.' },
   'Mei Ling': { icon: '🧜‍♀️', title: 'Mei Ling the Mermaid', quirk: 'Splashes anyone selling soggy fruit.' },
@@ -343,7 +343,7 @@ export interface RivalLines {
 // Character cards (rules 5). Each animal is also a character any shop can pick, and carries one fixed perk
 // (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon.
 export const CHARACTER_TRAIT: Record<string, TraitId> = {
-  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🧕': 'nestegg',
+  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
 };
 
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
@@ -362,11 +362,11 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     fullPrice: ['Full price, very zen.', 'A fair price, gladly paid.'],
     stung: ['So close... breathe.', 'You were quicker today.', 'Hmm. Well played.'],
     lost: ['Nap time, I guess.', 'The market has spoken.'] } },
-  { name: 'Mak Jenab', avatar: '🧕', quip: 'Every sen counts!', lines: {
-    undercut: ['Cheaper, sayang. Every sen counts!', 'Jimat, jimat! Mine is cheaper.', 'Sorry dear, my price wins.'],
-    fullPrice: ['Full price? Terima kasih!', 'Rezeki! Full price today.'],
-    stung: ['Aiyo, that one was mine!', 'Next time, sayang.', 'You were quick, I will say that.'],
-    lost: ['Never mind, I saved for this.', 'Fine, fine. Tomorrow is another day.'] } },
+  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!', lines: {
+    undercut: ['Ribbit! Ka-ching!', 'Hopped under your price!', 'Croak and cheap!'],
+    fullPrice: ['Full price! Toad-ally!', 'Ribbit-ing profit!'],
+    stung: ['Croak! One dollar!', 'You leapt first. Hmph.', 'My lily pad!'],
+    lost: ['Back to the pond.', 'Meh. Ribbit.'] } },
   { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!', lines: {
     undercut: ['Mine now, hehe!', 'Swiped it!', 'Sneaky cheap!'],
     fullPrice: ['Full price, no questions.', 'Shiny coins!'],
