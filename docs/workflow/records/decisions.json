@@ -1119,6 +1119,31 @@
       ],
       "plan": "PLAN-021",
       "reviewTrigger": "If sessions feel too long in a playtest."
+    },
+    {
+      "id": "DEC-045",
+      "title": "Other screens and printed mat in look D approved, results show stats and best moments",
+      "question": "Approve the two design proposals (other screens in look D; printed mat and tokens)?",
+      "choice": "Yes. The other screens follow look D, and the results screen shows stats and best moments. The printed mat and tokens follow the approved proposal.",
+      "rationale": "Owner instruction (\"okay with the design, but include stats like the best moments fir the results\").",
+      "impact": {
+        "player": "Home, set-up, results and trays match the table screen; results show per-player stats and \"Your best moments\".",
+        "technical": "CSS block and flat home scene; no rules change.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "okay with the design, but include stats like the best moments fir the results",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-074"
+      ],
+      "plan": "PLAN-033",
+      "reviewTrigger": "After a phone playtest."
     }
   ],
   "history": [
@@ -1581,6 +1606,10 @@
     {
       "at": "2026-10-29 01:26",
       "text": "Continuing DEC-042 (REP-074): the shared slot data is built (trackSlots in the engine, read by the screen and by the printed mat; 4 new tests, 130 in all). Two design proposals are ready for the owner and nothing is built from them yet: the printed mat and tokens in look D (Design_Proposal_Printed_Mat, also as a PDF) and the other screens in look D (Design_Proposal_Screens: home, set-up, morning with a hint, results). The animated opening still needs its design redrawn in the new look before it comes to the owner."
+    },
+    {
+      "at": "2026-10-29 01:34",
+      "text": "Owner: \"okay with the design, but include stats like the best moments fir the results\". DEC-045 approves both design proposals. PLAN-033 built on local branch workflow/plan-033 (home, set-up, results with stats and best moments, trays, pop-ups in look D); lint, types and 130 tests pass. Not pushed."
     }
   ]
 }

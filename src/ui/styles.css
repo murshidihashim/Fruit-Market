@@ -885,3 +885,65 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .game .actionbar .btn.ghost, .game .actionbar .btn.skip { background: var(--c-fffdf7); box-shadow: none; }
 .game .buy-hint .move { color: var(--ink); }
 .game .buy-hint small, .game .hint-bar { color: var(--ink-muted); }
+
+/* ---------- PLAN-033: look D, the other screens (approved design, DEC-045) ---------- */
+.home, .page { background: var(--c-fbf3e1); color: var(--ink); }
+.page .topbar { background: var(--c-fbf3e1); border-bottom: 0; }
+.page .topbar h1, .page .topbar b, .page .topbar .day { color: var(--ink); }
+.page .topbar .icon-btn { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; }
+.page .btn, .results .btn, .home .btn { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; box-shadow: none; }
+.page .btn.primary, .results .btn.primary { background: var(--terra); color: var(--c-fff6e8); box-shadow: 0 3px 0 var(--ink); }
+.page .online-btn { background: var(--teal); color: var(--c-fff6e8); box-shadow: none; }
+.page .btn.ghost { background: var(--c-fffdf7); }
+.panel { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 14px; }
+.panel .muted, .panel .small.muted, .page .muted { color: var(--ink-muted); }
+.panel .input, .page .input { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 12px; }
+.page .seg button { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; }
+.page .seg button small { color: var(--ink-muted); }
+.page .seg button.on { background: var(--terra); color: var(--c-fff6e8); }
+.page .seg button.on small { color: var(--c-ffe1d4); }
+.page .toggle small { color: var(--ink-muted); }
+.page .toggle i { background: var(--c-fffdf7); border: 2px solid var(--ink); }
+.page .toggle i::after { background: var(--ink); top: 3px; left: 3px; }
+.page .toggle input:checked + i { background: var(--teal); }
+.page .toggle input:checked + i::after { background: var(--c-fffdf7); left: 21px; }
+.page .seat { border-top: 1px dashed var(--c-b99d72); }
+.page .seat-row { background: var(--c-fbf3e1); border: 2px solid var(--ink); }
+.page .seat-row.me { box-shadow: 0 0 0 3px var(--c-f2c14e); }
+.page .room-code span { border: 2px solid var(--ink); box-shadow: none; }
+.page .stats small, .page .small, .page small { color: var(--ink-muted); }
+
+/* home: a flat scene and a paper sign */
+.harbour { background: var(--c-cfe7d8); border-bottom: 2px solid var(--ink); }
+.hm-sign { background: var(--c-fffdf7); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); }
+.hm-sign h1 { color: var(--terra); }
+.hm-fox { display: block; }
+.hm-btn { color: var(--ink); border: 2px solid var(--ink); }
+.hm-primary { background: var(--terra); color: var(--c-fff6e8); box-shadow: 0 4px 0 var(--ink); border-radius: 999px; }
+.hm-secondary, .hm-card { background: var(--c-fffdf7); box-shadow: none; }
+.hm-teal { background: var(--teal); color: var(--c-fff6e8); box-shadow: none; border-radius: 999px; }
+.hm-small { background: var(--c-fffdf7); box-shadow: none; border-radius: 999px; }
+.hm-card { border-radius: 14px; }
+.home .hm-actions { background: var(--c-fbf3e1); }
+
+/* results */
+.results { color: var(--ink); }
+.results h2 { color: var(--ink); text-shadow: none; }
+.results .margin { color: var(--ink-muted); }
+.trophy { background: var(--c-fffdf7); border: 2px solid var(--ink); }
+.pod { background: var(--c-fffdf7); border: 2px solid var(--ink); color: var(--ink); }
+.pod.me { box-shadow: 0 0 0 3px var(--c-f2c14e); }
+.medal { background: var(--c-fbf3e1); border: 2px solid var(--ink); color: var(--ink); }
+.medal.r1 { background: var(--c-f2c14e); }
+.pod-stats { color: var(--ink-muted); }
+.recap { background: var(--c-fffdf7); border: 2px solid var(--ink); }
+.rc-l { border-left-color: var(--ink); }
+.rc-h.good { color: var(--c-2c5e2c); }
+.rc-h.bad { color: var(--terra-d); }
+.league-note { background: var(--c-fffdf7); border: 2px solid var(--ink); color: var(--ink); }
+.ach-new > small { color: var(--terra-d); }
+
+.char-card { background: var(--c-fffdf7); border: 2px solid var(--ink); }
+.char-card.on { background: var(--c-fbecc4); box-shadow: 0 0 0 3px var(--c-f2c14e); }
+#app { background: var(--c-fbf3e1); }
+.game { background: var(--c-fbf3e1); }

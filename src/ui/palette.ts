@@ -191,6 +191,7 @@ export const C = {
   laneMango: '#fbecc4',
   mat: '#fbf3e1',
   street: '#cfe7d8',
+  c_9fcdbd: '#9fcdbd',
   road: '#e2cc9c',
   c_ffd6c9: '#ffd6c9',
   c_ffe1d4: '#ffe1d4',

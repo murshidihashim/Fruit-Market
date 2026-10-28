@@ -131,9 +131,8 @@ export function App() {
   return (
     <div class="home cosy">
       <div class="harbour">
-        <HarbourScene />
+        <HomeScene />
         <div class="hm-sign-wrap">
-          <Bunting />
           <div class="hm-fox" aria-hidden="true"><Portrait who="fox" size={64} /></div>
           <div class="hm-sign">
             <h1>Fruit Market</h1>
@@ -178,28 +177,16 @@ export function App() {
   );
 }
 
-/** The harbour behind the home sign: sun, sea, two bobbing boats and the pier (decoration only). */
-function HarbourScene() {
+/** The flat scene behind the home sign: sky, sun and two hills (decoration only). */
+function HomeScene() {
   return (
-    <svg class="hm-scene" viewBox="-445 0 1280 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <rect x="-445" width="1280" height="300" fill={C.c_f3d9a4} />
-      <circle cx="300" cy="78" r="34" fill={C.c_f7b955} />
-      <path d="M-480 170 Q-420 150 -360 168 T-240 164 T-120 166 T0 170 Q60 150 120 168 T240 164 T360 162 T480 166 T600 164 T720 166 T840 164 V300 H-480 Z" fill={C.c_7fb6b0} />
-      <path d="M-480 196 Q-410 180 -340 196 T-200 192 T-60 194 T0 196 Q70 180 140 196 T280 192 T420 194 T560 192 T700 194 T840 192 V300 H-480 Z" fill={C.c_2f7f7a} />
-      <g class="hm-bob"><path d="M54 186 H112 L102 202 H64 Z" fill={C.c_c65a3a} /><rect x="80" y="150" width="3" height="36" fill={C.c_6b4a2b} /><path d="M83 152 L106 180 H83 Z" fill={C.c_fffaf0} /></g>
-      <g class="hm-bob hm-bob2"><path d="M272 194 H316 L309 206 H279 Z" fill={C.c_e7a73a} /><rect x="292" y="166" width="3" height="28" fill={C.c_6b4a2b} /><path d="M295 168 L312 188 H295 Z" fill={C.c_fffaf0} /></g>
-      <g class="hm-bob hm-bob2"><path d="M-250 190 H-200 L-208 204 H-242 Z" fill={C.c_e7a73a} /><rect x="-227" y="160" width="3" height="30" fill={C.c_6b4a2b} /><path d="M-224 162 L-205 184 H-224 Z" fill={C.c_fffaf0} /></g>
-      <g class="hm-bob"><path d="M600 192 H650 L642 206 H608 Z" fill={C.c_c65a3a} /><rect x="623" y="162" width="3" height="30" fill={C.c_6b4a2b} /><path d="M626 164 L645 186 H626 Z" fill={C.c_fffaf0} /></g>
-      <rect x="-445" y="232" width="1280" height="68" fill={C.c_b9824e} />
-      <rect x="-445" y="232" width="1280" height="6" fill={C.c_8e5b33} />
+    <svg class="hm-scene" viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <rect width="400" height="240" fill={C.street} />
+      <circle cx="318" cy="62" r="24" fill={C.gold} stroke={C.ink} stroke-width="2.5" />
+      <path d="M-20 214 Q60 150 160 178 T420 170 V260 H-20 Z" fill={C.c_9fcdbd} stroke={C.ink} stroke-width="2.5" />
+      <path d="M60 240 Q160 176 260 204 T440 196 V280 H60 Z" fill={C.teal} stroke={C.ink} stroke-width="2.5" />
     </svg>
   );
-}
-
-function Bunting() {
-  let d = 'M0 0 H320 V12';
-  for (let x = 320; x > 0; x -= 16) d += ` Q${x - 8} 30 ${x - 16} 12`;
-  return <svg class="hm-bunting" viewBox="0 0 320 30" aria-hidden="true"><path d={`${d} Z`} fill={C.c_c65a3a} /></svg>;
 }
 
 function DailyIcon() {
