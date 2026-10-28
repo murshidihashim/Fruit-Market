@@ -1,7 +1,7 @@
 // Browser side of online play: one WebSocket to the room, automatic reconnects,
 // and a per-room seat token kept on this device so a refresh returns you to your seat.
 import type { Action } from '../engine/game';
-import { RULES_VERSION, type ClientMsg, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
+import { PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
 
 export type ConnState = 'connecting' | 'open' | 'reconnecting' | 'failed';
 
@@ -89,7 +89,7 @@ export class OnlineClient {
     this.emit();
     ws.onopen = () => {
       this.retry = 0;
-      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, rv: RULES_VERSION });
+      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, rv: RULES_VERSION, pv: PROTOCOL_VERSION });
       if (this.ping) clearInterval(this.ping);
       this.ping = setInterval(() => this.send({ t: 'ping' }), 25_000);
     };
@@ -133,6 +133,11 @@ export class OnlineClient {
     if (!this.view) return false;
     return this.send({ t: 'act', id: actionId(), v: this.view.version, action });
   }
+  undo(): boolean {
+    if (!this.view) return false;
+    return this.send({ t: 'undo', id: actionId(), v: this.view.version });
+  }
+  rename(name: string) { this.send({ t: 'rename', name }); }
   continue() { if (this.view) this.send({ t: 'continue', v: this.view.version }); }
   ready(ready: boolean) { this.send({ t: 'ready', ready }); }
   character(avatar: string) { this.send({ t: 'character', avatar }); }

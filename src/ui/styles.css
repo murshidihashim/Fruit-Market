@@ -407,6 +407,8 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .room-full { margin: 8px 0 0; text-align: center; color: var(--gold); font-weight: 600; }
 .shop-total { margin: 8px 0 0; font-weight: 600; }
 .seat-name { flex: 1; font-family: var(--f-pixel); font-weight: 600; }
+.seat-edit { width: 9.5em; max-width: 60%; padding: 4px 8px; border: 0; border-radius: 8px; background: var(--c-f6ead2); color: var(--c-2b2438); font: inherit; }
+.seat-name .you-tag { margin-left: 6px; font-family: var(--f-body); font-weight: 500; opacity: 0.8; }
 .host-tag { margin-left: 6px; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; background: var(--teal); color: var(--c-fff6e8); }
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .dot.on { background: var(--good); }

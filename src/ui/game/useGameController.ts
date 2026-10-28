@@ -45,6 +45,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [conn, setConn] = useState(online?.conn ?? 'open');
   const queue = useRef<GameState[]>([]);
   const lastVersion = useRef(online?.view?.version ?? 0);
+  const undoSeen = useRef<number | null>(null);
   const sending = useRef(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -140,6 +141,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     const take = (v: RoomView) => {
       setMeta(v);
       sending.current = false;
+      // Tell the table when someone takes their purchases back (not on the first view, so a reconnect stays quiet).
+      if (undoSeen.current === null) undoSeen.current = v.undone?.n ?? 0;
+      else if (v.undone && v.undone.n > undoSeen.current) {
+        undoSeen.current = v.undone.n;
+        if (v.undone.seat !== online.seat) say(`${v.seats[v.undone.seat]?.name ?? 'A player'} took back their purchases`);
+      }
       if (v.game && v.version > lastVersion.current && v.game.config.seed === sRef.current.config.seed) {
         lastVersion.current = v.version;
         queue.current.push(v.game);
@@ -259,6 +266,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   /** Offline buying: put back everything bought this turn. */
   const undo = () => {
+    if (online) {
+      if (busyRef.current || sending.current) return;
+      if (!online.undo()) return say('Reconnecting…');
+      sending.current = true;
+      setFreeFruit(null);
+      return;
+    }
     if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); }
     setFreeFruit(null);
   };

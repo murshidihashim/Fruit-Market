@@ -6,6 +6,8 @@ export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
 export const RULES_VERSION = 5;
+/** Bump whenever the messages between phones and the room server change, so old and new builds never share a room (PLAN-023: undo and rename). */
+export const PROTOCOL_VERSION = 2;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
 export const MAX_SEATS = 4;
@@ -43,11 +45,15 @@ export interface RoomView {
   rematch: number[];
   /** A quick-match room with a stranger: no lobby settings, it starts when two are in. */
   quick?: boolean;
+  /** Set after someone takes back their purchases; n counts how many times, so every phone can tell it is new. */
+  undone?: { seat: number; n: number };
 }
 
 export type ClientMsg =
-  | { t: 'hello'; token?: string; name: string; avatar: string; rv?: number }
+  | { t: 'hello'; token?: string; name: string; avatar: string; rv?: number; pv?: number }
   | { t: 'character'; avatar: string }
+  | { t: 'rename'; name: string }
+  | { t: 'undo'; id: string; v: number }
   | { t: 'ready'; ready: boolean }
   | { t: 'config'; config: RoomConfig }
   | { t: 'start' }

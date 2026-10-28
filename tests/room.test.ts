@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { activePlayer, canBuy, newGame } from '../src/engine/game';
-import { RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import { PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import { freshRoom, GRACE_MS, redact, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
@@ -50,8 +50,8 @@ const nid = () => `a${ids++}`;
 async function lobbyOf2(h: Harness) {
   const a = h.connect('A');
   const b = h.connect('B');
-  await a.say({ t: 'hello', rv: RULES_VERSION, name: 'Murshidi', avatar: '🧑‍🍳' });
-  await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Friend', avatar: '👩‍🍳' });
+  await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Murshidi', avatar: '🧑‍🍳' });
+  await b.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Friend', avatar: '👩‍🍳' });
   return { a, b };
 }
 
@@ -215,16 +215,16 @@ describe('online room', () => {
     const h = new Harness();
     h.room = new Room(freshRoom('QUICK2', h.t, true), h);
     const a = h.connect('A');
-    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'Gone', avatar: '🦸' });
+    await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Gone', avatar: '🦸' });
     a.close(); // gave up waiting
     const b = h.connect('B');
-    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Here', avatar: '🐵' });
+    await b.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Here', avatar: '🐵' });
     expect(b.view!.status).toBe('lobby');
     expect(b.view!.seats.map((x) => x.name)).toEqual(['Here']);
     expect(b.view!.seats[0].host).toBe(true);
     expect(h.room.waitingForOpponent()).toBe(true);
     const c = h.connect('C');
-    await c.say({ t: 'hello', rv: RULES_VERSION, name: 'New', avatar: '🦸' });
+    await c.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'New', avatar: '🦸' });
     expect(c.view!.status).toBe('playing');
   });
 
@@ -259,7 +259,7 @@ describe('online room', () => {
     await h.room.alarm();
     expect(a.view!.seats[1].bot).toBe(true);
     const b2 = h.connect('B2');
-    await b2.say({ t: 'hello', rv: RULES_VERSION, token, name: 'Friend', avatar: '👩‍🍳' });
+    await b2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Friend', avatar: '👩‍🍳' });
     expect(b2.seat).toBe(1);
     expect(a.view!.seats[1].bot).toBeUndefined();
     expect(a.view!.seats[1].connected).toBe(true);
@@ -290,10 +290,10 @@ describe('online room', () => {
     const h = new Harness();
     h.room = new Room(freshRoom('QUICK1', h.t, true), h);
     const a = h.connect('A');
-    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'One', avatar: '🦸' });
+    await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'One', avatar: '🦸' });
     expect(a.view!.status).toBe('lobby');
     const b = h.connect('B');
-    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'Two', avatar: '🐵' });
+    await b.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Two', avatar: '🐵' });
     expect(b.view!.status).toBe('playing');
     expect(b.view!.game!.players.length).toBe(2);
   });
@@ -314,11 +314,11 @@ describe('online room', () => {
     a.close();
     expect(b.view!.seats[0].connected).toBe(false);
     const stranger = h.connect('X');
-    await stranger.say({ t: 'hello', rv: RULES_VERSION, name: 'Sneaky', avatar: '🦸' });
+    await stranger.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Sneaky', avatar: '🦸' });
     expect(stranger.errors.slice(-1)[0]).toContain('already started');
     expect(stranger.seat).toBeNull();
     const a2 = h.connect('A2');
-    await a2.say({ t: 'hello', rv: RULES_VERSION, token, name: 'Murshidi', avatar: '🧑‍🍳' });
+    await a2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Murshidi', avatar: '🧑‍🍳' });
     expect(a2.seat).toBe(0);
     expect(a2.view!.game!.day).toBe(1);
     expect(b.view!.seats[0].connected).toBe(true);
@@ -329,7 +329,7 @@ describe('online room', () => {
     const { a, b } = await lobbyOf2(h);
     await a.say({ t: 'config', config: { days: 8, ai: 2, unripe: true, upgrades: true, events: true } });
     const c = h.connect('C');
-    await c.say({ t: 'hello', rv: RULES_VERSION, name: 'Third', avatar: '🦸' });
+    await c.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Third', avatar: '🦸' });
     expect(c.errors.slice(-1)[0]).toContain('full');
     await a.say({ t: 'leave' });
     expect(h.room.d.seats.length).toBe(1);
@@ -376,8 +376,8 @@ describe('characters in a room', () => {
     const h = new Harness();
     const a = h.connect('A');
     const b = h.connect('B');
-    await a.say({ t: 'hello', rv: RULES_VERSION, name: 'A', avatar: '🦊' });
-    await b.say({ t: 'hello', rv: RULES_VERSION, name: 'B', avatar: '🦊' });
+    await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'A', avatar: '🦊' });
+    await b.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'B', avatar: '🦊' });
     const seats = b.view!.seats;
     expect(seats[0].avatar).toBe('🦊');
     expect(new Set(seats.map((x) => x.avatar)).size).toBe(2);
@@ -403,5 +403,143 @@ describe('characters in a room', () => {
     const avatars = h.room.d.game!.players.map((p) => p.avatar);
     expect(new Set(avatars).size).toBe(4);
     expect(h.room.d.game!.players.every((p) => p.trait)).toBe(true);
+  });
+});
+
+// PLAN-023, design 1: take back your own purchases in your own buying turn, and rename in the lobby.
+describe('undo and rename in a room', () => {
+  /** Moves both players on until someone's buying turn, and returns who is buying and who is waiting. */
+  async function toBuyTurn(h: Harness, a: Client, b: Client) {
+    await start(h, a, b, 8, 0);
+    for (let i = 0; i < 20; i++) {
+      const g = a.view!.game!;
+      if (g.phase === 'buy') { const buyer = activePlayer(g) === a.view!.you ? a : b; return { buyer, other: buyer === a ? b : a }; }
+      await a.say({ t: 'continue', v: a.view!.version });
+      await b.say({ t: 'continue', v: b.view!.version });
+    }
+    throw new Error('no buying turn');
+  }
+  async function buyOne(c: Client) {
+    const v = c.view!; const g = v.game!; const me = v.you;
+    for (const f of FRUITS) for (let pos = 0; pos < g.market[f].length; pos++) {
+      if (!canBuy(g, me, f, pos)) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'buy', fruit: f, pos } }); return; }
+    }
+    throw new Error('nothing to buy');
+  }
+  const mine = (c: Client) => c.view!.game!.players[c.view!.you];
+
+  it('renames in the lobby with the usual name cleaning, and not after the game starts', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await a.say({ t: 'rename', name: '  Aisyah  ' });
+    expect(b.view!.seats[0].name).toBe('Aisyah');
+    await a.say({ t: 'rename', name: 'shit' });
+    expect(b.view!.seats[0].name).toBe('Aisyah'); // refused words keep the old name
+    await a.say({ t: 'rename', name: '' });
+    expect(b.view!.seats[0].name).toBe('Aisyah');
+    await start(h, a, b);
+    await a.say({ t: 'rename', name: 'Late' });
+    expect(a.errors.slice(-1)[0]).toContain('lobby only');
+    expect(b.view!.seats[0].name).toBe('Aisyah');
+  });
+
+  it('refuses a phone on the old message version with an update message', async () => {
+    const h = new Harness();
+    const old = h.connect('OLD');
+    await old.say({ t: 'hello', rv: RULES_VERSION, name: 'Old', avatar: '🦊' });
+    const msg = old.inbox.map((r) => JSON.parse(r)).find((m) => m.t === 'error');
+    expect(msg.update).toBe(true);
+    expect(msg.fatal).toBe(true);
+    expect(h.room.d.seats.length).toBe(0);
+  });
+
+  it('takes back what you bought this turn: your cash, shelf and the market go back, and everyone is told', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer, other } = await toBuyTurn(h, a, b);
+    const before = JSON.stringify([mine(buyer), buyer.view!.game!.market]);
+    await buyOne(buyer);
+    expect(mine(buyer).boughtToday).toBe(1);
+    await buyOne(buyer);
+    expect(mine(buyer).boughtToday).toBe(2);
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(JSON.stringify([mine(buyer), buyer.view!.game!.market])).toBe(before);
+    expect(other.view!.undone).toEqual({ seat: buyer.view!.you, n: 1 });
+    expect(JSON.stringify([other.view!.game!.market])).toBe(JSON.stringify([buyer.view!.game!.market]));
+    // and you can buy again and take that back too
+    await buyOne(buyer);
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(mine(buyer).boughtToday).toBe(0);
+    expect(other.view!.undone!.n).toBe(2);
+  });
+
+  it('refuses illegal, stale and out-of-turn undo, and ignores a repeated one', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer, other } = await toBuyTurn(h, a, b);
+    // nothing bought yet
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(buyer.errors.slice(-1)[0]).toContain('Nothing to take back');
+    await buyOne(buyer);
+    // not your turn
+    await other.say({ t: 'undo', id: nid(), v: other.view!.version });
+    expect(other.errors.slice(-1)[0]).toContain('own buying turn');
+    expect(mine(buyer).boughtToday).toBe(1);
+    // stale version
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version - 1 });
+    expect(buyer.errors.slice(-1)[0]).toContain('moved on');
+    expect(mine(buyer).boughtToday).toBe(1);
+    // the same request twice undoes once
+    const id = nid();
+    const v1 = buyer.view!.version;
+    await buyer.say({ t: 'undo', id, v: v1 });
+    const v2 = buyer.view!.version;
+    expect(v2).toBeGreaterThan(v1);
+    await buyer.say({ t: 'undo', id, v: v1 });
+    expect(buyer.view!.version).toBe(v2);
+    expect(other.view!.undone!.n).toBe(1);
+  });
+
+  it('cannot take back after the turn has ended', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer } = await toBuyTurn(h, a, b);
+    await buyOne(buyer);
+    await buyer.say({ t: 'act', id: nid(), v: buyer.view!.version, action: { kind: 'endBuy' } });
+    const boughtAfter = mine(buyer).boughtToday;
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(buyer.errors.slice(-1)[0]).toMatch(/own buying turn|Nothing to take back/);
+    expect(mine(buyer).boughtToday).toBe(boughtAfter);
+  });
+
+  it('keeps the take-back point across a reconnect in the middle of a turn', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer } = await toBuyTurn(h, a, b);
+    await buyOne(buyer);
+    const token = buyer.token;
+    const name = buyer.view!.seats[buyer.view!.you].name;
+    buyer.close();
+    const back = h.connect('BACK');
+    await back.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name, avatar: '🦸' });
+    expect(mine(back).boughtToday).toBe(1);
+    await back.say({ t: 'undo', id: nid(), v: back.view!.version });
+    expect(mine(back).boughtToday).toBe(0);
+  });
+
+  it('never sends the saved turn start to anyone, and a computer playing the seat clears it', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer, other } = await toBuyTurn(h, a, b);
+    await buyOne(buyer);
+    for (const c of [buyer, other]) {
+      const keys = Object.keys(c.view!);
+      expect(keys).not.toContain('undo');
+      expect(JSON.stringify(c.view)).not.toContain('"farmerDeck":[1');
+    }
+    expect(h.room.d.undo).toBeTruthy();
+    // the person leaves on purpose: a computer takes the seat and the old take-back point is gone
+    await buyer.say({ t: 'leave' });
+    expect(h.room.d.undo).toBeUndefined();
   });
 });

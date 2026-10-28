@@ -17,7 +17,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         : <button class="btn primary wide big" onClick={c.proceed}>Open the market</button>)}
       {!busy && s.phase === 'buy' && activeHuman && pl && (
         <>
-          {!online && <button class="btn ghost" aria-label="Undo purchases" disabled={!turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>}
+          <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
           <div class="buy-hint"><b class="move">{freeFruit !== null ? 'Pick a free fruit' : 'Your move'}</b><small>Tap a fruit in the market · {pl.boughtToday}/{limit} bought</small></div>
           <button class="btn primary big" onClick={() => { fx.tap(); c.setFreeFruit(null); c.act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying ➜' : 'Skip buying ➜'}</button>
         </>

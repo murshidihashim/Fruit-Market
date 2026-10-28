@@ -19,7 +19,7 @@ import {
   type Action, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
-  CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, RULES_VERSION, UPDATE_MSG,
+  CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, PROTOCOL_VERSION, RULES_VERSION, UPDATE_MSG,
   type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
@@ -53,6 +53,10 @@ export interface RoomData {
   aiNames: { name: string; avatar: string; quip: string }[];
   /** A quick-match room: strangers are seated ready and the match starts as soon as two are in. */
   quick?: boolean;
+  /** The state a person's buying turn began in, so they can take their purchases back (never sent to anyone). */
+  undo?: { seat: number; day: number; game: GameState };
+  /** The latest take-back, shown to everyone as a message. */
+  lastUndo?: { seat: number; n: number };
 }
 
 export interface Conn {
@@ -188,6 +192,7 @@ export class Room {
       if (!x.bot && x.offlineSince !== undefined && now - x.offlineSince >= GRACE_MS) { x.bot = true; changed = true; }
     });
     if (!changed) return;
+    d.undo = undefined;
     d.version++;
     this.broadcast();
     this.advance();
@@ -213,7 +218,7 @@ export class Room {
 
   private hello(conn: Conn, m: Extract<ClientMsg, { t: 'hello' }>) {
     const d = this.d;
-    if (m.rv !== RULES_VERSION) return conn.send({ t: 'error', msg: UPDATE_MSG, fatal: true, update: true });
+    if (m.rv !== RULES_VERSION || m.pv !== PROTOCOL_VERSION) return conn.send({ t: 'error', msg: UPDATE_MSG, fatal: true, update: true });
     let seat = typeof m.token === 'string' ? d.seats.findIndex((s) => s.token === m.token) : -1;
     if (seat < 0) {
       if (d.status !== 'lobby') return conn.send({ t: 'error', msg: 'This game has already started.', fatal: true });
@@ -267,6 +272,13 @@ export class Room {
         me.avatar = m.avatar;
         return this.broadcast();
       }
+      case 'rename': {
+        if (d.status !== 'lobby') throw new RuleError('You can change your name in the lobby only');
+        me.name = clean(typeof m.name === 'string' ? m.name : '', me.name);
+        return this.broadcast();
+      }
+      case 'undo':
+        return this.undo(conn, seat, m);
       case 'ready':
         if (d.status !== 'lobby') return;
         me.ready = !!m.ready;
@@ -284,6 +296,7 @@ export class Room {
           // Leaving a match on purpose: a computer takes the seat straight away.
           me.bot = true;
           me.offlineSince ??= this.io.now();
+          d.undo = undefined;
           d.version++;
           this.broadcast();
           this.advance();
@@ -342,6 +355,8 @@ export class Room {
     d.pending = players.map(() => null);
     d.votes = [];
     d.rematch = [];
+    d.undo = undefined;
+    d.lastUndo = undefined;
     d.version++;
     this.broadcast();
     this.advance();
@@ -383,10 +398,41 @@ export class Room {
 
     if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
     if (a.kind === 'favour' && a.idx >= 0 && FAVOURS[g.players[seat].favours[a.idx]]?.when === 'bid') throw new RuleError('Play this with your prices');
+    this.markTurnStart(g, seat);
     const next = applyAction(g, seat, a); // throws RuleError if illegal (wrong turn, no cash, etc.)
     this.remember(seat, m.id);
     conn.send({ t: 'ack', id: m.id });
     this.commit(next);
+  }
+
+  /** Remembers the state a person's buying turn began in (the first action of the turn), so they can take purchases back. */
+  private markTurnStart(g: GameState, seat: number) {
+    if (g.phase !== 'buy' || activePlayer(g) !== seat) return;
+    const u = this.d.undo;
+    if (u && u.seat === seat && u.day === g.day) return;
+    this.d.undo = { seat, day: g.day, game: JSON.parse(JSON.stringify(g)) };
+  }
+
+  /** Design 1 (PLAN-023): the server puts the active player back to where their own buying turn began. */
+  private undo(conn: Conn, seat: number, m: Extract<ClientMsg, { t: 'undo' }>) {
+    const d = this.d;
+    const g = d.game;
+    if (d.status !== 'playing' || !g) throw new RuleError('No game in progress');
+    if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Bad action');
+    if (d.seen[seat].includes(m.id)) return conn.send({ t: 'ack', id: m.id }); // replay: already handled
+    if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
+    if (g.phase !== 'buy' || activePlayer(g) !== seat || d.seats[seat].bot) throw new RuleError('You can take back purchases during your own buying turn only');
+    const u = d.undo;
+    if (!u || u.seat !== seat || u.day !== g.day || u.game.phase !== 'buy' || activePlayer(u.game) !== seat) throw new RuleError('Nothing to take back');
+    const mine = (x: GameState) => JSON.stringify([x.players[seat], x.market]);
+    if (mine(u.game) === mine(g)) throw new RuleError('Nothing to take back');
+    d.game = JSON.parse(JSON.stringify(u.game));
+    this.remember(seat, m.id);
+    conn.send({ t: 'ack', id: m.id });
+    d.lastUndo = { seat, n: (d.lastUndo?.n ?? 0) + 1 };
+    d.version++;
+    this.broadcast();
+    this.advance();
   }
 
   /** A hidden submission was stored: acknowledge it and resolve the step if everyone is in. */
@@ -440,6 +486,7 @@ export class Room {
         if (p < 0 || (g.players[p].kind !== 'ai' && !isBot(p))) return;
         const n = isBot(p) ? aiActFor(g, p) : aiStep(g);
         if (!n) return;
+        d.undo = undefined;
         d.game = n;
         d.version++;
         this.broadcast();
@@ -492,6 +539,7 @@ export class Room {
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
       game: g ? redact(g, seat) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
+      ...(d.lastUndo ? { undone: d.lastUndo } : {}),
     };
   }
 

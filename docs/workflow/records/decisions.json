@@ -1474,6 +1474,10 @@
     {
       "at": "2026-10-28 23:44",
       "text": "Owner: \"Push to preview\". Branch workflow/plan-034 (36 customers, blank name field, one palette and no emoji, Rara Jenab, the all-human cast and the cast rules) pushed; CI passed in full including the browser tests: PLAN-026 T3, PLAN-022 T4, PLAN-027 T5, PLAN-035 T4 and PLAN-036 T8 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. Phone look is still NOT RUN for these plans (REP-067)."
+    },
+    {
+      "at": "2026-10-29 00:18",
+      "text": "Owner: \"ok\" to Design 1 for online undo and rename in the lobby only (PLAN-023). Built on local branch workflow/plan-023 (not pushed): the server keeps the state your own buying turn began in and puts you back to it on request (own turn only, refused if stale, repeated or out of turn); everyone sees a message; rename in the lobby only with the usual name cleaning; a new message version so old and new builds never share a room (the rules version is unchanged, so daily boards are not reset). Lint, types, 122 unit tests and the build pass; browser tests and phones NOT RUN (REP-068)."
     }
   ]
 }

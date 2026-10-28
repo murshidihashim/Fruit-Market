@@ -1,16 +1,20 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "rules version 5, message version 2, on local branch workflow/plan-023 (not pushed)",
   "reports": [
     "REP-047",
     "REP-048",
-    "REP-049"
+    "REP-049",
+    "REP-068"
   ],
   "decisions": [
     "DEC-028"
   ],
   "changes": {
-    "added": [],
+    "added": [
+      "Take back your purchases in an online room during your own buying turn",
+      "Change your name in the room lobby"
+    ],
     "changed": [],
     "fixed": [],
     "removed": []
@@ -20,7 +24,7 @@
     "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-023",
   "title": "Undo a buy in online rooms, and rename inside the room",
   "problem": "Informal feedback (REP-045): no undo after tapping a fruit before the buy is confirmed; the game name cannot be edited in the room. By code, an undo button already exists for one-device games (ActionBar.tsx shows it only when not online; turn.ts undoPoint) but it is hidden in online rooms, where a tap sends the buy at once (useGameController.ts). The mention of \"the room\" suggests the feedback game was online (inferred, not confirmed). Online undo needs a new legal action checked by the server.",
@@ -37,21 +41,31 @@
     {
       "id": "T1",
       "text": "Design note approved by the owner before any code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Design note approved by the owner: Design 1 for undo and rename in the lobby only, \"ok\" (2026-10-29 00:18). The third question (the feedback was about online play) was not answered; read as online."
     },
     {
       "id": "T2",
       "text": "Online tests pass for undo, duplicates, stale actions and reconnect; the leak check stays at 0",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/room.test.ts, 7 new tests: rename (cleaning, refused after start), an old message version refused with an update message, undo restores cash, shelf and market and tells everyone, illegal / stale / out-of-turn / repeated undo, no undo after the turn ends, the take-back point survives a reconnect, the saved turn start is never sent and a computer taking the seat clears it. The existing leak checks still pass."
     },
     {
       "id": "T3",
       "text": "verify and verify:full pass",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Lint, types, 122 unit tests and the build pass locally; browser tests (verify:full) run in CI on push. Not pushed."
+    },
+    {
+      "id": "T4",
+      "text": "Undo and rename work and look right on two phones in a real room",
+      "result": "NOT RUN",
+      "evidence": "Not tried on phones; the market jumping back for the other player is untested on screen"
     }
   ],
-  "playerNotes": []
+  "playerNotes": [
+    "In an online room you can now tap the undo button (the arrow) to take back what you bought this turn. Everyone sees a message when you do",
+    "You can change your name in the lobby before the game starts",
+    "Update the app to play online: older versions cannot join"
+  ]
 }

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
 import { track } from '../net/telemetry';
-import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
+import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
@@ -19,6 +19,21 @@ function useClient(client: OnlineClient | null) {
     force((n) => n + 1);
     return off;
   }, [client]);
+}
+
+/** Your own name in the lobby: tap it to change it; the new name is sent when you finish typing. */
+function MyName({ name, host, onRename }: { name: string; host: boolean; onRename: (n: string) => void }) {
+  const [draft, setDraft] = useState(name);
+  useEffect(() => { setDraft(name); }, [name]);
+  const done = () => { const n = draft.trim(); if (n && n !== name) onRename(n); else setDraft(name); };
+  return (
+    <span class="seat-name">
+      <input class="seat-edit" aria-label="Your name" value={draft} maxLength={NAME_MAX}
+        onInput={(e) => setDraft((e.target as HTMLInputElement).value)} onBlur={done}
+        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
+      <small class="you-tag">(you)</small>{host && <small class="host-tag">HOST</small>}
+    </span>
+  );
 }
 
 export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {
@@ -192,7 +207,9 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           {v.seats.map((x) => (
             <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
               <Face who={x.avatar} size={34} />
-              <span class="seat-name">{x.name}{x.seat === v.you ? ' (you)' : ''}{x.host && <small class="host-tag">HOST</small>}</span>
+              {x.seat === v.you
+                ? <MyName name={x.name} host={x.host} onRename={(n) => client.rename(n)} />
+                : <span class="seat-name">{x.name}{x.host && <small class="host-tag">HOST</small>}</span>}
               <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
