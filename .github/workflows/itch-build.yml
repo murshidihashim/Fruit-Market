@@ -1,0 +1,53 @@
+# Builds the itch.io HTML5 upload (PLAN-037) and keeps it as a downloadable artifact. Manual start only:
+# GitHub -> Actions -> "itch.io web build" -> Run workflow. It publishes nothing and uses no secrets.
+# See docs/ITCH.md for the itch.io page settings and how to upload the zip.
+name: itch.io web build
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  itch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Build the zip (offline copy, index.html at the root)
+        run: npm run build:itch
+      - name: Check it the way itch.io shows it (iframe on another address, one solo game)
+        run: node scripts/itch-smoke.cjs release/itch/fruit-market-web.zip e2e-output/itch
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fruit-market-itch-web
+          path: |
+            release/itch/fruit-market-web.zip
+            release/itch/version.txt
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: itch-screenshots
+          path: e2e-output/itch/
+          retention-days: 7
+
+      # Publishing to itch.io is OFF. Uploading is publishing: it needs the owner's separate approval
+      # (CLAUDE.md). To switch it on later, after that approval:
+      #   1. itch.io -> Settings -> API keys -> Generate new API key.
+      #   2. GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret:
+      #      BUTLER_API_KEY = that key.
+      #   3. Replace <itch-user> below, remove the leading "# " from the lines of this step, commit.
+      # - name: Upload to itch.io (owner-approved only)
+      #   env:
+      #     BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      #   run: |
+      #     curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+      #     unzip -q butler.zip -d butler && chmod +x butler/butler
+      #     ./butler/butler push release/itch/fruit-market-web.zip <itch-user>/fruit-market:html5 --userversion-file release/itch/version.txt

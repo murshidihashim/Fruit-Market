@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "tsc && tsc -p server && vite build",
     "build:single": "vite build --mode single",
+    "build:itch": "node scripts/itch-build.mjs",
     "test": "vitest run",
     "simulate": "vite-node scripts/simulate.ts",
     "balance": "vite-node scripts/balance.ts",
