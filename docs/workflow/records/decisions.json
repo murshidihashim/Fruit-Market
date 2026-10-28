@@ -1170,6 +1170,31 @@
         "REP-077"
       ],
       "reviewTrigger": "Morning review."
+    },
+    {
+      "id": "DEC-047",
+      "title": "Opening animation: Market morning (option 1)",
+      "question": "Which opening design: 1 Market morning or 2 The mat is laid?",
+      "choice": "Option 1, Market morning: sun, sign, three stalls, the lorry brings fruit, the bell rings. Played when a new game starts; tap to skip.",
+      "rationale": "Owner answer \"1\" to the question which opening design to build.",
+      "impact": {
+        "player": "A short scene (about 8 seconds, skippable) plays when a new game starts. It does not play on Continue or Rematch.",
+        "technical": "New Opening component; automated browser tests skip it.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "1",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-078"
+      ],
+      "plan": "PLAN-029",
+      "reviewTrigger": "After a phone playtest: if it feels long, shorten it."
     }
   ],
   "history": [
@@ -1648,6 +1673,10 @@
     {
       "at": "2026-10-29 03:16",
       "text": "Overnight (DEC-046): print kit built (mat and tokens, 36 customer cards, delivery, favour, event and shopkeeper cards, playtest pack) and two opening-animation designs drawn for the owner to choose (REP-077). Nothing built from the opening designs."
+    },
+    {
+      "at": "2026-10-29 07:59",
+      "text": "Owner chose opening design 1 (DEC-047). Built on workflow/plan-029: Opening component, played on new game, tap to skip, reduced-motion safe. Lint, types and tests pass; browser tests run in CI."
     }
   ]
 }

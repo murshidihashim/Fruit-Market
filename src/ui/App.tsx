@@ -8,6 +8,7 @@ import { Fruit } from './art';
 import { CharacterPick } from './CharacterPick';
 import { Portrait, prewarmSprites } from './pixel';
 import { Game } from './Game';
+import { Opening } from './Opening';
 import { HowTo } from './HowTo';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
@@ -46,6 +47,7 @@ export function App() {
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
+  const [opening, setOpening] = useState(false);
   const recorded = useRef<string | null>(null);
 
   const go = (sc: Screen) => {
@@ -69,6 +71,7 @@ export function App() {
     recorded.current = null;
     setGame(g);
     saveGame(g);
+    setOpening(screen !== 'game' && !navigator.webdriver); // automated browser tests skip the opening
     setScreen('game');
   };
 
@@ -97,6 +100,8 @@ export function App() {
 
   if (screen === 'game' && game) {
     return (
+      <>
+      {opening && <Opening onDone={() => setOpening(false)} />}
       <Game
         key={`${game.config.seed}-${game.config.daily ?? ''}`}
         initial={game}
@@ -113,6 +118,7 @@ export function App() {
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
       />
+      </>
     );
   }
   if (screen === 'setup') return <Setup onBack={() => go('home')} onStart={start} />;

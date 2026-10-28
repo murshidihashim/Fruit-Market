@@ -1000,3 +1000,32 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .rw-name { color: var(--ink); }
 .rw-none { color: var(--ink-muted); }
 body { background: var(--c-fbf3e1); }
+
+/* ---------- PLAN-029: the market opening (design approved, DEC-047) ---------- */
+.op { position: absolute; inset: 0; z-index: 60; background: var(--c-cfe7d8); display: grid; place-items: center; overflow: hidden; cursor: pointer; animation: fade 0.2s; }
+.op-stage { position: relative; width: 390px; height: 560px; flex: none; transform-origin: center; }
+.op-stage::before { content: ''; position: absolute; left: -600px; right: -600px; top: -900px; height: 900px; background: var(--c-cfe7d8); }
+.op-sky { position: absolute; left: 0; top: 0; width: 100%; height: 300px; }
+.op-ground { position: absolute; left: -600px; right: -600px; top: 300px; bottom: -900px; background: var(--c-e2cc9c); border-top: 3px solid var(--ink); }
+.op-sun { animation: op-rise 1.4s ease-out both; }
+.op-sign { position: absolute; left: 50%; top: -60px; transform: translateX(-50%); background: var(--c-fffdf7); color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 16px; font-family: var(--f-pixel); font-weight: 700; letter-spacing: 1px; box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-drop 0.7s 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) forwards; }
+.op-stall { position: absolute; top: 250px; width: 104px; height: 110px; opacity: 0; animation: op-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
+.op-s0 { left: 14px; animation-delay: 1.2s; } .op-s1 { left: 143px; animation-delay: 1.45s; } .op-s2 { left: 272px; animation-delay: 1.7s; }
+.op-awn { height: 30px; border: 3px solid var(--ink); border-radius: 10px 10px 4px 4px; background: repeating-linear-gradient(90deg, var(--c) 0 13px, var(--c-fffdf7) 13px 26px); }
+.op-cnt { height: 46px; margin: 0 6px; border: 3px solid var(--ink); border-top: 0; background: var(--c-a86b45); }
+.op-who { position: absolute; left: 35px; top: 34px; }
+.op-lorry { position: absolute; top: 372px; left: -190px; animation: op-drive 1.8s 2.3s cubic-bezier(0.2, 0.8, 0.3, 1) forwards, op-leave 1.4s 6s ease-in forwards; }
+.op-fl { position: absolute; left: 150px; top: 392px; opacity: 0; animation: op-toss 1s ease-out forwards; }
+.op-f0 { --x: 34px; animation-delay: 4.2s; } .op-f1 { --x: 160px; animation-delay: 4.45s; } .op-f2 { --x: 286px; animation-delay: 4.7s; } .op-f3 { --x: 92px; animation-delay: 4.95s; }
+.op-bell { position: absolute; right: 26px; top: 150px; opacity: 0; transform-origin: top; animation: op-ring 1.2s 6.2s ease-in-out forwards; }
+.op-pill { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%) scale(0.6); opacity: 0; background: var(--terra); color: var(--c-fff6e8); border: 3px solid var(--ink); border-radius: 999px; padding: 10px 22px; font-family: var(--f-pixel); font-weight: 700; box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-pill 0.5s 7.1s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
+.op-skip { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem; color: var(--ink-muted); }
+@keyframes op-rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes op-drop { to { top: 20px; } }
+@keyframes op-pop { from { opacity: 0; transform: translateY(24px) scale(0.8); } to { opacity: 1; transform: none; } }
+@keyframes op-drive { to { left: 112px; } }
+@keyframes op-leave { to { left: 430px; } }
+@keyframes op-toss { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 60% { transform: translate(calc((var(--x) - 150px) * 0.6), -150px); } 100% { opacity: 1; transform: translate(calc(var(--x) - 150px), -92px); } }
+@keyframes op-ring { 0% { opacity: 1; transform: rotate(0); } 20% { opacity: 1; transform: rotate(22deg); } 40% { transform: rotate(-20deg); } 60% { transform: rotate(14deg); } 80% { transform: rotate(-8deg); } 100% { opacity: 1; transform: rotate(0); } }
+@keyframes op-pill { to { opacity: 1; transform: translateX(-50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .op-stage * { animation-duration: 0.01s !important; animation-delay: 0s !important; } }
