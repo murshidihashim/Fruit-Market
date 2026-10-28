@@ -1,0 +1,69 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-054"
+  ],
+  "decisions": [
+    "DEC-033"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-029",
+  "title": "Animated market opening on the home screen",
+  "problem": "The home scene is a harbour that the sign card mostly covers; the owner asked for an animated fruit market when the link opens (prototype: Market_Opening_Prototype.html).",
+  "scope": [
+    "Replace the harbour with a pixel market street loop: lorry arrives, fruit goes to stalls, customers order and pay, lorry leaves",
+    "CSS-only motion, stepped like the rest of the game, no sound",
+    "Still frame for reduced motion",
+    "The title and buttons stay usable from the first moment (nothing waits for the animation)"
+  ],
+  "exclusions": [
+    "Sound",
+    "A longer intro or a forced splash",
+    "Changes to game screens"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The home screen opens within the existing performance budget (perf-budget script)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "With reduced motion the scene shows a still frame and nothing moves",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "Buttons are usable immediately and the scene never covers them",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "The scene looks right on a phone and a wide screen",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-054"
+  ],
+  "decisions": [
+    "DEC-033"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-028",
+  "title": "One Farmers Market board for the screen and the table",
+  "problem": "The market is a grid of flat cells and the lorry is a smoothed picture; the owner wants the board to look the same in the game and on a real table (DEC-033).",
+  "scope": [
+    "New pixel sprites: awning, sign plank, price tag, shelf slot (and the lorry, style to be decided)",
+    "Screen market rebuilt as shelf slots with a printed price, a freshness band and a \"nights left\" label for every slot, keeping buy taps and the animation anchors",
+    "A printable A3 landscape mat and token sheet generated from the same game data (track lengths 3, 6, 7 and 6 slots, prices from the cost table)",
+    "Village Square skin only",
+    "RULES.md \"Playing on a table\": the board"
+  ],
+  "exclusions": [
+    "Skins for the other league stages",
+    "Night Market and seasonal skins",
+    "Rule or balance changes",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Screen and printed mat are generated from the same slot data (test compares track lengths and prices with the game data)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "Buying, putting back and the animations work as before on the new market (unit and browser tests)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The mat prints on A3 at 100% with all four tracks legible",
+      "result": "NOT RUN",
+      "evidence": "Needs a print by the owner"
+    },
+    {
+      "id": "T4",
+      "text": "A hand-played table game with the mat",
+      "result": "NOT RUN",
+      "evidence": "Needs people and the printed set"
+    },
+    {
+      "id": "T5",
+      "text": "The new market looks right and is easy to tap on a phone",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T6",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
+}

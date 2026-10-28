@@ -788,6 +788,56 @@
       ],
       "plan": "PLAN-025",
       "reviewTrigger": "After a human playtest, or if one character proves too strong or too weak."
+    },
+    {
+      "id": "DEC-032",
+      "title": "Customer deck grows from 24 to 36 cards",
+      "question": "Should the customer deck have 36 cards instead of 24, with the same demand profile?",
+      "choice": "Yes. Twelve new customers (Jia Wen, Rizal, Devi, Marcus, Fatimah, Ben, Yuki, Hadi, Lakshmi, Kenji, Mira, Hock Seng) join the original 24, written to match them: average card 4.4 pieces and $31.8 fresh value (original 4.4 and $31.9), the same share of each fruit and the same mix of card sizes and fruits per card. The original 24 are unchanged.",
+      "rationale": "Owner instruction after the demand review (\"expand customer card to 36, keep the demand profile and design language in line with the rest of the game\"). A bigger deck means fewer repeats in 5 to 6 shop games and on the table.",
+      "impact": {
+        "player": "More variety of customers; each new customer has a pixel portrait, a title and a one-line quirk.",
+        "technical": "Twelve entries in CUSTOMER_CARDS, looks and portraits; a test that depended on the dealt traits for one seed was made independent of them.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "expand customer card to 36, keep the demand profile and design language in line with the rest of the game",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-053"
+      ],
+      "plan": "PLAN-026",
+      "reviewTrigger": "After a human playtest, or if a new customer proves too strong or weak a draw."
+    },
+    {
+      "id": "DEC-033",
+      "title": "Art direction: Look C, calm flat world with pixel objects",
+      "question": "Which single coherent look should the game follow: pixel everywhere (A), flat vector everywhere (B), or calm flat scenery with pixel objects (C)?",
+      "choice": "Look C. Scenery and structure (home scene, sky, ground, signs, awnings, the lorry, board frames) are flat, smooth and calm in the harbour picture's palette and softness; everything the player counts, taps or prints as a token (fruit, people, icons) stays pixel art. The Farmers Market board is drawn once and shared by the screen and the printed table mat. The lorry style and the board size are still to be decided.",
+      "rationale": "Owner choice (\"Look C\") after the three-way comparison (Look_Comparison.html). It keeps the pixel identity and 49 portraits, takes the calm of the flat harbour picture, and is the cheapest route to a coherent look.",
+      "impact": {
+        "player": "No change yet. Later: a calmer look, a market board that looks like the printed one, an animated market on the home screen.",
+        "technical": "Nothing built. Three plans proposed: PLAN-027 style guide and one palette, PLAN-028 shared board, PLAN-029 animated opening.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Look C",
+        "date": "2026-10-28"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-054"
+      ],
+      "plan": "PLAN-027",
+      "reviewTrigger": "After the board prototype is printed and seen on a phone."
     }
   ],
   "history": [
@@ -1154,6 +1204,10 @@
     {
       "at": "2026-10-28 01:03",
       "text": "CI on branch workflow/plan-025 (rules 5, tabletop fixes and character cards together) passed in full, including the browser tests: PLAN-020 T3, PLAN-024 T4 and PLAN-025 T5 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. The new screens are still not seen on a phone (PLAN-025 T4 NOT RUN) (REP-052)."
+    },
+    {
+      "at": "2026-10-28 20:42",
+      "text": "Owner: \"expand customer card to 36, keep the demand profile and design language in line with the rest of the game\" built on local branch workflow/plan-026 (not pushed): 36 customer cards (DEC-032, PLAN-026, REP-053). Then, after the art audit and the three-way look comparison, owner chose \"Look C\": calm flat scenery with pixel objects, one Farmers Market board shared by the screen and the table (DEC-033). Nothing built for it; PLAN-027 (style guide and palette), PLAN-028 (shared board) and PLAN-029 (animated opening) are proposed for approval (REP-054)."
     }
   ]
 }

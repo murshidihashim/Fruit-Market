@@ -1,0 +1,75 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-054"
+  ],
+  "decisions": [
+    "DEC-033"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-027",
+  "title": "Look C style guide and one palette",
+  "problem": "Art audit (REP-054): pixel sprites, flat vector, CSS and one raster lorry follow no shared rule; colours are typed twice (29 CSS tokens, 89 CSS hex values and 102 in the sprite code); sprites scale by arbitrary amounts; emoji remain in the interface.",
+  "scope": [
+    "docs/ART-STYLE.md: flat and smooth for scenery and structure, pixel for objects; allowed sprite sizes in whole multiples; corner and type rules; no emoji",
+    "One palette file read by both the stylesheet and the sprites",
+    "Sprite sizes snapped to the allowed list",
+    "Replace the remaining emoji in the interface with pixel icons"
+  ],
+  "exclusions": [
+    "Any new artwork",
+    "Layout changes",
+    "The board and the lorry (PLAN-028)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The style guide exists with the rules and examples and is approved by the owner",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "Every colour in styles.css and pixel.tsx comes from the one palette; a check fails on a new stray hex value",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "Sprites render only at the allowed sizes (check in tests)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "No emoji in interface strings (check in tests)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T6",
+      "text": "The game looks the same or better on a phone; nothing shifted",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
+}

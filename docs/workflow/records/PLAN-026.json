@@ -1,0 +1,69 @@
+{
+  "release": "unreleased",
+  "build": "rules version 5 on local branch workflow/plan-026",
+  "reports": [
+    "REP-053"
+  ],
+  "decisions": [
+    "DEC-032"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "expand customer card to 36, keep the demand profile and design language in line with the rest of the game",
+    "date": "2026-10-28"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-026",
+  "title": "Customer deck: 36 cards",
+  "problem": "The deck of 24 customers repeats often in 5 to 6 shop games and a physical copy needs a bigger set (owner request after the demand review).",
+  "scope": [
+    "Twelve new customer cards matching the original demand profile",
+    "Pixel portraits, titles and quirks for the twelve",
+    "Rules text: 36 cards",
+    "A printable card sheet (fronts and backs) and a demand-per-card table"
+  ],
+  "exclusions": [
+    "Changing any of the original 24 cards",
+    "Rebalancing demand",
+    "Deploying anything"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The 36 cards keep the demand profile of the original 24",
+      "result": "PASS",
+      "evidence": "Average card 4.4 pieces and $31.8 value against 4.4 and $31.9; fruit shares mango 30%, apple 25%, blueberry 24%, watermelon 22% for all 36 (Characters_Gallery.html, demand table)."
+    },
+    {
+      "id": "T2",
+      "text": "Lint, types, unit tests and the build pass",
+      "result": "PASS",
+      "evidence": "Lint and types clean; 100 unit tests pass; build passes (2026-10-28). One tie-break test was made independent of the dealt traits (traits are random per seed)."
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests (verify:full) pass in CI",
+      "result": "NOT RUN",
+      "evidence": "Not pushed; CI runs them on push"
+    },
+    {
+      "id": "T4",
+      "text": "The new portraits look right in the game on a phone",
+      "result": "NOT RUN",
+      "evidence": "Seen only in the printed-card sheet and a desktop browser"
+    },
+    {
+      "id": "T5",
+      "text": "The printed cards print cleanly on A4 and are readable",
+      "result": "NOT RUN",
+      "evidence": "Layout checked on screen only"
+    }
+  ]
+}
