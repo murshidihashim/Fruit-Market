@@ -1,8 +1,9 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "printed prototype first, on local branch workflow/plan-026 (no game code changed yet)",
   "reports": [
-    "REP-054"
+    "REP-054",
+    "REP-055"
   ],
   "decisions": [
     "DEC-033"
@@ -15,11 +16,11 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Board first",
+    "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-028",
   "title": "One Farmers Market board for the screen and the table",
   "problem": "The market is a grid of flat cells and the lorry is a smoothed picture; the owner wants the board to look the same in the game and on a real table (DEC-033).",
@@ -41,7 +42,7 @@
       "id": "T1",
       "text": "Screen and printed mat are generated from the same slot data (test compares track lengths and prices with the game data)",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Printed prototype only: the A3 mat and tokens are generated from the game data (track lengths 3, 6, 7, 6; prices from the cost table). The screen market is not rebuilt yet, so the comparison cannot run."
     },
     {
       "id": "T2",
@@ -53,7 +54,7 @@
       "id": "T3",
       "text": "The mat prints on A3 at 100% with all four tracks legible",
       "result": "NOT RUN",
-      "evidence": "Needs a print by the owner"
+      "evidence": "Prototype made (Board_Prototype_A3.html and .pdf: one A3 landscape page and three A4 pages checked in a PDF render). Not printed on paper yet."
     },
     {
       "id": "T4",

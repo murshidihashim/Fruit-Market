@@ -53,6 +53,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
 - PLAN-022: Client-only UI requests: different default icons, blank name that opens the keyboard (proposed)
 - PLAN-027: Look C style guide and one palette (proposed)
-- PLAN-028: One Farmers Market board for the screen and the table (proposed)
 - PLAN-029: Animated market opening on the home screen (proposed)
 <!-- records:pending:end -->
