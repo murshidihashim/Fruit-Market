@@ -863,6 +863,31 @@
       ],
       "plan": "PLAN-030",
       "reviewTrigger": "When the owner chooses."
+    },
+    {
+      "id": "DEC-035",
+      "title": "Naming: adopt the names in Naming_Audit",
+      "question": "Should the game adopt the names proposed in the naming audit, including the optional ones?",
+      "choice": "Yes, all of them (Naming_Audit.docx): Wholesale Market (sign may read FARM GATE); stall everywhere; shopkeepers for the six picks; Tired instead of \"Not so\" (Green, Fresh, Okay, Tired); piece for one fruit; cost for buying and price for selling; track, slot, shelf, crate, pile; phases Morning, Buying, Stocking, The bell, The rush, Evening; buttons Start buying and Start game; Delivery card; Gossip; Clearance; Tip Jar; perk for trait; stall upgrade and Handcart; the queue, regular and special guest; the crier; Closing Day; Daily market; Demand, Price drift, Fixed prices and Basic game for the options.",
+      "rationale": "Owner instruction (\"approve everything\") straight after the naming audit. The audit found \"market\" meant five things, stall and shop were the same thing, and the rules and app used different names for the same beats.",
+      "impact": {
+        "player": "Words only: the rules, how-to text, screens, cards and board use the new names. No rule changes.",
+        "technical": "A rename across RULES.md, the app text, HowTo, data titles, the printed cards and the board. Code identifiers may stay as they are.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "approve everything",
+        "date": "2026-10-28"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-057"
+      ],
+      "plan": "PLAN-031",
+      "reviewTrigger": "After a human playtest: do new players understand the names without help?"
     }
   ],
   "history": [
@@ -1249,6 +1274,10 @@
     {
       "at": "2026-10-28 21:16",
       "text": "Records fix: approvals are never rewritten, so PLAN-028 keeps the owner words \"Board first\" and is marked superseded. The board work continues as PLAN-030 (proposed), to follow the board look the owner chooses (DEC-034)."
+    },
+    {
+      "at": "2026-10-28 21:36",
+      "text": "Owner: \"approve everything\", straight after the naming audit. Recorded as approval of all names in Naming_Audit including the optional ones (DEC-035) and the rename plan PLAN-031, to be built after the board look is chosen. Not read as approval of the board look (DEC-034) or of PLAN-027, PLAN-029 and PLAN-030, which stay proposed until the owner says so (REP-057)."
     }
   ]
 }

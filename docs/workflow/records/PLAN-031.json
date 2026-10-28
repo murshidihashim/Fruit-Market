@@ -1,0 +1,65 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-057"
+  ],
+  "decisions": [
+    "DEC-035"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Names across the rules, the app and the cards (see DEC-035)"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "approve everything",
+    "date": "2026-10-28"
+  },
+  "delivery": "not started",
+  "id": "PLAN-031",
+  "title": "Rename pass: adopt the Naming_Audit names",
+  "problem": "\"Market\" means five things, stall and shop are one thing, and the rules and the app name the day phases differently (Naming_Audit).",
+  "scope": [
+    "Rename in RULES.md, HowTo, tutorial text, screens and data titles",
+    "Rename on the printed customer cards and the board sign",
+    "One glossary section in RULES.md",
+    "Sequenced after the board look is chosen (DEC-034) so the new names go onto the new board once"
+  ],
+  "exclusions": [
+    "Any rule or balance change",
+    "Renaming code identifiers (types, ids, file names)",
+    "Deploying to the live game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "No old name remains in player-facing text (a check searches for each retired word)",
+      "result": "NOT RUN",
+      "evidence": "Not built yet"
+    },
+    {
+      "id": "T2",
+      "text": "Rules, app and board use the same names for the six day phases",
+      "result": "NOT RUN",
+      "evidence": "Not built yet"
+    },
+    {
+      "id": "T3",
+      "text": "Lint, types, unit tests, build and browser tests pass",
+      "result": "NOT RUN",
+      "evidence": "Not built yet"
+    },
+    {
+      "id": "T4",
+      "text": "A new player understands the main terms without help",
+      "result": "NOT RUN",
+      "evidence": "Needs a playtest"
+    }
+  ]
+}
