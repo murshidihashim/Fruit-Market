@@ -390,7 +390,7 @@ const PARTS: Record<string, string[]> = {
   dino: ['.....G..G..G....', '....GGGGGGGG....', '...GGGGGGGGGG...', '..GGWGWGWGWGGG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GG........GG..', '..GGGGGGGGGGGG..'],
   wings: ['', '', '', '', '', '', '', 'LL............LL', 'LLL..........LLL', 'LLL..........LLL', '.LL..........LL.', '.LL..........LL.'],
   horn: ['.......Y........', '.......YY.......', '......YY........'],
-  glasses: ['', '', '', '', '', '', '', '', '....KKK..KKK....', '....K.KKKK.K....', '....KKK..KKK....'],
+  glasses: ['', '', '', '', '', '', '', '', '....BBB..BBB....', '....B.BBBB.B....', '....BBB..BBB....'],
   shades: ['', '', '', '', '', '', '', '', '....KKKKKKKK....', '....KKK..KKK....'],
   nose: ['', '', '', '', '', '', '', '', '', '', '.......RR.......'],
   beard: ['', '', '', '', '', '', '', '', '', '', '', '...HH......HH...', '...HHHHHHHHHH...', '....HHHHHHHH....', '.....HHHHHH.....'],
@@ -541,6 +541,7 @@ export function prewarmSprites() {
 
 /** Which portrait keys exist (the cast checks read this). */
 export const portraitKeys = () => ({ humans: Object.keys(HUMANS), animals: Object.keys(ANIMALS), avatarKey: AVATAR_KEY });
+
 
 
 

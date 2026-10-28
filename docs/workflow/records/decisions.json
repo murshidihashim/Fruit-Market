@@ -1019,6 +1019,31 @@
       ],
       "plan": "PLAN-036",
       "reviewTrigger": "When PLAN-036 refines the portraits, or after a playtest."
+    },
+    {
+      "id": "DEC-041",
+      "title": "Cast coherence rules (creative bible) approved",
+      "question": "Do the Cast coherence rules in the creative bible stand as the rules for every character?",
+      "choice": "Yes. Theme: townsfolk of the harbour market (an ordinary person with a job or hobby and one playful detail; no animals, creatures, robots or monsters). Shopkeepers: six humans with plain first names. Customers: a title \"Role Name\" (or just the name when the name carries the joke) and a quirk about what they do, never who they are. Names and roles mix across cultures with no culture tied to a role. Portraits: 16x16 head and shoulders, 1 pixel ink outline, one face template, told apart by hair, one accessory, skin tone and shirt colour, every colour from src/ui/palette.ts, light from the top left, no text or creature parts. One source of portraits for the screen, the printed cards, the character pick and the gallery.",
+      "rationale": "Owner approval (\"Approve rules\") after reviewing the cast sheet and the rules.",
+      "impact": {
+        "player": "Every character follows one theme and one portrait style.",
+        "technical": "The rules are in docs/workflow/CREATIVE-BIBLE.md and are enforced in part by tests/cast.test.ts.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Approve rules",
+        "date": "2026-10-28"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-066"
+      ],
+      "plan": "PLAN-036",
+      "reviewTrigger": "When a new character is added, or after a playtest."
     }
   ],
   "history": [
@@ -1441,6 +1466,10 @@
     {
       "at": "2026-10-28 23:24",
       "text": "Owner review of the cast: \"remove the manner nickname for shopkeepers, remove \"cheerleader\" from cheerleader Rara, replace the wedding planner, lumberjack, night baker, pony rider\". Done on local branch workflow/plan-034 (not pushed): shopkeepers are plain first names (Rosa, Benny, Chen, Saleh, Raj, Kiran); Rara Jenab no longer carries a role word; the wedding planner, lumberjack, night baker and pony rider became Tailor Siti, Fisherman Marcus, Librarian Robert and Photographer Sarah (names and orders unchanged, so demand is unchanged). Side effect: the shopkeepers' plain first names are no longer reserved player names; the old animal-era names stay reserved (REP-065)."
+    },
+    {
+      "at": "2026-10-28 23:26",
+      "text": "Owner: \"Approve rules\": the Cast coherence rules in the creative bible are approved (DEC-041). PLAN-036 T3 and T9 now PASS. The glasses part was recoloured to a brown frame so they read as spectacles (REP-066). Open in PLAN-036: a check that every quirk says what someone does (T5), the screen, printed cards, character pick and gallery drawing the same portraits (T6, only the sheet checked), phone look (T7) and browser tests (T8). Nothing pushed."
     }
   ]
 }

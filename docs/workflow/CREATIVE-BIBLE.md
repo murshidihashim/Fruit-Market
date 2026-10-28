@@ -38,7 +38,7 @@ Creative approval never means implementation approval; changes to the game go th
 - **Key screen:** the reveal. Price boards flip highest to lowest, coins fly to the winner, and the losing
   offer is tagged "$1 too high".
 
-## Cast coherence (owner chose T1 and DEC-040; the rules below are a draft for the owner's approval in PLAN-036)
+## Cast coherence (owner approved: T1 and DEC-040, rules DEC-041, 2026-10-28)
 
 **Theme: townsfolk of the harbour market (DEC-039, T1).** Every character is an ordinary person with a job or a
 hobby and one playful detail. Nobody is an animal, creature, robot or monster. Costumes are only what a job

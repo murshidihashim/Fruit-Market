@@ -1,11 +1,12 @@
 {
   "release": "unreleased",
-  "build": "first pass built on local branch workflow/plan-034 (not pushed): human shopkeepers and the T1 customer roles; portrait refinement and the bible approval remain",
+  "build": "built on local branch workflow/plan-034 (not pushed); phone look, printed cards and browser tests remain",
   "reports": [
     "REP-062",
     "REP-063",
     "REP-064",
-    "REP-065"
+    "REP-065",
+    "REP-066"
   ],
   "decisions": [
     "DEC-033",
@@ -13,7 +14,8 @@
     "DEC-035",
     "DEC-038",
     "DEC-039",
-    "DEC-040"
+    "DEC-040",
+    "DEC-041"
   ],
   "changes": {
     "added": [],
@@ -61,8 +63,8 @@
     {
       "id": "T3",
       "text": "The creative bible has the cast theme and portrait rules and the owner approves them",
-      "result": "NOT RUN",
-      "evidence": "The cast rules are drafted in docs/workflow/CREATIVE-BIBLE.md (a \"Cast coherence\" section, marked draft); the owner has not approved them yet"
+      "result": "PASS",
+      "evidence": "The cast rules in docs/workflow/CREATIVE-BIBLE.md approved by the owner: \"Approve rules\" (2026-10-28, DEC-041)"
     },
     {
       "id": "T4",
@@ -97,8 +99,8 @@
     {
       "id": "T9",
       "text": "The first-pass portraits are good enough or the owner lists fixes",
-      "result": "NOT RUN",
-      "evidence": "Owner reviewed Cast_After_T1.html and asked for changes (done, REP-065); the rest of the review, the cast rules approval and the glasses that read as sunglasses are still open"
+      "result": "PASS",
+      "evidence": "Owner reviewed Cast_After_T1.html, asked for name and role changes (REP-065) and approved the rules. The glasses now use a brown frame so they read as spectacles, not sunglasses (REP-066)."
     }
   ]
 }
