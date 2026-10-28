@@ -281,41 +281,41 @@ export interface Look { icon: string; title: string; quirk: string }
 
 /** Every customer is a character. Unknown names fall back to a generic shopper. */
 export const CUSTOMER_LOOKS: Record<string, Look> = {
-  John: { icon: '🤠', title: 'Cowboy John', quirk: 'Pays with coins he panned from the river.' },
-  Robert: { icon: '🧛', title: 'Count Robert', quirk: 'Only shops after sunset. Hates garlic, loves blueberries.' },
-  Daniel: { icon: '🧙', title: 'Daniel the Wizard', quirk: 'Swears apples power his spells.' },
+  John: { icon: '🧑', title: 'Rancher John', quirk: 'Pays with coins he panned from the river.' },
+  Robert: { icon: '🧑', title: 'Night Baker Robert', quirk: 'Only shops after sunset. Loves blueberries.' },
+  Daniel: { icon: '🧑', title: 'Chemist Daniel', quirk: 'Swears apples power his experiments.' },
   'Rara Jenab': { icon: '🧕', title: 'Cheerleader Rara Jenab', quirk: 'Cheers every mango she buys. "Ra-ra, Jenab!"' },
-  Aisyah: { icon: '👩‍🚀', title: 'Astronaut Aisyah', quirk: 'Needs watermelon for zero-gravity snacks.' },
-  Ravi: { icon: '🦸', title: 'Super Ravi', quirk: 'Saves the day, one mango at a time.' },
-  'Mei Ling': { icon: '🧜‍♀️', title: 'Mei Ling the Mermaid', quirk: 'Splashes anyone selling soggy fruit.' },
-  Farid: { icon: '🥷', title: 'Ninja Farid', quirk: 'You never see him arrive. Or pay.' },
-  Siti: { icon: '👸', title: 'Princess Siti', quirk: 'Expects the royal treatment, and royal fruit.' },
-  Kumar: { icon: '🧞', title: 'Kumar the Genie', quirk: 'Grants three wishes. All of them are fruit.' },
+  Aisyah: { icon: '🧑', title: 'Scientist Aisyah', quirk: 'Needs watermelon for the lab snacks.' },
+  Ravi: { icon: '🧑', title: 'Delivery Rider Ravi', quirk: 'Saves the day, one mango at a time.' },
+  'Mei Ling': { icon: '🧑', title: 'Diver Mei Ling', quirk: 'Splashes anyone selling soggy fruit.' },
+  Farid: { icon: '🧑', title: 'Courier Farid', quirk: 'You never see him arrive. Or pay.' },
+  Siti: { icon: '🧑', title: 'Wedding Planner Siti', quirk: 'Expects only the best fruit for the bride.' },
+  Kumar: { icon: '🧑', title: 'Magician Kumar', quirk: 'Pulls three wishes out of a hat. All of them are fruit.' },
   Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Apples keep her voice sharp for the show.' },
-  Hafiz: { icon: '🦖', title: 'Hafiz in a Dino Suit', quirk: '"RAWR" means five blueberries, please.' },
+  Hafiz: { icon: '🧑', title: 'Paleontologist Hafiz', quirk: 'Says "RAWR" and means five blueberries.' },
   'Wei Jie': { icon: '🕵️', title: 'Detective Wei Jie', quirk: 'Inspects every fruit with a magnifying glass.' },
-  Nurul: { icon: '🧚', title: 'Fairy Nurul', quirk: 'Sprinkles glitter on every watermelon.' },
+  Nurul: { icon: '🧑', title: 'Florist Nurul', quirk: 'Sprinkles petals on every watermelon.' },
   Priya: { icon: '👩‍🔬', title: 'Dr Priya', quirk: 'Researching the perfect apple pie.' },
   Ahmad: { icon: '🧑‍✈️', title: 'Captain Ahmad', quirk: 'Buying mangoes for the whole crew.' },
-  Sarah: { icon: '🦄', title: 'Sarah & Sparkles', quirk: 'Her unicorn eats all the blueberries.' },
+  Sarah: { icon: '🧑', title: 'Pony Rider Sarah', quirk: 'Her pony eats all the blueberries.' },
   Tan: { icon: '👴', title: 'Grandpa Tan', quirk: 'Remembers when apples cost ten cents.' },
   Lina: { icon: '💃', title: 'Dancing Lina', quirk: 'Cha-chas all the way down the street.' },
-  Zul: { icon: '🧟', title: 'Zombie Zul', quirk: 'Wants fresh fruit. Brains are so last year.' },
+  Zul: { icon: '🧑', title: 'Sleepy Zul', quirk: 'Wants fresh fruit. Has not had his coffee.' },
   Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints every mango before she eats it.' },
-  Vijay: { icon: '🤖', title: 'Robo-Vijay', quirk: 'Computes the optimal fruit salad.' },
-  'Hui Min': { icon: '🧝', title: 'Hui Min the Elf', quirk: 'Elves are wild about watermelon.' },
+  Vijay: { icon: '🧑', title: 'Engineer Vijay', quirk: 'Calculates the best fruit salad.' },
+  'Hui Min': { icon: '🧑', title: 'Ranger Hui Min', quirk: 'Rangers are wild about watermelon.' },
   Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Cools down after every call with watermelon.' },
-  'Jia Wen': { icon: '🏴‍☠️', title: 'Pirate Jia Wen', quirk: 'Pays in doubloons. Insists on a treasure map of the mangoes.' },
+  'Jia Wen': { icon: '🧑', title: 'Sailor Jia Wen', quirk: 'Pays in coins from far ports. Reads the mango map twice.' },
   Rizal: { icon: '🎧', title: 'DJ Rizal', quirk: 'Drops the beat, then drops by for blueberries.' },
   Devi: { icon: '🧑‍🌾', title: 'Gardener Devi', quirk: 'Grows everything except mangoes. Buys them all.' },
   Marcus: { icon: '🪓', title: 'Lumberjack Marcus', quirk: 'Chops wood all morning, then eats apples all afternoon.' },
   Fatimah: { icon: '🎓', title: 'Professor Fatimah', quirk: 'Lectures on the science of the perfect watermelon.' },
   Ben: { icon: '🛎️', title: 'Bellboy Ben', quirk: 'Rings a little bell for every watermelon he carries.' },
-  Yuki: { icon: '⚔️', title: 'Samurai Yuki', quirk: 'Slices mangoes in one clean stroke.' },
+  Yuki: { icon: '🧑', title: 'Fencer Yuki', quirk: 'Slices a mango in one clean stroke.' },
   Hadi: { icon: '👷', title: 'Builder Hadi', quirk: 'Builds towers of blueberries on his lunch break.' },
   Lakshmi: { icon: '🥐', title: 'Baker Lakshmi', quirk: 'Her famous apple tart starts at your stall.' },
   Kenji: { icon: '🥋', title: 'Judoka Kenji', quirk: 'Flips a mango, catches it, pays for it.' },
-  Mira: { icon: '🧙‍♀️', title: 'Witch Mira', quirk: 'Brews a mango potion. Do not ask what is in it.' },
+  Mira: { icon: '🧑', title: 'Herbalist Mira', quirk: 'Brews a mango tonic. Do not ask what is in it.' },
   'Hock Seng': { icon: '🧓', title: 'Uncle Hock Seng', quirk: 'Has strong opinions about the price of apples.' },
   Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your shop if the mangoes are perfect.' },
   'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
@@ -340,43 +340,43 @@ export interface RivalLines {
 
 /** Computer shopkeepers: a cast of animal traders. Their lines react to what actually happened;
  *  their buying and pricing come from the difficulty level, not from these personalities. */
-// Character cards (rules 5). Each animal is also a character any shop can pick, and carries one fixed perk
-// (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon.
+// Character cards (rules 5). Each shopkeeper is a character any shop can pick, and carries one fixed perk
+// (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon. The avatar keys are old identifiers (saves and rooms use them); they are never shown.
 export const CHARACTER_TRAIT: Record<string, TraitId> = {
   '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
 };
 
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
-  { name: 'Foxy Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
-    undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Outfoxed again!'],
+  { name: 'Sharp Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
+    undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Sharper than you again!'],
     fullPrice: ['Full price? Lovely.', 'They didn\'t even haggle!'],
     stung: ['Hmph. Lucky.', 'That one was mine!', 'Next time, darling.'],
     lost: ['Fine, keep your customer.', 'I meant to do that.'] } },
-  { name: 'Big Benny', avatar: '🐻', quip: 'Grrreat deal!', lines: {
-    undercut: ['Grrreat deal for me!', 'Bear market, baby!', 'Cheaper AND cuddlier.'],
-    fullPrice: ['Top dollar! Honey money!', 'Ka-ching, full price!'],
-    stung: ['Grrr! By one dollar?!', 'I want a recount.', 'Paws off my customers!'],
-    lost: ['Hibernating on that one.', 'Oof. Too pricey.'] } },
-  { name: 'Patches', avatar: '🐼', quip: 'Bamboo-zled you!', lines: {
-    undercut: ['Bamboo-zled you!', 'Calm and cheap wins.', 'Patience pays.'],
-    fullPrice: ['Full price, very zen.', 'A fair price, gladly paid.'],
-    stung: ['So close... breathe.', 'You were quicker today.', 'Hmm. Well played.'],
-    lost: ['Nap time, I guess.', 'The market has spoken.'] } },
-  { name: 'Uncle Toad', avatar: '🐸', quip: 'Ribbit! Ka-ching!', lines: {
-    undercut: ['Ribbit! Ka-ching!', 'Hopped under your price!', 'Croak and cheap!'],
-    fullPrice: ['Full price! Toad-ally!', 'Ribbit-ing profit!'],
-    stung: ['Croak! One dollar!', 'You leapt first. Hmph.', 'My lily pad!'],
-    lost: ['Back to the pond.', 'Meh. Ribbit.'] } },
-  { name: 'Rocky', avatar: '🦝', quip: 'Mine now, hehe!', lines: {
-    undercut: ['Mine now, hehe!', 'Swiped it!', 'Sneaky cheap!'],
-    fullPrice: ['Full price, no questions.', 'Shiny coins!'],
-    stung: ['Hey! I was gonna swipe that!', 'Rats. Er, raccoons.', 'You sneaky thing!'],
-    lost: ['I\'ll rummage elsewhere.', 'Whatever, got snacks.'] } },
-  { name: 'Pinky', avatar: '🐷', quip: 'Oink oink, money!', lines: {
-    undercut: ['Oink oink, money!', 'Squeal of a deal!', 'Hog the market!'],
-    fullPrice: ['Full price! Pig out!', 'Bacon the money!'],
-    stung: ['Oink! So unfair!', 'By ONE dollar?', 'Pig-headed luck!'],
-    lost: ['Back to the mud.', 'Snort. Too much.'] } },
+  { name: 'Big Benny', avatar: '🐻', quip: 'Big baskets, big deals!', lines: {
+    undercut: ['Big baskets, big deals!', 'Cheaper AND bigger.', 'Fill the basket, friend!'],
+    fullPrice: ['Top dollar! Ka-ching!', 'Full price, full basket!'],
+    stung: ['Aiyo, my customer!', 'I want a recount.', 'You were quicker. Hmph.'],
+    lost: ['Plenty more fruit where that came from.', 'Oof. Too pricey.'] } },
+  { name: 'Charming Chen', avatar: '🐼', quip: 'Smile and sell!', lines: {
+    undercut: ['Smile and sell!', 'Charm AND a cheaper price.', 'Sorry, sweetheart!'],
+    fullPrice: ['Full price, with a smile.', 'A fair price, gladly paid.'],
+    stung: ['You charmed them first. Cheeky!', 'So close... breathe.', 'Well played, friend.'],
+    lost: ['Charm is a long game.', 'I will win them tomorrow.'] } },
+  { name: 'Thrifty Saleh', avatar: '🐸', quip: 'Every sen counts!', lines: {
+    undercut: ['Every sen counts!', 'Jimat, jimat! Mine is cheaper.', 'Sorry, my price wins.'],
+    fullPrice: ['Full price? Terima kasih!', 'Rezeki! Full price today.'],
+    stung: ['Aiyo, that one was mine!', 'Next time, my friend.', 'You were quick, I will say that.'],
+    lost: ['Never mind, I saved for this.', 'Tomorrow is another day.'] } },
+  { name: 'Lucky Raj', avatar: '🦝', quip: 'Found a bargain!', lines: {
+    undercut: ['Found a bargain, sold a bargain!', 'Cheap and cheerful!', 'Lucky me!'],
+    fullPrice: ['Full price. Lucky day!', 'Ka-ching, lucky Raj!'],
+    stung: ['Unlucky! That was mine.', 'You got lucky there.', 'Next time, friend!'],
+    lost: ['Luck will turn.', 'Not my day. Tomorrow!'] } },
+  { name: 'Kind Kiran', avatar: '🐷', quip: 'Thank you, thank you!', lines: {
+    undercut: ['A kinder price for everyone!', 'Cheaper, with a smile.', 'Thank you, thank you!'],
+    fullPrice: ['Thank you, full price!', 'So kind of them. Full price!'],
+    stung: ['Oh! You were faster.', 'I wanted to serve them!', 'Next time, dear.'],
+    lost: ['Kindness comes back around.', 'No worries. Another day.'] } },
 ];
 
 /** The six playable characters, in table order. */

@@ -10,7 +10,7 @@ const BLOCKED_ANYWHERE = ['fuck', 'shit', 'cunt', 'nigg', 'whore', 'slut', 'porn
 const BLOCKED_WORDS = ['dick', 'cock', 'rape', 'nazi', 'fag', 'pussy', 'bastard', 'kys', 'sex', 'penis', 'anal'];
 
 /** Former rival names, still shown in games saved before a rename (PLAN-006). */
-const FORMER_RIVALS = ['Panda Lim'];
+const FORMER_RIVALS = ['Panda Lim', 'Foxy Rosa', 'Big Benny', 'Patches', 'Uncle Toad', 'Rocky', 'Pinky'];
 
 /** Names that would impersonate the game or its computer rivals. */
 const RESERVED = ['admin', 'moderator', 'mod', 'official', 'fruitmarket', 'system', ...RIVALS.map((r) => r.name), ...FORMER_RIVALS];

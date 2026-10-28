@@ -127,12 +127,12 @@ Before the game, each shop picks one of six characters. A character gives one pe
 
 | Character | Perk | Effect |
 |---|---|---|
-| 🦊 Foxy Rosa | Haggler | You win tied prices, even against fresher fruit. |
-| 🐻 Big Benny | Big Basket | Buy 1 extra fruit every day. |
-| 🦝 Rocky | Bargain Hunter | Your first fruit each day costs $1 less. |
-| 🐼 Patches | Charmer | Start with 3 favour cards, and hold up to 4. |
-| 🐷 Pinky | Local Favourite | Customers you serve completely by yourself tip you $4. |
-| 🐸 Uncle Toad | Nest Egg | Start with $15 instead of $10. |
+| Sharp Rosa | Haggler | You win tied prices, even against fresher fruit. |
+| Big Benny | Big Basket | Buy 1 extra fruit every day. |
+| Lucky Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
+| Charming Chen | Charmer | Start with 3 favour cards, and hold up to 4. |
+| Kind Kiran | Local Favourite | Customers you serve completely by yourself tip you $4. |
+| Thrifty Saleh | Nest Egg | Start with $15 instead of $10. |
 
 (Rules version 5. Before, each shop was dealt 3 traits on the first morning and kept one.)
 

@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "cast audit done (no code changes); art and code wait for DEC-039 and DEC-040",
+  "build": "first pass built on local branch workflow/plan-034 (not pushed): human shopkeepers and the T1 customer roles; portrait refinement and the bible approval remain",
   "reports": [
     "REP-062",
-    "REP-063"
+    "REP-063",
+    "REP-064"
   ],
   "decisions": [
     "DEC-033",
@@ -53,44 +54,50 @@
     {
       "id": "T2",
       "text": "The owner decides DEC-039 (theme) and DEC-040 (shopkeepers) in writing",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "DEC-039 (T1) and DEC-040 (human shopkeepers) approved: \"t1 and proceed with dec040\" (2026-10-28)"
     },
     {
       "id": "T3",
       "text": "The creative bible has the cast theme and portrait rules and the owner approves them",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "The cast rules are drafted in docs/workflow/CREATIVE-BIBLE.md (a \"Cast coherence\" section, marked draft); the owner has not approved them yet"
     },
     {
       "id": "T4",
       "text": "No customer or shopkeeper is non-human (a list check against the approved theme)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "tests/cast.test.ts (4 tests): every shopkeeper and customer draws a human portrait; no title, quirk or line names a creature. The only animal sprite left is the fox mascot on the home screen until PLAN-029."
     },
     {
       "id": "T5",
       "text": "Every title and quirk follows the pattern (a check lists any that say who someone is)",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "The cast test checks titles and quirks for creatures and the shopkeeper name pattern; it does not yet check that every quirk says what someone does"
     },
     {
       "id": "T6",
       "text": "The screen, the printed cards, the character pick and the gallery show the same portraits",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "The character sheet (Characters_Gallery.html) and Cast_After_T1.html show the new cast; the printed cards and the character pick in the app have not been checked"
     },
     {
       "id": "T7",
       "text": "Phone look checked on the character pick, the table and the results screen",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Not looked at on a phone"
     },
     {
       "id": "T8",
       "text": "Lint, types, unit tests, build and browser tests pass",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Lint, types, 115 unit tests and the build pass; browser tests not run; not pushed"
+    },
+    {
+      "id": "T9",
+      "text": "The first-pass portraits are good enough or the owner lists fixes",
+      "result": "NOT RUN",
+      "evidence": "Cast_After_T1.html is a first pass drawn from the existing parts; several faces with glasses read as sunglasses; the owner reviews"
     }
   ]
 }

@@ -455,13 +455,14 @@
         "data": "Saved games keep the old name until they end."
       },
       "approval": {
-        "status": "approved",
+        "status": "superseded",
         "evidence": "Rename Panda Lim? - sure, but dont run away from the general theme coherence",
         "date": "2026-10-26"
       },
       "delivery": "verified",
       "plan": "PLAN-006",
-      "reviewTrigger": "If the new name tests poorly with players."
+      "reviewTrigger": "If the new name tests poorly with players.",
+      "supersededBy": "DEC-040"
     },
     {
       "owner": "Murshidi",
@@ -973,7 +974,7 @@
       "id": "DEC-039",
       "title": "Cast theme: one coherent theme for every character",
       "question": "Which single theme should every shopkeeper and customer follow?",
-      "choice": "Not chosen yet. T1 Townsfolk of the harbour market: everyone is an ordinary person with a job or hobby and one playful detail (changes the 10 non-human and the 8 costume customers). T2 Market-day fancy dress: everyone is human and costumes stay as a joke, but no robots, zombies or mermaids (changes the 10 non-humans only). Recommendation: T1.",
+      "choice": "T1, Townsfolk of the harbour market: every character is an ordinary person with a job or hobby and one playful detail. Nobody is an animal, creature, robot or monster. The 10 non-human and 8 costume customers became everyday roles (for example Night Baker Robert, Diver Mei Ling, Magician Kumar, Florist Nurul, Chemist Daniel, Delivery Rider Ravi).",
       "rationale": "Owner: \"customers should all be humans as well, design around the same coherent theme\". Today the cast is 6 animal shopkeepers, 10 non-human customers, 8 costume customers and 21 everyday ones (Cast_Coherence_Audit.html). T1 fits the calm flat look and the cast rule that a joke is about what someone does.",
       "impact": {
         "player": "Every customer a human; titles and quirks follow one pattern.",
@@ -983,22 +984,22 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "t1 and proceed with dec040",
+        "date": "2026-10-28"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-063"
       ],
       "plan": "PLAN-036",
-      "reviewTrigger": "When the owner chooses."
+      "reviewTrigger": "When PLAN-036 refines the portraits, or after a playtest."
     },
     {
       "id": "DEC-040",
       "title": "Shopkeepers become humans (replaces the animal rivals rule)",
       "question": "Should the six shopkeepers be humans instead of animals, keeping their perks?",
-      "choice": "Not decided yet. If yes: six human shopkeepers, each designed around their perk and a manner nickname (for example Rosa the Haggler, Benny Big-Basket), the perks unchanged, DEC-018 (rivals are animal traders) superseded, and the four start icons checked (one is keyed as a monkey).",
+      "choice": "Yes. The six shopkeepers are humans with a manner nickname and the perk unchanged: Sharp Rosa (Haggler), Big Benny (Big Basket), Charming Chen (Charmer), Thrifty Saleh (Nest Egg), Lucky Raj (Bargain Hunter), Kind Kiran (Local Favourite). DEC-018 (rivals are animal traders) is superseded. The internal avatar keys are unchanged so saves and rooms keep working; they are never shown. The home screen fox mascot stays until the animated opening replaces it (PLAN-029).",
       "rationale": "Owner: \"i dont like the fact that the characters are animal\". The perks were balanced in simulation and do not depend on the animal.",
       "impact": {
         "player": "The character pick shows six humans; the computer shops are human too.",
@@ -1008,16 +1009,16 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "t1 and proceed with dec040",
+        "date": "2026-10-28"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-063"
       ],
       "plan": "PLAN-036",
-      "reviewTrigger": "When the owner chooses."
+      "reviewTrigger": "When PLAN-036 refines the portraits, or after a playtest."
     }
   ],
   "history": [
@@ -1432,6 +1433,10 @@
     {
       "at": "2026-10-28 23:03",
       "text": "Owner: \"change it to Rara Jenab, design it around the name\". Auntie Jenab became Rara Jenab the Cheerleader, designed around \"ra-ra\" (DEC-038 refines DEC-037; PLAN-035). Owner also said the characters being animals is wrong, customers should all be humans and the whole cast should follow one coherent theme tied to the design style. Then: \"approve the above and then work on plan 36\" (PLAN-027, PLAN-033 and PLAN-031 were already approved, so nothing new was recorded for them). PLAN-036 approved and started as design work only: the cast audit is done (Cast_Coherence_Audit.html); the owner now decides DEC-039 (cast theme) and DEC-040 (shopkeepers become humans) before any art or code changes (REP-063)."
+    },
+    {
+      "at": "2026-10-28 23:14",
+      "text": "Owner: \"t1 and proceed with dec040\". DEC-039 approved as T1 (townsfolk of the harbour market) and DEC-040 approved (shopkeepers become humans; DEC-018 superseded). First pass built on local branch workflow/plan-034 (not pushed): six human shopkeepers with the perks unchanged, the 18 non-human and costume customers turned into everyday roles, a draft Cast coherence section in the creative bible, and cast checks in tests. Portrait refinement, the bible approval and phone look remain (REP-064)."
     }
   ]
 }

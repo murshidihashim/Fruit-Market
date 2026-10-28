@@ -404,6 +404,7 @@ const PARTS: Record<string, string[]> = {
   collar: ['', '', '', '', '', '', '', '', '', '', '', '', '', '..RR........RR..', '..RRR......RRR..', '..KKKKKKKKKKKKKK'],
   tudung: ['', '', '.....HHHHHH.....', '....HHHHHHHH....', '...HHHHHHHHHH...', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HHH......HHH..', '..HH........HH..', '..HH........HH..', '..HHH......HHH..', '..HHHH....HHHH..', '..HHHHHHHHHHHH..'],
   pompoms: ['', '', '', '', '', '', '', '', 'Y..............Y', 'YY............YY', 'RY............YR', 'YY............YY', '.Y............Y.'],
+  tophat: ['', '.....KKKKKK.....', '.....KKKKKK.....', '.....RRRRRR.....', '...KKKKKKKKKK...'],
   bolt: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '.......YY.......'],
 };
 
@@ -413,28 +414,28 @@ const SKIN = { a: C.c_f6d2b0, b: C.c_e3b088, c: C.c_c48a5f, d: C.c_8f5e3c, pale:
 
 const HUMANS: Record<string, Human> = {
   John: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairShort', 'cowboy'] },
-  Robert: { skin: SKIN.pale, shirt: C.ink, parts: ['hairSlick', 'collar'], pal: { H: C.ink } },
-  Daniel: { skin: SKIN.a, shirt: C.c_7b5aa6, parts: ['longBeard', 'wizard'] },
+  Robert: { skin: SKIN.pale, shirt: C.ink, parts: ['hairSlick', 'chef'], pal: { H: C.ink } },
+  Daniel: { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['hairSides', 'glasses'], pal: { H: C.c_f4ecd8 } },
   'Rara Jenab': { skin: SKIN.b, shirt: C.c_3fa39a, parts: ['tudung', 'pompoms'], pal: { H: C.c_7b5aa6 } },
-  Aisyah: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['astro'] },
-  Ravi: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['hairSpiky', 'mask', 'bolt'], pal: { H: C.ink } },
-  'Mei Ling': { skin: SKIN.a, shirt: C.c_3fa39a, parts: ['hairLong', 'flower'], pal: { H: C.c_3fa39a } },
-  Farid: { skin: SKIN.c, shirt: C.ink, parts: ['ninja'] },
-  Siti: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'crown'], pal: { H: C.c_3a2418 } },
-  Kumar: { skin: SKIN.blue, shirt: C.c_7b5aa6, parts: ['turban', 'mustache'], pal: { H: C.ink } },
+  Aisyah: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['hairLong', 'glasses'], pal: { H: C.c_3a2418 } },
+  Ravi: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['hairSpiky', 'helmet'], pal: { H: C.ink, R: C.gold } },
+  'Mei Ling': { skin: SKIN.a, shirt: C.c_3fa39a, parts: ['hairLong', 'headband'], pal: { H: C.c_3a2418, R: C.c_3fa39a } },
+  Farid: { skin: SKIN.c, shirt: C.ink, parts: ['hairShort', 'helmet'], pal: { H: C.ink, R: C.c_d6453b } },
+  Siti: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'flower'], pal: { H: C.c_3a2418 } },
+  Kumar: { skin: SKIN.d, shirt: C.c_7b5aa6, parts: ['tophat', 'mustache'], pal: { H: C.ink } },
   Grace: { skin: SKIN.a, shirt: C.ink, parts: ['hairSpiky', 'shades'], pal: { H: C.c_7b5aa6 } },
-  Hafiz: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['dino'] },
+  Hafiz: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['hairShort', 'helmet', 'glasses'], pal: { H: C.c_3a2418, R: C.c_c9a46a } },
   'Wei Jie': { skin: SKIN.a, shirt: C.c_8a6a3a, parts: ['hairShort', 'detective', 'glasses'], pal: { H: C.ink } },
-  Nurul: { skin: SKIN.b, shirt: C.c_9ad0e6, parts: ['wings', 'hairBun'], pal: { H: C.c_5b3a24 } },
+  Nurul: { skin: SKIN.b, shirt: C.c_9ad0e6, parts: ['hairBun', 'flower'], pal: { H: C.c_5b3a24 } },
   Priya: { skin: SKIN.c, shirt: C.c_f4ecd8, parts: ['hairBun', 'glasses'], pal: { H: C.ink } },
   Ahmad: { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['beard', 'captain'], pal: { H: C.c_3a2418 } },
-  Sarah: { skin: SKIN.a, shirt: C.c_e889b4, parts: ['hairLong', 'horn'], pal: { H: C.c_e889b4 } },
+  Sarah: { skin: SKIN.a, shirt: C.c_e889b4, parts: ['hairLong', 'helmet'], pal: { H: C.c_5b3a24, R: C.c_2f4a7a } },
   Tan: { skin: SKIN.a, shirt: C.c_8a6a3a, parts: ['hairSides', 'glasses', 'mustache'], pal: { H: C.c_f4ecd8 } },
   Lina: { skin: SKIN.b, shirt: C.c_d6453b, parts: ['hairBun', 'flower'], pal: { H: C.ink } },
-  Zul: { skin: SKIN.green, shirt: C.c_6b6f7a, parts: ['hairSpiky'], pal: { H: C.c_3d4a2a, M: C.c_5b4022 } },
+  Zul: { skin: SKIN.b, shirt: C.c_6b6f7a, parts: ['hairSpiky'], pal: { H: C.c_3a2418 } },
   Anna: { skin: SKIN.a, shirt: C.gold, parts: ['hairLong', 'beret'], pal: { H: C.c_c4723a } },
-  Vijay: { skin: SKIN.grey, shirt: C.c_6b6f7a, parts: ['antenna'], pal: { E: C.c_3fa39a, M: C.ink, C: C.c_b8c0c9 } },
-  'Hui Min': { skin: SKIN.a, shirt: C.c_4f9a52, parts: ['ears', 'hairLong'], pal: { H: C.c_f2d77e } },
+  Vijay: { skin: SKIN.d, shirt: C.c_6b6f7a, parts: ['hairShort', 'glasses'], pal: { H: C.ink } },
+  'Hui Min': { skin: SKIN.a, shirt: C.c_4f9a52, parts: ['hairLong', 'cowboy'], pal: { H: C.c_3a2418, T: C.c_4f9a52 } },
   Osman: { skin: SKIN.d, shirt: C.c_d6453b, parts: ['mustache', 'helmet'], pal: { H: C.ink } },
   'Jia Wen': { skin: SKIN.a, shirt: C.c_2f4a7a, parts: ['hairLong', 'headband'], pal: { H: C.ink } },
   Rizal: { skin: SKIN.c, shirt: C.c_3fa39a, parts: ['hairShort', 'shades'], pal: { H: C.ink } },
@@ -446,8 +447,14 @@ const HUMANS: Record<string, Human> = {
   Hadi: { skin: SKIN.b, shirt: C.c_e8873a, parts: ['helmet', 'mustache'], pal: { H: C.c_3a2418, R: C.gold } },
   Lakshmi: { skin: SKIN.d, shirt: C.c_f4ecd8, parts: ['hairBun', 'chef'], pal: { H: C.ink } },
   Kenji: { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['hairSpiky', 'headband'], pal: { H: C.ink } },
-  Mira: { skin: SKIN.green, shirt: C.ink, parts: ['hairLong', 'wizard'], pal: { H: C.ink, P: C.ink } },
+  Mira: { skin: SKIN.c, shirt: C.c_4f9a52, parts: ['hairLong', 'headband'], pal: { H: C.c_3a2418, R: C.c_4f9a52 } },
   'Hock Seng': { skin: SKIN.b, shirt: C.c_6b6f7a, parts: ['hairSides', 'glasses', 'beard'], pal: { H: C.c_f4ecd8 } },
+  rosa: { skin: SKIN.a, shirt: C.c_d6453b, parts: ['hairBun', 'glasses'], pal: { H: C.c_e8873a } },
+  benny: { skin: SKIN.c, shirt: C.c_8a6a3a, parts: ['hairShort', 'beard'], pal: { H: C.c_5b3a24 } },
+  chen: { skin: SKIN.a, shirt: C.c_7b5aa6, parts: ['hairSlick', 'flower'], pal: { H: C.ink } },
+  saleh: { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['hairSides', 'mustache'], pal: { H: C.c_f4ecd8 } },
+  raj: { skin: SKIN.d, shirt: C.c_4f9a52, parts: ['hairSpiky', 'headband'], pal: { H: C.ink } },
+  kiran: { skin: SKIN.b, shirt: C.gold, parts: ['hairLong'], pal: { H: C.c_3a2418 } },
   Influencer: { skin: SKIN.b, shirt: C.c_e889b4, parts: ['hairLong', 'shades', 'phone'], pal: { H: C.c_f2d77e } },
   'Gym Club': { skin: SKIN.c, shirt: C.c_2f4a7a, parts: ['hairShort', 'headband'], pal: { H: C.ink } },
   'Hotel Chef': { skin: SKIN.a, shirt: C.c_f4ecd8, parts: ['mustache', 'chef'], pal: { H: C.c_3a2418 } },
@@ -464,30 +471,10 @@ const ANIMALS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['................', '..K..........K..', '..KO........OK..', '..KOO......OOK..', '..KOOOOOOOOOOK..', '..OOOOOOOOOOOO..', '.OOOOOOOOOOOOOO.', '.OOOEOOOOOOEOOO.', '.OOOOOOOOOOOOOO.', '..OWWWOOOOWWWO..', '..WWWWWKKWWWWW..', '...WWWWWWWWWW...', '....WWWWWWWW....', '.....WWWWWW.....', '...GGGGGGGGGG...', '..GGGGGGGGGGGG..'],
     pal: { O: C.c_e8873a, W: C.c_f4ecd8, K: C.ink, E: C.ink, G: C.c_4f9a52 },
   },
-  bear: {
-    rows: ['................', '..BBB......BBB..', '..BLB......BLB..', '..BBBBBBBBBBBB..', '..BBBBBBBBBBBB..', '.BBBBBBBBBBBBBB.', '.BBBEBBBBBBEBBB.', '.BBBBBBBBBBBBBB.', '.BBBBLLLLLLBBBB.', '.BBBLLLKKLLLBBB.', '..BBLLLLLLLLBB..', '..BBBLLMMLLBBB..', '...BBBBBBBBBB...', '....BBBBBBBB....', '..RRRRRRRRRRRR..', '.RRRRRRRRRRRRRR.'],
-    pal: { B: C.c_8a5a3b, L: C.c_d9b48a, K: C.ink, E: C.ink, M: C.c_a8423f, R: C.c_d6453b },
-  },
-  panda: {
-    rows: ['................', '..KKK......KKK..', '..KKK......KKK..', '..KKWWWWWWWWKK..', '...WWWWWWWWWW...', '..WWWWWWWWWWWW..', '..WKKKWWWWKKKW..', '..WKWKWWWWKWKW..', '..WKKKWWWWKKKW..', '..WWWWWKKWWWWW..', '..WWWWWWWWWWWW..', '...WWWWMMWWWW...', '....WWWWWWWW....', '...QQQQQQQQQQ...', '..QQQQQQQQQQQQ..', '..QQQQQQQQQQQQ..'],
-    pal: { W: C.c_f4ecd8, K: C.ink, M: C.c_a8423f, Q: C.c_3fa39a },
-  },
-  toad: {
-    rows: ['................', '...TTTTTTTTT....', '..TTTTTTTTTTT...', '..GGG....GGG....', '.GWWKG..GWWKG...', '.GWWWG..GWWWG...', '.GGGGGGGGGGGG...', 'GGGGGGGGGGGGGG..', 'GGGDGGGGGGDGGG..', 'GGGGGGGGGGGGGG..', 'GKKKKKKKKKKKKG..', 'GGGGGGGGGGGGGG..', '.GYYYYYYYYYYG...', '..YYYYYYYYYY....', '.PPPPPPPPPPPP...', 'PPPPPPPPPPPPPP..'],
-    pal: { G: C.c_6aa84f, D: C.c_3f7a34, Y: C.c_e6d58a, W: C.c_f4ecd8, K: C.ink, T: C.c_8a5a3b, P: C.c_7b5aa6 },
-  },
-  raccoon: {
-    rows: ['................', '..AA........AA..', '..AKA......AKA..', '..AAAAAAAAAAAA..', '..AAAAAAAAAAAA..', '.AAAAAAAAAAAAAA.', '.AKKKKAAAAKKKKA.', '.AKWKKAAAAKKWKA.', '.AKKKKAWWAKKKKA.', '..AAAWWWWWWAAA..', '..AWWWWKKWWWWA..', '...WWWWWWWWWW...', '....WWWWWWWW....', '.....AAAAAA.....', '...NNNNNNNNNN...', '..NNNNNNNNNNNN..'],
-    pal: { A: C.c_8f949c, K: C.ink, W: C.c_f4ecd8, N: C.c_2f4a7a },
-  },
-  pig: {
-    rows: ['................', '..PP........PP..', '..PDP......PDP..', '..PPPPPPPPPPPP..', '..PPPPPPPPPPPP..', '.PPPPPPPPPPPPPP.', '.PPPEPPPPPPEPPP.', '.PPPPPPPPPPPPPP.', '.PPPPDDDDDDPPPP.', '.PPPPDKDDKDPPPP.', '.PPPPDDDDDDPPPP.', '..PPPPPPPPPPPP..', '...PPPPPPPPPP...', '....PPPPPPPP....', '...YYYYYYYYYY...', '..YYYYYYYYYYYY..'],
-    pal: { P: C.c_eba3b0, D: C.c_d47d8f, K: C.ink, E: C.ink, Y: C.gold },
-  },
 };
 
 const AVATAR_KEY: Record<string, string> = {
-  '🦊': 'fox', '🐻': 'bear', '🐼': 'panda', '🐸': 'toad', '🦝': 'raccoon', '🐷': 'pig', // emoji-ok: avatar keys, never shown
+  '🦊': 'rosa', '🐻': 'benny', '🐼': 'chen', '🐸': 'saleh', '🦝': 'raj', '🐷': 'kiran', // emoji-ok: avatar keys, never shown
   '🧑‍🍳': 'you', '👩‍🍳': 'you2', '🦸': 'you3', '🐵': 'you4', // emoji-ok: avatar keys, never shown
 };
 
@@ -550,4 +537,8 @@ export function prewarmSprites() {
 
 
 
+
+
+/** Which portrait keys exist (the cast checks read this). */
+export const portraitKeys = () => ({ humans: Object.keys(HUMANS), animals: Object.keys(ANIMALS), avatarKey: AVATAR_KEY });
 
