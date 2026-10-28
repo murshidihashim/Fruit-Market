@@ -36,7 +36,7 @@ open the game on at least 3 different days.
 - [ ] Play Console → **App content** done: privacy policy URL, ads = No, content rating, target audience,
       data safety. Use the data safety answers in the *Data safety form* section of `store/listing.md`
       (note: its summary line "No data collected" is older than that section; the section is the one to use).
-- [ ] Store listing filled from `store/listing.md` with images from `store/` (see REP-075 for which
+- [ ] Store listing filled from `store/listing.md` with images from `store/` (see REP-078 for which
       screenshots are current).
 - [ ] A way to collect feedback: your email or a WhatsApp number. Put it in the test's
       **Feedback URL or email address** field (Testers tab) so it shows on the opt-in page.

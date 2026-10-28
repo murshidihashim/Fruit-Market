@@ -39,7 +39,8 @@ node scripts/itch-smoke.cjs release/itch/fruit-market-web.zip e2e-output/itch
 
 Or without your computer: GitHub → **Actions** → **itch.io web build** → **Run workflow**. When it is green,
 open the run and download the **fruit-market-itch-web** artifact (it contains the zip and `version.txt`).
-The workflow only builds and checks; it does not upload anything and uses no secrets.
+The workflow only builds and checks; it does not upload anything and uses no secrets. GitHub shows the
+*Run workflow* button only once the workflow file is on `main`, so this works after the PLAN-037 branch is merged.
 
 ## Set up the itch.io page (once)
 
@@ -53,7 +54,7 @@ The workflow only builds and checks; it does not upload anything and uses no sec
    - **Automatically start on page load**: off (keep *Click to play*; browsers only allow sound after a tap).
    - **Enable scrollbars**: off. **SharedArrayBuffer support**: off (not needed).
 5. **Details**: short description and screenshots can come from `store/listing.md` and `store/screenshots/`
-   (see the screenshot note in REP-075). Remove the lines about online play, the daily leaderboard and
+   (see the screenshot note in REP-078). Remove the lines about online play, the daily leaderboard and
    anonymous stats from the description: they don't apply to this copy.
 6. **Pricing**: No payments. **Visibility**: start with **Draft** or **Restricted** and open the page on your
    phone and computer; switch to **Public** only when you are happy.
