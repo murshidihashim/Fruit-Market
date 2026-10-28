@@ -1164,7 +1164,10 @@
         "date": "2026-10-29"
       },
       "delivery": "in progress",
-      "reports": [],
+      "reports": [
+        "REP-075",
+        "REP-076"
+      ],
       "reviewTrigger": "Morning review."
     }
   ],
@@ -1636,6 +1639,10 @@
     {
       "at": "2026-10-29 02:49",
       "text": "Owner approved overnight work (DEC-046): push to preview only, never live; no rule changes."
+    },
+    {
+      "at": "2026-10-29 03:12",
+      "text": "Overnight (DEC-046): pop-ups, trays, sheets and desktop margin restyled in look D (REP-075, branch CI green). Balance study: Good Riddance and shopkeeper perks measured, no rule changed (REP-076). Print kit and playtest pack built outside the repo (Print_Kit folder)."
     }
   ]
 }
