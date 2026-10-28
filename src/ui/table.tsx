@@ -1,7 +1,7 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, trackSlots, type FruitId } from '../engine/data';
 import {
   buyCost, buyLimit, count, effectiveMax, shelfSize,
   type Customer, type GameState,
@@ -61,7 +61,7 @@ export function Market({ s, p, onPick, canPick, onPulse }: {
             {marketColumn(s, f).map(({ pos, stage, n }) => {
               const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
               return (
-                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${pos === FRUIT[f].ripe.length - 1 || (FRUIT[f].unripeSlots > 0 && pos === FRUIT[f].ripe.length + FRUIT[f].unripeSlots - 1) ? 'entry' : ''}`}
+                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'tired' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
                   {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}

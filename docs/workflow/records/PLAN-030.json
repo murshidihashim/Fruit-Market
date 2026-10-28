@@ -1,13 +1,14 @@
 {
   "release": "unreleased",
-  "build": "the screen part is built on local branch workflow/plan-030 (not pushed); the printed set in look D and the shared slot data are still to do",
+  "build": "the screen and the shared slot data are built (screen on main after CI); the printed mat in look D is a design proposal waiting for approval",
   "reports": [
     "REP-054",
     "REP-055",
     "REP-056",
     "REP-059",
     "REP-069",
-    "REP-071"
+    "REP-071",
+    "REP-074"
   ],
   "decisions": [
     "DEC-033",
@@ -50,8 +51,8 @@
     {
       "id": "T1",
       "text": "Screen and printed mat are generated from the same slot data (test compares track lengths and prices with the game data)",
-      "result": "NOT RUN",
-      "evidence": "Not done: the screen reads each slot from the game data; the printed mat is still the earlier prototype and is not yet generated from the same code"
+      "result": "PASS",
+      "evidence": "src/engine/data.ts trackSlots(): the screen reads each slot from it and the printed mat is generated from it; tests/board-slots.test.ts (4 tests: track lengths 3, 6, 7 and 6; costs from the cost table; the lorry slots; the screen draws the same slots in the same order). The printed mat is a design proposal (Design_Proposal_Printed_Mat) until the owner approves it."
     },
     {
       "id": "T2",

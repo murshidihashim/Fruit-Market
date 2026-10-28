@@ -1,6 +1,6 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
-import { FRUIT, FRUITS, stageAt, type FruitId, type Stage } from '../engine/data';
+import { FRUITS, slotLife, stageAt, type FruitId, type Stage } from '../engine/data';
 import { count, isMarketDay, printedSupply, walkInsToday, type Customer, type GameState } from '../engine/game';
 
 export interface Slot { pos: number; stage: Stage; n: number }
@@ -12,10 +12,7 @@ export function marketColumn(s: GameState, f: FruitId): Slot[] {
 
 /** How long a fruit in this slot still has, in the words shown on its chip. */
 export function lifeLabel(f: FruitId, pos: number): string {
-  const ripe = FRUIT[f].ripe.length;
-  if (pos >= ripe) return `ripens in ${pos - ripe + 1}`;
-  if (pos === 0) return 'last day';
-  return `${pos} night${pos === 1 ? '' : 's'}`;
+  return slotLife(f, pos);
 }
 
 /** A shop's stock as chips: one per filled slot, grouped by fruit, freshest first. */

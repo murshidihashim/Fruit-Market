@@ -62,6 +62,32 @@ export function stageAt(f: FruitId, pos: number): Stage {
   return pos < r.length ? r[pos] : 'unripe';
 }
 
+/** How long a fruit in a slot still has, in the words shown on the board. */
+export function slotLife(f: FruitId, pos: number): string {
+  const ripe = FRUIT[f].ripe.length;
+  if (pos >= ripe) return `ripens in ${pos - ripe + 1}`;
+  if (pos === 0) return 'last day';
+  return `${pos} night${pos === 1 ? '' : 's'}`;
+}
+
+/** One slot of a fruit's track as the Wholesale Market board shows it. */
+export interface TrackSlot { pos: number; stage: Stage; cost: number; life: string; entry: boolean }
+
+/**
+ * Every slot of a fruit's track, newest (top) to oldest (bottom): its freshness, what it costs at the market,
+ * the words for how long it has left, and whether the lorry delivers into it. The screen and the printed mat
+ * both read this, so they can never disagree (PLAN-030).
+ */
+export function trackSlots(f: FruitId): TrackSlot[] {
+  const def = FRUIT[f];
+  const n = def.ripe.length + def.unripeSlots;
+  return Array.from({ length: n }, (_, k) => {
+    const pos = n - 1 - k;
+    const stage = stageAt(f, pos);
+    return { pos, stage, cost: def.cost[stage], life: slotLife(f, pos), entry: pos === def.ripe.length - 1 || (def.unripeSlots > 0 && pos === n - 1) };
+  });
+}
+
 /** Position a fresh (ripe) delivery enters at. */
 export function freshPos(f: FruitId): number {
   return FRUIT[f].ripe.length - 1;

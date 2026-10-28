@@ -1094,6 +1094,31 @@
       ],
       "plan": "PLAN-030",
       "reviewTrigger": "After the owner looks at the preview on a phone."
+    },
+    {
+      "id": "DEC-044",
+      "title": "PLAN-021 (session length) cancelled",
+      "question": "Should the shorter-session plan (PLAN-021) go ahead?",
+      "choice": "No. PLAN-021 (a shorter default session and faster turns) is cancelled. No time target was ever set and nothing was built for it. Session length can come back as a new plan later, for example as part of the animation polish.",
+      "rationale": "Owner instruction (\"cancel 21 and lets work on 42\").",
+      "impact": {
+        "player": "No change.",
+        "technical": "PLAN-021 closed as superseded; nothing to undo.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "cancel 21 and lets work on 42",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-073"
+      ],
+      "plan": "PLAN-021",
+      "reviewTrigger": "If sessions feel too long in a playtest."
     }
   ],
   "history": [
@@ -1548,6 +1573,14 @@
     {
       "at": "2026-10-29 01:14",
       "text": "Owner: \"Push to preview\". PLAN-023 (online undo and lobby rename) is on the preview: CI passed on the branch and on main. Branch workflow/plan-030 (rename pass, quirk check, free drills, the table screen in look D) pushed; CI passed in full including the browser tests: PLAN-031 T3, PLAN-030 T2 and T6 now PASS. Merging to main, which updates the preview after CI passes there. The live game is not deployed. Phone looks and two-phone undo are still NOT RUN (REP-072)."
+    },
+    {
+      "at": "2026-10-29 01:21",
+      "text": "Owner: \"cancel 21 and lets work on 42\". PLAN-021 (session length) cancelled (DEC-044; its earlier approval stays as recorded and the plan is marked superseded). Work continues on DEC-042: the order PLAN-031 (done), PLAN-030 (screen done; printed mat and shared slot data next), PLAN-033 and PLAN-029, with design proposals shown to the owner first (REP-073)."
+    },
+    {
+      "at": "2026-10-29 01:26",
+      "text": "Continuing DEC-042 (REP-074): the shared slot data is built (trackSlots in the engine, read by the screen and by the printed mat; 4 new tests, 130 in all). Two design proposals are ready for the owner and nothing is built from them yet: the printed mat and tokens in look D (Design_Proposal_Printed_Mat, also as a PDF) and the other screens in look D (Design_Proposal_Screens: home, set-up, morning with a hint, results). The animated opening still needs its design redrawn in the new look before it comes to the owner."
     }
   ]
 }

@@ -1,10 +1,11 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "cancelled by the owner; nothing built",
   "reports": [
     "REP-047",
     "REP-048",
-    "REP-049"
+    "REP-049",
+    "REP-073"
   ],
   "decisions": [
     "DEC-028"
@@ -16,11 +17,11 @@
     "removed": []
   },
   "approval": {
-    "status": "approved",
+    "status": "superseded",
     "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
     "date": "2026-10-27"
   },
-  "delivery": "in progress",
+  "delivery": "not started",
   "id": "PLAN-021",
   "title": "Session length: shorter default and faster turns before touching the rules",
   "problem": "Informal feedback (REP-045): 10 rounds with 4 players took about 30 minutes. The new-game screen defaults to 10 days (Standard) in App.tsx; Quick is 8 days. The brief assumed 10 to 20 minutes. One game is one data point.",
@@ -61,5 +62,6 @@
       "evidence": ""
     }
   ],
-  "playerNotes": []
+  "playerNotes": [],
+  "supersededBy": "DEC-044"
 }
