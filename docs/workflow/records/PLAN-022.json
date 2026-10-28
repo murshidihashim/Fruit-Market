@@ -1,58 +1,68 @@
 {
   "release": "unreleased",
-  "build": "not started",
+  "build": "rules version 5 on local branch workflow/plan-022 (not pushed)",
   "reports": [
     "REP-047",
-    "REP-048",
-    "REP-049"
+    "REP-058"
   ],
   "decisions": [
     "DEC-028"
   ],
   "changes": {
     "added": [],
-    "changed": [],
+    "changed": [
+      "The name field starts blank and opens the keyboard"
+    ],
     "fixed": [],
     "removed": []
   },
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "do per your suggestion",
+    "date": "2026-10-28"
   },
-  "delivery": "not started",
+  "delivery": "implemented",
   "id": "PLAN-022",
-  "title": "Client-only UI requests: different default icons, blank name that opens the keyboard",
-  "problem": "Informal feedback (REP-045): every player has the same icon; the name defaults to \"You\" and the owner wants it blank with the keyboard popping up. By code: the default avatar is HUMAN_AVATARS[0] unless a player picks another in the online lobby (Online.tsx), and the name falls back to \"You\" (store.ts).",
+  "title": "Blank name field that opens the keyboard",
+  "problem": "Informal feedback (REP-045): the name defaults to \"You\" and the owner wants it blank with the keyboard popping up. The different-icons part is covered by the characters (PLAN-025, DEC-031).",
   "scope": [
-    "Each seat gets a different default icon (the first unused one) in online rooms and on one device",
-    "New-game and online name fields start blank, take focus and open the keyboard; if left blank the game still needs a name, so a fallback is shown and recorded",
-    "No server or protocol change in this plan; if the room needs a server change for icons, split it into PLAN-023"
+    "The name fields on the set-up screen and the online entry start blank, take focus and open the keyboard",
+    "If left blank the game still gets a name: \"You\" on one device, \"Player\" online; the fallback is not saved as if chosen",
+    "Older saves that stored the fallbacks \"You\" or \"Player\" start blank too"
   ],
   "exclusions": [
-    "Rules, balance or online authority",
-    "Renaming inside a room after joining (PLAN-023)",
+    "Different default icons (done by the characters)",
+    "Server or protocol changes",
+    "Rules or balance",
     "Publishing to the live game"
   ],
   "acceptance": [
     {
       "id": "T1",
-      "text": "Four seats show four different icons by default (device test, one device and an online room)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "text": "Blank by default, fallback only when a name is needed, old fallbacks start blank",
+      "result": "PASS",
+      "evidence": "tests/name.test.ts, 5 tests"
     },
     {
       "id": "T2",
-      "text": "Name field is blank and the keyboard opens on Android Chrome and iPhone Safari",
+      "text": "The keyboard opens on Android Chrome and iPhone Safari",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Not tried on a phone. Focus is set when the screen opens; iPhone Safari may only open the keyboard from a tap."
     },
     {
       "id": "T3",
-      "text": "Saved names and old saves still load; verify and verify:full pass",
+      "text": "Saved names and old saves still load; lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "Lint and types clean; 105 unit tests pass; build passes (2026-10-28 22:23)"
+    },
+    {
+      "id": "T4",
+      "text": "Browser tests (verify:full) pass in CI",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Not pushed; CI runs them on push"
     }
   ],
-  "playerNotes": []
+  "playerNotes": [
+    "Type your name when the keyboard opens; if you skip it you are \"You\""
+  ]
 }

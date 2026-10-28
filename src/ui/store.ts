@@ -81,13 +81,17 @@ export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VE
 export const loadDaily = () => read<DailyRecord>(K.daily, {});
 export const saveDaily = (d: DailyRecord) => write(K.daily, d);
 
+/** The saved name, or '' when there is none (the fields start blank). Older saves stored the fallbacks 'You' and 'Player' as if chosen, so those count as blank. */
 export function loadName(): string {
   try {
-    return localStorage.getItem(K.name) || 'You';
+    const n = localStorage.getItem(K.name) ?? '';
+    return n === 'You' || n === 'Player' ? '' : n;
   } catch {
-    return 'You';
+    return '';
   }
 }
+/** What the game uses when the name field was left blank. */
+export const nameOrDefault = (n: string, fallback = 'You') => n.trim() || fallback;
 export function saveName(n: string) {
   try {
     localStorage.setItem(K.name, n);

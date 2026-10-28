@@ -17,7 +17,7 @@ import { track } from '../net/telemetry';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, saveColour, unlocked } from './progress';
 import {
-  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, saveDaily, saveGame, saveName,
+  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
 } from './store';
 
@@ -92,7 +92,7 @@ export function App() {
     }
   };
 
-  const startDaily = () => start(dailyConfig(todayKey(), loadName(), HUMAN_AVATARS[0]));
+  const startDaily = () => start(dailyConfig(todayKey(), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
 
   if (screen === 'game' && game) {
     return (
@@ -106,7 +106,7 @@ export function App() {
           if (cfg.daily) { setGame(null); setScreen('home'); return; }
           if (cfg.league !== undefined) {
             if (leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
-            start(leagueConfig(leagueStage(), loadName(), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
+            start(leagueConfig(leagueStage(), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
             return;
           }
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
@@ -126,7 +126,7 @@ export function App() {
   const streak = dailyStreak(daily);
   const resumable = game && game.phase !== 'over';
   const league = leagueStage();
-  const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), loadName(), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
+  const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
   return (
     <div class="home cosy">
       <div class="harbour">
@@ -211,6 +211,9 @@ function TrophyIcon() {
 
 function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfig) => void }) {
   const [name, setName] = useState(loadName());
+  const nameRef = useRef<HTMLInputElement>(null);
+  // A blank name field takes focus so the keyboard opens (best effort: some phones only allow it from a tap).
+  useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
   const [myChar, setMyChar] = useState<string>(CHARACTER_AVATARS[0]);
   const [seats, setSeats] = useState<Seat[]>([
     { kind: 'ai', level: 'easy', name: 'Player 2' },
@@ -247,7 +250,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
   });
 
   const begin = () => {
-    saveName(name.trim() || 'You');
+    saveName(name.trim());
     // Computer shops take the characters the people did not pick.
     const pool = RIVALS.filter((r) => !usedChars.has(r.avatar)).sort(() => Math.random() - 0.5);
     const players: PlayerConfig[] = [
@@ -267,7 +270,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
       <main class="scroll pad">
         <section class="panel">
           <h3>Your shop</h3>
-          <input class="input" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
+          <input ref={nameRef} class="input" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
           <h3>Your character</h3>
           <p class="small muted">One perk for the whole game. The computer shops take the characters left over.</p>
           <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />

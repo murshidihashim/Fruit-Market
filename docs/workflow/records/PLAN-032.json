@@ -1,0 +1,61 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-058"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-032",
+  "title": "Free evidence drills: backup restore, crash recovery, device checklist",
+  "problem": "Backups, crash recovery and real-device behaviour have no evidence yet (the free half of PLAN-003).",
+  "scope": [
+    "Export and restore drill for the online room data (Durable Objects) on the preview server, with the steps written down",
+    "Room crash-recovery test: stop a room mid-game and check players can continue",
+    "A real-device checklist (set-up, a full game, an online room, rotate, background and resume) as a one-page sheet for the phones the owner has",
+    "Live smoke test run from CI against the preview"
+  ],
+  "exclusions": [
+    "Any spend",
+    "Load testing",
+    "Touching the live game or live data"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "A room restored from an export continues the game it held",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "After a forced room restart both players can continue the same game",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The device checklist is run on at least two real phones and results are recorded",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "The preview smoke test passes in CI",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
+}

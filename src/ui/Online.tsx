@@ -1,5 +1,5 @@
 // Online multiplayer screens: create or join a private room, the lobby, then the shared match.
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
 import { track } from '../net/telemetry';
 import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
@@ -24,6 +24,8 @@ function useClient(client: OnlineClient | null) {
 export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
   const [name, setName] = useState(loadName());
+  const nameRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
   // The character you ask for when you enter a room; if another player already has it, the room gives you a free one.
   const [avatar, setAvatar] = useState(() => {
     try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
@@ -43,7 +45,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
 
   const begin = (c: string) => {
     const nm = name.trim() || 'Player';
-    saveName(nm);
+    saveName(name.trim());
     try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
     setErr(null);
     setClient(new OnlineClient(c, nm, avatar));
@@ -93,7 +95,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
       {!available && <section class="panel"><p class="warn-text">Online play needs the web version or a configured server. See ONLINE.md.</p></section>}
       <section class="panel">
         <h3>You</h3>
-        <input id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
+        <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
         <h3>Your character</h3>
         <p class="small muted">One perk for the whole game. If someone in the room already has your character, you will get a free one and can change it in the lobby.</p>
         <CharacterPick value={avatar} onPick={setAvatar} />

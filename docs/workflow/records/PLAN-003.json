@@ -1,33 +1,66 @@
 {
-  "id": "PLAN-003",
-  "title": "Package C: online, capacity and release evidence (outline only)",
-  "problem": "Real-device behaviour, backups, crash recovery, capacity and costs have no evidence yet.",
-  "approval": {
-    "status": "proposed",
-    "note": "Outlined in REP-001; a detailed plan is still to be written."
-  },
-  "delivery": "not started",
   "release": "unreleased",
   "build": "",
   "reports": [
-    "REP-001"
+    "REP-058"
   ],
   "decisions": [],
-  "scope": [
-    "Real-device checklist runs",
-    "Durable Object data export and restore drill",
-    "Room crash-recovery test",
-    "Small load test within an approved budget",
-    "Cost record with a dated quote",
-    "Live smoke test from CI"
-  ],
-  "exclusions": [],
-  "acceptance": [],
   "changes": {
     "added": [],
     "changed": [],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-003",
+  "title": "Package C, paid part: capacity and cost evidence",
+  "problem": "Capacity and costs have no evidence yet. The free parts moved to PLAN-032; this plan is the part that costs money.",
+  "scope": [
+    "A small load test of online rooms against the preview server with a fixed spend cap",
+    "A cost record with a dated quote for the Cloudflare plan in use",
+    "A capacity statement: how many simultaneous rooms the current plan holds, and the first thing that breaks"
+  ],
+  "exclusions": [
+    "Any spend before the owner approves an amount in writing",
+    "Live data or the live game",
+    "Anything in PLAN-032"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The owner approves a spend cap in writing before any test runs",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "The load test stays under the cap and its results are recorded",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The cost record has a dated quote",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "A capacity statement exists with the first failure point",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "The Cloudflare plan is known (the owner has not said whether it is Free or Paid)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ]
 }

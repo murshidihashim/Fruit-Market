@@ -503,14 +503,17 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval"
+        "status": "superseded",
+        "evidence": "",
+        "date": ""
       },
       "delivery": "not started",
       "reports": [
         "REP-014",
         "REP-015"
       ],
-      "reviewTrigger": "If the baseline playtest shows a different priority."
+      "reviewTrigger": "If the baseline playtest shows a different priority.",
+      "supersededBy": "DEC-033"
     },
     {
       "id": "DEC-021",
@@ -1278,6 +1281,10 @@
     {
       "at": "2026-10-28 21:36",
       "text": "Owner: \"approve everything\", straight after the naming audit. Recorded as approval of all names in Naming_Audit including the optional ones (DEC-035) and the rename plan PLAN-031, to be built after the board look is chosen. Not read as approval of the board look (DEC-034) or of PLAN-027, PLAN-029 and PLAN-030, which stay proposed until the owner says so (REP-057)."
+    },
+    {
+      "at": "2026-10-28 22:23",
+      "text": "Owner: \"do per your suggestion\" after the recap of DEC-020, PLAN-022, PLAN-018 and PLAN-003. Done: DEC-020 closed as superseded by DEC-033 (it was never approved); PLAN-022 cut to the blank-name part, approved and built on local branch workflow/plan-022 (not pushed; keyboard on phones NOT RUN); PLAN-003 written up with checks and split into PLAN-032 (free drills) and PLAN-003 (the paid part, no spend until the owner sets a cap), both proposed. PLAN-018 left proposed: approve it when a live release is planned, because the data cannot be filled in later (REP-058)."
     }
   ]
 }
