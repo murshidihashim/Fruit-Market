@@ -1,0 +1,32 @@
+# On request only (never on a push): layout and accessibility sweep at phone, tablet and desktop sizes,
+# plus a bot soak test. Reads the game only; nothing is deployed. Results are kept as the "qa-sweep" artifact.
+name: QA sweep
+on:
+  workflow_dispatch:
+  push:
+    branches: ['qa/**'] # a branch named qa/something runs the sweep; nothing else does
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx vite build --mode single
+      - name: Layout and accessibility sweep
+        run: node scripts/qa-sweep.cjs dist-single/index.html qa-output
+      - name: Bot soak test
+        run: npx vite-node scripts/soak.ts | tee qa-output/soak.txt
+      - name: Keep results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-sweep
+          path: qa-output/
+          retention-days: 14

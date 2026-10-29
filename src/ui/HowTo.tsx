@@ -7,6 +7,35 @@ import { UP_ICON } from './panel';
 
 const SLIDES = [
   {
+    title: 'The big idea',
+    body: (
+      <>
+        <p>Fruit Market is a game of <b>timing and nerve</b>. Three things pull against you every day:</p>
+        <ul class="tips">
+          <li><b>The clock.</b> Fruit gets older every night, and old fruit sells for less, then not at all.</li>
+          <li><b>The secret price.</b> You only see your rivals' prices at the bell. Too high and the customer walks past; too low and you give money away.</li>
+          <li><b>The rival's crate.</b> You see what each stall puts out before prices are set. If a rival is short of apples, you can charge more.</li>
+        </ul>
+        <p>You don't need to win every sale. Often the winner threw away the least fruit and stayed brave when the others didn't.</p>
+      </>
+    ),
+  },
+  {
+    title: 'One customer, start to finish',
+    body: (
+      <>
+        <p>Hafiz wants <b>5 blueberries</b> and pays up to <b>$6</b> for a fresh one ($5 okay, $4 tired).</p>
+        <div class="demo-ex">
+          <div><b>Stall A</b> 3 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
+          <div><b>Stall B</b> 2 okay <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
+          <div><b>Stall C</b> 4 fresh <Fruit id="blueberry" size={18} /> asks <b>$6</b></div>
+        </div>
+        <p>Hafiz buys from the <b>cheapest stall</b> first. B sells 2 at $4. A sells the other 3 at $5. His order is full, so C sells nothing, even though its fruit was fresh.</p>
+        <p>Two stalls served him, so nobody draws a favour card. A stall that serves a whole order <b>alone</b> does.</p>
+      </>
+    ),
+  },
+  {
     title: 'Run the best fruit stall',
     body: (
       <>

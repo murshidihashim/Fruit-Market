@@ -6,6 +6,28 @@ Fruit Market is a game about buying and selling fruit. Each player runs a small 
 
 Every rule here can be played with cards and coins on a table; the app only does the bookkeeping.
 
+## The big idea
+
+Fruit Market is a game of **timing and nerve**. Three things pull against you every day:
+
+1. **The clock.** All fruit gets older every night, and old fruit sells for less and then not at all. Whatever you buy, you are racing to sell it.
+2. **The secret price.** You never see your rivals' prices until the bell. Price too high and the customer walks past you; too low and you give money away.
+3. **The rival's crate.** Everyone sees how many of each fruit every stall puts out, before prices are set. If a rival is short of apples, you know you can charge more.
+
+You do not need to be the best at everything. Often the winner is simply the stall that threw away the least fruit and was brave one day when the others were not.
+
+### One customer, start to finish
+
+Hafiz wants **5 blueberries** and pays up to **$6** for a fresh one (so $5 for okay, $4 for tired).
+
+- Stall A has 3 **fresh** blueberries, bought at $2 each, and posts **$5**.
+- Stall B has 2 **okay** blueberries, bought at $1 each, and posts **$4**.
+- Stall C has 4 **fresh** blueberries and posts **$6**.
+
+Hafiz buys from the **cheapest stall** first. Stall B sells 2 at $4 (+$8, which cost $2). Hafiz still wants 3, so he moves to the next cheapest, Stall A, which sells 3 at $5 (+$15, which cost $6). His order is full, so Stall C sells nothing, even though its fruit was fresh. Because two stalls served Hafiz, nobody draws a favour card.
+
+Had Stall A been alone in serving him, A would have drawn a favour card. That is the reason to be the one stall that has what a customer wants.
+
 ## Goal
 
 Have the **most cash** at the end of the last day. Fruit left on your shelf and upgrades you built are worth nothing at the end. Ties go to whoever sold more fruit.
@@ -148,9 +170,9 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 
 The rules above are the same on a table and in the app. These are the ways to run them by hand (added in rules version 5; none of them changes a rule, apart from the tie-break line above).
 
-**Order of customers.** Lay the customer cards in one row, always in this order: waiting customers (yesterday's unserved), the regular, the walk-ins in the order they were drawn, then an special guest such as the Hotel Chef. Serve them left to right.
+**Order of customers.** Lay the customer cards in one row, always in this order: waiting customers (yesterday's unserved), the regular, the walk-ins in the order they were drawn, then a special guest such as the Hotel Chef. Serve them left to right.
 
-**The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Street Price change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies, at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies.
+**The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies, at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies.
 
 **Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
 
@@ -158,7 +180,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Dawn line-up.** At dawn every stall puts its cash in a pile in front of it. Stall tokens line up on a queue strip, fewest coins first, ties starting from the first-player token. Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
 
-**Evening.** Keep favour cards face down in front of you, so everyone can count them. Only stalls holding a card, or with a upgrade on offer after a Market Day, take an evening turn, in line-up order.
+**Evening.** Keep favour cards face down in front of you, so everyone can count them. Only stalls holding a card, or with an upgrade on offer after a Market Day, take an evening turn, in line-up order.
 
 **Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became fresh. A pile's **age** is the clock number minus its chip. A fruit bought **unripe** gets the chip of the clock number on which it ripens (the clock number now plus 1 for watermelon, plus 2 for mango); it is green until the clock reaches that number.
 
