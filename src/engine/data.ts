@@ -227,7 +227,7 @@ export const EVENT_CARDS: EventCard[] = [
     text: 'A hotel chef places a big order today.' },
 ];
 
-export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'goodRiddance' | 'favouredTrade' | 'fridge';
+export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';
 
 export interface FavourDef { id: FavourId; title: string; icon: string; text: string; when: 'buy' | 'bid' | 'evening' }
 
@@ -235,14 +235,14 @@ export const FAVOURS: Record<FavourId, FavourDef> = {
   gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Play in the evening: secretly see tomorrow\'s walk-ins: who they are, what they want, how many and their top price.' },
   freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take one fruit of your choice from the Wholesale Market for free.' },
   priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'Play in the evening: you buy first tomorrow.' },
-  goodRiddance: { id: 'goodRiddance', title: 'Good Riddance', icon: '♻️', when: 'buy', text: 'Sell all your ripe stock back to the Wholesale Market for $1 each.' },
+  scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Play on your buying turn: look at the front of one walk-in who arrives today. Everyone sees you played it, but not what you saw.' },
   favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'bid', text: 'Play while pricing: you win every tied price today.' },
   fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'All your fruit becomes one step fresher.' },
 };
 
 export const FAVOUR_DECK: FavourId[] = [
   'gossip', 'gossip', 'freeFruit', 'freeFruit', 'priority', 'priority',
-  'goodRiddance', 'goodRiddance', 'favouredTrade', 'favouredTrade', 'fridge', 'fridge',
+  'scout', 'scout', 'favouredTrade', 'favouredTrade', 'fridge', 'fridge',
 ];
 
 export type UpgradeId = 'coldroom' | 'juicebar' | 'barrow' | 'premium';

@@ -98,7 +98,7 @@ const SLIDES = [
       <>
         <p>Serve a customer's <b>whole order by yourself</b> to draw a secret favour card:</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
-        <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins. After each Market Day, build one stall upgrade:</p>
+        <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins, and <b>Scout</b> lets you peek at one of today's. After each Market Day, build one stall upgrade:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
       </>
     ),

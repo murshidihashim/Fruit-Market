@@ -550,7 +550,7 @@ function customersArrive(s: GameState) {
 
 // ---------- favours ----------
 
-export interface FavourArgs { fruit?: FruitId; pos?: number }
+export interface FavourArgs { fruit?: FruitId; pos?: number; /** Scout: the id of the face-down walk-in to look at. */ customer?: number }
 
 export function canPlayFavour(s: GameState, p: number, idx: number): string | null {
   const pl = s.players[p];
@@ -562,6 +562,7 @@ export function canPlayFavour(s: GameState, p: number, idx: number): string | nu
   if (id === 'priority' && s.day >= s.config.days) return 'There is no tomorrow';
   if (id === 'favouredTrade' && pl.favouredTrade) return 'Already active';
   if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins to hear about';
+  if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins to look at';
   return null;
 }
 
@@ -587,19 +588,13 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
     case 'priority':
       s.priorityNext = p;
       break;
-    case 'goodRiddance':
-      for (const f of FRUITS) {
-        const ripeLen = FRUIT[f].ripe.length;
-        for (let i = 0; i < ripeLen; i++) {
-          const n = pl.stock[f][i];
-          if (!n) continue;
-          s.market[f][i] += n;
-          pl.stock[f][i] = 0;
-          pl.cash += n;
-          pl.stats.earned += n;
-        }
-      }
+    case 'scout': {
+      // Only this shop sees the front of one walk-in who arrives today; everyone sees the card was played.
+      const c = s.queue.find((q) => q.id === args.customer && !q.seenBy?.includes(p));
+      if (!c) throw new RuleError('Pick a walk-in to look at');
+      c.seenBy = [...(c.seenBy ?? []), p];
       break;
+    }
     case 'favouredTrade':
       pl.favouredTrade = true;
       break;

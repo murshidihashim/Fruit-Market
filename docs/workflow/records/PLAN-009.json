@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.2.0",
   "build": "workflow/plan-009 b2b495a",
   "reports": [
     "REP-022",

@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.2.0",
   "build": "the screen and the shared slot data are built (screen on main after CI); the printed mat in look D is a design proposal waiting for approval",
   "reports": [
     "REP-054",

@@ -302,9 +302,9 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['Y.....Y.....', 'YY....YY....', 'YYY...YYY...', 'YYYY..YYYY..', 'YYYYY.YYYYY.', 'YYYY..YYYY..', 'YYY...YYY...', 'YY....YY....', 'Y.....Y.....'],
     pal: { Y: C.c_e8b04b },
   },
-  fv_goodRiddance: {
-    rows: ['...GGGG.....', '..G....G.G..', '.G......GG..', '.G.....GGG..', '..GGG.....G.', '..GG......G.', '..G.G....G..', '.....GGGG...'],
-    pal: { G: C.c_6aa84f },
+  fv_scout: {
+    rows: ['..KKKK......', '.KLLLLK.....', 'KLWWLLLK....', 'KLWLLLLK....', 'KLLLLLLK....', '.KLLLLKK....', '..KKKK.HH...', '.......HHH..', '........HH..'],
+    pal: { K: C.c_3b3048, L: C.c_9ad0e6, W: C.c_fff2c2, H: C.c_a86b45 },
   },
   fv_favouredTrade: {
     rows: ['............', '.SS......BB.', 'SSSS....BBBB', 'SSSSSSBBBBBB', '.SSSSSSBBBB.', '..SSSSSBBB..', '....SSBB....', '............'],

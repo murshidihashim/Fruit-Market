@@ -273,12 +273,13 @@ export function face(name: string) {
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
-export function CustomerChar({ s, c, kind, onTip, later, heard }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean }) {
+export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void }) {
   if (kind === 'mystery' || !c) {
     // Face down: only the fruits printed on the card's back show.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
-      <div class={`cust mystery ${later ? 'tomorrow' : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}>
+      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
+        role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
         <div class="bubble">{backs.length ? backs.map((f) => <Fruit id={f} size={16} />) : <span class="q">?</span>}</div>
         <div class="cface"><Face who="shopper" size={34} /></div>
         <small>{later ? 'tomorrow' : 'walk-in'}</small>
@@ -306,13 +307,13 @@ export function CustomerChar({ s, c, kind, onTip, later, heard }: { s: GameState
   );
 }
 
-export function Street({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
+export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
   const extra = s.event?.extra;
   // Walk-ins wait face down; a player who heard the gossip sees their fronts.
   const walkIn = (c: Customer, later: boolean) => c.seenBy?.includes(viewer)
     ? <CustomerChar key={c.id} s={s} c={c} kind={later ? 'tomorrow' : 'today'} onTip={onTip} heard />
-    : <CustomerChar key={c.id} s={s} c={c} kind="mystery" later={later} />;
+    : <CustomerChar key={c.id} s={s} c={c} kind="mystery" later={later} onPick={onScout && !later ? () => onScout(c.id) : undefined} />;
   return (
     <div class="street">
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}

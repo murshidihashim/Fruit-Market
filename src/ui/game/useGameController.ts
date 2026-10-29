@@ -28,6 +28,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [toast, setToast] = useState<string | null>(null);
   const [rival, setRival] = useState<number | null>(null);
   const [freeFruit, setFreeFruit] = useState<number | null>(null);
+  /** Scout: the favour card being played while the player taps a face-down walk-in to look at. */
+  const [scout, setScout] = useState<number | null>(null);
   const [handedTo, setHandedTo] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [night, setNight] = useState(false);
@@ -249,7 +251,19 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(idx);
       return say('Tap a fruit at the market to take it free');
     }
+    if (id === 'scout') {
+      const unseen = s.queue.filter((q) => !q.seenBy?.includes(active));
+      if (unseen.length === 1) return act({ kind: 'favour', idx, args: { customer: unseen[0].id } });
+      setScout(idx);
+      return say('Tap a walk-in to look at them');
+    }
     act({ kind: 'favour', idx });
+  };
+
+  const pickWalkIn = (customer: number) => {
+    if (scout === null) return;
+    act({ kind: 'favour', idx: scout, args: { customer } });
+    setScout(null);
   };
 
   // Anonymous funnel counters: how far games get, and how they end.
@@ -275,10 +289,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     }
     if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); }
     setFreeFruit(null);
+    setScout(null);
   };
 
   return {
-    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, handedTo, setHandedTo, night, banner, revealDone,
+    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,

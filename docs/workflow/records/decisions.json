@@ -1241,6 +1241,55 @@
         "REP-079"
       ],
       "reviewTrigger": "Owner reads REP-079 and the new How to play wording."
+    },
+    {
+      "id": "DEC-050",
+      "title": "Scout replaces Good Riddance (rules version 6)",
+      "question": "What should replace the dead Good Riddance favour card? A) keep it, B) remove it, C) replace it with Scout",
+      "choice": "C: Scout. On your buying turn, look at the front of one walk-in who arrives today. Everyone sees it was played, not what was seen. Rules version 6.",
+      "rationale": "Owner answer \"1c\" to the decision card (recommended option).",
+      "impact": {
+        "player": "A favour card that was never worth playing becomes a peek at one of today's customers.",
+        "technical": "Rules version 6; Scout in the engine, a tap-to-choose step in the UI, tests; old phones cannot join new online rooms.",
+        "data": "Saved games and daily boards from rules version 5 are not carried over."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "1c",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-080"
+      ],
+      "plan": "PLAN-037",
+      "reviewTrigger": "After the first outside playtest: does anyone play Scout?"
+    },
+    {
+      "id": "DEC-051",
+      "title": "Shopkeeper perks unchanged until the first playtest; release 1.2.0 now",
+      "question": "2) Shopkeeper perks: A) leave for the first playtest, B) tweak now. 3) Release 1.2.0: A) now, B) after a phone check and a friend's playtest.",
+      "choice": "2A: no perk change. 3A: release 1.2.0 now. Claude prepares the release; the owner runs Deploy LIVE game and types PUBLISH.",
+      "rationale": "Owner answer \"2a 3a\" on the decision card.",
+      "impact": {
+        "player": "Everything on the preview since 1.1.1 goes live once the owner runs the deploy.",
+        "technical": "Version 1.2.0; release candidate entry; no perk or balance change.",
+        "data": "Rules version 6: saved games in progress and old daily boards do not carry over."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "2a 3a",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-080"
+      ],
+      "reviewTrigger": "After publishing: smoke test passes and the owner has played the live game."
     }
   ],
   "history": [
@@ -1731,6 +1780,10 @@
     {
       "at": "2026-10-29 14:10",
       "text": "Owner approved the bulk session (DEC-049). Work on workflow/plan-037-rulebook-tutorial; QA sweep took contrast findings from 136 to 3; soak of 1500 games clean."
+    },
+    {
+      "at": "2026-10-29 15:30",
+      "text": "Owner answered the decision card: 1C Scout replaces Good Riddance (DEC-050, PLAN-037), 2A perks unchanged, 3A release 1.2.0 now (DEC-051). Release 1.2.0 prepared as a candidate; publishing stays with the owner."
     }
   ]
 }

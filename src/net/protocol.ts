@@ -5,7 +5,7 @@ import type { Action, GameState } from '../engine/game';
 export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
-export const RULES_VERSION = 5;
+export const RULES_VERSION = 6;
 /** Bump whenever the messages between phones and the room server change, so old and new builds never share a room (PLAN-023: undo and rename). */
 export const PROTOCOL_VERSION = 2;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';

@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 5).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 6).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -127,7 +127,7 @@ Market Days and Closing Day are on by default and can be switched off in the set
 |---|---|---|
 | 👂 Gossip | Evening | Secretly look at the front of every face-down walk-in in tomorrow's queue. Don't show anyone; everyone sees that you played it. |
 | 🎁 Free Fruit | Your buying turn | Take any one fruit from the Wholesale Market for free. |
-| ♻️ Good Riddance | Your buying turn | Sell all your ripe fruit back to the Wholesale Market for $1 each. |
+| 🔍 Scout | Your buying turn | Look at the front of one face-down walk-in who arrives today. Everyone sees you played it, but not what you saw. |
 | 🧊 Fridge | Your buying turn | All your ripe fruit moves one step fresher. |
 | 🤝 Favoured Trade | At the bell | You win every tied price today. |
 | ⏩ Priority | Evening | You buy first tomorrow. |
@@ -176,6 +176,8 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
 
+**Scout.** Turn one face-down walk-in card face up for yourself only, look, and turn it back. Say out loud that you played Scout.
+
 **The sole-supplier cube.** The first stall to sell to a customer puts a cube of its colour on the card. If a second stall sells to the same customer, the cube comes off. When the order is complete, a cube left on the card means that stall served it alone: it draws a favour card (and a Tip Jar takes its $4 tip).
 
 **Dawn line-up.** At dawn every stall puts its cash in a pile in front of it. Stall tokens line up on a queue strip, fewest coins first, ties starting from the first-player token. Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
@@ -202,6 +204,8 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector counts
 *Left out on purpose: a price ladder board for lining up posted prices. Sorting the price cards by hand works for 2 to 4 stalls.*
 
 ## Balance notes
+
+Rules version 6 (DEC-050): the Scout favour card replaces Good Riddance, which nobody wanted to play. The deck stays at 12 cards, two of each. Scout is information, like Gossip, but it covers one of today's walk-ins instead of all of tomorrow's.
 
 Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP-033) had no lorry on Market Days and one more walk-in from halfway; in computer-player games that left the market empty on Market Days and nearly doubled the customers in the last three days. Rules 5 brings the lorry every day and drops the second-half walk-in. See REP-049 for the numbers (computer players only).
 

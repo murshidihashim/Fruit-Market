@@ -164,11 +164,6 @@ export function buyPhaseFavour(s: GameState, p: number): GameState | null {
       }
       if (stale >= 3 || (s.day === s.config.days && stale >= 1)) return playFavour(s, p, i);
     }
-    if (id === 'goodRiddance') {
-      let old = 0;
-      for (const f of FRUITS) old += pl.stock[f][0];
-      if (old >= 3) return playFavour(s, p, i);
-    }
   }
   return null;
 }

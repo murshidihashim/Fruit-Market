@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.2.0",
   "build": "rules version 5, message version 2, on local branch workflow/plan-023 (not pushed)",
   "reports": [
     "REP-047",

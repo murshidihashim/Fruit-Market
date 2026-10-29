@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.2.0",
   "build": "built on local branch workflow/plan-034 (not pushed); phone look, printed cards and browser tests remain",
   "reports": [
     "REP-062",

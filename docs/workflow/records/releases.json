@@ -33,6 +33,51 @@
         "Clearer group play: the online lobby shows how many of the 4 seats are taken and which are still open, and the menus explain that 2 to 4 people can play together, online or by passing one phone",
         "Behind the scenes: updates now reach players only after a preview and an owner's approval, with automatic checks before and after"
       ]
+    },
+    {
+      "version": "1.2.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-006",
+        "PLAN-008",
+        "PLAN-009",
+        "PLAN-010",
+        "PLAN-011",
+        "PLAN-012",
+        "PLAN-013",
+        "PLAN-014",
+        "PLAN-015",
+        "PLAN-016",
+        "PLAN-017",
+        "PLAN-019",
+        "PLAN-020",
+        "PLAN-022",
+        "PLAN-023",
+        "PLAN-024",
+        "PLAN-025",
+        "PLAN-026",
+        "PLAN-027",
+        "PLAN-029",
+        "PLAN-030",
+        "PLAN-031",
+        "PLAN-032",
+        "PLAN-033",
+        "PLAN-035",
+        "PLAN-036",
+        "PLAN-037"
+      ],
+      "notes": [
+        "A new look on every screen: warm cream market mat, pastel fruit lanes, coin prices and round buttons",
+        "A short market opening plays when you open the game (about 2.5 seconds, tap to skip)",
+        "The table is bigger and clearer: rivals sit across from you, one column per fruit, freshness shown by colour, and the farmer's lorry unloads every morning",
+        "Pick one of six shopkeepers before the game; each has one perk and no two players share one",
+        "New favour cards: Gossip (see tomorrow's walk-ins) and Scout (peek at one of today's). Good Riddance is gone",
+        "Market Days and a Closing Day give each game a rhythm, and prices are posted like a real market stall",
+        "How to play starts with the big idea and follows one customer's order from start to finish",
+        "Easier to read: Trophies, tips, chips and buttons have clearer text and a slightly darker terracotta",
+        "Online: undo your buys on your turn, and change your name in the lobby",
+        "Rules version 6: update the app to play online (older versions cannot join), and a game in progress from 1.1.1 can't be resumed"
+      ]
     }
   ]
 }

@@ -125,7 +125,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class={`play ${tray ? 'has-tray' : ''} ${pricing || stalling ? 'tray-full' : ''}`}>
         <div class="table">
           {/* The farmer's lorry parks in the street from the morning delivery until buying ends; customers step aside. */}
-          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} /><Lorry here={lorryHere} /></div>
+          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} /><Lorry here={lorryHere} /></div>
           {rivals.length > 0 && (
             <div class="seats">
               {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}

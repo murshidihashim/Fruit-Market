@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.2.0",
   "build": "built: Opening component (option 1), plays on new game",
   "reports": [
     "REP-054",

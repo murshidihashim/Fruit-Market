@@ -1,0 +1,72 @@
+{
+  "release": "1.2.0",
+  "build": "branch workflow/plan-037-scout: Scout card, rules version 6",
+  "reports": [
+    "REP-080"
+  ],
+  "decisions": [
+    "DEC-050"
+  ],
+  "changes": {
+    "added": [
+      "Scout favour card: look at the front of one walk-in who arrives today"
+    ],
+    "changed": [
+      "Rules version 6"
+    ],
+    "fixed": [],
+    "removed": [
+      "Good Riddance favour card"
+    ]
+  },
+  "playerNotes": [
+    "New favour card: Scout. On your buying turn, peek at one walk-in who arrives today. It replaces Good Riddance"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "1c",
+    "date": "2026-10-29"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-037",
+  "title": "Scout favour card replaces Good Riddance (rules version 6)",
+  "problem": "Good Riddance was a dead card nobody wanted to play (Favour_Cards_Review). The owner asked for a card that lets a player see a face-down customer; Gossip already does this for tomorrow.",
+  "scope": [
+    "Replace Good Riddance with Scout in the deck (still 12 cards, 2 each)",
+    "Scout: on your buying turn, look at the front of one face-down walk-in who arrives today; everyone sees it was played",
+    "Tap a face-down walk-in to choose; one unseen walk-in is chosen automatically",
+    "Rules version 6 (older phones cannot join newer rooms; saved games and daily boards are kept apart by version)",
+    "RULES.md, How to play, tests"
+  ],
+  "exclusions": [
+    "Insider (price peek)",
+    "Any other balance or perk change",
+    "Computer players using Scout"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Deck is 12 cards with two Scouts and no Good Riddance",
+      "result": "NOT RUN",
+      "evidence": "tests/scout.test.ts, run by CI"
+    },
+    {
+      "id": "T2",
+      "text": "Scout shows one walk-in to the player who played it and to nobody else",
+      "result": "NOT RUN",
+      "evidence": "tests/scout.test.ts, run by CI"
+    },
+    {
+      "id": "T3",
+      "text": "Scout is refused out of turn, in the wrong phase, or with no unseen walk-in",
+      "result": "NOT RUN",
+      "evidence": "tests/scout.test.ts, run by CI"
+    },
+    {
+      "id": "T4",
+      "text": "Lint, types, unit tests, build and browser tests pass; 1500-game soak is clean",
+      "result": "NOT RUN",
+      "evidence": "CI and QA sweep workflow"
+    }
+  ]
+}
