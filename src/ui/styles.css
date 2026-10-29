@@ -8,7 +8,7 @@
    ===================================================================== */
 :root {
   /* world */
-  --terra: var(--c-c8553d);
+  --terra: var(--c-b14f32);
   --terra-d: var(--c-93392a);
   --teal: var(--c-3e8f8c);
   --teal-l: var(--c-8fcac6);
@@ -1026,5 +1026,13 @@ body { background: var(--c-fbf3e1); }
 .ach { background: var(--cream-2); color: var(--ink-muted); border: 2px solid var(--card-edge); box-shadow: none; opacity: 1; }
 .ach.got { background: var(--c-fffdf7); color: var(--ink); border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .ach small { color: inherit; }
-.btn.primary, .page .btn.primary { background: var(--c-b14f32); }
 .page .hm-teal, .hm-teal { background: var(--c-2f7f7a); }
+.coach { background: var(--c-2c6b69); }
+.hm-teal, .page .hm-teal { background: var(--c-2c6b69); }
+.whisper { color: var(--ink); }
+.colour-pick button { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); }
+.colour-pick button.on { box-shadow: 0 0 0 3px var(--gold); }
+.au-offer.sealed { background: var(--cream-2); color: var(--ink); }
+.au-offer.sealed .au-name small { color: var(--ink-muted); }
+.au-offer.sealed .au-price { color: var(--terra-d); }
+.bw .bp.up { color: var(--c-2c5e2c); }
