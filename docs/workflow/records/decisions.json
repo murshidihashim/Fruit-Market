@@ -1195,6 +1195,28 @@
       ],
       "plan": "PLAN-029",
       "reviewTrigger": "After a phone playtest: if it feels long, shorten it."
+    },
+    {
+      "id": "DEC-048",
+      "title": "Opening animation: plays on launch, 2 to 3 seconds",
+      "question": "When should the opening play and how long should it be?",
+      "choice": "The market opening plays when the game is opened from its link, not when a new game starts. It runs about 2.5 seconds. Tap to skip stays.",
+      "rationale": "Owner: \"the animation should play when you click on the link to access the game not when u open the wholesale market, it should be between 2-3 secs only\".",
+      "impact": {
+        "player": "A 2.5 second scene plays each time the game is opened. It no longer plays when starting a game.",
+        "technical": "Opening moved to the App root; timings shortened.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "the animation should play when you click on the link to access the game not when u open the wholesale market, it should be between 2-3 secs only",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [],
+      "reviewTrigger": "After a phone check: confirm the length feels right."
     }
   ],
   "history": [
@@ -1677,6 +1699,10 @@
     {
       "at": "2026-10-29 07:59",
       "text": "Owner chose opening design 1 (DEC-047). Built on workflow/plan-029: Opening component, played on new game, tap to skip, reduced-motion safe. Lint, types and tests pass; browser tests run in CI."
+    },
+    {
+      "at": "2026-10-29 09:00",
+      "text": "Owner changed the opening (DEC-048): plays on launch, about 2.5 seconds. Supersedes the timing and trigger in DEC-047."
     }
   ]
 }

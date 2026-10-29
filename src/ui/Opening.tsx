@@ -1,11 +1,11 @@
-// The market opening (PLAN-029, DEC-047): a short flat-scenery scene played when a new game starts.
-// Decoration only: tap anywhere to skip, and it ends on its own after about 8 seconds.
+// The market opening (PLAN-029, DEC-047): a short flat-scenery scene played when the game is opened.
+// Decoration only: tap anywhere to skip, and it ends on its own after about 2.5 seconds.
 import { useEffect, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Face } from './art';
 import { C } from './palette';
 
-const LENGTH_MS = 8200;
+const LENGTH_MS = 2600;
 const STALLS = [
   { colour: C.terracotta, who: RIVALS[0].avatar },
   { colour: C.teal, who: RIVALS[1].avatar },
@@ -19,7 +19,7 @@ export function Opening({ onDone }: { onDone: () => void }) {
     fit();
     window.addEventListener('resize', fit);
     const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const t = setTimeout(onDone, reduced ? 1200 : LENGTH_MS);
+    const t = setTimeout(onDone, reduced ? 800 : LENGTH_MS);
     return () => { window.removeEventListener('resize', fit); clearTimeout(t); };
   }, []);
   return (

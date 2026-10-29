@@ -39,7 +39,18 @@ const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵']; // emoji-o
 
 interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
 
+// The market opening plays once, when the game is first opened. Automated browser tests skip it.
 export function App() {
+  const [opening, setOpening] = useState(() => !navigator.webdriver);
+  return (
+    <>
+      <Main />
+      {opening && <Opening onDone={() => setOpening(false)} />}
+    </>
+  );
+}
+
+function Main() {
   const [invite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
   const [game, setGame] = useState<GameState | null>(() => loadGame());
@@ -47,7 +58,6 @@ export function App() {
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
-  const [opening, setOpening] = useState(false);
   const recorded = useRef<string | null>(null);
 
   const go = (sc: Screen) => {
@@ -71,7 +81,6 @@ export function App() {
     recorded.current = null;
     setGame(g);
     saveGame(g);
-    setOpening(screen !== 'game' && !navigator.webdriver); // automated browser tests skip the opening
     setScreen('game');
   };
 
@@ -100,8 +109,6 @@ export function App() {
 
   if (screen === 'game' && game) {
     return (
-      <>
-      {opening && <Opening onDone={() => setOpening(false)} />}
       <Game
         key={`${game.config.seed}-${game.config.daily ?? ''}`}
         initial={game}
@@ -118,7 +125,6 @@ export function App() {
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
       />
-      </>
     );
   }
   if (screen === 'setup') return <Setup onBack={() => go('home')} onStart={start} />;
