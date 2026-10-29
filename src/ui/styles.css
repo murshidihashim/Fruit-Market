@@ -1036,3 +1036,5 @@ body { background: var(--c-fbf3e1); }
 .au-offer.sealed .au-name small { color: var(--ink-muted); }
 .au-offer.sealed .au-price { color: var(--terra-d); }
 .bw .bp.up { color: var(--c-2c5e2c); }
+.page .seg button.on small, .seg button.on small { color: var(--c-ffffff); }
+.au-offer.won .au-res { background: var(--c-2f7a35); }

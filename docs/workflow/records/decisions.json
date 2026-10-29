@@ -1217,6 +1217,30 @@
       "delivery": "in progress",
       "reports": [],
       "reviewTrigger": "After a phone check: confirm the length feels right."
+    },
+    {
+      "id": "DEC-049",
+      "title": "Bulk working session: QA, accessibility, print backs, rulebook and concept tutorial",
+      "question": "Which unattended work may be done while the owner is at the office?",
+      "choice": "All seven items (width pass, online lobby check, accessibility audit, card backs, soak test, 1.2.0 draft, cleanup) plus an updated rulebook and a concept tutorial, with preview pushes only. No rule or balance change.",
+      "rationale": "Owner answer: \"yes do all 7 with preview pushes, together with updating the rulebook and including a tutorial explaining the concept of the game\".",
+      "impact": {
+        "player": "Trophies, chips, tips and several buttons are readable; terracotta is a little darker; How to play opens with two concept slides.",
+        "technical": "New qa-sweep script, soak script and a QA workflow that runs only on qa/ branches or on request; unused styles removed.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "yes do all 7 with preview pushes, together with updating the rulebook and including a tutorial explaining the concept of the game",
+        "date": "2026-10-29"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-079"
+      ],
+      "reviewTrigger": "Owner reads REP-079 and the new How to play wording."
     }
   ],
   "history": [
@@ -1703,6 +1727,10 @@
     {
       "at": "2026-10-29 09:00",
       "text": "Owner changed the opening (DEC-048): plays on launch, about 2.5 seconds. Supersedes the timing and trigger in DEC-047."
+    },
+    {
+      "at": "2026-10-29 14:10",
+      "text": "Owner approved the bulk session (DEC-049). Work on workflow/plan-037-rulebook-tutorial; QA sweep took contrast findings from 136 to 3; soak of 1500 games clean."
     }
   ]
 }
