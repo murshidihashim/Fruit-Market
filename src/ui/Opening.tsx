@@ -4,6 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Face } from './art';
 import { C } from './palette';
+import { LorrySprite, StallSprite, roofVars } from './propsArt';
 
 const LENGTH_MS = 2600;
 const STALLS = [
@@ -34,20 +35,12 @@ export function Opening({ onDone }: { onDone: () => void }) {
         <div class="op-ground" />
         <div class="op-sign">Wholesale Market</div>
         {STALLS.map((s, i) => (
-          <div class={`op-stall op-s${i}`}>
-            <div class="op-awn" style={`--c:${s.colour}`} />
-            <div class="op-cnt" />
+          <div class={`op-stall op-s${i}`} style={roofVars(s.colour) as any}>
+            <StallSprite scale={2} />
             <div class="op-who"><Face who={s.who} size={34} /></div>
           </div>
         ))}
-        <svg class="op-lorry" viewBox="0 0 150 58" width="170">
-          <rect x="2" y="16" width="44" height="30" rx="6" fill={C.paper} stroke={C.ink} stroke-width="3" />
-          <rect x="10" y="22" width="22" height="12" rx="3" fill={C.c_9ad0e6} stroke={C.ink} stroke-width="2" />
-          <rect x="46" y="12" width="98" height="34" rx="4" fill={C.c_a86b45} stroke={C.ink} stroke-width="3" />
-          <rect x="52" y="4" width="86" height="12" fill={C.terracotta} stroke={C.ink} stroke-width="2.5" />
-          <circle cx="26" cy="48" r="8" fill={C.ink} />
-          <circle cx="116" cy="48" r="8" fill={C.ink} />
-        </svg>
+        <span class="op-lorry"><LorrySprite /></span>
         {FRUITS.map((f, i) => <div class={`op-fl op-f${i}`}><Fruit id={f} size={30} /></div>)}
         <svg class="op-bell" viewBox="0 0 24 24" width="34" height="34">
           <path d="M12 3c-3.5 0-6 2.6-6 6v5l-2 3h16l-2-3V9c0-3.4-2.5-6-6-6Z" fill={C.gold} stroke={C.ink} stroke-width="1.6" />

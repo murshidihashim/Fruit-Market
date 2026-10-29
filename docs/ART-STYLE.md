@@ -5,8 +5,9 @@ Decided by the owner: **Look C** (DEC-033), with the **soft tabletop mat** as th
 ## 1. The one rule
 
 **Flat and smooth for places; pixel for things.**
-- *Places and structure* (home scene, sky, ground, mats, panels, signs, awnings, the lorry, frames) are flat, smooth, softly rounded and calm.
+- *Places and structure* (home scene, sky, ground, mats, panels, frames) are flat, smooth, softly rounded and calm.
 - *Things you count, tap, collect or print as tokens* (fruit, people, icons, coins) are pixel art with a 1 px ink outline.
+- *Props with a character of their own* (the lorry, the market stalls and their roofs) are pixel art too, so they sit with the people and the fruit (DEC-052). They are painted in code in `src/ui/propsArt.tsx`: the Sunny Pickup with a bunting roof, and the stall with a tiled roof and sign. A stall's roof takes the player's colour.
 
 ## 2. Colour
 

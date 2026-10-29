@@ -1290,6 +1290,31 @@
         "REP-080"
       ],
       "reviewTrigger": "After publishing: smoke test passes and the owner has played the live game."
+    },
+    {
+      "id": "DEC-052",
+      "title": "New lorry (Sunny Pickup, bunting roof) and market stalls (tiled roof and sign) in pixel art",
+      "question": "Which roof and stalls? Five mockups were shown (REP-081).",
+      "choice": "Stalls: option 4, Tiles and Sign. Lorry: the Sunny Pickup with option 2, the bunting and boards roof. Both in pixel art like the characters.",
+      "rationale": "Owner answer: \"lets go for option tiles and sign for stall, lorry one use bunting\".",
+      "impact": {
+        "player": "The farmer's lorry is a pixel-art pickup with a wooden roof and a string of flags; stall panels get a tiled roof band in each player's colour; the market opening shows the new stalls and lorry.",
+        "technical": "New src/ui/propsArt.tsx; table, opening and styles updated; ART-STYLE.md updated so props are pixel art.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "lets go for option tiles and sign for stall, lorry one use bunting",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-081"
+      ],
+      "plan": "PLAN-038",
+      "reviewTrigger": "Owner looks at it on a phone: size of the lorry in the street, readability of the flags."
     }
   ],
   "history": [
@@ -1784,6 +1809,10 @@
     {
       "at": "2026-10-29 15:30",
       "text": "Owner answered the decision card: 1C Scout replaces Good Riddance (DEC-050, PLAN-037), 2A perks unchanged, 3A release 1.2.0 now (DEC-051). Release 1.2.0 prepared as a candidate; publishing stays with the owner."
+    },
+    {
+      "at": "2026-10-29 17:30",
+      "text": "Owner chose tiles and sign for the stalls and the bunting roof for the Sunny Pickup lorry (DEC-052). Built as pixel-art props on branch workflow/plan-038-lorry-stalls; included in release candidate 1.2.0."
     }
   ]
 }

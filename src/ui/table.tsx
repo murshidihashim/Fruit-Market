@@ -12,10 +12,11 @@ import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import { C } from './palette';
+import { LorrySprite, RoofBand, roofVars } from './propsArt';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
-const seat = (p: number) => ({ '--awn': SEAT_COLOURS[p % SEAT_COLOURS.length] } as any);
+const seat = (p: number) => roofVars(SEAT_COLOURS[p % SEAT_COLOURS.length]) as any;
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
   if (n <= 0) return null;
@@ -125,7 +126,7 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
   return (
     <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} style={seat(p)} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
-      <div class="rs-awning" />
+      <RoofBand cls="rs-awning" />
       <div class="rs-who">
         <span class="rs-face"><Face who={pl.avatar} size={26} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
         <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
@@ -150,7 +151,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const pl = s.players[p];
   return (
     <div class="rival-drop" style={seat(p)} role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
-      <div class="rs-awning" />
+      <RoofBand cls="rs-awning" />
       <div class="rd-head">
         <Face who={pl.avatar} size={30} />
         <b>{pl.name}{pl.name.endsWith('s') ? "'" : "'s"} stall</b>
@@ -197,8 +198,8 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const mine = loadColour();
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   return (
-    <div class={`my-stall ${active ? 'active' : ''}`} style={mine ? ({ '--awn': mine } as any) : seat(p)} data-a={`p${p}`}>
-      <div class="ms-awning" />
+    <div class={`my-stall ${active ? 'active' : ''}`} style={mine ? (roofVars(mine) as any) : seat(p)} data-a={`p${p}`}>
+      <RoofBand cls="ms-awning" />
       <div class="ms-head">
         <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
         <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>
@@ -244,24 +245,10 @@ export function Lorry({ here }: { here: boolean }) {
   }, [here]);
   if (!here && !leaving) return null;
   return (
-    <svg class={`lorry ${here ? 'here' : 'leaving'}`} viewBox="0 0 150 58" width={150} height={58} aria-hidden="true" data-a="lorry"
-      onAnimationEnd={() => { if (!here) setLeaving(false); }}>
-      <defs>
-        <pattern id="lorry-stripe" width="12" height="10" patternUnits="userSpaceOnUse"><rect width="6" height="10" fill={C.terracotta} /><rect x="6" width="6" height="10" fill={C.paper} /></pattern>
-      </defs>
-      <rect x="52" y="4" width="94" height="10" rx="4" fill="url(#lorry-stripe)" />
-      <rect x="56" y="14" width="86" height="26" rx="3" fill={C.c_a86b45} />
-      <rect x="60" y="18" width="14" height="14" rx="3" fill={C.c_d6453b} />
-      <rect x="78" y="18" width="14" height="14" rx="3" fill={C.c_f0b33a} />
-      <rect x="96" y="18" width="14" height="14" rx="3" fill={C.c_5562c9} />
-      <rect x="114" y="18" width="14" height="14" rx="3" fill={C.c_e8505b} />
-      <path d="M6 40V24c0-4 3-8 8-8h30c4 0 6 2 8 6v18z" fill={C.paper} stroke={C.ink} stroke-width="1.5" />
-      <rect x="14" y="20" width="20" height="12" rx="3" fill={C.c_9ad0e6} />
-      <circle cx="22" cy="27" r="4" fill={C.c_f0b48c} />
-      <rect x="4" y="36" width="52" height="5" fill={C.teal} />
-      <circle cx="26" cy="44" r="9" fill={C.ink} /><circle cx="26" cy="44" r="3.5" fill={C.c_b8c0c9} />
-      <circle cx="112" cy="44" r="9" fill={C.ink} /><circle cx="112" cy="44" r="3.5" fill={C.c_b8c0c9} />
-    </svg>
+    <span class={`lorry ${here ? 'here' : 'leaving'}`} aria-hidden="true" data-a="lorry"
+      onAnimationEnd={(e) => { if (!here && e.target === e.currentTarget) setLeaving(false); }}>
+      <LorrySprite />
+    </span>
   );
 }
 

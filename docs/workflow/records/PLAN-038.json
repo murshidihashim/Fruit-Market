@@ -1,0 +1,63 @@
+{
+  "release": "1.2.0",
+  "build": "branch workflow/plan-038-lorry-stalls: propsArt.tsx",
+  "reports": [
+    "REP-081"
+  ],
+  "decisions": [
+    "DEC-052"
+  ],
+  "changes": {
+    "added": [
+      "Pixel-art Sunny Pickup lorry with a bunting roof",
+      "Tiled roof band on stall panels and a tiled stall with a sign in the market opening"
+    ],
+    "changed": [
+      "Lorry and stall awnings are pixel art instead of smooth shapes"
+    ],
+    "fixed": [],
+    "removed": [
+      "Striped awning bands on stall panels"
+    ]
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "lets go for option tiles and sign for stall, lorry one use bunting",
+    "date": "2026-10-29"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-038",
+  "title": "New lorry and stall roofs in pixel art",
+  "problem": "The owner did not like the lorry, and it did not match the pixel-art characters. The stalls had plain striped bands.",
+  "scope": [
+    "Pixel-art lorry (Sunny Pickup, bunting roof) with turning wheels and fluttering flags",
+    "Tiled roof band on rival, own and open stall panels, in each player's colour",
+    "Market opening uses the new stalls (with sign) and lorry",
+    "ART-STYLE.md: props are pixel art"
+  ],
+  "exclusions": [
+    "Printed mat and card art",
+    "Changes to rules or layout beyond the band height"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, 133 unit tests, palette check and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-10-29; CI runs the browser tests"
+    },
+    {
+      "id": "T2",
+      "text": "The lorry, stall panels and opening render without errors",
+      "result": "PASS",
+      "evidence": "Playwright screenshots of the opening and the buying screen, no console errors"
+    },
+    {
+      "id": "T3",
+      "text": "Looks right on a real phone",
+      "result": "NOT RUN",
+      "evidence": "Owner to check on the preview"
+    }
+  ]
+}
