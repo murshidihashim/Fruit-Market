@@ -1,8 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-10-28 (Asia/Kuala_Lumpur) by Claude, session checkpoint.
+Updated 2026-10-29 (Asia/Kuala_Lumpur) by Claude, session checkpoint.
 
-## Where we are
+## Latest (2026-10-29)
+- **On the preview (main `9424f21`, CI and preview green):** look D on every screen (PLAN-033, DEC-045), market opening on launch, about 2.5 seconds (DEC-047, DEC-048), readability fixes from the QA sweep (136 contrast findings down to 3), concept slides in How to play and a "big idea" section and worked example in RULES.md (DEC-049, REP-079). 1500-game soak clean. No rule or balance change.
+- **Waiting for the owner:** phone check of the preview; read the new How to play wording; Card_Backs.pdf (draft, in the Drive Print_Kit folder); Good Riddance fate; shopkeeper perk balance (Big Basket strong, Haggler weak, REP-076); printed board size and token settings after a print test; taller tap targets (chips and market cells are 32 to 36 px); PLAN-003 spend cap and Cloudflare plan; releasing 1.2.0 (owner runs Deploy LIVE game, types PUBLISH).
+- **Tooling:** `scripts/qa-sweep.cjs` and `scripts/soak.ts` run on GitHub through the QA sweep workflow (push a branch named `qa/...`, or run it by hand). The owner's laptop was out of memory this session, so local type checks and browsers were unreliable; CI is the evidence.
+
+## Where we were (2026-10-28)
 - **Stage:** complete game. Rules version 5, the tabletop procedures and character cards are on `main` and on the preview (CI and preview smoke test green, 2026-10-28). The live game is unchanged (1.1.1). No unfamiliar-player playtest has happened (PLAN-019 ended early, REP-046), so the first-playtest gate is still CONCERNS.
 - **Direction:** one game, two editions with identical mechanics; the tabletop rules (`RULES.md`) are the master (DEC-027). The rules freeze is lifted (DEC-028).
 - **Built since 1.1.1, unreleased:** UI and table (PLAN-009 to 013), rules 3 (PLAN-012), rules 4 (PLAN-014/015), rules 5 = lorry every day and no second-half walk-in (PLAN-020, DEC-029; computer-player simulation: empty-market turns 0.0% to 1.0%, REP-049/050), tie-break by buying order and a "Playing on a table" section in the rules (PLAN-024, DEC-030, REP-051), character cards: six characters with fixed perks picked on entering a room or on set-up (PLAN-025, DEC-031, REP-052). On local branch `workflow/plan-026` only (not pushed): 36 customer cards (PLAN-026, DEC-032, REP-053).
