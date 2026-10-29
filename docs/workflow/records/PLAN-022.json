@@ -21,7 +21,7 @@
     "evidence": "do per your suggestion",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-022",
   "title": "Blank name field that opens the keyboard",
   "problem": "Informal feedback (REP-045): the name defaults to \"You\" and the owner wants it blank with the keyboard popping up. The different-icons part is covered by the characters (PLAN-025, DEC-031).",

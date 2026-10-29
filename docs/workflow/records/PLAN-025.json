@@ -31,7 +31,7 @@
     "evidence": "make it so that character is selected when you enter the room instead apply all the changes and push it the game",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-025",
   "title": "Character cards: six characters with fixed perks",
   "problem": "Informal feedback (REP-045): every player has the same icon. The owner asked for character cards with perks to pick from when entering the room (Characters_and_Art), replacing the dealt traits.",

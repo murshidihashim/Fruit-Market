@@ -7,7 +7,7 @@
     "evidence": "Approve PLAN-006 only, including its listed tests and documentation, name: Patches",
     "date": "2026-10-26"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "release": "1.2.0",
   "build": "f14245a",
   "reports": [

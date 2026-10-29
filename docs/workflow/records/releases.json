@@ -36,7 +36,7 @@
     },
     {
       "version": "1.2.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-006",
         "PLAN-008",
@@ -81,7 +81,10 @@
         "Easier to read: Trophies, tips, chips and buttons have clearer text and a slightly darker terracotta",
         "Online: undo your buys on your turn, and change your name in the lobby",
         "Rules version 6: update the app to play online (older versions cannot join), and a game in progress from 1.1.1 can't be resumed"
-      ]
+      ],
+      "date": "2026-10-29",
+      "commit": "f5f9390",
+      "tagged": true
     }
   ]
 }

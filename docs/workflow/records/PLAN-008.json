@@ -31,7 +31,7 @@
     "evidence": "go with plan b (interpreted as: choose direction B and proceed with the design-only mockups; the A/B/C comparison is dropped)",
     "date": "2026-10-26"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-008",
   "title": "UI polish: art-direction style test and layout mockups (design only)",
   "problem": "The table shows too much at once, repeats numbers, wastes width on rival stalls and has no single focus per phase; the visual system is inconsistent. The owner's priorities: clutter, lack of animation and feel, and the art style itself; reference: It Takes Two (qualities only, no assets).",

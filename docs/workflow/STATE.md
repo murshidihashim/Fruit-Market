@@ -3,6 +3,7 @@
 Updated 2026-10-29 (Asia/Kuala_Lumpur) by Claude, session checkpoint.
 
 ## Latest (2026-10-29)
+- **1.2.0 is LIVE** (main `f5f9390`, tag v1.2.0, smoke test passed). The live game and the preview are the same build until the next change. Rules version 6.
 - **On the preview (main `9424f21`, CI and preview green):** look D on every screen (PLAN-033, DEC-045), market opening on launch, about 2.5 seconds (DEC-047, DEC-048), readability fixes from the QA sweep (136 contrast findings down to 3), concept slides in How to play and a "big idea" section and worked example in RULES.md (DEC-049, REP-079). 1500-game soak clean. No rule or balance change.
 - **Waiting for the owner:** phone check of the preview; read the new How to play wording; Card_Backs.pdf (draft, in the Drive Print_Kit folder); Good Riddance fate; shopkeeper perk balance (Big Basket strong, Haggler weak, REP-076); printed board size and token settings after a print test; taller tap targets (chips and market cells are 32 to 36 px); PLAN-003 spend cap and Cloudflare plan; releasing 1.2.0 (owner runs Deploy LIVE game, types PUBLISH).
 - **Tooling:** `scripts/qa-sweep.cjs` and `scripts/soak.ts` run on GitHub through the QA sweep workflow (push a branch named `qa/...`, or run it by hand). The owner's laptop was out of memory this session, so local type checks and browsers were unreliable; CI is the evidence.

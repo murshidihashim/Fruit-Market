@@ -27,7 +27,7 @@
     "evidence": "\"do all except 22, for 22 analyse demand as well, feels like theres too much customer towards the final few turns\" (read as: approve PLAN-020, PLAN-021 and PLAN-023; PLAN-022 not approved; \"for 22\" read as PLAN-020, supply, which now also analyses demand)",
     "date": "2026-10-27"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-020",
   "title": "Supply and customer demand in 4-player games: measure first, then propose one fix",
   "problem": "Informal feedback (REP-045): \"supply cant keep up with demand\" from mid-game and players ended up with nothing to buy. By code: no lorry comes on Market Days (days 3, 6, 9, 12; game.ts), and 4 shops add 1 of each fruit (about 17 fruits on a lorry day against a buying capacity of 16 for four shops). This is a hypothesis; no one has measured it. Owner (same message): \"feels like theres too much customer towards the final few turns\". By code, walk-ins per day are players minus 2 in the first half and players minus 1 in the second half, plus 1 on a Market Day, and unserved customers wait one more day; so late days have more customers.",

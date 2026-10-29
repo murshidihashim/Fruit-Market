@@ -21,7 +21,7 @@
     "evidence": "can we include an option to play the game full screen as well",
     "date": "2026-10-29"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-039",
   "title": "Full-screen play option",
   "problem": "The owner wants to play with the browser bars hidden.",

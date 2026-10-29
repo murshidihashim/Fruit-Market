@@ -28,7 +28,7 @@
     "evidence": "implement all the fix except for the price ladder, i dont get the problem and your solution",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-024",
   "title": "Tabletop fixes: tie-break by buying order and table procedures",
   "problem": "Review of how a day plays on a table (Turns_and_Tabletop_Flow, Tabletop_Fixes): the tie-break uses cash that changes mid-rush, and several steps need clear table procedures (partly served customers, event arithmetic, favour-card record, night ageing, evening round, daily order).",

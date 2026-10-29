@@ -1138,7 +1138,7 @@
         "evidence": "okay with the design, but include stats like the best moments fir the results",
         "date": "2026-10-29"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-074"
       ],
@@ -1189,7 +1189,7 @@
         "evidence": "1",
         "date": "2026-10-29"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-078"
       ],
@@ -1214,7 +1214,7 @@
         "evidence": "the animation should play when you click on the link to access the game not when u open the wholesale market, it should be between 2-3 secs only",
         "date": "2026-10-29"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [],
       "reviewTrigger": "After a phone check: confirm the length feels right."
     },
@@ -1236,7 +1236,7 @@
         "evidence": "yes do all 7 with preview pushes, together with updating the rulebook and including a tutorial explaining the concept of the game",
         "date": "2026-10-29"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-079"
       ],
@@ -1260,7 +1260,7 @@
         "evidence": "1c",
         "date": "2026-10-29"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-080"
       ],
@@ -1285,7 +1285,7 @@
         "evidence": "2a 3a",
         "date": "2026-10-29"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-080"
       ],
@@ -1309,7 +1309,7 @@
         "evidence": "lets go for option tiles and sign for stall, lorry one use bunting",
         "date": "2026-10-29"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-081"
       ],
@@ -1334,7 +1334,7 @@
         "evidence": "can we include an option to play the game full screen as well",
         "date": "2026-10-29"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-082"
       ],
@@ -1842,6 +1842,10 @@
     {
       "at": "2026-10-29 18:10",
       "text": "Owner asked for a full-screen option (DEC-053). Built on branch workflow/fullscreen and added to the 1.2.0 candidate."
+    },
+    {
+      "at": "2026-10-29 21:05",
+      "text": "Release 1.2.0 published (Deploy LIVE game on main f5f9390, started by Claude at the owner's explicit request; smoke test passed; tag v1.2.0)."
     }
   ]
 }

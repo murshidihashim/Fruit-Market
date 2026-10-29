@@ -26,7 +26,7 @@
     "evidence": "approve everything",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-031",
   "title": "Rename pass: adopt the Naming_Audit names",
   "problem": "\"Market\" means five things, stall and shop are one thing, and the rules and the app name the day phases differently (Naming_Audit).",

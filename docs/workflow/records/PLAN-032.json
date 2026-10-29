@@ -20,7 +20,7 @@
     "evidence": "approve everything except plan 21, for the design related, require my approval on the design, else just run",
     "date": "2026-10-29"
   },
-  "delivery": "in progress",
+  "delivery": "released",
   "id": "PLAN-032",
   "title": "Free evidence drills: backup restore, crash recovery, device checklist",
   "problem": "Backups, crash recovery and real-device behaviour have no evidence yet (the free half of PLAN-003).",

@@ -24,7 +24,7 @@
     "evidence": "approve everything above",
     "date": "2026-10-28"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-027",
   "title": "Look C style guide and one palette",
   "problem": "Art audit (REP-054): pixel sprites, flat vector, CSS and one raster lorry follow no shared rule; colours are typed twice (29 CSS tokens, 89 CSS hex values and 102 in the sprite code); sprites scale by arbitrary amounts; emoji remain in the interface.",

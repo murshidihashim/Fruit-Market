@@ -26,7 +26,7 @@
     "evidence": "edit the UI/UX so that 1. secret price and events pops up to fill the screen (instead of just the bottom half of the screen 2. rework the rivals indicator during secret price, now its not clear still",
     "date": "2026-10-27"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-013",
   "title": "Full-screen pricing and event sheets; clearer rival status while pricing",
   "problem": "Owner: the secret-price panel and event pop-ups only use the bottom half of the screen, and it is still unclear what rivals are doing while you set prices.",

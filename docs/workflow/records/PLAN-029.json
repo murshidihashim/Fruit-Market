@@ -26,7 +26,7 @@
     "evidence": "approve everything above",
     "date": "2026-10-28"
   },
-  "delivery": "in progress",
+  "delivery": "released",
   "id": "PLAN-029",
   "title": "Animated market opening on the home screen",
   "problem": "The home scene is a harbour that the sign card mostly covers; the owner asked for an animated fruit market when the link opens (prototype: Market_Opening_Prototype.html).",

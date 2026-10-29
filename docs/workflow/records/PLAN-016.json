@@ -22,7 +22,7 @@
     "evidence": "approve the speciality price cut",
     "date": "2026-10-27"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-016",
   "title": "Speciality price cut: Cold Room $4, Juice Bar $3",
   "problem": "REP-033: rushing Cold Room (13%) or Juice Bar (17%) wins far below fair (33%) in 3-player computer games.",
