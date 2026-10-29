@@ -30,7 +30,7 @@
   --text: var(--c-f6ead2);
   --muted: var(--c-a8a6bd);
   --ink: var(--c-2b2438);
-  --ink-muted: var(--c-75664f);
+  --ink-muted: var(--c-5a4a3e);
   /* outcomes */
   --good: var(--c-7cc47a);
   --good-bg: var(--c-dcefd2);
@@ -1012,3 +1012,19 @@ body { background: var(--c-fbf3e1); }
 
 .demo-ex { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: var(--cream-2); color: var(--ink); font-size: 0.9rem; }
 .demo-ex > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* ---------- QA sweep fixes: Trophies and chips were unreadable, a few colours were just under contrast ---------- */
+.page .chip { background: var(--cream-2); color: var(--ink); }
+.page .chip.cash { background: var(--gold); }
+.page .chip.warn { background: var(--bad-bg); color: var(--terra-d); }
+.page .chip.good { background: var(--good-bg); color: var(--c-2c5e2c); }
+.league-list li { background: var(--c-fffdf7); color: var(--ink); border: 2px solid var(--ink); box-shadow: none; opacity: 1; }
+.league-list li:not(.done):not(.now) { background: var(--cream-2); color: var(--ink-muted); border-color: var(--card-edge); }
+.league-list li.done { box-shadow: inset 0 0 0 3px var(--good); }
+.league-list li.now { box-shadow: inset 0 0 0 3px var(--gold); }
+.league-list small { color: var(--ink-muted); }
+.ach { background: var(--cream-2); color: var(--ink-muted); border: 2px solid var(--card-edge); box-shadow: none; opacity: 1; }
+.ach.got { background: var(--c-fffdf7); color: var(--ink); border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.ach small { color: inherit; }
+.btn.primary, .page .btn.primary { background: var(--c-b14f32); }
+.page .hm-teal, .hm-teal { background: var(--c-2f7f7a); }

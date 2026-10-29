@@ -270,7 +270,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
       <main class="scroll pad">
         <section class="panel">
           <h3>Your stall</h3>
-          <input ref={nameRef} class="input" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
+          <input ref={nameRef} class="input" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
           <h3>Your shopkeeper</h3>
           <p class="small muted">One perk for the whole game. The computer stalls take the shopkeepers left over.</p>
           <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
@@ -291,7 +291,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
                 </div>
               ) : (
                 <>
-                  <input class="input" value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
+                  <input class="input" aria-label={`Name for stall ${i + 1}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
                   <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
                 </>
               )}
