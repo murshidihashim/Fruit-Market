@@ -1,7 +1,7 @@
 // Pixel-art props drawn in code: the Sunny Pickup lorry with a bunting roof, the market stall with a tiled roof and
 // sign, and the tile band that tops a stall panel (DEC-052, PLAN-038). Every shape is painted on a small grid and
-// gets a 1 px ink outline, like the sprites in pixel.tsx. The roof colour of a stall is a CSS variable (--awn),
-// so each player keeps their own colour.
+// gets a 1 px ink outline, like the sprites in pixel.tsx. Each sprite becomes one small SVG image (a data URI), so it
+// costs one element on the page, not hundreds (the game screen has a DOM budget). A stall's roof takes the player's colour.
 import { FRUIT } from '../engine/data';
 import { C } from './palette';
 
@@ -22,8 +22,8 @@ export function mix(h: string, t: string, a: number): string {
 const GREEND = mix(GREEN, INK, 0.35);
 
 /** The three roof tones a stall needs from its one colour. */
-export function roofVars(colour: string): Record<string, string> {
-  return { '--awn': colour, '--awn-l': mix(colour, C.paper, 0.28), '--awn-d': mix(colour, C.ink, 0.28) };
+function roofTones(colour: string): Record<string, string> {
+  return { 'var(--awn)': colour, 'var(--awn-l)': mix(colour, C.paper, 0.28), 'var(--awn-d)': mix(colour, C.ink, 0.28) };
 }
 const AWN = 'var(--awn)', AWN_L = 'var(--awn-l)', AWN_D = 'var(--awn-d)';
 
@@ -148,38 +148,35 @@ const BAND = paint(4, BAND_H, (d) => {
   d.X(6, 0, 3, AWN_D);
 });
 
-function Rects({ rects }: { rects: Rect[] }) {
-  return <>{rects.map((r) => <rect x={r.x} y={r.y} width={r.w} height={1} style={{ fill: r.c }} />)}</>;
+/** One sprite as a data-URI SVG. `tones` swaps the roof placeholders for a player's colours. */
+function toUrl(rects: Rect[], w: number, h: number, shadow: boolean, tones?: Record<string, string>): string {
+  const body = rects.map((r) => `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="1" fill="${tones?.[r.c] ?? r.c}"/>`).join('');
+  const sh = shadow ? `<rect x="3" y="${h}" width="${w - 6}" height="1" fill="rgba(43,36,56,0.22)"/>` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h + (shadow ? 1 : 0)}" shape-rendering="crispEdges">${body}${sh}</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
+const cache = new Map<string, string>();
+const memo = (key: string, make: () => string) => { let v = cache.get(key); if (!v) { v = make(); cache.set(key, v); } return v; };
 
 /** The lorry. Two frames are stacked; the wheels and flags swap between them while it moves (see styles.css). */
 export function LorrySprite() {
   return (
     <>
-      <svg class="a" viewBox={`0 0 ${LORRY_W} ${LORRY_H + 1}`} aria-hidden="true"><Rects rects={LORRY_A} /><rect x="3" y={LORRY_H} width={LORRY_W - 6} height="1" style={{ fill: 'rgba(43, 36, 56, 0.22)' }} /></svg>
-      <svg class="b" viewBox={`0 0 ${LORRY_W} ${LORRY_H + 1}`} aria-hidden="true"><Rects rects={LORRY_B} /><rect x="3" y={LORRY_H} width={LORRY_W - 6} height="1" style={{ fill: 'rgba(43, 36, 56, 0.22)' }} /></svg>
+      <img class="a" alt="" src={memo('lorry-a', () => toUrl(LORRY_A, LORRY_W, LORRY_H, true))} />
+      <img class="b" alt="" src={memo('lorry-b', () => toUrl(LORRY_B, LORRY_W, LORRY_H, true))} />
     </>
   );
 }
 
-/** A market stall; the roof takes its colour from --awn on a parent. Put the shopkeeper's portrait over STALL_FACE. */
-export function StallSprite({ scale = 2 }: { scale?: number }) {
+/** A market stall with its roof in the player's colour. Put the shopkeeper's portrait over STALL_FACE. */
+export function StallSprite({ colour, scale = 2 }: { colour: string; scale?: number }) {
   return (
-    <svg class="stall-art" viewBox={`0 0 ${STALL_W} ${STALL_H}`} width={STALL_W * scale} height={STALL_H * scale} aria-hidden="true"><Rects rects={STALL} /></svg>
+    <img class="stall-art" alt="" width={STALL_W * scale} height={STALL_H * scale} src={memo(`stall-${colour}`, () => toUrl(STALL, STALL_W, STALL_H, false, roofTones(colour)))} />
   );
 }
 
-/** The tiled roof band for the top of a stall panel. Colour from --awn. */
-export function RoofBand({ cls, scale = 2 }: { cls: string; scale?: number }) {
-  const id = `roof-band-${scale}`;
-  return (
-    <svg class={cls} width="100%" height={BAND_H * scale} aria-hidden="true" preserveAspectRatio="none">
-      <defs>
-        <pattern id={id} width={4 * scale} height={BAND_H * scale} patternUnits="userSpaceOnUse">
-          <g transform={`scale(${scale})`}><Rects rects={BAND} /></g>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#${id})`} />
-    </svg>
-  );
+/** The tiled roof band for the top of a stall panel, in the player's colour (one repeating background image). */
+export function RoofBand({ cls, colour, scale = 2 }: { cls: string; colour: string; scale?: number }) {
+  const url = memo(`band-${colour}`, () => toUrl(BAND, 4, BAND_H, false, roofTones(colour)));
+  return <div class={cls} aria-hidden="true" style={{ backgroundImage: `url("${url}")`, backgroundSize: `${4 * scale}px ${BAND_H * scale}px` }} />;
 }

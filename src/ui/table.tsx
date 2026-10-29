@@ -12,11 +12,11 @@ import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import { C } from './palette';
-import { LorrySprite, RoofBand, roofVars } from './propsArt';
+import { LorrySprite, RoofBand } from './propsArt';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
-const seat = (p: number) => roofVars(SEAT_COLOURS[p % SEAT_COLOURS.length]) as any;
+const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
   if (n <= 0) return null;
@@ -124,9 +124,9 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   const night = s.phase === 'evening';
   return (
-    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} style={seat(p)} data-a={`p${p}`}
+    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
-      <RoofBand cls="rs-awning" />
+      <RoofBand cls="rs-awning" colour={seatColour(p)} />
       <div class="rs-who">
         <span class="rs-face"><Face who={pl.avatar} size={26} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
         <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
@@ -150,8 +150,8 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
 export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
   const pl = s.players[p];
   return (
-    <div class="rival-drop" style={seat(p)} role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
-      <RoofBand cls="rs-awning" />
+    <div class="rival-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
+      <RoofBand cls="rs-awning" colour={seatColour(p)} />
       <div class="rd-head">
         <Face who={pl.avatar} size={30} />
         <b>{pl.name}{pl.name.endsWith('s') ? "'" : "'s"} stall</b>
@@ -198,8 +198,8 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const mine = loadColour();
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   return (
-    <div class={`my-stall ${active ? 'active' : ''}`} style={mine ? (roofVars(mine) as any) : seat(p)} data-a={`p${p}`}>
-      <RoofBand cls="ms-awning" />
+    <div class={`my-stall ${active ? 'active' : ''}`} data-a={`p${p}`}>
+      <RoofBand cls="ms-awning" colour={mine || seatColour(p)} />
       <div class="ms-head">
         <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
         <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>

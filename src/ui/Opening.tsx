@@ -4,7 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit, Face } from './art';
 import { C } from './palette';
-import { LorrySprite, StallSprite, roofVars } from './propsArt';
+import { LorrySprite, StallSprite } from './propsArt';
 
 const LENGTH_MS = 2600;
 const STALLS = [
@@ -35,8 +35,8 @@ export function Opening({ onDone }: { onDone: () => void }) {
         <div class="op-ground" />
         <div class="op-sign">Wholesale Market</div>
         {STALLS.map((s, i) => (
-          <div class={`op-stall op-s${i}`} style={roofVars(s.colour) as any}>
-            <StallSprite scale={2} />
+          <div class={`op-stall op-s${i}`}>
+            <StallSprite colour={s.colour} scale={2} />
             <div class="op-who"><Face who={s.who} size={34} /></div>
           </div>
         ))}
