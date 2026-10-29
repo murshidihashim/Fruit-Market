@@ -47,20 +47,20 @@
     {
       "id": "T1",
       "text": "Deck is 12 cards with two Scouts and no Good Riddance",
-      "result": "NOT RUN",
-      "evidence": "tests/scout.test.ts, run by CI"
+      "result": "PASS",
+      "evidence": "tests/scout.test.ts passed locally (133 of 133 tests), 2026-10-29"
     },
     {
       "id": "T2",
       "text": "Scout shows one walk-in to the player who played it and to nobody else",
-      "result": "NOT RUN",
-      "evidence": "tests/scout.test.ts, run by CI"
+      "result": "PASS",
+      "evidence": "tests/scout.test.ts passed locally (133 of 133 tests), 2026-10-29"
     },
     {
       "id": "T3",
       "text": "Scout is refused out of turn, in the wrong phase, or with no unseen walk-in",
-      "result": "NOT RUN",
-      "evidence": "tests/scout.test.ts, run by CI"
+      "result": "PASS",
+      "evidence": "tests/scout.test.ts passed locally (133 of 133 tests), 2026-10-29"
     },
     {
       "id": "T4",
