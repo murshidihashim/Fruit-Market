@@ -6,6 +6,7 @@ import { track } from '../../../net/telemetry';
 import { Face, FavourIcon, Fruit } from '../../art';
 import { markSeen, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
+import { FullScreenButton } from '../../FullScreenButton';
 import type { GameController } from '../useGameController';
 
 export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
@@ -76,6 +77,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
         <h2>Paused</h2>
         <p class="muted">Your game is saved automatically.</p>
         <button class="btn primary wide" onClick={() => setMenu(false)}>Resume</button>
+        <FullScreenButton />
         <button class="btn wide" onClick={onExit}>Quit to menu</button>
       </div>
     </div>

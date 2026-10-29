@@ -13,6 +13,8 @@ import { HowTo } from './HowTo';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
+import { FullScreenButton } from './FullScreenButton';
+import { fullscreenSupported, iphoneNeedsHomeScreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { fetchDaily, type BoardResult } from '../net/daily';
@@ -415,6 +417,8 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.patterns} set={(v) => upd({ patterns: v })} title="Freshness patterns" text="Stripes and dots as well as colours, for colour-blind players." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
+          <FullScreenButton />
+          {!fullscreenSupported() && iphoneNeedsHomeScreen() && <p class="muted small">For full screen on iPhone: tap Share, then Add to Home Screen, and open Fruit Market from there.</p>}
           <button class="btn wide" onClick={() => { resetTutorial(); fx.tap(); }}>Replay the tutorial next game</button>
         </section>
         <section class="panel">

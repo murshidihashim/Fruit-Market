@@ -1315,6 +1315,31 @@
       ],
       "plan": "PLAN-038",
       "reviewTrigger": "Owner looks at it on a phone: size of the lorry in the street, readability of the flags."
+    },
+    {
+      "id": "DEC-053",
+      "title": "Full-screen play option",
+      "question": "Can the game be played full screen?",
+      "choice": "A Full screen button in Settings and in the pause menu, where the browser supports it. On iPhone, which has no full-screen mode for web pages, Settings explains Add to Home Screen.",
+      "rationale": "Owner request: \"can we include an option to play the game full screen as well\".",
+      "impact": {
+        "player": "Tap Full screen to hide the browser bars; tap again or use the back gesture to leave.",
+        "technical": "New src/ui/fullscreen.ts and FullScreenButton; uses the Fullscreen API.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "can we include an option to play the game full screen as well",
+        "date": "2026-10-29"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-082"
+      ],
+      "plan": "PLAN-039",
+      "reviewTrigger": "Owner tries it on an Android phone and on an iPhone."
     }
   ],
   "history": [
@@ -1813,6 +1838,10 @@
     {
       "at": "2026-10-29 17:30",
       "text": "Owner chose tiles and sign for the stalls and the bunting roof for the Sunny Pickup lorry (DEC-052). Built as pixel-art props on branch workflow/plan-038-lorry-stalls; included in release candidate 1.2.0."
+    },
+    {
+      "at": "2026-10-29 18:10",
+      "text": "Owner asked for a full-screen option (DEC-053). Built on branch workflow/fullscreen and added to the 1.2.0 candidate."
     }
   ]
 }

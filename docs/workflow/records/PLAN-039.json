@@ -1,0 +1,56 @@
+{
+  "release": "1.2.0",
+  "build": "branch workflow/fullscreen",
+  "reports": [
+    "REP-082"
+  ],
+  "decisions": [
+    "DEC-053"
+  ],
+  "changes": {
+    "added": [
+      "Full screen button in Settings and the pause menu"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "can we include an option to play the game full screen as well",
+    "date": "2026-10-29"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-039",
+  "title": "Full-screen play option",
+  "problem": "The owner wants to play with the browser bars hidden.",
+  "scope": [
+    "Full screen button in Settings and the pause menu, shown only where the browser can do it",
+    "Settings note for iPhone (Add to Home Screen)"
+  ],
+  "exclusions": [
+    "Android app system bars",
+    "Asking for full screen automatically on load (browsers require a tap)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-10-29 (134 tests)"
+    },
+    {
+      "id": "T2",
+      "text": "The button enters and leaves full screen in a browser",
+      "result": "PASS",
+      "evidence": "Playwright: button shown, tap entered full screen, label changed to Exit full screen"
+    },
+    {
+      "id": "T3",
+      "text": "Works on a real Android phone and an iPhone",
+      "result": "NOT RUN",
+      "evidence": "Owner to try on the preview"
+    }
+  ]
+}
