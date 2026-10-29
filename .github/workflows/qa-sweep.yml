@@ -1,4 +1,4 @@
-# On request only (never on a push): layout and accessibility sweep at phone, tablet and desktop sizes,
+# On request, or on a push to a branch named qa/...: layout and accessibility sweep at phone, tablet and desktop sizes,
 # plus a bot soak test. Reads the game only; nothing is deployed. Results are kept as the "qa-sweep" artifact.
 name: QA sweep
 on:
@@ -23,6 +23,8 @@ jobs:
         run: node scripts/qa-sweep.cjs dist-single/index.html qa-output
       - name: Bot soak test
         run: npx vite-node scripts/soak.ts | tee qa-output/soak.txt
+      - name: Print kit card backs
+        run: node scripts/print-backs.cjs qa-output/print
       - name: Keep results
         if: always()
         uses: actions/upload-artifact@v4
