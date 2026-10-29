@@ -1703,6 +1703,10 @@
     {
       "at": "2026-10-29 09:00",
       "text": "Owner changed the opening (DEC-048): plays on launch, about 2.5 seconds. Supersedes the timing and trigger in DEC-047."
+    },
+    {
+      "at": "2026-10-29 11:24",
+      "text": "Owner asked for a reusable app workflow kit. Added tools/app-kit/ (app-steward agent, appkit.mjs records script, prompt pack, project templates). Documentation and tooling only; no game change."
     }
   ]
 }
