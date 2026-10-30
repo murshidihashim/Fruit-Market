@@ -125,11 +125,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
-        <li>Green mangoes cost $3 and need 2 nights to ripen, so buy them early. A Mango Craze only shows on the Tomorrow strip one day ahead.</li>
         <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
-        <li>A customer you couldn't fully serve comes back once the next day, and is served before the new arrivals.</li>
-        <li>On the last day, only buy ripe fruit you can sell today. The jam maker pays just $1 for leftovers, and green fruit can't be sold at all.</li>
-      </ul>
+        <li>A customer you couldn't fully serve comes back once the next day, and is served before the new arrivals.</li>      </ul>
     ),
   },
 ];
