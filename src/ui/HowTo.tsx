@@ -12,6 +12,16 @@ const DAY_BEATS = [
   ['Stocking', 'Choose what to put in your for-sale crate. Everyone sees the crates.'],
   ['The bell', 'Set one secret price per fruit. All prices flip over together.'],
   ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],
+  ['Evening', 'Play favour cards. After a Market Day, build one upgrade.'],
+  ['Night', 'All fruit ages one step. Spoiled fruit is thrown away.'],
+];
+
+const GAME_PHASES = [
+  ['Set-up', 'Pick a shopkeeper. Each stall starts with $10.'],
+  ['Ordinary days', 'Seven phases a day, from morning to night. Day 1 has no event.'],
+  ['Market Days', 'Days 3, 6, 9 and 12 bring one more customer and an upgrade that evening.'],
+  ['Closing Day', 'The last day. Customers pay $1 more, then the jam maker buys leftovers at $1 each.'],
+  ['Final count', 'Most cash wins. Ties go to the stall that sold more fruit.'],
 ];
 
 const SLIDES = [
@@ -62,17 +72,31 @@ const SLIDES = [
     ),
   },
   {
-    part: 'A day',
-    title: 'A day at the market',
+    part: 'The game',
+    title: 'The phases of a game',
     body: (
       <>
-        <p>Every day follows the same five steps. After that, evening and night wrap it up.</p>
+        <p>A game has five stages, from the first coin to the final count:</p>
+        <ol class="day-strip">
+          {GAME_PHASES.map(([name, text], k) => (
+            <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
+          ))}
+        </ol>
+      </>
+    ),
+  },
+  {
+    part: 'A day',
+    title: 'The seven phases of a day',
+    body: (
+      <>
+        <p>Every day runs through the same seven phases, in this order:</p>
         <ol class="day-strip">
           {DAY_BEATS.map(([name, text], k) => (
             <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p class="muted">In the evening you play favour cards and build upgrades. At night, all fruit ages one step.</p>
+        <p class="muted">Steps 1 to 5 are the market day. Evening and night are the wrap-up. The next sections take them in turn.</p>
       </>
     ),
   },
