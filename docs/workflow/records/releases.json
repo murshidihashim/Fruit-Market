@@ -29,7 +29,7 @@
         "PLAN-005"
       ],
       "notes": [
-        "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room…\", especially on slower phones or when the app was in the background",
+        "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room\u2026\", especially on slower phones or when the app was in the background",
         "Clearer group play: the online lobby shows how many of the 4 seats are taken and which are still open, and the menus explain that 2 to 4 people can play together, online or by passing one phone",
         "Behind the scenes: updates now reach players only after a preview and an owner's approval, with automatic checks before and after"
       ]
@@ -85,6 +85,20 @@
       "date": "2026-10-29",
       "commit": "f5f9390",
       "tagged": true
+    },
+    {
+      "version": "1.2.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-040",
+        "PLAN-041"
+      ],
+      "notes": [
+        "How to play is rewritten as seven short cards in the order the game is played, including the phases of a game and of a day",
+        "The first-game tips have a Skip tutorial button",
+        "Bad Harvest, Hotel Order and Fridge cards now say exactly what they do",
+        "In long games with 4 players, a favour card can no longer turn up a third time after the deck runs out"
+      ]
     }
   ]
 }

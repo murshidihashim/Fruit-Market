@@ -216,7 +216,7 @@ export const EVENT_CARDS: EventCard[] = [
     extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 4, max: 8 }] },
     text: 'Blueberries sell for $3 more, and the gym club wants 4.' },
   { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyPerTwo: 1, cost: -1, text: 'Farmers bring 1 extra of every fruit for every 2 stalls, and everything costs $1 less.' },
-  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 2, text: 'Farmers bring half as much (rounded up). Scarce fruit sells for $2 more.' },
+  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 2, text: 'Farmers bring half as much (rounded up). Customers pay $2 more per fruit.' },
   { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the Wholesale Market costs $1 more today.' },
   { id: 'minPrice', title: 'Minimum Price', icon: '⚖️', text: 'No stall may sell below these prices today.',
     minPrice: { watermelon: 5, apple: 5, mango: 6, blueberry: 4 } },
@@ -224,7 +224,7 @@ export const EVENT_CARDS: EventCard[] = [
   { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
   { id: 'hotel', title: 'Hotel Order', icon: '🏨',
     extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 7 }] },
-    text: 'A hotel chef places a big order today.' },
+    text: 'A hotel chef places a big order today: 3 apples, 2 watermelons and 2 blueberries.' },
 ];
 
 export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';
@@ -237,7 +237,7 @@ export const FAVOURS: Record<FavourId, FavourDef> = {
   priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'Play in the evening: you buy first tomorrow.' },
   scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Play on your buying turn: look at the front of one walk-in who arrives today. Everyone sees you played it, but not what you saw.' },
   favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'bid', text: 'Play while pricing: you win every tied price today.' },
-  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'All your fruit becomes one step fresher.' },
+  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'All your ripe fruit becomes one step fresher.' },
 };
 
 export const FAVOUR_DECK: FavourId[] = [

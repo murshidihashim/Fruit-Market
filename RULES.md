@@ -37,6 +37,7 @@ Have the **most cash** at the end of the last day. Fruit left on your shelf and 
 - 2 to 4 stalls. Each one is played by you, a friend on the same phone, or a computer player (Easy, Normal or Hard).
 - **Quick** is 8 days, **Standard** is 10 days and **Long** is 14 days.
 - Each stall starts with **$10**, a shelf of 8 spaces, and no favour cards.
+- With **2 stalls** there are no walk-ins on an ordinary day (players − 2), so only the regular comes, and Gossip and Scout have nothing to look at except on Market Days. Three or four stalls give a fuller market.
 
 ## The fruit
 
@@ -55,12 +56,30 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 - **Delivery cards (20):** each lists three fruits, 3 to 5 of each, printed for 3 stalls. The fruit not on the card arrives as 1. With **2 stalls**, take 1 less of each listed fruit (minimum 1); with **4 stalls**, add 1 of every fruit. Some cards mark one fruit as arriving unripe.
 - **Customer cards (36):** a name and up to three fruits, each with an amount and the most they pay for a *fresh* one. The back of each card shows the fruits they want.
-- **Event cards (13):** one is drawn each morning from Day 2 onward and shown a day early.
+- **Event cards (13):** one is drawn each morning from Day 2 onward and shown a day early. Mango Craze, Superfood Trend and Hotel Order bring a **guest card** (below).
+- **Guest cards (3):** the Influencer, the Gym Club and the Hotel Chef. A guest joins the customers at the end of the row on the day of its event and is served like any other customer.
 - **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. Hold up to 3 (4 with the Charmer perk).
+
+### Guest cards
+
+| Guest | Event | Wants (top price for a fresh one) |
+|---|---|---|
+| Influencer | Mango Craze | 3 mangoes at $11 |
+| Gym Club | Superfood Trend | 4 blueberries at $8 |
+| Hotel Chef | Hotel Order | 3 apples at $8, 2 watermelons at $8, 2 blueberries at $7 |
+
+The event's own price change still applies on top (a Mango Craze makes the Influencer's top price $14).
+
+### Decks running out
+
+- **Customers (36):** when the deck is empty, shuffle every customer card that is not on the table (not waiting, regular or walk-in) into a new deck. Most games never need it; a long 4-stall game sometimes does it once.
+- **Favour cards (12):** played cards go to a discard pile. When the deck is empty, shuffle the discard pile into a new deck. Cards in hands stay there. If a stall's hand is full, it draws nothing.
+- **Event cards (13):** a 14-day game uses all of them. If the deck is empty, shuffle all 13 again.
+- **Delivery cards (20):** a game never uses more than 15.
 
 ## The queue
 
-Each morning shows tomorrow on the **Tomorrow strip**: the next delivery card, the next event, one **regular** face up, and the **walk-ins** face down. Walk-ins show only the fruit on their card backs.
+Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and tomorrow's event. When today's crowd turns face up (the moment buying ends), draw tomorrow's **regular** face up and tomorrow's **walk-ins** face down. Walk-ins show only the fruit on their card backs. On Day 1, draw the first regular and walk-ins during set-up. Together these make the **Tomorrow strip**.
 
 - Walk-ins per day: **players − 2**, every day of the game.
 - **Market Day:** one more walk-in (see below). The lorry still comes.
@@ -70,24 +89,24 @@ Each morning shows tomorrow on the **Tomorrow strip**: the next delivery card, t
 ### 1. Morning
 1. Apply today's **event**.
 2. The farmer's lorry unloads today's card at the freshest position (or the unripe position). The lorry comes every day, Market Days included.
-3. Draw tomorrow's delivery card, event and queue for the Tomorrow strip.
+3. Draw tomorrow's delivery card and event for the Tomorrow strip.
 
 ### 2. Buying
 Each stall buys **up to 4 pieces of fruit** (5 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (12 with a Handcart). **The poorest stall buys first** (ties go round the table; Day 1 is random). A Priority favour jumps the queue.
 
 ### 3. Stocking
-Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly chooses how many of each ripe fruit to put in its **for-sale crate**; then all crates are shown at once. Fruit you keep back stays on your shelf.
+Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly chooses how many of each ripe fruit to put in its **for-sale crate**, by setting a number on its stall sheet; then all crates are shown at once. The crate is a number: the pieces stay on your shelf, and fruit you keep back stays too.
 
 ### 4. The bell
 Each stall secretly sets **one price per fruit** it put out, then everyone reveals together.
 
-- **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, your **oldest fruit that is fresh enough for your price** goes first.
+- **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, your **oldest fruit that is fresh enough for your price** goes first, taken from your whole shelf, up to the number in your crate.
 - There is **no lower limit** (except on a Minimum Price day).
 
 ### 5. The rush
 Customers buy in queue order: waiting customers first, then new ones. For each fruit a customer wants, they buy from the **cheapest stall** that has fruit fresh enough for its price; leftover demand **spills to the next stall**.
 
-- **Ties:** Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today. (Today's buying order was set at dawn, poorest stall first. Cash is not used, because it changes while customers are paid.)
+- **Ties:** Favoured Trade, then the Haggler, then fresher fruit (compare the age of the freshest piece each stall would hand over to this customer: the younger piece wins, so a piece of age 0 beats a piece of age 2 even though both are fresh), then whoever bought earlier today. (Today's buying order was set at dawn, poorest stall first. Cash is not used, because it changes while customers are paid.)
 - You're paid as soon as you sell.
 - **Favours:** serve a customer's entire remaining order by yourself and draw a favour card (at most one per day).
 - A new customer who doesn't get everything comes back tomorrow as *waiting*. A waiting customer leaves after today either way.
@@ -113,13 +132,13 @@ Market Days and Closing Day are on by default and can be switched off in the set
 | 🍎 Apple Blight | No apples arrive today, and apple customers pay $1 more. |
 | 📱 Mango Craze | Mangoes sell for $3 more, and an influencer wants 3. |
 | 💪 Superfood Trend | Blueberries sell for $3 more, and the gym club wants 4. |
-| 🌾 Good Harvest | Farmers bring 1 extra of every fruit for every 2 stalls, and everything costs $1 less. |
-| 🐛 Bad Harvest | Farmers bring half as much (rounded up). Fruit sells for $2 more. |
+| 🌾 Good Harvest | Farmers bring 1 extra of every fruit for every 2 stalls (rounded up: 2 stalls +1, 3 stalls +2, 4 stalls +2), and everything costs $1 less. |
+| 🐛 Bad Harvest | Farmers bring half as much of each fruit (rounded up). Customers pay $2 more per fruit. |
 | 📈 Price Hike | Every fruit at the Wholesale Market costs $1 more. |
 | ⚖️ Minimum Price | Nobody may sell below: watermelon $5, apple $5, mango $6, blueberry $4. |
-| 🕵️ Health Inspector | Tonight every stall pays $2 for each tired fruit on its shelf. Never the last day's event. |
+| 🕵️ Health Inspector | Tonight every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). Never the last day's event. |
 | 🚚 Lorry Breakdown | No farmer delivery today. |
-| 🏨 Hotel Order | A hotel chef wants 3 apples, 2 watermelons and 2 blueberries. |
+| 🏨 Hotel Order | A hotel chef wants 3 apples, 2 watermelons and 2 blueberries (see the guest card). |
 
 ## Favour cards (2 of each)
 
@@ -128,7 +147,7 @@ Market Days and Closing Day are on by default and can be switched off in the set
 | 👂 Gossip | Evening | Secretly look at the front of every face-down walk-in in tomorrow's queue. Don't show anyone; everyone sees that you played it. |
 | 🎁 Free Fruit | Your buying turn | Take any one fruit from the Wholesale Market for free. |
 | 🔍 Scout | Your buying turn | Look at the front of one face-down walk-in who arrives today. Everyone sees you played it, but not what you saw. |
-| 🧊 Fridge | Your buying turn | All your ripe fruit moves one step fresher. |
+| 🧊 Fridge | Your buying turn | All your ripe fruit moves one step fresher. Green fruit does not ripen faster. |
 | 🤝 Favoured Trade | At the bell | You win every tied price today. |
 | ⏩ Priority | Evening | You buy first tomorrow. |
 
@@ -163,7 +182,7 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 | Option | Effect |
 |---|---|
 | Basic game | No shopkeepers, perks, favour cards or upgrades: just buying, stalls and the bell. |
-| Fixed prices (beginner) | Every customer pays one fixed price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Cards with the "generous" icon pay $2 more. |
+| Fixed prices (beginner) | Every customer pays one fixed price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Generous customers pay $2 more. The 12 generous customers are numbers 1, 6, 10, 11, 15, 17, 19, 22, 24, 33, 34 and 36 in the customer card list (Rancher John, Delivery Rider Ravi, Magician Kumar, Rockstar Grace, Dr Priya, Photographer Sarah, Dancing Lina, Engineer Vijay, Firefighter Osman, Baker Lakshmi, Judoka Kenji and Uncle Hock Seng). |
 | Price drift (advanced) | After each day, a fruit that ran short gets a +$1 price marker (up to +$2); a fruit with a glut at the market gets −$1 (down to −$1); otherwise the marker drifts back to 0. |
 
 ## Playing on a table
@@ -172,7 +191,11 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Order of customers.** Lay the customer cards in one row, always in this order: waiting customers (yesterday's unserved), the regular, the walk-ins in the order they were drawn, then a special guest such as the Hotel Chef. Serve them left to right.
 
-**The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies, at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies.
+**The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies, at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
+
+**Money.** Use paper notes, not coins: in computer games a single stall peaked at $299 and all four together at $940. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
+
+**The stall sheet and screen.** Each stall has one printed sheet with a shelf, a *crate* number box per fruit, and a *price* row per fruit ($1 to $16). Put a marker on a number to set it. Fold the card screen in front of the sheet so rivals cannot see. Set crate numbers, show them all at once, then set prices behind the screen and lift all screens together at the bell.
 
 **Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
 
@@ -180,9 +203,13 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **The sole-supplier cube.** The first stall to sell to a customer puts a cube of its colour on the card. If a second stall sells to the same customer, the cube comes off. When the order is complete, a cube left on the card means that stall served it alone: it draws a favour card (and a Tip Jar takes its $4 tip).
 
-**Dawn line-up.** At dawn every stall puts its cash in a pile in front of it. Stall tokens line up on a queue strip, fewest coins first, ties starting from the first-player token. Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
+**First-player token.** On Day 1 give it to a random stall. It moves one seat clockwise every night.
+
+**Dawn line-up.** At dawn every stall puts its cash in a pile in front of it. Stall tokens line up on a queue strip, fewest coins first, ties starting from the first-player token (on Day 1 the buying order is simply the seats from the token, not by cash). Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
 
 **Evening.** Keep favour cards face down in front of you, so everyone can count them. Only stalls holding a card, or with an upgrade on offer after a Market Day, take an evening turn, in line-up order.
+
+**Two ways to track age.** On the printed mat, tokens slide one slot per night and each slot shows how fresh the fruit is. With day chips, the piles keep still. Both give the same ages. The rest of this section describes chips, which also work on a stall's own shelf.
 
 **Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became fresh. A pile's **age** is the clock number minus its chip. A fruit bought **unripe** gets the chip of the clock number on which it ripens (the clock number now plus 1 for watermelon, plus 2 for mango); it is green until the clock reaches that number.
 

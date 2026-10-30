@@ -431,7 +431,7 @@
       },
       "approval": {
         "status": "approved",
-        "evidence": "1. Where is this market? C: a deliberate “the whole world shops here” mix.",
+        "evidence": "1. Where is this market? C: a deliberate \u201cthe whole world shops here\u201d mix.",
         "date": "2026-10-26"
       },
       "delivery": "implemented",
@@ -1340,6 +1340,56 @@
       ],
       "plan": "PLAN-039",
       "reviewTrigger": "Owner tries it on an Android phone and on an iPhone."
+    },
+    {
+      "id": "DEC-054",
+      "title": "How to play rework and skippable tutorial",
+      "question": "How should How to play flow, and can the tutorial be skipped?",
+      "choice": "Seven cards in game order: overview with the phases of a game, the seven phases of a day, the four fruits, the rush, evening and night, Market Days and Closing Day, tips. A Skip tutorial button on every first-game tip.",
+      "rationale": "Owner request: \"i dont like the current flow/and what is included ... make the tutorial skippable please\", then \"it also needs to outline what phases are there in the game\" and \"1 (but include details from 4) 5 3 8 9 11 12\".",
+      "impact": {
+        "player": "A clearer first read of the game, and the tutorial tips can be skipped in one tap (Settings can replay them).",
+        "technical": "src/ui/HowTo.tsx, src/ui/tutorial.ts, Popovers.tsx and styles.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"it also needs to outline what phases are there in the game\"; \"1 (but include details from 4) 5 3 8 9 11 12\"",
+        "date": "2026-10-30"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-083"
+      ],
+      "plan": "PLAN-040",
+      "reviewTrigger": "Owner reads it on the preview and at the first table test."
+    },
+    {
+      "id": "DEC-055",
+      "title": "Tabletop review fixes",
+      "question": "Can everything in the game be done on a tabletop?",
+      "choice": "Fix the gaps found in the review: missing guest cards, rules wording, card text, a favour deck that reshuffles only played cards, and new print pieces (stall sheet and screen, paper money, guest cards).",
+      "rationale": "Owner request: \"ensure that everything can be done on a tabletop\"; answered \"Yes, fix all\".",
+      "impact": {
+        "player": "Hotel Chef, Influencer and Gym Club orders are printed; Bad Harvest and Fridge cards say what they do; in long 4-player games a favour card can no longer appear a third time.",
+        "technical": "drawFavour in src/engine/game.ts; card text in data.ts; RULES.md; the Drive print kit.",
+        "data": "Rules version stays 6. Only the favour deck after it runs out changes (about 1 game in 6 draws the whole deck)."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Yes, fix all",
+        "date": "2026-10-30"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-084"
+      ],
+      "plan": "PLAN-041",
+      "reviewTrigger": "Owner reads it on the preview and at the first table test."
     }
   ],
   "history": [
@@ -1521,7 +1571,7 @@
     },
     {
       "at": "2026-10-27 01:46",
-      "text": "Owner: tap a rival's name in the buying phase to expand their stall tracker and see freshness. Added to the Buying mockup: tapping Foxy Rosa or Patches opens a drop-down decay tracker of their stall (same columns and colours as the market, counts per slot, a one-line summary); tap again or × to close. Shows only what the current game already shows about rival stock (no prices or choices). Version 21."
+      "text": "Owner: tap a rival's name in the buying phase to expand their stall tracker and see freshness. Added to the Buying mockup: tapping Foxy Rosa or Patches opens a drop-down decay tracker of their stall (same columns and colours as the market, counts per slot, a one-line summary); tap again or \u00d7 to close. Shows only what the current game already shows about rival stock (no prices or choices). Version 21."
     },
     {
       "at": "2026-10-27 01:48",
@@ -1846,6 +1896,10 @@
     {
       "at": "2026-10-29 21:05",
       "text": "Release 1.2.0 published (Deploy LIVE game on main f5f9390, started by Claude at the owner's explicit request; smoke test passed; tag v1.2.0)."
+    },
+    {
+      "at": "2026-10-30 15:30",
+      "text": "Owner asked for a How to play rework with a skippable tutorial (DEC-054), then a tabletop review with fixes (DEC-055). Built on branch feat/how-to-play-rework as release 1.2.1 candidate; publishing stays with the owner."
     }
   ]
 }

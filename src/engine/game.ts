@@ -313,9 +313,17 @@ function drawEvent(s: GameState): EventCard {
   return EVENT_CARDS[s.eventDeck.shift()!];
 }
 
-function drawFavour(s: GameState): FavourId {
-  if (s.favourDeck.length === 0) s.favourDeck = withRng(s, (r) => r.shuffle([...FAVOUR_DECK]));
-  return s.favourDeck.shift()!;
+/** Next favour card. When the deck runs out, the played cards are shuffled back in (cards still in hands stay there), as on a table. */
+function drawFavour(s: GameState): FavourId | null {
+  if (s.favourDeck.length === 0) {
+    const pool = [...FAVOUR_DECK];
+    for (const held of s.players.flatMap((p) => p.favours)) {
+      const k = pool.indexOf(held);
+      if (k >= 0) pool.splice(k, 1);
+    }
+    s.favourDeck = withRng(s, (r) => r.shuffle(pool));
+  }
+  return s.favourDeck.shift() ?? null;
 }
 
 function ageFruit(stock: Stock, f: FruitId, steps: number): number {
@@ -337,7 +345,7 @@ function applyTrait(s: GameState, p: number, t: TraitId) {
   const pl = s.players[p];
   pl.trait = t;
   if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
-  if (t === 'charmer') pl.favours.push(drawFavour(s), drawFavour(s), drawFavour(s));
+  if (t === 'charmer') for (let k = 0; k < 3; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
   s.dayStartCash = s.players.map((x) => x.cash);
   s.log.push(`${pl.name} is a ${TRAITS[t].title}`);
 }
@@ -774,9 +782,11 @@ function resolve(s: GameState) {
         // At most one favour card per shop per day (none in the core market).
         if (!s.config.core && pl.favours.length < handLimit(pl) && !res.favours.some((x) => x.player === p)) {
           const fav = drawFavour(s);
-          pl.favours.push(fav);
-          pl.stats.favours++;
-          res.favours.push({ player: p, customer: c.name, favour: fav });
+          if (fav) {
+            pl.favours.push(fav);
+            pl.stats.favours++;
+            res.favours.push({ player: p, customer: c.name, favour: fav });
+          }
         }
       }
     }

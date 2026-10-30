@@ -1,0 +1,62 @@
+{
+  "release": "1.2.1",
+  "build": "branch feat/how-to-play-rework",
+  "reports": [
+    "REP-084"
+  ],
+  "decisions": [
+    "DEC-055"
+  ],
+  "changes": {
+    "added": [
+      "Guest cards, stall sheet and screen, and paper money in the print kit"
+    ],
+    "changed": [
+      "Bad Harvest, Hotel Order and Fridge card wording now matches what the game does",
+      "Rules wording for ties, decks and the first-player token"
+    ],
+    "fixed": [
+      "The favour deck could give a third copy of a favour card after it ran out"
+    ],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "owner: \"Yes, fix all\"",
+    "date": "2026-10-30"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-041",
+  "title": "Tabletop review fixes",
+  "problem": "The rules, the game and the printed kit disagreed in places, so some rules could not be played by hand.",
+  "scope": [
+    "Rules: guest cards, decks running out, customers drawn a day ahead, the crate is a number, tie-break by age, first-player token, money, stall sheet, list of generous customers, 2-stall note",
+    "Card text: Bad Harvest, Hotel Order, Fridge",
+    "Favour deck reshuffles only played cards, like a table",
+    "Print kit: Table_Extras (guest cards, stall sheet, screen, paper money), updated event cards and playtest pack"
+  ],
+  "exclusions": [
+    "Changing any price, supply or customer number"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-10-30 (135 tests, including a new favour-deck test that fails on the old code)"
+    },
+    {
+      "id": "T2",
+      "text": "Printed Table_Extras read correctly",
+      "result": "PASS",
+      "evidence": "pages rendered and checked on screen; not printed on paper"
+    },
+    {
+      "id": "T3",
+      "text": "A table game played with the new pieces",
+      "result": "NOT RUN",
+      "evidence": "Owner first table test"
+    }
+  ]
+}
