@@ -4,7 +4,7 @@ import { FAVOURS, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { Face, FavourIcon, Fruit } from '../../art';
-import { markSeen, type Tip } from '../../tutorial';
+import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
 import type { GameController } from '../useGameController';
@@ -28,7 +28,10 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
     <div class={`coach ${c.s.phase === 'bid' || c.s.phase === 'stall' ? 'top' : ''}`} role="note">
       <b>{coach.title}</b>
       <span>{coach.text}</span>
-      <button class="btn small" onClick={(e) => { e.stopPropagation(); markSeen(coach.id); track('tutorial', coach.id); c.setTipTick((n) => n + 1); }}>Got it</button>
+      <div class="coach-btns">
+        <button class="btn small skip" onClick={(e) => { e.stopPropagation(); skipTutorial(); track('tutorial', 'skip'); c.setTipTick((n) => n + 1); }}>Skip tutorial</button>
+        <button class="btn small" onClick={(e) => { e.stopPropagation(); markSeen(coach.id); track('tutorial', coach.id); c.setTipTick((n) => n + 1); }}>Got it</button>
+      </div>
     </div>
   )}
 

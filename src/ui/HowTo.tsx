@@ -1,55 +1,52 @@
-// Illustrated rules, one swipe-able card per idea.
+// Illustrated rules, one swipe-able card per idea. The order follows the game: what it is, what you
+// sell, how a day runs, how customers choose, what you can build, and how it ends.
 import { useState } from 'preact/hooks';
-import { FRUIT, FRUITS, FAVOURS, UPGRADES, stageAt } from '../engine/data';
+import { FRUIT, FRUITS, FAVOURS, UPGRADES, TRAITS, stageAt } from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { UP_ICON } from './panel';
 
+const DAY_BEATS = [
+  ['Morning', 'The lorry unloads fruit at the Wholesale Market. An event card changes the day.'],
+  ['Buying', 'Each stall buys up to 4 pieces. The poorest stall goes first.'],
+  ['Stocking', 'Choose what to put in your for-sale crate. Everyone sees the crates.'],
+  ['The bell', 'Set one secret price per fruit. All prices flip over together.'],
+  ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],
+];
+
 const SLIDES = [
   {
-    title: 'The big idea',
+    part: 'The game',
+    title: 'Buy fruit. Sell it before it rots.',
     body: (
       <>
-        <p>Fruit Market is a game of <b>timing and nerve</b>. Three things pull against you every day:</p>
+        <p>You run a fruit stall in a busy market. Every day you <b>buy</b> fruit from the farmers, then <b>sell</b> it to the town's customers, in competition with 1 to 3 rival stalls.</p>
+        <div class="demo-row"><Coin size={34} /><span class="big-num">$10</span><span class="muted">each stall starts with</span></div>
+        <p><b>Most cash after the last day wins.</b> Fruit left on your shelf at the end is worth nothing, so the whole game is turning fruit into cash at the right moment.</p>
+        <p class="muted">A game lasts 8, 10 or 14 days.</p>
+      </>
+    ),
+  },
+  {
+    part: 'The game',
+    title: 'Three things pull against you',
+    body: (
+      <>
         <ul class="tips">
           <li><b>The clock.</b> Fruit gets older every night, and old fruit sells for less, then not at all.</li>
-          <li><b>The secret price.</b> You only see your rivals' prices at the bell. Too high and the customer walks past; too low and you give money away.</li>
-          <li><b>The rival's crate.</b> You see what each stall puts out before prices are set. If a rival is short of apples, you can charge more.</li>
+          <li><b>The secret price.</b> You only see your rivals' prices at the bell. Too high and the customer walks past you. Too low and you give money away.</li>
+          <li><b>The rivals' crates.</b> Before prices are set, you can see how much of each fruit every stall is selling. If a rival is short of apples, you can charge more.</li>
         </ul>
         <p>You don't need to win every sale. Often the winner threw away the least fruit and stayed brave when the others didn't.</p>
       </>
     ),
   },
   {
-    title: 'One customer, start to finish',
+    part: 'Your stock',
+    title: 'Four fruits, four personalities',
     body: (
       <>
-        <p>Hafiz wants <b>5 blueberries</b> and pays up to <b>$6</b> for a fresh one ($5 okay, $4 tired).</p>
-        <div class="demo-ex">
-          <div><b>Stall A</b> 3 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
-          <div><b>Stall B</b> 2 okay <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
-          <div><b>Stall C</b> 4 fresh <Fruit id="blueberry" size={18} /> asks <b>$6</b></div>
-        </div>
-        <p>Hafiz buys from the <b>cheapest stall</b> first. B sells 2 at $4. A sells the other 3 at $5. His order is full, so C sells nothing, even though its fruit was fresh.</p>
-        <p>Two stalls served him, so nobody draws a favour card. A stall that serves a whole order <b>alone</b> does.</p>
-      </>
-    ),
-  },
-  {
-    title: 'Run the best fruit stall',
-    body: (
-      <>
-        <p>You and your rivals buy fruit from the farmers and sell it to customers.</p>
-        <p><b>The richest stall after the last day wins.</b> Fruit left on your shelf at the end is worth nothing.</p>
-        <div class="demo-row"><Coin size={34} /><span class="big-num">$10</span><span class="muted">to start</span></div>
-      </>
-    ),
-  },
-  {
-    title: 'Every fruit ages differently',
-    body: (
-      <>
-        <p>Every night all fruit gets one step older. Every fruit follows one rule: full price when <b>fresh</b>, <b>$1 less</b> when okay, <b>$2 less</b> when tired. Fruits differ in how long they last. Oldest is on the left; past the last step, it spoils.</p>
+        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>tired</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for tired. The oldest step is on the left.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <div class="demo-track">
@@ -60,50 +57,107 @@ const SLIDES = [
             <small>{FRUIT[f].theme}</small>
           </div>
         ))}
+        <p class="muted">Fresh fruit costs more to buy, but customers pay more for it.</p>
       </>
     ),
   },
   {
-    title: 'Dawn and market',
+    part: 'A day',
+    title: 'A day at the market',
     body: (
       <>
-        <p>The lorry unloads, and an <b>event card</b> changes the day. The <b>Tomorrow strip</b> shows tomorrow's lorry, event, one regular, and the walk-ins face down (you see only the fruit they want).</p>
-        <p>Taking turns, each stall buys <b>up to 4 pieces of fruit</b>. <b>The poorest stall buys first.</b></p>
+        <p>Every day follows the same five steps. After that, evening and night wrap it up.</p>
+        <ol class="day-strip">
+          {DAY_BEATS.map(([name, text], k) => (
+            <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
+          ))}
+        </ol>
+        <p class="muted">In the evening you play favour cards and build upgrades. At night, all fruit ages one step.</p>
       </>
     ),
   },
   {
-    title: 'Stocking, then the bell',
+    part: 'A day',
+    title: '1 and 2. Morning, then buying',
     body: (
       <>
-        <p>Customers arrive. Each stall secretly fills its <b>for-sale crate</b>; then everyone sees how many each stall put out.</p>
-        <p>Then each stall sets <b>one secret price per fruit</b>. At the bell, all prices show together.</p>
-        <p>In the <b>rush</b>, customers buy from the <b>cheapest stall</b> first; leftover demand spills to the next. Ties: Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today (the poorest stall buys first).</p>
-        <p>A customer who doesn't get everything comes back once more the next day, then leaves.</p>
+        <p>The lorry unloads, and an <b>event card</b> changes the day (a festival, a heatwave, a lorry breakdown). The <b>Tomorrow strip</b> shows tomorrow's lorry, tomorrow's event, one regular customer, and the walk-ins face down. You only see the fruit they want.</p>
+        <p>Then you take turns buying from the Wholesale Market, <b>up to 4 pieces each</b>. <b>The poorest stall buys first</b>, which helps whoever is behind.</p>
+        <ul class="tips">
+          <li>Look at the customers' speech bubbles. Buy what people want.</li>
+          <li>Your shelf holds 8, so don't over-buy.</li>
+        </ul>
       </>
     ),
   },
   {
+    part: 'A day',
+    title: '3 and 4. Stocking, then the bell',
+    body: (
+      <>
+        <p>Customers arrive. Each stall secretly chooses how much of each fruit to put in its <b>for-sale crate</b>. Fruit you hold back stays on your shelf. Then every crate is shown, and you can see what your rivals are offering.</p>
+        <p>Next, set <b>one secret price per fruit</b>. At the bell, all prices flip over together.</p>
+        <ul class="tips">
+          <li>A customer pays at most their price for fresh fruit, $1 less for okay, $2 less for tired. You can charge anything lower.</li>
+          <li>Your oldest fruit that is still fresh enough for your price is sold first.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    part: 'A day',
+    title: '5. The rush',
+    body: (
+      <>
+        <p>Hafiz wants <b>5 blueberries</b> and pays up to <b>$6</b> for a fresh one ($5 okay, $4 tired).</p>
+        <div class="demo-ex">
+          <div><b>Stall A</b> 3 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
+          <div><b>Stall B</b> 2 okay <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
+          <div><b>Stall C</b> 4 fresh <Fruit id="blueberry" size={18} /> asks <b>$6</b></div>
+        </div>
+        <p>Hafiz buys from the <b>cheapest stall</b> first. B sells 2 at $4. A sells the other 3 at $5. His order is full, so C sells nothing, even though its fruit was fresh.</p>
+        <p>If two stalls ask the same price, the tie goes to Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today. A customer who isn't fully served comes back once more the next day, then leaves.</p>
+      </>
+    ),
+  },
+  {
+    part: 'A day',
+    title: 'Evening and night',
+    body: (
+      <>
+        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (one a day). Play it when its card says: in your buying turn, at the bell, or in the evening.</p>
+        <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
+        <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins and <b>Scout</b> lets you peek at one of today's. Cash is your score, so spend it only where it pays you back.</p>
+        <p>Then night falls: <b>all fruit ages one step</b>, and anything past tired spoils and is thrown away.</p>
+      </>
+    ),
+  },
+  {
+    part: 'Your edge',
+    title: 'Shopkeepers and upgrades',
+    body: (
+      <>
+        <p>Before the game, each stall picks a <b>shopkeeper</b>. Each has one perk for the whole game, and everyone can see it. No two stalls can be the same shopkeeper.</p>
+        <div class="demo-chips">{Object.values(TRAITS).map((t) => <span class="chip">{t.title}</span>)}</div>
+        <p>After each Market Day (days 3, 6, 9 and 12), you may build <b>one stall upgrade</b>. Each costs cash and changes how you play:</p>
+        <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
+        <p class="muted">Upgrades are worth nothing at the end. Build one only if it earns back more than it costs.</p>
+      </>
+    ),
+  },
+  {
+    part: 'The finish',
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in. The lorry still comes.</p>
-        <p>On the <b>final day</b>, customers pay $1 more, and then the jam maker buys leftover fruit for $1 each.</p>
+        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in joins the crowd, and you can build an upgrade that evening.</p>
+        <p>On the <b>final day</b>, customers pay $1 more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for $1 each. That's the last chance to turn fruit into cash.</p>
+        <p><b>Most cash wins.</b> If you tie, the stall that sold more fruit wins.</p>
       </>
     ),
   },
   {
-    title: 'Favours and upgrades',
-    body: (
-      <>
-        <p>Serve a customer's <b>whole order by yourself</b> to draw a secret favour card:</p>
-        <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
-        <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins, and <b>Scout</b> lets you peek at one of today's. After each Market Day, build one stall upgrade:</p>
-        <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
-      </>
-    ),
-  },
-  {
+    part: 'The finish',
     title: 'Tips from the market',
     body: (
       <ul class="tips">
@@ -112,7 +166,6 @@ const SLIDES = [
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
         <li>Green mangoes cost $3 and ripen in 2 nights. Buy them before a Mango Craze!</li>
         <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
-        <li>Pick a shopkeeper before the game. Each shopkeeper has one perk for the whole game, and everyone can see it.</li>
         <li>Customers want more as the town grows, so later days are busier.</li>
         <li>On the last day, don't buy anything you can't sell today.</li>
       </ul>
@@ -125,9 +178,10 @@ export function HowTo({ onDone }: { onDone: () => void }) {
   const s = SLIDES[i];
   return (
     <div class="page howto">
-      <header class="topbar"><button class="icon-btn" onClick={onDone}>✕</button><div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
+      <header class="topbar"><button class="icon-btn" onClick={onDone} aria-label="Close">✕</button><div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
       <main class="scroll pad">
         <section class="panel slide" key={i}>
+          <small class="slide-part">{s.part}</small>
           <h2>{s.title}</h2>
           {s.body}
         </section>

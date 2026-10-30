@@ -25,6 +25,11 @@ export function markSeen(id: string) {
   try { localStorage.setItem(KEY, JSON.stringify([...new Set([...load(), id])])); } catch { /* ignore */ }
 }
 
+/** Turn the coach off for good: every later tip stays hidden until the tutorial is replayed from Settings. */
+export function skipTutorial() {
+  markSeen('day2');
+}
+
 export function resetTutorial() {
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
 }
