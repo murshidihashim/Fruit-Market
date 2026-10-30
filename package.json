@@ -1,6 +1,6 @@
 {
   "name": "fruit-market",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Fruit Market: buy fresh, sell fast, undercut your rivals.",
   "scripts": {
     "dev": "vite",
