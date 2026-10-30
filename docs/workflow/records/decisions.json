@@ -1359,7 +1359,7 @@
         "evidence": "\"it also needs to outline what phases are there in the game\"; \"1 (but include details from 4) 5 3 8 9 11 12\"",
         "date": "2026-10-30"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-083"
       ],
@@ -1384,7 +1384,7 @@
         "evidence": "Yes, fix all",
         "date": "2026-10-30"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-084"
       ],
@@ -1900,6 +1900,10 @@
     {
       "at": "2026-10-30 15:30",
       "text": "Owner asked for a How to play rework with a skippable tutorial (DEC-054), then a tabletop review with fixes (DEC-055). Built on branch feat/how-to-play-rework as release 1.2.1 candidate; publishing stays with the owner."
+    },
+    {
+      "at": "2026-10-30 17:30",
+      "text": "Release 1.2.1 published (Deploy LIVE game on main ed8122f, started by Claude at the owner's explicit request; smoke test passed; tag v1.2.1)."
     }
   ]
 }

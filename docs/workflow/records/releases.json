@@ -88,7 +88,7 @@
     },
     {
       "version": "1.2.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-040",
         "PLAN-041"
@@ -98,7 +98,10 @@
         "The first-game tips have a Skip tutorial button",
         "Bad Harvest, Hotel Order and Fridge cards now say exactly what they do",
         "In long games with 4 players, a favour card can no longer turn up a third time after the deck runs out"
-      ]
+      ],
+      "date": "2026-10-30",
+      "commit": "ed8122f",
+      "tagged": true
     }
   ]
 }

@@ -25,7 +25,7 @@
     "evidence": "owner: \"make the tutorial skippable please\"; \"it also needs to outline what phases are there in the game\"; \"1 (but include details from 4) 5 3 8 9 11 12\"",
     "date": "2026-10-30"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-040",
   "title": "How to play rework and skippable tutorial",
   "problem": "The owner finds the How to play flow and content do not tell the full gist of the game, and the first-game tutorial cannot be skipped.",
