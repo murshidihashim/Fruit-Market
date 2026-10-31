@@ -12,7 +12,8 @@ import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import { C } from './palette';
-import { LorrySprite, RoofBand } from './propsArt';
+import { LorrySprite, PropSprite, RoofBand } from './propsArt';
+import { worn, wornParts, wornStall } from './looks';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
@@ -193,15 +194,19 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 
 // ---------- your stall ----------
 
-export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
+export function MyStall({ s, p, onCard, flashCards, board, looks }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board; looks?: boolean }) {
   const pl = s.players[p];
   const mine = loadColour();
+  // Looks the player has earned (looks.ts) show on their own stall and shopkeeper only.
+  const w = looks ? worn() : {};
+  const stall = wornStall(w);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   return (
-    <div class={`my-stall ${active ? 'active' : ''}`} data-a={`p${p}`}>
-      <RoofBand cls="ms-awning" colour={mine || seatColour(p)} />
+    <div class={`my-stall ${active ? 'active' : ''} ${stall.prop ? 'has-prop' : ''}`} data-a={`p${p}`}>
+      <RoofBand cls="ms-awning" colour={mine || seatColour(p)} roof={stall.roof} trim={stall.trim} />
+      {stall.prop && <PropSprite id={stall.prop} size={30} />}
       <div class="ms-head">
-        <span class="ms-face"><Face who={pl.avatar} size={30} /></span>
+        <span class="ms-face"><Face who={pl.avatar} size={30} worn={wornParts(w)} /></span>
         <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
         <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>

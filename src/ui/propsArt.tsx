@@ -175,8 +175,99 @@ export function StallSprite({ colour, scale = 2 }: { colour: string; scale?: num
   );
 }
 
-/** The tiled roof band for the top of a stall panel, in the player's colour (one repeating background image). */
-export function RoofBand({ cls, colour, scale = 2 }: { cls: string; colour: string; scale?: number }) {
-  const url = memo(`band-${colour}`, () => toUrl(BAND, 4, BAND_H, false, roofTones(colour)));
-  return <div class={cls} aria-hidden="true" style={{ backgroundImage: `url("${url}")`, backgroundSize: `${4 * scale}px ${BAND_H * scale}px` }} />;
+// ---------- looks for the stall: roof patterns, trim and props (see looks.ts) ----------
+// Roof and trim are painted on tiles 8 art pixels wide that repeat along the top of the stall panel.
+const ORANGE = C.c_e8873a, BOARD = mix(TEAL, INK, 0.6);
+
+const DEFAULT_ROOF = (d: Pen) => {
+  d.X(0, 0, 7, AWN_L); d.R(0, 1, 8, 5, AWN);
+  for (const x of [0, 4]) { d.P(x, 3, AWN_D); d.P(x + 2, 4, AWN_D); d.P(x, 5, AWN_D); }
+  d.X(6, 0, 7, AWN_D);
+};
+const ROOFS: Record<string, (d: Pen) => void> = {
+  roof_stripes: (d) => { d.R(0, 1, 4, 5, AWN); d.R(4, 1, 4, 5, PAPER); d.X(0, 0, 3, AWN_L); d.X(0, 4, 7, mix(PAPER, INK, 0.1)); d.X(6, 0, 3, AWN_D); d.X(6, 4, 7, mix(PAPER, INK, 0.25)); },
+  roof_scallops: (d) => { d.R(0, 0, 8, 5, AWN); d.X(0, 0, 7, AWN_L); d.R(0, 5, 3, 1, AWN); d.R(4, 5, 3, 1, AWN); d.P(1, 6, AWN_D); d.P(5, 6, AWN_D); d.X(4, 0, 7, AWN_D); },
+  roof_checks: (d) => {
+    d.X(0, 0, 7, AWN_L);
+    for (let y = 1; y <= 5; y++) for (let x = 0; x < 8; x++) d.P(x, y, ((x >> 1) + (y >> 1)) % 2 ? PAPER : AWN);
+    d.X(6, 0, 7, AWN_D);
+  },
+  roof_stars: (d) => { DEFAULT_ROOF(d); for (const [x, y] of [[3, 3], [2, 3], [4, 3], [3, 2], [3, 4]]) d.P(x, y, GOLD); },
+  roof_fruit: (d) => {
+    DEFAULT_ROOF(d);
+    d.R(1, 2, 2, 2, RED); d.P(2, 1, GREEN); d.P(1, 2, mix(RED, PAPER, 0.4));
+    d.R(5, 3, 2, 2, BLUE); d.P(5, 3, mix(BLUE, PAPER, 0.4));
+  },
+};
+const TRIM_H = 7;
+const TRIMS: Record<string, (d: Pen) => void> = {
+  trim_bunting: (d) => {
+    d.X(0, 0, 7, WOOD);
+    d.X(1, 0, 3, TEAL); d.X(2, 1, 2, TEAL); d.P(1, 3, TEAL);
+    d.X(1, 4, 7, GOLD); d.X(2, 5, 6, GOLD); d.X(3, 5, 6, GOLD);
+  },
+  trim_lanterns: (d) => {
+    d.P(3, 0, WOOD); d.X(1, 2, 4, GOLD); d.R(1, 2, 5, 3, TERRA); d.P(3, 3, GOLD); d.P(2, 3, mix(TERRA, GOLD, 0.5)); d.P(4, 3, mix(TERRA, GOLD, 0.5));
+    d.X(5, 2, 4, GOLD); d.P(3, 6, TERRA);
+  },
+  trim_tassels: (d) => {
+    for (const [x, len] of [[1, 5], [3, 4], [5, 5], [7, 4]] as const) { d.R(x, 0, 1, len, AWN_D); d.P(x, len, GOLD); }
+  },
+};
+
+const PROPS: Record<string, (d: Pen) => void> = {
+  prop_blackboard: (d) => {
+    d.R(1, 2, 14, 10, WOOD); d.R(2, 3, 12, 8, BOARD); d.R(3, 12, 2, 3, WOOD); d.R(11, 12, 2, 3, WOOD);
+    d.R(4, 5, 3, 2, PAPER); d.P(5, 4, PAPER); d.X(5, 9, 12, PAPER); d.X(7, 9, 11, PAPER); d.X(9, 4, 12, mix(PAPER, BOARD, 0.4));
+  },
+  prop_scale: (d) => {
+    d.R(5, 13, 6, 2, GOLD, true); d.R(7, 4, 2, 9, GOLD); d.X(3, 2, 13, GOLD); d.P(7, 2, GOLD); d.P(8, 2, GOLD);
+    d.R(0, 8, 5, 1, GOLD); d.R(11, 8, 5, 1, GOLD); d.P(1, 5, GREY); d.P(2, 6, GREY); d.P(3, 7, GREY); d.P(14, 5, GREY); d.P(13, 6, GREY); d.P(12, 7, GREY);
+    d.P(2, 7, RED); d.P(13, 7, GREEN);
+  },
+  prop_plant: (d) => {
+    d.R(4, 10, 8, 5, TERRA, true); d.R(3, 9, 10, 1, TERRAD);
+    d.C(8, 5, 3, GREEN); d.R(7, 6, 2, 4, GREEND); d.P(4, 3, GREEN); d.P(12, 4, GREEN); d.P(8, 1, GREEN); d.P(8, 5, mix(GREEN, PAPER, 0.35));
+  },
+  prop_crates: (d) => {
+    crate(d, 1, 10, 14, 5); crate(d, 1, 5, 6, 5); crate(d, 8, 5, 7, 5);
+    apple(d, 2, 2); apple(d, 4, 2); melon(d, 9, 0, 5);
+  },
+  prop_cat: (d) => {
+    d.R(4, 8, 8, 6, ORANGE, true); d.R(5, 3, 6, 5, ORANGE); d.P(5, 2, ORANGE); d.P(10, 2, ORANGE);
+    d.P(6, 5, INK); d.P(9, 5, INK); d.P(7, 6, PAPER); d.P(8, 6, PAPER); d.R(12, 9, 2, 5, ORANGE); d.P(13, 8, mix(ORANGE, PAPER, 0.3));
+    d.X(11, 5, 6, mix(ORANGE, INK, 0.25)); d.X(11, 9, 10, mix(ORANGE, INK, 0.25));
+  },
+  prop_golden_apple: (d) => {
+    d.R(4, 13, 8, 2, WOODL, true); d.C(8, 8, 4, GOLD); d.P(6, 5, mix(GOLD, PAPER, 0.6)); d.P(5, 6, mix(GOLD, PAPER, 0.5)); d.R(11, 9, 1, 3, mix(GOLD, INK, 0.25));
+    d.P(8, 3, WOOD); d.P(9, 2, GREEN); d.P(10, 2, GREEN); d.P(10, 3, GREEN);
+  },
+};
+const PROP_SIZE = 16;
+const TILE_W = 8;
+const ROOF_H = 7;
+
+/** The tiled roof band for the top of a stall panel, in the player's colour (one repeating background image).
+ *  `roof` and `trim` are look ids from looks.ts: a roof pattern, and decoration that hangs below it. */
+export function RoofBand({ cls, colour, scale = 2, roof, trim }: { cls: string; colour: string; scale?: number; roof?: string; trim?: string }) {
+  const roofDraw = roof ? ROOFS[roof] : undefined;
+  const trimDraw = trim ? TRIMS[trim] : undefined;
+  if (!roofDraw && !trimDraw) {
+    const url = memo(`band-${colour}`, () => toUrl(BAND, 4, BAND_H, false, roofTones(colour)));
+    return <div class={cls} aria-hidden="true" style={{ backgroundImage: `url("${url}")`, backgroundSize: `${4 * scale}px ${BAND_H * scale}px` }} />;
+  }
+  const h = ROOF_H + (trimDraw ? TRIM_H : 0);
+  const url = memo(`band-${colour}-${roof ?? ''}-${trim ?? ''}`, () => {
+    const rects = [...paint(TILE_W, ROOF_H, roofDraw ?? DEFAULT_ROOF)];
+    if (trimDraw) for (const r of paint(TILE_W, TRIM_H, trimDraw)) rects.push({ ...r, y: r.y + ROOF_H });
+    return toUrl(rects, TILE_W, h, false, roofTones(colour));
+  });
+  return <div class={cls} aria-hidden="true" style={{ backgroundImage: `url("${url}")`, backgroundSize: `${TILE_W * scale}px ${h * scale}px`, height: `${h * scale}px` }} />;
+}
+
+/** A prop that sits on the stall counter (a look from looks.ts). */
+export function PropSprite({ id, size = 32, cls = 'ms-prop' }: { id: string; size?: number; cls?: string }) {
+  const draw = PROPS[id];
+  if (!draw) return null;
+  return <img class={cls} alt="" width={size} height={size} src={memo(`prop-${id}`, () => toUrl(paint(PROP_SIZE, PROP_SIZE, draw), PROP_SIZE, PROP_SIZE, false))} />;
 }

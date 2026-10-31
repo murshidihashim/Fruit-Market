@@ -11,6 +11,8 @@ import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
 import { AccountPanel } from './AccountPanel';
+import { Wardrobe } from './Wardrobe';
+import { LOOKS } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
@@ -19,7 +21,7 @@ import { fullscreenSupported, iphoneNeedsHomeScreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { fetchDaily, type BoardResult } from '../net/daily';
-import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadSets, saveColour, THEMES, unlocked } from './progress';
+import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, THEMES, unlocked } from './progress';
 import { progressOf } from './achievements';
 import {
   consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
@@ -27,7 +29,7 @@ import {
 } from './store';
 import { C } from './palette';
 
-type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies';
+type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
 
 function roomFromUrl(): string | undefined {
   try {
@@ -136,7 +138,8 @@ function Main() {
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
   if (screen === 'online') return <Online initialCode={invite} onExit={() => go('home')} />;
   if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
-  if (screen === 'trophies') return <Trophies onBack={() => go('home')} />;
+  if (screen === 'trophies') return <Trophies onBack={() => go('home')} onWardrobe={() => go('wardrobe')} />;
+  if (screen === 'wardrobe') return <Wardrobe onBack={() => go('trophies')} />;
 
   const daily = loadDaily();
   const today = todayKey();
@@ -359,7 +362,7 @@ function DailyPeek({ date }: { date: string }) {
   );
 }
 
-function Trophies({ onBack }: { onBack: () => void }) {
+function Trophies({ onBack, onWardrobe }: { onBack: () => void; onWardrobe: () => void }) {
   const have = unlocked();
   const sets = loadSets();
   const [colour, setColour] = useState(loadColour());
@@ -368,6 +371,7 @@ function Trophies({ onBack }: { onBack: () => void }) {
     <div class="page">
       <header class="topbar"><button class="icon-btn" onClick={onBack}>←</button><div class="day"><b>Trophies</b></div><span /></header>
       <main class="scroll pad">
+        <button class="btn primary wide" onClick={onWardrobe}>Wardrobe: {loadLooks().length}/{LOOKS.length} looks</button>
         <section class="panel">
           <h3>Market League <span class="muted small">{Math.min(league, LEAGUE.length)}/{LEAGUE.length}</span></h3>
           <ol class="league-list">

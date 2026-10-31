@@ -3,6 +3,7 @@
 // shows one <img> per sprite instead of hundreds of DOM rectangles (much lighter on phones).
 import type { FruitId, Stage } from '../engine/data';
 import { C } from './palette';
+import { WEAR_PARTS } from './wearArt';
 
 type Pal = Record<string, string>;
 
@@ -478,10 +479,10 @@ const AVATAR_KEY: Record<string, string> = {
   '🧑‍🍳': 'you', '👩‍🍳': 'you2', '🦸': 'you3', '🐵': 'you4', // emoji-ok: avatar keys, never shown
 };
 
-function humanRows(h: Human): string[] {
+function humanRows(h: Human, worn: string[] = []): string[] {
   const g = face(h.skin, h.shirt).map((r) => r.split(''));
-  for (const name of h.parts) {
-    const part = PARTS[name] ?? [];
+  for (const name of [...h.parts, ...worn]) {
+    const part = PARTS[name] ?? WEAR_PARTS[name] ?? [];
     part.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) if (row[x] !== '.' && g[y]) g[y][x] = row[x];
     });
@@ -490,13 +491,13 @@ function humanRows(h: Human): string[] {
 }
 
 /** A pixel portrait for a player avatar (emoji key) or a customer name. */
-export function Portrait({ who, size = 32, x, y }: { who: string; size?: number; x?: number; y?: number }) {
+export function Portrait({ who, size = 32, x, y, worn }: { who: string; size?: number; x?: number; y?: number; worn?: string[] }) {
   const key = AVATAR_KEY[who] ?? who;
   const animal = ANIMALS[key];
   if (animal) return <Sprite id={`a-${key}`} rows={animal.rows} pal={animal.pal} size={size} cls="portrait" title={key} x={x} y={y} />;
   const h = HUMANS[key] ?? HUMANS.shopper;
   const pal: Pal = { ...BASE_PAL, s: h.skin, u: h.shirt, ...(h.pal ?? {}) };
-  return <Sprite id={`h-${key}`} rows={humanRows(h)} pal={pal} size={size} cls="portrait" title={key} x={x} y={y} />;
+  return <Sprite id={`h-${key}${worn?.length ? `+${worn.join('+')}` : ''}`} rows={humanRows(h, worn)} pal={pal} size={size} cls="portrait" title={key} x={x} y={y} />;
 }
 
 // ---------- warm-up ----------

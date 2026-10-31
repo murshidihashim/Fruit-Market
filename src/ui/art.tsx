@@ -20,9 +20,9 @@ export function Coin({ size = 16 }: { size?: number }) {
   return <Icon name="coin" size={size} />;
 }
 
-/** A character portrait: a player's avatar key or a customer's name. */
-export function Face({ who, size = 28 }: { who: string; size?: number }) {
-  return <Portrait who={who} size={size} />;
+/** A character portrait: a player's avatar key or a customer's name. `worn` is the list of looks the shopkeeper has on (see looks.ts). */
+export function Face({ who, size = 28, worn }: { who: string; size?: number; worn?: string[] }) {
+  return <Portrait who={who} size={size} worn={worn} />;
 }
 
 /** Title-screen logo: a pixel stall with fruit on the counter. */

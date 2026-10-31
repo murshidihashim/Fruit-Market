@@ -1059,3 +1059,20 @@ body { background: var(--c-fbf3e1); }
 .ach-theme { margin-top: 12px; }
 .ach-theme h4 { font-family: var(--f-pixel); font-size: 1rem; margin: 0 0 4px; }
 .ach-prog { display: block; margin-top: 2px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.my-stall.has-prop .ms-head { padding-right: 34px; }
+.ms-prop { position: absolute; top: 3px; right: 6px; width: 30px; height: 30px; image-rendering: pixelated; pointer-events: none; }
+.wd-stage { text-align: center; }
+.wd-stall { position: relative; width: min(100%, 300px); margin: 0 auto; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--c-fffdf7); }
+.wd-roof { image-rendering: pixelated; background-repeat: repeat-x; border-bottom: 2px solid var(--ink); }
+.wd-counter { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding: 10px 8px 8px; }
+.wd-stage-prop { image-rendering: pixelated; }
+.wd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-top: 8px; }
+.wd-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border: 2px solid var(--ink); border-radius: 12px; background: var(--c-fffdf7); color: var(--ink); font: inherit; text-align: center; min-width: 0; }
+.wd-tile b { font-size: 0.82rem; line-height: 1.15; }
+.wd-tile small { font-size: 0.7rem; color: var(--ink-muted); line-height: 1.2; }
+.wd-tile.on { box-shadow: 0 0 0 3px var(--c-f2c14e); }
+.wd-tile.locked { background: var(--cream-2); }
+.wd-art { display: grid; place-items: center; min-height: 48px; width: 100%; }
+.wd-art.dim { filter: grayscale(1) brightness(1.05); opacity: 0.55; }
+.wd-band { width: 100%; image-rendering: pixelated; background-repeat: repeat-x; border: 2px solid var(--ink); border-radius: 6px; }
+.wd-prop { image-rendering: pixelated; }
