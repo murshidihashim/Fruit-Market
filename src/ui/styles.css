@@ -1056,3 +1056,6 @@ body { background: var(--c-fbf3e1); }
 .acct-field .input { margin-top: 2px; }
 .acct-delete { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .acct .btn + .btn { margin-top: 8px; }
+.ach-theme { margin-top: 12px; }
+.ach-theme h4 { font-family: var(--f-pixel); font-size: 1rem; margin: 0 0 4px; }
+.ach-prog { display: block; margin-top: 2px; font-weight: 600; font-variant-numeric: tabular-nums; }

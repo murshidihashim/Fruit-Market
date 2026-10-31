@@ -19,7 +19,8 @@ import { fullscreenSupported, iphoneNeedsHomeScreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { fetchDaily, type BoardResult } from '../net/daily';
-import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, saveColour, unlocked } from './progress';
+import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadSets, saveColour, THEMES, unlocked } from './progress';
+import { progressOf } from './achievements';
 import {
   consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
@@ -360,6 +361,7 @@ function DailyPeek({ date }: { date: string }) {
 
 function Trophies({ onBack }: { onBack: () => void }) {
   const have = unlocked();
+  const sets = loadSets();
   const [colour, setColour] = useState(loadColour());
   const league = leagueStage();
   return (
@@ -374,21 +376,34 @@ function Trophies({ onBack }: { onBack: () => void }) {
         </section>
         <section class="panel">
           <h3>Achievements <span class="muted small">{have.length}/{ACHIEVEMENTS.length}</span></h3>
-          <div class="ach-list">
-            {ACHIEVEMENTS.map((a) => <div class={`ach ${have.includes(a.id) ? 'got' : ''}`}><b>{a.title}</b><small>{a.text}</small></div>)}
-          </div>
+          {THEMES.map((t) => {
+            const list = ACHIEVEMENTS.filter((a) => a.theme === t.id);
+            return (
+              <div class="ach-theme">
+                <h4>{t.title} <span class="muted small">{list.filter((a) => have.includes(a.id)).length}/{list.length}</span></h4>
+                <div class="ach-list">
+                  {list.map((a) => (
+                    <div class={`ach ${have.includes(a.id) ? 'got' : ''}`}>
+                      <b>{a.title}</b><small>{a.text}</small>
+                      {a.goal && !have.includes(a.id) && <small class="ach-prog">{progressOf(a, sets, loadStats())} / {a.goal.target}</small>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </section>
         <section class="panel">
           <h3>Stall colour</h3>
-          <p class="small muted">Unlock colours with achievements. Your awning uses it in every game.</p>
+          <p class="small muted">Pick any colour. Your awning uses it in every game.</p>
           <div class="colour-pick">
             {COLOURS.map((c) => {
               const ok = colourUnlocked(c);
               return (
-                <button type="button" class={colour === c.hex ? 'on' : ''} disabled={!ok} title={ok ? c.name : `Locked: ${ACHIEVEMENTS.find((a) => a.id === c.needs)?.title}`}
+                <button type="button" class={colour === c.hex ? 'on' : ''} disabled={!ok} title={c.name}
                   onClick={() => { saveColour(c.id); setColour(c.hex); fx.tap(); }}>
                   <i style={{ background: `repeating-linear-gradient(90deg, ${c.hex} 0 8px, var(--cream) 8px 16px)` }} />
-                  <small>{ok ? c.name : 'Locked'}</small>
+                  <small>{c.name}</small>
                 </button>
               );
             })}

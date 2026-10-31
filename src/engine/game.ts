@@ -43,7 +43,11 @@ export interface GameConfig {
   league?: number;
 }
 
-export interface Stats { sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number }
+export interface Stats {
+  sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number;
+  /** Favour cards this shop has played (for achievements; never read by the rules). */
+  played?: FavourId[];
+}
 
 export interface Player extends PlayerConfig {
   cash: number;
@@ -99,7 +103,11 @@ export interface DayResult {
   spent: number[];
 }
 
-export interface DayRecord { day: number; lines: LineResult[]; income: number[]; cash: number[] }
+export interface DayRecord {
+  day: number; lines: LineResult[]; income: number[]; cash: number[];
+  /** The event card of the day, if any (for achievements and recaps). */
+  event?: string;
+}
 
 export type Phase = 'morning' | 'buy' | 'stall' | 'bid' | 'reveal' | 'evening' | 'over';
 
@@ -618,6 +626,7 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       break;
   }
   pl.favours.splice(idx, 1);
+  pl.stats.played = [...new Set([...(pl.stats.played ?? []), id])];
   s.log.push(`${pl.name} played ${FAVOURS[id].title}`);
   return s;
 }
@@ -815,7 +824,7 @@ export function finishReveal(state: GameState): GameState {
   if (state.phase !== 'reveal') throw new RuleError('Nothing to reveal');
   const s = clone(state);
   if (s.results) {
-    s.history = [...(s.history ?? []), { day: s.day, lines: s.results.lines, income: s.results.income, cash: s.players.map((p) => p.cash) }];
+    s.history = [...(s.history ?? []), { day: s.day, lines: s.results.lines, income: s.results.income, cash: s.players.map((p) => p.cash), event: s.event?.id }];
   }
   s.secondMarket = s.firstMarket.filter((c) => c.wants.some((w) => w.qty > 0));
   s.firstMarket = [];

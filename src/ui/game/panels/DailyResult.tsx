@@ -3,13 +3,17 @@ import { useEffect, useState } from 'preact/hooks';
 import type { GameState } from '../../../engine/game';
 import { fetchDaily, shareText, submitDaily, type BoardResult } from '../../../net/daily';
 import { track } from '../../../net/telemetry';
+import { unlockAchievement } from '../../progress';
 
 export function DailyResult({ s }: { s: GameState }) {
   const [res, setRes] = useState<BoardResult | null>(null);
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     let alive = true;
-    void (s.moves ? submitDaily(s) : fetchDaily(s.config.daily!)).then((r) => { if (alive) setRes(r); });
+    void (s.moves ? submitDaily(s) : fetchDaily(s.config.daily!)).then((r) => {
+      if (r.rank && r.rank <= 10) unlockAchievement('daily_top10');
+      if (alive) setRes(r);
+    });
     return () => { alive = false; };
   }, []);
   const share = async () => {

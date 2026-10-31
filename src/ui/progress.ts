@@ -2,28 +2,14 @@
 // and stall colours unlocked along the way.
 import { RIVALS } from '../engine/data';
 import { ranking, type GameConfig, type GameState, type Level } from '../engine/game';
-import { dailyStreak, loadDaily } from './store';
+import { dailyStreak, loadDaily, loadStats } from './store';
+import { ACHIEVEMENTS, evaluate, type Achievement } from './achievements';
 import { C } from './palette';
 import { profileChanged } from './changed';
 
 // ---------- achievements ----------
 
-export interface Achievement { id: string; title: string; text: string }
-
-export const ACHIEVEMENTS: Achievement[] = [
-  { id: 'first_win', title: 'Open for Business', text: 'Win a game.' },
-  { id: 'full_price', title: 'Name Your Price', text: 'Sell 5 pieces of fruit at a customer\'s top price in one game.' },
-  { id: 'no_waste', title: 'Nothing Wasted', text: 'Win without a single fruit spoiling.' },
-  { id: 'big_day', title: 'Market Day', text: 'Earn $40 or more in one day.' },
-  { id: 'comeback', title: 'Comeback Kid', text: 'Win after being last on day 5.' },
-  { id: 'bare_stall', title: 'Bare Stall', text: 'Win without building any upgrades.' },
-  { id: 'mango_mogul', title: 'Mango Mogul', text: 'Sell 10 mangoes in one game.' },
-  { id: 'beat_hard', title: 'Giant Slayer', text: 'Win against a Hard rival.' },
-  { id: 'rich', title: 'Fruit Tycoon', text: 'Finish a game with $200 or more.' },
-  { id: 'streak3', title: 'Regular', text: 'Play the daily market 3 days in a row.' },
-  { id: 'online_win', title: 'Town Favourite', text: 'Win an online match.' },
-  { id: 'league', title: 'League Champion', text: 'Win every stage of the Market League.' },
-];
+export { ACHIEVEMENTS, THEMES, type Achievement } from './achievements';
 
 const ACH_KEY = 'fm.ach';
 const LADDER_KEY = 'fm.ladder';
@@ -43,35 +29,13 @@ function writeJson(key: string, v: unknown) {
 export const unlocked = (): string[] => readJson<string[]>(ACH_KEY, []);
 export const saveUnlocked = (ids: string[]) => writeJson(ACH_KEY, ids);
 
-/** Checks a finished game and returns achievements unlocked by it (and saves them). */
+/** Checks a finished game and returns achievements unlocked by it (and saves them, with the sets they count towards). */
 export function checkAchievements(g: GameState, me: number, online = false): Achievement[] {
   if (g.phase !== 'over' || me < 0) return [];
-  const have = new Set(unlocked());
-  const pl = g.players[me];
-  const won = ranking(g)[0] === me;
-  const hist = g.history ?? [];
-  let fullPrice = 0;
-  let mangoes = 0;
-  for (const d of hist) for (const l of d.lines) for (const o of l.offers) {
-    if (o.player !== me || !o.sold) continue;
-    if (o.price >= l.max) fullPrice += o.sold;
-    if (l.fruit === 'mango') mangoes += o.sold;
-  }
-  const d5 = hist[4]?.cash;
-  const got: string[] = [];
-  const add = (id: string, ok: boolean) => { if (ok && !have.has(id)) got.push(id); };
-  add('first_win', won);
-  add('full_price', fullPrice >= 5);
-  add('no_waste', won && pl.stats.spoiled === 0);
-  add('big_day', hist.some((d) => d.income[me] >= 40));
-  add('comeback', won && !!d5 && d5[me] === Math.min(...d5) && d5.some((c) => c !== d5[me]));
-  add('bare_stall', won && pl.upgrades.length === 0 && g.config.upgrades);
-  add('mango_mogul', mangoes >= 10);
-  add('beat_hard', won && g.players.some((p) => p.kind === 'ai' && p.level === 'hard'));
-  add('rich', pl.cash >= 200);
-  add('streak3', !!g.config.daily && dailyStreak(loadDaily()) >= 3);
-  add('online_win', online && won);
-  if (got.length) writeJson(ACH_KEY, [...have, ...got]);
+  const have = unlocked();
+  const { got, sets } = evaluate(g, me, { online, have: new Set(have), sets: loadSets(), stats: loadStats(), streak: dailyStreak(loadDaily()) });
+  saveSets(sets);
+  if (got.length) saveUnlocked([...have, ...got]);
   return ACHIEVEMENTS.filter((a) => got.includes(a.id));
 }
 
@@ -122,20 +86,21 @@ export function recordLeague(g: GameState, me: number): boolean {
 
 // ---------- stall colours ----------
 
-export interface Colour { id: string; name: string; hex: string; needs?: string }
+export interface Colour { id: string; name: string; hex: string }
 
 export const COLOURS: Colour[] = [
   { id: 'terra', name: 'Terracotta', hex: C.terracotta },
   { id: 'teal', name: 'Harbour', hex: C.teal },
-  { id: 'olive', name: 'Olive', hex: C.c_7d8c3a, needs: 'first_win' },
-  { id: 'gold', name: 'Saffron', hex: C.c_d99a2b, needs: 'big_day' },
-  { id: 'plum', name: 'Fig', hex: C.c_7b4a8c, needs: 'mango_mogul' },
-  { id: 'night', name: 'Midnight', hex: C.c_3d4f86, needs: 'beat_hard' },
-  { id: 'rose', name: 'Rose', hex: C.c_c9607a, needs: 'streak3' },
-  { id: 'royal', name: 'Royal', hex: C.c_5b3fa8, needs: 'league' },
+  { id: 'olive', name: 'Olive', hex: C.c_7d8c3a },
+  { id: 'gold', name: 'Saffron', hex: C.c_d99a2b },
+  { id: 'plum', name: 'Fig', hex: C.c_7b4a8c },
+  { id: 'night', name: 'Midnight', hex: C.c_3d4f86 },
+  { id: 'rose', name: 'Rose', hex: C.c_c9607a },
+  { id: 'royal', name: 'Royal', hex: C.c_5b3fa8 },
 ];
 
-export const colourUnlocked = (c: Colour) => !c.needs || unlocked().includes(c.needs);
+/** Every stall colour is free for everyone. */
+export const colourUnlocked = (_c: Colour) => true;
 export const loadColour = (): string | null => {
   const id = readJson<string | null>(COLOUR_KEY, null);
   const c = COLOURS.find((x) => x.id === id);
