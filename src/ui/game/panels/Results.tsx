@@ -6,16 +6,16 @@ import { Coin, Face } from '../../art';
 import { Icon } from '../../pixel';
 import { UP_ICON } from '../../panel';
 import { checkAchievements, LEAGUE, recordLeague } from '../../progress';
-import { syncLooks, wornParts } from '../../looks';
+import { partsOf } from '../../../net/looks';
+import { syncLooks } from '../../looks';
 import { DailyResult } from './DailyResult';
 
-export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, looks }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean; looks?: boolean }) {
+export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean }) {
   // Checked once when the results first show; both only report what's new.
   const [earned] = useState(() => checkAchievements(s, viewer, !!online));
   const [cleared] = useState(() => recordLeague(s, viewer));
   // New looks are handed out after both checks, so a League win or a milestone counts too.
   const [newLooks] = useState(() => syncLooks());
-  const mineWorn = looks ? wornParts() : undefined;
   const order = ranking(s);
   const win = order[0] === viewer;
   const ranks = ['1ST', '2ND', '3RD', '4TH'];
@@ -24,7 +24,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const recap = gameRecap(s, viewer);
   return (
     <section class="results">
-      <div class="trophy"><Face who={champ.avatar} size={96} worn={order[0] === viewer ? mineWorn : undefined} /><span class="crown"><Icon name="star" size={34} /></span></div>
+      <div class="trophy"><Face who={champ.avatar} size={96} worn={partsOf(champ.look)} /><span class="crown"><Icon name="star" size={34} /></span></div>
       <h2>{win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`}</h2>
       {order.length > 1 && <p class="margin">{margin === 0 ? 'A dead heat, decided on fruit sold!' : margin <= 5 ? `By just $${margin}. What a finish!` : `By $${margin}.`}</p>}
       {s.config.daily && <DailyResult s={s} />}
@@ -34,7 +34,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           return (
             <div class={`pod ${i === viewer ? 'me' : ''}`}>
               <span class={`medal r${k + 1}`}>{ranks[k]}</span>
-              <span class="avatar sm"><Face who={pl.avatar} size={26} worn={i === viewer ? mineWorn : undefined} /></span>
+              <span class="avatar sm"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} /></span>
               <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>

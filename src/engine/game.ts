@@ -20,7 +20,11 @@ import { Rng } from './rng';
 export type Level = 'easy' | 'normal' | 'hard';
 export type Stock = Record<FruitId, number[]>;
 
-export interface PlayerConfig { name: string; kind: 'human' | 'ai'; level?: Level; avatar: string; quip?: string }
+export interface PlayerConfig {
+  name: string; kind: 'human' | 'ai'; level?: Level; avatar: string; quip?: string;
+  /** What this player's shopkeeper and stall wear (slot to look id). Only for show; the rules never read it. */
+  look?: Record<string, string>;
+}
 
 export interface GameConfig {
   players: PlayerConfig[];

@@ -51,7 +51,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
-          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} looks={!!online || humans[0] === viewer} /></main>
+          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
       </div>
     );
   }
@@ -139,7 +139,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
               onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
             {overlay}
           </div>
-          <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} looks={!!online || humans[0] === viewer} />
+          <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
         </div>
         {tray && <div class="tray-wrap">{tray}</div>}
         {sheet}
@@ -150,7 +150,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
-      <Popovers c={c} coach={coach} onExit={onExit} />
+      <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} />
     </div>
   );
 }

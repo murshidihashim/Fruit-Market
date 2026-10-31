@@ -569,3 +569,32 @@ describe('a room restored from its saved data', () => {
     expect(a2.view!.game!.phase).toBe('over');
   });
 });
+
+describe('looks in a room', () => {
+  it('shows what each player wears to everyone, and drops anything it does not know', async () => {
+    const h = new Harness();
+    const a = h.connect('A');
+    const b = h.connect('B');
+    await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Murshidi', avatar: '🧑‍🍳', look: { hat: 'gold_crown', neck: 'scarf', face: 'not_a_look', roof: 'gold_crown' } });
+    await b.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Friend', avatar: '👩‍🍳' });
+    // Both phones see the same seats; the made-up look and the look in the wrong slot are gone.
+    expect(b.view!.seats[0].look).toEqual({ hat: 'gold_crown', neck: 'scarf' });
+    expect(a.view!.seats[1].look).toBeUndefined();
+  });
+
+  it('lets a player change their look in the lobby and during a match, and the game players follow', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await b.say({ t: 'look', look: { hat: 'party_hat', prop: 'prop_cat' } });
+    expect(a.view!.seats[1].look).toEqual({ hat: 'party_hat', prop: 'prop_cat' });
+    await start(h, a, b, 8, 0);
+    expect(a.view!.game!.players[1].look).toEqual({ hat: 'party_hat', prop: 'prop_cat' });
+    const version = h.room.d.version;
+    await b.say({ t: 'look', look: { roof: 'roof_stars', hat: 'definitely_fake' } });
+    expect(h.room.d.version).toBeGreaterThan(version);
+    expect(a.view!.game!.players[1].look).toEqual({ roof: 'roof_stars' });
+    expect(a.view!.seats[1].look).toEqual({ roof: 'roof_stars' });
+    await b.say({ t: 'look', look: {} });
+    expect(a.view!.game!.players[1].look).toBeUndefined();
+  });
+});

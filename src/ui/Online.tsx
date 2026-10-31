@@ -8,6 +8,9 @@ import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
 import { Game } from './Game';
 import { loadName, saveName } from './store';
+import { partsOf } from '../net/looks';
+import { worn } from './looks';
+import { Wardrobe } from './Wardrobe';
 
 function useClient(client: OnlineClient | null) {
   const [, force] = useState(0);
@@ -72,7 +75,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
     saveName(name.trim());
     try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
     setErr(null);
-    setClient(new OnlineClient(c, nm, avatar));
+    setClient(new OnlineClient(c, nm, avatar, worn()));
     try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
   };
 
@@ -166,6 +169,7 @@ function Shell({ title, onBack, children }: { title: string; onBack: () => void;
 
 function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
   const me = v.seats[v.you];
+  const [wardrobe, setWardrobe] = useState(false);
   const host = !!me?.host;
   const link = inviteLink(v.code);
   const [copied, setCopied] = useState(false);
@@ -197,6 +201,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
     );
   }
 
+  if (wardrobe) return <Wardrobe onBack={() => setWardrobe(false)} onChange={(l) => client.wear(l)} />;
+
   return (
     <Shell title={`Room ${v.code}`} onBack={onExit}>
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
@@ -215,7 +221,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         <div class="seat-list">
           {v.seats.map((x) => (
             <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
-              <Face who={x.avatar} size={34} />
+              <Face who={x.avatar} size={34} worn={partsOf(x.look)} />
               {x.seat === v.you
                 ? <MyName name={x.name} host={x.host} onRename={(n) => client.rename(n)} />
                 : <span class="seat-name">{x.name}{x.host && <small class="host-tag">HOST</small>}</span>}
@@ -237,6 +243,12 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           taken={Object.fromEntries(v.seats.filter((x) => x.seat !== v.you).map((x) => [x.avatar, x.name]))}
           onPick={(a) => { fx.tap(); client.character(a); }}
         />
+      </section>
+
+      <section class="panel">
+        <h3>Your look</h3>
+        <p class="small muted">The hats, roofs and props you have earned. Everyone in the room sees what you pick.</p>
+        <button class="btn wide" onClick={() => { fx.tap(); setWardrobe(true); }}>Open the wardrobe</button>
       </section>
 
       <section class="panel">

@@ -69,7 +69,7 @@ export class OnlineClient {
   private errorListeners = new Set<(msg: string) => void>();
   private onVisible = () => { if (document.visibilityState === 'visible' && this.conn !== 'open' && !this.stopped) this.open(); };
 
-  constructor(public code: string, private name: string, private avatar: string) {
+  constructor(public code: string, private name: string, private avatar: string, private look: Record<string, string> = {}) {
     if (typeof document !== 'undefined') document.addEventListener('visibilitychange', this.onVisible);
     this.open();
   }
@@ -89,7 +89,7 @@ export class OnlineClient {
     this.emit();
     ws.onopen = () => {
       this.retry = 0;
-      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, rv: RULES_VERSION, pv: PROTOCOL_VERSION });
+      this.send({ t: 'hello', token: loadToken(this.code), name: this.name, avatar: this.avatar, look: this.look, rv: RULES_VERSION, pv: PROTOCOL_VERSION });
       if (this.ping) clearInterval(this.ping);
       this.ping = setInterval(() => this.send({ t: 'ping' }), 25_000);
     };
@@ -141,6 +141,8 @@ export class OnlineClient {
   continue() { if (this.view) this.send({ t: 'continue', v: this.view.version }); }
   ready(ready: boolean) { this.send({ t: 'ready', ready }); }
   character(avatar: string) { this.send({ t: 'character', avatar }); }
+  /** Tell the room what you are wearing; it is also remembered for a reconnect. */
+  wear(look: Record<string, string>) { this.look = look; this.send({ t: 'look', look }); }
   config(config: RoomConfig) { this.send({ t: 'config', config }); }
   start() { this.send({ t: 'start' }); }
   rematch() { this.send({ t: 'rematch' }); }

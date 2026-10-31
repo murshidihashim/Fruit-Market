@@ -7,7 +7,7 @@ export { CHARACTER_AVATARS };
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
 export const RULES_VERSION = 6;
 /** Bump whenever the messages between phones and the room server change, so old and new builds never share a room (PLAN-023: undo and rename). */
-export const PROTOCOL_VERSION = 2;
+export const PROTOCOL_VERSION = 3;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
 export const MAX_SEATS = 4;
@@ -20,6 +20,8 @@ export type RoomStatus = 'lobby' | 'playing' | 'finished';
 
 export interface PublicSeat {
   seat: number; name: string; avatar: string; ready: boolean; connected: boolean; host: boolean;
+  /** What this player's shopkeeper and stall wear (see src/net/looks.ts). */
+  look?: Record<string, string>;
   /** Set while this player is disconnected during a match. */
   offlineSince?: number;
   /** When a computer takes over this seat if the player hasn't come back. */
@@ -50,7 +52,8 @@ export interface RoomView {
 }
 
 export type ClientMsg =
-  | { t: 'hello'; token?: string; name: string; avatar: string; rv?: number; pv?: number }
+  | { t: 'hello'; token?: string; name: string; avatar: string; look?: Record<string, string>; rv?: number; pv?: number }
+  | { t: 'look'; look: Record<string, string> }
   | { t: 'character'; avatar: string }
   | { t: 'rename'; name: string }
   | { t: 'undo'; id: string; v: number }

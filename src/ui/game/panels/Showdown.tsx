@@ -2,6 +2,7 @@
 import { lookOf } from '../../../engine/data';
 import type { GameState, LineResult } from '../../../engine/game';
 import type { LineStory, Reaction } from '../../../engine/story';
+import { partsOf } from '../../../net/looks';
 import { Face, Fruit } from '../../art';
 
 export interface ShowState { line: LineResult; n: number; of: number; stage: 'intro' | 'reveal' | 'result'; shown: number; story: LineStory; react: Reaction | null; cust: string }
@@ -29,7 +30,7 @@ export function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer:
           const res = done ? (o.sold ? 'won' : 'lost') : '';
           return (
             <div class={`au-offer ${open ? 'open' : 'sealed'} ${res} ${o.player === viewer ? 'me' : ''}`}>
-              <span class="au-who"><Face who={pl.avatar} size={26} /></span>
+              <span class="au-who"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} /></span>
               <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>{o.player === viewer ? 'offer' : 'offers'} {o.qty}</small></span>
               <span class="au-price">{open ? `$${o.price}` : '?'}</span>
               {done && <span class="au-res">{a.story.tags[i]}</span>}

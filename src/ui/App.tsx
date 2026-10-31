@@ -12,7 +12,7 @@ import { Opening } from './Opening';
 import { HowTo } from './HowTo';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
-import { LOOKS } from './looks';
+import { LOOKS, worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
@@ -79,7 +79,11 @@ function Main() {
     return () => { sub.then((h) => h.remove()); };
   }, [screen]);
 
-  const start = (cfg: GameConfig) => {
+  const start = (cfg0: GameConfig) => {
+    // The person holding the phone wears their looks in every offline game (the first human seat).
+    const look = worn();
+    const first = cfg0.players.findIndex((p) => p.kind === 'human');
+    const cfg = first >= 0 && Object.keys(look).length ? { ...cfg0, players: cfg0.players.map((p, i) => (i === first ? { ...p, look } : p)) } : cfg0;
     track('game_start', cfg.daily ? 'daily' : cfg.players.filter((p) => p.kind === 'human').length > 1 ? 'pass_and_play' : 'solo');
     track('players', cfg.players.length);
     const g = newGame(cfg);

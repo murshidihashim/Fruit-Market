@@ -7,6 +7,8 @@ import { Face, FavourIcon, Fruit } from '../../art';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
+import { Wardrobe } from '../../Wardrobe';
+import { useState } from 'preact/hooks';
 import type { GameController } from '../useGameController';
 
 export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
@@ -19,7 +21,8 @@ export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
   );
 }
 
-export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip | null; onExit: () => void }) {
+export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coach: Tip | null; onExit: () => void; onWear?: (look: Record<string, string>) => void }) {
+  const [wardrobe, setWardrobe] = useState(false);
   const { s, active, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, menu, setMenu } = c;
   return (
     <>
@@ -74,6 +77,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
   )}
 
 
+  {wardrobe && onWear && <div class="wd-overlay"><Wardrobe onBack={() => setWardrobe(false)} onChange={onWear} /></div>}
   {menu && (
     <div class="modal-bg" onClick={() => setMenu(false)}>
       <div class="modal center" onClick={(e) => e.stopPropagation()}>
@@ -81,6 +85,7 @@ export function Popovers({ c, coach, onExit }: { c: GameController; coach: Tip |
         <p class="muted">Your game is saved automatically.</p>
         <button class="btn primary wide" onClick={() => setMenu(false)}>Resume</button>
         <FullScreenButton />
+        {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
         <button class="btn wide" onClick={onExit}>Quit to menu</button>
       </div>
     </div>

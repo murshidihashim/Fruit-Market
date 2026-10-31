@@ -13,6 +13,7 @@
 
 import { aiActFor, aiStep } from '../src/engine/ai';
 import { safeName } from './names';
+import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import {
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validatePrices, validateStall,
@@ -30,6 +31,8 @@ const MAX_MSG = 16_000;
 
 export interface SeatData {
   name: string; avatar: string; token: string; ready: boolean; host: boolean;
+  /** What this player's shopkeeper and stall wear (only known look ids, see src/net/looks.ts). */
+  look?: Record<string, string>;
   /** When this player's connection dropped during a match (cleared when they come back). */
   offlineSince?: number;
   /** A computer is playing this seat because its player left. */
@@ -227,7 +230,8 @@ export class Room {
       const taken = new Set(d.seats.map((x) => x.avatar));
       const free = CHARACTER_AVATARS.filter((a) => !taken.has(a));
       const avatar = CHARACTER_AVATARS.includes(m.avatar) && !taken.has(m.avatar) ? m.avatar : (free[0] ?? CHARACTER_AVATARS[0]);
-      d.seats.push({ name: clean(m.name, `Player ${d.seats.length + 1}`), avatar, token: this.io.randomHex(24), ready: false, host: d.seats.length === 0 });
+      const look = cleanLook(m.look);
+      d.seats.push({ name: clean(m.name, `Player ${d.seats.length + 1}`), avatar, token: this.io.randomHex(24), ready: false, host: d.seats.length === 0, ...(Object.keys(look).length ? { look } : {}) });
       d.seen.push([]);
       seat = d.seats.length - 1;
     }
@@ -270,6 +274,14 @@ export class Room {
         if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the six shopkeepers');
         if (d.seats.some((x, i) => i !== seat && x.avatar === m.avatar)) throw new RuleError('That shopkeeper is taken');
         me.avatar = m.avatar;
+        return this.broadcast();
+      }
+      case 'look': {
+        // Looks are only for show, so they may change at any time, even mid-match.
+        const look = cleanLook(m.look);
+        if (Object.keys(look).length) me.look = look; else delete me.look;
+        const pl = d.game?.players[seat];
+        if (pl) { if (me.look) pl.look = { ...me.look }; else delete pl.look; d.version++; }
         return this.broadcast();
       }
       case 'rename': {
@@ -346,7 +358,7 @@ export class Room {
   private newMatch() {
     const d = this.d;
     const players: PlayerConfig[] = [
-      ...d.seats.map((s) => ({ name: s.name, kind: 'human' as const, avatar: s.avatar })),
+      ...d.seats.map((s) => ({ name: s.name, kind: 'human' as const, avatar: s.avatar, ...(s.look ? { look: { ...s.look } } : {}) })),
       ...d.aiNames.map((r) => ({ name: r.name, avatar: r.avatar, quip: r.quip, kind: 'ai' as const, level: 'normal' as const })),
     ];
     const seed = (this.io.randomInt(2 ** 31 - 1) + 1) >>> 0;
@@ -529,6 +541,7 @@ export class Room {
     const online = new Set(this.io.conns().map((c) => c.seat));
     const seats: PublicSeat[] = d.seats.map((s, i) => ({
       seat: i, name: s.name, avatar: s.avatar, ready: s.ready, connected: online.has(i), host: s.host,
+      ...(s.look ? { look: s.look } : {}),
       ...(s.offlineSince !== undefined && !online.has(i) ? { offlineSince: s.offlineSince, takeoverAt: s.offlineSince + GRACE_MS } : {}),
       ...(s.bot ? { bot: true } : {}),
     }));

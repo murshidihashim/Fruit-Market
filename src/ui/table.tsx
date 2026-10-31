@@ -13,7 +13,7 @@ import { loadColour } from './progress';
 import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
 import { C } from './palette';
 import { LorrySprite, PropSprite, RoofBand } from './propsArt';
-import { worn, wornParts, wornStall } from './looks';
+import { partsOf, stallOf } from '../net/looks';
 
 /** Each player's awning colour. */
 export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
@@ -127,9 +127,9 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
   return (
     <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
-      <RoofBand cls="rs-awning" colour={seatColour(p)} />
+      <RoofBand cls="rs-awning" colour={seatColour(p)} roof={stallOf(pl.look).roof} trim={stallOf(pl.look).trim} />
       <div class="rs-who">
-        <span class="rs-face"><Face who={pl.avatar} size={26} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
+        <span class="rs-face"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
         <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
         {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
       </div>
@@ -152,9 +152,10 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const pl = s.players[p];
   return (
     <div class="rival-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
-      <RoofBand cls="rs-awning" colour={seatColour(p)} />
+      <RoofBand cls="rs-awning" colour={seatColour(p)} roof={stallOf(pl.look).roof} trim={stallOf(pl.look).trim} />
+      {stallOf(pl.look).prop && <PropSprite id={stallOf(pl.look).prop!} size={30} />}
       <div class="rd-head">
-        <Face who={pl.avatar} size={30} />
+        <Face who={pl.avatar} size={30} worn={partsOf(pl.look)} />
         <b>{pl.name}{pl.name.endsWith('s') ? "'" : "'s"} stall</b>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={11} />{TRAITS[pl.trait].title}</span>}
         <span class="chip cash"><Coin size={12} />{pl.cash}</span>
@@ -194,19 +195,18 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 
 // ---------- your stall ----------
 
-export function MyStall({ s, p, onCard, flashCards, board, looks }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board; looks?: boolean }) {
+export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
   const pl = s.players[p];
   const mine = loadColour();
-  // Looks the player has earned (looks.ts) show on their own stall and shopkeeper only.
-  const w = looks ? worn() : {};
-  const stall = wornStall(w);
+  // Looks the player has earned (looks.ts) are part of their seat, so rivals online see them too.
+  const stall = stallOf(pl.look);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   return (
     <div class={`my-stall ${active ? 'active' : ''} ${stall.prop ? 'has-prop' : ''}`} data-a={`p${p}`}>
       <RoofBand cls="ms-awning" colour={mine || seatColour(p)} roof={stall.roof} trim={stall.trim} />
       {stall.prop && <PropSprite id={stall.prop} size={30} />}
       <div class="ms-head">
-        <span class="ms-face"><Face who={pl.avatar} size={30} worn={wornParts(w)} /></span>
+        <span class="ms-face"><Face who={pl.avatar} size={30} worn={partsOf(pl.look)} /></span>
         <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
         <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>

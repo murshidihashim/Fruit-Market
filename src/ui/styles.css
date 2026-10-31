@@ -1076,3 +1076,4 @@ body { background: var(--c-fbf3e1); }
 .wd-art.dim { filter: grayscale(1) brightness(1.05); opacity: 0.55; }
 .wd-band { width: 100%; image-rendering: pixelated; background-repeat: repeat-x; border: 2px solid var(--ink); border-radius: 6px; }
 .wd-prop { image-rendering: pixelated; }
+.wd-overlay { position: fixed; inset: 0; z-index: 60; background: var(--cream); overflow: auto; }

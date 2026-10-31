@@ -27,7 +27,8 @@ function Tile({ look, on, owned, avatar, colour, onPick }: { look: Look; on: boo
   );
 }
 
-export function Wardrobe({ onBack }: { onBack: () => void }) {
+/** `onChange` hears every change (online, it tells the room what you are wearing). */
+export function Wardrobe({ onBack, onChange }: { onBack: () => void; onChange?: (look: Record<string, string>) => void }) {
   const [fresh] = useState(() => syncLooks());
   const [w, setW] = useState(worn());
   const owned = new Set(loadLooks());
@@ -56,7 +57,7 @@ export function Wardrobe({ onBack }: { onBack: () => void }) {
             <section class="panel">
               <h3>{slot.title} <span class="muted small">{list.filter((l) => owned.has(l.id)).length}/{list.length} · {slot.kind === 'wear' ? 'worn by your shopkeeper' : 'on your stall'}</span></h3>
               <div class="wd-grid">
-                {list.map((l) => <Tile look={l} on={w[l.slot] === l.id} owned={owned.has(l.id)} avatar={avatar} colour={colour} onPick={() => { fx.tap(); setW(toggleLook(l.id)); }} />)}
+                {list.map((l) => <Tile look={l} on={w[l.slot] === l.id} owned={owned.has(l.id)} avatar={avatar} colour={colour} onPick={() => { fx.tap(); const next = toggleLook(l.id); setW(next); onChange?.(next); }} />)}
               </div>
             </section>
           );
