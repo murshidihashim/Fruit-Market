@@ -4,6 +4,7 @@ import { RIVALS } from '../engine/data';
 import { ranking, type GameConfig, type GameState, type Level } from '../engine/game';
 import { dailyStreak, loadDaily } from './store';
 import { C } from './palette';
+import { profileChanged } from './changed';
 
 // ---------- achievements ----------
 
@@ -27,15 +28,20 @@ export const ACHIEVEMENTS: Achievement[] = [
 const ACH_KEY = 'fm.ach';
 const LADDER_KEY = 'fm.ladder';
 const COLOUR_KEY = 'fm.colour';
+const LOOKS_KEY = 'fm.looks';
+const WORN_KEY = 'fm.worn';
+const SETS_KEY = 'fm.prog';
 
 function readJson<T>(key: string, fallback: T): T {
   try { const raw = localStorage.getItem(key); return raw ? (JSON.parse(raw) as T) : fallback; } catch { return fallback; }
 }
 function writeJson(key: string, v: unknown) {
   try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* storage unavailable */ }
+  profileChanged();
 }
 
 export const unlocked = (): string[] => readJson<string[]>(ACH_KEY, []);
+export const saveUnlocked = (ids: string[]) => writeJson(ACH_KEY, ids);
 
 /** Checks a finished game and returns achievements unlocked by it (and saves them). */
 export function checkAchievements(g: GameState, me: number, online = false): Achievement[] {
@@ -92,6 +98,7 @@ export const LEAGUE: Stage[] = [
 ];
 
 export const leagueStage = (): number => readJson<number>(LADDER_KEY, 0);
+export const saveLeagueStage = (n: number) => writeJson(LADDER_KEY, n);
 
 export function leagueConfig(stage: number, name: string, avatar: string, seed: number): GameConfig {
   const st = LEAGUE[Math.min(stage, LEAGUE.length - 1)];
@@ -135,3 +142,19 @@ export const loadColour = (): string | null => {
   return c && colourUnlocked(c) ? c.hex : null;
 };
 export const saveColour = (id: string) => writeJson(COLOUR_KEY, id);
+
+// ---------- things an account also keeps ----------
+
+export const colourId = (): string => readJson<string | null>(COLOUR_KEY, null) ?? '';
+export const loadLooks = (): string[] => readJson<string[]>(LOOKS_KEY, []);
+export const saveLooks = (l: string[]) => writeJson(LOOKS_KEY, l);
+export const loadWorn = (): Record<string, string> => readJson<Record<string, string>>(WORN_KEY, {});
+export const saveWorn = (w: Record<string, string>) => writeJson(WORN_KEY, w);
+/** Sets that achievements count towards (shopkeepers won with, events seen, customers served...). */
+export const loadSets = (): Record<string, string[]> => readJson<Record<string, string[]>>(SETS_KEY, {});
+export const saveSets = (s: Record<string, string[]>) => writeJson(SETS_KEY, s);
+
+/** Forgets everything an account keeps on this device (used when signing out, so the next person starts fresh). */
+export function clearProgress() {
+  try { for (const k of [ACH_KEY, LADDER_KEY, COLOUR_KEY, LOOKS_KEY, WORN_KEY, SETS_KEY]) localStorage.removeItem(k); } catch { /* ignore */ }
+}

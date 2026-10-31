@@ -7,7 +7,9 @@ import '@fontsource/pixelify-sans/latin-700.css';
 import './ui/styles.css';
 import { App } from './ui/App';
 import { installTelemetry } from './net/telemetry';
+import { startAccountSync } from './ui/account';
 
 installTelemetry();
+startAccountSync();
 
 render(<App />, document.getElementById('app')!);

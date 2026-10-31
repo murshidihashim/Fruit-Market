@@ -10,6 +10,7 @@ import { Portrait, prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
+import { AccountPanel } from './AccountPanel';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
@@ -421,6 +422,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           {!fullscreenSupported() && iphoneNeedsHomeScreen() && <p class="muted small">For full screen on iPhone: tap Share, then Add to Home Screen, and open Fruit Market from there.</p>}
           <button class="btn wide" onClick={() => { resetTutorial(); fx.tap(); }}>Replay the tutorial next game</button>
         </section>
+        <AccountPanel onChange={() => setSt(loadSettings())} />
         <section class="panel">
           <h3>Your stats</h3>
           <div class="stats">
@@ -433,7 +435,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
         <section class="panel small">
           <h3>About</h3>
           <p>Fruit Market: a game designed by Murshidi bin Md Hashim.</p>
-          <p class="muted">No ads and no accounts. Your games stay on your phone. If you allow it, anonymous counts (like "a game was finished") are sent to help improve the game.</p>
+          <p class="muted">No ads. An account is optional and only keeps your trophies, looks and records. Your games stay on your phone. If you allow it, anonymous counts (like "a game was finished") are sent to help improve the game.</p>
           <p class="muted">Version {__APP_VERSION__}</p>
         </section>
       </main>

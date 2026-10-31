@@ -1,6 +1,7 @@
 // Local persistence: settings, stats, saved game, daily challenge records.
 import type { GameState } from '../engine/game';
 import { RULES_VERSION } from '../net/protocol';
+import { profileChanged } from './changed';
 
 export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; patterns: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
@@ -30,7 +31,7 @@ export const loadSettings = () => read<Settings>(K.settings, { sound: true, hapt
 export const saveSettings = (s: Settings) => write(K.settings, s);
 
 export const loadStats = () => read<Stats>(K.stats, { played: 0, wins: 0, bestCash: 0, totalSold: 0 });
-export const saveStats = (s: Stats) => write(K.stats, s);
+export const saveStats = (s: Stats) => { write(K.stats, s); profileChanged(); };
 
 /** Bump when the saved-game format changes. Saves also record the rules version they were played under. */
 export const SAVE_VERSION = 2;
@@ -79,7 +80,7 @@ export function loadGame(): GameState | null {
 export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, game: g } satisfies SaveEnvelope) : null);
 
 export const loadDaily = () => read<DailyRecord>(K.daily, {});
-export const saveDaily = (d: DailyRecord) => write(K.daily, d);
+export const saveDaily = (d: DailyRecord) => { write(K.daily, d); profileChanged(); };
 
 /** The saved name, or '' when there is none (the fields start blank). Older saves stored the fallbacks 'You' and 'Player' as if chosen, so those count as blank. */
 export function loadName(): string {
@@ -98,6 +99,7 @@ export function saveName(n: string) {
   } catch {
     /* ignore */
   }
+  profileChanged();
 }
 
 export function todayKey(d = new Date()): string {

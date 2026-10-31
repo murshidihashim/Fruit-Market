@@ -5,6 +5,7 @@
 //   POST /api/t            -> 204             anonymous usage counters and error lines
 //   GET  /api/stats        -> report          (needs the STATS_KEY secret in an x-stats-key header)
 //   GET  /api/daily?date=  -> top scores      POST /api/daily -> verified submission
+//   POST /api/account/{signup,login,sync,logout,delete} -> optional ID-and-password accounts (server/accounts.ts)
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
@@ -14,6 +15,7 @@ import { addEntry, cleanIngest, dailyBoardKey, KEEP_DAYS, ownerOf, publicBoard, 
 import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
 import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
+import { accountKey, handleAccount, idProblem, type AccountAction, type AccountRec } from './accounts';
 import { freshRoom, Room, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
 
 interface Env {
@@ -21,11 +23,13 @@ interface Env {
   STATS: DurableObjectNamespace<StatsDO>;
   BOARD: DurableObjectNamespace<BoardDO>;
   MATCH: DurableObjectNamespace<MatchDO>;
+  ACCOUNT: DurableObjectNamespace<AccountDO>;
   ASSETS: Fetcher;
   STATS_KEY?: string;
   RL_ROOMS?: Limiter;
   RL_DAILY?: Limiter;
   RL_EVENTS?: Limiter;
+  RL_ACCOUNT?: Limiter;
 }
 
 /** null when the request may go ahead, or a 429 response. */
@@ -94,6 +98,18 @@ export default {
     if (url.pathname === '/api/stats') {
       if (!env.STATS_KEY || req.headers.get('x-stats-key') !== env.STATS_KEY) return json({ error: 'Forbidden' }, 403);
       return env.STATS.get(env.STATS.idFromName('global')).fetch(`https://stats/report?days=${url.searchParams.get('days') ?? '14'}`);
+    }
+    const acct = url.pathname.match(/^\/api\/account\/(signup|login|sync|logout|delete)$/);
+    if (acct) {
+      if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
+      const stop = await limited(req, env, 'account');
+      if (stop) return stop;
+      let body: unknown;
+      try { body = await readBody(req); } catch (e) { return json({ error: (e as Error).message }, 400); }
+      const id = (body as { id?: unknown }).id;
+      // An ID that could never exist gets the same answer as a wrong password, without waking an object.
+      if (typeof id !== 'string' || (acct[1] !== 'signup' && idProblem(id))) return json({ error: acct[1] === 'signup' ? (idProblem(id) ?? 'Enter an ID.') : 'Wrong ID or password.' }, acct[1] === 'signup' ? 400 : 401);
+      return env.ACCOUNT.get(env.ACCOUNT.idFromName(`acct:${accountKey(id)}`)).fetch(`https://account/${acct[1]}`, { method: 'POST', body: JSON.stringify(body) });
     }
     if (url.pathname === '/api/daily') {
       const date = req.method === 'POST' ? null : url.searchParams.get('date') ?? utcDay(Date.now());
@@ -272,6 +288,20 @@ export class BoardDO extends DurableObject<Env> {
       }
     }
     return json({ top: publicBoard(board.slice(0, 20)), players: board.length });
+  }
+}
+
+// ---------- accounts ----------
+
+/** One object per account ID. It stores the scrambled password and the player's profile. */
+export class AccountDO extends DurableObject<Env> {
+  async fetch(req: Request): Promise<Response> {
+    const action = new URL(req.url).pathname.slice(1) as AccountAction;
+    const rec = (await this.ctx.storage.get<AccountRec>('rec')) ?? null;
+    const out = await handleAccount(action, await req.json(), rec, Date.now());
+    if (out.rec === null) await this.ctx.storage.deleteAll();
+    else if (out.rec) await this.ctx.storage.put('rec', out.rec);
+    return json(out.body, out.status);
   }
 }
 

@@ -5,7 +5,7 @@
 export interface Limiter { limit(opts: { key: string }): Promise<{ success: boolean }> }
 
 /** Which binding guards which route (limits per minute are set in wrangler.jsonc). */
-export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', t: 'RL_EVENTS' } as const;
+export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', t: 'RL_EVENTS', account: 'RL_ACCOUNT' } as const;
 export type LimitedRoute = keyof typeof ROUTE_LIMITER;
 
 export async function allowed(limiter: Limiter | undefined, route: LimitedRoute, ip: string | null): Promise<boolean> {
