@@ -1,0 +1,54 @@
+{
+  "release": "1.3.0",
+  "build": "branch feat/accounts-looks",
+  "reports": [
+    "REP-085"
+  ],
+  "decisions": [
+    "DEC-056"
+  ],
+  "changes": {
+    "added": [
+      "Optional accounts with an ID and a password to keep progress across devices"
+    ],
+    "changed": [
+      "Settings has an Account panel"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Account IDs are not checked for email. There is no password recovery"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "yes proceed to publish please, i approve",
+    "date": "2026-11-04"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-042",
+  "title": "Optional accounts",
+  "problem": "Progress lives on one phone only.",
+  "scope": [
+    "Sign up, sign in, sign out, delete account",
+    "Profile sync that only grows",
+    "Server: AccountDO, hashed passwords and sessions, lockout"
+  ],
+  "exclusions": [
+    "Any change to a rule, price, supply or customer number"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-10-31 (171 tests); CI run 41165517987 green"
+    },
+    {
+      "id": "T2",
+      "text": "Seen working on the preview (staging) before going live",
+      "result": "NOT RUN",
+      "evidence": "Done before the live deploy; result in REP-085"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "release": "1.3.0",
+  "build": "branch feat/accounts-looks",
+  "reports": [
+    "REP-085"
+  ],
+  "decisions": [
+    "DEC-057"
+  ],
+  "changes": {
+    "added": [
+      "43 achievements in ten themes",
+      "25 collectible looks (stall roofs, trims, counter props and shopkeeper wear) and a Wardrobe",
+      "Rivals online see your look"
+    ],
+    "changed": [
+      "Every stall colour is free",
+      "Trophies are grouped by theme"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Online: update the app to play with 1.3.0 players (older versions cannot join)"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "yes proceed to publish please, i approve",
+    "date": "2026-11-04"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-043",
+  "title": "Achievements, free colours and looks",
+  "problem": "Few things to collect and stall colours were locked.",
+  "scope": [
+    "43 achievements in ten themes",
+    "All stall colours free",
+    "25 looks and the Wardrobe",
+    "Rivals online see looks; Wardrobe in the lobby and pause menu"
+  ],
+  "exclusions": [
+    "Any change to a rule, price, supply or customer number"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-10-31 (171 tests); CI run 41165517987 green"
+    },
+    {
+      "id": "T2",
+      "text": "Seen working on the preview (staging) before going live",
+      "result": "NOT RUN",
+      "evidence": "Done before the live deploy; result in REP-085"
+    }
+  ]
+}
