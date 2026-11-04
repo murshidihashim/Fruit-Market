@@ -219,9 +219,9 @@ describe('options', () => {
   });
 });
 
-describe('rules version 6', () => {
+describe('rules version 7', () => {
   it('keeps daily boards for each rules version apart', () => {
-    expect(RULES_VERSION).toBe(6);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r6');
+    expect(RULES_VERSION).toBe(7);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r7');
   });
 });

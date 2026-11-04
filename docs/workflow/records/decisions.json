@@ -1440,6 +1440,31 @@
       ],
       "plan": "PLAN-043",
       "reviewTrigger": "Owner tries accounts and the wardrobe on the live game."
+    },
+    {
+      "id": "DEC-058",
+      "title": "Balance round 1, readable numbers, privacy page and payout display",
+      "question": "Which of the audit's suggested changes go into the game now?",
+      "choice": "Build one upgrade per Market Day (as written), a mango costs $1 more, Big Basket's extra piece costs $1 more, computer players take the Handcart first; make small numbers readable, label the rank badge, say 'that day' in event previews, serve the privacy page and link it in Settings, add install and link-preview files and security headers, and add up each customer's payment on screen as its coins land. Not done now: shopkeeper rework, 2-player and Quick match changes, tap queue, set-up screen redesign, print-kit additions.",
+      "rationale": "Owner request after REP-086: \"do the suggested changes and make it live in the game\". The simulation (about 40,000 computer games) measured each rules change in REP-086.",
+      "impact": {
+        "player": "Games are tighter (fewer lopsided results), upgrades are a real one-per-Market-Day choice, mango and Big Basket cost a little more, and cash totals climb customer by customer. Rules version 7: update the app to play online, and a game in progress from 1.3.0 can't be resumed.",
+        "technical": "RULES_VERSION 7; buyCost, buyUpgrade and the computer's upgrade order in the engine; new src/ui/cashShown.ts; public/ manifest, robots and _headers.",
+        "data": "Daily boards start fresh for rules version 7."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "do the suggested changes and make it live in the game",
+        "date": "2026-11-05"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-086"
+      ],
+      "plan": "PLAN-044",
+      "reviewTrigger": "Owner plays it, and a week of anonymous stats."
     }
   ],
   "history": [
@@ -1958,6 +1983,10 @@
     {
       "at": "2026-11-04 10:00",
       "text": "Owner asked for accounts, 43 achievements, free colours and looks (DEC-056, DEC-057), then online looks and an easy wardrobe in rooms. Built on branch feat/accounts-looks as release 1.3.0 candidate; owner said \"yes proceed to publish please, i approve\"."
+    },
+    {
+      "at": "2026-11-05 12:00",
+      "text": "Full audit and balance simulation (REP-086). Owner asked for the suggested changes to be built and made live (DEC-058). Built on branch release/1.4.0 as release 1.4.0 candidate."
     }
   ]
 }

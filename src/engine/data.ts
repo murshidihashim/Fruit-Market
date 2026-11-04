@@ -25,7 +25,7 @@ export interface FruitDef {
 //  blueberry  - cheap, big margin, but turns to mush in 3 days (high risk, high reward)
 //  watermelon - the steady middle: decent margin, loses value slowly
 //  apple      - the keeper: keeps a week and barely loses value; never the best price, never a loss
-//  mango      - arrives green for $3, ripens on your shelf, sells at a premium, then spoils fast
+//  mango      - arrives green for $4, ripens on your shelf, sells at a premium, then spoils fast
 export const FRUIT: Record<FruitId, FruitDef> = {
   blueberry: {
     id: 'blueberry', name: 'Blueberry', plural: 'Blueberries', color: '#4f5bd5',
@@ -47,9 +47,9 @@ export const FRUIT: Record<FruitId, FruitDef> = {
   },
   mango: {
     id: 'mango', name: 'Mango', plural: 'Mangoes', color: '#f2b705',
-    theme: 'Buy green for $3, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
+    theme: 'Buy green for $4, let it ripen for 2 nights, sell at a premium. Spoils fast once ripe.',
     ripe: ['notso', 'okay', 'fresh', 'fresh'], drop: [2, 1, 0, 0], unripeSlots: 2,
-    cost: { fresh: 4, okay: 2, notso: 1, unripe: 3 },
+    cost: { fresh: 5, okay: 2, notso: 1, unripe: 4 },
   },
 };
 
@@ -293,7 +293,7 @@ export interface TraitDef { id: TraitId; title: string; text: string }
 
 export const TRAITS: Record<TraitId, TraitDef> = {
   haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices, even against fresher fruit.' },
-  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day.' },
+  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day (the extra one costs $1 more).' },
   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
   charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 3 favour cards, and hold up to 4.' },
   favourite: { id: 'favourite', title: 'Tip Jar', text: 'Customers you serve completely by yourself tip you $4.' },

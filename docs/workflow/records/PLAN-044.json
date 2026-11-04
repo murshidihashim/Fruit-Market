@@ -1,0 +1,63 @@
+{
+  "release": "1.4.0",
+  "build": "branch release/1.4.0",
+  "reports": [
+    "REP-086"
+  ],
+  "decisions": [
+    "DEC-058"
+  ],
+  "changes": {
+    "added": [
+      "Install file, link-preview tags, robots file and security headers for the web game",
+      "Privacy policy page served by the game and linked in Settings"
+    ],
+    "changed": [
+      "One upgrade per Market Day, as the rules and set-up text already said",
+      "A mango costs $1 more (fresh $5, green $4)",
+      "Big Basket's extra piece costs $1 more",
+      "Computer players take the Handcart first",
+      "Prices, rank badge and event previews are easier to read",
+      "Cash totals climb customer by customer during the rush"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Rules version 7: update the app to play online (older versions cannot join)"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "do the suggested changes and make it live in the game",
+    "date": "2026-11-05"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-044",
+  "title": "Balance round 1 and polish",
+  "problem": "The audit found upgrades acting as a compulsory purchase, one fruit and one shopkeeper far ahead, numbers that read wrongly, and totals that jumped at the bell.",
+  "scope": [
+    "Engine: one upgrade per evening, mango cost, Big Basket extra-piece cost, computer upgrade order, rules version 7",
+    "UI: readable numbers, rank label, event preview wording, payout timing, upgrade panel wording",
+    "Web: manifest, robots, headers, link-preview tags, privacy page",
+    "RULES.md for rules version 7"
+  ],
+  "exclusions": [
+    "Shopkeeper rework",
+    "2-player and Quick match changes",
+    "Print kit additions"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-11-05"
+    },
+    {
+      "id": "T2",
+      "text": "Playtest of the new balance with people",
+      "result": "NOT RUN",
+      "evidence": "Owner and first table test"
+    }
+  ]
+}

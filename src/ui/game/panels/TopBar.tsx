@@ -20,7 +20,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, onRival, offline = [] }: { 
           <span class="day-label">Day {s.day}<small>/{s.config.days}</small></span>
           {s.phase !== 'over' && rem <= 3 ? <span class={`left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'FINAL DAY' : `${rem} DAYS LEFT`}</span> : <span class="phase">{PHASE[s.phase]}</span>}
         </div>
-        {s.players.length > 1 && <span class={`rank r${st.rank}`} title={st.text}>#{st.rank}</span>}
+        {s.players.length > 1 && <span class={`rank r${st.rank}`} title={st.text} aria-label={`Rank ${st.rank} of ${st.of}. ${st.text}`}>#{st.rank}</span>}
         <div class="hud-cash" data-a={`p${viewer}-cash`} aria-label={`Cash $${shown.players[viewer].cash}`}><Coin size={20} /><b>{shown.players[viewer].cash}</b></div>
       </div>
       {s.phase !== 'over' && (

@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 6).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 7).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -48,7 +48,7 @@ Every fruit uses the same freshness rule: it sells at the customer's full price 
 | 🫐 Blueberry | Cheap and popular, mushy in 3 days. Fast turnover. | tired · okay · fresh | $2 / $1 / $1 | none |
 | 🍉 Watermelon | The steady seller. | tired · okay · okay · fresh · fresh | $3 / $2 / $1 | 1 night ($1) |
 | 🍎 Apple | The keeper: lasts a week. Never the best price, never a loss. | tired · okay ×3 · fresh ×3 | $3 / $2 / $1 | none |
-| 🥭 Mango | Buy green for $3, ripens in 2 nights, sells at a premium, spoils fast once ripe. | tired · okay · fresh · fresh | $4 / $2 / $1 | 2 nights ($3) |
+| 🥭 Mango | Buy green for $4, ripens in 2 nights, sells at a premium, spoils fast once ripe. | tired · okay · fresh · fresh | $5 / $2 / $1 | 2 nights ($4) |
 
 Every night all fruit moves one space left. Fruit that falls off the left end spoils. Unripe fruit can't be sold yet and becomes fresh as nights pass.
 
@@ -112,7 +112,7 @@ Customers buy in queue order: waiting customers first, then new ones. For each f
 - A new customer who doesn't get everything comes back tomorrow as *waiting*. A waiting customer leaves after today either way.
 
 ### Evening and night
-- **Evening:** play evening favours (Priority, Gossip). On the evening after each Market Day (days 3, 6, 9 and 12), draft **one stall upgrade** from the four.
+- **Evening:** play evening favours (Priority, Gossip). On the evening after each Market Day (days 3, 6, 9 and 12), build **one stall upgrade** from the four (one only, that evening).
 - **Night:** all fruit at the market and in every stall ages one step. Spoiled fruit is thrown away.
 
 ## Market rhythm
@@ -169,7 +169,7 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 | Shopkeeper | Perk | Effect |
 |---|---|---|
 | Rosa | Haggler | You win tied prices, even against fresher fruit. |
-| Benny | Big Basket | Buy 1 extra fruit every day. |
+| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 5th, or the 6th with a Handcart) costs $1 more. |
 | Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
 | Chen | Charmer | Start with 3 favour cards, and hold up to 4. |
 | Kiran | Tip Jar | Customers you serve completely by yourself tip you $4. |
@@ -231,6 +231,8 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector counts
 *Left out on purpose: a price ladder board for lining up posted prices. Sorting the price cards by hand works for 2 to 4 stalls.*
 
 ## Balance notes
+
+Rules version 7 (REP-086, computer-player simulation of about 40,000 games): the app now matches the printed rule of one upgrade per Market Day (before, several could be built in one evening, which made upgrades close to compulsory); a mango costs $1 more (fresh $5, green $4) because it earned about 40% more per fruit than the others; and Big Basket's extra piece costs $1 more because the perk won about 10 points more often than fair.
 
 Rules version 6 (DEC-050): the Scout favour card replaces Good Riddance, which nobody wanted to play. The deck stays at 12 cards, two of each. Scout is information, like Gossip, but it covers one of today's walk-ins instead of all of tomorrow's.
 

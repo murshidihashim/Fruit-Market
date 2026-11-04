@@ -117,7 +117,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .phase { font-size: 0.78rem; padding: 2px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); white-space: nowrap; }
 .left { font-family: var(--f-pixel); font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--gold); color: var(--ink); white-space: nowrap; }
 .left.last { background: var(--terra); color: var(--c-fff6e8); animation: breathe 1.4s steps(2) infinite; }
-.rank { font-family: var(--f-pixel); font-weight: 700; font-size: 0.9rem; padding: 3px 8px; border-radius: 8px; background: var(--surface); }
+.rank { font-family: var(--f-body); font-weight: 700; font-size: 0.9rem; padding: 3px 8px; border-radius: 8px; background: var(--surface); }
 .rank.r1 { background: var(--gold); color: var(--ink); }
 .hud-cash { display: flex; align-items: center; gap: 6px; background: var(--gold); color: var(--ink); border-radius: 10px; padding: 4px 12px 4px 7px; box-shadow: 0 3px 0 var(--gold-d); }
 .hud-cash b { font-size: 1.35rem; line-height: 1; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
@@ -862,7 +862,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .game .mk-cell.st-unripe::after { border-right-color: var(--c-b8cf9a); }
 .game .mk-cell.entry { box-shadow: 0 0 0 2px var(--c-f2c14e); }
 .game .mk-cell.pick { opacity: 1; }
-.game .mk-cell .price { right: 3px; bottom: 2px; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; background: var(--c-f2c14e); border: 1.5px solid var(--ink); color: var(--ink); font-family: var(--f-pixel); font-size: 0.62rem; font-weight: 700; opacity: 1; }
+.game .mk-cell .price { right: 3px; bottom: 2px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--c-f2c14e); border: 1.5px solid var(--ink); color: var(--ink); font-family: var(--f-body); font-size: 0.72rem; font-weight: 700; opacity: 1; }
 .game .mk-key, .game .next-lorry { color: var(--ink); }
 .game .next-lorry { background: transparent; }
 

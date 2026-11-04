@@ -221,7 +221,7 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
       )}
       {isDraftNight(s) && (
         <>
-          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build upgrades: each one changes how your stall works. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
+          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build one upgrade: it changes how your stall works. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
           <div class="upgrade-grid">
             {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => {
               const d = UPGRADES[u];

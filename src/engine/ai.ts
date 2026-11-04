@@ -311,8 +311,8 @@ export function pickUpgrade(s: GameState, p: number, skip?: UpgradeId): UpgradeI
   const marketDaysLeft = Math.floor(s.config.days / MARKET_DAY_EVERY) - Math.floor(s.day / MARKET_DAY_EVERY);
   // [speciality, fewest days left worth it, extra condition]
   const want: [UpgradeId, number, boolean][] = [
-    ['premium', 4, true],
     ['barrow', 4, true],
+    ['premium', 4, true],
     ['coldroom', 3, true],
     ['juicebar', 2, atRisk >= 1],
   ];

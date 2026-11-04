@@ -197,7 +197,9 @@ export function handLimit(p: Player): number {
 export function buyCost(s: GameState, p: number, f: FruitId, pos: number): number {
   const c = marketCost(s, f, pos);
   const pl = s.players[p];
-  return pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c;
+  // Big Basket's extra piece (past the usual daily limit) costs $1 more.
+  const extra = pl?.trait === 'basket' && pl.boughtToday >= (pl.upgrades.includes('barrow') ? BARROW_BUY : BASE_BUY) ? 1 : 0;
+  return (pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c) + extra;
 }
 
 export function marketCost(s: GameState, f: FruitId, pos: number): number {
@@ -883,6 +885,7 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
   pl.cash -= UPGRADES[u].cost;
   pl.stats.spent += UPGRADES[u].cost;
   pl.upgrades.push(u);
+  pl.upgradeOffer = []; // one upgrade after each Market Day
   s.log.push(`${pl.name} built a ${UPGRADES[u].title}`);
   return s;
 }

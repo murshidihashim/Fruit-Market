@@ -1,0 +1,12 @@
+{
+  "name": "Fruit Market",
+  "short_name": "Fruit Market",
+  "description": "Buy fresh fruit, set secret prices and sell fast before it spoils.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f9f1e2",
+  "theme_color": "#e94f37",
+  "icons": [{ "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+}
