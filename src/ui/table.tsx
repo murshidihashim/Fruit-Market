@@ -7,6 +7,7 @@ import {
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
+import { shownCash, useCashShown } from './cashShown';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
@@ -121,12 +122,14 @@ export function SeatBoard({ b }: { b: Board }) {
 
 /** A rival's seat across the table. Tap it to open their stall below the seats. */
 export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board }) {
+  useCashShown();
   const pl = s.players[p];
+  const cash = shownCash(p, pl.cash);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   const night = s.phase === 'evening';
   return (
     <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${pl.cash}. Tap to see their fruit`}>
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}. Tap to see their fruit`}>
       <RoofBand cls="rs-awning" colour={seatColour(p)} roof={stallOf(pl.look).roof} trim={stallOf(pl.look).trim} />
       <div class="rs-who">
         <span class="rs-face"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
@@ -134,7 +137,7 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
         {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
       </div>
       <div class="rs-stock">
-        <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{pl.cash}</span>
+        <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{cash}</span>
         {FRUITS.map((f) => {
           const n = count(pl.stock, f);
           // Empty fruits shrink to nothing but stay in place as animation anchors.
@@ -149,6 +152,7 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
 
 /** A rival's stall, opened from their seat: the same freshness chips as your own stall. */
 export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
+  useCashShown();
   const pl = s.players[p];
   return (
     <div class="rival-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
@@ -158,7 +162,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
         <Face who={pl.avatar} size={30} worn={partsOf(pl.look)} />
         <b>{pl.name}{pl.name.endsWith('s') ? "'" : "'s"} stall</b>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={11} />{TRAITS[pl.trait].title}</span>}
-        <span class="chip cash"><Coin size={12} />{pl.cash}</span>
+        <span class="chip cash"><Coin size={12} />{shownCash(p, pl.cash)}</span>
         <button type="button" class="rd-close" onClick={onClose} aria-label="Close">×</button>
       </div>
       <StockChips s={s} p={p} empty="Nothing on the shelf yet." />
@@ -196,6 +200,7 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 // ---------- your stall ----------
 
 export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
+  useCashShown();
   const pl = s.players[p];
   const mine = loadColour();
   // Looks the player has earned (looks.ts) are part of their seat, so rivals online see them too.
@@ -215,7 +220,7 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
         <span class="spacer" />
         {board && <SeatBoard b={board} />}
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={20} /></span>)}
-        <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{pl.cash}</span>
+        <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{shownCash(p, pl.cash)}</span>
       </div>
       <StockChips s={s} p={p} anchors empty="Empty shelf. Tap fruit in the market to buy." />
       {pl.favours.length > 0 && (

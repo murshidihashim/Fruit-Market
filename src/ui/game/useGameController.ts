@@ -11,6 +11,7 @@ import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
 import { trackOnce } from '../../net/telemetry';
 import * as A from '../anim';
+import { holdCash } from '../cashShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
 import { delivery, moves, nightfall, reveal } from './animator';
@@ -83,6 +84,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     A.setBaseSpeed(loadSettings().fast);
     return () => A.setLayer(null);
   });
+  // Leaving the table mid-rush must not leave held-back totals behind for the next game.
+  useEffect(() => () => holdCash(null), []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -101,6 +104,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await nightfall(prev, setNight);
         setLastNight(overnightLoss(prev, next, viewer));
       }
+      const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal';
+      // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
+      if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i]));
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -108,12 +114,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         setNight(false);
         await delivery(next);
-      } else if ((prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal') {
+      } else if (rush) {
         setRevealDone(false);
         await reveal(next, viewer, setShow);
         setRevealDone(true);
       } else await moves(prev, next);
     } finally {
+      holdCash(null);
       busyRef.current = false;
       setBusy(false);
       setTick((t) => t + 1);

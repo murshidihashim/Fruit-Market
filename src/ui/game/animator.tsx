@@ -5,6 +5,7 @@ import { notSoCount, type GameState, type LineResult } from '../../engine/game';
 import { customerReaction, explainLine, rivalReaction } from '../../engine/story';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
+import { holdCash, payCash, shownCash } from '../cashShown';
 import { fx } from '../fx';
 import type { ShowState } from './panels/Showdown';
 
@@ -75,8 +76,11 @@ export async function flights(_g: GameState, l: LineResult) {
     }
     for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
     jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
+      // This customer's payment lands now, so the stall's total climbs here and not before.
+      const paid = o.sold * o.price + (o.juice ?? 0);
       fx.coin();
-      A.floatText(`p${o.player}-cash`, `+$${o.sold * o.price + (o.juice ?? 0)}`);
+      A.floatText(`p${o.player}-cash`, `+$${paid}`);
+      void payCash(o.player, paid);
     }));
   }
   await Promise.all(jobs);
@@ -130,6 +134,17 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     await A.wait(800);
     t.remove();
   }
+  // Money that was not paid line by line (a Tip Jar's tip) lands last, then the real totals show again.
+  let tipped = false;
+  g.players.forEach((pl, p) => {
+    const tip = pl.cash - shownCash(p, pl.cash);
+    if (tip <= 0) return;
+    tipped = true;
+    A.floatText(`p${p}-cash`, `+$${tip} tip`);
+    void payCash(p, tip);
+  });
+  if (tipped) { fx.coin(); await A.wait(500); }
+  holdCash(null);
 }
 
 export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
