@@ -459,6 +459,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <h3>About</h3>
           <p>Fruit Market: a game designed by Murshidi bin Md Hashim.</p>
           <p class="muted">No ads. An account is optional and only keeps your trophies, looks and records. Your games stay on your phone. If you allow it, anonymous counts (like "a game was finished") are sent to help improve the game.</p>
+          <p><a href="/privacy.html" target="_blank" rel="noopener">Privacy policy</a></p>
           <p class="muted">Version {__APP_VERSION__}</p>
         </section>
       </main>
