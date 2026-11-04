@@ -28,7 +28,7 @@
     "evidence": "yes proceed to publish please, i approve",
     "date": "2026-11-04"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-043",
   "title": "Achievements, free colours and looks",
   "problem": "Few things to collect and stall colours were locked.",
@@ -51,8 +51,8 @@
     {
       "id": "T2",
       "text": "Seen working on the preview (staging) before going live",
-      "result": "NOT RUN",
-      "evidence": "Done before the live deploy; result in REP-085"
+      "result": "PASS",
+      "evidence": "Account sign-up, login, wrong password, sync, logout, bad token and delete checked on the staging worker 2026-11-04. Online wardrobe in a room not seen running."
     }
   ]
 }
