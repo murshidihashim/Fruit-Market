@@ -1484,12 +1484,36 @@
         "evidence": "ok do everything",
         "date": "2026-11-05"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-086"
       ],
       "plan": "PLAN-045",
       "reviewTrigger": "Owner plays it; a week of the new anonymous stats."
+    },
+    {
+      "id": "DEC-060",
+      "title": "Printed card backs approved",
+      "question": "Is the draft design for the Delivery, Favour and Event card backs approved?",
+      "choice": "Approved as drafted (Card_Backs.pdf, REP-079). The backs are now part of the complete play kit in one folder.",
+      "rationale": "Owner request: \"deploy live game and approve card back\".",
+      "impact": {
+        "player": "Table players get matching backs for the Delivery, Favour and Event decks.",
+        "technical": "None. Files on the Drive Print_Kit folder only.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "deploy live game and approve card back",
+        "date": "2026-11-05"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-079"
+      ],
+      "reviewTrigger": "Owner test print: cut lines, back alignment and sleeves."
     }
   ],
   "history": [
@@ -2020,6 +2044,14 @@
     {
       "at": "2026-11-05 18:00",
       "text": "Owner asked for everything left in the audit (DEC-059). Built on branch feat/polish-1-5 as release 1.5.0 candidate."
+    },
+    {
+      "at": "2026-11-05 19:00",
+      "text": "Complete play kit built in one folder and one PDF (rulebook, board, cards, tokens, coins, notes, stall sheets, ledger). Numbers on the cards, board and notes now use the rounder font because 5 read as S and 2 as 8 in the pixel font; owner: \"yes im okay\". Rules and cards unchanged."
+    },
+    {
+      "at": "2026-11-05 20:00",
+      "text": "Release 1.5.0 published (Deploy LIVE game on main b92dc51, started by Claude at the owner's explicit request \"deploy live game\"; smoke test passed; tag v1.5.0). Owner approved the printed card backs (DEC-060)."
     }
   ]
 }

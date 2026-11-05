@@ -141,7 +141,7 @@
     },
     {
       "version": "1.5.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-045"
       ],
@@ -154,8 +154,8 @@
         "Rules version 8: update the app to play online (older versions cannot join), and a game in progress from 1.4.0 can't be resumed"
       ],
       "date": "2026-11-05",
-      "commit": "",
-      "tagged": false
+      "commit": "b92dc51",
+      "tagged": true
     }
   ]
 }

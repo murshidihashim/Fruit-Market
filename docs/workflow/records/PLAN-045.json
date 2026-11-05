@@ -36,7 +36,7 @@
     "evidence": "ok do everything",
     "date": "2026-11-05"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-045",
   "title": "Balance round 2 and polish",
   "problem": "Three shopkeepers were far from fair, 2-player games were decided by one customer, and several screens and table pieces were rough.",
@@ -65,8 +65,8 @@
     {
       "id": "T2",
       "text": "Content security policy does not break the game on the preview",
-      "result": "NOT RUN",
-      "evidence": "Checked on the staging site before going live"
+      "result": "PASS",
+      "evidence": "Staging preview in a browser: home screen, New game, an online room and fonts worked with no console errors or policy violations. Live game: policy and security headers present, home and set-up screens load with no console errors (2026-11-05)"
     }
   ]
 }
