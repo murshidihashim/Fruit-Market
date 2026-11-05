@@ -27,7 +27,7 @@
     "evidence": "layout 3, option A, yes approve it already",
     "date": "2026-11-05"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-046",
   "title": "Shopfront home screen, popups and rounder numbers",
   "problem": "The home screen was a long stack of buttons, the Wardrobe and account were hard to find, and the pixel font made 5 look like S and 2, 3 and 8 look alike.",
@@ -58,8 +58,8 @@
     {
       "id": "T3",
       "text": "The home screen and popups work on the staging preview, including online rooms and quick match from the Play a friend menu",
-      "result": "NOT RUN",
-      "evidence": "Checked on the staging site before going live"
+      "result": "PASS",
+      "evidence": "Staging and the live game checked in a phone-sized browser on 2026-11-05: home screen, New game, Play a friend and Account popups, and creating a room. The first staging build was black (the palette import was dropped); fixed in 55345c6 with a test (tests/css-order.test.ts) before going live."
     }
   ]
 }

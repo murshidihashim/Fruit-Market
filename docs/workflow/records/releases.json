@@ -159,7 +159,7 @@
     },
     {
       "version": "1.6.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-046"
       ],
@@ -168,7 +168,10 @@
         "New game, Continue and Play a friend open a small menu first; New game holds all the set-up in one popup, and Quick match is in the Play a friend menu",
         "Numbers and dollar signs use a rounder font, so 5 is no longer mistaken for S",
         "No rules change: you can still play online with 1.5.0"
-      ]
+      ],
+      "date": "2026-11-05",
+      "commit": "55345c6",
+      "tagged": true
     }
   ]
 }

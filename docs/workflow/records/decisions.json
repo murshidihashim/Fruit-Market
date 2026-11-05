@@ -1533,7 +1533,7 @@
         "evidence": "layout 3, option A, yes approve it already",
         "date": "2026-11-05"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-046",
       "reviewTrigger": "Owner plays it on a phone; whether B and C in the pixel font need the same fix."
@@ -2079,6 +2079,10 @@
     {
       "at": "2026-11-05 22:00",
       "text": "Owner chose home screen layout 3 and New game option A (\"layout 3, option A, yes approve it already\"), asked for the rounder number font (\"Yes, apply it\") and approved deploying everything (\"check this and then approve everything to deploy the game\"). Built as release 1.6.0, PLAN-046, DEC-061."
+    },
+    {
+      "at": "2026-11-05 23:30",
+      "text": "Release 1.6.0 published (Deploy LIVE game on main 55345c6, started by Claude at the owner's explicit request \"deploy live\"; smoke test passed; tag v1.6.0). The first build on staging was black because a font rule sat above the palette import; caught on staging before going live, fixed and covered by a test."
     }
   ]
 }
