@@ -48,7 +48,7 @@ async function player(name) {
 async function newMatch() {
   const A = await player('Ann'), B = await player('Ben');
   await A.page.goto(base);
-  await A.page.click('text=Play a friend');
+  await A.page.click('text=Play a friend'); await A.page.click('text=Create a room');
   await A.page.click('text=Create room');
   await A.page.waitForSelector('#invite-link');
   const link = await A.page.inputValue('#invite-link');
@@ -118,9 +118,9 @@ async function quicks() {
   for (let i = 1; i <= N.quick; i++) {
     const started = Date.now();
     const A = await player('Quinn'), B = await player('Robin');
-    await A.page.goto(base); await A.page.click('text=Quick match'); await A.page.click('text=Find an opponent');
+    await A.page.goto(base); await A.page.click('text=Play a friend'); await A.page.click('text=Quick match'); await A.page.click('text=Find an opponent');
     await A.page.waitForSelector('text=Looking for an opponent');
-    await B.page.goto(base); await B.page.click('text=Quick match');
+    await B.page.goto(base); await B.page.click('text=Play a friend'); await B.page.click('text=Quick match');
     const t0 = Date.now();
     await B.page.click('text=Find an opponent');
     const [a, b] = await Promise.all([waitBack(A), waitBack(B)]);

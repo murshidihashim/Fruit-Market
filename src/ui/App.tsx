@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { CHARACTER_AVATARS, FRUIT, FRUITS, RIVALS } from '../engine/data';
-import { Fruit } from './art';
+import { CHARACTER_AVATARS, FRUIT, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
-import { Portrait, prewarmSprites } from './pixel';
+import { ContinueBody, FriendBody, Popup, Shopfront } from './Home';
+import { prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
@@ -20,16 +20,15 @@ import { FullScreenButton } from './FullScreenButton';
 import { fullscreenSupported, iphoneNeedsHomeScreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
-import { fetchDaily, type BoardResult } from '../net/daily';
 import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, THEMES, unlocked } from './progress';
 import { progressOf } from './achievements';
 import {
   consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
   saveSettings, saveStats, todayKey, type Settings,
 } from './store';
-import { C } from './palette';
 
-type Screen = 'home' | 'setup' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
+type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
+type PopupKind = 'new' | 'continue' | 'friend' | 'account';
 
 function roomFromUrl(): string | undefined {
   try {
@@ -65,19 +64,29 @@ function Main() {
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
   const recorded = useRef<string | null>(null);
+  // The small menus in front of the home screen, a room code typed into the friend menu, and where the wardrobe was opened from.
+  const [popup, setPopup] = useState<PopupKind | null>(null);
+  const [joinCode, setJoinCode] = useState<string | undefined>();
+  const [wardFrom, setWardFrom] = useState<Screen>('home');
+  const [, refresh] = useState(0);
 
   const go = (sc: Screen) => {
     fx.tap();
     setScreen(sc);
   };
+  const open = (p: PopupKind) => {
+    fx.tap();
+    setPopup(p);
+  };
 
   useEffect(() => {
     const sub = CapApp.addListener('backButton', () => {
-      if (screen === 'home') CapApp.exitApp();
+      if (popup) setPopup(null);
+      else if (screen === 'home') CapApp.exitApp();
       else setScreen('home');
     });
     return () => { sub.then((h) => h.remove()); };
-  }, [screen]);
+  }, [screen, popup]);
 
   const start = (cfg0: GameConfig) => {
     // The person holding the phone wears their looks in every offline game (the first human seat).
@@ -137,13 +146,12 @@ function Main() {
       />
     );
   }
-  if (screen === 'setup') return <Setup onBack={() => go('home')} onStart={start} />;
   if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
-  if (screen === 'online') return <Online initialCode={invite} onExit={() => go('home')} />;
+  if (screen === 'online') return <Online initialCode={joinCode ?? invite} onExit={() => { setJoinCode(undefined); go('home'); }} />;
   if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
-  if (screen === 'trophies') return <Trophies onBack={() => go('home')} onWardrobe={() => go('wardrobe')} />;
-  if (screen === 'wardrobe') return <Wardrobe onBack={() => go('trophies')} />;
+  if (screen === 'trophies') return <Trophies onBack={() => go('home')} onWardrobe={() => { setWardFrom('trophies'); go('wardrobe'); }} />;
+  if (screen === 'wardrobe') return <Wardrobe onBack={() => go(wardFrom)} />;
 
   const daily = loadDaily();
   const today = todayKey();
@@ -151,76 +159,46 @@ function Main() {
   const resumable = game && game.phase !== 'over';
   const league = leagueStage();
   const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
+  const humans = game ? game.players.filter((pl) => pl.kind === 'human') : [];
+  const close = () => setPopup(null);
   return (
-    <div class="home cosy">
-      <div class="harbour">
-        <HomeScene />
-        <div class="hm-sign-wrap">
-          <div class="hm-fox" aria-hidden="true"><Portrait who="fox" size={64} /></div>
-          <div class="hm-sign">
-            <h1>Fruit Market</h1>
-            <p>Where the whole world shops</p>
-            <p class="hm-secret">…and every price is a secret</p>
-          </div>
-        </div>
-        <div class="hm-fruit" aria-hidden="true">{FRUITS.map((f) => <Fruit id={f} size={40} />)}</div>
-      </div>
-      <div class="hm-actions">
-        {saveNotice && <p class="save-notice" role="status">{saveNotice}</p>}
-        {resumable && (
-          <button class="hm-btn hm-primary" onClick={() => go('game')}>Continue · Day {game!.day}/{game!.config.days}</button>
-        )}
-        <button class={`hm-btn ${resumable ? 'hm-secondary' : 'hm-primary'}`} onClick={() => go('setup')}>New game</button>
-        <div class="hm-grid2">
-          <button class="hm-btn hm-teal" onClick={() => go('online')}><span>Play a friend</span><small>2 to 4 players online</small></button>
-          <button class="hm-btn hm-teal" onClick={() => go('quick')}><span>Quick match</span><small>Meet a stranger</small></button>
-        </div>
-        <button class="hm-btn hm-card" onClick={startDaily}>
-          <DailyIcon />
-          <span class="hm-card-text">
-            <span>Daily market</span>
-            <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}{streak ? ` · ${streak}-day streak` : ''}</small>
-          </span>
-        </button>
-        <DailyPeek date={today} />
-        <button class="hm-btn hm-card" onClick={startLeague}>
-          <TrophyIcon />
-          <span class="hm-card-text">
-            <span>Market League</span>
-            <small>{league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}</small>
-          </span>
-        </button>
-        <div class="hm-grid3">
-          <button class="hm-btn hm-small" onClick={() => go('howto')}>How to play</button>
-          <button class="hm-btn hm-small" onClick={() => go('trophies')}>Trophies</button>
-          <button class="hm-btn hm-small" onClick={() => go('settings')}>Settings</button>
-        </div>
-      </div>
-    </div>
+    <>
+      <Shopfront
+        resume={resumable ? `Day ${game!.day}/${game!.config.days}` : null}
+        dailyLine={`${daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}${streak ? ` · ${streak}-day streak` : ''}`}
+        leagueLine={league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
+        today={today}
+        notice={saveNotice}
+        onContinue={() => open('continue')}
+        onNew={() => open('new')}
+        onFriend={() => open('friend')}
+        onDaily={startDaily}
+        onLeague={startLeague}
+        onWardrobe={() => { setWardFrom('home'); go('wardrobe'); }}
+        onAccount={() => open('account')}
+        onTrophies={() => go('trophies')}
+        onHowTo={() => go('howto')}
+        onSettings={() => go('settings')}
+      />
+      {popup === 'new' && <Popup title="New game" onClose={close}><Setup onStart={(c) => { close(); start(c); }} /></Popup>}
+      {popup === 'continue' && game && (
+        <Popup title="Continue" onClose={close}>
+          <ContinueBody day={game.day} days={game.config.days} stalls={game.players.length} cash={humans.length === 1 ? humans[0].cash : null}
+            onResume={() => { close(); go('game'); }}
+            onStartOver={() => { saveGame(null); setGame(null); open('new'); }} />
+        </Popup>
+      )}
+      {popup === 'friend' && (
+        <Popup title="Play a friend" onClose={close}>
+          <FriendBody onCreate={() => { close(); go('online'); }} onJoin={(code) => { setJoinCode(code); close(); go('online'); }} onQuick={() => { close(); go('quick'); }} />
+        </Popup>
+      )}
+      {popup === 'account' && <Popup title="Account" onClose={close}><AccountPanel onChange={() => refresh((n) => n + 1)} /></Popup>}
+    </>
   );
 }
 
-/** The flat scene behind the home sign: sky, sun and two hills (decoration only). */
-function HomeScene() {
-  return (
-    <svg class="hm-scene" viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <rect width="400" height="240" fill={C.street} />
-      <circle cx="318" cy="62" r="24" fill={C.gold} stroke={C.ink} stroke-width="2.5" />
-      <path d="M-20 214 Q60 150 160 178 T420 170 V260 H-20 Z" fill={C.c_9fcdbd} stroke={C.ink} stroke-width="2.5" />
-      <path d="M60 240 Q160 176 260 204 T440 196 V280 H60 Z" fill={C.teal} stroke={C.ink} stroke-width="2.5" />
-    </svg>
-  );
-}
-
-function DailyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="5" fill={C.c_e7a73a} /><rect x="4" y="6" width="24" height="7" rx="3" fill={C.c_c65a3a} /><circle cx="16" cy="20" r="4" fill={C.c_fffaf0} /></svg>;
-}
-
-function TrophyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill={C.gold} /><rect x="13" y="21" width="6" height="5" fill={C.c_c98f1c} /><rect x="9" y="26" width="14" height="3" rx="1.5" fill={C.c_8e5b33} /></svg>;
-}
-
-function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfig) => void }) {
+function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
   const [name, setName] = useState(loadName());
   const nameRef = useRef<HTMLInputElement>(null);
   // A blank name field takes focus so the keyboard opens (best effort: some phones only allow it from a tap).
@@ -276,9 +254,7 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
   };
 
   return (
-    <div class="page">
-      <header class="topbar"><button class="icon-btn" onClick={onBack}>←</button><div class="day"><b>New game</b></div><span /></header>
-      <main class="scroll pad">
+    <div class="setup-body">
         <section class="panel">
           <h3>Your stall</h3>
           <input ref={nameRef} class="input" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
@@ -331,7 +307,6 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
           <Toggle on={pulseRule} set={setPulseRule} title="Price drift" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>
         <div class="sticky-start"><button class="btn primary big wide" onClick={begin}>Start game</button></div>
-      </main>
     </div>
   );
 }
@@ -352,18 +327,6 @@ function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
   const computers = rivals.length - friends;
   const part = (n: number, word: string) => (n ? `, ${n} ${word}${n > 1 ? 's' : ''}` : '');
   return `${rivals.length + 1} stalls: you${part(friends, 'friend')}${part(computers, 'computer')}`;
-}
-
-function DailyPeek({ date }: { date: string }) {
-  const [res, setRes] = useState<BoardResult | null>(null);
-  useEffect(() => { let alive = true; void fetchDaily(date).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [date]);
-  if (!res || res.error || !res.top.length) return null;
-  return (
-    <div class="daily-peek" aria-label="Today's leaderboard">
-      <small>Today's top stalls{res.players ? ` · ${res.players} played` : ''}</small>
-      {res.top.slice(0, 3).map((e, i) => <span><b>{i + 1}.</b> {e.name} <b>${e.cash}</b></span>)}
-    </div>
-  );
 }
 
 function Trophies({ onBack, onWardrobe }: { onBack: () => void; onWardrobe: () => void }) {
@@ -445,7 +408,6 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           {!fullscreenSupported() && iphoneNeedsHomeScreen() && <p class="muted small">For full screen on iPhone: tap Share, then Add to Home Screen, and open Fruit Market from there.</p>}
           <button class="btn wide" onClick={() => { resetTutorial(); fx.tap(); }}>Replay the tutorial next game</button>
         </section>
-        <AccountPanel onChange={() => setSt(loadSettings())} />
         <section class="panel">
           <h3>Your stats</h3>
           <div class="stats">

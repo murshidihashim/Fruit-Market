@@ -29,7 +29,7 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
   const settle = () => host.page.waitForTimeout(400);
 
   await host.page.goto(base);
-  await host.page.click('text=Play a friend');
+  await host.page.click('text=Play a friend'); await host.page.click('text=Create a room');
   await host.page.click('text=Create room');
   await host.page.waitForSelector('#invite-link');
   const link = await host.page.inputValue('#invite-link');

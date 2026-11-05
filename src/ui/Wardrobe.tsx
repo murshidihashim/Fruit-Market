@@ -8,7 +8,7 @@ import { loadColour, loadLooks } from './progress';
 import { C } from './palette';
 import { fx } from './fx';
 
-const myAvatar = (): string => {
+export const myAvatar = (): string => {
   try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
 };
 

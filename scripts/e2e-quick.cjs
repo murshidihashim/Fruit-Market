@@ -15,7 +15,7 @@ const pages = [];
     p.on('console', (m) => P.consoleLog.push(`${m.type()}: ${m.text()}`));
     p.on('websocket', (ws) => ws.on('framereceived', (f) => P.frames.push(typeof f.payload === 'string' ? f.payload : '')));
     await p.addInitScript((n) => { localStorage.setItem('fm.name', n); localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false })); }, name);
-    pages.push(P); await p.goto(base); await p.click('text=Quick match'); return p;
+    pages.push(P); await p.goto(base); await p.click('text=Play a friend'); await p.click('text=Quick match'); return p;
   };
   const A = await mk('Alice'); await A.click('text=Find an opponent');
   await A.waitForSelector('text=Looking for an opponent'); await A.screenshot({ path: `${out}/q1-waiting.png` });

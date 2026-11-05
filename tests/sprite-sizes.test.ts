@@ -16,7 +16,7 @@ const KIND: Record<string, string> = { Fruit: 'fruit', PixelFruit: 'fruit', Face
 // A new off-list size is not allowed.
 const TODAY: Record<string, number[]> = {
   fruit: [16, 18, 20, 22, 26, 30, 40],
-  portrait: [20, 22, 24, 26, 30, 32, 34, 44, 64, 96],
+  portrait: [20, 22, 24, 26, 30, 32, 34, 44, 96],
   icon: [11, 14, 16, 20, 22, 26, 28, 30, 32, 34, 40, 44],
 };
 
