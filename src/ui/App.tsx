@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
-import { dailyConfig } from '../engine/daily';
+import { dailyConfig, dailyTwist } from '../engine/daily';
 import { CHARACTER_AVATARS, FRUIT, FRUITS, RIVALS } from '../engine/data';
 import { Fruit } from './art';
 import { CharacterPick } from './CharacterPick';
@@ -179,7 +179,7 @@ function Main() {
           <DailyIcon />
           <span class="hm-card-text">
             <span>Daily market</span>
-            <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : 'Same market for everyone today'}{streak ? ` · ${streak}-day streak` : ''}</small>
+            <small>{daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}{streak ? ` · ${streak}-day streak` : ''}</small>
           </span>
         </button>
         <DailyPeek date={today} />
@@ -325,12 +325,12 @@ function Setup({ onBack, onStart }: { onBack: () => void; onStart: (c: GameConfi
           <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in. Closing Day on the final day: +$1, then the jam maker buys leftovers." />
         </section>
         <section class="panel">
-          <h3>Playtest options</h3>
+          <h3>Beginner and expert rules</h3>
           <Toggle on={core} set={setCore} title="Basic game" text="No shopkeeper perks, favour cards or upgrades. Just buying, stalls and the bell." />
           <Toggle on={street} set={setStreet} title="Fixed prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
           <Toggle on={pulseRule} set={setPulseRule} title="Price drift" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>
-        <button class="btn primary big wide" onClick={begin}>Start game</button>
+        <div class="sticky-start"><button class="btn primary big wide" onClick={begin}>Start game</button></div>
       </main>
     </div>
   );

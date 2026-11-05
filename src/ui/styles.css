@@ -1077,3 +1077,13 @@ body { background: var(--c-fbf3e1); }
 .wd-band { width: 100%; image-rendering: pixelated; background-repeat: repeat-x; border: 2px solid var(--ink); border-radius: 6px; }
 .wd-prop { image-rendering: pixelated; }
 .wd-overlay { position: fixed; inset: 0; z-index: 60; background: var(--cream); overflow: auto; }
+
+/* Polish (REP-086): Start stays in view on the set-up screen, the pricing hint clears the Seal button, customers fade at the edge, ghost market slots are quieter. */
+.sticky-start { position: sticky; bottom: 0; z-index: 3; padding: 14px 0 max(10px, env(safe-area-inset-bottom)); background: linear-gradient(rgba(255, 255, 255, 0), var(--cream) 45%); }
+.price-panel { padding-bottom: 76px; }
+.game .street { padding-right: 26px; -webkit-mask-image: linear-gradient(to right, black calc(100% - 22px), transparent); mask-image: linear-gradient(to right, black calc(100% - 22px), transparent); }
+.game .street-wrap.lorry-here .street { padding-right: 162px; }
+.game .mk-cell .gh { opacity: 0.12; }
+.cash-chart { margin: 10px 0; padding: 8px 10px; border: 2px solid var(--ink); border-radius: 12px; background: var(--cream); }
+.cash-chart svg { width: 100%; height: auto; display: block; }
+.cc-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.8rem; font-weight: 700; }

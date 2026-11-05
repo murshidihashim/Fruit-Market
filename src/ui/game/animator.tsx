@@ -134,13 +134,13 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     await A.wait(800);
     t.remove();
   }
-  // Money that was not paid line by line (a Tip Jar's tip) lands last, then the real totals show again.
+  // Money that was not paid line by line (a Tip Jar's tip, a Haggler's bonus) lands last, then the real totals show again.
   let tipped = false;
   g.players.forEach((pl, p) => {
     const tip = pl.cash - shownCash(p, pl.cash);
     if (tip <= 0) return;
     tipped = true;
-    A.floatText(`p${p}-cash`, `+$${tip} tip`);
+    A.floatText(`p${p}-cash`, `+$${tip} bonus`);
     void payCash(p, tip);
   });
   if (tipped) { fx.coin(); await A.wait(500); }

@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 7).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 8).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -37,7 +37,7 @@ Have the **most cash** at the end of the last day. Fruit left on your shelf and 
 - 2 to 4 stalls. Each one is played by you, a friend on the same phone, or a computer player (Easy, Normal or Hard).
 - **Quick** is 8 days, **Standard** is 10 days and **Long** is 14 days.
 - Each stall starts with **$10**, a shelf of 8 spaces, and no favour cards.
-- With **2 stalls** there are no walk-ins on an ordinary day (players − 2), so only the regular comes, and Gossip and Scout have nothing to look at except on Market Days. Three or four stalls give a fuller market.
+- With **2 stalls** there is one walk-in a day (and the regular), so Gossip and Scout still have something to look at. Three or four stalls give a fuller market.
 
 ## The fruit
 
@@ -81,7 +81,7 @@ The event's own price change still applies on top (a Mango Craze makes the Influ
 
 Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and tomorrow's event. When today's crowd turns face up (the moment buying ends), draw tomorrow's **regular** face up and tomorrow's **walk-ins** face down. Walk-ins show only the fruit on their card backs. On Day 1, draw the first regular and walk-ins during set-up. Together these make the **Tomorrow strip**.
 
-- Walk-ins per day: **players − 2**, every day of the game.
+- Walk-ins per day: **players − 2** every day of the game (but **1** with 2 stalls).
 - **Market Day:** one more walk-in (see below). The lorry still comes.
 
 ## A day in five beats
@@ -168,12 +168,12 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 
 | Shopkeeper | Perk | Effect |
 |---|---|---|
-| Rosa | Haggler | You win tied prices, even against fresher fruit. |
-| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 5th, or the 6th with a Handcart) costs $1 more. |
+| Rosa | Haggler | You win tied prices, even against fresher fruit, and your first sale each day pays $1 more. |
+| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 5th, or the 6th with a Handcart) costs $2 more. |
 | Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
-| Chen | Charmer | Start with 3 favour cards, and hold up to 4. |
+| Chen | Charmer | Start with 4 favour cards, and hold up to 4. |
 | Kiran | Tip Jar | Customers you serve completely by yourself tip you $4. |
-| Saleh | Nest Egg | Start with $15 instead of $10. |
+| Saleh | Nest Egg | Start with $15 instead of $10, and buy first on day 3 (the first Market Day). |
 
 (Rules version 5. Before, each stall was dealt 3 perks on the first morning and kept one.)
 
@@ -232,6 +232,8 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector counts
 
 ## Balance notes
 
+Rules version 8 (REP-086 and a second round of about 25,000 computer games): every shopkeeper now wins within about 3 points of a fair share (before, Big Basket won about 10 points more and Haggler about 9 points fewer). Haggler's first sale each day pays $1 more; Big Basket's extra piece costs $2 more (was $1); Nest Egg buys first on day 3; Charmer starts with 4 favour cards; two stalls get one walk-in a day, so a 2-player game is no longer decided by a single customer; and quick matches online have no upgrades. The Daily market also gets a small twist that rotates through the week (see below).
+
 Rules version 7 (REP-086, computer-player simulation of about 40,000 games): the app now matches the printed rule of one upgrade per Market Day (before, several could be built in one evening, which made upgrades close to compulsory); a mango costs $1 more (fresh $5, green $4) because it earned about 40% more per fruit than the others; and Big Basket's extra piece costs $1 more because the perk won about 10 points more often than fair.
 
 Rules version 6 (DEC-050): the Scout favour card replaces Good Riddance, which nobody wanted to play. The deck stays at 12 cards, two of each. Scout is information, like Gossip, but it covers one of today's walk-ins instead of all of tomorrow's.
@@ -239,6 +241,8 @@ Rules version 6 (DEC-050): the Scout favour card replaces Good Riddance, which n
 Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP-033) had no lorry on Market Days and one more walk-in from halfway; in computer-player games that left the market empty on Market Days and nearly doubled the customers in the last three days. Rules 5 brings the lorry every day and drops the second-half walk-in. See REP-049 for the numbers (computer players only).
 
 ## Daily market
+
+Each day has a small twist, the same for everyone, rotating through seven: the usual game, a quick 8-day game, no upgrades, fixed prices, no events, a long 14-day game, and the basic game.
 
 Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Benny (Hard) and Chen (Normal) over 10 days. Scores are kept per rules version.
 

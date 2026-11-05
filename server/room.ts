@@ -82,7 +82,7 @@ export interface RoomIO {
 
 export function freshRoom(code: string, now: number, quick = false): RoomData {
   return {
-    code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG },
+    code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG, upgrades: !quick }, // quick matches skip upgrades: 2-player games with them are the most lopsided (REP-086)
     game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
   };
 }

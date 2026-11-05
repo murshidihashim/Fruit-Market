@@ -134,7 +134,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           )}
           <div class="centre">
             <Market s={s} p={viewer}
-              onPick={myBuyTurn ? c.pickMarket : undefined}
+              onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
               canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
               onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
             {overlay}

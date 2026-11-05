@@ -52,7 +52,7 @@ describe('printed supply and demand', () => {
     expect(walkInsOn(s, 3, null)).toBe(2); // Market Day
     expect(walkInsOn(s, 7, null)).toBe(1); // no extra walk-in in the second half
     expect(walkInsOn(s, 9, null)).toBe(2); // Market Day
-    expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(0);
+    expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(1); // two stalls get one walk-in (rules 8)
     expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(2);
   });
 
@@ -219,9 +219,9 @@ describe('options', () => {
   });
 });
 
-describe('rules version 7', () => {
+describe('rules version 8', () => {
   it('keeps daily boards for each rules version apart', () => {
-    expect(RULES_VERSION).toBe(7);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r7');
+    expect(RULES_VERSION).toBe(8);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r8');
   });
 });

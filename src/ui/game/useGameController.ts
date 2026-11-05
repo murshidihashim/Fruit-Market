@@ -51,6 +51,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const undoSeen = useRef<number | null>(null);
   const sending = useRef(false);
   const layerRef = useRef<HTMLDivElement>(null);
+  /** Fruit tapped while the last purchase was still animating (offline); bought in order as soon as the table is free. */
+  const buyQueue = useRef<{ f: FruitId; pos: number }[]>([]);
 
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
@@ -124,6 +126,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       busyRef.current = false;
       setBusy(false);
       setTick((t) => t + 1);
+      const q = buyQueue.current.shift();
+      if (q) {
+        const cur = sRef.current;
+        const me = activePlayer(cur);
+        if (cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human') window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
+        else buyQueue.current = [];
+      }
     }
   }
 
@@ -241,6 +250,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(null);
       return;
     }
+    if (busyRef.current && !online && s.phase === 'buy' && buyQueue.current.length < 3) { buyQueue.current.push({ f, pos }); return; }
     act({ kind: 'buy', fruit: f, pos });
   };
 
@@ -282,6 +292,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (s.phase !== 'over') return;
     trackOnce(`${gameKey}:end`, 'game_end', ranking(s)[0] === viewer ? 'win' : 'lose');
     trackOnce(`${gameKey}:cash`, 'final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
+    trackOnce(`${gameKey}:spoiled`, 'fruit_spoiled', Math.min(10, s.players[viewer].stats.spoiled));
+    trackOnce(`${gameKey}:unsold`, 'fruit_unsold', Math.min(12, s.jam?.[viewer] ?? 0));
     trackOnce('first_game_complete', 'first_game_complete');
   }, [s.phase]);
 

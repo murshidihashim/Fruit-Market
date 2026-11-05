@@ -1,0 +1,72 @@
+{
+  "release": "1.5.0",
+  "build": "branch feat/polish-1-5",
+  "reports": [
+    "REP-086"
+  ],
+  "decisions": [
+    "DEC-059"
+  ],
+  "changes": {
+    "added": [
+      "Change password in Settings",
+      "Cash-over-days chart and a Share result button on the results screen",
+      "A daily twist that rotates through the week",
+      "Printed table kit: upgrade cards, day track, tomorrow strip, dawn line-up, crier card, tokens, a Fruit sold tally"
+    ],
+    "changed": [
+      "Haggler's first sale each day pays $1 more; Big Basket's extra piece costs $2 more; Nest Egg buys first on day 3; Charmer starts with 4 favour cards",
+      "Two stalls get one walk-in a day",
+      "Quick matches online have no upgrades",
+      "Taps while buying are queued instead of dropped",
+      "The set-up screen keeps Start in view and calls the extra rules Beginner and expert rules",
+      "Content security policy for the web game"
+    ],
+    "fixed": [
+      "The pricing hint is no longer hidden under the Seal button",
+      "Customers fade at the edge so you can see they scroll"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Rules version 8: update the app to play online (older versions cannot join)"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "ok do everything",
+    "date": "2026-11-05"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-045",
+  "title": "Balance round 2 and polish",
+  "problem": "Three shopkeepers were far from fair, 2-player games were decided by one customer, and several screens and table pieces were rough.",
+  "scope": [
+    "Engine: shopkeeper changes, 2-player walk-in, rules version 8",
+    "Quick match without upgrades",
+    "Daily twist",
+    "Screens: taps, set-up, hint padding, street fade, results chart and share, change password",
+    "Telemetry: fruit spoiled and unsold",
+    "Web: content security policy",
+    "Print kit and RULES.md"
+  ],
+  "exclusions": [
+    "Cold Room and Juice Bar redesign",
+    "Table Companion mode",
+    "League stars, practice coach, teams, async rooms",
+    "Offline mode"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-11-05 (183 tests)"
+    },
+    {
+      "id": "T2",
+      "text": "Content security policy does not break the game on the preview",
+      "result": "NOT RUN",
+      "evidence": "Checked on the staging site before going live"
+    }
+  ]
+}

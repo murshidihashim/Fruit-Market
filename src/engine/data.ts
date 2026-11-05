@@ -292,12 +292,12 @@ export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite'
 export interface TraitDef { id: TraitId; title: string; text: string }
 
 export const TRAITS: Record<TraitId, TraitDef> = {
-  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices, even against fresher fruit.' },
-  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day (the extra one costs $1 more).' },
+  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices, even against fresher fruit, and your first sale each day pays $1 more.' },
+  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day (the extra one costs $2 more).' },
   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
-  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 3 favour cards, and hold up to 4.' },
+  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 4 favour cards, and hold up to 4.' },
   favourite: { id: 'favourite', title: 'Tip Jar', text: 'Customers you serve completely by yourself tip you $4.' },
-  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $15 instead of $10.' },
+  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $15 instead of $10, and buy first on day 3.' },
 };
 export const TRAIT_OFFER = 3;
 

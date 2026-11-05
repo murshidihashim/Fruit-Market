@@ -117,6 +117,13 @@ export async function signOut(): Promise<string | null> {
   return null;
 }
 
+export async function changePassword(password: string, newPassword: string): Promise<string | null> {
+  const s = readSession();
+  if (!s) return 'You are not signed in.';
+  const r = await call('password', { id: s.id, token: s.token, password, newPassword });
+  return r.ok ? null : r.error;
+}
+
 export async function deleteAccount(password: string): Promise<string | null> {
   const s = readSession();
   if (!s) return 'You are not signed in.';

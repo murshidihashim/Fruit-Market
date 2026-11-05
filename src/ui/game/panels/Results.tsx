@@ -9,6 +9,26 @@ import { checkAchievements, LEAGUE, recordLeague } from '../../progress';
 import { partsOf } from '../../../net/looks';
 import { syncLooks } from '../../looks';
 import { DailyResult } from './DailyResult';
+import { SEAT_COLOURS } from '../../table';
+
+/** Every stall's cash at the end of each day, so you can see where the game was won. */
+function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
+  const h = s.history ?? [];
+  if (h.length < 2) return null;
+  const W = 300, H = 110, P = 8;
+  const max = Math.max(1, ...h.flatMap((d) => d.cash));
+  const x = (i: number) => P + ((W - 2 * P) * i) / (h.length - 1);
+  const y = (v: number) => H - P - ((H - 2 * P) * v) / max;
+  return (
+    <div class="cash-chart">
+      <div class="rc-h">Cash, day by day</div>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Each stall's cash at the end of each day">
+        {s.players.map((_, i) => <polyline fill="none" stroke-linejoin="round" stroke={SEAT_COLOURS[i % SEAT_COLOURS.length]} stroke-width={i === viewer ? 4 : 2.5} points={h.map((d, k) => `${x(k)},${y(d.cash[i])}`).join(' ')} />)}
+      </svg>
+      <div class="cc-key">{s.players.map((pl, i) => <span style={{ color: SEAT_COLOURS[i % SEAT_COLOURS.length] }}>{i === viewer ? 'You' : pl.name}</span>)}</div>
+    </div>
+  );
+}
 
 export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean }) {
   // Checked once when the results first show; both only report what's new.
@@ -22,6 +42,14 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const champ = s.players[order[0]];
   const margin = order.length > 1 ? champ.cash - s.players[order[1]].cash : 0;
   const recap = gameRecap(s, viewer);
+  const share = async () => {
+    const place = win ? 'I won' : `I came ${ranks[order.indexOf(viewer)].toLowerCase()}`;
+    const text = `Fruit Market: ${place} with $${s.players[viewer].cash} after ${s.config.days} days.`;
+    try {
+      if (navigator.share) await navigator.share({ text, url: location.origin });
+      else await navigator.clipboard.writeText(`${text} ${location.origin}`);
+    } catch { /* cancelled or not allowed */ }
+  };
   return (
     <section class="results">
       <div class="trophy"><Face who={champ.avatar} size={96} worn={partsOf(champ.look)} /><span class="crown"><Icon name="star" size={34} /></span></div>
@@ -43,6 +71,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           );
         })}
       </div>
+      <CashChart s={s} viewer={viewer} />
       {(recap.best.length > 0 || recap.worst.length > 0) && (
         <div class="recap">
           {recap.best.length > 0 && <><div class="rc-h good">Your best moments</div>{recap.best.map((t) => <div class="rc-l">{t}</div>)}</>}
@@ -65,6 +94,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
       <button class="btn primary big wide" disabled={rematchSent} onClick={onRematch}>
         {s.config.league !== undefined ? (cleared ? (s.config.league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Back to menu' : win ? 'Defend your title' : 'Rematch!'}
       </button>
+      <button class="btn wide" onClick={share}>Share result</button>
       <button class="btn wide" onClick={onExit}>Main menu</button>
     </section>
   );

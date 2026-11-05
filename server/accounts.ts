@@ -28,7 +28,7 @@ export interface AccountRec {
   lockUntil: number;
 }
 
-export type AccountAction = 'signup' | 'login' | 'sync' | 'logout' | 'delete';
+export type AccountAction = 'signup' | 'login' | 'sync' | 'logout' | 'password' | 'delete';
 /** `rec` is the record to store: undefined leaves it as it was, null deletes the account. */
 export interface AccountResult { status: number; body: Record<string, unknown>; rec?: AccountRec | null }
 
@@ -150,6 +150,19 @@ export async function handleAccount(action: AccountAction, input: unknown, rec: 
   if (action === 'logout') {
     const h = await sha256(b.token as string);
     acct.sessions = acct.sessions.filter((s) => s.h !== h);
+    return { status: 200, body: { ok: true }, rec: acct };
+  }
+  if (action === 'password') {
+    const wrong = await checkPassword(acct, b.password, now);
+    if (wrong) return wrong;
+    const bad = passwordProblem(b.newPassword);
+    if (bad) return fail(400, bad);
+    acct.salt = randomHex(16);
+    acct.rounds = HASH_ROUNDS;
+    acct.hash = await hashPassword(b.newPassword as string, acct.salt);
+    // Every other phone has to sign in again with the new password.
+    const h = await sha256(b.token as string);
+    acct.sessions = acct.sessions.filter((s) => s.h === h);
     return { status: 200, body: { ok: true }, rec: acct };
   }
   if (action === 'delete') {

@@ -5,7 +5,7 @@
 //   POST /api/t            -> 204             anonymous usage counters and error lines
 //   GET  /api/stats        -> report          (needs the STATS_KEY secret in an x-stats-key header)
 //   GET  /api/daily?date=  -> top scores      POST /api/daily -> verified submission
-//   POST /api/account/{signup,login,sync,logout,delete} -> optional ID-and-password accounts (server/accounts.ts)
+//   POST /api/account/{signup,login,sync,logout,password,delete} -> optional ID-and-password accounts (server/accounts.ts)
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
@@ -99,7 +99,7 @@ export default {
       if (!env.STATS_KEY || req.headers.get('x-stats-key') !== env.STATS_KEY) return json({ error: 'Forbidden' }, 403);
       return env.STATS.get(env.STATS.idFromName('global')).fetch(`https://stats/report?days=${url.searchParams.get('days') ?? '14'}`);
     }
-    const acct = url.pathname.match(/^\/api\/account\/(signup|login|sync|logout|delete)$/);
+    const acct = url.pathname.match(/^\/api\/account\/(signup|login|sync|logout|password|delete)$/);
     if (acct) {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
       const stop = await limited(req, env, 'account');

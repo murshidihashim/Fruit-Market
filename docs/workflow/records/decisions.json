@@ -1465,6 +1465,31 @@
       ],
       "plan": "PLAN-044",
       "reviewTrigger": "Owner plays it, and a week of anonymous stats."
+    },
+    {
+      "id": "DEC-059",
+      "title": "Balance round 2, screen polish, change password, table kit",
+      "question": "Which of the remaining audit items go into the game now?",
+      "choice": "Shopkeeper rebalance (Haggler first sale +$1, Big Basket extra piece $2, Nest Egg buys first on day 3, Charmer 4 cards), two stalls get one walk-in, quick matches have no upgrades, a daily twist, taps queued while buying, a sticky Start button and clearer set-up wording, results chart and share, change password, fruit spoiled and unsold stats, a content security policy, and a bigger printed table kit. Not built: Cold Room and Juice Bar redesign (the simulation showed no gain), Table Companion mode, league stars, practice coach, teams, async rooms, offline mode, lockout change.",
+      "rationale": "Owner request after the audit status: \"ok do everything\". Each rules change was measured in a second simulation round (REP-086): every shopkeeper now wins within about 3 points of fair.",
+      "impact": {
+        "player": "More even shopkeepers, a more even 2-player game, simpler quick matches, a new daily twist, and several smaller fixes. Rules version 8: update the app to play online, and a game in progress from 1.4.0 can't be resumed.",
+        "technical": "RULES_VERSION 8; haggler bonus, buyCost, nest egg order, charmer start and 2-player walk-in in the engine; daily twist in src/engine/daily.ts; password action on the account server; quick-match rooms without upgrades; _headers with a content security policy.",
+        "data": "Daily boards start fresh for rules version 8. Two new anonymous stats: fruit_spoiled and fruit_unsold."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "ok do everything",
+        "date": "2026-11-05"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-086"
+      ],
+      "plan": "PLAN-045",
+      "reviewTrigger": "Owner plays it; a week of the new anonymous stats."
     }
   ],
   "history": [
@@ -1991,6 +2016,10 @@
     {
       "at": "2026-11-05 14:00",
       "text": "Release 1.4.0 published (Deploy LIVE game on main 971b500, started by Claude at the owner's explicit request; smoke test passed; tag v1.4.0)."
+    },
+    {
+      "at": "2026-11-05 18:00",
+      "text": "Owner asked for everything left in the audit (DEC-059). Built on branch feat/polish-1-5 as release 1.5.0 candidate."
     }
   ]
 }

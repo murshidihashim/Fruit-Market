@@ -1,6 +1,6 @@
 // Settings section for the optional account: sign up or sign in with an ID and a password, sync, sign out, delete.
 import { useState } from 'preact/hooks';
-import { accountsAvailable, deleteAccount, signedInAs, signIn, signOut, signUp, syncNow } from './account';
+import { accountsAvailable, changePassword, deleteAccount, signedInAs, signIn, signOut, signUp, syncNow } from './account';
 import { fx } from './fx';
 
 export function AccountPanel({ onChange }: { onChange: () => void }) {
@@ -11,6 +11,8 @@ export function AccountPanel({ onChange }: { onChange: () => void }) {
   const [msg, setMsg] = useState('');
   const [bad, setBad] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [changing, setChanging] = useState(false);
+  const [pw2, setPw2] = useState('');
   if (!accountsAvailable()) return null;
 
   const run = async (job: () => Promise<string | null>, ok: string) => {
@@ -41,6 +43,16 @@ export function AccountPanel({ onChange }: { onChange: () => void }) {
         <button class="btn wide" disabled={busy} onClick={() => run(syncNow, 'Saved to your account.')}>Save to my account now</button>
         <button class="btn wide" disabled={busy} onClick={async () => { if (await run(signOut, 'Signed out. This phone is ready for a new player.')) { setPw(''); } }}>Sign out</button>
         <p class="muted small">Signing out saves everything to your account and then clears it from this phone. Sign in again to bring it back.</p>
+        {!changing ? (
+          <button class="btn ghost wide" disabled={busy} onClick={() => setChanging(true)}>Change my password…</button>
+        ) : (
+          <div class="acct-delete">
+            {field(pw, setPw, 'Current password', 'password', 'current-password')}
+            {field(pw2, setPw2, 'New password (8 or more characters)', 'password', 'new-password')}
+            <button class="btn wide" disabled={busy || !pw || !pw2} onClick={async () => { if (await run(() => changePassword(pw, pw2), 'Password changed. Other phones will ask you to sign in again.')) { setChanging(false); setPw(''); setPw2(''); } }}>Save new password</button>
+            <button class="btn ghost wide" onClick={() => { setChanging(false); setPw(''); setPw2(''); }}>Cancel</button>
+          </div>
+        )}
         {!confirming ? (
           <button class="btn ghost wide" disabled={busy} onClick={() => setConfirming(true)}>Delete my account…</button>
         ) : (

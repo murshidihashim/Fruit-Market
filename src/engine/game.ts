@@ -1,4 +1,4 @@
-// Core rules (rules version 4, "tabletop edition"). Every action takes a state and returns a new state
+// Core rules (rules version 7, "tabletop edition"). Every action takes a state and returns a new state
 // (the input is never changed), so the UI can keep history and the whole game can be saved as JSON.
 //
 // A day: morning (event, lorry, tomorrow's strip) -> buying (poorest first) -> customers arrive ->
@@ -62,6 +62,8 @@ export interface Player extends PlayerConfig {
   /** What this shop paid for fruit today (for the day's ledger). */
   spentToday: number;
   favouredTrade: boolean;
+  /** Haggler: today's first sale has already paid its $1 bonus. */
+  hagglePaid?: boolean;
   stats: Stats;
   /** Merchant trait, picked from `traitOffer` on the first morning. */
   trait?: TraitId | null;
@@ -197,8 +199,8 @@ export function handLimit(p: Player): number {
 export function buyCost(s: GameState, p: number, f: FruitId, pos: number): number {
   const c = marketCost(s, f, pos);
   const pl = s.players[p];
-  // Big Basket's extra piece (past the usual daily limit) costs $1 more.
-  const extra = pl?.trait === 'basket' && pl.boughtToday >= (pl.upgrades.includes('barrow') ? BARROW_BUY : BASE_BUY) ? 1 : 0;
+  // Big Basket's extra piece (past the usual daily limit) costs $2 more.
+  const extra = pl?.trait === 'basket' && pl.boughtToday >= (pl.upgrades.includes('barrow') ? BARROW_BUY : BASE_BUY) ? 2 : 0;
   return (pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c) + extra;
 }
 
@@ -271,7 +273,8 @@ export function progress(s: GameState, day = s.day): number {
 
 /** Walk-ins on a day: players - 2 every day (rules 5: no extra walk-in in the second half); +1 on Market Days; plus that day's event. */
 export function walkInsOn(s: GameState, day: number, event: EventCard | null): number {
-  const base = Math.max(0, s.players.length - 2);
+  // Two stalls get one walk-in a day (rules 8); more stalls get players minus 2.
+  const base = s.players.length === 2 ? 1 : Math.max(0, s.players.length - 2);
   return Math.max(0, base + (isMarketDay(s, day) ? 1 : 0) + (event?.walkIns ?? 0));
 }
 
@@ -359,7 +362,7 @@ function applyTrait(s: GameState, p: number, t: TraitId) {
   const pl = s.players[p];
   pl.trait = t;
   if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
-  if (t === 'charmer') for (let k = 0; k < 3; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
+  if (t === 'charmer') for (let k = 0; k < 4; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
   s.dayStartCash = s.players.map((x) => x.cash);
   s.log.push(`${pl.name} is a ${TRAITS[t].title}`);
 }
@@ -483,6 +486,7 @@ function startDay(s: GameState) {
     p.boughtToday = 0;
     p.spentToday = 0;
     p.favouredTrade = false;
+    p.hagglePaid = false;
     p.upgradeOffer = [];
   }
   s.dayStartCash = s.players.map((p) => p.cash);
@@ -494,6 +498,9 @@ function startDay(s: GameState) {
     s.order = [s.priorityNext, ...s.order.filter((i) => i !== s.priorityNext)];
     s.priorityNext = null;
   }
+  // Nest Egg: first in line on day 3, the first Market Day.
+  const egg = s.players.findIndex((p) => p.trait === 'nestegg');
+  if (egg >= 0 && s.day === 3) s.order = [egg, ...s.order.filter((i) => i !== egg)];
   s.turn = 0;
   s.stalls = s.players.map(() => null);
   s.bids = s.players.map(() => null);
@@ -771,7 +778,10 @@ function resolve(s: GameState) {
         // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well.
         const juice = pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
         if (juice) o.juice = juice;
-        const gain = n * o.price + juice;
+        // Haggler: the first sale of each day pays $1 more.
+        const bonus = pl.trait === 'haggler' && !pl.hagglePaid ? 1 : 0;
+        if (bonus) pl.hagglePaid = true;
+        const gain = n * o.price + juice + bonus;
         pl.cash += gain;
         pl.stats.earned += gain;
         pl.stats.sold += n;
