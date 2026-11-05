@@ -1514,6 +1514,29 @@
         "REP-079"
       ],
       "reviewTrigger": "Owner test print: cut lines, back alignment and sleeves."
+    },
+    {
+      "id": "DEC-061",
+      "title": "Shopfront home screen, popups and rounder numbers",
+      "question": "Which home screen layout, how should New game set-up work, and which font should numbers use?",
+      "choice": "Layout 3, the shopfront scene: your shopkeeper at a stall with Dress up (Wardrobe) and a hanging Create account sign, four tiles (New game, Play a friend, Daily market, Market League) and a Continue bar. Option A: the whole New game set-up lives in one popup. Continue and Play a friend also open small menus. Numbers and dollar signs use Fredoka; words keep the pixel font.",
+      "rationale": "Owner: \"layout 3, option A, yes approve it already\", then \"Yes, apply it\" for the font, then \"check this and then approve everything to deploy the game\".",
+      "impact": {
+        "player": "A friendlier home screen, with the Wardrobe and account on it; set-up is a popup; clearer numbers. No rules change, so online play with 1.5.0 still works.",
+        "technical": "New src/ui/Home.tsx; App.tsx home and set-up reworked; font alias 'Fruit Pixel' in styles.css; browser test scripts updated.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "layout 3, option A, yes approve it already",
+        "date": "2026-11-05"
+      },
+      "delivery": "implemented",
+      "reports": [],
+      "plan": "PLAN-046",
+      "reviewTrigger": "Owner plays it on a phone; whether B and C in the pixel font need the same fix."
     }
   ],
   "history": [
@@ -2052,6 +2075,10 @@
     {
       "at": "2026-11-05 20:00",
       "text": "Release 1.5.0 published (Deploy LIVE game on main b92dc51, started by Claude at the owner's explicit request \"deploy live game\"; smoke test passed; tag v1.5.0). Owner approved the printed card backs (DEC-060)."
+    },
+    {
+      "at": "2026-11-05 22:00",
+      "text": "Owner chose home screen layout 3 and New game option A (\"layout 3, option A, yes approve it already\"), asked for the rounder number font (\"Yes, apply it\") and approved deploying everything (\"check this and then approve everything to deploy the game\"). Built as release 1.6.0, PLAN-046, DEC-061."
     }
   ]
 }

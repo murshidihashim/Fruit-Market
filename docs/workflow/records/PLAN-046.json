@@ -1,0 +1,65 @@
+{
+  "release": "1.6.0",
+  "build": "branch feat/shopfront-home",
+  "reports": [],
+  "decisions": [
+    "DEC-061"
+  ],
+  "changes": {
+    "added": [
+      "A shopfront home screen: your shopkeeper stands at a stall wearing your looks, with Dress up (the Wardrobe) and a hanging Create account sign",
+      "New game, Continue and Play a friend open a small menu in the middle of the screen first"
+    ],
+    "changed": [
+      "New game: all the set-up is inside one popup instead of a full page",
+      "Quick match moved into the Play a friend menu, next to Create a room and Join with a code",
+      "The account section moved from Settings to the home screen",
+      "Numbers and dollar signs use the rounder font, so 5 is not mistaken for S and 2, 3 and 8 are easier to tell apart"
+    ],
+    "fixed": [],
+    "removed": [
+      "The full-page New game set-up screen"
+    ]
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "layout 3, option A, yes approve it already",
+    "date": "2026-11-05"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-046",
+  "title": "Shopfront home screen, popups and rounder numbers",
+  "problem": "The home screen was a long stack of buttons, the Wardrobe and account were hard to find, and the pixel font made 5 look like S and 2, 3 and 8 look alike.",
+  "scope": [
+    "Home screen layout 3 (shopfront scene) with Dress up and Create account on it",
+    "Popups for New game (option A: the whole set-up inside it), Continue, Play a friend and Account",
+    "Numbers and dollar signs in the rounder font",
+    "Browser test scripts follow the new menus"
+  ],
+  "exclusions": [
+    "Any rules or balance change",
+    "Smaller shopkeeper cards in the New game popup",
+    "The letters B and C still look like 8 and O in the pixel font at small sizes"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-11-05 (183 tests)"
+    },
+    {
+      "id": "T2",
+      "text": "Home screen, the four popups, results, Trophies, Wardrobe and Settings work in a phone-sized browser",
+      "result": "PASS",
+      "evidence": "clicked through locally 2026-11-05; no new console errors (dev server has no online backend)"
+    },
+    {
+      "id": "T3",
+      "text": "The home screen and popups work on the staging preview, including online rooms and quick match from the Play a friend menu",
+      "result": "NOT RUN",
+      "evidence": "Checked on the staging site before going live"
+    }
+  ]
+}
