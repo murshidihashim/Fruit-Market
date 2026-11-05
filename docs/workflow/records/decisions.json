@@ -1459,7 +1459,7 @@
         "evidence": "do the suggested changes and make it live in the game",
         "date": "2026-11-05"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-086"
       ],
@@ -1987,6 +1987,10 @@
     {
       "at": "2026-11-05 12:00",
       "text": "Full audit and balance simulation (REP-086). Owner asked for the suggested changes to be built and made live (DEC-058). Built on branch release/1.4.0 as release 1.4.0 candidate."
+    },
+    {
+      "at": "2026-11-05 14:00",
+      "text": "Release 1.4.0 published (Deploy LIVE game on main 971b500, started by Claude at the owner's explicit request; smoke test passed; tag v1.4.0)."
     }
   ]
 }

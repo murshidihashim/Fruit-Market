@@ -31,7 +31,7 @@
     "evidence": "do the suggested changes and make it live in the game",
     "date": "2026-11-05"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-044",
   "title": "Balance round 1 and polish",
   "problem": "The audit found upgrades acting as a compulsory purchase, one fruit and one shopkeeper far ahead, numbers that read wrongly, and totals that jumped at the bell.",
