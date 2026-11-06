@@ -3,10 +3,18 @@
 | | |
 |---|---|
 | Version | 0.2 draft, 2026-11-07 (Asia/Kuala_Lumpur). v0.2 corrects v0.1 after an internal review, before you saw it. |
-| Status | **Awaiting the owner's approval** (DEC-063, PLAN-048). Nothing here changes the game or the app until approved. |
+| Status | **Approved for design only** (DEC-063, 2026-11-07), with the owner's decisions below. Nothing here changes the game, the app or the print kit. |
 | Evidence | REP-087 (audit of the repo, the Drive print kit, the decision history and outside research) |
 | Applies to | Printed cards, box, rulebook, Kickstarter page and store art first; the phone game later, in a separate plan |
 | Does not change | Rules, balance, prices, card text, saves, online play. The app's pixel people stay as they are until a later app plan, which may redraw them to match the new portraits. Each redraw would be shown to you beside today's version first. |
+
+## 0. Owner's decisions (2026-11-07), which override the sections below where they differ
+
+1. **Phone game:** illustrated characters will eventually replace the pixel characters **throughout** the app, not only in card views. Principle 4, section 3 and section 8 ("Phone") are rewritten in the mobile adaptation specification (PLAN-048).
+2. **Finishing:** AI concepts are finished by the owner, without commissioning an illustrator. Section 3's box-art row and section 10 are read that way. The Kickstarter "Use of AI" disclosure still applies.
+3. **Pilots:** Benny (broad, bearded, prominent Big Basket) and Sailor Jia Wen (navy clothing, sailor's cap, rolled mango map).
+4. **Cards:** physical cards must prioritise gameplay readability.
+5. **Names first:** the owner is reworking character names and the naming style before the design package starts.
 
 ## 1. The direction in one line
 
@@ -244,6 +252,6 @@ If you approve DEC-063:
 | DEC-057 | 2026-10-31 | Collectible looks worn by shopkeepers | Approved |
 | DEC-060 | 2026-11-05 | Printed card backs | Approved |
 | DEC-061 | 2026-11-05 | Shopfront home screen; Fredoka for numbers | Approved |
-| **DEC-063** | 2026-11-07 | **Look E: crate-label world, townsfolk characters, for the Kickstarter edition** | **Awaiting approval** |
+| **DEC-063** | 2026-11-07 | **Look E: crate-label world, townsfolk characters, for the Kickstarter edition** | **Approved for design only** |
 
 New art decisions are added to `docs/workflow/records/decisions.json` first. This table is then updated.

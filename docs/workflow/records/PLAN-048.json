@@ -15,61 +15,69 @@
   },
   "playerNotes": [],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Next, prepare the following design deliverables: 1. Character Bible v1.0 for the two pilot characters. 2. Corrected character reference sheets and image-generation prompts. 3. Kickstarter-quality customer and shopkeeper card mockup concepts. 4. Mobile character adaptation specifications, including wearable compatibility. ... This approval is for design only. ... Present the completed design package for a separate approval before any implementation. (Preceded by: \"before proceeding, i want to rework the character name and naming style, i dont like some names, then can proceed with below\")",
+    "date": "2026-11-07"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "id": "PLAN-048",
-  "title": "Look E pilot, part 1 (no spending): Character Bible, card-template design and pilot prompts",
-  "problem": "Owner brief: a polished Kickstarter tabletop edition, then the phone game, with a reusable art pipeline a solo developer can run. Today's printed portraits are 16x16 pixel faces about 21-26 mm wide, the Drive print kit is rules version 8, and there is no art manifest, style lock or print template with bleed. Part 1 does the work that needs no money; pilot masters, a person's finishing and QA become a second plan once dated quotes exist.",
+  "title": "Look E design package: naming review, pilot Character Bible, reference sheets, card mock-ups and mobile specifications (design only)",
+  "problem": "Owner approved Look E for design only and asked for a design package for separate approval before any implementation. Before that, the owner wants to rework character names and the naming style (\"i dont like some names\").",
   "scope": [
-    "Character Bible v0.1 (docs/art/CHARACTER_BIBLE.md): one line per character for all 45 plus the walk-in figure; full entries and master prompts for the two pilots the owner picks; style-lock sheet layout; stop for approval",
-    "Card-template design: a mock-up of one customer front (densest card), one guest front, one shopkeeper front and the customer back (fruit icons in one fixed order, if the owner approves the order), shown beside today's card; built only after the owner approves the design",
-    "After that approval: rules-9 templates filled from src/engine/data.ts, with bleed, crop marks and an empty portrait window; home-print sheets and one-card-per-page RGB PDFs from a new print script using the existing Playwright route; no game code change; the test print is a marked draft until the RULES.md text mismatches are fixed in their own plan",
-    "Pilot concepts: three directions per pilot with full prompts and specifications for an outside tool, chosen after a dated check of its terms; scoring of any concept images the owner makes; recommendation"
+    "Naming review first: every current name, title and quirk with flags, and naming-style options; the owner picks a style and the names to change; the result is recorded as a decision (no code or data change)",
+    "Character Bible v1.0 for the two pilots (Benny, Sailor Jia Wen, or their new names), including the walk-in figure rules they depend on",
+    "Corrected character reference sheets (front, three-quarter and side, six expressions, colour and prop call-outs) and image-generation prompts for an outside tool, which the owner runs and finishes",
+    "Kickstarter-quality card mock-up concepts: one customer card and one shopkeeper card (front and back), showing gameplay information first, as design mock-ups only",
+    "Mobile character adaptation specifications: sizes and screens where illustrated characters replace pixel ones, small-size readability, wearable compatibility for the 11 worn looks, performance and hidden-information rules",
+    "Present the whole package for a separate approval"
   ],
   "exclusions": [
-    "Any change to rules, balance, card text, saves, online play or the app's screens (including the app's back fruit order and the leak-check test, which need their own plans)",
-    "Pilot masters, turnarounds, expression sheets, a person's finishing and QA scoring (part 2, after quotes)",
-    "Generating the whole roster; characters beyond the two pilots",
-    "Spending money (image tools, artists, proofs) or adding a dependency (for example a CMYK converter) without the owner's separate approval",
-    "Publishing anything, including a Kickstarter page"
+    "Implementing assets, changing game code or data, renaming characters in the game, or replacing existing artwork (the app, the print kit and the card backs stay as they are)",
+    "Changing game mechanics, customer information or hidden-information rules",
+    "Spending money or commissioning an illustrator",
+    "Generating images in this repo or presenting images that were not actually made",
+    "Publishing anything"
   ],
   "acceptance": [
     {
       "id": "T1",
-      "text": "Character Bible approved by the owner (exact words recorded)",
+      "text": "Owner chooses a naming style and the names to change (exact words recorded)",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "T2",
-      "text": "Card-template mock-up approved by the owner (exact words recorded) before the templates are built",
+      "text": "Character Bible v1.0 for both pilots, with a hidden-information check (no freshness-type or generous cue) recorded",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "T3",
-      "text": "Templates print at 100% with bleed and crop marks; the densest card (three order lines) fits; frame, edge and bleed colour identical on every customer card; customer backs show fruit icons only, in the approved order",
+      "text": "Reference-sheet specifications and prompts complete for both pilots, consistent with the bible and ART_DIRECTION",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "T4",
-      "text": "Pilot prompts and specifications complete for both pilots; owner picks one concept per pilot (exact words recorded)",
+      "text": "Customer and shopkeeper card mock-ups: rules-9 information complete and readable at 100% (63 x 88 mm), customer back shows fruit icons only",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "T5",
-      "text": "Hidden-information check on both pilot briefs: no type cue; cue-balance table recorded",
+      "text": "Mobile specification covers every screen that shows a character today, the 11 wearables, the 18-34 px sizes and the hidden-information rules",
       "result": "NOT RUN",
       "evidence": ""
     },
     {
       "id": "T6",
-      "text": "npm run verify passes",
+      "text": "Owner approves the design package (exact words recorded)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T7",
+      "text": "npm run records:check passes",
       "result": "NOT RUN",
       "evidence": ""
     }
