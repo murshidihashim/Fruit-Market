@@ -38,7 +38,7 @@ describe('engine', () => {
     const before = s.players[p].cash;
     const each = buyCost(s, p, 'apple', freshPos('apple'));
     const limit = buyLimit(s.players[p]);
-    expect(limit).toBe(4);
+    expect(limit).toBe(6);
     for (let i = 0; i < limit; i++) s = buy(s, p, 'apple', freshPos('apple'));
     expect(s.players[p].cash).toBe(before - each * limit);
     expect(count(s.players[p].stock)).toBe(limit);

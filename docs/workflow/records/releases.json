@@ -29,7 +29,7 @@
         "PLAN-005"
       ],
       "notes": [
-        "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room\u2026\", especially on slower phones or when the app was in the background",
+        "Fixed: after reloading the page or rejoining an online match, the game could stay stuck on \"Connecting to room…\", especially on slower phones or when the app was in the background",
         "Clearer group play: the online lobby shows how many of the 4 seats are taken and which are still open, and the menus explain that 2 to 4 people can play together, online or by passing one phone",
         "Behind the scenes: updates now reach players only after a preview and an owner's approval, with automatic checks before and after"
       ]
@@ -172,6 +172,21 @@
       "date": "2026-11-05",
       "commit": "55345c6",
       "tagged": true
+    },
+    {
+      "version": "1.7.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-047"
+      ],
+      "notes": [
+        "A new economy: every stall starts with $15 and buys up to 6 pieces a day (Handcart 8)",
+        "Customers have a freshness type: Premium wants Fresh only, Everyday Fresh or Okay, Bargain anything. It shows on each customer card",
+        "Ten named lorries, with the amounts for 2, 3 and 4 stalls printed on each card; two of the mango lorries arrive green",
+        "Event cards rebalanced; Price Controls replaces Minimum Price; the Health Inspector now fines at the start of the day",
+        "Computer shops understand all of the above",
+        "Rules version 9: update the app to play online (older versions cannot join), and a game in progress from 1.6.0 can't be resumed"
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 // Table animations: the morning delivery, buying, selling and nightfall.
 // Each one returns when its animation has finished. They only draw; they never change the game.
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, type FruitId } from '../../engine/data';
-import { notSoCount, type GameState, type LineResult } from '../../engine/game';
+import { type GameState, type LineResult } from '../../engine/game';
 import { customerReaction, explainLine, rivalReaction } from '../../engine/story';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
@@ -152,13 +152,6 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   fx.night();
   await A.wait(500);
   const heat = g.event?.ageExtra ?? 0;
-  const fines: { t: { remove(): void } }[] = [];
-  if (g.event?.inspector) {
-    g.players.forEach((pl, p) => {
-      const paid = Math.min(pl.cash, notSoCount(pl.stock) * g.event!.inspector!);
-      if (paid) { fines.push({ t: A.tag(`p${p}`, `Fined $${paid}`, 'lost-fine') }); A.floatText(`p${p}-cash`, `−$${paid}`, 'minus'); }
-    });
-  }
   const jobs: Promise<void>[] = [];
   let d = 0;
   const spoil = (anchor: string[], f: FruitId, n: number) => {
@@ -175,5 +168,4 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   }
   await Promise.all(jobs);
   await A.wait(400);
-  fines.forEach((f) => f.t.remove());
 }

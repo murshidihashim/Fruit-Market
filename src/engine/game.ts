@@ -12,8 +12,8 @@ import {
   FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
-  freshPos, stageAt, trackLength,
-  type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type TraitId, type UpgradeId, type Want,
+  acceptsStage, freshPos, prefOf, stageAt, trackLength,
+  type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type TraitId, type UpgradeId, type Want,
 } from './data';
 import { Rng } from './rng';
 
@@ -83,6 +83,8 @@ export interface Customer {
   seenBy?: number[];
   /** Street-price option: this customer pays $2 more than the street price. */
   generous?: boolean;
+  /** Freshness this customer accepts (Premium: Fresh only; Everyday: Fresh or Okay; Bargain: anything). Hidden while face down. */
+  pref?: Pref;
 }
 
 /** One secret price per fruit (the fruit a shop put out for sale). */
@@ -157,6 +159,8 @@ export interface GameState {
   history?: DayRecord[];
   /** Each shop's cash when the day began (for the day's net result). */
   dayStartCash?: number[];
+  /** Health Inspector: what each shop was fined at the start of today (before buying). */
+  dayFines?: number[];
   /** The person's own moves in a daily challenge, so the server can replay the game to check the score. */
   moves?: Action[];
   log: string[];
@@ -231,12 +235,20 @@ export function priceMod(s: GameState, f: FruitId): number {
 
 /** A customer's top price for a fresh fruit today. */
 export function effectiveMax(s: GameState, w: Want, generous?: boolean): number {
+  // An event customer's printed price is final: today's event modifiers are not added a second time (Last Call still applies).
+  if (w.fixed) return Math.max(1, w.max + (isLastCall(s) ? LAST_CALL_BONUS : 0));
   const base = s.config.street ? STREET_PRICE[w.fruit] + (generous ? GENEROUS_BONUS : 0) : w.max;
   return Math.max(1, base + priceMod(s, w.fruit));
 }
 
-export function minPrice(s: GameState, f: FruitId): number {
-  return s.event?.minPrice ? s.event.minPrice[f] : 1;
+/** The lowest price a shop may post (there is no floor). */
+export function minPrice(_s: GameState, _f: FruitId): number {
+  return 1;
+}
+
+/** The highest price a shop may post today (Price Controls day), otherwise no limit beyond $30. */
+export function maxPrice(s: GameState, f: FruitId): number {
+  return s.event?.maxPrice ? s.event.maxPrice[f] : 30;
 }
 
 /** Most a customer pays for this fruit at this position on the track (unripe can't be sold). */
@@ -283,13 +295,9 @@ export function walkInsToday(s: GameState): number {
   return s.phase === 'morning' || s.phase === 'buy' ? s.queue.length : servingCustomers(s).filter((c) => c.walkIn).length;
 }
 
-/** Fruit the farmers bring for one fruit on a card (printed for 3 shops; 2 shops one less, 4 shops one more). */
+/** Fruit the farmers bring for one fruit on a card: the number printed for 2, 3 or 4 shops. */
 export function printedSupply(card: FarmerCard, f: FruitId, shops: number): number {
-  const listed = card.supply[f];
-  let n = listed ?? 1;
-  if (shops === 2 && listed !== undefined) n = Math.max(1, n - 1);
-  if (shops >= 4) n += 1;
-  return n;
+  return card.table[Math.min(4, Math.max(2, shops)) as 2 | 3 | 4][f];
 }
 
 function clone<T>(x: T): T {
@@ -305,7 +313,7 @@ function withRng<T>(s: GameState, fn: (r: Rng) => T): T {
 
 function makeCustomer(s: GameState, card: CustomerCard, walkIn = false): Customer {
   const wants = card.wants.map((w) => ({ ...w }));
-  const c: Customer = { id: s.nextId++, name: card.name, wants, original: clone(wants) };
+  const c: Customer = { id: s.nextId++, name: card.name, wants, original: clone(wants), pref: prefOf(card.name) };
   if (walkIn) { c.walkIn = true; c.seenBy = []; }
   // Street prices: customers whose card pays well are "generous".
   if (wants.some((w) => w.max >= STREET_PRICE[w.fruit] + GENEROUS_BONUS)) c.generous = true;
@@ -459,6 +467,18 @@ function startDay(s: GameState) {
   if (s.config.events && s.day < s.config.days) {
     s.nextEvent = drawEvent(s);
     if (s.day + 1 === s.config.days && s.nextEvent.inspector) s.nextEvent = drawEvent(s);
+  }
+  // Health Inspector: at the start of the day, before anyone buys or discards, every shop pays for each tired piece.
+  // A Cold Room does not help.
+  s.dayFines = s.players.map(() => 0);
+  if (s.event?.inspector) {
+    s.players.forEach((pl, i) => {
+      const paid = Math.min(pl.cash, notSoCount(pl.stock) * s.event!.inspector!);
+      pl.cash -= paid;
+      pl.stats.spent += paid;
+      s.dayFines![i] = paid;
+      if (paid) s.log.push(`${pl.name} was fined $${paid}`);
+    });
   }
   s.delivery = {};
   s.deliveryUnripe = null;
@@ -690,8 +710,8 @@ export function validatePrices(s: GameState, p: number, posts: Post[]): string |
     seen.add(b.fruit);
     if (forSale(s, p, b.fruit) <= 0) return `You have no ${FRUIT[b.fruit].plural.toLowerCase()} out for sale`;
     if (!Number.isInteger(b.price)) return 'Whole numbers only';
-    if (b.price < minPrice(s, b.fruit)) return `Minimum price for ${FRUIT[b.fruit].plural.toLowerCase()} is $${minPrice(s, b.fruit)}`;
-    if (b.price > 30) return 'That price is too high';
+    if (b.price < minPrice(s, b.fruit)) return 'Prices start at $1';
+    if (b.price > maxPrice(s, b.fruit)) return `Price Controls: the most you can charge for ${FRUIT[b.fruit].plural.toLowerCase()} today is $${maxPrice(s, b.fruit)}`;
   }
   for (const f of FRUITS) if (forSale(s, p, f) > 0 && !seen.has(f)) return `Set a price for your ${FRUIT[f].plural.toLowerCase()}`;
   return null;
@@ -716,21 +736,21 @@ export function postedPrice(s: GameState, p: number, f: FruitId): number | null 
 }
 
 /** Positions (oldest first) a shop would hand over for this customer at this price, up to `qty`. */
-export function eligible(pl: Player, stock: Stock, f: FruitId, qty: number, price: number, max: number): number[] {
+export function eligible(pl: Player, stock: Stock, f: FruitId, qty: number, price: number, max: number, pref?: Pref): number[] {
   const out: number[] = [];
   const t = stock[f];
   const ripeLen = FRUIT[f].ripe.length;
   for (let i = 0; i < ripeLen && out.length < qty; i++) {
-    if (capFor(pl, f, i, max) < price) continue;
+    if (capFor(pl, f, i, max) < price || !acceptsStage(pref, stageAt(f, i))) continue;
     for (let k = 0; k < t[i] && out.length < qty; k++) out.push(i);
   }
   return out;
 }
 
 /** Highest price this shop could ask a customer with this top price, with its current stock. */
-export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player): number {
+export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player, pref?: Pref): number {
   const ripeLen = FRUIT[f].ripe.length;
-  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0) return pl ? capFor(pl, f, i, max) : capAt(f, i, max);
+  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0 && acceptsStage(pref, stageAt(f, i))) return pl ? capFor(pl, f, i, max) : capAt(f, i, max);
   return 0;
 }
 
@@ -754,7 +774,7 @@ function resolve(s: GameState) {
       s.players.forEach((pl, p) => {
         const price = postedPrice(s, p, w.fruit);
         if (price === null || left[p][w.fruit] <= 0) return;
-        const used = eligible(pl, pl.stock, w.fruit, Math.min(left[p][w.fruit], w.qty), price, max);
+        const used = eligible(pl, pl.stock, w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref);
         if (used.length === 0) {
           if (count(pl.stock, w.fruit, true) > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
           return;
@@ -910,16 +930,6 @@ export function endEvening(state: GameState, p: number): GameState {
 
 function nightfall(s: GameState): GameState {
   const heat = s.event?.ageExtra ?? 0;
-  const fine = s.event?.inspector ?? 0;
-  if (fine) {
-    for (const pl of s.players) {
-      const n = notSoCount(pl.stock);
-      const paid = Math.min(pl.cash, n * fine);
-      pl.cash -= paid;
-      pl.stats.spent += paid;
-      if (paid) s.log.push(`${pl.name} was fined $${paid}`);
-    }
-  }
   age(s.market, 1 + heat);
   for (const pl of s.players) ageShop(s, pl, heat);
   s.firstPlayer = (s.firstPlayer + 1) % s.players.length;

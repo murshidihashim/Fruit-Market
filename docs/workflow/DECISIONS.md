@@ -76,6 +76,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | DEC-059 | Balance round 2, screen polish, change password, table kit | Approved (owner, 2026-11-05) | Released | REP-086 |
 | DEC-060 | Printed card backs approved | Approved (owner, 2026-11-05) | Implemented | REP-079 |
 | DEC-061 | Shopfront home screen, popups and rounder numbers | Approved (owner, 2026-11-05) | Released |  |
+| DEC-062 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | In progress |  |
 
 ## Work packages
 
@@ -127,6 +128,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | PLAN-044 | Balance round 1 and polish | Approved (owner, 2026-11-05) | Released | 1.4.0 |
 | PLAN-045 | Balance round 2 and polish | Approved (owner, 2026-11-05) | Released | 1.5.0 |
 | PLAN-046 | Shopfront home screen, popups and rounder numbers | Approved (owner, 2026-11-05) | Released | 1.6.0 |
+| PLAN-047 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | In progress | 1.7.0 |
 
 ## Decision details
 
@@ -1048,6 +1050,21 @@ Approval status and delivery status are separate. Only the owner's explicit word
 - **Approval:** Approved: “layout 3, option A, yes approve it already” (2026-11-05)
 - **Delivery:** Released (PLAN-046)
 - **Review trigger:** Owner plays it on a phone; whether B and C in the pixel font need the same fix.
+- **Reports:** 
+
+### DEC-062 · Rules 9: final customer deck, lorry deck, events and shopkeepers
+
+- **Question:** Which numbers and rules should the economy use after the balance simulations?
+- **Choice:** Start cash $15 and buy up to 6 pieces (Handcart 8, Nest Egg $20); customer deck with freshness types (Premium, Everyday, Bargain); ten named lorry cards (two copies each, amounts for 2, 3 and 4 stalls; Mango Growers and Mango Season arrive green); thirteen events with Price Controls replacing Minimum Price and the Health Inspector at the start of the day.
+- **Rationale:** Owner supplied the final decks and rules on 2026-11-07 after two simulation rounds. Known trade-offs from the simulations: the moderate lorry deck cuts supply only about 5%, the buy limit of 6 raises blowouts by about 10 points, Premium Display stays weak and Nest Egg is still the weakest shopkeeper.
+- **Player impact:** A different economy: more cash and bigger baskets, fussier customers, named lorries, new event numbers. Online play needs the new version (rules version 9); a game in progress from 1.6.0 can't be resumed.
+- **Technical impact:** src/engine/data.ts, game.ts and ai.ts; boardModel, table, panel and morning card in the interface; RULES_VERSION 9; new tests/rules9.test.ts.
+- **Data and security:** Daily leaderboards for rules 9 start empty (board key includes the rules version).
+- **Cost:** RM0
+- **Owner:** Murshidi
+- **Approval:** Approved: “Owner, 2026-11-07: "Final customer deck ... Final lorry supply ... Event deck ... Shopkeeper ... deploy end to end per below instructions"” (2026-11-07)
+- **Delivery:** In progress (PLAN-047)
+- **Review trigger:** Owner plays it; if 3 and 4 stall games still feel oversupplied, cut the lorry amounts (simulation: about one third off blueberry, watermelon and apple); test buy limit 4 against 6.
 - **Reports:** 
 
 ## History (oldest first)

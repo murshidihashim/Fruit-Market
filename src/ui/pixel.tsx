@@ -275,7 +275,7 @@ const ICONS: Record<string, { rows: string[]; pal: Pal }> = {
     rows: ['.......RRRR.', '.........RR.', '........R.R.', '.......R..R.', '..R...R.....', '.R.R.R......', 'R...R.......', 'KKKKKKKKKKKK'],
     pal: { R: C.terracotta, K: C.c_3b3048 },
   },
-  ev_minPrice: {
+  ev_priceControls: {
     rows: ['..YYYYYY....', '.YYYYYYYY...', 'YYWYKKYYYY..', 'YYYYKYYYYY..', 'YYYYKKYYYY..', '.YYYYYYYY...', '..YYYYYY....', 'KKKKKKKKKKK.', 'KKKKKKKKKKK.'],
     pal: { Y: C.c_e8b04b, W: C.c_fff2c2, K: C.c_3b3048 },
   },

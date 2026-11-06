@@ -4,7 +4,7 @@ import { useState } from 'preact/hooks';
 import { planPrices, planStall } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  bestCap, canPlayFavour, canUpgrade, count, effectiveMax, forSale, isDraftNight, isMarketDay, minPrice, notSoCount,
+  bestCap, canPlayFavour, canUpgrade, count, effectiveMax, forSale, isDraftNight, isMarketDay, maxPrice, minPrice,
   servingCustomers, validatePrices, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
@@ -99,14 +99,14 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
     return Object.fromEntries(fruits.map((f) => [f, plan.find((b) => b.fruit === f)?.price ?? minPrice(s, f)]));
   });
   const [favoured, setFavoured] = useState(false);
-  const posts: Post[] = fruits.map((f) => ({ fruit: f, price: vals[f] }));
+  const posts: Post[] = fruits.map((f) => ({ fruit: f, price: Math.min(vals[f], maxPrice(s, f)) }));
   const error = validatePrices(s, p, posts);
   return (
     <div class="price-panel">
       <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
       <RivalWatch s={s} p={p} wanted={FRUITS.filter((f) => wantsFor(s, f).length > 0)} step="bid" />
       {fruits.map((f) => {
-        const price = vals[f];
+        const price = Math.min(vals[f], maxPrice(s, f));
         const out = forSale(s, p, f);
         const lines = wantsFor(s, f);
         const want = lines.reduce((a, x) => a + x.w.qty, 0);
@@ -116,7 +116,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
           : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
             : rivals + out <= want ? { cls: 'ok', t: `Enough buyers for everyone (${rivals + out} out for ${want})` }
               : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
-        const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl)));
+        const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref)));
         return (
           <div class="price-card on">
             <div class="pc-top">
@@ -127,14 +127,14 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
               <div class="pc-qty">
                 <span class="pc-lbl">They pay for yours</span>
                 <span class="buyer-caps">{lines.map((x) => {
-                  const cap = bestCap(pl.stock, f, x.max, pl);
+                  const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
                   return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${x.c.name} pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
                 })}</span>
               </div>
               <div class="pc-price">
                 <button type="button" aria-label="Lower price" disabled={price <= minPrice(s, f)} onClick={() => setVals((v) => ({ ...v, [f]: price - 1 }))}>−</button>
                 <span class="pc-num">${price}</span>
-                <button type="button" aria-label="Raise price" disabled={price >= Math.min(30, top + 2)} onClick={() => setVals((v) => ({ ...v, [f]: price + 1 }))}>+</button>
+                <button type="button" aria-label="Raise price" disabled={price >= Math.min(maxPrice(s, f), top + 2)} onClick={() => setVals((v) => ({ ...v, [f]: price + 1 }))}>+</button>
               </div>
             </div>
             <div class="pc-foot">
@@ -205,17 +205,25 @@ export function RivalWatch({ s, p, wanted, step }: { s: GameState; p: number; wa
 export const UP_ICON: Record<UpgradeId, 'handcart' | 'coolroom' | 'signboard' | 'juicer'> = { barrow: 'handcart', coldroom: 'coolroom', premium: 'signboard', juicebar: 'juicer' };
 export const TRAIT_ICON: Record<TraitId, 'scales' | 'crate' | 'tag' | 'heart' | 'star' | 'egg'> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg' };
 
+/** Pieces on this shelf that will be tired at the start of tomorrow. */
+function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {
+  const room = pl.upgrades.includes('coldroom');
+  const steps = (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : s.event?.ageExtra ?? 0);
+  return FRUITS.reduce((a, f) => a + (pl.stock[f][steps] ?? 0) * (steps < FRUIT[f].ripe.length ? 1 : 0), 0);
+}
+
 export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void }) {
   const pl = s.players[p];
   const rotting = FRUITS.filter((f) => pl.stock[f][0] > 0);
-  const fine = (s.event?.inspector ?? 0) * notSoCount(pl.stock);
+  // Tomorrow's Health Inspector fines the fruit that will be tired when the day starts (a Cold Room does not help).
+  const fine = tiredTomorrow(s, pl) * (s.nextEvent?.inspector ?? 0);
   const left = s.config.days - s.day;
   return (
     <div class="evening-panel">
       {(rotting.length > 0 || fine > 0 || s.event?.ageExtra) && (
         <div class="info-card warn">
           {rotting.length > 0 && <div>Spoils tonight: {rotting.map((f) => <span class="inline-f"><Fruit id={f} size={16} stage="notso" />×{pl.stock[f][0]}</span>)}</div>}
-          {fine > 0 && <div>The inspector will fine you ${fine} tonight.</div>}
+          {fine > 0 && <div>The inspector fines you ${fine} tomorrow morning, before you can sell or discard.</div>}
           {!!s.event?.ageExtra && <div>Heatwave: everything ages twice tonight.</div>}
         </div>
       )}

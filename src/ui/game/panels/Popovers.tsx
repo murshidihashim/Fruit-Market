@@ -1,6 +1,6 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
-import { FAVOURS, lookOf } from '../../../engine/data';
+import { FAVOURS, PREF_INFO, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { Face, FavourIcon, Fruit } from '../../art';
@@ -66,10 +66,11 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
     <div class="tip-pop" onClick={() => setTip(null)}>
       <b class="tip-head"><Face who={tip.name} size={32} /> {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' (special order)' : ''}</b>
       <i class="quirk">“{lookOf(tip.name).quirk}”</i>
+      {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
       {tip.wants.map((w) => (
         <div class="tip-line">
           <Fruit id={w.fruit} size={18} />
-          <span>wants <b>{w.qty}</b> · pays up to <b>${effectiveMax(s, w)} for each</b> fresh one</span>
+          <span>wants <b>{w.qty}</b> · pays up to <b>${effectiveMax(s, w, tip.generous)} for each</b> fresh one</span>
         </div>
       ))}
       <small>Older fruit sells for less: the −$ on your stall shows how much less. Tap to close.</small>

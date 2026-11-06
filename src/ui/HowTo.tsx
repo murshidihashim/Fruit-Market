@@ -7,7 +7,7 @@ import { Icon } from './pixel';
 import { UP_ICON } from './panel';
 
 const GAME_PHASES = [
-  ['Set-up', 'Pick a shopkeeper with one perk. Each stall starts with $10.'],
+  ['Set-up', 'Pick a shopkeeper with one perk. Each stall starts with $15.'],
   ['Ordinary days', 'Seven phases a day, from morning to night.'],
   ['Market Days', 'Days 3, 6, 9 and 12: one more customer, and a stall upgrade that evening.'],
   ['Closing Day', 'The last day. Customers pay $1 more, then the jam maker buys your leftovers.'],
@@ -16,7 +16,7 @@ const GAME_PHASES = [
 
 const DAY_BEATS = [
   ['Morning', 'The lorry unloads fruit at the Wholesale Market. An event card changes the day.'],
-  ['Buying', 'Each stall buys up to 4 pieces. The poorest stall goes first.'],
+  ['Buying', 'Each stall buys up to 6 pieces. The poorest stall goes first.'],
   ['Stocking', 'Choose what to put in your for-sale crate. Everyone sees the crates.'],
   ['The bell', 'Set one secret price per fruit. All prices flip over together.'],
   ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],
@@ -31,7 +31,7 @@ const SLIDES = [
     body: (
       <>
         <p>You run a fruit stall in a busy market. Every day you <b>buy</b> fruit from the farmers and <b>sell</b> it to the town's customers, against 1 to 3 rival stalls. Fruit gets older every night, so you are always racing the clock.</p>
-        <div class="demo-row"><Coin size={34} /><span class="big-num">$10</span><span class="muted">each stall starts with</span></div>
+        <div class="demo-row"><Coin size={34} /><span class="big-num">$15</span><span class="muted">each stall starts with</span></div>
         <p>A game lasts 8, 10 or 14 days and goes like this:</p>
         <ol class="day-strip">
           {GAME_PHASES.map(([name, text], k) => (
@@ -62,7 +62,7 @@ const SLIDES = [
     title: 'Four fruits, four personalities',
     body: (
       <>
-        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>tired</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for tired. The oldest step is on the left.</p>
+        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>tired</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for tired. Some customers are fussier: <b>Premium</b> customers only buy fresh fruit, <b>Everyday</b> customers buy fresh or okay, and <b>Bargain</b> customers buy anything. The oldest step is on the left.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <div class="demo-track">

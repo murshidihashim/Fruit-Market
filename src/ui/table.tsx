@@ -1,7 +1,7 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { FAVOURS, FRUIT, FRUITS, TRAITS, UPGRADES, lookOf, stageAt, trackSlots, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId } from '../engine/data';
 import {
   buyCost, buyLimit, count, effectiveMax, shelfSize,
   type Customer, type GameState,
@@ -11,7 +11,7 @@ import { shownCash, useCashShown } from './cashShown';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
-import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, pulse, stockChips, wantText } from './boardModel';
+import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, stockChips, wantText } from './boardModel';
 import { C } from './palette';
 import { LorrySprite, PropSprite, RoofBand } from './propsArt';
 import { partsOf, stallOf } from '../net/looks';
@@ -90,7 +90,7 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
   if (!lines) return null;
   return (
     <div class={`next-lorry ${marketDayTomorrow(s) ? 'market-day ' : ''}${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.n} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
-      <span class="nl-title">Tomorrow's lorry</span>
+      <span class="nl-title">Tomorrow's lorry{nextLorryName(s) ? `: ${nextLorryName(s)}` : ''}</span>
       {lines.map((l) => (
         <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />×{l.n}</span>
       ))}
@@ -288,7 +288,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
   return (
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
-      title={c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w, c.generous)} each when fresh`).join('\n')}>
+      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w, c.generous)} each when fresh`).join('\n')}`}>
       <div class="bubble">
         {c.wants.map((w) => (
           <span class={`bw ${w.qty <= 0 ? 'done' : ''}`} data-a={`c${c.id}-${w.fruit}`}>
@@ -300,6 +300,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
       </div>
       <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}{kind === 'waiting' && <i class="clock"><Icon name="hourglass" size={14} /></i>}{special && <i class="star"><Icon name="star" size={14} /></i>}{heard && <i class="ear" title="You heard about this walk-in (Gossip)"><Icon name="ear" size={14} /></i>}</div>
       <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
+      {c.pref && <em class={`pref pref-${c.pref}`}>{PREF_INFO[c.pref].short}</em>}
     </div>
   );
 }
@@ -316,7 +317,7 @@ export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: nu
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
       {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
-      {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants }} kind="today" onTip={onTip} />}
+      {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) }} kind="today" onTip={onTip} />}
       {before && s.queue.map((c) => walkIn(c, false))}
       {!before && s.forecast && s.phase !== 'over' && <CustomerChar key={s.forecast.id} s={s} c={s.forecast} kind="tomorrow" onTip={onTip} />}
       {!before && s.phase !== 'over' && s.queue.map((c) => walkIn(c, true))}

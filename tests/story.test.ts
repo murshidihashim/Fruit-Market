@@ -30,14 +30,13 @@ describe('sale explanations', () => {
     expect(st.detail).toContain('At $4 you\'d have sold 2');
   });
 
-  it('does not offer a counterfactual below the minimum price', () => {
+  it('does not offer a counterfactual below $1', () => {
     const s = game();
-    s.event = { id: 'minPrice', title: 'Minimum Price', icon: '', text: '', minPrice: { mango: 5, apple: 5, watermelon: 5, blueberry: 5 } };
     const l = line([
-      { player: 1, qty: 2, price: 5, sold: 2, freshness: 3 },
+      { player: 1, qty: 2, price: 1, sold: 2, freshness: 3 },
       { player: 0, qty: 2, price: 6, sold: 0, freshness: 3 },
     ]);
-    expect(explainLine(s, l, 0).detail).toContain("couldn't go lower than $5");
+    expect(explainLine(s, l, 0).detail).toContain("couldn't go lower than $1");
   });
 
   it('credits fresher fruit on a tie, following the engine tie-break', () => {

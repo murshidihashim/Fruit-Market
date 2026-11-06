@@ -52,15 +52,20 @@ export function wantText({ demand, more }: Pulse): string {
   return demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0';
 }
 
-/** Tomorrow's farmer delivery: fruits printed on the card come in plenty, the others as a single fruit. */
+/** Tomorrow's farmer delivery: the amounts printed on the card (more than one per shop is shown in bold). */
 export interface LorryLine { f: FruitId; plenty: boolean; green: boolean; n: number }
 export function nextLorry(s: GameState): LorryLine[] | null {
   const card = s.nextFarmer;
   if (!card) return null;
-  return FRUITS.map((f) => ({
-    f, plenty: card.supply[f] !== undefined, green: !!s.config.unripe && card.unripe === f,
-    n: printedSupply(card, f, s.players.length),
-  }));
+  return FRUITS.map((f) => {
+    const n = printedSupply(card, f, s.players.length);
+    return { f, plenty: n > s.players.length, green: !!s.config.unripe && card.unripe === f, n };
+  });
+}
+
+/** The name printed on tomorrow's lorry card. */
+export function nextLorryName(s: GameState): string | null {
+  return s.nextFarmer?.name ?? null;
 }
 
 /** Tomorrow is a Market Day: one more walk-in (the lorry still comes). */

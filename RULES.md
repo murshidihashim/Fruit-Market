@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 8).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 9).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -36,7 +36,7 @@ Have the **most cash** at the end of the last day. Fruit left on your shelf and 
 
 - 2 to 4 stalls. Each one is played by you, a friend on the same phone, or a computer player (Easy, Normal or Hard).
 - **Quick** is 8 days, **Standard** is 10 days and **Long** is 14 days.
-- Each stall starts with **$10**, a shelf of 8 spaces, and no favour cards.
+- Each stall starts with **$15**, a shelf of 8 spaces, and no favour cards.
 - With **2 stalls** there is one walk-in a day (and the regular), so Gossip and Scout still have something to look at. Three or four stalls give a fuller market.
 
 ## The fruit
@@ -54,8 +54,8 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 ## Cards
 
-- **Delivery cards (20):** each lists three fruits, 3 to 5 of each, printed for 3 stalls. The fruit not on the card arrives as 1. With **2 stalls**, take 1 less of each listed fruit (minimum 1); with **4 stalls**, add 1 of every fruit. Some cards mark one fruit as arriving unripe.
-- **Customer cards (36):** a name and up to three fruits, each with an amount and the most they pay for a *fresh* one. The back of each card shows the fruits they want.
+- **Lorry cards (20):** ten named lorries, two copies of each. Every card prints how many blueberries / watermelons / apples / mangoes it delivers with **2, 3 and 4 stalls**; use the column for your table. Blueberry Bonanza, Orchard Run and Watermelon Wagon are loaded with one fruit, Quiet Delivery, Mixed Basket, Balanced Cart and Farmer's Choice are mixed loads, and the three mango lorries bring the most mangoes. **Mango Growers and Mango Season deliver their mangoes green** (unripe: they ripen on the shelf in two nights); every other lorry, Mango Rush included, delivers ripe mangoes.
+- **Customer cards (36):** a name and up to three fruits, each with an amount and the most they pay for a *fresh* one. The back of each card shows the fruits they want. Each customer also has a **freshness type** (below), printed on the front. The type stays secret while a walk-in is face down.
 - **Event cards (13):** one is drawn each morning from Day 2 onward and shown a day early. Mango Craze, Superfood Trend and Hotel Order bring a **guest card** (below).
 - **Guest cards (3):** the Influencer, the Gym Club and the Hotel Chef. A guest joins the customers at the end of the row on the day of its event and is served like any other customer.
 - **Favour cards (12):** a secret reward for serving a customer's whole order by yourself. Hold up to 3 (4 with the Charmer perk).
@@ -92,7 +92,7 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and
 3. Draw tomorrow's delivery card and event for the Tomorrow strip.
 
 ### 2. Buying
-Each stall buys **up to 4 pieces of fruit** (5 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (12 with a Handcart). **The poorest stall buys first** (ties go round the table; Day 1 is random). A Priority favour jumps the queue.
+Each stall buys **up to 6 pieces of fruit** (8 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (12 with a Handcart). **The poorest stall buys first** (ties go round the table; Day 1 is random). A Priority favour jumps the queue.
 
 ### 3. Stocking
 Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly chooses how many of each ripe fruit to put in its **for-sale crate**, by setting a number on its stall sheet; then all crates are shown at once. The crate is a number: the pieces stay on your shelf, and fruit you keep back stays too.
@@ -101,7 +101,8 @@ Today's customers arrive: yesterday's unserved customers (now **waiting, last da
 Each stall secretly sets **one price per fruit** it put out, then everyone reveals together.
 
 - **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, your **oldest fruit that is fresh enough for your price** goes first, taken from your whole shelf, up to the number in your crate.
-- There is **no lower limit** (except on a Minimum Price day).
+- **Freshness type:** a *Premium* customer buys **Fresh fruit only**; an *Everyday* customer buys **Fresh or Okay**; a *Bargain* customer buys **Fresh, Okay or Tired**. A stall cannot sell fruit a customer will not take, whatever the price. Premium: Rara Jenab, Ravi, Ahmad, Anna, Devi, Lina (and the Influencer). Bargain: Kumar, Hafiz, Farid, Mei Ling, Grace, Wei Jie. Everyone else is Everyday (the Gym Club and Hotel Chef too).
+- There is **no lower limit**. On a Price Controls day there is an **upper** limit for each fruit.
 
 ### 5. The rush
 Customers buy in queue order: waiting customers first, then new ones. For each fruit a customer wants, they buy from the **cheapest stall** that has fruit fresh enough for its price; leftover demand **spills to the next stall**.
@@ -126,19 +127,19 @@ Market Days and Closing Day are on by default and can be switched off in the set
 
 | Card | Effect |
 |---|---|
-| 🎉 Festival | Customers pay $3 more per fruit, and an extra walk-in comes. |
+| 🎉 Festival | Customers pay $1 more per fruit, and an extra walk-in comes. |
 | 🫐 Blueberry Glut | Farmers bring 1 extra blueberry per stall, and blueberry customers pay $1 less. |
-| 🔥 Heatwave | Watermelons sell for $4 more, but all fruit ages an extra step tonight. |
-| 🍎 Apple Blight | No apples arrive today, and apple customers pay $1 more. |
-| 📱 Mango Craze | Mangoes sell for $3 more, and an influencer wants 3. |
-| 💪 Superfood Trend | Blueberries sell for $3 more, and the gym club wants 4. |
-| 🌾 Good Harvest | Farmers bring 1 extra of every fruit for every 2 stalls (rounded up: 2 stalls +1, 3 stalls +2, 4 stalls +2), and everything costs $1 less. |
-| 🐛 Bad Harvest | Farmers bring half as much of each fruit (rounded up). Customers pay $2 more per fruit. |
+| 🔥 Heatwave | Watermelon customers pay $2 more, but all fruit ages an extra step tonight. A Cold Room stops the extra step. |
+| 🍎 Apple Blight | No new apples arrive today, and apple customers pay $2 more. |
+| 📱 Mango Craze | Mango customers pay $2 more, and an influencer wants 2 Fresh mangoes at $12 each. |
+| 💪 Superfood Trend | Blueberry customers pay $1 more, and the gym club wants 3 Fresh or Okay blueberries at $8 each. |
+| 🌾 Good Harvest | Farmers bring 1 extra of every fruit for every 2 stalls (rounded up: 2 stalls +1, 3 stalls +2, 4 stalls +2), and every customer pays $1 less. |
+| 🐛 Bad Harvest | Farmers bring half as much of each fruit (rounded up). Customers pay $1 more per fruit. |
 | 📈 Price Hike | Every fruit at the Wholesale Market costs $1 more. |
-| ⚖️ Minimum Price | Nobody may sell below: watermelon $5, apple $5, mango $6, blueberry $4. |
-| 🕵️ Health Inspector | Tonight every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). Never the last day's event. |
+| ⚖️ Price Controls | Nobody may charge more than: blueberry $5, watermelon $7, apple $6, mango $8. |
+| 🕵️ Health Inspector | At the start of the day, before anyone buys or discards, every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). A Cold Room does not help. Never the last day's event. |
 | 🚚 Lorry Breakdown | No farmer delivery today. |
-| 🏨 Hotel Order | A hotel chef wants 3 apples, 2 watermelons and 2 blueberries (see the guest card). |
+| 🏨 Hotel Order | A hotel chef wants 2 apples, 1 watermelon and 1 blueberry, all Fresh or Okay (see the guest card). |
 
 ## Favour cards (2 of each)
 
@@ -159,7 +160,7 @@ Drafted on the evening after each Market Day. Each can be built once, and each c
 |---|---|---|
 | ❄️ Cold Room | $4 | Your fruit ages only every other night, and heatwaves can't touch it. |
 | 🧃 Juice Bar | $3 | +$1 for each okay or tired fruit you sell. Each night up to 3 pieces of fruit that would spoil become juice: $2 each. |
-| 🛒 Handcart | $6 | Buy up to 5 pieces of fruit a day and hold 12. |
+| 🛒 Handcart | $6 | Buy up to 8 pieces of fruit a day and hold 12. |
 | 🪧 Premium Display | $8 | Your fresh fruit may be priced $1 above a customer's normal limit. |
 
 ## Shopkeepers
@@ -169,11 +170,11 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 | Shopkeeper | Perk | Effect |
 |---|---|---|
 | Rosa | Haggler | You win tied prices, even against fresher fruit, and your first sale each day pays $1 more. |
-| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 5th, or the 6th with a Handcart) costs $2 more. |
+| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 7th, or the 9th with a Handcart) costs $2 more. |
 | Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
 | Chen | Charmer | Start with 4 favour cards, and hold up to 4. |
 | Kiran | Tip Jar | Customers you serve completely by yourself tip you $4. |
-| Saleh | Nest Egg | Start with $15 instead of $10, and buy first on day 3 (the first Market Day). |
+| Saleh | Nest Egg | Start with $20 instead of $15, and buy first on day 3 (the first Market Day). |
 
 (Rules version 5. Before, each stall was dealt 3 perks on the first morning and kept one.)
 
@@ -224,7 +225,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 | 6 | | | tired | |
 | 7 | | | spoiled | |
 
-At dawn, throw away piles that have reached "spoiled". A Health Inspector counts the "tired" piles. A Juice Bar juices up to 3 pieces of fruit that spoil. A **Cold Room** stall has its own fruit clock that moves on only one night in two (the night after an even day) and never on a Heatwave night. When it buys fruit, it works out the age from the market clock and re-stamps the chip on its own clock. A **Fridge** adds 1 to the chips of that stall's ripe piles, never past today's clock number.
+At dawn, throw away piles that have reached "spoiled". A Health Inspector, if one is in town, counts the "tired" piles at the start of the day, before anyone buys or throws fruit away. A Juice Bar juices up to 3 pieces of fruit that spoil. A **Cold Room** stall has its own fruit clock that moves on only one night in two (the night after an even day) and never on a Heatwave night. When it buys fruit, it works out the age from the market clock and re-stamps the chip on its own clock. A **Fridge** adds 1 to the chips of that stall's ripe piles, never past today's clock number.
 
 **Waiting.** Customers who are not fully served go to a waiting pile with their pieces. A waiting customer that is not fully served the next day leaves.
 
@@ -233,6 +234,8 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector counts
 ## Balance notes
 
 Rules version 8 (REP-086 and a second round of about 25,000 computer games): every shopkeeper now wins within about 3 points of a fair share (before, Big Basket won about 10 points more and Haggler about 9 points fewer). Haggler's first sale each day pays $1 more; Big Basket's extra piece costs $2 more (was $1); Nest Egg buys first on day 3; Charmer starts with 4 favour cards; two stalls get one walk-in a day, so a 2-player game is no longer decided by a single customer; and quick matches online have no upgrades. The Daily market also gets a small twist that rotates through the week (see below).
+
+Rules version 9 (PLAN-047): every stall starts with $15 and buys up to 6 pieces a day (a Handcart 8). The lorry deck is ten named cards (two copies each) with the amounts for 2, 3 and 4 stalls printed on the card; Mango Growers and Mango Season arrive green. Customers have a freshness type (Premium, Everyday or Bargain). Customer quantities and prices were rebalanced (more watermelon, blueberry and apple, fewer mangoes asked; apples $1 lower and mangoes $1 higher). Event cards were rebalanced, Minimum Price became Price Controls (a maximum), and the Health Inspector fines at the start of the day. Nest Egg now starts with $20.
 
 Rules version 7 (REP-086, computer-player simulation of about 40,000 games): the app now matches the printed rule of one upgrade per Market Day (before, several could be built in one evening, which made upgrades close to compulsory); a mango costs $1 more (fresh $5, green $4) because it earned about 40% more per fruit than the others; and Big Basket's extra piece costs $1 more because the perk won about 10 points more often than fair.
 

@@ -33,17 +33,22 @@ function duel(extra: Partial<GameConfig> = {}): GameState {
 const fresh = (f: FruitId) => FRUIT[f].ripe.length - 1;
 
 describe('printed supply and demand', () => {
-  it('farmer cards are printed for 3 shops: 2 shops one less of each listed fruit, 4 shops one more of everything', () => {
-    const card = FARMER_CARDS[0];
-    const listed = Object.keys(card.supply)[0] as FruitId;
-    const missing = (['blueberry', 'watermelon', 'apple', 'mango'] as FruitId[]).find((f) => card.supply[f] === undefined)!;
-    expect(printedSupply(card, listed, 3)).toBe(card.supply[listed]);
-    expect(printedSupply(card, listed, 2)).toBe(Math.max(1, card.supply[listed]! - 1));
-    expect(printedSupply(card, listed, 4)).toBe(card.supply[listed]! + 1);
-    expect(printedSupply(card, missing, 3)).toBe(1);
-    expect(printedSupply(card, missing, 2)).toBe(1);
-    expect(printedSupply(card, missing, 4)).toBe(2);
-    for (const c of FARMER_CARDS) for (const n of Object.values(c.supply)) expect(n).toBeGreaterThanOrEqual(2);
+  it('lorry cards print what they deliver for 2, 3 and 4 shops (rules 9)', () => {
+    expect(FARMER_CARDS).toHaveLength(20);
+    const names = [...new Set(FARMER_CARDS.map((c) => c.name))];
+    expect(names).toHaveLength(10);
+    for (const n of names) expect(FARMER_CARDS.filter((c) => c.name === n)).toHaveLength(2);
+    const bonanza = FARMER_CARDS.find((c) => c.name === 'Blueberry Bonanza')!;
+    const row = (shops: number) => (['blueberry', 'watermelon', 'apple', 'mango'] as FruitId[]).map((f) => printedSupply(bonanza, f, shops));
+    expect(row(2)).toEqual([5, 3, 4, 0]);
+    expect(row(3)).toEqual([6, 3, 5, 0]);
+    expect(row(4)).toEqual([8, 4, 7, 0]);
+    const rush = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!;
+    expect(printedSupply(rush, 'mango', 4)).toBe(10);
+  });
+
+  it('Mango Growers and Mango Season arrive green; every other card arrives ripe', () => {
+    for (const c of FARMER_CARDS) expect(c.unripe).toBe(c.name === 'Mango Growers' || c.name === 'Mango Season' ? 'mango' : undefined);
   });
 
   it('walk-ins: players - 2 every day (rules 5), +1 on Market Days', () => {
@@ -219,9 +224,9 @@ describe('options', () => {
   });
 });
 
-describe('rules version 8', () => {
+describe('rules version 9', () => {
   it('keeps daily boards for each rules version apart', () => {
-    expect(RULES_VERSION).toBe(8);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r8');
+    expect(RULES_VERSION).toBe(9);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r9');
   });
 });

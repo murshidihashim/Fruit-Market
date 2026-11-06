@@ -1,0 +1,71 @@
+{
+  "release": "1.7.0",
+  "build": "branch feat/rules-9-balance",
+  "reports": [],
+  "decisions": [
+    "DEC-062"
+  ],
+  "changes": {
+    "added": [
+      "Customers have a freshness type: Premium buys Fresh only, Everyday Fresh or Okay, Bargain anything; the type shows on each customer card",
+      "Ten named lorry cards (two copies each) with the amounts for 2, 3 and 4 stalls printed on the card; the lorry's name shows in the Tomorrow strip",
+      "Price Controls event: a maximum price for each fruit"
+    ],
+    "changed": [
+      "Every stall starts with $15 and buys up to 6 pieces a day; a Handcart buys up to 8; Nest Egg starts with $20",
+      "Customer orders and prices rebalanced: more watermelon, blueberry and apple asked, fewer mangoes; apples $1 lower, mangoes $1 higher",
+      "Event cards rebalanced (Festival, Heatwave, Apple Blight, Mango Craze, Superfood Trend, Good Harvest, Bad Harvest, Hotel Order)",
+      "Health Inspector fines at the start of the day, before buying, and a Cold Room does not help",
+      "Mango Growers and Mango Season deliver green mangoes; Mango Rush delivers ripe",
+      "Computer shops read freshness types, tomorrow's lorry and tomorrow's event when buying, stocking and pricing",
+      "Rules version 9: RULES.md and How to play updated"
+    ],
+    "fixed": [],
+    "removed": [
+      "The Minimum Price event (replaced by Price Controls)"
+    ]
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-07: \"Final customer deck ... Final lorry supply ... Event deck ... Shopkeeper ... deploy end to end per below instructions\"",
+    "date": "2026-11-07"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-047",
+  "title": "Rules 9: final customer deck, lorry deck, events and shopkeepers",
+  "problem": "Simulation of the owner's balance package showed oversupply of blueberry, watermelon and apple, waste that depended on how the computer shops read the rules, and an economy that needed new numbers.",
+  "scope": [
+    "Customer deck quantities, prices and freshness types",
+    "Lorry deck of ten named cards with printed amounts for 2, 3 and 4 stalls; green mangoes on Mango Growers and Mango Season",
+    "Thirteen event cards (Minimum Price becomes Price Controls; Health Inspector timing)",
+    "Start cash 15, buy limit 6, Handcart 8, Big Basket and Nest Egg adjusted",
+    "Computer shops understand freshness types, lorry and event forecasts, and Price Controls",
+    "RULES.md, How to play and tests follow; rules version 9"
+  ],
+  "exclusions": [
+    "Printed card artwork (no card art files exist in the repository)",
+    "Buy limit 4 versus 6 comparison (flagged by simulation, not tested)",
+    "Rebalancing Premium Display, Nest Egg beyond $20, or the apple and mango roles"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Lint, types, unit tests and build pass",
+      "result": "PASS",
+      "evidence": "run locally 2026-11-07 (196 tests)"
+    },
+    {
+      "id": "T2",
+      "text": "Computer-player games of 2, 3 and 4 stalls finish and match the lab simulation",
+      "result": "PASS",
+      "evidence": "150 hard-computer games per size on the real engine 2026-11-07: about $106 per player at 3 stalls, 19% close finishes, 29% blowouts, in line with the lab runs"
+    },
+    {
+      "id": "T3",
+      "text": "The game starts, shows $15, customer freshness tags and the named lorry in a browser",
+      "result": "PASS",
+      "evidence": "built game opened in the browser pane 2026-11-07"
+    }
+  ]
+}

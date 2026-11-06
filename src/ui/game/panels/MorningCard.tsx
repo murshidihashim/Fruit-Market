@@ -21,7 +21,10 @@ export function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number;
           <div class="ei"><EventIcon id={s.event.id} size={44} /></div>
           <b>{s.event.title}</b>
           <p>{s.event.text}</p>
-          {s.event.minPrice && <div class="minprices">{FRUITS.map((f) => <span><Fruit id={f} size={18} />${s.event!.minPrice![f]}</span>)}</div>}
+          {s.event.maxPrice && <div class="minprices">{FRUITS.map((f) => <span><Fruit id={f} size={18} />up to ${s.event!.maxPrice![f]}</span>)}</div>}
+          {s.event.inspector && s.dayFines && s.dayFines.some((x) => x > 0) && (
+            <p class="mc-fine">{s.players.map((pl, i) => (s.dayFines![i] ? `${i === viewer ? 'You were' : `${pl.name} was`} fined $${s.dayFines![i]}` : '')).filter(Boolean).join(' · ')}</p>
+          )}
         </div>
       ) : (
         <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>

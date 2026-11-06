@@ -24,13 +24,13 @@ describe('rules version 7', () => {
     const pl = s.players[0];
     pl.trait = 'basket';
     const plain = marketCost(s, 'blueberry', 2);
-    pl.boughtToday = 3;
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
-    pl.boughtToday = 4;
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain + 2);
-    pl.upgrades.push('barrow'); // a Handcart moves the usual limit to 5
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
     pl.boughtToday = 5;
+    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
+    pl.boughtToday = 6;
+    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain + 2);
+    pl.upgrades.push('barrow'); // a Handcart moves the usual limit to 8
+    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
+    pl.boughtToday = 8;
     expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain + 2);
   });
 
