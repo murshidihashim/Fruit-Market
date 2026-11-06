@@ -1,0 +1,77 @@
+{
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-087"
+  ],
+  "decisions": [
+    "DEC-063"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "id": "PLAN-048",
+  "title": "Look E pilot: Character Bible, rules-9 card templates and two pilot characters",
+  "problem": "Owner brief: a polished Kickstarter tabletop edition, then the phone game, with a reusable art pipeline a solo developer can run. Today's printed portraits are 16x16 pixel faces about 21-26 mm wide, the Drive print kit is rules version 8, and there is no art manifest, style lock or print template with bleed.",
+  "scope": [
+    "Character Bible v0.1 (docs/art/CHARACTER_BIBLE.md): one line per character for all 45 plus the walk-in figure, full entries and master prompts for Benny and Sailor Jia Wen; stop for approval",
+    "Rules-9 card templates for customer, guest and shopkeeper fronts, filled from src/engine/data.ts, with bleed, crop marks and an empty portrait window; home-print and factory PDFs from a new print script; no game code change",
+    "Pilot concepts: three directions per pilot with prompts and scoring; the owner picks one each",
+    "Pilot masters: master reference, front, three-quarter and side views, six expressions, a person's clean-up, script checks (palette, line, transparency), manifest entries",
+    "QA (eight scores, each at least 4/5), a 100% print test, and a phone mock-up beside today's pixel look; style-lock sheet for approval"
+  ],
+  "exclusions": [
+    "Any change to rules, balance, card text, saves, online play or the app's screens",
+    "Generating the whole roster; characters beyond the two pilots",
+    "Spending money (image tools, artists, proofs) without a dated quote and the owner's separate approval",
+    "Publishing anything, including a Kickstarter page"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Character Bible approved by the owner",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Card templates print at 100% with bleed and crop marks; the densest card (three order lines) fits; customer backs differ only by fruit icons",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Both pilots score at least 4/5 in all eight QA categories, with the evidence recorded",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Hidden-information check: no type cue in either pilot; the cue-balance table is recorded",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Every pilot asset has a manifest row (tool, version, date, references, prompt, human changes, approval)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T6",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

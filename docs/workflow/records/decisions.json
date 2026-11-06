@@ -1560,6 +1560,31 @@
       "reports": [],
       "plan": "PLAN-047",
       "reviewTrigger": "Owner plays it; if 3 and 4 stall games still feel oversupplied, cut the lorry amounts (simulation: about one third off blueberry, watermelon and apple); test buy limit 4 against 6."
+    },
+    {
+      "id": "DEC-063",
+      "title": "Art direction for the Kickstarter edition: Look E, crate-label world with townsfolk characters",
+      "question": "Which visual identity should the Kickstarter-first tabletop edition use, and later the phone game: The Great Fruit Exchange (vintage crate labels), Orchard & Oddballs (quirky personalities), or a controlled hybrid?",
+      "choice": "Proposed: a controlled hybrid (Look E, docs/art/ART_DIRECTION.md v0.1). Frames, backs, logo, box and banners take the crate-label style and are built as templates in code with no AI; people take the personality of Orchard & Oddballs but stay ordinary townsfolk (DEC-039), in one flat screen-print style using the existing palette. Pixel art stays on the app board, queue and wardrobe (the board shows tokens; cards show portraits). Each person keeps one character spec with two renderings: the 16x16 pixel token and an illustrated card portrait. Hard rules stop art from revealing hidden information. AI only for ideas and drafts, every final finished by a person. Pilot pair: Benny and Sailor Jia Wen.",
+      "rationale": "Owner brief: Kickstarter first, then the phone game, with a reusable art pipeline. Three independent reviews scored the hybrid 35-36 of 45 against 22-25 for the Exchange alone and 25-27 for Oddballs alone (REP-087). It keeps the harbour world, cast rules and palette, avoids the stereotypes of vintage fruit advertising, and keeps the pixel board the owner praised (DEC-057).",
+      "impact": {
+        "player": "None until built. Later: illustrated printed cards and box; in the app, illustrated portraits only in card views.",
+        "technical": "None now. If approved, amends DEC-033 and ART-STYLE.md section 4 (adds a card-portrait rendering of people), and the DEC-041 portrait rule (one spec, two renderings). DEC-042 and DEC-057 stand.",
+        "data": "None."
+      },
+      "cost": "RM0 for this proposal. Image tools, a clean-up artist, an illustrator or printed proofs need dated quotes and separate approval (estimates in REP-087 section 10).",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-087"
+      ],
+      "plan": "PLAN-048",
+      "reviewTrigger": "After the pilot pair is shown next to the current pixel look (DEC-042), or if the owner chooses a different AI or budget policy."
     }
   ],
   "history": [
@@ -2106,6 +2131,10 @@
     {
       "at": "2026-11-05 23:30",
       "text": "Release 1.6.0 published (Deploy LIVE game on main 55345c6, started by Claude at the owner's explicit request \"deploy live\"; smoke test passed; tag v1.6.0). The first build on staging was black because a font rule sat above the palette import; caught on staging before going live, fixed and covered by a test."
+    },
+    {
+      "at": "2026-11-07 03:45",
+      "text": "Owner asked for an art direction and character design workflow for a Kickstarter-first edition (audit first, no assets). Audit done (REP-087): proposed DEC-063 (Look E, crate-label world with townsfolk characters) and PLAN-048 (Character Bible, card templates and a two-character pilot), both awaiting approval. Draft direction in docs/art/ART_DIRECTION.md v0.1. No game, app or print-kit change."
     }
   ]
 }
