@@ -4,13 +4,13 @@ Updated 2026-11-07 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections f
 
 ## Latest (2026-11-07)
 - **Live:** 1.7.0, rules version 9 (commit `0d653b2`, published 2026-11-07, tagged, per `releases.json`).
-- **New work stream: Kickstarter art direction.** Owner brief: Kickstarter-first tabletop edition, then the phone game, with an AI-assisted art pipeline; audit first, no assets. Done: audit and recommendation (REP-087), draft direction `docs/art/ART_DIRECTION.md` v0.1 (Look E: crate-label world, townsfolk characters; pixel art stays on the app board).
-- **Awaiting the owner:** DEC-063 (Look E) and PLAN-048 (Character Bible, rules-9 card templates, pilot Benny + Sailor Jia Wen), plus three questions in REP-087 §13 (AI and budget policy, phone scope, pilot pair). Nothing is built until approved; no spending without a quote.
-- **Found, not fixed (REP-087 §11):** generous list and guest orders differ between RULES.md and the game; Drive print kit is rules 8; card-order backs make 9 customers unique; online leak check does not test freshness type; likely bug: a rival's favour is announced as "Priority!" online (not reproduced).
-- **Checkpoint:** branch `ccr-d9f10c6d-75280w`; no uncommitted files after the commit; no active approval for PLAN-048; checks: `npm run records:check` (see REP-087 §12); next step: owner answers REP-087 §13, then Character Bible v0.1.
+- **New work stream: Kickstarter art direction.** Owner brief: Kickstarter-first tabletop edition, then the phone game, with an AI-assisted art pipeline; audit first, no assets. Done: audit and recommendation (REP-087), draft direction `docs/art/ART_DIRECTION.md` v0.2 (Look E: crate-label world, townsfolk characters; pixel art stays on the app board).
+- **Awaiting the owner:** DEC-063 (Look E) and PLAN-048 (part 1, no spending: Character Bible, card-template design, pilot prompts), plus three questions in REP-087 §13 (AI finishing policy, phone scope, pilot pair; recommended pilots Benny + Sailor Jia Wen). Nothing is built until approved; no spending without a quote.
+- **Found, not fixed (REP-087 §11):** generous list and guest orders differ between RULES.md and the game; Drive print kit is rules 8; card-order backs make 9 customers unique; online leak check does not test name, freshness type or generous flag on face-down walk-ins; likely bug: a rival's favour is announced as "Priority!" online (not reproduced).
+- **Checkpoint:** branch `ccr-d9f10c6d-75280w` (not merged to `main`); no active approval (DEC-063 and PLAN-048 awaiting); checks: records:check PASS (2026-11-07); lint, types, tests and build NOT APPLICABLE (no code changed); blocker: owner's answers; next step: owner answers REP-087 §13, then Character Bible v0.1.
 
-## Latest (2026-10-29)
-- **1.2.0 is LIVE** (main `f5f9390`, tag v1.2.0, smoke test passed). The live game and the preview are the same build until the next change. Rules version 6.
+## Earlier: 2026-10-29 (history, superseded by the section above)
+- **1.2.0 was live then** (main `f5f9390`, tag v1.2.0, smoke test passed). The live game and the preview are the same build until the next change. Rules version 6.
 - **On the preview (main `9424f21`, CI and preview green):** look D on every screen (PLAN-033, DEC-045), market opening on launch, about 2.5 seconds (DEC-047, DEC-048), readability fixes from the QA sweep (136 contrast findings down to 3), concept slides in How to play and a "big idea" section and worked example in RULES.md (DEC-049, REP-079). 1500-game soak clean. No rule or balance change.
 - **Waiting for the owner:** phone check of the preview; read the new How to play wording; Card_Backs.pdf (draft, in the Drive Print_Kit folder); Good Riddance fate; shopkeeper perk balance (Big Basket strong, Haggler weak, REP-076); printed board size and token settings after a print test; taller tap targets (chips and market cells are 32 to 36 px); PLAN-003 spend cap and Cloudflare plan; releasing 1.2.0 (owner runs Deploy LIVE game, types PUBLISH).
 - **Tooling:** `scripts/qa-sweep.cjs` and `scripts/soak.ts` run on GitHub through the QA sweep workflow (push a branch named `qa/...`, or run it by hand). The owner's laptop was out of memory this session, so local type checks and browsers were unreliable; CI is the evidence.
@@ -35,7 +35,7 @@ Updated 2026-11-07 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections f
 The live game changes only through GitHub Actions → *Deploy LIVE game* → `PUBLISH` (DEC-003).
 
 ## Checks
-- `npm run verify`: records check, lint, types, 100 unit tests, build (about 20 s locally; the records check needs a patched copy on Windows).
+- `npm run verify`: records check, lint, types, unit tests (196 at PLAN-047, 2026-11-07), build (about 20 s locally; the records check needs a patched copy on Windows).
 - `npm run records`: regenerate the register, changelog, this file's pending block and the PDFs.
 - `npm run verify:full`: plus browser tests (about 15 min). CI runs this on every push and pull request.
 - Readiness: build-ready PASS; play-ready needs the owner's preview playtest; online-ready mostly
@@ -64,5 +64,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-063: Art direction for the Kickstarter edition: Look E, crate-label world with townsfolk characters (awaiting approval)
 - PLAN-003: Package C, paid part: capacity and cost evidence (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
-- PLAN-048: Look E pilot: Character Bible, rules-9 card templates and two pilot characters (awaiting approval)
+- PLAN-048: Look E pilot, part 1 (no spending): Character Bible, card-template design and pilot prompts (awaiting approval)
 <!-- records:pending:end -->
