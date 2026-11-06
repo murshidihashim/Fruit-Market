@@ -175,7 +175,7 @@
     },
     {
       "version": "1.7.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-047"
       ],
@@ -186,7 +186,10 @@
         "Event cards rebalanced; Price Controls replaces Minimum Price; the Health Inspector now fines at the start of the day",
         "Computer shops understand all of the above",
         "Rules version 9: update the app to play online (older versions cannot join), and a game in progress from 1.6.0 can't be resumed"
-      ]
+      ],
+      "date": "2026-11-07",
+      "commit": "0d653b2",
+      "tagged": true
     }
   ]
 }

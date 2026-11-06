@@ -1556,7 +1556,7 @@
         "evidence": "Owner, 2026-11-07: \"Final customer deck ... Final lorry supply ... Event deck ... Shopkeeper ... deploy end to end per below instructions\"",
         "date": "2026-11-07"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-047",
       "reviewTrigger": "Owner plays it; if 3 and 4 stall games still feel oversupplied, cut the lorry amounts (simulation: about one third off blueberry, watermelon and apple); test buy limit 4 against 6."

@@ -31,7 +31,7 @@
     "evidence": "Owner, 2026-11-07: \"Final customer deck ... Final lorry supply ... Event deck ... Shopkeeper ... deploy end to end per below instructions\"",
     "date": "2026-11-07"
   },
-  "delivery": "in progress",
+  "delivery": "released",
   "id": "PLAN-047",
   "title": "Rules 9: final customer deck, lorry deck, events and shopkeepers",
   "problem": "Simulation of the owner's balance package showed oversupply of blueberry, watermelon and apple, waste that depended on how the computer shops read the rules, and an economy that needed new numbers.",
@@ -66,6 +66,12 @@
       "text": "The game starts, shows $15, customer freshness tags and the named lorry in a browser",
       "result": "PASS",
       "evidence": "built game opened in the browser pane 2026-11-07"
+    },
+    {
+      "id": "T4",
+      "text": "Staging and the live game run rules version 9",
+      "result": "PASS",
+      "evidence": "Staging checked in a browser 2026-11-07 (start cash $15, named lorry, no console errors); Deploy LIVE game succeeded and /api/version on the live site returns rules 9; tag v1.7.0."
     }
   ]
 }

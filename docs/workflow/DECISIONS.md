@@ -76,7 +76,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | DEC-059 | Balance round 2, screen polish, change password, table kit | Approved (owner, 2026-11-05) | Released | REP-086 |
 | DEC-060 | Printed card backs approved | Approved (owner, 2026-11-05) | Implemented | REP-079 |
 | DEC-061 | Shopfront home screen, popups and rounder numbers | Approved (owner, 2026-11-05) | Released |  |
-| DEC-062 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | In progress |  |
+| DEC-062 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | Released |  |
 
 ## Work packages
 
@@ -128,7 +128,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | PLAN-044 | Balance round 1 and polish | Approved (owner, 2026-11-05) | Released | 1.4.0 |
 | PLAN-045 | Balance round 2 and polish | Approved (owner, 2026-11-05) | Released | 1.5.0 |
 | PLAN-046 | Shopfront home screen, popups and rounder numbers | Approved (owner, 2026-11-05) | Released | 1.6.0 |
-| PLAN-047 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | In progress | 1.7.0 |
+| PLAN-047 | Rules 9: final customer deck, lorry deck, events and shopkeepers | Approved (owner, 2026-11-07) | Released | 1.7.0 |
 
 ## Decision details
 
@@ -1063,7 +1063,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 - **Cost:** RM0
 - **Owner:** Murshidi
 - **Approval:** Approved: “Owner, 2026-11-07: "Final customer deck ... Final lorry supply ... Event deck ... Shopkeeper ... deploy end to end per below instructions"” (2026-11-07)
-- **Delivery:** In progress (PLAN-047)
+- **Delivery:** Released (PLAN-047)
 - **Review trigger:** Owner plays it; if 3 and 4 stall games still feel oversupplied, cut the lorry amounts (simulation: about one third off blueberry, watermelon and apple); test buy limit 4 against 6.
 - **Reports:** 
 
