@@ -1655,7 +1655,7 @@
         "evidence": "okay now incorporate the designs from the pdf attachhed with over the counter (shopkeeper), scene (events) and at work (customers) as my artstyle/design that i want, incorporate this in the workflow ure on now. Your task is to implement these designs throughout the existing Fruit Market game, ensuring a cohesive experience across the tabletop and digital versions. ... IMPORTANT: You are authorised to implement the approved designs immediately. Do not ask for further approval unless a decision is genuinely necessary to proceed. Start implementation now. The objective is a working, visually updated Fruit Market game, not another design proposal. (Attachments: Fruit-Market-Deck-Art-1.pdf, -2.pdf, -3.pdf)",
         "date": "2026-11-07"
       },
-      "delivery": "in progress",
+      "delivery": "verified",
       "reports": [],
       "plan": "PLAN-049",
       "reviewTrigger": "Owner checks the preview on a phone, and a printed test sheet."
@@ -2241,6 +2241,10 @@
     {
       "at": "2026-11-07 12:36",
       "text": "Owner: \"approve to push it to live\" (publication approval for the Great Fruit Exchange release, PLAN-049, given while the work was still being built). Read as approval to publish the finished work once it passes npm run verify, the browser tests and a preview check; nothing is published before then. Release steps: version bump and release candidate entry, merge to main (preview), then Deploy LIVE game."
+    },
+    {
+      "at": "2026-11-07 15:33",
+      "text": "PLAN-049 built and verified on the branch: npm run verify PASS (233 tests), npm run test:e2e PASS (solo, performance budget, online with 0 leaks, quick match, four players, rejoin), all 45 names checked. Release 1.8.0 prepared as a candidate (version bump, player notes). Next, per the owner's \"push it after everything passes\": merge to main (preview), check the preview, then Deploy LIVE game."
     }
   ]
 }

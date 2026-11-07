@@ -190,6 +190,22 @@
       "date": "2026-11-07",
       "commit": "0d653b2",
       "tagged": true
+    },
+    {
+      "version": "1.8.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-049"
+      ],
+      "notes": [
+        "A brand-new look, The Great Fruit Exchange: customers are illustrated trading cards, shopkeepers have stall signs, and each day's event arrives as a Gazette front page",
+        "Shopkeepers and customers have new names (for example Uncle Benny, Ah Chen, Kiki, Cowboy Jack and Marina Wen); trophies you already earned still count",
+        "New fonts and colours on every screen, with larger touch targets on phones and tablets",
+        "No rules change: you can still play online with 1.7.0"
+      ],
+      "date": "2026-11-07",
+      "commit": "",
+      "tagged": false
     }
   ]
 }

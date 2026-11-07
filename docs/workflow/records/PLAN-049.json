@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.8.0",
   "build": "branch ccr-d9f10c6d-75280w",
   "reports": [],
   "decisions": [
@@ -30,7 +30,7 @@
     "evidence": "okay now incorporate the designs from the pdf attachhed with over the counter (shopkeeper), scene (events) and at work (customers) as my artstyle/design that i want, incorporate this in the workflow ure on now. Your task is to implement these designs throughout the existing Fruit Market game, ensuring a cohesive experience across the tabletop and digital versions. ... IMPORTANT: You are authorised to implement the approved designs immediately. Do not ask for further approval unless a decision is genuinely necessary to proceed. Start implementation now. The objective is a working, visually updated Fruit Market game, not another design proposal. (Attachments: Fruit-Market-Deck-Art-1.pdf, -2.pdf, -3.pdf)",
     "date": "2026-11-07"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-049",
   "title": "Implement the Great Fruit Exchange art across the app and the printed kit",
   "problem": "Owner wants the deck art and approved names implemented throughout the digital and tabletop game now.",
@@ -51,32 +51,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the branch, 2026-11-07: records, palette, lint, types, 233 unit tests in 38 files, build"
     },
     {
       "id": "T2",
       "text": "All 45 names correct in the app, rules and print kit",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/names-approved.test.ts (13 tests) plus checks of the built apps and 81 rendered cards: all 45 approved names, no old names or hidden keys on screen"
     },
     {
       "id": "T3",
       "text": "Desktop and phone screenshots of every main screen render the new art",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Visual QA at 360x740, 390x844 and 1280x800 across home, set-up, character pick, a full solo game, Gazette mornings, customer card, results, wardrobe, How to play, daily market: 0 page errors, 0 broken images, no walk-in leaks; 13 problems fixed. Online lobby screens not seen rendered."
     },
     {
       "id": "T4",
       "text": "Browser tests (solo game, online with a leaver, quick match, performance budget) pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e, 2026-11-07: solo playthrough, performance budget (559/800 DOM, game screen 208 ms of 350), online match with a leaver (100 pricing frames, 0 leaks), quick match, four players, rejoin 5 cycles; budget re-run after the font clean-up: BUDGET OK"
     },
     {
       "id": "T5",
       "text": "Print kit PDFs generated; missing artwork listed",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "print/kit: 13 PDFs (all-in-one 127 pages); gaps listed in print/README.md and REP; four layout issues in the print kit noted for a follow-up"
     }
   ]
 }
