@@ -1582,6 +1582,9 @@ b, strong { font-weight: 700; }
 @media (max-width: 899px) {
   .seg button, .rd-close { min-height: 44px; }
   .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 44px; min-height: 44px; }
+  .ev-chip, .rv-chip, .game .ev-chip, .game .rv-chip { min-height: 40px; }
+  .pz, .game .pz { min-height: 40px; }
+  .game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { min-height: 40px; }
 }
 
 /* small print inside a button keeps the button's own colour */
