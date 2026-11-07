@@ -2237,6 +2237,10 @@
     {
       "at": "2026-11-07 12:20",
       "text": "Owner supplied the Great Fruit Exchange deck art (three PDFs) and authorised implementation throughout the game (DEC-066, exact words recorded): events Art 1, shopkeepers Art 2, customers Art 3. DEC-033 (pixel look) superseded by DEC-066. PLAN-049 started on branch ccr-d9f10c6d-75280w. Baseline before changes: npm run verify PASS (196 tests)."
+    },
+    {
+      "at": "2026-11-07 12:36",
+      "text": "Owner: \"approve to push it to live\" (publication approval for the Great Fruit Exchange release, PLAN-049, given while the work was still being built). Read as approval to publish the finished work once it passes npm run verify, the browser tests and a preview check; nothing is published before then. Release steps: version bump and release candidate entry, merge to main (preview), then Deploy LIVE game."
     }
   ]
 }
