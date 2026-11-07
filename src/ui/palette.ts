@@ -237,7 +237,14 @@ export const C = {
   xUnripe: '#9ab85a',
   xUnripeDark: '#6d8a3a',
   // Card-system additions (cards.tsx, cards.css) go below this line.
+  xWoodGrain: '#a66936',
+  xShadow: '#a4a3a1',
   // Screen-restyle additions (styles.css, screens.css) go below this line.
+  xPaperDeep: '#e6d8bc',
+  xGreenTint: '#d6e3c6',
+  xRedTint: '#f2d2c2',
+  xMustardTint: '#f2dc9e',
+  xMist: '#aab4c8',
 } as const;
 
 /** The roles named in docs/ART-STYLE.md. */

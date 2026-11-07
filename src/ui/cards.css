@@ -1,1 +1,171 @@
 /* Card system (DEC-066): Trading Card (customers), Stall Sign (shopkeepers), Gazette (events), backs. Shared by the app and the print kit. */
+/* Sizing: set --card-w on a card or any parent (default 15.75rem). The card is 25.2em x 35.2em (63 x 88 mm when
+   --card-w is 63mm, so 1em = 2.5 mm). Every length below is in em of the card ("ce") unless an element sets its
+   own font-size; then its lengths are that ce value divided by its font-size (noted where it matters). */
+
+:root {
+  --x-wood-grain: var(--c-a66936); /* grain lines on stall-sign wood */
+  --x-shadow: var(--c-a4a3a1);     /* stall-sign drop shadow */
+}
+
+.x-card {
+  position: relative; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;
+  width: var(--card-w, 15.75rem); height: 35.2em; font-size: calc(var(--card-w, 15.75rem) / 25.2);
+  color: var(--x-ink); line-height: 1.25; text-align: left;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.x-card *, .x-card *::before, .x-card *::after { box-sizing: border-box; }
+.x-card.x-compact { height: auto; }
+.x-card :where(p, ul, figure, li) { margin: 0; padding: 0; }
+.x-card :where(ul) { list-style: none; }
+.x-card .x-art-missing { font-size: 1em; letter-spacing: 0.14em; }
+.x-card .x-fruit { display: block; flex: none; }
+
+/* ---------- Trading Card (customer, Art 3 "At work") ---------- */
+.x-tc { background: var(--x-card); border: 0.3em solid var(--x-ink); padding: 1.05em 1.05em 0.75em; gap: 0.55em; }
+.x-tc-pic { position: relative; flex: 1 1 0; min-height: 11em; border: 0.25em solid var(--x-ink); overflow: hidden; background: var(--x-paper); }
+.x-tc-pic .x-art { position: absolute; inset: 0; object-position: 50% 28%; }
+/* number badge: 4.1ce circle, font 1.6ce */
+.x-tc-num {
+  position: absolute; left: 0.3em; top: 0.3em; z-index: 1; width: 2.56em; height: 2.56em; border-radius: 50%;
+  display: grid; place-items: center; background: var(--x-mustard); border: 0.17em solid var(--x-ink);
+  font: 1.6em/1 var(--f-display); color: var(--x-ink); letter-spacing: 0.02em;
+}
+/* type flag: font 1ce, a navy stripe on the left and a notched tail at the picture's edge */
+.x-tc-flag {
+  position: absolute; top: 1.35em; left: 4.85em; right: 0; height: 2.35em; display: flex; align-items: center;
+  padding: 0 1.7em 0 0.8em; border-left: 0.4em solid var(--x-ink); background: var(--x-green); color: var(--x-card);
+  font: 600 1em/1 var(--f-label); letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap; overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 1.2em) 50%, 100% 100%, 0 100%);
+}
+.x-flag-premium { background: var(--x-red); }
+.x-flag-bargain { background: var(--x-ink); }
+.x-flag-guest { background: var(--x-mustard); color: var(--x-ink); }
+/* name banner: font 1.75ce, navy with mustard edges, on a slant */
+.x-tc-name {
+  position: absolute; left: -0.65em; right: -0.65em; bottom: 1.4em; z-index: 1; display: block;
+  padding: 0.2em 0.7em 0.14em 1.15em; background: var(--x-ink); color: var(--x-card);
+  border-top: 0.19em solid var(--x-mustard); border-bottom: 0.15em solid var(--x-mustard);
+  font: 1.75em/1.2 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
+  transform: rotate(-6deg); transform-origin: 50% 50%;
+}
+.x-tc-name.x-long { font-size: 1.42em; padding-top: 0.32em; padding-bottom: 0.26em; }
+.x-tc-quirk { flex: none; padding: 0 0.3em; font: italic 1.36em/1.26 var(--f-serif); text-align: center; color: var(--x-ink); }
+.x-tc-order { flex: none; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 0.22em solid var(--x-ink); }
+.x-tc-order li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.18em; padding: 0.45em 0.15em 0.4em; text-align: center; }
+.x-tc-order li + li { border-left: 0.16em solid var(--x-ink); }
+.x-tc-order .x-fruit { width: 2.5em; height: 2.5em; }
+.x-tc-order span { font: 500 1em/1.15 var(--f-label); letter-spacing: 0.07em; text-transform: uppercase; color: var(--x-ink); }
+.x-tc-order b { font: 2.15em/1 var(--f-display); color: var(--x-red); }
+.x-tc-order.x-n3 li { padding-left: 0.05em; padding-right: 0.05em; }
+.x-tc-order.x-n3 .x-fruit { width: 2.2em; height: 2.2em; }
+.x-tc-order.x-n3 span { font-size: 0.88em; letter-spacing: 0.04em; }
+.x-tc-order.x-n3 b { font-size: 1.85em; }
+.x-tc-buys { flex: none; font: 600 1em/1.2 var(--f-label); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; color: var(--x-green); }
+
+/* compact (the table): bigger words, the fruit picture names the fruit */
+.x-tc.x-compact { padding: 0.8em; gap: 0.5em; }
+.x-tc.x-compact .x-tc-pic { flex: none; aspect-ratio: 23 / 17; min-height: 0; }
+.x-tc.x-compact .x-tc-pic .x-art { object-position: 50% 22%; }
+.x-tc.x-compact .x-tc-name { font-size: 1.9em; bottom: -0.1em; transform: rotate(-4deg); }
+.x-tc.x-compact .x-tc-name.x-long { font-size: 1.55em; }
+.x-tc.x-compact .x-tc-order li { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 0.25em; row-gap: 0.1em; padding: 0.5em 0.1em; }
+.x-tc.x-compact .x-tc-order .x-fruit { grid-column: 2; grid-row: 1; width: 3em; height: 3em; }
+.x-tc.x-compact .x-tc-order span { grid-column: 1; grid-row: 1; font-size: 1.75em; font-weight: 600; letter-spacing: 0; }
+.x-tc.x-compact .x-tc-order b { grid-column: 1 / 3; font-size: 2.6em; }
+.x-tc.x-compact .x-tc-order.x-n3 .x-fruit { width: 2.4em; height: 2.4em; }
+.x-tc.x-compact .x-tc-order.x-n3 span { font-size: 1.45em; }
+.x-tc.x-compact .x-tc-order.x-n3 b { font-size: 2.2em; }
+
+/* ---------- Customer back (face down): only the fruit wanted ---------- */
+.x-tb { background: var(--x-ink); border: 0.3em solid var(--x-ink); padding: 1em; }
+.x-tb-label {
+  flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1em;
+  padding: 1em 0.8em; border: 0.55em double var(--x-mustard); border-radius: 0.7em; text-align: center;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, var(--x-ink-2) 0deg 7deg, var(--x-ink) 7deg 14deg);
+}
+/* ribbon: font 2.1ce, swallow-tail ends */
+.x-tb-brand {
+  display: block; padding: 0.22em 0.95em 0.18em; background: var(--x-red); color: var(--x-card);
+  font: 2.1em/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.42em) 50%, 100% 100%, 0 100%, 0.42em 50%);
+}
+.x-tb-kind { font: 600 1.1em/1 var(--f-label); letter-spacing: 0.32em; text-transform: uppercase; color: var(--x-mustard); }
+.x-tb-kind::before, .x-tb-kind::after { content: '·'; padding: 0 0.5em; }
+.x-tb-fruit {
+  display: flex; justify-content: center; gap: 0.6em; min-height: 5.4em; min-width: 9em; padding: 1em 1.4em; align-items: center;
+  background: var(--x-card); border: 0.25em solid var(--x-mustard); border-radius: 999px; box-shadow: 0 0 0 0.35em var(--x-ink-2);
+}
+.x-tb-fruit .x-fruit { width: 3.8em; height: 3.8em; }
+.x-tb.x-compact { aspect-ratio: 25.2 / 24; padding: 0.7em; }
+.x-tb.x-compact .x-tb-label { gap: 0.8em; padding: 0.6em 0.4em; }
+.x-tb.x-compact .x-tb-brand { font-size: 1.8em; }
+
+/* ---------- Stall Sign (shopkeeper, Art 2 "Over the counter") ---------- */
+.x-ss {
+  gap: 0.85em; padding: 1em; border: 0.3em solid var(--x-ink); border-radius: 1.3em;
+  background: repeating-linear-gradient(180deg, var(--x-wood) 0 1.8em, var(--x-wood-grain) 1.8em 2em);
+  box-shadow: 0.45em 0.45em 0 var(--x-shadow);
+}
+.x-ss-head {
+  flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 0.75em; align-items: center;
+  padding: 0.5em 0.6em; background: var(--x-card); border: 0.25em solid var(--x-ink); border-radius: 0.7em;
+}
+.x-ss .x-ss-badge { grid-row: 1 / 3; width: 5em; height: 5em; border-radius: 50%; border: 0.25em solid var(--x-ink); overflow: hidden; }
+.x-ss-name { align-self: end; font: 3.3em/1.05 var(--f-script); color: var(--x-red); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 0.1em; }
+.x-ss-name.x-long { font-size: 2.45em; }
+.x-ss-tag { align-self: start; font: 600 0.8em/1.3 var(--f-label); letter-spacing: 0.17em; text-transform: uppercase; color: var(--x-ink); white-space: nowrap; }
+.x-ss-scene { position: relative; flex: 1 1 0; min-height: 9em; border: 0.25em solid var(--x-ink); border-radius: 0.45em; overflow: hidden; background: var(--x-paper); }
+.x-ss-scene .x-art { position: absolute; inset: 0; object-position: 50% 75%; }
+.x-ss-chalk {
+  flex: none; padding: 0.55em 0.8em 0.65em; text-align: center; color: var(--x-paper); font-family: var(--f-chalk);
+  background: var(--x-chalk); border: 0.4em solid var(--x-wood-d); border-radius: 0.35em; box-shadow: inset 0 0 1.1em -0.3em var(--x-ink);
+}
+.x-ss-chalk b { display: block; font-size: 1.85em; font-weight: 700; line-height: 1.1; }
+.x-ss-chalk p { margin-top: 0.1em; font-size: 1.34em; font-weight: 600; line-height: 1.08; }
+.x-ss-chalk i { display: block; margin-top: 0.12em; font-size: 1.5em; font-weight: 700; font-style: normal; line-height: 1.1; color: var(--x-mustard); }
+.x-ss.is-selected { box-shadow: 0 0 0 0.45em var(--x-mustard), 0.45em 0.45em 0 0.45em var(--x-shadow); }
+.x-ss.is-taken > :not(.x-ss-taken) { filter: grayscale(0.75) brightness(0.92); }
+/* stamp: font 1.35ce */
+.x-ss-taken {
+  position: absolute; left: 50%; top: 44%; z-index: 2; max-width: 16em; padding: 0.2em 0.55em; transform: translate(-50%, -50%) rotate(-9deg);
+  background: var(--x-card); border: 0.18em solid var(--x-red); border-radius: 0.2em; color: var(--x-red);
+  font: 1.35em/1.15 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.x-ss.x-compact { gap: 0.7em; padding: 0.8em; }
+.x-ss.x-compact .x-ss-scene { flex: none; aspect-ratio: 4 / 3; min-height: 0; }
+.x-ss.x-compact .x-ss-chalk b { font-size: 1.9em; }
+
+/* ---------- Gazette (event, Art 1 "The scene") ---------- */
+.x-gz { background: var(--x-paper); border: 0.12em solid var(--x-edge); padding: 0.9em 1.2em 1em; }
+.x-gz-mast { flex: none; padding-bottom: 0.12em; border-bottom: 0.17em double var(--x-ink); font: 1.85em/1.1 var(--f-headline); text-align: center; color: var(--x-ink); }
+.x-gz-ed {
+  flex: none; display: flex; justify-content: space-between; gap: 0.5em; padding: 0.45em 0 0.4em; border-bottom: 0.12em solid var(--x-ink);
+  font: 600 0.78em/1.2 var(--f-label); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap;
+}
+/* headline: font 2.45ce; leaves room for the seal */
+.x-gz-head { flex: none; display: block; margin-top: 0.16em; padding-right: 2.3em; font: 2.45em/0.98 var(--f-headline); text-transform: uppercase; color: var(--x-ink); }
+.x-gz-sub { flex: none; margin: 0.1em 0 0.4em; padding-right: 3.9em; font: italic 1.25em/1.12 var(--f-serif); color: var(--x-red); }
+/* seal: font 1.35ce, 5.8ce across; red rim, navy ring, red middle */
+.x-gz-seal {
+  position: absolute; top: 3.45em; right: -0.2em; z-index: 1; width: 4.3em; height: 4.3em; border-radius: 50%;
+  display: grid; place-items: center; background: var(--x-red); color: var(--x-card);
+  box-shadow: inset 0 0 0 0.2em var(--x-red), inset 0 0 0 0.36em var(--x-ink);
+  font: 1.35em/1 var(--f-display); transform: rotate(13deg);
+}
+.x-gz-pic { flex: 1 1 0; min-height: 8em; display: flex; flex-direction: column; }
+.x-gz-pic .x-art { flex: 1 1 0; min-height: 0; height: auto; border: 0.2em solid var(--x-ink); object-position: 50% 50%; }
+.x-gz-pic figcaption { flex: none; margin-top: 0.3em; font: italic 0.92em/1.2 var(--f-serif); color: var(--x-slate); }
+.x-gz-body { flex: none; display: flow-root; margin-top: 0.5em; }
+.x-gz-fx { float: right; width: 9.6em; margin: 0.15em 0 0.25em 0.7em; padding: 0.45em 0.5em 0.4em; border: 0.15em solid var(--x-ink); }
+.x-gz-fx li { padding-left: 0.95em; text-indent: -0.95em; font: 600 0.9em/1.25 var(--f-label); letter-spacing: 0.05em; text-transform: uppercase; color: var(--x-ink); }
+.x-gz-fx li::before { content: '\25B8'; display: inline-block; width: 0.95em; text-indent: 0; font-size: 0.8em; }
+.x-gz-text { font: 1.12em/1.27 var(--f-serif); color: var(--x-ink); }
+.x-gz-text::first-letter { float: left; margin: 0.04em 0.08em 0 0; font: 2.75em/0.82 var(--f-headline); color: var(--x-red); }
+.x-gz.x-compact .x-gz-mast { font-size: 1.6em; }
+.x-gz.x-compact .x-gz-head { margin-top: 0.3em; margin-bottom: 0.2em; }
+.x-gz.x-compact .x-gz-seal { top: 1.85em; }
+.x-gz.x-compact .x-gz-pic { flex: none; min-height: 0; }
+.x-gz.x-compact .x-gz-pic .x-art { flex: none; aspect-ratio: 4 / 3; }
+.x-gz.x-compact .x-gz-fx { float: none; width: auto; margin: 0; }
+.x-gz.x-compact .x-gz-fx li { font-size: 1.3em; }

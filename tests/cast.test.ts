@@ -29,7 +29,7 @@ describe('the cast is all human', () => {
     for (const r of RIVALS) expect(`${r.name} ${r.quip} ${Object.values(r.lines).flat().join(' ')}`, r.name).not.toMatch(creature);
   });
 
-  it('shopkeeper names are a plain first name', () => {
-    for (const r of RIVALS) expect(r.name, r.name).toMatch(/^[A-Z][a-z]+$/);
+  it('shopkeeper names are a first name, with at most a familiar title (DEC-064: Uncle Benny, Ah Chen)', () => {
+    for (const r of RIVALS) expect(r.name, r.name).toMatch(/^(?:(?:Uncle|Ah) )?[A-Z][a-z]+$/);
   });
 });

@@ -26,7 +26,7 @@ describe('cash shown while the day\'s sales play out', () => {
   });
 
   it('holds each stall at exactly what it had before the sales, so the payments add up to the real total', () => {
-    const kiran = RIVALS.find((r) => r.name === 'Kiran')!.avatar; // Tip Jar: its tip is paid outside the sale lines
+    const kiran = RIVALS.find((r) => r.name === 'Kiki')!.avatar; // Tip Jar: its tip is paid outside the sale lines
     const levels: Level[] = ['hard', 'normal', 'easy'];
     for (let seed = 1; seed <= 20; seed++) {
       let s: GameState = newGame({
