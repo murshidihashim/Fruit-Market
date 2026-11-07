@@ -1610,6 +1610,31 @@
       ],
       "plan": "PLAN-048",
       "reviewTrigger": "When the customer names (section 1) arrive, or at the implementation plan."
+    },
+    {
+      "id": "DEC-065",
+      "title": "Customer names: the owner's own playful list (36 cards)",
+      "question": "Which final names do the 36 customers use (REP-088)?",
+      "choice": "The owner's list, in card order: C1 Cowboy Jack (was John); C2 Bobby Books (was Robert); C3 Dr. Bubbles (was Daniel); C4 Rara Jenab; C5 Zara Zapp (was Aisyah); C6 Ravi Rocket (was Ravi); C7 Coral Mei (was Mei Ling); C8 Postman Pip (was Farid); C9 Madam Siti; C10 Magic Kumar; C11 Rockstar Grace; C12 Professor Pebble (was Hafiz); C13 Inspector Wei (was Wei Jie); C14 Miss Marigold (was Nurul); C15 Dr Priya; C16 Captain Ahmad; C17 Lola Lens (was Sarah); C18 Grandpa Tan; C19 Miss Cha-Cha (was Lina); C20 Sleepy Zul; C21 Anna the Artist (was Anna); C22 Otto Oddjob (was Vijay); C23 Mina Moss (was Hui Min); C24 Firefighter Osman; C25 Marina Wen (was Jia Wen); C26 DJ Rizal; C27 Devi Bloom (was Devi); C28 Marcus Hook (was Marcus); C29 Professor Fatimah; C30 Benny Bell (was Ben); C31 Akira Swift (was Yuki); C32 Hadi Hammer (was Hadi); C33 Baker Lakshmi; C34 Kenji Kaze (was Kenji); C35 Herbalist Mira; C36 Uncle Hock Seng. Style: the owner's own mix of playful nicknames (Bobby Books, Ravi Rocket, Lola Lens) and job titles (Firefighter Osman, Baker Lakshmi), shown as written on one line. Each card keeps its type, wants and prices: the old names stay as hidden IDs. Pilot Sailor Jia Wen is now Marina Wen, with the approved look (navy, sailor's cap, rolled mango map). Assumption: 'Dr. Bubbles' is shown as 'Dr Bubbles' to match 'Dr Priya'. Three names were flagged to the owner for a yes or no (C30 Benny Bell shares 'Benny' with shopkeeper Uncle Benny; C22 'Oddjob' is a famous film character; C8 'Postman Pip' is close to the TV character Postman Pat). Quirks are unchanged until reviewed.",
+      "rationale": "Owner's final customer list after the naming review (REP-088). It replaces the 'Role Name' rule of DEC-041 for customers with the owner's playful naming.",
+      "impact": {
+        "player": "None until a later implementation plan. Then customers show the new names in the app, the print kit and the rulebook.",
+        "technical": "None now. At implementation: CUSTOMER_LOOKS titles in src/engine/data.ts with the old names kept as hidden keys (type lists, generous rule, saves, online rooms); RULES.md type lists, example (Hafiz) and generous list rebuilt from the game; print kit; quirks reviewed to fit the new names.",
+        "data": "None. Types, wants, prices and generous status unchanged."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "c1Cowboy Jack C2 Bobby Books C3 Dr. Bubbles C4 Rara Jenab C5 Zara Zapp C6 Ravi Rocket C7 Coral Mei C8 Postman Pip C9 Madam Siti C10 Magic Kumar C11 Rockstar Grace C12 Professor Pebble C13 Inspector Wei C14 Miss Marigold C15 Dr Priya C16 Captain Ahmad C17 Lola Lens C18 Grandpa Tan C19 Miss Cha-Cha C20 Sleepy Zul C21 Anna the Artist C22 Otto Oddjob C23 Mina Moss C24 Firefighter Osman C25 Marina Wen C26 DJ Rizal C27 Devi Bloom C28 Marcus Hook C29 Professor Fatimah C30 Benny Bell C31 Akira Swift C32 Hadi Hammer C33 Baker Lakshmi C34 Kenji Kaze C35 Herbalist Mira C36 Uncle Hock Seng (section 1 of the owner's 'Final approved name' roster; sections 2 and 3 were sent with 'change to above, appeoved')",
+        "date": "2026-11-07"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-088"
+      ],
+      "plan": "PLAN-048",
+      "reviewTrigger": "Owner's answer on the three flagged names (C8, C22, C30), a read-aloud test with a crier, and a header-fit test on a printed card."
     }
   ],
   "history": [
@@ -2176,6 +2201,10 @@
     {
       "at": "2026-11-07 11:16",
       "text": "Owner approved the shopkeeper and guest names (DEC-064): Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki (was Kiran); abilities unchanged; guests unchanged. The owner's message started at section 2, so section 1 (the 36 customers) has not arrived; asked for it. The pilot Benny is now Uncle Benny. Creative bible shopkeeper lines updated; no game, data or art change."
+    },
+    {
+      "at": "2026-11-07 11:22",
+      "text": "Owner sent the 36 customer names (DEC-065, exact list recorded). Pilot customer is now Marina Wen (was Sailor Jia Wen). Flagged to the owner for a yes or no: C30 Benny Bell vs shopkeeper Uncle Benny, C22 Otto Oddjob (famous film character), C8 Postman Pip (close to Postman Pat). Naming done enough to start the design package, which covers the two pilots only. Creative bible customer rule updated."
     }
   ]
 }

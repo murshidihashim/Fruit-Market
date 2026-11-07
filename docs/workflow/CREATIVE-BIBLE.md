@@ -45,8 +45,7 @@ hobby and one playful detail. Nobody is an animal, creature, robot or monster. C
 or hobby needs (a baker's hat, a rider's helmet).
 
 - **Shopkeepers (6):** a first name (familiar titles as approved in DEC-064); the perk shows in their lines and manner, not their species.
-- **Customers (36 + 3 event customers):** a title "Role Name" ("Florist Nurul"; just the name when the name carries the joke, as with "Rara Jenab") and a quirk that says what the
-  person *does* (never who they are). A role is a job or hobby.
+- **Customers (36 + 3 event customers):** the owner's own playful names (DEC-065): a first name with a playful nickname (Bobby Books, Ravi Rocket, Marina Wen) or a job title (Firefighter Osman, Baker Lakshmi), plus a quirk that says what the person *does* (never who they are). Guests stay "The Influencer", "The Gym Club", "The Hotel Chef" (DEC-064).
 - **Diversity:** names and roles mix freely across cultures; no culture is tied to a role or a cliche (DEC-017).
   Respectful titles (Mak, Pak, Auntie) are used only when a character's own manner calls for it.
 - **Portrait rules** (tied to `docs/ART-STYLE.md`): a 16x16 head and shoulders with a 1 pixel ink outline; one face
