@@ -1646,3 +1646,7 @@ b, strong { font-weight: 700; }
 /* results chart key: a coloured line beside each name, names in ink (red and mustard text were under 4.5:1 on paper) */
 .cc-key span { display: inline-flex; align-items: center; gap: 5px; color: var(--x-ink); }
 .cc-key i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; }
+/* the privacy link in Settings is a full-height tap target, underlined in the deck's red */
+.page .panel a[href$="privacy.html"] { display: inline-flex; align-items: center; min-height: 44px; color: var(--x-red-d); font-weight: 600; text-underline-offset: 3px; }
+/* a customer's card the player opened sits above the first-game coach (same layer, later in the page), still under the menu */
+.game .tip-pop.tip-card-pop { z-index: 20; }
