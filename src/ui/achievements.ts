@@ -1,7 +1,7 @@
 // Achievements, grouped by theme. `evaluate` looks at one finished game plus what the player has built up
 // over time (sets such as "shopkeepers won with") and says which achievements were just earned.
 // It only reads the game; it never changes a rule.
-import { CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, RIVALS } from '../engine/data';
+import { CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, LEGACY_RIVAL_NAMES, RIVALS } from '../engine/data';
 import { ranking, type GameState, type LineResult } from '../engine/game';
 
 export type ThemeId = 'game' | 'timing' | 'nerve' | 'crates' | 'town' | 'stall' | 'cast' | 'events' | 'journey' | 'milestones';
@@ -61,7 +61,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'hard_sweep', theme: 'cast', title: 'Hard Sweep', text: 'Win a 4-player game against three Hard rivals.' },
   { id: 'shop_3', theme: 'cast', title: 'Quick Change', text: 'Win with 3 different shopkeepers.', goal: { set: 'wonWith', target: 3 } },
   { id: 'shop_6', theme: 'cast', title: 'Shopkeeper Master', text: 'Win with all 6 shopkeepers.', goal: { set: 'wonWith', target: 6 } },
-  { id: 'rivals_all', theme: 'cast', title: 'Rival Roll Call', text: 'Beat each of the 6 named rivals: Rosa, Benny, Chen, Saleh, Raj and Kiran.', goal: { set: 'beaten', target: 6 } },
+  { id: 'rivals_all', theme: 'cast', title: 'Rival Roll Call', text: 'Beat each of the 6 named rivals: Rosa, Uncle Benny, Ah Chen, Saleh, Raj and Kiki.', goal: { set: 'beaten', target: 6 } },
 
   { id: 'big_day', theme: 'events', title: 'Market Day', text: 'Earn $40 or more in one day.' },
   { id: 'festival_rush', theme: 'events', title: 'Festival Rush', text: 'Earn $40 or more on a Festival day.' },
@@ -96,6 +96,18 @@ export interface Context {
 }
 
 const add = (sets: Sets, key: string, ...ids: string[]) => { sets[key] = [...new Set([...(sets[key] ?? []), ...ids])]; };
+
+/** Which shopkeeper (RIVALS index) a name means: the current name, or one used before DEC-064. -1 for anyone else. */
+function rivalIndex(name: string): number {
+  const i = RIVALS.findIndex((r) => r.name === name);
+  return i >= 0 ? i : LEGACY_RIVAL_NAMES.indexOf(name);
+}
+/** The shopkeepers beaten so far. Progress saved before DEC-064 holds former names ("Benny"); each shopkeeper counts once. */
+function beatenRivals(sets: Sets): Set<number> {
+  return new Set((sets.beaten ?? []).map(rivalIndex).filter((i) => i >= 0));
+}
+/** How many entries a set holds; 'beaten' counts each shopkeeper once, whichever of its names was saved. */
+const setSize = (sets: Sets, key: string): number => (key === 'beaten' ? beatenRivals(sets).size : (sets[key] ?? []).length);
 
 /** Lines of one customer on one day, grouped. */
 function ordersByDay(g: GameState): { day: number; lines: LineResult[] }[][] {
@@ -157,11 +169,12 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
   if (ctx.online) add(sets, 'online', String(g.config.seed));
   const trait = pl.trait ?? CHARACTER_TRAIT[pl.avatar];
   if (won && trait && !g.config.core) add(sets, 'wonWith', trait);
-  if (won) add(sets, 'beaten', ...g.players.filter((p) => p.kind === 'ai' && RIVALS.some((r) => r.name === p.name)).map((p) => p.name));
+  // A game saved before DEC-064 may still call a computer shopkeeper by a former name; it is recorded under the current one.
+  if (won) add(sets, 'beaten', ...g.players.filter((p) => p.kind === 'ai' && rivalIndex(p.name) >= 0).map((p) => RIVALS[rivalIndex(p.name)].name));
 
   const d5 = hist[4]?.cash;
   const festival = hist.some((d) => d.event === 'festival' && d.income[me] >= 40);
-  const size = (k: string) => (sets[k] ?? []).length;
+  const size = (k: string) => setSize(sets, k);
   const checks: [string, boolean][] = [
     ['first_win', won],
     ['first_sale', pl.stats.sold > 0],
@@ -186,7 +199,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
     ['hard_sweep', won && g.players.length === 4 && g.players.every((p, i) => i === me || (p.kind === 'ai' && p.level === 'hard'))],
     ['shop_3', size('wonWith') >= 3],
     ['shop_6', size('wonWith') >= TRAITS.length],
-    ['rivals_all', RIVALS.every((r) => (sets.beaten ?? []).includes(r.name))],
+    ['rivals_all', beatenRivals(sets).size >= RIVALS.length],
     ['big_day', hist.some((d) => d.income[me] >= 40)],
     ['festival_rush', festival],
     ['event_all', size('events') >= EVENT_CARDS.length],
@@ -211,6 +224,6 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
 /** How far along a goal-based achievement is, for "3 / 6" labels. */
 export function progressOf(a: Achievement, sets: Sets, stats: { played: number; totalSold: number }): number {
   if (!a.goal) return 0;
-  const n = a.goal.set ? (sets[a.goal.set] ?? []).length : a.goal.stat ? stats[a.goal.stat] : 0;
+  const n = a.goal.set ? setSize(sets, a.goal.set) : a.goal.stat ? stats[a.goal.stat] : 0;
   return Math.min(n, a.goal.target);
 }

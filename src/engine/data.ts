@@ -333,42 +333,43 @@ export const TRAIT_OFFER = 3;
 
 export interface Look { icon: string; title: string; quirk: string }
 
-/** Every customer is a character. Unknown names fall back to a generic shopper. */
+/** Every customer is a character. The key is the card's hidden code name (saves, rooms and art use it); `title` is the
+ *  approved display name (DEC-064, DEC-065), the only name players read. Unknown names fall back to a generic shopper. */
 export const CUSTOMER_LOOKS: Record<string, Look> = {
-  John: { icon: '🧑', title: 'Rancher John', quirk: 'Pays with coins he panned from the river.' },
-  Robert: { icon: '🧑', title: 'Librarian Robert', quirk: 'Reads the label on every blueberry.' },
-  Daniel: { icon: '🧑', title: 'Chemist Daniel', quirk: 'Swears apples power his experiments.' },
+  John: { icon: '🧑', title: 'Cowboy Jack', quirk: 'Pays with coins he panned from the river.' },
+  Robert: { icon: '🧑', title: 'Bobby Books', quirk: 'Reads the label on every blueberry.' },
+  Daniel: { icon: '🧑', title: 'Dr Bubbles', quirk: 'Swears apples power his experiments.' },
   'Rara Jenab': { icon: '🧕', title: 'Rara Jenab', quirk: 'Cheers every mango she buys. "Ra-ra, Jenab!"' },
-  Aisyah: { icon: '🧑', title: 'Scientist Aisyah', quirk: 'Needs watermelon for the lab snacks.' },
-  Ravi: { icon: '🧑', title: 'Delivery Rider Ravi', quirk: 'Saves the day, one mango at a time.' },
-  'Mei Ling': { icon: '🧑', title: 'Diver Mei Ling', quirk: 'Splashes anyone selling soggy fruit.' },
-  Farid: { icon: '🧑', title: 'Courier Farid', quirk: 'You never see him arrive. Or pay.' },
-  Siti: { icon: '🧑', title: 'Tailor Siti', quirk: 'Measures every watermelon with her tape.' },
-  Kumar: { icon: '🧑', title: 'Magician Kumar', quirk: 'Pulls three wishes out of a hat. All of them are fruit.' },
+  Aisyah: { icon: '🧑', title: 'Zara Zapp', quirk: 'Needs watermelon for the lab snacks.' },
+  Ravi: { icon: '🧑', title: 'Ravi Rocket', quirk: 'Saves the day, one mango at a time.' },
+  'Mei Ling': { icon: '🧑', title: 'Coral Mei', quirk: 'Splashes anyone selling soggy fruit.' },
+  Farid: { icon: '🧑', title: 'Postman Pip', quirk: 'You never see him arrive. Or pay.' },
+  Siti: { icon: '🧑', title: 'Madam Siti', quirk: 'Measures every watermelon with her tape.' },
+  Kumar: { icon: '🧑', title: 'Magic Kumar', quirk: 'Pulls three wishes out of a hat. All of them are fruit.' },
   Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Apples keep her voice sharp for the show.' },
-  Hafiz: { icon: '🧑', title: 'Paleontologist Hafiz', quirk: 'Says "RAWR" and means five blueberries.' },
-  'Wei Jie': { icon: '🕵️', title: 'Detective Wei Jie', quirk: 'Inspects every fruit with a magnifying glass.' },
-  Nurul: { icon: '🧑', title: 'Florist Nurul', quirk: 'Sprinkles petals on every watermelon.' },
+  Hafiz: { icon: '🧑', title: 'Professor Pebble', quirk: 'Says "RAWR" and means five blueberries.' },
+  'Wei Jie': { icon: '🕵️', title: 'Inspector Wei', quirk: 'Inspects every fruit with a magnifying glass.' },
+  Nurul: { icon: '🧑', title: 'Miss Marigold', quirk: 'Sprinkles petals on every watermelon.' },
   Priya: { icon: '👩‍🔬', title: 'Dr Priya', quirk: 'Researching the perfect apple pie.' },
   Ahmad: { icon: '🧑‍✈️', title: 'Captain Ahmad', quirk: 'Buying mangoes for the whole crew.' },
-  Sarah: { icon: '🧑', title: 'Photographer Sarah', quirk: 'Photographs every mango before she buys it.' },
+  Sarah: { icon: '🧑', title: 'Lola Lens', quirk: 'Photographs every mango before she buys it.' },
   Tan: { icon: '👴', title: 'Grandpa Tan', quirk: 'Remembers when apples cost ten cents.' },
-  Lina: { icon: '💃', title: 'Dancing Lina', quirk: 'Cha-chas all the way down the street.' },
+  Lina: { icon: '💃', title: 'Miss Cha-Cha', quirk: 'Cha-chas all the way down the street.' },
   Zul: { icon: '🧑', title: 'Sleepy Zul', quirk: 'Wants fresh fruit. Has not had his coffee.' },
   Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints every mango before she eats it.' },
-  Vijay: { icon: '🧑', title: 'Engineer Vijay', quirk: 'Calculates the best fruit salad.' },
-  'Hui Min': { icon: '🧑', title: 'Ranger Hui Min', quirk: 'Rangers are wild about watermelon.' },
+  Vijay: { icon: '🧑', title: 'Otto Oddjob', quirk: 'Calculates the best fruit salad.' },
+  'Hui Min': { icon: '🧑', title: 'Mina Moss', quirk: 'Rangers are wild about watermelon.' },
   Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Cools down after every call with watermelon.' },
-  'Jia Wen': { icon: '🧑', title: 'Sailor Jia Wen', quirk: 'Pays in coins from far ports. Reads the mango map twice.' },
+  'Jia Wen': { icon: '🧑', title: 'Marina Wen', quirk: 'Pays in coins from far ports. Reads the mango map twice.' },
   Rizal: { icon: '🎧', title: 'DJ Rizal', quirk: 'Drops the beat, then drops by for blueberries.' },
-  Devi: { icon: '🧑‍🌾', title: 'Gardener Devi', quirk: 'Grows everything except mangoes. Buys them all.' },
-  Marcus: { icon: '🧑', title: 'Fisherman Marcus', quirk: 'Sells fish at dawn, buys apples by noon.' },
+  Devi: { icon: '🧑‍🌾', title: 'Devi Bloom', quirk: 'Grows everything except mangoes. Buys them all.' },
+  Marcus: { icon: '🧑', title: 'Marcus Hook', quirk: 'Sells fish at dawn, buys apples by noon.' },
   Fatimah: { icon: '🎓', title: 'Professor Fatimah', quirk: 'Lectures on the science of the perfect watermelon.' },
-  Ben: { icon: '🛎️', title: 'Bellboy Ben', quirk: 'Rings a little bell for every watermelon he carries.' },
-  Yuki: { icon: '🧑', title: 'Fencer Yuki', quirk: 'Slices a mango in one clean stroke.' },
-  Hadi: { icon: '👷', title: 'Builder Hadi', quirk: 'Builds towers of blueberries on his lunch break.' },
+  Ben: { icon: '🛎️', title: 'Benny Bell', quirk: 'Rings a little bell for every watermelon he carries.' },
+  Yuki: { icon: '🧑', title: 'Akira Swift', quirk: 'Slices a mango in one clean stroke.' },
+  Hadi: { icon: '👷', title: 'Hadi Hammer', quirk: 'Builds towers of blueberries on his lunch break.' },
   Lakshmi: { icon: '🥐', title: 'Baker Lakshmi', quirk: 'Her famous apple tart starts at your stall.' },
-  Kenji: { icon: '🥋', title: 'Judoka Kenji', quirk: 'Flips a mango, catches it, pays for it.' },
+  Kenji: { icon: '🥋', title: 'Kenji Kaze', quirk: 'Flips a mango, catches it, pays for it.' },
   Mira: { icon: '🧑', title: 'Herbalist Mira', quirk: 'Brews a mango tonic. Do not ask what is in it.' },
   'Hock Seng': { icon: '🧓', title: 'Uncle Hock Seng', quirk: 'Has strong opinions about the price of apples.' },
   Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your stall if the mangoes are perfect.' },
@@ -380,7 +381,7 @@ export function lookOf(name: string): Look {
   return CUSTOMER_LOOKS[name] ?? { icon: '🧑', title: name, quirk: 'Just here for fruit.' };
 }
 
-/** Computer shopkeepers: a cast of animal traders, each with a victory line. */
+/** What a shopkeeper says when a computer stall wins or loses a customer. */
 export interface RivalLines {
   /** Won by undercutting the player by a dollar or two. */
   undercut: string[];
@@ -392,26 +393,27 @@ export interface RivalLines {
   lost: string[];
 }
 
-/** Computer shopkeepers: a cast of animal traders. Their lines react to what actually happened;
- *  their buying and pricing come from the difficulty level, not from these personalities. */
 // Character cards (rules 5). Each shopkeeper is a character any shop can pick, and carries one fixed perk
 // (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon. The avatar keys are old identifiers (saves and rooms use them); they are never shown.
 export const CHARACTER_TRAIT: Record<string, TraitId> = {
   '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
 };
 
+/** The six shopkeepers, in table order, with their approved display names (DEC-064). Their lines react to what actually
+ *  happened; their buying and pricing come from the difficulty level, not from these personalities. Older saves and
+ *  progress may still hold a former name (see LEGACY_RIVAL_NAMES); anything that must recognise a shopkeeper uses the avatar. */
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
   { name: 'Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
     undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Sharper than you again!'],
     fullPrice: ['Full price? Lovely.', 'They didn\'t even haggle!'],
     stung: ['Hmph. Lucky.', 'That one was mine!', 'Next time, darling.'],
     lost: ['Fine, keep your customer.', 'I meant to do that.'] } },
-  { name: 'Benny', avatar: '🐻', quip: 'Big baskets, big deals!', lines: {
+  { name: 'Uncle Benny', avatar: '🐻', quip: 'Big baskets, big deals!', lines: {
     undercut: ['Big baskets, big deals!', 'Cheaper AND bigger.', 'Fill the basket, friend!'],
     fullPrice: ['Top dollar! Ka-ching!', 'Full price, full basket!'],
     stung: ['Aiyo, my customer!', 'I want a recount.', 'You were quicker. Hmph.'],
     lost: ['Plenty more fruit where that came from.', 'Oof. Too pricey.'] } },
-  { name: 'Chen', avatar: '🐼', quip: 'Smile and sell!', lines: {
+  { name: 'Ah Chen', avatar: '🐼', quip: 'Smile and sell!', lines: {
     undercut: ['Smile and sell!', 'Charm AND a cheaper price.', 'Sorry, sweetheart!'],
     fullPrice: ['Full price, with a smile.', 'A fair price, gladly paid.'],
     stung: ['You charmed them first. Cheeky!', 'So close... breathe.', 'Well played, friend.'],
@@ -426,7 +428,7 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     fullPrice: ['Full price. Lucky day!', 'Ka-ching, lucky Raj!'],
     stung: ['Unlucky! That was mine.', 'You got lucky there.', 'Next time, friend!'],
     lost: ['Luck will turn.', 'Not my day. Tomorrow!'] } },
-  { name: 'Kiran', avatar: '🐷', quip: 'Thank you, thank you!', lines: {
+  { name: 'Kiki', avatar: '🐷', quip: 'Thank you, thank you!', lines: {
     undercut: ['A kinder price for everyone!', 'Cheaper, with a smile.', 'Thank you, thank you!'],
     fullPrice: ['Thank you, full price!', 'So kind of them. Full price!'],
     stung: ['Oh! You were faster.', 'I wanted to serve them!', 'Next time, dear.'],
@@ -435,3 +437,6 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
 
 /** The six playable characters, in table order. */
 export const CHARACTER_AVATARS: string[] = RIVALS.map((r) => r.avatar);
+
+/** The shopkeepers' display names before DEC-064, in RIVALS order. Saved games and achievement progress may still hold them. */
+export const LEGACY_RIVAL_NAMES: string[] = ['Rosa', 'Benny', 'Chen', 'Saleh', 'Raj', 'Kiran'];
