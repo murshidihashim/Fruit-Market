@@ -222,6 +222,22 @@ export const C = {
   xWoodDark: '#7e4e26',
   xSky: '#7c98d0',
   xSkyDark: '#4a64a0',
+  // Fruit, drawn flat in the deck-art style (fruit icons; freshness stages are shades of these).
+  xApple: '#d24a32',
+  xAppleDark: '#9e2f1f',
+  xMango: '#eab03a',
+  xMangoDark: '#c07a1c',
+  xBerry: '#34508f',
+  xBerryDark: '#1f3366',
+  xMelon: '#3f7f43',
+  xMelonDark: '#24552b',
+  xFlesh: '#e8566a',
+  xLeaf: '#4f8a3b',
+  xBruise: '#8a5a30',
+  xUnripe: '#9ab85a',
+  xUnripeDark: '#6d8a3a',
+  // Card-system additions (cards.tsx, cards.css) go below this line.
+  // Screen-restyle additions (styles.css, screens.css) go below this line.
 } as const;
 
 /** The roles named in docs/ART-STYLE.md. */

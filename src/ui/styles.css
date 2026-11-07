@@ -1,5 +1,7 @@
 @import './palette.css';
 @import './exchange.css';
+@import './cards.css';
+@import './screens.css';
 /* Numbers use the rounder body font so 5 never reads as S, nor 2, 3 and 8 as each other; words keep the pixel font. */
 @font-face { font-family: 'Fruit Pixel'; font-weight: 500; src: url('../../node_modules/@fontsource/pixelify-sans/files/pixelify-sans-latin-600-normal.woff2') format('woff2'); unicode-range: U+0000-0023, U+0025-002F, U+003A-10FFFF; }
 @font-face { font-family: 'Fruit Pixel'; font-weight: 600; src: url('../../node_modules/@fontsource/pixelify-sans/files/pixelify-sans-latin-600-normal.woff2') format('woff2'); unicode-range: U+0000-0023, U+0025-002F, U+003A-10FFFF; }
