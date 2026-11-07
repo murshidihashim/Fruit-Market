@@ -229,7 +229,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
           ))}
-          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><span class="seat-name">Computer rival {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
+          {/* Computer stalls take a shopkeeper only when the match starts, so their seat shows a plain badge. */}
+          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer rival {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
           {Array.from({ length: openSeats }, () => <div class="seat-row ghost open-seat">Open seat · send the link</div>)}
         </div>
         {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}

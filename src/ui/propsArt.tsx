@@ -10,7 +10,7 @@ interface Rect { x: number; y: number; w: number; c: string }
 
 const INK = C.ink, PAPER = C.paper, TERRA = C.terracotta, TERRAD = C.c_93392a, TEAL = C.teal, GOLD = C.gold;
 const WOOD = C.c_a86b45, WOODL = C.c_c9935f, CRATE = C.c_d9b48a, SKY = C.c_9ad0e6, SKIN = C.c_f0b48c;
-const RED = C.c_d6453b, BLUE = C.c_5562c9, MANGO = C.c_f0b33a, GREY = C.c_b8c0c9, BACK = C.c_eadcbd;
+const RED = C.c_d6453b, BLUE = C.c_5562c9, MANGO = C.c_f0b33a, GREY = C.c_b8c0c9;
 const GREEN = FRUIT.watermelon.color;
 
 /** Blend two #rrggbb colours: 0 is all `h`, 1 is all `t`. */
@@ -117,28 +117,6 @@ function drawLorry(d: Pen) {
 export const LORRY_A = paint(LORRY_W, LORRY_H, drawLorry, 0);
 export const LORRY_B = paint(LORRY_W, LORRY_H, drawLorry, 1);
 
-// ---------- the stall: tiled roof and sign (44 x 38 art pixels) ----------
-export const STALL_W = 44, STALL_H = 38;
-function drawStall(d: Pen) {
-  // roof: tiles in the player's colour, and a sign board with an apple
-  d.R(1, 5, 42, 5, AWN);
-  d.X(5, 1, 42, AWN_L);
-  for (let x = 3; x <= 40; x += 4) { d.P(x, 6, AWN_D); d.P(x + 2, 7, AWN_D); d.P(x, 8, AWN_D); }
-  d.X(9, 1, 42, AWN_D);
-  d.R(14, 1, 16, 4, PAPER); d.X(2, 16, 21, TERRAD); d.X(3, 16, 21, TERRAD); d.R(24, 1, 4, 3, RED); d.P(25, 0, null); d.P(26, 1, GREEN);
-  // posts, back wall, counter, crates
-  d.R(3, 10, 2, 25, WOOD); d.R(39, 10, 2, 25, WOOD);
-  d.R(5, 11, 34, 17, BACK); d.R(5, 11, 34, 1, mix(BACK, INK, 0.15));
-  d.R(2, 27, 40, 9, WOODL, true); d.X(27, 1, 42, CRATE);
-  for (let x = 7; x < 40; x += 6) d.R(x, 29, 1, 6, WOOD);
-  crate(d, 4, 23, 9, 4); apple(d, 5, 20); apple(d, 8, 20); apple(d, 10, 19);
-  crate(d, 31, 23, 9, 4); melon(d, 32, 18, 5); mango(d, 37, 21);
-  d.R(15, 35, 14, 2, PAPER);
-}
-export const STALL = paint(STALL_W, STALL_H, drawStall);
-/** Where the shopkeeper's portrait sits on the stall, in art pixels (it is 16 x 16). */
-export const STALL_FACE = { x: 14, y: 11 };
-
 // ---------- the tile band on top of a stall panel (4 x 7 art pixels, repeated) ----------
 const BAND_H = 7;
 const BAND = paint(4, BAND_H, (d) => {
@@ -165,13 +143,6 @@ export function LorrySprite() {
       <img class="a" alt="" src={memo('lorry-a', () => toUrl(LORRY_A, LORRY_W, LORRY_H, true))} />
       <img class="b" alt="" src={memo('lorry-b', () => toUrl(LORRY_B, LORRY_W, LORRY_H, true))} />
     </>
-  );
-}
-
-/** A market stall with its roof in the player's colour. Put the shopkeeper's portrait over STALL_FACE. */
-export function StallSprite({ colour, scale = 2 }: { colour: string; scale?: number }) {
-  return (
-    <img class="stall-art" alt="" width={STALL_W * scale} height={STALL_H * scale} src={memo(`stall-${colour}`, () => toUrl(STALL, STALL_W, STALL_H, false, roofTones(colour)))} />
   );
 }
 

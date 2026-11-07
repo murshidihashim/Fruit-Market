@@ -1,23 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { CUSTOMER_CARDS, CUSTOMER_LOOKS, EVENT_CARDS, RIVALS } from '../src/engine/data';
-import { portraitKeys } from '../src/ui/pixel';
+import { facePic } from '../src/ui/art';
+import { customerArt, guestArt, shopBadge } from '../src/ui/deckArt';
 
-// PLAN-036: one human cast (DEC-039 T1, DEC-040).
+// PLAN-036: one human cast (DEC-039 T1, DEC-040). Since DEC-066 every portrait is the owner's deck art, which
+// draws people only; the pixel portraits (and the old animal faces) are gone.
 describe('the cast is all human', () => {
-  const { humans, animals, avatarKey } = portraitKeys();
   const customerNames = [...CUSTOMER_CARDS.map((c) => c.name), ...EVENT_CARDS.filter((e) => e.extra).map((e) => e.extra!.name)];
 
-  it('every shopkeeper draws a human portrait', () => {
+  it('every shopkeeper draws their own deck-art portrait', () => {
     for (const r of RIVALS) {
-      const key = avatarKey[r.avatar];
-      expect(humans, r.name).toContain(key);
-      expect(animals, r.name).not.toContain(key);
+      expect(facePic(r.avatar, 28).src, r.name).toBe(shopBadge(r.avatar));
+      expect(facePic(r.avatar, 28).kind, r.name).toBe('keeper');
     }
+    expect(new Set(RIVALS.map((r) => shopBadge(r.avatar))).size).toBe(RIVALS.length);
   });
 
-  it('every customer draws a human portrait and has a title and a quirk', () => {
+  it('every customer draws a deck-art portrait and has a title and a quirk', () => {
     for (const n of customerNames) {
-      expect(humans, n).toContain(n);
+      expect(facePic(n, 28).src, n).toBe(customerArt(n) ?? guestArt(n));
+      expect(facePic(n, 28).src, n).toBeTruthy();
       expect(CUSTOMER_LOOKS[n]?.title, n).toBeTruthy();
       expect(CUSTOMER_LOOKS[n]?.quirk, n).toBeTruthy();
     }

@@ -26,7 +26,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, onRival, offline = [] }: { 
       {s.phase !== 'over' && (
         <div class="tb-row sub">
           <button type="button" class="ev-chip" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}>
-            {s.event ? <><EventIcon id={s.event.id} size={16} />{s.event.title}</> : 'Calm day'}
+            {s.event ? <><EventIcon id={s.event.id} size={16} /><span class="ev-title">{s.event.title}</span></> : <span class="ev-title">Calm day</span>}
             {s.nextEvent && <small>· next: <EventIcon id={s.nextEvent.id} size={14} /></small>}
           </button>
           <span class="spacer" />

@@ -2,7 +2,7 @@
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useState } from 'preact/hooks';
 import { planPrices, planStall } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
   bestCap, canPlayFavour, canUpgrade, count, effectiveMax, forSale, isDraftNight, isMarketDay, maxPrice, minPrice,
   servingCustomers, validatePrices, type GameState, type Post, type Stall,
@@ -121,14 +121,14 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
           <div class="price-card on">
             <div class="pc-top">
               <Fruit id={f} size={40} />
-              <div class="pc-who"><b>{FRUIT[f].plural}: {out} out</b><span>{lines.length ? lines.map((x) => `${x.c.name} ${x.w.qty}×`).join(', ') : 'no customers want these'}</span></div>
+              <div class="pc-who"><b>{FRUIT[f].plural}: {out} out</b><span>{lines.length ? lines.map((x) => `${lookOf(x.c.name).title} ${x.w.qty}×`).join(', ') : 'no customers want these'}</span></div>
             </div>
             <div class="pc-row">
               <div class="pc-qty">
                 <span class="pc-lbl">They pay for yours</span>
                 <span class="buyer-caps">{lines.map((x) => {
                   const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
-                  return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${x.c.name} pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
+                  return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
                 })}</span>
               </div>
               <div class="pc-price">

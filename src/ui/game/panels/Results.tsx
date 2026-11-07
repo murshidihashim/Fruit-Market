@@ -25,7 +25,7 @@ function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Each stall's cash at the end of each day">
         {s.players.map((_, i) => <polyline fill="none" stroke-linejoin="round" stroke={SEAT_COLOURS[i % SEAT_COLOURS.length]} stroke-width={i === viewer ? 4 : 2.5} points={h.map((d, k) => `${x(k)},${y(d.cash[i])}`).join(' ')} />)}
       </svg>
-      <div class="cc-key">{s.players.map((pl, i) => <span style={{ color: SEAT_COLOURS[i % SEAT_COLOURS.length] }}>{i === viewer ? 'You' : pl.name}</span>)}</div>
+      <div class="cc-key">{s.players.map((pl, i) => <span><i aria-hidden="true" style={{ background: SEAT_COLOURS[i % SEAT_COLOURS.length] }} />{i === viewer ? 'You' : pl.name}</span>)}</div>
     </div>
   );
 }

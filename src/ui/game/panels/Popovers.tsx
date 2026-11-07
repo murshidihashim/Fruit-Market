@@ -3,7 +3,9 @@
 import { FAVOURS, PREF_INFO, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
-import { Face, FavourIcon, Fruit } from '../../art';
+import { FavourIcon } from '../../art';
+import { TradingCard } from '../../cards';
+import { GUEST_EVENT } from '../../deckArt';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
@@ -63,17 +65,13 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
     </div>
   )}
   {tip && (
-    <div class="tip-pop" onClick={() => setTip(null)}>
-      <b class="tip-head"><Face who={tip.name} size={32} /> {lookOf(tip.name).title}{tip.name === s.event?.extra?.name ? ' (special order)' : ''}</b>
-      <i class="quirk">“{lookOf(tip.name).quirk}”</i>
-      {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
-      {tip.wants.map((w) => (
-        <div class="tip-line">
-          <Fruit id={w.fruit} size={18} />
-          <span>wants <b>{w.qty}</b> · pays up to <b>${effectiveMax(s, w, tip.generous)} for each</b> fresh one</span>
-        </div>
-      ))}
-      <small>Older fruit sells for less: the −$ on your stall shows how much less. Tap to close.</small>
+    <div class="tip-pop tip-card-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={() => setTip(null)}>
+      <TradingCard who={tip.name} wants={tip.wants.map((w) => ({ ...w, max: effectiveMax(s, w, tip.generous) }))} guest={!!GUEST_EVENT[tip.name]} eager />
+      <div class="tip-notes">
+        {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
+        {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
+        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: the −$ on your stall shows how much less. Tap to close.</small>
+      </div>
     </div>
   )}
 

@@ -1,1 +1,198 @@
-/* Screen styles that use the deck art (DEC-066): table, morning, character pick, results, home. */
+/* Screen styles that use the deck art (DEC-066): portraits, the table, morning, character pick, home, wardrobe, opening.
+   This file is imported before the body of styles.css, so a rule here must be more specific than the styles.css rule
+   it changes (the selectors below repeat a parent class for that reason). Colours come from palette.css tokens. */
+
+/* ---------- flat fruit outside the cards ---------- */
+img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
+
+/* ---------- portraits (art.tsx Face) ---------- */
+.xf {
+  position: relative; display: inline-block; flex: none; vertical-align: middle; overflow: hidden;
+  border-radius: 50%; background: var(--x-ink); box-shadow: 0 0 0 1.5px var(--x-ink);
+}
+.xf.xf-pinned { overflow: visible; }
+.xf-clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+.xf .xf-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: inherit; }
+/* customers: the "at work" picture, zoomed in on the face (heads sit about a third of the way across) */
+.xf-cust { background: var(--x-paper); }
+.xf.xf-cust .xf-img { inset: auto; left: -5%; top: -17%; width: 167%; height: auto; object-fit: fill; border-radius: 0; }
+.xf-guest .xf-img { object-position: 50% 50%; }
+/* shopkeepers: the round sign badge; the stall scene when large */
+.xf-scene { border-radius: 12px; }
+.xf.xf-scene .xf-img { object-position: 6% 45%; }
+/* anyone without art: a plain navy badge with a head and shoulders, never another character */
+.xf-none::before, .xf-none::after { content: ''; position: absolute; left: 50%; background: var(--on-ink-muted); transform: translateX(-50%); }
+.xf-none::before { top: 18%; width: 36%; height: 36%; border-radius: 50%; }
+.xf-none::after { bottom: -14%; width: 72%; height: 44%; border-radius: 50% 50% 0 0; }
+/* worn looks: pins on the portrait (illustrated wearables are an art gap) */
+.xf-pins { position: absolute; right: -6px; bottom: -4px; z-index: 1; display: flex; gap: 1px; }
+.xf-pin {
+  display: inline-grid; place-items: center; padding: 2px; border-radius: 50%; line-height: 0;
+  background: var(--x-paper); border: 1.5px solid var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-mustard);
+}
+.xf-pin .px { image-rendering: pixelated; }
+
+/* event thumbnails (art.tsx EventIcon) */
+.xev {
+  display: inline-block; flex: none; vertical-align: middle; overflow: hidden; border-radius: 22%;
+  background: var(--x-paper); box-shadow: 0 0 0 1.5px var(--x-ink);
+}
+.xev img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* the wordmark (art.tsx Logo) */
+.x-logo { display: inline-flex; flex-direction: column; align-items: center; text-align: center; line-height: 1; }
+.x-logo .x-kicker { font-size: 0.32em; }
+.x-logo .x-title { font-size: 1em; text-transform: uppercase; }
+
+/* ---------- the street: customers as Trading Cards ---------- */
+.game .street-wrap.street-wrap { padding-bottom: 10px; min-height: 0; }
+.game .street.street { --card-w: 8.25rem; align-items: stretch; gap: 8px; padding-top: 6px; }
+.game .street .cust.cust {
+  position: relative; width: var(--card-w); min-width: 0; gap: 4px; justify-content: flex-start; cursor: pointer;
+}
+.game .street .cust > .x-card { flex: 1 1 auto; box-shadow: 0 3px 0 var(--x-ink); }
+.game .street .x-tc.x-compact .x-tc-order { margin-top: auto; }
+.game .street .x-tc-order li { position: relative; }
+.game .street .x-tb.x-compact { aspect-ratio: auto; min-height: calc(var(--card-w) * 0.9); }
+.game .street .cust .cust-tag { max-width: none; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.game .street .cust .pref { margin-top: 0; }
+.game .street .cust.happy > .x-card { box-shadow: 0 0 0 3px var(--x-green), 0 3px 0 3px var(--x-ink); }
+.game .street .cust.special > .x-card { box-shadow: 0 0 0 3px var(--x-mustard), 0 3px 0 3px var(--x-ink); }
+.game .street .cust.mystery.pickable { border-radius: 4px; }
+/* status marks over the card's top corner */
+.game .cust-marks { position: absolute; right: -4px; top: 0; z-index: 2; display: flex; gap: 2px; pointer-events: auto; }
+.game .cust-marks i {
+  position: static; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--x-paper); border: 2px solid var(--x-ink); font-style: normal; line-height: 0;
+}
+/* a line that is fully served is ticked; a price the event changed is tinted (table.tsx lnN-* classes) */
+.cust.ln1-done .x-tc-order li:nth-child(1) > *, .cust.ln2-done .x-tc-order li:nth-child(2) > *, .cust.ln3-done .x-tc-order li:nth-child(3) > * { opacity: 0.28; }
+.cust.ln1-done .x-tc-order li:nth-child(1)::after, .cust.ln2-done .x-tc-order li:nth-child(2)::after, .cust.ln3-done .x-tc-order li:nth-child(3)::after {
+  content: '\2713'; position: absolute; left: 50%; top: 50%; width: 1.9em; height: 1.9em; transform: translate(-50%, -50%);
+  display: grid; place-items: center; border-radius: 50%; background: var(--x-green); border: 0.12em solid var(--x-ink);
+  font: 700 2.6em/1 var(--f-label); color: var(--x-paper);
+}
+.cust.ln1-up .x-tc-order li:nth-child(1) b, .cust.ln2-up .x-tc-order li:nth-child(2) b, .cust.ln3-up .x-tc-order li:nth-child(3) b { color: var(--x-green); }
+.cust.ln1-down .x-tc-order li:nth-child(1) b, .cust.ln2-down .x-tc-order li:nth-child(2) b, .cust.ln3-down .x-tc-order li:nth-child(3) b { color: var(--x-slate); }
+/* The lorry (pixel art, no deck art yet) parks beside the queue instead of over it, so no card hides behind it;
+   it is smaller on phones so more customers show. It drives off over the street as before. */
+.game .street.street { position: relative; z-index: 1; }
+.game .street-wrap.lorry-here { display: flex; align-items: flex-end; }
+.game .street-wrap.lorry-here .street.street { flex: 1 1 auto; min-width: 0; padding-right: 26px; }
+.game .street-wrap .lorry.here { position: relative; right: auto; bottom: auto; flex: none; margin: 0 4px 0 -18px; }
+@media (max-width: 719px) {
+  .game .street-wrap .lorry { width: 104px; }
+}
+@media (min-width: 720px) {
+  .game .street.street { --card-w: 9.5rem; }
+}
+
+/* Rival seats on phones: a longer shopkeeper name ("Uncle Benny") wraps to a second line instead of being cut. */
+@media (max-width: 479px) {
+  .game .rival-stall .rs-name {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; line-height: 1.08; letter-spacing: 0;
+  }
+}
+
+/* ---------- a customer's card, opened from the street ---------- */
+.game .tip-pop.tip-card-pop {
+  left: 0; right: 0; width: min(296px, calc(100% - 24px)); margin: 0 auto; align-items: center; gap: 8px; padding: 12px;
+  --card-w: min(15.75rem, calc(100vw - 72px));
+}
+.tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 4px; width: 100%; font-size: 0.85rem; }
+.tip-card-pop .tip-special { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--x-red-d); }
+.tip-card-pop .x-card b { font-family: var(--f-display); }
+
+/* ---------- morning: today's Gazette ---------- */
+.morning-card .mc-gazette {
+  --card-w: min(17rem, calc(100vw - 72px)); display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;
+  animation: flip 0.4s steps(4);
+}
+.mc-gazette .x-gz { box-shadow: 0 0 0 2px var(--x-ink), 0 4px 0 2px var(--x-ink); }
+.mc-gazette .mc-text { margin: 0; max-width: 34ch; font: italic 0.95rem/1.35 var(--f-serif); color: var(--x-ink); }
+.mc-gazette .minprices { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; font: 600 0.8rem/1.2 var(--f-label); }
+.mc-gazette .minprices span { display: inline-flex; align-items: center; gap: 3px; }
+.mc-gazette .mc-fine { margin: 0; font-weight: 700; color: var(--x-red-d); }
+.morning-card .mc-next { flex-direction: row; align-items: center; gap: 10px; width: 100%; text-align: left; }
+.mc-next .xev { border-radius: 8px; }
+.mc-next > span { display: flex; flex-direction: column; min-width: 0; }
+.mc-next-k { font: 600 0.66rem/1.3 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--x-red-d); }
+.morning-card .mc-next b { font: 400 1.05rem/1.15 var(--f-headline); }
+@media (min-width: 720px) and (min-height: 700px) {
+  .morning-card .mc-gazette { --card-w: 17.5rem; }
+}
+
+/* ---------- character pick: Stall Signs ---------- */
+.char-pick { margin-top: 10px; }
+.char-pick .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(8.75rem, calc(50% - 6px)), 1fr)); gap: 12px 10px; }
+.char-pick .char-card.char-card {
+  display: block; container-type: inline-size; min-height: 0; padding: 0; border: 0; border-radius: 1.2em; background: none; box-shadow: none; opacity: 1;
+}
+.char-pick .char-card .x-card { --card-w: 8.75rem; width: 100%; box-shadow: 0.3em 0.3em 0 var(--x-shadow); }
+@supports (width: 1cqi) { .char-pick .char-card .x-card { --card-w: 100cqi; } }
+.char-pick .char-card .x-card.is-selected { box-shadow: 0 0 0 0.5em var(--x-mustard), 0.3em 0.3em 0 0.5em var(--x-shadow); }
+.char-pick .char-card .x-ss-chalk b { font-family: var(--f-chalk); font-weight: 700; }
+.char-pick .char-card .x-ss-taken { display: block; }
+.char-pick .char-card:focus-visible { outline: 3px solid var(--x-green); outline-offset: 4px; }
+.char-pick .char-perk {
+  display: flex; flex-direction: column; gap: 2px; margin: 12px 0 0; padding: 8px 12px; text-align: left;
+  background: var(--x-chalk); color: var(--x-paper); border: 3px solid var(--x-wood-d); border-radius: 4px;
+}
+.char-pick .char-perk b { font: 700 1.3rem/1.1 var(--f-chalk); color: var(--x-mustard); }
+.char-pick .char-perk span { font: 600 1.1rem/1.2 var(--f-chalk); }
+
+/* ---------- home: the cover ---------- */
+.home .cover-top { border-bottom: 3px solid var(--x-ink); }
+.cover { position: relative; max-width: 480px; margin: 0 auto; padding: 16px 16px 52px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.cover-title {
+  width: min(100%, 340px); padding: 10px 14px 12px; text-align: center;
+  background: var(--x-paper); border: 3px solid var(--x-ink); border-radius: var(--r); box-shadow: 0 4px 0 var(--x-ink);
+}
+.cover-title .x-kicker { display: block; font-size: 0.72rem; }
+.home .cover-title h1 {
+  margin: 2px 0 4px; padding-bottom: 6px; border-bottom: 3px double var(--x-ink);
+  font: 400 clamp(2.1rem, 11vw, 2.9rem)/0.95 var(--f-display); color: var(--x-ink); text-transform: uppercase; text-shadow: none; letter-spacing: 0.01em;
+}
+.home .cover-title p { margin: 0; font: italic 0.85rem/1.35 var(--f-serif); color: var(--x-slate); }
+.home .cover-title p.hm-secret { color: var(--x-red-d); }
+.cover-sign { position: relative; --card-w: 11.5rem; margin-top: 14px; }
+.cover-hook::before, .cover-hook::after { content: ''; position: absolute; top: -18px; width: 3px; height: 20px; background: var(--x-ink); }
+.cover-hook::before { left: 22%; }
+.cover-hook::after { right: 22%; }
+.cover-sign .x-card { box-shadow: 0.45em 0.45em 0 var(--x-ink-2); }
+.cover-pins { position: absolute; right: -12px; top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.cover-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.cover-btns button {
+  min-height: 44px; padding: 0 16px; border: 3px solid var(--x-ink); border-radius: 999px; box-shadow: 0 3px 0 var(--x-ink); cursor: pointer;
+  font: 600 0.9rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); background: var(--x-paper);
+}
+.cover-btns .cover-dress { background: var(--x-mustard); }
+.cover-btns button:active { transform: translateY(3px); box-shadow: none; }
+.cover-btns button:focus-visible { outline: 3px solid var(--x-green); outline-offset: 3px; }
+
+/* ---------- wardrobe ---------- */
+.wd-counter .xf { box-shadow: 0 0 0 3px var(--x-ink); }
+.wd-tile .wd-pin { width: 52px; height: 52px; border-width: 2px; box-shadow: inset 0 0 0 3px var(--x-mustard); }
+
+/* ---------- opening (Opening.tsx) ---------- */
+.opx-sky {
+  position: absolute; left: -600px; right: -600px; top: -900px; height: 1300px;
+  background: var(--x-sky) repeating-conic-gradient(from 0deg at 50% 88%, var(--x-sky) 0 8deg, var(--x-sky-d) 8deg 16deg);
+}
+.opx-counter {
+  position: absolute; left: -600px; right: -600px; top: 400px; bottom: -900px; border-top: 3px solid var(--x-ink);
+  background: repeating-linear-gradient(180deg, var(--x-wood) 0 18px, var(--x-wood-grain) 18px 20px);
+}
+.opx-mast {
+  position: absolute; left: 50%; top: -110px; width: 300px; padding: 8px 12px 6px; transform: translateX(-50%); text-align: center;
+  background: var(--x-paper); border: 3px solid var(--x-ink); box-shadow: 0 4px 0 var(--x-ink);
+  animation: opx-drop 0.4s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
+}
+.opx-mast b { display: block; padding-bottom: 4px; border-bottom: 3px double var(--x-ink); font: 400 1.6rem/1.1 var(--f-headline); color: var(--x-ink); }
+.opx-mast span { display: block; padding-top: 4px; font: 600 0.7rem/1.2 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--x-red-d); }
+@keyframes opx-drop { to { top: 34px; } }
+.opx-sign { position: absolute; top: 236px; --card-w: 112px; opacity: 0; animation: op-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
+.opx-s0 { left: 13px; animation-delay: 0.4s; }
+.opx-s1 { left: 139px; animation-delay: 0.5s; }
+.opx-s2 { left: 265px; animation-delay: 0.6s; }
+.op-stage .op-fl { top: 506px; } /* lands on the counter (op-toss ends 92px higher) */

@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ACHIEVEMENTS } from '../src/ui/achievements';
 import { LOOKS, SLOTS } from '../src/ui/looks';
 import { WEAR_PARTS } from '../src/ui/wearArt';
+import { h } from 'preact';
+import { toStaticHtml } from '../src/ui/cards';
+import { WearPin } from '../src/ui/pixel';
 
 const store = new Map<string, string>();
 beforeEach(() => {
@@ -25,12 +28,13 @@ describe('look list', () => {
     }
   });
 
-  it('has portrait art for every worn look, laid inside the 16 x 16 portrait', () => {
+  it('has pin art for every worn look (16 x 16 rows, shown as a pin on the deck-art portrait, DEC-066)', () => {
     for (const l of LOOKS.filter((x) => x.kind === 'wear')) {
       const rows = WEAR_PARTS[l.id];
       expect(rows, l.id).toBeTruthy();
       expect(rows.length).toBeLessThanOrEqual(16);
       for (const r of rows) expect(r.length).toBeLessThanOrEqual(16);
+      expect(toStaticHtml(h(WearPin, { id: l.id, size: 16 })), l.id).toMatch(/<img[^>]*src="data:image\/svg\+xml/);
     }
   });
 });

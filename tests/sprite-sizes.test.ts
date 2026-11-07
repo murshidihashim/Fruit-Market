@@ -3,28 +3,24 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const walk = (d: string): string[] => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
+const sources = walk('src/ui').filter((x) => /\.tsx$/.test(x)).map((f) => readFileSync(f, 'utf8'));
 
-// docs/ART-STYLE.md section 4: whole multiples of the art grid only.
-const ALLOWED: Record<string, number[]> = {
-  fruit: [14, 28, 42, 56],
-  portrait: [18, 36, 54, 72],
-  icon: [12, 24, 36],
-};
-const KIND: Record<string, string> = { Fruit: 'fruit', PixelFruit: 'fruit', Face: 'portrait', Portrait: 'portrait', Icon: 'icon', EventIcon: 'icon', FavourIcon: 'icon', Coin: 'icon' };
+// docs/ART-STYLE.md section 4: pixel sprites use whole multiples of the art grid only. Since DEC-066 the fruit, the
+// portraits and the event pictures are the deck art (vector fruit and illustrations), which scale cleanly; the pixel
+// rule now covers the sprites that are still pixel art: icons, favour cards and coins.
+const ALLOWED: Record<string, number[]> = { icon: [12, 24, 36] };
+const KIND: Record<string, string> = { Icon: 'icon', FavourIcon: 'icon', Coin: 'icon' };
 
 // Sizes the screens use today that are not on the list. PLAN-033 fixes them screen by screen and empties this list.
 // A new off-list size is not allowed.
 const TODAY: Record<string, number[]> = {
-  fruit: [16, 18, 20, 22, 26, 30, 40],
-  portrait: [20, 22, 24, 26, 30, 32, 34, 44, 96],
-  icon: [11, 14, 16, 20, 22, 26, 28, 30, 32, 34, 40, 44],
+  icon: [11, 14, 16, 20, 22, 26, 28, 30, 32, 34, 40],
 };
 
 describe('sprite sizes (PLAN-027)', () => {
-  const used: Record<string, Set<number>> = { fruit: new Set(), portrait: new Set(), icon: new Set() };
-  for (const f of walk('src/ui').filter((x) => /\.tsx$/.test(x))) {
-    const s = readFileSync(f, 'utf8');
-    for (const m of s.matchAll(/<(Fruit|PixelFruit|Face|Portrait|Icon|EventIcon|FavourIcon|Coin)\b[^>]*?\bsize=\{(\d+)\}/g)) used[KIND[m[1]]].add(Number(m[2]));
+  const used: Record<string, Set<number>> = { icon: new Set() };
+  for (const s of sources) {
+    for (const m of s.matchAll(/<(Icon|FavourIcon|Coin)\b[^>]*?\bsize=\{(\d+)\}/g)) used[KIND[m[1]]].add(Number(m[2]));
   }
 
   it('no new off-list size appears', () => {
@@ -38,5 +34,18 @@ describe('sprite sizes (PLAN-027)', () => {
     for (const k of Object.keys(TODAY)) for (const n of TODAY[k]) if (!used[k].has(n)) gone.push(`${k} ${n}`);
     // When a size is fixed, remove it from TODAY above; this keeps the list honest.
     expect(gone).toEqual([]);
+  });
+});
+
+describe('deck-art sizes (DEC-066)', () => {
+  it('fruit, portraits and event pictures are drawn at a readable, whole-pixel size', () => {
+    const bad: string[] = [];
+    for (const s of sources) {
+      for (const m of s.matchAll(/<(Fruit|Face|EventIcon)\b[^>]*?\bsize=\{(\d+)\}/g)) {
+        const n = Number(m[2]);
+        if (n < 14 || n > 128) bad.push(`${m[1]} ${n}`);
+      }
+    }
+    expect(bad).toEqual([]);
   });
 });

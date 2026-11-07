@@ -7,6 +7,8 @@ import {
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
+import { TradingCard, TradingCardBack } from './cards';
+import { GUEST_EVENT } from './deckArt';
 import { shownCash, useCashShown } from './cashShown';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
@@ -16,8 +18,8 @@ import { C } from './palette';
 import { LorrySprite, PropSprite, RoofBand } from './propsArt';
 import { partsOf, stallOf } from '../net/looks';
 
-/** Each player's awning colour. */
-export const SEAT_COLOURS = [C.terracotta, C.teal, C.c_7d8c3a, C.c_3d4f86];
+/** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
+export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
 const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
@@ -133,7 +135,8 @@ export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: num
       <RoofBand cls="rs-awning" colour={seatColour(p)} roof={stallOf(pl.look).roof} trim={stallOf(pl.look).trim} />
       <div class="rs-who">
         <span class="rs-face"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
-        <span class="rs-name">{pl.name} <span class="rs-arrow">{open ? '▴' : '▾'}</span></span>
+        {/* The last word and the arrow never part, so a long name ("Uncle Benny") wraps as "Uncle / Benny ▾" on phones. */}
+        <span class="rs-name">{pl.name.slice(0, pl.name.lastIndexOf(' ') + 1)}<span class="rs-tail">{pl.name.slice(pl.name.lastIndexOf(' ') + 1)}<span class="rs-arrow">{open ? '▴' : '▾'}</span></span></span>
         {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
       </div>
       <div class="rs-stock">
@@ -272,35 +275,37 @@ type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
 export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void }) {
   if (kind === 'mystery' || !c) {
-    // Face down: only the fruits printed on the card's back show.
+    // Face down: only the card's back shows, with the fruit printed on it. No name, type, amount, price or
+    // portrait, and no picture is requested until the card is face up for this player.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
       <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
         role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
-        <div class="bubble">{backs.length ? backs.map((f) => <Fruit id={f} size={16} />) : <span class="q">?</span>}</div>
-        <div class="cface"><Face who="shopper" size={34} /></div>
-        <small>{later ? 'tomorrow' : 'walk-in'}</small>
+        <TradingCardBack fruits={backs} compact />
+        <small class="cust-tag">{later ? 'tomorrow' : 'walk-in'}</small>
       </div>
     );
   }
   const done = c.wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
+  // The card prints today's price (events and generous customers change it). Finished lines are ticked and
+  // changed prices tinted through the lnN-* classes (screens.css).
+  const shown = c.wants.map((w) => ({ ...w, max: effectiveMax(s, w, c.generous) }));
+  const marks = c.wants.map((w, i) => `${w.qty <= 0 ? ` ln${i + 1}-done` : ''}${shown[i].max > w.max ? ` ln${i + 1}-up` : shown[i].max < w.max ? ` ln${i + 1}-down` : ''}`).join('');
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${marks}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
-      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w) => `${FRUIT[w.fruit].name}: wants ${w.qty}, pays up to $${effectiveMax(s, w, c.generous)} each when fresh`).join('\n')}`}>
-      <div class="bubble">
-        {c.wants.map((w) => (
-          <span class={`bw ${w.qty <= 0 ? 'done' : ''}`} data-a={`c${c.id}-${w.fruit}`}>
-            <Fruit id={w.fruit} size={18} />
-            <b>{w.qty <= 0 ? '✓' : `×${w.qty}`}</b>
-            <span class={`bp ${effectiveMax(s, w, c.generous) > w.max ? 'up' : effectiveMax(s, w, c.generous) < w.max ? 'down' : ''}`}>${effectiveMax(s, w, c.generous)}<small>/ea</small></span>
-          </span>
-        ))}
-      </div>
-      <div class="cface"><Face who={c.name} size={34} />{done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}{kind === 'waiting' && <i class="clock"><Icon name="hourglass" size={14} /></i>}{special && <i class="star"><Icon name="star" size={14} /></i>}{heard && <i class="ear" title="You heard about this walk-in (Gossip)"><Icon name="ear" size={14} /></i>}</div>
-      <small>{kind === 'tomorrow' ? 'tomorrow' : lookOf(c.name).title}</small>
-      {c.pref && <em class={`pref pref-${c.pref}`}>{PREF_INFO[c.pref].short}</em>}
+      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${shown[i].max} each when fresh`}`).join('\n')}`}>
+      <TradingCard who={c.name} wants={shown} compact guest={!!GUEST_EVENT[c.name]} eager />
+      {(done || kind === 'waiting' || special || heard) && (
+        <span class="cust-marks">
+          {done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}
+          {kind === 'waiting' && <i class="clock" title="Waiting since yesterday"><Icon name="hourglass" size={14} /></i>}
+          {special && <i class="star" title="Special guest"><Icon name="star" size={14} /></i>}
+          {heard && <i class="ear" title="You heard about this walk-in (Gossip)"><Icon name="ear" size={14} /></i>}
+        </span>
+      )}
+      {kind === 'tomorrow' ? <small class="cust-tag">tomorrow</small> : c.pref && <em class={`pref pref-${c.pref}`}>{PREF_INFO[c.pref].short}</em>}
     </div>
   );
 }

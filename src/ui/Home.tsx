@@ -1,13 +1,12 @@
-// The home screen: a shopfront with your shopkeeper and stall, the main buttons, and the small popup menus that open in front of it.
+// The home screen: the deck-art cover (wordmark and your own Stall Sign), the main buttons, and the small popup menus that open in front of it.
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { FRUITS } from '../engine/data';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
-import { Face, Fruit } from './art';
 import { accountsAvailable, signedInAs } from './account';
+import { StallSign } from './cards';
 import { wornParts } from './looks';
-import { loadColour } from './progress';
+import { WearPin } from './pixel';
 import { myAvatar } from './Wardrobe';
 import { C } from './palette';
 
@@ -32,29 +31,27 @@ export interface ShopProps {
 
 export function Shopfront(p: ShopProps) {
   const me = signedInAs();
-  const awning = loadColour() ?? C.terracotta;
-  const left = FRUITS.slice(0, 2);
-  const right = FRUITS.slice(2);
+  const pins = wornParts();
   return (
     <div class="home cosy front">
-      <div class="front-top">
-        <div class="front-stage">
-          <div class="front-sun" aria-hidden="true" />
-          <div class="front-title">
-            <h1>Fruit Market</h1>
+      {/* The cover (DEC-066): the deck's wordmark over your own Stall Sign. */}
+      <div class="front-top cover-top">
+        <div class="cover">
+          <div class="cover-title">
+            <span class="x-kicker">The Great Fruit Exchange</span>
+            <h1 class="x-title">Fruit Market</h1>
             <p>Where the whole world shops</p>
             <p class="hm-secret">…and every price is a secret</p>
           </div>
-          {accountsAvailable() && <button class="front-account" onClick={p.onAccount}>{me ? `Hi, ${me}` : 'Create account'}</button>}
-          <div class="front-stall" aria-hidden="true">
-            <div class="front-awning" style={{ background: `repeating-linear-gradient(90deg, ${awning} 0 18px, var(--cream) 18px 36px)` }} />
-            <i class="front-post l" /><i class="front-post r" />
-            <div class="front-keeper"><Face who={myAvatar()} size={72} worn={wornParts()} /></div>
-            <div class="front-fruit l">{left.map((f) => <Fruit id={f} size={30} />)}</div>
-            <div class="front-fruit r">{right.map((f) => <Fruit id={f} size={30} />)}</div>
-            <div class="front-counter" />
+          <div class="cover-sign">
+            <i class="cover-hook" aria-hidden="true" />
+            <StallSign avatar={myAvatar()} compact eager />
+            {pins.length > 0 && <span class="cover-pins" aria-label={`Wearing ${pins.length} look${pins.length > 1 ? 's' : ''}`}>{pins.map((id) => <span class="xf-pin" key={id}><WearPin id={id} size={16} /></span>)}</span>}
           </div>
-          <button class="front-dress" onClick={p.onWardrobe}>Dress up</button>
+          <div class="cover-btns">
+            {accountsAvailable() && <button class="cover-account" onClick={p.onAccount}>{me ? `Hi, ${me}` : 'Create account'}</button>}
+            <button class="cover-dress" onClick={p.onWardrobe}>Dress up</button>
+          </div>
         </div>
       </div>
       <div class="hm-actions">
@@ -148,9 +145,9 @@ function PeopleIcon() {
 }
 
 function DailyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="5" fill={C.c_e7a73a} /><rect x="4" y="6" width="24" height="7" rx="3" fill={C.c_c65a3a} /><circle cx="16" cy="20" r="4" fill={C.c_fffaf0} /></svg>;
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect x="4" y="6" width="24" height="22" rx="4" fill={C.xMustard} stroke={C.xInk} stroke-width="2" /><rect x="4" y="6" width="24" height="7" rx="3" fill={C.xRed} stroke={C.xInk} stroke-width="2" /><circle cx="16" cy="20" r="4" fill={C.xPaper} stroke={C.xInk} stroke-width="1.5" /></svg>;
 }
 
 function TrophyIcon() {
-  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill={C.gold} /><rect x="13" y="21" width="6" height="5" fill={C.c_c98f1c} /><rect x="9" y="26" width="14" height="3" rx="1.5" fill={C.c_8e5b33} /></svg>;
+  return <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M8 6 H24 V12 Q24 20 16 21 Q8 20 8 12 Z" fill={C.xMustard} stroke={C.xInk} stroke-width="2" /><rect x="13" y="21" width="6" height="5" fill={C.xMustardDark} /><rect x="9" y="26" width="14" height="3" rx="1.5" fill={C.xWoodDark} /></svg>;
 }

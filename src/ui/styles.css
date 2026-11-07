@@ -1590,3 +1590,59 @@ b, strong { font-weight: 700; }
 /* small print inside a button keeps the button's own colour */
 .btn small, .page .btn small, .modal .btn small, .modal .popup-opt small { color: inherit; }
 .panel > .btn { margin-top: 10px; }
+
+/* ---------- Visual QA pass (PLAN-049): deck-art screens on phone and desktop ---------- */
+/* Tall sheets (a Gazette morning on a phone) start at the top instead of being centred past the top edge, where they could not be scrolled to. */
+.full-sheet { justify-content: flex-start; }
+.full-sheet > :first-child { margin-top: auto; }
+.full-sheet > :last-child { margin-bottom: auto; }
+/* "walk-in" and "tomorrow" under a card: a paper tag like the freshness tag, readable on the wooden road */
+.game .street .cust .cust-tag {
+  align-self: center; padding: 1px 6px; border: 1px solid var(--x-ink); border-radius: 6px; background: var(--x-paper); color: var(--x-ink);
+  font: 600 0.66rem/1.2 var(--f-label); letter-spacing: 0.06em; white-space: nowrap;
+}
+.cust .pref { font-size: 0.66rem; }
+.game .pz-n { font-size: 0.68rem; }
+/* Phones: the lorry parks small on the road at the end of the street, so two customer cards fit beside it. */
+@media (max-width: 479px) {
+  .game .street-wrap.lorry-here { display: block; }
+  .game .street-wrap.lorry-here .street.street { padding-right: 62px; }
+  .game .street-wrap .lorry.lorry { position: absolute; right: 6px; bottom: 3px; width: 54px; margin: 0; z-index: 3; }
+}
+/* the set-up pop-up: a gap between the name box and the next heading */
+.panel .input + h3 { margin-top: 16px; }
+/* Character pick on a narrow phone: the perk line grows to a readable size and may take two lines; every sign keeps the same height. */
+@container (max-width: 150px) {
+  .char-pick .char-card .x-ss-chalk b { display: grid; place-items: center; min-height: 2.1em; font-size: 11px; line-height: 1.05; }
+}
+/* Wardrobe preview: the badge stands over a wooden counter under a blue sunburst, like a Stall Sign scene. */
+.wd-stall { background: var(--x-sky) repeating-conic-gradient(from 0deg at 50% 100%, var(--x-sky) 0 8deg, var(--x-sky-d) 8deg 16deg); }
+.wd-counter { min-height: 104px; padding: 14px 8px 22px; }
+.wd-counter::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 20px; border-top: 2px solid var(--x-ink);
+  background: repeating-linear-gradient(180deg, var(--x-wood) 0 7px, var(--x-wood-grain) 7px 8px);
+}
+.wd-counter > * { position: relative; z-index: 1; }
+/* touch screens of any width (tablets, touch laptops) get the same comfortable tap targets as phones */
+@media (pointer: coarse) {
+  .seg button, .rd-close { min-height: 44px; }
+  .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 44px; min-height: 44px; }
+  .ev-chip, .rv-chip, .game .ev-chip, .game .rv-chip { min-height: 40px; }
+  .pz, .game .pz { min-height: 40px; }
+  .game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { min-height: 40px; }
+}
+.rs-tail { white-space: nowrap; }
+.rs-tail .rs-arrow { margin-left: 0.25em; }
+/* an event sheet the player opened sits above the first-game coach note */
+.full-sheet.event-sheet { z-index: 25; }
+/* the event chip: a long event name is shortened, never tomorrow's picture */
+.ev-chip .ev-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ev-chip > img, .ev-chip > span:not(.ev-title), .ev-chip > small { flex: none; }
+@media (max-width: 374px) {
+  /* narrow phones: tomorrow's picture without the word "next", behind a thin rule, so today's event name fits */
+  .ev-chip > small { display: inline-flex; align-items: center; padding-left: 5px; border-left: 1px solid var(--x-slate); font-size: 0; }
+  .ev-chip, .game .ev-chip { gap: 4px; padding: 2px 8px; }
+}
+/* results chart key: a coloured line beside each name, names in ink (red and mustard text were under 4.5:1 on paper) */
+.cc-key span { display: inline-flex; align-items: center; gap: 5px; color: var(--x-ink); }
+.cc-key i { display: inline-block; width: 16px; height: 4px; border-radius: 2px; }

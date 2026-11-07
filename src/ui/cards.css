@@ -71,10 +71,10 @@
 .x-tc.x-compact .x-tc-name.x-long { font-size: 1.55em; }
 .x-tc.x-compact .x-tc-order li { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 0.25em; row-gap: 0.1em; padding: 0.5em 0.1em; }
 .x-tc.x-compact .x-tc-order .x-fruit { grid-column: 2; grid-row: 1; width: 3em; height: 3em; }
-.x-tc.x-compact .x-tc-order span { grid-column: 1; grid-row: 1; font-size: 1.75em; font-weight: 600; letter-spacing: 0; }
+.x-tc.x-compact .x-tc-order span { grid-column: 1; grid-row: 1; font-size: 2em; font-weight: 600; letter-spacing: 0; }
 .x-tc.x-compact .x-tc-order b { grid-column: 1 / 3; font-size: 2.6em; }
 .x-tc.x-compact .x-tc-order.x-n3 .x-fruit { width: 2.4em; height: 2.4em; }
-.x-tc.x-compact .x-tc-order.x-n3 span { font-size: 1.45em; }
+.x-tc.x-compact .x-tc-order.x-n3 span { font-size: 1.7em; }
 .x-tc.x-compact .x-tc-order.x-n3 b { font-size: 2.2em; }
 
 /* ---------- Customer back (face down): only the fruit wanted ---------- */
@@ -100,6 +100,8 @@
 .x-tb.x-compact { aspect-ratio: 25.2 / 24; padding: 0.7em; }
 .x-tb.x-compact .x-tb-label { gap: 0.8em; padding: 0.6em 0.4em; }
 .x-tb.x-compact .x-tb-brand { font-size: 1.8em; }
+/* the "· customer ·" line is too small to read on a compact back; the ribbon and the fruit say enough */
+.x-tb.x-compact .x-tb-kind { display: none; }
 
 /* ---------- Stall Sign (shopkeeper, Art 2 "Over the counter") ---------- */
 .x-ss {
