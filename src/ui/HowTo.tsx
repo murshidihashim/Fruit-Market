@@ -82,13 +82,13 @@ const SLIDES = [
     title: 'The rush: who gets the sale?',
     body: (
       <>
-        <p>Hafiz wants <b>5 blueberries</b> and pays up to <b>$6</b> for a fresh one ($5 okay, $4 tired).</p>
+        <p>Professor Pebble wants <b>5 blueberries</b> and pays up to <b>$6</b> for a fresh one ($5 okay, $4 tired).</p>
         <div class="demo-ex">
           <div><b>Stall A</b> 3 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
           <div><b>Stall B</b> 2 okay <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
           <div><b>Stall C</b> 4 fresh <Fruit id="blueberry" size={18} /> asks <b>$6</b></div>
         </div>
-        <p>Hafiz buys from the <b>cheapest stall</b> first. B sells 2 at $4. A sells the other 3 at $5. His order is full, so C sells nothing, even though its fruit was fresh.</p>
+        <p>Professor Pebble buys from the <b>cheapest stall</b> first. B sells 2 at $4. A sells the other 3 at $5. His order is full, so C sells nothing, even though its fruit was fresh.</p>
         <p>If two stalls ask the same price, the tie goes to Favoured Trade, then the Haggler, then fresher fruit, then whoever bought earlier today. A customer who isn't fully served comes back once more the next day, then leaves.</p>
       </>
     ),

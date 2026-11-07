@@ -18,13 +18,13 @@ You do not need to be the best at everything. Often the winner is simply the sta
 
 ### One customer, start to finish
 
-Hafiz wants **5 blueberries** and pays up to **$6** for a fresh one (so $5 for okay, $4 for tired).
+Professor Pebble wants **5 blueberries** and pays up to **$6** for a fresh one (so $5 for okay, $4 for tired).
 
 - Stall A has 3 **fresh** blueberries, bought at $2 each, and posts **$5**.
 - Stall B has 2 **okay** blueberries, bought at $1 each, and posts **$4**.
 - Stall C has 4 **fresh** blueberries and posts **$6**.
 
-Hafiz buys from the **cheapest stall** first. Stall B sells 2 at $4 (+$8, which cost $2). Hafiz still wants 3, so he moves to the next cheapest, Stall A, which sells 3 at $5 (+$15, which cost $6). His order is full, so Stall C sells nothing, even though its fruit was fresh. Because two stalls served Hafiz, nobody draws a favour card.
+Professor Pebble buys from the **cheapest stall** first. Stall B sells 2 at $4 (+$8, which cost $2). Professor Pebble still wants 3, so he moves to the next cheapest, Stall A, which sells 3 at $5 (+$15, which cost $6). His order is full, so Stall C sells nothing, even though its fruit was fresh. Because two stalls served Professor Pebble, nobody draws a favour card.
 
 Had Stall A been alone in serving him, A would have drawn a favour card. That is the reason to be the one stall that has what a customer wants.
 
@@ -62,13 +62,13 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 ### Guest cards
 
-| Guest | Event | Wants (top price for a fresh one) |
-|---|---|---|
-| Influencer | Mango Craze | 3 mangoes at $11 |
-| Gym Club | Superfood Trend | 4 blueberries at $8 |
-| Hotel Chef | Hotel Order | 3 apples at $8, 2 watermelons at $8, 2 blueberries at $7 |
+| Guest | Event | Wants (fixed price for each) | Freshness type |
+|---|---|---|---|
+| The Influencer | Mango Craze | 2 mangoes at $12 | Premium (Fresh only) |
+| The Gym Club | Superfood Trend | 3 blueberries at $8 | Everyday (Fresh or Okay) |
+| The Hotel Chef | Hotel Order | 2 apples at $8, 1 watermelon at $8, 1 blueberry at $7 | Everyday (Fresh or Okay) |
 
-The event's own price change still applies on top (a Mango Craze makes the Influencer's top price $14).
+A guest's price is fixed: the event's own price change is **not** added on top (on a Mango Craze the Influencer still pays at most $12 for a fresh mango). Only Closing Day adds its $1. As for anyone, okay fruit sells for $1 less and tired fruit for $2 less.
 
 ### Decks running out
 
@@ -101,7 +101,7 @@ Today's customers arrive: yesterday's unserved customers (now **waiting, last da
 Each stall secretly sets **one price per fruit** it put out, then everyone reveals together.
 
 - **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, your **oldest fruit that is fresh enough for your price** goes first, taken from your whole shelf, up to the number in your crate.
-- **Freshness type:** a *Premium* customer buys **Fresh fruit only**; an *Everyday* customer buys **Fresh or Okay**; a *Bargain* customer buys **Fresh, Okay or Tired**. A stall cannot sell fruit a customer will not take, whatever the price. Premium: Rara Jenab, Ravi, Ahmad, Anna, Devi, Lina (and the Influencer). Bargain: Kumar, Hafiz, Farid, Mei Ling, Grace, Wei Jie. Everyone else is Everyday (the Gym Club and Hotel Chef too).
+- **Freshness type:** a *Premium* customer buys **Fresh fruit only**; an *Everyday* customer buys **Fresh or Okay**; a *Bargain* customer buys **Fresh, Okay or Tired**. A stall cannot sell fruit a customer will not take, whatever the price. Premium: Rara Jenab, Ravi Rocket, Captain Ahmad, Anna the Artist, Devi Bloom, Miss Cha-Cha (and the Influencer). Bargain: Magic Kumar, Professor Pebble, Postman Pip, Coral Mei, Rockstar Grace, Inspector Wei. Everyone else is Everyday (the Gym Club and Hotel Chef too).
 - There is **no lower limit**. On a Price Controls day there is an **upper** limit for each fruit.
 
 ### 5. The rush
@@ -170,10 +170,10 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 | Shopkeeper | Perk | Effect |
 |---|---|---|
 | Rosa | Haggler | You win tied prices, even against fresher fruit, and your first sale each day pays $1 more. |
-| Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 7th, or the 9th with a Handcart) costs $2 more. |
+| Uncle Benny | Big Basket | Buy 1 extra fruit every day; the extra piece (the 7th, or the 9th with a Handcart) costs $2 more. |
 | Raj | Bargain Hunter | Your first fruit each day costs $1 less. |
-| Chen | Charmer | Start with 4 favour cards, and hold up to 4. |
-| Kiran | Tip Jar | Customers you serve completely by yourself tip you $4. |
+| Ah Chen | Charmer | Start with 4 favour cards, and hold up to 4. |
+| Kiki | Tip Jar | Customers you serve completely by yourself tip you $4. |
 | Saleh | Nest Egg | Start with $20 instead of $15, and buy first on day 3 (the first Market Day). |
 
 (Rules version 5. Before, each stall was dealt 3 perks on the first morning and kept one.)
@@ -183,7 +183,7 @@ Before the game, each stall picks one of six shopkeepers. A shopkeeper gives one
 | Option | Effect |
 |---|---|
 | Basic game | No shopkeepers, perks, favour cards or upgrades: just buying, stalls and the bell. |
-| Fixed prices (beginner) | Every customer pays one fixed price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Generous customers pay $2 more. The 12 generous customers are numbers 1, 6, 10, 11, 15, 17, 19, 22, 24, 33, 34 and 36 in the customer card list (Rancher John, Delivery Rider Ravi, Magician Kumar, Rockstar Grace, Dr Priya, Photographer Sarah, Dancing Lina, Engineer Vijay, Firefighter Osman, Baker Lakshmi, Judoka Kenji and Uncle Hock Seng). |
+| Fixed prices (beginner) | Every customer pays one fixed price per fruit (fresh): blueberry $5, watermelon $7, apple $6, mango $9. Generous customers pay $2 more. A customer is generous when any fruit on their card pays at least $2 above that fruit's fixed price. The 13 generous customers are numbers 3, 6, 9, 10, 15, 17, 19, 21, 22, 24, 28, 34 and 36 in the customer card list (Dr Bubbles, Ravi Rocket, Madam Siti, Magic Kumar, Dr Priya, Lola Lens, Miss Cha-Cha, Anna the Artist, Otto Oddjob, Firefighter Osman, Marcus Hook, Kenji Kaze and Uncle Hock Seng). |
 | Price drift (advanced) | After each day, a fruit that ran short gets a +$1 price marker (up to +$2); a fruit with a glut at the market gets −$1 (down to −$1); otherwise the marker drifts back to 0. |
 
 ## Playing on a table
@@ -247,7 +247,7 @@ Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP
 
 Each day has a small twist, the same for everyone, rotating through seven: the usual game, a quick 8-day game, no upgrades, fixed prices, no events, a long 14-day game, and the basic game.
 
-Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Benny (Hard) and Chen (Normal) over 10 days. Scores are kept per rules version.
+Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days. Scores are kept per rules version.
 
 ## What changed from the paper draft
 
