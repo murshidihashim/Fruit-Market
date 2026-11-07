@@ -1,0 +1,82 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-066",
+    "DEC-064",
+    "DEC-065"
+  ],
+  "changes": {
+    "added": [
+      "The Great Fruit Exchange artwork: customers as Trading Cards, shopkeepers as Stall Signs, events as Gazette front pages",
+      "New printed card kit with the same art and names"
+    ],
+    "changed": [
+      "New names for the shopkeepers and customers",
+      "A new look across menus, set-up, the table, events and results"
+    ],
+    "fixed": [],
+    "removed": [
+      "The old pixel character portraits"
+    ]
+  },
+  "playerNotes": [
+    "A brand-new look: illustrated shopkeepers, customers and newspaper-style events",
+    "Shopkeepers and customers have new names"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "okay now incorporate the designs from the pdf attachhed with over the counter (shopkeeper), scene (events) and at work (customers) as my artstyle/design that i want, incorporate this in the workflow ure on now. Your task is to implement these designs throughout the existing Fruit Market game, ensuring a cohesive experience across the tabletop and digital versions. ... IMPORTANT: You are authorised to implement the approved designs immediately. Do not ask for further approval unless a decision is genuinely necessary to proceed. Start implementation now. The objective is a working, visually updated Fruit Market game, not another design proposal. (Attachments: Fruit-Market-Deck-Art-1.pdf, -2.pdf, -3.pdf)",
+    "date": "2026-11-07"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-049",
+  "title": "Implement the Great Fruit Exchange art across the app and the printed kit",
+  "problem": "Owner wants the deck art and approved names implemented throughout the digital and tabletop game now.",
+  "scope": [
+    "Extract the owner's deck art into app and print assets",
+    "Apply the approved names (DEC-064, DEC-065)",
+    "Shared visual system: palette roles, fonts, components",
+    "Characters, cards, events, menus, set-up, table, results and UI across phone and desktop",
+    "Print templates: customer, shopkeeper, event and guest cards, backs, reference sheet and player aid",
+    "Tests, build, screenshots; list missing artwork"
+  ],
+  "exclusions": [
+    "Gameplay, rules, prices or balance changes",
+    "Publishing the live game (separate approval)",
+    "Generating new illustrations where the owner's art has none"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "All 45 names correct in the app, rules and print kit",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Desktop and phone screenshots of every main screen render the new art",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Browser tests (solo game, online with a leaver, quick match, performance budget) pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Print kit PDFs generated; missing artwork listed",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

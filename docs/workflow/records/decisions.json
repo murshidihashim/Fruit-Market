@@ -832,7 +832,7 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "approved",
+        "status": "superseded",
         "evidence": "Look C",
         "date": "2026-10-28"
       },
@@ -841,7 +841,8 @@
         "REP-054"
       ],
       "plan": "PLAN-027",
-      "reviewTrigger": "After the board prototype is printed and seen on a phone."
+      "reviewTrigger": "After the board prototype is printed and seen on a phone.",
+      "supersededBy": "DEC-066"
     },
     {
       "id": "DEC-034",
@@ -1635,6 +1636,29 @@
       ],
       "plan": "PLAN-048",
       "reviewTrigger": "Owner's answer on the three flagged names (C8, C22, C30), a read-aloud test with a crier, and a header-fit test on a printed card."
+    },
+    {
+      "id": "DEC-066",
+      "title": "Implement the owner's Great Fruit Exchange deck art throughout the game",
+      "question": "Which artwork and visual identity does the game use, and may it be implemented now?",
+      "choice": "The owner's own deck art (Fruit-Market-Deck-Art-1/2/3.pdf, 'The Great Fruit Exchange'): events use Art 1 'The scene' (Exchange Gazette front pages), shopkeepers use Art 2 'Over the counter' (Stall Signs), customers use Art 3 'At work' (Trading Cards). Implemented throughout: names (DEC-064, DEC-065), portraits, card layouts, the digital game (menus, set-up, character pick, table, events, market, results, buttons and backgrounds) and the tabletop print templates. Fonts and colours follow the PDFs (Alfa Slab One, Abril Fatface, Libre Caslon Text, Oswald, Yellowtail, Caveat; navy ink, gazette paper, red, mustard, green, chalkboard, wood). The art shows old names; the game shows the approved new names. Missing illustrations (guests, favour, lorry and upgrade cards, the face-down walk-in, wearable looks on the new portraits) are listed as gaps, not filled with unrelated art. No gameplay change. Publishing the live game still needs its own approval.",
+      "rationale": "Owner instruction with explicit authority to implement immediately.",
+      "impact": {
+        "player": "A new look across the app and the printed kit; new character names; no rule, price or balance change.",
+        "technical": "Art extracted from the owner's PDFs into public/art (app) and print/art (print); new fonts; new palette roles; Face, card and event components; print-deck script; tests updated where they assumed pixel portraits or old names.",
+        "data": "None. Old names stay as hidden keys; saves and online rooms keep working."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "okay now incorporate the designs from the pdf attachhed with over the counter (shopkeeper), scene (events) and at work (customers) as my artstyle/design that i want, incorporate this in the workflow ure on now. Your task is to implement these designs throughout the existing Fruit Market game, ensuring a cohesive experience across the tabletop and digital versions. ... IMPORTANT: You are authorised to implement the approved designs immediately. Do not ask for further approval unless a decision is genuinely necessary to proceed. Start implementation now. The objective is a working, visually updated Fruit Market game, not another design proposal. (Attachments: Fruit-Market-Deck-Art-1.pdf, -2.pdf, -3.pdf)",
+        "date": "2026-11-07"
+      },
+      "delivery": "in progress",
+      "reports": [],
+      "plan": "PLAN-049",
+      "reviewTrigger": "Owner checks the preview on a phone, and a printed test sheet."
     }
   ],
   "history": [
@@ -2209,6 +2233,10 @@
     {
       "at": "2026-11-07 11:27",
       "text": "Owner on the three flagged customer names (C30 Benny Bell, C22 Otto Oddjob, C8 Postman Pip): \"keep it\". All three stay as in DEC-065; the sound-alike and look-alike risks are accepted by the owner and will be watched in the read-aloud test."
+    },
+    {
+      "at": "2026-11-07 12:20",
+      "text": "Owner supplied the Great Fruit Exchange deck art (three PDFs) and authorised implementation throughout the game (DEC-066, exact words recorded): events Art 1, shopkeepers Art 2, customers Art 3. DEC-033 (pixel look) superseded by DEC-066. PLAN-049 started on branch ccr-d9f10c6d-75280w. Baseline before changes: npm run verify PASS (196 tests)."
     }
   ]
 }

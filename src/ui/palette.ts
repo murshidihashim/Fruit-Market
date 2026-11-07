@@ -203,6 +203,25 @@ export const C = {
   c_fffaf0: '#fffaf0',
   paper: '#fffdf7',
   c_ffffff: '#ffffff',
+  // The Great Fruit Exchange (DEC-066): colours taken from the owner's deck art.
+  xInk: '#182844',
+  xInk2: '#24365c',
+  xSlate: '#505868',
+  xPaper: '#f4ecd8',
+  xCream: '#ece0d0',
+  xCard: '#f0e4cc',
+  xEdge: '#c9b99a',
+  xRed: '#d84428',
+  xRedDark: '#a8321c',
+  xMustard: '#e0a01c',
+  xMustardDark: '#a87410',
+  xGreen: '#2c6844',
+  xChalk: '#2c4838',
+  xChalkLight: '#3f5f4b',
+  xWood: '#b8743c',
+  xWoodDark: '#7e4e26',
+  xSky: '#7c98d0',
+  xSkyDark: '#4a64a0',
 } as const;
 
 /** The roles named in docs/ART-STYLE.md. */

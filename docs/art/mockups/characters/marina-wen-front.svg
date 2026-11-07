@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1600">
+<!-- Marina Wen (customer card 25), full figure, front. Concept sketch drawn in code to show the
+     direction. Not final art. Final art comes from the approved image prompts. -->
+<defs>
+  <path id="trousers" d="M 340 1010 C 340 1150 344 1270 346 1400 L 490 1400 C 492 1290 495 1190 500 1120 C 505 1190 508 1290 510 1400 L 654 1400 C 656 1270 660 1150 660 1010 Z"/>
+  <path id="top" d="M 450 652 C 466 672 534 672 550 652 C 600 658 645 668 668 690 C 696 728 712 800 716 872 L 662 880 C 656 930 662 1000 676 1046 C 600 1064 400 1064 324 1046 C 338 1000 344 930 338 880 L 284 872 C 288 800 304 728 332 690 C 355 668 400 658 450 652 Z"/>
+  <path id="neck" d="M 456 548 C 456 590 454 630 450 668 L 550 668 C 546 630 544 590 544 548 Z"/>
+  <path id="face" d="M 600 290 C 625 320 634 350 634 395 C 636 450 624 498 600 532 C 572 572 530 602 484 598 C 440 592 402 545 386 490 C 370 446 368 405 372 365 C 380 300 450 270 600 290 Z"/>
+  <path id="hair" d="M 374 402 C 362 400 354 388 352 366 C 349 318 380 252 450 232 C 520 214 612 230 646 290 C 670 332 668 400 664 450 C 664 490 662 520 654 544 C 644 558 622 556 610 542 L 400 420 Z"/>
+  <path id="map-sheet" d="M -95 -110 L 95 -110 L 95 110 L -95 110 Z"/>
+  <rect id="roll" x="-108" y="-17" width="216" height="34" rx="17"/>
+  <path id="cap-crown" d="M -126 -52 C -128 -126 128 -126 126 -52 Z"/>
+  <path id="cap-brim" d="M -140 6 C -60 -14 60 -14 140 6 L 162 -52 C 60 -74 -60 -74 -162 -52 Z"/>
+  <clipPath id="c-trousers"><use href="#trousers"/></clipPath>
+  <clipPath id="c-top"><use href="#top"/></clipPath>
+  <clipPath id="c-neck"><use href="#neck"/></clipPath>
+  <clipPath id="c-face"><use href="#face"/></clipPath>
+  <clipPath id="c-hair"><use href="#hair"/></clipPath>
+  <clipPath id="c-sheet"><use href="#map-sheet"/></clipPath>
+  <clipPath id="c-roll"><use href="#roll"/></clipPath>
+  <clipPath id="c-crown"><use href="#cap-crown"/></clipPath>
+  <clipPath id="c-brim"><use href="#cap-brim"/></clipPath>
+</defs>
+<g stroke="#2b2438" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+
+  <!-- trousers, rolled once at the ankle -->
+  <use href="#trousers" fill="#2f4a7a" stroke="none"/>
+  <path clip-path="url(#c-trousers)" fill="#2e426d" stroke="none" d="M 330 1000 H 670 V 1410 H 604 C 608 1300 610 1180 608 1076 C 540 1082 460 1082 330 1076 Z"/>
+  <use href="#trousers" fill="none"/>
+  <path fill="#f6d2b0" d="M 392 1422 L 452 1422 L 452 1456 L 392 1456 Z"/>
+  <path fill="#f6d2b0" d="M 548 1422 L 608 1422 L 608 1456 L 548 1456 Z"/>
+  <path fill="#2f4a7a" d="M 340 1388 C 390 1384 450 1384 496 1388 L 498 1428 C 450 1432 390 1432 338 1428 Z"/>
+  <path fill="#2e426d" d="M 504 1388 C 550 1384 610 1384 660 1388 L 662 1428 C 610 1432 550 1432 502 1428 Z"/>
+  <!-- flat dark shoes -->
+  <path fill="#4a4058" d="M 382 1444 C 348 1446 332 1464 334 1482 C 336 1496 352 1500 390 1500 L 468 1500 C 482 1500 488 1492 488 1476 C 488 1458 476 1444 458 1444 Z"/>
+  <path fill="#4a4058" d="M 618 1444 C 652 1446 668 1464 666 1482 C 664 1496 648 1500 610 1500 L 532 1500 C 518 1500 512 1492 512 1476 C 512 1458 524 1444 542 1444 Z"/>
+
+  <!-- neck -->
+  <use href="#neck" fill="#f6d2b0" stroke="none"/>
+  <path clip-path="url(#c-neck)" fill="#cdaf98" stroke="none" d="M 440 560 L 560 560 L 560 680 L 528 680 C 528 652 520 632 500 626 C 480 620 455 622 440 630 Z"/>
+  <use href="#neck" fill="none"/>
+
+  <!-- navy work top, sleeves rolled to the elbow -->
+  <use href="#top" fill="#2f4a7a" stroke="none"/>
+  <path clip-path="url(#c-top)" fill="#2e426d" stroke="none" d="M 610 652 C 650 680 684 750 690 878 L 640 885 C 645 950 640 1010 630 1070 L 760 1070 L 760 640 Z"/>
+  <use href="#top" fill="none"/>
+  <path fill="none" d="M 652 745 C 658 790 661 835 662 880"/>
+  <path fill="none" d="M 348 745 C 342 790 339 835 338 880"/>
+
+  <!-- hair at the back of the head, behind the braid's first twist -->
+  <g transform="rotate(-3 500 600)">
+    <use href="#hair" fill="#4a4058" stroke="none"/>
+    <path clip-path="url(#c-hair)" fill="#443a52" stroke="none" d="M 615 220 L 700 220 L 700 560 L 615 560 Z"/>
+    <use href="#hair" fill="none"/>
+  </g>
+
+  <!-- braid over her left shoulder (right of picture) -->
+  <g fill="#4a4058">
+    <ellipse cx="636" cy="556" rx="32" ry="17" transform="rotate(-35 636 556)"/>
+    <ellipse cx="630" cy="584" rx="32" ry="17" transform="rotate(35 630 584)"/>
+    <ellipse cx="632" cy="612" rx="32" ry="17" transform="rotate(-35 632 612)"/>
+    <ellipse cx="626" cy="640" rx="32" ry="17" transform="rotate(35 626 640)"/>
+    <ellipse cx="628" cy="668" rx="31" ry="17" transform="rotate(-35 628 668)"/>
+    <ellipse cx="622" cy="696" rx="30" ry="16" transform="rotate(35 622 696)"/>
+    <ellipse cx="624" cy="723" rx="29" ry="16" transform="rotate(-35 624 723)"/>
+    <ellipse cx="619" cy="749" rx="27" ry="15" transform="rotate(35 619 749)"/>
+  </g>
+  <path fill="#4a4058" d="M 608 776 C 598 792 598 810 610 820 C 616 812 622 812 628 820 C 640 808 638 790 630 776 Z"/>
+  <rect fill="#4a4058" x="604" y="760" width="30" height="18" rx="7"/>
+
+  <!-- forearms and the rolled sleeve ends -->
+  <path fill="#f6d2b0" d="M 280 878 C 272 898 284 918 306 914 L 360 846 L 334 806 L 290 864 Z"/>
+  <path fill="#f6d2b0" d="M 720 878 C 728 898 716 918 696 918 L 612 916 L 604 878 L 690 868 Z"/>
+  <rect fill="#2f4a7a" x="-34" y="-17" width="68" height="34" rx="13" transform="translate(311 880) rotate(4)"/>
+  <rect fill="#2e426d" x="-34" y="-17" width="68" height="34" rx="13" transform="translate(689 880) rotate(-4)"/>
+
+  <!-- hands, the parts behind the map -->
+  <path fill="#f6d2b0" d="M 334 836 C 324 814 330 784 350 772 C 360 766 372 768 380 774 L 380 840 C 366 850 344 848 334 836 Z"/>
+  <path fill="#f6d2b0" d="M 612 916 C 590 922 560 920 548 908 C 540 898 544 878 556 870 L 606 870 C 616 878 620 898 612 916 Z"/>
+
+  <!-- the mango map: pale paper, rolled top and bottom; one mango, one coastline, one dashed path -->
+  <g transform="translate(466 768) rotate(-5)">
+    <use href="#map-sheet" fill="#fbecc4" stroke="none"/>
+    <path clip-path="url(#c-sheet)" fill="#d1c4a8" stroke="none" d="M -100 -100 H 100 V -84 H -100 Z"/>
+    <use href="#map-sheet" fill="none"/>
+    <g fill="none" transform="translate(-42 -24) rotate(-12)">
+      <path d="M -20 -30 C 4 -38 28 -20 26 6 C 24 28 6 40 -10 38 C -18 37 -22 32 -24 26 C -27 18 -34 10 -35 -4 C -36 -18 -30 -26 -20 -30 Z"/>
+      <path d="M -20 -30 C -16 -46 4 -52 16 -46 C 6 -36 -6 -30 -20 -30 Z"/>
+    </g>
+    <path fill="none" d="M 8 110 C 20 86 48 88 52 64 C 56 40 84 38 95 24"/>
+    <path fill="none" stroke-dasharray="10 13" d="M 34 56 C 22 34 6 22 -14 14"/>
+    <g transform="translate(0 -112)">
+      <use href="#roll" fill="#fbecc4" stroke="none"/>
+      <path clip-path="url(#c-roll)" fill="#d1c4a8" stroke="none" d="M -120 2 H 120 V 30 H -120 Z"/>
+      <use href="#roll" fill="none"/>
+    </g>
+    <g transform="translate(0 112)">
+      <use href="#roll" fill="#fbecc4" stroke="none"/>
+      <path clip-path="url(#c-roll)" fill="#d1c4a8" stroke="none" d="M -120 2 H 120 V 30 H -120 Z"/>
+      <use href="#roll" fill="none"/>
+    </g>
+  </g>
+
+  <!-- fingers wrapping the map's edge (her right hand) and the lower roll (her left hand) -->
+  <path fill="#f6d2b0" d="M 368 774 C 378 768 392 770 393 779 C 394 785 390 788 385 789 C 393 790 397 796 396 803 C 395 808 391 810 386 811 C 394 812 397 818 396 824 C 395 829 391 831 386 831 C 393 833 395 839 392 844 C 388 850 376 850 368 846 Z"/>
+  <path fill="none" d="M 385 789 L 374 790 M 386 811 L 375 811 M 386 831 L 375 830"/>
+  <path fill="#f6d2b0" d="M 546 892 C 540 882 540 868 548 864 C 554 861 559 864 561 870 C 562 860 569 857 575 859 C 581 861 583 867 583 872 C 585 863 592 860 597 863 C 603 866 604 873 603 878 C 606 871 613 870 617 875 C 621 881 619 890 612 898 C 596 908 556 906 546 892 Z"/>
+  <path fill="none" d="M 561 870 L 562 882 M 583 872 L 583 884 M 603 878 L 602 888"/>
+
+  <!-- head, tilted slightly toward the map -->
+  <g transform="rotate(-3 500 600)">
+
+    <path fill="#f6d2b0" d="M 630 408 C 642 392 666 398 664 426 C 662 452 648 470 628 466 Z"/>
+    <path fill="none" d="M 640 418 C 652 418 654 436 644 448"/>
+
+    <use href="#face" fill="#f6d2b0" stroke="none"/>
+    <path clip-path="url(#c-face)" fill="#cdaf98" stroke="none" d="M 628 380 C 621 432 616 484 592 532 C 566 572 530 594 490 602 L 560 660 L 690 620 L 690 340 Z"/>
+    <use href="#face" fill="none"/>
+
+    <!-- brows (her left one a touch higher), eyes, nose, small closed smile -->
+    <path fill="none" d="M 404 377 C 416 370 434 367 452 370"/>
+    <path fill="none" d="M 526 365 C 542 359 560 358 578 364"/>
+    <ellipse fill="#2b2438" stroke="none" cx="430" cy="410" rx="13" ry="19"/>
+    <ellipse fill="#2b2438" stroke="none" cx="548" cy="407" rx="14.5" ry="20"/>
+    <circle fill="#fffdf7" stroke="none" cx="425" cy="402" r="5"/>
+    <circle fill="#fffdf7" stroke="none" cx="543" cy="399" r="5.5"/>
+    <path fill="none" d="M 482 424 C 474 444 468 460 476 467 C 482 472 492 470 496 465"/>
+    <path fill="none" d="M 458 510 C 474 524 502 526 524 506"/>
+
+    <!-- short side-swept fringe -->
+    <path fill="#4a4058" d="M 602 262 C 640 285 642 340 638 372 C 625 330 610 305 596 292 C 560 310 480 325 430 336 C 400 343 382 356 368 378 C 356 340 362 290 410 258 C 460 226 560 228 602 262 Z"/>
+    <path fill="none" d="M 560 268 C 520 290 470 305 430 315"/>
+
+    <!-- round white sailor's cap, brim turned up all round, no peak; pushed back, tipped to her right -->
+    <g transform="translate(498 268) rotate(-11)">
+      <use href="#cap-crown" fill="#fffdf7" stroke="none"/>
+      <path clip-path="url(#c-crown)" fill="#d5d2d1" stroke="none" d="M 50 -130 L 140 -130 L 140 -40 L 70 -40 C 80 -70 72 -100 50 -130 Z"/>
+      <use href="#cap-crown" fill="none"/>
+      <use href="#cap-brim" fill="#fffdf7" stroke="none"/>
+      <path clip-path="url(#c-brim)" fill="#d5d2d1" stroke="none" d="M 88 -80 L 180 -80 L 180 20 L 96 20 C 104 -10 100 -50 88 -80 Z"/>
+      <use href="#cap-brim" fill="none"/>
+    </g>
+  </g>
+</g>
+</svg>

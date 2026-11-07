@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1600">
+<!-- Uncle Benny (S2) - concept sketch drawn in code. Not final art. -->
+<style>
+.o{stroke:#2b2438;stroke-width:6;stroke-linejoin:round;stroke-linecap:round}
+.nf{fill:none}
+.ink{fill:#2b2438}.paper{fill:#fffdf7}
+.sk{fill:#c48a5f}.sk2{fill:#8f5e3c}
+.hr{fill:#5b3a24}.hr2{fill:#3a2418}
+.sh{fill:#3e8f8c}.sh2{fill:#2c6b69}
+.bk{fill:#7a4f2e}.bk2{fill:#5b3a24}
+.tc{fill:#c8553d}.tc2{fill:#a8423f}
+.ap{fill:#d6453b}.ap2{fill:#9c2b32}.stem{fill:#6b4226}.leaf{fill:#6aa84f}
+.bb{fill:#5562c9}.bb2{fill:#353d8f}
+.wm{fill:#e8505b}.rind{fill:#3f8f4a}.rindl{fill:#d6efb4}
+.mg{fill:#f0b33a}.mg2{fill:#e0742c}
+</style>
+<defs>
+  <path id="legs" d="M 272 1018 Q 500 1052 728 1018 C 732 1130 692 1300 684 1418 L 536 1418 C 532 1300 522 1160 500 1094 C 478 1160 468 1300 464 1418 L 316 1418 C 308 1300 268 1130 272 1018 Z"/>
+  <clipPath id="cLegs"><use href="#legs"/></clipPath>
+  <path id="torso" d="M 430 536 C 380 546 330 562 292 586 C 250 600 214 626 202 660 C 196 700 226 750 248 800 C 262 860 256 950 268 1004 C 274 1026 300 1034 330 1034 L 670 1034 C 700 1034 726 1026 732 1004 C 744 950 738 860 752 800 C 774 750 804 700 798 660 C 786 626 750 600 708 586 C 670 562 620 546 570 536 Z"/>
+  <clipPath id="cTorso"><use href="#torso"/></clipPath>
+  <path id="sleeveL" d="M 300 582 C 256 592 220 612 202 648 C 186 678 164 708 146 734 L 238 776 C 248 752 256 730 262 704 C 270 664 284 618 300 582 Z"/>
+  <path id="sleeveR" d="M 700 582 C 744 592 780 612 798 648 C 814 678 836 708 854 734 L 762 776 C 752 752 744 730 738 704 C 730 664 716 618 700 582 Z"/>
+  <clipPath id="cSleeveL"><use href="#sleeveL"/></clipPath>
+  <clipPath id="cSleeveR"><use href="#sleeveR"/></clipPath>
+  <path id="armL" d="M 196 712 L 128 864 L 144 828"/>
+  <path id="armR" d="M 804 712 L 872 864 L 856 828"/>
+  <mask id="mArmL"><use href="#armL" fill="none" stroke="#fff" stroke-width="76" stroke-linejoin="round" stroke-linecap="round"/></mask>
+  <mask id="mArmR"><use href="#armR" fill="none" stroke="#fff" stroke-width="76" stroke-linejoin="round" stroke-linecap="round"/></mask>
+  <path id="earL" d="M 352 320 C 328 306 306 322 308 354 C 310 388 326 406 352 400 Z"/>
+  <path id="earR" d="M 648 320 C 672 306 694 322 692 354 C 690 388 674 406 648 400 Z"/>
+  <clipPath id="cEarR"><use href="#earR"/></clipPath>
+  <path id="face" d="M 354 262 C 354 200 420 168 500 168 C 580 168 646 200 646 262 C 650 300 654 340 652 390 C 650 456 616 528 500 534 C 384 528 350 456 348 390 C 346 340 350 300 354 262 Z"/>
+  <clipPath id="cFace"><use href="#face"/></clipPath>
+  <!-- hair + sideburns + beard + moustache: one shape with two holes (face, mouth) -->
+  <path id="hb" fill-rule="evenodd" d="
+    M 352 320 C 344 300 340 274 341 250 C 344 186 412 146 500 146 C 588 146 656 186 659 250 C 660 274 656 300 648 320
+    L 648 398 C 654 450 644 496 616 524 C 588 552 548 566 500 566 C 452 566 412 552 384 524 C 356 496 346 450 352 398 Z
+    M 366 300 C 366 264 390 236 420 234 C 446 238 472 248 500 248 C 528 248 554 238 580 234 C 610 236 634 264 634 300
+    C 636 330 636 360 634 388 C 632 428 620 458 598 470 C 586 476 574 470 566 458
+    C 560 434 546 416 526 410 C 514 407 506 409 500 412 C 494 409 486 407 474 410 C 454 416 440 434 434 458
+    C 426 470 414 476 402 470 C 380 458 368 428 366 388 C 364 360 364 330 366 300 Z
+    M 466 440 C 478 448 490 451 502 450 C 514 449 526 444 536 434 C 536 450 522 462 502 463 C 484 464 470 456 466 440 Z"/>
+  <clipPath id="cHb"><use href="#hb" clip-rule="evenodd"/></clipPath>
+  <path id="colL" d="M 408 548 L 450 608 C 468 598 486 586 498 572 L 472 540 Z"/>
+  <path id="colR" d="M 592 548 L 550 608 C 532 598 514 586 502 572 L 528 540 Z"/>
+  <!-- basket -->
+  <path id="bBody" d="M 194 752 C 194 838 214 910 290 944 C 370 978 630 978 710 944 C 786 910 806 838 806 752 A 306 46 0 0 1 194 752 Z"/>
+  <clipPath id="cBody"><use href="#bBody"/></clipPath>
+  <path id="band" d="M 160 824 Q 500 902 840 824 L 840 866 Q 500 944 160 866 Z"/>
+  <clipPath id="cBand"><use href="#band"/></clipPath>
+  <path id="rimFront" d="M 194 752 A 306 46 0 0 0 806 752 L 780 751 A 280 28 0 0 1 220 751 Z"/>
+  <clipPath id="cRimFront"><use href="#rimFront"/></clipPath>
+  <path id="handleL" d="M 220 774 C 168 762 146 790 148 812 C 150 836 180 846 216 838"/>
+  <path id="handleR" d="M 780 774 C 832 762 854 790 852 812 C 850 836 820 846 784 838"/>
+  <!-- fist in local coordinates (viewer's left hand); mirrored for the other -->
+  <path id="fist" d="M -34 -39 C -16 -51 21 -51 35 -41 C 48 -37 48 -21 37 -18 C 50 -14 50 2 37 5 C 50 9 50 25 37 28 C 47 32 46 48 30 48 C 12 53 -21 51 -35 41 C -48 25 -48 -25 -34 -39 Z"/>
+  <path id="thumb" d="M -30 -30 C -23 -53 16 -60 35 -48 C 48 -39 44 -25 30 -25 C 12 -25 -5 -21 -16 -12 Z"/>
+  <clipPath id="cFist"><use href="#fist"/></clipPath>
+  <!-- fruit -->
+  <path id="apple1" d="M 378 702 C 404 686 438 696 438 740 C 438 786 408 810 378 804 C 348 810 318 786 318 740 C 318 696 352 686 378 702 Z"/>
+  <clipPath id="cApple1"><use href="#apple1"/></clipPath>
+  <path id="apple2" d="M 432 660 C 454 646 478 656 478 692 C 478 728 454 746 432 742 C 410 746 386 728 386 692 C 386 656 410 646 432 660 Z"/>
+  <clipPath id="cApple2"><use href="#apple2"/></clipPath>
+  <path id="mango" d="M 562 748 C 558 712 606 696 648 706 C 690 718 702 764 680 794 C 658 822 602 822 578 800 C 564 788 564 772 562 748 Z"/>
+  <clipPath id="cMango"><use href="#mango"/></clipPath>
+  <path id="melon" d="M -104 0 L 104 0 A 104 104 0 0 1 -104 0 Z"/>
+</defs>
+
+<!-- ===== TORSO (behind the trousers: shirt tucked in) ===== -->
+<use href="#torso" class="sh"/>
+<g clip-path="url(#cTorso)">
+  <path class="sh2" d="M 596 556 C 640 600 666 660 674 740 C 680 820 676 940 656 1040 L 820 1040 L 820 556 Z"/>
+</g>
+<use href="#torso" class="o nf"/>
+<path class="o nf" d="M 508 598 L 508 700"/>
+<circle class="sh2 o" cx="500" cy="590" r="8"/>
+<circle class="sh2 o" cx="500" cy="650" r="8"/>
+<use href="#colL" class="sh o"/>
+<use href="#colR" class="sh o"/>
+<path class="sh2" d="M 589 553 L 553 603 C 540 596 528 588 518 580 Z"/>
+<use href="#colR" class="o nf"/>
+
+<!-- LEGS START -->
+<use href="#legs" class="hr"/>
+<g clip-path="url(#cLegs)">
+  <path class="hr2" d="M 634 1020 C 660 1130 636 1300 630 1430 L 740 1430 L 740 1010 Z"/>
+  <path class="hr2" d="M 452 1140 C 462 1240 460 1330 458 1430 L 500 1430 L 500 1094 Z"/>
+</g>
+<use href="#legs" class="o nf"/>
+<path class="ink o" d="M 322 1410 C 282 1414 260 1448 276 1474 C 282 1484 296 1488 310 1488 L 466 1488 C 478 1488 482 1474 478 1456 C 476 1436 474 1424 470 1410 Z"/>
+<path class="ink o" d="M 678 1410 C 718 1414 740 1448 724 1474 C 718 1484 704 1488 690 1488 L 534 1488 C 522 1488 518 1474 522 1456 C 524 1436 526 1424 530 1410 Z"/>
+
+<!-- LEGS END -->
+<!-- ===== ARMS ===== -->
+<use href="#armL" fill="none" stroke="#2b2438" stroke-width="88" stroke-linejoin="round" stroke-linecap="round"/>
+<use href="#armL" fill="none" stroke="#c48a5f" stroke-width="76" stroke-linejoin="round" stroke-linecap="round"/>
+<g mask="url(#mArmL)"><path class="sk2" d="M 190 760 L 240 770 L 176 912 L 140 912 C 146 860 160 820 190 760 Z"/></g>
+<use href="#armR" fill="none" stroke="#2b2438" stroke-width="88" stroke-linejoin="round" stroke-linecap="round"/>
+<use href="#armR" fill="none" stroke="#c48a5f" stroke-width="76" stroke-linejoin="round" stroke-linecap="round"/>
+<g mask="url(#mArmR)"><path class="sk2" d="M 846 720 C 870 770 888 830 880 912 L 930 912 L 930 720 Z"/></g>
+<use href="#sleeveL" class="sh"/>
+<g clip-path="url(#cSleeveL)"><path class="sh2" d="M 190 770 L 266 700 L 300 710 L 300 800 Z"/></g>
+<use href="#sleeveL" class="o nf"/>
+<use href="#sleeveR" class="sh"/>
+<g clip-path="url(#cSleeveR)"><path class="sh2" d="M 764 610 C 800 640 822 690 820 760 L 900 760 L 900 600 Z"/></g>
+<use href="#sleeveR" class="o nf"/>
+
+<!-- HEAD START -->
+<use href="#earL" class="sk o"/>
+<path class="o nf" d="M 336 336 C 322 344 322 372 338 384"/>
+<use href="#earR" class="sk"/>
+<g clip-path="url(#cEarR)"><path class="sk2" d="M 668 300 C 688 330 690 380 664 412 L 710 412 L 710 300 Z"/></g>
+<use href="#earR" class="o nf"/>
+<path class="o nf" d="M 664 336 C 678 344 678 372 662 384"/>
+<use href="#face" class="sk"/>
+<g clip-path="url(#cFace)"><path class="sk2" d="M 604 236 C 620 290 626 350 618 410 C 612 440 600 462 586 478 L 700 478 L 700 236 Z"/></g>
+<use href="#hb" class="hr"/>
+<g clip-path="url(#cHb)"><path class="hr2" d="M 556 138 C 614 156 640 206 644 280 L 642 420 C 638 488 606 538 520 574 L 700 600 L 700 130 Z"/></g>
+<use href="#hb" class="o nf"/>
+<path class="hr o" d="M 404 318 C 418 302 446 298 470 304 L 468 320 C 448 315 426 318 410 328 Z"/>
+<path class="hr o" d="M 530 304 C 554 298 582 302 596 316 L 590 326 C 574 316 552 314 532 320 Z"/>
+<ellipse class="ink" cx="437" cy="350" rx="14.5" ry="20"/>
+<ellipse class="ink" cx="563" cy="350" rx="14.5" ry="20"/>
+<circle class="paper" cx="432" cy="342" r="6"/>
+<circle class="paper" cx="558" cy="342" r="6"/>
+<path class="o nf" d="M 404 360 Q 406 372 416 376"/>
+<path class="o nf" d="M 596 360 Q 594 372 584 376"/>
+<path class="o nf" d="M 494 362 C 486 380 484 394 500 398 C 512 400 520 394 518 386"/>
+<path class="o nf" d="M 533 428 C 538 431 540 435 539 440"/>
+
+<!-- HEAD END -->
+<!-- ===== BASKET ===== -->
+<use href="#handleL" fill="none" stroke="#2b2438" stroke-width="30" stroke-linecap="round"/>
+<use href="#handleL" fill="none" stroke="#7a4f2e" stroke-width="18" stroke-linecap="round"/>
+<use href="#handleR" fill="none" stroke="#2b2438" stroke-width="30" stroke-linecap="round"/>
+<use href="#handleR" fill="none" stroke="#5b3a24" stroke-width="18" stroke-linecap="round"/>
+<ellipse class="bk o" cx="500" cy="752" rx="306" ry="46"/>
+<ellipse class="bk2 o" cx="500" cy="751" rx="280" ry="28"/>
+<!-- watermelon wedge standing behind the front row -->
+<g transform="translate(598 676) rotate(-12)">
+  <use href="#melon" class="rind"/>
+  <path class="rindl" d="M -90 0 L 90 0 A 90 90 0 0 1 -90 0 Z"/>
+  <path class="wm" d="M -80 0 L 80 0 A 80 80 0 0 1 -80 0 Z"/>
+  <path class="ink" d="M -46 22 q 5 -12 10 0 q -5 9 -10 0 Z M -6 30 q 5 -12 10 0 q -5 9 -10 0 Z M 34 20 q 5 -12 10 0 q -5 9 -10 0 Z M 14 52 q 5 -12 10 0 q -5 9 -10 0 Z M -28 54 q 5 -12 10 0 q -5 9 -10 0 Z M 56 34 q 5 -12 10 0 q -5 9 -10 0 Z"/>
+  <path class="o nf" d="M -90 0 A 90 90 0 0 0 90 0"/>
+  <use href="#melon" class="o nf"/>
+</g>
+<!-- mango -->
+<use href="#mango" class="mg"/>
+<g clip-path="url(#cMango)"><path class="mg2" d="M 698 718 C 698 778 658 810 598 810 L 608 840 L 720 840 L 720 718 Z"/></g>
+<use href="#mango" class="o nf"/>
+<path class="stem o" d="M 580 718 C 574 708 574 700 580 694 L 588 698 C 584 704 584 710 588 716 Z"/>
+<path class="leaf o" d="M 586 698 C 598 682 622 678 638 686 C 626 700 606 706 586 698 Z"/>
+<!-- blueberries -->
+<circle class="bb o" cx="478" cy="764" r="29"/>
+<path class="bb2" d="M 502 748 A 26 26 0 0 1 466 789 C 490 786 502 770 502 748 Z"/>
+<circle class="o nf" cx="472" cy="756" r="6"/>
+<circle class="bb o" cx="534" cy="768" r="29"/>
+<path class="bb2" d="M 558 752 A 26 26 0 0 1 522 793 C 546 790 558 774 558 752 Z"/>
+<circle class="o nf" cx="528" cy="760" r="6"/>
+<circle class="bb o" cx="506" cy="726" r="29"/>
+<path class="bb2" d="M 530 710 A 26 26 0 0 1 494 751 C 518 748 530 732 530 710 Z"/>
+<circle class="o nf" cx="500" cy="718" r="6"/>
+<!-- front apple -->
+<use href="#apple1" class="ap"/>
+<g clip-path="url(#cApple1)"><path class="ap2" d="M 420 702 C 440 758 414 802 362 808 L 362 830 L 456 830 L 456 702 Z"/></g>
+<use href="#apple1" class="o nf"/>
+<path class="stem o" d="M 376 704 C 376 694 380 686 388 680 L 392 686 C 386 690 384 696 384 704 Z"/>
+<path class="leaf o" d="M 386 688 C 376 672 354 668 338 676 C 348 690 368 696 386 688 Z"/>
+<!-- one more apple on top -->
+<use href="#apple2" class="ap"/>
+<g clip-path="url(#cApple2)"><path class="ap2" d="M 466 664 C 484 702 466 740 418 744 L 418 770 L 490 770 L 490 664 Z"/></g>
+<use href="#apple2" class="o nf"/>
+<path class="stem o" d="M 430 662 C 430 652 434 644 442 638 L 446 644 C 440 648 438 654 438 662 Z"/>
+<!-- body, band, weave -->
+<use href="#bBody" class="bk"/>
+<g clip-path="url(#cBody)">
+  <path class="bk2" d="M 692 760 C 736 820 740 900 690 990 L 820 990 L 820 760 Z"/>
+  <path class="o nf" d="M 280 782 C 272 850 278 910 300 980 M 390 792 C 386 860 390 920 400 990 M 500 796 L 500 990 M 610 792 C 614 860 610 920 600 990 M 720 782 C 728 850 722 910 700 980"/>
+  <path class="o nf" d="M 186 794 Q 500 866 814 794 M 200 904 Q 500 972 800 904"/>
+  <use href="#band" class="tc"/>
+  <g clip-path="url(#cBand)"><path class="tc2" d="M 692 760 C 736 820 740 900 690 990 L 820 990 L 820 760 Z"/></g>
+  <path class="o nf" d="M 160 824 Q 500 902 840 824 M 160 866 Q 500 944 840 866"/>
+</g>
+<use href="#bBody" class="o nf"/>
+<use href="#rimFront" class="bk"/>
+<g clip-path="url(#cRimFront)"><path class="bk2" d="M 700 740 L 820 740 L 820 810 L 690 810 Z"/></g>
+<path class="o nf" d="M 236 764 l 10 14 M 288 770 l 10 14 M 340 775 l 10 14 M 392 778 l 10 14 M 444 780 l 10 14 M 496 781 l 10 14 M 548 780 l 10 14 M 600 779 l 10 14 M 652 776 l 10 14 M 704 771 l 10 14 M 756 765 l 8 12"/>
+<use href="#rimFront" class="o nf"/>
+
+<!-- ===== HANDS ===== -->
+<g transform="translate(154 806)">
+  <use href="#fist" class="sk"/>
+  <g clip-path="url(#cFist)"><path class="sk2" d="M -46 34 C 0 40 34 22 52 -12 L 56 56 L -46 56 Z"/></g>
+  <use href="#fist" class="o nf"/>
+  <path class="o nf" d="M 37 -18 L 16 -17 M 37 5 L 16 6 M 37 28 L 18 28"/>
+  <use href="#thumb" class="sk o"/>
+</g>
+<g transform="translate(846 806) scale(-1 1)">
+  <use href="#fist" class="sk"/>
+  <g clip-path="url(#cFist)"><path class="sk2" d="M -52 -46 C -34 0 -12 34 34 46 L 56 56 L -56 56 L -56 -46 Z"/></g>
+  <use href="#fist" class="o nf"/>
+  <path class="o nf" d="M 37 -18 L 16 -17 M 37 5 L 16 6 M 37 28 L 18 28"/>
+  <use href="#thumb" class="sk o"/>
+</g>
+</svg>
