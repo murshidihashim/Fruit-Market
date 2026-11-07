@@ -1585,6 +1585,31 @@
       ],
       "plan": "PLAN-048",
       "reviewTrigger": "After the pilot pair is shown next to the current pixel look (DEC-042), or if the owner chooses a different AI or budget policy."
+    },
+    {
+      "id": "DEC-064",
+      "title": "Shopkeeper and guest names: Uncle Benny, Ah Chen and Kiki; guests unchanged",
+      "question": "Which final names do the six shopkeepers and three special guests use (REP-088 sections 5 and 6)?",
+      "choice": "Shopkeepers: S1 Rosa (Haggler), S2 Uncle Benny (Big Basket), S3 Ah Chen (Charmer), S4 Saleh (Nest Egg), S5 Raj (Bargain Hunter), S6 Kiki (Tip Jar, was Kiran). All six abilities unchanged. Guests unchanged: The Influencer, The Gym Club, The Hotel Chef. Amends the shopkeeper naming rule of DEC-040 and DEC-041 (plain first names): a shopkeeper may carry a familiar title the owner chose (Uncle, Ah). Design decision only; the 36 customer names are still to come (section 1 of the owner's list).",
+      "rationale": "Owner's final list after the naming review (REP-088). 'Ah Chen' reads as a familiar name rather than a bare surname; 'Kiki' replaces Kiran; 'Uncle Benny' fits the approved pilot look (broad, bearded).",
+      "impact": {
+        "player": "None until a later implementation plan. Then the shopkeepers show their new names in the app, the print kit and the rulebook.",
+        "technical": "None now. At implementation: display names in src/engine/data.ts (RIVALS) with the hidden avatar keys unchanged, so saves and online rooms keep working; tests/cast.test.ts 'shopkeeper names are a plain first name' must allow the approved titles; RULES.md shopkeeper table and daily-market line (Rosa, Benny, Chen); character cards in the print kit.",
+        "data": "None. Abilities, perks and balance unchanged."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "2. Complete shopkeeper roster. ID Final approved name Existing ability. S1 Rosa Haggler. S2 Uncle Benny Big Basket. S3 Ah Chen Charmer. S4 Saleh Nest Egg. S5 Raj Bargain Hunter. S6 Kiki Tip Jar. All six shopkeeper abilities remain unchanged. 3. Special guests. ID Final approved name. G1 The Influencer. G2 The Gym Club. G3 The Hotel Chef. change to above, appeoved",
+        "date": "2026-11-07"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-088"
+      ],
+      "plan": "PLAN-048",
+      "reviewTrigger": "When the customer names (section 1) arrive, or at the implementation plan."
     }
   ],
   "history": [
@@ -2147,6 +2172,10 @@
     {
       "at": "2026-11-07 04:52",
       "text": "PLAN-048 step 1: naming review sent to the owner (REP-088): every name with flags, three naming styles (A recommended: Job + first name, tidied), suggested fixes for sound-alike pairs (Ben/Benny, Wei Jie/Jia Wen, Hafiz/Hadi), type-hinting titles and stereotype jokes. Waiting for the owner's choices; no game, data or art change."
+    },
+    {
+      "at": "2026-11-07 11:16",
+      "text": "Owner approved the shopkeeper and guest names (DEC-064): Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki (was Kiran); abilities unchanged; guests unchanged. The owner's message started at section 2, so section 1 (the 36 customers) has not arrived; asked for it. The pilot Benny is now Uncle Benny. Creative bible shopkeeper lines updated; no game, data or art change."
     }
   ]
 }

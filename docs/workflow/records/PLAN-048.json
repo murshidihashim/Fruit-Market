@@ -6,7 +6,8 @@
     "REP-088"
   ],
   "decisions": [
-    "DEC-063"
+    "DEC-063",
+    "DEC-064"
   ],
   "changes": {
     "added": [],
@@ -44,7 +45,7 @@
       "id": "T1",
       "text": "Owner chooses a naming style and the names to change (exact words recorded)",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Partly done: shopkeepers and guests approved (DEC-064, 2026-11-07). Customer names (section 1) not yet received."
     },
     {
       "id": "T2",
