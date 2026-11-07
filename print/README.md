@@ -59,6 +59,22 @@ used by the QA sweep, now builds this same kit.)
 Pictures come from `print/art` (the owner's art at print resolution, about 240 to 300 ppi at card size). They are
 stored in the PDFs as high-quality JPEG to keep the files small.
 
+### Print-only layout rules
+
+The cards are the app's own designs, but a few rules apply only to the printed kit (in `PRINT_CSS` in
+`scripts/print-deck.ts`, so the app is not affected):
+
+- **Event cards:** every scene picture has the same fixed height, however long the headline and subhead. The story
+  text is slightly smaller than on screen (about 7 pt) so the longest stories fit, and any spare room is at the foot
+  of the card. Each picture's crop is set per event to keep its price tag or sign in view.
+- **Shopkeeper cards:** the chalkboard has one height (room for Rosa's three lines), so all six scenes are the same size.
+- **Character reference:** customers are 3 across and 4 down, each tile as tall as its row, so the pages are filled
+  evenly.
+- **The Influencer:** its "Special guest" flag starts to the right of the $12 tag drawn into the borrowed Mango Craze
+  picture.
+- **A4 pages** (cover, player aid, reference) fit inside the page, so every PDF, including
+  `Fruit_Market_Print_Kit.pdf`, prints the cards at true size (63 × 88 mm).
+
 ## What is missing or still to decide
 
 - **Guest portraits.** The three guests have no picture of their own. Each borrows its event's scene for now
@@ -72,6 +88,9 @@ stored in the PDFs as high-quality JPEG to keep the files small.
 - **Not restyled yet:** the play mat, stall sheet and screen, tokens, price cards and paper money from the earlier kit.
 - **Stall-sign hooks.** The hanging strings and bar above each stall sign in the PDF sit outside the card and are
   left out.
-- **Picture crop.** The PDF cards are taller than poker cards, so pictures are cropped to fit 63 × 88 mm (most on
-  events with a two-line headline).
+- **Picture crop.** The PDF cards are taller than poker cards, so pictures are cropped to fit 63 × 88 mm. Event
+  pictures are all cropped to the same height, which hides the top or bottom of some scenes (for example the warning
+  sign on Lorry Breakdown).
+- **Guest flags.** On The Gym Club and The Hotel Chef the "Special guest" flag still covers the top edge of the
+  borrowed scene (the +$1 tag's string, the Grand Hotel sign). Their own portraits will remove this.
 - The Gazette effect bullets (▸) are not in the deck fonts, so the printer's fallback font draws them.

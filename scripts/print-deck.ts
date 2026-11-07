@@ -168,22 +168,52 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-gzb .x-gz-seal { position: static; width: 4.6em; height: 4.6em; font-size: 2.4em; transform: rotate(-8deg); }
 .pk-gzb-foot { flex: none; font: 600 0.95em/1.3 var(--f-label); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: var(--x-ink); }
 
+/* ---- Gazette (event) fronts: every picture the same size, whatever the length of the headline (on screen the
+   picture takes the room left over). The story follows the caption; any room left over stays at the foot.
+   The story text is a little smaller than on screen (1 ce = 2.5 mm, about 7 pt) so the longest stories fit. ---- */
+.pk-ev .x-gz-pic { flex: none; min-height: 0; }
+.pk-ev .x-gz-pic .x-art { flex: none; height: 11em; object-position: 50% var(--pk-focus, 50%); }
+.pk-ev .x-gz-text { font-size: 1em; }
+/* where each picture is cropped (0% keeps the top, 100% the bottom): keep the price tags and signs in view */
+.pk-ev-festival { --pk-focus: 60%; }
+.pk-ev-glut { --pk-focus: 28%; }
+.pk-ev-heatwave { --pk-focus: 62%; }
+.pk-ev-hotel { --pk-focus: 40%; }
+.pk-ev-inspector { --pk-focus: 30%; }
+.pk-ev-mangoCraze { --pk-focus: 30%; }
+.pk-ev-priceHike { --pk-focus: 45%; }
+.pk-ev-strike { --pk-focus: 90%; }
+.pk-ev-superfood { --pk-focus: 30%; }
+
+/* ---- Stall Sign (shopkeeper) fronts: one chalkboard height for all six (room for the longest special, Rosa's
+   three lines), so every scene is the same size. ---- */
+.pk-shop .x-ss-chalk { height: 10.3em; display: flex; flex-direction: column; justify-content: center; }
+
+/* ---- Special guests: the flag starts clear of the price tag drawn into the borrowed Mango Craze picture ---- */
+.pk-guest-mangoCraze .x-tc-flag { left: 8em; }
+
 /* ---- A4 pages: reference, player aid, cover ---- */
-.pk-a4 { padding: 12mm 12mm 10mm; display: flex; flex-direction: column; gap: 4mm; font-size: 3.5mm; }
+/* border-box keeps the padding inside the 210 x 297 mm page. Without it the page box was 234 x 319 mm, and Chromium
+   shrank every page of a PDF that holds one to about 90%, the card sheets in Fruit_Market_Print_Kit.pdf included.
+   The player aid and the cover were laid out at that size, so they keep it and are scaled to the page width (210/234),
+   which is exactly how they printed before; the card sheets now print at 100% in every file. */
+.pk-a4 { box-sizing: border-box; padding: 12mm 12mm 10mm; display: flex; flex-direction: column; gap: 4mm; font-size: 3.5mm; }
+.pk-aid, .pk-cover { box-sizing: content-box; zoom: 0.8974; }
 .pk-aid { gap: 3.6mm; }
-.pk-sec { display: flex; align-items: baseline; gap: 3mm; padding-bottom: 1.6mm; border-bottom: 0.6mm solid var(--x-ink); }
-.pk-sec h2 { margin: 0; font: 6.4mm/1 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
-.pk-sec .x-kicker { font-size: 2.8mm; }
-.pk-sec .pk-pageno { margin-left: auto; font: 500 2.6mm/1 var(--f-label); letter-spacing: 0.1em; color: var(--x-slate); }
+.pk-sec { display: flex; align-items: baseline; gap: 3mm; padding-bottom: 1.5mm; border-bottom: 0.55mm solid var(--x-ink); white-space: nowrap; }
+.pk-sec h2 { margin: 0; font: 5.7mm/1 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
+.pk-sec .x-kicker { font-size: 2.5mm; }
+.pk-sec .pk-pageno { margin-left: auto; font: 500 2.35mm/1 var(--f-label); letter-spacing: 0.1em; color: var(--x-slate); }
 .pk-row { display: flex; justify-content: center; gap: 4mm; align-items: flex-start; }
-.pk-ref-shops { --card-w: 56mm; }
-.pk-ref-guests { --card-w: 56mm; }
-.pk-ref-grid { flex: 1; display: grid; grid-template-columns: repeat(4, 44mm); gap: 4mm 3.3mm; justify-content: center; align-content: space-evenly; --card-w: 44mm; }
+.pk-ref-shops { --card-w: 54mm; }
+.pk-ref-guests { --card-w: 54mm; }
+/* customers: 3 across and 4 down, each tile as tall as its row, so the twelve fill the page evenly */
+.pk-ref-grid { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: repeat(3, var(--card-w)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm 8mm; justify-content: center; --card-w: 53mm; }
 .pk-ref.x-card { height: auto; }
-.pk-ref .x-tc-pic { flex: none; aspect-ratio: 400 / 383; min-height: 0; }
+.pk-ref .x-tc-pic { flex: 1 1 0; min-height: 0; }
 .pk-ref .x-tc-order { display: none; }
-.pk-ref .x-tc-quirk { min-height: 3.3em; display: flex; align-items: center; justify-content: center; }
-.pk-legend { margin: auto 0 0; padding: 2.4mm 3mm; border: 0.4mm solid var(--x-ink); display: flex; gap: 5mm; justify-content: center; flex-wrap: wrap; font: 500 2.9mm/1.3 var(--f-label); letter-spacing: 0.05em; }
+.pk-ref .x-tc-quirk { min-height: 2.55em; display: flex; align-items: center; justify-content: center; }
+.pk-legend { margin: auto 0 0; padding: 2.2mm 3mm; border: 0.4mm solid var(--x-ink); display: flex; gap: 5mm; justify-content: center; flex-wrap: wrap; font: 500 2.6mm/1.3 var(--f-label); letter-spacing: 0.05em; }
 .pk-legend b { font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; }
 .pk-legend .p { color: var(--x-red); } .pk-legend .e { color: var(--x-green); } .pk-legend .g { color: var(--x-ink); }
 .pk-interim { margin: 0; font: italic 3mm/1.3 var(--f-serif); color: var(--x-red); text-align: center; }
@@ -252,9 +282,10 @@ const list = (xs: (string | number)[]) => (xs.length < 2 ? xs.join('') : `${xs.s
 interface Cell { html: string; bleed: string; label: string }
 interface Page { html: string; factory?: boolean }
 
-/** Customer and guest cards for print: the app's Trading Card plus one order circle per unit wanted (RULES.md). */
-function tradingCard(who: string, wants: Want[], guest = false): string {
-  const html = toStaticHtml(h(TradingCard, { who, wants, guest, eager: true }));
+/** Customer and guest cards for print: the app's Trading Card plus one order circle per unit wanted (RULES.md).
+ *  `cls` adds print-only classes (a guest's pk-guest-<event id>, see PRINT_CSS). */
+function tradingCard(who: string, wants: Want[], guest = false, cls?: string): string {
+  const html = toStaticHtml(h(TradingCard, { who, wants, guest, eager: true, class: cls }));
   let i = 0;
   const out = html.replace(/<\/li>/g, () => {
     const w = wants[i++];
@@ -277,13 +308,13 @@ const customerBack = (c: CustomerCard, i: number): Cell => ({
 });
 
 const guestFront = ({ guest, event }: (typeof GUESTS)[number]): Cell => ({
-  html: tradingCard(guest.name, guest.wants, true), bleed: INK, label: `${lookOf(guest.name).title} · guest of ${event.title}`,
+  html: tradingCard(guest.name, guest.wants, true, `pk-guest-${event.id}`), bleed: INK, label: `${lookOf(guest.name).title} · guest of ${event.title}`,
 });
 const backShell = (cls: string, kind: string, plate: string) => `<article class="x-card x-tb pk-back ${cls}" role="img" aria-label="${esc(kind)} card back"><div class="x-tb-label"><b class="x-tb-brand">Fruit Market</b><span class="x-tb-kind">${esc(kind)}</span><div class="x-tb-plate">${plate}</div></div></article>`;
 const guestBack: Cell = { html: backShell('pk-back-guest', 'Special guest', 'Comes with<br>its event'), bleed: 'var(--x-mustard-d)', label: 'Special guests' };
 
 const shopFront = (r: (typeof RIVALS)[number]): Cell => ({
-  html: toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true })), bleed: INK, label: `Shopkeeper · ${r.name}`,
+  html: toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true, class: 'pk-shop' })), bleed: INK, label: `Shopkeeper · ${r.name}`,
 });
 const shopBack: Cell = {
   html: `<article class="x-card x-ss pk-ssb"><header class="x-ss-head"><strong class="x-ss-name">Fruit Market</strong><small class="x-ss-tag">Fresh fruit · Fair prices</small></header>`
@@ -292,7 +323,9 @@ const shopBack: Cell = {
   bleed: INK, label: 'Shopkeepers',
 };
 
-const eventFront = (e: EventCard): Cell => ({ html: toStaticHtml(h(Gazette, { event: e, eager: true })), bleed: PAPER, label: `Event · ${e.title}` });
+const eventFront = (e: EventCard): Cell => ({
+  html: toStaticHtml(h(Gazette, { event: e, eager: true, class: `pk-ev pk-ev-${e.id}` })), bleed: PAPER, label: `Event · ${e.title}`,
+});
 const eventBack: Cell = {
   html: `<article class="x-card x-gz pk-gzb"><header class="x-gz-mast">The Exchange Gazette</header><div class="x-gz-ed"><span>Morning edition · One cent</span><span>Fruit Market</span></div>`
     + `<strong class="x-gz-head">Tomorrow’s news</strong><p class="x-gz-sub">Read all about it, a day early</p>`
@@ -414,8 +447,8 @@ const legend = `<p class="pk-legend">${(['premium', 'everyday', 'bargain'] as co
   `<span class="${p[0]}"><b>${PREF_INFO[p].title} shopper:</b> ${esc(PREF_INFO[p].text)}</span>`).join('')}</p>`;
 
 function referencePages(): Page[] {
-  const shops = RIVALS.map((r) => toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true })));
-  const guests = GUESTS.map(({ guest }) => tradingCard(guest.name, guest.wants, true));
+  const shops = RIVALS.map((r) => toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true, class: 'pk-shop' })));
+  const guests = GUESTS.map(({ guest, event }) => tradingCard(guest.name, guest.wants, true, `pk-guest-${event.id}`));
   const first = `<section class="pg pk-a4">${secHead('Shopkeepers · The Stall Sign', 'Who’s who · Art 2 “Over the counter”', 'Reference 1 of 4')}`
     + `<div class="pk-row pk-ref-shops">${shops.slice(0, 3).join('')}</div><div class="pk-row pk-ref-shops">${shops.slice(3).join('')}</div>`
     + `${secHead('Special guests', 'Each comes with its event', '')}`
