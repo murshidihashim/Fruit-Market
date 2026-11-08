@@ -193,7 +193,7 @@
     },
     {
       "version": "1.8.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-049"
       ],
@@ -204,8 +204,8 @@
         "No rules change: you can still play online with 1.7.0"
       ],
       "date": "2026-11-07",
-      "commit": "",
-      "tagged": false
+      "commit": "df61983",
+      "tagged": true
     }
   ]
 }

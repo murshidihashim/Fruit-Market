@@ -3,12 +3,12 @@
 Updated 2026-11-07 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
 ## Latest (2026-11-07)
-- **Live:** 1.7.0, rules version 9 (commit `0d653b2`). **Release 1.8.0 (The Great Fruit Exchange) is a candidate**: being merged to `main` for the preview, then Deploy LIVE game, per the owner's "push it after everything passes".
+- **Live:** 1.8.0, The Great Fruit Exchange (commit `df61983`, tag `v1.8.0`, published 2026-11-07 by Deploy LIVE game run 23; live smoke test PASS). Rules version 9, unchanged.
 - **Built and verified (PLAN-049, DEC-066):** the owner's deck art (events Art 1, shopkeepers Art 2, customers Art 3) across the app and a new print kit (`print/kit/`); approved names (DEC-064, DEC-065); fonts and colours from the art. Checks: `npm run verify` PASS (233 tests), `npm run test:e2e` PASS (solo, performance budget, online with 0 leaks, quick match, four players, rejoin), 45 names checked.
 - **Art gaps (no owner art yet):** special guests use their event scene; favour, delivery and upgrade cards are type-only; worn looks show as pixel pins; the lorry, coin, favour and perk icons stay pixel art. The customer card back is a new design the owner has not seen on its own.
-- **Follow-ups:** four print-kit layout issues (Gazette picture height, Stall Sign chalkboard height, Character Reference tile size, Influencer flag over the "$12" tag); RULES.md worked example uses $6 for Professor Pebble but his card says $5; online names "Uncle Benny", "Ah Chen" and "Kiki" are not reserved (anti-abuse change needs a plan); desktop chips are 32-36 px tall with a mouse.
+- **Follow-ups:** print kit: the Gym Club and Hotel Chef guest flags still cover part of their borrowed pictures; RULES.md worked example uses $6 for Professor Pebble but his card says $5; online names "Uncle Benny", "Ah Chen" and "Kiki" are not reserved (anti-abuse change needs a plan); desktop chips are 32-36 px tall with a mouse.
 - **Found earlier, not fixed (REP-087 §11):** card-order backs make 9 customers unique; online leak check does not test name, type or generous flag on face-down walk-ins; likely bug: a rival's favour is announced as "Priority!" online.
-- **Checkpoint:** branch `ccr-d9f10c6d-75280w`; approvals: PLAN-049 and publishing 1.8.0 once checks pass; next step: preview check, Deploy LIVE game, then mark 1.8.0 published.
+- **Checkpoint:** branch `ccr-d9f10c6d-75280w` merged to `main`; PLAN-049 released; print-kit layout fixes done (print only). Next: the owner checks 1.8.0 on a phone; follow-ups above need the owner's choices.
 
 ## Earlier: 2026-10-29 (history, superseded by the section above)
 - **1.2.0 was live then** (main `f5f9390`, tag v1.2.0, smoke test passed). The live game and the preview are the same build until the next change. Rules version 6.

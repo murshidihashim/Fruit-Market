@@ -1655,7 +1655,7 @@
         "evidence": "okay now incorporate the designs from the pdf attachhed with over the counter (shopkeeper), scene (events) and at work (customers) as my artstyle/design that i want, incorporate this in the workflow ure on now. Your task is to implement these designs throughout the existing Fruit Market game, ensuring a cohesive experience across the tabletop and digital versions. ... IMPORTANT: You are authorised to implement the approved designs immediately. Do not ask for further approval unless a decision is genuinely necessary to proceed. Start implementation now. The objective is a working, visually updated Fruit Market game, not another design proposal. (Attachments: Fruit-Market-Deck-Art-1.pdf, -2.pdf, -3.pdf)",
         "date": "2026-11-07"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-049",
       "reviewTrigger": "Owner checks the preview on a phone, and a printed test sheet."
@@ -2245,6 +2245,10 @@
     {
       "at": "2026-11-07 15:33",
       "text": "PLAN-049 built and verified on the branch: npm run verify PASS (233 tests), npm run test:e2e PASS (solo, performance budget, online with 0 leaks, quick match, four players, rejoin), all 45 names checked. Release 1.8.0 prepared as a candidate (version bump, player notes). Next, per the owner's \"push it after everything passes\": merge to main (preview), check the preview, then Deploy LIVE game."
+    },
+    {
+      "at": "2026-11-07 17:00",
+      "text": "Release 1.8.0 published (The Great Fruit Exchange). CI on main df61983 PASS (verify:full) and preview updated with its smoke test PASS; Deploy LIVE game run 23 started by Claude under the owner's \"push it after everything passes\": verify, release check, deploy, live smoke test PASS; tag v1.8.0. The preview could not be opened from the sandbox (host blocked), so the visual preview check is NOT RUN; the same build passed local visual QA and the browser tests. Print-kit layout fixes (print-only) follow on the branch: four fixes PASS on an independent render check."
     }
   ]
 }
