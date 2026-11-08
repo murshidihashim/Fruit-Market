@@ -113,23 +113,26 @@
 .x-tb.x-compact .x-tb-kind { display: none; }
 
 /* ---------- Stall Sign (shopkeeper, Art 2 "Over the counter") ---------- */
+/* Fixed zones on all six: the header (6.5 ce) and the chalkboard (10.3 ce, room for the longest special, Rosa's
+   three lines; one line on a compact sign), so every scene is the same size. */
 .x-ss {
   gap: 0.85em; padding: 1em; border: 0.3em solid var(--x-ink); border-radius: 1.3em;
   background: repeating-linear-gradient(180deg, var(--x-wood) 0 1.8em, var(--x-wood-grain) 1.8em 2em);
   box-shadow: 0.45em 0.45em 0 var(--x-shadow);
 }
 .x-ss-head {
-  flex: none; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 0.75em; align-items: center;
+  flex: none; height: 6.5em; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; column-gap: 0.75em; align-items: center;
   padding: 0.5em 0.6em; background: var(--x-card); border: 0.25em solid var(--x-ink); border-radius: 0.7em;
 }
 .x-ss .x-ss-badge { grid-row: 1 / 3; width: 5em; height: 5em; border-radius: 50%; border: 0.25em solid var(--x-ink); overflow: hidden; }
 .x-ss-name { align-self: end; font: 3.3em/1.05 var(--f-script); color: var(--x-red); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 0.1em; }
 .x-ss-name.x-long { font-size: 2.45em; }
 .x-ss-tag { align-self: start; font: 600 0.8em/1.3 var(--f-label); letter-spacing: 0.17em; text-transform: uppercase; color: var(--x-ink); white-space: nowrap; }
-.x-ss-scene { position: relative; flex: 1 1 0; min-height: 9em; border: 0.25em solid var(--x-ink); border-radius: 0.45em; overflow: hidden; background: var(--x-paper); }
+.x-ss-scene { position: relative; flex: 1 1 0; min-height: 0; border: 0.25em solid var(--x-ink); border-radius: 0.45em; overflow: hidden; background: var(--x-paper); }
 .x-ss-scene .x-art { position: absolute; inset: 0; object-position: 50% 75%; }
 .x-ss-chalk {
-  flex: none; padding: 0.55em 0.8em 0.65em; text-align: center; color: var(--x-paper); font-family: var(--f-chalk);
+  flex: none; height: 10.3em; display: flex; flex-direction: column; justify-content: center;
+  padding: 0.55em 0.8em 0.65em; text-align: center; color: var(--x-paper); font-family: var(--f-chalk);
   background: var(--x-chalk); border: 0.4em solid var(--x-wood-d); border-radius: 0.35em; box-shadow: inset 0 0 1.1em -0.3em var(--x-ink);
 }
 .x-ss-chalk b { display: block; font-size: 1.85em; font-weight: 700; line-height: 1.1; }
@@ -143,40 +146,63 @@
   background: var(--x-card); border: 0.18em solid var(--x-red); border-radius: 0.2em; color: var(--x-red);
   font: 1.35em/1.15 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* compact: header, scene and the special's title; the name fills the header's height (no tagline) */
 .x-ss.x-compact { gap: 0.7em; padding: 0.8em; }
-.x-ss.x-compact .x-ss-scene { flex: none; aspect-ratio: 4 / 3; min-height: 0; }
+.x-ss.x-compact .x-ss-name { grid-row: 1 / 3; align-self: center; }
+.x-ss.x-compact .x-ss-scene { flex: none; aspect-ratio: 4 / 3; }
+/* one line; min-height (not height) so a screen that sets its own type size (the character pick on phones) still fits */
+.x-ss.x-compact .x-ss-chalk { height: auto; min-height: 4.1em; }
 .x-ss.x-compact .x-ss-chalk b { font-size: 1.9em; }
 
 /* ---------- Gazette (event, Art 1 "The scene") ---------- */
+/* Fixed zones on all thirteen front pages: the headline block (headline and subhead, centred in room for three
+   lines), the picture (11 ce tall), a two-line caption and the story box. --x-focus says where a picture is cropped
+   (0% keeps the top, 100% the bottom), to keep the price tags and signs in view. */
 .x-gz { background: var(--x-paper); border: 0.12em solid var(--x-edge); padding: 0.9em 1.2em 1em; }
 .x-gz-mast { flex: none; padding-bottom: 0.12em; border-bottom: 0.17em double var(--x-ink); font: 1.85em/1.1 var(--f-headline); text-align: center; color: var(--x-ink); }
 .x-gz-ed {
   flex: none; display: flex; justify-content: space-between; gap: 0.5em; padding: 0.45em 0 0.4em; border-bottom: 0.12em solid var(--x-ink);
   font: 600 0.78em/1.2 var(--f-label); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap;
 }
-/* headline: font 2.45ce; leaves room for the seal */
-.x-gz-head { flex: none; display: block; margin-top: 0.16em; padding-right: 2.3em; font: 2.45em/0.98 var(--f-headline); text-transform: uppercase; color: var(--x-ink); }
-.x-gz-sub { flex: none; margin: 0.1em 0 0.4em; padding-right: 3.9em; font: italic 1.25em/1.12 var(--f-serif); color: var(--x-red); }
-/* seal: font 1.35ce, 5.8ce across; red rim, navy ring, red middle */
+/* headline block: room for three lines, top-aligned; the seal floats in its corner and the words wrap round it */
+.x-gz-top { flex: none; display: flow-root; height: 6.7em; }
+/* seal: font 1.35ce, 5.3ce across; red rim, navy ring, red middle. It overlaps the edition line and the card's
+   right edge a little, as in the deck art. */
 .x-gz-seal {
-  position: absolute; top: 3.45em; right: -0.2em; z-index: 1; width: 4.3em; height: 4.3em; border-radius: 50%;
+  position: relative; z-index: 1; float: right; width: 3.95em; height: 3.95em; margin: -0.42em -1.05em 0 0.2em; border-radius: 50%;
+  shape-outside: circle(50%); shape-margin: 0.12em;
   display: grid; place-items: center; background: var(--x-red); color: var(--x-card);
   box-shadow: inset 0 0 0 0.2em var(--x-red), inset 0 0 0 0.36em var(--x-ink);
   font: 1.35em/1 var(--f-display); transform: rotate(13deg);
 }
-.x-gz-pic { flex: 1 1 0; min-height: 8em; display: flex; flex-direction: column; }
-.x-gz-pic .x-art { flex: 1 1 0; min-height: 0; height: auto; border: 0.2em solid var(--x-ink); object-position: 50% 50%; }
-.x-gz-pic figcaption { flex: none; margin-top: 0.3em; font: italic 0.92em/1.2 var(--f-serif); color: var(--x-slate); }
-.x-gz-body { flex: none; display: flow-root; margin-top: 0.5em; }
+.x-gz-head { display: block; font: 2.45em/0.98 var(--f-headline); text-transform: uppercase; color: var(--x-ink); }
+.x-gz-sub { margin-top: 0.12em; font: italic 1.25em/1.12 var(--f-serif); color: var(--x-red); }
+.x-gz-pic { flex: none; display: flex; flex-direction: column; }
+.x-gz-pic .x-art { flex: none; height: 11em; border: 0.2em solid var(--x-ink); object-position: 50% var(--x-focus, 50%); }
+.x-gz-pic figcaption { flex: none; height: 2.4em; margin-top: 0.3em; font: italic 0.92em/1.2 var(--f-serif); color: var(--x-slate); }
+.x-gz-body { flex: 1 1 0; min-height: 0; display: flow-root; margin-top: 0.4em; }
 .x-gz-fx { float: right; width: 9.6em; margin: 0.15em 0 0.25em 0.7em; padding: 0.45em 0.5em 0.4em; border: 0.15em solid var(--x-ink); }
 .x-gz-fx li { padding-left: 0.95em; text-indent: -0.95em; font: 600 0.9em/1.25 var(--f-label); letter-spacing: 0.05em; text-transform: uppercase; color: var(--x-ink); }
 .x-gz-fx li::before { content: '\25B8'; display: inline-block; width: 0.95em; text-indent: 0; font-size: 0.8em; }
-.x-gz-text { font: 1.12em/1.27 var(--f-serif); color: var(--x-ink); }
+/* the story is set at 1ce (about 7 pt in print) so the longest one fits the story box */
+.x-gz-text { font: 1em/1.27 var(--f-serif); color: var(--x-ink); }
 .x-gz-text::first-letter { float: left; margin: 0.04em 0.08em 0 0; font: 2.75em/0.82 var(--f-headline); color: var(--x-red); }
+.x-ev-festival { --x-focus: 60%; }
+.x-ev-glut { --x-focus: 28%; }
+.x-ev-heatwave { --x-focus: 62%; }
+.x-ev-hotel { --x-focus: 40%; }
+.x-ev-inspector { --x-focus: 30%; }
+.x-ev-mangoCraze { --x-focus: 30%; }
+.x-ev-priceHike { --x-focus: 45%; }
+.x-ev-strike { --x-focus: 90%; }
+.x-ev-superfood { --x-focus: 30%; }
+/* compact: masthead, a two-line headline block, the whole picture and an effects box two lines tall (three or four
+   effects go in two columns) */
 .x-gz.x-compact .x-gz-mast { font-size: 1.6em; }
-.x-gz.x-compact .x-gz-head { margin-top: 0.3em; margin-bottom: 0.2em; }
-.x-gz.x-compact .x-gz-seal { top: 1.85em; }
-.x-gz.x-compact .x-gz-pic { flex: none; min-height: 0; }
-.x-gz.x-compact .x-gz-pic .x-art { flex: none; aspect-ratio: 4 / 3; }
-.x-gz.x-compact .x-gz-fx { float: none; width: auto; margin: 0; }
-.x-gz.x-compact .x-gz-fx li { font-size: 1.3em; }
+.x-gz.x-compact .x-gz-top { height: 5.6em; margin-top: 0.3em; }
+.x-gz.x-compact .x-gz-seal { margin-top: -0.5em; }
+.x-gz.x-compact .x-gz-pic .x-art { height: auto; aspect-ratio: 4 / 3; }
+.x-gz.x-compact .x-gz-body { flex: none; margin-top: 0.5em; }
+.x-gz.x-compact .x-gz-fx { float: none; width: auto; height: 4.45em; margin: 0; display: grid; align-content: center; column-gap: 0.8em; }
+.x-gz.x-compact .x-gz-fx:is(.x-n3, .x-n4) { grid-template-columns: repeat(2, max-content); justify-content: space-between; }
+.x-gz.x-compact .x-gz-fx li { font-size: 1.3em; white-space: nowrap; }

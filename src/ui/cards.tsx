@@ -152,9 +152,11 @@ export function Gazette({ event, n, compact, eager, class: cls }: { event: Event
     <article class={cx('x-card', 'x-gz', `x-ev-${event.id}`, compact && 'x-compact', cls)}>
       <header class="x-gz-mast">Fruit Market</header>
       {!compact && <div class="x-gz-ed"><span>Morning edition · One cent</span><span>{`No. ${two(num)}`}</span></div>}
-      <strong class="x-gz-head">{event.title}</strong>
-      {!compact && <p class="x-gz-sub">{g.subhead}</p>}
-      <b class="x-gz-seal" aria-hidden="true">Extra!</b>
+      <div class="x-gz-top">
+        <b class="x-gz-seal" aria-hidden="true">Extra!</b>
+        <strong class="x-gz-head">{event.title}</strong>
+        {!compact && <p class="x-gz-sub">{g.subhead}</p>}
+      </div>
       <figure class="x-gz-pic">
         <CardArt src={eventArt(event.id)} alt={event.title} w={w} h={h} eager={eager} />
         {!compact && <figcaption>{g.caption}</figcaption>}

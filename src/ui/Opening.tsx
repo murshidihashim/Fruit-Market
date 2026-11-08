@@ -1,27 +1,75 @@
 // The market opening (PLAN-029, DEC-047): a short scene played when the game is opened, drawn with the deck-art
 // pieces (DEC-066): the Exchange Gazette masthead drops in, three Stall Signs go up, fruit lands on the counter
 // and the bell rings. Decoration only: tap anywhere to skip, and it ends on its own after about 2.5 seconds.
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit } from './art';
 import { StallSign } from './cards';
 import { C } from './palette';
 
-const LENGTH_MS = 2600;
+// Timing (DEC-048: about 2 to 3 seconds). The home screen is drawn underneath from the start, so its pictures and
+// fonts load during the scene. The scene waits (briefly) for its own pictures and fonts before it plays, so nothing
+// pops in half way, and hands over with a short cross-fade once the home screen's pictures and fonts are ready.
+const LENGTH_MS = 2600; // the scene, from the masthead to the bell
+const REDUCED_MS = 800; // reduced motion: the finished scene, shown still
+const FADE_MS = 280; // the cross-fade into the home screen (CSS .op-leave)
+const START_WAIT_MS = 1200; // longest wait for the scene's own pictures and fonts on a slow connection
+const HOME_WAIT_MS = 1500; // longest extra wait for the home screen's pictures and fonts after the scene
 const SIGNS = RIVALS.slice(0, 3).map((r) => r.avatar);
 
+const fit = () => Math.min(window.innerWidth / 390, window.innerHeight / 560);
+
+/** Waits until the fonts have loaded and these pictures are decoded, or `ms` has passed, whichever is first.
+ *  A picture that fails to load is shown as it is (its failure is not an error here, so it is ignored). */
+function settled(pics: HTMLImageElement[], ms: number): Promise<void> {
+  const fonts = document.fonts ? document.fonts.ready.then(() => undefined, () => undefined) : Promise.resolve();
+  const decoded = pics.map((p) => (p.decode ? p.decode().catch(() => undefined) : Promise.resolve()));
+  return Promise.race([Promise.all([fonts, ...decoded]).then(() => undefined), new Promise<void>((r) => setTimeout(r, ms))]);
+}
+
+/** The pictures on screen outside the opening (the home screen's stall sign and badge, or whatever screen is under it). */
+function picturesUnder(opening: HTMLElement): HTMLImageElement[] {
+  return [...document.images].filter((p) => {
+    if (opening.contains(p)) return false;
+    const r = p.getBoundingClientRect();
+    return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+  });
+}
+
 export function Opening({ onDone }: { onDone: () => void }) {
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(fit);
+  // Waiting: sky only, the scene paused until its pictures and fonts are in. Out: the cross-fade to the home screen.
+  const [playing, setPlaying] = useState(false);
+  const [out, setOut] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const leaving = useRef(false);
+  const done = useRef(onDone);
+  done.current = onDone;
+  const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const timers = useRef<number[]>([]);
+  const later = (f: () => void, ms: number) => { timers.current.push(window.setTimeout(f, ms)); };
+  // Hand over to the home screen: a short cross-fade, or straight away with reduced motion.
+  const leave = () => {
+    if (leaving.current) return;
+    leaving.current = true;
+    if (reduced) { done.current(); return; }
+    setOut(true);
+    later(() => done.current(), FADE_MS);
+  };
   useEffect(() => {
-    const fit = () => setScale(Math.min(window.innerWidth / 390, window.innerHeight / 560));
-    fit();
-    window.addEventListener('resize', fit);
-    const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const t = setTimeout(onDone, reduced ? 800 : LENGTH_MS);
-    return () => { window.removeEventListener('resize', fit); clearTimeout(t); };
+    const resize = () => setScale(fit());
+    window.addEventListener('resize', resize);
+    let live = true;
+    const el = root.current!;
+    void settled([...el.querySelectorAll('img')], START_WAIT_MS).then(() => {
+      if (!live || leaving.current) return;
+      setPlaying(true);
+      later(() => { void settled(picturesUnder(el), HOME_WAIT_MS).then(() => { if (live) leave(); }); }, reduced ? REDUCED_MS : LENGTH_MS);
+    });
+    return () => { live = false; window.removeEventListener('resize', resize); timers.current.forEach((t) => clearTimeout(t)); };
   }, []);
   return (
-    <div class="op opx" onClick={onDone} role="presentation">
+    <div ref={root} class={`op opx${playing ? '' : ' op-wait'}${out ? ' op-leave' : ''}`} onClick={leave} role="presentation">
       <div class="op-stage" style={{ transform: `scale(${scale})` }} aria-hidden="true">
         <div class="opx-sky" />
         <div class="opx-counter" />

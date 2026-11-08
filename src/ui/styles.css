@@ -997,7 +997,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 body { background: var(--x-cream); }
 
 /* ---------- PLAN-029: the market opening (design approved, DEC-047) ---------- */
-.op { position: absolute; inset: 0; z-index: 60; background: var(--c-cfe7d8); display: grid; place-items: center; overflow: hidden; cursor: pointer; animation: fade 0.2s; }
+.op { position: absolute; inset: 0; z-index: 60; background: var(--c-cfe7d8); display: grid; place-items: center; overflow: hidden; cursor: pointer; }
 .op-stage { position: relative; width: 390px; height: 560px; flex: none; transform-origin: center; }
 .op-stage::before { content: ''; position: absolute; left: -600px; right: -600px; top: -900px; height: 900px; background: var(--c-cfe7d8); }
 .op-sky { position: absolute; left: 0; top: 0; width: 100%; height: 300px; }
