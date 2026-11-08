@@ -245,6 +245,15 @@ export const C = {
   xRedTint: '#f2d2c2',
   xMustardTint: '#f2dc9e',
   xMist: '#aab4c8',
+  // The Market square home and its opening (DEC-071, DEC-072): sunburst, cobbles, stall backs, the last two awnings.
+  xSunburst: '#e8b23e',
+  xCobble: '#dcc79e',
+  xCobbleDark: '#d0b98c',
+  xStallBack: '#e9dcc0',
+  xWoodLight: '#c98a4f',
+  xFig: '#7b4a8c',
+  xTeal: '#3e8f8c',
+  xSignCream: '#f3d9a4',
   // Great Fruit Exchange icons and worn regalia (DEC-069, PLAN-053): engraved brass, note-green and wax.
   xBrass: '#d4a238',
   xBrassLight: '#e6c56a',

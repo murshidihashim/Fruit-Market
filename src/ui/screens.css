@@ -137,71 +137,11 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .char-pick .char-perk b { font: 700 1.3rem/1.1 var(--f-chalk); color: var(--x-mustard); }
 .char-pick .char-perk span { font: 600 1.1rem/1.2 var(--f-chalk); }
 
-/* ---------- home: the cover ---------- */
-.home .cover-top { border-bottom: 3px solid var(--x-ink); }
-.cover { position: relative; max-width: 480px; margin: 0 auto; padding: 16px 16px 52px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.cover-title {
-  width: min(100%, 340px); padding: 10px 14px 12px; text-align: center;
-  background: var(--x-paper); border: 3px solid var(--x-ink); border-radius: var(--r); box-shadow: 0 4px 0 var(--x-ink);
-}
-.cover-title .x-kicker { display: block; font-size: 0.72rem; }
-.home .cover-title h1 {
-  margin: 2px 0 4px; padding-bottom: 6px; border-bottom: 3px double var(--x-ink);
-  font: 400 clamp(2.1rem, 11vw, 2.9rem)/0.95 var(--f-display); color: var(--x-ink); text-transform: uppercase; text-shadow: none; letter-spacing: 0.01em;
-}
-.home .cover-title p { margin: 0; font: italic 0.85rem/1.35 var(--f-serif); color: var(--x-slate); }
-.home .cover-title p.hm-secret { color: var(--x-red-d); }
-.cover-sign { position: relative; --card-w: 11.5rem; margin-top: 14px; }
-.cover-hook::before, .cover-hook::after { content: ''; position: absolute; top: -18px; width: 3px; height: 20px; background: var(--x-ink); }
-.cover-hook::before { left: 22%; }
-.cover-hook::after { right: 22%; }
-.cover-sign .x-card { box-shadow: 0.45em 0.45em 0 var(--x-ink-2); }
-.cover-worn { position: absolute; right: -14px; top: 6px; z-index: 2; }
-.cover-worn .xf { box-shadow: 0 0 0 2px var(--x-ink), 0 0 0 4px var(--x-paper); }
-.cover-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.cover-btns button {
-  min-height: 44px; padding: 0 16px; border: 3px solid var(--x-ink); border-radius: 999px; box-shadow: 0 3px 0 var(--x-ink); cursor: pointer;
-  font: 600 0.9rem/1 var(--f-label); letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; color: var(--x-ink); background: var(--x-paper);
-}
-.cover-btns .cover-dress { background: var(--x-mustard); }
-.cover-btns button:active { transform: translateY(3px); box-shadow: none; }
-.cover-btns button:focus-visible { outline: 3px solid var(--x-green); outline-offset: 3px; }
+/* ---------- home: the Market square and its opening live in square.css ---------- */
 
 /* ---------- wardrobe ---------- */
 .wd-counter .xf { box-shadow: 0 0 0 3px var(--x-ink); }
 .wd-tile .wd-wear { display: block; width: 52px; height: 76px; padding-top: 6px; }
 
-/* ---------- opening (Opening.tsx) ---------- */
-.opx-sky {
-  position: absolute; left: -600px; right: -600px; top: -900px; height: 1300px;
-  background: var(--x-sky) repeating-conic-gradient(from 0deg at 50% 88%, var(--x-sky) 0 8deg, var(--x-sky-d) 8deg 16deg);
-}
-.opx-counter {
-  position: absolute; left: -600px; right: -600px; top: 400px; bottom: -900px; border-top: 3px solid var(--x-ink);
-  background: repeating-linear-gradient(180deg, var(--x-wood) 0 18px, var(--x-wood-grain) 18px 20px);
-}
-/* The masthead drops in with a transform (not `top`), so the drop runs off the main thread and never re-lays out the page. */
-.opx-mast {
-  position: absolute; left: 50%; top: 34px; width: 300px; padding: 8px 12px 6px; transform: translate(-50%, -144px); text-align: center;
-  background: var(--x-paper); border: 3px solid var(--x-ink); box-shadow: 0 4px 0 var(--x-ink);
-  animation: opx-drop 0.4s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
-}
-.opx-mast b { display: block; padding-bottom: 4px; border-bottom: 3px double var(--x-ink); font: 400 1.6rem/1.1 var(--f-headline); color: var(--x-ink); }
-.opx-mast span { display: block; padding-top: 4px; font: 600 0.7rem/1.2 var(--f-label); letter-spacing: calc(0.14em * var(--ls, 1)); text-transform: uppercase; color: var(--x-red-d); }
-@keyframes opx-drop { to { transform: translate(-50%, 0); } }
-.opx-sign { position: absolute; top: 236px; --card-w: 112px; opacity: 0; animation: op-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
-.opx-s0 { left: 13px; animation-delay: 0.4s; }
-.opx-s1 { left: 139px; animation-delay: 0.5s; }
-.opx-s2 { left: 265px; animation-delay: 0.6s; }
-.op-stage .op-fl { top: 506px; } /* lands on the counter (op-toss ends 92px higher) */
-/* The hand-over to the home screen (Opening.tsx). The home screen is drawn underneath from the start, so the opening is
-   opaque from its first frame and never shows it through; the scene fades in from the page colour, waits paused
-   (op-wait) until its pictures and fonts are in, and cross-fades into the home screen (op-leave). Opacity and
-   transform only, so the fades run off the main thread. */
-.op.opx { background: var(--x-cream); }
-.opx .op-stage { animation: fade 0.25s ease-out both; }
-.opx.op-wait .op-stage * { animation-play-state: paused; }
-.opx.op-wait .opx-mast { visibility: hidden; } /* on tall screens its starting place is on screen: show it only once it drops */
-.op.opx.op-leave { animation: opx-out 0.28s ease-in-out forwards; }
+/* ---------- opening (Opening.tsx, square.css): the overlay's fade out ---------- */
 @keyframes opx-out { to { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .opx .op-stage, .op.opx.op-leave { animation: none; } }

@@ -2,6 +2,7 @@
 @import './exchange.css';
 @import './cards.css';
 @import './screens.css';
+@import './square.css';
 /* The app's one font (DEC-068): Rubik. Weights carry the hierarchy: 800 for titles, prices and names, 500-600 for
    labels and buttons, 400 for sentences. Two aliases pin a weight whatever a rule asks for:
    'Rubik Display' is always 800 (titles, prices, names); 'Rubik Strong' is 600, or 800 when bold is asked for.

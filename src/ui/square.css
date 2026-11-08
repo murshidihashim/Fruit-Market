@@ -1,0 +1,239 @@
+/* =====================================================================
+   The Market square home (DEC-071) and its opening, "Lorry arrives" with the "Unloading" button area (DEC-072).
+   Home.tsx draws the screen; Opening.tsx plays the opening on it by putting "sq-intro" on <html> (and "sq-hold"
+   while it waits for its pictures and fonts). Every animation here moves with transform and opacity only, and each
+   one ends exactly where the home screen sits, so the opening hands over without a jump.
+   Imported before the body of styles.css: rules start with ".home.front.sq" (three classes) so they beat the older home rules there.
+   ===================================================================== */
+:root {
+  --sq-sun: var(--c-e8b23e);       /* sunburst rays */
+  --sq-cobble: var(--c-dcc79e);    /* road and square */
+  --sq-cobble-d: var(--c-d0b98c);  /* cobble stones */
+  --sq-sign-cream: var(--c-f3d9a4);
+  --sq-dots: color-mix(in srgb, var(--x-ink) 13%, transparent);
+}
+
+.home.front.sq {
+  position: relative; min-height: 100%; display: flex; flex-direction: column; overflow-x: hidden; color: var(--x-ink); color-scheme: light;
+  background:
+    radial-gradient(var(--sq-dots) 0.9px, transparent 1.3px) 0 0 / 5px 5px,
+    repeating-conic-gradient(from -90deg at 50% 34%, var(--sq-sun) 0 7deg, var(--x-mustard) 7deg 14deg);
+}
+
+/* ---------- the top: tags, rail with bunting, the hanging title sign ---------- */
+.home.front.sq .sq-head { flex: none; padding-top: env(safe-area-inset-top); position: relative; z-index: 3; }
+/* Nothing in here is drawn above the safe area (the sign swings in the opening). */
+.home.front.sq .sq-hang { position: relative; clip-path: polygon(-50% 0, 150% 0, 150% 400%, -50% 400%); }
+.home.front.sq .sq-tags {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 6px max(14px, env(safe-area-inset-right)) 4px max(14px, env(safe-area-inset-left));
+}
+.home.front.sq .sq-tag {
+  min-height: 40px; max-width: 48%; padding: 0 14px; border: 2.5px solid var(--x-ink); border-radius: 20px; box-shadow: 0 3px 0 var(--x-ink);
+  background: var(--x-paper); color: var(--x-ink); font: 700 0.8125rem/1.1 var(--f-label); letter-spacing: 0; text-transform: none; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.home.front.sq .sq-tag.cover-dress { margin-left: auto; background: var(--x-mustard); }
+.home.front.sq .sq-tag:active { transform: translateY(3px); box-shadow: none; }
+.home.front.sq .sq-tag:focus-visible, .home.front.sq .sq-b:focus-visible { outline: 3px solid var(--x-ink); outline-offset: 3px; }
+.home.front.sq .sq-sign { position: relative; padding-top: 40px; }
+.home.front.sq .sq-bunting { position: absolute; left: 0; top: 0; width: 100%; height: 34px; overflow: visible; }
+.home.front.sq .sq-plank {
+  position: relative; width: min(286px, calc(100% - 52px)); margin: 0 auto 6px; padding: 6px;
+  background: var(--x-wood); border: 3px solid var(--x-ink); border-radius: 6px; box-shadow: 0 4px 0 var(--x-ink-2);
+  transform-origin: 50% -30px;
+}
+/* the two ropes it hangs from */
+.home.front.sq .sq-plank::before, .home.front.sq .sq-plank::after { content: ''; position: absolute; top: -27px; height: 25px; border-left: 3px dashed var(--x-ink); }
+.home.front.sq .sq-plank::before { left: 22%; }
+.home.front.sq .sq-plank::after { right: 22%; }
+.home.front.sq .sq-board { padding: 4px 8px 6px; background: var(--x-red-d); border: 2.4px solid var(--x-ink); border-radius: 3px; text-align: center; }
+.home.front.sq .sq-board h1 {
+  margin: 0; font: 800 2rem/1 var(--f-display); color: var(--x-paper); letter-spacing: 0.01em; text-transform: none; white-space: nowrap;
+  text-shadow: 0 2px 0 var(--x-ink);
+}
+.home.front.sq .sq-board p { margin: 3px 0 0; font: 600 0.72rem/1.15 var(--f-label); color: var(--x-paper); letter-spacing: 0; text-transform: none; }
+.home.front.sq .sq-board p.hm-secret { margin-top: 1px; color: var(--sq-sign-cream); font-style: normal; }
+
+/* ---------- the street ---------- */
+.home.front.sq .sq-scene { position: relative; flex: 1 0 150px; z-index: 1; }
+.home.front.sq .sq-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* ---------- the menu: painted signboards on the cobbles ---------- */
+.home.front.sq .sq-menu {
+  position: relative; z-index: 2; flex: none; width: 100%; max-width: none; margin: 0; gap: 10px;
+  padding: 12px max(16px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: var(--sq-cobble) radial-gradient(ellipse 15px 7px at 50% 50%, var(--sq-cobble-d) 60%, transparent 64%) 0 0 / 34px 18px;
+  border-top: 3px solid var(--x-ink);
+}
+.home.front.sq .sq-menu > * { width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; }
+.home.front.sq .sq-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.home.front.sq .sq-new { grid-column: 1 / -1; }
+.home.front.sq .sq-grid:not(.has-cont) .sq-friend { grid-column: 1 / -1; }
+.home.front.sq .front-tile, .home.front.sq .front-continue {
+  position: relative; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 9px;
+  min-height: 56px; margin: 0; padding: 8px 10px 8px 14px; text-align: left;
+  background: var(--x-paper); color: var(--x-ink); border: 3px solid var(--x-ink); border-radius: 6px; box-shadow: 0 4px 0 var(--x-ink);
+  font: 800 1.125rem/1.1 var(--f-pixel); letter-spacing: 0; text-transform: none; cursor: pointer;
+}
+/* two nails in the top corners of each board */
+.home.front.sq .front-tile::before, .home.front.sq .front-tile::after, .home.front.sq .front-continue::before, .home.front.sq .front-continue::after {
+  content: ''; position: absolute; top: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--x-ink); opacity: 0.85;
+}
+.home.front.sq .front-tile::before, .home.front.sq .front-continue::before { left: 5px; }
+.home.front.sq .front-tile::after, .home.front.sq .front-continue::after { right: 5px; }
+.home.front.sq .front-tile > span, .home.front.sq .front-continue > span { min-width: 0; }
+.home.front.sq .front-tile small, .home.front.sq .front-continue small {
+  display: block; margin-top: 3px; font: 500 0.75rem/1.25 var(--f-serif); color: var(--x-slate); letter-spacing: 0;
+}
+.home.front.sq .sq-ic { flex: none; }
+.home.front.sq .front-tile.pri { justify-content: center; min-height: 58px; background: var(--x-red); color: var(--x-paper); font: 800 1.625rem/1 var(--f-display); text-shadow: 0 2px 0 var(--x-red-d); }
+.home.front.sq .front-tile.tl { background: var(--x-green); color: var(--x-paper); }
+.home.front.sq .front-continue { background: var(--x-mustard); }
+.home.front.sq .front-continue small { color: var(--x-ink); }
+.home.front.sq .sq-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.home.front.sq .sq-grid:not(.has-cont) .sq-friend { justify-content: center; }
+.home.front.sq .sq-foot { display: flex; gap: 8px; justify-content: stretch; }
+.home.front.sq .sq-foot button {
+  flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 6px; border: 2.5px solid var(--x-ink); border-radius: 4px; box-shadow: 0 3px 0 var(--x-ink);
+  background: var(--x-wood-d) repeating-linear-gradient(0deg, transparent 0 13px, color-mix(in srgb, var(--x-ink) 22%, transparent) 13px 15px);
+  color: var(--x-paper); font: 700 0.875rem/1.1 var(--f-label); letter-spacing: 0; text-transform: none; text-decoration: none; cursor: pointer;
+}
+.home.front.sq .front-tile:active, .home.front.sq .front-continue:active, .home.front.sq .sq-foot button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--x-ink); }
+.home.front.sq .save-notice { font-size: 0.8rem; padding: 6px 10px; }
+.home.front.sq .daily-peek {
+  flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; padding: 6px 10px;
+  background: var(--x-chalk); color: var(--x-paper); border: 2.5px solid var(--x-ink); border-radius: 4px; font-size: 0.78rem; line-height: 1.25;
+}
+.home.front.sq .daily-peek small { flex-basis: 100%; color: var(--x-mustard); font-weight: 600; }
+.home.front.sq .daily-peek b { color: var(--x-mustard); }
+
+/* small phones: everything a little tighter, so the street keeps its room */
+@media (max-height: 700px), (max-width: 370px) {
+  .home.front.sq .sq-tags { padding-top: 4px; padding-bottom: 2px; }
+  .home.front.sq .sq-sign { padding-top: 34px; }
+  .home.front.sq .sq-board h1 { font-size: 1.75rem; }
+  .home.front.sq .sq-board p { font-size: 0.68rem; }
+  .home.front.sq .sq-menu { gap: 8px; padding-top: 10px; }
+  .home.front.sq .sq-grid { gap: 8px; }
+  .home.front.sq .front-tile, .home.front.sq .front-continue { min-height: 50px; font-size: 1.0625rem; padding-top: 6px; padding-bottom: 6px; }
+  .home.front.sq .front-tile.pri { min-height: 52px; font-size: 1.5rem; }
+  .home.front.sq .front-tile small, .home.front.sq .front-continue small { font-size: 0.7rem; }
+  .home.front.sq .sq-ic { width: 22px; height: 22px; }
+  .home.front.sq .sq-new .sq-ic { width: 26px; height: 26px; }
+}
+
+/* tall phones: roomier boards */
+@media (min-height: 780px) and (max-width: 899px) {
+  .home.front.sq .sq-menu, .home.front.sq .sq-grid { gap: 12px; }
+  .home.front.sq .front-tile, .home.front.sq .front-continue { min-height: 62px; }
+  .home.front.sq .front-tile.pri { min-height: 64px; }
+  .home.front.sq .sq-foot button { min-height: 46px; }
+}
+
+/* ---------- wide screens: six stalls in a row, one row of signboards ---------- */
+.home.front.sq.sq-wide .sq-tags { position: absolute; left: 0; right: 0; top: 34px; z-index: 2; padding: 0 28px; pointer-events: none; }
+.home.front.sq.sq-wide .sq-tag { pointer-events: auto; min-height: 46px; padding: 0 22px; font-size: 1rem; }
+.home.front.sq.sq-wide .sq-sign { padding-top: 44px; }
+.home.front.sq.sq-wide .sq-plank { width: 400px; padding: 8px; }
+.home.front.sq.sq-wide .sq-board h1 { font-size: 3rem; }
+.home.front.sq.sq-wide .sq-board p { font-size: 0.9rem; }
+.home.front.sq.sq-wide .sq-scene { flex-basis: 220px; }
+.home.front.sq.sq-wide .sq-menu { padding: 18px 32px 22px; gap: 14px; }
+.home.front.sq.sq-wide .sq-menu > * { max-width: 1040px; }
+.home.front.sq.sq-wide .sq-grid { grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr)); gap: 14px; }
+.home.front.sq.sq-wide .sq-grid.has-cont { grid-template-columns: 1.45fr repeat(4, minmax(0, 1fr)); }
+.home.front.sq.sq-wide .sq-new, .home.front.sq.sq-wide .sq-grid:not(.has-cont) .sq-friend { grid-column: auto; }
+.home.front.sq.sq-wide .front-tile, .home.front.sq.sq-wide .front-continue { min-height: 96px; font-size: 1.3rem; padding: 12px 12px 10px 16px; }
+.home.front.sq.sq-wide .front-tile.pri { font-size: 2rem; white-space: nowrap; }
+.home.front.sq.sq-wide .front-tile small, .home.front.sq.sq-wide .front-continue small { font-size: 0.8rem; }
+.home.front.sq.sq-wide .sq-foot { max-width: 520px; }
+.home.front.sq.sq-wide .sq-foot button { min-height: 48px; font-size: 1rem; }
+.home.front.sq.sq-wide .daily-peek { max-width: 640px; }
+
+/* =====================================================================
+   The opening (DEC-072): the lorry drives in, fruit is tossed onto each stall, the awnings unroll one by one, the
+   title sign swings down, and crates thrown off the lorry flip open into the signboards (Opening.tsx sets the
+   crate layer and each board's --d, --dx, --dy and --s). About 2.95 s.
+   ===================================================================== */
+.sq-intro .home.front.sq .sq-svg *, .sq-intro .home.front.sq .sq-plank, .sq-intro .home.front.sq .sq-tag { transform-box: fill-box; }
+.sq-hold .home.front.sq *, .sq-hold .op-crates * { animation-play-state: paused !important; }
+.sq-intro .home.front.sq .sq-lmove { animation: sq-lorry-in 1s cubic-bezier(0.2, 0.75, 0.3, 1) both; }
+.sq-intro .home.front.sq .sq-lrock { transform-origin: 0 100%; animation: sq-rock 0.5s 0.82s both; }
+.sq-intro .home.front.sq .sq-lb { animation: lorry-flip 0.24s steps(1) 4; }
+.sq-intro .home.front.sq .sq-marks { animation: fade 0.3s 0.85s both; }
+.sq-intro .home.front.sq .sq-sf { animation: sq-toss 0.6s both; animation-delay: calc(0.95s + var(--i) * 0.09s); }
+.sq-intro .home.front.sq .sq-sa { transform-origin: 50% 0; animation: sq-unroll 0.38s both; animation-delay: calc(1.18s + var(--i) * 0.1s); }
+.sq-intro .home.front.sq .sq-plank { animation: sq-swing 1s 1.75s both; transform-box: border-box; }
+.sq-intro .home.front.sq.sq-wide .sq-plank { animation-name: sq-swing-wide; } /* a wider sign swings less */
+.sq-intro .home.front.sq .sq-pen { animation: sq-up 0.3s both; animation-delay: calc(1.62s + var(--j) * 0.02s); }
+.sq-intro .home.front.sq .sq-rope { animation: fade 0.3s 1.6s both; }
+.sq-intro .home.front.sq .sq-tag { animation: sq-up 0.32s 2.45s ease-out both; }
+.sq-intro .home.front.sq .sq-b { animation: sq-unpack 0.42s cubic-bezier(0.25, 0.7, 0.35, 1) both; animation-delay: var(--d, 2.3s); }
+.sq-intro .home.front.sq .save-notice, .sq-intro .home.front.sq .daily-peek { animation: fade 0.3s 2.5s both; }
+.sq-skip .home.front.sq { animation: fade 0.28s ease-out both; }
+
+@keyframes sq-lorry-in { 0% { transform: translateX(430px); } 78% { transform: translateX(-10px); } 100% { transform: none; } }
+@keyframes sq-rock { 0%, 100% { transform: none; } 35% { transform: rotate(-2.5deg); } 70% { transform: rotate(1deg); } }
+@keyframes sq-toss {
+  0% { transform: translate(var(--fx), var(--fy)) scale(0.4); opacity: 0; } 12% { opacity: 1; }
+  60% { transform: translate(0, -26px) scale(1); } 80% { transform: translate(0, 4px); } 100% { transform: none; opacity: 1; }
+}
+@keyframes sq-unroll { 0% { transform: scaleY(0); } 70% { transform: scaleY(1.12); } 100% { transform: none; } }
+/* swings down from just above its rail: small enough that it stays below the status bar (the clip catches the rest) */
+@keyframes sq-swing {
+  0% { transform: translateY(-26px) rotate(-24deg); opacity: 0; } 15% { opacity: 1; }
+  45% { transform: translateY(0) rotate(10deg); } 65% { transform: rotate(-5deg); } 83% { transform: rotate(2deg); } 100% { transform: none; opacity: 1; }
+}
+@keyframes sq-swing-wide {
+  0% { transform: translateY(-26px) rotate(-10deg); opacity: 0; } 15% { opacity: 1; }
+  45% { transform: translateY(0) rotate(5deg); } 65% { transform: rotate(-2.5deg); } 83% { transform: rotate(1deg); } 100% { transform: none; opacity: 1; }
+}
+@keyframes sq-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes sq-unpack {
+  0% { opacity: 0; transform: perspective(500px) translate(var(--dx, 0), var(--dy, 0)) scale(var(--s, 0.6)) rotateX(90deg); }
+  15% { opacity: 1; }
+  65% { transform: perspective(500px) translateY(-6px) scale(1.04) rotateX(-8deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* the overlay: a cover while the pictures load, the crates, the lorry's shadow and "Tap to skip" */
+.op.op-sq { position: absolute; inset: 0; z-index: 60; display: block; background: transparent; overflow: hidden; cursor: pointer; }
+.op.op-sq .op-cover {
+  position: absolute; inset: 0; background: var(--sq-cobble) linear-gradient(var(--x-mustard), var(--sq-sun)) 0 0 / 100% 55% no-repeat;
+}
+.op.op-sq:not(.op-wait) .op-cover { animation: sq-gone 0.2s ease-out forwards; }
+.op.op-sq .op-skip {
+  position: absolute; left: 50%; right: auto; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 3;
+  padding: 7px 14px; border-radius: 16px; background: color-mix(in srgb, var(--x-ink) 86%, transparent); color: var(--x-paper);
+  font: 700 0.8125rem/1 var(--f-label); white-space: nowrap; pointer-events: none;
+}
+.op.op-sq:not(.op-wait) .op-skip { animation: sq-gone 0.3s 2.6s forwards; }
+.op.op-sq.op-wait .op-skip { visibility: hidden; }
+.op.op-sq.op-leave { animation: opx-out 0.28s ease-in-out forwards; }
+@keyframes sq-gone { to { opacity: 0; } }
+.op-crates { position: absolute; inset: 0; pointer-events: none; }
+.op-crate { position: absolute; transform-origin: 50% 100%; animation: sq-fly 0.46s cubic-bezier(0.35, 0.4, 0.5, 1) both; animation-delay: var(--a); }
+.op-crate img { display: block; width: 100%; height: auto; }
+.op-crate .op-open { transform-origin: 50% 100%; animation: sq-open 0.2s ease-in forwards; animation-delay: var(--o); }
+.op-crate .op-lid {
+  position: absolute; left: -3px; right: -3px; height: 9px; background: var(--x-wood); border: 2.2px solid var(--x-ink);
+  animation: sq-lid 0.35s ease-out forwards; animation-delay: var(--o);
+}
+.op-dust { position: absolute; height: 12px; border-radius: 50%; background: var(--x-paper); opacity: 0; animation: sq-dust 0.45s ease-out both; animation-delay: var(--a); }
+.op-shadow { position: absolute; border-radius: 50%; background: var(--x-ink); opacity: 0.2; }
+.op-shadow.lorry { animation: sq-shadow 1s cubic-bezier(0.2, 0.75, 0.3, 1) both, sq-gone 0.3s 0.9s forwards; }
+.op-shadow.stack { animation: fade 0.3s 0.3s both, sq-gone 0.3s 2.55s forwards; }
+@keyframes sq-fly {
+  0% { transform: translate(var(--cx), var(--cy)) rotate(-50deg) scale(0.55); opacity: 0; } 10% { opacity: 1; }
+  55% { transform: translate(calc(var(--cx) * 0.45), calc(var(--cy) * 0.45 - 90px)) rotate(-18deg) scale(0.9); }
+  82% { transform: translate(0, 4px) scale(1.08, 0.88); } 100% { transform: none; opacity: 1; }
+}
+@keyframes sq-open { 0% { transform: none; opacity: 1; } 45% { transform: scale(1.1, 0.8); } 100% { transform: scale(1.3, 0) translateY(-10px); opacity: 0; } }
+@keyframes sq-lid { 0% { transform: none; opacity: 1; } 100% { transform: translate(var(--lx), -70px) rotate(var(--lr)); opacity: 0; } }
+@keyframes sq-dust { 0% { opacity: 0; transform: scale(0.3); } 30% { opacity: 0.85; } 100% { opacity: 0; transform: scale(1.5) translateY(-8px); } }
+@keyframes sq-shadow { 0% { transform: translateX(var(--sx)); } 78% { transform: translateX(-10px); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sq-intro .home.front.sq *, .op-crates, .op.op-sq .op-skip { animation: none !important; }
+  .op-crates { display: none; }
+}
