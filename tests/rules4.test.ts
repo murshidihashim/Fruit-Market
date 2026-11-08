@@ -2,9 +2,9 @@
 // Market Days and Last Call, open stalls and posted prices, ties, specialities and Market Gossip.
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
-import { EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FRUIT, STREET_PRICE, TRAITS, type FruitId } from '../src/engine/data';
+import { EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FRUIT, JAM_PRICE, STREET_PRICE, TRAITS, type FruitId } from '../src/engine/data';
 import {
-  applyAction, beginBuying, effectiveMax, endBuyTurn, finishReveal, isDraftNight, isMarketDay, newGame, openStall,
+  applyAction, beginBuying, count, effectiveMax, endBuyTurn, finishReveal, isDraftNight, isMarketDay, newGame, openStall,
   playFavour, printedSupply, servingCustomers, submitPrices, walkInsOn,
   type GameConfig, type GameState,
 } from '../src/engine/game';
@@ -117,10 +117,34 @@ describe('Market Days, Last Call and the draft', () => {
   });
 
   it('Last Call: customers pay $1 more on the final day and the jam maker buys leftovers at $1', () => {
-    let s = newGame(ais(2, 3, { days: 8, events: false }));
-    s = autoplay(s);
-    expect(s.phase).toBe('over');
-    expect(s.jam).toHaveLength(2);
+    // Play to the final day's sales, then check the payout: JAM_PRICE for each ripe leftover, nothing for green fruit,
+    // and nothing at all when Closing Day is switched off.
+    const finalSales = (seed: number, extra: Partial<GameConfig>) => {
+      let g = newGame(ais(2, seed, { days: 8, events: false, ...extra }));
+      while (!(g.phase === 'reveal' && g.day === g.config.days)) g = autoplay(g, 1);
+      g = structuredClone(g);
+      g.players[0].stock.mango[FRUIT.mango.ripe.length] += 2; // two green mangoes: the jam maker doesn't buy them
+      return g;
+    };
+    let paid = 0;
+    let leftOff = 0;
+    for (let seed = 1; seed <= 6; seed++) {
+      const s = finalSales(seed, {});
+      const ripe = s.players.map((p) => count(p.stock, undefined, true));
+      const end = finishReveal(s);
+      expect(end.phase).toBe('over');
+      expect(end.jam).toEqual(ripe.map((n) => n * JAM_PRICE));
+      end.players.forEach((p, i) => expect(p.cash - s.players[i].cash).toBe(ripe[i] * JAM_PRICE));
+      paid += ripe.reduce((a, b) => a + b, 0);
+      const off = finalSales(seed, { marketDays: false });
+      const offEnd = finishReveal(off);
+      expect(offEnd.jam).toBeUndefined();
+      offEnd.players.forEach((p, i) => expect(p.cash).toBe(off.players[i].cash));
+      leftOff += off.players.reduce((a, p) => a + count(p.stock, undefined, true), 0);
+    }
+    // The games really had ripe leftovers, so the checks above were not empty.
+    expect(paid).toBeGreaterThan(0);
+    expect(leftOff).toBeGreaterThan(0);
     const t = newGame(humans(2, 3, { days: 8 }));
     t.day = 8;
     expect(effectiveMax(t, { fruit: 'apple', qty: 1, max: 8 })).toBe(9);

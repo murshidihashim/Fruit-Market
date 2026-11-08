@@ -1,12 +1,12 @@
 // Computer shopkeepers. They only use public information: market, customers, everyone's shelves,
 // the backs of face-down walk-ins, and (rules 4) what each shop has put out for sale once stalls open.
-// A walk-in's front is used only when this shop has heard Market Gossip about it.
+// A walk-in's front is used only when this shop has seen the card (Market Gossip or Scout).
 // Each call to aiStep does one action, so the UI can animate them one at a time.
 
-import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JUICE_TIP, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
+import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_TIP, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, minPrice,
+  capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, servingCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   type Customer, type GameState, type Level, type Post, type Stall, type Stock,
 } from './game';
@@ -101,7 +101,8 @@ function scarceTomorrow(s: GameState, f: FruitId): boolean {
   return !!s.nextFarmer && printedSupply(s.nextFarmer, f, s.players.length) <= s.players.length;
 }
 
-function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine: number): number {
+/** What one piece is worth to this shop; `cost` is what it would pay for it (0 for a free one). */
+function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine: number, cost: number): number {
   const pl = s.players[p];
   const stage = stageAt(f, pos);
   const daysLeft = s.config.days - s.day; // days after today
@@ -136,6 +137,12 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
     const mod = (s.nextEvent.priceAll ?? 0) + (s.nextEvent.price?.[f] ?? 0);
     later += HARD.eventAware * mod * 0.5;
   }
+  // Closing Day: ripe fruit that doesn't sell goes to the jam maker. Counted only for a piece that costs no more than
+  // the jam maker pays (a free one, or one at the jam price), which can't lose money. The sale chance here is a hopeful guess:
+  // counting the jam on dearer pieces made computers buy last-day fruit that mostly went for jam at a loss (PLAN-051
+  // balance run). It also needs someone today to want this fruit at this freshness (all of the final day's buyers
+  // are known by now), so it never props up the guess made with no buyers.
+  if (planner && daysLeft === 0 && isLastCall(s) && qty > 0 && cost <= JAM_PRICE) later = Math.max(later, JAM_PRICE * (1 - pSell));
   // Health Inspector tomorrow morning: fruit that turns tired overnight costs $2 before anyone can sell it.
   if (laterDays > 0 && s.nextEvent?.inspector && pos === 1) later -= s.nextEvent.inspector * (1 - pSell);
   // Fruit that will be scarce tomorrow (few on the next lorry) is worth keeping.
@@ -152,7 +159,7 @@ function pickPurchase(s: GameState, p: number): { f: FruitId; pos: number; score
     for (let pos = 0; pos < s.market[f].length; pos++) {
       if (canBuy(s, p, f, pos)) continue;
       const cost = buyCost(s, p, f, pos);
-      let score = fruitValue(s, p, f, pos, 0) - cost;
+      let score = fruitValue(s, p, f, pos, 0, cost) - cost;
       if (lv === 'easy') score += (rand(s, p, f.length * 13 + pos) - 0.5) * 6;
       if (!best || score > best.score) best = { f, pos, score };
     }
@@ -170,7 +177,7 @@ export function buyPhaseFavour(s: GameState, p: number): GameState | null {
       let best: { f: FruitId; pos: number; v: number } | null = null;
       for (const f of FRUITS) for (let pos = 0; pos < s.market[f].length; pos++) {
         if (!s.market[f][pos]) continue;
-        const v = fruitValue(s, p, f, pos, 0);
+        const v = fruitValue(s, p, f, pos, 0, 0);
         if (!best || v > best.v) best = { f, pos, v };
       }
       if (best) return playFavour(s, p, i, { fruit: best.f, pos: best.pos });
@@ -193,45 +200,67 @@ function units(stock: Stock, f: FruitId, n: number): number[] {
   return out;
 }
 
-interface Seller { player: number; price: number; pos: number[] }
+/**
+ * One stall in the planner's model of the rush: its price, the positions of the ripe fruit on its shelf (oldest first),
+ * how many it put out (`left`), and whether it is known to win ties with Favoured Trade (`ft`).
+ */
+export interface Seller { player: number; price: number; pos: number[]; left: number; ft?: boolean }
+
+/** A stall for the planner's model: its whole ripe shelf, of which it sells at most `n` (its crate). */
+export function seller(s: GameState, player: number, f: FruitId, price: number, n: number, ft = false): Seller {
+  const pos = units(s.players[player].stock, f, Infinity);
+  return { player, price, pos, left: Math.min(n, pos.length), ft };
+}
 
 /**
- * Expected sales for one shop at price q, by running the day's queue for one fruit: cheapest stall first,
- * leftover demand spilling to the next; each stall hands over its oldest fruit fresh enough for the customer.
- * On a tie at the same price the units are shared in proportion.
+ * Expected sales for one shop (`me`), by running the day's queue for one fruit the way the rush does: cheapest stall
+ * first, leftover demand spilling to the next; each stall hands over its oldest fruit fresh enough for the customer,
+ * from its whole shelf, up to the number in its crate. Ties follow the rules: Favoured Trade, then the Haggler, then
+ * the fresher fruit handed over, then today's buying order. Traits and the buying order are public; Favoured Trade
+ * counts only where the planner knows it (`ft`), because rivals' favour cards are secret. Exported for tests.
  */
-function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Seller[]): number {
+export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Seller[]): number {
   const lines = servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ qty: w.qty, max: effectiveMax(s, w, c.generous), pref: c.pref })));
   const pools = [me, ...rivals].map((x) => ({ ...x, pos: [...x.pos] }));
+  const haggler = (x: Seller) => Number(s.players[x.player].trait === 'haggler');
+  const orderIdx = (x: Seller) => s.order.indexOf(x.player);
   let sold = 0;
   for (const l of lines) {
+    // Each stall's offer: the pieces it would hand over (indexes into its shelf, oldest first) and the freshest of them.
+    const offers: { x: Seller; used: number[]; fresh: number }[] = [];
+    for (const x of pools) {
+      const used: number[] = [];
+      const pl = s.players[x.player];
+      for (let k = 0; k < x.pos.length && used.length < Math.min(x.left, l.qty); k++) {
+        const i = x.pos[k];
+        if (capFor(pl, f, i, l.max) >= x.price && acceptsStage(l.pref, stageAt(f, i))) used.push(k);
+      }
+      if (used.length) offers.push({ x, used, fresh: x.pos[used[used.length - 1]] });
+    }
+    offers.sort((a, b) => a.x.price - b.x.price || Number(!!b.x.ft) - Number(!!a.x.ft) || haggler(b.x) - haggler(a.x)
+      || b.fresh - a.fresh || orderIdx(a.x) - orderIdx(b.x));
     let need = l.qty;
-    const prices = [...new Set(pools.map((x) => x.price))].sort((a, b) => a - b);
-    for (const price of prices) {
+    for (const o of offers) {
       if (need <= 0) break;
-      const at = pools.filter((x) => x.price === price);
-      const elig = at.map((x) => x.pos.filter((i) => capFor(s.players[x.player], f, i, l.max) >= price && acceptsStage(l.pref, stageAt(f, i))));
-      const total = elig.reduce((a, e) => a + e.length, 0);
-      if (!total) continue;
-      const take = Math.min(need, total);
-      at.forEach((x, k) => {
-        const share = (take * elig[k].length) / total;
-        // Remove that many eligible units (oldest first) from the pool; fractional shares count toward the total.
-        let n = Math.floor(share + 1e-9);
-        for (const i of elig[k]) { if (n <= 0) break; x.pos.splice(x.pos.indexOf(i), 1); n--; }
-        if (x === pools[0]) sold += share;
-      });
-      need -= take;
+      const n = Math.min(need, o.used.length);
+      for (let j = n - 1; j >= 0; j--) o.x.pos.splice(o.used[j], 1);
+      o.x.left -= n;
+      need -= n;
+      if (o.x === pools[0]) sold += n;
     }
   }
   return sold;
 }
 
-/** A rival's likely posted price: the best it could ask the richest customer for this fruit, less a few dollars. */
-function rivalPrice(s: GameState, r: number, f: FruitId, k: number, lv: Level): number {
+/**
+ * A rival's likely posted price (for shop `p`): the best it could ask the richest customer for this fruit, less a few
+ * dollars. A Haggler wins ties against a shop without the Haggler, so it often doesn't undercut at all.
+ */
+function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: number, lv: Level): number {
   const top = Math.max(0, ...servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(s.players[r].stock, f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
   const rl = s.players[r].kind === 'human' ? 'normal' : level(s, r);
-  const cut = lv === 'normal' ? [1, 1, 2, 2][k] : rl === 'easy' ? [0, 1, 1, 1][k] : rl === 'normal' ? [1, 2, 2, 3][k] : [2, 2, 3, 3][k];
+  const haggler = s.players[r].trait === 'haggler' && s.players[p].trait !== 'haggler';
+  const cut = lv === 'normal' ? (haggler ? [0, 1, 2, 2] : [1, 1, 2, 2])[k] : rl === 'easy' ? [0, 1, 1, 1][k] : rl === 'normal' ? [1, 2, 2, 3][k] : [2, 2, 3, 3][k];
   return Math.max(minPrice(s, f), top - cut);
 }
 
@@ -253,24 +282,31 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
     const price = Math.max(floor, topCap - Math.floor(rand(s, p, FRUITS.indexOf(f) * 17) * 4));
     return { price, sold: mine.length };
   }
-  // Value of a fruit kept for tomorrow (none if it rots tonight or the game ends).
-  let keep = lastDay ? 0 : (lv === 'hard' ? HARD.keep : 0.3) * topCap;
-  if (keep > 0 && scarceTomorrow(s, f)) keep = Math.max(keep, 0.45 * topCap);
+  // Value of a fruit that doesn't sell today: kept for tomorrow (none if it rots tonight), or on the final day what the
+  // jam maker pays for it on Closing Day (every ripe piece, including the ones that would have rotted tonight).
+  const jam = lastDay && isLastCall(s) ? JAM_PRICE : 0;
+  let keep = lastDay ? jam : (lv === 'hard' ? HARD.keep : 0.3) * topCap;
+  if (!lastDay && keep > 0 && scarceTomorrow(s, f)) keep = Math.max(keep, 0.45 * topCap);
   const lastUnits = mine.filter((i) => i === 0).length; // these rot tonight
+  // A computer shop holding Favoured Trade plays it whenever a fruit is contested (planPrices), so it knows it wins ties.
+  // A person decides for themselves, so their suggested price assumes they don't; a rival's cards are secret.
+  const ft = depth === 0 && (pl.favouredTrade || (pl.kind === 'ai' && pl.favours.includes('favouredTrade')));
   // A Hard shop predicts each rival's own best response (one step deeper) and prices against that, give or take $1.
   const predicted = lv === 'hard' && depth === 0
     ? Object.fromEntries(rivals.map((r) => [r, bestPost(s, r, f, rivalUnits(r), (i) => (i === r ? 0 : i === p ? myUnits : rivalUnits(i)), 1).price]))
     : null;
-  const priceOf = (r: number, k: number) => (predicted ? Math.max(minPrice(s, f), predicted[r] + [-1, 0, 0, 1][k]) : rivalPrice(s, r, f, k, lv));
+  const priceOf = (r: number, k: number) => (predicted ? Math.max(minPrice(s, f), predicted[r] + [-1, 0, 0, 1][k]) : rivalPrice(s, p, r, f, k, lv));
+  const myStall = seller(s, p, f, floor, mine.length, ft);
+  const rivalStalls = rivals.map((r) => seller(s, r, f, floor, rivalUnits(r)));
   let best = { price: topCap, ev: -Infinity, sold: 0 };
   for (let q = floor; q <= topCap; q++) {
     let ev = 0;
     let soldSum = 0;
     for (const k of [0, 1, 2, 3]) {
-      const rs: Seller[] = rivals.map((r) => ({ player: r, price: priceOf(r, k), pos: units(s.players[r].stock, f, rivalUnits(r)) }));
-      const sold = simulateSales(s, f, { player: p, price: q, pos: mine }, rs);
+      const rs = rivalStalls.map((x) => ({ ...x, price: priceOf(x.player, k) }));
+      const sold = simulateSales(s, f, { ...myStall, price: q }, rs);
       const unsold = Math.max(0, mine.length - sold);
-      const keptValue = Math.max(0, unsold - lastUnits) * keep;
+      const keptValue = lastDay ? unsold * jam : Math.max(0, unsold - lastUnits) * keep;
       ev += q * sold + keptValue;
       soldSum += sold;
     }
