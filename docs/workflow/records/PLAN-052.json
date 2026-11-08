@@ -1,0 +1,62 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-068"
+  ],
+  "changes": {
+    "added": [
+      "A customer pop-up at the rush: each stall's offer is dealt around the customer and flipped"
+    ],
+    "changed": [
+      "One font (Rubik) across the game screens"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "One clear, friendly font across the game",
+    "Watch each customer choose between the stalls at the rush"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "rubik and option 3 for animation",
+    "date": "2026-11-08"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-052",
+  "title": "Rubik game font and the 'Round the table' rush pop-up",
+  "problem": "Fonts on the game screens are mixed (six faces), and the rush does not show clearly what each stall offered each customer.",
+  "scope": [
+    "Rubik on every game screen, menu and panel (app only)",
+    "Rush pop-up: customer card to the middle, stall offers dealt face down around it, flip together, fruit from winners, card back with a tick; auto-advance about 2 s, tap to speed up, existing Skip still works",
+    "Phone and desktop; reduced-motion version",
+    "Tests, performance budget, screenshots"
+  ],
+  "exclusions": [
+    "Printed card kit lettering",
+    "Rules, prices, balance",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. performance budget and online 0 leaks pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "No page scroll at 360x740, 390x844, 1280x800",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

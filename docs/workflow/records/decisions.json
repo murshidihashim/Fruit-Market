@@ -1684,6 +1684,31 @@
       ],
       "reviewTrigger": "If the owner picks Juice Bar option A or B, or declines package B.",
       "plan": "PLAN-051"
+    },
+    {
+      "id": "DEC-068",
+      "title": "One game font (Rubik) and a 'Round the table' customer pop-up at the rush",
+      "question": "Which font should the game screens use, and how should each customer be served at the rush?",
+      "choice": "Rubik is the single font on the game screens (weights for titles, prices, labels and sentences); printed cards keep their artwork lettering. At the rush, each customer's card moves to the middle of the screen, each stall's offer is dealt face down around it, all flip together, then fruit slides in from the stalls that sold and the card returns to its row with a tick (option 3, 'Round the table'). Each customer moves on by itself after about 2 seconds; a tap speeds it up (recommended default; the owner did not choose a pace). No rules change.",
+      "rationale": "Owner choice from the mockup (artifact P6xX6hwRJnfH8sARFuL8QB): six font options with one or two fonts each, three animated pop-up options.",
+      "impact": {
+        "player": "One consistent font; a clearer rush showing every stall's offer to each customer.",
+        "technical": "@fontsource/rubik added in place of the in-game use of five other faces; new rush pop-up replacing the Showdown panel; performance budget must hold.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "rubik and option 3 for animation",
+        "date": "2026-11-08"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-089"
+      ],
+      "plan": "PLAN-052",
+      "reviewTrigger": "If the owner wants a different pace or the pop-up slows the rush too much."
     }
   ],
   "history": [
@@ -2298,6 +2323,10 @@
     {
       "at": "2026-11-08 19:37",
       "text": "Release 1.9.0 published at the owner's instruction (\"release 1.9.0 and publish it live straight\"): main 2b9692a, Deploy LIVE game run 24 success (verify, release check, deploy, live smoke test), tag v1.9.0. Contains PLAN-050 and PLAN-051. The preview was not checked visually first, at the owner's request."
+    },
+    {
+      "at": "2026-11-08 21:09",
+      "text": "Owner asked to standardise the font and for a customer pop-up at the rush, mocked up first (artifact P6xX6hwRJnfH8sARFuL8QB). Owner chose Rubik (single font) and animation option 3 'Round the table' (DEC-068, PLAN-052). Pace assumed: auto-advance about 2 seconds, tap to speed up."
     }
   ]
 }
