@@ -21,7 +21,11 @@ export function TopBar({ s, viewer, onMenu, onEvent }: { s: GameState; viewer: n
         <button class="icon-btn" onClick={(e) => { e.stopPropagation(); onMenu(); }} aria-label="Menu">☰</button>
         <div class="tb-day">
           <span class="day-label">Day {s.day}<small>/{s.config.days}</small></span>
-          {s.phase !== 'over' && rem <= 3 ? <span class={`left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'FINAL DAY' : `${rem} DAYS LEFT`}</span> : <span class="phase">{PHASE[s.phase]}</span>}
+          {/* The phase word always shows; in the last three days it turns red (the morning card counts the days left),
+              and the last morning says FINAL DAY. */}
+          {s.phase !== 'over' && rem <= 3
+            ? <span class={`left ${rem === 1 ? 'last' : ''}`} title={rem === 1 ? 'Final day' : `${rem} days left`}>{rem === 1 && s.phase === 'morning' ? 'FINAL DAY' : PHASE[s.phase]}</span>
+            : <span class="phase">{PHASE[s.phase]}</span>}
         </div>
         {s.phase !== 'over' ? (
           <button type="button" class="ev-chip" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}

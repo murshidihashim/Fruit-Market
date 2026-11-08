@@ -6,7 +6,8 @@ import { newGame, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { customerArt } from '../src/ui/deckArt';
-import { MyStall, Street, Tomorrow, shelfGroups } from '../src/ui/table';
+import { MyStall, Street, Tomorrow, nameSize, shelfGroups } from '../src/ui/table';
+import { TIPS } from '../src/ui/tutorial';
 
 // The game screen layout the owner approved ("Phone A"): today's customers in one row, a slim Tomorrow strip,
 // the rivals strip, the market in the middle and your shelf docked above the action bar.
@@ -41,6 +42,28 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     expect(html).toContain('>Me<');
     expect(html).toMatch(/Shelf space: 0 of \d+ used/);
     for (const f of FRUITS) expect(html).toContain(`data-a="p0-${f}"`);
+  });
+
+  it('does not repeat "YOU" next to a player called You', () => {
+    const s = game();
+    const you = { ...s, players: s.players.map((pl, i) => (i ? pl : { ...pl, name: 'You' })) };
+    expect(toStaticHtml(h(MyStall, { s: you, p: 0 }))).not.toContain('you-tag');
+    expect(toStaticHtml(h(MyStall, { s, p: 0 }))).toContain('you-tag');
+  });
+
+  it('the first-game tip after a purchase describes the shelf chips as they are now (counts by freshness)', () => {
+    const tip = TIPS.find((t) => t.id === 'bought')!.text;
+    expect(tip).not.toContain('nights it has left');
+    expect(tip).toContain('fresh');
+  });
+});
+
+describe('small customer cards (table.tsx nameSize)', () => {
+  it('longer names get a smaller banner step so they stay on the card', () => {
+    expect(nameSize('Zara Zapp')).toBeUndefined();
+    expect(nameSize('Rockstar Grace')).toBe('nm-m');
+    expect(nameSize('Professor Pebble')).toBeUndefined(); // the card's own x-long step
+    expect(nameSize('Firefighter Osman')).toBe('nm-xl');
   });
 });
 

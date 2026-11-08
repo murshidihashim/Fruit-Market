@@ -1,7 +1,7 @@
 // The card over the market each morning: standing, overnight losses, and today's event as the Exchange Gazette
 // front page (DEC-066), with tomorrow's headline below. Phones get the compact front page plus the event's rule text.
 import { useEffect, useState } from 'preact/hooks';
-import { FRUITS } from '../../../engine/data';
+import { FRUIT, FRUITS } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 import { EventIcon, Fruit } from '../../art';
@@ -11,17 +11,20 @@ import { Icon } from '../../pixel';
 import { NextLorry } from '../../table';
 
 const WIDE = '(min-width: 720px) and (min-height: 700px)';
+/** The three-column desktop table (styles.css, the game screen grid): the only layout whose middle has room for
+ *  the full front page. A tablet in portrait uses the phone layout, so it gets the brief too. */
+const DESK = '(min-width: 900px) and (min-height: 560px)';
 
-/** True on screens with room for the full Gazette front page. */
-function useWide(): boolean {
-  const [wide, setWide] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(WIDE).matches);
+/** True on screens with room for the full Gazette front page (`query`: the table's own test). */
+function useWide(query = WIDE): boolean {
+  const [wide, setWide] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(query).matches);
   useEffect(() => {
     if (typeof matchMedia === 'undefined') return;
-    const m = matchMedia(WIDE);
+    const m = matchMedia(query);
     const on = () => setWide(m.matches);
     m.addEventListener?.('change', on);
     return () => m.removeEventListener?.('change', on);
-  }, []);
+  }, [query]);
   return wide;
 }
 
@@ -32,10 +35,11 @@ function useWide(): boolean {
  */
 export function MorningCard({ s, viewer, lost, table }: { s: GameState; viewer: number; lost: number; table?: boolean }) {
   const wide = useWide();
+  const desk = useWide(DESK);
   const rem = s.config.days - s.day + 1;
   const st = standing(s, viewer);
   const stock = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f].reduce((x, y) => x + y, 0), 0);
-  if (table && !wide) {
+  if (table && !desk) {
     return (
       <div class={`morning-card mc-brief ${rem <= 3 ? 'finale' : ''}`}>
         <div class="mc-top">
@@ -55,7 +59,11 @@ export function MorningCard({ s, viewer, lost, table }: { s: GameState; viewer: 
         ) : (
           <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
         )}
-        {s.event?.maxPrice && <div class="minprices">{FRUITS.map((f) => <span><Fruit id={f} size={16} />up to ${s.event!.maxPrice![f]}</span>)}</div>}
+        {s.event?.maxPrice && (
+          <div class="minprices" aria-label={`Most a stall may charge today: ${FRUITS.map((f) => `${FRUIT[f].plural} $${s.event!.maxPrice![f]}`).join(', ')}`}>
+            {FRUITS.map((f) => <span aria-hidden="true"><Fruit id={f} size={16} />≤${s.event!.maxPrice![f]}</span>)}
+          </div>
+        )}
         {s.event?.inspector && s.dayFines && s.dayFines.some((x) => x > 0) && (
           <p class="mc-fine">{s.players.map((pl, i) => (s.dayFines![i] ? `${i === viewer ? 'You were' : `${pl.name} was`} fined $${s.dayFines![i]}` : '')).filter(Boolean).join(' · ')}</p>
         )}

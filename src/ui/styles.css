@@ -1531,6 +1531,8 @@ b, strong { font-weight: 700; }
 .medal.r2 { background: var(--x-edge); }
 .medal.r3 { background: var(--x-wood-d); color: var(--x-paper); }
 .pod-stats { color: var(--x-slate); }
+/* the results: built upgrades sit apart from the stats text */
+.pod-stats > .icon { margin-left: 4px; vertical-align: -2px; }
 .recap { background: var(--x-paper); border: 2px solid var(--x-ink); }
 .rc-h { font-size: 1rem; }
 .rc-h.good { color: var(--x-green); }
@@ -1664,7 +1666,8 @@ b, strong { font-weight: 700; }
   display: grid; grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
   grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";
-  height: 100%; overflow: hidden;
+  /* clip, not hidden: a focused button near the edge must not scroll the whole table sideways */
+  height: 100%; overflow: hidden; overflow: clip;
 }
 @media (pointer: coarse) { .game.gx { --pz-h: 40px; } }
 .gx > .topbar { grid-area: top; }
@@ -1690,9 +1693,13 @@ b, strong { font-weight: 700; }
 .gx .topbar .tb-day .left.last { color: var(--x-paper); background: var(--x-red-d); padding: 1px 5px; border-radius: 3px; }
 .gx .topbar .ev-chip { flex: 1 1 auto; min-width: 0; max-width: none; min-height: 40px; gap: 6px; padding: 2px 12px 2px 4px; }
 .gx .topbar .ev-chip .xev { border-radius: 50%; }
-.gx .topbar .ev-chip .ev-title { font-size: 0.78rem; }
-.gx .topbar .tb-me { position: relative; flex: none; display: flex; align-items: center; }
-.gx .topbar .tb-me .rank { position: absolute; left: -9px; top: -7px; z-index: 1; padding: 0 5px; font-size: 0.62rem; line-height: 1.5; border-width: 1.5px; }
+.gx .topbar .ev-chip .ev-title {
+  /* a long event name takes two short lines instead of being cut off on a narrow phone */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  white-space: normal; text-overflow: clip; overflow-wrap: normal; font-size: 0.78rem; line-height: 1.05;
+}
+.topbar .tb-me { position: relative; flex: none; display: flex; align-items: center; }
+.topbar .tb-me .rank { position: absolute; left: -9px; top: -7px; z-index: 1; padding: 0 5px; font-size: 0.62rem; line-height: 1.5; border-width: 1.5px; }
 .gx .topbar .hud-cash { min-height: 40px; padding: 3px 12px 3px 7px; }
 
 /* ---------- today's customers and the Tomorrow strip ---------- */
@@ -1703,13 +1710,17 @@ b, strong { font-weight: 700; }
 .gx > .street-wrap::after { display: none; }
 .gx .street.street {
   /* five cards across a phone; more scroll sideways, the last one cut by the edge as a hint */
-  --card-w: clamp(56px, calc((100cqw - 2 * var(--gx-pad) - 4 * 6px) / 5), 92px);
+  --card-w: clamp(56px, calc((100cqw - 2 * var(--gx-pad) - 4 * 6px) / 5), 104px);
   display: flex; align-items: flex-start; gap: 6px; padding: 8px var(--gx-pad) 4px; overflow-x: auto; overflow-y: hidden;
   -webkit-mask-image: none; mask-image: none; transition: none;
 }
 .gx .street > .cust:first-child { margin-left: auto; }
 .gx .street > .cust:last-child { margin-right: auto; }
-.gx .street.many { -webkit-mask-image: linear-gradient(to right, black calc(100% - 20px), transparent); mask-image: linear-gradient(to right, black calc(100% - 20px), transparent); }
+/* more than five: the cards narrow a little so about half of the sixth shows at the edge, a clear hint to swipe */
+.gx .street.many {
+  --card-w: clamp(52px, calc((100cqw - var(--gx-pad) - 5 * 6px) / 5.45), 104px);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 12px), transparent); mask-image: linear-gradient(to right, black calc(100% - 12px), transparent);
+}
 .gx .street .cust.cust { flex: none; width: var(--card-w); min-width: 0; gap: 0; }
 .gx .street .cust > .x-card { box-shadow: 0 2px 0 var(--x-ink); }
 /* Small cards keep the compact card's size (every card the same), with a taller order box and bigger words in it
@@ -1725,7 +1736,10 @@ b, strong { font-weight: 700; }
 .gx .street .x-tc.x-compact .x-tc-order.x-n3 .x-fruit { width: 3.4em; height: 3.4em; }
 .gx .street .x-tc.x-compact .x-tc-order.x-n3 b { font-size: 3.2em; }
 .gx .street .x-tc.x-compact .x-tc-name { --fs: 2.4; }
-.gx .street .x-tc.x-compact .x-tc-name.x-long { --fs: 1.9; }
+.gx .street .x-tc.x-compact .x-tc-name.x-long { --fs: 1.8; }
+/* longer names a step smaller (table.tsx nameSize), so no name runs off the card */
+.gx .street .x-tc.x-compact.nm-m .x-tc-name { --fs: 2.05; }
+.gx .street .x-tc.x-compact.nm-xl .x-tc-name.x-long { --fs: 1.62; }
 .gx .street .x-tb.x-compact .x-tb-label { gap: 1.2em; }
 .gx .street .x-tb.x-compact .x-tb-brand { font-size: 2.4em; }
 .gx .street .x-tb.x-compact .x-tb-fruit { min-height: 7em; padding: 0.8em 1.2em; }
@@ -1733,8 +1747,8 @@ b, strong { font-weight: 700; }
 /* the shopper type and the walk-in tag sit on the card's top edge, over the picture, so they never cover a price */
 .gx .street .cust .pref, .gx .street .cust .cust-tag {
   position: absolute; left: 50%; top: -7px; bottom: auto; z-index: 2; transform: translateX(-50%); margin: 0;
-  max-width: calc(100% + 6px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  padding: 0 4px; font-size: 0.56rem; line-height: 12px;
+  max-width: calc(100% + 8px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 0 3px; font-size: 0.56rem; line-height: 12px; letter-spacing: 0;
 }
 /* the served, waiting, guest and gossip marks stand on the card's right edge, below the tag */
 .gx .street .cust-marks { right: -4px; top: 8px; flex-direction: column; }
@@ -1752,6 +1766,8 @@ b, strong { font-weight: 700; }
 /* a face-down walk-in: the card back's navy and mustard, only the fruit it wants */
 .gx .tm-chip.tm-back { gap: 2px; padding: 1px 9px; background: var(--x-ink); border-color: var(--x-mustard); box-shadow: 0 0 0 1.5px var(--x-ink); cursor: default; }
 @media (pointer: coarse) { .gx button.tm-chip { min-height: 40px; } }
+/* short phones: while you set prices the strip steps aside so four fruits fit (it is back at the bell) */
+@media (max-width: 899px) and (max-height: 780px) { .gx.ph-bid .tomorrow { display: none; } }
 
 /* ---------- the rivals strip: one pill per rival ---------- */
 .gx > .seats { position: relative; z-index: 6; display: flex; gap: 6px; padding: 4px var(--gx-pad); background: var(--x-cream); }
@@ -1771,7 +1787,10 @@ b, strong { font-weight: 700; }
 .gx .seats .rs-line { display: flex; align-items: baseline; gap: 4px; min-width: 0; font: 500 0.68rem/1.15 var(--f-label); color: var(--x-slate); }
 .gx .seats .rs-cash { flex: none; font-weight: 600; color: var(--x-ink); font-variant-numeric: tabular-nums; }
 .gx .seats .rs-note { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.gx .seats .rs-lamp { margin-left: auto; }
+/* phones, in the evening: the lantern sits on the portrait's corner instead of the word "plotting…", so the cash
+   and the name keep their room (the spoken label still says it) */
+.gx .seats .rs-lamp { position: absolute; left: 19px; bottom: -5px; z-index: 1; margin: 0; }
+.gx.ph-evening .seats .rs-note { display: none; }
 .gx .seats .rival-stall.active { box-shadow: 0 0 0 3px var(--x-mustard), 0 2px 0 3px var(--x-ink); }
 .gx .seats .rival-stall.open { box-shadow: 0 0 0 3px var(--x-green), 0 2px 0 3px var(--x-ink); }
 .gx .seats .rival-stall.won { box-shadow: 0 0 0 3px var(--x-mustard), 0 0 14px 3px var(--x-mustard); }
@@ -1796,9 +1815,17 @@ b, strong { font-weight: 700; }
 .gx .market-stall .pz { flex: none; min-height: var(--pz-h); }
 /* every slot the same height, sized so the longest track (--rows slots) fits the space left */
 .gx .market-stall .mk-cell, .gx .market-stall .mk-cell.st-fresh, .gx .market-stall .mk-cell.st-okay, .gx .market-stall .mk-cell.st-notso, .gx .market-stall .mk-cell.st-unripe {
-  flex: none; min-height: 0; height: clamp(26px, calc((100cqh - 6px - var(--pz-h) - var(--rows, 7) * 2px) / var(--rows, 7)), 54px);
+  flex: none; min-height: 0; height: clamp(26px, calc((100cqh - 6px - var(--pz-h) - var(--rows, 7) * 2px) / var(--rows, 7)), 62px);
 }
 .gx .market-stall .mk-key { flex: none; padding: 4px 2px 0; font-size: 0.64rem; }
+/* a short market (a small phone with a full shelf): the empty slots below the lowest fruit step aside so the
+   rest stay big enough to tap (table.tsx --rows-fit; a slot with fruit is never a .tail) */
+@container (max-height: 339px) {
+  .gx .market-stall .mk-cell.tail { display: none; }
+  .gx .market-stall .mk-cell, .gx .market-stall .mk-cell.st-fresh, .gx .market-stall .mk-cell.st-okay, .gx .market-stall .mk-cell.st-notso, .gx .market-stall .mk-cell.st-unripe {
+    height: clamp(26px, calc((100cqh - 6px - var(--pz-h) - var(--rows-fit, 7) * 2px) / var(--rows-fit, 7)), 62px);
+  }
+}
 .gx .market-stall .next-lorry { flex: none; margin-top: 3px; padding: 2px 6px; font-size: 0.68rem; }
 @container market (max-height: 470px) { .gx .market-stall .next-lorry { display: none; } }
 @container market (max-height: 400px) { .gx .market-stall .mk-key { display: none; } }
@@ -1807,7 +1834,7 @@ b, strong { font-weight: 700; }
 /* cards and decisions over the market */
 .gx > .centre > .morning-card, .gx > .centre > .mid-panel {
   position: relative; inset: auto; z-index: 4; align-self: stretch; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  animation: pop 0.2s steps(3);
+  animation: fade 0.2s;
 }
 /* the morning card sits on a plain backdrop (as the old full-screen sheet did), centred, as tall as it needs */
 .gx.ph-morning > .centre.covered::before { content: ''; grid-area: mid; z-index: 4; background: var(--x-cream); }
@@ -1815,13 +1842,43 @@ b, strong { font-weight: 700; }
 .gx > .centre > .auction, .gx > .centre > .sales-card {
   position: relative; inset: auto; z-index: 4; align-self: start; max-height: calc(100% - 12px); overflow-y: auto;
 }
+.gx .mid-evening .evening-panel { gap: 8px; }
+.gx .mid-evening .upgrade-grid { gap: 6px; }
+.gx .mid-evening .up-card { gap: 2px; padding: 6px 6px 8px; }
+.gx .mid-evening .up-card b { font-size: 0.95rem; }
+.gx .mid-evening .up-text { min-height: 0; font-size: 0.72rem; line-height: 1.2; }
+.gx .mid-evening .up-buy { min-height: 40px; padding: 6px 10px; font-size: 0.85rem; }
+/* phones: one upgrade per row (picture, name and text, then the Build button), so every Build button shows */
+@media (max-width: 899px), (max-height: 559px) {
+  .gx .mid-evening .upgrade-grid { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .gx .mid-evening .up-card {
+    display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center;
+    column-gap: 6px; row-gap: 0; padding: 4px 5px 4px 6px; text-align: left;
+  }
+  /* the sprite's size is set inline (40px); the max sizes win over it */
+  .gx .mid-evening .up-card > .icon { grid-row: 1 / 3; justify-self: center; max-width: 26px; max-height: 26px; object-fit: contain; }
+  .gx .mid-evening .up-card b { grid-column: 2; font-size: 0.88rem; line-height: 1.1; }
+  .gx .mid-evening .up-text { grid-column: 2; font-size: 0.68rem; line-height: 1.15; }
+  .gx .mid-evening .up-buy, .gx .mid-evening .up-owned { grid-column: 3; grid-row: 1 / 3; width: auto; white-space: nowrap; }
+  .gx .mid-evening .up-buy { padding: 6px 10px; font-size: 0.78rem; }
+  .gx .mid-evening .owned-row { font-size: 0.78rem; }
+  .gx .mid-evening .owned-row .chip { padding: 1px 8px; font-size: 0.74rem; }
+  .gx .mid-evening .favour-row { gap: 5px; }
+  .gx .mid-evening .favour-card { min-height: 40px; gap: 4px; padding: 2px 12px 2px 6px; }
+  .gx .mid-evening .favour-card .fv-name { font-size: 0.8rem; }
+}
+/* the "crates covered" sign sits high on the covered market, clear of the evening panel at its foot */
+.gx .market-stall .mk-cover { justify-content: flex-start; padding-top: 14%; }
 .gx > .centre > .mid-evening { align-self: end; max-height: calc(100% - 12px); overflow-y: auto; padding: 10px; z-index: 4; background: var(--x-cream); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
-.gx > .centre > .mid-panel.price-panel { gap: 6px; padding: 8px 10px 10px; background: var(--x-cream); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
-.gx .mid-panel .pp-intro b { font-size: 1.05rem; }
+.gx > .centre > .mid-panel.price-panel { gap: 5px; padding: 6px 8px 8px; background: var(--x-cream); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
+.gx .mid-panel .pp-intro b { font-size: 0.98rem; line-height: 1.15; }
 /* phones: the title only (the first-game coach explains the step); desktop shows the sentence */
 .gx .mid-panel .pp-intro span { display: none; font-size: 0.78rem; line-height: 1.3; }
 .gx .mid-panel .info-card.small { padding: 3px 8px; font-size: 0.72rem; line-height: 1.25; }
-.gx .mid-panel .price-card, .gx .mid-panel .price-card.on { flex: none; padding: 5px 8px; transform: none; }
+/* short phones: the panel's title steps aside for a fourth fruit (the top bar says STOCKING or THE BELL, and the
+   button says what it does) */
+@media (max-width: 899px) and (max-height: 760px) { .gx .mid-panel.price-panel > .pp-intro { display: none; } }
+.gx .mid-panel .price-card, .gx .mid-panel .price-card.on { flex: none; padding: 4px 8px; transform: none; }
 .gx .mid-panel .price-card.on { box-shadow: 0 2px 0 var(--x-ink), 0 0 0 2px var(--x-mustard); }
 .gx .mid-panel .pc-top { gap: 7px; }
 .gx .mid-panel .pc-top > .x-fruit { width: 24px; height: 24px; }
@@ -1831,12 +1888,19 @@ b, strong { font-weight: 700; }
 .gx .mid-panel .pc-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gx .mid-panel .pc-who > span { font-size: 0.68rem; line-height: 1.2; }
 .gx .mid-panel .pc-price { flex: none; padding: 0; }
-.gx .mid-panel .pc-price button { width: 40px; height: 44px; font-size: 1.4rem; }
+.gx .mid-panel .pc-price button { width: 40px; height: 40px; font-size: 1.4rem; }
 .gx .mid-panel .pc-num { min-width: 40px; font-size: 1.3rem; }
 .gx .mid-panel .pc-num small { font-size: 0.68rem; }
-.gx .mid-panel .pc-foot { flex-wrap: nowrap; margin-top: 3px; gap: 6px; font-size: 0.68rem; }
-.gx .mid-panel .read { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 8px; font-size: 0.62rem; }
+.gx .mid-panel .pc-foot { flex-wrap: nowrap; margin-top: 2px; gap: 6px; font-size: 0.68rem; line-height: 1.1; }
+.gx .mid-panel .read {
+  /* the tip wraps to a second line rather than being cut off when the rivals' counts take the room */
+  min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal;
+  padding: 1px 8px; border-radius: 8px; font-size: 0.62rem; line-height: 1.2;
+}
+.gx .mid-panel .read .psst { line-height: 1; }
 .gx .mid-panel .rival-caps { flex: none; gap: 6px; }
+/* phones: a rival's face and count ("2"), the word "out" only on a desktop (the tip already says "rival pieces out") */
+.gx .mid-panel .rc-out { display: none; }
 .gx .mid-panel .psst { font-size: 0.95rem; }
 .gx .mid-panel .favour-card.wide { flex: none; min-height: 40px; }
 .gx .mid-panel .stock-line .sl { font-size: 0.68rem; }
@@ -1856,6 +1920,9 @@ b, strong { font-weight: 700; }
 .mc-brief .mc-event b, .mc-brief .mc-event small { margin-top: -4px; text-align: center; }
 .mc-brief .mc-event b { font: 400 1.25rem/1.1 var(--f-headline); color: var(--x-ink); }
 .mc-brief .mc-event small { max-width: 36ch; font: 0.84rem/1.3 var(--f-serif); color: var(--x-ink); }
+.mc-brief .minprices { flex-wrap: nowrap; gap: 6px; margin-top: 0; }
+.mc-brief .minprices span { gap: 2px; padding: 1px 6px; font-size: 0.8rem; white-space: nowrap; }
+.mc-brief .mc-loss { padding: 2px 10px; font-size: 0.8rem; }
 .mc-brief .mc-next { gap: 8px; padding: 4px 10px; font-size: 0.8rem; }
 .mc-brief .mc-next b { font-size: 0.95rem; }
 .mc-brief .next-lorry { margin-top: 0; padding: 4px 8px; font-size: 0.72rem; }
@@ -1867,17 +1934,21 @@ b, strong { font-weight: 700; }
 }
 .gx > .my-stall.dock.active { box-shadow: inset 0 0 0 3px var(--x-mustard); }
 .gx .dock .ms-awning { display: block; height: 4px; width: calc(100% + 2 * var(--gx-pad)); margin: 0 calc(-1 * var(--gx-pad)) 2px; border: 0; border-radius: 0; }
-.gx .dock .ms-head { display: flex; align-items: center; flex-wrap: nowrap; gap: 6px; min-width: 0; min-height: 40px; padding: 0 0 3px; }
+/* one line in the usual case; with many favour cards and upgrades the cards wrap to a second line instead of
+   running off the screen (the name keeps at least a few letters) */
+.gx .dock .ms-head { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 6px; min-width: 0; min-height: 40px; padding: 0 0 3px; }
 .gx .dock .ms-face { flex: none; }
 .gx .dock.has-prop .ms-head { padding-right: 0; }
-.gx .dock .zero-warn { padding: 2px 6px; font-size: 0.66rem; }
-.gx .dock .dk-id { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 5px; }
+.gx .dock .zero-warn { padding: 2px 6px; font-size: 0.66rem; white-space: nowrap; }
+.gx .dock .dk-id { flex: 1 1 64px; min-width: 64px; display: flex; align-items: center; gap: 5px; }
 .gx .dock .ms-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.98rem; }
 .gx .dock .you-tag { flex: none; }
 .gx .dock .ms-head .chip { flex: none; gap: 3px; padding: 2px 8px; font-size: 0.74rem; }
 .gx .dock .dk-space.full { background: var(--hi-bg); }
 .gx .dock .trait-badge, .gx .dock .chip.buys, .gx .dock .ms-prop { display: none; }
 .gx .dock .ms-up { flex: none; display: inline-flex; }
+/* built upgrades stand close together, so three of them take little room */
+.gx .dock .ms-up + .ms-up { margin-left: -4px; }
 .gx .dock .sb-face { min-width: 34px; height: 24px; font-size: 0.85rem; }
 .gx .dock .sb small { display: none; }
 .gx .dock .ms-cards { flex: none; display: flex; gap: 4px; margin: 0; overflow: visible; }
@@ -1892,7 +1963,7 @@ b, strong { font-weight: 700; }
 .gx .dock .dk-f.none .x-fruit { opacity: 0.4; }
 .gx .dock .dk-zero { font: 600 0.72rem/1 var(--f-label); color: var(--x-slate); }
 .gx .dock .stk .ms-cell, .gx .dock .stk .ms-cell.st-fresh, .gx .dock .stk .ms-cell.st-okay, .gx .dock .stk .ms-cell.st-notso, .gx .dock .stk .ms-cell.st-unripe {
-  min-height: 0; height: 20px; gap: 2px; padding: 0 6px; border: 1.5px solid var(--x-ink); border-radius: 999px;
+  min-height: 0; min-width: 20px; height: 20px; justify-content: center; gap: 2px; padding: 0 5px; border: 1.5px solid var(--x-ink); border-radius: 999px;
   font: 600 0.74rem/1 var(--f-label); color: var(--x-ink); box-shadow: none;
 }
 .gx .dock .stk .ms-cell.st-fresh { background: var(--fresh); }
@@ -1920,6 +1991,12 @@ b, strong { font-weight: 700; }
 .gx > .coach, .gx > .coach.top {
   position: relative; grid-area: mid; align-self: end; inset: auto; z-index: 20; width: min(calc(100% - 16px), 420px); margin: 0 auto 8px; transform: none;
 }
+/* phones: a tighter note, so it hides less of the market or the panel it explains */
+@media (max-width: 899px), (max-height: 559px) {
+  .gx > .coach { gap: 2px; padding: 7px 12px 8px; }
+  .gx > .coach b { font-size: 1.2rem; }
+  .gx > .coach span { font-size: 0.86rem; line-height: 1.3; }
+}
 
 /* ---------- desktop: customers | market | rivals, shelf and the main button ---------- */
 @media (min-width: 900px) and (min-height: 560px) {
@@ -1929,9 +2006,12 @@ b, strong { font-weight: 700; }
     grid-template-rows: auto auto minmax(0, 1fr) auto auto;
     grid-template-areas: "top top top" "net net net" "street mid rivals" "street mid dock" "street mid act";
   }
-  .gx > .street-wrap { overflow-x: hidden; overflow-y: auto; padding: 8px 0; border-bottom: 0; border-right: 2px solid var(--x-ink); }
+  /* the column is a size container: the cards shrink to fit its height when the crowd is big (--pairs rows) */
+  .gx > .street-wrap { overflow-x: hidden; overflow-y: auto; padding: 8px 0; border-bottom: 0; border-right: 2px solid var(--x-ink); container-type: size; }
+  .game.gx { --tm-h: 74px; }
+  .game.gx.ph-morning, .game.gx.ph-buy { --tm-h: 0px; }
   .gx .street.street {
-    --card-w: calc((100cqw - 2 * var(--gx-pad) - 10px) / 2);
+    --card-w: min(calc((100cqw - 2 * var(--gx-pad) - 10px) / 2), calc(((100cqh - 32px - var(--tm-h)) / var(--pairs, 3) - 14px) / 1.0675));
     display: grid; grid-template-columns: repeat(2, var(--card-w)); gap: 14px 10px; justify-content: center;
     overflow: visible; padding: 4px var(--gx-pad) 12px; -webkit-mask-image: none; mask-image: none;
   }
@@ -1945,6 +2025,8 @@ b, strong { font-weight: 700; }
   .gx > .seats > .rival-stall.rival-stall { flex: none; min-height: 52px; padding: 4px 10px 4px 4px; gap: 8px; }
   .gx .seats .rs-name { font-size: 0.92rem; }
   .gx .seats .rs-line { font-size: 0.78rem; }
+  .gx .seats .rs-lamp { position: static; margin-left: auto; }
+  .gx.ph-evening .seats .rs-note { display: inline; }
   .gx .seats .sb { position: static; margin-left: auto; }
   .gx .seats .sb small { display: block; max-width: 80px; }
   .gx .seats .sb-face { min-width: 38px; height: 26px; font-size: 0.95rem; }
@@ -1957,7 +2039,7 @@ b, strong { font-weight: 700; }
   .gx .dock .dk-id { flex-basis: calc(100% - 46px); }
   .gx .dock .trait-badge, .gx .dock .chip.buys, .gx .dock .ms-prop { display: inline-flex; }
   .gx .dock .ms-prop { position: static; width: 26px; height: 26px; }
-  .gx .dock .ms-cards { flex-wrap: wrap; }
+  .gx .dock .ms-cards { flex: 1 1 100%; min-width: 0; flex-wrap: wrap; }
   .gx .dock .fcard { width: auto; border-radius: 999px; padding: 0 10px 0 6px; gap: 4px; }
   .gx .dock .fcard small { display: inline; }
   .gx .dock .dk-fruits { grid-template-columns: minmax(0, 1fr); gap: 5px; }
@@ -1979,4 +2061,23 @@ b, strong { font-weight: 700; }
   .gx > .centre > .mid-panel.price-panel, .gx > .centre > .morning-card, .gx > .centre > .auction, .gx > .centre > .sales-card, .gx > .centre > .mid-evening { width: min(100% - 2 * var(--gx-pad), 560px); justify-self: center; }
   .gx .mid-panel .pp-intro span { display: block; }
   .gx > .centre > .mid-panel.price-panel { gap: 8px; padding: 12px 14px; }
+  /* stocking and pricing have room on a desktop: bigger words and buttons */
+  .gx .mid-panel .price-card, .gx .mid-panel .price-card.on { padding: 8px 12px; }
+  .gx .mid-panel .pc-top { gap: 10px; }
+  .gx .mid-panel .pc-top > .x-fruit { width: 32px; height: 32px; }
+  .gx .mid-panel .pc-who b { font-size: 1rem; }
+  .gx .mid-panel .pc-who > span, .gx .mid-panel .stock-line .sl, .gx .mid-panel .buyer-caps .bc { font-size: 0.8rem; }
+  .gx .mid-panel .pc-out { font-size: 0.8rem; }
+  .gx .mid-panel .pc-foot { margin-top: 4px; font-size: 0.76rem; }
+  .gx .mid-panel .read { font-size: 0.7rem; }
+  .gx .mid-panel .rc-out { display: inline; }
+  .gx .mid-panel .pc-price button { width: 44px; height: 44px; }
+  .gx .mid-panel .pc-num { min-width: 48px; font-size: 1.5rem; }
+  .gx .mid-panel .info-card.small { font-size: 0.8rem; }
+  /* your shelf a size bigger: it has the column to itself */
+  .gx .dock .ms-name { font-size: 1.1rem; }
+  .gx .dock .dk-f { min-height: 40px; padding: 4px 10px; gap: 6px; }
+  .gx .dock .dk-f > .x-fruit { width: 24px; height: 24px; }
+  .gx .dock .stk .ms-cell, .gx .dock .stk .ms-cell.st-fresh, .gx .dock .stk .ms-cell.st-okay, .gx .dock .stk .ms-cell.st-notso, .gx .dock .stk .ms-cell.st-unripe { height: 24px; padding: 0 8px; font-size: 0.82rem; }
+  .gx .dock .ms-cell small { font-size: 0.66rem; }
 }

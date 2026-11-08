@@ -46,10 +46,13 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
   lorry?: boolean;
 }) {
   const pz = pulse(s);
-  // Every column's slots are the same height, sized for the longest track (screens.css --rows).
+  // Every column's slots are the same height, sized for the longest track (screens.css --rows). When the market
+  // is short of room (a small phone), the empty slots below the lowest fruit in any column step aside and the
+  // rest grow (--rows-fit, .tail in styles.css): a slot with fruit in it is never hidden.
   const rows = Math.max(...FRUITS.map((f) => s.market[f].length));
+  const fit = Math.max(3, ...FRUITS.map((f) => marketColumn(s, f).reduce((a, x, i) => (x.n > 0 ? i + 1 : a), 0)));
   return (
-    <div class="market-stall" style={{ '--rows': rows }}>
+    <div class="market-stall" style={{ '--rows': rows, '--rows-fit': Math.min(rows, fit) }}>
       <div class="mk-roof" />
       <div class="mk-head">
         <span class="truck" data-a="truck"><Icon name="cart" size={28} /></span>
@@ -68,10 +71,10 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
               <Fruit id={f} size={18} />
               <span class="pz-n"><span><b>{wantText(pz[i])}</b> want</span><span><b>{pz[i].supply}</b> in stalls</span></span>
             </button>
-            {marketColumn(s, f).map(({ pos, stage, n }) => {
+            {marketColumn(s, f).map(({ pos, stage, n }, row) => {
               const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
               return (
-                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
+                <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''} ${row >= fit ? 'tail' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'tired' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
                   {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
@@ -218,7 +221,7 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 
 /** Freshness groups in the order the shelf dock shows them, and the word for each. */
 const SHELF_STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
-export const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' };
+const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' };
 
 /** A shelf's pieces of each fruit counted by freshness (fresh, okay, tired, green), for the shelf dock. */
 export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
@@ -248,7 +251,7 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
       <RoofBand cls="ms-awning" colour={mine || seatColour(p)} roof={stall.roof} trim={stall.trim} />
       <div class="ms-head">
         <span class="ms-face"><Face who={pl.avatar} size={34} worn={partsOf(pl.look)} /></span>
-        <span class="dk-id"><b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span></span>
+        <span class="dk-id"><b class="ms-name">{pl.name}</b>{pl.name.trim().toLowerCase() !== 'you' && <span class="you-tag">YOU</span>}</span>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
         <span class={`chip dk-space ${used >= cap ? 'full' : ''}`} title="Shelf space" aria-label={`Shelf space: ${used} of ${cap} used`}><Icon name="crate" size={14} />{used}/{cap}</span>
         {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={14} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
@@ -318,6 +321,15 @@ export function face(name: string) {
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
+/**
+ * A size step for the name banner on a small card (styles.css .nm-*): the banner is one line, and at five cards
+ * across a phone the longer names would run off the card's edge at the standard size.
+ */
+export function nameSize(name: string): string | undefined {
+  const n = lookOf(name).title.length;
+  return n > 16 ? 'nm-xl' : n > 11 && n <= 14 ? 'nm-m' : undefined;
+}
+
 export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void }) {
   if (kind === 'mystery' || !c) {
     // Face down: only the card's back shows, with the fruit printed on it. No name, type, amount, price or
@@ -341,7 +353,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${marks}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${shown[i].max} each when fresh`}`).join('\n')}`}>
-      <TradingCard who={c.name} wants={shown} compact guest={!!GUEST_EVENT[c.name]} eager />
+      <TradingCard who={c.name} wants={shown} compact guest={!!GUEST_EVENT[c.name]} eager class={nameSize(c.name)} />
       {(done || kind === 'waiting' || special || heard) && (
         <span class="cust-marks">
           {done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}
@@ -364,9 +376,10 @@ export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: nu
     ? <CustomerChar key={c.id} s={s} c={c} kind="today" onTip={onTip} heard />
     : <CustomerChar key={c.id} s={s} c={c} kind="mystery" onPick={onScout ? () => onScout(c.id) : undefined} />;
   const n = s.secondMarket.length + s.firstMarket.length + (before ? 1 + (extra ? 1 : 0) + s.queue.length : 0);
-  // Five cards fit across a phone; with more, the row scrolls sideways and fades at the edge as a hint.
+  // Five cards fit across a phone; with more, the row scrolls sideways and the next card shows cut off at the edge
+  // as a hint. On a desktop the cards stand two by two in the left column (--pairs rows), sized to fit its height.
   return (
-    <div class={`street ${n > 5 ? 'many' : ''}`} aria-label="Today's customers">
+    <div class={`street ${n > 5 ? 'many' : ''}`} style={{ '--pairs': Math.max(1, Math.ceil(n / 2)) }} aria-label="Today's customers">
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
       {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}

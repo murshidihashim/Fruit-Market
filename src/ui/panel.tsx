@@ -123,7 +123,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
           const rivals = rivalOut.reduce((a, r) => a + r.n, 0);
           const read = !want ? { cls: 'war', t: 'Nobody here wants these today' }
             : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
-              : rivals + out <= want ? { cls: 'ok', t: `Enough buyers for everyone (${rivals + out} out for ${want})` }
+              : rivals + out <= want ? { cls: 'ok', t: `Enough buyers: ${rivals + out} out for ${want}` }
                 : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
           const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref)));
           return (
@@ -135,7 +135,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
                   {lines.length ? (
                     <span class="buyer-caps" aria-label={`They pay for yours: ${lines.map((x) => `${lookOf(x.c.name).title} up to $${bestCap(pl.stock, f, x.max, pl, x.c.pref)}`).join(', ')}`}>{lines.map((x) => {
                       const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
-                      return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} wants ${x.w.qty}, pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
+                      return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} wants ${x.w.qty}, pays up to $${cap} for your freshest`}><Face who={x.c.name} size={16} />≤${cap}</span>;
                     })}</span>
                   ) : <span class="pc-sub">no customers want these</span>}
                 </div>
@@ -148,7 +148,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
               <div class="pc-foot">
                 <span class={`read ${read.cls}`} title={read.t}><b class="psst">Psst…</b> {read.t}</span>
                 {rivalOut.length > 0 && (
-                  <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={18} />{r.n} out</span>)}</span>
+                  <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`} aria-label={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={16} />{r.n}<small class="rc-out"> out</small></span>)}</span>
                 )}
               </div>
             </div>

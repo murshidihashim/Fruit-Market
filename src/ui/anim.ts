@@ -21,7 +21,9 @@ export const frame = () => new Promise<void>((r) => requestAnimationFrame(() => 
 export function find(keys: string | string[]): HTMLElement | null {
   for (const key of Array.isArray(keys) ? keys : [keys]) {
     const el = document.querySelector(`[data-a="${key}"]`);
-    if (el) return el as HTMLElement;
+    // An anchor that is not laid out (display: none, e.g. an empty market slot set aside on a small phone) has no
+    // position to fly from or to: try the next key instead.
+    if (el && el.getClientRects().length > 0) return el as HTMLElement;
   }
   return null;
 }
