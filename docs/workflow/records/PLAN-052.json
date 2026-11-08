@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d9f10c6d-75280w",
+  "build": "branch ccr-d9f10c6d-75280w, commit 32fe936",
   "reports": [],
   "decisions": [
     "DEC-068"
@@ -24,7 +24,7 @@
     "evidence": "rubik and option 3 for animation",
     "date": "2026-11-08"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-052",
   "title": "Rubik game font and the 'Round the table' rush pop-up",
   "problem": "Fonts on the game screens are mixed (six faces), and the rush does not show clearly what each stall offered each customer.",
@@ -43,20 +43,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-08: 351 unit tests, build"
     },
     {
       "id": "T2",
       "text": "Browser tests incl. performance budget and online 0 leaks pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e: solo, performance budget (DOM 489/800, open 199 ms), online with a leaver 0 leaks in 100 frames, quick match, four players, rejoin; npm run perf re-run after the last tweaks: DOM 501, open 172 ms"
     },
     {
       "id": "T3",
       "text": "No page scroll at 360x740, 390x844, 1280x800",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Layout check at 360x740, 390x844, 1280x800: no page scroll"
     }
   ]
 }
