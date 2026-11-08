@@ -1,0 +1,66 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-069"
+  ],
+  "changes": {
+    "added": [
+      "Six new unlockables: trader's visor, pocket watch, brass hand bell, ticker-tape garland, Exchange member's badge, pencil and order slip"
+    ],
+    "changed": [
+      "Every remaining pixel-art icon, prop, roof and lorry redrawn in the Great Fruit Exchange style",
+      "Worn looks shown as Exchange regalia on the shopkeeper portraits"
+    ],
+    "fixed": [],
+    "removed": [
+      "Pixel art from the game screens"
+    ]
+  },
+  "playerNotes": [
+    "New Great Fruit Exchange icons everywhere",
+    "Shopkeepers now wear their unlocks",
+    "Six new things to unlock"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
+    "date": "2026-11-08"
+  },
+  "delivery": "not started",
+  "id": "PLAN-053",
+  "title": "Great Fruit Exchange icons and worn regalia",
+  "problem": "54 items are still pixel art, and worn unlocks show only as tiny pins.",
+  "scope": [
+    "Direction D drawings for all 54 items in the app (icons, props, roofs, trims, lorry without text)",
+    "Worn looks as Exchange regalia drawn on the six shopkeeper portraits, in game and in the Wardrobe",
+    "Six new unlockables with unlock rules like the existing ones",
+    "Tests, performance budget, screenshots"
+  ],
+  "exclusions": [
+    "Rules, prices, balance",
+    "Printed card kit unless it uses the same icons",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. performance budget and online 0 leaks pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "No pixel sprite left on any game screen; saved unlocks still show",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

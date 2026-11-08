@@ -1709,6 +1709,29 @@
       ],
       "plan": "PLAN-052",
       "reviewTrigger": "If the owner wants a different pace or the pop-up slows the rush too much."
+    },
+    {
+      "id": "DEC-069",
+      "title": "Replace the remaining pixel art with Great Fruit Exchange designs; worn looks as Exchange regalia on the portraits",
+      "question": "How should the 54 remaining pixel-art items and the worn unlockables look?",
+      "choice": "Direction D 'Great Fruit Exchange' for all 54 items (status icons, perk, upgrade and favour icons, lorry, stall roofs and trims, stall props): engraved navy line work, brass and note-green, with the Exchange twists shown in the mockup. The lorry carries no lettering. Worn looks use option 3 'Exchange regalia', drawn on the shopkeeper portraits (trader's bowler, porter's pillbox cap, Gazette paper hat, brass laurel with ticker tape, chairman's top hat, brass loupe, banknote bow tie, ticker-tape scarf, floor trader's waistcoat, certificate-ribbon sash, brass Exchange medal). All six new unlockables are added: green trader's visor, pocket watch, brass hand bell, ticker-tape garland, Exchange member's badge, pencil and order slip. No rules change.",
+      "rationale": "Owner choice from the mockup (artifact Swxz5Pf2jTMt32knvYJQRQ).",
+      "impact": {
+        "player": "One illustrated look with no pixel art left; shopkeepers visibly wear their unlocks; six new unlockables.",
+        "technical": "New SVG icon, prop and wearable drawings replacing pixel.tsx, propsArt.tsx and wearArt.ts sprites; portrait overlays; new looks with unlock rules; performance budget must hold.",
+        "data": "Saved looks keep their ids so earned unlocks stay; new looks add ids."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
+        "date": "2026-11-08"
+      },
+      "delivery": "not started",
+      "reports": [],
+      "plan": "PLAN-053",
+      "reviewTrigger": "If small icons do not read at 12-16 px on a phone."
     }
   ],
   "history": [
@@ -2327,6 +2350,10 @@
     {
       "at": "2026-11-08 21:09",
       "text": "Owner asked to standardise the font and for a customer pop-up at the rush, mocked up first (artifact P6xX6hwRJnfH8sARFuL8QB). Owner chose Rubik (single font) and animation option 3 'Round the table' (DEC-068, PLAN-052). Pace assumed: auto-advance about 2 seconds, tap to speed up."
+    },
+    {
+      "at": "2026-11-08 22:01",
+      "text": "Owner chose from the pixel-art redesign mockup: direction D 'Great Fruit Exchange' for all 54 items, worn looks as option 3 'Exchange regalia', keep all six new unlockables, no text on the lorry: \"approve all\" (DEC-069, PLAN-053). Build starts after PLAN-052 lands."
     }
   ]
 }
