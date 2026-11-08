@@ -1,7 +1,7 @@
 // The market opening (PLAN-029, DEC-047): a short scene played when the game is opened, drawn with the deck-art
 // pieces (DEC-066): the Exchange Gazette masthead drops in, three Stall Signs go up, fruit lands on the counter
 // and the bell rings. Decoration only: tap anywhere to skip, and it ends on its own after about 2.5 seconds.
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit } from './art';
 import { StallSign } from './cards';
@@ -37,36 +37,43 @@ function picturesUnder(opening: HTMLElement): HTMLImageElement[] {
 }
 
 export function Opening({ onDone }: { onDone: () => void }) {
-  const [scale, setScale] = useState(fit);
+  const [scale, setScale] = useState(1);
   // Waiting: sky only, the scene paused until its pictures and fonts are in. Out: the cross-fade to the home screen.
   const [playing, setPlaying] = useState(false);
   const [out, setOut] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const leaving = useRef(false);
+  const reduced = useRef(false);
   const done = useRef(onDone);
   done.current = onDone;
-  const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const timers = useRef<number[]>([]);
   const later = (f: () => void, ms: number) => { timers.current.push(window.setTimeout(f, ms)); };
   // Hand over to the home screen: a short cross-fade, or straight away with reduced motion.
   const leave = () => {
     if (leaving.current) return;
     leaving.current = true;
-    if (reduced) { done.current(); return; }
+    if (reduced.current) { done.current(); return; }
     setOut(true);
     later(() => done.current(), FADE_MS);
   };
-  useEffect(() => {
+  // Fit the scene to the screen before the first frame is drawn (so it never jumps in size), not during the render:
+  // reading the window size there would make the browser lay out the half-built page.
+  useLayoutEffect(() => {
+    reduced.current = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const resize = () => setScale(fit());
+    resize();
     window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+  useEffect(() => {
     let live = true;
     const el = root.current!;
     void settled([...el.querySelectorAll('img')], START_WAIT_MS).then(() => {
       if (!live || leaving.current) return;
       setPlaying(true);
-      later(() => { void settled(picturesUnder(el), HOME_WAIT_MS).then(() => { if (live) leave(); }); }, reduced ? REDUCED_MS : LENGTH_MS);
+      later(() => { void settled(picturesUnder(el), HOME_WAIT_MS).then(() => { if (live) leave(); }); }, reduced.current ? REDUCED_MS : LENGTH_MS);
     });
-    return () => { live = false; window.removeEventListener('resize', resize); timers.current.forEach((t) => clearTimeout(t)); };
+    return () => { live = false; timers.current.forEach((t) => clearTimeout(t)); };
   }, []);
   return (
     <div ref={root} class={`op opx${playing ? '' : ' op-wait'}${out ? ' op-leave' : ''}`} onClick={leave} role="presentation">

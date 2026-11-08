@@ -1,8 +1,8 @@
 # Fruit Market print kit
 
-The tabletop game's cards, rulebook pictures and player aid, in the Great Fruit Exchange deck art (DEC-066, PLAN-049).
+The tabletop game's cards, rulebook pictures and player aid, in the owner's deck art (DEC-066, PLAN-049).
 Customers are Trading Cards (Art 3 "At work"), shopkeepers are Stall Signs (Art 2 "Over the counter") and events are
-Gazette front pages (Art 1 "The scene"). Every name, number and price comes from the game data (`src/engine/data.ts`,
+newspaper front pages under the "Fruit Market" masthead (Art 1 "The scene"). Every name, number and price comes from the game data (`src/engine/data.ts`,
 rules version 9), drawn with the same card designs as the app (`src/ui/cards.tsx`), so the table and the app match.
 
 ## What is in `print/kit`
@@ -59,15 +59,25 @@ used by the QA sweep, now builds this same kit.)
 Pictures come from `print/art` (the owner's art at print resolution, about 240 to 300 ppi at card size). They are
 stored in the PDFs as high-quality JPEG to keep the files small.
 
+### Fixed card layouts (shared with the app)
+
+Every card of a kind has the same fixed zones, in the app and in print alike (`src/ui/cards.css`):
+
+- **Customer cards:** the picture, name banner, two-line quirk box, order box and "Buys" line are in the same place on
+  all 39 cards. A long name or quirk is set a little smaller; the order box has one height and equal columns for 1, 2
+  or 3 fruits.
+- **Event cards:** the headline block (room for three lines, the "Extra!" seal in its corner), the scene picture, the
+  two-line caption and the story box are the same on all 13. The story is set at about 7 pt so the longest one fits,
+  and any spare room is at the foot of the card. Each picture's crop is set per event to keep its price tag or sign
+  in view.
+- **Shopkeeper cards:** one header and one chalkboard height (room for Rosa's three lines), so all six scenes are the
+  same size. The upgrade cards share the same header and chalkboard sizes.
+
 ### Print-only layout rules
 
-The cards are the app's own designs, but a few rules apply only to the printed kit (in `PRINT_CSS` in
-`scripts/print-deck.ts`, so the app is not affected):
+A few rules apply only to the printed kit (in `PRINT_CSS` in `scripts/print-deck.ts`, so the app is not affected):
 
-- **Event cards:** every scene picture has the same fixed height, however long the headline and subhead. The story
-  text is slightly smaller than on screen (about 7 pt) so the longest stories fit, and any spare room is at the foot
-  of the card. Each picture's crop is set per event to keep its price tag or sign in view.
-- **Shopkeeper cards:** the chalkboard has one height (room for Rosa's three lines), so all six scenes are the same size.
+- **Customer cards:** the order box is taller, to hold one order circle per fruit wanted.
 - **Character reference:** customers are 3 across and 4 down, each tile as tall as its row, so the pages are filled
   evenly.
 - **The Influencer:** its "Special guest" flag starts to the right of the $12 tag drawn into the borrowed Mango Craze
@@ -93,4 +103,4 @@ The cards are the app's own designs, but a few rules apply only to the printed k
   sign on Lorry Breakdown).
 - **Guest flags.** On The Gym Club and The Hotel Chef the "Special guest" flag still covers the top edge of the
   borrowed scene (the +$1 tag's string, the Grand Hotel sign). Their own portraits will remove this.
-- The Gazette effect bullets (▸) are not in the deck fonts, so the printer's fallback font draws them.
+- The event cards' effect bullets (▸) are not in the deck fonts, so the printer's fallback font draws them.

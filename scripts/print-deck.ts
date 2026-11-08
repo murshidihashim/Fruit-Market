@@ -1,4 +1,4 @@
-// The tabletop print kit in the Great Fruit Exchange look (DEC-066), built from the game data and the app's own
+// The tabletop print kit in the deck-art look (DEC-066), built from the game data and the app's own
 // card system (src/ui/cards.tsx), so the printed cards and the app always show the same names, numbers and art.
 //   npx vite-node scripts/print-deck.ts <outdir>     (normally: print/kit)
 // Writes one PDF per part plus Fruit_Market_Print_Kit.pdf with everything. Needs Playwright's Chromium.
@@ -62,7 +62,8 @@ const PRINT_CSS = `
 @page factory { size: 85mm 110mm; margin: 0; }
 html, body { margin: 0; padding: 0; background: white; }
 body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pg { position: relative; width: 210mm; height: 297mm; overflow: hidden; break-after: page; --card-w: 63mm; }
+/* --x-order-h: the customer cards' order box is taller in print, for the order circles (cards.css) */
+.pg { position: relative; width: 210mm; height: 297mm; overflow: hidden; break-after: page; --card-w: 63mm; --x-order-h: 8.9em; }
 .pg:last-child { break-after: auto; }
 .pg-factory { page: factory; width: 85mm; height: 110mm; }
 
@@ -90,10 +91,9 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-slug.t { top: 3.2mm; }
 .pk-slug.b { bottom: 3.2mm; }
 
-/* ---- order circles on customer cards (RULES.md: one circle per unit wanted) ---- */
+/* ---- order circles on customer cards (RULES.md: one circle per unit wanted), the same size on every card ---- */
 .pk-dots { display: flex; justify-content: center; gap: 0.3em; margin-top: 0.15em; }
-.pk-dots i { width: 1.7em; height: 1.7em; border-radius: 50%; border: 0.16em solid var(--x-ink); background: var(--x-paper); }
-.x-tc-order.x-n3 .pk-dots i { width: 1.5em; height: 1.5em; }
+.pk-dots i { width: 1.5em; height: 1.5em; border-radius: 50%; border: 0.16em solid var(--x-ink); background: var(--x-paper); }
 
 /* ---- shared bits for the cards without pictures ---- */
 .pk-kick { font: 600 1.05em/1 var(--f-label); letter-spacing: 0.24em; text-transform: uppercase; color: var(--x-red); }
@@ -132,7 +132,7 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-note b { font-style: normal; color: var(--x-green); }
 
 /* ---- Upgrade card (a stall-sign board) ---- */
-.pk-upg .x-ss-head { display: flex; flex-direction: column; align-items: center; gap: 0.1em; padding: 0.55em 0.6em 0.45em; text-align: center; }
+.pk-upg .x-ss-head { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1em; padding: 0.55em 0.6em 0.45em; text-align: center; }
 .pk-upg .x-ss-name { align-self: center; max-width: 100%; font-size: 3em; line-height: 1.05; }
 .pk-upg .x-ss-name.x-long { font-size: 2.45em; }
 .pk-upg .pk-burst { border-radius: 0.45em; }
@@ -158,36 +158,18 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-back-favour .x-tb-kind, .pk-back-upgrade .x-tb-kind { color: var(--x-card); }
 .pk-back-lorry { background: var(--x-chalk); --ray-a: var(--x-green); --ray-b: var(--x-chalk); }
 .pk-back-upgrade { background: var(--x-wood-d); --ray-a: var(--x-wood); --ray-b: var(--x-wood-d); }
-.pk-ssb .x-ss-head { display: flex; flex-direction: column; align-items: center; padding: 0.6em 0.6em 0.5em; }
+.pk-ssb .x-ss-head { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.6em 0.6em 0.5em; }
+.pk-ssb .x-ss-tag { align-self: center; }
 .pk-ssb .x-ss-name { align-self: center; font-size: 3.4em; }
 .pk-ssb .pk-burst { border-radius: 0.45em; --ray-a: var(--x-mustard); --ray-b: var(--x-mustard-d); }
 .pk-ssb .x-ss-chalk b { font-size: 2.2em; }
-.pk-gzb .x-gz-head { padding-right: 0; margin-top: 0.5em; font-size: 3.1em; text-align: center; }
-.pk-gzb .x-gz-sub { padding-right: 0; text-align: center; }
+.pk-gzb .x-gz-head { margin-top: 0.5em; font-size: 3.1em; text-align: center; }
+.pk-gzb .x-gz-sub { text-align: center; }
 .pk-gzb-mid { flex: 1 1 0; display: grid; place-items: center; border-top: 0.12em solid var(--x-ink); border-bottom: 0.12em solid var(--x-ink); margin: 0.4em 0; background: repeating-conic-gradient(from 0deg at 50% 50%, var(--x-paper) 0deg 7deg, var(--x-card) 7deg 14deg); }
-.pk-gzb .x-gz-seal { position: static; width: 4.6em; height: 4.6em; font-size: 2.4em; transform: rotate(-8deg); }
+.pk-gzb .x-gz-seal { float: none; margin: 0; width: 4.6em; height: 4.6em; font-size: 2.4em; transform: rotate(-8deg); }
 .pk-gzb-foot { flex: none; font: 600 0.95em/1.3 var(--f-label); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: var(--x-ink); }
 
-/* ---- Gazette (event) fronts: every picture the same size, whatever the length of the headline (on screen the
-   picture takes the room left over). The story follows the caption; any room left over stays at the foot.
-   The story text is a little smaller than on screen (1 ce = 2.5 mm, about 7 pt) so the longest stories fit. ---- */
-.pk-ev .x-gz-pic { flex: none; min-height: 0; }
-.pk-ev .x-gz-pic .x-art { flex: none; height: 11em; object-position: 50% var(--pk-focus, 50%); }
-.pk-ev .x-gz-text { font-size: 1em; }
-/* where each picture is cropped (0% keeps the top, 100% the bottom): keep the price tags and signs in view */
-.pk-ev-festival { --pk-focus: 60%; }
-.pk-ev-glut { --pk-focus: 28%; }
-.pk-ev-heatwave { --pk-focus: 62%; }
-.pk-ev-hotel { --pk-focus: 40%; }
-.pk-ev-inspector { --pk-focus: 30%; }
-.pk-ev-mangoCraze { --pk-focus: 30%; }
-.pk-ev-priceHike { --pk-focus: 45%; }
-.pk-ev-strike { --pk-focus: 90%; }
-.pk-ev-superfood { --pk-focus: 30%; }
-
-/* ---- Stall Sign (shopkeeper) fronts: one chalkboard height for all six (room for the longest special, Rosa's
-   three lines), so every scene is the same size. ---- */
-.pk-shop .x-ss-chalk { height: 10.3em; display: flex; flex-direction: column; justify-content: center; }
+/* Event fronts and Stall Signs: the fixed picture, text and chalkboard sizes are in cards.css, shared with the app. */
 
 /* ---- Special guests: the flag starts clear of the price tag drawn into the borrowed Mango Craze picture ---- */
 .pk-guest-mangoCraze .x-tc-flag { left: 8em; }
@@ -210,9 +192,7 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 /* customers: 3 across and 4 down, each tile as tall as its row, so the twelve fill the page evenly */
 .pk-ref-grid { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: repeat(3, var(--card-w)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 4mm 8mm; justify-content: center; --card-w: 53mm; }
 .pk-ref.x-card { height: auto; }
-.pk-ref .x-tc-pic { flex: 1 1 0; min-height: 0; }
 .pk-ref .x-tc-order { display: none; }
-.pk-ref .x-tc-quirk { min-height: 2.55em; display: flex; align-items: center; justify-content: center; }
 .pk-legend { margin: auto 0 0; padding: 2.2mm 3mm; border: 0.4mm solid var(--x-ink); display: flex; gap: 5mm; justify-content: center; flex-wrap: wrap; font: 500 2.6mm/1.3 var(--f-label); letter-spacing: 0.05em; }
 .pk-legend b { font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; }
 .pk-legend .p { color: var(--x-red); } .pk-legend .e { color: var(--x-green); } .pk-legend .g { color: var(--x-ink); }
@@ -250,7 +230,6 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-small { margin: auto 0 0; font: 500 2.4mm/1.3 var(--f-label); letter-spacing: 0.06em; color: var(--x-slate); text-align: center; }
 
 .pk-cover { justify-content: flex-start; gap: 5mm; }
-.pk-cover .x-kicker { font-size: 3.4mm; }
 .pk-cover h1 { margin: 0; font: 15mm/0.98 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
 .pk-cover .lede { margin: 0; font: 3.6mm/1.45 var(--f-serif); max-width: 165mm; }
 .pk-toc { width: 100%; border-collapse: collapse; font: 3.2mm/1.3 var(--f-serif); }
@@ -314,7 +293,7 @@ const backShell = (cls: string, kind: string, plate: string) => `<article class=
 const guestBack: Cell = { html: backShell('pk-back-guest', 'Special guest', 'Comes with<br>its event'), bleed: 'var(--x-mustard-d)', label: 'Special guests' };
 
 const shopFront = (r: (typeof RIVALS)[number]): Cell => ({
-  html: toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true, class: 'pk-shop' })), bleed: INK, label: `Shopkeeper · ${r.name}`,
+  html: toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true })), bleed: INK, label: `Shopkeeper · ${r.name}`,
 });
 const shopBack: Cell = {
   html: `<article class="x-card x-ss pk-ssb"><header class="x-ss-head"><strong class="x-ss-name">Fruit Market</strong><small class="x-ss-tag">Fresh fruit · Fair prices</small></header>`
@@ -324,10 +303,10 @@ const shopBack: Cell = {
 };
 
 const eventFront = (e: EventCard): Cell => ({
-  html: toStaticHtml(h(Gazette, { event: e, eager: true, class: `pk-ev pk-ev-${e.id}` })), bleed: PAPER, label: `Event · ${e.title}`,
+  html: toStaticHtml(h(Gazette, { event: e, eager: true })), bleed: PAPER, label: `Event · ${e.title}`,
 });
 const eventBack: Cell = {
-  html: `<article class="x-card x-gz pk-gzb"><header class="x-gz-mast">The Exchange Gazette</header><div class="x-gz-ed"><span>Morning edition · One cent</span><span>Fruit Market</span></div>`
+  html: `<article class="x-card x-gz pk-gzb"><header class="x-gz-mast">Fruit Market</header><div class="x-gz-ed"><span>Morning edition · One cent</span><span>Event card</span></div>`
     + `<strong class="x-gz-head">Tomorrow’s news</strong><p class="x-gz-sub">Read all about it, a day early</p>`
     + `<div class="pk-gzb-mid"><b class="x-gz-seal">Extra!</b></div>`
     + `<p class="pk-gzb-foot">Event · one each morning from Day 2</p></article>`,
@@ -447,7 +426,7 @@ const legend = `<p class="pk-legend">${(['premium', 'everyday', 'bargain'] as co
   `<span class="${p[0]}"><b>${PREF_INFO[p].title} shopper:</b> ${esc(PREF_INFO[p].text)}</span>`).join('')}</p>`;
 
 function referencePages(): Page[] {
-  const shops = RIVALS.map((r) => toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true, class: 'pk-shop' })));
+  const shops = RIVALS.map((r) => toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true })));
   const guests = GUESTS.map(({ guest, event }) => tradingCard(guest.name, guest.wants, true, `pk-guest-${event.id}`));
   const first = `<section class="pg pk-a4">${secHead('Shopkeepers · The Stall Sign', 'Who’s who · Art 2 “Over the counter”', 'Reference 1 of 4')}`
     + `<div class="pk-row pk-ref-shops">${shops.slice(0, 3).join('')}</div><div class="pk-row pk-ref-shops">${shops.slice(3).join('')}</div>`
@@ -488,7 +467,7 @@ function playerAid(): Page {
   ].map(([lvl, what, icons]) => `<div class="lvl">${esc(lvl)}</div><div class="what">${what}</div><div class="ic">${icons}</div>`).join('');
   return {
     html: `<section class="pg pk-a4 pk-aid">`
-      + `<div class="pk-mast"><h1>The Exchange Gazette</h1><div class="ed"><span>Player aid · Fruit Market</span><span>Rules version ${RULES_VERSION}</span></div></div>`
+      + `<div class="pk-mast"><h1>Fruit Market</h1><div class="ed"><span>Player aid · Morning edition</span><span>Rules version ${RULES_VERSION}</span></div></div>`
       + `<div class="pk-aid-head"><strong>A day in five beats</strong><em>Buy it, show it, price it, sell it, before it spoils.</em></div>`
       + `<div class="pk-beats">${beats.join('')}</div>`
       + `<section class="pk-crier"><header><b>The crier’s price rule</b><span>Read each customer line aloud</span></header>`
@@ -522,7 +501,7 @@ const parts: Part[] = [
   { file: 'Cards_Customers_A4.pdf', title: 'Customer cards', what: `${CUSTOMER_CARDS.length} Trading Cards; each back shows that customer’s fruit`, pages: sheets('Customers', customerFronts, customerBacks) },
   { file: 'Cards_Guests_A4.pdf', title: 'Special guest cards', what: `${GUESTS.length} guests (pictures are interim) and their backs`, pages: sheets('Special guests', GUESTS.map(guestFront), same(guestBack, GUESTS.length), 'Interim pictures: each guest borrows its event’s scene. Cut on the dashed lines.') },
   { file: 'Cards_Shopkeepers_A4.pdf', title: 'Shopkeeper cards', what: `${RIVALS.length} Stall Signs and their backs`, pages: sheets('Shopkeepers', shopCells, same(shopBack, RIVALS.length)) },
-  { file: 'Cards_Events_A4.pdf', title: 'Event cards', what: `${EVENT_CARDS.length} Gazette front pages and their backs`, pages: sheets('Events', eventCells, same(eventBack, EVENT_CARDS.length)) },
+  { file: 'Cards_Events_A4.pdf', title: 'Event cards', what: `${EVENT_CARDS.length} newspaper front pages and their backs`, pages: sheets('Events', eventCells, same(eventBack, EVENT_CARDS.length)) },
   { file: 'Cards_Favours_A4.pdf', title: 'Favour cards', what: `${FAVOUR_DECK.length} cards (2 of each) and their backs`, pages: sheets('Favours', favourCells, same(favourBack, FAVOUR_DECK.length)) },
   { file: 'Cards_Deliveries_A4.pdf', title: 'Delivery cards', what: `${FARMER_CARDS.length} lorry cards (2 of each) and their backs`, pages: sheets('Deliveries', lorryCells, same(lorryBack, FARMER_CARDS.length)) },
   { file: 'Cards_Upgrades_A4.pdf', title: 'Upgrade cards', what: `${upgradeCells.length} stall upgrades and their backs`, pages: sheets('Stall upgrades', upgradeCells, same(upgradeBack, upgradeCells.length)) },
@@ -539,8 +518,8 @@ function coverPage(): Page {
     return `<tr><td>${esc(p.title)}</td><td>${esc(p.what)}</td><td>${p.pages.length === 1 ? `p. ${from}` : `pp. ${from}–${at - 1}`}</td></tr>`;
   }).join('');
   return {
-    html: `<section class="pg pk-a4 pk-cover"><span class="x-kicker">The Great Fruit Exchange</span><h1>Fruit Market<br>Print Kit</h1>`
-      + `<p class="lede">Every card for the tabletop game in the owner’s deck art: customers as Trading Cards, shopkeepers as Stall Signs and events as Gazette front pages. Names, numbers and prices come straight from the game data (rules version ${RULES_VERSION}), so the cards always match the app.</p>`
+    html: `<section class="pg pk-a4 pk-cover"><h1>Fruit Market<br>Print Kit</h1>`
+      + `<p class="lede">Every card for the tabletop game in the owner’s deck art: customers as Trading Cards, shopkeepers as Stall Signs and events as newspaper front pages. Names, numbers and prices come straight from the game data (rules version ${RULES_VERSION}), so the cards always match the app.</p>`
       + `<table class="pk-toc"><thead><tr><th>Part</th><th>What it is</th><th>Pages</th></tr></thead><tbody>${rows}</tbody></table>`
       + `<div class="pk-boxes"><div class="pk-box"><h4>Printing at home</h4><ul><li>A4 card (250 to 300 gsm), 100% or “actual size”, background graphics on.</li><li>Double-sided, flip on the long edge: each fronts page is followed by its backs, mirrored to line up.</li><li>Cut on the dashed lines. Cards are 63 × 88 mm (poker size).</li><li>The circles on a customer card hold the fruit pieces sold to that customer.</li></ul></div>`
       + `<div class="pk-box"><h4>Still to come</h4><ul><li>Guest portraits: the three guests borrow their event’s scene for now.</li><li>The customer card back is a new design in the deck-art style; the owner’s PDFs have no back.</li><li>Not restyled yet: the mat, stall sheet and screen, tokens and paper money from the earlier kit.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
@@ -603,7 +582,8 @@ async function render(browser: Browser, tmp: string, title: string, pages: Page[
     const out: string[] = [];
     const name = (el: Element) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} "${(el.textContent ?? '').trim().slice(0, 40)}"`;
     const over = (el: Element, w: boolean) => (w ? el.scrollWidth > el.clientWidth + 1 : el.scrollHeight > el.clientHeight + 1);
-    document.querySelectorAll('.pg, .x-card, .pk-board, .x-ss-chalk, .pk-burst').forEach((el) => {
+    // The cards' fixed text boxes (cards.css) count too: their words must fit the box, never run out of it.
+    document.querySelectorAll('.pg, .x-card, .pk-board, .x-ss-chalk, .pk-burst, .x-tc-quirk, .x-tc-order, .x-gz-top, .x-gz-body').forEach((el) => {
       if (over(el, false)) out.push(`too tall by ${el.scrollHeight - el.clientHeight}px: ${name(el)}`);
     });
     document.querySelectorAll('.pg *').forEach((el) => {

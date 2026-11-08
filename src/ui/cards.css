@@ -203,6 +203,6 @@
 .x-gz.x-compact .x-gz-seal { margin-top: -0.5em; }
 .x-gz.x-compact .x-gz-pic .x-art { height: auto; aspect-ratio: 4 / 3; }
 .x-gz.x-compact .x-gz-body { flex: none; margin-top: 0.5em; }
-.x-gz.x-compact .x-gz-fx { float: none; width: auto; height: 4.45em; margin: 0; display: grid; align-content: center; column-gap: 0.8em; }
+.x-gz.x-compact .x-gz-fx { float: none; width: auto; height: 4.6em; margin: 0; display: grid; align-content: center; column-gap: 0.8em; }
 .x-gz.x-compact .x-gz-fx:is(.x-n3, .x-n4) { grid-template-columns: repeat(2, max-content); justify-content: space-between; }
 .x-gz.x-compact .x-gz-fx li { font-size: 1.3em; white-space: nowrap; }

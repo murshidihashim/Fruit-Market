@@ -1,4 +1,4 @@
-// The Exchange Gazette (DEC-066): the words printed around each event's front page, transcribed from the owner's
+// The event front pages (DEC-066, masthead "Fruit Market"): the words printed around each event's picture, transcribed from the owner's
 // deck art (Art 1 "The scene"). The headline is the event title and the story is the event text, both from
 // data.ts, which stays the authority on what an event does. `effects` is the short boxed summary.
 import type { EventId } from '../engine/data';

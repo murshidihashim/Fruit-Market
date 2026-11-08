@@ -5,12 +5,13 @@ import {
   CHARACTER_TRAIT, CUSTOMER_CARDS, CUSTOMER_LOOKS, EVENT_CARDS, FRUITS, PREF_INFO, RIVALS, TRAITS, lookOf, prefOf,
   type EventCard, type FruitId, type Stage,
 } from '../src/engine/data';
-import { CardArt, Gazette, StallSign, TradingCard, TradingCardBack, customerNumber, toStaticHtml } from '../src/ui/cards';
+import { Logo } from '../src/ui/art';
+import { CardArt, Gazette, QUIRK_LONG, QUIRK_MAX, StallSign, TradingCard, TradingCardBack, customerNumber, toStaticHtml } from '../src/ui/cards';
 import { customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { FruitSvg, fruitSvgString, fruitSvgUrl } from '../src/ui/fruitIcons';
 import { GAZETTE } from '../src/ui/gazette';
 
-// The Great Fruit Exchange card system (DEC-066).
+// The card system (DEC-066): one design per kind of card, the same fixed zones on every card of a kind.
 const file = (url: string | null) => (url ? `public/${url.slice(url.indexOf('art/'))}` : '');
 const html = <P extends object>(c: FunctionComponent<P>, props: P) => toStaticHtml(h(c, props));
 const elements = (s: string) => (s.match(/<[a-z]/g) ?? []).length;
@@ -76,6 +77,23 @@ describe('customer cards', () => {
     });
   });
 
+  it('every quirk fits the two-line quirk box: long ones are set smaller, none is longer than the box was checked for', () => {
+    for (const c of [...CUSTOMER_CARDS, ...GUESTS]) {
+      const quirk = lookOf(c.name).quirk;
+      expect(quirk.length, c.name).toBeLessThanOrEqual(QUIRK_MAX);
+      const s = html(TradingCard, { who: c.name, wants: c.wants, guest: GUESTS.includes(c) });
+      expect(s).toContain(quirk.length > QUIRK_LONG ? 'class="x-tc-quirk x-long"' : 'class="x-tc-quirk"');
+    }
+  });
+
+  it('every card uses the same order box, whatever the number of fruits', () => {
+    for (const c of CUSTOMER_CARDS) {
+      const s = html(TradingCard, { who: c.name, wants: c.wants });
+      expect(s).toContain(`<ul class="x-tc-order x-n${c.wants.length}">`);
+      expect(s.match(/<li>/g) ?? []).toHaveLength(c.wants.length);
+    }
+  });
+
   it('a compact (table) card stays small: picture, name and order only', () => {
     for (const c of CUSTOMER_CARDS) {
       const s = html(TradingCard, { who: c.name, wants: c.wants, compact: true });
@@ -131,7 +149,7 @@ describe('shopkeeper stall signs', () => {
   });
 });
 
-describe('events: the Exchange Gazette', () => {
+describe('events: the Fruit Market front page', () => {
   const numbers = (e: EventCard): Set<number> => {
     const out = new Set<number>();
     const walk = (v: unknown) => {
@@ -152,6 +170,10 @@ describe('events: the Exchange Gazette', () => {
       expect(s).toContain(esc(g.subhead));
       expect(s).toContain(esc(g.caption));
       expect(s).toContain(`No. ${String(i + 1).padStart(2, '0')}`);
+      expect(s).toContain('<header class="x-gz-mast">Fruit Market</header>');
+      expect(s).toContain('Morning edition');
+      expect(s).toContain(`class="x-card x-gz x-ev-${e.id}"`);
+      expect(s).toContain(`<ul class="x-gz-fx x-n${g.effects.length}">`);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
     });
   });
@@ -163,5 +185,25 @@ describe('events: the Exchange Gazette', () => {
         for (const m of line.matchAll(/\$(\d+)/g)) expect(have.has(Number(m[1])), `${e.id}: ${line}`).toBe(true);
       }
     }
+  });
+});
+
+describe('the game is called Fruit Market', () => {
+  it('no card, back or wordmark says "Exchange" or "Gazette" (the owner retired both names)', () => {
+    const all = [
+      html(Logo, {}),
+      ...CUSTOMER_CARDS.map((c) => html(TradingCard, { who: c.name, wants: c.wants })),
+      ...CUSTOMER_CARDS.map((c) => html(TradingCard, { who: c.name, wants: c.wants, compact: true })),
+      ...GUESTS.map((g) => html(TradingCard, { who: g.name, wants: g.wants, guest: true })),
+      html(TradingCardBack, { fruits: ['apple', 'mango'] }),
+      ...RIVALS.map((r) => html(StallSign, { avatar: r.avatar })),
+      ...EVENT_CARDS.map((e) => html(Gazette, { event: e })),
+      ...EVENT_CARDS.map((e) => html(Gazette, { event: e, compact: true })),
+    ];
+    for (const s of all) {
+      const seen = [...s.matchAll(/>([^<]+)</g), ...s.matchAll(/(?:alt|aria-label)="([^"]*)"/g)].map((m) => m[1]).join(' | ');
+      expect(seen).not.toMatch(/exchange|gazette/i);
+    }
+    expect(html(Logo, {})).toContain('>Fruit Market</b>');
   });
 });
