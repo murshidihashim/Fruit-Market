@@ -247,7 +247,7 @@ Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP
 
 Each day has a small twist, the same for everyone, rotating through seven: the usual game, a quick 8-day game, no upgrades, fixed prices, no events, a long 14-day game, and the basic game.
 
-Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days. Scores are kept per rules version.
+Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
 
 ## What changed from the paper draft
 

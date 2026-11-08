@@ -4,8 +4,8 @@ import { aiStep, planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { dailyConfig } from '../src/engine/daily';
 import { applyAction, beginBuying, canBuy, finishReveal, newGame, type Action, type GameState } from '../src/engine/game';
-import { addEntry, cleanIngest, NAME_TAKEN, ownerOf, publicBoard, quickMatch, QUICK_WAIT_MS, utcDay, verifyDaily } from '../server/meta';
-import { RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
+import { addEntry, cleanIngest, dailyBoardKey, NAME_TAKEN, ownerOf, publicBoard, quickMatch, QUICK_WAIT_MS, utcDay, verifyDaily } from '../server/meta';
+import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
 
 const NOW = Date.UTC(2026, 9, 25, 12);
 const DATE = utcDay(NOW);
@@ -39,8 +39,8 @@ function playDaily(name = 'Tester'): { s: GameState; moves: Action[] } {
 }
 
 const OWNER = 'a'.repeat(64);
-const sub = (actions: Action[], extra: Partial<{ date: string; name: string; rv: number }> = {}) =>
-  ({ date: DATE, name: 'Tester', actions, rv: RULES_VERSION, ...extra });
+const sub = (actions: Action[], extra: Partial<{ date: string; name: string; rv: number; av: number }> = {}) =>
+  ({ date: DATE, name: 'Tester', actions, rv: RULES_VERSION, av: AI_VERSION, ...extra });
 
 describe('daily leaderboard', () => {
   it('replays a submitted game and gets the same score', () => {
@@ -66,6 +66,19 @@ describe('daily leaderboard', () => {
     const { moves } = playDaily();
     expect(() => verifyDaily(sub(moves, { rv: RULES_VERSION - 1 }), NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily({ date: DATE, name: 'Old app', actions: moves } as never, NOW, OWNER)).toThrow(UPDATE_MSG);
+  });
+
+  it('rejects games played against older computer players (the replay would differ)', () => {
+    expect(AI_VERSION).toBe(2);
+    const { s, moves } = playDaily();
+    // An app from 1.8.0 or earlier sends no computer-player version: that is version 1.
+    expect(() => verifyDaily({ date: DATE, name: 'Tester', actions: moves, rv: RULES_VERSION }, NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(() => verifyDaily(sub(moves, { av: 1 }), NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(verifyDaily(sub(moves, { av: 2 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
+  });
+
+  it('keeps a daily board for each rules and computer-player version', () => {
+    expect(dailyBoardKey('2026-11-01')).toBe(`daily:2026-11-01:r${RULES_VERSION}:a${AI_VERSION}`);
   });
 
   it('replaces a blocked or reserved name with a neutral one', () => {

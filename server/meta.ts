@@ -4,7 +4,7 @@
 import { aiStep } from '../src/engine/ai';
 import { applyAction, beginBuying, finishReveal, newGame, RuleError, type Action, type GameState } from '../src/engine/game';
 import { dailyConfig } from '../src/engine/daily';
-import { RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
+import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
 import { safeName, squash } from './names';
 
 // ---------- usage counters ----------
@@ -36,7 +36,8 @@ export function utcDay(now: number): string {
 /** `owner` is a hash of the submitting device's secret key: it proves a name belongs to one device. */
 export interface DailyEntry { name: string; cash: number; sold: number; at: number; owner?: string }
 export interface PublicEntry { name: string; cash: number; sold: number }
-export interface DailySubmit { date: string; name: string; actions: Action[]; rv?: number; claim?: string }
+/** `rv` is the rules version and `av` the computer-player version the game was played with (no `av`: 1, up to 1.8.0). */
+export interface DailySubmit { date: string; name: string; actions: Action[]; rv?: number; av?: number; claim?: string }
 export const MAX_ACTIONS = 400;
 export const BOARD_SIZE = 100;
 export const NAME_TAKEN = 'Someone else already uses that name on today\'s board. Change your name in Settings and try again.';
@@ -56,9 +57,12 @@ export function publicBoard(board: DailyEntry[]): PublicEntry[] {
   return board.map(({ name, cash, sold }) => ({ name, cash, sold }));
 }
 
-/** One daily board per date and rules version, so scores under old and new rules never mix. */
+/**
+ * One daily board per date, rules version and computer-player version, so scores played under old and new rules,
+ * or against old and new computer players, never mix.
+ */
 export function dailyBoardKey(date: string): string {
-  return `daily:${date}:r${RULES_VERSION}`;
+  return `daily:${date}:r${RULES_VERSION}:a${AI_VERSION}`;
 }
 
 /** Daily keys a player could honestly be on right now (time zones run from UTC-12 to UTC+14). */
@@ -71,8 +75,9 @@ export function acceptableDates(now: number): string[] {
  * Computer turns are re-run on the server, so a score can't be made up.
  */
 export function verifyDaily(sub: DailySubmit, now: number, owner: string): { entry: DailyEntry; state: GameState } {
-  // Daily games are replayed with the server's rules, so they must have been played by the same rules.
-  if (!sub || sub.rv !== RULES_VERSION) throw new RuleError(UPDATE_MSG);
+  // Daily games are replayed with the server's rules and computer players, so they must have been played with the same
+  // ones: the same moves against different computer players give a different game (or an illegal move).
+  if (!sub || sub.rv !== RULES_VERSION || (sub.av ?? 1) !== AI_VERSION) throw new RuleError(UPDATE_MSG);
   if (typeof sub.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(sub.date)) throw new RuleError('Bad date');
   if (!acceptableDates(now).includes(sub.date)) throw new RuleError('That daily challenge is closed');
   if (!Array.isArray(sub.actions) || sub.actions.length > MAX_ACTIONS) throw new RuleError('Bad moves');

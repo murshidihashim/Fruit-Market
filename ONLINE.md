@@ -59,13 +59,13 @@ Votes ("Open the market", "Close for the day", rematch) and secret prices wait o
 
   Requests over the limit get HTTP 429.
 - **Names** (`server/names.ts`): cleaned, checked against a blocklist (look-alike spellings such as "Sh1t" included) and reserved names (rival names, "admin"…). Rejected names become "Player N" in rooms and "Shopkeeper xxxx" on the leaderboard.
-- **Leaderboard ownership:** each device makes a random secret key once. The server stores only its SHA-256 hash. A name belongs to the first device that used it that day, and each device has one entry. Daily submissions must also carry the current `RULES_VERSION`; otherwise HTTP 409 and "please update".
+- **Leaderboard ownership:** each device makes a random secret key once. The server stores only its SHA-256 hash. A name belongs to the first device that used it that day, and each device has one entry. Daily submissions must also carry the current `RULES_VERSION` and `AI_VERSION` (the computer-player version; none means 1); otherwise HTTP 409 and "please update".
 
 ## More online features
 
 - **Quick match:** `POST /api/quick` pairs two strangers. The first player waits in a fresh room for up to 90 seconds; the next player to search joins it and the match starts straight away (one `MatchDO` object holds the queue).
-- **Daily leaderboard:** finishing a daily challenge sends your name and moves to `POST /api/daily`. The server **replays the whole game** from the shared seed (computer turns included), so a made-up score is impossible. One `BoardDO` object per date keeps the top 100. `GET /api/daily?date=YYYY-MM-DD` reads it.
-- **Version check:** every client sends `RULES_VERSION` (src/net/protocol.ts). Bump it whenever the rules change; older apps get a polite "please update" instead of a broken game.
+- **Daily leaderboard:** finishing a daily challenge sends your name and moves to `POST /api/daily`. The server **replays the whole game** from the shared seed (computer turns included), so a made-up score is impossible. One `BoardDO` object per date, rules version and computer-player version (`daily:<date>:r<RULES_VERSION>:a<AI_VERSION>`) keeps the top 100. `GET /api/daily?date=YYYY-MM-DD` reads it.
+- **Version check:** every client sends `RULES_VERSION` (src/net/protocol.ts). Bump it whenever the rules change; older apps get a polite "please update" instead of a broken game. Bump `AI_VERSION` instead when only the computer players change: it guards the daily leaderboard (the replay uses the server's computer players) and an unfinished daily save; rooms don't need it, since their computer players run only on the server.
 - **Anonymous stats and crash lines:** the app sends event counts like `day_reached:5` to `POST /api/t` (players can switch this off). A `StatsDO` object adds them into daily totals in SQLite and deletes them after 90 days. To read them, set a secret once: `npx wrangler secret put STATS_KEY`, then:
 
   ```bash

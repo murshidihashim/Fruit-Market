@@ -1,7 +1,8 @@
 // Saved games: versioned envelope, older saves, other rules and broken data.
 import { beforeEach, describe, expect, it } from 'vitest';
+import { dailyConfig } from '../src/engine/daily';
 import { newGame } from '../src/engine/game';
-import { RULES_VERSION } from '../src/net/protocol';
+import { AI_VERSION, RULES_VERSION } from '../src/net/protocol';
 import { consumeSaveNotice, loadGame, saveGame, SAVE_VERSION } from '../src/ui/store';
 
 const mem = new Map<string, string>();
@@ -19,7 +20,7 @@ describe('saved games', () => {
     const g = game();
     saveGame(g);
     const raw = JSON.parse(mem.get('fm.save')!);
-    expect(raw).toMatchObject({ v: SAVE_VERSION, rules: RULES_VERSION });
+    expect(raw).toMatchObject({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION });
     expect(loadGame()).toEqual(g);
     expect(consumeSaveNotice()).toBeNull();
   });
@@ -35,6 +36,28 @@ describe('saved games', () => {
     expect(loadGame()).toBeNull();
     expect(consumeSaveNotice()).toMatch(/older version/);
     expect(mem.has('fm.save')).toBe(false);
+  });
+
+  it('resumes an ordinary game saved before computer-player versions were recorded', () => {
+    const g = game();
+    mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, game: g }));
+    expect(loadGame()).toEqual(g);
+    expect(consumeSaveNotice()).toBeNull();
+  });
+
+  it('sets aside a daily challenge from older computer players, with a notice', () => {
+    const daily = newGame(dailyConfig('2026-11-08', 'A'));
+    mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, game: daily }));
+    expect(loadGame()).toBeNull();
+    expect(consumeSaveNotice()).toBe('Your unfinished daily challenge was from an older version of the game, so it couldn\'t be resumed.');
+    expect(mem.has('fm.save')).toBe(false);
+    mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION - 1, game: daily }));
+    expect(loadGame()).toBeNull();
+    expect(consumeSaveNotice()).toMatch(/daily challenge/);
+    // Today's daily, saved by this version, resumes.
+    saveGame(daily);
+    expect(loadGame()).toEqual(daily);
+    expect(consumeSaveNotice()).toBeNull();
   });
 
   it('drops unreadable data instead of crashing', () => {
