@@ -26,7 +26,8 @@ export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
         {other !== 0 && <span>Other <b class={other > 0 ? 'good' : 'bad'}>{other > 0 ? '+' : '−'}${Math.abs(other)}</b></span>}
         {net !== null && <span class="net">Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
       </div>
-      {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice'}>{tonight}</div>}
+      {/* sc-juice has no style yet (styles.css is outside this change): `small` keeps the juice-only line small until it has one. */}
+      {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice small'}>{tonight}</div>}
       {highlights.length > 0 && (
         <div class="sc-high">
           {highlights.map((h) => <div class={`hl ${h.tone}`}><span>{h.icon}</span>{h.text}</div>)}

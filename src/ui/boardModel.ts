@@ -1,10 +1,11 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
-import { FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt, type FruitId, type Stage, type Want } from '../engine/data';
+import { FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt, type FruitId, type Stage, type Want } from '../engine/data';
 import {
-  bestCap, count, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, servingCustomers, walkInsToday,
+  bestCap, capFor, count, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, servingCustomers, walkInsToday,
   type Customer, type GameState, type Player,
 } from '../engine/game';
+import { hagglerWins } from '../engine/story';
 
 export interface Slot { pos: number; stage: Stage; n: number }
 
@@ -55,10 +56,18 @@ export function pulse(s: GameState): Pulse[] {
   });
 }
 
-/** none: nobody wants it; open: wanted and nobody has it; good: enough buyers; war: more stock than buyers. */
+/** none: nobody wants it; open: wanted and nobody has it; good: enough orders; war: more stock than orders. */
 export function mood({ demand, supply }: Pulse): Mood {
   return demand === 0 ? 'none' : supply === 0 ? 'open' : supply <= demand ? 'good' : 'war';
 }
+
+/**
+ * The demand legend's words for each colour. The bar counts every order for the fruit, whoever's fruit they would take,
+ * so it speaks of orders, not buyers.
+ */
+export const MOOD_WORDS: Record<Exclude<Mood, 'none'>, string> = {
+  good: 'enough orders: prices stay high', war: 'more fruit than orders: price war', open: 'nobody has any yet',
+};
 
 export function wantText({ demand, more }: Pulse): string {
   return demand ? `${demand}${more ? '+' : ''}` : more ? '?' : '0';
@@ -154,57 +163,71 @@ export interface PriceRead {
   text: string;
   /** The most of your pieces out that today's buyers would take at this price, even if you were the cheapest stall. */
   canSell: number;
-  /** Your pieces that would still sell at this price if every rival with this fruit out sold first wherever it could. */
-  sure: number;
   /** Pieces wanted by customers who would take at least one of yours at this price. */
   servable: number;
+  /** Pieces wanted by customers who would take any ripe piece on your shelf at this price (your oldest one suits them). */
+  firm: number;
 }
 
 /**
- * How many of shop `p`'s pieces out today's buyers of this fruit would take at `price`, walking the buyers in serving
- * order over copies of the shelves the way the engine sells (eligible: the customer's freshness type, their top price
- * for each piece's freshness, the crate). With `rivalsFirst`, every rival's crate is offered to each buyer before
- * yours, at any price its fruit qualifies for (rivals' shelves and crates are public; their prices are not used).
+ * How many of shop `p`'s pieces out today's buyers of this fruit would take at `price` if no rival sold any, walking
+ * the buyers in serving order over a copy of the shelf the way the engine sells (eligible: the customer's freshness
+ * type, their top price for each piece's freshness, the crate).
  */
-function sellable(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[], rivalsFirst: boolean): number {
-  const shelves = s.players.map((pl) => ({ ...pl.stock, [f]: [...pl.stock[f]] }));
-  const left = s.players.map((_, i) => (i === p || rivalsFirst ? forSale(s, i, f) : 0));
-  const take = (i: number, x: BuyerLine, need: number, at: number) => {
-    const used = eligible(s.players[i], shelves[i], f, Math.min(left[i], need), at, x.max, x.c.pref);
-    for (const k of used) shelves[i][f][k]--;
-    left[i] -= used.length;
-    return used.length;
-  };
+function sellable(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
+  const pl = s.players[p];
+  const shelf = { ...pl.stock, [f]: [...pl.stock[f]] };
+  let left = forSale(s, p, f);
   let mine = 0;
   for (const x of lines) {
-    let need = x.w.qty;
-    for (let i = 0; i < s.players.length; i++) if (i !== p && need > 0 && left[i] > 0) need -= take(i, x, need, 1);
-    if (need > 0 && left[p] > 0) mine += take(p, x, need, price);
+    if (left <= 0) break;
+    const used = eligible(pl, shelf, f, Math.min(left, x.w.qty), price, x.max, x.c.pref);
+    for (const k of used) shelf[f][k]--;
+    left -= used.length;
+    mine += used.length;
   }
   return mine;
 }
 
 /**
- * The Price panel's "Psst…" read for the price you are about to post. It never counts buyers your fruit cannot serve:
- * "Only 1 of your 2 would sell at $7 (freshness or price)" when even as the cheapest stall some of your pieces would
- * not sell, and "Enough buyers for everyone" only when the pieces out at every stall fit inside the orders that would
- * take yours and all of yours would sell even if every rival sold first.
+ * Pieces wanted by customers who would take every ripe piece on shop `p`'s shelf at `price`: its oldest ripe piece
+ * suits them (a fresher piece has a top price at least as high, and a freshness type that takes an older piece takes a
+ * fresher one). However the rivals price and sell, every such order a rival leaves open takes one of yours.
+ */
+function firmOrders(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
+  const pl = s.players[p];
+  const oldest = pl.stock[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
+  if (oldest < 0) return 0;
+  return lines.filter((x) => capFor(pl, f, oldest, x.max) >= price && acceptsStage(x.c.pref, stageAt(f, oldest))).reduce((a, x) => a + x.w.qty, 0);
+}
+
+/**
+ * The Price panel's "Psst…" read for the price you are about to post. It never counts buyers your fruit cannot serve.
+ * When even as the cheapest stall some of your pieces would not sell, it names the real limit: "(freshness or price)"
+ * when orders are left that will not take them, "Only 2 wanted" when there are simply fewer orders than pieces.
+ * "Enough buyers for everyone" only when the pieces out at every stall fit inside the orders that would take any piece
+ * of yours at this price, so all of yours sell whatever the rivals charge.
  */
 export function priceRead(s: GameState, p: number, f: FruitId, price: number): PriceRead {
   const pl = s.players[p];
   const out = forSale(s, p, f);
   const lines = buyersFor(s, f);
-  const canSell = sellable(s, p, f, price, lines, false);
-  const sure = sellable(s, p, f, price, lines, true);
+  const canSell = sellable(s, p, f, price, lines);
   const servable = lines.filter((x) => price <= bestCap(pl.stock, f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
+  const firm = firmOrders(s, p, f, price, lines);
+  const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
   const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + forSale(s, i, f)), 0);
   const pieces = (n: number) => `${n} rival ${n === 1 ? 'piece' : 'pieces'}`;
-  const read = (cls: PriceRead['cls'], text: string): PriceRead => ({ cls, text, canSell, sure, servable });
+  const read = (cls: PriceRead['cls'], text: string): PriceRead => ({ cls, text, canSell, servable, firm });
   if (!lines.length) return read('war', 'Nobody here wants these today');
   if (canSell === 0) return read('war', `Nobody takes yours at $${price}`);
-  if (canSell < out) return read('war', `Only ${canSell} of your ${out} would sell at $${price} (freshness or price)`);
+  if (canSell < Math.min(out, wanted)) return read('war', `Only ${canSell} of your ${out} would sell at $${price} (freshness or price)`);
+  if (canSell < out) {
+    // Every order would take one of yours: there are just fewer orders than pieces.
+    return rivals === 0 ? read('safe', `No rival has any out: only ${wanted} wanted`) : read('war', `Only ${wanted} wanted for your ${out} and ${pieces(rivals)}`);
+  }
   if (rivals === 0) return read('safe', `No rival has any out: ${servable} would take yours`);
-  if (sure === out && rivals + out <= servable) return read('ok', `Enough buyers for everyone (${rivals + out} out for ${servable})`);
+  if (rivals + out <= firm) return read('ok', `Enough buyers for everyone (${rivals + out} out for ${firm})`);
   return read('war', `${pieces(rivals)} out, ${servable} would take yours`);
 }
 
@@ -212,12 +235,13 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
  * Rivals who would beat you at a tied price for this fruit today, from what is public before the bell: shopkeeper
  * perks are public, so a Haggler with this fruit out wins a tie against you unless you play Favoured Trade (or are the
  * Haggler yourself). Favoured Trade is played secretly with a stall's prices and only shows at the bell, so a rival's
- * card is never used here. "Rosa wins ties (Haggler)", or null.
+ * card is never used here. "Rosa is the Haggler, who wins ties" (the same words as the showdown), or null.
  */
 export function tieHint(s: GameState, p: number, f: FruitId, favoured = false): string | null {
   const me = s.players[p];
   if (favoured || me.favouredTrade || me.trait === 'haggler') return null;
   const names = s.players.filter((o, i) => i !== p && o.trait === 'haggler' && forSale(s, i, f) > 0).map((o) => o.name);
   if (!names.length) return null;
-  return `${names.join(' and ')} ${names.length === 1 ? 'wins' : 'win'} ties (Haggler)`;
+  const hint = hagglerWins(names);
+  return hint.charAt(0).toUpperCase() + hint.slice(1);
 }

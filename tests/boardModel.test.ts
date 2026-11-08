@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FRUIT, FRUITS, stageAt, trackLength } from '../src/engine/data';
 import { beginBuying, buy, count, newGame, type GameConfig, type GameState } from '../src/engine/game';
-import { lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from '../src/ui/boardModel';
+import { MOOD_WORDS, lifeLabel, marketColumn, mood, pulse, stockChips, wantText } from '../src/ui/boardModel';
 
 function cfg(n: number, seed = 1): GameConfig {
   return {
@@ -87,5 +87,10 @@ describe('demand vs supply chips', () => {
     expect(wantText(z(2, 0, true))).toBe('2+');
     expect(wantText(z(0, 0, true))).toBe('?');
     expect(wantText(z(0, 0))).toBe('0');
+  });
+
+  it('the legend speaks of orders, which is what the bar counts (REP-089 3.2)', () => {
+    expect(MOOD_WORDS).toEqual({ good: 'enough orders: prices stay high', war: 'more fruit than orders: price war', open: 'nobody has any yet' });
+    for (const t of Object.values(MOOD_WORDS)) expect(t).not.toMatch(/buyers/);
   });
 });

@@ -117,7 +117,7 @@ describe('specialities draft', () => {
     pl.cash = 20;
     s.market.blueberry[0] = 3; // tired: their last day
     expect(buyCost(s, p, 'blueberry', 0)).toBe(1);
-    expect(UPGRADES.juicebar.text).toContain(`Tip: last-day fruit bought for $1 becomes $${JUICE_VALUE} of juice.`);
+    expect(UPGRADES.juicebar.text).toContain(`Tip: before the last day, $1 tired fruit makes $${JUICE_VALUE} of juice.`);
     for (let k = 0; k < 3; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
     while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
     while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
@@ -129,5 +129,28 @@ describe('specialities draft', () => {
     expect(s.players[p].cash).toBe(20 - 3 + 3 * JUICE_VALUE); // +$3, whatever the customers did
     expect(s.players[p].stats.juiced).toBe(3);
     expect(s.players[p].stats.spoiled).toBe(0);
+  });
+
+  it('…but not on the last day, which no night follows: the card\'s tip says "before the last day"', () => {
+    let s = beginBuying(newGame(humans(2)));
+    s = structuredClone(s);
+    s.day = s.config.days;
+    const p = s.order[0];
+    const pl = s.players[p];
+    pl.upgrades = ['juicebar'];
+    for (const f of Object.keys(pl.stock) as (keyof typeof pl.stock)[]) pl.stock[f] = pl.stock[f].map(() => 0);
+    pl.cash = 20;
+    s.market.blueberry[0] = 3;
+    for (let k = 0; k < 3; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
+    while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
+    while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
+    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [], favoured: false });
+    s = finishReveal(s);
+    expect(s.phase).toBe('over');
+    expect(s.players[p].stats.juiced ?? 0).toBe(0);
+    // Only the jam maker's money, when Closing Day is on: less than the juice would have paid.
+    const jam = s.jam?.[p] ?? 0;
+    expect(s.players[p].cash).toBe(20 - 3 + jam);
+    expect(jam).toBeLessThan(3 * JUICE_VALUE);
   });
 });

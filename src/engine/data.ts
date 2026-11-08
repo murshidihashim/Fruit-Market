@@ -303,8 +303,9 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 4, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
   juicebar: {
     id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3,
-    // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit).
-    text: `+$${JUICE_TIP} for each okay or tired fruit you sell. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: last-day fruit bought for $${TIRED_COST} becomes $${JUICE_VALUE} of juice.`,
+    // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit). The tip
+    // says "before the last day": no night follows the final day, so fruit bought then is never juiced.
+    text: `+$${JUICE_TIP} for each okay or tired fruit you sell. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: before the last day, $${TIRED_COST} tired fruit makes $${JUICE_VALUE} of juice.`,
   },
   barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 8 pieces of fruit a day and hold 12.' },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 8, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },

@@ -30,7 +30,7 @@ Had Stall A been alone in serving him, A would have drawn a favour card. That is
 
 ## Goal
 
-Have the **most cash** at the end of the last day. Upgrades you built are worth nothing at the end, and fruit left on your shelf only what the jam maker pays on Closing Day ($1 for each ripe piece; nothing for green fruit, and nothing if Closing Day is switched off). Ties go to whoever sold more fruit.
+Have the **most cash** at the end of the last day. Upgrades are worth nothing at the end. Fruit left on your shelf is worth only what the jam maker pays on Closing Day: $1 for each ripe piece, nothing for green fruit, and nothing if Closing Day is switched off. Ties go to whoever sold more fruit.
 
 ## Players and length
 
@@ -159,7 +159,7 @@ Drafted on the evening after each Market Day. Each can be built once, and each c
 | Upgrade | Cost | Effect |
 |---|---|---|
 | ❄️ Cold Room | $4 | Your fruit ages only every other night, and heatwaves can't touch it. |
-| 🧃 Juice Bar | $3 | +$1 for each okay or tired fruit you sell. Each night up to 3 pieces of fruit that would spoil become juice: $2 each. Tip: last-day fruit bought for $1 becomes $2 of juice. |
+| 🧃 Juice Bar | $3 | +$1 for each okay or tired fruit you sell. Each night up to 3 pieces of fruit that would spoil become juice: $2 each. Tip: before the last day, $1 tired fruit makes $2 of juice. |
 | 🛒 Handcart | $6 | Buy up to 8 pieces of fruit a day and hold 12. |
 | 🪧 Premium Display | $8 | Your fresh fruit may be priced $1 above a customer's normal limit. |
 

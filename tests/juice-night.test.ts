@@ -6,7 +6,7 @@ import {
   activePlayer, applyAction, beginBuying, emptyStock, finishReveal, leavingTonight, newGame, nightOutlook,
   type GameState, type Level,
 } from '../src/engine/game';
-import { dayHighlights, overnightJuice, overnightLines, overnightLoss, tonightLine, tonightText } from '../src/engine/story';
+import { dayHighlights, heatwaveLine, overnightJuice, overnightLines, overnightLoss, tonightLine, tonightText } from '../src/engine/story';
 import { evaluate, type Context } from '../src/ui/achievements';
 import { spoilsTonight } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
@@ -140,6 +140,19 @@ describe('tonight in words', () => {
     expect(tonightLine(salesCard(5, [3], ['coldroom']), 0)).toBeNull();
   });
 
+  it('the Evening panel\'s Heatwave warning: not for a Cold Room stall, which a Heatwave cannot touch', () => {
+    expect(HEATWAVE.ageExtra).toBe(1);
+    expect(heatwaveLine(salesCard(4, [0, 3], [], true), 0)).toBe('Heatwave: everything ages twice tonight.');
+    for (const day of [4, 5]) {
+      const cold = salesCard(day, [0, 3], ['coldroom'], true);
+      expect(heatwaveLine(cold, 0)).toBeNull();
+      // The night agrees: the okay blueberries do not leave a step early in the Cold Room.
+      expect(forecastAndNight(cold).o.spoil).toBe(0);
+    }
+    expect(heatwaveLine(salesCard(4, [0, 3]), 0)).toBeNull(); // no Heatwave today
+    expect(heatwaveLine(salesCard(10, [0, 3], [], true), 0)).toBeNull(); // the final day: no night follows
+  });
+
   it('day highlight: no spoil warning for juice or on a Cold Room\'s odd night; Heatwave counted', () => {
     const texts = (s: GameState) => dayHighlights(s, 0).map((x) => x.text);
     expect(texts(salesCard(4, [3], ['juicebar'])).join(' ')).not.toMatch(/spoil/);
@@ -155,6 +168,8 @@ describe('tonight in words', () => {
     const html = toStaticHtml(h(SalesSummary, { s: juice, viewer: 0 }));
     expect(html).toContain('3 fruit become juice tonight (+$6)');
     expect(html).not.toMatch(/spoil/);
+    // sc-juice has no style yet, so the line borrows the existing small type rather than showing at full size.
+    expect(html).toContain('class="sc-juice small">3 fruit become juice tonight (+$6)');
     const both = toStaticHtml(h(SalesSummary, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
     expect(both).toContain('class="sc-waste">2 spoil tonight, 3 become juice (+$6)');
     expect(toStaticHtml(h(SalesSummary, { s: salesCard(5, [3], ['coldroom']), viewer: 0 }))).not.toMatch(/spoil/);

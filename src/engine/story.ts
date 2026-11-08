@@ -34,12 +34,21 @@ function hash(...xs: number[]): number {
   return h >>> 0;
 }
 
+/**
+ * The Haggler's tie rule in one wording for every screen (the showdown, the what-if and the Price panel's hint):
+ * "Rosa is the Haggler, who wins ties", or "you're the Haggler, who wins ties" for the viewer.
+ */
+export function hagglerWins(names: string[], you = false): string {
+  if (you) return "you're the Haggler, who wins ties";
+  return names.length === 1 ? `${names[0]} is the Haggler, who wins ties` : `${names.join(' and ')} are Hagglers, who win ties`;
+}
+
 /** Why the winner beat this offer on a tie, following the engine's tie-break order. */
 function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): string {
   const w = s.players[winner.player];
   const l = s.players[loser.player];
   if (w.favouredTrade && !l.favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
-  if (haggled(s, winner, loser)) return `${nameOf(s, winner.player, viewer)} haggled (a Haggler wins ties)`;
+  if (haggled(s, winner, loser)) return hagglerWins([w.name], winner.player === viewer);
   if (winner.freshness > loser.freshness) return `${possessive(s, winner.player, viewer)} fruit was fresher`;
   return `${nameOf(s, winner.player, viewer)} bought earlier today`;
 }
@@ -121,7 +130,7 @@ function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string
   const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
   if (tie) {
     if (s.players[tie.player].favouredTrade && !s.players[o.player].favouredTrade) return 'lost tie: Favoured Trade';
-    return haggled(s, tie, o) ? 'lost tie: haggled' : tie.freshness > o.freshness ? 'lost tie: fresher won' : 'lost tie';
+    return haggled(s, tie, o) ? 'lost tie: Haggler' : tie.freshness > o.freshness ? 'lost tie: fresher won' : 'lost tie';
   }
   return 'order already filled';
 }
@@ -139,6 +148,8 @@ interface LineContext {
   /** What the viewer put out of this fruit, and sold of it today (to anyone). */
   crate: number;
   soldToday: number;
+  /** What the viewer sold of this fruit to the customers before this one. */
+  soldBefore: number;
   /** The most that earlier customers of this fruit could still have bought from the viewer at a lower price. */
   before: number;
 }
@@ -149,17 +160,18 @@ function lineContext(s: GameState, l: LineResult, viewer: number): LineContext |
   let i = lines.indexOf(l);
   if (i < 0) i = lines.findIndex((x) => x.customerId === l.customerId && x.fruit === l.fruit);
   if (i < 0) return null;
-  let soldToday = 0, before = 0, first = true;
+  let soldToday = 0, soldBefore = 0, before = 0, first = true;
   lines.forEach((x, k) => {
     if (x.fruit !== l.fruit) return;
     const m = x.offers.find((o) => o.player === viewer);
     soldToday += m?.sold ?? 0;
     if (k < i) {
       first = false;
-      if (m) before += Math.max(0, x.want - m.sold);
+      soldBefore += m?.sold ?? 0;
+      before += m ? Math.max(0, x.want - m.sold) : x.want;
     }
   });
-  return { first, crate: forSale(s, viewer, l.fruit), soldToday, before };
+  return { first, crate: forSale(s, viewer, l.fruit), soldToday, soldBefore, before };
 }
 
 /**
@@ -189,43 +201,109 @@ export function tieAt(s: GameState, l: LineResult, mine: Offer, rival: Offer, vi
 }
 
 const WIN_WHY: Record<TieBy, string> = {
-  favouredTrade: 'your Favoured Trade wins ties', haggler: 'a Haggler wins ties', fresher: 'your fruit was fresher', order: 'you bought earlier today',
+  favouredTrade: 'your Favoured Trade wins ties', haggler: hagglerWins([], true), fresher: 'your fruit was fresher', order: 'you bought earlier today',
 };
 function loseWhy(s: GameState, p: number, by: TieBy): string {
   const who = s.players[p].name;
   return by === 'favouredTrade' ? `${who} played Favoured Trade, which wins ties`
-    : by === 'haggler' ? `${who} is the Haggler, who wins ties`
+    : by === 'haggler' ? hagglerWins([who])
       : by === 'fresher' ? `${who}'s fruit was fresher` : `${who} bought earlier today`;
 }
 
+/** A count of the viewer's pieces: exact, or only the fewest there would surely have been. */
+interface Pieces { n: number; exact: boolean }
+
 /**
- * How many this customer would surely have bought from the viewer at a lower price: no more than they wanted or the
- * viewer offered them, and no more than was left in the viewer's crate at the end of the day once the earlier
- * customers of this fruit (who would also have seen the lower price) had their share. A lost sale that the crate
- * made up for later counts as none. Without today's results (a hand-made line) only the first two limits apply.
+ * How many this customer would surely have bought from the viewer at `price` with no rival ahead of them: pieces that
+ * qualify at `price` (a lower price lets older pieces qualify too), no more than they wanted or the crate had left.
+ * The first customer of this fruit today saw every shelf as it stood at the bell; if the viewer then sold none of it
+ * all day, the shelf now is that shelf, and the engine's own eligible() gives the exact count. Otherwise it is a
+ * lower bound: the pieces that qualify now, or that were offered at the viewer's own (higher) price, less what earlier
+ * customers of this fruit could also have taken at the lower price (`before`); and the crate less everything earlier
+ * customers could have bought. (Customers take a shop's oldest qualifying pieces first, so a lower price for an
+ * earlier customer can only leave this one fresher pieces; it costs this customer at most the extra pieces taken.)
+ * Without today's results (a hand-made line), what was offered and wanted.
  */
-function surePieces(l: LineResult, mine: Offer, ctx: LineContext | null): number {
-  if (!ctx) return Math.min(l.want, mine.qty);
-  return Math.max(0, Math.min(l.want, mine.qty - ctx.before, ctx.crate - ctx.soldToday - ctx.before));
+function piecesAt(s: GameState, l: LineResult, mine: Offer, price: number, ctx: LineContext | null, viewer: number): Pieces {
+  if (!ctx) return { n: Math.min(l.want, mine.qty), exact: false };
+  const me = s.players[viewer];
+  const bell = s.phase === 'reveal';
+  const now = bell ? eligible(me, me.stock, l.fruit, ctx.crate, price, l.max, prefFor(s, l)).length : 0;
+  if (bell && ctx.first && ctx.soldToday === 0) return { n: Math.min(l.want, now), exact: true };
+  const n = Math.min(l.want, ctx.crate - ctx.soldBefore - ctx.before, Math.max(mine.qty, now) - ctx.before);
+  return { n: Math.max(0, n), exact: false };
 }
 
-/** The "what if" after an undercut: the price that surely sells, and whether matching the cheapest winner would have won the tie. */
+/** The engine's tie rank for a stall today, before freshness and buying order: Favoured Trade first, then a Haggler. */
+const tieRank = (s: GameState, p: number) => 2 * Number(s.players[p].favouredTrade) + Number(s.players[p].trait === 'haggler');
+
+/**
+ * For a customer after the first of this fruit: could a stall priced exactly `price` that was not in this line's price
+ * contest have stood ahead of the viewer, had the viewer charged `price` all day? Earlier customers might then have
+ * bought from the viewer instead, leaving that stall fruit for this customer, and only freshness or the buying order
+ * (not known here) would settle the tie. A stall that Favoured Trade or the Haggler puts ahead of the viewer always
+ * sold first, so it has no more fruit than it really had; one they put behind cannot stand ahead.
+ */
+function unsettledAt(s: GameState, l: LineResult, price: number, viewer: number): boolean {
+  const here = new Set(l.offers.filter(inContest).map((o) => o.player));
+  return (s.results?.lines ?? []).some((x) => x.fruit === l.fruit && x.offers.some((o) =>
+    o.player !== viewer && o.price === price && !here.has(o.player) && tieRank(s, o.player) === tieRank(s, viewer)));
+}
+
+/** "You still sold all 3 at your price." The crate sold out anyway, so a lower price would only have moved a sale. */
+function soldAllText(f: FruitId, crate: number): string {
+  return crate === 1 ? `You still sold your only ${fruitWord(f, 1)} at your price.` : `You still sold all ${crate} at your price.`;
+}
+
+/** Added when fewer of the viewer's pieces went unsold today than a what-if claims for this customer. */
+const unsoldNote = (unsold: number, claimed: number) => (unsold < claimed ? ` You still sold all but ${unsold} at your price.` : '');
+
+/**
+ * The "what if" after an undercut, in the engine's own order. Below the cheapest winner the viewer is first in line
+ * (on a later customer, the highest such price no unsettled stall could tie). Matching the cheapest winner is a tie:
+ * the stalls that win it sell first, and the viewer gets what they leave of the order. Counts come from piecesAt.
+ */
 function undercutWhatIf(s: GameState, l: LineResult, mine: Offer, lowest: number, viewer: number): string {
   const ctx = lineContext(s, l, viewer);
-  const n = surePieces(l, mine, ctx);
-  if (n === 0) return ctx && ctx.crate > 0 && ctx.soldToday >= ctx.crate ? `You still sold all ${ctx.crate} at your price.` : '';
+  const unsold = ctx ? ctx.crate - ctx.soldToday : Infinity;
+  if (ctx && ctx.crate > 0 && unsold <= 0) return soldAllText(l.fruit, ctx.crate);
+  const later = !!ctx && !ctx.first;
   const floor = Math.max(1, minPrice(s, l.fruit));
-  const calls = l.offers
-    .filter((o) => o.player !== viewer && inContest(o) && o.price === lowest)
-    .map((o) => ({ p: o.player, c: tieAt(s, l, mine, o, viewer) }));
-  const lost = calls.find((x) => x.c.outcome === 'lose');
-  if (!lost && calls.length && calls.every((x) => x.c.outcome === 'win')) {
-    const why = calls.every((x) => x.c.by === calls[0].c.by) && calls[0].c.by ? ` (${WIN_WHY[calls[0].c.by]})` : '';
-    return `Matching $${lowest} would have won the tie${why}: ${n} sold.`;
+  let below = lowest - 1;
+  while (below >= floor && later && unsettledAt(s, l, below, viewer)) below--;
+  const under = below >= floor ? { price: below, ...piecesAt(s, l, mine, below, ctx, viewer) } : null;
+  const atTie = piecesAt(s, l, mine, lowest, ctx, viewer);
+  if ((under ?? atTie).n === 0) return '';
+
+  const calls = l.offers.filter((o) => o.player !== viewer && inContest(o) && o.price === lowest).map((o) => ({ o, c: tieAt(s, l, mine, o, viewer) }));
+  const lose = calls.flatMap((x) => (x.c.outcome === 'lose' && x.c.by ? [{ o: x.o, by: x.c.by }] : []));
+  const open = calls.some((x) => x.c.outcome === 'open') || (later && unsettledAt(s, l, lowest, viewer));
+  const wins = calls.filter((x) => x.c.outcome === 'win');
+  if (!open && !lose.length && atTie.n > 0) {
+    const by = wins[0]?.c.by;
+    const why = by && wins.every((x) => x.c.by === by) ? ` (${WIN_WHY[by]})` : '';
+    return `Matching $${lowest} would have won the tie${why}: ${atTie.n} sold.${unsoldNote(unsold, atTie.n)}`;
   }
-  const sure = lowest - 1 >= floor ? `At $${lowest - 1} you'd have sold ${n}.` : `You couldn't go lower than $${floor}.`;
-  if (lost?.c.by) return `${sure} A tie at $${lowest} still loses: ${loseWhy(s, lost.p, lost.c.by)}.`;
-  return `${sure} A tie at $${lowest} goes to the fresher fruit, then to whoever bought earlier today.`;
+
+  const sure = under ? `At $${under.price} you'd have sold ${under.n}.` : lowest - 1 < floor ? `You couldn't go lower than $${floor}.` : '';
+  let claimed = under?.n ?? 0;
+  let tie = '';
+  if (lose.length) {
+    // The stalls that win the tie sell first, each up to what it offered this customer.
+    const room = l.want - lose.reduce((a, x) => a + x.o.qty, 0);
+    const why = loseWhy(s, lose[0].o.player, lose[0].by);
+    const j = Math.min(Math.max(0, room), atTie.n);
+    if (room <= 0) tie = `A tie at $${lowest} still loses: ${why}.`;
+    else if (!open && j > 0 && under && j < under.n && (atTie.exact || atTie.n >= room)) tie = `A tie at $${lowest} sells only ${j}: ${why}.`;
+    else if (!open && j > 0) {
+      tie = `Matching $${lowest} would have sold ${j}${under && j === under.n ? ' too' : ''}, after ${lose.map((x) => s.players[x.o.player].name).join(' and ')}.`;
+      claimed = Math.max(claimed, j);
+    }
+  } else if (open) {
+    tie = `A tie at $${lowest} goes to the fresher fruit, then to whoever bought earlier today.`;
+  }
+  const text = [sure, tie].filter(Boolean).join(' ');
+  return text ? `${text}${unsoldNote(unsold, claimed)}` : '';
 }
 
 export function explainLine(s: GameState, l: LineResult, viewer: number): LineStory {
@@ -300,21 +378,27 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     const gap = mine.price - best.price;
     const who = s.players[best.player].name;
     const headline = gap === 1 ? `${who} undercut you by $1 and stole the sale!` : `${who} undercut you by $${gap}.`;
-    // Counterfactual: one dollar under every winning price puts the viewer first in line; matching the cheapest
-    // winner is a tie, settled in the engine's tie order. Both are capped by the viewer's crate (see surePieces).
+    // Counterfactual: under every winning price puts the viewer first in line; matching the cheapest winner is a
+    // tie, settled in the engine's tie order (see undercutWhatIf). It works from the cheapest winner, so that stall
+    // is named with its price when it is not the one above.
     const lowest = Math.min(...winners.map((o) => o.price));
+    const low = lowest < best.price ? ` and ${winners.filter((o) => o.price === lowest).map((o) => s.players[o.player].name).join(' and ')} $${lowest}` : '';
     const whatIf = undercutWhatIf(s, l, mine, lowest, viewer);
-    const detail = `You charged $${mine.price}, ${who} charged $${best.price}.${whatIf ? ` ${whatIf}` : ''}`;
+    const detail = `You charged $${mine.price}, ${who} charged $${best.price}${low}.${whatIf ? ` ${whatIf}` : ''}`;
     return { showdown, tone: 'bad', headline, detail, tags };
   }
   const tie = winners.find((o) => o.price === mine.price);
   if (tie) {
     const floor = Math.max(1, minPrice(s, l.fruit));
     const ctx = lineContext(s, l, viewer);
-    const n = surePieces(l, mine, ctx);
-    const detail = n === 0
-      ? (ctx && ctx.crate > 0 && ctx.soldToday >= ctx.crate ? `You still sold all ${ctx.crate} at your price.` : undefined)
-      : mine.price - 1 >= floor ? `$${mine.price - 1} would have won it.` : undefined;
+    const unsold = ctx ? ctx.crate - ctx.soldToday : Infinity;
+    const lower = mine.price - 1;
+    let detail: string | undefined;
+    if (ctx && ctx.crate > 0 && unsold <= 0) detail = soldAllText(l.fruit, ctx.crate);
+    else if (lower >= floor && !(ctx && !ctx.first && unsettledAt(s, l, lower, viewer))) {
+      const n = piecesAt(s, l, mine, lower, ctx, viewer).n;
+      if (n > 0) detail = `$${lower} would have won it.${unsoldNote(unsold, n)}`;
+    }
     return { showdown, tone: 'bad', headline: `Tie at $${mine.price}, but ${tieReason(s, tie, mine, viewer)}.`, detail, tags };
   }
   return { showdown, tone: 'bad', headline: `${cust}'s order was filled before your offer.`, tags };
@@ -487,6 +571,17 @@ export function tonightLine(s: GameState, p: number): string | null {
 }
 
 /**
+ * The Evening panel's Heatwave warning for shop `p`, or null. A Heatwave ages fruit an extra step tonight, but a Cold
+ * Room keeps it out (shelfSteps in game.ts), so a Cold Room stall gets no warning; nor does the final day, which no
+ * night follows.
+ */
+export function heatwaveLine(s: GameState, p: number): string | null {
+  const extra = s.event?.ageExtra ?? 0;
+  if (extra <= 0 || s.players[p].upgrades.includes('coldroom') || s.day >= s.config.days) return null;
+  return `Heatwave: everything ages ${extra === 1 ? 'twice' : `${1 + extra} times`} tonight.`;
+}
+
+/**
  * The morning card's overnight lines, in order: fruit lost, then what the Juice Bar made. One helper for both card
  * layouts (the phone brief and the full card), which each show the loss line today.
  */
@@ -593,9 +688,10 @@ export function closingNote(s: GameState, viewer: number): ClosingNote | null {
   if (isLastCall(s)) {
     const stocking = `Closing Day: ripe fruit left tonight goes to the jam maker at $${JAM_PRICE} each.`;
     if (ripe > 0) {
+      // With green fruit on the shelf too, the chip names ripe fruit: the jam maker pays nothing for green.
       return {
         morning: `Ripe fruit left tonight goes to the jam maker for $${JAM_PRICE} each. Sell what you can!`,
-        chip: `Leftovers = $${JAM_PRICE} each`, stocking, each: JAM_PRICE,
+        chip: `${all > ripe ? 'Ripe leftovers' : 'Leftovers'} = $${JAM_PRICE} each`, stocking, each: JAM_PRICE,
       };
     }
     if (all > 0) {

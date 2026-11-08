@@ -122,8 +122,47 @@ describe('the price read counts only buyers who take your freshness at your pric
     start.players[1].stock.mango[FRESH('mango')] = 1;
     const s = crates(start, 'mango', [2, 1, 0]);
     const r = priceRead(s, 0, 'mango', 6);
-    expect(r).toMatchObject({ cls: 'ok', text: 'Enough buyers for everyone (3 out for 4)', canSell: 2, sure: 2 });
+    expect(r).toMatchObject({ cls: 'ok', text: 'Enough buyers for everyone (3 out for 4)', canSell: 2, firm: 4 });
     expect(sells(s, 'mango', [6, 1])).toBe(2);
+    expect(sells(s, 'mango', [6, 6])).toBe(2);
+  });
+
+  it('fewer orders than pieces is not blamed on freshness or price, and stays calm with no rival out', () => {
+    const start = market(['Sarah', 'mango']); // wants 2
+    start.players[0].stock.mango[FRESH('mango')] = 4;
+    const alone = crates(start, 'mango', [4, 0, 0]);
+    for (const price of [3, 6]) {
+      expect(priceRead(alone, 0, 'mango', price)).toMatchObject({ cls: 'safe', text: 'No rival has any out: only 2 wanted', canSell: 2 });
+      expect(sells(alone, 'mango', [price, 0, 0])).toBe(2);
+    }
+    start.players[1].stock.mango[FRESH('mango')] = 1;
+    const rival = crates(start, 'mango', [4, 1, 0]);
+    const r = priceRead(rival, 0, 'mango', 6);
+    expect(r).toMatchObject({ cls: 'war', text: 'Only 2 wanted for your 4 and 1 rival piece' });
+    expect(r.text).not.toMatch(/freshness or price/);
+    // Freshness is still named when it is the limit: tired mangoes Sarah (Everyday) will not take.
+    start.players[0].stock.mango[TIRED] = 1;
+    start.players[0].stock.mango[FRESH('mango')] = 1;
+    const tired = crates(start, 'mango', [2, 1, 0]);
+    expect(priceRead(tired, 0, 'mango', 6).text).toBe('Only 1 of your 2 would sell at $6 (freshness or price)');
+  });
+
+  it('no "Enough buyers" when a rival at your price could take the only buyer for your older piece (review case)', () => {
+    const start = market(['Nurul', 'watermelon'], ['Aisyah', 'watermelon'], ['Kumar', 'watermelon'], ['Hui Min', 'watermelon']);
+    start.players[0].upgrades = ['premium'];
+    start.players[0].stock.watermelon = [0, 1, 0, 1, 0, 0]; // 1 okay, 1 fresh
+    start.players[1].stock.watermelon = [0, 0, 2, 0, 1, 0]; // Rosa: 2 okay, 1 fresh
+    start.players[2].stock.watermelon = [0, 0, 1, 0, 0, 0]; // Benny: 1 okay
+    start.players[1].trait = null;
+    start.players[2].trait = null;
+    const s = crates(start, 'watermelon', [2, 3, 1]);
+    const r = priceRead(s, 0, 'watermelon', 8);
+    expect(r.canSell).toBe(2);
+    expect(r.text).not.toMatch(/Enough buyers/);
+    expect(r.cls).toBe('war');
+    // Only Kumar takes your okay watermelon at $8, and Rosa's fresher one wins that tie.
+    expect(sells(s, 'watermelon', [8, 8, 8])).toBe(1);
+    expect(sells(s, 'watermelon', [8, 8, 1])).toBe(1);
   });
 
   it('keeps the other reads: nobody wants the fruit, and no rival has any out', () => {
@@ -162,7 +201,19 @@ describe('the price read counts only buyers who take your freshness at your pric
               checks++;
               expect(sold).toBeLessThanOrEqual(r.canSell);
               if (rival.every((q) => q > price)) expect(sold).toBe(r.canSell);
-              if (r.text.startsWith('Enough buyers')) { enough++; expect(sold).toBe(out); }
+              if (r.text.startsWith('Enough buyers')) {
+                enough++;
+                expect(sold).toBe(out);
+                // "Whatever the rivals charge": every rival at your price, then every rival at $1.
+                for (const at of [price, 1]) {
+                  let h = s;
+                  for (let i = 0; i < n; i++) {
+                    if (h.bids[i] !== null) continue;
+                    h = submitPrices(h, i, planPrices(h, i).posts.map((b) => (b.fruit === f ? { fruit: f, price: i === p ? price : at } : b)));
+                  }
+                  expect(h.results!.lines.filter((l) => l.fruit === f).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0)).toBe(out);
+                }
+              }
             }
           }
         }
@@ -219,7 +270,7 @@ describe('tie hint', () => {
 
   it('names the Haggler, who really does win a tie against you', () => {
     const s = duel();
-    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} wins ties (Haggler)`);
+    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins ties`);
     expect(sells(s, 'mango', [7, 7, 20])).toBe(0); // the tie goes to Rosa
   });
 
@@ -239,6 +290,6 @@ describe('tie hint', () => {
   it('never uses a rival\'s Favoured Trade, which is played secretly with their prices', () => {
     const s = duel();
     s.players[2].favouredTrade = true;
-    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} wins ties (Haggler)`);
+    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins ties`);
   });
 });

@@ -65,8 +65,10 @@ describe('Closing Day words', () => {
     expect(n.morning).toBe('Green fruit left tonight is worth $0: the jam maker buys ripe fruit only.');
     expect(n.stocking).toMatch(/green fruit left tonight is worth \$0/);
     expect(n.each).toBe(0);
-    // ripe and green together: the jam line, which names ripe fruit only
-    expect(closingNote(closing({}, 1, 3), 0)!.chip).toBe(`Leftovers = $${JAM_PRICE} each`);
+    // ripe and green together: the chip names ripe fruit, since the jam maker pays nothing for the green ones
+    const mixed = closing({}, 1, 3);
+    expect(closingNote(mixed, 0)!.chip).toBe(`Ripe leftovers = $${JAM_PRICE} each`);
+    expect(finishReveal(mixed).jam?.[0]).toBe(1 * JAM_PRICE);
   });
 
   it('an empty shelf shows no morning line or chip; nothing before the final day or after the game', () => {
@@ -151,7 +153,7 @@ describe('the rulebook, How to play and the brief agree with the jam maker', () 
   it('RULES.md still states the Closing Day rule with the game\'s numbers', () => {
     const rules = readFileSync('RULES.md', 'utf8');
     expect(rules).toContain(`**Closing Day (final day):** customers pay $${LAST_CALL_BONUS} more. Afterwards the **jam maker** buys every stall's leftover ripe fruit for $${JAM_PRICE} each.`);
-    expect(rules).toMatch(new RegExp(`only what the jam maker pays on Closing Day \\(\\$${JAM_PRICE} for each ripe piece`));
+    expect(rules).toContain(`Fruit left on your shelf is worth only what the jam maker pays on Closing Day: $${JAM_PRICE} for each ripe piece, nothing for green fruit`);
   });
 
   it('How to play and the set-up screen take the Closing Day numbers from the game data', () => {
