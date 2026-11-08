@@ -2119,6 +2119,9 @@ b, strong { font-weight: 700; }
    places were sized for, so a few spots get a little more room.
    ===================================================================== */
 .gx .seats .rs-name { font-size: 0.74rem; letter-spacing: 0; }
+/* phones: three rival chips share the row, so a longer name ("Uncle Benny") gets a slightly smaller, lighter face */
+@media (max-width: 479px) { .gx .seats .rs-name { font-size: 0.7rem; font-weight: 500; letter-spacing: -0.01em; } }
+@media (max-width: 379px) { .gx .seats .rs-name { font-size: 0.65rem; letter-spacing: -0.025em; } }
 @media (max-width: 899px) {
   .gx .market-stall .mk-head { letter-spacing: 0; }
   /* an event's price chip sits at the right; the title moves left of it, past the lorry */
@@ -2162,7 +2165,7 @@ b, strong { font-weight: 700; }
 .rush .rs-flip {
   position: relative; transform-style: preserve-3d; opacity: 0;
   transform: translate(var(--dx), var(--dy)) rotateY(180deg) scale(0.3);
-  transition: transform calc(var(--rs-k, 1) * 0.42s) cubic-bezier(0.2, 0.8, 0.3, 1), opacity calc(var(--rs-k, 1) * 0.18s);
+  transition: transform calc(var(--rs-k, 1) * 0.32s) cubic-bezier(0.2, 0.8, 0.3, 1), opacity calc(var(--rs-k, 1) * 0.16s);
 }
 .rush .rs-seat.dealt .rs-flip { opacity: 1; transform: rotateY(180deg); }
 .rush .rs-seat.open .rs-flip { opacity: 1; transform: none; }
@@ -2213,3 +2216,9 @@ b, strong { font-weight: 700; }
 /* leaving: the panel fades around the card while the card flies back to its row */
 .auction.rush { transition: background-color calc(var(--rs-k, 1) * 0.2s), border-color calc(var(--rs-k, 1) * 0.2s), box-shadow calc(var(--rs-k, 1) * 0.2s); }
 .auction.rush.st-out, .auction.rush.st-out.tone-good, .auction.rush.st-out.tone-bad { background-color: transparent; border-color: transparent; box-shadow: none; }
+/* a rival's opened stall on a desktop: Rubik's wider chips wrap to one more row, so the rows sit a little closer */
+@media (min-width: 900px) and (min-height: 560px) {
+  .gx .rival-drop .stk { row-gap: 4px; }
+  .gx .rival-drop .stk .ms-cell { min-height: 30px; }
+  .gx .rival-drop .rd-extra { margin-top: 3px; }
+}

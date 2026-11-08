@@ -62,7 +62,7 @@ export function rushOffer(o: Offer, fruit: LineResult['fruit']): { text: string;
  * the whole customer about 3.3 s, close to the old showdown card (about 3.2 s with three stalls).
  */
 export function rushPace(seats: number): Record<'in' | 'deal' | 'down' | 'flip' | 'hold' | 'out', number> {
-  return { in: 280, deal: 90 + Math.max(0, 4 - seats) * 15, down: 180, flip: 380, hold: 1900, out: 260 };
+  return { in: 280, deal: 90 + Math.max(0, 4 - seats) * 15, down: 300, flip: 380, hold: 1800, out: 260 };
 }
 
 /** The whole of one customer's pop-up at normal speed, in ms. */
