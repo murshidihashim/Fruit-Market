@@ -1,0 +1,61 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-070"
+  ],
+  "changes": {
+    "added": [
+      "See every stall's crate round the market table while setting prices"
+    ],
+    "changed": [
+      "During the rush, shelves count down as each customer is served"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "See what every stall put out while you price",
+    "Your shelf now empties customer by customer at the rush"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go with option 3 / dont straigjt away minus everything from the players inventory, it should drop after customer demand has been fulfilled one by one",
+    "date": "2026-11-08"
+  },
+  "delivery": "not started",
+  "id": "PLAN-054",
+  "title": "Open stalls at pricing and a step-by-step shelf at the rush",
+  "problem": "While pricing, rivals' crates are hard to see; at the rush, sold fruit vanishes from shelves before the customers are shown being served.",
+  "scope": [
+    "Round-the-table view of all crates in the pricing phase, phone and desktop, no page scroll",
+    "Shown shelf and crate counts for every stall driven by the rush pop-up, one customer at a time; skip jumps to the end",
+    "Tests and screenshots"
+  ],
+  "exclusions": [
+    "Rules, prices, balance",
+    "Showing prices before the bell",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. online 0 leaks pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Shelf counts drop per customer during the rush and match the engine at the end",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
