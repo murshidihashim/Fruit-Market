@@ -206,6 +206,24 @@
       "date": "2026-11-07",
       "commit": "df61983",
       "tagged": true
+    },
+    {
+      "version": "1.9.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-050",
+        "PLAN-051"
+      ],
+      "notes": [
+        "New in-game layout: your shelf and every customer fit on one screen, no scrolling",
+        "Clearer advice after each sale: the real reason a sale was missed, and what would have won a tie",
+        "The price hint now counts only buyers who would take your fruit",
+        "Juice Bar: see what becomes juice tonight and what it earned overnight; the card has a new tip",
+        "Closing Day now clearly says the jam maker pays $1 for each ripe leftover",
+        "Smarter computer rivals on Closing Day and at tied prices",
+        "Cards share one layout and the opening flows smoothly into the home screen",
+        "No rules change: you can still play online with 1.8.0 (update to send daily challenge scores)"
+      ]
     }
   ]
 }
