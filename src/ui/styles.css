@@ -2210,3 +2210,6 @@ b, strong { font-weight: 700; }
   .rush .rs-flip, .rush .rs-face, .rush .rs-why, .rush .rs-tag, .rush-dim, .game .street .cust .rush-tick { transition: none; animation: none; }
 }
 .auction.rush.tone-good, .auction.rush.tone-bad { box-shadow: 0 4px 0 var(--x-mustard), 0 16px 34px color-mix(in srgb, var(--x-ink) 70%, transparent); }
+/* leaving: the panel fades around the card while the card flies back to its row */
+.auction.rush { transition: background-color calc(var(--rs-k, 1) * 0.2s), border-color calc(var(--rs-k, 1) * 0.2s), box-shadow calc(var(--rs-k, 1) * 0.2s); }
+.auction.rush.st-out, .auction.rush.st-out.tone-good, .auction.rush.st-out.tone-bad { background-color: transparent; border-color: transparent; box-shadow: none; }
