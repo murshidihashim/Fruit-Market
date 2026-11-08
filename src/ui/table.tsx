@@ -13,7 +13,8 @@ import { shownCash, useCashShown } from './cashShown';
 import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
-import { lifeLabel, marketColumn, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, stockChips, wantText } from './boardModel';
+import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText } from './boardModel';
+import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { LorrySprite, PropSprite, RoofBand } from './propsArt';
 import { partsOf, stallOf } from '../net/looks';
@@ -46,11 +47,13 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
   lorry?: boolean;
 }) {
   const pz = pulse(s);
-  // Every column's slots are the same height, sized for the longest track (screens.css --rows). When the market
-  // is short of room (a small phone), the empty slots below the lowest fruit in any column step aside and the
-  // rest grow (--rows-fit, .tail in styles.css): a slot with fruit in it is never hidden.
-  const rows = Math.max(...FRUITS.map((f) => s.market[f].length));
-  const fit = Math.max(3, ...FRUITS.map((f) => marketColumn(s, f).reduce((a, x, i) => (x.n > 0 ? i + 1 : a), 0)));
+  // The columns as drawn: a green slot no lorry ever fills (the watermelon's) is left out (shownColumn); a slot with
+  // fruit in it always shows. Every column's slots are the same height, sized for the longest column (screens.css
+  // --rows). When the market is short of room (a small phone), the empty slots below the lowest fruit in any column
+  // step aside and the rest grow (--rows-fit, .tail in styles.css): a slot with fruit in it is never hidden.
+  const cols = FRUITS.map((f) => shownColumn(s, f));
+  const rows = Math.max(...cols.map((c) => c.length));
+  const fit = Math.max(3, ...cols.map((c) => c.reduce((a, x, i) => (x.n > 0 ? i + 1 : a), 0)));
   return (
     <div class="market-stall" style={{ '--rows': rows, '--rows-fit': Math.min(rows, fit) }}>
       <div class="mk-roof" />
@@ -71,7 +74,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
               <Fruit id={f} size={18} />
               <span class="pz-n"><span><b>{wantText(pz[i])}</b> want</span><span><b>{pz[i].supply}</b> in stalls</span></span>
             </button>
-            {marketColumn(s, f).map(({ pos, stage, n }, row) => {
+            {cols[i].map(({ pos, stage, n }, row) => {
               const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
               return (
                 <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''} ${row >= fit ? 'tail' : ''}`}
@@ -246,6 +249,8 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   const used = count(pl.stock);
   const cap = shelfSize(pl);
+  // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
+  const closing = closingNote(s, p)?.chip;
   return (
     <section class={`my-stall dock ${active ? 'active' : ''} ${stall.prop ? 'has-prop' : ''}`} data-a={`p${p}`} aria-label="Your shelf">
       <RoofBand cls="ms-awning" colour={mine || seatColour(p)} roof={stall.roof} trim={stall.trim} />
@@ -255,7 +260,7 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
         <span class={`chip dk-space ${used >= cap ? 'full' : ''}`} title="Shelf space" aria-label={`Shelf space: ${used} of ${cap} used`}><Icon name="crate" size={14} />{used}/{cap}</span>
         {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={14} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
-        {s.day === s.config.days && s.phase !== 'over' && used > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}
+        {closing && <span class="chip warn zero-warn">{closing}</span>}
         {board && <SeatBoard b={board} />}
         {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={16} /></span>)}
         {stall.prop && <PropSprite id={stall.prop} size={26} />}
@@ -359,7 +364,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
           {done && <i class="happy-mark"><Icon name="heart" size={14} /></i>}
           {kind === 'waiting' && <i class="clock" title="Waiting since yesterday"><Icon name="hourglass" size={14} /></i>}
           {special && <i class="star" title="Special guest"><Icon name="star" size={14} /></i>}
-          {heard && <i class="ear" title="You heard about this walk-in (Gossip)"><Icon name="ear" size={14} /></i>}
+          {heard && <i class="ear" title={SEEN_WALK_IN}><Icon name="ear" size={14} /></i>}
         </span>
       )}
       {kind === 'tomorrow' ? <small class="cust-tag">tomorrow</small> : c.pref && <em class={`pref pref-${c.pref}`}>{PREF_INFO[c.pref].short}</em>}
@@ -371,7 +376,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
 export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
   const extra = s.event?.extra;
-  // Walk-ins wait face down; a player who heard the gossip sees their fronts.
+  // Walk-ins wait face down; a player who played Gossip or Scout on one sees its front.
   const walkIn = (c: Customer) => c.seenBy?.includes(viewer)
     ? <CustomerChar key={c.id} s={s} c={c} kind="today" onTip={onTip} heard />
     : <CustomerChar key={c.id} s={s} c={c} kind="mystery" onPick={onScout ? () => onScout(c.id) : undefined} />;
@@ -391,7 +396,7 @@ export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: nu
 
 /**
  * Tomorrow's customers once buying is over, as a strip of mini chips: the expected customer face up (tap for
- * their card), each walk-in as a card back showing only the fruit it wants (its front if you heard the gossip).
+ * their card), each walk-in as a card back showing only the fruit it wants (its front if you played Gossip or Scout on it).
  */
 export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';

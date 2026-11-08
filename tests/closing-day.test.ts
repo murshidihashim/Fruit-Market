@@ -7,6 +7,7 @@ import { beginBuying, count, finishReveal, newGame, type GameConfig, type GameSt
 import { closingNote, dayLedger, jamDue, standing, withJamPaid } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
 import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
+import { MyStall } from '../src/ui/table';
 
 // Closing Day (REP-089 3.1): the jam maker pays JAM_PRICE for each ripe leftover (RULES.md, approved in REP-032/033).
 // The morning card, the shelf chip, the Stocking note and the final sales card must say what the night will pay.
@@ -42,6 +43,15 @@ function closing(extra: Partial<GameConfig>, ripe: number, green = 0): GameState
 }
 
 describe('Closing Day words', () => {
+  it('the shelf chip on your stall says what leftovers are worth tonight (MyStall)', () => {
+    const shelf = (s: GameState) => toStaticHtml(h(MyStall, { s, p: 0 }));
+    expect(shelf(closing({}, 2))).toContain(`>Leftovers = $${JAM_PRICE} each</span>`);
+    expect(shelf(closing({}, 2))).not.toContain('Unsold = $0');
+    expect(shelf(closing({}, 1, 3))).toContain(`>Ripe leftovers = $${JAM_PRICE} each</span>`);
+    expect(shelf(closing({ marketDays: false }, 2))).toContain('>Unsold = $0</span>');
+    expect(shelf(closing({}, 0))).not.toContain('zero-warn');
+  });
+
   it('on Closing Day ripe leftovers are worth the jam price, everywhere it is said', () => {
     const n = closingNote(closing({}, 2), 0)!;
     expect(n.morning).toBe(`Ripe fruit left tonight goes to the jam maker for $${JAM_PRICE} each. Sell what you can!`);

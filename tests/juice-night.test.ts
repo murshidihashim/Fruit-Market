@@ -11,6 +11,7 @@ import { evaluate, type Context } from '../src/ui/achievements';
 import { spoilsTonight } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
+import { EveningPanel } from '../src/ui/panel';
 
 // Tonight's forecast (REP-089 3.4): the warnings follow the night's own rules. A Cold Room skips odd nights, a Heatwave
 // ages fruit one more step (not in a Cold Room), and a Juice Bar turns up to 3 of the pieces leaving the shelf into $2
@@ -168,12 +169,23 @@ describe('tonight in words', () => {
     const html = toStaticHtml(h(SalesSummary, { s: juice, viewer: 0 }));
     expect(html).toContain('3 fruit become juice tonight (+$6)');
     expect(html).not.toMatch(/spoil/);
-    // sc-juice has no style yet, so the line borrows the existing small type rather than showing at full size.
-    expect(html).toContain('class="sc-juice small">3 fruit become juice tonight (+$6)');
+    expect(html).toContain('class="sc-juice">3 fruit become juice tonight (+$6)');
     const both = toStaticHtml(h(SalesSummary, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
     expect(both).toContain('class="sc-waste">2 spoil tonight, 3 become juice (+$6)');
     expect(toStaticHtml(h(SalesSummary, { s: salesCard(5, [3], ['coldroom']), viewer: 0 }))).not.toMatch(/spoil/);
     expect(spoilsTonight(salesCard(4, [0, 3], [], true), 0)).toBe(3);
+  });
+
+  it('the Evening panel forecasts the real night: juice money, and no Heatwave warning for a Cold Room', () => {
+    // the panel shows after the sales card, before the night, on the same shelf (no evening comes on most nights)
+    const evening = (s: GameState) => toStaticHtml(h(EveningPanel, { s: { ...s, phase: 'evening' }, p: 0, onUpgrade: () => undefined, onCard: () => undefined }));
+    // juice money alone is good news (a green card); spoiling fruit keeps the warning
+    expect(evening(salesCard(4, [3], ['juicebar']))).toContain('class="info-card good"><div>3 fruit become juice tonight (+$6)</div>');
+    const hot = evening(salesCard(4, [0, 3], [], true));
+    expect(hot).toContain('class="info-card warn"><div>3 fruit spoil tonight</div>');
+    expect(hot).toContain('Heatwave: everything ages twice tonight.');
+    // the old forecast counted only the last-day slot and warned every stall about the Heatwave
+    expect(evening(salesCard(4, [0, 3], ['coldroom'], true))).not.toMatch(/Heatwave|spoil/);
   });
 
   it('the morning card says what the Juice Bar made overnight', () => {

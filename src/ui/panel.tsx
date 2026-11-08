@@ -2,12 +2,14 @@
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useState } from 'preact/hooks';
 import { planPrices, planStall } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  bestCap, canPlayFavour, canUpgrade, count, effectiveMax, forSale, isDraftNight, isMarketDay, maxPrice, minPrice,
-  servingCustomers, validatePrices, type GameState, type Post, type Stall,
+  canPlayFavour, canUpgrade, count, forSale, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook,
+  validatePrices, type GameState, type Post, type Stall,
 } from '../engine/game';
+import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, Face, FavourIcon, Fruit } from './art';
+import { buyerCap, buyersFor, priceRead, stallWantText, tieHint } from './boardModel';
 import { Icon } from './pixel';
 
 // ---------- favour cards ----------
@@ -33,11 +35,6 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
 
 // ---------- open stalls ----------
 
-/** Customers in the market who want this fruit, in serving order, with the most they'd pay for it. */
-function wantsFor(s: GameState, f: FruitId) {
-  return servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ c, w, max: effectiveMax(s, w, c.generous) })));
-}
-
 /**
  * Step 1 of selling: how many of each fruit to put out today. Everyone sees the numbers once all stalls open.
  * On the game screen the rows sit in the middle of the table (one compact row per fruit) and the button
@@ -49,17 +46,17 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const [vals, setVals] = useState<Stall>(() => planStall(s, p));
   const set = (f: FruitId, n: number) => setVals((v) => ({ ...v, [f]: Math.max(0, Math.min(count(pl.stock, f, true), n)) }));
   const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
-  const tomorrow = s.day >= s.config.days ? 'Closing Day: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
+  // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off); else Market Day news.
+  const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
   return (
     <>
       <div class="price-panel stall-panel mid-panel">
         <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>
-        {tomorrow && <div class="info-card warn small">{tomorrow}</div>}
+        {note && <div class="info-card warn small">{note}</div>}
         {fruits.length === 0 && <div class="info-card dim">You have no ripe fruit to sell today.</div>}
         {fruits.map((f) => {
           const have = count(pl.stock, f, true);
           const n = vals[f] ?? 0;
-          const want = wantsFor(s, f).reduce((a, x) => a + x.w.qty, 0);
           const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
           return (
             <div class={`price-card ${n ? 'on' : ''}`}>
@@ -67,7 +64,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
                 <Fruit id={f} size={32} />
                 <div class="pc-who">
                   <b>{FRUIT[f].plural}</b>
-                  <span class="pc-sub">{want ? `${want} wanted` : 'Nobody wants these'} · rivals hold {rivals}</span>
+                  <span class="pc-sub">{stallWantText(s, p, f)} · rivals hold {rivals}</span>
                   <StockLine stock={pl.stock} f={f} />
                 </div>
                 <div class="pc-price">
@@ -117,15 +114,12 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
         {fruits.map((f) => {
           const price = Math.min(vals[f], maxPrice(s, f));
           const out = forSale(s, p, f);
-          const lines = wantsFor(s, f);
-          const want = lines.reduce((a, x) => a + x.w.qty, 0);
+          const lines = buyersFor(s, f);
+          const caps = lines.map((x) => ({ x, b: buyerCap(s, p, f, x) }));
           const rivalOut = s.players.map((o, i) => ({ o, i, n: i === p ? 0 : forSale(s, i, f) })).filter((r) => r.n > 0);
-          const rivals = rivalOut.reduce((a, r) => a + r.n, 0);
-          const read = !want ? { cls: 'war', t: 'Nobody here wants these today' }
-            : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
-              : rivals + out <= want ? { cls: 'ok', t: `Enough buyers: ${rivals + out} out for ${want}` }
-                : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
-          const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref)));
+          const read = priceRead(s, p, f, price);
+          const tie = tieHint(s, p, f, favoured);
+          const top = Math.max(1, ...caps.map(({ b }) => b.cap));
           return (
             <div class="price-card on">
               <div class="pc-top">
@@ -133,10 +127,9 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
                 <div class="pc-who">
                   <b>{FRUIT[f].plural}<span class="pc-out">: {out} out</span></b>
                   {lines.length ? (
-                    <span class="buyer-caps" aria-label={`They pay for yours: ${lines.map((x) => `${lookOf(x.c.name).title} up to $${bestCap(pl.stock, f, x.max, pl, x.c.pref)}`).join(', ')}`}>{lines.map((x) => {
-                      const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
-                      return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} wants ${x.w.qty}, pays up to $${cap} for your freshest`}><Face who={x.c.name} size={16} />≤${cap}</span>;
-                    })}</span>
+                    <span class="buyer-caps" aria-label={`They pay for yours: ${caps.map(({ b }) => b.aria).join(', ')}`}>
+                      {caps.map(({ x, b }) => <span class={`bc ${price <= b.cap ? 'yes' : 'no'}`} title={b.title}><Face who={x.c.name} size={16} />{b.label}</span>)}
+                    </span>
                   ) : <span class="pc-sub">no customers want these</span>}
                 </div>
                 <div class="pc-price">
@@ -146,11 +139,14 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
                 </div>
               </div>
               <div class="pc-foot">
-                <span class={`read ${read.cls}`} title={read.t}><b class="psst">Psst…</b> {read.t}</span>
+                {/* the full read on a desktop, its short form on a phone (styles.css .rd-l / .rd-s) */}
+                <span class={`read ${read.cls}`} title={read.text}><b class="psst">Psst…</b> <span class="rd-l">{read.text}</span><span class="rd-s">{read.short}</span></span>
                 {rivalOut.length > 0 && (
                   <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`} aria-label={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={16} />{r.n}<small class="rc-out"> out</small></span>)}</span>
                 )}
               </div>
+              {/* public before the bell: a rival Haggler with this fruit out wins a tie at your price */}
+              {tie && <div class="pc-tie" title={tie}><Icon name="scales" size={12} />{tie}</div>}
             </div>
           );
         })}
@@ -182,17 +178,22 @@ function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {
 
 export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void }) {
   const pl = s.players[p];
-  const rotting = FRUITS.filter((f) => pl.stock[f][0] > 0);
+  // Tonight follows the night's own rules (a Cold Room, a Heatwave, the Juice Bar): "2 spoil tonight, 3 become juice (+$6)".
+  const night = nightOutlook(s, p);
+  const tonight = tonightText(night);
+  const heat = heatwaveLine(s, p);
   // Tomorrow's Health Inspector fines the fruit that will be tired when the day starts (a Cold Room does not help).
   const fine = tiredTomorrow(s, pl) * (s.nextEvent?.inspector ?? 0);
+  // Only juice money tonight is good news: the card turns green; anything spoiling, a fine or a Heatwave keeps it a warning.
+  const good = night.spoil === 0 && fine === 0 && !heat;
   const left = s.config.days - s.day;
   return (
     <div class="evening-panel">
-      {(rotting.length > 0 || fine > 0 || s.event?.ageExtra) && (
-        <div class="info-card warn">
-          {rotting.length > 0 && <div>Spoils tonight: {rotting.map((f) => <span class="inline-f"><Fruit id={f} size={16} stage="notso" />×{pl.stock[f][0]}</span>)}</div>}
+      {(tonight || fine > 0 || heat) && (
+        <div class={`info-card ${good ? 'good' : 'warn'}`}>
+          {tonight && <div>{tonight}</div>}
           {fine > 0 && <div>The inspector fines you ${fine} tomorrow morning, before you can sell or discard.</div>}
-          {!!s.event?.ageExtra && <div>Heatwave: everything ages twice tonight.</div>}
+          {heat && <div>{heat}</div>}
         </div>
       )}
       {isDraftNight(s) && (

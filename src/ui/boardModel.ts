@@ -161,6 +161,8 @@ export function buyerCap(s: GameState, p: number, f: FruitId, x: BuyerLine): Buy
 export interface PriceRead {
   cls: 'war' | 'safe' | 'ok';
   text: string;
+  /** The same read in fewer words, for a phone's narrow price card (the price shows next to it). */
+  short: string;
   /** The most of your pieces out that today's buyers would take at this price, even if you were the cheapest stall. */
   canSell: number;
   /** Pieces wanted by customers who would take at least one of yours at this price. */
@@ -218,16 +220,20 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
   const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
   const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + forSale(s, i, f)), 0);
   const pieces = (n: number) => `${n} rival ${n === 1 ? 'piece' : 'pieces'}`;
-  const read = (cls: PriceRead['cls'], text: string): PriceRead => ({ cls, text, canSell, servable, firm });
-  if (!lines.length) return read('war', 'Nobody here wants these today');
+  const read = (cls: PriceRead['cls'], text: string, short = text): PriceRead => ({ cls, text, short, canSell, servable, firm });
+  if (!lines.length) return read('war', 'Nobody here wants these today', 'Nobody wants these today');
   if (canSell === 0) return read('war', `Nobody takes yours at $${price}`);
-  if (canSell < Math.min(out, wanted)) return read('war', `Only ${canSell} of your ${out} would sell at $${price} (freshness or price)`);
+  if (canSell < Math.min(out, wanted)) {
+    return read('war', `Only ${canSell} of your ${out} would sell at $${price} (freshness or price)`, `Only ${canSell} of ${out} would sell (freshness or price)`);
+  }
   if (canSell < out) {
     // Every order would take one of yours: there are just fewer orders than pieces.
-    return rivals === 0 ? read('safe', `No rival has any out: only ${wanted} wanted`) : read('war', `Only ${wanted} wanted for your ${out} and ${pieces(rivals)}`);
+    return rivals === 0
+      ? read('safe', `No rival has any out: only ${wanted} wanted`, `No rivals out: only ${wanted} wanted`)
+      : read('war', `Only ${wanted} wanted for your ${out} and ${pieces(rivals)}`, `Only ${wanted} wanted for ${out + rivals} out`);
   }
-  if (rivals === 0) return read('safe', `No rival has any out: ${servable} would take yours`);
-  if (rivals + out <= firm) return read('ok', `Enough buyers for everyone (${rivals + out} out for ${firm})`);
+  if (rivals === 0) return read('safe', `No rival has any out: ${servable} would take yours`, `No rivals out: ${servable} would take yours`);
+  if (rivals + out <= firm) return read('ok', `Enough buyers for everyone (${rivals + out} out for ${firm})`, `Enough buyers: ${rivals + out} out for ${firm}`);
   return read('war', `${pieces(rivals)} out, ${servable} would take yours`);
 }
 

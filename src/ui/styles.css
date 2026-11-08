@@ -801,6 +801,9 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .next-lorry .nl-note { font-size: 0.72rem; }
 .sc-money.ledger .net { padding-left: 10px; border-left: 2px solid rgba(0, 0, 0, 0.12); }
 .sc-waste { font-size: 0.8rem; color: var(--terra-d); }
+/* good news: fruit the Juice Bar turns into money tonight (the sales card) and overnight (the morning card) */
+.sc-juice { font-size: 0.8rem; font-weight: 600; color: var(--x-green); }
+.mc-loss.good { color: var(--x-green); background: var(--good-bg); }
 
 /* ---------- PLAN-030: look D, the table screen (approved design, DEC-034 and DEC-042) ----------
    Warm cream mat, ink outlines, paper slots, coin-shaped prices, freshness flags. The trays and pop-ups stay as they are until PLAN-033. */
@@ -1239,6 +1242,7 @@ b, strong { font-weight: 700; }
 .code-input, .join-row .input { font-family: var(--f-label); font-weight: 600; letter-spacing: 0.2em; }
 .info-card { background: var(--x-paper); border: 2px solid var(--x-ink); }
 .info-card.warn { background: var(--bad-bg); color: var(--x-red-d); border-color: var(--x-red-d); }
+.info-card.good { background: var(--good-bg); color: var(--x-green); border-color: var(--x-green); }
 .save-notice, .home.cosy .save-notice { background: var(--x-paper); color: var(--x-ink); border: 2px dashed var(--x-red-d); border-radius: var(--r); font-family: var(--f-serif); }
 .daily-peek, .home.cosy .daily-peek { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: none; }
 .daily-peek small, .home.cosy .daily-peek small { color: var(--x-slate); }
@@ -1897,6 +1901,12 @@ b, strong { font-weight: 700; }
   padding: 1px 8px; border-radius: 8px; font-size: 0.62rem; line-height: 1.2;
 }
 .gx .mid-panel .read .psst { line-height: 1; }
+/* the read's short form on a phone, its full words on a desktop (panel.tsx PricePanel) */
+.read .rd-s, .gx .mid-panel .read .rd-l { display: none; }
+.gx .mid-panel .read .rd-s { display: inline; }
+/* the tie hint under a price card: one short line, the same warning colours as a "war" read */
+.pc-tie { display: flex; align-items: center; gap: 4px; margin-top: 4px; padding: 1px 8px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; background: var(--bad-bg); color: var(--x-red-d); }
+.gx .mid-panel .pc-tie { margin-top: 2px; font-size: 0.62rem; line-height: 1.2; }
 .gx .mid-panel .rival-caps { flex: none; gap: 6px; }
 /* phones: a rival's face and count ("2"), the word "out" only on a desktop (the tip already says "rival pieces out") */
 .gx .mid-panel .rc-out { display: none; }
@@ -2078,6 +2088,9 @@ b, strong { font-weight: 700; }
   .gx .mid-panel .pc-out { font-size: 0.8rem; }
   .gx .mid-panel .pc-foot { margin-top: 4px; font-size: 0.76rem; }
   .gx .mid-panel .read { font-size: 0.7rem; }
+  .gx .mid-panel .read .rd-l { display: inline; }
+  .gx .mid-panel .read .rd-s { display: none; }
+  .gx .mid-panel .pc-tie { font-size: 0.7rem; }
   .gx .mid-panel .rc-out { display: inline; }
   .gx .mid-panel .pc-price button { width: 44px; height: 44px; }
   .gx .mid-panel .pc-num { min-width: 48px; font-size: 1.5rem; }

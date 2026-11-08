@@ -7,6 +7,7 @@ import { FavourIcon } from '../../art';
 import { TradingCard } from '../../cards';
 import { GUEST_EVENT } from '../../deckArt';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
+import { MOOD_WORDS } from '../../boardModel';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
 import { Wardrobe } from '../../Wardrobe';
@@ -60,7 +61,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
       <b>Demand vs supply</b>
       <span><b>want</b> = fruit today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ = walk-ins not here yet)' : ''}.</span>
       <span><b>in stalls</b> = ripe fruit all stalls (you included) could sell.</span>
-      <span class="pz-legend"><i class="good" /> enough buyers: prices stay high · <i class="war" /> more fruit than buyers: price war · <i class="open" /> nobody has any yet</span>
+      <span class="pz-legend"><i class="good" /> {MOOD_WORDS.good} · <i class="war" /> {MOOD_WORDS.war} · <i class="open" /> {MOOD_WORDS.open}</span>
       <small>Tap to close.</small>
     </div>
   )}

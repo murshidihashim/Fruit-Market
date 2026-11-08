@@ -3,7 +3,7 @@
 // A walk-in's front is used only when this shop has seen the card (Market Gossip or Scout).
 // Each call to aiStep does one action, so the UI can animate them one at a time.
 
-import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_TIP, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
+import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
   capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
@@ -127,10 +127,10 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   // A Cold Room makes fruit last about twice as long.
   const laterDays = Math.min(cold ? pos * 2 + 1 : pos, daysLeft);
   let later = laterDays > 0 ? (cold ? 0.55 : 0.35) * Math.max(0, price - 1) * (1 - pSell) : 0;
-  // Juice Bar: fruit that doesn't sell still becomes juice ($2) when it spoils, if there is room in tonight's 3.
+  // Juice Bar: fruit that doesn't sell still becomes juice (JUICE_VALUE each) when it spoils, if tonight's JUICE_CAP has room.
   if (juice && daysLeft > 0) {
     const spoilingSoon = FRUITS.reduce((a, x) => a + pl.stock[x][0], 0) + extraMine;
-    if (spoilingSoon < 3) later = Math.max(later, 2 * (1 - pSell));
+    if (spoilingSoon < JUICE_CAP) later = Math.max(later, JUICE_VALUE * (1 - pSell));
   }
   // A Hard shop reads tomorrow's event: fruit that sells for more tomorrow is worth keeping.
   if (level(s, p) === 'hard' && HARD.eventAware && laterDays > 0 && s.nextEvent) {

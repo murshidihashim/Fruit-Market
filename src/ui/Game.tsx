@@ -95,7 +95,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const mid = (() => {
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
-      : <MorningCard s={s} viewer={viewer} lost={c.lastNight} table />;
+      : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall) => { fx.card(); act({ kind: 'stall', stall }); }} />;
     if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
     if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;

@@ -1,9 +1,10 @@
-// The card over the market each morning: standing, overnight losses, and today's event as the Exchange Gazette
-// front page (DEC-066), with tomorrow's headline below. Phones get the compact front page plus the event's rule text.
+// The card over the market each morning: standing, the night's spoilage and juice, the final day's word on leftovers,
+// and today's event as the Exchange Gazette front page (DEC-066), with tomorrow's headline below. Phones get the
+// compact front page plus the event's rule text.
 import { useEffect, useState } from 'preact/hooks';
 import { FRUIT, FRUITS } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
-import { standing } from '../../../engine/story';
+import { closingNote, overnightLines, standing, type NightJuice } from '../../../engine/story';
 import { EventIcon, Fruit } from '../../art';
 import { ART_SIZE, CardArt, Gazette } from '../../cards';
 import { eventArt } from '../../deckArt';
@@ -33,12 +34,14 @@ function useWide(query = WIDE): boolean {
  * is a short brief (the event's picture, title and rule, tomorrow's news and lorry) so nothing has to scroll;
  * the full Gazette front page opens from the event chip in the top bar.
  */
-export function MorningCard({ s, viewer, lost, table }: { s: GameState; viewer: number; lost: number; table?: boolean }) {
+export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; viewer: number; lost: number; juice?: NightJuice; table?: boolean }) {
   const wide = useWide();
   const desk = useWide(DESK);
   const rem = s.config.days - s.day + 1;
   const st = standing(s, viewer);
-  const stock = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f].reduce((x, y) => x + y, 0), 0);
+  // Overnight: fruit lost (red), then what the Juice Bar made (green); on the final day, what leftovers are worth.
+  const night = overnightLines(lost, juice).map((l) => <div class={`mc-loss ${l.tone}`}>{l.text}</div>);
+  const closing = closingNote(s, viewer)?.morning;
   if (table && !desk) {
     return (
       <div class={`morning-card mc-brief ${rem <= 3 ? 'finale' : ''}`}>
@@ -46,8 +49,8 @@ export function MorningCard({ s, viewer, lost, table }: { s: GameState; viewer: 
           <div class="mc-day">{rem === 1 ? 'FINAL DAY' : `Day ${s.day}`}<small>{rem === 1 ? '' : ` · ${rem} days left`}</small></div>
           {s.day > 1 && <div class={`mc-standing r${st.rank}`}>{st.text}</div>}
         </div>
-        {lost > 0 && <div class="mc-loss">{lost} of your fruit spoiled overnight.</div>}
-        {rem === 1 && stock > 0 && <div class="mc-loss">Anything unsold tonight is worth $0. Sell it all!</div>}
+        {night}
+        {closing && <div class="mc-loss">{closing}</div>}
         {s.event ? (
           <div class={`mc-event x-ev-${s.event.id}`}>
             {/* the Gazette's picture, as tall as the space allows (screens.css) */}
@@ -81,8 +84,8 @@ export function MorningCard({ s, viewer, lost, table }: { s: GameState; viewer: 
     <div class={`morning-card ${rem <= 3 ? 'finale' : ''}`}>
       <div class="mc-day">{rem === 1 ? 'FINAL DAY' : `Day ${s.day}`}<small>{rem === 1 ? '' : ` · ${rem} days left`}</small></div>
       {s.day > 1 && <div class={`mc-standing r${st.rank}`}>{st.text}</div>}
-      {lost > 0 && <div class="mc-loss">{lost} of your fruit spoiled overnight.</div>}
-      {rem === 1 && stock > 0 && <div class="mc-loss">Anything unsold tonight is worth $0. Sell it all!</div>}
+      {night}
+      {closing && <div class="mc-loss">{closing}</div>}
       {s.event ? (
         <div class="mc-gazette">
           <Gazette event={s.event} compact={!wide} eager />
