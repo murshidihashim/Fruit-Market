@@ -31,7 +31,8 @@ export function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer:
           return (
             <div class={`au-offer ${open ? 'open' : 'sealed'} ${res} ${o.player === viewer ? 'me' : ''}`}>
               <span class="au-who"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} /></span>
-              <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>{o.player === viewer ? 'offer' : 'offers'} {o.qty}</small></span>
+              {/* An offer with nothing that qualified for this customer was never in the contest (its reason is the tag). */}
+              <span class="au-name">{o.player === viewer ? 'You' : pl.name}<small>{o.tooOld ? 'none qualify' : `${o.player === viewer ? 'offer' : 'offers'} ${o.qty}`}</small></span>
               <span class="au-price">{open ? `$${o.price}` : '?'}</span>
               {done && <span class="au-res">{a.story.tags[i]}</span>}
             </div>
