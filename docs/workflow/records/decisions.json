@@ -1774,7 +1774,7 @@
         "evidence": "go with option 1 but with the updated lorry please",
         "date": "2026-11-08"
       },
-      "delivery": "not started",
+      "delivery": "verified",
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it does not fit an iPhone SE-sized screen."
@@ -1797,7 +1797,7 @@
         "evidence": "lets go with one",
         "date": "2026-11-08"
       },
-      "delivery": "not started",
+      "delivery": "verified",
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it feels slow on an old phone."
@@ -2447,6 +2447,10 @@
     {
       "at": "2026-11-08 23:46",
       "text": "Owner chose variant B 'Unloading' for the opening's button area (DEC-072). Building PLAN-055 (Market square home and Lorry arrives opening with unloading)."
+    },
+    {
+      "at": "2026-11-09 02:20",
+      "text": "PLAN-055 verified (Market square home, Lorry arrives opening with Unloading; pricing panel scrolls alone, board never moves: checked at 360x740). Owner approved publishing: \"live is approved\". Preparing release 1.10.0 with PLAN-052 to PLAN-055."
     }
   ]
 }

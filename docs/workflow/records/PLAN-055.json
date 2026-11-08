@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d9f10c6d-75280w",
+  "build": "branch ccr-d9f10c6d-75280w, commits 3f23afc, b3c0767",
   "reports": [],
   "decisions": [
     "DEC-071",
@@ -25,7 +25,7 @@
     "evidence": "go with option 1 but with the updated lorry please",
     "date": "2026-11-08"
   },
-  "delivery": "not started",
+  "delivery": "verified",
   "id": "PLAN-055",
   "title": "Market square home screen and Lorry arrives opening",
   "problem": "The home screen centres on one shopkeeper card instead of the market.",
@@ -43,20 +43,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-08: 366 unit tests, build"
     },
     {
       "id": "T2",
       "text": "Browser tests and performance budget pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e: performance budget open 178 ms, DOM 586/800; online 0 leaks in 100 frames; four players; reconnect 5/5"
     },
     {
       "id": "T3",
       "text": "Home fits 360x640 to 1440x900 with every button reachable",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Home at 360x640, 390x844, 768x1024, 1280x800, 1440x900: every button visible, 40 px+, no page scroll; opening 2.95 s scene, overlay gone at 3.24 s"
     }
   ]
 }

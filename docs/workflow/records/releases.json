@@ -227,6 +227,25 @@
       "date": "2026-11-08",
       "commit": "2b9692a",
       "tagged": true
+    },
+    {
+      "version": "1.10.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-052",
+        "PLAN-053",
+        "PLAN-054",
+        "PLAN-055"
+      ],
+      "notes": [
+        "A new home screen: the whole market square, and a new opening where the lorry arrives and unloads the menu",
+        "One clear, friendly font across the game",
+        "At the rush, each customer's card comes to the middle and every stall's offer is flipped over",
+        "See every stall's crates round the table while you set prices; your shelf now empties customer by customer",
+        "All icons, stalls and the lorry redrawn in the Great Fruit Exchange style",
+        "Shopkeepers now wear their unlocks, plus six new ones to earn",
+        "No rules change: you can still play online with 1.9.0"
+      ]
     }
   ]
 }
