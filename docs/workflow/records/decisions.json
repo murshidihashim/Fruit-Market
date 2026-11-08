@@ -1820,7 +1820,7 @@
         "evidence": "for day 2 onwards, it should be poorest, followed by clockwise for the day, day 3 onwards is the same, poorest, and then clockwise / no need, just push it live",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-056",
       "reviewTrigger": "If playtests show the leader running away; a balance run was not made."
@@ -2482,6 +2482,10 @@
     {
       "at": "2026-11-09 02:44",
       "text": "Owner changed the buying order to poorest first, then clockwise (DEC-073, PLAN-056, rules version 10) and declined a balance run (\"no need, just push it live\"). npm run verify PASS (366 tests)."
+    },
+    {
+      "at": "2026-11-09 03:03",
+      "text": "Release 1.11.0 published (rules version 10, poorest first then clockwise): main f60fe78, Deploy LIVE game run 26 success (verify, release check, deploy, live smoke test), tag v1.11.0. Print kit not yet regenerated for the new order wording."
     }
   ]
 }

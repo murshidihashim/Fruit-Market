@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.11.0",
   "build": "branch ccr-d9f10c6d-75280w",
   "reports": [],
   "decisions": [
@@ -21,7 +21,7 @@
     "evidence": "for day 2 onwards, it should be poorest, followed by clockwise for the day ... / no need, just push it live",
     "date": "2026-11-09"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-056",
   "title": "Buying order: poorest first, then clockwise (rules 10)",
   "problem": "Sorting every stall by cash is slow on a table.",
