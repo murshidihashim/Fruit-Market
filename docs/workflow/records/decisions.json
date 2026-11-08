@@ -2253,6 +2253,10 @@
     {
       "at": "2026-11-08 12:41",
       "text": "Owner's tweak list after 1.8.0 (\"fruit market tweaks\"): 1 walk-ins revealed before opening the stall, 2 standardise character cards, 3 smoother opening-to-home transition, 4 remove \"The Great Fruit Exchange\" and \"Exchange Gazette\", 5 in-game layout without scrolling for the shelf and walk-ins (mock-up first). Tweaks 2-4 being built on the branch. Layout canvas shown (Phone A shelf dock, Phone B, desktop three columns, walk-in timeline). Owner: \"i like phone A, but i want the wholesale market to use the same fruit decay slide thingy\" and \"no need to change the rules for walk-in customers, they need to just partially tell information as it is right now\". So: Phone A layout with today's market track; walk-in rules unchanged (tweak 1 closed, no rules change). Questions on turn order and on serving customers at a table answered from the code; no change asked."
+    },
+    {
+      "at": "2026-11-08 13:25",
+      "text": "Owner tweaks 2-4 built and verified on the branch: every card of a kind uses the same fixed zones (0 px difference measured, app and print); 'The Great Fruit Exchange' and 'Exchange Gazette' removed from everything players see (event masthead now 'Fruit Market', 'Tomorrow's news'); opening-to-home hand-over smoothed (no home flash before the opening, pictures and fonts ready before the switch, 280 ms cross-fade, opening length unchanged). npm run verify PASS (236 tests), npm run test:e2e PASS (performance budget, online 0 leaks). Not yet on main. Next: Phone A in-game layout."
     }
   ]
 }
