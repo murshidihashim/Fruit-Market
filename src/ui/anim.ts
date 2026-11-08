@@ -17,6 +17,8 @@ export function setBaseSpeed(fast: boolean) { base = fast ? 0.55 : 1; }
 export function hurryUp() { hurry = 0.15; endWaits(); }
 export function resetHurry() { hurry = 1; step = 1; }
 export const hurried = () => hurry < 1;
+/** The fast setting is on. */
+export const isFast = () => base < 1;
 /** A tap on the rush pop-up: this customer finishes quickly, then the next one plays at the normal pace. */
 export function speedStep() { step = 0.15; endWaits(); }
 export function resetStep() { step = 1; }

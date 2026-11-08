@@ -3,13 +3,14 @@ import type { Player } from '../../../engine/game';
 import { Face } from '../../art';
 import * as A from '../../anim';
 import { fx } from '../../fx';
+import { releaseStock } from '../../stockShown';
 import type { GameController } from '../useGameController';
 
 export function ActionBar({ c, pl, limit, picker, online }: { c: GameController; pl: Player | undefined; limit: number; picker: number; online: boolean }) {
   const { s, busy, night, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, freeFruit, turnStart } = c;
   return (
     <footer class="actionbar">
-      {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); }}>Skip ⏩</button>}
+      {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip ⏩</button>}
       {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>

@@ -10,6 +10,7 @@ import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
+import { useStockShown } from './stockShown';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
@@ -31,6 +32,8 @@ interface Props {
 
 export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const c = useGameController(initial, onChange, online);
+  // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
+  useStockShown();
   const { s, busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
 
   if (c.needHandoff) {

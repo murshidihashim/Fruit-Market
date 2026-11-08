@@ -46,9 +46,9 @@ describe('portraits (art.tsx Face)', () => {
     expect(html).toContain('loading="lazy"');
   });
 
-  it('worn looks show as pins where there is room, and never on tiny portraits', () => {
-    expect(face(RIVALS[0].avatar, 34, ['straw_boater', 'bow_tie']).match(/xf-pin"/g)).toHaveLength(2);
-    expect(face(RIVALS[0].avatar, 20, ['straw_boater'])).not.toContain('xf-pin');
+  it('worn looks are drawn on the portrait as one regalia picture where there is room, never on tiny portraits', () => {
+    expect(face(RIVALS[0].avatar, 34, ['straw_boater', 'bow_tie']).match(/class="xf-wear"/g)).toHaveLength(1);
+    expect(face(RIVALS[0].avatar, 20, ['straw_boater'])).not.toContain('xf-wear');
   });
 });
 

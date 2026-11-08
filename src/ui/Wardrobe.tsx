@@ -16,7 +16,7 @@ export const myAvatar = (): string => {
 function Tile({ look, on, owned, colour, avatar, onPick }: { look: Look; on: boolean; owned: boolean; colour: string; avatar: string; onPick: () => void }) {
   const ach = achievementFor(look);
   // A worn look shows on your own shopkeeper, wearing just that piece.
-  const art = look.kind === 'wear' ? <span class="wd-wear"><Face who={avatar} size={44} worn={[look.id]} /></span>
+  const art = look.kind === 'wear' ? <span class="wd-wear"><Face who={avatar} size={52} worn={[look.id]} /></span>
     : look.slot === 'prop' ? <PropSprite id={look.id} size={44} cls="wd-prop" />
       : <RoofBand cls="wd-band" colour={colour} roof={look.slot === 'roof' ? look.id : undefined} trim={look.slot === 'trim' ? look.id : undefined} />;
   return (

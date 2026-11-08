@@ -169,7 +169,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- wardrobe ---------- */
 .wd-counter .xf { box-shadow: 0 0 0 3px var(--x-ink); }
-.wd-tile .wd-wear { display: inline-grid; place-items: center; width: 52px; height: 58px; padding-top: 4px; }
+.wd-tile .wd-wear { display: block; width: 52px; height: 76px; padding-top: 6px; }
 
 /* ---------- opening (Opening.tsx) ---------- */
 .opx-sky {

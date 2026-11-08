@@ -10,6 +10,7 @@ import { Coin, Face, FavourIcon, Fruit } from './art';
 import { TradingCard, TradingCardBack } from './cards';
 import { GUEST_EVENT } from './deckArt';
 import { shownCash, useCashShown } from './cashShown';
+import { shownSold, shownStock, useStockShown } from './stockShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText } from './boardModel';
@@ -20,7 +21,7 @@ import { partsOf, stallOf } from '../net/looks';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
 export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
-const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
+export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
   if (n <= 0) return null;
@@ -136,10 +137,12 @@ export function SeatBoard({ b }: { b: Board }) {
 function rivalNote(s: GameState, p: number, active: boolean): string {
   if (s.phase === 'evening') return active ? 'building…' : 'plotting…';
   if (s.phase === 'bid' || s.phase === 'reveal') {
-    const out = FRUITS.reduce((a, f) => a + forSale(s, p, f), 0);
+    // At the bell the pieces still out drop as each customer is served (stockShown.ts).
+    const sold = (f: FruitId) => (s.phase === 'reveal' ? shownSold(s.results, p, f) : 0);
+    const out = FRUITS.reduce((a, f) => a + Math.max(0, forSale(s, p, f) - sold(f)), 0);
     return out ? `${out} out` : 'none out';
   }
-  const n = count(s.players[p].stock);
+  const n = count(shownStock(p, s.players[p].stock));
   return n ? `${n} fruit` : 'empty';
 }
 
@@ -150,6 +153,7 @@ function rivalNote(s: GameState, p: number, active: boolean): string {
  */
 export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean }) {
   useCashShown();
+  useStockShown();
   const pl = s.players[p];
   const cash = shownCash(p, pl.cash);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
@@ -175,6 +179,7 @@ export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p
 /** A rival's stall, opened from their seat: the same freshness chips as your own stall. */
 export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
   useCashShown();
+  useStockShown();
   const pl = s.players[p];
   return (
     <div class="rival-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
@@ -200,7 +205,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
 
 /** Freshness chips for a shop's stock. With `anchors`, fruit can fly to and from them. */
 export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; anchors?: boolean; empty: string }) {
-  const groups = stockChips(s.players[p].stock);
+  const groups = stockChips(shownStock(p, s.players[p].stock));
   const any = groups.some((g) => g.chips.length > 0);
   return (
     <div class="stk">
@@ -242,11 +247,13 @@ export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: 
  */
 export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
   const pl = s.players[p];
+  // During the rush (the table redraws the dock as each customer is served: Game.tsx useStockShown) the shelf drops as each customer is served (stockShown.ts); otherwise this is the real shelf.
+  const shelf = shownStock(p, pl.stock);
   const mine = loadColour();
   // Looks the player has earned (looks.ts) are part of their seat, so rivals online see them too.
   const stall = stallOf(pl.look);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const used = count(pl.stock);
+  const used = count(shelf);
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;
@@ -277,7 +284,7 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
         )}
       </div>
       <div class="stk dk-fruits">
-        {shelfGroups(pl.stock).map(({ f, n, stages }) => (
+        {shelfGroups(shelf).map(({ f, n, stages }) => (
           <span class={`stk-f dk-f ${n ? '' : 'none'}`} data-a={`p${p}-${f}`}
             aria-label={`${FRUIT[f].plural}: ${n ? stages.map((x) => `${x.n} ${STAGE_WORD[x.stage]}`).join(', ') : 'none'}`}>
             <Fruit id={f} size={20} />

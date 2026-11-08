@@ -12,6 +12,7 @@ import type { RoomView } from '../../net/protocol';
 import { trackOnce } from '../../net/telemetry';
 import * as A from '../anim';
 import { holdCash } from '../cashShown';
+import { holdStock, releaseStock } from '../stockShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
 import { delivery, moves, nightfall, reveal } from './animator';
@@ -89,7 +90,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     return () => A.setLayer(null);
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game.
-  useEffect(() => () => holdCash(null), []);
+  useEffect(() => () => { holdCash(null); releaseStock(); }, []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -112,6 +113,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal';
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
       if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i]));
+      // The shelves likewise: each customer's pieces leave the shelf as they are served. The fast setting and reduced
+      // motion show the final shelves at once.
+      if (rush && next.results && !A.isReduced() && !A.isFast()) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -126,6 +130,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       } else await moves(prev, next);
     } finally {
       holdCash(null);
+      releaseStock();
       busyRef.current = false;
       setBusy(false);
       setTick((t) => t + 1);

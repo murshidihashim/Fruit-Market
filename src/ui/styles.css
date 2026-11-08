@@ -2222,3 +2222,32 @@ b, strong { font-weight: 700; }
   .gx .rival-drop .stk .ms-cell { min-height: 30px; }
   .gx .rival-drop .rd-extra { margin-top: 3px; }
 }
+
+/* ---------- pricing: round the market table (DEC-070) ---------- */
+.pt-table {
+  position: relative; display: flex; flex-direction: column; gap: 3px; flex: none; padding: 5px;
+  border: 2px solid var(--x-ink); border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 50%, var(--x-card) 0 34%, var(--x-cream) 35%);
+}
+.pt-row { display: flex; gap: 5px; }
+.pt-row.end { justify-content: flex-end; }
+.pt-seat {
+  flex: 0 1 calc(50% - 2.5px); min-width: 0; overflow: hidden; display: flex; flex-direction: column;
+  border: 2px solid var(--x-ink); border-radius: 9px; background: var(--x-paper);
+}
+.pt-seat.me { box-shadow: 0 0 0 2px var(--x-mustard); }
+.pt-awn { flex: none; height: 10px; background-repeat: repeat-x; border-bottom: 1.5px solid var(--x-ink); }
+.pt-head { display: flex; align-items: center; gap: 4px; padding: 3px 4px 0; min-width: 0; }
+.pt-name { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; font: 600 0.78rem/1.1 var(--f-label); color: var(--x-ink); }
+.pt-seal.seal { flex: none; width: 12px; height: 12px; }
+.pt-fruits { display: flex; flex-wrap: wrap; gap: 2px 6px; padding: 3px 4px 4px; min-height: 22px; align-items: center; }
+.pt-f { display: inline-flex; align-items: center; gap: 2px; font: 600 0.78rem/1 var(--f-label); color: var(--x-ink); }
+.pt-dots { display: inline-flex; gap: 1px; }
+.pt-dot { display: block; width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--x-ink); }
+.pt-none { font-size: 0.7rem; color: var(--x-slate); }
+.pt-mid {
+  align-self: center; display: flex; align-items: baseline; gap: 5px; padding: 1px 12px; border-radius: 999px;
+  background: var(--x-paper); border: 1.5px solid var(--x-ink); color: var(--x-ink);
+}
+.pt-mid small { font: 600 0.66rem/1.2 var(--f-label); letter-spacing: 0.05em; text-transform: uppercase; color: var(--x-slate); }
+.pt-mid b { font: 800 1.05rem/1.1 var(--f-label); }

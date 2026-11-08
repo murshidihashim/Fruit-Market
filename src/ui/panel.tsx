@@ -11,6 +11,7 @@ import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, Face, FavourIcon, Fruit } from './art';
 import { buyerCap, buyersFor, priceRead, stallWantText, tieHint } from './boardModel';
 import { Icon, type IconName } from './icons';
+import { PricingTableView } from './game/panels/PricingTable';
 
 // ---------- favour cards ----------
 
@@ -111,6 +112,8 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
     <>
       <div class="price-panel mid-panel">
         <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
+        {/* Round the market table (DEC-070): every stall's crate, prices sealed until the bell. */}
+        <PricingTableView s={s} viewer={p} />
         {fruits.map((f) => {
           const price = Math.min(vals[f], maxPrice(s, f));
           const out = forSale(s, p, f);

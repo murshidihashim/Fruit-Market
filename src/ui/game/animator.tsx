@@ -6,6 +6,7 @@ import { customerReaction, explainLine, rivalReaction } from '../../engine/story
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { holdCash, payCash, shownCash } from '../cashShown';
+import { releaseStock, sellStock } from '../stockShown';
 import { fx } from '../fx';
 import type { ShowState } from './panels/Showdown';
 import { rushPace, rushSeats } from './rush';
@@ -83,11 +84,12 @@ export async function flights(_g: GameState, l: LineResult, pop = false) {
     }
     for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
     jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
-      // This customer's payment lands now, so the stall's total climbs here and not before.
+      // This customer's payment lands now, so the stall's total climbs here and not before, and the pieces leave its shelf.
       const paid = o.sold * o.price + (o.juice ?? 0);
       fx.coin();
       A.floatText(`p${o.player}-cash`, `+$${paid}`);
       void payCash(o.player, paid);
+      sellStock(o.player, l.fruit, o.sold);
     }));
   }
   await Promise.all(jobs);
@@ -100,6 +102,7 @@ function payNow(l: LineResult) {
     const paid = o.sold * o.price + (o.juice ?? 0);
     A.floatText(`p${o.player}-cash`, `+$${paid}`);
     void payCash(o.player, paid);
+    sellStock(o.player, l.fruit, o.sold);
   }
 }
 
@@ -121,6 +124,8 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
   const routine = lines.filter((l) => !shows.includes(l));
   if (routine.length) await Promise.all(routine.map((l, i) => A.wait(i * 120).then(() => flights(g, l))));
+  // Skip shows the final shelves at once (the cash still climbs as the remaining coins land).
+  if (A.hurried()) releaseStock();
   const used = new Set<string>();
   const served: number[] = [];
   // The rush pop-up, "Round the table" (DEC-068): one customer at a time in the middle, each stall's card dealt face
@@ -128,7 +133,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   // Skip (or a tap anywhere else) hurries the whole rush, and then the rest settle without the pop-up.
   for (let i = 0; i < shows.length; i++) {
     const l = shows[i];
-    if (A.hurried()) { await flights(g, l); continue; }
+    if (A.hurried()) { releaseStock(); await flights(g, l); continue; }
     A.resetStep();
     const story = explainLine(g, l, viewer);
     const react = rivalReaction(g, l, viewer, used);
@@ -164,6 +169,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     A.pulse(`c${l.customerId}`);
   }
   setShow(null);
+  releaseStock();
   for (const f of r.favours) {
     const t = A.tag(`p${f.player}`, 'Favour card!', 'favour');
     fx.card();
