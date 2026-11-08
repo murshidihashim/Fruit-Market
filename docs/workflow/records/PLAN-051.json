@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d9f10c6d-75280w",
+  "build": "branch ccr-d9f10c6d-75280w, commit 598de1e",
   "reports": [
     "REP-089"
   ],
@@ -37,13 +37,13 @@
     "evidence": "approve A and B, keep juice bar trick",
     "date": "2026-11-08"
   },
-  "delivery": "in progress",
+  "delivery": "verified",
   "id": "PLAN-051",
   "title": "Playtest fixes: correct explanations and warnings, smarter computer players, Juice Bar tip",
   "problem": "Seven playtest reports (REP-089): the game's text and advice contradict the engine on Closing Day, buyers, no-sale reasons, Juice Bar nights, ties and green fruit; computer players ignore the jam maker and the tie order.",
   "scope": [
     "Package A: wording and explanation fixes from REP-089 sections 3.1 to 3.7, with tests",
-    "Package B: computer players value Closing Day leftovers at $1 (pricing and buying) and model the real tie order; balance run before and after; RULES_VERSION 9 to 10 because daily scores are replayed with the server's computer players",
+    "Package B: computer players value Closing Day leftovers at $1 (pricing and buying) and model the real tie order; balance run before and after; a daily-only computer-player version (AI_VERSION 2) because daily scores are replayed with the server's computer players; RULES_VERSION stays 9",
     "Juice Bar option C: keep the salvage trick and explain it on the card and in RULES.md",
     "RULES.md, How to play and GAME-BRIEF wording"
   ],
@@ -58,32 +58,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-08: 341 unit tests, build"
     },
     {
       "id": "T2",
       "text": "A test for every case in REP-089 passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "New tests for each REP-089 case (story-after-sale, boardModel, night forecast, Juice Bar, closing text, set-up text, green watermelon, ai-plan); each checked to fail on the old code"
     },
     {
       "id": "T3",
       "text": "Package A leaves the engine's results unchanged (same seeded games give the same final cash)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "1,188 seeded all-computer games before and after package A: identical final and per-day state hashes (stats.juiced excluded); 181 old saves load and resume identically"
     },
     {
       "id": "T4",
       "text": "Balance run after package B: shopkeeper win rates within about 3 points of fair and no worse than before",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "FAIL",
+      "evidence": "Balance before/after package B (1,200-game runs): level order holds (Hard > Normal > Easy); Normal shopkeeper spread 13.8 to 7.4 points (Haggler +8 to +3.6), but Local Favourite +4.4 at Normal and Haggler +10 at Hard (already +10 before) miss the 3-point target. Fixing it needs a perk or rules change"
     },
     {
       "id": "T5",
       "text": "Browser tests (solo, performance budget, online with 0 leaks, quick match) pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e, 2026-11-08: solo, performance budget, online 0 leaks, quick match, four players, reconnect"
     }
   ]
 }

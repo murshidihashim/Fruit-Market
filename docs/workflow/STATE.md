@@ -1,8 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-07 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-08 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-07)
+## Latest (2026-11-08)
+- **Live:** 1.8.0 (unchanged). Rules version 9.
+- **Built and verified on branch `ccr-d9f10c6d-75280w` (commit 598de1e), not on main:** PLAN-050 owner tweaks (uniform cards, smooth opening, no 'Great Fruit Exchange' wording, Phone A in-game layout with no scrolling) and PLAN-051 playtest fixes (DEC-067, REP-089: honest Closing Day, price read, no-sale reasons, tie advice, Juice Bar forecast and tip, Scout label, green-fruit text; computer players count the jam maker and the real tie order). Checks: `npm run verify` PASS (341 tests), browser tests PASS (0 leaks), layout check PASS at 360x740, 390x844, 1280x800.
+- **Package B note:** daily scores now carry a computer-player version (AI_VERSION 2); RULES_VERSION stays 9. On release day an unfinished daily can't be resumed and the daily board starts fresh. Balance target (3 points) still missed: Local Favourite +4.4 at Normal, Haggler +10 at Hard (pre-existing).
+- **Known small gaps:** a very full pricing screen and the day-9 morning card scroll inside the panel at 360x740; final review round skipped at the owner's request.
+- **Next:** owner looks at the screenshots; release as 1.9.0 needs the owner's approval (merge to main → preview → Deploy LIVE game).
+
+## Earlier: 2026-11-07
 - **Live:** 1.8.0, The Great Fruit Exchange (commit `df61983`, tag `v1.8.0`, published 2026-11-07 by Deploy LIVE game run 23; live smoke test PASS). Rules version 9, unchanged.
 - **Built and verified (PLAN-049, DEC-066):** the owner's deck art (events Art 1, shopkeepers Art 2, customers Art 3) across the app and a new print kit (`print/kit/`); approved names (DEC-064, DEC-065); fonts and colours from the art. Checks: `npm run verify` PASS (233 tests), `npm run test:e2e` PASS (solo, performance budget, online with 0 leaks, quick match, four players, rejoin), 45 names checked.
 - **Art gaps (no owner art yet):** special guests use their event scene; favour, delivery and upgrade cards are type-only; worn looks show as pixel pins; the lorry, coin, favour and perk icons stay pixel art. The customer card back is a new design the owner has not seen on its own.
