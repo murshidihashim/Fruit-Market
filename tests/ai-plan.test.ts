@@ -1,7 +1,7 @@
 // Computer players' price planner (PLAN-051 package B, REP-089 items 1 and 6): on Closing Day an unsold ripe
 // fruit is worth what the jam maker pays, and the planner's model of the rush follows the real tie order.
 import { describe, expect, it } from 'vitest';
-import { aiStep, planPrices, seller, simulateSales } from '../src/engine/ai';
+import { aiStep, planPrices, rivalPrice, seller, simulateSales } from '../src/engine/ai';
 import { CUSTOMER_CARDS, FRUIT, JAM_PRICE, prefOf, type FruitId } from '../src/engine/data';
 import {
   beginBuying, emptyStock, endBuyTurn, finishReveal, newGame, openStall, submitPrices,
@@ -146,6 +146,25 @@ describe('Closing Day: the planner counts what the jam maker pays', () => {
     expect(cash(10)).toBe(10 + 3 * JAM_PRICE);
     expect(cash(3)).toBe(12);
   });
+
+  it('counts tired fruit that would have rotted tonight at the jam price too', () => {
+    // Three tired apples (they would rot tonight on any other day). One buyer pays up to $8 for 1 (card $7 + $1
+    // Closing Day), so a tired apple can ask $6; another takes 2 at up to $4, where a tired apple can ask only $2.
+    // $6 for one plus 2 x $1 from the jam maker beats selling all three at $2. Counting those leftovers at $0, as
+    // fruit that rots tonight is counted on other days, chose $2.
+    const s = market([buyer(900, 'Big Spender', 1, 7), buyer(901, 'Bargain Bob', 2, 3)], { day: 8, days: 8 });
+    s.players[0].stock.apple[0] = 3;
+    s.players[0].kind = 'ai';
+    s.players[0].level = 'hard';
+    const bid = toPricing(s);
+    expect(planPrices(bid, 0).posts).toEqual([{ fruit: 'apple', price: 6 }]);
+    const cash = (price: number) => {
+      const end = finishReveal(submitPrices(bid, 0, [{ fruit: 'apple', price }]));
+      return end.players[0].cash - bid.players[0].cash;
+    };
+    expect(cash(6)).toBe(6 + 2 * JAM_PRICE);
+    expect(cash(2)).toBe(3 * 2);
+  });
 });
 
 describe('pricing against the Haggler (REP-089 item 6, before the bell)', () => {
@@ -173,21 +192,42 @@ describe('pricing against the Haggler (REP-089 item 6, before the bell)', () => 
     const r = submitPrices(submitPrices(s, 0, [{ fruit: 'mango', price: mine }]), 1, [{ fruit: 'mango', price: rosa }]);
     expect(r.results!.income[0]).toBe(14);
   });
+
+  it('a Normal planner expects a Haggler rival to keep its best price in one of its four guesses', () => {
+    // The rival's best price for a fresh apple to a buyer paying up to $8 is $8. Against another rival the four
+    // guesses cut $1, $1, $2, $2; a Haggler wins ties against a shop without the Haggler, so one guess cuts nothing.
+    const s = market([buyer(900, 'Tester', 3, 8)]);
+    s.players[0].stock.apple[fresh('apple')] = 3;
+    s.players[1].stock.apple[fresh('apple')] = 3;
+    const bid = toPricing(s);
+    const guesses = (t: GameState) => [0, 1, 2, 3].map((k) => rivalPrice(t, 0, 1, 'apple', k, 'normal'));
+    expect(guesses(bid)).toEqual([7, 7, 6, 6]);
+    bid.players[1].trait = 'haggler';
+    expect(guesses(bid)).toEqual([8, 7, 6, 6]);
+    // Two Hagglers: the tie goes on to fresher fruit and buying order, so no special guess.
+    bid.players[0].trait = 'haggler';
+    expect(guesses(bid)).toEqual([7, 7, 6, 6]);
+  });
 });
 
 describe('the planner uses only what it may know', () => {
   it("never reads a rival's favour cards or Favoured Trade", () => {
-    const s = market([buyer(900, 'Tester', 3, 8)]);
-    s.players[0].stock.apple[fresh('apple')] = 3;
-    s.players[1].stock.apple[fresh('apple')] = 3;
-    s.players[0].kind = 'ai';
-    s.players[0].level = 'hard';
-    const bid = toPricing(s);
-    const plain = planPrices(bid, 0);
-    const peek = structuredClone(bid);
-    peek.players[1].favours = ['favouredTrade', 'favouredTrade'];
-    peek.players[1].favouredTrade = true;
-    expect(planPrices(peek, 0)).toEqual(plain);
+    // One fresh apple each and one buyer for 1 at up to $6. A planner that knew the rival holds Favoured Trade would
+    // expect to lose the tie and ask $1 less ($3 instead of $4 at Normal, $2 instead of $3 at Hard).
+    for (const [level, want] of [['normal', 4], ['hard', 3]] as const) {
+      const s = market([buyer(900, 'Tester', 1, 6)]);
+      s.players[0].stock.apple[fresh('apple')] = 1;
+      s.players[1].stock.apple[fresh('apple')] = 1;
+      s.players[0].kind = 'ai';
+      s.players[0].level = level;
+      const bid = toPricing(s);
+      const plain = planPrices(bid, 0);
+      expect(plain.posts).toEqual([{ fruit: 'apple', price: want }]);
+      const peek = structuredClone(bid);
+      peek.players[1].favours = ['favouredTrade', 'favouredTrade'];
+      peek.players[1].favouredTrade = true;
+      expect(planPrices(peek, 0)).toEqual(plain);
+    }
   });
 
   it('a computer holding Favoured Trade plans to win ties and plays it; a person is not assumed to', () => {
@@ -226,5 +266,48 @@ describe('Closing Day buying', () => {
       expect(s.phase).toBe('stall');
       expect(s.players.map((p) => p.boughtToday)).toEqual([0, 0]);
     }
+  });
+
+  /**
+   * Final day, Closing Day on: a Normal computer with an empty shelf and $50 buys first (or last, after the rival has
+   * passed). The market has only 3 pieces of `fruit` at position `pos`, the rival holds `rivalFresh` fresh ones, and
+   * `crowd` are today's customers. Returns how many pieces the computer bought with its first move.
+   */
+  const lastDayBuy = (o: { fruit?: FruitId; pos: number; rivalFresh?: number; crowd: Customer[]; buysLast?: boolean }) => {
+    const fruit = o.fruit ?? 'apple';
+    let s = newGame({
+      players: [0, 1].map((i) => ({ name: `A${i}`, kind: 'ai' as const, level: 'normal' as const, avatar: 'a' })),
+      days: 8, unripe: true, upgrades: true, events: false, seed: 4,
+    });
+    s = structuredClone(s);
+    s.day = 8; s.forecast = null; s.queue = []; s.secondMarket = []; s.event = null; s.nextEvent = null;
+    s.firstMarket = o.crowd;
+    for (const f of Object.keys(s.market) as FruitId[]) s.market[f] = s.market[f].map(() => 0);
+    s.market[fruit][o.pos] = 3;
+    s.players.forEach((pl) => { pl.cash = 50; pl.upgrades = []; pl.favours = []; pl.trait = null; pl.traitOffer = []; pl.stock = emptyStock(true); });
+    s.order = o.buysLast ? [1, 0] : [0, 1];
+    s.players[1].stock[fruit][fresh(fruit)] = o.rivalFresh ?? 0;
+    let b = beginBuying(s);
+    if (o.buysLast) b = endBuyTurn(b, 1);
+    return aiStep(b)!.players[0].boughtToday;
+  };
+
+  it('a $1 piece someone may buy is worth at least the jam price if it doesn\'t sell', () => {
+    // A tired apple costs $1. One buyer wants 1 apple; selling it is far from sure, but if it doesn't sell the jam maker
+    // still pays $1, so it can't lose money. Without the jam floor the computer would not buy it.
+    expect(JAM_PRICE).toBe(1);
+    expect(lastDayBuy({ pos: 0, crowd: [buyer(900, 'Tester', 1, 8)] })).toBe(1);
+  });
+
+  it('a $2 piece gets no jam floor, though someone may buy it', () => {
+    // An okay apple costs $2, more than the jam maker pays. Counting the jam maker's $1 for the chance it doesn't sell
+    // would make it look worth buying; such last-day pieces mostly went for jam at a loss (PLAN-051 balance run).
+    expect(lastDayBuy({ pos: 1, rivalFresh: 1, crowd: [buyer(900, 'Tester', 2, 6)] })).toBe(0);
+  });
+
+  it('a $1 piece nobody is expected to want gets no jam floor', () => {
+    // Tired watermelons cost $1 and nobody wants watermelon today. Buying last (no one else left to buy), counting the
+    // jam floor on top of the planner's hopeful guess at a sale would make one look worth buying.
+    expect(lastDayBuy({ fruit: 'watermelon', pos: 0, crowd: [], buysLast: true })).toBe(0);
   });
 });

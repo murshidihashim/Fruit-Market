@@ -140,8 +140,9 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   // Closing Day: ripe fruit that doesn't sell goes to the jam maker. Counted only for a piece that costs no more than
   // the jam maker pays (a free one, or one at the jam price), which can't lose money. The sale chance here is a hopeful guess:
   // counting the jam on dearer pieces made computers buy last-day fruit that mostly went for jam at a loss (PLAN-051
-  // balance run). It also needs someone today to want this fruit at this freshness (all of the final day's buyers
-  // are known by now), so it never props up the guess made with no buyers.
+  // balance run). It also needs some expected buyer for this fruit at this freshness (`qty`: today's face-up customers
+  // and, while buying, face-down walk-ins guessed from the fruit on their backs), so it never props up a piece that
+  // nobody is expected to want.
   if (planner && daysLeft === 0 && isLastCall(s) && qty > 0 && cost <= JAM_PRICE) later = Math.max(later, JAM_PRICE * (1 - pSell));
   // Health Inspector tomorrow morning: fruit that turns tired overnight costs $2 before anyone can sell it.
   if (laterDays > 0 && s.nextEvent?.inspector && pos === 1) later -= s.nextEvent.inspector * (1 - pSell);
@@ -254,9 +255,11 @@ export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Sell
 
 /**
  * A rival's likely posted price (for shop `p`): the best it could ask the richest customer for this fruit, less a few
- * dollars. A Haggler wins ties against a shop without the Haggler, so it often doesn't undercut at all.
+ * dollars. A Haggler wins ties against a shop without the Haggler, so it has less reason to undercut: in Normal
+ * computer games (PLAN-051) a Haggler posts a contested fruit about $0.25 nearer its best price than other shops do on
+ * average ($1.60 below it against $1.85), so one of its four guesses here cuts nothing. Exported for tests.
  */
-function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: number, lv: Level): number {
+export function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: number, lv: Level): number {
   const top = Math.max(0, ...servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(s.players[r].stock, f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
   const rl = s.players[r].kind === 'human' ? 'normal' : level(s, r);
   const haggler = s.players[r].trait === 'haggler' && s.players[p].trait !== 'haggler';
