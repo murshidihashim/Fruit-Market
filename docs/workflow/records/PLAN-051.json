@@ -1,0 +1,89 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [
+    "REP-089"
+  ],
+  "decisions": [
+    "DEC-067"
+  ],
+  "changes": {
+    "added": [
+      "A forecast of what spoils and what becomes juice tonight, and a morning line for Juice Bar money",
+      "A Juice Bar tip on the card"
+    ],
+    "changed": [
+      "Computer players price leftovers on Closing Day at the jam maker's $1 and follow the real tie order"
+    ],
+    "fixed": [
+      "Closing Day text now says the jam maker pays $1 per ripe leftover",
+      "'Enough buyers' counts only buyers who would take your fruit",
+      "No-sale explanations name the real reason instead of always 'too old'",
+      "After-sale advice follows the tie order and your crate",
+      "Scout reveals are no longer labelled Gossip",
+      "Set-up text quotes the real green mango price"
+    ],
+    "removed": [
+      "The green watermelon from the rulebook and the market display (no lorry delivers one)"
+    ]
+  },
+  "playerNotes": [
+    "Clearer explanations after each sale",
+    "Closing Day and Juice Bar money explained",
+    "Smarter computer rivals on Closing Day and at ties"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "approve A and B, keep juice bar trick",
+    "date": "2026-11-08"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-051",
+  "title": "Playtest fixes: correct explanations and warnings, smarter computer players, Juice Bar tip",
+  "problem": "Seven playtest reports (REP-089): the game's text and advice contradict the engine on Closing Day, buyers, no-sale reasons, Juice Bar nights, ties and green fruit; computer players ignore the jam maker and the tie order.",
+  "scope": [
+    "Package A: wording and explanation fixes from REP-089 sections 3.1 to 3.7, with tests",
+    "Package B: computer players value Closing Day leftovers at $1 (pricing and buying) and model the real tie order; balance run before and after; RULES_VERSION 9 to 10 because daily scores are replayed with the server's computer players",
+    "Juice Bar option C: keep the salvage trick and explain it on the card and in RULES.md",
+    "RULES.md, How to play and GAME-BRIEF wording"
+  ],
+  "exclusions": [
+    "Rule changes (no change to what the rules say)",
+    "Removing the green watermelon slot from the engine",
+    "Separate Scout and Gossip labels (needs an engine field)",
+    "The fruit_unsold counter (data handling, later plan)",
+    "Publishing the live game (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "A test for every case in REP-089 passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Package A leaves the engine's results unchanged (same seeded games give the same final cash)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Balance run after package B: shopkeeper win rates within about 3 points of fair and no worse than before",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Browser tests (solo, performance budget, online with 0 leaks, quick match) pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [
+    "REP-089"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Every card of a kind uses the same layout",
+      "A smoother hand-over from the opening to the home screen",
+      "An in-game layout that shows your shelf and the walk-ins without scrolling (Phone A), with the Wholesale Market as a fruit track"
+    ],
+    "fixed": [],
+    "removed": [
+      "'The Great Fruit Exchange' and 'Exchange Gazette' wording"
+    ]
+  },
+  "playerNotes": [
+    "Cards look the same from one to the next",
+    "No scrolling to see your shelf and today's walk-ins"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "fruit market tweaks: 2. design across character cards need to be more consistent/standardised (text box size etc) 3. transition between the animation, to the home screen (when you first opened the link feels laggy/buggy) 4. remove \"The Great Fruit Exchange\", \"Exchange Gazette\" 5. can we go through the layout inside a game for both phone/pc now, i dont like how i need to scroll to see my shelf, and the walkin customer cards, lets think about this in the mockup/visualiser/artifact ... then: i like phone A, but i want the wholesale market to use the same fruit decay slide thingy / no need to change the rules for walk-in customers, they need to just partially tell information as it is right now",
+    "date": "2026-11-08"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-050",
+  "title": "Owner tweaks after 1.8.0: uniform cards, smooth opening, wording, Phone A layout",
+  "problem": "After 1.8.0 the owner asked for consistent card layouts, a smoother opening, removal of 'The Great Fruit Exchange' wording and an in-game layout with no scrolling for the shelf and walk-ins.",
+  "scope": [
+    "Fixed text zones on every card of a kind (app and print)",
+    "Opening-to-home hand-over",
+    "Remove 'The Great Fruit Exchange' and 'Exchange Gazette' from what players see",
+    "Phone A in-game layout with the Wholesale Market as a fruit track, phone and desktop"
+  ],
+  "exclusions": [
+    "Walk-in reveal rules (tweak 1: owner said no rules change)",
+    "Rules, prices or balance",
+    "Publishing the live game (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Cards of a kind have identical zones (app and print)",
+      "result": "PASS",
+      "evidence": "0 px difference measured on every card of a kind, 2026-11-08 (tweaks 2-4, commit 62519a5)"
+    },
+    {
+      "id": "T3",
+      "text": "Phone and desktop game screens show the shelf and walk-ins without page scrolling",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Browser tests (solo, performance budget, online with 0 leaks, quick match) pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

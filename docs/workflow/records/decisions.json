@@ -1664,7 +1664,7 @@
       "id": "DEC-067",
       "title": "Fix what the game tells players, from the seven playtest reports",
       "question": "How should the seven playtest reports (Closing Day $0 or $1, 'Enough buyers', 'too old', Juice Bar warnings, Juice Bar salvage profit, tie advice, Scout label and 'unripe $1 now') be handled?",
-      "choice": "Proposed: package A fixes the wording and explanations with no rules change (shared Closing Day sentence and jam line on the final sales card; 'Enough buyers' counts only buyers who take your fruit; the real no-sale reason instead of 'too old'; a night forecast that follows Juice Bar, Cold Room and Heatwave, plus a morning juice line and an optional juice counter; after-sale advice that follows the tie order and crate size; a neutral Scout or Gossip badge; set-up text built from the green mango price; green watermelon retired in the text and its empty slot hidden). Package B (computer players value Closing Day leftovers at $1 and plan with the real tie order) after a balance run. Juice Bar salvage: keep it and explain it on the card (option C) unless the owner picks $1 juice (A) or juice only for fruit already owned (B), which are rules changes.",
+      "choice": "Package A (wording and explanations, no rules change) and package B (computer players value Closing Day leftovers at $1 and plan prices with the real tie order, after a balance run) are approved. The Juice Bar salvage trick stays (option C): it is kept as a skill trick and explained on the card. Package A: shared Closing Day sentence and a jam line on the final sales card; 'Enough buyers' counts only buyers who would take your fruit; the real no-sale reason instead of 'too old'; a night forecast that follows Juice Bar, Cold Room and Heatwave, a morning juice line and an optional juice counter; after-sale advice that follows the tie order and crate size; a neutral Scout or Gossip badge; set-up text built from the green mango price; green watermelon retired in the text and its empty slot hidden. Package B changes how computer players play, and daily scores are checked by replaying the game with the server's computer players, so it needs a RULES_VERSION bump (9 to 10) with no change to the rule text.",
       "rationale": "All seven reports were reproduced on the engine and checked a second time (REP-089). The engine follows RULES.md; the misleading text and advice come from UI and story code that ignore Closing Day, freshness type, the price cap, the night rules and the tie order.",
       "impact": {
         "player": "Clearer, correct explanations and warnings; no rule, price or balance change in package A.",
@@ -1674,13 +1674,16 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval"
+        "status": "approved",
+        "evidence": "approve A and B, keep juice bar trick",
+        "date": "2026-11-08"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "reports": [
         "REP-089"
       ],
-      "reviewTrigger": "If the owner picks Juice Bar option A or B, or declines package B."
+      "reviewTrigger": "If the owner picks Juice Bar option A or B, or declines package B.",
+      "plan": "PLAN-051"
     }
   ],
   "history": [
@@ -2283,6 +2286,10 @@
     {
       "at": "2026-11-08 13:54",
       "text": "Seven playtest reports investigated (REP-089): all seven confirmed; the engine follows the rules and the problems are in what the game tells players, plus one rule that allows a sure profit (Juice Bar salvage, +$3 a night at most). Proposed DEC-067: package A wording and explanation fixes (no rules change), package B computer players after a balance run, Juice Bar option C (keep and explain). Awaiting the owner's choices. Phone A layout still being built on the branch."
+    },
+    {
+      "at": "2026-11-08 14:18",
+      "text": "Owner approved DEC-067: \"approve A and B, keep juice bar trick\". PLAN-050 records the owner's tweak package (tweaks 2-5, Phone A layout); PLAN-051 holds the playtest fixes (package A, package B, Juice Bar tip). Found while planning: daily scores are verified by replaying the game with the server's computer players, so package B also needs RULES_VERSION 9 to 10 (unfinished saved games from before the update cannot be resumed; that day's daily board restarts). Kept as a separate change so it can be dropped before release."
     }
   ]
 }
