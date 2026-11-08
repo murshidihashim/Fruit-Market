@@ -5,7 +5,7 @@ import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
 import { EveningPanel, PricePanel, StallPanel } from './panel';
-import { Lorry, Market, MyStall, RivalDrop, RivalStall, Street, seats, type Board } from './table';
+import { Market, MyStall, RivalDrop, RivalStall, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
@@ -89,63 +89,60 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
 
-  // Cards that sit on top of the market in the middle of the table.
-  const overlay = (() => {
-    if (s.phase === 'morning' && !busy && picker >= 0) return <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />;
-    if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
-    return null;
-  })();
-
-  // The morning event card fills the screen above the action bar (PLAN-013).
-  const sheet = s.phase === 'morning' && !busy && picker < 0
-    ? <div class="full-sheet morning-sheet"><MorningCard s={s} viewer={viewer} lost={c.lastNight} /></div>
-    : null;
-
-  // Decisions that need more room: pricing fills the screen on phones (side panel on desktop).
-  const tray = (() => {
+  // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
+  // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
+  // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
+  const mid = (() => {
+    if (s.phase === 'morning' && !busy) return picker >= 0
+      ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
+      : <MorningCard s={s} viewer={viewer} lost={c.lastNight} table />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall) => { fx.card(); act({ kind: 'stall', stall }); }} />;
     if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
-    if (s.phase === 'evening' && activeHuman && !busy) return <EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} />;
+    if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
+    if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} /></div>;
     return null;
   })();
+  const offSeats = offline.map((x) => x.seat);
 
   return (
-    <div class={`game ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
-      <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} onRival={c.setRival} offline={offline.map((x) => x.seat)} />
+    <div class={`game gx ph-${s.phase} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+      <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
-      {online && c.conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
-      {online && c.conn === 'open' && offline.map((x) => (
-        <div class="net-strip">
-          {x.bot ? `A computer is playing for ${x.name} until they come back.`
-            : x.takeoverAt ? `${x.name} disconnected. A computer takes over in ${Math.max(0, Math.ceil((x.takeoverAt - c.nowTick) / 1000))}s.`
-            : `${x.name} is offline.`}
-        </div>
-      ))}
-
-      <div class={`play ${tray ? 'has-tray' : ''} ${pricing || stalling ? 'tray-full' : ''}`}>
-        <div class="table">
-          {/* The farmer's lorry parks in the street from the morning delivery until buying ends; customers step aside. */}
-          <div class={`street-wrap ${lorryHere ? 'lorry-here' : ''}`} data-a="street"><Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} /><Lorry here={lorryHere} /></div>
-          {rivals.length > 0 && (
-            <div class="seats">
-              {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
-              {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
+      {online && (c.conn !== 'open' || offline.length > 0) && (
+        <div class="net">
+          {c.conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
+          {c.conn === 'open' && offline.map((x) => (
+            <div class="net-strip">
+              {x.bot ? `A computer is playing for ${x.name} until they come back.`
+                : x.takeoverAt ? `${x.name} disconnected. A computer takes over in ${Math.max(0, Math.ceil((x.takeoverAt - c.nowTick) / 1000))}s.`
+                : `${x.name} is offline.`}
             </div>
-          )}
-          <div class="centre">
-            <Market s={s} p={viewer}
-              onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
-              canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
-              onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
-            {overlay}
-          </div>
-          <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+          ))}
         </div>
-        {tray && <div class="tray-wrap">{tray}</div>}
-        {sheet}
-      </div>
+      )}
 
-      {!pricing && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      <section class="street-wrap" data-a="street">
+        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} />
+        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
+      </section>
+      {rivals.length > 0 && (
+        <div class="seats" role="group" aria-label="Your rivals">
+          {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} off={offSeats.includes(p)} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
+          {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
+        </div>
+      )}
+      <div class={`centre ${mid ? 'covered' : ''}`}>
+        {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
+        <Market s={s} p={viewer} lorry={lorryHere}
+          onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
+          canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
+          onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
+        {mid}
+      </div>
+      <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+
+      {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
+      {!pricing && !stalling && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}

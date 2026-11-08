@@ -1,9 +1,9 @@
 // The visual table: farmers market in the centre, a stall for each player around it,
 // customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId, type Stage } from '../engine/data';
 import {
-  buyCost, buyLimit, count, effectiveMax, shelfSize,
+  buyCost, buyLimit, count, effectiveMax, forSale, shelfSize,
   type Customer, type GameState,
 } from '../engine/game';
 import { Coin, Face, FavourIcon, Fruit } from './art';
@@ -39,16 +39,21 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 // ---------- market ----------
 
 /** The farmers market: one column per fruit, newest slot at the top, freshness by colour. */
-export function Market({ s, p, onPick, canPick, onPulse }: {
+export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
+  /** The farmer's lorry parks at the market's sign from the morning delivery until buying ends (the game screen). */
+  lorry?: boolean;
 }) {
   const pz = pulse(s);
+  // Every column's slots are the same height, sized for the longest track (screens.css --rows).
+  const rows = Math.max(...FRUITS.map((f) => s.market[f].length));
   return (
-    <div class="market-stall">
+    <div class="market-stall" style={{ '--rows': rows }}>
       <div class="mk-roof" />
       <div class="mk-head">
         <span class="truck" data-a="truck"><Icon name="cart" size={28} /></span>
+        {lorry !== undefined && <Lorry here={lorry} />}
         <b>Wholesale Market</b>
         {!!s.event?.cost && <span class={`chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
       </div>
@@ -122,33 +127,42 @@ export function SeatBoard({ b }: { b: Board }) {
 
 // ---------- rivals ----------
 
-/** A rival's seat across the table. Tap it to open their stall below the seats. */
-export function RivalStall({ s, p, open, onOpen, board }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board }) {
+/** What a rival's pill says under their name: crates before the stalls open, pieces out once they have. Public facts only. */
+function rivalNote(s: GameState, p: number, active: boolean): string {
+  if (s.phase === 'evening') return active ? 'building…' : 'plotting…';
+  if (s.phase === 'bid' || s.phase === 'reveal') {
+    const out = FRUITS.reduce((a, f) => a + forSale(s, p, f), 0);
+    return out ? `${out} out` : 'none out';
+  }
+  const n = count(s.players[p].stock);
+  return n ? `${n} fruit` : 'empty';
+}
+
+/**
+ * A rival as a pill in the rivals strip: badge, name, cash and a short note (and their price board while
+ * pricing and at the bell). Tap it to open their stall below the strip. `rv-chip`: the rival cash chips that
+ * used to sit in the top bar live here now.
+ */
+export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean }) {
   useCashShown();
   const pl = s.players[p];
   const cash = shownCash(p, pl.cash);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const night = s.phase === 'evening';
+  const note = rivalNote(s, p, active);
+  // Spoken with the pill: the price board's state (on a phone it is only a small badge on the portrait).
+  const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding')
+    : board.state === 'sealed' ? ', sealed' : `, price $${board.price}${board.res === 'won' ? ', sold' : board.res === 'lost' ? ', no sale' : ''}`;
   return (
-    <button type="button" class={`rival-stall ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}. Tap to see their fruit`}>
-      <RoofBand cls="rs-awning" colour={seatColour(p)} roof={stallOf(pl.look).roof} trim={stallOf(pl.look).trim} />
-      <div class="rs-who">
-        <span class="rs-face"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={14} /></i>}</span>
-        {/* The last word and the arrow never part, so a long name ("Uncle Benny") wraps as "Uncle / Benny ▾" on phones. */}
-        <span class="rs-name">{pl.name.slice(0, pl.name.lastIndexOf(' ') + 1)}<span class="rs-tail">{pl.name.slice(pl.name.lastIndexOf(' ') + 1)}<span class="rs-arrow">{open ? '▴' : '▾'}</span></span></span>
-        {night && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={16} /></span>}
-      </div>
-      <div class="rs-stock">
-        <span class="chip cash" data-a={`p${p}-cash`}><Coin size={12} />{cash}</span>
-        {FRUITS.map((f) => {
-          const n = count(pl.stock, f);
-          // Empty fruits shrink to nothing but stay in place as animation anchors.
-          return <span class={`rs-f ${n ? '' : 'zero'}`} data-a={`p${p}-${f}`} aria-hidden={!n}><Fruit id={f} size={14} />{n}</span>;
-        })}
-        {board && <SeatBoard b={board} />}
-        {night ? <span class="rs-empty">{active ? 'building…' : 'plotting…'}</span> : count(pl.stock) === 0 && <span class="rs-empty">empty</span>}
-      </div>
+    <button type="button" class={`rival-stall rv-chip ${active ? 'active' : ''} ${open ? 'open' : ''} ${board?.res === 'won' ? 'won' : ''} ${off ? 'off' : ''}`} data-a={`p${p}`}
+      style={{ '--seat': seatColour(p) }}
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}, ${note}${said}. Tap to see their fruit`}>
+      <span class="rs-face"><Face who={pl.avatar} size={30} worn={partsOf(pl.look)} />{active && s.phase === 'buy' && <i class="busy"><Icon name="cart" size={12} /></i>}</span>
+      <span class="rs-body">
+        <span class="rs-name">{pl.name}</span>
+        <span class="rs-line"><b class="rs-cash" data-a={`p${p}-cash`}>${cash}</b><span class="rs-note">{note}</span></span>
+      </span>
+      {board && <SeatBoard b={board} />}
+      {s.phase === 'evening' && <span class="rs-lamp" title="Plotting by lantern light"><Icon name="lantern" size={14} /></span>}
     </button>
   );
 }
@@ -200,45 +214,76 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
   );
 }
 
-// ---------- your stall ----------
+// ---------- your stall: the shelf dock ----------
 
+/** Freshness groups in the order the shelf dock shows them, and the word for each. */
+const SHELF_STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
+export const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' };
+
+/** A shelf's pieces of each fruit counted by freshness (fresh, okay, tired, green), for the shelf dock. */
+export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
+  return FRUITS.map((f) => {
+    const by: Partial<Record<Stage, number>> = {};
+    stock[f].forEach((n, pos) => { if (n > 0) { const st = stageAt(f, pos); by[st] = (by[st] ?? 0) + n; } });
+    const stages = SHELF_STAGES.filter((st) => by[st]).map((st) => ({ stage: st, n: by[st] ?? 0 }));
+    return { f, n: stages.reduce((a, x) => a + x.n, 0), stages };
+  });
+}
+
+/**
+ * Your shelf, docked above the action bar so it is always in view: badge and name, the four fruits with your
+ * pieces counted by freshness, shelf space, and favour cards as small buttons. Fruit flies to and from the
+ * fruit groups (data-a anchors); your cash is in the top bar.
+ */
 export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
-  useCashShown();
   const pl = s.players[p];
   const mine = loadColour();
   // Looks the player has earned (looks.ts) are part of their seat, so rivals online see them too.
   const stall = stallOf(pl.look);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
+  const used = count(pl.stock);
+  const cap = shelfSize(pl);
   return (
-    <div class={`my-stall ${active ? 'active' : ''} ${stall.prop ? 'has-prop' : ''}`} data-a={`p${p}`}>
+    <section class={`my-stall dock ${active ? 'active' : ''} ${stall.prop ? 'has-prop' : ''}`} data-a={`p${p}`} aria-label="Your shelf">
       <RoofBand cls="ms-awning" colour={mine || seatColour(p)} roof={stall.roof} trim={stall.trim} />
-      {stall.prop && <PropSprite id={stall.prop} size={30} />}
       <div class="ms-head">
-        <span class="ms-face"><Face who={pl.avatar} size={30} worn={partsOf(pl.look)} /></span>
-        <b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span>
+        <span class="ms-face"><Face who={pl.avatar} size={34} worn={partsOf(pl.look)} /></span>
+        <span class="dk-id"><b class="ms-name">{pl.name}</b><span class="you-tag">YOU</span></span>
         {pl.trait && <span class="trait-badge" title={TRAITS[pl.trait].text}><Icon name={TRAIT_ICON[pl.trait]} size={12} />{TRAITS[pl.trait].title}</span>}
-        <span class="chip" title="Shelf space"><Icon name="crate" size={16} /> {count(pl.stock)}/{shelfSize(pl)}</span>
-        {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={16} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
-        {s.day === s.config.days && s.phase !== 'over' && count(pl.stock) > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}
-        <span class="spacer" />
+        <span class={`chip dk-space ${used >= cap ? 'full' : ''}`} title="Shelf space" aria-label={`Shelf space: ${used} of ${cap} used`}><Icon name="crate" size={14} />{used}/{cap}</span>
+        {s.phase === 'buy' && active && <span class="chip buys" title="Fruit bought today"><Icon name="cart" size={14} /> {pl.boughtToday}/{buyLimit(pl)}</span>}
+        {s.day === s.config.days && s.phase !== 'over' && used > 0 && <span class="chip warn zero-warn">Unsold = $0</span>}
         {board && <SeatBoard b={board} />}
-        {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={20} /></span>)}
-        <span class="chip cash big" data-a={`p${p}-cash`}><Coin size={16} />{shownCash(p, pl.cash)}</span>
+        {pl.upgrades.map((u) => <span class="ms-up" title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={16} /></span>)}
+        {stall.prop && <PropSprite id={stall.prop} size={26} />}
+        {pl.favours.length > 0 && (
+          <span class={`ms-cards ${flashCards ? 'glow' : ''}`}>
+            {pl.favours.map((id, i) => {
+              const usable = !!onCard && active && FAVOURS[id].when === s.phase;
+              return (
+                <button type="button" class={`fcard ${usable ? 'usable' : ''}`} onClick={() => onCard?.(i)} title={FAVOURS[id].text} aria-label={`Favour card: ${FAVOURS[id].title}`}>
+                  <FavourIcon id={id} size={20} /><small>{FAVOURS[id].title}</small>
+                </button>
+              );
+            })}
+          </span>
+        )}
       </div>
-      <StockChips s={s} p={p} anchors empty="Empty shelf. Tap fruit in the market to buy." />
-      {pl.favours.length > 0 && (
-        <div class={`ms-cards ${flashCards ? 'glow' : ''}`}>
-          {pl.favours.map((id, i) => {
-            const usable = !!onCard && active && FAVOURS[id].when === s.phase;
-            return (
-              <button type="button" class={`fcard ${usable ? 'usable' : ''}`} onClick={() => onCard?.(i)} title={FAVOURS[id].text}>
-                <FavourIcon id={id} size={20} /><small>{FAVOURS[id].title}</small>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      <div class="stk dk-fruits">
+        {shelfGroups(pl.stock).map(({ f, n, stages }) => (
+          <span class={`stk-f dk-f ${n ? '' : 'none'}`} data-a={`p${p}-${f}`}
+            aria-label={`${FRUIT[f].plural}: ${n ? stages.map((x) => `${x.n} ${STAGE_WORD[x.stage]}`).join(', ') : 'none'}`}>
+            <Fruit id={f} size={20} />
+            {n ? stages.map(({ stage, n: k }) => (
+              <span class={`ms-cell has st-${stage} ${stage === 'notso' ? 'rotting' : ''}`}
+                title={`${k} ${FRUIT[f].name.toLowerCase()}: ${STAGE_WORD[stage]}${stage === 'okay' ? `, customers pay $${FRUIT[f].drop[1]} less` : stage === 'notso' ? `, last day, customers pay $${FRUIT[f].drop[0]} less` : stage === 'unripe' ? ', ripens on your shelf' : ''}`}>
+                <b>{k}</b><small>{STAGE_WORD[stage]}</small>
+              </span>
+            )) : <span class="dk-zero">0</span>}
+          </span>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -310,22 +355,54 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
   );
 }
 
+/** Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). */
 export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
   const extra = s.event?.extra;
   // Walk-ins wait face down; a player who heard the gossip sees their fronts.
-  const walkIn = (c: Customer, later: boolean) => c.seenBy?.includes(viewer)
-    ? <CustomerChar key={c.id} s={s} c={c} kind={later ? 'tomorrow' : 'today'} onTip={onTip} heard />
-    : <CustomerChar key={c.id} s={s} c={c} kind="mystery" later={later} onPick={onScout && !later ? () => onScout(c.id) : undefined} />;
+  const walkIn = (c: Customer) => c.seenBy?.includes(viewer)
+    ? <CustomerChar key={c.id} s={s} c={c} kind="today" onTip={onTip} heard />
+    : <CustomerChar key={c.id} s={s} c={c} kind="mystery" onPick={onScout ? () => onScout(c.id) : undefined} />;
+  const n = s.secondMarket.length + s.firstMarket.length + (before ? 1 + (extra ? 1 : 0) + s.queue.length : 0);
+  // Five cards fit across a phone; with more, the row scrolls sideways and fades at the edge as a hint.
   return (
-    <div class="street">
+    <div class={`street ${n > 5 ? 'many' : ''}`} aria-label="Today's customers">
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
       {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
       {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) }} kind="today" onTip={onTip} />}
-      {before && s.queue.map((c) => walkIn(c, false))}
-      {!before && s.forecast && s.phase !== 'over' && <CustomerChar key={s.forecast.id} s={s} c={s.forecast} kind="tomorrow" onTip={onTip} />}
-      {!before && s.phase !== 'over' && s.queue.map((c) => walkIn(c, true))}
+      {before && s.queue.map(walkIn)}
+    </div>
+  );
+}
+
+/**
+ * Tomorrow's customers once buying is over, as a strip of mini chips: the expected customer face up (tap for
+ * their card), each walk-in as a card back showing only the fruit it wants (its front if you heard the gossip).
+ */
+export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
+  const before = s.phase === 'morning' || s.phase === 'buy';
+  if (before || s.phase === 'over' || (!s.forecast && !s.queue.length)) return null;
+  const front = (c: Customer, heard: boolean) => (
+    <button type="button" key={c.id} class={`tm-chip ${heard ? 'heard' : ''}`} onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
+      aria-label={`Tomorrow: ${lookOf(c.name).title}, wants ${c.wants.map((w) => `${w.qty} ${FRUIT[w.fruit].plural}`).join(' and ')}`}>
+      <Face who={c.name} size={24} />
+      {c.wants.map((w) => <span class="tm-w"><Fruit id={w.fruit} size={16} />{w.qty}</span>)}
+    </button>
+  );
+  return (
+    <div class="tomorrow" aria-label="Tomorrow's customers">
+      <span class="tm-k">Tomorrow</span>
+      {s.forecast && front(s.forecast, false)}
+      {s.queue.map((c) => {
+        if (c.seenBy?.includes(viewer)) return front(c, true);
+        const fruits = [...new Set(c.wants.map((w) => w.fruit))];
+        return (
+          <span key={c.id} class="tm-chip tm-back" role="img" aria-label={`Tomorrow: a walk-in, face down${fruits.length ? `, wants ${fruits.map((f) => FRUIT[f].plural).join(' and ')}` : ''}`}>
+            {fruits.map((f) => <Fruit id={f} size={16} />)}
+          </span>
+        );
+      })}
     </div>
   );
 }

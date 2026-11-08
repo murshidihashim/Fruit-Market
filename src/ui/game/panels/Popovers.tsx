@@ -1,6 +1,6 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
-import { FAVOURS, PREF_INFO, lookOf } from '../../../engine/data';
+import { FAVOURS, FRUIT, PREF_INFO, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { FavourIcon } from '../../art';
@@ -70,7 +70,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
         {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
-        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: the −$ on your stall shows how much less. Tap to close.</small>
+        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when tired (the colours on your shelf). Tap to close.</small>
       </div>
     </div>
   )}

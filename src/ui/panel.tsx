@@ -38,7 +38,11 @@ function wantsFor(s: GameState, f: FruitId) {
   return servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ c, w, max: effectiveMax(s, w, c.generous) })));
 }
 
-/** Step 1 of selling: how many of each fruit to put out today. Everyone sees the numbers once all stalls open. */
+/**
+ * Step 1 of selling: how many of each fruit to put out today. Everyone sees the numbers once all stalls open.
+ * On the game screen the rows sit in the middle of the table (one compact row per fruit) and the button
+ * (.pp-lock) takes the action bar's place, so your shelf and today's customers stay in view.
+ */
 export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (stall: Stall) => void }) {
   const pl = s.players[p];
   const fruits = FRUITS.filter((f) => count(pl.stock, f, true) > 0);
@@ -47,37 +51,39 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
   const tomorrow = s.day >= s.config.days ? 'Closing Day: anything left goes to the jam maker at $1.' : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
   return (
-    <div class="price-panel stall-panel">
-      <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>
-      <RivalWatch s={s} p={p} wanted={fruits} step="stall" />
-      {tomorrow && <div class="info-card warn small">{tomorrow}</div>}
-      {fruits.length === 0 && <div class="info-card dim">You have no ripe fruit to sell today.</div>}
-      {fruits.map((f) => {
-        const have = count(pl.stock, f, true);
-        const n = vals[f] ?? 0;
-        const want = wantsFor(s, f).reduce((a, x) => a + x.w.qty, 0);
-        const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
-        return (
-          <div class={`price-card ${n ? 'on' : ''}`}>
-            <div class="pc-top">
-              <Fruit id={f} size={40} />
-              <div class="pc-who"><b>{FRUIT[f].plural}</b><span>{want ? `${want} wanted today` : 'Nobody wants these today'} · rivals hold {rivals}</span></div>
-            </div>
-            <div class="pc-row">
-              <div class="pc-qty"><span class="pc-lbl">Your stock</span><StockLine stock={pl.stock} f={f} /></div>
-              <div class="pc-price">
-                <button type="button" aria-label={`Put out one less ${FRUIT[f].name}`} disabled={n <= 0} onClick={() => set(f, n - 1)}>−</button>
-                <span class="pc-num">{n}<small> of {have}</small></span>
-                <button type="button" aria-label={`Put out one more ${FRUIT[f].name}`} disabled={n >= have} onClick={() => set(f, n + 1)}>+</button>
+    <>
+      <div class="price-panel stall-panel mid-panel">
+        <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>
+        {tomorrow && <div class="info-card warn small">{tomorrow}</div>}
+        {fruits.length === 0 && <div class="info-card dim">You have no ripe fruit to sell today.</div>}
+        {fruits.map((f) => {
+          const have = count(pl.stock, f, true);
+          const n = vals[f] ?? 0;
+          const want = wantsFor(s, f).reduce((a, x) => a + x.w.qty, 0);
+          const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
+          return (
+            <div class={`price-card ${n ? 'on' : ''}`}>
+              <div class="pc-top">
+                <Fruit id={f} size={32} />
+                <div class="pc-who">
+                  <b>{FRUIT[f].plural}</b>
+                  <span class="pc-sub">{want ? `${want} wanted` : 'Nobody wants these'} · rivals hold {rivals}</span>
+                  <StockLine stock={pl.stock} f={f} />
+                </div>
+                <div class="pc-price">
+                  <button type="button" aria-label={`Put out one less ${FRUIT[f].name}`} disabled={n <= 0} onClick={() => set(f, n - 1)}>−</button>
+                  <span class="pc-num">{n}<small> of {have}</small></span>
+                  <button type="button" aria-label={`Put out one more ${FRUIT[f].name}`} disabled={n >= have} onClick={() => set(f, n + 1)}>+</button>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
       <div class="pp-lock">
         <button class="btn primary big wide" onClick={() => onSubmit(vals)}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -90,7 +96,10 @@ function StockLine({ stock, f }: { stock: Record<FruitId, number[]>; f: FruitId 
 
 // ---------- pricing ----------
 
-/** Step 2: one secret price per fruit you put out. The bell reveals every stall's prices at once. */
+/**
+ * Step 2: one secret price per fruit you put out. The bell reveals every stall's prices at once.
+ * Like the stall panel: compact rows in the middle of the table, the Seal button in the action bar's place.
+ */
 export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void }) {
   const pl = s.players[p];
   const fruits = FRUITS.filter((f) => forSale(s, p, f) > 0);
@@ -102,101 +111,60 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const posts: Post[] = fruits.map((f) => ({ fruit: f, price: Math.min(vals[f], maxPrice(s, f)) }));
   const error = validatePrices(s, p, posts);
   return (
-    <div class="price-panel">
-      <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
-      <RivalWatch s={s} p={p} wanted={FRUITS.filter((f) => wantsFor(s, f).length > 0)} step="bid" />
-      {fruits.map((f) => {
-        const price = Math.min(vals[f], maxPrice(s, f));
-        const out = forSale(s, p, f);
-        const lines = wantsFor(s, f);
-        const want = lines.reduce((a, x) => a + x.w.qty, 0);
-        const rivalOut = s.players.map((o, i) => ({ o, i, n: i === p ? 0 : forSale(s, i, f) })).filter((r) => r.n > 0);
-        const rivals = rivalOut.reduce((a, r) => a + r.n, 0);
-        const read = !want ? { cls: 'war', t: 'Nobody here wants these today' }
-          : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
-            : rivals + out <= want ? { cls: 'ok', t: `Enough buyers for everyone (${rivals + out} out for ${want})` }
-              : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
-        const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref)));
-        return (
-          <div class="price-card on">
-            <div class="pc-top">
-              <Fruit id={f} size={40} />
-              <div class="pc-who"><b>{FRUIT[f].plural}: {out} out</b><span>{lines.length ? lines.map((x) => `${lookOf(x.c.name).title} ${x.w.qty}×`).join(', ') : 'no customers want these'}</span></div>
-            </div>
-            <div class="pc-row">
-              <div class="pc-qty">
-                <span class="pc-lbl">They pay for yours</span>
-                <span class="buyer-caps">{lines.map((x) => {
-                  const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
-                  return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
-                })}</span>
+    <>
+      <div class="price-panel mid-panel">
+        <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
+        {fruits.map((f) => {
+          const price = Math.min(vals[f], maxPrice(s, f));
+          const out = forSale(s, p, f);
+          const lines = wantsFor(s, f);
+          const want = lines.reduce((a, x) => a + x.w.qty, 0);
+          const rivalOut = s.players.map((o, i) => ({ o, i, n: i === p ? 0 : forSale(s, i, f) })).filter((r) => r.n > 0);
+          const rivals = rivalOut.reduce((a, r) => a + r.n, 0);
+          const read = !want ? { cls: 'war', t: 'Nobody here wants these today' }
+            : rivals === 0 ? { cls: 'safe', t: `No rival has any out: ${want} wanted` }
+              : rivals + out <= want ? { cls: 'ok', t: `Enough buyers for everyone (${rivals + out} out for ${want})` }
+                : { cls: 'war', t: `${rivals} rival ${rivals === 1 ? 'piece' : 'pieces'} out, ${want} wanted` };
+          const top = Math.max(1, ...lines.map((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref)));
+          return (
+            <div class="price-card on">
+              <div class="pc-top">
+                <Fruit id={f} size={32} />
+                <div class="pc-who">
+                  <b>{FRUIT[f].plural}<span class="pc-out">: {out} out</span></b>
+                  {lines.length ? (
+                    <span class="buyer-caps" aria-label={`They pay for yours: ${lines.map((x) => `${lookOf(x.c.name).title} up to $${bestCap(pl.stock, f, x.max, pl, x.c.pref)}`).join(', ')}`}>{lines.map((x) => {
+                      const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
+                      return <span class={`bc ${price <= cap ? 'yes' : 'no'}`} title={`${lookOf(x.c.name).title} wants ${x.w.qty}, pays up to $${cap} for your freshest`}><Face who={x.c.name} size={18} />≤${cap}</span>;
+                    })}</span>
+                  ) : <span class="pc-sub">no customers want these</span>}
+                </div>
+                <div class="pc-price">
+                  <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= minPrice(s, f)} onClick={() => setVals((v) => ({ ...v, [f]: price - 1 }))}>−</button>
+                  <span class="pc-num">${price}</span>
+                  <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= Math.min(maxPrice(s, f), top + 2)} onClick={() => setVals((v) => ({ ...v, [f]: price + 1 }))}>+</button>
+                </div>
               </div>
-              <div class="pc-price">
-                <button type="button" aria-label="Lower price" disabled={price <= minPrice(s, f)} onClick={() => setVals((v) => ({ ...v, [f]: price - 1 }))}>−</button>
-                <span class="pc-num">${price}</span>
-                <button type="button" aria-label="Raise price" disabled={price >= Math.min(maxPrice(s, f), top + 2)} onClick={() => setVals((v) => ({ ...v, [f]: price + 1 }))}>+</button>
+              <div class="pc-foot">
+                <span class={`read ${read.cls}`} title={read.t}><b class="psst">Psst…</b> {read.t}</span>
+                {rivalOut.length > 0 && (
+                  <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={18} />{r.n} out</span>)}</span>
+                )}
               </div>
             </div>
-            <div class="pc-foot">
-              <span class={`read ${read.cls}`}><b class="psst">Psst…</b> {read.t}</span>
-              {rivalOut.length > 0 && (
-                <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={18} />{r.n} out</span>)}</span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-      {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
-        <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={() => setFavoured(!favoured)}>
-          <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
-        </button>
-      )}
+          );
+        })}
+        {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
+          <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={() => setFavoured(!favoured)}>
+            <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
+          </button>
+        )}
+      </div>
       <div class="pp-lock">
         {error && <div class="error">{error}</div>}
         <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Seal my prices <small class="btn-sub">ring the bell</small></button>
       </div>
-    </div>
-  );
-}
-
-/**
- * Who you're up against while pricing: each rival's status and the wanted fruit they hold.
- * Public facts only: whether a shop has sealed its prices, and its stock (never a price).
- */
-export function RivalWatch({ s, p, wanted, step }: { s: GameState; p: number; wanted: FruitId[]; step: 'stall' | 'bid' }) {
-  const rivals = s.players.map((o, i) => ({ o, i })).filter(({ i }) => i !== p);
-  if (!rivals.length) return null;
-  const isDone = (i: number) => (step === 'stall' ? s.stalls[i] !== null : s.bids[i] !== null);
-  const sealed = rivals.filter(({ i }) => isDone(i)).length;
-  const verb = step === 'stall' ? 'open' : 'sealed';
-  return (
-    <section class="rival-watch" aria-label="Your rivals">
-      <div class="rw-head">
-        <b>Your rivals</b>
-        <span>{sealed === rivals.length ? `All ${verb}: waiting for you` : `${sealed} of ${rivals.length} ${verb} · ${step === 'stall' ? 'stalls show together' : 'nobody sees a price until the bell'}`}</span>
-      </div>
-      <div class="rw-list">
-        {rivals.map(({ o, i }) => {
-          const done = isDone(i);
-          // Before stalls open: what they hold. While pricing: what they put out (public).
-          const holds = wanted.map((f) => ({ f, n: step === 'stall' ? count(o.stock, f, true) : forSale(s, i, f) })).filter((x) => x.n > 0);
-          const status = done ? (step === 'stall' ? 'stall open' : 'sealed') : o.kind === 'ai' ? 'next in line' : 'deciding';
-          return (
-            <div class={`rw-card ${done ? 'done' : 'busy'} ${holds.length ? '' : 'out'}`}
-              aria-label={`${o.name}: ${status}; ${holds.length ? holds.map((x) => `${x.n} ${FRUIT[x.f].plural}${step === 'bid' ? ' out' : ''}`).join(', ') : 'nothing to sell'}`}>
-              <Face who={o.avatar} size={32} />
-              <b class="rw-name">{o.name}</b>
-              <span class={`rw-status ${done ? 'sealed' : 'deciding'}`}>
-                {done ? <><i class="seal" aria-hidden="true" />{status}</> : <><i class="sb-hourglass" aria-hidden="true" />{status}</>}
-              </span>
-              <span class="rw-holds">
-                {holds.length ? holds.map((x) => <span class="rw-f"><Fruit id={x.f} size={16} />{x.n}{step === 'bid' ? ' out' : ''}</span>) : <span class="rw-none">{step === 'bid' ? 'nothing out' : 'sits out'}</span>}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    </>
   );
 }
 
