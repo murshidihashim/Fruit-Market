@@ -1,0 +1,22 @@
+/* The printed card kit's fonts: the deck-art faces, kept for print only (DEC-068). scripts/print-deck.ts reads this
+   after exchange.css; the app itself uses Rubik in every role and never loads these. */
+@font-face { font-family: 'Alfa Slab One'; font-display: swap; src: url('../../node_modules/@fontsource/alfa-slab-one/files/alfa-slab-one-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Abril Fatface'; font-display: swap; src: url('../../node_modules/@fontsource/abril-fatface/files/abril-fatface-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Libre Caslon Text'; font-weight: 400; font-display: swap; src: url('../../node_modules/@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Libre Caslon Text'; font-weight: 400; font-style: italic; font-display: swap; src: url('../../node_modules/@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Libre Caslon Text'; font-weight: 700; font-display: swap; src: url('../../node_modules/@fontsource/libre-caslon-text/files/libre-caslon-text-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Oswald'; font-weight: 500; font-display: swap; src: url('../../node_modules/@fontsource/oswald/files/oswald-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Oswald'; font-weight: 600; font-display: swap; src: url('../../node_modules/@fontsource/oswald/files/oswald-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Yellowtail'; font-display: swap; src: url('../../node_modules/@fontsource/yellowtail/files/yellowtail-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-weight: 600; font-display: swap; src: url('../../node_modules/@fontsource/caveat/files/caveat-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Caveat'; font-weight: 700; font-display: swap; src: url('../../node_modules/@fontsource/caveat/files/caveat-latin-700-normal.woff2') format('woff2'); }
+
+:root {
+  /* type */
+  --f-display: 'Alfa Slab One', Georgia, serif;          /* big titles, names, prices */
+  --f-headline: 'Abril Fatface', Georgia, serif;         /* Gazette mastheads and headlines */
+  --f-serif: 'Libre Caslon Text', Georgia, serif;        /* sentences, quirks, captions */
+  --f-label: 'Oswald', 'Arial Narrow', sans-serif;       /* small capitals: labels, numbers, buttons */
+  --f-script: 'Yellowtail', 'Brush Script MT', cursive;  /* stall-sign names */
+  --f-chalk: 'Caveat', 'Comic Sans MS', cursive;         /* chalkboard text */
+}

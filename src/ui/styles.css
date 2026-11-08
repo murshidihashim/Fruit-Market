@@ -2,9 +2,18 @@
 @import './exchange.css';
 @import './cards.css';
 @import './screens.css';
-/* The Great Fruit Exchange (DEC-066): words and numbers use the deck-art fonts from exchange.css; the pixel font is retired.
-   Oswald bold is for button labels; 500 and 600 come from exchange.css. */
-@font-face { font-family: 'Oswald'; font-weight: 700; font-display: swap; src: url('../../node_modules/@fontsource/oswald/files/oswald-latin-700-normal.woff2') format('woff2'); }
+/* The app's one font (DEC-068): Rubik. Weights carry the hierarchy: 800 for titles, prices and names, 500-600 for
+   labels and buttons, 400 for sentences. Two aliases pin a weight whatever a rule asks for:
+   'Rubik Display' is always 800 (titles, prices, names); 'Rubik Strong' is 600, or 800 when bold is asked for.
+   The printed card kit keeps the deck-art fonts (print-fonts.css). */
+@font-face { font-family: 'Rubik'; font-weight: 400; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 400; font-style: italic; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 500; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 600; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik'; font-weight: 800; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik Display'; font-weight: 100 900; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik Strong'; font-weight: 100 649; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Rubik Strong'; font-weight: 650 900; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
 /* =====================================================================
    Fruit Market · "The Great Fruit Exchange"
    Cream paper page, navy ink, thin navy rules, red and mustard accents,
@@ -48,9 +57,12 @@
   --okay: var(--c-e6c86f);
   --notso: var(--c-db8a6c);
   --unripe: var(--c-c3d6ab);
-  /* type: the pixel font is retired; these names stay for older rules */
-  --f-pixel: var(--f-display);
+  /* type: the pixel font is retired; these names stay for older rules (Rubik, exchange.css) */
+  --f-pixel: 'Rubik Strong', 'Rubik', system-ui, sans-serif;
   --f-body: var(--f-serif);
+  /* Rubik is wider than the condensed capitals the letter-spacing was set for: the app tracks capitals at half
+     (cards.css and the print kit keep 1 when --ls is unset). */
+  --ls: 0.5;
   --r: 6px;
   --shadow: 0 3px 0 var(--x-ink);
   color-scheme: light;
@@ -100,7 +112,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .logo { display: flex; flex-direction: column; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.25)); }
 .logo-awning { height: 26px; border-radius: 8px 8px 0 0; background: repeating-linear-gradient(90deg, var(--terra) 0 16px, var(--cream) 16px 32px); }
 .logo-counter { display: flex; justify-content: center; gap: 6px; padding: 10px 8px; background: var(--c-a8683f); border-radius: 0 0 8px 8px; box-shadow: inset 0 3px 0 var(--c-c98a55); }
-.home h1 { font-size: 2.8rem; color: var(--cream); text-shadow: 0 4px 0 var(--terra-d); letter-spacing: 1px; }
+.home h1 { font-size: 2.8rem; color: var(--cream); text-shadow: 0 4px 0 var(--terra-d); letter-spacing: calc(1px * var(--ls, 1)); }
 .save-notice { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--surface); color: var(--text); font-size: 0.85rem; }
 .btn.daily { flex-direction: column; gap: 0; }
 .btn.daily small { font-family: var(--f-body); font-weight: 400; color: var(--muted); font-size: 0.8rem; }
@@ -303,7 +315,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 
 /* phase banner */
 .phase-banner { position: absolute; left: 0; right: 0; top: 22%; z-index: 15; display: flex; justify-content: center; pointer-events: none; opacity: 0; animation: banner 1.1s steps(10) forwards; }
-.phase-banner span { padding: 10px 32px; border: 3px solid var(--gold); border-radius: 4px; text-align: center; font-family: var(--f-pixel); font-weight: 700; font-size: 1.8rem; letter-spacing: 3px; color: var(--cream); background: var(--night-0); box-shadow: 0 4px 0 var(--terra-d); }
+.phase-banner span { padding: 10px 32px; border: 3px solid var(--gold); border-radius: 4px; text-align: center; font-family: var(--f-pixel); font-weight: 700; font-size: 1.8rem; letter-spacing: calc(3px * var(--ls, 1)); color: var(--cream); background: var(--night-0); box-shadow: 0 4px 0 var(--terra-d); }
 @keyframes banner { 0% { opacity: 0; transform: scale(0.9); } 15%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
 
 /* action bar */
@@ -390,7 +402,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .char-card small.taken { font-weight: 700; }
 .join-row { display: flex; gap: 8px; align-items: center; }
 .join-row .input { margin-top: 0; }
-.code-input { font-family: var(--f-pixel); font-size: 1.3rem; letter-spacing: 4px; text-transform: uppercase; }
+.code-input { font-family: var(--f-pixel); font-size: 1.3rem; letter-spacing: calc(4px * var(--ls, 1)); text-transform: uppercase; }
 .room-code { display: flex; justify-content: center; gap: 6px; margin: 4px 0 10px; }
 .room-code span { width: 42px; height: 54px; display: grid; place-items: center; border-radius: 10px; background: var(--cream); color: var(--ink); font-family: var(--f-pixel); font-weight: 700; font-size: 1.7rem; box-shadow: 0 4px 0 var(--card-edge); }
 .invite .input { font-size: 0.82rem; }
@@ -849,7 +861,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 /* the Wholesale Market */
 .game .market-stall { background: var(--x-cream); border: 2px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); padding: 0 6px 8px; }
 .game .mk-roof, .game .mk-head .truck { display: none; }
-.game .mk-head { justify-content: center; color: var(--ink); font-weight: 700; letter-spacing: 2px; padding: 9px 2px 3px; }
+.game .mk-head { justify-content: center; color: var(--ink); font-weight: 700; letter-spacing: calc(2px * var(--ls, 1)); padding: 9px 2px 3px; }
 .game .mk-cols { background: transparent; box-shadow: none; padding: 4px; gap: 5px; }
 .game .mk-col { border-radius: 12px; padding: 3px; gap: 3px; }
 .game .mk-col.blueberry { background: var(--c-dfe3fa); }
@@ -1006,7 +1018,7 @@ body { background: var(--x-cream); }
 .op-sky { position: absolute; left: 0; top: 0; width: 100%; height: 300px; }
 .op-ground { position: absolute; left: -600px; right: -600px; top: 300px; bottom: -900px; background: var(--c-e2cc9c); border-top: 3px solid var(--ink); }
 .op-sun { animation: op-rise 0.5s ease-out both; }
-.op-sign { position: absolute; left: 50%; top: -60px; transform: translateX(-50%); background: var(--x-paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 16px; font-family: var(--f-pixel); font-weight: 700; letter-spacing: 1px; box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-drop 0.4s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) forwards; }
+.op-sign { position: absolute; left: 50%; top: -60px; transform: translateX(-50%); background: var(--x-paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 16px; font-family: var(--f-pixel); font-weight: 700; letter-spacing: calc(1px * var(--ls, 1)); box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-drop 0.4s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) forwards; }
 .op-stall { position: absolute; top: 262px; width: 88px; height: 76px; line-height: 0; opacity: 0; animation: op-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
 .op-s0 { left: 22px; animation-delay: 0.4s; } .op-s1 { left: 151px; animation-delay: 0.5s; } .op-s2 { left: 280px; animation-delay: 0.6s; }
 .op-who { position: absolute; left: 27px; top: 21px; }
@@ -1029,7 +1041,7 @@ body { background: var(--x-cream); }
 
 .demo-ex { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: var(--cream-2); color: var(--ink); font-size: 0.9rem; }
 .demo-ex > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.slide-part { display: block; margin-bottom: 2px; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+.slide-part { display: block; margin-bottom: 2px; font-size: 0.72rem; letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; color: var(--ink-muted); }
 .day-strip { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .day-strip li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--cream-2); color: var(--ink); }
 .day-strip li div { display: flex; flex-direction: column; min-width: 0; }
@@ -1146,7 +1158,7 @@ body { background: var(--x-cream); }
 .popup-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
 .popup-opt small { font-weight: 400; color: inherit; }
 .join-row { display: flex; gap: 8px; }
-.join-row .input { flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: 2px; }
+.join-row .input { flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: calc(2px * var(--ls, 1)); }
 
 /* Customer freshness type (rules 9): a small tag under the customer's name. */
 .cust .pref { display: block; font-style: normal; font-size: 9px; line-height: 1.2; padding: 1px 4px; border-radius: 6px; margin-top: 2px; text-align: center; white-space: nowrap; background: var(--c-surface-2, rgba(0,0,0,.08)); color: inherit; opacity: .85; }
@@ -1158,9 +1170,8 @@ body { background: var(--x-cream); }
    The Great Fruit Exchange (DEC-066): the deck-art identity for every screen.
    This layer comes last on purpose: it restyles the older layers above
    without renaming any class. Colours come from exchange.css (--x-...).
-   Type: Alfa Slab One titles and names, Oswald capitals for labels, buttons,
-   chips and small numbers, Libre Caslon for sentences, Abril Fatface for
-   newspaper headings, Caveat only on chalkboards.
+   Type (DEC-068): Rubik everywhere. 800 for titles, prices and names,
+   500-600 for capitals on labels, buttons and chips, 400 for sentences.
    ===================================================================== */
 html { scrollbar-color: var(--x-ink-2) var(--x-card); }
 body, #app { background: var(--x-cream); color: var(--x-ink); font-synthesis: none; }
@@ -1188,7 +1199,7 @@ b, strong { font-weight: 700; }
 }
 .btn, .seg button, .phase, .left, .ready-tag, .host-tag, .you-tag, .read, .au-top, .au-res, .mk-key, .rw-status, .slide-part, .medal,
 .front-foot button, .front-dress, .front-account, .trait-badge, .net-strip, .op-pill, .nl-title, .up-owned, .room-full, label.small {
-  text-transform: uppercase; letter-spacing: 0.08em;
+  text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1));
 }
 .mc-day, .sc-title, .slide h2, .howto h2, .event-card b, .au-kick, .popup-hd h2, .results h2 { font-family: var(--f-headline); font-weight: 400; letter-spacing: 0.005em; }
 .day-label, .hud-cash b, .pc-num, .au-price, .sc-money b, .stats b, .big-num, .room-code span, .sb-face, .dr-rank b, .front-tile, .front-continue,
@@ -1239,7 +1250,7 @@ b, strong { font-weight: 700; }
 .panel h3::after { content: ''; flex: 1 0 100%; height: 0; border-top: 2px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); margin-top: 4px; }
 .input, .panel .input, .page .input { min-height: 48px; background: var(--x-paper); color: var(--x-ink); -webkit-text-fill-color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r); font-family: var(--f-serif); caret-color: var(--x-red-d); }
 .input::placeholder { color: var(--x-slate); -webkit-text-fill-color: var(--x-slate); }
-.code-input, .join-row .input { font-family: var(--f-label); font-weight: 600; letter-spacing: 0.2em; }
+.code-input, .join-row .input { font-family: var(--f-label); font-weight: 600; letter-spacing: calc(0.2em * var(--ls, 1)); }
 .info-card { background: var(--x-paper); border: 2px solid var(--x-ink); }
 .info-card.warn { background: var(--bad-bg); color: var(--x-red-d); border-color: var(--x-red-d); }
 .info-card.good { background: var(--good-bg); color: var(--x-green); border-color: var(--x-green); }
@@ -1254,7 +1265,7 @@ b, strong { font-weight: 700; }
 .toggle span b, .toggle > span > :first-child { font-family: var(--f-display); font-weight: 400; }
 .seat, .page .seat { border-top: 1px solid var(--x-edge); }
 .stats b { font-size: 1.6rem; color: var(--x-ink); }
-.stats small { font-family: var(--f-label); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.7rem; }
+.stats small { font-family: var(--f-label); text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); font-size: 0.7rem; }
 
 /* ---------- top bar: a Gazette masthead rule ---------- */
 .topbar, .game .topbar, .page .topbar, .finale .topbar { background: var(--x-cream); border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-cream), 0 3px 0 var(--x-ink); color: var(--x-ink); }
@@ -1297,7 +1308,7 @@ b, strong { font-weight: 700; }
 .cust.mystery .bubble, .game .cust.mystery .bubble { background: transparent; border: 2px dashed var(--x-ink); outline: 0; }
 .cust.mystery .q { font-family: var(--f-display); color: var(--x-ink); }
 .cust.mystery.pickable { outline-color: var(--x-red); }
-.cust .pref { background: var(--x-paper); border: 1px solid var(--x-ink); color: var(--x-ink); opacity: 1; font-size: 0.6rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.cust .pref { background: var(--x-paper); border: 1px solid var(--x-ink); color: var(--x-ink); opacity: 1; font-size: 0.6rem; letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; }
 .cust .pref-premium { outline: 0; background: var(--x-ink); color: var(--x-paper); }
 
 /* stalls: paper signs with a navy rule, a mustard band when it is your turn */
@@ -1314,7 +1325,7 @@ b, strong { font-weight: 700; }
 .game .stk .ms-cell { background: var(--x-paper); border-color: var(--x-ink); font-weight: 500; }
 .rd-close { background: var(--x-paper); border: 2px solid var(--x-ink); border-radius: 999px; color: var(--x-ink); }
 .rs-face .busy, .pile .pn { background: var(--x-ink); color: var(--x-paper); }
-.trait-badge { background: var(--x-ink); color: var(--x-paper); font-size: 0.62rem; letter-spacing: 0.06em; }
+.trait-badge { background: var(--x-ink); color: var(--x-paper); font-size: 0.62rem; letter-spacing: calc(0.06em * var(--ls, 1)); }
 .fcard, .game .fcard { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: 999px; box-shadow: 0 2px 0 var(--x-ink); }
 .fcard.usable, .game .fcard.usable { background: var(--x-green); color: var(--x-paper); }
 .favour-card { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: 999px; box-shadow: 0 2px 0 var(--x-ink); }
@@ -1326,14 +1337,14 @@ b, strong { font-weight: 700; }
 .sb.sealed .sb-face { background: repeating-linear-gradient(90deg, var(--x-wood) 0 9px, var(--x-wood-d) 9px 10px); border: 2px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-ink); }
 .sb.open .sb-face { background: var(--x-chalk); color: var(--x-paper); border: 2px solid var(--x-wood); box-shadow: 0 0 0 1.5px var(--x-ink), 0 2px 0 1.5px var(--x-ink); }
 .sb.won .sb-face { box-shadow: 0 0 0 1.5px var(--x-ink), 0 0 0 4px var(--x-mustard), 0 0 14px 2px rgba(224, 160, 28, 0.8); }
-.sb small { color: var(--x-slate); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.sb small { color: var(--x-slate); font-weight: 600; letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; }
 .sb.won small, .sb.sealed small { color: var(--x-green); }
 .sb.thinking { background: var(--hi-bg); color: var(--x-ink); border: 1.5px solid var(--x-ink); box-shadow: none; }
 .seal { background: var(--x-red-d); box-shadow: inset 0 0 0 3px var(--x-red), inset 0 0 0 5px var(--x-red-d), inset 0 0 0 6px var(--x-red); }
 
 /* the Wholesale Market: a newspaper-ruled board with fruit lanes */
 .game .market-stall { background: var(--x-paper); border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
-.game .mk-head { color: var(--x-ink); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 2px 4px; padding: 8px 2px 5px; border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); }
+.game .mk-head { color: var(--x-ink); font-size: 1.05rem; letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; margin: 0 2px 4px; padding: 8px 2px 5px; border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); }
 .game .mk-col.blueberry { background: var(--c-dfe3fa); background: color-mix(in srgb, var(--x-sky) 30%, var(--x-paper)); }
 .game .mk-col.watermelon { background: var(--c-fbdcdd); background: color-mix(in srgb, var(--c-9ab85a) 28%, var(--x-paper)); }
 .game .mk-col.apple { background: var(--c-f9e0d6); background: color-mix(in srgb, var(--c-d24a32) 16%, var(--x-paper)); }
@@ -1366,7 +1377,7 @@ b, strong { font-weight: 700; }
 .price-card.on { box-shadow: 0 3px 0 var(--x-ink), 0 0 0 3px var(--x-mustard), 0 0 0 5px var(--x-ink); }
 .pc-who span { color: var(--x-slate); }
 .pc-who span b { font-family: var(--f-label); color: var(--x-red-d); }
-.pc-lbl { color: var(--x-slate); text-transform: uppercase; letter-spacing: 0.08em; }
+.pc-lbl { color: var(--x-slate); text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); }
 .qt { background: var(--cream-2); border: 1.5px solid var(--x-edge); border-radius: var(--r); }
 .qt.sel { background: var(--good-bg); border-color: var(--x-green); box-shadow: 0 2px 0 var(--x-green); }
 .pc-price { background: var(--x-ink); color: var(--x-mustard); border-radius: var(--r); }
@@ -1378,7 +1389,7 @@ b, strong { font-weight: 700; }
 .read.ok { background: var(--hi-bg); color: var(--x-ink); }
 .read.war { background: var(--bad-bg); color: var(--x-red-d); }
 .rival-caps { color: var(--x-slate); font-family: var(--f-label); }
-.up-buy { background: var(--x-red-d); color: var(--x-paper); border: 2px solid var(--x-ink); border-radius: 999px; box-shadow: var(--shadow); font-family: var(--f-label); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+.up-buy { background: var(--x-red-d); color: var(--x-paper); border: 2px solid var(--x-ink); border-radius: 999px; box-shadow: var(--shadow); font-family: var(--f-label); font-weight: 600; text-transform: uppercase; letter-spacing: calc(0.06em * var(--ls, 1)); }
 .up-owned { color: var(--x-green); font-weight: 600; }
 .up-card.owned { background: var(--good-bg); }
 .up-text { color: var(--x-slate); }
@@ -1386,7 +1397,7 @@ b, strong { font-weight: 700; }
 /* morning: the Gazette front page */
 .mc-day { font-size: 1.4rem; }
 .full-sheet .mc-day { font-size: 1.9rem; }
-.mc-day small { font-family: var(--f-label); font-size: 0.82rem; letter-spacing: 0.06em; color: var(--x-slate); }
+.mc-day small { font-family: var(--f-label); font-size: 0.82rem; letter-spacing: calc(0.06em * var(--ls, 1)); color: var(--x-slate); }
 .morning-card.finale { box-shadow: 0 3px 0 var(--x-ink), 0 0 0 3px var(--x-red); }
 .mc-standing, .sc-standing { background: var(--cream-2); border: 1.5px solid var(--x-ink); font-weight: 500; }
 .mc-standing.r1, .sc-standing.r1 { background: var(--x-mustard); }
@@ -1445,7 +1456,7 @@ b, strong { font-weight: 700; }
 .buyer-caps .bc.no { background: var(--cream-2); color: var(--x-slate); }
 
 /* phase banner: a green ribbon like the cards' "Regular shopper" flag */
-.phase-banner span { padding: 8px 30px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-green); color: var(--x-paper); font-family: var(--f-display); font-weight: 400; font-size: 1.6rem; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 4px 0 var(--x-ink); }
+.phase-banner span { padding: 8px 30px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-green); color: var(--x-paper); font-family: var(--f-display); font-weight: 400; font-size: 1.6rem; letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; box-shadow: 0 4px 0 var(--x-ink); }
 
 /* ---------- pop-ups, tooltips, toasts ---------- */
 .modal-bg { background: rgba(24, 40, 68, 0.6); }
@@ -1486,7 +1497,7 @@ b, strong { font-weight: 700; }
 .front-sun { background: var(--x-mustard); border: 3px solid var(--x-ink); box-shadow: 0 0 0 5px rgba(224, 160, 28, 0.35); }
 .front-title { background: var(--x-paper); border: 4px solid var(--x-wood); border-radius: 8px; box-shadow: 0 0 0 2px var(--x-ink), 0 5px 0 2px var(--x-ink); padding: 8px 10px 9px; }
 .front-title h1 { color: var(--x-ink); font-size: 1.95rem; line-height: 1; letter-spacing: 0.01em; white-space: nowrap; }
-.front-title p { color: var(--x-ink); font-family: var(--f-label); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 4px; }
+.front-title p { color: var(--x-ink); font-family: var(--f-label); font-weight: 600; font-size: 0.72rem; letter-spacing: calc(0.14em * var(--ls, 1)); text-transform: uppercase; margin-top: 4px; }
 .front-title p.hm-secret { color: var(--x-red-d); font-family: var(--f-serif); font-style: italic; font-weight: 400; font-size: 0.85rem; letter-spacing: 0; text-transform: none; margin-top: 2px; }
 .front-account { background: var(--x-paper); color: var(--x-ink); border: 3px solid var(--x-ink); border-radius: var(--r); font-weight: 600; font-size: 0.74rem; box-shadow: 0 3px 0 var(--x-ink); }
 .front-post, .front-counter { background: var(--x-wood); border-color: var(--x-ink); }
@@ -1554,14 +1565,14 @@ b, strong { font-weight: 700; }
 .league-note.good { background: var(--good-bg); color: var(--x-green); }
 .ach { background: var(--cream-2); color: var(--x-slate); border: 2px solid var(--x-edge); }
 .ach.got { background: var(--x-paper); color: var(--x-ink); border-color: var(--x-ink); box-shadow: var(--shadow); }
-.ach-new > small { color: var(--x-red-d); font-family: var(--f-label); text-transform: uppercase; letter-spacing: 0.08em; }
+.ach-new > small { color: var(--x-red-d); font-family: var(--f-label); text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); }
 .colour-pick button { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); }
 .colour-pick button.on { box-shadow: 0 0 0 3px var(--x-mustard); }
 .cash-chart { background: var(--x-paper); border: 2px solid var(--x-ink); }
 
 /* ---------- how to play: Gazette pages ---------- */
 .slide h2, .howto h2 { color: var(--x-ink); font-size: 1.6rem; margin-bottom: 6px; }
-.slide-part { font-weight: 600; font-size: 0.72rem; letter-spacing: 0.18em; color: var(--x-red-d); }
+.slide-part { font-weight: 600; font-size: 0.72rem; letter-spacing: calc(0.18em * var(--ls, 1)); color: var(--x-red-d); }
 .demo-ex, .day-strip li { background: var(--x-paper); border: 1.5px solid var(--x-ink); border-radius: var(--r); }
 .day-strip small, .demo-fruit small, .demo-track small { color: var(--x-slate); }
 .beat-n { background: var(--x-red-d); color: var(--x-paper); border-color: var(--x-ink); font-family: var(--f-label); font-weight: 600; }
@@ -1580,7 +1591,7 @@ b, strong { font-weight: 700; }
 /* ---------- the market opening ---------- */
 .op, .op-stage::before { background: var(--x-sky); }
 .op-ground { background: var(--x-card); border-top-color: var(--x-ink); }
-.op-sign { background: var(--x-paper); color: var(--x-ink); border-color: var(--x-ink); border-radius: var(--r); font-weight: 400; text-transform: uppercase; letter-spacing: 0.04em; }
+.op-sign { background: var(--x-paper); color: var(--x-ink); border-color: var(--x-ink); border-radius: var(--r); font-weight: 400; text-transform: uppercase; letter-spacing: calc(0.04em * var(--ls, 1)); }
 .op-pill { background: var(--x-red-d); color: var(--x-paper); font-weight: 600; }
 .op-skip { color: var(--x-ink); }
 
@@ -1605,7 +1616,7 @@ b, strong { font-weight: 700; }
 /* "walk-in" and "tomorrow" under a card: a paper tag like the freshness tag, readable on the wooden road */
 .game .street .cust .cust-tag {
   align-self: center; padding: 1px 6px; border: 1px solid var(--x-ink); border-radius: 6px; background: var(--x-paper); color: var(--x-ink);
-  font: 600 0.66rem/1.2 var(--f-label); letter-spacing: 0.06em; white-space: nowrap;
+  font: 600 0.66rem/1.2 var(--f-label); letter-spacing: calc(0.06em * var(--ls, 1)); white-space: nowrap;
 }
 .cust .pref { font-size: 0.66rem; }
 .game .pz-n { font-size: 0.68rem; }
@@ -1690,7 +1701,7 @@ b, strong { font-weight: 700; }
 .gx .topbar .day-label { font-size: 1.12rem; line-height: 1; }
 .gx .topbar .tb-day .phase, .gx .topbar .tb-day .left {
   padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; animation: none;
-  font: 600 0.64rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--x-slate);
+  font: 600 0.64rem/1.1 var(--f-label); letter-spacing: calc(0.12em * var(--ls, 1)); text-transform: uppercase; color: var(--x-slate);
 }
 .gx .topbar .tb-day .left { color: var(--x-red-d); }
 .gx .topbar .tb-day .left.last { color: var(--x-paper); background: var(--x-red-d); padding: 1px 5px; border-radius: 3px; }
@@ -1758,7 +1769,7 @@ b, strong { font-weight: 700; }
 .gx .street .cust-marks i { width: 20px; height: 20px; }
 .gx .tomorrow { display: flex; align-items: center; gap: 5px; padding: 1px var(--gx-pad) 5px; overflow-x: auto; scrollbar-width: none; }
 .gx .tomorrow::-webkit-scrollbar { display: none; }
-.gx .tm-k { flex: none; font: 600 0.62rem/1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--x-slate); }
+.gx .tm-k { flex: none; font: 600 0.62rem/1 var(--f-label); letter-spacing: calc(0.12em * var(--ls, 1)); text-transform: uppercase; color: var(--x-slate); }
 .gx .tm-chip {
   position: relative; flex: none; display: inline-flex; align-items: center; gap: 3px; min-height: 30px; padding: 1px 9px 1px 3px;
   border: 1.5px solid var(--x-ink); border-radius: 999px; background: var(--x-paper); color: var(--x-ink);
@@ -1979,7 +1990,7 @@ b, strong { font-weight: 700; }
 .gx .dock .stk .ms-cell.st-okay { background: var(--okay); }
 .gx .dock .stk .ms-cell.st-notso { background: var(--notso); }
 .gx .dock .stk .ms-cell.st-unripe { background: repeating-linear-gradient(45deg, var(--unripe) 0 4px, var(--x-paper) 4px 8px); }
-.gx .dock .ms-cell small { display: none; font: 500 0.62rem/1 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; }
+.gx .dock .ms-cell small { display: none; font: 500 0.62rem/1 var(--f-label); text-transform: uppercase; letter-spacing: calc(0.06em * var(--ls, 1)); }
 .gx .dock .ms-cell.rotting::after { top: -7px; right: -5px; }
 
 /* ---------- the action bar (and the stocking and pricing buttons in its place) ---------- */
@@ -2102,3 +2113,100 @@ b, strong { font-weight: 700; }
   .gx .dock .stk .ms-cell, .gx .dock .stk .ms-cell.st-fresh, .gx .dock .stk .ms-cell.st-okay, .gx .dock .stk .ms-cell.st-notso, .gx .dock .stk .ms-cell.st-unripe { height: 24px; padding: 0 8px; font-size: 0.82rem; }
   .gx .dock .ms-cell small { font-size: 0.66rem; }
 }
+
+/* =====================================================================
+   Rubik fit (DEC-068): Rubik is wider than the condensed capitals these
+   places were sized for, so a few spots get a little more room.
+   ===================================================================== */
+.gx .seats .rs-name { font-size: 0.74rem; letter-spacing: 0; }
+@media (max-width: 899px) {
+  .gx .market-stall .mk-head { letter-spacing: 0; }
+  /* an event's price chip sits at the right; the title moves left of it, past the lorry */
+  .gx .market-stall .mk-head:has(.chip) { justify-content: flex-start; padding-left: 52px; }
+}
+
+/* =====================================================================
+   The rush pop-up, "Round the table" (DEC-068, panels/Showdown.tsx). The table dims; one customer's card comes to
+   the middle, each stall that offered them the fruit deals a card face down around it, the cards flip together,
+   then the tags, the fruit and the explanation. Moves are transform and opacity only; --rs-k is the speed (anim.ts).
+   ===================================================================== */
+.rush-dim { position: absolute; inset: 0; z-index: 10; background: color-mix(in srgb, var(--x-ink) 58%, transparent); animation: fade 0.2s ease-out; }
+.gx.ph-reveal .actionbar { position: relative; z-index: 11; }
+.auction.rush {
+  position: absolute; inset: 0; z-index: 11; margin: auto; width: min(100% - 16px, 420px); height: fit-content;
+  gap: 8px; padding: 10px 10px 8px; border: 2px solid var(--x-paper); border-radius: 16px; background: var(--x-ink);
+  box-shadow: 0 4px 0 var(--x-mustard), 0 16px 34px color-mix(in srgb, var(--x-ink) 70%, transparent); color: var(--x-paper); animation: none; cursor: pointer;
+}
+.gx > .auction.rush { grid-area: mid; }
+.rush .rs-top { display: flex; justify-content: space-between; gap: 8px; font: 600 0.74rem/1.2 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; color: var(--x-mustard); }
+.rush .rs-table {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "s0 mid s1" "s2 mid s3";
+  align-items: center; gap: 10px 8px;
+}
+.rush.n1 .rs-table, .rush.n2 .rs-table { grid-template-areas: "s0 mid s1"; }
+.rush .rs-mid { grid-area: mid; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rush .rs-card { --card-w: 7rem; transform-origin: 0 0; }
+.rush .rs-card .x-card { height: calc(var(--card-w) * 1.22); box-shadow: 0 3px 0 var(--x-ink); }
+.rush .rs-want {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 4px; max-width: 8.5rem; margin: 0;
+  font: 600 0.8rem/1.2 var(--f-label); text-align: center; color: var(--x-paper);
+}
+.rush .rs-want .rs-cap { color: var(--x-mustard); }
+/* a stall's card: dealt from the middle face down, then turned over */
+.rush .rs-seat { position: relative; min-width: 0; perspective: 600px; --dx: 0px; --dy: 0px; }
+.rush .rs-seat.s0 { grid-area: s0; --dx: 46px; --dy: 30px; }
+.rush .rs-seat.s1 { grid-area: s1; --dx: -46px; --dy: 30px; }
+.rush .rs-seat.s2 { grid-area: s2; --dx: 46px; --dy: -30px; }
+.rush .rs-seat.s3 { grid-area: s3; --dx: -46px; --dy: -30px; }
+.rush.n1 .rs-seat, .rush.n2 .rs-seat { --dy: 0px; }
+.rush .rs-flip {
+  position: relative; transform-style: preserve-3d; opacity: 0;
+  transform: translate(var(--dx), var(--dy)) rotateY(180deg) scale(0.3);
+  transition: transform calc(var(--rs-k, 1) * 0.42s) cubic-bezier(0.2, 0.8, 0.3, 1), opacity calc(var(--rs-k, 1) * 0.18s);
+}
+.rush .rs-seat.dealt .rs-flip { opacity: 1; transform: rotateY(180deg); }
+.rush .rs-seat.open .rs-flip { opacity: 1; transform: none; }
+.rush .rs-face, .rush .rs-back { border: 2px solid var(--x-ink); border-radius: 10px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rush .rs-face {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 112px; padding: 6px 5px;
+  background: var(--x-paper); color: var(--x-ink); text-align: center; box-shadow: 0 3px 0 var(--x-ink);
+  transition: background-color calc(var(--rs-k, 1) * 0.3s), opacity calc(var(--rs-k, 1) * 0.3s);
+}
+.rush .rs-back { position: absolute; inset: 0; transform: rotateY(180deg); background: repeating-linear-gradient(45deg, var(--x-ink) 0 6px, var(--x-ink-2) 6px 12px); box-shadow: inset 0 0 0 3px var(--x-paper); }
+.rush .rs-seat.me .rs-face, .rush .rs-seat.me .rs-back { outline: 3px solid var(--x-mustard); outline-offset: 1px; }
+.rush .rs-who { display: flex; align-items: center; gap: 4px; max-width: 100%; font: 600 0.76rem/1.05 var(--f-label); text-align: left; }
+.rush .rs-who > .xf { flex: none; }
+.rush .rs-pname { min-width: 0; overflow-wrap: anywhere; }
+.rush .rs-price { font: 800 1.5rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.rush .rs-off { display: flex; align-items: center; gap: 3px; font: 500 0.72rem/1.1 var(--f-label); color: var(--x-slate); }
+.rush .rs-tag { max-width: 100%; padding: 1px 7px; border-radius: 999px; font: 600 0.7rem/1.2 var(--f-label); animation: stamp calc(var(--rs-k, 1) * 0.26s) steps(3); }
+.rush .rs-seat.won .rs-face { background: var(--good-bg); }
+.rush .rs-seat.won .rs-tag { background: var(--x-green); color: var(--x-paper); }
+.rush .rs-seat.lost .rs-face { opacity: 0.66; }
+.rush .rs-seat.lost .rs-price { text-decoration: line-through; color: var(--x-slate); }
+.rush .rs-seat.lost .rs-tag { background: var(--bad-bg); color: var(--x-red-d); }
+/* the explanation hangs under the table, so its length never moves the cards */
+.rush .rs-why { position: absolute; left: 0; right: 0; top: calc(100% + 12px); border: 2px solid var(--x-ink); opacity: 0; transition: opacity calc(var(--rs-k, 1) * 0.3s); }
+.rush .rs-why.show { opacity: 1; }
+.rush .rs-why:empty { display: none; }
+.rush .rs-why .au-say { margin-top: 2px; }
+.rush .rs-hint { align-self: center; font: 500 0.72rem/1.2 var(--f-label); color: var(--on-ink-muted); }
+.rush.st-out .rs-seat, .rush.st-out .rs-want, .rush.st-out .rs-why, .rush.st-out .rs-top, .rush.st-out .rs-hint { opacity: 0; transition: opacity calc(var(--rs-k, 1) * 0.2s); }
+/* the card back in its row: hidden while it is up in the pop-up, then ticked */
+.game .street .cust.rush-away { visibility: hidden; }
+.game .street .cust .rush-tick {
+  position: absolute; left: 50%; top: 34%; z-index: 3; width: 30px; height: 30px; transform: translate(-50%, -50%);
+  display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--x-green);
+  font: 800 1rem/1 var(--f-label); font-style: normal; color: var(--x-paper); animation: stamp 0.26s steps(3);
+}
+@media (min-width: 900px) and (min-height: 560px) {
+  .auction.rush { width: min(100% - 24px, 480px); }
+  .rush .rs-card { --card-w: 8.5rem; }
+  .rush .rs-want { max-width: 10rem; }
+  .rush .rs-face { min-height: 124px; }
+  .rush .rs-price { font-size: 1.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rush .rs-flip, .rush .rs-face, .rush .rs-why, .rush .rs-tag, .rush-dim, .game .street .cust .rush-tick { transition: none; animation: none; }
+}
+.auction.rush.tone-good, .auction.rush.tone-bad { box-shadow: 0 4px 0 var(--x-mustard), 0 16px 34px color-mix(in srgb, var(--x-ink) 70%, transparent); }

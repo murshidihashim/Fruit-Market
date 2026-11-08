@@ -242,7 +242,9 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 `;
 
 const CSS = [
-  inlineFonts(read(join(UI, 'exchange.css'))),
+  read(join(UI, 'exchange.css')),
+  // The app is all Rubik (DEC-068); the printed cards keep the deck-art fonts, which override exchange.css's roles.
+  inlineFonts(read(join(UI, 'print-fonts.css'))),
   read(join(UI, 'palette.css')),
   read(join(UI, 'cards.css')),
   PRINT_CSS,

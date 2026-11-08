@@ -223,9 +223,9 @@ export function WearPin({ id, size = 14 }: { id: string; size?: number }) {
  */
 export function prewarmSprites() {
   if (typeof window === 'undefined') return;
-  // Load the deck-art faces the game screen uses now, so opening it doesn't trigger font loads and re-layout.
+  // Load the Rubik weights the game screen uses, so opening it doesn't trigger font loads and re-layout.
   // A font that fails to load only falls back to the next face in the stack, so the failure is ignored on purpose.
-  for (const f of ['16px "Alfa Slab One"', '16px "Abril Fatface"', '400 16px "Libre Caslon Text"', '500 16px Oswald', '600 16px Oswald', '700 16px Oswald']) {
+  for (const f of ['400 16px Rubik', 'italic 400 16px Rubik', '500 16px Rubik', '600 16px Rubik', '800 16px Rubik', '16px "Rubik Display"', '600 16px "Rubik Strong"', '800 16px "Rubik Strong"']) {
     void document.fonts?.load(f).catch(() => {});
   }
   const jobs: (() => string)[] = [];

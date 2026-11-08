@@ -8,6 +8,7 @@ import * as A from '../anim';
 import { holdCash, payCash, shownCash } from '../cashShown';
 import { fx } from '../fx';
 import type { ShowState } from './panels/Showdown';
+import { rushPace, rushSeats } from './rush';
 
 export async function delivery(g: GameState) {
   if (g.phase !== 'morning') return;
@@ -67,15 +68,21 @@ export async function moves(prev: GameState, next: GameState) {
   await Promise.all(jobs);
 }
 
-export async function flights(_g: GameState, l: LineResult) {
+/**
+ * One customer's sale: fruit flies from each stall that sold to the customer, coins fly back to the stall's cash.
+ * In the rush pop-up (`pop`) the fruit leaves the stall's card around the customer and lands on the customer's card.
+ */
+export async function flights(_g: GameState, l: LineResult, pop = false) {
   const jobs: Promise<void>[] = [];
+  const cust = pop ? ['rs-card', `c${l.customerId}`] : [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`];
   for (const o of l.offers) {
     if (!o.sold) continue;
+    const from = pop ? [`rs-p${o.player}`, `p${o.player}`] : [`p${o.player}-${l.fruit}`, `p${o.player}`];
     for (let k = 0; k < Math.min(o.sold, 4); k++) {
-      jobs.push(A.fly([`p${o.player}-${l.fruit}`, `p${o.player}`], [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`], <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
+      jobs.push(A.fly(from, cust, <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
     }
-    for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
-    jobs.push(A.fly([`c${l.customerId}`], `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
+    for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
+    jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
       // This customer's payment lands now, so the stall's total climbs here and not before.
       const paid = o.sold * o.price + (o.juice ?? 0);
       fx.coin();
@@ -84,6 +91,16 @@ export async function flights(_g: GameState, l: LineResult) {
     }));
   }
   await Promise.all(jobs);
+}
+
+/** With reduced motion nothing flies: each stall that sold is simply paid. */
+function payNow(l: LineResult) {
+  for (const o of l.offers) {
+    if (!o.sold) continue;
+    const paid = o.sold * o.price + (o.juice ?? 0);
+    A.floatText(`p${o.player}-cash`, `+$${paid}`);
+    void payCash(o.player, paid);
+  }
 }
 
 export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void) {
@@ -105,27 +122,46 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   const routine = lines.filter((l) => !shows.includes(l));
   if (routine.length) await Promise.all(routine.map((l, i) => A.wait(i * 120).then(() => flights(g, l))));
   const used = new Set<string>();
+  const served: number[] = [];
+  // The rush pop-up, "Round the table" (DEC-068): one customer at a time in the middle, each stall's card dealt face
+  // down around them, all flipped together, then the result. About 2 s to read it; a tap on the pop-up moves on,
+  // Skip (or a tap anywhere else) hurries the whole rush, and then the rest settle without the pop-up.
   for (let i = 0; i < shows.length; i++) {
     const l = shows[i];
+    if (A.hurried()) { await flights(g, l); continue; }
+    A.resetStep();
     const story = explainLine(g, l, viewer);
     const react = rivalReaction(g, l, viewer, used);
-    const base = { line: l, n: i + 1, of: shows.length, story, react, cust: customerReaction(g, l.customerId, l.name) };
-    setShow({ ...base, stage: 'intro', shown: 0 });
-    A.pulse(`c${l.customerId}`);
-    fx.card();
-    await A.wait(380);
-    for (let k = 1; k <= l.offers.length; k++) {
-      setShow({ ...base, stage: 'reveal', shown: k });
-      fx.tap();
-      await A.wait(240);
+    const base = { line: l, n: i + 1, of: shows.length, story, react, cust: customerReaction(g, l.customerId, l.name), served: [...served] };
+    const seats = rushSeats(l, viewer, g.players.length).length;
+    const pace = rushPace(seats);
+    const still = A.isReduced();
+    if (!still) {
+      setShow({ ...base, stage: 'in', dealt: 0 });
+      fx.card();
+      await A.wait(pace.in);
+      for (let k = 1; k <= seats; k++) {
+        setShow({ ...base, stage: 'deal', dealt: k });
+        fx.tap();
+        await A.wait(pace.deal);
+      }
+      await A.wait(pace.down);
+      setShow({ ...base, stage: 'flip', dealt: seats });
+      fx.card();
+      await A.wait(pace.flip);
     }
-    setShow({ ...base, stage: 'result', shown: l.offers.length });
+    setShow({ ...base, stage: 'result', dealt: seats });
     if (story.tone === 'good') fx.coin();
-    const tags: { remove(): void }[] = [];
-    if (react) tags.push(A.tag(`p${react.player}`, react.text, 'quip'));
-    await flights(g, l);
-    await A.wait(story.detail ? 1100 : 800);
-    tags.forEach((t) => t.remove());
+    const quips: { remove(): void }[] = [];
+    if (react) quips.push(A.tag(`p${react.player}`, react.text, 'quip'));
+    await A.frame();
+    if (still) payNow(l);
+    await Promise.all([still ? Promise.resolve() : flights(g, l, true), A.hold(pace.hold)]);
+    for (const q of quips) q.remove();
+    served.push(l.customerId);
+    setShow({ ...base, stage: 'out', dealt: seats, served: [...served] });
+    await A.wait(pace.out);
+    A.pulse(`c${l.customerId}`);
   }
   setShow(null);
   for (const f of r.favours) {

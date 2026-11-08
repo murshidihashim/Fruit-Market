@@ -335,7 +335,11 @@ export function nameSize(name: string): string | undefined {
   return n > 16 ? 'nm-xl' : n > 11 && n <= 14 ? 'nm-m' : undefined;
 }
 
-export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void }) {
+export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: {
+  s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void;
+  /** In the rush: 'away' while the card is up in the pop-up, 'served' once it is back with a tick. */
+  rush?: 'away' | 'served';
+}) {
   if (kind === 'mystery' || !c) {
     // Face down: only the card's back shows, with the fruit printed on it. No name, type, amount, price or
     // portrait, and no picture is requested until the card is face up for this player.
@@ -355,7 +359,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
   const shown = c.wants.map((w) => ({ ...w, max: effectiveMax(s, w, c.generous) }));
   const marks = c.wants.map((w, i) => `${w.qty <= 0 ? ` ln${i + 1}-done` : ''}${shown[i].max > w.max ? ` ln${i + 1}-up` : shown[i].max < w.max ? ` ln${i + 1}-down` : ''}`).join('');
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${marks}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${marks}${rush ? ` rush-${rush}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${shown[i].max} each when fresh`}`).join('\n')}`}>
       <TradingCard who={c.name} wants={shown} compact guest={!!GUEST_EVENT[c.name]} eager class={nameSize(c.name)} />
@@ -368,12 +372,18 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick }: { s: G
         </span>
       )}
       {kind === 'tomorrow' ? <small class="cust-tag">tomorrow</small> : c.pref && <em class={`pref pref-${c.pref}`}>{PREF_INFO[c.pref].short}</em>}
+      {rush === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
     </div>
   );
 }
 
 /** Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). */
-export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void }) {
+export function Street({ s, viewer, onTip, onScout, away, served }: {
+  s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void;
+  /** The rush pop-up: the customer whose card is up in the middle, and those already served. */
+  away?: number; served?: number[];
+}) {
+  const rush = (c: Customer) => (c.id === away ? 'away' : served?.includes(c.id) ? 'served' : undefined);
   const before = s.phase === 'morning' || s.phase === 'buy';
   const extra = s.event?.extra;
   // Walk-ins wait face down; a player who played Gossip or Scout on one sees its front.
@@ -385,8 +395,8 @@ export function Street({ s, viewer, onTip, onScout }: { s: GameState; viewer: nu
   // as a hint. On a desktop the cards stand two by two in the left column (--pairs rows), sized to fit its height.
   return (
     <div class={`street ${n > 5 ? 'many' : ''}`} style={{ '--pairs': Math.max(1, Math.ceil(n / 2)) }} aria-label="Today's customers">
-      {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} />)}
-      {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} />)}
+      {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} rush={rush(c)} />)}
+      {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} rush={rush(c)} />)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
       {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) }} kind="today" onTip={onTip} />}
       {before && s.queue.map(walkIn)}

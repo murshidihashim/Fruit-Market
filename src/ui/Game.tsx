@@ -14,6 +14,7 @@ import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
 import { Showdown } from './game/panels/Showdown';
+import { rushBoard } from './game/rush';
 import { SalesSummary } from './game/panels/SalesSummary';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
@@ -72,17 +73,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
   const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
-  // then flipped open one by one, highest price first, as each showdown is revealed.
+  // then flipped open as each customer's cards turn over in the rush pop-up.
   const boards: Record<number, Board> = {};
   if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (s.phase === 'stall') rivals.forEach((p) => { boards[p] = { state: s.stalls[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (show) {
-    const order = show.line.offers.map((o, i) => ({ o, i })).sort((x, y) => y.o.price - x.o.price || y.i - x.i);
-    order.forEach(({ o, i }, k) => {
-      const done = show.stage === 'result';
-      boards[o.player] = k < show.shown
-        ? { state: 'open', price: o.price, res: done ? (o.sold ? 'won' : 'lost') : undefined, tag: done ? show.story.tags[i] : undefined }
-        : { state: 'sealed' };
+    // The rush pop-up: every stall's board stays sealed until the cards around the customer flip, all together.
+    show.line.offers.forEach((o, i) => {
+      const b = rushBoard(show.stage, o, show.story.tags[i]);
+      boards[o.player] = b.open ? { state: 'open', price: o.price, res: b.res, tag: b.tag } : { state: 'sealed' };
     });
   }
   const limit = pl ? buyLimit(pl) : 4;
@@ -98,7 +97,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall) => { fx.card(); act({ kind: 'stall', stall }); }} />;
     if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
-    if (s.phase === 'reveal') return show ? <Showdown s={s} a={show} viewer={viewer} /> : c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
+    if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
     if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} /></div>;
     return null;
   })();
@@ -122,7 +121,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       )}
 
       <section class="street-wrap" data-a="street">
-        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} />
+        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
+          away={show?.line.customerId} served={show?.served} />
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
       </section>
       {rivals.length > 0 && (
@@ -144,6 +144,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
       {!pricing && !stalling && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
+      {/* The rush pop-up sits over the whole table (the middle column on a desktop), under the flying fruit. */}
+      {show && <Showdown s={s} a={show} viewer={viewer} />}
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}

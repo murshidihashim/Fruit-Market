@@ -5,17 +5,41 @@ import { render, type VNode } from 'preact';
 let layer: HTMLElement | null = null;
 let hurry = 1;
 let base = 1;
+/** The rush pop-up's own speed-up: a tap makes the rest of the current customer quick (reset for the next one). */
+let step = 1;
+/** Waits still running, so a tap or Skip can end them at once. */
+const waiting = new Set<() => void>();
+const endWaits = () => { for (const done of [...waiting]) done(); };
 
 export function setLayer(el: HTMLElement | null) { layer = el; }
 export function setBaseSpeed(fast: boolean) { base = fast ? 0.55 : 1; }
 /** Tap-to-skip: makes the rest of the current sequence very quick. */
-export function hurryUp() { hurry = 0.15; }
-export function resetHurry() { hurry = 1; }
+export function hurryUp() { hurry = 0.15; endWaits(); }
+export function resetHurry() { hurry = 1; step = 1; }
+export const hurried = () => hurry < 1;
+/** A tap on the rush pop-up: this customer finishes quickly, then the next one plays at the normal pace. */
+export function speedStep() { step = 0.15; endWaits(); }
+export function resetStep() { step = 1; }
 
 const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-const k = () => (reduced() ? 0.05 : base * hurry);
+const k = () => (reduced() ? 0.05 : base * hurry * step);
+/** The player asked for less motion: show results without flying anything. */
+export const isReduced = reduced;
+/** The current speed factor (1 normal, lower is quicker), for CSS transitions that should keep pace. */
+export const speed = () => k();
+/** A duration in ms at the current speed. */
+export const ms = (n: number) => n * k() + 1;
 
-export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms * k()));
+function sleep(t: number) {
+  return new Promise<void>((r) => {
+    const done = () => { clearTimeout(id); waiting.delete(done); r(); };
+    const id = setTimeout(done, t);
+    waiting.add(done);
+  });
+}
+export const wait = (n: number) => sleep(n * k());
+/** A pause to read something: kept with reduced motion (nothing moves then, but the words still need time). */
+export const hold = (n: number) => sleep(n * base * hurry * step);
 export const frame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
 export function find(keys: string | string[]): HTMLElement | null {

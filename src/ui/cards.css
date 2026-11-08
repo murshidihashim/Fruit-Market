@@ -18,7 +18,7 @@
 .x-card.x-compact { height: auto; }
 .x-card :where(p, ul, figure, li) { margin: 0; padding: 0; }
 .x-card :where(ul) { list-style: none; }
-.x-card .x-art-missing { font-size: 1em; letter-spacing: 0.14em; }
+.x-card .x-art-missing { font-size: 1em; letter-spacing: calc(0.14em * var(--ls, 1)); }
 .x-card .x-fruit { display: block; flex: none; }
 
 /* ---------- Trading Card (customer, Art 3 "At work") ---------- */
@@ -39,7 +39,7 @@
 .x-tc-flag {
   position: absolute; top: 1.35em; left: 4.85em; right: 0; height: 2.35em; display: flex; align-items: center;
   padding: 0 1.7em 0 0.8em; border-left: 0.4em solid var(--x-ink); background: var(--x-green); color: var(--x-card);
-  font: 600 1em/1 var(--f-label); letter-spacing: 0.13em; text-transform: uppercase; white-space: nowrap; overflow: hidden;
+  font: 600 1em/1 var(--f-label); letter-spacing: calc(0.13em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap; overflow: hidden;
   clip-path: polygon(0 0, 100% 0, calc(100% - 1.2em) 50%, 100% 100%, 0 100%);
 }
 .x-flag-premium { background: var(--x-red); }
@@ -69,9 +69,9 @@
 .x-tc-order li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.18em; min-width: 0; padding: 0.4em 0.05em; text-align: center; }
 .x-tc-order li + li { border-left: 0.16em solid var(--x-ink); }
 .x-tc-order .x-fruit { width: 2.4em; height: 2.4em; }
-.x-tc-order span { font: 500 0.88em/1.15 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; color: var(--x-ink); }
+.x-tc-order span { font: 500 0.88em/1.15 var(--f-label); letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap; color: var(--x-ink); }
 .x-tc-order b { font: 2em/1 var(--f-display); color: var(--x-red); }
-.x-tc-buys { flex: none; height: 1.2em; font: 600 1em/1.2 var(--f-label); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--x-green); }
+.x-tc-buys { flex: none; height: 1.2em; font: 600 1em/1.2 var(--f-label); letter-spacing: calc(0.2em * var(--ls, 1)); text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--x-green); }
 
 /* compact (the table): picture, name and order only, bigger words; the fruit picture names the fruit. Every compact
    card, face up or face down, is the same size: 25.2 x 26.9 ce. */
@@ -99,7 +99,7 @@
   font: 2.1em/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
   clip-path: polygon(0 0, 100% 0, calc(100% - 0.42em) 50%, 100% 100%, 0 100%, 0.42em 50%);
 }
-.x-tb-kind { font: 600 1.1em/1 var(--f-label); letter-spacing: 0.32em; text-transform: uppercase; color: var(--x-mustard); }
+.x-tb-kind { font: 600 1.1em/1 var(--f-label); letter-spacing: calc(0.32em * var(--ls, 1)); text-transform: uppercase; color: var(--x-mustard); }
 .x-tb-kind::before, .x-tb-kind::after { content: '·'; padding: 0 0.5em; }
 .x-tb-fruit {
   display: flex; justify-content: center; gap: 0.6em; min-height: 5.4em; min-width: 9em; padding: 1em 1.4em; align-items: center;
@@ -127,7 +127,7 @@
 .x-ss .x-ss-badge { grid-row: 1 / 3; width: 5em; height: 5em; border-radius: 50%; border: 0.25em solid var(--x-ink); overflow: hidden; }
 .x-ss-name { align-self: end; font: 3.3em/1.05 var(--f-script); color: var(--x-red); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 0.1em; }
 .x-ss-name.x-long { font-size: 2.45em; }
-.x-ss-tag { align-self: start; font: 600 0.8em/1.3 var(--f-label); letter-spacing: 0.17em; text-transform: uppercase; color: var(--x-ink); white-space: nowrap; }
+.x-ss-tag { align-self: start; font: 600 0.8em/1.3 var(--f-label); letter-spacing: calc(0.17em * var(--ls, 1)); text-transform: uppercase; color: var(--x-ink); white-space: nowrap; }
 .x-ss-scene { position: relative; flex: 1 1 0; min-height: 0; border: 0.25em solid var(--x-ink); border-radius: 0.45em; overflow: hidden; background: var(--x-paper); }
 .x-ss-scene .x-art { position: absolute; inset: 0; object-position: 50% 75%; }
 .x-ss-chalk {
@@ -162,7 +162,7 @@
 .x-gz-mast { flex: none; padding-bottom: 0.12em; border-bottom: 0.17em double var(--x-ink); font: 1.85em/1.1 var(--f-headline); text-align: center; color: var(--x-ink); }
 .x-gz-ed {
   flex: none; display: flex; justify-content: space-between; gap: 0.5em; padding: 0.45em 0 0.4em; border-bottom: 0.12em solid var(--x-ink);
-  font: 600 0.78em/1.2 var(--f-label); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap;
+  font: 600 0.78em/1.2 var(--f-label); letter-spacing: calc(0.15em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap;
 }
 /* headline block: room for three lines, top-aligned; the seal floats in its corner and the words wrap round it */
 .x-gz-top { flex: none; display: flow-root; height: 6.7em; }
@@ -182,7 +182,7 @@
 .x-gz-pic figcaption { flex: none; height: 2.4em; margin-top: 0.3em; font: italic 0.92em/1.2 var(--f-serif); color: var(--x-slate); }
 .x-gz-body { flex: 1 1 0; min-height: 0; display: flow-root; margin-top: 0.4em; }
 .x-gz-fx { float: right; width: 9.6em; margin: 0.15em 0 0.25em 0.7em; padding: 0.45em 0.5em 0.4em; border: 0.15em solid var(--x-ink); }
-.x-gz-fx li { padding-left: 0.95em; text-indent: -0.95em; font: 600 0.9em/1.25 var(--f-label); letter-spacing: 0.05em; text-transform: uppercase; color: var(--x-ink); }
+.x-gz-fx li { padding-left: 0.95em; text-indent: -0.95em; font: 600 0.9em/1.25 var(--f-label); letter-spacing: calc(0.05em * var(--ls, 1)); text-transform: uppercase; color: var(--x-ink); }
 .x-gz-fx li::before { content: '\25B8'; display: inline-block; width: 0.95em; text-indent: 0; font-size: 0.8em; }
 /* the story is set at 1ce (about 7 pt in print) so the longest one fits the story box */
 .x-gz-text { font: 1em/1.27 var(--f-serif); color: var(--x-ink); }

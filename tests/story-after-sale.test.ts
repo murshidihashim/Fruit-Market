@@ -8,7 +8,7 @@ import {
 } from '../src/engine/game';
 import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
-import { Showdown } from '../src/ui/game/panels/Showdown';
+import { RushView } from '../src/ui/game/panels/Showdown';
 
 // After-sale explanations (REP-089 3.3 and 3.6): the reason a stall could not sell, offers that did not qualify left out
 // of every price contest, and "what if" advice that follows the engine's tie order and the size of your crate.
@@ -442,10 +442,10 @@ describe('Showdown card', () => {
     const s = bell(start, 'apple', [2, 2, 0], [5, 4, 0]);
     const l = line(s);
     const story = explainLine(s, l, 0);
-    const html = toStaticHtml(h(Showdown, { s, viewer: 0, a: { line: l, n: 1, of: 1, stage: 'result', shown: l.offers.length, story, react: null, cust: '' } }));
+    const html = toStaticHtml(h(RushView, { s, viewer: 0, a: { line: l, n: 1, of: 1, stage: 'result', dealt: l.offers.length, story, react: null, cust: '', served: [] } }));
     expect(html).toContain('none qualify');
     expect(html).not.toMatch(/offer 0/);
     expect(html).toContain('over $4 top');
-    expect(html).toContain('offers 2');
+    expect(html).toContain('2 offered');
   });
 });
