@@ -1848,6 +1848,7 @@ b, strong { font-weight: 700; }
 /* cards and decisions over the market */
 .gx > .centre > .morning-card, .gx > .centre > .mid-panel {
   position: relative; inset: auto; z-index: 4; align-self: stretch; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; /* a panel scrolls on its own; the board never moves with it */
   animation: fade 0.2s;
 }
 /* the morning card sits on a plain backdrop (as the old full-screen sheet did), centred, as tall as it needs */
@@ -1855,6 +1856,7 @@ b, strong { font-weight: 700; }
 .gx > .centre > .morning-card { z-index: 5; align-self: center; max-height: calc(100% - 10px); justify-content: flex-start; padding: 10px 12px; gap: 8px; }
 .gx > .centre > .auction, .gx > .centre > .sales-card {
   position: relative; inset: auto; z-index: 4; align-self: start; max-height: calc(100% - 12px); overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .gx .mid-evening .evening-panel { gap: 8px; }
 .gx .mid-evening .upgrade-grid { gap: 6px; }
