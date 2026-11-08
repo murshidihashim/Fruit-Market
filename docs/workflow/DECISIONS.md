@@ -1231,7 +1231,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 - **Data and security:** None.
 - **Cost:** RM0
 - **Owner:** Murshidi
-- **Approval:** Approved: “lets go with one / go with unloading” (2026-11-08)
+- **Approval:** Approved: “lets go with one” (2026-11-08)
 - **Delivery:** Not started (PLAN-055)
 - **Review trigger:** If it feels slow on an old phone.
 - **Reports:** 
