@@ -3,13 +3,14 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { CHARACTER_AVATARS, FRUIT, RIVALS } from '../engine/data';
+import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, FriendBody, Popup, Shopfront } from './Home';
 import { prewarmSprites } from './pixel';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
+import { marketDaysSetupText, unripeSetupText } from './rulesText';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
 import { LOOKS, worn } from './looks';
@@ -297,8 +298,8 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
           <h3>Rules</h3>
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
           <Toggle on={upgrades && !core} set={setUpgrades} title="Stall upgrades" text="After each Market Day, build one: Cold Room, Juice Bar, Handcart or Premium Display." />
-          <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={`Some deliveries arrive unripe: $1 now, sell later. ${FRUIT.mango.name}es take longest.`} />
-          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text="Days 3, 6, 9 and 12: one more walk-in. Closing Day on the final day: +$1, then the jam maker buys leftovers." />
+          <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={unripeSetupText()} />
+          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text={marketDaysSetupText()} />
         </section>
         <section class="panel">
           <h3>Beginner and expert rules</h3>

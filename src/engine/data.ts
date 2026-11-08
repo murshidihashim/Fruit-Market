@@ -123,6 +123,15 @@ const LORRY_CARDS: FarmerCard[] = [
 ];
 export const FARMER_CARDS: FarmerCard[] = [...LORRY_CARDS, ...LORRY_CARDS.map((c) => ({ ...c }))];
 
+/**
+ * Does any lorry deliver this fruit green? Since rules 9 only mangoes arrive green. The watermelon keeps its green
+ * slot in the track (saves and online play depend on the track's shape), but nothing ever fills it, so the rules
+ * screens leave it out.
+ */
+export function deliveredGreen(f: FruitId): boolean {
+  return FARMER_CARDS.some((c) => c.unripe === f);
+}
+
 /** `fixed`: an event customer's printed price is final; the day's price modifiers are not added to it. */
 export interface Want { fruit: FruitId; qty: number; max: number; fixed?: boolean }
 export interface CustomerCard { name: string; wants: Want[] }

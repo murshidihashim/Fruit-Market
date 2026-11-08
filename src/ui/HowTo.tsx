@@ -1,16 +1,17 @@
 // Illustrated rules, one swipe-able card per idea, in the order a game unfolds: what to expect, how a
 // day runs, what you sell, how customers choose, what you can do after the rush, and how it ends.
 import { useState } from 'preact/hooks';
-import { FRUIT, FRUITS, FAVOURS, JUICE_CAP, JUICE_VALUE, UPGRADES, stageAt } from '../engine/data';
+import { FRUIT, FRUITS, FAVOURS, JAM_PRICE, JUICE_CAP, JUICE_VALUE, LAST_CALL_BONUS, UPGRADES, deliveredGreen, stageAt, type FruitId } from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { UP_ICON } from './panel';
+import { MARKET_DAY_LIST } from './rulesText';
 
 const GAME_PHASES = [
   ['Set-up', 'Pick a shopkeeper with one perk. Each stall starts with $15.'],
   ['Ordinary days', 'Seven phases a day, from morning to night.'],
-  ['Market Days', 'Days 3, 6, 9 and 12: one more customer, and a stall upgrade that evening.'],
-  ['Closing Day', 'The last day. Customers pay $1 more, then the jam maker buys your leftovers.'],
+  ['Market Days', `Days ${MARKET_DAY_LIST}: one more customer, and a stall upgrade that evening.`],
+  ['Closing Day', `The last day. Customers pay $${LAST_CALL_BONUS} more, then the jam maker buys your ripe leftovers for $${JAM_PRICE} each.`],
   ['Final count', 'Most cash wins.'],
 ];
 
@@ -23,6 +24,20 @@ const DAY_BEATS = [
   ['Evening', 'Play favour cards. After a Market Day, build one upgrade.'],
   ['Night', 'All fruit ages one step. Spoiled fruit is thrown away.'],
 ];
+
+/**
+ * One fruit's track, oldest step on the left, with what customers take off for okay and tired fruit, then its green
+ * steps for a fruit some lorry delivers green (the watermelon keeps a green slot in the engine, but no lorry fills it).
+ */
+export function FruitTrack({ f }: { f: FruitId }) {
+  return (
+    <div class="demo-track">
+      <Fruit id={f} size={22} />
+      {FRUIT[f].ripe.map((_, i) => <i class={`st-${stageAt(f, i)}`}>{FRUIT[f].drop[i] ? `−${FRUIT[f].drop[i]}` : ''}</i>)}
+      {deliveredGreen(f) && Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe" aria-label="green" />)}
+    </div>
+  );
+}
 
 const SLIDES = [
   {
@@ -38,7 +53,7 @@ const SLIDES = [
             <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p><b>Most cash after the last day wins.</b> Fruit on your shelf at the end is worth nothing.</p>
+        <p><b>Most cash after the last day wins.</b> Upgrades are worth nothing at the end. Leftover ripe fruit earns only ${JAM_PRICE} each from the jam maker, when Closing Day is on (the default).</p>
       </>
     ),
   },
@@ -65,11 +80,7 @@ const SLIDES = [
         <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>tired</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for tired. Some customers are fussier: <b>Premium</b> customers only buy fresh fruit, <b>Everyday</b> customers buy fresh or okay, and <b>Bargain</b> customers buy anything. The oldest step is on the left.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
-            <div class="demo-track">
-              <Fruit id={f} size={22} />
-              {FRUIT[f].ripe.map((_, i) => <i class={`st-${stageAt(f, i)}`}>{FRUIT[f].drop[i] ? `−${FRUIT[f].drop[i]}` : ''}</i>)}
-              {Array.from({ length: FRUIT[f].unripeSlots }, () => <i class="st-unripe" aria-label="green" />)}
-            </div>
+            <FruitTrack f={f} />
             <small>{FRUIT[f].theme}</small>
           </div>
         ))}
@@ -110,10 +121,10 @@ const SLIDES = [
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days 3, 6, 9 and 12 are <b>Market Days</b>: one more walk-in joins the crowd. That evening you may build <b>one stall upgrade</b>, which costs cash and changes how you play:</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>: one more walk-in joins the crowd. That evening you may build <b>one stall upgrade</b>, which costs cash and changes how you play:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
-        <p>On the <b>final day</b>, customers pay $1 more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for $1 each. That's the last chance to turn fruit into cash.</p>
-        <p><b>Most cash wins.</b> Upgrades and shelf fruit count for nothing. If you tie, the stall that sold more fruit wins.</p>
+        <p>On the <b>final day</b> (Closing Day, on by default), customers pay ${LAST_CALL_BONUS} more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each (green fruit gets nothing). That's the last chance to turn fruit into cash.</p>
+        <p><b>Most cash wins.</b> Upgrades count for nothing, and leftover fruit only for what the jam maker pays. If you tie, the stall that sold more fruit wins.</p>
       </>
     ),
   },

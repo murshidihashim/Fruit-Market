@@ -1,32 +1,29 @@
 // End-of-day takings card.
 import type { GameState } from '../../../engine/game';
-import { dayHighlights, standing, tonightLine } from '../../../engine/story';
+import { dayHighlights, dayLedger, standing, tonightLine, withJamPaid } from '../../../engine/story';
 import { Face } from '../../art';
 import { spoilsTonight } from '../../boardModel';
 
 export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const r = s.results!;
-  const start = s.dayStartCash?.[viewer];
-  const net = start === undefined ? null : s.players[viewer].cash - start;
-  // Day ledger: sales in, stock bought, anything else (fines, favours, jam), and what tonight does to the shelf
-  // (fruit that spoils, and fruit a Juice Bar turns into juice; nothing on the final day, when no night follows).
-  const bought = r.spent?.[viewer] ?? 0;
-  const jam = s.jam?.[viewer] ?? 0;
-  const other = net === null ? 0 : net - r.income[viewer] + bought;
+  // Day ledger: sales in, stock bought, the jam maker (on Closing Day this card comes before he pays, so his money
+  // shows as "tonight" and is in the net), anything else, and what tonight does to the shelf (fruit that spoils, and
+  // fruit a Juice Bar turns into juice; nothing on the final day, when no night follows).
+  const { sales, bought, jam, jamTonight, other, net } = dayLedger(s, viewer);
   const tonight = s.phase === 'reveal' ? tonightLine(s, viewer) : null;
   const spoil = tonight ? spoilsTonight(s, viewer) : 0;
   const highlights = dayHighlights(s, viewer);
-  const st = standing(s, viewer);
+  const st = standing(withJamPaid(s), viewer);
   const best = Math.max(...r.income);
   const rem = s.config.days - s.day;
   return (
     <div class="sales-card">
       <div class="sc-title">{rem === 0 ? 'MARKET CLOSED' : `END OF DAY ${s.day}`}</div>
       <div class="sc-money ledger" aria-label="Day ledger">
-        <span>Sales <b class="good">+${r.income[viewer]}</b></span>
+        <span>Sales <b class="good">+${sales}</b></span>
         {bought > 0 && <span>Bought <b class="bad">−${bought}</b></span>}
-        {jam > 0 && <span>Jam maker <b class="good">+${jam}</b></span>}
-        {other - jam !== 0 && <span>Other <b class={other - jam > 0 ? 'good' : 'bad'}>{other - jam > 0 ? '+' : '−'}${Math.abs(other - jam)}</b></span>}
+        {jam > 0 && <span>{jamTonight ? 'Jam maker tonight' : 'Jam maker'} <b class="good">+${jam}</b></span>}
+        {other !== 0 && <span>Other <b class={other > 0 ? 'good' : 'bad'}>{other > 0 ? '+' : '−'}${Math.abs(other)}</b></span>}
         {net !== null && <span class="net">Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
       </div>
       {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice'}>{tonight}</div>}

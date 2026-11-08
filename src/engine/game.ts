@@ -84,7 +84,7 @@ export interface Customer {
   original: Want[];
   /** A walk-in: drawn a day early and shown face down (only the fruits on the back) until they arrive. */
   walkIn?: boolean;
-  /** Players who have seen this face-down card (Market Gossip). */
+  /** Players who have seen this face-down card: Gossip (every walk-in in tomorrow's queue) or Scout (one of today's). The card does not record which. */
   seenBy?: number[];
   /** Street-price option: this customer pays $2 more than the street price. */
   generous?: boolean;

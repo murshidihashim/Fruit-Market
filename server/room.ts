@@ -105,7 +105,7 @@ export function redact(g: GameState, seat: number): GameState {
   // Simultaneous steps: nobody's crate or prices show until every shop has committed.
   if (v.phase === 'stall') v.stalls = v.stalls.map(() => null);
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
-  // Face-down walk-ins: only the fruit on the back, unless this player heard about them (Market Gossip).
+  // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
   v.queue = v.queue.map((c) => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
     id: c.id, name: 'Walk-in', walkIn: true,
     wants: c.wants.map((w) => ({ fruit: w.fruit, qty: 0, max: 0 })),

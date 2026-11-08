@@ -30,7 +30,7 @@ Had Stall A been alone in serving him, A would have drawn a favour card. That is
 
 ## Goal
 
-Have the **most cash** at the end of the last day. Fruit left on your shelf and upgrades you built are worth nothing at the end. Ties go to whoever sold more fruit.
+Have the **most cash** at the end of the last day. Upgrades you built are worth nothing at the end, and fruit left on your shelf only what the jam maker pays on Closing Day ($1 for each ripe piece; nothing for green fruit, and nothing if Closing Day is switched off). Ties go to whoever sold more fruit.
 
 ## Players and length
 
@@ -46,7 +46,7 @@ Every fruit uses the same freshness rule: it sells at the customer's full price 
 | Fruit | Play style | Track (oldest → freshest) | Cost: Fresh / Okay / Tired | Unripe |
 |---|---|---|---|---|
 | 🫐 Blueberry | Cheap and popular, mushy in 3 days. Fast turnover. | tired · okay · fresh | $2 / $1 / $1 | none |
-| 🍉 Watermelon | The steady seller. | tired · okay · okay · fresh · fresh | $3 / $2 / $1 | 1 night ($1) |
+| 🍉 Watermelon | The steady seller. | tired · okay · okay · fresh · fresh | $3 / $2 / $1 | none |
 | 🍎 Apple | The keeper: lasts a week. Never the best price, never a loss. | tired · okay ×3 · fresh ×3 | $3 / $2 / $1 | none |
 | 🥭 Mango | Buy green for $4, ripens in 2 nights, sells at a premium, spoils fast once ripe. | tired · okay · fresh · fresh | $5 / $2 / $1 | 2 nights ($4) |
 
@@ -212,7 +212,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Two ways to track age.** On the printed mat, tokens slide one slot per night and each slot shows how fresh the fruit is. With day chips, the piles keep still. Both give the same ages. The rest of this section describes chips, which also work on a stall's own shelf.
 
-**Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became fresh. A pile's **age** is the clock number minus its chip. A fruit bought **unripe** gets the chip of the clock number on which it ripens (the clock number now plus 1 for watermelon, plus 2 for mango); it is green until the clock reaches that number.
+**Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became fresh. A pile's **age** is the clock number minus its chip. A fruit bought **unripe** (only mangoes arrive green) gets the chip of the clock number on which it ripens (the clock number now plus 2); it is green until the clock reaches that number.
 
 | Age | Blueberry | Watermelon | Apple | Mango |
 |---|---|---|---|---|

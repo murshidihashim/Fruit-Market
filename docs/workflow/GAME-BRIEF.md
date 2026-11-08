@@ -16,7 +16,7 @@ playing online, and solo players against computer shops. Plays on Android phones
 4. **Sales showdown:** each customer buys the cheapest offer first; the outcome is explained.
 5. **Evening:** build upgrades and play favour cards. Overnight, fruit ages and some spoils.
 
-Win: the most cash after the last day (unsold fruit is worth $0). Ties go to whoever sold more fruit.
+Win: the most cash after the last day (upgrades count for nothing; unsold fruit only for the jam maker's $1 per ripe piece on Closing Day). Ties go to whoever sold more fruit.
 
 ## Session
 - 2–4 shops; Quick 8, Standard 10, Long 14 days.
