@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.10.0",
   "build": "branch ccr-d9f10c6d-75280w, commits d9a1a0a, 1ce4efe",
   "reports": [],
   "decisions": [
@@ -24,7 +24,7 @@
     "evidence": "go with option 3 / dont straigjt away minus everything from the players inventory, it should drop after customer demand has been fulfilled one by one",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-054",
   "title": "Open stalls at pricing and a step-by-step shelf at the rush",
   "problem": "While pricing, rivals' crates are hard to see; at the rush, sold fruit vanishes from shelves before the customers are shown being served.",

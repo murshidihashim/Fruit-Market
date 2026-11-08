@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.10.0",
   "build": "branch ccr-d9f10c6d-75280w, commit 32fe936",
   "reports": [],
   "decisions": [
@@ -24,7 +24,7 @@
     "evidence": "rubik and option 3 for animation",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-052",
   "title": "Rubik game font and the 'Round the table' rush pop-up",
   "problem": "Fonts on the game screens are mixed (six faces), and the rush does not show clearly what each stall offered each customer.",

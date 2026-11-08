@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.10.0",
   "build": "branch ccr-d9f10c6d-75280w, commits d9a1a0a, 1ce4efe",
   "reports": [],
   "decisions": [
@@ -28,7 +28,7 @@
     "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-053",
   "title": "Great Fruit Exchange icons and worn regalia",
   "problem": "54 items are still pixel art, and worn unlocks show only as tiny pins.",

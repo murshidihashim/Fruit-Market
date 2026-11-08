@@ -1703,7 +1703,7 @@
         "evidence": "rubik and option 3 for animation",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [
         "REP-089"
       ],
@@ -1728,7 +1728,7 @@
         "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-053",
       "reviewTrigger": "If small icons do not read at 12-16 px on a phone."
@@ -1751,7 +1751,7 @@
         "evidence": "go with option 3 / and fix so that players see their items properly, e.g. dont straigjt away minus everything from the players inventory, it should drop after customer demand has been fulfilled one by one",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-054",
       "reviewTrigger": "If the table crowds the pricing screen on small phones."
@@ -1774,7 +1774,7 @@
         "evidence": "go with option 1 but with the updated lorry please",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it does not fit an iPhone SE-sized screen."
@@ -1797,7 +1797,7 @@
         "evidence": "lets go with one",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it feels slow on an old phone."
@@ -2451,6 +2451,10 @@
     {
       "at": "2026-11-09 02:20",
       "text": "PLAN-055 verified (Market square home, Lorry arrives opening with Unloading; pricing panel scrolls alone, board never moves: checked at 360x740). Owner approved publishing: \"live is approved\". Preparing release 1.10.0 with PLAN-052 to PLAN-055."
+    },
+    {
+      "at": "2026-11-09 02:31",
+      "text": "Release 1.10.0 published with the owner's approval (\"live is approved\"): main 9c3cc70, Deploy LIVE game run 25 success (verify, release check, deploy, live smoke test), tag v1.10.0. Contains PLAN-052 to PLAN-055."
     }
   ]
 }

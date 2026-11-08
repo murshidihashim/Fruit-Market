@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.10.0",
   "build": "branch ccr-d9f10c6d-75280w, commits 3f23afc, b3c0767",
   "reports": [],
   "decisions": [
@@ -25,7 +25,7 @@
     "evidence": "go with option 1 but with the updated lorry please",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-055",
   "title": "Market square home screen and Lorry arrives opening",
   "problem": "The home screen centres on one shopkeeper card instead of the market.",

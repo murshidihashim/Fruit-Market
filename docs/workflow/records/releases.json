@@ -230,7 +230,7 @@
     },
     {
       "version": "1.10.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-052",
         "PLAN-053",
@@ -245,7 +245,10 @@
         "All icons, stalls and the lorry redrawn in the Great Fruit Exchange style",
         "Shopkeepers now wear their unlocks, plus six new ones to earn",
         "No rules change: you can still play online with 1.9.0"
-      ]
+      ],
+      "date": "2026-11-09",
+      "commit": "9c3cc70",
+      "tagged": true
     }
   ]
 }
