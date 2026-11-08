@@ -1662,14 +1662,13 @@ b, strong { font-weight: 700; }
    Classes keep their old names (scripts and tests rely on them); `.gx` marks the game table.
    ===================================================================== */
 .game.gx {
-  --gx-pad: 8px; --pz-h: 36px;
+  --gx-pad: 8px; --pz-h: 40px;
   display: grid; grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
   grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";
   /* clip, not hidden: a focused button near the edge must not scroll the whole table sideways */
   height: 100%; overflow: hidden; overflow: clip;
 }
-@media (pointer: coarse) { .game.gx { --pz-h: 40px; } }
 .gx > .topbar { grid-area: top; }
 .gx > .net { grid-area: net; }
 .gx > .street-wrap { grid-area: street; }
@@ -1765,7 +1764,7 @@ b, strong { font-weight: 700; }
 .gx .tm-w { display: inline-flex; align-items: center; gap: 1px; }
 /* a face-down walk-in: the card back's navy and mustard, only the fruit it wants */
 .gx .tm-chip.tm-back { gap: 2px; padding: 1px 9px; background: var(--x-ink); border-color: var(--x-mustard); box-shadow: 0 0 0 1.5px var(--x-ink); cursor: default; }
-@media (pointer: coarse) { .gx button.tm-chip { min-height: 40px; } }
+.gx button.tm-chip { min-height: 40px; }
 /* short phones: while you set prices the strip steps aside so four fruits fit (it is back at the bell) */
 @media (max-width: 899px) and (max-height: 780px) { .gx.ph-bid .tomorrow { display: none; } }
 
@@ -1986,6 +1985,15 @@ b, strong { font-weight: 700; }
 .gx > .actionbar .btn.ghost, .gx > .actionbar .btn.skip { min-width: 48px; min-height: 48px; }
 .gx > .actionbar .buy-hint { line-height: 1.1; }
 .gx > .actionbar .buy-hint small { font-size: 0.72rem; line-height: 1.15; }
+
+/* a phone on its side (or any very short window below the desktop layout): there is no room for the whole table,
+   so the screen scrolls as it used to instead of squeezing the market to nothing (the app itself is portrait-only) */
+@media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
+  .game.gx { height: auto; min-height: 100%; overflow: visible; grid-template-rows: auto auto auto auto minmax(430px, auto) auto auto; }
+  #app:has(> .game.gx) { height: auto; min-height: 100%; }
+  /* the main button stays in reach at the foot of the screen while it scrolls */
+  .gx > .actionbar, .gx > .centre > .pp-lock { position: sticky; bottom: 0; z-index: 7; }
+}
 
 /* the first-game coach sits at the foot of the middle, above your shelf: it never covers the main button */
 .gx > .coach, .gx > .coach.top {
