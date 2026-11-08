@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.9.0",
   "build": "branch ccr-d9f10c6d-75280w, commit 598de1e",
   "reports": [
     "REP-089"
@@ -26,7 +26,7 @@
     "evidence": "fruit market tweaks: 2. design across character cards need to be more consistent/standardised (text box size etc) 3. transition between the animation, to the home screen (when you first opened the link feels laggy/buggy) 4. remove \"The Great Fruit Exchange\", \"Exchange Gazette\" 5. can we go through the layout inside a game for both phone/pc now, i dont like how i need to scroll to see my shelf, and the walkin customer cards, lets think about this in the mockup/visualiser/artifact ... then: i like phone A, but i want the wholesale market to use the same fruit decay slide thingy / no need to change the rules for walk-in customers, they need to just partially tell information as it is right now",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-050",
   "title": "Owner tweaks after 1.8.0: uniform cards, smooth opening, wording, Phone A layout",
   "problem": "After 1.8.0 the owner asked for consistent card layouts, a smoother opening, removal of 'The Great Fruit Exchange' wording and an in-game layout with no scrolling for the shelf and walk-ins.",

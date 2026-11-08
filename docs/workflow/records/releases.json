@@ -209,7 +209,7 @@
     },
     {
       "version": "1.9.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-050",
         "PLAN-051"
@@ -223,7 +223,10 @@
         "Smarter computer rivals on Closing Day and at tied prices",
         "Cards share one layout and the opening flows smoothly into the home screen",
         "No rules change: you can still play online with 1.8.0 (update to send daily challenge scores)"
-      ]
+      ],
+      "date": "2026-11-08",
+      "commit": "2b9692a",
+      "tagged": true
     }
   ]
 }

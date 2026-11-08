@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.9.0",
   "build": "branch ccr-d9f10c6d-75280w, commit 598de1e",
   "reports": [
     "REP-089"
@@ -37,7 +37,7 @@
     "evidence": "approve A and B, keep juice bar trick",
     "date": "2026-11-08"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-051",
   "title": "Playtest fixes: correct explanations and warnings, smarter computer players, Juice Bar tip",
   "problem": "Seven playtest reports (REP-089): the game's text and advice contradict the engine on Closing Day, buyers, no-sale reasons, Juice Bar nights, ties and green fruit; computer players ignore the jam maker and the tie order.",

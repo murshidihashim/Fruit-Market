@@ -1678,7 +1678,7 @@
         "evidence": "approve A and B, keep juice bar trick",
         "date": "2026-11-08"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "reports": [
         "REP-089"
       ],
@@ -2294,6 +2294,10 @@
     {
       "at": "2026-11-08 19:26",
       "text": "PLAN-050 and PLAN-051 built and verified on the branch (commit 598de1e). Correction to the 14:18 line: package B uses a daily-only computer-player version (AI_VERSION 2) instead of RULES_VERSION 10, after a review showed the bump would also discard unfinished 1.8.0 games and lock older apps out of online rooms. Checks: npm run verify PASS (341 tests); browser tests PASS (performance budget DOM 476/800, open 217 ms; online 0 leaks in 94 frames; quick match, four players, reconnect); layout check at 360x740, 390x844 and 1280x800 PASS; package A changes no game outcome (1,188 seeded games identical). Balance after package B: Hard still beats Normal, Normal beats Easy; at Normal the shopkeeper spread narrows from 13.8 to 7.4 points, but the 3-point target is still missed (Local Favourite +4.4 at Normal; Haggler +10 at Hard, unchanged from before). To reduce time, the final review round was skipped at the owner's request (\"skip unnecessary process\"). Not on main or live; release needs the owner's approval."
+    },
+    {
+      "at": "2026-11-08 19:37",
+      "text": "Release 1.9.0 published at the owner's instruction (\"release 1.9.0 and publish it live straight\"): main 2b9692a, Deploy LIVE game run 24 success (verify, release check, deploy, live smoke test), tag v1.9.0. Contains PLAN-050 and PLAN-051. The preview was not checked visually first, at the owner's request."
     }
   ]
 }

@@ -3,11 +3,11 @@
 Updated 2026-11-08 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
 ## Latest (2026-11-08)
-- **Live:** 1.8.0 (unchanged). Rules version 9.
+- **Live:** 1.9.0 (commit `2b9692a`, tag `v1.9.0`, published 2026-11-08 by Deploy LIVE game run 24; live smoke test PASS). Rules version 9; computer-player version 2.
 - **Built and verified on branch `ccr-d9f10c6d-75280w` (commit 598de1e), not on main:** PLAN-050 owner tweaks (uniform cards, smooth opening, no 'Great Fruit Exchange' wording, Phone A in-game layout with no scrolling) and PLAN-051 playtest fixes (DEC-067, REP-089: honest Closing Day, price read, no-sale reasons, tie advice, Juice Bar forecast and tip, Scout label, green-fruit text; computer players count the jam maker and the real tie order). Checks: `npm run verify` PASS (341 tests), browser tests PASS (0 leaks), layout check PASS at 360x740, 390x844, 1280x800.
 - **Package B note:** daily scores now carry a computer-player version (AI_VERSION 2); RULES_VERSION stays 9. On release day an unfinished daily can't be resumed and the daily board starts fresh. Balance target (3 points) still missed: Local Favourite +4.4 at Normal, Haggler +10 at Hard (pre-existing).
 - **Known small gaps:** a very full pricing screen and the day-9 morning card scroll inside the panel at 360x740; final review round skipped at the owner's request.
-- **Next:** owner looks at the screenshots; release as 1.9.0 needs the owner's approval (merge to main → preview → Deploy LIVE game).
+- **Next:** owner checks 1.9.0 on a phone; open items: shopkeeper balance (Favourite, Haggler), small in-panel scroll on the smallest phone.
 
 ## Earlier: 2026-11-07
 - **Live:** 1.8.0, The Great Fruit Exchange (commit `df61983`, tag `v1.8.0`, published 2026-11-07 by Deploy LIVE game run 23; live smoke test PASS). Rules version 9, unchanged.
