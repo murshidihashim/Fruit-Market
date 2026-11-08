@@ -1,7 +1,7 @@
 // First-morning choice of a merchant trait.
 import { TRAITS, type TraitId } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
-import { Icon } from '../../pixel';
+import { Icon } from '../../icons';
 import { TRAIT_ICON } from '../../panel';
 
 export function TraitPick({ s, p, onPick }: { s: GameState; p: number; onPick: (t: TraitId) => void }) {

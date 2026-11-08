@@ -3,7 +3,7 @@
 import { useState } from 'preact/hooks';
 import { FRUIT, FRUITS, FAVOURS, JAM_PRICE, JUICE_CAP, JUICE_VALUE, LAST_CALL_BONUS, UPGRADES, deliveredGreen, stageAt, type FruitId } from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
-import { Icon } from './pixel';
+import { Icon } from './icons';
 import { UP_ICON } from './panel';
 import { MARKET_DAY_LIST } from './rulesText';
 

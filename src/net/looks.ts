@@ -3,7 +3,7 @@
 // what a player says they are wearing. Looks are only for show: nothing here changes a rule.
 
 export type LookKind = 'wear' | 'stall';
-export type Slot = 'hat' | 'face' | 'neck' | 'badge' | 'roof' | 'trim' | 'prop';
+export type Slot = 'hat' | 'face' | 'neck' | 'badge' | 'hand' | 'roof' | 'trim' | 'prop';
 
 export interface Look { id: string; title: string; kind: LookKind; slot: Slot; by: string }
 
@@ -12,6 +12,7 @@ export const SLOTS: { id: Slot; title: string; kind: LookKind }[] = [
   { id: 'face', title: 'Face', kind: 'wear' },
   { id: 'neck', title: 'Neck and chest', kind: 'wear' },
   { id: 'badge', title: 'Badge', kind: 'wear' },
+  { id: 'hand', title: 'In hand', kind: 'wear' },
   { id: 'roof', title: 'Roof', kind: 'stall' },
   { id: 'trim', title: 'Trim', kind: 'stall' },
   { id: 'prop', title: 'On the counter', kind: 'stall' },
@@ -19,17 +20,24 @@ export const SLOTS: { id: Slot; title: string; kind: LookKind }[] = [
 
 /** `by` is the achievement that unlocks the look. */
 export const LOOKS: Look[] = [
-  { id: 'straw_boater', title: 'Straw Boater', kind: 'wear', slot: 'hat', by: 'first_win' },
-  { id: 'fruit_basket_hat', title: 'Fruit Basket Hat', kind: 'wear', slot: 'hat', by: 'mango_mogul' },
-  { id: 'party_hat', title: 'Party Hat', kind: 'wear', slot: 'hat', by: 'festival_rush' },
-  { id: 'laurel', title: 'Laurel Wreath', kind: 'wear', slot: 'hat', by: 'streak7' },
-  { id: 'gold_crown', title: 'Gold Crown', kind: 'wear', slot: 'hat', by: 'league' },
-  { id: 'monocle', title: 'Gold Monocle', kind: 'wear', slot: 'face', by: 'sky_high' },
-  { id: 'bow_tie', title: 'Red Bow Tie', kind: 'wear', slot: 'neck', by: 'red_carpet' },
-  { id: 'scarf', title: 'Striped Scarf', kind: 'wear', slot: 'neck', by: 'no_waste' },
-  { id: 'apron', title: 'Market Apron', kind: 'wear', slot: 'neck', by: 'fully_fitted' },
-  { id: 'sash', title: 'Champion Sash', kind: 'wear', slot: 'neck', by: 'rivals_all' },
-  { id: 'medal', title: 'Gold Medal', kind: 'wear', slot: 'badge', by: 'played_200' },
+  { id: 'straw_boater', title: 'Trader\'s Bowler', kind: 'wear', slot: 'hat', by: 'first_win' },
+  { id: 'fruit_basket_hat', title: 'Porter\'s Cap', kind: 'wear', slot: 'hat', by: 'mango_mogul' },
+  { id: 'party_hat', title: 'Gazette Paper Hat', kind: 'wear', slot: 'hat', by: 'festival_rush' },
+  { id: 'laurel', title: 'Brass Laurel', kind: 'wear', slot: 'hat', by: 'streak7' },
+  { id: 'gold_crown', title: 'Chairman\'s Top Hat', kind: 'wear', slot: 'hat', by: 'league' },
+  { id: 'monocle', title: 'Brass Loupe', kind: 'wear', slot: 'face', by: 'sky_high' },
+  { id: 'bow_tie', title: 'Banknote Bow Tie', kind: 'wear', slot: 'neck', by: 'red_carpet' },
+  { id: 'scarf', title: 'Ticker-Tape Scarf', kind: 'wear', slot: 'neck', by: 'no_waste' },
+  { id: 'apron', title: 'Trader\'s Waistcoat', kind: 'wear', slot: 'neck', by: 'fully_fitted' },
+  { id: 'sash', title: 'Certificate Sash', kind: 'wear', slot: 'neck', by: 'rivals_all' },
+  { id: 'medal', title: 'Exchange Medal', kind: 'wear', slot: 'badge', by: 'played_200' },
+  // The Great Fruit Exchange unlockables (PLAN-053).
+  { id: 'trader_visor', title: 'Trader\'s Visor', kind: 'wear', slot: 'hat', by: 'full_price' },
+  { id: 'pencil_slip', title: 'Pencil and Order Slip', kind: 'wear', slot: 'face', by: 'sole_five' },
+  { id: 'ticker_garland', title: 'Ticker-Tape Garland', kind: 'wear', slot: 'neck', by: 'tie_breaker' },
+  { id: 'pocket_watch', title: 'Pocket Watch', kind: 'wear', slot: 'badge', by: 'comeback' },
+  { id: 'member_badge', title: 'Member\'s Badge', kind: 'wear', slot: 'badge', by: 'beat_hard' },
+  { id: 'hand_bell', title: 'Brass Hand Bell', kind: 'wear', slot: 'hand', by: 'full_house' },
 
   { id: 'roof_stripes', title: 'Striped Roof', kind: 'stall', slot: 'roof', by: 'first_sale' },
   { id: 'roof_scallops', title: 'Scalloped Roof', kind: 'stall', slot: 'roof', by: 'town_12' },

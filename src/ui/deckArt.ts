@@ -20,7 +20,8 @@ export function customerArt(key: string): string | null {
   return CUSTOMER_KEYS.has(key) ? `${BASE}customers/${slug(key)}.webp` : null;
 }
 
-function shopFile(avatar: string): string | null {
+/** A shopkeeper's art file key ('rosa', 'benny', ...) by avatar, or null for anyone else. */
+export function shopFile(avatar: string): string | null {
   const i = RIVALS.findIndex((r) => r.avatar === avatar);
   return i >= 0 ? SHOP_FILES[i] : null;
 }

@@ -8,7 +8,7 @@ import { closingNote, overnightLines, standing, type NightJuice } from '../../..
 import { EventIcon, Fruit } from '../../art';
 import { ART_SIZE, CardArt, Gazette } from '../../cards';
 import { eventArt } from '../../deckArt';
-import { Icon } from '../../pixel';
+import { Icon } from '../../icons';
 import { NextLorry } from '../../table';
 
 const WIDE = '(min-width: 720px) and (min-height: 700px)';

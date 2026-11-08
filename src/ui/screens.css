@@ -10,7 +10,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
   position: relative; display: inline-block; flex: none; vertical-align: middle; overflow: hidden;
   border-radius: 50%; background: var(--x-ink); box-shadow: 0 0 0 1.5px var(--x-ink);
 }
-.xf.xf-pinned { overflow: visible; }
+.xf.xf-worn { overflow: visible; }
 .xf-clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
 .xf .xf-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: inherit; }
 /* customers: the "at work" picture, zoomed in on the face (heads sit about a third of the way across) */
@@ -24,13 +24,9 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .xf-none::before, .xf-none::after { content: ''; position: absolute; left: 50%; background: var(--on-ink-muted); transform: translateX(-50%); }
 .xf-none::before { top: 18%; width: 36%; height: 36%; border-radius: 50%; }
 .xf-none::after { bottom: -14%; width: 72%; height: 44%; border-radius: 50% 50% 0 0; }
-/* worn looks: pins on the portrait (illustrated wearables are an art gap) */
-.xf-pins { position: absolute; right: -6px; bottom: -4px; z-index: 1; display: flex; gap: 1px; }
-.xf-pin {
-  display: inline-grid; place-items: center; padding: 2px; border-radius: 50%; line-height: 0;
-  background: var(--x-paper); border: 1.5px solid var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-mustard);
-}
-.xf-pin .px { image-rendering: pixelated; }
+/* worn looks: Exchange regalia drawn over the portrait (exchangeArt.ts). The picture is the portrait's box plus 10%
+   each side and 30% below, so a hat may rise past the rim and a neck piece may sit on the chin line. */
+.xf-wear { position: absolute; left: -10%; top: -10%; width: 120%; height: 130%; max-width: none; z-index: 1; pointer-events: none; }
 
 /* event thumbnails (art.tsx EventIcon) */
 .xev {
@@ -160,7 +156,8 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .cover-hook::before { left: 22%; }
 .cover-hook::after { right: 22%; }
 .cover-sign .x-card { box-shadow: 0.45em 0.45em 0 var(--x-ink-2); }
-.cover-pins { position: absolute; right: -12px; top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.cover-worn { position: absolute; right: -14px; top: 6px; z-index: 2; }
+.cover-worn .xf { box-shadow: 0 0 0 2px var(--x-ink), 0 0 0 4px var(--x-paper); }
 .cover-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .cover-btns button {
   min-height: 44px; padding: 0 16px; border: 3px solid var(--x-ink); border-radius: 999px; box-shadow: 0 3px 0 var(--x-ink); cursor: pointer;
@@ -172,7 +169,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- wardrobe ---------- */
 .wd-counter .xf { box-shadow: 0 0 0 3px var(--x-ink); }
-.wd-tile .wd-pin { width: 52px; height: 52px; border-width: 2px; box-shadow: inset 0 0 0 3px var(--x-mustard); }
+.wd-tile .wd-wear { display: inline-grid; place-items: center; width: 52px; height: 58px; padding-top: 4px; }
 
 /* ---------- opening (Opening.tsx) ---------- */
 .opx-sky {

@@ -2,7 +2,7 @@
 // Rivals and their cash are in the rivals strip on the table (table.tsx RivalStall).
 import { Coin, EventIcon } from '../../art';
 import { shownCash, useCashShown } from '../../cashShown';
-import { Icon } from '../../pixel';
+import { Icon } from '../../icons';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 

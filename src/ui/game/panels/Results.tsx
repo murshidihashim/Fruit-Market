@@ -4,7 +4,7 @@ import { JUICE_VALUE } from '../../../engine/data';
 import { ranking, type GameState } from '../../../engine/game';
 import { gameRecap } from '../../../engine/story';
 import { Coin, Face } from '../../art';
-import { Icon } from '../../pixel';
+import { Icon } from '../../icons';
 import { UP_ICON } from '../../panel';
 import { checkAchievements, LEAGUE, recordLeague } from '../../progress';
 import { partsOf } from '../../../net/looks';

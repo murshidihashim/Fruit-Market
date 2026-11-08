@@ -245,6 +245,26 @@ export const C = {
   xRedTint: '#f2d2c2',
   xMustardTint: '#f2dc9e',
   xMist: '#aab4c8',
+  // Great Fruit Exchange icons and worn regalia (DEC-069, PLAN-053): engraved brass, note-green and wax.
+  xBrass: '#d4a238',
+  xBrassLight: '#e6c56a',
+  xBrassBright: '#f2c94c',
+  xStraw: '#dcb86e',
+  xSeal: '#c94a2e',
+  xLedger: '#3f7550',
+  xIce: '#c8d6ee',
+  xSkin: '#eeb48c',
+  xPaperShade: '#dccaa4',
+  xHat: '#2e3a58',
+  xHatLight: '#56668c',
+  xNote: '#8fb48c',
+  xNoteDark: '#5f8f6a',
+  xCapTop: '#e8604a',
+  xWax: '#b83a22',
+  xWaxLight: '#f2b3a3',
+  xVisor: '#3c9a64',
+  xVisorLight: '#bfe7c9',
+  xNewsGrey: '#8a8f9a',
 } as const;
 
 /** The roles named in docs/ART-STYLE.md. */

@@ -10,7 +10,7 @@ import {
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, Face, FavourIcon, Fruit } from './art';
 import { buyerCap, buyersFor, priceRead, stallWantText, tieHint } from './boardModel';
-import { Icon } from './pixel';
+import { Icon, type IconName } from './icons';
 
 // ---------- favour cards ----------
 
@@ -166,8 +166,8 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
 
 // ---------- evening ----------
 
-export const UP_ICON: Record<UpgradeId, 'handcart' | 'coolroom' | 'signboard' | 'juicer'> = { barrow: 'handcart', coldroom: 'coolroom', premium: 'signboard', juicebar: 'juicer' };
-export const TRAIT_ICON: Record<TraitId, 'scales' | 'crate' | 'tag' | 'heart' | 'star' | 'egg'> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg' };
+export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', coldroom: 'coolroom', premium: 'signboard', juicebar: 'juicer' };
+export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg' };
 
 /** Pieces on this shelf that will be tired at the start of tomorrow. */
 function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {

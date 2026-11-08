@@ -6,7 +6,7 @@ import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
 import { StallSign } from './cards';
 import { wornParts } from './looks';
-import { WearPin } from './pixel';
+import { Face } from './art';
 import { myAvatar } from './Wardrobe';
 import { C } from './palette';
 
@@ -45,7 +45,7 @@ export function Shopfront(p: ShopProps) {
           <div class="cover-sign">
             <i class="cover-hook" aria-hidden="true" />
             <StallSign avatar={myAvatar()} compact eager />
-            {pins.length > 0 && <span class="cover-pins" aria-label={`Wearing ${pins.length} look${pins.length > 1 ? 's' : ''}`}>{pins.map((id) => <span class="xf-pin" key={id}><WearPin id={id} size={16} /></span>)}</span>}
+            {pins.length > 0 && <span class="cover-worn" aria-label={`Wearing ${pins.length} look${pins.length > 1 ? 's' : ''}`}><Face who={myAvatar()} size={48} worn={pins} /></span>}
           </div>
           <div class="cover-btns">
             {accountsAvailable() && <button class="cover-account" onClick={p.onAccount}>{me ? `Hi, ${me}` : 'Create account'}</button>}

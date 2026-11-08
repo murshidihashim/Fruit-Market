@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ACHIEVEMENTS } from '../src/ui/achievements';
 import { LOOKS, SLOTS } from '../src/ui/looks';
-import { WEAR_PARTS } from '../src/ui/wearArt';
+import { REGALIA, wearUrl } from '../src/ui/exchangeArt';
+import { cleanLook } from '../src/net/looks';
 import { h } from 'preact';
 import { toStaticHtml } from '../src/ui/cards';
-import { WearPin } from '../src/ui/pixel';
+import { Face } from '../src/ui/art';
+import { RIVALS } from '../src/engine/data';
 
 const store = new Map<string, string>();
 beforeEach(() => {
@@ -28,14 +30,44 @@ describe('look list', () => {
     }
   });
 
-  it('has pin art for every worn look (16 x 16 rows, shown as a pin on the deck-art portrait, DEC-066)', () => {
-    for (const l of LOOKS.filter((x) => x.kind === 'wear')) {
-      const rows = WEAR_PARTS[l.id];
-      expect(rows, l.id).toBeTruthy();
-      expect(rows.length).toBeLessThanOrEqual(16);
-      for (const r of rows) expect(r.length).toBeLessThanOrEqual(16);
-      expect(toStaticHtml(h(WearPin, { id: l.id, size: 16 })), l.id).toMatch(/<img[^>]*src="data:image\/svg\+xml/);
+  it('draws every worn look as Exchange regalia on the portrait (DEC-069), and nothing else', () => {
+    const wear = LOOKS.filter((x) => x.kind === 'wear').map((l) => l.id);
+    expect(Object.keys(REGALIA).sort()).toEqual([...wear].sort());
+    for (const id of wear) {
+      const url = wearUrl('rosa', [id]);
+      expect(url, id).toMatch(/^data:image\/svg\+xml,/);
+      expect(decodeURIComponent(url ?? ''), id).toContain('<g transform="translate(');
     }
+    expect(wearUrl('rosa', [])).toBeNull();
+    expect(wearUrl('rosa', ['not_a_look'])).toBeNull();
+  });
+
+  it('keeps the original look ids, so earned looks and saved outfits still load', () => {
+    const old = ['straw_boater', 'fruit_basket_hat', 'party_hat', 'laurel', 'gold_crown', 'monocle', 'bow_tie', 'scarf', 'apron', 'sash', 'medal',
+      'roof_stripes', 'roof_scallops', 'roof_checks', 'roof_stars', 'roof_fruit', 'trim_bunting', 'trim_lanterns', 'trim_tassels',
+      'prop_blackboard', 'prop_scale', 'prop_plant', 'prop_crates', 'prop_cat', 'prop_golden_apple'];
+    for (const id of old) expect(LOOKS.some((l) => l.id === id), id).toBe(true);
+    // An outfit saved before the new looks existed still reads the same.
+    expect(cleanLook({ hat: 'gold_crown', neck: 'scarf', badge: 'medal' })).toEqual({ hat: 'gold_crown', neck: 'scarf', badge: 'medal' });
+  });
+
+  it('adds six Exchange unlockables, each earned by an existing achievement (PLAN-053)', () => {
+    const fresh: Record<string, [string, string]> = {
+      trader_visor: ['hat', 'full_price'], pencil_slip: ['face', 'sole_five'], ticker_garland: ['neck', 'tie_breaker'],
+      pocket_watch: ['badge', 'comeback'], member_badge: ['badge', 'beat_hard'], hand_bell: ['hand', 'full_house'],
+    };
+    for (const [id, [slot, by]] of Object.entries(fresh)) expect(LOOKS.find((l) => l.id === id), id).toMatchObject({ kind: 'wear', slot, by });
+  });
+
+  it('fits the regalia per shopkeeper and draws it over the portrait as one picture', () => {
+    const a = wearUrl('rosa', ['gold_crown']);
+    const b = wearUrl('raj', ['gold_crown']);
+    expect(a).not.toEqual(b);
+    const html = toStaticHtml(h(Face, { who: RIVALS[0].avatar, size: 30, worn: ['gold_crown', 'scarf'] }));
+    expect(html.match(/<img/g)?.length).toBe(2); // the portrait and one regalia picture
+    expect(html).toContain('xf-wear');
+    // Too small to show regalia: the portrait alone.
+    expect(toStaticHtml(h(Face, { who: RIVALS[0].avatar, size: 16, worn: ['gold_crown'] }))).not.toContain('xf-wear');
   });
 });
 
@@ -47,6 +79,9 @@ describe('owning and wearing', () => {
     expect(looks.syncLooks()).toEqual([]);
     store.set('fm.ach', JSON.stringify(['first_win', 'first_sale', 'league']));
     expect(looks.syncLooks().map((l) => l.id)).toEqual(['gold_crown']);
+    // A player who earned achievements before the Exchange looks existed gets those looks too.
+    store.set('fm.ach', JSON.stringify(['first_win', 'first_sale', 'league', 'full_house', 'beat_hard']));
+    expect(looks.syncLooks().map((l) => l.id).sort()).toEqual(['hand_bell', 'member_badge']);
   });
 
   it('only lets a player wear what they own, one look per slot, and take it off again', async () => {

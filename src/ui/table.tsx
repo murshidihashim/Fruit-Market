@@ -10,13 +10,12 @@ import { Coin, Face, FavourIcon, Fruit } from './art';
 import { TradingCard, TradingCardBack } from './cards';
 import { GUEST_EVENT } from './deckArt';
 import { shownCash, useCashShown } from './cashShown';
-import { Icon } from './pixel';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
 import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText } from './boardModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
-import { LorrySprite, PropSprite, RoofBand } from './propsArt';
+import { Icon, LorrySprite, PropSprite, RoofBand } from './icons';
 import { partsOf, stallOf } from '../net/looks';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */

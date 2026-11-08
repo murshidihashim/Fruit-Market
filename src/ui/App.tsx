@@ -6,7 +6,7 @@ import { dailyConfig, dailyTwist } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, FriendBody, Popup, Shopfront } from './Home';
-import { prewarmSprites } from './pixel';
+import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';

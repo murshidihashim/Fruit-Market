@@ -1,11 +1,10 @@
 // The wardrobe: see your shopkeeper (their deck-art badge) and stall, and put on the looks you have earned.
-// Worn looks show as pins on the badge until illustrated wearables exist (DEC-057, an art gap).
+// Worn looks are drawn on the portrait as Great Fruit Exchange regalia (DEC-069).
 import { useState } from 'preact/hooks';
 import { CHARACTER_AVATARS } from '../engine/data';
 import { Face } from './art';
-import { WearPin } from './pixel';
 import { achievementFor, LOOKS, SLOTS, syncLooks, toggleLook, worn, wornParts, wornStall, type Look } from './looks';
-import { PropSprite, RoofBand } from './propsArt';
+import { PropSprite, RoofBand } from './icons';
 import { loadColour, loadLooks } from './progress';
 import { C } from './palette';
 import { fx } from './fx';
@@ -14,10 +13,10 @@ export const myAvatar = (): string => {
   try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
 };
 
-function Tile({ look, on, owned, colour, onPick }: { look: Look; on: boolean; owned: boolean; colour: string; onPick: () => void }) {
+function Tile({ look, on, owned, colour, avatar, onPick }: { look: Look; on: boolean; owned: boolean; colour: string; avatar: string; onPick: () => void }) {
   const ach = achievementFor(look);
-  // Worn looks have no illustration yet: the tile shows the look itself as a pin (an art gap).
-  const art = look.kind === 'wear' ? <span class="xf-pin wd-pin"><WearPin id={look.id} size={34} /></span>
+  // A worn look shows on your own shopkeeper, wearing just that piece.
+  const art = look.kind === 'wear' ? <span class="wd-wear"><Face who={avatar} size={44} worn={[look.id]} /></span>
     : look.slot === 'prop' ? <PropSprite id={look.id} size={44} cls="wd-prop" />
       : <RoofBand cls="wd-band" colour={colour} roof={look.slot === 'roof' ? look.id : undefined} trim={look.slot === 'trim' ? look.id : undefined} />;
   return (
@@ -60,7 +59,7 @@ export function Wardrobe({ onBack, onChange }: { onBack: () => void; onChange?: 
             <section class="panel">
               <h3>{slot.title} <span class="muted small">{list.filter((l) => owned.has(l.id)).length}/{list.length} · {slot.kind === 'wear' ? 'worn by your shopkeeper' : 'on your stall'}</span></h3>
               <div class="wd-grid">
-                {list.map((l) => <Tile look={l} on={w[l.slot] === l.id} owned={owned.has(l.id)} colour={colour} onPick={() => { fx.tap(); const next = toggleLook(l.id); setW(next); onChange?.(next); }} />)}
+                {list.map((l) => <Tile look={l} on={w[l.slot] === l.id} owned={owned.has(l.id)} colour={colour} avatar={avatar} onPick={() => { fx.tap(); const next = toggleLook(l.id); setW(next); onChange?.(next); }} />)}
               </div>
             </section>
           );

@@ -76,7 +76,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 h1, h2, h3 { margin: 0; font-family: var(--f-pixel); font-weight: 600; letter-spacing: 0.4px; text-wrap: balance; }
 p { margin: 0.4em 0; line-height: 1.4; }
-.px { image-rendering: pixelated; display: inline-block; vertical-align: middle; flex: none; }
+img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .small { font-size: 0.85rem; }
 .muted, .dim { color: var(--muted); }
 .spacer { flex: 1; }
@@ -595,7 +595,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .rival-stall { position: relative; display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 6px 5px; border: 0; border-radius: 10px; background: var(--cream); color: var(--ink); text-align: left; font: inherit; cursor: pointer; box-shadow: 0 4px 0 var(--card-edge); overflow: visible; }
 .rival-stall.active { box-shadow: 0 4px 0 var(--card-edge), 0 0 0 3px var(--gold); }
 .rival-stall.open { background: var(--x-card); box-shadow: 0 4px 0 var(--card-edge), 0 0 0 3px var(--teal); }
-.rs-awning, .ms-awning { display: block; flex: none; height: 14px; background-repeat: repeat-x; image-rendering: pixelated; }
+.rs-awning, .ms-awning { display: block; flex: none; height: 14px; background-repeat: repeat-x; }
 .rs-awning { align-self: stretch; width: calc(100% + 12px); max-width: none; margin: 0 -6px; border-radius: 8px 8px 0 0; }
 .rs-who { display: flex; align-items: center; gap: 5px; min-width: 0; }
 .rs-face { position: relative; display: inline-flex; flex: none; }
@@ -741,7 +741,7 @@ p { margin: 0.4em 0; line-height: 1.4; }
 .street-wrap .street { transition: padding-right 0.6s ease-in-out; }
 .street-wrap.lorry-here .street { padding-right: 162px; }
 .lorry { position: absolute; right: 6px; bottom: 4px; z-index: 3; width: 162px; line-height: 0; pointer-events: none; }
-.lorry img, .op-lorry img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.lorry img, .op-lorry img { display: block; width: 100%; height: auto; }
 .lorry img.b, .op-lorry img.b { position: absolute; left: 0; top: 0; opacity: 0; }
 .lorry.here img.b { animation: lorry-flip 0.24s steps(1) 4; }
 .lorry.leaving img.b { animation: lorry-flip 0.24s steps(1) 5; }
@@ -1022,7 +1022,7 @@ body { background: var(--x-cream); }
 .op-stall { position: absolute; top: 262px; width: 88px; height: 76px; line-height: 0; opacity: 0; animation: op-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
 .op-s0 { left: 22px; animation-delay: 0.4s; } .op-s1 { left: 151px; animation-delay: 0.5s; } .op-s2 { left: 280px; animation-delay: 0.6s; }
 .op-who { position: absolute; left: 27px; top: 21px; }
-.stall-art { display: block; image-rendering: pixelated; }
+.stall-art { display: block; }
 .op-lorry { position: absolute; top: 372px; left: -190px; width: 162px; line-height: 0; animation: op-drive 0.7s 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards, op-leave 0.6s 1.95s ease-in forwards; }
 .op-fl { position: absolute; left: 150px; top: 392px; opacity: 0; animation: op-toss 0.5s ease-out forwards; }
 .op-f0 { --x: 34px; animation-delay: 1.3s; } .op-f1 { --x: 160px; animation-delay: 1.4s; } .op-f2 { --x: 286px; animation-delay: 1.5s; } .op-f3 { --x: 92px; animation-delay: 1.6s; }
@@ -1083,12 +1083,12 @@ body { background: var(--x-cream); }
 .ach-theme h4 { font-family: var(--f-pixel); font-size: 1rem; margin: 0 0 4px; }
 .ach-prog { display: block; margin-top: 2px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .my-stall.has-prop .ms-head { padding-right: 34px; }
-.ms-prop { position: absolute; top: 3px; right: 6px; width: 30px; height: 30px; image-rendering: pixelated; pointer-events: none; }
+.ms-prop { position: absolute; top: 3px; right: 6px; width: 30px; height: 30px; pointer-events: none; }
 .wd-stage { text-align: center; }
 .wd-stall { position: relative; width: min(100%, 300px); margin: 0 auto; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--x-paper); }
-.wd-roof { image-rendering: pixelated; background-repeat: repeat-x; border-bottom: 2px solid var(--ink); }
+.wd-roof { background-repeat: repeat-x; border-bottom: 2px solid var(--ink); }
 .wd-counter { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 18px; padding: 10px 8px 8px; }
-.wd-stage-prop { image-rendering: pixelated; }
+
 .wd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-top: 8px; }
 .wd-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border: 2px solid var(--ink); border-radius: 12px; background: var(--x-paper); color: var(--ink); font: inherit; text-align: center; min-width: 0; }
 .wd-tile b { font-size: 0.82rem; line-height: 1.15; }
@@ -1097,8 +1097,8 @@ body { background: var(--x-cream); }
 .wd-tile.locked { background: var(--cream-2); }
 .wd-art { display: grid; place-items: center; min-height: 48px; width: 100%; }
 .wd-art.dim { filter: grayscale(1) brightness(1.05); opacity: 0.55; }
-.wd-band { width: 100%; image-rendering: pixelated; background-repeat: repeat-x; border: 2px solid var(--ink); border-radius: 6px; }
-.wd-prop { image-rendering: pixelated; }
+.wd-band { width: 100%; background-repeat: repeat-x; border: 2px solid var(--ink); border-radius: 6px; }
+
 .wd-overlay { position: fixed; inset: 0; z-index: 60; background: var(--cream); overflow: auto; }
 
 /* Polish (REP-086): Start stays in view on the set-up screen, the pricing hint clears the Seal button, customers fade at the edge, ghost market slots are quieter. */
