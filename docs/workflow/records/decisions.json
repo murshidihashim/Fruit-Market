@@ -1659,6 +1659,28 @@
       "reports": [],
       "plan": "PLAN-049",
       "reviewTrigger": "Owner checks the preview on a phone, and a printed test sheet."
+    },
+    {
+      "id": "DEC-067",
+      "title": "Fix what the game tells players, from the seven playtest reports",
+      "question": "How should the seven playtest reports (Closing Day $0 or $1, 'Enough buyers', 'too old', Juice Bar warnings, Juice Bar salvage profit, tie advice, Scout label and 'unripe $1 now') be handled?",
+      "choice": "Proposed: package A fixes the wording and explanations with no rules change (shared Closing Day sentence and jam line on the final sales card; 'Enough buyers' counts only buyers who take your fruit; the real no-sale reason instead of 'too old'; a night forecast that follows Juice Bar, Cold Room and Heatwave, plus a morning juice line and an optional juice counter; after-sale advice that follows the tie order and crate size; a neutral Scout or Gossip badge; set-up text built from the green mango price; green watermelon retired in the text and its empty slot hidden). Package B (computer players value Closing Day leftovers at $1 and plan with the real tie order) after a balance run. Juice Bar salvage: keep it and explain it on the card (option C) unless the owner picks $1 juice (A) or juice only for fruit already owned (B), which are rules changes.",
+      "rationale": "All seven reports were reproduced on the engine and checked a second time (REP-089). The engine follows RULES.md; the misleading text and advice come from UI and story code that ignore Closing Day, freshness type, the price cap, the night rules and the tie order.",
+      "impact": {
+        "player": "Clearer, correct explanations and warnings; no rule, price or balance change in package A.",
+        "technical": "src/engine/story.ts explanation text, game panels, an optional juice counter in player stats (never read by the rules), RULES.md, How to play and GAME-BRIEF wording, new tests. Package B changes src/engine/ai.ts.",
+        "data": "None for package A; old saves keep loading. The fruit_unsold counter question is left for a later plan."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-089"
+      ],
+      "reviewTrigger": "If the owner picks Juice Bar option A or B, or declines package B."
     }
   ],
   "history": [
@@ -2257,6 +2279,10 @@
     {
       "at": "2026-11-08 13:25",
       "text": "Owner tweaks 2-4 built and verified on the branch: every card of a kind uses the same fixed zones (0 px difference measured, app and print); 'The Great Fruit Exchange' and 'Exchange Gazette' removed from everything players see (event masthead now 'Fruit Market', 'Tomorrow's news'); opening-to-home hand-over smoothed (no home flash before the opening, pictures and fonts ready before the switch, 280 ms cross-fade, opening length unchanged). npm run verify PASS (236 tests), npm run test:e2e PASS (performance budget, online 0 leaks). Not yet on main. Next: Phone A in-game layout."
+    },
+    {
+      "at": "2026-11-08 13:54",
+      "text": "Seven playtest reports investigated (REP-089): all seven confirmed; the engine follows the rules and the problems are in what the game tells players, plus one rule that allows a sure profit (Juice Bar salvage, +$3 a night at most). Proposed DEC-067: package A wording and explanation fixes (no rules change), package B computer players after a balance run, Juice Bar option C (keep and explain). Awaiting the owner's choices. Phone A layout still being built on the branch."
     }
   ]
 }
