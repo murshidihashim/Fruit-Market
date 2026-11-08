@@ -21,7 +21,7 @@
     "evidence": "for day 2 onwards, it should be poorest, followed by clockwise for the day ... / no need, just push it live",
     "date": "2026-11-09"
   },
-  "delivery": "implemented",
+  "delivery": "verified",
   "id": "PLAN-056",
   "title": "Buying order: poorest first, then clockwise (rules 10)",
   "problem": "Sorting every stall by cash is slow on a table.",
@@ -44,8 +44,8 @@
     {
       "id": "T2",
       "text": "Browser tests incl. online 0 leaks pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e, 2026-11-09: performance budget OK, online 0 leaks in 94 pricing frames, reconnect 5/5"
     },
     {
       "id": "T3",

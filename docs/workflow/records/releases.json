@@ -249,6 +249,17 @@
       "date": "2026-11-09",
       "commit": "9c3cc70",
       "tagged": true
+    },
+    {
+      "version": "1.11.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-056"
+      ],
+      "notes": [
+        "New buying order: from Day 2 the poorest stall buys first, then everyone else clockwise",
+        "Rules version 10: update the app to play online or send daily scores; unfinished games from 1.10.0 can't be resumed"
+      ]
     }
   ]
 }

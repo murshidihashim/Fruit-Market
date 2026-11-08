@@ -148,7 +148,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | PLAN-053 | Great Fruit Exchange icons and worn regalia | Approved (owner, 2026-11-08) | Released | 1.10.0 |
 | PLAN-054 | Open stalls at pricing and a step-by-step shelf at the rush | Approved (owner, 2026-11-08) | Released | 1.10.0 |
 | PLAN-055 | Market square home screen and Lorry arrives opening | Approved (owner, 2026-11-08) | Released | 1.10.0 |
-| PLAN-056 | Buying order: poorest first, then clockwise (rules 10) | Approved (owner, 2026-11-09) | Implemented | Unreleased |
+| PLAN-056 | Buying order: poorest first, then clockwise (rules 10) | Approved (owner, 2026-11-09) | Verified | Unreleased |
 
 ## Decision details
 
