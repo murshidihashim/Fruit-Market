@@ -204,6 +204,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .op.opx { background: var(--x-cream); }
 .opx .op-stage { animation: fade 0.25s ease-out both; }
 .opx.op-wait .op-stage * { animation-play-state: paused; }
+.opx.op-wait .opx-mast { visibility: hidden; } /* on tall screens its starting place is on screen: show it only once it drops */
 .op.opx.op-leave { animation: opx-out 0.28s ease-in forwards; }
 @keyframes opx-out { to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .opx .op-stage, .op.opx.op-leave { animation: none; } }
