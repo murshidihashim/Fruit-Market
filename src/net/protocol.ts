@@ -5,7 +5,7 @@ import type { Action, GameState } from '../engine/game';
 export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
-export const RULES_VERSION = 9;
+export const RULES_VERSION = 10;
 /**
  * Bump whenever the computer players change (src/engine/ai.ts), even when the rules don't. Daily scores are verified by
  * replaying the game with the server's computer players (server/meta.ts verifyDaily), so a daily must be submitted and

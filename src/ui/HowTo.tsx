@@ -17,7 +17,7 @@ const GAME_PHASES = [
 
 const DAY_BEATS = [
   ['Morning', 'The lorry unloads fruit at the Wholesale Market. An event card changes the day.'],
-  ['Buying', 'Each stall buys up to 6 pieces. The poorest stall goes first.'],
+  ['Buying', 'Each stall buys up to 6 pieces. The poorest stall goes first, then the others clockwise.'],
   ['Stocking', 'Choose what to put in your for-sale crate. Everyone sees the crates.'],
   ['The bell', 'Set one secret price per fruit. All prices flip over together.'],
   ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],

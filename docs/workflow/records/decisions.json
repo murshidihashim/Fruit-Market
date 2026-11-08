@@ -1801,6 +1801,29 @@
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it feels slow on an old phone."
+    },
+    {
+      "id": "DEC-073",
+      "title": "Buying order: poorest stall first, then clockwise (rules version 10)",
+      "question": "How is the buying order set from Day 2?",
+      "choice": "From Day 2 the stall with the least cash buys first and the others follow clockwise round the table from it, whatever their cash; a tie for poorest goes to the first of them clockwise from the first-player token. Day 1 starts at the token. Priority and the Nest Egg perk still move their owner to the front. The same order is used for the evening and the last tie-break. RULES_VERSION 9 to 10.",
+      "rationale": "Owner: \"for day 2 onwards, it should be poorest, followed by clockwise for the day, day 3 onwards is the same, poorest, and then clockwise\". Simpler on a table. Risk explained (less catch-up for the middle stalls; richest no longer always last); the owner declined a balance run: \"no need, just push it live\".",
+      "impact": {
+        "player": "A different buying order from Day 2.",
+        "technical": "startDay order in src/engine/game.ts; RULES.md, How to play, tutorial and print-deck text; RULES_VERSION 10.",
+        "data": "Unfinished games saved under rules 9 cannot be resumed; the daily board key becomes r10; older apps must update to play online or send daily scores."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "for day 2 onwards, it should be poorest, followed by clockwise for the day, day 3 onwards is the same, poorest, and then clockwise / no need, just push it live",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "reports": [],
+      "plan": "PLAN-056",
+      "reviewTrigger": "If playtests show the leader running away; a balance run was not made."
     }
   ],
   "history": [
@@ -2455,6 +2478,10 @@
     {
       "at": "2026-11-09 02:31",
       "text": "Release 1.10.0 published with the owner's approval (\"live is approved\"): main 9c3cc70, Deploy LIVE game run 25 success (verify, release check, deploy, live smoke test), tag v1.10.0. Contains PLAN-052 to PLAN-055."
+    },
+    {
+      "at": "2026-11-09 02:44",
+      "text": "Owner changed the buying order to poorest first, then clockwise (DEC-073, PLAN-056, rules version 10) and declined a balance run (\"no need, just push it live\"). npm run verify PASS (366 tests)."
     }
   ]
 }

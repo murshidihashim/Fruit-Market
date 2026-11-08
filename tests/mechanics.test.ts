@@ -59,14 +59,15 @@ describe('merchant traits', () => {
 });
 
 describe('turn order', () => {
-  it('the poorest shop buys first from day 2 (unless someone played Priority)', () => {
+  it('the poorest shop buys first from day 2, then the rest go clockwise (unless someone played Priority)', () => {
     let checked = 0;
     for (let seed = 1; seed <= 12; seed++) {
       const s = runTo(newGame(ais(3, seed)), 2, 'buy');
       if (s.log.some((l) => l.includes('Priority'))) continue;
       const start = s.dayStartCash!;
       expect(start[s.order[0]]).toBe(Math.min(...start));
-      expect(start[s.order[2]]).toBe(Math.max(...start));
+      // Rules 10: after the poorest, the others follow clockwise from it, whatever their cash.
+      expect(s.order).toEqual([0, 1, 2].map((i) => (s.order[0] + i) % 3));
       checked++;
     }
     expect(checked).toBeGreaterThan(5);

@@ -516,9 +516,11 @@ function startDay(s: GameState) {
   }
   s.dayStartCash = s.players.map((p) => p.cash);
   const n = s.players.length;
-  // The poorest shop buys first (ties go round the table), so leaders can't run away with it.
+  // Rules 10: the poorest shop buys first, then the rest follow clockwise from it. Ties for poorest go to the first
+  // of them round the table from the first-player token. Day 1 simply starts at the token.
   const rota = Array.from({ length: n }, (_, i) => (s.firstPlayer + i) % n);
-  s.order = s.day === 1 ? rota : [...rota].sort((a, b) => s.players[a].cash - s.players[b].cash || rota.indexOf(a) - rota.indexOf(b));
+  const start = s.day === 1 ? rota[0] : rota.reduce((best, i) => (s.players[i].cash < s.players[best].cash ? i : best), rota[0]);
+  s.order = Array.from({ length: n }, (_, i) => (start + i) % n);
   if (s.priorityNext !== null) {
     s.order = [s.priorityNext, ...s.order.filter((i) => i !== s.priorityNext)];
     s.priorityNext = null;

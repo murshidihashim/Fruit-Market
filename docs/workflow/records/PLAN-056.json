@@ -1,0 +1,57 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-073"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Buying order: the poorest stall first, then the others clockwise"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "New buying order: the poorest stall goes first, then everyone else clockwise"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "for day 2 onwards, it should be poorest, followed by clockwise for the day ... / no need, just push it live",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-056",
+  "title": "Buying order: poorest first, then clockwise (rules 10)",
+  "problem": "Sorting every stall by cash is slow on a table.",
+  "scope": [
+    "Engine order from Day 2",
+    "RULES.md, How to play, tutorial, print text",
+    "RULES_VERSION 10",
+    "Tests"
+  ],
+  "exclusions": [
+    "Balance run (owner declined)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-09: 366 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. online 0 leaks pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Balance run",
+      "result": "NOT RUN",
+      "evidence": "Owner declined: \"no need, just push it live\""
+    }
+  ]
+}

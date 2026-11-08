@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 9).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 10).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -92,7 +92,7 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and
 3. Draw tomorrow's delivery card and event for the Tomorrow strip.
 
 ### 2. Buying
-Each stall buys **up to 6 pieces of fruit** (8 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (12 with a Handcart). **The poorest stall buys first** (ties go round the table; Day 1 is random). A Priority favour jumps the queue.
+Each stall buys **up to 6 pieces of fruit** (8 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (12 with a Handcart). **The poorest stall buys first, then the others follow clockwise from it** (a tie for poorest goes to the first of them clockwise from the first-player token; Day 1 starts at the token). A Priority favour jumps the queue.
 
 ### 3. Stocking
 Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly chooses how many of each ripe fruit to put in its **for-sale crate**, by setting a number on its stall sheet; then all crates are shown at once. The crate is a number: the pieces stay on your shelf, and fruit you keep back stays too.
@@ -107,7 +107,7 @@ Each stall secretly sets **one price per fruit** it put out, then everyone revea
 ### 5. The rush
 Customers buy in queue order: waiting customers first, then new ones. For each fruit a customer wants, they buy from the **cheapest stall** that has fruit fresh enough for its price; leftover demand **spills to the next stall**.
 
-- **Ties:** Favoured Trade, then the Haggler, then fresher fruit (compare the age of the freshest piece each stall would hand over to this customer: the younger piece wins, so a piece of age 0 beats a piece of age 2 even though both are fresh), then whoever bought earlier today. (Today's buying order was set at dawn, poorest stall first. Cash is not used, because it changes while customers are paid.)
+- **Ties:** Favoured Trade, then the Haggler, then fresher fruit (compare the age of the freshest piece each stall would hand over to this customer: the younger piece wins, so a piece of age 0 beats a piece of age 2 even though both are fresh), then whoever bought earlier today. (Today's buying order was set at dawn: the poorest stall, then clockwise. Cash is not used, because it changes while customers are paid.)
 - You're paid as soon as you sell.
 - **Favours:** serve a customer's entire remaining order by yourself and draw a favour card (at most one per day).
 - A new customer who doesn't get everything comes back tomorrow as *waiting*. A waiting customer leaves after today either way.
@@ -206,7 +206,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **First-player token.** On Day 1 give it to a random stall. It moves one seat clockwise every night.
 
-**Dawn line-up.** At dawn every stall puts its cash in a pile in front of it. Stall tokens line up on a queue strip, fewest coins first, ties starting from the first-player token (on Day 1 the buying order is simply the seats from the token, not by cash). Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
+**Dawn line-up.** At dawn every stall counts its cash. The stall with the fewest coins goes first, then the others follow clockwise round the table from it; a tie for fewest goes to the first of them clockwise from the first-player token (on Day 1 the order is simply the seats from the token). Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front.
 
 **Evening.** Keep favour cards face down in front of you, so everyone can count them. Only stalls holding a card, or with an upgrade on offer after a Market Day, take an evening turn, in line-up order.
 
@@ -238,6 +238,8 @@ Rules version 8 (REP-086 and a second round of about 25,000 computer games): eve
 Rules version 9 (PLAN-047): every stall starts with $15 and buys up to 6 pieces a day (a Handcart 8). The lorry deck is ten named cards (two copies each) with the amounts for 2, 3 and 4 stalls printed on the card; Mango Growers and Mango Season arrive green. Customers have a freshness type (Premium, Everyday or Bargain). Customer quantities and prices were rebalanced (more watermelon, blueberry and apple, fewer mangoes asked; apples $1 lower and mangoes $1 higher). Event cards were rebalanced, Minimum Price became Price Controls (a maximum), and the Health Inspector fines at the start of the day. Nest Egg now starts with $20.
 
 Computer players, still rules version 9 (PLAN-051, REP-089): the rules did not change, only how the app's computer players price. On Closing Day they now count each leftover ripe fruit at the jam maker's $1, and when they plan prices they follow the tie order above (Favoured Trade, then the Haggler, then the fresher fruit, then the earlier buyer). The rules version 8 aim, every shopkeeper within about 3 points of a fair share, is not met, and it was not met before this change either. In computer-player games (3 stalls, 10 days, 2,000 games for each shopkeeper at each level; fair is 33%): at Normal level the Haggler fell from about 41% to 37% and Big Basket rose from about 27% to 31%, but the Tip Jar now wins about 38%, about 4 points more than fair. At Hard level the Haggler still wins about 45%, 10 to 12 points more than fair, the same as before within chance, and Big Basket about 26%.
+
+Rules version 10: the buying order is the poorest stall first, then the others clockwise round the table from it (before, every stall was lined up by cash). Simpler on a table: only the poorest stall has to be found. Only the poorest stall now gets the catch-up help; no balance run was made for this change (owner's choice).
 
 Rules version 7 (REP-086, computer-player simulation of about 40,000 games): the app now matches the printed rule of one upgrade per Market Day (before, several could be built in one evening, which made upgrades close to compulsory); a mango costs $1 more (fresh $5, green $4) because it earned about 40% more per fruit than the others; and Big Basket's extra piece costs $1 more because the perk won about 10 points more often than fair.
 

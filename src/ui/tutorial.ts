@@ -14,7 +14,7 @@ export const TIPS: Tip[] = [
   { id: 'bid', title: 'Secret prices', text: 'One price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
   { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then the Haggler, then fresher fruit.' },
   { id: 'evening', title: 'Evening', text: 'Play a favour card or build an upgrade, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
-  { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest stall buys first. Most cash after the last day wins. Good luck!' },
+  { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest stall buys first, then the others go clockwise. Most cash after the last day wins. Good luck!' },
 ];
 
 function load(): string[] {
