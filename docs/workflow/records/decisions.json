@@ -1755,6 +1755,29 @@
       "reports": [],
       "plan": "PLAN-054",
       "reviewTrigger": "If the table crowds the pricing screen on small phones."
+    },
+    {
+      "id": "DEC-071",
+      "title": "Home screen: 'Market square' design with the Great Fruit Exchange lorry",
+      "question": "What should the home screen look like?",
+      "choice": "Option 1 'Market square' from the mockup (artifact 2ma98hGZWtHvwueNfH7N1U): a street of stalls in the six shopkeeper colours, the title on a hanging sign, the menu as painted wooden signboards, all current buttons kept; the lorry is the updated Great Fruit Exchange lorry (DEC-069, no lettering). Replaces the big shopkeeper card.",
+      "rationale": "Owner: \"go with option 1 but with the updated lorry please\".",
+      "impact": {
+        "player": "A home screen about the market, in the current art style.",
+        "technical": "Home.tsx and its styles; must fit small phones and keep load time low.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "go with option 1 but with the updated lorry please",
+        "date": "2026-11-08"
+      },
+      "delivery": "not started",
+      "reports": [],
+      "plan": "PLAN-055",
+      "reviewTrigger": "If it does not fit an iPhone SE-sized screen."
     }
   ],
   "history": [
@@ -2385,6 +2408,10 @@
     {
       "at": "2026-11-08 22:40",
       "text": "PLAN-052 verified on the branch (commits 943b9a5, f470155, 32fe936): Rubik on every app screen (print kit keeps its fonts, 253 pages unchanged), 'Round the table' rush pop-up (about 3.3 s per customer, rush +7% at normal speed). npm run verify PASS (351 tests), test:e2e PASS (0 leaks), perf PASS. Pop-up shows contested sales and any sale involving the player; uncontested sales between rivals settle together, as before."
+    },
+    {
+      "at": "2026-11-08 23:09",
+      "text": "Owner chose home screen option 1 'Market square' with the updated lorry (DEC-071, PLAN-055) and asked for five mockups of the opening animation."
     }
   ]
 }

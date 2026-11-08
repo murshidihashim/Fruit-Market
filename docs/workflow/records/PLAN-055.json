@@ -1,0 +1,59 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d9f10c6d-75280w",
+  "reports": [],
+  "decisions": [
+    "DEC-071"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "New home screen: a market square of stalls with the lorry and signboard menu"
+    ],
+    "fixed": [],
+    "removed": [
+      "The big shopkeeper card on the home screen"
+    ]
+  },
+  "playerNotes": [
+    "A new home screen: the whole market square"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go with option 1 but with the updated lorry please",
+    "date": "2026-11-08"
+  },
+  "delivery": "not started",
+  "id": "PLAN-055",
+  "title": "Market square home screen",
+  "problem": "The home screen centres on one shopkeeper card instead of the market.",
+  "scope": [
+    "Market square home in the current art style with the Exchange lorry",
+    "All existing buttons and lines kept",
+    "Phone (incl. small phones) and desktop; tests and screenshots"
+  ],
+  "exclusions": [
+    "Rules",
+    "Publishing (separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests and performance budget pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Home fits 360x640 to 1440x900 with every button reachable",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
