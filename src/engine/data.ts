@@ -277,13 +277,26 @@ export type UpgradeId = 'coldroom' | 'juicebar' | 'barrow' | 'premium';
 
 export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: number; text: string }
 
+/** Juice Bar: extra dollars for each okay or not-so fruit sold. */
+export const JUICE_TIP = 1;
+/** Juice Bar: each night at most this many pieces leaving the shelf become juice, ... */
+export const JUICE_CAP = 3;
+/** ... and each of them pays this much. */
+export const JUICE_VALUE = 2;
+/** The cheapest piece at the Wholesale Market (tired fruit), for the Juice Bar card's tip (REP-089 option C). */
+const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
+
 /**
  * Stall specialities (rules 4): one per plan, each changing what a shop does. They are offered on the evening
  * after each Market Day (days 3, 6, 9, 12), whether or not Market Days are switched on.
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 4, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
-  juicebar: { id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3, text: 'Each okay or tired fruit you sell earns $1 extra. Each night up to 3 pieces of fruit that would spoil become juice: $2 each.' },
+  juicebar: {
+    id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3,
+    // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit).
+    text: `+$${JUICE_TIP} for each okay or tired fruit you sell. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: last-day fruit bought for $${TIRED_COST} becomes $${JUICE_VALUE} of juice.`,
+  },
   barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 8 pieces of fruit a day and hold 12.' },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 8, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
 };
@@ -307,8 +320,6 @@ export const JAM_PRICE = 1;
 
 export const NEST_EGG_BONUS = 5;
 export const LOCAL_FAVOURITE_TIP = 4;
-/** Juice Bar: extra dollars for each okay or not-so fruit sold. */
-export const JUICE_TIP = 1;
 export const START_CASH = 15;
 export const FAVOUR_HAND_LIMIT = 3;
 

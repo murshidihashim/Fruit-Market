@@ -1,0 +1,203 @@
+import { describe, expect, it } from 'vitest';
+import { h } from 'preact';
+import { aiStep, autoplay } from '../src/engine/ai';
+import { EVENT_CARDS, JUICE_CAP, JUICE_VALUE, type FruitId, type UpgradeId } from '../src/engine/data';
+import {
+  activePlayer, applyAction, beginBuying, emptyStock, finishReveal, leavingTonight, newGame, nightOutlook,
+  type GameState, type Level,
+} from '../src/engine/game';
+import { dayHighlights, overnightJuice, overnightLines, overnightLoss, tonightLine, tonightText } from '../src/engine/story';
+import { evaluate, type Context } from '../src/ui/achievements';
+import { spoilsTonight } from '../src/ui/boardModel';
+import { toStaticHtml } from '../src/ui/cards';
+import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
+
+// Tonight's forecast (REP-089 3.4): the warnings follow the night's own rules. A Cold Room skips odd nights, a Heatwave
+// ages fruit one more step (not in a Cold Room), and a Juice Bar turns up to 3 of the pieces leaving the shelf into $2
+// of juice. The forecast comes from the same code as the night (nightOutlook / ageShop in game.ts), and the morning,
+// the results and the "Juice Bar Regular" achievement count the juice money.
+
+const HEATWAVE = EVENT_CARDS.find((e) => e.id === 'heatwave')!;
+const TIRED = 0; // last day on the shelf
+const OKAY_BLUEBERRY = 1; // tired tomorrow; leaves tonight in a Heatwave
+
+/**
+ * Day `day` at the sales card (reveal), 2 people, nobody bought or sold, no events. Your shelf (player 0) holds
+ * `blueberries` (pieces per slot) and these upgrades; `heat` makes today a Heatwave.
+ */
+function salesCard(day: number, blueberries: number[], upgrades: UpgradeId[] = [], heat = false): GameState {
+  let s = beginBuying(newGame({
+    players: [{ name: 'You', kind: 'human', avatar: '🧑‍🍳' }, { name: 'Rosa', kind: 'human', avatar: '🦊' }],
+    days: 10, unripe: true, upgrades: true, events: false, seed: 5,
+  }));
+  while (s.phase === 'buy') s = applyAction(s, activePlayer(s), { kind: 'endBuy' });
+  while (s.phase === 'stall') s = applyAction(s, activePlayer(s), { kind: 'stall', stall: {} });
+  while (s.phase === 'bid') s = applyAction(s, activePlayer(s), { kind: 'prices', posts: [], favoured: false });
+  expect(s.phase).toBe('reveal');
+  s = structuredClone(s);
+  s.day = day;
+  s.event = heat ? HEATWAVE : null;
+  for (const pl of s.players) { pl.stock = emptyStock(true); pl.upgrades = []; }
+  blueberries.forEach((n, pos) => { s.players[0].stock.blueberry[pos] = n; });
+  s.players[0].upgrades = upgrades;
+  return s;
+}
+
+/** Plays the rest of the day and the night: every stall closes up for the evening without doing anything. */
+function playNight(s: GameState): GameState {
+  s = finishReveal(s);
+  while (s.phase === 'evening') s = applyAction(s, activePlayer(s), { kind: 'endEvening' });
+  return s;
+}
+
+/** The forecast, checked against what the night really does to your shelf. */
+function forecastAndNight(s: GameState) {
+  const o = nightOutlook(s, 0);
+  const next = playNight(s);
+  expect(next.day).toBe(s.day + 1);
+  const [a, b] = [s.players[0], next.players[0]];
+  expect({ spoil: b.stats.spoiled - a.stats.spoiled, juice: (b.stats.juiced ?? 0) - (a.stats.juiced ?? 0) }).toEqual(o);
+  expect(b.cash - a.cash).toBe(o.juice * JUICE_VALUE);
+  return { o, next };
+}
+
+describe('nightOutlook: tonight by the night\'s own rules', () => {
+  it('a Juice Bar juices 3 last-day pieces and lets the rest spoil', () => {
+    expect(forecastAndNight(salesCard(4, [3], ['juicebar'])).o).toEqual({ spoil: 0, juice: 3 });
+    expect(forecastAndNight(salesCard(4, [5], ['juicebar'])).o).toEqual({ spoil: 2, juice: JUICE_CAP });
+    expect(forecastAndNight(salesCard(4, [5])).o).toEqual({ spoil: 5, juice: 0 });
+  });
+
+  it('a Heatwave counts the okay pieces that leave a step early', () => {
+    const shelf = [0, 3]; // 3 okay blueberries
+    expect(shelf[OKAY_BLUEBERRY]).toBe(3);
+    expect(forecastAndNight(salesCard(4, shelf, [], true)).o).toEqual({ spoil: 3, juice: 0 });
+    expect(forecastAndNight(salesCard(4, shelf, ['juicebar'], true)).o).toEqual({ spoil: 0, juice: 3 });
+    expect(forecastAndNight(salesCard(4, shelf)).o).toEqual({ spoil: 0, juice: 0 });
+  });
+
+  it('a Cold Room skips odd nights and keeps a Heatwave out', () => {
+    expect(forecastAndNight(salesCard(5, [3], ['coldroom'])).o).toEqual({ spoil: 0, juice: 0 });
+    expect(forecastAndNight(salesCard(4, [3], ['coldroom'])).o).toEqual({ spoil: 3, juice: 0 });
+    expect(forecastAndNight(salesCard(4, [0, 3], ['coldroom'], true)).o).toEqual({ spoil: 0, juice: 0 });
+    expect(forecastAndNight(salesCard(5, [3], ['coldroom', 'juicebar'])).o).toEqual({ spoil: 0, juice: 0 });
+  });
+
+  it('counts each fruit that leaves the shelf, and nothing on the final day (no night follows)', () => {
+    const s = salesCard(4, [2, 1], [], true);
+    s.players[0].stock.apple[TIRED] = 1;
+    const leaving: Record<FruitId, number> = { blueberry: 3, watermelon: 0, apple: 1, mango: 0 };
+    expect(leavingTonight(s, 0)).toEqual(leaving);
+    expect(s.players[0].stock.blueberry.slice(0, 2)).toEqual([2, 1]); // the forecast never changes the shelf
+    const last = salesCard(10, [3], ['juicebar']);
+    expect(nightOutlook(last, 0)).toEqual({ spoil: 0, juice: 0 });
+    expect(tonightLine(last, 0)).toBeNull();
+  });
+
+  it('agrees with every night of many seeded computer games (Cold Room, Heatwave, Juice Bar and its cap)', () => {
+    const seen = { juice: 0, capped: 0, coldOdd: 0, heat: 0 };
+    const levels: Level[] = ['normal', 'hard', 'normal', 'hard'];
+    for (let seed = 1; seed <= 30; seed++) {
+      let s = newGame({
+        players: levels.slice(0, 3 + (seed % 2)).map((level, i) => ({ name: `A${i}`, kind: 'ai' as const, level, avatar: '' })),
+        days: 10, unripe: true, upgrades: true, events: true, seed,
+      });
+      while (s.phase !== 'over') {
+        const next = s.phase === 'morning' ? beginBuying(s) : s.phase === 'reveal' ? finishReveal(s) : aiStep(s)!;
+        if (next.day !== s.day) {
+          s.players.forEach((pl, p) => {
+            const o = nightOutlook(s, p);
+            const after = next.players[p];
+            expect({ spoil: after.stats.spoiled - pl.stats.spoiled, juice: (after.stats.juiced ?? 0) - (pl.stats.juiced ?? 0) }).toEqual(o);
+            // The only other overnight cash change is a Health Inspector's fine at dawn.
+            expect(after.cash - pl.cash).toBe(o.juice * JUICE_VALUE - (next.dayFines?.[p] ?? 0));
+            expect(overnightJuice(s, next, p)).toEqual({ pieces: o.juice, dollars: o.juice * JUICE_VALUE });
+            expect(overnightLoss(s, next, p)).toBe(o.spoil);
+            const room = pl.upgrades.includes('coldroom');
+            if (o.juice) seen.juice++;
+            if (o.juice && o.spoil) seen.capped++;
+            if (room && s.day % 2 === 1 && Object.values(pl.stock).some((t) => t[TIRED] > 0)) seen.coldOdd++;
+            if (!room && s.event?.ageExtra && Object.values(pl.stock).some((t) => t[1] > 0)) seen.heat++;
+          });
+        }
+        s = next;
+      }
+    }
+    // The sweep really covers each rule (counts from 30 seeds: about 70, 6, 44 and 4).
+    for (const n of Object.values(seen)) expect(n).toBeGreaterThan(0);
+  }, 120_000);
+});
+
+describe('tonight in words', () => {
+  it('says how many spoil and how many become juice, with the money', () => {
+    expect(tonightText({ spoil: 0, juice: 0 })).toBeNull();
+    expect(tonightText({ spoil: 3, juice: 0 })).toBe('3 fruit spoil tonight');
+    expect(tonightText({ spoil: 1, juice: 0 })).toBe('1 fruit spoils tonight');
+    expect(tonightText({ spoil: 0, juice: 3 })).toBe('3 fruit become juice tonight (+$6)');
+    expect(tonightText({ spoil: 0, juice: 1 })).toBe('1 fruit becomes juice tonight (+$2)');
+    expect(tonightText({ spoil: 2, juice: 3 })).toBe('2 spoil tonight, 3 become juice (+$6)');
+    expect(tonightLine(salesCard(4, [5], ['juicebar']), 0)).toBe('2 spoil tonight, 3 become juice (+$6)');
+    expect(tonightLine(salesCard(5, [3], ['coldroom']), 0)).toBeNull();
+  });
+
+  it('day highlight: no spoil warning for juice or on a Cold Room\'s odd night; Heatwave counted', () => {
+    const texts = (s: GameState) => dayHighlights(s, 0).map((x) => x.text);
+    expect(texts(salesCard(4, [3], ['juicebar'])).join(' ')).not.toMatch(/spoil/);
+    expect(texts(salesCard(4, [5], ['juicebar']))).toContain('2 of your fruit will spoil tonight; 3 become juice (+$6).');
+    expect(texts(salesCard(5, [3], ['coldroom'])).join(' ')).not.toMatch(/will spoil tonight/);
+    expect(texts(salesCard(4, [0, 3], [], true))).toContain('3 of your fruit will spoil tonight.');
+    expect(texts(salesCard(4, [3]))).toContain('3 of your fruit will spoil tonight.');
+  });
+
+  it('the sales card shows juice as juice, and the spoil count after the Juice Bar\'s share', () => {
+    const juice = salesCard(4, [3], ['juicebar']);
+    expect(spoilsTonight(juice, 0)).toBe(0);
+    const html = toStaticHtml(h(SalesSummary, { s: juice, viewer: 0 }));
+    expect(html).toContain('3 fruit become juice tonight (+$6)');
+    expect(html).not.toMatch(/spoil/);
+    const both = toStaticHtml(h(SalesSummary, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
+    expect(both).toContain('class="sc-waste">2 spoil tonight, 3 become juice (+$6)');
+    expect(toStaticHtml(h(SalesSummary, { s: salesCard(5, [3], ['coldroom']), viewer: 0 }))).not.toMatch(/spoil/);
+    expect(spoilsTonight(salesCard(4, [0, 3], [], true), 0)).toBe(3);
+  });
+
+  it('the morning card says what the Juice Bar made overnight', () => {
+    const s = salesCard(4, [5], ['juicebar']);
+    const next = playNight(s);
+    const juice = overnightJuice(s, next, 0);
+    expect(juice).toEqual({ pieces: 3, dollars: 6 });
+    expect(next.players[0].cash - s.players[0].cash).toBe(juice.dollars);
+    expect(overnightLines(overnightLoss(s, next, 0), juice)).toEqual([
+      { tone: 'bad', text: '2 of your fruit spoiled overnight.' },
+      { tone: 'good', text: 'Your Juice Bar made $6 from 3 fruit overnight.' },
+    ]);
+    const only = salesCard(4, [3], ['juicebar']);
+    const after = playNight(only);
+    expect(overnightLoss(only, after, 0)).toBe(0);
+    expect(overnightLines(0, overnightJuice(only, after, 0)).map((x) => x.text)).toEqual(['Your Juice Bar made $6 from 3 fruit overnight.']);
+    expect(overnightLines(0)).toEqual([]);
+  });
+});
+
+describe('Juice Bar Regular counts the juice money', () => {
+  const ctx: Context = { online: false, have: new Set(), sets: {}, stats: { played: 1, totalSold: 10 }, streak: 0 };
+  /** A finished game in which you earned no sale tips at all. */
+  function finished(): GameState {
+    const g = autoplay(newGame({
+      players: [0, 1].map((i) => ({ name: `A${i}`, kind: 'ai' as const, level: 'normal' as const, avatar: '' })),
+      days: 8, unripe: true, upgrades: true, events: true, seed: 4,
+    }));
+    for (const d of g.history ?? []) for (const l of d.lines) for (const o of l.offers) delete o.juice;
+    return g;
+  }
+
+  it('awards it for $20 of overnight juice with nothing sold, and not for $18', () => {
+    const g = finished();
+    g.players[0].stats.juiced = 10;
+    expect(evaluate(g, 0, ctx).got).toContain('juice_regular');
+    g.players[0].stats.juiced = 9;
+    expect(evaluate(g, 0, ctx).got).not.toContain('juice_regular');
+    delete g.players[0].stats.juiced; // a game saved before the counter existed
+    expect(evaluate(g, 0, ctx).got).not.toContain('juice_regular');
+  });
+});

@@ -1,5 +1,6 @@
 // The final results screen: podium, recap, league progress and achievements.
 import { useState } from 'preact/hooks';
+import { JUICE_VALUE } from '../../../engine/data';
 import { ranking, type GameState } from '../../../engine/game';
 import { gameRecap } from '../../../engine/story';
 import { Coin, Face } from '../../art';
@@ -66,7 +67,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
               <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />
               <span class="chip cash"><Coin />{pl.cash}</span>
-              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}{pl.upgrades.map((u) => <Icon name={UP_ICON[u]} size={14} />)}</div>
+              <div class="pod-stats">Sold {pl.stats.sold} · spoiled {pl.stats.spoiled} · best sale ${pl.stats.bestSale}{pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}{s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}{pl.upgrades.map((u) => <Icon name={UP_ICON[u]} size={14} />)}</div>
             </div>
           );
         })}

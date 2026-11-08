@@ -4,8 +4,11 @@
 // the engine used to sort them (cheapest first; ties: Favoured Trade, then a Haggler, then fresher fruit,
 // then today's buying order, which was set at dawn with the poorest shop first).
 
-import { FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
-import { count, eligible, forSale, minPrice, ranking, servingCustomers, type GameState, type LineResult, type Offer } from './game';
+import { FRUIT, FRUITS, JUICE_VALUE, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
+import {
+  count, eligible, forSale, minPrice, nightOutlook, ranking, servingCustomers,
+  type GameState, type LineResult, type NightOutlook, type Offer,
+} from './game';
 
 export type Tone = 'good' | 'bad' | 'neutral';
 
@@ -23,6 +26,7 @@ export interface LineStory {
 const fruitWord = (f: FruitId, n: number) => (n === 1 ? FRUIT[f].name.toLowerCase() : FRUIT[f].plural.toLowerCase());
 const nameOf = (s: GameState, p: number, viewer: number) => (p === viewer ? 'You' : s.players[p].name);
 const possessive = (s: GameState, p: number, viewer: number) => (p === viewer ? 'your' : `${s.players[p].name}'s`);
+const becomeJuice = (n: number) => `${n} ${n === 1 ? 'becomes' : 'become'} juice`;
 
 function hash(...xs: number[]): number {
   let h = 2166136261;
@@ -435,10 +439,11 @@ export function dayHighlights(s: GameState, viewer: number): Highlight[] {
       out.push({ icon: '👑', tone: p === viewer ? 'good' : 'neutral', score: 25 + n * 3, text: `${p === viewer ? 'You' : s.players[p].name} dominated the ${FRUIT[f].name.toLowerCase()} market (${n} sold).` });
     }
   }
-  // Fruit that spoils tonight if the game goes on.
-  if (s.day < s.config.days) {
-    const rot = FRUITS.reduce((a, f) => a + s.players[viewer].stock[f][0], 0);
-    if (rot >= 2) out.push({ icon: '🗑️', tone: 'bad', score: 20 + rot * 6, text: `${rot} of your fruit will spoil tonight.` });
+  // Fruit that spoils tonight if the game goes on, by the night's own rules (Cold Room, Heatwave, Juice Bar).
+  const night = nightOutlook(s, viewer);
+  if (night.spoil >= 2) {
+    const juice = night.juice ? `; ${becomeJuice(night.juice)} (+$${night.juice * JUICE_VALUE})` : '';
+    out.push({ icon: '🗑️', tone: 'bad', score: 20 + night.spoil * 6, text: `${night.spoil} of your fruit will spoil tonight${juice}.` });
   }
   if (mineIncome === 0 && !r.lines.some((l) => l.offers.some((o) => o.player === viewer))) {
     out.push({ icon: '😶', tone: 'neutral', score: 15, text: 'A quiet day: you made no offers.' });
@@ -452,6 +457,44 @@ export function dayHighlights(s: GameState, viewer: number): Highlight[] {
 /** Fruit the viewer lost overnight, from the engine's own spoilage counter. */
 export function overnightLoss(prev: GameState, next: GameState, viewer: number): number {
   return Math.max(0, next.players[viewer].stats.spoiled - prev.players[viewer].stats.spoiled);
+}
+
+/** What the viewer's Juice Bar made overnight. */
+export interface NightJuice { pieces: number; dollars: number }
+
+/** Pieces the viewer's Juice Bar juiced overnight and the dollars it paid, from the engine's own juice counter. */
+export function overnightJuice(prev: GameState, next: GameState, viewer: number): NightJuice {
+  const pieces = Math.max(0, (next.players[viewer].stats.juiced ?? 0) - (prev.players[viewer].stats.juiced ?? 0));
+  return { pieces, dollars: pieces * JUICE_VALUE };
+}
+
+/**
+ * Tonight's forecast in words, or null when nothing leaves the shelf: "3 fruit spoil tonight",
+ * "3 fruit become juice tonight (+$6)" or "2 spoil tonight, 3 become juice (+$6)".
+ */
+export function tonightText(o: NightOutlook): string | null {
+  const cash = `(+$${o.juice * JUICE_VALUE})`;
+  const spoils = o.spoil === 1 ? 'spoils' : 'spoil';
+  if (o.spoil > 0 && o.juice > 0) return `${o.spoil} ${spoils} tonight, ${becomeJuice(o.juice)} ${cash}`;
+  if (o.juice > 0) return `${o.juice} fruit ${o.juice === 1 ? 'becomes' : 'become'} juice tonight ${cash}`;
+  if (o.spoil > 0) return `${o.spoil} fruit ${spoils} tonight`;
+  return null;
+}
+
+/** Tonight's forecast for shop `p` in words (the sales card and the Evening panel), or null when nothing leaves the shelf. */
+export function tonightLine(s: GameState, p: number): string | null {
+  return tonightText(nightOutlook(s, p));
+}
+
+/**
+ * The morning card's overnight lines, in order: fruit lost, then what the Juice Bar made. One helper for both card
+ * layouts (the phone brief and the full card), which each show the loss line today.
+ */
+export function overnightLines(lost: number, juice?: NightJuice): { text: string; tone: Tone }[] {
+  const out: { text: string; tone: Tone }[] = [];
+  if (lost > 0) out.push({ tone: 'bad', text: `${lost} of your fruit spoiled overnight.` });
+  if (juice && juice.pieces > 0) out.push({ tone: 'good', text: `Your Juice Bar made $${juice.dollars} from ${juice.pieces} fruit overnight.` });
+  return out;
 }
 
 // ---------- end of game ----------

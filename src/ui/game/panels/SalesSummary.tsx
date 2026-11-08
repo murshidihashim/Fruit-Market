@@ -1,6 +1,6 @@
 // End-of-day takings card.
 import type { GameState } from '../../../engine/game';
-import { dayHighlights, standing } from '../../../engine/story';
+import { dayHighlights, standing, tonightLine } from '../../../engine/story';
 import { Face } from '../../art';
 import { spoilsTonight } from '../../boardModel';
 
@@ -8,11 +8,13 @@ export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const r = s.results!;
   const start = s.dayStartCash?.[viewer];
   const net = start === undefined ? null : s.players[viewer].cash - start;
-  // Day ledger: sales in, stock bought, anything else (fines, favours, jam), and fruit about to spoil.
+  // Day ledger: sales in, stock bought, anything else (fines, favours, jam), and what tonight does to the shelf
+  // (fruit that spoils, and fruit a Juice Bar turns into juice; nothing on the final day, when no night follows).
   const bought = r.spent?.[viewer] ?? 0;
   const jam = s.jam?.[viewer] ?? 0;
   const other = net === null ? 0 : net - r.income[viewer] + bought;
-  const spoil = s.phase === 'reveal' && s.day < s.config.days ? spoilsTonight(s, viewer) : 0;
+  const tonight = s.phase === 'reveal' ? tonightLine(s, viewer) : null;
+  const spoil = tonight ? spoilsTonight(s, viewer) : 0;
   const highlights = dayHighlights(s, viewer);
   const st = standing(s, viewer);
   const best = Math.max(...r.income);
@@ -27,7 +29,7 @@ export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
         {other - jam !== 0 && <span>Other <b class={other - jam > 0 ? 'good' : 'bad'}>{other - jam > 0 ? '+' : '−'}${Math.abs(other - jam)}</b></span>}
         {net !== null && <span class="net">Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
       </div>
-      {spoil > 0 && <div class="sc-waste">{spoil} fruit on its last day spoils tonight</div>}
+      {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice'}>{tonight}</div>}
       {highlights.length > 0 && (
         <div class="sc-high">
           {highlights.map((h) => <div class={`hl ${h.tone}`}><span>{h.icon}</span>{h.text}</div>)}

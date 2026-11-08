@@ -1,7 +1,7 @@
 // Achievements, grouped by theme. `evaluate` looks at one finished game plus what the player has built up
 // over time (sets such as "shopkeepers won with") and says which achievements were just earned.
 // It only reads the game; it never changes a rule.
-import { CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, LEGACY_RIVAL_NAMES, RIVALS } from '../engine/data';
+import { CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, JUICE_VALUE, LEGACY_RIVAL_NAMES, RIVALS } from '../engine/data';
 import { ranking, type GameState, type LineResult } from '../engine/game';
 
 export type ThemeId = 'game' | 'timing' | 'nerve' | 'crates' | 'town' | 'stall' | 'cast' | 'events' | 'journey' | 'milestones';
@@ -134,13 +134,15 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
       if (o.price >= l.max) fullPrice += o.sold;
       if (l.fruit === 'mango') mangoes += o.sold;
       if (o.price >= 12) sky = true;
-      juice += o.juice ?? 0;
+      juice += o.juice ?? 0; // the Juice Bar's tip on older fruit sold
     }
     if (first?.player === me && first.sold > 0 && second && !second.tooOld) {
       if (second.price - first.price === 1) penny = true;
       if (second.price === first.price && second.qty > 0) tie = true;
     }
   }
+  // ... plus the juice it made overnight from fruit that would have spoiled.
+  juice += JUICE_VALUE * (pl.stats.juiced ?? 0);
 
   // Whole orders served alone, customers served in one day, customers who came back.
   let sole = 0, fullHouse = false, waited = false;

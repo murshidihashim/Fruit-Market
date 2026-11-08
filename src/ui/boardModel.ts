@@ -1,7 +1,7 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import { FRUITS, slotLife, stageAt, type FruitId, type Stage } from '../engine/data';
-import { count, isMarketDay, printedSupply, walkInsToday, type Customer, type GameState } from '../engine/game';
+import { count, isMarketDay, nightOutlook, printedSupply, walkInsToday, type Customer, type GameState } from '../engine/game';
 
 export interface Slot { pos: number; stage: Stage; n: number }
 
@@ -73,9 +73,10 @@ export function marketDayTomorrow(s: GameState): boolean {
   return s.day < s.config.days && isMarketDay(s, s.day + 1);
 }
 
-/** Ripe fruit on its last day in a shop: it spoils tonight unless a Cold Room skips this night. */
+/**
+ * Fruit in a shop that really spoils tonight, by the night's own rules: none on a Cold Room's odd nights, one more
+ * step in a Heatwave, and up to 3 pieces become juice instead with a Juice Bar (those are not counted here).
+ */
 export function spoilsTonight(s: GameState, p: number): number {
-  const pl = s.players[p];
-  if (pl.upgrades.includes('coldroom') && s.day % 2 === 1) return 0;
-  return FRUITS.reduce((a, f) => a + (pl.stock[f][0] ?? 0), 0);
+  return nightOutlook(s, p).spoil;
 }

@@ -1,7 +1,7 @@
 // Table animations: the morning delivery, buying, selling and nightfall.
 // Each one returns when its animation has finished. They only draw; they never change the game.
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, type FruitId } from '../../engine/data';
-import { type GameState, type LineResult } from '../../engine/game';
+import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, UPGRADES, type FruitId } from '../../engine/data';
+import { leavingTonight, nightOutlook, type GameState, type LineResult } from '../../engine/game';
 import { customerReaction, explainLine, rivalReaction } from '../../engine/story';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
@@ -157,15 +157,25 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   const spoil = (anchor: string[], f: FruitId, n: number) => {
     for (let k = 0; k < Math.min(n, 3); k++) { jobs.push(A.drop(anchor, <Fruit id={f} size={26} stage="notso" />, d)); d += 80; }
   };
+  // A Juice Bar's pieces fly to the cash as coins instead of rotting (one sprite each, like the drop they replace).
+  const juice = (p: number, f: FruitId, n: number) => {
+    for (let k = 0; k < n; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: 480 })); d += 80; }
+  };
+  // The engine's own forecast for each shelf, so the picture matches the night (Cold Room, Heatwave, Juice Bar).
+  const juiced = g.players.map((_, p) => nightOutlook(g, p).juice);
+  const shelves = g.players.map((_, p) => ({ leaving: leavingTonight(g, p), juice: juiced[p] }));
   for (const f of FRUITS) {
     spoil([`cart-${f}`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
-    g.players.forEach((pl, p) => {
-      const room = pl.upgrades.includes('coldroom');
-      const steps = (room && g.day % 2 === 1 ? 0 : 1) + (room ? 0 : heat);
-      const n = steps === 0 ? 0 : pl.stock[f][0] + (steps > 1 ? pl.stock[f][1] : 0);
-      spoil([`p${p}-${f}`], f, n);
+    shelves.forEach((sh, p) => {
+      // The juice comes from the first pieces leaving, fruit by fruit (the rules only count how many).
+      const j = Math.min(sh.juice, sh.leaving[f]);
+      sh.juice -= j;
+      juice(p, f, j);
+      spoil([`p${p}-${f}`], f, sh.leaving[f] - j);
     });
   }
   await Promise.all(jobs);
+  juiced.forEach((n, p) => { if (n) A.floatText(`p${p}-cash`, `+$${n * JUICE_VALUE} juice`); });
+  if (juiced.some((n) => n > 0)) fx.coin();
   await A.wait(400);
 }

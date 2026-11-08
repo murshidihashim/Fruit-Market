@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
 import { activePlayer, canPlayFavour, ranking, RuleError, type Action, type Customer, type GameState } from '../../engine/game';
-import { overnightLoss } from '../../engine/story';
+import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
 import { trackOnce } from '../../net/telemetry';
@@ -43,6 +43,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [, setTipTick] = useState(0);
   const [show, setShow] = useState<ShowState | null>(null);
   const [lastNight, setLastNight] = useState(0);
+  // What the viewer's Juice Bar made last night, for the morning card.
+  const [lastJuice, setLastJuice] = useState<NightJuice>({ pieces: 0, dollars: 0 });
   const turnStart = useRef<GameState | null>(null);
   const [meta, setMeta] = useState<RoomView | null>(online?.view ?? null);
   const [conn, setConn] = useState(online?.conn ?? 'open');
@@ -105,6 +107,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         await nightfall(prev, setNight);
         setLastNight(overnightLoss(prev, next, viewer));
+        setLastJuice(overnightJuice(prev, next, viewer));
       }
       const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal';
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
@@ -313,7 +316,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   return {
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, banner, revealDone,
-    cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, turnStart, meta, conn, layerRef,
+    cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,
   };

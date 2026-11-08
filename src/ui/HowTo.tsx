@@ -1,7 +1,7 @@
 // Illustrated rules, one swipe-able card per idea, in the order a game unfolds: what to expect, how a
 // day runs, what you sell, how customers choose, what you can do after the rush, and how it ends.
 import { useState } from 'preact/hooks';
-import { FRUIT, FRUITS, FAVOURS, UPGRADES, stageAt } from '../engine/data';
+import { FRUIT, FRUITS, FAVOURS, JUICE_CAP, JUICE_VALUE, UPGRADES, stageAt } from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './pixel';
 import { UP_ICON } from './panel';
@@ -124,7 +124,7 @@ const SLIDES = [
       <ul class="tips">
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
-        <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none.</li>
+        <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none. With a Juice Bar, up to {JUICE_CAP} of them become juice instead: ${JUICE_VALUE} each.</li>
         <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
         <li>A customer you couldn't fully serve comes back once the next day, and is served before the new arrivals.</li>      </ul>
     ),

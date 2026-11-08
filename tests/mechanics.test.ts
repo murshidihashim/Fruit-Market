@@ -1,7 +1,7 @@
 // The replayability update: poorest-first order, merchant traits, the evening upgrade draft.
 import { describe, expect, it } from 'vitest';
 import { aiStep } from '../src/engine/ai';
-import { FRUIT, TRAITS, UPGRADES, freshPos, type TraitId, type UpgradeId } from '../src/engine/data';
+import { FRUIT, JUICE_VALUE, TRAITS, UPGRADES, freshPos, type TraitId, type UpgradeId } from '../src/engine/data';
 import {
   applyAction, beginBuying, buyCost, canUpgrade, finishReveal, newGame, pickTrait,
   type GameConfig, type GameState,
@@ -101,5 +101,33 @@ describe('specialities draft', () => {
     expect(s.day).toBe(4);
     expect(s.players[p].cash).toBe(cash + 6);
     expect(s.players[p].stats.spoiled - spoiled).toBe(2);
+    expect(s.players[p].stats.juiced).toBe(3);
+  });
+
+  // REP-089 option C (DEC-067): the owner kept this as a skill trick and the card explains it. If the rule changes
+  // (juice pays $1, or only fruit you had before today), this test and the card's tip must change with it.
+  it('Juice Bar salvage: 3 tired blueberries bought for $1 and never put out make +$3 overnight, as the card says', () => {
+    let s = beginBuying(newGame(humans(2)));
+    s = structuredClone(s);
+    s.day = 4; // an ordinary night follows
+    const p = s.order[0];
+    const pl = s.players[p];
+    pl.upgrades = ['juicebar'];
+    for (const f of Object.keys(pl.stock) as (keyof typeof pl.stock)[]) pl.stock[f] = pl.stock[f].map(() => 0);
+    pl.cash = 20;
+    s.market.blueberry[0] = 3; // tired: their last day
+    expect(buyCost(s, p, 'blueberry', 0)).toBe(1);
+    expect(UPGRADES.juicebar.text).toContain(`Tip: last-day fruit bought for $1 becomes $${JUICE_VALUE} of juice.`);
+    for (let k = 0; k < 3; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
+    while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
+    while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
+    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [], favoured: false });
+    expect(s.results!.income[p]).toBe(0);
+    s = finishReveal(s);
+    while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
+    expect(s.day).toBe(5);
+    expect(s.players[p].cash).toBe(20 - 3 + 3 * JUICE_VALUE); // +$3, whatever the customers did
+    expect(s.players[p].stats.juiced).toBe(3);
+    expect(s.players[p].stats.spoiled).toBe(0);
   });
 });

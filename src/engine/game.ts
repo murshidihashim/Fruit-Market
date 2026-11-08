@@ -9,7 +9,7 @@
 
 import {
   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
-  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS,
+  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
   acceptsStage, freshPos, prefOf, stageAt, trackLength,
@@ -51,6 +51,11 @@ export interface Stats {
   sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number;
   /** Favour cards this shop has played (for achievements; never read by the rules). */
   played?: FavourId[];
+  /**
+   * Pieces this shop's Juice Bar turned into juice overnight (for the morning card, the results and achievements;
+   * never read by the rules). Optional so that older saves still load: they simply start counting from 0.
+   */
+  juiced?: number;
 }
 
 export interface Player extends PlayerConfig {
@@ -351,9 +356,9 @@ function drawFavour(s: GameState): FavourId | null {
   return s.favourDeck.shift() ?? null;
 }
 
-function ageFruit(stock: Stock, f: FruitId, steps: number): number {
+/** Ages one fruit's track (oldest slot first) by `steps` nights, in place. Returns the pieces that fell off the end. */
+function ageTrack(t: number[], steps: number): number {
   let spoiled = 0;
-  const t = stock[f];
   for (let k = 0; k < steps; k++) {
     spoiled += t[0];
     for (let i = 0; i < t.length - 1; i++) t[i] = t[i + 1];
@@ -363,7 +368,7 @@ function ageFruit(stock: Stock, f: FruitId, steps: number): number {
 }
 
 function age(stock: Stock, steps: number): number {
-  return FRUITS.reduce((a, f) => a + ageFruit(stock, f, steps), 0);
+  return FRUITS.reduce((a, f) => a + ageTrack(stock[f], steps), 0);
 }
 
 function applyTrait(s: GameState, p: number, t: TraitId) {
@@ -931,26 +936,59 @@ export function endEvening(state: GameState, p: number): GameState {
 function nightfall(s: GameState): GameState {
   const heat = s.event?.ageExtra ?? 0;
   age(s.market, 1 + heat);
-  for (const pl of s.players) ageShop(s, pl, heat);
+  for (const pl of s.players) ageShop(s, pl);
   s.firstPlayer = (s.firstPlayer + 1) % s.players.length;
   s.day++;
   startDay(s);
   return s;
 }
 
-function ageShop(s: GameState, pl: Player, heat: number) {
+// The night on one shop's shelf. ageShop (the rules) and nightOutlook / leavingTonight (the forecast the screens show)
+// share shelfSteps, ageTrack and splitNight, so the forecast cannot drift from what the night really does.
+
+/** What tonight does to a shop's shelf: pieces that spoil, and pieces its Juice Bar turns into juice instead. */
+export interface NightOutlook { spoil: number; juice: number }
+
+/** Nights a shop's fruit ages tonight: one; none on a Cold Room's odd nights; a Heatwave adds one, but not in a Cold Room. */
+function shelfSteps(s: GameState, pl: Player): number {
   const room = pl.upgrades.includes('coldroom');
-  const steps = (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : heat);
-  let spoiled = 0;
-  for (const f of FRUITS) spoiled += ageFruit(pl.stock, f, steps);
-  if (pl.upgrades.includes('juicebar') && spoiled > 0) {
-    const juiced = Math.min(3, spoiled);
-    pl.cash += 2 * juiced;
-    pl.stats.earned += 2 * juiced;
-    spoiled -= juiced;
-    s.log.push(`${pl.name} juiced ${juiced} fruit`);
+  return (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : s.event?.ageExtra ?? 0);
+}
+
+/** Of the pieces leaving a shelf tonight, a Juice Bar juices up to JUICE_CAP; the rest spoil. */
+function splitNight(pl: Player, leaving: number): NightOutlook {
+  const juice = pl.upgrades.includes('juicebar') ? Math.min(JUICE_CAP, leaving) : 0;
+  return { spoil: leaving - juice, juice };
+}
+
+function ageShop(s: GameState, pl: Player) {
+  const { spoil, juice } = splitNight(pl, age(pl.stock, shelfSteps(s, pl)));
+  if (juice > 0) {
+    pl.cash += JUICE_VALUE * juice;
+    pl.stats.earned += JUICE_VALUE * juice;
+    pl.stats.juiced = (pl.stats.juiced ?? 0) + juice;
+    s.log.push(`${pl.name} juiced ${juice} fruit`);
   }
-  pl.stats.spoiled += spoiled;
+  pl.stats.spoiled += spoil;
+}
+
+/**
+ * Ripe pieces of each fruit that leave shop `p`'s shelf tonight (spoiled or juiced), by the night's own steps. Nothing
+ * when no night follows (the final day). Read in the evening it includes a Cold Room or Juice Bar built tonight; read at
+ * the sales card of a draft night, an upgrade built afterwards can still change it.
+ */
+export function leavingTonight(s: GameState, p: number): Record<FruitId, number> {
+  const pl = s.players[p];
+  const steps = s.phase !== 'over' && s.day < s.config.days ? shelfSteps(s, pl) : 0;
+  const out = {} as Record<FruitId, number>;
+  for (const f of FRUITS) out[f] = ageTrack([...pl.stock[f]], steps);
+  return out;
+}
+
+/** Tonight's forecast for shop `p`: how many pieces will spoil and how many its Juice Bar will juice (JUICE_VALUE each). */
+export function nightOutlook(s: GameState, p: number): NightOutlook {
+  const leaving = leavingTonight(s, p);
+  return splitNight(s.players[p], FRUITS.reduce((a, f) => a + leaving[f], 0));
 }
 
 export function notSoCount(stock: Stock): number {
