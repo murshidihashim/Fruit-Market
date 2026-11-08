@@ -1728,7 +1728,7 @@
         "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
         "date": "2026-11-08"
       },
-      "delivery": "not started",
+      "delivery": "verified",
       "reports": [],
       "plan": "PLAN-053",
       "reviewTrigger": "If small icons do not read at 12-16 px on a phone."
@@ -1751,7 +1751,7 @@
         "evidence": "go with option 3 / and fix so that players see their items properly, e.g. dont straigjt away minus everything from the players inventory, it should drop after customer demand has been fulfilled one by one",
         "date": "2026-11-08"
       },
-      "delivery": "not started",
+      "delivery": "verified",
       "reports": [],
       "plan": "PLAN-054",
       "reviewTrigger": "If the table crowds the pricing screen on small phones."
@@ -2439,6 +2439,10 @@
     {
       "at": "2026-11-08 23:24",
       "text": "Owner chose opening animation option 1 'Lorry arrives' (DEC-072, added to PLAN-055) and asked for three ways to make the area behind the home screen buttons less plain."
+    },
+    {
+      "at": "2026-11-08 23:32",
+      "text": "PLAN-053 and PLAN-054 verified on the branch: Great Fruit Exchange icons, props, roofs and lorry (no lettering) replace all pixel art; worn looks drawn as regalia on the portraits; six new looks unlocked by existing achievements (Name Your Price, Sole Supplier, Tie Breaker, Comeback Kid, Giant Slayer, Full House; owner to confirm); round-the-table crates while pricing; shelves count down per customer at the rush. verify PASS (366 tests), test:e2e PASS (0 leaks). Known: on phones the pricing table pushes price cards down so the price panel scrolls inside."
     }
   ]
 }

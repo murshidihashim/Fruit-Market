@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d9f10c6d-75280w",
+  "build": "branch ccr-d9f10c6d-75280w, commits d9a1a0a, 1ce4efe",
   "reports": [],
   "decisions": [
     "DEC-069"
@@ -28,7 +28,7 @@
     "evidence": "use style D, option 3, keep all unlockables / just remove the text from the lorry / approve all",
     "date": "2026-11-08"
   },
-  "delivery": "not started",
+  "delivery": "verified",
   "id": "PLAN-053",
   "title": "Great Fruit Exchange icons and worn regalia",
   "problem": "54 items are still pixel art, and worn unlocks show only as tiny pins.",
@@ -47,20 +47,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-08: 366 unit tests, build"
     },
     {
       "id": "T2",
       "text": "Browser tests incl. performance budget and online 0 leaks pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e: performance budget DOM 539/800, open 146 ms; online 0 leaks in 76 pricing frames; quick match, four players, reconnect"
     },
     {
       "id": "T3",
       "text": "No pixel sprite left on any game screen; saved unlocks still show",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "pixel.tsx, propsArt.tsx and wearArt.ts removed; look ids kept so earned unlocks stay"
     }
   ]
 }

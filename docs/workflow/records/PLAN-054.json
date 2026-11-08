@@ -1,6 +1,6 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d9f10c6d-75280w",
+  "build": "branch ccr-d9f10c6d-75280w, commits d9a1a0a, 1ce4efe",
   "reports": [],
   "decisions": [
     "DEC-070"
@@ -24,7 +24,7 @@
     "evidence": "go with option 3 / dont straigjt away minus everything from the players inventory, it should drop after customer demand has been fulfilled one by one",
     "date": "2026-11-08"
   },
-  "delivery": "not started",
+  "delivery": "verified",
   "id": "PLAN-054",
   "title": "Open stalls at pricing and a step-by-step shelf at the rush",
   "problem": "While pricing, rivals' crates are hard to see; at the rush, sold fruit vanishes from shelves before the customers are shown being served.",
@@ -42,20 +42,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-08: 366 unit tests, build"
     },
     {
       "id": "T2",
       "text": "Browser tests incl. online 0 leaks pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e: performance budget DOM 539/800, open 146 ms; online 0 leaks in 76 pricing frames; quick match, four players, reconnect"
     },
     {
       "id": "T3",
       "text": "Shelf counts drop per customer during the rush and match the engine at the end",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Real game: dock 5/8 before the rush, 4/8 at customer 2, 0/8 at the end = engine"
     }
   ]
 }
