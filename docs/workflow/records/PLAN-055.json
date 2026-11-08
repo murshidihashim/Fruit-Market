@@ -3,12 +3,14 @@
   "build": "branch ccr-d9f10c6d-75280w",
   "reports": [],
   "decisions": [
-    "DEC-071"
+    "DEC-071",
+    "DEC-072"
   ],
   "changes": {
     "added": [],
     "changed": [
-      "New home screen: a market square of stalls with the lorry and signboard menu"
+      "New home screen: a market square of stalls with the lorry and signboard menu",
+      "New opening: the lorry arrives and the market opens"
     ],
     "fixed": [],
     "removed": [
@@ -25,12 +27,13 @@
   },
   "delivery": "not started",
   "id": "PLAN-055",
-  "title": "Market square home screen",
+  "title": "Market square home screen and Lorry arrives opening",
   "problem": "The home screen centres on one shopkeeper card instead of the market.",
   "scope": [
     "Market square home in the current art style with the Exchange lorry",
     "All existing buttons and lines kept",
-    "Phone (incl. small phones) and desktop; tests and screenshots"
+    "Phone (incl. small phones) and desktop; tests and screenshots",
+    "Opening animation 'Lorry arrives' (DEC-072), about 2.9 s, ending on the new home"
   ],
   "exclusions": [
     "Rules",

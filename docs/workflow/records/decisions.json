@@ -1778,6 +1778,29 @@
       "reports": [],
       "plan": "PLAN-055",
       "reviewTrigger": "If it does not fit an iPhone SE-sized screen."
+    },
+    {
+      "id": "DEC-072",
+      "title": "Opening animation: 'Lorry arrives'",
+      "question": "What should play when the game is first opened?",
+      "choice": "Option 1 'Lorry arrives' from the mockup (artifact 2g91HCB4m6rWfRqmBNuXBf): the Great Fruit Exchange lorry (no lettering) drives in and stops, fruit is tossed onto each stall, awnings unroll one by one, the title sign swings down, and it ends exactly on the Market square home (DEC-071). About 2.9 s, tap to skip, still frame for reduced motion.",
+      "rationale": "Owner: \"lets go with one\".",
+      "impact": {
+        "player": "An opening that leads straight into the new home screen.",
+        "technical": "Opening.tsx rebuilt on the new home art; keep the load waits and cross-fade; within DEC-048's 2-3 s.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "lets go with one",
+        "date": "2026-11-08"
+      },
+      "delivery": "not started",
+      "reports": [],
+      "plan": "PLAN-055",
+      "reviewTrigger": "If it feels slow on an old phone."
     }
   ],
   "history": [
@@ -2412,6 +2435,10 @@
     {
       "at": "2026-11-08 23:09",
       "text": "Owner chose home screen option 1 'Market square' with the updated lorry (DEC-071, PLAN-055) and asked for five mockups of the opening animation."
+    },
+    {
+      "at": "2026-11-08 23:24",
+      "text": "Owner chose opening animation option 1 'Lorry arrives' (DEC-072, added to PLAN-055) and asked for three ways to make the area behind the home screen buttons less plain."
     }
   ]
 }
