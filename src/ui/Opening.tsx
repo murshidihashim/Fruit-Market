@@ -1,7 +1,7 @@
 // The market opening (PLAN-029, DEC-047): a short scene played when the game is opened, drawn with the deck-art
-// pieces (DEC-066): the Exchange Gazette masthead drops in, three Stall Signs go up, fruit lands on the counter
-// and the bell rings. Decoration only: tap anywhere to skip, and it ends on its own after about 2.5 seconds.
-import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+// pieces (DEC-066): the Fruit Market masthead drops in, three Stall Signs go up, fruit lands on the counter
+// and the bell rings. Decoration only: tap anywhere to skip; it ends on its own after about 2.6 seconds and fades to home.
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { FRUITS, RIVALS } from '../engine/data';
 import { Fruit } from './art';
 import { StallSign } from './cards';
@@ -18,6 +18,10 @@ const HOME_WAIT_MS = 1500; // longest extra wait for the home screen's pictures 
 const SIGNS = RIVALS.slice(0, 3).map((r) => r.avatar);
 
 const fit = () => Math.min(window.innerWidth / 390, window.innerHeight / 560);
+// The first fit is read when the code loads, while the page is still empty: reading the window size during the render
+// would make the browser lay out the half-built page there and then (one long task instead of two short ones).
+const FIRST_FIT = typeof window === 'undefined' ? 1 : fit();
+const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Waits until the fonts have loaded and these pictures are decoded, or `ms` has passed, whichever is first.
  *  A picture that fails to load is shown as it is (its failure is not an error here, so it is ignored). */
@@ -37,46 +41,43 @@ function picturesUnder(opening: HTMLElement): HTMLImageElement[] {
 }
 
 export function Opening({ onDone }: { onDone: () => void }) {
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(FIRST_FIT);
   // Waiting: sky only, the scene paused until its pictures and fonts are in. Out: the cross-fade to the home screen.
   const [playing, setPlaying] = useState(false);
   const [out, setOut] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const leaving = useRef(false);
-  const reduced = useRef(false);
+  const ended = useRef(false);
   const done = useRef(onDone);
   done.current = onDone;
+  const finish = () => { if (!ended.current) { ended.current = true; done.current(); } };
   const timers = useRef<number[]>([]);
   const later = (f: () => void, ms: number) => { timers.current.push(window.setTimeout(f, ms)); };
   // Hand over to the home screen: a short cross-fade, or straight away with reduced motion.
   const leave = () => {
     if (leaving.current) return;
     leaving.current = true;
-    if (reduced.current) { done.current(); return; }
+    if (reducedMotion()) { finish(); return; }
     setOut(true);
-    later(() => done.current(), FADE_MS);
+    // Normally the fade's own end (onAnimationEnd below) finishes it; this is the fallback if no animation runs.
+    later(finish, FADE_MS + 200);
   };
-  // Fit the scene to the screen before the first frame is drawn (so it never jumps in size), not during the render:
-  // reading the window size there would make the browser lay out the half-built page.
-  useLayoutEffect(() => {
-    reduced.current = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  useEffect(() => {
     const resize = () => setScale(fit());
     resize();
     window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, []);
-  useEffect(() => {
     let live = true;
     const el = root.current!;
     void settled([...el.querySelectorAll('img')], START_WAIT_MS).then(() => {
       if (!live || leaving.current) return;
       setPlaying(true);
-      later(() => { void settled(picturesUnder(el), HOME_WAIT_MS).then(() => { if (live) leave(); }); }, reduced.current ? REDUCED_MS : LENGTH_MS);
+      later(() => { void settled(picturesUnder(el), HOME_WAIT_MS).then(() => { if (live) leave(); }); }, reducedMotion() ? REDUCED_MS : LENGTH_MS);
     });
-    return () => { live = false; timers.current.forEach((t) => clearTimeout(t)); };
+    return () => { live = false; window.removeEventListener('resize', resize); timers.current.forEach((t) => clearTimeout(t)); };
   }, []);
   return (
-    <div ref={root} class={`op opx${playing ? '' : ' op-wait'}${out ? ' op-leave' : ''}`} onClick={leave} role="presentation">
+    <div ref={root} class={`op opx${playing ? '' : ' op-wait'}${out ? ' op-leave' : ''}`} onClick={leave} role="presentation"
+      onAnimationEnd={(e) => { if (e.animationName === 'opx-out') finish(); }}>
       <div class="op-stage" style={{ transform: `scale(${scale})` }} aria-hidden="true">
         <div class="opx-sky" />
         <div class="opx-counter" />

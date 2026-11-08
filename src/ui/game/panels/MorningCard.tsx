@@ -50,7 +50,7 @@ export function MorningCard({ s, viewer, lost }: { s: GameState; viewer: number;
       {s.nextEvent && (
         <div class="mc-next">
           <EventIcon id={s.nextEvent.id} size={44} />
-          <span><span class="mc-next-k">Tomorrow’s Gazette</span><b>{s.nextEvent.title}</b><small>{s.nextEvent.text.split('today').join('that day')}</small></span>
+          <span><span class="mc-next-k">Tomorrow’s news</span><b>{s.nextEvent.title}</b><small>{s.nextEvent.text.split('today').join('that day')}</small></span>
         </div>
       )}
       <NextLorry s={s} cls="mc-lorry" />

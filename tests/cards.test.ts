@@ -191,11 +191,11 @@ describe('events: the Fruit Market front page', () => {
 describe('the game is called Fruit Market', () => {
   it('no card, back or wordmark says "Exchange" or "Gazette" (the owner retired both names)', () => {
     const all = [
-      html(Logo, {}),
+      html(Logo, { size: 120 }),
       ...CUSTOMER_CARDS.map((c) => html(TradingCard, { who: c.name, wants: c.wants })),
       ...CUSTOMER_CARDS.map((c) => html(TradingCard, { who: c.name, wants: c.wants, compact: true })),
       ...GUESTS.map((g) => html(TradingCard, { who: g.name, wants: g.wants, guest: true })),
-      html(TradingCardBack, { fruits: ['apple', 'mango'] }),
+      html(TradingCardBack, { fruits: CUSTOMER_CARDS[0].wants.map((w) => w.fruit) }),
       ...RIVALS.map((r) => html(StallSign, { avatar: r.avatar })),
       ...EVENT_CARDS.map((e) => html(Gazette, { event: e })),
       ...EVENT_CARDS.map((e) => html(Gazette, { event: e, compact: true })),
@@ -204,6 +204,6 @@ describe('the game is called Fruit Market', () => {
       const seen = [...s.matchAll(/>([^<]+)</g), ...s.matchAll(/(?:alt|aria-label)="([^"]*)"/g)].map((m) => m[1]).join(' | ');
       expect(seen).not.toMatch(/exchange|gazette/i);
     }
-    expect(html(Logo, {})).toContain('>Fruit Market</b>');
+    expect(html(Logo, { size: 120 })).toContain('>Fruit Market</b>');
   });
 });
