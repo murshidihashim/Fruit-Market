@@ -38,7 +38,6 @@ export function Shopfront(p: ShopProps) {
       <div class="front-top cover-top">
         <div class="cover">
           <div class="cover-title">
-            <span class="x-kicker">The Great Fruit Exchange</span>
             <h1 class="x-title">Fruit Market</h1>
             <p>Where the whole world shops</p>
             <p class="hm-secret">…and every price is a secret</p>

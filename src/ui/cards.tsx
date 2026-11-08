@@ -1,9 +1,10 @@
-// The card system (DEC-066, The Great Fruit Exchange): one set of cards for the app and the print kit.
+// The card system (DEC-066): one set of cards for the app and the print kit.
 //   TradingCard      a customer (Art 3 "At work"), or a special guest
 //   TradingCardBack  a face-down customer: only the fruit it wants, nothing else
 //   StallSign        a shopkeeper (Art 2 "Over the counter")
 //   Gazette          an event (Art 1 "The scene")
 // Every size is in em: set --card-w on the card or a parent and the whole card scales (63 x 88 proportions).
+// Every card of a kind has the same fixed zones (picture, name banner, text boxes), whatever its text: cards.css.
 // Names come from the game data (lookOf, RIVALS), never from the art. Styles: cards.css.
 import type { ComponentChildren, FunctionComponent } from 'preact';
 import { isValidElement } from 'preact';
@@ -46,6 +47,11 @@ export function customerNumber(key: string): number | undefined {
 
 const fruitWord = (w: Want) => (w.qty === 1 ? FRUIT[w.fruit].name : FRUIT[w.fruit].plural);
 
+/** A quirk longer than this is set a little smaller, so every quirk fits the same two-line box. */
+export const QUIRK_LONG = 46;
+/** The longest quirk the two-line box was checked for (at the smaller size). */
+export const QUIRK_MAX = 60;
+
 /**
  * A customer's Trading Card. `who` is the hidden code key; the name shown is lookOf(who).title.
  * `wants` are the prices to print (pass the day's prices if the screen shows those).
@@ -66,7 +72,7 @@ export function TradingCard({ who, wants, n, compact, guest, eager, class: cls }
         {!compact && <span class={`x-tc-flag x-flag-${guest ? 'guest' : pref}`}>{guest ? 'Special guest' : `${PREF_INFO[pref].title} shopper`}</span>}
         <strong class={cx('x-tc-name', look.title.length > 14 && 'x-long')}>{look.title}</strong>
       </div>
-      {!compact && <p class="x-tc-quirk">{look.quirk}</p>}
+      {!compact && <p class={cx('x-tc-quirk', look.quirk.length > QUIRK_LONG && 'x-long')}>{look.quirk}</p>}
       <ul class={`x-tc-order x-n${wants.length}`}>
         {wants.map((x, i) => (
           <li key={`${x.fruit}${i}`}>
@@ -136,15 +142,15 @@ export function StallSign({ avatar, compact, selected, takenBy, eager, class: cl
   );
 }
 
-/** An event's Gazette front page. `n` is the edition number (default: its place in the event deck, 1 to 13).
+/** An event's front page, in the Fruit Market newspaper. `n` is the edition number (default: its place in the event deck, 1 to 13).
  *  The story is the event text from data.ts; `compact`: masthead, headline, picture and the effects box only. */
 export function Gazette({ event, n, compact, eager, class: cls }: { event: EventCard; n?: number; compact?: boolean; eager?: boolean; class?: string }) {
   const g = GAZETTE[event.id];
   const num = n ?? EVENT_CARDS.findIndex((e) => e.id === event.id) + 1;
   const [w, h] = ART_SIZE.event;
   return (
-    <article class={cx('x-card', 'x-gz', compact && 'x-compact', cls)}>
-      <header class="x-gz-mast">The Exchange Gazette</header>
+    <article class={cx('x-card', 'x-gz', `x-ev-${event.id}`, compact && 'x-compact', cls)}>
+      <header class="x-gz-mast">Fruit Market</header>
       {!compact && <div class="x-gz-ed"><span>Morning edition · One cent</span><span>{`No. ${two(num)}`}</span></div>}
       <strong class="x-gz-head">{event.title}</strong>
       {!compact && <p class="x-gz-sub">{g.subhead}</p>}
@@ -154,7 +160,7 @@ export function Gazette({ event, n, compact, eager, class: cls }: { event: Event
         {!compact && <figcaption>{g.caption}</figcaption>}
       </figure>
       <div class="x-gz-body">
-        <ul class="x-gz-fx">{g.effects.map((e) => <li key={e}>{e}</li>)}</ul>
+        <ul class={`x-gz-fx x-n${g.effects.length}`}>{g.effects.map((e) => <li key={e}>{e}</li>)}</ul>
         {!compact && <p class="x-gz-text">{event.text}</p>}
       </div>
     </article>

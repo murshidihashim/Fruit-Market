@@ -79,11 +79,10 @@ export function Face({ who, size = 28, worn }: { who: string; size?: number; wor
   );
 }
 
-/** The wordmark: the deck's kicker over the game's name. */
+/** The wordmark: the game's name, nothing else. */
 export function Logo({ size = 120 }: { size?: number }) {
   return (
     <div class="x-logo" style={{ fontSize: `${Math.round(size / 5)}px` }}>
-      <span class="x-kicker">The Great Fruit Exchange</span>
       <b class="x-title">Fruit Market</b>
     </div>
   );

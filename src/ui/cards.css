@@ -22,8 +22,12 @@
 .x-card .x-fruit { display: block; flex: none; }
 
 /* ---------- Trading Card (customer, Art 3 "At work") ---------- */
+/* Fixed zones, the same on every card whatever the name, quirk or order: the quirk box (two lines), the order box
+   and the "Buys" line have fixed heights, so the picture (which takes the rest) and the name banner sit in the same
+   place on all 39 cards. A long name or quirk only gets a smaller font. --fs is an element's font size in ce; its
+   box sizes are divided by it, so the box stays the same size when the font changes. */
 .x-tc { background: var(--x-card); border: 0.3em solid var(--x-ink); padding: 1.05em 1.05em 0.75em; gap: 0.55em; }
-.x-tc-pic { position: relative; flex: 1 1 0; min-height: 11em; border: 0.25em solid var(--x-ink); overflow: hidden; background: var(--x-paper); }
+.x-tc-pic { position: relative; flex: 1 1 0; min-height: 0; border: 0.25em solid var(--x-ink); overflow: hidden; background: var(--x-paper); }
 .x-tc-pic .x-art { position: absolute; inset: 0; object-position: 50% 28%; }
 /* number badge: 4.1ce circle, font 1.6ce */
 .x-tc-num {
@@ -41,41 +45,46 @@
 .x-flag-premium { background: var(--x-red); }
 .x-flag-bargain { background: var(--x-ink); }
 .x-flag-guest { background: var(--x-mustard); color: var(--x-ink); }
-/* name banner: font 1.75ce, navy with mustard edges, on a slant */
+/* name banner: navy with mustard edges, on a slant; 3.25ce tall and 2.45ce up from the picture's foot on every card */
 .x-tc-name {
-  position: absolute; left: -0.65em; right: -0.65em; bottom: 1.4em; z-index: 1; display: block;
-  padding: 0.2em 0.7em 0.14em 1.15em; background: var(--x-ink); color: var(--x-card);
-  border-top: 0.19em solid var(--x-mustard); border-bottom: 0.15em solid var(--x-mustard);
-  font: 1.75em/1.2 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
+  --fs: 1.75;
+  position: absolute; left: calc(-1.14em / var(--fs)); right: calc(-1.14em / var(--fs)); bottom: calc(2.45em / var(--fs)); z-index: 1;
+  display: flex; align-items: center; height: calc(3.25em / var(--fs)); padding: calc(0.08em / var(--fs)) calc(1.2em / var(--fs)) 0 calc(2em / var(--fs));
+  background: var(--x-ink); color: var(--x-card);
+  border-top: calc(0.33em / var(--fs)) solid var(--x-mustard); border-bottom: calc(0.26em / var(--fs)) solid var(--x-mustard);
+  font: calc(var(--fs) * 1em)/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
   transform: rotate(-6deg); transform-origin: 50% 50%;
 }
-.x-tc-name.x-long { font-size: 1.42em; padding-top: 0.32em; padding-bottom: 0.26em; }
-.x-tc-quirk { flex: none; padding: 0 0.3em; font: italic 1.36em/1.26 var(--f-serif); text-align: center; color: var(--x-ink); }
-.x-tc-order { flex: none; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 0.22em solid var(--x-ink); }
-.x-tc-order li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.18em; padding: 0.45em 0.15em 0.4em; text-align: center; }
+.x-tc-name.x-long { --fs: 1.42; }
+/* quirk: a box two lines tall, the text centred in it */
+.x-tc-quirk {
+  --fs: 1.36;
+  flex: none; display: flex; align-items: center; justify-content: center; height: calc(3.45em / var(--fs)); padding: 0 calc(0.3em / var(--fs));
+  font: italic calc(var(--fs) * 1em)/1.26 var(--f-serif); text-align: center; color: var(--x-ink);
+}
+.x-tc-quirk.x-long { --fs: 1.24; }
+/* order box: one height, columns of equal width, the same type size for 1, 2 or 3 fruits (the print kit makes it
+   taller for its order circles with --x-order-h) */
+.x-tc-order { flex: none; height: var(--x-order-h, 7.1em); display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border: 0.22em solid var(--x-ink); }
+.x-tc-order li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.18em; min-width: 0; padding: 0.4em 0.05em; text-align: center; }
 .x-tc-order li + li { border-left: 0.16em solid var(--x-ink); }
-.x-tc-order .x-fruit { width: 2.5em; height: 2.5em; }
-.x-tc-order span { font: 500 1em/1.15 var(--f-label); letter-spacing: 0.07em; text-transform: uppercase; color: var(--x-ink); }
-.x-tc-order b { font: 2.15em/1 var(--f-display); color: var(--x-red); }
-.x-tc-order.x-n3 li { padding-left: 0.05em; padding-right: 0.05em; }
-.x-tc-order.x-n3 .x-fruit { width: 2.2em; height: 2.2em; }
-.x-tc-order.x-n3 span { font-size: 0.88em; letter-spacing: 0.04em; }
-.x-tc-order.x-n3 b { font-size: 1.85em; }
-.x-tc-buys { flex: none; font: 600 1em/1.2 var(--f-label); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; color: var(--x-green); }
+.x-tc-order .x-fruit { width: 2.4em; height: 2.4em; }
+.x-tc-order span { font: 500 0.88em/1.15 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; color: var(--x-ink); }
+.x-tc-order b { font: 2em/1 var(--f-display); color: var(--x-red); }
+.x-tc-buys { flex: none; height: 1.2em; font: 600 1em/1.2 var(--f-label); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--x-green); }
 
-/* compact (the table): bigger words, the fruit picture names the fruit */
+/* compact (the table): picture, name and order only, bigger words; the fruit picture names the fruit. Every compact
+   card, face up or face down, is the same size: 25.2 x 26.9 ce. */
+.x-tc.x-compact, .x-tb.x-compact { height: 26.9em; }
 .x-tc.x-compact { padding: 0.8em; gap: 0.5em; }
-.x-tc.x-compact .x-tc-pic { flex: none; aspect-ratio: 23 / 17; min-height: 0; }
 .x-tc.x-compact .x-tc-pic .x-art { object-position: 50% 22%; }
-.x-tc.x-compact .x-tc-name { font-size: 1.9em; bottom: -0.1em; transform: rotate(-4deg); }
-.x-tc.x-compact .x-tc-name.x-long { font-size: 1.55em; }
-.x-tc.x-compact .x-tc-order li { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 0.25em; row-gap: 0.1em; padding: 0.5em 0.1em; }
+.x-tc.x-compact .x-tc-name { --fs: 1.9; bottom: calc(-0.19em / var(--fs)); height: calc(3.4em / var(--fs)); transform: rotate(-4deg); }
+.x-tc.x-compact .x-tc-name.x-long { --fs: 1.55; }
+.x-tc.x-compact .x-tc-order { height: 7.15em; }
+.x-tc.x-compact .x-tc-order li { display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; align-items: center; column-gap: 0.25em; row-gap: 0.1em; padding: 0.3em 0.1em; }
 .x-tc.x-compact .x-tc-order .x-fruit { grid-column: 2; grid-row: 1; width: 3em; height: 3em; }
 .x-tc.x-compact .x-tc-order span { grid-column: 1; grid-row: 1; font-size: 2em; font-weight: 600; letter-spacing: 0; }
 .x-tc.x-compact .x-tc-order b { grid-column: 1 / 3; font-size: 2.6em; }
-.x-tc.x-compact .x-tc-order.x-n3 .x-fruit { width: 2.4em; height: 2.4em; }
-.x-tc.x-compact .x-tc-order.x-n3 span { font-size: 1.7em; }
-.x-tc.x-compact .x-tc-order.x-n3 b { font-size: 2.2em; }
 
 /* ---------- Customer back (face down): only the fruit wanted ---------- */
 .x-tb { background: var(--x-ink); border: 0.3em solid var(--x-ink); padding: 1em; }
@@ -97,7 +106,7 @@
   background: var(--x-card); border: 0.25em solid var(--x-mustard); border-radius: 999px; box-shadow: 0 0 0 0.35em var(--x-ink-2);
 }
 .x-tb-fruit .x-fruit { width: 3.8em; height: 3.8em; }
-.x-tb.x-compact { aspect-ratio: 25.2 / 24; padding: 0.7em; }
+.x-tb.x-compact { padding: 0.7em; }
 .x-tb.x-compact .x-tb-label { gap: 0.8em; padding: 0.6em 0.4em; }
 .x-tb.x-compact .x-tb-brand { font-size: 1.8em; }
 /* the "· customer ·" line is too small to read on a compact back; the ribbon and the fruit say enough */

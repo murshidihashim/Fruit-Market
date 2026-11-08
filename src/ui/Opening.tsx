@@ -26,7 +26,7 @@ export function Opening({ onDone }: { onDone: () => void }) {
         <div class="opx-sky" />
         <div class="opx-counter" />
         <div class="opx-mast">
-          <b>The Exchange Gazette</b>
+          <b>Fruit Market</b>
           <span>Extra! · The market opens today</span>
         </div>
         {SIGNS.map((a, i) => <div class={`opx-sign opx-s${i}`}><StallSign avatar={a} compact eager /></div>)}
