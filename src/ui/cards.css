@@ -186,6 +186,7 @@
 .x-gz-fx li::before { content: '\25B8'; display: inline-block; width: 0.95em; text-indent: 0; font-size: 0.8em; }
 /* the story is set at 1ce (about 7 pt in print) so the longest one fits the story box */
 .x-gz-text { font: 1em/1.27 var(--f-serif); color: var(--x-ink); }
+.x-gz-flavour { font-weight: 700; }
 .x-gz-text::first-letter { float: left; margin: 0.04em 0.08em 0 0; font: 2.75em/0.82 var(--f-headline); color: var(--x-red); }
 .x-ev-festival { --x-focus: 60%; }
 .x-ev-glut { --x-focus: 28%; }

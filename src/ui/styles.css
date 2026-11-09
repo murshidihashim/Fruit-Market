@@ -1978,6 +1978,7 @@ b, strong { font-weight: 700; }
 .mc-full .mc-band b { margin: 0; font: 400 1.35rem/1.1 var(--f-headline); color: var(--x-ink); }
 .mc-full .mc-band small { margin: 0; max-width: 40ch; font: 0.86rem/1.3 var(--f-serif); color: var(--x-ink); }
 .mc-full .mc-band .minprices { margin-top: 4px; }
+.mc-full .mc-band .mc-flavour { font: italic 600 0.9rem/1.25 var(--f-serif); color: var(--x-red); }
 @keyframes event-flip { from { transform: perspective(700px) rotateY(80deg) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .mc-full .mc-event { animation: none; } }
 

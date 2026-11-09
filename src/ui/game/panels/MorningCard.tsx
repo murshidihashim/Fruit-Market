@@ -29,7 +29,7 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
           <div class="mc-band">
             <span class="mc-next-k">Today’s news</span>
             <b>{s.event.title}</b>
-            <small>{s.event.text}</small>
+            {s.event.flavour && <i class="mc-flavour">{s.event.flavour}</i>}<small>{s.event.text}</small>
             {s.event.maxPrice && (
               <span class="minprices" aria-label={`Most a stall may charge today: ${FRUITS.map((f) => `${FRUIT[f].plural} $${s.event!.maxPrice![f]}`).join(', ')}`}>
                 {FRUITS.map((f) => <span aria-hidden="true"><Fruit id={f} size={16} />≤${s.event!.maxPrice![f]}</span>)}

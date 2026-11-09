@@ -1942,7 +1942,8 @@
       "delivery": "implemented",
       "plan": "PLAN-061",
       "reports": [
-        "REP-092"
+        "REP-092",
+        "REP-093"
       ],
       "reviewTrigger": "If playtesters find surprise Inspector or Heatwave days unfair, or the Juice Bar becomes the only upgrade worth buying"
     }
@@ -2643,6 +2644,10 @@
     {
       "at": "2026-11-10 01:05",
       "text": "Owner asked for events that cannot be forecast, a full-picture event card, art for the seven new events and no Cold Room (DEC-078, PLAN-061, rules version 13). Built on the branch; new artwork and a 20-card preview proposed for approval (REP-092). Not published."
+    },
+    {
+      "at": "2026-11-10 07:06",
+      "text": "Owner rejected the first art drafts (\"doesnt feel the same as the current cards\") and gave new wording for all 20 event cards. Wording applied with taglines; the Cold Room mentions in the Heatwave and Health Inspector lines were left out because the Cold Room is removed (DEC-078). Seven artworks redrawn in the house style for approval (REP-093)."
     }
   ]
 }

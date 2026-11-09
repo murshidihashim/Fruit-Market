@@ -140,26 +140,26 @@ Market Days and Closing Day are on by default and can be switched off in the set
 
 | Card | Effect |
 |---|---|
-| 🎉 Festival | Customers pay $1 more per fruit; 1 extra walk-in (2 at 4 to 6 stalls). |
-| 💪 Superfood Trend | Blueberry customers pay $1 more; the Gym Club wants 2 blueberries at $8 (Fresh or Okay). |
-| 📱 Mango Craze | Mango customers pay $2 more; the Influencer wants 1 Fresh mango at $12. |
-| 🏨 Hotel Order | The Hotel Chef wants 1 apple at $8, 1 watermelon at $8 and 1 blueberry at $7 (Fresh or Okay). |
-| 🔥 Heatwave | Watermelon customers pay $2 more; all fruit ages an extra step tonight. |
-| 🍎 Apple Blight | No apples arrive today; apple customers pay $2 more. |
-| 🫐 Blueberry Glut | 1 extra blueberry for every 2 stalls (rounded up) in the delivery; blueberry customers pay $1 less. |
-| 🌾 Good Harvest | 1 extra of every fruit for every 4 stalls (rounded up); every customer pays $1 less. |
-| 🐛 Bad Harvest | Half the delivery (rounded up); customers pay $1 more per fruit. |
-| 📈 Price Hike | Every Wholesale Market fruit costs $1 more today. |
-| ⚖️ Price Controls | No stall may charge more than: blueberry $5, watermelon $7, apple $6, mango $8. |
-| 🕵️ Health Inspector | At the start of the day, before anyone buys or discards, every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). Never the last day's event. |
-| 🚚 Lorry Breakdown | No delivery today; fruit already at the market stays. |
-| 🚌 Tourist Bus | Extra walk-ins: 2 at 2 or 3 stalls, 3 at 4, 4 at 5 or 6. Prices unchanged. |
-| 🌧️ Monsoon Downpour | 1 fewer walk-in (2 fewer at 4 to 6 stalls, never below none); nothing ages tonight, on shelves or at the market. |
-| 🌰 Durian Season | Wholesale fruit costs $1 less (never below $1); every customer pays $1 less. |
-| 💍 Kenduri | The Wedding Caterer wants 3 watermelons at $8 (Fresh or Okay), after the walk-ins. |
-| 🥭 Mango Windfall | 1 extra ripe mango for every 2 stalls (rounded up); mango customers pay $2 less. |
-| 🏮 Pasar Malam | After the rush, a night-market hawker buys 1 of each fruit left in each stall's crate at $3, any freshness. |
-| 🥧 Bake-Off | Apple customers pay $1 more; the Bakery wants 2 apples at $7 (Fresh or Okay). |
+| 🎉 Festival | *Big crowds, bigger spending!* Customers pay $1 more per fruit. Add 1 walk-in (2 at 4–6 stalls). |
+| 💪 Superfood Trend | *Blueberries are the new superfood!* Blueberry customers pay $1 more each. Gym Club wants 2 Fresh/Okay blueberries at $8 each. |
+| 📱 Mango Craze | *Mangoes go viral!* Mango customers pay $2 more each. An influencer wants 1 Fresh mango at $12. |
+| 🏨 Hotel Order | *Room service is calling!* Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7). Fresh/Okay only. |
+| 🔥 Heatwave | *Melting weather, sizzling sales!* Watermelon customers pay $2 more each. All fruit ages an extra step tonight. |
+| 🍎 Apple Blight | *Bad news from the orchard!* No apples arrive. Apple customers pay $2 more each. |
+| 🫐 Blueberry Glut | *Blueberries everywhere!* Deliver 1 extra per 2 stalls, rounded up. Blueberry customers pay $1 less each. |
+| 🌾 Good Harvest | *A bumper crop rolls in!* Deliver 1 extra of each fruit per 4 stalls, rounded up. Customers pay $1 less per fruit. |
+| 🐛 Bad Harvest | *Slim pickings on the farm!* Halve today’s delivery, rounded up. Customers pay $1 more per fruit. |
+| 📈 Price Hike | *Same fruit, bigger bill!* All Wholesale Market fruit costs $1 more today. |
+| ⚖️ Price Controls | *Keep those prices in check!* Stall prices cannot exceed the limits shown today. (Blueberry $5, watermelon $7, apple $6, mango $8.) |
+| 🕵️ Health Inspector | *Surprise inspection!* Before buying, pay $2 per Tired fruit on your shelf, up to your cash. Never the final day. |
+| 🚚 Lorry Breakdown | *The fruit is stuck in traffic!* No delivery today. Existing market stock stays. |
+| 🚌 Tourist Bus | *Here come the hungry tourists!* Add 2 walk-ins at 2–3 stalls, 3 at 4 stalls, or 4 at 5–6 stalls. Prices unchanged. |
+| 🌧️ Monsoon Downpour | *Rain checks for everyone!* Remove 1 walk-in (2 at 4–6 stalls). No fruit ages tonight, including market stock. |
+| 🌰 Durian Season | *Durian steals the spotlight!* Wholesale fruit costs $1 less, minimum $1. Customers pay $1 less per fruit. |
+| 💍 Kenduri | *There’s a wedding to feed!* After walk-ins, a caterer wants 3 Fresh/Okay watermelons at $8 each. |
+| 🥭 Mango Windfall | *It’s raining mangoes!* Deliver 1 extra ripe mango per 2 stalls, rounded up. Mango customers pay $2 less each. |
+| 🏮 Pasar Malam | *One last sale before closing!* After the rush, a hawker buys 1 of each fruit left in every stall’s crate at $3 each. Any freshness! |
+| 🥧 Bake-Off | *Ready, set, bake!* Apple customers pay $1 more each. The bakery wants 2 Fresh/Okay apples at $7 each. |
 
 Guest prices are fixed (Closing Day's +$1 still applies).
 

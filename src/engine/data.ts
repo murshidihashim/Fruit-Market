@@ -262,42 +262,44 @@ export interface EventCard {
   inspector?: number;
   /** No stall may post a price above this for each fruit today. */
   maxPrice?: Record<FruitId, number>;
+  /** A short tagline shown before the rule text (owner's wording). */
+  flavour?: string;
   /** Pasar Malam: after the rush a hawker buys 1 of each fruit left in each stall's crate at this price, any freshness. */
   hawker?: number;
 }
 
 export const EVENT_CARDS: EventCard[] = [
-  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, text: 'Customers pay $1 more per fruit, and 1 extra walk-in comes (2 at 4 to 6 stalls).' },
+  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, flavour: 'Big crowds, bigger spending!', text: 'Customers pay $1 more per fruit. Add 1 walk-in (2 at 4–6 stalls).' },
   { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 1 },
     extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 2, max: 8, fixed: true }] },
-    text: 'Blueberry customers pay $1 more, and the gym club wants 2 Fresh or Okay blueberries at $8 each.' },
+    flavour: 'Blueberries are the new superfood!', text: 'Blueberry customers pay $1 more each. Gym Club wants 2 Fresh/Okay blueberries at $8 each.' },
   { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 2 },
     extra: { name: 'Influencer', wants: [{ fruit: 'mango', qty: 1, max: 12, fixed: true }] },
-    text: 'A viral video! Mango customers pay $2 more, and an influencer wants 1 Fresh mango at $12.' },
+    flavour: 'Mangoes go viral!', text: 'Mango customers pay $2 more each. An influencer wants 1 Fresh mango at $12.' },
   { id: 'hotel', title: 'Hotel Order', icon: '🏨',
     extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 1, max: 8, fixed: true }, { fruit: 'watermelon', qty: 1, max: 8, fixed: true }, { fruit: 'blueberry', qty: 1, max: 7, fixed: true }] },
-    text: 'The hotel chef wants 1 apple at $8, 1 watermelon at $8 and 1 blueberry at $7, all Fresh or Okay.' },
-  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Watermelon customers pay $2 more, but all fruit ages an extra step tonight.' },
-  { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, text: 'No new apples arrive today, and apple customers pay $2 more.' },
-  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (rounded up), and blueberry customers pay $1 less.' },
-  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, text: 'The lorry brings 1 extra of every fruit for every 4 stalls (rounded up), and every customer pays $1 less.' },
-  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, text: 'The lorry brings half as much (rounded up). Customers pay $1 more per fruit.' },
-  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the Wholesale Market costs $1 more today.' },
-  { id: 'priceControls', title: 'Price Controls', icon: '⚖️', text: 'No stall may charge more than these prices today.',
+    flavour: 'Room service is calling!', text: 'Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7). Fresh/Okay only.' },
+  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, flavour: 'Melting weather, sizzling sales!', text: 'Watermelon customers pay $2 more each. All fruit ages an extra step tonight.' },
+  { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, flavour: 'Bad news from the orchard!', text: 'No apples arrive. Apple customers pay $2 more each.' },
+  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, flavour: 'Blueberries everywhere!', text: 'Deliver 1 extra per 2 stalls, rounded up. Blueberry customers pay $1 less each.' },
+  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, flavour: 'A bumper crop rolls in!', text: 'Deliver 1 extra of each fruit per 4 stalls, rounded up. Customers pay $1 less per fruit.' },
+  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, flavour: 'Slim pickings on the farm!', text: 'Halve today’s delivery, rounded up. Customers pay $1 more per fruit.' },
+  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, flavour: 'Same fruit, bigger bill!', text: 'All Wholesale Market fruit costs $1 more today.' },
+  { id: 'priceControls', title: 'Price Controls', icon: '⚖️', flavour: 'Keep those prices in check!', text: 'Stall prices cannot exceed the limits shown today.',
     maxPrice: { blueberry: 5, watermelon: 7, apple: 6, mango: 8 } },
-  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'At the start of the day, before anyone buys, every stall pays a $2 fine for each tired piece on its shelf (up to its cash). (Never the last day\'s event.)' },
-  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
-  { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, text: 'Extra walk-ins: 2 at 2 or 3 stalls, 3 at 4 stalls, 4 at 5 or 6 stalls. Prices unchanged.' },
-  { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, text: '1 fewer walk-in (2 fewer at 4 to 6 stalls, never below none). Nothing ages tonight, on shelves or at the market.' },
-  { id: 'durian', title: 'Durian Season', icon: '🌰', cost: -1, priceAll: -1, text: 'Wholesale fruit costs $1 less (never below $1), and every customer pays $1 less.' },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, flavour: 'Surprise inspection!', text: 'Before buying, pay $2 per Tired fruit on your shelf, up to your cash. Never the final day.' },
+  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, flavour: 'The fruit is stuck in traffic!', text: 'No delivery today. Existing market stock stays.' },
+  { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, flavour: 'Here come the hungry tourists!', text: 'Add 2 walk-ins at 2–3 stalls, 3 at 4 stalls, or 4 at 5–6 stalls. Prices unchanged.' },
+  { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, flavour: 'Rain checks for everyone!', text: 'Remove 1 walk-in (2 at 4–6 stalls). No fruit ages tonight, including market stock.' },
+  { id: 'durian', title: 'Durian Season', icon: '🌰', cost: -1, priceAll: -1, flavour: 'Durian steals the spotlight!', text: 'Wholesale fruit costs $1 less, minimum $1. Customers pay $1 less per fruit.' },
   { id: 'kenduri', title: 'Kenduri', icon: '💍',
     extra: { name: 'Wedding Caterer', wants: [{ fruit: 'watermelon', qty: 3, max: 8, fixed: true }] },
-    text: 'A wedding caterer wants 3 Fresh or Okay watermelons at $8 each, after the walk-ins.' },
-  { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, text: 'The lorry brings 1 extra ripe mango for every 2 stalls (rounded up), and mango customers pay $2 less.' },
-  { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, text: 'After the rush, a night-market hawker buys 1 of each fruit left in each stall\'s crate for $3, any freshness.' },
+    flavour: 'There’s a wedding to feed!', text: 'After walk-ins, a caterer wants 3 Fresh/Okay watermelons at $8 each.' },
+  { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, flavour: 'It’s raining mangoes!', text: 'Deliver 1 extra ripe mango per 2 stalls, rounded up. Mango customers pay $2 less each.' },
+  { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, flavour: 'One last sale before closing!', text: 'After the rush, a hawker buys 1 of each fruit left in every stall’s crate at $3 each. Any freshness!' },
   { id: 'bakeOff', title: 'Bake-Off', icon: '🥧', price: { apple: 1 },
     extra: { name: 'Bakery', wants: [{ fruit: 'apple', qty: 2, max: 7, fixed: true }] },
-    text: 'Apple customers pay $1 more, and the bakery wants 2 Fresh or Okay apples at $7 each.' },
+    flavour: 'Ready, set, bake!', text: 'Apple customers pay $1 more each. The bakery wants 2 Fresh/Okay apples at $7 each.' },
 ];
 
 export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';

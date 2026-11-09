@@ -163,7 +163,7 @@ export function Gazette({ event, n, compact, eager, class: cls }: { event: Event
       </figure>
       <div class="x-gz-body">
         <ul class={`x-gz-fx x-n${g.effects.length}`}>{g.effects.map((e) => <li key={e}>{e}</li>)}</ul>
-        {!compact && <p class="x-gz-text">{event.text}</p>}
+        {!compact && <p class="x-gz-text">{event.flavour && <b class="x-gz-flavour">{`${event.flavour} `}</b>}{event.text}</p>}
       </div>
     </article>
   );

@@ -2,20 +2,22 @@
   "release": "unreleased",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [
-    "REP-092"
+    "REP-092",
+    "REP-093"
   ],
   "decisions": [
     "DEC-078"
   ],
   "changes": {
     "added": [
-      "Seven draft event artworks (Tourist Bus, Monsoon Downpour, Durian Season, Kenduri, Mango Windfall, Pasar Malam, Bake-Off) in docs/studio/art-drafts/events, not yet in the game"
+      "Redrawn draft artwork for the seven events without a picture, matched to the existing event art (docs/studio/art-drafts/events, not yet in the game)"
     ],
     "changed": [
       "Rules version 13: today's event is turned over each morning and never shown the day before; walk-in events add or remove walk-ins that morning",
       "Morning card: the event picture fills the card with a band underneath; no day count, standing or tomorrow's news",
       "Computer players no longer read tomorrow's event; Handcart instead of Cold Room in their plans",
-      "Rule book, upgrade text, achievement and print kit wording"
+      "Rule book, upgrade text, achievement and print kit wording",
+      "Every event card's in-game text in the owner's wording, with a short tagline before the rule"
     ],
     "fixed": [],
     "removed": [
@@ -26,7 +28,8 @@
   "playerNotes": [
     "Events are now a surprise: each morning's news card is turned over that day",
     "The Cold Room is gone; three upgrades remain",
-    "Bigger event pictures on the morning card"
+    "Bigger event pictures on the morning card",
+    "Event cards have new wording, each with a short tagline"
   ],
   "approval": {
     "status": "approved",
@@ -43,7 +46,8 @@
     "Morning card redesign; evening warnings that need tomorrow's event removed",
     "RULES.md, upgrade text, achievement, print kit",
     "RULES_VERSION 13, new daily seeds",
-    "Seven event artworks and a preview of all 20 cards, for approval"
+    "Seven event artworks and a preview of all 20 cards, for approval",
+    "Owner's event card wording with taglines (game, newspaper cards, rule book, print kit)"
   ],
   "exclusions": [
     "Putting the new artwork into the game (awaiting owner approval)",

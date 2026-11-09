@@ -4,8 +4,9 @@ Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections f
 
 ## Latest (2026-11-10): rules 13 built on the branch, not published
 - **Built (PLAN-061, DEC-078, REP-092) on `ccr-ff85604f-thv5m2`:** events turned over each morning and never forecast; Festival, Tourist Bus and Monsoon change walk-ins that morning; Cold Room removed (three upgrades); morning card shows the event picture full size with no day, standing or tomorrow's news.
-- **Art proposal:** seven new event artworks in `docs/studio/art-drafts/events/`, not in the game yet; preview of all 20 cards sent to the owner. Awaiting approval to put the art in the game.
-- **Checks:** `npm run verify` PASS (408 tests); balance PASS (every shopkeeper within 4.5 points). Browser tests PASS (E2E OK, 0 leaks in 94 pricing frames, reconnect 5/5).
+- **Event wording (REP-093):** all 20 cards use the owner's wording with a tagline; Cold Room mentions left out.
+- **Art proposal:** first drafts rejected; seven artworks redrawn in the house style in `docs/studio/art-drafts/events/`, not in the game yet. Awaiting approval to put them in.
+- **Checks:** `npm run verify` PASS (408 tests); balance PASS (every shopkeeper within 4.5 points). Browser tests PASS before the wording change (E2E OK, 0 leaks); not rerun after it.
 - **Live:** still 1.13.0 (rules 12). Publishing rules 13 needs the owner's approval.
 - **Next:** owner reviews the art and the card preview; then release 1.14.0 if approved.
 
