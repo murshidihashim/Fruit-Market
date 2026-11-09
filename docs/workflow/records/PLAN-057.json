@@ -1,0 +1,103 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [
+    "REP-090"
+  ],
+  "decisions": [
+    "DEC-074"
+  ],
+  "changes": {
+    "added": [
+      "5 and 6 stalls in new games and online rooms (Market League and Daily market stay at 2 to 4)",
+      "Two shopkeepers: Pak Din (Shade Cloth) and Farah (Sharp Ears)",
+      "Seven events: Tourist Bus, Monsoon Downpour, Durian Season, Kenduri, Mango Windfall, Pasar Malam, Bake-Off",
+      "Two guests: the Wedding Caterer and the Bakery",
+      "Twenty different lorry cards with amounts for 2 to 6 stalls, including the Seconds Lorry (arrives Okay)",
+      "18-card favour deck (3 of each) at 5 and 6 stalls"
+    ],
+    "changed": [
+      "Compact rules (rules version 11): customer orders halved, apples +$1, start $10, buy 4 (Handcart 5), shelf 6 (Handcart 8)",
+      "One customer per stall each day; Market Days and walk-in events scale per 3 stalls",
+      "Ties: Favoured Trade, then fresher fruit, then the Haggler, then buying order",
+      "Haggler loses the first-sale $1; Big Basket's extra piece at normal price; Charmer earns up to 2 favour cards a day; Tip Jar $2; Nest Egg starts with $18",
+      "Upgrades cost half (Cold Room $2, Juice Bar $2 and juices up to 2, Handcart $3, Premium Display $4)",
+      "Rules book, How to play, tutorial and print kit"
+    ],
+    "fixed": [],
+    "removed": [
+      "Haggler first-sale bonus"
+    ]
+  },
+  "playerNotes": [
+    "New compact rules: play with up to 6 stalls, about one customer per stall each day",
+    "Meet Pak Din and Farah, plus seven new event cards",
+    "Smaller orders, smaller shelves and cheaper upgrades"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "ok now build with this (with the Compact Rules build spec PDF of 9 November 2026)",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-057",
+  "title": "Compact rules for 2 to 6 stalls (rules 11)",
+  "problem": "The owner's build spec (Fruit Market: Compact Rules, 9 November 2026) moves the game from 2-4 to 2-6 stalls and halves the fruit volume, keeping prices.",
+  "scope": [
+    "Engine and data: every change in spec sections 1 to 8",
+    "AI tie order; Shade Cloth computer pick",
+    "Set-up and online rooms for 5 and 6 stalls; rush pop-up for six cards; Shade Cloth picker; hawker and Sharp Ears lines on the sales card",
+    "RULES.md, How to play, tutorial, print kit",
+    "RULES_VERSION 11, new daily seeds, tests"
+  ],
+  "exclusions": [
+    "Owner art for the new shopkeepers, events and guests (cards show Art coming)",
+    "Retuning shopkeepers after the balance check (needs a new approval)",
+    "Achievement thresholds (unchanged)",
+    "Release and publishing"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "see REP-090 section 4"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. online 0 leaks pass",
+      "result": "PASS",
+      "evidence": "2026-11-09: solo playthrough, performance budget OK, online 0 leaks in 100 pricing frames, quick match, 6-stall room (4 people + 2 computers, 5th refused), reconnect 5/5"
+    },
+    {
+      "id": "T3",
+      "text": "Final cash per stall at 2-6 stalls within about 20% of the 4-stall figure",
+      "result": "PASS",
+      "evidence": "scripts/compact-check.ts, 150 Hard games per size: $125 / $108 / $106 / $99 / $94 (spec $129 / $107 / $105 / $100 / $94)"
+    },
+    {
+      "id": "T4",
+      "text": "Shopkeeper win rates within 4 points of fair at 3 and 4 stalls",
+      "result": "FAIL",
+      "evidence": "800 Hard games per size: Big Basket +5.3/+5.8, Nest Egg +6.0/+5.8, Haggler -5.7/-5.3, Shade Cloth -5.8 at 4 stalls; others within 4"
+    },
+    {
+      "id": "T5",
+      "text": "Fruit profit per stall within 35% best to worst",
+      "result": "NOT RUN",
+      "evidence": "Only sales revenue measured (mango highest, 83% above blueberry); profit needs purchase costs per fruit"
+    },
+    {
+      "id": "T6",
+      "text": "Upgrade-ban test: no upgrade moves win rate by more than 10 points",
+      "result": "NOT RUN",
+      "evidence": "scripts/balance.ts not run in this session"
+    },
+    {
+      "id": "T7",
+      "text": "Spoiled pieces per stall 1-3 with people",
+      "result": "NOT RUN",
+      "evidence": "Needs a human playtest; computer players spoil 0.27-0.45"
+    }
+  ]
+}

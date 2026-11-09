@@ -5,6 +5,7 @@ import { CHARACTER_TRAIT, FRUITS, RIVALS, TRAITS, type FruitId } from '../src/en
 import { newGame, ranking, type GameState } from '../src/engine/game';
 
 const G = Number(process.argv[2] ?? 400);
+const SIZES = (process.argv[3] ?? '2,3,4,5,6').split(',').map(Number);
 
 function game(n: number, seed: number, rot: number): GameState {
   // Rotate which shopkeepers sit at the table, and where, so every perk plays every seat.
@@ -20,7 +21,7 @@ console.log(`Compact rules check: ${G} games per table size, Hard computer in ev
 console.log('Stalls | Final cash per stall | Pieces sold per stall | Spoiled per stall | Close finishes (<= $3)');
 const wins: Record<number, Record<string, [number, number]>> = {};
 const fruitProfit: Record<FruitId, number> = { blueberry: 0, watermelon: 0, apple: 0, mango: 0 };
-for (const n of [2, 3, 4, 5, 6]) {
+for (const n of SIZES) {
   let cash = 0, sold = 0, spoiled = 0, close = 0;
   wins[n] = {};
   for (let g = 0; g < G; g++) {
@@ -40,9 +41,10 @@ for (const n of [2, 3, 4, 5, 6]) {
   }
   console.log(`${n} | $${(cash / G).toFixed(0)} | ${(sold / G).toFixed(1)} | ${(spoiled / G).toFixed(2)} | ${pct(close / G)}`);
 }
-for (const n of [3, 4]) {
+for (const n of [3, 4].filter((x) => SIZES.includes(x))) {
   console.log(`\nShopkeeper win rates at ${n} stalls (fair ${pct(1 / n)}):`);
   for (const [t, [w, p]] of Object.entries(wins[n]).sort()) console.log(`  ${t}: ${pct(w / p)} of ${p} (${((100 * w) / p - 100 / n).toFixed(1)} points)`);
 }
+if (!SIZES.includes(4)) process.exit(0);
 const fp = FRUITS.map((f) => fruitProfit[f] / G / 4);
 console.log(`\nSales revenue per stall by fruit at 4 stalls: ${FRUITS.map((f, i) => `${f} $${fp[i].toFixed(1)}`).join(', ')}; best to worst ${pct(Math.max(...fp) / Math.min(...fp) - 1)}`);

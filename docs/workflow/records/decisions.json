@@ -1824,6 +1824,31 @@
       "reports": [],
       "plan": "PLAN-056",
       "reviewTrigger": "If playtests show the leader running away; a balance run was not made."
+    },
+    {
+      "id": "DEC-074",
+      "title": "Compact rules for 2 to 6 stalls (rules version 11)",
+      "question": "Should the game move to the compact 2-6 player ruleset in the owner's build spec?",
+      "choice": "Build the spec as written: 2-6 stalls, halved orders and limits, apples +$1, one customer per stall, 20 unique lorry cards with the Seconds Lorry, 20 events, 8 shopkeepers (Pak Din, Farah), retuned perks, halved upgrade costs, 18 favours at 5-6 stalls. RULES_VERSION 10 to 11. App choices the spec left open: Farah peeks at the first unseen walk-in; a person who does not pick a Shade Cloth fruit gets the suggested one; Rival Roll Call stays at the original six shopkeepers.",
+      "rationale": "Owner: \"ok now build with this\", with the Compact Rules build spec PDF (9 November 2026).",
+      "impact": {
+        "player": "New rules, bigger tables, two new shopkeepers and seven new events.",
+        "technical": "src/engine/* data and rules, ai.ts tie order, story.ts explanations, set-up/online/rush screens, RULES.md, print kit, RULES_VERSION 11.",
+        "data": "Unfinished rules 10 games cannot be resumed; the daily board key becomes r11 with new seeds; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "ok now build with this",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-057",
+      "reports": [
+        "REP-090"
+      ],
+      "reviewTrigger": "After the owner plays the preview, or if a shopkeeper wins more than 4 points from fair in playtests"
     }
   ],
   "history": [
@@ -2486,6 +2511,10 @@
     {
       "at": "2026-11-09 03:03",
       "text": "Release 1.11.0 published (rules version 10, poorest first then clockwise): main f60fe78, Deploy LIVE game run 26 success (verify, release check, deploy, live smoke test), tag v1.11.0. Print kit not yet regenerated for the new order wording."
+    },
+    {
+      "at": "2026-11-09 11:41",
+      "text": "Compact rules built on branch ccr-ff85604f-thv5m2 (DEC-074, PLAN-057, rules version 11, REP-090). Not released. Balance check: cash and pieces sold match the spec; shopkeeper win-rate target missed for Big Basket, Nest Egg, Haggler and Shade Cloth."
     }
   ]
 }
