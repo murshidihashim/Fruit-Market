@@ -22,7 +22,7 @@ const humans = (n: number, extra: Partial<GameConfig> = {}): GameConfig => ({
 describe('rules 11: core numbers (spec section 1)', () => {
   it('start cash $10, buy 4 (Handcart 5), shelf 6 (Handcart 8); rules version 11 or later (12: crate pieces)', () => {
     expect([START_CASH, BASE_BUY, BARROW_BUY, BASE_SHELF, BARROW_SHELF]).toEqual([10, 4, 5, 6, 8]);
-    expect(RULES_VERSION).toBe(12);
+    expect(RULES_VERSION).toBeGreaterThanOrEqual(11);
   });
 
   it('plays 2 to 6 stalls and refuses 1 or 7', () => {
@@ -190,7 +190,7 @@ describe('rules 11: events (spec section 5)', () => {
     s = structuredClone(s);
     s.market = emptyStock(true);
     s.nextFarmer = FARMER_CARDS.find((c) => c.name === card)!;
-    s.nextEvent = ev(event);
+    s.eventDeck = [EVENT_CARDS.findIndex((e) => e.id === event)]; // rules 13: the event is drawn on its own morning
     s.phase = 'evening'; s.turn = 0; s.order = s.players.map((_, i) => i);
     for (let p = 0; p < n; p++) s = applyAction(s, p, { kind: 'endEvening' });
     return Object.fromEntries(F.map((f) => [f, s.delivery[f] ?? 0])) as Record<FruitId, number>;
@@ -202,14 +202,14 @@ describe('rules 11: events (spec section 5)', () => {
     expect([2, 3, 4, 5, 6].map((n) => delivered(n, 'Mixed Basket', 'mangoWindfall').mango - printedSupply(FARMER_CARDS[11], 'mango', n))).toEqual([1, 2, 2, 3, 3]);
   });
 
-  it('Monsoon Downpour: nothing ages tonight, on shelves (Cold Room too) or at the market', () => {
+  it('Monsoon Downpour: nothing ages tonight, on shelves or at the market', () => {
     let s = newGame(humans(2));
     s = structuredClone(s);
     s.event = ev('monsoon');
     s.day = 4;
     s.market = emptyStock(true); s.market.blueberry[0] = 2;
     s.players[0].stock.blueberry = [1, 1, 1];
-    s.players[1].stock.apple[0] = 1; s.players[1].upgrades = ['coldroom'];
+    s.players[1].stock.apple[0] = 1;
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1];
     s = applyAction(applyAction(s, 0, { kind: 'endEvening' }), 1, { kind: 'endEvening' });
     expect(s.day).toBe(5);
@@ -330,8 +330,9 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
 });
 
 describe('rules 11: upgrades and favours (spec section 7)', () => {
-  it('costs halved: Cold Room $2, Juice Bar $2 (juices up to 2), Handcart $3, Premium Display $4', () => {
-    expect([UPGRADES.coldroom.cost, UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost]).toEqual([2, 2, 3, 4]);
+  it('costs halved: Juice Bar $2 (juices up to 2), Handcart $3, Premium Display $4 (rules 13 removed the Cold Room)', () => {
+    expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'premium']);
+    expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost]).toEqual([2, 3, 4]);
     expect(JUICE_CAP).toBe(2);
     expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces of fruit a day and hold 8.');
   });

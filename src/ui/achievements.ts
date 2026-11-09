@@ -57,7 +57,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'full_house', theme: 'town', title: 'Full House', text: 'Sell to 6 different customers in one day.' },
 
   { id: 'bare_stall', theme: 'stall', title: 'Bare Stall', text: 'Win without building any upgrades.' },
-  { id: 'fully_fitted', theme: 'stall', title: 'Fully Fitted', text: 'Build all four upgrades in one game.' },
+  { id: 'fully_fitted', theme: 'stall', title: 'Fully Fitted', text: 'Build all three upgrades in one game.' },
   { id: 'mango_mogul', theme: 'stall', title: 'Mango Mogul', text: 'Sell 10 mangoes in one game.' },
 
   { id: 'beat_hard', theme: 'cast', title: 'Giant Slayer', text: 'Win against a Hard rival.' },
@@ -198,7 +198,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
     ['worth_wait', waited],
     ['full_house', fullHouse],
     ['bare_stall', won && pl.upgrades.length === 0 && g.config.upgrades],
-    ['fully_fitted', pl.upgrades.length >= 4],
+    ['fully_fitted', pl.upgrades.length >= 3],
     ['mango_mogul', mangoes >= 10],
     ['beat_hard', won && g.players.some((p) => p.kind === 'ai' && p.level === 'hard')],
     ['hard_sweep', won && g.players.length === 4 && g.players.every((p, i) => i === me || (p.kind === 'ai' && p.level === 'hard'))],

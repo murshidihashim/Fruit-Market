@@ -1920,6 +1920,31 @@
         "REP-091"
       ],
       "reviewTrigger": "If players keep tired fruit back and hurt themselves, or a shopkeeper drifts more than 4 points from fair in playtests"
+    },
+    {
+      "id": "DEC-078",
+      "title": "Events turned over each morning, no Cold Room (rules version 13)",
+      "question": "Should tomorrow's event stay hidden until its morning, and should the Cold Room stay?",
+      "choice": "Events are never forecast: from day 2 the top event card is turned over each morning and applies that day (the Inspector is still never the last day's event). Festival, Tourist Bus and Monsoon add or remove walk-ins that morning. The Cold Room is removed; three upgrades remain. The morning card shows the event picture full size with no day count, standing or tomorrow's news. RULES_VERSION 12 to 13. Seven new event artworks proposed separately.",
+      "rationale": "Owner request: \"change the rule so that market event cant be forecasted ... renove cold room\".",
+      "impact": {
+        "player": "Events become a surprise; one fewer upgrade; a bigger event picture each morning.",
+        "technical": "src/engine/game.ts, data.ts, ai.ts, story.ts, panel.tsx, MorningCard.tsx, styles.css, RULES.md, print kit.",
+        "data": "Unfinished rules 12 games cannot be resumed; the daily board key becomes r13 with new seeds; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "change the rule so that market event cant be forecasted / ... / renove cold room",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-061",
+      "reports": [
+        "REP-092"
+      ],
+      "reviewTrigger": "If playtesters find surprise Inspector or Heatwave days unfair, or the Juice Bar becomes the only upgrade worth buying"
     }
   ],
   "history": [
@@ -2614,6 +2639,10 @@
     {
       "at": "2026-11-10 00:16",
       "text": "Release 1.13.0 published (rules version 12: crates of chosen fruit; pricing from the crates): main ebc35f7, Deploy LIVE game run 29. The first attempt deployed but its smoke test saw rules 11 while Cloudflare was still rolling out; the re-run passed the smoke test and tagged v1.13.0."
+    },
+    {
+      "at": "2026-11-10 01:05",
+      "text": "Owner asked for events that cannot be forecast, a full-picture event card, art for the seven new events and no Cold Room (DEC-078, PLAN-061, rules version 13). Built on the branch; new artwork and a 20-card preview proposed for approval (REP-092). Not published."
     }
   ]
 }

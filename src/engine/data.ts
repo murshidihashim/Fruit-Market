@@ -277,7 +277,7 @@ export const EVENT_CARDS: EventCard[] = [
   { id: 'hotel', title: 'Hotel Order', icon: '🏨',
     extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 1, max: 8, fixed: true }, { fruit: 'watermelon', qty: 1, max: 8, fixed: true }, { fruit: 'blueberry', qty: 1, max: 7, fixed: true }] },
     text: 'The hotel chef wants 1 apple at $8, 1 watermelon at $8 and 1 blueberry at $7, all Fresh or Okay.' },
-  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Watermelon customers pay $2 more, but all fruit ages an extra step tonight. A Cold Room stops the extra step.' },
+  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Watermelon customers pay $2 more, but all fruit ages an extra step tonight.' },
   { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, text: 'No new apples arrive today, and apple customers pay $2 more.' },
   { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (rounded up), and blueberry customers pay $1 less.' },
   { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, text: 'The lorry brings 1 extra of every fruit for every 4 stalls (rounded up), and every customer pays $1 less.' },
@@ -285,7 +285,7 @@ export const EVENT_CARDS: EventCard[] = [
   { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the Wholesale Market costs $1 more today.' },
   { id: 'priceControls', title: 'Price Controls', icon: '⚖️', text: 'No stall may charge more than these prices today.',
     maxPrice: { blueberry: 5, watermelon: 7, apple: 6, mango: 8 } },
-  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'At the start of the day, before anyone buys, every stall pays a $2 fine for each tired piece on its shelf (up to its cash). A Cold Room does not help. (Never the last day\'s event.)' },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'At the start of the day, before anyone buys, every stall pays a $2 fine for each tired piece on its shelf (up to its cash). (Never the last day\'s event.)' },
   { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
   { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, text: 'Extra walk-ins: 2 at 2 or 3 stalls, 3 at 4 stalls, 4 at 5 or 6 stalls. Prices unchanged.' },
   { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, text: '1 fewer walk-in (2 fewer at 4 to 6 stalls, never below none). Nothing ages tonight, on shelves or at the market.' },
@@ -325,7 +325,7 @@ export function favourDeckFor(stalls: number): FavourId[] {
   return kinds.flatMap((k) => Array.from({ length: copies }, () => k));
 }
 
-export type UpgradeId = 'coldroom' | 'juicebar' | 'barrow' | 'premium';
+export type UpgradeId = 'juicebar' | 'barrow' | 'premium';
 
 export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: number; text: string }
 
@@ -349,7 +349,6 @@ const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
  * after each Market Day (days 3, 6, 9, 12), whether or not Market Days are switched on.
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
-  coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 2, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
   juicebar: {
     id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 2,
     // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit). The tip
@@ -359,7 +358,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 3, text: `Buy up to ${BARROW_BUY} pieces of fruit a day and hold ${BARROW_SHELF}.` },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 4, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
 };
-export const UPGRADE_OFFER = 4;
+export const UPGRADE_OFFER = 3;
 
 /** Market Days (and the speciality draft) fall on every 3rd day: 3, 6, 9, 12. */
 export const MARKET_DAY_EVERY = 3;

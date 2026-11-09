@@ -286,15 +286,8 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
 
 // ---------- evening ----------
 
-export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', coldroom: 'coolroom', premium: 'signboard', juicebar: 'juicer' };
+export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', premium: 'signboard', juicebar: 'juicer' };
 export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg', keeper: 'moon', earful: 'ear' };
-
-/** Pieces on this shelf that will be tired at the start of tomorrow. */
-function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {
-  const room = pl.upgrades.includes('coldroom');
-  const steps = (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : s.event?.ageExtra ?? 0);
-  return FRUITS.reduce((a, f) => a + (pl.stock[f][steps] ?? 0) * (steps < FRUIT[f].ripe.length ? 1 : 0), 0);
-}
 
 export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
   s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void;
@@ -302,21 +295,18 @@ export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
   onShade?: (f: FruitId | null) => void;
 }) {
   const pl = s.players[p];
-  // Tonight follows the night's own rules (a Cold Room, a Heatwave, the Juice Bar): "2 spoil tonight, 3 become juice (+$6)".
+  // Tonight follows the night's own rules (a Heatwave, a Monsoon, the Juice Bar): "3 spoil tonight, 2 become juice (+$4)".
   const night = nightOutlook(s, p);
   const tonight = tonightText(night);
   const heat = heatwaveLine(s, p);
-  // Tomorrow's Health Inspector fines the fruit that will be tired when the day starts (a Cold Room does not help).
-  const fine = tiredTomorrow(s, pl) * (s.nextEvent?.inspector ?? 0);
-  // Only juice money tonight is good news: the card turns green; anything spoiling, a fine or a Heatwave keeps it a warning.
-  const good = night.spoil === 0 && fine === 0 && !heat;
+  // Only juice money tonight is good news: the card turns green; anything spoiling or a Heatwave keeps it a warning.
+  const good = night.spoil === 0 && !heat;
   const left = s.config.days - s.day;
   return (
     <div class="evening-panel">
-      {(tonight || fine > 0 || heat) && (
+      {(tonight || heat) && (
         <div class={`info-card ${good ? 'good' : 'warn'}`}>
           {tonight && <div>{tonight}</div>}
-          {fine > 0 && <div>The inspector fines you ${fine} tomorrow morning, before you can sell or discard.</div>}
           {heat && <div>{heat}</div>}
         </div>
       )}

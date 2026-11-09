@@ -13,8 +13,8 @@ import { toStaticHtml } from '../src/ui/cards';
 import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
 import { EveningPanel } from '../src/ui/panel';
 
-// Tonight's forecast (REP-089 3.4): the warnings follow the night's own rules. A Cold Room skips odd nights, a Heatwave
-// ages fruit one more step (not in a Cold Room), and a Juice Bar turns up to 3 of the pieces leaving the shelf into $2
+// Tonight's forecast (REP-089 3.4): the warnings follow the night's own rules. A Heatwave
+// ages fruit one more step (rules 13 removed the Cold Room), and a Juice Bar turns up to 3 of the pieces leaving the shelf into $2
 // of juice. The forecast comes from the same code as the night (nightOutlook / ageShop in game.ts), and the morning,
 // the results and the "Juice Bar Regular" achievement count the juice money.
 
@@ -78,13 +78,6 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
     expect(forecastAndNight(salesCard(4, shelf)).o).toEqual({ spoil: 0, juice: 0 });
   });
 
-  it('a Cold Room skips odd nights and keeps a Heatwave out', () => {
-    expect(forecastAndNight(salesCard(5, [3], ['coldroom'])).o).toEqual({ spoil: 0, juice: 0 });
-    expect(forecastAndNight(salesCard(4, [3], ['coldroom'])).o).toEqual({ spoil: 3, juice: 0 });
-    expect(forecastAndNight(salesCard(4, [0, 3], ['coldroom'], true)).o).toEqual({ spoil: 0, juice: 0 });
-    expect(forecastAndNight(salesCard(5, [3], ['coldroom', 'juicebar'])).o).toEqual({ spoil: 0, juice: 0 });
-  });
-
   it('counts each fruit that leaves the shelf, and nothing on the final day (no night follows)', () => {
     const s = salesCard(4, [2, 1], [], true);
     s.players[0].stock.apple[TIRED] = 1;
@@ -96,8 +89,8 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
     expect(tonightLine(last, 0)).toBeNull();
   });
 
-  it('agrees with every night of many seeded computer games (Cold Room, Heatwave, Juice Bar and its cap)', () => {
-    const seen = { juice: 0, capped: 0, coldOdd: 0, heat: 0 };
+  it('agrees with every night of many seeded computer games (Heatwave, Juice Bar and its cap)', () => {
+    const seen = { juice: 0, capped: 0, heat: 0 };
     const levels: Level[] = ['normal', 'hard', 'normal', 'hard'];
     for (let seed = 1; seed <= 30; seed++) {
       let s = newGame({
@@ -115,11 +108,9 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
             expect(after.cash - pl.cash).toBe(o.juice * JUICE_VALUE - (next.dayFines?.[p] ?? 0));
             expect(overnightJuice(s, next, p)).toEqual({ pieces: o.juice, dollars: o.juice * JUICE_VALUE });
             expect(overnightLoss(s, next, p)).toBe(o.spoil);
-            const room = pl.upgrades.includes('coldroom');
             if (o.juice) seen.juice++;
             if (o.juice && o.spoil) seen.capped++;
-            if (room && s.day % 2 === 1 && Object.values(pl.stock).some((t) => t[TIRED] > 0)) seen.coldOdd++;
-            if (!room && s.event?.ageExtra && Object.values(pl.stock).some((t) => t[1] > 0)) seen.heat++;
+            if (s.event?.ageExtra && Object.values(pl.stock).some((t) => t[1] > 0)) seen.heat++;
           });
         }
         s = next;
@@ -139,27 +130,24 @@ describe('tonight in words', () => {
     expect(tonightText({ spoil: 0, juice: 1 })).toBe('1 fruit becomes juice tonight (+$2)');
     expect(tonightText({ spoil: 2, juice: 3 })).toBe('2 spoil tonight, 3 become juice (+$6)');
     expect(tonightLine(salesCard(4, [5], ['juicebar']), 0)).toBe('3 spoil tonight, 2 become juice (+$4)');
-    expect(tonightLine(salesCard(5, [3], ['coldroom']), 0)).toBeNull();
   });
 
-  it('the Evening panel\'s Heatwave warning: not for a Cold Room stall, which a Heatwave cannot touch', () => {
+  it('the Evening panel\'s Heatwave warning, on every stall (rules 13: no Cold Room)', () => {
     expect(HEATWAVE.ageExtra).toBe(1);
-    expect(heatwaveLine(salesCard(4, [0, 3], [], true), 0)).toBe('Heatwave: everything ages twice tonight.');
     for (const day of [4, 5]) {
-      const cold = salesCard(day, [0, 3], ['coldroom'], true);
-      expect(heatwaveLine(cold, 0)).toBeNull();
-      // The night agrees: the okay blueberries do not leave a step early in the Cold Room.
-      expect(forecastAndNight(cold).o.spoil).toBe(0);
+      const hot = salesCard(day, [0, 3], [], true);
+      expect(heatwaveLine(hot, 0)).toBe('Heatwave: everything ages twice tonight.');
+      // The night agrees: the okay blueberries leave a step early.
+      expect(forecastAndNight(hot).o.spoil).toBe(3);
     }
     expect(heatwaveLine(salesCard(4, [0, 3]), 0)).toBeNull(); // no Heatwave today
     expect(heatwaveLine(salesCard(10, [0, 3], [], true), 0)).toBeNull(); // the final day: no night follows
   });
 
-  it('day highlight: no spoil warning for juice or on a Cold Room\'s odd night; Heatwave counted', () => {
+  it('day highlight: no spoil warning for juice; Heatwave counted', () => {
     const texts = (s: GameState) => dayHighlights(s, 0).map((x) => x.text);
     expect(texts(salesCard(4, [2], ['juicebar'])).join(' ')).not.toMatch(/spoil/);
     expect(texts(salesCard(4, [5], ['juicebar']))).toContain('3 of your fruit will spoil tonight; 2 become juice (+$4).');
-    expect(texts(salesCard(5, [3], ['coldroom'])).join(' ')).not.toMatch(/will spoil tonight/);
     expect(texts(salesCard(4, [0, 3], [], true))).toContain('3 of your fruit will spoil tonight.');
     expect(texts(salesCard(4, [3]))).toContain('3 of your fruit will spoil tonight.');
   });
@@ -173,11 +161,10 @@ describe('tonight in words', () => {
     expect(html).toContain('class="sc-juice">2 fruit become juice tonight (+$4)');
     const both = toStaticHtml(h(SalesSummary, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
     expect(both).toContain('class="sc-waste">3 spoil tonight, 2 become juice (+$4)');
-    expect(toStaticHtml(h(SalesSummary, { s: salesCard(5, [3], ['coldroom']), viewer: 0 }))).not.toMatch(/spoil/);
     expect(spoilsTonight(salesCard(4, [0, 3], [], true), 0)).toBe(3);
   });
 
-  it('the Evening panel forecasts the real night: juice money, and no Heatwave warning for a Cold Room', () => {
+  it('the Evening panel forecasts the real night: juice money, and the Heatwave warning', () => {
     // the panel shows after the sales card, before the night, on the same shelf (no evening comes on most nights)
     const evening = (s: GameState) => toStaticHtml(h(EveningPanel, { s: { ...s, phase: 'evening' }, p: 0, onUpgrade: () => undefined, onCard: () => undefined }));
     // juice money alone is good news (a green card); spoiling fruit keeps the warning
@@ -186,7 +173,6 @@ describe('tonight in words', () => {
     expect(hot).toContain('class="info-card warn"><div>3 fruit spoil tonight</div>');
     expect(hot).toContain('Heatwave: everything ages twice tonight.');
     // the old forecast counted only the last-day slot and warned every stall about the Heatwave
-    expect(evening(salesCard(4, [0, 3], ['coldroom'], true))).not.toMatch(/Heatwave|spoil/);
   });
 
   it('the morning card says what the Juice Bar made overnight', () => {

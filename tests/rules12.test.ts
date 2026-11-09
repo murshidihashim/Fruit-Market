@@ -29,7 +29,7 @@ function stocking(crowd: Customer[]): GameState {
 }
 
 describe('rules 12: the crate holds exact pieces', () => {
-  it('is rules version 12', () => expect(RULES_VERSION).toBe(12));
+  it('is rules version 12 or later', () => expect(RULES_VERSION).toBeGreaterThanOrEqual(12));
 
   it('only the pieces in your crate sell: fresh pieces sell to a Premium buyer, tired ones never do', () => {
     const premium = [buyer(1, 'apple', 2, 9, 'premium')];

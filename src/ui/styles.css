@@ -1970,6 +1970,16 @@ b, strong { font-weight: 700; }
 .mc-brief .mc-next { gap: 8px; padding: 4px 10px; font-size: 0.8rem; }
 .mc-brief .mc-next b { font-size: 0.95rem; }
 .mc-brief .next-lorry { margin-top: 0; padding: 4px 8px; font-size: 0.72rem; }
+/* the event as a full card (PLAN-061): the picture fills the space, the title and rule on a band at its foot */
+.mc-full .mc-event { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden;
+  border: 2.5px solid var(--x-ink); border-radius: 12px; background: var(--x-paper); box-shadow: 0 4px 0 var(--x-ink); animation: event-flip .55s cubic-bezier(.3,1.3,.5,1) both; }
+.mc-full .mc-event > .mc-pic { flex: 1 1 auto; min-height: 120px; max-height: none; border: 0; border-radius: 0; border-bottom: 2.5px solid var(--x-ink); }
+.mc-full .mc-band { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px 9px; text-align: center; background: var(--x-paper); }
+.mc-full .mc-band b { margin: 0; font: 400 1.35rem/1.1 var(--f-headline); color: var(--x-ink); }
+.mc-full .mc-band small { margin: 0; max-width: 40ch; font: 0.86rem/1.3 var(--f-serif); color: var(--x-ink); }
+.mc-full .mc-band .minprices { margin-top: 4px; }
+@keyframes event-flip { from { transform: perspective(700px) rotateY(80deg) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mc-full .mc-event { animation: none; } }
 
 /* ---------- your shelf dock ---------- */
 .gx > .my-stall.dock {

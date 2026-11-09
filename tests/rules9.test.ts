@@ -108,13 +108,12 @@ describe('rules 9: events', () => {
     expect(validatePrices(s, 0, [{ fruit: 'mango', price: 8 }])).toBeNull();
   });
 
-  it('Health Inspector fines tired fruit at the start of the day, with no Cold Room immunity', () => {
+  it('Health Inspector fines tired fruit at the start of the day', () => {
     let s = newGame(humans(2));
-    s.players[0].upgrades.push('coldroom');
-    s.day = 2; // an even day: the Cold Room ages fruit tonight
+    s.day = 2;
     s.players[0].stock.apple[1] = 2; // becomes tired overnight
     s.players[1].stock.apple[1] = 1;
-    s.nextEvent = ev('inspector');
+    s.eventDeck = [EVENT_CARDS.findIndex((e) => e.id === 'inspector')]; // drawn on its own morning (rules 13)
     const before = s.players.map((p) => p.cash);
     s = nextDay(s);
     expect(s.event?.id).toBe('inspector');

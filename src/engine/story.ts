@@ -528,7 +528,7 @@ export function dayHighlights(s: GameState, viewer: number): Highlight[] {
       out.push({ icon: '👑', tone: p === viewer ? 'good' : 'neutral', score: 25 + n * 3, text: `${p === viewer ? 'You' : s.players[p].name} dominated the ${FRUIT[f].name.toLowerCase()} market (${n} sold).` });
     }
   }
-  // Fruit that spoils tonight if the game goes on, by the night's own rules (Cold Room, Heatwave, Juice Bar).
+  // Fruit that spoils tonight if the game goes on, by the night's own rules (Heatwave, Monsoon, Juice Bar).
   const night = nightOutlook(s, viewer);
   if (night.spoil >= 2) {
     const juice = night.juice ? `; ${becomeJuice(night.juice)} (+$${night.juice * JUICE_VALUE})` : '';
@@ -576,13 +576,13 @@ export function tonightLine(s: GameState, p: number): string | null {
 }
 
 /**
- * The Evening panel's Heatwave warning for shop `p`, or null. A Heatwave ages fruit an extra step tonight, but a Cold
- * Room keeps it out (shelfSteps in game.ts), so a Cold Room stall gets no warning; nor does the final day, which no
- * night follows.
+ * The Evening panel's Heatwave warning, or null. A Heatwave ages fruit an extra step tonight on every shelf; no warning
+ * on the final day, which no night follows. (`_p`: the shop; every shop is affected alike since rules 13 removed the
+ * Cold Room.)
  */
-export function heatwaveLine(s: GameState, p: number): string | null {
+export function heatwaveLine(s: GameState, _p: number): string | null {
   const extra = s.event?.ageExtra ?? 0;
-  if (extra <= 0 || s.players[p].upgrades.includes('coldroom') || s.day >= s.config.days) return null;
+  if (extra <= 0 || s.day >= s.config.days) return null;
   return `Heatwave: everything ages ${extra === 1 ? 'twice' : `${1 + extra} times`} tonight.`;
 }
 

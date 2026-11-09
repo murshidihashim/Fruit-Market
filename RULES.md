@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 12: the compact rules, with crates of chosen fruit).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 13: the compact rules, crates of chosen fruit, surprise events).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -56,7 +56,7 @@ Every night all fruit moves one space left. Fruit that falls off the left end sp
 
 - **Lorry cards (20):** twenty different lorries. Every card prints how many blueberries / watermelons / apples / mangoes it delivers with **2, 3, 4, 5 and 6 stalls**; use the column for your table. Five gluts load up on one fruit (Highland Apples brings no mangoes), four pairs carry two fruits, four mixed loads carry everything (Kampung Truck brings no apples), two light loads and two heavy loads. **Mango Growers and Mango Season deliver their mangoes green** (unripe: they ripen on the shelf in two nights; with unripe fruit switched off they arrive ripe). The **Seconds Lorry** delivers everything **Okay**: its fruit goes into each fruit's freshest Okay space at the Wholesale Market, so it costs Okay prices and Fresh-only customers will not buy it.
 - **Customer cards (36):** a name and up to three fruits, each with an amount and the most they pay for a *fresh* one. The back of each card shows the fruits they want. Each customer also has a **freshness type** (below), printed on the front. The type stays secret while a walk-in is face down.
-- **Event cards (20):** one is drawn each morning from Day 2 onward and shown a day early. Mango Craze, Superfood Trend, Hotel Order, Kenduri and Bake-Off bring a **guest card** (below).
+- **Event cards (20):** one is drawn each morning from Day 2 onward. Nobody knows it in advance: it is turned over that morning. Mango Craze, Superfood Trend, Hotel Order, Kenduri and Bake-Off bring a **guest card** (below).
 - **Guest cards (5):** the Influencer, the Gym Club, the Hotel Chef, the Wedding Caterer and the Bakery. A guest joins the customers at the end of the row on the day of its event and is served like any other customer.
 - **Favour cards (12, or 18 at 5 and 6 stalls):** a secret reward for serving a customer's whole order by yourself. Hold up to 3 (4 with the Charmer perk).
 
@@ -81,7 +81,7 @@ A guest's price is fixed: the event's own price change is **not** added on top (
 
 ## The queue
 
-Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and tomorrow's event. When today's crowd turns face up (the moment buying ends), draw tomorrow's **regular** face up and tomorrow's **walk-ins** face down. Walk-ins show only the fruit on their card backs. On Day 1, draw the first regular and walk-ins during set-up. Together these make the **Tomorrow strip**.
+Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card (events are never drawn ahead). When today's crowd turns face up (the moment buying ends), draw tomorrow's **regular** face up and tomorrow's **walk-ins** face down. Walk-ins show only the fruit on their card backs. On Day 1, draw the first regular and walk-ins during set-up. Together these make the **Tomorrow strip**.
 
 - Walk-ins per day: **stalls − 1**, so the crowd is one customer per stall with the regular.
 - **Market Day** and walk-in events add or take away walk-ins for every 3 stalls (rounded up). The lorry still comes on Market Days.
@@ -101,7 +101,7 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and
 ### 1. Morning
 1. Apply today's **event**.
 2. The farmer's lorry unloads today's card at the freshest position (or the unripe position). The lorry comes every day, Market Days included.
-3. Draw tomorrow's delivery card and event for the Tomorrow strip.
+3. Draw tomorrow's delivery card for the Tomorrow strip. Turn over today's event in step 1, never earlier. If it adds walk-ins (Festival, Tourist Bus), draw them now, face down, at the end of the row; if it takes walk-ins away (Monsoon Downpour), the last ones in the row go back under the customer deck.
 
 ### 2. Buying
 Each stall buys **up to 4 pieces of fruit** (5 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 6 (8 with a Handcart). **The poorest stall buys first, then the others follow clockwise from it** (a tie for poorest goes to the first of them clockwise from the first-player token; Day 1 starts at the token). A Priority favour jumps the queue.
@@ -144,14 +144,14 @@ Market Days and Closing Day are on by default and can be switched off in the set
 | 💪 Superfood Trend | Blueberry customers pay $1 more; the Gym Club wants 2 blueberries at $8 (Fresh or Okay). |
 | 📱 Mango Craze | Mango customers pay $2 more; the Influencer wants 1 Fresh mango at $12. |
 | 🏨 Hotel Order | The Hotel Chef wants 1 apple at $8, 1 watermelon at $8 and 1 blueberry at $7 (Fresh or Okay). |
-| 🔥 Heatwave | Watermelon customers pay $2 more; all fruit ages an extra step tonight (not in a Cold Room). |
+| 🔥 Heatwave | Watermelon customers pay $2 more; all fruit ages an extra step tonight. |
 | 🍎 Apple Blight | No apples arrive today; apple customers pay $2 more. |
 | 🫐 Blueberry Glut | 1 extra blueberry for every 2 stalls (rounded up) in the delivery; blueberry customers pay $1 less. |
 | 🌾 Good Harvest | 1 extra of every fruit for every 4 stalls (rounded up); every customer pays $1 less. |
 | 🐛 Bad Harvest | Half the delivery (rounded up); customers pay $1 more per fruit. |
 | 📈 Price Hike | Every Wholesale Market fruit costs $1 more today. |
 | ⚖️ Price Controls | No stall may charge more than: blueberry $5, watermelon $7, apple $6, mango $8. |
-| 🕵️ Health Inspector | At the start of the day, before anyone buys or discards, every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). A Cold Room does not help. Never the last day's event. |
+| 🕵️ Health Inspector | At the start of the day, before anyone buys or discards, every stall pays $2 for each tired fruit on its shelf (no more than the cash it has). Never the last day's event. |
 | 🚚 Lorry Breakdown | No delivery today; fruit already at the market stays. |
 | 🚌 Tourist Bus | Extra walk-ins: 2 at 2 or 3 stalls, 3 at 4, 4 at 5 or 6. Prices unchanged. |
 | 🌧️ Monsoon Downpour | 1 fewer walk-in (2 fewer at 4 to 6 stalls, never below none); nothing ages tonight, on shelves or at the market. |
@@ -180,7 +180,6 @@ Drafted on the evening after each Market Day. Each can be built once, and each c
 
 | Upgrade | Cost | Effect |
 |---|---|---|
-| ❄️ Cold Room | $2 | Your fruit ages only every other night, and heatwaves can't touch it. |
 | 🧃 Juice Bar | $2 | +$1 for each okay or tired fruit you sell. Each night up to 2 pieces of fruit that would spoil become juice: $2 each. Tip: before the last day, $1 tired fruit makes $2 of juice. |
 | 🛒 Handcart | $3 | Buy up to 5 pieces of fruit a day and hold 8. |
 | 🪧 Premium Display | $4 | Your fresh fruit may be priced $1 above a customer's normal limit. |
@@ -257,7 +256,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 | 6 | | | tired | |
 | 7 | | | spoiled | |
 
-At dawn, throw away piles that have reached "spoiled". A Health Inspector, if one is in town, counts the "tired" piles at the start of the day, before anyone buys or throws fruit away. A Juice Bar juices up to 2 pieces of fruit that spoil. After a Monsoon Downpour no clock moves. A Shade Cloth pile keeps its chip for the night (add 1 to the chips of the named fruit). A **Cold Room** stall has its own fruit clock that moves on only one night in two (the night after an even day) and never on a Heatwave night. When it buys fruit, it works out the age from the market clock and re-stamps the chip on its own clock. A **Fridge** adds 1 to the chips of that stall's ripe piles, never past today's clock number.
+At dawn, throw away piles that have reached "spoiled". A Health Inspector, if one is in town, counts the "tired" piles at the start of the day, before anyone buys or throws fruit away. A Juice Bar juices up to 2 pieces of fruit that spoil. After a Monsoon Downpour no clock moves. A Shade Cloth pile keeps its chip for the night (add 1 to the chips of the named fruit). A **Fridge** adds 1 to the chips of that stall's ripe piles, never past today's clock number.
 
 **Waiting.** Customers who are not fully served go to a waiting pile with their pieces. A waiting customer that is not fully served the next day leaves.
 
@@ -265,9 +264,11 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 
 ## Balance notes
 
+Rules version 13 (PLAN-061): events are no longer shown a day early; each is turned over on its own morning, and a walk-in event changes the walk-ins already waiting. The Cold Room upgrade is gone (three upgrades: Juice Bar, Handcart, Premium Display). See REP-092.
+
 Rules version 12 (PLAN-060): you choose exactly which pieces go in your crate, and only those can sell (oldest of them first). Before, the crate was a number and the oldest fresh-enough pieces came from your whole shelf. Computer players fill their crates with their oldest pieces. See REP-091 for the balance check.
 
-Rules version 11, the compact rules (PLAN-057, the owner's build spec of 9 November 2026): 2 to 6 stalls, about half the fruit per day. Every customer order is halved (rounded half up, at least 1) and apples pay $1 more. Stalls start with $10, buy 4 a day (Handcart 5) and hold 6 (Handcart 8). The crowd is one customer per stall; Market Days and walk-in events scale per 3 stalls. Twenty different lorry cards print amounts for 2 to 6 stalls, and the Seconds Lorry delivers Okay fruit. Seven new events (20 in all). Two new shopkeepers, Pak Din (Shade Cloth) and Farah (Sharp Ears); the Haggler now wins ties only against equally fresh fruit and lost the first-sale dollar; Big Basket's extra piece costs the normal price; the Charmer can earn 2 favour cards a day; the Tip Jar pays $2; Nest Egg starts with $18. Upgrades cost half (Cold Room $2, Juice Bar $2 and juices up to 2, Handcart $3, Premium Display $4). At 5 and 6 stalls the favour deck has 3 of each card. The spec's figures were simulated on a patched copy of the 1.11.0 engine with Hard computer players; see REP-090 for the check on the built game.
+Rules version 11, the compact rules (PLAN-057, the owner's build spec of 9 November 2026): 2 to 6 stalls, about half the fruit per day. Every customer order is halved (rounded half up, at least 1) and apples pay $1 more. Stalls start with $10, buy 4 a day (Handcart 5) and hold 6 (Handcart 8). The crowd is one customer per stall; Market Days and walk-in events scale per 3 stalls. Twenty different lorry cards print amounts for 2 to 6 stalls, and the Seconds Lorry delivers Okay fruit. Seven new events (20 in all). Two new shopkeepers, Pak Din (Shade Cloth) and Farah (Sharp Ears); the Haggler now wins ties only against equally fresh fruit and lost the first-sale dollar; Big Basket's extra piece costs the normal price; the Charmer can earn 2 favour cards a day; the Tip Jar pays $2; Nest Egg starts with $18. Upgrades cost half (Cold Room $2, since removed in rules 13; Juice Bar $2 and juices up to 2, Handcart $3, Premium Display $4). At 5 and 6 stalls the favour deck has 3 of each card. The spec's figures were simulated on a patched copy of the 1.11.0 engine with Hard computer players; see REP-090 for the check on the built game.
 
 Rules version 8 (REP-086 and a second round of about 25,000 computer games): every shopkeeper now wins within about 3 points of a fair share (before, Big Basket won about 10 points more and Haggler about 9 points fewer). Haggler's first sale each day pays $1 more; Big Basket's extra piece costs $2 more (was $1); Nest Egg buys first on day 3; Charmer starts with 4 favour cards; two stalls get one walk-in a day, so a 2-player game is no longer decided by a single customer; and quick matches online have no upgrades. The Daily market also gets a small twist that rotates through the week (see below).
 
@@ -297,6 +298,6 @@ Everyone in the world plays the same shuffled decks each day: you against Rosa (
 | Paid when a customer card leaves the market | Paid immediately on each sale | Simpler to follow |
 | 2 rounds of the first-player token | Fixed 8, 10 or 14 days | Long enough to plan |
 | Delivery card fruits only | The missing fruit still arrives (1) | Prevents days where nobody can sell anything |
-| Event cards (6 types) | 20 events, each announced a day early | Events change decisions, not just numbers |
+| Event cards (6 types) | 20 events, each a surprise on the morning it is drawn | Every morning can change the day |
 | First player rotates | Poorest stall buys first | Stops early leaders running away |
 | (none) | Perks, upgrades, Market Days, Closing Day | Every game opens differently and has an arc |

@@ -95,7 +95,7 @@ export function marketDayTomorrow(s: GameState): boolean {
 }
 
 /**
- * Fruit in a shop that really spoils tonight, by the night's own rules: none on a Cold Room's odd nights, one more
+ * Fruit in a shop that really spoils tonight, by the night's own rules: none after a Monsoon, one more
  * step in a Heatwave, and up to 3 pieces become juice instead with a Juice Bar (those are not counted here).
  */
 export function spoilsTonight(s: GameState, p: number): number {

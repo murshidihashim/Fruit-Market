@@ -324,7 +324,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
         <section class="panel">
           <h3>Rules</h3>
           <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
-          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall upgrades" text="After each Market Day, build one: Cold Room, Juice Bar, Handcart or Premium Display." />
+          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall upgrades" text="After each Market Day, build one: Juice Bar, Handcart or Premium Display." />
           <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={unripeSetupText()} />
           <Toggle on={marketDays} set={setMarketDays} title="Market Days" text={marketDaysSetupText()} />
         </section>

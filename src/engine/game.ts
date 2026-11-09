@@ -361,6 +361,22 @@ function drawFarmer(s: GameState): FarmerCard {
   return FARMER_CARDS[s.farmerDeck.shift()!];
 }
 
+/**
+ * Rules 13: a walk-in event (Festival, Tourist Bus, Monsoon) changes the walk-ins already waiting face down on the
+ * morning it is drawn: extra walk-ins join the end of the row face down; fewer means the last ones go back under the
+ * customer deck.
+ */
+function eventWalkIns(s: GameState) {
+  const k = scaledWalkIns(s.event?.walkIns ?? 0, s.players.length);
+  for (let i = 0; i < k; i++) s.queue.push(drawCustomer(s, true));
+  if (k < 0) {
+    for (const c of s.queue.splice(Math.max(0, s.queue.length + k))) {
+      const i = CUSTOMER_CARDS.findIndex((x) => x.name === c.name);
+      if (i >= 0) s.customerDeck.push(i);
+    }
+  }
+}
+
 function drawEvent(s: GameState): EventCard {
   if (s.eventDeck.length === 0) s.eventDeck = withRng(s, (r) => r.shuffle(EVENT_CARDS.map((_, i) => i)));
   return EVENT_CARDS[s.eventDeck.shift()!];
@@ -491,15 +507,15 @@ export function pickTrait(state: GameState, p: number, t: TraitId): GameState {
 function startDay(s: GameState) {
   s.phase = 'morning';
   s.event = null;
-  if (s.day > 1 && s.config.events) s.event = s.nextEvent ?? drawEvent(s);
-  // Tomorrow's event is announced a day early. A night-only event is never the last day's event.
+  // Rules 13: today's event is drawn this morning and never shown the day before. The Health Inspector is never the
+  // last day's event.
   s.nextEvent = null;
-  if (s.config.events && s.day < s.config.days) {
-    s.nextEvent = drawEvent(s);
-    if (s.day + 1 === s.config.days && s.nextEvent.inspector) s.nextEvent = drawEvent(s);
+  if (s.day > 1 && s.config.events) {
+    s.event = drawEvent(s);
+    if (s.day === s.config.days && s.event.inspector) s.event = drawEvent(s);
+    eventWalkIns(s);
   }
   // Health Inspector: at the start of the day, before anyone buys or discards, every shop pays for each tired piece.
-  // A Cold Room does not help.
   s.dayFines = s.players.map(() => 0);
   if (s.event?.inspector) {
     s.players.forEach((pl, i) => {
@@ -622,7 +638,8 @@ function customersArrive(s: GameState) {
   s.forecast = null;
   if (s.day < s.config.days) {
     s.forecast = drawCustomer(s);
-    for (let i = 0; i < walkInsOn(s, s.day + 1, s.nextEvent); i++) s.queue.push(drawCustomer(s, true));
+    // Tomorrow's event is not known yet (rules 13): its walk-in change is made on the morning it is drawn.
+    for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.queue.push(drawCustomer(s, true));
     // Sharp Ears: the shop secretly peeks at one of tomorrow's walk-ins it has not seen (the first in the queue).
     s.players.forEach((pl, p) => {
       if (pl.trait !== 'earful') return;
@@ -1117,12 +1134,9 @@ function nightfall(s: GameState): GameState {
 /** What tonight does to a shop's shelf: pieces that spoil, and pieces its Juice Bar turns into juice instead. */
 export interface NightOutlook { spoil: number; juice: number }
 
-/** Nights a shop's fruit ages tonight: one; none on a Cold Room's odd nights; a Heatwave adds one, but not in a Cold
- *  Room; a Monsoon (ageExtra -1) stops all ageing, Cold Room or not. */
-function shelfSteps(s: GameState, pl: Player): number {
-  const room = pl.upgrades.includes('coldroom');
-  const extra = s.event?.ageExtra ?? 0;
-  return Math.max(0, (room && s.day % 2 === 1 ? 0 : 1) + (room && extra > 0 ? 0 : extra));
+/** Nights a shop's fruit ages tonight: one; a Heatwave adds one; a Monsoon (ageExtra -1) stops all ageing. */
+function shelfSteps(s: GameState, _pl: Player): number {
+  return Math.max(0, 1 + (s.event?.ageExtra ?? 0));
 }
 
 /** Ages one shop's shelf by tonight's steps, in place; Shade Cloth pieces sit out. Returns the pieces that left, by fruit. */
@@ -1153,7 +1167,7 @@ function ageShop(s: GameState, pl: Player) {
 
 /**
  * Ripe pieces of each fruit that leave shop `p`'s shelf tonight (spoiled or juiced), by the night's own steps. Nothing
- * when no night follows (the final day). Read in the evening it includes a Cold Room or Juice Bar built tonight; read at
+ * when no night follows (the final day). Read in the evening it includes a Juice Bar built tonight; read at
  * the sales card of a draft night, an upgrade built afterwards can still change it.
  */
 export function leavingTonight(s: GameState, p: number): Record<FruitId, number> {

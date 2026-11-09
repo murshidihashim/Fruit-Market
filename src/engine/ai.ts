@@ -94,10 +94,7 @@ function outlook(s: GameState, p: number, f: FruitId, stage: 'fresh' | 'okay' | 
 /** Will this fruit be scarce tomorrow? (The card shows few of it.) */
 function scarceTomorrow(s: GameState, f: FruitId): boolean {
   if (s.day >= s.config.days) return false;
-  // Tomorrow's event can empty the lorry too.
-  const ev = s.nextEvent;
-  if (ev && (ev.noDelivery || ev.noFruit === f || ev.supplyMult)) return true;
-  // Scarce: the card brings no more than one piece per shop.
+  // Tomorrow's event is never known in advance (rules 13). Scarce: the card brings no more than one piece per shop.
   return !!s.nextFarmer && printedSupply(s.nextFarmer, f, s.players.length) <= s.players.length;
 }
 
@@ -119,23 +116,16 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   const cap = capAt(f, pos, avgMax);
   const planner = level(s, p) !== 'easy';
   const juice = planner && pl.upgrades.includes('juicebar');
-  const cold = planner && pl.upgrades.includes('coldroom');
   // Juice Bar: older fruit earns a tip when sold.
   const tip = juice && stage !== 'fresh' ? JUICE_TIP : 0;
   const price = (ratio <= 1 ? cap - 0.5 : Math.max(1, cap - (ratio - 1) * 3.5)) + tip;
   const pSell = Math.min(1, 1 / ratio);
-  // A Cold Room makes fruit last about twice as long.
-  const laterDays = Math.min(cold ? pos * 2 + 1 : pos, daysLeft);
-  let later = laterDays > 0 ? (cold ? 0.55 : 0.35) * Math.max(0, price - 1) * (1 - pSell) : 0;
+  const laterDays = Math.min(pos, daysLeft);
+  let later = laterDays > 0 ? 0.35 * Math.max(0, price - 1) * (1 - pSell) : 0;
   // Juice Bar: fruit that doesn't sell still becomes juice (JUICE_VALUE each) when it spoils, if tonight's JUICE_CAP has room.
   if (juice && daysLeft > 0) {
     const spoilingSoon = FRUITS.reduce((a, x) => a + pl.stock[x][0], 0) + extraMine;
     if (spoilingSoon < JUICE_CAP) later = Math.max(later, JUICE_VALUE * (1 - pSell));
-  }
-  // A Hard shop reads tomorrow's event: fruit that sells for more tomorrow is worth keeping.
-  if (level(s, p) === 'hard' && HARD.eventAware && laterDays > 0 && s.nextEvent) {
-    const mod = (s.nextEvent.priceAll ?? 0) + (s.nextEvent.price?.[f] ?? 0);
-    later += HARD.eventAware * mod * 0.5;
   }
   // Closing Day: ripe fruit that doesn't sell goes to the jam maker. Counted only for a piece that costs no more than
   // the jam maker pays (a free one, or one at the jam price), which can't lose money. The sale chance here is a hopeful guess:
@@ -144,8 +134,6 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   // and, while buying, face-down walk-ins guessed from the fruit on their backs), so it never props up a piece that
   // nobody is expected to want.
   if (planner && daysLeft === 0 && isLastCall(s) && qty > 0 && cost <= JAM_PRICE) later = Math.max(later, JAM_PRICE * (1 - pSell));
-  // Health Inspector tomorrow morning: fruit that turns tired overnight costs $2 before anyone can sell it.
-  if (laterDays > 0 && s.nextEvent?.inspector && pos === 1) later -= s.nextEvent.inspector * (1 - pSell);
   // Fruit that will be scarce tomorrow (few on the next lorry) is worth keeping.
   if (laterDays > 0 && planner && scarceTomorrow(s, f)) {
     later += 0.5 * Math.max(0, price - 1) * (1 - pSell * 0.5);
@@ -336,9 +324,7 @@ export function planStall(s: GameState, p: number): Stall {
     if (!have) continue;
     let out = have;
     // Holding back makes sense only when the fruit will be scarce tomorrow and keeps another night.
-    // A Cold Room skips ageing after odd days: unsold stock loses nothing, so put out only what should sell.
-    const coldNight = pl.upgrades.includes('coldroom') && s.day % 2 === 1;
-    if (!lastDay && level(s, p) !== 'easy' && (scarceTomorrow(s, f) || coldNight)) {
+    if (!lastDay && level(s, p) !== 'easy' && scarceTomorrow(s, f)) {
       const { sold } = bestPost(s, p, f, have, (i) => ripeCount(s.players[i].stock, f));
       out = Math.max(pl.stock[f][0], Math.min(have, Math.ceil(sold + 0.5)));
     }
@@ -377,15 +363,14 @@ export function pickUpgrade(s: GameState, p: number, skip?: UpgradeId): UpgradeI
   const want: [UpgradeId, number, boolean][] = [
     ['barrow', 4, true],
     ['premium', 4, true],
-    ['coldroom', 3, true],
     ['juicebar', 2, atRisk >= 1],
   ];
   // Normal and Hard shops pick the speciality that suits them first: lots of old fruit about suits a Juice Bar,
-  // Market Days still to come suit a Cold Room. A per-shop lean spreads the plans across the table.
+  // otherwise a bigger Handcart for the Market Days still to come. A per-shop lean spreads the plans across the table.
   if (lv !== 'easy') {
     const lean = rand(s, p, 7);
     if ((atRisk >= 3 || oldAtMarket >= 4) && lean < 0.5) want.unshift(['juicebar', 2, true]);
-    else if (marketDaysLeft >= 1 && lean >= 0.5) want.unshift(['coldroom', 3, true]);
+    else if (marketDaysLeft >= 1 && lean >= 0.5) want.unshift(['barrow', 3, true]);
   }
   for (const [u, minDays, ok] of want) {
     if (u === skip || left < minDays || !ok) continue;

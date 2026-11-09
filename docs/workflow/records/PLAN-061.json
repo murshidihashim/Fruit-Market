@@ -1,0 +1,72 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [
+    "REP-092"
+  ],
+  "decisions": [
+    "DEC-078"
+  ],
+  "changes": {
+    "added": [
+      "Seven draft event artworks (Tourist Bus, Monsoon Downpour, Durian Season, Kenduri, Mango Windfall, Pasar Malam, Bake-Off) in docs/studio/art-drafts/events, not yet in the game"
+    ],
+    "changed": [
+      "Rules version 13: today's event is turned over each morning and never shown the day before; walk-in events add or remove walk-ins that morning",
+      "Morning card: the event picture fills the card with a band underneath; no day count, standing or tomorrow's news",
+      "Computer players no longer read tomorrow's event; Handcart instead of Cold Room in their plans",
+      "Rule book, upgrade text, achievement and print kit wording"
+    ],
+    "fixed": [],
+    "removed": [
+      "The Cold Room upgrade",
+      "Tomorrow's event forecast and the evening warnings that depended on it"
+    ]
+  },
+  "playerNotes": [
+    "Events are now a surprise: each morning's news card is turned over that day",
+    "The Cold Room is gone; three upgrades remain",
+    "Bigger event pictures on the morning card"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "change the rule so that market event cant be forecasted / remove \"day 2 day 7 day to go #3 behind\" stats from event card, picture for the event card should ne bigger ... / renove cold room",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-061",
+  "title": "Events turned over each morning, no Cold Room (rules 13), full-picture event card and new event art",
+  "problem": "Owner: events should not be forecast, the morning card should drop its stats and let the picture fill it, the seven events without art need artwork, and the Cold Room should go.",
+  "scope": [
+    "Engine: event drawn each morning, walk-in events applied that morning, Cold Room removed",
+    "Computer players stop reading tomorrow's event",
+    "Morning card redesign; evening warnings that need tomorrow's event removed",
+    "RULES.md, upgrade text, achievement, print kit",
+    "RULES_VERSION 13, new daily seeds",
+    "Seven event artworks and a preview of all 20 cards, for approval"
+  ],
+  "exclusions": [
+    "Putting the new artwork into the game (awaiting owner approval)",
+    "Publishing live"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests incl. tests/rules13.test.ts, build"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. online 0 leaks",
+      "result": "PASS",
+      "evidence": "2026-11-10 npm run test:e2e: E2E OK; solo, BUDGET OK, online 0 leaks in 94 pricing frames, quick match, 6-stall room, reconnect 5/5"
+    },
+    {
+      "id": "T3",
+      "text": "Balance check (Hard computers, 400 games at 3 and at 4 stalls)",
+      "result": "PASS",
+      "evidence": "Cash $108 / $107, 29.3 / 29.7 pieces sold per stall; every shopkeeper within 4.5 points of fair (Sharp Ears +4.5 and Haggler -4.5 at 4 stalls), closer than rules 12"
+    }
+  ]
+}

@@ -40,7 +40,7 @@ expectCount('guests', GUESTS.length, 5);
 const PRINT_FAVOURS = favourDeckFor(6);
 expectCount('favour cards', PRINT_FAVOURS.length, 18);
 expectCount('delivery cards', FARMER_CARDS.length, 20);
-expectCount('upgrades', Object.keys(UPGRADES).length, 4);
+expectCount('upgrades', Object.keys(UPGRADES).length, 3);
 
 /** print/art holds the same file names as public/art, at 300 ppi. */
 const artFile = (url: string | null) => (url ? join(ART, url.slice(url.lastIndexOf('art/') + 4)) : '');
@@ -142,7 +142,6 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-seal { position: relative; z-index: 1; width: 9.4em; height: 9.4em; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--x-mustard); border: 0.3em solid var(--x-ink); box-shadow: 0 0 0 0.4em var(--x-card), 0 0 0 0.65em var(--x-ink); }
 .pk-seal b { font: 3.7em/1 var(--f-display); color: var(--x-ink); }
 .pk-seal small { margin-top: 0.15em; font: 600 0.95em/1 var(--f-label); letter-spacing: 0.2em; text-transform: uppercase; color: var(--x-ink); }
-.pk-upg-coldroom { --ray-a: var(--x-sky); --ray-b: var(--x-sky-d); }
 .pk-upg-juicebar { --ray-a: var(--x-mustard); --ray-b: var(--x-mustard-d); }
 .pk-upg-barrow { --ray-a: var(--x-green); --ray-b: var(--x-chalk); }
 .pk-upg-premium { --ray-a: var(--x-red); --ray-b: var(--x-red-d); }
@@ -312,7 +311,7 @@ const eventFront = (e: EventCard): Cell => ({
 });
 const eventBack: Cell = {
   html: `<article class="x-card x-gz pk-gzb"><header class="x-gz-mast">Fruit Market</header><div class="x-gz-ed"><span>Morning edition · One cent</span><span>Event card</span></div>`
-    + `<strong class="x-gz-head">Tomorrow’s news</strong><p class="x-gz-sub">Read all about it, a day early</p>`
+    + `<strong class="x-gz-head">Today’s news</strong><p class="x-gz-sub">Turned over each morning, never before</p>`
     + `<div class="pk-gzb-mid"><b class="x-gz-seal">Extra!</b></div>`
     + `<p class="pk-gzb-foot">Event · one each morning from Day 2</p></article>`,
   bleed: PAPER, label: 'Events',
@@ -459,7 +458,7 @@ function playerAid(): Page {
     `<div class="pk-beat ${cls}"><b class="num">${n}</b><h3>${esc(title)}</h3><p>${text}</p></div>`;
   const ic = (stages: Stage[]) => stages.map((s) => fruitImg('apple', s, `${s === 'notso' ? 'Tired' : s === 'okay' ? 'Okay' : 'Fresh'} apple`)).join('');
   const beats = [
-    beat('1', 'Morning', 'Apply today’s <b>event</b>. The lorry unloads today’s card at the freshest spot (green fruit at the unripe spot, the Seconds Lorry at Okay), every day. Draw tomorrow’s card and event.'),
+    beat('1', 'Morning', 'Turn over today’s <b>event</b> and apply it (walk-in events add or remove walk-ins now). The lorry unloads today’s card at the freshest spot (green fruit at the unripe spot, the Seconds Lorry at Okay). Draw tomorrow’s card.'),
     beat('2', 'Buying', `The <b>poorest stall buys first, then the others go clockwise</b> (ties: first clockwise from the token; Day 1 starts at the token; Priority jumps the queue). Buy up to <b>${BASE_BUY}</b> pieces (${BARROW_BUY} with a Handcart), paying the cost for each fruit’s freshness. Your shelf holds ${BASE_SHELF} (${BARROW_SHELF} with a Handcart).`),
     beat('3', 'Stocking', 'Customers arrive: waiting, the regular, then the walk-ins (face up now). Secretly move the fruit you will sell into your <b>crate</b>; then show all crates. Only crate fruit sells.'),
     beat('4', 'The bell', 'Secretly set <b>one price per fruit</b> you put out, then everyone reveals together. No lower limit.'),
