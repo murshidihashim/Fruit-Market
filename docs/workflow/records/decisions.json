@@ -1868,7 +1868,7 @@
         "evidence": "go with c, then publish live",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-058",
       "reports": [],
       "reviewTrigger": "If players miss the old one-tap level buttons"
@@ -2550,6 +2550,10 @@
     {
       "at": "2026-11-09 12:44",
       "text": "Owner chose option C for the Rival stalls panel (DEC-075, PLAN-058) and asked to publish live. Release 1.12.1 prepared (no rules change)."
+    },
+    {
+      "at": "2026-11-09 13:16",
+      "text": "Release 1.12.1 published (seat tiles on the New game screen): main 4b8f754, Deploy LIVE game run 28 success (verify, release check, deploy, live smoke test), tag v1.12.1."
     }
   ]
 }

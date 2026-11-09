@@ -282,13 +282,16 @@
     },
     {
       "version": "1.12.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-058"
       ],
       "notes": [
         "Tidier New game screen: tap a rival stall's tile to change it, or + Add for another"
-      ]
+      ],
+      "date": "2026-11-09",
+      "commit": "4b8f754",
+      "tagged": true
     }
   ]
 }
