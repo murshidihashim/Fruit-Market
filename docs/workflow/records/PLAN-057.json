@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.12.0",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [
     "REP-090"
@@ -39,7 +39,7 @@
     "evidence": "ok now build with this (with the Compact Rules build spec PDF of 9 November 2026)",
     "date": "2026-11-09"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-057",
   "title": "Compact rules for 2 to 6 stalls (rules 11)",
   "problem": "The owner's build spec (Fruit Market: Compact Rules, 9 November 2026) moves the game from 2-4 to 2-6 stalls and halves the fruit volume, keeping prices.",
@@ -61,7 +61,7 @@
       "id": "T1",
       "text": "npm run verify passes",
       "result": "PASS",
-      "evidence": "see REP-090 section 4"
+      "evidence": "2026-11-09: 390 unit tests, build; also in Deploy LIVE game run 27"
     },
     {
       "id": "T2",

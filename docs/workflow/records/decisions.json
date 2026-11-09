@@ -1843,7 +1843,7 @@
         "evidence": "ok now build with this",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-057",
       "reports": [
         "REP-090"
@@ -2519,6 +2519,10 @@
     {
       "at": "2026-11-09 12:15",
       "text": "Owner chose option A in REP-090 (keep the shopkeeper balance as built and playtest it) and asked to merge and publish: \"a and merge, then publish live\". Release 1.12.0 prepared (rules version 11)."
+    },
+    {
+      "at": "2026-11-09 12:27",
+      "text": "Release 1.12.0 published (rules version 11, compact rules): main 6bc9552, Deploy LIVE game run 27 success (verify, release check, deploy, live smoke test), tag v1.12.0."
     }
   ]
 }
