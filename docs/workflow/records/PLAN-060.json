@@ -54,8 +54,8 @@
     {
       "id": "T2",
       "text": "Browser tests incl. online 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "running"
+      "result": "PASS",
+      "evidence": "2026-11-09 npm run test:e2e: E2E OK; solo, BUDGET OK, online 0 leaks in 82 pricing frames, quick match, 6-stall room, reconnect 5/5"
     },
     {
       "id": "T3",
