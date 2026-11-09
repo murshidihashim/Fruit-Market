@@ -290,7 +290,7 @@ def durian_card():
     right = bust(452, 192, .9, O, tudung=G, mouth='yuck', hand_nose=1)
     svg('durian', rays(G2, G3, 260, 150), skyline(gy, '#d6e5c8', .45, 7), ground(gy, WOOD),
         throne, seat, durian(260, 190, 70), crown, stinks(140, 170), stinks(372, 170, -1),
-        left, right, tag(18, 22, '−$1'), sparkle(400, 60, 12), sparkle(118, 82, 9))
+        tag(18, 22, '−$1'), sparkle(400, 60, 12), sparkle(118, 82, 9), sparkle(440, 230, 10), sparkle(80, 250, 11))
 
 def kenduri():
     gy = 250

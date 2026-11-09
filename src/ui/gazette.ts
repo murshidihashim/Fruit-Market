@@ -28,7 +28,7 @@ export const GAZETTE: Record<EventId, GazetteCopy> = {
   hotel: { subhead: 'Hotel kitchen places a big order', caption: 'A hotel chef at the counter with a service bell, a silver cloche and an order slip.', effects: ['Apple $8', 'Watermelon $8', 'Blueberry $7'] },
   touristBus: { subhead: 'Coach pulls up full of hungry visitors', caption: 'A painted tour bus unloading cameras and sun hats.', effects: ['+2 walk-ins (+3 at 4, +4 at 5-6)'] },
   monsoon: { subhead: 'Downpour keeps shoppers at home', caption: 'Rain sheeting off the awnings, puddles round the crates.', effects: ['−1 walk-in (−2 at 4-6)', 'Nothing ages tonight'] },
-  durian: { subhead: 'The king of fruits steals the show', caption: 'A spiky durian on a throne, shoppers holding their noses.', effects: ['Market costs −$1', 'Customers −$1'] },
+  durian: { subhead: 'The king of fruits steals the show', caption: 'A spiky durian crowned on its throne, its smell drifting out.', effects: ['Market costs −$1', 'Customers −$1'] },
   kenduri: { subhead: 'Wedding feast needs watermelon', caption: 'A caterer with a long table, garlands and a wedding cake.', effects: ['Caterer: 3 watermelons at $8'] },
   mangoWindfall: { subhead: 'Storm shakes the mango trees', caption: 'Ripe mangoes tumbling from a tree into a waiting basket.', effects: ['+1 ripe mango per 2 stalls', 'Mango −$2'] },
   pasarMalam: { subhead: 'Night market lights up the square', caption: 'Lanterns, food carts and a hawker counting coins.', effects: ['Hawker buys 1 of each crate fruit', '$3 each, any freshness'] },
