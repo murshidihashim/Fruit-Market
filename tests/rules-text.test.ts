@@ -30,7 +30,7 @@ describe('green fruit', () => {
   });
 
   it('the Market Days switch takes the Closing Day numbers from the game data', () => {
-    expect(marketDaysSetupText()).toBe(`Days 3, 6, 9 and 12: one more walk-in. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`);
+    expect(marketDaysSetupText()).toBe(`Days 3, 6, 9 and 12: one more walk-in for every 3 stalls. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`);
   });
 
   it('How to play draws green steps only for fruit a lorry delivers green', () => {

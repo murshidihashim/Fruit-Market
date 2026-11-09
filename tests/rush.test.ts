@@ -23,6 +23,13 @@ describe('rush seats', () => {
     for (const x of seats) expect(lineOf([offer(2, 4), offer(0, 5), offer(3, 3), offer(1, 6)]).offers[x.i].player).toBe(x.player);
   });
 
+  it('six stalls (rules 11): three rows, your card bottom left, all five rivals seated', () => {
+    const six = lineOf([0, 1, 2, 3, 4, 5].map((p) => offer(p, 4 + p)));
+    const seats = rushSeats(six, 0, 6);
+    expect(seats.map((x) => [x.player, x.slot])).toEqual([[1, 0], [2, 1], [3, 2], [4, 3], [0, 4], [5, 5]]);
+    expect(rushSeats(lineOf([1, 2, 3, 4, 5].map((p) => offer(p, 4))), 0, 6).map((x) => x.slot)).toEqual([0, 1, 2, 3, 4]);
+  });
+
   it('turn order wraps around the table for a viewer in another seat', () => {
     const seats = rushSeats(lineOf([offer(0, 4), offer(1, 5), offer(2, 3)]), 2, 3);
     expect(seats.map((x) => [x.player, x.slot])).toEqual([[0, 0], [1, 1], [2, 2]]);

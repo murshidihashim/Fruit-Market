@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CUSTOMER_CARDS, FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
+import { FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
 import { aiStep, planPrices } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {

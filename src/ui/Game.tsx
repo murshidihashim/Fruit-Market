@@ -101,7 +101,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall) => { fx.card(); act({ kind: 'stall', stall }); }} />;
     if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
     if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
-    if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} /></div>;
+    if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
     return null;
   })();
   const offSeats = offline.map((x) => x.seat);

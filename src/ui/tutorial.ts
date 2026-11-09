@@ -12,7 +12,7 @@ export const TIPS: Tip[] = [
   { id: 'bought', title: 'Nice!', text: 'It\'s on your shelf now, at the bottom. The chips count your pieces of each fruit: green fresh, yellow okay, red tired. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Open your stall', text: 'Choose how many of each fruit to put out today. Everyone sees how many each stall puts out before anyone sets a price.' },
   { id: 'bid', title: 'Secret prices', text: 'One price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
-  { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then the Haggler, then fresher fruit.' },
+  { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then fresher fruit, then the Haggler.' },
   { id: 'evening', title: 'Evening', text: 'Play a favour card or build an upgrade, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
   { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest stall buys first, then the others go clockwise. Most cash after the last day wins. Good luck!' },
 ];

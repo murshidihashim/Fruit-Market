@@ -4,7 +4,7 @@ import { useState } from 'preact/hooks';
 import { planPrices, planStall } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, forSale, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook,
+  canPlayFavour, canUpgrade, count, forSale, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook, shadePick,
   validatePrices, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
@@ -48,7 +48,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   const set = (f: FruitId, n: number) => setVals((v) => ({ ...v, [f]: Math.max(0, Math.min(count(pl.stock, f, true), n)) }));
   const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
   // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off); else Market Day news.
-  const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: one more walk-in. The lorry still comes.' : null;
+  const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: more walk-ins. The lorry still comes.' : null;
   return (
     <>
       <div class="price-panel stall-panel mid-panel">
@@ -179,7 +179,11 @@ function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {
   return FRUITS.reduce((a, f) => a + (pl.stock[f][steps] ?? 0) * (steps < FRUIT[f].ripe.length ? 1 : 0), 0);
 }
 
-export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void }) {
+export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
+  s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void;
+  /** Shade Cloth (rules 11): name the fruit that does not age tonight (null: none). */
+  onShade?: (f: FruitId | null) => void;
+}) {
   const pl = s.players[p];
   // Tonight follows the night's own rules (a Cold Room, a Heatwave, the Juice Bar): "2 spoil tonight, 3 become juice (+$6)".
   const night = nightOutlook(s, p);
@@ -222,10 +226,28 @@ export function EveningPanel({ s, p, onUpgrade, onCard }: { s: GameState; p: num
           {pl.upgrades.length > 0 && <div class="owned-row">Built: {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={16} /> {UPGRADES[u].title}</span>)}</div>}
         </>
       )}
+      {pl.trait === 'keeper' && onShade && <ShadePick s={s} p={p} onShade={onShade} />}
       {pl.favours.length > 0 && <div class="pp-intro"><b>Up your sleeve</b><span>Favour cards you can play.</span></div>}
       <FavourRow s={s} p={p} phase="evening" onCard={onCard} />
       {s.players.length > 1 && <div class="whisper"><b class="psst">Psst…</b> the rivals are plotting tonight too.</div>}
     </div>
+  );
+}
+
+/** Shade Cloth: pick tonight's fruit. Until you choose, the suggested fruit (the one with most to lose) is used. */
+function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: FruitId | null) => void }) {
+  const pl = s.players[p];
+  const chosen = pl.shade === undefined ? shadePick(s, p) : pl.shade;
+  return (
+    <>
+      <div class="pp-intro"><b>Shade Cloth</b><span>Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</span></div>
+      <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
+        {FRUITS.map((f) => (
+          <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>
+        ))}
+        <button type="button" role="radio" aria-checked={chosen === null} class={chosen === null ? 'on' : ''} onClick={() => onShade(null)}>None</button>
+      </div>
+    </>
   );
 }
 

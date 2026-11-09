@@ -2150,6 +2150,7 @@ b, strong { font-weight: 700; }
   align-items: center; gap: 10px 8px;
 }
 .rush.n1 .rs-table, .rush.n2 .rs-table { grid-template-areas: "s0 mid s1"; }
+.rush.n5 .rs-table, .rush.n6 .rs-table { grid-template-areas: "s0 mid s1" "s2 mid s3" "s4 mid s5"; gap: 6px 8px; }
 .rush .rs-mid { grid-area: mid; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .rush .rs-card { --card-w: 7rem; transform-origin: 0 0; }
 .rush .rs-card .x-card { height: calc(var(--card-w) * 1.22); box-shadow: 0 3px 0 var(--x-ink); }
@@ -2164,6 +2165,10 @@ b, strong { font-weight: 700; }
 .rush .rs-seat.s1 { grid-area: s1; --dx: -46px; --dy: 30px; }
 .rush .rs-seat.s2 { grid-area: s2; --dx: 46px; --dy: -30px; }
 .rush .rs-seat.s3 { grid-area: s3; --dx: -46px; --dy: -30px; }
+.rush .rs-seat.s4 { grid-area: s4; --dx: 46px; --dy: -50px; }
+.rush .rs-seat.s5 { grid-area: s5; --dx: -46px; --dy: -50px; }
+.rush.n5 .rs-seat.s2, .rush.n6 .rs-seat.s2 { --dy: 0px; }
+.rush.n5 .rs-seat.s3, .rush.n6 .rs-seat.s3 { --dy: 0px; }
 .rush.n1 .rs-seat, .rush.n2 .rs-seat { --dy: 0px; }
 .rush .rs-flip {
   position: relative; transform-style: preserve-3d; opacity: 0;

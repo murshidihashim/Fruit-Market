@@ -1,5 +1,5 @@
-// Four people in one online room (PLAN-005): the lobby counts seats correctly (computer shops
-// included), shows open seats and "Room full", a fifth person is refused, and all four reach the game.
+// Four people in one online room (PLAN-005; rules 11: rooms hold 6): the lobby counts seats correctly (computer shops
+// included), shows open seats and "Room full" once two computers fill it, a fifth person is refused, and all six stalls reach the game.
 // Usage: node scripts/e2e-four.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
@@ -34,8 +34,8 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
   await host.page.waitForSelector('#invite-link');
   const link = await host.page.inputValue('#invite-link');
   let l = await lobby();
-  expect(l.heading === 'Players 1 of 4' && l.open === 3 && !l.full, `1 of 4 with 3 open seats, got ${JSON.stringify(l)}`);
-  expect(await host.page.locator('text=Invite friends (up to 3)').count() === 1, '"Invite friends (up to 3)"');
+  expect(l.heading === 'Players 1 of 6' && l.open === 5 && !l.full, `1 of 6 with 5 open seats, got ${JSON.stringify(l)}`);
+  expect(await host.page.locator('text=Invite friends (up to 5)').count() === 1, '"Invite friends (up to 5)"');
   await host.page.screenshot({ path: `${out}/four-1-lobby.png` });
 
   const others = [];
@@ -51,15 +51,17 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
       await host.page.click('text=+1 AI');
       await settle();
       l = await lobby();
-      expect(l.heading === 'Players 3 of 4' && l.open === 1, `3 of 4 with 1 open seat after +1 AI, got ${JSON.stringify(l)}`);
-      expect(await host.page.locator('text=Invite friends (up to 2)').count() === 1, '"Invite friends (up to 2)" with one computer shop');
+      expect(l.heading === 'Players 3 of 6' && l.open === 3, `3 of 6 with 3 open seats after +1 AI, got ${JSON.stringify(l)}`);
+      expect(await host.page.locator('text=Invite friends (up to 4)').count() === 1, '"Invite friends (up to 4)" with one computer shop');
       await host.page.click('text=No AI');
       await settle();
     }
   }
   await settle();
+  await host.page.click('text=+2 AI');
+  await settle();
   l = await lobby();
-  expect(l.heading === 'Players 4 of 4' && l.open === 0 && l.full === 1, `4 of 4, no open seats, "Room full", got ${JSON.stringify(l)}`);
+  expect(l.heading === 'Players 6 of 6' && l.open === 0 && l.full === 1, `6 of 6, no open seats, "Room full", got ${JSON.stringify(l)}`);
   await host.page.screenshot({ path: `${out}/four-2-full.png`, fullPage: true });
 
   const fifth = await join('Eve');
@@ -71,9 +73,9 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
   await host.page.click('text=Start the match');
   await Promise.all([host, ...others].map((P) => P.page.waitForSelector('.market-stall', { timeout: 20000 })));
   const rivals = await host.page.locator('.rv-chip').count();
-  expect(rivals === 3, `3 rivals in the game, got ${rivals}`);
+  expect(rivals === 5, `5 rivals in the game, got ${rivals}`);
   await host.page.screenshot({ path: `${out}/four-3-game.png` });
-  console.log('four players: lobby counts OK (1→3 with a computer→4, Room full), 5th refused, all 4 in the game');
+  console.log('four players + 2 computers: lobby counts OK (1→3 with a computer→6, Room full), 5th person refused, all 6 stalls in the game');
   await browser.close();
 })().catch(async (e) => {
   console.error('FAIL', e.message.split('\n')[0]);

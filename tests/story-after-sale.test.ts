@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
-import { CUSTOMER_CARDS, FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
+import { FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
 import { aiStep, autoplay } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {

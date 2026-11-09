@@ -10,14 +10,14 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium, type Browser } from 'playwright';
 import {
-  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK,
+  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, favourDeckFor,
   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, JAM_PRICE, LAST_CALL_BONUS, MARKET_DAY_EVERY, PREF_INFO, RIVALS,
   UPGRADES, lookOf,
   type CustomerCard, type EventCard, type FarmerCard, type FavourDef, type FruitId, type Stage, type UpgradeDef, type Want,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
 import { Gazette, StallSign, TradingCard, TradingCardBack, toStaticHtml } from '../src/ui/cards';
-import { customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
+import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { fruitSvgUrl } from '../src/ui/fruitIcons';
 import { C } from '../src/ui/palette';
 
@@ -33,10 +33,12 @@ const expectCount = (what: string, got: number, want: number) => {
   if (got !== want) throw new Error(`${what}: expected ${want}, found ${got}. The print kit follows the rules ${RULES_VERSION} deck; check data.ts.`);
 };
 expectCount('customer cards', CUSTOMER_CARDS.length, 36);
-expectCount('event cards', EVENT_CARDS.length, 13);
-expectCount('shopkeepers', RIVALS.length, 6);
-expectCount('guests', GUESTS.length, 3);
-expectCount('favour cards', FAVOUR_DECK.length, 12);
+expectCount('event cards', EVENT_CARDS.length, 20);
+expectCount('shopkeepers', RIVALS.length, 8);
+expectCount('guests', GUESTS.length, 5);
+// Rules 11: print the 6-stall favour deck (3 of each, 18); a 2 to 4 stall table sets one of each aside.
+const PRINT_FAVOURS = favourDeckFor(6);
+expectCount('favour cards', PRINT_FAVOURS.length, 18);
 expectCount('delivery cards', FARMER_CARDS.length, 20);
 expectCount('upgrades', Object.keys(UPGRADES).length, 4);
 
@@ -44,9 +46,10 @@ expectCount('upgrades', Object.keys(UPGRADES).length, 4);
 const artFile = (url: string | null) => (url ? join(ART, url.slice(url.lastIndexOf('art/') + 4)) : '');
 const missingArt = [
   ...CUSTOMER_CARDS.map((c) => artFile(customerArt(c.name))),
-  ...GUESTS.map((g) => artFile(guestArt(g.guest.name))),
-  ...RIVALS.flatMap((r) => [artFile(shopScene(r.avatar)), artFile(shopBadge(r.avatar))]),
-  ...EVENT_CARDS.map((e) => artFile(eventArt(e.id))),
+  // Rules 11 art gaps (ART_COMING) print "Art coming" until the owner's pictures exist.
+  ...GUESTS.filter((g) => !ART_COMING.has(g.guest.name)).map((g) => artFile(guestArt(g.guest.name))),
+  ...RIVALS.filter((r) => !ART_COMING.has(r.avatar)).flatMap((r) => [artFile(shopScene(r.avatar)), artFile(shopBadge(r.avatar))]),
+  ...EVENT_CARDS.filter((e) => !ART_COMING.has(e.id)).map((e) => artFile(eventArt(e.id))),
 ].filter((f) => !f || !existsSync(f));
 if (missingArt.length) throw new Error(`Missing print art:\n${missingArt.join('\n')}`);
 
@@ -120,7 +123,7 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-lorry-head small { font: 600 0.95em/1 var(--f-label); letter-spacing: 0.24em; text-transform: uppercase; color: var(--x-mustard); }
 .pk-lorry-head strong { font: 2.05em/1.05 var(--f-display); text-transform: uppercase; color: var(--x-card); white-space: nowrap; }
 .pk-lorry-head strong.x-long { font-size: 1.5em; padding-top: 0.15em; }
-.pk-board { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 5.2em repeat(4, minmax(0, 1fr)); grid-template-rows: auto repeat(3, 1fr); align-items: center; justify-items: center; padding: 0.5em 0.6em 0.3em; background: var(--x-chalk); border: 0.45em solid var(--x-wood-d); border-radius: 0.35em; box-shadow: inset 0 0 1.1em -0.3em var(--x-ink); color: var(--x-paper); font-family: var(--f-chalk); }
+.pk-board { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 5.2em repeat(4, minmax(0, 1fr)); grid-template-rows: auto repeat(5, 1fr); align-items: center; justify-items: center; padding: 0.5em 0.6em 0.3em; background: var(--x-chalk); border: 0.45em solid var(--x-wood-d); border-radius: 0.35em; box-shadow: inset 0 0 1.1em -0.3em var(--x-ink); color: var(--x-paper); font-family: var(--f-chalk); font-size: 0.84em; }
 .pk-board > * { align-self: stretch; justify-self: stretch; display: flex; align-items: center; justify-content: center; }
 .pk-board .r { border-top: 0.12em dashed var(--x-chalk-l); }
 .pk-board .lab { justify-content: flex-start; font-size: 1.55em; font-weight: 700; line-height: 1; color: var(--x-mustard); }
@@ -331,27 +334,28 @@ function favourFront(f: FavourDef, copy: number): Cell {
     html: `<article class="x-card pk-fav"><div class="pk-fav-top"><span class="pk-kick">Favour</span><em>A secret reward</em></div>`
       + `<div class="pk-burst"><span class="pk-ticket"><small>${w.small}</small><b>${w.big}</b></span><strong class="pk-banner${f.title.length > 10 ? ' x-long' : ''}">${esc(f.title)}</strong></div>`
       + `${fruit}<p class="pk-text">${esc(f.text)}</p><p class="pk-foot">Hold up to ${FAVOUR_HAND_LIMIT} · then discard</p></article>`,
-    bleed: INK, label: `Favour · ${f.title} (${copy} of 2)`,
+    bleed: INK, label: `Favour · ${f.title} (${copy} of 3)`,
   };
 }
 const favourBack: Cell = { html: backShell('pk-back-favour', 'Favour', 'A secret<br>reward'), bleed: 'var(--x-red-d)', label: 'Favours' };
 
-function lorryFront(c: FarmerCard, copy: number): Cell {
+function lorryFront(c: FarmerCard): Cell {
   const head = FRUITS.map((id) => {
     const green = c.unripe === id;
     return `<div><span class="pk-dot">${fruitImg(id, green ? 'unripe' : 'fresh', green ? `${FRUIT[id].name}, green` : FRUIT[id].name)}</span></div>`;
   }).join('');
-  const rows = ([2, 3, 4] as const).map((n) => `<div class="lab r">${n} stalls</div>${FRUITS.map((id) => {
+  const rows = ([2, 3, 4, 5, 6] as const).map((n) => `<div class="lab r">${n} stalls</div>${FRUITS.map((id) => {
     const v = c.table[n][id];
     return `<div class="n r${v ? '' : ' zero'}">${v || '–'}</div>`;
   }).join('')}`).join('');
   const note = c.unripe
     ? `<b>${FRUIT[c.unripe].plural} arrive green:</b> they ripen on the shelf in ${FRUIT[c.unripe].unripeSlots} nights.`
-    : 'Everything on this lorry arrives <b>ripe and fresh</b>.';
+    : c.okay ? 'Everything arrives <b>Okay</b>: into each fruit’s freshest Okay space, at Okay prices.'
+      : 'Everything on this lorry arrives <b>ripe and fresh</b>.';
   return {
     html: `<article class="x-card pk-lorry"><header class="pk-lorry-head"><small>Delivery · The farmer’s lorry</small><strong${c.name.length > 13 ? ' class="x-long"' : ''}>${esc(c.name)}</strong></header>`
       + `<div class="pk-board"><div></div>${head}${rows}</div><p class="pk-note">${note}</p><p class="pk-foot">Use the row for your number of stalls</p></article>`,
-    bleed: INK, label: `Delivery · ${c.name} (${copy} of 2)`,
+    bleed: INK, label: `Delivery · ${c.name}`,
   };
 }
 const lorryBack: Cell = { html: backShell('pk-back-lorry', 'Delivery', FRUITS.map((id) => fruitImg(id)).join('')), bleed: 'var(--x-chalk)', label: 'Deliveries' };
@@ -430,17 +434,18 @@ const legend = `<p class="pk-legend">${(['premium', 'everyday', 'bargain'] as co
 function referencePages(): Page[] {
   const shops = RIVALS.map((r) => toStaticHtml(h(StallSign, { avatar: r.avatar, eager: true })));
   const guests = GUESTS.map(({ guest, event }) => tradingCard(guest.name, guest.wants, true, `pk-guest-${event.id}`));
-  const first = `<section class="pg pk-a4">${secHead('Shopkeepers · The Stall Sign', 'Who’s who · Art 2 “Over the counter”', 'Reference 1 of 4')}`
-    + `<div class="pk-row pk-ref-shops">${shops.slice(0, 3).join('')}</div><div class="pk-row pk-ref-shops">${shops.slice(3).join('')}</div>`
-    + `${secHead('Special guests', 'Each comes with its event', '')}`
-    + `<div class="pk-row pk-ref-guests">${guests.join('')}</div>`
-    + `<p class="pk-interim">Interim pictures: each guest borrows its event’s scene until the guest’s own portrait is drawn.</p></section>`;
-  const pages: Page[] = [{ html: first }];
+  const rowsOf3 = (xs: string[], cls: string) => Array.from({ length: Math.ceil(xs.length / 3) }, (_, k) => `<div class="pk-row ${cls}">${xs.slice(k * 3, k * 3 + 3).join('')}</div>`).join('');
+  const first = `<section class="pg pk-a4">${secHead('Shopkeepers · The Stall Sign', 'Who’s who · Art 2 “Over the counter”', 'Reference 1 of 5')}`
+    + `${rowsOf3(shops, 'pk-ref-shops')}</section>`;
+  const second = `<section class="pg pk-a4">${secHead('Special guests', 'Each comes with its event', 'Reference 2 of 5')}`
+    + `${rowsOf3(guests, 'pk-ref-guests')}`
+    + `<p class="pk-interim">Interim pictures: each guest borrows its event’s scene until the guest’s own portrait is drawn (the Wedding Caterer and the Bakery have none yet).</p></section>`;
+  const pages: Page[] = [{ html: first }, { html: second }];
   for (let p = 0; p < 3; p++) {
     const tiles = CUSTOMER_CARDS.slice(p * 12, p * 12 + 12).map((c) =>
       toStaticHtml(h(TradingCard, { who: c.name, wants: c.wants, eager: true, class: 'pk-ref' })));
     pages.push({
-      html: `<section class="pg pk-a4">${secHead('Customers · The Trading Card', `Who’s who · numbers ${two(p * 12 + 1)} to ${two(p * 12 + 12)}`, `Reference ${p + 2} of 4`)}`
+      html: `<section class="pg pk-a4">${secHead('Customers · The Trading Card', `Who’s who · numbers ${two(p * 12 + 1)} to ${two(p * 12 + 12)}`, `Reference ${p + 3} of 5`)}`
         + `<div class="pk-ref-grid">${tiles.join('')}</div>${legend}</section>`,
     });
   }
@@ -454,11 +459,11 @@ function playerAid(): Page {
     `<div class="pk-beat ${cls}"><b class="num">${n}</b><h3>${esc(title)}</h3><p>${text}</p></div>`;
   const ic = (stages: Stage[]) => stages.map((s) => fruitImg('apple', s, `${s === 'notso' ? 'Tired' : s === 'okay' ? 'Okay' : 'Fresh'} apple`)).join('');
   const beats = [
-    beat('1', 'Morning', 'Apply today’s <b>event</b>. The farmer’s lorry unloads today’s delivery card at the freshest spot (green fruit at the unripe spot); it comes every day, Market Days too. Draw tomorrow’s delivery card and event for the Tomorrow strip.'),
-    beat('2', 'Buying', `The <b>poorest stall buys first, then the others go clockwise</b> (a tie for poorest goes to the first clockwise from the first-player token; Day 1 starts at the token; a Priority favour jumps the queue). Buy up to <b>${BASE_BUY}</b> pieces (${BARROW_BUY} with a Handcart), paying the cost for each fruit’s freshness. Your shelf holds ${BASE_SHELF} (${BARROW_SHELF} with a Handcart).`),
+    beat('1', 'Morning', 'Apply today’s <b>event</b>. The lorry unloads today’s card at the freshest spot (green fruit at the unripe spot, the Seconds Lorry at Okay), every day. Draw tomorrow’s card and event.'),
+    beat('2', 'Buying', `The <b>poorest stall buys first, then the others go clockwise</b> (ties: first clockwise from the token; Day 1 starts at the token; Priority jumps the queue). Buy up to <b>${BASE_BUY}</b> pieces (${BARROW_BUY} with a Handcart), paying the cost for each fruit’s freshness. Your shelf holds ${BASE_SHELF} (${BARROW_SHELF} with a Handcart).`),
     beat('3', 'Stocking', 'Today’s customers arrive: waiting customers, the regular and the walk-ins, who turn face up now. Secretly set how many of each ripe fruit go in your <b>for-sale crate</b>, then show all crates at once.'),
-    beat('4', 'The bell', 'Secretly set <b>one price per fruit</b> you put out, then everyone reveals together. There is no lower limit; on a Price Controls day there is an upper one.'),
-    beat('5', 'The rush', 'Customers buy in queue order: waiting first, then new ones. Each fruit goes to the <b>cheapest stall</b> with fruit fresh enough for its price; leftover demand spills to the next stall. You are paid at once. Serve a customer’s whole remaining order by yourself and <b>draw a favour card</b> (one a day at most).'),
+    beat('4', 'The bell', 'Secretly set <b>one price per fruit</b> you put out, then everyone reveals together. No lower limit.'),
+    beat('5', 'The rush', 'Waiting customers first, then new ones. Each fruit goes to the <b>cheapest stall</b> with fruit fresh enough for its price; leftover demand spills to the next stall. Serve a customer’s whole remaining order by yourself and <b>draw a favour card</b> (one a day at most).'),
     beat('+', 'Evening & night', `Play evening favours (Priority, Gossip). On the evening after each Market Day (days ${list(MARKET_DAYS)}) build <b>one</b> stall upgrade. At night all fruit ages one step; spoiled fruit is thrown away.`, 'night'),
   ];
   const ladder = [
@@ -478,8 +483,8 @@ function playerAid(): Page {
       + `<p>The <b>cheapest</b> posted price sells first, and each stall hands over its <b>oldest piece that still qualifies</b>. On a tie, the stall whose freshest handed-over piece is younger sells first.</p></section>`
       + `<div class="pk-boxes">`
       + `<div class="pk-box"><h4>Freshness types</h4><p><b>Premium:</b> ${esc(PREF_INFO.premium.short)}. <b>Everyday:</b> ${esc(PREF_INFO.everyday.short)}. <b>Bargain:</b> ${esc(PREF_INFO.bargain.short)}. A stall cannot sell fruit a customer will not take.</p></div>`
-      + `<div class="pk-box"><h4>Ties at the bell</h4><p>Favoured Trade, then the Haggler, then fresher fruit (the younger handed-over piece), then whoever bought earlier today.</p></div>`
-      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): one more walk-in. <b>Closing Day:</b> customers pay $${LAST_CALL_BONUS} more; then the jam maker buys leftover ripe fruit at $${JAM_PRICE} each. Guests’ prices are fixed: only Closing Day adds to them.</p></div>`
+      + `<div class="pk-box"><h4>Ties at the bell</h4><p>Favoured Trade, then fresher fruit (the younger handed-over piece), then the Haggler, then whoever bought earlier today.</p></div>`
+      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): 1 more walk-in per 3 stalls. <b>Closing Day:</b> customers pay $${LAST_CALL_BONUS} more; then the jam maker buys leftover ripe fruit at $${JAM_PRICE} each. Guests’ prices are fixed: only Closing Day adds to them.</p></div>`
       + `</div><p class="pk-small">Full rules: RULES.md. Every number on this page comes from the game data.</p></section>`,
   };
 }
@@ -490,8 +495,8 @@ interface Part { file: string; title: string; what: string; pages: Page[] }
 
 const customerFronts = CUSTOMER_CARDS.map(customerFront);
 const customerBacks = CUSTOMER_CARDS.map(customerBack);
-const favourCells = FAVOUR_DECK.map((id, i) => favourFront(FAVOURS[id], FAVOUR_DECK.indexOf(id) === i ? 1 : 2));
-const lorryCells = FARMER_CARDS.map((c, i) => lorryFront(c, i < FARMER_CARDS.length / 2 ? 1 : 2));
+const favourCells = PRINT_FAVOURS.map((id, i) => favourFront(FAVOURS[id], PRINT_FAVOURS.slice(0, i + 1).filter((x) => x === id).length));
+const lorryCells = FARMER_CARDS.map((c) => lorryFront(c));
 const upgradeCells = Object.values(UPGRADES).map(upgradeFront);
 const shopCells = RIVALS.map(shopFront);
 const eventCells = EVENT_CARDS.map(eventFront);
@@ -504,12 +509,12 @@ const parts: Part[] = [
   { file: 'Cards_Guests_A4.pdf', title: 'Special guest cards', what: `${GUESTS.length} guests (pictures are interim) and their backs`, pages: sheets('Special guests', GUESTS.map(guestFront), same(guestBack, GUESTS.length), 'Interim pictures: each guest borrows its event’s scene. Cut on the dashed lines.') },
   { file: 'Cards_Shopkeepers_A4.pdf', title: 'Shopkeeper cards', what: `${RIVALS.length} Stall Signs and their backs`, pages: sheets('Shopkeepers', shopCells, same(shopBack, RIVALS.length)) },
   { file: 'Cards_Events_A4.pdf', title: 'Event cards', what: `${EVENT_CARDS.length} newspaper front pages and their backs`, pages: sheets('Events', eventCells, same(eventBack, EVENT_CARDS.length)) },
-  { file: 'Cards_Favours_A4.pdf', title: 'Favour cards', what: `${FAVOUR_DECK.length} cards (2 of each) and their backs`, pages: sheets('Favours', favourCells, same(favourBack, FAVOUR_DECK.length)) },
-  { file: 'Cards_Deliveries_A4.pdf', title: 'Delivery cards', what: `${FARMER_CARDS.length} lorry cards (2 of each) and their backs`, pages: sheets('Deliveries', lorryCells, same(lorryBack, FARMER_CARDS.length)) },
+  { file: 'Cards_Favours_A4.pdf', title: 'Favour cards', what: `${PRINT_FAVOURS.length} cards (3 of each; use 2 of each at 2 to 4 stalls) and their backs`, pages: sheets('Favours', favourCells, same(favourBack, PRINT_FAVOURS.length)) },
+  { file: 'Cards_Deliveries_A4.pdf', title: 'Delivery cards', what: `${FARMER_CARDS.length} lorry cards (all different) and their backs`, pages: sheets('Deliveries', lorryCells, same(lorryBack, FARMER_CARDS.length)) },
   { file: 'Cards_Upgrades_A4.pdf', title: 'Upgrade cards', what: `${upgradeCells.length} stall upgrades and their backs`, pages: sheets('Stall upgrades', upgradeCells, same(upgradeBack, upgradeCells.length)) },
   { file: 'Factory_Customers_bleed.pdf', title: 'Factory: customers', what: 'One card per page, front then back, 3 mm bleed and crop marks', pages: CUSTOMER_CARDS.flatMap((_, i) => [factoryPage(customerFronts[i], 'front'), factoryPage(customerBacks[i], 'back')]) },
-  { file: 'Factory_Shopkeepers_bleed.pdf', title: 'Factory: shopkeepers', what: 'Six fronts, then the one shared back', pages: [...shopCells.map((c) => factoryPage(c, 'front')), factoryPage(shopBack, 'back (all six)')] },
-  { file: 'Factory_Events_bleed.pdf', title: 'Factory: events', what: 'Thirteen fronts, then the one shared back', pages: [...eventCells.map((c) => factoryPage(c, 'front', 'pk-factory-gz')), factoryPage(eventBack, 'back (all thirteen)', 'pk-factory-gz')] },
+  { file: 'Factory_Shopkeepers_bleed.pdf', title: 'Factory: shopkeepers', what: 'Eight fronts, then the one shared back', pages: [...shopCells.map((c) => factoryPage(c, 'front')), factoryPage(shopBack, 'back (all eight)')] },
+  { file: 'Factory_Events_bleed.pdf', title: 'Factory: events', what: 'Twenty fronts, then the one shared back', pages: [...eventCells.map((c) => factoryPage(c, 'front', 'pk-factory-gz')), factoryPage(eventBack, 'back (all twenty)', 'pk-factory-gz')] },
 ];
 
 function coverPage(): Page {

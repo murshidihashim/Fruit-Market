@@ -4,6 +4,16 @@ import { dayHighlights, dayLedger, standing, tonightLine, withJamPaid } from '..
 import { Face } from '../../art';
 import { spoilsTonight } from '../../boardModel';
 
+/** Rules 11 money outside the customer lines, already in the sales total: the Pasar Malam hawker and Sharp Ears tips. */
+export function extras(r: NonNullable<GameState['results']>, viewer: number): string[] {
+  const out: string[] = [];
+  const hawk = (r.hawker ?? []).filter((x) => x.player === viewer);
+  if (hawk.length) out.push(`The night hawker bought ${hawk.length} of your leftover fruit (+$${hawk.reduce((a, x) => a + x.price, 0)}).`);
+  const tips = (r.earful ?? []).filter((x) => x.player === viewer);
+  if (tips.length) out.push(`Sharp Ears: ${tips.length} walk-in${tips.length === 1 ? '' : 's'} you heard about tipped you $${tips.reduce((a, x) => a + x.tip, 0)}.`);
+  return out;
+}
+
 export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const r = s.results!;
   // Day ledger: sales in, stock bought, the jam maker (on Closing Day this card comes before he pays, so his money
@@ -27,6 +37,7 @@ export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
         {net !== null && <span class="net">Net <b class={net >= 0 ? 'good' : 'bad'}>{net >= 0 ? '+' : '−'}${Math.abs(net)}</b></span>}
       </div>
       {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice'}>{tonight}</div>}
+      {extras(r, viewer).map((t) => <div class="sc-juice">{t}</div>)}
       {highlights.length > 0 && (
         <div class="sc-high">
           {highlights.map((h) => <div class={`hl ${h.tone}`}><span>{h.icon}</span>{h.text}</div>)}

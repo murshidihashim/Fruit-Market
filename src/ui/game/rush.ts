@@ -12,14 +12,15 @@ export interface RushSeat {
   i: number;
   player: number;
   me: boolean;
-  /** 0 top left, 1 top right, 2 bottom left, 3 bottom right (with one or two cards there is only one row). */
+  /** Left column even, right column odd, top row first: 0/1, 2/3 and (with five or six cards) 4/5. One or two cards: one row. */
   slot: number;
 }
 
 /**
  * The stalls that offered this customer the fruit (an offer whose pieces were all too old still shows, with its
  * reason), placed around the card like seats at a table: your own card bottom left, nearest your shelf; the rivals
- * in turn order after you, top row first. Stalls with none of the fruit out get no card. At most four (four stalls).
+ * in turn order after you, top row first. Stalls with none of the fruit out get no card. Up to six (rules 11: six stalls):
+ * three rows when more than four stalls offer, with your own card bottom left.
  */
 export function rushSeats(l: LineResult, viewer: number, players: number): RushSeat[] {
   const turn = (p: number) => (p - viewer + players) % players;
@@ -33,9 +34,11 @@ export function rushSeats(l: LineResult, viewer: number, players: number): RushS
     [...(mine ? [mine] : []), ...rivals].slice(0, 2).forEach((x, k) => put(x, k));
     return out;
   }
-  const rivalSlots = mine ? [0, 1, 3] : [0, 1, 2, 3];
+  const rows = offers.length > 4 ? 3 : 2;
+  const mySlot = rows * 2 - 2;
+  const rivalSlots = Array.from({ length: rows * 2 }, (_, k) => k).filter((k) => !mine || k !== mySlot);
   rivals.slice(0, rivalSlots.length).forEach((x, k) => put(x, rivalSlots[k]));
-  if (mine) put(mine, 2);
+  if (mine) put(mine, mySlot);
   return out.sort((a, b) => a.slot - b.slot);
 }
 

@@ -8,7 +8,7 @@ import {
 } from '../src/engine/data';
 import { autoplay } from '../src/engine/ai';
 import {
-  applyAction, beginBuying, buyCost, emptyStock, endBuyTurn, finishReveal, newGame, openStall, printedSupply, shadePick, submitPrices,
+  applyAction, beginBuying, buyCost, emptyStock, endBuyTurn, newGame, openStall, printedSupply, shadePick, submitPrices,
   walkInsOn, type Customer, type GameConfig, type GameState,
 } from '../src/engine/game';
 import { RULES_VERSION } from '../src/net/protocol';

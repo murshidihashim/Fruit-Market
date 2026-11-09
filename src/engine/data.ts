@@ -399,7 +399,7 @@ export const TRAITS: Record<TraitId, TraitDef> = {
   favourite: { id: 'favourite', title: 'Tip Jar', text: `Customers you serve completely by yourself tip you $${LOCAL_FAVOURITE_TIP}.` },
   nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}, and buy first on day 3.` },
   keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name one fruit: none of your pieces of that fruit age tonight.' },
-  earful: { id: 'earful', title: 'Sharp Ears', text: 'Each evening, secretly peek at one of tomorrow\'s walk-ins. A walk-in you have peeked at (also by Gossip or Scout) tips you $1 if you sell them anything ($2 at 4 to 6 stalls).' },
+  earful: { id: 'earful', title: 'Sharp Ears', text: 'Each evening, peek at one of tomorrow\'s walk-ins. A walk-in you have seen tips $1 if you sell to them ($2 at 4 to 6 stalls).' },
 };
 export const TRAIT_OFFER = 3;
 

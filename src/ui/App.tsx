@@ -209,6 +209,8 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
     { kind: 'ai', level: 'easy', name: 'Player 2' },
     { kind: 'ai', level: 'normal', name: 'Player 3' },
     { kind: 'ai', level: 'normal', name: 'Player 4' },
+    { kind: 'ai', level: 'normal', name: 'Player 5' },
+    { kind: 'ai', level: 'normal', name: 'Player 6' },
   ]);
   const [rivals, setRivals] = useState(3);
   const [days, setDays] = useState(10);
@@ -265,8 +267,8 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
         </section>
         <section class="panel">
           <h3>Rival stalls</h3>
-          <p class="small muted">Up to 4 stalls. Pick Friend to pass this phone around.</p>
-          <div class="seg">{[1, 2, 3].map((n) => <button class={rivals === n ? 'on' : ''} onClick={() => setRivals(n)}>{n}</button>)}</div>
+          <p class="small muted">Up to 6 stalls. Pick Friend to pass this phone around.</p>
+          <div class="seg">{[1, 2, 3, 4, 5].map((n) => <button class={rivals === n ? 'on' : ''} onClick={() => setRivals(n)}>{n}</button>)}</div>
           {seats.slice(0, rivals).map((st, i) => (
             <div class="seat">
               <div class="seg small">

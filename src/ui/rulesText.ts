@@ -21,5 +21,5 @@ export function unripeSetupText(): string {
 
 /** The "Market Days" switch, which also turns on Closing Day (the final day's bonus and the jam maker). */
 export function marketDaysSetupText(): string {
-  return `Days ${MARKET_DAY_LIST}: one more walk-in. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`;
+  return `Days ${MARKET_DAY_LIST}: one more walk-in for every 3 stalls. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`;
 }

@@ -1,4 +1,4 @@
-// Pick one of the six characters. Each has one fixed perk for the whole game, and a character can be taken by one shop only.
+// Pick one of the eight characters. Each has one fixed perk for the whole game, and a character can be taken by one shop only.
 // Each choice is the character's Stall Sign (DEC-066); the perk of the one you picked is spelled out below the signs.
 import { CHARACTER_TRAIT, RIVALS, TRAITS } from '../engine/data';
 import { StallSign } from './cards';

@@ -141,7 +141,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
           </section>
           <section class="panel">
             <h3>Start a private game</h3>
-            <p class="small muted">You'll get a link to send to up to 3 friends, anywhere. 2 to 4 players.</p>
+            <p class="small muted">You'll get a link to send to up to 5 friends, anywhere. 2 to 6 players.</p>
             <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
           </section>
           <section class="panel">
@@ -260,7 +260,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           ))}
         </div>
         <div class="seg small">
-          {[0, 1, 2].map((n) => (
+          {[0, 1, 2, 3, 4].map((n) => (
             <button class={v.config.ai === n ? 'on' : ''} disabled={!host || v.seats.length + n > MAX_SEATS} onClick={() => set({ ai: n })}>{n === 0 ? 'No AI' : `+${n} AI`}</button>
           ))}
         </div>
