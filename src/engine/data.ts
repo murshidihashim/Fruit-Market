@@ -93,35 +93,55 @@ export function freshPos(f: FruitId): number {
   return FRUIT[f].ripe.length - 1;
 }
 
-/**
- * A lorry (farmer) card. `table` is what it delivers (blueberry / watermelon / apple / mango) with 2, 3 and 4 shops,
- * printed on the card. `unripe` marks a fruit that arrives green and ripens on the shelf in two nights.
- */
-export interface FarmerCard { name: string; table: Record<2 | 3 | 4, Record<FruitId, number>>; unripe?: FruitId }
+/** Table sizes the printed cards cover: 2 to 6 stalls (compact rules, rules 11). */
+export type Stalls = 2 | 3 | 4 | 5 | 6;
+export const MIN_STALLS = 2;
+export const MAX_STALLS = 6;
 
-const lorry = (two: string, three: string, four: string): FarmerCard['table'] => {
+/**
+ * A lorry (farmer) card. `table` is what it delivers (blueberry / watermelon / apple / mango) with 2 to 6 stalls,
+ * printed on the card. `unripe` marks a fruit that arrives green and ripens on the shelf in two nights. `okay` (the
+ * Seconds Lorry) puts every fruit into its freshest Okay space instead of its Fresh one.
+ */
+export interface FarmerCard { name: string; table: Record<Stalls, Record<FruitId, number>>; unripe?: FruitId; okay?: boolean }
+
+const lorry = (...rows: [string, string, string, string, string]): FarmerCard['table'] => {
   const row = (s: string): Record<FruitId, number> => {
     const [blueberry, watermelon, apple, mango] = s.split('/').map(Number);
     return { blueberry, watermelon, apple, mango };
   };
-  return { 2: row(two), 3: row(three), 4: row(four) };
+  return { 2: row(rows[0]), 3: row(rows[1]), 4: row(rows[2]), 5: row(rows[3]), 6: row(rows[4]) };
 };
 
-// 10 lorry cards, two copies of each (20 in the deck). Every card has its own character: berries, orchard, melons,
-// mixed loads, and three mango cards (Growers and Season arrive green, Rush arrives ripe).
-const LORRY_CARDS: FarmerCard[] = [
-  { name: 'Blueberry Bonanza', table: lorry('5/3/4/0', '6/3/5/0', '8/4/7/0') },
-  { name: 'Orchard Run', table: lorry('2/2/7/0', '2/3/8/0', '3/3/12/0') },
-  { name: 'Watermelon Wagon', table: lorry('2/5/3/0', '3/8/4/0', '3/10/5/0') },
-  { name: 'Quiet Delivery', table: lorry('2/2/4/2', '3/3/5/2', '4/5/7/3') },
-  { name: 'Mixed Basket', table: lorry('3/3/3/3', '4/4/4/4', '5/5/6/4') },
-  { name: 'Balanced Cart', table: lorry('2/2/4/3', '4/3/5/4', '6/4/6/5') },
-  { name: 'Farmer\'s Choice', table: lorry('2/3/3/4', '4/4/4/5', '5/5/6/6') },
-  { name: 'Mango Growers', table: lorry('3/2/3/5', '4/4/4/6', '5/4/5/8'), unripe: 'mango' },
-  { name: 'Mango Season', table: lorry('3/2/2/6', '5/3/3/8', '6/4/4/9'), unripe: 'mango' },
-  { name: 'Mango Rush', table: lorry('4/3/1/7', '5/4/2/9', '7/5/3/10') },
+// 20 unique lorry cards (rules 11): five gluts, two green-mango cards, four pairs, four mixed, two light, two heavy and
+// the Seconds Lorry. Shuffled at set-up; reshuffled when empty.
+export const FARMER_CARDS: FarmerCard[] = [
+  { name: 'Blueberry Bonanza', table: lorry('4/1/1/1', '7/2/2/1', '9/3/2/1', '11/3/3/2', '13/4/3/2') },
+  { name: 'Watermelon Wagon', table: lorry('1/4/1/1', '2/7/2/2', '3/9/2/2', '3/11/3/3', '4/13/3/3') },
+  { name: 'Orchard Run', table: lorry('2/1/4/1', '2/2/6/1', '3/3/8/1', '4/3/10/2', '5/4/12/2') },
+  { name: 'Highland Apples', table: lorry('1/1/5/0', '1/1/7/0', '1/1/10/0', '2/2/12/0', '2/2/14/0') },
+  { name: 'Mango Rush', table: lorry('2/2/1/5', '2/3/1/7', '3/3/1/10', '4/4/2/12', '5/5/2/14') },
+  { name: 'Mango Growers', table: lorry('2/2/2/4', '3/3/3/6', '4/3/3/7', '5/4/4/9', '6/5/5/11'), unripe: 'mango' },
+  { name: 'Mango Season', table: lorry('2/1/1/4', '3/2/2/7', '4/3/2/9', '6/3/3/11', '7/4/3/13'), unripe: 'mango' },
+  { name: 'Summer Run', table: lorry('3/4/1/1', '5/6/1/1', '7/7/1/1', '9/9/1/2', '10/11/1/2') },
+  { name: 'Tropical Pair', table: lorry('1/3/1/4', '1/5/1/6', '2/7/1/7', '2/8/2/9', '3/10/2/11') },
+  { name: 'Breakfast Run', table: lorry('3/1/3/1', '5/2/5/1', '7/2/6/1', '9/3/8/2', '10/3/9/2') },
+  { name: 'Premium Picks', table: lorry('1/1/3/4', '1/2/4/6', '2/2/6/7', '2/3/7/9', '3/3/8/11') },
+  { name: 'Mixed Basket', table: lorry('2/2/2/2', '3/3/3/3', '4/4/4/4', '5/5/5/6', '6/6/6/7') },
+  { name: 'Balanced Cart', table: lorry('3/2/2/2', '4/4/3/3', '5/5/3/4', '6/6/4/5', '8/7/5/6') },
+  { name: 'Farmer\'s Choice', table: lorry('2/2/2/3', '3/4/3/4', '4/5/3/5', '5/6/4/6', '6/7/5/8') },
+  { name: 'Kampung Truck', table: lorry('3/3/0/3', '4/4/0/4', '6/5/0/5', '7/7/0/6', '9/8/0/8') },
+  { name: 'Quiet Delivery', table: lorry('1/1/1/1', '2/2/2/2', '3/3/2/2', '3/3/3/3', '4/4/3/3') },
+  { name: 'Short Load', table: lorry('2/1/1/1', '2/2/1/1', '3/2/1/1', '4/3/2/2', '5/3/2/2') },
+  { name: 'Convoy', table: lorry('3/3/3/3', '5/5/4/5', '6/6/6/7', '8/8/7/8', '9/9/8/10') },
+  { name: 'Wholesaler\'s Overstock', table: lorry('3/3/3/1', '4/5/5/2', '5/7/7/3', '6/8/9/4', '8/10/10/4') },
+  { name: 'Seconds Lorry', table: lorry('3/3/2/1', '4/4/3/2', '5/5/4/3', '6/7/5/4', '8/8/6/4'), okay: true },
 ];
-export const FARMER_CARDS: FarmerCard[] = [...LORRY_CARDS, ...LORRY_CARDS.map((c) => ({ ...c }))];
+
+/** Where a lorry puts a ripe delivery of this fruit: its Fresh entry space, or its freshest Okay space (Seconds Lorry). */
+export function deliveryPos(card: Pick<FarmerCard, 'okay'>, f: FruitId): number {
+  return card.okay ? FRUIT[f].ripe.lastIndexOf('okay') : freshPos(f);
+}
 
 /**
  * Does any lorry deliver this fruit green? Since rules 9 only mangoes arrive green. The watermelon keeps its green
@@ -139,49 +159,51 @@ export interface CustomerCard { name: string; wants: Want[] }
 /** How fresh a customer insists on: Premium takes Fresh only, Everyday Fresh or Okay, Bargain anything the shop sells. */
 export type Pref = 'premium' | 'everyday' | 'bargain';
 
-// 36 customers. Max price is what they pay for a fresh fruit.
+// 36 customers. Max price is what they pay for a fresh fruit. Compact rules (rules 11): every order is half the
+// printed rules 10 quantity, rounded half up, at least 1 (1->1, 2->1, 3->2, 4->2, 5->3).
 const RAW_CUSTOMERS: CustomerCard[] = [
-  { name: 'John', wants: [{ fruit: 'apple', qty: 3, max: 10 }, { fruit: 'watermelon', qty: 2, max: 6 }] },
-  { name: 'Robert', wants: [{ fruit: 'blueberry', qty: 4, max: 7 }, { fruit: 'mango', qty: 1, max: 5 }] },
-  { name: 'Daniel', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'apple', qty: 3, max: 9 }, { fruit: 'blueberry', qty: 2, max: 6 }] },
-  { name: 'Rara Jenab', wants: [{ fruit: 'mango', qty: 3, max: 7 }, { fruit: 'blueberry', qty: 2, max: 7 }] },
-  { name: 'Aisyah', wants: [{ fruit: 'watermelon', qty: 3, max: 8 }] },
-  { name: 'Ravi', wants: [{ fruit: 'mango', qty: 2, max: 9 }, { fruit: 'apple', qty: 2, max: 8 }] },
-  { name: 'Mei Ling', wants: [{ fruit: 'blueberry', qty: 4, max: 6 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
-  { name: 'Farid', wants: [{ fruit: 'apple', qty: 4, max: 8 }] },
-  { name: 'Siti', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'watermelon', qty: 3, max: 7 }] },
-  { name: 'Kumar', wants: [{ fruit: 'watermelon', qty: 2, max: 9 }, { fruit: 'blueberry', qty: 2, max: 5 }] },
-  { name: 'Grace', wants: [{ fruit: 'apple', qty: 2, max: 10 }, { fruit: 'mango', qty: 2, max: 6 }] },
-  { name: 'Hafiz', wants: [{ fruit: 'blueberry', qty: 5, max: 6 }] },
-  { name: 'Wei Jie', wants: [{ fruit: 'mango', qty: 2, max: 7 }, { fruit: 'apple', qty: 2, max: 7 }, { fruit: 'watermelon', qty: 1, max: 8 }] },
-  { name: 'Nurul', wants: [{ fruit: 'watermelon', qty: 4, max: 7 }] },
-  { name: 'Priya', wants: [{ fruit: 'apple', qty: 3, max: 9 }, { fruit: 'blueberry', qty: 1, max: 8 }] },
-  { name: 'Ahmad', wants: [{ fruit: 'mango', qty: 5, max: 6 }] },
-  { name: 'Sarah', wants: [{ fruit: 'blueberry', qty: 2, max: 8 }, { fruit: 'mango', qty: 2, max: 7 }] },
-  { name: 'Tan', wants: [{ fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'apple', qty: 2, max: 9 }] },
-  { name: 'Lina', wants: [{ fruit: 'apple', qty: 1, max: 11 }, { fruit: 'mango', qty: 3, max: 7 }] },
-  { name: 'Zul', wants: [{ fruit: 'blueberry', qty: 3, max: 7 }, { fruit: 'watermelon', qty: 2, max: 6 }] },
-  { name: 'Anna', wants: [{ fruit: 'mango', qty: 3, max: 8 }] },
-  { name: 'Vijay', wants: [{ fruit: 'apple', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 7 }, { fruit: 'mango', qty: 1, max: 9 }] },
-  { name: 'Hui Min', wants: [{ fruit: 'watermelon', qty: 4, max: 7 }] },
-  { name: 'Osman', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
-  { name: 'Jia Wen', wants: [{ fruit: 'apple', qty: 2, max: 9 }, { fruit: 'mango', qty: 2, max: 7 }] },
-  { name: 'Rizal', wants: [{ fruit: 'blueberry', qty: 3, max: 6 }, { fruit: 'watermelon', qty: 2, max: 7 }] },
-  { name: 'Devi', wants: [{ fruit: 'mango', qty: 4, max: 7 }] },
-  { name: 'Marcus', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'mango', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
-  { name: 'Fatimah', wants: [{ fruit: 'watermelon', qty: 2, max: 8 }, { fruit: 'blueberry', qty: 2, max: 6 }] },
-  { name: 'Ben', wants: [{ fruit: 'watermelon', qty: 3, max: 7 }] },
-  { name: 'Yuki', wants: [{ fruit: 'mango', qty: 2, max: 6 }, { fruit: 'apple', qty: 2, max: 9 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
-  { name: 'Hadi', wants: [{ fruit: 'blueberry', qty: 4, max: 7 }] },
-  { name: 'Lakshmi', wants: [{ fruit: 'apple', qty: 2, max: 10 }, { fruit: 'watermelon', qty: 2, max: 8 }] },
-  { name: 'Kenji', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 2, max: 6 }, { fruit: 'watermelon', qty: 2, max: 9 }] },
-  { name: 'Mira', wants: [{ fruit: 'mango', qty: 3, max: 7 }, { fruit: 'apple', qty: 1, max: 8 }] },
-  { name: 'Hock Seng', wants: [{ fruit: 'apple', qty: 3, max: 8 }, { fruit: 'watermelon', qty: 2, max: 9 }] },
+  { name: 'John', wants: [{ fruit: 'apple', qty: 2, max: 10 }, { fruit: 'watermelon', qty: 1, max: 6 }] },
+  { name: 'Robert', wants: [{ fruit: 'blueberry', qty: 2, max: 7 }, { fruit: 'mango', qty: 1, max: 5 }] },
+  { name: 'Daniel', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'apple', qty: 2, max: 9 }, { fruit: 'blueberry', qty: 1, max: 6 }] },
+  { name: 'Rara Jenab', wants: [{ fruit: 'mango', qty: 2, max: 7 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
+  { name: 'Aisyah', wants: [{ fruit: 'watermelon', qty: 2, max: 8 }] },
+  { name: 'Ravi', wants: [{ fruit: 'mango', qty: 1, max: 9 }, { fruit: 'apple', qty: 1, max: 8 }] },
+  { name: 'Mei Ling', wants: [{ fruit: 'blueberry', qty: 2, max: 6 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
+  { name: 'Farid', wants: [{ fruit: 'apple', qty: 2, max: 8 }] },
+  { name: 'Siti', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'watermelon', qty: 2, max: 7 }] },
+  { name: 'Kumar', wants: [{ fruit: 'watermelon', qty: 1, max: 9 }, { fruit: 'blueberry', qty: 1, max: 5 }] },
+  { name: 'Grace', wants: [{ fruit: 'apple', qty: 1, max: 10 }, { fruit: 'mango', qty: 1, max: 6 }] },
+  { name: 'Hafiz', wants: [{ fruit: 'blueberry', qty: 3, max: 6 }] },
+  { name: 'Wei Jie', wants: [{ fruit: 'mango', qty: 1, max: 7 }, { fruit: 'apple', qty: 1, max: 7 }, { fruit: 'watermelon', qty: 1, max: 8 }] },
+  { name: 'Nurul', wants: [{ fruit: 'watermelon', qty: 2, max: 7 }] },
+  { name: 'Priya', wants: [{ fruit: 'apple', qty: 2, max: 9 }, { fruit: 'blueberry', qty: 1, max: 8 }] },
+  { name: 'Ahmad', wants: [{ fruit: 'mango', qty: 3, max: 6 }] },
+  { name: 'Sarah', wants: [{ fruit: 'blueberry', qty: 1, max: 8 }, { fruit: 'mango', qty: 1, max: 7 }] },
+  { name: 'Tan', wants: [{ fruit: 'watermelon', qty: 1, max: 8 }, { fruit: 'apple', qty: 1, max: 9 }] },
+  { name: 'Lina', wants: [{ fruit: 'apple', qty: 1, max: 11 }, { fruit: 'mango', qty: 2, max: 7 }] },
+  { name: 'Zul', wants: [{ fruit: 'blueberry', qty: 2, max: 7 }, { fruit: 'watermelon', qty: 1, max: 6 }] },
+  { name: 'Anna', wants: [{ fruit: 'mango', qty: 2, max: 8 }] },
+  { name: 'Vijay', wants: [{ fruit: 'apple', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 7 }, { fruit: 'mango', qty: 1, max: 9 }] },
+  { name: 'Hui Min', wants: [{ fruit: 'watermelon', qty: 2, max: 7 }] },
+  { name: 'Osman', wants: [{ fruit: 'apple', qty: 2, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
+  { name: 'Jia Wen', wants: [{ fruit: 'apple', qty: 1, max: 9 }, { fruit: 'mango', qty: 1, max: 7 }] },
+  { name: 'Rizal', wants: [{ fruit: 'blueberry', qty: 2, max: 6 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
+  { name: 'Devi', wants: [{ fruit: 'mango', qty: 2, max: 7 }] },
+  { name: 'Marcus', wants: [{ fruit: 'apple', qty: 2, max: 8 }, { fruit: 'mango', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 7 }] },
+  { name: 'Fatimah', wants: [{ fruit: 'watermelon', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 6 }] },
+  { name: 'Ben', wants: [{ fruit: 'watermelon', qty: 2, max: 7 }] },
+  { name: 'Yuki', wants: [{ fruit: 'mango', qty: 1, max: 6 }, { fruit: 'apple', qty: 1, max: 9 }, { fruit: 'watermelon', qty: 1, max: 7 }] },
+  { name: 'Hadi', wants: [{ fruit: 'blueberry', qty: 2, max: 7 }] },
+  { name: 'Lakshmi', wants: [{ fruit: 'apple', qty: 1, max: 10 }, { fruit: 'watermelon', qty: 1, max: 8 }] },
+  { name: 'Kenji', wants: [{ fruit: 'mango', qty: 1, max: 8 }, { fruit: 'blueberry', qty: 1, max: 6 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
+  { name: 'Mira', wants: [{ fruit: 'mango', qty: 2, max: 7 }, { fruit: 'apple', qty: 1, max: 8 }] },
+  { name: 'Hock Seng', wants: [{ fruit: 'apple', qty: 2, max: 8 }, { fruit: 'watermelon', qty: 1, max: 9 }] },
 ];
 
 // Card prices are written on an older scale; this shifts them to today's prices. Rules 9: apples a further $1 lower and
-// mangoes a further $1 higher than the rules 8 deck; blueberry and watermelon prices are unchanged.
-const PRICE_SHIFT: Record<FruitId, number> = { blueberry: -1, watermelon: 0, apple: -3, mango: 3 };
+// mangoes a further $1 higher than the rules 8 deck; blueberry and watermelon prices are unchanged. Rules 11: apples $1
+// higher again (apple -3 -> -2).
+const PRICE_SHIFT: Record<FruitId, number> = { blueberry: -1, watermelon: 0, apple: -2, mango: 3 };
 export const CUSTOMER_CARDS: CustomerCard[] = RAW_CUSTOMERS.map((c) => ({
   ...c,
   wants: c.wants.map((w) => ({ ...w, max: w.max + PRICE_SHIFT[w.fruit] })),
@@ -207,7 +229,8 @@ export const PREF_INFO: Record<Pref, { title: string; short: string; text: strin
 
 export type EventId =
   | 'festival' | 'glut' | 'heatwave' | 'blight' | 'mangoCraze' | 'superfood' | 'goodHarvest'
-  | 'badHarvest' | 'priceHike' | 'priceControls' | 'inspector' | 'strike' | 'hotel';
+  | 'badHarvest' | 'priceHike' | 'priceControls' | 'inspector' | 'strike' | 'hotel'
+  | 'touristBus' | 'monsoon' | 'durian' | 'kenduri' | 'mangoWindfall' | 'pasarMalam' | 'bakeOff';
 
 export interface EventCard {
   id: EventId;
@@ -218,50 +241,63 @@ export interface EventCard {
   priceAll?: number;
   /** Added to customers' price for one fruit today. */
   price?: Partial<Record<FruitId, number>>;
-  /** Added to every farmers-market price today. */
+  /** Added to every farmers-market price today (never below $1). */
   cost?: number;
-  /** Extra fruit of each kind in today's delivery, per 2 shops (rounded up). */
-  supplyPerTwo?: number;
-  /** Extra fruit of one kind in today's delivery, per shop. */
-  supplyPerShop?: Partial<Record<FruitId, number>>;
+  /** Extra fruit of every kind in today's delivery, per 4 stalls (rounded up). */
+  supplyAll?: number;
+  /** Extra ripe fruit of one kind in today's delivery, per 2 stalls (rounded up). */
+  supplyEach?: Partial<Record<FruitId, number>>;
   /** No fruit of this kind is delivered today. */
   noFruit?: FruitId;
   /** Multiplies today's delivery. */
   supplyMult?: number;
   noDelivery?: boolean;
-  /** Change to the number of walk-in customers today. */
+  /** Change to the number of walk-in customers today, scaled per 3 stalls: sign(k) x ceil(|k| x stalls / 3). */
   walkIns?: number;
   /** A special customer who also comes today. */
   extra?: CustomerCard;
-  /** Extra ageing tonight. */
+  /** Extra ageing tonight (negative: less; -1 means nothing ages tonight). */
   ageExtra?: number;
   /** Fine per Not-so fruit on a shop's shelf at the start of the day, before anyone buys or discards. */
   inspector?: number;
   /** No stall may post a price above this for each fruit today. */
   maxPrice?: Record<FruitId, number>;
+  /** Pasar Malam: after the rush a hawker buys 1 of each fruit left in each stall's crate at this price, any freshness. */
+  hawker?: number;
 }
 
 export const EVENT_CARDS: EventCard[] = [
-  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, text: 'Customers pay $1 more per fruit, and an extra walk-in comes.' },
-  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyPerShop: { blueberry: 1 }, price: { blueberry: -1 }, text: 'Farmers bring 1 extra blueberry per stall, and blueberry customers pay $1 less.' },
+  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, text: 'Customers pay $1 more per fruit, and 1 extra walk-in comes (2 at 4 to 6 stalls).' },
+  { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 1 },
+    extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 2, max: 8, fixed: true }] },
+    text: 'Blueberry customers pay $1 more, and the gym club wants 2 Fresh or Okay blueberries at $8 each.' },
+  { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 2 },
+    extra: { name: 'Influencer', wants: [{ fruit: 'mango', qty: 1, max: 12, fixed: true }] },
+    text: 'A viral video! Mango customers pay $2 more, and an influencer wants 1 Fresh mango at $12.' },
+  { id: 'hotel', title: 'Hotel Order', icon: '🏨',
+    extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 1, max: 8, fixed: true }, { fruit: 'watermelon', qty: 1, max: 8, fixed: true }, { fruit: 'blueberry', qty: 1, max: 7, fixed: true }] },
+    text: 'The hotel chef wants 1 apple at $8, 1 watermelon at $8 and 1 blueberry at $7, all Fresh or Okay.' },
   { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Watermelon customers pay $2 more, but all fruit ages an extra step tonight. A Cold Room stops the extra step.' },
   { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, text: 'No new apples arrive today, and apple customers pay $2 more.' },
-  { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 2 },
-    extra: { name: 'Influencer', wants: [{ fruit: 'mango', qty: 2, max: 12, fixed: true }] },
-    text: 'A viral video! Mango customers pay $2 more, and an influencer wants 2 Fresh mangoes at $12 each.' },
-  { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 1 },
-    extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 3, max: 8, fixed: true }] },
-    text: 'Blueberry customers pay $1 more, and the gym club wants 3 Fresh or Okay blueberries at $8 each.' },
-  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyPerTwo: 1, priceAll: -1, text: 'Farmers bring 1 extra of every fruit for every 2 stalls (rounded up), and every customer pays $1 less.' },
-  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, text: 'Farmers bring half as much (rounded up). Customers pay $1 more per fruit.' },
+  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (rounded up), and blueberry customers pay $1 less.' },
+  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, text: 'The lorry brings 1 extra of every fruit for every 4 stalls (rounded up), and every customer pays $1 less.' },
+  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, text: 'The lorry brings half as much (rounded up). Customers pay $1 more per fruit.' },
   { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every fruit at the Wholesale Market costs $1 more today.' },
   { id: 'priceControls', title: 'Price Controls', icon: '⚖️', text: 'No stall may charge more than these prices today.',
     maxPrice: { blueberry: 5, watermelon: 7, apple: 6, mango: 8 } },
-  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'At the start of the day, before anyone buys, every stall pays a $2 fine for each tired piece on its shelf. A Cold Room does not help. (Never the last day\'s event.)' },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'At the start of the day, before anyone buys, every stall pays a $2 fine for each tired piece on its shelf (up to its cash). A Cold Room does not help. (Never the last day\'s event.)' },
   { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No farmer delivery today. Fruit already at the market stays.' },
-  { id: 'hotel', title: 'Hotel Order', icon: '🏨',
-    extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 2, max: 8, fixed: true }, { fruit: 'watermelon', qty: 1, max: 8, fixed: true }, { fruit: 'blueberry', qty: 1, max: 7, fixed: true }] },
-    text: 'A hotel chef places a big order today: 2 apples, 1 watermelon and 1 blueberry, all Fresh or Okay.' },
+  { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, text: 'Extra walk-ins: 2 at 2 or 3 stalls, 3 at 4 stalls, 4 at 5 or 6 stalls. Prices unchanged.' },
+  { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, text: '1 fewer walk-in (2 fewer at 4 to 6 stalls, never below none). Nothing ages tonight, on shelves or at the market.' },
+  { id: 'durian', title: 'Durian Season', icon: '🌰', cost: -1, priceAll: -1, text: 'Wholesale fruit costs $1 less (never below $1), and every customer pays $1 less.' },
+  { id: 'kenduri', title: 'Kenduri', icon: '💍',
+    extra: { name: 'Wedding Caterer', wants: [{ fruit: 'watermelon', qty: 3, max: 8, fixed: true }] },
+    text: 'A wedding caterer wants 3 Fresh or Okay watermelons at $8 each, after the walk-ins.' },
+  { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, text: 'The lorry brings 1 extra ripe mango for every 2 stalls (rounded up), and mango customers pay $2 less.' },
+  { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, text: 'After the rush, a night-market hawker buys 1 of each fruit left in each stall\'s crate for $3, any freshness.' },
+  { id: 'bakeOff', title: 'Bake-Off', icon: '🥧', price: { apple: 1 },
+    extra: { name: 'Bakery', wants: [{ fruit: 'apple', qty: 2, max: 7, fixed: true }] },
+    text: 'Apple customers pay $1 more, and the bakery wants 2 Fresh or Okay apples at $7 each.' },
 ];
 
 export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';
@@ -282,14 +318,27 @@ export const FAVOUR_DECK: FavourId[] = [
   'scout', 'scout', 'favouredTrade', 'favouredTrade', 'fridge', 'fridge',
 ];
 
+/** The favour deck for a table: 2 of each card (12) at 2 to 4 stalls, 3 of each (18) at 5 or 6. */
+export function favourDeckFor(stalls: number): FavourId[] {
+  const kinds = [...new Set(FAVOUR_DECK)];
+  const copies = stalls >= 5 ? 3 : 2;
+  return kinds.flatMap((k) => Array.from({ length: copies }, () => k));
+}
+
 export type UpgradeId = 'coldroom' | 'juicebar' | 'barrow' | 'premium';
 
 export interface UpgradeDef { id: UpgradeId; title: string; icon: string; cost: number; text: string }
 
+// Compact rules (rules 11): smaller daily buys and shelves.
+export const BASE_SHELF = 6;
+export const BARROW_SHELF = 8;
+export const BASE_BUY = 4;
+export const BARROW_BUY = 5;
+
 /** Juice Bar: extra dollars for each okay or not-so fruit sold. */
 export const JUICE_TIP = 1;
 /** Juice Bar: each night at most this many pieces leaving the shelf become juice, ... */
-export const JUICE_CAP = 3;
+export const JUICE_CAP = 2;
 /** ... and each of them pays this much. */
 export const JUICE_VALUE = 2;
 /** The cheapest piece at the Wholesale Market (tired fruit), for the Juice Bar card's tip (REP-089 option C). */
@@ -300,22 +349,18 @@ const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
  * after each Market Day (days 3, 6, 9, 12), whether or not Market Days are switched on.
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
-  coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 4, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
+  coldroom: { id: 'coldroom', title: 'Cold Room', icon: '❄️', cost: 2, text: 'Your fruit ages only every other night, and heatwaves can\'t touch it. Hold stock for a shortage.' },
   juicebar: {
-    id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 3,
+    id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 2,
     // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit). The tip
     // says "before the last day": no night follows the final day, so fruit bought then is never juiced.
     text: `+$${JUICE_TIP} for each okay or tired fruit you sell. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: before the last day, $${TIRED_COST} tired fruit makes $${JUICE_VALUE} of juice.`,
   },
-  barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: 'Buy up to 8 pieces of fruit a day and hold 12.' },
-  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 8, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
+  barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 3, text: `Buy up to ${BARROW_BUY} pieces of fruit a day and hold ${BARROW_SHELF}.` },
+  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 4, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
 };
 export const UPGRADE_OFFER = 4;
 
-export const BASE_SHELF = 8;
-export const BARROW_SHELF = 12;
-export const BASE_BUY = 6;
-export const BARROW_BUY = 8;
 /** Market Days (and the speciality draft) fall on every 3rd day: 3, 6, 9, 12. */
 export const MARKET_DAY_EVERY = 3;
 /** Street prices (beginner option): what every customer pays for a fresh fruit; generous customers pay $2 more. */
@@ -328,25 +373,33 @@ export const PULSE_MAX = 2;
 export const LAST_CALL_BONUS = 1;
 export const JAM_PRICE = 1;
 
-export const NEST_EGG_BONUS = 5;
-export const LOCAL_FAVOURITE_TIP = 4;
-export const START_CASH = 15;
+export const NEST_EGG_BONUS = 8;
+export const LOCAL_FAVOURITE_TIP = 2;
+export const START_CASH = 10;
+/** Sharp Ears: a peeked walk-in tips this much when Farah sells them anything ($2 at 4 to 6 stalls). */
+export function sharpEarsTip(stalls: number): number {
+  return stalls >= 4 ? 2 : 1;
+}
+/** Charmer: favour cards this shop can earn in one day (everyone else: 1). */
+export const CHARMER_DAILY_FAVOURS = 2;
 export const FAVOUR_HAND_LIMIT = 3;
 
 // ---------- merchant traits ----------
 // Each shop picks one of three at the start, so every game opens differently.
 
-export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite' | 'nestegg';
+export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite' | 'nestegg' | 'keeper' | 'earful';
 
 export interface TraitDef { id: TraitId; title: string; text: string }
 
 export const TRAITS: Record<TraitId, TraitDef> = {
-  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices, even against fresher fruit, and your first sale each day pays $1 more.' },
-  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day (the extra one costs $2 more).' },
-  bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less.' },
-  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 4 favour cards, and hold up to 4.' },
-  favourite: { id: 'favourite', title: 'Tip Jar', text: 'Customers you serve completely by yourself tip you $4.' },
-  nestegg: { id: 'nestegg', title: 'Nest Egg', text: 'Start with $20 instead of $15, and buy first on day 3.' },
+  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against equally fresh fruit.' },
+  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day, at the normal price.' },
+  bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less (never below $1).' },
+  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 4 favour cards, hold up to 4, and earn up to 2 favour cards a day.' },
+  favourite: { id: 'favourite', title: 'Tip Jar', text: `Customers you serve completely by yourself tip you $${LOCAL_FAVOURITE_TIP}.` },
+  nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}, and buy first on day 3.` },
+  keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name one fruit: none of your pieces of that fruit age tonight.' },
+  earful: { id: 'earful', title: 'Sharp Ears', text: 'Each evening, secretly peek at one of tomorrow\'s walk-ins. A walk-in you have peeked at (also by Gossip or Scout) tips you $1 if you sell them anything ($2 at 4 to 6 stalls).' },
 };
 export const TRAIT_OFFER = 3;
 
@@ -396,6 +449,8 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your stall if the mangoes are perfect.' },
   'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
   'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },
+  'Wedding Caterer': { icon: '💍', title: 'The Wedding Caterer', quirk: 'Feeding five hundred guests by sundown.' },
+  Bakery: { icon: '🥧', title: 'The Bakery', quirk: 'Needs apples for the prize-winning pie.' },
 };
 
 export function lookOf(name: string): Look {
@@ -417,10 +472,10 @@ export interface RivalLines {
 // Character cards (rules 5). Each shopkeeper is a character any shop can pick, and carries one fixed perk
 // (a merchant trait). A character can be taken by one shop only, so no two shops share a perk or an icon. The avatar keys are old identifiers (saves and rooms use them); they are never shown.
 export const CHARACTER_TRAIT: Record<string, TraitId> = {
-  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg',
+  '🦊': 'haggler', '🐻': 'basket', '🦝': 'bargain', '🐼': 'charmer', '🐷': 'favourite', '🐸': 'nestegg', '🐢': 'keeper', '🦜': 'earful',
 };
 
-/** The six shopkeepers, in table order, with their approved display names (DEC-064). Their lines react to what actually
+/** The eight shopkeepers (rules 11 adds Pak Din and Farah), in table order, with their approved display names (DEC-064). Their lines react to what actually
  *  happened; their buying and pricing come from the difficulty level, not from these personalities. Older saves and
  *  progress may still hold a former name (see LEGACY_RIVAL_NAMES); anything that must recognise a shopkeeper uses the avatar. */
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
@@ -454,9 +509,19 @@ export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalL
     fullPrice: ['Thank you, full price!', 'So kind of them. Full price!'],
     stung: ['Oh! You were faster.', 'I wanted to serve them!', 'Next time, dear.'],
     lost: ['Kindness comes back around.', 'No worries. Another day.'] } },
+  { name: 'Pak Din', avatar: '🐢', quip: 'Slow and steady!', lines: {
+    undercut: ['Slow and steady wins!', 'A little cheaper, a lot fresher.', 'Patience pays, friend.'],
+    fullPrice: ['Full price. Worth the wait!', 'Kept it fresh, sold it full.'],
+    stung: ['Hmm. Too slow today.', 'You beat the old tortoise.', 'Next time, young one.'],
+    lost: ['My fruit will keep.', 'There is always tomorrow.'] } },
+  { name: 'Farah', avatar: '🦜', quip: 'I heard that!', lines: {
+    undercut: ['I heard what they wanted!', 'Little bird told me. Cheaper!', 'Squawk! Mine!'],
+    fullPrice: ['Full price! I knew it.', 'Heard it first, sold it first.'],
+    stung: ['I should have listened closer.', 'Squawk! That was mine!', 'You heard it too?'],
+    lost: ['I will hear the next one.', 'Fine, fine. Tomorrow!'] } },
 ];
 
-/** The six playable characters, in table order. */
+/** The eight playable characters, in table order. */
 export const CHARACTER_AVATARS: string[] = RIVALS.map((r) => r.avatar);
 
 /** The shopkeepers' display names before DEC-064, in RIVALS order. Saved games and achievement progress may still hold them. */

@@ -5,7 +5,7 @@ import { newGame, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { EventIcon, Face } from '../src/ui/art';
 import { toStaticHtml } from '../src/ui/cards';
-import { customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
+import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { CustomerChar, Street } from '../src/ui/table';
 import { CharacterPick } from '../src/ui/CharacterPick';
 
@@ -18,15 +18,17 @@ const ALL_TITLES = [...CUSTOMER_CARDS.map((c) => lookOf(c.name).title), ...GUEST
 describe('portraits (art.tsx Face)', () => {
   it('every shopkeeper shows their sign badge when small and their stall scene when large', () => {
     for (const r of RIVALS) {
-      expect(srcOf(face(r.avatar, 26)), r.name).toEqual([shopBadge(r.avatar)]);
-      expect(srcOf(face(r.avatar, 96)), r.name).toEqual([shopScene(r.avatar)]);
+      // Pak Din and Farah have no art yet (rules 11): a plain silhouette.
+      const pic = (url: string | null) => (ART_COMING.has(r.avatar) ? [] : [url]);
+      expect(srcOf(face(r.avatar, 26)), r.name).toEqual(pic(shopBadge(r.avatar)));
+      expect(srcOf(face(r.avatar, 96)), r.name).toEqual(pic(shopScene(r.avatar)));
     }
   });
 
   it('every customer shows their own "at work" picture, and every guest the picture of their event', () => {
     for (const c of CUSTOMER_CARDS) expect(srcOf(face(c.name)), c.name).toEqual([customerArt(c.name)]);
-    for (const g of GUESTS) expect(srcOf(face(g)), g).toEqual([guestArt(g)]);
-    const all = [...CUSTOMER_CARDS.map((c) => srcOf(face(c.name))[0]), ...RIVALS.map((r) => srcOf(face(r.avatar))[0])];
+    for (const g of GUESTS) expect(srcOf(face(g)), g).toEqual(ART_COMING.has(g) ? [] : [guestArt(g)]);
+    const all = [...CUSTOMER_CARDS.map((c) => srcOf(face(c.name))[0]), ...RIVALS.filter((r) => !ART_COMING.has(r.avatar)).map((r) => srcOf(face(r.avatar))[0])];
     expect(new Set(all).size).toBe(all.length);
   });
 
@@ -53,10 +55,10 @@ describe('portraits (art.tsx Face)', () => {
 });
 
 describe('choosing a shopkeeper (CharacterPick)', () => {
-  it('shows the six Stall Signs under their approved names, the taken one stamped and disabled', () => {
+  it('shows the eight Stall Signs under their approved names, the taken one stamped and disabled', () => {
     const html = toStaticHtml(h(CharacterPick, { value: RIVALS[1].avatar, taken: { [RIVALS[4].avatar]: 'Ann' }, onPick: () => {} }));
-    expect(html.match(/class="x-card x-ss/g)).toHaveLength(6);
-    for (const r of RIVALS) expect(html, r.name).toContain(shopScene(r.avatar)!);
+    expect(html.match(/class="x-card x-ss/g)).toHaveLength(8);
+    for (const r of RIVALS) expect(html, r.name).toContain(ART_COMING.has(r.avatar) ? `${r.name}’s` : shopScene(r.avatar)!);
     expect(html).toContain('Uncle Benny’s');
     expect(html).toContain('Taken by Ann');
     expect(html.match(/<button[^>]*disabled/g)).toHaveLength(1);
@@ -67,7 +69,7 @@ describe('choosing a shopkeeper (CharacterPick)', () => {
 
 describe('event thumbnails (art.tsx EventIcon)', () => {
   it('every event shows its Gazette picture', () => {
-    for (const e of EVENT_CARDS) expect(srcOf(toStaticHtml(h(EventIcon, { id: e.id, size: 44 }))), e.id).toEqual([eventArt(e.id)]);
+    for (const e of EVENT_CARDS) expect(srcOf(toStaticHtml(h(EventIcon, { id: e.id, size: 44 }))), e.id).toEqual(ART_COMING.has(e.id) ? [] : [eventArt(e.id)]);
   });
 });
 

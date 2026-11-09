@@ -5,15 +5,23 @@ import { CUSTOMER_CARDS, EVENT_CARDS, RIVALS } from '../engine/data';
 
 const BASE = `${import.meta.env.BASE_URL ?? './'}art/`;
 
-/** Shopkeeper art files, in RIVALS order (Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki). */
+/** Shopkeeper art files, in RIVALS order (Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki). Pak Din and Farah (rules 11)
+ *  have no owner art yet (an art gap): they show a plain silhouette. */
 const SHOP_FILES = ['rosa', 'benny', 'chen', 'saleh', 'raj', 'kiran'] as const;
 
 /** Guests have no picture of their own yet: they borrow their event's scene, which shows them (an art gap). */
 export const GUEST_EVENT: Record<string, string> = { Influencer: 'mangoCraze', 'Gym Club': 'superfood', 'Hotel Chef': 'hotel' };
 
+const NO_ART_YET = new Set<string>(['touristBus', 'monsoon', 'durian', 'kenduri', 'mangoWindfall', 'pasarMalam', 'bakeOff']);
+/**
+ * Art gaps from the compact rules (rules 11): the seven new events, Pak Din and Farah (by avatar key) and the two new
+ * guests have no owner picture yet. Their cards show "Art coming" or a plain silhouette, never someone else's picture.
+ */
+export const ART_COMING: ReadonlySet<string> = new Set<string>([...NO_ART_YET, '🐢', '🦜', 'Wedding Caterer', 'Bakery']); // emoji-ok: avatar keys
 const slug = (key: string) => key.toLowerCase().replace(/ /g, '-');
 const CUSTOMER_KEYS = new Set(CUSTOMER_CARDS.map((c) => c.name));
-const EVENT_IDS = new Set<string>(EVENT_CARDS.map((e) => e.id));
+/** Events with an owner picture. The seven rules 11 events have none yet (an art gap): their cards say "Art coming". */
+const EVENT_IDS = new Set<string>(EVENT_CARDS.map((e) => e.id).filter((id) => !NO_ART_YET.has(id)));
 
 /** A customer's "at work" trading-card picture, or null for anyone without one (guests, the walk-in). */
 export function customerArt(key: string): string | null {
@@ -23,7 +31,7 @@ export function customerArt(key: string): string | null {
 /** A shopkeeper's art file key ('rosa', 'benny', ...) by avatar, or null for anyone else. */
 export function shopFile(avatar: string): string | null {
   const i = RIVALS.findIndex((r) => r.avatar === avatar);
-  return i >= 0 ? SHOP_FILES[i] : null;
+  return i >= 0 ? SHOP_FILES[i] ?? null : null;
 }
 
 /** A shopkeeper's "over the counter" stall-sign scene. */

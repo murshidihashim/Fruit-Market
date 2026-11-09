@@ -29,6 +29,9 @@ export interface Achievement {
 }
 
 export const GUESTS = ['Influencer', 'Gym Club', 'Hotel Chef'];
+/** Rival Roll Call counts the six original shopkeepers (RIVALS order); Pak Din and Farah (rules 11) are not on it,
+ *  so nobody's progress changes. */
+const ROLL_CALL = 6;
 const TRAITS = ['haggler', 'basket', 'bargain', 'charmer', 'favourite', 'nestegg'];
 
 export const ACHIEVEMENTS: Achievement[] = [
@@ -104,7 +107,7 @@ function rivalIndex(name: string): number {
 }
 /** The shopkeepers beaten so far. Progress saved before DEC-064 holds former names ("Benny"); each shopkeeper counts once. */
 function beatenRivals(sets: Sets): Set<number> {
-  return new Set((sets.beaten ?? []).map(rivalIndex).filter((i) => i >= 0));
+  return new Set((sets.beaten ?? []).map(rivalIndex).filter((i) => i >= 0 && i < ROLL_CALL));
 }
 /** How many entries a set holds; 'beaten' counts each shopkeeper once, whichever of its names was saved. */
 const setSize = (sets: Sets, key: string): number => (key === 'beaten' ? beatenRivals(sets).size : (sets[key] ?? []).length);
@@ -201,7 +204,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
     ['hard_sweep', won && g.players.length === 4 && g.players.every((p, i) => i === me || (p.kind === 'ai' && p.level === 'hard'))],
     ['shop_3', size('wonWith') >= 3],
     ['shop_6', size('wonWith') >= TRAITS.length],
-    ['rivals_all', beatenRivals(sets).size >= RIVALS.length],
+    ['rivals_all', beatenRivals(sets).size >= ROLL_CALL],
     ['big_day', hist.some((d) => d.income[me] >= 40)],
     ['festival_rush', festival],
     ['event_all', size('events') >= EVENT_CARDS.length],

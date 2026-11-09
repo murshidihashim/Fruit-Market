@@ -170,7 +170,7 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
 // ---------- evening ----------
 
 export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', coldroom: 'coolroom', premium: 'signboard', juicebar: 'juicer' };
-export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg' };
+export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg', keeper: 'moon', earful: 'ear' };
 
 /** Pieces on this shelf that will be tired at the start of tomorrow. */
 function tiredTomorrow(s: GameState, pl: GameState['players'][number]): number {

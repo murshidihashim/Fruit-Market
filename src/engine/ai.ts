@@ -216,8 +216,8 @@ export function seller(s: GameState, player: number, f: FruitId, price: number, 
 /**
  * Expected sales for one shop (`me`), by running the day's queue for one fruit the way the rush does: cheapest stall
  * first, leftover demand spilling to the next; each stall hands over its oldest fruit fresh enough for the customer,
- * from its whole shelf, up to the number in its crate. Ties follow the rules: Favoured Trade, then the Haggler, then
- * the fresher fruit handed over, then today's buying order. Traits and the buying order are public; Favoured Trade
+ * from its whole shelf, up to the number in its crate. Ties follow the rules (rules 11): Favoured Trade, then the
+ * fresher fruit handed over, then the Haggler, then today's buying order. Traits and the buying order are public; Favoured Trade
  * counts only where the planner knows it (`ft`), because rivals' favour cards are secret. Exported for tests.
  */
 export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Seller[]): number {
@@ -238,8 +238,8 @@ export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Sell
       }
       if (used.length) offers.push({ x, used, fresh: x.pos[used[used.length - 1]] });
     }
-    offers.sort((a, b) => a.x.price - b.x.price || Number(!!b.x.ft) - Number(!!a.x.ft) || haggler(b.x) - haggler(a.x)
-      || b.fresh - a.fresh || orderIdx(a.x) - orderIdx(b.x));
+    offers.sort((a, b) => a.x.price - b.x.price || Number(!!b.x.ft) - Number(!!a.x.ft) || b.fresh - a.fresh
+      || haggler(b.x) - haggler(a.x) || orderIdx(a.x) - orderIdx(b.x));
     let need = l.qty;
     for (const o of offers) {
       if (need <= 0) break;

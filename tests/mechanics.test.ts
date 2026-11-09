@@ -44,13 +44,13 @@ describe('merchant traits', () => {
     expect(s.players.every((p) => p.trait)).toBe(true);
   });
 
-  it('Nest Egg starts with $20 (everyone else $15) and Bargain Hunter gets $1 off the first fruit each day', () => {
+  it('Nest Egg starts with $18 (everyone else $10) and Bargain Hunter gets $1 off the first fruit each day', () => {
     let s = newGame(humans(2));
     s.players[0].traitOffer = ['nestegg', 'bargain', 'haggler'];
     s.players[1].traitOffer = ['bargain', 'nestegg', 'haggler'];
     s = pickTrait(pickTrait(s, 0, 'nestegg'), 1, 'bargain');
-    expect(s.players[0].cash).toBe(20);
-    expect(s.players[1].cash).toBe(15);
+    expect(s.players[0].cash).toBe(18);
+    expect(s.players[1].cash).toBe(10);
     expect(buyCost(s, 1, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh - 1);
     expect(buyCost(s, 0, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh);
     s.players[1].boughtToday = 1;
@@ -89,25 +89,26 @@ describe('specialities draft', () => {
     expect(canUpgrade(day2, p, rich.players[p].upgradeOffer![0])).toBe('Upgrades are offered after Market Days');
   });
 
-  it('the Juice Bar turns spoiling fruit into $2 each, up to 3 a night', () => {
+  it('the Juice Bar turns spoiling fruit into $2 each, up to 2 a night (rules 11)', () => {
     let s = runTo(newGame(ais(2, 9)), 3, 'evening');
     const p = s.order[s.turn];
     s = structuredClone(s);
-    s.players[p].upgrades.push('juicebar');
+    s.players[p].upgrades = ['juicebar'];
+    s.players[p].trait = null; // no Shade Cloth keeping the blueberries back
     s.players[p].stock.blueberry[0] = 5; // all of these spoil tonight
     const cash = s.players[p].cash;
     const spoiled = s.players[p].stats.spoiled;
     // Everyone closes up without building anything.
     while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
     expect(s.day).toBe(4);
-    expect(s.players[p].cash).toBe(cash + 6);
-    expect(s.players[p].stats.spoiled - spoiled).toBe(2);
-    expect(s.players[p].stats.juiced).toBe(3);
+    expect(s.players[p].cash).toBe(cash + 4);
+    expect(s.players[p].stats.spoiled - spoiled).toBe(3);
+    expect(s.players[p].stats.juiced).toBe(2);
   });
 
   // REP-089 option C (DEC-067): the owner kept this as a skill trick and the card explains it. If the rule changes
   // (juice pays $1, or only fruit you had before today), this test and the card's tip must change with it.
-  it('Juice Bar salvage: 3 tired blueberries bought for $1 and never put out make +$3 overnight, as the card says', () => {
+  it('Juice Bar salvage: 2 tired blueberries bought for $1 and never put out make +$2 overnight, as the card says', () => {
     let s = beginBuying(newGame(humans(2)));
     s = structuredClone(s);
     s.day = 4; // an ordinary night follows
@@ -116,10 +117,10 @@ describe('specialities draft', () => {
     pl.upgrades = ['juicebar'];
     for (const f of Object.keys(pl.stock) as (keyof typeof pl.stock)[]) pl.stock[f] = pl.stock[f].map(() => 0);
     pl.cash = 20;
-    s.market.blueberry[0] = 3; // tired: their last day
+    s.market.blueberry[0] = 2; // tired: their last day
     expect(buyCost(s, p, 'blueberry', 0)).toBe(1);
     expect(UPGRADES.juicebar.text).toContain(`Tip: before the last day, $1 tired fruit makes $${JUICE_VALUE} of juice.`);
-    for (let k = 0; k < 3; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
+    for (let k = 0; k < 2; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
     while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
     while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
     while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [], favoured: false });
@@ -127,8 +128,8 @@ describe('specialities draft', () => {
     s = finishReveal(s);
     while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
     expect(s.day).toBe(5);
-    expect(s.players[p].cash).toBe(20 - 3 + 3 * JUICE_VALUE); // +$3, whatever the customers did
-    expect(s.players[p].stats.juiced).toBe(3);
+    expect(s.players[p].cash).toBe(20 - 2 + 2 * JUICE_VALUE); // +$2, whatever the customers did
+    expect(s.players[p].stats.juiced).toBe(2);
     expect(s.players[p].stats.spoiled).toBe(0);
   });
 

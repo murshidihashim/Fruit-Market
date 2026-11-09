@@ -7,7 +7,7 @@ import {
 } from '../src/engine/data';
 import { Logo } from '../src/ui/art';
 import { CardArt, Gazette, QUIRK_LONG, QUIRK_MAX, StallSign, TradingCard, TradingCardBack, customerNumber, toStaticHtml } from '../src/ui/cards';
-import { customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
+import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { FruitSvg, fruitSvgString, fruitSvgUrl } from '../src/ui/fruitIcons';
 import { GAZETTE } from '../src/ui/gazette';
 
@@ -23,13 +23,16 @@ describe('deck art files', () => {
   it('every customer, guest, shopkeeper and event has its picture in public/art', () => {
     const missing: string[] = [];
     for (const c of CUSTOMER_CARDS) if (!existsSync(file(customerArt(c.name)))) missing.push(`customer ${c.name}`);
-    for (const g of GUESTS) if (!existsSync(file(guestArt(g.name)))) missing.push(`guest ${g.name}`);
+    // Rules 11 art gaps (ART_COMING) have no picture yet and must not point at a file.
+    const art = (key: string, url: string | null) => (ART_COMING.has(key) ? url === null : existsSync(file(url)));
+    for (const g of GUESTS) if (!art(g.name, guestArt(g.name))) missing.push(`guest ${g.name}`);
     for (const r of RIVALS) {
-      if (!existsSync(file(shopScene(r.avatar)))) missing.push(`scene ${r.name}`);
-      if (!existsSync(file(shopBadge(r.avatar)))) missing.push(`badge ${r.name}`);
+      if (!art(r.avatar, shopScene(r.avatar))) missing.push(`scene ${r.name}`);
+      if (!art(r.avatar, shopBadge(r.avatar))) missing.push(`badge ${r.name}`);
     }
-    for (const e of EVENT_CARDS) if (!existsSync(file(eventArt(e.id)))) missing.push(`event ${e.id}`);
+    for (const e of EVENT_CARDS) if (!art(e.id, eventArt(e.id))) missing.push(`event ${e.id}`);
     expect(missing).toEqual([]);
+    expect([...ART_COMING].sort()).toEqual(['bakeOff', 'Bakery', 'durian', 'kenduri', 'mangoWindfall', 'monsoon', 'pasarMalam', 'touristBus', 'Wedding Caterer', '🐢', '🦜'].sort());
   });
 
   it('missing art says so and never borrows a picture', () => {
@@ -106,7 +109,7 @@ describe('customer cards', () => {
     for (const g of GUESTS) {
       const s = html(TradingCard, { who: g.name, wants: g.wants, guest: true });
       expect(s).toContain('Special guest');
-      expect(s).toContain(`src="${guestArt(g.name)}"`);
+      expect(s).toContain(ART_COMING.has(g.name) ? 'Art coming' : `src="${guestArt(g.name)}"`);
       expect(s).toContain(`>${lookOf(g.name).title}</strong>`);
     }
   });
@@ -137,8 +140,11 @@ describe('shopkeeper stall signs', () => {
       expect(s).toContain(`Today’s special: ${t.title}`);
       expect(s).toContain(esc(t.text));
       expect(s).toContain(esc(r.quip));
-      expect(s).toContain(`src="${shopScene(r.avatar)}"`);
-      expect(s).toContain(`src="${shopBadge(r.avatar)}"`);
+      if (ART_COMING.has(r.avatar)) expect(s).toContain('Art coming');
+      else {
+        expect(s).toContain(`src="${shopScene(r.avatar)}"`);
+        expect(s).toContain(`src="${shopBadge(r.avatar)}"`);
+      }
     }
   });
 
@@ -174,7 +180,7 @@ describe('events: the Fruit Market front page', () => {
       expect(s).toContain('Morning edition');
       expect(s).toContain(`class="x-card x-gz x-ev-${e.id}"`);
       expect(s).toContain(`<ul class="x-gz-fx x-n${g.effects.length}">`);
-      expect(s).toContain(`src="${eventArt(e.id)}"`);
+      expect(s).toContain(ART_COMING.has(e.id) ? 'Art coming' : `src="${eventArt(e.id)}"`);
     });
   });
 

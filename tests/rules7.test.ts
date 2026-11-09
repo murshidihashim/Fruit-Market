@@ -18,20 +18,19 @@ describe('rules version 7', () => {
     expect(canUpgrade(after, 0, 'premium')).not.toBeNull();
   });
 
-  it('charges a Big Basket $2 more for the extra piece only', () => {
+  it('charges a Big Basket the normal price for the extra piece (rules 11; rules 7 to 10 charged $2 more)', () => {
     const s = base();
     s.phase = 'buy';
     const pl = s.players[0];
     pl.trait = 'basket';
     const plain = marketCost(s, 'blueberry', 2);
+    for (const bought of [3, 4]) {
+      pl.boughtToday = bought;
+      expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
+    }
+    pl.upgrades.push('barrow');
     pl.boughtToday = 5;
     expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
-    pl.boughtToday = 6;
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain + 2);
-    pl.upgrades.push('barrow'); // a Handcart moves the usual limit to 8
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
-    pl.boughtToday = 8;
-    expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain + 2);
   });
 
   it('prices a mango at $5 fresh and $4 green', () => {
@@ -55,7 +54,7 @@ describe('rules version 8', () => {
     }
   };
 
-  it('pays a Haggler $1 more on the first sale of each day', () => {
+  it('no longer pays a Haggler $1 more on the first sale of each day (rules 11)', () => {
     let checked = 0;
     for (let seed = 1; seed <= 12; seed++) {
       play(seed, 'Rosa', (s) => {
@@ -63,7 +62,8 @@ describe('rules version 8', () => {
         const lines = s.results.lines.flatMap((l) => l.offers.filter((o) => o.player === 0));
         const sold = lines.reduce((a, o) => a + o.sold, 0);
         const lineCash = lines.reduce((a, o) => a + o.sold * o.price + (o.juice ?? 0), 0);
-        expect(s.results.income[0]).toBe(lineCash + (sold > 0 ? 1 : 0));
+        const extras = [...(s.results.hawker ?? []), ...(s.results.earful ?? [])].filter((x) => x.player === 0).reduce((a, x) => a + ('price' in x ? x.price : x.tip), 0);
+        expect(s.results.income[0]).toBe(lineCash + extras);
         if (sold > 0) checked++;
       });
     }

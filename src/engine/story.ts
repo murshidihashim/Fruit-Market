@@ -1,7 +1,7 @@
 // Presentation-only storytelling: turns the rules engine's results into short explanations,
 // reactions and highlights. Nothing here changes game state or re-implements pricing; every
 // sentence is derived from the recorded offers (price, units, sold, freshness) and the rules
-// the engine used to sort them (cheapest first; ties: Favoured Trade, then a Haggler, then fresher fruit,
+// the engine used to sort them (cheapest first; ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler,
 // then today's buying order, which was set at dawn with the poorest shop first).
 
 import { FRUIT, FRUITS, JAM_PRICE, JUICE_VALUE, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
@@ -36,11 +36,11 @@ function hash(...xs: number[]): number {
 
 /**
  * The Haggler's tie rule in one wording for every screen (the showdown, the what-if and the Price panel's hint):
- * "Rosa is the Haggler, who wins ties", or "you're the Haggler, who wins ties" for the viewer.
+ * "Rosa is the Haggler, who wins equally fresh ties", or "you're the Haggler, ..." for the viewer.
  */
 export function hagglerWins(names: string[], you = false): string {
-  if (you) return "you're the Haggler, who wins ties";
-  return names.length === 1 ? `${names[0]} is the Haggler, who wins ties` : `${names.join(' and ')} are Hagglers, who win ties`;
+  if (you) return "you're the Haggler, who wins equally fresh ties";
+  return names.length === 1 ? `${names[0]} is the Haggler, who wins equally fresh ties` : `${names.join(' and ')} are Hagglers, who win equally fresh ties`;
 }
 
 /** Why the winner beat this offer on a tie, following the engine's tie-break order. */
@@ -48,16 +48,16 @@ function tieReason(s: GameState, winner: Offer, loser: Offer, viewer: number): s
   const w = s.players[winner.player];
   const l = s.players[loser.player];
   if (w.favouredTrade && !l.favouredTrade) return `${nameOf(s, winner.player, viewer)} played Favoured Trade`;
-  if (haggled(s, winner, loser)) return hagglerWins([w.name], winner.player === viewer);
   if (winner.freshness > loser.freshness) return `${possessive(s, winner.player, viewer)} fruit was fresher`;
+  if (haggled(s, winner, loser)) return hagglerWins([w.name], winner.player === viewer);
   return `${nameOf(s, winner.player, viewer)} bought earlier today`;
 }
 
-/** A Haggler wins ties when Favoured Trade does not decide them (neither side played it, or both did). */
+/** A Haggler wins ties when neither Favoured Trade nor fresher fruit decides them (rules 11: equally fresh fruit). */
 function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
   const w = s.players[winner.player];
   const l = s.players[loser.player];
-  return w.trait === 'haggler' && l.trait !== 'haggler' && w.favouredTrade === l.favouredTrade;
+  return w.trait === 'haggler' && l.trait !== 'haggler' && w.favouredTrade === l.favouredTrade && winner.freshness === loser.freshness;
 }
 
 /**
@@ -130,7 +130,7 @@ function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string
   const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
   if (tie) {
     if (s.players[tie.player].favouredTrade && !s.players[o.player].favouredTrade) return 'lost tie: Favoured Trade';
-    return haggled(s, tie, o) ? 'lost tie: Haggler' : tie.freshness > o.freshness ? 'lost tie: fresher won' : 'lost tie';
+    return tie.freshness > o.freshness ? 'lost tie: fresher won' : haggled(s, tie, o) ? 'lost tie: Haggler' : 'lost tie';
   }
   return 'order already filled';
 }
@@ -148,6 +148,9 @@ interface LineContext {
   /** What the viewer put out of this fruit, and sold of it today (to anyone). */
   crate: number;
   soldToday: number;
+  /** Pasar Malam: the night hawker bought some of this fruit from the viewer after the rush, so the shelf now is not the
+   *  shelf at the bell. */
+  hawked: boolean;
   /** What the viewer sold of this fruit to the customers before this one. */
   soldBefore: number;
   /** The most that earlier customers of this fruit could still have bought from the viewer at a lower price. */
@@ -171,13 +174,14 @@ function lineContext(s: GameState, l: LineResult, viewer: number): LineContext |
       before += m ? Math.max(0, x.want - m.sold) : x.want;
     }
   });
-  return { first, crate: forSale(s, viewer, l.fruit), soldToday, soldBefore, before };
+  const hawked = !!s.results?.hawker?.some((x) => x.player === viewer && x.fruit === l.fruit);
+  return { first, crate: forSale(s, viewer, l.fruit), soldToday, hawked, soldBefore, before };
 }
 
 /**
- * Who would have won if the viewer had matched `rival`'s price for this customer, in the engine's tie order:
- * Favoured Trade, then a Haggler, then fresher fruit, then today's buying order. 'open' when the results cannot tell.
- * Favoured Trade and Haggler need only the players. Freshness is judged only for the first customer of this fruit
+ * Who would have won if the viewer had matched `rival`'s price for this customer, in the engine's tie order (rules 11):
+ * Favoured Trade, then fresher fruit, then a Haggler, then today's buying order. 'open' when the results cannot tell.
+ * Favoured Trade needs only the players; the Haggler counts only once freshness is known to be equal. Freshness is judged only for the first customer of this fruit
  * today (every shelf of it was still as it stood at the bell): at a lower price a stall hands over its oldest
  * qualifying pieces first, so the freshness recorded at the viewer's own price is the best it could have been, and
  * if the viewer sold none of this fruit all day, the shelf now is the shelf then, so the engine's own eligible()
@@ -187,16 +191,16 @@ export function tieAt(s: GameState, l: LineResult, mine: Offer, rival: Offer, vi
   const me = s.players[viewer];
   const r = s.players[rival.player];
   if (me.favouredTrade !== r.favouredTrade) return { outcome: me.favouredTrade ? 'win' : 'lose', by: 'favouredTrade' };
-  const mh = me.trait === 'haggler';
-  if (mh !== (r.trait === 'haggler')) return { outcome: mh ? 'win' : 'lose', by: 'haggler' };
   const ctx = lineContext(s, l, viewer);
   if (!ctx?.first || !inContest(rival)) return { outcome: 'open' };
   if (mine.freshness < rival.freshness) return { outcome: 'lose', by: 'fresher' };
-  if (ctx.soldToday > 0 || s.phase !== 'reveal') return { outcome: 'open' };
+  if (ctx.soldToday > 0 || ctx.hawked || s.phase !== 'reveal') return { outcome: 'open' };
   const used = eligible(me, me.stock, l.fruit, Math.min(ctx.crate, l.want), rival.price, l.max, prefFor(s, l));
   if (!used.length) return { outcome: 'open' };
   const fresh = Math.max(...used);
   if (fresh !== rival.freshness) return { outcome: fresh > rival.freshness ? 'win' : 'lose', by: 'fresher' };
+  const mh = me.trait === 'haggler';
+  if (mh !== (r.trait === 'haggler')) return { outcome: mh ? 'win' : 'lose', by: 'haggler' };
   return { outcome: s.order.indexOf(viewer) < s.order.indexOf(rival.player) ? 'win' : 'lose', by: 'order' };
 }
 
@@ -229,19 +233,19 @@ function piecesAt(s: GameState, l: LineResult, mine: Offer, price: number, ctx: 
   const me = s.players[viewer];
   const bell = s.phase === 'reveal';
   const now = bell ? eligible(me, me.stock, l.fruit, ctx.crate, price, l.max, prefFor(s, l)).length : 0;
-  if (bell && ctx.first && ctx.soldToday === 0) return { n: Math.min(l.want, now), exact: true };
+  if (bell && ctx.first && ctx.soldToday === 0 && !ctx.hawked) return { n: Math.min(l.want, now), exact: true };
   const n = Math.min(l.want, ctx.crate - ctx.soldBefore - ctx.before, Math.max(mine.qty, now) - ctx.before);
   return { n: Math.max(0, n), exact: false };
 }
 
-/** The engine's tie rank for a stall today, before freshness and buying order: Favoured Trade first, then a Haggler. */
-const tieRank = (s: GameState, p: number) => 2 * Number(s.players[p].favouredTrade) + Number(s.players[p].trait === 'haggler');
+/** The engine's tie rank for a stall today before freshness (rules 11): only Favoured Trade comes ahead of it. */
+const tieRank = (s: GameState, p: number) => Number(s.players[p].favouredTrade);
 
 /**
  * For a customer after the first of this fruit: could a stall priced exactly `price` that was not in this line's price
  * contest have stood ahead of the viewer, had the viewer charged `price` all day? Earlier customers might then have
  * bought from the viewer instead, leaving that stall fruit for this customer, and only freshness or the buying order
- * (not known here) would settle the tie. A stall that Favoured Trade or the Haggler puts ahead of the viewer always
+ * (not known here) would settle the tie. A stall that Favoured Trade puts ahead of the viewer always
  * sold first, so it has no more fruit than it really had; one they put behind cannot stand ahead.
  */
 function unsettledAt(s: GameState, l: LineResult, price: number, viewer: number): boolean {
@@ -300,7 +304,8 @@ function undercutWhatIf(s: GameState, l: LineResult, mine: Offer, lowest: number
       claimed = Math.max(claimed, j);
     }
   } else if (open) {
-    tie = `A tie at $${lowest} goes to the fresher fruit, then to whoever bought earlier today.`;
+    const hag = s.players[viewer].trait === 'haggler' || l.offers.some((o) => o.price === lowest && s.players[o.player].trait === 'haggler');
+    tie = `A tie at $${lowest} goes to the fresher fruit, then ${hag ? 'to a Haggler, then ' : ''}to whoever bought earlier today.`;
   }
   const text = [sure, tie].filter(Boolean).join(' ');
   return text ? `${text}${unsoldNote(unsold, claimed)}` : '';

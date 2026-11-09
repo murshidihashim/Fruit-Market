@@ -5,7 +5,7 @@ import type { Action, GameState } from '../engine/game';
 export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
-export const RULES_VERSION = 10;
+export const RULES_VERSION = 11;
 /**
  * Bump whenever the computer players change (src/engine/ai.ts), even when the rules don't. Daily scores are verified by
  * replaying the game with the server's computer players (server/meta.ts verifyDaily), so a daily must be submitted and
@@ -17,7 +17,7 @@ export const AI_VERSION = 2;
 export const PROTOCOL_VERSION = 3;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
-export const MAX_SEATS = 4;
+export const MAX_SEATS = 6;
 export const NAME_MAX = 14;
 
 export interface RoomConfig { days: 8 | 10 | 14; ai: number; unripe: boolean; upgrades: boolean; events: boolean }

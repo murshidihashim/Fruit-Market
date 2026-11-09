@@ -8,12 +8,12 @@
 // evening favours) -> night (fruit ages).
 
 import {
-  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
-  FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
-  LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
+  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
+  FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
+  LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES,
-  acceptsStage, freshPos, prefOf, stageAt, trackLength,
-  type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type TraitId, type UpgradeId, type Want,
+  acceptsStage, deliveryPos, favourDeckFor, freshPos, prefOf, sharpEarsTip, stageAt, trackLength,
+  type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type Stalls, type TraitId, type UpgradeId, type Want,
 } from './data';
 import { Rng } from './rng';
 
@@ -67,8 +67,8 @@ export interface Player extends PlayerConfig {
   /** What this shop paid for fruit today (for the day's ledger). */
   spentToday: number;
   favouredTrade: boolean;
-  /** Haggler: today's first sale has already paid its $1 bonus. */
-  hagglePaid?: boolean;
+  /** Shade Cloth: the fruit this shop keeps from ageing tonight (null: none). Chosen in the evening; reset each morning. */
+  shade?: FruitId | null;
   stats: Stats;
   /** Merchant trait, picked from `traitOffer` on the first morning. */
   trait?: TraitId | null;
@@ -114,6 +114,10 @@ export interface DayResult {
   income: number[];
   /** What each shop paid for fruit today. */
   spent: number[];
+  /** Pasar Malam: what the night hawker paid each shop after the rush (pieces bought at the hawker price). */
+  hawker?: { player: number; fruit: FruitId; price: number }[];
+  /** Sharp Ears: tips from peeked walk-ins, by shop. */
+  earful?: { player: number; customer: string; tip: number }[];
 }
 
 export interface DayRecord {
@@ -204,13 +208,12 @@ export function handLimit(p: Player): number {
   return FAVOUR_HAND_LIMIT + (p.trait === 'charmer' ? 1 : 0);
 }
 
-/** What this shop pays for one fruit at the market (a Bargain Hunter's first fruit each day is $1 off). */
+/** What this shop pays for one fruit at the market (a Bargain Hunter's first fruit each day is $1 off; rules 11: Big
+ *  Basket's extra piece costs the normal price). */
 export function buyCost(s: GameState, p: number, f: FruitId, pos: number): number {
   const c = marketCost(s, f, pos);
   const pl = s.players[p];
-  // Big Basket's extra piece (past the usual daily limit) costs $2 more.
-  const extra = pl?.trait === 'basket' && pl.boughtToday >= (pl.upgrades.includes('barrow') ? BARROW_BUY : BASE_BUY) ? 2 : 0;
-  return (pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c) + extra;
+  return pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c;
 }
 
 export function marketCost(s: GameState, f: FruitId, pos: number): number {
@@ -288,11 +291,16 @@ export function progress(s: GameState, day = s.day): number {
   return s.config.days <= 1 ? 1 : Math.min(1, (day - 1) / (s.config.days - 1));
 }
 
-/** Walk-ins on a day: players - 2 every day (rules 5: no extra walk-in in the second half); +1 on Market Days; plus that day's event. */
+/** Extra walk-ins for a change of `k`, scaled per 3 stalls: sign(k) x ceil(|k| x stalls / 3) (rules 11). */
+export function scaledWalkIns(k: number, stalls: number): number {
+  return k === 0 ? 0 : Math.sign(k) * Math.ceil((Math.abs(k) * stalls) / 3);
+}
+
+/** Walk-ins on a day (rules 11): stalls - 1, so the crowd is one customer per stall with the regular; Market Days and
+ *  walk-in events add or remove walk-ins per 3 stalls; never below none. */
 export function walkInsOn(s: GameState, day: number, event: EventCard | null): number {
-  // Two stalls get one walk-in a day (rules 8); more stalls get players minus 2.
-  const base = s.players.length === 2 ? 1 : Math.max(0, s.players.length - 2);
-  return Math.max(0, base + (isMarketDay(s, day) ? 1 : 0) + (event?.walkIns ?? 0));
+  const n = s.players.length;
+  return Math.max(0, n - 1 + scaledWalkIns(isMarketDay(s, day) ? 1 : 0, n) + scaledWalkIns(event?.walkIns ?? 0, n));
 }
 
 /** Walk-ins arriving today (face down in the queue until the crowd comes). */
@@ -300,9 +308,17 @@ export function walkInsToday(s: GameState): number {
   return s.phase === 'morning' || s.phase === 'buy' ? s.queue.length : servingCustomers(s).filter((c) => c.walkIn).length;
 }
 
-/** Fruit the farmers bring for one fruit on a card: the number printed for 2, 3 or 4 shops. */
+/** Fruit the farmers bring for one fruit on a card: the number printed for this many stalls (2 to 6). */
 export function printedSupply(card: FarmerCard, f: FruitId, shops: number): number {
-  return card.table[Math.min(4, Math.max(2, shops)) as 2 | 3 | 4][f];
+  return card.table[Math.min(MAX_STALLS, Math.max(MIN_STALLS, shops)) as Stalls][f];
+}
+
+/** Extra fruit an event adds to today's delivery of one fruit (rules 11: per 2 stalls for one fruit, per 4 for all). */
+export function eventSupply(e: EventCard | null | undefined, f: FruitId, shops: number): number {
+  let n = 0;
+  if (e?.supplyAll) n += e.supplyAll * Math.ceil(shops / 4);
+  if (e?.supplyEach?.[f]) n += Math.ceil((e.supplyEach[f]! * shops) / 2);
+  return n;
 }
 
 function clone<T>(x: T): T {
@@ -346,7 +362,7 @@ function drawEvent(s: GameState): EventCard {
 /** Next favour card. When the deck runs out, the played cards are shuffled back in (cards still in hands stay there), as on a table. */
 function drawFavour(s: GameState): FavourId | null {
   if (s.favourDeck.length === 0) {
-    const pool = [...FAVOUR_DECK];
+    const pool = favourDeckFor(s.players.length);
     for (const held of s.players.flatMap((p) => p.favours)) {
       const k = pool.indexOf(held);
       if (k >= 0) pool.splice(k, 1);
@@ -383,6 +399,7 @@ function applyTrait(s: GameState, p: number, t: TraitId) {
 // ---------- setup ----------
 
 export function newGame(config: GameConfig): GameState {
+  if (config.players.length < MIN_STALLS || config.players.length > MAX_STALLS) throw new RuleError(`A game needs ${MIN_STALLS} to ${MAX_STALLS} stalls`);
   const r = new Rng(config.seed || 1);
   const players: Player[] = config.players.map((pc) => ({
     ...pc,
@@ -405,7 +422,7 @@ export function newGame(config: GameConfig): GameState {
     farmerDeck: r.shuffle(FARMER_CARDS.map((_, i) => i)),
     customerDeck: r.shuffle(CUSTOMER_CARDS.map((_, i) => i)),
     eventDeck: r.shuffle(EVENT_CARDS.map((_, i) => i)),
-    favourDeck: r.shuffle([...FAVOUR_DECK]),
+    favourDeck: r.shuffle(favourDeckFor(config.players.length)),
     event: null,
     nextEvent: null,
     delivery: {},
@@ -496,14 +513,13 @@ function startDay(s: GameState) {
     const unripe = s.config.unripe && card.unripe ? card.unripe : null;
     s.deliveryUnripe = unripe;
     for (const f of FRUITS) {
-      let n = printedSupply(card, f, shops);
-      if (e?.supplyPerTwo) n += e.supplyPerTwo * Math.ceil(shops / 2);
-      if (e?.supplyPerShop?.[f]) n += e.supplyPerShop[f]! * shops;
+      let n = printedSupply(card, f, shops) + eventSupply(e, f, shops);
       if (e?.noFruit === f) n = 0;
       if (e?.supplyMult) n = Math.ceil(n * e.supplyMult);
       if (n <= 0) continue;
       s.delivery[f] = n;
-      const pos = f === unripe ? s.market[f].length - 1 : freshPos(f);
+      // Green fruit enters the top of its track; the Seconds Lorry fills each fruit's freshest Okay space.
+      const pos = f === unripe ? s.market[f].length - 1 : deliveryPos(card, f);
       s.market[f][pos] += n;
     }
   }
@@ -511,7 +527,7 @@ function startDay(s: GameState) {
     p.boughtToday = 0;
     p.spentToday = 0;
     p.favouredTrade = false;
-    p.hagglePaid = false;
+    delete p.shade;
     p.upgradeOffer = [];
   }
   s.dayStartCash = s.players.map((p) => p.cash);
@@ -598,6 +614,12 @@ function customersArrive(s: GameState) {
   if (s.day < s.config.days) {
     s.forecast = drawCustomer(s);
     for (let i = 0; i < walkInsOn(s, s.day + 1, s.nextEvent); i++) s.queue.push(drawCustomer(s, true));
+    // Sharp Ears: the shop secretly peeks at one of tomorrow's walk-ins it has not seen (the first in the queue).
+    s.players.forEach((pl, p) => {
+      if (pl.trait !== 'earful') return;
+      const c = s.queue.find((q) => !q.seenBy?.includes(p));
+      if (c) c.seenBy = [...(c.seenBy ?? []), p];
+    });
   }
   s.phase = 'stall';
   s.stalls = s.players.map(() => null);
@@ -768,8 +790,10 @@ function resolve(s: GameState) {
   };
   const left = s.players.map((_, p) => Object.fromEntries(FRUITS.map((f) => [f, forSale(s, p, f)])) as Record<FruitId, number>);
   const orderIdx = (p: number) => s.order.indexOf(p);
-  const tieWin = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade)
-    || Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
+  const favoured = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade);
+  const haggler = (a: number, b: number) => Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
+  const earful = s.players.map((pl) => pl.trait === 'earful');
+  const dailyFavours = (p: number) => (s.players[p].trait === 'charmer' ? CHARMER_DAILY_FAVOURS : 1);
 
   for (const c of servingCustomers(s)) {
     const suppliers = new Set<number>();
@@ -788,10 +812,10 @@ function resolve(s: GameState) {
         }
         offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
       });
-      // Cheapest first. Ties: Favoured Trade, then a Haggler, then fresher fruit, then today's buying order (rules 5:
-      // cash changes while customers are paid, so it is no longer a tie-break; the order was set at dawn, poorest first).
-      offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || tieWin(a.player, b.player)
-        || b.freshness - a.freshness || orderIdx(a.player) - orderIdx(b.player));
+      // Cheapest first. Ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler, then today's buying order
+      // (the order was set at dawn, poorest first).
+      offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || favoured(a.player, b.player)
+        || b.freshness - a.freshness || haggler(a.player, b.player) || orderIdx(a.player) - orderIdx(b.player));
       let need = w.qty;
       for (const o of offers) {
         if (need <= 0 || o.tooOld) continue;
@@ -805,10 +829,7 @@ function resolve(s: GameState) {
         // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well.
         const juice = pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
         if (juice) o.juice = juice;
-        // Haggler: the first sale of each day pays $1 more.
-        const bonus = pl.trait === 'haggler' && !pl.hagglePaid ? 1 : 0;
-        if (bonus) pl.hagglePaid = true;
-        const gain = n * o.price + juice + bonus;
+        const gain = n * o.price + juice;
         pl.cash += gain;
         pl.stats.earned += gain;
         pl.stats.sold += n;
@@ -819,6 +840,18 @@ function resolve(s: GameState) {
       }
       res.lines.push({ customerId: c.id, name: c.name, fruit: w.fruit, want: w.qty, max, offers: offers.map(({ used: _u, ...o }) => o) });
       w.qty = need;
+    }
+    // Sharp Ears: a walk-in this shop has peeked at tips it once a day when the shop sells them anything.
+    if (c.walkIn) {
+      for (const p of suppliers) {
+        if (!earful[p] || !c.seenBy?.includes(p)) continue;
+        const tip = sharpEarsTip(s.players.length);
+        const pl = s.players[p];
+        pl.cash += tip;
+        pl.stats.earned += tip;
+        res.income[p] += tip;
+        (res.earful ??= []).push({ player: p, customer: c.name, tip });
+      }
     }
     const done = c.wants.every((w) => w.qty <= 0);
     if (done) {
@@ -831,8 +864,8 @@ function resolve(s: GameState) {
           pl.stats.earned += LOCAL_FAVOURITE_TIP;
           res.income[p] += LOCAL_FAVOURITE_TIP;
         }
-        // At most one favour card per shop per day (none in the core market).
-        if (!s.config.core && pl.favours.length < handLimit(pl) && !res.favours.some((x) => x.player === p)) {
+        // At most one favour card per shop per day, two for a Charmer (none in the core market).
+        if (!s.config.core && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < dailyFavours(p)) {
           const fav = drawFavour(s);
           if (fav) {
             pl.favours.push(fav);
@@ -842,6 +875,24 @@ function resolve(s: GameState) {
         }
       }
     }
+  }
+  // Pasar Malam: after the rush the night hawker buys 1 of each fruit left in each stall's crate (oldest first), any freshness.
+  if (s.event?.hawker) {
+    const price = s.event.hawker;
+    s.players.forEach((pl, p) => {
+      for (const f of FRUITS) {
+        if (left[p][f] <= 0) continue;
+        const i = pl.stock[f].findIndex((c, k) => c > 0 && k < FRUIT[f].ripe.length);
+        if (i < 0) continue;
+        pl.stock[f][i]--;
+        left[p][f]--;
+        pl.cash += price;
+        pl.stats.earned += price;
+        pl.stats.sold++;
+        res.income[p] += price;
+        (res.hawker ??= []).push({ player: p, fruit: f, price });
+      }
+    });
   }
   if (s.config.pulse) updatePulse(s);
   for (const c of s.secondMarket) if (c.wants.some((w) => w.qty > 0)) res.leftAngry.push(c.name);
@@ -890,7 +941,9 @@ export function finishReveal(state: GameState): GameState {
   // Hold an evening whenever anyone has a favour card. Only the number of cards is public, so
   // checking for evening cards would tell rivals what someone is holding.
   const anyCard = s.players.some((p) => p.favours.length > 0);
-  if (!isDraftNight(s) && !anyCard) return nightfall(s);
+  // Shade Cloth: a person names tonight's fruit in the evening (a computer shop picks at nightfall).
+  const shading = s.players.some((p) => p.trait === 'keeper' && p.kind === 'human');
+  if (!isDraftNight(s) && !anyCard && !shading) return nightfall(s);
   return s;
 }
 
@@ -927,6 +980,49 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
   return s;
 }
 
+export function canShade(s: GameState, p: number, f: FruitId | null): string | null {
+  const pl = s.players[p];
+  if (!pl || pl.trait !== 'keeper') return 'Only the Shade Cloth can do that';
+  if (s.phase !== 'evening' || activePlayer(s) !== p) return 'Not your turn';
+  if (f !== null && !FRUITS.includes(f)) return 'Unknown fruit';
+  return null;
+}
+
+/** Shade Cloth: name the fruit that does not age on this shop's shelf tonight (null: none). */
+export function setShade(state: GameState, p: number, f: FruitId | null): GameState {
+  const why = canShade(state, p, f);
+  if (why) throw new RuleError(why);
+  const s = clone(state);
+  s.players[p].shade = f;
+  return s;
+}
+
+/**
+ * The Shade Cloth's best fruit tonight: the one whose pieces lose the most value if they age (a step toward tired, or
+ * spoiling), less what ageing would gain by ripening green fruit. Null when nothing would lose value. Computer shops
+ * use it, and it is the suggestion for a person.
+ */
+export function shadePick(s: GameState, p: number): FruitId | null {
+  const pl = s.players[p];
+  const steps = shelfSteps(s, pl);
+  if (steps <= 0) return null;
+  let best: FruitId | null = null;
+  let bestLoss = 0;
+  for (const f of FRUITS) {
+    const def = FRUIT[f];
+    let loss = 0;
+    pl.stock[f].forEach((c, i) => {
+      if (!c) return;
+      const to = i - steps;
+      if (i >= def.ripe.length) loss -= to < def.ripe.length ? c : 0; // green fruit that would ripen tonight
+      else if (to < 0) loss += c * (def.cost.fresh + 1); // spoils
+      else loss += c * (def.drop[to] - def.drop[i]);
+    });
+    if (loss > bestLoss) { bestLoss = loss; best = f; }
+  }
+  return best;
+}
+
 export function endEvening(state: GameState, p: number): GameState {
   requireActive(state, p, 'evening');
   const s = clone(state);
@@ -937,7 +1033,9 @@ export function endEvening(state: GameState, p: number): GameState {
 
 function nightfall(s: GameState): GameState {
   const heat = s.event?.ageExtra ?? 0;
-  age(s.market, 1 + heat);
+  age(s.market, Math.max(0, 1 + heat));
+  // Shade Cloth: a computer shop (or a person who did not choose) shades the fruit with the most to lose.
+  s.players.forEach((pl, p) => { if (pl.trait === 'keeper' && (pl.kind === 'ai' || pl.shade === undefined)) pl.shade = shadePick(s, p); });
   for (const pl of s.players) ageShop(s, pl);
   s.firstPlayer = (s.firstPlayer + 1) % s.players.length;
   s.day++;
@@ -951,10 +1049,20 @@ function nightfall(s: GameState): GameState {
 /** What tonight does to a shop's shelf: pieces that spoil, and pieces its Juice Bar turns into juice instead. */
 export interface NightOutlook { spoil: number; juice: number }
 
-/** Nights a shop's fruit ages tonight: one; none on a Cold Room's odd nights; a Heatwave adds one, but not in a Cold Room. */
+/** Nights a shop's fruit ages tonight: one; none on a Cold Room's odd nights; a Heatwave adds one, but not in a Cold
+ *  Room; a Monsoon (ageExtra -1) stops all ageing, Cold Room or not. */
 function shelfSteps(s: GameState, pl: Player): number {
   const room = pl.upgrades.includes('coldroom');
-  return (room && s.day % 2 === 1 ? 0 : 1) + (room ? 0 : s.event?.ageExtra ?? 0);
+  const extra = s.event?.ageExtra ?? 0;
+  return Math.max(0, (room && s.day % 2 === 1 ? 0 : 1) + (room && extra > 0 ? 0 : extra));
+}
+
+/** Ages one shop's shelf by tonight's steps, in place; Shade Cloth pieces sit out. Returns the pieces that left, by fruit. */
+function ageShelf(s: GameState, pl: Player, stock: Stock): Record<FruitId, number> {
+  const steps = shelfSteps(s, pl);
+  const out = {} as Record<FruitId, number>;
+  for (const f of FRUITS) out[f] = pl.trait === 'keeper' && pl.shade === f ? 0 : ageTrack(stock[f], steps);
+  return out;
 }
 
 /** Of the pieces leaving a shelf tonight, a Juice Bar juices up to JUICE_CAP; the rest spoil. */
@@ -964,7 +1072,8 @@ function splitNight(pl: Player, leaving: number): NightOutlook {
 }
 
 function ageShop(s: GameState, pl: Player) {
-  const { spoil, juice } = splitNight(pl, age(pl.stock, shelfSteps(s, pl)));
+  const left = ageShelf(s, pl, pl.stock);
+  const { spoil, juice } = splitNight(pl, FRUITS.reduce((a, f) => a + left[f], 0));
   if (juice > 0) {
     pl.cash += JUICE_VALUE * juice;
     pl.stats.earned += JUICE_VALUE * juice;
@@ -981,10 +1090,10 @@ function ageShop(s: GameState, pl: Player) {
  */
 export function leavingTonight(s: GameState, p: number): Record<FruitId, number> {
   const pl = s.players[p];
-  const steps = s.phase !== 'over' && s.day < s.config.days ? shelfSteps(s, pl) : 0;
-  const out = {} as Record<FruitId, number>;
-  for (const f of FRUITS) out[f] = ageTrack([...pl.stock[f]], steps);
-  return out;
+  if (s.phase === 'over' || s.day >= s.config.days) return Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
+  // A Shade Cloth that has not chosen yet is forecast with its suggested fruit.
+  const view = pl.trait === 'keeper' && pl.shade === undefined ? { ...pl, shade: shadePick(s, p) } : pl;
+  return ageShelf(s, view, clone(pl.stock));
 }
 
 /** Tonight's forecast for shop `p`: how many pieces will spoil and how many its Juice Bar will juice (JUICE_VALUE each). */
@@ -1021,7 +1130,8 @@ export type Action =
   | { kind: 'finish' }
   | { kind: 'upgrade'; upgrade: UpgradeId }
   | { kind: 'endEvening' }
-  | { kind: 'trait'; trait: TraitId };
+  | { kind: 'trait'; trait: TraitId }
+  | { kind: 'shade'; fruit: FruitId | null };
 
 export function applyAction(s: GameState, p: number, a: Action): GameState {
   switch (a.kind) {
@@ -1035,5 +1145,6 @@ export function applyAction(s: GameState, p: number, a: Action): GameState {
     case 'upgrade': return buyUpgrade(s, p, a.upgrade);
     case 'endEvening': return endEvening(s, p);
     case 'trait': return pickTrait(s, p, a.trait);
+    case 'shade': return setShade(s, p, a.fruit);
   }
 }

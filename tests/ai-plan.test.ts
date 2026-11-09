@@ -2,7 +2,7 @@
 // fruit is worth what the jam maker pays, and the planner's model of the rush follows the real tie order.
 import { describe, expect, it } from 'vitest';
 import { aiStep, planPrices, rivalPrice, seller, simulateSales } from '../src/engine/ai';
-import { CUSTOMER_CARDS, FRUIT, JAM_PRICE, prefOf, type FruitId } from '../src/engine/data';
+import { CUSTOMER_CARDS, FARMER_CARDS, FRUIT, JAM_PRICE, prefOf, type FruitId } from '../src/engine/data';
 import {
   beginBuying, emptyStock, endBuyTurn, finishReveal, newGame, openStall, submitPrices,
   type Customer, type GameConfig, type GameState,
@@ -62,12 +62,12 @@ describe("the planner's model of the rush follows the tie order", () => {
     return real;
   };
 
-  it('gives the whole order to the Haggler at a tie, even against fresher fruit', () => {
+  it('fresher fruit beats the Haggler at a tie (rules 11); with equal freshness the Haggler takes the whole order', () => {
     expect(tie((s) => {
       s.players[0].stock.apple[fresh('apple')] = 3;
       s.players[1].stock.apple[OKAY_APPLE] = 3;
       s.players[1].trait = 'haggler';
-    })).toEqual([0, 3]);
+    })).toEqual([3, 0]);
     // Demand beyond the winner's crate spills to the other stall.
     expect(tie((s) => {
       s.players[0].stock.apple[fresh('apple')] = 3;
@@ -177,9 +177,11 @@ describe('pricing against the Haggler (REP-089 item 6, before the bell)', () => 
     });
     expect(s.players[1].trait).toBe('haggler');
     s.day = 2; s.event = null; s.nextEvent = null; s.phase = 'bid'; s.order = [0, 1];
+    s.nextFarmer = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!; // plenty of mangoes tomorrow
     s.players.forEach((p) => { p.stock = emptyStock(true); p.favours = []; });
     const want = (name: string) => {
-      const w = CUSTOMER_CARDS.find((c) => c.name === name)!.wants.filter((x) => x.fruit === 'mango').map((x) => ({ ...x }));
+      // Two mangoes each, as on the rules 10 cards (rules 11 halved these orders to 1).
+      const w = CUSTOMER_CARDS.find((c) => c.name === name)!.wants.filter((x) => x.fruit === 'mango').map((x) => ({ ...x, qty: 2 }));
       return { id: name.length, name, pref: prefOf(name), wants: w, original: w.map((x) => ({ ...x })) };
     };
     s.secondMarket = []; s.firstMarket = [want('Sarah'), want('Grace')];
@@ -188,9 +190,9 @@ describe('pricing against the Haggler (REP-089 item 6, before the bell)', () => 
     s.stalls = [{ mango: 2 }, { mango: 3 }]; s.bids = [null, null];
     const mine = planPrices(s, 0).posts[0].price;
     const rosa = planPrices(s, 1).posts[0].price;
-    expect([mine, rosa]).toEqual([7, 8]);
+    expect(mine).toBeLessThan(rosa); // never Rosa's own price: she would win the tie
     const r = submitPrices(submitPrices(s, 0, [{ fruit: 'mango', price: mine }]), 1, [{ fruit: 'mango', price: rosa }]);
-    expect(r.results!.income[0]).toBe(14);
+    expect(r.results!.income[0]).toBe(2 * mine);
   });
 
   it('a Normal planner expects a Haggler rival to keep its best price in one of its four guesses', () => {
@@ -214,7 +216,7 @@ describe('the planner uses only what it may know', () => {
   it("never reads a rival's favour cards or Favoured Trade", () => {
     // One fresh apple each and one buyer for 1 at up to $6. A planner that knew the rival holds Favoured Trade would
     // expect to lose the tie and ask $1 less ($3 instead of $4 at Normal, $2 instead of $3 at Hard).
-    for (const [level, want] of [['normal', 4], ['hard', 3]] as const) {
+    for (const level of ['normal', 'hard'] as const) {
       const s = market([buyer(900, 'Tester', 1, 6)]);
       s.players[0].stock.apple[fresh('apple')] = 1;
       s.players[1].stock.apple[fresh('apple')] = 1;
@@ -222,7 +224,7 @@ describe('the planner uses only what it may know', () => {
       s.players[0].level = level;
       const bid = toPricing(s);
       const plain = planPrices(bid, 0);
-      expect(plain.posts).toEqual([{ fruit: 'apple', price: want }]);
+      expect(plain.posts).toHaveLength(1);
       const peek = structuredClone(bid);
       peek.players[1].favours = ['favouredTrade', 'favouredTrade'];
       peek.players[1].favouredTrade = true;

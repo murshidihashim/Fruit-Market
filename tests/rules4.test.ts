@@ -33,16 +33,16 @@ function duel(extra: Partial<GameConfig> = {}): GameState {
 const fresh = (f: FruitId) => FRUIT[f].ripe.length - 1;
 
 describe('printed supply and demand', () => {
-  it('lorry cards print what they deliver for 2, 3 and 4 shops (rules 9)', () => {
+  it('lorry cards print what they deliver for 2 to 6 stalls (rules 11: 20 unique cards)', () => {
     expect(FARMER_CARDS).toHaveLength(20);
-    const names = [...new Set(FARMER_CARDS.map((c) => c.name))];
-    expect(names).toHaveLength(10);
-    for (const n of names) expect(FARMER_CARDS.filter((c) => c.name === n)).toHaveLength(2);
+    expect(new Set(FARMER_CARDS.map((c) => c.name)).size).toBe(20);
     const bonanza = FARMER_CARDS.find((c) => c.name === 'Blueberry Bonanza')!;
     const row = (shops: number) => (['blueberry', 'watermelon', 'apple', 'mango'] as FruitId[]).map((f) => printedSupply(bonanza, f, shops));
-    expect(row(2)).toEqual([5, 3, 4, 0]);
-    expect(row(3)).toEqual([6, 3, 5, 0]);
-    expect(row(4)).toEqual([8, 4, 7, 0]);
+    expect(row(2)).toEqual([4, 1, 1, 1]);
+    expect(row(3)).toEqual([7, 2, 2, 1]);
+    expect(row(4)).toEqual([9, 3, 2, 1]);
+    expect(row(5)).toEqual([11, 3, 3, 2]);
+    expect(row(6)).toEqual([13, 4, 3, 2]);
     const rush = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!;
     expect(printedSupply(rush, 'mango', 4)).toBe(10);
   });
@@ -51,14 +51,15 @@ describe('printed supply and demand', () => {
     for (const c of FARMER_CARDS) expect(c.unripe).toBe(c.name === 'Mango Growers' || c.name === 'Mango Season' ? 'mango' : undefined);
   });
 
-  it('walk-ins: players - 2 every day (rules 5), +1 on Market Days', () => {
+  it('walk-ins: stalls - 1 every day (rules 11), Market Days add 1 per 3 stalls (rounded up)', () => {
     const s = newGame(humans(3));
-    expect(walkInsOn(s, 1, null)).toBe(1);
-    expect(walkInsOn(s, 3, null)).toBe(2); // Market Day
-    expect(walkInsOn(s, 7, null)).toBe(1); // no extra walk-in in the second half
-    expect(walkInsOn(s, 9, null)).toBe(2); // Market Day
-    expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(1); // two stalls get one walk-in (rules 8)
-    expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(2);
+    expect(walkInsOn(s, 1, null)).toBe(2);
+    expect(walkInsOn(s, 3, null)).toBe(3); // Market Day
+    expect(walkInsOn(s, 7, null)).toBe(2);
+    expect(walkInsOn(s, 9, null)).toBe(3); // Market Day
+    expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(1);
+    expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(3);
+    expect(walkInsOn(newGame(humans(4)), 3, null)).toBe(5); // +2 at 4 stalls
   });
 
   it('customer orders are used as printed (no scaling)', () => {
@@ -182,7 +183,7 @@ describe('open stalls and posted prices', () => {
     expect(line.offers.find((o) => o.player === 1)!.sold).toBe(1);
   });
 
-  it('ties: fresher fruit wins; with the same freshness the shop that bought earlier today wins (rules 5); a Haggler beats both', () => {
+  it('ties (rules 11): fresher fruit wins; then a Haggler; then the shop that bought earlier today', () => {
     const run = (setup: (s: GameState) => void) => {
       let s = duel();
       setup(s);
@@ -196,8 +197,10 @@ describe('open stalls and posted prices', () => {
     // Same freshness: the earlier buyer wins, whatever the cash is (cash changes during the rush, so it is not used).
     expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [1, 0]; s.players[0].cash = 5; s.players[1].cash = 30; })).toBe(1);
     expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [0, 1]; s.players[0].cash = 30; s.players[1].cash = 5; })).toBe(0);
-    expect(run((s) => { s.players[0].stock.apple[2] = 3; s.players[1].stock.apple[fresh('apple')] = 3; s.players[0].trait = 'haggler'; })).toBe(0);
-    expect(TRAITS.haggler.text).toContain('fresher');
+    // A Haggler no longer beats fresher fruit, but wins a tie with equally fresh fruit whatever the buying order.
+    expect(run((s) => { s.players[0].stock.apple[2] = 3; s.players[1].stock.apple[fresh('apple')] = 3; s.players[0].trait = 'haggler'; })).toBe(1);
+    expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [1, 0]; s.players[0].trait = 'haggler'; })).toBe(0);
+    expect(TRAITS.haggler.text).toContain('equally fresh');
   });
 
   it('a Premium Display lets fresh fruit go $1 over the limit; fruit too old for the price is reported', () => {
@@ -250,7 +253,7 @@ describe('options', () => {
 
 describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
-    expect(RULES_VERSION).toBe(10);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r10:a2');
+    expect(RULES_VERSION).toBe(11);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r11:a2');
   });
 });

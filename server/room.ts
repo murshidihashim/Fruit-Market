@@ -271,7 +271,7 @@ export class Room {
     switch (m.t) {
       case 'character': {
         if (d.status !== 'lobby') return;
-        if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the six shopkeepers');
+        if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the eight shopkeepers');
         if (d.seats.some((x, i) => i !== seat && x.avatar === m.avatar)) throw new RuleError('That shopkeeper is taken');
         me.avatar = m.avatar;
         return this.broadcast();

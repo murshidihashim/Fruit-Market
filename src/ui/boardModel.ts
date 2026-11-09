@@ -239,8 +239,8 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
 
 /**
  * Rivals who would beat you at a tied price for this fruit today, from what is public before the bell: shopkeeper
- * perks are public, so a Haggler with this fruit out wins a tie against you unless you play Favoured Trade (or are the
- * Haggler yourself). Favoured Trade is played secretly with a stall's prices and only shows at the bell, so a rival's
+ * perks are public, so a Haggler with this fruit out wins a tie against equally fresh fruit (rules 11) unless you play
+ * Favoured Trade (or are the Haggler yourself). Favoured Trade is played secretly with a stall's prices and only shows at the bell, so a rival's
  * card is never used here. "Rosa is the Haggler, who wins ties" (the same words as the showdown), or null.
  */
 export function tieHint(s: GameState, p: number, f: FruitId, favoured = false): string | null {

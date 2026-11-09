@@ -7,9 +7,9 @@ const cfg = (players: GameConfig['players'], extra: Partial<GameConfig> = {}): G
 const humans = (avatars: string[]) => avatars.map((avatar, i) => ({ name: `P${i}`, kind: 'human' as const, avatar }));
 
 describe('character cards (rules 5)', () => {
-  it('has six characters with six different perks, one for every trait', () => {
-    expect(CHARACTER_AVATARS).toHaveLength(6);
-    expect(new Set(CHARACTER_AVATARS.map((a) => CHARACTER_TRAIT[a])).size).toBe(6);
+  it('has eight characters with eight different perks, one for every trait (rules 11)', () => {
+    expect(CHARACTER_AVATARS).toHaveLength(8);
+    expect(new Set(CHARACTER_AVATARS.map((a) => CHARACTER_TRAIT[a])).size).toBe(8);
     expect(Object.keys(TRAITS).sort()).toEqual([...new Set(Object.values(CHARACTER_TRAIT))].sort());
   });
 

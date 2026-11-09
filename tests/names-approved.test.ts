@@ -15,58 +15,60 @@ import { ACHIEVEMENTS, evaluate, progressOf, type Context } from '../src/ui/achi
 const SHOPKEEPERS: [string, string, TraitId][] = [
   ['Rosa', '🦊', 'haggler'], ['Uncle Benny', '🐻', 'basket'], ['Ah Chen', '🐼', 'charmer'],
   ['Saleh', '🐸', 'nestegg'], ['Raj', '🦝', 'bargain'], ['Kiki', '🐷', 'favourite'],
+  ['Pak Din', '🐢', 'keeper'], ['Farah', '🦜', 'earful'], // rules 11 (compact rules spec)
 ];
 
-/** Customers in card order 1-36: hidden key, display title, freshness type, wants (rules 9 prices). */
+/** Customers in card order 1-36: hidden key, display title, freshness type, wants (rules 11 compact orders and prices). */
 const CUSTOMERS: [string, string, string, string][] = [
-  ['John', 'Cowboy Jack', 'everyday', '3 apple $7, 2 watermelon $6'],
-  ['Robert', 'Bobby Books', 'everyday', '4 blueberry $6, 1 mango $8'],
-  ['Daniel', 'Dr Bubbles', 'everyday', '1 mango $11, 3 apple $6, 2 blueberry $5'],
-  ['Rara Jenab', 'Rara Jenab', 'premium', '3 mango $10, 2 blueberry $6'],
-  ['Aisyah', 'Zara Zapp', 'everyday', '3 watermelon $8'],
-  ['Ravi', 'Ravi Rocket', 'premium', '2 mango $12, 2 apple $5'],
-  ['Mei Ling', 'Coral Mei', 'bargain', '4 blueberry $5, 1 watermelon $7'],
-  ['Farid', 'Postman Pip', 'bargain', '4 apple $5'],
-  ['Siti', 'Madam Siti', 'everyday', '1 mango $11, 3 watermelon $7'],
-  ['Kumar', 'Magic Kumar', 'bargain', '2 watermelon $9, 2 blueberry $4'],
-  ['Grace', 'Rockstar Grace', 'bargain', '2 apple $7, 2 mango $9'],
-  ['Hafiz', 'Professor Pebble', 'bargain', '5 blueberry $5'],
-  ['Wei Jie', 'Inspector Wei', 'bargain', '2 mango $10, 2 apple $4, 1 watermelon $8'],
-  ['Nurul', 'Miss Marigold', 'everyday', '4 watermelon $7'],
-  ['Priya', 'Dr Priya', 'everyday', '3 apple $6, 1 blueberry $7'],
-  ['Ahmad', 'Captain Ahmad', 'premium', '5 mango $9'],
-  ['Sarah', 'Lola Lens', 'everyday', '2 blueberry $7, 2 mango $10'],
-  ['Tan', 'Grandpa Tan', 'everyday', '2 watermelon $8, 2 apple $6'],
-  ['Lina', 'Miss Cha-Cha', 'premium', '1 apple $8, 3 mango $10'],
-  ['Zul', 'Sleepy Zul', 'everyday', '3 blueberry $6, 2 watermelon $6'],
-  ['Anna', 'Anna the Artist', 'premium', '3 mango $11'],
-  ['Vijay', 'Otto Oddjob', 'everyday', '2 apple $5, 2 blueberry $6, 1 mango $12'],
-  ['Hui Min', 'Mina Moss', 'everyday', '4 watermelon $7'],
-  ['Osman', 'Firefighter Osman', 'everyday', '3 apple $5, 1 watermelon $9'],
-  ['Jia Wen', 'Marina Wen', 'everyday', '2 apple $6, 2 mango $10'],
-  ['Rizal', 'DJ Rizal', 'everyday', '3 blueberry $5, 2 watermelon $7'],
-  ['Devi', 'Devi Bloom', 'premium', '4 mango $10'],
-  ['Marcus', 'Marcus Hook', 'everyday', '3 apple $5, 1 mango $11, 1 blueberry $6'],
-  ['Fatimah', 'Professor Fatimah', 'everyday', '2 watermelon $8, 2 blueberry $5'],
-  ['Ben', 'Benny Bell', 'everyday', '3 watermelon $7'],
-  ['Yuki', 'Akira Swift', 'everyday', '2 mango $9, 2 apple $6, 1 watermelon $7'],
-  ['Hadi', 'Hadi Hammer', 'everyday', '4 blueberry $6'],
-  ['Lakshmi', 'Baker Lakshmi', 'everyday', '2 apple $7, 2 watermelon $8'],
-  ['Kenji', 'Kenji Kaze', 'everyday', '1 mango $11, 2 blueberry $5, 2 watermelon $9'],
-  ['Mira', 'Herbalist Mira', 'everyday', '3 mango $10, 1 apple $5'],
-  ['Hock Seng', 'Uncle Hock Seng', 'everyday', '3 apple $5, 2 watermelon $9'],
+  ['John', 'Cowboy Jack', 'everyday', '2 apple $8, 1 watermelon $6'],
+  ['Robert', 'Bobby Books', 'everyday', '2 blueberry $6, 1 mango $8'],
+  ['Daniel', 'Dr Bubbles', 'everyday', '1 mango $11, 2 apple $7, 1 blueberry $5'],
+  ['Rara Jenab', 'Rara Jenab', 'premium', '2 mango $10, 1 blueberry $6'],
+  ['Aisyah', 'Zara Zapp', 'everyday', '2 watermelon $8'],
+  ['Ravi', 'Ravi Rocket', 'premium', '1 mango $12, 1 apple $6'],
+  ['Mei Ling', 'Coral Mei', 'bargain', '2 blueberry $5, 1 watermelon $7'],
+  ['Farid', 'Postman Pip', 'bargain', '2 apple $6'],
+  ['Siti', 'Madam Siti', 'everyday', '1 mango $11, 2 watermelon $7'],
+  ['Kumar', 'Magic Kumar', 'bargain', '1 watermelon $9, 1 blueberry $4'],
+  ['Grace', 'Rockstar Grace', 'bargain', '1 apple $8, 1 mango $9'],
+  ['Hafiz', 'Professor Pebble', 'bargain', '3 blueberry $5'],
+  ['Wei Jie', 'Inspector Wei', 'bargain', '1 mango $10, 1 apple $5, 1 watermelon $8'],
+  ['Nurul', 'Miss Marigold', 'everyday', '2 watermelon $7'],
+  ['Priya', 'Dr Priya', 'everyday', '2 apple $7, 1 blueberry $7'],
+  ['Ahmad', 'Captain Ahmad', 'premium', '3 mango $9'],
+  ['Sarah', 'Lola Lens', 'everyday', '1 blueberry $7, 1 mango $10'],
+  ['Tan', 'Grandpa Tan', 'everyday', '1 watermelon $8, 1 apple $7'],
+  ['Lina', 'Miss Cha-Cha', 'premium', '1 apple $9, 2 mango $10'],
+  ['Zul', 'Sleepy Zul', 'everyday', '2 blueberry $6, 1 watermelon $6'],
+  ['Anna', 'Anna the Artist', 'premium', '2 mango $11'],
+  ['Vijay', 'Otto Oddjob', 'everyday', '1 apple $6, 1 blueberry $6, 1 mango $12'],
+  ['Hui Min', 'Mina Moss', 'everyday', '2 watermelon $7'],
+  ['Osman', 'Firefighter Osman', 'everyday', '2 apple $6, 1 watermelon $9'],
+  ['Jia Wen', 'Marina Wen', 'everyday', '1 apple $7, 1 mango $10'],
+  ['Rizal', 'DJ Rizal', 'everyday', '2 blueberry $5, 1 watermelon $7'],
+  ['Devi', 'Devi Bloom', 'premium', '2 mango $10'],
+  ['Marcus', 'Marcus Hook', 'everyday', '2 apple $6, 1 mango $11, 1 blueberry $6'],
+  ['Fatimah', 'Professor Fatimah', 'everyday', '1 watermelon $8, 1 blueberry $5'],
+  ['Ben', 'Benny Bell', 'everyday', '2 watermelon $7'],
+  ['Yuki', 'Akira Swift', 'everyday', '1 mango $9, 1 apple $7, 1 watermelon $7'],
+  ['Hadi', 'Hadi Hammer', 'everyday', '2 blueberry $6'],
+  ['Lakshmi', 'Baker Lakshmi', 'everyday', '1 apple $8, 1 watermelon $8'],
+  ['Kenji', 'Kenji Kaze', 'everyday', '1 mango $11, 1 blueberry $5, 1 watermelon $9'],
+  ['Mira', 'Herbalist Mira', 'everyday', '2 mango $10, 1 apple $6'],
+  ['Hock Seng', 'Uncle Hock Seng', 'everyday', '2 apple $6, 1 watermelon $9'],
 ];
 
 /** Guests: hidden key, display title, freshness type. */
 const GUESTS: [string, string, string][] = [
-  ['Influencer', 'The Influencer', 'premium'], ['Gym Club', 'The Gym Club', 'everyday'], ['Hotel Chef', 'The Hotel Chef', 'everyday'],
+  ['Gym Club', 'The Gym Club', 'everyday'], ['Influencer', 'The Influencer', 'premium'], ['Hotel Chef', 'The Hotel Chef', 'everyday'],
+  ['Wedding Caterer', 'The Wedding Caterer', 'everyday'], ['Bakery', 'The Bakery', 'everyday'], // rules 11
 ];
 
 const guestCards = EVENT_CARDS.filter((e) => e.extra);
 const rules = readFileSync('RULES.md', 'utf8');
 
 describe('approved display names (DEC-064, DEC-065)', () => {
-  it('the six shopkeepers have the approved names, in order, with unchanged avatar keys and perks', () => {
+  it('the eight shopkeepers have the approved names, in order, with unchanged avatar keys and perks', () => {
     expect(RIVALS.map((r) => [r.name, r.avatar, CHARACTER_TRAIT[r.avatar]])).toEqual(SHOPKEEPERS);
   });
 
@@ -75,14 +77,14 @@ describe('approved display names (DEC-064, DEC-065)', () => {
     expect(now).toEqual(CUSTOMERS);
   });
 
-  it('the three guests keep their keys and titles', () => {
+  it('the five guests keep their keys and titles (rules 11 adds the Wedding Caterer and the Bakery)', () => {
     expect(guestCards.map((e) => [e.extra!.name, lookOf(e.extra!.name).title, prefOf(e.extra!.name)])).toEqual(GUESTS);
   });
 
-  it('all 45 display names are different', () => {
+  it('all 49 display names are different', () => {
     const all = [...RIVALS.map((r) => r.name), ...CUSTOMERS.map((c) => c[1]), ...GUESTS.map((g) => g[1])];
-    expect(all).toHaveLength(45);
-    expect(new Set(all).size).toBe(45);
+    expect(all).toHaveLength(49);
+    expect(new Set(all).size).toBe(49);
   });
 
   it('new games and the daily market use the approved shopkeeper names', () => {
@@ -121,8 +123,8 @@ describe('progress saved under former shopkeeper names still counts', () => {
   const ctx = (sets: Record<string, string[]>): Context => ({ online: false, have: new Set(), sets, stats: { played: 1, totalSold: 1 }, streak: 0 });
   const rollCall = ACHIEVEMENTS.find((a) => a.id === 'rivals_all')!;
 
-  it('the roll call names the six shopkeepers by their approved names', () => {
-    for (const r of RIVALS) expect(rollCall.text).toContain(r.name);
+  it('the roll call names the six original shopkeepers by their approved names', () => {
+    for (const r of RIVALS.slice(0, 6)) expect(rollCall.text).toContain(r.name);
     expect(rollCall.text).not.toMatch(/\bKiran\b|, Benny,|, Chen,/);
   });
 

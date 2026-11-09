@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
 import { CUSTOMER_CARDS, FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
 import { aiStep, autoplay } from '../src/engine/ai';
+import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
   beginBuying, emptyStock, endBuyTurn, finishReveal, forSale, newGame, openStall, submitPrices,
   type Customer, type GameState, type LineResult,
@@ -22,7 +23,8 @@ const OKAY = (f: FruitId) => FRUIT[f].ripe.indexOf('okay');
 const TIRED = 0;
 
 function buyer(name: string, fruit: FruitId, id: number): Customer {
-  const w = { ...CUSTOMER_CARDS.find((c) => c.name === name)!.wants.find((x) => x.fruit === fruit)! };
+  // Written with the rules 10 cards (tests/rules10-cards.ts); the explanations do not depend on the card numbers.
+  const w = { ...RULES10_CUSTOMERS.find((c) => c.name === name)!.wants.find((x) => x.fruit === fruit)! };
   return { id, name, wants: [w], original: [{ ...w }], pref: prefOf(name) };
 }
 
@@ -195,7 +197,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     expect(lookOf(line(s).name).title).toBe('Lola Lens');
     const st = explainLine(s, line(s), 0);
     expect(st.headline).toBe('Rosa undercut you by $1 and stole the sale!');
-    expect(st.detail).toBe("You charged $8, Rosa charged $7. At $6 you'd have sold 2. A tie at $7 still loses: Rosa is the Haggler, who wins ties.");
+    expect(st.detail).toBe("You charged $8, Rosa charged $7. At $6 you'd have sold 2. A tie at $7 still loses: Rosa is the Haggler, who wins equally fresh ties.");
     expect(offerOf(line(at(7)), 0).sold).toBe(0);
     expect(offerOf(line(at(6)), 0).sold).toBe(2);
   });
@@ -215,11 +217,11 @@ describe('what-if advice follows the tie order and your crate', () => {
 
   it('says matching would have won when you are the Haggler', () => {
     const { s, at } = lola(2, FRESH('mango'), (x) => { x.players[0].trait = 'haggler'; x.players[1].trait = null; });
-    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $8, ${BENNY.name} charged $7. Matching $7 would have won the tie (you're the Haggler, who wins ties): 2 sold.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $8, ${BENNY.name} charged $7. Matching $7 would have won the tie (you're the Haggler, who wins equally fresh ties): 2 sold.`);
     expect(offerOf(line(at(7)), 0).sold).toBe(2);
     // The same words when you win the tie itself.
     const won = at(7);
-    expect(explainLine(won, line(won), 0).headline).toBe("Tie at $7, and you won it: you're the Haggler, who wins ties.");
+    expect(explainLine(won, line(won), 0).headline).toBe("Tie at $7, and you won it: you're the Haggler, who wins equally fresh ties.");
   });
 
   it('a tie the Haggler wins still sells what is left of the order (review case: John, 2 watermelons)', () => {
@@ -229,13 +231,13 @@ describe('what-if advice follows the tie order and your crate', () => {
     start.players[2].stock.watermelon[OKAY('watermelon')] = 1; // Benny: okay
     const at = (mine: number) => bell(start, 'watermelon', [2, 1, 1], [mine, 4, 4]);
     const s = at(5);
-    expect(explainLine(s, line(s), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 sells only 1: Rosa is the Haggler, who wins ties.");
+    expect(explainLine(s, line(s), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 sells only 1: Rosa is the Haggler, who wins equally fresh ties.");
     expect(offerOf(line(at(4)), 0).sold).toBe(1);
     expect(offerOf(line(at(3)), 0).sold).toBe(2);
     // When the Haggler's pieces fill the order, the tie really sells nothing.
     const full = (() => { const x = structuredClone(start); x.players[1].stock.watermelon[FRESH('watermelon')] = 2; return x; })();
     const f = bell(full, 'watermelon', [2, 2, 1], [5, 4, 4]);
-    expect(explainLine(f, line(f), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 still loses: Rosa is the Haggler, who wins ties.");
+    expect(explainLine(f, line(f), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 still loses: Rosa is the Haggler, who wins equally fresh ties.");
     expect(offerOf(line(bell(full, 'watermelon', [2, 2, 1], [4, 4, 4])), 0).sold).toBe(0);
   });
 
@@ -325,7 +327,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     expect(s.players[0].favouredTrade && s.players[1].favouredTrade).toBe(true);
     expect(offerOf(line(s), 1).sold).toBe(2);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Tie at $7, but Rosa is the Haggler, who wins ties.');
+    expect(st.headline).toBe('Tie at $7, but Rosa is the Haggler, who wins equally fresh ties.');
     expect(st.tags[line(s).offers.indexOf(offerOf(line(s), 0))]).toBe('lost tie: Haggler');
   });
 
@@ -344,7 +346,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const seen: Record<string, number> = Object.fromEntries(Object.keys(need).map((k) => [k, 0]));
     const wrong: string[] = [];
     const WHY = "(?: is the Haggler| played Favoured Trade|'s fruit was fresher| bought earlier)";
-    for (let seed = 1; seed <= 60; seed++) {
+    for (let seed = 1; seed <= 90; seed++) {
       const n = 2 + (seed % 3);
       let s = newGame({
         players: RIVALS.slice(0, n).map((x, i) => ({ name: x.name, kind: 'ai' as const, level: (['easy', 'normal', 'hard'] as const)[(seed + i) % 3], avatar: x.avatar })),

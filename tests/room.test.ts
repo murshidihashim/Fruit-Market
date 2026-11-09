@@ -327,7 +327,7 @@ describe('online room', () => {
   it('rejects players when the room is full and handles leaving the lobby', async () => {
     const h = new Harness();
     const { a, b } = await lobbyOf2(h);
-    await a.say({ t: 'config', config: { days: 8, ai: 2, unripe: true, upgrades: true, events: true } });
+    await a.say({ t: 'config', config: { days: 8, ai: 4, unripe: true, upgrades: true, events: true } }); // 2 people + 4 = 6 seats
     const c = h.connect('C');
     await c.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Third', avatar: '🦸' });
     expect(c.errors.slice(-1)[0]).toContain('full');
@@ -393,7 +393,7 @@ describe('characters in a room', () => {
     await b.say({ t: 'character', avatar: free });
     expect(a.view!.seats[1].avatar).toBe(free);
     await b.say({ t: 'character', avatar: 'not a character' });
-    expect(b.errors.slice(-1)[0]).toContain('six shopkeepers');
+    expect(b.errors.slice(-1)[0]).toContain('eight shopkeepers');
   });
 
   it('gives the computer shops the characters the people did not pick', async () => {

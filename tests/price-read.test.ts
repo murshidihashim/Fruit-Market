@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CUSTOMER_CARDS, FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
 import { aiStep, planPrices } from '../src/engine/ai';
+import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
   beginBuying, bestCap, emptyStock, endBuyTurn, finishReveal, forSale, maxPrice, newGame, openStall, submitPrices,
   type Customer, type GameState, type Post,
@@ -17,7 +18,8 @@ const OKAY = (f: FruitId) => FRUIT[f].ripe.indexOf('okay');
 const TIRED = 0;
 
 function buyer(name: string, fruit: FruitId, id: number): Customer {
-  const w = { ...CUSTOMER_CARDS.find((c) => c.name === name)!.wants.find((x) => x.fruit === fruit)! };
+  // Written with the rules 10 cards (tests/rules10-cards.ts); the reads do not depend on the card numbers.
+  const w = { ...RULES10_CUSTOMERS.find((c) => c.name === name)!.wants.find((x) => x.fruit === fruit)! };
   return { id, name, wants: [w], original: [{ ...w }], pref: prefOf(name) };
 }
 
@@ -270,7 +272,7 @@ describe('tie hint', () => {
 
   it('names the Haggler, who really does win a tie against you', () => {
     const s = duel();
-    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins ties`);
+    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins equally fresh ties`);
     expect(sells(s, 'mango', [7, 7, 20])).toBe(0); // the tie goes to Rosa
   });
 
@@ -290,6 +292,6 @@ describe('tie hint', () => {
   it('never uses a rival\'s Favoured Trade, which is played secretly with their prices', () => {
     const s = duel();
     s.players[2].favouredTrade = true;
-    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins ties`);
+    expect(tieHint(s, 0, 'mango')).toBe(`${ROSA.name} is the Haggler, who wins equally fresh ties`);
   });
 });
