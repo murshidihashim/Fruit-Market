@@ -8,8 +8,8 @@ import {
   validatePrices, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
-import { Coin, Face, FavourIcon, Fruit } from './art';
-import { buyerCap, buyersFor, priceRead, stallWantText, tieHint } from './boardModel';
+import { Coin, FavourIcon, Fruit } from './art';
+import { buyerCap, buyersAt, buyersFor, demandBoard, stallWantText, type DemandRow } from './boardModel';
 import { Icon, type IconName } from './icons';
 import { PricingTableView } from './game/panels/PricingTable';
 
@@ -98,63 +98,47 @@ function StockLine({ stock, f }: { stock: Record<FruitId, number[]>; f: FruitId 
  * Step 2: one secret price per fruit you put out. The bell reveals every stall's prices at once.
  * Like the stall panel: compact rows in the middle of the table, the Seal button in the action bar's place.
  */
+/** "The Bell" notice opens by itself on Day 1 only; from Day 2 it opens from the i button (PLAN-059). */
+export const bellOpensOnStart = (s: GameState): boolean => s.day === 1;
+
+/** Prices pre-filled from the planner for every fruit you put out. */
+export function startingPrices(s: GameState, p: number): Record<string, number> {
+  const plan = planPrices(s, p).posts;
+  return Object.fromEntries(FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => [f, plan.find((b) => b.fruit === f)?.price ?? minPrice(s, f)]));
+}
+
 export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void }) {
+  const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
+  const [favoured, setFavoured] = useState(false);
+  const [sel, setSel] = useState<FruitId | null>(() => FRUITS.find((f) => forSale(s, p, f) > 0) ?? null);
+  const [notice, setNotice] = useState(() => bellOpensOnStart(s));
+  return (
+    <PricePanelView s={s} p={p} vals={vals} sel={sel} favoured={favoured} notice={notice}
+      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))} onPick={setSel} onFavoured={() => setFavoured(!favoured)}
+      onNotice={setNotice} onSubmit={onSubmit} />
+  );
+}
+
+/** The pricing screen drawn from its state (no hooks, so tests can draw it). */
+export function PricePanelView({ s, p, vals, sel, favoured, notice, onPrice, onPick, onFavoured, onNotice, onSubmit }: {
+  s: GameState; p: number; vals: Record<string, number>; sel: FruitId | null; favoured: boolean; notice: boolean;
+  onPrice: (f: FruitId, price: number) => void; onPick: (f: FruitId) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
+  onSubmit: (posts: Post[], favoured: boolean) => void;
+}) {
   const pl = s.players[p];
   const fruits = FRUITS.filter((f) => forSale(s, p, f) > 0);
-  const [vals, setVals] = useState<Record<string, number>>(() => {
-    const plan = planPrices(s, p).posts;
-    return Object.fromEntries(fruits.map((f) => [f, plan.find((b) => b.fruit === f)?.price ?? minPrice(s, f)]));
-  });
-  const [favoured, setFavoured] = useState(false);
-  const posts: Post[] = fruits.map((f) => ({ fruit: f, price: Math.min(vals[f], maxPrice(s, f)) }));
+  const priceOf = (f: FruitId) => Math.min(vals[f], maxPrice(s, f));
+  const posts: Post[] = fruits.map((f) => ({ fruit: f, price: priceOf(f) }));
   const error = validatePrices(s, p, posts);
   return (
     <>
       <div class="price-panel mid-panel">
-        <div class="pp-intro"><b>Set your prices</b><span>One secret price per fruit. At the bell all prices show at once; customers buy from the cheapest stall first, and leftover demand moves to the next.</span></div>
-        {/* Round the market table (DEC-070): every stall's crate, prices sealed until the bell. */}
-        <PricingTableView s={s} viewer={p} />
-        {fruits.map((f) => {
-          const price = Math.min(vals[f], maxPrice(s, f));
-          const out = forSale(s, p, f);
-          const lines = buyersFor(s, f);
-          const caps = lines.map((x) => ({ x, b: buyerCap(s, p, f, x) }));
-          const rivalOut = s.players.map((o, i) => ({ o, i, n: i === p ? 0 : forSale(s, i, f) })).filter((r) => r.n > 0);
-          const read = priceRead(s, p, f, price);
-          const tie = tieHint(s, p, f, favoured);
-          const top = Math.max(1, ...caps.map(({ b }) => b.cap));
-          return (
-            <div class="price-card on">
-              <div class="pc-top">
-                <Fruit id={f} size={32} />
-                <div class="pc-who">
-                  <b>{FRUIT[f].plural}<span class="pc-out">: {out} out</span></b>
-                  {lines.length ? (
-                    <span class="buyer-caps" aria-label={`They pay for yours: ${caps.map(({ b }) => b.aria).join(', ')}`}>
-                      {caps.map(({ x, b }) => <span class={`bc ${price <= b.cap ? 'yes' : 'no'}`} title={b.title}><Face who={x.c.name} size={16} />{b.label}</span>)}
-                    </span>
-                  ) : <span class="pc-sub">no customers want these</span>}
-                </div>
-                <div class="pc-price">
-                  <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= minPrice(s, f)} onClick={() => setVals((v) => ({ ...v, [f]: price - 1 }))}>−</button>
-                  <span class="pc-num">${price}</span>
-                  <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= Math.min(maxPrice(s, f), top + 2)} onClick={() => setVals((v) => ({ ...v, [f]: price + 1 }))}>+</button>
-                </div>
-              </div>
-              <div class="pc-foot">
-                {/* the full read on a desktop, its short form on a phone (styles.css .rd-l / .rd-s) */}
-                <span class={`read ${read.cls}`} title={read.text}><b class="psst">Psst…</b> <span class="rd-l">{read.text}</span><span class="rd-s">{read.short}</span></span>
-                {rivalOut.length > 0 && (
-                  <span class="rival-caps">{rivalOut.map((r) => <span title={`${r.o.name} put out ${r.n}`} aria-label={`${r.o.name} put out ${r.n}`}><Face who={r.o.avatar} size={16} />{r.n}<small class="rc-out"> out</small></span>)}</span>
-                )}
-              </div>
-              {/* public before the bell: a rival Haggler with this fruit out wins a tie at your price */}
-              {tie && <div class="pc-tie" title={tie}><Icon name="scales" size={12} />{tie}</div>}
-            </div>
-          );
-        })}
+        <div class="pp-head"><b>Set your prices</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
+        <DemandBoard rows={demandBoard(s, p)} prices={posts} />
+        <PricingTableView s={s} viewer={p} mine={{ prices: Object.fromEntries(posts.map((x) => [x.fruit, x.price])), selected: sel, onPick }} />
+        {sel && fruits.includes(sel) && <PriceBubble s={s} p={p} f={sel} price={priceOf(sel)} onPrice={(v) => onPrice(sel, v)} />}
         {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
-          <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={() => setFavoured(!favoured)}>
+          <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={onFavoured}>
             <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
           </button>
         )}
@@ -163,7 +147,79 @@ export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
         {error && <div class="error">{error}</div>}
         <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Seal my prices <small class="btn-sub">ring the bell</small></button>
       </div>
+      {notice && <BellNotice onClose={() => onNotice(false)} />}
     </>
+  );
+}
+
+/** The demand board: for each fruit, pieces wanted, pieces out at every stall, and buyers at the prices where that count changes. */
+function DemandBoard({ rows, prices }: { rows: DemandRow[]; prices: Post[] }) {
+  if (!rows.length) return null;
+  return (
+    <div class="demand" role="table" aria-label="Demand today: pieces wanted and buyers at each price">
+      {rows.map((r) => {
+        const mine = prices.find((x) => x.fruit === r.f)?.price;
+        return (
+          <div class={`dm-row ${r.wanted ? '' : 'off'}`} role="row">
+            <Fruit id={r.f} size={20} />
+            <span class="dm-q" role="cell"><b>{r.wanted} wanted</b><small> · {r.out} out</small></span>
+            {r.steps.length ? (
+              <span class="dm-steps" role="cell">
+                {r.steps.map((x) => (
+                  <span class={`dm-s ${mine === x.price ? 'mine' : ''}`} aria-label={`${x.buyers} would pay $${x.price}`}>${x.price}<b>{x.buyers}</b></span>
+                ))}
+              </span>
+            ) : <span class="dm-none" role="cell">no buyers</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The price bubble under your crate for the fruit you tapped: the dial, and four quick prices with their buyers. */
+function PriceBubble({ s, p, f, price, onPrice }: { s: GameState; p: number; f: FruitId; price: number; onPrice: (v: number) => void }) {
+  const lo = minPrice(s, f);
+  const top = Math.max(1, ...buyersFor(s, f).map((x) => buyerCap(s, p, f, x).cap));
+  const hi = Math.min(maxPrice(s, f), top + 2);
+  const quick = [price + 2, price + 1, price, price - 1].filter((v) => v >= lo && v <= hi);
+  return (
+    <div class="pbub" role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
+      <div class="pbub-dial">
+        <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={() => onPrice(price - 1)}>−</button>
+        <span class="pc-num"><Fruit id={f} size={22} />${price}</span>
+        <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={() => onPrice(price + 1)}>+</button>
+      </div>
+      <div class="pbub-quick">
+        {quick.map((v) => {
+          const n = buyersAt(s, p, f, v);
+          return <button type="button" class={v === price ? 'on' : ''} aria-label={`$${v}: ${n} would buy`} onClick={() => onPrice(v)}>${v}<small>{n}</small></button>;
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** "The Bell" (PLAN-059): the market's notice of how the bell works, in the crier's words. */
+export function BellNotice({ onClose }: { onClose: () => void }) {
+  const lines: [IconName, string][] = [
+    ['tag', 'Price every fruit you put out!'],
+    ['hourglass', 'Prices stay secret until the bell.'],
+    ['coin', 'Lowest price sells first!'],
+    ['scales', 'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.'],
+    ['heart', 'Fulfil all of a customer’s orders to earn a favour card.'],
+  ];
+  return (
+    <div class="bell-notice" role="dialog" aria-modal="true" aria-label="The Bell" onClick={onClose}>
+      <div class="bn-card" onClick={(e) => e.stopPropagation()}>
+        <i class="bn-pin l" /><i class="bn-pin r" />
+        <span class="bn-ban">THE BELL</span>
+        <ul class="bn-rules">
+          {lines.map(([icon, text]) => <li><span class="bn-badge"><Icon name={icon} size={18} /></span>{text}</li>)}
+        </ul>
+        <button type="button" class="btn primary wide" onClick={onClose}>Ring the bell!</button>
+      </div>
+    </div>
   );
 }
 

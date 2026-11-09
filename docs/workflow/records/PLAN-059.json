@@ -1,0 +1,75 @@
+{
+  "release": "unreleased",
+  "build": "main (preview)",
+  "reports": [],
+  "decisions": [
+    "DEC-076"
+  ],
+  "changes": {
+    "added": [
+      "Pricing: a demand board with pieces wanted, pieces out and buyers at each price",
+      "\"The Bell\" pop-up with the bell's rules; opens by itself on Day 1, from the i button after that"
+    ],
+    "changed": [
+      "Pricing: every stall's crate is the same size and drawn as a wooden crate; tap a fruit in your crate to price it with a price bubble (−/+ and quick prices with their buyers)"
+    ],
+    "fixed": [],
+    "removed": [
+      "The price card rows with their written price hints"
+    ]
+  },
+  "playerNotes": [
+    "New pricing screen: tap a fruit in your crate to price it, and see how many buyers would pay each price",
+    "\"The Bell\" pop-up explains the rules on Day 1; tap i to see it again"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "make the icon 0.75x smaller and make it so that the popup opens by default on day 1, day 2 onwards its closed by default, then this is approved",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-059",
+  "title": "Pricing from the crates, demand board and The Bell pop-up",
+  "problem": "Owner asked to price by tapping the fruit in your crate, with total demand and buyers at each price summarised, and the rules in a standard pop-up instead of text under the price.",
+  "scope": [
+    "PricePanel, crate table, demand board, price bubble and BellNotice in src/ui",
+    "Tutorial line for pricing",
+    "Browser test scripts close the Day 1 pop-up"
+  ],
+  "exclusions": [
+    "Game rules (unchanged, rules version 11)",
+    "Choosing exact pieces for the crate (separate mockups; a rules change)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-09: 395 unit tests incl. tests/price-bell.test.ts, build"
+    },
+    {
+      "id": "T2",
+      "text": "Solo playthrough and performance budget",
+      "result": "PASS",
+      "evidence": "2026-11-09: smoke.cjs results visible, 0 errors; BUDGET OK"
+    },
+    {
+      "id": "T3",
+      "text": "Online: 0 secret-price leaks, quick match, 6-stall room",
+      "result": "PASS",
+      "evidence": "2026-11-09: 0 leaks in 100 pricing frames; quick match; 6 stalls"
+    },
+    {
+      "id": "T4",
+      "text": "Buyer counts on the board match what sells at that price",
+      "result": "PASS",
+      "evidence": "tests/price-bell.test.ts re-runs the bell at $7 to $10"
+    },
+    {
+      "id": "T5",
+      "text": "Pop-up opens by itself on Day 1 only",
+      "result": "PASS",
+      "evidence": "tests/price-bell.test.ts and a browser run: open on Day 1, closed on Days 2 to 4"
+    }
+  ]
+}

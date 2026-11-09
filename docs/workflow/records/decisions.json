@@ -1872,6 +1872,29 @@
       "plan": "PLAN-058",
       "reports": [],
       "reviewTrigger": "If players miss the old one-tap level buttons"
+    },
+    {
+      "id": "DEC-076",
+      "title": "Price from the crates; demand board; The Bell pop-up",
+      "question": "How should players set prices at the bell?",
+      "choice": "Option 1 from the mockups, cleaned up: equal wooden crates, tap a fruit in your crate to price it with a price bubble; a demand board of pieces wanted, pieces out and buyers at each price; \"The Bell\" notice-board pop-up with the crier's five lines and the game's own icons at 0.75x, opening by itself on Day 1 only.",
+      "rationale": "Owner's choices across the mockups, ending with: \"make the icon 0.75x smaller and make it so that the popup opens by default on day 1, day 2 onwards its closed by default, then this is approved\".",
+      "impact": {
+        "player": "A new pricing screen.",
+        "technical": "src/ui/panel.tsx, PricingTable.tsx, boardModel.ts, styles.css, tutorial.ts, browser test scripts.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "then this is approved",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-059",
+      "reports": [],
+      "reviewTrigger": "After the owner plays it on the preview"
     }
   ],
   "history": [
@@ -2554,6 +2577,10 @@
     {
       "at": "2026-11-09 13:16",
       "text": "Release 1.12.1 published (seat tiles on the New game screen): main 4b8f754, Deploy LIVE game run 28 success (verify, release check, deploy, live smoke test), tag v1.12.1."
+    },
+    {
+      "at": "2026-11-09 22:49",
+      "text": "Pricing from the crates, demand board and The Bell pop-up built (DEC-076, PLAN-059) and merged to main for the preview; not published live."
     }
   ]
 }

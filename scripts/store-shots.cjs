@@ -45,8 +45,10 @@ const path = require('path');
         if (await t.count() && (await p.locator('.my-stall .ms-cell.has').count()) < 4) { await t.first().click(); await p.waitForTimeout(500); continue; }
         await p.click('text=/Done buying|Skip buying/'); continue;
       }
+      // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
+      if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
       if (await p.locator('.pp-lock .btn').count()) {
-        if ((await p.locator('.price-card').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
+        if ((await p.locator('.crate.me').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn'); await p.waitForTimeout(1800);
         if ((await p.locator('.auction').count()) && once('show')) await shot('5-showdown');
         continue;

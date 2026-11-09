@@ -60,6 +60,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
       if ((await c.count()) && Math.random() < 0.6) { await c.first().click(); await p.waitForTimeout(250); return 'moved'; }
       await p.click('text=/Done buying|Skip buying/'); return 'moved';
     }
+    // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
+    if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); return 'moved'; }
     if (await has('.pp-lock .btn')) {
       if (!once.has(`tray-${P.tag}`)) { once.add(`tray-${P.tag}`); await shot(P, `03-pricing-${P.tag}`); }
       await p.click('.pp-lock .btn'); return 'moved';

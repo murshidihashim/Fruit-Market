@@ -1,54 +1,58 @@
-// "Round the market table" (DEC-070): every stall round a table while you set your prices, each with its awning,
-// badge and name, and its for-sale crate per fruit (pieces out, and the freshness of that fruit on its shelf).
-// The middle shows the pieces on sale against today's orders. Prices stay sealed until the bell.
+// The crates at the bell (PLAN-059, replacing "Round the market table", DEC-070): every stall's for-sale crate, all the
+// same size, drawn as a wooden crate with a name plate. Rivals show what they put out and the freshest piece of each
+// fruit; your own crate's fruits are buttons you tap to price. Prices stay sealed until the bell: only your own prices
+// are shown, and a rival's crate shows only whether it has sealed.
 import type { GameState } from '../../../engine/game';
-import { FRUIT } from '../../../engine/data';
-import { stallOf, partsOf } from '../../../net/looks';
-import { Face, Fruit } from '../../art';
-import { RoofBand } from '../../icons';
-import { loadColour } from '../../progress';
-import { seatColour } from '../../table';
+import { FRUIT, type FruitId } from '../../../engine/data';
+import { Fruit } from '../../art';
 import { pricingTable, type TableSeat } from '../pricingTable';
 
 const STAGE_WORD = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' } as const;
 
-function Seat({ s, seat }: { s: GameState; seat: TableSeat }) {
+interface MyCrate {
+  /** Your price for each fruit you put out. */
+  prices: Partial<Record<FruitId, number>>;
+  selected: FruitId | null;
+  onPick: (f: FruitId) => void;
+}
+
+function Crate({ s, seat, mine }: { s: GameState; seat: TableSeat; mine?: MyCrate }) {
   const pl = s.players[seat.player];
-  const colour = (seat.me && loadColour()) || seatColour(seat.player);
-  const name = seat.me ? 'You' : pl.name;
-  const label = `${name}: ${seat.fruits.length ? seat.fruits.map((x) => `${x.out} ${(x.out === 1 ? FRUIT[x.f].name : FRUIT[x.f].plural).toLowerCase()} out`).join(', ') : 'nothing out'}${seat.me ? '' : seat.sealed ? ', prices sealed' : ', not sealed yet'}`;
+  const name = seat.me ? 'Your crate' : pl.name;
+  const label = `${seat.me ? 'Your crate' : pl.name}: ${seat.fruits.length ? seat.fruits.map((x) => `${x.out} ${(x.out === 1 ? FRUIT[x.f].name : FRUIT[x.f].plural).toLowerCase()} out`).join(', ') : 'nothing out'}${seat.me ? '' : seat.sealed ? ', prices sealed' : ', not sealed yet'}`;
   return (
-    <div class={`pt-seat ${seat.me ? 'me' : ''}`} style={{ '--seat': colour }} aria-label={label} role="group">
-      <RoofBand cls="pt-awn" colour={colour} roof={stallOf(pl.look).roof} scale={1.4} />
-      <div class="pt-head">
-        <Face who={pl.avatar} size={22} worn={partsOf(pl.look)} />
-        <b class="pt-name">{name}</b>
-        {/* Whether a rival has sealed shows on its pill's price board above; here only a lock when it has. */}
-        {!seat.me && seat.sealed && <i class="seal pt-seal" aria-hidden="true" />}
-      </div>
-      <div class="pt-fruits" aria-hidden="true">
-        {seat.fruits.length ? seat.fruits.map((x) => (
-          <span class="pt-f" title={`${x.out} out · on the shelf: ${x.dots.map((d) => STAGE_WORD[d]).join(', ')}`}>
-            <Fruit id={x.f} size={14} /><b>{x.out}</b>
-            <span class="pt-dots">{x.dots.map((d) => <i class={`pt-dot st-${d}`} />)}</span>
-          </span>
-        )) : <span class="pt-none">nothing out</span>}
-      </div>
+    <div class={`crate ${seat.me ? 'me' : ''} ${seat.sealed && !seat.me ? 'sealed' : ''}`} role="group" aria-label={label}>
+      <span class="crate-plate">{name}{!seat.me && seat.sealed && <i class="seal crate-seal" aria-hidden="true" />}</span>
+      <span class="crate-fruits">
+        {seat.fruits.length ? seat.fruits.map((x) => {
+          const top = x.dots[0];
+          if (!mine) {
+            return (
+              <span class="crate-slot" title={`${x.out} out · on the shelf: ${x.dots.map((d) => STAGE_WORD[d]).join(', ')}`}>
+                <Fruit id={x.f} size={16} stage={top} /><b>{x.out}</b>
+              </span>
+            );
+          }
+          const price = mine.prices[x.f];
+          const on = mine.selected === x.f;
+          return (
+            <button type="button" class={`crate-slot pick ${on ? 'sel' : ''}`} aria-pressed={on}
+              aria-label={`Price your ${x.out} ${(x.out === 1 ? FRUIT[x.f].name : FRUIT[x.f].plural).toLowerCase()}: now $${price}`} onClick={() => mine.onPick(x.f)}>
+              <Fruit id={x.f} size={16} stage={top} /><b>{x.out}</b><span class="crate-price">${price}</span>
+            </button>
+          );
+        }) : <span class="crate-none">nothing out</span>}
+      </span>
     </div>
   );
 }
 
-export function PricingTableView({ s, viewer }: { s: GameState; viewer: number }) {
+/** Every stall's crate: the rivals in turn order after you, then your own crate last (nearest the price dial). */
+export function PricingTableView({ s, viewer, mine }: { s: GameState; viewer: number; mine?: MyCrate }) {
   const t = pricingTable(s, viewer);
-  const half = Math.ceil(t.seats.length / 2);
-  const top = t.seats.slice(0, half), bottom = t.seats.slice(half);
   return (
-    <section class="pt-table" aria-label="Every stall's crate. Prices stay sealed until the bell">
-      <div class="pt-row">{top.map((x) => <Seat s={s} seat={x} />)}</div>
-      <div class="pt-mid" aria-label={`${t.onSale} pieces on sale, ${t.orders} orders today`}>
-        <small>On sale</small><b>{t.onSale}</b><small>pieces · {t.orders} order{t.orders === 1 ? '' : 's'}</small>
-      </div>
-      <div class="pt-row end">{bottom.map((x) => <Seat s={s} seat={x} />)}</div>
+    <section class="crates" aria-label="Every stall's crate. Prices stay sealed until the bell">
+      {t.seats.map((x) => <Crate s={s} seat={x} mine={x.me ? mine : undefined} />)}
     </section>
   );
 }

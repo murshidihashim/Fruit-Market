@@ -157,6 +157,46 @@ export function buyerCap(s: GameState, p: number, f: FruitId, x: BuyerLine): Buy
   return { cap, label: `≤$${cap}`, title: `${who} wants ${x.w.qty}, pays up to $${cap} for your freshest`, aria: `${who} up to $${cap}` };
 }
 
+// ---------- the demand board (PLAN-059): pieces wanted, and how many would still buy at each price ----------
+
+/** One price step on the demand board: pieces wanted by customers who would pay at least this much. */
+export interface DemandStep { price: number; buyers: number }
+export interface DemandRow {
+  f: FruitId;
+  /** Pieces of this fruit wanted today (every order, whatever its freshness rule). */
+  wanted: number;
+  /** Pieces of this fruit out for sale today, every stall together. */
+  out: number;
+  /** True when the viewer has this fruit out: the steps are then for the viewer's own fruit (its freshness and perks). */
+  mine: boolean;
+  /** Up to three prices where the number of buyers changes, highest first. */
+  steps: DemandStep[];
+}
+
+/** The most a buyer pays for this fruit: for the viewer's own pieces when it has some out, otherwise for fresh fruit. */
+function payFor(s: GameState, p: number, f: FruitId, x: BuyerLine): number {
+  return forSale(s, p, f) > 0 ? buyerCap(s, p, f, x).cap : x.max;
+}
+
+/** Pieces wanted by customers who would pay at least `price` for this fruit (for the viewer's own fruit when it has some out). */
+export function buyersAt(s: GameState, p: number, f: FruitId, price: number): number {
+  return buyersFor(s, f).filter((x) => payFor(s, p, f, x) >= price).reduce((a, x) => a + x.w.qty, 0);
+}
+
+/** One row per fruit that someone wants or someone has out, in fruit order. Public facts and the viewer's own shelf only. */
+export function demandBoard(s: GameState, p: number): DemandRow[] {
+  return FRUITS.flatMap((f) => {
+    const lines = buyersFor(s, f);
+    const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
+    const out = s.players.reduce((a, _pl, i) => a + forSale(s, i, f), 0);
+    if (!wanted && !out) return [];
+    const caps = [...new Set(lines.map((x) => payFor(s, p, f, x)).filter((c) => c > 0))].sort((a, b) => b - a);
+    // Where the count changes; with more than three, the two highest and the lowest (where every buyer is in).
+    const picks = caps.length > 3 ? [caps[0], caps[1], caps[caps.length - 1]] : caps;
+    return [{ f, wanted, out, mine: forSale(s, p, f) > 0, steps: picks.map((price) => ({ price, buyers: buyersAt(s, p, f, price) })) }];
+  });
+}
+
 /** The Price panel's whisper for one fruit at the price you are about to post. */
 export interface PriceRead {
   cls: 'war' | 'safe' | 'ok';
