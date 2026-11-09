@@ -27,7 +27,7 @@
     "evidence": "make the icon 0.75x smaller and make it so that the popup opens by default on day 1, day 2 onwards its closed by default, then this is approved",
     "date": "2026-11-09"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-059",
   "title": "Pricing from the crates, demand board and The Bell pop-up",
   "problem": "Owner asked to price by tapping the fruit in your crate, with total demand and buyers at each price summarised, and the rules in a standard pop-up instead of text under the price.",

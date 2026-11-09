@@ -2,9 +2,10 @@
 
 Updated 2026-11-08 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-09): 1.13.0, crates of chosen fruit (rules 12) and the new pricing
+## Latest (2026-11-09): 1.13.0 live, crates of chosen fruit (rules 12) and the new pricing
+- **Live:** 1.13.0 (commit `ebc35f7`, tag `v1.13.0`, Deploy LIVE game run 29, live smoke test PASS on the re-run).
 - **Built (PLAN-059, PLAN-060; DEC-076, DEC-077; REP-091):** fill your crate from a shelf drawn like the market (only crate fruit sells, rules version 12); pricing from the crates with a demand board and "The Bell" pop-up; crate drop, lid and board animations.
-- **Checks:** `npm run verify` PASS (404 tests); balance as rules 11 (shopkeepers within about 6 points). Browser tests: see releases.json once published.
+- **Checks:** `npm run verify` PASS (404 tests); balance as rules 11 (shopkeepers within about 6 points). Browser tests PASS (E2E OK, 0 leaks).
 - **Next:** owner plays 1.13.0; art for Pak Din, Farah, 7 events and 2 guests still missing.
 
 ## Earlier (2026-11-09): 1.12.1 live (compact rules + seat tiles)

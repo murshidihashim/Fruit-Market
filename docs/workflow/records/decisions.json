@@ -1891,7 +1891,7 @@
         "evidence": "then this is approved",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-059",
       "reports": [],
       "reviewTrigger": "After the owner plays it on the preview"
@@ -1914,7 +1914,7 @@
         "evidence": "ok approve and push it live",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-060",
       "reports": [
         "REP-091"
@@ -2610,6 +2610,10 @@
     {
       "at": "2026-11-09 23:38",
       "text": "Owner approved crates of chosen fruit and publication: \"ok approve and push it live\" (DEC-077, PLAN-060, rules version 12). Release 1.13.0 prepared with the pricing redesign (PLAN-059)."
+    },
+    {
+      "at": "2026-11-10 00:16",
+      "text": "Release 1.13.0 published (rules version 12: crates of chosen fruit; pricing from the crates): main ebc35f7, Deploy LIVE game run 29. The first attempt deployed but its smoke test saw rules 11 while Cloudflare was still rolling out; the re-run passed the smoke test and tagged v1.13.0."
     }
   ]
 }
