@@ -17,9 +17,13 @@
       "Morning card: the event picture fills the card with a band underneath; no day count, standing or tomorrow's news",
       "Computer players no longer read tomorrow's event; Handcart instead of Cold Room in their plans",
       "Rule book, upgrade text, achievement and print kit wording",
-      "Every event card's in-game text in the owner's wording, with a short tagline before the rule"
+      "Every event card's in-game text in the owner's wording, with a short tagline before the rule",
+      "Morning card is drawn face down (the print kit's event card back) and turned over in about 1.6 seconds",
+      "Tomorrow's lorry box: the title, the lorry's name and the fruit counts each on their own row"
     ],
-    "fixed": [],
+    "fixed": [
+      "Durian Season draft art: shoppers now pinch their noses with a clear hand and squeezed-shut eyes"
+    ],
     "removed": [
       "The Cold Room upgrade",
       "Tomorrow's event forecast and the evening warnings that depended on it"

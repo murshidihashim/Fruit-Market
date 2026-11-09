@@ -142,6 +142,20 @@ export function StallSign({ avatar, compact, selected, takenBy, eager, class: cl
   );
 }
 
+/** The one shared back of every event card (print kit and the morning flip in the game). */
+export function EventBack({ class: cls }: { class?: string }) {
+  return (
+    <article class={cx('x-card', 'x-gz', 'x-gzb', cls)} role="img" aria-label="Event card back">
+      <header class="x-gz-mast">Fruit Market</header>
+      <div class="x-gz-ed"><span>Morning edition · One cent</span><span>Event card</span></div>
+      <strong class="x-gz-head">Today’s news</strong>
+      <p class="x-gz-sub">Turned over each morning, never before</p>
+      <div class="x-gzb-mid"><b class="x-gz-seal">Extra!</b></div>
+      <p class="x-gzb-foot">Event · one each morning from Day 2</p>
+    </article>
+  );
+}
+
 /** An event's front page, in the Fruit Market newspaper. `n` is the edition number (default: its place in the event deck, 1 to 13).
  *  The story is the event text from data.ts; `compact`: masthead, headline, picture and the effects box only. */
 export function Gazette({ event, n, compact, eager, class: cls }: { event: EventCard; n?: number; compact?: boolean; eager?: boolean; class?: string }) {

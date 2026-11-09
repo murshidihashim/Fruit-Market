@@ -190,12 +190,15 @@ def bust(cx, top, s, shirt, hat=None, hair=INK, mustache=False, glasses=False, m
     if glasses:
         for dx in (-17, 17): o.append(f'<circle cx="{cx+dx*s}" cy="{fy-4*s}" r="{12*s}" fill="{WHITE}" stroke="{INK}" stroke-width="4"/>')
         o.append(line(f'M{cx-5*s} {fy-4*s}H{cx+5*s}', 4))
-    for dx in (-17, 17): o.append(f'<circle cx="{cx+dx*s}" cy="{fy-4*s}" r="{5.5*s}" fill="{INK}"/>')
+    if hand_nose:  # eyes squeezed shut: > <
+        for k in (-1, 1): o.append(line(f'M{cx+k*24*s} {fy-10*s}L{cx+k*12*s} {fy-4*s}L{cx+k*24*s} {fy+2*s}', 4))
+    else:
+        for dx in (-17, 17): o.append(f'<circle cx="{cx+dx*s}" cy="{fy-4*s}" r="{5.5*s}" fill="{INK}"/>')
     # mouth
     if mouth == 'smile':
         o.append(f'<path d="M{cx-17*s} {fy+20*s}Q{cx} {fy+40*s} {cx+17*s} {fy+20*s}Z" fill="{WHITE}" stroke="{INK}" stroke-width="4" stroke-linejoin="round"/>')
     elif mouth == 'yuck':
-        o.append(line(f'M{cx-14*s} {fy+28*s}Q{cx-7*s} {fy+20*s} {cx} {fy+28*s}Q{cx+7*s} {fy+36*s} {cx+14*s} {fy+28*s}', 4))
+        o.append(line(f'M{cx-14*s} {fy+34*s}Q{cx-7*s} {fy+26*s} {cx} {fy+34*s}Q{cx+7*s} {fy+42*s} {cx+14*s} {fy+34*s}', 4))
     if mustache:
         o.append(f'<path d="M{cx-22*s} {fy+20*s}Q{cx-12*s} {fy+6*s} {cx} {fy+14*s}Q{cx+12*s} {fy+6*s} {cx+22*s} {fy+20*s}Q{cx+10*s} {fy+16*s} {cx} {fy+20*s}Q{cx-10*s} {fy+16*s} {cx-22*s} {fy+20*s}Z" fill="{INK}"/>')
     # hats
@@ -213,9 +216,16 @@ def bust(cx, top, s, shirt, hat=None, hair=INK, mustache=False, glasses=False, m
         o.append(obj(f'<ellipse cx="{cx}" cy="{top+20*s}" rx="{84*s}" ry="{16*s}" {{A}}/>', Y, op=.5))
         o.append(obj(f'<path d="M{cx-42*s} {top+20*s}C{cx-44*s} {top-34*s} {cx+44*s} {top-34*s} {cx+42*s} {top+20*s}Z" {{A}}/>', Y, op=.5))
         o.append(f'<path d="M{cx-42*s} {top+6*s}Q{cx} {top-2*s} {cx+42*s} {top+6*s}V{top+14*s}Q{cx} {top+6*s} {cx-42*s} {top+14*s}Z" fill="{R}" stroke="{INK}" stroke-width="3.5"/>')
-    if hand_nose:
-        o.append(obj(f'<ellipse cx="{cx}" cy="{fy+12*s}" rx="{14*s}" ry="{11*s}" {{A}}/>', skin, shade=False, sw=4))
-        o.append(line(f'M{cx-4*s} {fy+22*s}L{cx-8*s} {fy+50*s}', 4))
+    if hand_nose:  # an arm comes up from the outer side and pinches the nose shut
+        sd = hand_nose  # -1: arm from the left, 1: from the right
+        ax, ay = cx + sd * 62 * s, H + 10
+        hx, hy = cx + sd * 13 * s, fy + 12 * s
+        arm = f'M{ax} {ay}C{ax+sd*8*s} {fy+110*s} {hx+sd*40*s} {hy+40*s} {hx+sd*8*s} {hy+6*s}'
+        o.append(line(arm, 30 * s + 9, INK) + line(arm, 30 * s, skin))
+        o.append(obj(f'<path d="M{ax-15*s} {ay}C{ax-15*s} {fy+140*s} {ax+15*s} {fy+140*s} {ax+15*s} {ay}Z" {{A}}/>', shirt, op=.5, sw=4))  # sleeve
+        o.append(obj(f'<rect x="{hx-17*s}" y="{hy-13*s}" width="{34*s}" height="{26*s}" rx="{12*s}" {{A}}/>', skin, shade=False, sw=4))
+        for k in (-1, 1): o.append(line(f'M{hx-sd*2*s} {hy+k*5*s}H{hx-sd*11*s}', 3))
+        o.append(line(f'M{hx-sd*17*s} {hy-6*s}Q{hx-sd*24*s} {hy} {hx-sd*17*s} {hy+6*s}', 3.5))  # the pinched nose tip
     return ''.join(o)
 
 def svg(name, *parts, rough=True):
@@ -276,8 +286,8 @@ def durian_card():
               + ''.join(obj(f'<circle cx="{x}" cy="{y}" r="9" {{A}}/>', Y, shade=False, sw=3.5) for x, y in [(168, 120), (352, 120), (260, 50)]))
     seat = obj('<rect x="150" y="268" width="220" height="44" rx="10" {A}/>', Y)
     crown = obj('<path d="M222 104L230 66L248 88L260 58L272 88L290 66L298 104Z" {A}/>', Y, shade=False, sw=4.5) + ''.join(f'<circle cx="{x}" cy="{y}" r="5" fill="{R}" stroke="{INK}" stroke-width="2.5"/>' for x, y in [(230, 66), (260, 58), (290, 66)])
-    left = bust(70, 196, .9, B, hair='#4a2e1a', mouth='yuck', hand_nose=True)
-    right = bust(452, 192, .9, O, tudung=G, mouth='yuck', hand_nose=True)
+    left = bust(70, 196, .9, B, hair='#4a2e1a', mouth='yuck', hand_nose=-1)
+    right = bust(452, 192, .9, O, tudung=G, mouth='yuck', hand_nose=1)
     svg('durian', rays(G2, G3, 260, 150), skyline(gy, '#d6e5c8', .45, 7), ground(gy, WOOD),
         throne, seat, durian(260, 190, 70), crown, stinks(140, 170), stinks(372, 170, -1),
         left, right, tag(18, 22, '−$1'), sparkle(400, 60, 12), sparkle(118, 82, 9))

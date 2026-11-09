@@ -16,7 +16,7 @@ import {
   type CustomerCard, type EventCard, type FarmerCard, type FavourDef, type FruitId, type Stage, type UpgradeDef, type Want,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
-import { Gazette, StallSign, TradingCard, TradingCardBack, toStaticHtml } from '../src/ui/cards';
+import { EventBack, Gazette, StallSign, TradingCard, TradingCardBack, toStaticHtml } from '../src/ui/cards';
 import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { fruitSvgUrl } from '../src/ui/fruitIcons';
 import { C } from '../src/ui/palette';
@@ -165,11 +165,6 @@ body { color: var(--x-ink); font-family: var(--f-serif); -webkit-print-color-adj
 .pk-ssb .x-ss-name { align-self: center; font-size: 3.4em; }
 .pk-ssb .pk-burst { border-radius: 0.45em; --ray-a: var(--x-mustard); --ray-b: var(--x-mustard-d); }
 .pk-ssb .x-ss-chalk b { font-size: 2.2em; }
-.pk-gzb .x-gz-head { margin-top: 0.5em; font-size: 3.1em; text-align: center; }
-.pk-gzb .x-gz-sub { text-align: center; }
-.pk-gzb-mid { flex: 1 1 0; display: grid; place-items: center; border-top: 0.12em solid var(--x-ink); border-bottom: 0.12em solid var(--x-ink); margin: 0.4em 0; background: repeating-conic-gradient(from 0deg at 50% 50%, var(--x-paper) 0deg 7deg, var(--x-card) 7deg 14deg); }
-.pk-gzb .x-gz-seal { float: none; margin: 0; width: 4.6em; height: 4.6em; font-size: 2.4em; transform: rotate(-8deg); }
-.pk-gzb-foot { flex: none; font: 600 0.95em/1.3 var(--f-label); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: var(--x-ink); }
 
 /* Event fronts and Stall Signs: the fixed picture, text and chalkboard sizes are in cards.css, shared with the app. */
 
@@ -309,13 +304,7 @@ const shopBack: Cell = {
 const eventFront = (e: EventCard): Cell => ({
   html: toStaticHtml(h(Gazette, { event: e, eager: true })), bleed: PAPER, label: `Event · ${e.title}`,
 });
-const eventBack: Cell = {
-  html: `<article class="x-card x-gz pk-gzb"><header class="x-gz-mast">Fruit Market</header><div class="x-gz-ed"><span>Morning edition · One cent</span><span>Event card</span></div>`
-    + `<strong class="x-gz-head">Today’s news</strong><p class="x-gz-sub">Turned over each morning, never before</p>`
-    + `<div class="pk-gzb-mid"><b class="x-gz-seal">Extra!</b></div>`
-    + `<p class="pk-gzb-foot">Event · one each morning from Day 2</p></article>`,
-  bleed: PAPER, label: 'Events',
-};
+const eventBack: Cell = { html: toStaticHtml(h(EventBack, { class: 'pk-gzb' })), bleed: PAPER, label: 'Events' };
 
 const WHEN: Record<FavourDef['when'], { small: string; big: string }> = {
   evening: { small: 'Play in the', big: 'Evening' },

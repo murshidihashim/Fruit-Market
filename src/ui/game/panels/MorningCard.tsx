@@ -4,7 +4,7 @@ import { FRUIT, FRUITS } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
 import { closingNote, overnightLines, type NightJuice } from '../../../engine/story';
 import { Fruit } from '../../art';
-import { ART_SIZE, CardArt } from '../../cards';
+import { ART_SIZE, CardArt, EventBack } from '../../cards';
 import { eventArt } from '../../deckArt';
 import { Icon } from '../../icons';
 import { NextLorry } from '../../table';
@@ -24,7 +24,9 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
       {night}
       {closing && <div class="mc-loss">{closing}</div>}
       {s.event ? (
-        <div class={`mc-event x-ev-${s.event.id}`}>
+        <div class="mc-flip" key={`${s.day}-${s.event.id}`}>
+        <div class="mc-face mc-back" aria-hidden="true"><EventBack /></div>
+        <div class={`mc-face mc-event x-ev-${s.event.id}`}>
           <CardArt class="mc-pic" src={eventArt(s.event.id)} alt="" w={ART_SIZE.event[0]} h={ART_SIZE.event[1]} eager />
           <div class="mc-band">
             <span class="mc-next-k">Today’s news</span>
@@ -36,6 +38,7 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
               </span>
             )}
           </div>
+        </div>
         </div>
       ) : (
         <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
