@@ -96,6 +96,11 @@ export interface Customer {
 export interface Post { fruit: FruitId; price: number }
 /** How many of each fruit a shop puts out for sale today (public once every shop has opened). */
 export type Stall = Partial<Record<FruitId, number>>;
+/**
+ * Rules 12: the exact pieces a shop put in its crate, one count per track position (oldest first), in the same shape
+ * as its shelf. Only these pieces can sell today. Public once every shop has opened, like the counts in `stalls`.
+ */
+export type Crate = Partial<Record<FruitId, number[]>>;
 
 export interface Offer {
   player: number; qty: number; price: number; sold: number; freshness: number;
@@ -157,6 +162,8 @@ export interface GameState {
   turn: number;
   /** What each shop put out for sale today (null until it has opened its stall). */
   stalls: (Stall | null)[];
+  /** Rules 12: which pieces each shop put in its crate (null until it has opened its stall). */
+  crates?: (Crate | null)[];
   /** Each shop's secret prices (null until it has priced). */
   bids: (Post[] | null)[];
   results: DayResult | null;
@@ -436,6 +443,7 @@ export function newGame(config: GameConfig): GameState {
     order: [],
     turn: 0,
     stalls: players.map(() => null),
+    crates: players.map(() => null),
     bids: players.map(() => null),
     results: null,
     log: [],
@@ -546,6 +554,7 @@ function startDay(s: GameState) {
   if (egg >= 0 && s.day === 3) s.order = [egg, ...s.order.filter((i) => i !== egg)];
   s.turn = 0;
   s.stalls = s.players.map(() => null);
+  s.crates = s.players.map(() => null);
   s.bids = s.players.map(() => null);
   s.results = null;
 }
@@ -623,6 +632,7 @@ function customersArrive(s: GameState) {
   }
   s.phase = 'stall';
   s.stalls = s.players.map(() => null);
+  s.crates = s.players.map(() => null);
   s.bids = s.players.map(() => null);
 }
 
@@ -706,14 +716,69 @@ export function validateStall(s: GameState, p: number, stall: Stall): string | n
   return null;
 }
 
-export function openStall(state: GameState, p: number, stall: Stall): GameState {
+/** The oldest pieces on a shelf for these counts: how computer shops fill their crates, and the default (rules 12). */
+export function oldestCrate(pl: Player, stall: Stall): Crate {
+  const out: Crate = {};
+  for (const f of FRUITS) {
+    let n = stall[f] ?? 0;
+    if (n <= 0) continue;
+    const t = new Array(pl.stock[f].length).fill(0);
+    for (let i = 0; i < FRUIT[f].ripe.length && n > 0; i++) { const k = Math.min(n, pl.stock[f][i]); t[i] = k; n -= k; }
+    out[f] = t;
+  }
+  return out;
+}
+
+/** How many of each fruit a crate holds. */
+export function crateCounts(c: Crate): Stall {
+  const out: Stall = {};
+  for (const [f, t] of Object.entries(c) as [FruitId, number[]][]) { const n = t.reduce((a, b) => a + b, 0); if (n > 0) out[f] = n; }
+  return out;
+}
+
+/** Checks a crate against the shop's shelf: whole numbers, never more than it holds in a space, and no green fruit. */
+export function validateCrate(s: GameState, p: number, c: Crate): string | null {
+  const pl = s.players[p];
+  for (const [f, t] of Object.entries(c) as [FruitId, number[]][]) {
+    if (!FRUITS.includes(f)) return 'Unknown fruit';
+    if (!Array.isArray(t) || t.length !== pl.stock[f].length) return 'Bad crate';
+    for (let i = 0; i < t.length; i++) {
+      const n = t[i];
+      if (!Number.isInteger(n) || n < 0) return 'Whole numbers only';
+      if (n > pl.stock[f][i]) return `You don't have that many ${FRUIT[f].plural.toLowerCase()} there`;
+      if (n > 0 && i >= FRUIT[f].ripe.length) return 'Green fruit can\'t be sold yet';
+    }
+  }
+  return null;
+}
+
+/**
+ * Opens a shop's stall. Rules 12: `crate` names the exact pieces (a person's choice on the shelf); without it the
+ * crate takes the oldest pieces for the counts in `stall` (computer shops, older clients).
+ */
+export function openStall(state: GameState, p: number, stall: Stall, crate?: Crate): GameState {
   requireActive(state, p, 'stall');
-  const err = validateStall(state, p, stall);
+  const bad = crate ? validateCrate(state, p, crate) : validateStall(state, p, stall);
+  if (bad) throw new RuleError(bad);
+  const c = crate ?? oldestCrate(state.players[p], stall);
+  const counts = crateCounts(c);
+  const err = validateStall(state, p, counts);
   if (err) throw new RuleError(err);
   const s = clone(state);
-  s.stalls[p] = Object.fromEntries(Object.entries(stall).filter(([, n]) => n > 0)) as Stall;
+  s.stalls[p] = counts;
+  (s.crates ??= s.players.map(() => null))[p] = Object.fromEntries(Object.entries(c).filter(([, t]) => t.some((n) => n > 0))) as Crate;
   if (s.stalls.every((x) => x !== null)) startPricing(s);
   return s;
+}
+
+/** The pieces in a shop's crate today as a full shelf shape (zeros elsewhere); before it has opened, its whole shelf. */
+export function crateStock(s: GameState, p: number): Stock {
+  const pl = s.players[p];
+  const c = s.crates?.[p] ?? (s.stalls[p] ? oldestCrate(pl, s.stalls[p]!) : null);
+  if (!c) return pl.stock;
+  const out = {} as Stock;
+  for (const f of FRUITS) out[f] = c[f] ? [...c[f]!] : new Array(pl.stock[f].length).fill(0);
+  return out;
 }
 
 /** Fruit a shop has out for sale today. */
@@ -788,7 +853,9 @@ function resolve(s: GameState) {
     lines: [], favours: [], happy: [], leftAngry: [], movedToWaiting: [],
     income: s.players.map(() => 0), spent: s.players.map((p) => p.spentToday),
   };
-  const left = s.players.map((_, p) => Object.fromEntries(FRUITS.map((f) => [f, forSale(s, p, f)])) as Record<FruitId, number>);
+  // Rules 12: each shop sells only the pieces in its crate, oldest of those first.
+  const crates = s.players.map((_, p) => crateStock(s, p));
+  const left = s.players.map((_, p) => Object.fromEntries(FRUITS.map((f) => [f, crates[p][f].reduce((a, b) => a + b, 0)])) as Record<FruitId, number>);
   const orderIdx = (p: number) => s.order.indexOf(p);
   const favoured = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade);
   const haggler = (a: number, b: number) => Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
@@ -805,9 +872,9 @@ function resolve(s: GameState) {
       s.players.forEach((pl, p) => {
         const price = postedPrice(s, p, w.fruit);
         if (price === null || left[p][w.fruit] <= 0) return;
-        const used = eligible(pl, pl.stock, w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref);
+        const used = eligible(pl, crates[p], w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref);
         if (used.length === 0) {
-          if (count(pl.stock, w.fruit, true) > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
+          if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
           return;
         }
         offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
@@ -824,7 +891,7 @@ function resolve(s: GameState) {
         need -= n;
         const pl = s.players[o.player];
         const sold = o.used.slice(0, n);
-        for (const i of sold) pl.stock[w.fruit][i]--;
+        for (const i of sold) { pl.stock[w.fruit][i]--; crates[o.player][w.fruit][i]--; }
         left[o.player][w.fruit] -= n;
         // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well.
         const juice = pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
@@ -882,9 +949,10 @@ function resolve(s: GameState) {
     s.players.forEach((pl, p) => {
       for (const f of FRUITS) {
         if (left[p][f] <= 0) continue;
-        const i = pl.stock[f].findIndex((c, k) => c > 0 && k < FRUIT[f].ripe.length);
+        const i = crates[p][f].findIndex((c, k) => c > 0 && k < FRUIT[f].ripe.length);
         if (i < 0) continue;
         pl.stock[f][i]--;
+        crates[p][f][i]--;
         left[p][f]--;
         pl.cash += price;
         pl.stats.earned += price;
@@ -1125,7 +1193,7 @@ export type Action =
   | { kind: 'buy'; fruit: FruitId; pos: number }
   | { kind: 'endBuy' }
   | { kind: 'favour'; idx: number; args?: FavourArgs }
-  | { kind: 'stall'; stall: Stall }
+  | { kind: 'stall'; stall: Stall; crate?: Crate }
   | { kind: 'prices'; posts: Post[]; favoured: boolean }
   | { kind: 'finish' }
   | { kind: 'upgrade'; upgrade: UpgradeId }
@@ -1139,7 +1207,7 @@ export function applyAction(s: GameState, p: number, a: Action): GameState {
     case 'buy': return buy(s, p, a.fruit, a.pos);
     case 'endBuy': return endBuyTurn(s, p);
     case 'favour': return playFavour(s, p, a.idx, a.args ?? {});
-    case 'stall': return openStall(s, p, a.stall);
+    case 'stall': return openStall(s, p, a.stall, a.crate);
     case 'prices': return submitPrices(s, p, a.posts, a.favoured);
     case 'finish': return finishReveal(s);
     case 'upgrade': return buyUpgrade(s, p, a.upgrade);

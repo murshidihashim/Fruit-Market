@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 11, the compact rules).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 12: the compact rules, with crates of chosen fruit).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -107,12 +107,12 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card and
 Each stall buys **up to 4 pieces of fruit** (5 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 6 (8 with a Handcart). **The poorest stall buys first, then the others follow clockwise from it** (a tie for poorest goes to the first of them clockwise from the first-player token; Day 1 starts at the token). A Priority favour jumps the queue.
 
 ### 3. Stocking
-Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly chooses how many of each ripe fruit to put in its **for-sale crate**, by setting a number on its stall sheet; then all crates are shown at once. The crate is a number: the pieces stay on your shelf, and fruit you keep back stays too.
+Today's customers arrive: yesterday's unserved customers (now **waiting, last day**), the regular and the walk-ins, who turn face up now. Each stall secretly fills its **for-sale crate** with the exact pieces of ripe fruit it wants to sell: move those tokens from your shelf into the crate on your stall sheet, any freshness you like. Then all crates are shown at once. Only the pieces in your crate can sell today; fruit you keep back stays on your shelf (and keeps ageing). Green fruit can't go in a crate.
 
 ### 4. The bell
 Each stall secretly sets **one price per fruit** it put out, then everyone reveals together.
 
-- **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, your **oldest fruit that is fresh enough for your price** goes first, taken from your whole shelf, up to the number in your crate.
+- **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for tired. When you sell, the **oldest piece in your crate that is fresh enough for your price** goes first. Only pieces in your crate can sell.
 - **Freshness type:** a *Premium* customer buys **Fresh fruit only**; an *Everyday* customer buys **Fresh or Okay**; a *Bargain* customer buys **Fresh, Okay or Tired**. A stall cannot sell fruit a customer will not take, whatever the price. Premium: Rara Jenab, Ravi Rocket, Captain Ahmad, Anna the Artist, Devi Bloom, Miss Cha-Cha (and the Influencer). Bargain: Magic Kumar, Professor Pebble, Postman Pip, Coral Mei, Rockstar Grace, Inspector Wei. Everyone else is Everyday (the Gym Club, Hotel Chef, Wedding Caterer and Bakery too).
 - There is **no lower limit**. On a Price Controls day there is an **upper** limit for each fruit.
 
@@ -228,7 +228,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Sharp Ears.** When tomorrow's walk-ins are drawn, Farah looks at the front of one of them, like Scout. Mark it with her colour. When she sells that customer anything, the crier pays her tip, once a day.
 
-**The stall sheet and screen.** Each stall has one printed sheet with a shelf, a *crate* number box per fruit, and a *price* row per fruit ($1 to $16). Put a marker on a number to set it. Fold the card screen in front of the sheet so rivals cannot see. Set crate numbers, show them all at once, then set prices behind the screen and lift all screens together at the bell.
+**The stall sheet and screen.** Each stall has one printed sheet with a shelf, a *crate* area, and a *price* row per fruit ($1 to $16). Fold the card screen in front of the sheet so rivals cannot see. Move the fruit you will sell from the shelf into the crate, show all crates at once, then set prices behind the screen (a marker on a number) and lift all screens together at the bell. Unsold crate fruit goes back to its place on the shelf at the end of the day.
 
 **Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
 
@@ -264,6 +264,8 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 *Left out on purpose: a price ladder board for lining up posted prices. Sorting the price cards by hand works for 2 to 6 stalls.*
 
 ## Balance notes
+
+Rules version 12 (PLAN-060): you choose exactly which pieces go in your crate, and only those can sell (oldest of them first). Before, the crate was a number and the oldest fresh-enough pieces came from your whole shelf. Computer players fill their crates with their oldest pieces. See REP-091 for the balance check.
 
 Rules version 11, the compact rules (PLAN-057, the owner's build spec of 9 November 2026): 2 to 6 stalls, about half the fruit per day. Every customer order is halved (rounded half up, at least 1) and apples pay $1 more. Stalls start with $10, buy 4 a day (Handcart 5) and hold 6 (Handcart 8). The crowd is one customer per stall; Market Days and walk-in events scale per 3 stalls. Twenty different lorry cards print amounts for 2 to 6 stalls, and the Seconds Lorry delivers Okay fruit. Seven new events (20 in all). Two new shopkeepers, Pak Din (Shade Cloth) and Farah (Sharp Ears); the Haggler now wins ties only against equally fresh fruit and lost the first-sale dollar; Big Basket's extra piece costs the normal price; the Charmer can earn 2 favour cards a day; the Tip Jar pays $2; Nest Egg starts with $18. Upgrades cost half (Cold Room $2, Juice Bar $2 and juices up to 2, Handcart $3, Premium Display $4). At 5 and 6 stalls the favour deck has 3 of each card. The spec's figures were simulated on a patched copy of the 1.11.0 engine with Hard computer players; see REP-090 for the check on the built game.
 

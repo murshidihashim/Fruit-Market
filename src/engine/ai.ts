@@ -6,7 +6,7 @@
 import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, capFor, count, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
+  capAt, capFor, count, crateStock, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, servingCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   type Customer, type GameState, type Level, type Post, type Stall, type Stock,
 } from './game';
@@ -207,11 +207,17 @@ function units(stock: Stock, f: FruitId, n: number): number[] {
  */
 export interface Seller { player: number; price: number; pos: number[]; left: number; ft?: boolean }
 
-/** A stall for the planner's model: its whole ripe shelf, of which it sells at most `n` (its crate). */
+/**
+ * A stall for the planner's model (rules 12): the pieces in its crate, oldest first. Once crates are open they are
+ * public; before that (planning what to put out) a crate of `n` takes the oldest `n` pieces, as a computer shop's does.
+ */
 export function seller(s: GameState, player: number, f: FruitId, price: number, n: number, ft = false): Seller {
-  const pos = units(s.players[player].stock, f, Infinity);
-  return { player, price, pos, left: Math.min(n, pos.length), ft };
+  const pos = s.crates?.[player] ? units(crateStock(s, player), f, n) : units(s.players[player].stock, f, n);
+  return { player, price, pos, left: pos.length, ft };
 }
+
+/** What a shop can sell from today: its crate once stalls are open, otherwise its whole shelf. */
+const sellStock = (s: GameState, p: number): Stock => (s.crates?.[p] ? crateStock(s, p) : s.players[p].stock);
 
 /**
  * Expected sales for one shop (`me`), by running the day's queue for one fruit the way the rush does: cheapest stall
@@ -260,7 +266,7 @@ export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Sell
  * average ($1.60 below it against $1.85), so one of its four guesses here cuts nothing. Exported for tests.
  */
 export function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: number, lv: Level): number {
-  const top = Math.max(0, ...servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(s.players[r].stock, f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
+  const top = Math.max(0, ...servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(sellStock(s, r), f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
   const rl = s.players[r].kind === 'human' ? 'normal' : level(s, r);
   const haggler = s.players[r].trait === 'haggler' && s.players[p].trait !== 'haggler';
   const cut = lv === 'normal' ? (haggler ? [0, 1, 2, 2] : [1, 1, 2, 2])[k] : rl === 'easy' ? [0, 1, 1, 1][k] : rl === 'normal' ? [1, 2, 2, 3][k] : [2, 2, 3, 3][k];
@@ -271,11 +277,11 @@ export function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: nu
 function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUnits: (i: number) => number, depth = 0): { price: number; sold: number } {
   const pl = s.players[p];
   const lv: Level = depth > 0 ? 'normal' : level(s, p);
-  const mine = units(pl.stock, f, myUnits);
+  const mine = units(sellStock(s, p), f, myUnits);
   const lines = servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ m: effectiveMax(s, w, c.generous), pref: c.pref })));
   if (!mine.length || !lines.length) return { price: minPrice(s, f), sold: 0 };
   // Price Controls: never ask above the day's maximum.
-  const topCap = Math.min(maxPrice(s, f), Math.max(...lines.map((l) => bestCap(pl.stock, f, l.m, pl, l.pref))));
+  const topCap = Math.min(maxPrice(s, f), Math.max(...lines.map((l) => bestCap(sellStock(s, p), f, l.m, pl, l.pref))));
   const lastDay = s.day >= s.config.days;
   const rotsTonight = pl.stock[f][0] > 0;
   const floor = Math.max(minPrice(s, f), rotsTonight || lastDay ? 1 : lv === 'easy' ? 3 : 2);

@@ -6,7 +6,7 @@
 
 import { FRUIT, FRUITS, JAM_PRICE, JUICE_VALUE, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
 import {
-  count, eligible, forSale, isLastCall, minPrice, nightOutlook, ranking, servingCustomers,
+  count, crateStock, eligible, forSale, isLastCall, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
 } from './game';
 
@@ -195,7 +195,7 @@ export function tieAt(s: GameState, l: LineResult, mine: Offer, rival: Offer, vi
   if (!ctx?.first || !inContest(rival)) return { outcome: 'open' };
   if (mine.freshness < rival.freshness) return { outcome: 'lose', by: 'fresher' };
   if (ctx.soldToday > 0 || ctx.hawked || s.phase !== 'reveal') return { outcome: 'open' };
-  const used = eligible(me, me.stock, l.fruit, Math.min(ctx.crate, l.want), rival.price, l.max, prefFor(s, l));
+  const used = eligible(me, crateStock(s, viewer), l.fruit, Math.min(ctx.crate, l.want), rival.price, l.max, prefFor(s, l));
   if (!used.length) return { outcome: 'open' };
   const fresh = Math.max(...used);
   if (fresh !== rival.freshness) return { outcome: fresh > rival.freshness ? 'win' : 'lose', by: 'fresher' };
@@ -232,7 +232,7 @@ function piecesAt(s: GameState, l: LineResult, mine: Offer, price: number, ctx: 
   if (!ctx) return { n: Math.min(l.want, mine.qty), exact: false };
   const me = s.players[viewer];
   const bell = s.phase === 'reveal';
-  const now = bell ? eligible(me, me.stock, l.fruit, ctx.crate, price, l.max, prefFor(s, l)).length : 0;
+  const now = bell ? eligible(me, crateStock(s, viewer), l.fruit, ctx.crate, price, l.max, prefFor(s, l)).length : 0;
   if (bell && ctx.first && ctx.soldToday === 0 && !ctx.hawked) return { n: Math.min(l.want, now), exact: true };
   const n = Math.min(l.want, ctx.crate - ctx.soldBefore - ctx.before, Math.max(mine.qty, now) - ctx.before);
   return { n: Math.max(0, n), exact: false };

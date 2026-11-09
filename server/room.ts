@@ -16,8 +16,8 @@ import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import {
-  activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validatePrices, validateStall,
-  type Action, type GameState, type PlayerConfig, type Post, type Stall,
+  activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
+  type Action, type Crate, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
   CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, PROTOCOL_VERSION, RULES_VERSION, UPDATE_MSG,
@@ -49,7 +49,7 @@ export interface RoomData {
   game: GameState | null;
   version: number;
   /** Hidden submissions for the current simultaneous step: a for-sale crate, or secret prices. */
-  pending: ({ stall: Stall } | { posts: Post[]; favoured: boolean } | null)[];
+  pending: ({ stall: Stall; crate?: Crate } | { posts: Post[]; favoured: boolean } | null)[];
   votes: number[];
   rematch: number[];
   seen: string[][];
@@ -103,7 +103,7 @@ export function redact(g: GameState, seat: number): GameState {
   });
   if (v.results) v.results.favours = v.results.favours.map((f) => (f.player === seat ? f : { ...f, favour: HIDDEN_FAVOUR }));
   // Simultaneous steps: nobody's crate or prices show until every shop has committed.
-  if (v.phase === 'stall') v.stalls = v.stalls.map(() => null);
+  if (v.phase === 'stall') { v.stalls = v.stalls.map(() => null); if (v.crates) v.crates = v.crates.map(() => null); }
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
   // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
   v.queue = v.queue.map((c) => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
@@ -391,9 +391,21 @@ export class Room {
       if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Bad crate');
       const stall: Stall = {};
       for (const [f, n] of Object.entries(a.stall).slice(0, 8)) stall[f as keyof Stall] = Number(n);
-      const err = validateStall(g, seat, stall);
+      // Rules 12: the exact pieces, one count per shelf space for each fruit (optional; without it the oldest go out).
+      let crate: Crate | undefined;
+      if (a.crate !== undefined) {
+        if (!a.crate || typeof a.crate !== 'object' || Array.isArray(a.crate)) throw new RuleError('Bad crate');
+        crate = {};
+        for (const [f, t] of Object.entries(a.crate).slice(0, 8)) {
+          if (!Array.isArray(t) || t.length > 12) throw new RuleError('Bad crate');
+          crate[f as keyof Crate] = t.map(Number);
+        }
+        const bad = validateCrate(g, seat, crate);
+        if (bad) throw new RuleError(bad);
+      }
+      const err = crate ? null : validateStall(g, seat, stall);
       if (err) throw new RuleError(err);
-      d.pending[seat] = { stall };
+      d.pending[seat] = crate ? { stall, crate } : { stall };
       return this.accepted(conn, seat, m.id);
     }
     if (a.kind === 'prices') {
@@ -512,7 +524,7 @@ export class Room {
         for (let k = 0; k < 20 && s.phase === step; k++) {
           const p = activePlayer(s);
           const pb = d.pending[p];
-          if (s.players[p].kind === 'human' && pb && 'stall' in pb) s = openStall(s, p, pb.stall);
+          if (s.players[p].kind === 'human' && pb && 'stall' in pb) s = openStall(s, p, pb.stall, pb.crate);
           else if (s.players[p].kind === 'human' && pb && 'posts' in pb) s = submitPrices(s, p, pb.posts, pb.favoured);
           else s = (s.players[p].kind === 'ai' ? aiStep(s) : aiActFor(s, p))!;
         }

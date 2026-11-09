@@ -20,9 +20,9 @@ const humans = (n: number, extra: Partial<GameConfig> = {}): GameConfig => ({
 });
 
 describe('rules 11: core numbers (spec section 1)', () => {
-  it('start cash $10, buy 4 (Handcart 5), shelf 6 (Handcart 8), rules version 11', () => {
+  it('start cash $10, buy 4 (Handcart 5), shelf 6 (Handcart 8); rules version 11 or later (12: crate pieces)', () => {
     expect([START_CASH, BASE_BUY, BARROW_BUY, BASE_SHELF, BARROW_SHELF]).toEqual([10, 4, 5, 6, 8]);
-    expect(RULES_VERSION).toBe(11);
+    expect(RULES_VERSION).toBe(12);
   });
 
   it('plays 2 to 6 stalls and refuses 1 or 7', () => {

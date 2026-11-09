@@ -2,14 +2,16 @@
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useState } from 'preact/hooks';
 import { planPrices, planStall } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, deliveredGreen, stageAt, trackSlots, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, forSale, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook, shadePick,
-  validatePrices, type GameState, type Post, type Stall,
+  canPlayFavour, canUpgrade, count, crateCounts, forSale, oldestCrate, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook, shadePick,
+  validatePrices, type Crate, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, FavourIcon, Fruit } from './art';
-import { buyerCap, buyersAt, buyersFor, demandBoard, stallWantText, type DemandRow } from './boardModel';
+import { buyerCap, buyersAt, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow } from './boardModel';
+import { fruitSvgUrl } from './fruitIcons';
+import { Pile } from './table';
 import { Icon, type IconName } from './icons';
 import { PricingTableView } from './game/panels/PricingTable';
 
@@ -37,59 +39,118 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
 // ---------- open stalls ----------
 
 /**
- * Step 1 of selling: how many of each fruit to put out today. Everyone sees the numbers once all stalls open.
- * On the game screen the rows sit in the middle of the table (one compact row per fruit) and the button
- * (.pp-lock) takes the action bar's place, so your shelf and today's customers stay in view.
+ * Step 1 of selling (rules 12, PLAN-060): fill your crate with the exact pieces you will sell today. Your shelf is drawn
+ * like the Wholesale Market (one column per fruit, newest at the top, tinted by freshness) with − and + on every space
+ * you hold; each + sends that piece flying into your crate. Everyone sees every crate once all stalls open.
  */
-export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (stall: Stall) => void }) {
+export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (stall: Stall, crate: Crate) => void }) {
   const pl = s.players[p];
-  const fruits = FRUITS.filter((f) => count(pl.stock, f, true) > 0);
-  const [vals, setVals] = useState<Stall>(() => planStall(s, p));
-  const set = (f: FruitId, n: number) => setVals((v) => ({ ...v, [f]: Math.max(0, Math.min(count(pl.stock, f, true), n)) }));
-  const total = fruits.reduce((a, f) => a + (vals[f] ?? 0), 0);
+  const [crate, setCrate] = useState<Crate>(() => startingCrate(s, p));
+  const step = (f: FruitId, pos: number, d: number, from?: Element | null) => {
+    const have = pl.stock[f][pos] ?? 0;
+    setCrate((c) => {
+      const t = [...(c[f] ?? new Array(pl.stock[f].length).fill(0))];
+      t[pos] = Math.max(0, Math.min(have, t[pos] + d));
+      return { ...c, [f]: t };
+    });
+    if (d > 0 && from) flyToCrate(from, f, stageAt(f, pos));
+  };
+  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => onSubmit(crateCounts(crate), crate)} />;
+}
+
+/** The suggested crate: the planner's counts, oldest pieces first (as a computer shop fills its crate). */
+export function startingCrate(s: GameState, p: number): Crate {
+  return oldestCrate(s.players[p], planStall(s, p));
+}
+
+/** A piece of fruit flies from the shelf space into your crate (skipped when motion is reduced). */
+function flyToCrate(from: Element, f: FruitId, stage: Stage) {
+  const to = document.getElementById('my-crate');
+  if (!to || typeof matchMedia === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+  const img = document.createElement('img');
+  img.src = fruitSvgUrl(f, stage); img.alt = ''; img.className = 'fly-fruit';
+  img.style.left = `${a.left + a.width / 2 - 12}px`; img.style.top = `${a.top + a.height / 2 - 12}px`;
+  document.body.appendChild(img);
+  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
+  const anim = img.animate([
+    { transform: 'translate(0, 0) scale(1)' },
+    { transform: `translate(${dx / 2}px, ${dy / 2 - 70}px) scale(1.5)`, offset: 0.5 },
+    { transform: `translate(${dx}px, ${dy}px) scale(0.8)` },
+  ], { duration: 480, easing: 'cubic-bezier(.4,0,.3,1)' });
+  anim.onfinish = () => img.remove();
+}
+
+/** The Stocking screen drawn from its state (no hooks, so tests can draw it). */
+export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
+  s: GameState; p: number; crate: Crate; onStep: (f: FruitId, pos: number, d: number, from?: Element | null) => void; onSubmit: () => void;
+}) {
+  const pl = s.players[p];
+  const counts = crateCounts(crate);
+  const total = FRUITS.reduce((a, f) => a + (counts[f] ?? 0), 0);
+  const ripe = count(pl.stock, undefined, true);
   // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off); else Market Day news.
   const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: more walk-ins. The lorry still comes.' : null;
+  const pieces = FRUITS.flatMap((f) => (crate[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) }))));
   return (
     <>
       <div class="price-panel stall-panel mid-panel">
-        <div class="pp-intro"><b>Open your stall</b><span>Put out the fruit you will sell today. Everyone sees how many each stall puts out, then you all set secret prices.</span></div>
+        <div class="pp-head"><b>Fill your crate</b></div>
         {note && <div class="info-card warn small">{note}</div>}
-        {fruits.length === 0 && <div class="info-card dim">You have no ripe fruit to sell today.</div>}
-        {fruits.map((f) => {
-          const have = count(pl.stock, f, true);
-          const n = vals[f] ?? 0;
-          const rivals = s.players.reduce((a, o, i) => (i === p ? a : a + count(o.stock, f, true)), 0);
-          return (
-            <div class={`price-card ${n ? 'on' : ''}`}>
-              <div class="pc-top">
-                <Fruit id={f} size={32} />
-                <div class="pc-who">
-                  <b>{FRUIT[f].plural}</b>
-                  <span class="pc-sub">{stallWantText(s, p, f)} · rivals hold {rivals}</span>
-                  <StockLine stock={pl.stock} f={f} />
-                </div>
-                <div class="pc-price">
-                  <button type="button" aria-label={`Put out one less ${FRUIT[f].name}`} disabled={n <= 0} onClick={() => set(f, n - 1)}>−</button>
-                  <span class="pc-num">{n}<small> of {have}</small></span>
-                  <button type="button" aria-label={`Put out one more ${FRUIT[f].name}`} disabled={n >= have} onClick={() => set(f, n + 1)}>+</button>
-                </div>
-              </div>
+        <div class="crate me fill-crate" id="my-crate" aria-label={`Your crate: ${total} out`}>
+          <span class="crate-plate">Your crate · {total} out</span>
+          <span class="crate-fruits">
+            {pieces.length ? pieces.map((x) => <span class={`crate-piece st-${x.stage}`}><Fruit id={x.f} size={18} stage={x.stage} /></span>) : <span class="crate-none">empty</span>}
+          </span>
+        </div>
+        {ripe === 0 ? <div class="info-card dim">You have no ripe fruit to sell today.</div> : (
+          <div class="shelf-sheet">
+            <div class="shelf-head"><b>Your shelf</b><small>− and + on every space you hold</small></div>
+            <div class="mk-cols shelf-cols">
+              {FRUITS.map((f, _i, all) => {
+                const held = count(pl.stock, f, true);
+                const out = counts[f] ?? 0;
+                // Like the market on a small phone: rows below the lowest piece you hold in any column step aside.
+                const shown = (x: FruitId) => trackSlots(x).filter((t) => t.stage !== 'unripe' || deliveredGreen(x) || pl.stock[x][t.pos] > 0);
+                const fit = Math.max(3, ...all.map((x) => shown(x).reduce((a, t, row) => (pl.stock[x][t.pos] > 0 ? row + 1 : a), 0)));
+                const slots = shown(f).slice(0, fit);
+                return (
+                  <div class={`mk-col ${f}`}>
+                    <span class="pz shelf-pz" aria-label={`${FRUIT[f].plural}: ${stallWantText(s, p, f)}, ${out} of ${held} out`}>
+                      <Fruit id={f} size={18} />
+                      <span class="pz-n"><span><b>{stallWanted(s, p, f)}</b> want</span><span><b>{out}</b> of {held} out</span></span>
+                    </span>
+                    {slots.map(({ pos, stage }) => {
+                      const n = pl.stock[f][pos] ?? 0;
+                      const k = crate[f]?.[pos] ?? 0;
+                      const sell = n > 0 && stage !== 'unripe';
+                      const word = stage === 'notso' ? 'tired' : stage === 'unripe' ? 'green' : stage;
+                      return (
+                        <div class={`mk-cell st-${stage} ${n ? 'has' : ''} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
+                          {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
+                          {stage !== 'fresh' && <span class="shelf-drop">{stage === 'okay' ? '−$1' : stage === 'notso' ? '−$2' : 'green'}</span>}
+                          {sell && (
+                            <span class="mini-step">
+                              <button type="button" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={() => onStep(f, pos, -1)}>−</button>
+                              <b>{k}</b>
+                              <button type="button" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.mk-cell'))}>+</button>
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        )}
       </div>
       <div class="pp-lock">
-        <button class="btn primary big wide" onClick={() => onSubmit(vals)}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+        <button class="btn primary big wide" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
       </div>
     </>
   );
-}
-
-/** A shop's ripe fruit of one kind, oldest first, coloured by freshness. */
-function StockLine({ stock, f }: { stock: Record<FruitId, number[]>; f: FruitId }) {
-  const chips: { pos: number; n: number }[] = [];
-  for (let i = 0; i < FRUIT[f].ripe.length; i++) if (stock[f][i]) chips.push({ pos: i, n: stock[f][i] });
-  return <span class="stock-line">{chips.map((c) => <span class={`sl st-${stageAt(f, c.pos)}`}><Fruit id={f} size={18} stage={stageAt(f, c.pos)} />×{c.n}</span>)}</span>;
 }
 
 // ---------- pricing ----------

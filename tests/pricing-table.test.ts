@@ -24,13 +24,14 @@ function pricingState(): GameState {
 }
 
 describe('pricing: round the market table (DEC-070)', () => {
-  it('shows every stall, rivals first and you last, with each crate and the shelf freshness', () => {
+  it('shows every stall, rivals first and you last, with each crate and the freshness of the pieces in it (rules 12)', () => {
     const t = pricingTable(pricingState(), 0);
     expect(t.seats.map((x) => [x.player, x.me])).toEqual([[1, false], [2, false], [0, true]]);
     const top = FRUIT.apple.ripe.length - 1, mtop = FRUIT.mango.ripe.length - 1;
     expect(t.seats[1].fruits).toEqual([
-      { f: 'apple', out: 1, dots: [stageAt('apple', top), stageAt('apple', top), stageAt('apple', top - 1)] },
-      { f: 'mango', out: 2, dots: [stageAt('mango', mtop), stageAt('mango', mtop), stageAt('mango', mtop)] },
+      // A crate given only as counts holds the oldest pieces: Kiki's 1 apple is the okay one, 2 of her 3 mangoes.
+      { f: 'apple', out: 1, dots: [stageAt('apple', top - 1)] },
+      { f: 'mango', out: 2, dots: [stageAt('mango', mtop), stageAt('mango', mtop)] },
     ]);
     expect(t.onSale).toBe(8);
     expect(t.seats.map((x) => x.sealed)).toEqual([false, true, false]);

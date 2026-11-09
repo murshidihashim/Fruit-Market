@@ -101,16 +101,19 @@ describe("the planner's model of the rush follows the tie order", () => {
     })).toEqual([0, 3]);
   });
 
-  it('hands over pieces from the whole shelf, up to the crate, like the rush', () => {
-    // A Premium customer takes only fresh fruit: a crate of 2 from a shelf of 2 tired and 2 fresh still sells 2.
+  it('sells only the pieces in the crate, like the rush (rules 12)', () => {
+    // A Premium customer takes only fresh fruit. From a shelf of 2 tired and 2 fresh apples, a crate of the 2 oldest
+    // (a computer's crate) sells nothing; a crate of the 2 fresh ones sells both. The planner agrees with the rush.
     const s = market([buyer(900, 'Tester', 3, 8, 'premium')]);
     s.players[0].stock.apple[0] = 2;
     s.players[0].stock.apple[fresh('apple')] = 2;
-    let bid = openStall(s, 0, { apple: 2 });
-    bid = openStall(bid, 1, {});
-    expect(simulateSales(bid, 'apple', seller(bid, 0, 'apple', 6, 2), [])).toBe(2);
-    const r = submitPrices(bid, 0, [{ fruit: 'apple', price: 6 }]);
-    expect(r.results!.lines[0].offers[0].sold).toBe(2);
+    for (const [crate, want] of [[undefined, 0], [{ apple: [0, 0, 0, 0, 0, 0, 2] }, 2]] as const) {
+      let bid = openStall(s, 0, { apple: 2 }, crate ? { apple: [...crate.apple] } : undefined);
+      bid = openStall(bid, 1, {});
+      expect(simulateSales(bid, 'apple', seller(bid, 0, 'apple', 6, 2), [])).toBe(want);
+      const r = submitPrices(bid, 0, [{ fruit: 'apple', price: 6 }]);
+      expect(r.results!.lines[0].offers[0].sold).toBe(want);
+    }
   });
 });
 

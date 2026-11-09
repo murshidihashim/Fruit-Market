@@ -31,7 +31,7 @@ export function dailyConfig(date: string, name: string, avatar = DAILY_AVATAR): 
       { ...RIVALS[2], kind: 'ai', level: 'normal' },
     ],
     days: 10, unripe: true, upgrades: true, events: true,
-    seed: seedFromString(`fruit-market-daily-r11-${date}`), daily: date,
+    seed: seedFromString(`fruit-market-daily-r12-${date}`), daily: date,
     ...dailyTwist(date).patch,
   };
 }

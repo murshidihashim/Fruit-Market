@@ -2,7 +2,12 @@
 
 Updated 2026-11-08 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-09): 1.12.1 live (compact rules + seat tiles)
+## Latest (2026-11-09): 1.13.0, crates of chosen fruit (rules 12) and the new pricing
+- **Built (PLAN-059, PLAN-060; DEC-076, DEC-077; REP-091):** fill your crate from a shelf drawn like the market (only crate fruit sells, rules version 12); pricing from the crates with a demand board and "The Bell" pop-up; crate drop, lid and board animations.
+- **Checks:** `npm run verify` PASS (404 tests); balance as rules 11 (shopkeepers within about 6 points). Browser tests: see releases.json once published.
+- **Next:** owner plays 1.13.0; art for Pak Din, Farah, 7 events and 2 guests still missing.
+
+## Earlier (2026-11-09): 1.12.1 live (compact rules + seat tiles)
 - **1.12.1** (commit `4b8f754`, tag `v1.12.1`, Deploy LIVE game run 28, live smoke test PASS): rival stalls on the New game screen are seat tiles (option C, DEC-075, PLAN-058). No rules change.
 - **Built on branch `ccr-ff85604f-thv5m2`, not on main:** PLAN-057 / DEC-074, the owner's Compact Rules build spec (rules version 11): 2-6 stalls, halved orders and limits, 20 unique lorries, 20 events, Pak Din and Farah, halved upgrade costs. Report REP-090.
 - **Checks:** `npm run verify` PASS; browser tests PASS (solo, performance budget, online 0 leaks, quick match, 6-stall room, reconnect). Balance: cash and pieces sold match the spec; shopkeeper target (within 4 points) FAIL for Big Basket, Nest Egg (both about +6), Haggler (about −5.5) and Shade Cloth at 4 stalls (−5.8). Fruit profit and upgrade-ban tests NOT RUN.

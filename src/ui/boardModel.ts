@@ -2,8 +2,8 @@
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import { FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt, type FruitId, type Stage, type Want } from '../engine/data';
 import {
-  bestCap, capFor, count, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, servingCustomers, walkInsToday,
-  type Customer, type GameState, type Player,
+  bestCap, capFor, count, crateStock, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, servingCustomers, walkInsToday,
+  type Customer, type GameState, type Stock,
 } from '../engine/game';
 import { hagglerWins } from '../engine/story';
 
@@ -119,8 +119,8 @@ export function buyersFor(s: GameState, f: FruitId): BuyerLine[] {
 }
 
 /** Does shop `pl` hold any piece of this fruit this customer would take (Premium: fresh only; Everyday: not tired)? */
-const takesAny = (pl: Player, f: FruitId, x: BuyerLine) =>
-  pl.stock[f].some((n, pos) => n > 0 && acceptsStage(x.c.pref, stageAt(f, pos)));
+const takesAny = (stock: Stock, f: FruitId, x: BuyerLine) =>
+  stock[f].some((n, pos) => n > 0 && acceptsStage(x.c.pref, stageAt(f, pos)));
 
 /**
  * Pieces of this fruit wanted today by customers who would buy at least one of yours at some price (your freshness
@@ -149,8 +149,10 @@ export interface BuyerCap { cap: number; label: string; title: string; aria: str
 export function buyerCap(s: GameState, p: number, f: FruitId, x: BuyerLine): BuyerCap {
   const pl = s.players[p];
   const who = lookOf(x.c.name).title;
-  const cap = bestCap(pl.stock, f, x.max, pl, x.c.pref);
-  if (!takesAny(pl, f, x) && x.c.pref && x.c.pref !== 'bargain') {
+  // Rules 12: once your crate is set, only its pieces can sell; before that, your whole shelf.
+  const stock = crateStock(s, p);
+  const cap = bestCap(stock, f, x.max, pl, x.c.pref);
+  if (!takesAny(stock, f, x) && x.c.pref && x.c.pref !== 'bargain') {
     const type = PREF_INFO[x.c.pref];
     return { cap, label: type.short.toLowerCase(), title: `${who} wants ${x.w.qty} but ${type.text.toLowerCase()}`, aria: `${who}: ${type.short.toLowerCase()}` };
   }
@@ -218,7 +220,8 @@ export interface PriceRead {
  */
 function sellable(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
   const pl = s.players[p];
-  const shelf = { ...pl.stock, [f]: [...pl.stock[f]] };
+  const own = crateStock(s, p);
+  const shelf = { ...own, [f]: [...own[f]] };
   let left = forSale(s, p, f);
   let mine = 0;
   for (const x of lines) {
@@ -238,7 +241,7 @@ function sellable(s: GameState, p: number, f: FruitId, price: number, lines: Buy
  */
 function firmOrders(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
   const pl = s.players[p];
-  const oldest = pl.stock[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
+  const oldest = crateStock(s, p)[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
   if (oldest < 0) return 0;
   return lines.filter((x) => capFor(pl, f, oldest, x.max) >= price && acceptsStage(x.c.pref, stageAt(f, oldest))).reduce((a, x) => a + x.w.qty, 0);
 }
@@ -255,7 +258,7 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
   const out = forSale(s, p, f);
   const lines = buyersFor(s, f);
   const canSell = sellable(s, p, f, price, lines);
-  const servable = lines.filter((x) => price <= bestCap(pl.stock, f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
+  const servable = lines.filter((x) => price <= bestCap(crateStock(s, p), f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
   const firm = firmOrders(s, p, f, price, lines);
   const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
   const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + forSale(s, i, f)), 0);

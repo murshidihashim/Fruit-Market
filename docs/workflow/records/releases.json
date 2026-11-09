@@ -292,6 +292,20 @@
       "date": "2026-11-09",
       "commit": "4b8f754",
       "tagged": true
+    },
+    {
+      "version": "1.13.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-059",
+        "PLAN-060"
+      ],
+      "notes": [
+        "Pick the exact fruit for your crate from your shelf: only crate fruit sells",
+        "New pricing: tap a fruit in your crate to price it, and see how many buyers would pay each price",
+        "\"The Bell\" pop-up explains pricing on Day 1; tap i to see it again",
+        "Rules version 12: update the app to play online or send daily scores; unfinished games from 1.12 can't be resumed"
+      ]
     }
   ]
 }

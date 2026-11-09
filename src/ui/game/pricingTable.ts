@@ -4,7 +4,7 @@
 // served today. A price is never read, so nothing here can show one before the bell (online, the server does not
 // even send them: server/room.ts redact()).
 import { FRUITS, stageAt, type FruitId, type Stage } from '../../engine/data';
-import { forSale, servingCustomers, type GameState } from '../../engine/game';
+import { crateStock, forSale, servingCustomers, type GameState } from '../../engine/game';
 
 export interface TableFruit { f: FruitId; out: number; dots: Stage[] }
 export interface TableSeat { player: number; me: boolean; sealed: boolean; fruits: TableFruit[] }
@@ -13,10 +13,11 @@ export interface PricingTable { seats: TableSeat[]; onSale: number; orders: numb
 /** At most this many freshness dots per fruit; more pieces show as a count only. */
 export const MAX_DOTS = 5;
 
-/** The freshness of the pieces of one fruit on a shelf, freshest first. */
+/** The freshness of the pieces of one fruit in a stall's crate, freshest first. */
 function dotsFor(s: GameState, p: number, f: FruitId): Stage[] {
   const out: Stage[] = [];
-  const track = s.players[p].stock[f];
+  // Rules 12: the pieces in its crate (public once every stall has opened).
+  const track = crateStock(s, p)[f];
   for (let pos = track.length - 1; pos >= 0; pos--) for (let k = 0; k < track[pos]; k++) out.push(stageAt(f, pos));
   return out.slice(0, MAX_DOTS);
 }

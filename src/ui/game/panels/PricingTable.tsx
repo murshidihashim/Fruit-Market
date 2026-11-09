@@ -23,6 +23,8 @@ function Crate({ s, seat, mine }: { s: GameState; seat: TableSeat; mine?: MyCrat
   return (
     <div class={`crate ${seat.me ? 'me' : ''} ${seat.sealed && !seat.me ? 'sealed' : ''}`} role="group" aria-label={label}>
       <span class="crate-plate">{name}{!seat.me && seat.sealed && <i class="seal crate-seal" aria-hidden="true" />}</span>
+      {/* the lid lifts off a rival's crate as pricing starts: everyone sees every crate at once */}
+      {!seat.me && <i class="crate-lid" aria-hidden="true" />}
       <span class="crate-fruits">
         {seat.fruits.length ? seat.fruits.map((x) => {
           const top = x.dots[0];

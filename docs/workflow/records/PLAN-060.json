@@ -1,0 +1,67 @@
+{
+  "release": "1.13.0",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [
+    "REP-091"
+  ],
+  "decisions": [
+    "DEC-077"
+  ],
+  "changes": {
+    "added": [
+      "Fill your crate: your shelf drawn like the Wholesale Market with − and + on every space; pieces fly into your crate",
+      "Crates drop onto the table, rivals' lids lift as pricing starts, the demand board drops in"
+    ],
+    "changed": [
+      "Rules version 12: you choose exactly which pieces go in your crate, and only those can sell (oldest of them first); computer players fill theirs with their oldest pieces",
+      "Rule book, How to play, tutorial and print kit wording for the crate"
+    ],
+    "fixed": [],
+    "removed": [
+      "Choosing only how many of each fruit to put out"
+    ]
+  },
+  "playerNotes": [
+    "Pick the exact fruit for your crate from your shelf: only crate fruit sells"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go with design 2, now animate the whole process ... / include the pricing as well in the prototype / ok approve and push it live",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-060",
+  "title": "Choose your crate's fruit (rules 12) and the animated open-and-price sequence",
+  "problem": "Owner: \"let players have the option of selecting which stock to open (as it is, players can only select the number)\", with the shelf drawn like the Wholesale Market tracker, and the whole sequence animated.",
+  "scope": [
+    "Engine: Crate, oldestCrate, validateCrate, openStall with a crate, sales only from the crate",
+    "Computer players read crates",
+    "Online room accepts and hides crates",
+    "Fill your crate screen (design 2) and animations",
+    "RULES.md, How to play, tutorial, print kit",
+    "RULES_VERSION 12, new daily seeds"
+  ],
+  "exclusions": [
+    "A separate bell-ring animation at the reveal (the existing bell banner and rush pop-up stay)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-09: 404 unit tests incl. tests/rules12.test.ts, build"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests incl. online 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "running"
+    },
+    {
+      "id": "T3",
+      "text": "Balance check (Hard computers, 400 games at 3 and at 4 stalls)",
+      "result": "PASS",
+      "evidence": "Cash $107 / $105 and about 30 pieces per stall, as rules 11; shopkeepers within about 6 points of fair (Sharp Ears +6.0 at 3 stalls, Big Basket +5.0 at 4)"
+    }
+  ]
+}

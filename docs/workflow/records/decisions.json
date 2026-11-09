@@ -1895,6 +1895,31 @@
       "plan": "PLAN-059",
       "reports": [],
       "reviewTrigger": "After the owner plays it on the preview"
+    },
+    {
+      "id": "DEC-077",
+      "title": "Crates of chosen fruit (rules version 12)",
+      "question": "Should players choose which pieces to sell, not only how many?",
+      "choice": "Yes. Each stall fills its crate with exact pieces from its shelf (design 2: the shelf drawn like the Wholesale Market, − and + on every space). Only crate pieces can sell, oldest of them first and only if fresh enough for the price. Computer players fill their crates with their oldest pieces. RULES_VERSION 11 to 12. Published with the pricing redesign (DEC-076) as 1.13.0.",
+      "rationale": "Owner chose design 2 and the animated prototype, then: \"ok approve and push it live\".",
+      "impact": {
+        "player": "A new stocking screen and a rule change about which fruit sells.",
+        "technical": "src/engine/game.ts crates, ai.ts, story.ts, boardModel.ts, panel.tsx, PricingTable, server/room.ts, RULES.md, print kit.",
+        "data": "Unfinished rules 11 games cannot be resumed; the daily board key becomes r12 with new seeds; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "ok approve and push it live",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-060",
+      "reports": [
+        "REP-091"
+      ],
+      "reviewTrigger": "If players keep tired fruit back and hurt themselves, or a shopkeeper drifts more than 4 points from fair in playtests"
     }
   ],
   "history": [
@@ -2581,6 +2606,10 @@
     {
       "at": "2026-11-09 22:49",
       "text": "Pricing from the crates, demand board and The Bell pop-up built (DEC-076, PLAN-059) and merged to main for the preview; not published live."
+    },
+    {
+      "at": "2026-11-09 23:38",
+      "text": "Owner approved crates of chosen fruit and publication: \"ok approve and push it live\" (DEC-077, PLAN-060, rules version 12). Release 1.13.0 prepared with the pricing redesign (PLAN-059)."
     }
   ]
 }

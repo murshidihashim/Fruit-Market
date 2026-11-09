@@ -461,7 +461,7 @@ function playerAid(): Page {
   const beats = [
     beat('1', 'Morning', 'Apply today’s <b>event</b>. The lorry unloads today’s card at the freshest spot (green fruit at the unripe spot, the Seconds Lorry at Okay), every day. Draw tomorrow’s card and event.'),
     beat('2', 'Buying', `The <b>poorest stall buys first, then the others go clockwise</b> (ties: first clockwise from the token; Day 1 starts at the token; Priority jumps the queue). Buy up to <b>${BASE_BUY}</b> pieces (${BARROW_BUY} with a Handcart), paying the cost for each fruit’s freshness. Your shelf holds ${BASE_SHELF} (${BARROW_SHELF} with a Handcart).`),
-    beat('3', 'Stocking', 'Today’s customers arrive: waiting customers, the regular and the walk-ins, who turn face up now. Secretly set how many of each ripe fruit go in your <b>for-sale crate</b>, then show all crates at once.'),
+    beat('3', 'Stocking', 'Customers arrive: waiting, the regular, then the walk-ins (face up now). Secretly move the fruit you will sell into your <b>crate</b>; then show all crates. Only crate fruit sells.'),
     beat('4', 'The bell', 'Secretly set <b>one price per fruit</b> you put out, then everyone reveals together. No lower limit.'),
     beat('5', 'The rush', 'Waiting customers first, then new ones. Each fruit goes to the <b>cheapest stall</b> with fruit fresh enough for its price; leftover demand spills to the next stall. Serve a customer’s whole remaining order by yourself and <b>draw a favour card</b> (one a day at most).'),
     beat('+', 'Evening & night', `Play evening favours (Priority, Gossip). On the evening after each Market Day (days ${list(MARKET_DAYS)}) build <b>one</b> stall upgrade. At night all fruit ages one step; spoiled fruit is thrown away.`, 'night'),
