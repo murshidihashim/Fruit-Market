@@ -44,6 +44,9 @@ function roomFromUrl(): string | undefined {
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵']; // emoji-ok: avatar keys, never shown
 
 interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
+/** Rival stalls on the set-up screen: up to 5, so 6 stalls with you (rules 11). */
+const MAX_RIVALS = 5;
+const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
 
 // The market opening plays once, when the game is first opened. Automated browser tests skip it.
 export function App() {
@@ -224,6 +227,16 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
   const [pulseRule, setPulseRule] = useState(false);
 
   const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
+  // Seat tiles (option C, PLAN-058): one tile per rival stall; tapping a tile opens its editor underneath.
+  const [open, setOpen] = useState<number | null>(null);
+  const addSeat = () => { if (rivals < MAX_RIVALS) { setOpen(rivals); setRivals(rivals + 1); } };
+  const removeSeat = (i: number) => {
+    if (rivals <= 1) return;
+    setSeats((ss) => [...ss.slice(0, i), ...ss.slice(i + 1), { kind: 'ai', level: 'normal', name: '' } as Seat]
+      .map((x, k) => (!x.name || /^Player \d+$/.test(x.name) ? { ...x, name: `Player ${k + 2}` } : x)));
+    setRivals(rivals - 1);
+    setOpen(null);
+  };
 
   // Character cards: you and each friend pick a different character; a friend who has not picked gets the first free one.
   const humanSeats = seats.slice(0, rivals).map((st, i) => ({ st, i })).filter(({ st }) => st.kind === 'human');
@@ -267,26 +280,38 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
         </section>
         <section class="panel">
           <h3>Rival stalls</h3>
-          <p class="small muted">Up to 6 stalls. Pick Friend to pass this phone around.</p>
-          <div class="seg">{[1, 2, 3, 4, 5].map((n) => <button class={rivals === n ? 'on' : ''} onClick={() => setRivals(n)}>{n}</button>)}</div>
-          {seats.slice(0, rivals).map((st, i) => (
-            <div class="seat">
-              <div class="seg small">
-                <button class={st.kind === 'ai' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'ai' })}>Computer</button>
-                <button class={st.kind === 'human' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'human' })}>Friend</button>
-              </div>
-              {st.kind === 'ai' ? (
+          <p class="small muted">Up to 6 stalls. Tap a stall to change it, or pick Friend to pass this phone around.</p>
+          <div class="seat-tiles">
+            {seats.slice(0, rivals).map((st, i) => (
+              <button type="button" class={`seat-tile ${st.kind === 'human' ? 'friend' : `lv-${st.level}`} ${open === i ? 'on' : ''}`} aria-expanded={open === i}
+                aria-label={`Stall ${i + 2}: ${st.kind === 'human' ? `friend, ${seatName(i)}` : `computer, ${LEVEL_WORD[st.level]}`}. Change`} onClick={() => setOpen(open === i ? null : i)}>
+                <span class="st-n">Stall {i + 2}</span>
+                <b class="st-k">{st.kind === 'human' ? seatName(i) : LEVEL_WORD[st.level]}</b>
+                <span class="st-l">{st.kind === 'human' ? 'Friend' : 'Computer'}</span>
+              </button>
+            ))}
+            {rivals < MAX_RIVALS && <button type="button" class="seat-tile add" onClick={addSeat}><b class="st-k">+ Add</b></button>}
+          </div>
+          {open !== null && open < rivals && (() => {
+            const i = open;
+            const st = seats[i];
+            return (
+              <div class="seat-sheet">
+                <div class="seat-sheet-head"><b>Stall {i + 2}</b><button type="button" class="seat-done" onClick={() => setOpen(null)}>Done</button></div>
                 <div class="seg small">
-                  {(['easy', 'normal', 'hard'] as Level[]).map((l) => <button class={st.level === l ? 'on' : ''} onClick={() => setSeat(i, { level: l })}>{l[0].toUpperCase() + l.slice(1)}</button>)}
+                  {(['easy', 'normal', 'hard'] as Level[]).map((l) => <button class={st.kind === 'ai' && st.level === l ? 'on' : ''} onClick={() => setSeat(i, { kind: 'ai', level: l })}>{LEVEL_WORD[l]}</button>)}
+                  <button class={st.kind === 'human' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'human' })}>Friend</button>
                 </div>
-              ) : (
-                <>
-                  <input class="input" aria-label={`Name for stall ${i + 1}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
-                  <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
-                </>
-              )}
-            </div>
-          ))}
+                {st.kind === 'human' && (
+                  <>
+                    <input class="input" aria-label={`Name for stall ${i + 2}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
+                    <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
+                  </>
+                )}
+                {rivals > 1 && <button type="button" class="seat-remove" onClick={() => removeSeat(i)}>Remove stall {i + 2}</button>}
+              </div>
+            );
+          })()}
           <p class="small shop-total">{shopTotal(seats.slice(0, rivals))}</p>
           {seats.slice(0, rivals).some((s) => s.kind === 'human') && <p class="small muted">Friends share this phone and take turns. Secret prices are hidden between turns.</p>}
         </section>

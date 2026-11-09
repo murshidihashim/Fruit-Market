@@ -415,6 +415,27 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .seat-row.ai { opacity: 0.7; }
 .room-full { margin: 8px 0 0; text-align: center; color: var(--gold); font-weight: 600; }
 .shop-total { margin: 8px 0 0; font-weight: 600; }
+/* Rival stalls as seat tiles (PLAN-058): three to a row; the open tile's editor sits under the grid. */
+.seat-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 6px 0; }
+.seat-tile { min-height: 64px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 6px 4px;
+  border: 2px solid var(--x-ink); border-radius: 10px; background: var(--x-paper); color: var(--x-ink); font: inherit; cursor: pointer; }
+.seat-tile .st-n { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.seat-tile .st-k { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.86rem; font-weight: 800; }
+.seat-tile .st-l { font-size: 0.76rem; font-weight: 600; }
+.seat-tile .st-l { color: var(--muted); }
+.seat-tile.lv-easy .st-k { color: var(--x-green); }
+.seat-tile.lv-hard .st-k { color: var(--x-red-d); }
+.seat-tile.friend { background: var(--surface-2); }
+.seat-tile.on { box-shadow: 0 0 0 3px var(--x-mustard); }
+.seat-tile.add { border-style: dashed; color: var(--muted); background: transparent; }
+.seat-tile:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
+.seat-sheet { min-width: 0; box-sizing: border-box; display: grid; gap: 6px; margin: 4px 0 6px; padding: 8px 10px; border: 2px solid var(--x-ink); border-radius: 12px; background: var(--surface-2); }
+.seat-sheet-head { display: flex; align-items: center; justify-content: space-between; }
+.seat-done, .seat-remove { padding: 4px 10px; border: 0; border-radius: 999px; background: transparent; color: var(--x-ink); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.seat-remove { justify-self: start; color: var(--x-red-d); }
+.seat-sheet .seg { margin: 0; gap: 4px; }
+.seat-sheet .seg button { min-width: 0; padding: 6px 2px; font-size: 0.74rem; letter-spacing: 0; }
+.seat-sheet .x-pick, .seat-sheet > * { min-width: 0; }
 .seat-name { flex: 1; font-family: var(--f-pixel); font-weight: 600; }
 .seat-edit { width: 9.5em; max-width: 60%; padding: 4px 8px; border: 0; border-radius: 8px; background: var(--x-paper); color: var(--x-ink); font: inherit; }
 .seat-rename { margin-left: 8px; padding: 2px 8px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: 0.72rem; text-decoration: underline; cursor: pointer; }

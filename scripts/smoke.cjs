@@ -1,6 +1,13 @@
 // Plays a full game in a phone-sized headless browser and saves screenshots.
 // Usage: node scripts/smoke.cjs <dist-single/index.html> <outdir> [rivals=3]
 const { chromium } = require('playwright');
+
+/** Sets the number of rival stalls on the set-up screen's seat tiles (PLAN-058): + Add, or open the last tile and remove it. */
+async function setRivals(page, n) {
+  const tiles = page.locator('.seat-tile:not(.add)');
+  while (await tiles.count() < Number(n)) await page.click('.seat-tile.add');
+  while (await tiles.count() > Number(n)) { await tiles.last().click(); await page.click('.seat-remove'); }
+}
 const path = require('path');
 (async () => {
   const [file, out, rivals = '3'] = process.argv.slice(2);
@@ -13,7 +20,7 @@ const path = require('path');
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
   await page.click('text=New game');
-  await page.locator('.seg').nth(0).locator('button', { hasText: rivals }).click();
+  await setRivals(page, rivals);
   await page.click('text=Start game');
   await page.waitForTimeout(250);
   await shot('01-delivery-anim');

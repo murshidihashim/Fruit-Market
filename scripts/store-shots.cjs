@@ -1,6 +1,13 @@
 // Regenerates the Play Store screenshots (1080x1920) from the single-file build.
 // Usage: npm run build:single && node scripts/store-shots.cjs dist-single/index.html store/screenshots
 const { chromium } = require('playwright');
+
+/** Sets the number of rival stalls on the set-up screen's seat tiles (PLAN-058): + Add, or open the last tile and remove it. */
+async function setRivals(page, n) {
+  const tiles = page.locator('.seat-tile:not(.add)');
+  while (await tiles.count() < Number(n)) await page.click('.seat-tile.add');
+  while (await tiles.count() > Number(n)) { await tiles.last().click(); await page.click('.seat-remove'); }
+}
 const path = require('path');
 
 (async () => {
@@ -20,7 +27,7 @@ const path = require('path');
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
   await p.click('text=New game');
-  await p.locator('.seg').nth(0).locator('button', { hasText: '2' }).click();
+  await setRivals(p, 2);
   await p.click('text=Start game');
   await p.waitForSelector('.trait-card');
   await p.waitForTimeout(1500);

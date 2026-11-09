@@ -1849,6 +1849,29 @@
         "REP-090"
       ],
       "reviewTrigger": "After the owner plays the preview, or if a shopkeeper wins more than 4 points from fair in playtests"
+    },
+    {
+      "id": "DEC-075",
+      "title": "Rival stalls as seat tiles (option C)",
+      "question": "Which of the four set-up layouts for rival stalls?",
+      "choice": "Option C: one small tile per rival stall, three to a row, with + Add; tapping a tile opens Easy / Normal / Hard / Friend and Remove underneath.",
+      "rationale": "Owner: \"go with c, then publish live\" after the four mockups.",
+      "impact": {
+        "player": "A shorter New game screen.",
+        "technical": "Setup in src/ui/App.tsx, styles.css, smoke and store-shot scripts.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "go with c, then publish live",
+        "date": "2026-11-09"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-058",
+      "reports": [],
+      "reviewTrigger": "If players miss the old one-tap level buttons"
     }
   ],
   "history": [
@@ -2523,6 +2546,10 @@
     {
       "at": "2026-11-09 12:27",
       "text": "Release 1.12.0 published (rules version 11, compact rules): main 6bc9552, Deploy LIVE game run 27 success (verify, release check, deploy, live smoke test), tag v1.12.0."
+    },
+    {
+      "at": "2026-11-09 12:44",
+      "text": "Owner chose option C for the Rival stalls panel (DEC-075, PLAN-058) and asked to publish live. Release 1.12.1 prepared (no rules change)."
     }
   ]
 }

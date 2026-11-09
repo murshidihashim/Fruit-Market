@@ -1,0 +1,56 @@
+{
+  "release": "1.12.1",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [
+    "DEC-075"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "New game screen: rival stalls are small seat tiles; tap one to change its level, make it a friend or remove it; + Add for another stall"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Tidier New game screen: tap a rival stall's tile to change it, or + Add for another"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go with c, then publish live",
+    "date": "2026-11-09"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-058",
+  "title": "Rival stalls as seat tiles on the New game screen",
+  "problem": "Owner: \"i dont like this part cause it takes up a lot of space\". With 5 rivals the panel took about two phone screens.",
+  "scope": [
+    "Setup screen in src/ui/App.tsx and its styles",
+    "Browser test and store screenshot helpers"
+  ],
+  "exclusions": [
+    "Online lobby (unchanged)",
+    "Game rules (unchanged, rules version 11)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-09, before merge"
+    },
+    {
+      "id": "T2",
+      "text": "Solo playthrough and performance budget pass",
+      "result": "PASS",
+      "evidence": "2026-11-09: smoke.cjs results visible, 0 errors; BUDGET OK"
+    },
+    {
+      "id": "T3",
+      "text": "Panel fits a 360-pixel phone with 5 rivals and an open tile",
+      "result": "PASS",
+      "evidence": "Screenshots at 360x740: tiles in rows of three, editor inside the panel"
+    }
+  ]
+}
