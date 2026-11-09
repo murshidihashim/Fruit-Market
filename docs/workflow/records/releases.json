@@ -263,6 +263,19 @@
       "date": "2026-11-09",
       "commit": "f60fe78",
       "tagged": true
+    },
+    {
+      "version": "1.12.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-057"
+      ],
+      "notes": [
+        "New compact rules: play with up to 6 stalls, about one customer per stall each day",
+        "Meet two new shopkeepers, Pak Din (Shade Cloth) and Farah (Sharp Ears), and seven new event cards",
+        "Smaller orders, smaller shelves, $10 to start and cheaper upgrades; ties now go to fresher fruit before the Haggler",
+        "Rules version 11: update the app to play online or send daily scores; unfinished games from 1.11.0 can't be resumed"
+      ]
     }
   ]
 }

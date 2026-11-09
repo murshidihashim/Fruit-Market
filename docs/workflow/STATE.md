@@ -2,11 +2,11 @@
 
 Updated 2026-11-08 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-09): compact rules built, not released
+## Latest (2026-11-09): compact rules, release 1.12.0 being published
 - **Built on branch `ccr-ff85604f-thv5m2`, not on main:** PLAN-057 / DEC-074, the owner's Compact Rules build spec (rules version 11): 2-6 stalls, halved orders and limits, 20 unique lorries, 20 events, Pak Din and Farah, halved upgrade costs. Report REP-090.
 - **Checks:** `npm run verify` PASS; browser tests PASS (solo, performance budget, online 0 leaks, quick match, 6-stall room, reconnect). Balance: cash and pieces sold match the spec; shopkeeper target (within 4 points) FAIL for Big Basket, Nest Egg (both about +6), Haggler (about −5.5) and Shade Cloth at 4 stalls (−5.8). Fruit profit and upgrade-ban tests NOT RUN.
 - **Gaps:** no owner art for the 2 new shopkeepers, 7 events and 2 guests; achievement money thresholds unchanged.
-- **Next:** owner chooses: accept the shopkeeper balance for playtesting or ask for retunes (REP-090 §1); merge to `main` for the preview; prepare release 1.12.0 when happy.
+- **Owner's choice:** option A (playtest the balance as built), merge and publish live ("a and merge, then publish live"). Release 1.12.0 prepared on `main`; Deploy LIVE game run next.
 
 ## Earlier: 2026-11-08
 - **Live:** 1.11.0 (commit `f60fe78`, tag `v1.11.0`, published 2026-11-09, Deploy LIVE game run 26, smoke test PASS). Rules version 10 (poorest first, then clockwise; no balance run, owner's choice); computer-player version 2. Print kit still shows the rules 9 buying-order wording.
