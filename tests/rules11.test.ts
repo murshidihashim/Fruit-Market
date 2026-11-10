@@ -1,4 +1,7 @@
-// Rules 11, the compact rules (PLAN-057): every number here is copied from the owner's build spec
+// Rules 11, the compact rules (PLAN-057), brought up to rules 14 (PLAN-069): fruit lives of 3, 4, 5 and 6, the new
+// customer deck and lorry loads, a row of at most five customers, a shelf of 8 and five upgrades. The numbers below are
+// the rules 14 numbers; cases that rules 14 did not touch are as the owner's build spec had them.
+// Rules 11 text: every number here is copied from the owner's build spec
 // ("Fruit Market: Compact Rules", 9 November 2026), so the game data is checked against the spec, not against itself.
 import { describe, expect, it } from 'vitest';
 import {
@@ -20,8 +23,8 @@ const humans = (n: number, extra: Partial<GameConfig> = {}): GameConfig => ({
 });
 
 describe('rules 11: core numbers (spec section 1)', () => {
-  it('start cash $10, buy 4 (Handcart 5), shelf 6 (Handcart 8); rules version 11 or later (12: crate pieces)', () => {
-    expect([START_CASH, BASE_BUY, BARROW_BUY, BASE_SHELF, BARROW_SHELF]).toEqual([10, 4, 5, 6, 8]);
+  it('start cash $10, buy 4 (Handcart 5), shelf 8 (Handcart 10, rules 14); rules version 11 or later (12: crate pieces)', () => {
+    expect([START_CASH, BASE_BUY, BARROW_BUY, BASE_SHELF, BARROW_SHELF]).toEqual([10, 4, 5, 8, 10]);
     expect(RULES_VERSION).toBeGreaterThanOrEqual(11);
   });
 
@@ -35,42 +38,42 @@ describe('rules 11: core numbers (spec section 1)', () => {
 describe('rules 11: customer deck (spec section 2)', () => {
   // [title, freshness type, blueberry, watermelon, apple, mango] as "qty at $price", in card order.
   const SPEC: [string, string, string, string, string, string][] = [
-    ['Cowboy Jack', 'everyday', '', '1@6', '2@8', ''],
-    ['Bobby Books', 'everyday', '2@6', '', '', '1@8'],
-    ['Dr Bubbles', 'everyday', '1@5', '', '2@7', '1@11'],
-    ['Rara Jenab', 'premium', '1@6', '', '', '2@10'],
-    ['Zara Zapp', 'everyday', '', '2@8', '', ''],
-    ['Ravi Rocket', 'premium', '', '', '1@6', '1@12'],
-    ['Coral Mei', 'bargain', '2@5', '1@7', '', ''],
-    ['Postman Pip', 'bargain', '', '', '2@6', ''],
-    ['Madam Siti', 'everyday', '', '2@7', '', '1@11'],
-    ['Magic Kumar', 'bargain', '1@4', '1@9', '', ''],
-    ['Rockstar Grace', 'bargain', '', '', '1@8', '1@9'],
-    ['Professor Pebble', 'bargain', '3@5', '', '', ''],
-    ['Inspector Wei', 'bargain', '', '1@8', '1@5', '1@10'],
-    ['Miss Marigold', 'everyday', '', '2@7', '', ''],
-    ['Dr Priya', 'everyday', '1@7', '', '2@7', ''],
-    ['Captain Ahmad', 'premium', '', '', '', '3@9'],
-    ['Lola Lens', 'everyday', '1@7', '', '', '1@10'],
-    ['Grandpa Tan', 'everyday', '', '1@8', '1@7', ''],
-    ['Miss Cha-Cha', 'premium', '', '', '1@9', '2@10'],
-    ['Sleepy Zul', 'everyday', '2@6', '1@6', '', ''],
-    ['Anna the Artist', 'premium', '', '', '', '2@11'],
-    ['Otto Oddjob', 'everyday', '1@6', '', '1@6', '1@12'],
-    ['Mina Moss', 'everyday', '', '2@7', '', ''],
-    ['Firefighter Osman', 'everyday', '', '1@9', '2@6', ''],
-    ['Marina Wen', 'everyday', '', '', '1@7', '1@10'],
-    ['DJ Rizal', 'everyday', '2@5', '1@7', '', ''],
-    ['Devi Bloom', 'premium', '', '', '', '2@10'],
-    ['Marcus Hook', 'everyday', '1@6', '', '2@6', '1@11'],
-    ['Professor Fatimah', 'everyday', '1@5', '1@8', '', ''],
-    ['Benny Bell', 'everyday', '', '2@7', '', ''],
-    ['Akira Swift', 'everyday', '', '1@7', '1@7', '1@9'],
-    ['Hadi Hammer', 'everyday', '2@6', '', '', ''],
-    ['Baker Lakshmi', 'everyday', '', '1@8', '1@8', ''],
-    ['Kenji Kaze', 'everyday', '1@5', '1@9', '', '1@11'],
-    ['Herbalist Mira', 'everyday', '', '', '1@6', '2@10'],
-    ['Uncle Hock Seng', 'everyday', '', '1@9', '2@6', ''],
+    ['Cowboy Jack', 'everyday', '', '2@6', '2@5', ''],
+    ['Bobby Books', 'everyday', '3@5', '', '', '1@11'],
+    ['Dr Bubbles', 'everyday', '', '', '2@7', '1@12'],
+    ['Rara Jenab', 'premium', '1@6', '', '', '2@12'],
+    ['Zara Zapp', 'everyday', '', '3@7', '', ''],
+    ['Ravi Rocket', 'premium', '', '', '1@8', '2@13'],
+    ['Coral Mei', 'bargain', '2@3', '2@5', '', ''],
+    ['Postman Pip', 'bargain', '', '', '3@5', ''],
+    ['Madam Siti', 'everyday', '', '2@6', '', '1@10'],
+    ['Magic Kumar', 'bargain', '2@3', '2@5', '', ''],
+    ['Rockstar Grace', 'bargain', '', '', '2@5', '1@10'],
+    ['Professor Pebble', 'bargain', '3@3', '', '', ''],
+    ['Inspector Wei', 'bargain', '', '1@6', '2@5', ''],
+    ['Miss Marigold', 'everyday', '', '3@7', '', ''],
+    ['Dr Priya', 'everyday', '2@6', '', '2@7', ''],
+    ['Captain Ahmad', 'premium', '', '', '', '3@12'],
+    ['Lola Lens', 'everyday', '1@5', '', '', '2@11'],
+    ['Grandpa Tan', 'everyday', '', '1@6', '2@5', ''],
+    ['Miss Cha-Cha', 'premium', '', '', '1@8', '2@13'],
+    ['Sleepy Zul', 'everyday', '2@5', '2@7', '', ''],
+    ['Anna the Artist', 'premium', '', '', '', '3@12'],
+    ['Otto Oddjob', 'everyday', '2@6', '', '2@7', ''],
+    ['Mina Moss', 'everyday', '', '3@7', '', ''],
+    ['Firefighter Osman', 'everyday', '', '2@6', '2@5', ''],
+    ['Marina Wen', 'everyday', '', '', '1@6', '2@11'],
+    ['DJ Rizal', 'everyday', '3@6', '1@8', '', ''],
+    ['Devi Bloom', 'premium', '', '', '', '3@13'],
+    ['Marcus Hook', 'everyday', '1@5', '', '3@6', ''],
+    ['Professor Fatimah', 'everyday', '2@4', '2@6', '', ''],
+    ['Benny Bell', 'everyday', '', '3@7', '', ''],
+    ['Akira Swift', 'everyday', '', '', '1@7', '2@12'],
+    ['Hadi Hammer', 'everyday', '3@5', '', '', ''],
+    ['Baker Lakshmi', 'everyday', '', '1@6', '3@5', ''],
+    ['Kenji Kaze', 'everyday', '2@5', '', '', '2@11'],
+    ['Herbalist Mira', 'everyday', '', '', '1@7', '2@12'],
+    ['Uncle Hock Seng', 'everyday', '', '1@7', '3@6', ''],
   ];
 
   it('matches the spec card by card', () => {
@@ -82,53 +85,54 @@ describe('rules 11: customer deck (spec section 2)', () => {
     });
   });
 
-  it('totals 22 / 23 / 24 / 25 pieces (94), an average order of 2.61', () => {
+  it('totals 29 / 31 / 33 / 29 pieces (122), an average order of 3.39, one or two fruits a card (rules 14)', () => {
     const per = F.map((f) => CUSTOMER_CARDS.reduce((a, c) => a + (c.wants.find((w) => w.fruit === f)?.qty ?? 0), 0));
-    expect(per).toEqual([22, 23, 24, 25]);
+    expect(per).toEqual([29, 31, 33, 29]);
     const sizes = CUSTOMER_CARDS.map((c) => c.wants.reduce((a, w) => a + w.qty, 0));
-    expect([2, 3, 4].map((n) => sizes.filter((x) => x === n).length)).toEqual([16, 18, 2]);
+    expect([2, 3, 4].map((n) => sizes.filter((x) => x === n).length)).toEqual([0, 22, 14]);
+    expect(Math.max(...CUSTOMER_CARDS.map((c) => c.wants.length))).toBe(2);
   });
 });
 
 describe('rules 11: customers per day (spec section 3)', () => {
   const ev = (id: string) => EVENT_CARDS.find((e) => e.id === id)!;
-  it('regular + walk-ins, Market Day / Festival, Tourist Bus and Monsoon follow the table', () => {
+  it('regular + walk-ins, Festival, Tourist Bus and Monsoon follow the table; never more than 4 walk-ins, and a Market Day adds none (rules 14)', () => {
     // stalls: [walk-ins, market day extra, tourist bus extra, monsoon change]
-    const TABLE: Record<number, [number, number, number, number]> = { 2: [1, 1, 2, -1], 3: [2, 1, 2, -1], 4: [3, 2, 3, -2], 5: [4, 2, 4, -2], 6: [5, 2, 4, -2] };
+    const TABLE: Record<number, [number, number, number, number]> = { 2: [1, 1, 2, -1], 3: [2, 1, 2, -1], 4: [3, 2, 3, -2], 5: [4, 2, 4, -2], 6: [4, 2, 4, -2] };
     for (const [n, [base, md, bus, rain]] of Object.entries(TABLE).map(([k, v]) => [Number(k), v] as const)) {
       const s = newGame(humans(n));
       expect(walkInsOn(s, 2, null), `${n} stalls`).toBe(base);
-      expect(walkInsOn(s, 3, null), `${n} market day`).toBe(base + md);
-      expect(walkInsOn(s, 2, ev('festival')), `${n} festival`).toBe(base + md);
-      expect(walkInsOn(s, 2, ev('touristBus')), `${n} tourist bus`).toBe(base + bus);
+      expect(walkInsOn(s, 3, null), `${n} market day`).toBe(base);
+      expect(walkInsOn(s, 2, ev('festival')), `${n} festival`).toBe(Math.min(4, base + md));
+      expect(walkInsOn(s, 2, ev('touristBus')), `${n} tourist bus`).toBe(Math.min(4, base + bus));
       expect(walkInsOn(s, 2, ev('monsoon')), `${n} monsoon`).toBe(Math.max(0, base + rain));
     }
-    expect(walkInsOn(newGame(humans(2)), 3, ev('monsoon'))).toBe(1); // Market Day +1 and Monsoon -1
+    expect(walkInsOn(newGame(humans(2)), 3, ev('monsoon'))).toBe(0); // a Market Day adds nobody; the Monsoon takes one away
   });
 });
 
 describe('rules 11: lorry deck (spec section 4)', () => {
   const SPEC: [string, string[]][] = [
-    ['Blueberry Bonanza', ['4/1/1/1', '7/2/2/1', '9/3/2/1', '11/3/3/2', '13/4/3/2']],
-    ['Watermelon Wagon', ['1/4/1/1', '2/7/2/2', '3/9/2/2', '3/11/3/3', '4/13/3/3']],
-    ['Orchard Run', ['2/1/4/1', '2/2/6/1', '3/3/8/1', '4/3/10/2', '5/4/12/2']],
-    ['Highland Apples', ['1/1/5/0', '1/1/7/0', '1/1/10/0', '2/2/12/0', '2/2/14/0']],
-    ['Mango Rush', ['2/2/1/5', '2/3/1/7', '3/3/1/10', '4/4/2/12', '5/5/2/14']],
-    ['Mango Growers', ['2/2/2/4', '3/3/3/6', '4/3/3/7', '5/4/4/9', '6/5/5/11']],
-    ['Mango Season', ['2/1/1/4', '3/2/2/7', '4/3/2/9', '6/3/3/11', '7/4/3/13']],
-    ['Summer Run', ['3/4/1/1', '5/6/1/1', '7/7/1/1', '9/9/1/2', '10/11/1/2']],
-    ['Tropical Pair', ['1/3/1/4', '1/5/1/6', '2/7/1/7', '2/8/2/9', '3/10/2/11']],
-    ['Breakfast Run', ['3/1/3/1', '5/2/5/1', '7/2/6/1', '9/3/8/2', '10/3/9/2']],
-    ['Premium Picks', ['1/1/3/4', '1/2/4/6', '2/2/6/7', '2/3/7/9', '3/3/8/11']],
-    ['Mixed Basket', ['2/2/2/2', '3/3/3/3', '4/4/4/4', '5/5/5/6', '6/6/6/7']],
-    ['Balanced Cart', ['3/2/2/2', '4/4/3/3', '5/5/3/4', '6/6/4/5', '8/7/5/6']],
-    ["Farmer's Choice", ['2/2/2/3', '3/4/3/4', '4/5/3/5', '5/6/4/6', '6/7/5/8']],
-    ['Kampung Truck', ['3/3/0/3', '4/4/0/4', '6/5/0/5', '7/7/0/6', '9/8/0/8']],
-    ['Quiet Delivery', ['1/1/1/1', '2/2/2/2', '3/3/2/2', '3/3/3/3', '4/4/3/3']],
-    ['Short Load', ['2/1/1/1', '2/2/1/1', '3/2/1/1', '4/3/2/2', '5/3/2/2']],
-    ['Convoy', ['3/3/3/3', '5/5/4/5', '6/6/6/7', '8/8/7/8', '9/9/8/10']],
-    ["Wholesaler's Overstock", ['3/3/3/1', '4/5/5/2', '5/7/7/3', '6/8/9/4', '8/10/10/4']],
-    ['Seconds Lorry', ['3/3/2/1', '4/4/3/2', '5/5/4/3', '6/7/5/4', '8/8/6/4']],
+    ["Blueberry Bonanza", ['4/1/1/1', '6/2/1/1', '8/3/2/1', '10/3/3/2', '13/4/3/2']],
+    ["Watermelon Wagon", ['1/4/1/1', '2/6/2/1', '3/8/2/2', '3/10/3/2', '4/13/3/3']],
+    ["Orchard Run", ['2/1/4/1', '2/2/5/1', '3/3/7/1', '4/3/9/2', '5/4/12/2']],
+    ["Highland Apples", ['1/1/5/0', '1/1/6/0', '1/1/9/0', '2/2/11/0', '2/2/14/0']],
+    ["Mango Rush", ['2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14']],
+    ["Mango Growers", ['2/2/2/4', '3/3/2/5', '4/3/3/6', '4/4/4/8', '6/5/5/11']],
+    ["Mango Season", ['2/1/1/4', '2/2/2/6', '4/3/2/8', '5/3/3/10', '7/4/3/13']],
+    ["Summer Run", ['3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/1/2', '10/11/1/2']],
+    ["Tropical Pair", ['1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11']],
+    ["Breakfast Run", ['3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2']],
+    ["Premium Picks", ['1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11']],
+    ["Mixed Basket", ['2/2/2/2', '3/3/2/2', '4/4/4/3', '5/5/4/5', '6/6/6/7']],
+    ["Balanced Cart", ['3/2/2/2', '3/3/3/3', '5/4/3/4', '5/5/4/5', '8/7/5/6']],
+    ["Farmer's Choice", ['2/2/2/3', '3/3/3/3', '4/5/3/4', '5/5/4/5', '6/7/5/8']],
+    ["Kampung Truck", ['3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8']],
+    ["Quiet Delivery", ['1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3']],
+    ["Short Load", ['2/1/1/1', '2/1/1/1', '3/2/1/1', '3/3/2/2', '5/3/2/2']],
+    ["Convoy", ['3/3/3/2', '5/4/4/4', '6/6/5/6', '8/7/7/7', '9/9/8/9']],
+    ["Wholesaler's Overstock", ['3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4']],
+    ["Seconds Lorry", ['3/3/2/1', '3/3/3/2', '5/4/4/3', '5/6/5/4', '8/8/6/4']],
   ];
 
   it('has the 20 unique cards with the printed yields for 2 to 6 stalls', () => {
@@ -137,14 +141,14 @@ describe('rules 11: lorry deck (spec section 4)', () => {
       const c = FARMER_CARDS.find((x) => x.name === name)!;
       [2, 3, 4, 5, 6].forEach((n, i) => expect(F.map((f) => printedSupply(c, f, n)).join('/'), `${name} at ${n}`).toBe(rows[i]));
     }
-    expect(FARMER_CARDS.filter((c) => c.unripe).map((c) => c.name)).toEqual(['Mango Growers', 'Mango Season']);
+    // Rules 14: every lorry brings its mangoes green.
+    expect(FARMER_CARDS.every((c) => c.unripe === 'mango')).toBe(true);
     expect(FARMER_CARDS.filter((c) => c.okay).map((c) => c.name)).toEqual(['Seconds Lorry']);
   });
 
-  it('averages about 8.3 / 12.7 / 16.1 / 20.6 / 24.4 pieces a day', () => {
+  it('averages about 8.3 / 10.9 / 15.1 / 18.9 / 24.3 pieces a day (rules 14)', () => {
     const avg = (n: number) => FARMER_CARDS.reduce((a, c) => a + F.reduce((b, f) => b + printedSupply(c, f, n), 0), 0) / FARMER_CARDS.length;
-    // The spec prints 8.35 and 16.15 rounded down.
-    [8.3, 12.7, 16.1, 20.6, 24.4].forEach((want, i) => expect(Math.abs(avg(i + 2) - want)).toBeLessThanOrEqual(0.05 + 1e-9));
+    [8.3, 10.85, 15.1, 18.85, 24.3].forEach((want, i) => expect(Math.abs(avg(i + 2) - want)).toBeLessThanOrEqual(0.05 + 1e-9));
   });
 
   it('the Seconds Lorry fills each fruit\'s freshest Okay space, at Okay prices', () => {
@@ -155,10 +159,12 @@ describe('rules 11: lorry deck (spec section 4)', () => {
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1, 2];
     for (const p of [0, 1, 2]) s = applyAction(s, p, { kind: 'endEvening' });
     const okayPos = (f: FruitId) => FRUIT[f].ripe.lastIndexOf('okay');
-    expect(F.map((f) => s.market[f][okayPos(f)])).toEqual([4, 4, 3, 2]);
-    expect(F.map((f) => s.market[f].reduce((a, b) => a + b, 0))).toEqual([4, 4, 3, 2]);
+    // Rules 14: its mangoes arrive green like every lorry's, at the top of the track.
+    expect(F.map((f) => s.market[f][okayPos(f)])).toEqual([3, 3, 3, 0]);
+    expect(F.map((f) => s.market[f].reduce((a, b) => a + b, 0))).toEqual([3, 3, 3, 2]);
+    expect(s.market.mango[s.market.mango.length - 1]).toBe(2);
     s.players[s.order[0]].trait = null;
-    expect(F.map((f) => buyCost(s, s.order[0], f, okayPos(f)))).toEqual([1, 2, 2, 2]); // Okay prices
+    expect(F.map((f) => buyCost(s, s.order[0], f, okayPos(f)))).toEqual([1, 2, 2, 3]); // Okay prices (rules 14: an okay mango costs $3)
     expect(F.map((f) => FRUIT[f].ripe[okayPos(f)])).toEqual(['okay', 'okay', 'okay', 'okay']);
   });
 });
@@ -225,15 +231,15 @@ describe('rules 11: events (spec section 5)', () => {
     s.event = ev('pasarMalam');
     s.firstMarket = []; s.secondMarket = [];
     s.players.forEach((p) => { p.stock = emptyStock(true); p.trait = null; });
-    s.players[0].stock.apple = [1, 0, 2, 0, 0, 0, 1]; // tired, okay x2, fresh
-    s.players[0].stock.mango[3] = 2;
-    s.players[1].stock.apple[6] = 3;
+    s.players[0].stock.apple = [1, 2, 0, 0, 0, 1]; // soft, okay x2, fresh
+    s.players[0].stock.mango[2] = 2;
+    s.players[1].stock.apple[5] = 3;
     const cash = s.players.map((p) => p.cash);
     s = openStall(s, 0, { apple: 4, mango: 1 });
     s = openStall(s, 1, {}); // nothing in the crate: the hawker buys nothing
     s = submitPrices(s, 0, [{ fruit: 'apple', price: 9 }, { fruit: 'mango', price: 9 }]);
     expect(s.results!.hawker).toEqual([{ player: 0, fruit: 'apple', price: 3 }, { player: 0, fruit: 'mango', price: 3 }]);
-    expect(s.players[0].stock.apple).toEqual([0, 0, 2, 0, 0, 0, 1]); // the tired one went
+    expect(s.players[0].stock.apple).toEqual([0, 2, 0, 0, 0, 1]); // the soft one went
     expect(s.players[0].cash - cash[0]).toBe(6);
     expect(s.players[1].cash).toBe(cash[1]);
   });
@@ -269,7 +275,7 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
   it('Charmer earns up to 2 favour cards a day; everyone else 1', () => {
     const three = [cust(1, [['apple', 1, 9]]), cust(2, [['apple', 1, 9]]), cust(3, [['apple', 1, 9]])];
     for (const [trait, want] of [['charmer', 2], [null, 1]] as const) {
-      const s = rush((g) => { g.players[0].trait = trait; g.players[0].stock.apple[6] = 3; }, structuredClone(three), [{ apple: 3 }, {}], [[5], []]);
+      const s = rush((g) => { g.players[0].trait = trait; g.players[0].stock.apple[5] = 3; }, structuredClone(three), [{ apple: 3 }, {}], [[5], []]);
       expect(s.results!.favours.filter((x) => x.player === 0), String(trait)).toHaveLength(want);
     }
   });
@@ -278,7 +284,7 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     for (const [n, tip] of [[3, 1], [4, 2]] as const) {
       const crowd = [cust(1, [['apple', 1, 9], ['mango', 1, 12]], true, [0]), cust(2, [['apple', 1, 9]], true, []), cust(3, [['apple', 1, 9]])];
       const crates = Array.from({ length: n }, (_, i) => (i === 0 ? { apple: 3, mango: 1 } : {}));
-      const s = rush((g) => { g.players[0].trait = 'earful'; g.players[0].stock.apple[6] = 3; g.players[0].stock.mango[3] = 1; }, crowd, crates, crates.map((_, i) => (i === 0 ? [5, 9] : [])));
+      const s = rush((g) => { g.players[0].trait = 'earful'; g.players[0].stock.apple[5] = 3; g.players[0].stock.mango[2] = 1; }, crowd, crates, crates.map((_, i) => (i === 0 ? [5, 9] : [])));
       expect(s.results!.earful).toEqual([{ player: 0, customer: 'C1', tip }]);
       expect(s.results!.income[0]).toBe(5 * 3 + 9 + tip);
     }
@@ -294,9 +300,9 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
 
   it('Haggler wins only ties of equally fresh fruit (after freshness, before the buying order)', () => {
     const one = () => [cust(1, [['apple', 2, 9]])];
-    const fresh = rush((g) => { g.players[1].trait = 'haggler'; g.players[0].stock.apple[6] = 2; g.players[1].stock.apple[6] = 2; }, one(), [{ apple: 2 }, { apple: 2 }], [[6], [6]]);
+    const fresh = rush((g) => { g.players[1].trait = 'haggler'; g.players[0].stock.apple[5] = 2; g.players[1].stock.apple[5] = 2; }, one(), [{ apple: 2 }, { apple: 2 }], [[6], [6]]);
     expect(fresh.results!.lines[0].offers.find((o) => o.sold)!.player).toBe(1);
-    const older = rush((g) => { g.players[1].trait = 'haggler'; g.players[0].stock.apple[6] = 2; g.players[1].stock.apple[5] = 2; }, one(), [{ apple: 2 }, { apple: 2 }], [[6], [6]]);
+    const older = rush((g) => { g.players[1].trait = 'haggler'; g.players[0].stock.apple[5] = 2; g.players[1].stock.apple[4] = 2; }, one(), [{ apple: 2 }, { apple: 2 }], [[6], [6]]);
     expect(older.results!.lines[0].offers.find((o) => o.sold)!.player).toBe(0);
     expect(older.results!.income[1]).toBe(0); // no first-sale dollar any more
   });
@@ -307,13 +313,13 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     s = structuredClone(s);
     s.day = 4; s.event = null; s.nextEvent = null;
     s.players[0].stock.blueberry = [2, 0, 1];
-    s.players[0].stock.apple[6] = 1;
+    s.players[0].stock.apple[5] = 1;
     expect(shadePick(s, 0)).toBe('blueberry');
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1];
     s = applyAction(s, 0, { kind: 'shade', fruit: 'apple' });
     s = applyAction(s, 0, { kind: 'endEvening' });
     s = applyAction(s, 1, { kind: 'endEvening' });
-    expect(s.players[0].stock.apple[6]).toBe(1); // shaded: still at its place
+    expect(s.players[0].stock.apple[5]).toBe(1); // shaded: still at its place
     expect(s.players[0].stock.blueberry).toEqual([0, 1, 0]); // aged
     expect(s.players[0].stats.spoiled).toBe(2);
     expect(() => applyAction(s, 1, { kind: 'shade', fruit: 'apple' })).toThrow();
@@ -323,18 +329,18 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     let s = newGame({ ...humans(2), players: [{ name: 'Din', kind: 'ai', level: 'hard', avatar: RIVALS[6].avatar }, ...humans(1).players] });
     s = structuredClone(s);
     s.day = 4;
-    s.players[0].stock.mango = [0, 0, 3, 0, 0, 0]; // fresh mangoes about to turn okay
-    s.players[0].stock.apple[6] = 1;
+    s.players[0].stock.mango = [0, 0, 3, 0, 0]; // fresh mangoes about to turn okay
+    s.players[0].stock.apple[5] = 1;
     expect(shadePick(s, 0)).toBe('mango');
   });
 });
 
 describe('rules 11: upgrades and favours (spec section 7)', () => {
-  it('costs halved: Juice Bar $2 (juices up to 2), Handcart $3, Premium Display $4 (rules 13 removed the Cold Room)', () => {
-    expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'premium']);
-    expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost]).toEqual([2, 3, 4]);
+  it('rules 14: five upgrades at real prices: Juice Bar $4 (juices up to 2), Handcart $6, Premium Display $6, Ripening Room $6, Order Book $5', () => {
+    expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'orderbook', 'premium', 'ripening']);
+    expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([4, 6, 6, 6, 5]);
     expect(JUICE_CAP).toBe(2);
-    expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces of fruit a day and hold 8.');
+    expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces of fruit a day and hold 10.');
   });
 
   it('favour deck: 12 cards (2 of each) at 2 to 4 stalls, 18 (3 of each) at 5 and 6', () => {

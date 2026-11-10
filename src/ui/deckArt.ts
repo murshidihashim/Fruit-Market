@@ -1,9 +1,11 @@
 // The Great Fruit Exchange deck art (DEC-066). The owner's illustrations, extracted by scripts/deck-art.py into
 // public/art, are plain files the browser loads when a picture is first shown (nothing is bundled into the code).
 // Keys are the hidden code keys (data.ts); the names players see come from the game data, never from the art.
-import { CUSTOMER_CARDS, EVENT_CARDS, RIVALS } from '../engine/data';
+import { CUSTOMER_CARDS, EVENT_CARDS, ORDER_CARDS, RIVALS } from '../engine/data';
 
-const BASE = `${import.meta.env.BASE_URL ?? './'}art/`;
+// PLAN-070 (Market Ticket): the flat pictures in public/art-ticket, with the same file names and sizes as the owner's
+// illustrations in public/art (kept untouched, so the look can be switched back by changing this one folder name).
+const BASE = `${import.meta.env.BASE_URL ?? './'}art-ticket/`;
 
 /** Shopkeeper art files, in RIVALS order (Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki, Pak Din, Farah). Pak Din and
  *  Farah were drawn in the style of the owner's six (PLAN-061; sources in docs/studio/art-drafts/shopkeepers). */
@@ -20,7 +22,8 @@ export const GUEST_EVENT: Record<string, string> = {
  */
 export const ART_COMING: ReadonlySet<string> = new Set<string>([]);
 const slug = (key: string) => key.toLowerCase().replace(/ /g, '-');
-const CUSTOMER_KEYS = new Set(CUSTOMER_CARDS.map((c) => c.name));
+// Standing orders (rules 14) stand in the row like customers, so they have a card picture too.
+const CUSTOMER_KEYS = new Set([...CUSTOMER_CARDS.map((c) => c.name), ...ORDER_CARDS.map((c) => c.name)]);
 /** Events with a picture (the seven rules 11 events were drawn in PLAN-061; sources in docs/studio/art-drafts/events). */
 const EVENT_IDS = new Set<string>(EVENT_CARDS.map((e) => e.id).filter((id) => !ART_COMING.has(id)));
 

@@ -5,7 +5,7 @@ import { shownCash, useCashShown } from '../../cashShown';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 
-const PHASE = { morning: 'Morning', buy: 'Buying', stall: 'Stocking', bid: 'The bell', reveal: 'The rush', evening: 'Evening', over: 'Closed' } as const;
+const PHASE = { morning: 'Morning', order: 'The order', buy: 'Buying', stall: 'Stocking', bid: 'The bell', reveal: 'The rush', evening: 'Evening', over: 'Closed' } as const;
 
 export function TopBar({ s, viewer, onMenu, onEvent }: { s: GameState; viewer: number; onMenu: () => void; onEvent?: () => void }) {
   useCashShown();

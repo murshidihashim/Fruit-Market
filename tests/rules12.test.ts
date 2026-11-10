@@ -39,43 +39,43 @@ describe('rules 12: the crate holds exact pieces', () => {
       s = submitPrices(s, 0, [{ fruit: 'apple', price: 6 }]);
       return { n: s.results!.lines[0].offers[0]?.sold ?? 0, left: s.players[0].stock.apple };
     };
-    const fresh = [0, 0, 0, 0, 0, 0, 2];
+    const fresh = [0, 0, 0, 0, 0, 2];
     expect(sold(fresh).n).toBe(2);
-    expect(sold(fresh).left).toEqual([2, 0, 0, 0, 0, 0, 0]); // the tired ones stay on the shelf
+    expect(sold(fresh).left).toEqual([2, 0, 0, 0, 0, 0]); // the tired ones stay on the shelf
     expect(sold().n).toBe(0); // counts only: the oldest pieces go in, and Premium won't take them
   });
 
   it('the oldest pieces in the crate sell first, and the hawker takes the oldest left', () => {
     const bargain = [buyer(1, 'apple', 1, 9, 'bargain')];
-    let s = openStall(stocking(bargain), 0, { apple: 3 }, { apple: [1, 0, 0, 0, 0, 0, 2] });
+    let s = openStall(stocking(bargain), 0, { apple: 3 }, { apple: [1, 0, 0, 0, 0, 2] });
     s = openStall(s, 1, {});
     s = submitPrices(s, 0, [{ fruit: 'apple', price: 3 }]);
-    expect(s.players[0].stock.apple).toEqual([1, 0, 0, 0, 0, 0, 2]); // the tired one went
+    expect(s.players[0].stock.apple).toEqual([1, 0, 0, 0, 0, 2]); // the tired one went
   });
 
   it('a crate must match the shelf: never more than a space holds, no green fruit, whole numbers', () => {
     const s = stocking([]);
-    expect(validateCrate(s, 0, { apple: [3, 0, 0, 0, 0, 0, 0] })).toMatch(/don't have that many/);
+    expect(validateCrate(s, 0, { apple: [3, 0, 0, 0, 0, 0] })).toMatch(/don't have that many/);
     expect(validateCrate(s, 0, { apple: [1, 0, 0] })).toBe('Bad crate');
-    expect(validateCrate(s, 0, { apple: [0.5, 0, 0, 0, 0, 0, 0] })).toBe('Whole numbers only');
+    expect(validateCrate(s, 0, { apple: [0.5, 0, 0, 0, 0, 0] })).toBe('Whole numbers only');
     s.players[0].stock.mango[FRUIT.mango.ripe.length] = 1;
-    expect(validateCrate(s, 0, { mango: [0, 0, 0, 0, 1, 0] })).toMatch(/Green fruit/);
-    expect(() => openStall(s, 0, {}, { apple: [3, 0, 0, 0, 0, 0, 0] })).toThrow();
+    expect(validateCrate(s, 0, { mango: [0, 0, 0, 1, 0] })).toMatch(/Green fruit/);
+    expect(() => openStall(s, 0, {}, { apple: [3, 0, 0, 0, 0, 0] })).toThrow();
   });
 
   it('counts only (computer shops, older apps) fill the crate with the oldest pieces', () => {
     const s = stocking([]);
     s.players[0].stock.apple[OKAY('apple')] = 1;
-    expect(oldestCrate(s.players[0], { apple: 3 })).toEqual({ apple: [2, 0, 0, 1, 0, 0, 0] });
+    expect(oldestCrate(s.players[0], { apple: 3 })).toEqual({ apple: [2, 1, 0, 0, 0, 0] });
     const opened = openStall(s, 0, { apple: 3 });
-    expect(opened.crates![0]).toEqual({ apple: [2, 0, 0, 1, 0, 0, 0] });
+    expect(opened.crates![0]).toEqual({ apple: [2, 1, 0, 0, 0, 0] });
     expect(crateCounts(opened.crates![0]!)).toEqual({ apple: 3 });
-    expect(crateStock(opened, 0).apple).toEqual([2, 0, 0, 1, 0, 0, 0]);
+    expect(crateStock(opened, 0).apple).toEqual([2, 1, 0, 0, 0, 0]);
   });
 
   it('the crate goes through the action for online play and replays', () => {
-    const s = applyAction(stocking([]), 0, { kind: 'stall', stall: { apple: 2 }, crate: { apple: [0, 0, 0, 0, 0, 0, 2] } });
-    expect(s.crates![0]).toEqual({ apple: [0, 0, 0, 0, 0, 0, 2] });
+    const s = applyAction(stocking([]), 0, { kind: 'stall', stall: { apple: 2 }, crate: { apple: [0, 0, 0, 0, 0, 2] } });
+    expect(s.crates![0]).toEqual({ apple: [0, 0, 0, 0, 0, 2] });
   });
 
   it('computer games of every size still finish with every rule kept', () => {

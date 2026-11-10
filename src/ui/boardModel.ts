@@ -2,7 +2,7 @@
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import { FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt, type FruitId, type Stage, type Want } from '../engine/data';
 import {
-  bestCap, capFor, count, crateStock, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, servingCustomers, walkInsToday,
+  bestCap, capFor, count, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, rowCount, rowCustomers, rowStock, walkInsToday,
   type Customer, type GameState, type Stock,
 } from '../engine/game';
 import { hagglerWins } from '../engine/story';
@@ -115,10 +115,10 @@ export interface BuyerLine { c: Customer; w: Want; max: number }
 
 /** Today's orders for this fruit, in serving order (waiting customers first), with each customer's top price. */
 export function buyersFor(s: GameState, f: FruitId): BuyerLine[] {
-  return servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ c, w, max: effectiveMax(s, w, c.generous) })));
+  return rowCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ c, w, max: effectiveMax(s, w, c.generous) })));
 }
 
-/** Does shop `pl` hold any piece of this fruit this customer would take (Premium: fresh only; Everyday: not tired)? */
+/** Does shop `pl` hold any piece of this fruit this customer would take (Premium: fresh only; Everyday: not soft)? */
 const takesAny = (stock: Stock, f: FruitId, x: BuyerLine) =>
   stock[f].some((n, pos) => n > 0 && acceptsStage(x.c.pref, stageAt(f, pos)));
 
@@ -150,7 +150,7 @@ export function buyerCap(s: GameState, p: number, f: FruitId, x: BuyerLine): Buy
   const pl = s.players[p];
   const who = lookOf(x.c.name).title;
   // Rules 12: once your crate is set, only its pieces can sell; before that, your whole shelf.
-  const stock = crateStock(s, p);
+  const stock = rowStock(s, p);
   const cap = bestCap(stock, f, x.max, pl, x.c.pref);
   if (!takesAny(stock, f, x) && x.c.pref && x.c.pref !== 'bargain') {
     const type = PREF_INFO[x.c.pref];
@@ -190,7 +190,7 @@ export function demandBoard(s: GameState, p: number): DemandRow[] {
   return FRUITS.flatMap((f) => {
     const lines = buyersFor(s, f);
     const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
-    const out = s.players.reduce((a, _pl, i) => a + forSale(s, i, f), 0);
+    const out = s.players.reduce((a, _pl, i) => a + rowCount(s, i, f), 0);
     if (!wanted && !out) return [];
     const caps = [...new Set(lines.map((x) => payFor(s, p, f, x)).filter((c) => c > 0))].sort((a, b) => b - a);
     // Where the count changes; with more than three, the two highest and the lowest (where every buyer is in).
@@ -220,9 +220,9 @@ export interface PriceRead {
  */
 function sellable(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
   const pl = s.players[p];
-  const own = crateStock(s, p);
+  const own = rowStock(s, p);
   const shelf = { ...own, [f]: [...own[f]] };
-  let left = forSale(s, p, f);
+  let left = rowCount(s, p, f);
   let mine = 0;
   for (const x of lines) {
     if (left <= 0) break;
@@ -241,7 +241,7 @@ function sellable(s: GameState, p: number, f: FruitId, price: number, lines: Buy
  */
 function firmOrders(s: GameState, p: number, f: FruitId, price: number, lines: BuyerLine[]): number {
   const pl = s.players[p];
-  const oldest = crateStock(s, p)[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
+  const oldest = rowStock(s, p)[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
   if (oldest < 0) return 0;
   return lines.filter((x) => capFor(pl, f, oldest, x.max) >= price && acceptsStage(x.c.pref, stageAt(f, oldest))).reduce((a, x) => a + x.w.qty, 0);
 }
@@ -255,13 +255,13 @@ function firmOrders(s: GameState, p: number, f: FruitId, price: number, lines: B
  */
 export function priceRead(s: GameState, p: number, f: FruitId, price: number): PriceRead {
   const pl = s.players[p];
-  const out = forSale(s, p, f);
+  const out = rowCount(s, p, f);
   const lines = buyersFor(s, f);
   const canSell = sellable(s, p, f, price, lines);
-  const servable = lines.filter((x) => price <= bestCap(crateStock(s, p), f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
+  const servable = lines.filter((x) => price <= bestCap(rowStock(s, p), f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
   const firm = firmOrders(s, p, f, price, lines);
   const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
-  const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + forSale(s, i, f)), 0);
+  const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + rowCount(s, i, f)), 0);
   const pieces = (n: number) => `${n} rival ${n === 1 ? 'piece' : 'pieces'}`;
   const read = (cls: PriceRead['cls'], text: string, short = text): PriceRead => ({ cls, text, short, canSell, servable, firm });
   if (!lines.length) return read('war', 'Nobody here wants these today', 'Nobody wants these today');

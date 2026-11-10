@@ -4,7 +4,7 @@ import { FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/e
 import { aiStep, autoplay } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
-  beginBuying, emptyStock, endBuyTurn, finishReveal, forSale, newGame, openStall, submitPrices,
+  beginBuying, emptyStock, endBuyTurn, finishReveal, forSale, newGame, rowCount, openStall, submitPrices,
   type Customer, type GameState, type LineResult,
 } from '../src/engine/game';
 import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
@@ -85,7 +85,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const s = bell(start, 'apple', [2, 0, 0], [4, 0, 0]);
     const st = explainLine(s, line(s), 0);
     expect(st.headline).toBe(`Too old for $4! Your apples didn't qualify.`);
-    expect(st.detail).toBe('At $4 only fresh sells; okay up to $3, tired up to $2.');
+    expect(st.detail).toBe('At $4 only fresh sells; okay up to $3, soft up to $2.');
     expect(st.tags[0]).toBe('too old for $4');
   });
 
@@ -99,13 +99,13 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(st.tags[0]).toBe('fresh only');
   });
 
-  it('an Everyday customer never takes tired fruit', () => {
+  it('an Everyday customer never takes soft fruit', () => {
     const start = market(['Tan', 'apple']);
     start.players[0].stock.apple[TIRED] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [1, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`No tired apples for ${lookOf('Tan').title}!`);
-    expect(st.tags[0]).toBe("won't take tired");
+    expect(st.headline).toBe(`No soft apples for ${lookOf('Tan').title}!`);
+    expect(st.tags[0]).toBe("won't take soft");
   });
 
   it('a Premium Display stall\'s top is $1 higher for fresh fruit', () => {
@@ -371,7 +371,8 @@ describe('what-if advice follows the tie order and your crate', () => {
             const i = cf.offers.findIndex((o) => s.players[o.player].name === name);
             return i >= 0 && i < cf.offers.findIndex((o) => o.player === v);
           });
-          const ofFruit = s.results!.lines.filter((x) => x.fruit === l.fruit);
+          // Rules 14: a standing order's line is not part of the row (it buys by its own rule, before the customers).
+          const ofFruit = s.results!.lines.filter((x) => x.fruit === l.fruit && x.name !== s.results!.order?.name);
           const total = ofFruit.reduce((a, x) => a + (x.offers.find((o) => o.player === v)?.sold ?? 0), 0);
           // The first customer of a fruit, when you sold none of it all day: the count is exact, not a lower bound.
           const exact = ofFruit[0] === l && total === 0;
@@ -391,12 +392,12 @@ describe('what-if advice follows the tie order and your crate', () => {
           const all = /(?:All (\d+)|Your only \w+) sold anyway\./.exec(d);
           if (all) {
             seen.soldAll++;
-            if (total !== Number(all[1] ?? 1) || total !== forSale(s, v, l.fruit)) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
+            if (total !== Number(all[1] ?? 1) || total !== rowCount(s, v, l.fruit)) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
           }
           const allBut = /Only (\d+) went unsold anyway\./.exec(d);
           if (allBut) {
             seen.allBut++;
-            if (forSale(s, v, l.fruit) - total !== Number(allBut[1])) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
+            if (rowCount(s, v, l.fruit) - total !== Number(allBut[1])) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
           }
         }
         s = finishReveal(s);

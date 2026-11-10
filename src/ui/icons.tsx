@@ -47,9 +47,9 @@ export function PropSprite({ id, size = 32, cls = 'ms-prop' }: { id: string; siz
  */
 export function prewarmSprites() {
   if (typeof window === 'undefined') return;
-  // Load the Rubik weights the game screen uses, so opening it doesn't trigger font loads and re-layout.
+  // Load the Archivo weights the game screen uses, so opening it doesn't trigger font loads and re-layout.
   // A font that fails to load only falls back to the next face in the stack, so the failure is ignored on purpose.
-  for (const f of ['400 16px Rubik', 'italic 400 16px Rubik', '500 16px Rubik', '600 16px Rubik', '800 16px Rubik', '16px "Rubik Display"', '600 16px "Rubik Strong"', '800 16px "Rubik Strong"']) {
+  for (const f of ['400 16px Archivo', 'italic 400 16px Archivo', '500 16px Archivo', '600 16px Archivo', '800 16px Archivo', '16px "Ticket Display"', '600 16px "Ticket Strong"', '800 16px "Ticket Strong"']) {
     void document.fonts?.load(f).catch(() => {});
   }
   const jobs: (() => string)[] = [];

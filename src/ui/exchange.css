@@ -1,38 +1,38 @@
 /* =====================================================================
-   The Great Fruit Exchange (DEC-066): the shared design system.
-   Colours come from the owner's deck art. Screens, cards and the print kit
+   Market Ticket (PLAN-070) over the Great Fruit Exchange (DEC-066): the shared design system.
+   Colours are the Market Ticket palette: black, white stock and the four fruit colours. Screens, cards and the print kit
    all use these names, so the app and the table look the same. The app's
-   words are all Rubik (DEC-068, faces in styles.css); the print kit swaps in
+   words are all Archivo (DEC-068, faces in styles.css); the print kit swaps in
    the deck-art fonts (print-fonts.css).
    ===================================================================== */
 
 :root {
   /* colours (palette.ts, x... roles) */
-  --x-ink: var(--c-182844);        /* navy ink: text, outlines, dark panels */
-  --x-ink-2: var(--c-24365c);      /* lighter navy for panels on navy */
-  --x-slate: var(--c-505868);      /* muted text */
-  --x-paper: var(--c-f4ecd8);      /* gazette and card paper */
-  --x-cream: var(--c-ece0d0);      /* page background */
-  --x-card: var(--c-f0e4cc);       /* trading-card cream */
-  --x-edge: var(--c-c9b99a);       /* thin paper rules */
-  --x-red: var(--c-d84428);        /* headlines, prices, Extra! */
-  --x-red-d: var(--c-a8321c);
-  --x-mustard: var(--c-e0a01c);    /* badges, highlights, chalk gold */
-  --x-mustard-d: var(--c-a87410);
-  --x-green: var(--c-2c6844);      /* banners, "buys" line */
-  --x-chalk: var(--c-2c4838);      /* chalkboards */
-  --x-chalk-l: var(--c-3f5f4b);
-  --x-wood: var(--c-b8743c);       /* stall-sign frames, counters */
-  --x-wood-d: var(--c-7e4e26);
-  --x-sky: var(--c-7c98d0);
-  --x-sky-d: var(--c-4a64a0);
-  /* type: one font, Rubik, in every role (DEC-068); the weight sets the hierarchy */
-  --f-display: 'Rubik Display', 'Rubik', system-ui, sans-serif;   /* big titles, names, prices (800) */
-  --f-headline: 'Rubik Display', 'Rubik', system-ui, sans-serif;  /* Gazette mastheads and headlines (800) */
-  --f-serif: 'Rubik', system-ui, sans-serif;                      /* sentences, quirks, captions (400) */
-  --f-label: 'Rubik', system-ui, sans-serif;                      /* small capitals: labels, numbers, buttons (500-600) */
-  --f-script: 'Rubik Display', 'Rubik', system-ui, sans-serif;    /* stall-sign names */
-  --f-chalk: 'Rubik', system-ui, sans-serif;                      /* chalkboard text */
+  --x-ink: var(--c-1f272a);        /* rich black ink: text, outlines, dark panels */
+  --x-ink-2: var(--c-2f3a3e);      /* lighter black for panels on black */
+  --x-slate: var(--c-5a6266);      /* muted text */
+  --x-paper: var(--c-fffcf5);      /* white ticket stock */
+  --x-cream: var(--c-f1ece2);      /* page background: pale kraft */
+  --x-card: var(--c-fffcf5);       /* card stock */
+  --x-edge: var(--c-ddd4c6);       /* thin paper rules */
+  --x-red: var(--c-e73c35);        /* headlines, prices, Extra! */
+  --x-red-d: var(--c-b62528);
+  --x-mustard: var(--c-fec400);    /* badges, highlights, chalk gold */
+  --x-mustard-d: var(--c-b98a00);
+  --x-green: var(--c-0e9a58);      /* banners, "buys" line */
+  --x-chalk: var(--c-1f272a);      /* chalkboards */
+  --x-chalk-l: var(--c-2f3a3e);
+  --x-wood: var(--c-ddd4c6);       /* stall-sign frames, counters */
+  --x-wood-d: var(--c-bdbebe);
+  --x-sky: var(--c-3558a2);
+  --x-sky-d: var(--c-284785);
+  /* type: one font, Archivo, in every role (DEC-068); the weight sets the hierarchy */
+  --f-display: 'Ticket Display', 'Archivo', system-ui, sans-serif;   /* big titles, names, prices (800) */
+  --f-headline: 'Ticket Display', 'Archivo', system-ui, sans-serif;  /* Gazette mastheads and headlines (800) */
+  --f-serif: 'Archivo', system-ui, sans-serif;                      /* sentences, quirks, captions (400) */
+  --f-label: 'Archivo', system-ui, sans-serif;                      /* small capitals: labels, numbers, buttons (500-600) */
+  --f-script: 'Ticket Display', 'Archivo', system-ui, sans-serif;    /* stall-sign names */
+  --f-chalk: 'Archivo', system-ui, sans-serif;                      /* chalkboard text */
 }
 
 /* Small shared pieces any screen can use. */

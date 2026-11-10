@@ -22,14 +22,14 @@ describe('green fruit', () => {
 
   it('the Unripe fruit switch quotes the real green price and ripening time', () => {
     const t = unripeSetupText();
-    expect(t).toBe(`Some lorries bring mangoes green: from $${FRUIT.mango.cost.unripe}, ready to sell after ${FRUIT.mango.unripeSlots} nights.`);
+    expect(t).toBe(`Every lorry brings mangoes green: from $${FRUIT.mango.cost.unripe}, ready to sell after ${FRUIT.mango.unripeSlots} nights.`);
     expect(t).not.toMatch(/\$1 now|watermelon/i);
     const app = readFileSync('src/ui/App.tsx', 'utf8');
     expect(app).not.toContain('$1 now'); // the New game screen has no rules switches since PLAN-063
   });
 
   it('the Market Days switch takes the Closing Day numbers from the game data', () => {
-    expect(marketDaysSetupText()).toBe(`Days 3, 6, 9 and 12: one more walk-in for every 3 stalls. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`);
+    expect(marketDaysSetupText()).toBe(`Days 3, 6, 9 and 12: a standing order to bid for, and an upgrade that evening. Closing Day on the final day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`);
   });
 
   it('How to play draws green steps only for fruit a lorry delivers green', () => {

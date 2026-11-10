@@ -19,8 +19,8 @@ const nextDay = (s: GameState): GameState => {
 };
 
 describe('rules 9: cash, buying and shelf', () => {
-  it('rules 11 (compact): starts with $10, buys 4 a day, holds 6; Handcart buys 5 and holds 8', () => {
-    expect([START_CASH, BASE_BUY, BASE_SHELF, BARROW_BUY, BARROW_SHELF]).toEqual([10, 4, 6, 5, 8]);
+  it('starts with $10, buys 4 a day, holds 8 (rules 14); Handcart buys 5 and holds 10', () => {
+    expect([START_CASH, BASE_BUY, BASE_SHELF, BARROW_BUY, BARROW_SHELF]).toEqual([10, 4, 8, 5, 10]);
     const s = newGame(humans(2));
     expect(s.players.every((p) => p.cash === 10)).toBe(true);
     expect(buyLimit({ ...s.players[0], trait: null, upgrades: ['barrow'] })).toBe(5);
@@ -29,20 +29,18 @@ describe('rules 9: cash, buying and shelf', () => {
 });
 
 describe('rules 9: customer deck', () => {
-  it('has the compact quantities and prices (rules 11)', () => {
-    expect(want('Robert', 'blueberry')!.qty).toBe(2);
-    expect(want('Robert', 'mango')!.qty).toBe(1);
+  it('has the rules 14 quantities and prices (one or two fruits a card, priced by type)', () => {
+    expect(want('Robert', 'blueberry')).toMatchObject({ qty: 3, max: 5 });
+    expect(want('Robert', 'mango')).toMatchObject({ qty: 1, max: 11 });
     expect(want('Hui Min', 'mango')).toBeUndefined();
     expect(want('Hock Seng', 'mango')).toBeUndefined();
-    expect(want('Yuki', 'watermelon')).toMatchObject({ qty: 1, max: 7 });
-    expect(want('Yuki', 'mango')!.qty).toBe(1);
-    expect(want('Ravi', 'apple')!.qty).toBe(1);
+    expect(want('Yuki', 'watermelon')).toBeUndefined(); // rules 14: no card wants three fruits
+    expect(want('Yuki', 'mango')!.qty).toBe(2);
+    expect(want('Ravi', 'apple')).toMatchObject({ qty: 1, max: 8 }); // Premium: $2 over the usual $6
     expect(want('Siti', 'watermelon')!.qty).toBe(2);
-    expect(want('Kenji', 'watermelon')!.qty).toBe(1);
-    // Rules 11: apples $1 higher than rules 10 (Daniel: apple 6 -> 7); mango and blueberry unchanged.
+    expect(want('Hafiz', 'blueberry')).toMatchObject({ qty: 3, max: 3 }); // Bargain: $2 under the usual $5
     expect(want('Daniel', 'apple')!.max).toBe(7);
-    expect(want('Daniel', 'mango')!.max).toBe(11);
-    expect(want('Daniel', 'blueberry')!.max).toBe(5);
+    expect(want('Daniel', 'mango')!.max).toBe(12);
   });
 
   it('gives each regular a freshness type: 6 Premium, 6 Bargain, 24 Everyday', () => {
@@ -64,7 +62,7 @@ describe('rules 9: customer deck', () => {
   it('a shop only hands over fruit the customer accepts', () => {
     const s = newGame(humans(2));
     const pl = s.players[0];
-    pl.stock.apple = [1, 1, 0, 0, 0, 0, 1]; // one tired, one okay, one fresh
+    pl.stock.apple = [1, 1, 0, 0, 0, 1]; // one soft, one okay, one fresh
     const take = (pref: 'premium' | 'everyday' | 'bargain') => eligible(pl, pl.stock, 'apple', 3, 1, 9, pref).length;
     expect([take('premium'), take('everyday'), take('bargain')]).toEqual([1, 2, 3]);
   });
@@ -79,11 +77,11 @@ describe('rules 9: events', () => {
     expect(ev('heatwave')).toMatchObject({ price: { watermelon: 2 }, ageExtra: 1 });
     expect(ev('blight')).toMatchObject({ noFruit: 'apple', price: { apple: 2 } });
     expect(ev('mangoCraze').price).toEqual({ mango: 2 });
-    expect(ev('mangoCraze').extra!.wants).toEqual([{ fruit: 'mango', qty: 1, max: 12, fixed: true }]);
+    expect(ev('mangoCraze').extra!.wants).toEqual([{ fruit: 'mango', qty: 1, max: 15, fixed: true }]);
     expect(ev('superfood').extra!.wants).toEqual([{ fruit: 'blueberry', qty: 2, max: 8, fixed: true }]);
     expect(ev('goodHarvest')).toMatchObject({ supplyAll: 1, priceAll: -1 });
     expect(ev('badHarvest')).toMatchObject({ supplyMult: 0.5, priceAll: 1 });
-    expect(ev('priceControls').maxPrice).toEqual({ blueberry: 5, watermelon: 7, apple: 6, mango: 8 });
+    expect(ev('priceControls').maxPrice).toEqual({ blueberry: 5, watermelon: 7, apple: 6, mango: 10 });
     expect(ev('inspector').inspector).toBe(2);
     expect(ev('hotel').extra!.wants.map((w) => [w.fruit, w.qty, w.max])).toEqual([['apple', 1, 8], ['watermelon', 1, 8], ['blueberry', 1, 7]]);
     expect(prefOf('Influencer')).toBe('premium');
@@ -94,18 +92,18 @@ describe('rules 9: events', () => {
   it('event customers keep their printed final price', () => {
     const s = newGame(humans(2));
     s.event = ev('mangoCraze');
-    expect(effectiveMax(s, s.event.extra!.wants[0])).toBe(12);
+    expect(effectiveMax(s, s.event.extra!.wants[0])).toBe(15);
     expect(effectiveMax(s, { fruit: 'mango', qty: 1, max: 9 })).toBe(11);
   });
 
   it("Price Controls refuses a price above the day's maximum", () => {
     const s = newGame(humans(2));
     s.event = ev('priceControls');
-    s.players[0].stock.mango[3] = 1;
+    s.players[0].stock.mango[2] = 1;
     s.stalls = [{ mango: 1 }, {}];
-    expect(maxPrice(s, 'mango')).toBe(8);
-    expect(validatePrices(s, 0, [{ fruit: 'mango', price: 9 }])).toMatch(/Price Controls/);
-    expect(validatePrices(s, 0, [{ fruit: 'mango', price: 8 }])).toBeNull();
+    expect(maxPrice(s, 'mango')).toBe(10);
+    expect(validatePrices(s, 0, [{ fruit: 'mango', price: 11 }])).toMatch(/Price Controls/);
+    expect(validatePrices(s, 0, [{ fruit: 'mango', price: 10 }])).toBeNull();
   });
 
   it('Health Inspector fines tired fruit at the start of the day', () => {

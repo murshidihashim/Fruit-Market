@@ -19,7 +19,7 @@ import { delivery, moves, nightfall, reveal } from './animator';
 import { playLocal, undoPoint } from './turn';
 import type { ShowState } from './panels/Showdown';
 
-const BANNER = { morning: 'MORNING', buy: 'BUY FRUIT', stall: 'STOCKING', bid: 'THE BELL',  reveal: 'THE RUSH', evening: 'EVENING', over: '' } as const;
+const BANNER = { morning: 'MORNING', order: 'STANDING ORDER', buy: 'BUY FRUIT', stall: 'STOCKING', bid: 'THE BELL',  reveal: 'THE RUSH', evening: 'EVENING', over: '' } as const;
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
   const [s, setS] = useState(initial);
@@ -61,7 +61,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const multi = humans.length > 1;
   const active = activePlayer(s);
   const seat = online?.seat ?? null;
-  const secret = s.phase === 'stall' || s.phase === 'bid';
+  const secret = s.phase === 'stall' || s.phase === 'bid' || s.phase === 'order';
   const activeHuman = online ? active === seat && !secret : active >= 0 && s.players[active].kind === 'human';
   const lastViewer = useRef(seat ?? humans[0]);
   if (!online && activeHuman) lastViewer.current = active;
@@ -112,7 +112,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       }
       const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal';
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
-      if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i]));
+      // A standing-order fine has been taken too: it shows only once the rush is over.
+      if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i] + (next.results!.order?.holder === i ? next.results!.order.fine : 0)));
       // The shelves likewise: each customer's pieces leave the shelf as they are served. The fast setting and reduced
       // motion show the final shelves at once.
       if (rush && next.results && !A.isReduced() && !A.isFast()) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
@@ -123,7 +124,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         // The new day opens on the morning's event card; the lorry unloads only when buying starts (PLAN-065).
         setNight(false);
-      } else if (prev.phase === 'morning' && next.phase === 'buy') {
+      } else if ((prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy') {
         await delivery(next);
         await moves(prev, next);
       } else if (rush) {

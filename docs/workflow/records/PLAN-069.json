@@ -1,0 +1,83 @@
+{
+  "release": "unreleased",
+  "build": "branch rules-14-market-ticket",
+  "reports": [
+    "REP-094"
+  ],
+  "decisions": [
+    "DEC-079"
+  ],
+  "changes": {
+    "added": [
+      "Standing orders: on a Market Day every stall secretly bids a price per piece; the lowest bid wins, delivers two days later, and is fined for every piece it misses",
+      "Two upgrades: Ripening Room and Order Book; a stall has room for two upgrades"
+    ],
+    "changed": [
+      "Fruit lasts 3 (blueberry), 4 (watermelon), 5 (mango) and 6 (apple) days; every mango arrives green",
+      "The row never holds more than five customers; nobody waits overnight; with six stalls each customer wants one more",
+      "New customer deck: one or two fruits a card, wider spread of prices",
+      "Lorries rescaled to the new demand; shelf holds 8 (10 with a Handcart); upgrade prices raised",
+      "Tired fruit is called Soft"
+    ],
+    "fixed": [],
+    "removed": [
+      "Waiting customers",
+      "Extra walk-ins on Market Days"
+    ]
+  },
+  "playerNotes": [
+    "Fruit now lasts 3, 4, 5 and 6 days, and every mango arrives green",
+    "Standing orders: bid low to win a big order, but miss it and you pay a fine",
+    "Never more than five customers in the row",
+    "Two new upgrades: Ripening Room and Order Book"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "produce this rule change together with the design change for the app version / rules: The five researched",
+    "date": "2026-11-10"
+  },
+  "delivery": "verified",
+  "id": "PLAN-069",
+  "title": "Rules version 14: 3-4-5-6 fruit, a row of five, standing orders, five upgrades",
+  "problem": "Owner: rescale fruit lives so they are easy to remember, add a standing order won by bidding with a hefty fine, keep the row at five customers, vary prices, rework the upgrades.",
+  "scope": [
+    "src/engine/data.ts, game.ts, ai.ts, story.ts",
+    "server/room.ts (secret bids), src/net/protocol.ts (RULES_VERSION 14, AI_VERSION 3)",
+    "OrderPanel.tsx, Game.tsx, useGameController.ts, TopBar, ActionBar, panel.tsx, rulesText.ts, HowTo.tsx",
+    "RULES.md",
+    "tests (rules14.test.ts and the older rules tests brought up to rules 14)",
+    "\"Tired\" is called \"Soft\" everywhere on screen"
+  ],
+  "exclusions": [
+    "Face-down crates and bluffing: researched, not built",
+    "Computer players are not tuned to sabotage a rival's order",
+    "The repo's own print kit (print/kit, scripts/print-deck.ts) is not updated; the new tabletop kit was made outside the repo",
+    "No release prepared, nothing published"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes with the rules 14 tests",
+      "result": "PASS",
+      "evidence": "2026-11-10: 424 unit tests passed, 1 skipped (a hand-built price-read case, explained in the test), build"
+    },
+    {
+      "id": "T2",
+      "text": "The row never holds more than five customers and nobody waits",
+      "result": "PASS",
+      "evidence": "2026-11-10: tests/rules14.test.ts; simulation of 200 games per table size: longest row 5 (was 18)"
+    },
+    {
+      "id": "T3",
+      "text": "Secret bids never reach other players; browser tests",
+      "result": "PASS",
+      "evidence": "2026-11-10: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 100 pricing frames; six-stall room; reconnect 5 of 5"
+    },
+    {
+      "id": "T4",
+      "text": "Balance: every shopkeeper and upgrade within 4 points of fair",
+      "result": "FAIL",
+      "evidence": "2026-11-10: npm run balance: shopkeeper win rates 26.3 (Local Favourite) to 41.0 (Charmer) against 33.3 fair; rushing Premium Display 26.8, Order Book 25.3. Not tuned."
+    }
+  ]
+}

@@ -12,7 +12,8 @@ import { FruitSvg, fruitSvgString, fruitSvgUrl } from '../src/ui/fruitIcons';
 import { GAZETTE } from '../src/ui/gazette';
 
 // The card system (DEC-066): one design per kind of card, the same fixed zones on every card of a kind.
-const file = (url: string | null) => (url ? `public/${url.slice(url.indexOf('art/'))}` : '');
+// The art folder is public/art-ticket since PLAN-070 (the Market Ticket pictures); the owner's originals stay in public/art.
+const file = (url: string | null) => (url ? `public/${url.slice(url.search(/art(-ticket)?\//))}` : '');
 const html = <P extends object>(c: FunctionComponent<P>, props: P) => toStaticHtml(h(c, props));
 const elements = (s: string) => (s.match(/<[a-z]/g) ?? []).length;
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
@@ -20,7 +21,7 @@ const GUESTS = EVENT_CARDS.flatMap((e) => (e.extra ? [e.extra] : []));
 const STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
 
 describe('deck art files', () => {
-  it('every customer, guest, shopkeeper and event has its picture in public/art', () => {
+  it('every customer, guest, shopkeeper and event has its picture in the art folder, in both sets', () => {
     const missing: string[] = [];
     for (const c of CUSTOMER_CARDS) if (!existsSync(file(customerArt(c.name)))) missing.push(`customer ${c.name}`);
     // Rules 11 art gaps (ART_COMING) have no picture yet and must not point at a file.
@@ -31,6 +32,9 @@ describe('deck art files', () => {
       if (!art(r.avatar, shopBadge(r.avatar))) missing.push(`badge ${r.name}`);
     }
     for (const e of EVENT_CARDS) if (!art(e.id, eventArt(e.id))) missing.push(`event ${e.id}`);
+    // The owner's originals are kept beside the Market Ticket set, under the same names, so the look can be switched back.
+    for (const c of CUSTOMER_CARDS) if (!existsSync(file(customerArt(c.name)).replace('art-ticket/', 'art/'))) missing.push(`original ${c.name}`);
+    expect(file(customerArt('John'))).toBe('public/art-ticket/customers/john.webp');
     expect(missing).toEqual([]);
     expect([...ART_COMING]).toEqual([]); // PLAN-061 drew the last gaps: every card has its picture
   });
