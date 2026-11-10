@@ -10,7 +10,6 @@ import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
-import { marketDaysSetupText, unripeSetupText } from './rulesText';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
 import { LOOKS, worn } from './looks';
@@ -220,14 +219,10 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
   ]);
   const [rivals, setRivals] = useState(3);
   const [days, setDays] = useState(10);
-  const [unripe, setUnripe] = useState(true);
-  const [upgrades, setUpgrades] = useState(true);
-  const [events, setEvents] = useState(true);
-  // Playtest options (PLAN-015): compare versions of the rules at the table.
-  const [marketDays, setMarketDays] = useState(true);
-  const [core, setCore] = useState(false);
-  const [street, setStreet] = useState(false);
-  const [pulseRule, setPulseRule] = useState(false);
+  // The full game, always (owner, PLAN-063): event cards, stall upgrades, unripe fruit and Market Days on; the beginner
+  // and expert playtest options (PLAN-015: basic game, fixed prices, price drift) off. The screen no longer shows them.
+  const unripe = true, upgrades = true, events = true, marketDays = true;
+  const core = false, street = false, pulseRule = false;
 
   const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
   // Seat tiles (option C, PLAN-058): one tile per rival stall; tapping a tile opens its editor underneath.
@@ -275,10 +270,9 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
   return (
     <div class="setup-body">
         <section class="panel">
-          <h3>Your stall</h3>
-          <input ref={nameRef} class="input" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
-          <h3>Your shopkeeper</h3>
-          <p class="small muted">One perk for the whole game. The computer stalls take the shopkeepers left over.</p>
+          <h3 class="tight">Your name</h3>
+          <input ref={nameRef} class="input tight" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
+          <h3 class="tight next">Your shopkeeper</h3>
           <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
         </section>
         <section class="panel">
@@ -323,19 +317,6 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
           <div class="seg">
             {[[8, 'Quick'], [10, 'Standard'], [14, 'Long']].map(([d, l]) => <button class={days === d ? 'on' : ''} onClick={() => setDays(d as number)}>{l}<small>{d} days</small></button>)}
           </div>
-        </section>
-        <section class="panel">
-          <h3>Rules</h3>
-          <Toggle on={events} set={setEvents} title="Event cards" text="Festivals, heatwaves, price hikes…" />
-          <Toggle on={upgrades && !core} set={setUpgrades} title="Stall upgrades" text="After each Market Day, build one: Juice Bar, Handcart or Premium Display." />
-          <Toggle on={unripe} set={setUnripe} title="Unripe fruit" text={unripeSetupText()} />
-          <Toggle on={marketDays} set={setMarketDays} title="Market Days" text={marketDaysSetupText()} />
-        </section>
-        <section class="panel">
-          <h3>Beginner and expert rules</h3>
-          <Toggle on={core} set={setCore} title="Basic game" text="No shopkeeper perks, favour cards or upgrades. Just buying, stalls and the bell." />
-          <Toggle on={street} set={setStreet} title="Fixed prices" text="Beginner prices: one top price per fruit; generous customers pay $2 more." />
-          <Toggle on={pulseRule} set={setPulseRule} title="Price drift" text="Advanced: fruit that sells out gets dearer tomorrow, unsold fruit cheaper." />
         </section>
         <div class="sticky-start"><button class="btn primary big wide" onClick={begin}>Start game</button></div>
     </div>

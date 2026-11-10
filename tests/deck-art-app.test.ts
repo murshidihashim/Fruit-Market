@@ -7,7 +7,7 @@ import { EventIcon, Face } from '../src/ui/art';
 import { toStaticHtml } from '../src/ui/cards';
 import { ART_COMING, customerArt, eventArt, guestArt, shopBadge, shopScene } from '../src/ui/deckArt';
 import { CustomerChar, Street } from '../src/ui/table';
-import { CharacterPick } from '../src/ui/CharacterPick';
+import { CharacterPickView } from '../src/ui/CharacterPick';
 
 // The app shows the Great Fruit Exchange deck art (DEC-066) everywhere a character or event appears.
 const GUESTS = EVENT_CARDS.flatMap((e) => (e.extra ? [e.extra.name] : []));
@@ -55,15 +55,18 @@ describe('portraits (art.tsx Face)', () => {
 });
 
 describe('choosing a shopkeeper (CharacterPick)', () => {
-  it('shows the eight Stall Signs under their approved names, the taken one stamped and disabled', () => {
-    const html = toStaticHtml(h(CharacterPick, { value: RIVALS[1].avatar, taken: { [RIVALS[4].avatar]: 'Ann' }, onPick: () => {} }));
+  it('a swipe carousel of the eight Stall Signs (PLAN-063): the picked one in the middle, its tagline below, the taken one stamped', () => {
+    const html = toStaticHtml(h(CharacterPickView, { value: RIVALS[1].avatar, taken: { [RIVALS[4].avatar]: 'Ann' } }));
     expect(html.match(/class="x-card x-ss/g)).toHaveLength(8);
-    for (const r of RIVALS) expect(html, r.name).toContain(ART_COMING.has(r.avatar) ? `${r.name}’s` : shopScene(r.avatar)!);
-    expect(html).toContain('Uncle Benny’s');
+    for (const r of RIVALS) expect(html, r.name).toContain(shopScene(r.avatar)!);
+    expect(html).toContain('>Uncle Benny</strong>');
     expect(html).toContain('Taken by Ann');
-    expect(html.match(/<button[^>]*disabled/g)).toHaveLength(1);
     expect(html.match(/is-selected/g)).toHaveLength(1);
-    expect(html).toContain('Uncle Benny · Big Basket');
+    expect(html.match(/cp-card on/g)).toHaveLength(1);
+    // the tagline shows once, under the sign, not on its chalkboard
+    expect(html).toContain('class="cp-quip">“Big baskets, big deals!”');
+    expect(html.split('Big baskets, big deals!').length - 1).toBe(1);
+    expect(html.match(/aria-label="(Previous|Next) shopkeeper"/g)).toHaveLength(2);
   });
 });
 

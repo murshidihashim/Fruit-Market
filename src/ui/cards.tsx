@@ -106,20 +106,21 @@ export function TradingCardBack({ fruits, compact, class: cls }: { fruits: Fruit
   );
 }
 
-const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
 
 /**
  * A shopkeeper's Stall Sign, by avatar key. `selected`: picked by this player. `takenBy`: the name of the shop
  * that already took this character (shown as a stamp). `compact`: header, scene and the perk's title only.
  */
-export function StallSign({ avatar, compact, selected, takenBy, eager, class: cls }: {
+export function StallSign({ avatar, compact, selected, takenBy, eager, noQuip, class: cls }: {
   avatar: string; compact?: boolean; selected?: boolean; takenBy?: string; eager?: boolean; class?: string;
+  /** Leave the tagline off the chalkboard (the picker shows it under the sign). */
+  noQuip?: boolean;
 }) {
   const r = RIVALS.find((x) => x.avatar === avatar);
   const name = r?.name ?? 'Shopkeeper';
   const traitId = CHARACTER_TRAIT[avatar];
   const trait = traitId ? TRAITS[traitId] : undefined;
-  const sign = possessive(name);
+  const sign = name; // the shopkeeper's name alone, no “’s” (owner, PLAN-063)
   const [sw, sh] = ART_SIZE.scene;
   const [bw, bh] = ART_SIZE.badge;
   return (
@@ -135,7 +136,7 @@ export function StallSign({ avatar, compact, selected, takenBy, eager, class: cl
         <div class="x-ss-chalk">
           <b>{`Today’s special: ${trait.title}`}</b>
           {!compact && <p>{trait.text}</p>}
-          {!compact && r && <i>{r.quip}</i>}
+          {!compact && !noQuip && r && <i>{r.quip}</i>}
         </div>
       )}
     </article>

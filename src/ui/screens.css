@@ -118,24 +118,24 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
   .morning-card .mc-gazette { --card-w: 17.5rem; }
 }
 
-/* ---------- character pick: Stall Signs ---------- */
-.char-pick { margin-top: 10px; }
-.char-pick .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(8.75rem, calc(50% - 6px)), 1fr)); gap: 12px 10px; }
-.char-pick .char-card.char-card {
-  display: block; container-type: inline-size; min-height: 0; padding: 0; border: 0; border-radius: 1.2em; background: none; box-shadow: none; opacity: 1;
-}
-.char-pick .char-card .x-card { --card-w: 8.75rem; width: 100%; box-shadow: 0.3em 0.3em 0 var(--x-shadow); }
-@supports (width: 1cqi) { .char-pick .char-card .x-card { --card-w: 100cqi; } }
-.char-pick .char-card .x-card.is-selected { box-shadow: 0 0 0 0.5em var(--x-mustard), 0.3em 0.3em 0 0.5em var(--x-shadow); }
-.char-pick .char-card .x-ss-chalk b { font-family: var(--f-chalk); font-weight: 700; }
-.char-pick .char-card .x-ss-taken { display: block; }
-.char-pick .char-card:focus-visible { outline: 3px solid var(--x-green); outline-offset: 4px; }
-.char-pick .char-perk {
-  display: flex; flex-direction: column; gap: 2px; margin: 12px 0 0; padding: 8px 12px; text-align: left;
-  background: var(--x-chalk); color: var(--x-paper); border: 3px solid var(--x-wood-d); border-radius: 4px;
-}
-.char-pick .char-perk b { font: 700 1.3rem/1.1 var(--f-chalk); color: var(--x-mustard); }
-.char-pick .char-perk span { font: 600 1.1rem/1.2 var(--f-chalk); }
+/* ---------- character pick: Stall Signs in a carousel (design A, PLAN-063) ---------- */
+.char-pick { display: flex; flex-direction: column; gap: 6px; margin-top: 0; }
+.cp-stage { position: relative; height: 22.4rem; margin: 0 -14px; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
+.cp-card { position: absolute; left: 50%; top: 6px; width: 14.75rem; margin-left: -7.375rem; pointer-events: none;
+  transition: transform .35s cubic-bezier(.3,1.2,.5,1), opacity .3s; }
+.cp-card .x-card { --card-w: 14.75rem; height: auto; min-height: 20.4rem; box-shadow: 0.3em 0.3em 0 var(--x-shadow); }
+.cp-card .x-card.is-selected { box-shadow: 0 0 0 0.5em var(--x-mustard), 0.3em 0.3em 0 0.5em var(--x-shadow); }
+.cp-card img { -webkit-user-drag: none; }
+.cp-card .x-ss-taken { display: block; }
+.cp-nav { display: flex; align-items: center; justify-content: space-between; }
+.cp-arrow { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 800 1.4rem/1 var(--f-label); cursor: pointer; }
+.cp-arrow:focus-visible { outline: 3px solid var(--x-green); outline-offset: 3px; }
+.cp-dots { display: flex; gap: 6px; }
+.cp-dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--x-edge); transition: width .25s; }
+.cp-dots i.on { width: 20px; background: var(--x-red); }
+.cp-dots i.taken { opacity: .35; }
+.cp-quip { margin: 0; text-align: center; font: 700 1.05rem/1.25 var(--f-display); color: var(--x-red); animation: pop .25s steps(3); }
+@media (prefers-reduced-motion: reduce) { .cp-card { transition: none; } .cp-quip { animation: none; } }
 
 /* ---------- home: the Market square and its opening live in square.css ---------- */
 
@@ -145,3 +145,11 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- opening (Opening.tsx, square.css): the overlay's fade out ---------- */
 @keyframes opx-out { to { opacity: 0; } }
+
+/* New game: the headings sit right on their field and on the shopkeeper carousel (PLAN-063) */
+.setup-body .panel h3.tight { margin-bottom: 4px; }
+.setup-body .panel h3.tight.next { margin-top: 14px; }
+.setup-body .panel .input.tight { margin-top: 0; }
+/* picker cards: a long name fits whole ("Uncle Benny"), and the perk reads at full strength on the chalkboard */
+.cp-card .x-ss-name.x-long { font-size: 2.1em; }
+.cp-card .x-ss-chalk p { color: var(--x-paper); opacity: 1; }

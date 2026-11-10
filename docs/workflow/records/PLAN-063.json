@@ -1,0 +1,56 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Swipe shopkeeper picker on New game (mockup A): one big Stall Sign in the middle, neighbours peeking, arrows and dots; the tagline shows under the sign"
+    ],
+    "changed": [
+      "Shopkeeper cards show the name alone (Rosa, not Rosa's), in the game and the print kit",
+      "New game: 'Your name' and 'Your shopkeeper' sit right on their field and picker"
+    ],
+    "fixed": [],
+    "removed": [
+      "The Rules and Beginner and expert rules sections on New game: games always use event cards, stall upgrades, unripe fruit and Market Days, with the basic-game, fixed-price and price-drift options off (the previous defaults)"
+    ]
+  },
+  "playerNotes": [
+    "Swipe to choose your shopkeeper",
+    "New game is simpler: the full rules are always on"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go with a but remove the gap between \"Your Name\" and the textbox and the gap between your shopkeeper and the shopkeeper card / character's tagline should appear below the card when selecting / also remove \" 's \" from all character card names",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-063",
+  "title": "Swipe shopkeeper picker (design A) and a simpler New game screen",
+  "problem": "Owner: change the shopkeeper selection to swiping left or right, keep the design consistent, keep the checked rules on and remove the Rules and Beginner and expert rules sections; chose mockup A with tighter headings, the tagline under the card and no 's on names.",
+  "scope": [
+    "src/ui/CharacterPick.tsx carousel",
+    "src/ui/App.tsx New game screen",
+    "StallSign name and tagline option (cards.tsx)",
+    "Print kit regenerated",
+    "Tests"
+  ],
+  "exclusions": [
+    "Rules: unchanged (the same defaults as before; the options stay in the engine)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests incl. the swipe picker drawing, build"
+    },
+    {
+      "id": "T2",
+      "text": "Swipe checked on a phone-sized screen",
+      "result": "PASS",
+      "evidence": "2026-11-10: swipe left Rosa to Uncle Benny, swipe right back, arrow to Farah; tagline updates; no Rules sections"
+    }
+  ]
+}

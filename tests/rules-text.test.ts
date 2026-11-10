@@ -25,8 +25,7 @@ describe('green fruit', () => {
     expect(t).toBe(`Some lorries bring mangoes green: from $${FRUIT.mango.cost.unripe}, ready to sell after ${FRUIT.mango.unripeSlots} nights.`);
     expect(t).not.toMatch(/\$1 now|watermelon/i);
     const app = readFileSync('src/ui/App.tsx', 'utf8');
-    expect(app).toContain('text={unripeSetupText()}');
-    expect(app).not.toContain('$1 now');
+    expect(app).not.toContain('$1 now'); // the New game screen has no rules switches since PLAN-063
   });
 
   it('the Market Days switch takes the Closing Day numbers from the game data', () => {

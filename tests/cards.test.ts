@@ -136,7 +136,7 @@ describe('shopkeeper stall signs', () => {
     for (const r of RIVALS) {
       const t = TRAITS[CHARACTER_TRAIT[r.avatar]];
       const s = html(StallSign, { avatar: r.avatar });
-      expect(s).toContain(`>${esc(r.name)}’s</strong>`);
+      expect(s).toContain(`>${esc(r.name)}</strong>`); // the name alone, no “’s” (PLAN-063)
       expect(s).toContain(`Today’s special: ${t.title}`);
       expect(s).toContain(esc(t.text));
       expect(s).toContain(esc(r.quip));
