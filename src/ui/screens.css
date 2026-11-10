@@ -120,7 +120,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- character pick: Stall Signs in a carousel (design A, PLAN-063) ---------- */
 .char-pick { display: flex; flex-direction: column; gap: 6px; margin-top: 0; }
-.cp-stage { position: relative; height: 22.4rem; margin: 0 -14px; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
+.cp-stage { position: relative; height: 21.4rem; margin: 0 -14px; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
 .cp-card { position: absolute; left: 50%; top: 6px; width: 14.75rem; margin-left: -7.375rem; pointer-events: none;
   transition: transform .35s cubic-bezier(.3,1.2,.5,1), opacity .3s; }
 .cp-card .x-card { --card-w: 14.75rem; height: auto; min-height: 20.4rem; box-shadow: 0.3em 0.3em 0 var(--x-shadow); }
@@ -134,7 +134,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .cp-dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--x-edge); transition: width .25s; }
 .cp-dots i.on { width: 20px; background: var(--x-red); }
 .cp-dots i.taken { opacity: .35; }
-.cp-quip { margin: 0; text-align: center; font: 700 1.05rem/1.25 var(--f-display); color: var(--x-red); animation: pop .25s steps(3); }
+.cp-quip { margin: -2px 0 0; text-align: center; font: 700 1.05rem/1.25 var(--f-display); color: var(--x-red); animation: pop .25s steps(3); }
 @media (prefers-reduced-motion: reduce) { .cp-card { transition: none; } .cp-quip { animation: none; } }
 
 /* ---------- home: the Market square and its opening live in square.css ---------- */

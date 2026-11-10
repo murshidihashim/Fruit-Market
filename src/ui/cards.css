@@ -213,3 +213,5 @@
 .x-gz.x-compact .x-gz-fx { float: none; width: auto; height: 4.6em; margin: 0; display: grid; align-content: center; column-gap: 0.8em; }
 .x-gz.x-compact .x-gz-fx:is(.x-n3, .x-n4) { grid-template-columns: repeat(2, max-content); justify-content: space-between; }
 .x-gz.x-compact .x-gz-fx li { font-size: 1.3em; white-space: nowrap; }
+/* the sign's head holds the badge and the name only (PLAN-063): the name sits in the middle of it */
+.x-ss-head .x-ss-badge + .x-ss-name { grid-row: 1 / 3; align-self: center; }

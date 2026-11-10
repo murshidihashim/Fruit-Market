@@ -62,12 +62,12 @@ export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, onS
           );
         })}
       </div>
+      <p class="cp-quip" key={me.avatar}>{`“${me.quip}”`}</p>
       <div class="cp-nav">
         <button type="button" class="cp-arrow" aria-label="Previous shopkeeper" onClick={() => go(-1)}>‹</button>
         <span class="cp-dots" aria-hidden="true">{RIVALS.map((r, k) => <i class={`${k === at ? 'on' : ''} ${taken[r.avatar] ? 'taken' : ''}`} />)}</span>
         <button type="button" class="cp-arrow" aria-label="Next shopkeeper" onClick={() => go(1)}>›</button>
       </div>
-      <p class="cp-quip" key={me.avatar}>{`“${me.quip}”`}</p>
     </div>
   );
 }

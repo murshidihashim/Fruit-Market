@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.15.0",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [],
   "decisions": [],
@@ -9,16 +9,19 @@
     ],
     "changed": [
       "Shopkeeper cards show the name alone (Rosa, not Rosa's), in the game and the print kit",
-      "New game: 'Your name' and 'Your shopkeeper' sit right on their field and picker"
+      "New game: 'Your name' and 'Your shopkeeper' sit right on their field and picker",
+      "The tagline sits directly under the picked card, above the arrows"
     ],
     "fixed": [],
     "removed": [
-      "The Rules and Beginner and expert rules sections on New game: games always use event cards, stall upgrades, unripe fruit and Market Days, with the basic-game, fixed-price and price-drift options off (the previous defaults)"
+      "The Rules and Beginner and expert rules sections on New game: games always use event cards, stall upgrades, unripe fruit and Market Days, with the basic-game, fixed-price and price-drift options off (the previous defaults)",
+      "'Fresh fruit · Fair prices' under the name on shopkeeper cards (game and print kit)"
     ]
   },
   "playerNotes": [
-    "Swipe to choose your shopkeeper",
-    "New game is simpler: the full rules are always on"
+    "Swipe left or right to choose your shopkeeper; their tagline shows under the card",
+    "A simpler New game screen: the full rules are always on",
+    "Shopkeeper cards show just the name"
   ],
   "approval": {
     "status": "approved",
@@ -51,6 +54,12 @@
       "text": "Swipe checked on a phone-sized screen",
       "result": "PASS",
       "evidence": "2026-11-10: swipe left Rosa to Uncle Benny, swipe right back, arrow to Farah; tagline updates; no Rules sections"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests incl. online 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "pending"
     }
   ]
 }

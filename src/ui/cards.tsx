@@ -128,7 +128,6 @@ export function StallSign({ avatar, compact, selected, takenBy, eager, noQuip, c
       <header class="x-ss-head">
         <CardArt class="x-ss-badge" src={shopBadge(avatar)} alt="" w={bw} h={bh} eager={eager} />
         <strong class={cx('x-ss-name', sign.length > 8 && 'x-long')}>{sign}</strong>
-        {!compact && <small class="x-ss-tag">Fresh fruit · Fair prices</small>}
       </header>
       <div class="x-ss-scene"><CardArt src={shopScene(avatar)} alt={name} w={sw} h={sh} eager={eager} /></div>
       {takenBy && <span class="x-ss-taken">{`Taken by ${takenBy}`}</span>}

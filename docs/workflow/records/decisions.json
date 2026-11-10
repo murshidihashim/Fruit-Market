@@ -2720,6 +2720,14 @@
     {
       "at": "2026-11-10 11:54",
       "text": "Owner chose mockup A for the swipe shopkeeper picker, with tighter headings, the tagline under the card and names without 's (PLAN-063). Rules sections removed from New game; the previous defaults always apply. Built on the branch; not published."
+    },
+    {
+      "at": "2026-11-10 11:58",
+      "text": "Owner: remove 'Fresh fruit, fair prices' from the shopkeeper cards and put the tagline directly under the card (PLAN-063). Done; print kit regenerated."
+    },
+    {
+      "at": "2026-11-10 11:59",
+      "text": "Owner approved publication of PLAN-063: \"and then push everything live\". Release 1.15.0 prepared (no rules change)."
     }
   ]
 }

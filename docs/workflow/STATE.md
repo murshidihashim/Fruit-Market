@@ -2,7 +2,12 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): 1.14.1 live (PLAN-062)
+## Latest (2026-11-10): 1.15.0 approved for live (PLAN-063)
+- **Owner approval:** "and then push everything live".
+- **In 1.15.0 (no rules change):** swipe shopkeeper picker (design A) with the tagline under the card; New game without the Rules sections (previous defaults always on); shopkeeper cards show the name alone, without "Fresh fruit · Fair prices".
+- **Next:** browser tests, Deploy LIVE game, mark 1.15.0 published.
+
+## Earlier (2026-11-10): 1.14.1 live (PLAN-062)
 - **Owner approval:** "push it live".
 - **In 1.14.1 (no rules change):** Fill your stall starts empty, shows the whole shelf full scale and says stall; first-game tip moved off the shelf; Calm Day card on Day 1 ("Day 1! Let's make some money!"); shorter event card back; "Play full screen?" after the opening, with Add to Home Screen steps on iPhone.
 - **Checks:** `npm run verify` PASS (408 tests); browser tests PASS (solo game to results, 0 leaks, reconnect 5/5).
