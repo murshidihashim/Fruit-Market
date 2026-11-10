@@ -20,6 +20,7 @@ import { rushBoard } from './game/rush';
 import { SalesSummary } from './game/panels/SalesSummary';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
+import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -46,7 +47,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="handoff" onClick={() => { fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
-        <p>{s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
+        <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
       </div>
     );
@@ -95,6 +96,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
+  // Rules 14: on a Market Day morning every stall bids in secret for the standing order.
+  const ordering = s.phase === 'order' && c.myBidTurn && !busy;
+  const orderWait = s.phase === 'order' && !c.myBidTurn && !busy && s.players[viewer]?.kind === 'human';
   // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
   // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
   // one person at the table (online, or a single human): a shared phone hands over between people instead.
@@ -108,6 +112,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
+    if (ordering) return <OrderPanel key={`or-${s.day}-${bidder}`} s={s} p={bidder} onBid={(price) => { fx.card(); act({ kind: 'order', price }); }} />;
+    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting onBid={() => undefined} />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
     if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
@@ -138,6 +144,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
           away={show?.line.customerId} served={show?.served} />
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
+        <OrderStrip s={s} viewer={viewer} />
       </section>
       {rivals.length > 0 && (
         <div class="seats" role="group" aria-label="Your rivals">
@@ -156,7 +163,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
       {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
-      {!pricing && !stalling && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {!pricing && !stalling && !ordering && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       {/* The rush pop-up sits over the whole table (the middle column on a desktop), under the flying fruit. */}
       {show && <Showdown s={s} a={show} viewer={viewer} />}

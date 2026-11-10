@@ -118,7 +118,7 @@ export function buyersFor(s: GameState, f: FruitId): BuyerLine[] {
   return servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ c, w, max: effectiveMax(s, w, c.generous) })));
 }
 
-/** Does shop `pl` hold any piece of this fruit this customer would take (Premium: fresh only; Everyday: not tired)? */
+/** Does shop `pl` hold any piece of this fruit this customer would take (Premium: fresh only; Everyday: not soft)? */
 const takesAny = (stock: Stock, f: FruitId, x: BuyerLine) =>
   stock[f].some((n, pos) => n > 0 && acceptsStage(x.c.pref, stageAt(f, pos)));
 

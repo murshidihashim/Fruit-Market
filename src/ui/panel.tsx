@@ -124,7 +124,7 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
                       const n = pl.stock[f][pos] ?? 0;
                       const k = crate[f]?.[pos] ?? 0;
                       const sell = n > 0 && stage !== 'unripe';
-                      const word = stage === 'notso' ? 'tired' : stage === 'unripe' ? 'green' : stage;
+                      const word = stage === 'notso' ? 'soft' : stage === 'unripe' ? 'green' : stage;
                       return (
                         <div class={`mk-cell st-${stage} ${n ? 'has' : ''} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your stall` : ''}`}>
                           {/* A space you can sell from shows its − and + with "in your stall / on your shelf"; others show the pile or a ghost. */}
@@ -311,7 +311,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
 
 // ---------- evening ----------
 
-export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', premium: 'signboard', juicebar: 'juicer' };
+export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', premium: 'signboard', juicebar: 'juicer', ripening: 'sun', orderbook: 'fv_favouredTrade' };
 export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg', keeper: 'moon', earful: 'ear' };
 
 export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
@@ -337,7 +337,7 @@ export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
       )}
       {isDraftNight(s) && (
         <>
-          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build one upgrade: it changes how your stall works. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
+          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build one upgrade. Your stall has room for two. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
           <div class="upgrade-grid">
             {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => {
               const d = UPGRADES[u];

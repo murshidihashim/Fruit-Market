@@ -564,7 +564,7 @@ function startDay(s: GameState) {
     eventWalkIns(s);
   }
   drawStanding(s);
-  // Health Inspector: at the start of the day, before anyone buys or discards, every shop pays for each tired piece.
+  // Health Inspector: at the start of the day, before anyone buys or discards, every shop pays for each soft piece.
   s.dayFines = s.players.map(() => 0);
   if (s.event?.inspector) {
     s.players.forEach((pl, i) => {
@@ -1248,7 +1248,7 @@ export function setShade(state: GameState, p: number, f: FruitId | null): GameSt
 }
 
 /**
- * The Shade Cloth's best fruit tonight: the one whose pieces lose the most value if they age (a step toward tired, or
+ * The Shade Cloth's best fruit tonight: the one whose pieces lose the most value if they age (a step toward soft, or
  * spoiling), less what ageing would gain by ripening green fruit. Null when nothing would lose value. Computer shops
  * use it, and it is the suggestion for a person.
  */

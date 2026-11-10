@@ -79,7 +79,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
               return (
                 <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''} ${row >= fit ? 'tail' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                  aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'tired' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
+                  aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'soft' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
                   {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
                   <span class="price">${buyCost(s, p, f, pos)}</span>
                 </button>
@@ -89,7 +89,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
         ))}
       </div>
       <div class="mk-key" aria-hidden="true">
-        <span><i class="st-unripe" />green</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />tired</span>
+        <span><i class="st-unripe" />green</span><span><i class="st-fresh" />fresh</span><span><i class="st-okay" />okay</span><span><i class="st-notso" />soft</span>
       </div>
       <NextLorry s={s} />
     </div>
@@ -217,7 +217,7 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
         <span class="stk-f" data-a={anchors ? `p${p}-${f}` : undefined}>
           {chips.map(({ pos, stage, n }) => (
             <span class={`ms-cell has st-${stage} ${pos === 0 ? 'rotting' : ''}`} data-a={anchors ? `p${p}-${f}-${pos}` : undefined}
-              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'tired' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
+              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'soft' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
               <Fruit id={f} size={20} stage={stage} />{n > 1 && <b>×{n}</b>}<span>{lifeLabel(f, pos)}</span>
             </span>
           ))}
@@ -232,9 +232,9 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
 
 /** Freshness groups in the order the shelf dock shows them, and the word for each. */
 const SHELF_STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
-const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' };
+const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso: 'soft', unripe: 'green' };
 
-/** A shelf's pieces of each fruit counted by freshness (fresh, okay, tired, green), for the shelf dock. */
+/** A shelf's pieces of each fruit counted by freshness (fresh, okay, soft, green), for the shelf dock. */
 export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
   return FRUITS.map((f) => {
     const by: Partial<Record<Stage, number>> = {};

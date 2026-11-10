@@ -33,9 +33,9 @@ describe('rules version 7', () => {
     expect(buyCost(s, 0, 'blueberry', 2)).toBe(plain);
   });
 
-  it('prices a mango at $5 fresh and $4 green', () => {
-    expect(FRUIT.mango.cost.fresh).toBe(5);
-    expect(FRUIT.mango.cost.unripe).toBe(4);
+  it('prices a mango at $6 fresh and $3 green (rules 14)', () => {
+    expect(FRUIT.mango.cost.fresh).toBe(6);
+    expect(FRUIT.mango.cost.unripe).toBe(3);
   });
 });
 

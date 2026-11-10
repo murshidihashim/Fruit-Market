@@ -66,7 +66,7 @@ function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
  */
 export const inContest = (o: Offer): boolean => !o.tooOld;
 
-const STAGE_WORD: Record<Exclude<Stage, 'unripe'>, string> = { fresh: 'fresh', okay: 'okay', notso: 'tired' };
+const STAGE_WORD: Record<Exclude<Stage, 'unripe'>, string> = { fresh: 'fresh', okay: 'okay', notso: 'soft' };
 
 /** The freshness rule the engine used for this customer (Premium, Everyday, Bargain; none for a hand-made test customer). */
 function prefFor(s: GameState, l: LineResult): Pref | undefined {
@@ -81,7 +81,7 @@ export interface NoSale { kind: NoSaleKind; tag: string; headline: string; detai
  * Why an offer that did not qualify (`tooOld`) could not sell, from the price, the customer's top and freshness rule,
  * and the stall's Premium Display only (the shelf at that moment is not recorded, and is not needed):
  * over the top (no freshness could sell), a Premium customer (fresh only), an Everyday customer at a price okay fruit
- * could meet (so only tired fruit was there), otherwise the fruit was too old for that price.
+ * could meet (so only soft fruit was there), otherwise the fruit was too old for that price.
  */
 export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: number): NoSale {
   const cust = lookOf(l.name).title;
@@ -100,7 +100,7 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
   const items = caps.map((x) => `$${x.cap} for ${STAGE_WORD[x.st]}${x.st === 'fresh' ? withDisplay : ''}`);
   const pays = pref === 'premium'
     ? `${cust} buys fresh fruit only, up to $${top}${withDisplay}.`
-    : `${cust} pays up to ${items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]}${pref === 'everyday' ? '; never tired' : ''}.`;
+    : `${cust} pays up to ${items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]}${pref === 'everyday' ? '; never soft' : ''}.`;
   if (o.price > top) {
     const even = display ? `even fresh, with ${mine ? 'your' : 'a'} Premium Display` : 'even fresh';
     return { kind: 'price', tag: `over $${top} top`, headline: `Too pricey! $${top} is ${cust}'s top${display ? `, ${even}` : ''}.`, detail: pays };
@@ -109,7 +109,7 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
     return { kind: 'freshOnly', tag: 'fresh only', headline: `Fresh only! ${theirs[0].toUpperCase()}${theirs.slice(1)} weren't fresh.`, detail: `${cust} is a Premium buyer.` };
   }
   if (pref === 'everyday' && o.price <= l.max - 1) {
-    return { kind: 'noTired', tag: "won't take tired", headline: `No tired ${plural} for ${cust}!`, detail: 'Everyday buyers take fresh or okay only.' };
+    return { kind: 'noTired', tag: "won't take soft", headline: `No soft ${plural} for ${cust}!`, detail: 'Everyday buyers take fresh or okay only.' };
   }
   const sells = caps.filter((x) => x.cap >= o.price).map((x) => STAGE_WORD[x.st]);
   const rest = caps.filter((x) => x.cap < o.price).map((x) => `${STAGE_WORD[x.st]} up to $${x.cap}`);
@@ -420,6 +420,17 @@ export interface Reaction { player: number; text: string }
 export function rushLine(s: GameState, l: LineResult): LineStory {
   const NOBODY = -1;
   const tags = l.offers.map((o) => offerTag(s, l, o, NOBODY));
+  // Rules 14: a standing order. The holder delivers first at its bid; rivals fill any gap at the full price.
+  const ord = s.results?.order && s.results.order.name === l.name ? s.results.order : null;
+  if (ord) {
+    const who = s.players[ord.holder].name;
+    const mine = ord.qty - ord.short;
+    const rivals = ord.sales.filter((x) => x.player !== ord.holder);
+    const gap = rivals.length ? ` ${rivals.map((x) => s.players[x.player].name).join(' and ')} filled the gap at $${ord.ceiling}.` : '';
+    return ord.short === 0
+      ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${ord.price}!`, tags }
+      : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.${gap}`, detail: `${who} is fined $${ord.fine}.`, tags };
+  }
   const cust = lookOf(l.name).title;
   const plural = FRUIT[l.fruit].plural.toLowerCase();
   const name = (o: Offer) => s.players[o.player].name;

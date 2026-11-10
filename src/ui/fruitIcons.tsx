@@ -1,6 +1,6 @@
 // Flat fruit icons in the deck-art style (DEC-066): navy outline, one flat fill, one shade, a leaf.
 // One drawing feeds the app (FruitSvg, a single <img> so the game screen stays lean) and the print kit
-// (fruitSvgString). Freshness is shown the same way everywhere: Okay is duller with one bruise, Tired is browner
+// (fruitSvgString). Freshness is shown the same way everywhere: Okay is duller with one bruise, Soft is browner
 // with spots, Unripe is green.
 import { FRUIT, type FruitId, type Stage } from '../engine/data';
 import { C } from './palette';
@@ -104,7 +104,7 @@ export function fruitSvgUrl(id: FruitId, stage: Stage = 'fresh'): string {
   return u;
 }
 
-const STAGE_WORD: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Tired', unripe: 'Unripe' };
+const STAGE_WORD: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Soft', unripe: 'Unripe' };
 
 /** A flat deck-art fruit. One element; CSS may resize it (it scales cleanly). `alt=""` when a label beside it already names the fruit. */
 export function FruitSvg({ id, stage = 'fresh', size = 24, alt, class: cls, x, y }: {

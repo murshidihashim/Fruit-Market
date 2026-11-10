@@ -27,7 +27,7 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     stock.blueberry[2] = 2; // fresh
     stock.blueberry[1] = 1; // okay
     stock.blueberry[0] = 3; // tired
-    stock.apple[1] = 1; stock.apple[2] = 2; // both okay
+    stock.apple[1] = 3; // okay
     const g = shelfGroups(stock);
     expect(g.map((x) => x.f)).toEqual(FRUITS);
     expect(g.find((x) => x.f === 'blueberry')!.stages).toEqual([{ stage: 'fresh', n: 2 }, { stage: 'okay', n: 1 }, { stage: 'notso', n: 3 }]);

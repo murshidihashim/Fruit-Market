@@ -492,6 +492,8 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },
   'Wedding Caterer': { icon: '💍', title: 'The Wedding Caterer', quirk: 'Feeding five hundred guests by sundown.' },
   Bakery: { icon: '🥧', title: 'The Bakery', quirk: 'Needs apples for the prize-winning pie.' },
+  // Standing orders (rules 14): on their due day they stand at the front of the row like a customer.
+  ...Object.fromEntries(ORDER_CARDS.map((c) => [c.name, { icon: '📒', title: c.title, quirk: c.quirk }])),
 };
 
 export function lookOf(name: string): Look {

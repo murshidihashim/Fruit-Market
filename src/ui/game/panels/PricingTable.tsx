@@ -7,7 +7,7 @@ import { FRUIT, type FruitId } from '../../../engine/data';
 import { Fruit } from '../../art';
 import { pricingTable, type TableSeat } from '../pricingTable';
 
-const STAGE_WORD = { fresh: 'fresh', okay: 'okay', notso: 'tired', unripe: 'green' } as const;
+const STAGE_WORD = { fresh: 'fresh', okay: 'okay', notso: 'soft', unripe: 'green' } as const;
 
 interface MyCrate {
   /** Your price for each fruit you put out. */

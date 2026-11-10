@@ -26,7 +26,7 @@ const DAY_BEATS = [
 ];
 
 /**
- * One fruit's track, oldest step on the left, with what customers take off for okay and tired fruit, then its green
+ * One fruit's track, oldest step on the left, with what customers take off for okay and soft fruit, then its green
  * steps for a fruit some lorry delivers green (the watermelon keeps a green slot in the engine, but no lorry fills it).
  */
 export function FruitTrack({ f }: { f: FruitId }) {
@@ -77,7 +77,7 @@ const SLIDES = [
     title: 'Four fruits, four personalities',
     body: (
       <>
-        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>tired</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for tired. Some customers are fussier: <b>Premium</b> customers only buy fresh fruit, <b>Everyday</b> customers buy fresh or okay, and <b>Bargain</b> customers buy anything. The oldest step is on the left.</p>
+        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>soft</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for soft. Some customers are fussier: <b>Premium</b> customers only buy fresh fruit, <b>Everyday</b> customers buy fresh or okay, and <b>Bargain</b> customers buy anything. The oldest step is on the left.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <FruitTrack f={f} />
@@ -93,7 +93,7 @@ const SLIDES = [
     title: 'The rush: who gets the sale?',
     body: (
       <>
-        <p>Professor Pebble wants <b>3 blueberries</b> and pays up to <b>$5</b> for a fresh one ($4 okay, $3 tired).</p>
+        <p>Professor Pebble wants <b>3 blueberries</b> and pays up to <b>$5</b> for a fresh one ($4 okay, $3 soft).</p>
         <div class="demo-ex">
           <div><b>Stall A</b> 2 fresh <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
           <div><b>Stall B</b> 1 okay <Fruit id="blueberry" size={18} /> asks <b>$3</b></div>
@@ -112,7 +112,7 @@ const SLIDES = [
         <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (one a day; two for the Charmer). Play it when its card says: in your buying turn, at the bell, or in the evening.</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
         <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins and <b>Scout</b> lets you peek at one of today's. Cash is your score, so spend it only where it pays you back.</p>
-        <p>Then night falls: <b>all fruit ages one step</b>, and anything past tired spoils and is thrown away.</p>
+        <p>Then night falls: <b>all fruit ages one step</b>, and anything past soft spoils and is thrown away.</p>
       </>
     ),
   },

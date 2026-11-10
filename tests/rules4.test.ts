@@ -39,27 +39,27 @@ describe('printed supply and demand', () => {
     const bonanza = FARMER_CARDS.find((c) => c.name === 'Blueberry Bonanza')!;
     const row = (shops: number) => (['blueberry', 'watermelon', 'apple', 'mango'] as FruitId[]).map((f) => printedSupply(bonanza, f, shops));
     expect(row(2)).toEqual([4, 1, 1, 1]);
-    expect(row(3)).toEqual([7, 2, 2, 1]);
-    expect(row(4)).toEqual([9, 3, 2, 1]);
-    expect(row(5)).toEqual([11, 3, 3, 2]);
+    expect(row(3)).toEqual([6, 2, 1, 1]);
+    expect(row(4)).toEqual([8, 3, 2, 1]);
+    expect(row(5)).toEqual([10, 3, 3, 2]);
     expect(row(6)).toEqual([13, 4, 3, 2]);
     const rush = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!;
-    expect(printedSupply(rush, 'mango', 4)).toBe(10);
+    expect(printedSupply(rush, 'mango', 4)).toBe(9);
   });
 
-  it('Mango Growers and Mango Season arrive green; every other card arrives ripe', () => {
-    for (const c of FARMER_CARDS) expect(c.unripe).toBe(c.name === 'Mango Growers' || c.name === 'Mango Season' ? 'mango' : undefined);
+  it('rules 14: every lorry brings its mangoes green', () => {
+    for (const c of FARMER_CARDS) expect(c.unripe).toBe('mango');
   });
 
-  it('walk-ins: stalls - 1 every day (rules 11), Market Days add 1 per 3 stalls (rounded up)', () => {
+  it('walk-ins: stalls - 1 every day (rules 11); rules 14: a Market Day adds none', () => {
     const s = newGame(humans(3));
     expect(walkInsOn(s, 1, null)).toBe(2);
-    expect(walkInsOn(s, 3, null)).toBe(3); // Market Day
+    expect(walkInsOn(s, 3, null)).toBe(2); // Market Day
     expect(walkInsOn(s, 7, null)).toBe(2);
-    expect(walkInsOn(s, 9, null)).toBe(3); // Market Day
+    expect(walkInsOn(s, 9, null)).toBe(2); // Market Day
     expect(walkInsOn(newGame(humans(2)), 1, null)).toBe(1);
     expect(walkInsOn(newGame(humans(4)), 10, null)).toBe(3);
-    expect(walkInsOn(newGame(humans(4)), 3, null)).toBe(5); // +2 at 4 stalls
+    expect(walkInsOn(newGame(humans(4)), 3, null)).toBe(3); // rules 14: a Market Day adds none
   });
 
   it('customer orders are used as printed (no scaling)', () => {
@@ -253,7 +253,7 @@ describe('options', () => {
 
 describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
-    expect(RULES_VERSION).toBe(13);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r13:a2');
+    expect(RULES_VERSION).toBe(14);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r14:a3');
   });
 });

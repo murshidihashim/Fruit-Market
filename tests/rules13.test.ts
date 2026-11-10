@@ -20,7 +20,7 @@ function nightInto(s: GameState, next: string): GameState {
 }
 
 describe('rules 13', () => {
-  it('is rules version 13', () => expect(RULES_VERSION).toBe(13));
+  it('is rules version 13 or later', () => expect(RULES_VERSION).toBeGreaterThanOrEqual(13));
 
   it('tomorrow\'s event is never known: nextEvent stays empty all game', () => {
     for (const seed of [1, 2, 3]) {
@@ -43,7 +43,7 @@ describe('rules 13', () => {
     for (let i = 0; i < before; i++) base.queue.push({ id: 900 + i, name: ['John', 'Robert', 'Daniel', 'Aisyah'][i], wants: [], original: [], walkIn: true, seenBy: [] });
     const bus = nightInto(base, 'touristBus');
     expect(bus.event?.id).toBe('touristBus');
-    expect(bus.queue.length).toBe(before + 3); // +3 at 4 stalls
+    expect(bus.queue.length).toBe(4); // +3 at 4 stalls, but rules 14 keeps the row at five: never more than 4 walk-ins
     const rain = nightInto(base, 'monsoon');
     expect(rain.event?.id).toBe('monsoon');
     expect(rain.queue.length).toBe(before - 2); // −2 at 4 stalls
@@ -58,8 +58,8 @@ describe('rules 13', () => {
     expect(g.event?.inspector).toBeUndefined();
   });
 
-  it('three upgrades: Juice Bar, Handcart and Premium Display', () => {
-    expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'premium']);
+  it('no Cold Room (rules 14 has five upgrades: see rules14.test.ts)', () => {
+    expect(Object.keys(UPGRADES)).not.toContain('coldroom');
     expect(EVENT_CARDS.some((e) => /Cold Room/.test(e.text))).toBe(false);
   });
 });

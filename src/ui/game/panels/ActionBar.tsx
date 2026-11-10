@@ -24,6 +24,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         </>
       )}
       {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
+      {!busy && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are bidding for the order…'}</div>}
       {!busy && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Stall open. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are opening their stalls…'}</div>}
       {!busy && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices locked. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are setting secret prices…'}</div>}
       {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out · next day</button>}

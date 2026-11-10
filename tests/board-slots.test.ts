@@ -5,8 +5,8 @@ import { marketColumn } from '../src/ui/boardModel';
 
 // PLAN-030: the screen and the printed mat read the same slot data.
 describe('the board slots', () => {
-  it('each track has the right number of slots: 3, 6, 7 and 6', () => {
-    expect(FRUITS.map((f) => trackSlots(f).length)).toEqual([3, 6, 7, 6]);
+  it('each track has the right number of slots: 3, 4, 6 and 5 (rules 14: lives of 3, 4, 5 and 6, with two green slots for the mango)', () => {
+    expect(FRUITS.map((f) => trackSlots(f).length)).toEqual([3, 4, 6, 5]);
     for (const f of FRUITS) expect(trackSlots(f).length).toBe(trackLength(f, true));
   });
 

@@ -87,6 +87,7 @@ async function botStep(c: Client): Promise<boolean> {
     await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'prices', posts, favoured: false } });
     return true;
   }
+  if (g.phase === 'order' && !v.submitted[me]) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'order', price: null } }); return true; }
   if (g.phase === 'evening' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endEvening' } }); return true; }
   return false;
 }
