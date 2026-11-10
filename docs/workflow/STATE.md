@@ -5,7 +5,8 @@ Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections f
 ## Latest (2026-11-10): 1.14.1 approved for live (PLAN-062)
 - **Owner approval:** "push it live".
 - **In 1.14.1 (no rules change):** Fill your stall starts empty, shows the whole shelf full scale and says stall; first-game tip moved off the shelf; Calm Day card on Day 1 ("Day 1! Let's make some money!"); shorter event card back; "Play full screen?" after the opening, with Add to Home Screen steps on iPhone.
-- **Next:** browser tests, then Deploy LIVE game, then mark 1.14.1 published.
+- **Checks:** `npm run verify` PASS (408 tests); browser tests PASS (solo game to results, 0 leaks, reconnect 5/5).
+- **Next:** Deploy LIVE game, then mark 1.14.1 published.
 
 ## Earlier (2026-11-10): 1.14.0 live (rules 13, event cards, new art)
 - **Owner approval:** "ok approve all we discussed here and push it to live" (PLAN-061, DEC-078, REP-092, REP-093).
