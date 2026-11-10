@@ -38,8 +38,10 @@ export function Coin({ size = 16 }: { size?: number }) {
 const SCENE_FROM = 72;
 /** Worn regalia only show where there is room for them. */
 const WEAR_FROM = 22;
-/** Where each guest stands in the event picture they borrow (guests have no portrait of their own yet). */
-const GUEST_FOCUS: Record<string, string> = { Influencer: '0% 70%', 'Gym Club': '50% 45%', 'Hotel Chef': '100% 55%' };
+/** Where each guest stands in the event picture they borrow (guests have no portrait of their own). */
+const GUEST_FOCUS: Record<string, string> = {
+  Influencer: '0% 70%', 'Gym Club': '50% 45%', 'Hotel Chef': '100% 55%', 'Wedding Caterer': '0% 45%', Bakery: '0% 40%',
+};
 
 type Pic = { kind: 'cust' | 'guest' | 'keeper' | 'scene' | 'none'; src: string | null; w: number; h: number; pos?: string };
 

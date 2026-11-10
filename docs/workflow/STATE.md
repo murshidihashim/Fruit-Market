@@ -2,13 +2,11 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): rules 13 built on the branch, not published
-- **Built (PLAN-061, DEC-078, REP-092) on `ccr-ff85604f-thv5m2`:** events turned over each morning and never forecast; Festival, Tourist Bus and Monsoon change walk-ins that morning; Cold Room removed (three upgrades); morning card shows the event picture full size with no day, standing or tomorrow's news.
-- **Event wording (REP-093):** all 20 cards use the owner's wording with a tagline; Cold Room mentions left out.
-- **Art proposal:** first drafts rejected; seven artworks redrawn in the house style in `docs/studio/art-drafts/events/`, not in the game yet. Awaiting approval to put them in.
-- **Checks:** `npm run verify` PASS (408 tests); balance PASS (every shopkeeper within 4.5 points). Browser tests PASS before the wording change (E2E OK, 0 leaks); not rerun after it.
-- **Live:** still 1.13.0 (rules 12). Publishing rules 13 needs the owner's approval.
-- **Next:** owner reviews the art and the card preview; then release 1.14.0 if approved.
+## Latest (2026-11-10): 1.14.0 approved for live (rules 13, event cards, new art)
+- **Owner approval:** "ok approve all we discussed here and push it to live" (PLAN-061, DEC-078, REP-092, REP-093).
+- **In 1.14.0:** events turned over each morning (never forecast); Cold Room removed; full-picture morning card drawn face down from the print kit's event back, waiting for its picture, then turned in 1 s; owner's event wording with taglines; Tomorrow's lorry on two rows; price reveal in the rival row's order; art for the seven newest events, Pak Din, Farah and the two guests (no "Art coming" cards left); print kit regenerated.
+- **Checks:** see PLAN-061 (verify, browser tests, balance).
+- **Next:** publish with Deploy LIVE game, then mark 1.14.0 published.
 
 ## Earlier (2026-11-09): 1.13.0 live, crates of chosen fruit (rules 12) and the new pricing
 - **Live:** 1.13.0 (commit `ebc35f7`, tag `v1.13.0`, Deploy LIVE game run 29, live smoke test PASS on the re-run).

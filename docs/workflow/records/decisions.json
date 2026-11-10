@@ -1925,8 +1925,8 @@
       "id": "DEC-078",
       "title": "Events turned over each morning, no Cold Room (rules version 13)",
       "question": "Should tomorrow's event stay hidden until its morning, and should the Cold Room stay?",
-      "choice": "Events are never forecast: from day 2 the top event card is turned over each morning and applies that day (the Inspector is still never the last day's event). Festival, Tourist Bus and Monsoon add or remove walk-ins that morning. The Cold Room is removed; three upgrades remain. The morning card shows the event picture full size with no day count, standing or tomorrow's news. RULES_VERSION 12 to 13. Seven new event artworks proposed separately.",
-      "rationale": "Owner request: \"change the rule so that market event cant be forecasted ... renove cold room\".",
+      "choice": "Events are never forecast: from day 2 the top event card is turned over each morning and applies that day (the Inspector is still never the last day's event). Festival, Tourist Bus and Monsoon add or remove walk-ins that morning. The Cold Room is removed; three upgrades remain. The morning card shows the event picture full size with no day count, standing or tomorrow's news. RULES_VERSION 12 to 13. Seven new event artworks proposed separately. Art for the seven events, Pak Din, Farah and the two guests approved and put in the game; released as 1.14.0.",
+      "rationale": "Owner request: \"change the rule so that market event cant be forecasted ... renove cold room\". Then: \"ok approve all we discussed here and push it to live\".",
       "impact": {
         "player": "Events become a surprise; one fewer upgrade; a bigger event picture each morning.",
         "technical": "src/engine/game.ts, data.ts, ai.ts, story.ts, panel.tsx, MorningCard.tsx, styles.css, RULES.md, print kit.",
@@ -2672,6 +2672,10 @@
     {
       "at": "2026-11-10 08:50",
       "text": "Owner: remove the \"Market Day: more walk-ins\" line from the Tomorrow's lorry box. Done; the box keeps its Market Day tint, and the evening panel's Market Day note is unchanged."
+    },
+    {
+      "at": "2026-11-10 08:53",
+      "text": "Owner approved everything in PLAN-061 and publication: \"ok approve all we discussed here and push it to live\". All new art put in the game (no 'Art coming' cards left) and in the print kit at 300 ppi. Release 1.14.0 prepared."
     }
   ]
 }

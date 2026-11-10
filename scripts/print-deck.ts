@@ -427,7 +427,7 @@ function referencePages(): Page[] {
     + `${rowsOf3(shops, 'pk-ref-shops')}</section>`;
   const second = `<section class="pg pk-a4">${secHead('Special guests', 'Each comes with its event', 'Reference 2 of 5')}`
     + `${rowsOf3(guests, 'pk-ref-guests')}`
-    + `<p class="pk-interim">Interim pictures: each guest borrows its event’s scene until the guest’s own portrait is drawn (the Wedding Caterer and the Bakery have none yet).</p></section>`;
+    + `<p class="pk-interim">Each guest’s picture is its event’s scene, which shows them.</p></section>`;
   const pages: Page[] = [{ html: first }, { html: second }];
   for (let p = 0; p < 3; p++) {
     const tiles = CUSTOMER_CARDS.slice(p * 12, p * 12 + 12).map((c) =>
@@ -494,7 +494,7 @@ const parts: Part[] = [
   { file: 'Player_Aid.pdf', title: 'Player aid', what: 'A day in five beats and the crier’s price rule (one A4 page per player)', pages: [playerAid()] },
   { file: 'Character_Reference.pdf', title: 'Character reference', what: `The ${RIVALS.length} shopkeepers, ${GUESTS.length} special guests and ${CUSTOMER_CARDS.length} customers, for the rulebook`, pages: referencePages() },
   { file: 'Cards_Customers_A4.pdf', title: 'Customer cards', what: `${CUSTOMER_CARDS.length} Trading Cards; each back shows that customer’s fruit`, pages: sheets('Customers', customerFronts, customerBacks) },
-  { file: 'Cards_Guests_A4.pdf', title: 'Special guest cards', what: `${GUESTS.length} guests (pictures are interim) and their backs`, pages: sheets('Special guests', GUESTS.map(guestFront), same(guestBack, GUESTS.length), 'Interim pictures: each guest borrows its event’s scene. Cut on the dashed lines.') },
+  { file: 'Cards_Guests_A4.pdf', title: 'Special guest cards', what: `${GUESTS.length} guests and their backs`, pages: sheets('Special guests', GUESTS.map(guestFront), same(guestBack, GUESTS.length), 'Each guest’s picture is its event’s scene. Cut on the dashed lines.') },
   { file: 'Cards_Shopkeepers_A4.pdf', title: 'Shopkeeper cards', what: `${RIVALS.length} Stall Signs and their backs`, pages: sheets('Shopkeepers', shopCells, same(shopBack, RIVALS.length)) },
   { file: 'Cards_Events_A4.pdf', title: 'Event cards', what: `${EVENT_CARDS.length} newspaper front pages and their backs`, pages: sheets('Events', eventCells, same(eventBack, EVENT_CARDS.length)) },
   { file: 'Cards_Favours_A4.pdf', title: 'Favour cards', what: `${PRINT_FAVOURS.length} cards (3 of each; use 2 of each at 2 to 4 stalls) and their backs`, pages: sheets('Favours', favourCells, same(favourBack, PRINT_FAVOURS.length)) },
@@ -517,7 +517,7 @@ function coverPage(): Page {
       + `<p class="lede">Every card for the tabletop game in the owner’s deck art: customers as Trading Cards, shopkeepers as Stall Signs and events as newspaper front pages. Names, numbers and prices come straight from the game data (rules version ${RULES_VERSION}), so the cards always match the app.</p>`
       + `<table class="pk-toc"><thead><tr><th>Part</th><th>What it is</th><th>Pages</th></tr></thead><tbody>${rows}</tbody></table>`
       + `<div class="pk-boxes"><div class="pk-box"><h4>Printing at home</h4><ul><li>A4 card (250 to 300 gsm), 100% or “actual size”, background graphics on.</li><li>Double-sided, flip on the long edge: each fronts page is followed by its backs, mirrored to line up.</li><li>Cut on the dashed lines. Cards are 63 × 88 mm (poker size).</li><li>The circles on a customer card hold the fruit pieces sold to that customer.</li></ul></div>`
-      + `<div class="pk-box"><h4>Still to come</h4><ul><li>Guest portraits: the three guests borrow their event’s scene for now.</li><li>The customer card back is a new design in the deck-art style; the owner’s PDFs have no back.</li><li>Not restyled yet: the mat, stall sheet and screen, tokens and paper money from the earlier kit.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
+      + `<div class="pk-box"><h4>Still to come</h4><ul><li>The customer card back is a new design in the deck-art style; the owner’s PDFs have no back.</li><li>Not restyled yet: the mat, stall sheet and screen, tokens and paper money from the earlier kit.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
   };
 }
 

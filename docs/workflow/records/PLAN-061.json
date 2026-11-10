@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.14.0",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [
     "REP-092",
@@ -10,8 +10,8 @@
   ],
   "changes": {
     "added": [
-      "Redrawn draft artwork for the seven events without a picture, matched to the existing event art (docs/studio/art-drafts/events, not yet in the game)",
-      "Draft art for Pak Din (Shade Cloth) and Farah (Sharp Ears): stall scenes and round badges in docs/studio/art-drafts/shopkeepers; the Wedding Caterer and the Bakery to use their event's picture like the other guests (not yet in the game)"
+      "Art for the seven newest events, Pak Din and Farah (scene and badge), drawn in the style of the existing art; the Wedding Caterer and the Bakery show their event's picture",
+      "300 ppi print copies of the new art, so the print kit has every picture"
     ],
     "changed": [
       "Rules version 13: today's event is turned over each morning and never shown the day before; walk-in events add or remove walk-ins that morning",
@@ -32,10 +32,11 @@
     ]
   },
   "playerNotes": [
-    "Events are now a surprise: each morning's news card is turned over that day",
-    "The Cold Room is gone; three upgrades remain",
-    "Bigger event pictures on the morning card",
-    "Event cards have new wording, each with a short tagline"
+    "Events are now a surprise: each morning the news card is drawn face down and turned over that day",
+    "Bigger event pictures, new wording with a tagline on every event card, and art for the seven newest events",
+    "Pak Din and Farah have their own pictures, and the Wedding Caterer and the Bakery show theirs",
+    "The Cold Room upgrade is gone: three upgrades remain",
+    "Price reveal cards follow the same order as the rival row"
   ],
   "approval": {
     "status": "approved",
@@ -56,16 +57,13 @@
     "Owner's event card wording with taglines (game, newspaper cards, rule book, print kit)",
     "Price reveal card order matches the rival row (owner's choice: fixed seats)"
   ],
-  "exclusions": [
-    "Putting the new artwork into the game (awaiting owner approval)",
-    "Publishing live"
-  ],
+  "exclusions": [],
   "acceptance": [
     {
       "id": "T1",
       "text": "npm run verify passes",
       "result": "PASS",
-      "evidence": "2026-11-10: 408 unit tests incl. tests/rules13.test.ts, build"
+      "evidence": "2026-11-10: 408 unit tests, build, with all new art in the game"
     },
     {
       "id": "T2",

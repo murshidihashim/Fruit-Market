@@ -32,7 +32,7 @@ describe('deck art files', () => {
     }
     for (const e of EVENT_CARDS) if (!art(e.id, eventArt(e.id))) missing.push(`event ${e.id}`);
     expect(missing).toEqual([]);
-    expect([...ART_COMING].sort()).toEqual(['bakeOff', 'Bakery', 'durian', 'kenduri', 'mangoWindfall', 'monsoon', 'pasarMalam', 'touristBus', 'Wedding Caterer', '🐢', '🦜'].sort());
+    expect([...ART_COMING]).toEqual([]); // PLAN-061 drew the last gaps: every card has its picture
   });
 
   it('missing art says so and never borrows a picture', () => {
