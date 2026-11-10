@@ -12,7 +12,7 @@ Fruit Market is a game of **timing and nerve**. Three things pull against you ev
 
 1. **The clock.** All fruit gets older every night, and old fruit sells for less and then not at all. Whatever you buy, you are racing to sell it.
 2. **The secret price.** You never see your rivals' prices until the bell. Price too high and the customer walks past you; too low and you give money away.
-3. **The rival's crate.** Everyone sees how many of each fruit every stall puts out, before prices are set. If a rival is short of apples, you know you can charge more.
+3. **The shut crate.** Stalls are secret. Before prices are set you learn only **how many pieces** each rival put out, not which fruit. Guess right and you can charge more; put out what they did not expect and they price for the wrong fruit.
 
 You do not need to be the best at everything. Often the winner is simply the stall that threw away the least fruit and was brave one day when the others were not.
 
@@ -110,10 +110,10 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card (ev
 Each stall buys **up to 4 pieces of fruit** (5 with a Handcart), paying the cost for that fruit's freshness. Your shelf holds 8 (10 with a Handcart). **The poorest stall buys first, then the others follow clockwise from it** (a tie for poorest goes to the first of them clockwise from the first-player token; Day 1 starts at the token). A Priority favour jumps the queue.
 
 ### 3. Stocking
-Today's customers arrive: a standing order collected today (at the front), the regular and the walk-ins, who turn face up now. Each stall secretly fills its **for-sale crate** with the exact pieces of ripe fruit it wants to sell: move those tokens from your shelf into the crate on your stall sheet, any freshness you like. Then all crates are shown at once. Only the pieces in your crate can sell today; fruit you keep back stays on your shelf (and keeps ageing). Green fruit can't go in a crate.
+Today's customers arrive: a standing order collected today (at the front), the regular and the walk-ins, who turn face up now. Each stall secretly fills its **for-sale crate** with the exact pieces of ripe fruit it wants to sell: move those tokens from your shelf into the crate on your stall sheet, any freshness you like. When every stall is ready, each says **how many pieces** are in its crate, and nothing else: which fruit, and how fresh, stays behind the shutter. Only the pieces in your crate can sell today; fruit you keep back stays on your shelf (and keeps ageing). Green fruit can't go in a crate.
 
 ### 4. The bell
-Each stall secretly sets **one price per fruit** it put out, then everyone reveals together.
+Each stall secretly sets **one price per fruit** it put out, knowing only how many pieces every other stall put out. Then everyone reveals together: **prices and crates open at the bell**.
 
 - **Price cap:** a customer pays at most their card price for a fresh fruit, $1 less for okay and $2 less for soft. When you sell, the **oldest piece in your crate that is fresh enough for your price** goes first. Only pieces in your crate can sell.
 - **Freshness type:** a *Premium* customer buys **Fresh fruit only**; an *Everyday* customer buys **Fresh or Okay**; a *Bargain* customer buys **Fresh, Okay or Soft**. A stall cannot sell fruit a customer will not take, whatever the price. Premium: Rara Jenab, Ravi Rocket, Captain Ahmad, Anna the Artist, Devi Bloom, Miss Cha-Cha (and the Influencer). Bargain: Magic Kumar, Professor Pebble, Postman Pip, Coral Mei, Rockstar Grace, Inspector Wei. Everyone else is Everyday (the Gym Club, Hotel Chef, Wedding Caterer and Bakery too).
@@ -250,7 +250,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Sharp Ears.** When tomorrow's walk-ins are drawn, Farah looks at the front of one of them, like Scout. Mark it with her colour. When she sells that customer anything, the crier pays her tip, once a day.
 
-**The stall sheet and screen.** Each stall has one printed sheet with a shelf, a *crate* area, and a *price* row per fruit ($1 to $16). Fold the card screen in front of the sheet so rivals cannot see. Move the fruit you will sell from the shelf into the crate, show all crates at once, then set prices behind the screen (a marker on a number) and lift all screens together at the bell. Unsold crate fruit goes back to its place on the shelf at the end of the day.
+**The stall sheet, the shutter and the counter.** Each stall has one printed sheet with a shelf row and a crate row for each fruit, a shutter that stands in front of it all game so rivals cannot see, and a counter card that lies in front of the shutter. Move the fruit you will sell from the shelf row up to the crate row, say how many pieces that is, and write your price tags, all behind the shutter. At the bell flip your tags and move your crate pieces onto your counter, each into the box with the same letter and place. Unsold counter fruit goes back to the same box of the shelf row at the end of the day. The shelf is never shown.
 
 **Order circles.** Every customer card has one printed circle for each unit it wants, grouped by fruit. A fruit piece that is sold sits on a circle. Empty circles are what the customer still wants, so a waiting customer simply keeps its pieces on the card.
 
@@ -284,7 +284,17 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 
 *Left out on purpose: a price ladder board for lining up posted prices. Sorting the price cards by hand works for 2 to 6 stalls.*
 
+## Secret stalls (rules version 15)
+
+- **Your stall is secret.** Nobody else sees your shelf, at any time. (In the app a rival's box shows cash only.)
+- **Buying is in the open.** Everyone can watch what you take from the Wholesale Market, and remember it if they can.
+- **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
+- **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
+- **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy and sell; they never read a crate before the bell, so they can be fooled.
+
 ## Balance notes
+
+Rules version 15 (PLAN-073): secret stalls, above. No number on any card changed. BALANCE15
 
 Rules version 14 (PLAN-069): fruit lives of 3, 4, 5 and 6 days, with every mango arriving green ($3; $6 fresh). The row never holds more than five customers, nobody waits overnight, and with 6 stalls every customer wants one more of their first fruit. A new customer deck (one or two fruits, about 3.4 pieces a card, prices spread by type) and smaller lorries (about 8, 11, 15, 19 and 24 pieces). Standing orders on Market Days, won by the lowest secret bid. Five upgrades at $4 to $6, two to a stall; a shelf of 8 (10 with a Handcart). Soft fruit is now called soft. See REP-094.
 

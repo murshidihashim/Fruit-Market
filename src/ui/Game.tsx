@@ -1,6 +1,7 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { buyLimit, canBuy, type GameState } from '../engine/game';
+import { useMemo } from 'preact/hooks';
+import { buyLimit, canBuy, publicView, type GameState } from '../engine/game';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
@@ -21,6 +22,7 @@ import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
+import { CratesOpen } from './game/panels/PricingTable';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -36,7 +38,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
-  const { s, busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
+  const { busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
+  // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
+  // is only a number of pieces until the bell (online the server has already sent it that way).
+  const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
   // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
   if (c.needHandoff) {
@@ -109,6 +114,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} />;
+    // The bell: every crate opens with its prices before the first customer is served (rules 15).
+    if (c.bell && s.phase === 'reveal') return <CratesOpen s={s} viewer={viewer} />;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;

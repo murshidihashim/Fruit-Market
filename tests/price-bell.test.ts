@@ -73,8 +73,9 @@ describe('every crate is open, and your price rows', () => {
   it('every rival crate is drawn; each fruit you put out has its own price row, and a sealed price never shows', () => {
     const s = bell();
     const html = panel(s);
-    expect(html).toContain('Every crate is open');
+    expect(html).toContain('Rival crates · shut until the bell');
     expect(html.match(/class="crate tk-crate/g)).toHaveLength(2); // the two rivals
+    expect(html).toContain('3</b><small>pieces out'); // Saleh: how many, never which fruit
     expect(html.match(/class="tk-row price /g)).toHaveLength(2); // your watermelons and your apples
     expect(html.match(/class="pbub tk-dial"/g)).toHaveLength(2);
     expect(html).not.toMatch(/\$97|>97</);
@@ -96,12 +97,12 @@ describe('"The Bell" notice', () => {
     expect(day2).toContain('aria-label="How the bell works"');
   });
 
-  it("says the crier's five lines, in the engine's tie order", () => {
+  it("says the crier's lines, in the engine's tie order", () => {
     const html = toStaticHtml(h(BellNotice, { onClose: () => undefined }));
-    for (const line of ['THE BELL', 'Price every fruit you put out!', 'Prices stay secret until the bell.', 'Lowest price sells first!',
+    for (const line of ['THE BELL', 'Price every fruit you put out!', 'Prices stay secret until the bell.', 'Crates stay shut until the bell: you only see how many pieces.', 'Lowest price sells first!',
       'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.', 'Fulfil all of a customer’s orders to earn a favour card.']) {
       expect(html).toContain(line);
     }
-    expect(html.match(/class="bn-badge"/g)).toHaveLength(5);
+    expect(html.match(/class="bn-badge"/g)).toHaveLength(6);
   });
 });

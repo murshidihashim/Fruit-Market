@@ -18,8 +18,8 @@ const GAME_PHASES = [
 const DAY_BEATS = [
   ['Morning', 'The lorry unloads fruit at the Wholesale Market. An event card changes the day.'],
   ['Buying', `Each stall buys up to ${BASE_BUY} pieces. The poorest stall goes first, then the others clockwise.`],
-  ['Stocking', 'Pick the exact fruit for your for-sale crate. Only crate fruit sells. Everyone sees the crates.'],
-  ['The bell', 'Set one secret price per fruit. All prices flip over together.'],
+  ['Stocking', 'Pick the exact fruit for your for-sale crate. Only crate fruit sells. Rivals learn how many pieces you put out, not which fruit.'],
+  ['The bell', 'Set one secret price per fruit. Prices and crates open together.'],
   ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],
   ['Evening', 'Play favour cards. After a Market Day, build one upgrade.'],
   ['Night', 'All fruit ages one step. Spoiled fruit is thrown away.'],
@@ -68,7 +68,7 @@ const SLIDES = [
             <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p class="muted">The secret price is the heart of the game: you only see your rivals' prices at the bell, but you can see their crates before you set yours.</p>
+        <p class="muted">Secrets are the heart of the game. Stalls are hidden: before the bell you only know how many pieces each rival put out, not which fruit, and never their prices. Buying is done in the open, so watch what they take.</p>
       </>
     ),
   },
@@ -137,8 +137,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none. With a Juice Bar, up to {JUICE_CAP} of them become juice instead: ${JUICE_VALUE} each.</li>
-        <li>Watch the crates: if a rival only put out two apples, you can charge more and serve the rest.</li>
-        <li>A customer you couldn't fully serve comes back once the next day, and is served before the new arrivals.</li>      </ul>
+        <li>Watch what rivals buy. At the bell you only know how many pieces they put out: remember what they hold and you can guess which fruit.</li>
+        <li>Nobody waits overnight: a customer who does not get everything today is gone tomorrow.</li>      </ul>
     ),
   },
 ];

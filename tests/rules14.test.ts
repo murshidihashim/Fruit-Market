@@ -39,7 +39,7 @@ function dueDay(g: GameState, stock: Record<number, number[]>): GameState {
 }
 
 describe('rules 14: fruit lives', () => {
-  it('is rules version 14', () => expect(RULES_VERSION).toBe(14));
+  it('is rules version 14 or later', () => expect(RULES_VERSION).toBeGreaterThanOrEqual(14));
 
   it('fruits last 3, 4, 5 and 6 days: the last two are Okay then Soft, every day before is Fresh', () => {
     expect(FRUITS.map((f) => FRUIT[f].ripe.length + FRUIT[f].unripeSlots).sort()).toEqual([3, 4, 5, 6]);

@@ -1,7 +1,7 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useEffect, useState } from 'preact/hooks';
-import { planPrices } from '../engine/ai';
+import { believe, planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
@@ -134,7 +134,7 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
             );
           })}
         </div>
-        {rows.length <= 3 && <p class="tk-note">Only the crate can sell today. Rivals will see how many pieces you put out, never your price.</p>}
+        {rows.length <= 3 && <p class="tk-note">Only the crate can sell today. Rivals will see how many pieces you put out, not which fruit, and never your price.</p>}
       </div>
       <div class="pp-lock">
         <button class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
@@ -173,18 +173,8 @@ export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: numbe
   );
 }
 
-/** Who else has each of your fruits out, in a sentence each (public once every stall is open). */
-export function rivalsOut(s: GameState, p: number, fruits: FruitId[]): string {
-  return fruits.map((f) => {
-    const others = s.players.map((pl, i) => ({ name: pl.name, n: i === p ? 0 : forSale(s, i, f) })).filter((x) => x.n > 0);
-    const word = FRUIT[f].plural.toLowerCase();
-    if (!others.length) return `Nobody else has ${word} out.`;
-    return `${others.map((x) => `${x.name} has ${x.n}`).join(', ')} ${others.length === 1 && others[0].n === 1 ? FRUIT[f].name.toLowerCase() : word} out.`;
-  }).join(' ');
-}
-
-/** The pricing screen drawn from its state (no hooks, so tests can draw it): every rival's open crate, then one row
- *  per fruit you put out with its own − and + (PLAN-072). */
+/** The pricing screen drawn from its state (no hooks, so tests can draw it): every rival's crate, shut, with how many
+ *  pieces it holds (rules 15), then one row per fruit you put out with its own − and + (PLAN-072). */
 export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice, onFavoured, onNotice, onSubmit }: {
   s: GameState; p: number; vals: Record<string, number>; favoured: boolean; notice: boolean; waiting?: boolean;
   onPrice: (f: FruitId, price: number) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
@@ -195,11 +185,14 @@ export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice,
   const priceOf = (f: FruitId) => Math.min(vals[f], maxPrice(s, f));
   const posts: Post[] = FRUITS.filter((f) => fruits.includes(f)).map((f) => ({ fruit: f, price: priceOf(f) }));
   const error = validatePrices(s, p, posts);
-  const board = demandBoard(s, p);
+  // Rules 15: the rivals' crates are shut, so "wanted" and "would buy" are worked out on the same guess the suggested
+  // prices use (engine/ai believe: only how many pieces each rival put out), never on a rival's real crate.
+  const b = believe(s, p, false);
+  const board = demandBoard(b, p);
   return (
     <>
       <div class="price-panel mid-panel tk-panel">
-        <div class="tk-label-row"><b class="tk-label">Every crate is open</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
+        <div class="tk-label-row"><b class="tk-label">Rival crates · shut until the bell</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
         <PricingTableView s={s} viewer={p} waiting={waiting} />
         {waiting ? <p class="pp-wait tk-note">Rivals are opening their stalls…</p> : (
           <>
@@ -209,10 +202,10 @@ export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice,
               {fruits.map((f) => {
                 const price = priceOf(f);
                 const lo = minPrice(s, f);
-                const top = Math.max(0, ...buyersFor(s, f).map((x) => buyerCap(s, p, f, x).cap));
+                const top = Math.max(0, ...buyersFor(b, f).map((x) => buyerCap(b, p, f, x).cap));
                 const hi = Math.min(maxPrice(s, f), Math.max(1, top) + 2);
                 const wanted = board.find((r) => r.f === f)?.wanted ?? 0;
-                const buy = buyersAt(s, p, f, price);
+                const buy = buyersAt(b, p, f, price);
                 return (
                   <div class={`tk-row price ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
                     <div class="tk-row-info">
@@ -233,7 +226,7 @@ export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice,
                 <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
               </button>
             )}
-            {fruits.length > 0 && <p class="tk-note">{rivalsOut(s, p, fruits)} Cheapest stall sells first; okay fruit pays $1 less.</p>}
+            {fruits.length > 0 && <p class="tk-note">You see how many pieces each rival put out, not which fruit: that shows at the bell. Cheapest stall sells first; okay fruit pays $1 less.</p>}
           </>
         )}
       </div>
@@ -253,6 +246,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
   const lines: [IconName, string][] = [
     ['tag', 'Price every fruit you put out!'],
     ['hourglass', 'Prices stay secret until the bell.'],
+    ['crate', 'Crates stay shut until the bell: you only see how many pieces.'],
     ['coin', 'Lowest price sells first!'],
     ['scales', 'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.'],
     ['heart', 'Fulfil all of a customer’s orders to earn a favour card.'],

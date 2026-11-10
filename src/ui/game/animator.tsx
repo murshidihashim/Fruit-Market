@@ -38,7 +38,10 @@ export async function moves(prev: GameState, next: GameState) {
     for (let pos = 0; pos < next.market[f].length; pos++) {
       const diff = prev.market[f][pos] - next.market[f][pos];
       if (!diff) continue;
-      const p = next.players.findIndex((pl, i) => pl.stock[f][pos] !== prev.players[i].stock[f][pos]);
+      // Whose shelf changed. A rival's shelf is secret (rules 15: online it is not even sent), but buying is done in the
+      // open, so the piece still flies to the stall whose turn it was.
+      let p = next.players.findIndex((pl, i) => pl.stock[f][pos] !== prev.players[i].stock[f][pos]);
+      if (p < 0 && prev.phase === 'buy') p = prev.order[prev.turn] ?? -1;
       if (p < 0) continue;
       for (let k = 0; k < Math.min(Math.abs(diff), 5); k++) {
         const node = <Fruit id={f} size={30} stage={pos >= FRUIT[f].ripe.length ? 'unripe' : undefined} />;
@@ -107,7 +110,7 @@ function payNow(l: LineResult) {
   }
 }
 
-export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void) {
+export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (on: boolean) => void) {
   const r = g.results!;
   const lines = r.lines.filter((l) => l.offers.length > 0);
   if (!lines.length) {
@@ -116,11 +119,11 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     t.remove();
     return;
   }
-  // The bell: a short pause while every price board flips, before the rush starts.
-  const bell = A.tag('street', 'The bell! Prices are out', 'big');
+  // The bell (rules 15): every crate opens with its prices. They stay on the table long enough to read, then the rush starts.
+  setBell?.(true);
   fx.card();
-  await A.wait(900);
-  bell.remove();
+  await A.wait(1500 + 350 * g.players.length);
+  setBell?.(false);
   // Routine sales (one rival, no contest, not you) settle together; showdowns get the stage.
   const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
   const routine = lines.filter((l) => !shows.includes(l));

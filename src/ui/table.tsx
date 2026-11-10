@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId, type Stage } from '../engine/data';
 import {
-  buyCost, buyLimit, count, effectiveMax, forSale, shelfSize,
+  buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
   type Customer, type GameState,
 } from '../engine/game';
 import { Face, FavourIcon, Fruit } from './art';
@@ -11,7 +11,7 @@ import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type Ticket
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
-import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
+import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite } from './icons';
@@ -71,8 +71,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
         )}
         {lanes.map(([f, i]) => (
           <div class={`tk-lane ${f}`}>
-            <button type="button" class={`pz tk-lane-head ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
-              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in stalls`}>
+            <button type="button" class="pz tk-lane-head" data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
+              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted today`}>
               <Fruit id={f} size={20} />
               <span>{wantText(pz[i])} want</span>
             </button>
@@ -140,17 +140,17 @@ export function SeatBoard({ b }: { b: Board }) {
 
 // ---------- rivals ----------
 
-/** What a rival's pill says under their name: crates before the stalls open, pieces out once they have. Public facts only. */
-function rivalNote(s: GameState, p: number, active: boolean): string {
+/** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
+ *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
+export function rivalNote(s: GameState, p: number, active: boolean): string {
   if (s.phase === 'evening') return active ? 'building…' : 'plotting…';
-  if (s.phase === 'bid' || s.phase === 'reveal') {
-    // At the bell the pieces still out drop as each customer is served (stockShown.ts).
-    const sold = (f: FruitId) => (s.phase === 'reveal' ? shownSold(s.results, p, f) : 0);
-    const out = FRUITS.reduce((a, f) => a + Math.max(0, forSale(s, p, f) - sold(f)), 0);
+  if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} out` : 'none out'; }
+  if (s.phase === 'reveal') {
+    // At the bell the crates are open; the pieces still out drop as each customer is served (stockShown.ts).
+    const out = FRUITS.reduce((a, f) => a + Math.max(0, forSale(s, p, f) - shownSold(s.results, p, f)), 0);
     return out ? `${out} out` : 'none out';
   }
-  const n = count(shownStock(p, s.players[p].stock));
-  return n ? `${n} fruit` : 'empty';
+  return '';
 }
 
 /**
@@ -168,31 +168,34 @@ export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p
   const base = rivalNote(s, p, active);
   // The price board's state, in a word: it is sealed until the cards around the customer turn over.
   const note = !board ? (active && s.phase === 'buy' ? 'buying' : base)
-    : board.state === 'thinking' ? (s.phase === 'stall' ? 'choosing' : 'pricing')
-    : board.state === 'sealed' ? (s.phase === 'stall' ? 'ready' : s.phase === 'bid' ? 'sealed' : base)
+    : s.phase === 'stall' ? (board.state === 'thinking' ? 'choosing' : 'ready')
+    : s.phase === 'bid' ? base // how many pieces it put out; a sealed stall's box turns grey
+    : board.state !== 'open' ? base
     : board.res === 'won' ? `sold at $${board.price}` : board.res === 'lost' ? 'no sale' : `asks $${board.price}`;
   const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding')
     : board.state === 'sealed' ? ', sealed' : `, price $${board.price}${board.res === 'won' ? ', sold' : board.res === 'lost' ? ', no sale' : ''}`;
   return (
     <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}, ${base}${said}. Tap to see their fruit`}>
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}. Tap for more`}>
       {/* Five or six stalls: the box is narrow, so the name gets its own line and the note is left to the box's shade
           (grey once a stall is ready or sealed) and to its spoken label. */}
       <Swatch p={p} who={pl.avatar} look={pl.look} size={compact ? 20 : 30} />
       <span class="tk-seat-body">
         <span class="tk-seat-name">{pl.name}</span>
-        <span class="tk-seat-line"><b data-a={`p${p}-cash`}>${cash}</b>{!compact && <> · {note}</>}</span>
+        <span class="tk-seat-line"><b data-a={`p${p}-cash`}>${cash}</b>{!compact && note && <> · {note}</>}</span>
       </span>
     </button>
   );
 }
 
-/** A rival's stall, opened from their seat: the same counts by freshness as your own shelf. */
+/** A rival's stall, opened from their seat. Rules 15: the shelf stays behind the shutter, so this shows cash, the perk,
+ *  what is built, and today's crate: how many pieces before the bell, which fruit once it has rung. */
 export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
   useCashShown();
-  useStockShown();
   const pl = s.players[p];
-  const groups = shelfGroups(shownStock(p, pl.stock));
+  const out = outCount(s, p);
+  const open = s.phase === 'reveal';
+  const crate = open ? LANES.filter((f) => forSale(s, p, f) > 0) : [];
   return (
     <div class="rival-drop tk-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
       <div class="rd-head">
@@ -201,16 +204,17 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
         <span class="tk-cash">${shownCash(p, pl.cash)}</span>
         <button type="button" class="rd-close" onClick={onClose} aria-label="Close">×</button>
       </div>
-      {groups.some((g) => g.n > 0) ? (
-        <div class="tk-dock-fruits">
-          {groups.map(({ f, n, stages }) => (
-            <span class={`tk-dk-f ${n ? '' : 'none'}`} aria-label={`${FRUIT[f].plural}: ${n ? stages.map((x) => `${x.n} ${STAGE_WORD[x.stage]}`).join(', ') : 'none'}`}>
-              <span class="tk-dk-n"><Fruit id={f} size={22} /><b>{n}</b></span>
-              <span class="tk-dk-st">{stages.map(({ stage, n: k }) => <i class={`st-${stage}`}>{STAGE_LETTER[stage]}{k}</i>)}</span>
-            </span>
-          ))}
+      {open && crate.length > 0 ? (
+        <div class="tk-drop-crate" aria-label={`Today's crate: ${crate.map((f) => `${forSale(s, p, f)} ${FRUIT[f].plural.toLowerCase()}`).join(', ')}`}>
+          <span class="tk-label">Today's crate</span>
+          {crate.map((f) => <span class="tk-dk-n"><Fruit id={f} size={22} /><b>{forSale(s, p, f)}</b></span>)}
         </div>
-      ) : <span class="tk-note">Nothing on the shelf yet.</span>}
+      ) : (
+        <span class="tk-note">
+          {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. Which fruit shows at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
+          The shelf stays behind the shutter.
+        </span>
+      )}
       {(pl.trait || pl.upgrades.length > 0 || pl.favours.length > 0) && (
         <div class="rd-extra">
           {pl.trait && <span class="tk-chip" title={TRAITS[pl.trait].text}>{TRAITS[pl.trait].title}</span>}

@@ -70,13 +70,14 @@ describe('daily leaderboard', () => {
   });
 
   it('rejects games played against older computer players (the replay would differ)', () => {
-    expect(AI_VERSION).toBe(3);
+    expect(AI_VERSION).toBe(4);
     const { s, moves } = playDaily();
     // An app from 1.8.0 or earlier sends no computer-player version: that is version 1.
     expect(() => verifyDaily({ date: DATE, name: 'Tester', actions: moves, rv: RULES_VERSION }, NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { av: 1 }), NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { av: 2 }), NOW, OWNER)).toThrow(UPDATE_MSG);
-    expect(verifyDaily(sub(moves, { av: 3 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
+    expect(() => verifyDaily(sub(moves, { av: 3 }), NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(verifyDaily(sub(moves, { av: 4 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
   });
 
   it('keeps a daily board for each rules and computer-player version', () => {
