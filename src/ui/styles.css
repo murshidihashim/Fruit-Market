@@ -836,7 +836,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .cust.heard .cface { position: relative; }
 .cust .ear { position: absolute; right: -6px; top: -6px; font-style: normal; font-size: 0.8rem; }
 .next-lorry.market-day { background: rgba(232, 176, 75, 0.35); }
-.next-lorry .nl-note { font-size: 0.72rem; }
 .sc-money.ledger .net { padding-left: 10px; border-left: 2px solid rgba(0, 0, 0, 0.12); }
 .sc-waste { font-size: 0.8rem; color: var(--terra-d); }
 /* good news: fruit the Juice Bar turns into money tonight (the sales card) and overnight (the morning card) */

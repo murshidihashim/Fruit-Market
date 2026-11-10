@@ -112,7 +112,6 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
           <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />×{l.n}</span>
         ))}
       </span>
-      {marketDayTomorrow(s) && <span class="nl-note">Market Day: more walk-ins</span>}
     </div>
   );
 }
