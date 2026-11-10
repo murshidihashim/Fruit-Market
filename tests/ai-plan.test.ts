@@ -29,7 +29,7 @@ function market(crowd: Customer[], opts: { day?: number; days?: 8 | 10 | 14; ext
   for (const pl of s.players) {
     pl.trait = null;
     pl.favours = [];
-    pl.stock = { blueberry: [0, 0, 0], watermelon: [0, 0, 0, 0, 0, 0], apple: [0, 0, 0, 0, 0, 0, 0], mango: [0, 0, 0, 0, 0, 0] };
+    pl.stock = { blueberry: [0, 0, 0], watermelon: [0, 0, 0, 0], apple: [0, 0, 0, 0, 0, 0], mango: [0, 0, 0, 0, 0] };
   }
   return s;
 }
@@ -107,7 +107,7 @@ describe("the planner's model of the rush follows the tie order", () => {
     const s = market([buyer(900, 'Tester', 3, 8, 'premium')]);
     s.players[0].stock.apple[0] = 2;
     s.players[0].stock.apple[fresh('apple')] = 2;
-    for (const [crate, want] of [[undefined, 0], [{ apple: [0, 0, 0, 0, 0, 0, 2] }, 2]] as const) {
+    for (const [crate, want] of [[undefined, 0], [{ apple: [0, 0, 0, 0, 0, 2] }, 2]] as const) {
       let bid = openStall(s, 0, { apple: 2 }, crate ? { apple: [...crate.apple] } : undefined);
       bid = openStall(bid, 1, {});
       expect(simulateSales(bid, 'apple', seller(bid, 0, 'apple', 6, 2), [])).toBe(want);

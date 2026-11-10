@@ -924,6 +924,38 @@ export function crateStock(s: GameState, p: number): Stock {
   return out;
 }
 
+/**
+ * Rules 14: a shop's crate as the row of customers finds it, after a standing order collected today has taken its
+ * pieces (the holder's first, freshest first; then, for anything missing, the freshest pieces rivals put out). The
+ * crates are public once every stall is open, so anyone can work this out. Without an order due it is the crate.
+ */
+export function rowStock(s: GameState, p: number): Stock {
+  const due = orderDueToday(s);
+  const mine = crateStock(s, p);
+  if (!due || !s.crates || s.crates.some((c) => c === null)) return mine;
+  const f = due.fruit;
+  const all = s.players.map((_, i) => (i === p ? mine : crateStock(s, i)));
+  // As in the rush: the holder's pieces first, then each rival in turn (the one with the freshest piece first, then
+  // today's buying order), every stall handing over its freshest Fresh or Okay pieces.
+  const usable = (st: Stock) => { const o: number[] = []; for (let pos = FRUIT[f].ripe.length - 1; pos >= 0; pos--) if (stageAt(f, pos) !== 'notso') for (let k = 0; k < st[f][pos]; k++) o.push(pos); return o; };
+  const lots = all.map((st, i) => ({ p: i, pos: usable(st) })).filter((x) => x.pos.length > 0);
+  lots.sort((a, b) => Number(b.p === due.holder) - Number(a.p === due.holder) || b.pos[0] - a.pos[0] || s.order.indexOf(a.p) - s.order.indexOf(b.p));
+  const out = { ...mine, [f]: [...mine[f]] } as Stock;
+  let need = due.qty;
+  for (const lot of lots) {
+    const take = lot.pos.slice(0, need);
+    need -= take.length;
+    if (lot.p === p) for (const pos of take) out[f][pos]--;
+    if (need <= 0) break;
+  }
+  return out;
+}
+
+/** Pieces of a fruit a shop has left for the row of customers today (see rowStock). */
+export function rowCount(s: GameState, p: number, f: FruitId): number {
+  return rowStock(s, p)[f].reduce((a, b) => a + b, 0);
+}
+
 /** Fruit a shop has out for sale today. */
 export function forSale(s: GameState, p: number, f: FruitId): number {
   return s.stalls[p]?.[f] ?? 0;

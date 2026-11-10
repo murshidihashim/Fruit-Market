@@ -6,7 +6,7 @@
 import { CUSTOMER_CARDS, FARMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, MARKET_DAY_EVERY, ORDER_LEAD, ROW_CAP, UPGRADES, acceptsStage, freshPos, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, capFor, count, crateStock, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
+  capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos,
   type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
@@ -263,12 +263,12 @@ export interface Seller { player: number; price: number; pos: number[]; left: nu
  * public; before that (planning what to put out) a crate of `n` takes the oldest `n` pieces, as a computer shop's does.
  */
 export function seller(s: GameState, player: number, f: FruitId, price: number, n: number, ft = false): Seller {
-  const pos = s.crates?.[player] ? units(crateStock(s, player), f, n) : units(s.players[player].stock, f, n);
+  const pos = s.crates?.[player] ? units(rowStock(s, player), f, n) : units(s.players[player].stock, f, n);
   return { player, price, pos, left: pos.length, ft };
 }
 
 /** What a shop can sell from today: its crate once stalls are open, otherwise its whole shelf. */
-const sellStock = (s: GameState, p: number): Stock => (s.crates?.[p] ? crateStock(s, p) : s.players[p].stock);
+const sellStock = (s: GameState, p: number): Stock => (s.crates?.[p] ? rowStock(s, p) : s.players[p].stock);
 
 /**
  * Expected sales for one shop (`me`), by running the day's queue for one fruit the way the rush does: cheapest stall
@@ -410,10 +410,8 @@ export function planPrices(s: GameState, p: number): { posts: Post[]; favoured: 
   for (const f of FRUITS) {
     const n = forSale(s, p, f);
     if (n <= 0) continue;
-    // The holder of a standing order collected today prices only what the order will leave for the row.
-    const o = s.standing;
-    const forRow = o && o.holder === p && o.due === s.day && o.fruit === f ? Math.max(1, n - o.qty) : n;
-    const { price } = bestPost(s, p, f, forRow, (i) => forSale(s, i, f));
+    // A standing order collected today takes its pieces first: price only what it leaves for the row.
+    const { price } = bestPost(s, p, f, rowCount(s, p, f) || n, (i) => rowCount(s, i, f));
     posts.push({ fruit: f, price: Math.min(30, maxPrice(s, f), price) });
     if (s.players.some((_, i) => i !== p && forSale(s, i, f) > 0)) contested = true;
   }

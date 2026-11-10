@@ -22,7 +22,7 @@ export const GAZETTE: Record<EventId, GazetteCopy> = {
   goodHarvest: { subhead: 'Bumper crop fills every cart', caption: 'A rising sun over golden fields and an overflowing crate.', effects: ['+1 fruit per 4 stalls', 'Customers −$1'] },
   badHarvest: { subhead: 'Storms ruin half the crop', caption: 'Storm clouds, rain, flattened wheat and a half-empty crate.', effects: ['Half delivery', 'Customers +$1'] },
   priceHike: { subhead: 'Wholesalers raise every price', caption: 'A chalkboard with a rising line, an arrow and piles of coins.', effects: ['Market costs +$1'] },
-  priceControls: { subhead: 'Committee puts a ceiling on prices', caption: 'A striped barrier with price tags hanging over each fruit.', effects: ['Blueberry $5', 'Watermelon $7', 'Apple $6', 'Mango $8'] },
+  priceControls: { subhead: 'Committee puts a ceiling on prices', caption: 'A striped barrier with price tags hanging over each fruit.', effects: ['Blueberry $5', 'Watermelon $7', 'Apple $6', 'Mango $10'] },
   inspector: { subhead: 'Inspector checks every shelf', caption: 'An inspector with a cap and moustache examining soft apples through a magnifier.', effects: ['$2 per soft fruit', 'Start of day'] },
   strike: { subhead: 'Supply lorry breaks down', caption: 'A lorry with a flat wheel and steaming engine, fruit spilled on the road.', effects: ['No delivery'] },
   hotel: { subhead: 'Hotel kitchen places a big order', caption: 'A hotel chef at the counter with a service bell, a silver cloche and an order slip.', effects: ['Apple $8', 'Watermelon $8', 'Blueberry $7'] },
