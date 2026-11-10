@@ -6,9 +6,9 @@
    Imported before the body of styles.css: rules start with ".home.front.sq" (three classes) so they beat the older home rules there.
    ===================================================================== */
 :root {
-  --sq-sun: var(--c-e8b23e);       /* sunburst rays */
-  --sq-cobble: var(--c-dcc79e);    /* road and square */
-  --sq-cobble-d: var(--c-d0b98c);  /* cobble stones */
+  --sq-sun: var(--c-fec400);       /* sunburst rays */
+  --sq-cobble: var(--c-ddd4c6);    /* road and square */
+  --sq-cobble-d: var(--c-cfc5b4);  /* cobble stones */
   --sq-sign-cream: var(--c-f3d9a4);
   --sq-dots: color-mix(in srgb, var(--x-ink) 13%, transparent);
 }

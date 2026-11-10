@@ -21,6 +21,7 @@ import { SalesSummary } from './game/panels/SalesSummary';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
+import { NightShift } from './game/panels/NightShift';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -109,6 +110,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
   // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
   const mid = (() => {
+    // The night, shown: every piece slides one box older (PLAN-071).
+    if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} />;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;

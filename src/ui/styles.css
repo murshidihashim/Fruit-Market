@@ -1371,9 +1371,9 @@ b, strong { font-weight: 700; }
 .game .market-stall { background: var(--x-paper); border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
 .game .mk-head { color: var(--x-ink); font-size: 1.05rem; letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; margin: 0 2px 4px; padding: 8px 2px 5px; border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); }
 .game .mk-col.blueberry { background: var(--c-dfe3fa); background: color-mix(in srgb, var(--x-sky) 30%, var(--x-paper)); }
-.game .mk-col.watermelon { background: var(--c-fbdcdd); background: color-mix(in srgb, var(--c-9ab85a) 28%, var(--x-paper)); }
-.game .mk-col.apple { background: var(--c-f9e0d6); background: color-mix(in srgb, var(--c-d24a32) 16%, var(--x-paper)); }
-.game .mk-col.mango { background: var(--c-fbecc4); background: color-mix(in srgb, var(--c-eab03a) 26%, var(--x-paper)); }
+.game .mk-col.watermelon { background: var(--c-fbdcdd); background: color-mix(in srgb, var(--c-8cc152) 28%, var(--x-paper)); }
+.game .mk-col.apple { background: var(--c-f9e0d6); background: color-mix(in srgb, var(--c-e73c35) 16%, var(--x-paper)); }
+.game .mk-col.mango { background: var(--c-fbecc4); background: color-mix(in srgb, var(--c-fec400) 26%, var(--x-paper)); }
 .game .mk-col { border-radius: 4px; }
 .game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { background: var(--x-paper); border-color: var(--x-ink); border-radius: 4px; }
 .game .mk-cell .price { background: var(--x-mustard); border: 1.5px solid var(--x-ink); color: var(--x-ink); font-weight: 600; font-size: 0.74rem; }
@@ -2495,3 +2495,55 @@ b, strong { font-weight: 700; }
 .os-k { font-family: var(--f-pixel); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; color: var(--x-red-d); }
 .os-want, .os-who { display: inline-flex; align-items: center; gap: 4px; }
 .os-fine { margin-left: auto; color: var(--ink-muted); font-weight: 500; }
+
+/* ---------- the night, shown (PLAN-071) ---------- */
+.gx > .centre > .mid-panel.night-shift, .night-shift { display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; overflow: auto; background: var(--x-ink); color: var(--x-paper); border: 2px solid var(--x-ink); border-radius: var(--r); }
+.ns-title { font-family: var(--f-display); font-weight: 400; font-size: 0.95rem; line-height: 1.15; color: var(--x-mustard); }
+.ns-block { display: flex; flex-direction: column; gap: 2px; }
+.ns-k { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-ink-muted); }
+.ns-row { display: flex; align-items: center; gap: 6px; }
+.ns-fruit { flex: none; width: 22px; display: grid; place-items: center; }
+.ns-track { --bw: 38px; display: flex; gap: 3px; }
+.ns-box { position: relative; flex: none; width: var(--bw); height: 23px; background: var(--x-paper); border-radius: 2px; }
+.ns-box i { position: absolute; left: 3px; top: 1px; font: 800 0.6rem/1 var(--f-label); font-style: normal; color: var(--x-slate); }
+.ns-box.ns-notso { background: var(--notso); }
+.ns-box.ns-okay { background: var(--okay); }
+.ns-box.ns-fresh { background: var(--fresh); }
+.ns-box.ns-unripe { background: var(--unripe); }
+.ns-piece { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1px; transition: transform 0.75s cubic-bezier(.3, 0, .2, 1), opacity 0.35s ease 0.55s; z-index: 1; }
+.ns-piece b { font: 800 0.72rem/1 var(--f-label); color: var(--x-ink); }
+.ns-piece.moved { transform: translateX(calc(var(--steps) * -1 * (var(--bw) + 3px))); }
+.ns-piece.gone { opacity: 0; }
+.ns-note { font-size: 0.8rem; font-weight: 600; color: var(--x-mustard); }
+@media (prefers-reduced-motion: reduce) { .ns-piece { transition: none; } }
+
+/* ---------- Market Ticket chrome (PLAN-070): the black awning bar, the yellow street, the price-tag cash, kraft footer.
+   Drawing only: nothing here changes a rule. ---------- */
+.game .topbar, .gx .topbar { position: relative; z-index: 3; background: var(--x-ink); color: var(--x-paper); border-bottom: 0; box-shadow: none; }
+.game .topbar::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 100%; height: 9px; pointer-events: none;
+  background: radial-gradient(circle at 9px 0, var(--x-ink) 0 8.5px, transparent 9px) 0 0 / 18px 9px repeat-x;
+}
+.game .topbar .icon-btn { background: transparent; color: var(--x-paper); border-color: transparent; box-shadow: none; }
+.game .topbar .day-label, .gx .topbar .day-label { color: var(--x-paper); }
+.game .topbar .day-label small, .gx .topbar .day-label small { color: var(--x-paper); opacity: 0.75; }
+.game .topbar .tb-day .phase, .gx .topbar .tb-day .phase { color: var(--x-mustard); background: transparent; border: 0; }
+.game .topbar .tb-day .left, .gx .topbar .tb-day .left { color: var(--x-mustard); }
+.game .topbar .ev-chip, .game .topbar .rv-chip { border-color: var(--x-paper); }
+.game .topbar .tb-me .rank { background: var(--x-mustard); color: var(--x-ink); border: 0; border-radius: 0; }
+.game .hud-cash, .gx .hud-cash {
+  background: var(--x-paper); color: var(--x-ink); border: 0; border-radius: 0; box-shadow: none; padding: 5px 10px 5px 20px;
+  clip-path: polygon(13px 0, 100% 0, 100% 100%, 13px 100%, 0 50%);
+}
+.game .hud-cash .icon { display: none; }
+.game .hud-cash b::before { content: '$'; }
+.game .street-wrap, .gx .street-wrap { border: 0; border-radius: 0; background: var(--x-mustard); padding-top: 14px; }
+.game .street-wrap::after { display: none; }
+.game .street .cust > .x-card { box-shadow: none; }
+.game .actionbar, .gx .actionbar { background: var(--x-wood); border-top: 0; }
+.game .my-stall.dock { background: var(--x-wood); border-left: 0; border-right: 0; border-radius: 0; box-shadow: none; }
+.game .actionbar .btn.primary { background: var(--x-red); border: 2.5px solid var(--x-ink); box-shadow: 0 3px 0 var(--x-ink); }
+.btn.primary { background: var(--x-red); box-shadow: 0 4px 0 var(--x-ink); }
+.btn.primary:active:not(:disabled) { box-shadow: 0 1px 0 var(--x-ink); }
+.home.front.sq .sq-foot button { background: var(--x-paper); color: var(--x-ink); }
+.home.front.sq .sq-board { background: var(--x-ink); }

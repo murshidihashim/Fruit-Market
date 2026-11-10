@@ -22,8 +22,8 @@
   --x-green: var(--c-0e9a58);      /* banners, "buys" line */
   --x-chalk: var(--c-1f272a);      /* chalkboards */
   --x-chalk-l: var(--c-2f3a3e);
-  --x-wood: var(--c-b8743c);       /* stall-sign frames, counters */
-  --x-wood-d: var(--c-7e4e26);
+  --x-wood: var(--c-ddd4c6);       /* stall-sign frames, counters */
+  --x-wood-d: var(--c-bdbebe);
   --x-sky: var(--c-3558a2);
   --x-sky-d: var(--c-284785);
   /* type: one font, Archivo, in every role (DEC-068); the weight sets the hierarchy */

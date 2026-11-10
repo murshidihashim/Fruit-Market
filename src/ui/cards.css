@@ -4,7 +4,7 @@
    own font-size; then its lengths are that ce value divided by its font-size (noted where it matters). */
 
 :root {
-  --x-wood-grain: var(--c-a66936); /* grain lines on stall-sign wood */
+  --x-wood-grain: var(--c-cfc5b4); /* grain lines on stall-sign wood */
   --x-shadow: var(--c-a4a3a1);     /* stall-sign drop shadow */
 }
 

@@ -161,7 +161,7 @@ A standing order draws no favour card and pays no tips. Closing Day adds its $1 
 
 | Card | Effect |
 |---|---|
-| 🎉 Festival | *Big crowds, bigger spending!* Customers pay $1 more per fruit. Add 1 walk-in (2 at 4–6 stalls). |
+| 🎉 Festival | *Big crowds, bigger spending!* Customers pay $1 more per fruit. Add 1 walk-in (2 at 4–6 stalls), up to a row of five. |
 | 💪 Superfood Trend | *Blueberries are the new superfood!* Blueberry customers pay $1 more each. Gym Club wants 2 Fresh/Okay blueberries at $8 each. |
 | 📱 Mango Craze | *Mangoes go viral!* Mango customers pay $2 more each. An influencer wants 1 Fresh mango at $15. |
 | 🏨 Hotel Order | *Room service is calling!* Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7). Fresh/Okay only. |
@@ -174,7 +174,7 @@ A standing order draws no favour card and pays no tips. Closing Day adds its $1 
 | ⚖️ Price Controls | *Keep those prices in check!* Stall prices cannot exceed the limits shown today. (Blueberry $5, watermelon $7, apple $6, mango $10.) |
 | 🕵️ Health Inspector | *Surprise inspection!* Before buying, pay $2 per Soft fruit on your shelf, up to your cash. Never the final day. |
 | 🚚 Lorry Breakdown | *The fruit is stuck in traffic!* No delivery today. Existing market stock stays. |
-| 🚌 Tourist Bus | *Here come the hungry tourists!* Add 2 walk-ins at 2–3 stalls, 3 at 4 stalls, or 4 at 5–6 stalls. Prices unchanged. |
+| 🚌 Tourist Bus | *Here come the hungry tourists!* Add 2 walk-ins at 2–3 stalls, 3 at 4 stalls, or 4 at 5–6 stalls, up to a row of five. Prices unchanged. |
 | 🌧️ Monsoon Downpour | *Rain checks for everyone!* Remove 1 walk-in (2 at 4–6 stalls). No fruit ages tonight, including market stock. |
 | 🌰 Durian Season | *Durian steals the spotlight!* Wholesale fruit costs $1 less, minimum $1. Customers pay $1 less per fruit. |
 | 💍 Kenduri | *There’s a wedding to feed!* After walk-ins, a caterer wants 3 Fresh/Okay watermelons at $8 each. |

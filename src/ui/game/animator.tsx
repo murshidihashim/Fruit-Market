@@ -194,7 +194,9 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
 export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   setNight(true);
   fx.night();
+  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071).
   await A.wait(500);
+  await A.hold(1500);
   const heat = g.event?.ageExtra ?? 0;
   const jobs: Promise<void>[] = [];
   let d = 0;
