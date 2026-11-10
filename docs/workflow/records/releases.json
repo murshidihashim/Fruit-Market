@@ -358,6 +358,18 @@
       "date": "2026-11-10",
       "commit": "a7b7924",
       "tagged": true
+    },
+    {
+      "version": "1.15.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-064"
+      ],
+      "notes": [
+        "While you set prices, the customers move down next to your crates and the rivals slide to the top",
+        "The Bell box no longer pops up by itself (tap i to read it)",
+        "Clearer first-game tips that never cover what they explain"
+      ]
     }
   ]
 }

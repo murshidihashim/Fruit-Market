@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.15.1",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [],
   "decisions": [],
@@ -18,7 +18,9 @@
     ]
   },
   "playerNotes": [
-    "While you set prices, the customers move down next to your crates"
+    "While you set prices, the customers move down next to your crates and the rivals slide to the top",
+    "The Bell box no longer pops up by itself (tap i to read it)",
+    "Clearer first-game tips that never cover what they explain"
   ],
   "approval": {
     "status": "approved",
@@ -53,6 +55,12 @@
       "text": "Swap checked in the game on a phone-sized screen",
       "result": "PASS",
       "evidence": "2026-11-10: rows at (customers 55, rivals 203) while stocking, (105, 55) while pricing, back to (55, 203) at the rush; slide measured mid-way"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests incl. online 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "pending"
     }
   ]
 }
