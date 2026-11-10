@@ -103,8 +103,10 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
   if (!lines) return null;
   return (
     <div class={`next-lorry ${marketDayTomorrow(s) ? 'market-day ' : ''}${cls}`} aria-label={`Tomorrow's lorry: ${lines.map((l) => `${l.n} ${FRUIT[l.f].plural}${l.green ? ' (green)' : ''}`).join(', ')}`}>
-      <span class="nl-title">Tomorrow's lorry</span>
-      {nextLorryName(s) && <span class="nl-name">{nextLorryName(s)}</span>}
+      <span class="nl-head">
+        <span class="nl-title">Tomorrow's lorry{nextLorryName(s) ? ':' : ''}</span>
+        {nextLorryName(s) && <span class="nl-name">{nextLorryName(s)}</span>}
+      </span>
       <span class="nl-fruits">
         {lines.map((l) => (
           <span class={`nl-f ${l.plenty ? 'plenty' : 'few'}`}><Fruit id={l.f} size={16} stage={l.green ? 'unripe' : 'fresh'} />×{l.n}</span>

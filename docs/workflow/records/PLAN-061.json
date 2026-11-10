@@ -20,7 +20,7 @@
       "Rule book, upgrade text, achievement and print kit wording",
       "Every event card's in-game text in the owner's wording, with a short tagline before the rule",
       "Morning card is drawn face down (the print kit's event card back), waits until its picture is loaded, then turns over in 1 second",
-      "Tomorrow's lorry box: the title, the lorry's name and the fruit counts each on their own row",
+      "Tomorrow's lorry box: the title and the lorry's name on one row, the fruit counts on the row below",
       "Price reveal: the stalls' price cards read left to right, top row first, in the same order as the rival row (rivals clockwise from the seat after you), your own card last"
     ],
     "fixed": [
