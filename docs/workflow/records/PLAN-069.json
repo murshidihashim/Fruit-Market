@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.17.0",
   "build": "branch rules-14-market-ticket",
   "reports": [
     "REP-094"

@@ -1,0 +1,95 @@
+{
+  "release": "1.17.0",
+  "build": "branch market-ticket-flow",
+  "reports": [
+    "REP-095"
+  ],
+  "decisions": [
+    "DEC-081"
+  ],
+  "changes": {
+    "added": [
+      "A fixed strip of the day's five beats under the top bar",
+      "Customer tickets with the character's portrait, whole face showing",
+      "Today's news in a red frame with the event's picture and what it changes in big figures",
+      "What the lorry unloaded into each lane, on the morning screen",
+      "A legend (Green, Fresh, Okay, Soft) under the market"
+    ],
+    "changed": [
+      "Every in-game screen is laid out as in the six-phone Market Ticket design: black top bar, tickets on a kraft band, rival boxes with stall patterns, four market lanes, a row per fruit when stocking and pricing, the rush in the middle of the table, night falls on the lanes, one black button",
+      "Fruit is listed in the printed board's order everywhere on the table: blueberry, watermelon, mango, apple",
+      "First-game tips reworded for the new screen",
+      "On a wide screen the table is one centred column"
+    ],
+    "fixed": [
+      "The beat stamp no longer covers the customers",
+      "Customers and rivals no longer swap rows at the bell",
+      "How to play no longer says a customer comes back the next day (rules 14: nobody waits)"
+    ],
+    "removed": [
+      "The drawn lorry driving in and out",
+      "The wooden crates and the old card frames on the table",
+      "The three-column layout on a wide screen"
+    ]
+  },
+  "playerNotes": [
+    "The game screen has a new layout that matches the printed game: tickets, lanes and one black button",
+    "A strip at the top shows where the day is: Morning, Buying, Stocking, Bell, Rush",
+    "Watch the fruit slide down a box at night"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-072",
+  "title": "The game table redrawn to the six-phone Market Ticket design",
+  "problem": "Owner: the app should look like the six-phone design shared earlier (the one with Night falls), with the customers' character designs and the event art, and stay coherent with the printed game. A first draft that only recoloured the 1.16.0 screens was rejected. Then: a legend instead of the sentence under the market, and customer faces that can be seen properly.",
+  "scope": [
+    "src/ui/ticket.tsx and ticket.css (new): lamps, stall patterns, customer tickets, and every style of the game table",
+    "TopBar, MorningCard, Showdown (the rush), NightShift, PricingTable, OrderPanel, ActionBar, Popovers",
+    "table.tsx (market lanes, rival boxes, shelf dock, customers, a rival's stall), panel.tsx (stocking and pricing as rows)",
+    "Game.tsx: rows keep their places all day; rowSwap.ts removed",
+    "tutorial.ts and HowTo.tsx wording",
+    "tests brought in line (cards, deck-art-app, game-layout, price-bell, rules12)"
+  ],
+  "exclusions": [
+    "No rules change in this package",
+    "Home, New game, Play a friend, results, How to play, Trophies, Settings and the wardrobe keep their layouts",
+    "The rush still plays by itself (tap to hurry, Skip); no Next customer button",
+    "No new dependency"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-11: 437 unit tests passed, 1 skipped (as before); lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests pass, with 0 leaks",
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 100 pricing frames; six-stall room; reconnect 5 of 5"
+    },
+    {
+      "id": "T3",
+      "text": "Each screen compared with the design on a phone-sized screen",
+      "result": "PASS",
+      "evidence": "2026-11-11: 390x780 playthrough of 3 days by script: morning, buying, stocking, bell, rush, takings, standing-order bid, evening, night, pop-ups"
+    },
+    {
+      "id": "T4",
+      "text": "Smallest phone (360x740), six stalls and a wide screen",
+      "result": "PASS",
+      "evidence": "2026-11-11: 360x740: all screens fit except stocking with more than three rows and pricing three or more fruits while a standing order is shown, where the middle scrolls; six stalls: five tickets and five rival boxes across; 1280x800: one centred column"
+    },
+    {
+      "id": "T5",
+      "text": "Owner has seen it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Needs the preview copy; merging to main was not requested"
+    }
+  ]
+}
