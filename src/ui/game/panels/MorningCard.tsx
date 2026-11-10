@@ -41,7 +41,7 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
   // morning looks alike (PLAN-062). It is not a card in the deck: nothing is drawn for it in the rules.
   const card = s.event ?? {
     id: 'calm', title: 'Calm Day', flavour: 'Clear skies, business as usual!',
-    text: !s.config.events ? 'Events are off in this game.' : s.day === 1 ? 'No event on the first day. From Day 2 an event card is turned over each morning.' : 'No event today.',
+    text: !s.config.events ? 'Events are off in this game.' : s.day === 1 ? 'Day 1! Let’s make some money!' : 'No event today.',
   };
   const art = s.event ? eventArt(s.event.id) : CALM_ART;
   const ready = useArtReady(art);
