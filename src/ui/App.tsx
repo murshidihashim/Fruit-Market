@@ -277,7 +277,6 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
         </section>
         <section class="panel">
           <h3>Rival stalls</h3>
-          <p class="small muted">Up to 6 stalls. Tap a stall to change it, or pick Friend to pass this phone around.</p>
           <div class="seat-tiles">
             {seats.slice(0, rivals).map((st, i) => (
               <button type="button" class={`seat-tile ${st.kind === 'human' ? 'friend' : `lv-${st.level}`} ${open === i ? 'on' : ''}`} aria-expanded={open === i}

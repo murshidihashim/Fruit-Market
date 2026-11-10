@@ -2728,6 +2728,10 @@
     {
       "at": "2026-11-10 11:59",
       "text": "Owner approved publication of PLAN-063: \"and then push everything live\". Release 1.15.0 prepared (no rules change)."
+    },
+    {
+      "at": "2026-11-10 12:00",
+      "text": "Owner: remove 'Up to 6 stalls… pass this phone around' from New game (PLAN-063, part of 1.15.0)."
     }
   ]
 }
