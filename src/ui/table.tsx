@@ -91,7 +91,9 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
           </div>
         ))}
       </div>
-      <p class="tk-note tk-market-note">Tap a box to buy one piece at its price. F is fresh, O is okay, S is soft, G is still green.</p>
+      <div class="tk-legend" role="note" aria-label="The letters on the boxes: G is green and not ripe yet, F is fresh, O is okay, S is soft">
+        {(['unripe', 'fresh', 'okay', 'notso'] as Stage[]).map((st) => <span><Lamp stage={st} size={16} />{STAGE_WORD[st]}</span>)}
+      </div>
       <NextLorry s={s} />
     </div>
   );

@@ -57,7 +57,12 @@ export function Ticket({ who, lines, class: cls, quirk }: { who: string; lines: 
   return (
     <article class={`tk-cust ${guest ? 'guest' : ''} ${cls ?? ''}`}>
       <header class="tk-cust-head"><span>{look.title}</span></header>
-      <div class="tk-cust-pic">{src && <img src={src} alt="" decoding="async" draggable={false} />}<b class="tk-cust-no">{num !== undefined ? two(num) : 'Guest'}</b></div>
+      <div class="tk-cust-pic">
+        {src && <img src={src} alt="" decoding="async" draggable={false} />}
+        <b class="tk-cust-no">{num !== undefined ? two(num) : 'Guest'}</b>
+        {/* On a ticket in the row the freshness lamps sit on the picture's corner, so the face gets the room. */}
+        {!quirk && <span class="tk-cust-buys"><PrefLamps pref={prefOf(who)} size={14} /></span>}
+      </div>
       <ul class="tk-cust-rows">
         {lines.map((x) => (
           <li class={`f-${x.fruit} ${x.done ? 'done' : ''} ${x.move ?? ''}`}>
@@ -68,7 +73,7 @@ export function Ticket({ who, lines, class: cls, quirk }: { who: string; lines: 
         ))}
       </ul>
       {quirk && <p class="tk-cust-quirk">{look.quirk}</p>}
-      <footer class="tk-cust-foot"><PrefLamps pref={prefOf(who)} size={quirk ? 20 : 15} />{quirk && <span>{PREF_INFO[prefOf(who)].title} · buys {PREF_INFO[prefOf(who)].short.toLowerCase()}</span>}</footer>
+      {quirk && <footer class="tk-cust-foot"><PrefLamps pref={prefOf(who)} size={20} /><span>{PREF_INFO[prefOf(who)].title} · buys {PREF_INFO[prefOf(who)].short.toLowerCase()}</span></footer>}
     </article>
   );
 }

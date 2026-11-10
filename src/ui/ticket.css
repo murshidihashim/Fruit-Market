@@ -102,7 +102,7 @@
 #app .tkt > .street-wrap::after { display: none; }
 #app .tkt .street { all: unset; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 #app .tkt .street::-webkit-scrollbar { display: none; }
-#app .tkt .street > .cust { all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 132px; display: flex; cursor: pointer; }
+#app .tkt .street > .cust { all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 112px; display: flex; cursor: pointer; }
 #app .tkt .street > .cust.rush-away { visibility: hidden; }
 #app .tkt .street > .cust.rush-served .tk-cust, #app .tkt .street > .cust.happy .tk-cust { opacity: 0.45; }
 #app .tkt .street > .cust.special .tk-cust { box-shadow: 0 0 0 3px var(--tk-yel); }
@@ -114,11 +114,16 @@
   background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1.12 var(--tk-txt); letter-spacing: 0.03em; text-transform: uppercase;
 }
 #app .tkt .tk-cust-head span { min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
-#app .tkt .tk-cust-pic { position: relative; height: 46px; overflow: hidden; background: var(--tk-tint); }
+/* the portrait: the picture is drawn a quarter larger than its window and moved up, so the whole head shows and the
+   face is as big as the ticket allows */
+#app .tkt .tk-cust-pic { position: relative; flex: none; aspect-ratio: 87 / 66; max-height: 84px; overflow: hidden; background: var(--tk-tint); }
 #app .tkt .tk-cust-no { position: absolute; left: 0; top: 0; padding: 2px 4px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
-#app .tkt .tk-cust-pic img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 24%; }
-#app .tkt .tk-cust.guest .tk-cust-pic img { object-position: 50% 50%; }
-#app .tkt .tk-cust-rows { all: unset; display: flex; flex-direction: column; gap: 2px; padding: 3px 4px 0 0; }
+#app .tkt .tk-cust-pic img { position: absolute; left: -17%; top: -7%; width: 126%; height: auto; max-width: none; display: block; }
+#app .tkt .tk-cust.guest .tk-cust-pic img { left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+/* the freshness lamps stand down the picture's right edge, clear of the face */
+#app .tkt .tk-cust-buys { position: absolute; right: 0; top: 0; display: flex; padding: 3px 2px; background: var(--tk-paper); }
+#app .tkt .tk-cust-buys .tk-lamps { flex-direction: column; gap: 2px; }
+#app .tkt .tk-cust-rows { all: unset; display: flex; flex-direction: column; gap: 2px; padding: 3px 4px 4px 0; }
 #app .tkt .tk-cust-rows li { all: unset; display: flex; align-items: center; gap: 3px; height: 19px; padding-left: 3px; border-left: 5px solid var(--lane); font: 700 0.6875rem/1 var(--tk-txt); }
 #app .tkt .tk-cust-rows li b { margin-left: auto; font: 400 0.8125rem/1 var(--tk-disp); }
 #app .tkt .tk-cust-rows li .x-fruit { flex: none; width: 15px; height: 15px; }
@@ -129,7 +134,7 @@
 #app .tkt .tk-cust-foot { margin-top: auto; display: flex; padding: 3px 5px 4px; }
 #app .tkt .tk-cust.back .tk-cust-head { justify-content: center; }
 #app .tkt .tk-cust-back {
-  flex: 1 1 auto; min-height: 84px; display: flex; flex-wrap: wrap; align-content: center; align-items: center; justify-content: center; gap: 5px; padding: 6px;
+  flex: 1 1 auto; min-height: 96px; display: flex; flex-wrap: wrap; align-content: center; align-items: center; justify-content: center; gap: 5px; padding: 6px;
   background: repeating-linear-gradient(135deg, var(--tk-paper) 0 6px, var(--tk-tint) 6px 12px);
 }
 #app .tkt .tk-cust-back span { width: 32px; height: 32px; display: grid; place-items: center; background: var(--tk-paper); box-shadow: inset 0 0 0 2px var(--tk-ink); }
@@ -199,7 +204,7 @@
 #app .tkt > .centre > .market-stall { container: market / size; overflow-x: hidden; overflow-y: auto; }
 #app .tkt .tk-lanes {
   /* a box is as tall as the room allows, between 28 and 40 px; on a very short screen the market scrolls instead of shrinking the boxes further */
-  --bh: clamp(28px, calc((100cqh - 150px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px);
+  --bh: clamp(28px, calc((100cqh - 136px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px);
   position: relative; flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: start;
 }
 #app .tkt .tk-lane { display: flex; flex-direction: column; gap: 4px; padding: 4px; background: var(--lane); }
@@ -229,10 +234,8 @@
 #app .tkt .next-lorry .nl-name { font-weight: 800; }
 #app .tkt .next-lorry .nl-fruits { display: inline-flex; gap: 8px; }
 #app .tkt .next-lorry .nl-f { display: inline-flex; align-items: center; gap: 2px; font: 400 0.8125rem/1 var(--tk-disp); }
-@container market (max-height: 330px) {
-  #app .tkt .tk-market-note { display: none; }
-  #app .tkt .tk-lanes { --bh: clamp(28px, calc((100cqh - 112px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px); }
-}
+#app .tkt .tk-legend { flex: none; display: flex; flex-wrap: wrap; gap: 4px 14px; font: 700 0.75rem/1 var(--tk-txt); text-transform: capitalize; }
+#app .tkt .tk-legend span { display: inline-flex; align-items: center; gap: 4px; }
 @container market (max-width: 350px) {
   #app .tkt .tk-box .x-fruit { width: 16px; height: 16px; }
   #app .tkt .tk-box .tk-lamp { --s: 14px; }
@@ -474,7 +477,7 @@
 @media (max-height: 760px) {
   #app .tkt .tk-top-row { height: 46px; }
   #app .tkt .tk-beats { height: 26px; }
-  #app .tkt .tk-cust-pic { height: 38px; }
+  #app .tkt .tk-cust-pic { aspect-ratio: 87 / 58; }
   #app .tkt .tk-cust-head { height: 25px; }
 }
 
@@ -496,7 +499,7 @@
 #app .tkt .tip-pop.tip-card-pop { padding: 12px; gap: 10px; }
 #app .tkt .tk-cust.big { flex: none; width: min(100%, 250px); margin: 0 auto; box-shadow: 0 0 0 3px var(--tk-ink); }
 #app .tkt .tk-cust.big .tk-cust-head { height: 34px; padding: 0 9px; font-size: 0.9375rem; }
-#app .tkt .tk-cust.big .tk-cust-pic { height: 150px; }
+#app .tkt .tk-cust.big .tk-cust-pic { aspect-ratio: 5 / 3; max-height: none; }
 #app .tkt .tk-cust.big .tk-cust-no { padding: 4px 7px; font-size: 0.8125rem; }
 #app .tkt .tk-cust.big .tk-cust-quirk { all: unset; display: block; padding: 7px 9px 2px; font: italic 600 0.8125rem/1.3 var(--tk-txt); }
 #app .tkt .tk-cust.big .tk-cust-rows { gap: 3px; padding: 6px 9px 0 0; }
