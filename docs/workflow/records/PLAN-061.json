@@ -43,7 +43,7 @@
     "evidence": "change the rule so that market event cant be forecasted / remove \"day 2 day 7 day to go #3 behind\" stats from event card, picture for the event card should ne bigger ... / renove cold room",
     "date": "2026-11-09"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-061",
   "title": "Events turned over each morning, no Cold Room (rules 13), full-picture event card and new event art",
   "problem": "Owner: events should not be forecast, the morning card should drop its stats and let the picture fill it, the seven events without art need artwork, and the Cold Room should go.",

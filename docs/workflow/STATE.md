@@ -2,11 +2,12 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): 1.14.0 approved for live (rules 13, event cards, new art)
+## Latest (2026-11-10): 1.14.0 live (rules 13, event cards, new art)
 - **Owner approval:** "ok approve all we discussed here and push it to live" (PLAN-061, DEC-078, REP-092, REP-093).
 - **In 1.14.0:** events turned over each morning (never forecast); Cold Room removed; full-picture morning card drawn face down from the print kit's event back, waiting for its picture, then turned in 1 s; owner's event wording with taglines; Tomorrow's lorry on two rows; price reveal in the rival row's order; art for the seven newest events, Pak Din, Farah and the two guests (no "Art coming" cards left); print kit regenerated.
 - **Checks:** `npm run verify` PASS (408 tests); browser tests PASS (E2E OK, 0 leaks in 100 pricing frames, reconnect 5/5); balance PASS (every shopkeeper within 4.5 points).
-- **Next:** publish with Deploy LIVE game, then mark 1.14.0 published.
+- **Live:** 1.14.0 (commit `4310313`, tag `v1.14.0`, Deploy LIVE game run 30, live smoke test PASS on rules version 13).
+- **Next:** owner plays 1.14.0; watch whether surprise Inspector and Heatwave days feel fair (DEC-078 review trigger).
 
 ## Earlier (2026-11-09): 1.13.0 live, crates of chosen fruit (rules 12) and the new pricing
 - **Live:** 1.13.0 (commit `ebc35f7`, tag `v1.13.0`, Deploy LIVE game run 29, live smoke test PASS on the re-run).

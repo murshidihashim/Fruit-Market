@@ -1939,7 +1939,7 @@
         "evidence": "change the rule so that market event cant be forecasted / ... / renove cold room",
         "date": "2026-11-09"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-061",
       "reports": [
         "REP-092",
@@ -2676,6 +2676,10 @@
     {
       "at": "2026-11-10 08:53",
       "text": "Owner approved everything in PLAN-061 and publication: \"ok approve all we discussed here and push it to live\". All new art put in the game (no 'Art coming' cards left) and in the print kit at 300 ppi. Release 1.14.0 prepared."
+    },
+    {
+      "at": "2026-11-10 09:13",
+      "text": "Release 1.14.0 published (rules version 13: events turned over each morning, no Cold Room, new event cards and art): main 4310313, Deploy LIVE game run 30; live smoke test PASS (server on rules version 13); tagged v1.14.0."
     }
   ]
 }

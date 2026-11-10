@@ -312,7 +312,7 @@
     },
     {
       "version": "1.14.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-061"
       ],
@@ -323,7 +323,10 @@
         "The Cold Room upgrade is gone: three upgrades remain",
         "Price reveal cards follow the same order as the rival row",
         "Rules version 13: update the app to play online or send daily scores; unfinished games from 1.13 can't be resumed"
-      ]
+      ],
+      "date": "2026-11-10",
+      "commit": "4310313",
+      "tagged": true
     }
   ]
 }
