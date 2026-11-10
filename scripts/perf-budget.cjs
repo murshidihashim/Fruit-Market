@@ -61,7 +61,7 @@ const MIN_TAP = Number(process.env.MIN_TAP ?? 40);
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
       // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
       if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
-      if (await p.locator('.pp-lock .btn').count()) { taps.price ??= await small(); await p.click('.pp-lock .btn'); continue; }
+      if (await p.locator('.pp-lock .btn:not([disabled])').count()) { taps.price ??= await small(); await p.click('.pp-lock .btn:not([disabled])'); continue; }
       if (await p.locator('text=Lights out').count()) { taps.evening ??= await small(); await p.click('text=Lights out'); continue; }
       for (const t of ['Close for the day', 'See final results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
       await p.waitForTimeout(100);

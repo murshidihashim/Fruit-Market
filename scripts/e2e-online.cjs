@@ -64,9 +64,9 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); return 'moved'; }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
     if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); return 'moved'; }
-    if (await has('.pp-lock .btn')) {
+    if (await has('.pp-lock .btn:not([disabled])')) {
       if (!once.has(`tray-${P.tag}`)) { once.add(`tray-${P.tag}`); await shot(P, `03-pricing-${P.tag}`); }
-      await p.click('.pp-lock .btn'); return 'moved';
+      await p.click('.pp-lock .btn:not([disabled])'); return 'moved';
     }
     if (await has('text=Lights out')) { await p.click('text=Lights out'); return 'moved'; }
     for (const t of ['Close for the day', 'See final results']) if (await has(`text=${t}`)) { await p.click(`text=${t}`); return 'moved'; }

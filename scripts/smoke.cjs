@@ -51,7 +51,7 @@ const path = require('path');
     if (await page.locator('.coach .btn:not(.skip)').count()) { await page.click('.coach .btn:not(.skip)'); continue; }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
     if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
-    const lock = page.locator('.pp-lock .btn');
+    const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
       if (once('bid')) await shot('05-pricing');
       await lock.click();
