@@ -27,7 +27,7 @@
     "evidence": "remove the boxes below the price slider / stall animation should flow from when player confirmed the fruit, to the price setting part / event card should play first before lorry is delivering the goods / lets make the customer queue card bigger, can shrink the wholesale market smaller, visualise 3 layouts for this / fix the gap between current queueing customer during demand fulfilment",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-065",
   "title": "Pricing and morning flow polish; queue gap in the rush; bigger-card layout options",
   "problem": "Owner: remove the boxes under the price dial, make Open my stall flow into pricing, play the event card before the lorry, fix the queue gap in the rush, and show 3 layouts with bigger customer cards and a smaller market.",

@@ -21,7 +21,7 @@
     "evidence": "rush text should be rewritten so every one sees the same thing",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-068",
   "title": "One shared rush result line for everyone",
   "problem": "Owner: the rush text should be the same for every player.",

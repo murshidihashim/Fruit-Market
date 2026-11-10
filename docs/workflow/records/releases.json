@@ -376,7 +376,7 @@
     },
     {
       "version": "1.16.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-065",
         "PLAN-066",
@@ -389,7 +389,10 @@
         "Everyone sees the same short, punchy rush results",
         "The morning news comes first, then the lorry unloads",
         "No gap in the queue during the rush, and a simpler price dial"
-      ]
+      ],
+      "date": "2026-11-10",
+      "commit": "f845c7c",
+      "tagged": true
     }
   ]
 }

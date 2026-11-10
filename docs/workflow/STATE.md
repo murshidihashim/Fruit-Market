@@ -2,11 +2,12 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): 1.16.0 approved for live (PLAN-065 to PLAN-068)
+## Latest (2026-11-10): 1.16.0 live (PLAN-065 to PLAN-068)
 - **Owner approval:** "yes publish".
 - **In 1.16.0 (no rules change):** card layout C (bigger customer cards on phones); flow A from stall to pricing; one shared, punchy rush line for everyone; event card before the lorry; no queue gap in the rush; no quick-price boxes.
 - **Checks:** `npm run verify` PASS (409 tests); browser tests PASS (0 leaks, reconnect 5/5).
-- **Next:** Deploy LIVE game, mark 1.16.0 published.
+- **Live:** 1.16.0 (commit `f845c7c`, tag `v1.16.0`, Deploy LIVE game run 34, live smoke test PASS).
+- **Next:** owner plays 1.16.0.
 
 ## Earlier (2026-11-10): 1.15.1 live (PLAN-063, PLAN-064)
 - **Owner approval:** "and then push everything live".

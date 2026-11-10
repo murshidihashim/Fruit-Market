@@ -21,7 +21,7 @@
     "evidence": "a for flow, c for card layout",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-066",
   "title": "Flow A (crates arrive as rivals open) and card layout C",
   "problem": "Owner chose flow A for stall-to-pricing and layout C for bigger customer cards.",

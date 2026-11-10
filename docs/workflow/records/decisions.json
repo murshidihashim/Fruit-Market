@@ -2780,6 +2780,10 @@
     {
       "at": "2026-11-10 16:33",
       "text": "Owner approved publication: \"yes publish\". Release 1.16.0 prepared (PLAN-065 to PLAN-068, no rules change); browser tests PASS."
+    },
+    {
+      "at": "2026-11-10 16:36",
+      "text": "Release 1.16.0 published (PLAN-065 to PLAN-068): main f845c7c, Deploy LIVE game run 34; live smoke test PASS; tagged v1.16.0."
     }
   ]
 }
