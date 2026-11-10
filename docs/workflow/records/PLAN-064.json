@@ -1,0 +1,48 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "While prices are set (phone layout), the rival stalls move to the top and the customer queue moves down beside your crates; both rows slide there in 0.7 s and slide back when pricing ends"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "While you set prices, the customers move down next to your crates"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "lets also swap the  position of rival's stall and the customer queue during pricing phase, animate this smoothly to show the transition, positions are swapped back after pricing phase",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-064",
+  "title": "Pricing: rivals and customers swap rows, with a slide",
+  "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing.",
+  "scope": [
+    "src/ui/game/rowSwap.ts (slide)",
+    "src/ui/Game.tsx and styles.css (phone grid order while pricing)"
+  ],
+  "exclusions": [
+    "Wide screens: customers and rivals are side columns there, so nothing moves",
+    "Rules: unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Swap checked in the game on a phone-sized screen",
+      "result": "PASS",
+      "evidence": "2026-11-10: rows at (customers 55, rivals 203) while stocking, (105, 55) while pricing, back to (55, 203) at the rush; slide measured mid-way"
+    }
+  ]
+}

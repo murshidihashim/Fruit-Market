@@ -10,6 +10,7 @@ import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
+import { useRowSwap } from './game/rowSwap';
 import { useStockShown } from './stockShown';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
@@ -35,6 +36,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
   const { s, busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
+  // While prices are set the rivals and the customers swap rows on a phone, sliding there and back (PLAN-064).
+  const swapRows = s.phase === 'bid';
+  useRowSwap(swapRows);
 
   if (c.needHandoff) {
     const pl = s.players[active];
@@ -107,7 +111,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const offSeats = offline.map((x) => x.seat);
 
   return (
-    <div class={`game gx ph-${s.phase} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game gx ph-${s.phase} ${swapRows ? 'swap-rows' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (

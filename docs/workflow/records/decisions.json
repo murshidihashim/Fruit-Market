@@ -2732,6 +2732,14 @@
     {
       "at": "2026-11-10 12:00",
       "text": "Owner: remove 'Up to 6 stalls… pass this phone around' from New game (PLAN-063, part of 1.15.0)."
+    },
+    {
+      "at": "2026-11-10 12:20",
+      "text": "Release 1.15.0 published (PLAN-063: swipe shopkeeper picker, simpler New game, names without 's): main a7b7924, Deploy LIVE game run 32; live smoke test PASS; tagged v1.15.0."
+    },
+    {
+      "at": "2026-11-10 12:20",
+      "text": "Owner asked for the rival stalls and customer queue to swap rows while pricing, with a smooth slide there and back (PLAN-064). Built on the branch; not published."
     }
   ]
 }

@@ -29,7 +29,7 @@
     "evidence": "go with a but remove the gap between \"Your Name\" and the textbox and the gap between your shopkeeper and the shopkeeper card / character's tagline should appear below the card when selecting / also remove \" 's \" from all character card names",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-063",
   "title": "Swipe shopkeeper picker (design A) and a simpler New game screen",
   "problem": "Owner: change the shopkeeper selection to swiping left or right, keep the design consistent, keep the checked rules on and remove the Rules and Beginner and expert rules sections; chose mockup A with tighter headings, the tagline under the card and no 's on names.",

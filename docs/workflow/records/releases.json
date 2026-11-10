@@ -346,7 +346,7 @@
     },
     {
       "version": "1.15.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-063"
       ],
@@ -354,7 +354,10 @@
         "Swipe left or right to choose your shopkeeper; their tagline shows under the card",
         "A simpler New game screen: the full rules are always on",
         "Shopkeeper cards show just the name"
-      ]
+      ],
+      "date": "2026-11-10",
+      "commit": "a7b7924",
+      "tagged": true
     }
   ]
 }

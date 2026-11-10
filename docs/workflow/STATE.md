@@ -2,11 +2,12 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): 1.15.0 approved for live (PLAN-063)
+## Latest (2026-11-10): 1.15.0 live (PLAN-063)
 - **Owner approval:** "and then push everything live".
 - **In 1.15.0 (no rules change):** swipe shopkeeper picker (design A) with the tagline under the card; New game without the Rules sections (previous defaults always on); shopkeeper cards show the name alone, without "Fresh fruit · Fair prices".
 - **Checks:** `npm run verify` PASS (408 tests); browser tests PASS (0 leaks, reconnect 5/5).
-- **Next:** Deploy LIVE game, mark 1.15.0 published.
+- **Live:** 1.15.0 (commit `a7b7924`, tag `v1.15.0`, Deploy LIVE game run 32, live smoke test PASS).
+- **Building (PLAN-064):** rivals and customers swap rows while pricing, with a slide; on the branch, not published.
 
 ## Earlier (2026-11-10): 1.14.1 live (PLAN-062)
 - **Owner approval:** "push it live".
