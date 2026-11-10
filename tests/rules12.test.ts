@@ -87,17 +87,18 @@ describe('rules 12: the crate holds exact pieces', () => {
   });
 });
 
-describe('Fill your stall (design 2, full scale since PLAN-061)', () => {
-  it('draws your shelf like the market, with − and + on each ripe space you hold and none on green fruit', () => {
+describe('Fill your crate (rows since PLAN-072)', () => {
+  it('draws a row for each box of your shelf that holds fruit, with − and + on the ripe ones and none on green fruit', () => {
     const s = stocking([buyer(1, 'apple', 2, 9, 'everyday')]);
     s.players[0].stock.mango[FRUIT.mango.ripe.length] = 1; // green
     const crate = { apple: [0, 0, 0, 0, 0, 0, 1] };
     const html = toStaticHtml(h(StallPanelView, { s, p: 0, crate, onStep: () => undefined, onSubmit: () => undefined }));
-    expect(html).toContain('Fill your stall');
-    expect(html).toContain('Your stall · 1 out');
-    expect(html).toContain('--rows:'); // every row of the shelf, sized like the market
+    expect(html).toContain('Fill your crate');
+    expect(html).toContain('Your crate: 1 out');
+    expect(html).toContain('1 piece out');
     expect(html).not.toContain('Market Day');
-    expect(html.match(/class="mini-step"/g)).toHaveLength(2); // the tired and the fresh apple spaces
+    expect(html.match(/class="tk-row /g)).toHaveLength(3); // the soft apple, the fresh apple and the green mango
+    expect(html.match(/class="mini-step"/g)).toHaveLength(2); // the soft and the fresh apple boxes
     expect(html.match(/class="crate-piece/g)).toHaveLength(1);
     expect(html).toContain('Open my stall');
     expect(html).toMatch(/Mango, green: 1 on your shelf"/);

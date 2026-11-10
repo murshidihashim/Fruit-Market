@@ -4,8 +4,7 @@ import { FAVOURS, FRUIT, PREF_INFO, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { FavourIcon } from '../../art';
-import { TradingCard } from '../../cards';
-import { GUEST_EVENT } from '../../deckArt';
+import { Ticket } from '../../ticket';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MOOD_WORDS } from '../../boardModel';
 import { MorningCard } from './MorningCard';
@@ -67,7 +66,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
   )}
   {tip && (
     <div class="tip-pop tip-card-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={() => setTip(null)}>
-      <TradingCard who={tip.name} wants={tip.wants.map((w) => ({ ...w, max: effectiveMax(s, w, tip.generous) }))} guest={!!GUEST_EVENT[tip.name]} eager />
+      <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
         {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}

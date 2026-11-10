@@ -15,8 +15,8 @@ const buyer = (id: number, f: FruitId, qty: number, max: number, pref: Customer[
 
 /** The pricing screen as PricePanel first draws it. */
 const panel = (s: GameState) => toStaticHtml(h(PricePanelView, {
-  s, p: 0, vals: startingPrices(s, 0), sel: 'watermelon', favoured: false, notice: bellOpensOnStart(s),
-  onPrice: () => undefined, onPick: () => undefined, onFavoured: () => undefined, onNotice: () => undefined, onSubmit: () => undefined,
+  s, p: 0, vals: startingPrices(s, 0), favoured: false, notice: bellOpensOnStart(s),
+  onPrice: () => undefined, onFavoured: () => undefined, onNotice: () => undefined, onSubmit: () => undefined,
 }));
 
 /** Three stalls at the bell on `day`: you have 2 fresh watermelons and 2 okay apples; Saleh 3 watermelons; Kiki sealed. */
@@ -69,17 +69,18 @@ describe('the demand board', () => {
   });
 });
 
-describe('your crate and the price bubble', () => {
-  it('every crate is drawn; only your crate has price buttons, and a sealed price never shows', () => {
+describe('every crate is open, and your price rows', () => {
+  it('every rival crate is drawn; each fruit you put out has its own price row, and a sealed price never shows', () => {
     const s = bell();
     const html = panel(s);
-    expect(html.match(/class="crate[ "]/g)).toHaveLength(3);
-    expect(html.match(/crate-slot pick/g)).toHaveLength(2);
-    expect(html).toContain('Your crate');
+    expect(html).toContain('Every crate is open');
+    expect(html.match(/class="crate tk-crate/g)).toHaveLength(2); // the two rivals
+    expect(html.match(/class="tk-row price /g)).toHaveLength(2); // your watermelons and your apples
+    expect(html.match(/class="pbub tk-dial"/g)).toHaveLength(2);
     expect(html).not.toMatch(/\$97|>97</);
-    expect(html).toContain('class="pbub"');
+    expect(html).toContain('Ring the bell');
     const table = toStaticHtml(h(PricingTableView, { s, viewer: 0 }));
-    expect(table).not.toContain('crate-slot pick');
+    expect(table).not.toContain('tk-dial');
     expect(table).toContain('prices sealed');
   });
 });

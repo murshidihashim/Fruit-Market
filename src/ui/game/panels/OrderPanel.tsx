@@ -17,7 +17,8 @@ export function OrderPanel({ s, p, waiting, onBid }: { s: GameState; p: number; 
   const book = pl.upgrades.includes('orderbook');
   const fine = Math.floor(o.fine / (book ? 2 : 1));
   return (
-    <div class="price-panel order-panel mid-panel" data-a="order-panel">
+    <>
+    <div class="price-panel order-panel mid-panel tk-panel" data-a="order-panel">
       <div class="op-card">
         <span class="op-k">Standing order · due day {o.due}</span>
         <b class="op-title">{card.title}</b>
@@ -40,12 +41,15 @@ export function OrderPanel({ s, p, waiting, onBid }: { s: GameState; p: number; 
             <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
           </div>
           <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>Pass: I don't want this order</button>
-          <div class="pp-lock">
-            <button type="button" class="btn primary wide big" onClick={() => onBid(v)}>Bid ${v} a piece</button>
-          </div>
         </>
       )}
     </div>
+    {!waiting && (
+      <div class="pp-lock">
+        <button type="button" class="btn primary wide big" onClick={() => onBid(v)}>Bid ${v} a piece</button>
+      </div>
+    )}
+    </>
   );
 }
 

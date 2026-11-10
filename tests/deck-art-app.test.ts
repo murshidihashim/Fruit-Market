@@ -87,7 +87,7 @@ describe('hidden walk-ins on the table (table.tsx)', () => {
     expect(s.queue.length).toBeGreaterThan(0);
     for (const c of s.queue) {
       const html = toStaticHtml(h(CustomerChar, { s, c, kind: 'mystery' }));
-      expect(html).toContain('x-tb');
+      expect(html).toContain('tk-cust back');
       expect(html).not.toContain('/art/');
       expect(html).not.toContain(lookOf(c.name).title);
       expect(html).not.toContain(c.name);
@@ -104,7 +104,7 @@ describe('hidden walk-ins on the table (table.tsx)', () => {
       const html = toStaticHtml(h(Street, { s: view, viewer: 0 }));
       for (const c of s.queue) expect(html).not.toContain(customerArt(c.name)!);
       for (const t of titles) if (!ALL_TITLES.filter((x) => x !== t).some((x) => x.includes(t))) expect(html).not.toContain(`>${t}<`);
-      expect(html.match(/x-tb /g) ?? []).toHaveLength(s.queue.length);
+      expect(html.match(/tk-cust back/g) ?? []).toHaveLength(s.queue.length);
     }
   });
 

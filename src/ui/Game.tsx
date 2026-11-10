@@ -10,7 +10,6 @@ import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
-import { useRowSwap } from './game/rowSwap';
 import { useStockShown } from './stockShown';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
@@ -38,9 +37,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
   const { s, busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
-  // While prices are set the rivals and the customers swap rows on a phone, sliding there and back (PLAN-064).
-  const swapRows = s.phase === 'bid';
-  useRowSwap(swapRows);
+  // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
   if (c.needHandoff) {
     const pl = s.players[active];
@@ -56,7 +53,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
   if (s.phase === 'over') {
     return (
-      <div class="game">
+      <div class="game tkt">
         <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} />
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
@@ -127,8 +124,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const offSeats = offline.map((x) => x.seat);
 
   return (
-    <div class={`game gx ph-${s.phase} ${swapRows ? 'swap-rows' : ''} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
-      <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+      <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
         <div class="net">
@@ -150,7 +147,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <OrderStrip s={s} viewer={viewer} />
       </section>
       {rivals.length > 0 && (
-        <div class="seats" role="group" aria-label="Your rivals">
+        <div class={`seats n${rivals.length}`} role="group" aria-label="Your rivals">
           {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} off={offSeats.includes(p)} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
           {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
         </div>
