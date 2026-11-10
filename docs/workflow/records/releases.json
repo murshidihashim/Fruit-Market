@@ -393,6 +393,25 @@
       "date": "2026-11-10",
       "commit": "f845c7c",
       "tagged": true
+    },
+    {
+      "version": "1.17.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-069",
+        "PLAN-070",
+        "PLAN-071",
+        "PLAN-072",
+        "PLAN-073"
+      ],
+      "notes": [
+        "Fruit now lasts 3, 4, 5 and 6 days, and every mango arrives green",
+        "Standing orders on Market Days: bid low to win a big order, but miss it and you pay a fine",
+        "Never more than five customers in the row, and nobody waits overnight",
+        "Stalls are secret: you only learn how many pieces each rival put out, and every crate opens at the bell",
+        "A new look that matches the printed game: customer tickets, fruit lanes, one black button",
+        "A strip at the top shows where the day is, and you watch the fruit slide down a box at night"
+      ]
     }
   ]
 }

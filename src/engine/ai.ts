@@ -8,8 +8,8 @@ import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
   capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
-  bidOrder, isMarketDay, shelfPos,
-  type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
+  bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView,
+  type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
 } from './game';
 import { Rng } from './rng';
 
@@ -402,8 +402,56 @@ export function planStall(s: GameState, p: number): Stall {
   return validateStall(s, p, stall) ? {} : stall;
 }
 
-/** One secret price per fruit put out, knowing what every shop has put out for sale. */
-export function planPrices(s: GameState, p: number): { posts: Post[]; favoured: boolean } {
+/**
+ * Rules 15, secret stalls: stall `p`'s working picture of the day once every stall is open. Each rival's crate is
+ * rebuilt as a guess from what is public: how many pieces it put out, today's orders, and (with `memory`, for a computer
+ * stall) the shelf it was seen to buy. The pieces are dealt one at a time, stalls in today's buying order, each to the
+ * fruit with the most orders still unmet that the stall could supply; a stall collecting a standing order today is
+ * taken to deliver it first. Without memory every guessed piece is fresh. The real crates are never read, so a stall
+ * that puts out an unexpected fruit, or keeps one back, does fool the planner.
+ */
+export function believe(state: GameState, p: number, memory = state.players[p].kind === 'ai'): GameState {
+  if (state.phase !== 'bid') return state;
+  const s = publicView(state, p, memory);
+  const pool = Object.fromEntries(FRUITS.map((f) => [f, rowCustomers(s).reduce((a, c) => a + c.wants.reduce((x, w) => x + (w.fruit === f ? Math.max(0, w.qty) : 0), 0), 0)])) as Record<FruitId, number>;
+  const left = s.players.map((_, i) => (i === p ? 0 : outCount(s, i) ?? 0));
+  const guess = s.players.map((pl) => Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Record<FruitId, number[]>);
+  // The box a guessed piece comes from: with memory the oldest ripe box that still has one (as a computer stall's crate
+  // takes them); without, the freshest box. -1: this stall cannot be holding that fruit.
+  const box = (i: number, f: FruitId): number => {
+    if (!memory) return FRUIT[f].ripe.length - 1;
+    return s.players[i].stock[f].findIndex((n, pos) => pos < FRUIT[f].ripe.length && n - guess[i][f][pos] > 0);
+  };
+  const put = (i: number, f: FruitId): boolean => {
+    const pos = box(i, f);
+    if (pos < 0 || left[i] <= 0) return false;
+    guess[i][f][pos]++;
+    left[i]--;
+    return true;
+  };
+  const due = orderDueToday(s);
+  if (due && due.holder !== null && due.holder !== p) for (let k = 0; k < due.qty; k++) if (!put(due.holder, due.fruit)) break;
+  for (let round = 0; round < 64 && left.some((n) => n > 0); round++) {
+    for (const i of s.order) {
+      if (left[i] <= 0) continue;
+      const f = FRUITS.filter((x) => box(i, x) >= 0).sort((a, b) => pool[b] - pool[a])[0];
+      if (f === undefined) { left[i] = 0; continue; }
+      put(i, f);
+      pool[f]--;
+    }
+  }
+  s.players.forEach((_, i) => {
+    if (i === p || s.stalls[i] === null) return;
+    const crate = Object.fromEntries(Object.entries(guess[i]).filter(([, t]) => t.some((n) => n > 0))) as Crate;
+    s.stalls[i] = crateCounts(crate);
+    (s.crates ??= s.players.map(() => null))[i] = crate;
+  });
+  return s;
+}
+
+/** One secret price per fruit put out, knowing only how many pieces every other stall put out (rules 15). */
+export function planPrices(state: GameState, p: number): { posts: Post[]; favoured: boolean } {
+  const s = believe(state, p);
   const pl = s.players[p];
   const posts: Post[] = [];
   let contested = false;

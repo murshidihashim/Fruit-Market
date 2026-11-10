@@ -4,10 +4,8 @@ import { FAVOURS, FRUIT, PREF_INFO, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { FavourIcon } from '../../art';
-import { TradingCard } from '../../cards';
-import { GUEST_EVENT } from '../../deckArt';
+import { Ticket } from '../../ticket';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
-import { MOOD_WORDS } from '../../boardModel';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
 import { Wardrobe } from '../../Wardrobe';
@@ -58,20 +56,19 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
 
   {pulseInfo && (
     <div class="tip-pop" onClick={() => setPulseInfo(false)}>
-      <b>Demand vs supply</b>
-      <span><b>want</b> = fruit today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ = walk-ins not here yet)' : ''}.</span>
-      <span><b>in stalls</b> = ripe fruit all stalls (you included) could sell.</span>
-      <span class="pz-legend"><i class="good" /> {MOOD_WORDS.good} · <i class="war" /> {MOOD_WORDS.war} · <i class="open" /> {MOOD_WORDS.open}</span>
+      <b>What customers want</b>
+      <span>The number on each lane is the pieces today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ means walk-ins who are not here yet may want more)' : ''}.</span>
+      <span>Stalls are secret: you cannot see what a rival holds, only how many pieces it puts out for sale.</span>
       <small>Tap to close.</small>
     </div>
   )}
   {tip && (
     <div class="tip-pop tip-card-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={() => setTip(null)}>
-      <TradingCard who={tip.name} wants={tip.wants.map((w) => ({ ...w, max: effectiveMax(s, w, tip.generous) }))} guest={!!GUEST_EVENT[tip.name]} eager />
+      <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
         {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
-        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when soft (the colours on your shelf). Tap to close.</small>
+        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when soft (the letters on your shelf). Tap to close.</small>
       </div>
     </div>
   )}

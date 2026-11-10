@@ -19,15 +19,15 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       {!busy && s.phase === 'buy' && activeHuman && pl && (
         <>
           <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
-          <div class="buy-hint"><b class="move">{freeFruit !== null ? 'Pick a free fruit' : 'Your move'}</b><small>Tap a fruit in the market · {pl.boughtToday}/{limit} bought</small></div>
-          <button class="btn primary big" onClick={() => { fx.tap(); c.setFreeFruit(null); c.act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying ➜' : 'Skip buying ➜'}</button>
+          {freeFruit !== null && <div class="buy-hint"><b class="move">Pick a free fruit</b></div>}
+          <button class="btn primary big" onClick={() => { fx.tap(); c.setFreeFruit(null); c.act({ kind: 'endBuy' }); }}>{pl.boughtToday ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{Math.max(0, limit - pl.boughtToday)} more allowed</small></button>
         </>
       )}
       {!busy && s.phase === 'buy' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
       {!busy && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are bidding for the order…'}</div>}
       {!busy && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Stall open. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are opening their stalls…'}</div>}
       {!busy && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices locked. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are setting secret prices…'}</div>}
-      {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out · next day</button>}
+      {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out <small class="btn-sub">next day</small></button>}
       {!busy && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
       {!busy && s.phase === 'reveal' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>

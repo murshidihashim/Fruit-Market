@@ -1996,6 +1996,56 @@
         "REP-094"
       ],
       "reviewTrigger": "When the owner sees it on a phone; if regalia or card frames look out of place"
+    },
+    {
+      "id": "DEC-081",
+      "title": "The game table follows the six-phone Market Ticket design",
+      "question": "Should the in-game screens be recoloured, or laid out again from the six-phone design?",
+      "choice": "Laid out again. Every in-game screen follows the six-phone Market Ticket design (the version with Night falls): black top bar and five beats, customer tickets on a kraft band, rival boxes with stall patterns, the news in a red frame, four market lanes, a row per fruit for stocking and pricing, the rush in the middle of the table, night falls on the lanes, one black button. Where the design and the printed game differ, the printed game wins: lanes in the order blueberry, watermelon, mango, apple with 3, 4, 5 and 6 boxes, S for Soft, a shelf of 8, the six stall-sheet patterns. Customer tickets carry the character portraits (whole face) and the news carries the event picture. A legend sits under the market. Menus and other screens are not redesigned.",
+      "rationale": "Owner: \"yes bring the app to this design, but i need more soul to it (by inccorporating customer's character design and event artstyle) and maintaining coherence with the latest version of the physical tabletop game\". After a recoloured draft: \"no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game\". Then: \"for screen 2, remove the 'tap to buy ... green' just replace it with legends / now the design for the customer card looks off when they're queueing, cant see their face poperly\".",
+      "impact": {
+        "player": "A new game screen. A wide screen shows one centred column instead of three.",
+        "technical": "New ticket.tsx and ticket.css; the table components rewritten; older table styles in styles.css are overridden, not yet deleted.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game",
+        "date": "2026-11-11"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-072",
+      "reports": [
+        "REP-095"
+      ],
+      "reviewTrigger": "When the owner plays it on a phone; if the middle scrolls too often on small phones, or the wide-screen layout is missed"
+    },
+    {
+      "id": "DEC-082",
+      "title": "Rules version 15: secret stalls",
+      "question": "How should the bluffing rule work: what is hidden, what is said, and what opens at the bell?",
+      "choice": "A stall's shelf is never public. Buying stays in the open. After stocking each stall reveals only how many pieces are in its crate. At the bell prices and crates are revealed together (which fruit, how many, at what price); shelves stay hidden all game. Before the bell rivals know nothing about a shelf, not even a count. Computer stalls play by the same rule: they price from the counts, today's orders and the shelves they saw being bought, and never read a crate. The printed game adds a counter card per stall in front of the shutter, where the crate comes out at the bell. RULES_VERSION 14 to 15, computer-player version 3 to 4. No number on a card changed.",
+      "rationale": "Owner: \"incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase\". Asked what opens at the bell and what rivals may know about a shelf, the owner chose the first option of each: crates open at the bell (shelves stay hidden; a counter card in the printed game), and nothing known about a shelf.",
+      "impact": {
+        "player": "You can bluff with what you put out, and must remember what rivals bought. Less information on screen before the bell.",
+        "technical": "engine publicView and believe; server redact; the screen drawn from the public view; rules and AI versions bumped.",
+        "data": "Unfinished rules 14 games cannot be resumed; the daily board key becomes r15:a4; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase",
+        "date": "2026-11-11"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-073",
+      "reports": [
+        "REP-096"
+      ],
+      "reviewTrigger": "If playtests show the hidden crate adds guessing but no decisions, if people want the shelf count back, or if computer stalls become too easy to fool"
     }
   ],
   "history": [
@@ -2842,6 +2892,14 @@
     {
       "at": "2026-11-10 23:14",
       "text": "Owner: \"push to preview\". Pull request 2 merged to main (c19efec); CI run 42839658349 PASS, preview copy updated. Not published."
+    },
+    {
+      "at": "2026-11-11 02:01",
+      "text": "The game table redrawn to the six-phone Market Ticket design (PLAN-072, DEC-081) and rules version 15, secret stalls (PLAN-073, DEC-082) on branch market-ticket-flow. A first recoloured draft was rejected by the owner. verify PASS (437 tests), browser tests PASS; balance target FAIL (not tuned). Not merged, not published. Reports REP-095, REP-096."
+    },
+    {
+      "at": "2026-11-11 02:01",
+      "text": "Owner approved publication: \"push this live\". Release 1.17.0 prepared (PLAN-069 to PLAN-073: rules versions 14 and 15, the Market Ticket table, the night shown); browser tests PASS. Owner phone check NOT RUN; balance target FAIL (not tuned)."
     }
   ]
 }

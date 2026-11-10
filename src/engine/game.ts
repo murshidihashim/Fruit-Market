@@ -199,6 +199,9 @@ export interface GameState {
   stalls: (Stall | null)[];
   /** Rules 12: which pieces each shop put in its crate (null until it has opened its stall). */
   crates?: (Crate | null)[];
+  /** Rules 15: how many pieces each stall put out today, the one thing about a crate that is public before the bell.
+   *  Only set on a view made for one stall (publicView), where the crates themselves are blank. */
+  out?: (number | null)[];
   /** Each shop's secret prices (null until it has priced). */
   bids: (Post[] | null)[];
   results: DayResult | null;
@@ -954,6 +957,42 @@ export function rowStock(s: GameState, p: number): Stock {
 /** Pieces of a fruit a shop has left for the row of customers today (see rowStock). */
 export function rowCount(s: GameState, p: number, f: FruitId): number {
   return rowStock(s, p)[f].reduce((a, b) => a + b, 0);
+}
+
+/**
+ * Rules 15: how many pieces a stall put out today (null until it has opened). Stalls are secret: from the moment every
+ * stall is open until the bell, this number is all a rival may know about a crate.
+ */
+export function outCount(s: GameState, p: number): number | null {
+  const known = s.out?.[p];
+  if (known !== undefined && known !== null) return known;
+  const st = s.stalls[p];
+  return st ? FRUITS.reduce((a, f) => a + (st[f] ?? 0), 0) : null;
+}
+
+/**
+ * Rules 15, secret stalls: the game as stall `seat` may see it. A rival's shelf is never shown (blank here). A rival's
+ * crate is blank from stocking until the bell: while stalls are opening only whether it has opened is known, and once
+ * every stall is open, how many pieces it holds (`out`). At the bell every crate opens with the prices. Buying is done
+ * in the open, so with `memory` the rivals' shelves are kept, as a stall that watched every purchase and sale would
+ * know them; a crate is never kept. Everything the screen shows a person, and every computer stall's pricing, starts
+ * from this view, so nothing secret can leak into either.
+ */
+export function publicView(state: GameState, seat: number, memory = false): GameState {
+  const s = clone(state);
+  const bid = s.phase === 'bid';
+  const shut = s.phase === 'stall' || bid;
+  if (shut) s.out = s.players.map((_, i) => (bid ? outCount(state, i) : null));
+  else delete s.out;
+  s.players.forEach((pl, i) => {
+    if (i === seat) return;
+    if (!memory) for (const f of FRUITS) pl.stock[f] = pl.stock[f].map(() => 0);
+    if (shut) {
+      if (s.stalls[i]) s.stalls[i] = {};
+      if (s.crates?.[i]) s.crates[i] = {};
+    }
+  });
+  return s;
 }
 
 /** Fruit a shop has out for sale today. */

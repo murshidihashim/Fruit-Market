@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
-import { activePlayer, canPlayFavour, ranking, RuleError, type Action, type Customer, type GameState } from '../../engine/game';
+import { activePlayer, canPlayFavour, ranking, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
@@ -19,7 +19,6 @@ import { delivery, moves, nightfall, reveal } from './animator';
 import { playLocal, undoPoint } from './turn';
 import type { ShowState } from './panels/Showdown';
 
-const BANNER = { morning: 'MORNING', order: 'STANDING ORDER', buy: 'BUY FRUIT', stall: 'STOCKING', bid: 'THE BELL',  reveal: 'THE RUSH', evening: 'EVENING', over: '' } as const;
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
   const [s, setS] = useState(initial);
@@ -35,6 +34,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [handedTo, setHandedTo] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [night, setNight] = useState(false);
+  // The bell has just rung: every crate is open on the table for a moment before the rush (rules 15).
+  const [bell, setBell] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
   const [revealDone, setRevealDone] = useState(initial.phase === 'reveal');
   const [cardInfo, setCardInfo] = useState<number | null>(null);
@@ -106,7 +107,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     A.resetHurry();
     try {
       if (next.day !== prev.day) {
-        await nightfall(prev, setNight);
+        // The night is drawn from this stall's own view: what spoils behind a rival's shutter is not shown (rules 15).
+        await nightfall(publicView(prev, viewer), setNight);
         setLastNight(overnightLoss(prev, next, viewer));
         setLastJuice(overnightJuice(prev, next, viewer));
       }
@@ -129,7 +131,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await moves(prev, next);
       } else if (rush) {
         setRevealDone(false);
-        await reveal(next, viewer, setShow);
+        await reveal(next, viewer, setShow, setBell);
+        setBell(false);
         setRevealDone(true);
       } else await moves(prev, next);
     } finally {
@@ -241,7 +244,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   useEffect(() => {
     if (s.phase === 'over') (ranking(s)[0] === viewer ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
-    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : `DAY ${s.day}`) : BANNER[s.phase];
+    // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
+    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
     if (!text) return;
     setBanner(text);
     const t = window.setTimeout(() => setBanner(null), 1100);
@@ -316,7 +320,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   };
 
   return {
-    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, banner, revealDone,
+    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, bell, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,

@@ -5,7 +5,8 @@
 // - The server owns the only real GameState. Clients send intentions; the shared rules engine applies them.
 // - For-sale crates and secret prices are held in `pending` (never sent to anyone) until every human has submitted.
 // - Each browser receives its own filtered view: no pending prices, no hidden favour cards,
-//   no deck order and no random seed (which would reveal future customers and events).
+//   no deck order and no random seed (which would reveal future customers and events), and since rules 15
+//   no rival shelf and no rival crate before the bell (only how many pieces it holds).
 // - Every action carries an id (duplicates are ignored) and the state version it was made on
 //   (stale actions are rejected), so double taps and replays can't apply twice.
 // - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
@@ -17,7 +18,7 @@ import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import { bidOrder, canBidOrder,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
-  type Action, type Crate, type GameState, type PlayerConfig, type Post, type Stall,
+  publicView, type Action, type Crate, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
   CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, PROTOCOL_VERSION, RULES_VERSION, UPDATE_MSG,
@@ -92,7 +93,8 @@ const HIDDEN_FAVOUR: FavourId = 'priority';
 
 /** The game as one player is allowed to see it. */
 export function redact(g: GameState, seat: number): GameState {
-  const v: GameState = JSON.parse(JSON.stringify(g));
+  // Rules 15, secret stalls: a rival's shelf is never sent, and its crate only as a count of pieces until the bell.
+  const v: GameState = publicView(g, seat);
   v.rng = 0;
   v.farmerDeck = [];
   v.customerDeck = [];

@@ -1,17 +1,17 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
-import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
-import { planPrices } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, deliveredGreen, stageAt, trackSlots, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
+import { useEffect, useState } from 'preact/hooks';
+import { believe, planPrices } from '../engine/ai';
+import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
   validatePrices, type Crate, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, FavourIcon, Fruit } from './art';
-import { buyerCap, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow } from './boardModel';
+import { buyerCap, buyersAt, buyersFor, demandBoard, stallWanted, LANES } from './boardModel';
 import { fruitSvgUrl } from './fruitIcons';
-import { Pile } from './table';
+import { Lamp, STAGE_WORD, Swatch } from './ticket';
 import { Icon, type IconName } from './icons';
 import { PricingTableView } from './game/panels/PricingTable';
 
@@ -39,9 +39,9 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
 // ---------- open stalls ----------
 
 /**
- * Step 1 of selling (rules 12, PLAN-060): fill your crate with the exact pieces you will sell today. Your shelf is drawn
- * like the Wholesale Market (one column per fruit, newest at the top, tinted by freshness) with − and + on every space
- * you hold; each + sends that piece flying into your crate. Everyone sees every crate once all stalls open.
+ * Step 1 of selling (rules 12, PLAN-060; drawn as rows in PLAN-072): fill your crate with the exact pieces you will
+ * sell today. One row for every box of your shelf that holds fruit, with − and + beside it; each + sends that piece
+ * flying into your crate. Everyone sees every crate once all stalls open.
  */
 export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (stall: Stall, crate: Crate) => void }) {
   const pl = s.players[p];
@@ -55,7 +55,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
     });
     if (d > 0 && from) flyToCrate(from, f, stageAt(f, pos));
   };
-  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => { rememberStallBox(); onSubmit(crateCounts(crate), crate); }} />;
+  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => onSubmit(crateCounts(crate), crate)} />;
 }
 
 /** Where filling your stall starts: nothing out (owner's choice, PLAN-061); you add each piece yourself. */
@@ -92,63 +92,52 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
   const ripe = count(pl.stock, undefined, true);
   // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off).
   const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : null;
-  // The whole shelf, drawn full scale like the Wholesale Market: every ripe space (and green ones you hold), all rows.
-  const shown = (x: FruitId) => trackSlots(x).filter((t) => t.stage !== 'unripe' || deliveredGreen(x) || pl.stock[x][t.pos] > 0);
-  const rows = Math.max(...FRUITS.map((x) => shown(x).length));
-  const pieces = FRUITS.flatMap((f) => (crate[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) }))));
+  // One row for every box of your shelf that holds fruit: the board's lane order, the freshest box first.
+  const rows = LANES.flatMap((f) => pl.stock[f].map((n, pos) => ({ f, pos, n, stage: stageAt(f, pos) })).filter((x) => x.n > 0).reverse());
+  const pieces = LANES.flatMap((f) => (crate[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) }))).reverse());
   return (
     <>
-      <div class="price-panel stall-panel mid-panel">
-        <div class="pp-head"><b>Fill your stall</b></div>
-        {note && <div class="info-card warn small">{note}</div>}
-        <div class="crate me fill-crate" id="my-crate" aria-label={`Your stall: ${total} out`}>
-          <span class="crate-plate">Your stall · {total} out</span>
-          <span class="crate-fruits">
-            {pieces.length ? pieces.map((x) => <span class={`crate-piece st-${x.stage}`}><Fruit id={x.f} size={18} stage={x.stage} /></span>) : <span class="crate-none">empty</span>}
-          </span>
-        </div>
-        {ripe === 0 ? <div class="info-card dim">You have no ripe fruit to sell today.</div> : (
-          <div class="shelf-sheet">
-            <div class="mk-cols shelf-cols" style={{ '--rows': rows }} aria-label="Your shelf: − and + on every space you hold">
-              {FRUITS.map((f) => {
-                const held = count(pl.stock, f, true);
-                const out = counts[f] ?? 0;
-                const slots = shown(f);
-                return (
-                  <div class={`mk-col ${f}`}>
-                    <span class="pz shelf-pz" aria-label={`${FRUIT[f].plural}: ${stallWantText(s, p, f)}, ${out} of ${held} out`}>
-                      <Fruit id={f} size={18} />
-                      <span class="pz-n"><span><b>{stallWanted(s, p, f)}</b> want</span><span><b>{out}</b> of {held} out</span></span>
-                    </span>
-                    {slots.map(({ pos, stage }) => {
-                      const n = pl.stock[f][pos] ?? 0;
-                      const k = crate[f]?.[pos] ?? 0;
-                      const sell = n > 0 && stage !== 'unripe';
-                      const word = stage === 'notso' ? 'soft' : stage === 'unripe' ? 'green' : stage;
-                      return (
-                        <div class={`mk-cell st-${stage} ${n ? 'has' : ''} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your stall` : ''}`}>
-                          {/* A space you can sell from shows its − and + with "in your stall / on your shelf"; others show the pile or a ghost. */}
-                          {sell ? null : n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
-                          {stage !== 'fresh' && !sell && <span class="shelf-drop">{stage === 'okay' ? '−$1' : stage === 'notso' ? '−$2' : 'green'}</span>}
-                          {sell && (
-                            <span class="mini-step">
-                              <button type="button" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={() => onStep(f, pos, -1)}>−</button>
-                              <b>{k}<small>/{n}</small></b>
-                              <button type="button" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.mk-cell'))}>+</button>
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
+      <div class="price-panel stall-panel mid-panel tk-panel">
+        {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
+        <div class="tk-stick">
+          <div class="tk-label-row"><b class="tk-label">Fill your crate</b><span class="tk-side">{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
+          <div class="tk-crate mine" id="my-crate" aria-label={`Your crate: ${total} out`}>
+            <span class="tk-crate-name"><Swatch p={p} size={18} /><span>Your crate</span></span>
+            <span class="tk-crate-items">
+              {pieces.length ? pieces.map((x) => <span class={`crate-piece st-${x.stage}`}><Fruit id={x.f} size={20} stage={x.stage} /></span>) : <span class="tk-crate-none">empty</span>}
+            </span>
           </div>
-        )}
+        </div>
+        {note && <div class="tk-info warn">{note}</div>}
+        {ripe === 0 && <div class="tk-info">You have no ripe fruit to sell today.</div>}
+        <div class={`tk-rows ${rows.length > 3 ? 'many' : ''}`}>
+          {rows.map(({ f, pos, n, stage }) => {
+            const k = crate[f]?.[pos] ?? 0;
+            const sell = stage !== 'unripe';
+            const word = STAGE_WORD[stage];
+            const drop = FRUIT[f].drop[pos] ?? 0;
+            const wanted = stallWanted(s, p, f);
+            return (
+              <div class={`tk-row ${f} ${sell ? '' : 'off'} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
+                <div class="tk-row-info">
+                  <Lamp stage={stage} size={20} /><Fruit id={f} size={26} stage={stage} />
+                  <span class="tk-row-text"><b>{n} on shelf</b><small>{sell ? `${wanted} wanted${drop ? ` · sells $${drop} less` : ''}` : 'still green'}</small></span>
+                </div>
+                {sell && (
+                  <span class="mini-step">
+                    <button type="button" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={() => onStep(f, pos, -1)}>−</button>
+                    <b><span>{k}</span><small>in crate</small></b>
+                    <button type="button" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.tk-row'))}>+</button>
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {rows.length <= 3 && <p class="tk-note">Only the crate can sell today. Rivals will see how many pieces you put out, not which fruit, and never your price.</p>}
       </div>
       <div class="pp-lock">
-        <button class="btn primary big wide" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+        <button class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
       </div>
     </>
   );
@@ -163,28 +152,6 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
 /** "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button. */
 export const bellOpensOnStart = (_s: GameState): boolean => false;
 
-/** Flow A (PLAN-065): where your stall box was when you opened your stall, so your crate on the pricing table can glide
- *  down from there instead of dropping in. Kept for a moment only. */
-let stallBox: { rect: DOMRect; at: number } | null = null;
-function rememberStallBox() {
-  const el = typeof document !== 'undefined' ? document.getElementById('my-crate') : null;
-  stallBox = el ? { rect: el.getBoundingClientRect(), at: Date.now() } : null;
-}
-/** Slides your crate from your stall box to its place on the table (skipped when motion is reduced). */
-function glideFromStallBox() {
-  const from = stallBox;
-  stallBox = null;
-  if (!from || Date.now() - from.at > 4000 || typeof document === 'undefined') return;
-  const el = document.querySelector<HTMLElement>('.crates .crate.me');
-  if (!el || !el.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const to = el.getBoundingClientRect();
-  if (!to.width || !to.height) return;
-  el.style.animation = 'none';
-  const dx = from.rect.left - to.left, dy = from.rect.top - to.top;
-  el.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${from.rect.width / to.width}, ${from.rect.height / to.height})`, transformOrigin: '0 0' },
-    { transform: 'none', transformOrigin: '0 0' }], { duration: 600, easing: 'cubic-bezier(.45,0,.25,1)' });
-}
-
 /** Prices pre-filled from the planner for every fruit you put out. */
 export function startingPrices(s: GameState, p: number): Record<string, number> {
   const plan = planPrices(s, p).posts;
@@ -192,97 +159,85 @@ export function startingPrices(s: GameState, p: number): Record<string, number> 
 }
 
 /** `waiting`: your stall is open and the rivals are still opening theirs (PLAN-065). The same panel stays on screen
- *  into pricing, so the crates drop in once and the rivals' lids lift as soon as pricing starts. */
+ *  into pricing; the rivals' crates show what is in them as soon as pricing starts. */
 export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void; waiting?: boolean }) {
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
   // Prices are suggested once every stall is open (the planner then sees every crate).
   useEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, p)); }, [s.phase]);
-  // Flow A: your stall box glides down into your crate as the table appears.
-  useLayoutEffect(() => { if (waiting) glideFromStallBox(); }, []);
   const [favoured, setFavoured] = useState(false);
-  const [sel, setSel] = useState<FruitId | null>(() => FRUITS.find((f) => forSale(s, p, f) > 0) ?? null);
   const [notice, setNotice] = useState(() => bellOpensOnStart(s));
   return (
-    <PricePanelView s={s} p={p} vals={vals} sel={sel} favoured={favoured} notice={notice} waiting={waiting}
-      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))} onPick={setSel} onFavoured={() => setFavoured(!favoured)}
+    <PricePanelView s={s} p={p} vals={vals} favoured={favoured} notice={notice} waiting={waiting}
+      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))} onFavoured={() => setFavoured(!favoured)}
       onNotice={setNotice} onSubmit={onSubmit} />
   );
 }
 
-/** The pricing screen drawn from its state (no hooks, so tests can draw it). */
-export function PricePanelView({ s, p, vals, sel, favoured, notice, waiting, onPrice, onPick, onFavoured, onNotice, onSubmit }: {
-  s: GameState; p: number; vals: Record<string, number>; sel: FruitId | null; favoured: boolean; notice: boolean; waiting?: boolean;
-  onPrice: (f: FruitId, price: number) => void; onPick: (f: FruitId) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
+/** The pricing screen drawn from its state (no hooks, so tests can draw it): every rival's crate, shut, with how many
+ *  pieces it holds (rules 15), then one row per fruit you put out with its own − and + (PLAN-072). */
+export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice, onFavoured, onNotice, onSubmit }: {
+  s: GameState; p: number; vals: Record<string, number>; favoured: boolean; notice: boolean; waiting?: boolean;
+  onPrice: (f: FruitId, price: number) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
   onSubmit: (posts: Post[], favoured: boolean) => void;
 }) {
   const pl = s.players[p];
-  const fruits = FRUITS.filter((f) => forSale(s, p, f) > 0);
+  const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
   const priceOf = (f: FruitId) => Math.min(vals[f], maxPrice(s, f));
-  const posts: Post[] = fruits.map((f) => ({ fruit: f, price: priceOf(f) }));
+  const posts: Post[] = FRUITS.filter((f) => fruits.includes(f)).map((f) => ({ fruit: f, price: priceOf(f) }));
   const error = validatePrices(s, p, posts);
+  // Rules 15: the rivals' crates are shut, so "wanted" and "would buy" are worked out on the same guess the suggested
+  // prices use (engine/ai believe: only how many pieces each rival put out), never on a rival's real crate.
+  const b = believe(s, p, false);
+  const board = demandBoard(b, p);
   return (
     <>
-      <div class="price-panel mid-panel">
-        <div class="pp-head"><b>Set your prices</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
-        {waiting ? <p class="pp-wait">Rivals are opening their stalls…</p> : <DemandBoard rows={demandBoard(s, p)} prices={posts} />}
-        <PricingTableView s={s} viewer={p} waiting={waiting} mine={waiting ? undefined : { prices: Object.fromEntries(posts.map((x) => [x.fruit, x.price])), selected: sel, onPick }} />
-        {!waiting && sel && fruits.includes(sel) && <PriceBubble s={s} p={p} f={sel} price={priceOf(sel)} onPrice={(v) => onPrice(sel, v)} />}
-        {!waiting && pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
-          <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={onFavoured}>
-            <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
-          </button>
+      <div class="price-panel mid-panel tk-panel">
+        <div class="tk-label-row"><b class="tk-label">Rival crates · shut until the bell</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
+        <PricingTableView s={s} viewer={p} waiting={waiting} />
+        {waiting ? <p class="pp-wait tk-note">Rivals are opening their stalls…</p> : (
+          <>
+            <div class="tk-label-row"><b class="tk-label">Your secret prices</b><span class="tk-side">One price per fruit</span></div>
+            {fruits.length === 0 && <div class="tk-info">You put nothing out today.</div>}
+            <div class={`tk-rows prices n${fruits.length}`}>
+              {fruits.map((f) => {
+                const price = priceOf(f);
+                const lo = minPrice(s, f);
+                const top = Math.max(0, ...buyersFor(b, f).map((x) => buyerCap(b, p, f, x).cap));
+                const hi = Math.min(maxPrice(s, f), Math.max(1, top) + 2);
+                const wanted = board.find((r) => r.f === f)?.wanted ?? 0;
+                const buy = buyersAt(b, p, f, price);
+                return (
+                  <div class={`tk-row price ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
+                    <div class="tk-row-info">
+                      <Fruit id={f} size={30} />
+                      <span class="tk-row-text"><b>{forSale(s, p, f)} out · {wanted} wanted</b><small>{top > 0 ? `${buy} buy at $${price} · top $${top}` : 'Nobody wants yours'}</small></span>
+                    </div>
+                    <span class="pbub tk-dial">
+                      <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
+                      <span class="pc-num">${price}</span>
+                      <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={() => onPrice(f, price + 1)}>+</button>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
+              <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={onFavoured}>
+                <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
+              </button>
+            )}
+            {fruits.length > 0 && <p class="tk-note">You see how many pieces each rival put out, not which fruit: that shows at the bell. Cheapest stall sells first; okay fruit pays $1 less.</p>}
+          </>
         )}
       </div>
       <div class="pp-lock">
         {!waiting && error && <div class="error">{error}</div>}
         {waiting
-          ? <button class="btn primary big wide" disabled>Waiting for rivals…</button>
-          : <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Seal my prices <small class="btn-sub">ring the bell</small></button>}
+          ? <button class="btn primary big wide tk-go" disabled>Waiting for rivals…</button>
+          : <button class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>}
       </div>
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </>
-  );
-}
-
-/** The demand board: for each fruit, pieces wanted, pieces out at every stall, and buyers at the prices where that count changes. */
-function DemandBoard({ rows, prices }: { rows: DemandRow[]; prices: Post[] }) {
-  if (!rows.length) return null;
-  return (
-    <div class="demand" role="table" aria-label="Demand today: pieces wanted and buyers at each price">
-      {rows.map((r) => {
-        const mine = prices.find((x) => x.fruit === r.f)?.price;
-        return (
-          <div class={`dm-row ${r.wanted ? '' : 'off'}`} role="row">
-            <Fruit id={r.f} size={20} />
-            <span class="dm-q" role="cell"><b>{r.wanted} wanted</b><small> · {r.out} out</small></span>
-            {r.steps.length ? (
-              <span class="dm-steps" role="cell">
-                {r.steps.map((x) => (
-                  <span class={`dm-s ${mine === x.price ? 'mine' : ''}`} aria-label={`${x.buyers} would pay $${x.price}`}>${x.price}<b>{x.buyers}</b></span>
-                ))}
-              </span>
-            ) : <span class="dm-none" role="cell">no buyers</span>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** The price bubble under your crate for the fruit you tapped: the − / + dial. The quick-price boxes under it were
- *  removed (owner, PLAN-065); the demand board above still shows how many would buy at each price. */
-function PriceBubble({ s, p, f, price, onPrice }: { s: GameState; p: number; f: FruitId; price: number; onPrice: (v: number) => void }) {
-  const lo = minPrice(s, f);
-  const top = Math.max(1, ...buyersFor(s, f).map((x) => buyerCap(s, p, f, x).cap));
-  const hi = Math.min(maxPrice(s, f), top + 2);
-  return (
-    <div class="pbub" role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
-      <div class="pbub-dial">
-        <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={() => onPrice(price - 1)}>−</button>
-        <span class="pc-num"><Fruit id={f} size={22} />${price}</span>
-        <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={() => onPrice(price + 1)}>+</button>
-      </div>
-    </div>
   );
 }
 
@@ -291,6 +246,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
   const lines: [IconName, string][] = [
     ['tag', 'Price every fruit you put out!'],
     ['hourglass', 'Prices stay secret until the bell.'],
+    ['crate', 'Crates stay shut until the bell: you only see how many pieces.'],
     ['coin', 'Lowest price sells first!'],
     ['scales', 'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.'],
     ['heart', 'Fulfil all of a customer’s orders to earn a favour card.'],
@@ -374,7 +330,7 @@ function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: Fr
     <>
       <div class="pp-intro"><b>Shade Cloth</b><span>Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</span></div>
       <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
-        {FRUITS.map((f) => (
+        {LANES.map((f) => (
           <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>
         ))}
         <button type="button" role="radio" aria-checked={chosen === null} class={chosen === null ? 'on' : ''} onClick={() => onShade(null)}>None</button>

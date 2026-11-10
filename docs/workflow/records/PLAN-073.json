@@ -1,0 +1,94 @@
+{
+  "release": "1.17.0",
+  "build": "branch market-ticket-flow",
+  "reports": [
+    "REP-096"
+  ],
+  "decisions": [
+    "DEC-082"
+  ],
+  "changes": {
+    "added": [
+      "Secret stalls (rules version 15): nobody sees a rival's shelf, and before the bell a rival's crate shows only how many pieces it holds",
+      "The bell: every crate opens with its prices before the first customer is served"
+    ],
+    "changed": [
+      "Rival boxes show cash only, then how many pieces are out",
+      "Computer stalls price from the piece counts, today's orders and what they saw each stall buy and sell; they no longer read a crate before the bell",
+      "The price suggested to you is worked out from the piece counts only",
+      "Online, a rival's shelf is never sent to your phone, and a rival's crate only as a count until the bell"
+    ],
+    "fixed": [],
+    "removed": [
+      "A rival's shelf in the pop-up from their box",
+      "The count of fruit in every stall on the market lanes"
+    ]
+  },
+  "playerNotes": [
+    "Stalls are now secret: you only learn how many pieces each rival put out, not which fruit",
+    "At the bell every crate opens with its prices",
+    "Bluff: put out a fruit your rivals do not expect"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-073",
+  "title": "Rules version 15: secret stalls (the bluffing rule)",
+  "problem": "Owner: a player's inventory should not be public; a stall reveals only how many fruits it is selling, and which fruit at the price reveal. Owner's answers: at the bell the crates open (shelves stay hidden all game; the printed game gets a counter card per stall); before the bell rivals know nothing about your shelf.",
+  "scope": [
+    "src/engine/game.ts: publicView (what one stall may see) and outCount; src/engine/ai.ts: believe (a guess of rival crates from public facts) used by planPrices",
+    "server/room.ts: redact sends each phone only its public view",
+    "src/net/protocol.ts: RULES_VERSION 15, AI_VERSION 4",
+    "Game.tsx draws from the public view; PricingTable (shut crates, then CratesOpen at the bell); rival box and pop-up; pricing notes; animator (the bell moment; rival purchases still fly; no rival spoilage shown)",
+    "RULES.md, HowTo.tsx, tutorial.ts",
+    "tests/rules15.test.ts (11 tests) and version checks",
+    "Printed game (made outside the repo): six counter cards, guidebook and kit wording at rules version 15"
+  ],
+  "exclusions": [
+    "No number on any card changed",
+    "Balance not tuned",
+    "The repo's own print kit (print/kit, scripts/print-deck.ts) is still rules 13",
+    "No release prepared, nothing published"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes with the rules 15 tests",
+      "result": "PASS",
+      "evidence": "2026-11-11: 437 unit tests passed, 1 skipped (as before); lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "The server never sends a rival's shelf, nor a rival's crate before the bell",
+      "result": "PASS",
+      "evidence": "2026-11-11: tests/rules15.test.ts: a whole game replayed, the view for seat 0 checked at every step"
+    },
+    {
+      "id": "T3",
+      "text": "Neither the suggested price nor a computer stall's price changes with what a rival really put out",
+      "result": "PASS",
+      "evidence": "2026-11-11: tests/rules15.test.ts: same shelf and count, apples or mangoes in the crate, identical prices and an identical pricing screen"
+    },
+    {
+      "id": "T4",
+      "text": "Browser tests pass, with 0 leaks",
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 100 pricing frames; six-stall room; reconnect 5 of 5"
+    },
+    {
+      "id": "T5",
+      "text": "Balance: every shopkeeper and upgrade within 4 points of fair",
+      "result": "FAIL",
+      "evidence": "2026-11-11: npm run balance: shopkeeper win rates 29.8 (Local Favourite) to 41.3 (Bargain Hunter) against 33.3 fair (rules 14: 26.3 to 41.0); rushing Premium Display 27.0, Order Book 25.0; average cash 78.5 / 94.3 / 136 for 8, 10 and 14 days (rules 14: 78.8 / 94.6 / 136.6). Not tuned."
+    },
+    {
+      "id": "T6",
+      "text": "Owner has played it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Needs the preview copy; merging to main was not requested"
+    }
+  ]
+}

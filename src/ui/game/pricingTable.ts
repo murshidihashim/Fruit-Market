@@ -1,13 +1,15 @@
 // "Round the market table" (DEC-070, PLAN-054): what the pricing screen shows about every stall while prices are
-// secret. Only public facts are read here: each stall's for-sale crate (public once every shop has opened), the
-// freshness of the pieces on its shelf, whether it has sealed its prices yet, and how many customers are being
-// served today. A price is never read, so nothing here can show one before the bell (online, the server does not
+// secret. Only public facts are read here: how many pieces each stall put out (rules 15: a rival's crate itself is
+// blank on a stall's own view until the bell), your own crate and the freshness of its pieces, whether a stall has
+// sealed its prices yet, and how many customers are being served today. A price is never read, so nothing here can show one before the bell (online, the server does not
 // even send them: server/room.ts redact()).
 import { FRUITS, stageAt, type FruitId, type Stage } from '../../engine/data';
-import { crateStock, forSale, servingCustomers, type GameState } from '../../engine/game';
+import { crateStock, forSale, outCount, servingCustomers, type GameState } from '../../engine/game';
 
 export interface TableFruit { f: FruitId; out: number; dots: Stage[] }
-export interface TableSeat { player: number; me: boolean; sealed: boolean; fruits: TableFruit[] }
+/** `out`: how many pieces the stall put out (null until it has opened). Since rules 15 that is all a rival's seat
+ *  shows before the bell: on a stall's own view (publicView) a rival's `fruits` is empty. */
+export interface TableSeat { player: number; me: boolean; sealed: boolean; out: number | null; fruits: TableFruit[] }
 export interface PricingTable { seats: TableSeat[]; onSale: number; orders: number }
 
 /** At most this many freshness dots per fruit; more pieces show as a count only. */
@@ -31,8 +33,9 @@ export function pricingTable(s: GameState, viewer: number): PricingTable {
     me: p === viewer,
     // Only whether a shop has finished pricing is public; the bids themselves are not read.
     sealed: s.bids[p] !== null && s.bids[p] !== undefined,
+    out: outCount(s, p),
     fruits: FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => ({ f, out: forSale(s, p, f), dots: dotsFor(s, p, f) })),
   }));
-  const onSale = seats.reduce((a, x) => a + x.fruits.reduce((b, y) => b + y.out, 0), 0);
+  const onSale = seats.reduce((a, x) => a + (x.out ?? 0), 0);
   return { seats, onSale, orders: servingCustomers(s).length };
 }
