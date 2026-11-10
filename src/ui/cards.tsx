@@ -149,7 +149,6 @@ export function EventBack({ class: cls }: { class?: string }) {
       <header class="x-gz-mast">Fruit Market</header>
       <div class="x-gz-ed"><span>Morning edition · One cent</span><span>Event card</span></div>
       <strong class="x-gz-head">Today’s news</strong>
-      <p class="x-gz-sub">Turned over each morning, never before</p>
       <div class="x-gzb-mid"><b class="x-gz-seal">Extra!</b></div>
       <p class="x-gzb-foot">Event · one each morning from Day 2</p>
     </article>
