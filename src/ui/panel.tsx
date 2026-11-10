@@ -1,10 +1,10 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useState } from 'preact/hooks';
-import { planPrices, planStall } from '../engine/ai';
+import { planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, deliveredGreen, stageAt, trackSlots, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, crateCounts, forSale, oldestCrate, isDraftNight, isMarketDay, maxPrice, minPrice, nightOutlook, shadePick,
+  canPlayFavour, canUpgrade, count, crateCounts, forSale, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
   validatePrices, type Crate, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
@@ -58,9 +58,10 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
   return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => onSubmit(crateCounts(crate), crate)} />;
 }
 
-/** The suggested crate: the planner's counts, oldest pieces first (as a computer shop fills its crate). */
+/** Where filling your stall starts: nothing out (owner's choice, PLAN-061); you add each piece yourself. */
 export function startingCrate(s: GameState, p: number): Crate {
-  return oldestCrate(s.players[p], planStall(s, p));
+  const pl = s.players[p];
+  return Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Crate;
 }
 
 /** A piece of fruit flies from the shelf space into your crate (skipped when motion is reduced). */
@@ -89,31 +90,30 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
   const counts = crateCounts(crate);
   const total = FRUITS.reduce((a, f) => a + (counts[f] ?? 0), 0);
   const ripe = count(pl.stock, undefined, true);
-  // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off); else Market Day news.
-  const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : isMarketDay(s, s.day + 1) ? 'Tomorrow is a Market Day: more walk-ins. The lorry still comes.' : null;
+  // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off).
+  const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : null;
+  // The whole shelf, drawn full scale like the Wholesale Market: every ripe space (and green ones you hold), all rows.
+  const shown = (x: FruitId) => trackSlots(x).filter((t) => t.stage !== 'unripe' || deliveredGreen(x) || pl.stock[x][t.pos] > 0);
+  const rows = Math.max(...FRUITS.map((x) => shown(x).length));
   const pieces = FRUITS.flatMap((f) => (crate[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) }))));
   return (
     <>
       <div class="price-panel stall-panel mid-panel">
-        <div class="pp-head"><b>Fill your crate</b></div>
+        <div class="pp-head"><b>Fill your stall</b></div>
         {note && <div class="info-card warn small">{note}</div>}
-        <div class="crate me fill-crate" id="my-crate" aria-label={`Your crate: ${total} out`}>
-          <span class="crate-plate">Your crate · {total} out</span>
+        <div class="crate me fill-crate" id="my-crate" aria-label={`Your stall: ${total} out`}>
+          <span class="crate-plate">Your stall · {total} out</span>
           <span class="crate-fruits">
             {pieces.length ? pieces.map((x) => <span class={`crate-piece st-${x.stage}`}><Fruit id={x.f} size={18} stage={x.stage} /></span>) : <span class="crate-none">empty</span>}
           </span>
         </div>
         {ripe === 0 ? <div class="info-card dim">You have no ripe fruit to sell today.</div> : (
           <div class="shelf-sheet">
-            <div class="shelf-head"><b>Your shelf</b><small>− and + on every space you hold</small></div>
-            <div class="mk-cols shelf-cols">
-              {FRUITS.map((f, _i, all) => {
+            <div class="mk-cols shelf-cols" style={{ '--rows': rows }} aria-label="Your shelf: − and + on every space you hold">
+              {FRUITS.map((f) => {
                 const held = count(pl.stock, f, true);
                 const out = counts[f] ?? 0;
-                // Like the market on a small phone: rows below the lowest piece you hold in any column step aside.
-                const shown = (x: FruitId) => trackSlots(x).filter((t) => t.stage !== 'unripe' || deliveredGreen(x) || pl.stock[x][t.pos] > 0);
-                const fit = Math.max(3, ...all.map((x) => shown(x).reduce((a, t, row) => (pl.stock[x][t.pos] > 0 ? row + 1 : a), 0)));
-                const slots = shown(f).slice(0, fit);
+                const slots = shown(f);
                 return (
                   <div class={`mk-col ${f}`}>
                     <span class="pz shelf-pz" aria-label={`${FRUIT[f].plural}: ${stallWantText(s, p, f)}, ${out} of ${held} out`}>
@@ -126,13 +126,14 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
                       const sell = n > 0 && stage !== 'unripe';
                       const word = stage === 'notso' ? 'tired' : stage === 'unripe' ? 'green' : stage;
                       return (
-                        <div class={`mk-cell st-${stage} ${n ? 'has' : ''} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
-                          {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
-                          {stage !== 'fresh' && <span class="shelf-drop">{stage === 'okay' ? '−$1' : stage === 'notso' ? '−$2' : 'green'}</span>}
+                        <div class={`mk-cell st-${stage} ${n ? 'has' : ''} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your stall` : ''}`}>
+                          {/* A space you can sell from shows its − and + with "in your stall / on your shelf"; others show the pile or a ghost. */}
+                          {sell ? null : n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
+                          {stage !== 'fresh' && !sell && <span class="shelf-drop">{stage === 'okay' ? '−$1' : stage === 'notso' ? '−$2' : 'green'}</span>}
                           {sell && (
                             <span class="mini-step">
                               <button type="button" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={() => onStep(f, pos, -1)}>−</button>
-                              <b>{k}</b>
+                              <b>{k}<small>/{n}</small></b>
                               <button type="button" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.mk-cell'))}>+</button>
                             </span>
                           )}

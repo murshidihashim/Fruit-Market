@@ -47,6 +47,8 @@ const path = require('path');
       }
       // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
+      // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
+      if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
       if (await p.locator('.pp-lock .btn').count()) {
         if ((await p.locator('.crate.me').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn'); await p.waitForTimeout(1800);

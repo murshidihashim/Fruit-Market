@@ -62,6 +62,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
     if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); return 'moved'; }
+    // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
+    if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); return 'moved'; }
     if (await has('.pp-lock .btn')) {
       if (!once.has(`tray-${P.tag}`)) { once.add(`tray-${P.tag}`); await shot(P, `03-pricing-${P.tag}`); }
       await p.click('.pp-lock .btn'); return 'moved';

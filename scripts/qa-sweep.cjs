@@ -126,6 +126,8 @@ function audit() {
           if (await has('text=/Done buying|Skip buying/')) { if (once('buy')) await check('buying'); await page.click('text=/Done buying|Skip buying/'); continue; }
           // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
           if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
+          // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
+          if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
           const lock = page.locator('.pp-lock .btn');
           if (await lock.count()) { if (once('pricing')) await check('pricing'); await lock.click(); if (once('reveal')) { await page.waitForTimeout(2600); await check('reveal'); } continue; }
           if (await has('text=Lights out')) { if (once('evening')) await check('evening'); await page.click('text=Lights out'); continue; }
