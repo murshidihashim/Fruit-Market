@@ -2656,6 +2656,10 @@
     {
       "at": "2026-11-10 07:29",
       "text": "Owner: remove the two shoppers from the Durian Season art and keep only the durian. Done in the draft; its newspaper caption now reads 'A spiky durian crowned on its throne, its smell drifting out.'"
+    },
+    {
+      "at": "2026-11-10 08:29",
+      "text": "Owner: make the whole draw 1 second and stop the card turning over blank. The card now stays face down until its picture is downloaded and decoded (at most 1.2 seconds), then turns in 1 second; checked in the game with pictures slowed by 0.7 seconds."
     }
   ]
 }
