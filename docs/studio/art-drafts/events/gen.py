@@ -370,5 +370,6 @@ def bake_off():
     svg('bakeOff', rays(O, O2, 300, 140), skyline(gy, '#f2b880', .45, 15), table, dish, pie, lattice, pie_out, steam, ros, baker, apples,
         tag(196, 22, '+$1'), sparkle(380, 40, 10))
 
-for f in (tourist_bus, monsoon, durian_card, kenduri, mango_windfall, pasar_malam, bake_off): f()
-print('ok')
+if __name__ == '__main__':
+    for f in (tourist_bus, monsoon, durian_card, kenduri, mango_windfall, pasar_malam, bake_off): f()
+    print('ok')

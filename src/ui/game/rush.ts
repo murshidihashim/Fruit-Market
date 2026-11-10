@@ -18,28 +18,17 @@ export interface RushSeat {
 
 /**
  * The stalls that offered this customer the fruit (an offer whose pieces were all too old still shows, with its
- * reason), placed around the card like seats at a table: your own card bottom left, nearest your shelf; the rivals
- * in turn order after you, top row first. Stalls with none of the fruit out get no card. Up to six (rules 11: six stalls):
- * three rows when more than four stalls offer, with your own card bottom left.
+ * reason), in the same order as the rival row at the top of the screen: the rivals clockwise from the seat after
+ * you, then your own card last. They read left to right, top row first (owner's choice, PLAN-061). Stalls with none
+ * of the fruit out get no card. Up to six (rules 11: six stalls): three rows when more than four stalls offer.
  */
 export function rushSeats(l: LineResult, viewer: number, players: number): RushSeat[] {
   const turn = (p: number) => (p - viewer + players) % players;
   const offers = l.offers.map((o, i) => ({ o, i })).sort((a, b) => turn(a.o.player) - turn(b.o.player));
   const mine = offers.find((x) => x.o.player === viewer);
   const rivals = offers.filter((x) => x.o.player !== viewer);
-  const out: RushSeat[] = [];
-  const put = (x: { o: Offer; i: number }, slot: number) => out.push({ i: x.i, player: x.o.player, me: x.o.player === viewer, slot });
-  if (offers.length <= 2) {
-    // One row: you on the left, the rival on the right.
-    [...(mine ? [mine] : []), ...rivals].slice(0, 2).forEach((x, k) => put(x, k));
-    return out;
-  }
-  const rows = offers.length > 4 ? 3 : 2;
-  const mySlot = rows * 2 - 2;
-  const rivalSlots = Array.from({ length: rows * 2 }, (_, k) => k).filter((k) => !mine || k !== mySlot);
-  rivals.slice(0, rivalSlots.length).forEach((x, k) => put(x, rivalSlots[k]));
-  if (mine) put(mine, mySlot);
-  return out.sort((a, b) => a.slot - b.slot);
+  return [...rivals, ...(mine ? [mine] : [])].slice(0, 6)
+    .map((x, slot) => ({ i: x.i, player: x.o.player, me: x.o.player === viewer, slot }));
 }
 
 /** The line under the customer's card, e.g. "wants 4 × Watermelon · up to $7 fresh". */

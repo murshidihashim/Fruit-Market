@@ -16,28 +16,30 @@ const offer = (player: number, price: number, extra: Partial<Offer> = {}): Offer
 const lineOf = (offers: Offer[]): LineResult => ({ customerId: 5, name: 'Wei Jie', fruit: 'apple', want: 3, max: 6, offers });
 
 describe('rush seats', () => {
-  it('puts your card bottom left and the rivals in turn order after you, top row first', () => {
+  it('reads like the rival row: rivals clockwise from the seat after you, then your card last, top row first', () => {
     const seats = rushSeats(lineOf([offer(2, 4), offer(0, 5), offer(3, 3), offer(1, 6)]), 0, 4);
-    expect(seats.map((x) => [x.player, x.slot, x.me])).toEqual([[1, 0, false], [2, 1, false], [0, 2, true], [3, 3, false]]);
+    expect(seats.map((x) => [x.player, x.slot, x.me])).toEqual([[1, 0, false], [2, 1, false], [3, 2, false], [0, 3, true]]);
     // each seat points at its own offer (and tag)
     for (const x of seats) expect(lineOf([offer(2, 4), offer(0, 5), offer(3, 3), offer(1, 6)]).offers[x.i].player).toBe(x.player);
   });
 
-  it('six stalls (rules 11): three rows, your card bottom left, all five rivals seated', () => {
+  it('six stalls (rules 11): three rows, all five rivals in seat order, your card last', () => {
     const six = lineOf([0, 1, 2, 3, 4, 5].map((p) => offer(p, 4 + p)));
     const seats = rushSeats(six, 0, 6);
-    expect(seats.map((x) => [x.player, x.slot])).toEqual([[1, 0], [2, 1], [3, 2], [4, 3], [0, 4], [5, 5]]);
+    expect(seats.map((x) => [x.player, x.slot])).toEqual([[1, 0], [2, 1], [3, 2], [4, 3], [5, 4], [0, 5]]);
     expect(rushSeats(lineOf([1, 2, 3, 4, 5].map((p) => offer(p, 4))), 0, 6).map((x) => x.slot)).toEqual([0, 1, 2, 3, 4]);
   });
 
   it('turn order wraps around the table for a viewer in another seat', () => {
     const seats = rushSeats(lineOf([offer(0, 4), offer(1, 5), offer(2, 3)]), 2, 3);
     expect(seats.map((x) => [x.player, x.slot])).toEqual([[0, 0], [1, 1], [2, 2]]);
+    // the same order as that viewer's rival row (seats after player 1 are 2, then 0)
+    expect(rushSeats(lineOf([offer(0, 4), offer(1, 5), offer(2, 3)]), 1, 3).map((x) => x.player)).toEqual([2, 0, 1]);
   });
 
   it('uses only as many seats as stalls that offered: one row for one or two', () => {
     expect(rushSeats(lineOf([offer(0, 4)]), 0, 4).map((x) => x.slot)).toEqual([0]);
-    expect(rushSeats(lineOf([offer(3, 4), offer(0, 5)]), 0, 4).map((x) => [x.player, x.slot])).toEqual([[0, 0], [3, 1]]);
+    expect(rushSeats(lineOf([offer(3, 4), offer(0, 5)]), 0, 4).map((x) => [x.player, x.slot])).toEqual([[3, 0], [0, 1]]);
     expect(rushSeats(lineOf([offer(1, 4), offer(2, 5)]), 0, 4).map((x) => [x.player, x.slot])).toEqual([[1, 0], [2, 1]]);
     // three rivals and no offer from you: no bottom-left gap for you
     expect(rushSeats(lineOf([offer(1, 4), offer(2, 5), offer(3, 6)]), 0, 4).map((x) => x.slot)).toEqual([0, 1, 2]);

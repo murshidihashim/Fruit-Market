@@ -10,7 +10,8 @@
   ],
   "changes": {
     "added": [
-      "Redrawn draft artwork for the seven events without a picture, matched to the existing event art (docs/studio/art-drafts/events, not yet in the game)"
+      "Redrawn draft artwork for the seven events without a picture, matched to the existing event art (docs/studio/art-drafts/events, not yet in the game)",
+      "Draft art for Pak Din (Shade Cloth) and Farah (Sharp Ears): stall scenes and round badges in docs/studio/art-drafts/shopkeepers; the Wedding Caterer and the Bakery to use their event's picture like the other guests (not yet in the game)"
     ],
     "changed": [
       "Rules version 13: today's event is turned over each morning and never shown the day before; walk-in events add or remove walk-ins that morning",
@@ -19,7 +20,8 @@
       "Rule book, upgrade text, achievement and print kit wording",
       "Every event card's in-game text in the owner's wording, with a short tagline before the rule",
       "Morning card is drawn face down (the print kit's event card back), waits until its picture is loaded, then turns over in 1 second",
-      "Tomorrow's lorry box: the title, the lorry's name and the fruit counts each on their own row"
+      "Tomorrow's lorry box: the title, the lorry's name and the fruit counts each on their own row",
+      "Price reveal: the stalls' price cards read left to right, top row first, in the same order as the rival row (rivals clockwise from the seat after you), your own card last"
     ],
     "fixed": [
       "Durian Season draft art: shoppers now pinch their noses with a clear hand and squeezed-shut eyes"
@@ -51,7 +53,8 @@
     "RULES.md, upgrade text, achievement, print kit",
     "RULES_VERSION 13, new daily seeds",
     "Seven event artworks and a preview of all 20 cards, for approval",
-    "Owner's event card wording with taglines (game, newspaper cards, rule book, print kit)"
+    "Owner's event card wording with taglines (game, newspaper cards, rule book, print kit)",
+    "Price reveal card order matches the rival row (owner's choice: fixed seats)"
   ],
   "exclusions": [
     "Putting the new artwork into the game (awaiting owner approval)",

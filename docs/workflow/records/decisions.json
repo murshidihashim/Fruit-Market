@@ -2660,6 +2660,10 @@
     {
       "at": "2026-11-10 08:29",
       "text": "Owner: make the whole draw 1 second and stop the card turning over blank. The card now stays face down until its picture is downloaded and decoded (at most 1.2 seconds), then turns in 1 second; checked in the game with pictures slowed by 0.7 seconds."
+    },
+    {
+      "at": "2026-11-10 08:45",
+      "text": "Owner asked for art for the four characters without pictures and for the buying and reveal boxes to follow clockwise order. Asked which order: owner chose fixed seats with the reveal matching the rival row. The rival row was already clockwise from the seat after you; the reveal now reads in that order with your card last. Pak Din and Farah drawn (scene and badge each); the two guests set to borrow their event's picture. Art awaiting approval."
     }
   ]
 }
