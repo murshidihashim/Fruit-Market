@@ -42,7 +42,7 @@
     "evidence": "no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-072",
   "title": "The game table redrawn to the six-phone Market Ticket design",
   "problem": "Owner: the app should look like the six-phone design shared earlier (the one with Night falls), with the customers' character designs and the event art, and stay coherent with the printed game. A first draft that only recoloured the 1.16.0 screens was rejected. Then: a legend instead of the sentence under the market, and customer faces that can be seen properly.",

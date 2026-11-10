@@ -1965,7 +1965,7 @@
         "evidence": "produce this rule change together with the design change for the app version",
         "date": "2026-11-10"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-069",
       "reports": [
         "REP-094"
@@ -1990,7 +1990,7 @@
         "evidence": "design the digital per your earlier design but with the new artsyle included",
         "date": "2026-11-10"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-070",
       "reports": [
         "REP-094"
@@ -2015,7 +2015,7 @@
         "evidence": "no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-072",
       "reports": [
         "REP-095"
@@ -2040,7 +2040,7 @@
         "evidence": "incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-073",
       "reports": [
         "REP-096"
@@ -2900,6 +2900,10 @@
     {
       "at": "2026-11-11 02:01",
       "text": "Owner approved publication: \"push this live\". Release 1.17.0 prepared (PLAN-069 to PLAN-073: rules versions 14 and 15, the Market Ticket table, the night shown); browser tests PASS. Owner phone check NOT RUN; balance target FAIL (not tuned)."
+    },
+    {
+      "at": "2026-11-11 02:22",
+      "text": "Release 1.17.0 published (PLAN-069 to PLAN-073): main e322183, CI run 42871185888 PASS, Deploy LIVE game run 35; live smoke test PASS; tagged v1.17.0."
     }
   ]
 }

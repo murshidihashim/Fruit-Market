@@ -396,7 +396,7 @@
     },
     {
       "version": "1.17.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-069",
         "PLAN-070",
@@ -411,7 +411,10 @@
         "Stalls are secret: you only learn how many pieces each rival put out, and every crate opens at the bell",
         "A new look that matches the printed game: customer tickets, fruit lanes, one black button",
         "A strip at the top shows where the day is, and you watch the fruit slide down a box at night"
-      ]
+      ],
+      "date": "2026-11-11",
+      "commit": "e322183",
+      "tagged": true
     }
   ]
 }

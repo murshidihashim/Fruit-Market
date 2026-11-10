@@ -1,16 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 02:01 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 02:22 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 02:01): the game table redrawn and rules version 15 (secret stalls), built, NOT merged or published
-- **Owner approval (to build):** "no, redesign my current game to look like the ui/ux you shared earlier, while maintaining coherence with the latest version of the physical tabletop game"; "incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase" (crates open at the bell; nothing known about a shelf). No approval yet to merge to main or publish.
-- **Built (PLAN-072, DEC-081, REP-095):** every in-game screen laid out again from the six-phone design; printed-game order and letters throughout; legend under the market; whole faces on customer tickets.
-- **Built (PLAN-073, DEC-082, REP-096):** rules version 15, secret stalls: rival shelves never shown or sent; a rival's crate is a count of pieces until the bell; every crate opens with its prices at the bell; computer stalls price without reading crates. Computer-player version 4.
-- **Checkpoint:** branch `market-ticket-flow`, pushed; pull request open; no uncommitted files. Preview copy: rules 14 with the earlier look (PLAN-069 to PLAN-071). Live game: 1.16.0 (rules 13).
-- **Checks:** `npm run verify` PASS (437 tests, 1 skipped as before); browser tests PASS; balance target FAIL (not tuned, REP-096). Owner phone check NOT RUN.
-- **Gaps:** a wide screen shows one centred column; on a 360x740 phone the middle scrolls in two cases (REP-095); menus not redesigned; older table styles overridden, not deleted; the repo's own print kit is still rules 13 (the rules 15 kit PDFs were made outside the repo).
-- **Publish:** owner said "push this live" (2026-11-11 02:01). Release 1.17.0 prepared as a candidate (PLAN-069 to PLAN-073); merge to main, CI on main, then Deploy LIVE game.
-- **Next:** after the deploy, mark 1.17.0 published (date, commit, tag) in a new commit; owner plays it on a phone.
+## Latest (2026-11-11 02:22): 1.17.0 live (PLAN-069 to PLAN-073)
+- **Owner approval:** "push this live".
+- **In 1.17.0:** rules version 15: fruit lives 3-4-5-6 with green mangoes, a row of five, standing orders won by bidding (rules 14), and secret stalls (a rival's shelf is never shown; a crate is a piece count until the bell; every crate opens at the bell). The game table redrawn to the Market Ticket design; the night shown.
+- **Checks:** `npm run verify` PASS (437 tests); browser tests PASS (0 leaks, reconnect 5/5); balance target FAIL (not tuned, REP-096); owner phone check NOT RUN before publishing.
+- **Live:** 1.17.0 (commit `e322183`, tag `v1.17.0`, Deploy LIVE game run 35, live smoke test PASS).
+- **Next:** owner plays 1.17.0 on a phone; then balance tuning (Local Favourite weak, Bargain Hunter and Shade Cloth strong; Premium Display and Order Book weak first buys); the repo's own print kit is still rules 13.
 
 ## Earlier (2026-11-10 23:14): rules version 14 and the Market Ticket look on the PREVIEW copy, not published
 - **Owner approval (to build):** "produce this rule change together with the design change for the app version"; "design the digital per your earlier design but with the new artsyle included"; night panel requested. No approval yet to merge to main or publish.

@@ -34,7 +34,7 @@
     "evidence": "incorporate the bluffing mechanics where a player's inventory is not public and you only reveal how many fruits are you selling revealing which fruit during the price reveal phase",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-073",
   "title": "Rules version 15: secret stalls (the bluffing rule)",
   "problem": "Owner: a player's inventory should not be public; a stall reveals only how many fruits it is selling, and which fruit at the price reveal. Owner's answers: at the bell the crates open (shelves stay hidden all game; the printed game gets a counter card per stall); before the bell rivals know nothing about your shelf.",
