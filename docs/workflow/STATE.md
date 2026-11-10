@@ -2,13 +2,13 @@
 
 Updated 2026-11-10 22:32 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10 22:32): rules version 14 and the Market Ticket look, built, NOT merged or published
+## Latest (2026-11-10 23:14): rules version 14 and the Market Ticket look on the PREVIEW copy, not published
 - **Owner approval (to build):** "produce this rule change together with the design change for the app version"; "design the digital per your earlier design but with the new artsyle included"; night panel requested. No approval yet to merge to main or publish.
 - **Built (PLAN-069, PLAN-070, PLAN-071; DEC-079, DEC-080; REP-094):** fruit lives 3-4-5-6 with green mangoes, a row of five with no waiting, standing orders won by the lowest secret bid, five upgrades (two per stall), Soft wording; Market Ticket colours, type, flat fruit and pictures; a night panel showing stock slide one box older.
-- **Checkpoint:** branch `rules-14-market-ticket`, pushed; pull request open; no uncommitted files. Live game is still 1.16.0 (rules 13).
+- **Checkpoint:** owner said "push to preview"; pull request 2 merged to `main` (commit `c19efec`); CI run 42839658349 PASS (checks and preview jobs). Live game is still 1.16.0 (rules 13).
 - **Checks:** `npm run verify` PASS (424 tests, 1 skipped with a reason); browser tests PASS (E2E OK, 0 leaks, reconnect 5/5). Balance target FAIL (shopkeepers 26.3% to 41.0% against 33.3%; not tuned). Owner phone check NOT RUN.
 - **Gaps:** computer players do not sabotage orders; no-sale days up; card frames, crates and lorry recoloured only; worn looks not refitted; repo print kit still rules 13 (the rules 14 kit PDFs were made outside the repo).
-- **Next:** owner decides whether to merge to main (preview copy only). Publishing needs its own approval and a prepared release (version bump).
+- **Next:** owner plays the preview copy on a phone. Publishing needs its own approval and a prepared release (version bump).
 
 ## Earlier (2026-11-10): 1.16.0 live (PLAN-065 to PLAN-068)
 - **Owner approval:** "yes publish".

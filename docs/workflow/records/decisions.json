@@ -2838,6 +2838,10 @@
     {
       "at": "2026-11-10 22:32",
       "text": "Rules version 14 (PLAN-069, DEC-079), the Market Ticket look (PLAN-070, DEC-080) and the night panel (PLAN-071) built on branch rules-14-market-ticket; verify PASS (424 tests), browser tests PASS; balance target FAIL (not tuned). Not merged, not published. Report REP-094."
+    },
+    {
+      "at": "2026-11-10 23:14",
+      "text": "Owner: \"push to preview\". Pull request 2 merged to main (c19efec); CI run 42839658349 PASS, preview copy updated. Not published."
     }
   ]
 }
