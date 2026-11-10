@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.14.1",
   "build": "branch ccr-ff85604f-thv5m2",
   "reports": [],
   "decisions": [],
@@ -22,8 +22,10 @@
     ]
   },
   "playerNotes": [
-    "Fill your stall starts empty and shows your whole shelf",
-    "Day 1 now opens with a Calm Day card, like every other morning"
+    "Fill your stall: starts empty, shows your whole shelf, and says stall instead of crate",
+    "Day 1 opens with a Calm Day card, like every other morning",
+    "Play full screen: asked after the opening; on iPhone, how to add the game to your Home Screen",
+    "A cleaner event card back"
   ],
   "approval": {
     "status": "approved",
@@ -49,8 +51,8 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": "pending"
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests, build"
     },
     {
       "id": "T2",

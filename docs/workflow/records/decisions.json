@@ -2708,6 +2708,10 @@
     {
       "at": "2026-11-10 11:16",
       "text": "Browser test found the first-game tip covering the lower + buttons on the full-scale Fill your stall screen. Tip moved to the top of that screen and reworded to 'stall'; the solo test now closes tips. Solo test PASS (full game, results shown, no errors)."
+    },
+    {
+      "at": "2026-11-10 11:18",
+      "text": "Owner approved publication of PLAN-062: \"push it live\". Release 1.14.1 prepared (no rules change)."
     }
   ]
 }

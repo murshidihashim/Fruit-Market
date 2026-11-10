@@ -327,6 +327,19 @@
       "date": "2026-11-10",
       "commit": "4310313",
       "tagged": true
+    },
+    {
+      "version": "1.14.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-062"
+      ],
+      "notes": [
+        "Fill your stall: starts empty, shows your whole shelf, and says stall instead of crate",
+        "Day 1 opens with a Calm Day card, like every other morning",
+        "Play full screen: asked after the opening; on iPhone, how to add the game to your Home Screen",
+        "A cleaner event card back"
+      ]
     }
   ]
 }
