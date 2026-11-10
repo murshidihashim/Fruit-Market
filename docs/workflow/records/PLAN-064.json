@@ -27,7 +27,7 @@
     "evidence": "lets also swap the  position of rival's stall and the customer queue during pricing phase, animate this smoothly to show the transition, positions are swapped back after pricing phase",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-064",
   "title": "Pricing: rivals and customers swap rows, no Bell pop-up, and the first-game tips fixed",
   "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing. Then: \"lets also remove the bell popup from appearing\". Then: \"fix all the tips\".",

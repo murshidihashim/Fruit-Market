@@ -2752,6 +2752,10 @@
     {
       "at": "2026-11-10 13:15",
       "text": "Owner approved publication of PLAN-064: \"ok push everything live now\". Release 1.15.1 prepared (no rules change)."
+    },
+    {
+      "at": "2026-11-10 13:33",
+      "text": "Release 1.15.1 published (PLAN-064: rows swap while pricing, no Bell pop-up, first-game tips fixed): main 8c30e62, Deploy LIVE game run 33; live smoke test PASS; tagged v1.15.1."
     }
   ]
 }
