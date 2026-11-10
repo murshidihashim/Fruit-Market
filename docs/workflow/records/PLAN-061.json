@@ -69,13 +69,13 @@
       "id": "T2",
       "text": "Browser tests incl. online 0 leaks",
       "result": "PASS",
-      "evidence": "2026-11-10 npm run test:e2e: E2E OK; solo, BUDGET OK, online 0 leaks in 94 pricing frames, quick match, 6-stall room, reconnect 5/5"
+      "evidence": "2026-11-10 npm run test:e2e on the 1.14.0 build: E2E OK; solo, BUDGET OK, online 0 leaks in 100 pricing frames, quick match, 6-stall room, reconnect 5/5"
     },
     {
       "id": "T3",
       "text": "Balance check (Hard computers, 400 games at 3 and at 4 stalls)",
       "result": "PASS",
-      "evidence": "Cash $108 / $107, 29.3 / 29.7 pieces sold per stall; every shopkeeper within 4.5 points of fair (Sharp Ears +4.5 and Haggler -4.5 at 4 stalls), closer than rules 12"
+      "evidence": "2026-11-10 on the 1.14.0 build: cash $108 / $107, 29.3 / 29.7 pieces sold per stall; every shopkeeper within 4.5 points of fair (Sharp Ears +4.5 and Haggler -4.5 at 4 stalls)"
     }
   ]
 }
