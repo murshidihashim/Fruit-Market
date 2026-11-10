@@ -2712,6 +2712,10 @@
     {
       "at": "2026-11-10 11:18",
       "text": "Owner approved publication of PLAN-062: \"push it live\". Release 1.14.1 prepared (no rules change)."
+    },
+    {
+      "at": "2026-11-10 11:38",
+      "text": "Release 1.14.1 published (PLAN-062: Fill your stall full scale, Calm Day card, full-screen prompt, shorter card back): main 228cf8a, Deploy LIVE game run 31; live smoke test PASS; tagged v1.14.1. Owner then asked for 5 mockups of a swipe shopkeeper picker with the Rules sections removed: delivered, awaiting a choice."
     }
   ]
 }

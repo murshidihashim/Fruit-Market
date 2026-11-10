@@ -32,7 +32,7 @@
     "evidence": "at this page, remove the tmr market day, more walk in etc etc text / reword Crate to Stall / 0 fruit should be out by default / use the full scale tracker",
     "date": "2026-11-10"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-062",
   "title": "Fill your stall full scale, a Calm Day card, and full screen on Safari",
   "problem": "Owner (with a screenshot of the stocking screen): remove the Market Day line, call it the stall, start with nothing out and use the full-scale tracker. Then: \"i also dont like how the first day event card looks different vs other days\". Then: \"make the full screen option available on safari as well, prompt players to play full screen after the animation opening\".",
