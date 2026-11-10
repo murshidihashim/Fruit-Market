@@ -2261,6 +2261,8 @@ b, strong { font-weight: 700; }
 /* the explanation hangs under the table, so its length never moves the cards */
 .rush .rs-why { position: absolute; left: 0; right: 0; top: calc(100% + 12px); border: 2px solid var(--x-ink); opacity: 0; transition: opacity calc(var(--rs-k, 1) * 0.3s); }
 .rush .rs-why.show { opacity: 1; }
+/* the plain (neither won nor lost) line under the pop-up sits on cream: dark ink, not the pop-up's white (PLAN-065) */
+.rush .rs-why:not(.good):not(.bad) { color: var(--x-ink); }
 .rush .rs-why:empty { display: none; }
 .rush .rs-why .au-say { margin-top: 2px; }
 .rush .rs-hint { align-self: center; font: 500 0.72rem/1.2 var(--f-label); color: var(--on-ink-muted); }

@@ -2760,6 +2760,10 @@
     {
       "at": "2026-11-10 15:39",
       "text": "Owner asked for five changes (PLAN-065). Four built on the branch (price boxes removed, stall-to-pricing flow, event card before the lorry, no queue gap in the rush); three bigger-card layouts (A one big row, B two rows, C biggest cards) shown for a choice. Not published."
+    },
+    {
+      "at": "2026-11-10 15:45",
+      "text": "Owner: the white rush line ('Uncle Benny beat Saleh at $5') was unreadable; fixed to dark ink (PLAN-065). Three stall-to-pricing flow animations (A crates come to the table, B crates slide down from the rivals, C shutter and bell) shown for a choice."
     }
   ]
 }

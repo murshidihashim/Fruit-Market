@@ -11,7 +11,9 @@
       "Morning: the event card turns over first; the lorry drives in and unloads when you tap Start buying",
       "The rush: the customer in the pop-up leaves no gap in the queue; the row closes up and opens again when they come back"
     ],
-    "fixed": [],
+    "fixed": [
+      "The rush: the plain line under the pop-up (e.g. 'Uncle Benny beat Saleh at $5') was white on cream; now dark ink"
+    ],
     "removed": [
       "The quick-price boxes under the price dial"
     ]
