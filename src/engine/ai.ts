@@ -3,12 +3,13 @@
 // A walk-in's front is used only when this shop has seen the card (Market Gossip or Scout).
 // Each call to aiStep does one action, so the UI can animate them one at a time.
 
-import { CUSTOMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, MARKET_DAY_EVERY, UPGRADES, acceptsStage, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
+import { CUSTOMER_CARDS, FARMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, MARKET_DAY_EVERY, ORDER_LEAD, ROW_CAP, UPGRADES, acceptsStage, freshPos, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
   capAt, capFor, count, crateStock, effectiveMax, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
-  openStall, playFavour, priceMod, servingCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
-  type Customer, type GameState, type Level, type Post, type Stall, type Stock,
+  openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
+  bidOrder, isMarketDay, shelfPos,
+  type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
 } from './game';
 import { Rng } from './rng';
 
@@ -31,6 +32,51 @@ const ACCEPT: Record<string, number> = (() => {
   for (const st of ['okay', 'notso'] as const) o[st] = CUSTOMER_CARDS.filter((c) => acceptsStage(prefOf(c.name), st)).length / CUSTOMER_CARDS.length;
   return o;
 })();
+
+/** Pieces of each fruit an average customer card wants (for guessing demand on a day nobody can see yet). */
+const CARD_AVG: Record<FruitId, number> = Object.fromEntries(FRUITS.map((f) => [f, CUSTOMER_CARDS.flatMap((c) => c.wants).filter((w) => w.fruit === f).reduce((a, w) => a + w.qty, 0) / CUSTOMER_CARDS.length])) as Record<FruitId, number>;
+/** Pieces of a fruit an average lorry brings to a table of this size. */
+const lorryAvg = (f: FruitId, stalls: number): number => FARMER_CARDS.reduce((a, c) => a + printedSupply(c, f, stalls), 0) / FARMER_CARDS.length;
+
+// ---------- standing orders (rules 14) ----------
+
+/** Will a piece at this shelf position be Fresh or Okay after `nights` more nights? */
+function usableAfter(f: FruitId, pos: number, nights: number): boolean {
+  const to = pos - nights;
+  return to >= 0 && to < FRUIT[f].ripe.length && stageAt(f, to) !== 'notso';
+}
+
+/** Pieces on this shop's shelf that the standing order would take on its due day. */
+function orderStock(s: GameState, p: number, o: Standing): number {
+  const nights = o.due - s.day;
+  return s.players[p].stock[o.fruit].reduce((a, c, i) => a + (usableAfter(o.fruit, i, nights) ? c : 0), 0);
+}
+
+/** Where a lorry's delivery of this fruit lands at the market (green mangoes at the top of the track). */
+const entryPos = (s: GameState, f: FruitId): number => (s.config.unripe && FARMER_CARDS[0].unripe === f ? s.market[f].length - 1 : freshPos(f));
+
+/**
+ * A computer shop's secret bid for the standing order (null: pass). It counts the pieces it could have ready on the
+ * due day (its shelf, half of what is at the market, half of tomorrow's lorry and of an average lorry on the due day),
+ * passes when that looks too thin, and otherwise bids a little over what customers usually pay. Exported for tests.
+ */
+export function planOrderBid(s: GameState, p: number): number | null {
+  const o = s.standing;
+  if (!o) return null;
+  const pl = s.players[p];
+  const f = o.fruit, lv = level(s, p), n = s.players.length, nights = o.due - s.day;
+  let avail = orderStock(s, p, o);
+  s.market[f].forEach((c, i) => { if (c && usableAfter(f, shelfPos(pl, f, i), nights)) avail += c / 2; });
+  const entry = entryPos(s, f);
+  if (s.nextFarmer && usableAfter(f, shelfPos(pl, f, entry), nights - 1)) avail += printedSupply(s.nextFarmer, f, n) / 2;
+  if (usableAfter(f, shelfPos(pl, f, entry), 0)) avail += lorryAvg(f, n) / 2;
+  const conf = Math.min(1, avail / o.qty);
+  if (conf < (lv === 'hard' ? 0.8 : lv === 'normal' ? 0.65 : 0.5)) return null;
+  const cost = FRUIT[f].cost[stageAt(f, entry)];
+  const bid = Math.min(o.ceiling, Math.max(cost + 2, Math.round(WANT_AVG[f].max + (lv === 'hard' ? 0 : lv === 'normal' ? 1 : 2) + rand(s, p, 55) * 2)));
+  const ev = conf * o.qty * (bid - cost) - (1 - conf) * o.qty * o.fine;
+  return ev > 0 ? bid : null;
+}
 
 /** Knobs for the Hard computer, kept in one place so balance tests can try other values. */
 export const HARD = { threshold: 0.3, keep: 0.1, eventAware: 1, undercut: 1 };
@@ -60,7 +106,7 @@ function walkInWant(c: Customer, f: FruitId, p: number): { qty: number; max: num
 
 /** Demand we expect to compete for today, and what customers pay on average. */
 function outlook(s: GameState, p: number, f: FruitId, stage: 'fresh' | 'okay' | 'notso' | 'unripe' = 'fresh') {
-  const known = [...servingCustomers(s), ...(s.phase === 'buy' && s.forecast ? [s.forecast] : [])];
+  const known = [...rowCustomers(s), ...(s.phase === 'buy' && s.forecast ? [s.forecast] : [])];
   let qty = 0;
   let maxSum = 0;
   let maxN = 0;
@@ -111,7 +157,13 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
   if (stage === 'unripe') {
     const ripenIn = pos - (FRUIT[f].ripe.length - 1);
     if (ripenIn > daysLeft) return -99;
-    return (WANT_AVG[f].max - 1) * 0.6 - 2 - ripenIn * 0.3;
+    // Rules 14: every mango arrives green, so a green piece is a bet on the day it ripens. Demand that day is a guess
+    // (an average row); supply is the green fruit every shop already holds that ripens the same day, plus this piece.
+    const row = Math.min(s.players.length, ROW_CAP);
+    const demand = Math.max(0.5, row * CARD_AVG[f] * (s.players.length > ROW_CAP ? 1.3 : 1));
+    const same = s.players.reduce((a, o) => a + o.stock[f].reduce((x, c, i) => x + (i - (FRUIT[f].ripe.length - 1) === ripenIn ? c : 0), 0), 0);
+    const chance = Math.min(1, demand / (same + extraMine + 1));
+    return (WANT_AVG[f].max - 1.5) * (0.35 + 0.5 * chance) - ripenIn * 0.3;
   }
   const cap = capAt(f, pos, avgMax);
   const planner = level(s, p) !== 'easy';
@@ -148,12 +200,23 @@ function pickPurchase(s: GameState, p: number): { f: FruitId; pos: number; score
     for (let pos = 0; pos < s.market[f].length; pos++) {
       if (canBuy(s, p, f, pos)) continue;
       const cost = buyCost(s, p, f, pos);
-      let score = fruitValue(s, p, f, pos, 0, cost) - cost;
+      let score = fruitValue(s, p, f, shelfPos(s.players[p], f, pos), 0, cost) - cost;
       if (lv === 'easy') score += (rand(s, p, f.length * 13 + pos) - 0.5) * 6;
+      const o = s.standing;
+      if (o && o.holder !== null && o.fruit === f) {
+        const nights = o.due - s.day;
+        const at = shelfPos(s.players[p], f, pos);
+        // The holder buys what its order still needs (a piece that will be Fresh or Okay on the due day), freshest first.
+        if (o.holder === p && usableAfter(f, at, nights) && orderStock(s, p, o) < o.qty) score = Math.max(score, 0) + o.fine + at * 0.2;
+        // On the due day a Hard rival buys the order's fruit when the holder is short: the order pays a rival the full ceiling.
+        if (o.holder !== p && nights === 0 && lv === 'hard' && stageAt(f, at) !== 'notso' && at < FRUIT[f].ripe.length) {
+          if (orderStock(s, o.holder, o) < o.qty) score += (o.ceiling - WANT_AVG[f].max) * 0.6;
+        }
+      }
       if (!best || score > best.score) best = { f, pos, score };
     }
   }
-  const threshold = lv === 'hard' ? HARD.threshold : lv === 'normal' ? 0.8 : 0.3;
+  const threshold = lv === 'hard' ? HARD.threshold : lv === 'normal' ? 0.5 : 0.3;
   return best && best.score >= threshold ? best : null;
 }
 
@@ -215,7 +278,7 @@ const sellStock = (s: GameState, p: number): Stock => (s.crates?.[p] ? crateStoc
  * counts only where the planner knows it (`ft`), because rivals' favour cards are secret. Exported for tests.
  */
 export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Seller[]): number {
-  const lines = servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ qty: w.qty, max: effectiveMax(s, w, c.generous), pref: c.pref })));
+  const lines = rowCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ qty: w.qty, max: effectiveMax(s, w, c.generous), pref: c.pref })));
   const pools = [me, ...rivals].map((x) => ({ ...x, pos: [...x.pos] }));
   const haggler = (x: Seller) => Number(s.players[x.player].trait === 'haggler');
   const orderIdx = (x: Seller) => s.order.indexOf(x.player);
@@ -254,7 +317,7 @@ export function simulateSales(s: GameState, f: FruitId, me: Seller, rivals: Sell
  * average ($1.60 below it against $1.85), so one of its four guesses here cuts nothing. Exported for tests.
  */
 export function rivalPrice(s: GameState, p: number, r: number, f: FruitId, k: number, lv: Level): number {
-  const top = Math.max(0, ...servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(sellStock(s, r), f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
+  const top = Math.max(0, ...rowCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => bestCap(sellStock(s, r), f, effectiveMax(s, w, c.generous), s.players[r], c.pref))));
   const rl = s.players[r].kind === 'human' ? 'normal' : level(s, r);
   const haggler = s.players[r].trait === 'haggler' && s.players[p].trait !== 'haggler';
   const cut = lv === 'normal' ? (haggler ? [0, 1, 2, 2] : [1, 1, 2, 2])[k] : rl === 'easy' ? [0, 1, 1, 1][k] : rl === 'normal' ? [1, 2, 2, 3][k] : [2, 2, 3, 3][k];
@@ -266,7 +329,7 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
   const pl = s.players[p];
   const lv: Level = depth > 0 ? 'normal' : level(s, p);
   const mine = units(sellStock(s, p), f, myUnits);
-  const lines = servingCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ m: effectiveMax(s, w, c.generous), pref: c.pref })));
+  const lines = rowCustomers(s).flatMap((c) => c.wants.filter((w) => w.fruit === f && w.qty > 0).map((w) => ({ m: effectiveMax(s, w, c.generous), pref: c.pref })));
   if (!mine.length || !lines.length) return { price: minPrice(s, f), sold: 0 };
   // Price Controls: never ask above the day's maximum.
   const topCap = Math.min(maxPrice(s, f), Math.max(...lines.map((l) => bestCap(sellStock(s, p), f, l.m, pl, l.pref))));
@@ -328,6 +391,12 @@ export function planStall(s: GameState, p: number): Stall {
       const { sold } = bestPost(s, p, f, have, (i) => ripeCount(s.players[i].stock, f));
       out = Math.max(pl.stock[f][0], Math.min(have, Math.ceil(sold + 0.5)));
     }
+    // Rules 14: the holder of a standing order keeps back the pieces the order will take on its due day (crates take
+    // the oldest pieces, so the freshest stay on the shelf).
+    const o = s.standing;
+    if (o && o.holder === p && o.fruit === f && o.due > s.day) out = Math.max(0, Math.min(out, have - Math.min(o.qty, orderStock(s, p, o))));
+    // On the due day everything goes out: the order takes its pieces first.
+    if (o && o.holder === p && o.fruit === f && o.due === s.day) out = have;
     if (out > 0) stall[f] = out;
   }
   return validateStall(s, p, stall) ? {} : stall;
@@ -341,7 +410,10 @@ export function planPrices(s: GameState, p: number): { posts: Post[]; favoured: 
   for (const f of FRUITS) {
     const n = forSale(s, p, f);
     if (n <= 0) continue;
-    const { price } = bestPost(s, p, f, n, (i) => forSale(s, i, f));
+    // The holder of a standing order collected today prices only what the order will leave for the row.
+    const o = s.standing;
+    const forRow = o && o.holder === p && o.due === s.day && o.fruit === f ? Math.max(1, n - o.qty) : n;
+    const { price } = bestPost(s, p, f, forRow, (i) => forSale(s, i, f));
     posts.push({ fruit: f, price: Math.min(30, maxPrice(s, f), price) });
     if (s.players.some((_, i) => i !== p && forSale(s, i, f) > 0)) contested = true;
   }
@@ -360,17 +432,24 @@ export function pickUpgrade(s: GameState, p: number, skip?: UpgradeId): UpgradeI
   const oldAtMarket = FRUITS.reduce((a, f) => a + s.market[f].slice(0, 2).reduce((x, y) => x + y, 0), 0);
   const marketDaysLeft = Math.floor(s.config.days / MARKET_DAY_EVERY) - Math.floor(s.day / MARKET_DAY_EVERY);
   // [speciality, fewest days left worth it, extra condition]
+  // Rules 14: an Order Book pays off only while a standing order is still to come (a Market Day whose due day is inside the game).
+  const ordersLeft = Array.from({ length: s.config.days - s.day }, (_, k) => s.day + 1 + k).some((d) => isMarketDay(s, d) && d + ORDER_LEAD <= s.config.days);
+  const greens = pl.stock.mango.slice(FRUIT.mango.ripe.length).reduce((a, b) => a + b, 0);
   const want: [UpgradeId, number, boolean][] = [
     ['barrow', 4, true],
     ['premium', 4, true],
+    ['ripening', 4, s.config.unripe],
+    ['orderbook', 4, ordersLeft],
     ['juicebar', 2, atRisk >= 1],
   ];
   // Normal and Hard shops pick the speciality that suits them first: lots of old fruit about suits a Juice Bar,
   // otherwise a bigger Handcart for the Market Days still to come. A per-shop lean spreads the plans across the table.
   if (lv !== 'easy') {
     const lean = rand(s, p, 7);
-    if ((atRisk >= 3 || oldAtMarket >= 4) && lean < 0.5) want.unshift(['juicebar', 2, true]);
-    else if (marketDaysLeft >= 1 && lean >= 0.5) want.unshift(['barrow', 3, true]);
+    if ((atRisk >= 3 || oldAtMarket >= 4) && lean < 0.3) want.unshift(['juicebar', 2, true]);
+    else if (s.config.unripe && (greens >= 1 || lean < 0.45) && lean < 0.6) want.unshift(['ripening', 3, true]);
+    else if (ordersLeft && lean < 0.8) want.unshift(['orderbook', 3, true]);
+    else if (marketDaysLeft >= 1) want.unshift(['barrow', 3, true]);
   }
   for (const [u, minDays, ok] of want) {
     if (u === skip || left < minDays || !ok) continue;
@@ -397,6 +476,7 @@ export function aiActFor(s: GameState, p: number): GameState | null {
   if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
   if (activePlayer(s) !== p) return null;
   const pl = s.players[p];
+  if (s.phase === 'order') return bidOrder(s, p, planOrderBid(s, p));
   if (s.phase === 'buy') {
     const fav = buyPhaseFavour(s, p);
     if (fav) return fav;

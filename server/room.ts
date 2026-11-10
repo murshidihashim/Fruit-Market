@@ -15,7 +15,7 @@ import { aiActFor, aiStep } from '../src/engine/ai';
 import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
-import {
+import { bidOrder, canBidOrder,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
   type Action, type Crate, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
@@ -49,7 +49,7 @@ export interface RoomData {
   game: GameState | null;
   version: number;
   /** Hidden submissions for the current simultaneous step: a for-sale crate, or secret prices. */
-  pending: ({ stall: Stall; crate?: Crate } | { posts: Post[]; favoured: boolean } | null)[];
+  pending: ({ stall: Stall; crate?: Crate } | { posts: Post[]; favoured: boolean } | { bid: number | null } | null)[];
   votes: number[];
   rematch: number[];
   seen: string[][];
@@ -105,6 +105,8 @@ export function redact(g: GameState, seat: number): GameState {
   // Simultaneous steps: nobody's crate or prices show until every shop has committed.
   if (v.phase === 'stall') { v.stalls = v.stalls.map(() => null); if (v.crates) v.crates = v.crates.map(() => null); }
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
+  // Rules 14: bids for a standing order stay secret until every stall has bid.
+  if (v.phase === 'order' && v.standing) v.standing.bids = v.standing.bids.map(() => null);
   // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
   v.queue = v.queue.map((c) => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
     id: c.id, name: 'Walk-in', walkIn: true,
@@ -408,6 +410,15 @@ export class Room {
       d.pending[seat] = crate ? { stall, crate } : { stall };
       return this.accepted(conn, seat, m.id);
     }
+    if (a.kind === 'order') {
+      if (g.phase !== 'order') throw new RuleError('No standing order is being bid for now');
+      if (d.pending[seat]) throw new RuleError('Your bid is already in');
+      const bid = a.price === null ? null : Number(a.price);
+      const err = canBidOrder(g, seat, bid);
+      if (err) throw new RuleError(err);
+      d.pending[seat] = { bid };
+      return this.accepted(conn, seat, m.id);
+    }
     if (a.kind === 'prices') {
       if (g.phase !== 'bid') throw new RuleError('Prices are not being set now');
       if (d.pending[seat]) throw new RuleError('Your prices are already locked in');
@@ -516,7 +527,7 @@ export class Room {
         this.broadcast();
         continue;
       }
-      if (g.phase === 'stall' || g.phase === 'bid') {
+      if (g.phase === 'stall' || g.phase === 'bid' || g.phase === 'order') {
         const step = g.phase;
         const humans = g.players.map((pl, i) => (pl.kind === 'human' && !isBot(i) ? i : -1)).filter((i) => i >= 0);
         if (humans.some((i) => !d.pending[i])) return;
@@ -526,6 +537,7 @@ export class Room {
           const pb = d.pending[p];
           if (s.players[p].kind === 'human' && pb && 'stall' in pb) s = openStall(s, p, pb.stall, pb.crate);
           else if (s.players[p].kind === 'human' && pb && 'posts' in pb) s = submitPrices(s, p, pb.posts, pb.favoured);
+          else if (s.players[p].kind === 'human' && pb && 'bid' in pb) s = bidOrder(s, p, pb.bid);
           else s = (s.players[p].kind === 'ai' ? aiStep(s) : aiActFor(s, p))!;
         }
         d.game = s;
@@ -559,7 +571,7 @@ export class Room {
     }));
     const g = d.game;
     const submitted = g
-      ? g.players.map((pl, i) => (g.phase === 'stall' || g.phase === 'bid' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))
+      ? g.players.map((pl, i) => (g.phase === 'stall' || g.phase === 'bid' || g.phase === 'order' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
