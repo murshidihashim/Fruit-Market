@@ -2776,6 +2776,10 @@
     {
       "at": "2026-11-10 16:13",
       "text": "Owner: rush text should be the same for everyone (PLAN-068). The pop-up now uses one shared line naming the stalls; the personal what-if line and 'Outfoxed!' are gone. Not published."
+    },
+    {
+      "at": "2026-11-10 16:33",
+      "text": "Owner approved publication: \"yes publish\". Release 1.16.0 prepared (PLAN-065 to PLAN-068, no rules change); browser tests PASS."
     }
   ]
 }

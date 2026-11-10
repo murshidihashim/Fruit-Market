@@ -373,6 +373,23 @@
       "date": "2026-11-10",
       "commit": "8c30e62",
       "tagged": true
+    },
+    {
+      "version": "1.16.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-065",
+        "PLAN-066",
+        "PLAN-067",
+        "PLAN-068"
+      ],
+      "notes": [
+        "Bigger customer cards on phones",
+        "Smoother move from opening your stall to setting prices: rival crates arrive as they open",
+        "Everyone sees the same short, punchy rush results",
+        "The morning news comes first, then the lorry unloads",
+        "No gap in the queue during the rush, and a simpler price dial"
+      ]
     }
   ]
 }

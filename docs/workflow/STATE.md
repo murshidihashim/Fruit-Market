@@ -2,7 +2,13 @@
 
 Updated 2026-11-10 (Asia/Kuala_Lumpur) by Claude, session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-10): 1.15.1 live (PLAN-063, PLAN-064)
+## Latest (2026-11-10): 1.16.0 approved for live (PLAN-065 to PLAN-068)
+- **Owner approval:** "yes publish".
+- **In 1.16.0 (no rules change):** card layout C (bigger customer cards on phones); flow A from stall to pricing; one shared, punchy rush line for everyone; event card before the lorry; no queue gap in the rush; no quick-price boxes.
+- **Checks:** `npm run verify` PASS (409 tests); browser tests PASS (0 leaks, reconnect 5/5).
+- **Next:** Deploy LIVE game, mark 1.16.0 published.
+
+## Earlier (2026-11-10): 1.15.1 live (PLAN-063, PLAN-064)
 - **Owner approval:** "and then push everything live".
 - **In 1.15.0 (no rules change):** swipe shopkeeper picker (design A) with the tagline under the card; New game without the Rules sections (previous defaults always on); shopkeeper cards show the name alone, without "Fresh fruit · Fair prices".
 - **Checks:** `npm run verify` PASS (408 tests); browser tests PASS (0 leaks, reconnect 5/5).
