@@ -1,0 +1,58 @@
+{
+  "release": "unreleased",
+  "build": "branch rules-14-market-ticket",
+  "reports": [
+    "REP-094"
+  ],
+  "decisions": [
+    "DEC-080"
+  ],
+  "changes": {
+    "added": [
+      "Each night you watch the fruit at the market and on your shelf slide one box older"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "See your fruit age overnight"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "include the night phase you suggested as well to show the stock moving at night for digital",
+    "date": "2026-11-10"
+  },
+  "delivery": "verified",
+  "id": "PLAN-071",
+  "title": "The night, shown: stock slides one box older",
+  "problem": "Owner: include the night phase to show the stock moving at night in the app, as on the table.",
+  "scope": [
+    "src/ui/game/panels/NightShift.tsx (market and your shelf, pieces slide one box left; Heatwave two, Monsoon none, Shade Cloth stays)",
+    "Game.tsx, animator.tsx (the night is held 1.5 s longer), styles.css"
+  ],
+  "exclusions": [
+    "No rules change",
+    "Rival shelves are not shown"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 424 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Night panel seen in a played game, incl. a Monsoon night",
+      "result": "PASS",
+      "evidence": "2026-11-10: playthrough screenshots day 1, 2 and 3 (Monsoon: 'no fruit ages tonight')"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests",
+      "result": "PASS",
+      "evidence": "2026-11-10: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 100 pricing frames; six-stall room; reconnect 5 of 5"
+    }
+  ]
+}

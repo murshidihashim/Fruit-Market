@@ -1,0 +1,69 @@
+{
+  "release": "unreleased",
+  "build": "branch rules-14-market-ticket",
+  "reports": [
+    "REP-094"
+  ],
+  "decisions": [
+    "DEC-080"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "New look: Market Ticket (black, white and the four fruit colours; flat pictures; Archivo type) to match the tabletop kit"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "A new look that matches the printed game"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "design the digital per your earlier design but with the new artsyle included",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-070",
+  "title": "Market Ticket look in the app",
+  "problem": "Owner: design the digital version per the earlier Market Ticket design, with the new art style included, cohesive with the tabletop kit.",
+  "scope": [
+    "src/ui/palette.ts, palette.css, exchange.css, styles.css, square.css (colours, type, black awning bar, yellow street, price-tag cash, kraft footer)",
+    "src/ui/fruitIcons.tsx (flat fruit, the same drawings as the kit)",
+    "public/art-ticket (81 flat pictures: customers, guests, shopkeepers, events, standing orders), deckArt.ts",
+    "New dev dependencies @fontsource/archivo and @fontsource/archivo-black: the kit's typefaces, bundled so the app works offline; the old font packages stay for the old print kit",
+    "index.html, manifest colours"
+  ],
+  "exclusions": [
+    "Layouts and flows are unchanged",
+    "The owner's original pictures stay in public/art (unused, not deleted)",
+    "Card frames, card backs, crates, the lorry and the home street are recoloured, not redrawn",
+    "Worn looks (regalia) were drawn for the old portraits and are not refitted"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes (incl. palette check and art file checks)",
+      "result": "PASS",
+      "evidence": "2026-11-10: 424 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Screens checked at phone size in a played game",
+      "result": "PASS",
+      "evidence": "2026-11-10: 390x780 playthrough of 4 days: home, morning, buying, stocking, bell, rush, order bid, evening, night"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests incl. performance budget",
+      "result": "PASS",
+      "evidence": "2026-11-10: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 100 pricing frames; six-stall room; reconnect 5 of 5"
+    },
+    {
+      "id": "T4",
+      "text": "Owner has seen the new look on a phone",
+      "result": "NOT RUN",
+      "evidence": "Needs the preview copy; merging to main was not requested"
+    }
+  ]
+}

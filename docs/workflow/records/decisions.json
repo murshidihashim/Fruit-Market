@@ -1946,6 +1946,56 @@
         "REP-093"
       ],
       "reviewTrigger": "If playtesters find surprise Inspector or Heatwave days unfair, or the Juice Bar becomes the only upgrade worth buying"
+    },
+    {
+      "id": "DEC-079",
+      "title": "Rules version 14: 3-4-5-6 fruit, a row of five, standing orders by bidding",
+      "question": "How should the engine change so fruit lives are easy to remember, queues stay short and there is a bidding game with real risk?",
+      "choice": "Fruit lasts 3, 4, 5 and 6 days (blueberry, watermelon, mango, apple); every mango arrives green. The row never passes five customers and nobody waits. Lorries and the customer deck are rescaled to match, with a wider price spread. On Market Days a standing order is won by the lowest secret bid, delivered two days later, with a fine per missed piece; rivals fill the gap at the full price. Five upgrades (Ripening Room and Order Book are new), two to a stall. RULES_VERSION 13 to 14. Face-down crates were researched but not built.",
+      "rationale": "Owner request: \"lets rescale ... how long should each fruit should last so that its easier for players to remember 3,4,5,6 ... introduce the standing order, but as bidding system ... lorry supply so that it never goes pass 5 customers\". Then: \"produce this rule change together with the design change for the app version\" with scope \"The five researched\".",
+      "impact": {
+        "player": "Shorter queues, easier freshness, a new bidding moment every third day, more days with no sale.",
+        "technical": "src/engine/*, server/room.ts, protocol, UI panels, RULES.md, tests.",
+        "data": "Unfinished rules 13 games cannot be resumed; the daily board key becomes r14; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "produce this rule change together with the design change for the app version",
+        "date": "2026-11-10"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-069",
+      "reports": [
+        "REP-094"
+      ],
+      "reviewTrigger": "If playtests show order holders are rarely sabotaged, days with no sale feel unfair, or one shopkeeper or upgrade dominates"
+    },
+    {
+      "id": "DEC-080",
+      "title": "Market Ticket look in the app, with a shown night",
+      "question": "Should the app take the tabletop kit's Market Ticket style, and show the night?",
+      "choice": "The app uses the Market Ticket palette, type, flat fruit and flat pictures (public/art-ticket), with a black awning bar, yellow street and price-tag cash. The owner's first answer was to keep his pictures; his later message asked for the new art style, which supersedes it. His original pictures stay in the repo, unused. Each night a panel shows the market and your shelf sliding one box older.",
+      "rationale": "Owner: \"incorporate so that its cohesive between tabletop and digital / include the night phase you suggested as well to show the stock moving at night for digital\" and \"design the digital per your earlier design but with the new artsyle included\".",
+      "impact": {
+        "player": "A new look; the night is visible.",
+        "technical": "palette.ts, styles, fruitIcons.tsx, deckArt.ts, public/art-ticket, NightShift.tsx; two font packages added.",
+        "data": "None."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "design the digital per your earlier design but with the new artsyle included",
+        "date": "2026-11-10"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-070",
+      "reports": [
+        "REP-094"
+      ],
+      "reviewTrigger": "When the owner sees it on a phone; if regalia or card frames look out of place"
     }
   ],
   "history": [
@@ -2784,6 +2834,10 @@
     {
       "at": "2026-11-10 16:36",
       "text": "Release 1.16.0 published (PLAN-065 to PLAN-068): main f845c7c, Deploy LIVE game run 34; live smoke test PASS; tagged v1.16.0."
+    },
+    {
+      "at": "2026-11-10 22:32",
+      "text": "Rules version 14 (PLAN-069, DEC-079), the Market Ticket look (PLAN-070, DEC-080) and the night panel (PLAN-071) built on branch rules-14-market-ticket; verify PASS (424 tests), browser tests PASS; balance target FAIL (not tuned). Not merged, not published. Report REP-094."
     }
   ]
 }
