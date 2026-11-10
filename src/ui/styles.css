@@ -3,23 +3,23 @@
 @import './cards.css';
 @import './screens.css';
 @import './square.css';
-/* The app's one font (DEC-068): Rubik. Weights carry the hierarchy: 800 for titles, prices and names, 500-600 for
+/* The app's type (PLAN-070, Market Ticket): Archivo for words, Archivo Black for titles, prices and names. Weights carry the hierarchy: 800 for titles, prices and names, 500-600 for
    labels and buttons, 400 for sentences. Two aliases pin a weight whatever a rule asks for:
-   'Rubik Display' is always 800 (titles, prices, names); 'Rubik Strong' is 600, or 800 when bold is asked for.
+   'Ticket Display' is always 800 (titles, prices, names); 'Ticket Strong' is 600, or 800 when bold is asked for.
    The printed card kit keeps the deck-art fonts (print-fonts.css). */
-@font-face { font-family: 'Rubik'; font-weight: 400; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-400-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik'; font-weight: 400; font-style: italic; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-400-italic.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik'; font-weight: 500; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-500-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik'; font-weight: 600; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-600-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik'; font-weight: 800; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik Display'; font-weight: 100 900; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik Strong'; font-weight: 100 649; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-600-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Rubik Strong'; font-weight: 650 900; font-display: swap; src: url('../../node_modules/@fontsource/rubik/files/rubik-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Archivo'; font-weight: 400; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Archivo'; font-weight: 400; font-style: italic; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Archivo'; font-weight: 500; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Archivo'; font-weight: 600; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Archivo'; font-weight: 800; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Ticket Display'; font-weight: 100 900; font-display: swap; src: url('../../node_modules/@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Ticket Strong'; font-weight: 100 649; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Ticket Strong'; font-weight: 650 900; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-800-normal.woff2') format('woff2'); }
 /* =====================================================================
-   Fruit Market · "The Great Fruit Exchange"
-   Cream paper page, navy ink, thin navy rules, red and mustard accents,
-   green banners, wood counters. Navy panels carry information where a
-   dark surface is needed; paper cards are the things you touch.
+   Fruit Market · "Market Ticket" (PLAN-070), over the Great Fruit Exchange layout
+   White ticket stock on a pale kraft page, rich black ink and rules, and the four
+   fruit colours as accents: apple red, mango yellow, melon green, berry blue.
+   Black panels carry information; white tickets are the things you touch.
    ===================================================================== */
 :root {
   /* world (older names, now pointing at the Exchange palette) */
@@ -31,7 +31,7 @@
   --gold: var(--x-mustard);
   --gold-d: var(--x-mustard-d);
   --cream: var(--x-paper);
-  --cream-2: var(--c-e6d8bc);
+  --cream-2: var(--c-efe9df);
   --card-edge: var(--x-edge);
   --wood: var(--x-wood);
   --wood-d: var(--x-wood-d);
@@ -40,31 +40,31 @@
   --night: var(--x-ink);
   --night-0: var(--x-ink);
   --surface: var(--x-paper);
-  --surface-2: var(--c-e6d8bc);
-  --line: rgba(24, 40, 68, 0.2);
+  --surface-2: var(--c-efe9df);
+  --line: rgba(31, 39, 42, 0.22);
   --text: var(--x-ink);
   --muted: var(--x-slate);
-  --on-ink-muted: var(--c-aab4c8);
+  --on-ink-muted: var(--c-bdbebe);
   --ink: var(--x-ink);
   --ink-muted: var(--x-slate);
   /* outcomes */
   --good: var(--x-green);
-  --good-bg: var(--c-d6e3c6);
+  --good-bg: var(--c-cfeedd);
   --bad: var(--x-red);
-  --bad-bg: var(--c-f2d2c2);
-  --hi-bg: var(--c-f2dc9e);
+  --bad-bg: var(--c-fbd5d2);
+  --hi-bg: var(--c-ffe58a);
   /* freshness */
-  --fresh: var(--c-9cca86);
-  --okay: var(--c-e6c86f);
-  --notso: var(--c-db8a6c);
-  --unripe: var(--c-c3d6ab);
-  /* type: the pixel font is retired; these names stay for older rules (Rubik, exchange.css) */
-  --f-pixel: 'Rubik Strong', 'Rubik', system-ui, sans-serif;
+  --fresh: var(--c-8fd8ae);
+  --okay: var(--c-ffe07a);
+  --notso: var(--c-f3a39c);
+  --unripe: var(--c-cfe7d6);
+  /* type: the pixel font is retired; these names stay for older rules (Archivo, exchange.css) */
+  --f-pixel: 'Ticket Strong', 'Archivo', system-ui, sans-serif;
   --f-body: var(--f-serif);
-  /* Rubik is wider than the condensed capitals the letter-spacing was set for: the app tracks capitals at half
+  /* Archivo is wider than the condensed capitals the letter-spacing was set for: the app tracks capitals at half
      (cards.css and the print kit keep 1 when --ls is unset). */
   --ls: 0.5;
-  --r: 6px;
+  --r: 3px;
   --shadow: 0 3px 0 var(--x-ink);
   color-scheme: light;
 }
@@ -1195,7 +1195,7 @@ body { background: var(--x-cream); }
    The Great Fruit Exchange (DEC-066): the deck-art identity for every screen.
    This layer comes last on purpose: it restyles the older layers above
    without renaming any class. Colours come from exchange.css (--x-...).
-   Type (DEC-068): Rubik everywhere. 800 for titles, prices and names,
+   Type (DEC-068): Archivo everywhere. 800 for titles, prices and names,
    500-600 for capitals on labels, buttons and chips, 400 for sentences.
    ===================================================================== */
 html { scrollbar-color: var(--x-ink-2) var(--x-card); }
@@ -2199,7 +2199,7 @@ b, strong { font-weight: 700; }
 }
 
 /* =====================================================================
-   Rubik fit (DEC-068): Rubik is wider than the condensed capitals these
+   Archivo fit (DEC-068): Archivo is wider than the condensed capitals these
    places were sized for, so a few spots get a little more room.
    ===================================================================== */
 .gx .seats .rs-name { font-size: 0.74rem; letter-spacing: 0; }
@@ -2313,7 +2313,7 @@ b, strong { font-weight: 700; }
 /* leaving: the panel fades around the card while the card flies back to its row */
 .auction.rush { transition: background-color calc(var(--rs-k, 1) * 0.2s), border-color calc(var(--rs-k, 1) * 0.2s), box-shadow calc(var(--rs-k, 1) * 0.2s); }
 .auction.rush.st-out, .auction.rush.st-out.tone-good, .auction.rush.st-out.tone-bad { background-color: transparent; border-color: transparent; box-shadow: none; }
-/* a rival's opened stall on a desktop: Rubik's wider chips wrap to one more row, so the rows sit a little closer */
+/* a rival's opened stall on a desktop: Archivo's wider chips wrap to one more row, so the rows sit a little closer */
 @media (min-width: 900px) and (min-height: 560px) {
   .gx .rival-drop .stk { row-gap: 4px; }
   .gx .rival-drop .stk .ms-cell { min-height: 30px; }
@@ -2488,8 +2488,7 @@ b, strong { font-weight: 700; }
 .op-price { display: flex; align-items: center; gap: 6px; min-width: 120px; justify-content: center; }
 .op-price b { font-family: var(--f-pixel); font-size: 2.2rem; line-height: 1; }
 .op-price small { font-size: 0.75rem; color: var(--ink-muted); }
-.op-lock { flex-direction: row; }
-.op-lock .btn.primary { flex: 1; }
+.op-pass { align-self: center; min-height: 44px; }
 .order-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 4px 8px 0; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; background: var(--x-paper); border: 1.5px solid var(--x-ink); border-radius: var(--r); color: var(--x-ink); }
 .order-strip.due { background: var(--hi-bg); }
 .order-strip.mine { border-width: 2.5px; }

@@ -39,9 +39,9 @@ export function OrderPanel({ s, p, waiting, onBid }: { s: GameState; p: number; 
             <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
             <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
           </div>
-          <div class="pp-lock op-lock">
-            <button type="button" class="btn ghost" onClick={() => onBid(null)}>Pass</button>
-            <button type="button" class="btn primary big" onClick={() => onBid(v)}>Bid ${v} a piece</button>
+          <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>Pass: I don't want this order</button>
+          <div class="pp-lock">
+            <button type="button" class="btn primary wide big" onClick={() => onBid(v)}>Bid ${v} a piece</button>
           </div>
         </>
       )}
