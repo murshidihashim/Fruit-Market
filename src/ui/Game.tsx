@@ -78,7 +78,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // Rivals sit across the table in one row, in turn order after you.
   const rivals = seats(s.players.length, viewer).map((x) => x.p);
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
-  const lorryHere = (s.phase === 'morning' || s.phase === 'buy') && !s.event?.noDelivery;
+  // The lorry drives in once the morning's news has been read (Start buying), then unloads (PLAN-065).
+  const lorryHere = s.phase === 'buy' && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
   // then flipped open as each customer's cards turn over in the rush pop-up.
   const boards: Record<number, Board> = {};
@@ -94,6 +95,11 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
+  // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
+  // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
+  // one person at the table (online, or a single human): a shared phone hands over between people instead.
+  const openedMine = online ? !c.myBidTurn : humans.length === 1 && s.stalls[viewer] !== null;
+  const priceWait = (s.phase === 'stall' && !stalling && openedMine) || (s.phase === 'bid' && c.myBidTurn && busy);
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
@@ -103,7 +109,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
-    if (pricing) return <PricePanel key={`${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
+    if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
+    if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
     if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
     if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
     return null;

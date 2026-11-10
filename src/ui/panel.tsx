@@ -1,6 +1,6 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, deliveredGreen, stageAt, trackSlots, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
@@ -9,7 +9,7 @@ import {
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, FavourIcon, Fruit } from './art';
-import { buyerCap, buyersAt, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow } from './boardModel';
+import { buyerCap, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow } from './boardModel';
 import { fruitSvgUrl } from './fruitIcons';
 import { Pile } from './table';
 import { Icon, type IconName } from './icons';
@@ -169,21 +169,25 @@ export function startingPrices(s: GameState, p: number): Record<string, number> 
   return Object.fromEntries(FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => [f, plan.find((b) => b.fruit === f)?.price ?? minPrice(s, f)]));
 }
 
-export function PricePanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void }) {
+/** `waiting`: your stall is open and the rivals are still opening theirs (PLAN-065). The same panel stays on screen
+ *  into pricing, so the crates drop in once and the rivals' lids lift as soon as pricing starts. */
+export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void; waiting?: boolean }) {
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
+  // Prices are suggested once every stall is open (the planner then sees every crate).
+  useEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, p)); }, [s.phase]);
   const [favoured, setFavoured] = useState(false);
   const [sel, setSel] = useState<FruitId | null>(() => FRUITS.find((f) => forSale(s, p, f) > 0) ?? null);
   const [notice, setNotice] = useState(() => bellOpensOnStart(s));
   return (
-    <PricePanelView s={s} p={p} vals={vals} sel={sel} favoured={favoured} notice={notice}
+    <PricePanelView s={s} p={p} vals={vals} sel={sel} favoured={favoured} notice={notice} waiting={waiting}
       onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))} onPick={setSel} onFavoured={() => setFavoured(!favoured)}
       onNotice={setNotice} onSubmit={onSubmit} />
   );
 }
 
 /** The pricing screen drawn from its state (no hooks, so tests can draw it). */
-export function PricePanelView({ s, p, vals, sel, favoured, notice, onPrice, onPick, onFavoured, onNotice, onSubmit }: {
-  s: GameState; p: number; vals: Record<string, number>; sel: FruitId | null; favoured: boolean; notice: boolean;
+export function PricePanelView({ s, p, vals, sel, favoured, notice, waiting, onPrice, onPick, onFavoured, onNotice, onSubmit }: {
+  s: GameState; p: number; vals: Record<string, number>; sel: FruitId | null; favoured: boolean; notice: boolean; waiting?: boolean;
   onPrice: (f: FruitId, price: number) => void; onPick: (f: FruitId) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
   onSubmit: (posts: Post[], favoured: boolean) => void;
 }) {
@@ -196,18 +200,20 @@ export function PricePanelView({ s, p, vals, sel, favoured, notice, onPrice, onP
     <>
       <div class="price-panel mid-panel">
         <div class="pp-head"><b>Set your prices</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
-        <DemandBoard rows={demandBoard(s, p)} prices={posts} />
-        <PricingTableView s={s} viewer={p} mine={{ prices: Object.fromEntries(posts.map((x) => [x.fruit, x.price])), selected: sel, onPick }} />
-        {sel && fruits.includes(sel) && <PriceBubble s={s} p={p} f={sel} price={priceOf(sel)} onPrice={(v) => onPrice(sel, v)} />}
-        {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
+        {waiting ? <p class="pp-wait">Rivals are opening their stalls…</p> : <DemandBoard rows={demandBoard(s, p)} prices={posts} />}
+        <PricingTableView s={s} viewer={p} waiting={waiting} mine={waiting ? undefined : { prices: Object.fromEntries(posts.map((x) => [x.fruit, x.price])), selected: sel, onPick }} />
+        {!waiting && sel && fruits.includes(sel) && <PriceBubble s={s} p={p} f={sel} price={priceOf(sel)} onPrice={(v) => onPrice(sel, v)} />}
+        {!waiting && pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
           <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={onFavoured}>
             <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
           </button>
         )}
       </div>
       <div class="pp-lock">
-        {error && <div class="error">{error}</div>}
-        <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Seal my prices <small class="btn-sub">ring the bell</small></button>
+        {!waiting && error && <div class="error">{error}</div>}
+        {waiting
+          ? <button class="btn primary big wide" disabled>Waiting for rivals…</button>
+          : <button class="btn primary big wide" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Seal my prices <small class="btn-sub">ring the bell</small></button>}
       </div>
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </>
@@ -239,24 +245,18 @@ function DemandBoard({ rows, prices }: { rows: DemandRow[]; prices: Post[] }) {
   );
 }
 
-/** The price bubble under your crate for the fruit you tapped: the dial, and four quick prices with their buyers. */
+/** The price bubble under your crate for the fruit you tapped: the − / + dial. The quick-price boxes under it were
+ *  removed (owner, PLAN-065); the demand board above still shows how many would buy at each price. */
 function PriceBubble({ s, p, f, price, onPrice }: { s: GameState; p: number; f: FruitId; price: number; onPrice: (v: number) => void }) {
   const lo = minPrice(s, f);
   const top = Math.max(1, ...buyersFor(s, f).map((x) => buyerCap(s, p, f, x).cap));
   const hi = Math.min(maxPrice(s, f), top + 2);
-  const quick = [price + 2, price + 1, price, price - 1].filter((v) => v >= lo && v <= hi);
   return (
     <div class="pbub" role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
       <div class="pbub-dial">
         <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={() => onPrice(price - 1)}>−</button>
         <span class="pc-num"><Fruit id={f} size={22} />${price}</span>
         <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={() => onPrice(price + 1)}>+</button>
-      </div>
-      <div class="pbub-quick">
-        {quick.map((v) => {
-          const n = buyersAt(s, p, f, v);
-          return <button type="button" class={v === price ? 'on' : ''} aria-label={`$${v}: ${n} would buy`} onClick={() => onPrice(v)}>${v}<small>{n}</small></button>;
-        })}
       </div>
     </div>
   );

@@ -1,0 +1,57 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Pricing: the price bubble is just the − / + dial (the quick-price boxes under it are gone)",
+      "Open my stall leads straight into the pricing table: your crate drops in, the rivals' crates stay shut while they open, then the lids lift and the demand board drops in as pricing starts (no market flash in between)",
+      "Morning: the event card turns over first; the lorry drives in and unloads when you tap Start buying",
+      "The rush: the customer in the pop-up leaves no gap in the queue; the row closes up and opens again when they come back"
+    ],
+    "fixed": [],
+    "removed": [
+      "The quick-price boxes under the price dial"
+    ]
+  },
+  "playerNotes": [
+    "Smoother flow from opening your stall to setting prices",
+    "The morning news comes first, then the lorry unloads"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "remove the boxes below the price slider / stall animation should flow from when player confirmed the fruit, to the price setting part / event card should play first before lorry is delivering the goods / lets make the customer queue card bigger, can shrink the wholesale market smaller, visualise 3 layouts for this / fix the gap between current queueing customer during demand fulfilment",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-065",
+  "title": "Pricing and morning flow polish; queue gap in the rush; bigger-card layout options",
+  "problem": "Owner: remove the boxes under the price dial, make Open my stall flow into pricing, play the event card before the lorry, fix the queue gap in the rush, and show 3 layouts with bigger customer cards and a smaller market.",
+  "scope": [
+    "src/ui/panel.tsx (price bubble, waiting pricing panel)",
+    "src/ui/game/panels/PricingTable.tsx",
+    "src/ui/Game.tsx",
+    "src/ui/game/useGameController.ts, animator.tsx, ActionBar.tsx (delivery after the event card)",
+    "styles.css"
+  ],
+  "exclusions": [
+    "The bigger-card layout itself: 3 options shown, awaiting the owner's choice",
+    "Rules: unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Each flow checked in the game on a phone-sized screen",
+      "result": "PASS",
+      "evidence": "2026-11-10: filmed stall to pricing (crates shut, then lids lift, board drops), Day 2 morning (card turns over, then the cart rolls in on Start buying), the rush (queue closes up around the customer in the pop-up), pricing without quick boxes"
+    }
+  ]
+}

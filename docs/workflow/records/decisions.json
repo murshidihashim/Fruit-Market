@@ -2756,6 +2756,10 @@
     {
       "at": "2026-11-10 13:33",
       "text": "Release 1.15.1 published (PLAN-064: rows swap while pricing, no Bell pop-up, first-game tips fixed): main 8c30e62, Deploy LIVE game run 33; live smoke test PASS; tagged v1.15.1."
+    },
+    {
+      "at": "2026-11-10 15:39",
+      "text": "Owner asked for five changes (PLAN-065). Four built on the branch (price boxes removed, stall-to-pricing flow, event card before the lorry, no queue gap in the rush); three bigger-card layouts (A one big row, B two rows, C biggest cards) shown for a choice. Not published."
     }
   ]
 }

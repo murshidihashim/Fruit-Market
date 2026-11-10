@@ -11,8 +11,9 @@ import { fx } from '../fx';
 import type { ShowState } from './panels/Showdown';
 import { rushPace, rushSeats } from './rush';
 
+/** The lorry unloads today's delivery into the market: played as buying starts, after the morning's event card (PLAN-065). */
 export async function delivery(g: GameState) {
-  if (g.phase !== 'morning') return;
+  if (g.phase !== 'morning' && g.phase !== 'buy') return;
   const jobs: Promise<void>[] = [];
   // Let the lorry pull up (its drive-in is CSS, about 0.9 s), then unload into each fruit's slot.
   if (A.find('lorry')) await A.wait(650);

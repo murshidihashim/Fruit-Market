@@ -121,8 +121,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       onChange(next);
       await A.frame();
       if (next.day !== prev.day) {
+        // The new day opens on the morning's event card; the lorry unloads only when buying starts (PLAN-065).
         setNight(false);
+      } else if (prev.phase === 'morning' && next.phase === 'buy') {
         await delivery(next);
+        await moves(prev, next);
       } else if (rush) {
         setRevealDone(false);
         await reveal(next, viewer, setShow);
@@ -229,14 +232,6 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     return () => window.clearTimeout(t);
   }, [s, tick]);
 
-  // First day: the lorry delivers when the table appears.
-  useEffect(() => {
-    if (s.phase === 'morning' && s.day === 1) {
-      busyRef.current = true;
-      setBusy(true);
-      A.frame().then(() => delivery(s)).finally(() => { busyRef.current = false; setBusy(false); setTick((t) => t + 1); });
-    }
-  }, []);
 
   useEffect(() => {
     turnStart.current = undoPoint(turnStart.current, s, activeHuman);

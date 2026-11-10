@@ -16,7 +16,7 @@ interface MyCrate {
   onPick: (f: FruitId) => void;
 }
 
-function Crate({ s, seat, mine }: { s: GameState; seat: TableSeat; mine?: MyCrate }) {
+function Crate({ s, seat, mine, closed }: { s: GameState; seat: TableSeat; mine?: MyCrate; closed?: boolean }) {
   const pl = s.players[seat.player];
   const name = seat.me ? 'Your crate' : pl.name;
   const label = `${seat.me ? 'Your crate' : pl.name}: ${seat.fruits.length ? seat.fruits.map((x) => `${x.out} ${(x.out === 1 ? FRUIT[x.f].name : FRUIT[x.f].plural).toLowerCase()} out`).join(', ') : 'nothing out'}${seat.me ? '' : seat.sealed ? ', prices sealed' : ', not sealed yet'}`;
@@ -26,7 +26,7 @@ function Crate({ s, seat, mine }: { s: GameState; seat: TableSeat; mine?: MyCrat
       {/* the lid lifts off a rival's crate as pricing starts: everyone sees every crate at once */}
       {!seat.me && <i class="crate-lid" aria-hidden="true" />}
       <span class="crate-fruits">
-        {seat.fruits.length ? seat.fruits.map((x) => {
+        {closed ? <span class="crate-none">opening…</span> : seat.fruits.length ? seat.fruits.map((x) => {
           const top = x.dots[0];
           if (!mine) {
             return (
@@ -49,12 +49,14 @@ function Crate({ s, seat, mine }: { s: GameState; seat: TableSeat; mine?: MyCrat
   );
 }
 
-/** Every stall's crate: the rivals in turn order after you, then your own crate last (nearest the price dial). */
-export function PricingTableView({ s, viewer, mine }: { s: GameState; viewer: number; mine?: MyCrate }) {
+/** Every stall's crate: the rivals in turn order after you, then your own crate last (nearest the price dial).
+ *  `waiting`: you have opened your stall and the rivals are still opening theirs (PLAN-065): their crates stay shut,
+ *  showing nothing, until pricing starts and the lids lift. */
+export function PricingTableView({ s, viewer, mine, waiting }: { s: GameState; viewer: number; mine?: MyCrate; waiting?: boolean }) {
   const t = pricingTable(s, viewer);
   return (
-    <section class="crates" aria-label="Every stall's crate. Prices stay sealed until the bell">
-      {t.seats.map((x) => <Crate s={s} seat={x} mine={x.me ? mine : undefined} />)}
+    <section class={`crates ${waiting ? 'waiting' : ''}`} aria-label="Every stall's crate. Prices stay sealed until the bell">
+      {t.seats.map((x) => <Crate s={s} seat={x} mine={x.me ? mine : undefined} closed={waiting && !x.me} />)}
     </section>
   );
 }
