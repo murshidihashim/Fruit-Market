@@ -81,7 +81,7 @@
 #app .tkt .tk-left { align-self: flex-start; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tk-yel); }
 #app .tkt .tk-left.last { padding: 2px 4px; background: var(--tk-apple); color: var(--tk-paper); }
 #app .tkt .tk-event {
-  all: unset; flex: 0 1 auto; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 3px 9px 3px 4px; cursor: pointer;
+  all: unset; flex: 0 1 auto; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 3px 9px 3px 4px; cursor: pointer;
   background: var(--tk-yel); color: var(--tk-ink); font: 800 0.75rem/1.05 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
 }
 #app .tkt .tk-event .xev { flex: none; border-radius: 0; overflow: hidden; }
@@ -196,10 +196,10 @@
 #app .tkt > .rush-dim { all: unset; position: absolute; inset: 0; z-index: 5; }
 
 /* the Wholesale Market: four lanes, the freshest box at the top */
-#app .tkt > .centre > .market-stall { container: market / size; }
+#app .tkt > .centre > .market-stall { container: market / size; overflow-x: hidden; overflow-y: auto; }
 #app .tkt .tk-lanes {
-  /* a box is as tall as the room allows, between 22 and 40 px, so the longest lane always fits the middle of the table */
-  --bh: clamp(22px, calc((100cqh - 150px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px);
+  /* a box is as tall as the room allows, between 28 and 40 px; on a very short screen the market scrolls instead of shrinking the boxes further */
+  --bh: clamp(28px, calc((100cqh - 150px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px);
   position: relative; flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: start;
 }
 #app .tkt .tk-lane { display: flex; flex-direction: column; gap: 4px; padding: 4px; background: var(--lane); }
@@ -231,7 +231,7 @@
 #app .tkt .next-lorry .nl-f { display: inline-flex; align-items: center; gap: 2px; font: 400 0.8125rem/1 var(--tk-disp); }
 @container market (max-height: 330px) {
   #app .tkt .tk-market-note { display: none; }
-  #app .tkt .tk-lanes { --bh: clamp(22px, calc((100cqh - 112px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px); }
+  #app .tkt .tk-lanes { --bh: clamp(28px, calc((100cqh - 112px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px); }
 }
 @container market (max-width: 350px) {
   #app .tkt .tk-box .x-fruit { width: 16px; height: 16px; }
@@ -504,3 +504,4 @@
 #app .tkt .tk-cust.big .tk-cust-rows li .x-fruit { width: 24px; height: 24px; }
 #app .tkt .tk-cust.big .tk-cust-rows li b { font-size: 1.375rem; }
 #app .tkt .tk-cust.big .tk-cust-foot { align-items: center; gap: 8px; padding: 8px 9px 9px; font: 700 0.75rem/1 var(--tk-txt); }
+#app .tkt .coach > b { color: var(--tk-ink); font: 400 1rem/1.1 var(--tk-disp); text-transform: uppercase; }

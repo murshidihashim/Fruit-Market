@@ -70,7 +70,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
         {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
-        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when soft (the colours on your shelf). Tap to close.</small>
+        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when soft (the letters on your shelf). Tap to close.</small>
       </div>
     </div>
   )}
