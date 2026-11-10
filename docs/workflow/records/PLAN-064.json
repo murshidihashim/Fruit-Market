@@ -9,7 +9,9 @@
       "While prices are set (phone layout), the rival stalls move to the top and the customer queue moves down beside your crates; both rows slide there in 0.7 s and slide back when pricing ends"
     ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "'The Bell' pop-up opening by itself on Day 1: it now opens only from the i button"
+    ]
   },
   "playerNotes": [
     "While you set prices, the customers move down next to your crates"
@@ -21,11 +23,12 @@
   },
   "delivery": "implemented",
   "id": "PLAN-064",
-  "title": "Pricing: rivals and customers swap rows, with a slide",
-  "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing.",
+  "title": "Pricing: rivals and customers swap rows, and The Bell no longer pops up",
+  "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing. Then: \"lets also remove the bell popup from appearing\".",
   "scope": [
     "src/ui/game/rowSwap.ts (slide)",
-    "src/ui/Game.tsx and styles.css (phone grid order while pricing)"
+    "src/ui/Game.tsx and styles.css (phone grid order while pricing)",
+    "src/ui/panel.tsx: The Bell never opens by itself"
   ],
   "exclusions": [
     "Wide screens: customers and rivals are side columns there, so nothing moves",

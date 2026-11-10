@@ -2740,6 +2740,10 @@
     {
       "at": "2026-11-10 12:20",
       "text": "Owner asked for the rival stalls and customer queue to swap rows while pricing, with a smooth slide there and back (PLAN-064). Built on the branch; not published."
+    },
+    {
+      "at": "2026-11-10 12:25",
+      "text": "Owner: stop The Bell pop-up appearing (PLAN-064). It no longer opens by itself on Day 1; the i button on the pricing screen still opens it."
     }
   ]
 }

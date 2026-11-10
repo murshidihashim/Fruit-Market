@@ -160,8 +160,8 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
  * Step 2: one secret price per fruit you put out. The bell reveals every stall's prices at once.
  * Like the stall panel: compact rows in the middle of the table, the Seal button in the action bar's place.
  */
-/** "The Bell" notice opens by itself on Day 1 only; from Day 2 it opens from the i button (PLAN-059). */
-export const bellOpensOnStart = (s: GameState): boolean => s.day === 1;
+/** "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button. */
+export const bellOpensOnStart = (_s: GameState): boolean => false;
 
 /** Prices pre-filled from the planner for every fruit you put out. */
 export function startingPrices(s: GameState, p: number): Record<string, number> {

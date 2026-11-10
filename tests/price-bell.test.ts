@@ -85,11 +85,12 @@ describe('your crate and the price bubble', () => {
 });
 
 describe('"The Bell" notice', () => {
-  it('opens by itself on Day 1 only; later days keep it behind the i button', () => {
+  it('never opens by itself (PLAN-064): it stays behind the i button, Day 1 included', () => {
     const day1 = panel(bell(1));
-    expect(day1).toContain('class="bell-notice"');
+    expect(day1).not.toContain('class="bell-notice"');
+    expect(day1).toContain('aria-label="How the bell works"');
     const day2 = panel(bell(2));
-    expect([1, 2, 3, 10].map((d) => bellOpensOnStart(bell(d)))).toEqual([true, false, false, false]);
+    expect([1, 2, 3, 10].map((d) => bellOpensOnStart(bell(d)))).toEqual([false, false, false, false]); // never by itself (PLAN-064)
     expect(day2).not.toContain('class="bell-notice"');
     expect(day2).toContain('aria-label="How the bell works"');
   });
