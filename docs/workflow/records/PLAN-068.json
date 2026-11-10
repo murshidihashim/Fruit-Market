@@ -1,0 +1,52 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "The rush pop-up's result line is the same for everyone: it names the stalls (Saleh beat Raj by $1! 2 sold.), never 'you'; one neutral colour for all; rival quips no longer depend on who is watching"
+    ],
+    "fixed": [],
+    "removed": [
+      "The personal what-if line under the rush result, and the 'Outfoxed!' badge"
+    ]
+  },
+  "playerNotes": [
+    "Everyone at the table now sees the same rush results"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "rush text should be rewritten so every one sees the same thing",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-068",
+  "title": "One shared rush result line for everyone",
+  "problem": "Owner: the rush text should be the same for every player.",
+  "scope": [
+    "src/engine/story.ts rushLine and rivalReaction",
+    "animator.tsx, Showdown.tsx",
+    "tests/rush-line.test.ts"
+  ],
+  "exclusions": [
+    "Your own card is still labelled You (which crate is yours)",
+    "Which customers get a pop-up is unchanged",
+    "End-of-day summary lines: unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, incl. a seeded check that no rush line says you",
+      "result": "PASS",
+      "evidence": "2026-11-10: 409 unit tests incl. tests/rush-line.test.ts, build"
+    },
+    {
+      "id": "T2",
+      "text": "Rush filmed in the game",
+      "result": "PASS",
+      "evidence": "2026-11-10: 'Saleh sold 1 at $6. 1 more wanted.', 'Tie at $4. Saleh wins: bought first!'"
+    }
+  ]
+}

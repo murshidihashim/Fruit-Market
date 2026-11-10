@@ -2,7 +2,7 @@
 // Each one returns when its animation has finished. They only draw; they never change the game.
 import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, UPGRADES, type FruitId } from '../../engine/data';
 import { leavingTonight, nightOutlook, type GameState, type LineResult } from '../../engine/game';
-import { customerReaction, explainLine, rivalReaction } from '../../engine/story';
+import { customerReaction, explainLine, rivalReaction, rushLine } from '../../engine/story';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { holdCash, payCash, shownCash } from '../cashShown';
@@ -136,7 +136,8 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     const l = shows[i];
     if (A.hurried()) { releaseStock(); await flights(g, l); continue; }
     A.resetStep();
-    const story = explainLine(g, l, viewer);
+    // The same result line for everyone at the table (PLAN-068).
+    const story = rushLine(g, l);
     const react = rivalReaction(g, l, viewer, used);
     const base = { line: l, n: i + 1, of: shows.length, story, react, cust: customerReaction(g, l.customerId, l.name), served: [...served] };
     const seats = rushSeats(l, viewer, g.players.length).length;

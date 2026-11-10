@@ -110,7 +110,6 @@ export function RushView({ s, a, viewer, card, onNext: next }: {
         <div class={`rs-why au-why ${a.story.tone} ${done ? 'show' : ''}`}>
           {done && (
             <>
-              {a.story.tone === 'bad' && a.story.headline.includes('undercut you') && <span class="au-kick">Outfoxed!</span>}
               <b>{a.story.headline}</b>
               {a.story.detail && <small>{a.story.detail}</small>}
               {a.cust && <span class="au-say">“{a.cust}”</span>}

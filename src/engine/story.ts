@@ -412,9 +412,44 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
 
 export interface Reaction { player: number; text: string }
 
-/** At most one rival reaction per line, based only on what happened. */
-export function rivalReaction(s: GameState, l: LineResult, viewer: number, used: Set<string>): Reaction | null {
-  const mine = l.offers.find((o) => o.player === viewer);
+/**
+ * The rush pop-up's result line (PLAN-068): the same words for everyone at the table, naming the stalls (never "you"),
+ * so every player sees one story of each customer. Built from the line alone; card tags come from offerTag. The
+ * personal what-if advice (explainLine's detail) is not shown here.
+ */
+export function rushLine(s: GameState, l: LineResult): LineStory {
+  const NOBODY = -1;
+  const tags = l.offers.map((o) => offerTag(s, l, o, NOBODY));
+  const cust = lookOf(l.name).title;
+  const plural = FRUIT[l.fruit].plural.toLowerCase();
+  const name = (o: Offer) => s.players[o.player].name;
+  const winners = l.offers.filter((o) => o.sold > 0);
+  const sold = winners.reduce((a, o) => a + o.sold, 0);
+  const left = l.want - sold;
+  const short = left > 0 && winners.length ? `${left} more wanted.` : undefined;
+  if (!l.offers.length) return { showdown: false, tone: 'neutral', headline: `No ${plural} for ${cust}!`, tags };
+  if (!winners.length) {
+    const why = l.offers.map((o) => noSaleReason(s, l, o, NOBODY));
+    const allPrice = why.every((x) => x.kind === 'price');
+    return { showdown: true, tone: 'neutral', headline: allPrice ? `Too pricey for ${cust}!` : `Nothing good enough for ${cust}.`, detail: allPrice ? why[0].detail : undefined, tags };
+  }
+  if (winners.length > 1) {
+    return { showdown: true, tone: 'neutral', headline: `${winners.map(name).join(' and ')} split the order: ${sold} sold.`, detail: short, tags };
+  }
+  const w = winners[0];
+  const losers = l.offers.filter((o) => o !== w && inContest(o) && o.sold === 0);
+  const tie = losers.find((o) => o.price === w.price);
+  if (tie) return { showdown: true, tone: 'neutral', headline: `Tie at $${w.price}. ${name(w)} wins: ${tieShort(s, w, tie)}!`, detail: short, tags };
+  if (losers.length) {
+    const next = losers.reduce((a, o) => (o.price < a.price ? o : a));
+    return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${name(next)} by $${next.price - w.price}! ${w.sold} sold.`, detail: short, tags };
+  }
+  const full = w.price >= l.max;
+  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price!` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
+}
+
+/** At most one rival reaction per line, based only on what happened, and the same whoever is watching (PLAN-068). */
+export function rivalReaction(s: GameState, l: LineResult, _viewer: number, used: Set<string>): Reaction | null {
   const pick = (p: number, pool: string[]) => {
     if (!pool.length) return null;
     const start = hash(s.day, l.customerId, p) % pool.length;
@@ -425,19 +460,20 @@ export function rivalReaction(s: GameState, l: LineResult, viewer: number, used:
     return null;
   };
   const linesOf = (p: number) => RIVALS.find((r) => r.avatar === s.players[p].avatar)?.lines;
+  // Only offers that were in the price contest can undercut or be beaten.
+  const lost = l.offers.filter((o) => inContest(o) && o.sold === 0);
+  const won = l.offers.filter((o) => o.sold > 0);
   for (const o of l.offers) {
-    const pl = s.players[o.player];
     const lines = linesOf(o.player);
-    if (pl.kind !== 'ai' || !lines || o.player === viewer) continue;
-    // Only offers that were in the price contest can undercut or be beaten.
-    if (mine && inContest(mine) && o.sold > 0 && mine.sold === 0 && mine.price - o.price <= 2 && mine.price > o.price) return pick(o.player, lines.undercut);
-    if (mine && inContest(o) && o.sold === 0 && mine.sold > 0 && (o.price - mine.price <= 1)) return pick(o.player, lines.stung);
+    if (s.players[o.player].kind !== 'ai' || !lines) continue;
+    if (o.sold > 0 && lost.some((x) => x.price > o.price && x.price - o.price <= 2)) return pick(o.player, lines.undercut);
+    if (inContest(o) && o.sold === 0 && won.some((x) => o.price > x.price && o.price - x.price <= 1)) return pick(o.player, lines.stung);
   }
   for (const o of l.offers) {
     const lines = linesOf(o.player);
     if (s.players[o.player].kind !== 'ai' || !lines) continue;
     if (o.sold > 0 && o.price >= l.max && l.offers.length > 1) return pick(o.player, lines.fullPrice);
-    if (mine && inContest(o) && o.sold === 0 && mine.sold > 0 && o.price - mine.price >= 2) return pick(o.player, lines.lost);
+    if (inContest(o) && o.sold === 0 && won.some((x) => o.price - x.price >= 2)) return pick(o.player, lines.lost);
   }
   return null;
 }

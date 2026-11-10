@@ -2772,6 +2772,10 @@
     {
       "at": "2026-11-10 16:03",
       "text": "Owner asked for shorter, punchier rush result text (PLAN-067). All rush lines rewritten; the replay test still confirms every what-if claim. Not published."
+    },
+    {
+      "at": "2026-11-10 16:13",
+      "text": "Owner: rush text should be the same for everyone (PLAN-068). The pop-up now uses one shared line naming the stalls; the personal what-if line and 'Outfoxed!' are gone. Not published."
     }
   ]
 }
