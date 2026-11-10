@@ -2744,6 +2744,10 @@
     {
       "at": "2026-11-10 12:25",
       "text": "Owner: stop The Bell pop-up appearing (PLAN-064). It no longer opens by itself on Day 1; the i button on the pricing screen still opens it."
+    },
+    {
+      "at": "2026-11-10 12:51",
+      "text": "Owner asked to see the tutorial visually, then to fix all the tips (PLAN-064). Six fixes made and re-shot in the game; storyboard shared."
     }
   ]
 }

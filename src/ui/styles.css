@@ -2071,8 +2071,13 @@ b, strong { font-weight: 700; }
 .gx > .coach, .gx > .coach.top {
   position: relative; grid-area: mid; align-self: end; inset: auto; z-index: 20; width: min(calc(100% - 16px), 420px); margin: 0 auto 8px; transform: none;
 }
-/* filling your stall: the shelf fills the middle, so the tip sits at the top, over the title, never over a + (PLAN-062) */
-.gx.ph-stall > .coach, .gx.ph-stall > .coach.top { align-self: start; margin: 8px auto 0; }
+/* stocking and pricing: the tip gets a row of its own above the panel (phone), so it pushes the panel down a little and
+   never covers the shelf, the stall box or the crates it talks about (PLAN-064) */
+@media not all and (min-width: 900px) and (min-height: 560px) {
+  .game.gx.coach-row { grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto; grid-template-areas: "top" "net" "street" "rivals" "coach" "mid" "dock" "act"; }
+  .game.gx.coach-row.swap-rows { grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto; grid-template-areas: "top" "net" "rivals" "street" "coach" "mid" "dock" "act"; }
+  .game.gx.coach-row > .coach, .game.gx.coach-row > .coach.top { grid-area: coach; align-self: stretch; margin: 6px auto 4px; }
+}
 /* phones: a tighter note, so it hides less of the market or the panel it explains */
 @media (max-width: 899px), (max-height: 559px) {
   .gx > .coach { gap: 2px; padding: 7px 12px 8px; }

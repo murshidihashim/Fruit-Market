@@ -8,6 +8,9 @@ import { StallSign } from './cards';
 import { fx } from './fx';
 
 const N = RIVALS.length;
+const SWIPED = 'fm.swiped';
+/** Until a player first swipes (or taps an arrow), the dots read "Swipe to choose" (PLAN-064). */
+const hasSwiped = () => { try { return localStorage.getItem(SWIPED) === '1'; } catch { return true; } };
 /** How far a swipe must travel to move to the next sign, in px. */
 const SWIPE = 40;
 
@@ -17,7 +20,9 @@ export function CharacterPick({ value, taken = {}, onPick }: { value: string; ta
   const [dx, setDx] = useState(0);
   const [drag, setDrag] = useState(false);
   const x0 = useRef(0);
+  const [hint, setHint] = useState(() => !hasSwiped());
   const go = (d: number) => {
+    if (hint) { setHint(false); try { localStorage.setItem(SWIPED, '1'); } catch { /* storage blocked: the hint just shows again next time */ } }
     let k = at;
     for (let n = 0; n < N; n++) { k = (k + d + N) % N; if (!taken[RIVALS[k].avatar]) break; }
     if (k !== at) { fx.tap(); onPick(RIVALS[k].avatar); }
@@ -28,15 +33,15 @@ export function CharacterPick({ value, taken = {}, onPick }: { value: string; ta
     if (dx < -SWIPE) go(1); else if (dx > SWIPE) go(-1);
   };
   return (
-    <CharacterPickView value={value} taken={taken} dx={dx} drag={drag} onStep={go}
+    <CharacterPickView value={value} taken={taken} dx={dx} drag={drag} hint={hint} onStep={go}
       onDown={(e) => { x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
       onMove={(e) => { if (drag) setDx(e.clientX - x0.current); }} onEnd={end} />
   );
 }
 
 /** The picker drawn from its state (no hooks, so tests can draw it). `dx`: how far the finger has dragged the signs. */
-export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, onStep, onDown, onMove, onEnd }: {
-  value: string; taken?: Record<string, string>; dx?: number; drag?: boolean; onStep?: (d: number) => void;
+export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
+  value: string; taken?: Record<string, string>; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
   onDown?: (e: PointerEvent) => void; onMove?: (e: PointerEvent) => void; onEnd?: () => void;
 }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
@@ -65,7 +70,9 @@ export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, onS
       <p class="cp-quip" key={me.avatar}>{`“${me.quip}”`}</p>
       <div class="cp-nav">
         <button type="button" class="cp-arrow" aria-label="Previous shopkeeper" onClick={() => go(-1)}>‹</button>
-        <span class="cp-dots" aria-hidden="true">{RIVALS.map((r, k) => <i class={`${k === at ? 'on' : ''} ${taken[r.avatar] ? 'taken' : ''}`} />)}</span>
+        {hint
+          ? <span class="cp-hint">‹ Swipe to choose ›</span>
+          : <span class="cp-dots" aria-hidden="true">{RIVALS.map((r, k) => <i class={`${k === at ? 'on' : ''} ${taken[r.avatar] ? 'taken' : ''}`} />)}</span>}
         <button type="button" class="cp-arrow" aria-label="Next shopkeeper" onClick={() => go(1)}>›</button>
       </div>
     </div>

@@ -153,3 +153,7 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 /* picker cards: a long name fits whole ("Uncle Benny"), and the perk reads at full strength on the chalkboard */
 .cp-card .x-ss-name.x-long { font-size: 2.1em; }
 .cp-card .x-ss-chalk p { color: var(--x-paper); opacity: 1; }
+/* first visit: the dots read "Swipe to choose" until the first swipe (PLAN-064) */
+.cp-hint { font: 700 0.85rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-red); animation: cp-nudge 1.6s ease-in-out infinite; }
+@keyframes cp-nudge { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .cp-hint { animation: none; } }

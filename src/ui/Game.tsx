@@ -111,7 +111,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const offSeats = offline.map((x) => x.seat);
 
   return (
-    <div class={`game gx ph-${s.phase} ${swapRows ? 'swap-rows' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game gx ph-${s.phase} ${swapRows ? 'swap-rows' : ''} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (

@@ -4,9 +4,13 @@
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
+    "added": [
+      "New game: the dots read 'Swipe to choose' until the player first swipes"
+    ],
     "changed": [
-      "While prices are set (phone layout), the rival stalls move to the top and the customer queue moves down beside your crates; both rows slide there in 0.7 s and slide back when pricing ends"
+      "While prices are set (phone layout), the rival stalls move to the top and the customer queue moves down beside your crates; both rows slide there in 0.7 s and slide back when pricing ends",
+      "Tips reworded: A new day (no longer points at the covered market), How the rush went (a recap naming every tie-breaker), Evening (upgrades only after a Market Day), shorter Open your stall and Secret prices",
+      "Stocking and pricing tips get their own row above the panel (phone), so they no longer cover the shelf or the crates"
     ],
     "fixed": [],
     "removed": [
@@ -23,12 +27,15 @@
   },
   "delivery": "implemented",
   "id": "PLAN-064",
-  "title": "Pricing: rivals and customers swap rows, and The Bell no longer pops up",
-  "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing. Then: \"lets also remove the bell popup from appearing\".",
+  "title": "Pricing: rivals and customers swap rows, no Bell pop-up, and the first-game tips fixed",
+  "problem": "Owner: swap the rival stalls and the customer queue during pricing, animate it smoothly, and swap back after pricing. Then: \"lets also remove the bell popup from appearing\". Then: \"fix all the tips\".",
   "scope": [
     "src/ui/game/rowSwap.ts (slide)",
     "src/ui/Game.tsx and styles.css (phone grid order while pricing)",
-    "src/ui/panel.tsx: The Bell never opens by itself"
+    "src/ui/panel.tsx: The Bell never opens by itself",
+    "src/ui/tutorial.ts tip text",
+    "Game.tsx and styles.css: a tip row while stocking and pricing",
+    "CharacterPick: first-swipe hint"
   ],
   "exclusions": [
     "Wide screens: customers and rivals are side columns there, so nothing moves",

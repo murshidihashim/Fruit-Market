@@ -7,13 +7,13 @@ export interface Tip { id: string; title: string; text: string }
 
 export const TIPS: Tip[] = [
   { id: 'trait', title: 'Pick a perk', text: 'Each stall keeps one perk for the whole game. Rivals can see yours.' },
-  { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the Wholesale Market in the middle. Customers wait at the top. Tap Start buying.' },
+  { id: 'morning', title: 'A new day', text: 'Each morning starts with today’s news. Customers wait at the top. Tap Start buying to go to the Wholesale Market, where the farmer has just delivered fruit.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a glowing fruit in the market. Each column is one fruit, newest at the top; fresh fruit costs more but customers pay more for it. Check the customer cards: buy what people want.' },
   { id: 'bought', title: 'Nice!', text: 'It\'s on your shelf now, at the bottom. The chips count your pieces of each fruit: green fresh, yellow okay, red tired. Tap Done buying when you\'re finished.' },
-  { id: 'stall', title: 'Open your stall', text: 'Use + and − on your shelf to put the exact fruit out on your stall. Only fruit on your stall sells, and everyone sees every stall before anyone sets a price.' },
-  { id: 'bid', title: 'Secret prices', text: 'Tap a fruit in your crate to price it, one price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
-  { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then fresher fruit, then the Haggler.' },
-  { id: 'evening', title: 'Evening', text: 'Play a favour card or build an upgrade, or keep your cash: cash is your score. Tonight all fruit ages one step.' },
+  { id: 'stall', title: 'Open your stall', text: 'Tap + on your shelf to put fruit out. Only fruit on your stall can sell.' },
+  { id: 'bid', title: 'Secret prices', text: 'Tap a fruit in your crate to price it. Prices stay secret until the bell; the cheapest stall sells first.' },
+  { id: 'reveal', title: 'How the rush went', text: 'Each customer bought from the cheapest stall with fruit fresh enough for their price. Ties go to Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier.' },
+  { id: 'evening', title: 'Evening', text: 'Tonight all fruit ages one step. Play a favour card if you have one, or keep your cash: cash is your score. After each Market Day you can also build a stall upgrade.' },
   { id: 'day2', title: 'You\'re ready', text: 'From now on the poorest stall buys first, then the others go clockwise. Most cash after the last day wins. Good luck!' },
 ];
 
