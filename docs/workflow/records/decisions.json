@@ -2768,6 +2768,10 @@
     {
       "at": "2026-11-10 15:53",
       "text": "Owner chose flow A and card layout C (PLAN-066). Built on the branch; pricing kept on screen on short phones by easing the cards to about 1.4x while pricing. Not published."
+    },
+    {
+      "at": "2026-11-10 16:03",
+      "text": "Owner asked for shorter, punchier rush result text (PLAN-067). All rush lines rewritten; the replay test still confirms every what-if claim. Not published."
     }
   ]
 }

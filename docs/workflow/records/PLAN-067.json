@@ -1,0 +1,42 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Every rush result line rewritten shorter and punchier (headlines, what-if lines and card tags), same facts"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Shorter, punchier rush results"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "go through all rush result text, i want it to be shorter and punchier",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-067",
+  "title": "Shorter, punchier rush result text",
+  "problem": "Owner: all rush result text should be shorter and punchier.",
+  "scope": [
+    "src/engine/story.ts rush lines",
+    "tests"
+  ],
+  "exclusions": [
+    "End-of-day highlights and recaps (not the rush pop-up): unchanged",
+    "Rules: unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, incl. the replay check that every what-if claim holds",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests"
+    }
+  ]
+}

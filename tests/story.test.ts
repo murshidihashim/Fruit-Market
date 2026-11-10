@@ -26,8 +26,8 @@ describe('sale explanations', () => {
     ]);
     const st = explainLine(s, l, 0);
     expect(st.tone).toBe('bad');
-    expect(st.headline).toBe('Foxy Rosa undercut you by $1 and stole the sale!');
-    expect(st.detail).toContain('At $4 you\'d have sold 2');
+    expect(st.headline).toBe('Foxy Rosa undercut you by $1!');
+    expect(st.detail).toContain("$4 would've sold 2");
   });
 
   it('does not offer a counterfactual below $1', () => {
@@ -36,7 +36,7 @@ describe('sale explanations', () => {
       { player: 1, qty: 2, price: 1, sold: 2, freshness: 3 },
       { player: 0, qty: 2, price: 6, sold: 0, freshness: 3 },
     ]);
-    expect(explainLine(s, l, 0).detail).toContain("couldn't go lower than $1");
+    expect(explainLine(s, l, 0).detail).toContain('$1 is the floor');
   });
 
   it('credits fresher fruit on a tie, following the engine tie-break', () => {
@@ -45,7 +45,7 @@ describe('sale explanations', () => {
       { player: 2, qty: 2, price: 6, sold: 2, freshness: 3 },
       { player: 0, qty: 2, price: 6, sold: 0, freshness: 2 },
     ]);
-    expect(explainLine(s, l, 0).headline).toBe("Tie at $6, but Big Benny's fruit was fresher.");
+    expect(explainLine(s, l, 0).headline).toBe('Tie at $6. Big Benny wins: fresher fruit.');
   });
 
   it('celebrates beating a rival and names the margin', () => {
@@ -56,7 +56,7 @@ describe('sale explanations', () => {
     ]);
     const st = explainLine(s, l, 0);
     expect(st.tone).toBe('good');
-    expect(st.headline).toBe("You beat Big Benny's price by $2. All 2 sold!");
+    expect(st.headline).toBe('Beat Big Benny by $2. All 2 sold!');
   });
 
   it('flags right price but not enough stock', () => {

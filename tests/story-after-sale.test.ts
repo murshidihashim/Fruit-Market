@@ -72,7 +72,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(l.max).toBe(4);
     expect(offerOf(l, 0).tooOld).toBe(true);
     const st = explainLine(s, l, 0);
-    expect(st.headline).toBe(`$5 is more than ${wei} pays for apples: $4 at most, even fresh.`);
+    expect(st.headline).toBe(`Too pricey! $4 is ${wei}'s top.`);
     expect(st.headline).not.toContain('too old');
     expect(st.tags[0]).toBe('over $4 top');
     // The control: the same fresh apples at $4 sell.
@@ -84,7 +84,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[OKAY('apple')] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [4, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`Your apples were too old for ${wei} at $4.`);
+    expect(st.headline).toBe(`Too old for $4! Your apples didn't qualify.`);
     expect(st.detail).toBe('At $4 only fresh sells; okay up to $3, tired up to $2.');
     expect(st.tags[0]).toBe('too old for $4');
   });
@@ -94,7 +94,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[OKAY('apple')] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [1, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`${lookOf('Ravi').title} buys fresh apples only, and yours weren't fresh.`);
+    expect(st.headline).toBe(`Fresh only! Yours weren't fresh.`);
     expect(st.headline + st.detail).not.toMatch(/too old|\$1 less/);
     expect(st.tags[0]).toBe('fresh only');
   });
@@ -104,7 +104,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[TIRED] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [1, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`${lookOf('Tan').title} won't buy tired apples at any price.`);
+    expect(st.headline).toBe(`No tired apples for ${lookOf('Tan').title}!`);
     expect(st.tags[0]).toBe("won't take tired");
   });
 
@@ -116,7 +116,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const s = bell(start, 'apple', [2, 0, 0], [8, 0, 0]);
     const st = explainLine(s, line(s), 0);
     expect(st.tags[0]).toBe('over $7 top');
-    expect(st.headline).toContain('$7 at most');
+    expect(st.headline).toContain("$7 is");
     expect(st.headline).not.toContain('too old');
   });
 
@@ -126,7 +126,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const s = bell(start, 'apple', [0, 2, 0], [0, 3, 0]);
     const st = explainLine(s, line(s), 0);
     expect(st.tags).toEqual(['fresh only']);
-    expect(st.headline).toBe(`No stall had apples that ${lookOf('Ravi').title} would take at its price.`);
+    expect(st.headline).toBe(`Nothing good enough for ${lookOf('Ravi').title}.`);
     expect(noSaleReason(s, line(s), offerOf(line(s), 1), 0).headline).toContain("Rosa's weren't fresh");
   });
 });
@@ -159,7 +159,7 @@ describe('offers that did not qualify are not in the price contest', () => {
   it('a rival\'s offer that did not qualify was not "beaten", and there was no tie with it', () => {
     const over = weiDay(4, 5);
     expect(offerOf(line(over), 1).tooOld).toBe(true);
-    expect(explainLine(over, line(over), 0).headline).toBe('You sold 2 apples at $4.');
+    expect(explainLine(over, line(over), 0).headline).toBe('Sold 2 at $4!');
     expect(dayHighlights(over, 0).map((x) => x.text).join(' ')).not.toContain('You beat');
     const r = rivalReaction(over, line(over), 0, new Set());
     expect(r === null || ![...quips('stung'), ...quips('lost')].includes(r.text)).toBe(true);
@@ -176,7 +176,7 @@ describe('offers that did not qualify are not in the price contest', () => {
     start.players[1].stock.apple[FRESH('apple')] = 2;
     start.players[2].stock.apple[FRESH('apple')] = 2;
     const s = bell(start, 'apple', [0, 2, 2], [0, 5, 4]);
-    expect(explainLine(s, line(s), 0).headline).toBe(`${BENNY.name} sold 2 apples to ${lookOf('Wei Jie').title} at $4.`);
+    expect(explainLine(s, line(s), 0).headline).toBe(`${BENNY.name} sold 2 at $4.`);
   });
 });
 
@@ -196,8 +196,8 @@ describe('what-if advice follows the tie order and your crate', () => {
     const { s, at } = lola(1, FRESH('mango'));
     expect(lookOf(line(s).name).title).toBe('Lola Lens');
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Rosa undercut you by $1 and stole the sale!');
-    expect(st.detail).toBe("You charged $8, Rosa charged $7. At $6 you'd have sold 2. A tie at $7 still loses: Rosa is the Haggler, who wins equally fresh ties.");
+    expect(st.headline).toBe('Rosa undercut you by $1!');
+    expect(st.detail).toBe("You $8, Rosa $7. $6 would've sold 2. A $7 tie loses too: Rosa is the Haggler.");
     expect(offerOf(line(at(7)), 0).sold).toBe(0);
     expect(offerOf(line(at(6)), 0).sold).toBe(2);
   });
@@ -205,23 +205,23 @@ describe('what-if advice follows the tie order and your crate', () => {
   it('names Favoured Trade when the rival played it', () => {
     const { s, at } = lola(2, FRESH('mango'), () => {}, [2]);
     expect(s.players[2].favouredTrade).toBe(true);
-    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $8, ${BENNY.name} charged $7. At $6 you'd have sold 2. A tie at $7 still loses: ${BENNY.name} played Favoured Trade, which wins ties.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You $8, ${BENNY.name} $7. $6 would've sold 2. A $7 tie loses too: ${BENNY.name} has Favoured Trade.`);
     expect(offerOf(line(at(7)), 0).sold).toBe(0);
   });
 
   it('says matching would have won when your fruit was fresher', () => {
     const { s, at } = lola(2, OKAY('mango'));
-    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $8, ${BENNY.name} charged $7. Matching $7 would have won the tie (your fruit was fresher): 2 sold.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You $8, ${BENNY.name} $7. Match $7 and you win (fresher fruit): 2 sold.`);
     expect(offerOf(line(at(7)), 0).sold).toBe(2);
   });
 
   it('says matching would have won when you are the Haggler', () => {
     const { s, at } = lola(2, FRESH('mango'), (x) => { x.players[0].trait = 'haggler'; x.players[1].trait = null; });
-    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $8, ${BENNY.name} charged $7. Matching $7 would have won the tie (you're the Haggler, who wins equally fresh ties): 2 sold.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You $8, ${BENNY.name} $7. Match $7 and you win (Haggler): 2 sold.`);
     expect(offerOf(line(at(7)), 0).sold).toBe(2);
     // The same words when you win the tie itself.
     const won = at(7);
-    expect(explainLine(won, line(won), 0).headline).toBe("Tie at $7, and you won it: you're the Haggler, who wins equally fresh ties.");
+    expect(explainLine(won, line(won), 0).headline).toBe('Tie at $7. You win: Haggler!');
   });
 
   it('a tie the Haggler wins still sells what is left of the order (review case: John, 2 watermelons)', () => {
@@ -231,13 +231,13 @@ describe('what-if advice follows the tie order and your crate', () => {
     start.players[2].stock.watermelon[OKAY('watermelon')] = 1; // Benny: okay
     const at = (mine: number) => bell(start, 'watermelon', [2, 1, 1], [mine, 4, 4]);
     const s = at(5);
-    expect(explainLine(s, line(s), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 sells only 1: Rosa is the Haggler, who wins equally fresh ties.");
+    expect(explainLine(s, line(s), 0).detail).toBe("You $5, Rosa $4. $3 would've sold 2. A $4 tie sells just 1: Rosa is the Haggler.");
     expect(offerOf(line(at(4)), 0).sold).toBe(1);
     expect(offerOf(line(at(3)), 0).sold).toBe(2);
     // When the Haggler's pieces fill the order, the tie really sells nothing.
     const full = (() => { const x = structuredClone(start); x.players[1].stock.watermelon[FRESH('watermelon')] = 2; return x; })();
     const f = bell(full, 'watermelon', [2, 2, 1], [5, 4, 4]);
-    expect(explainLine(f, line(f), 0).detail).toBe("You charged $5, Rosa charged $4. At $3 you'd have sold 2. A tie at $4 still loses: Rosa is the Haggler, who wins equally fresh ties.");
+    expect(explainLine(f, line(f), 0).detail).toBe("You $5, Rosa $4. $3 would've sold 2. A $4 tie loses too: Rosa is the Haggler.");
     expect(offerOf(line(bell(full, 'watermelon', [2, 2, 1], [4, 4, 4])), 0).sold).toBe(0);
   });
 
@@ -249,7 +249,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'apple', [3, 0, 3], [mine, 0, 5]);
     const s = at(6);
     expect(offerOf(line(s), 0).qty).toBe(1);
-    expect(explainLine(s, line(s), 0).detail).toBe(`You charged $6, ${BENNY.name} charged $5. Matching $5 would have won the tie (you bought earlier today): 3 sold.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You $6, ${BENNY.name} $5. Match $5 and you win (you bought first): 3 sold.`);
     expect(offerOf(line(at(5)), 0).sold).toBe(3);
   });
 
@@ -263,9 +263,9 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'watermelon', [5, 2, 3], [mine, 5, 4]);
     const s = at(8);
     const [aisyah, kumar] = s.results!.lines.map((l) => explainLine(s, l, 0).detail);
-    expect(aisyah).toBe(`You charged $8, ${BENNY.name} charged $4. Matching $4 would have won the tie (you bought earlier today): 3 sold.`);
+    expect(aisyah).toBe(`You $8, ${BENNY.name} $4. Match $4 and you win (you bought first): 3 sold.`);
     // Benny's $4 could tie you for Kumar too (he would have kept his melons), so the sure price is $3.
-    expect(kumar).toBe("You charged $8, Rosa charged $5. At $3 you'd have sold 2. A tie at $5 goes to the fresher fruit, then to whoever bought earlier today.");
+    expect(kumar).toBe("You $8, Rosa $5. $3 would've sold 2. Ties go to fresher fruit, then who bought first.");
     expect(offerOf(line(at(3), 1), 0).sold).toBe(2);
     expect(offerOf(line(at(4), 0), 0).sold).toBe(3);
   });
@@ -278,7 +278,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const s = at(8);
     expect(offerOf(line(s, 1), 0).sold).toBe(2); // Kenji bought 2 of your 3 at $8
     expect(explainLine(s, line(s), 0).detail).toBe(
-      `You charged $8, ${BENNY.name} charged $6. At $5 you'd have sold 3. A tie at $6 goes to the fresher fruit, then to whoever bought earlier today. You still sold all but 1 at your price.`,
+      `You $8, ${BENNY.name} $6. $5 would've sold 3. Ties go to fresher fruit, then who bought first. Only 1 went unsold anyway.`,
     );
     expect(offerOf(line(at(5)), 0).sold).toBe(3);
   });
@@ -292,8 +292,8 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'apple', [2, 1, 1], [mine, 4, 3]);
     const s = at(5);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Rosa undercut you by $1 and stole the sale!');
-    expect(st.detail).toBe(`You charged $5, Rosa charged $4 and ${BENNY.name} $3. Matching $3 would have won the tie (you bought earlier today): 2 sold.`);
+    expect(st.headline).toBe('Rosa undercut you by $1!');
+    expect(st.detail).toBe(`You $5, Rosa $4 and ${BENNY.name} $3. Match $3 and you win (you bought first): 2 sold.`);
     expect(offerOf(line(at(3)), 0).sold).toBe(2);
   });
 
@@ -305,8 +305,8 @@ describe('what-if advice follows the tie order and your crate', () => {
     const details = s.results!.lines.map((l) => explainLine(s, l, 0).detail ?? '');
     const claimed = details.map((d) => Number(/(?:you'd have sold |would have sold |: )(\d+)(?: sold)?[.,]/.exec(d)?.[1] ?? 0));
     expect(claimed.reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(forSale(s, 0, 'mango'));
-    expect(details[0]).toContain('Matching $6 would have won the tie (you bought earlier today): 2 sold.');
-    expect(details[1]).not.toMatch(/you'd have sold|Matching/);
+    expect(details[0]).toContain('Match $6 and you win (you bought first): 2 sold.');
+    expect(details[1]).not.toMatch(/would've sold|Match /);
   });
 
   it('does not tell you to cut your price when your crate sold out anyway', () => {
@@ -315,8 +315,8 @@ describe('what-if advice follows the tie order and your crate', () => {
     start.players[2].stock.mango[FRESH('mango')] = 1;
     const s = bell(start, 'mango', [1, 0, 1], [10, 0, 7]);
     const d = explainLine(s, line(s, 0), 0).detail ?? '';
-    expect(d).toContain('You still sold your only mango at your price.');
-    expect(d).not.toContain("you'd have sold");
+    expect(d).toContain('Your only mango sold anyway.');
+    expect(d).not.toContain("would've sold");
   });
 
   it('names the Haggler when both stalls played Favoured Trade', () => {
@@ -327,7 +327,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     expect(s.players[0].favouredTrade && s.players[1].favouredTrade).toBe(true);
     expect(offerOf(line(s), 1).sold).toBe(2);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Tie at $7, but Rosa is the Haggler, who wins equally fresh ties.');
+    expect(st.headline).toBe('Tie at $7. Rosa wins: Haggler.');
     expect(st.tags[line(s).offers.indexOf(offerOf(line(s), 0))]).toBe('lost tie: Haggler');
   });
 
@@ -345,7 +345,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const need: Record<string, number> = { at: 20, match: 20, lose: 20, only: 5, after: 5, tieWon: 20, soldAll: 20, allBut: 5 };
     const seen: Record<string, number> = Object.fromEntries(Object.keys(need).map((k) => [k, 0]));
     const wrong: string[] = [];
-    const WHY = "(?: is the Haggler| played Favoured Trade|'s fruit was fresher| bought earlier)";
+    const WHY = "(?: is the Haggler| has Favoured Trade|'s fruit was fresher| bought first)";
     for (let seed = 1; seed <= 90; seed++) {
       const n = 2 + (seed % 3);
       let s = newGame({
@@ -376,24 +376,24 @@ describe('what-if advice follows the tie order and your crate', () => {
           // The first customer of a fruit, when you sold none of it all day: the count is exact, not a lower bound.
           const exact = ofFruit[0] === l && total === 0;
           const atLeast = (n: number) => (cf: LineResult) => (exact ? sold(cf) === n : sold(cf) >= n);
-          const at = /At \$(\d+) you'd have sold (\d+)\./.exec(d);
+          const at = /\$(\d+) would've sold (\d+)\./.exec(d);
           if (at) claim('at', Number(at[1]), atLeast(Number(at[2])));
-          const match = /Matching \$(\d+) would have won the tie.*: (\d+) sold\./.exec(d);
+          const match = /Match \$(\d+) and you win.*: (\d+) sold\./.exec(d);
           if (match) claim('match', Number(match[1]), atLeast(Number(match[2])));
-          const lose = new RegExp(`A tie at \\$(\\d+) still loses: (.+?)${WHY}`).exec(d);
+          const lose = new RegExp(`A \\$(\\d+) tie loses too: (.+?)${WHY}`).exec(d);
           if (lose) claim('lose', Number(lose[1]), (cf) => ahead([lose[2]])(cf) && sold(cf) === 0);
-          const only = new RegExp(`A tie at \\$(\\d+) sells only (\\d+): (.+?)${WHY}`).exec(d);
+          const only = new RegExp(`A \\$(\\d+) tie sells just (\\d+): (.+?)${WHY}`).exec(d);
           if (only) claim('only', Number(only[1]), (cf) => ahead([only[3]])(cf) && sold(cf) === Number(only[2]));
-          const after = /Matching \$(\d+) would have sold (\d+)(?: too)?, after (.+?)\./.exec(d);
+          const after = /Match \$(\d+): (\d+) sold(?: too)?, after (.+?)\./.exec(d);
           if (after) claim('after', Number(after[1]), (cf) => ahead(after[3].split(' and '))(cf) && sold(cf) >= Number(after[2]));
-          const won = /^\$(\d+) would have won it\./.exec(d);
+          const won = /^\$(\d+) would've won it\./.exec(d);
           if (won) claim('tieWon', Number(won[1]), (cf) => sold(cf) >= 1);
-          const all = /You still sold (?:all (\d+)|your only \w+) at your price\./.exec(d);
+          const all = /(?:All (\d+)|Your only \w+) sold anyway\./.exec(d);
           if (all) {
             seen.soldAll++;
             if (total !== Number(all[1] ?? 1) || total !== forSale(s, v, l.fruit)) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
           }
-          const allBut = /You still sold all but (\d+) at your price\./.exec(d);
+          const allBut = /Only (\d+) went unsold anyway\./.exec(d);
           if (allBut) {
             seen.allBut++;
             if (forSale(s, v, l.fruit) - total !== Number(allBut[1])) wrong.push(`seed ${seed} day ${s.day} viewer ${v} ${l.name}: ${d}`);
