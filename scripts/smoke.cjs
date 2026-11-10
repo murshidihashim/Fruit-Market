@@ -47,6 +47,8 @@ const path = require('path');
     }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
     if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
+    // The first-game tips (tips are on in this test): read and close each one.
+    if (await page.locator('.coach .btn:not(.skip)').count()) { await page.click('.coach .btn:not(.skip)'); continue; }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
     if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
     const lock = page.locator('.pp-lock .btn');

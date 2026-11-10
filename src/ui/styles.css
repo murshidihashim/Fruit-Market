@@ -2071,6 +2071,8 @@ b, strong { font-weight: 700; }
 .gx > .coach, .gx > .coach.top {
   position: relative; grid-area: mid; align-self: end; inset: auto; z-index: 20; width: min(calc(100% - 16px), 420px); margin: 0 auto 8px; transform: none;
 }
+/* filling your stall: the shelf fills the middle, so the tip sits at the top, over the title, never over a + (PLAN-062) */
+.gx.ph-stall > .coach, .gx.ph-stall > .coach.top { align-self: start; margin: 8px auto 0; }
 /* phones: a tighter note, so it hides less of the market or the panel it explains */
 @media (max-width: 899px), (max-height: 559px) {
   .gx > .coach { gap: 2px; padding: 7px 12px 8px; }

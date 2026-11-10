@@ -2704,6 +2704,10 @@
     {
       "at": "2026-11-10 11:01",
       "text": "Owner: drop the 'More room for the market' line from the full-screen question and 'it plays full screen' from the iPhone steps (PLAN-062). Done."
+    },
+    {
+      "at": "2026-11-10 11:16",
+      "text": "Browser test found the first-game tip covering the lower + buttons on the full-scale Fill your stall screen. Tip moved to the top of that screen and reworded to 'stall'; the solo test now closes tips. Solo test PASS (full game, results shown, no errors)."
     }
   ]
 }

@@ -10,7 +10,7 @@ export const TIPS: Tip[] = [
   { id: 'morning', title: 'A new day', text: 'The farmer has delivered fruit to the Wholesale Market in the middle. Customers wait at the top. Tap Start buying.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a glowing fruit in the market. Each column is one fruit, newest at the top; fresh fruit costs more but customers pay more for it. Check the customer cards: buy what people want.' },
   { id: 'bought', title: 'Nice!', text: 'It\'s on your shelf now, at the bottom. The chips count your pieces of each fruit: green fresh, yellow okay, red tired. Tap Done buying when you\'re finished.' },
-  { id: 'stall', title: 'Open your stall', text: 'Use − and + on your shelf to pick the exact fruit for your crate. Only crate fruit sells, and everyone sees every crate before anyone sets a price.' },
+  { id: 'stall', title: 'Open your stall', text: 'Use + and − on your shelf to put the exact fruit out on your stall. Only fruit on your stall sells, and everyone sees every stall before anyone sets a price.' },
   { id: 'bid', title: 'Secret prices', text: 'Tap a fruit in your crate to price it, one price per fruit. At the bell all prices show together; customers queue at the cheapest stall first, and leftover demand goes to the next.' },
   { id: 'reveal', title: 'The rush', text: 'Each customer buys from the cheapest stall that has fruit fresh enough for the price. Ties go to Favoured Trade, then fresher fruit, then the Haggler.' },
   { id: 'evening', title: 'Evening', text: 'Play a favour card or build an upgrade, or keep your cash: cash is your score. Tonight all fruit ages one step.' },

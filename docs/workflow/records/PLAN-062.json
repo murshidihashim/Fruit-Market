@@ -12,7 +12,9 @@
     "changed": [
       "Fill your stall: the screen says stall instead of crate, starts with nothing out, and shows the whole shelf tracker full scale (every row, sized like the Wholesale Market) with − and + and 'in stall / on shelf' on each space you hold"
     ],
-    "fixed": [],
+    "fixed": [
+      "First-game tip on Fill your stall sat over the bottom of the shelf, hiding + buttons: it now sits at the top, and says stall instead of crate"
+    ],
     "removed": [
       "The 'Tomorrow is a Market Day: more walk-ins' line on the stocking screen",
       "The small 'A calm day at the market' line on Day 1",
