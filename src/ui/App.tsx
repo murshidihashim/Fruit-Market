@@ -17,8 +17,8 @@ import { LOOKS, worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
-import { FullScreenButton } from './FullScreenButton';
-import { fullscreenSupported, iphoneNeedsHomeScreen } from './fullscreen';
+import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
+import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, THEMES, unlocked } from './progress';
@@ -48,13 +48,16 @@ interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: stri
 const MAX_RIVALS = 5;
 const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
 
-// The market opening plays once, when the game is first opened. Automated browser tests skip it.
+// The market opening plays once, when the game is first opened. Automated browser tests skip it. Right after it, the
+// game asks to go full screen (PLAN-062), unless it already is or the player said not to ask.
 export function App() {
   const [opening, setOpening] = useState(() => !navigator.webdriver);
+  const [ask, setAsk] = useState(false);
   return (
     <>
       <Main />
-      {opening && <Opening onDone={() => setOpening(false)} />}
+      {opening && <Opening onDone={() => { setOpening(false); setAsk(shouldAskFullscreen()); }} />}
+      {ask && <FullscreenPrompt onClose={() => setAsk(false)} />}
     </>
   );
 }
@@ -433,7 +436,6 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.patterns} set={(v) => upd({ patterns: v })} title="Freshness patterns" text="Stripes and dots as well as colours, for colour-blind players." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
           <FullScreenButton />
-          {!fullscreenSupported() && iphoneNeedsHomeScreen() && <p class="muted small">For full screen on iPhone: tap Share, then Add to Home Screen, and open Fruit Market from there.</p>}
           <button class="btn wide" onClick={() => { resetTutorial(); fx.tap(); }}>Replay the tutorial next game</button>
         </section>
         <section class="panel">

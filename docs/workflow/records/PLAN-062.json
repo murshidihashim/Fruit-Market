@@ -5,7 +5,9 @@
   "decisions": [],
   "changes": {
     "added": [
-      "A Calm Day card (new picture: an open stall, a napping cat) for Day 1 and any morning with no event, drawn face down and turned over like the event cards; the top bar shows its picture too"
+      "A Calm Day card (new picture: an open stall, a napping cat) for Day 1 and any morning with no event, drawn face down and turned over like the event cards; the top bar shows its picture too",
+      "'Play full screen?' after the opening animation (Full screen / Not now / Don't ask again); not shown when already full screen, in the home-screen or store app, or after Don't ask again",
+      "iPhone Safari: the Full screen button and the question show how to add the game to the Home Screen (Apple allows no other full screen there); the page now opens full screen from the Home Screen"
     ],
     "changed": [
       "Fill your stall: the screen says stall instead of crate, starts with nothing out, and shows the whole shelf tracker full scale (every row, sized like the Wholesale Market) with − and + and 'in stall / on shelf' on each space you hold"
@@ -28,16 +30,18 @@
   },
   "delivery": "implemented",
   "id": "PLAN-062",
-  "title": "Fill your stall full scale, and a Calm Day card for mornings with no event",
-  "problem": "Owner (with a screenshot of the stocking screen): remove the Market Day line, call it the stall, start with nothing out and use the full-scale tracker. Then: \"i also dont like how the first day event card looks different vs other days\".",
+  "title": "Fill your stall full scale, a Calm Day card, and full screen on Safari",
+  "problem": "Owner (with a screenshot of the stocking screen): remove the Market Day line, call it the stall, start with nothing out and use the full-scale tracker. Then: \"i also dont like how the first day event card looks different vs other days\". Then: \"make the full screen option available on safari as well, prompt players to play full screen after the animation opening\".",
   "scope": [
     "src/ui/panel.tsx stocking screen and styles",
     "Browser test scripts add pieces before opening (the screen starts empty)",
     "Tests",
-    "Morning card and top bar on days with no event; new Calm Day picture (sources in docs/studio/art-drafts/events)"
+    "Morning card and top bar on days with no event; new Calm Day picture (sources in docs/studio/art-drafts/events)",
+    "Full screen: src/ui/fullscreen.ts, FullScreenButton.tsx, App.tsx, index.html (Home Screen tags)"
   ],
   "exclusions": [
-    "Rules: unchanged (computer shops still choose their own pieces)"
+    "Rules: unchanged (computer shops still choose their own pieces)",
+    "A real browser full screen in iPhone Safari: Apple does not allow it for web pages"
   ],
   "acceptance": [
     {

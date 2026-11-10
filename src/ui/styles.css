@@ -2415,3 +2415,12 @@ b, strong { font-weight: 700; }
 .stall-panel .shelf-cols .mini-step { left: 50%; right: auto; top: 50%; bottom: auto; transform: translate(-50%, -50%); }
 .stall-panel .shelf-cols .mini-step b small { font-size: 0.66em; opacity: 0.75; }
 .stall-panel .shelf-cols .shelf-drop { top: auto; bottom: 4px; right: 5px; }
+
+/* "Play full screen?" after the opening, and the iPhone Home Screen steps (PLAN-062) */
+.fs-ask-bg { position: fixed; z-index: 60; }
+.fs-ask { max-width: 340px; gap: 12px; }
+.fs-ask h3 { margin: 0; font: 800 1.3rem/1.15 var(--f-headline); }
+.fs-ask p { margin: 0; font-size: 0.95rem; line-height: 1.35; color: var(--x-slate); }
+.hs-steps { margin: 0; padding-left: 1.3em; text-align: left; display: grid; gap: 8px; font-size: 0.95rem; line-height: 1.35; }
+.hs-steps .share-glyph { vertical-align: -3px; color: var(--x-blue, var(--ink)); }
+.link-btn { border: 0; background: none; padding: 4px; font: 600 0.85rem/1.2 var(--f-label); color: var(--x-slate); text-decoration: underline; cursor: pointer; }

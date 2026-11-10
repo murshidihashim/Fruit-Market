@@ -46,3 +46,31 @@ export function iphoneNeedsHomeScreen(): boolean {
   const standalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
   return /iPhone|iPod/.test(navigator.userAgent) && !standalone;
 }
+
+/** True when the game already runs without browser bars: opened from the home screen, or as the store app. */
+export function isStandalone(): boolean {
+  if (typeof window === 'undefined') return false;
+  const nav = navigator as Navigator & { standalone?: boolean };
+  const mq = (q: string) => typeof matchMedia !== 'undefined' && matchMedia(q).matches;
+  const native = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+  return nav.standalone === true || mq('(display-mode: standalone)') || mq('(display-mode: fullscreen)') || !!native;
+}
+
+/** Full screen is possible here: the browser can do it, or (iPhone Safari) by adding the game to the Home Screen. */
+export function fullscreenAvailable(): boolean {
+  return fullscreenSupported() || iphoneNeedsHomeScreen();
+}
+
+const NO_ASK = 'fm.noFullscreenAsk';
+
+/** Whether to ask "Play full screen?" after the opening: not when already full screen or the player said not to. */
+export function shouldAskFullscreen(): boolean {
+  if (typeof navigator === 'undefined' || navigator.webdriver) return false;
+  if (!fullscreenAvailable() || isFullscreen() || isStandalone()) return false;
+  try { return localStorage.getItem(NO_ASK) !== '1'; } catch { return true; } // storage blocked: just ask
+}
+
+/** "Don't ask again" for the full-screen question (Settings still has the button). */
+export function stopAskingFullscreen(): void {
+  try { localStorage.setItem(NO_ASK, '1'); } catch { /* storage blocked (private mode): the question just comes back next time */ }
+}
