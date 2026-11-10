@@ -3,7 +3,7 @@
 // Favour cards, coins, upgrade icons and worn looks are the Great Fruit Exchange drawings (exchangeArt.ts, DEC-069).
 import type { FruitId, Stage } from '../engine/data';
 import { ART_SIZE } from './cards';
-import { GUEST_EVENT, customerArt, eventArt, guestArt, shopBadge, shopFile, shopScene } from './deckArt';
+import { CALM_ART, GUEST_EVENT, customerArt, eventArt, guestArt, shopBadge, shopFile, shopScene } from './deckArt';
 import { isIconName, wearUrl } from './exchangeArt';
 import { FruitSvg } from './fruitIcons';
 import { Icon } from './icons';
@@ -13,8 +13,9 @@ export function Fruit({ id, size = 28, stage = 'fresh', x, y }: { id: FruitId; s
 }
 
 /** An event's Gazette picture as a rounded thumbnail (by its id). */
+/** An event's picture as a small round icon; 'calm' is the Calm Day card's picture (a day with no event). */
 export function EventIcon({ id, size = 20 }: { id: string; size?: number }) {
-  const src = eventArt(id);
+  const src = id === 'calm' ? CALM_ART : eventArt(id);
   const [w, h] = ART_SIZE.event;
   return (
     <span class="xev" style={{ width: `${size}px`, height: `${size}px` }} aria-hidden="true">

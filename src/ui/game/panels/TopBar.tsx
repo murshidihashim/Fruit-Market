@@ -2,7 +2,6 @@
 // Rivals and their cash are in the rivals strip on the table (table.tsx RivalStall).
 import { Coin, EventIcon } from '../../art';
 import { shownCash, useCashShown } from '../../cashShown';
-import { Icon } from '../../icons';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 
@@ -30,8 +29,8 @@ export function TopBar({ s, viewer, onMenu, onEvent }: { s: GameState; viewer: n
         {s.phase !== 'over' ? (
           <button type="button" class="ev-chip" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}
             aria-label={`Today: ${s.event ? s.event.title : 'a calm day'}. Tap for today's news and tomorrow's`}>
-            {s.event ? <EventIcon id={s.event.id} size={26} /> : <Icon name="sun" size={22} />}
-            <span class="ev-title">{s.event ? s.event.title : 'Calm day'}</span>
+            <EventIcon id={s.event ? s.event.id : 'calm'} size={26} />
+            <span class="ev-title">{s.event ? s.event.title : 'Calm Day'}</span>
           </button>
         ) : <span class="spacer" />}
         <div class="tb-me">

@@ -2684,6 +2684,10 @@
     {
       "at": "2026-11-10 09:45",
       "text": "Owner asked for four changes to the stocking screen (PLAN-062): no Market Day line, 'stall' instead of 'crate', nothing out by default, the full-scale shelf tracker. Built on the branch; not published."
+    },
+    {
+      "at": "2026-11-10 10:08",
+      "text": "Owner: the Day 1 morning looked different from other days. Added a Calm Day card in the same layout and flip, with a new picture, for Day 1 and any morning with no event (PLAN-062). Not a deck card; the rules are unchanged."
     }
   ]
 }

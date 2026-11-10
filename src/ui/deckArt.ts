@@ -47,6 +47,9 @@ export function shopBadge(avatar: string): string | null {
   return f ? `${BASE}avatars/${f}.webp` : null;
 }
 
+/** The picture on the morning's "Calm Day" card (a day with no event; not a card in the deck). */
+export const CALM_ART = `${BASE}events/calm.webp`;
+
 /** An event's Gazette front-page scene. */
 export function eventArt(id: string): string | null {
   return EVENT_IDS.has(id) ? `${BASE}events/${id}.webp` : null;

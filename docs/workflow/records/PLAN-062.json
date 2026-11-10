@@ -4,17 +4,21 @@
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
+    "added": [
+      "A Calm Day card (new picture: an open stall, a napping cat) for Day 1 and any morning with no event, drawn face down and turned over like the event cards; the top bar shows its picture too"
+    ],
     "changed": [
       "Fill your stall: the screen says stall instead of crate, starts with nothing out, and shows the whole shelf tracker full scale (every row, sized like the Wholesale Market) with − and + and 'in stall / on shelf' on each space you hold"
     ],
     "fixed": [],
     "removed": [
-      "The 'Tomorrow is a Market Day: more walk-ins' line on the stocking screen"
+      "The 'Tomorrow is a Market Day: more walk-ins' line on the stocking screen",
+      "The small 'A calm day at the market' line on Day 1"
     ]
   },
   "playerNotes": [
-    "Fill your stall starts empty and shows your whole shelf"
+    "Fill your stall starts empty and shows your whole shelf",
+    "Day 1 now opens with a Calm Day card, like every other morning"
   ],
   "approval": {
     "status": "approved",
@@ -23,12 +27,13 @@
   },
   "delivery": "implemented",
   "id": "PLAN-062",
-  "title": "Fill your stall: full-scale shelf, starts empty, no Market Day line",
-  "problem": "Owner (with a screenshot of the stocking screen): remove the Market Day line, call it the stall, start with nothing out and use the full-scale tracker.",
+  "title": "Fill your stall full scale, and a Calm Day card for mornings with no event",
+  "problem": "Owner (with a screenshot of the stocking screen): remove the Market Day line, call it the stall, start with nothing out and use the full-scale tracker. Then: \"i also dont like how the first day event card looks different vs other days\".",
   "scope": [
     "src/ui/panel.tsx stocking screen and styles",
     "Browser test scripts add pieces before opening (the screen starts empty)",
-    "Tests"
+    "Tests",
+    "Morning card and top bar on days with no event; new Calm Day picture (sources in docs/studio/art-drafts/events)"
   ],
   "exclusions": [
     "Rules: unchanged (computer shops still choose their own pieces)"

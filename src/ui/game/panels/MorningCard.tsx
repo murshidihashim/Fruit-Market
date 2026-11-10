@@ -6,8 +6,7 @@ import type { GameState } from '../../../engine/game';
 import { closingNote, overnightLines, type NightJuice } from '../../../engine/story';
 import { Fruit } from '../../art';
 import { ART_SIZE, CardArt, EventBack } from '../../cards';
-import { eventArt } from '../../deckArt';
-import { Icon } from '../../icons';
+import { CALM_ART, eventArt } from '../../deckArt';
 import { NextLorry } from '../../table';
 
 /**
@@ -38,31 +37,34 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
   // Overnight: fruit lost (red), then what the Juice Bar made (green); on the final day, what leftovers are worth.
   const night = overnightLines(lost, juice).map((l) => <div class={`mc-loss ${l.tone}`}>{l.text}</div>);
   const closing = closingNote(s, viewer)?.morning;
-  const ready = useArtReady(s.event ? eventArt(s.event.id) : null);
+  // A day with no event (Day 1, or every day when events are off) gets a "Calm Day" card in the same layout, so every
+  // morning looks alike (PLAN-062). It is not a card in the deck: nothing is drawn for it in the rules.
+  const card = s.event ?? {
+    id: 'calm', title: 'Calm Day', flavour: 'Clear skies, business as usual!',
+    text: !s.config.events ? 'Events are off in this game.' : s.day === 1 ? 'No event on the first day. From Day 2 an event card is turned over each morning.' : 'No event today.',
+  };
+  const art = s.event ? eventArt(s.event.id) : CALM_ART;
+  const ready = useArtReady(art);
   return (
     <div class={`morning-card mc-brief mc-full ${rem <= 3 ? 'finale' : ''}`}>
       {night}
       {closing && <div class="mc-loss">{closing}</div>}
-      {s.event ? (
-        <div class={`mc-flip ${ready ? 'go' : ''}`} key={`${s.day}-${s.event.id}`}>
+      <div class={`mc-flip ${ready ? 'go' : ''}`} key={`${s.day}-${card.id}`}>
         <div class="mc-face mc-back" aria-hidden="true"><EventBack /></div>
-        <div class={`mc-face mc-event x-ev-${s.event.id}`}>
-          <CardArt class="mc-pic" src={eventArt(s.event.id)} alt="" w={ART_SIZE.event[0]} h={ART_SIZE.event[1]} eager />
+        <div class={`mc-face mc-event x-ev-${card.id}`}>
+          <CardArt class="mc-pic" src={art} alt="" w={ART_SIZE.event[0]} h={ART_SIZE.event[1]} eager />
           <div class="mc-band">
             <span class="mc-next-k">Today’s news</span>
-            <b>{s.event.title}</b>
-            {s.event.flavour && <i class="mc-flavour">{s.event.flavour}</i>}<small>{s.event.text}</small>
-            {s.event.maxPrice && (
+            <b>{card.title}</b>
+            {card.flavour && <i class="mc-flavour">{card.flavour}</i>}<small>{card.text}</small>
+            {s.event?.maxPrice && (
               <span class="minprices" aria-label={`Most a stall may charge today: ${FRUITS.map((f) => `${FRUIT[f].plural} $${s.event!.maxPrice![f]}`).join(', ')}`}>
                 {FRUITS.map((f) => <span aria-hidden="true"><Fruit id={f} size={16} />≤${s.event!.maxPrice![f]}</span>)}
               </span>
             )}
           </div>
         </div>
-        </div>
-      ) : (
-        <div class="sunny"><Icon name="sun" size={22} /> A calm day at the market</div>
-      )}
+      </div>
       {s.event?.inspector && s.dayFines && s.dayFines.some((x) => x > 0) && (
         <p class="mc-fine">{s.players.map((pl, i) => (s.dayFines![i] ? `${i === viewer ? 'You were' : `${pl.name} was`} fined $${s.dayFines![i]}` : '')).filter(Boolean).join(' · ')}</p>
       )}
