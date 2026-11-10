@@ -1,6 +1,6 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useState } from 'preact/hooks';
 import { planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, deliveredGreen, stageAt, trackSlots, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
@@ -55,7 +55,7 @@ export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubm
     });
     if (d > 0 && from) flyToCrate(from, f, stageAt(f, pos));
   };
-  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => onSubmit(crateCounts(crate), crate)} />;
+  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => { rememberStallBox(); onSubmit(crateCounts(crate), crate); }} />;
 }
 
 /** Where filling your stall starts: nothing out (owner's choice, PLAN-061); you add each piece yourself. */
@@ -163,6 +163,28 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
 /** "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button. */
 export const bellOpensOnStart = (_s: GameState): boolean => false;
 
+/** Flow A (PLAN-065): where your stall box was when you opened your stall, so your crate on the pricing table can glide
+ *  down from there instead of dropping in. Kept for a moment only. */
+let stallBox: { rect: DOMRect; at: number } | null = null;
+function rememberStallBox() {
+  const el = typeof document !== 'undefined' ? document.getElementById('my-crate') : null;
+  stallBox = el ? { rect: el.getBoundingClientRect(), at: Date.now() } : null;
+}
+/** Slides your crate from your stall box to its place on the table (skipped when motion is reduced). */
+function glideFromStallBox() {
+  const from = stallBox;
+  stallBox = null;
+  if (!from || Date.now() - from.at > 4000 || typeof document === 'undefined') return;
+  const el = document.querySelector<HTMLElement>('.crates .crate.me');
+  if (!el || !el.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const to = el.getBoundingClientRect();
+  if (!to.width || !to.height) return;
+  el.style.animation = 'none';
+  const dx = from.rect.left - to.left, dy = from.rect.top - to.top;
+  el.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${from.rect.width / to.width}, ${from.rect.height / to.height})`, transformOrigin: '0 0' },
+    { transform: 'none', transformOrigin: '0 0' }], { duration: 600, easing: 'cubic-bezier(.45,0,.25,1)' });
+}
+
 /** Prices pre-filled from the planner for every fruit you put out. */
 export function startingPrices(s: GameState, p: number): Record<string, number> {
   const plan = planPrices(s, p).posts;
@@ -175,6 +197,8 @@ export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: numbe
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
   // Prices are suggested once every stall is open (the planner then sees every crate).
   useEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, p)); }, [s.phase]);
+  // Flow A: your stall box glides down into your crate as the table appears.
+  useLayoutEffect(() => { if (waiting) glideFromStallBox(); }, []);
   const [favoured, setFavoured] = useState(false);
   const [sel, setSel] = useState<FruitId | null>(() => FRUITS.find((f) => forSale(s, p, f) > 0) ?? null);
   const [notice, setNotice] = useState(() => bellOpensOnStart(s));

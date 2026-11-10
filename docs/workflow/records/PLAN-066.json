@@ -1,0 +1,57 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-ff85604f-thv5m2",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Flow A (stall to pricing): your stall box glides down into your crate; each rival's crate drops in, lid shut, only when that rival opens (dashed spot until then); all lids lift together as pricing starts",
+      "Layout C (phones): customer cards about 1.8x bigger (two and a half across, swipe for the rest), slimmer rival pills, market without its colour key and lorry line; while pricing the cards are about 1.4x and tomorrow's strip steps aside so the price dial fits"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Bigger customer cards",
+    "Smoother move from opening your stall to setting prices"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "a for flow, c for card layout",
+    "date": "2026-11-10"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-066",
+  "title": "Flow A (crates arrive as rivals open) and card layout C",
+  "problem": "Owner chose flow A for stall-to-pricing and layout C for bigger customer cards.",
+  "scope": [
+    "PricingTable.tsx (empty spots, crates arrive per rival)",
+    "panel.tsx (glide from your stall box)",
+    "styles.css (layout C on phones; pricing fit on short phones)"
+  ],
+  "exclusions": [
+    "Wide screens: unchanged",
+    "Rules: unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-10: 408 unit tests, build"
+    },
+    {
+      "id": "T2",
+      "text": "Every phase fits on 390x844 and 360x740 phones",
+      "result": "PASS",
+      "evidence": "2026-11-10: morning, buying, stocking, pricing (dial on screen), summary, evening and the next morning photographed at both sizes; flow A filmed"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests incl. online 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "pending"
+    }
+  ]
+}

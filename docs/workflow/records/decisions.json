@@ -2764,6 +2764,10 @@
     {
       "at": "2026-11-10 15:45",
       "text": "Owner: the white rush line ('Uncle Benny beat Saleh at $5') was unreadable; fixed to dark ink (PLAN-065). Three stall-to-pricing flow animations (A crates come to the table, B crates slide down from the rivals, C shutter and bell) shown for a choice."
+    },
+    {
+      "at": "2026-11-10 15:53",
+      "text": "Owner chose flow A and card layout C (PLAN-066). Built on the branch; pricing kept on screen on short phones by easing the cards to about 1.4x while pricing. Not published."
     }
   ]
 }

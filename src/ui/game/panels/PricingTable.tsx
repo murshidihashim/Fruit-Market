@@ -50,13 +50,16 @@ function Crate({ s, seat, mine, closed }: { s: GameState; seat: TableSeat; mine?
 }
 
 /** Every stall's crate: the rivals in turn order after you, then your own crate last (nearest the price dial).
- *  `waiting`: you have opened your stall and the rivals are still opening theirs (PLAN-065): their crates stay shut,
- *  showing nothing, until pricing starts and the lids lift. */
+ *  `waiting`: you have opened your stall and the rivals are still opening theirs (flow A, PLAN-065). A rival's crate
+ *  drops onto the table, lid shut and showing nothing, only once that rival has opened (whether a stall has opened is
+ *  public; its contents are not); until then its place stays empty. The lids lift as pricing starts. */
 export function PricingTableView({ s, viewer, mine, waiting }: { s: GameState; viewer: number; mine?: MyCrate; waiting?: boolean }) {
   const t = pricingTable(s, viewer);
   return (
     <section class={`crates ${waiting ? 'waiting' : ''}`} aria-label="Every stall's crate. Prices stay sealed until the bell">
-      {t.seats.map((x) => <Crate s={s} seat={x} mine={x.me ? mine : undefined} closed={waiting && !x.me} />)}
+      {t.seats.map((x) => (waiting && !x.me && s.stalls[x.player] === null
+        ? <div key={`s${x.player}`} class="crate-spot" aria-label={`${s.players[x.player].name} is still opening`} />
+        : <Crate key={`c${x.player}`} s={s} seat={x} mine={x.me ? mine : undefined} closed={waiting && !x.me} />))}
     </section>
   );
 }

@@ -2092,6 +2092,25 @@ b, strong { font-weight: 700; }
   .game.gx.swap-rows > .seats { border-bottom: 2px solid var(--x-ink); }
 }
 
+/* layout C (owner, PLAN-066), phones: bigger customer cards (about 1.8x: two and a half across, swipe for the rest),
+   slimmer rival pills, and a market without its colour key and lorry line so it gives up the room */
+@media not all and (min-width: 900px) and (min-height: 560px) {
+  .gx .street.street, .gx .street.many { --card-w: calc((100cqw - 2 * var(--gx-pad) - 6px) / 2.6); }
+  .gx > .seats > .rival-stall.rival-stall { min-height: 32px; padding: 1px 6px 1px 1px; }
+  .gx > .seats .rs-face { transform: scale(.8); margin: -3px; }
+  .gx .market-stall .mk-key, .gx .market-stall .next-lorry { display: none; }
+  /* while prices are set the table needs the room: the cards are a little smaller (about 1.4x) and tomorrow's strip
+     steps aside, so the board, every crate and the price dial fit on the screen */
+  .gx.ph-bid .street.street, .gx.ph-bid .street.many { --card-w: calc((100cqw - 2 * var(--gx-pad) - 3 * 6px) / 3.4); }
+  .gx.ph-bid .street-wrap .tomorrow { display: none; }
+}
+/* short phones (about 740 px tall): shorter crates and board rows, so the price dial stays on screen */
+@media (max-height: 780px) and (max-width: 899px) {
+  .gx.ph-bid .crates { grid-auto-rows: minmax(44px, auto); gap: 10px 8px; }
+  .gx.ph-bid .crate { padding: 9px 8px 4px; }
+  .gx.ph-bid .street.street, .gx.ph-bid .street.many { --card-w: calc((100cqw - 2 * var(--gx-pad) - 3 * 6px) / 3.8); }
+}
+
 /* ---------- desktop: customers | market | rivals, shelf and the main button ---------- */
 @media (min-width: 900px) and (min-height: 560px) {
   .game.gx {
@@ -2399,6 +2418,9 @@ b, strong { font-weight: 700; }
 .demand { animation: board-drop .5s cubic-bezier(.3,1.3,.5,1) .9s both; transform-origin: 50% 0; }
 /* waiting for the rivals to open (PLAN-065): their crates stay shut; the lids lift the moment pricing starts */
 .crates.waiting .crate-lid { animation: none; }
+/* flow A: a rival's place stays an empty spot until they open; their crate then drops in straight away */
+.crate-spot { min-height: 60px; border: 2px dashed var(--x-edge); border-radius: 8px; }
+.crates.waiting .crate { animation-delay: 0s; }
 /* the pricing table follows straight on from Fill your stall: no fade, so the market never shows through in between */
 .gx > .centre > .mid-panel.price-panel:not(.stall-panel) { animation: none; }
 .pp-wait { margin: 0; padding: 6px 2px 0; font: 600 0.85rem/1.2 var(--f-label); color: var(--x-slate); text-align: center; }
