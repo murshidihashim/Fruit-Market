@@ -59,8 +59,8 @@
     {
       "id": "T3",
       "text": "Browser tests incl. online 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "pending"
+      "result": "PASS",
+      "evidence": "2026-11-10 npm run test:e2e on the 1.15.1 build: E2E OK; solo game to results with no errors, BUDGET OK, online 0 leaks in 88 pricing frames, quick match, 6-stall room, reconnect 5/5"
     }
   ]
 }
