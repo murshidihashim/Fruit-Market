@@ -28,6 +28,10 @@ export function lifeLabel(f: FruitId, pos: number): string {
   return slotLife(f, pos);
 }
 
+/** Fruit in the order of the table board's lanes: shortest life first (blueberry 3 days ... apple 6). Drawing order
+ *  only: the engine's own order (FRUITS) is untouched. */
+export const LANES: FruitId[] = ['blueberry', 'watermelon', 'mango', 'apple'];
+
 /** A shop's stock as chips: one per filled slot, grouped by fruit, freshest first. */
 export function stockChips(stock: Record<FruitId, number[]>): { f: FruitId; chips: Slot[] }[] {
   return FRUITS.map((f) => ({
@@ -78,7 +82,7 @@ export interface LorryLine { f: FruitId; plenty: boolean; green: boolean; n: num
 export function nextLorry(s: GameState): LorryLine[] | null {
   const card = s.nextFarmer;
   if (!card) return null;
-  return FRUITS.map((f) => {
+  return LANES.map((f) => {
     const n = printedSupply(card, f, s.players.length);
     return { f, plenty: n > s.players.length, green: !!s.config.unripe && card.unripe === f, n };
   });

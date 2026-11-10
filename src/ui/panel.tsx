@@ -9,7 +9,7 @@ import {
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, FavourIcon, Fruit } from './art';
-import { buyerCap, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow } from './boardModel';
+import { buyerCap, buyersFor, demandBoard, stallWantText, stallWanted, type DemandRow, LANES } from './boardModel';
 import { fruitSvgUrl } from './fruitIcons';
 import { Pile } from './table';
 import { Icon, type IconName } from './icons';
@@ -110,7 +110,7 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
         {ripe === 0 ? <div class="info-card dim">You have no ripe fruit to sell today.</div> : (
           <div class="shelf-sheet">
             <div class="mk-cols shelf-cols" style={{ '--rows': rows }} aria-label="Your shelf: − and + on every space you hold">
-              {FRUITS.map((f) => {
+              {LANES.map((f) => {
                 const held = count(pl.stock, f, true);
                 const out = counts[f] ?? 0;
                 const slots = shown(f);
@@ -374,7 +374,7 @@ function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: Fr
     <>
       <div class="pp-intro"><b>Shade Cloth</b><span>Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</span></div>
       <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
-        {FRUITS.map((f) => (
+        {LANES.map((f) => (
           <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>
         ))}
         <button type="button" role="radio" aria-checked={chosen === null} class={chosen === null ? 'on' : ''} onClick={() => onShade(null)}>None</button>

@@ -97,7 +97,7 @@ describe('customer cards', () => {
     for (const c of CUSTOMER_CARDS) {
       const s = html(TradingCard, { who: c.name, wants: c.wants });
       expect(s).toContain(`<ul class="x-tc-order x-n${c.wants.length}">`);
-      expect(s.match(/<li>/g) ?? []).toHaveLength(c.wants.length);
+      expect(s.match(/<li class="x-f-[a-z]+">/g) ?? []).toHaveLength(c.wants.length);
     }
   });
 

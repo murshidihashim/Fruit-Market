@@ -29,7 +29,9 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     stock.blueberry[0] = 3; // tired
     stock.apple[1] = 3; // okay
     const g = shelfGroups(stock);
-    expect(g.map((x) => x.f)).toEqual(FRUITS);
+    // Drawn in the table board's lane order (shortest life first), with all four fruits always present.
+    expect(g.map((x) => x.f)).toEqual(['blueberry', 'watermelon', 'mango', 'apple']);
+    expect([...g.map((x) => x.f)].sort()).toEqual([...FRUITS].sort());
     expect(g.find((x) => x.f === 'blueberry')!.stages).toEqual([{ stage: 'fresh', n: 2 }, { stage: 'okay', n: 1 }, { stage: 'notso', n: 3 }]);
     expect(g.find((x) => x.f === 'apple')!.stages).toEqual([{ stage: 'okay', n: 3 }]);
     expect(g.find((x) => x.f === 'mango')).toMatchObject({ n: 0, stages: [] });

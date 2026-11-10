@@ -13,7 +13,7 @@ import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { loadColour } from './progress';
-import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText } from './boardModel';
+import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, mood, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite, PropSprite, RoofBand } from './icons';
@@ -39,6 +39,10 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 
 // ---------- market ----------
 
+export { LANES };
+/** The letters printed on the board's boxes. */
+export const STAGE_LETTER: Record<Stage, string> = { unripe: 'G', fresh: 'F', okay: 'O', notso: 'S' };
+
 /** The farmers market: one column per fruit, newest slot at the top, freshness by colour. */
 export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
@@ -52,6 +56,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
   // --rows). When the market is short of room (a small phone), the empty slots below the lowest fruit in any column
   // step aside and the rest grow (--rows-fit, .tail in styles.css): a slot with fruit in it is never hidden.
   const cols = FRUITS.map((f) => shownColumn(s, f));
+  // Lanes stand in the table board's order: shortest life first (3, 4, 5, 6 days).
+  const lanes = LANES.map((f) => [f, FRUITS.indexOf(f)] as const);
   const rows = Math.max(...cols.map((c) => c.length));
   const fit = Math.max(3, ...cols.map((c) => c.reduce((a, x, i) => (x.n > 0 ? i + 1 : a), 0)));
   return (
@@ -67,7 +73,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
         {s.phase === 'evening' && (
           <div class="mk-cover" aria-label="The market is closed for the night"><Icon name="moon" size={32} /><b>Crates covered</b><small>All fruit ages one night</small></div>
         )}
-        {FRUITS.map((f, i) => (
+        {lanes.map(([f, i]) => (
           <div class={`mk-col ${f}`}>
             <button type="button" class={`pz ${mood(pz[i])}`} data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
               aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted, ${pz[i].supply} in stalls`}>
@@ -80,6 +86,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
                 <button type="button" class={`mk-cell st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''} ${row >= fit ? 'tail' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${stage === 'notso' ? 'soft' : stage}, $${buyCost(s, p, f, pos)}, ${n} left`}>
+                  <i class="mk-l" aria-hidden="true">{STAGE_LETTER[stage]}</i>
                   {n > 0 ? <Pile f={f} n={n} pos={pos} size={18} /> : <span class="gh"><Fruit id={f} size={18} stage={stage} /></span>}
                   <span class="price">${buyCost(s, p, f, pos)}</span>
                 </button>
@@ -236,7 +243,7 @@ const STAGE_WORD: Record<Stage, string> = { fresh: 'fresh', okay: 'okay', notso:
 
 /** A shelf's pieces of each fruit counted by freshness (fresh, okay, soft, green), for the shelf dock. */
 export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
-  return FRUITS.map((f) => {
+  return LANES.map((f) => {
     const by: Partial<Record<Stage, number>> = {};
     stock[f].forEach((n, pos) => { if (n > 0) { const st = stageAt(f, pos); by[st] = (by[st] ?? 0) + n; } });
     const stages = SHELF_STAGES.filter((st) => by[st]).map((st) => ({ stage: st, n: by[st] ?? 0 }));

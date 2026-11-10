@@ -19,7 +19,6 @@ import { delivery, moves, nightfall, reveal } from './animator';
 import { playLocal, undoPoint } from './turn';
 import type { ShowState } from './panels/Showdown';
 
-const BANNER = { morning: 'MORNING', order: 'STANDING ORDER', buy: 'BUY FRUIT', stall: 'STOCKING', bid: 'THE BELL',  reveal: 'THE RUSH', evening: 'EVENING', over: '' } as const;
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
   const [s, setS] = useState(initial);
@@ -241,7 +240,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   useEffect(() => {
     if (s.phase === 'over') (ranking(s)[0] === viewer ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
-    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : `DAY ${s.day}`) : BANNER[s.phase];
+    // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
+    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
     if (!text) return;
     setBanner(text);
     const t = window.setTimeout(() => setBanner(null), 1100);

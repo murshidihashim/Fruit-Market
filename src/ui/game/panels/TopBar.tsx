@@ -5,6 +5,9 @@ import { shownCash, useCashShown } from '../../cashShown';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 
+/** The day in five beats, as on the table board. Evening and night come after the fifth. */
+const BEATS = ['Morning', 'Buying', 'Stocking', 'Bell', 'Rush'] as const;
+const BEAT_OF: Record<string, number> = { morning: 0, order: 0, buy: 1, stall: 2, bid: 3, reveal: 4, evening: 5, over: 5 };
 const PHASE = { morning: 'Morning', order: 'The order', buy: 'Buying', stall: 'Stocking', bid: 'The bell', reveal: 'The rush', evening: 'Evening', over: 'Closed' } as const;
 
 export function TopBar({ s, viewer, onMenu, onEvent }: { s: GameState; viewer: number; onMenu: () => void; onEvent?: () => void }) {
@@ -38,6 +41,12 @@ export function TopBar({ s, viewer, onMenu, onEvent }: { s: GameState; viewer: n
           <div class="hud-cash" data-a={`p${viewer}-cash`} aria-label={`Cash $${cash}`}><Coin size={20} /><b>{cash}</b></div>
         </div>
       </div>
+      {s.phase !== 'over' && (
+        <ol class="beats" aria-label={`Today's beats. Now: ${PHASE[s.phase]}`}>
+          {BEATS.map((b, i) => <li class={i === BEAT_OF[s.phase] ? 'now' : i < BEAT_OF[s.phase] ? 'done' : ''} aria-current={i === BEAT_OF[s.phase] ? 'step' : undefined}><i>{i + 1}</i>{b}</li>)}
+          <li class={`night ${BEAT_OF[s.phase] === 5 ? 'now' : ''}`}>Night</li>
+        </ol>
+      )}
     </header>
   );
 }

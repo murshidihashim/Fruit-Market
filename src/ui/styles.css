@@ -2496,25 +2496,35 @@ b, strong { font-weight: 700; }
 .os-want, .os-who { display: inline-flex; align-items: center; gap: 4px; }
 .os-fine { margin-left: auto; color: var(--ink-muted); font-weight: 500; }
 
-/* ---------- the night, shown (PLAN-071) ---------- */
-.gx > .centre > .mid-panel.night-shift, .night-shift { display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; overflow: auto; background: var(--x-ink); color: var(--x-paper); border: 2px solid var(--x-ink); border-radius: var(--r); }
-.ns-title { font-family: var(--f-display); font-weight: 400; font-size: 0.95rem; line-height: 1.15; color: var(--x-mustard); }
-.ns-block { display: flex; flex-direction: column; gap: 2px; }
-.ns-k { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-ink-muted); }
-.ns-row { display: flex; align-items: center; gap: 6px; }
-.ns-fruit { flex: none; width: 22px; display: grid; place-items: center; }
-.ns-track { --bw: 38px; display: flex; gap: 3px; }
-.ns-box { position: relative; flex: none; width: var(--bw); height: 23px; background: var(--x-paper); border-radius: 2px; }
-.ns-box i { position: absolute; left: 3px; top: 1px; font: 800 0.6rem/1 var(--f-label); font-style: normal; color: var(--x-slate); }
+/* ---------- night falls (PLAN-071, redrawn as lanes in PLAN-072) ---------- */
+.gx > .centre > .mid-panel.night-shift, .night-shift { display: flex; flex-direction: column; gap: 6px; padding: 10px; overflow: auto; background: var(--x-ink); color: var(--x-paper); border: 0; border-radius: 0; }
+.ns-top { display: flex; align-items: center; gap: 10px; }
+.ns-top .xev { flex: none; border: 2px solid var(--x-paper); border-radius: 0; overflow: hidden; }
+.ns-title { display: block; font-family: var(--f-display); font-weight: 400; font-size: 1.35rem; line-height: 1; text-transform: uppercase; letter-spacing: 0.02em; }
+.ns-sub { display: block; margin-top: 3px; font-size: 0.78rem; font-weight: 500; }
+.ns-boards { display: flex; gap: 10px; justify-content: space-between; }
+.ns-block { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ns-k { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-mustard); }
+.ns-lanes { --bh: 22px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; align-items: start; }
+.ns-lane { display: flex; flex-direction: column; gap: 2px; padding: 2px; }
+.ns-lane.blueberry { background: var(--c-3558a2); }
+.ns-lane.watermelon { background: var(--c-0e9a58); }
+.ns-lane.mango { background: var(--c-fec400); }
+.ns-lane.apple { background: var(--c-e73c35); }
+.ns-head { display: grid; place-items: center; height: 20px; background: var(--x-paper); }
+.ns-box { position: relative; height: var(--bh); background: var(--x-paper); }
+.ns-box i { position: absolute; left: 2px; top: 2px; z-index: 0; width: 11px; height: 11px; display: grid; place-items: center; border-radius: 50%; background: var(--x-ink); color: var(--x-paper); font: 800 0.5rem/1 var(--f-label); font-style: normal; }
 .ns-box.ns-notso { background: var(--notso); }
 .ns-box.ns-okay { background: var(--okay); }
-.ns-box.ns-fresh { background: var(--fresh); }
 .ns-box.ns-unripe { background: var(--unripe); }
-.ns-piece { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1px; transition: transform 0.75s cubic-bezier(.3, 0, .2, 1), opacity 0.35s ease 0.55s; z-index: 1; }
-.ns-piece b { font: 800 0.72rem/1 var(--f-label); color: var(--x-ink); }
-.ns-piece.moved { transform: translateX(calc(var(--steps) * -1 * (var(--bw) + 3px))); }
+.ns-piece { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 1px; padding-left: 8px; transition: transform 0.9s cubic-bezier(0.5, 0, 0.3, 1), opacity 0.5s ease 0.6s; }
+.ns-piece b { font: 800 0.7rem/1 var(--f-label); color: var(--x-ink); }
+.ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + 2px))); }
 .ns-piece.gone { opacity: 0; }
-.ns-note { font-size: 0.8rem; font-weight: 600; color: var(--x-mustard); }
+.ns-spoiled { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 2px solid var(--x-paper); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.ns-spoiled span { margin-right: auto; }
+.ns-spoiled b { display: inline-flex; align-items: center; gap: 2px; font-weight: 800; letter-spacing: 0; text-transform: none; }
+.ns-note { padding: 5px 8px; background: var(--x-paper); color: var(--x-ink); font-size: 0.78rem; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .ns-piece { transition: none; } }
 
 /* ---------- Market Ticket chrome (PLAN-070): the black awning bar, the yellow street, the price-tag cash, kraft footer.
@@ -2547,3 +2557,58 @@ b, strong { font-weight: 700; }
 .btn.primary:active:not(:disabled) { box-shadow: 0 1px 0 var(--x-ink); }
 .home.front.sq .sq-foot button { background: var(--x-paper); color: var(--x-ink); }
 .home.front.sq .sq-board { background: var(--x-ink); }
+
+
+/* ---------- Market Ticket flow (PLAN-072): the beat strip, fruit-coloured market lanes, the black action bar, and
+   customer cards laid out like the printed cards. Drawing only: nothing here changes a rule. ---------- */
+.beats { display: flex; margin: 0; padding: 0 4px; list-style: none; background: var(--x-paper); color: var(--x-ink); border-bottom: 2px solid var(--x-ink); }
+.beats li { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 3px; padding: 4px 0; font: 700 0.6rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.beats li i { font-style: normal; opacity: 0.7; }
+.beats li.done { opacity: 0.45; }
+.beats li.now { background: var(--x-mustard); }
+.beats li.night { flex: 0.8 1 0; }
+.beats li.night.now { background: var(--x-ink); color: var(--x-mustard); }
+.game .topbar::after { display: none; }
+.game .topbar .tb-day .phase, .gx .topbar .tb-day .phase { display: none; }
+
+.game .market-stall .mk-col { padding: 3px; gap: 3px; border-radius: 0; }
+.game .mk-col.blueberry { background: var(--c-3558a2); }
+.game .mk-col.watermelon { background: var(--c-0e9a58); }
+.game .mk-col.mango { background: var(--c-fec400); }
+.game .mk-col.apple { background: var(--c-e73c35); }
+.game .mk-col .pz { background: var(--x-paper); border-radius: 0; }
+.game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { border: 0; border-radius: 0; background: var(--x-paper); }
+.game .mk-cell.st-okay { background: var(--okay); }
+.game .mk-cell.st-notso { background: var(--notso); }
+.game .mk-cell.st-unripe { background: var(--unripe); }
+.game .mk-cell::after { display: none; }
+.game .mk-cell:not(.has) { opacity: 0.55; }
+.game .mk-cell.pick { box-shadow: inset 0 0 0 2.5px var(--x-ink); }
+.game .mk-cell .mk-l { position: absolute; left: 3px; top: 3px; width: 13px; height: 13px; display: grid; place-items: center; border-radius: 50%; background: var(--x-ink); color: var(--x-paper); font: 800 0.56rem/1 var(--f-label); font-style: normal; }
+.game .mk-cell .price { width: auto; height: auto; padding: 0 2px; border: 0; border-radius: 0; background: transparent; font-weight: 800; font-size: 0.72rem; }
+.game .market-stall .mk-key { display: none; }
+
+.game .actionbar .btn.primary, .game .mid-panel .btn.primary.big, .game .pp-lock .btn.primary { background: var(--x-ink); color: var(--x-mustard); border: 0; border-radius: 0; box-shadow: none; text-transform: uppercase; letter-spacing: 0.06em; }
+.game .actionbar .btn.primary small, .game .actionbar .btn.primary span { color: var(--x-paper); }
+.game .actionbar .btn, .game .actionbar .btn.ghost, .game .actionbar .btn.skip { border-radius: 0; }
+
+/* customer cards as on the printed sheet: a straight name band, one row per fruit in that fruit's colour, the most
+   they pay on a white price tag */
+.game .x-tc .x-tc-name { left: 0; right: 0; bottom: 0; transform: none; border: 0; justify-content: center; padding: 0 0.3em; }
+.game .x-tc.x-compact .x-tc-name { transform: none; bottom: 0; }
+.game .x-tc .x-tc-order { grid-auto-flow: row; grid-auto-rows: minmax(0, 1fr); grid-auto-columns: auto; border: 0; gap: 0.25em; padding-top: 0.25em; background: var(--x-paper); }
+.game .x-tc.x-compact .x-tc-order li, .game .x-tc .x-tc-order li { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 0.5em; padding: 0 0.5em; border: 0; }
+.game .x-tc .x-tc-order li + li { border-left: 0; }
+.game .x-tc .x-tc-order li.x-f-blueberry { background: var(--c-3558a2); --row-ink: var(--x-paper); }
+.game .x-tc .x-tc-order li.x-f-watermelon { background: var(--c-0e9a58); --row-ink: var(--x-paper); }
+.game .x-tc .x-tc-order li.x-f-mango { background: var(--c-fec400); --row-ink: var(--x-ink); }
+.game .x-tc .x-tc-order li.x-f-apple { background: var(--c-e73c35); --row-ink: var(--x-paper); }
+.game .x-tc.x-compact .x-tc-order .x-fruit { order: 2; width: 2.9em; height: 2.9em; padding: 0.25em; background: var(--x-paper); border-radius: 50%; }
+.game .x-tc.x-compact .x-tc-order span { order: 1; font-size: 2em; font-weight: 800; color: var(--row-ink); }
+.game .x-tc.x-compact .x-tc-order b { order: 3; margin-left: auto; padding: 0.08em 0.25em 0.08em 0.5em; font-size: 2.3em; background: var(--x-paper); color: var(--x-ink); clip-path: polygon(0.35em 0, 100% 0, 100% 100%, 0.35em 100%, 0 50%); }
+/* face-down walk-ins: white stock with the wanted fruit in boxes, like the printed back */
+.game .x-tb { background: var(--x-paper); border-color: var(--x-ink); }
+.game .x-tb .x-tb-label { background: var(--x-paper); border: 0; border-radius: 0; }
+.game .x-tb .x-tb-brand { background: var(--x-ink); clip-path: none; }
+.game .x-tb .x-tb-fruit { border: 0; border-radius: 0; box-shadow: none; background: transparent; gap: 0.5em; padding: 0; }
+.game .x-tb .x-tb-fruit .x-fruit { padding: 0.6em; width: 5.4em; height: 5.4em; border: 0.25em solid var(--x-ink); background: var(--x-paper); }

@@ -75,7 +75,7 @@ export function TradingCard({ who, wants, n, compact, guest, eager, class: cls }
       {!compact && <p class={cx('x-tc-quirk', look.quirk.length > QUIRK_LONG && 'x-long')}>{look.quirk}</p>}
       <ul class={`x-tc-order x-n${wants.length}`}>
         {wants.map((x, i) => (
-          <li key={`${x.fruit}${i}`}>
+          <li key={`${x.fruit}${i}`} class={`x-f-${x.fruit}`}>
             <FruitSvg id={x.fruit} size={24} alt={compact ? FRUIT[x.fruit].name : ''} />
             <span>{compact ? `${x.qty} ×` : `${x.qty} × ${fruitWord(x)}`}</span>
             <b>{`$${x.max}`}</b>
