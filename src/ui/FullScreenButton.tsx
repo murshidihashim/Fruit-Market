@@ -22,7 +22,7 @@ export function HomeScreenSteps() {
     <ol class="hs-steps">
       <li>Tap <b>Share</b> <ShareGlyph /> in Safari’s toolbar.</li>
       <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-      <li>Open <b>Fruit Market</b> from your Home Screen: it plays full screen.</li>
+      <li>Open <b>Fruit Market</b> from your Home Screen.</li>
     </ol>
   );
 }
@@ -67,7 +67,7 @@ export function FullscreenPrompt({ onClose }: { onClose: () => void }) {
     <div class="modal-bg fs-ask-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div class="modal center fs-ask" role="dialog" aria-modal="true" aria-label="Play full screen?">
         <h3>Play full screen?</h3>
-        {steps ? <HomeScreenSteps /> : <p>More room for the market, and no browser bars in the way.</p>}
+        {steps && <HomeScreenSteps />}
         {steps
           ? <button type="button" class="btn primary wide" onClick={() => { fx.tap(); onClose(); }}>Got it</button>
           : <button type="button" class="btn primary wide" onClick={go}>Full screen</button>}

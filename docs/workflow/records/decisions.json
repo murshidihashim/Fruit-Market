@@ -2700,6 +2700,10 @@
     {
       "at": "2026-11-10 10:53",
       "text": "Owner asked for full screen on Safari and a full-screen prompt after the opening (PLAN-062). Mac and iPad Safari use the browser's full screen; iPhone Safari cannot, so it shows the Add to Home Screen steps, and the page now opens full screen from the Home Screen. Prompt added after the opening with Don't ask again."
+    },
+    {
+      "at": "2026-11-10 11:01",
+      "text": "Owner: drop the 'More room for the market' line from the full-screen question and 'it plays full screen' from the iPhone steps (PLAN-062). Done."
     }
   ]
 }
