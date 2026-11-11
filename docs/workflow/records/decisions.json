@@ -2245,6 +2245,30 @@
         "REP-104"
       ],
       "reviewTrigger": "When the owner has seen the revised sheet: the rest of the card (shopkeeper, standing order), the picture style, and whether to draw the other 35 customer scenes the same way"
+    },
+    {
+      "id": "DEC-091",
+      "title": "Card design: the owner's second round of changes",
+      "question": "What should change on the revised card mock-ups?",
+      "choice": "Lorry: back to the original Market Ticket lorry card: a coloured column for each fruit with the pieces in white boxes, a row for each table size, the row in use marked. Columns are drawn in the order blueberry, watermelon, mango, apple (the order the owner gave for customer cards; the first printing had apple before mango), to be confirmed. The card kind reads \"Upgrade\", not \"Stall upgrade\". Card pictures are built from the game's own shapes (its fruit, sunburst, price tags and ground strip); the Favoured Trade picture is redrawn that way. The Heatwave picture is redrawn from the original card so its dark ground strip sits on the bottom edge; in the app's copy of the picture the strip floated across the middle, which is the black bar the owner asked about.",
+      "rationale": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\". The original card designs were found in the owner's design page \"Fruit Market art style options\" (option C boards) and used as the source.",
+      "impact": {
+        "player": "The lorry card looks the same on the table and in the app; pictures share one style.",
+        "technical": "The app's event pictures need re-cutting at the card's proportions when the screens are built (at least Heatwave); the word \"Upgrade\" replaces \"Stall upgrade\" in the card text table; picture drafts in docs/studio/art-drafts/cards-18.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the owner wants the lorry columns in the first printing's order, or the thin-line card heading of the original cards instead of the black strip"
     }
   ],
   "history": [
@@ -3163,6 +3187,10 @@
     {
       "at": "2026-11-12 01:16",
       "text": "Owner's first round on the card mock-ups recorded (DEC-090) and applied to the mock-up page: lorry with every table size, face-down customer with four fixed squares, \"Event\" with a larger picture, customer front with one legend row and fruit in the fixed order, a fire-station scene for Firefighter Osman as the sample, pictures on favour and upgrade cards. Twelve picture drafts added in docs/studio/art-drafts/cards-18. The owner's \"1\" at the head of the message is read as \"about question 1 (the card)\", not as a choice of tracker 1; asked to confirm."
+    },
+    {
+      "at": "2026-11-12 01:27",
+      "text": "Owner's second round on the card mock-ups recorded (DEC-091) and applied: the original coloured-column lorry card, \"Upgrade\" for \"Stall upgrade\", Favoured Trade and Heatwave pictures redrawn from the game's own shapes. The original card designs are in the owner's design page https://claude.ai/artifact/9sbaZqKG6TqxhxJsgKnntY (boards named C-...); use them as the source for the rest of the cards."
     }
   ]
 }
