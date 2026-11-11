@@ -2269,6 +2269,30 @@
         "REP-104"
       ],
       "reviewTrigger": "If the owner wants the lorry columns in the first printing's order, or the thin-line card heading of the original cards instead of the black strip"
+    },
+    {
+      "id": "DEC-092",
+      "title": "Card design: the owner's third round of changes",
+      "question": "What should change on the card mock-ups after the second round?",
+      "choice": "Lorry: redesigned for a cleaner read. One coloured lane for each fruit with its picture at the top and the numbers set straight on the colour; a narrow column of stall counts (2 to 6) on the left; only the row for the game being played is boxed in white; the same black heading as the other cards. Favour and upgrade pictures carry no black ground strip or counter: objects stand on the bottom edge of the picture. Backs are designed for the other cards (event, lorry, favour, upgrade, shopkeeper, standing order) in the original back design: black, four fruit-colour bars at top and bottom, the kind of card in large letters, \"Fruit Market\" beneath.",
+      "rationale": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\". The second-round lorry card overflowed its margin and its number boxes were uneven when rendered; the boards are now rendered and looked at before they are sent.",
+      "impact": {
+        "player": "A lorry card that reads at a glance on the table and on the phone; pictures without stray dark bars; every card has a back.",
+        "technical": "Picture drafts updated in docs/studio/art-drafts/cards-18; card backs join the card components and the print generator when the screens are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has seen the third version: lorry column order, black strip or thin-line headings, and whether the other customer scenes are drawn the same way"
     }
   ],
   "history": [
@@ -3191,6 +3215,10 @@
     {
       "at": "2026-11-12 01:27",
       "text": "Owner's second round on the card mock-ups recorded (DEC-091) and applied: the original coloured-column lorry card, \"Upgrade\" for \"Stall upgrade\", Favoured Trade and Heatwave pictures redrawn from the game's own shapes. The original card designs are in the owner's design page https://claude.ai/artifact/9sbaZqKG6TqxhxJsgKnntY (boards named C-...); use them as the source for the rest of the cards."
+    },
+    {
+      "at": "2026-11-12 01:38",
+      "text": "Owner's third round on the card mock-ups recorded (DEC-092) and applied: cleaner lorry card, no black strips in favour and upgrade pictures, a board of card backs. From now on the changed boards are rendered locally and looked at before sending (the second-round lorry card had overflowed unseen). The rules 18 build came back and was merged into the working branch: npm run verify passes on the merged tree (518 tests, 1 skipped); browser tests running; results report to follow."
     }
   ]
 }
