@@ -2412,7 +2412,8 @@
       },
       "delivery": "not started",
       "reports": [
-        "REP-104"
+        "REP-104",
+        "REP-106"
       ],
       "reviewTrigger": "If the progression proposal changes what a goal is, or the single-player proposal gives the home screen a journey to show"
     }
@@ -3369,6 +3370,10 @@
     {
       "at": "2026-11-12 03:00",
       "text": "All card pictures are drawn and on the mock-up page: 36 customer scenes, 20 events and Calm Day, 8 shopkeepers, 8 standing-order clients, 6 favours, 5 upgrades (docs/studio/art-drafts/cards-18; commits 4468d4c, d8a7d64). The shopkeepers' black-and-white awnings were recoloured, since the owner had asked for black bars to go. The new Heatwave picture replaced the old one, which removes its dark bottom strip. The flow and motion study is in (docs/studio/review-18/FLOW-AND-MOTION.md, commit 0d17ccf); the progression and single-player studies are still running. Owner asked what could replace the stall picture on the home screen; three options were drawn and the owner chose today's market with the goals a swipe away (DEC-097). The proposal the three studies feed is now to be REP-106 and covers the home screen as well. Nothing in the game has changed."
+    },
+    {
+      "at": "2026-11-12 03:14",
+      "text": "REP-106 written: a proposal from the three studies (docs/studio/review-18, commits 0d17ccf, 3ce2805, 58d85bb). It sets out how the game should play from start to finish with motion that keeps the board-game feel (about 21 seconds of watching a day against about 39 today, worked out from the code); a stall level on a stamp book with tiered achievements and looks that show on the table; the Market Month as the single-player mode (four five-day weeks with rent; the League folded in; the Daily market made five days); and three releases in place of one. Three decisions put to the owner: one release or three; the stamp book; the Market Month. Found on the way and confirmed by reading the code: a signed-in player's trophy sets drop names that contain a space at every sync. No figure comes from people playing. Nothing is approved or built."
     }
   ]
 }
