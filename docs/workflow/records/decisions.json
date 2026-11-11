@@ -3015,6 +3015,10 @@
     {
       "at": "2026-11-11 21:26",
       "text": "Rules version 17 built (PLAN-077, DEC-085, REP-100): rivals fill a standing order at $1 under the winning bid, open bidding status with re-bids, all five upgrades on offer; printed game audited against the app; tabletop update pack generated in the repo (guidebook, stall sheets, counters with the cash track, standing-order cards). verify PASS (451 tests). Not published."
+    },
+    {
+      "at": "2026-11-11 22:46",
+      "text": "Review under rules 17 finished (PLAN-078, REP-101): balance simulations, a playtest of the live game, an exact audit of the decks and rule interactions, a screen audit and a text audit, kept in docs/studio/review-17. Live defects found: the first-game tip collapses Stocking and Pricing; Daily and League replace a saved game; Mango Windfall delivers green. A proposal in five packages awaits the owner's decisions. No game change."
     }
   ]
 }

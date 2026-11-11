@@ -1,8 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 21:26 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 22:46 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 21:26): rules version 17 and the tabletop update pack built, not published (PLAN-077)
+## Latest (2026-11-11 22:46): review under rules 17 done; proposal awaits decisions (PLAN-078, REP-101)
+- **Owner request:** simulate and playtest, find balance changes, exact deck and rule analysis, thoughtful screens with cards matching print, text audit, then regenerate the print kit; "prompt me for any required decision".
+- **Done (documents only):** four studies in `docs/studio/review-17` and the proposal REP-101: five packages (A fix now, B rules 18, C text, D screens and one card design, E print kit) and ten decisions.
+- **Live defects found (1.19.1):** first-game tip collapses Stocking and Pricing; Daily and League replace a saved game; "undefined" at 6 stalls; Mango Windfall green; stale How to play line; cropped portraits.
+- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb` (rules 17 and the update pack unpublished). Next: the owner's answers to D1 to D10, three at a time.
+- **Parked:** the pricing screen's standing-order wording (now part of package D).
+
+## Earlier (2026-11-11 21:26): rules version 17 and the tabletop update pack built, not published (PLAN-077)
 - **Owner approval (to build):** the five-item request and three answers (DEC-085, REP-100). Publishing not requested.
 - **Built (app):** rivals fill a standing order at $1 under the winning bid; bidding shows who is bidding, passed or deciding, and can be changed until the last stall decides; all five upgrades on offer. RULES_VERSION 17, computer players 5.
 - **Built (table):** `print/update-17` from `scripts/print-update.ts`: guidebook at rules 17, six stall sheets (no cash track), six counters with the cash track, eight standing-order cards, a change sheet. Tomorrow's customers dealt in the morning.

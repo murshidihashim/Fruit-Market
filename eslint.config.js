@@ -5,7 +5,8 @@ import hooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist', 'dist-single', 'android', 'node_modules', 'coverage', '.wrangler'] },
+  // docs/studio/review-17 holds the helper scripts of a finished study (reference only); .claude holds helper work folders.
+  { ignores: ['dist', 'dist-single', 'android', 'node_modules', 'coverage', '.wrangler', '.claude', 'docs/studio/review-17'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

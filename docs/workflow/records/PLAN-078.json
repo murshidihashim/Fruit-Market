@@ -1,0 +1,66 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb (documents only)",
+  "reports": [
+    "REP-101"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "docs/studio/review-17: the balance study, the exact rules audit, the screen audit with contact sheets, and the text audit with a change list"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "okay now with the latest rules, simulate and also playtest the live game ... to find balance changes to make the game better ... think of tweaks ... in terms of ui/ux ... all text on card and in app needs to be audited ... prompt me for any required decision then regenerate the print kit afterwards; and also analyse All 36 customer quantities/prices and all 20 delivery rows. Contract shortages, rival allocation and fines when the winner cannot pay. Juice Bar interactions with contracts, Pasar Malam and final-day settlement. Premium Display versus Price Controls. Exact tie resolution involving several special effects. amongst the rest",
+    "date": "2026-11-11"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-078",
+  "title": "Review under rules 17: balance, exact rules, screens and text (research and proposal)",
+  "problem": "The owner asked for simulation and a playtest of the live game to find balance changes (shopkeepers, fruit, upgrades, favours, events, running out of cash), an exact analysis of the decks and of rule interactions, a more thoughtful design and flow with cards matching the printed ones and centred portraits, an audit of all text, and then a regenerated print kit, with a prompt for each required decision.",
+  "scope": [
+    "Research and a proposal only: no game, rules or text change",
+    "docs/studio/review-17 and REP-101"
+  ],
+  "exclusions": [
+    "Building any proposed change (each package needs its own approval)",
+    "Publishing"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Balance simulated under rules 17 at 2, 3, 4 and 6 stalls with tested recommendations",
+      "result": "PASS",
+      "evidence": "2026-11-11: docs/studio/review-17/balance/BALANCE-FINDINGS.md (about 60,000 computer games; recommended.diff)"
+    },
+    {
+      "id": "T2",
+      "text": "The live game playtested",
+      "result": "PASS",
+      "evidence": "2026-11-11: a full 10-day solo game on the live site (1.19.1), Day 1 by hand and the rest by a scripted player with every screen logged; docs/studio/review-17/screens/UX-FINDINGS.md"
+    },
+    {
+      "id": "T3",
+      "text": "All 36 customers, all 20 lorry rows and the listed rule interactions analysed in the engine",
+      "result": "PASS",
+      "evidence": "2026-11-11: docs/studio/review-17/rules/EDGE-FINDINGS.md"
+    },
+    {
+      "id": "T4",
+      "text": "All player-facing text audited",
+      "result": "PASS",
+      "evidence": "2026-11-11: docs/studio/review-17/text/TEXT-AUDIT.md (1,636 strings) and text-changes.json (575 entries)"
+    },
+    {
+      "id": "T5",
+      "text": "A real phone, online rooms on live, the printed PDFs as pictures",
+      "result": "NOT RUN",
+      "evidence": "Listed in REP-101 section 5"
+    }
+  ]
+}
