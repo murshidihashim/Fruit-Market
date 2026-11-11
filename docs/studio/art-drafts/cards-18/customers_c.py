@@ -88,6 +88,11 @@ def top(fill):
     return P(BODY, fill)
 
 
+def sleeves(colour):
+    """Two short lines that part the arms from the chest."""
+    return S('M152 364v36M448 364v36', colour, 4)
+
+
 def vneck(fill):
     return P('M246 274h108l-54 68z', fill)
 
@@ -130,8 +135,8 @@ def bandana(fill, dark, light):
     """A scarf tied over the head with the knot at the side (Jia Wen, Marcus)."""
     return (P('M216 180A86 86 0 01384 180Q300 138 216 180z', fill)
             + P('M216 180Q300 138 384 180Q300 124 216 180z', dark)
-            + S('M238 136a70 62 0 0144-36', light, 8, op='.9')
-            + C(393, 184, 15, fill) + C(410, 209, 12, fill) + S('M388 180l9 8', dark, 4))
+            + S('M244 152A72 72 0 01278 127', light, 8, op='.9')
+            + C(393, 184, 15, fill) + C(407, 206, 12, fill) + S('M388 180l9 8', dark, 4))
 
 
 def long_hair():
@@ -199,63 +204,53 @@ ART = {}
 
 # ---------------------------------------------------------------- 25 Jia Wen (Marina Wen): in port for one day
 skin, shade = SKINS['light']
-waves = ''.join(S(f'M{x} {y}q10-9 20 0t20 0', PAPER, 4, op='.75') for x, y in
-                ((196, 262), (20, 316), (96, 318), (446, 258), (538, 250), (424, 308), (512, 314)))
+bolts = ''.join(C(round(92 + 52 * math.sin(math.radians(a)), 1), round(140 - 52 * math.cos(math.radians(a)), 1), 3, YEL) for a in range(0, 360, 45))
+handles = ''.join(S(f'M528 258L{528 + 62 * math.sin(math.radians(a)):.1f} {258 - 62 * math.cos(math.radians(a)):.1f}', YEL_D, 7) for a in range(0, 360, 45))
 ART['customer-jia-wen'] = f'''
-{tint(BLU_L, '.38')}
-<!-- clouds and gulls -->
-{R(196, 34, 88, 20, PAPER, rx=10)}{C(226, 32, 15, PAPER)}{C(252, 28, 18, PAPER)}
-{R(404, 58, 74, 18, PAPER, rx=9)}{C(430, 56, 13, PAPER)}{C(452, 52, 16, PAPER)}
-{S('M150 52q8-9 16 0q8-9 16 0M452 112q7-8 14 0q7-8 14 0', INK, 4)}
-{R(0, 236, 600, 94, BLU_L)}{waves}
+{tint(GRN_L, '.42')}{hlines(range(44, 320, 47), 0, 600, PAPER, 3, '.65')}
 {DISC}
-<!-- the ship she came on -->
-{R(46, 86, 36, 62, YEL)}{R(46, 86, 36, 12, INK)}{R(46, 108, 36, 8, RED)}
-{R(26, 146, 78, 36, PAPER)}{R(20, 140, 90, 8, INK)}{R(34, 156, 62, 12, BLU)}
-{R(8, 180, 118, 56, PAPER)}{R(8, 226, 118, 8, KRAFT)}
-{R(22, 194, 18, 18, BLU)}{R(54, 194, 18, 18, BLU)}{R(86, 194, 18, 18, BLU)}
-{S('M146 232V118', INK, 5)}{S('M132 150h28', INK, 4)}{C(146, 114, 6, YEL)}
-{P('M-4 244H178L154 306H-4z', RED)}{P('M-4 290H160L154 306H-4z', RED_D)}{P('M-4 232H184L177 248H-4z', INK)}
-{C(40, 270, 7, PAPER)}{C(80, 270, 7, PAPER)}{C(120, 270, 7, PAPER)}
-<!-- the lighthouse on its rock -->
-{P('M546 110L600 92V142L546 124z', YEL_L, op='.7')}
-{P('M464 330c8-28 30-38 60-38s62 14 76 38z', STONE)}{P('M520 292c30 0 62 14 80 38h-38c-8-18-22-30-42-38z', SLATE, op='.35')}
-{P('M498 298L508 140H548L558 298z', PAPER)}
-{P('M505.7 176H550.3L552.2 206H503.8z', RED)}{P('M501.6 240H554.4L556.3 270H499.7z', RED)}
-{P('M519 298v-16a9 9 0 0118 0v16z', INK)}
-{R(498, 132, 60, 10, INK, rx=2)}{R(512, 104, 32, 28, YEL)}{S('M528 106v24', PAPER, 3)}
-{P('M505 104L528 78L551 104z', RED)}{C(528, 77, 5, INK)}
-<!-- the stone quay with a bollard and the mooring rope -->
-{R(0, 326, 600, 74, STONE)}{R(0, 326, 600, 6, SLATE, op='.45')}
-{vlines((40, 110, 494, 564), 338, 400, SLATE, 3, '.35')}
-{S('M86 318C112 306 134 284 152 250', YEL_D, 5)}
-{R(60, 298, 52, 16, INK, rx=8)}{R(69, 312, 34, 34, INK)}{R(58, 342, 56, 10, INK, rx=3)}
-{R(66, 318, 40, 7, YEL_D, rx=3)}{R(66, 329, 40, 7, YEL_D, rx=3)}
+<!-- the porthole: her ship is in port for the day -->
+{C(92, 140, 59, YEL_D)}{C(92, 140, 46, PAPER)}{C(92, 140, 46, BLU_L, op='.45')}
+{P('M46.7 148a46 46 0 0090.6 0z', BLU)}{S('M60 164q7-6 14 0t14 0M96 174q7-6 14 0', PAPER, 3, op='.75')}
+{P('M108 144v-26l18 26z', PAPER)}{S('M100 147h30', RED, 5)}
+{S('M66 116q6-7 12 0q6-7 12 0', INK, 3)}{S('M60 132l12-14', PAPER, 4, op='.7')}{bolts}
+<!-- the chart on the wall, with the way to the mangoes -->
+{R(444, 40, 136, 118, STONE)}{R(450, 46, 136, 118, KRAFT)}
+{P('M450 46h62v28c-20 12-38 0-62 18z', BLU_L)}{P('M586 164h-56c4-24 26-36 56-32z', BLU_L)}
+{vlines((495, 541), 46, 164, STONE, 3)}
+{''.join(C(x, y, 4, RED) for x, y in ((468, 142), (482, 130), (498, 124), (514, 120), (528, 110)))}
+{fr('mango', 534, 72, 38)}{star(562, 144, 12, 4, 4, PAPER)}
+{C(458, 54, 4, RED)}{C(578, 54, 4, RED)}
+<!-- the wheel -->
+{handles}<circle cx="528" cy="258" r="44" fill="none" stroke="{YEL_D}" stroke-width="10"/>{C(528, 258, 14, YEL_D)}{C(528, 258, 5, INK)}
+<!-- the deck -->
+{R(0, 326, 600, 74, KRAFT)}{R(0, 326, 600, 6, STONE, op='.7')}{vlines((34, 494, 560), 338, 400, STONE, 3, '.6')}
 <!-- Jia Wen: long black hair, yellow scarf with a side knot, white top with yellow stripes -->
 {long_hair()}{top(PAPER)}{band(322, 338, YEL)}{band(354, 370, YEL)}{band(386, 400, YEL)}
 {head(skin, shade)}
-{P('M218 186Q300 146 382 186Q300 136 218 186z', INK)}
+{P('M218 186Q300 148 382 186Q300 136 218 186z', INK)}
 {bandana(YEL, YEL_D, YEL_L)}{dots()}{grin()}
-<!-- her chart, with the way to the mangoes -->
-{G(R(376, 296, 132, 96, STONE) + R(382, 302, 132, 96, KRAFT)
-   + P('M382 302h56v30c-16 10-34 2-56 14z', BLU_L) + P('M470 398c2-22 20-34 44-32v32z', BLU_L)
-   + vlines((426, 470), 302, 398, STONE, 3)
-   + ''.join(C(x, y, 4, RED) for x, y in ((398, 366), (414, 376), (432, 378), (448, 368), (458, 354)))
-   + fr('mango', 452, 312, 34), 'rotate(-9 446 350)')}'''
+<!-- her sea bag, packed for shore -->
+{P('M96 268c0-20 12-28 28-28s28 8 28 28z', BLU)}
+{R(78, 262, 92, 150, BLU, rx=22)}{R(146, 272, 24, 140, BLU_D, rx=12)}
+{S('M96 260h56', PAPER, 6)}{S('M122 260c-10 10-16 20-15 32M126 260c8 9 12 18 11 28', PAPER, 4)}
+{R(94, 312, 44, 30, PAPER, rx=3)}{S('M102 322h28M102 332h16', INK, 4)}'''
 
 # ---------------------------------------------------------------- 26 Rizal (DJ Rizal): plays at weddings
 skin, shade = SKINS['tan']
 swags = ''.join(P(f'M{x} 0h120v22q-60 48-120 0z', PAPER) + S(f'M{x + 24} 26q36 20 72 0', KRAFT, 3) for x in range(0, 600, 120))
-rosettes = ''.join(C(x, 26, 11, PINK) + C(x, 26, 4, PAPER) for x in range(0, 601, 120))
+rosettes = ''.join(C(x, 26, 11, YEL) + C(x, 26, 4, PAPER) for x in range(0, 601, 120))
 
 
-def _bulbs(x0, y0, cx, cy, x1, y1):
-    out = S(f'M{x0} {y0}Q{cx} {cy} {x1} {y1}', INK, 3)
-    for i, t in enumerate((0.1, 0.3, 0.5, 0.7, 0.9)):
-        x = (1 - t) ** 2 * x0 + 2 * t * (1 - t) * cx + t * t * x1
-        y = (1 - t) ** 2 * y0 + 2 * t * (1 - t) * cy + t * t * y1
-        out += C(round(x), round(y) + 7, 7, YEL if i % 2 == 0 else PAPER)
-    return out
+def _manggar(x, y, r):
+    """A bunga manggar: the tinsel palm blossom carried at a Malay wedding. Pole top at (x, y)."""
+    out = S(f'M{x} 330V{y}', PAPER, 6)
+    for i, deg in enumerate(range(-84, 85, 21)):
+        a = math.radians(deg)
+        cx, cy = x + 0.55 * r * math.sin(a), y - 1.05 * r * math.cos(a) - 8
+        ex, ey = x + r * math.sin(a), y - 0.55 * r * math.cos(a) + 0.42 * r * abs(math.sin(a))
+        out += S(f'M{x} {y}Q{cx:.1f} {cy:.1f} {ex:.1f} {ey:.1f}', (YEL, PAPER, RED, BLU_L, GRN_L)[i % 5], 6)
+    return out + C(x, y, 7, YEL_D)
 
 
 def _deck(cx):
@@ -264,19 +259,18 @@ def _deck(cx):
 
 
 ART['customer-rizal'] = f'''
-{tint(LEAF, '.38')}{vlines(range(30, 600, 60), 40, 326, PAPER, 3, '.6')}
+{tint(PINK, '.3')}{vlines(range(30, 600, 60), 40, 326, PAPER, 3, '.6')}
 {swags}{rosettes}
 {DISC}
-{_bulbs(0, 84, 96, 122, 186, 78)}{_bulbs(414, 78, 504, 122, 600, 84)}
 <!-- the dance floor -->
 {R(0, 326, 600, 74, KRAFT)}{R(0, 326, 600, 6, STONE, op='.7')}
-<!-- speakers: a stack on the left, one on a stand on the right -->
-{R(22, 134, 112, 192, INK, rx=6)}{S('M26 218h104', SLATE, 3)}{C(120, 146, 4, YEL)}
-{C(78, 178, 27, SLATE)}{C(78, 178, 18, INK)}{C(78, 178, 7, SLATE)}
-{C(78, 268, 44, SLATE)}{C(78, 268, 32, INK)}{C(78, 268, 12, SLATE)}{S('M50 252a32 32 0 0116-22', PAPER, 4, op='.35')}
-{S('M522 264v62', SLATE, 8)}{S('M522 300l-32 28M522 300l32 28', SLATE, 6)}
-{R(466, 134, 112, 132, INK, rx=6)}{R(496, 148, 52, 20, SLATE, rx=6)}{C(566, 146, 4, YEL)}
-{C(522, 216, 38, SLATE)}{C(522, 216, 27, INK)}{C(522, 216, 10, SLATE)}{S('M498 202a27 27 0 0114-18', PAPER, 4, op='.35')}
+<!-- a speaker stack on the left -->
+{R(22, 96, 112, 230, INK, rx=6)}{S('M26 222h104', SLATE, 3)}{C(120, 108, 4, YEL)}
+{R(52, 112, 52, 20, SLATE, rx=6)}
+{C(78, 176, 27, SLATE)}{C(78, 176, 18, INK)}{C(78, 176, 7, SLATE)}
+{C(78, 272, 44, SLATE)}{C(78, 272, 32, INK)}{C(78, 272, 12, SLATE)}{S('M50 256a32 32 0 0116-22', PAPER, 4, op='.35')}
+<!-- bunga manggar for the wedding on the right -->
+{_manggar(572, 196, 50)}{_manggar(508, 130, 62)}
 <!-- Rizal: headphones with pink cups, sunglasses, black top over pink -->
 {top(INK)}{vneck(PINK)}{head(skin, shade)}
 {P('M221 176Q300 112 379 176Q300 150 221 176z', INK)}
@@ -296,37 +290,41 @@ ART['customer-rizal'] = f'''
 # ---------------------------------------------------------------- 27 Devi (Devi Bloom): grows vegetables
 skin, shade = SKINS['brown']
 vine_leaves = ''.join(leaf(x, y, r, 24, LEAF if i % 2 else GRN_D) for i, (x, y, r) in enumerate(
-    ((58, 300, -150), (84, 286, -40), (120, 298, -130), (140, 290, -30), (70, 250, -150), (104, 244, -40),
-     (126, 240, -20), (84, 204, -150), (108, 198, -30))))
+    ((56, 300, -150), (82, 286, -40), (122, 298, -130), (144, 290, -30), (68, 252, -150), (104, 244, -40),
+     (130, 242, -20), (80, 204, -150), (110, 198, -30), (88, 164, -150), (106, 158, -30))))
 
 
-def _cabbage(x, y):
-    return C(x, y, 17, GRN) + C(x, y, 10, GRN_L) + S(f'M{x - 5} {y + 2}q5-8 10 0', GRN, 3)
+def _sprout(x, y):
+    return leaf(x, y, -130, 24, GRN) + leaf(x, y, -50, 24, GRN) + leaf(x, y, -90, 28, LEAF)
 
 
 ART['customer-devi'] = f'''
-{tint(YEL_L, '.4')}
-{burst(74, 72, 60)}{C(74, 72, 31, PAPER)}{C(74, 72, 25, YEL)}
+{tint(BLU_L, '.32')}
+{R(34, 46, 100, 22, PAPER, rx=11)}{C(66, 44, 16, PAPER)}{C(96, 38, 21, PAPER)}
+{R(170, 20, 70, 16, PAPER, rx=8)}{R(396, 30, 84, 18, PAPER, rx=9)}{C(424, 28, 13, PAPER)}{C(448, 24, 16, PAPER)}
 {P('M0 250C70 198 150 206 214 244S380 184 470 216S560 222 600 200V330H0z', GRN_L)}
 {DISC}
-<!-- a kampung house and a palm on the right -->
-{vlines((522, 550, 578), 264, 294, INK, 4)}{R(510, 222, 82, 44, KRAFT)}{R(510, 258, 82, 8, STONE)}
-{P('M498 226L551 184L604 226z', RED_D)}{R(524, 234, 16, 18, INK)}{R(558, 234, 18, 32, INK)}
-{S('M496 304C498 252 490 204 478 160', STONE, 9)}
-{S('M478 158C462 136 442 138 426 154M478 158C470 128 450 116 432 118M478 158C480 128 492 110 510 106M478 158C496 136 518 134 534 146M478 158C498 152 516 162 526 180M478 158C462 162 448 176 444 194', GRN, 8)}
 <!-- the bean poles on the left -->
-{S('M40 330L98 150M156 330L98 150M98 330V140', YEL_D, 7)}{S('M88 160h20', INK, 5)}
-{S('M52 300Q76 284 98 296T146 294M64 250Q84 238 98 246T134 242M80 204Q90 196 98 200T118 198', GRN, 5)}
-{vine_leaves}{S('M70 302v22M112 300v24M130 296v20M88 252v20M114 248v18', GRN_D, 5)}
+{S('M36 330L98 122M160 330L98 122M98 330V112', YEL_D, 7)}{S('M88 132h20', INK, 5)}
+{S('M48 300Q74 284 98 296T150 294M60 252Q82 238 98 246T138 244M72 204Q88 194 98 200T124 198M82 164Q92 156 98 160T114 158', GRN, 5)}
+{vine_leaves}{S('M68 302v22M112 300v24M132 296v20M86 254v20M116 250v18M92 204v16', GRN_D, 5)}
+<!-- the scarecrow on the right -->
+{S('M526 330V170', YEL_D, 7)}{S('M474 202h104', YEL_D, 7)}
+{S('M474 202l-10-8M474 202l-12 1M474 202l-9 9M578 202l10-8M578 202l12 1M578 202l9 9', YEL, 4)}
+{S('M500 272v10M513 272v13M526 272v10M539 272v13M552 272v10', YEL, 4)}
+{P('M492 190h68l18 22-12 13-10-9v48h-60v-48l-10 9-12-13z', RED_L)}
+{R(504, 226, 14, 14, YEL, rx=2)}{R(534, 246, 13, 13, BLU_L, rx=2)}{S('M526 196v74', RED, 3, op='.5')}
+{C(526, 168, 22, KRAFT)}{S('M515 162l6 6M521 162l-6 6M531 162l6 6M537 162l-6 6', INK, 3)}{S('M517 178h18', INK, 3)}
+{P('M484 158L526 118L568 158z', YEL_D)}{S('M505 150l21-22 21 22', YEL, 3)}
 <!-- the vegetable bed -->
-{R(0, 326, 600, 74, KRAFT)}{R(0, 326, 600, 6, STONE, op='.6')}{hlines((356, 384), 0, 600, STONE, 3, '.5')}
-{_cabbage(34, 372)}{_cabbage(82, 380)}{_cabbage(506, 384)}{_cabbage(556, 376)}
+{R(0, 326, 600, 74, KRAFT)}{R(0, 326, 600, 6, STONE, op='.6')}{hlines((360, 392), 0, 600, STONE, 3, '.5')}
+{_sprout(24, 358)}{_sprout(66, 358)}{_sprout(44, 390)}{_sprout(88, 390)}
+{_sprout(486, 390)}{_sprout(530, 390)}{_sprout(574, 390)}
 <!-- her watering can -->
-{S('M520 328L490 292', BLU, 9)}{E(486, 288, 8, 12, BLU_D, tf='rotate(-40 486 288)')}
-{S('M574 300c28 0 28 36 0 36', BLU, 7)}
-{R(516, 290, 62, 56, BLU, rx=8)}{R(560, 290, 18, 56, BLU_D, rx=8)}{R(522, 282, 50, 12, BLU_D, rx=6)}{S('M530 304v28', BLU_L, 5)}
+{S('M502 304c-26 0-26 36 0 36', BLU, 7)}{S('M556 332L586 298', BLU, 9)}{E(590, 294, 8, 12, BLU_D, tf='rotate(40 590 294)')}
+{R(500, 294, 60, 56, BLU, rx=8)}{R(500, 294, 18, 56, BLU_D, rx=8)}{R(506, 286, 48, 12, BLU_D, rx=6)}{S('M546 308v28', BLU_L, 5)}
 <!-- Devi: long black hair, a yellow flower, white top over yellow -->
-{long_hair()}{top(PAPER)}{vneck(YEL)}{head(skin, shade)}
+{long_hair()}{top(PAPER)}{vneck(YEL)}{sleeves(KRAFT)}{head(skin, shade)}
 {P('M221 182Q300 118 379 182Q300 150 221 182z', INK)}
 {star(368, 126, 35, 17, 8, YEL)}{C(368, 126, 10, PAPER)}
 {happy()}{smile()}
@@ -356,66 +354,74 @@ ART['customer-marcus'] = f'''
 {fish(472, 140, 0.8, -90)}{fish(524, 140, 0.8, -90, STONE, SLATE)}{fish(576, 140, 0.8, -90)}
 <!-- the stall table with ice -->
 {R(0, 318, 600, 82, STONE)}{R(0, 318, 600, 7, PALE)}{hlines((358,), 0, 600, SLATE, 3, '.3')}
-{P('M0 324c8-20 28-26 44-14 10-16 36-16 46 0 12-8 30-2 36 14z', PAPER)}
-{P('M474 324c8-18 28-24 42-12 12-16 38-14 46 2 12-10 30-4 38 10z', PAPER)}
-{fish(62, 296, 0.85, 4, STONE, SLATE)}
-{S('M506 300a11 11 0 1118 5M540 294a11 11 0 1118 5M568 304a11 11 0 1118 5', PINK, 8)}
+{P('M0 326c6-26 28-32 44-18 10-18 38-18 48 0 12-10 32-4 38 18z', BLU_L, op='.55')}
+{P('M470 326c8-24 30-30 44-16 12-18 40-16 48 2 12-12 32-6 40 14z', BLU_L, op='.55')}
+{S('M14 314q8-8 16 0M74 304q8-8 16 0M486 312q8-8 16 0M560 306q8-8 16 0', PAPER, 4)}
+{fish(64, 292, 0.85, 4, STONE, SLATE)}
+{S('M506 298a11 11 0 1118 5M538 290a11 11 0 1118 5M566 300a11 11 0 1118 5', PINK, 8)}
 <!-- Marcus: blue scarf with a side knot, full black beard, white top with blue stripes -->
 {top(PAPER)}{band(322, 338, BLU)}{band(354, 370, BLU)}{band(386, 400, BLU)}
 {head(skin, shade, ((240, 208), (360, 208)))}
 {P('M214 204C226 240 262 250 282 238Q292 230 300 238Q308 230 318 238C338 250 374 240 386 204C394 262 358 352 300 354C242 352 206 262 214 204z', INK)}
 {grin(262, 23)}
 {bandana(BLU, BLU_D, BLU_L)}{dots()}
-<!-- the catch of the day, on a raffia string -->
-{fish(436, 352, 1.2, -14)}{S('M372 366c-10-20-4-40 8-52', PINK, 5)}'''
+<!-- the catch of the day -->
+{fish(436, 352, 1.2, -14)}'''
 
 # ---------------------------------------------------------------- 29 Fatimah (Professor Fatimah): marks papers at the kopitiam
 skin, shade = SKINS['tan']
-slats = ''.join(f'M36 {y}h43M97 {y}h43' for y in range(82, 196, 14))
+slats = ''.join(f'M36 {y}h43M97 {y}h43' for y in range(72, 180, 14))
 sheet_marks = (S('M14 24h56M14 42h70M14 60h70M14 78h44', SLATE, 5)
                + S('M84 20l5 6 10-13M92 56l5 6 10-13', RED, 5)
                + f'<circle cx="88" cy="88" r="12" fill="none" stroke="{RED}" stroke-width="5"/>')
+
+
+def _jar(x, lid, biscuit):
+    """A glass biscuit jar standing on the shelf at y = 292."""
+    return (R(x, 232, 46, 60, PAPER, rx=10, op='.85') + R(x + 5, 220, 36, 14, lid, rx=4)
+            + ''.join(C(x + dx, y, 7, biscuit) for dx, y in ((14, 280), (30, 281), (22, 268), (34, 262), (13, 256)))
+            + S(f'M{x + 8} 244v20', PAPER, 3))
+
+
+plaques = ''.join(R(x, 60, 28, 76, RED_D, rx=3) + S(f'M{x + 14} 72v12M{x + 14} 94v8M{x + 14} 112v12', YEL_L, 5) for x in (462, 508, 554))
 ART['customer-fatimah'] = f'''
-{tint(GRN_L, '.3')}
-{R(0, 214, 600, 126, GRN_L, op='.75')}{hlines((244, 272, 300, 328), 0, 600, PAPER, 3, '.8')}{vlines(range(14, 600, 28), 216, 340, PAPER, 3, '.8')}
-{R(0, 208, 600, 8, GRN)}
+{tint(BLU_L, '.36')}
+{R(0, 208, 600, 132, KRAFT)}{vlines(range(20, 600, 40), 218, 340, STONE, 3, '.6')}{R(0, 204, 600, 8, PAPER)}
 {DISC}
 <!-- the ceiling fan -->
 {S('M300 0v20', INK, 5)}{P('M292 24L206 18a8 8 0 000 16l86-2z', STONE)}{P('M308 24L394 18a8 8 0 010 16l-86-2z', STONE)}{C(300, 28, 11, INK)}
-<!-- green shutters and a kopitiam chair -->
-{R(22, 58, 132, 150, GRN_D)}{R(30, 66, 55, 136, GRN)}{R(91, 66, 55, 136, GRN)}{S(slats, GRN_D, 4)}{C(80, 138, 4, YEL)}{C(96, 138, 4, YEL)}
-{S('M46 340V266a32 32 0 0164 0V340', INK, 7)}{S('M62 300V270a16 16 0 0132 0V300', INK, 5)}{R(36, 300, 84, 10, INK, rx=5)}
-<!-- the clock and the drinks board -->
-{C(522, 92, 37, RED_D)}{C(522, 92, 30, PAPER)}{S('M522 68v4M546 92h-4M522 116v-4M498 92h4', KRAFT, 3)}
-{S('M522 92V74M522 92l15 9', INK, 5)}{C(522, 92, 4, INK)}
-{R(462, 144, 120, 56, PAPER)}{R(462, 144, 120, 10, GRN)}
-{S('M476 168h44M476 180h58M476 192h36', INK, 5)}{S('M552 168h16M552 180h16M552 192h16', RED, 5)}
+<!-- green shutters, and biscuit jars on the shelf -->
+{R(22, 48, 132, 144, GRN_D)}{R(30, 56, 55, 130, GRN)}{R(91, 56, 55, 130, GRN)}{S(slats, GRN_D, 4)}{C(80, 124, 4, YEL)}{C(96, 124, 4, YEL)}
+{_jar(20, RED, YEL_D)}{_jar(76, GRN, ORANGE)}{R(10, 292, 126, 10, YEL_D, rx=2)}
+<!-- the drinks tablets and the price board -->
+{S('M452 54h144', INK, 4)}{plaques}
+{R(462, 150, 120, 50, PAPER)}{R(462, 150, 120, 10, RED)}
+{S('M476 172h44M476 186h58', INK, 5)}{S('M552 172h16M552 186h16', RED, 5)}
 <!-- Professor Fatimah: red hijab, round glasses, white top -->
 {top(PAPER)}{hijab(RED, RED_D, RED_L, skin)}
 {glasses(272, 328, 192)}{dots(272, 328, 192)}{grin(232, 24)}
-<!-- the kopitiam table: exam papers, a red pen and a cup of kopi -->
-{R(0, 340, 600, 60, KRAFT)}{R(0, 340, 600, 6, PALE)}
-{G(R(-12, -12, 112, 124, STONE) + R(-6, -6, 112, 124, KRAFT) + R(0, 0, 112, 124, PAPER) + sheet_marks, 'translate(96 292) rotate(-7)')}
-{S('M176 396l58-30', RED, 9)}{S('M234 366l8-4', INK, 5)}
-{S('M510 304c-8-10 8-16 0-26M534 304c-8-10 8-16 0-26', PAPER, 5, op='.85')}
-{E(522, 388, 60, 8, STONE)}{E(522, 384, 60, 8, PAPER)}
-{S('M560 334c24 0 24 30 0 30', PAPER, 8)}
-{P('M482 324h80v26a40 30 0 01-80 0z', PAPER)}{E(522, 324, 40, 8, PAPER)}{E(522, 325, 33, 5, INK)}
-{S('M494 350q28 12 56 0', GRN, 5)}'''
+<!-- the marble table: exam papers, a red pen and a glass of teh tarik -->
+{R(0, 340, 600, 60, PALE)}{R(0, 340, 600, 6, PAPER)}{S('M30 372l34-10 26 8M404 366l30 10 34-6M560 384l28-8', STONE, 3, op='.5')}
+{G(R(-12, -12, 112, 124, STONE) + R(-6, -6, 112, 124, KRAFT) + R(0, 0, 112, 124, PAPER) + sheet_marks, 'translate(100 296) rotate(-7)')}
+{S('M180 396l58-30', RED, 9)}{S('M238 366l8-4', INK, 5)}
+{S('M504 300c-8-10 8-16 0-26M528 300c-8-10 8-16 0-26', PAPER, 5, op='.85')}
+{E(516, 390, 50, 7, STONE)}{E(516, 387, 50, 7, PAPER)}
+{S('M543 340c22 0 22 30-2 30', PAPER, 7)}
+{P('M486 320h60l-6 66h-48z', PAPER)}{P('M489 344h54l-4.5 40h-45z', ORANGE)}{S('M498 350v26', PAPER, 3, op='.6')}'''
 
 # ---------------------------------------------------------------- 30 Ben (Benny Bell): bellboy at the hotel
 skin, shade = SKINS['light']
 keys = ''
 for row, y in enumerate((84, 128)):
     for col, x in enumerate((474, 506, 538, 570)):
-        keys += C(x, y, 3, INK)
+        keys += C(x, y, 3, YEL)
         if (row, col) != (1, 2):
-            keys += R(x - 7, y + 4, 14, 20, (RED, BLU, GRN, YEL)[(col + row) % 4], rx=4) + S(f'M{x} {y + 26}v8', SLATE, 4)
+            keys += R(x - 7, y + 4, 14, 20, (RED, BLU_L, PAPER, YEL)[(col + row) % 4], rx=4) + S(f'M{x} {y + 26}v8', YEL_L, 4)
 checker = ''.join(R(x, 326 if i % 2 == 0 else 363, 50, 37, PALE, op='.5') for i, x in enumerate(range(0, 600, 50)))
 ART['customer-ben'] = f'''
-{tint(RED_L, '.2')}{''.join(R(x, 0, 22, 236, RED_L, op='.3') for x in range(18, 600, 60))}
-{R(0, 236, 600, 90, KRAFT)}{R(0, 230, 600, 8, PAPER)}
-{R(16, 254, 100, 58, PALE, op='.6')}{R(484, 254, 100, 58, PALE, op='.6')}
+{R(0, 0, 600, 400, KRAFT)}{''.join(R(x, 16, 100, 200, PALE, rx=3, op='.55') for x in range(14, 600, 118))}
+{R(0, 236, 600, 90, STONE, op='.55')}{R(0, 230, 600, 8, PAPER)}
+{R(14, 254, 100, 58, KRAFT, rx=3)}{R(486, 254, 100, 58, KRAFT, rx=3)}
 {DISC}
 <!-- the marble floor -->
 {R(0, 326, 600, 74, STONE)}{checker}{R(0, 326, 600, 6, SLATE, op='.4')}
@@ -426,11 +432,11 @@ ART['customer-ben'] = f'''
 {R(48, 248, 84, 50, BLU, rx=6)}{S('M70 250v46M110 250v46', BLU_D, 6)}{R(84, 268, 12, 10, YEL, rx=2)}
 {R(26, 298, 128, 14, RED, rx=4)}{C(46, 328, 11, INK)}{C(46, 328, 4, STONE)}{C(134, 328, 11, INK)}{C(134, 328, 4, STONE)}
 <!-- the key board and a palm -->
-{R(450, 56, 140, 116, KRAFT)}{R(450, 56, 140, 10, STONE)}{keys}
+{R(450, 56, 140, 116, GRN_D, rx=3)}{R(450, 56, 140, 10, YEL_D, rx=3)}{keys}
 {S('M534 280C528 244 508 226 486 228M534 280C532 240 520 210 502 200M534 280C534 236 536 208 544 194M534 280C540 244 558 220 578 216M534 280C546 254 568 244 590 250', GRN, 8)}
 {P('M506 328l6-44h44l6 44z', RED_D)}{R(506, 278, 56, 10, RED, rx=3)}
 <!-- Ben: black cap with the peak to one side, white jacket, blue tie -->
-{top(PAPER)}{tie(BLU, BLU_D)}
+{top(PAPER)}{sleeves(KRAFT)}{tie(BLU, BLU_D)}
 {C(282, 354, 6, YEL)}{C(318, 354, 6, YEL)}{C(282, 384, 6, YEL)}{C(318, 384, 6, YEL)}
 {head(skin, shade)}
 {P('M214 174C206 122 250 88 300 90C352 92 396 116 404 152L456 186Q428 176 390 172Q300 148 232 168L222 186z', INK)}
@@ -485,7 +491,6 @@ holes = ''.join(C(x, y, 4, STONE) for y in (156, 216, 276) for x in range(30, 60
 ART['customer-hadi'] = f'''
 {tint(BLU_L, '.3')}
 {P('M0 122H170V98H440V106H600V330H0z', KRAFT)}{hlines((186, 246, 306), 0, 600, PALE, 3)}{holes}
-{vlines((196, 224, 252, 356, 384, 412), 76, 100, INK, 4)}
 {DISC}
 <!-- the crane -->
 {S('M556 106V10', YEL, 9)}{S('M546 40l20 22M566 40l-20 22M546 72l20 22M566 72l-20 22', YEL_D, 3)}

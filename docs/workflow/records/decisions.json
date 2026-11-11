@@ -2367,6 +2367,30 @@
         "REP-104"
       ],
       "reviewTrigger": "When the owner has chosen back suggestion 1, 2 or 3"
+    },
+    {
+      "id": "DEC-096",
+      "title": "Card backs: the pattern design, for now",
+      "question": "Which of the three back suggestions is used for the lorry, event, favour, upgrade, shopkeeper and standing-order decks?",
+      "choice": "Suggestion 3, the pattern: the deck's symbol repeated across the card in a darker tone of the deck's colour, with a paper name band through the middle (the name, a rule, the deck size), in the Ticket style. Chosen \"for now\": it may be revisited. The customer back keeps its earlier design.",
+      "rationale": "Owner, 2026-11-12: \"lets use pattern for now\".",
+      "impact": {
+        "player": "Each deck is told apart by colour and symbol at a glance.",
+        "technical": "Six pattern tiles in docs/studio/art-drafts/cards-18 (backs.py); card-back components and print backs follow when the cards are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"lets use pattern for now\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the owner wants the picture or stub backs after seeing the pattern in the app or in print"
     }
   ],
   "history": [
@@ -3313,6 +3337,10 @@
     {
       "at": "2026-11-12 02:23",
       "text": "Owner chose design A (Ticket) for the cards, with the customer front and back kept in their earlier version (DEC-095), and asked for three coherent back suggestions per deck: a board with stub, picture and pattern backs for the lorry, event, favour, upgrade, shopkeeper and standing-order decks is on the mock-up page. The designs not chosen were moved to the bottom of the page."
+    },
+    {
+      "at": "2026-11-12 02:31",
+      "text": "Owner chose the pattern backs for now (DEC-096) and asked for three things to be thought through before building: the game's flow from start to finish with smooth animation that keeps the board-game feel, on the way to publishing live; a coherent achievement and unlockable-cosmetics progression with possible monetising later; and a strong single-player mode, since the Daily market and the Market League \"doesnt provide anything\". Three studies started (docs/studio/review-18: FLOW-AND-MOTION.md, PROGRESSION.md, SINGLE-PLAYER.md); a proposal (REP-106) follows. Nothing is built from them yet."
     }
   ]
 }

@@ -103,11 +103,8 @@ TASH = 'M300 220c-10-12-36-12-48 0 4 15 32 19 48 6 16 13 44 9 48-6-12-12-38-12-4
 HIJAB = 'M300 76c-64 0-104 48-104 112v56c0 46-14 86-34 120h276c-20-34-34-74-34-120v-56c0-64-40-112-104-112z'
 
 
-def torso(fill, seam=None):
-    s = shape(TORSO, fill)
-    if seam:
-        s += line('M166 400v-50M434 400v-50', seam, 6)
-    return s
+def torso(fill):
+    return shape(TORSO, fill)
 
 
 def neck(tone):
@@ -143,11 +140,12 @@ def tash(fill=INK, dy=0):
     return shape(TASH, fill, tf=f'translate(0 {dy})' if dy else None)
 
 
-def labcoat(pens=(RED, BLU)):
-    """White coat, grey lapels, black tie; pens in the chest pocket."""
-    return (torso(PAPER, KRAFT) + shape('M228 274h144l-30 72h-84z', KRAFT)
-            + shape('M286 286h28l27 62-41 48-41-48z', INK)
-            + line('M178 356h38', STONE, 5) + line('M188 354v-16', pens[0], 6) + line('M204 354v-13', pens[1], 6))
+def labcoat(pens=None):
+    """White coat, grey lapels, black tie; pens in the chest pocket if given."""
+    s = torso(PAPER) + shape('M228 274h144l-30 72h-84z', KRAFT) + shape('M286 286h28l27 62-41 48-41-48z', INK)
+    if pens:
+        s += line('M178 356h38', STONE, 5) + line('M188 354v-16', pens[0], 6) + line('M204 354v-13', pens[1], 6)
+    return s
 
 
 def hijab(colour, fold, fold_op, light, light_op, tone):
@@ -215,19 +213,18 @@ def john():
         + shape('M600 262V176C566 138 504 134 462 174C434 200 414 238 384 262Z', GRN_L)
         + shape('M0 262v-36c34-24 76-22 104 4 12 12 20 22 30 32z', GRN)
         + shape('M600 262v-46c-30-22-74-18-100 8-12 12-22 26-34 38z', GRN)
-        + tree(520, 184, 17) + tree(556, 172, 21, 26) + tree(588, 196, 15)
+        + tree(528, 176, 17) + tree(562, 166, 21, 26) + tree(592, 190, 15)
         # the river
         + box(0, 262, 600, 68, BLU_L)
         + line('M24 282h56M96 300h36M20 314h30M508 280h64M474 300h40M548 314h36', BLU, 5, .55)
         + line('M58 292h22M522 292h18', PAPER, 4, .85)
-        # the near bank, a shovel and a pickaxe
+        # the near bank and his pickaxe
         + ground(328, KRAFT, STONE, 1)
         + dot(40, 352, 7, STONE) + dot(566, 372, 9, STONE) + dot(24, 384, 5, STONE)
-        + line('M548 200V332', INK, 8) + line('M536 200h24', INK, 8) + shape('M534 318h28v20c0 9-28 9-28 0z', SLATE)
-        + line('M590 340L530 210', INK, 8) + line('M498 226Q522 186 566 192', SLATE, 10)
+        + line('M580 338L530 214', INK, 9) + line('M495 228Q520 192 565 200', STONE, 10)
     )
     person = (
-        torso(INK, SLATE)
+        torso(INK) + box(296, 340, 8, 60, SLATE)
         + shape('M238 274h124l-62 76z', RED) + shape('M300 274h62l-62 76z', RED_D)
         + neck(t) + head(t)
         + shape('M212 142C205 94 224 58 258 58c16 0 26 8 42 8s26-8 42-8c34 0 53 36 46 84z', INK)
@@ -238,15 +235,15 @@ def john():
     )
     front = (
         # a camp fire on the bank
-        shape('M92 298c22 26 36 46 36 62a36 30 0 01-72 0c0-16 14-36 36-62z', ORANGE)
-        + shape('M92 334c13 15 19 24 19 32a19 16 0 01-38 0c0-8 6-17 19-32z', YEL)
-        + line('M50 392l84-22M50 370l84 22', INK, 10)
-        + dot(70, 300, 4, ORANGE) + dot(116, 288, 3, ORANGE)
+        shape('M118 280c22 26 36 46 36 62a36 30 0 01-72 0c0-16 14-36 36-62z', ORANGE)
+        + shape('M118 316c13 15 19 24 19 32a19 16 0 01-38 0c0-8 6-17 19-32z', YEL)
+        + line('M76 374l84-22M76 352l84 22', INK, 10)
+        + dot(94, 284, 4, ORANGE) + dot(144, 272, 3, ORANGE)
         # the gold pan on a rock
-        + shape('M398 400c2-28 32-44 76-44s82 14 90 44z', STONE) + shape('M474 356c44 0 82 14 90 44h-40c-6-22-22-36-50-44z', SLATE, .3)
+        + shape('M366 400c2-36 34-56 78-56s84 18 92 56z', STONE) + shape('M444 344c44 0 84 18 92 56h-40c-6-26-24-46-52-56z', SLATE, .3)
         + group(oval(0, 0, 70, 22, SLATE) + oval(0, -2, 58, 14, BLU_L) + line('M-44-2h20', PAPER, 4, .8)
-                + nugget(-8, -3, .9) + nugget(16, -1, 1.1) + nugget(36, -5, .7), 'translate(474 344) rotate(-7)')
-        + twinkle(522, 308, 15, PAPER) + twinkle(430, 314, 9, PAPER)
+                + nugget(-8, -3, .9) + nugget(16, -1, 1.1) + nugget(36, -5, .7), 'translate(444 322) rotate(-7)')
+        + twinkle(492, 284, 15, PAPER) + twinkle(398, 292, 9, PAPER)
     )
     return svg(600, 400, scene + person + front)
 
@@ -283,18 +280,20 @@ def robert():
     )
     person = (
         dot(300, 98, 38, STONE) + line('M278 84c6-10 16-15 27-15', PALE, 6, .9)
-        + torso(INK, SLATE) + shape('M300 282l38 50h-76z', PAPER)
+        + torso(INK) + shape('M300 282l38 50h-76z', PAPER) + dot(300, 352, 5, STONE) + dot(300, 378, 5, STONE)
         + neck(t) + head(t)
         + shape('M219 181A82 82 0 01381 181Q300 122 219 181Z', STONE) + line('M236 164Q300 122 364 164', PALE, 6, .8)
         + specs() + eyes() + smile()
     )
     front = (
-        flat_book(38, 364, 132, 36, RED, RED_L) + flat_book(50, 340, 110, 24, BLU, BLU_L) + flat_book(42, 318, 104, 22, YEL, YEL_D)
-        + shape('M396 400V348l80 14 80-14v52z', BLU)
-        + shape('M404 400V344l72 13v43z', PAPER) + shape('M548 400V344l-72 13v43z', PAPER)
-        + line('M476 360v40', STONE, 4, cap='butt')
-        + line('M420 364l42 8M420 382l42 8M532 364l-42 8M532 382l-42 8', STONE, 5)
-        + shape('M470 350h12v30l-6-6-6 6z', RED)
+        # books to shelve, and the one she is reading
+        flat_book(46, 372, 122, 28, GRN_D, GRN_L) + flat_book(38, 338, 132, 34, RED, RED_L)
+        + flat_book(52, 314, 110, 24, BLU, BLU_L) + flat_book(44, 292, 104, 22, YEL, YEL_D)
+        + shape('M370 400V314l80 14 80-14v86z', BLU)
+        + shape('M378 400V310l72 13v77z', PAPER) + shape('M522 400V310l-72 13v77z', PAPER)
+        + line('M450 326v74', STONE, 4, cap='butt')
+        + line('M394 330l42 8M394 348l42 8M394 366l42 8M506 330l-42 8M506 348l-42 8M506 366l-42 8', STONE, 5)
+        + shape('M444 316h12v34l-6-6-6 6z', RED)
     )
     return svg(600, 400, scene + person + front)
 
@@ -320,7 +319,7 @@ def daniel():
         + dot(146, 126, 6, YEL)
         + box(24, 172, 160, 10, KRAFT) + box(40, 166, 18, 6, PAPER) + box(64, 166, 14, 6, YEL) + box(138, 162, 32, 10, SLATE)
         # a chart of the elements: coloured squares, no letters
-        + box(430, 40, 152, 106, PAPER) + line('M444 54h54', INK, 5) + cells + dot(440, 48, 0, RED)
+        + box(430, 40, 152, 106, PAPER) + line('M444 54h54', INK, 5) + cells
         # the bench, with a burner
         + box(0, 276, 600, 124, STONE) + box(0, 276, 600, 12, KRAFT) + box(0, 288, 600, 4, SLATE, op=.3)
         + shape('M80 206c13 16 17 27 17 35a17 15 0 01-34 0c0-8 4-19 17-35z', BLU_L) + shape('M80 228c6 8 8 12 8 16a8 7 0 01-16 0c0-4 2-8 8-16z', PAPER)
@@ -328,8 +327,8 @@ def daniel():
         + line('M110 271c22 0 16-11 40-11', ORANGE, 6)
     )
     person = (
-        ''.join(dot(x, y, r, INK) for x, y, r in ((206, 176, 34), (246, 112, 38), (300, 96, 40), (354, 112, 38), (394, 176, 34)))
-        + labcoat() + neck(t) + head(t)
+        ''.join(dot(x, y, r, INK) for x, y, r in ((204, 180, 32), (214, 138, 32), (250, 106, 36), (300, 94, 38), (350, 106, 36), (386, 138, 32), (396, 180, 32)))
+        + labcoat((RED, BLU)) + neck(t) + head(t)
         + line('M228 142H372', INK, 9, cap='butt')
         + dot(266, 142, 29, PAPER) + dot(334, 142, 29, PAPER) + dot(266, 142, 19, YEL) + dot(334, 142, 19, YEL)
         + line('M254 136c3-5 8-8 14-8M322 136c3-5 8-8 14-8', PAPER, 4, .8)
@@ -337,12 +336,12 @@ def daniel():
     )
     front = (
         # his flask of fizzing yellow
-        shape('M440 300h28v36l42 64h-112l42-64z', BLU_L, .55)
-        + shape('M428 364h52l24 36h-100z', YEL) + line('M436 376h18', YEL_L, 5)
-        + box(432, 292, 44, 9, INK, 4)
-        + dot(462, 270, 6, BLU_L) + dot(446, 250, 8, BLU_L) + dot(464, 226, 10, BLU_L)
-        + dot(460, 268, 2, PAPER) + dot(443, 247, 3, PAPER) + dot(460, 222, 4, PAPER)
-        + dot(446, 380, 4, PAPER, .8) + dot(464, 388, 3, PAPER, .8) + dot(470, 372, 3, PAPER, .8)
+        shape('M438 262h28v40l40 52c5 7 1 14-7 14h-94c-8 0-12-7-7-14l40-52z', BLU_L, .55)
+        + shape('M417 330h70l19 24c5 7 1 14-7 14h-94c-8 0-12-7-7-14z', YEL) + line('M424 346h18', YEL_L, 5)
+        + dot(452, 344, 4, PAPER, .8) + dot(470, 354, 3, PAPER, .8) + dot(476, 340, 3, PAPER, .8)
+        + box(430, 254, 44, 9, INK, 4) + fist(452, 286, t, 17)
+        + dot(462, 236, 6, BLU_L) + dot(446, 216, 8, BLU_L) + dot(466, 192, 10, BLU_L)
+        + dot(460, 234, 2, PAPER) + dot(443, 213, 3, PAPER) + dot(462, 188, 4, PAPER)
     )
     return svg(600, 400, scene + person + front)
 
@@ -392,7 +391,7 @@ def rara():
         + hijab(PINK, RED, .3, PAPER, .45, t)
         + eyes_shut(196, 26) + grin(220)
     )
-    front = pompom(112, 330) + pompom(488, 330)
+    front = pompom(126, 318) + pompom(474, 318)
     return svg(600, 400, scene + person + front)
 
 
@@ -409,35 +408,33 @@ def aisyah():
     scene = (
         wall(KRAFT) + hlines((66, 136, 206), PALE, 3) + vlines(range(50, 600, 100), PALE, 3, None, 0, 276) + disc()
         # the spark machine
-        + box(84, 150, 32, 112, SLATE) + box(90, 150, 6, 112, PAPER, op=.3) + box(56, 258, 88, 18, INK, 4)
-        + dot(100, 112, 46, STONE) + shape('M100 66a46 46 0 010 92 62 62 0 000-92z', SLATE, .35) + line('M72 96c4-10 12-16 22-18', PAPER, 6, .7)
-        + line('M150 92l26-14-8 22 28-10', YEL, 7) + line('M146 132l24 6-10 14 22 4', YEL, 6)
-        + line('M52 90l-22-10 8 18-22-4', YEL, 6)
+        + box(74, 150, 32, 112, SLATE) + box(80, 150, 6, 112, PAPER, op=.3) + box(46, 258, 88, 18, INK, 4)
+        + dot(90, 112, 46, STONE) + shape('M90 66a46 46 0 010 92 62 62 0 000-92z', SLATE, .35) + line('M62 96c4-10 12-16 22-18', PAPER, 6, .7)
+        + line('M140 92l26-14-8 22 28-10', YEL, 7) + line('M136 132l24 6-10 14 22 4', YEL, 6)
+        + line('M44 88l-18-10 6 18-18-4', YEL, 6)
         # the control panel
         + box(430, 54, 156, 184, INK, 8)
         + dot(476, 104, 30, PAPER) + line('M476 104l16-18', RED, 5) + dot(476, 104, 5, INK)
         + line('M454 104h5M493 104h5M476 82v5', SLATE, 4)
         + dot(546, 104, 22, PAPER) + line('M546 104l-12-10', RED, 5) + dot(546, 104, 4, INK)
-        + dot(456, 158, 9, GRN) + dot(486, 158, 9, YEL) + dot(516, 158, 9, RED) + dot(546, 158, 9, GRN_L) + dot(572, 158, 0, INK)
+        + dot(456, 158, 9, GRN) + dot(486, 158, 9, YEL) + dot(516, 158, 9, RED) + dot(546, 158, 9, GRN_L)
         + box(446, 184, 124, 38, SLATE, 6)
         + line('M464 212v-18M490 212v-10M516 212v-18M542 212v-10', PAPER, 7)
         # the bench
         + box(0, 276, 600, 124, BLU_L) + box(0, 276, 600, 6, BLU, op=.5)
     )
     person = (
-        spikes + labcoat((GRN, YEL)) + neck(t) + head(t)
+        spikes + labcoat() + neck(t) + head(t)
         + line('M262 132c8-9 20-15 34-16', PAPER, 7, .45)
         + specs() + eyes() + grin()
     )
     front = (
-        # a watermelon wired up to light a bulb
-        line('M448 312C440 250 470 262 470 238', RED, 5)
-        + line('M420 316C380 420 240 420 180 384', INK, 5)
-        + fr('watermelon', 384, 286, 120)
-        + line('M448 320v-12M420 320v-10', SLATE, 6)
-        + ''.join(line(f'M{150 + 46 * math.cos(math.radians(a)):.0f} {336 + 46 * math.sin(math.radians(a)):.0f}l{10 * math.cos(math.radians(a)):.0f} {10 * math.sin(math.radians(a)):.0f}', YEL, 6) for a in (-150, -110, -70, -30))
-        + dot(150, 336, 30, YEL) + line('M134 326c3-8 9-12 16-13', PAPER, 5, .8)
-        + box(136, 362, 28, 20, SLATE, 4) + box(140, 380, 20, 12, INK, 3)
+        # a bulb that lights in her hand, and a slice of watermelon for the lab
+        ''.join(line(f'M{170 + 40 * math.cos(math.radians(a)):.0f} {310 + 40 * math.sin(math.radians(a)):.0f}'
+                     f'l{10 * math.cos(math.radians(a)):.0f} {10 * math.sin(math.radians(a)):.0f}', YEL, 6) for a in (-150, -118, -90, -62, -30))
+        + fist(170, 374, t) + box(156, 338, 28, 18, SLATE, 4) + box(160, 354, 20, 10, INK, 3)
+        + dot(170, 310, 30, YEL) + line('M154 300c3-8 9-12 16-13', PAPER, 5, .8)
+        + fist(446, 374, t) + fr('watermelon', 388, 262, 116)
     )
     return svg(600, 400, scene + person + front)
 
@@ -454,19 +451,20 @@ def ravi():
     t = 'deep'
     scene = (
         wall(BLU_L, .42)
-        + box(30, 20, 96, 16, PAPER, 8, .85) + box(60, 0, 0, 0, PAPER) + box(456, 34, 104, 16, PAPER, 8, .85) + box(492, 54, 56, 12, PAPER, 6, .85)
+        + box(30, 20, 96, 16, PAPER, 8, .85) + box(456, 34, 104, 16, PAPER, 8, .85) + box(492, 54, 56, 12, PAPER, 6, .85)
         + disc(YEL_L)
         # a shophouse
         + box(0, 74, 184, 114, RED_L) + box(0, 58, 194, 18, RED_D) + shutters(18, 96) + shutters(104, 96)
         + box(0, 214, 184, 78, PALE) + box(22, 230, 54, 62, BLU_D) + dot(66, 262, 4, YEL)
         + box(94, 230, 74, 44, BLU_L) + line('M104 262l20-22', PAPER, 5, .7) + box(90, 274, 82, 6, STONE)
-        + shape('M0 186h184l12 34H0z', YEL) + ''.join(shape(f'M{x} 186h24l2 34h-25z', PAPER) for x in (22, 70, 118, 166))
+        + box(0, 186, 192, 26, YEL) + ''.join(box(x, 186, 24, 26, PAPER) for x in (24, 72, 120, 168))
+        + ''.join(dot(12 + 24 * i, 212, 12, PAPER if i % 2 else YEL) for i in range(8))
         # the motorbike and its delivery box
-        + dot(508, 258, 36, INK) + dot(508, 258, 20, STONE) + dot(508, 258, 7, INK)
-        + shape('M452 214h104c14 0 22 8 24 22H452z', RED) + shape('M452 236h128c-2-8-6-14-12-18H452z', RED_D)
-        + box(448, 196, 96, 20, INK, 10) + line('M470 270h92', SLATE, 10) + dot(574, 226, 6, YEL)
-        + box(476, 180, 84, 8, INK) + box(470, 110, 96, 72, BLU, 6) + box(470, 126, 96, 10, BLU_D) + box(506, 110, 24, 72, PAPER)
-        + box(510, 148, 16, 10, YEL)
+        + dot(478, 258, 35, INK) + dot(478, 258, 19, STONE) + dot(478, 258, 7, INK)
+        + shape('M448 220h152v30H472z', RED) + shape('M462 238h138v12H472z', RED_D)
+        + box(506, 202, 94, 20, INK, 10) + box(428, 264, 78, 10, SLATE, 5) + dot(454, 230, 6, YEL)
+        + box(436, 204, 78, 8, INK) + box(430, 132, 88, 74, BLU, 6) + box(430, 148, 88, 10, BLU_D) + box(462, 132, 24, 74, PAPER)
+        + box(466, 170, 16, 10, YEL)
         # the road
         + box(0, 292, 600, 108, STONE) + box(0, 292, 600, 8, PALE)
         + line('M16 356h44M522 356h56', PAPER, 7, .9)
@@ -474,17 +472,16 @@ def ravi():
     person = (
         dot(300, 194, 104, PAPER) + shape('M300 90a104 104 0 01104 104 104 104 0 01-24 66 122 122 0 00-80-170z', KRAFT, .7)
         + line('M300 92V72', PAPER, 7) + dot(300, 66, 11, BLU) + box(290, 92, 20, 30, BLU)
-        + torso(PAPER, KRAFT) + shape('M242 274h116l-58 72z', BLU) + shape('M300 274h58l-58 72z', BLU_D)
+        + torso(PAPER) + shape('M242 274h116l-58 72z', BLU) + shape('M300 274h58l-58 72z', BLU_D)
         + line('M300 350v50', KRAFT, 5)
         + neck(t) + dot(300, 198, 85, PALE) + head(t, 78, 198)
         + eyes(192) + grin(217)
     )
     front = (
         # parcels ready to go
-        box(40, 322, 138, 78, KRAFT) + box(150, 322, 28, 78, STONE) + box(96, 322, 22, 78, PAPER)
-        + box(126, 340, 20, 0, YEL)
-        + box(56, 282, 78, 40, PAPER) + line('M95 282v40M56 302h78', RED, 5, cap='butt')
-        + box(48, 344, 40, 26, YEL) + line('M56 353h24M56 362h14', INK, 4)
+        box(50, 308, 138, 92, KRAFT) + box(160, 308, 28, 92, STONE) + box(106, 308, 22, 92, PAPER)
+        + box(66, 268, 78, 40, GRN_L) + line('M105 268v40M66 288h78', PAPER, 5, cap='butt')
+        + box(58, 330, 40, 26, YEL) + line('M66 339h24M66 348h14', INK, 4)
     )
     return svg(600, 400, scene + person + front)
 
@@ -503,16 +500,15 @@ def mei_ling():
         + shape('M14 236c16-26 52-34 86-22 20 7 30 14 40 22z', GRN)
         + shape('M418 268l-14-30h170l-18 30z', PAPER) + shape('M410 252h160l-4 8H414z', RED)
         + box(470, 204, 64, 34, PAPER) + box(480, 212, 18, 14, BLU) + box(506, 212, 18, 14, BLU) + box(464, 198, 76, 8, INK)
-        + line('M448 238v-64', INK, 6) + shape('M448 176l30 10-30 10z', ORANGE)
+        + line('M446 238v-56', INK, 6) + dot(446, 178, 6, YEL)
         + line('M28 262h44M112 280h32M20 300h30M150 304h26M388 290h40M520 296h50M462 310h32M560 268h30', PAPER, 5, .85)
         + line('M60 284h30M176 258h24M556 312h30M410 304h22', BLU, 5, .45)
-        # the jetty, an air tank and flippers
+        # the jetty, an air tank and a marker buoy
         + ground(326, KRAFT, STONE, 1) + vlines((64, 190, 420, 546), STONE, 3, .8, 332, 400)
-        + shape('M110 326c-2-12-2-18 0-26l-8-62c0-12 40-12 40 0l-8 62c2 8 2 14 0 26z', ORANGE) + box(108, 296, 28, 10, INK, 4)
-        + line('M112 250l-2 30M132 250l2 30', YEL, 4, .8)
-        + box(44, 214, 48, 112, YEL, 22) + box(78, 232, 8, 80, YEL_D, 4) + line('M54 236v60', PAPER, 6, .6)
-        + box(44, 252, 48, 8, INK) + box(44, 292, 48, 8, INK)
-        + box(60, 198, 16, 18, SLATE) + box(52, 190, 32, 10, INK, 4)
+        + box(66, 214, 48, 112, YEL, 22) + box(100, 232, 8, 80, YEL_D, 4) + line('M76 236v60', PAPER, 6, .6)
+        + box(66, 252, 48, 8, INK) + box(66, 292, 48, 8, INK)
+        + box(82, 198, 16, 18, SLATE) + box(74, 190, 32, 10, INK, 4)
+        + dot(152, 264, 14, RED) + box(138, 260, 28, 8, PAPER) + line('M152 250v-8', INK, 4)
     )
     person = (
         shape('M198 204c0-58 44-100 102-100s102 42 102 100v100H198z', INK)
@@ -546,17 +542,17 @@ def farid():
         + box(44, 82, 48, 80, GRN_D) + box(104, 82, 48, 80, GRN_D) + box(44, 200, 48, 110, GRN_D) + box(104, 200, 48, 110, GRN_D)
         + box(84, 160, 34, 16, PAPER) + box(66, 172, 64, 14, YEL) + line('M74 179h48', INK, 4) + dot(150, 186, 7, YEL)
         # the red post box
-        + box(456, 146, 104, 180, RED) + box(542, 146, 18, 180, RED_D) + shape('M448 146c0-36 28-56 60-56s60 20 60 56z', RED)
-        + box(446, 138, 124, 14, RED_D, 7) + box(476, 168, 62, 12, INK, 6)
-        + box(482, 196, 50, 44, PAPER) + line('M492 210h30M492 224h18', INK, 5)
-        + box(450, 304, 116, 22, RED_D) + line('M470 166v126', RED_L, 6, .7) + line('M472 110c6-8 14-12 24-13', RED_L, 6, .7)
+        + box(472, 150, 94, 176, RED) + box(550, 150, 16, 176, RED_D) + shape('M466 150c0-34 24-52 54-52s54 18 54 52z', RED)
+        + box(462, 142, 116, 14, RED_D, 7) + box(490, 172, 58, 12, INK, 6)
+        + box(494, 200, 48, 42, PAPER) + line('M504 213h28M504 227h16', INK, 5)
+        + box(466, 304, 106, 22, RED_D) + line('M486 170v122', RED_L, 6, .7) + line('M486 116c6-7 13-10 22-11', RED_L, 6, .7)
         + ground(326, STONE)
     )
     person = (
-        torso(BLU, BLU_D) + shape('M248 274h104l-52 44z', BLU_D)
+        torso(BLU) + shape('M248 274h104l-52 44z', BLU_D)
         + shape('M190 280l26-6 250 126h-46z', KRAFT)
         + neck(t) + head(t)
-        + shape('M211 166C205 110 246 88 300 88C352 88 396 110 420 146C440 160 452 176 456 190C424 180 392 176 362 176L362 160C312 162 262 164 211 166Z', INK)
+        + shape('M211 166C205 110 246 88 300 88C352 88 394 110 416 144C434 156 444 170 448 186C420 178 390 176 362 176L362 160C312 162 262 164 211 166Z', INK)
         + line('M238 130c8-16 24-28 46-32', SLATE, 7)
         + eyes() + smile()
     )
@@ -609,7 +605,7 @@ def siti():
         + hijab(GRN, GRN_D, 1, GRN_L, .8, t)
         + specs(196, 27, 20) + eyes(196, 27) + smile(230)
         # her measuring tape
-        + line('M236 270C228 300 226 350 224 400', YEL, 10, cap='butt') + line('M364 270c6 28 8 58 10 88', YEL, 10, cap='butt')
+        + line('M244 258C230 296 226 350 224 400', YEL, 10, cap='butt') + line('M356 258c12 30 16 62 18 100', YEL, 10, cap='butt')
         + ticks + box(367, 356, 14, 8, STONE)
     )
     front = (
@@ -630,15 +626,15 @@ def siti():
 
 
 def card(rot, pip):
-    return group(box(-27, -118, 54, 78, PAPER, 7) + pip, f'translate(150 428) rotate({rot})')
+    return group(box(-27, -118, 54, 78, PAPER, 7) + pip, f'translate(150 404) rotate({rot})')
 
 
 def kumar():
     t = 'deep'
-    p0, p1, p2, p3, p4 = (0, 14), (150, 64), (300, 24), (450, 64), (600, 14)
-    lights = (line('M0 14Q150 64 300 24Q450 64 600 14', INK, 4)
-              + bulbs(p0, p1, p2, (.14, .36, .58, .8), 8, (YEL, PAPER)) + bulbs(p2, p3, p4, (.2, .42, .64, .86), 8, (PAPER, YEL)))
-    stars_ = ''.join(dot(x, y, 2.5, PAPER, .8) for x, y in ((40, 84), (208, 96), (396, 100), (566, 70), (130, 104), (478, 86)))
+    p0, p1, p2, p3, p4 = (0, 30), (150, 86), (300, 60), (450, 86), (600, 30)
+    lights = (line('M0 30Q150 86 300 60Q450 86 600 30', INK, 4)
+              + bulbs(p0, p1, p2, (.12, .32, .52, .72), 8, (YEL, PAPER)) + bulbs(p2, p3, p4, (.28, .48, .68, .88), 8, (PAPER, YEL)))
+    stars_ = ''.join(dot(x, y, 2.5, PAPER, .8) for x, y in ((30, 96), (212, 108), (392, 112), (574, 84), (132, 110), (430, 74)))
     scallops = ''.join(dot(10 + 26 * i, 178, 13, RED if i % 2 == 0 else PAPER) for i in range(8))
     scene = (
         wall(BLU_L) + stars_ + disc() + lights
@@ -650,16 +646,16 @@ def kumar():
         + box(0, 262, 186, 64, KRAFT) + box(0, 256, 190, 10, PALE) + box(0, 292, 186, 6, STONE, op=.6)
         + fr('watermelon', 26, 216, 56) + fr('mango', 84, 212, 48) + fr('apple', 132, 212, 46)
         # the show board, and his table of tricks
-        + line('M510 180V266', INK, 8, cap='butt')
-        + box(436, 92, 150, 90, YEL) + box(446, 102, 130, 70, RED)
-        + star(478, 137, 22, 9, 5, YEL) + line('M512 126h50M512 146h34', PAPER, 7)
-        + ''.join(dot(x, 97, 3, PAPER) + dot(x, 177, 3, PAPER) for x in range(450, 580, 20))
+        + line('M510 190V266', INK, 8, cap='butt')
+        + box(436, 104, 150, 90, YEL) + box(446, 114, 130, 70, RED)
+        + star(478, 149, 22, 9, 5, YEL) + line('M512 138h50M512 158h34', PAPER, 7)
+        + ''.join(dot(x, 109, 3, PAPER) + dot(x, 189, 3, PAPER) for x in range(450, 580, 20))
         + box(452, 268, 148, 58, RED) + box(452, 310, 148, 6, YEL) + box(446, 260, 154, 12, RED_D)
-        + shape('M546 260l6-30h24l6 30z', YEL) + dot(528, 252, 8, PAPER)
+        + star(492, 292, 10, 4, 5, YEL) + star(560, 292, 10, 4, 5, YEL)
         + ground(326, STONE)
     )
     person = (
-        torso(INK, SLATE) + line('M252 276l30 60M348 276l-30 60', SLATE, 7) + shape('M300 286l30 46h-60z', BLU)
+        torso(INK) + shape('M300 286l30 46h-60z', BLU) + shape('M300 286l30 46h-30z', BLU_D) + dot(300, 354, 5, YEL) + dot(300, 380, 5, YEL)
         + neck(t) + head(t)
         + box(236, 52, 128, 92, INK) + box(236, 112, 128, 18, BLU)
         + shape('M184 144Q300 116 416 144Q300 170 184 144Z', INK)
@@ -668,12 +664,12 @@ def kumar():
     )
     front = (
         # a fan of cards and the wand
-        card(-30, shape('M0-98l12 19-12 19-12-19z', RED))
-        + card(-6, dot(0, -79, 11, INK))
-        + card(18, shape('M0-98l12 19-12 19-12-19z', RED))
-        + line('M462 344L516 262', INK, 10) + line('M510 271l6-9', PAPER, 10) + line('M462 344l5-8', PAPER, 10)
-        + fist(456, 350, t)
-        + burst(528, 240, 30, YEL) + twinkle(528, 240, 13, PAPER) + twinkle(566, 214, 9, PAPER) + twinkle(486, 222, 8, PAPER)
+        fist(154, 372, t) + card(-30, shape('M-8-108l9 14-9 14-9-14z', RED))
+        + card(-6, dot(-8, -94, 9, INK))
+        + card(18, shape('M-8-108l9 14-9 14-9-14z', RED) + shape('M8-66l9 14-9 14-9-14z', RED))
+        + line('M464 334L482 252', INK, 10) + line('M480 261l2-9', PAPER, 10)
+        + fist(460, 344, t)
+        + burst(484, 232, 28, YEL) + twinkle(484, 232, 12, PAPER) + twinkle(526, 214, 9, PAPER) + twinkle(446, 212, 8, PAPER)
     )
     return svg(600, 400, scene + person + front)
 
@@ -694,10 +690,11 @@ def grace():
         + shape('M0 0h70c-4 60-26 110-26 170s22 104 30 156H0z', RED)
         + shape('M22 0h20c-2 64-20 112-20 172s14 100 20 154H26c-4-52-16-96-16-154S24 62 22 0z', RED_D)
         + line('M0 190c16 8 30 6 44-6', YEL, 7)
-        + box(140, 126, 14, 122, INK) + shape('M134 100h26l-4 30h-18z', INK) + dot(132, 108, 4, STONE) + dot(162, 108, 4, STONE)
-        + dot(134, 120, 4, STONE) + dot(160, 120, 4, STONE)
-        + dot(147, 262, 26, YEL) + dot(147, 298, 34, YEL) + shape('M147 266c14 0 22 14 22 30s-10 26-22 26z', YEL_D, .6)
-        + box(132, 280, 30, 8, INK) + box(132, 300, 30, 8, INK) + line('M143 132v170M151 132v170', PAPER, 2, .7, cap='butt')
+        + group(box(140, 126, 14, 122, INK) + shape('M134 100h26l-4 30h-18z', INK) + dot(132, 108, 4, STONE) + dot(162, 108, 4, STONE)
+                + dot(134, 120, 4, STONE) + dot(160, 120, 4, STONE)
+                + dot(147, 262, 26, YEL) + dot(147, 298, 34, YEL) + shape('M147 266c14 0 22 14 22 30s-10 26-22 26z', YEL_D, .6)
+                + box(132, 280, 30, 8, INK) + box(132, 300, 30, 8, INK) + line('M143 132v170M151 132v170', PAPER, 3, .6, cap='butt'),
+                'translate(-26 -8)')
         # the speakers
         + box(452, 128, 122, 96, INK, 6) + box(440, 220, 146, 106, INK, 6)
         + box(462, 138, 102, 14, SLATE) + ''.join(dot(x, 145, 4, PAPER) for x in (474, 492, 510, 528, 546))
@@ -706,9 +703,9 @@ def grace():
         + ground(326, KRAFT, STONE, 1) + vlines((60, 190, 410, 540), STONE, 3, .8, 332, 400)
     )
     person = (
-        ''.join(dot(x, y, r, INK) for x, y, r in ((200, 182, 40), (238, 116, 44), (300, 100, 46), (362, 116, 44), (400, 182, 40)))
-        + torso(INK, SLATE) + shape('M244 274h112l-56 70z', PINK)
-        + dot(206, 318, 5, STONE) + dot(394, 318, 5, STONE)
+        ''.join(dot(x, y, r, INK) for x, y, r in ((198, 186, 38), (208, 144, 38), (242, 112, 42), (300, 100, 46), (358, 112, 42), (392, 144, 38), (402, 186, 38)))
+        + torso(INK) + shape('M244 274h112l-56 70z', PINK)
+        + shape('M222 274h22l56 70-10 14z', SLATE) + shape('M378 274h-22l-56 70 10 14z', SLATE)
         + neck(t) + head(t)
         + box(242, 176, 52, 32, INK, 10) + box(306, 176, 52, 32, INK, 10) + box(288, 184, 24, 8, INK)
         + line('M252 187l12-5M316 187l12-5', PAPER, 4, .55)
@@ -735,29 +732,30 @@ def bone(x, y, length, rot, thick=16):
 
 def hafiz():
     t = 'light'
-    ribs = ''.join(line(f'M{x} {y}q-16 30-2 60', PAPER, 7) for x, y in ((60, 196), (84, 200), (108, 202), (132, 200)))
-    spine = ''.join(dot(x, y, 8, PAPER) for x, y in ((40, 184), (58, 190), (76, 194), (94, 196), (112, 196), (130, 194), (146, 188)))
+    ribs = ''.join(line(f'M{x} {y}q-16 30-2 60', PAPER, 7) for x, y in ((46, 204), (70, 208), (94, 210), (118, 208)))
+    spine = ''.join(dot(x, y, 8, PAPER) for x, y in ((26, 192), (44, 198), (62, 202), (80, 204), (98, 204), (116, 202), (132, 196)))
     scene = (
         wall(ORANGE, .24) + line('M210 30h60M236 48h32M420 60h44M40 40h70M70 58h36', PAPER, 8, .7) + disc()
         # the rock face, with old bones showing
-        + shape('M0 92h112c34 6 56 32 62 72l16 162H0z', STONE)
-        + line('M0 128h124M0 246h172M0 296h178', KRAFT, 4, cap='butt')
+        + shape('M0 70h52l16 30h46l22 36 26 12 22 178H0z', STONE)
+        + shape('M52 70l16 30h46l22 36 26 12 4 30-34-14-24-38H62L40 70z', KRAFT, .7)
+        + line('M0 262h150M0 300h170M0 150h60', KRAFT, 4, cap='butt')
         + spine + ribs
-        + shape('M146 162c14-10 34-8 42 6 4 8 2 18-6 22l-28 6c-10-4-14-22-8-34z', PAPER) + dot(170, 174, 5, STONE)
-        + line('M160 196l18-4', STONE, 3)
+        + shape('M132 170c14-10 34-8 42 6 4 8 2 18-6 22l-28 6c-10-4-14-22-8-34z', PAPER) + dot(156, 182, 5, STONE)
+        + line('M146 204l18-4', STONE, 3)
         # the shelter and the finds table
         + line('M424 178V326M572 170V326', INK, 8, cap='butt')
         + shape('M404 148l188-18 8 44-190 22z', BLU) + shape('M410 196l190-22v10l-188 22z', BLU_D)
         + box(438, 262, 124, 10, PALE) + line('M448 272v54M552 272v54', SLATE, 7, cap='butt')
-        + shape('M508 262c-4-14 0-26 12-30h16c12 4 16 16 12 30z', ORANGE) + box(518, 226, 20, 8, RED_D, 3)
-        + bone(474, 252, 34, -8, 9)
+        + shape('M506 262c-4-14 0-26 12-30h16c12 4 16 16 12 30z', ORANGE) + box(516, 226, 20, 8, RED_D, 3)
+        + shape('M458 262c-2-10 2-18 10-20h10c8 2 12 10 10 20z', RED_D) + line('M460 250h28', ORANGE, 3, cap='butt')
         + ground(326, KRAFT, STONE, 1)
         + line('M0 346H126M474 346H600', RED, 3, cap='butt')
         + box(36, 334, 8, 22, INK) + box(104, 334, 8, 22, INK) + box(496, 334, 8, 22, INK) + box(566, 334, 8, 22, INK)
     )
     person = (
         dot(214, 204, 28, STONE) + dot(386, 204, 28, STONE)
-        + torso(INK, SLATE) + shape('M300 286l30 46h-60z', RED)
+        + torso(INK) + shape('M300 286l30 46h-60z', RED) + line('M184 350h38', SLATE, 5) + line('M196 348v-18', YEL, 6)
         + neck(t) + head(t)
         + line('M258 138c8-10 20-16 33-18', PAPER, 7, .55)
         + specs() + eyes() + tash(STONE, 9)
@@ -766,7 +764,7 @@ def hafiz():
         # a trowel in the spoil heap, and the bone he has just dug up
         shape('M24 400c8-26 44-38 76-30 22 6 34 16 40 30z', STONE)
         + line('M84 352v-26', RED, 10) + shape('M70 350h28l-14 36z', SLATE)
-        + fist(450, 352, t) + bone(486, 318, 118, -38)
+        + fist(440, 356, t) + bone(470, 314, 108, -52)
     )
     return svg(600, 400, scene + person + front)
 

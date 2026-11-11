@@ -140,6 +140,8 @@ def hangtag(cx, top, w, h, kind='up', hole=INK, fill=PAPER, ink=INK, string=None
     out = line(f'M{n(cx)} {n(from_y)}V{n(top + p * .8)}', string, 3) if string else ''
     out += path(f'M{n(cx)} {n(top)}L{n(cx + w / 2)} {n(top + p)}V{n(top + h)}H{n(cx - w / 2)}V{n(top + p)}Z', fill)
     out += circ(cx, top + p * .9, w * .08, hole)
+    if kind == 'bars':
+        return out + line(f'M{n(cx - w * .26)} {n(top + p + (h - p) * .34)}h{n(w * .52)}M{n(cx - w * .26)} {n(top + p + (h - p) * .66)}h{n(w * .3)}', ink, max(3, w * .09))
     arrows = 2 if kind.endswith('2') else 1
     aw = w * (.3 if arrows == 2 else .42)
     ay, ah = top + p + (h - p) * .42, (h - p) * .56
@@ -199,7 +201,7 @@ def crate(x, y, w, h, wood=KRAFT, dark=STONE):
 def cloud(cx, cy, k, fill, op=None):
     """A flat-bottomed cloud about 150k wide."""
     d = (dp(cx - 38 * k, cy + 4 * k, 30 * k) + dp(cx + 2 * k, cy - 14 * k, 40 * k) + dp(cx + 46 * k, cy + 8 * k, 26 * k)
-         + f'M{n(cx - 38 * k)} {n(cy)}H{n(cx + 46 * k)}V{n(cy + 34 * k)}H{n(cx - 38 * k)}Z')
+         + f'M{n(cx - 38 * k)} {n(cy)}V{n(cy + 34 * k)}H{n(cx + 46 * k)}V{n(cy)}Z')
     return path(d, fill, op)
 
 
@@ -301,29 +303,17 @@ ART = {}
 ART['heatwave'] = (
     back(RED) + circ(422, 140, 148, ORANGE)
     + sun(422, 140, 108, face=True) + circ(390, 152, 8, RED_L, .7) + circ(454, 152, 8, RED_L, .7)
-    + skyline(GROUND, RED_D, k=.62, shift=2, op=.55) + ground(RED_D)
-    + line('M36 332h64M150 356h84M352 346h60M470 362h70M488 330h56', RED, 4, .7)
-    # the thermometer, nearly at the top
-    + rect(70, 58, 36, 164, PAPER, 18) + circ(88, 228, 30, PAPER) + rect(96, 70, 6, 132, KRAFT, 3, .7)
-    + rect(82, 92, 12, 126, INK, 6) + circ(88, 228, 20, INK) + circ(81, 221, 5, PAPER, .8)
-    + path('M116 84h18v6h-18ZM116 114h18v6h-18ZM116 144h18v6h-18ZM116 174h18v6h-18Z', PAPER)
-    # heat rising
-    + line('M176 196q16-17 0-34t0-34M222 176q16-17 0-34t0-34', PAPER, 7)
-    # the slice everyone wants, and what it now costs
-    + melon(244, 338, 190)
-    + line('M378 286Q354 262 338 232', PAPER, 3) + tag(364, 264, 100, 44, 'up2', RED_D)
-)
-ART['heatwaveB'] = (
-    back(RED) + circ(422, 140, 148, ORANGE)
-    + sun(422, 140, 108, face=True) + circ(390, 152, 8, RED_L, .7) + circ(454, 152, 8, RED_L, .7)
-    + skyline(GROUND, RED_D, k=.62, shift=2) + ground(ORANGE)
+    + skyline(GROUND, RED_D, k=.62, shift=2, op=.7) + ground(ORANGE)
     + line('M36 332h64M150 356h84M352 346h60M470 362h70M488 330h56', YEL, 4, .7)
-    + rect(70, 58, 36, 164, PAPER, 18) + circ(88, 228, 30, PAPER) + rect(96, 70, 6, 132, KRAFT, 3, .7)
-    + rect(82, 92, 12, 126, INK, 6) + circ(88, 228, 20, INK) + circ(81, 221, 5, PAPER, .8)
-    + path('M116 84h18v6h-18ZM116 114h18v6h-18ZM116 144h18v6h-18ZM116 174h18v6h-18Z', PAPER)
-    + line('M176 196q16-17 0-34t0-34M222 176q16-17 0-34t0-34', PAPER, 7)
-    + melon(244, 338, 190)
-    + line('M378 286Q354 262 338 232', PAPER, 3) + tag(364, 264, 100, 44, 'up2', RED_D)
+    # the thermometer, nearly at the top
+    + rect(82, 58, 36, 164, PAPER, 18) + circ(100, 228, 30, PAPER) + rect(108, 70, 6, 132, KRAFT, 3, .7)
+    + rect(94, 92, 12, 126, INK, 6) + circ(100, 228, 20, INK) + circ(93, 221, 5, PAPER, .8)
+    + path('M128 84h18v6h-18ZM128 114h18v6h-18ZM128 144h18v6h-18ZM128 174h18v6h-18Z', PAPER)
+    # heat rising
+    + line('M190 198q16-17 0-34t0-34M236 178q16-17 0-34t0-34', PAPER, 7)
+    # the slice everyone wants, and what it now costs
+    + melon(250, 338, 186)
+    + line('M382 286Q358 262 342 234', PAPER, 3) + tag(368, 264, 100, 44, 'up2', RED_D)
 )
 
 # ---------- Festival: a crowd under the bunting, fireworks, everyone pays more ----------
@@ -365,11 +355,11 @@ ART['superfood'] = (
 ART['mangoCraze'] = (
     back(PINK)
     + ''.join(heart(x, y, 6, PAPER, .22) for x, y in [(40, 60), (128, 34), (250, 40), (540, 250), (70, 200), (560, 60), (36, 290), (300, 268)])
-    + circ(190, 172, 138, PAPER, .3) + fade(.5, burst(190, 172, 152, PAPER))
+    + circ(190, 170, 132, PAPER, .3) + fade(.5, burst(190, 170, 130, PAPER))
     + rect(0, GROUND, W, 80, RED_D, op=.3) + rect(0, GROUND, W, 5, PAPER, op=.35)
     + rect(180, 272, 20, 26, PALE) + rect(136, 292, 108, 12, PAPER, 6) + ell(190, 272, 104, 11, PAPER)
     + mango(190, 270, 150)
-    + sparkle(86, 110, 12) + sparkle(296, 216, 8)
+    + sparkle(86, 110, 12) + sparkle(292, 92, 8)
     + hangtag(330, 44, 56, 84, 'up2', PINK, string=PAPER)
     # likes fly out of the phone
     + rect(288, 146, 66, 40, PAPER, 12) + path('M340 180l22 12-10-20Z', PAPER) + heart(308, 166, 8) + line('M324 166h16', INK, 5)
@@ -404,9 +394,9 @@ ART['hotel'] = (
     + line('M112 220a62 60 0 0 1 36-44', BLU_L, 7, .8)
     + rect(165, 156, 14, 10, KRAFT) + circ(172, 150, 14, PAPER)
     # the order: an apple, a watermelon, a blueberry
-    + rect(290, 246, 262, 16, YEL, 8) + rect(302, 256, 238, 6, YEL_D, 3)
-    + melon(428, 250, 112) + apple(336, 248, 84) + berry(512, 249, 68)
-    + sparkle(388, 118, 11) + sparkle(520, 142, 8)
+    + rect(288, 246, 254, 16, YEL, 8) + rect(300, 256, 230, 6, YEL_D, 3)
+    + melon(424, 250, 110) + apple(334, 248, 84) + berry(504, 249, 66)
+    + sparkle(388, 118, 11) + sparkle(520, 142, 8) + sparkle(84, 168, 9)
 )
 
 # ---------- Apple Blight: no apples today, so apples are dear ----------
@@ -416,15 +406,15 @@ ART['blight'] = (
     + ground(STONE, edge=SLATE, edge_op=.35)
     # a bare apple tree
     + path('M104 304C110 262 111 228 109 192L129 192C127 228 130 262 136 304Z', SLATE)
-    + line('M118 198C112 162 92 144 68 126M120 192C124 152 142 126 168 106M112 170C104 152 100 130 104 102M128 164C146 152 166 148 186 152', SLATE, 8)
-    + leaf(60, 122, .8, -30, STONE) + leaf(168, 104, .8, -50, STONE) + leaf(186, 152, .8, 20, LEAF)
+    + line('M118 198C112 162 92 144 68 126M120 192C124 152 142 126 168 106M112 170C104 152 100 130 104 102M128 164C142 152 156 148 170 150', SLATE, 8)
+    + leaf(60, 122, .8, -30, STONE) + leaf(168, 104, .8, -50, STONE) + leaf(150, 150, .8, 200, LEAF)
     + leaf(150, 214, .8, 60, STONE) + leaf(62, 296, .8, 10, LEAF) + leaf(176, 300, .8, -8, STONE)
     # the apple that is not coming
     + apple(300, 262, 148) + line('M228 256L372 108', RED, 18) + ring(300, 182, 104, RED, 18)
     # an empty crate, a caterpillar, and the price
-    + crate(432, 240, 112, 64, STONE, SLATE) + rect(442, 232, 92, 10, SLATE)
-    + dots([(462, 226), (474, 222), (486, 226), (498, 222)], 7.5, LEAF) + circ(510, 224, 8.5, GRN) + circ(513, 222, 2.2, INK)
-    + line('M468 186Q446 204 448 240', PAPER, 3) + tag(450, 160, 96, 44, 'up2', KRAFT)
+    + crate(424, 240, 112, 64, STONE, SLATE) + rect(434, 232, 92, 10, SLATE)
+    + dots([(456, 226), (468, 222), (480, 226), (492, 222)], 7.5, LEAF) + circ(504, 224, 8.5, GRN) + circ(507, 222, 2.2, INK)
+    + line('M460 186Q438 204 440 240', PAPER, 3) + tag(442, 160, 96, 44, 'up2', KRAFT)
 )
 
 # ---------- Blueberry Glut: far too many blueberries, so they are cheap ----------
@@ -442,42 +432,41 @@ ART['glut'] = (
     + crate(166, 234, 268, 70, KRAFT, STONE)
     + tag(244, 247, 112, 44, 'down', KRAFT)
     # the ones that rolled away
-    + rot(-24, 442, 180, berry(442, 206, 50)) + line('M424 150q16-12 30-6M470 196q10 10 8 24', PAPER, 4, .8)
-    + rot(20, 118, 296, berry(118, 320, 50)) + berry(74, 306, 38) + rot(-30, 482, 296, berry(482, 320, 50)) + rot(40, 532, 292, berry(532, 310, 38))
+    + rot(-24, 442, 180, berry(442, 206, 50)) + line('M424 152q16-12 30-6', PAPER, 4, .8)
+    + rot(20, 124, 296, berry(124, 320, 50)) + berry(82, 306, 38) + rot(-30, 478, 296, berry(478, 320, 50)) + rot(40, 524, 292, berry(524, 310, 38))
 )
 
 # ---------- Good Harvest: the lorry is piled high, so fruit is cheap ----------
 HILLS = 'M0 240C90 204 190 216 290 238C390 260 500 216 600 234V304H0Z'
 ART['goodHarvest'] = (
     back(GRN) + circ(110, 104, 90, GRN_L) + sun(110, 104, 60)
-    + path(HILLS, GRN_D) + line('M20 262q60-22 130-12M330 268q90-8 150-30M500 268q50-10 90-14', GRN, 4, .7)
-    + rect(520, 196, 8, 30, GRN) + circ(524, 186, 22, LEAF) + rect(568, 204, 7, 26, GRN) + circ(571, 196, 17, LEAF)
+    + path(HILLS, GRN_D) + line('M16 262q60-22 130-12M40 284q50-14 96-8M330 268q90-8 150-30M476 282q56-14 110-18', GRN, 4, .7)
     + ground(LEAF, edge=GRN_L, edge_op=.6)
     # the load
-    + melon(232, 102, 54) + apple(276, 98, 42) + mango(318, 98, 38)
-    + apple(196, 134, 44) + mango(240, 134, 40) + berry(284, 134, 42) + melon(322, 136, 50)
+    + melon(232, 110, 54) + apple(276, 106, 42) + mango(318, 106, 38)
+    + apple(196, 136, 44) + mango(240, 136, 40) + berry(284, 136, 42) + melon(322, 138, 50)
     + lorry(170, 306, .9)
     # a full crate and the price
     + apple(478, 262, 38) + berry(512, 262, 34) + crate(452, 258, 86, 46, KRAFT, STONE)
-    + line('M470 216Q452 232 458 258', PAPER, 3) + tag(456, 192, 84, 40, 'down', GRN_D)
+    + line('M468 190Q446 214 456 258', PAPER, 3) + tag(456, 166, 84, 40, 'down', GRN_D)
 )
 
 # ---------- Bad Harvest: half a load, so fruit is dear ----------
 ART['badHarvest'] = (
-    back(KRAFT) + circ(110, 104, 90, PALE) + cloud(104, 100, .9, STONE) + cloud(158, 138, .5, PAPER)
-    + circ(316, 190, 128, STONE, .55)
+    back(KRAFT) + circ(110, 104, 90, PALE) + cloud(100, 96, 1.0, STONE) + cloud(48, 150, .5, PAPER)
     + path(HILLS, STONE, .6) + ground(STONE, edge=SLATE, edge_op=.35)
     + line('M40 346l22 10 16-8M312 352l20-10 22 8M540 344l-20 12', SLATE, 3, .5)
-    # what is left of the crop
-    + line('M70 304C70 280 66 262 54 250M100 304C100 276 104 258 118 246M134 304C134 286 130 276 122 270', SLATE, 6)
-    + leaf(54, 250, .7, 150, STONE) + leaf(118, 246, .7, 20, STONE) + leaf(122, 270, .6, 160, LEAF)
-    + dots([(92, 240), (102, 235), (112, 238)], 6, LEAF) + circ(121, 240, 7, GRN) + circ(124, 238, 2, INK)
+    # what is left of the crop: bare stalks and a caterpillar
+    + line('M58 304C58 262 52 240 34 228M100 304C100 258 108 236 132 224M140 304C140 284 146 272 160 266', SLATE, 7)
+    + leaf(36, 229, 1.2, 150, STONE) + leaf(56, 268, 1.0, 200, STONE) + leaf(130, 225, 1.2, 28, STONE) + leaf(102, 262, 1.0, -30, LEAF)
+    + leaf(158, 267, 1.0, 30, STONE)
+    + dots([(96, 222), (107, 216), (118, 219)], 7, LEAF) + circ(129, 214, 8, GRN) + circ(132, 212, 2.2, INK)
     # one lonely apple on the lorry
     + apple(262, 134, 50)
     + lorry(170, 306, .9)
     # empty crates and the price
-    + rot(-14, 500, 250, crate(462, 214, 76, 40, PAPER, STONE)) + crate(452, 258, 86, 46, PAPER, STONE)
-    + line('M470 176Q452 192 462 216', PAPER, 3) + tag(456, 152, 84, 40, 'up', KRAFT)
+    + crate(460, 216, 70, 42, PAPER, STONE) + crate(452, 258, 86, 46, PAPER, STONE)
+    + line('M470 176Q452 192 464 216', PAPER, 3) + tag(456, 152, 84, 40, 'up', KRAFT)
 )
 
 # ---------- Price Hike: the wholesale bill goes up ----------
@@ -489,6 +478,7 @@ ART['priceHike'] = (
     + line('M112 130Q98 60 122 0', PAPER, 3)
     + rot(-6, 170, 130, path('M112 84H268V176H112L74 130Z', PAPER) + circ(110, 130, 8, RED)
           + coin(160, 130, 24) + line('M202 116h44M202 144h28', INK, 8))
+    + rect(92, 200, 164, 46, STONE) + rect(92, 220, 164, 4, KRAFT)
     + apple(116, 248, 48) + mango(158, 248, 42) + melon(200, 250, 54) + berry(240, 248, 40)
     + crate(84, 244, 180, 60, KRAFT, STONE)
     # up it goes
@@ -499,21 +489,21 @@ ART['priceHike'] = (
 
 # ---------- Price Controls: the notice board shows the most each fruit may cost ----------
 def _limit(cx, coins_):
-    pts = [(cx - 34 + 17 * (i % 5), 198 + 19 * (i // 5)) for i in range(coins_)]
-    return rect(cx - 42, 176, 84, 8, RED, 4) + dots(pts, 7.5, YEL_D) + dots(pts, 5, YEL)
+    pts = [(cx - 34 + 17 * (i % 5), 208 + 19 * (i // 5)) for i in range(coins_)]
+    return rect(cx - 42, 186, 84, 8, RED, 4) + dots(pts, 7.5, YEL_D) + dots(pts, 5, YEL)
 
 
 ART['priceControls'] = (
-    back(BLU) + circ(300, 166, 152, BLU_L) + skyline(GROUND, BLU_D, k=.8, shift=5) + ground(BLU_D)
-    + rect(126, 258, 16, 50, KRAFT) + rect(458, 258, 16, 50, KRAFT) + rect(136, 268, 6, 40, STONE) + rect(468, 268, 6, 40, STONE)
-    + rect(74, 60, 452, 208, PAPER, 8) + rect(74, 252, 452, 16, PALE)
-    + path('M74 98V68a8 8 0 0 1 8-8H518a8 8 0 0 1 8 8V98Z', RED) + line('M98 79h130M246 79h64', PAPER, 7)
-    + line('M187 112V246M300 112V246M413 112V246', KRAFT, 3)
-    + berry(130.5, 164, 50) + melon(243.5, 163, 68) + apple(356.5, 164, 50) + mango(469.5, 164, 44)
+    back(BLU) + circ(300, 136, 136, BLU_L) + skyline(GROUND, BLU_D, k=.7, shift=5, op=.6) + ground(BLU_D)
+    + rect(126, 268, 16, 40, KRAFT) + rect(458, 268, 16, 40, KRAFT) + rect(136, 278, 6, 30, STONE) + rect(468, 278, 6, 30, STONE)
+    + rect(74, 70, 452, 208, PAPER, 8) + rect(74, 262, 452, 16, PALE)
+    + path('M74 108V78a8 8 0 0 1 8-8H518a8 8 0 0 1 8 8V108Z', RED) + line('M98 89h130M246 89h64', PAPER, 7)
+    + line('M187 122V256M300 122V256M413 122V256', KRAFT, 3)
+    + berry(130.5, 174, 50) + melon(243.5, 173, 68) + apple(356.5, 174, 50) + mango(469.5, 174, 44)
     + _limit(130.5, 5) + _limit(243.5, 7) + _limit(356.5, 6) + _limit(469.5, 10)
     # the official seal
-    + path('M468 92l-8 40 14-10 10 12 6-40ZM500 92l8 40-14-10-10 12-6-40Z', BLU_D)
-    + burst(484, 82, 30) + circ(484, 82, 15, YEL_D) + circ(484, 82, 9, PAPER)
+    + path('M484 96l-6 26 11-8 7 10 4-28ZM508 96l6 26-11-8-7 10-4-28Z', BLU_D)
+    + burst(496, 88, 26) + circ(496, 88, 13, YEL_D) + circ(496, 88, 8, PAPER)
 )
 
 # ---------- Health Inspector: a close look at the fruit, and a fine ----------
@@ -525,25 +515,26 @@ ART['inspector'] = (
     # the stall
     + rect(40, 262, 312, 122, KRAFT) + path(''.join(f'M{x} 272h4v112h-4Z' for x in range(100, 340, 62)), STONE)
     + rect(28, 250, 336, 14, PAPER) + rect(28, 262, 336, 4, STONE)
-    + apple(205, 252, 124)
-    + line('M286 120q10-12 22-6M110 112q-10-10-22-4', INK, 3, .5)
-    + ell(280, 124, 6, 4.5, INK) + ell(276, 118, 5, 3, PAPER, .9) + ell(104, 116, 6, 4.5, INK) + ell(108, 110, 5, 3, PAPER, .9)
+    + circ(205, 182, 86, PAPER, .3) + apple(205, 252, 124)
+    + line('M318 92q12-14 26-6M92 96q-12-12-26-4', INK, 3, .5)
+    + ell(314, 98, 7, 5, INK) + ell(309, 91, 6, 3.5, PAPER, .9) + ell(96, 102, 7, 5, INK) + ell(101, 95, 6, 3.5, PAPER, .9)
     # the inspector
     + path('M384 384V264a56 56 0 0 1 56-56h24a56 56 0 0 1 56 56V384Z', BLU_D)
     + path('M398 246L336 292L354 318L424 280Z', BLU_D)
     + rect(438, 186, 28, 30, _SH) + path('M428 208l24 30 24-30Z', PAPER) + path('M446 234h12l5 44-11 12-11-12Z', RED)
     + circ(452, 150, 48, _SK)
-    + path('M398 126C398 86 420 72 452 72C484 72 506 86 506 126Z', BLU_D) + path('M398 112h108v16l10 14H388l10-14Z', INK) + circ(452, 94, 9, YEL)
+    + path('M402 120C402 86 424 74 452 74C480 74 502 86 502 120Z', BLU_D) + rect(400, 112, 104, 12, INK, 3)
+    + path('M406 124h92q12 6 14 18H392q2-12 14-18Z', INK) + circ(452, 95, 9, YEL)
     + circ(435, 158, 5.5, INK) + circ(469, 158, 5.5, INK) + line('M438 178h28', INK, 5)
     # the magnifying glass
-    + circ(205, 182, 86, PAPER, .28) + rot(44, 268, 246, rect(268, 235, 92, 22, INK, 11)) + ring(205, 182, 92, INK, 16)
+    + rot(44, 268, 246, rect(268, 235, 92, 22, INK, 11)) + ring(205, 182, 92, INK, 16)
     + line('M150 152a64 64 0 0 1 36-32', PAPER, 7, .85) + circ(342, 314, 16, _SK)
     # the clipboard: two ticks, one cross, and what it costs
-    + rot(5, 500, 296,
+    + move(-10, 0, rot(5, 500, 296,
           rect(456, 236, 92, 122, KRAFT, 6) + rect(464, 250, 76, 100, PAPER, 3) + rect(484, 228, 36, 16, SLATE, 5)
           + line('M474 268l5 6 9-12M474 290l5 6 9-12', GRN, 4.5) + line('M475 307l12 12M487 307l-12 12', RED, 4.5)
           + line('M498 268h32M498 290h32M498 313h20', INK, 5) + coin(482, 337, 8) + coin(502, 337, 8))
-    + circ(458, 322, 15, _SK)
+          + circ(458, 322, 15, _SK))
 )
 
 # ---------- Lorry Breakdown: no delivery today ----------
@@ -552,19 +543,255 @@ ART['strike'] = (
     + ground(STONE, edge=SLATE, edge_op=.35) + path('M30 344h70v8h-70ZM180 344h70v8h-70ZM330 344h70v8h-70ZM480 344h70v8h-70Z', PALE)
     # smoke from the engine
     + circ(388, 196, 15, SLATE, .5) + circ(404, 156, 24, SLATE, .42) + circ(390, 106, 33, SLATE, .34)
-    + lorry(108, 304, .92, a=2.2) + ell(328, 306, 31, 9, INK)
+    + lorry(108, 304, .92, a=2.2) + rect(294, 304, 68, 14, STONE) + rect(0, 304, W, 6, SLATE, op=.35) + ell(328, 304, 30, 6, INK)
+    + rect(104, 232, 12, 12, ORANGE, 3)
     # the warning triangle and a cone
     + line('M440 304h64', SLATE, 7) + path('M472 190L536 300H408Z', RED) + path('M472 228L504 282H440Z', PAPER)
-    + path('M60 304l11-46h10l11 46Z', ORANGE) + path('M66 280h20l3 12h-26Z', PAPER) + rect(52, 300, 48, 8, ORANGE, 4)
+    + path('M66 304l11-46h10l11 46Z', ORANGE) + path('M72 280h20l3 12h-26Z', PAPER) + rect(58, 300, 48, 8, ORANGE, 4)
     # a spanner and a wheel nut on the road
     + rot(-16, 300, 334, line('M270 334h60', SLATE, 9) + circ(334, 334, 11, SLATE) + rect(334, 329, 14, 10, STONE))
     + circ(388, 330, 7, SLATE) + circ(388, 330, 3, STONE)
 )
 
+# ---------- Tourist Bus: a coach full of extra customers ----------
+ART['touristBus'] = (
+    back(YEL) + circ(300, 136, 138, YEL_L) + skyline(GROUND, YEL_D, k=.8, shift=4, op=.7)
+    + ground(YEL_D) + path('M20 346h70v8h-70ZM170 346h70v8h-70ZM320 346h70v8h-70ZM470 346h70v8h-70Z', PAPER, .8)
+    # luggage on the roof, and the guide's flag
+    + rect(120, 88, 54, 24, RED, 6) + rect(180, 78, 40, 34, GRN, 6) + rect(226, 92, 46, 20, PAPER, 6) + line('M104 108h186', INK, 5)
+    + line('M508 110V56', INK, 4) + path('M508 56l36 11-36 11Z', RED)
+    # the coach
+    + rect(60, 108, 480, 168, BLU, 28) + path('M60 236H540v12a28 28 0 0 1-28 28H88a28 28 0 0 1-28-28Z', BLU_D)
+    + rect(60, 212, 480, 12, PAPER) + rect(60, 224, 480, 5, RED)
+    + rect(84, 128, 82, 70, PAPER, 9) + rect(176, 128, 82, 70, PAPER, 9) + rect(268, 128, 82, 70, PAPER, 9) + rect(360, 128, 82, 70, PAPER, 9)
+    + path('M456 128h52a22 22 0 0 1 22 22v48h-74Z', BLU_L) + line('M474 142l-8 22M490 142l-12 34', PAPER, 4, .7)
+    + rect(526, 236, 14, 16, YEL_L, 4) + rect(524, 262, 26, 12, SLATE, 6)
+    + path('M116 276a40 40 0 0 1 80 0ZM392 276a40 40 0 0 1 80 0Z', INK)
+    + circ(156, 276, 30, SLATE) + circ(156, 276, 12, PAPER) + circ(432, 276, 30, SLATE) + circ(432, 276, 12, PAPER)
+    # the tourists
+    + bust(125, 162, 20, 'light', GRN, 198, 'hat', RED, bw=28) + rect(108, 160, 15, 9, INK, 4) + rect(127, 160, 15, 9, INK, 4)
+    + bust(217, 162, 20, 'deep', YEL, 198, 'short', bw=28)
+    + bust(309, 162, 20, 'tan', RED, 198, 'tudung', PINK, bw=28)
+    + bust(401, 162, 20, 'brown', ORANGE, 198, 'cap', GRN, bw=28)
+    + rect(226, 172, 30, 20, INK, 4) + circ(241, 182, 6.5, BLU_L) + rect(230, 167, 9, 6, INK, 2)
+    + rays(262, 150, 8, 18, 8, YEL, 4, 22)
+)
+
+# ---------- Monsoon Downpour: nobody about, and the fruit keeps cool and fresh ----------
+def _rain():
+    d = ''
+    for row, y in enumerate(range(118, 300, 44)):
+        for x in range(22 + (22 if row % 2 else 0), 620, 44):
+            if not (150 < x < 462 and y > 120):
+                d += f'M{x} {y}l-7 20'
+    return line(d, BLU_L, 5, .9)
+
+
+def _umbrella(cx, top, half, rim, k=7):
+    """A market umbrella: a dome with a scalloped rim and alternate paper panels."""
+    w = 2 * half / k
+    edge = ''.join(f'q{n(-w / 2)} {n(-14)} {n(-w)} 0' for _ in range(k))
+    out = path(f'M{n(cx - half)} {n(rim)}Q{n(cx - half * .86)} {n(top)} {n(cx)} {n(top)}Q{n(cx + half * .86)} {n(top)} {n(cx + half)} {n(rim)}{edge}Z', RED)
+    for i in range(1, k, 2):
+        x0 = cx - half + i * w
+        out += path(f'M{n(cx)} {n(top + 2)}L{n(x0)} {n(rim)}q{n(w / 2)} {n(-14)} {n(w)} 0Z', PAPER)
+    return out + circ(cx, top - 2, 7, YEL)
+
+
+ART['monsoon'] = (
+    back(BLU) + circ(300, 178, 152, BLU_D)
+    + cloud(326, 62, 1.0, BLU_L) + cloud(150, 72, 1.3, PAPER) + cloud(468, 78, 1.15, PAPER)
+    + path('M514 112l-30 46h20l-18 42 50-58h-22l16-30Z', YEL)
+    + _rain() + ground(BLU_D)
+    # puddles and a paper boat
+    + ell(104, 336, 70, 11, BLU_L) + ell(500, 344, 76, 12, BLU_L)
+    + line('M70 336h36M486 348h44', PAPER, 3, .7) + line('M52 300l-8-10M64 300l6-10M556 300l-8-10M568 300l6-10', BLU_L, 4)
+    + path('M472 336h52l-12 13h-28Z', PAPER) + path('M496 308v24h-20Z', PAPER) + path('M500 314v18h14Z', PALE)
+    # the stall under its umbrella
+    + rect(295, 190, 10, 114, SLATE) + rect(276, 298, 48, 10, SLATE, 5)
+    + melon(260, 252, 84) + apple(326, 250, 50) + mango(366, 250, 38) + crate(210, 248, 180, 56, KRAFT, STONE)
+    + _umbrella(300, 108, 164, 198)
+    + sparkle(412, 232, 11) + sparkle(190, 228, 8)
+)
+
+# ---------- Durian Season: everyone wants durian, so other fruit is cheap ----------
+def _spiky(cx, cy, rx, ry, k, depth, a0=0, a1=360):
+    pts = []
+    for i in range(2 * k + 1):
+        a = math.radians(a0 + (a1 - a0) * i / (2 * k) - 90)
+        q = 1 if i % 2 == 0 else 1 - depth
+        pts.append(f'{n(cx + rx * q * math.cos(a))} {n(cy + ry * q * math.sin(a))}')
+    return 'M' + 'L'.join(pts) + 'Z'
+
+
+def _thorns(points, s, fill):
+    return path(''.join(f'M{n(x - s * .55)} {n(y + s * .5)}L{n(x)} {n(y - s * .5)}L{n(x + s * .55)} {n(y + s * .5)}Z' for x, y in points), fill)
+
+
+ART['durian'] = (
+    back(YEL) + circ(214, 176, 146, YEL_L) + ground(YEL_D)
+    # a woven mat
+    + path('M84 294H516L550 338H50Z', KRAFT) + path('M79 300H521l5 6H74ZM60 325H540l5 6H55Z', STONE, .8)
+    + path(''.join(f'M{x} 316l9-5 9 5-9 5Z' for x in range(92, 500, 36)), STONE, .8)
+    # the smell
+    + line('M72 200q14-15 0-30t0-30M352 154q14-15 0-30t0-30', GRN_D, 6, .55)
+    # the king of fruit
+    + line('M214 80V54', GRN_D, 11) + leaf(216, 60, 1.2, -24, GRN_D)
+    + path(_spiky(214, 186, 102, 110, 20, .15), GRN)
+    + path('M214 82A94 104 0 0 1 214 290A56 104 0 0 0 214 82Z', GRN_D)
+    + _thorns([(152, 136), (188, 120), (138, 178), (174, 166), (210, 154), (152, 218), (188, 206), (174, 250), (210, 242), (224, 198)], 22, LEAF)
+    + _thorns([(250, 130), (268, 172), (252, 216), (280, 210), (246, 256), (284, 150)], 22, GRN)
+    # one cut open
+    + path(_spiky(436, 244, 92, 66, 9, .16, 90, 270), GRN) + ell(436, 244, 84, 22, PALE)
+    + ell(408, 234, 34, 22, YEL_L) + ell(464, 232, 36, 23, YEL_L)
+    + ell(398, 228, 9, 5, PAPER, .9) + ell(454, 225, 9, 5, PAPER, .9)
+    # the price
+    + line('M388 108Q300 40 220 56', YEL_D, 3) + tag(372, 74, 150, 66, 'down', YEL)
+)
+
+# ---------- Kenduri: a wedding feast needs three watermelons ----------
+def _manggar(x, top, base):
+    """Bunga manggar: the tinsel palm-blossom pole that stands at a kenduri."""
+    ends = [(-58, 62), (-44, 22), (-22, -4), (22, -4), (44, 22), (58, 62)]
+    a = ''.join(f'M{x} {top + 20}Q{n(x + dx * .55)} {top - 44} {x + dx} {top + dy}' for dx, dy in ends[::2])
+    b = ''.join(f'M{x} {top + 20}Q{n(x + dx * .55)} {top - 44} {x + dx} {top + dy}' for dx, dy in ends[1::2])
+    return (line(f'M{x} {top + 20}V{base}', PAPER, 5) + line(a, YEL, 5) + line(b, PAPER, 5)
+            + dots([(x + dx, top + dy) for dx, dy in ends], 5, BLU) + circ(x, top + 18, 7, YEL))
+
+
+ART['kenduri'] = (
+    back(PINK) + circ(300, 178, 138, PAPER, .3)
+    + rect(0, GROUND, W, 80, RED_D, op=.3) + rect(0, GROUND, W, 5, PAPER, op=.35)
+    # the tent's edge and the bunting
+    + rect(0, 0, W, 30, PAPER)
+    + path(''.join(f'M{x} 28h50v10a25 25 0 0 1-50 0Z' for x in range(0, 600, 100)), PAPER)
+    + path(''.join(f'M{x} 28h50v10a25 25 0 0 1-50 0Z' for x in range(50, 600, 100)), YEL)
+    + bunting(-12, 70, 612, 70, 56, [RED, YEL, GRN, BLU, PAPER, RED, YEL, GRN, BLU, PAPER, RED], 30)
+    + _manggar(66, 136, 318) + _manggar(534, 136, 318)
+    # the table and the three slices
+    + path('M88 252H512V322' + 'q-17.7 12-35.3 0' * 12 + 'Z', PALE)
+    + path(''.join(f'M{n(x)} 279l8 8-8 8-8-8Z' for x in [105.7 + 35.33 * i for i in range(12)]), YEL)
+    + rect(78, 236, 444, 18, PAPER)
+    + ell(166, 238, 66, 9, YEL) + ell(300, 238, 66, 9, YEL) + ell(434, 238, 66, 9, YEL)
+    + melon(166, 238, 110) + melon(300, 238, 110) + melon(434, 238, 110)
+    + sparkle(232, 150, 10) + sparkle(368, 150, 10)
+)
+
+# ---------- Mango Windfall: it is raining ripe mangoes, so they are cheap ----------
+ART['mangoWindfall'] = (
+    back(GRN) + circ(410, 176, 142, GRN_L)
+    + path('M0 262C120 236 220 250 330 266C440 282 520 250 600 258V304H0Z', GRN_D)
+    + ground(LEAF, edge=GRN_L, edge_op=.6)
+    # the tree
+    + path('M152 304C160 262 162 232 158 196L190 196C188 232 192 262 200 304Z', SLATE) + path('M176 196h14c-2 36 2 66 10 108h-14c-8-42-12-72-10-108Z', INK, .35)
+    + move(0, 10, path(dp(172, 120, 86) + dp(98, 150, 50) + dp(246, 150, 52) + dp(132, 84, 50) + dp(216, 82, 48), GRN_D)
+           + leaf(84, 120, 1.1, -20, LEAF) + leaf(150, 62, 1.1, 10, LEAF) + leaf(226, 60, 1.0, 30, LEAF) + leaf(250, 112, 1.0, -30, LEAF) + leaf(120, 196, 1.0, 10, LEAF)
+           + mango(112, 168, 36) + mango(168, 126, 36) + mango(232, 172, 36) + mango(196, 212, 34))
+    # falling
+    + line('M306 96v26M322 104v18M352 168v24M368 176v16M300 226v18', PAPER, 4, .7)
+    + rot(18, 312, 150, mango(312, 172, 40)) + rot(-16, 358, 218, mango(358, 240, 40)) + rot(30, 304, 268, mango(304, 288, 36))
+    # the basket
+    + mango(416, 246, 46) + mango(454, 244, 46) + mango(492, 246, 46) + mango(436, 216, 44) + mango(474, 216, 44)
+    + path('M378 240H530L514 304H394Z', KRAFT) + path('M392 262h124v4h-124ZM398 284h112v4h-112Z', STONE) + rect(372, 234, 164, 12, STONE, 6)
+    + rot(-4, 452, 276, tag(404, 256, 100, 40, 'down2', KRAFT))
+    + mango(560, 318, 38) + sparkle(540, 120, 10)
+)
+
+# ---------- Pasar Malam: the night hawker buys one of each fruit that is left ----------
+def _crescent(cx, cy, r, ox, oy, r2, fill):
+    d = math.hypot(ox, oy)
+    a = (r * r - r2 * r2 + d * d) / (2 * d)
+    h = math.sqrt(r * r - a * a)
+    px, py = cx + a * ox / d, cy + a * oy / d
+    x1, y1, x2, y2 = px - h * oy / d, py + h * ox / d, px + h * oy / d, py - h * ox / d
+    return path(f'M{n(x1)} {n(y1)}A{n(r)} {n(r)} 0 1 1 {n(x2)} {n(y2)}A{n(r2)} {n(r2)} 0 1 0 {n(x1)} {n(y1)}Z', fill)
+
+
+def _lantern(x, y):
+    return (circ(x, y + 18, 32, YEL, .14)
+            + line(f'M{x} {y - 8}v8M{x} {y + 36}v14', YEL, 3) + rect(x - 16, y, 32, 36, RED, 13) + rect(x - 3, y, 6, 36, YEL)
+            + rect(x - 9, y - 3, 18, 6, YEL_D, 2) + rect(x - 9, y + 33, 18, 6, YEL_D, 2))
+
+
+_HK = SKINS['tan'][0]
+ART['pasarMalam'] = (
+    back(INK) + circ(256, 190, 172, BLU_D)
+    + dots([(36, 110), (60, 180), (452, 44), (560, 156), (576, 64), (30, 240), (470, 156), (552, 238), (430, 104)], 2.6, PAPER, .8)
+    + _crescent(510, 104, 36, 14, -10, 31, YEL) + sparkle(456, 76, 9) + sparkle(562, 110, 7)
+    + ground(SLATE, edge=STONE, edge_op=.45)
+    # lanterns on a string
+    + line('M-10 36Q300 92 610 36', KRAFT, 3) + _lantern(70, 57) + _lantern(170, 67) + _lantern(270, 72) + _lantern(370, 71)
+    # the hawker, paying
+    + bust(486, 210, 34, 'tan', GRN, H, 'cap', RED) + path('M462 260l-36-14 6-14 40 12Z', GRN) + circ(430, 240, 12, _HK)
+    + path('M462 274h48v110h-48Z', PAPER) + line('M468 274l-6-22M504 274l6-22', PAPER, 4)
+    # the stall, with one of each fruit
+    + rect(100, 142, 8, 100, KRAFT) + rect(404, 142, 8, 100, KRAFT)
+    + rect(92, 132, 328, 12, RED_D)
+    + path(''.join(f'M{x} 144h41v14a20.5 20.5 0 0 1-41 0Z' for x in range(92, 420, 82)), RED)
+    + path(''.join(f'M{x} 144h41v14a20.5 20.5 0 0 1-41 0Z' for x in range(133, 420, 82)), PAPER)
+    + apple(136, 238, 54) + mango(196, 238, 46) + berry(254, 238, 50) + melon(324, 240, 80)
+    + coins(396, 236, 3, 38, 9)
+    + rect(84, 250, 344, 54, KRAFT) + path(''.join(f'M{x} 256h4v48h-4Z' for x in range(140, 420, 58)), STONE)
+    + rect(76, 236, 360, 16, YEL) + rect(76, 248, 360, 4, YEL_D)
+)
+
+# ---------- Bake-Off: the bakery wants apples for its prize pie ----------
+ART['bakeOff'] = (
+    back(KRAFT)
+    + line(''.join(f'M{x} 0V268' for x in range(50, 600, 50)) + ''.join(f'M0 {y}H600' for y in range(18, 268, 50)), PALE, 3)
+    + circ(410, 160, 138, PALE)
+    # a shelf with the baker's hat
+    + rect(60, 104, 156, 10, STONE, 5)
+    + path(dp(92, 62, 17) + dp(114, 54, 20) + dp(136, 62, 17) + 'M92 62v28h44v-28Z', PAPER) + rect(90, 86, 48, 18, PALE)
+    + rect(162, 72, 34, 32, BLU_L, 6) + rect(160, 64, 38, 10, BLU, 4) + rect(168, 82, 22, 12, PAPER, 2)
+    # the cloth
+    + rect(0, 268, W, 116, PAPER)
+    + path(''.join(f'M{x} {y}h30v29h-30Z' for j, y in enumerate(range(268, 384, 29)) for x in range(30 if j % 2 else 0, 600, 60)), RED_L, .6)
+    + rect(0, 268, W, 5, RED_L)
+    # the two apples the bakery wants
+    + apple(136, 274, 112) + apple(236, 278, 88)
+    # the pie, hot from the oven, with its rosette
+    + line('M372 112q12-13 0-26t0-26M410 104q12-13 0-26t0-26M448 112q12-13 0-26t0-26', STONE, 6)
+    + rect(302, 256, 216, 12, PAPER, 6)
+    + path('M290 200H530L506 258H314Z', RED) + path('M290 200H530l-6 14H296Z', RED_D)
+    + path('M298 198C298 152 352 134 410 134C468 134 522 152 522 198Z', YEL)
+    + dots([(x, 198) for x in range(302, 520, 18)], 10, YEL) + dots([(x, 204) for x in range(311, 512, 18)], 4, YEL_D)
+    + line('M326 174C336 156 360 148 384 144', YEL_L, 7) + line('M372 160l8 18M410 154v20M448 160l-8 18', INK, 6)
+    + path('M398 240l-10 48 14-9 8 13 6-50ZM422 240l10 48-14-9-8 13-6-50Z', BLU_D)
+    + burst(410, 232, 30, BLU) + circ(410, 232, 16, PAPER) + star(410, 232, 9, YEL)
+    # a rolling pin and the price
+    + rot(-7, 200, 334, rect(84, 327, 232, 14, STONE, 7) + rect(118, 320, 164, 28, KRAFT, 14) + rect(130, 340, 140, 5, STONE, 2.5))
+    + rot(14, 470, 330, line('M408 330h44', STONE, 9) + line('M452 330c20-22 62-22 78 0c-16 22-58 22-78 0ZM452 330c26-9 56-9 78 0M452 330c26 9 56 9 78 0', SLATE, 4))
+    + hangtag(248, 46, 52, 76, 'up', KRAFT, string=PAPER)
+)
+
+# ---------- Calm Day: nothing happens; a sunny morning at the stall ----------
+ART['calm'] = (
+    back(BLU) + circ(424, 168, 134, BLU_L) + sun(424, 168, 86) + cloud(140, 120, .62, PAPER, .9)
+    # the awning
+    + rect(0, 0, W, 42, RED) + rect(0, 36, W, 6, RED_D)
+    + path(''.join(f'M{x} 42h60v8a30 30 0 0 1-60 0Z' for x in range(0, 600, 120)), RED)
+    + path(''.join(f'M{x} 42h60v8a30 30 0 0 1-60 0Z' for x in range(60, 600, 120)), PAPER)
+    + hangtag(270, 98, 50, 66, 'bars', BLU, string=PAPER, from_y=78)
+    # the counter
+    + rect(0, 300, W, 84, KRAFT) + path(''.join(f'M{x} 312h4v72h-4Z' for x in range(74, 600, 150)), STONE) + rect(0, 300, W, 12, PALE)
+    # a crate of fruit, and the rest on the counter
+    + mango(104, 224, 54, 'unripe') + mango(214, 224, 54) + apple(159, 224, 66) + crate(64, 214, 190, 86, PAPER, STONE)
+    + melon(306, 302, 90) + berry(384, 302, 54)
+    # the stall cat, asleep
+    + line('M524 292q18-2 18-20', ORANGE, 10)
+    + path('M424 300a56 42 0 0 1 112 0Z', ORANGE) + line('M482 262v14M502 264v14M518 272v12', RED_D, 4, .5)
+    + path('M420 262l2-24 18 12ZM452 250l18-12 2 24Z', ORANGE) + circ(446, 276, 25, ORANGE)
+    + line('M433 276q5 5 10 0M449 276q5 5 10 0', INK, 3) + path('M443 284h6l-3 4Z', PINK)
+)
+
 if __name__ == '__main__':
-    names = []
-    for key, body in ART.items():
-        save('event-' + key, svg(W, H, body))
-        names.append('event-' + key)
+    order = ['calm', 'festival', 'superfood', 'mangoCraze', 'hotel', 'heatwave', 'blight', 'glut', 'goodHarvest', 'badHarvest',
+             'priceHike', 'priceControls', 'inspector', 'strike', 'touristBus', 'monsoon', 'durian', 'kenduri', 'mangoWindfall',
+             'pasarMalam', 'bakeOff']
+    assert sorted(order) == sorted(ART), 'every event once'
+    names = ['event-' + key for key in order]
+    for key in order:
+        save('event-' + key, svg(W, H, ART[key]))
     sheet(names, 'sheet-events.png', cols=4, w=300, ratio=1.5625)
     print(len(names), 'event pictures written')
