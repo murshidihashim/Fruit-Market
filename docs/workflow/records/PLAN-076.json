@@ -38,7 +38,7 @@
     "evidence": "fix below items first, will revisit this later: full screen design is still old design; new game design is still old design; the bell popup is still old design; today's news appear not centred to the screen when you tapped on the top middle button; animation for fruit rotting needs to be slower ... show the wholesale board before players click the lights out button and start the animation after every players has clicked lights out; there's also repeating \"everyday:buys ... etc\" on the customer cards, simplify the \"each fruit is the most... tap to close\" text to just legends",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-076",
   "title": "Owner fixes: pop-ups in the new look, centred news, slower night, evening market, simpler customer ticket",
   "problem": "Owner's list after 1.19.0: older-style full screen, New game and Bell pop-ups; today's news not centred; the night too fast to follow; the market hidden in the evening; repeated text on the customer ticket.",
@@ -70,13 +70,13 @@
       "id": "T3",
       "text": "Browser tests pass with 0 leaks",
       "result": "PASS",
-      "evidence": "2026-11-11: npm run test:e2e on commit dcb7038: E2E OK, BUDGET OK, 0 leaks in 100 pricing frames, four players, reconnect 5 of 5 (re-run on the night changes in progress)"
+      "evidence": "2026-11-11: npm run test:e2e on the release build: E2E OK, BUDGET OK, 0 leaks in 94 pricing frames, four players, reconnect 5 of 5"
     },
     {
       "id": "T4",
       "text": "Owner has checked it on a phone",
       "result": "NOT RUN",
-      "evidence": "Not published"
+      "evidence": "Published at the owner's request without a phone check"
     }
   ]
 }

@@ -2982,6 +2982,10 @@
     {
       "at": "2026-11-11 20:45",
       "text": "Owner approved publication: \"push to live\". Release 1.19.1 prepared (PLAN-076). Browser tests on commit dcb7038 PASS; re-run on the night changes in progress."
+    },
+    {
+      "at": "2026-11-11 20:59",
+      "text": "Release 1.19.1 published (PLAN-076): main 35bda0a, Deploy LIVE game run 38; live smoke test PASS; tagged v1.19.1. Browser tests PASS on the release build before merging."
     }
   ]
 }

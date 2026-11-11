@@ -445,7 +445,7 @@
     },
     {
       "version": "1.19.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-076"
       ],
@@ -456,7 +456,10 @@
         "Fixed: closing up last could skip the whole night",
         "The wholesale market stays in view in the evening until you tap Lights out",
         "Customer tickets show a simple price key"
-      ]
+      ],
+      "date": "2026-11-11",
+      "commit": "35bda0a",
+      "tagged": true
     }
   ]
 }
