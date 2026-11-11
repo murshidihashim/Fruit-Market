@@ -1,12 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 11:10 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 11:46 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 11:10): 1.18.0 prepared, home A and the Lane Drop opening (PLAN-074)
+## Latest (2026-11-11 11:46): 1.18.0 live, home A and the Lane Drop opening (PLAN-074)
 - **Owner approval:** "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live" (DEC-083, REP-097).
 - **In 1.18.0 (no rules change):** the home screen redrawn as home A, Ticket Booth, in the Market Ticket look, with a small band of the four fruit lanes (the game's fruit icons); the opening is now Lane Drop (about 2.45 s, tap to skip). The Market square home and the lorry opening are gone.
 - **Checks:** `npm run verify` PASS (437 tests); browser tests PASS (0 leaks, reconnect 5/5); screenshots at three sizes PASS; owner phone check NOT RUN.
-- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; next: merge to main, CI, Deploy LIVE game, then mark 1.18.0 published.
+- **Live:** 1.18.0 (commit `95d553a`, tag `v1.18.0`, CI run 42952039497 PASS, Deploy LIVE game run 36, live smoke test PASS).
+- **Next:** owner plays 1.18.0 on a phone; balance tuning still open (REP-096).
 - **Gaps:** worn looks no longer show on the home.
 
 ## Earlier (2026-11-11 02:22): 1.17.0 live (PLAN-069 to PLAN-073)
