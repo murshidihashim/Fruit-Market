@@ -1,10 +1,12 @@
-// Core rules (rules version 14). Every action takes a state and returns a new state
+// Core rules (rules version 18). Every action takes a state and returns a new state
 // (the input is never changed), so the UI can keep history and the whole game can be saved as JSON.
 //
-// A day: morning (event, lorry, tomorrow's strip; on a Market Day every stall bids for the standing order) ->
+// A day: morning (event, top-up for a stall out of cash, lorry, tomorrow's strip; on a Market Day every stall bids
+// for the standing order) ->
 // buying (poorest first) -> customers arrive ->
 // open stalls (each shop puts fruit out for sale; quantities become public together) -> pricing
-// (one secret price per fruit, revealed together at the bell) -> sales (queue order, cheapest stall
+// (one secret price per fruit, revealed together at the bell) -> ties (rules 18: a stall with a tied price may play
+// Favoured Trade, in the open) -> sales (queue order, cheapest stall
 // first, leftover demand spills to the next stall) -> evening (specialities after Market Days,
 // evening favours) -> night (fruit ages).
 
@@ -13,7 +15,8 @@ import {
   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
-  acceptsStage, deliveryPos, favourDeckFor, freshPos, orderQty, prefOf, sharpEarsTip, stageAt, trackLength,
+  GUEST_JOINS_FULL_ROW, NO_MANGO_DAYS, ORDER_BOOK_BONUS, RIPENING_DISCOUNT, SHARED_TIP, TOP_UP,
+  acceptsStage, deliveryPos, favourDeckFor, freshPos, orderQty, prefOf, sharpEarsTip, stageAt, stakeFor, trackLength,
   type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type Stalls, type TraitId, type UpgradeId, type Want,
 } from './data';
 import { Rng } from './rng';
@@ -76,6 +79,11 @@ export interface Player extends PlayerConfig {
   traitOffer?: TraitId[];
   /** Specialities this shop may build tonight (empty on nights without a draft). */
   upgradeOffer?: UpgradeId[];
+  /**
+   * Rules 18: the pieces this stall took from the market today, one count per shelf space (the shape of its shelf).
+   * Public from the moment of purchase until the bell; cleared each morning. Its older stock stays secret.
+   */
+  boughtFruit?: Crate;
 }
 
 export interface Customer {
@@ -91,8 +99,9 @@ export interface Customer {
   generous?: boolean;
   /** Freshness this customer accepts (Premium: Fresh only; Everyday: Fresh or Okay; Bargain: anything). Hidden while face down. */
   pref?: Pref;
-  /** Rules 14: this card is a standing order collected today: who holds it, its bid, and the fine and ceiling per piece. */
-  order?: { holder: number; price: number; fine: number; ceiling: number };
+  /** Rules 14: this card is a standing order collected today: who holds it, its bid, the card's ceiling, and
+   *  (rules 18) the stake the holder put down when it won. */
+  order?: { holder: number; price: number; stake: number; ceiling: number };
 }
 
 /** One secret price per fruit (the fruit a shop put out for sale). */
@@ -124,8 +133,10 @@ export interface DayResult {
   spent: number[];
   /** Pasar Malam: what the night hawker paid each shop after the rush (pieces bought at the hawker price). */
   hawker?: { player: number; fruit: FruitId; price: number }[];
-  /** Sharp Ears: tips from peeked walk-ins, by shop. */
+  /** Sharp Ears: the tip from a peeked walk-in, by shop (rules 18: at most one a day). */
   earful?: { player: number; customer: string; tip: number }[];
+  /** Tip Jar (rules 18): tips from customers who left with their whole order, by shop ($2 served alone, $1 shared). */
+  tipJar?: { player: number; customer: string; tip: number }[];
   /** Rules 14: how today's standing order was filled (only on its due day). */
   order?: OrderResult;
 }
@@ -136,10 +147,10 @@ export interface Standing {
   card: number;
   fruit: FruitId;
   qty: number;
-  /** The highest bid allowed, and what a rival is paid per piece on the due day. */
+  /** The highest bid allowed. */
   ceiling: number;
-  /** The holder's fine per piece it did not supply itself. */
-  fine: number;
+  /** Rules 18: the card's stake. A stall needs this much cash to bid (half with an Order Book); the winner puts it down. */
+  stake: number;
   /** The day the order is collected. */
   due: number;
   /** Each stall's secret bid per piece: null until it has bid, 'pass' if it did not want the order. */
@@ -149,16 +160,21 @@ export interface Standing {
   holder: number | null;
   /** The winning bid: what the holder is paid per piece. */
   price: number | null;
+  /** Rules 18: what the holder put down when it won, held on the card until the due day. */
+  staked?: number;
 }
 
 export interface OrderResult {
   name: string; fruit: FruitId; qty: number; holder: number; price: number; ceiling: number;
-  /** Pieces each stall supplied, and what it was paid for each. */
+  /** Pieces the holder delivered and what it was paid for each (its bid; $2 more with an Order Book). Rules 18: only
+   *  the holder delivers, so this has at most one entry. */
   sales: { player: number; n: number; price: number }[];
-  /** Pieces the holder did not supply itself. */
+  /** Pieces the holder did not deliver. */
   short: number;
-  /** What the holder was fined (never more than its cash). */
-  fine: number;
+  /** Rules 18: the stake that was held on the card ... */
+  stake: number;
+  /** ... and how much of it came back: all of it for a full delivery, nothing otherwise. */
+  back: number;
 }
 
 export interface DayRecord {
@@ -167,7 +183,9 @@ export interface DayRecord {
   event?: string;
 }
 
-export type Phase = 'morning' | 'order' | 'buy' | 'stall' | 'bid' | 'reveal' | 'evening' | 'over';
+/** 'tie' (rules 18): prices and crates have flipped, and stalls holding Favoured Trade with a tied price decide, one
+ *  at a time, whether to play it. The step exists only when some stall is eligible. */
+export type Phase = 'morning' | 'order' | 'buy' | 'stall' | 'bid' | 'tie' | 'reveal' | 'evening' | 'over';
 
 export interface GameState {
   config: GameConfig;
@@ -209,6 +227,9 @@ export interface GameState {
   out?: (number | null)[];
   /** Each shop's secret prices (null until it has priced). */
   bids: (Post[] | null)[];
+  /** Rules 18, the tie step: the stalls still to decide whether to play Favoured Trade, in today's buying order (the
+   *  first is deciding now). In a view made for one stall only the stall deciding now is listed. */
+  tieAsk?: number[];
   results: DayResult | null;
   /** Market pulse markers (advanced option). */
   pulse?: Record<FruitId, number>;
@@ -220,6 +241,10 @@ export interface GameState {
   dayStartCash?: number[];
   /** Health Inspector: what each shop was fined at the start of today (before buying). */
   dayFines?: number[];
+  /** Rules 18, out of cash: what the market gave each stall at dawn today to bring it up to TOP_UP (0: nothing). */
+  dayTopUps?: number[];
+  /** Rules 18: pieces of a fruit the lorry brings green that arrived ripe today (Mango Windfall's extra mangoes). */
+  deliveryRipe?: Partial<Record<FruitId, number>>;
   /** Rules 14: the standing order in play (null: none). */
   standing?: Standing | null;
   /** Rules 14: the standing-order deck (indexes into ORDER_CARDS). */
@@ -263,16 +288,19 @@ export function handLimit(p: Player): number {
 }
 
 /** What this shop pays for one fruit at the market (a Bargain Hunter's first fruit each day is $1 off; rules 11: Big
- *  Basket's extra piece costs the normal price). */
+ *  Basket's extra piece costs the normal price; rules 18: a Ripening Room takes $1 off green fruit). Never below $1. */
 export function buyCost(s: GameState, p: number, f: FruitId, pos: number): number {
-  const c = marketCost(s, f, pos);
   const pl = s.players[p];
+  let c = marketCost(s, f, pos);
+  if (pl?.upgrades.includes('ripening') && stageAt(f, pos) === 'unripe') c = Math.max(1, c - RIPENING_DISCOUNT);
   return pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c;
 }
 
+/** The market's price for a piece today: the printed cost, plus the event's change for every fruit or (rules 18) for
+ *  this fruit alone (Blueberry Glut). Never below $1. */
 export function marketCost(s: GameState, f: FruitId, pos: number): number {
   const stage = stageAt(f, pos);
-  return Math.max(1, FRUIT[f].cost[stage] + (s.event?.cost ?? 0));
+  return Math.max(1, FRUIT[f].cost[stage] + (s.event?.cost ?? 0) + (s.event?.costFruit?.[f] ?? 0));
 }
 
 export const marketDaysOn = (s: GameState): boolean => s.config.marketDays !== false;
@@ -320,10 +348,11 @@ export function capAt(f: FruitId, pos: number, max: number): number {
   return max - d[pos];
 }
 
-/** As capAt, for this shop: a Premium Display lets fresh fruit go $1 higher. */
-export function capFor(pl: Player, f: FruitId, pos: number, max: number): number {
+/** As capAt, for this shop: a Premium Display lets fresh fruit go $1 higher. Rules 18: never for a guest, whose price
+ *  is fixed (`fixed`). */
+export function capFor(pl: Player, f: FruitId, pos: number, max: number, fixed = false): number {
   const c = capAt(f, pos, max);
-  return c > 0 && pl.upgrades.includes('premium') && stageAt(f, pos) === 'fresh' ? c + 1 : c;
+  return c > 0 && !fixed && pl.upgrades.includes('premium') && stageAt(f, pos) === 'fresh' ? c + 1 : c;
 }
 
 /** Customers currently in the market, in the order they are served (waiting longest first). */
@@ -339,6 +368,7 @@ export function rowCustomers(s: GameState): Customer[] {
 export function activePlayer(s: GameState): number {
   if (s.phase === 'stall') return s.stalls.findIndex((x) => x === null);
   if (s.phase === 'bid') return s.bids.findIndex((b) => b === null);
+  if (s.phase === 'tie') return s.tieAsk?.[0] ?? -1;
   // Rules 17: who is bidding is public, so computer stalls decide first and a person sees them before deciding.
   if (s.phase === 'order') {
     if (!s.standing) return -1;
@@ -410,12 +440,25 @@ function makeCustomer(s: GameState, card: CustomerCard, walkIn = false): Custome
   return c;
 }
 
-function drawCustomer(s: GameState, walkIn = false): Customer {
-  if (s.customerDeck.length === 0) {
-    const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast, ...s.nextQueue, s.nextForecast].filter(Boolean).map((c) => c!.name));
-    s.customerDeck = withRng(s, (r) => r.shuffle(CUSTOMER_CARDS.map((_, i) => i).filter((i) => !inPlay.has(CUSTOMER_CARDS[i].name))));
+/** Rules 18: on the first NO_MANGO_DAYS days no customer wants a mango (every mango arrives green and needs two
+ *  nights). Only when mangoes do arrive green: with unripe fruit switched off they can be sold on day 1. */
+export function mangoFree(s: GameState, day: number): boolean {
+  return s.config.unripe && day <= NO_MANGO_DAYS;
+}
+
+/** Draws the next customer card for `day`. Rules 18: for a mango-free day, a card that wants a mango goes to the
+ *  bottom of the deck and another is drawn. */
+function drawCustomer(s: GameState, walkIn = false, day = s.day): Customer {
+  for (let skipped = 0; ; skipped++) {
+    if (s.customerDeck.length === 0) {
+      const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast, ...s.nextQueue, s.nextForecast].filter(Boolean).map((c) => c!.name));
+      s.customerDeck = withRng(s, (r) => r.shuffle(CUSTOMER_CARDS.map((_, i) => i).filter((i) => !inPlay.has(CUSTOMER_CARDS[i].name))));
+    }
+    const i = s.customerDeck.shift()!;
+    const card = CUSTOMER_CARDS[i];
+    if (mangoFree(s, day) && skipped < CUSTOMER_CARDS.length && card.wants.some((w) => w.fruit === 'mango')) { s.customerDeck.push(i); continue; }
+    return makeCustomer(s, card, walkIn);
   }
-  return makeCustomer(s, CUSTOMER_CARDS[s.customerDeck.shift()!], walkIn);
 }
 
 function drawFarmer(s: GameState): FarmerCard {
@@ -430,7 +473,7 @@ function drawFarmer(s: GameState): FarmerCard {
  */
 function eventWalkIns(s: GameState) {
   const k = scaledWalkIns(s.event?.walkIns ?? 0, s.players.length);
-  for (let i = 0; i < k && s.queue.length < ROW_CAP - 1; i++) s.queue.push(drawCustomer(s, true));
+  for (let i = 0; i < k && s.queue.length < ROW_CAP - 1; i++) s.queue.push(drawCustomer(s, true, s.day));
   if (k < 0) {
     for (const c of s.queue.splice(Math.max(0, s.queue.length + k))) {
       const i = CUSTOMER_CARDS.findIndex((x) => x.name === c.name);
@@ -540,8 +583,8 @@ export function newGame(config: GameConfig): GameState {
   }
   s.rng = r.state;
   // Day 1's crowd: one expected customer (face up) and the walk-ins (face down).
-  s.forecast = drawCustomer(s);
-  for (let i = 0; i < walkInsOn(s, 1, null); i++) s.queue.push(drawCustomer(s, true));
+  s.forecast = drawCustomer(s, false, 1);
+  for (let i = 0; i < walkInsOn(s, 1, null); i++) s.queue.push(drawCustomer(s, true, 1));
   startDay(s);
   // A character's perk applies at once. Otherwise computer shops pick their trait straight away; people pick on the first morning.
   s.players.forEach((pl, i) => {
@@ -577,6 +620,12 @@ function startDay(s: GameState) {
   if (s.day > 1 && s.config.events) {
     s.event = drawEvent(s);
     if (s.day === s.config.days && s.event.inspector) s.event = drawEvent(s);
+    // Rules 18: Mango Craze is never the event of a mango-free day (its guest could not be served): the card goes to
+    // the bottom of the deck and another is turned over.
+    if (mangoFree(s, s.day) && s.event.id === 'mangoCraze') {
+      s.eventDeck.push(EVENT_CARDS.findIndex((e) => e.id === 'mangoCraze'));
+      s.event = drawEvent(s);
+    }
     eventWalkIns(s);
   }
   drawStanding(s);
@@ -591,8 +640,20 @@ function startDay(s: GameState) {
       if (paid) s.log.push(`${pl.name} was fined $${paid}`);
     });
   }
+  // Rules 18, out of cash: after the event and any inspection, and before anyone bids or buys, a stall with an empty
+  // shelf (no piece at all, green included) and less than TOP_UP is topped up to TOP_UP by the market. It is public.
+  s.dayTopUps = s.players.map(() => 0);
+  if (s.day > 1) {
+    s.players.forEach((pl, i) => {
+      if (pl.cash >= TOP_UP || count(pl.stock) > 0) return;
+      s.dayTopUps![i] = TOP_UP - pl.cash;
+      pl.cash = TOP_UP;
+      s.log.push(`${pl.name} had an empty shelf and was topped up to $${TOP_UP} by the market`);
+    });
+  }
   s.delivery = {};
   s.deliveryUnripe = null;
+  delete s.deliveryRipe;
   // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5).
   const card = s.nextFarmer ?? drawFarmer(s);
   s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
@@ -602,8 +663,8 @@ function startDay(s: GameState) {
   s.nextForecast = null;
   s.nextQueue = [];
   if (s.day < s.config.days) {
-    s.nextForecast = drawCustomer(s);
-    for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.nextQueue.push(drawCustomer(s, true));
+    s.nextForecast = drawCustomer(s, false, s.day + 1);
+    for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.nextQueue.push(drawCustomer(s, true, s.day + 1));
   }
   if (card && !s.event?.noDelivery) {
     const e = s.event;
@@ -618,7 +679,14 @@ function startDay(s: GameState) {
       s.delivery[f] = n;
       // Green fruit enters the top of its track; the Seconds Lorry fills each fruit's freshest Okay space.
       const pos = f === unripe ? s.market[f].length - 1 : deliveryPos(card, f);
-      s.market[f][pos] += n;
+      // Rules 18: an event's extra pieces of a fruit that arrives green come ripe, in the Fresh space (Mango Windfall:
+      // "1 extra ripe mango").
+      const ripe = f === unripe && e?.supplyEach?.[f] ? Math.min(n, eventSupply({ ...e, supplyAll: 0 }, f, shops)) : 0;
+      s.market[f][pos] += n - ripe;
+      if (ripe) {
+        s.market[f][freshPos(f)] += ripe;
+        (s.deliveryRipe ??= {})[f] = ripe;
+      }
     }
   }
   for (const p of s.players) {
@@ -626,6 +694,7 @@ function startDay(s: GameState) {
     p.spentToday = 0;
     p.favouredTrade = false;
     delete p.shade;
+    delete p.boughtFruit;
     p.upgradeOffer = [];
   }
   s.dayStartCash = s.players.map((p) => p.cash);
@@ -635,13 +704,14 @@ function startDay(s: GameState) {
   const rota = Array.from({ length: n }, (_, i) => (s.firstPlayer + i) % n);
   const start = s.day === 1 ? rota[0] : rota.reduce((best, i) => (s.players[i].cash < s.players[best].cash ? i : best), rota[0]);
   s.order = Array.from({ length: n }, (_, i) => (start + i) % n);
+  // Nest Egg: first in line on day 3, the first Market Day. Rules 18: a Priority card played the evening before goes
+  // ahead of it, so on day 3 the Priority stall buys first and Nest Egg second.
+  const egg = s.players.findIndex((p) => p.trait === 'nestegg');
+  if (egg >= 0 && s.day === 3) s.order = [egg, ...s.order.filter((i) => i !== egg)];
   if (s.priorityNext !== null) {
     s.order = [s.priorityNext, ...s.order.filter((i) => i !== s.priorityNext)];
     s.priorityNext = null;
   }
-  // Nest Egg: first in line on day 3, the first Market Day.
-  const egg = s.players.findIndex((p) => p.trait === 'nestegg');
-  if (egg >= 0 && s.day === 3) s.order = [egg, ...s.order.filter((i) => i !== egg)];
   s.turn = 0;
   s.stalls = s.players.map(() => null);
   s.crates = s.players.map(() => null);
@@ -670,7 +740,7 @@ function drawStanding(s: GameState) {
   if (!s.orderDeck || s.orderDeck.length === 0) s.orderDeck = withRng(s, (r) => r.shuffle(ORDER_CARDS.map((_, i) => i)));
   const card = s.orderDeck.shift()!;
   const c = ORDER_CARDS[card];
-  s.standing = { card, fruit: c.fruit, qty: orderQty(s.players.length), ceiling: c.ceiling, fine: c.fine, due: s.day + ORDER_LEAD, bids: s.players.map(() => null), holder: null, price: null };
+  s.standing = { card, fruit: c.fruit, qty: orderQty(s.players.length), ceiling: c.ceiling, stake: c.stake, due: s.day + ORDER_LEAD, bids: s.players.map(() => null), holder: null, price: null };
 }
 
 /** The standing order a stall must fill today, if it holds one that is due. */
@@ -686,12 +756,15 @@ export function canBidOrder(s: GameState, p: number, price: number | null): stri
   if (price === null) return null;
   if (!Number.isInteger(price) || price < 1) return 'Bids start at $1';
   if (price > o.ceiling) return `The most this order pays is $${o.ceiling} a piece`;
+  // Rules 18: the winner puts the stake down at once, so a stall may only bid with that much cash. Passing is always allowed.
+  const stake = orderStake(s, p);
+  if (s.players[p].cash < stake) return `You need $${stake} in cash to put down the stake`;
   return null;
 }
 
-/** What a rival is paid for each piece it supplies to a standing order (rules 17): $1 under the winner's bid, never under $1. */
-export function orderRivalPay(bid: number): number {
-  return Math.max(1, bid - 1);
+/** Rules 18: what stall `p` puts down if it wins the standing order: the card's stake, halved (rounded down) with an Order Book. */
+export function orderStake(s: GameState, p: number): number {
+  return s.standing ? stakeFor(s.standing.stake, s.players[p].upgrades.includes('orderbook')) : 0;
 }
 
 /** A stall's bid for the standing order: its price per piece (secret), or null to pass. The lowest bid wins. */
@@ -717,7 +790,11 @@ function awardOrder(s: GameState) {
     bidders.sort((a, b) => a.b - b.b || book(b.p) - book(a.p) || s.order.indexOf(a.p) - s.order.indexOf(b.p));
     o.holder = bidders[0].p;
     o.price = bidders[0].b;
-    s.log.push(`${s.players[o.holder].name} won ${ORDER_CARDS[o.card].title}'s order at $${o.price} a piece`);
+    // Rules 18: the winner pays its stake the moment it wins. It is held on the card until the due day.
+    const hp = s.players[o.holder];
+    o.staked = Math.min(hp.cash, orderStake(s, o.holder));
+    hp.cash -= o.staked;
+    s.log.push(`${hp.name} won ${ORDER_CARDS[o.card].title}'s order at $${o.price} a piece and put down a $${o.staked} stake`);
   }
   s.phase = 'buy';
   s.turn = 0;
@@ -753,12 +830,27 @@ export function buy(state: GameState, p: number, f: FruitId, pos: number): GameS
   const pl = s.players[p];
   const cost = buyCost(s, p, f, pos);
   s.market[f][pos]--;
-  pl.stock[f][shelfPos(pl, f, pos)]++;
+  takeToShelf(pl, f, shelfPos(pl, f, pos));
   pl.cash -= cost;
   pl.stats.spent += cost;
   pl.spentToday += cost;
   pl.boughtToday++;
   return s;
+}
+
+/** Puts a piece taken from the market on a shop's shelf and notes it among today's purchases (rules 18: public until the bell). */
+function takeToShelf(pl: Player, f: FruitId, at: number) {
+  pl.stock[f][at]++;
+  const t = ((pl.boughtFruit ??= {})[f] ??= new Array<number>(pl.stock[f].length).fill(0));
+  t[at]++;
+}
+
+/** Rules 18: the pieces a stall took from the market today that are still on its shelf, in the shape of a shelf.
+ *  This is what its rivals may know about its shelf from buying until the bell. */
+export function boughtStock(pl: Player): Stock {
+  const out = {} as Stock;
+  for (const f of FRUITS) out[f] = pl.stock[f].map((n, i) => Math.min(n, pl.boughtFruit?.[f]?.[i] ?? 0));
+  return out;
 }
 
 export function endBuyTurn(state: GameState, p: number): GameState {
@@ -774,10 +866,11 @@ function customersArrive(s: GameState) {
   const arriving: Customer[] = [];
   if (s.forecast) arriving.push(s.forecast);
   for (const c of s.queue) arriving.push(c);
-  // Rules 14: the row never passes ROW_CAP. A guest, and a standing order collected today, each take the place of the
-  // last walk-in (who goes back under the deck).
+  // Rules 14: the row never passes ROW_CAP. A standing order collected today takes the place of the last walk-in (who
+  // goes back under the deck). Rules 18: the cap counts the regular and the walk-ins; a guest joins the end of the row
+  // even when it is full (the row is then six that day).
   const due = orderDueToday(s);
-  const extras = (s.event?.extra ? 1 : 0) + (due ? 1 : 0);
+  const extras = (s.event?.extra && !GUEST_JOINS_FULL_ROW ? 1 : 0) + (due ? 1 : 0);
   while (arriving.length + extras > ROW_CAP && arriving.some((c) => c.walkIn)) {
     const gone = arriving.pop()!;
     const i = CUSTOMER_CARDS.findIndex((x) => x.name === gone.name);
@@ -787,7 +880,7 @@ function customersArrive(s: GameState) {
   // The standing order stands at the front of the row and is served first.
   if (due) {
     const wants: Want[] = [{ fruit: due.fruit, qty: due.qty, max: due.price!, fixed: true }];
-    arriving.unshift({ id: s.nextId++, name: ORDER_CARDS[due.card].name, wants, original: clone(wants), pref: 'everyday', order: { holder: due.holder!, price: due.price!, fine: due.fine, ceiling: due.ceiling } });
+    arriving.unshift({ id: s.nextId++, name: ORDER_CARDS[due.card].name, wants, original: clone(wants), pref: 'everyday', order: { holder: due.holder!, price: due.price!, stake: due.staked ?? 0, ceiling: due.ceiling } });
   }
   s.firstMarket = arriving;
   // Tomorrow's queue, drawn this morning (rules 16), moves up: one expected customer face up, the walk-ins face down.
@@ -795,18 +888,14 @@ function customersArrive(s: GameState) {
   s.queue = s.nextQueue;
   s.nextForecast = null;
   s.nextQueue = [];
-  if (s.day < s.config.days) {
-    // Sharp Ears: the shop secretly peeks at one of tomorrow's walk-ins it has not seen (the first in the queue).
-    s.players.forEach((pl, p) => {
-      if (pl.trait !== 'earful') return;
-      const c = s.queue.find((q) => !q.seenBy?.includes(p));
-      if (c) c.seenBy = [...(c.seenBy ?? []), p];
-    });
-  }
   s.phase = 'stall';
-  s.stalls = s.players.map(() => null);
-  s.crates = s.players.map(() => null);
+  // Rules 18: a stall with no ripe fruit on its shelf has nothing to decide: it takes no stocking turn and is treated
+  // as having put nothing out (so it takes no pricing turn either).
+  const empty = s.players.map((pl) => count(pl.stock, undefined, true) === 0);
+  s.stalls = empty.map((e) => (e ? {} : null));
+  s.crates = empty.map((e) => (e ? {} : null));
   s.bids = s.players.map(() => null);
+  if (s.stalls.every((x) => x !== null)) startPricing(s);
 }
 
 // ---------- favours ----------
@@ -814,14 +903,24 @@ function customersArrive(s: GameState) {
 export interface FavourArgs { fruit?: FruitId; pos?: number; /** Scout: the id of the face-down walk-in to look at. */ customer?: number }
 
 export function canPlayFavour(s: GameState, p: number, idx: number): string | null {
+  if (!s.players[p].favours[idx]) return 'No such card';
+  if (activePlayer(s) !== p) return 'Not your turn';
+  return favourBlock(s, p, idx);
+}
+
+/** Why this shop's card cannot be played in this phase, leaving aside whose turn it is (null: it can be played). */
+function favourBlock(s: GameState, p: number, idx: number): string | null {
   const pl = s.players[p];
   const id = pl.favours[idx];
   if (!id) return 'No such card';
   const def = FAVOURS[id];
-  if (activePlayer(s) !== p) return 'Not your turn';
-  if (def.when !== s.phase) return `Play this during the ${def.when === 'bid' ? 'pricing' : def.when} phase`;
+  // Rules 18: Favoured Trade is played in its own step after prices flip, by the stall being asked (decideTie). Its
+  // card may be tapped then; at any other time it cannot be played.
+  if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Favoured Trade is played after prices flip, when one of your prices is tied and you are asked';
+  if (def.when !== s.phase) return `Play this during the ${def.when} phase`;
   if (id === 'priority' && s.day >= s.config.days) return 'There is no tomorrow';
-  if (id === 'favouredTrade' && pl.favouredTrade) return 'Already active';
+  // Rules 18: only one Priority card can be played each evening. A second one is refused and stays in the hand.
+  if (id === 'priority' && s.priorityNext !== null) return 'A Priority card has already been played this evening. Only one can be played each evening, so keep yours';
   if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins to hear about';
   if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins to look at';
   return null;
@@ -830,6 +929,8 @@ export function canPlayFavour(s: GameState, p: number, idx: number): string | nu
 export function playFavour(state: GameState, p: number, idx: number, args: FavourArgs = {}): GameState {
   const why = canPlayFavour(state, p, idx);
   if (why) throw new RuleError(why);
+  // Rules 18: playing Favoured Trade from the hand is the asked stall's "play it" in the tie step.
+  if (state.players[p].favours[idx] === 'favouredTrade') return decideTie(state, p, true);
   const s = clone(state);
   const pl = s.players[p];
   const id = pl.favours[idx];
@@ -843,7 +944,7 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       if (!fruit || pos === undefined || (s.market[fruit][pos] ?? 0) <= 0) throw new RuleError('Pick a fruit at the market');
       if (count(pl.stock) >= shelfSize(pl)) throw new RuleError('Your shelf is full');
       s.market[fruit][pos]--;
-      pl.stock[fruit][shelfPos(pl, fruit, pos)]++;
+      takeToShelf(pl, fruit, shelfPos(pl, fruit, pos));
       break;
     }
     case 'priority':
@@ -856,12 +957,10 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       c.seenBy = [...(c.seenBy ?? []), p];
       break;
     }
-    case 'favouredTrade':
-      pl.favouredTrade = true;
-      break;
     case 'fridge':
-      for (const f of FRUITS) {
-        const t = pl.stock[f];
+      // Today's purchases move with the shelf, so what rivals saw bought still matches where the pieces are.
+      for (const f of FRUITS) for (const t of [pl.stock[f], pl.boughtFruit?.[f]]) {
+        if (!t) continue;
         const top = freshPos(f);
         for (let i = top - 1; i >= 0; i--) {
           t[i + 1] += t[i];
@@ -956,27 +1055,21 @@ export function crateStock(s: GameState, p: number): Stock {
 
 /**
  * Rules 14: a shop's crate as the row of customers finds it, after a standing order collected today has taken its
- * pieces (the holder's first, freshest first; then, for anything missing, the freshest pieces rivals put out). The
- * crates are public once every stall is open, so anyone can work this out. Without an order due it is the crate.
+ * pieces. Rules 18: the order takes pieces from its holder's crate only (Fresh or Okay, freshest first), so only the
+ * holder's crate changes; a rival's is left alone. Without an order due it is the crate.
  */
 export function rowStock(s: GameState, p: number): Stock {
   const due = orderDueToday(s);
   const mine = crateStock(s, p);
-  if (!due || !s.crates || s.crates.some((c) => c === null)) return mine;
+  if (!due || due.holder !== p || !s.crates || s.crates[p] === null) return mine;
   const f = due.fruit;
-  const all = s.players.map((_, i) => (i === p ? mine : crateStock(s, i)));
-  // As in the rush: the holder's pieces first, then each rival in turn (the one with the freshest piece first, then
-  // today's buying order), every stall handing over its freshest Fresh or Okay pieces.
-  const usable = (st: Stock) => { const o: number[] = []; for (let pos = FRUIT[f].ripe.length - 1; pos >= 0; pos--) if (stageAt(f, pos) !== 'notso') for (let k = 0; k < st[f][pos]; k++) o.push(pos); return o; };
-  const lots = all.map((st, i) => ({ p: i, pos: usable(st) })).filter((x) => x.pos.length > 0);
-  lots.sort((a, b) => Number(b.p === due.holder) - Number(a.p === due.holder) || b.pos[0] - a.pos[0] || s.order.indexOf(a.p) - s.order.indexOf(b.p));
   const out = { ...mine, [f]: [...mine[f]] } as Stock;
   let need = due.qty;
-  for (const lot of lots) {
-    const take = lot.pos.slice(0, need);
-    need -= take.length;
-    if (lot.p === p) for (const pos of take) out[f][pos]--;
-    if (need <= 0) break;
+  for (let pos = FRUIT[f].ripe.length - 1; pos >= 0 && need > 0; pos--) {
+    if (stageAt(f, pos) === 'notso') continue;
+    const take = Math.min(need, out[f][pos]);
+    out[f][pos] -= take;
+    need -= take;
   }
   return out;
 }
@@ -1002,10 +1095,12 @@ export function outCount(s: GameState, p: number): number | null {
  * crate is blank from stocking until the bell: while stalls are opening only whether it has opened is known, and once
  * every stall is open, how many pieces it holds (`out`). At the bell every crate opens with the prices. Buying is done
  * in the open, so with `memory` the rivals' shelves are kept, as a stall that watched every purchase and sale would
- * know them; a crate is never kept. Everything the screen shows a person, and every computer stall's pricing, starts
- * from this view, so nothing secret can leak into either.
+ * know them; a crate is never kept. Rules 18: what a stall bought today is public until the bell (`boughtFruit` stays
+ * on every player in this view); with `memory` 'today' a rival's shelf holds just those pieces, as a stall that
+ * remembers nothing older would know it. Everything the screen shows a person, and every computer stall's pricing,
+ * starts from this view, so nothing secret can leak into either.
  */
-export function publicView(state: GameState, seat: number, memory = false): GameState {
+export function publicView(state: GameState, seat: number, memory: boolean | 'today' = false): GameState {
   const s = clone(state);
   const bid = s.phase === 'bid';
   const shut = s.phase === 'stall' || bid;
@@ -1013,9 +1108,12 @@ export function publicView(state: GameState, seat: number, memory = false): Game
   else delete s.out;
   // Rules 17: while the standing order is bid for, everyone sees who is bidding and who passed, never a rival's price.
   if (s.phase === 'order' && s.standing) s.standing.bids = s.standing.bids.map((b, i) => (i !== seat && typeof b === 'number' ? 'in' : b));
+  // Rules 18, the tie step: who is being asked is public (as at a table); who will be asked next is not.
+  if (s.tieAsk) s.tieAsk = s.tieAsk.slice(0, 1);
   s.players.forEach((pl, i) => {
     if (i === seat) return;
-    if (!memory) for (const f of FRUITS) pl.stock[f] = pl.stock[f].map(() => 0);
+    if (memory === 'today') pl.stock = boughtStock(pl);
+    else if (!memory) for (const f of FRUITS) pl.stock[f] = pl.stock[f].map(() => 0);
     if (shut) {
       if (s.stalls[i]) s.stalls[i] = {};
       if (s.crates?.[i]) s.crates[i] = {};
@@ -1033,7 +1131,7 @@ function startPricing(s: GameState) {
   s.phase = 'bid';
   // A shop with nothing out for sale has nothing to price.
   s.bids = s.players.map((_, p) => (FRUITS.some((f) => forSale(s, p, f) > 0) ? null : []));
-  if (s.bids.every((b) => b !== null)) resolve(s);
+  if (s.bids.every((b) => b !== null)) afterFlip(s);
 }
 
 // ---------- pricing ----------
@@ -1054,40 +1152,102 @@ export function validatePrices(s: GameState, p: number, posts: Post[]): string |
   return null;
 }
 
-export function submitPrices(state: GameState, p: number, posts: Post[], useFavouredTrade = false): GameState {
+export function submitPrices(state: GameState, p: number, posts: Post[]): GameState {
   requireActive(state, p, 'bid');
-  let s = clone(state);
-  if (useFavouredTrade) {
-    const idx = s.players[p].favours.indexOf('favouredTrade');
-    if (idx >= 0) s = playFavour(s, p, idx);
-  }
+  const s = clone(state);
   const err = validatePrices(s, p, posts);
   if (err) throw new RuleError(err);
   s.bids[p] = posts.map((b) => ({ fruit: b.fruit, price: b.price }));
-  if (s.bids.every((b) => b !== null)) resolve(s);
+  if (s.bids.every((b) => b !== null)) afterFlip(s);
   return s;
+}
+
+// ---------- ties (rules 18): Favoured Trade after the flip ----------
+
+/** A price a stall posted that another stall also posted for the same fruit (both have that fruit out for sale). */
+export interface TiedPrice { fruit: FruitId; price: number; rivals: number[] }
+
+/** Stall `p`'s tied prices, once every price is in (empty before that). Prices and crates are public by then. */
+export function tiedPrices(s: GameState, p: number): TiedPrice[] {
+  if (s.bids.some((b) => b === null)) return [];
+  const out: TiedPrice[] = [];
+  for (const b of s.bids[p] ?? []) {
+    const rivals = s.players.map((_, i) => i).filter((i) => i !== p && postedPrice(s, i, b.fruit) === b.price);
+    if (rivals.length) out.push({ fruit: b.fruit, price: b.price, rivals });
+  }
+  return out;
+}
+
+/** May stall `p` play Favoured Trade in the tie step? It must hold the card and have a tied price. */
+export function tieEligible(s: GameState, p: number): boolean {
+  return s.players[p].favours.includes('favouredTrade') && tiedPrices(s, p).length > 0;
+}
+
+/**
+ * Every price is in and the flip has happened: prices and crates are public. Rules 18: stalls that hold Favoured
+ * Trade and have a tied price now decide, one at a time in today's buying order and in the open, whether to play it.
+ * When no stall is eligible the step does not exist and the rush starts at once.
+ */
+function afterFlip(s: GameState) {
+  const ask = s.order.filter((p) => tieEligible(s, p));
+  if (ask.length === 0) { resolve(s); return; }
+  s.phase = 'tie';
+  s.tieAsk = ask;
+}
+
+/** The tie step: the stall being asked plays Favoured Trade (it wins every tied price today) or keeps the card. */
+export function decideTie(state: GameState, p: number, play: boolean): GameState {
+  requireActive(state, p, 'tie');
+  const s = clone(state);
+  const pl = s.players[p];
+  if (play) {
+    const idx = pl.favours.indexOf('favouredTrade');
+    if (idx < 0) throw new RuleError('You have no Favoured Trade card');
+    pl.favours.splice(idx, 1);
+    pl.favouredTrade = true;
+    pl.stats.played = [...new Set([...(pl.stats.played ?? []), 'favouredTrade' as FavourId])];
+    s.log.push(`${pl.name} played ${FAVOURS.favouredTrade.title}`);
+  }
+  s.tieAsk = (s.tieAsk ?? []).slice(1);
+  if (s.tieAsk.length === 0) {
+    delete s.tieAsk;
+    resolve(s);
+  }
+  return s;
+}
+
+/**
+ * What each stall would take in today's rush as things stand: the posted prices, the crates and the Favoured Trade
+ * cards played so far. For the tie step, when all of that is public (a computer stall weighs playing its card with
+ * it). The game itself is not changed.
+ */
+export function rushIncome(state: GameState): number[] {
+  const s = clone(state);
+  resolve(s);
+  return s.results!.income;
 }
 
 export function postedPrice(s: GameState, p: number, f: FruitId): number | null {
   return s.bids[p]?.find((b) => b.fruit === f)?.price ?? null;
 }
 
-/** Positions (oldest first) a shop would hand over for this customer at this price, up to `qty`. */
-export function eligible(pl: Player, stock: Stock, f: FruitId, qty: number, price: number, max: number, pref?: Pref): number[] {
+/** Positions (oldest first) a shop would hand over for this customer at this price, up to `qty`. `fixed`: a guest's
+ *  fixed price, which a Premium Display never raises (rules 18). */
+export function eligible(pl: Player, stock: Stock, f: FruitId, qty: number, price: number, max: number, pref?: Pref, fixed = false): number[] {
   const out: number[] = [];
   const t = stock[f];
   const ripeLen = FRUIT[f].ripe.length;
   for (let i = 0; i < ripeLen && out.length < qty; i++) {
-    if (capFor(pl, f, i, max) < price || !acceptsStage(pref, stageAt(f, i))) continue;
+    if (capFor(pl, f, i, max, fixed) < price || !acceptsStage(pref, stageAt(f, i))) continue;
     for (let k = 0; k < t[i] && out.length < qty; k++) out.push(i);
   }
   return out;
 }
 
 /** Highest price this shop could ask a customer with this top price, with its current stock. */
-export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player, pref?: Pref): number {
+export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player, pref?: Pref, fixed = false): number {
   const ripeLen = FRUIT[f].ripe.length;
-  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0 && acceptsStage(pref, stageAt(f, i))) return pl ? capFor(pl, f, i, max) : capAt(f, i, max);
+  for (let i = ripeLen - 1; i >= 0; i--) if (stock[f][i] > 0 && acceptsStage(pref, stageAt(f, i))) return pl ? capFor(pl, f, i, max, fixed) : capAt(f, i, max);
   return 0;
 }
 
@@ -1103,6 +1263,8 @@ function resolve(s: GameState) {
   const favoured = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade);
   const haggler = (a: number, b: number) => Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
   const earful = s.players.map((pl) => pl.trait === 'earful');
+  /** Sharp Ears stalls that have had today's tip (rules 18: at most one a day). */
+  const earTipped = new Set<number>();
   const dailyFavours = (p: number) => (s.players[p].trait === 'charmer' ? CHARMER_DAILY_FAVOURS : 1);
 
   for (const c of servingCustomers(s)) {
@@ -1110,25 +1272,27 @@ function resolve(s: GameState) {
     let unitsToCustomer = 0;
     for (const w of c.wants) {
       if (w.qty <= 0) continue;
-      const max = effectiveMax(s, w, c.generous);
+      // Rules 18: a standing order pays its holder the bid for each piece, and $2 more with an Order Book. No event
+      // and no Closing Day changes that.
+      const orderPay = c.order ? c.order.price + (s.players[c.order.holder].upgrades.includes('orderbook') ? ORDER_BOOK_BONUS : 0) : 0;
+      const max = c.order ? orderPay : effectiveMax(s, w, c.generous);
       const offers: (Offer & { used: number[] })[] = [];
-      // Rules 14: a standing order takes Fresh or Okay pieces of its fruit from the crates, freshest first. The
-      // holder is paid its own bid for each piece and goes first; a rival is paid $1 under that bid (rules 17).
-      if (c.order) s.players.forEach((_, p) => {
-        if (left[p][w.fruit] <= 0) return;
+      // Rules 14: a standing order takes Fresh or Okay pieces of its fruit, freshest first. Rules 18: from the holder's
+      // crate only. Rivals' fruit is never taken and rivals are paid nothing; any unfilled part simply leaves.
+      if (c.order) {
+        const p = c.order.holder;
         const used: number[] = [];
-        for (let i = FRUIT[w.fruit].ripe.length - 1; i >= 0 && used.length < Math.min(left[p][w.fruit], w.qty); i--) {
+        const most = Math.min(left[p][w.fruit], w.qty);
+        for (let i = FRUIT[w.fruit].ripe.length - 1; i >= 0 && used.length < most; i--) {
           if (stageAt(w.fruit, i) === 'notso') continue;
-          for (let k = 0; k < crates[p][w.fruit][i] && used.length < Math.min(left[p][w.fruit], w.qty); k++) used.push(i);
+          for (let k = 0; k < crates[p][w.fruit][i] && used.length < most; k++) used.push(i);
         }
-        const price = p === c.order!.holder ? c.order!.price : orderRivalPay(c.order!.price);
-        if (used.length === 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
-        else offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
-      });
-      else s.players.forEach((pl, p) => {
+        if (used.length > 0) offers.push({ player: p, qty: used.length, price: orderPay, sold: 0, freshness: Math.max(...used), used });
+        else if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price: orderPay, sold: 0, freshness: 0, tooOld: true, used });
+      } else s.players.forEach((pl, p) => {
         const price = postedPrice(s, p, w.fruit);
         if (price === null || left[p][w.fruit] <= 0) return;
-        const used = eligible(pl, crates[p], w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref);
+        const used = eligible(pl, crates[p], w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref, w.fixed);
         if (used.length === 0) {
           if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
           return;
@@ -1137,9 +1301,7 @@ function resolve(s: GameState) {
       });
       // Cheapest first. Ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler, then today's buying order
       // (the order was set at dawn, poorest first).
-      if (c.order) offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || Number(b.player === c.order!.holder) - Number(a.player === c.order!.holder)
-        || b.freshness - a.freshness || orderIdx(a.player) - orderIdx(b.player));
-      else offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || favoured(a.player, b.player)
+      if (!c.order) offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || favoured(a.player, b.player)
         || b.freshness - a.freshness || haggler(a.player, b.player) || orderIdx(a.player) - orderIdx(b.player));
       let need = w.qty;
       for (const o of offers) {
@@ -1151,8 +1313,9 @@ function resolve(s: GameState) {
         const sold = o.used.slice(0, n);
         for (const i of sold) { pl.stock[w.fruit][i]--; crates[o.player][w.fruit][i]--; }
         left[o.player][w.fruit] -= n;
-        // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well.
-        const juice = pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
+        // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well. Rules 18: only for sales to
+        // customers and guests in the rush, so not for a standing order's pieces (nor the night hawker or the jam maker).
+        const juice = !c.order && pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
         if (juice) o.juice = juice;
         const gain = n * o.price + juice;
         pl.cash += gain;
@@ -1167,25 +1330,27 @@ function resolve(s: GameState) {
       w.qty = need;
     }
     if (c.order) {
-      // The holder is fined for every piece it did not supply itself (halved by an Order Book), never more than its cash.
+      // Rules 18: a holder that delivered every piece gets its stake back at once; otherwise the stake is lost. There
+      // is no other fine.
       const o = c.order, line = res.lines[res.lines.length - 1];
       const mine = line?.offers.find((x) => x.player === o.holder)?.sold ?? 0;
       const short = c.original[0].qty - mine;
       const hp = s.players[o.holder];
-      const fine = Math.min(hp.cash, Math.floor((short * o.fine) / (hp.upgrades.includes('orderbook') ? 2 : 1)));
-      hp.cash -= fine;
-      hp.stats.spent += fine;
+      const back = short === 0 ? o.stake : 0;
+      hp.cash += back;
+      if (!back) hp.stats.spent += o.stake;
       res.order = {
         name: c.name, fruit: c.original[0].fruit, qty: c.original[0].qty, holder: o.holder, price: o.price, ceiling: o.ceiling,
-        sales: (line?.offers ?? []).filter((x) => x.sold > 0).map((x) => ({ player: x.player, n: x.sold, price: x.price })), short, fine,
+        sales: (line?.offers ?? []).filter((x) => x.sold > 0).map((x) => ({ player: x.player, n: x.sold, price: x.price })), short, stake: o.stake, back,
       };
-      if (fine) s.log.push(`${hp.name} was fined $${fine} for the standing order`);
+      s.log.push(short === 0 ? `${hp.name} delivered the standing order in full and got its $${o.stake} stake back` : `${hp.name} delivered ${mine} of ${c.original[0].qty} for the standing order and lost its $${o.stake} stake`);
       continue;
     }
-    // Sharp Ears: a walk-in this shop has peeked at tips it once a day when the shop sells them anything.
+    // Sharp Ears: a walk-in this shop has peeked at tips it when the shop sells them anything. Rules 18: at most once a day.
     if (c.walkIn) {
       for (const p of suppliers) {
-        if (!earful[p] || !c.seenBy?.includes(p)) continue;
+        if (!earful[p] || earTipped.has(p) || !c.seenBy?.includes(p)) continue;
+        earTipped.add(p);
         const tip = sharpEarsTip(s.players.length);
         const pl = s.players[p];
         pl.cash += tip;
@@ -1197,14 +1362,20 @@ function resolve(s: GameState) {
     const done = c.wants.every((w) => w.qty <= 0);
     if (done) {
       res.happy.push(c.name);
+      // Tip Jar (rules 18): a customer who leaves with their whole order tips the Tip Jar stall if it sold them any of
+      // it: LOCAL_FAVOURITE_TIP when it served them alone, SHARED_TIP when other stalls helped.
+      for (const q of suppliers) {
+        const tj = s.players[q];
+        if (tj.trait !== 'favourite') continue;
+        const tip = suppliers.size === 1 ? LOCAL_FAVOURITE_TIP : SHARED_TIP;
+        tj.cash += tip;
+        tj.stats.earned += tip;
+        res.income[q] += tip;
+        (res.tipJar ??= []).push({ player: q, customer: c.name, tip });
+      }
       if (suppliers.size === 1 && unitsToCustomer > 0) {
         const p = [...suppliers][0];
         const pl = s.players[p];
-        if (pl.trait === 'favourite') {
-          pl.cash += LOCAL_FAVOURITE_TIP;
-          pl.stats.earned += LOCAL_FAVOURITE_TIP;
-          res.income[p] += LOCAL_FAVOURITE_TIP;
-        }
         // At most one favour card per shop per day, two for a Charmer (none in the core market).
         if (!s.config.core && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < dailyFavours(p)) {
           const fav = drawFavour(s);
@@ -1280,14 +1451,34 @@ export function finishReveal(state: GameState): GameState {
   }
   s.phase = 'evening';
   s.turn = 0;
+  // Sharp Ears (rules 18): in the evening (or just before the night when no evening is held) the stall secretly peeks
+  // at one of tomorrow's walk-ins it has not seen: the first in the queue. Before, it peeked when buying ended.
+  s.players.forEach((pl, p) => {
+    if (pl.trait !== 'earful') return;
+    const c = s.queue.find((q) => !q.seenBy?.includes(p));
+    if (c) c.seenBy = [...(c.seenBy ?? []), p];
+  });
   if (isDraftNight(s)) dealUpgrades(s);
-  // Hold an evening whenever anyone has a favour card. Only the number of cards is public, so
-  // checking for evening cards would tell rivals what someone is holding.
-  const anyCard = s.players.some((p) => p.favours.length > 0);
-  // Shade Cloth: a person names tonight's fruit in the evening (a computer shop picks at nightfall).
-  const shading = s.players.some((p) => p.trait === 'keeper' && p.kind === 'human');
-  if (!isDraftNight(s) && !anyCard && !shading) return nightfall(s);
-  return s;
+  return settleEvening(s);
+}
+
+/**
+ * Rules 18: does this stall have anything to decide this evening? An upgrade on offer that it can afford and has room
+ * for, an evening favour card it can play (Priority, Gossip), or the Shade Cloth's choice of tonight's fruit (a person
+ * names it in the evening; a computer shop picks at nightfall). A stall with no choice takes no evening turn.
+ */
+export function eveningChoice(s: GameState, p: number): boolean {
+  const pl = s.players[p];
+  if (s.phase !== 'evening' || !pl) return false;
+  if (isDraftNight(s) && pl.upgrades.length < MAX_UPGRADES && (pl.upgradeOffer ?? []).some((u) => pl.cash >= UPGRADES[u].cost)) return true;
+  if (pl.favours.some((id, i) => FAVOURS[id].when === 'evening' && favourBlock(s, p, i) === null)) return true;
+  return pl.trait === 'keeper' && pl.kind === 'human' && shelfSteps(s, pl) > 0 && count(pl.stock) > 0;
+}
+
+/** Moves the evening on to the next stall (in line-up order) with something to decide. When no stall has, night falls. */
+function settleEvening(s: GameState): GameState {
+  while (s.turn < s.order.length && !eveningChoice(s, s.order[s.turn])) s.turn++;
+  return s.turn >= s.order.length ? nightfall(s) : s;
 }
 
 // ---------- evening ----------
@@ -1378,8 +1569,7 @@ export function endEvening(state: GameState, p: number): GameState {
   requireActive(state, p, 'evening');
   const s = clone(state);
   s.turn++;
-  if (s.turn >= s.order.length) return nightfall(s);
-  return s;
+  return settleEvening(s);
 }
 
 function nightfall(s: GameState): GameState {
@@ -1458,10 +1648,33 @@ export function notSoCount(stock: Stock): number {
 
 // ---------- end ----------
 
+/** The stalls from first to last: most cash, then most fruit sold. Stalls level on both keep their seat order here,
+ *  but they are not ranked against each other: see `winners` and `places`. */
 export function ranking(s: GameState): number[] {
   return s.players
     .map((_, i) => i)
     .sort((a, b) => s.players[b].cash - s.players[a].cash || s.players[b].stats.sold - s.players[a].stats.sold);
+}
+
+/** Are two stalls level at the end: the same cash and the same number of fruit sold? */
+function level(s: GameState, a: number, b: number): boolean {
+  return s.players[a].cash === s.players[b].cash && s.players[a].stats.sold === s.players[b].stats.sold;
+}
+
+/** Rules 18: the stalls that win. Most cash wins; a tie goes to the stall that sold more fruit; stalls still tied
+ *  share the win (there is no seat-number tie-break). */
+export function winners(s: GameState): number[] {
+  const order = ranking(s);
+  return order.filter((i) => level(s, i, order[0]));
+}
+
+/** Each stall's finishing place by seat (1 is first). Stalls level on cash and fruit sold share a place, and the next
+ *  place is skipped (1, 1, 3). */
+export function places(s: GameState): number[] {
+  const order = ranking(s);
+  const out = new Array<number>(s.players.length).fill(0);
+  order.forEach((i, k) => { out[i] = k > 0 && level(s, i, order[k - 1]) ? out[order[k - 1]] : k + 1; });
+  return out;
 }
 
 // ---------- actions as data ----------
@@ -1474,7 +1687,8 @@ export type Action =
   | { kind: 'endBuy' }
   | { kind: 'favour'; idx: number; args?: FavourArgs }
   | { kind: 'stall'; stall: Stall; crate?: Crate }
-  | { kind: 'prices'; posts: Post[]; favoured: boolean }
+  | { kind: 'prices'; posts: Post[] }
+  | { kind: 'tie'; play: boolean }
   | { kind: 'finish' }
   | { kind: 'upgrade'; upgrade: UpgradeId }
   | { kind: 'endEvening' }
@@ -1489,7 +1703,8 @@ export function applyAction(s: GameState, p: number, a: Action): GameState {
     case 'endBuy': return endBuyTurn(s, p);
     case 'favour': return playFavour(s, p, a.idx, a.args ?? {});
     case 'stall': return openStall(s, p, a.stall, a.crate);
-    case 'prices': return submitPrices(s, p, a.posts, a.favoured);
+    case 'prices': return submitPrices(s, p, a.posts);
+    case 'tie': return decideTie(s, p, a.play);
     case 'finish': return finishReveal(s);
     case 'upgrade': return buyUpgrade(s, p, a.upgrade);
     case 'endEvening': return endEvening(s, p);

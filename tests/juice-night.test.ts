@@ -33,7 +33,7 @@ function salesCard(day: number, blueberries: number[], upgrades: UpgradeId[] = [
   }));
   while (s.phase === 'buy') s = applyAction(s, activePlayer(s), { kind: 'endBuy' });
   while (s.phase === 'stall') s = applyAction(s, activePlayer(s), { kind: 'stall', stall: {} });
-  while (s.phase === 'bid') s = applyAction(s, activePlayer(s), { kind: 'prices', posts: [], favoured: false });
+  while (s.phase === 'bid') s = applyAction(s, activePlayer(s), { kind: 'prices', posts: [] });
   expect(s.phase).toBe('reveal');
   s = structuredClone(s);
   s.day = day;
@@ -90,7 +90,7 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
   });
 
   it('agrees with every night of many seeded computer games (Heatwave, Juice Bar and its cap)', () => {
-    const seen = { juice: 0, capped: 0, heat: 0 };
+    const seen = { juice: 0, capped: 0, heat: 0, topUp: 0 };
     const levels: Level[] = ['normal', 'hard', 'normal', 'hard'];
     for (let seed = 1; seed <= 30; seed++) {
       let s = newGame({
@@ -104,8 +104,10 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
             const o = nightOutlook(s, p);
             const after = next.players[p];
             expect({ spoil: after.stats.spoiled - pl.stats.spoiled, juice: (after.stats.juiced ?? 0) - (pl.stats.juiced ?? 0) }).toEqual(o);
-            // The only other overnight cash change is a Health Inspector's fine at dawn.
-            expect(after.cash - pl.cash).toBe(o.juice * JUICE_VALUE - (next.dayFines?.[p] ?? 0));
+            // The only other overnight cash changes come at dawn: a Health Inspector's fine, then (rules 18) the
+            // market's top-up for a stall with an empty shelf and less than $5.
+            expect(after.cash - pl.cash).toBe(o.juice * JUICE_VALUE - (next.dayFines?.[p] ?? 0) + (next.dayTopUps?.[p] ?? 0));
+            if (next.dayTopUps?.[p]) seen.topUp++;
             expect(overnightJuice(s, next, p)).toEqual({ pieces: o.juice, dollars: o.juice * JUICE_VALUE });
             expect(overnightLoss(s, next, p)).toBe(o.spoil);
             if (o.juice) seen.juice++;
@@ -116,8 +118,9 @@ describe('nightOutlook: tonight by the night\'s own rules', () => {
         s = next;
       }
     }
-    // The sweep really covers each rule (counts from 30 seeds: about 70, 6, 44 and 4).
-    for (const n of Object.values(seen)) expect(n).toBeGreaterThan(0);
+    // The sweep really covers each rule (counts from 30 seeds: about 70, 6, 44 and 4). A top-up is rare and need not
+    // turn up in these seeds; tests/rules18.test.ts builds one by hand.
+    for (const n of [seen.juice, seen.capped, seen.heat]) expect(n).toBeGreaterThan(0);
   }, 120_000);
 });
 

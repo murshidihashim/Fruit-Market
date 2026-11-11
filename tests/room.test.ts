@@ -84,11 +84,13 @@ async function botStep(c: Client): Promise<boolean> {
   }
   if (g.phase === 'bid' && !v.submitted[me]) {
     const { posts } = planPrices(g, me);
-    await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'prices', posts, favoured: false } });
+    await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'prices', posts } });
     return true;
   }
   if (g.phase === 'order' && !v.submitted[me]) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'order', price: null } }); return true; }
   if (g.phase === 'evening' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endEvening' } }); return true; }
+  // Rules 18: after the flip a stall holding Favoured Trade with a tied price is asked whether to play it.
+  if (g.phase === 'tie' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'tie', play: false } }); return true; }
   return false;
 }
 
@@ -132,7 +134,7 @@ describe('online room', () => {
     const g = a.view!.game!;
     const { posts } = planPrices(g, 0);
     const before = b.inbox.length;
-    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts, favoured: false } });
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts } });
     const after = b.inbox.slice(before).map((r) => JSON.parse(r)).filter((m) => m.t === 'room') as RoomView[];
     expect(after.length).toBeGreaterThan(0);
     for (const v of after) {
@@ -149,7 +151,7 @@ describe('online room', () => {
       expect(m.game.eventDeck).toEqual([]);
     }
     // A cannot change their mind or submit twice.
-    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [], favoured: false } });
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [] } });
     expect(a.errors.slice(-1)[0]).toContain('already locked');
   });
 

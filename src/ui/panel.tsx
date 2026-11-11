@@ -160,25 +160,24 @@ export function startingPrices(s: GameState, p: number): Record<string, number> 
 
 /** `waiting`: your stall is open and the rivals are still opening theirs (PLAN-065). The same panel stays on screen
  *  into pricing; the rivals' crates show what is in them as soon as pricing starts. */
-export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: number; onSubmit: (posts: Post[], favoured: boolean) => void; waiting?: boolean }) {
+export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: number; onSubmit: (posts: Post[]) => void; waiting?: boolean }) {
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
   // Prices are suggested once every stall is open (the planner then sees every crate).
   useEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, p)); }, [s.phase]);
-  const [favoured, setFavoured] = useState(false);
   const [notice, setNotice] = useState(() => bellOpensOnStart(s));
   return (
-    <PricePanelView s={s} p={p} vals={vals} favoured={favoured} notice={notice} waiting={waiting}
-      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))} onFavoured={() => setFavoured(!favoured)}
+    <PricePanelView s={s} p={p} vals={vals} notice={notice} waiting={waiting}
+      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))}
       onNotice={setNotice} onSubmit={onSubmit} />
   );
 }
 
 /** The pricing screen drawn from its state (no hooks, so tests can draw it): every rival's crate, shut, with how many
  *  pieces it holds (rules 15), then one row per fruit you put out with its own − and + (PLAN-072). */
-export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice, onFavoured, onNotice, onSubmit }: {
-  s: GameState; p: number; vals: Record<string, number>; favoured: boolean; notice: boolean; waiting?: boolean;
-  onPrice: (f: FruitId, price: number) => void; onFavoured: () => void; onNotice: (open: boolean) => void;
-  onSubmit: (posts: Post[], favoured: boolean) => void;
+export function PricePanelView({ s, p, vals, notice, waiting, onPrice, onNotice, onSubmit }: {
+  s: GameState; p: number; vals: Record<string, number>; notice: boolean; waiting?: boolean;
+  onPrice: (f: FruitId, price: number) => void; onNotice: (open: boolean) => void;
+  onSubmit: (posts: Post[]) => void;
 }) {
   const pl = s.players[p];
   const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
@@ -221,11 +220,8 @@ export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice,
                 );
               })}
             </div>
-            {pl.favours.includes('favouredTrade') && !pl.favouredTrade && fruits.length > 0 && (
-              <button type="button" class={`favour-card wide ${favoured ? 'on' : 'ready'}`} onClick={onFavoured}>
-                <span class="fv-icon"><FavourIcon id="favouredTrade" size={20} /></span><span class="fv-name">{favoured ? 'Favoured Trade on: you win ties today' : 'Play Favoured Trade?'}</span>
-              </button>
-            )}
+            {/* Rules 18: Favoured Trade is no longer played with the prices. A holder with a tied price is asked after the flip. */}
+            {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="tk-note">You hold Favoured Trade. If one of your prices ties at the bell, you will be asked whether to play it.</p>}
             {fruits.length > 0 && <p class="tk-note">You see how many pieces each rival put out, not which fruit: that shows at the bell. Cheapest stall sells first; okay fruit pays $1 less.</p>}
           </>
         )}
@@ -234,7 +230,7 @@ export function PricePanelView({ s, p, vals, favoured, notice, waiting, onPrice,
         {!waiting && error && <div class="error">{error}</div>}
         {waiting
           ? <button class="btn primary big wide tk-go" disabled>Waiting for rivals…</button>
-          : <button class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts, favoured)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>}
+          : <button class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>}
       </div>
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </>

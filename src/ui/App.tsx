@@ -1,7 +1,7 @@
 // Screens: home, new-game setup, how to play, settings/stats, and the game itself.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
-import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
+import { newGame, winners, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig, dailyTwist } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
@@ -119,7 +119,7 @@ function Main() {
     const me = g.players.findIndex((p) => p.kind === 'human');
     const st = loadStats();
     st.played++;
-    if (ranking(g)[0] === me) st.wins++;
+    if (winners(g).includes(me)) st.wins++; // rules 18: a shared win is a win
     st.bestCash = Math.max(st.bestCash, g.players[me].cash);
     st.totalSold += g.players[me].stats.sold;
     saveStats(st);

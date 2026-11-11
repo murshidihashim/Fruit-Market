@@ -2,7 +2,7 @@
 // frame (the event's picture, its name, what it changes in big figures, then the rule), and what the lorry unloaded
 // into each lane. The news is turned over each morning: it shows its back until the picture is ready (PLAN-061).
 import { useEffect, useState } from 'preact/hooks';
-import { FRUIT, type EventCard, type FruitId } from '../../../engine/data';
+import { FRUIT, TOP_UP, type EventCard, type FruitId } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
 import { closingNote, overnightLines, type NightJuice } from '../../../engine/story';
 import { Fruit } from '../../art';
@@ -53,6 +53,18 @@ export function newsChips(e: EventCard | null | undefined): NewsChip[] {
   return out.slice(0, 3);
 }
 
+/** Rules 18, out of cash: who the market topped up at dawn, in words (null when nobody was). */
+export function topUpLine(s: GameState, viewer: number): string | null {
+  if (!s.dayTopUps || !s.dayTopUps.some((x) => x > 0)) return null;
+  return s.players.map((pl, i) => (s.dayTopUps![i] ? `${i === viewer ? 'Your shelf was empty, so the market topped you up' : `${pl.name} had an empty shelf and was topped up`} to $${TOP_UP} (+$${s.dayTopUps![i]})` : '')).filter(Boolean).join(' · ');
+}
+
+/** Rules 18: a Mango Windfall's extra mangoes arrive ripe; the rest of the lorry's mangoes are green as always. */
+export function ripeLine(s: GameState): string | null {
+  const parts = LANES.filter((f) => s.deliveryUnripe === f && (s.deliveryRipe?.[f] ?? 0) > 0).map((f) => `${s.deliveryRipe![f]} of the ${FRUIT[f].plural.toLowerCase()} arrived ripe`);
+  return parts.length ? `${parts.join('. ')}.` : null;
+}
+
 export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: GameState; viewer: number; lost: number; juice?: NightJuice; table?: boolean }) {
   const rem = s.config.days - s.day + 1;
   // Overnight: fruit lost, then what the Juice Bar made; on the final day, what leftovers are worth.
@@ -67,7 +79,9 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
   const art = s.event ? eventArt(s.event.id) : CALM_ART;
   const ready = useArtReady(art);
   const chips = newsChips(s.event);
-  const unloaded = LANES.map((f) => ({ f, n: s.delivery?.[f] ?? 0, green: s.deliveryUnripe === f }));
+  const unloaded = LANES.map((f) => ({ f, n: s.delivery?.[f] ?? 0, green: s.deliveryUnripe === f, ripe: s.deliveryRipe?.[f] ?? 0 }));
+  const ripeNote = ripeLine(s);
+  const topUp = topUpLine(s, viewer);
   return (
     <div class={`morning-card tk-morning ${rem <= 3 ? 'finale' : ''}`}>
       {night}
@@ -106,10 +120,12 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
       {s.event?.inspector && s.dayFines && s.dayFines.some((x) => x > 0) && (
         <p class="mc-fine tk-info warn">{s.players.map((pl, i) => (s.dayFines![i] ? `${i === viewer ? 'You were' : `${pl.name} was`} fined $${s.dayFines![i]}` : '')).filter(Boolean).join(' · ')}</p>
       )}
+      {/* Rules 18, out of cash: a stall with an empty shelf and less than $5 at dawn is topped up to $5 by the market. */}
+      {topUp && <p class="mc-topup tk-info good">{topUp}</p>}
       <div class="tk-unload">
         <b class="tk-label">{s.event?.noDelivery ? 'No lorry today' : 'The lorry unloads'}</b>
         {!s.event?.noDelivery && (
-          <div class="tk-unload-row" aria-label={`Today's delivery: ${unloaded.map((x) => `${x.n} ${FRUIT[x.f].plural.toLowerCase()}${x.green ? ' (green)' : ''}`).join(', ')}`}>
+          <div class="tk-unload-row" aria-label={`Today's delivery: ${unloaded.map((x) => `${x.n} ${FRUIT[x.f].plural.toLowerCase()}${x.green ? (x.ripe ? ` (${x.ripe} ripe, ${x.n - x.ripe} green)` : ' (green)') : ''}`).join(', ')}`}>
             {unloaded.map((x) => (
               <div class={`tk-load ${x.f} ${x.n ? '' : 'none'}`}>
                 <span class="tk-load-ico"><Fruit id={x.f} size={24} stage={x.green ? 'unripe' : 'fresh'} /></span>
@@ -118,6 +134,7 @@ export function MorningCard({ s, viewer, lost, juice, table: _table }: { s: Game
             ))}
           </div>
         )}
+        {ripeNote && <p class="tk-note">{ripeNote}</p>}
         <NextLorry s={s} cls="mc-lorry" />
       </div>
     </div>

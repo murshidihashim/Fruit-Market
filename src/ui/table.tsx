@@ -153,10 +153,30 @@ export function rivalNote(s: GameState, p: number, active: boolean): string {
   return '';
 }
 
+/** One fruit a stall bought today: how many pieces, and how many of them are still green. */
+export interface Bought { f: FruitId; n: number; green: number }
+
+/**
+ * Rules 18: what a stall took from the market today, by fruit. It is public from the moment of purchase until the
+ * bell, so it is shown only while buying, stocking and pricing; older stock stays secret.
+ */
+export function boughtToday(s: GameState, p: number): Bought[] {
+  if (s.phase !== 'buy' && s.phase !== 'stall' && s.phase !== 'bid') return [];
+  const b = s.players[p].boughtFruit;
+  if (!b) return [];
+  return LANES.map((f) => {
+    const t = b[f] ?? [];
+    return { f, n: t.reduce((a, x) => a + x, 0), green: t.slice(FRUIT[f].ripe.length).reduce((a, x) => a + x, 0) };
+  }).filter((x) => x.n > 0);
+}
+/** "1 mango (green), 2 apples": today's purchases in words, for the box's spoken label and the pop-up. */
+export const boughtWords = (buys: Bought[]) => buys.map((b) => `${b.n} ${(b.n === 1 ? FRUIT[b.f].name : FRUIT[b.f].plural).toLowerCase()}${b.green ? (b.green === b.n ? ' (green)' : ` (${b.green} green)`) : ''}`).join(', ');
+
 /**
  * A rival as a box in the rivals strip (PLAN-072): the stall's pattern with the shopkeeper's face, the name, cash and
  * a short note (what they are doing, then their price and result as each customer is served). Tap it to open their
- * stall below the strip. `rv-chip`: the rival cash chips that used to sit in the top bar live here now.
+ * stall below the strip. `rv-chip`: the rival cash chips that used to sit in the top bar live here now. Rules 18:
+ * small fruit marks with counts show what the stall bought today, from buying until the bell.
  */
 export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean }) {
   useCashShown();
@@ -174,15 +194,21 @@ export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p
     : board.res === 'won' ? `sold at $${board.price}` : board.res === 'lost' ? 'no sale' : `asks $${board.price}`;
   const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding')
     : board.state === 'sealed' ? ', sealed' : `, price $${board.price}${board.res === 'won' ? ', sold' : board.res === 'lost' ? ', no sale' : ''}`;
+  const buys = boughtToday(s, p);
   return (
-    <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}. Tap for more`}>
+    <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''}`} data-a={`p${p}`}
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
       {/* Five or six stalls: the box is narrow, so the name gets its own line and the note is left to the box's shade
           (grey once a stall is ready or sealed) and to its spoken label. */}
       <Swatch p={p} who={pl.avatar} look={pl.look} size={compact ? 20 : 30} />
       <span class="tk-seat-body">
         <span class="tk-seat-name">{pl.name}</span>
         <span class="tk-seat-line"><b data-a={`p${p}-cash`}>${cash}</b>{!compact && note && <> · {note}</>}</span>
+        {buys.length > 0 && (
+          <span class="tk-seat-buys" aria-hidden="true">
+            {buys.map((b) => <span><Fruit id={b.f} size={compact ? 10 : 12} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n}</span>)}
+          </span>
+        )}
       </span>
     </button>
   );
@@ -196,6 +222,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const out = outCount(s, p);
   const open = s.phase === 'reveal';
   const crate = open ? LANES.filter((f) => forSale(s, p, f) > 0) : [];
+  const buys = boughtToday(s, p);
   return (
     <div class="rival-drop tk-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
       <div class="rd-head">
@@ -212,8 +239,14 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
       ) : (
         <span class="tk-note">
           {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. Which fruit shows at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
-          The shelf stays behind the shutter.
+          {buys.length > 0 ? 'Older fruit stays behind the shutter.' : 'The shelf stays behind the shutter.'}
         </span>
+      )}
+      {buys.length > 0 && (
+        <div class="tk-drop-crate tk-drop-buys" aria-label={`Bought today: ${boughtWords(buys)}`}>
+          <span class="tk-label">Bought today</span>
+          {buys.map((b) => <span class="tk-dk-n"><Fruit id={b.f} size={22} stage={b.green === b.n ? 'unripe' : 'fresh'} /><b>{b.n}</b></span>)}
+        </div>
       )}
       {(pl.trait || pl.upgrades.length > 0 || pl.favours.length > 0) && (
         <div class="rd-extra">

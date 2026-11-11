@@ -1,7 +1,7 @@
 // The final results screen: podium, recap, league progress and achievements.
 import { useState } from 'preact/hooks';
 import { JUICE_VALUE } from '../../../engine/data';
-import { ranking, type GameState } from '../../../engine/game';
+import { places, ranking, winners, type GameState } from '../../../engine/game';
 import { gameRecap } from '../../../engine/story';
 import { Coin, Face } from '../../art';
 import { Icon } from '../../icons';
@@ -31,6 +31,31 @@ function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
   );
 }
 
+const RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH'];
+
+/**
+ * The words of the final count for one viewer. Rules 18: most cash wins, then most fruit sold; stalls still level
+ * share the win and the place (there is no seat-number tie-break), so 1ST can be printed on more than one stall.
+ */
+export function finishWords(s: GameState, viewer: number): { win: boolean; shared: boolean; headline: string; margin: string; medals: string[]; mine: string } {
+  const order = ranking(s);
+  const first = winners(s);
+  const place = places(s);
+  const win = first.includes(viewer);
+  const shared = first.length > 1;
+  const champ = s.players[win ? viewer : order[0]];
+  const gap = order.length > 1 ? champ.cash - s.players[order[1]].cash : 0;
+  const others = first.filter((i) => i !== viewer).map((i) => s.players[i].name);
+  const sharers = first.map((i) => s.players[i].name);
+  return {
+    win, shared,
+    headline: shared ? (win ? `YOU SHARE THE WIN WITH ${others.join(' AND ').toUpperCase()}` : `${sharers.join(' AND ').toUpperCase()} SHARE THE WIN`) : win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`,
+    margin: shared ? 'Level on cash and on fruit sold.' : gap === 0 ? 'A dead heat, decided on fruit sold!' : gap <= 5 ? `By just $${gap}. What a finish!` : `By $${gap}.`,
+    medals: place.map((k) => RANKS[k - 1]),
+    mine: win ? (shared ? 'I shared the win' : 'I won') : `I came ${RANKS[place[viewer] - 1].toLowerCase()}`,
+  };
+}
+
 export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean }) {
   // Checked once when the results first show; both only report what's new.
   const [earned] = useState(() => checkAchievements(s, viewer, !!online));
@@ -38,14 +63,13 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   // New looks are handed out after both checks, so a League win or a milestone counts too.
   const [newLooks] = useState(() => syncLooks());
   const order = ranking(s);
-  const win = order[0] === viewer;
-  const ranks = ['1ST', '2ND', '3RD', '4TH'];
-  const champ = s.players[order[0]];
-  const margin = order.length > 1 ? champ.cash - s.players[order[1]].cash : 0;
+  const place = places(s);
+  const words = finishWords(s, viewer);
+  const win = words.win;
+  const champ = s.players[win ? viewer : order[0]];
   const recap = gameRecap(s, viewer);
   const share = async () => {
-    const place = win ? 'I won' : `I came ${ranks[order.indexOf(viewer)].toLowerCase()}`;
-    const text = `Fruit Market: ${place} with $${s.players[viewer].cash} after ${s.config.days} days.`;
+    const text = `Fruit Market: ${words.mine} with $${s.players[viewer].cash} after ${s.config.days} days.`;
     try {
       if (navigator.share) await navigator.share({ text, url: location.origin });
       else await navigator.clipboard.writeText(`${text} ${location.origin}`);
@@ -54,15 +78,15 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   return (
     <section class="results">
       <div class="trophy"><Face who={champ.avatar} size={96} worn={partsOf(champ.look)} /><span class="crown"><Icon name="star" size={34} /></span></div>
-      <h2>{win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`}</h2>
-      {order.length > 1 && <p class="margin">{margin === 0 ? 'A dead heat, decided on fruit sold!' : margin <= 5 ? `By just $${margin}. What a finish!` : `By $${margin}.`}</p>}
+      <h2>{words.headline}</h2>
+      {order.length > 1 && <p class="margin">{words.margin}</p>}
       {s.config.daily && <DailyResult s={s} />}
       <div class="podium">
-        {order.map((i, k) => {
+        {order.map((i) => {
           const pl = s.players[i];
           return (
             <div class={`pod ${i === viewer ? 'me' : ''}`}>
-              <span class={`medal r${k + 1}`}>{ranks[k]}</span>
+              <span class={`medal r${place[i]}`}>{words.medals[i]}</span>
               <span class="avatar sm"><Face who={pl.avatar} size={26} worn={partsOf(pl.look)} /></span>
               <b>{i === viewer ? 'You' : pl.name}</b>
               <span class="spacer" />

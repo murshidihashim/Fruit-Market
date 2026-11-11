@@ -1,9 +1,10 @@
 // Standing orders (rules 14): the bid on a Market Day morning, and the strip that keeps the order in view until it is
 // collected. Rules 17: everyone sees who is bidding, who passed and who is still deciding (never a rival's price), and
-// a stall may change its mind for as long as another stall is still deciding.
+// a stall may change its mind for as long as another stall is still deciding. Rules 18: the winner puts down a stake
+// instead of risking a fine for each piece, only its own crate fills the order, and rivals are not involved.
 import { useState } from 'preact/hooks';
-import { FRUIT, ORDER_CARDS } from '../../../engine/data';
-import { orderRivalPay, type GameState } from '../../../engine/game';
+import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS } from '../../../engine/data';
+import { orderStake, type GameState } from '../../../engine/game';
 import { Coin, Face, Fruit } from '../../art';
 
 /** "3 mangoes", "1 apple". */
@@ -25,6 +26,25 @@ export function BidStatus({ s, p }: { s: GameState; p: number }) {
   );
 }
 
+/** Rules 18: what a stall must know before it bids, in three lines: the pay, the stake, and how the stake comes back. */
+export function OrderRules({ s, p }: { s: GameState; p: number }) {
+  const o = s.standing!;
+  const book = s.players[p].upgrades.includes('orderbook');
+  return (
+    <ul class="op-rules">
+      <li>Lowest bid wins the order and is paid that price for each piece{book ? ` (plus $${ORDER_BOOK_BONUS} a piece with your Order Book)` : ''}.</li>
+      <li>The winner puts down a stake of <b>${orderStake(s, p)}</b> now{book ? ' (halved by your Order Book)' : ''}.</li>
+      <li>Deliver all {o.qty} from your own crate on day {o.due} and the stake comes back. Deliver fewer and it is lost. Rivals are not involved.</li>
+    </ul>
+  );
+}
+
+/** Rules 18: a stall may only bid with the stake in cash. The words shown when it cannot (null when it can). */
+export function stakeHint(s: GameState, p: number): string | null {
+  const stake = orderStake(s, p);
+  return s.players[p].cash < stake ? `You need $${stake} in cash for the stake, so you can only pass.` : null;
+}
+
 /** Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
  *  `waiting`: this stall has decided and others have not; with `canChange` (online) it may still change its mind. */
 export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; p: number; waiting?: boolean; canChange?: boolean; onBid: (price: number | null) => void }) {
@@ -33,9 +53,9 @@ export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; 
   const mine = o.bids[p];
   const [v, setV] = useState(typeof mine === 'number' ? mine : Math.max(1, o.ceiling - 2));
   const locked = waiting && !canChange;
-  const pl = s.players[p];
-  const book = pl.upgrades.includes('orderbook');
-  const fine = Math.floor(o.fine / (book ? 2 : 1));
+  // Rules 18: a stall may only bid with the stake in cash. It can always pass.
+  const hint = stakeHint(s, p);
+  const short = hint !== null;
   return (
     <>
     <div class="price-panel order-panel mid-panel tk-panel" data-a="order-panel">
@@ -47,28 +67,32 @@ export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; 
           <span class="op-fruit">{Array.from({ length: o.qty }, () => <Fruit id={o.fruit} size={26} />)}</span>
           <span>wants <b>{pieces(o.qty, o.fruit)}</b>, Fresh or Okay, on day {o.due}</span>
         </div>
-        <ul class="op-rules">
-          <li>Lowest bid wins the order and is paid that price for each piece.</li>
-          <li>Your pieces are taken first. Anything missing is bought from rivals at $1 under your bid: <b>${orderRivalPay(v)}</b> each.</li>
-          <li>You are fined <b>${fine}</b> for every piece you do not supply{book ? ' (halved by your Order Book)' : ''}.</li>
-        </ul>
+        <OrderRules s={s} p={p} />
       </div>
       <BidStatus s={s} p={p} />
       {waiting && <div class="hint-bar waiting-dots">{mine === 'pass' ? 'You passed' : typeof mine === 'number' ? `Your bid: $${mine}` : 'Bid in'}. {canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}</div>}
+      {!locked && short && <div class="hint-bar">{hint}</div>}
       {!locked && (
         <>
-          <div class="op-bid" role="group" aria-label="Your secret bid per piece">
-            <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
-            <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
-            <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
-          </div>
-          {mine !== 'pass' && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
+          {!short && (
+            <div class="op-bid" role="group" aria-label="Your secret bid per piece">
+              <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
+              <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
+              <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
+            </div>
+          )}
+          {mine !== 'pass' && !short && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
         </>
       )}
     </div>
-    {!locked && (
+    {!locked && !short && (
       <div class="pp-lock">
         <button type="button" class="btn primary wide big" disabled={waiting && mine === v} onClick={() => onBid(v)}>{waiting ? `Change bid to $${v}` : `Bid $${v} a piece`}</button>
+      </div>
+    )}
+    {!locked && short && mine !== 'pass' && (
+      <div class="pp-lock">
+        <button type="button" class="btn primary wide big" onClick={() => onBid(null)}>Pass</button>
       </div>
     )}
     </>
@@ -85,13 +109,13 @@ export function OrderStrip({ s, viewer }: { s: GameState; viewer: number }) {
   const bids = o.holder === null ? '' : o.bids.map((b, i) => `${i === viewer ? 'You' : s.players[i].name} ${b === 'pass' || b === null ? 'passed' : `$${b}`}`).join(' · ');
   return (
     <div class={`order-strip ${o.due === s.day ? 'due' : ''} ${o.holder === viewer ? 'mine' : ''}`} role="note" title={bids}
-      aria-label={`Standing order: ${card.title} wants ${pieces(o.qty, o.fruit)} ${due}. ${holder ? `${o.holder === viewer ? 'You deliver' : `${holder.name} delivers`} at $${o.price} a piece.` : `Bids up to $${o.ceiling} a piece.`}`}>
+      aria-label={`Standing order: ${card.title} wants ${pieces(o.qty, o.fruit)} ${due}. ${holder ? `${o.holder === viewer ? 'You deliver' : `${holder.name} delivers`} at $${o.price} a piece. A stake of $${o.staked ?? 0} is held until then.` : `Bids up to $${o.ceiling} a piece. The stake is $${o.stake}.`}`}>
       <span class="os-k">Order</span>
       <span class="os-want"><Fruit id={o.fruit} size={16} />×{o.qty} {due}</span>
       {holder
         ? <span class="os-who"><Face who={holder.avatar} size={18} /> {o.holder === viewer ? 'You' : holder.name} at ${o.price}</span>
         : <span class="os-who">up to ${o.ceiling} each</span>}
-      <span class="os-fine">fine ${o.fine} a piece</span>
+      <span class="os-fine">{holder ? `stake $${o.staked ?? 0} held` : `stake $${o.stake}`}</span>
     </div>
   );
 }
