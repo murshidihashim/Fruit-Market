@@ -33,7 +33,7 @@ const lost = (track: number[], steps: number) => track.reduce((a, n, pos) => a +
 
 export function NightShift({ s, viewer }: { s: GameState; viewer: number }) {
   const [go, setGo] = useState(false);
-  useEffect(() => { const t = window.setTimeout(() => setGo(true), 600); return () => window.clearTimeout(t); }, []);
+  useEffect(() => { const t = window.setTimeout(() => setGo(true), 950); return () => window.clearTimeout(t); }, []);
   const steps = Math.max(0, 1 + (s.event?.ageExtra ?? 0));
   const pl = s.players[viewer];
   // A Shade Cloth that has not chosen is shown with the fruit the game will pick for it.

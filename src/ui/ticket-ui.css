@@ -115,3 +115,16 @@
 #app .tkt .tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 6px; }
 #app .tkt .tip-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
 #app .tkt .tip-legend li { display: inline-flex; align-items: center; gap: 5px; font: 700 0.8125rem/1 var(--f-label); color: var(--x-ink); }
+
+/* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
+#app .game.gx.tkt { transition: background-color 0.7s ease; }
+#app .tkt > .centre > .tk-night { animation: tk-dusk 0.6s ease-in both; }
+#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in 0.45s 0.55s ease-out both; }
+#app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
+#app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
+@keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }
+@keyframes tk-dusk-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  #app .game.gx.tkt { transition: none; }
+  #app .tkt > .centre > .tk-night, #app .tkt > .centre > .tk-night > * { animation: none; }
+}

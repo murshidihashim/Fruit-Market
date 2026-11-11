@@ -14,14 +14,17 @@
       "New game: square panels and buttons, shopkeeper cards drawn as tickets (black name bar, picture, perk box), square arrows, black Start game",
       "The Bell notice: black title bar, ruled list with mustard icon squares, black button",
       "Today's news (from the top bar): centred on the screen",
-      "The night: each piece slides over 1.5 s (was 0.9 s), starting after 0.6 s; the night holds 3 s before spoiled fruit drops",
-      "The evening: the Wholesale Market stays in view until you tap Lights out (tonight's warning sits on it); the evening panel covers it only when there is a choice (an upgrade, Shade Cloth, an evening favour); crates are covered once you have tapped Lights out, and the night starts when every stall has",
-      "A customer's large ticket: the repeated freshness line and the long price sentence replaced by a key: F full price, O $1 less, S $2 less"
+      "A customer's large ticket: the repeated freshness line and the long price sentence replaced by a key: F full price, O $1 less, S $2 less",
+      "The night: dusk falls over the Wholesale Market (0.6 s), then Night falls fades in, centred on the screen; each piece slides over 1.5 s",
+      "The evening: the Wholesale Market stays in view until you tap Lights out (tonight's warning sits on it), and stays uncovered while rivals close up; the evening panel covers it only when there is a choice (an upgrade, Shade Cloth, an evening favour)"
     ],
     "fixed": [
-      "Today's news sheet sat at the top of the screen (a reset in ticket.css cancelled its centring)"
+      "Today's news sheet sat at the top of the screen (a reset in ticket.css cancelled its centring)",
+      "Tapping Lights out (or any button that starts an animation) as the last stall also sped up that animation, so the whole night could pass in under a second; now only a tap on the table speeds animations up"
     ],
-    "removed": []
+    "removed": [
+      "The \"Crates covered\" sign over the market in the evening (owner)"
+    ]
   },
   "playerNotes": [
     "Pop-ups, New game and The Bell in the new look",
@@ -61,13 +64,13 @@
       "id": "T2",
       "text": "Each item checked on screen at 390x844 with no page errors",
       "result": "PASS",
-      "evidence": "2026-11-11: screenshots of full screen, New game (top and bottom), news, customer ticket, The Bell, a plain evening, a draft evening and the night at 0.3 to 4 s"
+      "evidence": "2026-11-11: screenshots of full screen, New game (top and bottom), news, customer ticket, The Bell, a plain evening, a draft evening and the night at 0.3 to 4 s; the night again at 1.0 to 3.2 s in three games, never skipped"
     },
     {
       "id": "T3",
       "text": "Browser tests pass with 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "Running"
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e on commit dcb7038: E2E OK, BUDGET OK, 0 leaks in 100 pricing frames, four players, reconnect 5 of 5 (re-run on the night changes in progress)"
     },
     {
       "id": "T4",

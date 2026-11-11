@@ -2974,6 +2974,10 @@
     {
       "at": "2026-11-11 20:25",
       "text": "Owner's fix list after 1.19.0 built (PLAN-076, REP-099): pop-ups, New game and The Bell in the Market Ticket look; news centred; slower night; market in view in the evening until Lights out; customer ticket key. verify PASS (442 tests). Not published. The pricing screen's standing-order issue is parked at the owner's request."
+    },
+    {
+      "at": "2026-11-11 20:40",
+      "text": "PLAN-076 follow-up, approved by the owner (\"theres no need for the crates are covered part, animate the flow between the wholesale market and night falls, make it centred\"): no \"Crates covered\" sign; dusk falls over the market into Night falls, centred. Found and fixed: tapping Lights out as the last stall skipped the night. verify PASS (442 tests). Not published."
     }
   ]
 }

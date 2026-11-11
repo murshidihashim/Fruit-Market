@@ -115,7 +115,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
   // The evening (PLAN-076): the Wholesale Market stays in view until you tap Lights out. The evening panel covers it
   // only when there is something to decide (an upgrade after a Market Day, Shade Cloth's fruit, an evening favour);
-  // tonight's warning sits on the market instead. Once you have tapped Lights out, the crates are covered.
+  // tonight's warning sits on the market instead. The night plays once every stall has tapped Lights out.
   const evPl = s.players[active];
   const eveningChoices = s.phase === 'evening' && !!evPl
     && (isDraftNight(s) || evPl.trait === 'keeper' || evPl.favours.some((f) => FAVOURS[f].when === 'evening'));
@@ -138,8 +138,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   })();
   const offSeats = offline.map((x) => x.seat);
 
+  // A tap on the table speeds up the animation playing (PLAN-076: not the tap on the button that starts one, such as
+  // Lights out, which used to skip the whole night when you were the last stall to close).
   return (
-    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={(e) => busyRef.current && !(e.target as Element).closest?.('button') && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
@@ -169,7 +171,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       )}
       <div class={`centre ${mid ? 'covered' : ''}`}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
-        <Market s={s} p={viewer} lorry={lorryHere} covered={s.phase === 'evening' && !(activeHuman && active === viewer)}
+        <Market s={s} p={viewer} lorry={lorryHere}
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, active) : undefined}
           onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}

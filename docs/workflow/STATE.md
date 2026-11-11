@@ -4,7 +4,7 @@ Updated 2026-11-11 20:25 (Asia/Kuala_Lumpur), session checkpoint. Sections from 
 
 ## Latest (2026-11-11 20:25): owner fixes built, not published (PLAN-076)
 - **Owner approval (to build):** the fix list after 1.19.0 (REP-099). Publishing not requested.
-- **Built:** pop-ups (full screen, Paused, Continue, Play a friend), New game and The Bell in the Market Ticket look; today's news centred; slower night (1.5 s slide); the market in view in the evening until Lights out; customer ticket shows a price key instead of repeated text.
+- **Built:** pop-ups (full screen, Paused, Continue, Play a friend), New game and The Bell in the Market Ticket look; today's news centred; slower night (1.5 s slide) after a dusk over the market, centred; no "Crates covered" sign; the market in view in the evening until Lights out; customer ticket price key; fixed: the last Lights out tap skipped the night.
 - **Checks:** `npm run verify` PASS (442 tests); screenshots PASS; browser tests: see PLAN-076 T3.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`, not merged. Next: owner chooses preview or live.
 - **Parked:** the pricing screen's standing-order wording and $3 price limit (owner will revisit).
