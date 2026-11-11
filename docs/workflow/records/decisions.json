@@ -2096,6 +2096,31 @@
         "REP-098"
       ],
       "reviewTrigger": "If the balance report or playtests show stalls hoarding for tomorrow, or computer stalls falling behind because they ignore tomorrow's crowd"
+    },
+    {
+      "id": "DEC-085",
+      "title": "Rules version 17: standing orders in the open, rivals at $1 less, all five upgrades; cash track on the counter",
+      "question": "How should rivals be paid for filling a standing order, how open should bidding be, how many upgrades are on offer, and where does the printed cash track sit?",
+      "choice": "A rival is paid $1 under the winner's bid (never under $1). Who is bidding, who passed and who is still deciding is public; prices stay secret until the last stall decides, and until then any stall may change its bid or pass. In the app computer stalls decide first. Every unbuilt upgrade is on offer after a Market Day. In the printed game tomorrow's customers are dealt in the morning (as the app does since rules 16) and the cash track sits on the counter, in front of the shutter. RULES_VERSION 16 to 17; computer-player version 4 to 5.",
+      "rationale": "Owner: \"change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public\". Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
+      "impact": {
+        "player": "Filling someone else's order pays less than before, and a low winning bid can take a rival's crate piece cheaply; you bid knowing who else is in; more upgrade choice.",
+        "technical": "Engine, server view and bidding screen; rules and computer-player versions bumped; a print generator in the repo.",
+        "data": "Unfinished rules 16 games cannot be resumed; the daily board key becomes r17:a5; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
+        "date": "2026-11-11"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-077",
+      "reports": [
+        "REP-100"
+      ],
+      "reviewTrigger": "If rivals feel robbed when a low bid takes their crate pieces for $1 or $2, if open bidding makes everyone wait for each other, or if five upgrades on offer makes one upgrade the only choice"
     }
   ],
   "history": [
@@ -2986,6 +3011,10 @@
     {
       "at": "2026-11-11 20:59",
       "text": "Release 1.19.1 published (PLAN-076): main 35bda0a, Deploy LIVE game run 38; live smoke test PASS; tagged v1.19.1. Browser tests PASS on the release build before merging."
+    },
+    {
+      "at": "2026-11-11 21:26",
+      "text": "Rules version 17 built (PLAN-077, DEC-085, REP-100): rivals fill a standing order at $1 under the winning bid, open bidding status with re-bids, all five upgrades on offer; printed game audited against the app; tabletop update pack generated in the repo (guidebook, stall sheets, counters with the cash track, standing-order cards). verify PASS (451 tests). Not published."
     }
   ]
 }

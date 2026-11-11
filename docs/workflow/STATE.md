@@ -1,8 +1,17 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 20:59 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 21:26 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 20:59): 1.19.1 live, owner fixes (PLAN-076)
+## Latest (2026-11-11 21:26): rules version 17 and the tabletop update pack built, not published (PLAN-077)
+- **Owner approval (to build):** the five-item request and three answers (DEC-085, REP-100). Publishing not requested.
+- **Built (app):** rivals fill a standing order at $1 under the winning bid; bidding shows who is bidding, passed or deciding, and can be changed until the last stall decides; all five upgrades on offer. RULES_VERSION 17, computer players 5.
+- **Built (table):** `print/update-17` from `scripts/print-update.ts`: guidebook at rules 17, six stall sheets (no cash track), six counters with the cash track, eight standing-order cards, a change sheet. Tomorrow's customers dealt in the morning.
+- **Audit:** printed numbers match the app; differences found and their status are in REP-100.
+- **Checks:** `npm run verify` PASS (451 tests); screenshots PASS; browser tests and balance: see PLAN-077 T6, T7; printed size test NOT RUN.
+- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`, not merged. Next: owner prints a test page; chooses preview or live.
+- **Parked:** the pricing screen's standing-order wording and $3 price limit; Sharp Ears timing.
+
+## Earlier (2026-11-11 20:59): 1.19.1 live, owner fixes (PLAN-076)
 - **Owner approval (to build):** the fix list after 1.19.0 (REP-099). Publishing not requested.
 - **Built:** pop-ups (full screen, Paused, Continue, Play a friend), New game and The Bell in the Market Ticket look; today's news centred; slower night (1.5 s slide) after a dusk over the market, centred; no "Crates covered" sign; the market in view in the evening until Lights out; customer ticket price key; fixed: the last Lights out tap skipped the night.
 - **Checks:** `npm run verify` PASS (442 tests); screenshots PASS; browser tests PASS (0 leaks, reconnect 5/5); owner phone check NOT RUN.
