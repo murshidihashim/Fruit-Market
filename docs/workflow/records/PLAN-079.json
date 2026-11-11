@@ -1,18 +1,34 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge commit 5f20a14",
   "reports": [
     "REP-101",
-    "REP-102"
+    "REP-102",
+    "REP-105"
   ],
   "decisions": [
     "DEC-086",
     "DEC-088"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "A stall with an empty shelf and less than $5 at dawn is topped up to $5",
+      "What each rival bought today stays on show until the next morning",
+      "Favoured Trade is asked after the prices flip, when one of your prices is tied"
+    ],
+    "changed": [
+      "Standing orders: the winner puts down a stake and gets it back for a full delivery; rivals no longer fill the gap",
+      "Upgrade costs: Juice Bar $6, Premium Display $5, Ripening Room $4, Order Book $3, Handcart $6; the Ripening Room makes green mangoes $1 cheaper and the Order Book pays $2 more a delivered piece",
+      "Tip Jar, Nest Egg and Sharp Ears rebalanced",
+      "A green mango costs $4; no customer wants mango on days 1 and 2",
+      "Stocking, pricing and evening turns with nothing to decide are skipped",
+      "A tie on cash and fruit sold is a shared win"
+    ],
+    "fixed": [
+      "A stall can no longer be stuck at $0 for the rest of the game",
+      "Mango Windfall's extra mangoes arrive ripe",
+      "The day story no longer counts pieces an earlier customer took"
+    ],
     "removed": []
   },
   "playerNotes": [],
@@ -21,7 +37,7 @@
     "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
     "date": "2026-11-11"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-079",
   "title": "Rules version 18: build the approved balance set, the top-up, staked standing orders and the rulings",
   "problem": "REP-101 found stalls knocked out at $0, two shopkeepers and three upgrades out of balance, the mango as the default buy, a standing-order fine that a broke winner does not pay, purchases that must be memorised, mango customers nobody can serve on days 1 and 2, and several rule gaps. The owner approved the changes in DEC-086.",
@@ -40,20 +56,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes with tests for each rule change",
-      "result": "NOT RUN",
-      "evidence": "Build in progress"
+      "result": "PASS",
+      "evidence": "npm run verify on the merged code, 2026-11-12: 518 tests passed, 1 skipped; tests/rules18.test.ts has 65 tests covering each rule change"
     },
     {
       "id": "T2",
       "text": "Simulation of the built rules: shopkeepers against the 4-point target at 2, 3, 4 and 6 stalls; the stake; the top-up; the apple and event changes",
-      "result": "NOT RUN",
-      "evidence": "Build in progress"
+      "result": "FAIL",
+      "evidence": "Run, target missed narrowly: largest shopkeeper distance 4.5 / 3.3 / 4.0 / 4.6 at 2 / 3 / 4 / 6 stalls (was 8.6 / 10.4 / 8.6 / 6.9); 44 of 48 results within 4 points; the Charmer is above fair at every table. Stake kept; +1 apple not built; a guest joins a full row and Blueberry Glut $1 cheaper kept. docs/studio/review-17/balance/RULES-18-RESULTS.md, REP-105"
     },
     {
       "id": "T3",
       "text": "Browser tests pass with 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "Build in progress"
+      "result": "PASS",
+      "evidence": "npm run test:e2e, 2026-11-12: solo game with no errors; performance budget OK; online match finished with 0 leaks; quick match; reconnect 5 of 5"
     },
     {
       "id": "T4",
