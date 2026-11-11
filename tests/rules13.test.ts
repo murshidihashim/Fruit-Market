@@ -2,8 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import { aiStep } from '../src/engine/ai';
 import { EVENT_CARDS, UPGRADES } from '../src/engine/data';
-import { applyAction, beginBuying, finishReveal, newGame, walkInsOn, type GameState } from '../src/engine/game';
+import { beginBuying, finishReveal, newGame, walkInsOn, type GameState } from '../src/engine/game';
 import { RULES_VERSION } from '../src/net/protocol';
+import { passEvening } from './stall-step';
 
 const cfg = (n: number, seed: number) => ({
   players: Array.from({ length: n }, (_, i) => ({ name: `C${i}`, kind: 'ai' as const, level: 'normal' as const, avatar: '' })),
@@ -15,7 +16,7 @@ function nightInto(s: GameState, next: string): GameState {
   let g = structuredClone(s);
   g.eventDeck = [EVENT_CARDS.findIndex((e) => e.id === next)];
   g.phase = 'evening'; g.turn = 0; g.order = g.players.map((_, i) => i);
-  for (let p = 0; p < g.players.length; p++) g = applyAction(g, p, { kind: 'endEvening' });
+  g = passEvening(g);
   return g;
 }
 

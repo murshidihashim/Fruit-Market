@@ -1,11 +1,12 @@
-// Rules version 17 (PLAN-077): a rival who fills a standing order's gap is paid $1 under the winner's bid; who is
-// bidding is public (never the price) and a stall may change its mind while another is still deciding; every unbuilt
-// upgrade is on offer after a Market Day.
+// Rules version 17 (PLAN-077): who is bidding for a standing order is public (never the price) and a stall may change
+// its mind while another is still deciding; every unbuilt upgrade is on offer after a Market Day. (Rules 17 also paid a
+// rival who filled an order's gap $1 under the winner's bid; rules 18 took rivals out of standing orders altogether.)
 import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
 import { aiStep, planOrderBid } from '../src/engine/ai';
 import { RIVALS, UPGRADES, type UpgradeId } from '../src/engine/data';
-import { activePlayer, beginBuying, bidOrder, canBidOrder, finishReveal, newGame, orderRivalPay, publicView, type GameState } from '../src/engine/game';
+import { activePlayer, beginBuying, bidOrder, canBidOrder, finishReveal, newGame, publicView, type GameState } from '../src/engine/game';
+import * as engine from '../src/engine/game';
 import { AI_VERSION, RULES_VERSION } from '../src/net/protocol';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
@@ -20,20 +21,18 @@ function bidding(n = 4, humans = n): GameState {
   const s: GameState = structuredClone(g);
   s.day = 3;
   s.phase = 'order';
-  s.standing = { card: 0, fruit: 'blueberry', qty: 4, ceiling: 9, fine: 6, due: 5, bids: s.players.map(() => null), holder: null, price: null };
+  s.standing = { card: 0, fruit: 'blueberry', qty: 4, ceiling: 9, stake: 6, due: 5, bids: s.players.map(() => null), holder: null, price: null };
   return s;
 }
 
 describe('rules version 17', () => {
   it('is the version the app and the server speak, with new computer players', () => {
-    expect(RULES_VERSION).toBe(17);
-    expect(AI_VERSION).toBe(5);
+    expect(RULES_VERSION).toBeGreaterThanOrEqual(17);
+    expect(AI_VERSION).toBeGreaterThanOrEqual(5);
   });
 
-  it('a rival is paid $1 under the winning bid, never under $1', () => {
-    expect(orderRivalPay(14)).toBe(13);
-    expect(orderRivalPay(2)).toBe(1);
-    expect(orderRivalPay(1)).toBe(1);
+  it('rules 18 removed the rival\'s pay: a standing order no longer buys from rivals at all', () => {
+    expect('orderRivalPay' in engine).toBe(false);
   });
 });
 

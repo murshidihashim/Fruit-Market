@@ -10,6 +10,7 @@ import {
 } from '../src/engine/game';
 import { RULES_VERSION } from '../src/net/protocol';
 import { dailyBoardKey } from '../server/meta';
+import { endBuying } from './stall-step';
 
 const humans = (n: number, seed = 5, extra: Partial<GameConfig> = {}): GameConfig => ({
   players: Array.from({ length: n }, (_, i) => ({ name: `H${i}`, kind: 'human' as const, avatar: 'a' })),
@@ -22,8 +23,7 @@ const ais = (n: number, seed = 5, extra: Partial<GameConfig> = {}): GameConfig =
 /** Two people at the stall phase on day 1 with a known crowd: one customer wanting 3 apples at $8. */
 function duel(extra: Partial<GameConfig> = {}): GameState {
   let s = beginBuying(newGame(humans(2, 11, extra)));
-  s = endBuyTurn(s, s.order[0]);
-  s = endBuyTurn(s, s.order[1]);
+  s = endBuying(s);
   s = structuredClone(s);
   s.firstMarket = [{ id: 900, name: 'Tester', wants: [{ fruit: 'apple', qty: 3, max: 8 }], original: [{ fruit: 'apple', qty: 3, max: 8 }] }];
   s.secondMarket = [];
@@ -223,7 +223,7 @@ describe('open stalls and posted prices', () => {
     s = openStall(s, 0, {});
     s = openStall(s, 1, { apple: 3 });
     expect(s.bids[0]).toEqual([]);
-    s = applyAction(s, 1, { kind: 'prices', posts: [{ fruit: 'apple', price: 8 }], favoured: false });
+    s = applyAction(s, 1, { kind: 'prices', posts: [{ fruit: 'apple', price: 8 }] });
     expect(s.phase).toBe('reveal');
   });
 });
@@ -253,7 +253,7 @@ describe('options', () => {
 
 describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
-    expect(RULES_VERSION).toBe(17);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r17:a5');
+    expect(RULES_VERSION).toBe(18);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r18:a6');
   });
 });

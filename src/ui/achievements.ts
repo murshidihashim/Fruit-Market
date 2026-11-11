@@ -2,7 +2,7 @@
 // over time (sets such as "shopkeepers won with") and says which achievements were just earned.
 // It only reads the game; it never changes a rule.
 import { CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, JUICE_VALUE, LEGACY_RIVAL_NAMES, RIVALS } from '../engine/data';
-import { ranking, type GameState, type LineResult } from '../engine/game';
+import { winners, type GameState, type LineResult } from '../engine/game';
 
 export type ThemeId = 'game' | 'timing' | 'nerve' | 'crates' | 'town' | 'stall' | 'cast' | 'events' | 'journey' | 'milestones';
 
@@ -126,7 +126,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
   const sets: Sets = Object.fromEntries(Object.entries(ctx.sets).map(([k, v]) => [k, [...v]]));
   if (g.phase !== 'over' || me < 0) return { got: [], sets };
   const pl = g.players[me];
-  const won = ranking(g)[0] === me;
+  const won = winners(g).includes(me); // rules 18: a shared win is a win
   const hist = g.history ?? [];
   const mine = (l: LineResult) => l.offers.filter((o) => o.player === me && o.sold > 0);
 

@@ -132,7 +132,7 @@ const takesAny = (stock: Stock, f: FruitId, x: BuyerLine) =>
  */
 export function stallWanted(s: GameState, p: number, f: FruitId): number {
   const pl = s.players[p];
-  return buyersFor(s, f).filter((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref) > 0).reduce((a, x) => a + x.w.qty, 0);
+  return buyersFor(s, f).filter((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref, x.w.fixed) > 0).reduce((a, x) => a + x.w.qty, 0);
 }
 
 /** The Stocking panel's demand words for one fruit: "3 wanted", "Nobody takes yours" or "Nobody wants these". */
@@ -155,7 +155,7 @@ export function buyerCap(s: GameState, p: number, f: FruitId, x: BuyerLine): Buy
   const who = lookOf(x.c.name).title;
   // Rules 12: once your crate is set, only its pieces can sell; before that, your whole shelf.
   const stock = rowStock(s, p);
-  const cap = bestCap(stock, f, x.max, pl, x.c.pref);
+  const cap = bestCap(stock, f, x.max, pl, x.c.pref, x.w.fixed);
   if (!takesAny(stock, f, x) && x.c.pref && x.c.pref !== 'bargain') {
     const type = PREF_INFO[x.c.pref];
     return { cap, label: type.short.toLowerCase(), title: `${who} wants ${x.w.qty} but ${type.text.toLowerCase()}`, aria: `${who}: ${type.short.toLowerCase()}` };
@@ -230,7 +230,7 @@ function sellable(s: GameState, p: number, f: FruitId, price: number, lines: Buy
   let mine = 0;
   for (const x of lines) {
     if (left <= 0) break;
-    const used = eligible(pl, shelf, f, Math.min(left, x.w.qty), price, x.max, x.c.pref);
+    const used = eligible(pl, shelf, f, Math.min(left, x.w.qty), price, x.max, x.c.pref, x.w.fixed);
     for (const k of used) shelf[f][k]--;
     left -= used.length;
     mine += used.length;
@@ -247,7 +247,7 @@ function firmOrders(s: GameState, p: number, f: FruitId, price: number, lines: B
   const pl = s.players[p];
   const oldest = rowStock(s, p)[f].findIndex((n, pos) => n > 0 && pos < FRUIT[f].ripe.length);
   if (oldest < 0) return 0;
-  return lines.filter((x) => capFor(pl, f, oldest, x.max) >= price && acceptsStage(x.c.pref, stageAt(f, oldest))).reduce((a, x) => a + x.w.qty, 0);
+  return lines.filter((x) => capFor(pl, f, oldest, x.max, x.w.fixed) >= price && acceptsStage(x.c.pref, stageAt(f, oldest))).reduce((a, x) => a + x.w.qty, 0);
 }
 
 /**
@@ -262,7 +262,7 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
   const out = rowCount(s, p, f);
   const lines = buyersFor(s, f);
   const canSell = sellable(s, p, f, price, lines);
-  const servable = lines.filter((x) => price <= bestCap(rowStock(s, p), f, x.max, pl, x.c.pref)).reduce((a, x) => a + x.w.qty, 0);
+  const servable = lines.filter((x) => price <= bestCap(rowStock(s, p), f, x.max, pl, x.c.pref, x.w.fixed)).reduce((a, x) => a + x.w.qty, 0);
   const firm = firmOrders(s, p, f, price, lines);
   const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
   const rivals = s.players.reduce((a, _o, i) => (i === p ? a : a + rowCount(s, i, f)), 0);
@@ -287,8 +287,8 @@ export function priceRead(s: GameState, p: number, f: FruitId, price: number): P
 /**
  * Rivals who would beat you at a tied price for this fruit today, from what is public before the bell: shopkeeper
  * perks are public, so a Haggler with this fruit out wins a tie against equally fresh fruit (rules 11) unless you play
- * Favoured Trade (or are the Haggler yourself). Favoured Trade is played secretly with a stall's prices and only shows at the bell, so a rival's
- * card is never used here. "Rosa is the Haggler, who wins ties" (the same words as the showdown), or null.
+ * Favoured Trade (or are the Haggler yourself). Rules 18: Favoured Trade is played after the flip, and which cards a
+ * rival holds is secret, so a rival's card is never used here. "Rosa is the Haggler, who wins ties" (the same words as the showdown), or null.
  */
 export function tieHint(s: GameState, p: number, f: FruitId, favoured = false): string | null {
   const me = s.players[p];

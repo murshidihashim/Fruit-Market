@@ -175,6 +175,11 @@
 #app .tkt .tk-seat-line { font: 600 0.6875rem/1 var(--tk-txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #app .tkt .tk-seat-line b { font-weight: 800; }
 #app .tkt .tk-seat.b-sealed { background: var(--tk-kraft); }
+/* Rules 18: what a rival bought today, as small fruit marks with counts (public until the bell). */
+#app .tkt .tk-seat.has-buys .tk-seat-body { gap: 2px; }
+#app .tkt .tk-seat-buys { display: flex; gap: 4px; min-width: 0; overflow: hidden; font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tk-seat-buys > span { flex: none; display: inline-flex; align-items: center; gap: 1px; }
+#app .tkt .tk-seat.compact .tk-seat-buys { grid-column: 1 / 3; grid-row: 3; gap: 2px; font-size: 0.5625rem; }
 #app .tkt .tk-seat.compact { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; gap: 2px 4px; padding: 0 4px; }
 #app .tkt .tk-seat.compact .tk-seat-body { display: contents; }
 #app .tkt .tk-seat.compact .tk-seat-line { grid-column: 2; grid-row: 1; align-self: center; font-size: 0.75rem; }

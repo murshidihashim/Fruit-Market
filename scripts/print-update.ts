@@ -10,7 +10,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
-  CHARACTER_TRAIT, EVENT_CARDS, FAVOURS, FRUIT, MAX_UPGRADES, ORDER_CARDS, RIVALS, TRAITS, UPGRADES, stageAt,
+  CHARACTER_TRAIT, EVENT_CARDS, FAVOUR_DECK, FAVOURS, FRUIT, MAX_UPGRADES, NEST_EGG_BONUS, ORDER_BOOK_BONUS, ORDER_CARDS, RIVALS, START_CASH,
+  TOP_UP, TRAITS, UPGRADES, stageAt, stakeFor,
   type FruitId, type Stage,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
@@ -174,16 +175,16 @@ function changeSheet(): string {
     <ol>
       <li><b>Tomorrow's customers come out in the morning.</b> When you turn over tomorrow's lorry, also deal tomorrow's row below today's: one regular face up and the walk-ins face down. Everyone buys knowing both days. (Before: tomorrow's row was dealt at Stocking.)</li>
       <li><b>Standing orders are bid for in the open.</b> To bid, write your price on a tag and lay it face down in front of your shutter. To pass, say "pass". Everyone can see who is bidding and who has passed, never the price. You may change your tag, take it back or put one down for as long as any stall is still deciding. When the last stall decides, flip all tags: the lowest bid wins.</li>
-      <li><b>Rivals fill the gap for $1 less.</b> On the due day, if the winner is short, the order buys rivals' freshest Fresh or Okay pieces and pays them <b>$1 under the winning bid</b> (never under $1), not the price on the card.</li>
+      <li><b>A stake, and rivals are not involved.</b> The winner puts down the card's stake when it wins. On the due day the order takes pieces from the winner's crate only. Deliver every piece and the stake comes back; deliver fewer and it is lost. There is no other fine, and a rival's fruit is never taken.</li>
       <li><b>Cash is public and lives on the counter.</b> Keep your Tens and Ones markers on your counter's cash track.</li>
       <li><b>No order that cannot be collected.</b> Do not turn over a standing order if its due day would be after the last day (in a Standard game, none on day 9).</li>
     </ol>
-    <p>Upgrades are unchanged on the table: all five piles are on offer after each Market Day (the app now offers all five too).</p>
+    <p>All five upgrade piles are on offer after each Market Day. Rules version ${RULES_VERSION} changes several numbers and card texts (upgrade costs, a green mango at $${FRUIT.mango.cost.unripe}, three customer cards, two lorry cards, Nest Egg, Tip Jar, Sharp Ears, Favoured Trade): the guidebook lists them under "What is new".</p>
     <h2 class="disp">Notes for your board and shutters</h2>
     <p>The board and shutters still read as before. Cut these out and lay or tape them over the old words if you like:</p>
     <div class="patch"><b class="disp">1 Morning</b>Today's event (from Day 2). Unload the lorry. Turn over tomorrow's lorry and deal tomorrow's customers. Market Day: bid for the standing order.</div>
     <div class="patch"><b class="disp">3 Stocking</b>Turn today's walk-ins face up. Behind your shutter, move the pieces you will sell into your crate. Say how many, not which fruit.</div>
-    <div class="patch"><b class="disp">Standing order</b>Bid in the open: a tag face down, or "pass". Change your mind until the last stall decides. Rivals who fill a gap are paid $1 under the winning bid.</div>
+    <div class="patch"><b class="disp">Standing order</b>Bid in the open: a tag face down, or "pass". Change your mind until the last stall decides. The winner puts down the stake: back if it delivers every piece, lost if not.</div>
     <div class="foot">Fruit Market · update pack · rules version ${RULES_VERSION} · start here · print at 100% (actual size) on A4</div>
   </section>`;
 }
@@ -225,8 +226,8 @@ function cardsHtml(): string {
       <div class="price">${fruit(o.fruit, 11)}<b class="disp">$${o.ceiling}</b><span class="lab">Highest bid<br>allowed</span></div>
       <div class="wants">Wants 3 at 2–3 stalls · 4 at 4 · 5 at 5–6</div>
       <p>Bid a price per piece, or pass. Who bids is public; prices are secret. Change your mind until the last stall decides. <b>The lowest bid wins</b> and is paid that price for each piece.</p>
-      <p>On the due day it takes the winner's Fresh or Okay pieces first, then rivals' pieces at <b>$1 under the winning bid</b>.</p>
-      <div class="fine">Fine: $${o.fine} a piece the winner misses</div>
+      <p>The winner puts down the stake now. On the due day the order takes the winner's own Fresh or Okay pieces. <b>Deliver them all and the stake comes back</b>; deliver fewer and it is lost.</p>
+      <div class="fine">Stake: $${o.stake} · $${stakeFor(o.stake, true)} with an Order Book</div>
       <div class="no">No favour card · no tips</div>
     </div>`;
   const back = '<div class="card bk"><span class="disp">Order</span><span class="lab">Fruit Market</span></div>';
@@ -264,11 +265,11 @@ function guideHtml(): string {
   const money = (n: number) => `$${n}`;
   const evRows = EVENT_CARDS.map((e) => `<tr><td><b>${esc(e.title)}</b></td><td>${esc(e.text)}${e.maxPrice ? ` Blueberry ${money(e.maxPrice.blueberry)}, watermelon ${money(e.maxPrice.watermelon)}, apple ${money(e.maxPrice.apple)}, mango ${money(e.maxPrice.mango)}.` : ''}</td></tr>`).join('');
   const guests = EVENT_CARDS.filter((e) => e.extra).map((e) => `<tr><td><b>The ${esc(e.extra!.name)}</b></td><td>${esc(e.title)}</td><td>${e.extra!.wants.map((w) => `${w.qty} ${(w.qty === 1 ? FRUIT[w.fruit].name : FRUIT[w.fruit].plural).toLowerCase()} at ${money(w.max)}`).join(', ')}</td></tr>`).join('');
-  const WHEN: Record<string, string> = { evening: 'Evening', buy: 'Your buying turn', bid: 'At the bell' };
+  const WHEN: Record<string, string> = { evening: 'Evening', buy: 'Your buying turn', tie: 'After prices flip' };
   const favRows = Object.values(FAVOURS).map((f) => `<tr><td><b>${esc(f.title)}</b></td><td>${WHEN[f.when] ?? f.when}</td><td>${esc(f.text.replace(/^Play (in the evening|on your buying turn|while pricing): /, '').replace(/^./, (c) => c.toUpperCase()))}</td></tr>`).join('');
   const upRows = Object.values(UPGRADES).map((u) => `<tr><td><b>${esc(u.title)}</b></td><td>${money(u.cost)}</td><td>${esc(u.text)}</td></tr>`).join('');
   const shopRows = RIVALS.map((r) => { const t = TRAITS[CHARACTER_TRAIT[r.avatar]]; return `<tr><td><b>${esc(r.name)}</b></td><td>${esc(t.title)}</td><td>${esc(t.text)}</td></tr>`; }).join('');
-  const orderRows = [...new Map(ORDER_CARDS.map((o) => [o.fruit, o])).values()].map((o) => `<tr><td>${ORDER_CARDS.filter((x) => x.fruit === o.fruit).map((x) => esc(x.title)).join(', ')}</td><td>${fruit(o.fruit, 5)} ${esc(FRUIT[o.fruit].name)}</td><td>${money(o.ceiling)}</td><td>${money(o.fine)}</td></tr>`).join('');
+  const orderRows = [...new Map(ORDER_CARDS.map((o) => [o.fruit, o])).values()].map((o) => `<tr><td>${ORDER_CARDS.filter((x) => x.fruit === o.fruit).map((x) => esc(x.title)).join(', ')}</td><td>${fruit(o.fruit, 5)} ${esc(FRUIT[o.fruit].name)}</td><td>${money(o.ceiling)}</td><td>${money(o.stake)}</td><td>${money(stakeFor(o.stake, true))}</td></tr>`).join('');
   const laneRows = LANES.map((f) => `<tr><td>${fruit(f, 6)} <b>${esc(FRUIT[f].name)}</b></td><td>${FRUIT[f].ripe.length + GREEN[f]} days</td><td class="bx bxs">${boxes(f).map((st) => `<span>${LETTER[st]} ${money(FRUIT[f].cost[st])}</span>`).join('')}</td></tr>`).join('');
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Fruit Market rules guidebook</title><style>${BASE_CSS}${GUIDE_CSS}</style></head><body>
 <div class="cover">
@@ -289,13 +290,17 @@ function guideHtml(): string {
 </ol>
 <div class="new">
   <h3>What is new in rules version ${RULES_VERSION}</h3>
-  <p><b>Tomorrow's customers in the morning.</b> Tomorrow's row is dealt each morning, with tomorrow's lorry, so everyone buys knowing today's crowd and tomorrow's.</p>
-  <p><b>Standing orders in the open.</b> Everyone sees who is bidding and who has passed, never the price, and you may change your mind until the last stall decides. A rival who fills a gap is paid $1 under the winning bid.</p>
-  <p><b>Cash is public and sits on your counter</b>, in front of the shutter. The stall sheet no longer has a cash track.</p>
+  <p><b>Out of cash.</b> At dawn, from Day 2, a stall with an empty shelf and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank.</p>
+  <p><b>Standing orders: a stake, not fines.</b> The winner puts down the card's stake. It comes back for a full delivery and is lost otherwise. Only the winner's crate fills the order; rivals are not involved.</p>
+  <p><b>Today's purchases are public until the bell.</b> Older fruit stays secret.</p>
+  <p><b>Favoured Trade is played after prices flip</b>, by a stall with a tied price, in the open.</p>
+  <p><b>Days 1 and 2 have no mango customers</b>, and Mango Craze is never Day 2's event.</p>
+  <p><b>Numbers.</b> A green mango costs $${FRUIT.mango.cost.unripe}. Upgrades cost ${Object.values(UPGRADES).map((u) => `${u.title} $${u.cost}`).join(', ')}. Nest Egg starts with $${START_CASH + NEST_EGG_BONUS}. One favour deck of ${FAVOUR_DECK.length} at every table size. The three Bargain blueberry customers pay $4.</p>
+  <p><b>Rulings.</b> A guest joins a full row. The final tie after cash and fruit sold is a shared win. Only one Priority card an evening; on Day 3 it goes ahead of Nest Egg. A Juice Bar's $1 is for customers and guests only. A Premium Display never raises a guest's price.</p>
 </div>
 
 <h2>What is in the box</h2>
-<p>1 Wholesale Market board (three panels) · 6 stall sheets, 6 shutters and 6 counters (each counter carries a cash track) · 200 fruit pieces, 50 of each fruit · 24 price tags, four per stall · 12 cash markers, two per stall · 36 served-alone chips, six per stall · 36 customer cards and 5 guest cards · 20 event cards and 20 lorry cards · 18 favour cards · 30 upgrade cards, six of each · 8 standing-order cards · 8 shopkeeper cards · day marker, first-player token, Shade Cloth marker, six +$200 chips. You also need a dry-wipe pen or pencil for each stall.</p>
+<p>1 Wholesale Market board (three panels) · 6 stall sheets, 6 shutters and 6 counters (each counter carries a cash track) · 200 fruit pieces, 50 of each fruit · 24 price tags, four per stall · 12 cash markers, two per stall · 36 served-alone chips, six per stall · 36 customer cards and 5 guest cards · 20 event cards and 20 lorry cards · ${FAVOUR_DECK.length} favour cards · 30 upgrade cards, six of each · 8 standing-order cards · 8 shopkeeper cards · day marker, first-player token, Shade Cloth marker, six +$200 chips. You also need a dry-wipe pen or pencil for each stall.</p>
 
 <h2>The fruit</h2>
 <p>Every fruit follows the same rule. A <b>Fresh</b> piece sells at the customer's full price. An <b>Okay</b> piece sells for $1 less. A <b>Soft</b> piece sells for $2 less. <b>Green</b> fruit cannot be sold until it ripens. A fruit's last two days are Okay, then Soft; every day before that is Fresh. Mangoes always arrive Green and spend two nights ripening first.</p>
@@ -306,7 +311,7 @@ function guideHtml(): string {
 <h2>Customers</h2>
 <p>A customer card shows one or two fruits. For each one it shows how many they want (the circles) and the most they pay for a Fresh piece (the price tag). They pay $1 less for Okay and $2 less for Soft. The black band is the customer's freshness type: <b>Premium</b> buys Fresh fruit only; <b>Everyday</b> buys Fresh or Okay; <b>Bargain</b> buys Fresh, Okay or Soft.</p>
 <p>The back of the card shows only which fruits they want. A face-down customer keeps their amounts, prices and type secret.</p>
-<p>Each day brings one <b>regular</b> (drawn face up, a day ahead) and some <b>walk-ins</b> (drawn face down, a day ahead). The crowd is one customer per stall, and never more than five: the regular plus one walk-in for every stall after the first, up to four. With 6 stalls every customer wants one more of the first fruit on their card. Nobody waits overnight: a customer who does not get everything leaves.</p>
+<p>Each day brings one <b>regular</b> (drawn face up, a day ahead) and some <b>walk-ins</b> (drawn face down, a day ahead). The crowd is one customer per stall, and never more than five: the regular plus one walk-in for every stall after the first, up to four. With 6 stalls every customer wants one more of the first fruit on their card. Nobody waits overnight: a customer who does not get everything leaves. <b>On Day 1 and Day 2 no customer wants a mango</b> (a mango needs two nights to ripen): when you deal those two rows, a card that shows a mango goes to the bottom of the deck and you deal another.</p>
 
 <h2>Set-up</h2>
 <ol>
@@ -314,9 +319,9 @@ function guideHtml(): string {
   <li><b>The supply.</b> Put all the fruit pieces in a pile within reach. The market starts empty.</li>
   <li><b>Each stall</b> takes a stall sheet, the shutter, the counter, cash markers and chips in the same pattern, four price tags and a pen. Stand the shutter in front of your sheet and lay the counter in front of the shutter: the shutter stays up all game. On your counter's cash track, put your Tens marker on 10 and your Ones marker on 0: you start with $10.</li>
   <li><b>First player.</b> Give the first-player token to a stall at random.</li>
-  <li><b>Shopkeepers.</b> Lay the eight shopkeeper cards face up. Starting with the player to the left of the token, each stall picks one. It gives you one perk for the whole game. Saleh moves his cash to $18. Ah Chen draws four favour cards once the deck is ready.</li>
-  <li><b>Favours and upgrades.</b> With 2 to 4 stalls, use two of each favour card (12 cards). With 5 or 6 stalls use all 18. Shuffle them face down beside the board. Lay the upgrade cards face up in five piles. Shuffle the eight standing-order cards face down beside them.</li>
-  <li><b>Customers.</b> Shuffle the 36 customer cards. Keep the five guest cards to one side. Deal today's crowd in a row on the table: one regular face up, then one walk-in face down for every stall after the first, up to four.</li>
+  <li><b>Shopkeepers.</b> Lay the eight shopkeeper cards face up. Starting with the player to the left of the token, each stall picks one. It gives you one perk for the whole game. Saleh moves his cash to $${START_CASH + NEST_EGG_BONUS}. Ah Chen draws four favour cards once the deck is ready.</li>
+  <li><b>Favours and upgrades.</b> Use two of each favour card (${FAVOUR_DECK.length} cards) at every table size. Shuffle them face down beside the board. Lay the upgrade cards face up in five piles. Shuffle the eight standing-order cards face down beside them.</li>
+  <li><b>Customers.</b> Shuffle the 36 customer cards. Keep the five guest cards to one side. Deal today's crowd in a row on the table: one regular face up, then one walk-in face down for every stall after the first, up to four. No mango customers on Day 1 or Day 2 (see Customers).</li>
 </ol>
 
 <h2>Money: the cash track</h2>
@@ -326,23 +331,25 @@ function guideHtml(): string {
 <h2>A day in five beats</h2>
 <div class="beat"><b>1</b><div><h3>Morning</h3>
 <ol>
-  <li><b>Event.</b> From Day 2 onward, turn over the top event card onto "Today's event" and do what it says. Nobody knows an event before its own morning. There is no event on Day 1. If the event adds walk-ins, deal them face down at the end of today's row. If it removes walk-ins, the last ones in today's row go back under the customer deck. If it brings a guest, add that guest card to the end of the row.</li>
-  <li><b>The lorry.</b> The card on "Tomorrow's lorry" is now today's lorry (on Day 1, turn over the top card of the deck). Find the row for your number of stalls and take that many pieces of each fruit from the supply. Put them in that fruit's box marked "The lorry unloads here". Mangoes always arrive green and go in the far green box. The Seconds Lorry unloads its other fruit into each fruit's freshest Okay box.</li>
+  <li><b>Event.</b> From Day 2 onward, turn over the top event card onto "Today's event" and do what it says. Nobody knows an event before its own morning. There is no event on Day 1. If the event adds walk-ins, deal them face down at the end of today's row. If it removes walk-ins, the last ones in today's row go back under the customer deck. If it brings a guest, add that guest card to the end of the row. If Mango Craze turns up on Day 2, put it at the bottom of the deck and turn over another.</li>
+  <li><b>Out of cash.</b> From Day 2: a stall with an empty shelf (no pieces at all, green ones included) and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank. Do this after the event and any Health Inspector charge, before anyone bids or buys.</li>
+  <li><b>The lorry.</b> The card on "Tomorrow's lorry" is now today's lorry (on Day 1, turn over the top card of the deck). Find the row for your number of stalls and take that many pieces of each fruit from the supply. Put them in that fruit's box marked "The lorry unloads here". Mangoes always arrive green and go in the far green box. The Seconds Lorry unloads its other fruit into each fruit's freshest Okay box. A Mango Windfall's extra mangoes are ripe: put them in the mango's Fresh box.</li>
   <li><b>Tomorrow.</b> Discard today's lorry card and turn the next one face up onto "Tomorrow's lorry". Then deal <b>tomorrow's row</b> below today's: one regular face up and the walk-ins face down (use the "Daily" number on the board). Tomorrow's own event may change that row tomorrow morning. Deal nothing for the day after the last day.</li>
   <li><b>Market Day?</b> Turn over a standing order and bid for it now, before anyone buys (see Standing orders).</li>
 </ol></div></div>
 <div class="beat"><b>2</b><div><h3>Buying</h3>
 <p>The poorest stall buys first, then the others follow clockwise from it. If stalls tie for poorest, the first of them clockwise from the first-player token goes first. On Day 1, start at the token. This is today's buying order; the evening and the last tie-break use it too.</p>
-<p>On your turn, buy up to 4 pieces. For each one, take a piece from any market box, pay the cost printed on that box, and put the piece on your shelf row, in the box with the same position in that fruit's lane (same letter, same distance from the Soft end). Your sheet holds 8 pieces in all. You may play Free Fruit, Scout or Fridge on your turn. Buying is done in the open, so you may remember what a rival took.</p></div></div>
+<p>On your turn, buy up to 4 pieces. For each one, take a piece from any market box, pay the cost printed on that box, and put the piece on your shelf row, in the box with the same position in that fruit's lane (same letter, same distance from the Soft end). Your sheet holds 8 pieces in all. You may play Free Fruit, Scout or Fridge on your turn. Buying is done in the open. <b>What you bought today is public until the bell</b>: tell anyone who asks which pieces you took today. Older fruit on your shelf stays secret.</p></div></div>
 <div class="beat"><b>3</b><div><h3>Stocking</h3>
 <ol>
-  <li><b>The crowd arrives.</b> Turn today's walk-ins face up. The row is always in this order, left to right: a standing order collected today, the regular, the walk-ins in the order they were drawn, then a guest. The row never holds more than five cards: a guest, or a standing order, takes the place of the last walk-in.</li>
+  <li><b>The crowd arrives.</b> Turn today's walk-ins face up. The row is always in this order, left to right: a standing order collected today, the regular, the walk-ins in the order they were drawn, then a guest. The regular, the walk-ins and a standing order never make more than five cards: a standing order takes the place of the last walk-in. A guest joins the end of the row even when it is full.</li>
   <li><b>Fill your crate.</b> Behind your shutter, slide each piece you want to sell today straight up, from the shelf row into the crate box above it. Any freshness may go in; green fruit may not. Pieces left on the shelf cannot be sold today, and they still get older tonight.</li>
   <li><b>Say how many.</b> When everyone is ready, each stall says how many pieces are in its crate, and nothing else. Which fruit, and how fresh, stays secret until the bell.</li>
 </ol>
 <p>You may not ask what is behind a shutter, and nobody has to tell you.</p></div></div>
 <div class="beat"><b>4</b><div><h3>The bell</h3>
-<p>Write one price on the tag of each fruit you have in your crate, and lay the tag face down. One price covers every piece of that fruit. There is no lowest price. When everyone is ready, flip all tags together and lay each one on its fruit on your counter. Then every crate comes out: move your crate pieces from behind the shutter onto your counter, each into the box with the same letter and place. Your shelf stays behind the shutter. Play Favoured Trade now if you want it.</p>
+<p>Write one price on the tag of each fruit you have in your crate, and lay the tag face down. One price covers every piece of that fruit. There is no lowest price. When everyone is ready, flip all tags together and lay each one on its fruit on your counter. Then every crate comes out: move your crate pieces from behind the shutter onto your counter, each into the box with the same letter and place. Your shelf stays behind the shutter.</p>
+<p><b>Favoured Trade.</b> Once the tags are flipped, a stall that holds Favoured Trade and has a price tied with another stall's price for the same fruit may play it. Tied holders decide one at a time, in today's buying order, in the open: play it or keep it. It cannot be played before the flip.</p>
 <p>Your price decides which of your pieces can sell to a customer. Take the customer's top price for today (the price on the card, plus or minus any event, plus $1 on the last day): priced <b>at the top price</b>, only a Fresh piece sells; <b>$1 under</b>, a Fresh or Okay piece sells; <b>$2 under, or less</b>, any piece sells; <b>over the top price</b>, nothing sells to that customer. The customer must also accept the freshness: a Premium customer never takes Okay or Soft fruit, however cheap.</p></div></div>
 <div class="beat"><b>5</b><div><h3>The rush</h3>
 <p>Serve the customers one at a time, left to right. The stall that bought last this morning is the crier: they read each customer aloud. For each fruit on the card:</p>
@@ -356,25 +363,26 @@ function guideHtml(): string {
 <p><b>After the last customer.</b> Every customer leaves, served or not. Put any unsold counter pieces back behind the shutter, each in the same box of the shelf row, and wipe your tags.</p></div></div>
 
 <h3>Evening and night</h3>
-<p><b>Evening.</b> In buying order, each stall may play evening favours (Priority, Gossip). On the evening after a Market Day (days 3, 6, 9 and 12) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
+<p><b>Evening.</b> In buying order, each stall may play evening favours (Priority, Gossip). Only one Priority card may be played each evening: a second one stays in its owner's hand. On the evening after a Market Day (days 3, 6, 9 and 12) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
 <p><b>Night.</b> On the board, and behind every shutter, every piece slides one box to the left. Pieces that slide out of a Soft box go back to the supply. Tomorrow's row moves up to become today's. Then pass the first-player token one seat clockwise and move the day marker on.</p>
 
 <h2>Market Days, Closing Day and the end</h2>
-<p><b>Market Days</b> are days 3, 6, 9 and 12, but never the last day. They bring a standing order in the morning and an upgrade that evening. The lorry still comes. <b>Closing Day</b> is the last day. Every customer pays $1 more. After the rush, the jam maker buys every ripe piece left on every stall for $1 each. Green fruit is worth nothing. <b>The winner</b> is the stall with the most cash. Upgrades are worth nothing. If stalls tie, the one that sold more fruit wins.</p>
+<p><b>Market Days</b> are days 3, 6, 9 and 12, but never the last day. They bring a standing order in the morning and an upgrade that evening. The lorry still comes. <b>Closing Day</b> is the last day. Every customer pays $1 more. After the rush, the jam maker buys every ripe piece left on every stall for $1 each. Green fruit is worth nothing. <b>The winner</b> is the stall with the most cash. Upgrades are worth nothing. If stalls tie, the one that sold more fruit wins. If they are still tied, they share the win.</p>
 
 <h2>Standing orders</h2>
 <p>A standing order is one big public order. It is turned over on a Market Day morning and collected two days later. It wants one fruit, Fresh or Okay: 3 pieces at 2 or 3 stalls, 4 at 4 stalls, 5 at 5 or 6. Do not turn one over if its due day would be after the last day.</p>
 <ol>
-  <li><b>Bid, in the open.</b> Before anyone buys, each stall decides. To bid, write on a price tag the price per piece you would fill the order for (from $1 up to the price on the card) and lay it face down in front of your shutter. To pass, say "pass". Everyone can see who is bidding and who has passed; nobody sees a price. <b>You may change your mind</b> (swap your tag, take it back, or put one down after passing) for as long as any stall is still deciding. When the last stall decides, flip all tags together. The lowest bid wins. A tie goes to a stall with an Order Book, then to the stall that buys earlier today. The winner puts one of its chips on the card. If everyone passes, discard the card.</li>
+  <li><b>Bid, in the open.</b> Before anyone buys, each stall decides. To bid, write on a price tag the price per piece you would fill the order for (from $1 up to the price on the card) and lay it face down in front of your shutter. To pass, say "pass". Everyone can see who is bidding and who has passed; nobody sees a price. <b>You may change your mind</b> (swap your tag, take it back, or put one down after passing) for as long as any stall is still deciding. When the last stall decides, flip all tags together. The lowest bid wins. A tie goes to a stall with an Order Book, then to the stall that buys earlier today. If everyone passes, discard the card. You may only bid if you have the card's stake in cash (half, rounded down, with an Order Book); you may always pass.</li>
+  <li><b>The stake.</b> The winner pays the stake at once and puts it on the card, with one of its chips.</li>
   <li><b>Get ready.</b> The winner has three buying turns (today, tomorrow and the due day) to have the pieces on its shelf.</li>
-  <li><b>Collect.</b> On the due day the card stands at the front of the row and is served first, from the crates. It takes the winner's Fresh or Okay pieces first, freshest first, and pays the winner its bid for each. If it still wants more, it buys the freshest pieces rivals have put out, and pays them <b>$1 less than the winning bid</b> (never less than $1).</li>
-  <li><b>Fine.</b> The winner pays the card's fine for every piece it did not supply itself, never more than its cash. An Order Book halves the fine.</li>
+  <li><b>Collect.</b> On the due day the card stands at the front of the row and is served first, from the winner's crate only. It takes the winner's Fresh or Okay pieces of that fruit, freshest first, up to the number it wants, and pays the winner its bid for each ($${ORDER_BOOK_BONUS} more for each with an Order Book). Rivals' fruit is never taken and rivals are paid nothing. Anything the order did not get simply leaves.</li>
+  <li><b>The stake comes back, or not.</b> If the winner delivered every piece, it takes its stake back at once. If not, the stake goes to the bank. There is no other fine.</li>
 </ol>
-<table><tr><th>Orders</th><th>Fruit</th><th>Highest bid allowed</th><th>Fine a piece</th></tr>${orderRows}</table>
-<p>A standing order draws no favour card and pays no tips, and no event or Closing Day changes what it pays. It is not used in the Basic game.</p>
+<table><tr><th>Orders</th><th>Fruit</th><th>Highest bid allowed</th><th>Stake</th><th>Stake with an Order Book</th></tr>${orderRows}</table>
+<p>A standing order draws no favour card and pays no tips (a Juice Bar adds nothing either), and no event or Closing Day changes what it pays. It is not used in the Basic game.</p>
 
 <h2>Guests</h2>
-<p>Five events bring a guest card. The guest joins the end of today's row and is served like any other customer. A guest's price is fixed: the event's own price change is not added to it. Only Closing Day adds its $1.</p>
+<p>Five events bring a guest card. The guest joins the end of today's row and is served like any other customer. A guest joins even when the row is full. A guest's price is fixed: the event's own price change is not added to it, and a Premium Display does not raise it. Only Closing Day adds its $1.</p>
 <table><tr><th>Guest</th><th>Event</th><th>Wants</th></tr>${guests}</table>
 
 <h2>How many walk-ins</h2>
@@ -409,7 +417,9 @@ function guideHtml(): string {
   <li>Only pieces in your crate can sell. Fruit on your shelf is safe from customers, but not from the night.</li>
   <li>You are paid your own posted price, not the customer's top price.</li>
   <li>You always hand over your oldest piece that is fresh enough for your price. You do not choose.</li>
-  <li>A standing order takes rivals' crate pieces whether they like it or not, at $1 under the winning bid.</li>
+  <li>A standing order takes pieces from its winner's crate only. Rivals are not involved.</li>
+  <li>A Juice Bar's $1 is for Okay or Soft pieces sold to customers and guests in the rush: not for a standing order, the night hawker or the jam maker.</li>
+  <li>On Day 3 a stall that played Priority buys first and Nest Egg second.</li>
   <li>Pasar Malam: after the last customer, the night hawker buys 1 of each fruit still in each stall's crate for $3, oldest piece first, any freshness.</li>
   <li>The Health Inspector never comes on the last day. If that card is drawn then, draw another.</li>
   <li>Scout: turn one face-down walk-in up for yourself only, look, and turn it back. Say aloud that you played it.</li>
@@ -419,7 +429,7 @@ function guideHtml(): string {
 <tr><td><b>Basic game</b></td><td>No shopkeepers, favours, upgrades or standing orders: just buying, stocking and the bell. Good for a first game.</td></tr>
 <tr><td><b>Fixed prices (beginner)</b></td><td>Ignore the prices on the cards. Every customer pays the same top price for a Fresh piece: blueberry $5, watermelon $7, apple $6, mango $11. Generous customers pay $2 more: numbers 6, 19 and 27.</td></tr>
 <tr><td><b>No Market Days, or no Closing Day</b></td><td>Either can be switched off before you start.</td></tr></table>
-<p class="oneline"><b>The day on one line.</b> Morning: event, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: favours, upgrades · Night: everything slides one box left.</p>
+<p class="oneline"><b>The day on one line.</b> Morning: event, top-up for a stall out of cash, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters, Favoured Trade for a tied price · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: favours, upgrades · Night: everything slides one box left.</p>
 <p class="tiny">These tabletop rules are rules version ${RULES_VERSION}, the same rules the Fruit Market app plays by. The table pieces (the three-panel board, the crate row above the shelf, the cash track on the counter, the shutter and price tags) are how those rules are run by hand.</p>
 </body></html>`;
 }

@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
-import { activePlayer, canPlayFavour, ranking, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
+import { activePlayer, canPlayFavour, winners, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
@@ -112,10 +112,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         setLastNight(overnightLoss(prev, next, viewer));
         setLastJuice(overnightJuice(prev, next, viewer));
       }
-      const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'stall') && next.phase === 'reveal';
+      // Rules 18: when no stall has ripe fruit, nobody stocks or prices, and the rush follows buying directly.
+      const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'tie' || prev.phase === 'stall' || prev.phase === 'buy') && next.phase === 'reveal';
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
-      // A standing-order fine has been taken too: it shows only once the rush is over.
-      if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i] + (next.results!.order?.holder === i ? next.results!.order.fine : 0)));
+      // A standing order's stake has come back too (rules 18): it shows only once the rush is over.
+      if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i] - (next.results!.order?.holder === i ? next.results!.order.back : 0)));
       // The shelves likewise: each customer's pieces leave the shelf as they are served. The fast setting and reduced
       // motion show the final shelves at once.
       if (rush && next.results && !A.isReduced() && !A.isFast()) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
@@ -242,7 +243,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   }, [s.phase, active, s.day]);
 
   useEffect(() => {
-    if (s.phase === 'over') (ranking(s)[0] === viewer ? fx.win : fx.lose)();
+    if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
     // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
     const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
@@ -298,7 +299,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   useEffect(() => { if (online) trackOnce(`${gameKey}:start`, 'game_start', 'online'); }, []);
   useEffect(() => {
     if (s.phase !== 'over') return;
-    trackOnce(`${gameKey}:end`, 'game_end', ranking(s)[0] === viewer ? 'win' : 'lose');
+    trackOnce(`${gameKey}:end`, 'game_end', winners(s).includes(viewer) ? 'win' : 'lose');
     trackOnce(`${gameKey}:cash`, 'final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
     trackOnce(`${gameKey}:spoiled`, 'fruit_spoiled', Math.min(10, s.players[viewer].stats.spoiled));
     trackOnce(`${gameKey}:unsold`, 'fruit_unsold', Math.min(12, s.jam?.[viewer] ?? 0));

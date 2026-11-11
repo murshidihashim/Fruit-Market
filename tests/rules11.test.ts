@@ -11,10 +11,11 @@ import {
 } from '../src/engine/data';
 import { autoplay } from '../src/engine/ai';
 import {
-  applyAction, beginBuying, buyCost, emptyStock, endBuyTurn, newGame, openStall, printedSupply, shadePick, submitPrices,
+  applyAction, beginBuying, buyCost, emptyStock, finishReveal, newGame, openStall, printedSupply, shadePick, submitPrices,
   walkInsOn, type Customer, type GameConfig, type GameState,
 } from '../src/engine/game';
 import { RULES_VERSION } from '../src/net/protocol';
+import { endBuying, passEvening } from './stall-step';
 
 const F: FruitId[] = ['blueberry', 'watermelon', 'apple', 'mango'];
 const humans = (n: number, extra: Partial<GameConfig> = {}): GameConfig => ({
@@ -44,12 +45,12 @@ describe('rules 11: customer deck (spec section 2)', () => {
     ['Rara Jenab', 'premium', '1@6', '', '', '2@12'],
     ['Zara Zapp', 'everyday', '', '3@7', '', ''],
     ['Ravi Rocket', 'premium', '', '', '1@8', '2@13'],
-    ['Coral Mei', 'bargain', '2@3', '2@5', '', ''],
+    ['Coral Mei', 'bargain', '2@4', '2@5', '', ''],
     ['Postman Pip', 'bargain', '', '', '3@5', ''],
     ['Madam Siti', 'everyday', '', '2@6', '', '1@10'],
-    ['Magic Kumar', 'bargain', '2@3', '2@5', '', ''],
+    ['Magic Kumar', 'bargain', '2@4', '2@5', '', ''],
     ['Rockstar Grace', 'bargain', '', '', '2@5', '1@10'],
-    ['Professor Pebble', 'bargain', '3@3', '', '', ''],
+    ['Professor Pebble', 'bargain', '3@4', '', '', ''],
     ['Inspector Wei', 'bargain', '', '1@6', '2@5', ''],
     ['Miss Marigold', 'everyday', '', '3@7', '', ''],
     ['Dr Priya', 'everyday', '2@6', '', '2@7', ''],
@@ -120,7 +121,7 @@ describe('rules 11: lorry deck (spec section 4)', () => {
     ["Mango Rush", ['2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14']],
     ["Mango Growers", ['2/2/2/4', '3/3/2/5', '4/3/3/6', '4/4/4/8', '6/5/5/11']],
     ["Mango Season", ['2/1/1/4', '2/2/2/6', '4/3/2/8', '5/3/3/10', '7/4/3/13']],
-    ["Summer Run", ['3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/1/2', '10/11/1/2']],
+    ["Summer Run", ['3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/2/2', '10/11/2/2']], // rules 18: its apple grows at 5 and 6 stalls
     ["Tropical Pair", ['1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11']],
     ["Breakfast Run", ['3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2']],
     ["Premium Picks", ['1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11']],
@@ -129,7 +130,7 @@ describe('rules 11: lorry deck (spec section 4)', () => {
     ["Farmer's Choice", ['2/2/2/3', '3/3/3/3', '4/5/3/4', '5/5/4/5', '6/7/5/8']],
     ["Kampung Truck", ['3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8']],
     ["Quiet Delivery", ['1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3']],
-    ["Short Load", ['2/1/1/1', '2/1/1/1', '3/2/1/1', '3/3/2/2', '5/3/2/2']],
+    ["Short Load", ['2/1/1/1', '2/2/1/1', '3/2/1/1', '3/3/2/2', '5/3/2/2']], // rules 18: one more watermelon at 3 stalls
     ["Convoy", ['3/3/3/2', '5/4/4/4', '6/6/5/6', '8/7/7/7', '9/9/8/9']],
     ["Wholesaler's Overstock", ['3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4']],
     ["Seconds Lorry", ['3/3/2/1', '3/3/3/2', '5/4/4/3', '5/6/5/4', '8/8/6/4']],
@@ -146,9 +147,9 @@ describe('rules 11: lorry deck (spec section 4)', () => {
     expect(FARMER_CARDS.filter((c) => c.okay).map((c) => c.name)).toEqual(['Seconds Lorry']);
   });
 
-  it('averages about 8.3 / 10.9 / 15.1 / 18.9 / 24.3 pieces a day (rules 14)', () => {
+  it('averages about 8.3 / 10.9 / 15.1 / 18.9 / 24.4 pieces a day (rules 14; rules 18 adds three pieces across the deck)', () => {
     const avg = (n: number) => FARMER_CARDS.reduce((a, c) => a + F.reduce((b, f) => b + printedSupply(c, f, n), 0), 0) / FARMER_CARDS.length;
-    [8.3, 10.85, 15.1, 18.85, 24.3].forEach((want, i) => expect(Math.abs(avg(i + 2) - want)).toBeLessThanOrEqual(0.05 + 1e-9));
+    [8.3, 10.9, 15.1, 18.9, 24.35].forEach((want, i) => expect(Math.abs(avg(i + 2) - want)).toBeLessThanOrEqual(0.05 + 1e-9));
   });
 
   it('the Seconds Lorry fills each fruit\'s freshest Okay space, at Okay prices', () => {
@@ -157,7 +158,7 @@ describe('rules 11: lorry deck (spec section 4)', () => {
     s.market = emptyStock(true);
     s.nextFarmer = FARMER_CARDS.find((c) => c.okay)!;
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1, 2];
-    for (const p of [0, 1, 2]) s = applyAction(s, p, { kind: 'endEvening' });
+    s = passEvening(s);
     const okayPos = (f: FruitId) => FRUIT[f].ripe.lastIndexOf('okay');
     // Rules 14: its mangoes arrive green like every lorry's, at the top of the track.
     expect(F.map((f) => s.market[f][okayPos(f)])).toEqual([3, 3, 3, 0]);
@@ -198,7 +199,7 @@ describe('rules 11: events (spec section 5)', () => {
     s.nextFarmer = FARMER_CARDS.find((c) => c.name === card)!;
     s.eventDeck = [EVENT_CARDS.findIndex((e) => e.id === event)]; // rules 13: the event is drawn on its own morning
     s.phase = 'evening'; s.turn = 0; s.order = s.players.map((_, i) => i);
-    for (let p = 0; p < n; p++) s = applyAction(s, p, { kind: 'endEvening' });
+    s = passEvening(s);
     return Object.fromEntries(F.map((f) => [f, s.delivery[f] ?? 0])) as Record<FruitId, number>;
   }
 
@@ -217,7 +218,7 @@ describe('rules 11: events (spec section 5)', () => {
     s.players[0].stock.blueberry = [1, 1, 1];
     s.players[1].stock.apple[0] = 1;
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1];
-    s = applyAction(applyAction(s, 0, { kind: 'endEvening' }), 1, { kind: 'endEvening' });
+    s = passEvening(s);
     expect(s.day).toBe(5);
     expect(s.players[0].stock.blueberry).toEqual([1, 1, 1]);
     expect(s.players[1].stock.apple[0]).toBe(1);
@@ -226,7 +227,7 @@ describe('rules 11: events (spec section 5)', () => {
 
   it('Pasar Malam: the hawker buys 1 of each crate fruit left after the rush, oldest first, at $3', () => {
     let s = beginBuying(newGame(humans(2, { events: false })));
-    for (const p of [...s.order]) s = endBuyTurn(s, p);
+    s = endBuying(s);
     s = structuredClone(s);
     s.event = ev('pasarMalam');
     s.firstMarket = []; s.secondMarket = [];
@@ -252,12 +253,12 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
       ['Kiki', 'Tip Jar'], ['Pak Din', 'Shade Cloth'], ['Farah', 'Sharp Ears'],
     ]);
     expect(CHARACTER_AVATARS.length - 5).toBeGreaterThanOrEqual(3);
-    expect([LOCAL_FAVOURITE_TIP, START_CASH + NEST_EGG_BONUS]).toEqual([2, 18]);
+    expect([LOCAL_FAVOURITE_TIP, START_CASH + NEST_EGG_BONUS]).toEqual([2, 15]); // rules 18: Nest Egg starts with $15 (was $18)
   });
 
   function rush(setup: (s: GameState) => void, customers: Customer[], crates: Partial<Record<FruitId, number>>[], prices: number[][]) {
     let s = beginBuying(newGame(humans(crates.length, { events: false })));
-    for (const p of [...s.order]) s = endBuyTurn(s, p);
+    s = endBuying(s);
     s = structuredClone(s);
     s.firstMarket = customers; s.secondMarket = [];
     s.order = s.players.map((_, i) => i);
@@ -280,9 +281,10 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     }
   });
 
-  it('Sharp Ears: a peeked walk-in tips $1 when Farah sells them anything ($2 at 4 to 6 stalls), once a day', () => {
-    for (const [n, tip] of [[3, 1], [4, 2]] as const) {
-      const crowd = [cust(1, [['apple', 1, 9], ['mango', 1, 12]], true, [0]), cust(2, [['apple', 1, 9]], true, []), cust(3, [['apple', 1, 9]])];
+  it('Sharp Ears: a peeked walk-in tips $2 when Farah sells them anything ($1 at 2 stalls; rules 18), once a day', () => {
+    for (const [n, tip] of [[2, 1], [3, 2], [4, 2]] as const) {
+      // She has peeked at both walk-ins and sells to both: only the first tips (rules 18: at most once a day).
+      const crowd = [cust(1, [['apple', 1, 9], ['mango', 1, 12]], true, [0]), cust(2, [['apple', 1, 9]], true, [0]), cust(3, [['apple', 1, 9]])];
       const crates = Array.from({ length: n }, (_, i) => (i === 0 ? { apple: 3, mango: 1 } : {}));
       const s = rush((g) => { g.players[0].trait = 'earful'; g.players[0].stock.apple[5] = 3; g.players[0].stock.mango[2] = 1; }, crowd, crates, crates.map((_, i) => (i === 0 ? [5, 9] : [])));
       expect(s.results!.earful).toEqual([{ player: 0, customer: 'C1', tip }]);
@@ -290,11 +292,16 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     }
   });
 
-  it('Sharp Ears peeks at one of tomorrow\'s walk-ins when they are drawn', () => {
+  it('Sharp Ears peeks at one of tomorrow\'s walk-ins in the evening (rules 18; before, when buying ended)', () => {
     let s = newGame({ ...humans(3), players: [{ name: 'Farah', kind: 'human', avatar: RIVALS[7].avatar }, ...humans(2).players] });
     expect(s.players[0].trait).toBe('earful');
-    s = beginBuying(s);
-    for (const p of [...s.order]) s = endBuyTurn(s, p);
+    s = endBuying(beginBuying(s));
+    expect(s.queue.filter((c) => c.seenBy?.includes(0))).toHaveLength(0); // not yet: buying has only just ended
+    for (const p of [0, 1, 2]) s = openStall(s, p, {});
+    expect(s.phase).toBe('reveal');
+    // No stall has anything to decide this evening, so no evening is held: she peeks just before the night.
+    s = finishReveal(s);
+    expect(s.day).toBe(2);
     expect(s.queue.filter((c) => c.seenBy?.includes(0))).toHaveLength(1);
   });
 
@@ -317,8 +324,9 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
     expect(shadePick(s, 0)).toBe('blueberry');
     s.phase = 'evening'; s.turn = 0; s.order = [0, 1];
     s = applyAction(s, 0, { kind: 'shade', fruit: 'apple' });
+    // Rules 18: the other stall has nothing to decide this evening, so night falls when Pak Din closes.
     s = applyAction(s, 0, { kind: 'endEvening' });
-    s = applyAction(s, 1, { kind: 'endEvening' });
+    expect(s.day).toBe(5);
     expect(s.players[0].stock.apple[5]).toBe(1); // shaded: still at its place
     expect(s.players[0].stock.blueberry).toEqual([0, 1, 0]); // aged
     expect(s.players[0].stats.spoiled).toBe(2);
@@ -336,19 +344,19 @@ describe('rules 11: shopkeepers (spec section 6)', () => {
 });
 
 describe('rules 11: upgrades and favours (spec section 7)', () => {
-  it('rules 14: five upgrades at real prices: Juice Bar $4 (juices up to 2), Handcart $6, Premium Display $6, Ripening Room $6, Order Book $5', () => {
+  it('five upgrades (rules 14), at rules 18 prices: Juice Bar $6 (juices up to 2), Handcart $6, Premium Display $5, Ripening Room $4, Order Book $3', () => {
     expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'orderbook', 'premium', 'ripening']);
-    expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([4, 6, 6, 6, 5]);
+    expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([6, 6, 5, 4, 3]);
     expect(JUICE_CAP).toBe(2);
     expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces of fruit a day and hold 10.');
   });
 
-  it('favour deck: 12 cards (2 of each) at 2 to 4 stalls, 18 (3 of each) at 5 and 6', () => {
-    expect([2, 3, 4, 5, 6].map((n) => favourDeckFor(n).length)).toEqual([12, 12, 12, 18, 18]);
+  it('favour deck: one deck of 12 cards (2 of each) at every table size (rules 18; before, 18 at 5 and 6 stalls)', () => {
+    expect([2, 3, 4, 5, 6].map((n) => favourDeckFor(n).length)).toEqual([12, 12, 12, 12, 12]);
     for (const n of [5, 6]) {
       const s = newGame(humans(n));
       const held = s.players.flatMap((p) => p.favours).length;
-      expect(s.favourDeck.length + held).toBe(18);
+      expect(s.favourDeck.length + held).toBe(12);
     }
   });
 });

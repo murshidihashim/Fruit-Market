@@ -24,7 +24,7 @@ import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
-import { CratesOpen } from './game/panels/PricingTable';
+import { CratesOpen, TiePanel } from './game/panels/PricingTable';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -52,7 +52,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="handoff" onClick={() => { fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
-        <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : 'Your evening.'}</p>
+        <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
       </div>
     );
@@ -103,6 +103,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
   // Rules 14: on a Market Day morning every stall bids in secret for the standing order.
   const ordering = s.phase === 'order' && c.myBidTurn && !busy;
+  // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.
+  const tying = s.phase === 'tie' && activeHuman && !busy;
   const orderWait = s.phase === 'order' && !c.myBidTurn && !busy && s.players[viewer]?.kind === 'human';
   // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
   // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
@@ -131,7 +133,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting canChange={!!online} onBid={(price) => { if (online) { fx.card(); act({ kind: 'order', price }); } }} />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
-    if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
+    if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts) => { fx.card(); act({ kind: 'prices', posts }); }} />;
+    if (s.phase === 'tie' && active >= 0 && !busy) return <TiePanel key={`tie-${s.day}-${active}`} s={s} viewer={viewer} asked={active} onDecide={tying ? (play) => { fx.card(); act({ kind: 'tie', play }); } : undefined} />;
     if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
     if (s.phase === 'evening' && activeHuman && !busy && eveningChoices) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
     return null;
@@ -181,7 +184,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
       {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
-      {!pricing && !stalling && !ordering && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {!pricing && !stalling && !ordering && !tying && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       {/* The rush pop-up sits over the whole table (the middle column on a desktop), under the flying fruit. */}
       {show && <Showdown s={s} a={show} viewer={viewer} />}

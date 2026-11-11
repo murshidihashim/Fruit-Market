@@ -3,10 +3,11 @@ import { FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId } from '../src/engi
 import { aiStep, planPrices } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
-  beginBuying, bestCap, emptyStock, endBuyTurn, finishReveal, forSale, maxPrice, newGame, openStall, submitPrices,
+  beginBuying, bestCap, emptyStock, finishReveal, forSale, maxPrice, newGame, openStall, submitPrices,
   type Customer, type GameState, type Post,
 } from '../src/engine/game';
 import { buyerCap, buyersFor, priceRead, stallWantText, stallWanted, tieHint } from '../src/ui/boardModel';
+import { endBuying } from './stall-step';
 
 // The Price panel's "Psst…" read and the Stocking panel's demand (REP-089 3.2). Every case runs on the real engine
 // with real customer cards; the read is then checked by ringing the bell.
@@ -33,7 +34,7 @@ function market(...buyers: [string, FruitId][]): GameState {
     ],
     days: 10, unripe: true, upgrades: true, events: false, seed: 7,
   }));
-  for (const p of [...s.order]) s = endBuyTurn(s, p);
+  s = endBuying(s);
   s = structuredClone(s);
   s.firstMarket = buyers.map(([name, f], i) => buyer(name, f, 900 + i));
   s.secondMarket = [];
@@ -202,6 +203,8 @@ describe('the price read counts only buyers who take your freshness at your pric
                 else rival.push(...posts.filter((b) => b.fruit === f).map((b) => b.price));
                 g = submitPrices(g, i, posts);
               }
+              // Rules 18: computer stalls with a tied price and Favoured Trade decide after the flip.
+              while (g.phase === 'tie') g = aiStep(g)!;
               const sold = g.results!.lines.filter((l) => l.fruit === f && l.name !== g.results!.order?.name).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0);
               checks++;
               expect(sold).toBeLessThanOrEqual(r.canSell);
@@ -216,6 +219,7 @@ describe('the price read counts only buyers who take your freshness at your pric
                     if (h.bids[i] !== null) continue;
                     h = submitPrices(h, i, planPrices(h, i).posts.map((b) => (b.fruit === f ? { fruit: f, price: i === p ? price : at } : b)));
                   }
+                  while (h.phase === 'tie') h = aiStep(h)!;
                   expect(h.results!.lines.filter((l) => l.fruit === f).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0)).toBe(out);
                 }
               }

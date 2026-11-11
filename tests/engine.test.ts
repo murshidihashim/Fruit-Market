@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
-import { newGame, buy, buyCost, buyLimit, beginBuying, endBuyTurn, openStall, submitPrices, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
+import { newGame, buy, buyCost, buyLimit, beginBuying, openStall, submitPrices, count, servingCustomers, type GameConfig, type GameState } from '../src/engine/game';
 import { freshPos } from '../src/engine/data';
+import { endBuying } from './stall-step';
 
 function cfg(n: number, seed = 1, extra: Partial<GameConfig> = {}): GameConfig {
   return {
@@ -47,8 +48,7 @@ describe('engine', () => {
 
   it('cheapest posted price wins and money is conserved through sales', () => {
     let s = beginBuying(newGame({ ...cfg(2, 9, { events: false }), players: [{ name: 'A', kind: 'human', avatar: 'a' }, { name: 'B', kind: 'human', avatar: 'b' }] }));
-    s = endBuyTurn(s, s.order[0]);
-    s = endBuyTurn(s, s.order[1]);
+    s = endBuying(s);
     expect(s.phase).toBe('stall');
     const c = servingCustomers(s)[0];
     const want = c.wants[0];

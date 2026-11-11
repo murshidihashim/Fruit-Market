@@ -39,9 +39,9 @@ describe('cash shown while the day\'s sales play out', () => {
         const prev = s;
         const next = aiStep(s)!;
         if (next.phase === 'reveal') {
-          // Rules 14: a standing-order fine is taken at the bell too, outside the sales.
-          const fine = (i: number) => (next.results!.order?.holder === i ? next.results!.order.fine : 0);
-          next.players.forEach((pl, i) => expect(pl.cash - next.results!.income[i] + fine(i)).toBe(prev.players[i].cash));
+          // Rules 18: a standing order's stake comes back at the bell when it is delivered in full, outside the sales.
+          const back = (i: number) => (next.results!.order?.holder === i ? next.results!.order.back : 0);
+          next.players.forEach((pl, i) => expect(pl.cash - next.results!.income[i] - back(i)).toBe(prev.players[i].cash));
         }
         s = next;
       }

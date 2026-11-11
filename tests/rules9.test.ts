@@ -4,7 +4,8 @@ import {
   acceptsStage, prefOf,
 } from '../src/engine/data';
 import { aiStep } from '../src/engine/ai';
-import { beginBuying, buyLimit, effectiveMax, eligible, endEvening, finishReveal, maxPrice, newGame, validatePrices, type GameState } from '../src/engine/game';
+import { beginBuying, buyLimit, effectiveMax, eligible, finishReveal, maxPrice, newGame, validatePrices, type GameState } from '../src/engine/game';
+import { passEvening } from './stall-step';
 
 const humans = (n: number) => ({ players: Array.from({ length: n }, (_, i) => ({ name: `P${i}`, kind: 'human' as const, avatar: '' })), days: 10, unripe: true, upgrades: true, events: true, seed: 11 });
 const card = (name: string) => CUSTOMER_CARDS.find((c) => c.name === name)!;
@@ -15,7 +16,7 @@ const nextDay = (s: GameState): GameState => {
   s.phase = 'evening';
   s.turn = 0;
   s.order = [0, 1];
-  return endEvening(endEvening(s, 0), 1);
+  return passEvening(s);
 };
 
 describe('rules 9: cash, buying and shelf', () => {
@@ -38,7 +39,7 @@ describe('rules 9: customer deck', () => {
     expect(want('Yuki', 'mango')!.qty).toBe(2);
     expect(want('Ravi', 'apple')).toMatchObject({ qty: 1, max: 8 }); // Premium: $2 over the usual $6
     expect(want('Siti', 'watermelon')!.qty).toBe(2);
-    expect(want('Hafiz', 'blueberry')).toMatchObject({ qty: 3, max: 3 }); // Bargain: $2 under the usual $5
+    expect(want('Hafiz', 'blueberry')).toMatchObject({ qty: 3, max: 4 }); // Bargain: $2 under the usual $5
     expect(want('Daniel', 'apple')!.max).toBe(7);
     expect(want('Daniel', 'mango')!.max).toBe(12);
   });

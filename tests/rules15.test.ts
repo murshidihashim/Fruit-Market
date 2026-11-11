@@ -119,8 +119,11 @@ describe('pricing without peeking (believe)', () => {
     expect(startingPrices(publicView(bell({ apple: 2 }), 0), 0)).toEqual(startingPrices(bell({ mango: 2 }), 0));
   });
 
-  it('a computer stall prices the same whatever a rival really put out, and guesses only fruit that rival was seen to hold', () => {
+  it('a computer stall prices the same whatever a rival really put out; a Hard one guesses only fruit that rival was seen to hold', () => {
     const a = bell({ apple: 2 }, 'ai'), m = bell({ mango: 2 }, 'ai');
+    expect(planPrices(a, 0)).toEqual(planPrices(m, 0));
+    // Rules 18: only a Hard computer recalls every purchase it saw (a Normal one only today's; see rules18.test.ts).
+    for (const t of [a, m]) t.players[0].level = 'hard';
     expect(planPrices(a, 0)).toEqual(planPrices(m, 0));
     const b = believe(a, 0);
     // Saleh holds apples and mangoes only; Kiki only a blueberry.
