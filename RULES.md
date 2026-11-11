@@ -248,7 +248,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (soft included), at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit, but never for a guest). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
 
-**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $95 to $130. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
+**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $110 to $130, the last stall with about $50 to $80. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
 
 **Components for 6 stalls.** About 50 tokens of each fruit, 6 of each upgrade, 8 standing-order cards and 12 favour cards.
 
@@ -345,6 +345,8 @@ What changed from rules version 17, in plain words.
 - **In the app** the Tomorrow strip under today's tickets now shows during buying too.
 
 ## Balance notes
+
+Rules version 18 (PLAN-079): the aim was every shopkeeper within 4 points of a fair share of wins. In all-computer games (2, 3, 4 and 6 stalls at Normal level, 3 and 4 stalls at Hard level; 1,200 to 3,600 games each, before and after) the largest distance from fair fell from 6.9 to 10.4 points under rules 17 to 3.3 to 4.6 points. Four results of 48 are just past the line, each within one standard error of it: the Charmer at 2 and 6 stalls (+4.5 and +4.6 points) and, at Hard level with 4 stalls, the Bargain Hunter (+4.2) and Nest Egg (-4.0). No stall is stuck with no cash and no fruit any more (2 to 13% of games before); the top-up is paid in about 1 to 5% of games. Games won by $20 or more fell from 45 to 55% to 39 to 53%. Mango is still the best earner (31 to 40% of all profit), and the Ripening Room is the upgrade computers build most. Computer games only, no playtest. See `docs/studio/review-17/balance/RULES-18-RESULTS.md`.
 
 Rules version 15 (PLAN-073): secret stalls, above. No number on any card changed. BALANCE15
 
