@@ -429,6 +429,16 @@
       "date": "2026-11-11",
       "commit": "95d553a",
       "tagged": true
+    },
+    {
+      "version": "1.19.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-075"
+      ],
+      "notes": [
+        "Tomorrow's customers now show while you buy: the regular face up, the walk-ins face down"
+      ]
     }
   ]
 }
