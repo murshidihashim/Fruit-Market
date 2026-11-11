@@ -50,6 +50,16 @@ def group(body, tf):
     return f'<g transform="{tf}">{body}</g>'
 
 
+def dots(points, r, fill, op=None):
+    """Many dots of one colour as a single shape (wallpaper spots, bulbs, rivets)."""
+    return shape(''.join(f'M{x - r} {y}a{r} {r} 0 1 0 {2 * r} 0a{r} {r} 0 1 0 {-2 * r} 0z' for x, y in points), fill, op)
+
+
+def boxes(rects, fill, op=None):
+    """Many plain boxes of one colour as a single shape: (x, y, width, height)."""
+    return shape(''.join(f'M{x} {y}h{w}v{h}h{-w}z' for x, y, w, h in rects), fill, op)
+
+
 def star(cx, cy, r_out, r_in, n, fill, rot=-90, op=None):
     pts = []
     for i in range(2 * n):
@@ -182,11 +192,8 @@ def flat_book(x, y, w, h, c, band):
 
 
 def bulbs(p0, p1, p2, ts, r=8, colours=(YEL,)):
-    out = ''
-    for i, t in enumerate(ts):
-        x, y = qpoint(p0, p1, p2, t)
-        out += dot(x, y + 9, r + 6, YEL_L, .5) + dot(x, y + 9, r, colours[i % len(colours)])
-    return out
+    pts = [(x, y + 9) for x, y in (qpoint(p0, p1, p2, t) for t in ts)]
+    return dots(pts, r + 6, YEL_L, .5) + ''.join(dots(pts[i::len(colours)], r, c) for i, c in enumerate(colours))
 
 
 def fist(x, y, tone, r=19):
@@ -303,11 +310,9 @@ def robert():
 
 def daniel():
     t = 'deep'
-    cells = ''
-    for row, cols in enumerate([(0, 6), (0, 1, 5, 6), range(7), range(7)]):
-        for c in cols:
-            colour = RED_L if c < 2 else YEL_L if c < 5 else GRN_L if c == 5 else BLU_L
-            cells += box(443 + 18 * c, 66 + 18 * row, 14, 14, colour)
+    grid = [(c, row) for row, cols in enumerate([(0, 6), (0, 1, 5, 6), range(7), range(7)]) for c in cols]
+    cells = ''.join(boxes([(443 + 18 * c, 66 + 18 * row, 14, 14) for c, row in grid if pick(c)], colour)
+                    for colour, pick in ((RED_L, lambda c: c < 2), (YEL_L, lambda c: 2 <= c < 5), (GRN_L, lambda c: c == 5), (BLU_L, lambda c: c == 6)))
     hexagon = 'M' + 'L'.join(f'{66 + 24 * math.cos(math.radians(a)):.1f} {96 + 24 * math.sin(math.radians(a)):.1f}' for a in range(-90, 270, 60)) + 'Z'
     scene = (
         wall(SLATE, .2) + hlines((54, 124, 194), PAPER, 3, .7) + vlines(range(40, 600, 70), PAPER, 3, .7, 0, 276) + disc()
@@ -457,8 +462,8 @@ def ravi():
         + box(0, 74, 184, 114, RED_L) + box(0, 58, 194, 18, RED_D) + shutters(18, 96) + shutters(104, 96)
         + box(0, 214, 184, 78, PALE) + box(22, 230, 54, 62, BLU_D) + dot(66, 262, 4, YEL)
         + box(94, 230, 74, 44, BLU_L) + line('M104 262l20-22', PAPER, 5, .7) + box(90, 274, 82, 6, STONE)
-        + box(0, 186, 192, 26, YEL) + ''.join(box(x, 186, 24, 26, PAPER) for x in (24, 72, 120, 168))
-        + ''.join(dot(12 + 24 * i, 212, 12, PAPER if i % 2 else YEL) for i in range(8))
+        + box(0, 186, 192, 26, YEL) + boxes([(x, 186, 24, 26) for x in (24, 72, 120, 168)], PAPER)
+        + dots([(12 + 48 * i, 212) for i in range(4)], 12, YEL) + dots([(36 + 48 * i, 212) for i in range(4)], 12, PAPER)
         # the motorbike and its delivery box
         + dot(478, 258, 35, INK) + dot(478, 258, 19, STONE) + dot(478, 258, 7, INK)
         + shape('M448 220h152v30H472z', RED) + shape('M462 238h138v12H472z', RED_D)
@@ -581,10 +586,10 @@ def spool(x, y, c):
 
 def siti():
     t = 'tan'
-    dots = ''.join(dot(x, y, 4, PAPER, .6) for row, y in enumerate(range(24, 320, 36)) for x in range(18 + 24 * (row % 2), 600, 48))
-    ticks = ''.join(line(f'M{x - 6} {y}h12', INK, 3) for x, y in ((231, 300), (229, 322), (227, 344), (226, 366), (225, 388), (369, 300), (371, 322), (373, 344)))
+    spots = dots([(x, y) for row, y in enumerate(range(24, 320, 36)) for x in range(18 + 24 * (row % 2), 600, 48)], 4, PAPER, .6)
+    ticks = line(''.join(f'M{x - 6} {y}h12' for x, y in ((231, 300), (229, 322), (227, 344), (226, 366), (225, 388), (369, 300), (371, 322), (373, 344))), INK, 3)
     scene = (
-        wall(PINK, .3) + dots + disc()
+        wall(PINK, .3) + spots + disc()
         # rolls of cloth on the shelf
         + box(14, 34, 170, 196, INK)
         + bolt(24, 44, 150, BLU, BLU_L) + bolt(24, 70, 136, YEL, YEL_D)
@@ -634,8 +639,8 @@ def kumar():
     p0, p1, p2, p3, p4 = (0, 30), (150, 86), (300, 60), (450, 86), (600, 30)
     lights = (line('M0 30Q150 86 300 60Q450 86 600 30', INK, 4)
               + bulbs(p0, p1, p2, (.12, .32, .52, .72), 8, (YEL, PAPER)) + bulbs(p2, p3, p4, (.28, .48, .68, .88), 8, (PAPER, YEL)))
-    stars_ = ''.join(dot(x, y, 2.5, PAPER, .8) for x, y in ((30, 96), (212, 108), (392, 112), (574, 84), (132, 110), (430, 74)))
-    scallops = ''.join(dot(10 + 26 * i, 178, 13, RED if i % 2 == 0 else PAPER) for i in range(8))
+    stars_ = dots(((30, 96), (212, 108), (392, 112), (574, 84), (132, 110), (430, 74)), 2.5, PAPER, .8)
+    scallops = dots([(10 + 52 * i, 178) for i in range(4)], 13, RED) + dots([(36 + 52 * i, 178) for i in range(4)], 13, PAPER)
     scene = (
         wall(BLU_L) + stars_ + disc() + lights
         # a fruit stall under a striped awning
@@ -649,7 +654,7 @@ def kumar():
         + line('M510 190V266', INK, 8, cap='butt')
         + box(436, 104, 150, 90, YEL) + box(446, 114, 130, 70, RED)
         + star(478, 149, 22, 9, 5, YEL) + line('M512 138h50M512 158h34', PAPER, 7)
-        + ''.join(dot(x, 109, 3, PAPER) + dot(x, 189, 3, PAPER) for x in range(450, 580, 20))
+        + dots([(x, y) for y in (109, 189) for x in range(450, 580, 20)], 3, PAPER)
         + box(452, 268, 148, 58, RED) + box(452, 310, 148, 6, YEL) + box(446, 260, 154, 12, RED_D)
         + star(492, 292, 10, 4, 5, YEL) + star(560, 292, 10, 4, 5, YEL)
         + ground(326, STONE)
@@ -697,7 +702,7 @@ def grace():
                 'translate(-26 -8)')
         # the speakers
         + box(452, 128, 122, 96, INK, 6) + box(440, 220, 146, 106, INK, 6)
-        + box(462, 138, 102, 14, SLATE) + ''.join(dot(x, 145, 4, PAPER) for x in (474, 492, 510, 528, 546))
+        + box(462, 138, 102, 14, SLATE) + dots([(x, 145) for x in (474, 492, 510, 528, 546)], 4, PAPER)
         + dot(513, 188, 27, SLATE) + dot(513, 188, 11, STONE) + dot(513, 188, 4, INK)
         + dot(513, 273, 40, SLATE) + dot(513, 273, 17, STONE) + dot(513, 273, 6, INK)
         + ground(326, KRAFT, STONE, 1) + vlines((60, 190, 410, 540), STONE, 3, .8, 332, 400)
@@ -732,8 +737,8 @@ def bone(x, y, length, rot, thick=16):
 
 def hafiz():
     t = 'light'
-    ribs = ''.join(line(f'M{x} {y}q-16 30-2 60', PAPER, 7) for x, y in ((46, 204), (70, 208), (94, 210), (118, 208)))
-    spine = ''.join(dot(x, y, 8, PAPER) for x, y in ((26, 192), (44, 198), (62, 202), (80, 204), (98, 204), (116, 202), (132, 196)))
+    ribs = line(''.join(f'M{x} {y}q-16 30-2 60' for x, y in ((46, 204), (70, 208), (94, 210), (118, 208))), PAPER, 7)
+    spine = dots(((26, 192), (44, 198), (62, 202), (80, 204), (98, 204), (116, 202), (132, 196)), 8, PAPER)
     scene = (
         wall(ORANGE, .24) + line('M210 30h60M236 48h32M420 60h44M40 40h70M70 58h36', PAPER, 8, .7) + disc()
         # the rock face, with old bones showing

@@ -478,7 +478,7 @@ ART['customer-yuki'] = f'''
 {S('M516 216c0-24 58-24 58 0', BLU_D, 6)}{R(496, 214, 98, 54, BLU, rx=14)}{R(496, 236, 98, 8, PAPER)}
 {R(458, 226, 22, 42, GRN, rx=6)}{R(463, 216, 12, 12, PAPER, rx=2)}
 <!-- Yuki: spiky black hair, pink headband, black top over pink -->
-{spikes()}{top(INK)}{vneck(PINK)}{head(skin, shade)}
+{spikes()}{top(INK)}{sleeves(SLATE)}{vneck(PINK)}{head(skin, shade)}
 {R(216, 146, 168, 22, PINK, rx=3)}{R(216, 162, 168, 6, RED, rx=3, op='.3')}{S('M226 152h60', PAPER, 4, op='.4')}
 {dots()}{smile()}
 <!-- her mask -->
@@ -590,7 +590,7 @@ ART['customer-kenji'] = f'''
 <!-- the mats -->
 {tint(LEAF, '.38', 326, 74)}{R(0, 326, 600, 6, GRN, op='.5')}{vlines((70, 530), 334, 400, GRN, 4, '.5')}
 <!-- Kenji: spiky black hair, white karate jacket over blue -->
-{spikes()}{top(PAPER)}{vneck(BLU)}{S('M244 276l60 70', KRAFT, 5)}{S('M356 276l-42 50', KRAFT, 5)}
+{spikes()}{top(PAPER)}{sleeves(KRAFT)}{vneck(BLU)}{S('M244 276l60 70', KRAFT, 5)}{S('M356 276l-42 50', KRAFT, 5)}
 {head(skin, shade)}{happy()}{grin()}
 <!-- a board for breaking -->
 {G(R(366, 306, 126, 84, STONE, rx=3) + R(372, 312, 126, 84, YEL_D, rx=3) + hlines((332, 354, 376), 384, 486, YEL, 3)
@@ -601,7 +601,7 @@ skin, shade = SKINS['brown']
 bunch1 = ''.join(leaf(470, 90, r, 62, c) for r, c in ((132, GRN_D), (112, GRN), (90, LEAF), (68, GRN), (48, GRN_D)))
 bunch3 = ''.join(leaf(574, 90, r, 58, c) for r, c in ((130, LEAF), (108, GRN_D), (90, GRN), (72, GRN_D), (50, LEAF)))
 ART['customer-mira'] = f'''
-{tint(YEL_L, '.5')}{vlines(range(25, 600, 50), 0, 352, PAPER, 3, '.6')}
+{tint(LEAF, '.36')}{vlines(range(25, 600, 50), 0, 352, PAPER, 3, '.6')}
 {DISC}
 <!-- shelves of jamu -->
 {R(12, 112, 160, 10, YEL_D)}{R(12, 198, 160, 10, YEL_D)}{R(12, 284, 160, 10, YEL_D)}
@@ -621,7 +621,7 @@ ART['customer-mira'] = f'''
 {happy(272, 328, 192)}{smile(230)}
 <!-- the stall counter: mortar and pestle, a glass of jamu, a mango -->
 {R(0, 352, 600, 48, KRAFT)}{R(0, 352, 600, 6, PALE)}
-{S('M150 330L120 268', SLATE, 14)}{leaf(170, 330, -70, 34, LEAF, GRN)}{leaf(184, 332, -40, 30, GRN, GRN_D)}{C(196, 326, 6, YEL)}
+{S('M154 330L134 286', SLATE, 14)}{leaf(170, 330, -70, 34, LEAF, GRN)}{leaf(184, 332, -40, 30, GRN, GRN_D)}{C(196, 326, 6, YEL)}
 {P('M112 334h104l-16 56h-72z', STONE)}{P('M180 334h36l-16 56h-24z', SLATE, op='.35')}{R(104, 326, 120, 12, STONE, rx=6)}{R(104, 326, 120, 5, PALE, rx=2, op='.7')}
 {P('M404 326h54l-7 62h-40z', PAPER)}{P('M407 344h48l-5 41h-38z', YEL)}{S('M416 350v26', PAPER, 3, op='.6')}
 {fr('mango', 464, 334, 54)}'''
@@ -635,11 +635,10 @@ ART['customer-hock-seng'] = f'''
 <!-- the shophouse door -->
 {R(16, 36, 116, 296, BLU_D)}{R(24, 44, 100, 288, BLU)}
 {S(''.join(f'M38 {y}h72' for y in range(62, 190, 14)), BLU_D, 4)}{R(38, 208, 72, 104, BLU_D, rx=4, op='.55')}{C(112, 198, 6, YEL)}
-<!-- a songbird in its cage -->
-{S('M524 0v36', INK, 4)}{C(524, 40, 6, YEL_D)}
-{S('M500 136h48', INK, 3)}{S('M512 128l-10 9', YEL, 6)}{E(524, 124, 14, 10, YEL)}{C(535, 114, 8, YEL)}{P('M541 112l9 3-9 3z', ORANGE)}{C(537, 113, 2, INK)}
-{S('M486 150V92a38 38 0 0176 0V150', YEL_D, 5)}{S('M505 150V60M524 150V54M543 150V60', YEL_D, 3)}{S('M486 108h76', YEL_D, 3)}
-{R(480, 150, 88, 12, YEL_D, rx=3)}
+<!-- the abacus on the wall -->
+{C(522, 50, 4, INK)}{R(462, 56, 120, 86, YEL_D, rx=4)}{R(470, 64, 104, 70, KRAFT)}
+{vlines((484, 503, 522, 541, 560), 64, 134, INK, 3)}{R(470, 86, 104, 6, YEL_D)}
+{''.join(E(x, 76 if i % 2 else 80, 8, 5, RED_D) + ''.join(E(x, y, 8, 5, INK) for y in ((98, 108, 118) if i % 3 else (104, 114, 124))) for i, x in enumerate((484, 503, 522, 541, 560)))}
 <!-- the five-foot way, and his flask of tea -->
 {R(0, 326, 600, 74, KRAFT)}{diamonds}{R(0, 326, 600, 6, SLATE, op='.35')}
 {S('M486 280v50M574 280v50', YEL_D, 7)}{R(472, 270, 116, 11, YEL_D, rx=3)}
@@ -647,7 +646,7 @@ ART['customer-hock-seng'] = f'''
 {S('M572 252c10 0 10 12 0 12', PAPER, 4)}{P('M540 248h34v14a8 8 0 01-8 8h-18a8 8 0 01-8-8z', PAPER)}
 <!-- Uncle Hock Seng: bald with side tufts, round glasses, moustache, white shirt, red tie -->
 {C(214, 204, 23, INK)}{C(386, 204, 23, INK)}
-{top(PAPER)}{S('M262 276l38 22 38-22', KRAFT, 5)}{tie(RED, RED_D)}
+{top(PAPER)}{sleeves(KRAFT)}{S('M262 276l38 22 38-22', KRAFT, 5)}{tie(RED, RED_D)}
 {head(skin, shade, ((236, 226), (364, 226)))}
 {glasses()}{dots()}{moustache(12)}
 <!-- today's paper: the price of apples is up again -->
