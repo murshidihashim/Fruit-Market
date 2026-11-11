@@ -1,5 +1,5 @@
-"""Flat pictures in the Market Ticket style for the rules 18 card mock-ups: one customer scene, one event, six favours,
-five upgrades. Every fruit in a picture is the game's own fruit icon (src/ui/fruitIcons, exported to fruit-shapes.json),
+"""Flat pictures in the Market Ticket style for the rules 18 card mock-ups: one event, six favours, five upgrades (the customer
+scenes are built by the other files here, with kit.py). Every fruit in a picture is the game's own fruit icon (src/ui/fruitIcons, exported to fruit-shapes.json),
 so a blueberry, watermelon, mango or apple looks the same wherever it appears. Writes plain SVG (shapes only: no styles,
 scripts, fonts or embedded images) beside this file.
 
@@ -37,24 +37,6 @@ def upgrade(body):
 
 
 ART = {}
-
-# Firefighter Osman at the fire station: the shutter door and its bell on the left, a ladder on the right.
-ART['customer-osman-scene'] = svg('0 0 600 400', f'''
-<rect width="600" height="400" fill="{KRAFT}"/><circle cx="300" cy="200" r="175" fill="{PALE}"/>
-<rect x="22" y="70" width="150" height="262" fill="{RED}"/>
-<path d="M22 110h150M22 150h150M22 190h150M22 230h150M22 270h150M22 310h150" stroke="{REDD}" stroke-width="6"/>
-<rect x="10" y="52" width="174" height="20" fill="{INK}"/>
-<circle cx="97" cy="28" r="16" fill="{YEL}"/><circle cx="97" cy="28" r="5" fill="{INK}"/>
-<path d="M452 30v302M532 30v302" stroke="{INK}" stroke-width="12"/>
-<path d="M452 70h80M452 120h80M452 170h80M452 220h80M452 270h80" stroke="{INK}" stroke-width="9"/>
-<rect y="332" width="600" height="68" fill="{INK}"/>
-<path d="M130 400v-70c0-34 28-56 62-56h216c34 0 62 22 62 56v70z" fill="{INK}"/>
-<path d="M130 340h340v17H130zM130 374h340v17H130z" fill="{RED}"/>
-<rect x="275" y="250" width="50" height="34" fill="{SKIN2}"/><circle cx="300" cy="195" r="82" fill="{SKIN}"/>
-<path d="M212 158a88 82 0 01176 0z" fill="{RED}"/><rect x="192" y="146" width="216" height="20" rx="10" fill="{RED}"/>
-<circle cx="300" cy="104" r="16" fill="{PAPER}"/>
-<circle cx="270" cy="184" r="9" fill="{INK}"/><circle cx="330" cy="184" r="9" fill="{INK}"/>
-<path d="M300 216c-10-12-34-12-46 0 4 14 30 18 46 6 16 12 42 8 46-6-12-12-36-12-46 0z" fill="{INK}"/>''')
 
 # Heatwave: the picture from the Market Ticket event card, framed so its ground strip sits on the bottom edge.
 ART['event-heatwave'] = svg('0 -72 566 362', f'''
