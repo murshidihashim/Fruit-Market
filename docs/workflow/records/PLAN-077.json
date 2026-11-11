@@ -86,8 +86,8 @@
     {
       "id": "T6",
       "text": "Browser tests pass with 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "Running"
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e on rules 17: E2E OK, BUDGET OK, online match 0 leaks in 100 pricing frames, four players and two computers, reconnect 5 of 5"
     },
     {
       "id": "T7",

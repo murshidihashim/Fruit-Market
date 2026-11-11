@@ -7,7 +7,7 @@ Updated 2026-11-11 21:26 (Asia/Kuala_Lumpur), session checkpoint. Sections from 
 - **Built (app):** rivals fill a standing order at $1 under the winning bid; bidding shows who is bidding, passed or deciding, and can be changed until the last stall decides; all five upgrades on offer. RULES_VERSION 17, computer players 5.
 - **Built (table):** `print/update-17` from `scripts/print-update.ts`: guidebook at rules 17, six stall sheets (no cash track), six counters with the cash track, eight standing-order cards, a change sheet. Tomorrow's customers dealt in the morning.
 - **Audit:** printed numbers match the app; differences found and their status are in REP-100.
-- **Checks:** `npm run verify` PASS (451 tests); screenshots PASS; browser tests and balance: see PLAN-077 T6, T7; printed size test NOT RUN.
+- **Checks:** `npm run verify` PASS (451 tests); screenshots PASS; browser tests PASS (0 leaks, reconnect 5/5); balance: see PLAN-077 T7; printed size test NOT RUN.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`, not merged. Next: owner prints a test page; chooses preview or live.
 - **Parked:** the pricing screen's standing-order wording and $3 price limit; Sharp Ears timing.
 
