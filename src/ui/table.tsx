@@ -427,12 +427,15 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
 }
 
 /**
- * Tomorrow's customers once buying is over, as a strip of mini chips: the expected customer face up (tap for
- * their card), each walk-in as a card back showing only the fruit it wants (its front if you played Gossip or Scout on it).
+ * Tomorrow's customers as a strip of mini chips: the expected customer face up (tap for their card), each walk-in as a
+ * card back showing only the fruit it wants (its front if you played Gossip on it). Rules 16: tomorrow's crowd is drawn
+ * in the morning, so the strip shows while stalls buy too (from nextForecast and nextQueue, then forecast and queue).
  */
 export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
   const before = s.phase === 'morning' || s.phase === 'buy';
-  if (before || s.phase === 'over' || (!s.forecast && !s.queue.length)) return null;
+  const forecast = before ? s.nextForecast : s.forecast;
+  const queue = before ? s.nextQueue ?? [] : s.queue;
+  if (s.phase === 'over' || (!forecast && !queue.length)) return null;
   const front = (c: Customer, heard: boolean) => (
     <button type="button" key={c.id} class={`tm-chip ${heard ? 'heard' : ''}`} onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
       aria-label={`Tomorrow: ${lookOf(c.name).title}, wants ${c.wants.map((w) => `${w.qty} ${FRUIT[w.fruit].plural}`).join(' and ')}`}>
@@ -443,8 +446,8 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   return (
     <div class="tomorrow" aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
-      {s.forecast && front(s.forecast, false)}
-      {s.queue.map((c) => {
+      {forecast && front(forecast, false)}
+      {queue.map((c) => {
         if (c.seenBy?.includes(viewer)) return front(c, true);
         const fruits = [...new Set(c.wants.map((w) => w.fruit))];
         return (
