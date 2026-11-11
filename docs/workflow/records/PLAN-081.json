@@ -1,0 +1,68 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-106"
+  ],
+  "decisions": [
+    "DEC-098"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (three releases; release A's packages are listed in REP-106 section 4, this is the first).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-081",
+  "title": "Release A, package 1: flow repairs and two defects",
+  "problem": "Several steps stall or mislead today (found by reading the code in docs/studio/review-18/FLOW-AND-MOTION.md), and two defects can lose a player's game or trophy progress. They are fixed before any new motion is built on top.",
+  "scope": [
+    "With reduced motion, the open crates at the bell and \"No sales today\" stay long enough to read",
+    "\"Skip\" can be tapped while a rush card is up",
+    "One tap on the table hurries what is playing until the player's next decision; a tap on the lanes counts",
+    "Market Day bid: the customer row stays, the strip is labelled correctly, and \"Bid in\" shows only after the player has bid",
+    "Night: the panel and the slide run on one clock",
+    "The wait for a lorry that is not drawn is removed",
+    "The solo browser test handles the Favoured Trade step and fails when the results are not reached",
+    "Starting a Daily market or a League game asks before a paused game is replaced",
+    "Account sync keeps trophy names that contain a space"
+  ],
+  "exclusions": [
+    "Any rule or balance change; the rules version stays 18",
+    "New motion and redrawn screens (packages 2 and 3)",
+    "The save envelope and the online message format"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with new unit tests for the reduced-motion pause, the bid panel wording, the paused-game question and trophy names with spaces",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes: a solo game that meets the Favoured Trade step reaches the results, the performance budget holds, the online match has 0 leaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Seen in a browser at phone size: Skip works during a rush card; the bid step keeps the customer row; the night ends with its slide; the bell is readable with reduced motion",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner has seen it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}
