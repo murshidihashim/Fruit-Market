@@ -91,9 +91,9 @@
     },
     {
       "id": "T7",
-      "text": "Balance report against rules 16",
-      "result": "NOT RUN",
-      "evidence": "Queued after the browser tests"
+      "text": "Balance report under rules 17 (target: every shopkeeper within 4 points of fair)",
+      "result": "FAIL",
+      "evidence": "2026-11-11: npm run balance (400 games a test, 3 stalls): shopkeeper win rates 30.0 (Tip Jar) to 41.3 (Bargain Hunter) against 33.3 fair; six of eight are within 4 points (rules 16: 29.8 to 41.3). Rushing an upgrade: Juice Bar 39.5, Handcart 38.3, Ripening Room 32.8, Premium Display 30.3, Order Book 28.5, never building 29.0. Average cash 77.1 / 91.6 / 131.5 for 8, 10 and 14 days. Mango sells through 58 to 65% of what is bought; the other fruit 88 to 96%. Not tuned."
     },
     {
       "id": "T8",
