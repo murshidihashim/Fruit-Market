@@ -137,13 +137,13 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .cp-quip { margin: -2px 0 0; text-align: center; font: 700 1.05rem/1.25 var(--f-display); color: var(--x-red); animation: pop .25s steps(3); }
 @media (prefers-reduced-motion: reduce) { .cp-card { transition: none; } .cp-quip { animation: none; } }
 
-/* ---------- home: the Market square and its opening live in square.css ---------- */
+/* ---------- home: the Ticket Booth and its opening live in booth.css ---------- */
 
 /* ---------- wardrobe ---------- */
 .wd-counter .xf { box-shadow: 0 0 0 3px var(--x-ink); }
 .wd-tile .wd-wear { display: block; width: 52px; height: 76px; padding-top: 6px; }
 
-/* ---------- opening (Opening.tsx, square.css): the overlay's fade out ---------- */
+/* ---------- opening (Opening.tsx, booth.css): the overlay's fade out ---------- */
 @keyframes opx-out { to { opacity: 0; } }
 
 /* New game: the headings sit right on their field and on the shopkeeper carousel (PLAN-063) */

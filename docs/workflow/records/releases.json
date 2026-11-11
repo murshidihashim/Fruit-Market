@@ -415,6 +415,17 @@
       "date": "2026-11-11",
       "commit": "e322183",
       "tagged": true
+    },
+    {
+      "version": "1.18.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-074"
+      ],
+      "notes": [
+        "A new home screen in the same style as the game table: your stall, one black button, the Daily market and the Market League as tickets",
+        "A new opening: the four fruit lanes drop down and fold into place under the title"
+      ]
     }
   ]
 }

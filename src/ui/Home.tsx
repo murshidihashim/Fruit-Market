@@ -1,22 +1,23 @@
-// The home screen (DEC-071): the Market square. A street of stalls under the sunburst, the title on a sign hanging
-// from the bunting, the lorry parked on the road, and the menu painted on wooden signboards on the cobbles below.
-// The opening (Opening.tsx, DEC-072) plays on this very screen: it only adds the "sq-intro" class that animates it in.
-import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+// The home screen, "Ticket Booth" (home A, PLAN-074): the black bar with the account and Dress up, a band of the four
+// fruit lanes, the title, your stall (your shopkeeper's picture), one black button, the Daily market and the Market
+// League as tickets, and Trophies, How to play and Settings on a kraft strip. The look is the game table's
+// (Market Ticket, ticket.css); the styles are in booth.css. The opening (Opening.tsx, "Lane Drop") plays on this very
+// screen: it puts "hm-intro" on <html>, which animates the title and everything under the band into place.
+import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { RIVALS } from '../engine/data';
+import { RIVALS, type FruitId } from '../engine/data';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
-import { shopBadge, shopFile } from './deckArt';
-import { lorryUrl, wearUrl } from './exchangeArt';
-import { wornParts } from './looks';
-import { KEEPERS, marketScene, type Layer, type Stall } from './marketArt';
+import { shopScene } from './deckArt';
+import { FruitSvg } from './fruitIcons';
 import { myAvatar } from './Wardrobe';
-import { C } from './palette';
 
 export interface ShopProps {
   /** "Day 4/10" when a game is waiting to be continued, else null. */
   resume: string | null;
+  /** Your cash in the waiting game (one person at the table), else null. */
+  cash: number | null;
   dailyLine: string;
   leagueLine: string;
   today: string;
@@ -33,150 +34,77 @@ export interface ShopProps {
   onSettings: () => void;
 }
 
-/** Wide screens get the six-stall street and a single row of signboards (the same width as the desktop game). */
-const WIDE = '(min-width: 900px)';
-function useWide(): boolean {
-  const mq = typeof matchMedia === 'undefined' ? null : matchMedia(WIDE);
-  const [wide, setWide] = useState(() => !!mq?.matches);
-  useEffect(() => {
-    if (!mq) return;
-    const on = () => setWide(mq.matches);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
-  return wide;
-}
-
-export function Shopfront(p: ShopProps) {
-  const me = signedInAs();
-  const wide = useWide();
+/** The four fruit lanes, in the game's order and colours. The opening draws the same band (Opening.tsx). */
+export const LANES: FruitId[] = ['blueberry', 'watermelon', 'mango', 'apple'];
+export function LaneBand({ class: cls, style }: { class?: string; style?: string }) {
   return (
-    <div class={`home cosy front sq${wide ? ' sq-wide' : ''}`}>
-      <header class="sq-head">
-        <div class="sq-hang">
-          <div class="sq-tags">
-            {accountsAvailable() && <button class="cover-account sq-tag" onClick={p.onAccount}>{me ? `Hi, ${me}` : 'Create account'}</button>}
-            <button class="cover-dress sq-tag" onClick={p.onWardrobe}>Dress up</button>
-          </div>
-          <div class="sq-sign">
-            <Bunting wide={wide} />
-            <div class="sq-plank">
-              <div class="sq-board">
-                <h1 class="x-title">Fruit Market</h1>
-                <p>Where the whole world shops</p>
-                <p class="hm-secret">…and every price is a secret</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      <MarketScene wide={wide} />
-      <div class="sq-menu hm-actions">
-        {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
-        <div class={`sq-grid${p.resume ? ' has-cont' : ''}`}>
-          <button class="front-tile pri sq-b sq-new" onClick={p.onNew}><PlusIcon /><span>New game</span></button>
-          <button class="front-tile tl sq-b sq-friend" onClick={p.onFriend}><PeopleIcon /><span>Play a friend</span></button>
-          {p.resume && <button class="front-continue sq-b sq-cont" onClick={p.onContinue}><PlayIcon /><span>Continue<span class="sq-vh"> · </span><small>{p.resume}</small></span></button>}
-          <button class="front-tile sq-b sq-daily" onClick={p.onDaily}><DailyIcon /><span>Daily market<small>{p.dailyLine}</small></span></button>
-          <button class="front-tile sq-b sq-league" onClick={p.onLeague}><TrophyIcon /><span>Market League<small>{p.leagueLine}</small></span></button>
-        </div>
-        <DailyPeek date={p.today} />
-        <div class="front-foot sq-foot">
-          <button class="sq-b" onClick={p.onTrophies}>Trophies</button>
-          <button class="sq-b" onClick={p.onHowTo}>How to play</button>
-          <button class="sq-b" onClick={p.onSettings}>Settings</button>
-        </div>
-      </div>
+    <div class={`hm-lanes${cls ? ` ${cls}` : ''}`} style={style} aria-hidden="true">
+      {LANES.map((f, i) => <span class={`hm-lane f-${f}`} style={`--i:${i}`}><i><FruitSvg id={f} size={28} alt="" /></i></span>)}
     </div>
   );
 }
 
-/** The rail under the top tags, with two strings of bunting. Drawn past both edges for screens wider than the drawing. */
-function Bunting({ wide }: { wide: boolean }) {
-  const w = wide ? 1120 : 390, mid = w / 2;
-  const cols = [[C.xRed, C.xPaper, C.xGreen], [C.xMustard, C.xPaper, C.xSkyDark]];
-  const strings: [number, number, string[]][] = [];
-  // Each string hangs between two hooks; extra strings run off both sides.
-  for (let a = -w; a < w * 2; a += mid) strings.push([a + 4, a + mid - 4, cols[strings.length % 2]]);
+export function Shopfront(p: ShopProps) {
+  const me = signedInAs();
+  const avatar = myAvatar();
+  const keeper = RIVALS.find((r) => r.avatar === avatar);
+  const scene = shopScene(avatar);
   return (
-    <svg class="sq-bunting" viewBox={`0 0 ${w} 34`} preserveAspectRatio="xMidYMin meet" aria-hidden="true">
-      <rect x={-w} y="1" width={w * 3} height="13" fill={C.xWoodDark} stroke={C.xInk} stroke-width="3" />
-      {strings.map(([x1, x2, c], s) => {
-        const cnt = Math.round((x2 - x1) / 31), sag = 4;
-        return (
-          <g key={s}>
-            <path d={`M${x1} 14Q${(x1 + x2) / 2} ${14 + sag * 2} ${x2} 14`} class="sq-rope" stroke={C.xInk} stroke-width="2" fill="none" />
-            {Array.from({ length: cnt }, (_, i) => {
-              const t = (i + 0.5) / cnt, px = x1 + (x2 - x1) * t, py = 14 + sag * 4 * t * (1 - t);
-              return <path class="sq-pen" style={`--j:${i}`} d={`M${Math.round(px - 8)} ${Math.round(py)}h16l-8 15Z`} fill={c[i % 3]} stroke={C.xInk} stroke-width="1.8" stroke-linejoin="round" />;
-            })}
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-const pic = (l: Layer, cls?: string, style?: string) => <image class={cls} style={style} href={l.url} x={l.x} y={l.y} width={l.w} height={l.h} />;
-
-/** The street: stalls (each shopkeeper at their own), the road and the lorry. Your shopkeeper wears your looks. */
-function MarketScene({ wide }: { wide: boolean }) {
-  const sc = marketScene(wide);
-  const mine = shopFile(myAvatar());
-  const parts = wornParts();
-  const wear = mine && parts.length ? wearUrl(mine, parts) : null;
-  const all = [...sc.backRow, ...sc.frontRow].sort((a, b) => a.back.x - b.back.x);
-  const order = (s: Stall) => all.indexOf(s);
-  const stall = (s: Stall, id: string) => {
-    const f = s.face, k = f ? KEEPERS.indexOf(f.keeper as (typeof KEEPERS)[number]) : -1;
-    const badge = k >= 0 ? shopBadge(RIVALS[k].avatar) : null;
-    return (
-      <g class="sq-st" style={`--i:${order(s)}`}>
-        {pic(s.back)}
-        {f && badge && (
-          <>
-            <clipPath id={id}><circle cx={f.cx} cy={f.cy} r={f.r} /></clipPath>
-            <image href={badge} x={f.cx - f.r} y={f.cy - f.r} width={f.r * 2} height={f.r * 2} clip-path={`url(#${id})`} preserveAspectRatio="xMidYMid slice" />
-            <circle cx={f.cx} cy={f.cy} r={f.r} fill="none" stroke={C.xInk} stroke-width="2" />
-            {wear && f.keeper === mine && <image href={wear} x={f.cx - f.r * 1.2} y={f.cy - f.r * 1.2} width={f.r * 2.4} height={f.r * 2.6} />}
-          </>
-        )}
-        {pic(s.fruit, 'sq-sf', `--fx:${s.toss.x}px;--fy:${s.toss.y}px`)}
-        {pic(s.counter)}
-        {pic(s.awning, 'sq-sa')}
-      </g>
-    );
-  };
-  // Fill the street's height where there is room, trimming a little off both sides rather than leaving a gap above
-  // the stalls; never trim more than MAX_TRIM (the outer shopkeepers stay in view). Wider boxes show the drawing's
-  // extensions past its edges instead.
-  const box = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState<[number, number] | null>(null);
-  useLayoutEffect(() => {
-    const el = box.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => setSize([el.clientWidth, el.clientHeight]));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const v = sc.view, L = sc.lorry;
-  const vw = size && size[1] > 0 ? Math.min(v.w, Math.max(v.w * (wide ? 0.9 : 0.85), (v.h * size[0]) / size[1])) : v.w;
-  return (
-    <div class="sq-scene" ref={box} aria-hidden="true">
-      <svg class="sq-svg" viewBox={`${Math.round(v.x + (v.w - vw) / 2)} ${v.y} ${Math.round(vw)} ${v.h}`} preserveAspectRatio="xMidYMax meet">
-        {pic(sc.backdrop)}
-        {sc.backRow.map((s, i) => stall(s, `sq-b${wide ? 'w' : 'p'}${i}`))}
-        {pic(sc.road)}
-        {sc.frontRow.map((s, i) => stall(s, `sq-f${wide ? 'w' : 'p'}${i}`))}
-        {sc.marks && pic(sc.marks, 'sq-marks')}
-        <rect class="sq-bed" x={sc.bed.x} y={sc.bed.y} width={sc.bed.w} height={sc.bed.h} fill="none" />
-        <g class="sq-lmove">
-          <g class="sq-lrock">
-            <image href={lorryUrl(0)} x={L.x} y={L.y} width={L.w} height={L.h} />
-            <image class="sq-lb" href={lorryUrl(1)} x={L.x} y={L.y} width={L.w} height={L.h} opacity="0" />
-          </g>
-        </g>
-      </svg>
+    <div class="home hm">
+      <div class="hm-in">
+        <header class="hm-bar">
+          {accountsAvailable() ? <button class="hm-acct" onClick={p.onAccount}><PersonIcon /><span>{me ? `Hi, ${me}` : 'Create account'}</span></button> : <span />}
+          <button class="hm-dress" onClick={p.onWardrobe}><ShirtIcon /><span>Dress up</span></button>
+        </header>
+        <LaneBand />
+        <div class="hm-title">
+          <h1 class="hm-name">Fruit<br />Market</h1>
+          <p>Where the whole world shops <span>…and every price is a secret</span></p>
+        </div>
+        <div class="hm-rest">
+          {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
+          <div class="hm-stall">
+            <div class="hm-stall-head"><span>Your stall{keeper ? ` · ${keeper.name}` : ''}</span>{p.resume && <b>{p.resume.replace('/', ' of ')}</b>}</div>
+            <div class="hm-stall-pic">
+              {scene && <img src={scene} alt="" decoding="async" draggable={false} />}
+              {p.resume && p.cash !== null && <b class="hm-cash">${p.cash}</b>}
+            </div>
+          </div>
+          <div class="hm-play">
+            {p.resume ? (
+              <>
+                <button class="hm-go" onClick={p.onContinue}><PlayIcon />Continue<span class="hm-vh"> · </span><small>{p.resume}</small></button>
+                <div class="hm-two">
+                  <button class="hm-b" onClick={p.onNew}>New game</button>
+                  <button class="hm-b" onClick={p.onFriend}>Play a friend</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button class="hm-go" onClick={p.onNew}>New game</button>
+                <button class="hm-b" onClick={p.onFriend}>Play a friend</button>
+              </>
+            )}
+          </div>
+          <div class="hm-tickets">
+            <button class="hm-tk" onClick={p.onDaily}>
+              <span class="hm-tk-ic"><DailyIcon /></span>
+              <span class="hm-tk-txt"><small class="red">Daily market</small><span>{p.dailyLine}</span></span>
+              <span class="hm-tk-go">Play</span>
+            </button>
+            <button class="hm-tk" onClick={p.onLeague}>
+              <span class="hm-tk-ic"><TrophyIcon /></span>
+              <span class="hm-tk-txt"><small>Market League</small><span>{p.leagueLine}</span></span>
+            </button>
+          </div>
+          <DailyPeek date={p.today} />
+          <nav class="hm-foot">
+            <button onClick={p.onTrophies}>Trophies</button>
+            <button onClick={p.onHowTo}>How to play</button>
+            <button onClick={p.onSettings}>Settings</button>
+          </nav>
+        </div>
+      </div>
     </div>
   );
 }
@@ -243,24 +171,24 @@ function DailyPeek({ date }: { date: string }) {
   );
 }
 
-// Engraved signboard icons: brass and navy, like the Exchange drawings.
-const ink = { stroke: C.xInk, 'stroke-width': 1.8, 'stroke-linejoin': 'round' } as const;
-function PlusIcon() {
-  return <svg class="sq-ic" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><circle cx="12" cy="12" r="10" fill={C.xMustard} {...ink} stroke-width="2" /><path d="M12 7v10M7 12h10" stroke={C.xInk} stroke-width="2.6" stroke-linecap="round" /></svg>;
+// Line icons for the booth (stroke in the text colour).
+const line = { fill: 'none', stroke: 'currentColor', 'stroke-width': 2.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' } as const;
+function PersonIcon() {
+  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" {...line}><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" /></svg>;
 }
 
-function PeopleIcon() {
-  return <svg class="sq-ic" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="8.5" cy="8" r="3.6" fill={C.xMustard} {...ink} /><circle cx="16" cy="9" r="3.1" fill={C.xMustard} {...ink} /><path d="M2 21q0-7 6.5-7t6.5 7Z" fill={C.xMustard} {...ink} /><path d="M15 21q0-6 4-6t4 6Z" fill={C.xMustard} {...ink} /></svg>;
+function ShirtIcon() {
+  return <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" {...line}><path d="M8 3 3 7l3 3 2-1v12h8V9l2 1 3-3-5-4c-1 2-2.5 3-4 3S9 5 8 3Z" /></svg>;
 }
 
 function PlayIcon() {
-  return <svg class="sq-ic" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><circle cx="12" cy="12" r="10" fill={C.xPaper} {...ink} stroke-width="2" /><path d="M10 7.5l6 4.5-6 4.5Z" fill={C.xRed} {...ink} stroke-width="1.6" /></svg>;
+  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>;
 }
 
 function DailyIcon() {
-  return <svg class="sq-ic" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2" fill={C.xPaper} {...ink} /><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3Z" fill={C.xRed} {...ink} /><path d="M8 2v4M16 2v4" stroke={C.xInk} stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="15" r="3" fill={C.xMustard} {...ink} stroke-width="1.6" /></svg>;
+  return <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" {...line} stroke-width="2"><rect x="3" y="5" width="18" height="16" /><path d="M3 10h18M8 3v4M16 3v4" /><circle cx="12" cy="15.5" r="2" /></svg>;
 }
 
 function TrophyIcon() {
-  return <svg class="sq-ic" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M6 3h12v5q0 6-6 7-6-1-6-7Z" fill={C.xMustard} {...ink} /><path d="M6 5H3q0 5 4 6M18 5h3q0 5-4 6" stroke={C.xInk} stroke-width="1.6" fill="none" /><path d="M10 15h4v3h-4Z" fill={C.xMustardDark} {...ink} stroke-width="1.6" /><rect x="6.5" y="18" width="11" height="3.5" rx="1" fill={C.xWood} {...ink} stroke-width="1.6" /></svg>;
+  return <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" {...line} stroke-width="2"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" /><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8" /></svg>;
 }

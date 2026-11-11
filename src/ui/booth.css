@@ -1,0 +1,121 @@
+/* =====================================================================
+   The home screen, "Ticket Booth" (home A, PLAN-074), and its opening, "Lane Drop".
+   Home.tsx draws the screen in the game table's look (Market Ticket, ticket.css): ink, paper, kraft, mustard, the four
+   fruit lanes, square corners, one black button. Opening.tsx plays the opening on it: "hm-intro" on <html> animates
+   the title and everything under the band into place ("hm-hold" pauses it while the pictures load), and the overlay
+   draws the four lanes falling down the screen and folding up into the band. Colours come from palette.css only.
+   Imported before the body of styles.css: rules start with ".home.hm" so they beat the older home rules there.
+   ===================================================================== */
+:root {
+  --hm-ink: var(--x-ink); --hm-paper: var(--x-paper); --hm-yel: var(--x-mustard); --hm-kraft: var(--x-wood); --hm-tint: var(--c-efe9df);
+  --hm-red: var(--x-red-d); --hm-slate: var(--x-slate);
+  --hm-berry: var(--c-3558a2); --hm-melon: var(--c-0e9a58); --hm-mango: var(--c-fec400); --hm-apple: var(--c-e73c35);
+}
+
+.home.hm { min-height: 100%; display: flex; flex-direction: column; background: var(--hm-paper); color: var(--hm-ink); color-scheme: light; font-family: var(--f-label); }
+.home.hm .hm-in { flex: 1 0 auto; width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; }
+.home.hm button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0; }
+.home.hm button:focus-visible { outline: 3px solid var(--hm-yel); outline-offset: -3px; }
+
+/* ---------- the black bar ---------- */
+.home.hm .hm-bar {
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 52px; box-sizing: border-box;
+  padding: env(safe-area-inset-top) max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); background: var(--hm-ink); color: var(--hm-paper);
+}
+.home.hm .hm-acct { min-width: 0; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 8px; color: var(--hm-paper); }
+.home.hm .hm-acct span, .home.hm .hm-dress span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home.hm .hm-acct, .home.hm .hm-dress, .home.hm .hm-foot button, .home.hm .hm-b { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.home.hm .hm-acct svg, .home.hm .hm-dress svg { flex: none; }
+.home.hm .hm-dress { flex: none; height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: var(--hm-yel); color: var(--hm-ink); }
+
+/* ---------- the four fruit lanes (also drawn by the opening, outside .home) ---------- */
+.hm-lanes { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 47px; box-sizing: border-box; border-bottom: 3px solid var(--hm-ink); }
+.hm-lane { display: grid; place-items: center; min-width: 0; }
+.hm-lane.f-blueberry { background: var(--hm-berry); }
+.hm-lane.f-watermelon { background: var(--hm-melon); }
+.hm-lane.f-mango { background: var(--hm-mango); }
+.hm-lane.f-apple { background: var(--hm-apple); }
+.hm-lane i { width: 34px; height: 34px; display: grid; place-items: center; background: var(--hm-paper); }
+.hm-lane i .x-fruit { width: 28px; height: 28px; display: block; }
+
+/* ---------- title ---------- */
+.home.hm .hm-title { flex: none; padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 6px; transform-origin: 20% 50%; }
+.home.hm h1.hm-name { margin: 0; font: 400 2.875rem/0.95 var(--f-display); text-transform: uppercase; letter-spacing: -0.01em; color: var(--hm-ink); text-shadow: none; }
+.home.hm .hm-title p { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); }
+.home.hm .hm-title p span { font-style: italic; color: var(--hm-red); }
+
+/* ---------- your stall, the black button, the tickets ---------- */
+.home.hm .hm-rest { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; background: transparent; }
+.home.hm .save-notice { margin: 0 16px; border-radius: 0; }
+.home.hm .hm-stall { flex: none; margin: 0 16px; padding: 3px; display: flex; flex-direction: column; box-shadow: inset 0 0 0 3px var(--hm-ink); }
+.home.hm .hm-stall-head {
+  height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--hm-ink); color: var(--hm-paper);
+  font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+}
+.home.hm .hm-stall-head b { padding: 3px 6px; background: var(--hm-yel); color: var(--hm-ink); font-weight: 800; }
+.home.hm .hm-stall-pic { position: relative; height: clamp(110px, 21vh, 190px); overflow: hidden; background: var(--hm-tint); }
+.home.hm .hm-stall-pic img { position: absolute; left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-58%); display: block; }
+.home.hm .hm-cash { position: absolute; right: 8px; bottom: 8px; padding: 5px 9px; background: var(--hm-paper); font: 400 1.25rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.home.hm .hm-play { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.home.hm .hm-go {
+  min-height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--hm-ink); color: var(--hm-yel);
+  font: 400 1.375rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase;
+}
+.home.hm .hm-go small { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.06em; color: var(--hm-paper); }
+.home.hm .hm-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.home.hm .hm-go:active, .home.hm .hm-b:active, .home.hm .hm-tk:active { transform: translateY(2px); }
+.home.hm .hm-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.home.hm .hm-b { min-height: 48px; padding: 0 8px; box-shadow: inset 0 0 0 3px var(--hm-ink); font-size: 0.875rem; letter-spacing: 0.06em; }
+.home.hm .hm-tickets { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.home.hm .hm-tk { min-height: 62px; display: flex; align-items: stretch; text-align: left; background: var(--hm-paper); box-shadow: inset 0 0 0 2px var(--hm-ink); }
+.home.hm .hm-tk-ic { width: 72px; flex: none; display: grid; place-items: center; background: var(--hm-ink); color: var(--hm-yel); }
+.home.hm .hm-tk-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 8px 12px; font: 700 0.875rem/1.25 var(--f-label); }
+.home.hm .hm-tk-txt small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
+.home.hm .hm-tk-txt small.red { color: var(--hm-red); }
+.home.hm .hm-tk-go { align-self: center; flex: none; margin-right: 12px; padding: 5px 8px; background: var(--hm-yel); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.home.hm .daily-peek { width: auto; margin: 0 16px; padding: 8px 12px; border-radius: 0; background: var(--hm-tint); color: var(--hm-ink); box-shadow: none; }
+.home.hm .daily-peek small { color: var(--hm-slate); }
+.home.hm .daily-peek b { color: var(--hm-red); }
+.home.hm .hm-foot {
+  margin-top: auto; flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--hm-kraft);
+  padding: 6px max(8px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+}
+.home.hm .hm-foot button { min-height: 46px; }
+
+/* ---------- the opening, "Lane Drop" (Opening.tsx): about 2.45 seconds ---------- */
+.hm-intro .home.hm .hm-title { animation: hm-stamp 0.32s 1.8s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.hm-intro .home.hm .hm-rest { animation: hm-rise 0.45s 1.9s ease-out both; }
+.hm-skip .home.hm .hm-title, .hm-skip .home.hm .hm-rest { animation: hm-show 0.28s ease-out both; }
+.hm-hold .home.hm *, .hm-hold .op-lanes, .hm-hold .op-lanes * { animation-play-state: paused !important; }
+@keyframes hm-stamp { from { opacity: 0; transform: scale(1.4); } to { opacity: 1; transform: none; } }
+@keyframes hm-rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes hm-show { from { opacity: 0; } to { opacity: 1; } }
+
+.op.op-ld { position: absolute; inset: 0; z-index: 60; display: block; background: transparent; overflow: hidden; cursor: pointer; }
+.op.op-ld .op-cover { position: absolute; inset: 0; background: var(--hm-paper); }
+.op.op-ld:not(.op-wait) .op-cover { animation: hm-gone 0.2s ease-out forwards; }
+.op.op-ld .op-skip {
+  position: absolute; right: max(12px, env(safe-area-inset-right)); left: auto; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 3;
+  padding: 7px 10px; background: var(--hm-ink); color: var(--hm-paper); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none;
+}
+.op.op-ld:not(.op-wait) .op-skip { animation: hm-gone 0.3s 1.7s forwards; }
+.op.op-ld.op-wait .op-skip { visibility: hidden; }
+.op.op-ld.op-leave { animation: opx-out 0.28s ease-in-out forwards; }
+@keyframes hm-gone { to { opacity: 0; } }
+/* The lanes start below the bar, filling the screen, and fold into the band (--lt, --ll, --lw, --lh: the band's place). */
+.op-lanes.hm-lanes { position: absolute; z-index: 2; overflow: hidden; animation: hm-fold 0.55s 1.3s cubic-bezier(0.6, 0, 0.3, 1) both; }
+.op-lanes .hm-lane { animation: hm-drop 0.42s cubic-bezier(0.3, 1.25, 0.5, 1) both; animation-delay: calc(var(--i) * 0.1s); }
+.op-lanes .hm-lane i { animation: hm-fruit 1.85s both; }
+@keyframes hm-fold {
+  from { top: var(--lt); left: 0; width: 100%; height: var(--h0); }
+  to { top: var(--lt); left: var(--ll); width: var(--lw); height: var(--lh); }
+}
+@keyframes hm-drop { from { transform: translateY(-100%); } to { transform: none; } }
+@keyframes hm-fruit {
+  0%, 27% { transform: scale(0); } 40% { transform: scale(2.6); } 47%, 70% { transform: scale(2.2); } 100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-intro .home.hm *, .op.op-ld .op-skip { animation: none !important; }
+  .op-lanes { display: none; }
+}

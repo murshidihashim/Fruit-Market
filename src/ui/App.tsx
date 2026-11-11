@@ -171,6 +171,7 @@ function Main() {
     <>
       <Shopfront
         resume={resumable ? `Day ${game!.day}/${game!.config.days}` : null}
+        cash={resumable && humans.length === 1 ? humans[0].cash : null}
         dailyLine={`${daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}${streak ? ` · ${streak}-day streak` : ''}`}
         leagueLine={league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
         today={today}

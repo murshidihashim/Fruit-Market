@@ -2046,6 +2046,31 @@
         "REP-096"
       ],
       "reviewTrigger": "If playtests show the hidden crate adds guessing but no decisions, if people want the shelf count back, or if computer stalls become too easy to fool"
+    },
+    {
+      "id": "DEC-083",
+      "title": "Home screen A (Ticket Booth) and the Lane Drop opening",
+      "question": "Which home screen and opening fit the Market Ticket redesign?",
+      "choice": "Home A, Ticket Booth, with the fruit band from mockup C kept small (44 px plus a 3 px rule), drawn with the game's own fruit icons on paper squares; opening 1, Lane Drop (about 2.45 seconds, tap to skip, still for reduced motion). It replaces the Market square home (DEC-071) and the Lorry arrives opening (DEC-072).",
+      "rationale": "Owner: \"go with A but incorporate the fruit design used in design C ... but dont make it too big\", then \"ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live\".",
+      "impact": {
+        "player": "A new-looking home and opening; every button and pop-up does the same as before.",
+        "technical": "Home.tsx, Opening.tsx, booth.css (square.css removed), App.tsx.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live",
+        "date": "2026-11-11"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-074",
+      "reports": [
+        "REP-097"
+      ],
+      "reviewTrigger": "If players miss the old market street, or the opening feels slow on repeat visits"
     }
   ],
   "history": [
@@ -2904,6 +2929,10 @@
     {
       "at": "2026-11-11 02:22",
       "text": "Release 1.17.0 published (PLAN-069 to PLAN-073): main e322183, CI run 42871185888 PASS, Deploy LIVE game run 35; live smoke test PASS; tagged v1.17.0."
+    },
+    {
+      "at": "2026-11-11 11:10",
+      "text": "Owner chose home A (Ticket Booth, small fruit band with the game's fruit icons) and opening 1 (Lane Drop) and approved publication: \"push it to live\" (PLAN-074, DEC-083, REP-097). verify PASS (437 tests). Release 1.18.0 prepared."
     }
   ]
 }
