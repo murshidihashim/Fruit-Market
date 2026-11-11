@@ -1,0 +1,130 @@
+/* =====================================================================
+   The Market Ticket look for the pop-ups around the game table (PLAN-076): the pop-up boxes (Play full screen?,
+   Paused, Continue, Play a friend, New game), the New game screen and its shopkeeper cards, The Bell notice, today's
+   news and a customer's ticket. Ink, paper, kraft and mustard; square corners; one black button with mustard type.
+   Imported after ticket.css, so these rules win over the older rounded styles in styles.css and cards.css.
+   Colours come from palette.css only.
+   ===================================================================== */
+
+/* ---------- every pop-up box ---------- */
+#app .modal-bg { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
+#app .modal {
+  gap: 10px; padding: 18px 16px 16px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 3px var(--x-ink), 0 10px 0 rgba(0, 0, 0, 0.18);
+}
+#app .modal h2, #app .modal h3 { margin: 0; font: 400 1.5rem/1.05 var(--f-display); letter-spacing: 0; text-transform: uppercase; color: var(--x-ink); text-shadow: none; }
+#app .modal p, #app .modal .muted, #app .modal small { color: var(--x-ink); }
+#app .modal .btn {
+  min-height: 52px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
+  font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
+#app .modal .btn.primary { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.25rem/1.05 var(--f-display); letter-spacing: 0.02em; }
+#app .modal .btn.primary small, #app .modal .btn.primary .btn-sub { color: var(--x-paper); }
+#app .modal .btn:disabled { opacity: 0.45; }
+#app .modal .btn:active:not(:disabled) { transform: translateY(2px); }
+#app .modal .link-btn { min-height: 44px; color: var(--x-ink); font: 700 0.8125rem/1 var(--f-label); text-decoration: underline; text-underline-offset: 3px; }
+#app .modal .input {
+  min-height: 48px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
+  font: 600 1rem/1.2 var(--f-label);
+}
+#app .modal .input:focus { outline: 3px solid var(--x-mustard); outline-offset: 0; }
+#app .modal .popup-info { border: 0; border-radius: 0; background: var(--x-wood); }
+#app .modal .popup-opt small { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }
+
+/* the title row of a home pop-up, with a square close button */
+#app .popup-hd { padding-bottom: 10px; border-bottom: 3px solid var(--x-ink); }
+#app .popup .icon-btn {
+  width: 44px; height: 44px; flex: none; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
+  font: 400 1.5rem/1 var(--f-label);
+}
+
+/* Play full screen? */
+#app .fs-ask { max-width: 360px; }
+
+/* ---------- New game ---------- */
+#app .setup-body .panel { padding: 12px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
+#app .setup-body .panel h3 {
+  display: block; margin: 0 0 8px; padding: 0; border: 0; background: none; font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--x-ink);
+}
+#app .setup-body .panel h3::before, #app .setup-body .panel h3::after { display: none; }
+#app .setup-body .panel h3.next { margin-top: 14px; }
+#app .setup-body .seg button, #app .setup-body .seat-tile {
+  border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
+  font: 800 0.8125rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
+}
+#app .setup-body .seg button small { display: block; margin-top: 3px; font: 600 0.6875rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
+#app .setup-body .seg button.on { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); }
+#app .setup-body .seg button.on small { color: var(--x-paper); }
+#app .setup-body .seat-tile .st-n { color: var(--x-slate); }
+#app .setup-body .seat-tile .st-k { font: 400 0.9375rem/1.1 var(--f-display); }
+#app .setup-body .seat-tile .st-l { font-weight: 700; letter-spacing: 0.04em; color: var(--x-slate); }
+#app .setup-body .seat-tile.on { background: var(--x-mustard); }
+#app .setup-body .seat-tile.add { box-shadow: inset 0 0 0 2px var(--x-slate); color: var(--x-slate); background: transparent; }
+#app .setup-body .seat-sheet { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-wood); }
+#app .setup-body .seat-done, #app .setup-body .seat-remove { border-radius: 0; font-family: var(--f-label); font-weight: 800; }
+#app .setup-body .shop-total { font-weight: 700; }
+#app .popup .sticky-start { padding-top: 12px; background: linear-gradient(transparent, var(--x-paper) 35%); }
+
+/* the shopkeeper carousel: each card drawn as a ticket */
+#app .cp-card .x-ss { gap: 0; padding: 3px; border: 0; border-radius: 0; background: var(--x-paper); box-shadow: inset 0 0 0 3px var(--x-ink); }
+#app .cp-card .x-ss.is-selected { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 5px var(--x-mustard); }
+#app .cp-card .x-ss-head { height: 5.4em; padding: 0.5em 0.7em; border: 0; border-radius: 0; background: var(--x-ink); }
+#app .cp-card .x-ss .x-ss-badge { width: 4.2em; height: 4.2em; border-color: var(--x-paper); }
+#app .cp-card .x-ss-name { font: 400 2.9em/1.05 var(--f-display); text-transform: uppercase; color: var(--x-paper); }
+#app .cp-card .x-ss-name.x-long { font-size: 2.1em; }
+#app .cp-card .x-ss-scene { border: 0; border-radius: 0; }
+#app .cp-card .x-ss-chalk { height: auto; min-height: 9em; border: 0; border-radius: 0; box-shadow: none; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); }
+#app .cp-card .x-ss-chalk b { font: 800 1.4em/1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+#app .cp-card .x-ss-chalk p { margin-top: 0.35em; font: 600 1.35em/1.2 var(--f-label); color: var(--x-ink); }
+#app .cp-card .x-ss-taken { border-radius: 0; background: var(--x-paper); }
+#app .cp-quip { font: italic 700 0.9375rem/1.25 var(--f-label); color: var(--x-red-d); }
+#app .cp-arrow { border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 400 1.5rem/1 var(--f-label); }
+#app .cp-hint { color: var(--x-ink); }
+#app .cp-dots i { height: 8px; border-radius: 0; background: var(--x-wood-d); }
+#app .cp-dots i.on { background: var(--x-ink); }
+
+/* ---------- The Bell notice ---------- */
+#app .bell-notice { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
+#app .bell-notice .bn-card {
+  gap: 0; padding: 0; border: 0; border-radius: 0; background: var(--x-paper); background-image: none; color: var(--x-ink);
+  box-shadow: inset 0 0 0 3px var(--x-ink), 0 10px 0 rgba(0, 0, 0, 0.18); overflow: hidden;
+}
+#app .bell-notice .bn-pin { display: none; }
+#app .bell-notice .bn-ban {
+  position: static; transform: none; display: block; padding: 12px 14px; border: 0; box-shadow: none; background: var(--x-ink); color: var(--x-mustard);
+  font: 400 1.5rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: normal;
+}
+#app .bell-notice .bn-rules { gap: 0; padding: 4px 14px 12px; }
+#app .bell-notice .bn-rules li {
+  grid-template-columns: 30px minmax(0, 1fr); gap: 10px; min-height: 48px; padding: 6px 0; border: 0; border-bottom: 2px solid var(--x-ink); border-radius: 0;
+  background: transparent; font: 700 0.875rem/1.3 var(--f-label);
+}
+#app .bell-notice .bn-rules li:last-child { border-bottom: 0; }
+#app .bell-notice .bn-badge { width: 30px; height: 30px; border: 0; border-radius: 0; background: var(--x-mustard); }
+#app .bell-notice .bn-card > .btn { margin: 0 14px 14px; width: auto; }
+
+/* ---------- today's news, full screen: in the middle of the screen ---------- */
+#app .tkt .event-sheet { justify-content: center; align-items: stretch; }
+#app .tkt .event-sheet > * { width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+/* the morning card's own reset (ticket.css) drops the auto margins that keep the sheet's content in the middle */
+#app .tkt .event-sheet > :first-child { margin-top: auto; }
+#app .tkt .event-sheet > :last-child { margin-bottom: auto; }
+
+/* ---------- a customer's ticket, large: the freshness key under it ---------- */
+#app .tkt .tip-card-pop .tip-notes { display: flex; flex-direction: column; gap: 6px; }
+#app .tkt .tip-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0; padding: 0; list-style: none; }
+#app .tkt .tip-legend li { display: inline-flex; align-items: center; gap: 5px; font: 700 0.8125rem/1 var(--f-label); color: var(--x-ink); }
+
+/* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
+#app .game.gx.tkt { transition: background-color 0.7s ease; }
+#app .tkt > .centre > .tk-night { animation: tk-dusk 0.6s ease-in both; }
+#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in 0.45s 0.55s ease-out both; }
+#app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
+#app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
+@keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }
+@keyframes tk-dusk-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  #app .game.gx.tkt { transition: none; }
+  #app .tkt > .centre > .tk-night, #app .tkt > .centre > .tk-night > * { animation: none; }
+}

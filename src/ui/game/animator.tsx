@@ -197,9 +197,10 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
 export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
   setNight(true);
   fx.night();
-  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071).
-  await A.wait(500);
-  await A.hold(1500);
+  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071). Dusk falls
+  // over the market for 0.7 s, then the slide starts at 0.95 s and takes 1.5 s, slow enough to watch (PLAN-076).
+  await A.wait(800);
+  await A.hold(2500);
   const heat = g.event?.ageExtra ?? 0;
   const jobs: Promise<void>[] = [];
   let d = 0;

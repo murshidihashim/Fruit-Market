@@ -1,10 +1,10 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
-import { FAVOURS, FRUIT, PREF_INFO, lookOf } from '../../../engine/data';
+import { FAVOURS, FRUIT, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { FavourIcon } from '../../art';
-import { Ticket } from '../../ticket';
+import { Lamp, Ticket } from '../../ticket';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
@@ -67,8 +67,12 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
       <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
-        {tip.pref && <small class="tip-pref"><b>{PREF_INFO[tip.pref].title}:</b> {PREF_INFO[tip.pref].text}</small>}
-        <small>Each price is the most they pay for one fresh fruit. Older fruit sells for less: ${FRUIT.apple.drop[1]} less when okay, ${FRUIT.apple.drop[0]} less when soft (the letters on your shelf). Tap to close.</small>
+        {/* The ticket already says who buys what freshness; this is only the key to the prices (PLAN-076). */}
+        <ul class="tip-legend" aria-label="Price by freshness">
+          <li><Lamp stage="fresh" /> Full price</li>
+          <li><Lamp stage="okay" /> ${FRUIT.apple.drop[1]} less</li>
+          <li><Lamp stage="notso" /> ${FRUIT.apple.drop[0]} less</li>
+        </ul>
       </div>
     </div>
   )}

@@ -1,7 +1,9 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
 import { useMemo } from 'preact/hooks';
-import { buyLimit, canBuy, publicView, type GameState } from '../engine/game';
+import { buyLimit, canBuy, isDraftNight, nightOutlook, publicView, type GameState } from '../engine/game';
+import { heatwaveLine, tonightText } from '../engine/story';
+import { FAVOURS } from '../engine/data';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
@@ -111,6 +113,12 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
   // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
+  // The evening (PLAN-076): the Wholesale Market stays in view until you tap Lights out. The evening panel covers it
+  // only when there is something to decide (an upgrade after a Market Day, Shade Cloth's fruit, an evening favour);
+  // tonight's warning sits on the market instead. The night plays once every stall has tapped Lights out.
+  const evPl = s.players[active];
+  const eveningChoices = s.phase === 'evening' && !!evPl
+    && (isDraftNight(s) || evPl.trait === 'keeper' || evPl.favours.some((f) => FAVOURS[f].when === 'evening'));
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} />;
@@ -125,13 +133,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
     if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;
     if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
-    if (s.phase === 'evening' && activeHuman && !busy) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
+    if (s.phase === 'evening' && activeHuman && !busy && eveningChoices) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
     return null;
   })();
   const offSeats = offline.map((x) => x.seat);
 
+  // A tap on the table speeds up the animation playing (PLAN-076: not the tap on the button that starts one, such as
+  // Lights out, which used to skip the whole night when you were the last stall to close).
   return (
-    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={() => busyRef.current && A.hurryUp()}>
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={(e) => busyRef.current && !(e.target as Element).closest?.('button') && A.hurryUp()}>
       <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
@@ -162,6 +172,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class={`centre ${mid ? 'covered' : ''}`}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
+          note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, active) : undefined}
           onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
@@ -180,4 +191,11 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} />
     </div>
   );
+}
+
+/** The evening's warning on the market (PLAN-076), as the evening panel words it: what spoils or turns to juice tonight. */
+function eveningNote(s: GameState, p: number): { text: string; good: boolean } | undefined {
+  const night = nightOutlook(s, p);
+  const text = [tonightText(night), heatwaveLine(s, p)].filter(Boolean).join(' ');
+  return text ? { text, good: night.spoil === 0 && !heatwaveLine(s, p) } : undefined;
 }
