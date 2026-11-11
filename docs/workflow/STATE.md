@@ -1,8 +1,14 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 22:46 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 23:39 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 22:46): review under rules 17 done; proposal awaits decisions (PLAN-078, REP-101)
+## Latest (2026-11-11 23:39): REP-101 decided; rules version 18 build in progress (PLAN-079, DEC-086, DEC-087)
+- **Owner decisions:** one release for everything; $5 top-up for an empty-shelf stall under $5; the balance set item by item; staked standing orders (simulate first); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; plain voice with a Malaysian market feel; Stocking skipped with nothing ripe, evenings only with a choice, a faster rush; trophies fitted to the rules.
+- **Open with the owner:** when Favoured Trade is played (pros and cons given); table freshness tracking (mock-ups of two options).
+- **Active package:** PLAN-079, rules 18 engine build. Then: text (DEC-087), screens and one card design (mock-ups first), trophies, the whole print kit from the repo. One release at the end.
+- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; rules 17 and the update pack unpublished; live is 1.19.1 with the defects listed in REP-101.
+
+## Earlier (2026-11-11 22:46): review under rules 17 done; proposal (PLAN-078, REP-101)
 - **Owner request:** simulate and playtest, find balance changes, exact deck and rule analysis, thoughtful screens with cards matching print, text audit, then regenerate the print kit; "prompt me for any required decision".
 - **Done (documents only):** four studies in `docs/studio/review-17` and the proposal REP-101: five packages (A fix now, B rules 18, C text, D screens and one card design, E print kit) and ten decisions.
 - **Live defects found (1.19.1):** first-game tip collapses Stocking and Pricing; Daily and League replace a saved game; "undefined" at 6 stalls; Mango Windfall green; stale How to play line; cropped portraits.

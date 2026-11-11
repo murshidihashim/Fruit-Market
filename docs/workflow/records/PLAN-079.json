@@ -1,0 +1,62 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-101"
+  ],
+  "decisions": [
+    "DEC-086"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
+    "date": "2026-11-11"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-079",
+  "title": "Rules version 18: build the approved balance set, the top-up, staked standing orders and the rulings",
+  "problem": "REP-101 found stalls knocked out at $0, two shopkeepers and three upgrades out of balance, the mango as the default buy, a standing-order fine that a broke winner does not pay, purchases that must be memorised, mango customers nobody can serve on days 1 and 2, and several rule gaps. The owner approved the changes in DEC-086.",
+  "scope": [
+    "src/engine (data, game, ai), src/net/protocol.ts (rules and computer-player versions), server/room.ts (what each phone may see)",
+    "The smallest screen changes the new rules need (standing-order stake, today's buys on rival boxes, the top-up line, skipped steps)",
+    "RULES.md, tests, a simulation of the built rules against the targets"
+  ],
+  "exclusions": [
+    "The text rewrite (DEC-087), the screen and card redesign, the trophies and the print kit: later packages",
+    "When Favoured Trade is played on the table and how freshness is tracked on the table: open decisions",
+    "Publishing"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes with tests for each rule change",
+      "result": "NOT RUN",
+      "evidence": "Build in progress"
+    },
+    {
+      "id": "T2",
+      "text": "Simulation of the built rules: shopkeepers against the 4-point target at 2, 3, 4 and 6 stalls; the stake; the top-up; the apple and event changes",
+      "result": "NOT RUN",
+      "evidence": "Build in progress"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests pass with 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "Build in progress"
+    },
+    {
+      "id": "T4",
+      "text": "Owner has played it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Not published"
+    }
+  ]
+}

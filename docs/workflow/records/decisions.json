@@ -2121,6 +2121,55 @@
         "REP-100"
       ],
       "reviewTrigger": "If rivals feel robbed when a low bid takes their crate pieces for $1 or $2, if open bidding makes everyone wait for each other, or if five upgrades on offer makes one upgrade the only choice"
+    },
+    {
+      "id": "DEC-086",
+      "title": "Rules version 18: the balance set, the $5 top-up, staked standing orders and the rulings",
+      "question": "Which of the changes proposed in REP-101 should be made to the rules and numbers?",
+      "choice": "One release for everything (no quick fix first). Out of cash: at dawn a stall with an empty shelf and less than $5 is topped up to $5. Shopkeepers: Tip Jar tips $1 when a customer you sold to leaves with their whole order and $2 if you served them alone; Nest Egg starts with $15; Sharp Ears tips $2 at 3 to 6 stalls ($1 at 2), peeks in the evening and is tipped once a day; Normal computers stop pricing as if they held the Haggler's tie-break. Upgrades: Juice Bar $6, Premium Display $5, Ripening Room $4, Order Book $3, Handcart $6; Ripening Room also makes green mangoes $1 cheaper; Order Book also pays $2 more a piece on a standing order. Fruit and decks: a green mango costs $4; Coral Mei, Magic Kumar and Professor Pebble pay $4 for a blueberry; Short Load's 3-stall row and Summer Run's apples are corrected; one more apple on five lorries at 3 to 6 stalls if simulation supports it. Standing orders: keep the open auction; the winner puts down a stake (the card's fine for one piece) when it wins, is paid its bid for each piece delivered, gets the stake back if it delivers everything and loses it otherwise; no other fine; rivals are not involved. To be simulated before it is final. What a rival bought today stays on show until the bell. No customer wants mango on days 1 and 2 (the first lorry stays random). Rulings: Juice Bar's +$1 counts only for sales to customers in the rush; Premium Display never raises a guest's fixed price; a Priority card beats Nest Egg on day 3 and only one Priority can be played each evening; the final tie is most cash, then most fruit sold, then a shared win; one favour deck of 12 at every table size; a guest joins the row even when it is full and Blueberry Glut also makes blueberries $1 cheaper to buy (both to be simulated first). Flow: Stocking is skipped with nothing ripe; an evening shows only when the stall has a choice; the rush shows one card per customer. Buying still ends with a tap. Trophies that cannot be earned are changed to fit the rules. Open: when Favoured Trade is played; how freshness is tracked on the table.",
+      "rationale": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
+      "impact": {
+        "player": "A stall can no longer be knocked out for the rest of the game; the mango becomes a gamble; weak perks and upgrades are worth choosing; an order risks a known stake, not an open-ended fine; less to remember; fewer empty taps.",
+        "technical": "Engine, computer players, server view, rulebook, tests; RULES_VERSION 17 to 18 and a new computer-player version.",
+        "data": "Unfinished games cannot be resumed; the daily board restarts; older apps must update to play online; the printed kit changes (cards, market mat, stall pieces)."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
+        "date": "2026-11-11"
+      },
+      "delivery": "not started",
+      "plan": "PLAN-079",
+      "reports": [
+        "REP-101"
+      ],
+      "reviewTrigger": "If the stake makes nobody bid, if players lean on the top-up, if the $4 mango makes mango orders unfillable, or if simulation after the build shows a shopkeeper more than 4 points from fair"
+    },
+    {
+      "id": "DEC-087",
+      "title": "The voice of the text: plain, with a Malaysian market feel",
+      "question": "What voice should the cards and the app use, and in what setting?",
+      "choice": "Plain and short across every card and screen: rules text in plain sentences, one short concrete line per character, no shouted headlines, puns or exclamation marks. Character lines and event names lean Malaysian (kenduri, pasar malam, kopitiam, kampung). This replaces the creative bible's \"sunny harbour market where the whole world comes to shop\" (DEC-017) as the setting. Character names stay.",
+      "rationale": "Owner: \"all text on card and in app needs to be audited as it feels too generated by AI for my likings, some arent needed\"; asked which direction, he chose \"Plain, with a Malaysian market feel\" over the plain voice in the current setting and over rules-only cards.",
+      "impact": {
+        "player": "Shorter cards and screens that read like a person wrote them; a local setting.",
+        "technical": "About 400 strings rewritten and 130 cut (docs/studio/review-17/text); one table of card text shared by app and print; CREATIVE-BIBLE.md updated.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"Plain, with a Malaysian market feel\"",
+        "date": "2026-11-11"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-101"
+      ],
+      "reviewTrigger": "If the owner finds the local wording overdone or wants the harbour setting back for an international edition"
     }
   ],
   "history": [
@@ -3019,6 +3068,10 @@
     {
       "at": "2026-11-11 22:46",
       "text": "Review under rules 17 finished (PLAN-078, REP-101): balance simulations, a playtest of the live game, an exact audit of the decks and rule interactions, a screen audit and a text audit, kept in docs/studio/review-17. Live defects found: the first-game tip collapses Stocking and Pricing; Daily and League replace a saved game; Mango Windfall delivers green. A proposal in five packages awaits the owner's decisions. No game change."
+    },
+    {
+      "at": "2026-11-11 23:39",
+      "text": "Owner decided the REP-101 proposal (DEC-086, DEC-087): one release for everything; the $5 top-up; the whole balance set item by item; staked standing orders (to be simulated); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; a plain voice with a Malaysian market feel; three empty steps removed; trophies fitted to the rules. Open: Favoured Trade timing; table freshness tracking (mock-ups asked for). PLAN-079 (rules 18 build) approved."
     }
   ]
 }
