@@ -88,6 +88,17 @@ def fat(fruit, cx, base, size, stage='fresh'):
     return fr(fruit, n(cx - size / 2), n(base - size * _BASE[fruit]), size, stage)
 
 
+def cloud(x, y, s=1.0, o=.9):
+    return P('M-52 18a18 18 0 0 1 8-34a26 26 0 0 1 48-8a20 20 0 0 1 34 14a14.5 14.5 0 0 1 4 28z', PAPER, o, f'translate({x} {y}) scale({s})')
+
+
+def rrects(items, w, h, r, f, o=None):
+    """Many rounded rectangles as one shape."""
+    one = lambda x, y: (f'M{x + r} {y}h{w - 2 * r}a{r} {r} 0 0 1 {r} {r}v{h - 2 * r}a{r} {r} 0 0 1 {-r} {r}h{-(w - 2 * r)}'
+                        f'a{r} {r} 0 0 1 {-r} {-r}v{-(h - 2 * r)}a{r} {r} 0 0 1 {r} {-r}z')
+    return P(''.join(one(x, y) for x, y in items), f, o)
+
+
 # ---------- quiet wall patterns (each one shape) ----------
 
 def pat_dots(f, o, r=5, dx=50, dy=44):
@@ -131,14 +142,16 @@ def pat_corrugated(f, o, step=24):
 
 # ---------- the stall ----------
 
-def awning(shade):
-    """Nine scallops along the top edge, ink and paper in turn as on the shopkeepers' existing pictures, and their shade on the wall."""
+def awning(shade, colour, fold):
+    """Nine scallops along the top edge, in the stall's awning colour and paper in turn (never ink: no dark bar across the
+    picture), with their shade on the wall. `fold` is the darker tone of the colour, for the small fold on each scallop."""
     p, x0, drop, r = 68, -6, 30, 34
     sc = lambda i: f'M{x0 + i * p} -12h{p}v{drop + 12}a{r} {r} 0 0 1 {-p} 0z'
-    dark = ''.join(sc(i) for i in range(0, 9, 2))
+    folds = lambda idx: ''.join(f'M{x0 + i * p + 15} 34a{r - 15} {r - 15} 0 0 0 {p - 30} 0' for i in idx)
+    strong = ''.join(sc(i) for i in range(0, 9, 2))
     light = ''.join(sc(i) for i in range(1, 9, 2))
-    return P(dark + light, shade, .5, 'translate(0 9)') + P(dark, INK) + P(light, PAPER) + \
-        L(''.join(f'M{x0 + i * p + 15} 34a{r - 15} {r - 15} 0 0 0 {p - 30} 0' for i in range(1, 9, 2)), PALE, 4)
+    return P(strong + light, shade, .5, 'translate(0 9)') + P(strong, colour) + P(light, PAPER) + \
+        L(folds(range(0, 9, 2)), fold, 4, .6) + L(folds(range(1, 9, 2)), PALE, 4)
 
 
 def counter(top=PALE, front=KRAFT, seam=STONE, seam_o=.7, y=338):
@@ -155,7 +168,7 @@ def crate(x, y, w, h, front=(), back=(), body=KRAFT, light=PALE, post=STONE):
     """A slatted crate with its top edge at y. front/back: (fruit, centre offset from x, size) for the two rows of fruit."""
     out = shadow(x, x + w, y + h) + ''.join(fat(f, x + cx, y - 14, s) for f, cx, s in back)
     out += ''.join(fat(f, x + cx, y + round(s * .15), s) for f, cx, s in front)
-    out += R(x, y, w, h, body) + R(x, y, w, 6, light) + R(x, y, 12, h, post) + R(x + w - 12, y, 12, h, post)
+    out += R(x, y, w, h, body) + R(x, y, w, 6, light) + P(f'M{x} {y}h12v{h}h-12zM{x + w - 12} {y}h12v{h}h-12z', post)
     y1, y2 = y + round(h / 3), y + round(2 * h / 3)
     out += L(f'M{x + 12} {y1}h{w - 24}M{x + 12} {y2}h{w - 24}', INK, 5, cap='butt')
     out += R(x + w / 2 - 20, y + round(h / 6) - 3, 40, 10, INK, rx=5)
@@ -163,7 +176,7 @@ def crate(x, y, w, h, front=(), back=(), body=KRAFT, light=PALE, post=STONE):
 
 
 SHOULDERS = 'M126 400v-66c0-36 30-60 66-60h216c36 0 66 24 66 60v66z'
-EYES = C(270, 190, 9, INK) + C(330, 190, 9, INK) + C(273, 187, 3, PAPER) + C(333, 187, 3, PAPER)
+EYES = discs([(270, 190), (330, 190)], 9, INK) + discs([(273, 187), (333, 187)], 3, PAPER)
 EYES_SMILING = L('M254 196q16-20 32 0M314 196q16-20 32 0', INK, 7)
 GLASSES = ring(270, 190, 22, INK) + ring(330, 190, 22, INK) + L('M293 188q7-5 14 0', INK, 5)
 SMILE = P('M271 232q29 7 58 0-6 18-29 18t-29-18z', PAPER)
@@ -176,15 +189,16 @@ def person(skin, top, back='', clothes='', hair='', face=''):
     """The bust: head of radius 82 on (300, 196), shoulders off the bottom edge. Pieces are layered in this order."""
     s, sh = SKINS[skin]
     return back + P(SHOULDERS, top) + clothes + R(274, 250, 52, 36, sh) + C(300, 196, 82, s) + \
-        C(238, 216, 13, RED_L, .45) + C(362, 216, 13, RED_L, .45) + hair + face
+        discs([(238, 216), (362, 216)], 13, RED_L, .45) + hair + face
 
 
 def shelf(x, y, w, plank=KRAFT, under=STONE):
     return R(x, y, w, 10, plank) + R(x, y + 10, w, 4, under) + P(f'M{x + 14} {y + 14}h10v16zM{x + w - 14} {y + 14}h-10v16z', under)
 
 
-def scene(wall, pattern, disc, shade, props, body, top=PALE, front=KRAFT, seam=STONE, seam_o=.7, things='', disc_o=None):
-    return svg(600, 400, R(0, 0, 600, 400, wall) + pattern + C(300, 196, 172, disc, disc_o) + props + awning(shade) + body +
+def scene(wall, pattern, disc, shade, props, body, top=PALE, front=KRAFT, seam=STONE, seam_o=.7, things='', disc_o=None,
+          awn=(RED, RED_D)):
+    return svg(600, 400, R(0, 0, 600, 400, wall) + pattern + C(300, 196, 172, disc, disc_o) + props + awning(shade, *awn) + body +
                counter(top, front, seam, seam_o) + things)
 
 
@@ -206,7 +220,7 @@ SHOPS['rosa'] = scene(
     body=person(
         'tan', PAPER, back=P(LONG_HAIR, INK),
         clothes=L('M258 277q42 32 84 0', PALE, 6),
-        hair=C(218, 230, 12, RED) + C(382, 230, 12, RED) + P(FRINGE, INK) + star(366, 124, 34, 15, 8, RED, 10) + C(366, 124, 10, PAPER),
+        hair=discs([(218, 230), (382, 230)], 12, RED) + P(FRINGE, INK) + star(366, 124, 34, 15, 8, RED, 10) + C(366, 124, 10, PAPER),
         face=EYES + SMILE) +
     # her arm, the price tag and her hand
     R(122, 272, 44, 96, PAPER, rx=20, t='rotate(-3 144 300)') + R(124, 290, 40, 9, PALE, rx=4, t='rotate(-3 144 300)') +
@@ -230,15 +244,15 @@ SHOPS['benny'] = scene(
     L('M500 30v50', INK, 4) + C(500, 106, 10, YEL) + P('M474 106l9-28h34l9 28z', INK),
     body=person(
         'light', INK, clothes=R(228, 292, 144, 110, PAPER),
-        hair=P('M206 176C196 118 244 84 302 84c58 0 106 32 114 84q-104-20-210 8z', INK) + L('M218 165q94-20 190-5', PAPER, 8, cap='butt') +
-        P('M352 150c30 2 56 6 68 12 16 8 28 18 34 30-34 6-72 2-98-12z', INK),
+        hair=P('M206 176C196 118 244 84 302 84c58 0 106 32 114 84q-104-20-210 8z', INK) + L('M217 166q95-22 198-5', PAPER, 8, cap='butt') +
+        P('M348 162c28 0 56 2 72 7 16 7 30 16 36 26-34 6-74 2-104-13z', INK),
         face=EYES + P('M214 206c6 22 28 38 52 40 14 1 24-6 34-6s20 7 34 6c24-2 46-18 52-40 6 40-4 76-28 100-16 16-38 26-58 26s-42-10-58-26c-24-24-34-60-28-100z', INK) +
         C(300, 224, 19, RED) + C(294, 218, 5, RED_L) + P('M274 276q26 6 52 0-5 14-26 14t-26-14z', PAPER)),
     things=
     crate(42, 296, 138, 58, front=[('apple', 28, 50), ('watermelon', 69, 54), ('apple', 110, 50)]) +
     # the big basket, heaped with fruit
-    shadow(408, 542, 360) + L('M404 292C404 136 546 136 546 292', YEL_D, 11) +
-    fat('mango', 475, 226, 56) + fat('watermelon', 446, 262, 66) + fat('apple', 508, 266, 58) +
+    shadow(408, 542, 360) + L('M398 296c-16 0-16 24 0 24M552 296c16 0 16 24 0 24', YEL_D, 8) +
+    fat('mango', 488, 246, 58) + fat('watermelon', 446, 268, 66) + fat('apple', 520, 272, 58) +
     fat('apple', 426, 304, 60) + fat('blueberry', 476, 304, 56) + fat('mango', 524, 304, 62) +
     P('M394 292h162l-14 60a10 10 0 0 1-10 8H418a10 10 0 0 1-10-8z', YEL_D) +
     L('M401 314h148M405 334h140', ORANGE, 4, .8, 'butt') + L('M435 300v56M475 300v56M515 300v56', ORANGE, 4, .5, 'butt') +
@@ -246,8 +260,8 @@ SHOPS['benny'] = scene(
 
 # ---------- Ah Chen: the Charmer holds four favour cards, with a small gift (blue stall) ----------
 skin = SKINS['light'][0]
-cards = ''.join(G(f'rotate({a} 460 268)', R(438, 178, 38, 56, KRAFT, rx=5) + R(441, 178, 38, 56, PAPER, rx=5) + heart(460, 198, 8, RED) +
-                  L('M452 218h16', STONE, 5)) for a in (-34, -10, 14, 38))
+cards = ''.join(G(f'rotate({a} 452 268)', R(430, 178, 38, 56, KRAFT, rx=5) + R(433, 178, 38, 56, PAPER, rx=5) + heart(452, 200, 9, RED))
+                for a in (-33, -13, 7, 27))
 SHOPS['chen'] = scene(
     BLU, pat_lattice(BLU_D, .55), BLU_L, BLU_D,
     props=
@@ -263,8 +277,8 @@ SHOPS['chen'] = scene(
         hair=P('M219 192C230 150 266 136 300 136s70 14 81 56c-18-22-50-30-81-30s-63 8-81 30z', INK) + L('M322 98l30-4', INK, 5) +
         C(300, 106, 30, INK) + C(354, 100, 16, PAPER) + C(354, 100, 8, RED),
         face=EYES_SMILING + SMILE) +
-    R(438, 272, 44, 96, RED, rx=20, t='rotate(3 460 300)') + R(440, 288, 40, 9, RED_D, rx=4, t='rotate(3 460 300)') +
-    L('M437 304l2 36', RED_D, 5) + cards + C(460, 266, 22, skin) + E(444, 252, 9, 14, skin, t='rotate(-28 444 252)'),
+    R(430, 272, 44, 96, RED, rx=20, t='rotate(3 452 300)') + R(432, 288, 40, 9, RED_D, rx=4, t='rotate(3 452 300)') +
+    L('M429 304l2 36', RED_D, 5) + cards + C(452, 266, 22, skin) + E(436, 252, 9, 14, skin, t='rotate(-28 436 252)'),
     things=
     crate(42, 290, 140, 64, front=[('apple', 28, 52), ('mango', 71, 56), ('watermelon', 114, 54)], back=[('mango', 50, 46), ('apple', 94, 46)]) +
     # the gift
@@ -274,7 +288,7 @@ SHOPS['chen'] = scene(
 # ---------- Saleh: Nest Egg, a cash tin and saved coins (yellow stall) ----------
 beads = [(x, y) for x in (458, 478, 498, 518, 538) for y in (122, 136, 150)]
 SHOPS['saleh'] = scene(
-    YEL, pat_checker(YEL_L, .45), YEL_L, YEL_D,
+    YEL, pat_checker(YEL_L, .45), YEL_L, YEL_D, awn=(BLU, BLU_D),
     props=
     # a tear-off calendar
     C(102, 80, 4, INK) + R(64, 84, 76, 20, RED, rx=3) + R(64, 100, 76, 76, PAPER) + discs([(82, 93), (122, 93)], 4, PAPER) +
@@ -283,7 +297,7 @@ SHOPS['saleh'] = scene(
     # an abacus
     C(496, 80, 4, INK) + R(436, 84, 120, 82, RED_D, rx=5) + R(444, 92, 104, 66, PALE) +
     L('M458 92v66M478 92v66M498 92v66M518 92v66M538 92v66', INK, 3, cap='butt') + R(444, 108, 104, 5, RED_D) +
-    discs([(458, 100), (498, 100), (538, 100)], 7, RED) + discs([(478, 101), (518, 101)], 7, RED) + discs(beads, 7, BLU),
+    discs([(458, 100), (478, 101), (498, 100), (518, 101), (538, 100)], 7, RED) + discs(beads, 7, BLU),
     body=person(
         'tan', PAPER,
         clothes=P('M274 277l-22 6 30 30 18-22zM326 277l22 6-30 30-18-22z', PALE) + P('M300 290l28 48h-56z', BLU) + R(290, 284, 20, 13, BLU_D, rx=4),
@@ -291,11 +305,13 @@ SHOPS['saleh'] = scene(
         face=EYES + GLASSES + P(MOUSTACHE, INK)),
     things=
     # the cash tin, open, with notes and coins inside
-    shadow(66, 178, 356) + shadow(188, 228, 356) + P('M74 268h96l8 34H66z', BLU_D) + R(84, 276, 44, 30, GRN_L, rx=3, t='rotate(-10 106 290)') + R(104, 272, 44, 34, GRN, rx=3, t='rotate(8 126 290)') +
-    L('M114 284h24', GRN_L, 5) + C(152, 292, 12, YEL) + C(152, 292, 7, YEL_D) +
-    R(66, 300, 112, 56, BLU, rx=6) + R(66, 300, 112, 7, BLU_L, rx=3) + R(112, 314, 20, 24, YEL, rx=4) + C(122, 322, 4, INK) + R(120.5, 322, 3, 10, INK) +
-    # a stack of coins
-    R(188, 318, 40, 38, YEL_D, rx=5) + ''.join(R(188, y, 40, 7, YEL, rx=3.5) for y in (318, 328, 338, 348)) + E(208, 318, 20, 6, YEL_L) +
+    G('translate(20 0)',
+      shadow(66, 178, 356) + shadow(188, 228, 356) + P('M74 268h96l8 34H66z', BLU_D) +
+      R(84, 276, 44, 30, GRN_L, rx=3, t='rotate(-10 106 290)') + R(104, 272, 44, 34, GRN, rx=3, t='rotate(8 126 290)') +
+      L('M114 284h24', GRN_L, 5) + C(152, 292, 12, YEL) + C(152, 292, 7, YEL_D) +
+      R(66, 300, 112, 56, BLU, rx=6) + R(66, 300, 112, 7, BLU_L, rx=3) + R(112, 314, 20, 24, YEL, rx=4) + C(122, 322, 4, INK) + R(120.5, 322, 3, 10, INK) +
+      # a stack of coins
+      R(188, 318, 40, 38, YEL_D, rx=5) + rrects([(188, y) for y in (318, 328, 338, 348)], 40, 7, 3.5, YEL) + E(208, 318, 20, 6, YEL_L)) +
     crate(414, 286, 146, 68, front=[('blueberry', 28, 52), ('apple', 74, 58), ('watermelon', 120, 56)], back=[('apple', 52, 48), ('blueberry', 98, 44)]))
 
 # ---------- Raj: Bargain Hunter, a marked-down tag (kraft stall) ----------
@@ -313,30 +329,32 @@ SHOPS['raj'] = scene(
     things=
     crate(42, 296, 138, 58, front=[('apple', 28, 50), ('watermelon', 69, 54), ('apple', 110, 50)], body=GRN, light=GRN_L, post=GRN_D) +
     # the marked-down tag on its stake
-    L('M486 300v-70', INK, 5) + burst(486, 184, 58, YEL) +
-    G('rotate(-6 486 184)', R(450, 158, 72, 54, PAPER, rx=5) + L('M462 174h30', INK, 6) + L('M458 182l38-16', RED, 4) +
-      L('M462 196h22', RED, 7) + L('M506 168v26', RED, 6) + P('M496 190h20l-10 14z', RED)) +
+    G('translate(-28 0)', L('M486 300v-70', INK, 5) + burst(486, 184, 58, YEL) +
+      G('rotate(-6 486 184)', R(450, 158, 72, 54, PAPER, rx=5) + L('M462 174h30', INK, 6) + L('M458 182l38-16', RED, 4) +
+        L('M462 196h22', RED, 7) + L('M506 168v26', RED, 6) + P('M496 190h20l-10 14z', RED))) +
     crate(410, 288, 150, 66, front=[('mango', 30, 56), ('blueberry', 76, 52), ('mango', 122, 56)], body=RED, light=RED_L, post=RED_D))
 
 # ---------- Kiki: Tip Jar (red stall) ----------
-flags = ''
+flags = {YEL: '', PAPER: ''}
 for i, t in enumerate((.05, .13, .21, .29, .71, .79, .87, .95)):
     x, y = 30 + 540 * t, 70 + 260 * t * (1 - t)
-    slope = math.degrees(math.atan2(260 * (1 - 2 * t), 540))
-    flags += P('M-15 0h30l-15 34z', YEL if i % 2 == 0 else PAPER, t=f'translate({n(x)} {n(y)}) rotate({n(slope)})')
+    a = math.atan2(260 * (1 - 2 * t), 540)
+    turn = lambda px, py: f'{n(x + px * math.cos(a) - py * math.sin(a))} {n(y + px * math.sin(a) + py * math.cos(a))}'
+    flags[YEL if i % 2 == 0 else PAPER] += f'M{turn(-15, 0)}L{turn(15, 0)}L{turn(0, 34)}z'
+flags = P(flags[YEL], YEL) + P(flags[PAPER], PAPER)
 coins = [(440, 338), (462, 342), (484, 338), (451, 322), (474, 324), (462, 306)]
 SHOPS['kiran'] = scene(
-    RED, pat_bands(RED_D, .3), RED_L, RED_D,
+    RED, pat_bands(RED_D, .3), RED_L, RED_D, awn=(YEL, YEL_D),
     props=L('M30 70Q300 200 570 70', INK, 3) + flags,
     body=person(
         'deep', PAPER, back=P(LONG_HAIR, INK),
         clothes=L('M258 277q42 32 84 0', PALE, 6),
-        hair=C(218, 230, 12, YEL) + C(382, 230, 12, YEL) + P(FRINGE, INK),
+        hair=discs([(218, 230), (382, 230)], 12, YEL) + P(FRINGE, INK),
         face=EYES + SMILE),
     things=
     crate(42, 290, 142, 64, front=[('blueberry', 28, 52), ('mango', 72, 56), ('watermelon', 116, 54)], back=[('mango', 50, 46), ('blueberry', 96, 42)]) +
     # the tip jar, a coin dropping in
-    shadow(414, 498, 356) + L('M444 196v-12M456 190v-14M468 196v-12', PAPER, 4, .8) + C(456, 218, 14, YEL) + C(456, 218, 8, YEL_D) +
+    shadow(414, 498, 356) + L('M444 210v-12M456 204v-14M468 210v-12', PAPER, 4, .8) + C(456, 232, 14, YEL) + C(456, 232, 8, YEL_D) +
     R(426, 246, 60, 26, BLU_L, rx=6) + R(414, 262, 84, 94, BLU_L, rx=16) + R(420, 240, 72, 12, PAPER, rx=6) +
     discs(coins, 11, YEL) + discs(coins, 6, YEL_D) + C(456, 284, 15, PAPER) + heart(456, 285, 7, RED) + L('M426 280v50', PAPER, 5, .6) +
     # a counter bell
@@ -345,8 +363,8 @@ SHOPS['kiran'] = scene(
 
 # ---------- Pak Din: Shade Cloth over his fruit (green stall) ----------
 SHOPS['pakdin'] = scene(
-    GRN, pat_weave(GRN_D, .5), GRN_L, GRN_D,
-    props=burst(100, 122, 50, YEL) + C(100, 122, 27, YEL_L),
+    GRN, pat_weave(GRN_D, .5), GRN_L, GRN_D, awn=(YEL, YEL_D),
+    props=burst(102, 132, 48, YEL) + C(102, 132, 26, YEL_L),
     body=person(
         'tan', PAPER,
         clothes=L('M258 277q42 32 84 0', PALE, 6) + L('M300 296v44', PALE, 5),
@@ -366,7 +384,7 @@ SHOPS['pakdin'] = scene(
 # ---------- Farah: Sharp Ears, a hand to her ear (blue stall) ----------
 skin, shade = SKINS['deep']
 SHOPS['farah'] = scene(
-    BLU, pat_corrugated(BLU_D, .5), BLU_L, BLU_D,
+    BLU, pat_corrugated(BLU_D, .5), BLU_L, BLU_D, awn=(YEL, YEL_D),
     props=
     # a shelf with jars and a bottle
     shelf(44, 152, 126) + R(58, 108, 34, 44, PAPER, rx=6) + R(56, 101, 38, 9, RED, rx=3) + L('M67 128h16', INK, 5) +
@@ -383,29 +401,18 @@ SHOPS['farah'] = scene(
     person(
         'deep', INK,
         clothes=R(246, 306, 108, 96, PAPER) + L('M252 308l22-32M348 308l-22-32', PAPER, 9, cap='butt'),
-        hair=L('M218 232a82 86 0 0 1 164 0', INK, 15, cap='butt') + C(218, 232, 12, YEL) + C(382, 232, 12, YEL),
+        hair=P('M210.5 232a89.5 93.5 0 0 1 179 0h-15a74.5 78.5 0 0 0-149 0z', INK) + discs([(218, 232), (382, 232)], 12, YEL),
         face=EYES + L('M276 238q24 22 48 0', INK, 8)),
     things=
     crate(42, 290, 142, 64, front=[('apple', 28, 54), ('mango', 72, 56), ('watermelon', 116, 54)], back=[('mango', 50, 46), ('apple', 96, 46)]) +
     # paper bags
-    shadow(486, 558, 356) + P('M508 296h44l6 60h-56z', STONE) + P('M490 310h46l6 46h-58z', KRAFT) + L('M492 322h42', STONE, 3) + L('M513 310v12', STONE, 3))
+    shadow(486, 558, 356) + P('M508 296h44l6 60h-56z', STONE) + P('M490 310h46l6 46h-58z', KRAFT) + L('M492 322h42', STONE, 3) + L('M504 310c0-14 18-14 18 0', SLATE, 3))
 
 for sid, markup in SHOPS.items():
     save('shop-' + sid, markup)
 
 
 # ====================== the eight standing-order clients: the place, and the fruit it wants ======================
-
-def cloud(x, y, s=1.0, o=.9):
-    return P('M-52 18a18 18 0 0 1 8-34a26 26 0 0 1 48-8a20 20 0 0 1 34 14a14.5 14.5 0 0 1 4 28z', PAPER, o, f'translate({x} {y}) scale({s})')
-
-
-def rrects(items, w, h, r, f, o=None):
-    """Many rounded rectangles as one shape."""
-    one = lambda x, y: (f'M{x + r} {y}h{w - 2 * r}a{r} {r} 0 0 1 {r} {r}v{h - 2 * r}a{r} {r} 0 0 1 {-r} {r}h{-(w - 2 * r)}'
-                        f'a{r} {r} 0 0 1 {-r} {-r}v{-(h - 2 * r)}a{r} {r} 0 0 1 {r} {-r}z')
-    return P(''.join(one(x, y) for x, y in items), f, o)
-
 
 ORDERS = {}
 
@@ -415,13 +422,14 @@ ORDERS['airline-caterer'] = svg(600, 400,
     # the apron, with its painted line
     R(0, 256, 600, 144, STONE) + R(0, 256, 600, 6, SLATE, o=.35) + L('M0 388h600', YEL, 5, cap='butt') +
     # the aeroplane: fuselage, stripes, windows, cockpit, door, wheels
-    L('M476 184v54M268 186v50', SLATE, 8, cap='butt') + discs([(476, 244), (256, 244), (282, 244)], 14, INK) + discs([(476, 244), (256, 244), (282, 244)], 5, STONE) +
-    P('M-20 92H400C470 92 532 122 562 152c8 10 2 26-18 28L-20 190z', PAPER) + P('M-20 168h577c0 6-6 11-13 12L-20 190z', PALE) +
-    L('M-20 150H557', BLU, 8, cap='butt') + L('M-20 162H561', RED, 4, cap='butt') +
+    L('M476 184v54', SLATE, 8, cap='butt') + C(476, 244, 14, INK) + C(476, 244, 5, STONE) +
+    P('M-20 92H396C462 92 536 118 564 154c7 10-1 20-16 24-24 8-52 12-82 12H-20z', PAPER) +
+    P('M-20 168H563c-2 4-7 8-15 10-24 8-52 12-82 12H-20z', PALE) +
+    L('M-20 150H536', BLU, 8) + L('M-20 162H548', RED, 4) +
     rrects([(x, 112) for x in range(22, 390, 30)], 14, 18, 5, BLU_D) + P('M456 108c30 4 58 18 78 36h-66z', INK) +
     R(404, 104, 30, 52, PALE, rx=7) + L('M411 132h6', SLATE, 4) +
     # the wing and an engine
-    P('M150 172h190L170 246H56z', PALE) + P('M56 246h114l10-9H68z', STONE) +
+    P('M150 172h190L170 246H56z', PALE) + L('M60 243h108', STONE, 5) +
     R(116, 208, 104, 42, PAPER, rx=21) + C(204, 229, 15, SLATE) + C(204, 229, 7, INK) + L('M132 221h44', PALE, 5) +
     # a crate of mangoes waiting on the apron
     crate(44, 312, 136, 64, front=[('mango', 26, 56), ('mango', 68, 58), ('mango', 110, 56)], back=[('mango', 47, 50), ('mango', 89, 50)], post=SLATE) +
@@ -439,29 +447,29 @@ ORDERS['airline-caterer'] = svg(600, 400,
 ORDERS['beach-resort'] = svg(600, 400,
     R(0, 0, 600, 400, YEL_L) + burst(118, 58, 46, YEL) + C(118, 58, 25, PAPER, .6) +
     # the sea and the sand
-    R(0, 140, 600, 70, BLU_L) + L('M206 180q10-9 20 0t20 0M352 190q10-9 20 0t20 0M430 164q10-9 20 0t20 0', PAPER, 4, .9) +
-    R(0, 206, 600, 194, KRAFT) + P('M0 204' + 'q25 12 50 0t50 0' * 6 + 'v10H0z', PAPER, .9) +
+    R(0, 140, 600, 74, BLU_L) + L('M206 178q10-9 20 0t20 0M352 188q10-9 20 0t20 0M430 164q10-9 20 0t20 0', PAPER, 4, .9) +
+    R(0, 212, 600, 188, KRAFT) + P('M0 206' + 'q25-10 50 0t50 0' * 6 + 'v12H0z', PAPER) + star(118, 312, 15, 6.5, 5, ORANGE, 12) +
     # a chalet on stilts with a thatched roof
-    L('M58 258v28M150 258v28', RED_D, 7, cap='butt') + R(44, 170, 120, 84, PAPER) + R(38, 250, 132, 10, STONE, rx=3) +
+    R(44, 170, 120, 84, PAPER) + R(36, 250, 136, 10, STONE, rx=3) +
     P('M22 176l82-66 82 66z', ORANGE) + L('M62 158l-12 14M104 126v46M146 158l12 14M83 142l-7 30M125 142l7 30', YEL_D, 4) +
     R(88, 202, 32, 48, BLU, rx=3) + C(113, 228, 3, YEL) + R(130, 196, 24, 24, BLU_L) + L('M142 196v24M130 208h24', PAPER, 3, cap='butt') +
     # a palm
-    L('M540 304C532 252 536 204 552 162', YEL_D, 14) + L('M532 276l13-3M533 246l13-2M537 216l13 0M543 190l12 3', ORANGE, 3) +
+    P('M535 292C528 250 532 204 546 160h13c-13 44-17 90-10 132z', YEL_D) + L('M535 218l11 0M542 190l11 3', ORANGE, 3) +
     P('M552 162c-34-26-76-22-100 8 36-14 68-14 100-8z', GRN) + P('M552 162c-18-42-58-60-96-48 42 4 72 20 96 48z', GRN_D) +
     P('M552 162c2-46 26-76 60-82-28 20-46 46-60 82z', GRN) + P('M552 162c30-24 62-24 84-6-32-8-56-4-84 6z', GRN_D) +
     # the pool
-    R(120, 240, 440, 84, PAPER, rx=42) + R(130, 250, 420, 64, BLU_L, rx=32) + R(150, 250, 380, 9, BLU, rx=4, o=.5) +
-    L('M160 288q10-9 20 0t20 0M420 276q10-9 20 0t20 0M462 298q10-9 20 0t20 0', PAPER, 4, .9) +
-    ring(186, 276, 14, RED, 9) + L(arc(186, 276, 14, -30, 30) + arc(186, 276, 14, 150, 210), PAPER, 9, cap='butt') +
+    R(186, 228, 376, 78, PAPER, rx=39) + R(196, 238, 356, 58, BLU_L, rx=29) + R(216, 238, 316, 8, BLU, rx=4, o=.5) +
+    L('M426 262q10-9 20 0t20 0M470 284q10-9 20 0t20 0', PAPER, 4, .9) +
+    ring(226, 268, 14, RED, 9) + L(arc(226, 268, 14, -30, 30) + arc(226, 268, 14, 150, 210), PAPER, 9, cap='butt') +
     # two loungers
     R(56, 352, 120, 11, BLU, rx=5) + R(59, 306, 11, 56, BLU, rx=5, t='rotate(-22 64 352)') + L('M80 363v18M160 363v18', SLATE, 6) + R(80, 344, 84, 9, PAPER, rx=4) +
     R(424, 352, 120, 11, BLU, rx=5) + R(530, 306, 11, 56, BLU, rx=5, t='rotate(22 536 352)') + L('M440 363v18M520 363v18', SLATE, 6) + R(436, 344, 84, 9, PAPER, rx=4) +
     # the parasol, and the table with the cut watermelon
-    L('M300 164v160', SLATE, 6) + P('M190 164a110 78 0 0 1 220 0z', RED) + P('M300 86c-16 20-26 48-28 78h56c-2-30-12-58-28-78z', PAPER) +
+    L('M300 164v164', SLATE, 6) + P('M190 164a110 78 0 0 1 220 0z', RED) + P('M300 86c-16 20-26 48-28 78h56c-2-30-12-58-28-78z', PAPER) +
     P('M190 164c8-34 30-58 58-70-14 22-22 44-24 70z', PAPER) + P('M410 164c-8-34-30-58-58-70 14 22 22 44 24 70z', PAPER) + C(300, 84, 6, RED_D) +
-    R(292, 330, 16, 52, STONE) + R(262, 378, 76, 10, STONE, rx=5) +
-    fat('watermelon', 300, 302, 96) + fat('watermelon', 252, 324, 82) + fat('watermelon', 348, 324, 82) +
-    R(200, 318, 200, 12, PAPER, rx=6) + R(206, 327, 188, 5, STONE, rx=2, o=.6))
+    R(292, 334, 16, 50, STONE) + R(262, 380, 76, 10, STONE, rx=5) +
+    fat('watermelon', 300, 308, 96) + fat('watermelon', 252, 328, 82) + fat('watermelon', 348, 328, 82) +
+    R(200, 322, 200, 12, PAPER, rx=6) + R(206, 331, 188, 5, STONE, rx=2, o=.6))
 
 # ---------- The Cider Press: pressing apples ----------
 ORDERS['cider-press'] = svg(600, 400,
@@ -474,11 +482,11 @@ ORDERS['cider-press'] = svg(600, 400,
     # the floor
     R(0, 330, 600, 70, KRAFT) + R(0, 330, 600, 5, STONE, o=.7) + L('M150 335v65M300 335v65M450 335v65', STONE, 3, .7, 'butt') +
     # the press: frame, screw and handle
-    R(291, 62, 18, 92, SLATE) + L('M291 96l18 6M291 114l18 6M291 132l18 6', STONE, 3, cap='butt') +
+    R(291, 62, 18, 78, SLATE) + L('M291 108l18 6M291 122l18 6', STONE, 3, cap='butt') +
     R(226, 54, 148, 12, INK, rx=6) + discs([(228, 60), (372, 60)], 10, INK) +
     R(196, 86, 20, 218, RED_D) + R(384, 86, 20, 218, RED_D) + R(182, 80, 236, 26, RED_D, rx=5) + R(182, 80, 236, 9, RED, rx=4) +
     # apples under the plate, in the slatted tub
-    fat('apple', 262, 198, 48) + fat('apple', 338, 198, 48) + fat('apple', 300, 196, 52) + R(232, 148, 136, 14, SLATE, rx=4) +
+    fat('apple', 262, 198, 48) + fat('apple', 338, 198, 48) + fat('apple', 300, 196, 52) + R(232, 136, 136, 14, SLATE, rx=4) +
     P('M228 182h144l-8 120H236z', YEL_D) + L('M258 184l2 116M286 184l1 116M314 184l-1 116M342 184l-2 116', ORANGE, 3, .7, 'butt') +
     L('M230 208h140M234 270h132', SLATE, 8, cap='butt') + L('M229 185h142', YEL, 5, cap='butt') +
     # the tray, the spout and the juice
@@ -491,11 +499,12 @@ ORDERS['cider-press'] = svg(600, 400,
             R(x - 14, 322, 28, 26, PAPER) + L(f'M{x - 7} 335h14', INK, 5) for x in (488, 528)))
 
 # ---------- The Company Picnic: watermelon for the family day ----------
-bunting = ''
+bunting = {RED: '', BLU: '', PAPER: ''}
 for i, t in enumerate((.14, .32, .5, .68, .86)):
     for x0, x1 in ((140, 0), (460, 600)):
         x, y = x0 + (x1 - x0) * t, 150 + 96 * t * (1 - t)
-        bunting += P('M-11 0h22l-11 26z', (RED, BLU, PAPER)[i % 3], t=f'translate({n(x)} {n(y)})')
+        bunting[(RED, BLU, PAPER)[i % 3]] += f'M{n(x - 11)} {n(y)}h22l-11 26z'
+bunting = ''.join(P(d, f) for f, d in bunting.items())
 ORDERS['company-picnic'] = svg(600, 400,
     R(0, 0, 600, 400, YEL) + C(300, 150, 150, YEL_L) +
     # hills and the lawn
@@ -504,12 +513,12 @@ ORDERS['company-picnic'] = svg(600, 400,
     R(58, 190, 16, 126, RED_D) + discs([(66, 150)], 50, GRN_D) + discs([(108, 186), (30, 190)], 32, GRN_D) +
     # the marquee: striped roof, a flag, poles and bunting
     L('M140 150Q70 198 0 150M460 150Q530 198 600 150', INK, 3) + bunting +
-    L('M300 60v-24', INK, 4) + P('M300 34h28l-9 8 9 8h-28z', RED) +
+    L('M300 62v-16', INK, 4) + C(300, 44, 7, RED) +
     L('M156 168v152M444 168v152', SLATE, 7, cap='butt') +
     P('M150 152l150-92 150 92z', PAPER) + P('M300 60L210 152h60zM300 60l30 92h60z', BLU) +
     P('M140 150h320v14' + 'q-20 14-40 0' * 8 + 'z', BLU) + L('M140 153h320', BLU_D, 5, cap='butt') +
     # balloons
-    L('M444 172C456 150 468 128 478 110M444 172C470 160 500 140 520 124M444 172C462 140 486 100 500 84', INK, 2) +
+    L('M444 172C456 150 468 128 478 110M444 172C470 160 500 140 520 124M444 172C462 140 486 100 500 84', INK, 3) +
     E(478, 92, 17, 21, RED) + E(522, 106, 17, 21, BLU) + E(502, 64, 17, 21, PAPER) + L('M471 84q2-8 8-10M515 98q2-8 8-10', PAPER, 3, .7) +
     # the table with the cut watermelon
     R(176, 250, 248, 74, PAPER) + L('M176 306h248', RED, 8, cap='butt') + R(168, 244, 264, 10, PALE, rx=4) +
@@ -520,7 +529,7 @@ ORDERS['company-picnic'] = svg(600, 400,
     fat('watermelon', 200, 384, 64) +
     # a cool box and a ball
     R(452, 322, 92, 56, BLU, rx=6) + R(446, 310, 104, 18, PAPER, rx=6) + L('M474 310c0-20 46-20 46 0', SLATE, 5) + L('M464 350h68', BLU_L, 5) +
-    C(404, 366, 22, PAPER) + P('M404 344a22 22 0 0 1 0 44c-13-12-13-32 0-44z', RED) + P('M404 344a22 22 0 0 0 0 44c13-12 13-32 0-44z', BLU, .9))
+    C(404, 366, 22, PAPER) + P('M404 344a22 22 0 0 1 0 44c-13-12-13-32 0-44z', RED) + P('M404 344a22 22 0 0 0 0 44c13-12 13-32 0-44z', BLU))
 
 # ---------- The Pie Factory: apple pies for the shops in town ----------
 def pie(cx, base):
@@ -540,7 +549,7 @@ ORDERS['pie-factory'] = svg(600, 400,
     # the floor
     R(0, 322, 600, 78, STONE) + R(0, 322, 600, 5, SLATE, o=.35) +
     # the belt on its legs
-    R(74, 312, 12, 54, SLATE) + R(294, 312, 12, 54, SLATE) + R(514, 312, 12, 54, SLATE) +
+    P('M74 312h12v54h-12zM294 312h12v54h-12zM514 312h12v54h-12z', SLATE) +
     R(36, 292, 528, 22, KRAFT, rx=11) + discs([(x, 303) for x in range(60, 560, 48)], 6, SLATE) +
     # apples go in, pies come out
     fat('apple', 84, 294, 58) + fat('apple', 140, 294, 58) + fat('apple', 196, 294, 58) + pie(430, 293) + pie(514, 293) +
@@ -551,6 +560,7 @@ ORDERS['pie-factory'] = svg(600, 400,
     C(274, 198, 26, PAPER) + L('M274 198l12-14', RED, 5) + C(274, 198, 5, INK) + L('M274 178v5M294 198h-5M254 198h5', INK, 3) +
     discs([(326, 186)], 8, RED) + discs([(326, 210)], 8, YEL) + L('M250 248h76M250 262h76M250 276h76', GRN_D, 5) +
     R(218, 250, 12, 44, INK, rx=4) + R(370, 250, 12, 44, INK, rx=4) +
+    crate(104, 346, 124, 44, front=[('apple', 24, 40), ('apple', 62, 42), ('apple', 100, 40)]) +
     # boxed pies, ready to go
     shadow(444, 556, 388) + R(444, 348, 112, 40, PAPER, rx=3) + R(456, 328, 88, 22, PALE, rx=3) + L('M444 366h112', RED, 7, cap='butt') + R(494, 328, 10, 60, RED))
 
@@ -568,12 +578,12 @@ def cloche(x):
 ORDERS['royal-banquet'] = svg(600, 400,
     R(0, 0, 600, 400, RED) + C(300, 184, 172, RED_L) +
     # the drapes, tied back
-    P('M0 0h126c0 96-34 150-70 186-22 22-40 40-56 70z', RED_D) + P('M600 0H474c0 96 34 150 70 186 22 22 40 40 56 70z', RED_D) +
-    L('M40 0c0 70-10 120-40 170M84 0c0 80-20 130-56 180M560 0c0 70 10 120 40 170M516 0c0 80 20 130 56 180', RED, 4, .6) +
-    L('M22 204l40-22M578 204l-40-22', YEL, 9) + L('M62 184v26M538 184v26', YEL, 5) +
+    ''.join(G(t, P('M0 0h132c0 84-26 142-62 180H0z', RED_D) + P('M0 184h64c-14 28-20 62-20 100H0z', RED_D) +
+              L('M46 0c0 70-8 120-32 170M94 0c0 76-16 126-46 172', RED, 4, .6) + R(-10, 170, 86, 18, YEL, rx=9) +
+              L('M60 190v22', YEL, 5) + C(60, 216, 7, YEL_D)) for t in ('translate(0 0)', 'translate(600 0) scale(-1 1)')) +
     # the chandelier
     L('M300 0v52', YEL_D, 5, cap='butt') + L('M232 84q68 40 136 0', YEL, 7) + L('M266 72q34 22 68 0', YEL, 6) + C(300, 60, 11, YEL) + C(300, 98, 7, YEL_D) +
-    ''.join(R(x - 4, y, 8, 20, PAPER) + E(x, y - 7, 4, 7, ORANGE) for x, y in ((232, 62), (266, 50), (334, 50), (368, 62))) +
+    rrects([(228, 62), (262, 50), (330, 50), (364, 62)], 8, 20, 1, PAPER) + P(''.join(f'M{x} {y - 14}a4 7 0 0 1 0 14a4 7 0 0 1 0-14z' for x, y in ((232, 62), (266, 50), (334, 50), (368, 62))), ORANGE) +
     # the table: white cloth, a runner with a crown
     R(0, 284, 600, 116, PAPER) + R(0, 284, 600, 9, PALE) + L('M0 380h600', YEL, 6, cap='butt') +
     R(236, 284, 128, 116, RED) + L('M247 284v116M353 284v116', YEL, 4, cap='butt') +
@@ -582,9 +592,9 @@ ORDERS['royal-banquet'] = svg(600, 400,
     cloche(110) + cloche(490) + candle(196) + candle(404) +
     # the golden stand, heaped with mangoes
     R(293, 176, 14, 104, YEL_D) + P('M258 288l12-12h60l12 12z', YEL) +
-    fat('mango', 300, 190, 70) + E(300, 192, 60, 9, YEL_D) + R(240, 184, 120, 8, YEL, rx=4) +
+    fat('mango', 300, 190, 70) + E(300, 192, 60, 10, YEL_D) + R(240, 183, 120, 9, YEL_L, rx=4.5) +
     fat('mango', 300, 262, 66) + fat('mango', 238, 264, 64) + fat('mango', 362, 264, 64) +
-    E(300, 268, 106, 11, YEL_D) + R(194, 258, 212, 9, YEL, rx=4))
+    E(300, 268, 106, 12, YEL_D) + R(194, 257, 212, 10, YEL_L, rx=5))
 
 # ---------- The School Canteen: fruit cups for Friday recess ----------
 def fruit_cup(cx):
@@ -600,6 +610,7 @@ ORDERS['school-canteen'] = svg(600, 400,
     # the serving hatch, its shutter rolled up
     R(104, 62, 392, 206, BLU, rx=8) + R(116, 74, 368, 182, BLU_L) + R(116, 74, 368, 34, PALE) + L('M116 86h368M116 97h368', STONE, 3, cap='butt') +
     R(282, 104, 36, 9, SLATE, rx=4) +
+    R(190, 20, 220, 30, PAPER, rx=5) + L('M206 35h84M306 35h48', INK, 6) + C(388, 35, 7, RED) +
     # inside: a shelf with bowls and a pot
     L('M116 162h368', PAPER, 6, .8, 'butt') + rrects([(138, 150), (142, 141), (146, 132)], 56, 9, 4, PAPER) +
     R(404, 132, 60, 28, STONE, rx=5) + R(398, 126, 72, 9, SLATE, rx=4) + C(434, 122, 5, SLATE) + L('M224 124v38M244 124v38', PAPER, 4, .8) + discs([(224, 126), (244, 126)], 7, PAPER) +
@@ -610,7 +621,8 @@ ORDERS['school-canteen'] = svg(600, 400,
     C(62, 140, 24, RED) + C(62, 140, 10, RED_D) + C(62, 140, 4, YEL) + R(56, 164, 12, 14, RED_D, rx=3) +
     C(540, 140, 26, INK) + C(540, 140, 21, PAPER) + L('M540 140v-13M540 140l10 6', INK, 4) +
     # a table and benches
-    L('M112 366v34M488 366v34', SLATE, 8, cap='butt') + R(70, 352, 460, 14, PALE, rx=7) + R(110, 384, 380, 11, KRAFT, rx=5))
+    L('M112 366v34M488 366v34', SLATE, 8, cap='butt') + R(70, 352, 460, 14, BLU_L, rx=7) + R(78, 361, 444, 5, BLU, rx=2, o=.45) +
+    R(110, 384, 380, 11, BLU_L, rx=5))
 
 # ---------- The Smoothie Stand: blueberry smoothies at the night market ----------
 def smoothie(cx):
@@ -635,9 +647,10 @@ ORDERS['smoothie-stand'] = svg(600, 400,
     C(300, 288, 40, PAPER) + fat('blueberry', 300, 316, 62) + R(140, 224, 320, 14, PAPER, rx=5) +
     # the blender, three smoothies and a bowl of blueberries
     R(184, 200, 52, 26, SLATE, rx=5) + C(210, 213, 6, YEL) + P('M182 124h56l-7 78h-42z', PAPER, .9) + P('M185 152h50l-5 50h-40z', BLU_L) +
-    R(178, 116, 64, 10, INK, rx=4) + L('M238 138h12v38h-14', PAPER, 6) + discs([(200, 170), (218, 184), (204, 190)], 4, BLU) +
+    R(178, 116, 64, 10, INK, rx=4) + L('M238 138h12v38h-14', PAPER, 6) + discs([(200, 170), (218, 184), (204, 190)], 4, PAPER, .7) +
     smoothie(274) + smoothie(322) + smoothie(370) +
     fat('blueberry', 416, 210, 34) + fat('blueberry', 442, 210, 34) + fat('blueberry', 429, 196, 34) + P('M398 204h62a31 22 0 0 1-62 0z', PAPER) +
+    crate(474, 300, 90, 44, front=[('blueberry', 25, 40), ('blueberry', 65, 40)]) +
     # a board on the street
     P('M52 344l18-92h44l18 92z', KRAFT) + R(74, 262, 36, 54, SLATE, rx=3) + L('M82 276h20M82 290h14M82 304h18', PAPER, 4))
 

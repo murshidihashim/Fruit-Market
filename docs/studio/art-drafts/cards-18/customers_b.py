@@ -3,7 +3,12 @@
 Each picture: a wall or sky with a quiet pattern and the pale disc behind the head; the person's place at the sides;
 a soft floor or counter; the bust, drawn like the picture in public/art-ticket/customers; one thing in front that is theirs.
 
+Likeness notes. The existing pictures draw hair as a dark arc on the forehead with skin above it; here the same hairline
+is kept and the hair above it is filled in (bun, bob and long hair as before). People who smile with closed eyes
+(Nurul, Tan, Lina) and Zul, who is asleep, keep their closed eyes; everyone else has the ink-dot eyes of the reference.
+
 Run from the repo root: python3 docs/studio/art-drafts/cards-18/customers_b.py
+Writes customer-<slug>.svg for the eleven people and the contact sheet sheet-customers-b.png.
 """
 import math
 
@@ -47,6 +52,11 @@ def donut(cx, cy, ro, ri, fill):
     """A flat ring as one shape (for anything thicker than a thin stroke)."""
     return (f'<path fill-rule="evenodd" d="M{cx - ro} {cy}a{ro} {ro} 0 1 0 {2 * ro} 0a{ro} {ro} 0 1 0-{2 * ro} 0z'
             f'M{cx - ri} {cy}a{ri} {ri} 0 1 0 {2 * ri} 0a{ri} {ri} 0 1 0-{2 * ri} 0z" fill="{fill}"/>')
+
+
+def dots(points, r, fill, o=None):
+    """Many small discs as one shape (wall patterns)."""
+    return P(''.join(f'M{x - r} {y}a{r} {r} 0 1 0 {2 * r} 0a{r} {r} 0 1 0-{2 * r} 0z' for x, y in points), fill, o)
 
 
 def star(cx, cy, ro, ri, n, fill, rot=-90.0):
@@ -166,7 +176,7 @@ def tache(y=240, s=.66):
 # ---- 13 Inspector Wei: the office, on a case ---------------------------------------------------------------------
 
 def wei():
-    wall = R(0, 0, 600, 400, KRAFT) + ''.join(L(f'M{x} 0v326', PALE, 3) for x in range(30, 600, 60))
+    wall = R(0, 0, 600, 400, KRAFT) + L(''.join(f'M{x} 0v326' for x in range(30, 600, 60)), PALE, 3)
     window = (R(14, 34, 142, 186, INK) + R(24, 44, 122, 166, BLU_D) + C(120, 160, 15, YEL_L)
               + P('M24 210v-30h22v-22h28v34h20v-16h26v-14h26v48z', BLU)
               + ''.join(R(x, y, 6, 7, YEL) for x, y in ((56, 168), (56, 188), (80, 196), (104, 186), (130, 176), (130, 192)))
@@ -174,13 +184,13 @@ def wei():
               + L('M36 46v102', STONE, 3) + C(36, 152, 5, STONE) + R(6, 220, 158, 10, SLATE))
     cabinet = (R(22, 246, 128, 80, SLATE) + R(30, 254, 112, 30, STONE) + R(30, 290, 112, 30, STONE)
                + R(38, 262, 28, 14, PAPER, 2) + L('M43 269h14', INK, 3) + C(128, 269, 5, INK))
-    board = (R(446, 30, 140, 152, SLATE) + R(454, 38, 124, 136, PAPER)
-             + R(462, 48, 48, 48, BLU_L) + fr('apple', 468, 54, 36)
-             + R(522, 46, 48, 40, YEL) + L('M531 60h30M531 74h18', INK, 5)
-             + R(462, 112, 44, 50, KRAFT) + E(484, 131, 8, 11, INK) + E(484, 150, 6, 5, INK)
-             + R(518, 102, 52, 56, YEL_L) + fr('watermelon', 523, 108, 42)
-             + L('M486 50L546 48L544 104L484 114', RED, 3)
-             + ''.join(C(x, y, 5, RED) for x, y in ((486, 50), (546, 48), (544, 104), (484, 114))))
+    board = (R(446, 34, 140, 152, SLATE) + R(454, 42, 124, 136, PAPER)
+             + R(462, 52, 48, 48, BLU_L) + fr('apple', 468, 58, 36)
+             + R(522, 50, 48, 40, YEL) + L('M531 64h30M531 78h18', INK, 5)
+             + R(462, 116, 44, 50, KRAFT) + E(484, 135, 8, 11, INK) + E(484, 154, 6, 5, INK)
+             + R(518, 106, 52, 56, YEL_L) + fr('watermelon', 523, 112, 42)
+             + L('M486 54L546 52L544 108L484 118', RED, 3)
+             + ''.join(C(x, y, 5, RED) for x, y in ((486, 54), (546, 52), (544, 108), (484, 118))))
     lamp = (P('M488 270L466 326H580L556 270z', YEL_L, .45)
             + L('M546 352V300L522 240', INK, 7) + C(546, 300, 7, SLATE) + E(546, 356, 34, 8, INK)
             + P('M486 270a36 36 0 0 1 72 0z', YEL) + R(484, 264, 76, 8, YEL_D, 4))
@@ -228,8 +238,8 @@ def nurul():
 # ---- 15 Dr Priya: the test kitchen ----------------------------------------------------------------------------------
 
 def priya():
-    wall = (R(0, 0, 600, 400, BLU_L) + ''.join(L(f'M{x} 0v326', PAPER, 3, .3) for x in range(40, 600, 52))
-            + ''.join(L(f'M0 {y}h600', PAPER, 3, .3) for y in range(14, 326, 52)))
+    wall = R(0, 0, 600, 400, BLU_L) + L(''.join(f'M{x} 0v326' for x in range(40, 600, 52))
+                                        + ''.join(f'M0 {y}h600' for y in range(14, 326, 52)), PAPER, 3, .3)
     chart = (R(30, 28, 132, 92, PAPER, 4) + C(74, 74, 30, YEL) + P('M74 74V44a30 30 0 0 1 28 40z', RED)
              + L('M120 54h30M120 72h30M120 90h18', INK, 5) + C(96, 28, 5, RED))
     shelf = (R(16, 214, 172, 10, SLATE) + L('M40 224v18M164 224v18', SLATE, 6)
@@ -267,7 +277,7 @@ def ahmad():
     light = (P('M456 244q20-34 58-36q46 2 86 36z', SLATE) + P('M508 214l8-116h28l8 116z', PAPER)
              + P('M514 128h32l1 22h-34zM511 172h38l2 22h-42z', RED) + R(504, 92, 52, 8, INK) + R(514, 66, 32, 26, YEL)
              + L('M530 66v26', INK, 4) + P('M508 68l22-22 22 22z', RED_D) + L('M462 250h40M540 252h44', BLU_L, 4))
-    jetty = (floor(STONE) + ''.join(L(f'M{x} 336v64', SLATE, 3, .4) for x in range(48, 600, 72)))
+    jetty = floor(STONE) + L(''.join(f'M{x} 336v64' for x in range(48, 600, 72)), SLATE, 3, .4)
     def band(cx, cy, deg):
         a = math.radians(deg)
         c, n = math.cos(a), math.sin(a)
@@ -281,7 +291,7 @@ def ahmad():
     beard = P('M210 160V236C210 276 252 298 300 298C348 298 390 276 390 236V160H372C378 170 380 180 380 190C376 224 360 246 340 246'
               'C322 246 310 240 300 234C290 240 278 246 260 246C240 246 224 224 220 190C220 180 222 170 228 160Z', INK)
     cap = (P('M218 142c0-32 36-46 82-46s82 14 82 46z', PAPER) + P('M218 142c0-8 2-14 7-20c21 7 46 10 75 10s54-3 75-10c5 6 7 12 7 20z', KRAFT)
-           + R(214, 138, 172, 24, INK, 3) + L('M224 146h152', SLATE, 3) + C(300, 116, 15, YEL) + C(300, 116, 7, YEL_D))
+           + R(210, 138, 180, 24, INK, 3) + L('M222 146h156', SLATE, 3) + C(300, 116, 15, YEL) + C(300, 116, 7, YEL_D))
     man = bust('tan', INK, garment=bands(BLU, BLU_L), neck=False, cheeks=False,
                hair=beard + C(244, 214, 12, RED_L, .45) + C(356, 214, 12, RED_L, .45) + cap,
                feat=eyes() + P('M272 258q28 8 56 0q-3 22-28 22t-28-22z', PAPER))
@@ -291,11 +301,12 @@ def ahmad():
 # ---- 17 Lola Lens (Sarah): the photo studio ------------------------------------------------------------------------
 
 def sarah():
-    wall = R(0, 0, 600, 400, RED_L) + ''.join(
-        C(x + (40 if row % 2 else 0), y, 5, PAPER, .35) for row, y in enumerate(range(26, 320, 50)) for x in range(20, 600, 80))
+    wall = R(0, 0, 600, 400, RED_L) + dots(
+        [(x + (40 if row % 2 else 0), y) for row, y in enumerate(range(26, 320, 50)) for x in range(20, 600, 80)], 5, PAPER, .35)
     umbrella = (L('M102 326V178M102 292L66 326M102 292l36 34', INK, 7)
                 + '<g transform="translate(-14 0) rotate(-35 100 150)">'
                 + P('M30 150a70 70 0 0 1 140 0q-17.5-11-35 0q-17.5-11-35 0q-17.5-11-35 0q-17.5-11-35 0z', PAPER)
+                + P('M100 80Q70 108 65 150q17.5-11 35 0z', PALE) + P('M100 80Q130 108 135 150q17.5-11 35 0A70 70 0 0 0 100 80z', PALE)
                 + L('M100 80Q70 108 65 142M100 80V142M100 80Q130 108 135 142', KRAFT, 3) + L('M100 80v-10', INK, 5)
                 + L('M100 146v22', INK, 6) + R(86, 166, 28, 22, INK, 4) + C(100, 160, 6, YEL) + '</g>')
     frames = (L('M465 34V14M551 56V14', INK, 3)
@@ -319,9 +330,9 @@ def sarah():
 # ---- 18 Grandpa Tan: the kopitiam -----------------------------------------------------------------------------------
 
 def tan():
-    wall = R(0, 0, 600, 400, PALE) + ''.join(L(f'M0 {y}h600', KRAFT, 3, .6) for y in (40, 88, 136, 184))
-    dado = (R(0, 236, 600, 90, GRN_L) + R(0, 236, 600, 8, GRN) + ''.join(L(f'M{x} 244v82', PAPER, 3, .45) for x in range(22, 600, 46))
-            + L('M0 286h600', PAPER, 3, .45))
+    wall = R(0, 0, 600, 400, PALE) + L(''.join(f'M0 {y}h600' for y in (40, 88, 136, 184)), KRAFT, 3, .6)
+    dado = (R(0, 236, 600, 90, GRN_L) + R(0, 236, 600, 8, GRN)
+            + L(''.join(f'M{x} 244v82' for x in range(22, 600, 46)) + 'M0 286h600', PAPER, 3, .45))
     cage = (L('M100 0V36', INK, 4) + C(100, 40, 7, RED) + P('M60 100a40 46 0 0 1 80 0v64H60z', PAPER, .6)
             + L('M72 146H128', RED_D, 5) + P('M88 132l-16 12h18z', YEL_D) + E(100, 130, 16, 12, YEL) + C(111, 116, 10, YEL)
             + P('M119 113l12 4-12 5z', ORANGE) + C(113, 114, 2.5, INK)
@@ -389,8 +400,8 @@ def lina():
 # ---- 20 Sleepy Zul: asleep by day, after the night shift ---------------------------------------------------------------
 
 def zul():
-    wall = R(0, 0, 600, 400, GRN_L) + ''.join(
-        C(x + (22 if row % 2 else 0), y, 4, PAPER, .45) for row, y in enumerate(range(20, 330, 44)) for x in range(14, 600, 44))
+    wall = R(0, 0, 600, 400, GRN_L) + dots(
+        [(x + (22 if row % 2 else 0), y) for row, y in enumerate(range(20, 330, 44)) for x in range(14, 600, 44)], 4, PAPER, .45)
     window = (R(22, 36, 164, 146, PAPER) + R(32, 46, 144, 126, BLU_L) + burst(138, 84, 30, YEL) + C(138, 84, 17, PAPER) + C(138, 84, 13, YEL)
               + L('M104 46v126M32 124h144', PAPER, 6) + R(14, 180, 180, 10, KRAFT)
               + P('M12 30h66c2 52-6 108-22 160H12z', BLU) + L('M34 40v142M56 40c2 50-2 98-10 142', BLU_D, 4)
@@ -411,7 +422,7 @@ def zul():
            + L('M446 318q22 0 19 20q-3 14-19 12', RED, 9) + R(396, 300, 52, 58, RED, 8) + P('M436 300h4a8 8 0 0 1 8 8v42a8 8 0 0 1-8 8h-4z', RED_D)
            + E(422, 302, 24, 6, INK) + L('M407 318v24', PAPER, 4, .6))
     cap = (P('M218 168C218 132 254 112 300 112C316 112 330 110 340 104C340 110 344 114 352 114C400 118 432 152 436 206L412 208'
-             'C410 184 398 166 374 154C380 160 382 164 382 168Z', YEL)
+             'C410 190 402 176 388 166L382 168Z', YEL)
            + P('M352 114C400 118 432 152 436 206L424 207C420 160 394 128 352 114Z', YEL_D)
            + R(210, 158, 180, 24, PAPER, 12) + L('M222 176h156', KRAFT, 4) + C(424, 222, 21, PAPER) + L('M412 234q12 8 24 0', KRAFT, 5))
     man = bust('tan', PAPER, garment=bands(YEL), hair=cap, feat=eyes_asleep() + mouth_o())
@@ -429,7 +440,8 @@ def anna():
     scallops = ''.join(P(f'M{x1 + i * w1:.1f} 140h{w1:.1f}a{w1 / 2:.1f} 14 0 0 1-{w1:.1f} 0z', RED if i % 2 == 0 else PAPER) for i in range(n))
     stall = (L('M18 326V104M154 326V104', SLATE, 8) + stripes + scallops + R(2, 136, 166, 6, RED_D, o=.5)
              + fr('mango', 8, 194, 50) + fr('apple', 48, 200, 44) + fr('mango', 84, 194, 50) + fr('apple', 124, 200, 44)
-             + R(8, 246, 160, 80, KRAFT) + R(0, 240, 176, 10, STONE) + L('M12 272h152M12 298h152', STONE, 3))
+             + R(8, 246, 160, 80, KRAFT) + R(0, 240, 176, 10, STONE) + L('M12 272h152M12 298h152', STONE, 3)
+             + R(34, 258, 58, 30, PAPER, 3) + L('M44 273h22', INK, 5) + C(80, 273, 5, RED))
     easel = (L('M454 326L486 44M562 326L530 44M508 60V30', YEL_D, 8)
              + R(446, 66, 124, 152, PAPER) + R(454, 74, 108, 136, BLU_L) + C(540, 96, 12, YEL)
              + ''.join(R(462 + i * 18, 112, 18, 20, RED if i % 2 == 0 else PAPER) for i in range(5))
@@ -441,7 +453,7 @@ def anna():
                + C(136, 384, 9, PINK) + C(140, 352, 8, PAPER))
     brush = L('M452 396L472 322', YEL_D, 8) + L('M472 322l5-18', SLATE, 10) + L('M478 300l4-12', RED, 10)
     beret = (E(286, 128, 107, 42, GRN, -12) + L('M290 90l-4-14', GRN, 9)
-             + L('M206 136q30-34 84-42', GRN_L, 7, .8) + L('M210 160q70 30 172-22', GRN_D, 6))
+             + L('M206 136q30-34 84-42', GRN_L, 7, .8) + L('M214 158Q280 184 356 140', GRN_D, 6))
     girl = bust('light', INK, back=hair_bob(), garment=bands(GRN, GRN_L), hair=fringe(False) + beret, feat=eyes() + smile())
     return svg(600, 400, sky + disc() + stall + easel + ground + girl + palette + brush)
 
@@ -449,7 +461,7 @@ def anna():
 # ---- 22 Otto Oddjob (Vijay): the store room behind the market -------------------------------------------------------
 
 def vijay():
-    wall = R(0, 0, 600, 400, KRAFT) + ''.join(C(x, y, 3.5, PALE) for y in range(22, 320, 40) for x in range(20, 600, 40))
+    wall = R(0, 0, 600, 400, KRAFT) + dots([(x, y) for y in range(22, 320, 40) for x in range(20, 600, 40)], 3.5, PALE)
     tools = (L('M60 62v-14M120 62v-14M160 62v-14M88 234v-12', INK, 4)
              + R(55, 94, 11, 106, YEL_D, 5) + R(34, 70, 60, 26, SLATE, 5) + R(84, 62, 14, 42, SLATE, 4)
              + R(115, 94, 11, 98, SLATE, 5) + C(120, 82, 18, SLATE) + P('M112 60h16v22h-16z', KRAFT) + C(120, 196, 10, SLATE) + C(120, 196, 4, KRAFT)

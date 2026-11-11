@@ -1,12 +1,19 @@
 """The 21 event pictures of the rules 18 card set, in the flat Market Ticket style (plain SVG, 600 by 384).
 
-Every picture is built in the same layers, back to front: the event's own background colour with a quiet pattern or
-skyline; a big disc or sunburst in a lighter or darker tone; the main objects, large; two or three small details; a
-soft ground (never an ink bar). Fruit is always the game's own icon (kit.fr). A price that goes up or down is shown as
-a paper tag with an arrow, never as a number.
+Each picture keeps the idea and the main objects of the event's picture in public/art-ticket/events and is built in
+the same layers, back to front: the event's own background colour with a quiet pattern or skyline; a big disc or
+sunburst in a lighter or darker tone; the main objects, large; two or three small details; a soft ground (never an
+ink bar). The main subject stays inside the central 2:1 band (y 42 to 342) and inside x 60 to 540, because cards crop
+the picture.
+
+How an effect is shown, the same way on every card:
+- the fruit it touches is that fruit's own icon (kit.fr), never drawn by hand;
+- a price that goes up or down is a paper tag with an arrow (two arrows for a $2 change), never a number;
+- more or less fruit is a full or an empty lorry or crate; a guest's order is that many pieces of the fruit.
+Price Controls is the one picture that carries real numbers: its coins count the limits in src/engine/data.ts.
 
 Run from the repo root: python3 docs/studio/art-drafts/cards-18/events.py
-Writes event-<id>.svg for each event beside this file and the contact sheet sheet-events.png.
+Writes event-<id>.svg for each event beside this file (ids as in public/art-ticket/events) and sheet-events.png.
 """
 import math
 
@@ -49,8 +56,11 @@ def line(d, stroke, w=6, op=None):
     return f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{n(w)}" stroke-linecap="round" stroke-linejoin="round"{_op(op)}/>'
 
 
-def ring(cx, cy, r, stroke, w, op=None):
-    return f'<circle cx="{n(cx)}" cy="{n(cy)}" r="{n(r)}" fill="none" stroke="{stroke}" stroke-width="{n(w)}"{_op(op)}/>'
+def ring(cx, cy, r, fill, w, op=None):
+    """A flat ring w wide with its middle line at radius r: a filled band, not a stroke."""
+    o, i = r + w / 2, r - w / 2
+    return path(f'M{n(cx - o)} {n(cy)}a{n(o)} {n(o)} 0 1 0 {n(2 * o)} 0a{n(o)} {n(o)} 0 1 0 {n(-2 * o)} 0Z'
+                f'M{n(cx - i)} {n(cy)}a{n(i)} {n(i)} 0 1 1 {n(2 * i)} 0a{n(i)} {n(i)} 0 1 1 {n(-2 * i)} 0Z', fill, op)
 
 
 def rot(a, cx, cy, body):
@@ -181,7 +191,7 @@ def rays(cx, cy, r0, r1, k, stroke, w=5, turn=0, op=None):
 
 
 def coin(cx, cy, r):
-    return circ(cx, cy, r, YEL_D) + circ(cx, cy, r * .74, YEL) + line(f'M{n(cx - r * .42)} {n(cy - r * .1)}a{n(r * .44)} {n(r * .44)} 0 0 1 {n(r * .34)} {n(-r * .32)}', PAPER, max(2, r * .16), .8)
+    return circ(cx, cy, r, YEL_D) + circ(cx, cy, r * .74, YEL) + line(f'M{n(cx - r * .42)} {n(cy - r * .1)}a{n(r * .44)} {n(r * .44)} 0 0 1 {n(r * .34)} {n(-r * .32)}', PAPER, max(3, r * .16), .8)
 
 
 def coins(cx, base, k, w=44, h=10):
@@ -223,18 +233,20 @@ def skyline(base, fill, k=1, shift=0, op=None):
 
 
 def bunting(x0, y0, x1, y1, sag, cols, size=30, string=PAPER):
-    """A string of flags hanging in a curve; '' in cols leaves a gap."""
+    """A string of flags hanging in a curve; '' in cols leaves a gap. Flags of one colour share a path."""
     mx, my = (x0 + x1) / 2, (y0 + y1) / 2 + sag
-    out = line(f'M{n(x0)} {n(y0)}Q{n(mx)} {n(my)} {n(x1)} {n(y1)}', string, 3)
+    by_colour = {}
     for i, c in enumerate(cols):
         if not c:
             continue
         t = (i + .5) / len(cols)
         x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * mx + t * t * x1
         y = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * my + t * t * y1
-        a = math.degrees(math.atan2(2 * (1 - t) * (my - y0) + 2 * t * (y1 - my), 2 * (1 - t) * (mx - x0) + 2 * t * (x1 - mx)))
-        out += rot(a, x, y, path(f'M{n(x - size / 2)} {n(y - 1)}h{n(size)}l{n(-size / 2)} {n(size * 1.1)}Z', c))
-    return out
+        a = math.atan2(2 * (1 - t) * (my - y0) + 2 * t * (y1 - my), 2 * (1 - t) * (mx - x0) + 2 * t * (x1 - mx))
+        ca, sa = math.cos(a), math.sin(a)
+        pts = [(x + u * ca - v * sa, y + u * sa + v * ca) for u, v in ((-size / 2, -1), (size / 2, -1), (0, size * 1.1 - 1))]
+        by_colour[c] = by_colour.get(c, '') + 'M' + 'L'.join(f'{n(px)} {n(py)}' for px, py in pts) + 'Z'
+    return line(f'M{n(x0)} {n(y0)}Q{n(mx)} {n(my)} {n(x1)} {n(y1)}', string, 3) + ''.join(path(d, c) for c, d in by_colour.items())
 
 
 def lorry(x, base, k=1, a=0, box=PAPER, rail=STONE):
@@ -249,8 +261,16 @@ def lorry(x, base, k=1, a=0, box=PAPER, rail=STONE):
     return f'<g transform="translate({n(x)} {n(base)}) rotate({n(a)}) scale({k})">{body}</g>'
 
 
-def bust(cx, cy, r, tone, top, base, hair='short', hc=INK, bw=None, smile=True):
-    """A person the game's way: a head, ink dot eyes, a body. hair: short | side | bun | long | tudung | cap | hat | bald."""
+def _face(cx, cy, r, hair):
+    """Path data for a face: the two eye dots, and the smile."""
+    fy, q = (cy + r * .08, r * .76) if hair == 'tudung' else (cy, r)
+    return (dp(cx - q * .36, fy + q * .04, q * .115) + dp(cx + q * .36, fy + q * .04, q * .115),
+            f'M{n(cx - q * .26)} {n(fy + q * .4)}q{n(q * .26)} {n(q * .22)} {n(q * .52)} 0')
+
+
+def bust(cx, cy, r, tone, top, base, hair='short', hc=INK, bw=None, face=True):
+    """A person the game's way: a head, ink dot eyes, a smile, a body.
+    hair: short | side | bun | long | tudung | cap | hat | bald (hc is its colour)."""
     skin, shade = SKINS[tone]
     bw = bw or r * 1.42
     sy = cy + r * .96
@@ -278,10 +298,18 @@ def bust(cx, cy, r, tone, top, base, hair='short', hc=INK, bw=None, smile=True):
     if hair == 'hat':
         o += path(f'M{n(cx - r * .82)} {n(cy - r * .5)}A{n(r * .82)} {n(r * .74)} 0 0 1 {n(cx + r * .82)} {n(cy - r * .5)}Z', hc)
         o += rect(cx - r * 1.5, cy - r * .62, r * 3, r * .26, hc, r * .13)
-    o += path(dp(cx - fr_ * .36, fy + fr_ * .04, fr_ * .115) + dp(cx + fr_ * .36, fy + fr_ * .04, fr_ * .115), INK)
-    if smile:
-        o += line(f'M{n(cx - fr_ * .26)} {n(fy + fr_ * .4)}q{n(fr_ * .26)} {n(fr_ * .22)} {n(fr_ * .52)} 0', INK, max(3, fr_ * .1))
+    if face:
+        eyes, smile = _face(cx, cy, r, hair)
+        o += path(eyes, INK) + line(smile, INK, max(3, fr_ * .1))
     return o
+
+
+def crowd(*people, w=3.5):
+    """Several busts (each a tuple of bust() arguments, back to front), then all their eyes and smiles as two shapes.
+    Only for people whose faces nobody else overlaps."""
+    faces = [_face(p[0], p[1], p[2], p[6] if len(p) > 6 else 'short') for p in people]
+    return (''.join(bust(*p, face=False) for p in people)
+            + path(''.join(e for e, _ in faces), INK) + line(''.join(m for _, m in faces), INK, w))
 
 
 def leaf(x, y, k, a, fill):
@@ -324,13 +352,12 @@ ART['festival'] = (
     + dots([(130, 96), (204, 136), (402, 100), (470, 96), (560, 150), (30, 160)], 3.5, PAPER)
     + bunting(-14, 34, 614, 34, 76, [YEL, GRN, BLU, PAPER, YEL, '', GRN, BLU, PAPER, YEL, GRN], 34)
     + hangtag(300, 78, 54, 76, 'up', RED_D, string=PAPER, from_y=71)
-    # the back row
-    + bust(121, 192, 27, 'tan', GRN, H, 'short') + bust(240, 192, 27, 'deep', PAPER, H, 'bald')
-    + bust(359, 192, 27, 'light', BLU, H, 'long') + bust(478, 192, 27, 'brown', YEL, H, 'cap', INK)
-    # the front row
-    + bust(62, 256, 35, 'light', INK, H, 'side') + bust(181, 256, 35, 'tan', PAPER, H, 'tudung', YEL)
-    + bust(300, 256, 35, 'deep', YEL, H, 'short') + bust(419, 256, 35, 'light', INK, H, 'bun')
-    + bust(538, 256, 35, 'brown', PAPER, H, 'short', SLATE)
+    # the back row, then the front row
+    + crowd((121, 192, 27, 'tan', GRN, H, 'short'), (240, 192, 27, 'deep', PAPER, H, 'bald'),
+            (359, 192, 27, 'light', BLU, H, 'long'), (478, 192, 27, 'brown', YEL, H, 'cap', INK),
+            (62, 256, 35, 'light', INK, H, 'side'), (181, 256, 35, 'tan', PAPER, H, 'tudung', YEL),
+            (300, 256, 35, 'deep', YEL, H, 'short'), (419, 256, 35, 'light', INK, H, 'bun'),
+            (538, 256, 35, 'brown', PAPER, H, 'short', SLATE))
 )
 
 # ---------- Superfood Trend: the blueberry is the champion of the gym ----------
@@ -342,6 +369,7 @@ ART['superfood'] = (
     # the winner's block
     + rect(118, 270, 192, 34, PALE) + rect(118, 262, 192, 10, PAPER) + star(214, 287, 11, YEL)
     + berry(214, 264, 170)
+    + line('M72 268a13 15 0 0 1 26 0', SLATE, 8) + circ(85, 284, 20, SLATE) + line('M74 280a12 12 0 0 1 8-8', PAPER, 4, .6)
     + sparkle(96, 92, 13) + sparkle(336, 96, 9) + sparkle(330, 222, 7)
     # the dumbbell
     + rect(396, 252, 100, 14, SLATE, 7)
@@ -407,10 +435,10 @@ ART['blight'] = (
     # a bare apple tree
     + path('M104 304C110 262 111 228 109 192L129 192C127 228 130 262 136 304Z', SLATE)
     + line('M118 198C112 162 92 144 68 126M120 192C124 152 142 126 168 106M112 170C104 152 100 130 104 102M128 164C142 152 156 148 170 150', SLATE, 8)
-    + leaf(60, 122, .8, -30, STONE) + leaf(168, 104, .8, -50, STONE) + leaf(150, 150, .8, 200, LEAF)
+    + leaf(60, 122, .8, -30, STONE) + leaf(168, 104, .8, -50, STONE) + leaf(168, 152, .7, 96, LEAF)
     + leaf(150, 214, .8, 60, STONE) + leaf(62, 296, .8, 10, LEAF) + leaf(176, 300, .8, -8, STONE)
     # the apple that is not coming
-    + apple(300, 262, 148) + line('M228 256L372 108', RED, 18) + ring(300, 182, 104, RED, 18)
+    + apple(300, 262, 148) + rot(-45.8, 300, 182, rect(196, 173, 208, 18, RED)) + ring(300, 182, 104, RED, 18)
     # an empty crate, a caterpillar, and the price
     + crate(424, 240, 112, 64, STONE, SLATE) + rect(434, 232, 92, 10, SLATE)
     + dots([(456, 226), (468, 222), (480, 226), (492, 222)], 7.5, LEAF) + circ(504, 224, 8.5, GRN) + circ(507, 222, 2.2, INK)
@@ -488,19 +516,23 @@ ART['priceHike'] = (
 )
 
 # ---------- Price Controls: the notice board shows the most each fruit may cost ----------
-def _limit(cx, coins_):
-    pts = [(cx - 34 + 17 * (i % 5), 208 + 19 * (i // 5)) for i in range(coins_)]
+LIMITS = {'blueberry': 5, 'watermelon': 7, 'apple': 6, 'mango': 10}  # maxPrice of priceControls in src/engine/data.ts
+
+
+def _limit(cx, fruit):
+    """A red lid over one coin for each dollar of the fruit's price limit, five to a row."""
+    pts = [(cx - 34 + 17 * (i % 5), 208 + 19 * (i // 5)) for i in range(LIMITS[fruit])]
     return rect(cx - 42, 186, 84, 8, RED, 4) + dots(pts, 7.5, YEL_D) + dots(pts, 5, YEL)
 
 
 ART['priceControls'] = (
-    back(BLU) + circ(300, 136, 136, BLU_L) + skyline(GROUND, BLU_D, k=.7, shift=5, op=.6) + ground(BLU_D)
+    back(BLU) + circ(300, 136, 136, BLU_L) + skyline(GROUND, BLU_D, k=.7, shift=5, op=.6) + ground(BLU_L)
     + rect(126, 268, 16, 40, KRAFT) + rect(458, 268, 16, 40, KRAFT) + rect(136, 278, 6, 30, STONE) + rect(468, 278, 6, 30, STONE)
     + rect(74, 70, 452, 208, PAPER, 8) + rect(74, 262, 452, 16, PALE)
     + path('M74 108V78a8 8 0 0 1 8-8H518a8 8 0 0 1 8 8V108Z', RED) + line('M98 89h130M246 89h64', PAPER, 7)
     + line('M187 122V256M300 122V256M413 122V256', KRAFT, 3)
     + berry(130.5, 174, 50) + melon(243.5, 173, 68) + apple(356.5, 174, 50) + mango(469.5, 174, 44)
-    + _limit(130.5, 5) + _limit(243.5, 7) + _limit(356.5, 6) + _limit(469.5, 10)
+    + _limit(130.5, 'blueberry') + _limit(243.5, 'watermelon') + _limit(356.5, 'apple') + _limit(469.5, 'mango')
     # the official seal
     + path('M484 96l-6 26 11-8 7 10 4-28ZM508 96l6 26-11-8-7 10-4-28Z', BLU_D)
     + burst(496, 88, 26) + circ(496, 88, 13, YEL_D) + circ(496, 88, 8, PAPER)
@@ -521,7 +553,7 @@ ART['inspector'] = (
     # the inspector
     + path('M384 384V264a56 56 0 0 1 56-56h24a56 56 0 0 1 56 56V384Z', BLU_D)
     + path('M398 246L336 292L354 318L424 280Z', BLU_D)
-    + rect(438, 186, 28, 30, _SH) + path('M428 208l24 30 24-30Z', PAPER) + path('M446 234h12l5 44-11 12-11-12Z', RED)
+    + rect(438, 186, 28, 30, _SH) + path('M428 208l24 30 24-30Z', PAPER)
     + circ(452, 150, 48, _SK)
     + path('M402 120C402 86 424 74 452 74C480 74 502 86 502 120Z', BLU_D) + rect(400, 112, 104, 12, INK, 3)
     + path('M406 124h92q12 6 14 18H392q2-12 14-18Z', INK) + circ(452, 95, 9, YEL)
@@ -557,9 +589,9 @@ ART['strike'] = (
 ART['touristBus'] = (
     back(YEL) + circ(300, 136, 138, YEL_L) + skyline(GROUND, YEL_D, k=.8, shift=4, op=.7)
     + ground(YEL_D) + path('M20 346h70v8h-70ZM170 346h70v8h-70ZM320 346h70v8h-70ZM470 346h70v8h-70Z', PAPER, .8)
-    # luggage on the roof, and the guide's flag
+    # luggage on the roof, and the tour sign
     + rect(120, 88, 54, 24, RED, 6) + rect(180, 78, 40, 34, GRN, 6) + rect(226, 92, 46, 20, PAPER, 6) + line('M104 108h186', INK, 5)
-    + line('M508 110V56', INK, 4) + path('M508 56l36 11-36 11Z', RED)
+    + rect(404, 84, 104, 26, PAPER, 6) + rect(404, 104, 104, 6, KRAFT, 3) + line('M420 95h44M476 95h16', INK, 5)
     # the coach
     + rect(60, 108, 480, 168, BLU, 28) + path('M60 236H540v12a28 28 0 0 1-28 28H88a28 28 0 0 1-28-28Z', BLU_D)
     + rect(60, 212, 480, 12, PAPER) + rect(60, 224, 480, 5, RED)
@@ -569,10 +601,9 @@ ART['touristBus'] = (
     + path('M116 276a40 40 0 0 1 80 0ZM392 276a40 40 0 0 1 80 0Z', INK)
     + circ(156, 276, 30, SLATE) + circ(156, 276, 12, PAPER) + circ(432, 276, 30, SLATE) + circ(432, 276, 12, PAPER)
     # the tourists
-    + bust(125, 162, 20, 'light', GRN, 198, 'hat', RED, bw=28) + rect(108, 160, 15, 9, INK, 4) + rect(127, 160, 15, 9, INK, 4)
-    + bust(217, 162, 20, 'deep', YEL, 198, 'short', bw=28)
-    + bust(309, 162, 20, 'tan', RED, 198, 'tudung', PINK, bw=28)
-    + bust(401, 162, 20, 'brown', ORANGE, 198, 'cap', GRN, bw=28)
+    + crowd((125, 162, 20, 'light', GRN, 198, 'hat', RED, 28), (217, 162, 20, 'deep', YEL, 198, 'short', INK, 28),
+            (309, 162, 20, 'tan', RED, 198, 'tudung', PINK, 28), (401, 162, 20, 'brown', ORANGE, 198, 'cap', GRN, 28), w=3)
+    + path('M108 160h34v5a4 4 0 0 1-4 4h-7a4 4 0 0 1-4-4h-4a4 4 0 0 1-4 4h-7a4 4 0 0 1-4-4Z', INK)
     + rect(226, 172, 30, 20, INK, 4) + circ(241, 182, 6.5, BLU_L) + rect(230, 167, 9, 6, INK, 2)
     + rays(262, 150, 8, 18, 8, YEL, 4, 22)
 )
@@ -608,7 +639,7 @@ ART['monsoon'] = (
     + line('M70 336h36M486 348h44', PAPER, 3, .7) + line('M52 300l-8-10M64 300l6-10M556 300l-8-10M568 300l6-10', BLU_L, 4)
     + path('M472 336h52l-12 13h-28Z', PAPER) + path('M496 308v24h-20Z', PAPER) + path('M500 314v18h14Z', PALE)
     # the stall under its umbrella
-    + rect(295, 190, 10, 114, SLATE) + rect(276, 298, 48, 10, SLATE, 5)
+    + rect(295, 190, 10, 60, SLATE)
     + melon(260, 252, 84) + apple(326, 250, 50) + mango(366, 250, 38) + crate(210, 248, 180, 56, KRAFT, STONE)
     + _umbrella(300, 108, 164, 198)
     + sparkle(412, 232, 11) + sparkle(190, 228, 8)
@@ -636,9 +667,9 @@ ART['durian'] = (
     # the smell
     + line('M72 200q14-15 0-30t0-30M352 154q14-15 0-30t0-30', GRN_D, 6, .55)
     # the king of fruit
-    + line('M214 80V54', GRN_D, 11) + leaf(216, 60, 1.2, -24, GRN_D)
-    + path(_spiky(214, 186, 102, 110, 20, .15), GRN)
-    + path('M214 82A94 104 0 0 1 214 290A56 104 0 0 0 214 82Z', GRN_D)
+    + line('M214 80V54', GRN_D, 10) + leaf(216, 60, 1.2, -24, GRN_D)
+    + path(_spiky(214, 186, 102, 110, 20, .15), GRN) + path(_spiky(214, 186, 102, 110, 10, .15, 0, 180), GRN_D)
+    + path('M214 78A58 108 0 0 1 214 294Z', GRN)
     + _thorns([(152, 136), (188, 120), (138, 178), (174, 166), (210, 154), (152, 218), (188, 206), (174, 250), (210, 242), (224, 198)], 22, LEAF)
     + _thorns([(250, 130), (268, 172), (252, 216), (280, 210), (246, 256), (284, 150)], 22, GRN)
     # one cut open
@@ -707,10 +738,14 @@ def _crescent(cx, cy, r, ox, oy, r2, fill):
     return path(f'M{n(x1)} {n(y1)}A{n(r)} {n(r)} 0 1 1 {n(x2)} {n(y2)}A{n(r2)} {n(r2)} 0 1 0 {n(x1)} {n(y1)}Z', fill)
 
 
-def _lantern(x, y):
-    return (circ(x, y + 18, 32, YEL, .14)
-            + line(f'M{x} {y - 8}v8M{x} {y + 36}v14', YEL, 3) + rect(x - 16, y, 32, 36, RED, 13) + rect(x - 3, y, 6, 36, YEL)
-            + rect(x - 9, y - 3, 18, 6, YEL_D, 2) + rect(x - 9, y + 33, 18, 6, YEL_D, 2))
+def _lanterns(*at):
+    """Paper lanterns hanging at (x, y of the top of the body): four shapes for the lot."""
+    def box(x, y, w, h, r):
+        return f'M{n(x + r)} {n(y)}h{n(w - 2 * r)}a{r} {r} 0 0 1 {r} {r}v{n(h - 2 * r)}a{r} {r} 0 0 1 {-r} {r}h{n(2 * r - w)}a{r} {r} 0 0 1 {-r} {-r}v{n(2 * r - h)}a{r} {r} 0 0 1 {r} {-r}Z'
+    return (line(''.join(f'M{x} {y - 8}v8M{x} {y + 36}v14' for x, y in at), YEL, 3)
+            + path(''.join(box(x - 16, y, 32, 36, 13) for x, y in at), RED)
+            + path(''.join(box(x - 3, y, 6, 36, 2) for x, y in at), YEL)
+            + path(''.join(box(x - 9, y - 3, 18, 6, 2) + box(x - 9, y + 33, 18, 6, 2) for x, y in at), YEL_D))
 
 
 _HK = SKINS['tan'][0]
@@ -718,9 +753,9 @@ ART['pasarMalam'] = (
     back(INK) + circ(256, 190, 172, BLU_D)
     + dots([(36, 110), (60, 180), (452, 44), (560, 156), (576, 64), (30, 240), (470, 156), (552, 238), (430, 104)], 2.6, PAPER, .8)
     + _crescent(510, 104, 36, 14, -10, 31, YEL) + sparkle(456, 76, 9) + sparkle(562, 110, 7)
-    + ground(SLATE, edge=STONE, edge_op=.45)
+    + ground(BLU_D, edge=BLU, edge_op=.6)
     # lanterns on a string
-    + line('M-10 36Q300 92 610 36', KRAFT, 3) + _lantern(70, 57) + _lantern(170, 67) + _lantern(270, 72) + _lantern(370, 71)
+    + line('M-10 36Q300 92 610 36', KRAFT, 3) + _lanterns((70, 57), (170, 67), (270, 72), (370, 71))
     # the hawker, paying
     + bust(486, 210, 34, 'tan', GRN, H, 'cap', RED) + path('M462 260l-36-14 6-14 40 12Z', GRN) + circ(430, 240, 12, _HK)
     + path('M462 274h48v110h-48Z', PAPER) + line('M468 274l-6-22M504 274l6-22', PAPER, 4)
@@ -793,5 +828,5 @@ if __name__ == '__main__':
     names = ['event-' + key for key in order]
     for key in order:
         save('event-' + key, svg(W, H, ART[key]))
-    sheet(names, 'sheet-events.png', cols=4, w=300, ratio=1.5625)
     print(len(names), 'event pictures written')
+    sheet(names, 'sheet-events.png', cols=4, w=300, ratio=1.5625)

@@ -264,21 +264,21 @@ def robert():
         wall(LEAF, .36) + vlines(range(20, 600, 40), PAPER, 3, .5) + disc()
         # the tall shelf
         + box(14, 22, 174, 304, INK)
-        + books(26, 116, [(22, 70, RED, RED_D), (18, 60, PAPER, KRAFT), (26, 76, BLU, BLU_L), (16, 56, YEL, YEL_D),
+        + books(26, 116, [(22, 70, RED, RED_D), (18, 60, PAPER, None), (26, 76, BLU, BLU_L), (16, 56, YEL, None),
                           (24, 72, GRN, GRN_L), (20, 62, ORANGE, None)])
-        + books(26, 212, [(20, 64, BLU_L, BLU), (26, 76, RED, RED_L), (16, 58, PAPER, KRAFT), (22, 70, YEL, None)])
+        + books(26, 212, [(20, 64, BLU_L, None), (26, 76, RED, RED_L), (16, 58, PAPER, KRAFT), (22, 70, YEL, None)])
         + flat_book(122, 196, 54, 16, GRN, GRN_L) + flat_book(126, 182, 46, 14, RED_L, RED)
-        + books(26, 316, [(24, 80, GRN_D, GRN_L), (18, 66, PAPER, KRAFT), (22, 74, RED_D, RED_L), (26, 82, BLU_D, BLU_L),
-                          (18, 60, YEL, YEL_D), (22, 72, PINK, None)])
+        + books(26, 316, [(24, 80, GRN_D, GRN_L), (18, 66, PAPER, None), (22, 74, RED_D, None), (26, 82, BLU_D, BLU_L),
+                          (18, 60, YEL, None), (22, 72, PINK, None)])
         + box(14, 116, 174, 8, INK) + box(14, 212, 174, 8, INK)
         # a clock, and a low shelf with a globe
         + dot(506, 92, 42, INK) + dot(506, 92, 33, PAPER)
         + line('M506 66v5M506 113v5M480 92h5M527 92h5', SLATE, 4) + line('M506 92V74M506 92l15 9', INK, 5) + dot(506, 92, 5, RED)
         + box(424, 214, 164, 112, INK)
-        + books(434, 266, [(18, 38, RED, None), (14, 32, PAPER, KRAFT), (20, 40, GRN, None), (16, 34, YEL, None),
-                           (18, 38, BLU_L, None), (14, 30, ORANGE, None), (20, 40, RED_L, None)])
-        + books(434, 318, [(20, 40, BLU, None), (16, 34, PAPER, KRAFT), (18, 38, YEL_D, None), (22, 40, GRN_L, None),
-                           (14, 32, RED, None), (18, 36, PAPER, None), (16, 40, BLU_D, None)])
+        + books(434, 266, [(22, 38, RED, None), (18, 32, PAPER, None), (24, 40, GRN, None), (20, 34, YEL, None),
+                           (22, 38, BLU_L, None), (24, 40, RED_L, None)])
+        + books(434, 318, [(24, 40, BLU, None), (20, 34, PAPER, None), (22, 38, YEL_D, None), (26, 40, GRN_L, None),
+                           (18, 32, RED, None), (22, 40, BLU_D, None)])
         + box(456, 204, 44, 10, INK, 4) + box(474, 194, 8, 12, INK)
         + dot(478, 166, 31, BLU) + shape('M460 152c8-9 21-7 23 4 2 9-10 11-12 21-9 0-17-13-11-25z', GRN)
         + shape('M488 172c8-2 15 4 12 13-6 6-15 1-12-13z', GRN) + line('M458 150c5-8 12-12 20-13', PAPER, 5, .5)
@@ -406,7 +406,7 @@ def rara():
 def aisyah():
     t = 'tan'
     spikes = ''
-    for i, a in enumerate(range(-160, -19, 14)):
+    for a in range(-160, -19, 14):
         tip = 128 + 12 * math.cos(math.radians(a + 90))
         p = [(300 + r * math.cos(math.radians(b)), 196 + r * math.sin(math.radians(b))) for r, b in ((76, a - 6.5), (tip, a), (76, a + 6.5))]
         spikes += shape('M' + 'L'.join(f'{x:.1f} {y:.1f}' for x, y in p) + 'Z', INK)
@@ -745,9 +745,9 @@ def hafiz():
         + shape('M0 70h52l16 30h46l22 36 26 12 22 178H0z', STONE)
         + shape('M52 70l16 30h46l22 36 26 12 4 30-34-14-24-38H62L40 70z', KRAFT, .7)
         + line('M0 262h150M0 300h170M0 150h60', KRAFT, 4, cap='butt')
-        + spine + ribs
-        + shape('M132 170c14-10 34-8 42 6 4 8 2 18-6 22l-28 6c-10-4-14-22-8-34z', PAPER) + dot(156, 182, 5, STONE)
-        + line('M146 204l18-4', STONE, 3)
+        + group(spine + ribs
+                + shape('M132 170c14-10 34-8 42 6 4 8 2 18-6 22l-28 6c-10-4-14-22-8-34z', PAPER) + dot(156, 182, 5, STONE)
+                + line('M146 204l18-4', STONE, 3), 'translate(-12 0)')
         # the shelter and the finds table
         + line('M424 178V326M572 170V326', INK, 8, cap='butt')
         + shape('M404 148l188-18 8 44-190 22z', BLU) + shape('M410 196l190-22v10l-188 22z', BLU_D)

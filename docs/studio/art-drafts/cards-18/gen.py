@@ -38,19 +38,7 @@ def upgrade(body):
 
 ART = {}
 
-# Heatwave: the picture from the Market Ticket event card, framed so its ground strip sits on the bottom edge.
-ART['event-heatwave'] = svg('0 -72 566 362', f'''
-<rect y="-72" width="566" height="362" fill="{RED}"/>
-<path d="M240 100a170 170 0 1 0 340 0a170 170 0 1 0-340 0Z" fill="#ee6525"/><path d="{BURST}" fill="{YEL}"/>
-<path d="M340 100a70 70 0 1 0 140 0a70 70 0 1 0-140 0Z" fill="{PAPER}"/><path d="M352 100a58 58 0 1 0 116 0a58 58 0 1 0-116 0Z" fill="{YEL}"/>
-<circle cx="390" cy="94" r="6.6" fill="{INK}"/><circle cx="430" cy="94" r="6.6" fill="{INK}"/>
-<path d="M388 116q22 18 44 0" fill="none" stroke="{INK}" stroke-width="6" stroke-linecap="round"/>
-<rect y="232" width="566" height="58" fill="{INK}"/>
-<rect x="52" y="26" width="34" height="160" rx="17" fill="{PAPER}"/><rect x="63" y="84" width="12" height="96" rx="6" fill="{INK}"/>
-<circle cx="69" cy="194" r="28" fill="{PAPER}"/><circle cx="69" cy="194" r="18" fill="{INK}"/>
-<path d="M96 58h16v6H96ZM96 88h16v6H96ZM96 118h16v6H96ZM96 148h16v6H96Z" fill="{PAPER}"/>
-<path d="M150 150q14-15 0-30t0-30M196 136q14-15 0-30t0-30" fill="none" stroke="{PAPER}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-{fr('watermelon', 150, 148, 230)}''')
+# Heatwave and the other event pictures are drawn in events.py.
 
 # Favoured Trade: two price tags with the same price; the favoured one has the sunburst behind it.
 ART['favour-favoured-trade'] = favour(f'''
