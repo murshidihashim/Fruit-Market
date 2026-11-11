@@ -1,0 +1,58 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-105",
+    "REP-106"
+  ],
+  "decisions": [
+    "DEC-101"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
+    "date": "2026-11-12"
+  },
+  "delivery": "not started",
+  "id": "PLAN-082",
+  "title": "Rules 18 balance: Charmer 3 favour cards, Ripening Room without the discount",
+  "problem": "Under rules 18 the Charmer is above fair at every table size, and the Ripening Room's discount largely cancels the dearer green mango and makes the room the strongest upgrade.",
+  "scope": [
+    "The Charmer starts with 3 favour cards, not 4",
+    "The Ripening Room no longer makes green mangoes $1 cheaper; faster ripening and its $4 cost stay",
+    "RULES.md, the in-game rule and card texts, and the rules 18 tests follow",
+    "The balance report is run again with both changes, with Normal and with Hard computers"
+  ],
+  "exclusions": [
+    "Mango standing orders: left as they are",
+    "Any other rule or number",
+    "A rules version bump: 18 has not shipped"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes; tests cover the Charmer's hand and the Ripening Room's price",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Balance report: every shopkeeper within 4 points of fair at 2, 3, 4 and 6 stalls with Normal computers; the Hard-computer run reported",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

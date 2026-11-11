@@ -2488,6 +2488,31 @@
         "REP-106"
       ],
       "reviewTrigger": "After the first playtest by people (is rent fair, is five days the right week), or if release A changes takings"
+    },
+    {
+      "id": "DEC-101",
+      "title": "Rules 18 balance: the Charmer holds 3 favour cards, the Ripening Room loses its discount, mango orders stay",
+      "question": "The three balance choices left open by the rules 18 results (REP-105): the Charmer's favour cards, the Ripening Room's $1 discount on green mangoes, and mango standing orders that find no bidder.",
+      "choice": "1. The Charmer (Ah Chen) starts with 3 favour cards, not 4. 2. The Ripening Room no longer makes green mangoes $1 cheaper; it keeps its faster ripening and its $4 cost. 3. Mango standing orders are left as they are: an order nobody bids for is simply skipped; looked at again when the Market Month is tuned. Both rule changes go into rules version 18 before it ships (it has not been released or put on the preview), and the balance report is run again.",
+      "rationale": "REP-105 section 4. With 3 cards every shopkeeper was within 4 points at 2, 3, 4 and 6 stalls in games between Normal computers (largest distance 2.6 / 3.1 / 1.8 / 3.7); not yet run with Hard computers. The discount largely undid the $4 green mango: stalls with the room paid about $3.40 to $3.55, 50 to 90% of computers built it, and it was the strongest upgrade.",
+      "impact": {
+        "player": "Ah Chen is no longer the best pick at every table; the Ripening Room is a choice, not a must.",
+        "technical": "src/engine data and rules, RULES.md, the rules 18 tests, the card texts and the print kit's cards. The rules version stays 18. The Market Month's rent table is made on these numbers.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-105",
+        "REP-106"
+      ],
+      "reviewTrigger": "If the balance report with these two changes shows a shopkeeper more than 4 points from fair, or the Ripening Room is then never built"
     }
   ],
   "history": [
@@ -3450,6 +3475,10 @@
     {
       "at": "2026-11-12 06:59",
       "text": "Owner approved the three decisions in REP-106: three releases in place of one (DEC-098), the stamp book ladder (DEC-099) and the Market Month with the League folded in and a five-day Daily market (DEC-100). Release A starts with PLAN-081: flow repairs and two defects. Still to be put to the owner: REP-105's three balance choices, which must be settled before release A is final."
+    },
+    {
+      "at": "2026-11-12 07:15",
+      "text": "Owner settled REP-105's three balance choices (DEC-101): the Charmer starts with 3 favour cards; the Ripening Room's $1 green-mango discount is dropped; mango standing orders are left as they are. PLAN-082 holds the two rule changes and the balance re-run; it starts when PLAN-081 is merged. Found while checking: the helper for PLAN-081 had been started from the last merge to main, 32 commits behind the working branch, and was told to bring its copy up to date before changing anything."
     }
   ]
 }
