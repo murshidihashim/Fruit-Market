@@ -379,7 +379,8 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
   // The ticket prints today's price (events and generous customers change it). A finished row is ticked and shows
   // what was asked for; a changed price is tinted.
   const lines: TicketLine[] = c.wants.map((w, i) => {
-    const max = effectiveMax(s, w, c.generous);
+    // A standing order pays its holder's bid (rules 17: a rival $1 less); no event or Closing Day changes it.
+    const max = c.order ? c.order.price : effectiveMax(s, w, c.generous);
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (

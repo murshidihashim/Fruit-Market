@@ -128,7 +128,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
     if (ordering) return <OrderPanel key={`or-${s.day}-${bidder}`} s={s} p={bidder} onBid={(price) => { fx.card(); act({ kind: 'order', price }); }} />;
-    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting onBid={() => undefined} />;
+    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting canChange={!!online} onBid={(price) => { if (online) { fx.card(); act({ kind: 'order', price }); } }} />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
     if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts, fav) => { fx.card(); act({ kind: 'prices', posts, favoured: fav }); }} />;

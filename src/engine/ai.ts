@@ -9,7 +9,7 @@ import {
   capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView,
-  type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
+  type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock, orderRivalPay,
 } from './game';
 import { Rng } from './rng';
 
@@ -208,9 +208,10 @@ function pickPurchase(s: GameState, p: number): { f: FruitId; pos: number; score
         const at = shelfPos(s.players[p], f, pos);
         // The holder buys what its order still needs (a piece that will be Fresh or Okay on the due day), freshest first.
         if (o.holder === p && usableAfter(f, at, nights) && orderStock(s, p, o) < o.qty) score = Math.max(score, 0) + o.fine + at * 0.2;
-        // On the due day a Hard rival buys the order's fruit when the holder is short: the order pays a rival the full ceiling.
+        // On the due day a Hard rival buys the order's fruit when the holder is short, if the order's price for a rival
+        // ($1 under the holder's bid, rules 17) beats what customers usually pay.
         if (o.holder !== p && nights === 0 && lv === 'hard' && stageAt(f, at) !== 'notso' && at < FRUIT[f].ripe.length) {
-          if (orderStock(s, o.holder, o) < o.qty) score += (o.ceiling - WANT_AVG[f].max) * 0.6;
+          if (orderStock(s, o.holder, o) < o.qty && o.price !== null) score += Math.max(0, orderRivalPay(o.price) - WANT_AVG[f].max) * 0.6;
         }
       }
       if (!best || score > best.score) best = { f, pos, score };

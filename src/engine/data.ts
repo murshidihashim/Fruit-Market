@@ -370,15 +370,14 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
 };
 /** A stall has room for this many upgrades (rules 14). */
 export const MAX_UPGRADES = 2;
-export const UPGRADE_OFFER = 3;
 
 // ---------- standing orders (rules 14) ----------
 // A big public order turns up on each Market Day morning, due two days later. Every stall secretly names the price
 // per piece it would do it for; the lowest wins the order. On the due day the order is served first: it takes the
-// holder's pieces (paid at its own bid) and buys anything still missing from rivals at the full ceiling. The holder
+// holder's pieces (paid at its own bid) and buys anything still missing from rivals at $1 under the holder's bid (rules 17). The holder
 // is fined for every piece it did not supply itself.
 
-export interface OrderCard { name: string; title: string; quirk: string; fruit: FruitId; /** The highest bid allowed, and what a rival is paid per piece. */ ceiling: number; /** The holder's fine per piece it did not supply. */ fine: number }
+export interface OrderCard { name: string; title: string; quirk: string; fruit: FruitId; /** The highest bid allowed. */ ceiling: number; /** The holder's fine per piece it did not supply. */ fine: number }
 
 export const ORDER_CARDS: OrderCard[] = [
   { name: 'School Canteen', title: 'The School Canteen', quirk: 'Four hundred lunchboxes, each with blueberries.', fruit: 'blueberry', ceiling: 9, fine: 6 },

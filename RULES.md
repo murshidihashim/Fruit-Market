@@ -129,7 +129,7 @@ Customers buy in row order; a standing order collected today goes first (see Sta
 - A customer who doesn't get everything leaves at the end of the day. Nobody waits overnight.
 
 ### Evening and night
-- **Evening:** play evening favours (Priority, Gossip). On the evening after each Market Day (days 3, 6, 9 and 12), build **one stall upgrade** from the three on offer (one only, that evening; a stall has room for two). Pak Din (Shade Cloth) names tonight's fruit.
+- **Evening:** play evening favours (Priority, Gossip). On the evening after each Market Day (days 3, 6, 9 and 12), build **one stall upgrade** from those you have not built (one only, that evening; a stall has room for two). Pak Din (Shade Cloth) names tonight's fruit.
 - **Night:** all fruit at the market and in every stall ages one step (none after a Monsoon Downpour). Spoiled fruit is thrown away.
 
 ## Market rhythm
@@ -143,19 +143,19 @@ Market Days and Closing Day are on by default and can be switched off in the set
 
 A standing order is one big public order, turned over on a Market Day morning and collected **two days later**. It wants one fruit: **3 pieces at 2 or 3 stalls, 4 at 4 stalls, 5 at 5 or 6**, Fresh or Okay.
 
-1. **Bid.** Before anyone buys, every stall secretly names the price per piece it would fill the order for, from $1 up to the card's ceiling, or passes. All bids are shown together. **The lowest bid wins** and holds the order. Ties go to a stall with an Order Book, then to the stall earlier in today's buying order. If everyone passes, the order is discarded.
+1. **Bid.** Before anyone buys, every stall decides whether to bid: the price per piece it would fill the order for, from $1 up to the card's ceiling, or a pass. **Who is bidding and who has passed is public; the prices are secret.** A stall may change its bid, or pass after all, for as long as any stall is still deciding. When the last stall decides, all bids are shown together. **The lowest bid wins** and holds the order. Ties go to a stall with an Order Book, then to the stall earlier in today's buying order. If everyone passes, the order is discarded.
 2. **Get ready.** The holder has three buying turns (today, tomorrow and the due day) to have the pieces on its shelf.
-3. **Collect.** On the due day the order stands at the front of the row and is served first, from the crates. It takes the **holder's** Fresh or Okay pieces first (freshest first) and pays the holder its bid for each. If it still wants more, it buys the freshest pieces **rivals** have put out and pays them the card's full ceiling.
+3. **Collect.** On the due day the order stands at the front of the row and is served first, from the crates. It takes the **holder's** Fresh or Okay pieces first (freshest first) and pays the holder its bid for each. If it still wants more, it buys the freshest pieces **rivals** have put out and pays them **$1 less than the holder's bid** (never less than $1).
 4. **Fine.** The holder pays the card's fine for **every piece it did not supply itself** (never more than its cash; halved by an Order Book).
 
-| Order | Fruit | Ceiling (highest bid, and what a rival is paid) | Fine for each piece the holder misses |
+| Order | Fruit | Ceiling (the highest bid) | Fine for each piece the holder misses |
 |---|---|---|---|
 | The School Canteen, The Smoothie Stand | Blueberry | $9 | $6 |
 | The Beach Resort, The Company Picnic | Watermelon | $12 | $8 |
 | The Pie Factory, The Cider Press | Apple | $11 | $7 |
 | The Airline Caterer, The Royal Banquet | Mango | $18 | $12 |
 
-A standing order draws no favour card and pays no tips. Closing Day adds its $1 to the ceiling only. Standing orders are not used in the Basic game.
+A standing order draws no favour card and pays no tips, and no event or Closing Day changes what it pays. No standing order is turned over if it could not be collected by the last day. Standing orders are not used in the Basic game.
 
 ## Event cards
 
@@ -197,7 +197,7 @@ Guest prices are fixed (Closing Day's +$1 still applies).
 
 ## Stall upgrades
 
-Drafted on the evening after each Market Day: three of the upgrades you have not built are on offer, and you may build one. Each can be built once, **a stall has room for two**, and each changes what you do.
+On the evening after each Market Day every upgrade you have not built is on offer (all five to start with), and you may build one. Each can be built once, **a stall has room for two**, and each changes what you do.
 
 | Upgrade | Cost | Effect |
 |---|---|---|
@@ -242,7 +242,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (soft included), at **top − 1 fresh or okay**, at **the top itself fresh only**, and above the top nothing (a Premium Display may go $1 over for fresh fruit). The cheapest posted price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
 
-**Money.** Use paper notes, not coins. In computer games a stall finishes a 10-day game with about $95 to $130. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
+**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $95 to $130. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
 
 **Components for 6 stalls.** About 50 tokens of each fruit, 6 of each upgrade, 8 standing-order cards and 18 favour cards.
 
@@ -291,6 +291,13 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 - **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
 - **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
 - **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy and sell; they never read a crate before the bell, so they can be fooled.
+
+## Open bidding, rival pay and upgrades (rules version 17)
+
+- **Bidding in the open.** For a standing order everyone sees who is bidding, who passed and who is still deciding. Prices stay secret until the last stall decides, and until then anyone may change their bid or pass.
+- **Rivals fill the gap for $1 less.** A rival whose pieces the order takes is paid $1 under the holder's bid (never under $1), not the card's price.
+- **All five upgrades.** After a Market Day every upgrade a stall has not built is on offer, as on the table.
+- **In the app** computer stalls decide first, so you see them before you bid.
 
 ## Tomorrow's queue while buying (rules version 16)
 

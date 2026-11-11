@@ -121,7 +121,7 @@ const SLIDES = [
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> turns up: one big order, collected two days later. Every stall secretly names the price per piece it would do it for, and the <b>lowest bid wins</b>. On the due day the order takes the winner's pieces first and buys anything missing from rivals at full price. The winner is <b>fined</b> for every piece it did not supply.</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> turns up: one big order, collected two days later. Every stall names the price per piece it would do it for, or passes: you see who is bidding, never their price, and you can change your mind until the last stall decides. The <b>lowest bid wins</b>. On the due day the order takes the winner's pieces first and buys anything missing from rivals at $1 under the winning bid. The winner is <b>fined</b> for every piece it did not supply.</p>
         <p>That evening you may build <b>one stall upgrade</b> (your stall has room for two), which costs cash and changes how you play:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
         <p>On the <b>final day</b> (Closing Day, on by default), customers pay ${LAST_CALL_BONUS} more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each (green fruit gets nothing). That's the last chance to turn fruit into cash.</p>

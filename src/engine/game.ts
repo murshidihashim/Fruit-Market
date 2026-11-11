@@ -12,7 +12,7 @@ import {
   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
-  CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADE_OFFER, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
+  CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
   acceptsStage, deliveryPos, favourDeckFor, freshPos, orderQty, prefOf, sharpEarsTip, stageAt, trackLength,
   type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type Stalls, type TraitId, type UpgradeId, type Want,
 } from './data';
@@ -143,7 +143,8 @@ export interface Standing {
   /** The day the order is collected. */
   due: number;
   /** Each stall's secret bid per piece: null until it has bid, 'pass' if it did not want the order. */
-  bids: (number | 'pass' | null)[];
+  /** null: still deciding. In a view for another stall, a rival's price is 'in' (rules 17: who is bidding is public, the amount is not). */
+  bids: (number | 'pass' | 'in' | null)[];
   /** The stall that won the order (null until the bids are in). */
   holder: number | null;
   /** The winning bid: what the holder is paid per piece. */
@@ -338,7 +339,13 @@ export function rowCustomers(s: GameState): Customer[] {
 export function activePlayer(s: GameState): number {
   if (s.phase === 'stall') return s.stalls.findIndex((x) => x === null);
   if (s.phase === 'bid') return s.bids.findIndex((b) => b === null);
-  if (s.phase === 'order') return s.standing ? s.standing.bids.findIndex((b) => b === null) : -1;
+  // Rules 17: who is bidding is public, so computer stalls decide first and a person sees them before deciding.
+  if (s.phase === 'order') {
+    if (!s.standing) return -1;
+    const open = (kind: 'ai' | 'human') => s.standing!.bids.findIndex((b, i) => b === null && s.players[i].kind === kind);
+    const ai = open('ai');
+    return ai >= 0 ? ai : open('human');
+  }
   if (s.phase === 'buy' || s.phase === 'evening') return s.order[s.turn] ?? -1;
   return -1;
 }
@@ -674,14 +681,20 @@ export function orderDueToday(s: GameState): Standing | null {
 export function canBidOrder(s: GameState, p: number, price: number | null): string | null {
   const o = s.standing;
   if (s.phase !== 'order' || !o) return 'No standing order to bid for';
-  if (o.bids[p] !== null) return 'You have already bid';
+  // Rules 17: a stall may change its bid, or pass after all, for as long as another stall is still deciding.
+  if (o.bids[p] !== null && !o.bids.some((b, i) => i !== p && b === null)) return 'Bidding is closed';
   if (price === null) return null;
   if (!Number.isInteger(price) || price < 1) return 'Bids start at $1';
   if (price > o.ceiling) return `The most this order pays is $${o.ceiling} a piece`;
   return null;
 }
 
-/** A stall's secret bid for the standing order: its price per piece, or null to pass. The lowest bid wins. */
+/** What a rival is paid for each piece it supplies to a standing order (rules 17): $1 under the winner's bid, never under $1. */
+export function orderRivalPay(bid: number): number {
+  return Math.max(1, bid - 1);
+}
+
+/** A stall's bid for the standing order: its price per piece (secret), or null to pass. The lowest bid wins. */
 export function bidOrder(state: GameState, p: number, price: number | null): GameState {
   const why = canBidOrder(state, p, price);
   if (why) throw new RuleError(why);
@@ -773,7 +786,7 @@ function customersArrive(s: GameState) {
   if (s.event?.extra) arriving.push(makeCustomer(s, s.event.extra));
   // The standing order stands at the front of the row and is served first.
   if (due) {
-    const wants: Want[] = [{ fruit: due.fruit, qty: due.qty, max: due.ceiling, fixed: true }];
+    const wants: Want[] = [{ fruit: due.fruit, qty: due.qty, max: due.price!, fixed: true }];
     arriving.unshift({ id: s.nextId++, name: ORDER_CARDS[due.card].name, wants, original: clone(wants), pref: 'everyday', order: { holder: due.holder!, price: due.price!, fine: due.fine, ceiling: due.ceiling } });
   }
   s.firstMarket = arriving;
@@ -998,6 +1011,8 @@ export function publicView(state: GameState, seat: number, memory = false): Game
   const shut = s.phase === 'stall' || bid;
   if (shut) s.out = s.players.map((_, i) => (bid ? outCount(state, i) : null));
   else delete s.out;
+  // Rules 17: while the standing order is bid for, everyone sees who is bidding and who passed, never a rival's price.
+  if (s.phase === 'order' && s.standing) s.standing.bids = s.standing.bids.map((b, i) => (i !== seat && typeof b === 'number' ? 'in' : b));
   s.players.forEach((pl, i) => {
     if (i === seat) return;
     if (!memory) for (const f of FRUITS) pl.stock[f] = pl.stock[f].map(() => 0);
@@ -1098,7 +1113,7 @@ function resolve(s: GameState) {
       const max = effectiveMax(s, w, c.generous);
       const offers: (Offer & { used: number[] })[] = [];
       // Rules 14: a standing order takes Fresh or Okay pieces of its fruit from the crates, freshest first. The
-      // holder is paid its own bid for each piece and goes first; a rival is paid the order's full ceiling.
+      // holder is paid its own bid for each piece and goes first; a rival is paid $1 under that bid (rules 17).
       if (c.order) s.players.forEach((_, p) => {
         if (left[p][w.fruit] <= 0) return;
         const used: number[] = [];
@@ -1106,7 +1121,7 @@ function resolve(s: GameState) {
           if (stageAt(w.fruit, i) === 'notso') continue;
           for (let k = 0; k < crates[p][w.fruit][i] && used.length < Math.min(left[p][w.fruit], w.qty); k++) used.push(i);
         }
-        const price = p === c.order!.holder ? c.order!.price : c.order!.ceiling;
+        const price = p === c.order!.holder ? c.order!.price : orderRivalPay(c.order!.price);
         if (used.length === 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
         else offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
       });
@@ -1281,7 +1296,8 @@ function dealUpgrades(s: GameState) {
   for (const pl of s.players) {
     // Rules 14: a stall has room for MAX_UPGRADES upgrades.
     const open = pl.upgrades.length >= MAX_UPGRADES ? [] : (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u));
-    pl.upgradeOffer = withRng(s, (r) => r.shuffle(open)).slice(0, UPGRADE_OFFER);
+    // Rules 17: every upgrade the stall has not built is on offer (as on the table, where all five piles are out).
+    pl.upgradeOffer = open;
   }
 }
 

@@ -64,7 +64,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
   )}
   {tip && (
     <div class="tip-pop tip-card-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={() => setTip(null)}>
-      <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
+      <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: tip.order ? tip.order.price : effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
       <div class="tip-notes">
         {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
         {/* The ticket already says who buys what freshness; this is only the key to the prices (PLAN-076). */}

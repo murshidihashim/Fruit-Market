@@ -75,10 +75,10 @@ describe('turn order', () => {
 });
 
 describe('specialities draft', () => {
-  it('offers three of the unbuilt upgrades on the evening after a Market Day, and only then (rules 14: five upgrades)', () => {
+  it('offers every unbuilt upgrade on the evening after a Market Day, and only then (rules 17: all five on offer)', () => {
     const s = runTo(newGame(ais(2, 7)), 3, 'evening');
     for (const pl of s.players) {
-      expect(pl.upgradeOffer!.length).toBe(Math.min(3, (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u)).length));
+      expect(pl.upgradeOffer).toEqual((Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u)));
     }
     const p = s.order[s.turn];
     const rich = structuredClone(s);

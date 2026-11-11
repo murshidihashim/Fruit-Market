@@ -124,7 +124,7 @@ describe('rules 14: standing orders', () => {
     expect(canBidOrder(s, 0, top + 1)).toMatch(/most this order pays/);
     expect(canBidOrder(s, 0, 0)).toMatch(/start at \$1/);
     s = bidOrder(s, 0, top);
-    expect(canBidOrder(s, 0, 5)).toMatch(/already bid/);
+    expect(canBidOrder(s, 0, 5)).toBeNull(); // rules 17: a bid may change while another stall is still deciding
     s = bidOrder(s, 1, 7);
     s = bidOrder(s, 2, 7);
     expect(s.phase).toBe('order');
@@ -145,7 +145,7 @@ describe('rules 14: standing orders', () => {
     expect(none.phase).toBe('buy');
   });
 
-  it('on the due day it is served first: the holder is paid its bid, a rival the ceiling, and the holder is fined for the gap', () => {
+  it('on the due day it is served first: the holder is paid its bid, a rival $1 less (rules 17), and the holder is fined for the gap', () => {
     let s = marketDay(4); // qty 4
     for (const p of [0, 1, 2, 3]) s = bidOrder(s, p, p === 1 ? 6 : null);
     const o = structuredClone(s.standing!);
@@ -163,9 +163,9 @@ describe('rules 14: standing orders', () => {
     for (const p of [1, 2, 3]) s = submitPrices(s, p, [{ fruit: f, price: 30 }]); // too dear for any customer
     const r = s.results!.order!;
     expect(r).toMatchObject({ holder: 1, price: 6, ceiling: o.ceiling, qty: 4, short: 1, fine: o.fine });
-    expect(r.sales).toEqual([{ player: 1, n: 3, price: 6 }, { player: 2, n: 1, price: o.ceiling }]);
+    expect(r.sales).toEqual([{ player: 1, n: 3, price: 6 }, { player: 2, n: 1, price: 5 }]);
     expect(s.players[1].cash).toBe(cash[1] + 3 * 6 - o.fine);
-    expect(s.players[2].cash).toBe(cash[2] + o.ceiling);
+    expect(s.players[2].cash).toBe(cash[2] + 5);
     expect(s.players[3].cash).toBe(cash[3]);
     expect(s.results!.favours).toEqual([]); // a standing order draws no favour card
     // The collected order is gone afterwards (the next Market Day may already have announced a new one).

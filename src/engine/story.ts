@@ -429,7 +429,7 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
     const who = s.players[ord.holder].name;
     const mine = ord.qty - ord.short;
     const rivals = ord.sales.filter((x) => x.player !== ord.holder);
-    const gap = rivals.length ? ` ${rivals.map((x) => s.players[x.player].name).join(' and ')} filled the gap at $${ord.ceiling}.` : '';
+    const gap = rivals.length ? ` ${rivals.map((x) => s.players[x.player].name).join(' and ')} filled the gap at $${rivals[0].price}.` : '';
     return ord.short === 0
       ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${ord.price}!`, tags }
       : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.${gap}`, detail: `${who} is fined $${ord.fine}.`, tags };

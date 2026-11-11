@@ -12,7 +12,7 @@
 // - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
 //   computer plays their seat (they can reconnect and take it back at any time).
 
-import { aiActFor, aiStep } from '../src/engine/ai';
+import { aiActFor, aiStep, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
@@ -92,7 +92,7 @@ export function freshRoom(code: string, now: number, quick = false): RoomData {
 const HIDDEN_FAVOUR: FavourId = 'priority';
 
 /** The game as one player is allowed to see it. */
-export function redact(g: GameState, seat: number): GameState {
+export function redact(g: GameState, seat: number, pending?: readonly unknown[]): GameState {
   // Rules 15, secret stalls: a rival's shelf is never sent, and its crate only as a count of pieces until the bell.
   const v: GameState = publicView(g, seat);
   v.rng = 0;
@@ -107,8 +107,17 @@ export function redact(g: GameState, seat: number): GameState {
   // Simultaneous steps: nobody's crate or prices show until every shop has committed.
   if (v.phase === 'stall') { v.stalls = v.stalls.map(() => null); if (v.crates) v.crates = v.crates.map(() => null); }
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
-  // Rules 14: bids for a standing order stay secret until every stall has bid.
-  if (v.phase === 'order' && v.standing) v.standing.bids = v.standing.bids.map(() => null);
+  // Rules 17: while a standing order is bid for, everyone sees who is bidding, who passed and who is still deciding;
+  // the prices stay secret until every stall has decided. A person's choice is held in `pending` until then; a
+  // computer stall's choice is what it will bid (planOrderBid does not depend on the other bids).
+  if (v.phase === 'order' && v.standing) {
+    v.standing.bids = g.players.map((pl, i) => {
+      const pb = pending?.[i] as { bid?: number | null } | null | undefined;
+      if (pb && 'bid' in pb) return pb.bid === null || pb.bid === undefined ? 'pass' : i === seat ? pb.bid : 'in';
+      if (pl.kind === 'ai') return planOrderBid(g, i) === null ? 'pass' : 'in';
+      return null;
+    });
+  }
   // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
   // Rules 16: tomorrow's walk-ins (drawn in the morning) are face down the same way.
   const back = (c: Customer): Customer => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
@@ -417,7 +426,8 @@ export class Room {
     }
     if (a.kind === 'order') {
       if (g.phase !== 'order') throw new RuleError('No standing order is being bid for now');
-      if (d.pending[seat]) throw new RuleError('Your bid is already in');
+      // Rules 17: a bid may be changed for as long as another stall is still deciding (the step resolves the moment
+      // the last person decides, so a bid that reaches here is still open).
       const bid = a.price === null ? null : Number(a.price);
       const err = canBidOrder(g, seat, bid);
       if (err) throw new RuleError(err);
@@ -580,7 +590,7 @@ export class Room {
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
-      game: g ? redact(g, seat) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
+      game: g ? redact(g, seat, d.pending) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
       ...(d.lastUndo ? { undone: d.lastUndo } : {}),
     };
   }

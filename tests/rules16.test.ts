@@ -27,8 +27,8 @@ function until(s: GameState, day: number, phase: GameState['phase']): GameState 
 const ids = (s: GameState, next: boolean) => [next ? s.nextForecast : s.forecast, ...(next ? s.nextQueue : s.queue)].map((c) => c?.id);
 
 describe('rules version 16: tomorrow\'s queue while buying', () => {
-  it('is the version the app and the server speak', () => {
-    expect(RULES_VERSION).toBe(16);
+  it('is still in force (rules 16 or later)', () => {
+    expect(RULES_VERSION).toBeGreaterThanOrEqual(16);
   });
 
   it('draws tomorrow\'s regular and walk-ins on the first morning, apart from today\'s crowd', () => {

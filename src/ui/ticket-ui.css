@@ -128,3 +128,15 @@
   #app .game.gx.tkt { transition: none; }
   #app .tkt > .centre > .tk-night, #app .tkt > .centre > .tk-night > * { animation: none; }
 }
+
+/* ---------- standing-order bidding (rules 17): who is bidding, who passed, who is still deciding ---------- */
+#app .tkt .op-status { all: unset; display: flex; flex-wrap: wrap; gap: 6px; }
+#app .tkt .op-status li {
+  all: unset; display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0 8px 0 4px; box-shadow: inset 0 0 0 2px var(--tk-ink);
+  font: 700 0.75rem/1 var(--tk-txt);
+}
+#app .tkt .op-status li span { font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.625rem; }
+#app .tkt .op-status li.st-in { background: var(--tk-yel); }
+#app .tkt .op-status li.st-pass { background: var(--tk-kraft); }
+#app .tkt .op-status li.st-pass b { text-decoration: line-through; }
+#app .tkt .op-status li.st-wait span { color: var(--tk-slate); }

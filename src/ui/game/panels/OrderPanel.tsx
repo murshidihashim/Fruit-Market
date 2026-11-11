@@ -1,18 +1,38 @@
-// Standing orders (rules 14): the secret bid on a Market Day morning, and the strip that keeps the order in view
-// until it is collected.
+// Standing orders (rules 14): the bid on a Market Day morning, and the strip that keeps the order in view until it is
+// collected. Rules 17: everyone sees who is bidding, who passed and who is still deciding (never a rival's price), and
+// a stall may change its mind for as long as another stall is still deciding.
 import { useState } from 'preact/hooks';
 import { FRUIT, ORDER_CARDS } from '../../../engine/data';
-import type { GameState } from '../../../engine/game';
+import { orderRivalPay, type GameState } from '../../../engine/game';
 import { Coin, Face, Fruit } from '../../art';
 
 /** "3 mangoes", "1 apple". */
 const pieces = (n: number, f: keyof typeof FRUIT) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
 
-/** Every stall secretly names the price per piece it would fill the order for, or passes. The lowest bid wins. */
-export function OrderPanel({ s, p, waiting, onBid }: { s: GameState; p: number; waiting?: boolean; onBid: (price: number | null) => void }) {
+/** Who is bidding (rules 17): each rival is "bidding", "passed" or "deciding…". The prices stay secret. */
+export function BidStatus({ s, p }: { s: GameState; p: number }) {
+  const o = s.standing!;
+  if (s.players.length < 2) return null;
+  return (
+    <ul class="op-status" aria-label="Who is bidding">
+      {s.players.map((pl, i) => {
+        if (i === p) return null;
+        const b = o.bids[i];
+        const st = b === null ? 'wait' : b === 'pass' ? 'pass' : 'in';
+        return <li class={`st-${st}`}><Face who={pl.avatar} size={20} /><b>{pl.name}</b><span>{st === 'wait' ? 'deciding…' : st === 'pass' ? 'passed' : 'bidding'}</span></li>;
+      })}
+    </ul>
+  );
+}
+
+/** Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
+ *  `waiting`: this stall has decided and others have not; with `canChange` (online) it may still change its mind. */
+export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; p: number; waiting?: boolean; canChange?: boolean; onBid: (price: number | null) => void }) {
   const o = s.standing!;
   const card = ORDER_CARDS[o.card];
-  const [v, setV] = useState(Math.max(1, o.ceiling - 2));
+  const mine = o.bids[p];
+  const [v, setV] = useState(typeof mine === 'number' ? mine : Math.max(1, o.ceiling - 2));
+  const locked = waiting && !canChange;
   const pl = s.players[p];
   const book = pl.upgrades.includes('orderbook');
   const fine = Math.floor(o.fine / (book ? 2 : 1));
@@ -29,24 +49,26 @@ export function OrderPanel({ s, p, waiting, onBid }: { s: GameState; p: number; 
         </div>
         <ul class="op-rules">
           <li>Lowest bid wins the order and is paid that price for each piece.</li>
-          <li>Your pieces are taken first. Anything missing is bought from rivals at <b>${o.ceiling}</b> each.</li>
+          <li>Your pieces are taken first. Anything missing is bought from rivals at $1 under your bid: <b>${orderRivalPay(v)}</b> each.</li>
           <li>You are fined <b>${fine}</b> for every piece you do not supply{book ? ' (halved by your Order Book)' : ''}.</li>
         </ul>
       </div>
-      {waiting ? <div class="hint-bar waiting-dots">Bid in. Waiting for the other stalls</div> : (
+      <BidStatus s={s} p={p} />
+      {waiting && <div class="hint-bar waiting-dots">{mine === 'pass' ? 'You passed' : typeof mine === 'number' ? `Your bid: $${mine}` : 'Bid in'}. {canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}</div>}
+      {!locked && (
         <>
           <div class="op-bid" role="group" aria-label="Your secret bid per piece">
             <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
             <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
             <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
           </div>
-          <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>Pass: I don't want this order</button>
+          {mine !== 'pass' && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
         </>
       )}
     </div>
-    {!waiting && (
+    {!locked && (
       <div class="pp-lock">
-        <button type="button" class="btn primary wide big" onClick={() => onBid(v)}>Bid ${v} a piece</button>
+        <button type="button" class="btn primary wide big" disabled={waiting && mine === v} onClick={() => onBid(v)}>{waiting ? `Change bid to $${v}` : `Bid $${v} a piece`}</button>
       </div>
     )}
     </>
