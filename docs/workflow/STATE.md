@@ -1,8 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 12:28 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 20:25 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 12:28): 1.19.0 live, rules version 16 (PLAN-075)
+## Latest (2026-11-11 20:25): owner fixes built, not published (PLAN-076)
+- **Owner approval (to build):** the fix list after 1.19.0 (REP-099). Publishing not requested.
+- **Built:** pop-ups (full screen, Paused, Continue, Play a friend), New game and The Bell in the Market Ticket look; today's news centred; slower night (1.5 s slide); the market in view in the evening until Lights out; customer ticket shows a price key instead of repeated text.
+- **Checks:** `npm run verify` PASS (442 tests); screenshots PASS; browser tests: see PLAN-076 T3.
+- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`, not merged. Next: owner chooses preview or live.
+- **Parked:** the pricing screen's standing-order wording and $3 price limit (owner will revisit).
+
+## Earlier (2026-11-11 12:28): 1.19.0 live, rules version 16 (PLAN-075)
 - **Owner approval:** "tomorrow's customer queue should also be visible during the buying phase"; chose "Draw it earlier" and "Same as the evening strip"; "push it live ASAP" (DEC-084, REP-098).
 - **In 1.19.0:** tomorrow's regular (face up) and walk-ins (face down) drawn each morning, shown in the Tomorrow strip while buying. RULES_VERSION 16.
 - **Checks:** `npm run verify` PASS (442 tests); rules 16 tests PASS; browser tests PASS (CI run 42957462676, after the deploy); balance target FAIL, unchanged from rules 15; owner phone check NOT RUN.

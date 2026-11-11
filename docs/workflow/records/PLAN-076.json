@@ -1,0 +1,79 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-099"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "src/ui/ticket-ui.css: the Market Ticket look for pop-ups around the table"
+    ],
+    "changed": [
+      "Play full screen?, Paused, Continue and Play a friend pop-ups: square ticket boxes, one black button with mustard type",
+      "New game: square panels and buttons, shopkeeper cards drawn as tickets (black name bar, picture, perk box), square arrows, black Start game",
+      "The Bell notice: black title bar, ruled list with mustard icon squares, black button",
+      "Today's news (from the top bar): centred on the screen",
+      "The night: each piece slides over 1.5 s (was 0.9 s), starting after 0.6 s; the night holds 3 s before spoiled fruit drops",
+      "The evening: the Wholesale Market stays in view until you tap Lights out (tonight's warning sits on it); the evening panel covers it only when there is a choice (an upgrade, Shade Cloth, an evening favour); crates are covered once you have tapped Lights out, and the night starts when every stall has",
+      "A customer's large ticket: the repeated freshness line and the long price sentence replaced by a key: F full price, O $1 less, S $2 less"
+    ],
+    "fixed": [
+      "Today's news sheet sat at the top of the screen (a reset in ticket.css cancelled its centring)"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Pop-ups, New game and The Bell in the new look",
+    "Today's news opens in the middle of the screen",
+    "The night is slower, so you can watch your fruit age",
+    "The wholesale market stays in view in the evening until you tap Lights out",
+    "Customer tickets show a simple price key"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "fix below items first, will revisit this later: full screen design is still old design; new game design is still old design; the bell popup is still old design; today's news appear not centred to the screen when you tapped on the top middle button; animation for fruit rotting needs to be slower ... show the wholesale board before players click the lights out button and start the animation after every players has clicked lights out; there's also repeating \"everyday:buys ... etc\" on the customer cards, simplify the \"each fruit is the most... tap to close\" text to just legends",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-076",
+  "title": "Owner fixes: pop-ups in the new look, centred news, slower night, evening market, simpler customer ticket",
+  "problem": "Owner's list after 1.19.0: older-style full screen, New game and Bell pop-ups; today's news not centred; the night too fast to follow; the market hidden in the evening; repeated text on the customer ticket.",
+  "scope": [
+    "src/ui/ticket-ui.css (new), src/main.tsx",
+    "src/ui/Game.tsx and src/ui/table.tsx (evening: market, note, cover)",
+    "src/ui/game/panels/Popovers.tsx (customer ticket key)",
+    "src/ui/game/panels/NightShift.tsx, src/ui/game/animator.tsx, src/ui/ticket.css (night timing)"
+  ],
+  "exclusions": [
+    "No rule, balance, save, online or data change",
+    "The pricing screen's standing-order wording and price limit (owner: revisit later)",
+    "Not published"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-11: 442 unit tests passed, 1 skipped; lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "Each item checked on screen at 390x844 with no page errors",
+      "result": "PASS",
+      "evidence": "2026-11-11: screenshots of full screen, New game (top and bottom), news, customer ticket, The Bell, a plain evening, a draft evening and the night at 0.3 to 4 s"
+    },
+    {
+      "id": "T3",
+      "text": "Browser tests pass with 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "Running"
+    },
+    {
+      "id": "T4",
+      "text": "Owner has checked it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Not published"
+    }
+  ]
+}

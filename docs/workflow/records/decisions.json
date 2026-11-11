@@ -2970,6 +2970,10 @@
     {
       "at": "2026-11-11 12:28",
       "text": "Release 1.19.0 published (PLAN-075, rules version 16): main c837073, Deploy LIVE game run 37 at 12:13 (owner chose not to wait for browser tests); live smoke test PASS; tagged v1.19.0. CI run 42957462676 PASS afterwards (browser tests, 0 leaks). Balance target FAIL, unchanged from rules 15."
+    },
+    {
+      "at": "2026-11-11 20:25",
+      "text": "Owner's fix list after 1.19.0 built (PLAN-076, REP-099): pop-ups, New game and The Bell in the Market Ticket look; news centred; slower night; market in view in the evening until Lights out; customer ticket key. verify PASS (442 tests). Not published. The pricing screen's standing-order issue is parked at the owner's request."
     }
   ]
 }

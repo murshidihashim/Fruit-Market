@@ -43,9 +43,13 @@ export { LANES, STAGE_LETTER };
  * watermelon, mango, apple), the freshest box at the top, each box with its letter (G, F, O, S), the pieces in it and
  * what one costs. Tap a box to buy one piece.
  */
-export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
+export function Market({ s, p, onPick, canPick, onPulse, lorry, covered, note }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
+  /** The evening, once you have tapped Lights out: the crates are covered until the night (PLAN-076). */
+  covered?: boolean;
+  /** A line under the market's label (the evening's warning: what spoils tonight). */
+  note?: { text: string; good: boolean };
   /** The lorry is at the market from the morning delivery until buying ends: fruit flies in from its place. */
   lorry?: boolean;
 }) {
@@ -65,8 +69,9 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry }: {
         {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
         {turn && <span class="tk-side">{turn}</span>}
       </div>
+      {note && <p class={`tk-info ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</p>}
       <div class="tk-lanes">
-        {s.phase === 'evening' && (
+        {covered && (
           <div class="mk-cover" aria-label="The market is closed for the night"><b>Crates covered</b><small>All fruit ages tonight</small></div>
         )}
         {lanes.map(([f, i]) => (
