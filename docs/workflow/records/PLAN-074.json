@@ -53,8 +53,8 @@
     {
       "id": "T2",
       "text": "Browser tests pass (solo game, performance budget, online with 0 leaks, quick match, reconnect)",
-      "result": "NOT RUN",
-      "evidence": "Running"
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e: E2E OK; solo game to results with no page errors; BUDGET OK; online match 0 leaks in 88 pricing frames; four players and two computers; reconnect 5 of 5"
     },
     {
       "id": "T3",

@@ -5,7 +5,7 @@ Updated 2026-11-11 11:10 (Asia/Kuala_Lumpur), session checkpoint. Sections from 
 ## Latest (2026-11-11 11:10): 1.18.0 prepared, home A and the Lane Drop opening (PLAN-074)
 - **Owner approval:** "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live" (DEC-083, REP-097).
 - **In 1.18.0 (no rules change):** the home screen redrawn as home A, Ticket Booth, in the Market Ticket look, with a small band of the four fruit lanes (the game's fruit icons); the opening is now Lane Drop (about 2.45 s, tap to skip). The Market square home and the lorry opening are gone.
-- **Checks:** `npm run verify` PASS (437 tests); browser tests: see PLAN-074 T2; screenshots at three sizes PASS; owner phone check NOT RUN.
+- **Checks:** `npm run verify` PASS (437 tests); browser tests PASS (0 leaks, reconnect 5/5); screenshots at three sizes PASS; owner phone check NOT RUN.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; next: merge to main, CI, Deploy LIVE game, then mark 1.18.0 published.
 - **Gaps:** worn looks no longer show on the home.
 
