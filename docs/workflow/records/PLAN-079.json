@@ -2,10 +2,12 @@
   "release": "unreleased",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
-    "REP-101"
+    "REP-101",
+    "REP-102"
   ],
   "decisions": [
-    "DEC-086"
+    "DEC-086",
+    "DEC-088"
   ],
   "changes": {
     "added": [],
@@ -26,11 +28,12 @@
   "scope": [
     "src/engine (data, game, ai), src/net/protocol.ts (rules and computer-player versions), server/room.ts (what each phone may see)",
     "The smallest screen changes the new rules need (standing-order stake, today's buys on rival boxes, the top-up line, skipped steps)",
-    "RULES.md, tests, a simulation of the built rules against the targets"
+    "RULES.md, tests, a simulation of the built rules against the targets",
+    "Favoured Trade played after the prices flip (DEC-088): a step between the prices and the rush, only when a holder has a tied price"
   ],
   "exclusions": [
     "The text rewrite (DEC-087), the screen and card redesign, the trophies and the print kit: later packages",
-    "When Favoured Trade is played on the table and how freshness is tracked on the table: open decisions",
+    "How freshness is tracked on the table and whether unsold fruit is kept: open decisions",
     "Publishing"
   ],
   "acceptance": [

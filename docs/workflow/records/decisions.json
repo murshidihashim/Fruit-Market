@@ -2170,6 +2170,31 @@
         "REP-101"
       ],
       "reviewTrigger": "If the owner finds the local wording overdone or wants the harbour setting back for an international edition"
+    },
+    {
+      "id": "DEC-088",
+      "title": "Favoured Trade is played after the prices flip",
+      "question": "When is Favoured Trade played: with the prices (the app), after the flip when a tie is seen (the printed guidebook), or face down with the prices and taken back if unused?",
+      "choice": "After the flip (option B), in the app and on the table. When every price is face up, a stall that holds the card and has a tied price may play it; tied holders decide in today's buying order, in the open. With no tied holder the step does not happen. The effect is unchanged: the stall wins every tied price that day; if two stalls in the same tie both play it, the usual tie order decides between them and both cards are spent. Online, the others see who is deciding; a stall that is away keeps its card. Built as part of rules version 18.",
+      "rationale": "Owner, after the pros and cons of the three options (REP-102): \"go with B\". The table and the app must match, and the printed guidebook already plays it this way. The details beyond \"after the flip\" are stated assumptions.",
+      "impact": {
+        "player": "The card is never wasted and is easier to understand; playing it blind as a gamble goes; on a day a holder is tied the rush waits for a yes or no.",
+        "technical": "A new step between the prices and the rush in the engine, the room server and the screens; computer players decide by comparing the rush with and without the card; part of RULES_VERSION 18.",
+        "data": "None beyond rules version 18."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"go with B\"",
+        "date": "2026-11-11"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-079",
+      "reports": [
+        "REP-102"
+      ],
+      "reviewTrigger": "If simulation shows the card is now the strongest favour, if the pause slows online games, or if players miss the gamble of playing it blind"
     }
   ],
   "history": [
@@ -3072,6 +3097,10 @@
     {
       "at": "2026-11-11 23:39",
       "text": "Owner decided the REP-101 proposal (DEC-086, DEC-087): one release for everything; the $5 top-up; the whole balance set item by item; staked standing orders (to be simulated); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; a plain voice with a Malaysian market feel; three empty steps removed; trophies fitted to the rules. Open: Favoured Trade timing; table freshness tracking (mock-ups asked for). PLAN-079 (rules 18 build) approved."
+    },
+    {
+      "at": "2026-11-12 00:03",
+      "text": "Owner chose option B for Favoured Trade: played after the prices flip (DEC-088, REP-102); added to the rules 18 build (PLAN-079). Asked for the table freshness mock-ups to show buying with old stock and what happens to unsold fruit, and whether unsold fruit should simply be thrown away: step-by-step boards added, recommendation is to keep unsold fruit (REP-102). Open: freshness option 1 or 2; unsold fruit."
     }
   ]
 }

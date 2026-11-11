@@ -1,10 +1,12 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 23:39 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-12 00:03 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
 ## Latest (2026-11-11 23:39): REP-101 decided; rules version 18 build in progress (PLAN-079, DEC-086, DEC-087)
 - **Owner decisions:** one release for everything; $5 top-up for an empty-shelf stall under $5; the balance set item by item; staked standing orders (simulate first); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; plain voice with a Malaysian market feel; Stocking skipped with nothing ripe, evenings only with a choice, a faster rush; trophies fitted to the rules.
-- **Open with the owner:** when Favoured Trade is played (pros and cons given); table freshness tracking (mock-ups of two options).
+- **Decided since (2026-11-12 00:03, DEC-088, REP-102):** Favoured Trade is played after the prices flip (option B); added to the rules 18 build.
+- **Open with the owner:** table freshness tracking, option 1 (ruler) or option 2 (tray), with step-by-step boards on the mock-up page; whether unsold fruit is kept (recommended) or thrown away.
+- **Build helper:** rules 18 is being built in a work folder under `.claude/worktrees`; when it reports, merge its branch, run `npm run verify` and the browser tests, fill in PLAN-079 T1 to T3.
 - **Active package:** PLAN-079, rules 18 engine build. Then: text (DEC-087), screens and one card design (mock-ups first), trophies, the whole print kit from the repo. One release at the end.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; rules 17 and the update pack unpublished; live is 1.19.1 with the defects listed in REP-101.
 
