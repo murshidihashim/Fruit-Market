@@ -2221,6 +2221,30 @@
         "REP-103"
       ],
       "reviewTrigger": "After the owner's table test: choose tracker 1 or 2 for the print kit"
+    },
+    {
+      "id": "DEC-090",
+      "title": "Card design: the owner's first round of changes",
+      "question": "What should change on the card mock-ups (REP-104) before they become the one design for the app and the print kit?",
+      "choice": "Lorry: the card shows the pieces for every table size (2 to 6 stalls), as the printed card does; in the app the row for the game is marked. Customer, face down: four large squares in fixed places (blueberry, watermelon, mango, apple); a wanted fruit shows in its own square; no sentence. Event: the card is labelled \"Event\", not \"Market notice\", and its picture is larger. Customer, face up: no \"Fresh or okay\" words; one row with the three freshness lamps and Okay -$1, Soft -$2; fruit rows always in the order blueberry, watermelon, mango, apple; the picture is a scene that fits the character, not a plain background. Favour and upgrade cards carry pictures.",
+      "rationale": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
+      "impact": {
+        "player": "The lorry card reads the same on the table and in the app; a face-down customer is read by where the fruit sits; less text on the customer card; every card has a picture.",
+        "technical": "New pictures: a scene for each of the 36 customers and the guests, 6 favours, 5 upgrades. Twelve drafts are in docs/studio/art-drafts/cards-18 (one customer scene, all favours, all upgrades). Card components and the print generator follow when the screens are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has seen the revised sheet: the rest of the card (shopkeeper, standing order), the picture style, and whether to draw the other 35 customer scenes the same way"
     }
   ],
   "history": [
@@ -3135,6 +3159,10 @@
     {
       "at": "2026-11-12 00:44",
       "text": "Mock-ups of one card design and seven phone screens for rules 18 sent to the owner for approval (REP-104): the cards, morning, buying, pricing, the rush, the Favoured Trade question, the standing order with a stake, the evening. Nothing is built from them yet. Three questions asked: the card, what stays on screen, the rush."
+    },
+    {
+      "at": "2026-11-12 01:16",
+      "text": "Owner's first round on the card mock-ups recorded (DEC-090) and applied to the mock-up page: lorry with every table size, face-down customer with four fixed squares, \"Event\" with a larger picture, customer front with one legend row and fruit in the fixed order, a fire-station scene for Firefighter Osman as the sample, pictures on favour and upgrade cards. Twelve picture drafts added in docs/studio/art-drafts/cards-18. The owner's \"1\" at the head of the message is read as \"about question 1 (the card)\", not as a choice of tracker 1; asked to confirm."
     }
   ]
 }

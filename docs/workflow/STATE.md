@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 00:44 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-12 01:16 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
 ## Latest (2026-11-11 23:39): REP-101 decided; rules version 18 build in progress (PLAN-079, DEC-086, DEC-087)
 - **Owner decisions:** one release for everything; $5 top-up for an empty-shelf stall under $5; the balance set item by item; staked standing orders (simulate first); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; plain voice with a Malaysian market feel; Stocking skipped with nothing ripe, evenings only with a choice, a faster rush; trophies fitted to the rules.
@@ -8,6 +8,7 @@ Updated 2026-11-12 00:44 (Asia/Kuala_Lumpur), session checkpoint. Sections from 
 - **Decided since (2026-11-12 00:32, DEC-089, REP-103, PLAN-080):** no rule change, unsold fruit is kept; both freshness trackers printed as test packs in `print/tracker-test` (`scripts/print-trackers.ts`) and sent to the owner.
 - **Open with the owner:** tracker 1 (ruler) or 2 (tray), after a table test.
 - **Screens and cards (2026-11-12 00:44, REP-104):** mock-ups of the one card design and seven phone screens sent for approval (https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; files in the session scratchpad, not in the repo). Awaiting: the card, what stays on screen, the rush. Not drawn yet: stocking, night, results, trophies, settings, How to play, small phone, six stalls.
+- **Card changes, round 1 (2026-11-12 01:16, DEC-090):** applied to the mock-ups; picture drafts in `docs/studio/art-drafts/cards-18` (Osman's scene, 6 favours, 5 upgrades). Open: is the picture style right, and should the other 35 customer scenes be drawn the same way; tracker 1 or 2 (the owner's "1" is read as about the cards, to be confirmed).
 - **Build helper:** rules 18 is being built in a work folder under `.claude/worktrees`; when it reports, merge its branch, run `npm run verify` and the browser tests, fill in PLAN-079 T1 to T3.
 - **Active package:** PLAN-079, rules 18 engine build. Then: text (DEC-087), screens and one card design (mock-ups first), trophies, the whole print kit from the repo. One release at the end.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; rules 17 and the update pack unpublished; live is 1.19.1 with the defects listed in REP-101.
