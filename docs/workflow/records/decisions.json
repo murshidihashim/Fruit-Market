@@ -2343,6 +2343,30 @@
         "REP-104"
       ],
       "reviewTrigger": "When the owner has chosen design A, B or C, and when the full picture set is ready to look at"
+    },
+    {
+      "id": "DEC-095",
+      "title": "Design A (Ticket) for the cards; the customer cards keep their earlier design",
+      "question": "Which of the three card designs is used, and what do the backs of the decks look like?",
+      "choice": "Design A, the Ticket style, is used for the event, lorry, shopkeeper, favour, upgrade and standing-order cards: a small label over a thick rule, a large title, the picture with a perforated edge, the key numbers in colour blocks, a dashed footer. The customer front and the customer back keep the earlier design (black heading, picture, fruit rows with a price tag, one legend row; black back with four fixed fruit squares). For the backs of the other decks, three suggestions for each deck, all in the Ticket style, are put to the owner: 1 a ticket stub on a dotted field, 2 a picture of the deck's subject over a name band, 3 a repeating pattern with a name band. One is to be chosen.",
+      "rationale": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
+      "impact": {
+        "player": "One recognisable card family; customers stay as the owner already shaped them.",
+        "technical": "Card components and the print generator follow design A; six back pictures and six pattern tiles drafted in docs/studio/art-drafts/cards-18 (backs.py).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has chosen back suggestion 1, 2 or 3"
     }
   ],
   "history": [
@@ -3285,6 +3309,10 @@
     {
       "at": "2026-11-12 02:15",
       "text": "Correction to DEC-094: the owner resent the request with a typo fixed (\"now give 3 designs each for respective cards back\"): the three designs were wanted for the card backs. Three back designs added to the mock-up page (A Ticket, B Stall, C Crate label), each for the customer back with its four fruit squares and for the event, lorry, favour, upgrade, shopkeeper and standing-order backs. The three front designs drawn first stay on the page as the matching fronts. The owner chooses one style."
+    },
+    {
+      "at": "2026-11-12 02:23",
+      "text": "Owner chose design A (Ticket) for the cards, with the customer front and back kept in their earlier version (DEC-095), and asked for three coherent back suggestions per deck: a board with stub, picture and pattern backs for the lorry, event, favour, upgrade, shopkeeper and standing-order decks is on the mock-up page. The designs not chosen were moved to the bottom of the page."
     }
   ]
 }
