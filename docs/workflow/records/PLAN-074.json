@@ -28,7 +28,7 @@
     "evidence": "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-074",
   "title": "Home screen A (Ticket Booth) and the Lane Drop opening",
   "problem": "The home screen still had the older Market square look after the game table moved to the Market Ticket design in 1.17.0. The owner chose mockup A from three, with the fruit band from mockup C drawn small, and opening 1 (Lane Drop) from three, using the fruit icons the game already uses.",
