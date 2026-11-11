@@ -1,9 +1,9 @@
 """Card pictures for the eight shopkeepers (shop-<id>.svg) and the eight standing-order clients (order-<slug>.svg).
 
 Shopkeepers: one bust behind their own stall. Layers, back to front: the wall in the stall's colour with a quiet
-pattern and the lighter disc behind the head; things on the wall; the scalloped awning; the person, drawn like their
-picture in public/art-ticket/scenes; the counter in a soft tone (never a black strip); fruit crates and the one object
-that hints at their perk.
+pattern and the lighter disc behind the head; things on the wall; the scalloped awning in paper and one strong colour
+(never ink); the person, drawn like their picture in public/art-ticket/scenes; the counter in a soft tone (never a
+black strip); fruit crates and the one object that hints at their perk.
 
 Standing orders: the place itself (no person), with the fruit it wants shown with the game's fruit icons.
 
@@ -316,7 +316,7 @@ SHOPS['saleh'] = scene(
 
 # ---------- Raj: Bargain Hunter, a marked-down tag (kraft stall) ----------
 SHOPS['raj'] = scene(
-    KRAFT, pat_hatch(PALE, .9), PALE, STONE, front=STONE, seam=SLATE, seam_o=.35,
+    KRAFT, pat_hatch(PALE, .9), PALE, STONE,
     props=
     # a price board: prices going down
     L('M76 30v50M148 30v50', INK, 4) + R(50, 76, 124, 90, STONE, rx=5) + R(57, 83, 110, 76, SLATE) +
