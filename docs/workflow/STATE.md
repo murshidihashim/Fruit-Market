@@ -1,8 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 11:46 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 12:10 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 11:46): 1.18.0 live, home A and the Lane Drop opening (PLAN-074)
+## Latest (2026-11-11 12:10): 1.19.0 prepared, rules version 16 (PLAN-075)
+- **Owner approval:** "tomorrow's customer queue should also be visible during the buying phase"; chose "Draw it earlier" and "Same as the evening strip"; "push it live ASAP" (DEC-084, REP-098).
+- **In 1.19.0:** tomorrow's regular (face up) and walk-ins (face down) drawn each morning, shown in the Tomorrow strip while buying. RULES_VERSION 16.
+- **Checks:** `npm run verify` PASS (442 tests); rules 16 tests PASS; browser tests in CI; balance NOT RUN at publication; owner phone check NOT RUN.
+- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; next: merge, CI, Deploy LIVE game, mark 1.19.0 published.
+- **Gaps:** computer players ignore tomorrow's crowd when buying; printed kit not updated.
+
+## Earlier (2026-11-11 11:46): 1.18.0 live, home A and the Lane Drop opening (PLAN-074)
 - **Owner approval:** "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live" (DEC-083, REP-097).
 - **In 1.18.0 (no rules change):** the home screen redrawn as home A, Ticket Booth, in the Market Ticket look, with a small band of the four fruit lanes (the game's fruit icons); the opening is now Lane Drop (about 2.45 s, tap to skip). The Market square home and the lorry opening are gone.
 - **Checks:** `npm run verify` PASS (437 tests); browser tests PASS (0 leaks, reconnect 5/5); screenshots at three sizes PASS; owner phone check NOT RUN.

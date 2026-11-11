@@ -1,0 +1,92 @@
+{
+  "release": "1.19.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-098"
+  ],
+  "decisions": [
+    "DEC-084"
+  ],
+  "changes": {
+    "added": [
+      "Rules version 16: tomorrow's regular (face up) and walk-ins (face down) are drawn each morning, so the Tomorrow strip shows while stalls buy"
+    ],
+    "changed": [
+      "When buying ends, the Tomorrow strip moves up unchanged instead of being drawn then",
+      "Online, tomorrow's walk-ins are sent face down (fruit on the back only)",
+      "RULES.md: The queue, Morning step 3, Sharp Ears wording, a rules version 16 section"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Tomorrow's customers now show while you buy"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "tomorrow's customer queue should also be visible during the buying phase; owner chose \"Draw it earlier\" and \"Same as the evening strip\"; then \"push it live ASAP\"",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-075",
+  "title": "Rules version 16: tomorrow's queue visible while buying",
+  "problem": "Owner: \"tomorrow's customer queue should also be visible during the buying phase\". Under rules 15 tomorrow's crowd was drawn only when buying ended, so it could not show while buying. The owner chose to draw it earlier (a rule change) and to show it the same way as the evening strip.",
+  "scope": [
+    "src/engine/game.ts: nextForecast and nextQueue, drawn in startDay, moved into forecast and queue in customersArrive",
+    "server/room.ts redact: tomorrow's walk-ins face down",
+    "src/net/protocol.ts: RULES_VERSION 16",
+    "src/ui/table.tsx Tomorrow: shows during morning and buying",
+    "RULES.md",
+    "tests/rules16.test.ts (5 tests), version checks, layout test"
+  ],
+  "exclusions": [
+    "Computer players do not use tomorrow's crowd when buying (AI_VERSION unchanged)",
+    "Sharp Ears still peeks when buying ends",
+    "Printed kit not regenerated (the repo's kit is still rules 13)",
+    "Balance not tuned"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-11: 442 unit tests passed, 1 skipped; lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "Tomorrow's crowd is drawn each morning, shown while buying, and is exactly the next day's row; none after the last day",
+      "result": "PASS",
+      "evidence": "2026-11-11: tests/rules16.test.ts plays every day of an 8-day game"
+    },
+    {
+      "id": "T3",
+      "text": "Online, tomorrow's walk-ins reach other phones face down only",
+      "result": "PASS",
+      "evidence": "2026-11-11: tests/rules16.test.ts checks redact"
+    },
+    {
+      "id": "T4",
+      "text": "Buying screen shows the strip at 390x844 and 360x640 with no page errors",
+      "result": "PASS",
+      "evidence": "2026-11-11: screenshots"
+    },
+    {
+      "id": "T5",
+      "text": "Browser tests pass with 0 leaks",
+      "result": "NOT RUN",
+      "evidence": "Runs in CI on main (verify:full) before publishing"
+    },
+    {
+      "id": "T6",
+      "text": "Balance report against rules 15",
+      "result": "NOT RUN",
+      "evidence": "Running at publication; the owner asked to publish as soon as possible"
+    },
+    {
+      "id": "T7",
+      "text": "Owner has played it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Owner asked to publish straight away"
+    }
+  ]
+}

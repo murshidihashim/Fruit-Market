@@ -189,6 +189,10 @@ export interface GameState {
   forecast: Customer | null;
   /** The next walk-ins, face down: before the crowd arrives these are today's; afterwards tomorrow's. */
   queue: Customer[];
+  /** Rules 16: tomorrow's expected customer, drawn each morning so it shows while stalls buy (null otherwise). */
+  nextForecast: Customer | null;
+  /** Rules 16: tomorrow's walk-ins, face down, drawn each morning; they become `queue` when today's crowd arrives. */
+  nextQueue: Customer[];
   firstMarket: Customer[];
   secondMarket: Customer[];
   firstPlayer: number;
@@ -401,7 +405,7 @@ function makeCustomer(s: GameState, card: CustomerCard, walkIn = false): Custome
 
 function drawCustomer(s: GameState, walkIn = false): Customer {
   if (s.customerDeck.length === 0) {
-    const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast].filter(Boolean).map((c) => c!.name));
+    const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast, ...s.nextQueue, s.nextForecast].filter(Boolean).map((c) => c!.name));
     s.customerDeck = withRng(s, (r) => r.shuffle(CUSTOMER_CARDS.map((_, i) => i).filter((i) => !inPlay.has(CUSTOMER_CARDS[i].name))));
   }
   return makeCustomer(s, CUSTOMER_CARDS[s.customerDeck.shift()!], walkIn);
@@ -503,6 +507,8 @@ export function newGame(config: GameConfig): GameState {
     deliveryUnripe: null,
     forecast: null,
     queue: [],
+    nextForecast: null,
+    nextQueue: [],
     firstMarket: [],
     secondMarket: [],
     firstPlayer: r.int(players.length),
@@ -583,6 +589,15 @@ function startDay(s: GameState) {
   // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5).
   const card = s.nextFarmer ?? drawFarmer(s);
   s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
+  // Rules 16: tomorrow's crowd is drawn this morning (after today's walk-in event), so the Tomorrow strip shows while
+  // stalls buy: one expected customer face up, the walk-ins face down. Tomorrow's event is not known yet (rules 13):
+  // its walk-in change is made on the morning it is drawn.
+  s.nextForecast = null;
+  s.nextQueue = [];
+  if (s.day < s.config.days) {
+    s.nextForecast = drawCustomer(s);
+    for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.nextQueue.push(drawCustomer(s, true));
+  }
   if (card && !s.event?.noDelivery) {
     const e = s.event;
     const shops = s.players.length;
@@ -762,13 +777,12 @@ function customersArrive(s: GameState) {
     arriving.unshift({ id: s.nextId++, name: ORDER_CARDS[due.card].name, wants, original: clone(wants), pref: 'everyday', order: { holder: due.holder!, price: due.price!, fine: due.fine, ceiling: due.ceiling } });
   }
   s.firstMarket = arriving;
-  // Tomorrow's queue: one expected customer face up, the walk-ins face down.
-  s.queue = [];
-  s.forecast = null;
+  // Tomorrow's queue, drawn this morning (rules 16), moves up: one expected customer face up, the walk-ins face down.
+  s.forecast = s.nextForecast;
+  s.queue = s.nextQueue;
+  s.nextForecast = null;
+  s.nextQueue = [];
   if (s.day < s.config.days) {
-    s.forecast = drawCustomer(s);
-    // Tomorrow's event is not known yet (rules 13): its walk-in change is made on the morning it is drawn.
-    for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.queue.push(drawCustomer(s, true));
     // Sharp Ears: the shop secretly peeks at one of tomorrow's walk-ins it has not seen (the first in the queue).
     s.players.forEach((pl, p) => {
       if (pl.trait !== 'earful') return;

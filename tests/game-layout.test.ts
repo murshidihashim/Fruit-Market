@@ -93,8 +93,12 @@ describe('today and tomorrow (table.tsx Street, Tomorrow)', () => {
     }
   });
 
-  it('there is no Tomorrow strip before buying ends (tomorrow\'s customers are not drawn yet)', () => {
-    expect(toStaticHtml(h(Tomorrow, { s: game(), viewer: 0 }))).toBe('');
+  it('rules 16: while stalls buy, the Tomorrow strip shows tomorrow\'s crowd (drawn this morning), not today\'s', () => {
+    const s = game();
+    const strip = toStaticHtml(h(Tomorrow, { s, viewer: 0 }));
+    expect(strip).toContain(customerArt(s.nextForecast!.name)!);
+    expect(strip).not.toContain(customerArt(s.forecast!.name)!);
+    expect(strip.match(/tm-chip tm-back/g) ?? []).toHaveLength(s.nextQueue.length);
   });
 });
 

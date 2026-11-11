@@ -18,7 +18,7 @@ import { cleanLook } from '../src/net/looks';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import { bidOrder, canBidOrder,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
-  publicView, type Action, type Crate, type GameState, type PlayerConfig, type Post, type Stall,
+  publicView, type Action, type Crate, type Customer, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
 import {
   CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, PROTOCOL_VERSION, RULES_VERSION, UPDATE_MSG,
@@ -110,12 +110,15 @@ export function redact(g: GameState, seat: number): GameState {
   // Rules 14: bids for a standing order stay secret until every stall has bid.
   if (v.phase === 'order' && v.standing) v.standing.bids = v.standing.bids.map(() => null);
   // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
-  v.queue = v.queue.map((c) => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
+  // Rules 16: tomorrow's walk-ins (drawn in the morning) are face down the same way.
+  const back = (c: Customer): Customer => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
     id: c.id, name: 'Walk-in', walkIn: true,
     wants: c.wants.map((w) => ({ fruit: w.fruit, qty: 0, max: 0 })),
     original: c.original.map((w) => ({ fruit: w.fruit, qty: 0, max: 0 })),
     ...(c.seenBy ? { seenBy: c.seenBy } : {}),
-  }));
+  });
+  v.queue = v.queue.map(back);
+  v.nextQueue = (v.nextQueue ?? []).map(back);
   return v;
 }
 

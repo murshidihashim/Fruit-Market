@@ -82,7 +82,7 @@ A guest's price is fixed: the event's own price change is **not** added on top (
 
 ## The queue
 
-Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card (events are never drawn ahead). When today's crowd turns face up (the moment buying ends), draw tomorrow's **regular** face up and tomorrow's **walk-ins** face down. Walk-ins show only the fruit on their card backs. On Day 1, draw the first regular and walk-ins during set-up. Together these make the **Tomorrow strip**.
+Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card (events are never drawn ahead), tomorrow's **regular** face up and tomorrow's **walk-ins** face down, so everyone can see them while they buy. Walk-ins show only the fruit on their card backs. On Day 1, draw the first day's regular and walk-ins during set-up, then tomorrow's on the first morning as usual. Together these make the **Tomorrow strip**; when today's crowd turns face up (the moment buying ends), the Tomorrow strip stays where it is and becomes the next day's row. Nothing is drawn for the day after the last day.
 
 - Walk-ins per day: **stalls − 1, and never more than 4**, so the row never holds more than five customers.
 - Walk-in events add or take away walk-ins for every 3 stalls (rounded up), still never past 4. A **guest**, and a **standing order** collected that day, each take the place of the last walk-in when the row is full.
@@ -103,7 +103,7 @@ Customers are drawn a day ahead. Each morning, draw tomorrow's delivery card (ev
 ### 1. Morning
 1. Apply today's **event**.
 2. The farmer's lorry unloads today's card at the freshest position (mangoes at the unripe position). The lorry comes every day, Market Days included.
-3. Draw tomorrow's delivery card for the Tomorrow strip. Turn over today's event in step 1, never earlier. If it adds walk-ins (Festival, Tourist Bus), draw them now, face down, at the end of the row (never past four walk-ins); if it takes walk-ins away (Monsoon Downpour), the last ones in the row go back under the customer deck.
+3. Draw tomorrow's delivery card, tomorrow's regular (face up) and tomorrow's walk-ins (face down) for the Tomorrow strip. Turn over today's event in step 1, never earlier. If it adds walk-ins (Festival, Tourist Bus), draw them now, face down, at the end of today's row (never past four walk-ins); if it takes walk-ins away (Monsoon Downpour), the last ones in today's row go back under the customer deck. Tomorrow's row is changed only by tomorrow's event, on tomorrow's morning.
 4. On a **Market Day**, turn over a **standing order** and bid for it (see Standing orders) before anyone buys.
 
 ### 2. Buying
@@ -248,7 +248,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Shade Cloth.** At night, Pak Din lays a fruit token on his stall sheet to name the fruit that does not age; take it back at dawn.
 
-**Sharp Ears.** When tomorrow's walk-ins are drawn, Farah looks at the front of one of them, like Scout. Mark it with her colour. When she sells that customer anything, the crier pays her tip, once a day.
+**Sharp Ears.** When buying ends, Farah looks at the front of one of tomorrow's walk-ins, like Scout. Mark it with her colour. When she sells that customer anything, the crier pays her tip, once a day.
 
 **The stall sheet, the shutter and the counter.** Each stall has one printed sheet with a shelf row and a crate row for each fruit, a shutter that stands in front of it all game so rivals cannot see, and a counter card that lies in front of the shutter. Move the fruit you will sell from the shelf row up to the crate row, say how many pieces that is, and write your price tags, all behind the shutter. At the bell flip your tags and move your crate pieces onto your counter, each into the box with the same letter and place. Unsold counter fruit goes back to the same box of the shelf row at the end of the day. The shelf is never shown.
 
@@ -291,6 +291,12 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 - **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
 - **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
 - **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy and sell; they never read a crate before the bell, so they can be fooled.
+
+## Tomorrow's queue while buying (rules version 16)
+
+- **Tomorrow's crowd comes out in the morning.** With tomorrow's lorry card, draw tomorrow's regular face up and tomorrow's walk-ins face down. Everyone buys knowing today's crowd and tomorrow's.
+- **Nothing else moves.** Today's walk-ins still turn face up when buying ends; tomorrow's event still changes tomorrow's walk-ins on tomorrow's morning; Gossip, Scout and Sharp Ears look at the same cards as before.
+- **In the app** the Tomorrow strip under today's tickets now shows during buying too.
 
 ## Balance notes
 
