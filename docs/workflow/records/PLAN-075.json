@@ -27,7 +27,7 @@
     "evidence": "tomorrow's customer queue should also be visible during the buying phase; owner chose \"Draw it earlier\" and \"Same as the evening strip\"; then \"push it live ASAP\"",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-075",
   "title": "Rules version 16: tomorrow's queue visible while buying",
   "problem": "Owner: \"tomorrow's customer queue should also be visible during the buying phase\". Under rules 15 tomorrow's crowd was drawn only when buying ended, so it could not show while buying. The owner chose to draw it earlier (a rule change) and to show it the same way as the evening strip.",
@@ -73,14 +73,14 @@
     {
       "id": "T5",
       "text": "Browser tests pass with 0 leaks",
-      "result": "NOT RUN",
-      "evidence": "Runs in CI on main (verify:full) before publishing"
+      "result": "PASS",
+      "evidence": "2026-11-11: CI run 42957462676 on main c837073 (verify:full: solo game, performance budget, online match with 0 leaks, quick match, reconnect); finished at 12:25, after the deploy at 12:13 (owner chose not to wait)"
     },
     {
       "id": "T6",
-      "text": "Balance report against rules 15",
-      "result": "NOT RUN",
-      "evidence": "Running at publication; the owner asked to publish as soon as possible"
+      "text": "Balance report against rules 15 (target: every shopkeeper within 4 points of fair)",
+      "result": "FAIL",
+      "evidence": "2026-11-11: npm run balance: shopkeeper win rates 29.8 (Local Favourite) to 41.3 (Bargain Hunter) against 33.3 fair, the same as rules 15; Premium Display 27.0, Order Book 25.0; average cash 78.5 / 94.3 / 136.2 for 8, 10 and 14 days. Unchanged because computer players do not use tomorrow's crowd. Not tuned."
     },
     {
       "id": "T7",
