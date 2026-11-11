@@ -2090,7 +2090,7 @@
         "evidence": "tomorrow's customer queue should also be visible during the buying phase; \"Draw it earlier\"; \"Same as the evening strip\"; \"push it live ASAP\"",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-075",
       "reports": [
         "REP-098"
@@ -2966,6 +2966,10 @@
     {
       "at": "2026-11-11 12:10",
       "text": "Owner asked for tomorrow's queue while buying, chose to draw it earlier (rules version 16) shown like the evening strip, and approved publication: \"push it live ASAP\" (PLAN-075, DEC-084, REP-098). verify PASS (442 tests). Balance report NOT RUN at publication. Release 1.19.0 prepared."
+    },
+    {
+      "at": "2026-11-11 12:28",
+      "text": "Release 1.19.0 published (PLAN-075, rules version 16): main c837073, Deploy LIVE game run 37 at 12:13 (owner chose not to wait for browser tests); live smoke test PASS; tagged v1.19.0. CI run 42957462676 PASS afterwards (browser tests, 0 leaks). Balance target FAIL, unchanged from rules 15."
     }
   ]
 }

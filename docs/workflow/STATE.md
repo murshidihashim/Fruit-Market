@@ -1,12 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-11 12:10 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-11 12:28 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
-## Latest (2026-11-11 12:10): 1.19.0 prepared, rules version 16 (PLAN-075)
+## Latest (2026-11-11 12:28): 1.19.0 live, rules version 16 (PLAN-075)
 - **Owner approval:** "tomorrow's customer queue should also be visible during the buying phase"; chose "Draw it earlier" and "Same as the evening strip"; "push it live ASAP" (DEC-084, REP-098).
 - **In 1.19.0:** tomorrow's regular (face up) and walk-ins (face down) drawn each morning, shown in the Tomorrow strip while buying. RULES_VERSION 16.
-- **Checks:** `npm run verify` PASS (442 tests); rules 16 tests PASS; browser tests in CI; balance NOT RUN at publication; owner phone check NOT RUN.
-- **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; next: merge, CI, Deploy LIVE game, mark 1.19.0 published.
+- **Checks:** `npm run verify` PASS (442 tests); rules 16 tests PASS; browser tests PASS (CI run 42957462676, after the deploy); balance target FAIL, unchanged from rules 15; owner phone check NOT RUN.
+- **Live:** 1.19.0 (commit `c837073`, tag `v1.19.0`, Deploy LIVE game run 37, live smoke test PASS).
+- **Next:** owner plays 1.19.0; consider letting computer players use tomorrow's crowd; balance tuning.
 - **Gaps:** computer players ignore tomorrow's crowd when buying; printed kit not updated.
 
 ## Earlier (2026-11-11 11:46): 1.18.0 live, home A and the Lane Drop opening (PLAN-074)
