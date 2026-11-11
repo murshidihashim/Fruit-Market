@@ -1,0 +1,72 @@
+{
+  "release": "1.18.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-097"
+  ],
+  "decisions": [
+    "DEC-083"
+  ],
+  "changes": {
+    "added": [
+      "The home screen's opening, Lane Drop: four fruit lanes drop down the screen, a fruit pops into each, the lanes fold into the band at the top, the title stamps in and the buttons rise (about 2.45 seconds, tap to skip)"
+    ],
+    "changed": [
+      "The home screen redrawn as home A, Ticket Booth, in the game table's Market Ticket look: black bar with the account and Dress up, a band of the four fruit lanes with the game's fruit icons, the title, your stall (your shopkeeper's picture, the day and your cash), one black button, the Daily market and Market League as tickets, Trophies, How to play and Settings on a kraft strip"
+    ],
+    "fixed": [],
+    "removed": [
+      "The Market square home (stalls under the sunburst, bunting, the lorry, wooden signboards) and its Lorry arrives opening"
+    ]
+  },
+  "playerNotes": [
+    "A new home screen in the same style as the game table",
+    "A new opening: the four fruit lanes drop in and fold into place"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "ok go with A, and opening 1, but use the fruit icons currently used in game, push it to live",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-074",
+  "title": "Home screen A (Ticket Booth) and the Lane Drop opening",
+  "problem": "The home screen still had the older Market square look after the game table moved to the Market Ticket design in 1.17.0. The owner chose mockup A from three, with the fruit band from mockup C drawn small, and opening 1 (Lane Drop) from three, using the fruit icons the game already uses.",
+  "scope": [
+    "src/ui/Home.tsx: Shopfront redrawn (LaneBand shared with the opening); pop-ups and the daily leaderboard peek unchanged",
+    "src/ui/Opening.tsx: Lane Drop",
+    "src/ui/booth.css replaces src/ui/square.css",
+    "src/ui/App.tsx: passes your cash in a waiting game to the home"
+  ],
+  "exclusions": [
+    "No rule, balance, save, online or data change",
+    "Worn looks are not shown on the home's stall picture (they were drawn on the old home's badge)",
+    "src/ui/marketArt.ts kept (no longer drawn on the home)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-11: 437 unit tests passed, 1 skipped (as before); lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "Browser tests pass (solo game, performance budget, online with 0 leaks, quick match, reconnect)",
+      "result": "NOT RUN",
+      "evidence": "Running"
+    },
+    {
+      "id": "T3",
+      "text": "Home and opening look like the approved mockups at 390x844, 360x640 and 1280x800, with no page errors",
+      "result": "PASS",
+      "evidence": "2026-11-11: screenshots of the opening at 0.15 to 3.3 s and the home with and without a saved game; no page errors"
+    },
+    {
+      "id": "T4",
+      "text": "Owner has played it on a phone",
+      "result": "NOT RUN",
+      "evidence": "Owner asked to publish straight away"
+    }
+  ]
+}
