@@ -2293,6 +2293,30 @@
         "REP-104"
       ],
       "reviewTrigger": "When the owner has seen the third version: lorry column order, black strip or thin-line headings, and whether the other customer scenes are drawn the same way"
+    },
+    {
+      "id": "DEC-093",
+      "title": "One fruit icon set in every card picture",
+      "question": "How should fruit be drawn inside card pictures?",
+      "choice": "Every blueberry, watermelon, mango and apple inside a card picture is the game's own fruit icon (the one on the card rows, the market and the lorry card), never a separate drawing. A green mango uses the game's green mango icon.",
+      "rationale": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
+      "impact": {
+        "player": "A fruit looks the same wherever it appears.",
+        "technical": "docs/studio/art-drafts/cards-18/gen.py builds the pictures from fruit-shapes.json, exported from src/ui/fruitIcons; the remaining customer scenes and any new event pictures follow the same rule.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the game's fruit icons are redrawn: export the shapes again and rebuild the pictures"
     }
   ],
   "history": [
@@ -3219,6 +3243,10 @@
     {
       "at": "2026-11-12 01:38",
       "text": "Owner's third round on the card mock-ups recorded (DEC-092) and applied: cleaner lorry card, no black strips in favour and upgrade pictures, a board of card backs. From now on the changed boards are rendered locally and looked at before sending (the second-round lorry card had overflowed unseen). The rules 18 build came back and was merged into the working branch: npm run verify passes on the merged tree (518 tests, 1 skipped); browser tests running; results report to follow."
+    },
+    {
+      "at": "2026-11-12 01:44",
+      "text": "Owner asked for one fruit icon set across all card pictures (DEC-093): the eleven favour and upgrade pictures and the Heatwave picture rebuilt from the game's fruit icons; a board showing all favour and upgrade pictures added to the mock-up page; the picture generator kept in docs/studio/art-drafts/cards-18."
     }
   ]
 }

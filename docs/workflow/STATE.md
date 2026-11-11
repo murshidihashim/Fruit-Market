@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 01:38 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
+Updated 2026-11-12 01:44 (Asia/Kuala_Lumpur), session checkpoint. Sections from 2026-10-29 below are history; the release records (`records/releases.json`) are the source for what is live.
 
 ## Latest (2026-11-11 23:39): REP-101 decided; rules version 18 build in progress (PLAN-079, DEC-086, DEC-087)
 - **Owner decisions:** one release for everything; $5 top-up for an empty-shelf stall under $5; the balance set item by item; staked standing orders (simulate first); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; plain voice with a Malaysian market feel; Stocking skipped with nothing ripe, evenings only with a choice, a faster rush; trophies fitted to the rules.
@@ -11,6 +11,7 @@ Updated 2026-11-12 01:38 (Asia/Kuala_Lumpur), session checkpoint. Sections from 
 - **Card changes, round 1 (2026-11-12 01:16, DEC-090):** applied to the mock-ups; picture drafts in `docs/studio/art-drafts/cards-18` (Osman's scene, 6 favours, 5 upgrades). Open: is the picture style right, and should the other 35 customer scenes be drawn the same way; tracker 1 or 2 (the owner's "1" is read as about the cards, to be confirmed).
 - **Card changes, round 2 (2026-11-12 01:27, DEC-091):** original coloured-column lorry card restored; "Upgrade" label; Favoured Trade and Heatwave pictures redrawn. Source for the original cards: https://claude.ai/artifact/9sbaZqKG6TqxhxJsgKnntY (boards `C-...`). Open: lorry column order (mango before apple, as drawn, or the first printing's apple before mango); black strip or thin-line card headings.
 - **Card changes, round 3 (2026-11-12 01:38, DEC-092):** cleaner lorry card (numbers on the fruit lanes, the game's row boxed); no black strips in favour and upgrade pictures; card backs board added. Boards are now rendered and checked before sending.
+- **Card changes, round 4 (2026-11-12 01:44, DEC-093):** every fruit in a card picture is the game's fruit icon; all favour and upgrade pictures on their own board; generator `docs/studio/art-drafts/cards-18/gen.py`.
 - **Rules 18 build (2026-11-12 01:38):** merged into `ccr-d8bcd65d-gblqqb` (merge commit after `7fc3a60`); `npm run verify` PASS on the merged tree (518 tests); browser tests running; PLAN-079 and a results report (REP-105) still to be written; results in `docs/studio/review-17/balance/RULES-18-RESULTS.md`.
 - **Active package:** PLAN-079, rules 18 engine build. Then: text (DEC-087), screens and one card design (mock-ups first), trophies, the whole print kit from the repo. One release at the end.
 - **Checkpoint:** branch `ccr-d8bcd65d-gblqqb`; rules 17 and the update pack unpublished; live is 1.19.1 with the defects listed in REP-101.
