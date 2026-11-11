@@ -2978,6 +2978,10 @@
     {
       "at": "2026-11-11 20:40",
       "text": "PLAN-076 follow-up, approved by the owner (\"theres no need for the crates are covered part, animate the flow between the wholesale market and night falls, make it centred\"): no \"Crates covered\" sign; dusk falls over the market into Night falls, centred. Found and fixed: tapping Lights out as the last stall skipped the night. verify PASS (442 tests). Not published."
+    },
+    {
+      "at": "2026-11-11 20:45",
+      "text": "Owner approved publication: \"push to live\". Release 1.19.1 prepared (PLAN-076). Browser tests on commit dcb7038 PASS; re-run on the night changes in progress."
     }
   ]
 }
