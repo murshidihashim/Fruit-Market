@@ -30,6 +30,10 @@
 /* the box's word in its corner while crates are shut ("3 out", "ready"), where its number stood while stalls bought */
 #app .game.tkt .tb-ord.tb-note { max-width: calc(100% - 4px); box-sizing: border-box; overflow: hidden; white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase; }
 
+/* ---------- a rival's details: the close button is a full tap target ----------
+   It was 34 px square, and 31 px wide beside a long name on a narrow phone (the name squeezed it). */
+#app .game.tkt .rival-drop .rd-close { flex: none; width: 40px; height: 40px; }
+
 /* ---------- your shelf: every piece stays in view ----------
    Two rows of chips on a tall phone. One to four chips say what tonight does in full ("okay tomorrow"); five or six
    say the first word ("okay", "spoils"), three to a row; seven or more show the letter the pieces carry tomorrow. */
