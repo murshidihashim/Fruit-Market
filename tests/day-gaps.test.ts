@@ -172,6 +172,8 @@ describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
     expect(src).toContain("row.toggleAttribute('inert', b.bottom > b.top && sheets.some((s) => covers(s, b)));");
     // offsets, not the box on the screen: a sheet sliding in or off is measured where it comes to rest
     expect(src).toContain('top += e.offsetTop;');
+    // a drawing that changed nothing in the middle measures nothing (the table draws often while things move)
+    expect(src).toContain('if (watch && now.length === was.length && now.every((x, i) => x === was[i])) return;');
     // measured again whenever a sheet or a row changes its size between drawings
     expect(src).toContain('const watch = typeof ResizeObserver === \'undefined\' ? null : new ResizeObserver(mark);');
   });

@@ -48,15 +48,22 @@ export function markCovered(game: HTMLElement, centre: HTMLElement, sheet: boole
 /**
  * Keeps the marks right for one game table: `update` marks the rows after each drawing, and the marks are measured
  * again whenever a sheet or a row changes its size between drawings (a sheet fits itself to the room the rows leave
- * it, game/reach.ts, after it is drawn). `stop` when the table goes.
+ * it, game/reach.ts, after it is drawn). A drawing that changed none of what lies in the middle (the same elements,
+ * a sheet up or not, the rush's sheet coming or leaving) measures nothing: the table draws often while things move,
+ * and a size that changes is seen by the watch. `stop` when the table goes.
  */
 export function coverWatch(): { update: (game: HTMLElement, centre: HTMLElement, sheet: boolean) => void; stop: () => void } {
   let at: { game: HTMLElement; centre: HTMLElement; sheet: boolean } | null = null;
+  let was: unknown[] = [];
   const watched = new Set<Element>();
   const mark = () => { if (at) markCovered(at.game, at.centre, at.sheet); };
   const watch = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(mark);
   return {
     update(game, centre, sheet) {
+      const rush = game.querySelector(':scope > .rush-sheet');
+      const now: unknown[] = [game, centre, sheet, rush, rush?.classList.contains('leaving'), ...centre.children];
+      if (watch && now.length === was.length && now.every((x, i) => x === was[i])) return;
+      was = now;
       at = { game, centre, sheet };
       mark();
       if (!watch) return;
