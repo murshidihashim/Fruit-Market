@@ -1,11 +1,11 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 17:29 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 17:45 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
 - **Working branch:** `ccr-d8bcd65d-gblqqb`, 44 commits ahead of `main`. It holds rules version 18, never merged, never on the preview, not published.
-- **The plan (REP-106, DEC-098 to DEC-100, changed by DEC-105):** the core game goes live first as **release 1.20.0** (rules 18, the new cards, the screens as they stand; candidate prepared, REP-110), on the owner's word of 2026-11-12, once the full checks pass. The rest of release A follows in later releases: the remaining screens, the text, the stamp book, then the print kit. Releases B (Market Month, five-day Daily) and C after that.
+- **The plan (REP-106, DEC-098 to DEC-100, changed by DEC-105):** the core game goes live first as **release 1.20.0**. It is a candidate on `main` (`acaaee2`, pull request #10, four rebuilt screens, REP-110) and on the preview copy, **not published**. By DEC-106 it is published, without asking again, when the rest of the day's screens (PLAN-085) and the two named fixes are merged and every check passes, including the full checks on the CI machines; then mark it published in the records. The rest of release A follows in later releases: the remaining screens, the text, the stamp book, then the print kit. Releases B (Market Month, five-day Daily) and C after that.
 - **Deadline:** the owner wants the rest ready inside the usage allowance before it resets on 2026-11-13 19:00. Digital first; the print kit is paused.
 
 ## Release A, package by package
@@ -16,7 +16,7 @@ Updated 2026-11-12 17:29 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | Balance choices (DEC-101) | PLAN-082 | Implemented, `9c0d11b` (REP-107) |
 | 2. New pictures and card faces; shared motion blocks | PLAN-083 | Verified, merges `10ef387` and `fd95996` (REP-108); the owner keeps the cards as built (DEC-102) |
 | **3, part 1. The rush; the morning, the standing-order bid and the evening** | PLAN-084 | Implemented and checked on the merged code (`04d12ed`, REP-110); in release 1.20.0; the owner has not seen it yet |
-| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | In progress (two helpers, from `04d12ed`) |
+| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | In progress, top priority: three helpers (the sheet with stocking, pricing, the bell and Favoured Trade; the takings; the table). First deliveries 20:30 to 21:30 on 2026-11-12. Briefs `brief-085-sheets.md`, `brief-085-takings.md`, `brief-085-table.md` |
 | 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | In progress (helper) |
 | 4, part 2. The screen labels | not opened | After the screens are merged |
 | 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | In progress (helper) |
@@ -35,7 +35,8 @@ Updated 2026-11-12 17:29 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
 - **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
-- **DEC-105 (2026-11-12):** the core game goes live today as 1.20.0 for the owner to test; the rest follows in later releases. After the deploy: mark the release published (date, commit, tagged) in a new commit.
+- **DEC-106 (2026-11-12):** 1.20.0 is held and published when the rest of the day's screens are ready (see above); the small-phone scroll in the evening and the bid, and the "You wins" sentences, are fixed in it.
+- **DEC-105 (2026-11-12):** the core game goes live first; the stamp book, the screen labels and the print kit follow in later releases.
 - **DEC-104 (2026-11-12):** "speed it up please": the remaining packages are built side by side; no check is dropped.
 - Each later release needs his own word for that build.
 - Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes).
