@@ -232,8 +232,11 @@
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-to { display: inline-flex; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip > span { display: none; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip { padding: 0; }
-  #app .tkt > .actionbar { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-  #app .tkt > .actionbar .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }
+  /* the bottom bar, and the buttons a sheet puts in its place, stay one height, so your shelf does not move between them */
+  #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt > .actionbar .btn, #app .tkt > .centre > .pp-lock .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }
+  /* a line of words in the bar is as tall as its button, so your shelf does not move between the two */
+  #app .tkt > .actionbar .hint-bar { min-height: 48px; }
 }
 @media (max-width: 379px) {
   #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
