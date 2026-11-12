@@ -19,8 +19,9 @@ const two = (n: number) => String(n).padStart(2, '0');
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ');
 const piecesOf = (n: number, f: FruitId) => `${n} ${n === 1 ? FRUIT[f].name : FRUIT[f].plural}`;
 
-function Dots({ n, label }: { n: number; label: string }) {
-  return <span class="wc-dots" role="img" aria-label={label}>{Array.from({ length: n }, () => <i />)}</span>;
+/** `got`: how many of the pieces have been handed over (the rush: a dot is filled as its piece lands). */
+function Dots({ n, label, got = 0 }: { n: number; label: string; got?: number }) {
+  return <span class="wc-dots" role="img" aria-label={label}>{Array.from({ length: n }, (_, i) => <i class={i < got ? 'got' : undefined} />)}</span>;
 }
 
 // ---------- the morning: today's event ----------
@@ -126,9 +127,10 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake }: {
 /**
  * A customer as the rush shows them: the heading, the picture, each fruit they came for today with its price tag, and
  * the legend. `now`: the fruit being served; the other rows are greyed. `order`: a standing order collected today
- * (it takes Fresh or Okay pieces at its bid, so its legend has no price steps).
+ * (it takes Fresh or Okay pieces at its bid, so its legend has no price steps). A line's `got`: the pieces handed
+ * over so far; its `done`: the fruit has been bought (the row is ticked).
  */
-export function CustomerWide({ who, lines, now, order }: { who: string; lines: CardLine[]; now?: FruitId; order?: boolean }) {
+export function CustomerWide({ who, lines, now, order }: { who: string; lines: (CardLine & { got?: number })[]; now?: FruitId; order?: boolean }) {
   const look = lookOf(who);
   const guest = !!GUEST_EVENT[who];
   const num = guest || order ? undefined : customerNumber(who);
@@ -147,9 +149,9 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: C
         <div class="wc-main">
           <b class="wc-ttl wc-ttl-c">{look.title}</b>
           {byLane(lines).map((x) => (
-            <div class={cx('wc-rw', laneClass(x.fruit), now !== undefined && x.fruit !== now && 'later')}>
+            <div class={cx('wc-rw', laneClass(x.fruit), now !== undefined && x.fruit !== now && 'later', x.done && 'done')}>
               <FruitSvg id={x.fruit} size={20} alt={FRUIT[x.fruit].name} />
-              <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} />
+              <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} got={x.got} />
               <b class="wc-tag">{`$${x.max}`}</b>
             </div>
           ))}

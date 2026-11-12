@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import * as A from '../src/ui/anim';
 import { NIGHT, NO_SALES_READ, bellRead } from '../src/ui/game/animator';
-import { rushPace, rushTotal } from '../src/ui/game/rush';
 import { BEAT, CSS_MS, EASE, FEEL, FRAME, SPEED, type MotionRoot } from '../src/ui/motion';
 import { SHEET, SHEET_IN, SHEET_OUT, sheetChange, sheetOn, type SheetGhost, type SheetPanel } from '../src/ui/sheet';
 
@@ -63,10 +62,8 @@ describe('the lengths are named in one place (motion.ts)', () => {
     expect(bellRead(4)).toBe(2900);
     expect(bellRead(6)).toBe(3600);
     expect(NO_SALES_READ).toBe(1100);
-    // the rush: the same pace as before for one to six stalls (the test in rush.test.ts pins its limits)
-    for (const n of [1, 2, 3, 4, 5, 6]) expect(rushPace(n)).toEqual({ in: 280, deal: 90 + Math.max(0, 4 - n) * 15, down: 300, flip: 380, hold: 1800, out: 260 });
-    expect(rushTotal(4)).toBe(3380);
-    expect([BEAT.rush.cardIn, BEAT.rush.cardOut]).toEqual([340, 300]);
+    // the rush: one card for each customer, at the flow study's pace (PLAN-084; rush.test.ts pins what a customer takes)
+    expect(BEAT.rush).toEqual({ cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 });
     // the night: 3.7 s in all before anything spoils
     expect(NIGHT).toMatchObject({ dusk: 950, slide: 1500, settle: 80, read: 770, end: 400, spoil: 900, gap: 80, juiceCoin: 480 });
     expect(NIGHT.dusk + NIGHT.slide + NIGHT.settle + NIGHT.read + NIGHT.end).toBe(3700);
@@ -182,15 +179,19 @@ describe('one speed for scripts and stylesheets', () => {
     const used = new Set<string>();
     for (const { css } of sheets) for (const m of css.matchAll(/var\(--t-([a-z-]+)/g)) used.add(m[1]);
     expect([...used].filter((name) => !(name in CSS_MS))).toEqual([]);
-    for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'crate-turn', 'seat-deal', 'price-turn', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
+    for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'crate-turn', 'rush-rows', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
     // the two older names for the speed (the rush only, the night only) are gone
     const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/Showdown.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
     expect(sources).not.toMatch(/--rs-k|--ns-k/);
     // the moves the stylesheets make on the table follow the one speed
     const motion = read('src/ui/motion.css');
-    for (const sel of ['.tk-news-face', '.tk-crates.open .tk-crate', '.tk-offers .rs-seat', '.tk-offers .rs-price']) {
+    for (const sel of ['.tk-news-face', '.tk-crates.open .tk-crate']) {
       expect(motion).toMatch(new RegExp(`${sel.replace(/[.]/g, '\\.')}[^{]*\\{ (transition|animation)-duration: calc\\(var\\(--mk, 1\\) \\* var\\(--t-`));
     }
+    // the rush has its own stylesheet (PLAN-084): the offers turn up, and the sheet comes and goes, at the one speed
+    const rush = read('src/ui/rush.css');
+    for (const name of ['rush-rows', 'sheet-in', 'sheet-out']) expect(rush).toContain(`calc(var(--mk, 1) * var(--t-${name}))`);
+    expect(rush).not.toMatch(/(?:animation|transition)[^;{}]*\b\d+(?:\.\d+)?m?s\b/);
     const night = read('src/ui/ticket-ui.css');
     expect(night).toContain('animation: tk-dusk calc(var(--mk, 1) * var(--t-dusk))');
     expect(night).toContain('calc(var(--mk, 1) * var(--t-rise-after))');
@@ -198,6 +199,7 @@ describe('one speed for scripts and stylesheets', () => {
     const main = read('src/main.tsx');
     expect(main.indexOf("'./ui/motion.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket-ui.css'"));
     expect(main.indexOf("'./ui/ticket-ui.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket.css'"));
+    expect(main.indexOf("'./ui/rush.css'")).toBeGreaterThan(main.indexOf("'./ui/motion.css'"));
   });
 });
 

@@ -10,6 +10,7 @@ import {
 import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
 import { RushView } from '../src/ui/game/panels/Showdown';
+import { rushCards } from '../src/ui/game/rush';
 import { endBuying, settleTies } from './stall-step';
 
 // After-sale explanations (REP-089 3.3 and 3.6): the reason a stall could not sell, offers that did not qualify left out
@@ -464,8 +465,9 @@ describe('Showdown card', () => {
     start.players[1].stock.apple[FRESH('apple')] = 2;
     const s = bell(start, 'apple', [2, 2, 0], [5, 4, 0]);
     const l = line(s);
-    const story = explainLine(s, l, 0);
-    const html = toStaticHtml(h(RushView, { s, viewer: 0, a: { line: l, n: 1, of: 1, stage: 'result', dealt: l.offers.length, story, react: null, cust: '', served: [] } }));
+    // The customer's card in the rush (PLAN-084: one card for each customer, built from the day's results).
+    const card = rushCards(s, 0).find((c) => c.blocks.some((b) => b.line === l))!;
+    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
     expect(html).toContain('none qualify');
     expect(html).not.toMatch(/offer 0/);
     expect(html).toContain('over $4 top');
