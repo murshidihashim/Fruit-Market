@@ -5,9 +5,9 @@
 // before a look existed.
 import { CHARACTER_AVATARS } from '../engine/data';
 import { tierById } from './achievements';
-import { colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
+import { colourHex, colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
 import { placeOf } from './stamps';
-import { LOOKS, lookById, partsOf, slotIsPublic, stallOf, type Look, type LookSet, type Slot } from '../net/looks';
+import { LOOKS, colourOf, lookById, partsOf, slotIsPublic, stallOf, type Look, type LookSet, type Slot } from '../net/looks';
 import type { Snapshot } from './achievements';
 
 export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../net/looks';
@@ -16,6 +16,22 @@ export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../
 export const myAvatar = (): string => {
   try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
 };
+
+/**
+ * The picture shown for a seat. In the Daily market and the Market League the person has no shopkeeper (the perk is
+ * picked from three), so their own chosen shopkeeper's picture is shown: the first free one if a rival at the table
+ * is that shopkeeper. For show only: the game's own setting, which fixes the perk, is never changed.
+ */
+export function shownAvatar(players: { avatar: string; kind: string }[], seat: number): string {
+  const pl = players[seat];
+  if (!pl || pl.kind !== 'human' || CHARACTER_AVATARS.includes(pl.avatar)) return pl?.avatar ?? '';
+  const taken = new Set(players.filter((_, i) => i !== seat).map((p) => p.avatar));
+  const mine = myAvatar();
+  return !taken.has(mine) ? mine : CHARACTER_AVATARS.find((a) => !taken.has(a)) ?? mine;
+}
+
+/** The awning colour a player chose, as a colour value, or null when they chose none (the seat's colour then shows). */
+export const chosenColour = (look: LookSet | undefined): string | null => colourHex(colourOf(look));
 
 /** The trophy tier that earns a look, if it comes from one. */
 export const achievementFor = (l: Look) => (l.from.kind === 'trophy' ? tierById(l.from.id) : undefined);

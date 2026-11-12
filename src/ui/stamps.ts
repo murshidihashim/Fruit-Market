@@ -149,11 +149,13 @@ export function earnLines(f: Facts, opts: { daily: boolean; firstDaily: boolean;
   const order: Tier[] = ['gold', 'silver', 'bronze'];
   const tiers = opts.tiers.map((id) => tierById(id)).filter((t): t is NonNullable<typeof t> => !!t)
     .sort((a, b) => order.indexOf(a.step.tier) - order.indexOf(b.step.tier));
-  const shown = tiers.length > 4 ? tiers.slice(0, 3) : tiers;
+  // Many tiers: the best three, each of a different card (the top tier of a card stands for the ones under it).
+  const best = tiers.filter((t, i) => tiers.findIndex((x) => x.card.id === t.card.id) === i).slice(0, 3);
+  const shown = tiers.length > 4 ? best : tiers;
   // "Silver · Rosa, 3 wins": the number is added where the card counts something short to say
   const detail = (t: (typeof tiers)[number]) => (t.step.goal > 1 && !t.step.value && t.card.unit && t.card.unit.length <= 6 ? `, ${t.step.goal.toLocaleString('en-US')} ${t.card.unit}` : '');
   for (const t of shown) lines.push({ stamps: TIER_STAMPS[t.step.tier], text: `${TIER_NAME[t.step.tier]} · ${t.card.title}${detail(t)}`, tier: t.step.tier, id: t.step.id });
-  const rest = tiers.slice(shown.length);
+  const rest = tiers.filter((t) => !shown.includes(t));
   if (rest.length) lines.push({ stamps: rest.reduce((a, t) => a + TIER_STAMPS[t.step.tier], 0), text: `and ${rest.length} more trophy tiers` });
   return lines.filter((l) => l.stamps > 0);
 }
@@ -178,8 +180,9 @@ export function goals(s: Snapshot): Goal[] {
     const value = Math.min(stepValue(card, st, s), st.goal);
     out.push({ card, step: st, value, goal: st.goal, share: st.goal > 0 ? value / st.goal : 0, stamps: TIER_STAMPS[st.tier] });
   });
-  // Nearest first; among equals the one that pays more, then catalogue order (the sort is stable).
-  return out.sort((a, b) => b.share - a.share || b.stamps - a.stamps);
+  // Nearest first; among equals the lower tier (a Bronze before a Gold: a new player's first goals are the first
+  // steps, not the hardest feats), then catalogue order (the sort is stable).
+  return out.sort((a, b) => b.share - a.share || a.stamps - b.stamps);
 }
 
 /** "2 of 3 wins", "$52 of $70 in one day": how far along a counted tier is. */
@@ -200,8 +203,8 @@ const more = (g: Goal): string => {
 /**
  * At most two "close" lines for the results, by what is nearest to done: the nearest card that is not a shopkeeper's,
  * then the nearest shopkeeper's card (the second button plays as that shopkeeper). `names`: display names for the
- * customers still to meet. `after`: the avatar just played, so a shopkeeper nobody has won with yet is the next one
- * round the table and not always the first.
+ * customers still to meet. `after`: the avatar just played: the line is about another shopkeeper (the button would
+ * otherwise start the same game as "Play again"), and with nobody part way it is the next one round the table.
  */
 export function closeLines(s: Snapshot, names: (key: string) => string, missing: string[], after?: string): CloseLine[] {
   const all = goals(s);
@@ -214,7 +217,7 @@ export function closeLines(s: Snapshot, names: (key: string) => string, missing:
   }
   const keepers = all.filter((g) => g.card.avatar);
   if (keepers.length) {
-    const started = keepers.find((g) => g.value > 0);
+    const started = keepers.find((g) => g.value > 0 && g.card.avatar !== after);
     // Nobody part way: the next shopkeeper round the table after the one just played.
     const order = CARDS.filter((c) => c.avatar).map((c) => c.avatar);
     const from = after ? order.indexOf(after) : -1;

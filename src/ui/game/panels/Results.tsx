@@ -261,7 +261,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
             <div class="sbk-close">{close.map((c) => <span><b>{c.title}</b><span class="sbk-sub">{c.sub}</span></span>)}</div>
           </div>
         )}
-        {newLooks.length > 0 && landed && <p class="sbk-note" role="status">New in the Wardrobe: {newLooks.map((l) => l.title).join(', ')}.</p>}
+        {newLooks.length > 0 && landed && <p class="sbk-note" role="status">New in the Wardrobe: {newLooks.slice(0, 3).map((l) => l.title).join(', ')}{newLooks.length > 3 ? ` and ${newLooks.length - 3} more` : ''}.</p>}
 
         <div class="sbk-more">
           {s.config.daily && <DailyResult s={s} />}

@@ -3,14 +3,12 @@
 // draws one of these has them.
 import type { Ref } from 'preact';
 import './stampbook.css';
-import { CHARACTER_AVATARS } from '../engine/data';
-import { colourOf, frameOf, partsOf, type LookSet } from '../net/looks';
+import { frameOf, partsOf, type LookSet } from '../net/looks';
 import { TIER_NAME, type Pic, type Tier } from './achievements';
 import { Coin, Face } from './art';
-import { customerArt, customerFocus, eventArt, eventFocus, favourArt, favourFocus, focusCss, shopFile, shopScene, upgradeArt, upgradeFocus } from './deckArt';
+import { customerArt, customerFocus, eventArt, eventFocus, favourArt, favourFocus, focusCss, shopScene, upgradeArt, upgradeFocus } from './deckArt';
 import { FruitSvg } from './fruitIcons';
-import { myAvatar } from './looks';
-import { colourHex } from './progress';
+import { chosenColour } from './looks';
 import { loadName } from './store';
 import { SEAT_COLOURS } from './table';
 
@@ -38,21 +36,10 @@ export function Awning({ colour, thin }: { colour: string; thin?: boolean }) {
 
 /** A stall's awning colour: the one its player chose, else the colour of its seat at the table. */
 export function awningColour(look: LookSet | undefined, seat: number): string {
-  return colourHex(colourOf(look)) ?? SEAT_COLOURS[((seat % SEAT_COLOURS.length) + SEAT_COLOURS.length) % SEAT_COLOURS.length];
+  return chosenColour(look) ?? SEAT_COLOURS[((seat % SEAT_COLOURS.length) + SEAT_COLOURS.length) % SEAT_COLOURS.length];
 }
 
-/**
- * The picture shown for a seat. In the Daily market and the Market League the person has no shopkeeper (the perk is
- * picked from three), so their own chosen shopkeeper's picture is shown: the first free one if a rival at the table
- * is that shopkeeper. For show only: the game's own setting, which fixes the perk, is never changed.
- */
-export function shownAvatar(players: { avatar: string; kind: string }[], seat: number): string {
-  const pl = players[seat];
-  if (!pl || pl.kind !== 'human' || shopFile(pl.avatar)) return pl?.avatar ?? '';
-  const taken = new Set(players.filter((_, i) => i !== seat).map((p) => p.avatar));
-  const mine = myAvatar();
-  return !taken.has(mine) ? mine : CHARACTER_AVATARS.find((a) => !taken.has(a)) ?? mine;
-}
+export { shownAvatar } from './looks';
 
 /** A small portrait in its player's signboard frame, wearing what they have on. */
 export function FramedFace({ who, size, look }: { who: string; size: number; look?: LookSet }) {

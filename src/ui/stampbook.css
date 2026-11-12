@@ -87,11 +87,17 @@
 .sbk-face.fr-brass { border-color: var(--c-fec400); outline: 1.5px solid var(--c-1f272a); }
 .sbk-face.fr-carved { outline: 3px double var(--c-1f272a); outline-offset: 0; }
 .sbk-face.fr-gold { border-color: var(--c-fec400); outline: 3px double var(--c-fec400); outline-offset: 0; }
-/* price-tag styles (levels 2, 5 and 8): the same digits, size and weight in each */
+/* Price-tag styles (levels 2, 5 and 8). Only the tag's edge changes: the digits keep their size, weight, colour and
+   ground in every style, and nothing moves, so a tag tells nobody anything and turns over at the same moment.
+   The first rule is the sample in the Wardrobe; the others are the same edges for the tag while pricing (.ds-tag) and
+   at the bell (.ds-pz), which take the class "tg-" and the style's name (tagOf, src/net/looks.ts). */
 .sbk-tag { display: inline-grid; place-items: center; min-width: 30px; height: 22px; padding: 0 5px; box-sizing: border-box; border: 2px solid var(--c-1f272a); background: var(--c-fffcf5); color: var(--c-1f272a); font: 400 0.8125rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
-.sbk-tag.tg-chalk { background: var(--c-1f272a); color: var(--c-fffcf5); border-style: dashed; border-color: var(--c-fffcf5); outline: 2px solid var(--c-1f272a); }
-.sbk-tag.tg-star { background: var(--c-fec400); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); height: 26px; padding-bottom: 4px; }
-.sbk-tag.tg-hand { border-width: 2px 2px 4px 2px; transform: rotate(-3deg); background: var(--c-efe9df); }
+.sbk-tag.tg-chalk, #app .tkt .ds-pz.tg-chalk { border-style: dashed; }
+.sbk-tag.tg-star, #app .tkt .ds-pz.tg-star { border-style: double; border-width: 4px; }
+.sbk-tag.tg-hand, #app .tkt .ds-pz.tg-hand { border-width: 2px 2px 4px 2px; border-radius: 2px 7px 3px 6px / 6px 3px 7px 2px; }
+#app .tkt .ds-tag.tg-chalk { border-left-style: dashed; border-right-style: dashed; }
+#app .tkt .ds-tag.tg-star { border-left: 4px double var(--c-1f272a); border-right: 4px double var(--c-1f272a); }
+#app .tkt .ds-tag.tg-hand { border-left-width: 3px; border-right-width: 3px; border-radius: 3px 8px 4px 7px / 7px 4px 8px 3px; box-shadow: inset 0 -3px 0 var(--c-1f272a); }
 /* the "Sold out" results stamp (level 10) */
 .sbk-stamp { display: inline-block; flex: none; padding: 2px 4px; border: 2px solid var(--c-b62528); color: var(--c-b62528); font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; transform: rotate(-8deg); white-space: nowrap; }
 

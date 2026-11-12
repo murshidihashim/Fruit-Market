@@ -18,8 +18,8 @@ import { TIER_COUNT, standing } from './achievements';
 import { CALM_ART, eventArt, eventFocus, focusCss } from './deckArt';
 import { newsChips } from './eventChips';
 import { FruitSvg } from './fruitIcons';
-import { myAvatar, worn } from './looks';
-import { snapshot } from './progress';
+import { myAvatar, syncLooks, worn } from './looks';
+import { snapshot, syncTiers } from './progress';
 import { FramedFace, TrophyPic, shownAvatar } from './stampCard';
 import { goals } from './stamps';
 import { loadDaily } from './store';
@@ -176,6 +176,9 @@ function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
 
 export function Shopfront(p: ShopProps) {
   const me = signedInAs();
+  // What is stored is brought up to date as the game opens: the tiers a player from before the stamp book has already
+  // reached, and the looks their trophies and stall level give. Nothing is ever taken away.
+  useState(() => { syncTiers(); syncLooks(); });
   const pages = [...(p.table ? ['table'] : []), 'today', 'goals'];
   const names: Record<string, string> = { table: 'Your table', today: 'Today\'s market', goals: 'Your next goals' };
   const [page, setPage] = useState(0);

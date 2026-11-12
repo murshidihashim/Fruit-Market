@@ -134,6 +134,12 @@ describe('the results lines (E)', () => {
     expect(lines.map((l) => l.text)).toEqual(['10 days played', 'The win', 'Gold · Hard Sweep', 'Silver · Nothing Wasted', 'Bronze · First Sale', 'and 5 more trophy tiers']);
     expect(lines.reduce((a, l) => a + l.stamps, 0)).toBe(3 + 1 + tiers.reduce((a, id) => a + tierStamps(id), 0));
   });
+  it('the three shown are of three different cards: a card\'s top tier stands for the ones under it', () => {
+    const tiers = ['full_price', 'full_price_10', 'full_price_15', 'no_waste', 'first_sale', 'sole_1', 'sole_2'];
+    const lines = earnLines({ ...facts({}), days: 10, won: false }, { daily: false, firstDaily: false, tiers });
+    expect(lines.map((l) => l.text)).toEqual(['10 days played', 'Gold · Top price', 'Silver · Nothing Wasted', 'Silver · Sole Supplier', 'and 4 more trophy tiers']);
+    expect(lines.reduce((a, l) => a + l.stamps, 0)).toBe(3 + tiers.reduce((a, id) => a + tierStamps(id), 0));
+  });
 });
 
 describe('what is close', () => {
@@ -145,6 +151,8 @@ describe('what is close', () => {
     expect(progressWords(all[0])).toBe('9 of 10 games finished');
     const pakDin = all.find((g) => g.card.id === 'keeper_keeper')!;
     expect(pakDin).toMatchObject({ step: { id: 'win_keeper_3' }, value: 2, goal: 3, stamps: 5 });
+    // a new player's goals are the first steps: Bronze tiers in catalogue order, not the hardest feats
+    expect(goals(snap()).slice(0, 3).map((g) => g.step.id)).toEqual(['first_sale', 'first_win', 'win_haggler_1']);
     // a card with every tier held is not a goal
     const done = snap({ have: new Set(['tie_breaker']) });
     expect(goals(done).some((g) => g.card.id === 'tie_breaker')).toBe(false);
@@ -164,6 +172,12 @@ describe('what is close', () => {
     const lines = closeLines(snap(), (k) => k, [], '🦊');
     expect(lines[lines.length - 1]).toMatchObject({ name: 'Uncle Benny', title: 'Uncle Benny · 0 of 1 wins' });
     expect(closeLines(snap(), (k) => k, [], '🦜').pop()).toMatchObject({ name: 'Rosa' });
+  });
+  it('the second line is never about the shopkeeper just played: that button would only be "Play again"', () => {
+    const s = snap({ counts: { win_keeper: 2 }, sets: { wonWith: ['keeper'] }, have: new Set(['win_keeper_1']) });
+    expect(closeLines(s, (k) => k, [], '🦊').pop()).toMatchObject({ name: 'Pak Din' });
+    // Pak Din was just played: the next shopkeeper round the table, who has no win yet
+    expect(closeLines(s, (k) => k, [], '🐢').pop()).toMatchObject({ name: 'Farah', title: 'Farah · 0 of 1 wins' });
   });
 });
 
