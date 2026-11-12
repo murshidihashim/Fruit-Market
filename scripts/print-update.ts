@@ -114,7 +114,7 @@ function counter(i: number): string {
         <div class="grid tens">${Array.from({ length: 20 }, (_, k) => cell(k * 10, k === 1)).join('')}</div>
         <span class="lab">+ Ones marker</span>
         <div class="grid ones">${Array.from({ length: 10 }, (_, k) => cell(k, k === 0)).join('')}</div>
-        <small>Yellow = where you start: $10. Past $199? Take a +$200 chip. Everyone may read your cash at any time: move your own markers while the table watches.</small>
+        <small>Yellow = where you start: $10. Past $199, take a +$200 chip. Everyone may read your cash at any time. Move your own markers while the table watches.</small>
       </div>
     </div>
   </div>`;
@@ -230,7 +230,7 @@ function cardsHtml(): string {
       <div class="fine">Stake: $${o.stake} · $${stakeFor(o.stake, true)} with an Order Book</div>
       <div class="no">No favour card · no tips</div>
     </div>`;
-  const back = '<div class="card bk"><span class="disp">Order</span><span class="lab">Fruit Market</span></div>';
+  const back = '<div class="card bk"><span class="disp">Standing order</span><span class="lab">Fruit Market</span></div>';
   const foot = (side: string) => `<div class="foot">Fruit Market · update pack · rules version ${RULES_VERSION} · standing-order cards · ${side} · print at 100% (actual size) on A4</div>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Fruit Market update pack: standing-order cards</title><style>${BASE_CSS}${CARDS_CSS}</style></head><body>
     <section class="page"><div class="sheet">${ORDER_CARDS.map(front).join('')}</div>${foot('front')}</section>
@@ -276,12 +276,12 @@ function guideHtml(): string {
   <span class="lab">Rules guidebook · 2 to 6 stalls · 45 to 90 minutes</span>
   <div class="band">${LANES.map((f) => `<span style="background:${LANE[f]}">${fruit(f, 16)}</span>`).join('')}</div>
   <h1>Fruit<br>Market</h1>
-  <p class="q">How much can you charge before your rival, or the rot, gets you?</p>
+  <p class="q">Set your price in secret. Sell before the fruit spoils.</p>
   <span class="lab">Game design by Murshidi bin Md Hashim · tabletop rules, rules version ${RULES_VERSION}</span>
 </div>
 
 <h2>The big idea</h2>
-<p>Each player runs a small fruit stall. You buy fruit from the Wholesale Market in the morning and sell it to the town's customers the same day. Fruit gets older every night, so whatever you buy, you are racing to sell it. The stall with the most cash at the end of the last day wins.</p>
+<p>Each player runs a small fruit stall. Each morning you buy fruit at the Wholesale Market. Each day you sell it to customers. Fruit ages every night, sells for less as it ages, and is then thrown away. The stall with the most cash at the end of the last day wins.</p>
 <p>Three things pull against you every day:</p>
 <ol>
   <li><b>The clock.</b> Every night all fruit gets one step older. Older fruit sells for less, and then it is thrown away.</li>
@@ -328,14 +328,14 @@ function guideHtml(): string {
 <p>Your cash is your Tens marker plus your Ones marker, on the cash track on your <b>counter</b>, in front of your shutter. With Tens on 10 and Ones on 4 you have $14. When you are paid or you pay, move the Ones marker, and carry to the Tens marker when you pass 9 or go below 0. If you pass $199, take a +$200 chip and start the Tens again from 0.</p>
 <p><b>Cash is public.</b> Everyone can read everyone's cash at any time. Nobody hands money to anybody: each stall moves its own markers while the table watches.</p>
 
-<h2>A day in five beats</h2>
+<h2>A day in five steps</h2>
 <div class="beat"><b>1</b><div><h3>Morning</h3>
 <ol>
   <li><b>Event.</b> From Day 2 onward, turn over the top event card onto "Today's event" and do what it says. Nobody knows an event before its own morning. There is no event on Day 1. If the event adds walk-ins, deal them face down at the end of today's row. If it removes walk-ins, the last ones in today's row go back under the customer deck. If it brings a guest, add that guest card to the end of the row. If Mango Craze turns up on Day 2, put it at the bottom of the deck and turn over another.</li>
   <li><b>Out of cash.</b> From Day 2: a stall with an empty shelf (no pieces at all, green ones included) and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank. Do this after the event and any Health Inspector charge, before anyone bids or buys.</li>
   <li><b>The lorry.</b> The card on "Tomorrow's lorry" is now today's lorry (on Day 1, turn over the top card of the deck). Find the row for your number of stalls and take that many pieces of each fruit from the supply. Put them in that fruit's box marked "The lorry unloads here". Mangoes always arrive green and go in the far green box. The Seconds Lorry unloads its other fruit into each fruit's freshest Okay box. A Mango Windfall's extra mangoes are ripe: put them in the mango's Fresh box.</li>
   <li><b>Tomorrow.</b> Discard today's lorry card and turn the next one face up onto "Tomorrow's lorry". Then deal <b>tomorrow's row</b> below today's: one regular face up and the walk-ins face down (use the "Daily" number on the board). Tomorrow's own event may change that row tomorrow morning. Deal nothing for the day after the last day.</li>
-  <li><b>Market Day?</b> Turn over a standing order and bid for it now, before anyone buys (see Standing orders).</li>
+  <li><b>On a Market Day.</b> Turn over a standing order and bid for it now, before anyone buys (see Standing orders).</li>
 </ol></div></div>
 <div class="beat"><b>2</b><div><h3>Buying</h3>
 <p>The poorest stall buys first, then the others follow clockwise from it. If stalls tie for poorest, the first of them clockwise from the first-player token goes first. On Day 1, start at the token. This is today's buying order; the evening and the last tie-break use it too.</p>
@@ -414,7 +414,7 @@ function guideHtml(): string {
 <h3>Reminders people ask about</h3>
 <ul>
   <li>The lorry comes every day, Market Days included, unless an event says otherwise.</li>
-  <li>Only pieces in your crate can sell. Fruit on your shelf is safe from customers, but not from the night.</li>
+  <li>Only pieces in your crate can sell. Pieces on your shelf do not sell, and they still age tonight.</li>
   <li>You are paid your own posted price, not the customer's top price.</li>
   <li>You always hand over your oldest piece that is fresh enough for your price. You do not choose.</li>
   <li>A standing order takes pieces from its winner's crate only. Rivals are not involved.</li>
