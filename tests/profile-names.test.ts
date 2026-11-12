@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
-import { CUSTOMER_CARDS, EVENT_CARDS, FAVOURS, LEGACY_RIVAL_NAMES, ORDER_CARDS, RIVALS, TRAITS } from '../src/engine/data';
+import { CUSTOMER_CARDS, EVENT_CARDS, FAVOURS, LEGACY_RIVAL_NAMES, ORDER_CARDS, RIVALS, TRAITS, UPGRADES } from '../src/engine/data';
 import { newGame } from '../src/engine/game';
 import { cleanProfile, emptyProfile, mergeProfiles, type Profile } from '../src/net/profile';
 import { ACHIEVEMENTS, GUESTS, evaluate, progressOf, type Sets } from '../src/ui/achievements';
@@ -27,6 +27,13 @@ const everything = (): Sets => ({
   wonWith: Object.keys(TRAITS),
   // Beaten shopkeepers are stored under today's names; progress saved before the renaming holds the former ones.
   beaten: [...RIVALS.map((r) => r.name), ...LEGACY_RIVAL_NAMES],
+  // PLAN-086, the sets the tiers read: shopkeepers beaten as Hard computers, upgrades built and won with, standing-order
+  // clients delivered in full, and the skill tiers earned in a fair game (code names).
+  beatenHard: RIVALS.map((r) => r.name),
+  built: Object.keys(UPGRADES),
+  wonBuilt: Object.keys(UPGRADES),
+  clients: ORDER_CARDS.map((c) => c.name),
+  fair: ['rich', 'sole_five', 'full_price_15', 'day_70'],
 });
 
 const withSets = (progress: Sets, at = 100): Profile => ({ ...emptyProfile(), at, progress });

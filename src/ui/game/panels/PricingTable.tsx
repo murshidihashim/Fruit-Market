@@ -8,7 +8,9 @@ import type { ComponentChildren } from 'preact';
 import type { GameState } from '../../../engine/game';
 import { tiedPrices } from '../../../engine/game';
 import { FAVOURS, FRUIT } from '../../../engine/data';
+import { tagOf } from '../../../net/looks';
 import { Fruit } from '../../art';
+import { shownAvatar } from '../../looks';
 import { STAGE_LETTER, STAGE_WORD, Swatch } from '../../ticket';
 import { bellRows, nth, pricingTable, type BellRow } from '../pricingTable';
 import { listOf, tieStory } from '../tieStory';
@@ -81,12 +83,12 @@ export function CratesOpen({ s, viewer, open = null, shared, children }: {
           return (
             <div key={`o${x.player}`} class={`ds-stall ${x.me ? 'me' : ''} ${up ? 'up' : 'down'}`} role="group" data-a={`bell-p${x.player}`}
               aria-label={up ? rowSaid(s, x, shared) : `${x.me && !shared ? 'Your crate' : pl.name}: still shut`}>
-              <Swatch p={x.player} who={pl.avatar} look={pl.look} size={30} />
+              <Swatch p={x.player} who={shownAvatar(s.players, x.player)} look={pl.look} size={30} />
               <span class="ds-nm"><b>{x.me && !shared ? 'You' : pl.name}</b><small>bought {nth(x.nth)}</small></span>
               <span class="ds-tags">
                 {!x.tags.length && up && <span class="ds-none">nothing out</span>}
                 {x.tags.map((t) => (up ? (
-                  <span class={`ds-pz ${t.tied ? 'tie' : ''} ${t.stamped ? 'stamped' : ''}`} data-a={`bell-${x.player}-${t.f}`}>
+                  <span class={`ds-pz ${t.tied ? 'tie' : ''} ${t.stamped ? 'stamped' : ''} tg-${tagOf(pl.look)}`} data-a={`bell-${x.player}-${t.f}`}>
                     <Fruit id={t.f} size={18} /><b>${t.price}</b>
                     <span class="ds-marks" role="img" aria-label={`${t.out} out: ${t.marks.map((st) => STAGE_WORD[st]).join(', ')}`}>
                       {t.marks.slice(0, MAX_TAG_MARKS).map((st) => <i class={`ds-lamp st-${st}`}>{STAGE_LETTER[st]}</i>)}

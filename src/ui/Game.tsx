@@ -35,9 +35,11 @@ interface Props {
   onRematch: () => void;
   /** Online play: the server owns the game; this screen sends actions and animates the states it receives. */
   online?: OnlineClient;
+  /** The results' second button: the same table again with the person as this shopkeeper (PLAN-086). */
+  onPlayAs?: (avatar: string) => void;
 }
 
-export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
@@ -74,9 +76,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
   if (s.phase === 'over') {
     return (
-      <div class="game tkt">
-        <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} />
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
+      <div class="game tkt sbk-over">
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>

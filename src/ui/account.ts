@@ -4,7 +4,7 @@ import { CHARACTER_AVATARS } from '../engine/data';
 import { serverBase } from '../net/client';
 import { cleanProfile, emptyProfile, type Profile } from '../net/profile';
 import { onProfileChange } from './changed';
-import { clearProgress, colourId, leagueStage, loadLooks, loadSets, loadWorn, saveLeagueStage, saveLooks, saveSets, saveUnlocked, saveWorn, unlocked } from './progress';
+import { clearProgress, colourId, leagueStage, loadCounts, loadLooks, loadSets, loadWorn, saveCounts, saveGranted, saveLeagueStage, saveLooks, saveSets, saveUnlocked, saveWorn, unlocked } from './progress';
 import { loadDaily, loadName, loadStats, saveDaily, saveName, saveStats } from './store';
 
 const SESSION_KEY = 'fm.acct';
@@ -38,7 +38,7 @@ export function localProfile(): Profile {
   try { avatar = localStorage.getItem(AVATAR_KEY) ?? ''; } catch { /* ignore */ }
   return cleanProfile({
     ...emptyProfile(), at: readAt(), name: loadName(), avatar, colour: colourId(), achievements: unlocked(), looks: loadLooks(), worn: loadWorn(),
-    league: leagueStage(), daily: loadDaily(), stats: loadStats(), progress: loadSets(),
+    league: leagueStage(), daily: loadDaily(), stats: loadStats(), progress: loadSets(), counts: loadCounts(),
   });
 }
 
@@ -58,6 +58,7 @@ export function applyProfile(p: Profile): void {
     saveDaily(p.daily);
     saveStats(p.stats);
     saveSets(p.progress);
+    saveCounts(p.counts);
     writeAt(p.at);
   } finally { applying = false; }
 }
@@ -80,6 +81,8 @@ async function enter(reply: Reply): Promise<string | null> {
   if (!reply.ok) return reply.error;
   writeSession({ id: String(reply.data.id), token: String(reply.data.token) });
   applyProfile(cleanProfile(reply.data.profile));
+  // What the server has granted this account (PLAN-086; nothing today). The phone stores it and never adds to it.
+  saveGranted(reply.data.grants);
   return null;
 }
 
@@ -101,6 +104,7 @@ export async function syncNow(): Promise<string | null> {
     return r.error;
   }
   applyProfile(cleanProfile(r.data.profile));
+  saveGranted(r.data.grants);
   return null;
 }
 

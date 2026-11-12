@@ -9,6 +9,7 @@ import {
   validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
+import { tagOf } from '../net/looks';
 import { Coin, Face, Fruit } from './art';
 import { SEEN_WALK_IN, buyerCap, buyersFor, nextLorryName, stallWantText, stallWanted, LANES } from './boardModel';
 import { ART_SIZE, CardArt, UpgradeCard } from './cards';
@@ -216,7 +217,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
               </div>
               <span class="ds-dial">
                 <button type="button" class="ds-st" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={sealed || price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
-                <span class="ds-tag" role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
+                <span class={`ds-tag tg-${tagOf(pl.look)}`} role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
                   {/* A sealed tag shows its back only: the price is not drawn under it. */}
                   {!sealed && <span class="ds-tag-face pc-num">${price}</span>}
                   {sealed && <span class="ds-tag-back" aria-hidden="true">Sealed</span>}

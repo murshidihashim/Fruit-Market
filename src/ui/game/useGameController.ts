@@ -40,7 +40,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
   const [nightSlide, setNightSlide] = useState<NightSlide>(null);
   // The bell is ringing (rules 15; PLAN-085): how many rows have turned face up so far; null when it is not ringing.
-  const [bell, setBell] = useState<BellShow>(null);
+  const [bell, showBell] = useState<BellShow>(null);
+  // The bell has its own sound (PLAN-086): the one this player has on, heard on this phone only. It sounds once, as
+  // the bell starts to ring (the first time the bell shows anything), and is ready again once the bell is put away.
+  const bellUp = useRef(false);
+  const setBell = (open: BellShow) => {
+    if (open !== null && !bellUp.current) fx.bell();
+    bellUp.current = open !== null;
+    showBell(open);
+  };
   // The bids for a standing order are in and are being turned over on the table (PLAN-084).
   const [orderShow, setOrderShow] = useState<OrderShow | null>(null);
   const [banner, setBanner] = useState<string | null>(null);

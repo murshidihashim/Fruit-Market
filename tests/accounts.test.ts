@@ -88,6 +88,28 @@ describe('accounts', () => {
     expect(p.achievements).toEqual(['first_win']);
   });
 
+  it('tells the phone what the account was granted, and never takes a grant from the phone (PLAN-086)', async () => {
+    // nothing is granted today: every reply says so
+    const up = await handleAccount('signup', { id: 'mia_77', password: 'correct horse', profile, grants: ['pack_awning'] }, null, NOW);
+    expect(up.body.grants).toEqual([]);
+    const rec = up.rec as AccountRec;
+    expect(rec.grants).toBeUndefined();
+    const token = up.body.token as string;
+    // a phone that sends a grant, in the request or inside its profile, changes nothing
+    const sync = await handleAccount('sync', { id: 'mia_77', token, grants: ['pack_awning'], profile: { ...profile, grants: ['pack_awning'], granted: ['pack_awning'] } }, rec, NOW);
+    expect(sync.body.grants).toEqual([]);
+    expect((sync.rec as AccountRec).grants).toBeUndefined();
+    expect(JSON.stringify(sync.rec)).not.toContain('pack_awning');
+    // a grant written by the server is kept apart from the profile and reaches every phone that signs in
+    const granted: AccountRec = { ...(sync.rec as AccountRec), grants: ['pack_awning'] };
+    const again = await handleAccount('sync', { id: 'mia_77', token, profile: emptyProfile() }, granted, NOW);
+    expect(again.body.grants).toEqual(['pack_awning']);
+    expect((again.rec as AccountRec).grants).toEqual(['pack_awning']);
+    expect((again.rec as AccountRec).profile.looks).not.toContain('pack_awning');
+    const login = await handleAccount('login', { id: 'mia_77', password: 'correct horse' }, granted, NOW);
+    expect(login.body.grants).toEqual(['pack_awning']);
+  });
+
   it('signs out one device and deletes an account only with the password', async () => {
     const { rec, token } = await signUp();
     const out = await handleAccount('logout', { token }, rec, NOW);

@@ -22,6 +22,11 @@ export interface AccountRec {
   rounds: number;
   created: number;
   profile: Profile;
+  /**
+   * Looks this account has been granted (PLAN-086): kept apart from the profile, which the phone can add to. Nothing
+   * a phone sends is ever written here; only the server fills it. No grant exists today, so it is absent or empty.
+   */
+  grants?: string[];
   /** SHA-256 of each signed-in device's secret token, never the token itself. */
   sessions: { h: string; at: number }[];
   fails: number;
@@ -73,6 +78,8 @@ export function sameText(a: string, b: string): boolean {
 }
 
 const fail = (status: number, error: string): AccountResult => ({ status, body: { error } });
+/** What the account has been granted, as the phone is told it. Never read from a request. */
+const grantsOf = (rec: AccountRec): string[] => (Array.isArray(rec.grants) ? rec.grants.filter((g): g is string => typeof g === 'string') : []);
 const BAD_LOGIN = 'Wrong ID or password.';
 
 function lockMessage(rec: AccountRec, now: number): string | null {
@@ -124,7 +131,7 @@ export async function handleAccount(action: AccountAction, input: unknown, rec: 
       profile, sessions: [], fails: 0, lockUntil: 0,
     };
     const token = await startSession(next, now);
-    return { status: 200, body: { id: next.id, token, profile }, rec: next };
+    return { status: 200, body: { id: next.id, token, profile, grants: grantsOf(next) }, rec: next };
   }
 
   // Every other action needs an account. An unknown ID gets the same answer as a wrong password.
@@ -138,14 +145,14 @@ export async function handleAccount(action: AccountAction, input: unknown, rec: 
     // Whatever this phone already holds is joined in, so signing in never loses progress.
     const profile = b.profile === undefined ? acct.profile : mergeProfiles(acct.profile, cleanProfile(b.profile));
     acct.profile = profile;
-    return { status: 200, body: { id: acct.id, token, profile }, rec: acct };
+    return { status: 200, body: { id: acct.id, token, profile, grants: grantsOf(acct) }, rec: acct };
   }
 
   if (!(await hasSession(acct, b.token, now))) return fail(401, 'Please sign in again.');
 
   if (action === 'sync') {
     acct.profile = mergeProfiles(acct.profile, cleanProfile(b.profile));
-    return { status: 200, body: { profile: acct.profile }, rec: acct };
+    return { status: 200, body: { profile: acct.profile, grants: grantsOf(acct) }, rec: acct };
   }
   if (action === 'logout') {
     const h = await sha256(b.token as string);

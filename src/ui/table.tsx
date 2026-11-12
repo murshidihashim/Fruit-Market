@@ -9,6 +9,7 @@ import {
   type Customer, type GameState, type Stock,
 } from '../engine/game';
 import { partsOf, stallOf, type LookSet } from '../net/looks';
+import { chosenColour, shownAvatar } from './looks';
 import { Face, Fruit } from './art';
 import { FavourChip } from './phoneCards';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
@@ -34,7 +35,7 @@ export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
  * drawn from the look the player already has: the stall's colour and the roof they wear. Only for show.
  */
 export function Awning({ p, look, thin }: { p: number; look?: LookSet; thin?: boolean }) {
-  return <RoofBand cls={`tb-awn ${thin ? 'thin' : ''}`} colour={seatColour(p)} roof={stallOf(look).roof} scale={thin ? 1 : 2} />;
+  return <RoofBand cls={`tb-awn ${thin ? 'thin' : ''}`} colour={chosenColour(look) ?? seatColour(p)} roof={stallOf(look).roof} scale={thin ? 1 : 2} />;
 }
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
@@ -321,7 +322,7 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
       aria-label={`Your stall: $${cash}, ${s.order.indexOf(p) + 1} in the buying order${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
       <Awning p={p} look={pl.look} thin />
       <span class="tb-who">
-        <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
+        <StallFace who={shownAvatar(s.players, p)} look={pl.look} size={compact ? 20 : 26} />
         <span class="tb-id"><span class="tk-seat-name">You</span></span>
       </span>
       <span class="tb-line">

@@ -57,6 +57,29 @@ describe('account on the phone', () => {
     expect(st.loadName()).toBe('Mia');
   });
 
+  it('carries the stamp book counts to another phone, and stores what the server granted (PLAN-086)', async () => {
+    const acct = await import('../src/ui/account');
+    const progress = await import('../src/ui/progress');
+    const looks = await import('../src/ui/looks');
+    progress.saveCounts({ g10: 7, win_haggler: 3, bestDay: 58 });
+    expect(await acct.signUp('mia_78', 'correct horse')).toBeNull();
+    expect(accounts.get('mia_78')!.profile.counts).toEqual({ g10: 7, win_haggler: 3, bestDay: 58 });
+    expect(progress.loadGranted()).toEqual([]);
+    expect(await acct.signOut()).toBeNull();
+    expect(progress.loadCounts()).toEqual({});
+    // the server grants a look (no phone can): the next sign-in brings it, and it can be put on
+    accounts.set('mia_78', { ...accounts.get('mia_78')!, grants: ['roof_stars'] });
+    expect(await acct.signIn('mia_78', 'correct horse')).toBeNull();
+    expect(progress.loadCounts()).toEqual({ g10: 7, win_haggler: 3, bestDay: 58 });
+    expect(progress.loadGranted()).toEqual(['roof_stars']);
+    expect(progress.loadLooks()).not.toContain('roof_stars');
+    expect(looks.ownsLook('roof_stars')).toBe(true);
+    expect(looks.toggleLook('roof_stars')).toEqual({ roof: 'roof_stars' });
+    // signing out forgets the grant on this phone
+    expect(await acct.signOut()).toBeNull();
+    expect(progress.loadGranted()).toEqual([]);
+  });
+
   it('joins a guest phone into the account when signing in, without losing either side', async () => {
     const acct = await import('../src/ui/account');
     const progress = await import('../src/ui/progress');

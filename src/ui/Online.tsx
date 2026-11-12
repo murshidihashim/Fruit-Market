@@ -8,8 +8,10 @@ import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
 import { Game } from './Game';
 import { loadName, saveName } from './store';
-import { partsOf } from '../net/looks';
-import { worn } from './looks';
+import { titleOf } from '../net/looks';
+import { FramedFace, awningColour } from './stampCard';
+import { syncLooks, worn } from './looks';
+import { syncTiers } from './progress';
 import { Wardrobe } from './Wardrobe';
 
 function useClient(client: OnlineClient | null) {
@@ -75,6 +77,10 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
     saveName(name.trim());
     try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
     setErr(null);
+    // A player who opens an invitation never passes Home: what they have earned (and the first rank's title and frame,
+    // which are everyone's) is brought up to date here, before the room is told what they have on.
+    syncTiers();
+    syncLooks();
     setClient(new OnlineClient(c, nm, avatar, worn()));
     try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
   };
@@ -221,10 +227,13 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         <div class="seat-list">
           {v.seats.map((x) => (
             <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
-              <Face who={x.avatar} size={34} worn={partsOf(x.look)} />
+              {/* What each player has on (PLAN-086): the awning colour, the signboard frame, the looks and the title. */}
+              <i class="sbk-seat-awn" style={{ background: awningColour(x.look, x.seat) }} aria-hidden="true" />
+              <FramedFace who={x.avatar} size={32} look={x.look} />
               {x.seat === v.you
                 ? <MyName name={x.name} host={x.host} onRename={(n) => client.rename(n)} />
                 : <span class="seat-name">{x.name}{x.host && <small class="host-tag">HOST</small>}</span>}
+              {titleOf(x.look) && <small class="sbk-seat-title">{titleOf(x.look)}</small>}
               <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
@@ -248,7 +257,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
 
       <section class="panel">
         <h3>Your look</h3>
-        <p class="small muted">The hats, roofs and props you have earned. Everyone in the room sees what you pick.</p>
+        <p class="small muted">Your colour, looks, frame and title. Everyone in the room sees what you pick.</p>
         <button class="btn wide" onClick={() => { fx.tap(); setWardrobe(true); }}>Open the wardrobe</button>
       </section>
 

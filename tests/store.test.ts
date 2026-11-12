@@ -34,7 +34,7 @@ describe('saved games', () => {
   it('sets aside a game from other rules, with a notice', () => {
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION + 1, game: game() }));
     expect(loadGame()).toBeNull();
-    expect(consumeSaveNotice()).toMatch(/older version/);
+    expect(consumeSaveNotice()).toMatch(/older rules/);
     expect(mem.has('fm.save')).toBe(false);
   });
 
@@ -49,11 +49,11 @@ describe('saved games', () => {
     const daily = newGame(dailyConfig('2026-11-08', 'A'));
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, game: daily }));
     expect(loadGame()).toBeNull();
-    expect(consumeSaveNotice()).toBe('Your unfinished daily challenge was from an older version of the game, so it couldn\'t be resumed.');
+    expect(consumeSaveNotice()).toBe('Your unfinished Daily market game was from an older version and could not be continued.');
     expect(mem.has('fm.save')).toBe(false);
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION - 1, game: daily }));
     expect(loadGame()).toBeNull();
-    expect(consumeSaveNotice()).toMatch(/daily challenge/);
+    expect(consumeSaveNotice()).toMatch(/Daily market game/);
     // Today's daily, saved by this version, resumes.
     saveGame(daily);
     expect(loadGame()).toEqual(daily);

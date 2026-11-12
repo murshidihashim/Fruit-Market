@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
 import { newGame, ranking } from '../src/engine/game';
 import { checkAchievements, LEAGUE, leagueConfig, leagueStage, recordLeague, unlocked } from '../src/ui/progress';
+import { loadStats } from '../src/ui/store';
 
 const mem = new Map<string, string>();
 beforeEach(() => {
@@ -38,6 +39,9 @@ describe('progress', () => {
     const first = checkAchievements(g, 0);
     expect(first.map((a) => a.id)).toContain('first_win');
     expect(unlocked()).toContain('first_win');
-    expect(checkAchievements(g, 0).map((a) => a.id)).not.toContain('first_win');
+    // PLAN-086: the same results opened again say the same words, and nothing is counted or stored twice.
+    expect(checkAchievements(g, 0).map((a) => a.id)).toEqual(first.map((a) => a.id));
+    expect(unlocked().filter((id) => id === 'first_win').length).toBe(1);
+    expect(loadStats().played).toBe(1);
   });
 });

@@ -14,6 +14,7 @@ import * as A from '../../anim';
 import { ART_SIZE, CardArt, laneClass } from '../../cards';
 import { customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, tileArt } from '../../deckArt';
 import { FruitSvg } from '../../fruitIcons';
+import { shownAvatar } from '../../looks';
 import { CustomerWide } from '../../phoneCards';
 import { favourShown, lineShown, piecesLanded, useRushCard } from '../../rushShown';
 import { releaseStock } from '../../stockShown';
@@ -152,7 +153,7 @@ export function RushView({ s, a, card, shared, leaving, onNext: next, onSkip: sk
                   const pl = s.players[r.player];
                   return (
                     <div class={`rh-of ${r.me ? 'me' : ''} ${shown ? (r.sold ? 'sold' : 'miss') : ''}`} data-a={`ro-${b.fruit}-${r.player}`}>
-                      <Swatch p={r.player} who={pl.avatar} look={pl.look} size={26} />
+                      <Swatch p={r.player} who={shownAvatar(s.players, r.player)} look={pl.look} size={26} />
                       <b class="rh-price">${r.price}</b>
                       <span class="rh-name">{r.me && !shared ? 'You' : pl.name}</span>
                       <Marks row={r} />
