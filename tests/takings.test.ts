@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
@@ -8,7 +8,7 @@ import { dayLedger, jamDue, standing, tonightLine, withJamPaid } from '../src/en
 import { LANES } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import {
-  TIGHTEST, TakingsView, chipWords, closer, extras, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
+  TIGHTEST, TakingsView, chipWords, closer, extras, keepPlace, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
 } from '../src/ui/game/panels/SalesSummary';
 
 // The day's takings (PLAN-085; the approved Takings board): the ledger's lines, the list of stalls, the favour card
@@ -300,6 +300,46 @@ describe('what tonight does to the shelf', () => {
     // an empty shelf has nothing to say
     const empty = find((x, q) => x.day < x.config.days && count(x.players[q].stock) === 0);
     expect(view(empty.s, empty.p)).not.toContain('tg-shelf');
+  });
+});
+
+describe('as the takings leave', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('the sheet\'s picture keeps its place when the rows above the middle have changed (the evening\'s shorter customer band)', () => {
+    const frames: (() => void)[] = [];
+    vi.stubGlobal('requestAnimationFrame', (f: () => void) => { frames.push(f); return 0; });
+    const rect = (top: number, bottom: number) => ({ top, bottom, width: 390 });
+    // the table as the evening lays it out: the middle cell starts 142 px higher than it did under the takings
+    const rows: Record<string, ReturnType<typeof rect>> = {
+      ':scope > .centre > .market-stall': rect(216, 679), ':scope > .street-wrap': rect(82, 160), ':scope > .my-stall': rect(679, 772),
+    };
+    const table = (connected: boolean) => ({
+      isConnected: connected,
+      querySelector: (sel: string) => (rows[sel] ? { getClientRects: () => [rows[sel]], getBoundingClientRect: () => rows[sel] } : null),
+    }) as unknown as Element;
+    const picture = (connected: boolean) => {
+      const set: Record<string, string> = {};
+      return { set, el: { isConnected: connected, style: { setProperty: (k: string, v: string) => { set[k] = v; } } } as unknown as HTMLElement };
+    };
+    const kept = picture(true);
+    keepPlace(kept.el, table(true));
+    // nothing is measured or written in the middle of the draw that takes the takings off
+    expect(kept.set).toEqual({});
+    expect(frames.length).toBe(1);
+    frames[0]();
+    // from the top of the customer band (82) to the foot of the shelf (772), measured from the middle cell as it now lies
+    expect(kept.set).toEqual({ '--rise': '134px', '--drop': '93px' });
+    // no picture was kept (reduced motion, or the table has gone): nothing is written
+    const gone = picture(false);
+    keepPlace(gone.el, table(true));
+    frames[1]();
+    expect(gone.set).toEqual({});
+    const away = picture(true);
+    keepPlace(away.el, table(false));
+    frames[2]();
+    expect(away.set).toEqual({});
+    expect(read('src/ui/game/panels/SalesSummary.tsx')).toContain('return () => { if (sheet && game) keepPlace(sheet, game); };');
   });
 });
 

@@ -6,7 +6,7 @@
 // Everything shown is public once the rush is over (the day's results and every stall's cash) or this stall's own:
 // nothing is read from a rival's shelf. Styles: takings.css.
 import type { Ref } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import { FAVOURS, FRUIT, ORDER_LEAD, TRAITS, lookOf, stageAt, type FruitId, type Stage } from '../../../engine/data';
 import { count, places, ranking, servingCustomers, shadePick, shelfSize, type GameState } from '../../../engine/game';
 import { dayLedger, standing, tonightLine, withJamPaid } from '../../../engine/story';
@@ -15,7 +15,7 @@ import { LANES, spoilsTonight } from '../../boardModel';
 import { ART_SIZE, CardArt } from '../../cards';
 import { GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus } from '../../deckArt';
 import { Lamp, STAGE_WORD } from '../../ticket';
-import { useReach } from '../reach';
+import { reachFrom, useReach } from '../reach';
 
 /** Money outside the customer lines: the Pasar Malam hawker, Sharp Ears and Tip Jar tips (in the sales total), and
  *  (rules 18) what became of a standing order's stake (outside the sales total, under "Other"). */
@@ -183,10 +183,38 @@ function closerOnceSeen(el: HTMLElement): void {
   requestAnimationFrame(() => { if (el.isConnected) closer(el); });
 }
 
+/**
+ * As the takings leave, the table's rows may change under them: the customer band is shorter once the evening has
+ * begun, so the middle cell starts higher. The picture of the sheet that slides off (sheet.ts) lies in that cell and
+ * still carries the reach measured from the old rows, which would draw it that much too high, over the top bar. So
+ * the reach is written once more from the rows as they now are, before the next frame is drawn (the page is laid
+ * out for that frame anyway, so nothing is measured in the middle of a draw). `sheet` is the takings' own element,
+ * which is the picture by then; nothing is done when no picture was kept.
+ */
+export function keepPlace(sheet: HTMLElement, game: Element): void {
+  requestAnimationFrame(() => {
+    if (!sheet.isConnected || !game.isConnected) return;
+    const box = (sel: string) => {
+      const el = game.querySelector(sel);
+      return el && el.getClientRects().length ? el.getBoundingClientRect() : null;
+    };
+    const mid = box(':scope > .centre > .market-stall');
+    if (!mid || mid.width === 0) return;
+    const r = reachFrom({ mid, row: null, street: box(':scope > .street-wrap'), beats: null, dock: box(':scope > .my-stall'), notice: !!box(':scope > .net') }, 'street', true);
+    sheet.style.setProperty('--rise', `${r.rise}px`);
+    sheet.style.setProperty('--drop', `${r.drop}px`);
+  });
+}
+
 /** The takings on the table: the sheet reaches from the top of the customer band down over your shelf (reach.ts). */
 export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
   const root = useRef<HTMLDivElement>(null);
   useReach(root, 'street', true, true, closerOnceSeen);
+  useLayoutEffect(() => {
+    const sheet = root.current;
+    const game = sheet?.closest('.game');
+    return () => { if (sheet && game) keepPlace(sheet, game); };
+  }, []);
   return <TakingsView s={s} viewer={viewer} root={root} />;
 }
 
