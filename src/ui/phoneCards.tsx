@@ -5,7 +5,7 @@
 import type { ComponentChildren } from 'preact';
 import {
   FAVOURS, FRUIT, PREF_INFO, UPGRADES, lookOf, prefOf,
-  type FarmerCard, type FavourId, type FruitId, type OrderCard as OrderDef, type UpgradeId,
+  type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef, type UpgradeId,
 } from '../engine/data';
 import { Coin } from './art';
 import { LANES } from './boardModel';
@@ -190,6 +190,10 @@ export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned
   );
 }
 
+/** When a favour card you hold is played, on its band as the evening shows it: the approved Evening board's words
+ *  ("Play in the evening"). The printed card says it under "When to play" (cards.tsx FAVOUR_WHEN), and is unchanged. */
+export const FAVOUR_BAND: Record<FavourDef['when'], string> = { ...FAVOUR_WHEN, evening: 'Play in the evening' };
+
 /**
  * A favour card you hold, as the evening shows it. The whole card is one button: it opens the card, where it can be
  * played. `ready`: it can be played at this step, so the card says "Play" at its foot.
@@ -197,11 +201,11 @@ export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned
 export function FavourMini({ id, ready, onOpen }: { id: FavourId; ready?: boolean; onOpen: () => void }) {
   const d = FAVOURS[id];
   return (
-    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_WHEN[d.when]}. ${d.text}`}>
+    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_BAND[d.when]}. ${d.text}`}>
       <span class="fav-kind"><span>Favour</span><b>Secret</b></span>
       <CardArt class="fav-pic" src={favourArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={favourFocus(id)} />
       <span class="fav-nm">{d.title}</span>
-      <span class="fav-when">{FAVOUR_WHEN[d.when]}</span>
+      <span class="fav-when">{FAVOUR_BAND[d.when]}</span>
       <span class="fav-tx">{d.text}</span>
       {ready && <span class="fav-play">{`Play ${d.title}`}</span>}
     </button>

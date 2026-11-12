@@ -6,7 +6,8 @@ import { h } from 'preact';
 import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, type GameState } from '../src/engine/game';
-import { toStaticHtml } from '../src/ui/cards';
+import { FavourCard, toStaticHtml } from '../src/ui/cards';
+import { FavourMini } from '../src/ui/phoneCards';
 import { fitSheet } from '../src/ui/game/daySheet';
 import { covers } from '../src/ui/game/underSheet';
 import { CratesOpen } from '../src/ui/game/panels/PricingTable';
@@ -183,5 +184,19 @@ describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () =>
     const css = read('src/ui/daysheet.css');
     expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }');
     expect(css).toContain('#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }');
+  });
+});
+
+describe('the evening\'s favour cards (phoneCards.tsx; the approved Evening board)', () => {
+  it('say "Play in the evening" on their band, as the board does; the printed card still says "In the evening" under "When to play"', () => {
+    const mini = toStaticHtml(h(FavourMini, { id: 'gossip', onOpen: () => undefined }));
+    expect(mini).toContain('<span class="fav-when">Play in the evening</span>');
+    expect(mini).toContain('aria-label="Favour card: Gossip. Play in the evening. ');
+    // the other cards keep their words, which the board shows for Favoured Trade
+    expect(toStaticHtml(h(FavourMini, { id: 'favouredTrade', onOpen: () => undefined }))).toContain('<span class="fav-when">After the prices flip</span>');
+    expect(toStaticHtml(h(FavourMini, { id: 'freeFruit', onOpen: () => undefined }))).toContain('<span class="fav-when">On your buying turn</span>');
+    const printed = toStaticHtml(h(FavourCard, { id: 'gossip' }));
+    expect(printed).toContain('<small>When to play</small><b>In the evening</b>');
+    expect(printed).not.toContain('Play in the evening');
   });
 });
