@@ -5,7 +5,7 @@ import { serverBase } from '../net/client';
 import { cleanProfile, emptyProfile, type Profile } from '../net/profile';
 import { onProfileChange } from './changed';
 import { clearProgress, colourId, leagueStage, loadCounts, loadLooks, loadSets, loadWorn, saveCounts, saveGranted, saveLeagueStage, saveLooks, saveSets, saveUnlocked, saveWorn, unlocked } from './progress';
-import { loadDaily, loadName, loadStats, saveDaily, saveName, saveStats } from './store';
+import { clearPlayed, loadDaily, loadName, loadStats, saveDaily, saveName, saveStats } from './store';
 
 const SESSION_KEY = 'fm.acct';
 const AT_KEY = 'fm.profile.at';
@@ -117,6 +117,8 @@ export async function signOut(): Promise<string | null> {
   await call('logout', { id: s.id, token: s.token });
   writeSession(null);
   clearProgress();
+  // The games played and the Daily dates too (PLAN-090): the stamps are worked out from them.
+  clearPlayed();
   writeAt(0);
   return null;
 }

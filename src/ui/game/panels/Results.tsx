@@ -53,7 +53,8 @@ export function finishWords(s: GameState, viewer: number): { win: boolean; share
   const sharers = first.map((i) => s.players[i].name);
   return {
     win, shared,
-    headline: shared ? (win ? `YOU SHARE THE WIN WITH ${others.join(' AND ').toUpperCase()}` : `${sharers.join(' AND ').toUpperCase()} SHARE THE WIN`) : win ? 'YOU WIN!' : `${champ.name.toUpperCase()} WINS!`,
+    // The plain form, no exclamation mark (PLAN-090): the page's own style sets the headline in capitals.
+    headline: shared ? (win ? `You share the win with ${others.join(' and ')}` : `${sharers.join(' and ')} share the win`) : win ? 'You win' : `${champ.name} wins`,
     margin: shared ? 'Level on cash and on fruit sold.' : gap === 0 ? 'Tied on cash. Decided by fruit sold.' : `By $${gap}.`,
     medals: place.map((k) => RANKS[k - 1]),
     mine: win ? (shared ? 'I shared the win' : 'I won') : `I came ${RANKS[place[viewer] - 1].toLowerCase()}`,

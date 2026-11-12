@@ -865,20 +865,20 @@ describe('H. rulings', () => {
     s.phase = 'over';
     [60, 60, 20].forEach((c, i) => { s.players[i].cash = c; s.players[i].stats.sold = 7; });
     expect(finishWords(s, 0)).toEqual({
-      win: true, shared: true, headline: 'YOU SHARE THE WIN WITH P1', margin: 'Level on cash and on fruit sold.',
+      win: true, shared: true, headline: 'You share the win with P1', margin: 'Level on cash and on fruit sold.',
       medals: ['1ST', '1ST', '3RD'], mine: 'I shared the win',
     });
-    expect(finishWords(s, 2)).toMatchObject({ win: false, headline: 'P0 AND P1 SHARE THE WIN', mine: 'I came 3rd' });
+    expect(finishWords(s, 2)).toMatchObject({ win: false, headline: 'P0 and P1 share the win', mine: 'I came 3rd' });
     expect(standing(s, 0)).toMatchObject({ rank: 1, text: 'Tied with P1' });
     expect(standing(s, 1)).toMatchObject({ rank: 1, text: 'Tied with P0' });
     expect(standing(s, 2)).toMatchObject({ rank: 3 });
     // A single winner reads as before.
     s.players[0].cash = 61;
-    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'YOU WIN!', margin: 'By $1.', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
-    expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 WINS!', mine: 'I came 2nd' });
+    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'You win', margin: 'By $1.', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
+    expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 wins', mine: 'I came 2nd' });
     // Level on cash, not on fruit sold: one winner, as before.
     s.players[0].cash = 60; s.players[0].stats.sold = 8;
-    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 WINS!', margin: 'Tied on cash. Decided by fruit sold.' });
+    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 wins', margin: 'Tied on cash. Decided by fruit sold.' });
     // Fifth and sixth place have a name too.
     const six = bare(6);
     six.phase = 'over';

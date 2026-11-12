@@ -27,7 +27,9 @@ import { BEAT, FRAME, moveMs } from './motion';
 import './table.css';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
-export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
+// PLAN-090: six of them, one for each of up to six stalls, so the fifth and sixth stall no longer share the first and
+// second stall's colour (on their awnings, and as their line on the results' cash chart).
+export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark, C.xInk, C.xFlesh];
 export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
 
 /**

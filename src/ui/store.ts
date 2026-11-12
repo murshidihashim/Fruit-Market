@@ -89,6 +89,10 @@ export function loadGame(): GameState | null {
 
 export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION, game: g } satisfies SaveEnvelope) : null);
 
+/** Forgets the games played and the Daily dates on this phone (PLAN-090: signing out). The stamp book works its
+ *  stamps for games played and Daily markets out from them, so the next person on the phone must not keep them, as
+ *  they do not keep the trophies. An account holds both and brings them back on sign-in. */
+export function clearPlayed() { write(K.stats, null); write(K.daily, null); }
 export const loadDaily = () => read<DailyRecord>(K.daily, {});
 export const saveDaily = (d: DailyRecord) => { write(K.daily, d); profileChanged(); };
 
