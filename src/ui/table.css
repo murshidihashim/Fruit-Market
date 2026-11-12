@@ -1,0 +1,249 @@
+/* =====================================================================
+   Fruit Market · the table itself (PLAN-085; table.tsx, game/panels/NightShift.tsx), drawn to the approved Buying
+   screen (docs/studio/review-18/mockups, Buying; Pricing for the rival boxes while crates are shut; Wardrobe for the
+   awning strips). Top to bottom: today's customers, the stalls in buying order, the Wholesale Market as the board's
+   lanes of 3, 4, 5 and 6 boxes, your shelf with what tonight does to each piece, and the bottom bar.
+   The rows keep their places from the morning to the night: the customer row is as tall as its tallest ticket all
+   day, the stalls' boxes and the shelf have one height, and at night the rows stay, dimmed.
+   Loaded by table.tsx, so after ticket.css and the other table stylesheets: a rule here wins over theirs. Every rule
+   starts with "#app .tkt". Colours come from palette.css only. Only position, size and fade are animated, at the
+   table's one speed (--mk and the --t- lengths, motion.ts). Drawing only: nothing here changes a rule.
+   ===================================================================== */
+
+/* ---------- the awning strips (DEC-103): over your shelf, and thin on a stall's box ---------- */
+#app .tkt .tb-awn { flex: none; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--tk-ink); }
+#app .tkt .tb-awn.thin { height: 7px; border-bottom-width: 1.5px; }
+
+/* ---------- today's customers: the row keeps one height all day ----------
+   A ticket is its heading (26), its picture, a row for each fruit (20), its legend (18) and its border (4). The row is
+   as tall as the day's tallest ticket from the morning on (--lines, table.tsx Street), so nothing grows when the
+   walk-ins turn face up. */
+#app .tkt .street { --pic: 56px; min-height: calc(48px + var(--pic) + var(--lines, 2) * 20px); }
+#app .tkt .street .tkc-pc { height: var(--pic); }
+/* a walk-in turns face up: its back turns away, then its face shows; the standing order's card is dealt to the front */
+#app .tkt .street > .cust.tb-turn-out > * { animation: tb-turn-out calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0.4, 0, 1, 1) both; }
+#app .tkt .street > .cust.tb-turn-in > * { animation: tb-turn-in calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0, 0, 0.2, 1) both; }
+#app .tkt .street > .cust.tb-turn-deal { animation: tb-deal calc(var(--mk, 1) * var(--t-travel)) cubic-bezier(0.3, 0, 0.2, 1) both; }
+@keyframes tb-turn-out { to { transform: scaleX(0.04); } }
+@keyframes tb-turn-in { from { transform: scaleX(0.04); } }
+@keyframes tb-deal { from { transform: translateX(-60px); opacity: 0; } }
+/* tomorrow's lorry, by name, at the end of tomorrow's strip */
+#app .tkt .tomorrow .tm-lorry { flex: 0 1 auto; min-width: 0; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1 var(--tk-txt); color: var(--tk-slate); }
+
+/* ---------- the stalls ---------- */
+#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 0; }
+#app .tkt .tb-row-head { flex: none; height: 13px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#app .tkt .tb-row-head .tk-label { font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
+#app .tkt .tb-side { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1.1 var(--tk-txt); color: var(--tk-slate); }
+#app .tkt .tb-stall-row { flex: none; display: flex; gap: 5px; min-width: 0; }
+#app .tkt .tb-stall {
+  all: unset; position: relative; flex: 1 1 0; min-width: 0; height: 66px; box-sizing: border-box; overflow: hidden;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 3px 5px; align-items: center; padding: 0 5px 4px;
+  border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 600 0.6875rem/1.15 var(--tk-txt); text-align: left;
+}
+#app .tkt button.tb-stall { cursor: pointer; }
+#app .tkt .tb-stall > .tb-awn { grid-column: 1 / -1; grid-row: 1; margin: 0 -5px; }
+#app .tkt .tb-stall.buy-now, #app .tkt .tb-stall.open { background: var(--tk-yel); }
+#app .tkt .tb-stall.b-thinking { border-style: dashed; }
+#app .tkt .tb-stall.b-sealed { background: var(--tk-tint); }
+#app .tkt .tb-stall.off { opacity: 0.5; }
+/* the box's parts are laid out by the box itself: the face beside the name (up to two lines, so "Uncle Benny" reads in
+   full at four stalls), then the cash beside what the stall bought today or what it is doing */
+#app .tkt .tb-who, #app .tkt .tb-id { display: contents; }
+#app .tkt .tk-swatch.tb-face { grid-column: 1; grid-row: 2; width: var(--s); height: var(--s); box-sizing: border-box; border: 1.5px solid var(--tk-ink); background: var(--tk-tint); }
+#app .tkt .tk-swatch.tb-face .xf { border-radius: 0; box-shadow: none; background: none; }
+#app .tkt .tb-stall .tk-seat-name {
+  grid-column: 2; grid-row: 2; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal;
+  font: 600 0.6875rem/1.15 var(--tk-txt);
+}
+#app .tkt .tb-cash { grid-column: 1; grid-row: 3; font: 800 0.6875rem/1 var(--tk-txt); white-space: nowrap; }
+#app .tkt .tb-got { grid-column: 2; grid-row: 3; min-width: 0; height: 16px; display: flex; align-items: center; gap: 4px; overflow: hidden; white-space: nowrap; font: 600 0.625rem/1 var(--tk-txt); color: var(--tk-slate); }
+#app .tkt .tb-stall.buy-now .tb-got { color: var(--tk-ink); }
+#app .tkt .tb-buys { flex: none; display: flex; align-items: center; gap: 1px; font: 800 0.625rem/1 var(--tk-txt); color: var(--tk-ink); }
+#app .tkt .tb-buys > span { display: inline-flex; align-items: center; gap: 1px; margin-right: 2px; }
+#app .tkt .tb-buys .x-fruit { width: 12px; height: 12px; }
+#app .tkt .tb-ord { position: absolute; top: 0; right: 0; padding: 2px 4px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5rem/1 var(--tk-txt); font-style: normal; }
+/* five or six stalls: the face beside the cash, the name on its own line, then what it bought or is doing */
+#app .tkt .tb-stall.compact { grid-template-rows: auto auto auto auto; gap: 2px 3px; align-content: start; padding: 0 3px 2px; }
+#app .tkt .tb-stall.compact > .tb-awn { margin: 0 -3px; }
+#app .tkt .tb-stall.compact .tb-cash { grid-column: 2; grid-row: 2; }
+#app .tkt .tb-stall.compact .tk-seat-name { grid-column: 1 / -1; grid-row: 3; display: block; text-overflow: ellipsis; white-space: nowrap; font: 600 0.59rem/1.1 var(--tk-txt); letter-spacing: -0.01em; }
+#app .tkt .tb-stall.compact .tb-got { grid-column: 1 / -1; grid-row: 4; height: 13px; gap: 2px; font-size: 0.5625rem; }
+#app .tkt .tb-stall.compact .tb-buys .x-fruit { width: 10px; height: 10px; }
+#app .tkt .seats.tb-stalls .rival-drop { top: calc(100% + 2px); }
+
+/* ---------- the Wholesale Market: the board's lanes ---------- */
+#app .tkt > .centre > .market-stall.tb-market { gap: 5px; padding: 10px 12px 6px; overflow: hidden; }
+#app .tkt .tb-mk-head { flex: none; height: 16px; align-items: center; justify-content: flex-start; gap: 6px; }
+#app .tkt .tb-mk-head .tk-label { flex: none; font-size: 0.625rem; line-height: 1; }
+#app .tkt .tb-mk-head .tk-side { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font: 600 0.75rem/1.1 var(--tk-txt); }
+#app .tkt .tb-mk-head .tk-side.warn { color: var(--tk-red-d); }
+#app .tkt .tb-mk-head .tk-chip { padding: 2px 5px; font-size: 0.5625rem; }
+/* a box is as tall as the room allows, up to the board's 38 px: the room is the market's own height less its label
+   (16 + 5), the lanes' headings (22 + 3) and the gaps between the boxes */
+#app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes {
+  --bg: 3px;
+  --bh: clamp(18px, calc((100cqh - 46px) / var(--rows, 6) - var(--bg)), 38px);
+  gap: 5px;
+}
+/* (each rule for the lanes is also written for the night's lanes, where the older night panel's own sizes in
+   ticket.css would otherwise outrank it: the night's lanes must lie exactly over the day's) */
+#app .tkt .tb-lane, #app .tkt .tk-night.tb-night .tb-lane { gap: var(--bg); padding: 0; background: none; min-width: 0; }
+#app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh {
+  height: 22px; box-sizing: border-box; justify-content: flex-start; gap: 4px; padding: 0 4px; overflow: hidden;
+  background: var(--lane); color: var(--tk-paper); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em;
+}
+#app .tkt .tb-lane.mango .tb-lh { background: var(--c-b98a00); }
+/* a heading that opens nothing (at night) lets a tap through to the table, where it hurries what is playing */
+#app .tkt .tb-lh:disabled { cursor: default; pointer-events: none; }
+#app .tkt .tb-lh-ico { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--tk-paper); }
+#app .tkt .tb-box, #app .tkt .tk-night.tb-night .tb-box { gap: 2px; padding: 0 3px; border: 2px solid var(--tk-slate); background: var(--tk-paper); }
+#app .tkt .tb-box.has.st-okay { background: var(--tk-yel); }
+#app .tkt .tb-box.has.st-unripe { background: var(--c-cfeedd); }
+#app .tkt .tb-box.has.st-notso { background: var(--c-fbd5d2); }
+/* an empty box is drawn as an empty box */
+#app .tkt .tb-box:not(.has) { opacity: 1; border: 2px dashed var(--c-8d9396); background: none; }
+#app .tkt .tb-box:not(.has) .price { color: var(--c-8d9396); }
+/* the box you can buy from: a full ink edge */
+#app .tkt .tb-box.pick { border-color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
+#app .tkt .tb-box .tk-lamp { border: 0; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
+#app .tkt .tb-box:not(.has) .tk-lamp { background: none; color: var(--c-8d9396); box-shadow: inset 0 0 0 1px var(--c-8d9396); }
+#app .tkt .tb-pc { flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 2px; }
+#app .tkt .tb-tkn { flex: none; width: 22px; height: 22px; max-height: calc(var(--bh) - 6px); box-sizing: border-box; display: grid; place-items: center; border: 1.5px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .tb-box .tb-tkn .x-fruit { width: 16px; height: 16px; max-height: calc(var(--bh) - 10px); }
+#app .tkt .tb-n { font: 400 0.75rem/1 var(--tk-disp); }
+#app .tkt .tb-box .price { font: 800 0.6875rem/1 var(--tk-txt); }
+/* the letters and tomorrow's lorry, under the lanes where they leave room */
+#app .tkt .tb-mk-foot { display: none; flex: none; flex-direction: column; gap: 4px; margin-top: 2px; }
+#app .tkt .tb-mk-foot .tk-legend { gap: 4px 12px; font-size: 0.6875rem; }
+#app .tkt .tb-mk-foot .next-lorry { font-size: 0.6875rem; }
+@container market (min-height: 316px) { #app .tkt .tb-mk-foot { display: flex; } #app .tkt .tb-mk-foot .tk-legend { display: none; } }
+@container market (min-height: 340px) { #app .tkt .tb-mk-foot .tk-legend { display: flex; } }
+@container market (max-width: 350px) {
+  #app .tkt .tb-tkn { width: 20px; height: 20px; }
+  #app .tkt .tb-box .tb-tkn .x-fruit { width: 15px; height: 15px; }
+  #app .tkt .tb-box .tk-lamp { --s: 12px; }
+  #app .tkt .tb-n { font-size: 0.6875rem; }
+  #app .tkt .tb-box .price { font-size: 0.625rem; }
+}
+
+/* the lorry beside the market's label: it drives in, stands while stalls buy, and drives off */
+#app .tkt .tb-lorry { flex: none; position: relative; width: 39px; height: 16px; }
+#app .tkt .tb-lorry img { position: absolute; left: 0; bottom: -2px; width: 39px; height: 22px; display: block; }
+#app .tkt .tb-lorry img.b { display: none; }
+#app .tkt .tb-lorry.here { animation: tb-lorry-in calc(var(--mk, 1) * var(--t-lorry)) cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+#app .tkt .tb-lorry.leaving { animation: tb-lorry-out calc(var(--mk, 1) * var(--t-lorry-off)) cubic-bezier(0.4, 0, 1, 1) both; }
+@keyframes tb-lorry-in { from { transform: translateX(110px); opacity: 0; } }
+@keyframes tb-lorry-out { to { transform: translateX(110px); opacity: 0; } }
+/* a crate on its way from the lorry to a lane (the moving copy, anim.ts fly) */
+#app .tkt .tb-crate { width: 28px; height: 24px; box-sizing: border-box; display: grid; place-items: center; border: 2px solid var(--tk-ink); background: var(--tk-kraft); }
+
+/* ---------- your shelf ---------- */
+#app .tkt > .my-stall.tb-dock { display: flex; flex-direction: column; padding: 0 0 6px; border-top: 2px solid var(--tk-ink); box-shadow: none; }
+#app .tkt .tb-dock-head { flex: none; height: 14px; display: flex; align-items: center; gap: 8px; padding: 7px 12px 0; }
+#app .tkt .tb-dock-head .tk-label { flex: none; font-size: 0.625rem; line-height: 1; }
+#app .tkt .tb-dock-head .tk-shelf.full { color: var(--tk-red-d); }
+#app .tkt .tb-dock-head .tb-side, #app .tkt .tb-dock-head .tk-chip { margin-left: auto; }
+#app .tkt .tb-dock-head .tk-chip { padding: 2px 5px; font-size: 0.5625rem; }
+#app .tkt .tb-chips { all: unset; flex: none; height: 57px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; padding: 6px 12px 0; overflow: hidden; }
+#app .tkt .tb-chip {
+  all: unset; flex: none; height: 26px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; white-space: nowrap;
+  border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 600 0.625rem/1 var(--tk-txt);
+}
+#app .tkt .tb-chip.good { background: var(--c-cfeedd); }
+#app .tkt .tb-chip.warn { background: var(--tk-yel); }
+#app .tkt .tb-chip b { font: 400 0.75rem/1 var(--tk-disp); }
+#app .tkt .tb-chip .tk-lamp { border: 0; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
+#app .tkt .tb-chip-to { display: none; align-items: center; gap: 3px; font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tb-chip-to i { font-style: normal; }
+/* a fruit you hold none of still has its place, where a bought piece lands */
+#app .tkt .tb-place { flex: none; width: 0; height: 26px; margin-right: -5px; }
+#app .tkt .tb-chips .favchip { height: 26px; }
+#app .tkt .tb-chips .favchip .favchip-pic { width: 26px; height: 26px; }
+/* a full shelf: the chips take their short form (the letter the pieces carry tomorrow), so they all stay in view */
+#app .tkt .tb-dock:is(.c7, .c8) .tb-chip-w { display: none; }
+#app .tkt .tb-dock:is(.c7, .c8) .tb-chip-to { display: inline-flex; }
+@media (max-width: 379px) {
+  #app .tkt .tb-dock:is(.c5, .c6) .tb-chip-w { display: none; }
+  #app .tkt .tb-dock:is(.c5, .c6) .tb-chip-to { display: inline-flex; }
+}
+
+/* ---------- the night: the rows stay, dimmed; every piece slides one box along its lane ---------- */
+#app .game.gx.tkt.is-night > .street-wrap { display: block; }
+#app .game.gx.tkt.is-night > .seats { display: flex; }
+#app .tkt > .street-wrap, #app .tkt > .seats { transition: opacity calc(var(--mk, 1) * var(--t-sky)) ease; }
+#app .game.gx.tkt.is-night > .street-wrap, #app .game.gx.tkt.is-night > .seats { opacity: 0.3; pointer-events: none; }
+/* the night's lanes lie exactly over the day's (the same padding, label and boxes), on ink */
+#app .tkt > .centre > .tk-night.tb-night {
+  gap: 5px; padding: 10px 12px 6px; overflow: hidden; container: market / size; background: var(--tk-ink); color: var(--tk-paper);
+  animation: tb-dusk calc(var(--mk, 1) * var(--t-dusk)) ease both;
+}
+#app .tkt > .centre > .tk-night.tb-night > * { margin: 0; animation: none; }
+@keyframes tb-dusk { from { opacity: 0; } }
+#app .tkt .tb-night .tk-label { color: var(--tk-yel); }
+#app .tkt .tb-night .tk-side { color: var(--tk-paper); }
+#app .tkt .tk-night.tb-night .tb-box { border-color: var(--tk-paper); opacity: 1; }
+#app .tkt .tk-night.tb-night .tb-box.has.st-okay { background: var(--tk-yel); }
+#app .tkt .tk-night.tb-night .tb-box.has.st-unripe { background: var(--c-cfeedd); }
+#app .tkt .tk-night.tb-night .tb-box.has.st-notso { background: var(--c-fbd5d2); }
+#app .tkt .tk-night.tb-night .tb-box:not(.has) { border: 2px dashed var(--c-8d9396); background: none; }
+#app .tkt .tb-night .tb-box:not(.has) .tk-lamp { color: var(--c-8d9396); }
+/* the slide is as long as the night's script says (--ns-ms, set on the panel and on your shelf); a piece leaving the
+   last box tips off its lane and fades over the last third */
+#app .tkt .tb-pc.ns-piece { transition: transform var(--ns-ms, 0ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 0ms) * 0.33) ease calc(var(--ns-ms, 0ms) * 0.67); }
+#app .tkt .tb-pc.ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + var(--bg)))); }
+#app .tkt .tb-pc.ns-piece.moved.gone { transform: translate(16px, calc(var(--steps) * (var(--bh) + var(--bg)) - var(--bh) * 0.5)); opacity: 0; }
+#app .tkt .tb-pc.ns-piece.rest { transition: none; }
+/* on your shelf: a chip whose pieces spoil or are juiced tips off as the slide ends */
+#app .tkt .tb-dock.night .tb-chip { transition: transform var(--ns-ms, 0ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 0ms) * 0.33) ease calc(var(--ns-ms, 0ms) * 0.67); }
+#app .tkt .tb-dock.night .tb-chip.gone { transform: translate(10px, 14px); opacity: 0; }
+#app .tkt .tb-dock.night.rest .tb-chip { transition: none; }
+
+/* ---------- a shorter phone: the same table, closer ----------
+   Smaller pictures on the tickets, the stalls without their heading, one row of chips on the shelf in their short
+   form, and a slimmer bottom bar leave the lanes their six boxes. */
+@media (max-height: 779px) {
+  #app .tkt .street { --pic: 26px; }
+  #app .tkt .tomorrow { margin-top: 4px; }
+  #app .tkt .tomorrow .tm-chip { height: 22px; }
+  #app .tkt > .seats.tb-stalls { padding-top: 5px; }
+  #app .tkt .tb-row-head { display: none; }
+  #app .tkt .tb-stall { height: 58px; row-gap: 2px; }
+  #app .tkt .tb-stall:not(.compact) .tk-swatch.tb-face { width: 22px; height: 22px; }
+  #app .tkt .tb-stall .tk-seat-name { line-height: 1.1; }
+  #app .tkt .tb-got { height: 14px; }
+  #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { gap: 4px; padding-top: 6px; padding-bottom: 5px; }
+  #app .tkt .tb-mk-head { height: 14px; }
+  #app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes { --bh: clamp(18px, calc((100cqh - 39px) / var(--rows, 6) - var(--bg)), 38px); }
+  #app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh { height: 18px; }
+  #app .tkt .tb-lh-ico { width: 15px; height: 15px; }
+  /* your shelf in one row: its name and count beside the chips */
+  #app .tkt > .my-stall.tb-dock { display: grid; grid-template: "awn awn" auto "head chips" auto / auto minmax(0, 1fr); padding-bottom: 5px; }
+  #app .tkt .tb-dock > .tb-awn { grid-area: awn; height: 10px; }
+  #app .tkt .tb-dock-head { grid-area: head; height: 26px; box-sizing: content-box; align-items: center; padding: 5px 0 0 12px; }
+  #app .tkt .tb-dock-head .tk-label { line-height: 1.2; }
+  #app .tkt .tb-dock-head .tk-shelf i { display: none; }
+  #app .tkt .tb-dock-head .tk-shelf span { display: block; }
+  #app .tkt .tb-dock-head .tb-side { display: none; }
+  #app .tkt .tb-dock-head .tk-dock-marks, #app .tkt .tb-dock-head .tk-chip { position: absolute; right: 8px; top: 0; height: 12px; box-sizing: border-box; padding: 0 3px; background: var(--tk-paper); }
+  #app .tkt .tb-dock-head .tk-chip.warn { background: var(--tk-apple); line-height: 12px; }
+  #app .tkt .tb-chips { grid-area: chips; height: 26px; padding: 5px 12px 0 6px; flex-wrap: nowrap; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-w { display: none; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-to { display: inline-flex; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip > span { display: none; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip { padding: 0; }
+  #app .tkt > .actionbar { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt > .actionbar .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }
+}
+@media (max-width: 379px) {
+  #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
+  #app .tkt .tb-dock-head, #app .tkt .tb-chips { padding-left: 8px; padding-right: 8px; }
+  #app .tkt .tb-stall-row, #app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes { gap: 4px; }
+  #app .tkt .tomorrow .tm-lorry { display: none; }
+}
+@media (max-height: 779px) and (max-width: 379px) {
+  #app .tkt .tb-dock-head { padding-right: 0; }
+  #app .tkt .tb-chips { padding-left: 6px; }
+}
+
+#app .tkt .tb-dock-head .tk-shelf i { font-style: normal; }
