@@ -18,7 +18,7 @@ import { shownSold, shownStock, useStockShown } from './stockShown';
 import { shownFavours, shownWants } from './rushShown';
 import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
-import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
+import { SEEN_WALK_IN, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, wantText, LANES } from './boardModel';
 import { buyState, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
@@ -38,20 +38,6 @@ export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
  */
 export function Awning({ p, look, thin }: { p: number; look?: LookSet; thin?: boolean }) {
   return <RoofBand cls={`tb-awn ${thin ? 'thin' : ''}`} colour={chosenColour(look) ?? seatColour(p)} roof={stallOf(look).roof} scale={thin ? 1 : 2} />;
-}
-
-export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
-  if (n <= 0) return null;
-  const stage = stageAt(f, pos);
-  const shown = Math.min(n, 3);
-  return (
-    <span class={`pile p${shown}`}>
-      {Array.from({ length: shown }, (_, i) => (
-        <span class="pi" style={{ '--i': i } as any}><Fruit id={f} size={size} stage={stage} /></span>
-      ))}
-      {n > 1 && <b class="pn">{n}</b>}
-    </span>
-  );
 }
 
 // ---------- market ----------
@@ -181,20 +167,6 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
 
 /** A shop's price board for the current showdown: sealed while pricing, flipped open at the reveal. */
 export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; res?: 'won' | 'lost'; tag?: string; /** A computer prices after the people at the table. */ ai?: boolean }
-
-export function SeatBoard({ b }: { b: Board }) {
-  if (b.state === 'thinking') {
-    return b.ai
-      ? <span class="sb thinking" aria-label="Prices next, after you"><i class="sb-hourglass" aria-hidden="true" />next in line</span>
-      : <span class="sb thinking" aria-label="Still deciding prices"><i class="sb-hourglass" aria-hidden="true" />deciding<span class="waiting-dots" /></span>;
-  }
-  return (
-    <span class={`sb ${b.state} ${b.res ?? ''}`}>
-      <span class="sb-face">{b.state === 'open' ? `$${b.price}` : <i class="seal" aria-label="Sealed price" />}</span>
-      {b.tag ? <small>{b.tag}</small> : b.state === 'sealed' && <small>sealed</small>}
-    </span>
-  );
-}
 
 // ---------- the stalls ----------
 
@@ -413,27 +385,6 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
           {favours > 0 && <span class="tk-chip">{favours} favour card{favours > 1 ? 's' : ''}</span>}
         </div>
       )}
-    </div>
-  );
-}
-
-/** Freshness chips for a shop's stock. With `anchors`, fruit can fly to and from them. */
-export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; anchors?: boolean; empty: string }) {
-  const groups = stockChips(shownStock(p, s.players[p].stock));
-  const any = groups.some((g) => g.chips.length > 0);
-  return (
-    <div class="stk">
-      {groups.map(({ f, chips }) => (
-        <span class="stk-f" data-a={anchors ? `p${p}-${f}` : undefined}>
-          {chips.map(({ pos, stage, n }) => (
-            <span class={`ms-cell has st-${stage} ${pos === 0 ? 'rotting' : ''}`} data-a={anchors ? `p${p}-${f}-${pos}` : undefined}
-              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'soft' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
-              <Fruit id={f} size={20} stage={stage} />{n > 1 && <b>×{n}</b>}<span>{lifeLabel(f, pos)}</span>
-            </span>
-          ))}
-        </span>
-      ))}
-      {!any && <span class="stk-empty">{empty}</span>}
     </div>
   );
 }

@@ -391,16 +391,6 @@
 @keyframes tk-turn { from { transform: rotateX(90deg); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* night falls: the lanes again, every piece sliding down a box */
-#app .tkt > .centre > .tk-night { background: var(--tk-ink); color: var(--tk-paper); gap: 8px; padding-top: 10px; }
-#app .tkt .tk-night-head b { display: block; font: 400 1.625rem/1.05 var(--tk-disp); text-transform: uppercase; }
-#app .tkt .tk-night-head span { display: block; margin-top: 4px; font: 600 0.8125rem/1.35 var(--tk-txt); }
-#app .tkt .tk-night-boards { flex: none; display: flex; gap: 12px; }
-#app .tkt .tk-night-block { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-#app .tkt .tk-night .tk-label { color: var(--tk-yel); }
-#app .tkt .tk-night .tk-lanes { --bh: 26px; gap: 3px; }
-#app .tkt .tk-night .tk-lane { gap: 2px; padding: 2px; }
-#app .tkt .tk-night .tk-lane-head { height: 22px; cursor: default; }
-#app .tkt .tk-night .tk-box { padding: 0 2px; border-width: 0; opacity: 1; }
 #app .tkt .ns-piece {
   position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 1px; font: 400 0.75rem/1 var(--tk-disp);
   /* The slide is as long as the night's script says (--ns-ms, set on the panel: 1.5 s at normal speed, slow enough to
@@ -412,15 +402,6 @@
 #app .tkt .ns-piece .x-fruit { width: 16px; height: 16px; }
 #app .tkt .ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + 2px))); }
 #app .tkt .ns-piece.gone { opacity: 0; }
-#app .tkt .tk-spoiled { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; box-shadow: inset 0 0 0 2px var(--tk-paper); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-spoiled-n { display: flex; gap: 10px; }
-#app .tkt .tk-spoiled-n b { display: inline-flex; align-items: center; gap: 3px; font: 400 0.875rem/1 var(--tk-disp); letter-spacing: 0; color: var(--tk-paper); }
-#app .tkt .tk-spoiled-n b.none { opacity: 0.4; }
-#app .tkt .tk-dayend { flex: none; display: flex; flex-direction: column; gap: 5px; padding: 8px 12px; background: var(--tk-paper); color: var(--tk-ink); }
-#app .tkt .tk-dayend .tk-label { color: var(--tk-ink); }
-#app .tkt .tk-dayend-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font: 700 0.8125rem/1 var(--tk-txt); }
-#app .tkt .tk-dayend-row b { font: 400 1.0625rem/1 var(--tk-disp); }
-#app .tkt .tk-dayend-row small { flex-basis: 100%; font: 600 0.6875rem/1.25 var(--tk-txt); }
 
 /* ---------- your shelf ---------- */
 #app .tkt > .my-stall { all: unset; grid-area: dock; position: relative; z-index: 5; display: block; box-sizing: border-box; background: var(--tk-paper); color: var(--tk-ink); border-top: 3px solid var(--tk-ink); }

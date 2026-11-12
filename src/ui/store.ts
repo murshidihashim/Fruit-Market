@@ -123,14 +123,3 @@ export function todayKey(d = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Consecutive days (ending today or yesterday) with a daily challenge played. */
-export function dailyStreak(rec: DailyRecord, today = new Date()): number {
-  let n = 0;
-  const d = new Date(today);
-  if (rec[todayKey(d)] === undefined) d.setDate(d.getDate() - 1);
-  while (rec[todayKey(d)] !== undefined) {
-    n++;
-    d.setDate(d.getDate() - 1);
-  }
-  return n;
-}
