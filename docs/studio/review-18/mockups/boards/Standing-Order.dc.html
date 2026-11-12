@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Standing order: bidding with a stake</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:8px;background:#1f272a;color:#fffcf5;padding:9px 12px}
+.menu{width:44px;height:44px;margin:-6px 0 -6px -10px;border:0;background:none;display:grid;place-items:center}
+.day{font:400 18px/1 'Archivo Black',sans-serif}.day small{font:800 11px/1 Archivo,sans-serif}
+.ev{border:0;background:#fec400;color:#1f272a;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;padding:7px 8px;text-transform:uppercase}
+.rank{margin-left:auto;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;color:#fec400}
+.cash{background:#fffcf5;color:#1f272a;font:400 16px/1 'Archivo Black',sans-serif;padding:5px 8px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #1f272a;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.steps span{padding:7px 0;text-align:center}.steps .on{background:#fec400}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.kind{display:flex;justify-content:space-between;background:#1f272a;color:#fffcf5;padding:6px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}.kind b{color:#fec400}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid #1f272a;box-sizing:border-box;background:#e73c35}
+.stat{flex:1;border:2px solid #1f272a;padding:6px 8px;display:flex;flex-direction:column;gap:3px}
+.stat b{font:400 20px/1 'Archivo Black',sans-serif}
+.stat span{font:800 9px/1.2 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.who{flex:1;min-width:0;display:flex;align-items:center;gap:6px;padding:5px 6px;border:2px solid #1f272a}
+.who img{width:26px;height:26px;border:1.5px solid #1f272a;box-sizing:border-box}
+.who b{display:block;font:800 9px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.st{width:52px;height:52px;border:0;background:#1f272a;color:#fec400;font:400 24px/1 'Archivo Black',sans-serif}
+.ln{display:flex;gap:8px;align-items:baseline}.ln b{width:74px;flex:none;font:800 10px/1.3 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.btn{height:52px;border:0;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.btn2{height:52px;border:2px solid #1f272a;background:#fffcf5;font:400 14px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fffcf5; color: #1f272a; font: 600 12px/1.3 Archivo, system-ui, sans-serif; overflow: hidden">
+
+  <div class="top">
+    <button class="menu" aria-label="Menu"><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><path d="M0 2h20M0 8h20M0 14h20" stroke="#fffcf5" stroke-width="2.5"/></svg></button>
+    <span class="day">DAY 3<small>/10</small></span>
+    <button class="ev">Market Day</button>
+    <span class="rank">2ND</span><span class="cash">$17</span>
+  </div>
+  <div class="steps"><span class="on">1 Morning</span><span>2 Buying</span><span>3 Stocking</span><span>4 Bell</span><span>5 Rush</span></div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px">
+
+    <div style="border: 3px solid #1f272a; display: flex; flex-direction: column">
+      <div class="kind"><span>Standing order</span><span><b>Due in 2 days</b> · day 5</span></div>
+      <div style="display: flex; gap: 10px; padding: 10px 10px 0">
+        <img src="/_blob/10e99c9dc7d655502561db1fa01e3df6" alt="The Pie Factory" style="width: 84px; height: 84px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box">
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px">
+          <span style="font: 400 21px/1 'Archivo Black', sans-serif; text-transform: uppercase">The Pie Factory</span>
+          <span style="display: flex; align-items: center; gap: 5px"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apples" style="width: 22px; height: 22px"><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></span>
+          <span class="lab">4 apples · fresh or okay</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; padding: 10px">
+        <div class="stat"><b>$11</b><span>Highest bid, each</span></div>
+        <div class="stat" style="background: #fec400"><b>$7</b><span>Stake</span></div>
+      </div>
+      <div style="background: #ddd4c6; padding: 6px 9px; text-align: center; font: 800 9px/1 Archivo, sans-serif; letter-spacing: 0.08em; text-transform: uppercase">Lowest bid wins · No favour card · No tips</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 5px">
+      <span class="lab">Who is bidding · prices stay secret</span>
+      <div style="display: flex; gap: 5px">
+        <div class="who" style="background: #fec400"><img src="/_blob/78fb57d94f18d19e4f009ad31cdec052" alt=""><span>Benny<b>Bidding</b></span></div>
+        <div class="who"><img src="/_blob/2745d428de7b1d7c6f883059a732b376" alt=""><span>Chen<b>Passed</b></span></div>
+        <div class="who" style="border-style: dashed"><img src="/_blob/62781fb96b46ec9a1cf88a578b0c51d0" alt=""><span>Farah<b>Deciding</b></span></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 9px 10px; background: #efe9df">
+      <span class="lab">Apples you can get by day 5</span>
+      <span>On your shelf: 1 · at the market today: 3 · on tomorrow's lorry: 2</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto">
+      <span class="lab">Your bid, for each apple</span>
+      <div style="display: flex; align-items: stretch; border: 2px solid #1f272a">
+        <button class="st" aria-label="Lower your bid">−</button>
+        <span style="flex: 1; display: flex; align-items: baseline; justify-content: center; gap: 6px; padding-top: 12px"><b style="font: 400 30px/1 'Archivo Black', sans-serif">$9</b><span>a piece · $36 for all 4</span></span>
+        <button class="st" aria-label="Raise your bid">+</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 5px; padding: 9px 10px; border: 2px solid #1f272a">
+        <div class="ln"><b>If you win</b><span>You pay the $7 stake now. You have $17.</span></div>
+        <div class="ln"><b>Deliver all 4</b><span>$36, and the $7 stake comes back.</span></div>
+        <div class="ln"><b>Fall short</b><span>$9 for each apple you deliver. The stake is lost.</span></div>
+      </div>
+      <span style="color: #5a6266">You can change your bid or pass until the last stall decides.</span>
+    </div>
+  </div>
+
+  <div style="padding: 0 12px 12px; display: flex; gap: 6px">
+    <button class="btn2" style="width: 110px">Pass</button>
+    <button class="btn" style="flex: 1">Bid $9 a piece</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

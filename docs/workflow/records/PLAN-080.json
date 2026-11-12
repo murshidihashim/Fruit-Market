@@ -1,0 +1,60 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-103"
+  ],
+  "decisions": [
+    "DEC-089"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "\"go print both trackers then, dont change any rules\"",
+    "date": "2026-11-12"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-080",
+  "title": "Tabletop freshness trackers: test prints of both options",
+  "problem": "The owner wants to try both ways of tracking freshness on a table before one goes into the print kit, with no rule changed.",
+  "scope": [
+    "scripts/print-trackers.ts and print/tracker-test: the ruler tracker (how-to, stall sheet, market board, rulers) and the tray tracker (how-to, stall sheet, crate trays), built from the game data"
+  ],
+  "exclusions": [
+    "Any rule change: unsold fruit is kept",
+    "The rest of the print kit, which is built after the tracker is chosen",
+    "The app"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "Both PDFs build from the game data, nothing spills off a page, every page looked at",
+      "result": "PASS",
+      "evidence": "4 and 3 pages written by npx vite-node scripts/print-trackers.ts; all seven pages rendered with pdftoppm and read; two layout faults fixed"
+    },
+    {
+      "id": "T2",
+      "text": "npm run verify passes with the new generator",
+      "result": "PASS",
+      "evidence": "Lint, types, unit tests and build on 2026-11-12"
+    },
+    {
+      "id": "T3",
+      "text": "Printed at 100% and measured against a 15 mm fruit piece",
+      "result": "NOT RUN",
+      "evidence": "Needs a printer"
+    },
+    {
+      "id": "T4",
+      "text": "The owner has tried both on a table and chosen one",
+      "result": "NOT RUN",
+      "evidence": "Sent to the owner"
+    }
+  ]
+}

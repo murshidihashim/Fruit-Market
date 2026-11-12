@@ -1,0 +1,40 @@
+/* =====================================================================
+   Fruit Market · the table's motion (flow study, review-18, D1 and D2).
+   The lengths and the speed are named in motion.ts, which writes them on the page for the stylesheets:
+     --mk          the one speed: 1 at the normal pace, lower when quicker ("Fast rivals", a tap), 0 with reduced motion
+     --t-<name>    a length in ms at normal speed (travel, coin, turn, sheet-in, sheet-out, land ...: motion.ts CSS_MS)
+   A move is written  calc(var(--mk, 1) * var(--t-<name>))  so the stylesheets and the scripts keep the same pace.
+   Only position, size and fade are animated. Nothing in the game waits for anything here to end.
+
+   When the speed changes, a keyframe animation that reads --mk is re-timed at once: it jumps ahead when the table is
+   hurried. That suits a thing that leaves with its beat. For a thing that stays on screen, use a transition, or the
+   scripted blocks (anim.ts fly and flipFrom, sheet.ts), which fix their length as they start.
+   ===================================================================== */
+
+/* ---------- the moving copies (anim.ts fly) ----------
+   A copy is a point on the layer with its picture centred on it, so only the point's position and size are animated
+   and the picture never has to be measured. When many copies are in the air, a new one is drawn without its shadow. */
+.fx-layer .sprite.mv { width: 0; height: 0; }
+.fx-layer .sprite-in { position: absolute; left: 0; top: 0; display: block; line-height: 0; font-style: normal; transform: translate(-50%, -50%); }
+.fx-layer .sprite.plain { filter: none; }
+
+/* ---------- the sheet: the middle panel slides onto the table and off again (sheet.ts) ----------
+   The slides themselves are started by sheet.ts. This is the place where the picture of a panel that has just left
+   is kept while it slides off: in the same grid cell as the panels, under them and over the lanes. It is empty the
+   rest of the time, takes no taps and changes the size of nothing. */
+#app .tkt > .centre > .tk-sheet, #app .tkt .tk-sheet-in {
+  all: unset; grid-area: mid; z-index: 3; box-sizing: border-box; min-width: 0; min-height: 0; pointer-events: none;
+  display: grid; grid-template: "mid" minmax(0, 1fr) / minmax(0, 1fr);
+}
+
+/* ---------- the one speed on the moves the stylesheets already make ----------
+   These keep the lengths they had (ticket.css, ticket-ui.css); they now come from motion.ts and follow the table's speed. */
+#app .tkt .tk-news-back, #app .tkt .tk-news-face { transition-duration: calc(var(--mk, 1) * var(--t-news-turn)); }
+#app .tkt .tk-crates.open .tk-crate { animation-duration: calc(var(--mk, 1) * var(--t-crate-turn)); }
+
+/* ---------- reduced motion: nothing travels, the state is shown at once, and what is there to be read stays ----------
+   styles.css switches every animation and transition off. The "FINAL DAY!" stamp is drawn by an animation, so without
+   one it must simply be there for as long as the game shows it. */
+@media (prefers-reduced-motion: reduce) {
+  .phase-banner { opacity: 1; }
+}

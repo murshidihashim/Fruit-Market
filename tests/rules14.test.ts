@@ -4,11 +4,12 @@ import { describe, expect, it } from 'vitest';
 import { BIG_TABLE, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FRUIT, FRUITS, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP, UPGRADES, orderQty, stageAt } from '../src/engine/data';
 import { autoplay, planOrderBid } from '../src/engine/ai';
 import {
-  applyAction, beginBuying, bidOrder, canBidOrder, canUpgrade, emptyStock, endBuyTurn, newGame, openStall, rowCount, rowCustomers, servingCustomers,
+  applyAction, beginBuying, bidOrder, canBidOrder, canUpgrade, emptyStock, newGame, openStall, rowCount, rowCustomers, servingCustomers,
   shelfPos, submitPrices, type GameConfig, type GameState,
 } from '../src/engine/game';
 import { redact } from '../server/room';
 import { RULES_VERSION } from '../src/net/protocol';
+import { endBuying, passEvening } from './stall-step';
 
 const humans = (n: number, extra: Partial<GameConfig> = {}): GameConfig => ({
   players: Array.from({ length: n }, (_, i) => ({ name: `P${i}`, kind: 'human' as const, avatar: '' })),
@@ -24,7 +25,7 @@ function marketDay(n: number): GameState {
   s.day = 2; s.phase = 'evening'; s.turn = 0; s.order = s.players.map((_, i) => i);
   s.players.forEach((p) => { p.stock = emptyStock(true); p.cash = 30; p.trait = null; p.traitOffer = []; });
   let g: GameState = s;
-  for (let p = 0; p < n; p++) g = applyAction(g, p, { kind: 'endEvening' });
+  g = passEvening(g);
   expect(g.day).toBe(3);
   return beginBuying(g);
 }
@@ -34,7 +35,7 @@ function dueDay(g: GameState, stock: Record<number, number[]>): GameState {
   const o = s.standing!;
   s.day = o.due; s.phase = 'buy'; s.turn = 0; s.event = null; s.forecast = null; s.queue = [];
   for (const [p, t] of Object.entries(stock)) s.players[Number(p)].stock[o.fruit] = [...t];
-  for (const p of [...s.order]) s = endBuyTurn(s, p);
+  s = endBuying(s);
   return s;
 }
 
@@ -50,7 +51,7 @@ describe('rules 14: fruit lives', () => {
     }
     expect([FRUIT.blueberry.ripe.length, FRUIT.watermelon.ripe.length, FRUIT.mango.ripe.length + FRUIT.mango.unripeSlots, FRUIT.apple.ripe.length]).toEqual([3, 4, 5, 6]);
     expect(FRUITS.filter((f) => FRUIT[f].unripeSlots > 0)).toEqual(['mango']);
-    expect(FRUIT.mango.cost).toMatchObject({ unripe: 3, fresh: 6, okay: 3, notso: 1 });
+    expect(FRUIT.mango.cost).toMatchObject({ unripe: 4, fresh: 6, okay: 3, notso: 1 }); // rules 18: a green mango costs $4 (was $3)
   });
 
   it('every lorry brings its mangoes green: they land at the top of the track', () => {
@@ -64,11 +65,16 @@ describe('rules 14: fruit lives', () => {
 });
 
 describe('rules 14: the row', () => {
-  it('never holds more than five customers, at any table size, in whole computer games', () => {
+  it('never holds more than five customers, at any table size, in whole computer games (rules 18: a guest may make it six)', () => {
     for (const n of [2, 4, 5, 6]) for (const seed of [1, 2, 3]) {
       let s = newGame(ais(n, seed));
       for (let i = 0; i < 6000 && s.phase !== 'over'; i++) {
-        if (s.phase === 'stall') expect(servingCustomers(s).length, `${n} stalls, seed ${seed}, day ${s.day}`).toBeLessThanOrEqual(ROW_CAP);
+        if (s.phase === 'stall') {
+          // The cap counts the regular, the walk-ins and a standing order collected today; a guest joins the end.
+          const guest = s.event?.extra?.name;
+          expect(servingCustomers(s).filter((c) => c.name !== guest).length, `${n} stalls, seed ${seed}, day ${s.day}`).toBeLessThanOrEqual(ROW_CAP);
+          expect(servingCustomers(s).length, `${n} stalls, seed ${seed}, day ${s.day}`).toBeLessThanOrEqual(ROW_CAP + 1);
+        }
         s = autoplay(s, 1);
       }
       expect(s.phase).toBe('over');
@@ -77,7 +83,7 @@ describe('rules 14: the row', () => {
 
   it('nobody waits overnight: an unserved customer leaves', () => {
     let s = beginBuying(newGame(humans(2)));
-    for (const p of [...s.order]) s = endBuyTurn(s, p);
+    s = endBuying(s);
     expect(servingCustomers(s).length).toBeGreaterThan(0);
     s = openStall(openStall(s, 0, {}), 1, {});
     expect(s.phase).toBe('reveal');
@@ -94,13 +100,14 @@ describe('rules 14: the row', () => {
     expect(four.forecast!.wants.map((w) => w.qty)).toEqual(card(four.forecast!.name).wants.map((w) => w.qty));
   });
 
-  it('a guest takes the place of the last walk-in when the row is full', () => {
+  it('a guest joins the end of a full row, which is then six (rules 18; before, it took the last walk-in\'s place)', () => {
     let s = structuredClone(beginBuying(newGame(humans(5))));
     s.event = EVENT_CARDS.find((e) => e.id === 'hotel')!;
     expect(s.queue.length).toBe(4);
-    for (const p of [...s.order]) s = endBuyTurn(s, p);
+    s = endBuying(s);
     const row = servingCustomers(s);
-    expect(row.length).toBe(ROW_CAP);
+    expect(row.length).toBe(ROW_CAP + 1);
+    expect(row.filter((c) => c.walkIn)).toHaveLength(4);
     expect(row[row.length - 1].name).toBe('Hotel Chef');
   });
 });
@@ -124,7 +131,7 @@ describe('rules 14: standing orders', () => {
     expect(canBidOrder(s, 0, top + 1)).toMatch(/most this order pays/);
     expect(canBidOrder(s, 0, 0)).toMatch(/start at \$1/);
     s = bidOrder(s, 0, top);
-    expect(canBidOrder(s, 0, 5)).toMatch(/already bid/);
+    expect(canBidOrder(s, 0, 5)).toBeNull(); // rules 17: a bid may change while another stall is still deciding
     s = bidOrder(s, 1, 7);
     s = bidOrder(s, 2, 7);
     expect(s.phase).toBe('order');
@@ -145,48 +152,62 @@ describe('rules 14: standing orders', () => {
     expect(none.phase).toBe('buy');
   });
 
-  it('on the due day it is served first: the holder is paid its bid, a rival the ceiling, and the holder is fined for the gap', () => {
+  it('on the due day it is served first, from the holder\'s crate only: the holder is paid its bid, rivals are left alone, and a short delivery loses the stake (rules 18)', () => {
     let s = marketDay(4); // qty 4
     for (const p of [0, 1, 2, 3]) s = bidOrder(s, p, p === 1 ? 6 : null);
     const o = structuredClone(s.standing!);
+    // The winner put its stake down the moment it won.
+    expect(o.staked).toBe(o.stake);
+    expect(s.players[1].cash).toBe(30 - o.stake);
     const f = o.fruit, fresh = FRUIT[f].ripe.length - 1;
     const shelf = (n: number, pos: number) => { const t = emptyStock(true)[f]; t[pos] = n; return t; };
     // The holder has 3 Okay pieces; stall 2 has 2 Fresh ones; stall 3 has a Soft one (the order never takes Soft fruit).
     s = dueDay(s, { 1: shelf(3, 1), 2: shelf(2, fresh), 3: shelf(1, 0) });
-    expect(servingCustomers(s)[0].order).toMatchObject({ holder: 1, price: 6 });
+    expect(servingCustomers(s)[0].order).toMatchObject({ holder: 1, price: 6, stake: o.stake });
     expect(servingCustomers(s).length).toBeLessThanOrEqual(ROW_CAP);
     const cash = s.players.map((p) => p.cash);
     for (const p of [0, 1, 2, 3]) s = openStall(s, p, p === 0 ? {} : { [f]: p === 1 ? 3 : p === 2 ? 2 : 1 });
     expect(rowCount(s, 1, f)).toBe(0); // all three go to the order
-    expect(rowCount(s, 2, f)).toBe(1); // one fills the gap, one is left for the row
+    expect(rowCount(s, 2, f)).toBe(2); // rules 18: a rival's fruit is never taken
     expect(rowCount(s, 3, f)).toBe(1);
     for (const p of [1, 2, 3]) s = submitPrices(s, p, [{ fruit: f, price: 30 }]); // too dear for any customer
     const r = s.results!.order!;
-    expect(r).toMatchObject({ holder: 1, price: 6, ceiling: o.ceiling, qty: 4, short: 1, fine: o.fine });
-    expect(r.sales).toEqual([{ player: 1, n: 3, price: 6 }, { player: 2, n: 1, price: o.ceiling }]);
-    expect(s.players[1].cash).toBe(cash[1] + 3 * 6 - o.fine);
-    expect(s.players[2].cash).toBe(cash[2] + o.ceiling);
+    expect(r).toMatchObject({ holder: 1, price: 6, ceiling: o.ceiling, qty: 4, short: 1, stake: o.stake, back: 0 });
+    expect(r.sales).toEqual([{ player: 1, n: 3, price: 6 }]);
+    expect(s.players[1].cash).toBe(cash[1] + 3 * 6); // paid for three pieces; the stake is lost, and there is no other fine
+    expect(s.players[2].cash).toBe(cash[2]);
     expect(s.players[3].cash).toBe(cash[3]);
     expect(s.results!.favours).toEqual([]); // a standing order draws no favour card
     // The collected order is gone afterwards (the next Market Day may already have announced a new one).
     expect(applyAction(s, 0, { kind: 'finish' }).standing?.due ?? 99).toBeGreaterThan(o.due);
   });
 
-  it('an Order Book halves the fine, and a fine is never more than the holder\'s cash', () => {
-    const run = (book: boolean, cash: number) => {
+  it('a full delivery brings the stake back; an Order Book halves the stake and pays $2 more a piece (rules 18)', () => {
+    const run = (book: boolean, pieces: number) => {
       let s = marketDay(2); // qty 3
-      for (const p of [0, 1]) s = bidOrder(s, p, p === 0 ? 5 : null);
-      const o = s.standing!;
-      s = dueDay(s, {});
       if (book) s.players[0].upgrades = ['orderbook'];
-      s.players[0].cash = cash;
-      s = openStall(openStall(s, 0, {}), 1, {});
-      return { fine: s.results!.order!.fine, full: 3 * o.fine, cash: s.players[0].cash };
+      for (const p of [0, 1]) s = bidOrder(s, p, p === 0 ? 5 : null);
+      const o = structuredClone(s.standing!);
+      const paid = 30 - s.players[0].cash;
+      const shelf = emptyStock(true)[o.fruit];
+      shelf[FRUIT[o.fruit].ripe.length - 1] = pieces;
+      s = dueDay(s, pieces ? { 0: shelf } : {});
+      const before = s.players[0].cash;
+      s = openStall(openStall(s, 0, pieces ? { [o.fruit]: pieces } : {}), 1, {});
+      if (s.phase === 'bid') s = submitPrices(s, 0, [{ fruit: o.fruit, price: 30 }]);
+      return { stake: o.stake, paid, res: s.results!.order!, gain: s.players[0].cash - before };
     };
-    const plain = run(false, 100), book = run(true, 100), poor = run(false, 4);
-    expect(plain.fine).toBe(plain.full);
-    expect(book.fine).toBe(Math.floor(book.full / 2));
-    expect(poor).toMatchObject({ fine: 4, cash: 0 });
+    const full = run(false, 3), short = run(false, 2), none = run(false, 0), book = run(true, 3);
+    expect(full.paid).toBe(full.stake);
+    expect(full.res).toMatchObject({ short: 0, stake: full.stake, back: full.stake });
+    expect(full.gain).toBe(3 * 5 + full.stake);
+    expect(short.res).toMatchObject({ short: 1, back: 0 });
+    expect(short.gain).toBe(2 * 5); // paid for what it delivered; the stake stays lost
+    expect(none.res).toMatchObject({ short: 3, back: 0, sales: [] });
+    expect(none.gain).toBe(0);
+    expect(book.paid).toBe(Math.floor(book.stake / 2));
+    expect(book.res.sales).toEqual([{ player: 0, n: 3, price: 5 + 2 }]);
+    expect(book.gain).toBe(3 * (5 + 2) + Math.floor(book.stake / 2));
   });
 
   it('bids stay secret from other players until every stall has bid', () => {

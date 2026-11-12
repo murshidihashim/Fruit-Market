@@ -1,0 +1,107 @@
+diff -ruN a/src/engine/data.ts b/src/engine/data.ts
+--- a/src/engine/data.ts	2026-11-11 14:41:55.707801304 +0000
++++ b/src/engine/data.ts	2026-11-11 14:41:55.708151226 +0000
+@@ -358,15 +358,15 @@
+  */
+ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
+   juicebar: {
+-    id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 4,
++    id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 6,
+     // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit). The tip
+     // says "before the last day": no night follows the final day, so fruit bought then is never juiced.
+     text: `+$${JUICE_TIP} for each okay or soft fruit you sell. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: before the last day, $${TIRED_COST} soft fruit makes $${JUICE_VALUE} of juice.`,
+   },
+   barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: `Buy up to ${BARROW_BUY} pieces of fruit a day and hold ${BARROW_SHELF}.` },
+-  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 6, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
+-  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 6, text: 'Your green mangoes ripen in one night instead of two.' },
+-  orderbook: { id: 'orderbook', title: 'Order Book', icon: '📒', cost: 5, text: 'You win tied bids for standing orders, and your standing-order fines are halved.' },
++  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 5, text: 'Your fresh fruit may be priced $1 above what customers normally pay.' },
++  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 4, text: 'Your green mangoes ripen in one night instead of two.' },
++  orderbook: { id: 'orderbook', title: 'Order Book', icon: '📒', cost: 3, text: 'You win tied bids for standing orders, and your standing-order fines are halved.' },
+ };
+ /** A stall has room for this many upgrades (rules 14). */
+ export const MAX_UPGRADES = 2;
+@@ -413,9 +413,13 @@
+ export const LAST_CALL_BONUS = 1;
+ export const JAM_PRICE = 1;
+ 
+-export const NEST_EGG_BONUS = 8;
++export const NEST_EGG_BONUS = 5;
+ export const LOCAL_FAVOURITE_TIP = 2;
++/** Tip Jar (rules 18): the tip when the customer's whole order was filled by several stalls, this one among them. */
++export const SHARED_TIP = 1;
+ export const START_CASH = 10;
++/** Market float (rules 18): at dawn, from day 2, a stall with less cash than this is topped up to it by the market. */
++export const MARKET_FLOAT = 3;
+ /** Sharp Ears: a peeked walk-in tips this much when Farah sells them anything ($2 at 4 to 6 stalls). */
+ export function sharpEarsTip(stalls: number): number {
+   return stalls >= 4 ? 2 : 1;
+@@ -436,7 +440,7 @@
+   basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day, at the normal price.' },
+   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less (never below $1).' },
+   charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 4 favour cards, hold up to 4, and earn up to 2 favour cards a day.' },
+-  favourite: { id: 'favourite', title: 'Tip Jar', text: `Customers you serve completely by yourself tip you $${LOCAL_FAVOURITE_TIP}.` },
++  favourite: { id: 'favourite', title: 'Tip Jar', text: `A customer who leaves with their whole order tips you $${SHARED_TIP} if you sold them any of it, $${LOCAL_FAVOURITE_TIP} if you served them alone.` },
+   nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}, and buy first on day 3.` },
+   keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name one fruit: none of your pieces of that fruit age tonight.' },
+   earful: { id: 'earful', title: 'Sharp Ears', text: 'Each evening, peek at one of tomorrow\'s walk-ins. A walk-in you have seen tips $1 if you sell to them ($2 at 4 to 6 stalls).' },
+diff -ruN a/src/engine/game.ts b/src/engine/game.ts
+--- a/src/engine/game.ts	2026-11-11 14:41:55.707895420 +0000
++++ b/src/engine/game.ts	2026-11-11 14:41:55.708211488 +0000
+@@ -11,7 +11,7 @@
+ import {
+   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
+   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
+-  LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
++  LOCAL_FAVOURITE_TIP, SHARED_TIP, MARKET_FLOAT, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
+   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
+   acceptsStage, deliveryPos, favourDeckFor, freshPos, orderQty, prefOf, sharpEarsTip, stageAt, trackLength,
+   type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type Stalls, type TraitId, type UpgradeId, type Want,
+@@ -618,7 +618,10 @@
+       s.delivery[f] = n;
+       // Green fruit enters the top of its track; the Seconds Lorry fills each fruit's freshest Okay space.
+       const pos = f === unripe ? s.market[f].length - 1 : deliveryPos(card, f);
+-      s.market[f][pos] += n;
++      // Rules 18: an event's extra pieces of a fruit that arrives green come ripe (Mango Windfall: "1 extra ripe mango").
++      const ripeExtra = f === unripe && e?.supplyEach?.[f] ? Math.min(n, eventSupply({ ...e, supplyAll: 0 }, f, shops)) : 0;
++      s.market[f][pos] += n - ripeExtra;
++      if (ripeExtra) s.market[f][freshPos(f)] += ripeExtra;
+     }
+   }
+   for (const p of s.players) {
+@@ -627,6 +630,8 @@
+     p.favouredTrade = false;
+     delete p.shade;
+     p.upgradeOffer = [];
++    // Rules 18, market float: from day 2 no stall starts a day with less than MARKET_FLOAT (after any inspection fine).
++    if (s.day > 1 && p.cash < MARKET_FLOAT) p.cash = MARKET_FLOAT;
+   }
+   s.dayStartCash = s.players.map((p) => p.cash);
+   const n = s.players.length;
+@@ -1197,6 +1202,14 @@
+     const done = c.wants.every((w) => w.qty <= 0);
+     if (done) {
+       res.happy.push(c.name);
++      // Tip Jar (rules 18): a customer whose whole order was filled by several stalls tips the Tip Jar stall SHARED_TIP.
++      if (suppliers.size > 1) for (const q of suppliers) {
++        const tj = s.players[q];
++        if (tj.trait !== 'favourite') continue;
++        tj.cash += SHARED_TIP;
++        tj.stats.earned += SHARED_TIP;
++        res.income[q] += SHARED_TIP;
++      }
+       if (suppliers.size === 1 && unitsToCustomer > 0) {
+         const p = [...suppliers][0];
+         const pl = s.players[p];
+diff -ruN a/src/net/protocol.ts b/src/net/protocol.ts
+--- a/src/net/protocol.ts	2026-11-11 14:41:55.708010408 +0000
++++ b/src/net/protocol.ts	2026-11-11 14:41:55.708295137 +0000
+@@ -5,7 +5,7 @@
+ export { CHARACTER_AVATARS };
+ 
+ /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
+-export const RULES_VERSION = 17;
++export const RULES_VERSION = 18;
+ /**
+  * Bump whenever the computer players change (src/engine/ai.ts), even when the rules don't. Daily scores are verified by
+  * replaying the game with the server's computer players (server/meta.ts verifyDaily), so a daily must be submitted and

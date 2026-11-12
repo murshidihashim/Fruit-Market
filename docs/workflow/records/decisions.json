@@ -2096,6 +2096,522 @@
         "REP-098"
       ],
       "reviewTrigger": "If the balance report or playtests show stalls hoarding for tomorrow, or computer stalls falling behind because they ignore tomorrow's crowd"
+    },
+    {
+      "id": "DEC-085",
+      "title": "Rules version 17: standing orders in the open, rivals at $1 less, all five upgrades; cash track on the counter",
+      "question": "How should rivals be paid for filling a standing order, how open should bidding be, how many upgrades are on offer, and where does the printed cash track sit?",
+      "choice": "A rival is paid $1 under the winner's bid (never under $1). Who is bidding, who passed and who is still deciding is public; prices stay secret until the last stall decides, and until then any stall may change its bid or pass. In the app computer stalls decide first. Every unbuilt upgrade is on offer after a Market Day. In the printed game tomorrow's customers are dealt in the morning (as the app does since rules 16) and the cash track sits on the counter, in front of the shutter. RULES_VERSION 16 to 17; computer-player version 4 to 5.",
+      "rationale": "Owner: \"change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public\". Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
+      "impact": {
+        "player": "Filling someone else's order pays less than before, and a low winning bid can take a rival's crate piece cheaply; you bid knowing who else is in; more upgrade choice.",
+        "technical": "Engine, server view and bidding screen; rules and computer-player versions bumped; a print generator in the repo.",
+        "data": "Unfinished rules 16 games cannot be resumed; the daily board key becomes r17:a5; older apps must update to play online."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
+        "date": "2026-11-11"
+      },
+      "delivery": "verified",
+      "plan": "PLAN-077",
+      "reports": [
+        "REP-100"
+      ],
+      "reviewTrigger": "If rivals feel robbed when a low bid takes their crate pieces for $1 or $2, if open bidding makes everyone wait for each other, or if five upgrades on offer makes one upgrade the only choice"
+    },
+    {
+      "id": "DEC-086",
+      "title": "Rules version 18: the balance set, the $5 top-up, staked standing orders and the rulings",
+      "question": "Which of the changes proposed in REP-101 should be made to the rules and numbers?",
+      "choice": "One release for everything (no quick fix first). Out of cash: at dawn a stall with an empty shelf and less than $5 is topped up to $5. Shopkeepers: Tip Jar tips $1 when a customer you sold to leaves with their whole order and $2 if you served them alone; Nest Egg starts with $15; Sharp Ears tips $2 at 3 to 6 stalls ($1 at 2), peeks in the evening and is tipped once a day; Normal computers stop pricing as if they held the Haggler's tie-break. Upgrades: Juice Bar $6, Premium Display $5, Ripening Room $4, Order Book $3, Handcart $6; Ripening Room also makes green mangoes $1 cheaper; Order Book also pays $2 more a piece on a standing order. Fruit and decks: a green mango costs $4; Coral Mei, Magic Kumar and Professor Pebble pay $4 for a blueberry; Short Load's 3-stall row and Summer Run's apples are corrected; one more apple on five lorries at 3 to 6 stalls if simulation supports it. Standing orders: keep the open auction; the winner puts down a stake (the card's fine for one piece) when it wins, is paid its bid for each piece delivered, gets the stake back if it delivers everything and loses it otherwise; no other fine; rivals are not involved. To be simulated before it is final. What a rival bought today stays on show until the bell. No customer wants mango on days 1 and 2 (the first lorry stays random). Rulings: Juice Bar's +$1 counts only for sales to customers in the rush; Premium Display never raises a guest's fixed price; a Priority card beats Nest Egg on day 3 and only one Priority can be played each evening; the final tie is most cash, then most fruit sold, then a shared win; one favour deck of 12 at every table size; a guest joins the row even when it is full and Blueberry Glut also makes blueberries $1 cheaper to buy (both to be simulated first). Flow: Stocking is skipped with nothing ripe; an evening shows only when the stall has a choice; the rush shows one card per customer. Buying still ends with a tap. Trophies that cannot be earned are changed to fit the rules. Open: when Favoured Trade is played; how freshness is tracked on the table.",
+      "rationale": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
+      "impact": {
+        "player": "A stall can no longer be knocked out for the rest of the game; the mango becomes a gamble; weak perks and upgrades are worth choosing; an order risks a known stake, not an open-ended fine; less to remember; fewer empty taps.",
+        "technical": "Engine, computer players, server view, rulebook, tests; RULES_VERSION 17 to 18 and a new computer-player version.",
+        "data": "Unfinished games cannot be resumed; the daily board restarts; older apps must update to play online; the printed kit changes (cards, market mat, stall pieces)."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
+        "date": "2026-11-11"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-079",
+      "reports": [
+        "REP-101",
+        "REP-105"
+      ],
+      "reviewTrigger": "If the stake makes nobody bid, if players lean on the top-up, if the $4 mango makes mango orders unfillable, or if simulation after the build shows a shopkeeper more than 4 points from fair"
+    },
+    {
+      "id": "DEC-087",
+      "title": "The voice of the text: plain, with a Malaysian market feel",
+      "question": "What voice should the cards and the app use, and in what setting?",
+      "choice": "Plain and short across every card and screen: rules text in plain sentences, one short concrete line per character, no shouted headlines, puns or exclamation marks. Character lines and event names lean Malaysian (kenduri, pasar malam, kopitiam, kampung). This replaces the creative bible's \"sunny harbour market where the whole world comes to shop\" (DEC-017) as the setting. Character names stay.",
+      "rationale": "Owner: \"all text on card and in app needs to be audited as it feels too generated by AI for my likings, some arent needed\"; asked which direction, he chose \"Plain, with a Malaysian market feel\" over the plain voice in the current setting and over rules-only cards.",
+      "impact": {
+        "player": "Shorter cards and screens that read like a person wrote them; a local setting.",
+        "technical": "About 400 strings rewritten and 130 cut (docs/studio/review-17/text); one table of card text shared by app and print; CREATIVE-BIBLE.md updated.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"Plain, with a Malaysian market feel\"",
+        "date": "2026-11-11"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-101"
+      ],
+      "reviewTrigger": "If the owner finds the local wording overdone or wants the harbour setting back for an international edition"
+    },
+    {
+      "id": "DEC-088",
+      "title": "Favoured Trade is played after the prices flip",
+      "question": "When is Favoured Trade played: with the prices (the app), after the flip when a tie is seen (the printed guidebook), or face down with the prices and taken back if unused?",
+      "choice": "After the flip (option B), in the app and on the table. When every price is face up, a stall that holds the card and has a tied price may play it; tied holders decide in today's buying order, in the open. With no tied holder the step does not happen. The effect is unchanged: the stall wins every tied price that day; if two stalls in the same tie both play it, the usual tie order decides between them and both cards are spent. Online, the others see who is deciding; a stall that is away keeps its card. Built as part of rules version 18.",
+      "rationale": "Owner, after the pros and cons of the three options (REP-102): \"go with B\". The table and the app must match, and the printed guidebook already plays it this way. The details beyond \"after the flip\" are stated assumptions.",
+      "impact": {
+        "player": "The card is never wasted and is easier to understand; playing it blind as a gamble goes; on a day a holder is tied the rush waits for a yes or no.",
+        "technical": "A new step between the prices and the rush in the engine, the room server and the screens; computer players decide by comparing the rush with and without the card; part of RULES_VERSION 18.",
+        "data": "None beyond rules version 18."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"go with B\"",
+        "date": "2026-11-11"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-079",
+      "reports": [
+        "REP-102",
+        "REP-105"
+      ],
+      "reviewTrigger": "If simulation shows the card is now the strongest favour, if the pause slows online games, or if players miss the gamble of playing it blind"
+    },
+    {
+      "id": "DEC-089",
+      "title": "Unsold fruit is kept; both freshness trackers are printed for a table test",
+      "question": "Should unsold fruit be thrown away to make the table simpler, and which freshness tracker goes in the print kit?",
+      "choice": "No rule change: unsold fruit is kept and keeps ageing, on the table and in the app. Both trackers are printed as test packs (1: fruit stays in its column and a ruler slides; 2: fruit slides one box a night and the crate is a loose tray). The tracker for the print kit is chosen after the owner has tried both.",
+      "rationale": "Owner, after REP-102 recommended keeping unsold fruit and showed a day with each tracker: \"go print both trackers then, dont change any rules\".",
+      "impact": {
+        "player": "Nothing changes in the app. On the table, two test packs to print and try.",
+        "technical": "A new print generator, scripts/print-trackers.ts, and print/tracker-test.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "\"go print both trackers then, dont change any rules\"",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-080",
+      "reports": [
+        "REP-102",
+        "REP-103"
+      ],
+      "reviewTrigger": "After the owner's table test: choose tracker 1 or 2 for the print kit"
+    },
+    {
+      "id": "DEC-090",
+      "title": "Card design: the owner's first round of changes",
+      "question": "What should change on the card mock-ups (REP-104) before they become the one design for the app and the print kit?",
+      "choice": "Lorry: the card shows the pieces for every table size (2 to 6 stalls), as the printed card does; in the app the row for the game is marked. Customer, face down: four large squares in fixed places (blueberry, watermelon, mango, apple); a wanted fruit shows in its own square; no sentence. Event: the card is labelled \"Event\", not \"Market notice\", and its picture is larger. Customer, face up: no \"Fresh or okay\" words; one row with the three freshness lamps and Okay -$1, Soft -$2; fruit rows always in the order blueberry, watermelon, mango, apple; the picture is a scene that fits the character, not a plain background. Favour and upgrade cards carry pictures.",
+      "rationale": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
+      "impact": {
+        "player": "The lorry card reads the same on the table and in the app; a face-down customer is read by where the fruit sits; less text on the customer card; every card has a picture.",
+        "technical": "New pictures: a scene for each of the 36 customers and the guests, 6 favours, 5 upgrades. Twelve drafts are in docs/studio/art-drafts/cards-18 (one customer scene, all favours, all upgrades). Card components and the print generator follow when the screens are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has seen the revised sheet: the rest of the card (shopkeeper, standing order), the picture style, and whether to draw the other 35 customer scenes the same way"
+    },
+    {
+      "id": "DEC-091",
+      "title": "Card design: the owner's second round of changes",
+      "question": "What should change on the revised card mock-ups?",
+      "choice": "Lorry: back to the original Market Ticket lorry card: a coloured column for each fruit with the pieces in white boxes, a row for each table size, the row in use marked. Columns are drawn in the order blueberry, watermelon, mango, apple (the order the owner gave for customer cards; the first printing had apple before mango), to be confirmed. The card kind reads \"Upgrade\", not \"Stall upgrade\". Card pictures are built from the game's own shapes (its fruit, sunburst, price tags and ground strip); the Favoured Trade picture is redrawn that way. The Heatwave picture is redrawn from the original card so its dark ground strip sits on the bottom edge; in the app's copy of the picture the strip floated across the middle, which is the black bar the owner asked about.",
+      "rationale": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\". The original card designs were found in the owner's design page \"Fruit Market art style options\" (option C boards) and used as the source.",
+      "impact": {
+        "player": "The lorry card looks the same on the table and in the app; pictures share one style.",
+        "technical": "The app's event pictures need re-cutting at the card's proportions when the screens are built (at least Heatwave); the word \"Upgrade\" replaces \"Stall upgrade\" in the card text table; picture drafts in docs/studio/art-drafts/cards-18.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the owner wants the lorry columns in the first printing's order, or the thin-line card heading of the original cards instead of the black strip"
+    },
+    {
+      "id": "DEC-092",
+      "title": "Card design: the owner's third round of changes",
+      "question": "What should change on the card mock-ups after the second round?",
+      "choice": "Lorry: redesigned for a cleaner read. One coloured lane for each fruit with its picture at the top and the numbers set straight on the colour; a narrow column of stall counts (2 to 6) on the left; only the row for the game being played is boxed in white; the same black heading as the other cards. Favour and upgrade pictures carry no black ground strip or counter: objects stand on the bottom edge of the picture. Backs are designed for the other cards (event, lorry, favour, upgrade, shopkeeper, standing order) in the original back design: black, four fruit-colour bars at top and bottom, the kind of card in large letters, \"Fruit Market\" beneath.",
+      "rationale": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\". The second-round lorry card overflowed its margin and its number boxes were uneven when rendered; the boards are now rendered and looked at before they are sent.",
+      "impact": {
+        "player": "A lorry card that reads at a glance on the table and on the phone; pictures without stray dark bars; every card has a back.",
+        "technical": "Picture drafts updated in docs/studio/art-drafts/cards-18; card backs join the card components and the print generator when the screens are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has seen the third version: lorry column order, black strip or thin-line headings, and whether the other customer scenes are drawn the same way"
+    },
+    {
+      "id": "DEC-093",
+      "title": "One fruit icon set in every card picture",
+      "question": "How should fruit be drawn inside card pictures?",
+      "choice": "Every blueberry, watermelon, mango and apple inside a card picture is the game's own fruit icon (the one on the card rows, the market and the lorry card), never a separate drawing. A green mango uses the game's green mango icon.",
+      "rationale": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
+      "impact": {
+        "player": "A fruit looks the same wherever it appears.",
+        "technical": "docs/studio/art-drafts/cards-18/gen.py builds the pictures from fruit-shapes.json, exported from src/ui/fruitIcons; the remaining customer scenes and any new event pictures follow the same rule.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the game's fruit icons are redrawn: export the shapes again and rebuild the pictures"
+    },
+    {
+      "id": "DEC-094",
+      "title": "The full picture set, three card designs to choose from, and the market as a board on the phone",
+      "question": "Is the picture style right, is the card layout right, and how should the Wholesale Market look on the phone?",
+      "choice": "The lorry card keeps its columns in the order blueberry, watermelon, mango, apple. The picture style is approved: every card picture is to be drawn in it, detailed and ready to print (customers, shopkeepers, standing-order clients and events; favours and upgrades are drawn). The card layout so far is too plain and generic: three designs, each applied to every kind of card so that a set stays coherent, are put to the owner to choose one (A Ticket, B Stall, C Crate label). On the phone the Wholesale Market keeps the board's lanes of 3, 4, 5 and 6 boxes (blueberry, watermelon, mango, apple), one box for each day of a fruit's life, not a shortened list.",
+      "rationale": "Owner, 2026-11-12: \"keep lorry column\"; \"picture style is right, proceed to draw all the cards, do it detailed as i i want the artsyle to feel polished and ready to print\"; \"now give 3 designs each for respective cards, now it looks to plain and all are very generic, keep the 3 design styles within a coherent design\"; \"for the wholesale market in the app, dont use the short broad, i need to be 3,4,5,6 columns, it needs to feel like a board game still\".",
+      "impact": {
+        "player": "Cards with more character; pictures that say who each customer is; a market that still reads as the board game.",
+        "technical": "About 70 new pictures as plain SVG in docs/studio/art-drafts/cards-18 (kit.py holds the shared palette and the fruit icons; example_customer.py is the reference scene). The chosen design becomes the card components and the print generator. The buying screen's market shows every box of each lane.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"keep lorry column\"; \"picture style is right, proceed to draw all the cards, do it detailed as i i want the artsyle to feel polished and ready to print\"; \"now give 3 designs each for respective cards, now it looks to plain and all are very generic, keep the 3 design styles within a coherent design\"; \"for the wholesale market in the app, dont use the short broad, i need to be 3,4,5,6 columns, it needs to feel like a board game still\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has chosen design A, B or C, and when the full picture set is ready to look at"
+    },
+    {
+      "id": "DEC-095",
+      "title": "Design A (Ticket) for the cards; the customer cards keep their earlier design",
+      "question": "Which of the three card designs is used, and what do the backs of the decks look like?",
+      "choice": "Design A, the Ticket style, is used for the event, lorry, shopkeeper, favour, upgrade and standing-order cards: a small label over a thick rule, a large title, the picture with a perforated edge, the key numbers in colour blocks, a dashed footer. The customer front and the customer back keep the earlier design (black heading, picture, fruit rows with a price tag, one legend row; black back with four fixed fruit squares). For the backs of the other decks, three suggestions for each deck, all in the Ticket style, are put to the owner: 1 a ticket stub on a dotted field, 2 a picture of the deck's subject over a name band, 3 a repeating pattern with a name band. One is to be chosen.",
+      "rationale": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
+      "impact": {
+        "player": "One recognisable card family; customers stay as the owner already shaped them.",
+        "technical": "Card components and the print generator follow design A; six back pictures and six pattern tiles drafted in docs/studio/art-drafts/cards-18 (backs.py).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "When the owner has chosen back suggestion 1, 2 or 3"
+    },
+    {
+      "id": "DEC-096",
+      "title": "Card backs: the pattern design, for now",
+      "question": "Which of the three back suggestions is used for the lorry, event, favour, upgrade, shopkeeper and standing-order decks?",
+      "choice": "Suggestion 3, the pattern: the deck's symbol repeated across the card in a darker tone of the deck's colour, with a paper name band through the middle (the name, a rule, the deck size), in the Ticket style. Chosen \"for now\": it may be revisited. The customer back keeps its earlier design.",
+      "rationale": "Owner, 2026-11-12: \"lets use pattern for now\".",
+      "impact": {
+        "player": "Each deck is told apart by colour and symbol at a glance.",
+        "technical": "Six pattern tiles in docs/studio/art-drafts/cards-18 (backs.py); card-back components and print backs follow when the cards are built.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"lets use pattern for now\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104"
+      ],
+      "reviewTrigger": "If the owner wants the picture or stub backs after seeing the pattern in the app or in print"
+    },
+    {
+      "id": "DEC-097",
+      "title": "Home screen: today's market in place of the stall picture, with your next goals a swipe away",
+      "question": "What takes the space under the title on the home screen, where the picture of your shopkeeper sits?",
+      "choice": "A row that is swiped sideways. Shown first: today's market (today's event picture and its effect, what the lorry brings, how many have played and the best so far, one button to play). One swipe on: your next goals (three goals with progress and what each unlocks). The shopkeeper's picture moves onto the Dress up button. Stated to the owner as assumptions, not yet confirmed: when a game is waiting, a page with your table comes first; the Daily market ticket lower on the screen goes, since the first page replaces it; the goals page waits for the progression proposal. The Market Road page (a solo journey) was not chosen.",
+      "rationale": "Owner, 2026-11-12: \"think about the space where the rosa card occupies in the home screen, i dont like that part cause it serves no purpose, what else can be placed there\"; then \"go with A (which can be swiped to show  b)\". The stall picture only decorated; the space now says what to play next and why.",
+      "impact": {
+        "player": "The home screen changes every day and shows what to chase; the chosen look is still seen on the Dress up button.",
+        "technical": "Home.tsx and booth.css: a swipe row with dots that can also be tapped; today's event and lorry come from the Daily market's seed; the goals page reads the trophies and the unlocks still to be designed. The opening animation plays on this screen and must still fit.",
+        "data": "None new: the Daily market's leaderboard figures are already fetched for the home screen."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"go with A (which can be swiped to show  b)\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-104",
+        "REP-106"
+      ],
+      "reviewTrigger": "If the progression proposal changes what a goal is, or the single-player proposal gives the home screen a journey to show"
+    },
+    {
+      "id": "DEC-098",
+      "title": "Three releases in place of one",
+      "question": "Does everything now planned go live in one release at the end, or in stages?",
+      "choice": "Three releases. A, the next live release: rules 18 (built), the cards in design A with the new pictures, the screens rebuilt each with its motion, the text rewrite, the trophy fixes and the first version of the stamp book, the home screen (DEC-097), two defects (asking before a paused game is replaced; trophy names with spaces lost at account sync) and the print kit. B: the Market Month and the five-day Daily market. C: the weekly goal, card backs and table themes as rewards, the deeper collection book. After that: measure who comes back; selling anything is a separate decision. Release A is built as six work packages in the order given in REP-106 section 4. Each release still needs the owner's own word to publish. For the motion work, taken as agreed because the owner raised no objection when told: about 21 seconds of watching a day; the rush moves on by itself about a second after each customer and a tap moves on sooner; a rival's whole buying turn is shown as one move.",
+      "rationale": "REP-106 section 4: one release would hold back rules 18, the new cards and the smoother game, and would put an untested mode in front of players together with new rules. This replaces the owner's earlier wish for one release at the end.",
+      "impact": {
+        "player": "Rules 18, the new cards and the smoother game arrive first; the new mode follows once people have played it.",
+        "technical": "Work packages PLAN-081 onwards; each checked with npm run verify, the release with npm run verify:full.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-106",
+        "REP-107"
+      ],
+      "reviewTrigger": "If a package in release A proves much larger than the others, or the owner wants the Market Month sooner"
+    },
+    {
+      "id": "DEC-099",
+      "title": "Progression: a stall level on a stamp book",
+      "question": "What rises as a player plays, and what do achievements and looks add up to?",
+      "choice": "One number, the stall level from 1 to 30, shown as a stamp book with six ranks (Roadside Table, Five-Foot Way, Covered Stall, Corner Lot, Shophouse, Towkay; the names may be reworded before it ships). Stamps: 1 for every 3 days played, 1 more for a win, 2 for the first Daily market each day, 10 for the weekly goal, and 2, 5 or 10 for an achievement's Bronze, Silver or Gold step. Achievements become 55 cards with steps; all 43 existing ones are kept. Looks get a place on the table. The streak forgives one missed day. The first version goes in release A as set out in docs/studio/review-18/PROGRESSION.md section G: trophy fixes, stamps and levels, steps readable from a finished game, online games counted, the results lines, Trophies redrawn, rewards for levels 2 to 10 that need no new pictures, existing looks made visible (the mock-up needs the owner's eye first), the forgiving streak, and three preparations that keep selling looks possible later without a shop. Nothing is sold; no ads.",
+      "rationale": "PROGRESSION.md: seven achievements cannot be earned under rules 18, most looks show nowhere, and nothing adds up. The pace (level 10 after about two hours, 17 after ten, 30 after fifty) comes from about 4,700 computer games, not from people.",
+      "impact": {
+        "player": "Every game adds to something visible; rewards show on the table; nobody loses what they have.",
+        "technical": "No rule, save-envelope or online message change. New counters in the stored progress; the level is worked out, not stored. Trophies, Wardrobe, Results and Home are redrawn.",
+        "data": "New plain counts on the phone and in the optional account; nothing personal. The game brief's line on accounts is out of date and is corrected with this work."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-106"
+      ],
+      "reviewTrigger": "If real players level much faster or slower than the computer games suggest, or if anything is ever to be sold (a separate decision and approval)"
+    },
+    {
+      "id": "DEC-100",
+      "title": "Single-player: the Market Month; the League folds into it; the Daily market becomes five days",
+      "question": "Which single-player mode is built, and what happens to the Daily market and the Market League?",
+      "choice": "The Market Month (a working title), in release B: four five-day market weeks on streets with a host shopkeeper and a house rule; rent every Friday paid from a savings tin; the stall keeps its upgrades and unplayed favour cards; finishing ahead of the host wins the host's card and a ribbon; the tin at the end is the score. The gentle rent table is used (a Normal computer in the player's seat pays all four rents in 90 months of 100). The Market League is retired into the Month: its street names, its place on the home screen and its trophy move across, and nothing a player has is lost. The Daily market stays and is rebuilt as a five-day market where the first try counts, with a target score. No rule changes: the engine gets one small set-up addition (start a stall with upgrades and cards; build an event deck from chosen cards), which must come with a test that a normal game is dealt and played exactly as before; if that test cannot pass, the work stops for a new plan.",
+      "rationale": "SINGLE-PLAYER.md: the Daily market and the Market League are ordinary games with a label; neither gives anything to decide, keep or choose. The Month puts something at stake every week. Figures are from about 32,000 computer games, not people.",
+      "impact": {
+        "player": "A reason to play alone and to come back: rent, a stall that grows, streets to choose, ribbons to collect.",
+        "technical": "Bookkeeping outside the engine, a rent-table script, one new screen and additions to four, its own save slot so it can never replace an ordinary paused game. The rent table is made again after any rules change, including REP-105's open balance choices.",
+        "data": "A month record on the phone; two sets and two numbers added to stored progress; three anonymous counters. docs/ANALYTICS.md and the privacy page gain a line each."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-106"
+      ],
+      "reviewTrigger": "After the first playtest by people (is rent fair, is five days the right week), or if release A changes takings"
+    },
+    {
+      "id": "DEC-101",
+      "title": "Rules 18 balance: the Charmer holds 3 favour cards, the Ripening Room loses its discount, mango orders stay",
+      "question": "The three balance choices left open by the rules 18 results (REP-105): the Charmer's favour cards, the Ripening Room's $1 discount on green mangoes, and mango standing orders that find no bidder.",
+      "choice": "1. The Charmer (Ah Chen) starts with 3 favour cards, not 4. 2. The Ripening Room no longer makes green mangoes $1 cheaper; it keeps its faster ripening and its $4 cost. 3. Mango standing orders are left as they are: an order nobody bids for is simply skipped; looked at again when the Market Month is tuned. Both rule changes go into rules version 18 before it ships (it has not been released or put on the preview), and the balance report is run again.",
+      "rationale": "REP-105 section 4. With 3 cards every shopkeeper was within 4 points at 2, 3, 4 and 6 stalls in games between Normal computers (largest distance 2.6 / 3.1 / 1.8 / 3.7); not yet run with Hard computers. The discount largely undid the $4 green mango: stalls with the room paid about $3.40 to $3.55, 50 to 90% of computers built it, and it was the strongest upgrade.",
+      "impact": {
+        "player": "Ah Chen is no longer the best pick at every table; the Ripening Room is a choice, not a must.",
+        "technical": "src/engine data and rules, RULES.md, the rules 18 tests, the card texts and the print kit's cards. The rules version stays 18. The Market Month's rent table is made on these numbers.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-105",
+        "REP-106",
+        "REP-107"
+      ],
+      "reviewTrigger": "If the balance report with these two changes shows a shopkeeper more than 4 points from fair, or the Ripening Room is then never built"
+    },
+    {
+      "id": "DEC-102",
+      "title": "The cards stay as built, release A goes live in one step when it is ready, and the balance is accepted for now",
+      "question": "Three questions put with REP-108: is there anything to change on the cards now that they are in the game; should the preview copy be updated so the owner can play the work in progress; and (from REP-107) is the balance accepted for release A or tuned further first?",
+      "choice": "1. The cards are kept as built, for now. 2. The preview copy is not updated at each milestone: everything in release A is finished first and then goes to the live game. Read as an intention, not as the publishing approval: when release A is ready it still takes the usual path (merge to main, the full checks, the preview copy) and the owner's own word to publish that build. 3. The balance is accepted for now, for release A: Saleh's Nest Egg at 6 stalls (+4.3) and Raj's Bargain Hunter against Hard computers (+5.6, +4.8) are watched in the first playtests with people and tuned only if they show there.",
+      "rationale": "REP-108 section 6 and REP-107 section 4. The cards match the approved designs; the differences come from the game's real data and the room on a phone. 45 of 48 balance results are within 4 points and the three outside are close to the line; a dollar is a blunt tool for the last point.",
+      "impact": {
+        "player": "Players get the whole of release A at once: rules 18, the new cards, the rebuilt screens with their motion, the new text, the trophies and the stamp book.",
+        "technical": "The working branch stays unmerged until release A is ready; the CI machines and the preview copy do not see this code until then, so the full checks on CI and the owner's look on a phone come at the end. Packages 3 to 6 continue.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-107",
+        "REP-108"
+      ],
+      "reviewTrigger": "When release A is ready to publish (ask for the owner's word for that build); if playtests with people show Raj or Saleh winning too often; if the owner wants to see the game on a phone before the end"
+    },
+    {
+      "id": "DEC-103",
+      "title": "Stocking, the takings and the stamp book screens are built as drawn; looks show as an awning strip in the game",
+      "question": "Three questions put with REP-109: are stocking and the day's takings built as drawn; is this the right way to show the stamps, the ladder and the trophy tiers (with the rank names the owner's to reword); and is an awning strip over the player's shelf, and a thin one on the player's box as rivals see it, right or too much on a small screen?",
+      "choice": "All three approved as drawn. 1. Stocking and the day's takings follow the Stocking and Takings boards. 2. The results, the stamp book, the trophy cards and the Wardrobe follow the Results, Stamp-Book, Trophy-Cards and Wardrobe boards; the rank names stay Roadside Table, Five-Foot Way, Covered Stall, Corner Lot, Shophouse, Towkay. 3. A player's awning shows as a strip over their own shelf and as a thin strip on their box as rivals see it.",
+      "rationale": "REP-109. The two day screens use the same parts as the approved pricing screen, so stocking, pricing and the bell read as one sheet. The stamp book screens follow DEC-099 and the progression study's first version. The awning strip is how a look earned in the Wardrobe becomes visible in a game; it changes no rule, price or secret.",
+      "impact": {
+        "player": "The whole day now has an approved design. Trophies become a ladder that is visible from the start, and what a player earns shows on the table.",
+        "technical": "Board sources in docs/studio/review-18/mockups (Stocking, Takings, Results, Stamp-Book, Trophy-Cards, Wardrobe). Stocking and the takings are built in package 3; the stamp book screens and the awning strips in package 5. Small phones and six stalls were not drawn and are settled in the build.",
+        "data": "None beyond DEC-099: the level is worked out from counts already stored, plus the new counters named there."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-109"
+      ],
+      "reviewTrigger": "When each screen is built: shown to the owner beside its board. If the awning strip crowds a 360 by 640 screen or a six-stall table"
+    },
+    {
+      "id": "DEC-104",
+      "title": "Release A's remaining packages are built side by side",
+      "question": "The owner asked for the work to go faster. Release A was being built one package after another, with one or two helpers at a time. How is it sped up without dropping a check?",
+      "choice": "The remaining packages of release A are built at the same time, by separate helpers in separate work folders, where their files do not overlap: the rest of the screens (package 3), the text outside the screens (package 4, part 1), the stamp book's first version (package 5) and the print kit (package 6, part 1). The screen labels (package 4, part 2) and the release preparation (package 6, part 2) follow when the screens are merged. Each package keeps its own plan, checks and report; nothing is merged before it is reviewed and the checks are run on the merged code. For release A this sets aside the workflow's rule of one active work package. This is a reading of the owner's three words, not something he was asked in detail; he can ask for one package at a time again at any point.",
+      "rationale": "Owner: \"speed it up please\", after being told about 40% of release A was built. The packages left touch different files for the most part, and all of them were already approved (DEC-087, DEC-097 to DEC-099, DEC-103). Nothing is taken out of the checks.",
+      "impact": {
+        "player": "None: the same release, sooner.",
+        "technical": "Up to five helpers at once on a machine with four processor cores: timing checks run by a helper can be thrown off by the others, so the standard and browser checks are run again by the session on the merged code when the machine is quiet. More merges by hand where shared files meet (Game.tsx, useGameController.ts, animator.tsx, cards.tsx). The usage allowance is used up sooner; if it runs out, all the work pauses until it resets.",
+        "data": "None"
+      },
+      "cost": "RM0 known: the same usage allowance, used sooner. Not checked: whether the owner's plan charges for use beyond the allowance.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"speed it up please\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-106"
+      ],
+      "reviewTrigger": "If the usage allowance stops the work again; if merging the helpers' work costs more time than it saves; if the owner prefers one package at a time"
+    },
+    {
+      "id": "DEC-105",
+      "title": "The core game goes live first, as release 1.20.0; the rest of release A follows",
+      "question": "Does release A wait until every package is finished, or does the core game go live first so the owner can test it on the live game?",
+      "choice": "The core game goes live today as release 1.20.0, for the owner to test: rules version 18, the new cards, and the day's screens as they stand today (the rush, the morning, the standing-order bid and the evening rebuilt; stocking, pricing, the bell, the takings, the market and the night still in their earlier layout). The digital game comes before the print kit, which is paused. The rest of release A follows in later releases as each part is finished and checked: the remaining screens, the text rewrite, the stamp book with Results, Trophies, Wardrobe and Home, then the print kit. This replaces item 2 of DEC-102 (everything first, then live) and the single release A of DEC-098. Each later release still needs the owner's word. The build is published only if the full checks pass on it.",
+      "rationale": "The owner wants to test the core game on the live game now and have the rest worked on after. He chose this over a preview copy tonight with the live game tomorrow. The game plays correctly on rules 18 in its present state: the standard checks and the browser tests pass on the merged code.",
+      "impact": {
+        "player": "Every phone updates to rules 18. A game paused under the old rules cannot be continued (the game says so). The Daily market's board starts afresh for rules 18, since boards are kept apart by rules version. Seven older trophies cannot be earned until the stamp book release. Four screens are in the new look and the rest in the earlier one; the text is not yet rewritten.",
+        "technical": "Version 1.20.0. The usual path: merge to main, the full checks on the CI machines (first run there for this branch), the preview copy, then Deploy LIVE game. An Android app already installed keeps the version it was built with; play between versions is refused with an update message. The helpers on the remaining screens, the text and the stamp book keep working on the branch; their work is not in this release.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-110"
+      ],
+      "reviewTrigger": "If the full checks fail on the release build (then nothing is published and the owner is told); when the owner has played the live game; when each later part is ready for its own release"
     }
   ],
   "history": [
@@ -2986,6 +3502,134 @@
     {
       "at": "2026-11-11 20:59",
       "text": "Release 1.19.1 published (PLAN-076): main 35bda0a, Deploy LIVE game run 38; live smoke test PASS; tagged v1.19.1. Browser tests PASS on the release build before merging."
+    },
+    {
+      "at": "2026-11-11 21:26",
+      "text": "Rules version 17 built (PLAN-077, DEC-085, REP-100): rivals fill a standing order at $1 under the winning bid, open bidding status with re-bids, all five upgrades on offer; printed game audited against the app; tabletop update pack generated in the repo (guidebook, stall sheets, counters with the cash track, standing-order cards). verify PASS (451 tests). Not published."
+    },
+    {
+      "at": "2026-11-11 22:46",
+      "text": "Review under rules 17 finished (PLAN-078, REP-101): balance simulations, a playtest of the live game, an exact audit of the decks and rule interactions, a screen audit and a text audit, kept in docs/studio/review-17. Live defects found: the first-game tip collapses Stocking and Pricing; Daily and League replace a saved game; Mango Windfall delivers green. A proposal in five packages awaits the owner's decisions. No game change."
+    },
+    {
+      "at": "2026-11-11 23:39",
+      "text": "Owner decided the REP-101 proposal (DEC-086, DEC-087): one release for everything; the $5 top-up; the whole balance set item by item; staked standing orders (to be simulated); today's buys shown until the bell; no mango customers on days 1 and 2; seven rulings; a plain voice with a Malaysian market feel; three empty steps removed; trophies fitted to the rules. Open: Favoured Trade timing; table freshness tracking (mock-ups asked for). PLAN-079 (rules 18 build) approved."
+    },
+    {
+      "at": "2026-11-12 00:03",
+      "text": "Owner chose option B for Favoured Trade: played after the prices flip (DEC-088, REP-102); added to the rules 18 build (PLAN-079). Asked for the table freshness mock-ups to show buying with old stock and what happens to unsold fruit, and whether unsold fruit should simply be thrown away: step-by-step boards added, recommendation is to keep unsold fruit (REP-102). Open: freshness option 1 or 2; unsold fruit."
+    },
+    {
+      "at": "2026-11-12 00:32",
+      "text": "Owner: \"go print both trackers then, dont change any rules\" (DEC-089). Test packs of both freshness trackers built and sent (PLAN-080, REP-103); unsold fruit stays in the rules. Owner asked what comes next and whether the app's screen work has what it needs: yes, the next decision there is on the mock-ups (REP-103 section 4). Open: tracker 1 or 2 after a table test."
+    },
+    {
+      "at": "2026-11-12 00:44",
+      "text": "Mock-ups of one card design and seven phone screens for rules 18 sent to the owner for approval (REP-104): the cards, morning, buying, pricing, the rush, the Favoured Trade question, the standing order with a stake, the evening. Nothing is built from them yet. Three questions asked: the card, what stays on screen, the rush."
+    },
+    {
+      "at": "2026-11-12 01:16",
+      "text": "Owner's first round on the card mock-ups recorded (DEC-090) and applied to the mock-up page: lorry with every table size, face-down customer with four fixed squares, \"Event\" with a larger picture, customer front with one legend row and fruit in the fixed order, a fire-station scene for Firefighter Osman as the sample, pictures on favour and upgrade cards. Twelve picture drafts added in docs/studio/art-drafts/cards-18. The owner's \"1\" at the head of the message is read as \"about question 1 (the card)\", not as a choice of tracker 1; asked to confirm."
+    },
+    {
+      "at": "2026-11-12 01:27",
+      "text": "Owner's second round on the card mock-ups recorded (DEC-091) and applied: the original coloured-column lorry card, \"Upgrade\" for \"Stall upgrade\", Favoured Trade and Heatwave pictures redrawn from the game's own shapes. The original card designs are in the owner's design page https://claude.ai/artifact/9sbaZqKG6TqxhxJsgKnntY (boards named C-...); use them as the source for the rest of the cards."
+    },
+    {
+      "at": "2026-11-12 01:38",
+      "text": "Owner's third round on the card mock-ups recorded (DEC-092) and applied: cleaner lorry card, no black strips in favour and upgrade pictures, a board of card backs. From now on the changed boards are rendered locally and looked at before sending (the second-round lorry card had overflowed unseen). The rules 18 build came back and was merged into the working branch: npm run verify passes on the merged tree (518 tests, 1 skipped); browser tests running; results report to follow."
+    },
+    {
+      "at": "2026-11-12 01:44",
+      "text": "Owner asked for one fruit icon set across all card pictures (DEC-093): the eleven favour and upgrade pictures and the Heatwave picture rebuilt from the game's fruit icons; a board showing all favour and upgrade pictures added to the mock-up page; the picture generator kept in docs/studio/art-drafts/cards-18."
+    },
+    {
+      "at": "2026-11-12 01:51",
+      "text": "Rules version 18 built, merged and checked (PLAN-079, REP-105): npm run verify PASS (518 tests), browser tests PASS (0 leaks, reconnect 5 of 5); balance target missed narrowly (largest shopkeeper distance 4.5 / 3.3 / 4.0 / 4.6 at 2 / 3 / 4 / 6 stalls, was 8.6 / 10.4 / 8.6 / 6.9). Simulate-first verdicts under DEC-086: the stake is kept at the card's old fine; the extra apple on five lorries is not built; a guest joins a full row and Blueberry Glut is $1 cheaper. Three choices put to the owner: the Charmer with 3 favour cards, the Ripening Room's $1 discount, mango standing orders. Not published."
+    },
+    {
+      "at": "2026-11-12 02:09",
+      "text": "Owner kept the lorry column order, approved the picture style and asked for the whole picture set drawn in detail, three coherent card designs to choose from, and the phone's Wholesale Market as board lanes of 3, 4, 5 and 6 boxes (DEC-094). Done so far: a more detailed reference scene (Firefighter Osman), three design boards (A Ticket, B Stall, C Crate label) and the buying screen's market rebuilt on the mock-up page; five helpers are drawing the customers, shopkeepers, order clients and events in docs/studio/art-drafts/cards-18."
+    },
+    {
+      "at": "2026-11-12 02:15",
+      "text": "Correction to DEC-094: the owner resent the request with a typo fixed (\"now give 3 designs each for respective cards back\"): the three designs were wanted for the card backs. Three back designs added to the mock-up page (A Ticket, B Stall, C Crate label), each for the customer back with its four fruit squares and for the event, lorry, favour, upgrade, shopkeeper and standing-order backs. The three front designs drawn first stay on the page as the matching fronts. The owner chooses one style."
+    },
+    {
+      "at": "2026-11-12 02:23",
+      "text": "Owner chose design A (Ticket) for the cards, with the customer front and back kept in their earlier version (DEC-095), and asked for three coherent back suggestions per deck: a board with stub, picture and pattern backs for the lorry, event, favour, upgrade, shopkeeper and standing-order decks is on the mock-up page. The designs not chosen were moved to the bottom of the page."
+    },
+    {
+      "at": "2026-11-12 02:31",
+      "text": "Owner chose the pattern backs for now (DEC-096) and asked for three things to be thought through before building: the game's flow from start to finish with smooth animation that keeps the board-game feel, on the way to publishing live; a coherent achievement and unlockable-cosmetics progression with possible monetising later; and a strong single-player mode, since the Daily market and the Market League \"doesnt provide anything\". Three studies started (docs/studio/review-18: FLOW-AND-MOTION.md, PROGRESSION.md, SINGLE-PLAYER.md); a proposal (REP-106) follows. Nothing is built from them yet."
+    },
+    {
+      "at": "2026-11-12 03:00",
+      "text": "All card pictures are drawn and on the mock-up page: 36 customer scenes, 20 events and Calm Day, 8 shopkeepers, 8 standing-order clients, 6 favours, 5 upgrades (docs/studio/art-drafts/cards-18; commits 4468d4c, d8a7d64). The shopkeepers' black-and-white awnings were recoloured, since the owner had asked for black bars to go. The new Heatwave picture replaced the old one, which removes its dark bottom strip. The flow and motion study is in (docs/studio/review-18/FLOW-AND-MOTION.md, commit 0d17ccf); the progression and single-player studies are still running. Owner asked what could replace the stall picture on the home screen; three options were drawn and the owner chose today's market with the goals a swipe away (DEC-097). The proposal the three studies feed is now to be REP-106 and covers the home screen as well. Nothing in the game has changed."
+    },
+    {
+      "at": "2026-11-12 03:14",
+      "text": "REP-106 written: a proposal from the three studies (docs/studio/review-18, commits 0d17ccf, 3ce2805, 58d85bb). It sets out how the game should play from start to finish with motion that keeps the board-game feel (about 21 seconds of watching a day against about 39 today, worked out from the code); a stall level on a stamp book with tiered achievements and looks that show on the table; the Market Month as the single-player mode (four five-day weeks with rent; the League folded in; the Daily market made five days); and three releases in place of one. Three decisions put to the owner: one release or three; the stamp book; the Market Month. Found on the way and confirmed by reading the code: a signed-in player's trophy sets drop names that contain a space at every sync. No figure comes from people playing. Nothing is approved or built."
+    },
+    {
+      "at": "2026-11-12 06:59",
+      "text": "Owner approved the three decisions in REP-106: three releases in place of one (DEC-098), the stamp book ladder (DEC-099) and the Market Month with the League folded in and a five-day Daily market (DEC-100). Release A starts with PLAN-081: flow repairs and two defects. Still to be put to the owner: REP-105's three balance choices, which must be settled before release A is final."
+    },
+    {
+      "at": "2026-11-12 07:15",
+      "text": "Owner settled REP-105's three balance choices (DEC-101): the Charmer starts with 3 favour cards; the Ripening Room's $1 green-mango discount is dropped; mango standing orders are left as they are. PLAN-082 holds the two rule changes and the balance re-run; it starts when PLAN-081 is merged. Found while checking: the helper for PLAN-081 had been started from the last merge to main, 32 commits behind the working branch, and was told to bring its copy up to date before changing anything."
+    },
+    {
+      "at": "2026-11-12 08:19",
+      "text": "PLAN-081 built by a helper, checked and merged (f50c9d5): all nine items done; every finding from the flow study was confirmed in a running game before it was fixed. npm run verify PASS (545 tests, run by me); browser tests PASS (run by the helper: 0 leaks, reconnect 5 of 5). A tap's hurry does not carry into the rush, so a tap while rivals price cannot skip the bell. Side effect: with the customer row kept, the bid panel needs a scroll on phones 640 to 699 px tall, until package 3 redraws it. Noted for later packages: scripts/qa-sweep.cjs does not know the Favoured Trade step; in an online bid other players' marks may not update until everyone has decided and \"Change bid\" may sit under the bottom bar (both read from code only); \"No sales today\" is drawn over the day-step strip; a Skip button shows during the night; \"Serve all 36 customers\" counts guests and order clients too. PLAN-082 started."
+    },
+    {
+      "at": "2026-11-12 08:37",
+      "text": "PLAN-082 built (9c0d11b) and measured (REP-107): the Charmer starts with 3 favour cards and the Ripening Room has no discount. With both, the largest distance from fair at Normal level is 3.2 / 3.7 / 3.9 / 4.3 at 2 / 3 / 4 / 6 stalls (it was 4.5 / 3.3 / 4.0 / 4.6); Nest Egg is +4.3 at 6 stalls; at Hard level the Bargain Hunter is +5.6 and +4.8 at 3 and 4 stalls. DEC-101's review trigger is met, so the owner is asked: accept for release A and watch Raj and Saleh in playtests (recommended), or tune further. The Ripening Room is built by about one Normal stall in six and is mid-table in worth; the Juice Bar is now the strongest upgrade. Computer players' value for the room was measured again (0.8 a day at Normal, 1.0 at Hard). One test corrected on purpose (tests/price-read.test.ts)."
+    },
+    {
+      "at": "2026-11-12 08:43",
+      "text": "Browser tests on the combined code of PLAN-081 and PLAN-082: PASS (npm run test:e2e run by me on the combined code (PLAN-081 and PLAN-082, commit 9c0d11b), 2026-11-12: results visible: 1 errors: []; BUDGET OK; frames checked during pricing: 78 | leaks: 0; RECONNECT OK: 5 cycles; E2E OK, exit 0). The approved mock-up sources were saved in docs/studio/review-18/mockups (commit 767268a). PLAN-083 opened: release A, package 2, the new pictures and card faces in the game and the shared motion blocks, built by two helpers in separate work folders."
+    },
+    {
+      "at": "2026-11-12 10:38",
+      "text": "Owner: \"approve package 2\". PLAN-083 (release A, package 2: the new pictures and card faces in the game; shared motion blocks) is confirmed as approved; it was opened on his earlier \"okay yes\" to REP-106. Building continues; publishing is not part of it. The balance question from REP-107 (accept for release A, or tune further) is still open."
+    },
+    {
+      "at": "2026-11-12 12:05",
+      "text": "PLAN-083 implemented (REP-108): the new pictures and card faces (merge 10ef387) and the shared motion blocks (merge fd95996) are on the working branch. verify PASS (605 tests); browser tests PASS (0 leaks, reconnect 5 of 5, budget OK); each card seen beside its mock-up at 390x844 and 360x640, differences listed in REP-108; pass-and-play hand-over shows nothing of the first person's prices. Performance, 3 runs on the new build and 3 on the build before the package, same script, processor slowed 4x: game screen opens in 116 to 276 ms (before 126 to 199; limit 350 here, 600 on CI); longest task 106 to 155 ms (before 96 to 191; limit 200 here, 250 on CI); page elements 533 to 540 (before 504 to 512; limit 800); slow frames 0.24 to 0.3 in a hundred (before 0.16 to 0.22; limit 2); budget passed in 3 of 3 new runs. T4 (the owner has seen the cards) NOT RUN: six pictures sent, awaiting his word. Open with the owner: anything to change on the cards; whether to update the preview copy (a merge to main); the balance question from REP-107."
+    },
+    {
+      "at": "2026-11-12 12:06",
+      "text": "PLAN-084 opened under DEC-098: release A, package 3, part 1 (the rush; the morning, the standing-order bid and the evening), built by two helpers in separate work folders. Package 3 is built in parts because the screens share files; later parts: pricing, the bell and Favoured Trade; buying and the market lanes; the lorry, stocking, the night and the results. Kept as the owner asked on 2026-11-11 (PLAN-076): the Wholesale Market stays in view in the evening until Lights out is tapped; the evening does not end by itself, although REP-106 suggested it could."
+    },
+    {
+      "at": "2026-11-12 12:13",
+      "text": "DEC-102: Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\". The cards are kept as built. The preview copy is not updated at milestones; release A is finished first and then goes live, on the owner's word for that build. The balance is accepted for release A; Raj and Saleh are watched in playtests. PLAN-083 T4 (the owner has seen the cards): PASS. PLAN-082's balance target stays recorded as a narrow FAIL, now accepted by the owner."
+    },
+    {
+      "at": "2026-11-12 12:22",
+      "text": "REP-109: mock-ups of six screens put to the owner on the design page (version 24) and as pictures: stocking and the day's takings (for package 3), and the results, the stamp book, the trophy cards and the Wardrobe (for package 5, DEC-099). Awaiting his word on three questions: build stocking and the takings as drawn; the stamps, ladder and tiers as shown, with the rank names his to reword; an awning strip over the shelf and on a rival's view of his box. Nothing is built from them. PLAN-084 continues with two helpers."
+    },
+    {
+      "at": "2026-11-12 12:32",
+      "text": "DEC-103: Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\". Stocking and the day's takings are built as drawn (package 3); the results, the stamp book, the trophy cards and the Wardrobe as drawn, with the rank names kept (package 5); looks show in a game as an awning strip over the player's shelf and a thin one on the player's box as rivals see it. The six boards are saved in docs/studio/review-18/mockups."
+    },
+    {
+      "at": "2026-11-12 17:05",
+      "text": "DEC-104: Owner, 2026-11-12: \"speed it up please\". Read as: build the remaining packages of release A side by side. Three more helpers started from f2d9d33: the stamp book's first version (PLAN-086), the print kit on rules 18 (PLAN-087) and the text outside the screens (PLAN-088). The helper on the morning, the bid and the evening (PLAN-084) was asked to wrap up and report. PLAN-085 (package 3, part 2: the sheets and the table) is opened and starts when part 1 is merged. Checks are not reduced: each package is reviewed, merged and checked on the merged code."
+    },
+    {
+      "at": "2026-11-12 17:09",
+      "text": "PLAN-084: the morning, the standing-order bid and the evening merged as built so far (merge 04d12ed, at the helper's commit 850d7c2) so that part 2 can start from it; npm run verify on the merged code: PASS (65 files, 659 tests, 1 skipped). The helper's final report, the browser tests on the merged code and the look beside the mock-ups are still to come; PLAN-084's checks stay NOT RUN until then. PLAN-085: two helpers started from 04d12ed (the sheets; the table). Five helpers now work side by side (DEC-104). An hourly scheduled check-in was set so the work restarts by itself after a usage-limit pause."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "DEC-105: Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\". Read as the owner's word to publish today's build of the core game once the full checks pass on it. The print kit helper was paused; its work (the decks print on rules 18) is kept on its branch, unmerged (PLAN-087). The owner also asked that the work be paced to finish inside the usage allowance before it resets on 2026-11-13 19:00; every helper was given a deadline tonight."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "PLAN-084 built and checked on the merged code (REP-110): npm run verify PASS (65 files, 659 tests, 1 skipped); npm run test:e2e on the merged code: PASS (solo game to the results with no errors; performance budget OK with a longest task of 151 ms and 0.5 slow frames in a hundred; online match with 82 pricing frames and 0 leaks; reconnect 5 of 5), run while five helpers used the same machine. The helper on the morning, the bid and the evening reported on 850d7c2, the commit already merged. T6 (the owner has seen the screens) stays NOT RUN: he sees them on the live game. Release 1.20.0 prepared as a candidate (PLAN-077, 079, 081, 082, 083, 084)."
     }
   ]
 }

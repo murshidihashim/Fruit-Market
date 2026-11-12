@@ -309,7 +309,7 @@ const eventBack: Cell = { html: toStaticHtml(h(EventBack, { class: 'pk-gzb' })),
 const WHEN: Record<FavourDef['when'], { small: string; big: string }> = {
   evening: { small: 'Play in the', big: 'Evening' },
   buy: { small: 'Play on your', big: 'Buying<br>turn' },
-  bid: { small: 'Play while', big: 'Pricing' },
+  tie: { small: 'Play after', big: 'Prices<br>flip' },
 };
 function favourFront(f: FavourDef, copy: number): Cell {
   const w = WHEN[f.when];

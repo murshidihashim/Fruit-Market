@@ -13,13 +13,15 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .xf.xf-worn { overflow: visible; }
 .xf-clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
 .xf .xf-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; border-radius: inherit; }
-/* customers: the "at work" picture, zoomed in on the face (heads sit about a third of the way across) */
+/* customers: their card picture, drawn closer in on the face (PLAN-083: every customer's head is in the middle of
+   the picture, a little above half way up; the hat or hair above it stays in) */
 .xf-cust { background: var(--x-paper); }
-.xf.xf-cust .xf-img { inset: auto; left: -5%; top: -17%; width: 167%; height: auto; object-fit: fill; border-radius: 0; }
-.xf-guest .xf-img { object-position: 50% 50%; }
-/* shopkeepers: the round sign badge; the stall scene when large */
+.xf.xf-cust .xf-img { transform: scale(1.5); transform-origin: 50% 44%; border-radius: 0; }
+/* guests and standing-order clients: their picture cropped round its focus point (art.tsx sets it) */
+.xf-guest .xf-img, .xf-order .xf-img { object-position: 50% 50%; }
+/* shopkeepers: the small square face; the stall scene when large, with the face in the middle */
 .xf-scene { border-radius: 12px; }
-.xf.xf-scene .xf-img { object-position: 6% 45%; }
+.xf.xf-scene .xf-img { object-position: 50% 30%; }
 /* anyone without art: a plain navy badge with a head and shoulders, never another character */
 .xf-none::before, .xf-none::after { content: ''; position: absolute; left: 50%; background: var(--on-ink-muted); transform: translateX(-50%); }
 .xf-none::before { top: 18%; width: 36%; height: 36%; border-radius: 50%; }

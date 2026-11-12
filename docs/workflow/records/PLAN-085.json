@@ -1,0 +1,92 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-104",
+    "REP-106",
+    "REP-109"
+  ],
+  "decisions": [
+    "DEC-086",
+    "DEC-088",
+    "DEC-090",
+    "DEC-094",
+    "DEC-095",
+    "DEC-098",
+    "DEC-103",
+    "DEC-104"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The designs are the boards in docs/studio/review-18/mockups: Pricing and Favoured-Trade (DEC-090 to DEC-095), Buying with the market as lanes (DEC-094), Stocking, Takings and the awning strip (DEC-103: \"okay approve all 3\").",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-085",
+  "title": "Release A, package 3, part 2: one sheet from stocking to the takings; the market, the stalls, buying, the lorry and the night",
+  "problem": "Between stocking and the takings the market flashes back and the table blinks four times; stocking and the takings are old layouts. The Wholesale Market is a shortened list, not the board's lanes; the customer row grows when walk-ins turn face up; at night two rows vanish and the table jumps; fruit and crates appear instead of travelling.",
+  "scope": [
+    "Stocking, pricing, the bell, the Favoured Trade question and the day's takings as on their boards, on one sheet that stays on the table",
+    "The Wholesale Market as lanes of 3, 4, 5 and 6 boxes; the stalls in buying order with what each bought today; the shelf with what tonight does to each piece",
+    "The lorry unloads a crate into each lane; a bought piece travels to the shelf; a rival's buying turn is one move; walk-in cards turn face up without moving the table; at night every piece slides one box along and spoiled pieces tip off",
+    "A player's awning as a strip over their shelf and a thin strip on their box as rivals see it (DEC-103)",
+    "The table rows keep their places from the morning to the night"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or online-protocol change",
+    "The Wardrobe and the stamp book (package 5)",
+    "Screen labels beyond those on the boards (package 4, part 2)",
+    "\"Put out all wanted\" or any other stocking shortcut (PLAN-061)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code: solo game to the results, performance budget, online match with 0 leaks, reconnect",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each screen seen in the running game at 390x844 and 360x640, with 4 and with 6 stalls, beside its board, by me; differences listed; no control off the screen or covered",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The table rows do not move and the market does not show between stocking and the takings; numbers change when a piece lifts and lands, not before (measured)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "No secret early: a rival's prices and crate before the bell, pass-and-play hand-over, online leak check at 0",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T6",
+      "text": "With reduced motion nothing travels and every pause to read is kept",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T7",
+      "text": "The owner has seen the screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

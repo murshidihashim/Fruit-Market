@@ -4,12 +4,13 @@ import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
 import { FRUIT, RIVALS, type FruitId } from '../src/engine/data';
 import {
-  applyAction, beginBuying, crateCounts, crateStock, emptyStock, endBuyTurn, newGame, oldestCrate, openStall, submitPrices, validateCrate,
+  applyAction, beginBuying, crateCounts, crateStock, emptyStock, newGame, oldestCrate, openStall, submitPrices, validateCrate,
   type Customer, type GameState,
 } from '../src/engine/game';
 import { StallPanelView, startingCrate } from '../src/ui/panel';
 import { toStaticHtml } from '../src/ui/cards';
 import { RULES_VERSION } from '../src/net/protocol';
+import { endBuying } from './stall-step';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
 const OKAY = (f: FruitId) => FRUIT[f].ripe.lastIndexOf('okay');
@@ -19,7 +20,7 @@ const buyer = (id: number, f: FruitId, qty: number, max: number, pref: Customer[
 /** Two stalls at the stall step: you hold 2 tired and 2 fresh apples; the rival holds nothing. */
 function stocking(crowd: Customer[]): GameState {
   let s = beginBuying(newGame({ players: [{ name: 'You', kind: 'human', avatar: 'a' }, { name: 'R', kind: 'human', avatar: 'b' }], days: 10, unripe: true, upgrades: true, events: false, seed: 3 }));
-  for (const p of [...s.order]) s = endBuyTurn(s, p);
+  s = endBuying(s);
   s = structuredClone(s);
   s.firstMarket = crowd; s.secondMarket = []; s.order = [0, 1];
   s.players.forEach((pl) => { pl.stock = emptyStock(true); pl.trait = null; pl.favours = []; });

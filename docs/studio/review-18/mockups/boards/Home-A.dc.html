@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home: today's market</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,600;0,700;0,800;1,700&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit;background:none;border:0;border-radius:0;padding:0;margin:0;cursor:pointer}
+.ph{width:390px;height:844px;background:#fffcf5;color:#1f272a;font-family:Archivo,system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+.bar{height:52px;flex:none;box-sizing:border-box;background:#1f272a;color:#fffcf5;display:flex;align-items:center;justify-content:space-between;padding:0 8px}
+.acct{height:44px;display:flex;align-items:center;gap:8px;padding:0 8px;color:#fffcf5;font:800 12px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.dress{height:44px;display:flex;align-items:center;gap:8px;padding:0 12px 0 4px;background:#fec400;color:#1f272a;font:800 12px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.dress img{width:36px;height:36px;display:block;box-sizing:border-box;border:2px solid #1f272a;object-fit:cover}
+.lanes{height:47px;flex:none;display:grid;grid-template-columns:repeat(4,1fr);box-sizing:border-box;border-bottom:3px solid #1f272a}
+.lanes span{display:grid;place-items:center}
+.lanes i{width:34px;height:34px;background:#fffcf5;display:grid;place-items:center}
+.lanes img{width:28px;height:28px;display:block}
+.ttl{flex:none;padding:14px 16px 10px}
+.ttl h1{margin:0;font:400 46px/.95 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.01em}
+.ttl p{margin:6px 0 0;font:700 13px/1.3 Archivo,sans-serif}
+.ttl p span{font-style:italic;color:#b62528}
+.rest{flex:1;display:flex;flex-direction:column;gap:12px}
+.slot{flex:none;margin:0 16px;padding:3px;box-shadow:inset 0 0 0 3px #1f272a;display:flex;flex-direction:column;position:relative}
+.sh{height:30px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;background:#1f272a;color:#fffcf5;font:800 11px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.sh b{padding:3px 6px;background:#fec400;color:#1f272a;font-weight:800}
+.sb{padding:10px;display:flex;flex-direction:column;gap:8px}
+.lb{font:800 9.5px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5a6266}
+.act{min-height:40px;background:#fec400;color:#1f272a;font:400 15px/1 'Archivo Black',sans-serif;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px}
+.play{flex:none;margin:0 16px;display:flex;flex-direction:column;gap:8px}
+.go{min-height:60px;background:#1f272a;color:#fec400;font:400 22px/1 'Archivo Black',sans-serif;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px}
+.go small{font:800 13px/1 Archivo,sans-serif;letter-spacing:.06em;color:#fffcf5}
+.b{min-height:48px;box-shadow:inset 0 0 0 3px #1f272a;font:800 14px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tks{flex:none;margin:0 16px;display:flex;flex-direction:column;gap:8px}
+.tk{min-height:62px;display:flex;align-items:stretch;text-align:left;background:#fffcf5;box-shadow:inset 0 0 0 2px #1f272a}
+.tk-ic{width:72px;flex:none;display:grid;place-items:center;background:#1f272a;color:#fec400}
+.tk-txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:8px 12px;font:700 14px/1.25 Archivo,sans-serif}
+.tk-txt small{font:800 11px/1.1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5a6266}
+.tk-txt small.red{color:#b62528}
+.tk-go{align-self:center;flex:none;margin-right:12px;padding:5px 8px;background:#fec400;font:800 11px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.foot{margin-top:auto;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#ddd4c6;padding:6px 8px 10px}
+.foot button{min-height:46px;font:800 12px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.car{flex:none;display:flex;gap:8px;overflow:hidden}
+.car .slot{margin:0;width:350px;box-sizing:border-box}
+.car .sb{flex:1}
+.dots{flex:none;display:flex;justify-content:center;align-items:center;gap:6px;margin-top:-2px}
+.dots button{width:8px;height:8px;background:#bdb4a6}
+.dots button.on{width:22px;background:#1f272a}
+.dots span{margin-left:6px;font:800 9.5px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5a6266}
+/* A: today's market */
+.t1{display:grid;grid-template-columns:140px 1fr;gap:10px}
+.ev{display:flex;flex-direction:column;gap:5px}
+.ev img{width:140px;height:88px;display:block;box-sizing:border-box;border:2px solid #1f272a;object-fit:cover;object-position:50% 30%}
+.evn{font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.chip{align-self:flex-start;padding:3px 6px;background:#0e9a58;color:#fffcf5;font:800 10px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.tr{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ln4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.ln{height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fffcf5;font:400 17px/1 'Archivo Black',sans-serif}
+.ln i{width:22px;height:22px;border-radius:50%;background:#fffcf5;display:grid;place-items:center}
+.ln img{width:16px;height:16px;display:block}
+.st{font:700 12px/1.3 Archivo,sans-serif}
+.st b{font-weight:800;color:#b62528}
+/* B: next goals */
+.gl{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-top:2px dashed #bdb4a6}
+.gl:first-child{border-top:0;padding-top:0}
+.gl:last-child{padding-bottom:0}
+.sw{width:44px;height:44px;box-sizing:border-box;border:2px solid #1f272a;display:grid;place-items:center;overflow:hidden;background:#efe9df}
+.sw img{width:100%;height:100%;display:block;object-fit:cover}
+.sw.aw{background:repeating-linear-gradient(90deg,#0e9a58 0 8px,#fffcf5 8px 16px)}
+.gt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gt b{font:800 13px/1.15 Archivo,sans-serif}
+.gt span{font:700 11px/1.2 Archivo,sans-serif;color:#5a6266}
+.pg{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font:400 13px/1 'Archivo Black',sans-serif}
+.pb{width:62px;height:8px;box-sizing:border-box;border:2px solid #1f272a;background:#fffcf5;display:block}
+.pb i{display:block;height:100%;background:#0e9a58}
+/* C: market road */
+.road{position:relative;display:flex;justify-content:space-between}
+.road:before{content:"";position:absolute;left:14px;right:14px;top:13px;height:4px;background:#1f272a}
+.stp{position:relative;width:30px;height:30px;box-sizing:border-box;border:3px solid #1f272a;background:#fffcf5;display:grid;place-items:center;font:400 13px/1 'Archivo Black',sans-serif;color:#5a6266}
+.stp.done{background:#1f272a;color:#fec400}
+.stp.next{background:#fec400;color:#1f272a}
+.stp svg{width:16px;height:16px;display:block}
+.nx{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:center}
+.nx>img{width:118px;height:80px;display:block;box-sizing:border-box;border:2px solid #1f272a;object-fit:cover}
+.nt{display:flex;flex-direction:column;gap:5px;min-width:0}
+.nt b{font:400 19px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.nt span{font:700 12px/1.25 Archivo,sans-serif}
+.rv{display:flex;align-items:center;gap:6px;font:700 12px/1 Archivo,sans-serif}
+.rv img{width:22px;height:22px;display:block;box-sizing:border-box;border:2px solid #1f272a;object-fit:cover}
+/* A game is waiting */
+.wt{display:grid;grid-template-columns:auto 1fr;gap:14px}
+.shf{display:grid;grid-template-columns:repeat(4,34px);gap:4px}
+.sl{width:34px;height:34px;box-sizing:border-box;border:2px solid #1f272a;background:#fffcf5;display:grid;place-items:center}
+.sl.e{border:2px dashed #bdb4a6}
+.sl img{width:24px;height:24px;display:block}
+.cl{display:flex;flex-direction:column;gap:6px}
+.rw{display:flex;align-items:center;gap:7px;font:700 12.5px/1 Archivo,sans-serif}
+.rw img{width:24px;height:24px;display:block;box-sizing:border-box;border:2px solid #1f272a;object-fit:cover}
+.rw b{margin-left:auto;font:400 14px/1 'Archivo Black',sans-serif}
+.rw.me{background:#fec400;margin:0 -4px;padding:3px 4px}
+.nb{background:#efe9df;padding:8px 10px;font:700 12px/1.3 Archivo,sans-serif}
+.nb b{font-weight:800}
+</style>
+</helmet>
+<div class="ph">
+  <div class="bar"><button class="acct"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span>Create account</span></button><button class="dress"><img src="/_blob/47462564df780449c995d5c4971d598d" alt="Rosa, your shopkeeper"><span>Dress up</span></button></div>
+  <div class="lanes" aria-hidden="true"><span style="background: #3558a2"><i><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt=""></i></span><span style="background: #0e9a58"><i><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt=""></i></span><span style="background: #fec400"><i><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt=""></i></span><span style="background: #e73c35"><i><img src="/_blob/54173c91b6d13ececb531c4292454819" alt=""></i></span></div>
+  <div class="ttl"><h1>Fruit<br>Market</h1><p>Where the whole world shops <span>…and every price is a secret</span></p></div>
+  <div class="rest">
+    <div class="car" style="padding-left: 16px">
+      <div class="slot">
+      <div class="sh"><span>Today's market · 11 Nov</span><b>3-day streak</b></div>
+      <div class="sb">
+        <div class="t1">
+          <div class="ev"><img src="/_blob/a9ca2b3011d91a9ca63924d2ac279582" alt="Today's event: a hot day at the market"><span class="evn">Heatwave</span><span class="chip">+$2 a watermelon</span></div>
+          <div class="tr"><span class="lb">Today's lorry brings</span><div class="ln4"><span class="ln" style="background: #3558a2"><i><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberry"></i>8</span><span class="ln" style="background: #0e9a58"><i><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></i>3</span><span class="ln" style="background: #fec400; color: #1f272a"><i><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mango"></i>1</span><span class="ln" style="background: #e73c35"><i><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></i>2</span></div><span class="lb" style="margin-top: 4px">Same market for all</span><span class="st"><b>212</b> played · best so far <b>$71</b></span></div>
+        </div>
+        <button class="act"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor"/></svg>Play today's market</button>
+      </div>
+    </div>
+      <div class="slot">
+      <div class="sh"><span>Your next goals</span><b>Trophies 7 of 32</b></div>
+      <div class="sb" style="gap: 0; justify-content: space-around">
+        <div class="gl"><span class="sw aw" role="img" aria-label="A green striped awning"></span><span class="gt"><b>Sell 100 watermelons</b><span>Unlocks the melon-stripe awning</span></span><span class="pg">64/100<span class="pb"><i style="width: 64%"></i></span></span></div>
+        <div class="gl"><span class="sw"><img src="/_blob/6b877750b333c398087ac5332b607223" alt="A customer picture"></span><span class="gt"><b>Serve every customer</b><span>Unlocks the picture card backs</span></span><span class="pg">22/36<span class="pb"><i style="width: 61%"></i></span></span></div>
+        <div class="gl"><span class="sw" role="img" aria-label="A gold price tag"><svg viewBox="0 0 44 44" width="40" height="40" aria-hidden="true"><path d="M17 11h20v22H17L6 22z" fill="#fec400" stroke="#1f272a" stroke-width="2.5" stroke-linejoin="round"/><circle cx="15" cy="22" r="2.6" fill="#1f272a"/><path d="M22 18h10M22 26h7" stroke="#1f272a" stroke-width="3" stroke-linecap="round"/></svg></span><span class="gt"><b>Win with 3 shopkeepers</b><span>Unlocks gold price tags</span></span><span class="pg">1/3<span class="pb"><i style="width: 33%"></i></span></span></div>
+      </div>
+    </div>
+    </div>
+    <div class="dots"><button class="on" aria-label="Today's market"></button><button class="" aria-label="Your next goals"></button><span>Swipe for your goals</span></div>
+    <div class="play"><button class="go">New game</button><button class="b">Play a friend</button></div>
+    <div class="tks"><button class="tk"><span class="tk-ic"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8"/></svg></span><span class="tk-txt"><small>Market League</small><span>Stage 1 of 6 · Village Square</span></span></button></div>
+    <nav class="foot"><button>Trophies</button><button>How to play</button><button>Settings</button></nav>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

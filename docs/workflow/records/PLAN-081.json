@@ -1,0 +1,79 @@
+{
+  "release": "1.20.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge commit f50c9d5 (helper commits 655d26c, 016a18c, ca7b6f6)",
+  "reports": [
+    "REP-106"
+  ],
+  "decisions": [
+    "DEC-098"
+  ],
+  "changes": {
+    "added": [
+      "Starting the Daily market, a Market League game or a new game asks first when a game is waiting"
+    ],
+    "changed": [
+      "One tap on the table hurries the rivals until your next decision; a tap on the market lanes counts",
+      "The lorry starts unloading at once",
+      "Market Day bid: the customer row stays on the table, and the panel says the other stalls bid first until it is your turn"
+    ],
+    "fixed": [
+      "\"Skip\" works while a customer card is up in the rush",
+      "With reduced motion, the open crates at the bell and \"No sales today\" stay long enough to read",
+      "The night's slide always finishes before the night ends",
+      "Trophy progress for names with a space (Uncle Benny, Ah Chen, Hock Seng and others) is no longer lost when an account syncs"
+    ],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (three releases; release A's packages are listed in REP-106 section 4, this is the first).",
+    "date": "2026-11-12"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-081",
+  "title": "Release A, package 1: flow repairs and two defects",
+  "problem": "Several steps stall or mislead today (found by reading the code in docs/studio/review-18/FLOW-AND-MOTION.md), and two defects can lose a player's game or trophy progress. They are fixed before any new motion is built on top.",
+  "scope": [
+    "With reduced motion, the open crates at the bell and \"No sales today\" stay long enough to read",
+    "\"Skip\" can be tapped while a rush card is up",
+    "One tap on the table hurries what is playing until the player's next decision; a tap on the lanes counts",
+    "Market Day bid: the customer row stays, the strip is labelled correctly, and \"Bid in\" shows only after the player has bid",
+    "Night: the panel and the slide run on one clock",
+    "The wait for a lorry that is not drawn is removed",
+    "The solo browser test handles the Favoured Trade step and fails when the results are not reached",
+    "Starting a Daily market or a League game asks before a paused game is replaced",
+    "Account sync keeps trophy names that contain a space"
+  ],
+  "exclusions": [
+    "Any rule or balance change; the rules version stays 18",
+    "New motion and redrawn screens (packages 2 and 3)",
+    "The save envelope and the online message format"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with new unit tests for the reduced-motion pause, the bid panel wording, the paused-game question and trophy names with spaces",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged code, 2026-11-12, run by me: 61 test files, 545 tests passed, 1 skipped (the existing skip in tests/price-read.test.ts); 27 new tests in tests/flow-repairs.test.ts, tests/profile-names.test.ts and tests/account-client.test.ts"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes: a solo game that meets the Favoured Trade step reaches the results, the performance budget holds, the online match has 0 leaks",
+      "result": "PASS",
+      "evidence": "npm run test:e2e run by the helper on the package's final commit ca7b6f6: solo game reached the results with no errors; BUDGET OK (516 of 800 elements, 121 ms to open, longest task 128 ms); online match 88 frames checked, 0 leaks; quick match; RECONNECT OK, 5 cycles. The random solo game did not meet the Favoured Trade step; the helper ran the solo script twice from a saved game one move before that step and it played the step and reached the results. Run again by me on the combined code after PLAN-082, 2026-11-12: E2E OK, 0 leaks, reconnect 5 cycles"
+    },
+    {
+      "id": "T3",
+      "text": "Seen in a browser at phone size: Skip works during a rush card; the bid step keeps the customer row; the night ends with its slide; the bell is readable with reduced motion",
+      "result": "PASS",
+      "evidence": "Helper's screenshots at 390x844, five looked at by me: Skip with a customer card up; the bid step with the customer row kept; the paused-game question; the open crates with reduced motion. Known side effect: on screens 640 to 699 px tall the bid panel needs a scroll to reach the price and Pass; that panel is redrawn in package 3"
+    },
+    {
+      "id": "T4",
+      "text": "The owner has seen it on the preview",
+      "result": "NOT RUN",
+      "evidence": "Not on the preview yet"
+    }
+  ]
+}

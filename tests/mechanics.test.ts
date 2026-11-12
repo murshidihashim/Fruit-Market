@@ -44,12 +44,12 @@ describe('merchant traits', () => {
     expect(s.players.every((p) => p.trait)).toBe(true);
   });
 
-  it('Nest Egg starts with $18 (everyone else $10) and Bargain Hunter gets $1 off the first fruit each day', () => {
+  it('Nest Egg starts with $15 (rules 18; everyone else $10) and Bargain Hunter gets $1 off the first fruit each day', () => {
     let s = newGame(humans(2));
     s.players[0].traitOffer = ['nestegg', 'bargain', 'haggler'];
     s.players[1].traitOffer = ['bargain', 'nestegg', 'haggler'];
     s = pickTrait(pickTrait(s, 0, 'nestegg'), 1, 'bargain');
-    expect(s.players[0].cash).toBe(18);
+    expect(s.players[0].cash).toBe(15);
     expect(s.players[1].cash).toBe(10);
     expect(buyCost(s, 1, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh - 1);
     expect(buyCost(s, 0, 'apple', freshPos('apple'))).toBe(FRUIT.apple.cost.fresh);
@@ -75,10 +75,10 @@ describe('turn order', () => {
 });
 
 describe('specialities draft', () => {
-  it('offers three of the unbuilt upgrades on the evening after a Market Day, and only then (rules 14: five upgrades)', () => {
+  it('offers every unbuilt upgrade on the evening after a Market Day, and only then (rules 17: all five on offer)', () => {
     const s = runTo(newGame(ais(2, 7)), 3, 'evening');
     for (const pl of s.players) {
-      expect(pl.upgradeOffer!.length).toBe(Math.min(3, (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u)).length));
+      expect(pl.upgradeOffer).toEqual((Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u)));
     }
     const p = s.order[s.turn];
     const rich = structuredClone(s);
@@ -123,7 +123,7 @@ describe('specialities draft', () => {
     for (let k = 0; k < 2; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
     while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
     while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
-    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [], favoured: false });
+    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [] });
     expect(s.results!.income[p]).toBe(0);
     s = finishReveal(s);
     while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
@@ -146,7 +146,7 @@ describe('specialities draft', () => {
     for (let k = 0; k < 3; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
     while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
     while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });
-    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [], favoured: false });
+    while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [] });
     s = finishReveal(s);
     expect(s.phase).toBe('over');
     expect(s.players[p].stats.juiced ?? 0).toBe(0);

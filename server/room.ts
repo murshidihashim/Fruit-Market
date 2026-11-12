@@ -4,6 +4,9 @@
 // Rules:
 // - The server owns the only real GameState. Clients send intentions; the shared rules engine applies them.
 // - For-sale crates and secret prices are held in `pending` (never sent to anyone) until every human has submitted.
+//   Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so nobody waits for it. After the flip,
+//   stalls holding Favoured Trade with a tied price are asked in turn, in the open (the 'tie' step); a seat that is
+//   away is played by the computer, which keeps the card.
 // - Each browser receives its own filtered view: no pending prices, no hidden favour cards,
 //   no deck order and no random seed (which would reveal future customers and events), and since rules 15
 //   no rival shelf and no rival crate before the bell (only how many pieces it holds).
@@ -12,10 +15,10 @@
 // - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
 //   computer plays their seat (they can reconnect and take it back at any time).
 
-import { aiActFor, aiStep } from '../src/engine/ai';
+import { aiActFor, aiStep, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
-import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
+import { RIVALS, type FavourId } from '../src/engine/data';
 import { bidOrder, canBidOrder,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
   publicView, type Action, type Crate, type Customer, type GameState, type PlayerConfig, type Post, type Stall,
@@ -50,7 +53,7 @@ export interface RoomData {
   game: GameState | null;
   version: number;
   /** Hidden submissions for the current simultaneous step: a for-sale crate, or secret prices. */
-  pending: ({ stall: Stall; crate?: Crate } | { posts: Post[]; favoured: boolean } | { bid: number | null } | null)[];
+  pending: ({ stall: Stall; crate?: Crate } | { posts: Post[] } | { bid: number | null } | null)[];
   votes: number[];
   rematch: number[];
   seen: string[][];
@@ -92,8 +95,10 @@ export function freshRoom(code: string, now: number, quick = false): RoomData {
 const HIDDEN_FAVOUR: FavourId = 'priority';
 
 /** The game as one player is allowed to see it. */
-export function redact(g: GameState, seat: number): GameState {
+export function redact(g: GameState, seat: number, pending?: readonly unknown[]): GameState {
   // Rules 15, secret stalls: a rival's shelf is never sent, and its crate only as a count of pieces until the bell.
+  // Rules 18: what each stall bought today stays in the view (it is public until the bell), and in the tie step only
+  // the stall being asked is named.
   const v: GameState = publicView(g, seat);
   v.rng = 0;
   v.farmerDeck = [];
@@ -107,8 +112,17 @@ export function redact(g: GameState, seat: number): GameState {
   // Simultaneous steps: nobody's crate or prices show until every shop has committed.
   if (v.phase === 'stall') { v.stalls = v.stalls.map(() => null); if (v.crates) v.crates = v.crates.map(() => null); }
   if (v.phase === 'bid') v.bids = v.bids.map(() => null);
-  // Rules 14: bids for a standing order stay secret until every stall has bid.
-  if (v.phase === 'order' && v.standing) v.standing.bids = v.standing.bids.map(() => null);
+  // Rules 17: while a standing order is bid for, everyone sees who is bidding, who passed and who is still deciding;
+  // the prices stay secret until every stall has decided. A person's choice is held in `pending` until then; a
+  // computer stall's choice is what it will bid (planOrderBid does not depend on the other bids).
+  if (v.phase === 'order' && v.standing) {
+    v.standing.bids = g.players.map((pl, i) => {
+      const pb = pending?.[i] as { bid?: number | null } | null | undefined;
+      if (pb && 'bid' in pb) return pb.bid === null || pb.bid === undefined ? 'pass' : i === seat ? pb.bid : 'in';
+      if (pl.kind === 'ai') return planOrderBid(g, i) === null ? 'pass' : 'in';
+      return null;
+    });
+  }
   // Face-down walk-ins: only the fruit on the back, unless this player has seen the card (Gossip or Scout).
   // Rules 16: tomorrow's walk-ins (drawn in the morning) are face down the same way.
   const back = (c: Customer): Customer => (!c.walkIn || c.seenBy?.includes(seat) ? c : {
@@ -394,6 +408,7 @@ export class Room {
 
     if (a.kind === 'stall') {
       if (g.phase !== 'stall') throw new RuleError('Stalls are not being set out now');
+      if (g.stalls[seat] !== null) throw new RuleError('You have no ripe fruit to put out today');
       if (d.pending[seat]) throw new RuleError('Your crate is already set out');
       if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Bad crate');
       const stall: Stall = {};
@@ -417,7 +432,8 @@ export class Room {
     }
     if (a.kind === 'order') {
       if (g.phase !== 'order') throw new RuleError('No standing order is being bid for now');
-      if (d.pending[seat]) throw new RuleError('Your bid is already in');
+      // Rules 17: a bid may be changed for as long as another stall is still deciding (the step resolves the moment
+      // the last person decides, so a bid that reaches here is still open).
       const bid = a.price === null ? null : Number(a.price);
       const err = canBidOrder(g, seat, bid);
       if (err) throw new RuleError(err);
@@ -429,15 +445,13 @@ export class Room {
       if (d.pending[seat]) throw new RuleError('Your prices are already locked in');
       if (!Array.isArray(a.posts) || a.posts.length > 8) throw new RuleError('Bad prices');
       const posts: Post[] = a.posts.map((b) => ({ fruit: b.fruit, price: Number(b.price) }));
-      const favoured = !!a.favoured && g.players[seat].favours.includes('favouredTrade') && !g.players[seat].favouredTrade;
       const err = validatePrices(g, seat, posts);
       if (err) throw new RuleError(err);
-      d.pending[seat] = { posts, favoured };
+      d.pending[seat] = { posts };
       return this.accepted(conn, seat, m.id);
     }
 
     if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
-    if (a.kind === 'favour' && a.idx >= 0 && FAVOURS[g.players[seat].favours[a.idx]]?.when === 'bid') throw new RuleError('Play this with your prices');
     this.markTurnStart(g, seat);
     const next = applyAction(g, seat, a); // throws RuleError if illegal (wrong turn, no cash, etc.)
     this.remember(seat, m.id);
@@ -521,7 +535,8 @@ export class Room {
         if (d.status !== 'finished') { d.status = 'finished'; d.rematch = []; this.broadcast(); }
         return;
       }
-      if (g.phase === 'buy' || g.phase === 'evening') {
+      // Turns taken in the open, one stall at a time: buying, the evening and (rules 18) the tie step.
+      if (g.phase === 'buy' || g.phase === 'evening' || g.phase === 'tie') {
         const p = activePlayer(g);
         if (p < 0 || (g.players[p].kind !== 'ai' && !isBot(p))) return;
         const n = isBot(p) ? aiActFor(g, p) : aiStep(g);
@@ -535,13 +550,13 @@ export class Room {
       if (g.phase === 'stall' || g.phase === 'bid' || g.phase === 'order') {
         const step = g.phase;
         const humans = g.players.map((pl, i) => (pl.kind === 'human' && !isBot(i) ? i : -1)).filter((i) => i >= 0);
-        if (humans.some((i) => !d.pending[i])) return;
+        if (humans.some((i) => this.owes(g, i) && !d.pending[i])) return;
         let s = g;
         for (let k = 0; k < 20 && s.phase === step; k++) {
           const p = activePlayer(s);
           const pb = d.pending[p];
           if (s.players[p].kind === 'human' && pb && 'stall' in pb) s = openStall(s, p, pb.stall, pb.crate);
-          else if (s.players[p].kind === 'human' && pb && 'posts' in pb) s = submitPrices(s, p, pb.posts, pb.favoured);
+          else if (s.players[p].kind === 'human' && pb && 'posts' in pb) s = submitPrices(s, p, pb.posts);
           else if (s.players[p].kind === 'human' && pb && 'bid' in pb) s = bidOrder(s, p, pb.bid);
           else s = (s.players[p].kind === 'ai' ? aiStep(s) : aiActFor(s, p))!;
         }
@@ -555,6 +570,14 @@ export class Room {
       // Morning / after sales: wait for everyone still playing to continue.
       if (!this.tryContinue()) return;
     }
+  }
+
+  /** Does the game still need this seat's hidden choice in the current simultaneous step? Rules 18: a stall with no
+   *  ripe fruit is already open with nothing out, and a stall with nothing out has no prices to set. */
+  private owes(g: GameState, i: number): boolean {
+    if (g.phase === 'stall') return g.stalls[i] === null;
+    if (g.phase === 'bid') return g.bids[i] === null;
+    return g.phase === 'order';
   }
 
   /** A quick-match lobby with exactly one connected player in it. */
@@ -576,11 +599,11 @@ export class Room {
     }));
     const g = d.game;
     const submitted = g
-      ? g.players.map((pl, i) => (g.phase === 'stall' || g.phase === 'bid' || g.phase === 'order' ? (pl.kind === 'human' ? !!d.pending[i] : false) : g.bids[i] !== null))
+      ? g.players.map((pl, i) => (g.phase === 'stall' || g.phase === 'bid' || g.phase === 'order' ? (pl.kind === 'human' ? !!d.pending[i] || !this.owes(g, i) : false) : g.bids[i] !== null))
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
-      game: g ? redact(g, seat) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
+      game: g ? redact(g, seat, d.pending) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
       ...(d.lastUndo ? { undone: d.lastUndo } : {}),
     };
   }

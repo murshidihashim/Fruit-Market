@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card backs in the Ticket style: three suggestions for each deck</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+.col{display:flex;flex-direction:column;gap:8px}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5a6266}
+.bk{width:252px;height:352px;box-sizing:border-box;border:3px solid #1f272a;position:relative;overflow:hidden;font-family:Archivo,sans-serif;color:#1f272a;--k:#fec400;--h:#fffcf5}
+.sm{font:800 8.5px/1 Archivo,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.rl{align-self:stretch;height:4px;background:#1f272a;flex:none}
+.wd{font:400 26px/.95 'Archivo Black',sans-serif;text-transform:uppercase}
+.ds{align-self:stretch;border-top:2px dashed #1f272a;padding-top:8px;font:800 8.5px/1 Archivo,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#b62528}
+.pf{position:absolute;left:0;right:0;height:9px;background:radial-gradient(circle at 5.5px 4.5px,#fffcf5 3px,transparent 3.6px) 2px 0/11px 9px repeat-x}
+.s1{display:grid;place-items:center;background-color:var(--k);background-image:radial-gradient(circle,rgba(31,39,42,.2) 1.6px,transparent 2.1px);background-size:13px 13px}
+.stub{position:relative;width:182px;box-sizing:border-box;background:#fffcf5;border:3px solid #1f272a;padding:14px 12px 11px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.stub:before,.stub:after{content:"";position:absolute;top:50%;margin-top:-11px;width:22px;height:22px;box-sizing:border-box;border-radius:50%;background:var(--k);border:3px solid #1f272a}
+.stub:before{left:-14px}.stub:after{right:-14px}
+.icn{width:66px;height:66px;color:var(--i,var(--k))}.icn svg{width:100%;height:100%;display:block}
+.s2{display:flex;flex-direction:column;background:var(--k)}
+.s2 img{flex:1;min-height:0;width:100%;display:block;object-fit:cover;object-position:50% 46%}
+.lb{flex:none;position:relative;background:#fffcf5;padding:12px 13px 11px;display:flex;flex-direction:column;gap:6px}
+.lb:before{content:"";position:absolute;left:0;right:0;top:-5px;height:9px;background:radial-gradient(circle at 5.5px 4.5px,#fffcf5 3.3px,transparent 3.9px) 2px 0/11px 9px repeat-x}
+.tp{display:flex;justify-content:space-between}
+.s3{display:grid;align-items:center;background-color:var(--k);background-size:72px 72px}
+.band{position:relative;background:#fffcf5;padding:17px 13px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.band:before,.band:after{content:"";position:absolute;left:0;right:0;height:9px;background:radial-gradient(circle at 5.5px 4.5px,#fffcf5 3.3px,transparent 3.9px) 2px 0/11px 9px repeat-x}
+.band:before{top:-5px}.band:after{bottom:-5px}
+.t-lorry{background-image:url(/_blob/7f4920a8f63b8e26b11356b6597e0e8d)}
+.t-event{background-image:url(/_blob/fe3b3a61ab37c00a8f5bf08d1a0a47eb)}
+.t-favour{background-image:url(/_blob/95778ff4f3e1a57be38a664b73cadebe)}
+.t-upgrade{background-image:url(/_blob/a59378452b3306477a914a9b20579667)}
+.t-shopkeeper{background-image:url(/_blob/f62dfbf2ebd38fd5ba26b4740fb7e2dc)}
+.t-order{background-image:url(/_blob/15dce461b6c82ffe6e94bcf41ed09f40)}
+</style>
+</helmet>
+<div style="width: 1724px; height: 1290px; box-sizing: border-box; padding: 40px 41px; display: grid; grid-template-columns: repeat(6, 252px); gap: 36px 26px; align-content: start; background: #efe9df; color: #1f272a; font-family: Archivo, system-ui, sans-serif">
+
+  <div class="col"><span class="lab">Lorry · 1 Stub</span>
+    <div class="bk s1" style="--k: #0e9a58"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M2 11h27v22H2zM31 17h9l6 8v8H31z" fill="currentColor"/><circle cx="11" cy="35" r="6" fill="currentColor"/><circle cx="37" cy="35" r="6" fill="currentColor"/><circle cx="11" cy="35" r="2.5" fill="var(--h)"/><circle cx="37" cy="35" r="2.5" fill="var(--h)"/></svg></span><span class="wd">Lorry</span><span class="ds">Deck of 20</span></div>
+    </div>
+  </div>
+  <div class="col"><span class="lab">Event · 1 Stub</span>
+    <div class="bk s1" style="--k: #e73c35"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn"><svg viewBox="286 -24 248 248" aria-hidden="true"><path d="M410 -18L431.2 20.8L469 -2.2L468 42L512.2 41L489.2 78.8L528 100L489.2 121.2L512.2 159L468 158L469 202.2L431.2 179.2L410 218L388.8 179.2L351 202.2L352 158L307.8 159L330.8 121.2L292 100L330.8 78.8L307.8 41L352 42L351 -2.2L388.8 20.8Z" fill="currentColor"/><circle cx="410" cy="100" r="44" fill="var(--h)"/></svg></span><span class="wd">Event</span><span class="ds">Deck of 20</span></div>
+    </div>
+  </div>
+  <div class="col"><span class="lab">Favour · 1 Stub</span>
+    <div class="bk s1" style="--k: #3558a2"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 17h38v9H5zM8 28h32v16H8zM24 16c-7-11-17-6-12 0zM24 16c7-11 17-6 12 0z" fill="currentColor"/><path d="M21 17h6v27h-6z" fill="var(--h)"/></svg></span><span class="wd">Favour</span><span class="ds">Deck of 12</span></div>
+    </div>
+  </div>
+  <div class="col"><span class="lab">Upgrade · 1 Stub</span>
+    <div class="bk s1" style="--k: #5a6266"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3l17 19H31v22H17V22H7z" fill="currentColor"/></svg></span><span class="wd">Upgrade</span><span class="ds">5 kinds</span></div>
+    </div>
+  </div>
+  <div class="col"><span class="lab">Shopkeeper · 1 Stub</span>
+    <div class="bk s1" style="--k: #ddd4c6; --i: #1f272a"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 7h42v11a5.25 5.25 0 01-10.5 0 5.25 5.25 0 01-10.5 0 5.25 5.25 0 01-10.5 0 5.25 5.25 0 01-10.5 0zM7 29h34v15H7z" fill="currentColor"/></svg></span><span class="wd" style="font-size: 20px">Shopkeeper</span><span class="ds">Deck of 8</span></div>
+    </div>
+  </div>
+  <div class="col"><span class="lab">Standing order · 1 Stub</span>
+    <div class="bk s1" style="--k: #1f272a; --i: #1f272a; background-image: radial-gradient(circle, rgba(254,196,0,.5) 1.6px, transparent 2.1px)"><i class="pf" style="top: 6px"></i><i class="pf" style="bottom: 6px"></i>
+      <div class="stub" style="background: #fec400"><span class="sm">Fruit Market</span><i class="rl"></i><span class="icn" style="--h: #fec400"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 8h30v37H9zM17 3h14v9H17z" fill="currentColor"/><path d="M15 21h18M15 28h18M15 35h11" stroke="var(--h)" stroke-width="3.5"/></svg></span><span class="wd" style="font-size: 22px">Standing<br>order</span><span class="ds" style="color: #1f272a">Deck of 8</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">Lorry · 2 Picture</span>
+    <div class="bk s2" style="--k: #0e9a58"><img src="/_blob/cf2bd908f5c010cfb2490c6f8d9100dd" alt="The market lorry, loaded with fruit">
+      <div class="lb"><div class="tp sm"><span>Fruit Market</span><span>Deck of 20</span></div><i class="rl"></i><span class="wd">Lorry</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Event · 2 Picture</span>
+    <div class="bk s2" style="--k: #e73c35"><img src="/_blob/7f6319674f38e9c3d3837f623ce8b282" alt="A loudhailer in front of a sunburst">
+      <div class="lb"><div class="tp sm"><span>Fruit Market</span><span>Deck of 20</span></div><i class="rl"></i><span class="wd">Event</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Favour · 2 Picture</span>
+    <div class="bk s2" style="--k: #3558a2"><img src="/_blob/ddd78d8d3d4147afad4eada06a6b278f" alt="A sealed envelope">
+      <div class="lb"><div class="tp sm"><span>Fruit Market</span><span>Deck of 12</span></div><i class="rl"></i><span class="wd">Favour</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Upgrade · 2 Picture</span>
+    <div class="bk s2" style="--k: #5a6266"><img src="/_blob/c81c2053bb27eae2acadca5f59955f0f" alt="A toolbox, a hammer and an arrow pointing up">
+      <div class="lb"><div class="tp sm"><span>Fruit Market</span><span>5 kinds</span></div><i class="rl"></i><span class="wd">Upgrade</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Shopkeeper · 2 Picture</span>
+    <div class="bk s2" style="--k: #ddd4c6"><img src="/_blob/f84b1fe8681afbe5275a8f8badfc6cc5" alt="An empty fruit stall under a striped awning">
+      <div class="lb"><div class="tp sm"><span>Fruit Market</span><span>Deck of 8</span></div><i class="rl"></i><span class="wd" style="font-size: 23px">Shopkeeper</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Standing order · 2 Picture</span>
+    <div class="bk s2" style="--k: #1f272a"><img src="/_blob/e866a086a20ab7a9fde49217711bad75" alt="An order sheet on a clipboard, stamped">
+      <div class="lb" style="background: #fec400"><div class="tp sm"><span>Fruit Market</span><span>Deck of 8</span></div><i class="rl"></i><span class="wd" style="font-size: 21px">Standing order</span></div></div>
+  </div>
+
+  <div class="col"><span class="lab">Lorry · 3 Pattern</span>
+    <div class="bk s3 t-lorry" style="--k: #0e9a58"><div class="band"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 34px">Lorry</span><span class="ds">Deck of 20</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Event · 3 Pattern</span>
+    <div class="bk s3 t-event" style="--k: #e73c35"><div class="band"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 34px">Event</span><span class="ds">Deck of 20</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Favour · 3 Pattern</span>
+    <div class="bk s3 t-favour" style="--k: #3558a2"><div class="band"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 34px">Favour</span><span class="ds">Deck of 12</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Upgrade · 3 Pattern</span>
+    <div class="bk s3 t-upgrade" style="--k: #5a6266"><div class="band"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 32px">Upgrade</span><span class="ds">5 kinds</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Shopkeeper · 3 Pattern</span>
+    <div class="bk s3 t-shopkeeper" style="--k: #ddd4c6"><div class="band"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 25px">Shopkeeper</span><span class="ds">Deck of 8</span></div></div>
+  </div>
+  <div class="col"><span class="lab">Standing order · 3 Pattern</span>
+    <div class="bk s3 t-order" style="--k: #1f272a"><div class="band" style="background: #fec400"><span class="sm">Fruit Market</span><i class="rl"></i><span class="wd" style="font-size: 27px">Standing<br>order</span><span class="ds" style="color: #1f272a">Deck of 8</span></div></div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1724,"height":1290}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

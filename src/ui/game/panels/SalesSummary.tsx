@@ -4,13 +4,22 @@ import { dayHighlights, dayLedger, standing, tonightLine, withJamPaid } from '..
 import { Face } from '../../art';
 import { spoilsTonight } from '../../boardModel';
 
-/** Rules 11 money outside the customer lines, already in the sales total: the Pasar Malam hawker and Sharp Ears tips. */
+/** Money outside the customer lines: the Pasar Malam hawker, Sharp Ears and Tip Jar tips (in the sales total), and
+ *  (rules 18) what became of a standing order's stake (outside the sales total, under "Other"). */
 export function extras(r: NonNullable<GameState['results']>, viewer: number): string[] {
   const out: string[] = [];
   const hawk = (r.hawker ?? []).filter((x) => x.player === viewer);
   if (hawk.length) out.push(`The night hawker bought ${hawk.length} of your leftover fruit (+$${hawk.reduce((a, x) => a + x.price, 0)}).`);
   const tips = (r.earful ?? []).filter((x) => x.player === viewer);
   if (tips.length) out.push(`Sharp Ears: ${tips.length} walk-in${tips.length === 1 ? '' : 's'} you heard about tipped you $${tips.reduce((a, x) => a + x.tip, 0)}.`);
+  const jar = (r.tipJar ?? []).filter((x) => x.player === viewer);
+  if (jar.length) out.push(`Tip Jar: ${jar.length} customer${jar.length === 1 ? '' : 's'} left with their whole order and tipped you $${jar.reduce((a, x) => a + x.tip, 0)}.`);
+  if (r.order && r.order.holder === viewer) {
+    const o = r.order;
+    out.push(o.short === 0
+      ? `Standing order: you delivered all ${o.qty}${o.stake ? ` and got your $${o.stake} stake back` : ''}.`
+      : `Standing order: you delivered ${o.qty - o.short} of ${o.qty}${o.stake ? ` and lost your $${o.stake} stake` : ''}.`);
+  }
   return out;
 }
 

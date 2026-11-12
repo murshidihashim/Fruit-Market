@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The day's takings: what you earned and where every stall stands</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:8px;background:#1f272a;color:#fffcf5;padding:9px 12px}
+.menu{width:44px;height:44px;margin:-6px 0 -6px -10px;border:0;background:none;display:grid;place-items:center}
+.day{font:400 18px/1 'Archivo Black',sans-serif}.day small{font:800 11px/1 Archivo,sans-serif}
+.ev{border:0;background:#fec400;color:#1f272a;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;padding:7px 8px;text-transform:uppercase}
+.rank{margin-left:auto;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;color:#fec400}
+.cash{background:#fffcf5;color:#1f272a;font:400 16px/1 'Archivo Black',sans-serif;padding:5px 8px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #1f272a;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.steps span{padding:7px 0;text-align:center}.steps .on{background:#fec400}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.sub{color:#5a6266}
+.tk{flex:1;min-width:0;border:2px solid #1f272a;background:#fffcf5;display:flex;flex-direction:column}
+.hd{height:26px;box-sizing:border-box;background:#1f272a;color:#fffcf5;padding:4px 5px;font:800 7.5px/1.2 Archivo,sans-serif;letter-spacing:.02em;text-transform:uppercase}.hd b{color:#fec400}
+.pc{height:50px;overflow:hidden;border-bottom:2px solid #1f272a}.pc img{width:100%;height:100%;object-fit:cover;display:block}
+.rw{display:flex;align-items:center;gap:3px;padding:3px 4px}.rw img{width:14px;height:14px}
+.dot{width:9px;height:9px;border-radius:50%;border:1.5px solid #1f272a;box-sizing:border-box}
+.pr{margin-left:auto;font:400 12px/1 'Archivo Black',sans-serif}
+.bd{margin-top:auto;background:#1f272a;display:flex;gap:3px;padding:3px 4px}
+.lamp{width:12px;height:12px;border-radius:50%;display:grid;place-items:center;background:#fffcf5;color:#1f272a;font:800 8px/1 Archivo,sans-serif;font-style:normal;box-shadow:inset 0 0 0 1px #1f272a;flex:none}
+.lamp.off{background:none;color:#8d9396;box-shadow:inset 0 0 0 1px #8d9396}
+.lamp.lg{width:18px;height:18px;font-size:11px}
+.rv{flex:1;min-width:0;border:2px solid #1f272a;padding:5px;display:flex;flex-direction:column;gap:4px}
+.rv .who{display:flex;align-items:center;gap:5px}.rv .who img{width:24px;height:24px;border:1.5px solid #1f272a;box-sizing:border-box}
+.rv b{font:400 15px/1 'Archivo Black',sans-serif}
+.rv .got{display:flex;align-items:center;gap:2px;min-height:16px;color:#5a6266;font-size:10px}.rv .got img{width:14px;height:14px}
+.rv.wait{border-style:dashed;color:#5a6266}
+.btn{height:52px;border:0;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.btn small{font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em}
+.you{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:2px solid #1f272a}
+.you>img{width:40px;height:40px;border:2px solid #1f272a;box-sizing:border-box}
+
+.strip{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#ddd4c6}
+.strip .ps{margin-left:auto;display:flex;gap:5px}
+.strip .ps span{position:relative;width:30px;height:30px;border:2px solid #1f272a;box-sizing:border-box;background:#fffcf5;overflow:hidden}
+.strip .ps img{width:100%;height:100%;object-fit:cover;object-position:50% 28%;display:block}
+.strip .ps .no img{opacity:.35}
+.sheet{margin:10px 12px 0;border:2px solid #1f272a;display:flex;flex-direction:column}
+.sheet .sh{display:flex;justify-content:space-between;align-items:center;background:#1f272a;color:#fffcf5;padding:7px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.sheet .sh b{color:#fec400}
+.led{display:flex;align-items:center;gap:8px;padding:7px 9px;border-bottom:1.5px dashed #1f272a}
+.led .ic{display:flex;gap:2px}.led .ic img{width:16px;height:16px}
+.led .v{margin-left:auto;font:400 17px/1 'Archivo Black',sans-serif}
+.led .v.g{color:#0e9a58}.led .v.r{color:#b62528}
+.net{display:flex;align-items:center;gap:8px;padding:9px;background:#fec400}
+.net b{font:400 13px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.net .v{margin-left:auto;font:400 26px/1 'Archivo Black',sans-serif}
+.stall{display:flex;align-items:center;gap:7px;border:2px solid #1f272a;padding:5px 7px}
+.stall.me{background:#fec400}
+.stall .pl{width:20px;height:20px;background:#1f272a;color:#fffcf5;display:grid;place-items:center;font:800 10px/1 Archivo,sans-serif;flex:none}
+.stall img{width:26px;height:26px;border:1.5px solid #1f272a;box-sizing:border-box}
+.stall .td{margin-left:auto;color:#5a6266;font:700 11px/1 Archivo,sans-serif}.stall.me .td{color:#1f272a}
+.stall .cs{width:44px;text-align:right;font:400 16px/1 'Archivo Black',sans-serif}
+.chip{display:inline-flex;align-items:center;gap:4px;border:2px solid #1f272a;padding:4px 6px;font-size:10px;background:#fffcf5}
+.chip img{width:14px;height:14px}
+.chip.bad{background:#fec400}
+.won{display:flex;align-items:center;gap:8px;border:2px dashed #1f272a;padding:6px 8px}
+.won img{width:54px;height:34px;object-fit:cover;border:1.5px solid #1f272a;box-sizing:border-box}
+.won .tag{background:#1f272a;color:#fec400;padding:4px 6px;font:800 9px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fffcf5; color: #1f272a; font: 600 12px/1.3 Archivo, system-ui, sans-serif; overflow: hidden">
+
+  <div class="top">
+    <button class="menu" aria-label="Menu"><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><path d="M0 2h20M0 8h20M0 14h20" stroke="#fffcf5" stroke-width="2.5"/></svg></button>
+    <span class="day">DAY 4<small>/10</small></span>
+    <button class="ev">Heatwave</button>
+    <span class="rank">2ND</span><span class="cash">$26</span>
+  </div>
+  <div class="steps"><span>1 Morning</span><span>2 Buying</span><span>3 Stocking</span><span>4 Bell</span><span class="on">5 Rush</span></div>
+  <div class="strip"><span class="lab">The rush is over · 3 of 4 served</span><span class="ps"><span><img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman"></span><span><img src="/_blob/096dd86958203a4e55d4f9183b4d475c" alt="Hadi Hammer"></span><span><img src="/_blob/969daf998ca2ae24a1af1f4f8469bf11" alt="Uncle Hock Seng"></span><span class="no"><img src="/_blob/df0bad5c3de685839888ca4cb9561e46" alt="DJ Rizal, not served"></span></span></div>
+
+  <div class="sheet">
+    <div class="sh"><span>Day 4 · your takings</span><b>6 days to go</b></div>
+    <div class="led"><span>Sold 3 pieces</span><span class="ic"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberry"></span><span class="v g">+$21</span></div>
+    <div class="led"><span>Bought 4 pieces this morning</span><span class="v r">−$8</span></div>
+    <div class="net"><b>Up today</b><span class="v">+$13</span></div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 5px; padding: 10px 12px 0">
+    <div style="display: flex; justify-content: space-between"><span class="lab">The stalls after day 4</span><span class="sub">Cash</span></div>
+    <div class="stall"><span class="pl">1</span><img src="/_blob/2745d428de7b1d7c6f883059a732b376" alt="Ah Chen"><span>Ah Chen</span><span class="td">+$9 today</span><span class="cs">$29</span></div>
+    <div class="stall me"><span class="pl">2</span><img src="/_blob/47462564df780449c995d5c4971d598d" alt="You"><span>You</span><span class="td">+$13 today</span><span class="cs">$26</span></div>
+    <div class="stall"><span class="pl">3</span><img src="/_blob/62781fb96b46ec9a1cf88a578b0c51d0" alt="Farah"><span>Farah</span><span class="td">+$6 today</span><span class="cs">$15</span></div>
+    <div class="stall"><span class="pl">4</span><img src="/_blob/78fb57d94f18d19e4f009ad31cdec052" alt="Uncle Benny"><span>Uncle Benny</span><span class="td">+$0 today</span><span class="cs">$11</span></div>
+    <span class="sub">2nd · $3 behind Ah Chen</span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 0">
+    <div class="won"><span class="tag">Favour won</span><img src="/_blob/994c0007a6271cea0647f569eb5e0d62" alt="Gossip"><span>Gossip. You alone filled Hadi Hammer's whole order.</span></div>
+    <div style="display: flex; flex-direction: column; gap: 5px; padding: 8px 9px; background: #ddd4c6">
+      <div style="display: flex; justify-content: space-between"><span class="lab">Your shelf · 2 of 8</span><span>After tonight's Heatwave</span></div>
+      <div style="display: flex; gap: 5px; flex-wrap: wrap"><span class="chip"><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mango"><i class="lamp " style="background: #bfe3c8">G</i> ripe tomorrow</span><span class="chip bad"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"><i class="lamp " style="background: #e9a39f">S</i> spoils tonight</span></div>
+    </div>
+  </div>
+
+  <div style="padding: 10px 12px 12px; display: flex"><button class="btn" style="flex: 1">Close for the day</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

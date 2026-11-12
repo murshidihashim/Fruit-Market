@@ -10,3 +10,6 @@ keystore.properties
 coverage/
 e2e-output/
 __pycache__/
+
+# private work folders of helper agents
+.claude/worktrees/

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card design A: Ticket</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+.col{display:flex;flex-direction:column;gap:8px}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5a6266}
+.c{width:252px;height:352px;box-sizing:border-box;background:#fffcf5;border:3px solid #1f272a;display:flex;flex-direction:column;padding:13px 13px 0;overflow:hidden;font:600 11.5px/1.35 Archivo,sans-serif;color:#1f272a}
+.top{display:flex;justify-content:space-between;align-items:baseline;font:800 9px/1 Archivo,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.top b{font:400 13px/1 'Archivo Black',sans-serif;letter-spacing:0}
+.rule{height:4px;background:#1f272a;margin:5px 0 9px;flex:none}
+.ttl{font:400 25px/.95 'Archivo Black',sans-serif;text-transform:uppercase}
+.pic{flex:none;margin:9px -13px 0;position:relative;border-top:3px solid #1f272a;border-bottom:3px solid #1f272a;background:#ddd4c6}
+.pic img{width:100%;height:100%;display:block;object-fit:cover}
+.perf{position:absolute;left:0;right:0;bottom:-7px;height:8px;background:radial-gradient(circle at 5.5px 4px,#fffcf5 3px,transparent 3.6px) 2px 0/11px 8px repeat-x}
+.q{margin-top:9px;color:#5a6266;font-size:11px}
+.want{margin-top:5px;display:flex;align-items:center;gap:8px;padding:4px 8px;color:#fffcf5}
+.ic{width:24px;height:24px;flex:none;border-radius:50%;background:#fffcf5;display:grid;place-items:center}.ic img{width:17px;height:17px}
+.pcs{display:flex;gap:4px}.pcs i{width:12px;height:12px;border-radius:50%;background:#fffcf5}
+.want b{margin-left:auto;font:400 18px/1 'Archivo Black',sans-serif}
+.two{display:flex;gap:5px;margin-top:10px}
+.blk{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:7px 8px;color:#fffcf5}
+.blk b{font:400 20px/1 'Archivo Black',sans-serif}
+.blk small{font:800 8px/1.15 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.txt{margin-top:8px}
+.ft{margin:auto -13px 0;padding:7px 13px;border-top:2px dashed #1f272a;display:flex;align-items:center;justify-content:space-between;gap:6px;font:800 8.5px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#b62528}
+.lg{display:flex;align-items:center;gap:4px;color:#1f272a;letter-spacing:0;font:400 11px/1 'Archivo Black',sans-serif}
+.lamp{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;background:#1f272a;color:#fffcf5;font:800 10px/1 Archivo,sans-serif;font-style:normal}
+.lamp.off{background:none;color:#8d9396;box-shadow:inset 0 0 0 1.5px #8d9396}
+.sq{box-sizing:border-box;background:#fffcf5;display:grid;place-items:center}.sq img{width:62px;height:62px}
+.ly{margin:10px 0 0;display:grid;grid-template-columns:30px repeat(4,1fr);column-gap:4px;text-align:center}
+.ly span{display:grid;place-items:center;height:31px;box-sizing:border-box}
+.ly .h{height:46px}.ly .h b{width:32px;height:32px;border-radius:50%;background:#fffcf5;display:grid;place-items:center}.ly .h img{width:22px;height:22px}
+.ly .s{align-items:end;padding-bottom:5px;font:800 7px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5a6266}
+.ly .l{font:400 15px/1 'Archivo Black',sans-serif}.ly .l.on{background:#1f272a;color:#fec400}
+.ly i{font:400 18px/1 'Archivo Black',sans-serif;font-style:normal;color:#fffcf5}.ly .m i{color:#1f272a}
+.ly .b{background:#3558a2}.ly .w{background:#0e9a58}.ly .m{background:#fec400}.ly .a{background:#e73c35}
+.ly .on i{width:100%;height:100%;display:grid;place-items:center;background:#fffcf5;color:#1f272a;box-shadow:inset 0 0 0 2px #1f272a}
+.ly .end{height:7px}
+</style>
+</helmet>
+<div style="width: 1180px; height: 880px; box-sizing: border-box; padding: 40px 41px; display: grid; grid-template-columns: repeat(4, 252px); gap: 34px 30px; align-content: start; background: #efe9df; color: #1f272a; font-family: Archivo, system-ui, sans-serif">
+
+  <div class="col"><span class="lab">A · Customer</span>
+    <div class="c">
+      <div class="top"><span>Customer</span><b>No 24</b></div><div class="rule"></div>
+      <div class="ttl">Firefighter<br>Osman</div>
+      <div class="pic" style="height: 104px"><img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman at the fire station" style="object-position: 50% 42%"><i class="perf"></i></div>
+      <div class="q">Buys watermelon for the fire station.</div>
+      <div class="want" style="background: #0e9a58"><span class="ic"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></span><span class="pcs"><i></i><i></i></span><b>$6</b></div>
+      <div class="want" style="background: #e73c35"><span class="ic"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></span><span class="pcs"><i></i><i></i></span><b>$5</b></div>
+      <div class="ft"><span class="lg"><i class="lamp">F</i><i class="lamp" style="margin-left: 6px">O</i>−$1<i class="lamp off" style="margin-left: 6px">S</i><span style="color: #8d9396">−$2</span></span><span>Everyday</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Customer, face down</span>
+    <div class="c" style="background: #1f272a; color: #fffcf5; padding-bottom: 13px">
+      <div class="top" style="align-items: center"><span style="font: 400 17px/1 'Archivo Black', sans-serif; letter-spacing: 0; color: #fec400">Customer</span><span>Wants</span></div>
+      <div style="flex: 1; margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px">
+        <span class="sq" role="img" aria-label="No blueberries"></span>
+        <span class="sq"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></span>
+        <span class="sq" role="img" aria-label="No mangoes"></span>
+        <span class="sq"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Event</span>
+    <div class="c">
+      <div class="top"><span>Event</span><b>No 05</b></div><div class="rule"></div>
+      <div class="ttl" style="font-size: 31px">Heatwave</div>
+      <div class="pic" style="height: 118px"><img src="/_blob/a9ca2b3011d91a9ca63924d2ac279582" alt="A smiling sun over the town, a thermometer and a slice of watermelon with a dearer price tag" style="object-position: 50% 30%"><i class="perf"></i></div>
+      <div class="two">
+        <div class="blk" style="background: #0e9a58; flex-direction: row; align-items: center; gap: 7px"><span class="ic"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></span><span style="display: flex; flex-direction: column; gap: 3px"><b>+$2</b><small>a piece</small></span></div>
+        <div class="blk" style="background: #1f272a"><b style="color: #fec400">2 steps</b><small>all fruit ages tonight</small></div>
+      </div>
+      <div class="txt">Customers pay $2 more for each watermelon. Tonight all fruit ages 2 steps.</div>
+      <div class="ft"><span>Keep this card out until night</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Lorry</span>
+    <div class="c">
+      <div class="top"><span>Lorry</span><span>Pieces by stalls</span></div><div class="rule"></div>
+      <div class="ttl" style="font-size: 21px">Blueberry lorry</div>
+      <div class="ly">
+        <span class="s">Stalls</span><span class="h b"><b><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberries"></b></span><span class="h w"><b><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelons"></b></span><span class="h m"><b><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mangoes"></b></span><span class="h a"><b><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apples"></b></span>
+        <span class="l">2</span><span class="b"><i>4</i></span><span class="w"><i>1</i></span><span class="m"><i>1</i></span><span class="a"><i>1</i></span>
+        <span class="l">3</span><span class="b"><i>6</i></span><span class="w"><i>2</i></span><span class="m"><i>1</i></span><span class="a"><i>1</i></span>
+        <span class="l on">4</span><span class="b on"><i>8</i></span><span class="w on"><i>3</i></span><span class="m on"><i>1</i></span><span class="a on"><i>2</i></span>
+        <span class="l">5</span><span class="b"><i>10</i></span><span class="w"><i>3</i></span><span class="m"><i>2</i></span><span class="a"><i>3</i></span>
+        <span class="l">6</span><span class="b"><i>13</i></span><span class="w"><i>4</i></span><span class="m"><i>2</i></span><span class="a"><i>3</i></span>
+        <span class="end"></span><span class="b end"></span><span class="w end"></span><span class="m end"></span><span class="a end"></span>
+      </div>
+      <div class="ft"><span>Mangoes arrive green</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Shopkeeper</span>
+    <div class="c">
+      <div class="top"><span>Shopkeeper</span><span style="display: flex; align-items: center; gap: 5px">Stripes<i style="width: 16px; height: 10px; background: repeating-linear-gradient(90deg, #1f272a 0 3px, #fffcf5 3px 6px); box-shadow: 0 0 0 1.5px #1f272a"></i></span></div><div class="rule"></div>
+      <div class="ttl" style="font-size: 31px">Pak Din</div>
+      <div class="pic" style="height: 118px"><img src="/_blob/6a27a6273fb3b9eaea22e444b77f45c3" alt="Pak Din at his stall" style="object-position: 50% 12%"><i class="perf"></i></div>
+      <div class="two"><div class="blk" style="background: #fec400; color: #1f272a"><small>His perk</small><b style="font-size: 17px">Shade Cloth</b></div></div>
+      <div class="txt">Each night, name one fruit. None of your pieces of that fruit age tonight.</div>
+      <div class="ft"><span>Your perk all game</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Favour</span>
+    <div class="c">
+      <div class="top"><span>Favour</span><span>Keep secret</span></div><div class="rule"></div>
+      <div class="ttl">Favoured<br>trade</div>
+      <div class="pic" style="height: 98px"><img src="/_blob/bd4fe3dcaab5e2f467e35e005fdec9d4" alt="Two price tags with the same price; one has a sunburst behind it"><i class="perf"></i></div>
+      <div class="two"><div class="blk" style="background: #3558a2"><small>When to play</small><b style="font-size: 14px">After the prices flip</b></div></div>
+      <div class="txt">If one of your prices is tied with a rival's, play this. You win every tied price today.</div>
+      <div class="ft"><span>Discard after use</span><span>Hold up to 3</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Upgrade</span>
+    <div class="c">
+      <div class="top"><span>Upgrade</span><span>Build once</span></div><div class="rule"></div>
+      <div class="ttl" style="font-size: 31px">Juice bar</div>
+      <div class="pic" style="height: 98px"><img src="/_blob/d4c05880d3913a9183b4e62739bd1702" alt="A jug, a glass of juice and a slice of watermelon"><i class="perf"></i></div>
+      <div class="two">
+        <div class="blk" style="background: #fec400; color: #1f272a; flex: none; width: 74px"><b>$6</b><small>to build</small></div>
+        <div class="blk" style="background: #1f272a"><b style="color: #fec400">+$1</b><small>each okay or soft piece sold</small></div>
+      </div>
+      <div class="txt">Counts in the rush only. Each night, up to 2 pieces that would spoil become juice: $2 each.</div>
+      <div class="ft"><span>After a market day</span><span>Room for two</span></div>
+    </div>
+  </div>
+
+  <div class="col"><span class="lab">A · Standing order</span>
+    <div class="c">
+      <div class="top"><span>Standing order</span><span>Due in 2 days</span></div><div class="rule"></div>
+      <div class="ttl">The Pie<br>Factory</div>
+      <div class="want" style="background: #e73c35; margin-top: 11px"><span class="ic"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></span><span class="pcs"><i></i><i></i><i></i><i></i></span><span style="margin-left: auto; display: flex; gap: 4px"><i class="lamp" style="background: #fffcf5; color: #1f272a">F</i><i class="lamp" style="background: #fffcf5; color: #1f272a">O</i></span></div>
+      <div class="two">
+        <div class="blk" style="color: #1f272a; box-shadow: inset 0 0 0 3px #1f272a"><b>$11</b><small>highest bid, each</small></div>
+        <div class="blk" style="background: #fec400; color: #1f272a"><b>$7</b><small>stake</small></div>
+      </div>
+      <div class="txt">Lowest bid wins and pays the stake. Deliver all 4 and the stake comes back. Fall short and it is lost.</div>
+      <div class="ft"><span>No favour card</span><span>No tips</span></div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1180,"height":880}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

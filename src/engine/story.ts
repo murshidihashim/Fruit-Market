@@ -6,7 +6,7 @@
 
 import { FRUIT, FRUITS, JAM_PRICE, JUICE_VALUE, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
 import {
-  count, eligible, isLastCall, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
+  count, eligible, isLastCall, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
 } from './game';
 
@@ -74,6 +74,12 @@ function prefFor(s: GameState, l: LineResult): Pref | undefined {
   return c ? c.pref : prefOf(l.name);
 }
 
+/** Is this line a guest's fixed price? Rules 18: a Premium Display never raises it. */
+function fixedFor(s: GameState, l: LineResult): boolean {
+  const c = servingCustomers(s).find((x) => x.id === l.customerId && x.name === l.name);
+  return !!c?.original.find((w) => w.fruit === l.fruit)?.fixed;
+}
+
 export type NoSaleKind = 'price' | 'freshOnly' | 'noTired' | 'age';
 export interface NoSale { kind: NoSaleKind; tag: string; headline: string; detail: string }
 
@@ -86,7 +92,7 @@ export interface NoSale { kind: NoSaleKind; tag: string; headline: string; detai
 export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: number): NoSale {
   const cust = lookOf(l.name).title;
   const plural = FRUIT[l.fruit].plural.toLowerCase();
-  const display = s.players[o.player].upgrades.includes('premium');
+  const display = s.players[o.player].upgrades.includes('premium') && !fixedFor(s, l);
   const mine = o.player === viewer;
   const theirs = mine ? 'yours' : `${s.players[o.player].name}'s`;
   const pref = prefFor(s, l);
@@ -195,7 +201,7 @@ export function tieAt(s: GameState, l: LineResult, mine: Offer, rival: Offer, vi
   if (!ctx?.first || !inContest(rival)) return { outcome: 'open' };
   if (mine.freshness < rival.freshness) return { outcome: 'lose', by: 'fresher' };
   if (ctx.soldToday > 0 || ctx.hawked || s.phase !== 'reveal') return { outcome: 'open' };
-  const used = eligible(me, rowStock(s, viewer), l.fruit, Math.min(ctx.crate, l.want), rival.price, l.max, prefFor(s, l));
+  const used = eligible(me, rowStock(s, viewer), l.fruit, Math.min(ctx.crate, l.want), rival.price, l.max, prefFor(s, l), fixedFor(s, l));
   if (!used.length) return { outcome: 'open' };
   const fresh = Math.max(...used);
   if (fresh !== rival.freshness) return { outcome: fresh > rival.freshness ? 'win' : 'lose', by: 'fresher' };
@@ -222,9 +228,10 @@ interface Pieces { n: number; exact: boolean }
  * qualify at `price` (a lower price lets older pieces qualify too), no more than they wanted or the crate had left.
  * The first customer of this fruit today saw every shelf as it stood at the bell; if the viewer then sold none of it
  * all day, the shelf now is that shelf, and the engine's own eligible() gives the exact count. Otherwise it is a
- * lower bound: the pieces that qualify now, or that were offered at the viewer's own (higher) price, less what earlier
- * customers of this fruit could also have taken at the lower price (`before`); and the crate less everything earlier
- * customers could have bought. (Customers take a shop's oldest qualifying pieces first, so a lower price for an
+ * lower bound: the pieces of the bell's crate that qualify less those already sold to earlier customers (`soldBefore`:
+ * they may be the very pieces that qualify, as when a Premium customer has taken the fresh ones), or the pieces that
+ * were offered at the viewer's own (higher) price; either less what earlier customers of this fruit could also have
+ * taken at the lower price (`before`); and the crate less everything earlier customers could have bought. (Customers take a shop's oldest qualifying pieces first, so a lower price for an
  * earlier customer can only leave this one fresher pieces; it costs this customer at most the extra pieces taken.)
  * Without today's results (a hand-made line), what was offered and wanted.
  */
@@ -232,9 +239,9 @@ function piecesAt(s: GameState, l: LineResult, mine: Offer, price: number, ctx: 
   if (!ctx) return { n: Math.min(l.want, mine.qty), exact: false };
   const me = s.players[viewer];
   const bell = s.phase === 'reveal';
-  const now = bell ? eligible(me, rowStock(s, viewer), l.fruit, ctx.crate, price, l.max, prefFor(s, l)).length : 0;
+  const now = bell ? eligible(me, rowStock(s, viewer), l.fruit, ctx.crate, price, l.max, prefFor(s, l), fixedFor(s, l)).length : 0;
   if (bell && ctx.first && ctx.soldToday === 0 && !ctx.hawked) return { n: Math.min(l.want, now), exact: true };
-  const n = Math.min(l.want, ctx.crate - ctx.soldBefore - ctx.before, Math.max(mine.qty, now) - ctx.before);
+  const n = Math.min(l.want, ctx.crate - ctx.soldBefore - ctx.before, Math.max(mine.qty, now - ctx.soldBefore) - ctx.before);
   return { n: Math.max(0, n), exact: false };
 }
 
@@ -423,16 +430,16 @@ export interface Reaction { player: number; text: string }
 export function rushLine(s: GameState, l: LineResult): LineStory {
   const NOBODY = -1;
   const tags = l.offers.map((o) => offerTag(s, l, o, NOBODY));
-  // Rules 14: a standing order. The holder delivers first at its bid; rivals fill any gap at the full price.
+  // Rules 14: a standing order. Rules 18: only the holder delivers, at its bid (an Order Book adds $2 a piece). A full
+  // delivery brings the stake back; otherwise the stake is lost and the rest of the order simply leaves.
   const ord = s.results?.order && s.results.order.name === l.name ? s.results.order : null;
   if (ord) {
     const who = s.players[ord.holder].name;
     const mine = ord.qty - ord.short;
-    const rivals = ord.sales.filter((x) => x.player !== ord.holder);
-    const gap = rivals.length ? ` ${rivals.map((x) => s.players[x.player].name).join(' and ')} filled the gap at $${ord.ceiling}.` : '';
+    const pay = ord.sales[0]?.price ?? ord.price;
     return ord.short === 0
-      ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${ord.price}!`, tags }
-      : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.${gap}`, detail: `${who} is fined $${ord.fine}.`, tags };
+      ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${pay}.`, detail: ord.stake ? `${who} gets the $${ord.stake} stake back.` : undefined, tags }
+      : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.`, detail: ord.stake ? `${who} loses the $${ord.stake} stake.` : undefined, tags };
   }
   const cust = lookOf(l.name).title;
   const plural = FRUIT[l.fruit].plural.toLowerCase();
@@ -511,17 +518,18 @@ export interface Standing { rank: number; of: number; text: string; leader: numb
 
 export function standing(s: GameState, viewer: number): Standing {
   const order = ranking(s);
-  const rank = order.indexOf(viewer) + 1;
+  // Rules 18: stalls level on cash and fruit sold share a place (there is no seat-number tie-break).
+  const rank = places(s)[viewer];
   const me = s.players[viewer].cash;
   const leader = order[0];
   if (rank === 1) {
-    const second = order[1];
+    const second = order.find((i) => i !== viewer);
     const gap = second === undefined ? 0 : me - s.players[second].cash;
     return { rank, of: order.length, leader, gap, text: second === undefined ? 'Leading' : gap === 0 ? `Tied with ${s.players[second].name}` : `1st · $${gap} ahead of ${s.players[second].name}` };
   }
-  const ahead = order[rank - 2];
+  const ahead = order[order.indexOf(viewer) - 1];
   const gap = s.players[ahead].cash - me;
-  const ord = ['1st', '2nd', '3rd', '4th'][rank - 1];
+  const ord = ['1st', '2nd', '3rd', '4th', '5th', '6th'][rank - 1];
   return { rank, of: order.length, leader, gap, text: `${ord} · $${gap} behind ${s.players[ahead].name}` };
 }
 

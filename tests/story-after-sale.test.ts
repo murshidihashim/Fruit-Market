@@ -4,12 +4,14 @@ import { FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/e
 import { aiStep, autoplay } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
-  beginBuying, emptyStock, endBuyTurn, finishReveal, forSale, newGame, rowCount, openStall, submitPrices,
+  beginBuying, emptyStock, finishReveal, forSale, newGame, rowCount, openStall, submitPrices,
   type Customer, type GameState, type LineResult,
 } from '../src/engine/game';
 import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
 import { RushView } from '../src/ui/game/panels/Showdown';
+import { rushCards } from '../src/ui/game/rush';
+import { endBuying, settleTies } from './stall-step';
 
 // After-sale explanations (REP-089 3.3 and 3.6): the reason a stall could not sell, offers that did not qualify left out
 // of every price contest, and "what if" advice that follows the engine's tie order and the size of your crate.
@@ -38,7 +40,7 @@ function market(...buyers: [string, FruitId][]): GameState {
     ],
     days: 10, unripe: true, upgrades: true, events: false, seed: 7,
   }));
-  for (const p of [...s.order]) s = endBuyTurn(s, p);
+  s = endBuying(s);
   s = structuredClone(s);
   s.firstMarket = buyers.map(([name, f], i) => buyer(name, f, 900 + i));
   s.secondMarket = [];
@@ -48,12 +50,14 @@ function market(...buyers: [string, FruitId][]): GameState {
   return s;
 }
 
-/** Every stall puts `out[p]` of one fruit out and prices it; `favoured` stalls play Favoured Trade with their price. */
+/** Every stall puts `out[p]` of one fruit out and prices it; `favoured` stalls have played Favoured Trade today.
+ *  (Rules 18: the card is played in the tie step after the flip, by a stall with a tied price. These positions are
+ *  made by hand, so the day's flag is simply set.) */
 function bell(start: GameState, fruit: FruitId, out: number[], prices: number[], favoured: number[] = []): GameState {
   let s = structuredClone(start);
-  for (const p of favoured) s.players[p].favours = ['favouredTrade'];
+  for (const p of favoured) s.players[p].favouredTrade = true;
   out.forEach((n, p) => { s = openStall(s, p, n ? { [fruit]: n } : {}); });
-  prices.forEach((price, p) => { if (s.bids[p] === null) s = submitPrices(s, p, [{ fruit, price }], favoured.includes(p)); });
+  prices.forEach((price, p) => { if (s.bids[p] === null) s = submitPrices(s, p, [{ fruit, price }]); });
   expect(s.phase).toBe('reveal');
   return s;
 }
@@ -283,6 +287,21 @@ describe('what-if advice follows the tie order and your crate', () => {
     expect(offerOf(line(at(5)), 0).sold).toBe(3);
   });
 
+  it('does not count pieces an earlier customer already took (review 17: Premium buyer first, soft fruit left in the crate)', () => {
+    // Your crate: 2 soft, 1 okay and 3 fresh mangoes at $6. Rara Jenab (Premium) takes the 3 fresh ones. Lola Lens
+    // (Everyday, wants 2) will not take soft fruit, so only your okay mango is left for her, and Benny's $4 beats it.
+    // At $3 she would have bought that one mango, not two: the three fresh ones had already gone.
+    const start = market(['Rara Jenab', 'mango'], ['Sarah', 'mango']);
+    start.players[0].stock.mango = [2, 1, 3, 0, 0];
+    start.players[2].stock.mango[OKAY('mango')] = 2;
+    const at = (mine: number) => bell(start, 'mango', [6, 0, 2], [mine, 0, 4]);
+    const s = at(6);
+    expect(offerOf(line(s, 0), 0).sold).toBe(3);
+    expect(offerOf(line(s, 1), 0)).toMatchObject({ qty: 1, sold: 0 });
+    expect(explainLine(s, line(s, 1), 0).detail).toContain("$3 would've sold 1.");
+    expect(offerOf(line(at(3), 1), 0).sold).toBe(1);
+  });
+
   it('names the cheapest winner, whose price the what-if uses, when it is not the stall that undercut you', () => {
     const start = market(['Grace', 'apple']); // wants 2
     start.players[0].stock.apple[FRESH('apple')] = 2;
@@ -337,9 +356,11 @@ describe('what-if advice follows the tie order and your crate', () => {
       for (let p = 0; p < b.players.length; p++) {
         if (g.bids[p] !== null) continue;
         const posts = r.bids[p]!.map((x) => (p === viewer && x.fruit === fruit ? { ...x, price } : x));
-        g = submitPrices(g, p, posts, r.players[p].favouredTrade && !b.players[p].favouredTrade);
+        g = submitPrices(g, p, posts);
       }
-      return g;
+      // Rules 18: Favoured Trade is played after the flip. The stalls that played it in the real game play it again
+      // if they are asked; a card that stayed in a hand stays there.
+      return settleTies(g, r.players.map((pl, i) => (pl.favouredTrade ? i : -1)).filter((i) => i >= 0));
     };
     // Each kind of claim, and how often the seeded games must make it for the check to mean something.
     const need: Record<string, number> = { at: 20, match: 20, lose: 20, only: 5, after: 5, tieWon: 20, soldAll: 20, allBut: 5 };
@@ -444,8 +465,9 @@ describe('Showdown card', () => {
     start.players[1].stock.apple[FRESH('apple')] = 2;
     const s = bell(start, 'apple', [2, 2, 0], [5, 4, 0]);
     const l = line(s);
-    const story = explainLine(s, l, 0);
-    const html = toStaticHtml(h(RushView, { s, viewer: 0, a: { line: l, n: 1, of: 1, stage: 'result', dealt: l.offers.length, story, react: null, cust: '', served: [] } }));
+    // The customer's card in the rush (PLAN-084: one card for each customer, built from the day's results).
+    const card = rushCards(s, 0).find((c) => c.blocks.some((b) => b.line === l))!;
+    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
     expect(html).toContain('none qualify');
     expect(html).not.toMatch(/offer 0/);
     expect(html).toContain('over $4 top');

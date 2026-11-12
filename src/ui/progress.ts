@@ -1,7 +1,7 @@
 // Long-term goals kept on this device: achievements, the Market League (a ladder of rivals)
 // and stall colours unlocked along the way.
 import { RIVALS } from '../engine/data';
-import { ranking, type GameConfig, type GameState, type Level } from '../engine/game';
+import { winners, type GameConfig, type GameState, type Level } from '../engine/game';
 import { dailyStreak, loadDaily, loadStats } from './store';
 import { ACHIEVEMENTS, evaluate, type Achievement } from './achievements';
 import { C } from './palette';
@@ -78,7 +78,7 @@ export function leagueConfig(stage: number, name: string, avatar: string, seed: 
 /** Records a finished league game. Returns true if it cleared the stage the player was on. */
 export function recordLeague(g: GameState, me: number): boolean {
   const stage = g.config.league;
-  if (stage === undefined || stage !== leagueStage() || ranking(g)[0] !== me) return false;
+  if (stage === undefined || stage !== leagueStage() || !winners(g).includes(me)) return false;
   writeJson(LADDER_KEY, stage + 1);
   if (stage + 1 >= LEAGUE.length) unlockAchievement('league');
   return true;

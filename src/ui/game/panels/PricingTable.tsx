@@ -2,8 +2,9 @@
 // Before the bell a rival's crate is shut: the box shows the stall's pattern and name, how many pieces it put out, and
 // whether it has sealed its prices. Which fruit, and how fresh, is not known to anyone else until the bell. Then every
 // crate opens with its prices (CratesOpen), and the rush starts.
+import type { ComponentChildren } from 'preact';
 import type { GameState } from '../../../engine/game';
-import { forSale } from '../../../engine/game';
+import { forSale, tiedPrices } from '../../../engine/game';
 import { FRUIT } from '../../../engine/data';
 import { Fruit } from '../../art';
 import { LANES } from '../../boardModel';
@@ -42,11 +43,14 @@ export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer:
 
 /** The bell: every crate open on the table with its prices, the rivals first and yours last, before the first customer
  *  is served. From here on the day's crates and prices are public. */
-export function CratesOpen({ s, viewer }: { s: GameState; viewer: number }) {
+export function CratesOpen({ s, viewer, head, label, children }: { s: GameState; viewer: number;
+  /** The two parts of the heading (the tie step, rules 18, uses its own). */
+  head?: [string, string]; label?: string; children?: ComponentChildren }) {
   const seats = pricingTable(s, viewer).seats;
+  const [big, small] = head ?? ['The bell!', 'Every crate is open'];
   return (
-    <div class="mid-panel tk-bell" role="status" aria-label="The bell: every crate is open">
-      <div class="tk-bell-head"><b>The bell!</b><span>Every crate is open</span></div>
+    <div class="mid-panel tk-bell" role="status" aria-label={label ?? 'The bell: every crate is open'}>
+      <div class="tk-bell-head"><b>{big}</b><span>{small}</span></div>
       <section class={`tk-crates open n${seats.length}`}>
         {seats.map((x) => {
           const pl = s.players[x.player];
@@ -68,6 +72,42 @@ export function CratesOpen({ s, viewer }: { s: GameState; viewer: number }) {
           );
         })}
       </section>
+      {children}
     </div>
+  );
+}
+
+/** "Rosa", "Rosa and Raj", "Rosa, Raj and Kiki". */
+const names = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
+/** The tied prices of the stall being asked, in words: "apples at $6 with Rosa". */
+export function tieWords(s: GameState, asked: number): string {
+  return tiedPrices(s, asked).map((t) => `${FRUIT[t.fruit].plural.toLowerCase()} at $${t.price} with ${names(t.rivals.map((i) => s.players[i].name))}`).join('; ');
+}
+
+/**
+ * Rules 18, the tie step: prices and crates have flipped, and a stall that holds Favoured Trade and has a tied price
+ * decides, in the open, whether to play it. The stall being asked gets the two buttons; everyone else sees who is
+ * deciding.
+ */
+export function TiePanel({ s, viewer, asked, onDecide }: { s: GameState; viewer: number; asked: number; onDecide?: (play: boolean) => void }) {
+  const pl = s.players[asked];
+  const mine = !!onDecide;
+  const ties = tieWords(s, asked);
+  return (
+    <>
+      <CratesOpen s={s} viewer={viewer} head={['A tied price', mine ? 'Play Favoured Trade?' : `${pl.name} is deciding`]}
+        label={mine ? `A tied price: ${ties}. Play Favoured Trade or keep it` : `${pl.name} has a tied price and is deciding whether to play Favoured Trade`}>
+        <p class="tk-note" data-a="tie-note">{mine
+          ? `Your prices are tied: ${ties}. Play Favoured Trade to win every tied price today, or keep the card for another day.`
+          : `${pl.name} has a tied price (${ties}) and may play Favoured Trade to win it.`}</p>
+      </CratesOpen>
+      {mine && (
+        <div class="pp-lock">
+          <button type="button" class="btn primary wide big" onClick={() => onDecide(true)}>Play it</button>
+          <button type="button" class="btn ghost wide big" onClick={() => onDecide(false)}>Keep it</button>
+        </div>
+      )}
+    </>
   );
 }

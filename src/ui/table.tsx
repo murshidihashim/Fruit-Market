@@ -6,10 +6,12 @@ import {
   buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
   type Customer, type GameState,
 } from '../engine/game';
-import { Face, FavourIcon, Fruit } from './art';
+import { Face, Fruit } from './art';
+import { FavourChip } from './phoneCards';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
+import { shownFavours, shownWants } from './rushShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
 import { closingNote } from '../engine/story';
@@ -153,10 +155,30 @@ export function rivalNote(s: GameState, p: number, active: boolean): string {
   return '';
 }
 
+/** One fruit a stall bought today: how many pieces, and how many of them are still green. */
+export interface Bought { f: FruitId; n: number; green: number }
+
+/**
+ * Rules 18: what a stall took from the market today, by fruit. It is public from the moment of purchase until the
+ * bell, so it is shown only while buying, stocking and pricing; older stock stays secret.
+ */
+export function boughtToday(s: GameState, p: number): Bought[] {
+  if (s.phase !== 'buy' && s.phase !== 'stall' && s.phase !== 'bid') return [];
+  const b = s.players[p].boughtFruit;
+  if (!b) return [];
+  return LANES.map((f) => {
+    const t = b[f] ?? [];
+    return { f, n: t.reduce((a, x) => a + x, 0), green: t.slice(FRUIT[f].ripe.length).reduce((a, x) => a + x, 0) };
+  }).filter((x) => x.n > 0);
+}
+/** "1 mango (green), 2 apples": today's purchases in words, for the box's spoken label and the pop-up. */
+export const boughtWords = (buys: Bought[]) => buys.map((b) => `${b.n} ${(b.n === 1 ? FRUIT[b.f].name : FRUIT[b.f].plural).toLowerCase()}${b.green ? (b.green === b.n ? ' (green)' : ` (${b.green} green)`) : ''}`).join(', ');
+
 /**
  * A rival as a box in the rivals strip (PLAN-072): the stall's pattern with the shopkeeper's face, the name, cash and
  * a short note (what they are doing, then their price and result as each customer is served). Tap it to open their
- * stall below the strip. `rv-chip`: the rival cash chips that used to sit in the top bar live here now.
+ * stall below the strip. `rv-chip`: the rival cash chips that used to sit in the top bar live here now. Rules 18:
+ * small fruit marks with counts show what the stall bought today, from buying until the bell.
  */
 export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean }) {
   useCashShown();
@@ -174,15 +196,21 @@ export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p
     : board.res === 'won' ? `sold at $${board.price}` : board.res === 'lost' ? 'no sale' : `asks $${board.price}`;
   const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding')
     : board.state === 'sealed' ? ', sealed' : `, price $${board.price}${board.res === 'won' ? ', sold' : board.res === 'lost' ? ', no sale' : ''}`;
+  const buys = boughtToday(s, p);
   return (
-    <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}. Tap for more`}>
+    <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''}`} data-a={`p${p}`}
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
       {/* Five or six stalls: the box is narrow, so the name gets its own line and the note is left to the box's shade
           (grey once a stall is ready or sealed) and to its spoken label. */}
       <Swatch p={p} who={pl.avatar} look={pl.look} size={compact ? 20 : 30} />
       <span class="tk-seat-body">
         <span class="tk-seat-name">{pl.name}</span>
         <span class="tk-seat-line"><b data-a={`p${p}-cash`}>${cash}</b>{!compact && note && <> · {note}</>}</span>
+        {buys.length > 0 && (
+          <span class="tk-seat-buys" aria-hidden="true">
+            {buys.map((b) => <span><Fruit id={b.f} size={compact ? 10 : 12} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n}</span>)}
+          </span>
+        )}
       </span>
     </button>
   );
@@ -196,6 +224,9 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const out = outCount(s, p);
   const open = s.phase === 'reveal';
   const crate = open ? LANES.filter((f) => forSale(s, p, f) > 0) : [];
+  const buys = boughtToday(s, p);
+  // A favour card won in the rush counts once it has reached the stall (rushShown.ts).
+  const favours = shownFavours(p, pl.favours).length;
   return (
     <div class="rival-drop tk-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
       <div class="rd-head">
@@ -212,14 +243,20 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
       ) : (
         <span class="tk-note">
           {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. Which fruit shows at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
-          The shelf stays behind the shutter.
+          {buys.length > 0 ? 'Older fruit stays behind the shutter.' : 'The shelf stays behind the shutter.'}
         </span>
       )}
-      {(pl.trait || pl.upgrades.length > 0 || pl.favours.length > 0) && (
+      {buys.length > 0 && (
+        <div class="tk-drop-crate tk-drop-buys" aria-label={`Bought today: ${boughtWords(buys)}`}>
+          <span class="tk-label">Bought today</span>
+          {buys.map((b) => <span class="tk-dk-n"><Fruit id={b.f} size={22} stage={b.green === b.n ? 'unripe' : 'fresh'} /><b>{b.n}</b></span>)}
+        </div>
+      )}
+      {(pl.trait || pl.upgrades.length > 0 || favours > 0) && (
         <div class="rd-extra">
           {pl.trait && <span class="tk-chip" title={TRAITS[pl.trait].text}>{TRAITS[pl.trait].title}</span>}
           {pl.upgrades.map((u) => <span class="tk-chip">{UPGRADES[u].title}</span>)}
-          {pl.favours.length > 0 && <span class="tk-chip">{pl.favours.length} favour card{pl.favours.length > 1 ? 's' : ''}</span>}
+          {favours > 0 && <span class="tk-chip">{favours} favour card{favours > 1 ? 's' : ''}</span>}
         </div>
       )}
     </div>
@@ -276,19 +313,14 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;
+  // A favour card won in the rush lies here once it has reached the stall (rushShown.ts).
+  const favours = shownFavours(p, pl.favours);
   return (
     <section class={`my-stall dock tk-dock ${active ? 'active' : ''}`} data-a={`p${p}`} aria-label="Your shelf">
-      {(pl.favours.length > 0 || closing) && (
+      {(favours.length > 0 || closing) && (
         <div class={`tk-dock-cards ${flashCards ? 'glow' : ''}`}>
           {closing && <span class="tk-chip warn">{closing}</span>}
-          {pl.favours.map((id, i) => {
-            const usable = !!onCard && active && FAVOURS[id].when === s.phase;
-            return (
-              <button type="button" class={`fcard tk-fav ${usable ? 'usable' : ''}`} onClick={() => onCard?.(i)} title={FAVOURS[id].text} aria-label={`Favour card: ${FAVOURS[id].title}`}>
-                <FavourIcon id={id} size={18} /><small>{FAVOURS[id].title}</small>
-              </button>
-            );
-          })}
+          {favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
         </div>
       )}
       <div class="tk-dock-row">
@@ -374,19 +406,23 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
       </div>
     );
   }
-  const done = c.wants.every((w) => w.qty <= 0);
+  // In the rush a fruit is ticked only once that customer's sale has been shown (rushShown.ts): until then the ticket
+  // reads as it did when the bell rang.
+  const wants = shownWants(s.results, c);
+  const done = wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
   // The ticket prints today's price (events and generous customers change it). A finished row is ticked and shows
   // what was asked for; a changed price is tinted.
-  const lines: TicketLine[] = c.wants.map((w, i) => {
-    const max = effectiveMax(s, w, c.generous);
+  const lines: TicketLine[] = wants.map((w, i) => {
+    // A standing order pays its holder's bid (rules 17: a rival $1 less); no event or Closing Day changes it.
+    const max = c.order ? c.order.price : effectiveMax(s, w, c.generous);
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
-      onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
-      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
-      <Ticket who={c.name} lines={lines} />
+      onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
+      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
+      <Ticket who={c.name} lines={lines} order={!!c.order} />
       {(done || special || heard) && (
         <span class="cust-marks">
           {done && <i class="happy-mark"><Icon name="heart" size={13} /></i>}
@@ -399,6 +435,13 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
   );
 }
 
+/**
+ * Before today's walk-ins arrive: the morning, the Market Day bid for a standing order, and buying. The row then holds
+ * today's regular and the walk-ins face down, and the strip holds tomorrow's crowd. PLAN-081: the bid counts too (the
+ * row used to empty during it, and the strip showed today's crowd under the label "Tomorrow").
+ */
+export const beforeArrival = (s: GameState): boolean => s.phase === 'morning' || s.phase === 'order' || s.phase === 'buy';
+
 /** Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). */
 export function Street({ s, viewer, onTip, onScout, away, served }: {
   s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void;
@@ -406,7 +449,7 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
   away?: number; served?: number[];
 }) {
   const rush = (c: Customer) => (c.id === away ? 'away' : served?.includes(c.id) ? 'served' : undefined);
-  const before = s.phase === 'morning' || s.phase === 'buy';
+  const before = beforeArrival(s);
   const extra = s.event?.extra;
   // Walk-ins wait face down; a player who played Gossip or Scout on one sees its front.
   const walkIn = (c: Customer) => c.seenBy?.includes(viewer)
@@ -432,7 +475,7 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
  * in the morning, so the strip shows while stalls buy too (from nextForecast and nextQueue, then forecast and queue).
  */
 export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
-  const before = s.phase === 'morning' || s.phase === 'buy';
+  const before = beforeArrival(s);
   const forecast = before ? s.nextForecast : s.forecast;
   const queue = before ? s.nextQueue ?? [] : s.queue;
   if (s.phase === 'over' || (!forecast && !queue.length)) return null;
@@ -446,6 +489,12 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   return (
     <div class="tomorrow" aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
+      {/* Priority played this evening (PLAN-084): that stall's mark stands at the front of tomorrow's line. */}
+      {s.priorityNext !== null && s.players[s.priorityNext] && (
+        <span class="tm-first" data-a="tm-first" role="img" aria-label={`${s.priorityNext === viewer ? 'You buy' : `${s.players[s.priorityNext].name} buys`} first tomorrow`}>
+          <Swatch p={s.priorityNext} who={s.players[s.priorityNext].avatar} look={s.players[s.priorityNext].look} size={22} /><b>1st</b>
+        </span>
+      )}
       {forecast && front(forecast, false)}
       {queue.map((c) => {
         if (c.seenBy?.includes(viewer)) return front(c, true);

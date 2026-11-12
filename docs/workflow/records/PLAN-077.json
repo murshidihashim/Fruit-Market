@@ -1,0 +1,105 @@
+{
+  "release": "1.20.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-100"
+  ],
+  "decisions": [
+    "DEC-085"
+  ],
+  "changes": {
+    "added": [
+      "Rules version 17: a rival whose pieces fill a standing order's gap is paid $1 under the winner's bid (never under $1), not the card's price",
+      "Open bidding: everyone sees who is bidding, who passed and who is still deciding (never a price); a stall may change its bid or pass while another stall is still deciding",
+      "scripts/print-update.ts and print/update-17: the tabletop update pack (guidebook at rules 17, six stall sheets, six counters with the cash track, eight standing-order cards, a change sheet)"
+    ],
+    "changed": [
+      "Every upgrade a stall has not built is on offer after a Market Day (was three at random), as on the table",
+      "Computer stalls decide their standing-order bid first, so a person sees them before deciding; computer-player version 5",
+      "A standing-order ticket shows the winner's bid; no event or Closing Day changes what an order pays",
+      "RULES.md and How to play: standing orders, upgrades, the cash track on the counter",
+      "Physical: tomorrow's customers are dealt in the morning with tomorrow's lorry (was at Stocking), matching the app since rules 16",
+      "Physical: the cash track moves from the stall sheet (behind the shutter) to the counter (in front of it), because cash is public"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Standing orders: see who is bidding, and change your mind until the last stall decides",
+    "Rivals who fill a standing order's gap are paid $1 under the winning bid",
+    "All five stall upgrades are on offer after each Market Day"
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
+    "date": "2026-11-11"
+  },
+  "delivery": "verified",
+  "id": "PLAN-077",
+  "title": "Rules version 17 (standing orders, upgrades) and the tabletop update pack",
+  "problem": "Owner's list: rivals should fill a standing order at $1 less; bidding should show who is bidding and stay open while anyone is deciding; the app should offer all five upgrades; the printed game should deal tomorrow's customers when the app does and keep cash outside the shutter; and the printed game should be audited against the app.",
+  "scope": [
+    "src/engine/game.ts: orderRivalPay, canBidOrder (re-bids), activePlayer (computers first), publicView (bid status), dealUpgrades (all on offer)",
+    "src/engine/ai.ts (rival incentive), src/net/protocol.ts (RULES_VERSION 17, AI_VERSION 5), server/room.ts (re-bids, status in each phone's view)",
+    "src/ui/game/panels/OrderPanel.tsx (status row, change bid), Game.tsx, table.tsx, Popovers.tsx, ticket-ui.css",
+    "RULES.md, HowTo.tsx; tests/rules17.test.ts (9 tests) and updated version, order and upgrade tests",
+    "scripts/print-update.ts, print/update-17 (three PDFs)"
+  ],
+  "exclusions": [
+    "The parked pricing-screen issue (standing order wording and the $3 limit)",
+    "The printed board, shutters and other cards are not reprinted (a change sheet with cut-out notes covers the board's wording)",
+    "The old guidebook's pictures of the board and cards are not redrawn in the new guidebook",
+    "Sharp Ears timing (app: when buying ends; cards: each evening) left as it is",
+    "Balance not tuned; not published"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "2026-11-11: 451 unit tests passed, 1 skipped; lint, types, palette, records, build"
+    },
+    {
+      "id": "T2",
+      "text": "Rival pay, open bidding, re-bids, bid secrecy offline and online, and all five upgrades are covered by tests",
+      "result": "PASS",
+      "evidence": "2026-11-11: tests/rules17.test.ts (9 tests) and the updated rules 14 tests"
+    },
+    {
+      "id": "T3",
+      "text": "The bidding screen and the upgrade offer checked on screen at 390x844 with no page errors",
+      "result": "PASS",
+      "evidence": "2026-11-11: screenshots of a Market Day morning (three rivals shown as bidding, rival price under the bid) and the evening (five upgrades)"
+    },
+    {
+      "id": "T4",
+      "text": "The update pack builds and its pages were looked at",
+      "result": "PASS",
+      "evidence": "2026-11-11: npx vite-node scripts/print-update.ts: guidebook 10 pages, stall sheets and counters 13 pages, standing-order cards 2 pages; stall sheet, counter, cards, change sheet and guidebook pages viewed"
+    },
+    {
+      "id": "T5",
+      "text": "Printed numbers match the game data",
+      "result": "PASS",
+      "evidence": "2026-11-11: read from the rules 15 PDFs in the owner's Drive: 36 customers (prices and types), 5 guests, 20 lorries (all stall rows), 20 events, favours, upgrades, shopkeepers, order prices and fines all match src/engine/data.ts. Not checked: how many pieces each customer wants (drawn as circles, not text)"
+    },
+    {
+      "id": "T6",
+      "text": "Browser tests pass with 0 leaks",
+      "result": "PASS",
+      "evidence": "2026-11-11: npm run test:e2e on rules 17: E2E OK, BUDGET OK, online match 0 leaks in 100 pricing frames, four players and two computers, reconnect 5 of 5"
+    },
+    {
+      "id": "T7",
+      "text": "Balance report under rules 17 (target: every shopkeeper within 4 points of fair)",
+      "result": "FAIL",
+      "evidence": "2026-11-11: npm run balance (400 games a test, 3 stalls): shopkeeper win rates 30.0 (Tip Jar) to 41.3 (Bargain Hunter) against 33.3 fair; six of eight are within 4 points (rules 16: 29.8 to 41.3). Rushing an upgrade: Juice Bar 39.5, Handcart 38.3, Ripening Room 32.8, Premium Display 30.3, Order Book 28.5, never building 29.0. Average cash 77.1 / 91.6 / 131.5 for 8, 10 and 14 days. Mango sells through 58 to 65% of what is bought; the other fruit 88 to 96%. Not tuned."
+    },
+    {
+      "id": "T8",
+      "text": "A printed test of the new sheets (sizes against the 15 mm fruit tiles and the cash markers)",
+      "result": "NOT RUN",
+      "evidence": "Needs the owner's printer"
+    }
+  ]
+}

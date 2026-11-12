@@ -1,11 +1,12 @@
 // Screens: home, new-game setup, how to play, settings/stats, and the game itself.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
-import { newGame, ranking, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
+import { newGame, winners, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig, dailyTwist } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
-import { ContinueBody, FriendBody, Popup, Shopfront } from './Home';
+import { ContinueBody, FriendBody, Popup, ReplaceBody, Shopfront } from './Home';
+import { startOrAsk, waitingGame } from './paused';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
@@ -72,6 +73,9 @@ function Main() {
   const recorded = useRef<string | null>(null);
   // The small menus in front of the home screen, a room code typed into the friend menu, and where the wardrobe was opened from.
   const [popup, setPopup] = useState<PopupKind | null>(null);
+  // A game is waiting and something that would replace it was tapped: the question on screen, with what to start
+  // if the player says "Start anyway" (PLAN-081).
+  const [swap, setSwap] = useState<{ what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
   const [wardFrom, setWardFrom] = useState<Screen>('home');
   const [, refresh] = useState(0);
@@ -87,12 +91,13 @@ function Main() {
 
   useEffect(() => {
     const sub = CapApp.addListener('backButton', () => {
-      if (popup) setPopup(null);
+      if (swap) setSwap(null);
+      else if (popup) setPopup(null);
       else if (screen === 'home') CapApp.exitApp();
       else setScreen('home');
     });
     return () => { sub.then((h) => h.remove()); };
-  }, [screen, popup]);
+  }, [screen, popup, swap]);
 
   const start = (cfg0: GameConfig) => {
     // The person holding the phone wears their looks in every offline game (the first human seat).
@@ -119,7 +124,7 @@ function Main() {
     const me = g.players.findIndex((p) => p.kind === 'human');
     const st = loadStats();
     st.played++;
-    if (ranking(g)[0] === me) st.wins++;
+    if (winners(g).includes(me)) st.wins++; // rules 18: a shared win is a win
     st.bestCash = Math.max(st.bestCash, g.players[me].cash);
     st.totalSold += g.players[me].stats.sold;
     saveStats(st);
@@ -162,25 +167,27 @@ function Main() {
   const daily = loadDaily();
   const today = todayKey();
   const streak = dailyStreak(daily);
-  const resumable = game && game.phase !== 'over';
+  const waiting = waitingGame(game);
   const league = leagueStage();
   const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
-  const humans = game ? game.players.filter((pl) => pl.kind === 'human') : [];
   const close = () => setPopup(null);
+  // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
+  // replaced without a word by the Daily market, the Market League and New game.
+  const orAsk = (what: string, go: () => void) => () => startOrAsk(waiting, go, (yes) => { fx.tap(); setSwap({ what, go: yes }); });
   return (
     <>
       <Shopfront
-        resume={resumable ? `Day ${game!.day}/${game!.config.days}` : null}
-        cash={resumable && humans.length === 1 ? humans[0].cash : null}
+        resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
+        cash={waiting ? waiting.cash : null}
         dailyLine={`${daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}${streak ? ` · ${streak}-day streak` : ''}`}
         leagueLine={league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
         today={today}
         notice={saveNotice}
         onContinue={() => open('continue')}
-        onNew={() => open('new')}
+        onNew={orAsk('a new game', () => open('new'))}
         onFriend={() => open('friend')}
-        onDaily={startDaily}
-        onLeague={startLeague}
+        onDaily={orAsk('the Daily market', startDaily)}
+        onLeague={orAsk('a Market League game', startLeague)}
         onWardrobe={() => { setWardFrom('home'); go('wardrobe'); }}
         onAccount={() => open('account')}
         onTrophies={() => go('trophies')}
@@ -188,11 +195,18 @@ function Main() {
         onSettings={() => go('settings')}
       />
       {popup === 'new' && <Popup title="New game" onClose={close}><Setup onStart={(c) => { close(); start(c); }} /></Popup>}
-      {popup === 'continue' && game && (
+      {popup === 'continue' && waiting && (
         <Popup title="Continue" onClose={close}>
-          <ContinueBody day={game.day} days={game.config.days} stalls={game.players.length} cash={humans.length === 1 ? humans[0].cash : null}
+          <ContinueBody day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash}
             onResume={() => { close(); go('game'); }}
             onStartOver={() => { saveGame(null); setGame(null); open('new'); }} />
+        </Popup>
+      )}
+      {swap && waiting && (
+        <Popup title="Game in progress" onClose={() => setSwap(null)}>
+          <ReplaceBody day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash} what={swap.what}
+            onKeep={() => { fx.tap(); setSwap(null); }}
+            onStart={() => { const { go: yes } = swap; setSwap(null); yes(); }} />
         </Popup>
       )}
       {popup === 'friend' && (
@@ -274,7 +288,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
           <h3 class="tight">Your name</h3>
           <input ref={nameRef} class="input tight" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
           <h3 class="tight next">Your shopkeeper</h3>
-          <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
+          <CharacterPick value={myChar} taken={takenForMe} seat={0} onPick={setMyChar} />
         </section>
         <section class="panel">
           <h3>Rival stalls</h3>
@@ -302,7 +316,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
                 {st.kind === 'human' && (
                   <>
                     <input class="input" aria-label={`Name for stall ${i + 2}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
-                    <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
+                    <CharacterPick value={picks[i]} taken={takenFor(i)} seat={i + 1} onPick={(a) => setSeat(i, { avatar: a })} />
                   </>
                 )}
                 {rivals > 1 && <button type="button" class="seat-remove" onClick={() => removeSeat(i)}>Remove stall {i + 2}</button>}

@@ -100,7 +100,7 @@ const SLIDES = [
           <div><b>Stall C</b> 2 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
         </div>
         <p>Bobby Books buys from the <b>cheapest stall</b> first. B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was fresh.</p>
-        <p>If two stalls ask the same price, the tie goes to Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today. A customer who isn't fully served comes back once more the next day, then leaves.</p>
+        <p>If two stalls ask the same price, a stall that holds Favoured Trade may play it once the prices are flipped, and it wins the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who isn't fully served leaves at the end of the day.</p>
       </>
     ),
   },
@@ -109,7 +109,7 @@ const SLIDES = [
     title: 'Evening and night',
     body: (
       <>
-        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (one a day; two for the Charmer). Play it when its card says: in your buying turn, at the bell, or in the evening.</p>
+        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (one a day; two for the Charmer). Play it when its card says: in your buying turn, after prices flip, or in the evening.</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
         <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins and <b>Scout</b> lets you peek at one of today's. Cash is your score, so spend it only where it pays you back.</p>
         <p>Then night falls: <b>all fruit ages one step</b>, and anything past soft spoils and is thrown away.</p>
@@ -121,11 +121,11 @@ const SLIDES = [
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> turns up: one big order, collected two days later. Every stall secretly names the price per piece it would do it for, and the <b>lowest bid wins</b>. On the due day the order takes the winner's pieces first and buys anything missing from rivals at full price. The winner is <b>fined</b> for every piece it did not supply.</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> turns up: one big order, collected two days later. Every stall names the price per piece it would do it for, or passes: you see who is bidding, never their price, and you can change your mind until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back; deliver fewer and it is lost. Rivals are not involved.</p>
         <p>That evening you may build <b>one stall upgrade</b> (your stall has room for two), which costs cash and changes how you play:</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
         <p>On the <b>final day</b> (Closing Day, on by default), customers pay ${LAST_CALL_BONUS} more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each (green fruit gets nothing). That's the last chance to turn fruit into cash.</p>
-        <p><b>Most cash wins.</b> Upgrades count for nothing, and leftover fruit only for what the jam maker pays. If you tie, the stall that sold more fruit wins.</p>
+        <p><b>Most cash wins.</b> Upgrades count for nothing, and leftover fruit only for what the jam maker pays. If you tie, the stall that sold more fruit wins. If that is level too, you share the win.</p>
       </>
     ),
   },
@@ -137,7 +137,8 @@ const SLIDES = [
         <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none. With a Juice Bar, up to {JUICE_CAP} of them become juice instead: ${JUICE_VALUE} each.</li>
-        <li>Watch what rivals buy. At the bell you only know how many pieces they put out: remember what they hold and you can guess which fruit.</li>
+        <li>Watch what rivals buy. What each stall bought today stays on show until the bell; older fruit is hidden. At the bell you only know how many pieces they put out: remember what they hold and you can guess which fruit.</li>
+        <li>A stall with an empty shelf and less than $5 at dawn is topped up to $5 by the market, so nobody is out of the game.</li>
         <li>Nobody waits overnight: a customer who does not get everything today is gone tomorrow.</li>      </ul>
     ),
   },

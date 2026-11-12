@@ -1,9 +1,11 @@
-// Shared art components in the shapes the screens use, drawn from the Great Fruit Exchange deck art (DEC-066):
-// the owner's illustrations (deckArt.ts), the flat fruit (fruitIcons.tsx) and the card system (cards.tsx).
-// Favour cards, coins, upgrade icons and worn looks are the Great Fruit Exchange drawings (exchangeArt.ts, DEC-069).
-import type { FruitId, Stage } from '../engine/data';
+// Shared art components in the shapes the screens use: the card pictures (deckArt.ts, PLAN-083), the flat fruit
+// (fruitIcons.tsx) and the card system (cards.tsx).
+// Small favour icons, coins, upgrade icons and worn looks are the Great Fruit Exchange drawings (exchangeArt.ts, DEC-069).
+import { CUSTOMER_CARDS, type FruitId, type Stage } from '../engine/data';
 import { ART_SIZE } from './cards';
-import { CALM_ART, GUEST_EVENT, customerArt, eventArt, guestArt, shopBadge, shopFile, shopScene } from './deckArt';
+import {
+  CALM_ART, GUEST_EVENT, customerArt, customerFocus, eventArt, eventFocus, focusCss, guestArt, guestFocus, shopBadge, shopFile, shopScene,
+} from './deckArt';
 import { isIconName, wearUrl } from './exchangeArt';
 import { FruitSvg } from './fruitIcons';
 import { Icon } from './icons';
@@ -12,14 +14,14 @@ export function Fruit({ id, size = 28, stage = 'fresh', x, y }: { id: FruitId; s
   return <FruitSvg id={id} size={size} stage={stage} x={x} y={y} />;
 }
 
-/** An event's Gazette picture as a rounded thumbnail (by its id). */
-/** An event's picture as a small round icon; 'calm' is the Calm Day card's picture (a day with no event). */
+/** An event's picture as a small square thumbnail, cropped round its subject; 'calm' is the Calm Day card's picture
+ *  (a day with no event). */
 export function EventIcon({ id, size = 20 }: { id: string; size?: number }) {
   const src = id === 'calm' ? CALM_ART : eventArt(id);
   const [w, h] = ART_SIZE.event;
   return (
     <span class="xev" style={{ width: `${size}px`, height: `${size}px` }} aria-hidden="true">
-      {src && <img src={src} width={w} height={h} alt="" decoding="async" loading="lazy" draggable={false} />}
+      {src && <img src={src} width={w} height={h} alt="" decoding="async" loading="lazy" draggable={false} style={{ objectPosition: focusCss(eventFocus(id)) }} />}
     </span>
   );
 }
@@ -35,23 +37,25 @@ export function Coin({ size = 16 }: { size?: number }) {
   return <Icon name="coin" size={size} />;
 }
 
-/** At this size and up a shopkeeper shows their stall scene instead of the round sign badge. */
+/** At this size and up a shopkeeper shows their stall scene instead of the small square face. */
 const SCENE_FROM = 72;
 /** Worn regalia only show where there is room for them. */
 const WEAR_FROM = 22;
-/** Where each guest stands in the event picture they borrow (guests have no portrait of their own). */
-const GUEST_FOCUS: Record<string, string> = {
-  Influencer: '0% 70%', 'Gym Club': '50% 45%', 'Hotel Chef': '100% 55%', 'Wedding Caterer': '0% 45%', Bakery: '0% 40%',
-};
 
-type Pic = { kind: 'cust' | 'guest' | 'keeper' | 'scene' | 'none'; src: string | null; w: number; h: number; pos?: string };
+/** `pos`: where the picture is cropped (CSS object-position), from its focus point (deckArt.ts). A customer's portrait
+ *  is drawn closer in on the head instead (screens.css .xf-cust): every customer has the head in the picture's middle. */
+type Pic = { kind: 'cust' | 'order' | 'guest' | 'keeper' | 'scene' | 'none'; src: string | null; w: number; h: number; pos?: string };
 
 /** Which picture a character key shows. Customers and guests by their hidden key, shopkeepers by avatar.
- *  `dressed`: the shopkeeper wears regalia, which is fitted to the round badge, so the badge shows at every size. */
+ *  `dressed`: the shopkeeper wears regalia, which is fitted to the small face, so that shows at every size. */
 export function facePic(who: string, size: number, dressed = false): Pic {
   const cust = customerArt(who);
-  if (cust) return { kind: 'cust', src: cust, w: ART_SIZE.customer[0], h: ART_SIZE.customer[1] };
-  if (GUEST_EVENT[who]) return { kind: 'guest', src: guestArt(who), w: ART_SIZE.event[0], h: ART_SIZE.event[1], pos: GUEST_FOCUS[who] };
+  if (cust) {
+    // A standing order's client is a place, not a person: its picture is cropped round the subject, not a face.
+    const order = !CUSTOMER_CARDS.some((c) => c.name === who);
+    return { kind: order ? 'order' : 'cust', src: cust, w: ART_SIZE.customer[0], h: ART_SIZE.customer[1], pos: order ? focusCss(customerFocus(who)) : undefined };
+  }
+  if (GUEST_EVENT[who]) return { kind: 'guest', src: guestArt(who), w: ART_SIZE.event[0], h: ART_SIZE.event[1], pos: focusCss(guestFocus(who)) };
   if (size >= SCENE_FROM && !dressed) {
     const scene = shopScene(who);
     if (scene) return { kind: 'scene', src: scene, w: ART_SIZE.scene[0], h: ART_SIZE.scene[1] };
@@ -66,7 +70,7 @@ export function facePic(who: string, size: number, dressed = false): Pic {
  * A character portrait: a shopkeeper's avatar key or a customer's (hidden) key. `worn` is the list of looks the
  * shopkeeper has on (looks.ts); they are drawn on the portrait as Exchange regalia, one picture over the badge
  * that may reach a little past the circle (a hat above it, a neck piece below the chin).
- * Never pass a face-down customer: use TradingCardBack (cards.tsx), which loads no portrait.
+ * Never pass a face-down customer: use TicketBack (ticket.tsx) or TradingCardBack (cards.tsx), which load no portrait.
  */
 export function Face({ who, size = 28, worn }: { who: string; size?: number; worn?: string[] }) {
   const key = shopFile(who);

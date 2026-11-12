@@ -3,10 +3,11 @@ import { FRUIT, FRUITS, RIVALS, lookOf, prefOf, type FruitId } from '../src/engi
 import { aiStep, planPrices } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
-  beginBuying, bestCap, emptyStock, endBuyTurn, finishReveal, forSale, maxPrice, newGame, openStall, submitPrices,
+  beginBuying, bestCap, emptyStock, finishReveal, forSale, maxPrice, newGame, openStall, submitPrices,
   type Customer, type GameState, type Post,
 } from '../src/engine/game';
 import { buyerCap, buyersFor, priceRead, stallWantText, stallWanted, tieHint } from '../src/ui/boardModel';
+import { endBuying } from './stall-step';
 
 // The Price panel's "Psst…" read and the Stocking panel's demand (REP-089 3.2). Every case runs on the real engine
 // with real customer cards; the read is then checked by ringing the bell.
@@ -33,7 +34,7 @@ function market(...buyers: [string, FruitId][]): GameState {
     ],
     days: 10, unripe: true, upgrades: true, events: false, seed: 7,
   }));
-  for (const p of [...s.order]) s = endBuyTurn(s, p);
+  s = endBuying(s);
   s = structuredClone(s);
   s.firstMarket = buyers.map(([name, f], i) => buyer(name, f, 900 + i));
   s.secondMarket = [];
@@ -202,13 +203,19 @@ describe('the price read counts only buyers who take your freshness at your pric
                 else rival.push(...posts.filter((b) => b.fruit === f).map((b) => b.price));
                 g = submitPrices(g, i, posts);
               }
-              const sold = g.results!.lines.filter((l) => l.fruit === f && l.name !== g.results!.order?.name).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0);
+              // Rules 18: computer stalls with a tied price and Favoured Trade decide after the flip.
+              while (g.phase === 'tie') g = aiStep(g)!;
+              const mine = (order: boolean) => g.results!.lines.filter((l) => l.fruit === f && (l.name === g.results!.order?.name) === order).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0);
+              const sold = mine(false);
+              // Pieces this stall delivers to its own standing order today leave the crate first; the price read is
+              // about the rest (found when DEC-101 changed which seeded games are played: 4 out, 3 to the order).
+              const toOrder = mine(true);
               checks++;
               expect(sold).toBeLessThanOrEqual(r.canSell);
               if (rival.every((q) => q > price)) expect(sold).toBe(r.canSell);
               if (r.text.startsWith('Enough buyers')) {
                 enough++;
-                expect(sold).toBe(out);
+                expect(sold).toBe(out - toOrder);
                 // "Whatever the rivals charge": every rival at your price, then every rival at $1.
                 for (const at of [price, 1]) {
                   let h = s;
@@ -216,6 +223,7 @@ describe('the price read counts only buyers who take your freshness at your pric
                     if (h.bids[i] !== null) continue;
                     h = submitPrices(h, i, planPrices(h, i).posts.map((b) => (b.fruit === f ? { fruit: f, price: i === p ? price : at } : b)));
                   }
+                  while (h.phase === 'tie') h = aiStep(h)!;
                   expect(h.results!.lines.filter((l) => l.fruit === f).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0)).toBe(out);
                 }
               }
