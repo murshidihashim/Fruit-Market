@@ -500,7 +500,9 @@
       "plans": [
         "PLAN-086",
         "PLAN-089",
-        "PLAN-090"
+        "PLAN-090",
+        "PLAN-091",
+        "PLAN-092"
       ],
       "notes": [
         "The stamp book: every game earns stamps towards your stall level, on six ranks from Roadside Table to Towkay. What you had already earned is counted",
@@ -512,7 +514,11 @@
         "Plainer words on every screen",
         "The row of steps follows the bell and the bid, the takings wait for the last coin, and the market has larger touch areas",
         "At night an emptied box reads as empty and your shelf follows the night; the table no longer moves on the morning a standing order appears",
-        "Seven older trophies can be earned again. Signing out clears the stamp counts from the phone"
+        "Seven older trophies can be earned again. Signing out clears the stamp counts from the phone",
+        "The rush is a round table: each customer comes to the middle and every stall's open crate stands round it, so you can see who sells and why",
+        "The bell rings once, with the bell you chose, and the bottom bar stays quiet while the bell, the rush and the night play",
+        "The collection opens each card in full. Results say Rematch and Main menu, and Home says Dress up",
+        "On a shared phone the results speak to the phone's owner, and a rival's favour cards stay secret"
       ]
     }
   ]

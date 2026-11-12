@@ -1,18 +1,28 @@
 {
-  "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "release": "1.21.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 0185fb6",
   "reports": [
-    "REP-113"
+    "REP-113",
+    "REP-115"
   ],
   "decisions": [
     "DEC-086",
     "DEC-109"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "The rush as a round table: each customer comes to the middle and every stall's open crate sits round it in a fixed seat (RushTable.tsx, rushTable.css)"
+    ],
+    "changed": [
+      "A sale is shown as travel: pieces from the selling crate to the customer, coins back; a crate over the customer's price is dimmed, a crate without the fruit is dashed",
+      "Each further fruit of a customer takes 300 ms instead of 500 ms; the browser scripts that play the rush follow the round table"
+    ],
+    "fixed": [
+      "A customer's dots wrap onto a second row on a narrow card instead of being cut off"
+    ],
+    "removed": [
+      "The list of offers under each customer card (Showdown.tsx, rush.css)"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -20,7 +30,7 @@
     "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-092",
   "title": "The rush as a round table",
   "problem": "The owner dislikes the rush's list of offers under each customer card.",
@@ -36,32 +46,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on 0185fb6 (the round table merged): 838 tests passed, 1 skipped; lint, types and build passed."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on 0185fb6: solo game to the results; performance budget passed, longest frame 151 ms against 200; online match 44 pricing frames, 0 leaks, rematch, takeover; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Nothing in the rush changes before its customer (measured frame by frame); a rival's won favour card stays face down",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helper's frame-by-frame check of the rush, 37 runs: 0 problems (nothing changes before its customer); a rival's won favour card stays face down; pass-and-play to the results with 0 leaks; four customers play through untouched in 10.9 s."
     },
     {
       "id": "T4",
       "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls beside the board",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Seen by me beside the Rush-D board at 390x844 and 360x640 with 2, 4 and 6 stalls; a customer's dots wrap onto a second row where the card is narrow (475938a). The tour of Days 1 to 3 on the merged build (REP-115) shows the rush on Day 2 and Day 3."
     },
     {
       "id": "T5",
       "text": "The owner has seen it",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "The recording of Days 1 to 3 and pictures of every step were sent to the owner on 2026-11-13 02:42 (REP-115); his view is not yet received."
     }
   ]
 }

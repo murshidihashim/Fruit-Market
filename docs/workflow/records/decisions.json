@@ -2703,9 +2703,10 @@
         "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
-        "REP-113"
+        "REP-113",
+        "REP-115"
       ],
       "reviewTrigger": "When built: shown to the owner at both phone sizes with 2, 4 and 6 stalls; if six crates crowd a small phone"
     }
@@ -3786,6 +3787,10 @@
     {
       "at": "2026-11-13 01:22",
       "text": "PLAN-091 (finishing pass) merged and checked: the stamp book part (dc47462), the day-screens part (41fc7b0), RULES.md (ba448be), the print kit rebuilt and every page looked at (cbcab10). verify PASS (830 tests); e2e PASS. The owner was sent a recording of Days 1 to 3 and pictures of every step and of Home, Results, Trophies and the Wardrobe (candidate 1.21.0). STATE.md shortened to what is needed to resume. Waiting: the round-table rush (PLAN-092), and the owner's answers on publishing 1.21.0 and on standing orders."
+    },
+    {
+      "at": "2026-11-13 02:42",
+      "text": "PLAN-092 (the rush as a round table, DEC-109) merged (0185fb6) and checked: verify PASS (838 tests), e2e PASS (0 leaks), the helper's frame-by-frame check 37 runs with 0 problems, seen by me at both sizes with 2, 4 and 6 stalls. Store screenshots redone for the new screens (56b8fde). Candidate 1.21.0 now holds PLAN-086, 089, 090, 091 and 092 (REP-115). The owner was sent a recording of Days 1 to 3 and pictures of every step of the day. Not published: waiting for his word, and for his choice on standing orders (REP-113, REP-114)."
     }
   ]
 }
