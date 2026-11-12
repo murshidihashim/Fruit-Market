@@ -10,11 +10,11 @@ export const DAILY_AVATAR = '🧑‍🍳';
 export interface Twist { title: string; text: string; patch: Partial<GameConfig> }
 const TWISTS: Twist[] = [
   { title: 'The usual', text: 'The standard 10-day market.', patch: {} },
-  { title: 'Quick day', text: 'Only 8 days.', patch: { days: 8 } },
-  { title: 'No upgrades', text: 'No stall upgrades today.', patch: { upgrades: false } },
-  { title: 'Fixed prices', text: 'Every customer pays the same street price.', patch: { street: true } },
-  { title: 'Calm market', text: 'No event cards today.', patch: { events: false } },
-  { title: 'Long haul', text: '14 days.', patch: { days: 14 } },
+  { title: 'Quick game', text: 'Only 8 days.', patch: { days: 8 } },
+  { title: 'No upgrades', text: 'No upgrades in this game.', patch: { upgrades: false } },
+  { title: 'Fixed prices', text: 'Every customer pays one fixed price for each fruit.', patch: { street: true } },
+  { title: 'No events', text: 'No event cards today.', patch: { events: false } },
+  { title: 'Long game', text: '14 days.', patch: { days: 14 } },
   { title: 'Basic game', text: 'No perks, favour cards or upgrades.', patch: { core: true, upgrades: false } },
 ];
 export function dailyTwist(date: string): Twist {

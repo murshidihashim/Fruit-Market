@@ -128,7 +128,7 @@ describe('rules 14: standing orders', () => {
   it('the lowest bid wins; a tie goes to the stall earlier in the buying order; passes and bad bids are refused or ignored', () => {
     let s = marketDay(4);
     const top = s.standing!.ceiling;
-    expect(canBidOrder(s, 0, top + 1)).toMatch(/most this order pays/);
+    expect(canBidOrder(s, 0, top + 1)).toMatch(/highest bid for this order/);
     expect(canBidOrder(s, 0, 0)).toMatch(/start at \$1/);
     s = bidOrder(s, 0, top);
     expect(canBidOrder(s, 0, 5)).toBeNull(); // rules 17: a bid may change while another stall is still deciding

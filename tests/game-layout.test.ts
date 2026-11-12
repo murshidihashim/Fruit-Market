@@ -56,7 +56,7 @@ describe('your shelf dock (table.tsx MyStall)', () => {
   it('the first-game tip after a purchase describes the shelf chips as they are now (counts by freshness)', () => {
     const tip = TIPS.find((t) => t.id === 'bought')!.text;
     expect(tip).not.toContain('nights it has left');
-    expect(tip).toContain('fresh');
+    expect(tip).toContain('The letters under each fruit count your pieces');
   });
 });
 

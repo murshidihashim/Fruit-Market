@@ -54,14 +54,14 @@ export function hagglerWins(names: string[], you = false): string {
 }
 
 
-/** The rush pop-up's short form of tieReason (PLAN-067): "fresher fruit", "Haggler", "Favoured Trade", "bought first". */
+/** The rush pop-up's short form of tieReason (PLAN-067): "fresher fruit", "Haggler", "Favoured Trade", "bought earlier today". */
 function tieShort(s: GameState, winner: Offer, loser: Offer): string {
   const w = s.players[winner.player];
   const l = s.players[loser.player];
   if (w.favouredTrade && !l.favouredTrade) return 'Favoured Trade';
   if (winner.freshness > loser.freshness) return 'fresher fruit';
   if (haggled(s, winner, loser)) return 'Haggler';
-  return 'bought first';
+  return 'bought earlier today';
 }
 
 /** A Haggler wins ties when neither Favoured Trade nor fresher fruit decides them (rules 11: equally fresh fruit). */
@@ -78,7 +78,7 @@ function haggled(s: GameState, winner: Offer, loser: Offer): boolean {
  */
 export const inContest = (o: Offer): boolean => !o.tooOld;
 
-const STAGE_WORD: Record<Exclude<Stage, 'unripe'>, string> = { fresh: 'fresh', okay: 'okay', notso: 'soft' };
+const STAGE_WORD: Record<Exclude<Stage, 'unripe'>, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
 
 /** The freshness rule the engine used for this customer (Premium, Everyday, Bargain; none for a hand-made test customer). */
 function prefFor(s: GameState, l: LineResult): Pref | undefined {
@@ -98,8 +98,8 @@ export interface NoSale { kind: NoSaleKind; tag: string; headline: string; detai
 /**
  * Why an offer that did not qualify (`tooOld`) could not sell, from the price, the customer's top and freshness rule,
  * and the stall's Premium Display only (the shelf at that moment is not recorded, and is not needed):
- * over the top (no freshness could sell), a Premium customer (fresh only), an Everyday customer at a price okay fruit
- * could meet (so only soft fruit was there), otherwise the fruit was too old for that price.
+ * over the top price (no freshness could sell), a Premium customer (Fresh only), an Everyday customer at a price Okay
+ * fruit could meet (so only Soft fruit was there), otherwise the fruit was too old for that price.
  */
 export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: number): NoSale {
   const cust = lookOf(l.name).title;
@@ -107,7 +107,6 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
   const display = s.players[o.player].upgrades.includes('premium') && !fixedFor(s, l);
   const mine = o.player === viewer;
   const who = s.players[o.player]?.name ?? '';
-  const theirs = mine || isYou(who) ? 'yours' : `${who}'s`;
   const pref = prefFor(s, l);
   // What this customer pays at most for each freshness (a Premium Display adds $1 for fresh fruit).
   const caps = (['fresh', 'okay', 'notso'] as const)
@@ -118,24 +117,23 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
   const withDisplay = display ? ` with ${mine ? 'your' : 'a'} Premium Display` : '';
   const items = caps.map((x) => `$${x.cap} for ${STAGE_WORD[x.st]}${x.st === 'fresh' ? withDisplay : ''}`);
   const pays = pref === 'premium'
-    ? `${cust} buys fresh fruit only, up to $${top}${withDisplay}.`
-    : `${cust} pays up to ${items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]}${pref === 'everyday' ? '; never soft' : ''}.`;
+    ? `${cust} buys Fresh only, up to $${top}${withDisplay}.`
+    : `${cust} pays up to ${items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]}${pref === 'everyday' ? '; never Soft' : ''}.`;
   if (o.price > top) {
-    const even = display ? `even fresh, with ${mine ? 'your' : 'a'} Premium Display` : 'even fresh';
-    return { kind: 'price', tag: `over $${top} top`, headline: `Too pricey! $${top} is ${cust}'s top${display ? `, ${even}` : ''}.`, detail: pays };
+    return { kind: 'price', tag: `over top price $${top}`, headline: `Price too high. ${cust} pays at most $${top}${display ? ` for Fresh, with ${mine ? 'your' : 'a'} Premium Display` : ''}.`, detail: pays };
   }
   if (pref === 'premium') {
-    return { kind: 'freshOnly', tag: 'fresh only', headline: `Fresh only! ${theirs[0].toUpperCase()}${theirs.slice(1)} weren't fresh.`, detail: `${cust} is a Premium buyer.` };
+    return { kind: 'freshOnly', tag: 'Fresh only', headline: `Fresh only. ${mine || isYou(who) ? 'Yours' : `${who}'s`} were not Fresh.`, detail: `${cust} is a Premium customer.` };
   }
   if (pref === 'everyday' && o.price <= l.max - 1) {
-    return { kind: 'noTired', tag: "won't take soft", headline: `No soft ${plural} for ${cust}!`, detail: 'Everyday buyers take fresh or okay only.' };
+    return { kind: 'noTired', tag: "won't take Soft", headline: `${cust} will not take Soft ${plural}.`, detail: 'Everyday customers buy Fresh or Okay only.' };
   }
   const sells = caps.filter((x) => x.cap >= o.price).map((x) => STAGE_WORD[x.st]);
   const rest = caps.filter((x) => x.cap < o.price).map((x) => `${STAGE_WORD[x.st]} up to $${x.cap}`);
   const detail = `At $${o.price} ${sells.length === 1 ? `only ${sells[0]} sells` : `${sells.join(' or ')} sells`}${rest.length ? `; ${rest.join(', ')}` : ''}.`;
   return {
     kind: 'age', tag: `too old for $${o.price}`, detail,
-    headline: `Too old for $${o.price}! ${mine ? 'Your' : nameOwn(who, true)} ${plural} didn't qualify.`,
+    headline: `Too old for $${o.price}. ${mine ? 'Your' : nameOwn(who, true)} ${plural} could not sell at that price.`,
   };
 }
 
@@ -148,9 +146,9 @@ function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string
   const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
   if (tie) {
     if (s.players[tie.player].favouredTrade && !s.players[o.player].favouredTrade) return 'lost tie: Favoured Trade';
-    return tie.freshness > o.freshness ? 'lost tie: fresher won' : haggled(s, tie, o) ? 'lost tie: Haggler' : 'lost tie';
+    return tie.freshness > o.freshness ? 'lost tie: fresher won' : haggled(s, tie, o) ? 'lost tie: Haggler' : 'lost tie: bought later';
   }
-  return 'sold out first';
+  return 'order filled first';
 }
 
 // ---------- what if you had priced lower ----------
@@ -224,13 +222,13 @@ export function tieAt(s: GameState, l: LineResult, mine: Offer, rival: Offer, vi
 }
 
 const WIN_WHY: Record<TieBy, string> = {
-  favouredTrade: 'Favoured Trade', haggler: 'Haggler', fresher: 'fresher fruit', order: 'you bought first',
+  favouredTrade: 'Favoured Trade', haggler: 'Haggler', fresher: 'fresher fruit', order: 'you bought earlier today',
 };
 function loseWhy(s: GameState, p: number, by: TieBy): string {
   const who = s.players[p].name;
   return by === 'favouredTrade' ? `${nameVerb(who, 'has', 'have', false)} Favoured Trade`
     : by === 'haggler' ? `${nameVerb(who, 'is', 'are', false)} the Haggler`
-      : by === 'fresher' ? `${nameOwn(who)} fruit was fresher` : `${nameIn(who)} bought first`;
+      : by === 'fresher' ? `${nameOwn(who)} fruit was fresher` : `${nameIn(who)} bought earlier today`;
 }
 
 /** A count of the viewer's pieces: exact, or only the fewest there would surely have been. */
@@ -309,7 +307,7 @@ function undercutWhatIf(s: GameState, l: LineResult, mine: Offer, lowest: number
     return `Match $${lowest} and you win${why}: ${atTie.n} sold.${unsoldNote(unsold, atTie.n)}`;
   }
 
-  const sure = under ? `$${under.price} would've sold ${under.n}.` : lowest - 1 < floor ? `$${floor} is the floor.` : '';
+  const sure = under ? `$${under.price} would've sold ${under.n}.` : lowest - 1 < floor ? `$${floor} is the lowest price.` : '';
   let claimed = under?.n ?? 0;
   let tie = '';
   if (lose.length) {
@@ -325,7 +323,7 @@ function undercutWhatIf(s: GameState, l: LineResult, mine: Offer, lowest: number
     }
   } else if (open) {
     const hag = s.players[viewer].trait === 'haggler' || l.offers.some((o) => o.price === lowest && s.players[o.player].trait === 'haggler');
-    tie = `Ties go to fresher fruit, then ${hag ? 'the Haggler, then ' : ''}who bought first.`;
+    tie = `Ties go to fresher fruit, then ${hag ? 'the Haggler, then ' : ''}whoever bought earlier today.`;
   }
   const text = [sure, tie].filter(Boolean).join(' ');
   return text ? `${text}${unsoldNote(unsold, claimed)}` : '';
@@ -342,14 +340,14 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
   const cust = lookOf(l.name).title;
   const showdown = l.offers.length >= 2 || !!mine;
 
-  if (!l.offers.length) return { showdown: false, tone: 'neutral', headline: `No ${FRUIT[l.fruit].plural.toLowerCase()} for ${cust}!`, tags };
+  if (!l.offers.length) return { showdown: false, tone: 'neutral', headline: `Nobody had ${FRUIT[l.fruit].plural.toLowerCase()} for ${cust}.`, tags };
 
   if (!mine) {
     const top = winners[0];
     if (!top) {
       // Nothing sold, so no offer qualified: say "too high" only when price was the reason for every one.
       const allPrice = l.offers.every((o) => noSaleReason(s, l, o, viewer).kind === 'price');
-      return { showdown, tone: 'neutral', headline: allPrice ? `Too pricey for ${cust}!` : `Nothing good enough for ${cust}.`, tags };
+      return { showdown, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `Nothing ${cust} would buy.`, tags };
     }
     const losers = others.filter((o) => o.sold === 0 && inContest(o));
     const headline = losers.length
@@ -371,25 +369,25 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
         ? `${s.players[cheaper[0].player].name} went cheaper. You sold ${n} of ${mine.qty}.`
         : `Sold ${n} of ${mine.qty}: ${cust} wanted ${l.want}.`;
     } else if (!rivals.length) {
-      headline = mine.price >= l.max ? `No rivals! ${n} sold at full price.` : `No rivals! ${n} sold at $${mine.price}.`;
+      headline = mine.price >= l.max ? `No rival had any. ${n} sold at top price.` : `No rival had any. ${n} sold at $${mine.price}.`;
       if (mine.price < l.max) detail = `${cust} would've paid $${l.max}.`;
     } else {
       const lowestLoser = beaten.length ? Math.min(...beaten.map((o) => o.price)) : null;
       const loserAtLow = beaten.find((o) => o.price === lowestLoser);
       if (loserAtLow && lowestLoser! > mine.price) {
         const gap = lowestLoser! - mine.price;
-        headline = `Beat ${s.players[loserAtLow.player].name} by $${gap}. ${n === 1 ? 'Sold!' : `All ${n} sold!`}`;
+        headline = `You beat ${s.players[loserAtLow.player].name} by $${gap}. ${n === 1 ? '1 sold.' : `All ${n} sold.`}`;
       } else if (loserAtLow && lowestLoser === mine.price) {
-        headline = `Tie at $${mine.price}. You win: ${tieShort(s, mine, loserAtLow)}!`;
+        headline = `Tie at $${mine.price}. You win: ${tieShort(s, mine, loserAtLow)}.`;
       } else {
-        headline = `Sold ${n} at $${mine.price}!`;
+        headline = `Sold ${n} at $${mine.price}.`;
       }
     }
     if (mine.sold === mine.qty && sold < l.want) {
       detail = `${l.want - sold} more wanted: you had none left at that price.`;
     } else if (mine.sold === mine.qty && mine.qty < l.want) {
       const rest = winners.filter((o) => o.player !== viewer);
-      if (rest.length) detail = `Right price, not enough stock: ${namesAnd(rest.map((o) => s.players[o.player].name), false)} sold ${l.want - mine.qty} more.`;
+      if (rest.length) detail = `Right price, too few pieces: ${namesAnd(rest.map((o) => s.players[o.player].name), false)} sold ${l.want - mine.qty} more.`;
     }
     return { showdown, tone: 'good', headline, detail, tags };
   }
@@ -404,7 +402,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     const best = cheaper.reduce((a, o) => (o.price > a.price ? o : a));
     const gap = mine.price - best.price;
     const who = s.players[best.player].name;
-    const headline = gap === 1 ? `${who} undercut you by $1!` : `${who} undercut you by $${gap}.`;
+    const headline = `${who} undercut you by $${gap}.`;
     // Counterfactual: under every winning price puts the viewer first in line; matching the cheapest winner is a
     // tie, settled in the engine's tie order (see undercutWhatIf). It works from the cheapest winner, so that stall
     // is named with its price when it is not the one above.
@@ -428,7 +426,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     }
     return { showdown, tone: 'bad', headline: `Tie at $${mine.price}. ${nameVerb(s.players[tie.player].name, 'wins', 'win')}: ${tieShort(s, tie, mine)}.`, detail, tags };
   }
-  return { showdown, tone: 'bad', headline: `Sold out before your turn.`, tags };
+  return { showdown, tone: 'bad', headline: 'The order was filled before your turn.', tags };
 }
 
 // ---------- reactions ----------
@@ -462,11 +460,11 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
   const sold = winners.reduce((a, o) => a + o.sold, 0);
   const left = l.want - sold;
   const short = left > 0 && winners.length ? `${left} more wanted.` : undefined;
-  if (!l.offers.length) return { showdown: false, tone: 'neutral', headline: `No ${plural} for ${cust}!`, tags };
+  if (!l.offers.length) return { showdown: false, tone: 'neutral', headline: `Nobody had ${plural} for ${cust}.`, tags };
   if (!winners.length) {
     const why = l.offers.map((o) => noSaleReason(s, l, o, NOBODY));
     const allPrice = why.every((x) => x.kind === 'price');
-    return { showdown: true, tone: 'neutral', headline: allPrice ? `Too pricey for ${cust}!` : `Nothing good enough for ${cust}.`, detail: allPrice ? why[0].detail : undefined, tags };
+    return { showdown: true, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `Nothing ${cust} would buy.`, detail: allPrice ? why[0].detail : undefined, tags };
   }
   if (winners.length > 1) {
     return { showdown: true, tone: 'neutral', headline: `${namesAnd(winners.map(name))} split the order: ${sold} sold.`, detail: short, tags };
@@ -474,13 +472,13 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
   const w = winners[0];
   const losers = l.offers.filter((o) => o !== w && inContest(o) && o.sold === 0);
   const tie = losers.find((o) => o.price === w.price);
-  if (tie) return { showdown: true, tone: 'neutral', headline: `Tie at $${w.price}. ${nameVerb(name(w), 'wins', 'win')}: ${tieShort(s, w, tie)}!`, detail: short, tags };
+  if (tie) return { showdown: true, tone: 'neutral', headline: `Tie at $${w.price}. ${nameVerb(name(w), 'wins', 'win')}: ${tieShort(s, w, tie)}.`, detail: short, tags };
   if (losers.length) {
     const next = losers.reduce((a, o) => (o.price < a.price ? o : a));
-    return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${nameIn(name(next))} by $${next.price - w.price}! ${w.sold} sold.`, detail: short, tags };
+    return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${nameIn(name(next))} by $${next.price - w.price}. ${w.sold} sold.`, detail: short, tags };
   }
   const full = w.price >= l.max;
-  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price!` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
+  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at top price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
 }
 
 /** At most one rival reaction per line, based only on what happened, and the same whoever is watching (PLAN-068). */
@@ -513,9 +511,11 @@ export function rivalReaction(s: GameState, l: LineResult, _viewer: number, used
   return null;
 }
 
-const HAPPY = ['Perfect, thanks!', 'Yum!', 'Just what I needed!', 'Lovely!', 'A bargain!'];
-const MEH = ['Hmph, not enough.', 'I wanted more…', 'Is that all?'];
-const GONE = ["I'm off. Never again!", 'Waste of a trip!', 'Goodbye, then!'];
+// One plain line for each outcome (DEC-087). The audit would cut these altogether; the rush card (src/ui/game/rush.ts)
+// still prints this answer in quotes for a customer no stall offered anything, so it must not be empty.
+const HAPPY = ['Thanks.'];
+const MEH = ['I wanted more.'];
+const GONE = ['Nothing for me today.'];
 
 export function customerReaction(s: GameState, customerId: number, name: string): string {
   const r = s.results;
@@ -549,6 +549,7 @@ export function standing(s: GameState, viewer: number): Standing {
 
 // ---------- daily highlights ----------
 
+/** `icon`: always empty since DEC-087 (no picture in front of a highlight); the sales card still reads the field. */
 export interface Highlight { icon: string; text: string; tone: Tone; score: number }
 
 /** One or two notable, true moments from today's results, chosen by fixed scores. */
@@ -578,35 +579,30 @@ export function dayHighlights(s: GameState, viewer: number): Highlight[] {
     }
   }
   for (const [p, n] of beat) {
-    out.push({ icon: '⚔️', tone: 'good', score: 50 + n * 10, text: n === 1 ? `You beat ${s.players[p].name} to a customer!` : `You beat ${s.players[p].name} ${n} times today!` });
+    out.push({ icon: '', tone: 'good', score: 50 + n * 10, text: n === 1 ? `You beat ${s.players[p].name} to a customer.` : `You beat ${s.players[p].name} ${n} times today.` });
   }
   for (const [p, e] of lostTo) {
-    if (e.close) out.push({ icon: '😤', tone: 'bad', score: 45 + e.close * 10, text: e.close === 1 ? `${s.players[p].name} edged you out by $1 or less.` : `${s.players[p].name} edged you out ${e.close} times by $1 or less.` });
-    else out.push({ icon: '📉', tone: 'bad', score: 30 + e.n * 5, text: `${s.players[p].name} undercut you ${e.n === 1 ? 'once' : `${e.n} times`}.` });
+    if (e.close) out.push({ icon: '', tone: 'bad', score: 45 + e.close * 10, text: e.close === 1 ? `${s.players[p].name} beat you by $1 or on a tie.` : `${s.players[p].name} beat you ${e.close} times by $1 or on a tie.` });
+    else out.push({ icon: '', tone: 'bad', score: 30 + e.n * 5, text: `${s.players[p].name} undercut you ${e.n === 1 ? 'once' : `${e.n} times`}.` });
   }
   if (bestLine && mineIncome > 0 && bestLine.rev >= mineIncome * 0.6 && bestLine.rev >= 10) {
-    out.push({ icon: '⭐', tone: 'good', score: 40 + bestLine.rev, text: `${lookOf(bestLine.l.name).title} saved your day with $${bestLine.rev}.` });
+    out.push({ icon: '', tone: 'good', score: 40 + bestLine.rev, text: `Your biggest sale: $${bestLine.rev} from ${lookOf(bestLine.l.name).title}.` });
   }
-  // Premium mango sales (mangoes are the ripen-and-wait fruit).
+  // Mangoes sold at $9 or more (mangoes are the ripen-and-wait fruit).
   const mango = r.lines.filter((l) => l.fruit === 'mango').flatMap((l) => l.offers.filter((o) => o.player === viewer && o.sold > 0 && o.price >= 9));
-  if (mango.length) out.push({ icon: '🥭', tone: 'good', score: 42, text: `Your mangoes sold at a premium ($${Math.max(...mango.map((o) => o.price))} each).` });
-  // Market dominance: one shop sold at least 70% (min 3) of a fruit today.
+  if (mango.length) out.push({ icon: '', tone: 'good', score: 42, text: `Your mangoes sold for $${Math.max(...mango.map((o) => o.price))} each.` });
+  // One stall sold at least 70% (min 3) of a fruit today.
   for (const f of FRUITS) {
     const by = new Map<number, number>();
     for (const l of r.lines) if (l.fruit === f) for (const o of l.offers) if (o.sold) by.set(o.player, (by.get(o.player) ?? 0) + o.sold);
     const total = [...by.values()].reduce((a, b) => a + b, 0);
     for (const [p, n] of by) if (total >= 3 && n / total >= 0.7) {
-      out.push({ icon: '👑', tone: p === viewer ? 'good' : 'neutral', score: 25 + n * 3, text: `${p === viewer ? 'You' : s.players[p].name} dominated the ${FRUIT[f].name.toLowerCase()} market (${n} sold).` });
+      out.push({ icon: '', tone: p === viewer ? 'good' : 'neutral', score: 25 + n * 3, text: `${p === viewer ? 'You' : s.players[p].name} sold the most ${FRUIT[f].plural.toLowerCase()} today (${n}).` });
     }
   }
-  // Fruit that spoils tonight if the game goes on, by the night's own rules (Heatwave, Monsoon, Juice Bar).
-  const night = nightOutlook(s, viewer);
-  if (night.spoil >= 2) {
-    const juice = night.juice ? `; ${becomeJuice(night.juice)} (+$${night.juice * JUICE_VALUE})` : '';
-    out.push({ icon: '🗑️', tone: 'bad', score: 20 + night.spoil * 6, text: `${night.spoil} of your fruit will spoil tonight${juice}.` });
-  }
+  // Fruit that spoils tonight is not a highlight: the sales card's own line above the highlights says it (tonightLine).
   if (mineIncome === 0 && !r.lines.some((l) => l.offers.some((o) => o.player === viewer))) {
-    out.push({ icon: '😶', tone: 'neutral', score: 15, text: 'A quiet day: you made no offers.' });
+    out.push({ icon: '', tone: 'neutral', score: 15, text: 'You had nothing customers wanted today.' });
   }
   out.sort((a, b) => b.score - a.score);
   return out.slice(0, 2);
@@ -654,7 +650,7 @@ export function tonightLine(s: GameState, p: number): string | null {
 export function heatwaveLine(s: GameState, _p: number): string | null {
   const extra = s.event?.ageExtra ?? 0;
   if (extra <= 0 || s.day >= s.config.days) return null;
-  return `Heatwave: everything ages ${extra === 1 ? 'twice' : `${1 + extra} times`} tonight.`;
+  return `Heatwave: all fruit ages ${1 + extra} steps tonight.`;
 }
 
 /**
@@ -663,8 +659,8 @@ export function heatwaveLine(s: GameState, _p: number): string | null {
  */
 export function overnightLines(lost: number, juice?: NightJuice): { text: string; tone: Tone }[] {
   const out: { text: string; tone: Tone }[] = [];
-  if (lost > 0) out.push({ tone: 'bad', text: `${lost} of your fruit spoiled overnight.` });
-  if (juice && juice.pieces > 0) out.push({ tone: 'good', text: `Your Juice Bar made $${juice.dollars} from ${juice.pieces} fruit overnight.` });
+  if (lost > 0) out.push({ tone: 'bad', text: `${lost} of your pieces spoiled overnight.` });
+  if (juice && juice.pieces > 0) out.push({ tone: 'good', text: `Your Juice Bar made $${juice.dollars} overnight.` });
   return out;
 }
 
@@ -766,20 +762,20 @@ export function closingNote(s: GameState, viewer: number): ClosingNote | null {
     if (ripe > 0) {
       // With green fruit on the shelf too, the chip names ripe fruit: the jam maker pays nothing for green.
       return {
-        morning: `Ripe fruit left tonight goes to the jam maker for $${JAM_PRICE} each. Sell what you can!`,
+        morning: `Closing Day: the jam maker pays $${JAM_PRICE} for each ripe piece you have left tonight.`,
         chip: `${all > ripe ? 'Ripe leftovers' : 'Leftovers'} = $${JAM_PRICE} each`, stocking, each: JAM_PRICE,
       };
     }
     if (all > 0) {
       return {
         morning: 'Green fruit left tonight is worth $0: the jam maker buys ripe fruit only.',
-        chip: 'Unsold = $0', stocking: 'Closing Day: green fruit left tonight is worth $0. The jam maker buys ripe fruit only.', each: 0,
+        chip: 'Unsold = $0', stocking: 'Closing Day: Green fruit left tonight is worth $0. The jam maker buys ripe fruit only.', each: 0,
       };
     }
     return { morning: null, chip: null, stocking, each: 0 };
   }
   return {
-    morning: all > 0 ? 'Anything unsold tonight is worth $0. Sell it all!' : null,
+    morning: all > 0 ? 'Last day: anything unsold tonight is worth $0.' : null,
     chip: all > 0 ? 'Unsold = $0' : null,
     stocking: 'Last day: anything unsold tonight is worth $0.',
     each: 0,

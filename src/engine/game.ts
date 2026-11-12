@@ -597,8 +597,8 @@ export function newGame(config: GameConfig): GameState {
 export function canPickTrait(s: GameState, p: number, t: TraitId): string | null {
   const pl = s.players[p];
   if (!pl || s.phase !== 'morning' || s.day !== 1) return 'Perks are picked on the first morning';
-  if (pl.trait) return 'You already have a trait';
-  if (!pl.traitOffer?.includes(t)) return 'That trait is not on offer';
+  if (pl.trait) return 'You already have a perk';
+  if (!pl.traitOffer?.includes(t)) return 'That perk is not on offer';
   return null;
 }
 
@@ -754,7 +754,7 @@ export function canBidOrder(s: GameState, p: number, price: number | null): stri
   if (o.bids[p] !== null && !o.bids.some((b, i) => i !== p && b === null)) return 'Bidding is closed';
   if (price === null) return null;
   if (!Number.isInteger(price) || price < 1) return 'Bids start at $1';
-  if (price > o.ceiling) return `The most this order pays is $${o.ceiling} a piece`;
+  if (price > o.ceiling) return `The highest bid for this order is $${o.ceiling} a piece`;
   // Rules 18: the winner puts the stake down at once, so a stall may only bid with that much cash. Passing is always allowed.
   const stake = orderStake(s, p);
   if (s.players[p].cash < stake) return `You need $${stake} in cash to put down the stake`;
@@ -781,7 +781,7 @@ function awardOrder(s: GameState) {
   const o = s.standing!;
   const bidders = o.bids.map((b, p) => ({ b, p })).filter((x): x is { b: number; p: number } => typeof x.b === 'number');
   if (bidders.length === 0) {
-    s.log.push(`Nobody wanted ${ORDER_CARDS[o.card].title}'s order`);
+    s.log.push(`Nobody bid for the standing order from ${ORDER_CARDS[o.card].title}`);
     s.standing = null;
   } else {
     // Lowest bid wins. Ties: an Order Book, then the earlier stall in today's buying order (the poorer one).
@@ -793,7 +793,7 @@ function awardOrder(s: GameState) {
     const hp = s.players[o.holder];
     o.staked = Math.min(hp.cash, orderStake(s, o.holder));
     hp.cash -= o.staked;
-    s.log.push(`${hp.name} won ${ORDER_CARDS[o.card].title}'s order at $${o.price} a piece and put down a $${o.staked} stake`);
+    s.log.push(`${hp.name} won the standing order from ${ORDER_CARDS[o.card].title} at $${o.price} a piece and put down a $${o.staked} stake`);
   }
   s.phase = 'buy';
   s.turn = 0;
@@ -808,7 +808,7 @@ export function shelfPos(pl: Player, f: FruitId, pos: number): number {
 // ---------- buying ----------
 
 function requireActive(s: GameState, p: number, phase: Phase) {
-  if (s.phase !== phase) throw new RuleError(`Not the ${phase} phase`);
+  if (s.phase !== phase) throw new RuleError('Not now');
   if (activePlayer(s) !== p) throw new RuleError('Not your turn');
 }
 
@@ -915,13 +915,13 @@ function favourBlock(s: GameState, p: number, idx: number): string | null {
   const def = FAVOURS[id];
   // Rules 18: Favoured Trade is played in its own step after prices flip, by the stall being asked (decideTie). Its
   // card may be tapped then; at any other time it cannot be played.
-  if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Favoured Trade is played after prices flip, when one of your prices is tied and you are asked';
-  if (def.when !== s.phase) return `Play this during the ${def.when} phase`;
-  if (id === 'priority' && s.day >= s.config.days) return 'There is no tomorrow';
+  if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Play this after prices flip, when one of your prices is tied';
+  if (def.when !== s.phase) return `Play this ${def.when === 'buy' ? 'on your buying turn' : 'in the evening'}`;
+  if (id === 'priority' && s.day >= s.config.days) return 'This is the last day';
   // Rules 18: only one Priority card can be played each evening. A second one is refused and stays in the hand.
-  if (id === 'priority' && s.priorityNext !== null) return 'A Priority card has already been played this evening. Only one can be played each evening, so keep yours';
-  if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins to hear about';
-  if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins to look at';
+  if (id === 'priority' && s.priorityNext !== null) return 'A Priority card was already played this evening. Only 1 can be played each evening. Keep yours';
+  if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins left to look at';
+  if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins left to look at';
   return null;
 }
 
@@ -940,7 +940,7 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       break;
     case 'freeFruit': {
       const { fruit, pos } = args;
-      if (!fruit || pos === undefined || (s.market[fruit][pos] ?? 0) <= 0) throw new RuleError('Pick a fruit at the market');
+      if (!fruit || pos === undefined || (s.market[fruit][pos] ?? 0) <= 0) throw new RuleError('Pick a piece at the Wholesale Market');
       if (count(pl.stock) >= shelfSize(pl)) throw new RuleError('Your shelf is full');
       s.market[fruit][pos]--;
       takeToShelf(pl, fruit, shelfPos(pl, fruit, pos));
@@ -1017,7 +1017,7 @@ export function validateCrate(s: GameState, p: number, c: Crate): string | null 
       const n = t[i];
       if (!Number.isInteger(n) || n < 0) return 'Whole numbers only';
       if (n > pl.stock[f][i]) return `You don't have that many ${FRUIT[f].plural.toLowerCase()} there`;
-      if (n > 0 && i >= FRUIT[f].ripe.length) return 'Green fruit can\'t be sold yet';
+      if (n > 0 && i >= FRUIT[f].ripe.length) return 'Green fruit cannot be sold yet';
     }
   }
   return null;
@@ -1142,7 +1142,7 @@ export function validatePrices(s: GameState, p: number, posts: Post[]): string |
     if (!FRUITS.includes(b.fruit)) return 'Unknown fruit';
     if (seen.has(b.fruit)) return 'One price per fruit';
     seen.add(b.fruit);
-    if (forSale(s, p, b.fruit) <= 0) return `You have no ${FRUIT[b.fruit].plural.toLowerCase()} out for sale`;
+    if (forSale(s, p, b.fruit) <= 0) return `You have no ${FRUIT[b.fruit].plural.toLowerCase()} in your crate`;
     if (!Number.isInteger(b.price)) return 'Whole numbers only';
     if (b.price < minPrice(s, b.fruit)) return 'Prices start at $1';
     if (b.price > maxPrice(s, b.fruit)) return `Price Controls: the most you can charge for ${FRUIT[b.fruit].plural.toLowerCase()} today is $${maxPrice(s, b.fruit)}`;
@@ -1517,7 +1517,7 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
     for (let i = ripe + 1; i < t.length; i++) { t[ripe] += t[i]; t[i] = 0; }
   }
   pl.upgradeOffer = []; // one upgrade after each Market Day
-  s.log.push(`${pl.name} built a ${UPGRADES[u].title}`);
+  s.log.push(`${pl.name} built an upgrade: ${UPGRADES[u].title}`);
   return s;
 }
 
@@ -1615,7 +1615,7 @@ function ageShop(s: GameState, pl: Player) {
     pl.cash += JUICE_VALUE * juice;
     pl.stats.earned += JUICE_VALUE * juice;
     pl.stats.juiced = (pl.stats.juiced ?? 0) + juice;
-    s.log.push(`${pl.name} juiced ${juice} fruit`);
+    s.log.push(`${pl.name} juiced ${juice} ${juice === 1 ? 'piece' : 'pieces'}`);
   }
   pl.stats.spoiled += spoil;
 }

@@ -119,7 +119,7 @@ describe('specialities draft', () => {
     pl.cash = 20;
     s.market.blueberry[0] = 2; // tired: their last day
     expect(buyCost(s, p, 'blueberry', 0)).toBe(1);
-    expect(UPGRADES.juicebar.text).toContain(`Tip: before the last day, $1 soft fruit makes $${JUICE_VALUE} of juice.`);
+    expect(UPGRADES.juicebar.text).toContain(`pieces that would spoil become juice: $${JUICE_VALUE} each.`);
     for (let k = 0; k < 2; k++) s = applyAction(s, p, { kind: 'buy', fruit: 'blueberry', pos: 0 });
     while (s.phase === 'buy') s = applyAction(s, s.order[s.turn], { kind: 'endBuy' });
     while (s.phase === 'stall') s = applyAction(s, s.stalls.findIndex((x) => x === null), { kind: 'stall', stall: {} });

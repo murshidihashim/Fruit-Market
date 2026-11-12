@@ -71,7 +71,7 @@ describe('rush result line (shared)', () => {
           if (/^Tie at/.test(st.headline)) seen.tie++;
           if (/ sold \d+ at /.test(st.headline)) seen.sold++;
           if (/split the order/.test(st.headline)) seen.split++;
-          if (/^(Too pricey|Nothing good enough|No \w+ for)/.test(st.headline)) seen.none++;
+          if (/^(Every price was too high for|Nothing .+ would buy\.|Nobody had \w+ for)/.test(st.headline)) seen.none++;
           // the rivals' quip does not depend on who is watching
           expect(rivalReaction(s, l, 0, new Set())).toEqual(rivalReaction(s, l, n - 1, new Set()));
         }
