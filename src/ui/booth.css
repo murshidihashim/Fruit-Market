@@ -132,7 +132,6 @@
 .home.hm .hm-tk-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 8px 12px; font: 700 0.875rem/1.25 var(--f-label); }
 .home.hm .hm-tk-txt small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
 .home.hm .hm-tk-txt small.red { color: var(--hm-red); }
-.home.hm .hm-tk-go { align-self: center; flex: none; margin-right: 12px; padding: 5px 8px; background: var(--hm-yel); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .home.hm .hm-foot {
   margin-top: auto; flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--hm-kraft);
   padding: 6px max(8px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
