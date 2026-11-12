@@ -1,11 +1,14 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 12:32 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 19:45 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, 44 commits ahead of `main`. It holds rules version 18, never merged, never on the preview, not published.
-- **The plan (REP-106, DEC-098 to DEC-100):** three releases. A: the rebuilt game (rules 18, new cards and screens, smooth motion, text, trophies and the stamp book's first version, the print kit). B: the Market Month single-player mode and a five-day Daily. C: weekly goal and table looks.
+- **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with `main` apart from the records of the publish.
+- **What 1.20.0 holds (REP-110, REP-111):** rules 18, the new cards, the whole day rebuilt on the table with its motion, the text of cards, story, tutorial and How to play.
+- **Next release (the rest of release A, DEC-105):** the stamp book with Results, Trophies, Wardrobe and Home (PLAN-086, paused first pass); the screen labels and the rest of the text list (PLAN-088 part 2); the print kit (PLAN-087, paused); the privacy page for the stamp book's counts; fixes from the owner's play of 1.20.0. Each release needs the owner's word. Then releases B (Market Month, five-day Daily) and C.
+- **Deadline:** the owner wants the rest ready inside the usage allowance before it resets on 2026-11-13 19:00.
+- **Helpers to resume** (agent ids, branches and next steps: scratchpad `helpers.md`, `p086-stamps/REPORT-paused.md`, `p087-print/REPORT-paused.md`): each must first merge `ccr-d8bcd65d-gblqqb` into its branch.
 
 ## Release A, package by package
 | Package | Plan | Delivery |
@@ -14,26 +17,30 @@ Updated 2026-11-12 12:32 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | 1. Flow repairs and two defects | PLAN-081 | Implemented, merge `f50c9d5` (REP-107) |
 | Balance choices (DEC-101) | PLAN-082 | Implemented, `9c0d11b` (REP-107) |
 | 2. New pictures and card faces; shared motion blocks | PLAN-083 | Verified, merges `10ef387` and `fd95996` (REP-108); the owner keeps the cards as built (DEC-102) |
-| **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **Active, in progress** |
-| 3, later parts. Pricing, the bell and Favoured Trade; buying and the lanes; the lorry, stocking, the night, the results | not opened | |
-| 4. The text (DEC-087) | not opened | |
-| 5. Trophies, stamp book, Trophies, Wardrobe, Results, Home (DEC-097, DEC-099) | not opened | |
-| 6. Print kit and release preparation | not opened | |
+| **3, part 1. The rush; the morning, the standing-order bid and the evening** | PLAN-084 | Implemented and checked on the merged code (`04d12ed`, REP-110); in release 1.20.0; the owner has not seen it yet |
+| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | Implemented and checked on the merged code (`ca39c60`, REP-111); in release 1.20.0 |
+| 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | Implemented, merged and checked (REP-111); in release 1.20.0. Left for part 2: 203 audit entries in screen files, the helper's full list and the owner's read of the samples |
+| 4, part 2. The screen labels | not opened | After the screens are merged |
+| 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | Paused for the release: data done, screens a first pass, on branch `worktree-agent-a414ddac0de8b3ac3` (`787faa3`), unmerged; next steps in the scratchpad file `p086-stamps/REPORT-paused.md` |
+| 6, part 1. The print kit on rules 18 | PLAN-087 | Paused (digital first). The decks print on rules 18 on branch `worktree-agent-a16606cfc36ae3620` (`d244989`), unmerged; next steps in the scratchpad file `p087-print/REPORT-paused.md` |
+| 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
-PLAN-084 is built by two helpers in separate work folders: one on the rush, one on the morning, the bid and the evening. Briefs: the session scratchpad (`brief-084-rush.md`, `brief-084-panels.md`). When they report: review, merge (shared files: `Game.tsx`, `table.tsx`, `useGameController.ts`, `motion.ts`, `cards.css`), run `npm run verify` and `npm run test:e2e`, look at each screen beside its mock-up at 390x844 and 360x640 with 4 and 6 stalls, record T1 to T5, show the owner (T6).
+**Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.
 
-## Checks (latest, on `fd95996`)
-- `npm run verify`: PASS (63 files, 605 tests, 1 skipped).
-- `npm run test:e2e`: PASS (solo game, performance budget, online match 0 leaks, reconnect 5 of 5).
-- Performance before and after package 2 (3 runs each): no clear change; about 30 more page elements; more pieces of work over 50 ms; all far inside the limits. Not run on the CI machines.
-- Pass-and-play hand-over: PASS (nothing of the first person's prices on the page).
-- Balance target (every shopkeeper within 4 points): PASS at 2, 3 and 4 stalls; FAIL narrowly at 6 stalls (Nest Egg +4.3) and against Hard computers (Bargain Hunter +5.6, +4.8).
-- Played by people: NOT RUN. Seen by the owner on the preview: NOT RUN.
+## Checks (on `ca39c60`, the code of release 1.20.0; CI and the live deploy passed on `c17a053`)
+- `npm run verify`: PASS. On ca39c60: 70 files, 722 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts).
+- `npm run test:e2e`: PASS. On the complete build (ca39c60), with the machine quiet: solo game to the results with no errors; performance budget OK (longest task 187 ms against 200, opening the game screen 211 ms, 0.69 slow frames in a hundred, 626 page elements of 800); online match with 66 pricing frames and 0 leaks; an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. Runs on the merged code: 141 ms and 187 ms with the machine quiet (PASS); 216, 260 and 344 ms while helpers and other tests were loading it (FAIL at the 200 ms limit). The CI machines measured 63 ms on the four-screen build, against their limit of 250 ms.
+- On the CI machines: PASS (run 136). Deploy LIVE game run 39: PASS, live smoke test included.
+- Balance target: PASS at 2, 3 and 4 stalls; narrow FAIL at 6 stalls and against Hard computers, accepted by the owner (DEC-102).
+- Played by people: NOT RUN.
 
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
 - **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
-- Publishing release A still needs his own word for that build, after the merge to `main`, the full checks and the preview copy.
+- **DEC-106 (2026-11-12), done:** 1.20.0 was held and published when the rest of the day's screens were ready; the small-phone scroll in the evening and the bid, and the "You wins" sentences, are fixed in it.
+- **DEC-105 (2026-11-12):** the core game goes live first; the stamp book, the screen labels and the print kit follow in later releases.
+- **DEC-104 (2026-11-12):** "speed it up please": the remaining packages are built side by side; no check is dropped.
+- Each later release needs his own word for that build.
 - Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes).
 
 ## Sources

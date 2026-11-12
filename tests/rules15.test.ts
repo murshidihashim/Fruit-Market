@@ -152,8 +152,7 @@ describe('on screen', () => {
 
   it('the pricing screen says the same thing whatever a rival really put out', () => {
     const draw = (s: GameState) => toStaticHtml(h(PricePanelView, {
-      s: view(s), p: 0, vals: startingPrices(view(s), 0), favoured: false, notice: false,
-      onPrice: () => undefined, onFavoured: () => undefined, onNotice: () => undefined, onSubmit: () => undefined,
+      s: view(s), p: 0, vals: startingPrices(view(s), 0), notice: false, onPrice: () => undefined, onNotice: () => undefined,
     }));
     expect(draw(bell({ apple: 2 }))).toBe(draw(bell({ mango: 2 })));
   });
@@ -165,7 +164,14 @@ describe('on screen', () => {
     expect(rivalNote(view({ ...s, phase: 'morning' }), 1, false)).toBe('');
     const rung = { ...s, phase: 'reveal' as const, bids: [[{ fruit: 'apple' as const, price: 6 }], [{ fruit: 'apple' as const, price: 5 }, { fruit: 'mango' as const, price: 10 }], [{ fruit: 'blueberry' as const, price: 4 }]] };
     const table = toStaticHtml(h(CratesOpen, { s: view(rung), viewer: 0 }));
-    expect(table).toContain('Every crate is open');
+    expect(table).toContain('Every crate and every price is open');
+    // before the flip the bell's rows hold nothing of anyone's, whatever the state carries (PLAN-085)
+    const early = toStaticHtml(h(CratesOpen, { s: { ...rung, phase: 'bid' as const }, viewer: 0 }));
+    expect(early).not.toMatch(/\$10|\$5|\$6|\$4|mango|apple|blueberr/i);
+    // while the bell rings, a row that has not turned yet shows only the backs of its tags
+    const ringing = toStaticHtml(h(CratesOpen, { s: view(rung), viewer: 0, open: 0 }));
+    expect(ringing).not.toMatch(/\$10|\$5<|\$6<|\$4</);
+    expect(ringing.match(/class="ds-pz back"/g)).toHaveLength(4);
     expect(table).toContain('Saleh: 1 mangoes at $10, 1 apples at $5'); // the printed board's lane order
     expect(table).toContain('Your crate: 2 apples at $6');
   });

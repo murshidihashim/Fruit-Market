@@ -182,7 +182,7 @@ describe('pricing against the Haggler (REP-089 item 6, before the bell)', () => 
     });
     expect(s.players[1].trait).toBe('haggler');
     s.day = 2; s.event = null; s.nextEvent = null; s.phase = 'bid'; s.order = [0, 1];
-    s.nextFarmer = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!; // plenty of mangoes tomorrow
+    s.nextFarmer = FARMER_CARDS.find((c) => c.name === 'Mango Lorry')!; // plenty of mangoes tomorrow
     s.players.forEach((p) => { p.stock = emptyStock(true); p.favours = []; });
     const want = (name: string) => {
       // Two mangoes each, as on the rules 10 cards (rules 11 halved these orders to 1).

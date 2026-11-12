@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-100"
@@ -34,7 +34,7 @@
     "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
     "date": "2026-11-11"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-077",
   "title": "Rules version 17 (standing orders, upgrades) and the tabletop update pack",
   "problem": "Owner's list: rivals should fill a standing order at $1 less; bidding should show who is bidding and stay open while anyone is deciding; the app should offer all five upgrades; the printed game should deal tomorrow's customers when the app does and keep cash outside the shutter; and the printed game should be audited against the app.",

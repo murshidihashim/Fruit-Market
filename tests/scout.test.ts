@@ -39,7 +39,7 @@ describe('Scout', () => {
     expect(() => playFavour(t, p, 0)).toThrow();
     expect(() => playFavour(t, p, 0, { customer: -99 })).toThrow();
     for (const c of t.queue) c.seenBy = [p];
-    expect(canPlayFavour(t, p, 0)).toBe('No walk-ins to look at');
+    expect(canPlayFavour(t, p, 0)).toBe('No walk-ins left to look at');
     const m = structuredClone(s);
     m.players[p].favours = ['scout'];
     m.phase = 'stall';

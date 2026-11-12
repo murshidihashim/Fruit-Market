@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import * as A from '../src/ui/anim';
-import { NIGHT, NO_SALES_READ, bellRead } from '../src/ui/game/animator';
+import { NIGHT, NO_SALES_READ, bellLength, bellOpening } from '../src/ui/game/animator';
 import { BEAT, CSS_MS, EASE, FEEL, FRAME, SPEED, type MotionRoot } from '../src/ui/motion';
 import { SHEET, SHEET_IN, SHEET_OUT, sheetChange, sheetOn, type SheetGhost, type SheetPanel } from '../src/ui/sheet';
 
@@ -53,19 +53,31 @@ describe('the lengths are named in one place (motion.ts)', () => {
 
   it('the beats the game plays today keep their lengths', () => {
     expect(BEAT.piece).toEqual({ fly: 520, land: 300, gap: 90 });
-    expect(BEAT.lorry).toEqual({ fly: 600, gap: 70 });
-    expect(BEAT.rival).toEqual({ pause: 380, pauseFast: 150 });
-    expect(BEAT.stock.fly).toBe(480);
+    // the lorry (PLAN-085): it drives in, a crate for each fruit slides to its lane, it drives off; about 1.2 s
+    expect(BEAT.lorry).toEqual({ drive: 300, crate: 360, gap: 120, off: 300 });
+    expect(BEAT.lorry.drive + 3 * BEAT.lorry.gap + BEAT.lorry.crate).toBeLessThanOrEqual(1200);
+    // a rival's whole buying turn is one beat of about a second (PLAN-085): the pause, then three pieces a little apart
+    expect(BEAT.rival).toEqual({ pause: 380, pauseFast: 150, gap: 100 });
+    expect(BEAT.rival.pause + 2 * BEAT.rival.gap + FEEL.travel).toBeLessThanOrEqual(1100);
+    // the walk-ins turn face up one after another (PLAN-085)
+    expect(BEAT.arrive).toEqual({ gap: 100 });
+    // filling your crate: a piece slides between its shelf row and the crate in 260 ms (PLAN-085; flow study D3)
+    expect(BEAT.stock.fly).toBe(260);
     expect([BEAT.label.read, BEAT.label.favourWon, BEAT.label.bonus, BEAT.label.float, BEAT.label.toast]).toEqual([1100, 800, 500, 1300, 2000]);
-    // the bell: 2.9 s at four stalls; "No sales today" 1.1 s
-    expect(bellRead(4)).toBe(2900);
-    expect(bellRead(6)).toBe(3600);
+    // the bell (PLAN-085; flow study D3): it swings, each stall's row opens 180 ms after the one before, then 1.2 s to
+    // read: about 2.6 s at four stalls; "No sales today" 1.1 s
+    expect(BEAT.bell).toMatchObject({ swing: 300, gap: 180, lid: 220, read: 1200 });
+    expect(BEAT.price.seal).toBe(200);
+    expect(bellOpening(4)).toBe(300 + 3 * 180 + 220 + 280);
+    expect(bellLength(4)).toBe(2540);
+    expect(bellLength(6)).toBe(2900);
+    expect(BEAT.tie).toEqual({ ask: 600, stamp: 180, pause: 600 });
     expect(NO_SALES_READ).toBe(1100);
     // the rush: one card for each customer, at the flow study's pace (PLAN-084; rush.test.ts pins what a customer takes)
     expect(BEAT.rush).toEqual({ cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 });
-    // the night: 3.7 s in all before anything spoils
-    expect(NIGHT).toMatchObject({ dusk: 950, slide: 1500, settle: 80, read: 770, end: 400, spoil: 900, gap: 80, juiceCoin: 480 });
-    expect(NIGHT.dusk + NIGHT.slide + NIGHT.settle + NIGHT.read + NIGHT.end).toBe(3700);
+    // the night (PLAN-085): 2.5 s in all, the spoiled pieces tipping off as the slide ends
+    expect(NIGHT).toMatchObject({ dusk: 400, slide: 900, settle: 80, read: 920, end: 200, spoil: 300, gap: 80, juiceCoin: 360 });
+    expect(NIGHT.dusk + NIGHT.slide + NIGHT.settle + NIGHT.read + NIGHT.end).toBe(2500);
     expect(SPEED).toEqual({ fast: 0.55, hurry: 0.15, step: 0.15 });
   });
 
@@ -676,9 +688,11 @@ describe('the sheet: the middle panel slides onto the table and off again (sheet
   it('every middle panel the table draws carries one of the sheet\'s classes', () => {
     const roots = [
       ['src/ui/game/panels/MorningCard.tsx', /<div class=\{`morning-card /], ['src/ui/game/panels/TraitPick.tsx', /<div class="morning-card /],
-      ['src/ui/game/panels/SalesSummary.tsx', /<div class="sales-card"/], ['src/ui/game/panels/PricingTable.tsx', /<div class="mid-panel tk-bell"/],
+      // PLAN-085: stocking, pricing, the bell, the Favoured Trade question and the takings are steps of one sheet
+      ['src/ui/game/panels/DaySheet.tsx', /<div class=\{`mid-panel sh-day /],
       ['src/ui/game/panels/OrderPanel.tsx', /class="[^"]*\bmid-panel\b/], ['src/ui/game/panels/NightShift.tsx', /class="mid-panel night-shift/],
-      ['src/ui/panel.tsx', /class="price-panel stall-panel mid-panel/], ['src/ui/Game.tsx', /<div class="mid-panel mid-evening">/],
+      // PLAN-084: the evening's sheet is drawn in panel.tsx with its own buttons (it was a wrapper in Game.tsx)
+      ['src/ui/panel.tsx', /<div class="mid-panel mid-evening /],
     ] as const;
     for (const [f, re] of roots) expect(read(f), f).toMatch(re);
   });

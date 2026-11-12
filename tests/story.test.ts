@@ -26,7 +26,7 @@ describe('sale explanations', () => {
     ]);
     const st = explainLine(s, l, 0);
     expect(st.tone).toBe('bad');
-    expect(st.headline).toBe('Foxy Rosa undercut you by $1!');
+    expect(st.headline).toBe('Foxy Rosa undercut you by $1.');
     expect(st.detail).toContain("$4 would've sold 2");
   });
 
@@ -36,7 +36,7 @@ describe('sale explanations', () => {
       { player: 1, qty: 2, price: 1, sold: 2, freshness: 3 },
       { player: 0, qty: 2, price: 6, sold: 0, freshness: 3 },
     ]);
-    expect(explainLine(s, l, 0).detail).toContain('$1 is the floor');
+    expect(explainLine(s, l, 0).detail).toContain('$1 is the lowest price');
   });
 
   it('credits fresher fruit on a tie, following the engine tie-break', () => {
@@ -56,7 +56,7 @@ describe('sale explanations', () => {
     ]);
     const st = explainLine(s, l, 0);
     expect(st.tone).toBe('good');
-    expect(st.headline).toBe('Beat Big Benny by $2. All 2 sold!');
+    expect(st.headline).toBe('You beat Big Benny by $2. All 2 sold.');
   });
 
   it('flags right price but not enough stock', () => {
@@ -65,7 +65,7 @@ describe('sale explanations', () => {
       { player: 0, qty: 1, price: 5, sold: 1, freshness: 3 },
       { player: 1, qty: 2, price: 6, sold: 2, freshness: 3 },
     ], 3);
-    expect(explainLine(s, l, 0).detail).toContain('Right price, not enough stock');
+    expect(explainLine(s, l, 0).detail).toContain('Right price, too few pieces');
   });
 
   it('gives a smug reaction only to the rival who actually undercut', () => {

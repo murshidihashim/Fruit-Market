@@ -24,7 +24,7 @@ import { AI_VERSION, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomV
 import { freshRoom, GRACE_MS, redact, Room, type Conn, type RoomIO } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { ripeLine, topUpLine } from '../src/ui/game/panels/MorningCard';
-import { OrderRules, OrderStrip, stakeHint } from '../src/ui/game/panels/OrderPanel';
+import { OrderStrip, StakeLines, stakeHint } from '../src/ui/game/panels/OrderPanel';
 import { TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
 import { finishWords } from '../src/ui/game/panels/Results';
 import { extras } from '../src/ui/game/panels/SalesSummary';
@@ -279,7 +279,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     expect(s.players[1].stock[f][FRESH(f)]).toBe(3); // and their fruit is never taken
     expect(s.players[0].stock[f][SOFT]).toBe(1); // a Soft piece is never taken either
     expect(s.results!.favours).toEqual([]); // no favour card
-    expect(s.log[s.log.length - 1]).toContain(`got its $${o.stake} stake back`);
+    expect(s.log[s.log.length - 1]).toContain(`got the $${o.stake} stake back`);
     // The line shows what was paid, not a rival's offer.
     expect(s.results!.lines[0].offers.map((x) => x.player)).toEqual([0]);
   });
@@ -290,7 +290,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     expect(short.res).toMatchObject({ short: 1, stake: short.o.stake, back: 0 });
     expect(short.gain).toEqual([2 * 5, 0]); // paid for two pieces, no fine, the stake stays lost
     expect(short.s.players[1].stock[f][FRESH(f)]).toBe(3);
-    expect(short.s.log[short.s.log.length - 1]).toContain(`lost its $${short.o.stake} stake`);
+    expect(short.s.log[short.s.log.length - 1]).toContain(`lost the $${short.o.stake} stake`);
     // A holder with nothing loses the stake and no more, even with no cash at all.
     const none = collect(shelf(f, {}), shelf(f, { [FRESH(f)]: 3 }), (g) => { g.players[0].cash = g.standing!.stake; });
     expect(none.res).toMatchObject({ short: 3, back: 0, sales: [] });
@@ -322,10 +322,14 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
   it('the bidding panel and the strip speak of the stake, not of fines or rivals', () => {
     const s = marketDay(3, 30);
     const stake = s.standing!.stake;
-    const panel = toStaticHtml(h(OrderRules, { s: publicView(s, 0), p: 0 }));
-    expect(panel).toContain(`The winner puts down a stake of <b>$${stake}</b> now`);
-    expect(panel).toContain('Rivals are not involved');
-    expect(panel).not.toMatch(/fined|\$1 under/);
+    // PLAN-084, the approved bid screen: three lines say what a bid of $6 means for this stall (they took the place
+    // of the three rule lines, which also said that rivals are not involved).
+    const qty = s.standing!.qty;
+    const panel = toStaticHtml(h(StakeLines, { s: publicView(s, 0), p: 0, bid: 6 }));
+    expect(panel).toContain(`<dt>If you win</dt><dd>You pay the $${stake} stake now. You have $30.</dd>`);
+    expect(panel).toContain(`<dt>Deliver all ${qty}</dt><dd>$${6 * qty}, and the $${stake} stake comes back.</dd>`);
+    expect(panel).toMatch(/<dt>Fall short<\/dt><dd>\$6 for each [a-z]+ you deliver\. The stake is lost\.<\/dd>/);
+    expect(panel).not.toMatch(/fined|\$1 under|rival/i);
     expect(stakeHint(publicView(s, 0), 0)).toBeNull();
     // Without the stake in cash a stall can only pass.
     const poor = structuredClone(s);
@@ -334,9 +338,10 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     // With an Order Book the panel shows the halved stake and the extra pay.
     const book = structuredClone(s);
     book.players[0].upgrades = ['orderbook'];
-    const bh = toStaticHtml(h(OrderRules, { s: publicView(book, 0), p: 0 }));
-    expect(bh).toContain(`a stake of <b>$${Math.floor(stake / 2)}</b> now (halved by your Order Book)`);
-    expect(bh).toContain('plus $2 a piece with your Order Book');
+    const bh = toStaticHtml(h(StakeLines, { s: publicView(book, 0), p: 0, bid: 6 }));
+    expect(bh).toContain(`You pay the $${Math.floor(stake / 2)} stake now (halved by your Order Book)`);
+    expect(bh).toContain(`$${6 * qty}, plus $2 a piece with your Order Book, and the $${Math.floor(stake / 2)} stake comes back.`);
+    expect(bh).toMatch(/\$8 for each [a-z]+ you deliver/);
     let won = bidOrder(s, 0, 6);
     for (const p of [1, 2]) won = bidOrder(won, p, null);
     expect(toStaticHtml(h(OrderStrip, { s: publicView(won, 1), viewer: 1 }))).toContain(`stake $${stake} held`);
@@ -385,7 +390,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
 
 describe('C. shopkeepers', () => {
   it('Tip Jar: $1 from a customer who leaves with their whole order if she sold them any of it, $2 if she served them alone', () => {
-    expect(TRAITS.favourite.text).toBe('A customer who leaves with their whole order tips you $1 if you sold them any of it, $2 if you served them alone.');
+    expect(TRAITS.favourite.text).toBe('A customer who leaves with their whole order tips you $1 if you sold them any of it, or $2 if you served them alone.');
     expect([SHARED_TIP, LOCAL_FAVOURITE_TIP]).toEqual([1, 2]);
     const run = (kiki: number, rival: number, want: number) => {
       const s = stocking(2, [buyer(1, 'apple', want, 8)]);
@@ -413,7 +418,7 @@ describe('C. shopkeepers', () => {
     expect(START_CASH + NEST_EGG_BONUS).toBe(15);
     const s = newGame(humans(2, {}, [avatarOf('nestegg')]));
     expect(s.players.map((p) => p.cash)).toEqual([15, 10]);
-    expect(TRAITS.nestegg.text).toBe('Start with $15 instead of $10, and buy first on day 3.');
+    expect(TRAITS.nestegg.text).toBe('Start with $15 instead of $10. Buy first on Day 3.');
   });
 
   it('Sharp Ears: the tip is $2 at 3 to 6 stalls and $1 at 2, at most once a day', () => {
@@ -469,9 +474,9 @@ describe('C. shopkeepers', () => {
 describe('D. upgrades', () => {
   it('cost $6, $6, $5, $4 and $3, with the new card texts', () => {
     expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([6, 6, 5, 4, 3]);
-    expect(UPGRADES.ripening.text).toBe('Your green mangoes ripen in one night instead of two.');
-    expect(UPGRADES.orderbook.text).toBe('You win tied bids for standing orders, your stake is halved, and an order pays you $2 more for each piece you deliver.');
-    expect(UPGRADES.juicebar.text).toContain('for each okay or soft fruit a customer buys from you');
+    expect(UPGRADES.ripening.text).toBe('Your Green mangoes ripen in 1 night instead of 2.');
+    expect(UPGRADES.orderbook.text).toBe('You win tied bids for standing orders. Your stake is halved. A standing order pays you $2 more for each piece you deliver.');
+    expect(UPGRADES.juicebar.text).toContain('for each Okay or Soft piece a customer buys from you');
     expect(UPGRADES.premium.text).toContain('A guest never pays more than its fixed price.');
   });
 
@@ -527,7 +532,7 @@ describe('D. upgrades', () => {
 describe('E. fruit and decks', () => {
   it('a green mango costs $4 at the market', () => {
     expect(FRUIT.mango.cost).toEqual({ fresh: 6, okay: 3, notso: 1, unripe: 4 });
-    expect(FRUIT.mango.theme).toContain('green for $4');
+    expect(FRUIT.mango.theme).toContain('Green for $4');
     const s = beginBuying(bare(2));
     expect(marketCost(s, 'mango', GREEN_TOP)).toBe(4);
   });
@@ -539,11 +544,11 @@ describe('E. fruit and decks', () => {
     expect(CUSTOMER_CARDS.flatMap((c) => c.wants).filter((w) => w.fruit === 'blueberry' && w.max < 4)).toEqual([]);
   });
 
-  it('Short Load carries 2/2/1/1 at 3 stalls and Summer Run\'s apple is 1/1/1/2/2', () => {
+  it('Short Load carries 2/2/1/1 at 3 stalls and the apple on Berries and Melons (once Summer Run) is 1/1/1/2/2', () => {
     const row = (name: string, n: number) => FRUITS.map((f) => printedSupply(FARMER_CARDS.find((c) => c.name === name)!, f, n)).join('/');
     expect(row('Short Load', 3)).toBe('2/2/1/1');
     expect(row('Short Load', 2)).toBe('2/1/1/1');
-    expect([2, 3, 4, 5, 6].map((n) => printedSupply(FARMER_CARDS.find((c) => c.name === 'Summer Run')!, 'apple', n))).toEqual([1, 1, 1, 2, 2]);
+    expect([2, 3, 4, 5, 6].map((n) => printedSupply(FARMER_CARDS.find((c) => c.name === 'Berries and Melons')!, 'apple', n))).toEqual([1, 1, 1, 2, 2]);
   });
 
   it('Mango Windfall: the extra mangoes arrive Fresh, as the card says; the lorry\'s own mangoes stay green', () => {
@@ -823,8 +828,8 @@ describe('H. rulings', () => {
     expect(g.priorityNext).toBe(0);
     g = applyAction(g, 0, { kind: 'endEvening' });
     expect(activePlayer(g)).toBe(1); // stall 1 still has Gossip to decide on
-    expect(canPlayFavour(g, 1, 0)).toBe('A Priority card has already been played this evening. Only one can be played each evening, so keep yours');
-    expect(() => playFavour(g, 1, 0)).toThrow(/Only one can be played each evening/);
+    expect(canPlayFavour(g, 1, 0)).toBe('A Priority card was already played this evening. Only 1 can be played each evening. Keep yours');
+    expect(() => playFavour(g, 1, 0)).toThrow(/Only 1 can be played each evening/);
     expect(g.players[1].favours).toEqual(['priority', 'gossip']);
     const next = passEvening(g);
     expect(next.order[0]).toBe(0);
@@ -927,7 +932,7 @@ describe('H. rulings', () => {
     s.event = ev('glut');
     expect(cost()).toEqual([1, 1, 1]);
     expect(marketCost(s, 'apple', FRESH('apple'))).toBe(3); // only blueberries
-    expect(ev('glut').text).toContain('Blueberries cost $1 less at the market (never below $1).');
+    expect(ev('glut').text).toContain('Blueberries cost $1 less at the Wholesale Market (never below $1).');
     // A Price Hike day is unaffected by the new field.
     s.event = ev('priceHike');
     expect(cost()).toEqual([3, 2, 2]);
@@ -1035,18 +1040,18 @@ describe('K. Favoured Trade after prices flip', () => {
   const soldTo = (g: GameState) => g.results!.lines[0].offers.filter((o) => o.sold > 0).map((o) => [o.player, o.sold]);
 
   it('the card says so, and it cannot be played before the flip', () => {
-    expect(FAVOURS.favouredTrade).toMatchObject({ when: 'tie', text: 'After prices flip: if one of your prices is tied, play this to win every tied price today.' });
+    expect(FAVOURS.favouredTrade).toMatchObject({ when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' });
     let s = stocking(2, [buyer(1, 'apple', 2, 8)]);
     s.players.forEach((p) => { p.stock.apple[FRESH('apple')] = 2; });
     s.players[0].favours = ['favouredTrade'];
-    const why = 'Favoured Trade is played after prices flip, when one of your prices is tied and you are asked';
+    const why = 'Play this after prices flip, when one of your prices is tied';
     expect(canPlayFavour(s, 0, 0)).toBe(why); // stocking
     s = openStall(openStall(s, 0, { apple: 2 }), 1, { apple: 2 });
     expect(s.phase).toBe('bid');
     expect(canPlayFavour(s, 0, 0)).toBe(why); // pricing: no longer played with the prices
     expect(() => playFavour(s, 0, 0)).toThrow(why);
     expect(() => applyAction(s, 0, { kind: 'favour', idx: 0 })).toThrow(why);
-    expect(() => decideTie(s, 0, true)).toThrow(/Not the tie phase/);
+    expect(() => decideTie(s, 0, true)).toThrow(/Not now/);
     s = submitPrices(s, 0, [{ fruit: 'apple', price: 6 }]);
     expect(s.players[0].favouredTrade).toBe(false);
     expect(s.players[0].favours).toEqual(['favouredTrade']);
@@ -1195,13 +1200,21 @@ describe('K. Favoured Trade after prices flip', () => {
     const s = tied(3, [2], [6, 6, 6]);
     expect(tieWords(s, 2)).toBe('apples at $6 with P0 and P1');
     const mine = toStaticHtml(h(TiePanel, { s: publicView(s, 2), viewer: 2, asked: 2, onDecide: () => undefined }));
-    expect(mine).toContain('Your prices are tied: apples at $6 with P0 and P1.');
+    // PLAN-085: the question is the card itself, under the open rows
+    expect(mine).toContain('You, P0 and P1 all ask $6 for apples');
+    expect(mine).toContain('A tied price: apples at $6 with P0 and P1. Play Favoured Trade or keep it');
+    expect(mine).toContain('Play Favoured Trade and you sell first, on every tied price today.');
+    expect(mine).toContain('Without it');
+    expect(mine).toContain('With it');
     expect(mine).toContain('Play it');
     expect(mine).toContain('Keep it');
+    expect(mine).toContain('data-a="tie-note"');
     const theirs = toStaticHtml(h(TiePanel, { s: publicView(s, 0), viewer: 0, asked: 2 }));
     expect(theirs).toContain('P2 is deciding');
-    expect(theirs).toContain('P2 has a tied price (apples at $6 with P0 and P1) and may play Favoured Trade to win it.');
+    expect(theirs).toContain('P2, you and P1 all ask $6 for apples');
+    expect(theirs).toContain('P2 holds Favoured Trade and is deciding whether to play it.');
     expect(theirs).not.toContain('Play it');
+    expect(theirs).not.toContain('Without it');
   });
 
   it('whole computer games reach the step, and every card played there was held by a stall with a tied price', () => {
@@ -1325,7 +1338,7 @@ describe('online (the room server)', () => {
     expect(hs.room.d.game!.phase).toBe('bid');
     // Favoured Trade can no longer ride along with the prices.
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'favour', idx: 0 } });
-    expect(a.errors.slice(-1)[0]).toContain('played after prices flip');
+    expect(a.errors.slice(-1)[0]).toContain('after prices flip');
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [{ fruit: 'apple', price: 6 }] } });
     await b.say({ t: 'act', id: nid(), v: b.view!.version, action: { kind: 'prices', posts: [{ fruit: 'apple', price: 6 }] } });
     expect(hs.room.d.game!.phase).toBe('tie');

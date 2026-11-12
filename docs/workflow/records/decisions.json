@@ -2115,7 +2115,7 @@
         "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-077",
       "reports": [
         "REP-100"
@@ -2140,7 +2140,7 @@
         "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-101",
@@ -2190,7 +2190,7 @@
         "evidence": "\"go with B\"",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-102",
@@ -2338,7 +2338,7 @@
         "evidence": "Owner, 2026-11-12: \"keep lorry column\"; \"picture style is right, proceed to draw all the cards, do it detailed as i i want the artsyle to feel polished and ready to print\"; \"now give 3 designs each for respective cards, now it looks to plain and all are very generic, keep the 3 design styles within a coherent design\"; \"for the wholesale market in the app, dont use the short broad, i need to be 3,4,5,6 columns, it needs to feel like a board game still\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2508,7 +2508,7 @@
         "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-105",
         "REP-106",
@@ -2534,7 +2534,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-107",
         "REP-108"
@@ -2564,6 +2564,78 @@
         "REP-109"
       ],
       "reviewTrigger": "When each screen is built: shown to the owner beside its board. If the awning strip crowds a 360 by 640 screen or a six-stall table"
+    },
+    {
+      "id": "DEC-104",
+      "title": "Release A's remaining packages are built side by side",
+      "question": "The owner asked for the work to go faster. Release A was being built one package after another, with one or two helpers at a time. How is it sped up without dropping a check?",
+      "choice": "The remaining packages of release A are built at the same time, by separate helpers in separate work folders, where their files do not overlap: the rest of the screens (package 3), the text outside the screens (package 4, part 1), the stamp book's first version (package 5) and the print kit (package 6, part 1). The screen labels (package 4, part 2) and the release preparation (package 6, part 2) follow when the screens are merged. Each package keeps its own plan, checks and report; nothing is merged before it is reviewed and the checks are run on the merged code. For release A this sets aside the workflow's rule of one active work package. This is a reading of the owner's three words, not something he was asked in detail; he can ask for one package at a time again at any point.",
+      "rationale": "Owner: \"speed it up please\", after being told about 40% of release A was built. The packages left touch different files for the most part, and all of them were already approved (DEC-087, DEC-097 to DEC-099, DEC-103). Nothing is taken out of the checks.",
+      "impact": {
+        "player": "None: the same release, sooner.",
+        "technical": "Up to five helpers at once on a machine with four processor cores: timing checks run by a helper can be thrown off by the others, so the standard and browser checks are run again by the session on the merged code when the machine is quiet. More merges by hand where shared files meet (Game.tsx, useGameController.ts, animator.tsx, cards.tsx). The usage allowance is used up sooner; if it runs out, all the work pauses until it resets.",
+        "data": "None"
+      },
+      "cost": "RM0 known: the same usage allowance, used sooner. Not checked: whether the owner's plan charges for use beyond the allowance.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"speed it up please\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-106"
+      ],
+      "reviewTrigger": "If the usage allowance stops the work again; if merging the helpers' work costs more time than it saves; if the owner prefers one package at a time"
+    },
+    {
+      "id": "DEC-105",
+      "title": "The core game goes live first, as release 1.20.0; the rest of release A follows",
+      "question": "Does release A wait until every package is finished, or does the core game go live first so the owner can test it on the live game?",
+      "choice": "The core game goes live today as release 1.20.0, for the owner to test: rules version 18, the new cards, and the day's screens as they stand today (the rush, the morning, the standing-order bid and the evening rebuilt; stocking, pricing, the bell, the takings, the market and the night still in their earlier layout). The digital game comes before the print kit, which is paused. The rest of release A follows in later releases as each part is finished and checked: the remaining screens, the text rewrite, the stamp book with Results, Trophies, Wardrobe and Home, then the print kit. This replaces item 2 of DEC-102 (everything first, then live) and the single release A of DEC-098. Each later release still needs the owner's word. The build is published only if the full checks pass on it.",
+      "rationale": "The owner wants to test the core game on the live game now and have the rest worked on after. He chose this over a preview copy tonight with the live game tomorrow. The game plays correctly on rules 18 in its present state: the standard checks and the browser tests pass on the merged code.",
+      "impact": {
+        "player": "Every phone updates to rules 18. A game paused under the old rules cannot be continued (the game says so). The Daily market's board starts afresh for rules 18, since boards are kept apart by rules version. Seven older trophies cannot be earned until the stamp book release. Four screens are in the new look and the rest in the earlier one; the text is not yet rewritten.",
+        "technical": "Version 1.20.0. The usual path: merge to main, the full checks on the CI machines (first run there for this branch), the preview copy, then Deploy LIVE game. An Android app already installed keeps the version it was built with; play between versions is refused with an update message. The helpers on the remaining screens, the text and the stamp book keep working on the branch; their work is not in this release.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "released",
+      "reports": [
+        "REP-110"
+      ],
+      "reviewTrigger": "If the full checks fail on the release build (then nothing is published and the owner is told); when the owner has played the live game; when each later part is ready for its own release"
+    },
+    {
+      "id": "DEC-106",
+      "title": "Release 1.20.0 is published when the rest of the day's screens are in it",
+      "question": "Release 1.20.0 was prepared and merged to main with four rebuilt screens (DEC-105). Is it published as it stands, or held?",
+      "choice": "Held. 1.20.0 is published after these are ready: stocking, pricing, the bell and Favoured Trade; the day's takings; the market lanes, the stalls, the shelf, buying, the lorry and the night. Ready means merged, the standard and browser checks passing on the merged code, each screen looked at beside its design, and the full checks passing on the CI machines. Then it is published on this word, without asking again; if a required check fails, nothing is published and the owner is told. The two gaps he named are fixed in the same release: the scroll on a small phone in the evening and the bid, and sentences such as \"You wins\". Other finished work that is merged and checked by then may ride along; the stamp book, the screen labels and the print kit do not hold the release. This replaces the timing in DEC-105 (as it stands, today).",
+      "rationale": "The owner asked for the gaps to be fixed and the remaining screens of the day to be built now, and then set the publishing point after them. The preview copy has the four-screen build meanwhile.",
+      "impact": {
+        "player": "The first live build of rules 18 has every screen of the day in the new look.",
+        "technical": "Version 1.20.0 stays a candidate; its release entry is extended when the screens are merged (PLAN-085). main holds the four-screen build (acaaee2) and the preview copy follows it. The takings was split to a third helper.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens.",
+        "date": "2026-11-12"
+      },
+      "delivery": "released",
+      "reports": [
+        "REP-110"
+      ],
+      "reviewTrigger": "When the three groups of screens are merged and checked: publish. If a required check fails or a screen cannot be finished tonight: tell the owner before publishing anything"
     }
   ],
   "history": [
@@ -3566,6 +3638,34 @@
     {
       "at": "2026-11-12 12:32",
       "text": "DEC-103: Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\". Stocking and the day's takings are built as drawn (package 3); the results, the stamp book, the trophy cards and the Wardrobe as drawn, with the rank names kept (package 5); looks show in a game as an awning strip over the player's shelf and a thin one on the player's box as rivals see it. The six boards are saved in docs/studio/review-18/mockups."
+    },
+    {
+      "at": "2026-11-12 17:05",
+      "text": "DEC-104: Owner, 2026-11-12: \"speed it up please\". Read as: build the remaining packages of release A side by side. Three more helpers started from f2d9d33: the stamp book's first version (PLAN-086), the print kit on rules 18 (PLAN-087) and the text outside the screens (PLAN-088). The helper on the morning, the bid and the evening (PLAN-084) was asked to wrap up and report. PLAN-085 (package 3, part 2: the sheets and the table) is opened and starts when part 1 is merged. Checks are not reduced: each package is reviewed, merged and checked on the merged code."
+    },
+    {
+      "at": "2026-11-12 17:09",
+      "text": "PLAN-084: the morning, the standing-order bid and the evening merged as built so far (merge 04d12ed, at the helper's commit 850d7c2) so that part 2 can start from it; npm run verify on the merged code: PASS (65 files, 659 tests, 1 skipped). The helper's final report, the browser tests on the merged code and the look beside the mock-ups are still to come; PLAN-084's checks stay NOT RUN until then. PLAN-085: two helpers started from 04d12ed (the sheets; the table). Five helpers now work side by side (DEC-104). An hourly scheduled check-in was set so the work restarts by itself after a usage-limit pause."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "DEC-105: Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\". Read as the owner's word to publish today's build of the core game once the full checks pass on it. The print kit helper was paused; its work (the decks print on rules 18) is kept on its branch, unmerged (PLAN-087). The owner also asked that the work be paced to finish inside the usage allowance before it resets on 2026-11-13 19:00; every helper was given a deadline tonight."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "PLAN-084 built and checked on the merged code (REP-110): npm run verify PASS (65 files, 659 tests, 1 skipped); npm run test:e2e on the merged code: PASS (solo game to the results with no errors; performance budget OK with a longest task of 151 ms and 0.5 slow frames in a hundred; online match with 82 pricing frames and 0 leaks; reconnect 5 of 5), run while five helpers used the same machine. The helper on the morning, the bid and the evening reported on 850d7c2, the commit already merged. T6 (the owner has seen the screens) stays NOT RUN: he sees them on the live game. Release 1.20.0 prepared as a candidate (PLAN-077, 079, 081, 082, 083, 084)."
+    },
+    {
+      "at": "2026-11-12 17:45",
+      "text": "DEC-106: Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens. Release 1.20.0 was merged to main as pull request #10 (acaaee2) at 17:32 and is NOT published: the scheduled publishing step was cancelled. It is published when the remaining screens of the day are merged and checked. The two named gaps are being fixed by the helper that built those screens (due 19:00) and by the text helper (the name sentences first). The two screen helpers were given first deliveries at 21:30 and the takings was split to its own helper (due 20:30). Seven helpers share the machine."
+    },
+    {
+      "at": "2026-11-12 19:24",
+      "text": "PLAN-085 and PLAN-088 (part 1) built, merged and checked on ca39c60 (REP-111): npm run verify PASS (722 tests passed, 1 skipped); npm run test:e2e PASS on a quiet machine (longest task 187 ms, 0 leaks, reconnect 5 of 5). Merged in order: the text with the name-sentence fix (295dc8c); the bid and evening small-phone fit (d860435); the sheet with stocking and pricing (caf5e05) and its refit (after 0d76d20); the market, the lorry and the night (0d76d20 and the next merge); the takings (1942b91); the stalls row and shelf with two repairs (b9dd496: the hand-over guard against a double tap, the Heatwave shelf chip); the bell and Favoured Trade (ca39c60). Eight helpers were used; the helpers that had already built a part before it was split off (the bell, the takings, the stalls) had their work kept and finished by the second helper. The stamp book (PLAN-086: data done, screens a first pass, 787faa3), the rest of the text list and the print kit (PLAN-087: decks print on rules 18, d244989) are paused on their branches. Release 1.20.0's entry extended with PLAN-085 and PLAN-088; publishing follows DEC-106 once the full checks pass on the CI machines."
+    },
+    {
+      "at": "2026-11-12 19:45",
+      "text": "Release 1.20.0 published 2026-11-12 19:43 (DEC-106; PLAN-077, 079, 081, 082, 083, 084, 085, 088): main c17a053 (pull request #11). The full checks on the CI machines passed first (CI run 136: verify, solo game, performance budget OK at the 250 ms limit with 3 slow frames of 747 at night and a longest night frame of 66.7 ms, online match 56 pricing frames 0 leaks, abandoned match, quick match, four players, reconnect 5 of 5; the longest-task figure was not read from the log). Deploy LIVE game run 39: verify, release check, deploy, live smoke test and tag v1.20.0 all passed. Checked from the session: the live page answers 200, the server reports rules version 18 and the page serves the build CI made. The live smoke script could not be run from the session's machine (its network reaches the site with curl only). Not yet done: a person playing it on a phone; the owner is testing it. The stamp book, the rest of the text list, the screen labels and the print kit continue on the working branch for the next release."
     }
   ]
 }
