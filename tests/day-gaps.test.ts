@@ -6,8 +6,10 @@ import { h } from 'preact';
 import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, type GameState } from '../src/engine/game';
-import { toStaticHtml } from '../src/ui/cards';
+import { FavourCard, toStaticHtml } from '../src/ui/cards';
+import { FavourMini } from '../src/ui/phoneCards';
 import { fitSheet } from '../src/ui/game/daySheet';
+import { covers } from '../src/ui/game/underSheet';
 import { CratesOpen } from '../src/ui/game/panels/PricingTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { stripStep } from '../src/ui/game/panels/TopBar';
@@ -66,13 +68,22 @@ describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
 });
 
 describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
-  it('no Skip beside "Night falls…", and no selling hint once a customer\'s card is up or after the last one', () => {
+  it('no Skip at night, and nothing said from the bell to the takings (PLAN-091)', () => {
     const bar = read('src/ui/game/panels/ActionBar.tsx');
+    // the night's own heading says "Night falls" (NightShift.tsx): the bar is empty then, and no other hint shows
+    expect(bar).toContain(": night ? ''");
+    expect(bar).not.toContain('Night falls');
+    expect(read('src/ui/game/panels/NightShift.tsx')).toContain('<b class="tk-label">Night falls</b>');
     expect(bar).toContain("const selling = busy && s.phase === 'reveal' && !night;");
-    expect(bar).toContain('const cards = selling && rushDay.current === s.day;');
-    expect(bar).toContain("s.phase === 'reveal' ? (cards ? '' : 'Selling… tap to speed up')");
+    // the bell, before the rush and at the flip, and the rush itself: the bar has nothing to add, and no other hint shows
+    expect(bar).toContain(": s.phase === 'reveal' || s.phase === 'tie' ? ''");
+    expect(bar).not.toContain('Selling…');
+    expect(bar).not.toContain('Every price is open');
+    expect(bar).toContain('const quiet = beat === null;');
+    expect(bar).toContain('{!quiet && <div class="hint-bar">{beat}</div>}');
+    expect(bar).not.toMatch(/\{!beat && |\{busy && !beat && /);
     // Skip stays on the page until the takings (the performance script times the rush by it), unseen and out of reach
-    expect(bar).toContain("{selling && <button class=\"btn skip\" style={cards ? 'visibility:hidden' : undefined} aria-hidden={cards ? 'true' : undefined} tabIndex={cards ? -1 : undefined}");
+    expect(bar).toContain('{selling && <button class="btn skip" style="visibility:hidden" aria-hidden="true" tabIndex={-1}');
     expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.actionbar .skip')");
   });
 });
@@ -106,6 +117,18 @@ describe('the first-game tip for stocking and pricing covers no control (Game.ts
     const css = read('src/ui/daysheet.css');
     expect(css).toContain('#app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }');
   });
+
+  it('on a small phone with a full shelf the sheet lies over the customers\' tickets while the tip is up, and slides back as it closes (PLAN-091)', () => {
+    const sheet = read('src/ui/game/panels/DaySheet.tsx');
+    // only with the tip up, only when the closest step still does not fit, at the roomiest step that fits there
+    expect(sheet).toContain("if (!(parseFloat(el.style.getPropertyValue('--tip')) > 0) || el.scrollHeight <= el.clientHeight + 1) return;");
+    expect(sheet).toContain("el.setAttribute('data-top', '');");
+    expect(sheet).toContain('if (el.scrollHeight <= el.clientHeight) break;');
+    // fitted again once the tickets' reach is measured, and slid back to its place when the tip is closed
+    expect(sheet).toContain("if (fitting.current && el.hasAttribute('data-top')) fit(el);");
+    expect(sheet).toContain("if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });");
+    expect(read('src/ui/daysheet.css')).toContain('#app .tkt > .centre > .sh-day.own[data-top] { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); }');
+  });
 });
 
 describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)', () => {
@@ -123,13 +146,36 @@ describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)
   });
 });
 
-describe('the table under a sheet (Game.tsx)', () => {
+describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
   it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
     const game = read('src/ui/Game.tsx');
-    expect(game).toContain("sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);");
+    expect(game).toContain('if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);');
     expect(game).toContain('covered.current = !!mid;');
+    expect(read('src/ui/game/underSheet.ts')).toContain("centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);");
     // the hooks come before the hand-over and results screens return early
     expect(game.indexOf('const covered = useRef(false);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
+    expect(game.indexOf('useEffect(() => () => underSheet.current?.stop(), []);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
+  });
+
+  it('each row of the table a sheet covers all of is out of reach too, measured where things come to rest (PLAN-091)', () => {
+    // a row covered to the pixel; one the sheet covers in part can still be seen and tapped
+    const sheet = { top: 170, bottom: 578, left: 0, right: 360 };
+    expect(covers(sheet, { top: 170, bottom: 204, left: 0, right: 360 })).toBe(true);
+    expect(covers(sheet, { top: 530, bottom: 578.5, left: 0, right: 360 })).toBe(true);
+    expect(covers(sheet, { top: 72, bottom: 170, left: 0, right: 360 })).toBe(false);
+    expect(covers(sheet, { top: 560, bottom: 620, left: 0, right: 360 })).toBe(false);
+    expect(covers({ ...sheet, left: 8, right: 352 }, { top: 300, bottom: 340, left: 0, right: 360 })).toBe(false);
+    const src = read('src/ui/game/underSheet.ts');
+    // the rows: the street's strips one by one, the stalls row and your shelf; the rush's own sheet counts too
+    expect(src).toContain("const ROWS = ':scope > .street-wrap > *, :scope > .seats, :scope > .my-stall';");
+    expect(src).toContain("...game.querySelectorAll<HTMLElement>(':scope > .rush-sheet:not(.leaving)'),");
+    expect(src).toContain("row.toggleAttribute('inert', b.bottom > b.top && sheets.some((s) => covers(s, b)));");
+    // offsets, not the box on the screen: a sheet sliding in or off is measured where it comes to rest
+    expect(src).toContain('top += e.offsetTop;');
+    // a drawing that changed nothing in the middle measures nothing (the table draws often while things move)
+    expect(src).toContain('if (watch && now.length === was.length && now.every((x, i) => x === was[i])) return;');
+    // measured again whenever a sheet or a row changes its size between drawings
+    expect(src).toContain('const watch = typeof ResizeObserver === \'undefined\' ? null : new ResizeObserver(mark);');
   });
 });
 
@@ -144,5 +190,19 @@ describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () =>
     const css = read('src/ui/daysheet.css');
     expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }');
     expect(css).toContain('#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }');
+  });
+});
+
+describe('the evening\'s favour cards (phoneCards.tsx; the approved Evening board)', () => {
+  it('say "Play in the evening" on their band, as the board does; the printed card still says "In the evening" under "When to play"', () => {
+    const mini = toStaticHtml(h(FavourMini, { id: 'gossip', onOpen: () => undefined }));
+    expect(mini).toContain('<span class="fav-when">Play in the evening</span>');
+    expect(mini).toContain('aria-label="Favour card: Gossip. Play in the evening. ');
+    // the other cards keep their words, which the board shows for Favoured Trade
+    expect(toStaticHtml(h(FavourMini, { id: 'favouredTrade', onOpen: () => undefined }))).toContain('<span class="fav-when">After the prices flip</span>');
+    expect(toStaticHtml(h(FavourMini, { id: 'freeFruit', onOpen: () => undefined }))).toContain('<span class="fav-when">On your buying turn</span>');
+    const printed = toStaticHtml(h(FavourCard, { id: 'gossip' }));
+    expect(printed).toContain('<small>When to play</small><b>In the evening</b>');
+    expect(printed).not.toContain('Play in the evening');
   });
 });

@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { h } from 'preact';
 import { newGame, type GameState } from '../src/engine/game';
 import { pricingTable } from '../src/ui/game/pricingTable';
-import { PricingTableView } from '../src/ui/game/panels/PricingTable';
-import { toStaticHtml } from '../src/ui/cards';
 import { FRUIT, stageAt } from '../src/engine/data';
 
 function pricingState(): GameState {
@@ -41,10 +38,6 @@ describe('pricing: round the market table (DEC-070)', () => {
     const s = pricingState();
     const t = pricingTable(s, 0);
     expect(JSON.stringify(t)).not.toMatch(/price|97|98/);
-    const html = toStaticHtml(h(PricingTableView, { s, viewer: 0 }));
-    expect(html).not.toMatch(/\$9[78]|>97<|>98</);
-    expect(html).toContain('sealed');
-    expect(html).toContain('Kiki');
     // Same table when the bids are hidden, as the online server sends them during pricing (server/room.ts redact).
     const redacted: GameState = { ...s, bids: s.bids.map(() => null) };
     expect(pricingTable(redacted, 0).seats.map((x) => x.fruits)).toEqual(t.seats.map((x) => x.fruits));

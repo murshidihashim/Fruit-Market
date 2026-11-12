@@ -99,7 +99,7 @@ export function canGetLine(s: GameState, p: number, o: Standing): string {
  * Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
  * `waiting`: this stall is not being asked now, because it has decided and others have not (`decided`; with
  * `canChange`, online, it may still change its mind) or because the computer stalls decide before it.
- * `shown`: the bids are in and are being turned over (dayBeats.ts); nothing can be pressed then.
+ * `shown`: the bids are in and are being turned over (dayBeats.tsx); nothing can be pressed then.
  */
 export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, onBid }: {
   s: GameState; p: number; waiting?: boolean; canChange?: boolean; decided?: boolean; shown?: OrderShow | null; onBid: (price: number | null) => void;

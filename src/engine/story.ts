@@ -4,7 +4,7 @@
 // the engine used to sort them (cheapest first; ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler,
 // then today's buying order, which was set at dawn with the poorest shop first).
 
-import { FRUIT, FRUITS, JAM_PRICE, JUICE_VALUE, RIVALS, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
+import { FRUIT, JAM_PRICE, JUICE_VALUE, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
 import {
   count, eligible, isLastCall, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
@@ -431,8 +431,6 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
 
 // ---------- reactions ----------
 
-export interface Reaction { player: number; text: string }
-
 /**
  * The rush pop-up's result line (PLAN-068): the same words for everyone at the table, naming the stalls, so every
  * player sees one story of each customer. A stall whose name is "You" (a solo game's default) takes the grammar of
@@ -481,36 +479,6 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
   return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
 }
 
-/** At most one rival reaction per line, based only on what happened, and the same whoever is watching (PLAN-068). */
-export function rivalReaction(s: GameState, l: LineResult, _viewer: number, used: Set<string>): Reaction | null {
-  const pick = (p: number, pool: string[]) => {
-    if (!pool.length) return null;
-    const start = hash(s.day, l.customerId, p) % pool.length;
-    for (let i = 0; i < pool.length; i++) {
-      const text = pool[(start + i) % pool.length];
-      if (!used.has(text)) { used.add(text); return { player: p, text }; }
-    }
-    return null;
-  };
-  const linesOf = (p: number) => RIVALS.find((r) => r.avatar === s.players[p].avatar)?.lines;
-  // Only offers that were in the price contest can undercut or be beaten.
-  const lost = l.offers.filter((o) => inContest(o) && o.sold === 0);
-  const won = l.offers.filter((o) => o.sold > 0);
-  for (const o of l.offers) {
-    const lines = linesOf(o.player);
-    if (s.players[o.player].kind !== 'ai' || !lines) continue;
-    if (o.sold > 0 && lost.some((x) => x.price > o.price && x.price - o.price <= 2)) return pick(o.player, lines.undercut);
-    if (inContest(o) && o.sold === 0 && won.some((x) => o.price > x.price && o.price - x.price <= 1)) return pick(o.player, lines.stung);
-  }
-  for (const o of l.offers) {
-    const lines = linesOf(o.player);
-    if (s.players[o.player].kind !== 'ai' || !lines) continue;
-    if (o.sold > 0 && o.price >= l.max && l.offers.length > 1) return pick(o.player, lines.fullPrice);
-    if (inContest(o) && o.sold === 0 && won.some((x) => o.price - x.price >= 2)) return pick(o.player, lines.lost);
-  }
-  return null;
-}
-
 // One plain line for each outcome (DEC-087). The audit would cut these altogether; the rush card (src/ui/game/rush.ts)
 // still prints this answer in quotes for a customer no stall offered anything, so it must not be empty.
 const HAPPY = ['Thanks.'];
@@ -545,67 +513,6 @@ export function standing(s: GameState, viewer: number): Standing {
   const gap = s.players[ahead].cash - me;
   const ord = ['1st', '2nd', '3rd', '4th', '5th', '6th'][rank - 1];
   return { rank, of: order.length, leader, gap, text: `${ord} · $${gap} behind ${s.players[ahead].name}` };
-}
-
-// ---------- daily highlights ----------
-
-/** `icon`: always empty since DEC-087 (no picture in front of a highlight); the sales card still reads the field. */
-export interface Highlight { icon: string; text: string; tone: Tone; score: number }
-
-/** One or two notable, true moments from today's results, chosen by fixed scores. */
-export function dayHighlights(s: GameState, viewer: number): Highlight[] {
-  const r = s.results;
-  if (!r) return [];
-  const out: Highlight[] = [];
-  const mineIncome = r.income[viewer];
-  // Head-to-head wins and losses against each rival.
-  const beat = new Map<number, number>();
-  const lostTo = new Map<number, { n: number; close: number }>();
-  let bestLine: { l: LineResult; rev: number } | null = null;
-  for (const l of r.lines) {
-    const mine = l.offers.find((o) => o.player === viewer);
-    if (!mine) continue;
-    if (mine.sold > 0) {
-      const rev = mine.sold * mine.price;
-      if (!bestLine || rev > bestLine.rev) bestLine = { l, rev };
-      for (const o of l.offers) if (o.player !== viewer && o.sold === 0 && inContest(o)) beat.set(o.player, (beat.get(o.player) ?? 0) + 1);
-    } else if (inContest(mine)) {
-      for (const o of l.offers) if (o.player !== viewer && o.sold > 0) {
-        const e = lostTo.get(o.player) ?? { n: 0, close: 0 };
-        e.n++;
-        if (mine.price - o.price <= 1) e.close++;
-        lostTo.set(o.player, e);
-      }
-    }
-  }
-  for (const [p, n] of beat) {
-    out.push({ icon: '', tone: 'good', score: 50 + n * 10, text: n === 1 ? `You beat ${s.players[p].name} to a customer.` : `You beat ${s.players[p].name} ${n} times today.` });
-  }
-  for (const [p, e] of lostTo) {
-    if (e.close) out.push({ icon: '', tone: 'bad', score: 45 + e.close * 10, text: e.close === 1 ? `${s.players[p].name} beat you by $1 or on a tie.` : `${s.players[p].name} beat you ${e.close} times by $1 or on a tie.` });
-    else out.push({ icon: '', tone: 'bad', score: 30 + e.n * 5, text: `${s.players[p].name} undercut you ${e.n === 1 ? 'once' : `${e.n} times`}.` });
-  }
-  if (bestLine && mineIncome > 0 && bestLine.rev >= mineIncome * 0.6 && bestLine.rev >= 10) {
-    out.push({ icon: '', tone: 'good', score: 40 + bestLine.rev, text: `Your biggest sale: $${bestLine.rev} from ${lookOf(bestLine.l.name).title}.` });
-  }
-  // Mangoes sold at $9 or more (mangoes are the ripen-and-wait fruit).
-  const mango = r.lines.filter((l) => l.fruit === 'mango').flatMap((l) => l.offers.filter((o) => o.player === viewer && o.sold > 0 && o.price >= 9));
-  if (mango.length) out.push({ icon: '', tone: 'good', score: 42, text: `Your mangoes sold for $${Math.max(...mango.map((o) => o.price))} each.` });
-  // One stall sold at least 70% (min 3) of a fruit today.
-  for (const f of FRUITS) {
-    const by = new Map<number, number>();
-    for (const l of r.lines) if (l.fruit === f) for (const o of l.offers) if (o.sold) by.set(o.player, (by.get(o.player) ?? 0) + o.sold);
-    const total = [...by.values()].reduce((a, b) => a + b, 0);
-    for (const [p, n] of by) if (total >= 3 && n / total >= 0.7) {
-      out.push({ icon: '', tone: p === viewer ? 'good' : 'neutral', score: 25 + n * 3, text: `${p === viewer ? 'You' : s.players[p].name} sold the most ${FRUIT[f].plural.toLowerCase()} today (${n}).` });
-    }
-  }
-  // Fruit that spoils tonight is not a highlight: the sales card's own line above the highlights says it (tonightLine).
-  if (mineIncome === 0 && !r.lines.some((l) => l.offers.some((o) => o.player === viewer))) {
-    out.push({ icon: '', tone: 'neutral', score: 15, text: 'You had nothing customers wanted today.' });
-  }
-  out.sort((a, b) => b.score - a.score);
-  return out.slice(0, 2);
 }
 
 // ---------- overnight ----------
