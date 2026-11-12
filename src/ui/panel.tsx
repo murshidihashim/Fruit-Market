@@ -54,7 +54,7 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
   const night = tonightWord(s, p, f, pos);
   if (stage === 'unripe') {
     const nights = pos - FRUIT[f].ripe.length + 1;
-    return night.text === 'ripe tomorrow' ? 'Still green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still green · ripe in ${nights} nights` : 'Still green';
+    return night.text === 'ripe tomorrow' ? 'Still Green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still Green · ripe in ${nights} nights` : 'Still Green';
   }
   const drop = FRUIT[f].drop[pos] ?? 0;
   const best = Math.max(0, ...buyersFor(s, f).map((x) => x.max));
@@ -89,8 +89,8 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
     <div class={`ds-stock stall-panel ${waiting ? 'waiting' : ''}`}>
       {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
       <div class="ds-stick">
-        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
-        <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} out`}>
+        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} in crate</span></div>
+        <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} in it`}>
           <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
           <span class="ds-pcs">
             {pieces.length ? pieces.map((x) => <span class={`crate-piece ds-pcx st-${x.stage}`} data-box={boxKey(x.f, x.pos)}><Fruit id={x.f} size={18} stage={x.stage} /><i class={`ds-lamp st-${x.stage}`}>{STAGE_LETTER[x.stage]}</i></span>)
@@ -125,7 +125,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
       </div>
       <div class="ds-note">
         <b class="ds-lab">Only the crate sells today</b>
-        <span>Rivals see how many pieces you put out, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
+        <span>Rivals see how many pieces are in your crate, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
       </div>
     </div>
   );
@@ -135,7 +135,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
 export function StallBar({ total, onSubmit }: { total: number; onSubmit: () => void }) {
   return (
     <div class="pp-lock">
-      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Crate ready <small class="btn-sub">{total} in crate</small></> : 'Sell nothing today'}</button>
     </div>
   );
 }
@@ -186,9 +186,9 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
         <button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button>
         <span>{sealed ? 'Sealed until the bell' : 'One price for each fruit'}</span>
       </div>
-      {fruits.length === 0 && <div class="ds-info">You put nothing out today.</div>}
+      {fruits.length === 0 && <div class="ds-info">Your crate is empty today.</div>}
       {/* Only drawn where the sheet lies over the rivals' boxes (a short phone): how many pieces each put out. */}
-      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')} out</span></div>}
+      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')}</span></div>}
       <div class={`ds-rows prices n${fruits.length}`}>
         {fruits.map((f) => {
           const price = Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f));
@@ -208,7 +208,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
             <div class={`ds-prow ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
               <div class="ds-info-cell">
                 <div class="ds-out">
-                  <Fruit id={f} size={22} /><b>{out} out</b>
+                  <Fruit id={f} size={22} /><b>{out} in crate</b>
                   {dots.map((st) => <i class={`ds-lamp lg st-${st}`} aria-hidden="true">{STAGE_LETTER[st]}</i>)}
                   {out > dots.length && <em>+{out - dots.length}</em>}
                 </div>
@@ -249,7 +249,7 @@ export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; va
   return (
     <div class="pp-lock">
       {error && <div class="error">{error}</div>}
-      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
+      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Seal prices <small class="btn-sub">{posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
     </div>
   );
 }
@@ -257,12 +257,12 @@ export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; va
 /** "The Bell" (PLAN-059): the market's notice of how the bell works, in the crier's words. */
 export function BellNotice({ onClose }: { onClose: () => void }) {
   const lines: [IconName, string][] = [
-    ['tag', 'Price every fruit you put out!'],
+    ['tag', 'Set one price for each fruit in your crate.'],
     ['hourglass', 'Prices stay secret until the bell.'],
     ['crate', 'Crates stay shut until the bell: you only see how many pieces.'],
-    ['coin', 'Lowest price sells first!'],
-    ['scales', 'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.'],
-    ['heart', 'Fulfil all of a customer’s orders to earn a favour card.'],
+    ['coin', 'The lowest price sells first.'],
+    ['scales', 'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.'],
+    ['heart', 'Serve a customer’s whole order by yourself to earn a favour card.'],
   ];
   return (
     <div class="bell-notice" role="dialog" aria-modal="true" aria-label="The Bell" onClick={onClose}>
@@ -272,7 +272,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
         <ul class="bn-rules">
           {lines.map(([icon, text]) => <li><span class="bn-badge"><Icon name={icon} size={18} /></span>{text}</li>)}
         </ul>
-        <button type="button" class="btn primary wide" onClick={onClose}>Ring the bell!</button>
+        <button type="button" class="btn primary wide" onClick={onClose}>Got it</button>
       </div>
     </div>
   );

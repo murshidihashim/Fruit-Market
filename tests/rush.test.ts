@@ -112,7 +112,7 @@ describe('one card for each customer', () => {
     const { cards } = find(all, (_s, cs) => cs.some((c) => c.blocks.every((b) => !b.rows.length)));
     const none = cards.find((c) => c.blocks.every((b) => !b.rows.length))!;
     expect(none.earned).toBe(0);
-    expect(none.text).toMatch(/^“.+”$/);
+    expect(none.text).toBe(`${lookOf(none.name).title} leaves with nothing.`);
     for (const b of none.blocks) expect(b.none).toBe(`Nobody had ${FRUIT[b.fruit].plural.toLowerCase()} for ${lookOf(none.name).title}.`);
   });
 
@@ -120,7 +120,7 @@ describe('one card for each customer', () => {
     const order = find(all, (s) => !!s.results!.order);
     const o = order.cards.find((c) => c.kind === 'order')!;
     expect(order.cards[0]).toBe(o); // it stands first in the row and is served first
-    expect(o.blocks[0].heading).toMatch(/^Wants \d+ [a-z]+ · fresh or okay$/);
+    expect(o.blocks[0].heading).toMatch(/^Wants \d+ [a-z]+ · Fresh or Okay$/);
     const r = order.s.results!.order!;
     expect(o.extras).toEqual(r.back > 0 ? [{ player: r.holder, amount: r.back }] : []);
     const guest = find(all, (_s, cs) => cs.some((c) => c.kind === 'guest'));
@@ -330,7 +330,7 @@ describe('the rush card', () => {
     const guest = find(all, (_x, cs) => cs.some((c) => c.kind === 'guest'));
     const g = guest.cards[guest.cards.length - 1];
     const gPage = toStaticHtml(h(RushView, { s: guest.s, a: { card: g, n: guest.cards.length, of: guest.cards.length, stage: 'result', row: [], served: [] } }));
-    expect(gPage).toContain('<span>Special guest</span>');
+    expect(gPage).toContain('<span>Guest</span>');
   });
 
   it('a favour card won lies on its stall\'s row once it has arrived: face up for this stall, face down for a rival', () => {

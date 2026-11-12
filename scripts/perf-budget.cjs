@@ -96,7 +96,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
       if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
       if (await p.locator('.pp-lock .btn:not([disabled])').count()) { taps.price ??= await small(); await p.click('.pp-lock .btn:not([disabled])'); continue; }
       if (await p.locator('text=Lights out').count()) { taps.evening ??= await small(); await p.click('text=Lights out'); continue; }
-      for (const t of ['Close for the day', 'See final results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
+      for (const t of ['Close for the day', 'See results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
       await p.waitForTimeout(100);
     } catch { await p.waitForTimeout(150); }
   }

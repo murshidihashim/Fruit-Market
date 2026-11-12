@@ -2,9 +2,9 @@
 // shows, one after another, and say how long each one takes. No drawing here; the card is panels/Showdown.tsx and
 // the timing runs in animator.tsx. Everything shown comes from the day's results and the open crates, which are public
 // once the bell has rung.
-import { FAVOURS, FRUIT, FRUITS, TRAITS, stageAt, type FavourId, type FruitId, type Stage } from '../../engine/data';
+import { FAVOURS, FRUIT, FRUITS, TRAITS, lookOf, stageAt, type FavourId, type FruitId, type Stage } from '../../engine/data';
 import { crateStock, eligible, servingCustomers, type Customer, type GameState, type LineResult, type Offer, type Stock } from '../../engine/game';
-import { customerReaction, rushLine } from '../../engine/story';
+import { rushLine } from '../../engine/story';
 import { LANES } from '../boardModel';
 import { GUEST_EVENT } from '../deckArt';
 import { BEAT, FEEL } from '../motion';
@@ -131,7 +131,7 @@ function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, piece
   });
   return {
     line: l, fruit: l.fruit, want: l.want, rows,
-    heading: `Wants ${l.want} ${fruitWord(l.fruit, l.want)} · ${c.order ? 'fresh or okay' : 'cheapest first'}`,
+    heading: `Wants ${l.want} ${fruitWord(l.fruit, l.want)} · ${c.order ? 'Fresh or Okay' : 'cheapest first'}`,
     got: rows.reduce((a, x) => a + x.sold, 0),
     none: l.offers.length ? null : story.headline,
     story: [story.headline, story.detail].filter(Boolean).join(' '),
@@ -175,14 +175,14 @@ export function rushCards(s: GameState, viewer: number): RushCard[] {
       blocks, extras,
       favour: won ? { player: won.player, id: won.player === viewer ? won.favour : null } : null,
       earned: sold + mine.reduce((a, x) => a + x.tip, 0),
-      text: told.length ? told.join(' ') : `“${customerReaction(s, c.id, c.name)}”`,
+      text: told.length ? told.join(' ') : `${lookOf(c.name).title} leaves with nothing.`,
     }];
   });
 }
 
 /** What a row's freshness marks say aloud: "2 offered: okay, fresh", or that none qualified. */
 export function rowSaid(row: RushRow, word: Record<Stage, string>): string {
-  if (!row.qualified) return 'none qualify';
+  if (!row.qualified) return 'none can sell';
   const marks = row.pieces ?? (row.freshest ? [row.freshest] : []);
   return `${row.qty} offered: ${[...new Set(marks)].map((st) => word[st]).join(', ')}`;
 }

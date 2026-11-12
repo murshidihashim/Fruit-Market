@@ -152,7 +152,7 @@ describe('online room', () => {
     }
     // A cannot change their mind or submit twice.
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [] } });
-    expect(a.errors.slice(-1)[0]).toContain('already locked');
+    expect(a.errors.slice(-1)[0]).toContain('already sealed');
   });
 
   it('keeps a for-sale crate hidden until every shop has opened', async () => {
@@ -171,7 +171,7 @@ describe('online room', () => {
       expect(v.submitted[0]).toBe(true);
     }
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'stall', stall: {} } });
-    expect(a.errors.slice(-1)[0]).toContain('already set out');
+    expect(a.errors.slice(-1)[0]).toContain('already set.');
   });
 
   it('shows face-down walk-ins only to the player who heard the gossip', () => {

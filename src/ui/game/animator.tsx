@@ -141,7 +141,7 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
     const before = prev.players[i];
     if (pl.favours.length < before.favours.length) {
       const played = before.favours.find((id, k) => pl.favours[k] !== id) ?? before.favours[before.favours.length - 1];
-      const t = A.tag(`p${i}`, `${FAVOURS[played].title}!`, 'favour');
+      const t = A.tag(`p${i}`, FAVOURS[played].title, 'favour');
       fx.card();
       // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
       // nothing else shows what happened, the label is held for the full pause.
@@ -469,7 +469,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   releaseStock();
   // Favour cards won by customers whose cards were skipped: a label over the stall, as before.
   for (const card of late) {
-    const t = A.tag(`p${card.favour!.player}`, 'Favour card!', 'favour');
+    const t = A.tag(`p${card.favour!.player}`, '+1 favour card', 'favour');
     fx.card();
     await A.hold(A.BEAT.label.favourWon);
     t.remove();

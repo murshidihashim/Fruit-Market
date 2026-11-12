@@ -30,7 +30,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, night }: { s: GameState; vi
         </button>
         <div class="tk-day">
           <span class="day-label">Day {s.day}<small> / {s.config.days}</small></span>
-          {s.phase !== 'over' && rem <= 3 && <span class={`tk-left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'Final day' : `${rem} days left`}</span>}
+          {s.phase !== 'over' && rem <= 3 && <span class={`tk-left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'Last day' : `${rem} days left`}</span>}
         </div>
         {s.phase !== 'over' ? (
           <button type="button" class="tk-event" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}
@@ -45,7 +45,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, night }: { s: GameState; vi
         </div>
       </div>
       {s.phase !== 'over' && (
-        <ol class="tk-beats" aria-label={`Today's beats. Now: ${PHASE[s.phase]}`}>
+        <ol class="tk-beats" aria-label={`Today's steps. Now: ${PHASE[s.phase]}`}>
           {BEATS.map((b, i) => <li class={i === beat ? 'now' : i < beat ? 'done' : ''} aria-current={i === beat ? 'step' : undefined}>{i + 1} {b}</li>)}
         </ol>
       )}

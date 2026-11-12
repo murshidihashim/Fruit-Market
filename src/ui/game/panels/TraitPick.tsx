@@ -9,7 +9,7 @@ export function TraitPick({ s, p, onPick }: { s: GameState; p: number; onPick: (
   const humans = s.players.filter((x) => x.kind === 'human').length;
   return (
     <div class="morning-card trait-pick">
-      <div class="mc-day">Choose your trait</div>
+      <div class="mc-day">Choose your perk</div>
       <small class="muted-ink">{humans > 1 ? `${pl.name}: ` : ''}one perk for the whole game. Rivals can see it.</small>
       <div class="trait-list">
         {(pl.traitOffer ?? []).map((t) => (

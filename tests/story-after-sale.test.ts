@@ -468,7 +468,7 @@ describe('Showdown card', () => {
     // The customer's card in the rush (PLAN-084: one card for each customer, built from the day's results).
     const card = rushCards(s, 0).find((c) => c.blocks.some((b) => b.line === l))!;
     const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
-    expect(html).toContain('none qualify');
+    expect(html).toContain('none can sell');
     expect(html).not.toMatch(/offer 0/);
     expect(html).toContain('over top price $4');
     expect(html).toContain('2 offered');

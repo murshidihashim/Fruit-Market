@@ -1,7 +1,7 @@
 {
   "name": "Fruit Market",
   "short_name": "Fruit Market",
-  "description": "Buy fresh fruit, set secret prices and sell fast before it spoils.",
+  "description": "Buy fruit, set secret prices and sell before it spoils.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

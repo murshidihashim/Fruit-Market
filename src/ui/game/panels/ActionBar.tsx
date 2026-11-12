@@ -20,7 +20,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // A beat that plays by itself says what it is. Not on your own buying turn: the buttons stay where they are.
   const beat = !busy || myBuy ? null
     : night ? 'Night falls…'
-    : s.phase === 'morning' || unloading ? 'The cart rolls in…'
+    : s.phase === 'morning' || unloading ? 'The lorry arrives…'
     : s.phase === 'reveal' ? 'Selling… tap to speed up'
     // The bell rings at the flip before a Favoured Trade question, and a card just played travels to its tag (PLAN-085).
     : s.phase === 'tie' ? 'Every price is open'
@@ -28,7 +28,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
   return (
     <footer class="actionbar">
-      {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip ⏩</button>}
+      {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip</button>}
       {beat && <div class="hint-bar">{beat}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
@@ -39,13 +39,13 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
           <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
               along and make it narrower, and they keep their places the whole turn. */}
-          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free fruit' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
+          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
         </>
       )}
-      {!beat && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
-      {!beat && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are bidding for the order…'}</div>}
-      {!beat && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to put out' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are opening their stalls…'}</div>}
-      {!beat && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices locked. Waiting for ${waitingFor(humansMissingBids) || 'the market'}` : 'Rivals are setting secret prices…'}</div>}
+      {!beat && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
+      {!beat && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
+      {!beat && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Crate ready'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
+      {!beat && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}
       {!beat && s.phase === 'tie' && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} has a tied price and is deciding…</div>}
       {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out <small class="btn-sub">next day</small></button>}
       {/* an evening beat of your own (an upgrade being built): the bar keeps its room */}
@@ -54,7 +54,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       {!busy && s.phase === 'reveal' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : <button class="btn primary wide big" onClick={() => { c.setHandedTo(null); c.proceed(); }}>
-            {s.day >= s.config.days ? 'See final results' : 'Close for the day'}
+            {s.day >= s.config.days ? 'See results' : 'Close for the day'}
           </button>)}
     </footer>
   );

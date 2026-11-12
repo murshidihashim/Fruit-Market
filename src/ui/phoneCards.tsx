@@ -73,7 +73,7 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   const on = lorryRow(stalls);
   const said = LANES.map((f) => piecesOf(today ? today[f] : card ? card.table[on][f] : 0, f).toLowerCase()).join(', ');
   // What arrives green and when it ripens, then the Seconds Lorry's word on the rest.
-  const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive green`] : [];
+  const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive Green`] : [];
   const notes = [first, green ? `Ripe in ${ripeIn} nights` : '', ...rest].filter(Boolean);
   return (
     <article class="wc wc-lorry">
@@ -112,7 +112,7 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake, held }: {
         <div class="wc-main">
           <b class="wc-ttl wc-ttl-o">{card.title}</b>
           <span class={`wc-rw ${laneClass(card.fruit)}`}><FruitSvg id={card.fruit} size={22} alt="" /><Dots n={qty} label={piecesOf(qty, card.fruit)} /></span>
-          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · fresh or okay`}</span>
+          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · Fresh or Okay`}</span>
         </div>
       </div>
       <div class="wc-stats">
@@ -143,7 +143,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
   return (
     <article class={cx('wc', 'wc-cust', guest && 'guest')}>
       <header class="wc-kind">
-        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : order ? 'Standing order' : guest ? 'Special guest' : 'Customer'}</span>
+        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : order ? 'Standing order' : guest ? 'Guest' : 'Customer'}</span>
         <span>{order ? 'Due today' : PREF_INFO[pref].title}</span>
       </header>
       <div class="wc-body">
@@ -159,7 +159,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
           ))}
         </div>
       </div>
-      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
+      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
         <i class="wc-lamp">F</i>
         <i class={cx('wc-lamp', !okay && 'off')}>O</i>{!order && <span class={okay ? '' : 'no'}>{`−$${OKAY_LESS}`}</span>}
         <i class={cx('wc-lamp', !soft && 'off')}>S</i>{!order && <span class={soft ? '' : 'no'}>{`−$${SOFT_LESS}`}</span>}

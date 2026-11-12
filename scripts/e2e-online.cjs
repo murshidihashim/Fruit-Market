@@ -69,7 +69,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
       await p.click('.pp-lock .btn:not([disabled])'); return 'moved';
     }
     if (await has('text=Lights out')) { await p.click('text=Lights out'); return 'moved'; }
-    for (const t of ['Close for the day', 'See final results']) if (await has(`text=${t}`)) { await p.click(`text=${t}`); return 'moved'; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`text=${t}`)) { await p.click(`text=${t}`); return 'moved'; }
     if (await has('.waiting-dots') && !once.has(`wait-${P.tag}`)) { once.add(`wait-${P.tag}`); await shot(P, `04-waiting-${P.tag}`); }
     return 'idle';
   };
@@ -113,7 +113,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   // Rematch without a new invitation.
   if (done) {
     await A.page.click('text=/Rematch!|Defend your title/');
-    await B.page.waitForSelector('text=wants a rematch');
+    await B.page.waitForSelector('text=wants to play again');
     await B.page.click('text=/Rematch!|Defend your title/');
     await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());

@@ -182,7 +182,7 @@ describe('customer cards (the Main board)', () => {
   it('a special guest is marked as one, has no number and uses its event\'s picture', () => {
     for (const g of GUESTS) {
       const s = html(TradingCard, { who: g.name, wants: g.wants, guest: true });
-      expect(s).toContain('<span>Special guest</span>');
+      expect(s).toContain('<span>Guest</span>');
       expect(s).not.toContain('· Customer');
       expect(s).toContain(`src="${guestArt(g.name)}"`);
       expect(s).toContain(`>${lookOf(g.name).title}</strong>`);
@@ -288,8 +288,8 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
         expect(m[2].includes(' on'), `${card.name} ${n}`).toBe(n === 4);
       });
       expect(s).toContain('<span class="cd-ly-l on">4</span>');
-      expect(s).toContain('Mangoes arrive green');
-      expect(s.includes('Other fruit arrives okay')).toBe(!!card.okay);
+      expect(s).toContain('Mangoes arrive Green');
+      expect(s.includes('Other fruit arrives Okay')).toBe(!!card.okay);
     }
     // A card that is not in a game boxes no row; a solo table uses the smallest row the card prints.
     expect(html(LorryCard, { card: FARMER_CARDS[0] })).not.toMatch(/cd-ly-[ln][^"]* on"/);
@@ -484,7 +484,7 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(plain).toContain('<span class="wc-lt-l on">4 stalls</span>');
     expect(plain.match(/wc-lt-n [^"]* on"/g)).toHaveLength(4);
     expect(plain).not.toContain('>Today</span>');
-    expect(plain).toContain('Mangoes arrive green · Ripe in 2 nights');
+    expect(plain).toContain('Mangoes arrive Green · Ripe in 2 nights');
     const today = { blueberry: 9, watermelon: 4, mango: 2, apple: 0 };
     const changed = html(LorryTicket, { card, stalls: 4, today, green: 'mango', ripeIn: 2 });
     expect(changed).toContain('<span class="wc-lt-l mark">4 stalls</span>');
@@ -502,7 +502,7 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(order).toContain('<b>Due in 2 days</b> · day 5');
     expect(order).toContain(`>${o.title}</b>`);
     expect(order).toContain(`src="${customerArt(o.name)}"`);
-    expect(order).toContain('4 Apples · fresh or okay');
+    expect(order).toContain('4 Apples · Fresh or Okay');
     expect(order).toContain(`<b>$${o.ceiling}</b><span>Highest bid, each</span>`);
     expect(order).toContain(`<b>$${o.stake}</b><span>Stake</span>`);
 

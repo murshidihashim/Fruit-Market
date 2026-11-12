@@ -131,7 +131,7 @@ function audit() {
           const lock = page.locator('.pp-lock .btn:not([disabled])');
           if (await lock.count()) { if (once('pricing')) await check('pricing'); await lock.click(); if (once('reveal')) { await page.waitForTimeout(2600); await check('reveal'); } continue; }
           if (await has('text=Lights out')) { if (once('evening')) await check('evening'); await page.click('text=Lights out'); continue; }
-          for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await check('summary'); await page.click(`text=${t}`); break; }
+          for (const t of ['Close for the day', 'See results']) if (await has(`text=${t}`)) { if (once('summary')) await check('summary'); await page.click(`text=${t}`); break; }
           await page.waitForTimeout(100);
         } catch { await page.waitForTimeout(150); }
       }

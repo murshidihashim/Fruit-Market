@@ -349,7 +349,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
     // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
-    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
+    const text = s.phase === 'morning' ? (rem === 1 ? 'LAST DAY' : rem === 3 ? 'LAST 3 DAYS' : '') : '';
     if (!text) return;
     setBanner(text);
     const t = window.setTimeout(() => setBanner(null), A.BEAT.morning.stamp);
@@ -378,13 +378,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (!id || canPlayFavour(s, active, idx)) return;
     if (id === 'freeFruit') {
       setFreeFruit(idx);
-      return say('Tap a fruit at the market to take it free');
+      return say('Tap a piece at the Wholesale Market to take it for free');
     }
     if (id === 'scout') {
       const unseen = s.queue.filter((q) => !q.seenBy?.includes(active));
       if (unseen.length === 1) return act({ kind: 'favour', idx, args: { customer: unseen[0].id } });
       setScout(idx);
-      return say('Tap a walk-in to look at them');
+      return say('Tap a walk-in to look at it');
     }
     act({ kind: 'favour', idx });
   };

@@ -54,7 +54,7 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     s.players[0].stock.apple[FRUIT.apple.ripe.length - 1] = 2; // fresh, in the lorry's box
     s.players[0].stock.blueberry[0] = 1; // soft: its last day
     const html = toStaticHtml(h(MyStall, { s, p: 0 }));
-    expect(html).toContain('>fresh tomorrow<');
+    expect(html).toContain('>Fresh tomorrow<');
     expect(html).toContain('>spoils tonight<');
     expect(html).toMatch(/class="tb-chip stk-f[^"]*"[^>]*data-a="p0-apple"/);
     expect(html).toMatch(/class="tb-chip stk-f[^"]*warn[^"]*"[^>]*data-a="p0-blueberry"/);
@@ -64,10 +64,11 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     expect(html).toContain('>After tonight<');
   });
 
-  it('the first-game tip after a purchase describes the shelf chips as they are now (counts by freshness)', () => {
+  it('the first-game tip after a purchase says where the piece went, and nothing about how the shelf used to look', () => {
     const tip = TIPS.find((t) => t.id === 'bought')!.text;
     expect(tip).not.toContain('nights it has left');
-    expect(tip).toContain('The letters under each fruit count your pieces');
+    expect(tip).not.toContain('letters');
+    expect(tip).toContain('The piece is on your shelf, at the bottom of the screen.');
   });
 });
 

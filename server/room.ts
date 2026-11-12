@@ -407,9 +407,9 @@ export class Room {
     if (a.kind === 'begin' || a.kind === 'finish') throw new RuleError('Use continue');
 
     if (a.kind === 'stall') {
-      if (g.phase !== 'stall') throw new RuleError('Stalls are not being set out now');
-      if (g.stalls[seat] !== null) throw new RuleError('You have no ripe fruit to put out today');
-      if (d.pending[seat]) throw new RuleError('Your crate is already set out');
+      if (g.phase !== 'stall') throw new RuleError('It is not the stocking step.');
+      if (g.stalls[seat] !== null) throw new RuleError('You have no ripe fruit to sell today');
+      if (d.pending[seat]) throw new RuleError('Your crate is already set.');
       if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Bad crate');
       const stall: Stall = {};
       for (const [f, n] of Object.entries(a.stall).slice(0, 8)) stall[f as keyof Stall] = Number(n);
@@ -431,7 +431,7 @@ export class Room {
       return this.accepted(conn, seat, m.id);
     }
     if (a.kind === 'order') {
-      if (g.phase !== 'order') throw new RuleError('No standing order is being bid for now');
+      if (g.phase !== 'order') throw new RuleError('There is no standing order to bid for now.');
       // Rules 17: a bid may be changed for as long as another stall is still deciding (the step resolves the moment
       // the last person decides, so a bid that reaches here is still open).
       const bid = a.price === null ? null : Number(a.price);
@@ -442,7 +442,7 @@ export class Room {
     }
     if (a.kind === 'prices') {
       if (g.phase !== 'bid') throw new RuleError('Prices are not being set now');
-      if (d.pending[seat]) throw new RuleError('Your prices are already locked in');
+      if (d.pending[seat]) throw new RuleError('Your prices are already sealed.');
       if (!Array.isArray(a.posts) || a.posts.length > 8) throw new RuleError('Bad prices');
       const posts: Post[] = a.posts.map((b) => ({ fruit: b.fruit, price: Number(b.price) }));
       const err = validatePrices(g, seat, posts);

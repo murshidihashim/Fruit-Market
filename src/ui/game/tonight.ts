@@ -16,7 +16,7 @@ export function nightSteps(s: GameState, p: number, f: FruitId): number {
 export function tonightWord(s: GameState, p: number, f: FruitId, pos: number): { text: string; bad: boolean } {
   const steps = nightSteps(s, p, f);
   const now = stageAt(f, pos);
-  if (steps === 0) return { text: now === 'unripe' ? 'still green' : 'does not age tonight', bad: false };
+  if (steps === 0) return { text: now === 'unripe' ? 'still Green' : 'does not age tonight', bad: false };
   const to = pos - steps;
   if (to < 0) {
     // A Juice Bar turns up to its limit of leaving pieces into juice; only when none spoil is a box sure to be juice.
@@ -24,7 +24,7 @@ export function tonightWord(s: GameState, p: number, f: FruitId, pos: number): {
     return night.spoil === 0 && night.juice > 0 ? { text: 'juice tonight', bad: false } : { text: 'spoils tonight', bad: true };
   }
   const next = stageAt(f, to);
-  if (now === 'unripe') return next === 'unripe' ? { text: 'still green tomorrow', bad: false } : { text: 'ripe tomorrow', bad: false };
-  const word: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
+  if (now === 'unripe') return next === 'unripe' ? { text: 'still Green tomorrow', bad: false } : { text: 'ripe tomorrow', bad: false };
+  const word: Record<Stage, string> = { unripe: 'Green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
   return { text: next === now ? `still ${word[now]} tomorrow` : `${word[next]} tomorrow`, bad: false };
 }

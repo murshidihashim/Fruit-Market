@@ -33,7 +33,7 @@ export async function createRoom(): Promise<string> {
 export async function quickMatch(): Promise<string> {
   const res = await fetch(`${serverBase()}/api/quick`, { method: 'POST' });
   const body = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
-  if (!res.ok || !body.code) throw new Error(body.error ?? 'Could not find a match. Try again.');
+  if (!res.ok || !body.code) throw new Error(body.error ?? 'Could not find a game. Try again.');
   return body.code;
 }
 

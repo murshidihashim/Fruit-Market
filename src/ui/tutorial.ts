@@ -10,7 +10,7 @@ export interface Tip { id: string; title: string; text: string }
 export const TIPS: Tip[] = [
   { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top. Tap Start buying.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a box with a black border to buy 1 piece. Each lane is one fruit, freshest at the top: G Green, F Fresh, O Okay, S Soft. Fresher costs more, and customers pay more for it. Buy what the customer tickets ask for.' },
-  { id: 'bought', title: 'On your shelf', text: 'The piece is on your shelf, at the bottom of the screen. The letters under each fruit count your pieces. Tap Done buying when you have finished.' },
+  { id: 'bought', title: 'On your shelf', text: 'The piece is on your shelf, at the bottom of the screen. Tap Done buying when you have finished.' },
   { id: 'stall', title: 'Fill your crate', text: 'Tap + beside a row to put that piece in your crate. Only pieces in your crate can sell today. Rivals see how many, not which fruit.' },
   { id: 'bid', title: 'Secret prices', text: 'Set a price for each fruit with − and +. You see how many pieces each rival has in its crate, not which fruit. Prices and crates open at the bell. The cheapest stall sells first.' },
   { id: 'reveal', title: 'The rush', text: 'Each customer bought from the cheapest stall with fruit fresh enough for their price. Ties go to Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.' },

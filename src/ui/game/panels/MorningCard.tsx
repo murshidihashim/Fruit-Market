@@ -41,7 +41,7 @@ function useArtReady(src: string | null): boolean {
 /** Rules 18, out of cash: who the market topped up at dawn, in words (null when nobody was). */
 export function topUpLine(s: GameState, viewer: number): string | null {
   if (!s.dayTopUps || !s.dayTopUps.some((x) => x > 0)) return null;
-  return s.players.map((pl, i) => (s.dayTopUps![i] ? `${i === viewer ? 'Your shelf was empty, so the market topped you up' : `${pl.name} had an empty shelf and was topped up`} to $${TOP_UP} (+$${s.dayTopUps![i]})` : '')).filter(Boolean).join(' · ');
+  return s.players.map((pl, i) => (s.dayTopUps![i] ? `${i === viewer ? 'Your shelf was empty, so you were topped up' : `${pl.name} had an empty shelf and was topped up`} to $${TOP_UP} (+$${s.dayTopUps![i]})` : '')).filter(Boolean).join(' · ');
 }
 
 /** Health Inspector: who was fined at the start of today, in words (null when nobody was). */
@@ -73,7 +73,7 @@ export function dawnLines(s: GameState, viewer: number): DawnLine[] {
   for (const p of seats) {
     const n = s.dayTopUps?.[p] ?? 0;
     if (n > 0) out.push({ p, kind: 'up', amount: n, text: p === viewer
-      ? `The market tops you up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
+      ? `You are topped up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
       : `${s.players[p].name} had an empty shelf and was topped up to $${TOP_UP}` });
   }
   return out;
@@ -132,8 +132,8 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
   // A day with no event (Day 1, or every day when events are off) gets a "Calm Day" in the same layout, so every
   // morning looks alike (PLAN-062). It is not a card in the deck: nothing is drawn for it in the rules.
   const card: NewsCard = s.event ?? {
-    id: 'calm', title: 'Calm Day', flavour: 'Clear skies, business as usual!',
-    text: !s.config.events ? 'Events are off in this game.' : s.day === 1 ? 'Day 1! Let’s make some money!' : 'No event today.',
+    id: 'calm', title: 'Calm Day',
+    text: !s.config.events ? 'Events are off in this game.' : s.day === 1 ? 'No event on Day 1.' : 'No event today.',
   };
   const art = s.event ? eventArt(s.event.id) : CALM_ART;
   const ready = useArtReady(art);
