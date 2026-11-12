@@ -68,8 +68,12 @@ describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
 });
 
 describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
-  it('no Skip beside "Night falls…", and nothing said from the bell to the takings (PLAN-091)', () => {
+  it('no Skip at night, and nothing said from the bell to the takings (PLAN-091)', () => {
     const bar = read('src/ui/game/panels/ActionBar.tsx');
+    // the night's own heading says "Night falls" (NightShift.tsx): the bar is empty then, and no other hint shows
+    expect(bar).toContain(": night ? ''");
+    expect(bar).not.toContain('Night falls');
+    expect(read('src/ui/game/panels/NightShift.tsx')).toContain('<b class="tk-label">Night falls</b>');
     expect(bar).toContain("const selling = busy && s.phase === 'reveal' && !night;");
     // the bell, before the rush and at the flip, and the rush itself: the bar has nothing to add, and no other hint shows
     expect(bar).toContain(": s.phase === 'reveal' || s.phase === 'tie' ? ''");

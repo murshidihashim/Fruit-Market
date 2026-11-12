@@ -26,7 +26,8 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // A beat that plays by itself says what it is ('': a beat that has nothing to add here, and no other hint shows
   // then either). Not on your own buying turn: the buttons stay where they are.
   const beat = !busy || myBuy ? null
-    : night ? 'Night falls…'
+    // The night's own heading says it (the text audit, entry 391): the bar is empty, and no other hint shows then.
+    : night ? ''
     : s.phase === 'morning' || unloading ? 'The lorry arrives…'
     // The bell rings before the rush, and at the flip before a Favoured Trade question; a card just played travels to
     // its tag under the open rows (PLAN-085).
