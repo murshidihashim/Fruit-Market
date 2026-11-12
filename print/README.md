@@ -1,106 +1,103 @@
 # Fruit Market print kit
 
-The tabletop game's cards, rulebook pictures and player aid, in the owner's deck art (DEC-066, PLAN-049).
-Customers are Trading Cards (Art 3 "At work"), shopkeepers are Stall Signs (Art 2 "Over the counter") and events are
-newspaper front pages under the "Fruit Market" masthead (Art 1 "The scene"). Every name, number and price comes from the game data (`src/engine/data.ts`,
-rules version 9), drawn with the same card designs as the app (`src/ui/cards.tsx`), so the table and the app match.
+The tabletop game's cards and paper pieces, at rules version 18, in the approved card design (DEC-090 to DEC-096).
+Every card is drawn by the app's own card components (`src/ui/cards.tsx`) from the game data
+(`src/engine/data.ts`), so the table and the app show the same names, numbers and pictures. Nothing is typed twice.
 
-## What is in `print/kit`
+| Folder | What it is | Built by |
+|---|---|---|
+| `print/kit` | Every card with its back, the player aid, the character reference | `npx vite-node scripts/print-deck.ts` |
+| `print/update-18` | For someone who holds the earlier printing: guidebook, stall sheets, counters, the cards that changed | `npx vite-node scripts/print-update.ts` |
+| `print/tracker-test` | The two freshness trackers, as test packs (DEC-089) | `npx vite-node scripts/print-trackers.ts` |
+| `print/art` | The earlier illustrations at print resolution. Not used since rules 18 (the cards use `public/art-ticket`) | kept by hand |
 
-| File | Pages | Size | What it is |
+Each command takes about 20 seconds or less and needs Playwright's Chromium (`npx playwright install chromium`).
+Rebuild all three after any change to names, prices, card text, card design or pictures, and commit the PDFs.
+`node scripts/print-backs.cjs <folder>` (used by the QA sweep) builds the kit into a folder of your choice.
+
+## The cards (`print/kit`)
+
+139 cards in 8 decks, 63 × 88 mm (poker size).
+
+| Deck | Cards | Sheets | Back |
 |---|---|---|---|
-| `Fruit_Market_Print_Kit.pdf` | 127 | 8.7 MB | Everything below in one file, with a contents page |
-| `Player_Aid.pdf` | 1 | 0.1 MB | A day in five beats and the crier's price rule (one per player) |
-| `Character_Reference.pdf` | 4 | 4.1 MB | Rulebook pictures: 6 shopkeepers, 3 special guests, 36 customers with number, name, type and picture |
-| `Cards_Customers_A4.pdf` | 8 | 3.5 MB | 36 customer cards; each back shows that customer's fruit, in the card's own order |
-| `Cards_Guests_A4.pdf` | 2 | 0.4 MB | 3 special guests (The Influencer, The Gym Club, The Hotel Chef) and their backs |
-| `Cards_Shopkeepers_A4.pdf` | 2 | 1.2 MB | 6 shopkeeper cards and their backs |
-| `Cards_Events_A4.pdf` | 4 | 1.6 MB | 13 event cards and their backs |
-| `Cards_Favours_A4.pdf` | 4 | 0.3 MB | 12 favour cards (2 of each) and their backs |
-| `Cards_Deliveries_A4.pdf` | 6 | 0.8 MB | 20 lorry cards (10 lorries, 2 of each) with the 2, 3 and 4 stall rows, and their backs |
-| `Cards_Upgrades_A4.pdf` | 2 | 0.2 MB | 4 stall upgrades with their cost, and their backs |
-| `Factory_Customers_bleed.pdf` | 72 | 3.5 MB | For a card printer: one card per page, front then back |
-| `Factory_Shopkeepers_bleed.pdf` | 7 | 1.2 MB | For a card printer: 6 fronts, then the one shared back |
-| `Factory_Events_bleed.pdf` | 14 | 1.6 MB | For a card printer: 13 fronts, then the one shared back |
+| Customers | 36 | 4 | Its own: the fruit that customer wants, in four fixed squares |
+| Guests | 5 | 1 | The customer back's design, naming the event the guest comes with |
+| Events | 20 | 3 | Pattern, red |
+| Lorries | 20 | 3 | Pattern, green |
+| Shopkeepers | 8 | 1 | Pattern, kraft |
+| Favours | 12 (2 of each) | 2 | Pattern, blue |
+| Upgrades | 30 (5 kinds, 6 of each: one for every stall) | 4 | Pattern, slate |
+| Standing orders | 8 | 1 | Pattern, black and yellow |
 
-All 13 files together are about 26 MB.
+| File | Pages | What it is |
+|---|---|---|
+| `Fruit_Market_Print_Kit.pdf` | 200 | Everything below in one file, with a contents page (about 11 MB) |
+| `Player_Aid.pdf` | 1 | A day in five steps and the crier's price rule (one per player) |
+| `Character_Reference.pdf` | 5 | The shopkeepers, guests and customers as whole cards at a smaller size |
+| `Cards_<Deck>_A4.pdf` (8 files) | 38 in all | A deck on A4: each page of fronts is followed by its backs |
+| `Factory_<Deck>_bleed.pdf` (8 files) | 155 in all | A deck for a card printer: one card to a page |
 
-## Printing at home
+All 19 files together are about 21 MB.
 
-1. Use A4 card (250 to 300 gsm). Print at **100% / actual size** with **background graphics on**.
+### Printing at home
+
+1. A4 card, 250 to 300 gsm. Print at **100% / actual size** with **background graphics on**.
 2. Print **double-sided, flipping on the long edge**. Each page of fronts is followed by its page of backs, mirrored
-   left to right, so each back lands behind its own front.
-3. Cut on the dashed lines. Cards are 63 × 88 mm (poker size) and sit edge to edge, so one cut serves two cards.
-4. The circles on a customer card hold the fruit pieces sold to that customer (RULES.md, "Order circles").
+   left to right, so each back lands behind its own front. The whole set is **19 sheets**.
+3. Cut on the dashed lines. Cards sit edge to edge, so one cut serves two cards.
+4. Print one sheet first and hold it to the light: if the backs are off, check the printer is not set to "fit to page".
 
-Print a test page first: if the backs are a little off, check that the printer is not set to "fit to page".
+The player aid is one single-sided A4 page for each player.
 
-## Printing at a card factory
+### Printing at a card factory
 
-The `Factory_*` files have one 63 × 88 mm card per page with **3 mm bleed** on every side (69 × 94 mm) and crop marks
-outside that; each page names its card in the margin. Customer backs differ (each shows that customer's fruit), so the
-customer file goes front, back, front, back. Shopkeepers and events share one back each, at the end of their file.
-The files are RGB; ask the printer to convert to CMYK and send a proof first (colours shift a little in print).
-Guests, favours, deliveries and upgrades have no factory file yet; they can be added the same way when needed.
+The `Factory_*` files have one 63 × 88 mm card to a page with **3 mm bleed** on every side (69 × 94 mm) and crop marks
+outside that; each page names its card in the margin, and how many to print when a card has copies. Customers and
+guests go front, back, front, back (their backs differ). The other decks have their fronts first and their one shared
+back last. The files are RGB; ask the printer to convert to CMYK and send a proof first.
 
-## Rebuilding the kit
+## The update pack (`print/update-18`)
 
-From the repository root:
+For someone who holds the earlier printing (the rules 15 printing, with or without its rules 17 update pack). It is
+not needed with a fresh print of `print/kit`, except for the guidebook, the stall sheets and the counters, which are
+only here.
 
-```
-npx vite-node scripts/print-deck.ts print/kit
-```
+| File | Pages | What it is | How to print |
+|---|---|---|---|
+| `Fruit-Market-Update-18-1-Stall-Sheets-and-Counters.pdf` | 14 | A change sheet (2 pages: start here), six stall sheets, six counters with the cash track | Single-sided; the counters are landscape, cut on the dashed line |
+| `Fruit-Market-Update-18-2-Replacement-Cards.pdf` | 16 | The four decks that changed throughout, whole: 8 standing orders, 30 upgrades, 8 shopkeepers, 12 favours | Double-sided, flip on the long edge: 8 sheets |
+| `Fruit-Market-Rules-Guidebook-v18.pdf` | 10 | The whole rules guidebook at rules version 18 | Either way |
 
-It takes about 20 seconds and needs Playwright's Chromium (`npx playwright install chromium`). The script stops with
-an error if a card count is wrong, a picture file is missing, a picture fails to load, or anything spills off a card
-or a page. Rebuild after any change to names, prices, card text or art. (`node scripts/print-backs.cjs <folder>`,
-used by the QA sweep, now builds this same kit.)
+The change sheet also lists six cards to correct by hand (three customers, two lorries, one event) and has patches to
+lay over the board's words and its green mango price. New cards have a new design and a new back, so a deck is
+replaced whole: never mix new cards into an old deck. What changed since the earlier printing is written once, in
+`scripts/print-cards.ts` (`replacedDecks`, `handFixes`).
 
-Pictures come from `print/art` (the owner's art at print resolution, about 240 to 300 ppi at card size). They are
-stored in the PDFs as high-quality JPEG to keep the files small.
+## The tracker test packs (`print/tracker-test`)
 
-### Fixed card layouts (shared with the app)
+Two ways to track freshness on the table, to try before one is chosen for the kit (DEC-089). Neither changes a rule.
 
-Every card of a kind has the same fixed zones, in the app and in print alike (`src/ui/cards.css`):
+| File | Pages | What it is |
+|---|---|---|
+| `Fruit-Market-Tracker-Test-1-Ruler.pdf` | 4 | Fruit stays in its column and a ruler slides one column a night: how-to, stall sheet, market board, eight rulers to cut out |
+| `Fruit-Market-Tracker-Test-2-Tray.pdf` | 3 | Fruit slides one box a night and the crate is a loose tray: how-to, stall sheet, two trays to a page |
 
-- **Customer cards:** the picture, name banner, two-line quirk box, order box and "Buys" line are in the same place on
-  all 39 cards. A long name or quirk is set a little smaller; the order box has one height and equal columns for 1, 2
-  or 3 fruits.
-- **Event cards:** the headline block (room for three lines, the "Extra!" seal in its corner), the scene picture, the
-  two-line caption and the story box are the same on all 13. The story is set at about 7 pt so the longest one fits,
-  and any spare room is at the foot of the card. Each picture's crop is set per event to keep its price tag or sign
-  in view.
-- **Shopkeeper cards:** one header and one chalkboard height (room for Rosa's three lines), so all six scenes are the
-  same size. The upgrade cards share the same header and chalkboard sizes.
+Single-sided. For six stalls print the stall sheet six times, and the tray page three times.
 
-### Print-only layout rules
+## How the scripts keep the kit right
 
-A few rules apply only to the printed kit (in `PRINT_CSS` in `scripts/print-deck.ts`, so the app is not affected):
+- `scripts/print-cards.ts` builds every card, sheet and factory page from the data. `tests/print-kit.test.ts` (part
+  of `npm run verify`) fails when the kit and the data disagree: a deck of the wrong size, a card printed too often or
+  not at all, a card without its picture or its back, a back that would not land behind its own front.
+- `scripts/print-render.ts` refuses to write a PDF with a picture that did not load, a font that fell back, a card or
+  page whose contents do not fit, or a wrong number of pages.
+- A card whose words need more room than the app's card allows lets its picture give way a little further, in print
+  only, and the script names it when it runs. Today that is one card: Blueberry Glut (its picture is 2 mm shorter).
+- On screen a pattern back repeats its tile as a background. In print the same tile is laid as a grid of pictures:
+  the same pattern, in a file less than half the size.
 
-- **Customer cards:** the order box is taller, to hold one order circle per fruit wanted.
-- **Character reference:** customers are 3 across and 4 down, each tile as tall as its row, so the pages are filled
-  evenly.
-- **The Influencer:** its "Special guest" flag starts to the right of the $12 tag drawn into the borrowed Mango Craze
-  picture.
-- **A4 pages** (cover, player aid, reference) fit inside the page, so every PDF, including
-  `Fruit_Market_Print_Kit.pdf`, prints the cards at true size (63 × 88 mm).
+## Not in the repository
 
-## What is missing or still to decide
-
-- **Guest portraits.** The three guests have no picture of their own. Each borrows its event's scene for now
-  (The Influencer: Mango Craze, The Gym Club: Superfood Trend, The Hotel Chef: Hotel Order). The guest sheet and the
-  reference page say so.
-- **Customer card back.** The owner's PDFs have no card backs. The customer back (navy sunburst, red ribbon, the
-  wanted fruit on a cream plate) and the other backs are new designs in the deck-art style; the owner has not yet
-  approved them.
-- **Favour, delivery and upgrade cards** have no illustrations by design: they use the deck-art lettering, banners,
-  colours and fruit icons only.
-- **Not restyled yet:** the play mat, stall sheet and screen, tokens, price cards and paper money from the earlier kit.
-- **Stall-sign hooks.** The hanging strings and bar above each stall sign in the PDF sit outside the card and are
-  left out.
-- **Picture crop.** The PDF cards are taller than poker cards, so pictures are cropped to fit 63 × 88 mm. Event
-  pictures are all cropped to the same height, which hides the top or bottom of some scenes (for example the warning
-  sign on Lorry Breakdown).
-- **Guest flags.** On The Gym Club and The Hotel Chef the "Special guest" flag still covers the top edge of the
-  borrowed scene (the +$1 tag's string, the Grand Hotel sign). Their own portraits will remove this.
-- The event cards' effect bullets (▸) are not in the deck fonts, so the printer's fallback font draws them.
+The market board, the shutters, the fruit pieces, the price tags and the markers were made outside the repository
+with the earlier printing and are not rebuilt here.
