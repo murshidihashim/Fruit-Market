@@ -1035,7 +1035,7 @@ describe('K. Favoured Trade after prices flip', () => {
   const soldTo = (g: GameState) => g.results!.lines[0].offers.filter((o) => o.sold > 0).map((o) => [o.player, o.sold]);
 
   it('the card says so, and it cannot be played before the flip', () => {
-    expect(FAVOURS.favouredTrade).toMatchObject({ when: 'tie', text: 'After prices flip: if one of your prices is tied, play this to win every tied price today.' });
+    expect(FAVOURS.favouredTrade).toMatchObject({ when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' });
     let s = stocking(2, [buyer(1, 'apple', 2, 8)]);
     s.players.forEach((p) => { p.stock.apple[FRESH('apple')] = 2; });
     s.players[0].favours = ['favouredTrade'];

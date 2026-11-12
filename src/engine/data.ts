@@ -316,17 +316,18 @@ export const EVENT_CARDS: EventCard[] = [
 
 export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';
 
-/** `when`: the step a card is played in. 'tie' (rules 18) is Favoured Trade's own step, after prices flip. */
+/** `when`: the step a card is played in. 'tie' (rules 18) is Favoured Trade's own step, after prices flip. Every place
+ *  that shows a card names that step beside `text`, so `text` says only what the card does. */
 export interface FavourDef { id: FavourId; title: string; icon: string; text: string; when: 'buy' | 'tie' | 'evening' }
 
 export const FAVOURS: Record<FavourId, FavourDef> = {
-  gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Play in the evening: look at all of tomorrow\'s walk-ins. Only you see them.' },
-  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Play on your buying turn: take 1 piece from the Wholesale Market for free.' },
-  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'Play in the evening: you buy first tomorrow. Only 1 Priority can be played each evening.' },
-  scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Play on your buying turn: look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
+  gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Look at all of tomorrow\'s walk-ins. Only you see them.' },
+  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free.' },
+  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. Only 1 Priority can be played each evening.' },
+  scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
   // Rules 18: played after the flip, in the open, and only by a stall with a tied price (before, in secret with the prices).
-  favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'After prices flip: if one of your prices is tied, play this to win every tied price today.' },
-  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'Play on your buying turn: every ripe piece on your shelf becomes one step fresher. Green pieces do not change.' },
+  favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' },
+  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'Every ripe piece on your shelf becomes one step fresher. Green pieces do not change.' },
 };
 
 export const FAVOUR_DECK: FavourId[] = [
