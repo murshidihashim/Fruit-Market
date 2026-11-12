@@ -107,31 +107,31 @@ function audit() {
     const has = async (t) => (await page.locator(t).count()) > 0;
     try {
       await check('home');
-      await page.click('text=How to play');
+      await page.click('button:has-text("How to play")');
       await check('howto-1');
       for (let i = 2; i <= 9 && (await has('button.btn.primary:has-text("Next")')); i++) { await page.click('button.btn.primary:has-text("Next")'); await check(`howto-${i}`); }
       await page.click('.icon-btn');
-      await page.click('text=Settings'); await check('settings');
+      await page.click('button:has-text("Settings")'); await check('settings');
       await page.click('.icon-btn');
-      await page.click('text=Trophies'); await check('trophies');
+      await page.click('button:has-text("Trophies")'); await check('trophies');
       await page.click('.icon-btn').catch(() => {});
-      await page.click('text=New game'); await check('setup');
-      await page.click('text=Start game');
+      await page.click('button:has-text("New game")'); await check('setup');
+      await page.click('button:has-text("Start game")');
       const seen = new Set();
       const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
       for (let i = 0; i < 700 && !(await has('.results')); i++) {
         try {
           if (await has('.trait-card')) { if (once('trait')) await check('shopkeeper'); await page.click('.trait-card'); continue; }
-          if (await has('text=Start buying')) { if (once('morning')) await check('morning'); await page.click('text=Start buying'); continue; }
-          if (await has('text=/Done buying|Skip buying/')) { if (once('buy')) await check('buying'); await page.click('text=/Done buying|Skip buying/'); continue; }
+          if (await has('button:has-text("Start buying")')) { if (once('morning')) await check('morning'); await page.click('button:has-text("Start buying")'); continue; }
+          if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) { if (once('buy')) await check('buying'); await page.click('button:has-text("Done buying"), button:has-text("Skip buying")'); continue; }
           // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
           if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
           // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
           if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
           const lock = page.locator('.pp-lock .btn:not([disabled])');
           if (await lock.count()) { if (once('pricing')) await check('pricing'); await lock.click(); if (once('reveal')) { await page.waitForTimeout(2600); await check('reveal'); } continue; }
-          if (await has('text=Lights out')) { if (once('evening')) await check('evening'); await page.click('text=Lights out'); continue; }
-          for (const t of ['Close for the day', 'See results']) if (await has(`text=${t}`)) { if (once('summary')) await check('summary'); await page.click(`text=${t}`); break; }
+          if (await has('button:has-text("Lights out")')) { if (once('evening')) await check('evening'); await page.click('button:has-text("Lights out")'); continue; }
+          for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) await check('summary'); await page.click(`button:has-text("${t}")`); break; }
           await page.waitForTimeout(100);
         } catch { await page.waitForTimeout(150); }
       }

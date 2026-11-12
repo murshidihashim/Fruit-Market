@@ -173,7 +173,7 @@ describe('what is close', () => {
     expect(lines[lines.length - 1]).toMatchObject({ name: 'Uncle Benny', title: 'Uncle Benny · 0 of 1 wins' });
     expect(closeLines(snap(), (k) => k, [], '🦜').pop()).toMatchObject({ name: 'Rosa' });
   });
-  it('the second line is never about the shopkeeper just played: that button would only be "Play again"', () => {
+  it('the second line is never about the shopkeeper just played: that button would only be "Rematch"', () => {
     const s = snap({ counts: { win_keeper: 2 }, sets: { wonWith: ['keeper'] }, have: new Set(['win_keeper_1']) });
     expect(closeLines(s, (k) => k, [], '🦊').pop()).toMatchObject({ name: 'Pak Din' });
     // Pak Din was just played: the next shopkeeper round the table, who has no win yet

@@ -29,12 +29,12 @@ const path = require('path');
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
   if (save) {
-    await page.click('text=Continue');
-    await page.click('text=Resume');
+    await page.click('button:has-text("Continue")');
+    await page.click('button:has-text("Resume")');
   } else {
-    await page.click('text=New game');
+    await page.click('button:has-text("New game")');
     await setRivals(page, rivals);
-    await page.click('text=Start game');
+    await page.click('button:has-text("Start game")');
     await page.waitForTimeout(250);
     await shot('01-delivery-anim');
   }
@@ -46,8 +46,8 @@ const path = require('path');
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
     if (await has('.trait-card')) { if (once('trait')) await shot('01b-trait'); await page.click('.trait-card'); continue; }
-    if (await has('text=Start buying')) { if (once('morning')) await shot('02-morning'); if (await has('text=LAST DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('text=Start buying'); continue; }
-    if (await has('text=/Done buying|Skip buying/')) {
+    if (await has('button:has-text("Start buying")')) { if (once('morning')) await shot('02-morning'); if (await has('text=LAST DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('button:has-text("Start buying")'); continue; }
+    if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
       const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();
       if (once('buyturn')) await shot('03-my-turn');
@@ -57,7 +57,7 @@ const path = require('path');
         await page.waitForTimeout(700);
         continue;
       }
-      await page.click('text=/Done buying|Skip buying/');
+      await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
       continue;
     }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
@@ -82,13 +82,13 @@ const path = require('path');
       if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }
       continue;
     }
-    if (await has('text=Lights out')) {
+    if (await has('button:has-text("Lights out")')) {
       if (once('evening')) await shot('08-evening');
-      await page.click('text=Lights out');
+      await page.click('button:has-text("Lights out")');
       if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); }
       continue;
     }
-    for (const t of ['Close for the day', 'See results']) if (await has(`text=${t}`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`text=${t}`); break; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
     } catch {
