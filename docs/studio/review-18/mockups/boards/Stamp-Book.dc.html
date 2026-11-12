@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trophies: the stamp book, your stall level and the ladder</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit;border:0;border-radius:0;margin:0;cursor:pointer}
+.ph{width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;background:#fffcf5;color:#1f272a;font:600 12px/1.3 Archivo,system-ui,sans-serif;overflow:hidden}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.sub{color:#5a6266}
+.bar{height:52px;flex:none;box-sizing:border-box;background:#1f272a;color:#fffcf5;display:flex;align-items:center;gap:8px;padding:0 12px}
+.bar .back{width:44px;height:44px;margin-left:-10px;background:none;display:grid;place-items:center}
+.bar h1{margin:0;font:400 18px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.bar .lv{margin-left:auto;background:#fec400;color:#1f272a;padding:6px 8px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid #1f272a;font:800 9.5px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.tabs span{padding:9px 0;text-align:center}.tabs .on{background:#fec400}
+.btn{height:52px;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.btn.gh{background:#fffcf5;color:#1f272a;box-shadow:inset 0 0 0 2px #1f272a;font-size:12px}
+.card{border:2px solid #1f272a;display:flex;flex-direction:column}
+.card .ch{display:flex;justify-content:space-between;align-items:center;background:#1f272a;color:#fffcf5;padding:7px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.card .ch b{color:#fec400}
+.perf{height:0;border-top:2px dashed #1f272a;margin:0 9px}
+.grid10{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.cell{aspect-ratio:1;border:1.5px dashed #bdb4a6;border-radius:50%;box-sizing:border-box;display:grid;place-items:center}
+.cell.s{border:2px solid #1f272a;background:radial-gradient(circle,#1f272a 0 34%,#fffcf5 35% 52%,#1f272a 53% 100%)}
+.cell.n{border:2px solid #b62528;background:radial-gradient(circle,#b62528 0 34%,#fffcf5 35% 52%,#b62528 53% 100%);transform:rotate(-12deg)}
+.awn{height:14px;background:repeating-linear-gradient(90deg,var(--a,#e73c35) 0 14px,#fffcf5 14px 28px);border-bottom:2px solid #1f272a;position:relative}
+.awn:after{content:"";position:absolute;left:0;right:0;top:100%;height:7px;background:radial-gradient(circle at 7px 0,var(--a,#e73c35) 0 6px,transparent 6.5px) 0 0/28px 7px repeat-x,radial-gradient(circle at 21px 0,#fffcf5 0 6px,transparent 6.5px) 0 0/28px 7px repeat-x}
+.pip{width:20px;height:20px;border-radius:50%;box-sizing:border-box;display:grid;place-items:center;font:800 9px/1 Archivo,sans-serif;border:1.5px dashed #bdb4a6;color:#bdb4a6;flex:none}
+.pip.b{border:2px solid #1f272a;background:#c98f66;color:#1f272a}
+.pip.s{border:2px solid #1f272a;background:#ddd4c6;color:#1f272a}
+.pip.g{border:2px solid #1f272a;background:#fec400;color:#1f272a}
+.pip.new{box-shadow:0 0 0 2px #b62528}
+
+.sign{margin:10px 12px 0;border:2px solid #1f272a;outline:2px solid #1f272a;outline-offset:3px;display:flex;align-items:center;gap:10px;padding:8px;background:#fffcf5}
+.sign .pic{width:56px;height:56px;border:2px solid #1f272a;box-sizing:border-box;overflow:hidden;flex:none}
+.sign .pic img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.sign h2{margin:0 0 3px;font:400 20px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.sign .lvl{margin-left:auto;text-align:center}.sign .lvl b{display:block;font:400 30px/1 'Archivo Black',sans-serif}
+.how{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:8px 9px;background:#ddd4c6}
+.how b{font:800 12px/1.3 Archivo,sans-serif;text-align:right}
+.rk{display:flex;align-items:center;gap:8px;border:2px solid #1f272a;padding:3px 8px}
+.rk .n{width:22px;height:22px;background:#1f272a;color:#fffcf5;display:grid;place-items:center;font:800 11px/1 Archivo,sans-serif;flex:none}
+.rk.done{background:#efe9df}.rk.done .n{background:#0e9a58}
+.rk.now{background:#fec400}
+.rk.later{border-style:dashed;color:#5a6266}.rk.later .n{background:#bdb4a6}
+.rk .t{display:flex;flex-direction:column;gap:2px;min-width:0}.rk .t b{font:800 12px/1 Archivo,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.rk .r{margin-left:auto;font:700 10px/1.2 Archivo,sans-serif;text-align:right}
+.rew{display:flex;gap:3px;flex-wrap:wrap;padding:5px 6px;border:2px solid #1f272a;border-top:0;margin-top:-4px}
+.rew span{border:1.5px solid #1f272a;padding:3px 5px;font-size:10px;background:#fffcf5}
+.rew .got{background:#1f272a;color:#fffcf5}
+.rew .nx{background:#fec400}
+</style>
+</helmet>
+<div class="ph">
+
+  <div class="bar"><button class="back" aria-label="Back"><svg width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><path d="M8 1 1 8l7 7M1 8h17" stroke="#fffcf5" stroke-width="2.5" fill="none"/></svg></button><h1>Trophies</h1><span class="lv">Level 8</span></div>
+  <div class="tabs"><span class="on">Stamp book</span><span>Cards</span><span>Collection</span><span>Wardrobe</span></div>
+  <div class="sign"><span class="pic"><img src="/_blob/d74235a9d3dc8bf4cebbbbf14eb299dd" alt="Rosa"></span><div><h2>Tester's stall</h2><span class="lab">Five-Foot Way trader</span></div><span class="lvl"><span class="lab">Level</span><b>8</b></span></div>
+
+  <div style="padding: 10px 12px 0">
+    <div class="card">
+      <div class="ch"><span>Card 8 of 30 · Five-Foot Way</span><b>21 of 25</b></div>
+      <div style="padding: 9px"><div class="grid10"><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell s"></i><i class="cell "></i><i class="cell "></i><i class="cell "></i><i class="cell "></i></div></div>
+      <div class="perf"></div>
+      <div style="display: flex; justify-content: space-between; padding: 7px 9px"><span><b>4 stamps to level 9</b></span><span>Next: Abacus coin sound</span></div>
+    </div>
+  </div>
+
+  <div style="padding: 8px 12px 0; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; justify-content: space-between"><span class="lab">What earns stamps</span><span class="sub">Never spent, lost or sold</span></div>
+    <div class="how"><span>Finish a game</span><b>1 for every 3 days</b><span>Win it (a shared win counts)</span><b>+1</b><span>Finish the Daily market, once a day</span><b>+2</b><span>A trophy tier: Bronze · Silver · Gold</span><b>2 · 5 · 10</b></div>
+  </div>
+
+  <div style="flex: 1; min-height: 0; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 4px; overflow: hidden">
+    <span class="lab">The ladder · six ranks, thirty cards</span>
+    <div class="rk done"><span class="n">1</span><span class="t"><b>Roadside Table</b><span>Levels 1 to 5</span></span><span class="r">4 rewards<br>all yours</span></div>
+    <div class="rk now"><span class="n">2</span><span class="t"><b>Five-Foot Way</b><span>Levels 6 to 10 · you are here</span></span><span class="r">25 stamps<br>a card</span></div>
+    <div class="rew"><span class="got">6 Title and Painted-board frame</span><span class="got">7 Counter bell</span><span class="got">8 Hand-written price card</span><span class="nx">9 Abacus coin sound</span><span>10 "Sold out" stamp</span></div>
+    <div class="rk later"><span class="n">3</span><span class="t"><b>Covered Stall</b><span>Levels 11 to 15</span></span><span class="r">Lantern-string frame,<br>card backs · coming</span></div>
+    <div class="rk later"><span class="n">4</span><span class="t"><b>Corner Lot</b><span>Levels 16 to 20</span></span><span class="r">Brass-plate frame,<br>Monsoon table · coming</span></div>
+    <div class="rk later"><span class="n">5</span><span class="t"><b>Shophouse</b><span>Levels 21 to 25</span></span><span class="r">Carved-wood frame,<br>Festival table · coming</span></div>
+    <div class="rk later"><span class="n">6</span><span class="t"><b>Towkay</b><span>Levels 26 to 30</span></span><span class="r">Gold-leaf frame,<br>Gold-thread awning · coming</span></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

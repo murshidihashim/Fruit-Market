@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trophies: cards with Bronze, Silver and Gold tiers, and the collection</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit;border:0;border-radius:0;margin:0;cursor:pointer}
+.ph{width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;background:#fffcf5;color:#1f272a;font:600 12px/1.3 Archivo,system-ui,sans-serif;overflow:hidden}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.sub{color:#5a6266}
+.bar{height:52px;flex:none;box-sizing:border-box;background:#1f272a;color:#fffcf5;display:flex;align-items:center;gap:8px;padding:0 12px}
+.bar .back{width:44px;height:44px;margin-left:-10px;background:none;display:grid;place-items:center}
+.bar h1{margin:0;font:400 18px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.bar .lv{margin-left:auto;background:#fec400;color:#1f272a;padding:6px 8px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid #1f272a;font:800 9.5px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.tabs span{padding:9px 0;text-align:center}.tabs .on{background:#fec400}
+.btn{height:52px;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.btn.gh{background:#fffcf5;color:#1f272a;box-shadow:inset 0 0 0 2px #1f272a;font-size:12px}
+.card{border:2px solid #1f272a;display:flex;flex-direction:column}
+.card .ch{display:flex;justify-content:space-between;align-items:center;background:#1f272a;color:#fffcf5;padding:7px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.card .ch b{color:#fec400}
+.perf{height:0;border-top:2px dashed #1f272a;margin:0 9px}
+.grid10{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.cell{aspect-ratio:1;border:1.5px dashed #bdb4a6;border-radius:50%;box-sizing:border-box;display:grid;place-items:center}
+.cell.s{border:2px solid #1f272a;background:radial-gradient(circle,#1f272a 0 34%,#fffcf5 35% 52%,#1f272a 53% 100%)}
+.cell.n{border:2px solid #b62528;background:radial-gradient(circle,#b62528 0 34%,#fffcf5 35% 52%,#b62528 53% 100%);transform:rotate(-12deg)}
+.awn{height:14px;background:repeating-linear-gradient(90deg,var(--a,#e73c35) 0 14px,#fffcf5 14px 28px);border-bottom:2px solid #1f272a;position:relative}
+.awn:after{content:"";position:absolute;left:0;right:0;top:100%;height:7px;background:radial-gradient(circle at 7px 0,var(--a,#e73c35) 0 6px,transparent 6.5px) 0 0/28px 7px repeat-x,radial-gradient(circle at 21px 0,#fffcf5 0 6px,transparent 6.5px) 0 0/28px 7px repeat-x}
+.pip{width:20px;height:20px;border-radius:50%;box-sizing:border-box;display:grid;place-items:center;font:800 9px/1 Archivo,sans-serif;border:1.5px dashed #bdb4a6;color:#bdb4a6;flex:none}
+.pip.b{border:2px solid #1f272a;background:#c98f66;color:#1f272a}
+.pip.s{border:2px solid #1f272a;background:#ddd4c6;color:#1f272a}
+.pip.g{border:2px solid #1f272a;background:#fec400;color:#1f272a}
+.pip.new{box-shadow:0 0 0 2px #b62528}
+
+.tc{display:flex;align-items:stretch;border:2px solid #1f272a;min-height:54px}
+.tc .pic{width:54px;flex:none;border-right:2px solid #1f272a;overflow:hidden;background:#ddd4c6;display:grid;place-items:center}
+.tc .pic img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block}
+.tc .pic.ic img{width:30px;height:30px;object-fit:contain}
+.tc .tx{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:5px 8px}
+.tc .tx b{font:800 12px/1 Archivo,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.tc .pips{display:flex;align-items:center;gap:4px;padding:0 8px}
+.tc.new{background:#fff3c2}
+.pg{height:6px;background:#ddd4c6;position:relative}.pg i{position:absolute;left:0;top:0;bottom:0;background:#1f272a}
+.thumbs{display:flex;gap:4px}
+.thumbs span{flex:1;aspect-ratio:1;border:2px solid #1f272a;box-sizing:border-box;overflow:hidden;background:#ddd4c6}
+.thumbs img{width:100%;height:100%;object-fit:cover;object-position:50% 28%;display:block}
+.thumbs .no{display:grid;place-items:center;font:400 18px/1 'Archivo Black',sans-serif;color:#bdb4a6;border-style:dashed}
+</style>
+</helmet>
+<div class="ph">
+
+  <div class="bar"><button class="back" aria-label="Back"><svg width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><path d="M8 1 1 8l7 7M1 8h17" stroke="#fffcf5" stroke-width="2.5" fill="none"/></svg></button><h1>Trophies</h1><span class="lv">Level 8</span></div>
+  <div class="tabs"><span>Stamp book</span><span class="on">Cards</span><span>Collection</span><span>Wardrobe</span></div>
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #ddd4c6"><span class="lab">55 cards · 31 of 125 tiers</span><span style="display: flex; align-items: center; gap: 4px"><i class="pip b">B</i>2 <i class="pip s">S</i>5 <i class="pip g">G</i>10 stamps</span></div>
+
+  <div style="padding: 10px 12px 0; display: flex; flex-direction: column; gap: 5px">
+    <div style="display: flex; justify-content: space-between"><span class="lab">Shopkeepers · win with each</span><span class="sub">1 · 3 · 6 wins</span></div>
+    <div class="tc new"><span class="pic"><img src="/_blob/d74235a9d3dc8bf4cebbbbf14eb299dd" alt="Rosa"></span><span class="tx"><b>Rosa</b><span>Silver today · 3 wins. Gold at 6</span><span class="pg"><i style="width: 50%"></i></span></span><span class="pips"><i class="pip b">B</i><i class="pip s new">S</i><i class="pip ">G</i></span></div>
+    <div class="tc"><span class="pic"><img src="/_blob/6a27a6273fb3b9eaea22e444b77f45c3" alt="Pak Din"></span><span class="tx"><b>Pak Din</b><span>2 of 3 wins for Silver</span><span class="pg"><i style="width: 67%"></i></span></span><span class="pips"><i class="pip b">B</i><i class="pip ">S</i><i class="pip ">G</i></span></div>
+    <div class="tc"><span class="pic"><img src="/_blob/60f2bce27ece0c0772e5156086569f62" alt="Uncle Benny"></span><span class="tx"><b>Uncle Benny</b><span>Win a game with him</span><span class="pg"><i style="width: 0%"></i></span></span><span class="pips"><i class="pip ">B</i><i class="pip ">S</i><i class="pip ">G</i></span></div>
+    <span class="sub">+ 5 more shopkeepers · Hard Sweep · All Eight</span>
+  </div>
+
+  <div style="padding: 10px 12px 0; display: flex; flex-direction: column; gap: 5px">
+    <div style="display: flex; justify-content: space-between"><span class="lab">Selling</span><span class="sub">8 cards</span></div>
+    <div class="tc"><span class="pic ic"><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mango"></span><span class="tx"><b>Name Your Price</b><span>11 of 15 at the top price in one game</span><span class="pg"><i style="width: 73%"></i></span></span><span class="pips"><i class="pip b">B</i><i class="pip ">S</i><i class="pip ">G</i></span></div>
+    <div class="tc"><span class="pic ic"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></span><span class="tx"><b>Nothing Wasted</b><span>Won with nothing spoiled · 1 of 3 times</span><span class="pg"><i style="width: 33%"></i></span></span><span class="pips"><i class="pip b">B</i><i class="pip ">S</i><i class="pip ">G</i></span></div>
+    <div class="tc"><span class="pic ic"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></span><span class="tx"><b>Sole Supplier</b><span>Serve 3 customers alone in one game</span><span class="pg"><i style="width: 67%"></i></span></span><span class="pips"><i class="pip ">B</i><i class="pip ">S</i><i class="pip ">G</i></span></div>
+  </div>
+
+  <div style="padding: 10px 12px 0; display: flex; flex-direction: column; gap: 5px">
+    <div style="display: flex; justify-content: space-between"><span class="lab">Collection · customers</span><span>34 of 36 served</span></div>
+    <div class="thumbs"><span><img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman"></span><span><img src="/_blob/096dd86958203a4e55d4f9183b4d475c" alt="Hadi Hammer"></span><span><img src="/_blob/969daf998ca2ae24a1af1f4f8469bf11" alt="Uncle Hock Seng"></span><span><img src="/_blob/df0bad5c3de685839888ca4cb9561e46" alt="DJ Rizal"></span><span class="no">?</span><span class="no">?</span></div>
+    <span class="sub">A page is a shadow until you meet that customer. Each page has three ticks: served, sold at the top price, served alone.</span>
+  </div>
+  <div style="flex: 1"></div>
+  <div style="padding: 0 12px 12px" class="sub">Everything you had before the update is kept. Old trophies count as tiers and pay their stamps.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 12:22 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 12:32 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
@@ -32,7 +32,7 @@ PLAN-084 is built by two helpers in separate work folders: one on the rush, one 
 
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
-- **REP-109 (awaiting his word):** mock-ups of stocking and the day's takings (package 3) and of the results, stamp book, trophy cards and Wardrobe (package 5); three questions. Sources in the session scratchpad (`ui/boards_day2.py`, `ui/boards_p5.py`); copy the chosen boards to `docs/studio/review-18/mockups` once approved.
+- **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
 - Publishing release A still needs his own word for that build, after the merge to `main`, the full checks and the preview copy.
 - Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes).
 

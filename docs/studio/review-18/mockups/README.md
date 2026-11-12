@@ -10,6 +10,8 @@ These are the sources of the boards on the design page, kept here so the build f
 | `Pictures`, `Customers`, `Events`, `Shopkeepers`, `Order-Clients` | Every card picture. The files are in `docs/studio/art-drafts/cards-18/` | DEC-094 |
 | `Morning`, `Buying`, `Pricing`, `Rush`, `Favoured-Trade`, `Standing-Order`, `Evening` | A day on the phone, 390 by 844. The wholesale market is lanes of 3, 4, 5 and 6 boxes | DEC-090 to DEC-094 |
 | `Home-A`, `Home-B`, `Home-Waiting` | The home screen: today's market first, your next goals a swipe away, your table first when a game is waiting | DEC-097 |
+| `Stocking`, `Takings` | Two more screens of the day: filling your crate, and the day's takings | DEC-103 |
+| `Results`, `Stamp-Book`, `Trophy-Cards`, `Wardrobe` | The stamp book screens: the stamps a game earned, the ladder of six ranks, trophies as cards with tiers, and the looks with where they show in a game (an awning strip over your shelf and on your box as a rival sees it) | DEC-099, DEC-103 |
 
 The look: ink `#1f272a`, paper `#fffcf5`, kraft `#ddd4c6`, pale `#efe9df`, stone `#bdb4a6`, slate `#5a6266`, mustard `#fec400`, red `#e73c35`, dark red `#b62528`, green `#0e9a58`, blue `#3558a2`. Archivo and Archivo Black. Square corners. Lanes in the order blueberry, watermelon, mango, apple.
 

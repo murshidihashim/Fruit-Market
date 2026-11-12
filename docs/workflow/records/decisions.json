@@ -2540,6 +2540,30 @@
         "REP-108"
       ],
       "reviewTrigger": "When release A is ready to publish (ask for the owner's word for that build); if playtests with people show Raj or Saleh winning too often; if the owner wants to see the game on a phone before the end"
+    },
+    {
+      "id": "DEC-103",
+      "title": "Stocking, the takings and the stamp book screens are built as drawn; looks show as an awning strip in the game",
+      "question": "Three questions put with REP-109: are stocking and the day's takings built as drawn; is this the right way to show the stamps, the ladder and the trophy tiers (with the rank names the owner's to reword); and is an awning strip over the player's shelf, and a thin one on the player's box as rivals see it, right or too much on a small screen?",
+      "choice": "All three approved as drawn. 1. Stocking and the day's takings follow the Stocking and Takings boards. 2. The results, the stamp book, the trophy cards and the Wardrobe follow the Results, Stamp-Book, Trophy-Cards and Wardrobe boards; the rank names stay Roadside Table, Five-Foot Way, Covered Stall, Corner Lot, Shophouse, Towkay. 3. A player's awning shows as a strip over their own shelf and as a thin strip on their box as rivals see it.",
+      "rationale": "REP-109. The two day screens use the same parts as the approved pricing screen, so stocking, pricing and the bell read as one sheet. The stamp book screens follow DEC-099 and the progression study's first version. The awning strip is how a look earned in the Wardrobe becomes visible in a game; it changes no rule, price or secret.",
+      "impact": {
+        "player": "The whole day now has an approved design. Trophies become a ladder that is visible from the start, and what a player earns shows on the table.",
+        "technical": "Board sources in docs/studio/review-18/mockups (Stocking, Takings, Results, Stamp-Book, Trophy-Cards, Wardrobe). Stocking and the takings are built in package 3; the stamp book screens and the awning strips in package 5. Small phones and six stalls were not drawn and are settled in the build.",
+        "data": "None beyond DEC-099: the level is worked out from counts already stored, plus the new counters named there."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-109"
+      ],
+      "reviewTrigger": "When each screen is built: shown to the owner beside its board. If the awning strip crowds a 360 by 640 screen or a six-stall table"
     }
   ],
   "history": [
@@ -3538,6 +3562,10 @@
     {
       "at": "2026-11-12 12:22",
       "text": "REP-109: mock-ups of six screens put to the owner on the design page (version 24) and as pictures: stocking and the day's takings (for package 3), and the results, the stamp book, the trophy cards and the Wardrobe (for package 5, DEC-099). Awaiting his word on three questions: build stocking and the takings as drawn; the stamps, ladder and tiers as shown, with the rank names his to reword; an awning strip over the shelf and on a rival's view of his box. Nothing is built from them. PLAN-084 continues with two helpers."
+    },
+    {
+      "at": "2026-11-12 12:32",
+      "text": "DEC-103: Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\". Stocking and the day's takings are built as drawn (package 3); the results, the stamp book, the trophy cards and the Wardrobe as drawn, with the rank names kept (package 5); looks show in a game as an awning strip over the player's shelf and a thin one on the player's box as rivals see it. The six boards are saved in docs/studio/review-18/mockups."
     }
   ]
 }
