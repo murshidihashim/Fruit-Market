@@ -181,10 +181,14 @@
 #app .tkt .rush-table.close .rt-badge { right: -3px; }
 #app .tkt .rush-table.close .rt-plus { right: -3px; }
 #app .tkt .rush-table.close .rt-tag { font-size: 0.9375rem; }
-#app .tkt .rush-table.close .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
-#app .tkt .rush-table.close .rt-line.long { font-size: 0.625rem; }
-#app .tkt .rush-table.close .rt-foot { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-#app .tkt .rush-table.close .rt-foot button { height: 48px; }
+/* A short screen: the result line and the buttons a little smaller. Set by the screen's height and not by the close
+   form, because the stage's own size decides that form: the line and the buttons must not change the stage's size. */
+@media (max-height: 700px) {
+  #app .tkt .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
+  #app .tkt .rt-line.long { font-size: 0.625rem; }
+  #app .tkt .rt-foot { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt .rt-foot button { height: 48px; }
+}
 @media (max-width: 379px) {
   #app .tkt .rt-line { margin-left: 8px; margin-right: 8px; }
   #app .tkt .rt-foot { padding-left: 8px; padding-right: 8px; }
