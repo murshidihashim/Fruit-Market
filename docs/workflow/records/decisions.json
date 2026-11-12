@@ -3479,6 +3479,10 @@
     {
       "at": "2026-11-12 07:15",
       "text": "Owner settled REP-105's three balance choices (DEC-101): the Charmer starts with 3 favour cards; the Ripening Room's $1 green-mango discount is dropped; mango standing orders are left as they are. PLAN-082 holds the two rule changes and the balance re-run; it starts when PLAN-081 is merged. Found while checking: the helper for PLAN-081 had been started from the last merge to main, 32 commits behind the working branch, and was told to bring its copy up to date before changing anything."
+    },
+    {
+      "at": "2026-11-12 08:19",
+      "text": "PLAN-081 built by a helper, checked and merged (f50c9d5): all nine items done; every finding from the flow study was confirmed in a running game before it was fixed. npm run verify PASS (545 tests, run by me); browser tests PASS (run by the helper: 0 leaks, reconnect 5 of 5). A tap's hurry does not carry into the rush, so a tap while rivals price cannot skip the bell. Side effect: with the customer row kept, the bid panel needs a scroll on phones 640 to 699 px tall, until package 3 redraws it. Noted for later packages: scripts/qa-sweep.cjs does not know the Favoured Trade step; in an online bid other players' marks may not update until everyone has decided and \"Change bid\" may sit under the bottom bar (both read from code only); \"No sales today\" is drawn over the day-step strip; a Skip button shows during the night; \"Serve all 36 customers\" counts guests and order clients too. PLAN-082 started."
     }
   ]
 }
