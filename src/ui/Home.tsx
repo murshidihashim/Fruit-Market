@@ -125,7 +125,7 @@ function GoalsPage() {
 }
 
 const PHASE_WORDS: Record<string, string> = {
-  morning: 'The morning news is in.', order: 'A standing order is up for bids.', stall: 'Time to fill your crate.', bid: 'Time to set your prices.',
+  morning: 'The morning news is in.', order: 'A standing order is up for bids.', stall: 'Time to fill the crates.', bid: 'Time to set prices.',
   tie: 'A tied price to settle.', reveal: 'The rush is on.', evening: 'It is evening.',
 };
 
@@ -140,9 +140,9 @@ function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
   const size = pl ? shelfSize(pl) : 8;
   const turn = activePlayer(g);
   const place = g.order.indexOf(me) + 1;
-  const where = g.phase === 'buy'
-    ? `${place > 0 ? `You buy ${['first', 'second', 'third', 'fourth', 'fifth', 'sixth'][place - 1] ?? ''}. ` : ''}${turn === me ? 'It is your turn to buy.' : ''}`
-    : PHASE_WORDS[g.phase] ?? '';
+  const where = g.phase !== 'buy' ? PHASE_WORDS[g.phase] ?? ''
+    : !solo ? 'The stalls are buying.'
+      : `${place > 0 ? `You buy ${['first', 'second', 'third', 'fourth', 'fifth', 'sixth'][place - 1] ?? ''}. ` : ''}${turn === me ? 'It is your turn to buy.' : ''}`;
   return (
     <div class="hm-slot" data-page="table">
       <div class="hm-sh"><span>Your table · day {g.day} of {g.config.days}</span>{solo && <b>You have ${cash}</b>}</div>

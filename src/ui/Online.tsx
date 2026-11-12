@@ -10,7 +10,8 @@ import { Game } from './Game';
 import { loadName, saveName } from './store';
 import { titleOf } from '../net/looks';
 import { FramedFace, awningColour } from './stampCard';
-import { worn } from './looks';
+import { syncLooks, worn } from './looks';
+import { syncTiers } from './progress';
 import { Wardrobe } from './Wardrobe';
 
 function useClient(client: OnlineClient | null) {
@@ -76,6 +77,10 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
     saveName(name.trim());
     try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
     setErr(null);
+    // A player who opens an invitation never passes Home: what they have earned (and the first rank's title and frame,
+    // which are everyone's) is brought up to date here, before the room is told what they have on.
+    syncTiers();
+    syncLooks();
     setClient(new OnlineClient(c, nm, avatar, worn()));
     try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
   };
