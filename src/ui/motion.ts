@@ -1,0 +1,170 @@
+// The beat clock (flow study, review-18, D1 and D2): every length the game table uses, named in one place, and the
+// one speed that scripts and stylesheets both read. Nothing here draws; anim.ts moves the pieces and sheet.ts the
+// middle panel. Lengths are in ms at normal speed.
+//
+// One speed: `speed()` is 1 at the normal pace and lower when quicker ("Fast rivals", a tap's hurry, a tap on a rush
+// card). Scripts multiply their lengths by it; stylesheets read the same number as --mk (see motion.css).
+// One rule for reduced motion: nothing travels and the state is shown at once (`wait`, `moveMs` and --mk are 0), and
+// every reading pause is kept (`hold`, `held`).
+
+/** The feel for new blocks (flow study D1): what a move of each kind should take. */
+export const FEEL = {
+  /** A piece crossing the table. */
+  travel: 320,
+  /** A coin to or from a stall's cash. */
+  coin: 360,
+  /** A card turning over. */
+  turn: 280,
+  /** A sheet sliding onto the table, and off it. */
+  sheetIn: 180,
+  sheetOut: 120,
+  /** A number counting up or down: one step, and the most a whole count may take. */
+  countStep: 40,
+  countMax: 400,
+  /** A pause to read something (1.0 to 1.2 s). */
+  read: 1100,
+} as const;
+
+/** The curves: a move starts gently and lands softly; a sheet arrives quickly and settles; a thing that leaves speeds up. */
+export const EASE = {
+  travel: 'cubic-bezier(.3, 0, .2, 1)',
+  sheet: 'cubic-bezier(.2, .8, .2, 1)',
+  leave: 'cubic-bezier(.4, 0, 1, 1)',
+} as const;
+
+/** How much quicker than normal: the "Fast rivals" setting, a tap on the table, a tap on a rush card. */
+export const SPEED = { fast: 0.55, hurry: 0.15, step: 0.15 } as const;
+
+/** The beats the game plays today, at their present lengths. A later package that rebuilds a beat changes it here. */
+export const BEAT = {
+  /** A piece of fruit or a coin flying between two spots, the swell where it lands, and the gap between two pieces. */
+  piece: { fly: 520, land: 300, gap: 90 },
+  /** The lorry's delivery: each piece to its lane, and the gap between two. */
+  lorry: { fly: 600, gap: 70 },
+  /** The pause before each rival action (shorter on the fast setting). */
+  rival: { pause: 380, pauseFast: 150 },
+  /** Labels over a stall: the pop as one appears; how long a played favour or a built upgrade stays up; a favour card
+   *  won in the rush; a bonus tip; a "+$7" floating up; a message at the bottom of the screen. */
+  label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
+  /** Filling your crate: a piece from the shelf row to the crate. */
+  stock: { fly: 480 },
+  /** A sale: the gap between two pieces going to the customer, the coins that come back (the first after `coinAfter`,
+   *  the rest `coinGap` apart), and the gap between two routine sales. */
+  sale: { pieceGap: 90, coinAfter: 380, coinGap: 110, coin: 480, routineGap: 120 },
+  /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
+  bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
+  /** One customer in the rush (rush.ts rushPace): the card in, each stall's box dealt (a little slower when few), every
+   *  box face down, the turn, the result held, the card out; the card's own move from the row and back; in the
+   *  stylesheet, a box being dealt and a price turning over. */
+  rush: { in: 280, deal: 90, dealFew: 15, down: 300, flip: 380, hold: 1800, out: 260, cardIn: 340, cardOut: 300, seatDeal: 180, priceTurn: 380 },
+  /** The night: dusk falls and the panel rises, every piece slides one box, a beat to settle, a moment to read, a
+   *  spoiled piece dropping (and the gap between two), a juice coin, the last beat; in the stylesheet, the sky
+   *  darkening, the dusk over the market, and the panel's parts rising after it. */
+  night: { dusk: 950, slide: 1500, settle: 80, read: 770, spoil: 900, gap: 80, juiceCoin: 480, end: 400, sky: 700, duskFade: 600, rise: 450, riseAfter: 550 },
+  /** The morning: the news card turning over, and the "FINAL DAY!" stamp. */
+  morning: { newsTurn: 550, stamp: 1100 },
+} as const;
+
+/** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */
+export const CSS_MS: Record<string, number> = {
+  travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
+  land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
+  'seat-deal': BEAT.rush.seatDeal, 'price-turn': BEAT.rush.priceTurn,
+  sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
+};
+
+// ---------- the one speed ----------
+
+let base = 1;
+let hurry = 1;
+/** The rush pop-up's own speed-up: a tap makes the rest of the current customer quick (reset for the next one). */
+let step = 1;
+/** Waits still running, so a tap or Skip can end them at once. */
+const waiting = new Set<() => void>();
+const endWaits = () => { for (const done of [...waiting]) done(); };
+
+const REDUCE = '(prefers-reduced-motion: reduce)';
+/** The player asked for less motion: nothing travels, the state is shown at once, and reading pauses are kept. */
+export const isReduced = () => typeof matchMedia !== 'undefined' && matchMedia(REDUCE).matches;
+
+/** The one speed (1 normal, lower is quicker). It only changes how fast this screen draws: never the game. */
+export const speed = () => base * hurry * step;
+/** How long travel takes, as a share of its normal length: the speed, or 0 with reduced motion. Stylesheets read it as --mk. */
+export const travel = () => (isReduced() ? 0 : speed());
+
+export function setBaseSpeed(fast: boolean) { base = fast ? SPEED.fast : 1; publish(); }
+/** Tap-to-skip: ends every pause and makes what plays next very quick, until resetHurry() (the game screen calls that
+ *  when the table waits for the player again, so one tap carries through every rival's turn). */
+export function hurryUp() { hurry = SPEED.hurry; publish(); endWaits(); }
+export function resetHurry() { hurry = 1; step = 1; publish(); }
+export const hurried = () => hurry < 1;
+/** The fast setting is on. */
+export const isFast = () => base < 1;
+/** A tap on the rush pop-up: this customer finishes quickly, then the next one plays at the normal pace. */
+export function speedStep() { step = SPEED.step; publish(); endWaits(); }
+export function resetStep() { step = 1; publish(); }
+
+// ---------- lengths and pauses at the current speed ----------
+
+/** How long a move of `n` ms takes right now: shorter when the table is quick, 0 when nothing travels. */
+export const moveMs = (n: number) => n * travel();
+/** The same as a length for an animation call, which must not be 0. */
+export const ms = (n: number) => moveMs(n) + 1;
+/** How long a reading pause of `n` ms lasts right now. Kept with reduced motion: also for a move that must end
+ *  together with such a pause (the night's slide). */
+export const held = (n: number) => n * speed();
+
+function sleep(t: number) {
+  return new Promise<void>((r) => {
+    const done = () => { clearTimeout(id); waiting.delete(done); r(); };
+    const id = setTimeout(done, t);
+    waiting.add(done);
+  });
+}
+/** A pause while something moves. With reduced motion nothing moves, so there is nothing to wait for. A tap ends it. */
+export const wait = (n: number) => sleep(moveMs(n));
+/** A pause to read something: kept with reduced motion (nothing moves then, but the words still need time). A tap ends it. */
+export const hold = (n: number) => sleep(held(n));
+/** A fixed pause between two turns (the caller picks its length): short while hurried, and a tap ends it at once. */
+export const pause = (n: number) => sleep(n * hurry);
+/** One frame of the screen, in ms: a thing that ends on the clock is taken away a frame after its move, so the
+ *  move's last frame is drawn first. */
+export const FRAME = 16;
+/** A plain timer, for a move that is already under way: a tap does not end it. */
+export const timer = (t: number) => new Promise<void>((r) => { setTimeout(r, t); });
+export const frame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+// ---------- the same speed and lengths for the stylesheets ----------
+
+/** Where the stylesheets read the speed (--mk) and the lengths (--t-...): the page itself. */
+export interface MotionRoot { style: { setProperty(name: string, value: string): void } }
+let root: MotionRoot | null = null;
+let written: MotionRoot | null = null;
+let shown = '';
+
+function page(): MotionRoot | null {
+  const el = typeof document === 'undefined' ? undefined : (document.documentElement as HTMLElement | undefined);
+  return el?.style ? el : null;
+}
+
+/** Writes the speed where the stylesheets read it, whenever it changes (and the lengths, once). */
+function publish() {
+  const el = root ?? page();
+  if (!el) return;
+  if (el !== written) {
+    for (const [name, n] of Object.entries(CSS_MS)) el.style.setProperty(`--t-${name}`, `${n}ms`);
+    written = el;
+    shown = '';
+  }
+  const k = String(Math.round(travel() * 10000) / 10000);
+  if (k === shown) return;
+  el.style.setProperty('--mk', k);
+  shown = k;
+}
+
+/** Tests: a stand-in for the page (null goes back to the page itself). */
+export function setMotionRoot(el: MotionRoot | null) { root = el; written = null; publish(); }
+
+publish();
+// The player can change the reduced-motion setting while the game is open.
+if (typeof matchMedia !== 'undefined') matchMedia(REDUCE).addEventListener?.('change', publish);

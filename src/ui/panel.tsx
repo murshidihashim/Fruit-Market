@@ -1,6 +1,7 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
 import { useEffect, useState } from 'preact/hooks';
+import { BEAT, fly } from './anim';
 import { believe, planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
@@ -64,22 +65,11 @@ export function startingCrate(s: GameState, p: number): Crate {
   return Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Crate;
 }
 
-/** A piece of fruit flies from the shelf space into your crate (skipped when motion is reduced). */
+/** A piece of fruit travels from its shelf row into your crate: the table's shared move (anim.ts), so it keeps the
+ *  table's one speed and is not drawn when motion is reduced. Nothing waits for it. */
 function flyToCrate(from: Element, f: FruitId, stage: Stage) {
   const to = document.getElementById('my-crate');
-  if (!to || typeof matchMedia === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
-  const img = document.createElement('img');
-  img.src = fruitSvgUrl(f, stage); img.alt = ''; img.className = 'fly-fruit';
-  img.style.left = `${a.left + a.width / 2 - 12}px`; img.style.top = `${a.top + a.height / 2 - 12}px`;
-  document.body.appendChild(img);
-  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
-  const anim = img.animate([
-    { transform: 'translate(0, 0) scale(1)' },
-    { transform: `translate(${dx / 2}px, ${dy / 2 - 70}px) scale(1.5)`, offset: 0.5 },
-    { transform: `translate(${dx}px, ${dy}px) scale(0.8)` },
-  ], { duration: 480, easing: 'cubic-bezier(.4,0,.3,1)' });
-  anim.onfinish = () => img.remove();
+  if (to) void fly(from, to, <img src={fruitSvgUrl(f, stage)} alt="" width={24} height={24} />, { duration: BEAT.stock.fly, path: 'low', swell: false });
 }
 
 /** The Stocking screen drawn from its state (no hooks, so tests can draw it). */

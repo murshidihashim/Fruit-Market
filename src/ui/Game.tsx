@@ -14,6 +14,7 @@ import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { useStockShown } from './stockShown';
+import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
@@ -40,6 +41,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
+  // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
+  const sheet = useSheet();
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
@@ -182,13 +185,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
         </div>
       )}
-      <div class={`centre ${mid ? 'covered' : ''}`}>
+      <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, active) : undefined}
           onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
+        {/* where the picture of a panel that has just left slides off (sheet.ts) */}
+        <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />
         {mid}
       </div>
       <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />

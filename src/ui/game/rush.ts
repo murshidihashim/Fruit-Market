@@ -3,6 +3,7 @@
 // timing runs in animator.tsx. Everything shown comes from the day's results, which are public after the bell.
 import { FRUIT, lookOf, stageAt, type Stage } from '../../engine/data';
 import type { LineResult, Offer } from '../../engine/game';
+import { BEAT } from '../motion';
 
 export type RushStage = 'in' | 'deal' | 'flip' | 'result' | 'out';
 
@@ -51,10 +52,12 @@ export function rushOffer(o: Offer, fruit: LineResult['fruit']): { text: string;
 /**
  * How long each step of one customer takes at normal speed, in ms (the fast setting, a tap and Skip scale these down).
  * `down` is the moment every card lies face down before they all turn. About 2 s to read the result after the flip;
- * the whole customer about 3.3 s, close to the old showdown card (about 3.2 s with three stalls).
+ * the whole customer about 3.3 s, close to the old showdown card (about 3.2 s with three stalls). The numbers are named
+ * in ../motion.ts (BEAT.rush) with every other length.
  */
 export function rushPace(seats: number): Record<'in' | 'deal' | 'down' | 'flip' | 'hold' | 'out', number> {
-  return { in: 280, deal: 90 + Math.max(0, 4 - seats) * 15, down: 300, flip: 380, hold: 1800, out: 260 };
+  const r = BEAT.rush;
+  return { in: r.in, deal: r.deal + Math.max(0, 4 - seats) * r.dealFew, down: r.down, flip: r.flip, hold: r.hold, out: r.out };
 }
 
 /** The whole of one customer's pop-up at normal speed, in ms. */

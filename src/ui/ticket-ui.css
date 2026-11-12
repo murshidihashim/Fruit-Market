@@ -117,11 +117,12 @@
 #app .tkt .tip-legend li { display: inline-flex; align-items: center; gap: 5px; font: 700 0.8125rem/1 var(--f-label); color: var(--x-ink); }
 
 /* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
-#app .game.gx.tkt { transition: background-color 0.7s ease; }
-/* --ns-k is the table's speed (1 normal, lower is quicker), set on the panel, so dusk keeps pace with the night's script
-   and the lanes are in view before the pieces slide, on the fast setting and after a tap as well (PLAN-081). */
-#app .tkt > .centre > .tk-night { animation: tk-dusk calc(0.6s * var(--ns-k, 1)) ease-in both; }
-#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in calc(0.45s * var(--ns-k, 1)) calc(0.55s * var(--ns-k, 1)) ease-out both; }
+#app .game.gx.tkt { transition: background-color calc(var(--mk, 1) * var(--t-sky)) ease; }
+/* --mk is the table's one speed (1 normal, lower is quicker) and the --t- lengths are named in motion.ts, so dusk keeps
+   pace with the night's script and the lanes are in view before the pieces slide, on the fast setting and after a tap
+   as well (PLAN-081; one speed for the whole table, PLAN-083). */
+#app .tkt > .centre > .tk-night { animation: tk-dusk calc(var(--mk, 1) * var(--t-dusk)) ease-in both; }
+#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in calc(var(--mk, 1) * var(--t-rise)) calc(var(--mk, 1) * var(--t-rise-after)) ease-out both; }
 #app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
 #app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
 @keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }

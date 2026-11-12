@@ -246,7 +246,7 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .up-card.owned { background: var(--good-bg); }
 
 /* morning, showdown, recap: cards in the panel */
-.morning-card, .sales-card, .auction { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; background: var(--cream); color: var(--ink); box-shadow: 0 4px 0 var(--card-edge); animation: pop 0.22s steps(3); }
+.morning-card, .sales-card, .auction { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; background: var(--cream); color: var(--ink); box-shadow: 0 4px 0 var(--card-edge); animation: pop 0.22s ease-out; }
 .morning-card, .sales-card { text-align: center; align-items: center; }
 .mc-day, .sc-title { font-family: var(--f-pixel); font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px; }
 .mc-day small { font-family: var(--f-body); font-weight: 400; font-size: 0.85rem; color: var(--ink-muted); }
@@ -315,7 +315,7 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .au-why.bad { background: var(--bad-bg); color: var(--terra-d); }
 
 /* phase banner */
-.phase-banner { position: absolute; left: 0; right: 0; top: 22%; z-index: 15; display: flex; justify-content: center; pointer-events: none; opacity: 0; animation: banner 1.1s steps(10) forwards; }
+.phase-banner { position: absolute; left: 0; right: 0; top: 22%; z-index: 15; display: flex; justify-content: center; pointer-events: none; opacity: 0; animation: banner var(--t-stamp) ease-out forwards; }
 .phase-banner span { padding: 10px 32px; border: 3px solid var(--gold); border-radius: 4px; text-align: center; font-family: var(--f-pixel); font-weight: 700; font-size: 1.8rem; letter-spacing: calc(3px * var(--ls, 1)); color: var(--cream); background: var(--night-0); box-shadow: 0 4px 0 var(--terra-d); }
 @keyframes banner { 0% { opacity: 0; transform: scale(0.9); } 15%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
 
@@ -360,7 +360,7 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .trophy { position: relative; display: inline-flex; padding: 10px; border-radius: 18px; background: var(--surface); }
 .trophy .crown { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); }
 .podium { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-.pod { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface); text-align: left; animation: slidein 0.3s steps(3) backwards; }
+.pod { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface); text-align: left; animation: slidein 0.3s ease-out backwards; }
 .pod:nth-child(2) { animation-delay: 0.1s; } .pod:nth-child(3) { animation-delay: 0.2s; } .pod:nth-child(4) { animation-delay: 0.3s; }
 .pod b { font-family: var(--f-pixel); }
 .pod.me { box-shadow: inset 0 0 0 2px var(--gold); }
@@ -2215,7 +2215,7 @@ b, strong { font-weight: 700; }
 /* =====================================================================
    The rush pop-up, "Round the table" (DEC-068, panels/Showdown.tsx). The table dims; one customer's card comes to
    the middle, each stall that offered them the fruit deals a card face down around it, the cards flip together,
-   then the tags, the fruit and the explanation. Moves are transform and opacity only; --rs-k is the speed (anim.ts).
+   then the tags, the fruit and the explanation. Moves are transform and opacity only; --mk is the speed (motion.ts).
    ===================================================================== */
 .rush-dim { position: absolute; inset: 0; z-index: 10; background: color-mix(in srgb, var(--x-ink) 58%, transparent); animation: fade 0.2s ease-out; }
 .gx.ph-reveal .actionbar { position: relative; z-index: 11; }
@@ -2254,7 +2254,7 @@ b, strong { font-weight: 700; }
 .rush .rs-flip {
   position: relative; transform-style: preserve-3d; opacity: 0;
   transform: translate(var(--dx), var(--dy)) rotateY(180deg) scale(0.3);
-  transition: transform calc(var(--rs-k, 1) * 0.32s) cubic-bezier(0.2, 0.8, 0.3, 1), opacity calc(var(--rs-k, 1) * 0.16s);
+  transition: transform calc(var(--mk, 1) * 0.32s) cubic-bezier(0.2, 0.8, 0.3, 1), opacity calc(var(--mk, 1) * 0.16s);
 }
 .rush .rs-seat.dealt .rs-flip { opacity: 1; transform: rotateY(180deg); }
 .rush .rs-seat.open .rs-flip { opacity: 1; transform: none; }
@@ -2262,7 +2262,7 @@ b, strong { font-weight: 700; }
 .rush .rs-face {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 112px; padding: 6px 5px;
   background: var(--x-paper); color: var(--x-ink); text-align: center; box-shadow: 0 3px 0 var(--x-ink);
-  transition: background-color calc(var(--rs-k, 1) * 0.3s), opacity calc(var(--rs-k, 1) * 0.3s);
+  transition: background-color calc(var(--mk, 1) * 0.3s), opacity calc(var(--mk, 1) * 0.3s);
 }
 .rush .rs-back { position: absolute; inset: 0; transform: rotateY(180deg); background: repeating-linear-gradient(45deg, var(--x-ink) 0 6px, var(--x-ink-2) 6px 12px); box-shadow: inset 0 0 0 3px var(--x-paper); }
 .rush .rs-seat.me .rs-face, .rush .rs-seat.me .rs-back { outline: 3px solid var(--x-mustard); outline-offset: 1px; }
@@ -2271,21 +2271,21 @@ b, strong { font-weight: 700; }
 .rush .rs-pname { min-width: 0; overflow-wrap: anywhere; }
 .rush .rs-price { font: 800 1.5rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .rush .rs-off { display: flex; align-items: center; gap: 3px; font: 500 0.72rem/1.1 var(--f-label); color: var(--x-slate); }
-.rush .rs-tag { max-width: 100%; padding: 1px 7px; border-radius: 999px; font: 600 0.7rem/1.2 var(--f-label); animation: stamp calc(var(--rs-k, 1) * 0.26s) steps(3); }
+.rush .rs-tag { max-width: 100%; padding: 1px 7px; border-radius: 999px; font: 600 0.7rem/1.2 var(--f-label); animation: stamp calc(var(--mk, 1) * 0.26s) steps(3); }
 .rush .rs-seat.won .rs-face { background: var(--good-bg); }
 .rush .rs-seat.won .rs-tag { background: var(--x-green); color: var(--x-paper); }
 .rush .rs-seat.lost .rs-face { opacity: 0.66; }
 .rush .rs-seat.lost .rs-price { text-decoration: line-through; color: var(--x-slate); }
 .rush .rs-seat.lost .rs-tag { background: var(--bad-bg); color: var(--x-red-d); }
 /* the explanation hangs under the table, so its length never moves the cards */
-.rush .rs-why { position: absolute; left: 0; right: 0; top: calc(100% + 12px); border: 2px solid var(--x-ink); opacity: 0; transition: opacity calc(var(--rs-k, 1) * 0.3s); }
+.rush .rs-why { position: absolute; left: 0; right: 0; top: calc(100% + 12px); border: 2px solid var(--x-ink); opacity: 0; transition: opacity calc(var(--mk, 1) * 0.3s); }
 .rush .rs-why.show { opacity: 1; }
 /* the plain (neither won nor lost) line under the pop-up sits on cream: dark ink, not the pop-up's white (PLAN-065) */
 .rush .rs-why:not(.good):not(.bad) { color: var(--x-ink); }
 .rush .rs-why:empty { display: none; }
 .rush .rs-why .au-say { margin-top: 2px; }
 .rush .rs-hint { align-self: center; font: 500 0.72rem/1.2 var(--f-label); color: var(--on-ink-muted); }
-.rush.st-out .rs-seat, .rush.st-out .rs-want, .rush.st-out .rs-why, .rush.st-out .rs-top, .rush.st-out .rs-hint { opacity: 0; transition: opacity calc(var(--rs-k, 1) * 0.2s); }
+.rush.st-out .rs-seat, .rush.st-out .rs-want, .rush.st-out .rs-why, .rush.st-out .rs-top, .rush.st-out .rs-hint { opacity: 0; transition: opacity calc(var(--mk, 1) * 0.2s); }
 /* the card back in its row: while it is up in the pop-up its slot closes (the queue slides together, no gap), then it
    comes back ticked (PLAN-065) */
 .game .street .cust.rush-away { visibility: hidden; }
@@ -2311,7 +2311,7 @@ b, strong { font-weight: 700; }
 }
 .auction.rush.tone-good, .auction.rush.tone-bad { box-shadow: 0 4px 0 var(--x-mustard), 0 16px 34px color-mix(in srgb, var(--x-ink) 70%, transparent); }
 /* leaving: the panel fades around the card while the card flies back to its row */
-.auction.rush { transition: background-color calc(var(--rs-k, 1) * 0.2s), border-color calc(var(--rs-k, 1) * 0.2s), box-shadow calc(var(--rs-k, 1) * 0.2s); }
+.auction.rush { transition: background-color calc(var(--mk, 1) * 0.2s), border-color calc(var(--mk, 1) * 0.2s), box-shadow calc(var(--mk, 1) * 0.2s); }
 .auction.rush.st-out, .auction.rush.st-out.tone-good, .auction.rush.st-out.tone-bad { background-color: transparent; border-color: transparent; box-shadow: none; }
 /* a rival's opened stall on a desktop: Archivo's wider chips wrap to one more row, so the rows sit a little closer */
 @media (min-width: 900px) and (min-height: 560px) {
@@ -2403,7 +2403,6 @@ b, strong { font-weight: 700; }
 .mini-step button:active:not(:disabled) { background: var(--x-mustard); color: var(--x-ink); }
 .mini-step button:focus-visible { outline: 2px solid var(--x-mustard); }
 .mini-step b { min-width: 12px; text-align: center; font: 900 0.74rem/1 var(--f-label); color: var(--x-mustard); }
-.fly-fruit { position: fixed; z-index: 70; width: 24px; height: 24px; pointer-events: none; }
 
 /* the crates land on the table, rivals' lids open when pricing starts, the demand board drops in */
 .crates .crate { animation: crate-drop .55s cubic-bezier(.3,1.5,.5,1) both; }

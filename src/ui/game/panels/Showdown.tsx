@@ -21,26 +21,15 @@ export interface ShowState {
   served: number[];
 }
 
-/** Card from its place in the customer row to the middle (and back): a transform-only move, measured once. */
+/** Card from its place in the customer row to the middle (and back): the shared slide (anim.ts), measured once each way. */
 function useCardMove(el: { current: HTMLElement | null }, customerId: number, stage: RushStage, key: string) {
-  const from = () => {
-    const card = el.current;
-    const src = document.querySelector(`[data-a="c${customerId}"] .tk-cust`);
-    if (!card || !src || A.isReduced()) return null;
-    const a = src.getBoundingClientRect();
-    const b = card.getBoundingClientRect();
-    if (!a.width || !b.width) return null;
-    return `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width}, ${a.height / b.height})`;
-  };
+  const ticket = () => A.boxOf(document.querySelector(`[data-a="c${customerId}"] .tk-cust`));
   useLayoutEffect(() => {
     // Once per customer: the move is measured when the card arrives.
-    const t = from();
-    if (t) el.current?.animate([{ transform: t }, { transform: 'none' }], { duration: A.ms(340), easing: 'cubic-bezier(.2,.8,.25,1.08)', fill: 'backwards' });
+    A.flipFrom(el.current, ticket(), { duration: A.BEAT.rush.cardIn, easing: A.EASE.sheet });
   }, [key]);
   useLayoutEffect(() => {
-    if (stage !== 'out') return;
-    const t = from();
-    if (t) el.current?.animate([{ transform: 'none' }, { transform: t }], { duration: A.ms(300), easing: 'cubic-bezier(.5,0,.75,.2)', fill: 'forwards' });
+    if (stage === 'out') A.flipTo(el.current, ticket(), { duration: A.BEAT.rush.cardOut });
   }, [stage]);
 }
 
@@ -71,7 +60,6 @@ export function RushView({ s, a, viewer, card, onNext: next }: {
       <div class={`rush-dim st-${a.stage}`} aria-hidden="true" onClick={next} />
       {/* .auction stays for the screenshot and layout scripts that look for the showdown. */}
       <div key={key} class={`auction rush tk-rush st-${a.stage} n${seats.length} ${done ? `tone-${a.story.tone}` : ''}`} role="status" data-of={a.of}
-        style={{ '--rs-k': A.speed() }}
         onClick={next}>
         <div class="tk-label-row rs-top">
           <b class="tk-label">Customer {a.n} of {a.of}</b>

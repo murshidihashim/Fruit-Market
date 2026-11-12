@@ -4,7 +4,6 @@
 import { FRUIT, stageAt, type FruitId } from '../../../engine/data';
 import { nightOutlook, shadePick, type GameState } from '../../../engine/game';
 import { dayLedger, tonightText } from '../../../engine/story';
-import { speed } from '../../anim';
 import { Fruit } from '../../art';
 import { LANES } from '../../boardModel';
 import { Lamp, STAGE_WORD } from '../../ticket';
@@ -34,7 +33,8 @@ const lost = (track: number[], steps: number) => track.reduce((a, n, pos) => a +
 
 /** `slide` comes from the night's own script (animator.tsx nightfall), so the panel and the slide share one clock
  *  (PLAN-081): null while dusk falls, the slide's length in ms while the pieces move, 'done' when they have arrived
- *  (also after a tap, which ends the slide at once). The panel has no timer of its own. */
+ *  (also after a tap, which ends the slide at once). The panel has no timer of its own; its dusk reads the table's one
+ *  speed from the stylesheet (--mk, motion.ts). */
 export function NightShift({ s, viewer, slide = null }: { s: GameState; viewer: number; slide?: NightSlide }) {
   const go = slide !== null;
   const rest = slide === 'done';
@@ -49,7 +49,7 @@ export function NightShift({ s, viewer, slide = null }: { s: GameState; viewer: 
   const tonight = tonightText(nightOutlook(s, viewer));
   const { sales, bought } = dayLedger(s, viewer);
   return (
-    <div class="mid-panel night-shift tk-night" data-a="night-shift" style={`--ns-k:${speed()}${typeof slide === 'number' ? `;--ns-ms:${Math.round(slide)}ms` : ''}`}>
+    <div class="mid-panel night-shift tk-night" data-a="night-shift" style={typeof slide === 'number' ? `--ns-ms:${Math.round(slide)}ms` : undefined}>
       <div class="tk-night-head"><b>Night falls</b><span>{sub}</span></div>
       <div class="tk-night-boards">
         <div class="tk-night-block">
