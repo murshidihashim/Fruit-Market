@@ -2655,7 +2655,7 @@
         "evidence": "Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
         "REP-111"
       ],
@@ -3706,6 +3706,10 @@
     {
       "at": "2026-11-12 21:44",
       "text": "DEC-107: Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\". A stall's purchases are now drawn only while buying is going on; the helper on the table makes it its first fix, the text helper rewords How to play, and RULES.md is reworded in four places by the session. The engine and the rules version are unchanged. The owner also said \"okay now go through all the required changes\": read as go ahead with the whole list; where a label is drawn on a board he approved, the board's words are restored (the stocking button returns to \"Open my stall\"); Home's first page and old games at 3 stamps each stand as built unless he says otherwise."
+    },
+    {
+      "at": "2026-11-12 22:07",
+      "text": "Release 1.21.0 prepared as a candidate (REP-112; PLAN-086, PLAN-089, PLAN-090; DEC-107) on 050fb22: npm run verify PASS (819 tests passed, 1 skipped); npm run test:e2e PASS. On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. The owner's ruling on purchases is in: marks only while buying, with a test and RULES.md reworded. The approved boards' words were restored where the label rewrite had changed them. Not published: awaiting the owner's word; the full checks on the CI machines run after the merge to main."
     }
   ]
 }

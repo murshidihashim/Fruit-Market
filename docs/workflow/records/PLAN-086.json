@@ -1,9 +1,10 @@
 {
-  "release": "unreleased",
+  "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-106",
-    "REP-109"
+    "REP-109",
+    "REP-112"
   ],
   "decisions": [
     "DEC-086",
@@ -58,13 +59,13 @@
       "id": "T1",
       "text": "npm run verify passes on the merged code",
       "result": "PASS",
-      "evidence": "npm run verify on the merged code (21d4e72: the stamp book, the labels and the print kit together): 74 files, 802 tests passed, 1 skipped."
+      "evidence": "On 050fb22: 76 files, 819 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": "Not yet as one passing run on the merged code. npm run test:e2e on 21d4e72, two helpers sharing the machine: solo game to the results with no errors; performance budget OK on the script's second try (231 ms, then 154 ms, limit 200); online match 72 pricing frames, 0 leaks; quick match; four players; reconnect 5 of 5. The rematch step failed because the test script tapped a note that holds the words \"play again\" after the label rewrite; with the script pointed at the button (961aac1) the online test passes alone: 70 frames, 0 leaks, rematch, abandoned match, no page errors. The whole run is repeated on the release build. The helper's own run on its branch (5e949c9) passed."
+      "result": "PASS",
+      "evidence": "On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",

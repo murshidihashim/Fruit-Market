@@ -1,9 +1,10 @@
 {
-  "release": "unreleased",
+  "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-110",
-    "REP-111"
+    "REP-111",
+    "REP-112"
   ],
   "decisions": [
     "DEC-098",
@@ -13,10 +14,27 @@
     "DEC-107"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "A greyed upgrade opens its whole card with the reason",
+      "Unseen touch areas of 40 px on lane headings, tomorrow's customer and the shelf's favour cards"
+    ],
+    "changed": [
+      "What a stall bought is drawn only while buying (DEC-107)",
+      "The steps strip marks 4 Bell while the bell rings and 1 Morning while bids are turned over",
+      "The takings show when the rush is truly done; your own row says You",
+      "The customer band keeps one height, so the rows below never move; the lane boxes are 33 px on a tall phone every day",
+      "Six seat colours; the results headline without a shout"
+    ],
+    "fixed": [
+      "At night a box reads as empty once its piece has slid away; the shelf's chips follow the night",
+      "The standing order's card slides in",
+      "Signing out now also clears games played and Daily dates",
+      "The first-game tip no longer covers the bid's stepper",
+      "No Skip beside Night falls"
+    ],
+    "removed": [
+      "Old night-panel and lorry styles, three unused table components, an unused streak helper"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -24,7 +42,7 @@
     "evidence": "Fixes inside packages the owner approved (PLAN-084, PLAN-085, PLAN-086: the screens as on his boards). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105); and, on two of these gaps, \"fix below gaps\" (DEC-106).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-090",
   "title": "Release 1.21.0: fixes for the known gaps of the day's screens",
   "problem": "Release 1.20.0 went out with a list of known gaps (REP-111 section 4): the strip of the day's steps is wrong during the bell and the bid reveal, the takings come a moment early, some tap targets are small, a few labels are cut at 360 px, the night leaves a solid edge on an empty box, and old styles and code are left from the rebuild.",
@@ -45,26 +63,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On 050fb22: 76 files, 819 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Each fixed screen looked at by me at 390x844 and 360x640 with 6 stalls",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "From the release build, looked at by me: the morning, buying, stocking, pricing, the bell with a Favoured Trade question, the takings and the evening at 390x844 with 4 stalls (REP-112) and at 360x640 with 6; the steps strip says 4 Bell at the bell; the rival boxes show no bought fruit at stocking and pricing."
     },
     {
       "id": "T4",
       "text": "The table rows still keep their places and no secret is shown early (the helpers' measures, repeated)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helpers: row positions identical over a whole day and into an order morning at both sizes; the stalls row and every rival's details drawn the same whatever a rival bought at stocking, pricing and after the bell (tests/bought-on-show.test.ts); online leak check on the release code: 0 leaks."
     },
     {
       "id": "T5",
