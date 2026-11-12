@@ -47,7 +47,8 @@
   background: var(--lane); color: var(--tk-paper); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em;
 }
 #app .tkt .tb-lane.mango .tb-lh { background: var(--c-b98a00); }
-#app .tkt .tb-lh:disabled { cursor: default; }
+/* a heading that opens nothing (at night) lets a tap through to the table, where it hurries what is playing */
+#app .tkt .tb-lh:disabled { cursor: default; pointer-events: none; }
 #app .tkt .tb-lh-ico { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--tk-paper); }
 #app .tkt .tb-box, #app .tkt .tk-night.tb-night .tb-box { gap: 2px; padding: 0 3px; border: 2px solid var(--tk-slate); background: var(--tk-paper); }
 #app .tkt .tb-box.has.st-okay { background: var(--tk-yel); }
