@@ -501,6 +501,27 @@ describe('the rush as it plays (animator.tsx reveal)', () => {
     expect(stages).toHaveLength(cards.length * 4);
   });
 
+  it('after Skip a payment still being counted is not taken for money left over', async () => {
+    // A day without a favour card, a standing order or the night hawker: every dollar is paid on a customer's card.
+    const plain = find(four, (x, cs) => !x.results!.favours.length && !x.results!.hawker && !x.results!.order && cs.length >= 3 && x.results!.income.filter((n) => n >= 4).length >= 2).s;
+    fakeClock(false);
+    hold(plain);
+    const done = reveal(plain, 0, () => undefined);
+    await vi.advanceTimersByTimeAsync(500);
+    A.hurryUp();
+    releaseStock();
+    // While the stalls are paid no total ever shows more than the stall really has, and each ends on what it has.
+    let counted = 0;
+    for (let ms = 0; ms < 300; ms++) {
+      await vi.advanceTimersByTimeAsync(1);
+      plain.players.forEach((pl, p) => { expect(shownCash(p, pl.cash)).toBeLessThanOrEqual(pl.cash); if (shownCash(p, pl.cash) < pl.cash) counted++; });
+    }
+    expect(counted).toBeGreaterThan(0); // the totals did climb step by step
+    await vi.runAllTimersAsync();
+    await done;
+    plain.players.forEach((pl, p) => expect(shownCash(p, pl.cash)).toBe(pl.cash));
+  });
+
   it('a tap on a card moves on at once, and the next customer plays at the normal pace', async () => {
     fakeClock(false);
     hold(s);
