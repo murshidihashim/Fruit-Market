@@ -6,6 +6,7 @@ import { useState } from 'preact/hooks';
 import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS } from '../../../engine/data';
 import { orderStake, type GameState, type Standing } from '../../../engine/game';
 import { Coin, Face, Fruit } from '../../art';
+import { OrderTicket } from '../../phoneCards';
 
 /** "3 mangoes", "1 apple". */
 const pieces = (n: number, f: keyof typeof FRUIT) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
@@ -70,16 +71,9 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, onBid }: 
   return (
     <>
     <div class="price-panel order-panel mid-panel tk-panel" data-a="order-panel">
-      <div class="op-card">
-        <span class="op-k">Standing order · due day {o.due}</span>
-        <b class="op-title">{card.title}</b>
-        <i class="op-quirk">{card.quirk}</i>
-        <div class="op-want">
-          <span class="op-fruit">{Array.from({ length: o.qty }, () => <Fruit id={o.fruit} size={26} />)}</span>
-          <span>wants <b>{pieces(o.qty, o.fruit)}</b>, Fresh or Okay, on day {o.due}</span>
-        </div>
-        <OrderRules s={s} p={p} />
-      </div>
+      {/* The order's card (PLAN-083), then the three lines a stall must know before it bids. */}
+      <OrderTicket card={card} qty={o.qty} due={o.due} day={s.day} ceiling={o.ceiling} stake={orderStake(s, p)} />
+      <OrderRules s={s} p={p} />
       {/* Everything under the order's card (who is bidding, the line of advice, the price and Pass) stays in view at
           the foot of the panel while the card scrolls behind it. PLAN-081: the customer row now stays on the table
           during the bid, so on a phone the whole panel no longer always fits. The order of the parts is unchanged. */}

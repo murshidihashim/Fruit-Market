@@ -288,7 +288,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
           <h3 class="tight">Your name</h3>
           <input ref={nameRef} class="input tight" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
           <h3 class="tight next">Your shopkeeper</h3>
-          <CharacterPick value={myChar} taken={takenForMe} onPick={setMyChar} />
+          <CharacterPick value={myChar} taken={takenForMe} seat={0} onPick={setMyChar} />
         </section>
         <section class="panel">
           <h3>Rival stalls</h3>
@@ -316,7 +316,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
                 {st.kind === 'human' && (
                   <>
                     <input class="input" aria-label={`Name for stall ${i + 2}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
-                    <CharacterPick value={picks[i]} taken={takenFor(i)} onPick={(a) => setSeat(i, { avatar: a })} />
+                    <CharacterPick value={picks[i]} taken={takenFor(i)} seat={i + 1} onPick={(a) => setSeat(i, { avatar: a })} />
                   </>
                 )}
                 {rivals > 1 && <button type="button" class="seat-remove" onClick={() => removeSeat(i)}>Remove stall {i + 2}</button>}

@@ -1,10 +1,10 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
-import { FAVOURS, FRUIT, lookOf } from '../../../engine/data';
+import { FAVOURS, ORDER_CARDS, lookOf } from '../../../engine/data';
 import { canPlayFavour, effectiveMax } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
-import { FavourIcon } from '../../art';
-import { Lamp, Ticket } from '../../ticket';
+import { FavourCard, OrderCard, TradingCard } from '../../cards';
+import { GUEST_EVENT } from '../../deckArt';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { FullScreenButton } from '../../FullScreenButton';
@@ -39,16 +39,20 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
     </div>
   )}
 
+  {/* A favour card you hold, opened from the dock or the evening: the whole card, then Play (when it can be played
+      now) and Close. A tap beside the card closes it too. */}
   {cardInfo !== null && s.players[active]?.favours[cardInfo] && (() => {
-    const d = FAVOURS[s.players[active].favours[cardInfo]];
+    const id = s.players[active].favours[cardInfo];
     const why = canPlayFavour(s, active, cardInfo);
     return (
-      <div class="card-pop" onClick={(e) => e.stopPropagation()}>
-        <span class="cp-icon"><FavourIcon id={d.id} size={32} /></span>
-        <div class="cp-text"><b>{d.title}</b><small>{d.text}</small>{why && <small class="warn-text">{why}</small>}</div>
-        <div class="cp-btns">
-          {!why && <button class="btn primary" onClick={() => c.reallyPlay(cardInfo)}>Play</button>}
-          <button class="btn ghost" onClick={() => setCardInfo(null)}>✕</button>
+      <div class="cd-pop" role="dialog" aria-label={`Favour card: ${FAVOURS[id].title}`} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
+        <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
+          <FavourCard id={id} eager />
+          {why && <p class="cd-pop-why">{why}</p>}
+          <div class="cd-pop-btns">
+            {!why && <button type="button" class="btn primary" onClick={() => c.reallyPlay(cardInfo)}>Play</button>}
+            <button type="button" class="btn ghost" onClick={() => setCardInfo(null)}>Close</button>
+          </div>
         </div>
       </div>
     );
@@ -62,20 +66,23 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
       <small>Tap to close.</small>
     </div>
   )}
-  {tip && (
-    <div class="tip-pop tip-card-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={() => setTip(null)}>
-      <Ticket who={tip.name} class="big" quirk lines={tip.wants.map((w) => ({ fruit: w.fruit, qty: w.qty, max: tip.order ? tip.order.price : effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />
-      <div class="tip-notes">
-        {tip.name === s.event?.extra?.name && <b class="tip-special">Special order</b>}
-        {/* The ticket already says who buys what freshness; this is only the key to the prices (PLAN-076). */}
-        <ul class="tip-legend" aria-label="Price by freshness">
-          <li><Lamp stage="fresh" /> Full price</li>
-          <li><Lamp stage="okay" /> ${FRUIT.apple.drop[1]} less</li>
-          <li><Lamp stage="notso" /> ${FRUIT.apple.drop[0]} less</li>
-        </ul>
+  {/* A customer's own card, opened from their ticket (PLAN-083): the whole card with today's prices; a standing order
+      collected today shows its order card. The card's legend is the key to the prices. Tap anywhere to close. */}
+  {tip && (() => {
+    const order = tip.order ? ORDER_CARDS.find((x) => x.name === tip.name) : undefined;
+    const qty = (i: number) => (tip.wants[i].qty <= 0 ? tip.original?.[i]?.qty ?? 0 : tip.wants[i].qty);
+    return (
+      <div class="cd-pop" role="dialog" aria-label={lookOf(tip.name).title} onClick={(e) => { e.stopPropagation(); setTip(null); }}>
+        <div class="cd-pop-in">
+          {order && tip.order
+            ? <OrderCard card={order} qty={tip.original?.[0]?.qty ?? tip.wants[0]?.qty ?? 0} due="Due today" bid={tip.order.price} stake={tip.order.stake} />
+            : <TradingCard who={tip.name} guest={!!GUEST_EVENT[tip.name]} eager
+                wants={tip.wants.map((w, i) => ({ fruit: w.fruit, qty: qty(i), max: effectiveMax(s, w, tip.generous), done: w.qty <= 0 }))} />}
+          <small class="cd-pop-hint">Tap to close</small>
+        </div>
       </div>
-    </div>
-  )}
+    );
+  })()}
 
 
   {wardrobe && onWear && <div class="wd-overlay"><Wardrobe onBack={() => setWardrobe(false)} onChange={onWear} /></div>}

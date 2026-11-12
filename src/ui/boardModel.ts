@@ -1,8 +1,12 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
-import { FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt, type FruitId, type Stage, type Want } from '../engine/data';
 import {
-  bestCap, capFor, count, effectiveMax, eligible, forSale, isMarketDay, nightOutlook, printedSupply, rowCount, rowCustomers, rowStock, walkInsToday,
+  FARMER_CARDS, FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt,
+  type EventCard, type FarmerCard, type FruitId, type Stage, type Want,
+} from '../engine/data';
+import {
+  bestCap, capFor, count, effectiveMax, eligible, eventSupply, forSale, isMarketDay, nightOutlook, printedSupply, rowCount, rowCustomers, rowStock,
+  walkInsToday,
   type Customer, type GameState, type Stock,
 } from '../engine/game';
 import { hagglerWins } from '../engine/story';
@@ -91,6 +95,51 @@ export function nextLorry(s: GameState): LorryLine[] | null {
 /** The name printed on tomorrow's lorry card. */
 export function nextLorryName(s: GameState): string | null {
   return s.nextFarmer?.name ?? null;
+}
+
+/** What a lorry card unloads at a table of `stalls` stalls on a day with this event: the card's printed row, changed
+ *  as the morning changes it (the same sums as the engine's morning, game.ts). */
+export function lorryLoad(card: FarmerCard, e: EventCard | null | undefined, stalls: number): Record<FruitId, number> {
+  const out = {} as Record<FruitId, number>;
+  for (const f of FRUITS) {
+    let n = printedSupply(card, f, stalls) + eventSupply(e, f, stalls);
+    if (e?.noFruit === f) n = 0;
+    if (e?.supplyMult) n = Math.ceil(n * e.supplyMult);
+    out[f] = Math.max(0, n);
+  }
+  return out;
+}
+
+/** What today's lorry unloaded, for every fruit (0 for none). */
+export function todaysLoad(s: GameState): Record<FruitId, number> {
+  return Object.fromEntries(FRUITS.map((f) => [f, s.delivery?.[f] ?? 0])) as Record<FruitId, number>;
+}
+
+/**
+ * Today's lorry card, for the morning's lorry card. The game keeps what was unloaded, not which card it was, so the
+ * card is found from the load: the one card that unloads exactly this at this table on this event. Two cards print the
+ * same row at 3 stalls and three at 5; then the cards still in the lorry deck and tomorrow's card are ruled out (only
+ * while the deck has not been reshuffled, and never online, where the deck is not sent). Null when the card cannot be
+ * told for certain, or no lorry came: the morning then shows today's load without a name.
+ */
+export function todaysLorry(s: GameState): FarmerCard | null {
+  if (s.event?.noDelivery) return null;
+  const stalls = s.players.length;
+  const load = todaysLoad(s);
+  const same = (card: FarmerCard) => {
+    const x = lorryLoad(card, s.event, stalls);
+    return FRUITS.every((f) => x[f] === load[f]) && (!s.config.unripe || !s.deliveryUnripe || card.unripe === s.deliveryUnripe);
+  };
+  let found = FARMER_CARDS.filter(same);
+  if (found.length > 1) {
+    // Cards drawn so far: one for each day up to today, and tomorrow's (none on the last day).
+    const drawn = s.day + (s.nextFarmer ? 1 : 0);
+    if (s.farmerDeck.length === FARMER_CARDS.length - drawn) {
+      const left = new Set(s.farmerDeck.map((i) => FARMER_CARDS[i]?.name));
+      found = found.filter((c) => !left.has(c.name) && c.name !== s.nextFarmer?.name);
+    }
+  }
+  return found.length === 1 ? found[0] : null;
 }
 
 /** Tomorrow is a Market Day: one more walk-in (the lorry still comes). */

@@ -1,217 +1,403 @@
-/* Card system (DEC-066): Trading Card (customers), Stall Sign (shopkeepers), Gazette (events), backs. Shared by the app and the print kit. */
-/* Sizing: set --card-w on a card or any parent (default 15.75rem). The card is 25.2em x 35.2em (63 x 88 mm when
-   --card-w is 63mm, so 1em = 2.5 mm). Every length below is in em of the card ("ce") unless an element sets its
-   own font-size; then its lengths are that ce value divided by its font-size (noted where it matters). */
+/* The card system (PLAN-083, the rules 18 card set), drawn to the designs the owner approved
+   (docs/studio/review-18/mockups: Design-A, Main, Backs-Ticket and the phone screens). Shared by the app and the print kit.
+     .cd      a full card, 252 x 352 units (63 x 88 mm)            cards.tsx
+     .cd-bk   a deck's pattern back                                cards.tsx
+     .wc      a card at phone width (the morning, the bid, the rush)  phoneCards.tsx
+     .tkc     a customer's small ticket in the row, and its back   ticket.tsx
+     .uo .fav .favchip   upgrade offers and the favour cards you hold  phoneCards.tsx
+     .cd-pop  a full card opened over the table
+   Sizing a full card: set --card-w on the card or any parent (default 252px). --u is one unit, a 252nd of that width,
+   and every length of a full card is a number of units taken from the approved board, so the card scales as a whole.
+   Phone cards and tickets are in px, as on the approved phone screens. Colours come from palette.css only. */
 
 :root {
-  --x-wood-grain: var(--c-cfc5b4); /* grain lines on stall-sign wood */
-  --x-shadow: var(--c-a4a3a1);     /* stall-sign drop shadow */
+  --x-kraft: var(--c-ddd4c6);     /* picture grounds, footers */
+  --x-lamp-off: var(--c-8d9396);  /* a freshness a customer will not buy */
 }
 
-.x-card {
-  position: relative; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;
-  width: var(--card-w, 15.75rem); height: 35.2em; font-size: calc(var(--card-w, 15.75rem) / 25.2);
-  color: var(--x-ink); line-height: 1.25; text-align: left;
+/* a fruit's lane: its colour, and the ink that reads on it */
+.ln-blueberry { --lane: var(--c-3558a2); --lane-ink: var(--x-paper); }
+.ln-watermelon { --lane: var(--c-0e9a58); --lane-ink: var(--x-paper); }
+.ln-mango { --lane: var(--c-fec400); --lane-ink: var(--x-ink); }
+.ln-apple { --lane: var(--c-e73c35); --lane-ink: var(--x-paper); }
+
+/* ====================================================================
+   Full cards
+   ==================================================================== */
+.cd, .cd-bk {
+  --u: calc(var(--card-w, 252px) / 252);
+  position: relative; flex: none; box-sizing: border-box; width: var(--card-w, 252px); height: calc(var(--u) * 352); overflow: hidden;
+  border: calc(var(--u) * 3) solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); text-align: left;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.x-card *, .x-card *::before, .x-card *::after { box-sizing: border-box; }
-.x-card.x-compact { height: auto; }
-.x-card :where(p, ul, figure, li) { margin: 0; padding: 0; }
-.x-card :where(ul) { list-style: none; }
-.x-card .x-art-missing { font-size: 1em; letter-spacing: calc(0.14em * var(--ls, 1)); }
-.x-card .x-fruit { display: block; flex: none; }
+.cd { display: flex; flex-direction: column; font: 600 calc(var(--u) * 11.5) / 1.35 var(--f-label); letter-spacing: 0; }
+.cd *, .cd *::before, .cd *::after, .cd-bk *, .cd-bk *::before, .cd-bk *::after { box-sizing: border-box; }
+.cd :where(p, ul, li) { margin: 0; padding: 0; list-style: none; }
+.cd :where(i, em) { font-style: normal; }
+.cd .x-fruit { display: block; flex: none; }
+.cd .x-art-missing { font-size: calc(var(--u) * 10); }
+/* the lamps of a legend: a freshness letter in a paper disc; greyed when it does not apply */
+.cd-lamp {
+  flex: none; width: calc(var(--u) * 18); height: calc(var(--u) * 18); border-radius: 50%; display: inline-grid; place-items: center;
+  background: var(--x-paper); color: var(--x-ink); font: 800 calc(var(--u) * 11) / 1 var(--f-label); font-style: normal;
+}
+.cd-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 calc(var(--u) * 1.5) var(--x-lamp-off); }
+/* the pieces a card asks for: one dot each */
+.cd-dots { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 6); }
+.cd-dots i { flex: none; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; border: calc(var(--u) * 2) solid var(--x-ink); background: var(--lane); }
 
-/* ---------- Trading Card (customer, Art 3 "At work") ---------- */
-/* Fixed zones, the same on every card whatever the name, quirk or order: the quirk box (two lines), the order box
-   and the "Buys" line have fixed heights, so the picture (which takes the rest) and the name banner sit in the same
-   place on all 39 cards. A long name or quirk only gets a smaller font. --fs is an element's font size in ce; its
-   box sizes are divided by it, so the box stays the same size when the font changes. */
-.x-tc { background: var(--x-card); border: 0.3em solid var(--x-ink); padding: 1.05em 1.05em 0.75em; gap: 0.55em; }
-.x-tc-pic { position: relative; flex: 1 1 0; min-height: 0; border: 0.25em solid var(--x-ink); overflow: hidden; background: var(--x-paper); }
-.x-tc-pic .x-art { position: absolute; inset: 0; object-position: 50% 28%; }
-/* number badge: 4.1ce circle, font 1.6ce */
-.x-tc-num {
-  position: absolute; left: 0.3em; top: 0.3em; z-index: 1; width: 2.56em; height: 2.56em; border-radius: 50%;
-  display: grid; place-items: center; background: var(--x-mustard); border: 0.17em solid var(--x-ink);
-  font: 1.6em/1 var(--f-display); color: var(--x-ink); letter-spacing: 0.02em;
+/* ---------- the customer card (Main board): black heading, picture, fruit rows, one legend row ---------- */
+.cd-kind {
+  flex: none; display: flex; justify-content: space-between; align-items: center; gap: calc(var(--u) * 6); padding: calc(var(--u) * 7) calc(var(--u) * 9);
+  background: var(--x-ink); color: var(--x-paper); font: 800 calc(var(--u) * 10) / 1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
-/* type flag: font 1ce, a navy stripe on the left and a notched tail at the picture's edge */
-.x-tc-flag {
-  position: absolute; top: 1.35em; left: 4.85em; right: 0; height: 2.35em; display: flex; align-items: center;
-  padding: 0 1.7em 0 0.8em; border-left: 0.4em solid var(--x-ink); background: var(--x-green); color: var(--x-card);
-  font: 600 1em/1 var(--f-label); letter-spacing: calc(0.13em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap; overflow: hidden;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 1.2em) 50%, 100% 100%, 0 100%);
+.cd-kind b { font-weight: 800; color: var(--x-mustard); }
+/* the name: on one line as large as fits (up to 26), or on two lines at 21 (cardType.ts sets --ts) */
+.cd-name { flex: none; display: block; margin: calc(var(--u) * 8) calc(var(--u) * 9) 0; font: 400 calc(var(--u) * var(--ts, 21)) / 1 var(--f-display); text-transform: uppercase; }
+/* the picture takes the room the name, the quirk and the rows leave, so every card is full to the legend */
+.cd-mpic { flex: 1 1 0; min-height: calc(var(--u) * 72); margin: calc(var(--u) * 7) calc(var(--u) * 9) 0; border: calc(var(--u) * 2) solid var(--x-ink); overflow: hidden; background: var(--x-kraft); }
+.cd-quirk { flex: none; margin: calc(var(--u) * 6) calc(var(--u) * 9) 0; color: var(--x-slate); font-size: calc(var(--u) * 11); }
+.cd-rows { flex: none; }
+.cd-rows li { display: flex; align-items: center; gap: calc(var(--u) * 6); margin: calc(var(--u) * 5) calc(var(--u) * 9) 0; }
+.cd-rows .x-fruit { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
+.cd-tag {
+  flex: none; margin-left: auto; padding: calc(var(--u) * 5) calc(var(--u) * 8) calc(var(--u) * 5) calc(var(--u) * 15); background: var(--x-ink); color: var(--x-mustard);
+  font: 400 calc(var(--u) * 15) / 1 var(--f-display); clip-path: polygon(calc(var(--u) * 9) 0, 100% 0, 100% 100%, calc(var(--u) * 9) 100%, 0 50%);
 }
-.x-flag-premium { background: var(--x-red); }
-.x-flag-bargain { background: var(--x-ink); }
-.x-flag-guest { background: var(--x-mustard); color: var(--x-ink); }
-/* name banner: navy with mustard edges, on a slant; 3.25ce tall and 2.45ce up from the picture's foot on every card */
-.x-tc-name {
-  --fs: 1.75;
-  position: absolute; left: calc(-1.14em / var(--fs)); right: calc(-1.14em / var(--fs)); bottom: calc(2.45em / var(--fs)); z-index: 1;
-  display: flex; align-items: center; height: calc(3.25em / var(--fs)); padding: calc(0.08em / var(--fs)) calc(1.2em / var(--fs)) 0 calc(2em / var(--fs));
-  background: var(--x-ink); color: var(--x-card);
-  border-top: calc(0.33em / var(--fs)) solid var(--x-mustard); border-bottom: calc(0.26em / var(--fs)) solid var(--x-mustard);
-  font: calc(var(--fs) * 1em)/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
-  transform: rotate(-6deg); transform-origin: 50% 50%;
-}
-.x-tc-name.x-long { --fs: 1.42; }
-/* quirk: a box two lines tall, the text centred in it */
-.x-tc-quirk {
-  --fs: 1.36;
-  flex: none; display: flex; align-items: center; justify-content: center; height: calc(3.45em / var(--fs)); padding: 0 calc(0.3em / var(--fs));
-  font: italic calc(var(--fs) * 1em)/1.26 var(--f-serif); text-align: center; color: var(--x-ink);
-}
-.x-tc-quirk.x-long { --fs: 1.24; }
-/* order box: one height, columns of equal width, the same type size for 1, 2 or 3 fruits (the print kit makes it
-   taller for its order circles with --x-order-h) */
-.x-tc-order { flex: none; height: var(--x-order-h, 7.1em); display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border: 0.22em solid var(--x-ink); }
-.x-tc-order li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.18em; min-width: 0; padding: 0.4em 0.05em; text-align: center; }
-.x-tc-order li + li { border-left: 0.16em solid var(--x-ink); }
-.x-tc-order .x-fruit { width: 2.4em; height: 2.4em; }
-.x-tc-order span { font: 500 0.88em/1.15 var(--f-label); letter-spacing: calc(0.04em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap; color: var(--x-ink); }
-.x-tc-order b { font: 2em/1 var(--f-display); color: var(--x-red); }
-.x-tc-buys { flex: none; height: 1.2em; font: 600 1em/1.2 var(--f-label); letter-spacing: calc(0.2em * var(--ls, 1)); text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--x-green); }
+/* a fruit this customer has already bought today */
+.cd-rows li.done > * { opacity: 0.35; }
+.cd-rows li.done::after { content: '✓'; flex: none; font: 800 calc(var(--u) * 14) / 1 var(--f-label); color: var(--x-green); }
+.cd-leg { flex: none; margin-top: calc(var(--u) * 26); display: grid; grid-template-columns: repeat(3, 1fr); background: var(--x-ink); color: var(--x-paper); font: 400 calc(var(--u) * 13) / 1 var(--f-display); }
+.cd-leg span { display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 6); padding: calc(var(--u) * 8) 0; }
+.cd-leg span + span { box-shadow: inset calc(var(--u) * 2) 0 0 var(--x-slate); }
+.cd-leg .no { color: var(--x-lamp-off); }
 
-/* compact (the table): picture, name and order only, bigger words; the fruit picture names the fruit. Every compact
-   card, face up or face down, is the same size: 25.2 x 26.9 ce. */
-.x-tc.x-compact, .x-tb.x-compact { height: 26.9em; }
-.x-tc.x-compact { padding: 0.8em; gap: 0.5em; }
-.x-tc.x-compact .x-tc-pic .x-art { object-position: 50% 22%; }
-.x-tc.x-compact .x-tc-name { --fs: 1.9; bottom: calc(-0.19em / var(--fs)); height: calc(3.4em / var(--fs)); transform: rotate(-4deg); }
-.x-tc.x-compact .x-tc-name.x-long { --fs: 1.55; }
-.x-tc.x-compact .x-tc-order { height: 7.15em; }
-.x-tc.x-compact .x-tc-order li { display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; align-items: center; column-gap: 0.25em; row-gap: 0.1em; padding: 0.3em 0.1em; }
-.x-tc.x-compact .x-tc-order .x-fruit { grid-column: 2; grid-row: 1; width: 3em; height: 3em; }
-.x-tc.x-compact .x-tc-order span { grid-column: 1; grid-row: 1; font-size: 2em; font-weight: 600; letter-spacing: 0; }
-.x-tc.x-compact .x-tc-order b { grid-column: 1 / 3; font-size: 2.6em; }
+/* ---------- the customer back: four fixed fruit squares, filled for the fruit wanted ---------- */
+.cd-custback { background: var(--x-ink); color: var(--x-paper); }
+.cd-custback .cd-kind { border-bottom: calc(var(--u) * 2) solid var(--x-slate); }
+.cd-wants { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 14); }
+.cd-wants-h { font: 400 calc(var(--u) * 24) / 1 var(--f-display); text-transform: uppercase; }
+.cd-sqs { display: grid; grid-template-columns: repeat(2, calc(var(--u) * 86)); gap: calc(var(--u) * 10); }
+.cd-sq { width: calc(var(--u) * 86); height: calc(var(--u) * 86); display: grid; place-items: center; box-shadow: inset 0 0 0 calc(var(--u) * 2) var(--x-slate); }
+.cd-sq.on { background: var(--x-paper); box-shadow: none; }
+.cd-sq .x-fruit { width: calc(var(--u) * 58); height: calc(var(--u) * 58); }
+.cd-foot { flex: none; padding: calc(var(--u) * 6) calc(var(--u) * 9); background: var(--x-mustard); color: var(--x-ink); text-align: center; font: 800 calc(var(--u) * 9) / 1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 
-/* ---------- Customer back (face down): only the fruit wanted ---------- */
-.x-tb { background: var(--x-ink); border: 0.3em solid var(--x-ink); padding: 1em; }
-.x-tb-label {
-  flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1em;
-  padding: 1em 0.8em; border: 0.55em double var(--x-mustard); border-radius: 0.7em; text-align: center;
-  background: repeating-conic-gradient(from 0deg at 50% 50%, var(--x-ink-2) 0deg 7deg, var(--x-ink) 7deg 14deg);
+/* ---------- design A, "Ticket": label and number, a thick rule, a big title, the picture edge to edge with a
+   perforated edge, coloured number blocks, the text, a dashed red footer ---------- */
+.cd-a { padding: calc(var(--u) * 13) calc(var(--u) * 13) 0; }
+.cd-top { flex: none; display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--u) * 6); font: 800 calc(var(--u) * 9) / 1 var(--f-label); letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap; }
+.cd-top b { font: 400 calc(var(--u) * 13) / 1 var(--f-display); letter-spacing: 0; }
+.cd-rule { flex: none; display: block; height: calc(var(--u) * 4); margin: calc(var(--u) * 5) 0 calc(var(--u) * 9); background: var(--x-ink); }
+/* the title: on one line as large as fits (up to 31), or on two lines at 25 (cardType.ts sets --ts) */
+.cd-ttl { flex: none; display: block; font: 400 calc(var(--u) * var(--ts, 25)) / 0.95 var(--f-display); text-transform: uppercase; }
+/* the picture: 98 units tall (118 on an event or a shopkeeper), plus its two rules. It gives way, down to 76, on the few
+   cards whose text is long. */
+.cd-pic {
+  flex: 0 1 calc(var(--u) * 104); min-height: calc(var(--u) * 76); position: relative; margin: calc(var(--u) * 9) calc(var(--u) * -13) 0;
+  border-top: calc(var(--u) * 3) solid var(--x-ink); border-bottom: calc(var(--u) * 3) solid var(--x-ink); background: var(--x-kraft);
 }
-/* ribbon: font 2.1ce, swallow-tail ends */
-.x-tb-brand {
-  display: block; padding: 0.22em 0.95em 0.18em; background: var(--x-red); color: var(--x-card);
-  font: 2.1em/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 0.42em) 50%, 100% 100%, 0 100%, 0.42em 50%);
+.cd-pic.cd-pic-l { flex-basis: calc(var(--u) * 124); }
+.cd-perf {
+  position: absolute; left: 0; right: 0; bottom: calc(var(--u) * -7); height: calc(var(--u) * 8);
+  background: radial-gradient(circle at calc(var(--u) * 5.5) calc(var(--u) * 4), var(--x-paper) calc(var(--u) * 3), transparent calc(var(--u) * 3.6)) calc(var(--u) * 2) 0 / calc(var(--u) * 11) calc(var(--u) * 8) repeat-x;
 }
-.x-tb-kind { font: 600 1.1em/1 var(--f-label); letter-spacing: calc(0.32em * var(--ls, 1)); text-transform: uppercase; color: var(--x-mustard); }
-.x-tb-kind::before, .x-tb-kind::after { content: '·'; padding: 0 0.5em; }
-.x-tb-fruit {
-  display: flex; justify-content: center; gap: 0.6em; min-height: 5.4em; min-width: 9em; padding: 1em 1.4em; align-items: center;
-  background: var(--x-card); border: 0.25em solid var(--x-mustard); border-radius: 999px; box-shadow: 0 0 0 0.35em var(--x-ink-2);
+/* number blocks */
+.cd-two { flex: none; display: flex; gap: calc(var(--u) * 5); margin-top: calc(var(--u) * 10); }
+.cd-blk { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); padding: calc(var(--u) * 7) calc(var(--u) * 8); color: var(--x-paper); }
+.cd-blk b { font: 400 calc(var(--u) * 20) / 1 var(--f-display); }
+.cd-blk small { font: 800 calc(var(--u) * 8) / 1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; }
+.cd-blk-t { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); }
+.cd-blk-f { flex-direction: row; align-items: center; gap: calc(var(--u) * 6); padding-left: calc(var(--u) * 6); padding-right: calc(var(--u) * 6); background: var(--lane); color: var(--lane-ink); }
+.cd-blk-f small { letter-spacing: 0.04em; }
+.cd-blk-k { background: var(--x-ink); }
+.cd-blk-k b { color: var(--x-mustard); }
+.cd-blk-y { background: var(--x-mustard); color: var(--x-ink); }
+.cd-blk-b { background: var(--x-sky); }
+.cd-blk-o { color: var(--x-ink); box-shadow: inset 0 0 0 calc(var(--u) * 3) var(--x-ink); }
+.cd-blk-cost { flex: none; width: calc(var(--u) * 74); }
+.cd-ic { flex: none; width: calc(var(--u) * 24); height: calc(var(--u) * 24); border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); }
+.cd-ic .x-fruit { width: calc(var(--u) * 17); height: calc(var(--u) * 17); }
+/* four blocks (the price limits of Price Controls): the fruit above its limit */
+.cd-n4 .cd-blk { padding: calc(var(--u) * 6) calc(var(--u) * 5); }
+.cd-n4 .cd-blk-f { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 4); }
+.cd-n4 .cd-blk b { font-size: calc(var(--u) * 16); }
+.cd-n3 .cd-blk b { font-size: calc(var(--u) * 17); }
+.cd-keeper .cd-blk b { font-size: calc(var(--u) * 17); }
+.cd-favour .cd-blk b { font-size: calc(var(--u) * 14); }
+/* the text keeps a little air above the footer, also on the cards whose picture gives way to it */
+.cd-txt { flex: none; margin-top: calc(var(--u) * 8); padding-bottom: calc(var(--u) * 5); }
+.cd-a .cd-quirk { margin: calc(var(--u) * 9) 0 0; }
+.cd-a .cd-quirk + .cd-txt { margin-top: calc(var(--u) * 4); }
+.cd-ft {
+  flex: none; margin: auto calc(var(--u) * -13) 0; padding: calc(var(--u) * 7) calc(var(--u) * 13); border-top: calc(var(--u) * 2) dashed var(--x-ink);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: calc(var(--u) * 3) calc(var(--u) * 6);
+  font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-red-d);
 }
-.x-tb-fruit .x-fruit { width: 3.8em; height: 3.8em; }
-.x-tb.x-compact { padding: 0.7em; }
-.x-tb.x-compact .x-tb-label { gap: 0.8em; padding: 0.6em 0.4em; }
-.x-tb.x-compact .x-tb-brand { font-size: 1.8em; }
-/* the "· customer ·" line is too small to read on a compact back; the ribbon and the fruit say enough */
-.x-tb.x-compact .x-tb-kind { display: none; }
+/* a standing order: what it wants on a band in the fruit's colour, with the freshness it takes */
+.cd-want { flex: none; display: flex; align-items: center; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 11); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: var(--lane); color: var(--lane-ink); }
+.cd-want .cd-dots { gap: calc(var(--u) * 4); }
+.cd-want .cd-dots i { width: calc(var(--u) * 12); height: calc(var(--u) * 12); border: 0; background: var(--lane-ink); }
+.cd-want-t { font: 800 calc(var(--u) * 8) / 1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.cd-want-l { flex: none; margin-left: auto; display: flex; gap: calc(var(--u) * 4); }
+.cd-want .cd-lamp { width: calc(var(--u) * 16); height: calc(var(--u) * 16); font-size: calc(var(--u) * 10); }
+.cd-want.ln-mango .cd-lamp { box-shadow: inset 0 0 0 calc(var(--u) * 1) var(--x-ink); }
+/* a lorry: four lanes that carry the pieces for every table size; this table's row is boxed */
+.cd-ly { flex: none; display: grid; grid-template-columns: calc(var(--u) * 30) repeat(4, 1fr); column-gap: calc(var(--u) * 4); margin-top: calc(var(--u) * 10); text-align: center; }
+.cd-ly span { display: grid; place-items: center; height: calc(var(--u) * 31); }
+.cd-ly .cd-ly-h { height: calc(var(--u) * 46); background: var(--lane); }
+.cd-ly-h b { width: calc(var(--u) * 32); height: calc(var(--u) * 32); border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); }
+.cd-ly-h .x-fruit { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
+.cd-ly .cd-ly-s { height: calc(var(--u) * 46); align-items: end; padding-bottom: calc(var(--u) * 5); font: 800 calc(var(--u) * 7) / 1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-slate); }
+.cd-ly-l { font: 400 calc(var(--u) * 15) / 1 var(--f-display); }
+.cd-ly-l.on { background: var(--x-ink); color: var(--x-mustard); }
+.cd-ly-n { background: var(--lane); color: var(--lane-ink); font: 400 calc(var(--u) * 18) / 1 var(--f-display); }
+.cd-ly-n.nil { color: color-mix(in srgb, var(--lane-ink) 55%, var(--lane)); }
+.cd-ly-n.on { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 calc(var(--u) * 2) var(--x-ink); }
+.cd-ly .cd-ly-e { height: calc(var(--u) * 7); }
+.cd-ly-e[class*='ln-'] { background: var(--lane); }
+/* a shopkeeper's stall sheet: its name and a swatch of its pattern */
+.cd-pat { display: flex; align-items: center; gap: calc(var(--u) * 5); }
+.cd-sw { flex: none; display: block; width: calc(var(--u) * 16); height: calc(var(--u) * 10); background-color: var(--x-paper); box-shadow: 0 0 0 calc(var(--u) * 1.5) var(--x-ink); }
+.cd-sw.pat-stripes { background-image: repeating-linear-gradient(90deg, var(--x-ink) 0 calc(var(--u) * 3), var(--x-paper) calc(var(--u) * 3) calc(var(--u) * 6)); }
+.cd-sw.pat-bars { background-image: repeating-linear-gradient(0deg, var(--x-ink) 0 calc(var(--u) * 2.5), var(--x-paper) calc(var(--u) * 2.5) calc(var(--u) * 5)); }
+.cd-sw.pat-dots { background-image: radial-gradient(circle, var(--x-ink) 0 32%, transparent 34%); background-size: calc(var(--u) * 4) calc(var(--u) * 5); }
+.cd-sw.pat-checks { background-image: repeating-conic-gradient(var(--x-ink) 0 25%, var(--x-paper) 0 50%); background-size: calc(var(--u) * 8) calc(var(--u) * 10); }
+.cd-sw.pat-diamonds {
+  background-image: linear-gradient(45deg, var(--x-ink) 25%, transparent 25% 75%, var(--x-ink) 75%), linear-gradient(45deg, var(--x-ink) 25%, transparent 25% 75%, var(--x-ink) 75%);
+  background-size: calc(var(--u) * 4) calc(var(--u) * 5); background-position: 0 0, calc(var(--u) * 2) calc(var(--u) * 2.5);
+}
+.cd-sw.pat-zigzag {
+  background-image: linear-gradient(135deg, var(--x-ink) 25%, transparent 25%), linear-gradient(225deg, var(--x-ink) 25%, transparent 25%),
+    linear-gradient(315deg, var(--x-ink) 25%, transparent 25%), linear-gradient(45deg, var(--x-ink) 25%, transparent 25%);
+  background-size: calc(var(--u) * 4) calc(var(--u) * 5); background-position: calc(var(--u) * -2) 0, calc(var(--u) * -2) 0, 0 0, 0 0;
+}
+/* picking a shopkeeper: the one chosen, and one another stall has taken */
+.cd.is-selected { box-shadow: 0 0 0 calc(var(--u) * 4) var(--x-mustard); }
+.cd.is-taken > :not(.cd-taken) { filter: grayscale(0.75) brightness(0.92); }
+.cd-taken {
+  position: absolute; left: 50%; top: 44%; z-index: 2; max-width: calc(var(--u) * 210); padding: calc(var(--u) * 4) calc(var(--u) * 8); transform: translate(-50%, -50%) rotate(-9deg);
+  background: var(--x-paper); border: calc(var(--u) * 2.5) solid var(--x-red); color: var(--x-red);
+  font: 400 calc(var(--u) * 15) / 1.15 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-/* ---------- Stall Sign (shopkeeper, Art 2 "Over the counter") ---------- */
-/* Fixed zones on all six: the header (6.5 ce) and the chalkboard (10.3 ce, room for the longest special, Rosa's
-   three lines; one line on a compact sign), so every scene is the same size. */
-.x-ss {
-  gap: 0.85em; padding: 1em; border: 0.3em solid var(--x-ink); border-radius: 1.3em;
-  background: repeating-linear-gradient(180deg, var(--x-wood) 0 1.8em, var(--x-wood-grain) 1.8em 2em);
-  box-shadow: 0.45em 0.45em 0 var(--x-shadow);
+/* ---------- pattern backs (Backs-Ticket, row 3): the deck's tile in a darker tone, a paper band for its name ---------- */
+.cd-bk { display: grid; align-items: center; background-color: var(--k); background-repeat: repeat; background-size: calc(var(--u) * 72) calc(var(--u) * 72); font-family: var(--f-label); }
+.cd-bk-lorry { --k: var(--x-green); }
+.cd-bk-event { --k: var(--x-red); }
+.cd-bk-favour { --k: var(--x-sky); }
+.cd-bk-upgrade { --k: var(--x-slate); }
+.cd-bk-shopkeeper { --k: var(--x-kraft); }
+.cd-bk-order { --k: var(--x-ink); }
+.cd-band { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 8); padding: calc(var(--u) * 17) calc(var(--u) * 13) calc(var(--u) * 14); background: var(--x-paper); text-align: center; }
+.cd-band::before, .cd-band::after {
+  content: ''; position: absolute; left: 0; right: 0; height: calc(var(--u) * 9);
+  background: radial-gradient(circle at calc(var(--u) * 5.5) calc(var(--u) * 4.5), var(--x-paper) calc(var(--u) * 3.3), transparent calc(var(--u) * 3.9)) calc(var(--u) * 2) 0 / calc(var(--u) * 11) calc(var(--u) * 9) repeat-x;
 }
-.x-ss-head {
-  flex: none; height: 6.5em; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; column-gap: 0.75em; align-items: center;
-  padding: 0.5em 0.6em; background: var(--x-card); border: 0.25em solid var(--x-ink); border-radius: 0.7em;
-}
-.x-ss .x-ss-badge { grid-row: 1 / 3; width: 5em; height: 5em; border-radius: 50%; border: 0.25em solid var(--x-ink); overflow: hidden; }
-.x-ss-name { align-self: end; font: 3.3em/1.05 var(--f-script); color: var(--x-red); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 0.1em; }
-.x-ss-name.x-long { font-size: 2.45em; }
-.x-ss-tag { align-self: start; font: 600 0.8em/1.3 var(--f-label); letter-spacing: calc(0.17em * var(--ls, 1)); text-transform: uppercase; color: var(--x-ink); white-space: nowrap; }
-.x-ss-scene { position: relative; flex: 1 1 0; min-height: 0; border: 0.25em solid var(--x-ink); border-radius: 0.45em; overflow: hidden; background: var(--x-paper); }
-.x-ss-scene .x-art { position: absolute; inset: 0; object-position: 50% 75%; }
-.x-ss-chalk {
-  flex: none; height: 10.3em; display: flex; flex-direction: column; justify-content: center;
-  padding: 0.55em 0.8em 0.65em; text-align: center; color: var(--x-paper); font-family: var(--f-chalk);
-  background: var(--x-chalk); border: 0.4em solid var(--x-wood-d); border-radius: 0.35em; box-shadow: inset 0 0 1.1em -0.3em var(--x-ink);
-}
-.x-ss-chalk b { display: block; font-size: 1.85em; font-weight: 700; line-height: 1.1; }
-.x-ss-chalk p { margin-top: 0.1em; font-size: 1.34em; font-weight: 600; line-height: 1.08; }
-.x-ss-chalk i { display: block; margin-top: 0.12em; font-size: 1.5em; font-weight: 700; font-style: normal; line-height: 1.1; color: var(--x-mustard); }
-.x-ss.is-selected { box-shadow: 0 0 0 0.45em var(--x-mustard), 0.45em 0.45em 0 0.45em var(--x-shadow); }
-.x-ss.is-taken > :not(.x-ss-taken) { filter: grayscale(0.75) brightness(0.92); }
-/* stamp: font 1.35ce */
-.x-ss-taken {
-  position: absolute; left: 50%; top: 44%; z-index: 2; max-width: 16em; padding: 0.2em 0.55em; transform: translate(-50%, -50%) rotate(-9deg);
-  background: var(--x-card); border: 0.18em solid var(--x-red); border-radius: 0.2em; color: var(--x-red);
-  font: 1.35em/1.15 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-/* compact: header, scene and the special's title; the name fills the header's height (no tagline) */
-.x-ss.x-compact { gap: 0.7em; padding: 0.8em; }
-.x-ss.x-compact .x-ss-name { grid-row: 1 / 3; align-self: center; }
-.x-ss.x-compact .x-ss-scene { flex: none; aspect-ratio: 4 / 3; }
-/* one line; min-height (not height) so a screen that sets its own type size (the character pick on phones) still fits */
-.x-ss.x-compact .x-ss-chalk { height: auto; min-height: 4.1em; }
-.x-ss.x-compact .x-ss-chalk b { font-size: 1.9em; }
+.cd-band::before { top: calc(var(--u) * -5); }
+.cd-band::after { bottom: calc(var(--u) * -5); }
+.cd-sm { font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.18em; text-transform: uppercase; }
+.cd-rl { align-self: stretch; flex: none; display: block; height: calc(var(--u) * 4); background: var(--x-ink); }
+.cd-wd { font: 400 calc(var(--u) * var(--ts, 26)) / 0.95 var(--f-display); text-transform: uppercase; }
+.cd-ds { align-self: stretch; padding-top: calc(var(--u) * 8); border-top: calc(var(--u) * 2) dashed var(--x-ink); font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--x-red-d); }
+.cd-bk-order .cd-band { background: var(--x-mustard); }
+.cd-bk-order .cd-ds { color: var(--x-ink); }
+/* a back at the width of a phone card (the morning's news, face down): it fills the card it will turn into */
+.cd-bk.cd-bk-wide { --u: 1px; width: auto; height: auto; position: absolute; inset: 0; background-size: 56px 56px; }
+.cd-bk-wide .cd-band { gap: 6px; padding: 12px 13px 10px; }
+.cd-bk-wide .cd-wd { font-size: 26px; }
 
-/* ---------- Gazette (event, Art 1 "The scene") ---------- */
-/* Fixed zones on all thirteen front pages: the headline block (headline and subhead, centred in room for three
-   lines), the picture (11 ce tall), a two-line caption and the story box. --x-focus says where a picture is cropped
-   (0% keeps the top, 100% the bottom), to keep the price tags and signs in view. */
-.x-gz { background: var(--x-paper); border: 0.12em solid var(--x-edge); padding: 0.9em 1.2em 1em; }
-.x-gz-mast { flex: none; padding-bottom: 0.12em; border-bottom: 0.17em double var(--x-ink); font: 1.85em/1.1 var(--f-headline); text-align: center; color: var(--x-ink); }
-.x-gz-ed {
-  flex: none; display: flex; justify-content: space-between; gap: 0.5em; padding: 0.45em 0 0.4em; border-bottom: 0.12em solid var(--x-ink);
-  font: 600 0.78em/1.2 var(--f-label); letter-spacing: calc(0.15em * var(--ls, 1)); text-transform: uppercase; white-space: nowrap;
+/* ====================================================================
+   Cards at phone width
+   ==================================================================== */
+.wc { flex: none; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font: 600 0.75rem/1.3 var(--f-label); letter-spacing: 0; text-align: left; }
+.wc *, .wc *::before, .wc *::after { box-sizing: border-box; }
+.wc :where(i, em) { font-style: normal; }
+.wc .x-fruit { display: block; flex: none; }
+.wc-kind { flex: none; display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px; background: var(--x-ink); color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.wc-kind b { font-weight: 800; color: var(--x-mustard); }
+.wc-kind span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.wc-body { display: flex; gap: 10px; padding: 9px; }
+.wc-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.wc-ttl { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; }
+.wc .wc-txt { margin: 0; line-height: 1.3; }
+.wc-foot { flex: none; padding: 6px 9px; background: var(--x-kraft); text-align: center; font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.wc-dots { display: flex; flex-wrap: wrap; gap: 5px; }
+.wc-dots i { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--lane); }
+.wc-rw { display: flex; align-items: center; gap: 5px; }
+
+/* today's event: the picture beside the title, what it changes on mustard chips, then the card's words */
+.wc .wc-evpic { flex: none; width: 128px; height: 92px; border: 2px solid var(--x-ink); }
+.wc-chip { align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 7px; background: var(--x-mustard); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.wc-chip b { font: 400 0.8125rem/1 var(--f-display); letter-spacing: 0; }
+.wc-flavour { color: var(--x-slate); font-size: 0.6875rem; }
+/* the event card is turned over each morning: its deck's back first, then the face */
+.wc-flip { position: relative; flex: none; perspective: 900px; }
+.wc-flip-back, .wc-flip-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
+.wc-flip-back { position: absolute; inset: 0; }
+.wc-flip-face { transform: rotateY(180deg); }
+.wc-flip.go .wc-flip-back { transform: rotateY(-180deg); }
+.wc-flip.go .wc-flip-face { transform: none; }
+@media (prefers-reduced-motion: reduce) { .wc-flip-back, .wc-flip-face { transition: none; } }
+
+/* today's lorry: four lanes with the pieces for every table size; this table's row is boxed */
+.wc-lt { display: grid; grid-template-columns: 74px repeat(4, 1fr); column-gap: 4px; margin: 6px 9px; text-align: center; }
+.wc-lt span { display: grid; place-items: center; height: 18px; }
+.wc-lt .wc-lt-h { height: 24px; background: var(--lane); }
+.wc-lt-h .x-fruit { width: 18px; height: 18px; padding: 2px; border-radius: 50%; background: var(--x-paper); }
+.wc-lt-l { justify-items: start; padding: 0 6px; font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.wc-lt-l.on { background: var(--x-ink); color: var(--x-mustard); }
+.wc-lt-l.mark { box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.wc-lt-n { background: var(--lane); color: var(--lane-ink); font: 400 0.8125rem/1 var(--f-display); }
+.wc-lt-n.nil { color: color-mix(in srgb, var(--lane-ink) 55%, var(--lane)); }
+.wc-lt-n.on { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+
+/* a standing order at the bid: the client's picture, what it wants, the highest bid and the stake */
+.wc-order .wc-body { padding: 10px 10px 0; }
+.wc-order .wc-main { gap: 7px; }
+.wc .wc-sqpic { flex: none; width: 84px; height: 84px; border: 2px solid var(--x-ink); }
+.wc-ttl-o { font-size: 1.3125rem; }
+.wc-order .wc-rw .x-fruit { width: 22px; height: 22px; }
+.wc-order .wc-dots i { width: 14px; height: 14px; }
+.wc-lab { font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.wc-stats { display: flex; gap: 6px; padding: 10px; }
+.wc-stat { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 6px 8px; border: 2px solid var(--x-ink); }
+.wc-stat.y { background: var(--x-mustard); }
+.wc-stat b { font: 400 1.25rem/1 var(--f-display); }
+.wc-stat span { font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* a customer in the rush: the picture, each fruit they came for with its price tag, the legend */
+.wc .wc-custpic { flex: none; width: 96px; height: 96px; border: 2px solid var(--x-ink); }
+.wc-ttl-c { font-size: 1.125rem; }
+.wc-cust .wc-rw .x-fruit { width: 20px; height: 20px; }
+.wc-tag { flex: none; margin-left: auto; padding: 4px 7px 4px 13px; background: var(--x-ink); color: var(--x-mustard); font: 400 0.875rem/1 var(--f-display); clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
+.wc-rw.later { opacity: 0.4; }
+.wc-leg { flex: none; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: var(--x-ink); color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.wc-lamp { flex: none; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0; }
+.wc-lamp + .wc-lamp, .wc-leg span + .wc-lamp { margin-left: 12px; }
+.wc-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
+.wc-leg .no { color: var(--x-lamp-off); }
+/* In the rush the card is the approved one (heading strip, a 96 px picture, the legend strip) where the screen is tall
+   enough for the card, the offers and the result under it. On a shorter screen it is drawn smaller so the result stays
+   in view: a 64 px picture, and the legend in the heading strip in place of the customer's type (the legend says the
+   same). The offers take one row for up to three stalls and two rows for more, so those need a taller screen. */
+.wc-cust { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "kind kind" "body body" "leg leg"; }
+.wc-cust .wc-kind { grid-area: kind; }
+.wc-cust .wc-body { grid-area: body; }
+.wc-cust .wc-leg { grid-area: leg; }
+@media (max-height: 879.98px) {
+  .tk-rush .wc-cust { grid-template-areas: "kind leg" "body body"; }
+  .tk-rush .wc-cust .wc-kind > span:last-child { display: none; }
+  .tk-rush .wc-cust .wc-leg { gap: 4px; padding: 0 9px 0 0; font-size: 0.5625rem; }
+  .tk-rush .wc-cust .wc-lamp { width: 14px; height: 14px; font-size: 0.5625rem; }
+  .tk-rush .wc-cust .wc-lamp + .wc-lamp, .tk-rush .wc-cust .wc-leg span + .wc-lamp { margin-left: 6px; }
+  .tk-rush .wc-cust .wc-body { gap: 8px; padding: 6px 9px; }
+  .tk-rush .wc-cust .wc-main { gap: 4px; }
+  .tk-rush .wc-cust .wc-custpic { width: 64px; height: 64px; }
+  .tk-rush .wc-cust .wc-ttl-c { font-size: 1rem; }
 }
-/* headline block: room for three lines, top-aligned; the seal floats in its corner and the words wrap round it */
-.x-gz-top { flex: none; display: flow-root; height: 6.7em; }
-/* seal: font 1.35ce, 5.3ce across; red rim, navy ring, red middle. It overlaps the edition line and the card's
-   right edge a little, as in the deck art. */
-.x-gz-seal {
-  position: relative; z-index: 1; float: right; width: 3.95em; height: 3.95em; margin: -0.42em -1.05em 0 0.2em; border-radius: 50%;
-  shape-outside: circle(50%); shape-margin: 0.12em;
-  display: grid; place-items: center; background: var(--x-red); color: var(--x-card);
-  box-shadow: inset 0 0 0 0.2em var(--x-red), inset 0 0 0 0.36em var(--x-ink);
-  font: 1.35em/1 var(--f-display); transform: rotate(13deg);
+@media (min-height: 880px) and (max-height: 999.98px) {
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust { grid-template-areas: "kind leg" "body body"; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-kind > span:last-child { display: none; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-leg { gap: 4px; padding: 0 9px 0 0; font-size: 0.5625rem; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-lamp { width: 14px; height: 14px; font-size: 0.5625rem; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-lamp + .wc-lamp, .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-leg span + .wc-lamp { margin-left: 6px; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-body { gap: 8px; padding: 6px 9px; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-main { gap: 4px; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-custpic { width: 64px; height: 64px; }
+  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-ttl-c { font-size: 1rem; }
 }
-.x-gz-head { display: block; font: 2.45em/0.98 var(--f-headline); text-transform: uppercase; color: var(--x-ink); }
-.x-gz-sub { margin-top: 0.12em; font: italic 1.25em/1.12 var(--f-serif); color: var(--x-red); }
-.x-gz-pic { flex: none; display: flex; flex-direction: column; }
-.x-gz-pic .x-art { flex: none; height: 11em; border: 0.2em solid var(--x-ink); object-position: 50% var(--x-focus, 50%); }
-.x-gz-pic figcaption { flex: none; height: 2.4em; margin-top: 0.3em; font: italic 0.92em/1.2 var(--f-serif); color: var(--x-slate); }
-.x-gz-body { flex: 1 1 0; min-height: 0; display: flow-root; margin-top: 0.4em; }
-.x-gz-fx { float: right; width: 9.6em; margin: 0.15em 0 0.25em 0.7em; padding: 0.45em 0.5em 0.4em; border: 0.15em solid var(--x-ink); }
-.x-gz-fx li { padding-left: 0.95em; text-indent: -0.95em; font: 600 0.9em/1.25 var(--f-label); letter-spacing: calc(0.05em * var(--ls, 1)); text-transform: uppercase; color: var(--x-ink); }
-.x-gz-fx li::before { content: '\25B8'; display: inline-block; width: 0.95em; text-indent: 0; font-size: 0.8em; }
-/* the story is set at 1ce (about 7 pt in print) so the longest one fits the story box */
-.x-gz-text { font: 1em/1.27 var(--f-serif); color: var(--x-ink); }
-.x-gz-flavour { font-weight: 700; }
-/* the shared event back */
-.x-gzb .x-gz-head { margin-top: 0.5em; font-size: 3.1em; text-align: center; }
-.x-gzb .x-gz-sub { text-align: center; }
-.x-gzb-mid { flex: 1 1 0; display: grid; place-items: center; border-top: 0.12em solid var(--x-ink); border-bottom: 0.12em solid var(--x-ink); margin: 0.4em 0; background: repeating-conic-gradient(from 0deg at 50% 50%, var(--x-paper) 0deg 7deg, var(--x-card) 7deg 14deg); }
-.x-gzb .x-gz-seal { float: none; margin: 0; width: 4.6em; height: 4.6em; font-size: 2.4em; transform: rotate(-8deg); }
-.x-gzb-foot { flex: none; font: 600 0.95em/1.3 var(--f-label); letter-spacing: 0.16em; text-transform: uppercase; text-align: center; color: var(--x-ink); }
-.x-gz-text::first-letter { float: left; margin: 0.04em 0.08em 0 0; font: 2.75em/0.82 var(--f-headline); color: var(--x-red); }
-.x-ev-festival { --x-focus: 60%; }
-.x-ev-glut { --x-focus: 28%; }
-.x-ev-heatwave { --x-focus: 62%; }
-.x-ev-hotel { --x-focus: 40%; }
-.x-ev-inspector { --x-focus: 30%; }
-.x-ev-mangoCraze { --x-focus: 30%; }
-.x-ev-priceHike { --x-focus: 45%; }
-.x-ev-strike { --x-focus: 90%; }
-.x-ev-superfood { --x-focus: 30%; }
-/* compact: masthead, a two-line headline block, the whole picture and an effects box two lines tall (three or four
-   effects go in two columns) */
-.x-gz.x-compact .x-gz-mast { font-size: 1.6em; }
-.x-gz.x-compact .x-gz-top { height: 5.6em; margin-top: 0.3em; }
-.x-gz.x-compact .x-gz-seal { margin-top: -0.5em; }
-.x-gz.x-compact .x-gz-pic .x-art { height: auto; aspect-ratio: 4 / 3; }
-.x-gz.x-compact .x-gz-body { flex: none; margin-top: 0.5em; }
-.x-gz.x-compact .x-gz-fx { float: none; width: auto; height: 4.6em; margin: 0; display: grid; align-content: center; column-gap: 0.8em; }
-.x-gz.x-compact .x-gz-fx:is(.x-n3, .x-n4) { grid-template-columns: repeat(2, max-content); justify-content: space-between; }
-.x-gz.x-compact .x-gz-fx li { font-size: 1.3em; white-space: nowrap; }
-/* the sign's head holds the badge and the name only (PLAN-063): the name sits in the middle of it */
-.x-ss-head .x-ss-badge + .x-ss-name { grid-row: 1 / 3; align-self: center; }
+
+/* ====================================================================
+   A customer's ticket in the row (the approved phone screens), and its back
+   ==================================================================== */
+.tkc { flex: 1 1 auto; box-sizing: border-box; container-type: inline-size; display: flex; flex-direction: column; min-width: 0; border: 2px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; }
+.tkc *, .tkc *::before, .tkc *::after { box-sizing: border-box; }
+.tkc :where(i, em) { font-style: normal; }
+/* the heading holds two lines; on a ticket narrower than the approved one the type follows the ticket's width, so a
+   name breaks where it does there */
+.tkc-hd { flex: none; height: 26px; overflow: hidden; padding: 4px 5px; background: var(--x-ink); color: var(--x-paper); font: 800 7.5px/1.2 var(--f-label); font-size: min(7.5px, 8.96cqw); letter-spacing: 0.02em; text-transform: uppercase; }
+.tkc-hd b { font-weight: 800; color: var(--x-mustard); }
+.tkc-pc { flex: none; height: 56px; overflow: hidden; border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); }
+.tkc-pc img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tkc-rw { flex: none; display: flex; align-items: center; gap: 3px; padding: 3px 4px; }
+.tkc-rw .x-fruit { flex: none; width: 14px; height: 14px; }
+.tkc-q { display: flex; align-items: center; min-width: 0; }
+/* A dot for each piece when the rows have room, a number ("×3") when they do not. ticket.tsx works out the narrowest
+   ticket that holds this ticket's dots (--nr px inside the border, with this spacing); the ticket's real width is
+   100cqw. The one that does not apply is given no width: a negative length counts as none. */
+.tkc-dots { display: flex; gap: 3px; overflow: hidden; max-width: calc((100cqw - var(--nr, 0) * 1px + 0.5px) * 999); }
+.tkc-dots i { flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--x-ink); background: var(--lane); }
+.tkc-n { display: block; overflow: hidden; white-space: nowrap; max-width: calc((var(--nr, 0) * 1px - 0.5px - 100cqw) * 999); font: 800 11px/1 var(--f-label); }
+.tkc-rw > b { flex: none; margin-left: auto; font: 400 12px/1 var(--f-display); }
+.tkc-rw.up > b { color: var(--x-green); }
+.tkc-rw.down > b { color: var(--x-slate); }
+.tkc-rw.done > * { opacity: 0.35; }
+.tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }
+.tkc-bd { flex: none; margin-top: auto; display: flex; gap: 3px; padding: 3px 4px; background: var(--x-ink); }
+.tkc-lamp { flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 8px/1 var(--f-label); }
+.tkc-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
+/* face down: four fixed squares, one per fruit, filled for the fruit wanted */
+.tkc-dn { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 26px); gap: 4px; align-content: center; justify-content: center; padding: 6px 0; background: var(--x-ink); }
+.tkc-dn span { width: 26px; height: 26px; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--x-slate); }
+.tkc-dn span.on { background: var(--x-paper); box-shadow: none; }
+.tkc-dn .x-fruit { width: 17px; height: 17px; }
+/* a narrow ticket (five or six in the row; under 80 px with its border): closer spacing, the name without its number,
+   smaller squares, and the dots' room measured with the closer spacing (--nt) */
+@container (max-width: 75.99px) {
+  .tkc-hd { padding: 2px 3px; font-size: clamp(6.25px, 10.9cqw, 7.5px); line-height: 1.12; letter-spacing: 0; }
+  .tkc-hd b { display: none; }
+  .tkc-rw { gap: 2px; padding: 3px; }
+  .tkc-rw .x-fruit { width: 13px; height: 13px; }
+  .tkc-dots { gap: 2px; max-width: calc((100cqw - var(--nt, 0) * 1px + 0.5px) * 999); }
+  .tkc-dots i { width: 8px; height: 8px; }
+  .tkc-n { max-width: calc((var(--nt, 0) * 1px - 0.5px - 100cqw) * 999); }
+  .tkc-rw > b { font-size: 11px; }
+  .tkc-dn { grid-template-columns: repeat(2, 22px); gap: 3px; }
+  .tkc-dn span { width: 22px; height: 22px; }
+  .tkc-dn .x-fruit { width: 15px; height: 15px; }
+}
+
+/* ====================================================================
+   The evening: upgrade offers, and the favour cards you hold
+   ==================================================================== */
+.uo-row, .fav-row { flex: none; display: flex; gap: 8px; margin: 0 -4px; padding: 4px; overflow-x: auto; scrollbar-width: none; }
+.uo-row::-webkit-scrollbar, .fav-row::-webkit-scrollbar { display: none; }
+.uo { flex: none; width: 150px; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; }
+.uo *, .fav * { box-sizing: border-box; }
+.uo-kind { flex: none; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.uo .uo-pic { flex: none; width: 100%; height: 54px; border-bottom: 2px solid var(--x-ink); }
+.uo-nm { margin: 8px 7px 0; font: 400 1.0625rem/1 var(--f-display); text-transform: uppercase; }
+.uo-cost { align-self: flex-start; margin: 7px 7px 0; padding: 4px 7px; background: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); }
+.uo-tx { margin: 7px 7px 8px; font: 600 0.6875rem/1.3 var(--f-label); }
+.uo .uo-buy { flex: none; min-height: 44px; margin: auto 7px 7px; padding: 0 6px; border: 0; border-radius: 0; background: var(--x-ink); color: var(--x-mustard); font: 400 0.875rem/1 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.uo .uo-buy:disabled { opacity: 0.45; cursor: default; }
+.uo-ft { flex: none; margin-top: auto; padding: 5px 7px; background: var(--x-kraft); text-align: center; font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+/* a favour card you hold: the whole card is the button that opens it */
+.fav { flex: 1 0 150px; min-width: 0; display: flex; flex-direction: column; padding: 0; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; cursor: pointer; }
+.fav.ready { box-shadow: 0 0 0 3px var(--x-mustard); }
+.fav-kind { flex: none; display: flex; justify-content: space-between; padding: 5px 7px; background: var(--x-ink); color: var(--x-paper); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.fav-kind b { font-weight: 800; color: var(--x-mustard); }
+.fav .fav-pic { flex: none; width: 100%; height: 48px; border-bottom: 2px solid var(--x-ink); }
+.fav-nm { margin: 7px 7px 0; font: 400 0.875rem/1 var(--f-display); text-transform: uppercase; }
+.fav-when { margin-top: 6px; padding: 4px 7px; background: var(--x-mustard); font: 800 0.5rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.fav-tx { margin: 6px 7px 7px; font: 600 0.6875rem/1.3 var(--f-label); }
+.fav-play { min-height: 44px; margin: auto 7px 7px; display: grid; place-items: center; border: 2px solid var(--x-ink); background: var(--x-paper); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+/* a favour card on the shelf dock: a slip with its picture and name */
+.favchip { box-sizing: border-box; height: 28px; display: inline-flex; align-items: center; gap: 4px; padding: 0 6px 0 0; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+.favchip .favchip-pic { flex: none; width: 28px; height: 28px; border: 2px solid var(--x-ink); }
+.favchip.usable, .glow > .favchip { background: var(--x-mustard); }
+
+/* ====================================================================
+   A full card opened over the table (a customer from the row, a favour card from the dock)
+   ==================================================================== */
+.cd-pop { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 12px; overflow-y: auto; background: color-mix(in srgb, var(--x-ink) 62%, transparent); cursor: pointer; }
+.cd-pop-in { display: flex; flex-direction: column; align-items: stretch; gap: 10px; width: 252px; max-width: 100%; --card-w: min(252px, calc(100vw - 24px)); cursor: default; }
+.cd-pop .cd-pop-why { margin: 0; padding: 6px 8px; background: var(--c-fbd5d2); color: var(--x-ink); font: 700 0.75rem/1.3 var(--f-label); }
+.cd-pop-btns { display: flex; gap: 8px; }
+.cd-pop .cd-pop-btns .btn { flex: 1 1 0; min-height: 52px; border: 0; border-radius: 0; box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; }
+.cd-pop .cd-pop-btns .btn.ghost { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.cd-pop-hint { align-self: center; color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* picking a shopkeeper: the cards of the carousel are the picker's width (screens.css) */
+.cp-card { --card-w: 14.75rem; }
