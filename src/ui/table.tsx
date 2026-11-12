@@ -87,11 +87,15 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
               const ok = !night && !!onPick && n > 0 && (!canPick || canPick(f, pos));
               const cost = buyCost(s, p, f, pos);
               const slide = !!night && night.go && night.steps > 0;
+              // The night (PLAN-090): a box reads as empty once its piece has slid away, and as filled once a piece
+              // has arrived in it (a box that loses one piece and gets another stays filled all through).
+              const after = slide ? market[f][pos + night.steps] ?? 0 : n;
+              const has = !slide ? n > 0 : night.rest ? after > 0 : n > 0 && after > 0;
               return (
-                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
+                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${has ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${n} left`}>
-                  <Lamp stage={stage} on={n > 0} size={14} />
+                  <Lamp stage={stage} on={has} size={14} />
                   {n > 0 && (
                     <span class={`tb-pc ${night ? `ns-piece ${slide ? 'moved' : ''} ${slide && pos - night.steps < 0 ? 'gone' : ''} ${night.rest ? 'rest' : ''}` : ''}`}
                       style={night ? `--steps:${Math.min(night.steps, pos + 1)}` : undefined}>

@@ -223,6 +223,33 @@ describe('the night on the lanes (NightShift.tsx)', () => {
   });
 });
 
+describe('the night: a box whose piece has slid away reads as empty (PLAN-090)', () => {
+  it('the box a piece leaves is drawn empty once the slide starts; the box it reaches is drawn filled once it has arrived', () => {
+    const dusk = playTo(game(), (x) => x.phase === 'reveal' && x.day >= 2);
+    const top = FRUIT.blueberry.ripe.length - 1;
+    const s: GameState = { ...dusk, event: null, market: { ...dusk.market, blueberry: dusk.market.blueberry.map((_, pos) => (pos === top ? 2 : 0)) } };
+    const box = (slide: number | 'done' | null, pos: number) => toStaticHtml(h(NightShift, { s, viewer: 0, slide })).split(`data-a="m-blueberry-${pos}"`)[0].split('<button').pop()!;
+    // dusk: as by day
+    expect(box(null, top)).toMatch(/\bhas\b/);
+    expect(box(null, top - 1)).not.toMatch(/\bhas\b/);
+    // the slide: the piece has left its box and has not arrived yet
+    expect(box(500, top)).not.toMatch(/\bhas\b/);
+    expect(box(500, top - 1)).not.toMatch(/\bhas\b/);
+    // at rest: the piece is in the next box
+    expect(box('done', top)).not.toMatch(/\bhas\b/);
+    expect(box('done', top - 1)).toMatch(/\bhas\b/);
+    // a lane where the next box up also held a piece stays filled all through
+    const two: GameState = { ...s, market: { ...s.market, blueberry: s.market.blueberry.map((_, pos) => (pos === top || pos === top - 1 ? 1 : 0)) } };
+    const box2 = (slide: number | 'done' | null, pos: number) => toStaticHtml(h(NightShift, { s: two, viewer: 0, slide })).split(`data-a="m-blueberry-${pos}"`)[0].split('<button').pop()!;
+    expect(box2(500, top - 1)).toMatch(/\bhas\b/);
+    expect(box2('done', top - 1)).toMatch(/\bhas\b/);
+    expect(box2('done', top)).not.toMatch(/\bhas\b/);
+    // a Monsoon: nothing slides, nothing changes
+    const rain = { ...s, event: { id: 'monsoon', title: 'Monsoon', text: '', ageExtra: -1 } } as GameState;
+    expect(toStaticHtml(h(NightShift, { s: rain, viewer: 0, slide: 'done' })).split(`data-a="m-blueberry-${top}"`)[0].split('<button').pop()).toMatch(/\bhas\b/);
+  });
+});
+
 describe('table.css is loaded with the table, after the older table styles', () => {
   it('the market, the lorry, the card turn and the night follow the one speed', async () => {
     const { readFileSync } = await import('node:fs');
