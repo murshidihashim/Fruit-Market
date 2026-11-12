@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases public until the bell, Favoured Trade after the flip, and new numbers; the list is in "Rules version 18" below).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the list is in "Rules version 18" below).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys from the farmers and sells to the town. Fruit goes bad over time, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -272,7 +272,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Favoured Trade.** When the tags are flipped, look for tied prices. A stall with a tied price that holds Favoured Trade may play it now. Tied holders decide one at a time, in today's buying order, in the open.
 
-**Today's purchases.** What you bought today is public until the bell: tell anyone who asks which pieces you took today. After the bell you need not say.
+**Today's purchases.** What you take from the Wholesale Market is seen as you take it. When buying is over it goes behind your shutter with the rest of your shelf: you need not say what you bought, and nobody may ask.
 
 **Two ways to track age.** On the printed mat, tokens slide one slot per night and each slot shows how fresh the fruit is. With day chips, the piles keep still. Both give the same ages. The rest of this section describes chips, which also work on a stall's own shelf.
 
@@ -297,7 +297,7 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 ## Secret stalls (rules version 15)
 
 - **Your stall is secret.** Nobody else sees your shelf, at any time. (In the app a rival's box shows cash only.)
-- **Buying is in the open.** Everyone can watch what you take from the Wholesale Market. Rules 18: what you bought today stays public until the bell (in the app, small fruit marks on your box); what you bought on earlier days is for rivals to remember if they can.
+- **Buying is in the open.** Everyone can watch what you take from the Wholesale Market while buying is going on. When buying is over it is hidden with the rest of your shelf (in the app, the small fruit marks on a stall's box show only during buying); what you bought is for rivals to remember if they can.
 - **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
 - **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
 - **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy; they never read a crate before the bell, so they can be fooled. Rules 18: an Easy computer uses none of what it saw bought, a Normal computer only today's purchases, a Hard computer everything it saw.
@@ -321,7 +321,7 @@ What changed from rules version 17, in plain words.
 - **Mango Windfall.** The extra mangoes arrive ripe.
 - **Blueberry Glut.** Blueberries also cost $1 less at the market that day.
 - **Days 1 and 2.** No customer wants a mango, and Mango Craze is never Day 2's event.
-- **Today's purchases** are public until the bell. Older fruit stays secret.
+- **Today's purchases** are seen only while buying is going on; after buying they are hidden like the rest of the shelf (the owner's ruling of 12 November 2026; rules 18 first had them public until the bell). Older fruit stays secret.
 - **Favoured Trade** is played after prices flip, in the open, by a stall with a tied price.
 - **Juice Bar's $1** is for sales to customers and guests in the rush only.
 - **Premium Display** never raises a guest's fixed price.

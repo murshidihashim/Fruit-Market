@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 21:10 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 21:44 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
@@ -38,6 +38,7 @@ Updated 2026-11-12 21:10 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
 - **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
+- **DEC-107 (2026-11-12):** what a stall bought is drawn only while buying, hidden from stocking on (the owner's ruling after playing 1.20.0); screens, RULES.md and How to play; rules version stays 18; in 1.21.0.
 - **DEC-106 (2026-11-12), done:** 1.20.0 was held and published when the rest of the day's screens were ready; the small-phone scroll in the evening and the bid, and the "You wins" sentences, are fixed in it.
 - **DEC-105 (2026-11-12):** the core game goes live first; the stamp book, the screen labels and the print kit follow in later releases.
 - **DEC-104 (2026-11-12):** "speed it up please": the remaining packages are built side by side; no check is dropped.

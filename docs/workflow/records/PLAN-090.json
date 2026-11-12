@@ -9,7 +9,8 @@
     "DEC-098",
     "DEC-103",
     "DEC-105",
-    "DEC-106"
+    "DEC-106",
+    "DEC-107"
   ],
   "changes": {
     "added": [],
@@ -28,6 +29,7 @@
   "title": "Release 1.21.0: fixes for the known gaps of the day's screens",
   "problem": "Release 1.20.0 went out with a list of known gaps (REP-111 section 4): the strip of the day's steps is wrong during the bell and the bid reveal, the takings come a moment early, some tap targets are small, a few labels are cut at 360 px, the night leaves a solid edge on an empty box, and old styles and code are left from the rebuild.",
   "scope": [
+    "The owner's ruling after playing 1.20.0 (DEC-107): what a stall bought is drawn only while buying; RULES.md and How to play say the same",
     "The day's sheets: the steps strip, the takings' moment and \"You\" on your own row, rival crates named once, cut labels at 360 px, bottom-bar leftovers, the tied-prices line after a Favoured Trade answer, the first-game tip over the bid's stepper, opening an upgrade's card when it cannot be afforded, the table under a sheet for keyboard and screen reader if simple",
     "The table: the night's empty boxes, tap targets, the standing order's card dealt in with a slide, the shelf following the night, the order strip's 34 px",
     "Stamp book leftovers: a chart colour for each stall, signing out clears the counts the stamps come from, the results headline without a shout",

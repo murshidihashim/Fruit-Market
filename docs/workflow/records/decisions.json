@@ -2636,6 +2636,30 @@
         "REP-110"
       ],
       "reviewTrigger": "When the three groups of screens are merged and checked: publish. If a required check fails or a screen cannot be finished tonight: tell the owner before publishing anything"
+    },
+    {
+      "id": "DEC-107",
+      "title": "What a stall bought is seen only while buying",
+      "question": "Rules 18 kept each stall's purchases of the day on show until the bell (DEC-086). In the live game the owner found the fruit marks on the rival boxes confusing while he filled his crate: they read as the rival's crate. How long are a stall's purchases shown?",
+      "choice": "Only while buying is going on. From stocking onwards a stall's box shows no bought fruit: not in the stalls row, not in a rival's details, not in spoken labels. While crates are shut a rival's box shows its cash and how many pieces are out, nothing else. On the table: what you take is seen as you take it; after buying you need not say what you bought and nobody may ask. This replaces the ruling in DEC-086 that today's purchases stay public until the bell, and the bought-today marks drawn on the approved Pricing board. Computer stalls keep remembering what they saw bought, as a person would. The engine, the saves and the online messages are not changed, so the rules version stays 18: the same facts were public during buying, they are simply not drawn again.",
+      "rationale": "The owner's ruling after playing. A mark that stays on a shut crate looks like the crate's contents, which are secret; and the table game has no such memory aid.",
+      "impact": {
+        "player": "The rival boxes are plainer after buying. A player who wants to know what a rival holds has to remember what they watched.",
+        "technical": "Screens only: the stalls row, the rival's details pop-up, spoken labels, the on-screen test of rules 18 section G. RULES.md (four sentences) and How to play reworded. No engine, save or message change; RULES_VERSION stays 18. Goes out in release 1.21.0.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-111"
+      ],
+      "reviewTrigger": "If players miss the marks and ask for them back; if online play needs the server to stop sending the purchases after buying"
     }
   ],
   "history": [
@@ -3678,6 +3702,10 @@
     {
       "at": "2026-11-12 21:10",
       "text": "Merged for the next release (1.21.0, not prepared yet): the stamp book's first version with Results, Trophies, Wardrobe and Home (PLAN-086, 8515872, with its price tags, awning colour and shopkeeper pictures wired into the day's screens), the labels on the screens (PLAN-089, 21d4e72) and the print kit (PLAN-087). npm run verify on the merged code (21d4e72: the stamp book, the labels and the print kit together): 74 files, 802 tests passed, 1 skipped. npm run test:e2e on 21d4e72, two helpers sharing the machine: solo game to the results with no errors; performance budget OK on the script's second try (231 ms, then 154 ms, limit 200); online match 72 pricing frames, 0 leaks; quick match; four players; reconnect 5 of 5. The rematch step failed because the test script tapped a note that holds the words \"play again\" after the label rewrite; with the script pointed at the button (961aac1) the online test passes alone: 70 frames, 0 leaks, rematch, abandoned match, no page errors. The whole run is repeated on the release build. The privacy page now names the stamp book's counts (09b4abc). PLAN-090 opened: two helpers fix the known gaps of 1.20.0 on the day's sheets and on the table, to report by 22:30. For the owner to decide with the release: the Home page's first customer in place of an event, old games counted as 3 stamps each, the 14 feat titles, the stocking button's new words, and the wording list from the text work."
+    },
+    {
+      "at": "2026-11-12 21:44",
+      "text": "DEC-107: Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\". A stall's purchases are now drawn only while buying is going on; the helper on the table makes it its first fix, the text helper rewords How to play, and RULES.md is reworded in four places by the session. The engine and the rules version are unchanged. The owner also said \"okay now go through all the required changes\": read as go ahead with the whole list; where a label is drawn on a board he approved, the board's words are restored (the stocking button returns to \"Open my stall\"); Home's first page and old games at 3 stamps each stand as built unless he says otherwise."
     }
   ]
 }
