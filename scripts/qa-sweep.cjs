@@ -114,7 +114,8 @@ function audit() {
       await page.click('button:has-text("Settings")'); await check('settings');
       await page.click('.icon-btn');
       await page.click('button:has-text("Trophies")'); await check('trophies');
-      await page.click('.icon-btn').catch(() => {});
+      // Trophies has the stamp book's own back arrow (PLAN-086)
+      await page.click('.sbk-back');
       await page.click('button:has-text("New game")'); await check('setup');
       await page.click('button:has-text("Start game")');
       const seen = new Set();
