@@ -37,8 +37,9 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       {myBuy && pl && (
         <>
           <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
-          {freeFruit !== null && <div class="buy-hint"><b class="move">Pick a free fruit</b></div>}
-          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{Math.max(0, limit - bought)} more allowed</small></button>
+          {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
+              along and make it narrower, and they keep their places the whole turn. */}
+          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free fruit' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
         </>
       )}
       {!beat && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is shopping…</div>}
