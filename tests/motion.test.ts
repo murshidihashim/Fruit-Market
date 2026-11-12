@@ -539,11 +539,17 @@ describe('no stepped landings or pops', () => {
     expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
     const css = read('src/ui/styles.css');
     const rule = (sel: string) => css.split('\n').find((l) => l.startsWith(sel))!;
-    for (const sel of ['.morning-card, .sales-card, .auction {', '.phase-banner {', '.pod {']) {
+    for (const sel of ['.morning-card, .sales-card, .auction {', '.phase-banner {']) {
       expect(rule(sel)).toMatch(/animation: /);
       expect(rule(sel)).not.toMatch(/steps\(/);
     }
     expect(rule('.phase-banner {')).toContain('animation: banner var(--t-stamp) ease-out forwards');
+    // The results' places: the first results' ".pod" rule is gone with that screen (PLAN-091); the places of the
+    // results today (stampbook.css, .sbk-pod) are not animated by the stylesheet at all, so nothing there can step.
+    expect(css).not.toMatch(/^\.pod\b/m);
+    const book = read('src/ui/stampbook.css');
+    expect(book).not.toMatch(/steps\(/);
+    expect(book).not.toMatch(/animation\s*:/);
   });
 
   it('with reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible)', () => {

@@ -1,11 +1,14 @@
 // Trophies (PLAN-086; boards "Stamp-Book", "Trophy-Cards" and "Wardrobe"): four pages under one black bar.
 // The stamp book: your stall's sign, the card being filled, what earns stamps, and the whole ladder with nothing
 // hidden. The cards: every trophy with its tiers and a progress line. The collection: the customers, guests and
-// events you have met (a page is a shadow until then). The Wardrobe is the fourth page (Wardrobe.tsx).
-import { useState } from 'preact/hooks';
+// events you have met (a page is a shadow until then; a page that has been met opens its whole card). The Wardrobe is
+// the fourth page (Wardrobe.tsx).
+import type { VNode } from 'preact';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { CUSTOMER_CARDS, EVENT_CARDS, lookOf } from '../engine/data';
 import { frameOf, titleOf, type LookSet } from '../net/looks';
 import { ALL_GUESTS, CARDS, GROUPS, TIER_COUNT, TIER_NAME, customersServed, eventsSeen, guestsServed, nextStep, stepMet, stepValue, type Card, type Snapshot } from './achievements';
+import { Gazette, TradingCard } from './cards';
 import { customerArt, eventArt, eventFocus, focusCss, guestArt, guestFocus } from './deckArt';
 import { fx } from './fx';
 import { myAvatar, syncLooks, worn } from './looks';
@@ -129,13 +132,56 @@ function CardsTab({ snap }: { snap: Snapshot }) {
   );
 }
 
-/** One page of the collection: the picture once met, a shadow until then. */
-function Page({ met, src, pos, name }: { met: boolean; src: string | null; pos?: string; name: string }) {
-  if (!met || !src) return <span class="sbk-th no" role="img" aria-label="Not met yet">?</span>;
-  return <span class="sbk-th"><img src={src} alt={name} loading="lazy" decoding="async" draggable={false} style={pos ? { objectPosition: pos } : undefined} /><small>{name}</small></span>;
+/** A page of the collection that has been opened: a customer, a guest or an event. */
+export type CollectionPage = { kind: 'customer' | 'guest'; who: string } | { kind: 'event'; id: string };
+
+/**
+ * The whole card of a page that has been met, over the screen: the same card the game opens from a customer's ticket
+ * (TradingCard; a guest is drawn as a guest) and the event deck's card (Gazette), with the card's own numbers, names
+ * and text from the game data. A tap anywhere, or Escape, closes it and puts the focus back on the page.
+ */
+export function FullCard({ page, onClose }: { page: CollectionPage; onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const back = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    ref.current?.focus();
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', key);
+    return () => { window.removeEventListener('keydown', key); back?.focus(); };
+  }, []);
+  const card = cardOf(page);
+  if (!card) return null;
+  return (
+    <div class="cd-pop sbk-pop" role="dialog" aria-modal="true" aria-label={card.title} tabIndex={-1} ref={ref} onClick={(e) => { e.stopPropagation(); onClose(); }}>
+      <div class="cd-pop-in">
+        {card.card}
+        <small class="cd-pop-hint">Tap to close</small>
+      </div>
+    </div>
+  );
 }
 
-function CollectionTab({ snap }: { snap: Snapshot }) {
+/** A collection page's whole card and its title, or null for a page that is not in the game's decks. */
+export function cardOf(page: CollectionPage): { title: string; card: VNode } | null {
+  if (page.kind === 'event') {
+    const event = EVENT_CARDS.find((e) => e.id === page.id);
+    return event ? { title: event.title, card: <Gazette event={event} eager /> } : null;
+  }
+  const person = page.kind === 'customer' ? CUSTOMER_CARDS.find((c) => c.name === page.who) : EVENT_CARDS.find((e) => e.extra?.name === page.who)?.extra;
+  return person ? { title: lookOf(person.name).title, card: <TradingCard who={person.name} wants={person.wants} guest={page.kind === 'guest'} eager /> } : null;
+}
+
+/** One page of the collection: the picture once met, which opens the whole card; a shadow until then. */
+function Page({ met, src, pos, name, onOpen }: { met: boolean; src: string | null; pos?: string; name: string; onOpen: () => void }) {
+  if (!met || !src) return <span class="sbk-th no" role="img" aria-label="Not met yet">?</span>;
+  return (
+    <button type="button" class="sbk-th" aria-label={name} aria-haspopup="dialog" onClick={() => { fx.tap(); onOpen(); }}>
+      <img src={src} alt="" loading="lazy" decoding="async" draggable={false} style={pos ? { objectPosition: pos } : undefined} /><small>{name}</small>
+    </button>
+  );
+}
+
+export function CollectionTab({ snap, setOpen }: { snap: Snapshot; setOpen: (page: CollectionPage) => void }) {
   const customers = new Set(customersServed(snap));
   const guests = new Set(guestsServed(snap));
   const events = new Set(eventsSeen(snap));
@@ -143,15 +189,15 @@ function CollectionTab({ snap }: { snap: Snapshot }) {
     <>
       <div class="sbk-sec">
         <div class="sbk-row"><span class="sbk-lab">Customers</span><span>{customers.size} of {CUSTOMER_CARDS.length} served</span></div>
-        <div class="sbk-thumbs">{CUSTOMER_CARDS.map((c) => <Page met={customers.has(c.name)} src={customerArt(c.name)} name={lookOf(c.name).title} />)}</div>
+        <div class="sbk-thumbs">{CUSTOMER_CARDS.map((c) => <Page met={customers.has(c.name)} src={customerArt(c.name)} name={lookOf(c.name).title} onOpen={() => setOpen({ kind: 'customer', who: c.name })} />)}</div>
       </div>
       <div class="sbk-sec">
         <div class="sbk-row"><span class="sbk-lab">Guests</span><span>{guests.size} of {ALL_GUESTS.length} served</span></div>
-        <div class="sbk-thumbs">{ALL_GUESTS.map((n) => <Page met={guests.has(n)} src={guestArt(n)} pos={focusCss(guestFocus(n))} name={lookOf(n).title} />)}</div>
+        <div class="sbk-thumbs">{ALL_GUESTS.map((n) => <Page met={guests.has(n)} src={guestArt(n)} pos={focusCss(guestFocus(n))} name={lookOf(n).title} onOpen={() => setOpen({ kind: 'guest', who: n })} />)}</div>
       </div>
       <div class="sbk-sec">
         <div class="sbk-row"><span class="sbk-lab">Events</span><span>{events.size} of {EVENT_CARDS.length} seen</span></div>
-        <div class="sbk-thumbs">{EVENT_CARDS.map((e) => <Page met={events.has(e.id)} src={eventArt(e.id)} pos={focusCss(eventFocus(e.id))} name={e.title} />)}</div>
+        <div class="sbk-thumbs">{EVENT_CARDS.map((e) => <Page met={events.has(e.id)} src={eventArt(e.id)} pos={focusCss(eventFocus(e.id))} name={e.title} onOpen={() => setOpen({ kind: 'event', id: e.id })} />)}</div>
       </div>
       <p class="sbk-sub" style="padding: 12px">A page is a shadow until you serve that customer or see that event.</p>
     </>
@@ -167,9 +213,13 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
   // What is stored is brought up to date once: tiers already reached, and the looks they and the level give.
   const [fresh] = useState(() => { syncTiers(); return syncLooks(); });
   const [look, setLook] = useState<LookSet>(() => worn());
+  // A collection page's whole card, when one is open. It is drawn beside the screen, not in it, so the stamp book's
+  // own text rules never reach into the card.
+  const [card, setCard] = useState<CollectionPage | null>(null);
   const snap = snapshot();
   const place = placeOf(snap);
   return (
+    <>
     <div class="sbk">
       <header class="sbk-bar">
         <button class="sbk-back" onClick={onBack} aria-label="Back"><BackArrow /></button>
@@ -183,10 +233,12 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
         <div class="sbk-in">
           {tab === 'book' && <BookTab place={place} look={look} />}
           {tab === 'cards' && <CardsTab snap={snap} />}
-          {tab === 'collection' && <CollectionTab snap={snap} />}
+          {tab === 'collection' && <CollectionTab snap={snap} setOpen={setCard} />}
           {tab === 'wardrobe' && <WardrobeTab look={look} fresh={fresh} place={place} snap={snap} onChange={(l) => { setLook(l); onLook?.(l); }} />}
         </div>
       </main>
     </div>
+    {card && <FullCard page={card} onClose={() => setCard(null)} />}
+    </>
   );
 }

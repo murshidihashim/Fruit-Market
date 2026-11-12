@@ -204,7 +204,7 @@ const more = (g: Goal): string => {
  * At most two "close" lines for the results, by what is nearest to done: the nearest card that is not a shopkeeper's,
  * then the nearest shopkeeper's card (the second button plays as that shopkeeper). `names`: display names for the
  * customers still to meet. `after`: the avatar just played: the line is about another shopkeeper (the button would
- * otherwise start the same game as "Play again"), and with nobody part way it is the next one round the table.
+ * otherwise start the same game as "Rematch"), and with nobody part way it is the next one round the table.
  */
 export function closeLines(s: Snapshot, names: (key: string) => string, missing: string[], after?: string): CloseLine[] {
   const all = goals(s);
