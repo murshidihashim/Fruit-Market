@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Evening: upgrades and favours as cards</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:8px;background:#1f272a;color:#fffcf5;padding:9px 12px}
+.menu{width:44px;height:44px;margin:-6px 0 -6px -10px;border:0;background:none;display:grid;place-items:center}
+.day{font:400 18px/1 'Archivo Black',sans-serif}.day small{font:800 11px/1 Archivo,sans-serif}
+.ev{border:0;background:#fec400;color:#1f272a;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;padding:7px 8px;text-transform:uppercase}
+.rank{margin-left:auto;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;color:#fec400}
+.cash{background:#fffcf5;color:#1f272a;font:400 16px/1 'Archivo Black',sans-serif;padding:5px 8px}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.kind{display:flex;justify-content:space-between;background:#1f272a;color:#fffcf5;padding:5px 7px;font:800 9px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}.kind b{color:#fec400}
+.up{width:150px;flex:none;height:246px;box-sizing:border-box;border:3px solid #1f272a;background:#fffcf5;display:flex;flex-direction:column;padding:0;text-align:left}
+.up .nm{margin:8px 7px 0;font:400 17px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.up .cost{align-self:flex-start;margin:7px 7px 0;background:#fec400;padding:4px 7px;font:400 17px/1 'Archivo Black',sans-serif}
+.up .tx{margin:7px 7px 0;font:600 11px/1.3 Archivo,sans-serif}
+.up .ft{margin-top:auto;background:#ddd4c6;padding:5px 7px;text-align:center;font:800 8px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.up.sel{box-shadow:0 0 0 4px #fec400}
+.fv{flex:1;min-width:0;border:3px solid #1f272a;display:flex;flex-direction:column}
+.fv .nm{margin:7px 7px 0;font:400 14px/1 'Archivo Black',sans-serif;text-transform:uppercase}
+.fv .when{margin:6px 0 0;background:#fec400;padding:4px 7px;font:800 8px/1.2 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.fv .tx{margin:6px 7px 7px;font:600 11px/1.3 Archivo,sans-serif}
+.fv button{margin:auto 7px 7px;height:44px;border:2px solid #1f272a;background:#fffcf5;font:800 11px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.btn{height:52px;border:0;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+.btn2{height:48px;border:2px solid #1f272a;background:#fffcf5;font:800 11px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fffcf5; color: #1f272a; font: 600 12px/1.3 Archivo, system-ui, sans-serif; overflow: hidden">
+
+  <div class="top">
+    <button class="menu" aria-label="Menu"><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><path d="M0 2h20M0 8h20M0 14h20" stroke="#fffcf5" stroke-width="2.5"/></svg></button>
+    <span class="day">DAY 3<small>/10</small></span>
+    <button class="ev">Market Day</button>
+    <span class="rank">2ND</span><span class="cash">$21</span>
+  </div>
+
+  <div style="display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; background: #ddd4c6">
+    <span style="font: 400 18px/1 'Archivo Black', sans-serif; text-transform: uppercase">Evening</span>
+    <span>Sold $15 · bought $8 · up $7 today</span>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 7px; padding: 12px 0 0 12px">
+    <div style="display: flex; justify-content: space-between; padding-right: 12px"><span class="lab">Build one upgrade tonight</span><span>Built 0 of 2</span></div>
+    <div style="display: flex; gap: 8px; overflow: hidden; padding: 4px 0 4px 4px">
+      <button class="up sel">
+        <span class="kind"><span>Upgrade</span></span>
+        <img src="/_blob/eec7cb6971f25aa50976d9f3acc9324d" alt="" style="width: 100%; height: 52px; object-fit: cover; display: block; border-bottom: 2px solid #1f272a"><span class="nm">Order book</span><span class="cost">$3</span>
+        <span class="tx">+$2 for each piece you deliver to a standing order. Your stake is halved. You win tied bids.</span>
+        <span class="ft">Build once</span>
+      </button>
+      <button class="up">
+        <span class="kind"><span>Upgrade</span></span>
+        <img src="/_blob/76fb62dfb3ee6c32a4e65c67ca9d9610" alt="" style="width: 100%; height: 52px; object-fit: cover; display: block; border-bottom: 2px solid #1f272a"><span class="nm">Ripening room</span><span class="cost">$4</span>
+        <span class="tx">Your green mangoes ripen in 1 night. Green mangoes cost you $1 less.</span>
+        <span class="ft">Build once</span>
+      </button>
+      <button class="up">
+        <span class="kind"><span>Upgrade</span></span>
+        <img src="/_blob/d4c05880d3913a9183b4e62739bd1702" alt="" style="width: 100%; height: 52px; object-fit: cover; display: block; border-bottom: 2px solid #1f272a"><span class="nm">Juice bar</span><span class="cost">$6</span>
+        <span class="tx">+$1 for each Okay or Soft fruit you sell in the rush.</span>
+        <span class="ft">Build once</span>
+      </button>
+    </div>
+    <span style="color: #5a6266; padding-right: 12px">Swipe for Premium Display $5 and Handcart $6. A stall has room for two.</span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 7px; padding: 12px">
+    <div style="display: flex; justify-content: space-between"><span class="lab">Your favours</span><span>2 of 3 held</span></div>
+    <div style="display: flex; gap: 8px">
+      <div class="fv">
+        <div class="kind"><span>Favour</span><span><b>Secret</b></span></div>
+        <img src="/_blob/994c0007a6271cea0647f569eb5e0d62" alt="" style="width: 100%; height: 46px; object-fit: cover; display: block; border-bottom: 2px solid #1f272a"><span class="nm">Gossip</span>
+        <span class="when">Play in the evening</span>
+        <span class="tx">Look at all of tomorrow's walk-ins. Only you see them.</span>
+        <button>Play Gossip</button>
+      </div>
+      <div class="fv">
+        <div class="kind"><span>Favour</span><span><b>Secret</b></span></div>
+        <img src="/_blob/bd4fe3dcaab5e2f467e35e005fdec9d4" alt="" style="width: 100%; height: 46px; object-fit: cover; display: block; border-bottom: 2px solid #1f272a"><span class="nm">Favoured trade</span>
+        <span class="when">After the prices flip</span>
+        <span class="tx">You are asked when one of your prices ties with a rival's.</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: #ddd4c6; margin-top: auto">
+      <span class="lab">Tomorrow</span>
+      <img src="/_blob/c7a78e144bcae3a696d5cdbf744c35ec" alt="Hadi Hammer" style="width: 22px; height: 22px; object-fit: cover; border: 1.5px solid #1f272a; box-sizing: border-box">
+      <span style="display: flex; align-items: center; gap: 3px"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberries" style="width: 14px; height: 14px">3 at $5</span>
+      <span style="margin-left: auto; color: #5a6266">+ 3 walk-ins · Blueberry lorry</span>
+    </div>
+  </div>
+
+  <div style="padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px">
+    <button class="btn">Build Order Book · $3</button>
+    <button class="btn2">Lights out without building</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

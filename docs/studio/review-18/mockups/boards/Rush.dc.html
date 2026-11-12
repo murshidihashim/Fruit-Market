@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The rush: one card for each customer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:8px;background:#1f272a;color:#fffcf5;padding:9px 12px}
+.menu{width:44px;height:44px;margin:-6px 0 -6px -10px;border:0;background:none;display:grid;place-items:center}
+.day{font:400 18px/1 'Archivo Black',sans-serif}.day small{font:800 11px/1 Archivo,sans-serif}
+.ev{border:0;background:#fec400;color:#1f272a;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;padding:7px 8px;text-transform:uppercase}
+.rank{margin-left:auto;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;color:#fec400}
+.cash{background:#fffcf5;color:#1f272a;font:400 16px/1 'Archivo Black',sans-serif;padding:5px 8px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #1f272a;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.steps span{padding:7px 0;text-align:center}.steps .on{background:#fec400}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.kind{display:flex;justify-content:space-between;background:#1f272a;color:#fffcf5;padding:6px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}.kind b{color:#fec400}
+.rw{display:flex;align-items:center;gap:5px}.rw img{width:20px;height:20px}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid #1f272a;box-sizing:border-box}
+.tag{margin-left:auto;background:#1f272a;color:#fec400;font:400 14px/1 'Archivo Black',sans-serif;padding:4px 7px 4px 13px;clip-path:polygon(8px 0,100% 0,100% 100%,8px 100%,0 50%)}
+.lamp{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:#fffcf5;color:#1f272a;font:800 10px/1 Archivo,sans-serif;font-style:normal;box-shadow:inset 0 0 0 1px #1f272a}
+.lamp.off{background:none;color:#8d9396;box-shadow:inset 0 0 0 1px #8d9396}
+.fh{display:flex;align-items:center;gap:6px;padding:5px 8px;color:#fffcf5;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}.fh img{width:18px;height:18px}
+.of{display:flex;align-items:center;gap:7px;padding:6px 8px;border:2px solid #1f272a;border-top:0}
+.of img{width:26px;height:26px;border:1.5px solid #1f272a;box-sizing:border-box}
+.of b{font:400 17px/1 'Archivo Black',sans-serif;width:34px}
+.of .res{margin-left:auto;padding:4px 6px;font:800 9px/1 Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.sold{background:#1f272a;color:#fec400}.miss{color:#5a6266;box-shadow:inset 0 0 0 1.5px #8d9396}
+.btn{height:52px;border:0;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fffcf5; color: #1f272a; font: 600 12px/1.3 Archivo, system-ui, sans-serif; overflow: hidden">
+
+  <div class="top">
+    <button class="menu" aria-label="Menu"><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><path d="M0 2h20M0 8h20M0 14h20" stroke="#fffcf5" stroke-width="2.5"/></svg></button>
+    <span class="day">DAY 4<small>/10</small></span>
+    <button class="ev">Heatwave</button>
+    <span class="rank">2ND</span><span class="cash">$13</span>
+  </div>
+  <div class="steps"><span>1 Morning</span><span>2 Buying</span><span>3 Stocking</span><span>4 Bell</span><span class="on">5 Rush</span></div>
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #ddd4c6">
+    <span class="lab">Customer 1 of 4</span>
+    <span style="margin-left: auto; display: flex; gap: 5px">
+      <img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman, now" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box; box-shadow: 0 0 0 3px #fec400">
+      <img src="/_blob/c7a78e144bcae3a696d5cdbf744c35ec" alt="Hadi Hammer, next" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box; margin-left: 5px">
+      <img src="/_blob/89937a275dde1a530d056429c34d9b0d" alt="Uncle Hock Seng" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box">
+      <img src="/_blob/8f9ea2b7d8c1e1325372ec726b893602" alt="DJ Rizal" style="width: 30px; height: 30px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box">
+    </span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 10px 12px">
+
+    <div style="border: 3px solid #1f272a; display: flex; flex-direction: column">
+      <div class="kind"><span><b>24</b> · Customer</span><span>Everyday</span></div>
+      <div style="display: flex; gap: 10px; padding: 9px">
+        <img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman" style="width: 96px; height: 96px; object-fit: cover; object-position: 50% 28%; border: 2px solid #1f272a; box-sizing: border-box">
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <span style="font: 400 18px/1 'Archivo Black', sans-serif; text-transform: uppercase">Firefighter Osman</span>
+          <div class="rw"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"><i class="dot" style="background: #0e9a58"></i><i class="dot" style="background: #0e9a58"></i><span class="tag">$8</span></div>
+          <div class="rw"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"><i class="dot" style="background: #e73c35"></i><i class="dot" style="background: #e73c35"></i><span class="tag">$5</span></div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px; background: #1f272a; color: #fffcf5; padding: 5px 9px; font: 800 10px/1 Archivo, sans-serif; letter-spacing: 0.1em; text-transform: uppercase"><i class="lamp">F</i><i class="lamp" style="margin-left: 12px">O</i><span>−$1</span><i class="lamp off" style="margin-left: 12px">S</i><span style="color: #8d9396">−$2</span></div>
+    </div>
+
+    <div>
+      <div class="fh" style="background: #0e9a58"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="">Wants 2 watermelons · cheapest first</div>
+      <div class="of"><img src="/_blob/78fb57d94f18d19e4f009ad31cdec052" alt=""><b>$7</b><span>Benny</span><i class="lamp">F</i><span class="res sold">Sold 1</span></div>
+      <div class="of" style="background: #fec400"><img src="/_blob/47462564df780449c995d5c4971d598d" alt=""><b>$8</b><span>You</span><i class="lamp">F</i><i class="lamp">F</i><span class="res sold">Sold 1 · +$8</span></div>
+      <div class="of"><img src="/_blob/62781fb96b46ec9a1cf88a578b0c51d0" alt=""><b>$9</b><span>Farah</span><i class="lamp">F</i><span class="res miss">Over $8</span></div>
+    </div>
+
+    <div>
+      <div class="fh" style="background: #b62528"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="">Wants 2 apples · cheapest first</div>
+      <div class="of"><img src="/_blob/78fb57d94f18d19e4f009ad31cdec052" alt=""><b>$5</b><span>Benny</span><i class="lamp">F</i><i class="lamp">F</i><span class="res sold">Sold 2</span></div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; background: #1f272a; color: #fffcf5">
+      <span style="font: 400 20px/1 'Archivo Black', sans-serif; color: #fec400">+$8</span>
+      <span>You sold 1 watermelon at your full price. 1 left in your crate.</span>
+    </div>
+  </div>
+
+  <div style="padding: 0 12px 12px; display: flex; gap: 6px">
+    <button style="width: 96px; height: 52px; border: 2px solid #1f272a; background: #fffcf5; font: 800 11px/1.2 Archivo, sans-serif; letter-spacing: 0.08em; text-transform: uppercase">Skip to the end</button>
+    <button class="btn" style="flex: 1">Next customer</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

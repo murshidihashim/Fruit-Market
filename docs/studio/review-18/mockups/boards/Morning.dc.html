@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Morning: the event, the lorry and the top-up</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+button{font:inherit;color:inherit}
+.top{display:flex;align-items:center;gap:8px;background:#1f272a;color:#fffcf5;padding:9px 12px}
+.menu{width:44px;height:44px;margin:-6px 0 -6px -10px;border:0;background:none;display:grid;place-items:center}
+.day{font:400 18px/1 'Archivo Black',sans-serif}.day small{font:800 11px/1 Archivo,sans-serif}
+.ev{border:0;background:#fec400;color:#1f272a;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;padding:7px 8px;text-transform:uppercase}
+.rank{margin-left:auto;font:800 10px/1 Archivo,sans-serif;letter-spacing:.08em;color:#fec400}
+.cash{background:#fffcf5;color:#1f272a;font:400 16px/1 'Archivo Black',sans-serif;padding:5px 8px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #1f272a;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.steps span{padding:7px 0;text-align:center}.steps .on{background:#fec400}
+.lab{font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.tk{flex:1;min-width:0;border:2px solid #1f272a;background:#fffcf5;display:flex;flex-direction:column}
+.hd{height:26px;box-sizing:border-box;background:#1f272a;color:#fffcf5;padding:4px 5px;font:800 7.5px/1.2 Archivo,sans-serif;letter-spacing:.02em;text-transform:uppercase}.hd b{color:#fec400}
+.pc{height:54px;overflow:hidden;border-bottom:2px solid #1f272a}.pc img{width:100%;height:100%;object-fit:cover;display:block}
+.rw{display:flex;align-items:center;gap:3px;padding:3px 4px}.rw img{width:14px;height:14px}
+.dot{width:9px;height:9px;border-radius:50%;border:1.5px solid #1f272a;box-sizing:border-box}
+.pr{margin-left:auto;font:400 12px/1 'Archivo Black',sans-serif}
+.bd{margin-top:auto;background:#1f272a;display:flex;gap:3px;padding:3px 4px}
+.lamp{width:12px;height:12px;border-radius:50%;display:grid;place-items:center;background:#fffcf5;color:#1f272a;font:800 8px/1 Archivo,sans-serif;font-style:normal}
+.lamp.off{background:none;color:#8d9396;box-shadow:inset 0 0 0 1px #8d9396}
+.dn{flex:1;display:grid;grid-template-columns:repeat(2,26px);gap:4px;align-content:center;justify-content:center;padding:6px 0;background:#1f272a}
+.dn span{width:26px;height:26px;box-sizing:border-box;display:grid;place-items:center;box-shadow:inset 0 0 0 1.5px #5a6266}
+.dn .on{background:#fffcf5;box-shadow:none}.dn img{width:17px;height:17px}
+.kind{display:flex;justify-content:space-between;background:#1f272a;color:#fffcf5;padding:6px 9px;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase}.kind b{color:#fec400}
+.lt{margin:6px 9px;display:grid;grid-template-columns:74px repeat(4,1fr);column-gap:4px;text-align:center}
+.lt span{display:grid;place-items:center;height:18px;box-sizing:border-box}.lt .h{height:24px}.lt .h img{width:14px;height:14px;padding:2px;border-radius:50%;background:#fffcf5}
+.lt .l{justify-items:start;padding:0 6px;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}.lt .l.on{background:#1f272a;color:#fec400}
+.lt i{font:400 13px/1 'Archivo Black',sans-serif;font-style:normal;color:#fffcf5}.lt .m i{color:#1f272a}.lt .on i{width:100%;height:100%;display:grid;place-items:center;background:#fffcf5;color:#1f272a;box-shadow:inset 0 0 0 1.5px #1f272a}.lt .b{background:#3558a2}.lt .w{background:#0e9a58}.lt .m{background:#fec400}.lt .a{background:#e73c35}
+.btn{height:52px;border:0;background:#1f272a;color:#fec400;font:400 16px/1 'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:.04em}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #fffcf5; color: #1f272a; font: 600 12px/1.3 Archivo, system-ui, sans-serif; overflow: hidden">
+
+  <div class="top">
+    <button class="menu" aria-label="Menu"><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><path d="M0 2h20M0 8h20M0 14h20" stroke="#fffcf5" stroke-width="2.5"/></svg></button>
+    <span class="day">DAY 4<small>/10</small></span>
+    <button class="ev">Heatwave</button>
+    <span class="rank">4TH</span><span class="cash">$5</span>
+  </div>
+  <div class="steps"><span class="on">1 Morning</span><span>2 Buying</span><span>3 Stocking</span><span>4 Bell</span><span>5 Rush</span></div>
+
+  <div style="display: flex; gap: 5px; padding: 8px 12px; background: #ddd4c6">
+    <div class="tk">
+      <div class="hd"><b>24</b> Firefighter Osman</div>
+      <div class="pc"><img src="/_blob/6b877750b333c398087ac5332b607223" alt="Firefighter Osman" style="object-position: 50% 40%"></div>
+      <div class="rw"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"><i class="dot" style="background: #0e9a58"></i><i class="dot" style="background: #0e9a58"></i><span class="pr">$8</span></div>
+      <div class="rw"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"><i class="dot" style="background: #e73c35"></i><i class="dot" style="background: #e73c35"></i><span class="pr">$5</span></div>
+      <div class="bd"><i class="lamp">F</i><i class="lamp">O</i><i class="lamp off">S</i></div>
+    </div>
+    <div class="tk"><div class="hd">Walk-in<br>wants</div><div class="dn"><span class="on"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberry"></span><span></span><span></span><span></span></div></div>
+    <div class="tk"><div class="hd">Walk-in<br>wants</div><div class="dn"><span></span><span class="on"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelon"></span><span></span><span class="on"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apple"></span></div></div>
+    <div class="tk"><div class="hd">Walk-in<br>wants</div><div class="dn"><span class="on"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberry"></span><span></span><span class="on"><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mango"></span><span></span></div></div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #fec400">
+    <span style="font: 400 20px/1 'Archivo Black', sans-serif">+$3</span>
+    <span>The market tops you up to $5. Your shelf was empty and you had less than $5.</span>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 10px 12px">
+    <div style="border: 3px solid #1f272a; display: flex; flex-direction: column">
+      <div class="kind"><span>Event</span><span><b>No 05</b></span></div>
+      <div style="display: flex; gap: 10px; padding: 9px">
+        <img src="/_blob/a9ca2b3011d91a9ca63924d2ac279582" alt="A hot day at the market" style="width: 128px; height: 92px; object-fit: cover; border: 2px solid #1f272a; box-sizing: border-box">
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <span style="font: 400 22px/1 'Archivo Black', sans-serif; text-transform: uppercase">Heatwave</span>
+          <span style="align-self: flex-start; background: #fec400; padding: 5px 7px; font: 400 13px/1 'Archivo Black', sans-serif; text-transform: uppercase">+$2 a watermelon</span>
+          <span>Tonight all fruit ages 2 steps.</span>
+        </div>
+      </div>
+      <div style="background: #ddd4c6; padding: 6px 9px; text-align: center; font: 800 9px/1 Archivo, sans-serif; letter-spacing: 0.08em; text-transform: uppercase">Stays in force until night</div>
+    </div>
+
+    <div style="border: 3px solid #1f272a; display: flex; flex-direction: column">
+      <div class="kind"><span>Lorry</span><span><b>Today</b> · Blueberry lorry</span></div>
+      <div class="lt">
+        <span></span><span class="h b"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberries"></span><span class="h w"><img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelons"></span><span class="h m"><img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mangoes"></span><span class="h a"><img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apples"></span>
+        <span class="l">2 stalls</span><span class="b"><i>4</i></span><span class="w"><i>1</i></span><span class="m"><i>1</i></span><span class="a"><i>1</i></span>
+        <span class="l">3 stalls</span><span class="b"><i>6</i></span><span class="w"><i>2</i></span><span class="m"><i>1</i></span><span class="a"><i>1</i></span>
+        <span class="l on">4 stalls</span><span class="b on"><i>8</i></span><span class="w on"><i>3</i></span><span class="m on"><i>1</i></span><span class="a on"><i>2</i></span>
+        <span class="l">5 stalls</span><span class="b"><i>10</i></span><span class="w"><i>3</i></span><span class="m"><i>2</i></span><span class="a"><i>3</i></span>
+        <span class="l">6 stalls</span><span class="b"><i>13</i></span><span class="w"><i>4</i></span><span class="m"><i>2</i></span><span class="a"><i>3</i></span>
+      </div>
+      <div style="background: #ddd4c6; padding: 5px 9px; text-align: center; font: 800 9px/1 Archivo, sans-serif; letter-spacing: 0.08em; text-transform: uppercase">Mangoes arrive green · Ripe in 2 nights</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: #ddd4c6">
+      <span class="lab">Tomorrow</span>
+      <span>Mixed lorry</span>
+      <span style="margin-left: auto; display: flex; align-items: center; gap: 3px"><img src="/_blob/1081f5c4f2c04718425e47279bacb84f" alt="Blueberries" style="width: 14px; height: 14px">5 <img src="/_blob/eea197967195deb2c02c2f884dbd63d1" alt="Watermelons" style="width: 14px; height: 14px">4 <img src="/_blob/fa56d24c36f17e9a87b3f1519a3c9325" alt="Mangoes" style="width: 14px; height: 14px">3 <img src="/_blob/54173c91b6d13ececb531c4292454819" alt="Apples" style="width: 14px; height: 14px">3</span>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 2px solid #1f272a">
+    <img src="/_blob/47462564df780449c995d5c4971d598d" alt="Rosa, your shopkeeper" style="width: 40px; height: 40px; border: 2px solid #1f272a; box-sizing: border-box">
+    <div style="display: flex; flex-direction: column; gap: 3px"><span class="lab">You · Rosa</span><span style="color: #5a6266">Shelf 0 of 8 · buys 1st today</span></div>
+  </div>
+  <div style="padding: 0 12px 12px; display: flex"><button class="btn" style="flex: 1">Start buying</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
