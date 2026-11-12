@@ -35,11 +35,13 @@ const path = require('path');
   if (await p.locator('.trait-card').count()) { await p.waitForTimeout(1500); await shot('2-traits'); }
   const done = new Set();
   const once = (k) => (done.has(k) ? false : (done.add(k), true));
-  for (let i = 0; i < 3000 && done.size < 5; i++) {
+  for (let i = 0; i < 3000 && done.size < 6; i++) {
     try {
       if (await p.locator('.results').count()) break;
       if (await p.locator('.trait-card').count()) { await p.locator('.trait-card').nth(1).click(); continue; }
-      if (await p.locator('button:has-text("Start buying")').count()) { await p.click('button:has-text("Start buying")'); continue; }
+      // A Market Day's standing-order bid: bid, so the stake and the order show later.
+      if (await p.locator('button:has-text("a piece")').count()) { await p.click('button:has-text("a piece")'); await p.waitForTimeout(300); continue; }
+      if (await p.locator('button:has-text("Start buying")').count()) { if (once('morning')) { await p.waitForTimeout(1500); await shot('2-morning'); } await p.click('button:has-text("Start buying")'); continue; }
       if (await p.locator('button:has-text("Done buying"), button:has-text("Skip buying")').count()) {
         const t = p.locator('.mk-cell.pick');
         if (await p.locator('.my-stall .tb-chip').count() >= 2 && once('buy')) { await p.waitForTimeout(500); await shot('3-buying'); }
@@ -49,11 +51,13 @@ const path = require('path');
       // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
       // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
-      if (await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await p.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+      if (await p.locator('button[aria-label^="One more"]:not([disabled])').count()) { await p.locator('button[aria-label^="One more"]:not([disabled])').first().click(); await p.waitForTimeout(300); continue; }
+      if (await p.locator('button:has-text("Open my stall")').count()) { await p.click('button:has-text("Open my stall")'); continue; }
       if (await p.locator('.pp-lock .btn:not([disabled])').count()) {
         if ((await p.locator('.ds-prow').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn:not([disabled])'); await p.waitForTimeout(1800);
-        if ((await p.locator('.auction').count()) && once('show')) await shot('5-showdown');
+        for (let w = 0; w < 40 && !(await p.locator('.rush-table').count()); w++) await p.waitForTimeout(150);
+        if ((await p.locator('.rush-table').count()) && once('show')) { await p.waitForTimeout(1600); await shot('5-rush'); }
         continue;
       }
       if (await p.locator('button:has-text("Lights out")').count()) {
