@@ -6,7 +6,8 @@ import {
   buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
   type Customer, type GameState,
 } from '../engine/game';
-import { Face, FavourIcon, Fruit } from './art';
+import { Face, Fruit } from './art';
+import { FavourChip } from './phoneCards';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
@@ -314,14 +315,7 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
       {(pl.favours.length > 0 || closing) && (
         <div class={`tk-dock-cards ${flashCards ? 'glow' : ''}`}>
           {closing && <span class="tk-chip warn">{closing}</span>}
-          {pl.favours.map((id, i) => {
-            const usable = !!onCard && active && FAVOURS[id].when === s.phase;
-            return (
-              <button type="button" class={`fcard tk-fav ${usable ? 'usable' : ''}`} onClick={() => onCard?.(i)} title={FAVOURS[id].text} aria-label={`Favour card: ${FAVOURS[id].title}`}>
-                <FavourIcon id={id} size={18} /><small>{FAVOURS[id].title}</small>
-              </button>
-            );
-          })}
+          {pl.favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
         </div>
       )}
       <div class="tk-dock-row">

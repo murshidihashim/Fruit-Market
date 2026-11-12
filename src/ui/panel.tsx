@@ -8,11 +8,12 @@ import {
   validatePrices, type Crate, type GameState, type Post, type Stall,
 } from '../engine/game';
 import { closingNote, heatwaveLine, tonightText } from '../engine/story';
-import { Coin, FavourIcon, Fruit } from './art';
+import { Coin, Fruit } from './art';
 import { buyerCap, buyersAt, buyersFor, demandBoard, stallWanted, LANES } from './boardModel';
 import { fruitSvgUrl } from './fruitIcons';
 import { Lamp, STAGE_WORD, Swatch } from './ticket';
 import { Icon, type IconName } from './icons';
+import { FavourMini, UpgradeOffer } from './phoneCards';
 import { PricingTableView } from './game/panels/PricingTable';
 
 // ---------- favour cards ----------
@@ -21,17 +22,8 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
   const pl = s.players[p];
   if (!pl.favours.length) return null;
   return (
-    <div class="favour-row">
-      {pl.favours.map((id: FavourId, i) => {
-        const d = FAVOURS[id];
-        const ok = d.when === phase && !canPlayFavour(s, p, i);
-        return (
-          <button type="button" class={`favour-card ${ok ? 'ready' : ''}`} onClick={() => onCard(i)}>
-            <span class="fv-icon"><FavourIcon id={d.id} size={22} /></span>
-            <span class="fv-name">{d.title}</span>
-          </button>
-        );
-      })}
+    <div class="fav-row">
+      {pl.favours.map((id: FavourId, i) => <FavourMini id={id} ready={FAVOURS[id].when === phase && !canPlayFavour(s, p, i)} onOpen={() => onCard(i)} />)}
     </div>
   );
 }
@@ -290,22 +282,11 @@ export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
       {isDraftNight(s) && (
         <>
           <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build one upgrade. Your stall has room for two. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
-          <div class="upgrade-grid">
-            {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => {
-              const d = UPGRADES[u];
-              const owned = pl.upgrades.includes(u);
-              const why = canUpgrade(s, p, u);
-              return (
-                <div class={`up-card ${owned ? 'owned' : ''}`}>
-                  <Icon name={UP_ICON[u]} size={40} />
-                  <b>{d.title}</b>
-                  <span class="up-text">{d.text}</span>
-                  {owned ? <span class="up-owned">Built</span> : (
-                    <button type="button" class="btn up-buy" disabled={!!why} title={why ?? ''} onClick={() => onUpgrade(u)}>Build ${d.cost}</button>
-                  )}
-                </div>
-              );
-            })}
+          {/* The offers as cards in a row that swipes sideways (the approved evening screen, PLAN-083). */}
+          <div class="uo-row" role="group" aria-label="Upgrades on offer">
+            {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => (
+              <UpgradeOffer id={u} owned={pl.upgrades.includes(u)} why={canUpgrade(s, p, u)} onBuild={() => onUpgrade(u)} />
+            ))}
           </div>
           {pl.upgrades.length > 0 && <div class="owned-row">Built: {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={16} /> {UPGRADES[u].title}</span>)}</div>}
         </>

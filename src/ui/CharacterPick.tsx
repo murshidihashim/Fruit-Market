@@ -1,11 +1,12 @@
-// Pick one of the eight shopkeepers (design A, PLAN-063): their Stall Signs in a carousel. Swipe left for the next,
-// right for the previous (or use the arrows); the sign in the middle is the one picked, and their tagline shows below.
-// Each has one fixed perk for the whole game, and a shopkeeper can be taken by one stall only: a taken sign shows who
+// Pick one of the eight shopkeepers (design A, PLAN-063): their cards in a carousel. Swipe left for the next, right
+// for the previous (or use the arrows); the card in the middle is the one picked, and their tagline shows below.
+// Each has one fixed perk for the whole game, and a shopkeeper can be taken by one stall only: a taken card shows who
 // has it and is passed over.
 import { useRef, useState } from 'preact/hooks';
 import { RIVALS } from '../engine/data';
 import { StallSign } from './cards';
 import { fx } from './fx';
+import { seatPattern } from './ticket';
 
 const N = RIVALS.length;
 const SWIPED = 'fm.swiped';
@@ -14,8 +15,9 @@ const hasSwiped = () => { try { return localStorage.getItem(SWIPED) === '1'; } c
 /** How far a swipe must travel to move to the next sign, in px. */
 const SWIPE = 40;
 
-/** `taken` maps a character's avatar to the name of the shop that already has it. */
-export function CharacterPick({ value, taken = {}, onPick }: { value: string; taken?: Record<string, string>; onPick: (avatar: string) => void }) {
+/** `taken` maps a character's avatar to the name of the shop that already has it. `seat`: the stall being picked for
+ *  (0 is the first), when that is known; the cards then show that stall's sheet pattern. */
+export function CharacterPick({ value, taken = {}, seat, onPick }: { value: string; taken?: Record<string, string>; seat?: number; onPick: (avatar: string) => void }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
   const [dx, setDx] = useState(0);
   const [drag, setDrag] = useState(false);
@@ -33,15 +35,15 @@ export function CharacterPick({ value, taken = {}, onPick }: { value: string; ta
     if (dx < -SWIPE) go(1); else if (dx > SWIPE) go(-1);
   };
   return (
-    <CharacterPickView value={value} taken={taken} dx={dx} drag={drag} hint={hint} onStep={go}
+    <CharacterPickView value={value} taken={taken} seat={seat} dx={dx} drag={drag} hint={hint} onStep={go}
       onDown={(e) => { x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
       onMove={(e) => { if (drag) setDx(e.clientX - x0.current); }} onEnd={end} />
   );
 }
 
 /** The picker drawn from its state (no hooks, so tests can draw it). `dx`: how far the finger has dragged the signs. */
-export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
-  value: string; taken?: Record<string, string>; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
+export function CharacterPickView({ value, taken = {}, seat, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
+  value: string; taken?: Record<string, string>; seat?: number; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
   onDown?: (e: PointerEvent) => void; onMove?: (e: PointerEvent) => void; onEnd?: () => void;
 }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
@@ -62,7 +64,7 @@ export function CharacterPickView({ value, taken = {}, dx = 0, drag = false, hin
           };
           return (
             <div class={`cp-card ${o === 0 ? 'on' : ''}`} style={style} aria-hidden={o !== 0}>
-              <StallSign avatar={r.avatar} selected={o === 0} takenBy={taken[r.avatar]} noQuip eager={Math.abs(o) <= 1} />
+              <StallSign avatar={r.avatar} pattern={seat === undefined ? undefined : seatPattern(seat)} selected={o === 0} takenBy={taken[r.avatar]} eager={Math.abs(o) <= 1} />
             </div>
           );
         })}

@@ -213,6 +213,8 @@ export const C = {
   tTint: '#efe9df',
   tKraft: '#ddd4c6',
   tGrey: '#bdbebe',
+  // The rules 18 card set (PLAN-083): the grey of a freshness lamp that is off.
+  tLampOff: '#8d9396',
   tApple: '#e73c35',
   tAppleDark: '#b62528',
   tAppleTint: '#fbd5d2',
