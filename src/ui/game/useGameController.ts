@@ -13,6 +13,7 @@ import { trackOnce } from '../../net/telemetry';
 import * as A from '../anim';
 import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
+import { holdRush, releaseRush } from '../rushShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
 import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
@@ -94,7 +95,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
   // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); }; }, []);
+  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); }; }, []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -125,9 +126,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
       // A standing order's stake has come back too (rules 18): it shows only once the rush is over.
       if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i] - (next.results!.order?.holder === i ? next.results!.order.back : 0)));
-      // The shelves likewise: each customer's pieces leave the shelf as they are served. The fast setting and reduced
-      // motion show the final shelves at once.
-      if (rush && next.results && !A.isReduced() && !A.isFast()) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
+      // The shelves likewise: each customer's pieces leave the shelf as they are served, at every speed and with
+      // reduced motion too (PLAN-084: the final shelves used to show at the bell then). So do the customers' tickets
+      // and a favour card won in the rush (rushShown.ts): a ticket is ticked and the card appears with its customer.
+      if (rush && next.results) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
+      if (rush && next.results) holdRush(next.results, next.players.length);
       // The day's takings must not show before the rush has played: the card of an earlier day would otherwise be drawn
       // for a moment with today's results on it, ahead of the bell.
       if (rush) setRevealDone(false);
@@ -150,6 +153,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     } finally {
       holdCash(null);
       releaseStock();
+      releaseRush();
       busyRef.current = false;
       setBusy(false);
       // The hurry ends where the player decides something again. Online it also lasts through the states still waiting

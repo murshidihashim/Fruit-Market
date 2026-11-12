@@ -48,15 +48,14 @@ export const BEAT = {
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
   /** Filling your crate: a piece from the shelf row to the crate. */
   stock: { fly: 480 },
-  /** A sale: the gap between two pieces going to the customer, the coins that come back (the first after `coinAfter`,
-   *  the rest `coinGap` apart), and the gap between two routine sales. */
-  sale: { pieceGap: 90, coinAfter: 380, coinGap: 110, coin: 480, routineGap: 120 },
   /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
   bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
-  /** One customer in the rush (rush.ts rushPace): the card in, each stall's box dealt (a little slower when few), every
-   *  box face down, the turn, the result held, the card out; the card's own move from the row and back; in the
-   *  stylesheet, a box being dealt and a price turning over. */
-  rush: { in: 280, deal: 90, dealFew: 15, down: 300, flip: 380, hold: 1800, out: 260, cardIn: 340, cardOut: 300, seatDeal: 180, priceTurn: 380 },
+  /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
+   *  stalls' offers turn up under it, and for each fruit wanted the pieces go to the card (`pieceGap` apart, FEEL.travel
+   *  each) and the coins come back (`coinGap` apart, FEEL.coin each). A further fruit starts `fruit` after the one
+   *  before. The result is then held to be read and the card slides back. A favour card won slides to its stall
+   *  while the result is read. About 2.4 s for one fruit and 0.5 s more for each further fruit. */
+  rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 },
   /** The night: dusk falls and the panel rises, every piece slides one box, a beat to settle, a moment to read, a
    *  spoiled piece dropping (and the gap between two), a juice coin, the last beat; in the stylesheet, the sky
    *  darkening, the dusk over the market, and the panel's parts rising after it. */
@@ -69,7 +68,7 @@ export const BEAT = {
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
   land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
-  'seat-deal': BEAT.rush.seatDeal, 'price-turn': BEAT.rush.priceTurn,
+  'rush-rows': BEAT.rush.rows,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
 };
 

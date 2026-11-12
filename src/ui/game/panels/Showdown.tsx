@@ -1,111 +1,181 @@
-// The rush, "Round the table" (DEC-068): one customer at a time comes to the middle of the table, each stall that
-// offered them the fruit gets a box with its price sealed, the boxes turn over together, and the result tags, the
-// fruit and the explanation follow. Only the day's results are shown, which are public once the bell has rung.
+// The rush, one card for each customer (DEC-086; the approved board: docs/studio/review-18/mockups, Rush). A sheet
+// lies over the table from the customer row down to the main button. On it: today's customers as a row of small
+// portraits, the customer being served as a card, and under the card, for each fruit they came for, every stall's
+// offer in price order with what became of it. Then one line with what this stall earned, and two buttons: the next
+// customer, and skip to the end. The rush moves on by itself; a tap anywhere moves on sooner.
+// Nothing is drawn before its moment: an offer's result, a tick on the card and a favour card won appear when the
+// animator (animator.tsx reveal) has shown that sale (rushShown.ts). Only the day's results and the open crates are
+// shown, which are public once the bell has rung. Styles: rush.css.
 import type { Ref } from 'preact';
-import { useLayoutEffect, useRef } from 'preact/hooks';
-import type { GameState, LineResult } from '../../../engine/game';
-import type { LineStory, Reaction } from '../../../engine/story';
-import { ORDER_CARDS } from '../../../engine/data';
-import { Fruit } from '../../art';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { FAVOURS, type FavourId } from '../../../engine/data';
+import type { GameState } from '../../../engine/game';
 import * as A from '../../anim';
+import { ART_SIZE, CardArt, laneClass } from '../../cards';
+import { customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, tileArt } from '../../deckArt';
+import { FruitSvg } from '../../fruitIcons';
 import { CustomerWide } from '../../phoneCards';
-import { Swatch } from '../../ticket';
-import { rushOffer, rushSeats, rushWant, type RushStage } from '../rush';
+import { favourShown, lineShown, piecesLanded, useRushCard } from '../../rushShown';
+import { releaseStock } from '../../stockShown';
+import { STAGE_LETTER, STAGE_WORD, Swatch } from '../../ticket';
+import { rowSaid, type RushCard, type RushRow, type RushStage } from '../rush';
 
 export interface ShowState {
-  line: LineResult; n: number; of: number; stage: RushStage;
-  /** How many stalls' cards have been dealt so far. */
-  dealt: number;
-  story: LineStory; react: Reaction | null; cust: string;
-  /** Customers already served in this rush (their cards get a tick back in the row). */
+  /** The customer being served. */
+  card: RushCard;
+  n: number; of: number; stage: RushStage;
+  /** Today's customers in the order they are served, for the row of portraits. */
+  row: { id: number; name: string; guest: boolean }[];
+  /** Customers already served in this rush (their portraits are dimmed). */
   served: number[];
 }
 
-/** Card from its place in the customer row to the middle (and back): the shared slide (anim.ts), measured once each way. */
-function useCardMove(el: { current: HTMLElement | null }, customerId: number, stage: RushStage, key: string) {
-  const ticket = () => A.boxOf(document.querySelector(`[data-a="c${customerId}"] .tk-cust`));
+/** At most this many freshness marks are drawn on a row; "+2" stands for the rest. */
+const MAX_MARKS = 4;
+/** A card with this much under it takes its smaller form on a middling screen (rush.css): each offer counts one and
+ *  each fruit's heading two, so ten offers for two fruits, or eight for a guest's three. */
+const MANY = 14;
+
+/** A favour card won in the rush, small: its face for the stall that won it, the deck's back for every other stall. */
+export function FavourMark({ id }: { id: FavourId | null }) {
+  return id
+    ? <span class="rh-fav" role="img" aria-label={`Favour card: ${FAVOURS[id].title}`}><CardArt src={favourArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus(id)} /></span>
+    : <span class="rh-fav back" role="img" aria-label="Favour card, face down" style={{ backgroundImage: `url(${tileArt('favour')})` }} />;
+}
+
+/** The freshness of the pieces a stall offered: a letter for each (greyed when none of them qualified). */
+function Marks({ row }: { row: RushRow }) {
+  const marks = row.pieces ?? (row.freshest ? [row.freshest] : []);
+  const more = row.pieces ? marks.length - MAX_MARKS : row.qty - 1;
+  return (
+    <span class="rh-marks" role="img" aria-label={rowSaid(row, STAGE_WORD)}>
+      {marks.slice(0, MAX_MARKS).map((st) => <i class={`rh-lamp ${row.qualified ? '' : 'off'}`}>{STAGE_LETTER[st]}</i>)}
+      {more > 0 && <em>{row.pieces ? `+${more}` : `×${row.qty}`}</em>}
+    </span>
+  );
+}
+
+/** The card from its portrait in the row to its place (and back): the shared slide (anim.ts), measured once each way. */
+function useCardMove(el: { current: HTMLElement | null }, customerId: number, stage: RushStage | 'leave', key: string) {
+  const ticket = () => A.boxOf(document.querySelector(`[data-a="rq${customerId}"]`));
   useLayoutEffect(() => {
     // Once per customer: the move is measured when the card arrives.
-    A.flipFrom(el.current, ticket(), { duration: A.BEAT.rush.cardIn, easing: A.EASE.sheet });
+    if (key) A.flipFrom(el.current, ticket(), { duration: A.BEAT.rush.cardIn, easing: A.EASE.sheet });
   }, [key]);
   useLayoutEffect(() => {
     if (stage === 'out') A.flipTo(el.current, ticket(), { duration: A.BEAT.rush.cardOut });
   }, [stage]);
 }
 
-const rushKey = (a: ShowState) => `${a.line.customerId}-${a.line.fruit}-${a.n}`;
-
-export function Showdown({ s, a, viewer }: { s: GameState; a: ShowState; viewer: number }) {
-  const card = useRef<HTMLDivElement>(null);
-  useCardMove(card, a.line.customerId, a.stage, rushKey(a));
-  return <RushView s={s} a={a} viewer={viewer} card={card} onNext={(e) => { e.stopPropagation(); A.speedStep(); }} />;
+/**
+ * The sheet slides off when the rush is over: it is drawn for a moment more with its last customer, where no tap
+ * reaches it, and a timer (not an animation event) takes it away. Returns what to draw, and whether it is leaving.
+ */
+function useLeaving(a: ShowState | null): [ShowState | null, boolean] {
+  const last = useRef<ShowState | null>(null);
+  const [, redraw] = useState(0);
+  if (a) last.current = a;
+  const over = !a;
+  useEffect(() => {
+    if (!over || !last.current) return;
+    const t = setTimeout(() => { last.current = null; redraw((n) => n + 1); }, A.moveMs(A.FEEL.sheetOut) + A.FRAME);
+    return () => clearTimeout(t);
+  }, [over]);
+  return [a ?? last.current, over && !!last.current];
 }
 
-/** The rush itself, without hooks (so tests can render it to a string). Drawn in the middle of the table (PLAN-072):
- *  the customer's card, a box per stall that offered the fruit being served (its price sealed until the boxes turn
- *  over together), then why it went the way it did. */
-export function RushView({ s, a, viewer, card, onNext: next }: {
-  s: GameState; a: ShowState; viewer: number; card?: Ref<HTMLDivElement>; onNext?: (e: MouseEvent) => void;
+export function Showdown({ s, a, shared }: {
+  s: GameState; a: ShowState | null;
+  /** Several people share this phone: a stall's row carries its name and not "You". */
+  shared?: boolean;
 }) {
-  const l = a.line;
-  const seats = rushSeats(l, viewer, s.players.length);
-  const want = rushWant(l);
-  const done = a.stage === 'result' || a.stage === 'out';
-  const open = a.stage !== 'in' && a.stage !== 'deal';
-  const key = rushKey(a);
-  // What this customer came for today: one line of the day's results for each fruit, with the price they pay for it.
-  const mine = (s.results?.lines ?? []).filter((x) => x.customerId === l.customerId);
-  const lines = (mine.length ? mine : [l]).map((x) => ({ fruit: x.fruit, qty: x.want, max: x.max }));
-  // A standing order collected today stands in the row like a customer; its card says what it is.
-  const order = ORDER_CARDS.some((c) => c.name === l.name);
+  // The card redraws as each piece lands on it and as each sale is shown.
+  useRushCard();
+  const card = useRef<HTMLDivElement>(null);
+  const [shown, leaving] = useLeaving(a);
+  useCardMove(card, shown?.card.customerId ?? -1, leaving || !shown ? 'leave' : shown.stage, shown ? String(shown.card.customerId) : '');
+  if (!shown) return null;
   return (
-    <>
-      {/* A tap anywhere on the rush or the rest of the table moves on to the next customer; Skip hurries the whole rush. */}
-      <div class={`rush-dim st-${a.stage}`} aria-hidden="true" onClick={next} />
-      {/* .auction stays for the screenshot and layout scripts that look for the showdown. */}
-      <div key={key} class={`auction rush tk-rush st-${a.stage} n${seats.length} ${done ? `tone-${a.story.tone}` : ''}`} role="status" data-of={a.of}
-        onClick={next}>
-        <div class="tk-label-row rs-top">
-          <b class="tk-label">Customer {a.n} of {a.of}</b>
-          <span class="tk-dots" aria-hidden="true">{Array.from({ length: a.of }, (_, i) => <i class={i < a.n ? 'on' : ''} />)}</span>
+    <RushView s={s} a={shown} card={card} shared={shared} leaving={leaving}
+      onNext={(e) => { e.stopPropagation(); A.speedStep(); }}
+      // Skip hurries the whole rush and shows the final shelves at once (the same as Skip on the bar under the bell).
+      onSkip={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }} />
+  );
+}
+
+/** The rush itself, without hooks (so tests can render it to a string). Whose stall this screen belongs to is in the
+ *  card (rush.ts rushCards): its rows are marked, and the result line says what it earned. */
+export function RushView({ s, a, card, shared, leaving, onNext: next, onSkip: skip }: {
+  s: GameState; a: ShowState; card?: Ref<HTMLDivElement>; shared?: boolean; leaving?: boolean;
+  onNext?: (e: MouseEvent) => void; onSkip?: (e: MouseEvent) => void;
+}) {
+  const c = a.card;
+  const done = a.stage === 'result' || a.stage === 'out';
+  const rows = c.blocks.reduce((n, b) => n + Math.max(1, b.rows.length), 0);
+  const many = rows + 2 * c.blocks.length >= MANY;
+  // The card's rows: a dot is filled as its piece lands, and the row is ticked once the fruit is bought in full.
+  const lines = c.blocks.map((b) => {
+    const shown = lineShown(c.customerId, b.fruit);
+    const got = shown ? b.got : Math.min(b.got, piecesLanded(c.customerId, b.fruit));
+    return { fruit: b.fruit, qty: b.want, max: b.line.max, got, done: shown && b.got >= b.want };
+  });
+  // The favour card lies on the row of the stall that won it, in the first block it sold in.
+  const fav = c.favour && favourShown(c.customerId) ? c.favour : null;
+  const favAt = fav ? c.blocks.find((b) => b.rows.some((r) => r.player === fav.player && r.sold > 0))?.fruit : undefined;
+  const rem = s.config.days - s.day;
+  return (
+    <section class={`rush-sheet auction st-${a.stage} ${many ? 'many' : ''} ${leaving ? 'leaving' : ''}`} data-of={a.of} aria-label="The rush"
+      aria-hidden={leaving ? 'true' : undefined} style={{ '--rows': rows, '--blocks': c.blocks.length }} onClick={next}>
+      <div class="rh-strip">
+        <b class="tk-label">Customer {a.n} of {a.of}</b>
+        <span class="rh-queue" aria-hidden="true">
+          {a.row.map((x) => (
+            <i class={`rh-face ${x.id === c.customerId ? 'now' : a.served.includes(x.id) ? 'served' : ''}`} data-a={`rq${x.id}`}>
+              <CardArt src={x.guest ? guestArt(x.name) : customerArt(x.name)} alt="" w={ART_SIZE.customer[0]} h={ART_SIZE.customer[1]} eager
+                focus={x.guest ? guestFocus(x.name) : customerFocus(x.name)} />
+            </i>
+          ))}
+        </span>
+      </div>
+      <div class="rh-body" key={c.customerId}>
+        <div class="rh-card" ref={card} data-a="rs-card">
+          <CustomerWide who={c.name} lines={lines} order={c.kind === 'order'} />
         </div>
-        {/* The customer's card (PLAN-083): every fruit they came for today, the one being served now marked. */}
-        <div class="rs-card" ref={card} data-a="rs-card" aria-label={want.label}>
-          <CustomerWide who={l.name} lines={lines} now={l.fruit} order={order} />
-        </div>
-        <div class="tk-offers">
-          {seats.map((seat, k) => {
-            const o = l.offers[seat.i];
-            const pl = s.players[o.player];
-            const off = rushOffer(o, l.fruit);
-            const res = done ? (o.sold ? 'won' : 'lost') : '';
+        <div class="rh-offers">
+          {c.blocks.map((b) => {
+            const shown = lineShown(c.customerId, b.fruit);
             return (
-              <div class={`rs-seat s${seat.slot} ${k < a.dealt || open ? 'dealt' : ''} ${open ? 'open' : ''} ${res} ${seat.me ? 'me' : ''}`}
-                data-a={`rs-p${o.player}`} aria-label={open ? undefined : `${seat.me ? 'Your' : `${pl.name}'s`} price, sealed`}>
-                <span class="rs-who"><Swatch p={o.player} who={pl.avatar} look={pl.look} size={22} /><span class="rs-pname">{seat.me ? 'You' : pl.name}</span></span>
-                {/* The price is only drawn once the boxes turn over. */}
-                {open ? (
-                  <>
-                    <b class="rs-price">${o.price}</b>
-                    <span class="rs-off">{off.stage && <Fruit id={l.fruit} size={14} stage={off.stage} />}{off.text}</span>
-                    {done && <span class="rs-tag">{a.story.tags[seat.i]}</span>}
-                  </>
-                ) : <span class="rs-back" aria-hidden="true">?</span>}
+              <div class={`rh-block ${laneClass(b.fruit)}`}>
+                <div class="rh-fh"><FruitSvg id={b.fruit} size={18} alt="" />{b.heading}</div>
+                {b.none && <div class="rh-of none">{b.none}</div>}
+                {b.rows.map((r) => {
+                  const pl = s.players[r.player];
+                  return (
+                    <div class={`rh-of ${r.me ? 'me' : ''} ${shown ? (r.sold ? 'sold' : 'miss') : ''}`} data-a={`ro-${b.fruit}-${r.player}`}>
+                      <Swatch p={r.player} who={pl.avatar} look={pl.look} size={26} />
+                      <b class="rh-price">${r.price}</b>
+                      <span class="rh-name">{r.me && !shared ? 'You' : pl.name}</span>
+                      <Marks row={r} />
+                      {fav && favAt === b.fruit && fav.player === r.player && <FavourMark id={fav.id} />}
+                      {shown && <span class={`rh-res ${r.sold ? 'sold' : 'miss'}`}>{r.result}</span>}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
         </div>
-        <div class={`rs-why au-why tk-why ${a.story.tone} ${done ? 'show' : ''}`}>
-          {done && (
-            <>
-              <b>{a.story.headline}</b>
-              {a.story.detail && <small>{a.story.detail}</small>}
-              {a.cust && <span class="au-say">“{a.cust}”</span>}
-            </>
-          )}
+        {/* The line takes its room from the start, unseen (rush.css), so the offers above it do not move when it shows. */}
+        <div class={`rh-why ${done ? 'show' : ''}`} role="status" aria-hidden={done ? undefined : 'true'}>
+          <b class={c.earned > 0 ? '' : 'nil'}>{c.earned > 0 ? `+$${c.earned}` : '$0'}</b>
+          <span>{c.text}</span>
         </div>
-        <small class="rs-hint">Tap to move on</small>
       </div>
-    </>
+      <div class="rh-foot">
+        <button type="button" class="rh-skip" onClick={skip}>Skip to the end</button>
+        {/* After the last customer comes the day's takings: the button carries that card's own title. */}
+        <button type="button" class="rh-next" onClick={next}>{a.n < a.of ? 'Next customer' : rem === 0 ? 'Market closed' : `End of day ${s.day}`}</button>
+      </div>
+    </section>
   );
 }

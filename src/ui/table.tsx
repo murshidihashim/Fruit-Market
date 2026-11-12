@@ -11,6 +11,7 @@ import { FavourChip } from './phoneCards';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
+import { shownFavours, shownWants } from './rushShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
 import { closingNote } from '../engine/story';
@@ -224,6 +225,8 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const open = s.phase === 'reveal';
   const crate = open ? LANES.filter((f) => forSale(s, p, f) > 0) : [];
   const buys = boughtToday(s, p);
+  // A favour card won in the rush counts once it has reached the stall (rushShown.ts).
+  const favours = shownFavours(p, pl.favours).length;
   return (
     <div class="rival-drop tk-drop" role="dialog" aria-label={`${pl.name}: stall`} onClick={(e) => e.stopPropagation()}>
       <div class="rd-head">
@@ -249,11 +252,11 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
           {buys.map((b) => <span class="tk-dk-n"><Fruit id={b.f} size={22} stage={b.green === b.n ? 'unripe' : 'fresh'} /><b>{b.n}</b></span>)}
         </div>
       )}
-      {(pl.trait || pl.upgrades.length > 0 || pl.favours.length > 0) && (
+      {(pl.trait || pl.upgrades.length > 0 || favours > 0) && (
         <div class="rd-extra">
           {pl.trait && <span class="tk-chip" title={TRAITS[pl.trait].text}>{TRAITS[pl.trait].title}</span>}
           {pl.upgrades.map((u) => <span class="tk-chip">{UPGRADES[u].title}</span>)}
-          {pl.favours.length > 0 && <span class="tk-chip">{pl.favours.length} favour card{pl.favours.length > 1 ? 's' : ''}</span>}
+          {favours > 0 && <span class="tk-chip">{favours} favour card{favours > 1 ? 's' : ''}</span>}
         </div>
       )}
     </div>
@@ -310,12 +313,14 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;
+  // A favour card won in the rush lies here once it has reached the stall (rushShown.ts).
+  const favours = shownFavours(p, pl.favours);
   return (
     <section class={`my-stall dock tk-dock ${active ? 'active' : ''}`} data-a={`p${p}`} aria-label="Your shelf">
-      {(pl.favours.length > 0 || closing) && (
+      {(favours.length > 0 || closing) && (
         <div class={`tk-dock-cards ${flashCards ? 'glow' : ''}`}>
           {closing && <span class="tk-chip warn">{closing}</span>}
-          {pl.favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
+          {favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
         </div>
       )}
       <div class="tk-dock-row">
@@ -401,19 +406,22 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
       </div>
     );
   }
-  const done = c.wants.every((w) => w.qty <= 0);
+  // In the rush a fruit is ticked only once that customer's sale has been shown (rushShown.ts): until then the ticket
+  // reads as it did when the bell rang.
+  const wants = shownWants(s.results, c);
+  const done = wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
   // The ticket prints today's price (events and generous customers change it). A finished row is ticked and shows
   // what was asked for; a changed price is tinted.
-  const lines: TicketLine[] = c.wants.map((w, i) => {
+  const lines: TicketLine[] = wants.map((w, i) => {
     // A standing order pays its holder's bid (rules 17: a rival $1 less); no event or Closing Day changes it.
     const max = c.order ? c.order.price : effectiveMax(s, w, c.generous);
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
-      onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
-      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
+      onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
+      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
       {(done || special || heard) && (
         <span class="cust-marks">

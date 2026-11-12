@@ -31,8 +31,6 @@
    These keep the lengths they had (ticket.css, ticket-ui.css); they now come from motion.ts and follow the table's speed. */
 #app .tkt .tk-news-back, #app .tkt .tk-news-face { transition-duration: calc(var(--mk, 1) * var(--t-news-turn)); }
 #app .tkt .tk-crates.open .tk-crate { animation-duration: calc(var(--mk, 1) * var(--t-crate-turn)); }
-#app .tkt .tk-offers .rs-seat { transition-duration: calc(var(--mk, 1) * var(--t-seat-deal)); }
-#app .tkt .tk-offers .rs-price { animation-duration: calc(var(--mk, 1) * var(--t-price-turn)); }
 
 /* ---------- reduced motion: nothing travels, the state is shown at once, and what is there to be read stays ----------
    styles.css switches every animation and transition off. The "FINAL DAY!" stamp is drawn by an animation, so without

@@ -14,12 +14,12 @@ import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { useStockShown } from './stockShown';
+import { useRushShown } from './rushShown';
 import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
 import { Showdown } from './game/panels/Showdown';
-import { rushBoard } from './game/rush';
 import { SalesSummary } from './game/panels/SalesSummary';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
@@ -41,6 +41,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
+  // A customer's ticket is ticked, and a favour card won appears on your shelf, as that customer is served (rushShown.ts).
+  useRushShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
@@ -89,18 +91,11 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const openRival = c.rival !== null && c.rival !== viewer ? c.rival : null;
   // The lorry drives in once the morning's news has been read (Start buying), then unloads (PLAN-065).
   const lorryHere = s.phase === 'buy' && !s.event?.noDelivery;
-  // Price boards on the seats: sealed while pricing (only whether a shop has finished is public),
-  // then flipped open as each customer's cards turn over in the rush pop-up.
+  // Price boards on the seats: sealed while pricing (only whether a shop has finished is public). In the rush every
+  // stall's price is on the customer's card (panels/Showdown.tsx), which lies over the seats.
   const boards: Record<number, Board> = {};
   if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (s.phase === 'stall') rivals.forEach((p) => { boards[p] = { state: s.stalls[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
-  if (show) {
-    // The rush pop-up: every stall's board stays sealed until the cards around the customer flip, all together.
-    show.line.offers.forEach((o, i) => {
-      const b = rushBoard(show.stage, o, show.story.tags[i]);
-      boards[o.player] = b.open ? { state: 'open', price: o.price, res: b.res, tag: b.tag } : { state: 'sealed' };
-    });
-  }
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
@@ -149,8 +144,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
   // tap on a button (PLAN-076: Lights out used to skip the whole night when you were the last stall to close). A market
   // box that cannot be bought from lets the tap through (ticket.css), so the lanes count as the table. While a
-  // customer's card is up in the rush, a tap that reaches here (the bottom bar, beside Skip) moves on to the next
-  // customer, like a tap anywhere else at that moment; only Skip hurries the whole rush.
+  // customer's card is up in the rush, a tap that reaches here (the top bar) moves on to the next customer, like a tap
+  // on the card itself; only Skip hurries the whole rush.
   const tapTable = (e: MouseEvent) => {
     if ((e.target as Element).closest?.('button')) return;
     if (show) A.speedStep();
@@ -174,8 +169,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       )}
 
       <section class="street-wrap" data-a="street">
-        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
-          away={show?.line.customerId} served={show?.served} />
+        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} />
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
@@ -201,8 +195,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
       {!pricing && !stalling && !ordering && !tying && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
-      {/* The rush pop-up sits over the whole table (the middle column on a desktop), under the flying fruit. */}
-      {show && <Showdown s={s} a={show} viewer={viewer} />}
+      {/* The rush: a sheet over the table from the customer row down, under the flying fruit. It stays a moment after
+          the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
+      <Showdown s={s} a={show} shared={!online && humans.length > 1} />
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
