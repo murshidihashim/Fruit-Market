@@ -78,5 +78,5 @@ Votes ("Open the market", "Close for the day", rematch) and secret prices wait o
 
 - Up to 4 seats per room (humans plus optional computer rivals).
 - A disconnected player gets 75 s to return, then a Normal-level computer plays for them until they reconnect.
-- No accounts or chat. Quick match pairs whoever is searching at the same moment, with no skill rating yet.
+- No chat. An account is optional and only carries your progress between phones. Quick match pairs whoever is searching at the same moment, with no skill rating yet.
 - Stats and leaderboards each run in a single Durable Object, which is plenty for launch (hundreds of requests a second). Shard them by key if the game gets very big.

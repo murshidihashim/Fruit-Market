@@ -1,0 +1,86 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-110",
+    "REP-111",
+    "REP-112"
+  ],
+  "decisions": [
+    "DEC-087",
+    "DEC-097",
+    "DEC-099",
+    "DEC-103",
+    "DEC-105",
+    "DEC-107"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as: do the work that the rush of 12 November cut short or listed as known gaps, inside the packages already approved (PLAN-084 to PLAN-090) and the decisions behind them. Not read as the word to publish 1.21.0, which is asked for separately. RULES.md's wording is brought in step with the cards on this word (it was put to the owner as waiting for his word; words only, no rule changes).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-091",
+  "title": "Release A, finishing: the work the rush of 12 November cut short",
+  "problem": "To go live on 12 November the screens, the text and the stamp book were built by eight helpers in a few hours, with small faults listed as known gaps (REP-111, REP-112), checks left NOT RUN, dead code left behind, and some documents out of date.",
+  "scope": [
+    "The day's screens: the bottom bar and the doubled sound at the bell, first-game tips on a small phone, rows under a sheet closed to keyboard and screen reader, the evening favour card's board words, the night's hint, your own rush line, dead code and styles, the Favoured Trade step in the QA sweep",
+    "The stamp book: the collection opens full cards, the boards' button words on Results and Home, a granted look kept at sync, sounds proven to reach the player, old styles, the checks never run (pass-and-play to the results, the Wardrobe online, reduced motion, the opening animation)",
+    "RULES.md's words in step with the cards (words only)",
+    "The print kit rebuilt from the final card text; the pages never looked at, looked at",
+    "Documents: the creative bible's setting and cast, the game brief, the store listing and the online notes about accounts",
+    "The Play store screenshots regenerated; the helpers' old work folders cleared",
+    "Records: the owner's look at the screens; STATE.md back to about 500 words"
+  ],
+  "exclusions": [
+    "Any rule, number, balance, save or message change",
+    "Publishing (asked for separately)",
+    "Proof printing (the owner's)",
+    "New designs"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Pass-and-play to the results and reduced motion over a whole game, on the final build, with no page errors and no secret shown",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Every changed screen looked at by me at 390x844 and 360x640; dead-code removal leaves every screen the same",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Every print script runs on the final card text; every page of the kit looked at",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T6",
+      "text": "RULES.md: no rule, number or meaning changed (diff read by me)",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

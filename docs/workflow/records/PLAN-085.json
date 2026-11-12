@@ -104,8 +104,8 @@
     {
       "id": "T7",
       "text": "The owner has seen the screens",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner played release 1.20.0 on the live game on 2026-11-12 and ruled on what he saw (DEC-107: a rival's purchases hidden after buying); pictures sent with REP-110 and REP-111."
     }
   ]
 }

@@ -3710,6 +3710,10 @@
     {
       "at": "2026-11-12 22:07",
       "text": "Release 1.21.0 prepared as a candidate (REP-112; PLAN-086, PLAN-089, PLAN-090; DEC-107) on 050fb22: npm run verify PASS (819 tests passed, 1 skipped); npm run test:e2e PASS. On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. The owner's ruling on purchases is in: marks only while buying, with a test and RULES.md reworded. The approved boards' words were restored where the label rewrite had changed them. Not published: awaiting the owner's word; the full checks on the CI machines run after the merge to main."
+    },
+    {
+      "at": "2026-11-12 22:51",
+      "text": "PLAN-091 opened: Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as the finishing pass on the work cut short on 12 November, not as the word to publish 1.21.0. Three helpers started from 1cbcc7c: the day's screens, the stamp book, and RULES.md's words. The session updated the creative bible (setting per DEC-087, eight shopkeepers, card pictures, the voice), the game brief (rules 18, 2 to 6 stalls, accounts optional, no purchases), the store listing and the online notes (accounts optional). PLAN-084 and PLAN-085: the owner has seen the screens (he played 1.20.0) — PASS."
     }
   ]
 }

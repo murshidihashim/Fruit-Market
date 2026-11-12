@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 22:07 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 22:51 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
@@ -24,6 +24,7 @@ Updated 2026-11-12 22:07 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | Implemented, merged and checked; in candidate 1.21.0 |
 | 6, part 1. The print kit on rules 18 | PLAN-087 | Implemented and merged (`d1f5f01`): `print/kit`, `print/update-18`, `print/tracker-test`. Not done: a proof print; the owner's choice of tracker 1 or 2 |
 | Fixes for the known gaps of 1.20.0, and DEC-107 | PLAN-090 | Implemented, merged and checked; in candidate 1.21.0 |
+| Finishing: the work the rush cut short | PLAN-091 | In progress: three helpers (day screens, stamp book, RULES.md words), reports due 01:00 to 01:30 on 2026-11-13; then the print kit rebuilt, store screenshots, checks |
 | 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
 **Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.
