@@ -279,7 +279,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     expect(s.players[1].stock[f][FRESH(f)]).toBe(3); // and their fruit is never taken
     expect(s.players[0].stock[f][SOFT]).toBe(1); // a Soft piece is never taken either
     expect(s.results!.favours).toEqual([]); // no favour card
-    expect(s.log[s.log.length - 1]).toContain(`got its $${o.stake} stake back`);
+    expect(s.log[s.log.length - 1]).toContain(`got the $${o.stake} stake back`);
     // The line shows what was paid, not a rival's offer.
     expect(s.results!.lines[0].offers.map((x) => x.player)).toEqual([0]);
   });
@@ -290,7 +290,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     expect(short.res).toMatchObject({ short: 1, stake: short.o.stake, back: 0 });
     expect(short.gain).toEqual([2 * 5, 0]); // paid for two pieces, no fine, the stake stays lost
     expect(short.s.players[1].stock[f][FRESH(f)]).toBe(3);
-    expect(short.s.log[short.s.log.length - 1]).toContain(`lost its $${short.o.stake} stake`);
+    expect(short.s.log[short.s.log.length - 1]).toContain(`lost the $${short.o.stake} stake`);
     // A holder with nothing loses the stake and no more, even with no cash at all.
     const none = collect(shelf(f, {}), shelf(f, { [FRESH(f)]: 3 }), (g) => { g.players[0].cash = g.standing!.stake; });
     expect(none.res).toMatchObject({ short: 3, back: 0, sales: [] });

@@ -26,6 +26,18 @@ export interface LineStory {
 const fruitWord = (f: FruitId, n: number) => (n === 1 ? FRUIT[f].name.toLowerCase() : FRUIT[f].plural.toLowerCase());
 const becomeJuice = (n: number) => `${n} ${n === 1 ? 'becomes' : 'become'} juice`;
 
+// A stall's name in a sentence. A solo game calls the player's stall "You" when no name is typed, so a sentence built
+// from a name must also read correctly for that one: "Rosa wins" but "You win", "Rosa's" but "your".
+const isYou = (name: string) => name.trim().toLowerCase() === 'you';
+/** The name as a subject with its verb: "Rosa wins", "You win" (`start` false inside a sentence: "you win"). */
+export const nameVerb = (name: string, verb: string, you: string, start = true) => (isYou(name) ? `${start ? 'You' : 'you'} ${you}` : `${name} ${verb}`);
+/** The name inside a sentence, after a verb or a preposition: "beat Rosa", "beat you". */
+export const nameIn = (name: string) => (isYou(name) ? 'you' : name);
+/** The owner of a thing: "Rosa's fruit", "your fruit" (`start`: "Your fruit"). */
+export const nameOwn = (name: string, start = false) => (isYou(name) ? (start ? 'Your' : 'your') : `${name}'s`);
+/** Several names: "Rosa and you", "You and Rosa". */
+const namesAnd = (names: string[], start = true) => names.map((n, i) => (i === 0 && start ? n : nameIn(n))).join(' and ');
+
 function hash(...xs: number[]): number {
   let h = 2166136261;
   for (const x of xs) { h ^= x & 0xffff; h = Math.imul(h, 16777619); h ^= x >>> 16; h = Math.imul(h, 16777619); }
@@ -38,7 +50,7 @@ function hash(...xs: number[]): number {
  */
 export function hagglerWins(names: string[], you = false): string {
   if (you) return "you're the Haggler, who wins equally fresh ties";
-  return names.length === 1 ? `${names[0]} is the Haggler, who wins equally fresh ties` : `${names.join(' and ')} are Hagglers, who win equally fresh ties`;
+  return names.length === 1 ? `${nameVerb(names[0], 'is', 'are')} the Haggler, who wins equally fresh ties` : `${namesAnd(names)} are Hagglers, who win equally fresh ties`;
 }
 
 
@@ -94,7 +106,8 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
   const plural = FRUIT[l.fruit].plural.toLowerCase();
   const display = s.players[o.player].upgrades.includes('premium') && !fixedFor(s, l);
   const mine = o.player === viewer;
-  const theirs = mine ? 'yours' : `${s.players[o.player].name}'s`;
+  const who = s.players[o.player]?.name ?? '';
+  const theirs = mine || isYou(who) ? 'yours' : `${who}'s`;
   const pref = prefFor(s, l);
   // What this customer pays at most for each freshness (a Premium Display adds $1 for fresh fruit).
   const caps = (['fresh', 'okay', 'notso'] as const)
@@ -122,7 +135,7 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
   const detail = `At $${o.price} ${sells.length === 1 ? `only ${sells[0]} sells` : `${sells.join(' or ')} sells`}${rest.length ? `; ${rest.join(', ')}` : ''}.`;
   return {
     kind: 'age', tag: `too old for $${o.price}`, detail,
-    headline: `Too old for $${o.price}! ${mine ? 'Your' : `${s.players[o.player].name}'s`} ${plural} didn't qualify.`,
+    headline: `Too old for $${o.price}! ${mine ? 'Your' : nameOwn(who, true)} ${plural} didn't qualify.`,
   };
 }
 
@@ -215,9 +228,9 @@ const WIN_WHY: Record<TieBy, string> = {
 };
 function loseWhy(s: GameState, p: number, by: TieBy): string {
   const who = s.players[p].name;
-  return by === 'favouredTrade' ? `${who} has Favoured Trade`
-    : by === 'haggler' ? `${who} is the Haggler`
-      : by === 'fresher' ? `${who}'s fruit was fresher` : `${who} bought first`;
+  return by === 'favouredTrade' ? `${nameVerb(who, 'has', 'have', false)} Favoured Trade`
+    : by === 'haggler' ? `${nameVerb(who, 'is', 'are', false)} the Haggler`
+      : by === 'fresher' ? `${nameOwn(who)} fruit was fresher` : `${nameIn(who)} bought first`;
 }
 
 /** A count of the viewer's pieces: exact, or only the fewest there would surely have been. */
@@ -307,7 +320,7 @@ function undercutWhatIf(s: GameState, l: LineResult, mine: Offer, lowest: number
     if (room <= 0) tie = `A $${lowest} tie loses too: ${why}.`;
     else if (!open && j > 0 && under && j < under.n && (atTie.exact || atTie.n >= room)) tie = `A $${lowest} tie sells just ${j}: ${why}.`;
     else if (!open && j > 0) {
-      tie = `Match $${lowest}: ${j} sold${under && j === under.n ? ' too' : ''}, after ${lose.map((x) => s.players[x.o.player].name).join(' and ')}.`;
+      tie = `Match $${lowest}: ${j} sold${under && j === under.n ? ' too' : ''}, after ${namesAnd(lose.map((x) => s.players[x.o.player].name), false)}.`;
       claimed = Math.max(claimed, j);
     }
   } else if (open) {
@@ -340,7 +353,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     }
     const losers = others.filter((o) => o.sold === 0 && inContest(o));
     const headline = losers.length
-      ? `${s.players[top.player].name} beat ${losers.map((o) => s.players[o.player].name).join(' and ')} at $${top.price}.`
+      ? `${s.players[top.player].name} beat ${namesAnd(losers.map((o) => s.players[o.player].name), false)} at $${top.price}.`
       : `${s.players[top.player].name} sold ${top.sold} at $${top.price}.`;
     return { showdown, tone: 'neutral', headline, tags };
   }
@@ -376,7 +389,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
       detail = `${l.want - sold} more wanted: you had none left at that price.`;
     } else if (mine.sold === mine.qty && mine.qty < l.want) {
       const rest = winners.filter((o) => o.player !== viewer);
-      if (rest.length) detail = `Right price, not enough stock: ${rest.map((o) => s.players[o.player].name).join(' and ')} sold ${l.want - mine.qty} more.`;
+      if (rest.length) detail = `Right price, not enough stock: ${namesAnd(rest.map((o) => s.players[o.player].name), false)} sold ${l.want - mine.qty} more.`;
     }
     return { showdown, tone: 'good', headline, detail, tags };
   }
@@ -413,7 +426,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
       const n = piecesAt(s, l, mine, lower, ctx, viewer).n;
       if (n > 0) detail = `$${lower} would've won it.${unsoldNote(unsold, n)}`;
     }
-    return { showdown, tone: 'bad', headline: `Tie at $${mine.price}. ${s.players[tie.player].name} wins: ${tieShort(s, tie, mine)}.`, detail, tags };
+    return { showdown, tone: 'bad', headline: `Tie at $${mine.price}. ${nameVerb(s.players[tie.player].name, 'wins', 'win')}: ${tieShort(s, tie, mine)}.`, detail, tags };
   }
   return { showdown, tone: 'bad', headline: `Sold out before your turn.`, tags };
 }
@@ -423,8 +436,9 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
 export interface Reaction { player: number; text: string }
 
 /**
- * The rush pop-up's result line (PLAN-068): the same words for everyone at the table, naming the stalls (never "you"),
- * so every player sees one story of each customer. Built from the line alone; card tags come from offerTag. The
+ * The rush pop-up's result line (PLAN-068): the same words for everyone at the table, naming the stalls, so every
+ * player sees one story of each customer. A stall whose name is "You" (a solo game's default) takes the grammar of
+ * "you": "You win", "beat you". Built from the line alone; card tags come from offerTag. The
  * personal what-if advice (explainLine's detail) is not shown here.
  */
 export function rushLine(s: GameState, l: LineResult): LineStory {
@@ -438,8 +452,8 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
     const mine = ord.qty - ord.short;
     const pay = ord.sales[0]?.price ?? ord.price;
     return ord.short === 0
-      ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${pay}.`, detail: ord.stake ? `${who} gets the $${ord.stake} stake back.` : undefined, tags }
-      : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.`, detail: ord.stake ? `${who} loses the $${ord.stake} stake.` : undefined, tags };
+      ? { showdown: true, tone: 'neutral', headline: `${who} delivered all ${ord.qty} at $${pay}.`, detail: ord.stake ? `${nameVerb(who, 'gets', 'get')} the $${ord.stake} stake back.` : undefined, tags }
+      : { showdown: true, tone: 'neutral', headline: `${who} delivered ${mine} of ${ord.qty}.`, detail: ord.stake ? `${nameVerb(who, 'loses', 'lose')} the $${ord.stake} stake.` : undefined, tags };
   }
   const cust = lookOf(l.name).title;
   const plural = FRUIT[l.fruit].plural.toLowerCase();
@@ -455,15 +469,15 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
     return { showdown: true, tone: 'neutral', headline: allPrice ? `Too pricey for ${cust}!` : `Nothing good enough for ${cust}.`, detail: allPrice ? why[0].detail : undefined, tags };
   }
   if (winners.length > 1) {
-    return { showdown: true, tone: 'neutral', headline: `${winners.map(name).join(' and ')} split the order: ${sold} sold.`, detail: short, tags };
+    return { showdown: true, tone: 'neutral', headline: `${namesAnd(winners.map(name))} split the order: ${sold} sold.`, detail: short, tags };
   }
   const w = winners[0];
   const losers = l.offers.filter((o) => o !== w && inContest(o) && o.sold === 0);
   const tie = losers.find((o) => o.price === w.price);
-  if (tie) return { showdown: true, tone: 'neutral', headline: `Tie at $${w.price}. ${name(w)} wins: ${tieShort(s, w, tie)}!`, detail: short, tags };
+  if (tie) return { showdown: true, tone: 'neutral', headline: `Tie at $${w.price}. ${nameVerb(name(w), 'wins', 'win')}: ${tieShort(s, w, tie)}!`, detail: short, tags };
   if (losers.length) {
     const next = losers.reduce((a, o) => (o.price < a.price ? o : a));
-    return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${name(next)} by $${next.price - w.price}! ${w.sold} sold.`, detail: short, tags };
+    return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${nameIn(name(next))} by $${next.price - w.price}! ${w.sold} sold.`, detail: short, tags };
   }
   const full = w.price >= l.max;
   return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price!` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };

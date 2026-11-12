@@ -520,7 +520,7 @@ function applyTrait(s: GameState, p: number, t: TraitId) {
   if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
   if (t === 'charmer') for (let k = 0; k < CHARMER_START_FAVOURS; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
   s.dayStartCash = s.players.map((x) => x.cash);
-  s.log.push(`${pl.name} is a ${TRAITS[t].title}`);
+  s.log.push(`${pl.name} took the perk ${TRAITS[t].title}`);
 }
 
 // ---------- setup ----------
@@ -636,7 +636,7 @@ function startDay(s: GameState) {
       pl.cash -= paid;
       pl.stats.spent += paid;
       s.dayFines![i] = paid;
-      if (paid) s.log.push(`${pl.name} was fined $${paid}`);
+      if (paid) s.log.push(`${pl.name} paid the Health Inspector $${paid}`);
     });
   }
   // Rules 18, out of cash: after the event and any inspection, and before anyone bids or buys, a stall with an empty
@@ -647,7 +647,7 @@ function startDay(s: GameState) {
       if (pl.cash >= TOP_UP || count(pl.stock) > 0) return;
       s.dayTopUps![i] = TOP_UP - pl.cash;
       pl.cash = TOP_UP;
-      s.log.push(`${pl.name} had an empty shelf and was topped up to $${TOP_UP} by the market`);
+      s.log.push(`${pl.name} had an empty shelf and less than $${TOP_UP}: topped up to $${TOP_UP}`);
     });
   }
   s.delivery = {};
@@ -1342,7 +1342,7 @@ function resolve(s: GameState) {
         name: c.name, fruit: c.original[0].fruit, qty: c.original[0].qty, holder: o.holder, price: o.price, ceiling: o.ceiling,
         sales: (line?.offers ?? []).filter((x) => x.sold > 0).map((x) => ({ player: x.player, n: x.sold, price: x.price })), short, stake: o.stake, back,
       };
-      s.log.push(short === 0 ? `${hp.name} delivered the standing order in full and got its $${o.stake} stake back` : `${hp.name} delivered ${mine} of ${c.original[0].qty} for the standing order and lost its $${o.stake} stake`);
+      s.log.push(short === 0 ? `${hp.name} delivered the standing order in full and got the $${o.stake} stake back` : `${hp.name} delivered ${mine} of ${c.original[0].qty} for the standing order and lost the $${o.stake} stake`);
       continue;
     }
     // Sharp Ears: a walk-in this shop has peeked at tips it when the shop sells them anything. Rules 18: at most once a day.
