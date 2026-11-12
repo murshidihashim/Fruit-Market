@@ -22,6 +22,8 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
     : night ? 'Night falls…'
     : s.phase === 'morning' || unloading ? 'The cart rolls in…'
     : s.phase === 'reveal' ? 'Selling… tap to speed up'
+    // The bell rings at the flip before a Favoured Trade question, and a card just played travels to its tag (PLAN-085).
+    : s.phase === 'tie' ? 'Every price is open'
     : null;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
   return (

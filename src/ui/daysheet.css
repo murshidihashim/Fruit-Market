@@ -1,9 +1,10 @@
 /* =====================================================================
    Fruit Market · one sheet from stocking to the day's takings (PLAN-085; panels/DaySheet.tsx),
-   with stocking and pricing drawn to the approved phone screens (docs/studio/review-18/mockups: Stocking, Pricing).
-   The sheet is one element that stays in the middle cell while its contents change: stocking, then pricing (.own).
-   It then stays up, plain, under the bell, the Favoured Trade question and the takings, which are their own panels
-   in the same cell (.rest), so the lanes never show between these steps. No row of the table is laid out here.
+   drawn to the approved phone screens (docs/studio/review-18/mockups: Stocking, Pricing, Favoured-Trade).
+   The sheet is one element that stays in the middle cell while its contents change: stocking, then pricing (.own),
+   then the bell's rows and the Favoured Trade question, drawn on it over the customers, the rivals and your shelf
+   (.full; bell.css gives it that reach). It then stays up, plain, under the takings, which are their own panel in
+   the same cell (.rest), so the lanes never show between these steps. No row of the table is laid out here.
    Colours come from palette.css only. Only position, size and fade are animated, at the table's one speed.
    Imported last, so a rule here wins over the older ones for the same parts.
    ===================================================================== */
@@ -12,7 +13,8 @@
 /* A short phone: the middle of the table is too low for stocking and pricing, so there the sheet starts under the
    customers' tickets and ends at the foot of your shelf, drawn larger than its cell by a margin measured from the
    rows (game/reach.ts writes --rise and --drop on it). It lies above the rivals and your shelf then (5), so pricing
-   says how many pieces each rival put out (.ds-rivals). Under the bell and the takings it keeps to its cell. */
+   says how many pieces each rival put out (.ds-rivals). Under the takings it keeps to its cell; the bell's rows and
+   the Favoured Trade question lie over the rows around it (bell.css). */
 @media (max-height: 760px) {
   #app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
 }
@@ -99,6 +101,58 @@
 }
 #app .tkt .ds-fav { flex: none; display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 2px dashed var(--tk-ink); }
 
+/* ---------- the bell: every stall's row, its price tags face up ---------- */
+#app .tkt .ds-bell { flex: 1 0 auto; min-height: 100%; display: flex; flex-direction: column; }
+#app .tkt .ds-bell-head { flex: none; display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; background: var(--tk-ink); color: var(--tk-paper); box-shadow: inset 0 2px 0 var(--tk-paper); }
+#app .tkt .ds-bell-head b { flex: none; font: 400 1.375rem/1 var(--tk-disp); text-transform: uppercase; color: var(--tk-yel); }
+#app .tkt .ds-bell-ico { flex: none; align-self: center; display: grid; color: var(--tk-yel); }
+#app .tkt .ds-stalls { flex: none; display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; }
+#app .tkt .ds-stall {
+  flex: none; min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 2px solid var(--tk-ink); background: var(--tk-paper);
+  transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease;
+}
+#app .tkt .ds-stall.me { background: var(--tk-tint); }
+#app .tkt .ds-stall.down { opacity: 0.55; }
+#app .tkt .ds-stall .tk-swatch { box-shadow: 0 0 0 1.5px var(--tk-ink); }
+#app .tkt .ds-nm { flex: none; width: 58px; display: flex; flex-direction: column; }
+#app .tkt .ds-nm b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .ds-nm small { font: inherit; color: var(--tk-slate); white-space: nowrap; }
+#app .tkt .ds-tags { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 7px 8px; }
+#app .tkt .ds-pz { position: relative; flex: none; min-height: 30px; display: flex; align-items: center; gap: 4px; padding: 4px 6px; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .ds-pz b { font: 400 0.9375rem/1 var(--tk-disp); }
+#app .tkt .ds-pz.tie { background: var(--tk-yel); box-shadow: 0 0 0 3px var(--tk-ink); }
+#app .tkt .ds-pz.back { width: 58px; background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 6px, var(--x-ink-2) 6px 12px); }
+#app .tkt .ds-marks { display: inline-flex; align-items: center; gap: 3px; }
+#app .tkt .ds-marks .ds-lamp { width: 16px; height: 16px; font-size: 0.625rem; }
+#app .tkt .ds-marks em { font: 800 0.625rem/1 var(--tk-txt); }
+/* Favoured Trade played on a tied price: its stamp, shown as the card lands (animator.tsx holds it back until then) */
+#app .tkt .ds-stamp {
+  position: absolute; right: -9px; top: -9px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tk-red-d); color: var(--tk-paper); box-shadow: 0 0 0 2px var(--tk-paper); font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.02em;
+}
+:root.fm-hold-stamp #app .tkt .ds-stamp { visibility: hidden; }
+
+/* ---------- the Favoured Trade question, as its card under the open rows ---------- */
+#app .tkt .ds-tie { flex: none; margin: auto 12px 12px; display: flex; flex-direction: column; border: 3px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .ds-tie.mine { margin-bottom: 0; border-bottom: 0; }
+#app .tkt .ds-tie-kind { flex: none; display: flex; justify-content: space-between; gap: 8px; padding: 6px 9px; background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+#app .tkt .ds-tie-kind b { font-weight: 800; color: var(--tk-yel); }
+#app .tkt .ds-tie-kind span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#app .tkt .ds-tie-body { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+#app .tkt .ds-tie-ttl { font: 400 1.25rem/1.05 var(--tk-disp); text-transform: uppercase; }
+#app .tkt .sh-day .ds-tie-txt { all: unset; display: block; font-size: 0.8125rem; }
+#app .tkt .ds-tie-line { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--tk-kraft); }
+#app .tkt .ds-tie-line.with { background: var(--tk-yel); }
+#app .tkt .ds-tie-line .ds-lab { flex: none; width: 58px; line-height: 1.2; }
+#app .tkt .sh-day .ds-tie-foot { all: unset; display: block; color: var(--tk-slate); }
+/* "Keep it" and "Play it" take the action bar's place and close the card's frame */
+#app .tkt > .centre > .ds-tie-lock {
+  z-index: 6; flex-direction: row; gap: 6px; margin: 0 12px max(12px, env(safe-area-inset-bottom)); padding: 0 12px 12px;
+  border: 3px solid var(--tk-ink); border-top: 0;
+}
+#app .tkt > .centre > .ds-tie-lock .btn { flex: 1 1 0; }
+#app .tkt > .centre > .ds-tie-lock .btn.ghost { background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font-size: 0.875rem; }
+
 /* ---------- drawn closer, a step at a time, when the sheet's parts are taller than the room it has ----------
    The room is measured (DaySheet.tsx fit), never assumed: the table's rows above and below decide it. The step is
    written on the sheet (data-tight) and nothing is drawn again for it. Step 1: the spacing. Step 2: fewer lines (the
@@ -144,8 +198,15 @@
 @media (max-width: 379px) {
   #app .tkt .ds-stock, #app .tkt .ds-price { padding-left: 8px; padding-right: 8px; }
   #app .tkt .ds-stick { margin-left: -8px; margin-right: -8px; padding-left: 8px; padding-right: 8px; }
+  #app .tkt .ds-stalls { padding-left: 8px; padding-right: 8px; }
+  #app .tkt .ds-tie { margin-left: 8px; margin-right: 8px; }
+  #app .tkt > .centre > .ds-tie-lock { margin-left: 8px; margin-right: 8px; }
   #app .tkt .sh-day .ds-st { width: 40px; }
   #app .tkt .sh-day .ds-amt { width: 52px; }
   #app .tkt .ds-tag { width: 56px; }
+  #app .tkt .ds-nm { width: 52px; }
   #app .tkt .sh-day[data-tight='3'] .ds-brief { margin-left: 8px; margin-right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app .tkt .ds-stall { transition: none; }
 }

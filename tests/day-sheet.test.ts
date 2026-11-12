@@ -1,18 +1,25 @@
 // One sheet from stocking to the day's takings (PLAN-085): which step it shows, that nothing secret is drawn early or
-// for the wrong person, that the sheet is one element that stays, and what stocking and pricing say.
+// for the wrong person, the bell's rows, the Favoured Trade question, and that the sheet is one element that stays.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { h } from 'preact';
+import { aiActFor } from '../src/engine/ai';
 import { EVENT_CARDS, FRUIT, RIVALS, type FruitId } from '../src/engine/data';
-import { emptyStock, newGame, type GameState } from '../src/engine/game';
-import { TIGHTEST, dayStep, fitSheet, ownStep, type DayNow } from '../src/ui/game/daySheet';
+import { activePlayer, applyAction, decideTie, emptyStock, newGame, publicView, tiedPrices, type GameState } from '../src/engine/game';
+import { toStaticHtml } from '../src/ui/cards';
+import { TIGHTEST, dayStep, fitSheet, fullReach, ownStep, type DayNow } from '../src/ui/game/daySheet';
 import { BEAT } from '../src/ui/motion';
+import { bellRows, flipped, nth } from '../src/ui/game/pricingTable';
+import { tieAnswer } from '../src/ui/game/animator';
+import { CratesOpen, TieCard } from '../src/ui/game/panels/PricingTable';
+import { tieStory } from '../src/ui/game/tieStory';
 import { nightSteps, tonightWord } from '../src/ui/game/tonight';
-import { nth, shelfRowText, tieOrderText } from '../src/ui/panel';
+import { shelfRowText, tieOrderText } from '../src/ui/panel';
 
 const read = (f: string) => readFileSync(f, 'utf8');
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
 
-const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: false, rung: false, rush: false, rushed: false, done: false, ...x });
+const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, rushed: false, done: false, ...x });
 
 describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
   it('stays from stocking to the takings: stocking, waiting, pricing, sealed, the bell, the takings', () => {
@@ -26,8 +33,9 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     for (const busy of [false, true]) expect(dayStep(now({ phase: 'bid', busy, opened: true }))).toBe('sealed');
     // the rush has begun, a frame or two before the bell: still the sealed prices, never the lanes
     expect(dayStep(now({ phase: 'reveal', busy: true }))).toBe('sealed');
-    expect(dayStep(now({ phase: 'reveal', busy: true, bell: true, rung: true }))).toBe('bell');
-    // under a customer's card the open crates stay; when the last card has gone, the takings
+    expect(dayStep(now({ phase: 'reveal', busy: true, bell: 0, rung: true }))).toBe('bell');
+    expect(dayStep(now({ phase: 'reveal', busy: true, bell: 3, rung: true }))).toBe('bell');
+    // under a customer's card the open rows stay; when the last card has gone, the takings
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true, rush: true, rushed: true }))).toBe('bell');
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true, rushed: true }))).toBe('takings');
     expect(dayStep(now({ phase: 'reveal', rung: true, rushed: true, done: true }))).toBe('takings');
@@ -40,17 +48,21 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
   });
 
   it('the takings never show before the rush has played, and "No sales today" keeps the sealed prices', () => {
-    // the bell has rung and no card is up yet (the rush was skipped and is being settled)
+    // the bell has rung and no card is up yet (a Favoured Trade card is travelling, or the rush was skipped)
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
     expect(dayStep(now({ phase: 'reveal', busy: true }))).toBe('sealed');
   });
 
-  it('the Favoured Trade question keeps the sheet up too', () => {
+  it('Favoured Trade: the bell rings at the flip, the question follows, and the bell is not shown again', () => {
+    expect(dayStep(now({ phase: 'tie', busy: true, bell: 0, rung: true }))).toBe('bell');
     expect(dayStep(now({ phase: 'tie', rung: true }))).toBe('tie');
     expect(dayStep(now({ phase: 'tie', busy: true, rung: true }))).toBe('tie');
-    expect(dayStep(now({ phase: 'tie', busy: true, bell: true, rung: true }))).toBe('bell');
-    // after the answer the open crates stay until the bell and the rush
+    // after the answer the rush starts with the rows already open: no bell, no sealed prices
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
+    const ctrl = read('src/ui/game/useGameController.ts');
+    expect(ctrl).toContain("const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';");
+    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');");
+    expect(read('src/ui/game/animator.tsx')).toContain('if (!rung) await bellRings(g, setBell);');
   });
 
   it('a shared phone: nothing of a stall\'s crate or prices is drawn until the phone has been handed to its owner', () => {
@@ -61,21 +73,18 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
       }
     }
     expect(dayStep(now({ phase: 'reveal', busy: true, mine: false }))).toBeNull();
-    // from the flip on everything on the table is public
+    // from the flip on everything on the sheet is public
     expect(dayStep(now({ phase: 'tie', mine: false, rung: true }))).toBe('tie');
-    expect(dayStep(now({ phase: 'reveal', mine: false, bell: true, rung: true }))).toBe('bell');
+    expect(dayStep(now({ phase: 'reveal', mine: false, bell: 2, rung: true }))).toBe('bell');
     // the sheet works that out from the person the phone was handed to
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     expect(sheet).toContain("mine: s.players[viewer]?.kind === 'human' && (online || c.humans.length === 1 || c.handedTo === viewer),");
-    // and it draws its own stall only: no rival's crate or price is read in it or in the views it draws
-    expect(sheet).not.toMatch(/s\.bids|postedPrice|crateStock/);
-    const views = read('src/ui/panel.tsx');
-    const mine = views.slice(views.indexOf('// ---------- stocking'), views.indexOf('/** "The Bell" (PLAN-059)'));
-    expect(mine).not.toMatch(/s\.bids|postedPrice|\.crates/);
   });
 
-  it('the sheet draws stocking and pricing itself and lies plain under the other steps\' own panels', () => {
-    expect((['stock', 'wait', 'price', 'sealed', 'bell', 'tie', 'takings'] as const).map(ownStep)).toEqual([true, true, true, true, false, false, false]);
+  it('stocking and pricing fit the middle of the table; the bell and the question are drawn on the sheet over the rows around it; under the takings it lies plain', () => {
+    const steps = ['stock', 'wait', 'price', 'sealed', 'bell', 'tie', 'takings'] as const;
+    expect(steps.map(ownStep)).toEqual([true, true, true, true, false, false, false]);
+    expect(steps.map(fullReach)).toEqual([false, false, false, false, true, true, false]);
   });
 });
 
@@ -85,13 +94,19 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(game).toContain('if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;');
     for (const old of ['<StallPanel', '<PricePanel', '<CratesOpen', '<TiePanel', '<SalesSummary']) expect(game).not.toContain(old);
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    // one root element, drawn first among the middle panels (sheet.ts slides a panel only when the first one changes)
+    // one root element whose class does not change with the step (sheet.ts slides a panel in only when its class changes)
     expect(sheet.match(/<div class=\{`mid-panel sh-day /g)).toHaveLength(1);
     const root = sheet.indexOf('<div class={`mid-panel sh-day ');
-    // the bell, the question and the takings are their own panels, mounted over it with the props they always had
-    for (const panel of ['<CratesOpen s={s} viewer={viewer} />', '<TiePanel key={`tie-${s.day}-${asked}`} s={s} viewer={viewer} asked={asked} onDecide={', '<SalesSummary s={s} viewer={viewer} />']) {
-      expect(sheet.indexOf(panel), panel).toBeGreaterThan(root);
-    }
+    const end = sheet.indexOf('</div>\n      {step === \'stock\'', root);
+    expect(end).toBeGreaterThan(root);
+    // the bell's rows and the Favoured Trade question are drawn on the sheet itself, in its one element
+    const rows = sheet.indexOf('<CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared}>');
+    expect(rows).toBeGreaterThan(root);
+    expect(rows).toBeLessThan(end);
+    expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeGreaterThan(rows);
+    expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeLessThan(end);
+    // the takings are their own panel, mounted after the sheet, which stays under them
+    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} />}")).toBeGreaterThan(end);
   });
 
   it('the sheet moves by position, size and fade only, on the table\'s clock, and waits for nothing', () => {
@@ -104,32 +119,146 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(sheet).toContain('duration: A.ms(A.BEAT.price.seal)');
     expect(sheet).not.toMatch(/duration: \d|_MS = \d/);
     expect([BEAT.stock.fly, BEAT.price.seal]).toEqual([260, 200]);
+    for (const frames of sheet.match(/\{ (transform|opacity)[^}]*\}/g) ?? []) expect(frames).not.toMatch(/(?<!transform|opacity|translate\w*|scale\w*): /);
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).not.toMatch(/@keyframes|animation:|transition:/);
-    // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin, on a short phone
+    expect(css).not.toMatch(/@keyframes|animation:/);
+    for (const t of css.match(/transition:[^;]+;/g) ?? []) expect(t).toMatch(/^transition: (none|opacity calc\(var\(--mk, 1\) \* var\(--t-[\w-]+\)\) ease);$/);
+    // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin
     expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
     expect(css).not.toMatch(/grid-template/);
     expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
+    // the bell's rows and the question reach over the rows around the middle by the same kind of margin (bell.css)
+    expect(read('src/ui/bell.css')).toContain('#app .tkt > .centre > .sh-day.full { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
     const main = read('src/main.tsx');
     expect(main.indexOf("'./ui/daysheet.css'")).toBeGreaterThan(main.indexOf("'./ui/rush.css'"));
   });
 });
 
-/** Three stalls at stocking: this stall holds two fresh apples. */
-function stocking(): GameState {
+/** Three stalls after the flip: P0 and P1 both ask $6 for apples; P2 asks $4 for blueberries. */
+function rung(): GameState {
   const g = newGame({ players: [0, 1, 2].map((i) => ({ name: `P${i}`, kind: i === 0 ? 'human' as const : 'ai' as const, level: 'normal' as const, avatar: RIVALS[i].avatar })), days: 8, unripe: true, upgrades: true, events: false, seed: 5 });
   const s: GameState = structuredClone(g);
-  s.day = 2; s.event = null; s.phase = 'stall';
+  s.day = 2; s.event = null; s.phase = 'reveal';
   s.order = [2, 0, 1];
   s.players.forEach((pl) => { pl.stock = emptyStock(true); pl.favours = []; });
   s.players[0].stock.apple[FRESH('apple')] = 2;
-  s.stalls = [null, null, null];
+  s.players[1].stock.apple[FRESH('apple')] = 1;
+  s.players[1].stock.mango[FRESH('mango')] = 1;
+  s.players[2].stock.blueberry[FRESH('blueberry')] = 1;
+  s.stalls = [{ apple: 2 }, { apple: 1, mango: 1 }, { blueberry: 1 }];
+  delete s.crates;
+  s.bids = [[{ fruit: 'apple', price: 6 }], [{ fruit: 'apple', price: 6 }, { fruit: 'mango', price: 10 }], [{ fruit: 'blueberry', price: 4 }]];
   return s;
 }
 
+describe('the bell: every stall\'s row in today\'s line-up (pricingTable.ts bellRows, PricingTable.tsx)', () => {
+  it('reads nothing before the flip; after it, each stall\'s tags with its price, pieces and tied prices', () => {
+    const s = rung();
+    for (const phase of ['stall', 'bid', 'buy', 'morning'] as const) {
+      expect(flipped({ ...s, phase })).toBe(false);
+      expect(bellRows({ ...s, phase }, 0)).toEqual([]);
+    }
+    const rows = bellRows(s, 0);
+    expect(rows.map((x) => [x.player, x.nth, x.me])).toEqual([[2, 1, false], [0, 2, true], [1, 3, false]]);
+    expect(rows[1].tags).toEqual([{ f: 'apple', price: 6, out: 2, marks: ['fresh', 'fresh'], more: 0, tied: true, stamped: false }]);
+    // the board's lane order: mango before apple
+    expect(rows[2].tags.map((t) => [t.f, t.price, t.tied])).toEqual([['mango', 10, false], ['apple', 6, true]]);
+    expect(rows[0].tags.map((t) => t.tied)).toEqual([false]);
+    // a stall that has played Favoured Trade has its tied tag stamped
+    const played = structuredClone(s);
+    played.players[1].favouredTrade = true;
+    expect(bellRows(played, 0)[2].tags.map((t) => t.stamped)).toEqual([false, true]);
+    expect([1, 2, 3, 4, 11, 12, 13, 21].map(nth)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st']);
+  });
+
+  it('draws the rows open, or only the backs of the tags of a row that has not turned yet', () => {
+    const s = rung();
+    const open = toStaticHtml(h(CratesOpen, { s, viewer: 0 }));
+    expect(open).toContain('The bell');
+    expect(open.match(/class="ds-stall /g)).toHaveLength(3);
+    expect(open).toContain('bought 1st');
+    expect(open).toContain('P1: 1 mangoes at $10, 1 apples at $6');
+    expect(open.match(/class="ds-pz tie /g)).toHaveLength(2);
+    // two rows have turned: the third shows two backs and no price
+    const part = toStaticHtml(h(CratesOpen, { s, viewer: 0, open: 2 }));
+    expect(part.match(/class="ds-pz back"/g)).toHaveLength(2);
+    expect(part).not.toContain('$10');
+    expect(part).toContain('P1: still shut');
+    // a shared phone names every stall
+    expect(toStaticHtml(h(CratesOpen, { s, viewer: 0, shared: true }))).not.toContain('<b>You</b>');
+  });
+});
+
+/** A real game played by the computer until a stall is asked about Favoured Trade. */
+function atTie(): GameState {
+  for (let seed = 1; seed < 80; seed++) {
+    let s = newGame({ players: [0, 1, 2, 3].map((i) => ({ name: i === 0 ? 'You' : RIVALS[i].name, kind: i === 0 ? 'human' as const : 'ai' as const, level: 'normal' as const, avatar: RIVALS[i].avatar })), days: 8, unripe: true, upgrades: true, events: true, seed });
+    for (let i = 0; i < 6000 && s.phase !== 'over'; i++) {
+      if (s.phase === 'tie') return s;
+      if (s.phase === 'morning') {
+        const pick = s.players.findIndex((p) => p.traitOffer && !p.trait);
+        s = pick >= 0 ? applyAction(s, pick, { kind: 'trait', trait: s.players[pick].traitOffer![0] }) : applyAction(s, 0, { kind: 'begin' });
+        continue;
+      }
+      if (s.phase === 'reveal') { s = applyAction(s, 0, { kind: 'finish' }); continue; }
+      s = aiActFor(s, activePlayer(s))!;
+    }
+  }
+  throw new Error('no game reached the Favoured Trade step');
+}
+
+describe('the Favoured Trade question, in words (tieStory.ts)', () => {
+  const s = atTie();
+  const asked = s.tieAsk![0];
+  const t = tiedPrices(s, asked)[0];
+
+  it('the asked stall reads who is tied and what the rush gives it without the card and with it, as the game itself would play it', () => {
+    const view = publicView(s, asked);
+    const story = tieStory(view, asked, asked);
+    expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) ask \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
+    // the two outcomes are the game's own, played on a copy with only this stall deciding
+    const alone = { ...view, tieAsk: [asked] };
+    // what the card does: it puts this stall first, or, when both outcomes give it the same takings, it says so
+    const same = decideTie(alone, asked, false).results!.income[asked] === decideTie(alone, asked, true).results!.income[asked];
+    expect(story.why).toContain(same ? 'Favoured Trade would not change what you take today.' : 'Play Favoured Trade and you sell first, on every tied price today.');
+    expect(story.why).not.toContain(same ? 'Play Favoured Trade and you sell first' : 'would not change');
+    for (const [play, line] of [[false, story.without], [true, story.with]] as const) {
+      const r = decideTie(alone, asked, play).results!;
+      expect(line).toContain(`You take $${r.income[asked]} today.`);
+      const sold = r.lines.filter((l) => l.fruit === t.fruit).reduce((a, l) => a + (l.offers.find((o) => o.player === asked)?.sold ?? 0), 0);
+      expect(line).toContain(`You sell ${sold} of ${view.stalls[asked]![t.fruit]}.`);
+    }
+    // nothing is changed
+    expect(view.phase).toBe('tie');
+    expect(view.players[asked].favours).toContain('favouredTrade');
+    const html = toStaticHtml(h(TieCard, { s: view, viewer: asked, asked, mine: true }));
+    expect(html).toContain('Favour · your card');
+    expect(html).toContain('The card is discarded once you play it. Rivals can see that you are deciding.');
+  });
+
+  it('everyone else reads who is tied and that the stall is deciding, never its outcomes', () => {
+    const other = s.players.findIndex((_, i) => i !== asked);
+    const story = tieStory(publicView(s, other), asked, other);
+    expect(story.title.startsWith(s.players[asked].name)).toBe(true);
+    expect(story.why).toContain('is deciding whether to play it');
+    expect(story.without).toBeNull();
+    expect(story.with).toBeNull();
+    const html = toStaticHtml(h(TieCard, { s: publicView(s, other), viewer: other, asked }));
+    expect(html).toContain(`Favour · ${s.players[asked].name}`);
+    expect(html).not.toContain('Without it');
+  });
+
+  it('the answer is read from the game: who was asked, and whether the card was played (animator.tsx tieAnswer)', () => {
+    expect(tieAnswer(s, decideTie(s, asked, true))).toEqual({ p: asked, played: true });
+    expect(tieAnswer(s, decideTie(s, asked, false))).toEqual({ p: asked, played: false });
+    expect(tieAnswer({ ...s, phase: 'bid' }, s)).toBeNull();
+  });
+});
+
 describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)', () => {
   it('a shelf row says who wants the fruit, what an older piece loses, and what tonight does to it', () => {
-    const s = stocking();
+    const s = rung();
+    s.phase = 'stall';
     const soft = FRUIT.apple.ripe.indexOf('notso');
     const green = FRUIT.mango.ripe.length + FRUIT.mango.unripeSlots - 1;
     expect(nightSteps(s, 0, 'apple')).toBe(1);
@@ -138,7 +267,7 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
     expect(shelfRowText(s, 0, 'apple', soft)).toMatch(/soft sells \$2 less · spoils tonight$/);
     expect(shelfRowText(s, 0, 'mango', FRUIT.mango.ripe.length)).toBe('Still green · ripe tomorrow');
     if (green > FRUIT.mango.ripe.length) expect(shelfRowText(s, 0, 'mango', green)).toBe(`Still green · ripe in ${green - FRUIT.mango.ripe.length + 1} nights`);
-    // a Heatwave ages one box more; no night follows the last day
+    // a Heatwave ages two boxes; no night follows the last day
     const heat = EVENT_CARDS.find((e) => (e.ageExtra ?? 0) > 0)!;
     expect(nightSteps({ ...s, event: heat }, 0, 'apple')).toBe(1 + heat.ageExtra!);
     expect(nightSteps({ ...s, day: s.config.days }, 0, 'apple')).toBe(0);
@@ -146,8 +275,7 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
   });
 
   it('pricing says how a tie falls and where you stand in today\'s line-up', () => {
-    expect(tieOrderText(stocking(), 0)).toBe('The fresher piece sells first, then the Haggler, then whoever bought earlier. You bought 2nd today.');
-    expect([1, 2, 3, 4, 11, 12, 13, 21].map(nth)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st']);
+    expect(tieOrderText(rung(), 0)).toBe('The fresher piece sells first, then the Haggler, then whoever bought earlier. You bought 2nd today.');
   });
 });
 
