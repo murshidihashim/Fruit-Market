@@ -111,6 +111,18 @@ describe('the first-game tip for stocking and pricing covers no control (Game.ts
     const css = read('src/ui/daysheet.css');
     expect(css).toContain('#app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }');
   });
+
+  it('on a small phone with a full shelf the sheet lies over the customers\' tickets while the tip is up, and slides back as it closes (PLAN-091)', () => {
+    const sheet = read('src/ui/game/panels/DaySheet.tsx');
+    // only with the tip up, only when the closest step still does not fit, at the roomiest step that fits there
+    expect(sheet).toContain("if (!(parseFloat(el.style.getPropertyValue('--tip')) > 0) || el.scrollHeight <= el.clientHeight + 1) return;");
+    expect(sheet).toContain("el.setAttribute('data-top', '');");
+    expect(sheet).toContain('if (el.scrollHeight <= el.clientHeight) break;');
+    // fitted again once the tickets' reach is measured, and slid back to its place when the tip is closed
+    expect(sheet).toContain("if (fitting.current && el.hasAttribute('data-top')) fit(el);");
+    expect(sheet).toContain("if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });");
+    expect(read('src/ui/daysheet.css')).toContain('#app .tkt > .centre > .sh-day.own[data-top] { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); }');
+  });
 });
 
 describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)', () => {

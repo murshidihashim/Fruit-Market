@@ -202,6 +202,9 @@
 /* The first-game tip lies at the sheet's foot, in room the sheet keeps free for it (DaySheet.tsx writes --tip), so it
    covers no row and no stepper. Where the sheet lies over your shelf the tip ends at the shelf's foot too. */
 #app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }
+/* on a small phone with a full shelf, while the tip is up, the sheet lies over the customers' tickets too (no control
+   is there; DaySheet.tsx fit), as the bell's rows do (bell.css) */
+#app .tkt > .centre > .sh-day.own[data-top] { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); }
 #app .game.gx.tkt.coach-row:has(.sh-day[data-over]) > .coach { grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; }
 /* a narrow phone: the same sheet, a little tighter (as the rest of the table, ticket.css) */
 @media (max-width: 379px) {
