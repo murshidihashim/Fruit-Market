@@ -7,7 +7,7 @@
 // animates the title and everything under the band into place.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { dailyConfig } from '../engine/daily';
+import { dailyConfig, dailyTwist } from '../engine/daily';
 import { stageAt, type FruitId } from '../engine/data';
 import { activePlayer, count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
@@ -89,7 +89,7 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
             <div class="hm-ln4">{LANES.map((f) => <span class={`hm-ln f-${f}`}><i><FruitSvg id={f} size={16} alt={f} /></i>{first.delivery[f] ?? 0}</span>)}</div>
             <span class="hm-lb">Same market for all</span>
             <span class="hm-st">
-              {daily[today] !== undefined ? <>Your best today <b>${daily[today]}</b></> : best !== null ? <><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></> : 'First try counts on the board'}
+              {daily[today] !== undefined ? <>Your best today <b>${daily[today]}</b></> : best !== null ? <><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></> : dailyTwist(today).text}
             </span>
           </div>
         </div>
