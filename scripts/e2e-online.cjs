@@ -25,9 +25,9 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   const shot = (p, n) => p.page.screenshot({ path: `${out}/${n}.png` });
 
   await A.page.goto(base);
-  await A.page.click('text=Play a friend'); await A.page.click('text=Create a room');
+  await A.page.click('button:has-text("Play a friend")'); await A.page.click('button:has-text("Create a room")');
   await A.page.fill('#online-name', 'Murshidi');
-  await A.page.click('text=Create room');
+  await A.page.click('button:has-text("Create room")');
   await A.page.waitForSelector('#invite-link');
   const link = await A.page.inputValue('#invite-link');
   await shot(A, '01-lobby-host');
@@ -35,14 +35,14 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 
   await B.page.goto(link);
   await B.page.fill('#online-name', 'London Friend');
-  await B.page.click('text=Join the game');
+  await B.page.click('button:has-text("Join the game")');
   await B.page.waitForSelector('text=London Friend (you)');
   await A.page.waitForSelector('text=London Friend');
-  await A.page.click("text=I'm ready");
-  await B.page.click("text=I'm ready");
+  await A.page.click(`button:has-text("I'm ready")`);
+  await B.page.click(`button:has-text("I'm ready")`);
   await shot(B, '02-lobby-guest');
-  await A.page.waitForSelector('text=Start the match');
-  await A.page.click('text=Start the match');
+  await A.page.waitForSelector('button:has-text("Start the match")');
+  await A.page.click('button:has-text("Start the match")');
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   console.log('match started on both devices');
 
@@ -54,11 +54,11 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     const has = async (sel) => (await p.locator(sel).count()) > 0;
     if (await has('.results')) return 'done';
     if (await has('.trait-card')) { await p.click('.trait-card'); return 'moved'; }
-    if (await has('text=Start buying')) { await p.click('text=Start buying'); return 'moved'; }
-    if (await has('text=/Done buying|Skip buying/')) {
+    if (await has('button:has-text("Start buying")')) { await p.click('button:has-text("Start buying")'); return 'moved'; }
+    if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
       const c = p.locator('.mk-cell.pick');
       if ((await c.count()) && Math.random() < 0.6) { await c.first().click(); await p.waitForTimeout(250); return 'moved'; }
-      await p.click('text=/Done buying|Skip buying/'); return 'moved';
+      await p.click('button:has-text("Done buying"), button:has-text("Skip buying")'); return 'moved';
     }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
     if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); return 'moved'; }
@@ -68,8 +68,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
       if (!once.has(`tray-${P.tag}`)) { once.add(`tray-${P.tag}`); await shot(P, `03-pricing-${P.tag}`); }
       await p.click('.pp-lock .btn:not([disabled])'); return 'moved';
     }
-    if (await has('text=Lights out')) { await p.click('text=Lights out'); return 'moved'; }
-    for (const t of ['Close for the day', 'See results']) if (await has(`text=${t}`)) { await p.click(`text=${t}`); return 'moved'; }
+    if (await has('button:has-text("Lights out")')) { await p.click('button:has-text("Lights out")'); return 'moved'; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { await p.click(`button:has-text("${t}")`); return 'moved'; }
     if (await has('.waiting-dots') && !once.has(`wait-${P.tag}`)) { once.add(`wait-${P.tag}`); await shot(P, `04-waiting-${P.tag}`); }
     return 'idle';
   };
@@ -112,10 +112,10 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 
   // Rematch without a new invitation.
   if (done) {
-    // The button, not the note: "… wants to play again." holds the same words.
-    await A.page.click('button:has-text("Play again")');
-    await B.page.waitForSelector('text=wants to play again');
-    await B.page.click('button:has-text("Play again")');
+    // The button, not the note: "… wants a rematch." holds the same word.
+    await A.page.click('button:has-text("Rematch")');
+    await B.page.waitForSelector('.rematch-note:has-text("wants a rematch")');
+    await B.page.click('button:has-text("Rematch")');
     await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
 

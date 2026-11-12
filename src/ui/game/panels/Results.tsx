@@ -188,7 +188,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   onPlayAs?: (avatar: string) => void;
 }) {
   // Counted once when the results first show (progress.ts finishGame). On a shared phone only the phone's owner counts:
-  // the first person at the table, whoever played last.
+  // the first person at the table, whoever played last. The whole page then speaks to the owner (PLAN-091): "You",
+  // the margin, the bold line of the chart and "Your best moments" are theirs, as are the stamps, the card and the
+  // second button under them, so nothing of the other person's game is shown as theirs.
   const owner = online ? viewer : Math.max(0, s.players.findIndex((p) => p.kind === 'human'));
   const [sum] = useState(() => finishGame(s, owner, !!online));
   // New looks are handed out after the game is counted, so a level reached or a tier earned counts too.
@@ -201,19 +203,19 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const [landed, setLanded] = useState(false);
   const cleared = sum?.cleared ?? false;
   const order = ranking(s);
-  const words = finishWords(s, viewer);
+  const words = finishWords(s, owner);
   const win = words.win;
-  const champSeat = win ? viewer : order[0];
-  const recap = gameRecap(s, viewer);
+  const champSeat = win ? owner : order[0];
+  const recap = gameRecap(s, owner);
   const league = s.config.league;
   // Offline, the person's stall shows what they have on now; online every stall shows what the room was told.
   const lookOfSeat = (i: number): LookSet | undefined => (!online && i === owner ? worn() : s.players[i].look);
   const second = order.length > 1 && !words.shared ? order[1] : -1;
   const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
-  const margin = gap > 0 ? `By $${gap} over ${second === viewer ? 'you' : s.players[second].name}.` : words.margin;
+  const margin = gap > 0 ? `By $${gap} over ${second === owner ? 'you' : s.players[second].name}.` : words.margin;
   const nudge = !online && !s.config.daily && league === undefined && onPlayAs ? close.find((c) => c.avatar && c.name) : undefined;
   const share = async () => {
-    const text = `Fruit Market: ${words.mine} with $${s.players[viewer].cash} after ${s.config.days} days.`;
+    const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
     try {
       if (navigator.share) await navigator.share({ text, url: location.origin });
       else await navigator.clipboard.writeText(`${text} ${location.origin}`);
@@ -221,7 +223,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   };
   // A tap on the page (not on a button) hurries the stamps.
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Home' : 'Play again';
+  // The board's words (PLAN-091): "Rematch" and "Main menu". The Daily market is played once a day, so its main button
+  // goes back to the main menu.
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Main menu' : 'Rematch';
   return (
     <section class="sbk sbk-res results" onClick={hurry}>
       <div class="sbk-in" style="flex: 1 0 auto">
@@ -236,11 +240,11 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
             const look = lookOfSeat(i);
             const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
             return (
-              <div class={`sbk-pod ${i === viewer ? 'me' : ''}`} title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}${s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}`}>
+              <div class={`sbk-pod ${i === owner ? 'me' : ''}`} title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}${s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}`}>
                 <i class="sbk-sw" style={{ '--a': awningColour(look, i) }} />
                 <span class="sbk-md">{words.medals[i]}</span>
                 <FramedFace who={shownAvatar(s.players, i)} size={26} look={look} />
-                <span class="sbk-nm"><b>{i === viewer ? 'You' : pl.name}</b>{sub && <small>{sub}</small>}</span>
+                <span class="sbk-nm"><b>{i === owner ? 'You' : pl.name}</b>{sub && <small>{sub}</small>}</span>
                 {look?.stamp && <span class="sbk-stamp">Sold out</span>}
                 <span class="sbk-cs">${pl.cash}</span>
               </div>
@@ -266,7 +270,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
 
         <div class="sbk-more">
           {s.config.daily && <DailyResult s={s} />}
-          <CashChart s={s} viewer={viewer} />
+          <CashChart s={s} viewer={owner} />
           {(recap.best.length > 0 || recap.worst.length > 0) && (
             <div class="sbk-box recap">
               {recap.best.length > 0 && <><span class="sbk-lab">Your best moments</span>{recap.best.map((t) => <div class="sbk-rc">{t}</div>)}</>}
@@ -283,7 +287,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           </div>
           <div class="sbk-foot">
             <span>Scroll: cash day by day · your best moments</span>
-            <span><button onClick={share}>Share</button>{!s.config.daily && <> · <button onClick={onExit}>Home</button></>}</span>
+            <span><button onClick={share}>Share</button>{!s.config.daily && <> · <button onClick={onExit}>Main menu</button></>}</span>
           </div>
         </div>
       </div>

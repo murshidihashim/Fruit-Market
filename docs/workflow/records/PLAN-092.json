@@ -1,0 +1,67 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-113"
+  ],
+  "decisions": [
+    "DEC-086",
+    "DEC-109"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-092",
+  "title": "The rush as a round table",
+  "problem": "The owner dislikes the rush's list of offers under each customer card.",
+  "scope": [
+    "The rush built as on the Rush-D board: the customer in the middle, every stall's open crate round it in a fixed seat, sales as travel",
+    "The same rules, held-back numbers, pace, reduced motion and buttons as today's rush"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or message change",
+    "The other screens"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Nothing in the rush changes before its customer (measured frame by frame); a rival's won favour card stays face down",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls beside the board",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

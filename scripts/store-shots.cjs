@@ -26,24 +26,25 @@ const path = require('path');
   await p.waitForTimeout(400);
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
-  await p.click('text=New game');
+  await p.click('button:has-text("New game")');
   await setRivals(p, 2);
-  await p.click('text=Start game');
-  await p.waitForSelector('.trait-card');
-  await p.waitForTimeout(1500);
-  await shot('2-traits');
+  await p.click('button:has-text("Start game")');
+  // A merchant trait is picked only when the game offers one (the Daily market, the Market League); a new game goes
+  // straight to the table.
+  await p.waitForSelector('.trait-card, .market-stall');
+  if (await p.locator('.trait-card').count()) { await p.waitForTimeout(1500); await shot('2-traits'); }
   const done = new Set();
   const once = (k) => (done.has(k) ? false : (done.add(k), true));
   for (let i = 0; i < 3000 && done.size < 5; i++) {
     try {
       if (await p.locator('.results').count()) break;
       if (await p.locator('.trait-card').count()) { await p.locator('.trait-card').nth(1).click(); continue; }
-      if (await p.locator('text=Start buying').count()) { await p.click('text=Start buying'); continue; }
-      if (await p.locator('text=/Done buying|Skip buying/').count()) {
+      if (await p.locator('button:has-text("Start buying")').count()) { await p.click('button:has-text("Start buying")'); continue; }
+      if (await p.locator('button:has-text("Done buying"), button:has-text("Skip buying")').count()) {
         const t = p.locator('.mk-cell.pick');
         if (await p.locator('.my-stall .tb-chip').count() >= 2 && once('buy')) { await p.waitForTimeout(500); await shot('3-buying'); }
         if (await t.count() && (await p.locator('.my-stall .tb-chip').count()) < 4) { await t.first().click(); await p.waitForTimeout(500); continue; }
-        await p.click('text=/Done buying|Skip buying/'); continue;
+        await p.click('button:has-text("Done buying"), button:has-text("Skip buying")'); continue;
       }
       // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
@@ -55,17 +56,17 @@ const path = require('path');
         if ((await p.locator('.auction').count()) && once('show')) await shot('5-showdown');
         continue;
       }
-      if (await p.locator('text=Lights out').count()) {
+      if (await p.locator('button:has-text("Lights out")').count()) {
         if (once('eve')) { await p.waitForTimeout(700); await shot('6-upgrades'); }
-        await p.click('text=Lights out'); continue;
+        await p.click('button:has-text("Lights out")'); continue;
       }
-      for (const t of ['Close for the day', 'See results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
+      for (const t of ['Close for the day', 'See results']) if (await p.locator(`button:has-text("${t}")`).count()) { await p.click(`button:has-text("${t}")`); break; }
       await p.waitForTimeout(120);
     } catch { await p.waitForTimeout(200); }
   }
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(300);
-  await p.click('text=Trophies');
+  await p.click('button:has-text("Trophies")');
   await p.waitForTimeout(300);
   await shot('7-trophies');
   console.log('saved', [...done].join(', '));

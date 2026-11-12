@@ -2684,6 +2684,30 @@
         "REP-112"
       ],
       "reviewTrigger": "After the first table playtest of the printed kit: is the crier still needed, and how long a game really takes"
+    },
+    {
+      "id": "DEC-109",
+      "title": "The rush as a round table",
+      "question": "The owner disliked the rush's list of offers under each customer card. Which of three layouts of his idea (the customer comes to the middle and the open crates stand round it) is built?",
+      "choice": "D, the round table (docs/studio/review-18/mockups/png/Rush-D.png): each customer travels from its ticket to the middle of the table; every stall's open crate sits round it in a fixed seat for the whole rush, with its price tag for the fruit being bought and its pieces; crates over the customer's price are dimmed, crates without the fruit are dashed; the selling crate is marked and a piece travels from it to the customer while the coins travel back. The customer row stays at the top; the result line and Skip to the end and Next customer stay. It replaces the Rush board approved earlier (DEC-086's one card for each customer stays).",
+      "rationale": "The owner's own idea and choice. It reads like a table: the stalls are round the customer, as at a market, instead of a list.",
+      "impact": {
+        "player": "The rush shows the stalls round each customer; the same rules, the same pace.",
+        "technical": "A new rush component in place of Showdown.tsx (PLAN-092); the rush's timing and its held-back numbers are kept; the browser scripts that play the rush follow it.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-113"
+      ],
+      "reviewTrigger": "When built: shown to the owner at both phone sizes with 2, 4 and 6 stalls; if six crates crowd a small phone"
     }
   ],
   "history": [
@@ -3750,6 +3774,14 @@
     {
       "at": "2026-11-12 23:32",
       "text": "REP-113 (analysis): owner, 2026-11-12: \"analyse if standing order makes sense with the cost involved\". 1,500 computer games each at 3, 4 and 6 stalls (Normal) and 1,000 at 4 stalls (Hard), plus a paired test of bidding styles: a careful bid is worth about $1 to $1.60 a game over never bidding; wild low bids lose $4 to $32; winning bids sit at 65 to 74% of the highest bid; about half of mango orders find no bidder and half of those taken fail. Options put to him: leave it, show the sums on the bid sheet (no rule change), or change mango orders or the reward (rules version 19, after a balance run). Nothing changed. Also put to him: three layouts of his idea for the rush, the customer in the middle with the open crates round them (Rush-D round table, Rush-E market square, Rush-F price ring, in docs/studio/review-18/mockups)."
+    },
+    {
+      "at": "2026-11-12 23:59",
+      "text": "DEC-109: Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\". PLAN-092 opened; a helper builds it from the board. Owner, same message, on standing orders: \"add +2 to max bid and reduce stake by -2 for all standing order cards, how would this affect balance and fix mango orders\". Read as a question before a rules change: the proposal (blueberry $11 / $4, watermelon $14 / $6, apple $13 / $5, mango $20 / $10) is being measured with the rules 18 balance scripts (patch orderPlus2) at 3, 4 and 6 stalls and with Hard computers; nothing in the game is changed until he decides on the results (REP-114)."
+    },
+    {
+      "at": "2026-11-13 00:14",
+      "text": "REP-114 (analysis of the owner's standing-order proposal, highest bid +$2 and stake -$2): mango orders with no bidder fall only 4 to 6 points (56% to 52% at 4 stalls); the higher top bid hardly moves winning bids; careful bidding is worth a little more; low bids are punished much less; shopkeeper balance unchanged within the noise. Not a fix for mango orders. Options put to him: keep the numbers and show the sums, take the proposal, or a direct mango fix (due in 3 days, one piece fewer, or no mango cards), each to be measured first. Nothing changed."
     }
   ]
 }
