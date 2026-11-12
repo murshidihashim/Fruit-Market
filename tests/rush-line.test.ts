@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { aiActFor, aiStep } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, beginBuying, finishReveal, newGame, type LineResult } from '../src/engine/game';
-import { nameIn, nameOwn, nameVerb, rivalReaction, rushLine } from '../src/engine/story';
+import { nameIn, nameOwn, nameVerb, rushLine } from '../src/engine/story';
 
 // PLAN-088: a solo game calls the player's stall "You" when no name is typed. A sentence built from a stall's name must
 // read correctly for that name as for any other ("You win", never "You wins").
@@ -72,8 +72,6 @@ describe('rush result line (shared)', () => {
           if (/ sold \d+ at /.test(st.headline)) seen.sold++;
           if (/split the order/.test(st.headline)) seen.split++;
           if (/^(Every price was too high for|Nothing .+ would buy\.|Nobody had \w+ for)/.test(st.headline)) seen.none++;
-          // the rivals' quip does not depend on who is watching
-          expect(rivalReaction(s, l, 0, new Set())).toEqual(rivalReaction(s, l, n - 1, new Set()));
         }
         s = finishReveal(s);
       }

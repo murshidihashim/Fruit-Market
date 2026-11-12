@@ -203,27 +203,9 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 
 /* pricing */
 .price-panel { display: flex; flex-direction: column; gap: 10px; }
-.pp-intro { display: flex; flex-direction: column; gap: 2px; }
-.pp-intro b { font-family: var(--f-pixel); font-size: 1.15rem; }
-.pp-intro span { color: var(--muted); font-size: 0.82rem; }
-.price-card { padding: 12px; border-radius: 14px; background: var(--cream); color: var(--ink); box-shadow: 0 4px 0 var(--card-edge); transition: transform 0.12s, box-shadow 0.12s; }
-.price-card.on { transform: translateY(-2px); box-shadow: 0 6px 0 var(--card-edge), 0 0 0 3px var(--gold); }
-.pc-top { display: flex; align-items: center; gap: 10px; }
-.pc-who { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.pc-who b { font-family: var(--f-pixel); font-size: 1.02rem; }
-.pc-who span { font-size: 0.82rem; color: var(--ink-muted); }
-.pc-who span b { font-family: var(--f-body); font-size: 0.95rem; color: var(--terra-d); }
-.pc-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-.pc-qty { flex: 1; min-width: 120px; }
-.pc-lbl { display: block; font-size: 0.72rem; color: var(--ink-muted); margin-bottom: 2px; }
 .qt { width: 46px; height: 46px; display: grid; place-items: center; border: 0; border-radius: 10px; background: var(--cream-2); opacity: 0.5; filter: grayscale(0.7); transition: transform 0.06s; }
 .qt.sel { opacity: 1; filter: none; background: var(--good-bg); box-shadow: 0 3px 0 var(--x-green); transform: translateY(-2px); }
-.pc-price { display: flex; align-items: center; background: var(--night); color: var(--gold); border-radius: 12px; padding: 2px; }
-.pc-price button { width: 48px; height: 54px; border: 0; background: transparent; color: var(--cream); font-size: 1.7rem; font-weight: 600; }
-.pc-price button:disabled { opacity: 0.25; }
 .pc-num { min-width: 66px; text-align: center; font-size: 1.85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.pc-price.off { opacity: 0.4; }
-.pc-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; margin-top: 10px; font-size: 0.78rem; }
 .read { padding: 3px 10px; border-radius: 999px; font-weight: 600; }
 .read.safe { background: var(--good-bg); color: var(--x-green); }
 .read.ok { background: var(--good-bg); color: var(--x-green); }
@@ -251,8 +233,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .mc-day, .sc-title { font-family: var(--f-pixel); font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px; }
 .mc-day small { font-family: var(--f-body); font-weight: 400; font-size: 0.85rem; color: var(--ink-muted); }
 .morning-card.finale { box-shadow: 0 4px 0 var(--terra-d), 0 0 0 2px var(--terra); }
-.mc-standing, .sc-standing { font-size: 0.88rem; font-weight: 600; padding: 3px 12px; border-radius: 999px; background: var(--cream-2); }
-.mc-standing.r1, .sc-standing.r1 { background: var(--gold); }
 .mc-loss { font-size: 0.85rem; font-weight: 600; color: var(--terra-d); background: var(--bad-bg); border-radius: 8px; padding: 3px 10px; }
 .sunny { display: flex; align-items: center; gap: 6px; color: var(--ink-muted); }
 .event-card { width: 100%; padding: 12px; border-radius: 12px; background: var(--night); color: var(--text); }
@@ -263,13 +243,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 @keyframes flip { from { transform: scaleX(0); } to { transform: none; } }
 .minprices { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
 .minprices span { display: inline-flex; align-items: center; gap: 2px; background: var(--cream); color: var(--ink); border-radius: 6px; padding: 1px 6px; font-weight: 600; }
-.mc-next { display: flex; flex-direction: column; font-size: 0.85rem; background: var(--cream-2); border-radius: 10px; padding: 6px 12px; }
-.mc-next small { color: var(--ink-muted); }
-.sc-money { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: 0.85rem; }
-.sc-money b { font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.sc-money .good { color: var(--x-green); }
-.sc-money .bad { color: var(--terra-d); }
-.sc-high { display: flex; flex-direction: column; gap: 4px; width: 100%; }
 .hl { display: flex; align-items: center; gap: 6px; text-align: left; font-size: 0.86rem; font-weight: 600; border-radius: 8px; padding: 6px 10px; background: var(--cream-2); animation: slidein 0.3s steps(3) backwards; }
 .hl:nth-child(2) { animation-delay: 0.12s; }
 .hl.good { background: var(--good-bg); color: var(--x-green); }
@@ -607,7 +580,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .nl-f { display: inline-flex; align-items: center; gap: 2px; }
 .nl-f.few { opacity: 0.75; }
 .nl-f.plenty { font-weight: 600; }
-.next-lorry.mc-lorry { background: var(--cream-2); color: var(--ink); }
 .mk-key i { display: inline-block; width: 11px; height: 11px; margin-right: 4px; border-radius: 3px; vertical-align: -1px; }
 
 /* fruit piles */
@@ -765,9 +737,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- PLAN-010: the farmer's lorry ---------- */
 .street-wrap .street { transition: padding-right 0.6s ease-in-out; }
-.op-lorry img { display: block; width: 100%; height: auto; }
-.op-lorry img.b { position: absolute; left: 0; top: 0; opacity: 0; }
-@keyframes lorry-flip { 0% { opacity: 0; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .street-wrap .street { transition: none; }
 }
@@ -785,7 +754,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .full-sheet .event-card { padding: 18px 14px; }
 .full-sheet .event-card b { font-size: 1.35rem; }
 .full-sheet .event-card p { font-size: 1rem; }
-.full-sheet .mc-next { font-size: 0.95rem; padding: 10px 14px; }
 .full-sheet .next-lorry { font-size: 0.85rem; padding: 8px 10px; }
 
 .sb-hourglass { display: inline-block; flex: none; width: 10px; height: 14px; background: currentColor; clip-path: polygon(0 0, 100% 0, 58% 50%, 100% 100%, 0 100%, 42% 50%); animation: hourglass 1.6s steps(2) infinite; }
@@ -812,11 +780,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .rw-none { color: var(--muted); font-size: 0.74rem; }
 
 /* ---------- rules 4: open stalls, buyer caps, queue backs, ledger (PLAN-015) ---------- */
-.stock-line { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.stock-line .sl { display: inline-flex; align-items: center; gap: 1px; padding: 1px 4px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: rgba(0, 0, 0, 0.06); }
-.stock-line .sl.st-fresh { box-shadow: inset 0 -2px 0 var(--x-green); }
-.stock-line .sl.st-okay { box-shadow: inset 0 -2px 0 var(--x-mustard); }
-.stock-line .sl.st-notso { box-shadow: inset 0 -2px 0 var(--terra-d); }
 .buyer-caps { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 .buyer-caps .bc { display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px 1px 2px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .buyer-caps .bc.yes { background: rgba(79, 154, 82, 0.18); color: var(--x-green); }
@@ -826,7 +789,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .cust.heard .cface { position: relative; }
 .cust .ear { position: absolute; right: -6px; top: -6px; font-style: normal; font-size: 0.8rem; }
 .next-lorry.market-day { background: rgba(232, 176, 75, 0.35); }
-.sc-money.ledger .net { padding-left: 10px; border-left: 2px solid rgba(0, 0, 0, 0.12); }
 .sc-waste { font-size: 0.8rem; color: var(--terra-d); }
 /* good news: fruit the Juice Bar turns into money tonight (the sales card) and overnight (the morning card) */
 .sc-juice { font-size: 0.8rem; font-weight: 600; color: var(--x-green); }
@@ -985,11 +947,8 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .coach { border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .full-sheet { background: var(--x-cream); color: var(--ink); }
 .full-sheet .muted, .pp-intro span, .owned-row { color: var(--ink-muted); }
-.pp-intro b { color: var(--ink); }
 .price-card, .up-card, .morning-card, .sales-card, .auction { border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); background: var(--x-paper); }
-.price-card.on { box-shadow: 0 4px 0 var(--ink), 0 0 0 3px var(--gold); }
 .qt { background: var(--x-cream); }
-.pc-price { background: var(--ink); }
 .pp-lock { background: var(--x-cream); box-shadow: 0 -12px 12px -6px var(--x-cream); }
 .error { color: var(--terra-d); }
 .event-card { background: var(--x-paper); color: var(--ink); border: 2px solid var(--ink); }
@@ -1027,31 +986,7 @@ body { background: var(--x-cream); }
 
 /* ---------- PLAN-029: the market opening (design approved, DEC-047) ---------- */
 .op { position: absolute; inset: 0; z-index: 60; background: var(--c-cfe7d8); display: grid; place-items: center; overflow: hidden; cursor: pointer; }
-.op-stage { position: relative; width: 390px; height: 560px; flex: none; transform-origin: center; }
-.op-stage::before { content: ''; position: absolute; left: -600px; right: -600px; top: -900px; height: 900px; background: var(--c-cfe7d8); }
-.op-sky { position: absolute; left: 0; top: 0; width: 100%; height: 300px; }
-.op-ground { position: absolute; left: -600px; right: -600px; top: 300px; bottom: -900px; background: var(--c-e2cc9c); border-top: 3px solid var(--ink); }
-.op-sun { animation: op-rise 0.5s ease-out both; }
-.op-sign { position: absolute; left: 50%; top: -60px; transform: translateX(-50%); background: var(--x-paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 16px; font-family: var(--f-pixel); font-weight: 700; letter-spacing: calc(1px * var(--ls, 1)); box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-drop 0.4s 0.15s cubic-bezier(0.3, 1.5, 0.5, 1) forwards; }
-.op-stall { position: absolute; top: 262px; width: 88px; height: 76px; line-height: 0; opacity: 0; animation: op-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
-.op-s0 { left: 22px; animation-delay: 0.4s; } .op-s1 { left: 151px; animation-delay: 0.5s; } .op-s2 { left: 280px; animation-delay: 0.6s; }
-.op-who { position: absolute; left: 27px; top: 21px; }
-.stall-art { display: block; }
-.op-lorry { position: absolute; top: 372px; left: -190px; width: 162px; line-height: 0; animation: op-drive 0.7s 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards, op-leave 0.6s 1.95s ease-in forwards; }
-.op-fl { position: absolute; left: 150px; top: 392px; opacity: 0; animation: op-toss 0.5s ease-out forwards; }
-.op-f0 { --x: 34px; animation-delay: 1.3s; } .op-f1 { --x: 160px; animation-delay: 1.4s; } .op-f2 { --x: 286px; animation-delay: 1.5s; } .op-f3 { --x: 92px; animation-delay: 1.6s; }
-.op-bell { position: absolute; right: 26px; top: 150px; opacity: 0; transform-origin: top; animation: op-ring 0.6s 1.8s ease-in-out forwards; }
-.op-pill { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%) scale(0.6); opacity: 0; background: var(--terra); color: var(--x-paper); border: 3px solid var(--ink); border-radius: 999px; padding: 10px 22px; font-family: var(--f-pixel); font-weight: 700; box-shadow: 0 4px 0 var(--ink); white-space: nowrap; animation: op-pill 0.3s 1.9s cubic-bezier(0.3, 1.6, 0.5, 1) forwards; }
 .op-skip { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem; color: var(--ink-muted); }
-@keyframes op-rise { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes op-drop { to { top: 20px; } }
-@keyframes op-pop { from { opacity: 0; transform: translateY(24px) scale(0.8); } to { opacity: 1; transform: none; } }
-@keyframes op-drive { to { left: 112px; } }
-@keyframes op-leave { to { left: 430px; } }
-@keyframes op-toss { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; } 60% { transform: translate(calc((var(--x) - 150px) * 0.6), -150px); } 100% { opacity: 1; transform: translate(calc(var(--x) - 150px), -92px); } }
-@keyframes op-ring { 0% { opacity: 1; transform: rotate(0); } 20% { opacity: 1; transform: rotate(22deg); } 40% { transform: rotate(-20deg); } 60% { transform: rotate(14deg); } 80% { transform: rotate(-8deg); } 100% { opacity: 1; transform: rotate(0); } }
-@keyframes op-pill { to { opacity: 1; transform: translateX(-50%) scale(1); } }
-@media (prefers-reduced-motion: reduce) { .op-stage * { animation-duration: 0.01s !important; animation-delay: 0s !important; } }
 
 .demo-ex { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; padding: 8px 10px; border-radius: 10px; background: var(--cream-2); color: var(--ink); font-size: 0.9rem; }
 .demo-ex > div { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -1088,7 +1023,6 @@ body { background: var(--x-cream); }
 .page .seg button.on small, .seg button.on small { color: var(--x-paper); }
 .au-offer.won .au-res { background: var(--x-green); }
 .cust.mystery.pickable { cursor: pointer; outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 12px; animation: glow 1.1s steps(2) infinite; }
-.op-lorry img.b { animation: lorry-flip 0.24s steps(1) 3; animation-delay: 0.8s; }
 .acct-field { display: block; margin-top: 8px; }
 .acct-field .input { margin-top: 2px; }
 .acct-delete { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
@@ -1177,7 +1111,6 @@ body { background: var(--x-cream); }
 .cust .pref { display: block; font-style: normal; font-size: 9px; line-height: 1.2; padding: 1px 4px; border-radius: 6px; margin-top: 2px; text-align: center; white-space: nowrap; background: var(--c-surface-2, rgba(0,0,0,.08)); color: inherit; opacity: .85; }
 .cust .pref-premium { outline: 1px solid currentColor; }
 .tip-pref { display: block; margin: 2px 0 4px; }
-.mc-fine { font-size: 12px; margin: 4px 0 0; opacity: .85; }
 
 /* =====================================================================
    The Great Fruit Exchange (DEC-066): the deck-art identity for every screen.
@@ -1375,7 +1308,6 @@ b, strong { font-weight: 700; }
 .pz-legend i.open { background: var(--x-sky-d); }
 .mk-key, .game .mk-key, .next-lorry, .game .next-lorry { color: var(--x-ink); }
 .next-lorry .nl-title { font-family: var(--f-label); font-weight: 600; }
-.next-lorry.mc-lorry { background: var(--cream-2); color: var(--x-ink); }
 .next-lorry.market-day { background: var(--hi-bg); }
 .mk-cover { background: repeating-linear-gradient(90deg, var(--x-green) 0 22px, var(--x-chalk) 22px 44px); color: var(--x-paper); border: 2px solid var(--x-ink); }
 
@@ -1387,16 +1319,9 @@ b, strong { font-weight: 700; }
 .full-sheet { color: var(--x-ink); }
 .pp-lock { background: var(--x-cream); box-shadow: 0 -12px 12px -6px var(--x-cream); }
 .price-card, .up-card, .morning-card, .sales-card, .auction { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
-.price-card.on { box-shadow: 0 3px 0 var(--x-ink), 0 0 0 3px var(--x-mustard), 0 0 0 5px var(--x-ink); }
-.pc-who span { color: var(--x-slate); }
-.pc-who span b { font-family: var(--f-label); color: var(--x-red-d); }
-.pc-lbl { color: var(--x-slate); text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); }
 .qt { background: var(--cream-2); border: 1.5px solid var(--x-edge); border-radius: var(--r); }
 .qt.sel { background: var(--good-bg); border-color: var(--x-green); box-shadow: 0 2px 0 var(--x-green); }
-.pc-price { background: var(--x-ink); color: var(--x-mustard); border-radius: var(--r); }
-.pc-price button { color: var(--x-paper); font-family: var(--f-label); }
 .pc-num { font-size: 1.75rem; font-weight: 400; }
-.pc-price .pc-num small { color: var(--on-ink-muted); font-family: var(--f-label); font-size: 0.95rem; }
 .read { font-weight: 600; font-size: 0.7rem; }
 .read.safe { background: var(--good-bg); color: var(--x-green); }
 .read.ok { background: var(--hi-bg); color: var(--x-ink); }
@@ -1412,20 +1337,14 @@ b, strong { font-weight: 700; }
 .full-sheet .mc-day { font-size: 1.9rem; }
 .mc-day small { font-family: var(--f-label); font-size: 0.82rem; letter-spacing: calc(0.06em * var(--ls, 1)); color: var(--x-slate); }
 .morning-card.finale { box-shadow: 0 3px 0 var(--x-ink), 0 0 0 3px var(--x-red); }
-.mc-standing, .sc-standing { background: var(--cream-2); border: 1.5px solid var(--x-ink); font-weight: 500; }
-.mc-standing.r1, .sc-standing.r1 { background: var(--x-mustard); }
 .mc-loss { color: var(--x-red-d); background: var(--bad-bg); }
 .sunny { color: var(--x-slate); font-style: italic; }
 .event-card { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: inset 0 3px 0 var(--x-paper), inset 0 4px 0 var(--x-ink); }
 .event-card b { font-size: 1.2rem; }
 .event-card p { color: var(--x-slate); }
 .minprices span { background: var(--x-paper); border: 1.5px solid var(--x-ink); font-family: var(--f-label); }
-.mc-next { background: var(--cream-2); border: 1.5px solid var(--x-edge); border-radius: var(--r); }
-.mc-next small { color: var(--x-slate); }
 
 /* sales summary and showdown */
-.sc-title { font-size: 1.35rem; }
-.sc-money .good { color: var(--x-green); }
 .sc-money .bad, .sc-waste { color: var(--x-red-d); }
 .hl { background: var(--cream-2); border-radius: var(--r); font-weight: 600; }
 .hl.good { background: var(--good-bg); color: var(--x-green); }
@@ -1602,10 +1521,7 @@ b, strong { font-weight: 700; }
 .acct-field > label, .acct-field > .small { color: var(--x-slate); }
 
 /* ---------- the market opening ---------- */
-.op, .op-stage::before { background: var(--x-sky); }
-.op-ground { background: var(--x-card); border-top-color: var(--x-ink); }
-.op-sign { background: var(--x-paper); color: var(--x-ink); border-color: var(--x-ink); border-radius: var(--r); font-weight: 400; text-transform: uppercase; letter-spacing: calc(0.04em * var(--ls, 1)); }
-.op-pill { background: var(--x-red-d); color: var(--x-paper); font-weight: 600; }
+.op { background: var(--x-sky); }
 .op-skip { color: var(--x-ink); }
 
 /* ---------- phones: comfortable tap targets ---------- */
@@ -1758,9 +1674,6 @@ b, strong { font-weight: 700; }
 .gx .street .x-tc.x-compact .x-tc-order.x-n3 b { font-size: 3.2em; }
 .gx .street .x-tc.x-compact .x-tc-name { --fs: 2.4; }
 .gx .street .x-tc.x-compact .x-tc-name.x-long { --fs: 1.8; }
-/* longer names a step smaller (table.tsx nameSize), so no name runs off the card */
-.gx .street .x-tc.x-compact.nm-m .x-tc-name { --fs: 2.05; }
-.gx .street .x-tc.x-compact.nm-xl .x-tc-name.x-long { --fs: 1.62; }
 .gx .street .x-tb.x-compact .x-tb-label { gap: 1.2em; }
 .gx .street .x-tb.x-compact .x-tb-brand { font-size: 2.4em; }
 .gx .street .x-tb.x-compact .x-tb-fruit { min-height: 7em; padding: 0.8em 1.2em; }
@@ -1892,27 +1805,13 @@ b, strong { font-weight: 700; }
 .gx .market-stall .mk-cover { justify-content: flex-start; padding-top: 14%; }
 .gx > .centre > .mid-evening { align-self: end; max-height: calc(100% - 12px); overflow-y: auto; padding: 10px; z-index: 4; background: var(--x-cream); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
 .gx > .centre > .mid-panel.price-panel { gap: 5px; padding: 6px 8px 8px; background: var(--x-cream); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
-.gx .mid-panel .pp-intro b { font-size: 0.98rem; line-height: 1.15; }
 /* phones: the title only (the first-game coach explains the step); desktop shows the sentence */
-.gx .mid-panel .pp-intro span { display: none; font-size: 0.78rem; line-height: 1.3; }
 .gx .mid-panel .info-card.small { padding: 3px 8px; font-size: 0.72rem; line-height: 1.25; }
 /* short phones: the panel's title steps aside for a fourth fruit (the top bar says STOCKING or THE BELL, and the
    button says what it does) */
 @media (max-width: 899px) and (max-height: 760px) { .gx .mid-panel.price-panel > .pp-intro { display: none; } }
-.gx .mid-panel .price-card, .gx .mid-panel .price-card.on { flex: none; padding: 4px 8px; transform: none; }
-.gx .mid-panel .price-card.on { box-shadow: 0 2px 0 var(--x-ink), 0 0 0 2px var(--x-mustard); }
-.gx .mid-panel .pc-top { gap: 7px; }
-.gx .mid-panel .pc-top > .x-fruit { width: 24px; height: 24px; }
-.gx .mid-panel .pc-who { gap: 1px; }
-.gx .mid-panel .pc-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; line-height: 1.2; }
-.gx .mid-panel .pc-out { font: 600 0.72rem/1 var(--f-label); letter-spacing: 0.02em; }
-.gx .mid-panel .pc-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gx .mid-panel .pc-who > span { font-size: 0.68rem; line-height: 1.2; }
-.gx .mid-panel .pc-price { flex: none; padding: 0; }
-.gx .mid-panel .pc-price button { width: 40px; height: 40px; font-size: 1.4rem; }
 .gx .mid-panel .pc-num { min-width: 40px; font-size: 1.3rem; }
 .gx .mid-panel .pc-num small { font-size: 0.68rem; }
-.gx .mid-panel .pc-foot { flex-wrap: nowrap; margin-top: 2px; gap: 6px; font-size: 0.68rem; line-height: 1.1; }
 .gx .mid-panel .read {
   /* the tip wraps to a second line rather than being cut off when the rivals' counts take the room */
   min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal;
@@ -1923,60 +1822,13 @@ b, strong { font-weight: 700; }
 .read .rd-s, .gx .mid-panel .read .rd-l { display: none; }
 .gx .mid-panel .read .rd-s { display: inline; }
 /* the tie hint under a price card: one short line, the same warning colours as a "war" read */
-.pc-tie { display: flex; align-items: center; gap: 4px; margin-top: 4px; padding: 1px 8px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; background: var(--bad-bg); color: var(--x-red-d); }
-.gx .mid-panel .pc-tie { margin-top: 2px; font-size: 0.62rem; line-height: 1.2; }
 .gx .mid-panel .rival-caps { flex: none; gap: 6px; }
 /* phones: a rival's face and count ("2"), the word "out" only on a desktop (the tip already says "rival pieces out") */
 .gx .mid-panel .rc-out { display: none; }
 .gx .mid-panel .psst { font-size: 0.95rem; }
 .gx .mid-panel .favour-card.wide { flex: none; min-height: 40px; }
-.gx .mid-panel .stock-line .sl { font-size: 0.68rem; }
 .gx .mid-panel .buyer-caps .bc { font-size: 0.7rem; }
 
-/* the morning brief */
-.mc-brief .mc-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; }
-.gx .mc-brief .mc-day { font-size: 1.3rem; }
-/* the event's picture is up to 230px tall and gives way first when the card is short of room */
-.mc-brief .mc-event { display: contents; }
-.mc-brief > *, .mc-brief .mc-event > * { flex-shrink: 0; }
-.mc-brief .mc-event > .mc-pic {
-  flex: 0 1 230px; width: 100%; min-height: 64px; object-fit: cover; object-position: 50% var(--x-focus, 50%);
-  border: 2px solid var(--x-ink); border-radius: 6px;
-}
-.mc-brief .mc-event .mc-next-k { margin-top: 2px; }
-.mc-brief .mc-event b, .mc-brief .mc-event small { margin-top: -4px; text-align: center; }
-.mc-brief .mc-event b { font: 400 1.25rem/1.1 var(--f-headline); color: var(--x-ink); }
-.mc-brief .mc-event small { max-width: 36ch; font: 0.84rem/1.3 var(--f-serif); color: var(--x-ink); }
-.mc-brief .minprices { flex-wrap: nowrap; gap: 6px; margin-top: 0; }
-.mc-brief .minprices span { gap: 2px; padding: 1px 6px; font-size: 0.8rem; white-space: nowrap; }
-.mc-brief .mc-loss { padding: 2px 10px; font-size: 0.8rem; }
-.mc-brief .mc-next { gap: 8px; padding: 4px 10px; font-size: 0.8rem; }
-.mc-brief .mc-next b { font-size: 0.95rem; }
-.mc-brief .next-lorry { margin-top: 0; padding: 4px 8px; font-size: 0.72rem; }
-/* the event as a full card (PLAN-061): the picture fills the space, the title and rule on a band at its foot */
-/* the card is drawn face down (the print kit's back) and waits there until its picture is ready, then is held a moment
-   and turned over: 1s in all, so the picture and the words land together */
-.mc-full .mc-flip { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; display: flex; flex-direction: column; container-type: inline-size;
-  transform-style: preserve-3d; animation: mc-turn 1s cubic-bezier(.45,.05,.25,1) both paused; }
-.mc-full .mc-flip.go { animation-play-state: running; }
-.mc-full .mc-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.mc-full .mc-back { position: absolute; inset: 0; z-index: 1; transform: rotateY(180deg); border-radius: 12px; box-shadow: 0 4px 0 var(--x-ink); overflow: hidden; }
-.mc-full .mc-back .x-card { --card-w: 100cqw; width: 100%; height: 100%; border-radius: 12px; border: 2.5px solid var(--x-ink); }
-.mc-full .mc-event { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; overflow: hidden;
-  border: 2.5px solid var(--x-ink); border-radius: 12px; background: var(--x-paper); box-shadow: 0 4px 0 var(--x-ink); }
-@keyframes mc-turn {
-  0% { transform: perspective(1100px) rotateY(180deg) scale(.94); }
-  30% { transform: perspective(1100px) rotateY(180deg) scale(.94); }
-  60% { transform: perspective(1100px) rotateY(90deg) scale(1.03); }
-  100% { transform: perspective(1100px) rotateY(0deg) scale(1); }
-}
-.mc-full .mc-event > .mc-pic { flex: 1 1 auto; min-height: 120px; max-height: none; border: 0; border-radius: 0; border-bottom: 2.5px solid var(--x-ink); }
-.mc-full .mc-band { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px 9px; text-align: center; background: var(--x-paper); }
-.mc-full .mc-band b { margin: 0; font: 400 1.35rem/1.1 var(--f-headline); color: var(--x-ink); }
-.mc-full .mc-band small { margin: 0; max-width: 40ch; font: 0.86rem/1.3 var(--f-serif); color: var(--x-ink); }
-.mc-full .mc-band .minprices { margin-top: 4px; }
-.mc-full .mc-band .mc-flavour { font: italic 600 0.9rem/1.25 var(--f-serif); color: var(--x-red); }
-@media (prefers-reduced-motion: reduce) { .mc-full .mc-flip { animation: none; } }
 
 /* ---------- your shelf dock ---------- */
 .gx > .my-stall.dock {
@@ -2151,22 +2003,13 @@ b, strong { font-weight: 700; }
   .gx .market-stall .mk-cols { padding: 2px; }
   .gx .market-stall .mk-col { gap: 4px; padding: 3px; }
   .gx > .centre > .mid-panel.price-panel, .gx > .centre > .morning-card, .gx > .centre > .auction, .gx > .centre > .sales-card, .gx > .centre > .mid-evening { width: min(100% - 2 * var(--gx-pad), 560px); justify-self: center; }
-  .gx .mid-panel .pp-intro span { display: block; }
   .gx > .centre > .mid-panel.price-panel { gap: 8px; padding: 12px 14px; }
   /* stocking and pricing have room on a desktop: bigger words and buttons */
-  .gx .mid-panel .price-card, .gx .mid-panel .price-card.on { padding: 8px 12px; }
-  .gx .mid-panel .pc-top { gap: 10px; }
-  .gx .mid-panel .pc-top > .x-fruit { width: 32px; height: 32px; }
-  .gx .mid-panel .pc-who b { font-size: 1rem; }
   .gx .mid-panel .pc-who > span, .gx .mid-panel .stock-line .sl, .gx .mid-panel .buyer-caps .bc { font-size: 0.8rem; }
-  .gx .mid-panel .pc-out { font-size: 0.8rem; }
-  .gx .mid-panel .pc-foot { margin-top: 4px; font-size: 0.76rem; }
   .gx .mid-panel .read { font-size: 0.7rem; }
   .gx .mid-panel .read .rd-l { display: inline; }
   .gx .mid-panel .read .rd-s { display: none; }
-  .gx .mid-panel .pc-tie { font-size: 0.7rem; }
   .gx .mid-panel .rc-out { display: inline; }
-  .gx .mid-panel .pc-price button { width: 44px; height: 44px; }
   .gx .mid-panel .pc-num { min-width: 48px; font-size: 1.5rem; }
   .gx .mid-panel .info-card.small { font-size: 0.8rem; }
   /* your shelf a size bigger: it has the column to itself */
@@ -2300,8 +2143,6 @@ b, strong { font-weight: 700; }
 }
 
 /* ---------- pricing at the bell (PLAN-059): the demand board, every stall's crate, the price bubble ---------- */
-.pp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.pp-head b { font: 800 1.1rem/1.2 var(--f-label); color: var(--x-ink); }
 .pp-info { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink);
   font: italic 900 1rem/1 Georgia, 'Times New Roman', serif; cursor: pointer; display: grid; place-items: center; }
 .pp-info:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
@@ -2401,7 +2242,6 @@ b, strong { font-weight: 700; }
 .crates.waiting .crate { animation-delay: 0s; }
 /* the pricing table follows straight on from Fill your stall: no fade, so the market never shows through in between */
 .gx > .centre > .mid-panel.price-panel:not(.stall-panel) { animation: none; }
-.pp-wait { margin: 0; padding: 6px 2px 0; font: 600 0.85rem/1.2 var(--f-label); color: var(--x-slate); text-align: center; }
 @keyframes board-drop { from { transform: translateY(-20px) scaleY(.3); opacity: 0; } to { transform: none; opacity: 1; } }
 .pbub { animation: bub-pop .3s cubic-bezier(.3,1.5,.5,1) both; }
 @keyframes bub-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -2454,19 +2294,6 @@ b, strong { font-weight: 700; }
 
 /* ---------- standing orders (rules 14) ---------- */
 .order-panel { gap: 12px; }
-.op-card { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: var(--x-paper); border: 2px solid var(--x-ink); border-radius: var(--r); box-shadow: var(--shadow); }
-.op-k { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-red-d); }
-.op-title { font-family: var(--f-pixel); font-size: 1.4rem; line-height: 1.1; }
-.op-quirk { font-size: 0.82rem; color: var(--ink-muted); }
-.op-want { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: var(--hi-bg); border-radius: var(--r); font-size: 0.9rem; }
-.op-fruit { display: flex; gap: 4px; }
-.op-rules { margin: 0; padding-left: 18px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 3px; }
-.op-bid { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.op-bid .step { min-width: 52px; min-height: 52px; font-size: 1.5rem; font-weight: 800; }
-.op-price { display: flex; align-items: center; gap: 6px; min-width: 120px; justify-content: center; }
-.op-price b { font-family: var(--f-pixel); font-size: 2.2rem; line-height: 1; }
-.op-price small { font-size: 0.75rem; color: var(--ink-muted); }
-.op-pass { align-self: center; min-height: 44px; }
 .order-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin: 4px 8px 0; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; background: var(--x-paper); border: 1.5px solid var(--x-ink); border-radius: var(--r); color: var(--x-ink); }
 .order-strip.due { background: var(--hi-bg); }
 .order-strip.mine { border-width: 2.5px; }

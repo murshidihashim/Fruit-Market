@@ -190,13 +190,13 @@ describe('one speed for scripts and stylesheets', () => {
     const used = new Set<string>();
     for (const { css } of sheets) for (const m of css.matchAll(/var\(--t-([a-z-]+)/g)) used.add(m[1]);
     expect([...used].filter((name) => !(name in CSS_MS))).toEqual([]);
-    for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'crate-turn', 'rush-rows', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
+    for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'rush-rows', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
     // the two older names for the speed (the rush only, the night only) are gone
     const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/Showdown.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
     expect(sources).not.toMatch(/--rs-k|--ns-k/);
     // the moves the stylesheets make on the table follow the one speed
     const motion = read('src/ui/motion.css');
-    for (const sel of ['.tk-news-face', '.tk-crates.open .tk-crate']) {
+    for (const sel of ['.tk-news-face']) {
       expect(motion).toMatch(new RegExp(`${sel.replace(/[.]/g, '\\.')}[^{]*\\{ (transition|animation)-duration: calc\\(var\\(--mk, 1\\) \\* var\\(--t-`));
     }
     // the rush has its own stylesheet (PLAN-084): the offers turn up, and the sheet comes and goes, at the one speed

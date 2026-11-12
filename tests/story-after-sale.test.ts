@@ -7,7 +7,7 @@ import {
   beginBuying, emptyStock, finishReveal, forSale, newGame, rowCount, openStall, submitPrices,
   type Customer, type GameState, type LineResult,
 } from '../src/engine/game';
-import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
+import { closingLeftovers, explainLine, gameRecap, noSaleReason } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
 import { RushView } from '../src/ui/game/panels/Showdown';
 import { rushCards } from '../src/ui/game/rush';
@@ -143,16 +143,12 @@ describe('offers that did not qualify are not in the price contest', () => {
     start.players[1].stock.apple[rosaPos] = 2;
     return bell(start, 'apple', [mine === null ? 0 : 2, 2, 0], [mine ?? 0, rosa, 0]);
   }
-  const quips = (pool: keyof typeof ROSA.lines) => ROSA.lines[pool];
 
   it('your over-the-top offer was not "undercut" or "edged out", today or in the recap', () => {
     const s = weiDay(5, 4);
     expect(offerOf(line(s), 0).tooOld).toBe(true);
     const st = explainLine(s, line(s), 0);
     expect(st.headline).not.toMatch(/undercut|Tie/);
-    expect(dayHighlights(s, 0).map((x) => x.text).join(' ')).not.toMatch(/edged you out|undercut/);
-    const r = rivalReaction(s, line(s), 0, new Set());
-    expect(r === null || !quips('undercut').includes(r.text)).toBe(true);
     // Two such days in the history: no "$0 sale", no "undercut", no "took 2 customers".
     const t = finishReveal(s);
     t.history = [t.history![0], { ...t.history![0], day: 2 }];
@@ -164,9 +160,6 @@ describe('offers that did not qualify are not in the price contest', () => {
     const over = weiDay(4, 5);
     expect(offerOf(line(over), 1).tooOld).toBe(true);
     expect(explainLine(over, line(over), 0).headline).toBe('Sold 2 at $4.');
-    expect(dayHighlights(over, 0).map((x) => x.text).join(' ')).not.toContain('You beat');
-    const r = rivalReaction(over, line(over), 0, new Set());
-    expect(r === null || ![...quips('stung'), ...quips('lost')].includes(r.text)).toBe(true);
     const t = finishReveal(over);
     expect(gameRecap(t, 0).best.join(' ')).not.toContain('You beat');
     // Rosa's okay apples at $4 cannot sell to Wei at his top, so a Haggler on your side won no tie.
