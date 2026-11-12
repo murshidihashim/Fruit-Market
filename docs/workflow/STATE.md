@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 19:48 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 20:08 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
@@ -22,7 +22,7 @@ Updated 2026-11-12 19:48 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | Implemented, merged and checked (REP-111); in release 1.20.0. Left for part 2: 203 audit entries in screen files, the helper's full list and the owner's read of the samples |
 | 4, part 2. The screen labels | PLAN-089 | In progress (the text helper, resumed 2026-11-12 19:50; report due 22:30) |
 | 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | In progress again (helper resumed 2026-11-12 19:50; report due 23:30). Data done, screens a first pass (`787faa3`), unmerged. Notes: scratchpad `p086-stamps/REPORT-paused.md` |
-| 6, part 1. The print kit on rules 18 | PLAN-087 | In progress again (helper resumed 2026-11-12 19:50; report due 23:00). The decks print on rules 18 (`d244989`), unmerged. Notes: scratchpad `p087-print/REPORT-paused.md` |
+| 6, part 1. The print kit on rules 18 | PLAN-087 | Implemented and merged (`d1f5f01`): `print/kit`, `print/update-18`, `print/tracker-test`. Not done: a proof print; the owner's choice of tracker 1 or 2 |
 | 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
 **Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.

@@ -3670,6 +3670,10 @@
     {
       "at": "2026-11-12 19:48",
       "text": "After the publish, three helpers were resumed for the next release, each first merging the working branch into its own: the stamp book (PLAN-086, to report by 23:30), the print kit (PLAN-087, by 23:00) and the text, now part 2, the labels on the screens (PLAN-089 opened, by 22:30). The fixes for the known gaps of the day's screens (REP-111 section 4) wait for the owner's play of 1.20.0, so that what he finds goes into the same piece of work."
+    },
+    {
+      "at": "2026-11-12 20:08",
+      "text": "PLAN-087 (the print kit) built and merged (d1f5f01): npm run verify PASS (735 tests passed, 1 skipped); every deck, both trackers and the update pack print on rules 18 in the app's card design; the cards match the app's side by side. Not done: a proof print on paper; every page looked at by the session (the helper looked at most). Still open for the owner: tracker 1 or 2; the guest back, which has no approved design; the 3.5 mm dots on customer cards against 15 mm fruit pieces. The printed files are in print/kit, print/update-18 and print/tracker-test."
     }
   ]
 }

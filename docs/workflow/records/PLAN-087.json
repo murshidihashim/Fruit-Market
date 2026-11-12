@@ -3,7 +3,8 @@
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-104",
-    "REP-106"
+    "REP-106",
+    "REP-111"
   ],
   "decisions": [
     "DEC-082",
@@ -15,10 +16,21 @@
     "DEC-104"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "print/kit: 139 cards in 8 decks with their backs, printed from the game's data on rules 18 in the app's own card design; a factory file for every deck; player aid; character reference",
+      "print/update-18: a change sheet, stall sheets, counters, 58 replacement cards and the guidebook at rules 18, for someone who holds the earlier printing",
+      "A test that fails when the kit and the game's data disagree"
+    ],
+    "changed": [
+      "Both freshness trackers say rules version 18 and take their numbers from the data",
+      "print/README.md rewritten for rules 18"
+    ],
+    "fixed": [
+      "The guidebook said Ah Chen draws four favour cards (three since DEC-101)"
+    ],
+    "removed": [
+      "print/update-17 and the old standing-order cards with their back"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -26,7 +38,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The card design: DEC-095 (design A) and DEC-096 (backs).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-087",
   "title": "Release A, package 6, part 1: the print kit on rules 18 with the new cards",
   "problem": "scripts/print-deck.ts cannot run on the rules 18 deck (it expects 18 favour cards and finds 12) and prints the old card faces. The tracker test packs still say rules version 17.",
@@ -47,26 +59,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged code (d1f5f01): 71 files, 735 tests passed, 1 skipped."
     },
     {
       "id": "T2",
       "text": "Every print script runs to the end; deck sizes and card counts match the game's data (test)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helper: print-deck (19 PDFs), print-trackers (4 and 3 pages), print-update (10, 14 and 16 pages) and print-backs all run to the end. tests/print-kit.test.ts (13 tests, in verify) checks deck sizes, card counts, a picture for every card and the right back behind each front against the game's data: 139 cards in 8 decks."
     },
     {
       "id": "T3",
       "text": "Every page of the output looked at by me: nothing cut off or overflowing, fronts and backs line up, cut marks in place",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Not every page by me. The helper looked at all 45 A4 pages of the kit, factory pages 124 to 200, all 7 tracker pages and all 40 update-pack pages (the guidebook at contact size); factory pages 46 to 123 were not looked at. I looked at the first contact sheet (cover, player aid, the reference pages, two customer sheets with their backs) and found nothing cut off. One card is too full: Blueberry Glut's new text is a line too long, so its picture is 2 mm shorter in print and its footer sits 7 px off the card in the app; the text helper is shortening it."
     },
     {
       "id": "T4",
       "text": "One card of each kind beside the same card in the app; differences listed",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Looked at by me: eight fronts and seven backs, the app's card beside the printed one (customer, guest, event, lorry, shopkeeper, favour, upgrade, standing order). Layout, line breaks and pictures match. Differences: the guest back exists only in print (the helper's design from the customer back); the shopkeeper card in the app's picker shows the stall pattern where print shows its number."
     },
     {
       "id": "T5",
