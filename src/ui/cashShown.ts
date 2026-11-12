@@ -2,7 +2,7 @@
 // real totals are already final; this holds each total back at what it was before the rush and adds each
 // customer's payment as the coins land. It only changes what is drawn, never the game.
 import { useEffect, useState } from 'preact/hooks';
-import { wait } from './anim';
+import { FEEL, wait } from './motion';
 
 let held: number[] | null = null;
 const listeners = new Set<() => void>();
@@ -29,7 +29,7 @@ export async function payCash(player: number, amount: number): Promise<void> {
     left -= part;
     mine[player] += part;
     changed();
-    if (i < steps - 1) await wait(40);
+    if (i < steps - 1) await wait(FEEL.countStep);
   }
 }
 

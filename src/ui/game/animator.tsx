@@ -1,5 +1,6 @@
 // Table animations: the morning delivery, buying, selling and nightfall.
 // Each one returns when its animation has finished. They only draw; they never change the game.
+// Every length is named in ../motion.ts (BEAT); pauses to read use A.hold, which reduced motion keeps.
 import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, UPGRADES, type FruitId } from '../../engine/data';
 import { leavingTonight, nightOutlook, type GameState, type LineResult } from '../../engine/game';
 import { customerReaction, explainLine, rivalReaction, rushLine } from '../../engine/story';
@@ -22,8 +23,8 @@ export async function delivery(g: GameState) {
     const unripe = g.deliveryUnripe === f;
     const pos = unripe ? g.market[f].length - 1 : FRUIT[f].ripe.length - 1;
     for (let i = 0; i < n; i++) {
-      jobs.push(A.fly(['lorry', 'sky'], [`m-${f}-${pos}`, `mk-${f}`, 'truck'], <Fruit id={f} size={26} stage={unripe ? 'unripe' : 'fresh'} />, { delay: d, duration: 600 }));
-      d += 70;
+      jobs.push(A.fly(['lorry', 'sky'], [`m-${f}-${pos}`, `mk-${f}`, 'truck'], <Fruit id={f} size={26} stage={unripe ? 'unripe' : 'fresh'} />, { delay: d, duration: A.BEAT.lorry.fly }));
+      d += A.BEAT.lorry.gap;
     }
   }
   if (jobs.length) fx.card();
@@ -46,7 +47,7 @@ export async function moves(prev: GameState, next: GameState) {
         const node = <Fruit id={f} size={30} stage={pos >= FRUIT[f].ripe.length ? 'unripe' : undefined} />;
         if (diff > 0) jobs.push(A.fly([`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], [`p${p}-${f}`, `p${p}`], node, { delay: d }));
         else jobs.push(A.fly([`p${p}-${f}`, `p${p}`], [`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], node, { delay: d }));
-        d += 90;
+        d += A.BEAT.piece.gap;
       }
     }
   }
@@ -56,14 +57,14 @@ export async function moves(prev: GameState, next: GameState) {
       const played = before.favours.find((id, k) => pl.favours[k] !== id) ?? before.favours[before.favours.length - 1];
       const t = A.tag(`p${i}`, `${FAVOURS[played].title}!`, 'favour');
       fx.card();
-      jobs.push(A.wait(1100).then(() => t.remove()));
+      jobs.push(A.hold(A.BEAT.label.read).then(() => t.remove()));
     }
     if (pl.upgrades.length > before.upgrades.length) {
       const u = pl.upgrades[pl.upgrades.length - 1];
       const t = A.tag(`p${i}`, `Built: ${UPGRADES[u].title}`, 'upgrade');
       A.floatText(`p${i}-cash`, `−$${UPGRADES[u].cost}`, 'minus');
       fx.coin();
-      jobs.push(A.wait(1100).then(() => t.remove()));
+      jobs.push(A.hold(A.BEAT.label.read).then(() => t.remove()));
     }
     const gained = pl.cash - before.cash;
     if (gained > 0 && pl.favours.length < before.favours.length) A.floatText(`p${i}-cash`, `+$${gained}`);
@@ -78,21 +79,25 @@ export async function moves(prev: GameState, next: GameState) {
  */
 export async function flights(_g: GameState, l: LineResult, pop = false) {
   const jobs: Promise<void>[] = [];
+  const sale = A.BEAT.sale;
   const cust = pop ? ['rs-card', `c${l.customerId}`] : [`c${l.customerId}-${l.fruit}`, `c${l.customerId}`];
   for (const o of l.offers) {
     if (!o.sold) continue;
     const from = pop ? [`rs-p${o.player}`, `p${o.player}`] : [`p${o.player}-${l.fruit}`, `p${o.player}`];
     for (let k = 0; k < Math.min(o.sold, 4); k++) {
-      jobs.push(A.fly(from, cust, <Fruit id={l.fruit} size={28} />, { delay: k * 90 }));
+      jobs.push(A.fly(from, cust, <Fruit id={l.fruit} size={28} />, { delay: k * sale.pieceGap }));
     }
-    for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={22} />, { delay: 380 + k * 110, duration: 480 }));
-    jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={26} />, { delay: 380, duration: 480 }).then(() => {
+    for (let k = 1; k < Math.min(3, o.sold + 1); k++) jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={22} />, { delay: sale.coinAfter + k * sale.coinGap, duration: sale.coin }));
+    jobs.push(A.fly(cust, `p${o.player}-cash`, <Coin size={26} />, {
+      delay: sale.coinAfter, duration: sale.coin,
       // This customer's payment lands now, so the stall's total climbs here and not before, and the pieces leave its shelf.
-      const paid = o.sold * o.price + (o.juice ?? 0);
-      fx.coin();
-      A.floatText(`p${o.player}-cash`, `+$${paid}`);
-      void payCash(o.player, paid);
-      sellStock(o.player, l.fruit, o.sold);
+      onLand: () => {
+        const paid = o.sold * o.price + (o.juice ?? 0);
+        fx.coin();
+        A.floatText(`p${o.player}-cash`, `+$${paid}`);
+        void payCash(o.player, paid);
+        sellStock(o.player, l.fruit, o.sold);
+      },
     }));
   }
   await Promise.all(jobs);
@@ -110,8 +115,8 @@ function payNow(l: LineResult) {
 }
 
 /** How long "No sales today" stays up, and how long every open crate stays on the table at the bell, in ms at normal speed. */
-export const NO_SALES_READ = 1100;
-export const bellRead = (stalls: number) => 1500 + 350 * stalls;
+export const NO_SALES_READ = A.BEAT.bell.noSales;
+export const bellRead = (stalls: number) => A.BEAT.bell.read + A.BEAT.bell.readPerStall * stalls;
 
 export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (on: boolean) => void) {
   const r = g.results!;
@@ -132,7 +137,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   // Routine sales (one rival, no contest, not you) settle together; showdowns get the stage.
   const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
   const routine = lines.filter((l) => !shows.includes(l));
-  if (routine.length) await Promise.all(routine.map((l, i) => A.wait(i * 120).then(() => flights(g, l))));
+  if (routine.length) await Promise.all(routine.map((l, i) => A.wait(i * A.BEAT.sale.routineGap).then(() => flights(g, l))));
   // Skip shows the final shelves at once (the cash still climbs as the remaining coins land).
   if (A.hurried()) releaseStock();
   const used = new Set<string>();
@@ -183,7 +188,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   for (const f of r.favours) {
     const t = A.tag(`p${f.player}`, 'Favour card!', 'favour');
     fx.card();
-    await A.wait(800);
+    await A.hold(A.BEAT.label.favourWon);
     t.remove();
   }
   // Money that was not paid line by line (a Tip Jar's tip, a Haggler's bonus) lands last, then the real totals show again.
@@ -195,7 +200,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     A.floatText(`p${p}-cash`, `+$${tip} bonus`);
     void payCash(p, tip);
   });
-  if (tipped) { fx.coin(); await A.wait(500); }
+  if (tipped) { fx.coin(); await A.hold(A.BEAT.label.bonus); }
   holdCash(null);
 }
 
@@ -206,8 +211,8 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
 export type NightSlide = number | 'done' | null;
 /** The night's steps in ms at normal speed: dusk falls and the panel rises, every piece slides (slow enough to watch,
  *  PLAN-076), a beat for the last piece to settle, then a moment to read the panel. 3.3 s in all before any spoiled
- *  piece drops, as before. */
-export const NIGHT = { dusk: 950, slide: 1500, settle: 80, read: 770 };
+ *  piece drops, as before. Named in motion.ts with the other lengths. */
+export const NIGHT = A.BEAT.night;
 
 export async function nightfall(g: GameState, setNight: (on: boolean) => void, setSlide: (s: NightSlide) => void = () => {}) {
   setSlide(null);
@@ -226,11 +231,11 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void, s
   const jobs: Promise<void>[] = [];
   let d = 0;
   const spoil = (anchor: string[], f: FruitId, n: number) => {
-    for (let k = 0; k < Math.min(n, 3); k++) { jobs.push(A.drop(anchor, <Fruit id={f} size={26} stage="notso" />, d)); d += 80; }
+    for (let k = 0; k < Math.min(n, 3); k++) { jobs.push(A.drop(anchor, <Fruit id={f} size={26} stage="notso" />, d)); d += NIGHT.gap; }
   };
   // A Juice Bar's pieces fly to the cash as coins instead of rotting (one sprite each, like the drop they replace).
   const juice = (p: number, f: FruitId, n: number) => {
-    for (let k = 0; k < n; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: 480 })); d += 80; }
+    for (let k = 0; k < n; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: NIGHT.juiceCoin })); d += NIGHT.gap; }
   };
   // The engine's own forecast for each shelf, so the picture matches the night (Cold Room, Heatwave, Juice Bar).
   const juiced = g.players.map((_, p) => nightOutlook(g, p).juice);
@@ -248,5 +253,5 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void, s
   await Promise.all(jobs);
   juiced.forEach((n, p) => { if (n) A.floatText(`p${p}-cash`, `+$${n * JUICE_VALUE} juice`); });
   if (juiced.some((n) => n > 0)) fx.coin();
-  await A.wait(400);
+  await A.wait(NIGHT.end);
 }

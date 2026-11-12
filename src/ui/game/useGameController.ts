@@ -98,7 +98,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   const say = (msg: string) => {
     setToast(msg);
-    window.setTimeout(() => setToast((t) => (t === msg ? null : t)), 2000);
+    window.setTimeout(() => setToast((t) => (t === msg ? null : t)), A.BEAT.label.toast);
   };
 
   // ---------- animation sequencing ----------
@@ -128,6 +128,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // The shelves likewise: each customer's pieces leave the shelf as they are served. The fast setting and reduced
       // motion show the final shelves at once.
       if (rush && next.results && !A.isReduced() && !A.isFast()) holdStock(prev.players.map((pl) => pl.stock), next.players.map((pl) => pl.stock));
+      // The day's takings must not show before the rush has played: the card of an earlier day would otherwise be drawn
+      // for a moment with today's results on it, ahead of the bell.
+      if (rush) setRevealDone(false);
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -242,7 +245,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (active < 0 || s.players[active].kind !== 'ai') return;
     // The pause before each rival action. A tap on the table ends it at once and keeps the next ones short (PLAN-081).
     let live = true;
-    void A.pause(loadSettings().fast ? 150 : 380).then(() => {
+    void A.pause(A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause).then(() => {
       if (!live || busyRef.current) return;
       const next = aiStep(sRef.current);
       if (next) void apply(next);
@@ -267,7 +270,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
     if (!text) return;
     setBanner(text);
-    const t = window.setTimeout(() => setBanner(null), 1100);
+    const t = window.setTimeout(() => setBanner(null), A.BEAT.morning.stamp);
     return () => window.clearTimeout(t);
   }, [s.phase, s.day]);
 
