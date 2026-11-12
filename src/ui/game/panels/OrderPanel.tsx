@@ -37,7 +37,7 @@ export function BidStatus({ s, p, order, open }: { s: GameState; p: number; orde
             <Face who={pl.avatar} size={26} />
             <span class="ob-who"><b>{pl.name}</b>
               {open && typeof b === 'number'
-                ? <span class="ob-bid-n">{won ? `wins at $${b}` : `bid $${b}`}</span>
+                ? <span class="ob-bid-n"><b>${b}</b>{won ? ' wins' : ''}</span>
                 : <span>{st === 'wait' ? 'deciding…' : st === 'pass' ? 'passed' : 'bidding'}</span>}
             </span>
           </li>
@@ -119,6 +119,8 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
   // While the bids are turned over the sheet keeps the shape it had: one button for a stall that could only pass.
   const lone = useRef(short);
   if (!shown) lone.current = short;
+  // Online a stall that has decided may still change its mind: its buttons then say so.
+  const again = !!waiting && !!canChange && !shown;
   return (
     <>
     <div class="price-panel order-panel mid-panel tk-panel fm-sheet sh-order" data-a="order-panel" data-stage={shown ? shown.stage : 'bid'} ref={root}>
@@ -167,8 +169,8 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
         <button type="button" class="btn primary wide big" disabled={locked || mine === 'pass'} onClick={() => onBid(null)}>Pass</button>
       ) : (
         <>
-          <button type="button" class="ob-pass" disabled={locked || mine === 'pass'} onClick={() => onBid(null)}>{waiting && canChange ? 'Pass instead' : 'Pass'}</button>
-          <button type="button" class="btn primary wide big" disabled={locked || (!!waiting && mine === v)} onClick={() => onBid(v)}>{waiting && canChange ? `Change bid to $${v}` : `Bid $${v} a piece`}</button>
+          <button type="button" class="ob-pass" disabled={locked || mine === 'pass'} onClick={() => onBid(null)}>{again ? 'Pass instead' : 'Pass'}</button>
+          <button type="button" class="btn primary wide big" disabled={locked || (!!waiting && mine === v)} onClick={() => onBid(v)}>{again ? `Change bid to $${v}` : `Bid $${price ?? v} a piece`}</button>
         </>
       )}
     </div>

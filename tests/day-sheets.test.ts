@@ -213,7 +213,8 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(show.text).toBe(`Mia won ${title}'s order at $1 a piece and put down a $${o.stake} stake`);
     // every rival's bid is in the order that is shown (the bids are public once every stall has decided)
     const open = toStaticHtml(h(BidStatus, { s: publicView(won, 0), p: 0, order: show.order, open: true }));
-    for (const [i, b] of show.order.bids.entries()) if (i !== 0 && typeof b === 'number') expect(open).toContain(`bid $${b}`);
+    for (const [i, b] of show.order.bids.entries()) if (i !== 0 && typeof b === 'number') expect(open).toContain(`<b>$${b}</b>`);
+    expect(open).not.toContain('wins');
     // nobody wanted it: the order has left the game, so it is shown as it was, with every stall passed
     let none = bidding;
     const all = structuredClone(bidding);
@@ -235,7 +236,8 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     const show = bidsIn(bidding, lost)!;
     expect(show.order.holder).not.toBe(0);
     const open = toStaticHtml(h(BidStatus, { s: publicView(lost, 0), p: 0, order: show.order, open: true }));
-    expect(open).toContain(`wins at $${show.order.price}`);
+    expect(open).toContain(`<span class="ob-bid-n"><b>$${show.order.price}</b> wins</span>`);
+    expect(open.match(/ wins</g)).toHaveLength(1);
     expect(open).toContain('class="st-in won"');
   });
 
@@ -288,6 +290,16 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     await done;
     // the pause that was running ends at once, and what follows is very quick (a tap's hurry)
     expect(Date.now() - t0).toBeLessThan(BEAT.order.down + 10 + (FEEL.turn + BEAT.order.read + BEAT.order.after) * 0.2);
+  });
+
+  it('online, who is bidding and who has passed is shown while the room still holds the choices (the game\'s version does not move)', () => {
+    // The room sends a new view when a person bids or passes, with the same version: the screen takes it during the bid.
+    const src = read('src/ui/game/useGameController.ts');
+    expect(src).toContain("} else if (v.game && v.version === lastVersion.current && v.game.phase === 'order' && v.game.config.seed === sRef.current.config.seed) {");
+    // ...and the sheet stays up, with its own buttons in the action bar's place, from the first bid to the last
+    const game = read('src/ui/Game.tsx');
+    expect(game).toContain("const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');");
+    expect(game).toContain('{!pricing && !stalling && !orderUp && !tying && !evSheet && <ActionBar');
   });
 
   it('says what there is to deliver the order with: the shelf, the market, tomorrow\'s lorry', () => {

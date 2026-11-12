@@ -210,6 +210,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         lastVersion.current = v.version;
         queue.current.push(v.game);
         setTick((t) => t + 1);
+      } else if (v.game && v.version === lastVersion.current && v.game.phase === 'order' && v.game.config.seed === sRef.current.config.seed) {
+        // While a standing order is bid for, the room holds each person's choice until every stall has decided, so
+        // the game has not moved on (the same version), but who is bidding and who has passed has changed, and this
+        // person's own held bid is in the view (rules 17; PLAN-084: the marks used to stay on "deciding").
+        queue.current.push(v.game);
+        setTick((t) => t + 1);
       }
     };
     const offView = online.onView(take);

@@ -107,7 +107,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // from the first stall's bid until the bids have been turned over (PLAN-084): while the computer stalls decide first,
   // while this stall bids, while it waits for the others (online it may still change its mind), and while the winner is
   // shown and its stake is put on the order's card (c.orderShow; the game has moved on to buying by then).
-  const ordering = s.phase === 'order' && c.myBidTurn && !busy;
+  const ordering = s.phase === 'order' && c.myBidTurn;
   const orderSeat = c.myBidTurn ? bidder : viewer;
   const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.

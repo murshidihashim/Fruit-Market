@@ -7,6 +7,7 @@
 // by a negative margin (sheets.css), measured here from the rows themselves. The measure is written on the sheet's own
 // element (--rise, --drop), so the picture of the sheet that slides off when it leaves (sheet.ts) keeps the same reach.
 import { useEffect, useLayoutEffect, type MutableRef } from 'preact/hooks';
+import { FEEL, FRAME, moveMs } from '../motion';
 
 /** Where a sheet's top edge lies: under the customers' tickets ('row', over tomorrow's strip, the order strip and the
  *  rivals), at the top of the customer band ('street'), or over the day's five beats too ('beats'). */
@@ -83,4 +84,23 @@ export function useReach(ref: MutableRef<HTMLElement | null>, up: ReachUp, down:
     game.querySelectorAll(':scope > .street-wrap, :scope > .seats, :scope > .my-stall, :scope > .tk-top, :scope > .centre > .market-stall').forEach((el) => watch.observe(el));
     return () => watch.disconnect();
   }, []);
+  // As the sheet leaves: its picture slides off above the rows it lay over (see liftOff).
+  useLayoutEffect(() => {
+    const game = on ? ref.current?.closest('.game') : null;
+    return game ? () => liftOff(game) : undefined;
+  }, []);
+}
+
+const lifting = new WeakMap<Element, number>();
+/**
+ * A sheet has left the table. The picture of it that slides off (sheet.ts) lies in the place kept for such pictures,
+ * which is under the rivals and your shelf: for the length of the slide that place is marked (sheets.css raises it),
+ * so the rows the sheet lay over come back into view as it fades and do not cut across it.
+ */
+function liftOff(game: Element): void {
+  const host = game.querySelector(':scope > .centre > .tk-sheet');
+  if (!host) return;
+  window.clearTimeout(lifting.get(host));
+  host.setAttribute('data-over', '');
+  lifting.set(host, window.setTimeout(() => host.removeAttribute('data-over'), moveMs(FEEL.sheetOut) + 2 * FRAME));
 }

@@ -9,6 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/ho
 import { EVENT_CARDS, FRUIT, TOP_UP } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
 import { closingNote, overnightLines, type NightJuice } from '../../../engine/story';
+import { hurryUp, resetHurry } from '../../anim';
 import { Fruit } from '../../art';
 import { LANES, lorryLoad, nextLorry, nextLorryName, todaysLoad, todaysLorry } from '../../boardModel';
 import { EventBack } from '../../cards';
@@ -132,10 +133,15 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
     holdCash(before);
     return () => { live.current = false; holdCash(null); };
   }, []);
+  const coins = useRef(false);
   useEffect(() => {
     if (!before || !ready) return;
-    void dawnCoins(s, viewer, () => live.current).then(() => { if (live.current) holdCash(null); });
+    coins.current = true;
+    void dawnCoins(s, viewer, () => live.current).then(() => { coins.current = false; if (live.current) holdCash(null); });
   }, [ready]);
+  // A tap on the sheet while dawn's coins are on their way ends their pauses, so they leave at once. The table's pace
+  // is put back straight away: this hurry is for the coins only, not for the buying that follows.
+  const hurryCoins = () => { if (coins.current) { hurryUp(); resetHurry(); } };
   // When the sheet's parts are taller than the sheet, it is drawn a little closer (sheets.css), a step at a time.
   const [tight, setTight] = useState(0);
   useLayoutEffect(() => {
@@ -145,7 +151,7 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
 
   const said = [fineLine(s, viewer), topUpLine(s, viewer)].filter(Boolean).join('. ');
   return (
-    <div class={`morning-card tk-morning ${table ? 'fm-sheet sh-morning' : ''} ${rem <= 3 ? 'finale' : ''} ${tight ? `tight-${tight}` : ''}`} ref={root}>
+    <div class={`morning-card tk-morning ${table ? 'fm-sheet sh-morning' : ''} ${rem <= 3 ? 'finale' : ''} ${tight ? `tight-${tight}` : ''}`} ref={root} onClick={hurryCoins}>
       {/* The inspector's fine, and (rules 18, out of cash) the market's top-up of a stall with an empty shelf and less
           than $5 at dawn. */}
       {dawn.length > 0 && (
