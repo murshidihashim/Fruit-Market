@@ -215,7 +215,7 @@ describe('the night on the lanes (NightShift.tsx)', () => {
     expect(panel(calm, 500)).toContain('--steps:1');
     const heat = { ...calm, event: { id: 'heatwave', title: 'Heatwave', text: '', ageExtra: 1 } } as GameState;
     expect(nightSteps(heat)).toBe(2);
-    expect(panel(heat, 500)).toContain('2 boxes tonight');
+    expect(panel(heat, 500)).toContain('every piece slides down 2 boxes');
     const rain = { ...calm, event: { id: 'monsoon', title: 'Monsoon', text: '', ageExtra: -1 } } as GameState;
     expect(nightSteps(rain)).toBe(0);
     expect(panel(rain, 500)).not.toContain('moved');

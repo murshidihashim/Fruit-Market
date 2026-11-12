@@ -6,7 +6,7 @@ import { shownCash, useCashShown } from '../../cashShown';
 import type { GameState } from '../../../engine/game';
 import { standing } from '../../../engine/story';
 
-const PHASE = { morning: 'Morning', order: 'The order', buy: 'Buying', stall: 'Stocking', bid: 'The bell', tie: 'The bell', reveal: 'The rush', evening: 'Evening', over: 'Closed' } as const;
+const PHASE = { morning: 'Morning', order: 'The standing order', buy: 'Buying', stall: 'Stocking', bid: 'The bell', tie: 'The bell', reveal: 'The rush', evening: 'Evening', over: 'Closed' } as const;
 /** The day in five beats, as on the table board. Evening and night come after the fifth. */
 const BEATS = ['Morning', 'Buying', 'Stocking', 'Bell', 'Rush'] as const;
 const BEAT_OF: Record<string, number> = { morning: 0, order: 0, buy: 1, stall: 2, bid: 3, tie: 3, reveal: 4, evening: 5, over: 5 };
@@ -30,7 +30,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, night }: { s: GameState; vi
         </button>
         <div class="tk-day">
           <span class="day-label">Day {s.day}<small> / {s.config.days}</small></span>
-          {s.phase !== 'over' && rem <= 3 && <span class={`tk-left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'Final day' : `${rem} days left`}</span>}
+          {s.phase !== 'over' && rem <= 3 && <span class={`tk-left ${rem === 1 ? 'last' : ''}`}>{rem === 1 ? 'Last day' : `${rem} days left`}</span>}
         </div>
         {s.phase !== 'over' ? (
           <button type="button" class="tk-event" onClick={(e) => { e.stopPropagation(); onEvent?.(); }}
@@ -45,7 +45,7 @@ export function TopBar({ s, viewer, onMenu, onEvent, night }: { s: GameState; vi
         </div>
       </div>
       {s.phase !== 'over' && (
-        <ol class="tk-beats" aria-label={`Today's beats. Now: ${PHASE[s.phase]}`}>
+        <ol class="tk-beats" aria-label={`Today's steps. Now: ${PHASE[s.phase]}`}>
           {BEATS.map((b, i) => <li class={i === beat ? 'now' : i < beat ? 'done' : ''} aria-current={i === beat ? 'step' : undefined}>{i + 1} {b}</li>)}
         </ol>
       )}

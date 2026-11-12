@@ -26,19 +26,19 @@ export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer:
   const rivals = pricingTable(s, viewer).seats.filter((x) => !x.me);
   if (!rivals.length) return null;
   return (
-    <section class={`crates tk-crates shut n${rivals.length} ${waiting ? 'waiting' : ''}`} aria-label="Every rival's crate, shut until the bell: only how many pieces each put out">
+    <section class={`crates tk-crates shut n${rivals.length} ${waiting ? 'waiting' : ''}`} aria-label="Every rival's crate, shut until the bell: only how many pieces are in each">
       {rivals.map((x) => {
         const pl = s.players[x.player];
         const opening = waiting && s.stalls[x.player] === null;
         const n = x.out ?? 0;
-        const label = waiting ? `${pl.name} ${opening ? 'is still opening' : 'has opened'}`
-          : `${pl.name}: ${n ? `${pieces(n)} out, which fruit is secret until the bell` : 'nothing out'}${x.sealed ? ', prices sealed' : ', not sealed yet'}`;
+        const label = waiting ? `${pl.name} ${opening ? 'is still filling its crate' : 'is ready'}`
+          : `${pl.name}: ${n ? `${pieces(n)} in the crate, which fruit is secret until the bell` : 'empty crate'}${x.sealed ? ', prices sealed' : ', not sealed yet'}`;
         return (
           <div key={`c${x.player}`} class={`crate tk-crate ${x.sealed ? 'sealed' : ''} ${opening ? 'opening' : ''}`} role="group" aria-label={label}>
             <span class="tk-crate-name"><Swatch p={x.player} size={18} /><span>{pl.name}</span>{x.sealed && <i class="tk-sealed" aria-hidden="true">sealed</i>}</span>
             <span class="tk-crate-count">
-              {waiting ? <small>{opening ? 'opening…' : 'ready'}</small>
-                : n ? <><b>{n}</b><small>{n === 1 ? 'piece out' : 'pieces out'}</small></> : <small>nothing out</small>}
+              {waiting ? <small>{opening ? 'filling…' : 'ready'}</small>
+                : n ? <><b>{n}</b><small>{n === 1 ? 'piece' : 'pieces'}</small></> : <small>empty</small>}
             </span>
           </div>
         );
@@ -51,7 +51,7 @@ export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer:
  *  the game's words ("tied: apples at $5 with Rosa"). */
 const rowSaid = (s: GameState, x: BellRow, shared?: boolean) => {
   const ties = tieWords(s, x.player);
-  return `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'nothing out'}${ties ? `; tied: ${ties}` : ''}`;
+  return `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'empty crate'}${ties ? `; tied: ${ties}` : ''}`;
 };
 
 /**
@@ -86,11 +86,11 @@ export function CratesOpen({ s, viewer, open = null, shared, children }: {
               <Swatch p={x.player} who={shownAvatar(s.players, x.player)} look={pl.look} size={30} />
               <span class="ds-nm"><b>{x.me && !shared ? 'You' : pl.name}</b><small>bought {nth(x.nth)}</small></span>
               <span class="ds-tags">
-                {!x.tags.length && up && <span class="ds-none">nothing out</span>}
+                {!x.tags.length && up && <span class="ds-none">empty crate</span>}
                 {x.tags.map((t) => (up ? (
                   <span class={`ds-pz ${t.tied ? 'tie' : ''} ${t.stamped ? 'stamped' : ''} tg-${tagOf(pl.look)}`} data-a={`bell-${x.player}-${t.f}`}>
                     <Fruit id={t.f} size={18} /><b>${t.price}</b>
-                    <span class="ds-marks" role="img" aria-label={`${t.out} out: ${t.marks.map((st) => STAGE_WORD[st]).join(', ')}`}>
+                    <span class="ds-marks" role="img" aria-label={`${t.out} in the crate: ${t.marks.map((st) => STAGE_WORD[st]).join(', ')}`}>
                       {t.marks.slice(0, MAX_TAG_MARKS).map((st) => <i class={`ds-lamp st-${st}`}>{STAGE_LETTER[st]}</i>)}
                       {t.out > MAX_TAG_MARKS && <em>+{t.out - MAX_TAG_MARKS}</em>}
                     </span>

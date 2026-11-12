@@ -51,7 +51,7 @@ export function tieStory(s: GameState, asked: number, viewer: number): TieStory 
   const mine = asked === viewer;
   const name = (p: number, start = false) => (p === viewer ? (start ? 'You' : 'you') : s.players[p].name);
   const fruitOf = (f: FruitId) => FRUIT[f].plural.toLowerCase();
-  const said = (t: (typeof ties)[number]) => `${listOf([name(asked, true), ...t.rivals.map((p) => name(p))])} ${t.rivals.length > 1 ? 'all' : 'both'} ask $${t.price} for ${fruitOf(t.fruit)}`;
+  const said = (t: (typeof ties)[number]) => `${listOf([name(asked, true), ...t.rivals.map((p) => name(p))])} ${t.rivals.length > 1 ? 'all' : 'both'} set $${t.price} for ${fruitOf(t.fruit)}`;
   const t = ties[0];
   if (!t) return { title: `${name(asked, true)} ${mine ? 'hold' : 'holds'} Favoured Trade`, why: '', without: null, with: null, also: null };
   const also = ties.length > 1 ? `Also tied: ${ties.slice(1).map((x) => `${fruitOf(x.fruit)} at $${x.price} with ${listOf(x.rivals.map((p) => name(p)))}`).join('; ')}.` : null;

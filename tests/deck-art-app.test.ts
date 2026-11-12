@@ -55,7 +55,7 @@ describe('portraits (art.tsx Face)', () => {
 });
 
 describe('choosing a shopkeeper (CharacterPick)', () => {
-  it('a swipe carousel of the eight shopkeeper cards (PLAN-063, redrawn in PLAN-083): the picked one in the middle, its tagline below, the taken one stamped', () => {
+  it('a swipe carousel of the eight shopkeeper cards (PLAN-063, redrawn in PLAN-083): the picked one in the middle, no tagline under it (DEC-087), the taken one stamped', () => {
     const html = toStaticHtml(h(CharacterPickView, { value: RIVALS[1].avatar, taken: { [RIVALS[4].avatar]: 'Ann' } }));
     expect(html.match(/class="cd cd-a cd-keeper/g)).toHaveLength(8);
     for (const r of RIVALS) expect(html, r.name).toContain(shopScene(r.avatar)!);
@@ -63,9 +63,9 @@ describe('choosing a shopkeeper (CharacterPick)', () => {
     expect(html).toContain('Taken by Ann');
     expect(html.match(/is-selected/g)).toHaveLength(1);
     expect(html.match(/cp-card on/g)).toHaveLength(1);
-    // the tagline shows once, under the card, not on it
-    expect(html).toContain(`class="cp-quip">“${RIVALS[1].quip}”`);
-    expect(html.split(RIVALS[1].quip).length - 1).toBe(1);
+    // no tagline: the card says the name, the perk and its rule
+    expect(html).not.toContain('cp-quip');
+    for (const r of RIVALS) expect(r.quip, r.name).toBe('');
     expect(html.match(/aria-label="(Previous|Next) shopkeeper"/g)).toHaveLength(2);
   });
 });

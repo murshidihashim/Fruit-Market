@@ -546,7 +546,7 @@ describe('no stepped landings or pops', () => {
     expect(rule('.phase-banner {')).toContain('animation: banner var(--t-stamp) ease-out forwards');
   });
 
-  it('with reduced motion the "FINAL DAY!" stamp is simply there (it used to stay invisible)', () => {
+  it('with reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible)', () => {
     expect(read('src/ui/motion.css')).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.phase-banner \{ opacity: 1; \}/);
   });
 });

@@ -322,7 +322,7 @@ export class MatchDO extends DurableObject<Env> {
       await this.ctx.storage.put('q', r.q);
       return json({ code: r.code, host: r.host });
     } catch {
-      return json({ error: 'Could not find a match, try again' }, 503);
+      return json({ error: 'Could not find a game. Try again.' }, 503);
     }
   }
 }

@@ -10,7 +10,7 @@ import { GUEST_EVENT, customerArt, customerFocus, focusCss, guestArt, guestFocus
 
 /** The letters printed on the board's boxes. */
 export const STAGE_LETTER: Record<Stage, string> = { unripe: 'G', fresh: 'F', okay: 'O', notso: 'S' };
-export const STAGE_WORD: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
+export const STAGE_WORD: Record<Stage, string> = { unripe: 'Green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
 
 /** A freshness letter in a round lamp: filled when it applies, hollow when it does not. */
 export function Lamp({ stage, on = true, size = 16 }: { stage: Stage; on?: boolean; size?: number }) {
@@ -80,7 +80,7 @@ export function Ticket({ who, lines, class: cls, order }: { who: string; lines: 
           <b>${x.max}</b>
         </div>
       ))}
-      <footer class="tkc-bd" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
+      <footer class="tkc-bd" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
         <i class="tkc-lamp">F</i>
         <i class={cx('tkc-lamp', pref === 'premium' && 'off')}>O</i>
         <i class={cx('tkc-lamp', pref !== 'bargain' && 'off')}>S</i>

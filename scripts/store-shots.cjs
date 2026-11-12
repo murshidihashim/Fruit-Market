@@ -59,7 +59,7 @@ const path = require('path');
         if (once('eve')) { await p.waitForTimeout(700); await shot('6-upgrades'); }
         await p.click('text=Lights out'); continue;
       }
-      for (const t of ['Close for the day', 'See final results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
+      for (const t of ['Close for the day', 'See results']) if (await p.locator(`text=${t}`).count()) { await p.click(`text=${t}`); break; }
       await p.waitForTimeout(120);
     } catch { await p.waitForTimeout(200); }
   }

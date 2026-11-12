@@ -79,7 +79,7 @@ export function verifyDaily(sub: DailySubmit, now: number, owner: string): { ent
   // ones: the same moves against different computer players give a different game (or an illegal move).
   if (!sub || sub.rv !== RULES_VERSION || (sub.av ?? 1) !== AI_VERSION) throw new RuleError(UPDATE_MSG);
   if (typeof sub.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(sub.date)) throw new RuleError('Bad date');
-  if (!acceptableDates(now).includes(sub.date)) throw new RuleError('That daily challenge is closed');
+  if (!acceptableDates(now).includes(sub.date)) throw new RuleError('That day of the Daily market is closed.');
   if (!Array.isArray(sub.actions) || sub.actions.length > MAX_ACTIONS) throw new RuleError('Bad moves');
   const name = safeName(sub.name, `Shopkeeper ${owner.slice(0, 4)}`);
   let s = newGame(dailyConfig(sub.date, name));

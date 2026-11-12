@@ -68,7 +68,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
-        <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
+        <p>{s.phase === 'order' ? 'A secret bid for the standing order. Everyone else look away.' : s.phase === 'bid' ? 'Secret prices. Everyone else look away.' : s.phase === 'stall' ? 'Fill your crate. Everyone else look away.' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
       </div>
     );
@@ -79,7 +79,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <div class="game tkt sbk-over">
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
-          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
+          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants to play again.`) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
       </div>
     );

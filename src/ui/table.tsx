@@ -129,11 +129,11 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   const market = s.phase === 'morning' || s.phase === 'order' ? marketBefore(s) : shownMarket(s.market);
   const buyer = s.phase === 'buy' ? s.players[s.order[s.turn]] : null;
   const me = s.players[p];
-  const turn = !buyer ? '' : s.order[s.turn] === p ? `Your turn · ${shownBoughtCount(p, me.boughtToday)} of ${buyLimit(me)} bought` : `${buyer.name} is buying`;
+  const turn = !buyer ? '' : s.order[s.turn] === p ? `Your turn · ${shownBoughtCount(p, me.boughtToday)} of ${buyLimit(me)} bought` : '';
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">
-        <b class="tk-label" data-a="truck">Wholesale market</b>
+        <b class="tk-label" data-a="truck">Wholesale Market</b>
         {lorry !== undefined && <Lorry here={lorry} />}
         {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
@@ -195,12 +195,12 @@ export function SeatBoard({ b }: { b: Board }) {
 /** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
  *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
 export function rivalNote(s: GameState, p: number, active: boolean): string {
-  if (s.phase === 'evening') return active ? 'building…' : 'plotting…';
-  if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} out` : 'none out'; }
+  if (s.phase === 'evening') return active ? 'deciding…' : 'waiting';
+  if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} in crate` : 'empty'; }
   if (s.phase === 'reveal') {
     // At the bell the crates are open; the pieces still out drop as each customer is served (stockShown.ts).
     const out = FRUITS.reduce((a, f) => a + Math.max(0, forSale(s, p, f) - shownSold(s.results, p, f)), 0);
-    return out ? `${out} out` : 'none out';
+    return out ? `${out} in crate` : 'empty';
   }
   return '';
 }
@@ -591,12 +591,12 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
   return (
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
-      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
+      title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
       {(done || special || heard) && (
         <span class="cust-marks">
           {done && <i class="happy-mark"><Icon name="heart" size={13} /></i>}
-          {special && <i class="star" title="Special guest"><Icon name="star" size={13} /></i>}
+          {special && <i class="star" title="Guest"><Icon name="star" size={13} /></i>}
           {heard && <i class="ear" title={SEEN_WALK_IN}><Icon name="ear" size={13} /></i>}
         </span>
       )}
