@@ -1,6 +1,10 @@
-// Plays a full game in a phone-sized headless browser and saves screenshots.
-// Usage: node scripts/smoke.cjs <dist-single/index.html> <outdir> [rivals=3]
+// Plays a full game in a phone-sized headless browser and saves screenshots. Exits with a failure when the game does
+// not reach the results screen (PLAN-081: it used to print a line and pass).
+// Usage: node scripts/smoke.cjs <dist-single/index.html> <outdir> [rivals=3] [saved-game.json]
+// With a saved game (a file holding what the game keeps under "fm.save") the script continues that game from the home
+// screen instead of starting a new one, so a chosen moment (such as the Favoured Trade step) can be played through.
 const { chromium } = require('playwright');
+const fs = require('fs');
 
 /** Sets the number of rival stalls on the set-up screen's seat tiles (PLAN-058): + Add, or open the last tile and remove it. */
 async function setRivals(page, n) {
@@ -10,22 +14,33 @@ async function setRivals(page, n) {
 }
 const path = require('path');
 (async () => {
-  const [file, out, rivals = '3'] = process.argv.slice(2);
+  const [file, out, rivals = '3', saveFile] = process.argv.slice(2);
+  const save = saveFile ? fs.readFileSync(saveFile, 'utf8') : null;
+  fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 400, height: 820 }, deviceScaleFactor: 2 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-  await page.addInitScript(() => localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, tips: true })));
+  await page.addInitScript((save) => {
+    localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, tips: true }));
+    if (save && !localStorage.getItem('fm.smoke')) { localStorage.setItem('fm.smoke', '1'); localStorage.setItem('fm.save', save); }
+  }, save);
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
-  await page.click('text=New game');
-  await setRivals(page, rivals);
-  await page.click('text=Start game');
-  await page.waitForTimeout(250);
-  await shot('01-delivery-anim');
+  if (save) {
+    await page.click('text=Continue');
+    await page.click('text=Resume');
+  } else {
+    await page.click('text=New game');
+    await setRivals(page, rivals);
+    await page.click('text=Start game');
+    await page.waitForTimeout(250);
+    await shot('01-delivery-anim');
+  }
   const seen = new Set();
   const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
+  let ties = 0;
   for (let i = 0; i < 4000; i++) {
     try {
     if (await page.locator('.results').count()) break;
@@ -51,6 +66,15 @@ const path = require('path');
     if (await page.locator('.coach .btn:not(.skip)').count()) { await page.click('.coach .btn:not(.skip)'); continue; }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
     if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+    // The Favoured Trade step (rules 18): a stall that holds the card and has a tied price is asked after the flip,
+    // with two buttons, "Play it" and "Keep it" (PLAN-081: the one-button step below used to stop here for good).
+    // Play it the first time and keep it the next, so both answers are played.
+    if (await has('[data-a="tie-note"]') && await has('.pp-lock .btn.ghost')) {
+      if (once('tie')) await shot('05b-favoured-trade');
+      await page.click(ties++ % 2 ? '.pp-lock .btn.ghost' : '.pp-lock .btn.primary');
+      console.log('favoured trade step:', ties % 2 ? 'played' : 'kept');
+      continue;
+    }
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
       if (once('bid')) await shot('05-pricing');
@@ -73,7 +97,12 @@ const path = require('path');
     }
   }
   await page.waitForTimeout(800);
-  await shot('10-results');
-  console.log('results visible:', await page.locator('.results').count(), 'errors:', errors);
+  const reached = await page.locator('.results').count();
+  await shot(reached ? '10-results' : '10-stuck');
+  console.log('results visible:', reached, 'errors:', errors);
   await browser.close();
-})();
+  if (!reached) {
+    console.error(`Solo playthrough FAILED: the results screen was not reached. The last screen is in ${out}/10-stuck.png`);
+    process.exit(1);
+  }
+})().catch((e) => { console.error(e); process.exit(1); });
