@@ -90,6 +90,40 @@ describe('account on the phone', () => {
     expect(progress.loadGranted()).toEqual([]);
   });
 
+  it('keeps a granted look that is worn through every sync, and on another phone, while the grant lasts (PLAN-091)', async () => {
+    const acct = await import('../src/ui/account');
+    const progress = await import('../src/ui/progress');
+    const looks = await import('../src/ui/looks');
+    progress.saveLooks(['straw_boater']);
+    expect(await acct.signUp('mia_79', 'correct horse')).toBeNull();
+    accounts.set('mia_79', { ...accounts.get('mia_79')!, grants: ['roof_stars'] });
+    expect(await acct.syncNow()).toBeNull();
+    expect(looks.toggleLook('straw_boater')).toEqual({ hat: 'straw_boater' });
+    expect(looks.toggleLook('roof_stars')).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    // the sync used to drop it: the account's merge kept only looks the profile owns, and a grant is not one of them
+    expect(await acct.syncNow()).toBeNull();
+    expect(progress.loadWorn()).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    expect(looks.worn()).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    expect(accounts.get('mia_79')!.profile.worn).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    // the grant is still never written into the looks the profile owns
+    expect(accounts.get('mia_79')!.profile.looks).not.toContain('roof_stars');
+    expect(progress.loadLooks()).not.toContain('roof_stars');
+    // another phone (this one, signed out and in again) is dressed the same
+    expect(await acct.signOut()).toBeNull();
+    expect(progress.loadWorn()).toEqual({});
+    expect(await acct.signIn('mia_79', 'correct horse')).toBeNull();
+    expect(looks.worn()).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    // a look this phone claims but the account was never granted is still dropped
+    progress.saveWorn({ hat: 'straw_boater', roof: 'roof_stars', neck: 'bow_tie' });
+    expect(await acct.syncNow()).toBeNull();
+    expect(accounts.get('mia_79')!.profile.worn).toEqual({ hat: 'straw_boater', roof: 'roof_stars' });
+    // once the grant is withdrawn, the next sync takes it off
+    accounts.set('mia_79', { ...accounts.get('mia_79')!, grants: [] });
+    expect(await acct.syncNow()).toBeNull();
+    expect(accounts.get('mia_79')!.profile.worn).toEqual({ hat: 'straw_boater' });
+    expect(looks.worn()).toEqual({ hat: 'straw_boater' });
+  });
+
   it('joins a guest phone into the account when signing in, without losing either side', async () => {
     const acct = await import('../src/ui/account');
     const progress = await import('../src/ui/progress');
