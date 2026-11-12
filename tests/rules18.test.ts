@@ -1200,13 +1200,21 @@ describe('K. Favoured Trade after prices flip', () => {
     const s = tied(3, [2], [6, 6, 6]);
     expect(tieWords(s, 2)).toBe('apples at $6 with P0 and P1');
     const mine = toStaticHtml(h(TiePanel, { s: publicView(s, 2), viewer: 2, asked: 2, onDecide: () => undefined }));
-    expect(mine).toContain('Your prices are tied: apples at $6 with P0 and P1.');
+    // PLAN-085: the question is the card itself, under the open rows
+    expect(mine).toContain('You, P0 and P1 all ask $6 for apples');
+    expect(mine).toContain('A tied price: apples at $6 with P0 and P1. Play Favoured Trade or keep it');
+    expect(mine).toContain('Play Favoured Trade and you sell first, on every tied price today.');
+    expect(mine).toContain('Without it');
+    expect(mine).toContain('With it');
     expect(mine).toContain('Play it');
     expect(mine).toContain('Keep it');
+    expect(mine).toContain('data-a="tie-note"');
     const theirs = toStaticHtml(h(TiePanel, { s: publicView(s, 0), viewer: 0, asked: 2 }));
     expect(theirs).toContain('P2 is deciding');
-    expect(theirs).toContain('P2 has a tied price (apples at $6 with P0 and P1) and may play Favoured Trade to win it.');
+    expect(theirs).toContain('P2, you and P1 all ask $6 for apples');
+    expect(theirs).toContain('P2 holds Favoured Trade and is deciding whether to play it.');
     expect(theirs).not.toContain('Play it');
+    expect(theirs).not.toContain('Without it');
   });
 
   it('whole computer games reach the step, and every card played there was held by a stall with a tied price', () => {

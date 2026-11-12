@@ -16,7 +16,7 @@ import { upgradeArt, upgradeFocus } from './deckArt';
 import { STAGE_LETTER, STAGE_WORD } from './ticket';
 import { Icon, type IconName } from './icons';
 import { FavourMini } from './phoneCards';
-import { pricingTable } from './game/pricingTable';
+import { nth, pricingTable } from './game/pricingTable';
 import { nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
 import { useReach } from './game/reach';
@@ -155,9 +155,6 @@ export function startingPrices(s: GameState, p: number): Record<string, number> 
 export function postsOf(s: GameState, p: number, vals: Record<string, number>): Post[] {
   return FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => ({ fruit: f, price: Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f)) }));
 }
-
-/** "1st", "2nd", "3rd", "4th": a place in today's line-up. */
-export const nth = (n: number): string => `${n}${n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'}`;
 
 /** How the game breaks a tie, and where this stall stands in today's line-up (the last of the tie-breaks). */
 export function tieOrderText(s: GameState, p: number): string {

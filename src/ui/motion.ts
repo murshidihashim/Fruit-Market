@@ -48,8 +48,13 @@ export const BEAT = {
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
   /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece). */
   stock: { fly: 260 },
-  /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
-  bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
+  /** The bell (flow study D3): your price tags turn face down as you ring it (`seal`); the bell swings and sounds
+   *  (`swing`); then stall by stall, `gap` apart, a row lifts (`lid`) and its price tags turn face up (FEEL.turn); then
+   *  a pause to read. About 2.6 s at four stalls. "No sales today"; the older crate's turn (motion.css). */
+  bell: { seal: 200, swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100, crateTurn: 400 },
+  /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
+   *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
+  tie: { ask: 600, stamp: 180, pause: 600 },
   /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
    *  stalls' offers turn up under it, and for each fruit wanted the pieces go to the card (`pieceGap` apart, FEEL.travel
    *  each) and the coins come back (`coinGap` apart, FEEL.coin each). A further fruit starts `fruit` after the one
@@ -79,7 +84,7 @@ export const BEAT = {
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
   land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
-  'rush-rows': BEAT.rush.rows,
+  'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
 };
 

@@ -191,11 +191,94 @@ function settle(card: RushCard, pay: Pay, favour = true) {
   if (favour && card.favour) showFavour(card.customerId, card.favour.player);
 }
 
-/** How long "No sales today" stays up, and how long every open crate stays on the table at the bell, in ms at normal speed. */
+/** How long "No sales today" stays up, in ms at normal speed. */
 export const NO_SALES_READ = A.BEAT.bell.noSales;
-export const bellRead = (stalls: number) => A.BEAT.bell.read + A.BEAT.bell.readPerStall * stalls;
+/** The bell's travel (flow study D3): the bell swings, then stall by stall a row lifts and its price tags turn face up. */
+export const bellOpening = (stalls: number) => A.BEAT.bell.swing + Math.max(0, stalls - 1) * A.BEAT.bell.gap + A.BEAT.bell.lid + A.FEEL.turn;
+/** The whole bell untouched, in ms at normal speed: the travel and the pause to read. About 2.6 s at four stalls. */
+export const bellLength = (stalls: number) => bellOpening(stalls) + A.BEAT.bell.read;
 
-export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (on: boolean) => void) {
+/** The bell while it rings: how many rows have turned face up so far (0 while it swings); null when it is not ringing. */
+export type BellShow = number | null;
+
+/**
+ * The bell (rules 15; PLAN-085): the bell swings and sounds, then stall by stall, in today's line-up, each row's
+ * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. With reduced motion
+ * nothing travels: every row is open at once and the reading pause is kept. A tap ends the bell where it stands:
+ * every row is shown open and the pause is over.
+ */
+export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
+  const n = g.players.length;
+  setBell?.(0);
+  fx.card();
+  await A.wait(A.BEAT.bell.swing);
+  for (let k = 1; k <= n && !A.hurried(); k++) {
+    setBell?.(k);
+    if (k < n) await A.wait(A.BEAT.bell.gap);
+  }
+  setBell?.(n);
+  if (A.hurried()) return;
+  await A.wait(A.BEAT.bell.lid + A.FEEL.turn);
+  if (A.hurried()) return;
+  await A.hold(A.BEAT.bell.read);
+}
+
+// ---------- Favoured Trade (rules 18): the question under the open rows, and the card played ----------
+
+/** Kept out of sight until the card has landed on the tag: the stamp of a Favoured Trade just played (daysheet.css). */
+const HOLD_STAMP = 'fm-hold-stamp';
+const holdStamp = (on: boolean) => { if (typeof document !== 'undefined') document.documentElement?.classList?.toggle(HOLD_STAMP, on); };
+
+/** The stall that has just answered the Favoured Trade question, and whether it played the card (null: not such a step). */
+export function tieAnswer(prev: GameState, next: GameState): { p: number; played: boolean } | null {
+  const p = prev.phase === 'tie' ? prev.tieAsk?.[0] : undefined;
+  if (p === undefined || next.day !== prev.day) return null;
+  return { p, played: !prev.players[p].favouredTrade && !!next.players[p]?.favouredTrade };
+}
+
+/**
+ * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading for
+ * this stall, the stall's own row for a rival), and its stamp is held back until the card has landed on the tag.
+ * Returns the place to travel from.
+ */
+export function tieFrom(a: { p: number; played: boolean }, viewer: number): A.Box | null {
+  if (!a.played || typeof document === 'undefined') return null;
+  holdStamp(true);
+  return A.boxOf(a.p === viewer ? document.querySelector('[data-a="tie-kind"]') : document.querySelector(`[data-a="bell-p${a.p}"] .tk-swatch`));
+}
+
+/**
+ * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag and stamps it
+ * (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced motion
+ * nothing travels: the card's name is shown on the stall's row for a pause to read.
+ */
+export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
+  if (typeof document === 'undefined') { holdStamp(false); return; }
+  const tag = document.querySelector(`[data-a^="bell-${p}-"].tie`);
+  let spot: HTMLElement | null = null;
+  if (from) {
+    // The question has left the table by now: a place that is not drawn stands in for where the card lay.
+    spot = document.createElement('i');
+    spot.setAttribute('aria-hidden', 'true');
+    spot.style.cssText = `position:fixed;left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;visibility:hidden;pointer-events:none`;
+    document.body.appendChild(spot);
+  }
+  fx.card();
+  const label = A.isReduced() ? A.tag(`bell-p${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
+  try {
+    await A.fly(spot ?? `bell-p${p}`, tag ?? `bell-p${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
+    document.querySelectorAll(`[data-a^="bell-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
+    await A.wait(A.BEAT.tie.stamp);
+    await A.hold(A.isReduced() ? A.BEAT.label.read : A.BEAT.tie.pause);
+  } finally {
+    holdStamp(false);
+    spot?.remove();
+    label?.remove();
+  }
+}
+
+/** `rung`: the bell has already rung today (the Favoured Trade step came between), so it is not shown again. */
+export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (open: BellShow) => void, rung = false) {
   const r = g.results!;
   if (!r.lines.some((l) => l.offers.length > 0)) {
     const t = A.tag('street', 'No sales today', 'big');
@@ -204,12 +287,10 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     t.remove();
     return;
   }
-  // The bell (rules 15): every crate opens with its prices. They stay on the table long enough to read, then the rush
-  // starts. A reading pause too: with reduced motion the open crates stay just as long (a tap or Skip still ends it).
-  setBell?.(true);
-  fx.card();
-  await A.hold(bellRead(g.players.length));
-  setBell?.(false);
+  // The bell (rules 15): every row opens with its prices, stall by stall, and stays long enough to read; then the
+  // rush starts.
+  if (!rung) await bellRings(g, setBell);
+  setBell?.(null);
   // A tap on the table ends the bell and nothing more: the rush then starts at its own pace. Skip hurries the whole
   // rush; it also lets the shelves go, which tells the two apart.
   if (A.hurried() && stockHeld()) A.resetHurry();
