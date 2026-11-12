@@ -678,7 +678,8 @@ describe('the sheet: the middle panel slides onto the table and off again (sheet
       ['src/ui/game/panels/MorningCard.tsx', /<div class=\{`morning-card /], ['src/ui/game/panels/TraitPick.tsx', /<div class="morning-card /],
       ['src/ui/game/panels/SalesSummary.tsx', /<div class="sales-card"/], ['src/ui/game/panels/PricingTable.tsx', /<div class="mid-panel tk-bell"/],
       ['src/ui/game/panels/OrderPanel.tsx', /class="[^"]*\bmid-panel\b/], ['src/ui/game/panels/NightShift.tsx', /class="mid-panel night-shift/],
-      ['src/ui/panel.tsx', /class="price-panel stall-panel mid-panel/], ['src/ui/Game.tsx', /<div class="mid-panel mid-evening">/],
+      // PLAN-084: the evening's sheet is drawn in panel.tsx with its own buttons (it was a wrapper in Game.tsx)
+      ['src/ui/panel.tsx', /class="price-panel stall-panel mid-panel/], ['src/ui/panel.tsx', /<div class="mid-panel mid-evening /],
     ] as const;
     for (const [f, re] of roots) expect(read(f), f).toMatch(re);
   });

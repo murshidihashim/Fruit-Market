@@ -2,41 +2,67 @@
 // collected. Rules 17: everyone sees who is bidding, who passed and who is still deciding (never a rival's price), and
 // a stall may change its mind for as long as another stall is still deciding. Rules 18: the winner puts down a stake
 // instead of risking a fine for each piece, only its own crate fills the order, and rivals are not involved.
-import { useState } from 'preact/hooks';
-import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS } from '../../../engine/data';
-import { orderStake, type GameState, type Standing } from '../../../engine/game';
-import { Coin, Face, Fruit } from '../../art';
+// PLAN-084: laid out as the approved Standing-Order screen. One sheet stays on the table from the first stall's bid
+// until the bids have been turned over: the order's card and who is bidding scroll if they must, while your bid, the
+// three lines of the stake and the buttons always stay in view under them.
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS, stakeFor } from '../../../engine/data';
+import { count, orderStake, type GameState, type Standing } from '../../../engine/game';
+import { Face, Fruit } from '../../art';
+import { nextLorry } from '../../boardModel';
 import { OrderTicket } from '../../phoneCards';
+import type { OrderShow } from '../dayBeats';
+import { useReach } from '../reach';
 
 /** "3 mangoes", "1 apple". */
 const pieces = (n: number, f: keyof typeof FRUIT) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
+const one = (f: keyof typeof FRUIT) => FRUIT[f].name.toLowerCase();
 
-/** Who is bidding (rules 17): each rival is "bidding", "passed" or "deciding…". The prices stay secret. */
-export function BidStatus({ s, p }: { s: GameState; p: number }) {
-  const o = s.standing!;
+/**
+ * Who is bidding (rules 17): each rival is "bidding", "passed" or "deciding…". The prices stay secret until every
+ * stall has decided. `open`: the bids have been turned over, so each rival's price shows, and the winner's is marked.
+ */
+export function BidStatus({ s, p, order, open }: { s: GameState; p: number; order?: Standing; open?: boolean }) {
+  const o = order ?? s.standing!;
   if (s.players.length < 2) return null;
   return (
-    <ul class="op-status" aria-label="Who is bidding">
+    <ul class={`ob-status n${s.players.length - 1} ${open ? 'open' : ''}`} aria-label={open ? 'The bids' : 'Who is bidding'}>
       {s.players.map((pl, i) => {
         if (i === p) return null;
         const b = o.bids[i];
         const st = b === null ? 'wait' : b === 'pass' ? 'pass' : 'in';
-        return <li class={`st-${st}`}><Face who={pl.avatar} size={20} /><b>{pl.name}</b><span>{st === 'wait' ? 'deciding…' : st === 'pass' ? 'passed' : 'bidding'}</span></li>;
+        const won = !!open && o.holder === i;
+        return (
+          <li class={`st-${st} ${won ? 'won' : ''}`} data-a={`ob-p${i}`}>
+            <Face who={pl.avatar} size={26} />
+            <span class="ob-who"><b>{pl.name}</b>
+              {open && typeof b === 'number'
+                ? <span class="ob-bid-n"><b>${b}</b>{won ? ' wins' : ''}</span>
+                : <span>{st === 'wait' ? 'deciding…' : st === 'pass' ? 'passed' : 'bidding'}</span>}
+            </span>
+          </li>
+        );
       })}
     </ul>
   );
 }
 
-/** Rules 18: what a stall must know before it bids, in three lines: the pay, the stake, and how the stake comes back. */
-export function OrderRules({ s, p }: { s: GameState; p: number }) {
-  const o = s.standing!;
+/**
+ * Rules 18, what a bid means for this stall, in three lines: the stake it pays if it wins, what a full delivery pays,
+ * and what falling short costs. `bid`: the price per piece it is about to bid. `order`: the order, when it is no
+ * longer the one in play (the bids are being turned over).
+ */
+export function StakeLines({ s, p, bid, order }: { s: GameState; p: number; bid: number; order?: Standing }) {
+  const o = order ?? s.standing!;
   const book = s.players[p].upgrades.includes('orderbook');
+  const stake = stakeFor(o.stake, book);
+  const each = bid + (book ? ORDER_BOOK_BONUS : 0);
   return (
-    <ul class="op-rules">
-      <li>Lowest bid wins the order and is paid that price for each piece{book ? ` (plus $${ORDER_BOOK_BONUS} a piece with your Order Book)` : ''}.</li>
-      <li>The winner puts down a stake of <b>${orderStake(s, p)}</b> now{book ? ' (halved by your Order Book)' : ''}.</li>
-      <li>Deliver all {o.qty} from your own crate on day {o.due} and the stake comes back. Deliver fewer and it is lost. Rivals are not involved.</li>
-    </ul>
+    <dl class="ob-lines">
+      <div><dt>If you win</dt><dd>You pay the ${stake} stake now{book ? ' (halved by your Order Book)' : ''}. You have ${s.players[p].cash}.</dd></div>
+      <div><dt>Deliver all {o.qty}</dt><dd>${bid * o.qty}{book ? `, plus $${ORDER_BOOK_BONUS} a piece with your Order Book,` : ','} and the ${stake} stake comes back.</dd></div>
+      <div><dt>Fall short</dt><dd>${each} for each {one(o.fruit)} you deliver. The stake is lost.</dd></div>
+    </dl>
   );
 }
 
@@ -56,51 +82,103 @@ export function bidWaitText(mine: Standing['bids'][number], decided: boolean, ca
   return `${own}. ${canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}`;
 }
 
-/** Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
- *  `waiting`: this stall is not being asked now, because it has decided and others have not (`decided`; with
- *  `canChange`, online, it may still change its mind) or because the computer stalls decide before it. */
-export function OrderPanel({ s, p, waiting, canChange, decided = true, onBid }: { s: GameState; p: number; waiting?: boolean; canChange?: boolean; decided?: boolean; onBid: (price: number | null) => void }) {
-  const o = s.standing!;
+/** What a stall can get of the order's fruit by the due day, from what is in view: its shelf, the market, tomorrow's lorry. */
+export function canGetLine(s: GameState, p: number, o: Standing): string {
+  const lorry = nextLorry(s)?.find((l) => l.f === o.fruit);
+  return [
+    `On your shelf: ${count(s.players[p].stock, o.fruit)}`,
+    `at the market today: ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
+    ...(lorry ? [`on tomorrow's lorry: ${lorry.n}`] : []),
+  ].join(' · ');
+}
+
+/**
+ * Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
+ * `waiting`: this stall is not being asked now, because it has decided and others have not (`decided`; with
+ * `canChange`, online, it may still change its mind) or because the computer stalls decide before it.
+ * `shown`: the bids are in and are being turned over (dayBeats.ts); nothing can be pressed then.
+ */
+export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, onBid }: {
+  s: GameState; p: number; waiting?: boolean; canChange?: boolean; decided?: boolean; shown?: OrderShow | null; onBid: (price: number | null) => void;
+}) {
+  // While the bids are turned over the game has moved on, so the order is the one being shown.
+  const o = shown?.order ?? s.standing!;
   const card = ORDER_CARDS[o.card];
   const mine = o.bids[p];
   const [v, setV] = useState(typeof mine === 'number' ? mine : Math.max(1, o.ceiling - 2));
-  const locked = waiting && !canChange;
+  const root = useRef<HTMLDivElement>(null);
+  useReach(root, 'street', true);
+  const stake = shown ? o.staked ?? o.stake : orderStake(s, p);
   // Rules 18: a stall may only bid with the stake in cash. It can always pass.
-  const hint = stakeHint(s, p);
+  const hint = shown ? null : stakeHint(s, p);
   const short = hint !== null;
+  // Not this stall's turn and nothing to change: the computer stalls decide first, or its own choice is final.
+  const locked = !!shown || (!!waiting && !canChange);
+  const price = shown ? (typeof mine === 'number' ? mine : null) : v;
+  const iWon = !!shown && shown.stage !== 'in' && o.holder === p;
+  // While the bids are turned over the sheet keeps the shape it had: one button for a stall that could only pass.
+  const lone = useRef(short);
+  if (!shown) lone.current = short;
+  // Online a stall that has decided may still change its mind: its buttons then say so.
+  const again = !!waiting && !!canChange && !shown;
+  // On a short phone the card and the bidders scroll above your bid. As the bids are turned over the bidders are
+  // brought into view, so the winner never lies under the foot of the sheet.
+  const top = useRef<HTMLDivElement>(null);
+  const turning = !!shown;
+  useLayoutEffect(() => { if (turning && top.current) top.current.scrollTop = top.current.scrollHeight; }, [turning]);
   return (
     <>
-    <div class="price-panel order-panel mid-panel tk-panel" data-a="order-panel">
-      {/* The order's card (PLAN-083), then the three lines a stall must know before it bids. */}
-      <OrderTicket card={card} qty={o.qty} due={o.due} day={s.day} ceiling={o.ceiling} stake={orderStake(s, p)} />
-      <OrderRules s={s} p={p} />
-      {/* Everything under the order's card (who is bidding, the line of advice, the price and Pass) stays in view at
-          the foot of the panel while the card scrolls behind it. PLAN-081: the customer row now stays on the table
-          during the bid, so on a phone the whole panel no longer always fits. The order of the parts is unchanged. */}
-      <div class="op-foot">
-        <BidStatus s={s} p={p} />
-        {waiting && <div class="hint-bar waiting-dots">{bidWaitText(mine, decided, !!canChange)}</div>}
-        {!locked && short && <div class="hint-bar">{hint}</div>}
-        {!locked && !short && (
-          <div class="op-bid" role="group" aria-label="Your secret bid per piece">
-            <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
-            <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
-            <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
+    <div class="price-panel order-panel mid-panel tk-panel fm-sheet sh-order" data-a="order-panel" data-stage={shown ? shown.stage : 'bid'} ref={root}>
+      <div class="ob-top" ref={top}>
+        {/* The order's card (PLAN-083), who is bidding, and what there is to deliver it with. */}
+        <OrderTicket card={card} qty={o.qty} due={o.due} day={s.day} ceiling={o.ceiling} stake={stake} held={shown?.stage === 'paid'} />
+        <div class="ob-sec">
+          <b class="tk-label">{shown && shown.stage !== 'in' ? 'The bids' : 'Who is bidding · prices stay secret'}</b>
+          <BidStatus s={s} p={p} order={o} open={!!shown && shown.stage !== 'in'} />
+        </div>
+        {!shown && (
+          <div class="ob-get">
+            <b class="tk-label">{FRUIT[o.fruit].plural} you can get by day {o.due}</b>
+            <span>{canGetLine(s, p, o)}</span>
           </div>
         )}
-        {!locked && !short && mine !== 'pass' && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
+      </div>
+      {/* Your bid and what it means stay in view at the foot of the sheet while the card above scrolls on a short phone. */}
+      <div class="ob-foot">
+        {short ? <div class="hint-bar ob-hint">{hint}</div> : (
+          <>
+            <b class="tk-label">Your bid, for each {one(o.fruit)}</b>
+            <div class={`ob-bid ${iWon ? 'won' : ''}`} role="group" aria-label="Your secret bid per piece">
+              {!shown && <button type="button" class="ob-step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>}
+              <span class="ob-price">
+                {price === null ? <b class="ob-none">You passed</b> : <><b>${price}</b><small>a piece · ${price * o.qty} for all {o.qty}</small></>}
+              </span>
+              {!shown && <button type="button" class="ob-step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>}
+            </div>
+            {/* Once the bids are turned over, who won takes the three lines' place in a box of the same size. */}
+            {shown
+              ? <div class="ob-after"><StakeLines s={s} p={p} bid={price ?? v} order={o} /><p class={`ob-result ${shown.stage === 'in' ? 'hid' : ''}`} role="status">{shown.text}</p></div>
+              : <StakeLines s={s} p={p} bid={v} />}
+          </>
+        )}
+        {/* One line under them, always there so nothing above it moves: who the table waits for, or (online) that a
+            bid can still be changed. */}
+        <div class={`ob-note ${waiting && !shown ? 'waiting-dots' : ''}`}>
+          {shown ? '' : waiting ? bidWaitText(mine, decided, !!canChange) : !short && canChange ? 'You can change your bid or pass until the last stall decides.' : ''}
+        </div>
       </div>
     </div>
-    {!locked && !short && (
-      <div class="pp-lock">
-        <button type="button" class="btn primary wide big" disabled={waiting && mine === v} onClick={() => onBid(v)}>{waiting ? `Change bid to $${v}` : `Bid $${v} a piece`}</button>
-      </div>
-    )}
-    {!locked && short && mine !== 'pass' && (
-      <div class="pp-lock">
-        <button type="button" class="btn primary wide big" onClick={() => onBid(null)}>Pass</button>
-      </div>
-    )}
+    {/* The buttons take the action bar's place. Only the main button is a `.btn` (the browser tests press that one). */}
+    <div class="pp-lock ob-lock">
+      {lone.current ? (
+        <button type="button" class="btn primary wide big" disabled={locked || mine === 'pass'} onClick={() => onBid(null)}>Pass</button>
+      ) : (
+        <>
+          <button type="button" class="ob-pass" disabled={locked || mine === 'pass'} onClick={() => onBid(null)}>{again ? 'Pass instead' : 'Pass'}</button>
+          <button type="button" class="btn primary wide big" disabled={locked || (!!waiting && mine === v)} onClick={() => onBid(v)}>{again ? `Change bid to $${v}` : `Bid $${price ?? v} a piece`}</button>
+        </>
+      )}
+    </div>
     </>
   );
 }

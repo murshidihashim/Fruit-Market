@@ -1,13 +1,12 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
 import { useMemo } from 'preact/hooks';
-import { buyLimit, canBuy, isDraftNight, nightOutlook, publicView, type GameState } from '../engine/game';
+import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
-import { FAVOURS } from '../engine/data';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
-import { EveningPanel, PricePanel, StallPanel } from './panel';
+import { EveningSheet, PricePanel, StallPanel } from './panel';
 import { Market, MyStall, RivalDrop, RivalStall, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
@@ -99,11 +98,15 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
-  // Rules 14: on a Market Day morning every stall bids in secret for the standing order.
-  const ordering = s.phase === 'order' && c.myBidTurn && !busy;
+  // Rules 14: on a Market Day morning every stall bids in secret for the standing order. One sheet stays on the table
+  // from the first stall's bid until the bids have been turned over (PLAN-084): while the computer stalls decide first,
+  // while this stall bids, while it waits for the others (online it may still change its mind), and while the winner is
+  // shown and its stake is put on the order's card (c.orderShow; the game has moved on to buying by then).
+  const ordering = s.phase === 'order' && c.myBidTurn;
+  const orderSeat = c.myBidTurn ? bidder : viewer;
+  const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.
   const tying = s.phase === 'tie' && activeHuman && !busy;
-  const orderWait = s.phase === 'order' && !c.myBidTurn && !busy && s.players[viewer]?.kind === 'human';
   // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
   // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
   // one person at the table (online, or a single human): a shared phone hands over between people instead.
@@ -113,12 +116,12 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
   // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
-  // The evening (PLAN-076): the Wholesale Market stays in view until you tap Lights out. The evening panel covers it
-  // only when there is something to decide (an upgrade after a Market Day, Shade Cloth's fruit, an evening favour);
-  // tonight's warning sits on the market instead. The night plays once every stall has tapped Lights out.
-  const evPl = s.players[active];
-  const eveningChoices = s.phase === 'evening' && !!evPl
-    && (isDraftNight(s) || evPl.trait === 'keeper' || evPl.favours.some((f) => FAVOURS[f].when === 'evening'));
+  // The evening (PLAN-076): the Wholesale Market stays in view until you tap Lights out. The evening sheet covers it
+  // only when there is something to decide (an upgrade you can build after a Market Day, Shade Cloth's fruit, an
+  // evening favour you can play: the game's own rule, PLAN-084); tonight's warning sits on the market instead. The
+  // night plays once every stall has tapped Lights out.
+  const eveningChoices = s.phase === 'evening' && active >= 0 && eveningChoice(s, active);
+  const evSheet = s.phase === 'evening' && activeHuman && !busy && eveningChoices;
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
@@ -127,16 +130,17 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
-    if (ordering) return <OrderPanel key={`or-${s.day}-${bidder}`} s={s} p={bidder} onBid={(price) => { fx.card(); act({ kind: 'order', price }); }} />;
-    // Offline the computer stalls decide first, so this shows before the person's own turn: it must not say "Bid in"
-    // then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
-    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting canChange={!!online} decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (online) { fx.card(); act({ kind: 'order', price }); } }} />;
+    // Offline the computer stalls decide first, so the sheet is up before the person's own turn: it must not say
+    // "Bid in" then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
+    if (orderUp) return <OrderPanel key={`or-${s.day}-${orderSeat}`} s={s} p={orderSeat} waiting={!ordering} canChange={!!online} shown={c.orderShow}
+      decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
     if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts) => { fx.card(); act({ kind: 'prices', posts }); }} />;
     if (s.phase === 'tie' && active >= 0 && !busy) return <TiePanel key={`tie-${s.day}-${active}`} s={s} viewer={viewer} asked={active} onDecide={tying ? (play) => { fx.card(); act({ kind: 'tie', play }); } : undefined} />;
     if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
-    if (s.phase === 'evening' && activeHuman && !busy && eveningChoices) return <div class="mid-panel mid-evening"><EveningPanel s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })} /></div>;
+    if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
+      onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
   const offSeats = offline.map((x) => x.seat);
@@ -192,8 +196,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       </div>
       <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
-      {/* While stocking or pricing, the panel's own button (.pp-lock) takes the action bar's place. */}
-      {!pricing && !stalling && !ordering && !tying && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {/* While stocking or pricing, bidding for a standing order or deciding the evening, the panel's own buttons
+          (.pp-lock) take the action bar's place. */}
+      {!pricing && !stalling && !orderUp && !tying && !evSheet && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       {/* The rush: a sheet over the table from the customer row down, under the flying fruit. It stays a moment after
           the last customer, to slide off, so it is drawn here all the time and decides for itself. */}

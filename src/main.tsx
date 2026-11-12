@@ -2,6 +2,7 @@ import { render } from 'preact';
 import './ui/styles.css';
 import './ui/ticket.css';
 import './ui/ticket-ui.css';
+import './ui/sheets.css';
 import './ui/motion.css';
 import './ui/rush.css';
 import { App } from './ui/App';

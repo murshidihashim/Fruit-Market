@@ -1,7 +1,7 @@
 // Table animations: the morning delivery, buying, selling and nightfall.
 // Each one returns when its animation has finished. They only draw; they never change the game.
 // Every length is named in ../motion.ts (BEAT); pauses to read use A.hold, which reduced motion keeps.
-import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, UPGRADES, type FruitId } from '../../engine/data';
+import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, type FruitId } from '../../engine/data';
 import { leavingTonight, nightOutlook, type GameState } from '../../engine/game';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
@@ -11,6 +11,7 @@ import { landPiece, releaseRush, serveLine, showFavour } from '../rushShown';
 import { releaseStock, sellStock, stockHeld } from '../stockShown';
 import { fx } from '../fx';
 import { FavourMark, type ShowState } from './panels/Showdown';
+import { built, firstInLine } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, blockStarts, rushCards, rushPace, type RushBlock, type RushCard } from './rush';
 
 /** The lorry unloads today's delivery into the market: played as buying starts, after the morning's event card (PLAN-065). */
@@ -58,18 +59,18 @@ export async function moves(prev: GameState, next: GameState) {
       const played = before.favours.find((id, k) => pl.favours[k] !== id) ?? before.favours[before.favours.length - 1];
       const t = A.tag(`p${i}`, `${FAVOURS[played].title}!`, 'favour');
       fx.card();
-      jobs.push(A.hold(A.BEAT.label.read).then(() => t.remove()));
+      // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
+      // nothing else shows what happened, the label is held for the full pause.
+      jobs.push((prev.phase === 'evening' && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
     }
-    if (pl.upgrades.length > before.upgrades.length) {
-      const u = pl.upgrades[pl.upgrades.length - 1];
-      const t = A.tag(`p${i}`, `Built: ${UPGRADES[u].title}`, 'upgrade');
-      A.floatText(`p${i}-cash`, `−$${UPGRADES[u].cost}`, 'minus');
-      fx.coin();
-      jobs.push(A.hold(A.BEAT.label.read).then(() => t.remove()));
-    }
+    // An upgrade built (PLAN-084): its price travels to the market as coins and, for your own, the card travels from
+    // its offer to your stall, where its mark lands on the shelf dock (dayBeats.tsx).
+    if (pl.upgrades.length > before.upgrades.length) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1]));
     const gained = pl.cash - before.cash;
     if (gained > 0 && pl.favours.length < before.favours.length) A.floatText(`p${i}-cash`, `+$${gained}`);
   });
+  // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line.
+  if (next.priorityNext !== null && prev.priorityNext === null) jobs.push(firstInLine(next, next.priorityNext));
   if (jobs.length && d > 0) fx.buy();
   await Promise.all(jobs);
 }
