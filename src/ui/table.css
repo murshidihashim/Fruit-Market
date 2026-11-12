@@ -34,20 +34,22 @@
 #app .tkt .tb-mk-head .tk-chip { padding: 2px 5px; font-size: 0.5625rem; }
 /* a box is as tall as the room allows, up to the board's 38 px: the room is the market's own height less its label
    (16 + 5), the lanes' headings (22 + 3) and the gaps between the boxes */
-#app .tkt .tb-lanes {
+#app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes {
   --bg: 3px;
   --bh: clamp(18px, calc((100cqh - 46px) / var(--rows, 6) - var(--bg)), 38px);
   gap: 5px;
 }
-#app .tkt .tb-lane { gap: var(--bg); padding: 0; background: none; min-width: 0; }
-#app .tkt .tb-lh {
+/* (each rule for the lanes is also written for the night's lanes, where the older night panel's own sizes in
+   ticket.css would otherwise outrank it: the night's lanes must lie exactly over the day's) */
+#app .tkt .tb-lane, #app .tkt .tk-night.tb-night .tb-lane { gap: var(--bg); padding: 0; background: none; min-width: 0; }
+#app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh {
   height: 22px; box-sizing: border-box; justify-content: flex-start; gap: 4px; padding: 0 4px; overflow: hidden;
   background: var(--lane); color: var(--tk-paper); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em;
 }
 #app .tkt .tb-lane.mango .tb-lh { background: var(--c-b98a00); }
 #app .tkt .tb-lh:disabled { cursor: default; }
 #app .tkt .tb-lh-ico { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--tk-paper); }
-#app .tkt .tb-box { gap: 2px; padding: 0 3px; border: 2px solid var(--tk-slate); background: var(--tk-paper); }
+#app .tkt .tb-box, #app .tkt .tk-night.tb-night .tb-box { gap: 2px; padding: 0 3px; border: 2px solid var(--tk-slate); background: var(--tk-paper); }
 #app .tkt .tb-box.has.st-okay { background: var(--tk-yel); }
 #app .tkt .tb-box.has.st-unripe { background: var(--c-cfeedd); }
 #app .tkt .tb-box.has.st-notso { background: var(--c-fbd5d2); }
@@ -102,8 +104,11 @@
 @keyframes tb-dusk { from { opacity: 0; } }
 #app .tkt .tb-night .tk-label { color: var(--tk-yel); }
 #app .tkt .tb-night .tk-side { color: var(--tk-paper); }
-#app .tkt .tb-night .tb-box { border-style: solid; border-color: var(--tk-paper); background: var(--tk-paper); opacity: 1; }
-#app .tkt .tb-night .tb-box:not(.has) { border-style: dashed; border-color: var(--c-8d9396); background: none; }
+#app .tkt .tk-night.tb-night .tb-box { border-color: var(--tk-paper); opacity: 1; }
+#app .tkt .tk-night.tb-night .tb-box.has.st-okay { background: var(--tk-yel); }
+#app .tkt .tk-night.tb-night .tb-box.has.st-unripe { background: var(--c-cfeedd); }
+#app .tkt .tk-night.tb-night .tb-box.has.st-notso { background: var(--c-fbd5d2); }
+#app .tkt .tk-night.tb-night .tb-box:not(.has) { border: 2px dashed var(--c-8d9396); background: none; }
 #app .tkt .tb-night .tb-box:not(.has) .tk-lamp { color: var(--c-8d9396); }
 /* the slide is as long as the night's script says (--ns-ms, set on the panel and on your shelf); a piece leaving the
    last box tips off its lane and fades over the last third */
@@ -119,12 +124,12 @@
   #app .tkt .tomorrow .tm-chip { height: 22px; }
   #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { gap: 4px; padding-top: 6px; padding-bottom: 5px; }
   #app .tkt .tb-mk-head { height: 14px; }
-  #app .tkt .tb-lanes { --bh: clamp(18px, calc((100cqh - 39px) / var(--rows, 6) - var(--bg)), 38px); }
-  #app .tkt .tb-lh { height: 18px; }
+  #app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes { --bh: clamp(18px, calc((100cqh - 39px) / var(--rows, 6) - var(--bg)), 38px); }
+  #app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh { height: 18px; }
   #app .tkt .tb-lh-ico { width: 15px; height: 15px; }
 }
 @media (max-width: 379px) {
   #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
-  #app .tkt .tb-lanes { gap: 4px; }
+  #app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes { gap: 4px; }
   #app .tkt .tomorrow .tm-lorry { display: none; }
 }
