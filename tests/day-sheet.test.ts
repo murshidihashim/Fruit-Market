@@ -103,7 +103,7 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     const end = sheet.indexOf('</div>\n      {step === \'stock\'', root);
     expect(end).toBeGreaterThan(root);
     // the bell's rows and the Favoured Trade question are drawn on the sheet itself, in its one element
-    const rows = sheet.indexOf('<CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared}>');
+    const rows = sheet.indexOf('<CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared} answered={answered.current}>');
     expect(rows).toBeGreaterThan(root);
     expect(rows).toBeLessThan(end);
     expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeGreaterThan(rows);

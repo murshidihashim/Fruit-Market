@@ -192,6 +192,9 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
   // The question comes onto the sheet under the open rows.
   const asked = step === 'tie' && !c.busy && c.active >= 0 ? c.active : -1;
   const tying = asked >= 0 && c.activeHuman && asked === viewer;
+  // Once this stall has been asked, the line under the rows that says its prices are tied is not shown again today.
+  const answered = useRef(false);
+  if (tying) answered.current = true;
   useLayoutEffect(() => {
     const card = asked < 0 ? null : root.current?.querySelector('.ds-tie');
     if (!card || !root.current) return;
@@ -217,7 +220,7 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
         )}
         {/* The bell's rows, and under them the Favoured Trade question, are drawn on the sheet itself (PLAN-085). */}
         {full && (
-          <CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared}>
+          <CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared} answered={answered.current}>
             {asked >= 0 && <TieCard key={`tie-${asked}`} s={s} viewer={viewer} asked={asked} mine={tying} />}
           </CratesOpen>
         )}

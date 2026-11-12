@@ -61,14 +61,16 @@ const rowSaid = (s: GameState, x: BellRow, shared?: boolean) => {
  * not turned yet shows the backs of its tags and nothing else. `shared`: several people share this phone, so a
  * stall's row carries its name and not "You".
  */
-export function CratesOpen({ s, viewer, open = null, shared, children }: {
-  s: GameState; viewer: number; open?: number | null; shared?: boolean; children?: ComponentChildren;
+export function CratesOpen({ s, viewer, open = null, shared, answered, children }: {
+  s: GameState; viewer: number; open?: number | null; shared?: boolean;
+  /** This stall has just answered the Favoured Trade question: its card said who is tied, so it is not told again. */
+  answered?: boolean; children?: ComponentChildren;
 }) {
   const rows = bellRows(s, viewer);
   // Your own tied prices in the game's words, under the rows, when the rush is next (while a Favoured Trade question
   // is asked, its card says who is tied). It keeps its place while the bell rings and fades in once every row is
   // open: a tie is not told before the rival's row has turned. Not on a shared phone, where "your" is nobody's.
-  const tied = !shared && s.phase === 'reveal' ? tieWords(s, viewer) : '';
+  const tied = !shared && !answered && s.phase === 'reveal' ? tieWords(s, viewer) : '';
   const told = open === null || open >= rows.length;
   return (
     <div class="ds-bell" role="status" aria-label="The bell: every crate is open">
