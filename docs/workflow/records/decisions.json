@@ -2515,6 +2515,31 @@
         "REP-107"
       ],
       "reviewTrigger": "If the balance report with these two changes shows a shopkeeper more than 4 points from fair, or the Ripening Room is then never built"
+    },
+    {
+      "id": "DEC-102",
+      "title": "The cards stay as built, release A goes live in one step when it is ready, and the balance is accepted for now",
+      "question": "Three questions put with REP-108: is there anything to change on the cards now that they are in the game; should the preview copy be updated so the owner can play the work in progress; and (from REP-107) is the balance accepted for release A or tuned further first?",
+      "choice": "1. The cards are kept as built, for now. 2. The preview copy is not updated at each milestone: everything in release A is finished first and then goes to the live game. Read as an intention, not as the publishing approval: when release A is ready it still takes the usual path (merge to main, the full checks, the preview copy) and the owner's own word to publish that build. 3. The balance is accepted for now, for release A: Saleh's Nest Egg at 6 stalls (+4.3) and Raj's Bargain Hunter against Hard computers (+5.6, +4.8) are watched in the first playtests with people and tuned only if they show there.",
+      "rationale": "REP-108 section 6 and REP-107 section 4. The cards match the approved designs; the differences come from the game's real data and the room on a phone. 45 of 48 balance results are within 4 points and the three outside are close to the line; a dollar is a blunt tool for the last point.",
+      "impact": {
+        "player": "Players get the whole of release A at once: rules 18, the new cards, the rebuilt screens with their motion, the new text, the trophies and the stamp book.",
+        "technical": "The working branch stays unmerged until release A is ready; the CI machines and the preview copy do not see this code until then, so the full checks on CI and the owner's look on a phone come at the end. Packages 3 to 6 continue.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-107",
+        "REP-108"
+      ],
+      "reviewTrigger": "When release A is ready to publish (ask for the owner's word for that build); if playtests with people show Raj or Saleh winning too often; if the owner wants to see the game on a phone before the end"
     }
   ],
   "history": [
@@ -3505,6 +3530,10 @@
     {
       "at": "2026-11-12 12:06",
       "text": "PLAN-084 opened under DEC-098: release A, package 3, part 1 (the rush; the morning, the standing-order bid and the evening), built by two helpers in separate work folders. Package 3 is built in parts because the screens share files; later parts: pricing, the bell and Favoured Trade; buying and the market lanes; the lorry, stocking, the night and the results. Kept as the owner asked on 2026-11-11 (PLAN-076): the Wholesale Market stays in view in the evening until Lights out is tapped; the evening does not end by itself, although REP-106 suggested it could."
+    },
+    {
+      "at": "2026-11-12 12:13",
+      "text": "DEC-102: Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\". The cards are kept as built. The preview copy is not updated at milestones; release A is finished first and then goes live, on the owner's word for that build. The balance is accepted for release A; Raj and Saleh are watched in playtests. PLAN-083 T4 (the owner has seen the cards): PASS. PLAN-082's balance target stays recorded as a narrow FAIL, now accepted by the owner."
     }
   ]
 }

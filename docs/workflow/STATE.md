@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 12:06 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 12:13 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
@@ -13,7 +13,7 @@ Updated 2026-11-12 12:06 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | Rules 18 | PLAN-079 | Implemented (REP-105) |
 | 1. Flow repairs and two defects | PLAN-081 | Implemented, merge `f50c9d5` (REP-107) |
 | Balance choices (DEC-101) | PLAN-082 | Implemented, `9c0d11b` (REP-107) |
-| 2. New pictures and card faces; shared motion blocks | PLAN-083 | Implemented, merges `10ef387` and `fd95996` (REP-108); the owner's look is awaited |
+| 2. New pictures and card faces; shared motion blocks | PLAN-083 | Verified, merges `10ef387` and `fd95996` (REP-108); the owner keeps the cards as built (DEC-102) |
 | **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **Active, in progress** |
 | 3, later parts. Pricing, the bell and Favoured Trade; buying and the lanes; the lorry, stocking, the night, the results | not opened | |
 | 4. The text (DEC-087) | not opened | |
@@ -30,11 +30,10 @@ PLAN-084 is built by two helpers in separate work folders: one on the rush, one 
 - Balance target (every shopkeeper within 4 points): PASS at 2, 3 and 4 stalls; FAIL narrowly at 6 stalls (Nest Egg +4.3) and against Hard computers (Bargain Hunter +5.6, +4.8).
 - Played by people: NOT RUN. Seen by the owner on the preview: NOT RUN.
 
-## Waiting on the owner
-- **REP-108:** anything to change on the cards (six pictures sent); whether to update the preview copy so he can play it on his phone (needs a merge to `main`; only on his word).
-- **REP-107:** accept the balance for release A and watch Raj and Saleh in playtests (recommended), or tune further now.
-- Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes); whether to update the preview at milestones (needs a merge to `main`).
-- Publishing release A needs his separate, explicit approval.
+## Decided, and waiting on the owner
+- **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
+- Publishing release A still needs his own word for that build, after the merge to `main`, the full checks and the preview copy.
+- Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes).
 
 ## Sources
 - Designs: `docs/studio/review-18/mockups` (chosen boards, DEC-090 to DEC-097); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx.
