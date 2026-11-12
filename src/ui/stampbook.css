@@ -147,6 +147,8 @@
 .sbk .sbk-btn:disabled { opacity: 0.45; cursor: default; }
 .sbk .sbk-foot { display: flex; justify-content: space-between; gap: 8px; color: var(--k-slate); }
 .sbk .sbk-foot button { text-decoration: underline; color: var(--k-ink); min-height: 24px; }
+/* "Share · Main menu" stays on one line on a narrow phone; the note beside it wraps instead */
+.sbk .sbk-foot > span:last-child { flex: none; white-space: nowrap; }
 
 /* ---------- Trophies: the stamp book ---------- */
 .sbk .sbk-how { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; padding: 8px 9px; background: var(--k-kraft); }
