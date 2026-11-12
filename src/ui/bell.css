@@ -15,6 +15,12 @@
   transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease;
 }
 #app .tkt .sh-day .ds-bell-note.wait { opacity: 0; }
+@media (max-width: 379px) {
+  #app .tkt .sh-day .ds-bell-note { margin-left: 8px; margin-right: 8px; }
+}
+
+/* the two buttons: "Play it" comes first in the page and is drawn on the right, "Keep it" on the left */
+#app .tkt > .centre > .ds-tie-lock { flex-direction: row-reverse; }
 
 /* every table: a little less air round the rows, so four stalls and the question fit a tall phone */
 #app .tkt .ds-stalls { padding-top: 8px; padding-bottom: 8px; }

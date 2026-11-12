@@ -10,7 +10,7 @@ import { activePlayer, beginBuying, decideTie, finishReveal, newGame, publicView
 import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { bellRings } from '../src/ui/game/animator';
-import { CratesOpen, tieWords } from '../src/ui/game/panels/PricingTable';
+import { CratesOpen, TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
 import { tieStory } from '../src/ui/game/tieStory';
 
 const read = (f: string) => readFileSync(f, 'utf8');
@@ -151,6 +151,20 @@ describe('the question says when the card would change nothing', () => {
       expect(story.with).toContain(`You take $${play} today.`);
     }
     expect(same).toBeGreaterThan(0);
+  });
+});
+
+describe('the two buttons', () => {
+  it('"Play it" stays the first button of the bar in the page (the browser scripts press the first one) and is drawn on the right', () => {
+    const s = asks[0];
+    const asked = activePlayer(s);
+    const html = toStaticHtml(h(TiePanel, { s: publicView(s, asked), viewer: asked, asked, onDecide: () => undefined }));
+    expect(html).toMatch(/<div class="pp-lock ds-tie-lock"><button type="button" class="btn primary wide big">Play it<\/button><button type="button" class="btn ghost wide big">Keep it<\/button><\/div>/);
+    expect(html).toContain('data-a="tie-note"');
+    expect(read('src/ui/bell.css')).toContain('#app .tkt > .centre > .ds-tie-lock { flex-direction: row-reverse; }');
+    // the scripts' own words
+    const smoke = read('scripts/smoke.cjs');
+    for (const sel of ['[data-a="tie-note"]', '.pp-lock .btn.ghost', '.pp-lock .btn.primary']) expect(smoke).toContain(sel);
   });
 });
 

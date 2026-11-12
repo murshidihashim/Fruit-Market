@@ -136,12 +136,14 @@ export function TieCard({ s, viewer, asked, mine }: { s: GameState; viewer: numb
   );
 }
 
-/** The asked stall's two buttons, in the action bar's place: they close the card's frame. */
+/** The asked stall's two buttons, in the action bar's place: they close the card's frame. "Keep it" is drawn on the
+ *  left and "Play it" on the right, as on the approved screen (bell.css turns the row round); in the page "Play it"
+ *  comes first, as it always has, so the browser scripts that press the bar's first button still play the card. */
 export function TieBar({ onDecide }: { onDecide: (play: boolean) => void }) {
   return (
     <div class="pp-lock ds-tie-lock">
-      <button type="button" class="btn ghost wide big" onClick={() => onDecide(false)}>Keep it</button>
       <button type="button" class="btn primary wide big" onClick={() => onDecide(true)}>Play it</button>
+      <button type="button" class="btn ghost wide big" onClick={() => onDecide(false)}>Keep it</button>
     </div>
   );
 }
