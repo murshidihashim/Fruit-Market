@@ -25,6 +25,11 @@
 @media (max-height: 650px) {
   #app .tkt .street-wrap .street { --pic: 0px; }
   #app .tkt .street-wrap .street .tkc-pc { display: none; }
+  /* a face-down card's four squares are drawn smaller there, so the card is no taller than a ticket without its
+     picture and the row keeps one height when the walk-ins turn face up */
+  #app .tkt .street-wrap .street .tkc-dn { grid-template-columns: repeat(2, 22px); gap: 3px; padding: 4px 0; }
+  #app .tkt .street-wrap .street .tkc-dn span { width: 22px; height: 22px; }
+  #app .tkt .street-wrap .street .tkc-dn .x-fruit { width: 15px; height: 15px; }
 }
 /* a walk-in turns face up: its back turns away, then its face shows; the standing order's card is dealt to the front */
 #app .tkt .street > .cust.tb-turn-out > * { animation: tb-turn-out calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0.4, 0, 1, 1) both; }
