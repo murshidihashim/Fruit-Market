@@ -205,13 +205,17 @@ describe('the price read counts only buyers who take your freshness at your pric
               }
               // Rules 18: computer stalls with a tied price and Favoured Trade decide after the flip.
               while (g.phase === 'tie') g = aiStep(g)!;
-              const sold = g.results!.lines.filter((l) => l.fruit === f && l.name !== g.results!.order?.name).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0);
+              const mine = (order: boolean) => g.results!.lines.filter((l) => l.fruit === f && (l.name === g.results!.order?.name) === order).reduce((a, l) => a + (l.offers.find((o) => o.player === p)?.sold ?? 0), 0);
+              const sold = mine(false);
+              // Pieces this stall delivers to its own standing order today leave the crate first; the price read is
+              // about the rest (found when DEC-101 changed which seeded games are played: 4 out, 3 to the order).
+              const toOrder = mine(true);
               checks++;
               expect(sold).toBeLessThanOrEqual(r.canSell);
               if (rival.every((q) => q > price)) expect(sold).toBe(r.canSell);
               if (r.text.startsWith('Enough buyers')) {
                 enough++;
-                expect(sold).toBe(out);
+                expect(sold).toBe(out - toOrder);
                 // "Whatever the rivals charge": every rival at your price, then every rival at $1.
                 for (const at of [price, 1]) {
                   let h = s;

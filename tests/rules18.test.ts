@@ -469,34 +469,34 @@ describe('C. shopkeepers', () => {
 describe('D. upgrades', () => {
   it('cost $6, $6, $5, $4 and $3, with the new card texts', () => {
     expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([6, 6, 5, 4, 3]);
-    expect(UPGRADES.ripening.text).toBe('Your green mangoes cost $1 less (never below $1) and ripen in one night instead of two.');
+    expect(UPGRADES.ripening.text).toBe('Your green mangoes ripen in one night instead of two.');
     expect(UPGRADES.orderbook.text).toBe('You win tied bids for standing orders, your stake is halved, and an order pays you $2 more for each piece you deliver.');
     expect(UPGRADES.juicebar.text).toContain('for each okay or soft fruit a customer buys from you');
     expect(UPGRADES.premium.text).toContain('A guest never pays more than its fixed price.');
   });
 
-  it('Ripening Room: green mangoes cost $1 less, never below $1; ripe fruit costs the same', () => {
+  it('Ripening Room: no discount on green mangoes (DEC-101); it still ripens them in one night', () => {
     const s = beginBuying(bare(2));
     const p = s.order[0];
     expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(4);
     s.players[p].upgrades = ['ripening'];
-    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(3);
+    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(4);
     expect(buyCost(s, p, 'mango', FRESH('mango'))).toBe(6);
     expect(buyCost(s, p, 'apple', FRESH('apple'))).toBe(3);
-    // With a Bargain Hunter's first piece on a Durian Season day: $4 - 1 - 1 - 1 = $1, and never less.
+    // A Bargain Hunter's first piece is still $1 off, and Durian Season still takes $1 off: $4 - 1 - 1 = $2.
     s.players[p].trait = 'bargain';
-    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(2);
+    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(3);
     s.event = ev('durian');
-    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(1);
-    s.players[p].boughtToday = 1;
     expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(2);
+    s.players[p].boughtToday = 1;
+    expect(buyCost(s, p, 'mango', GREEN_TOP)).toBe(3);
     // It still ripens in one night: the piece goes one night from ripe.
     s.event = null;
     s.market.mango[GREEN_TOP] = 1;
     s.players[p].cash = 10;
     const g = buy(s, p, 'mango', GREEN_TOP);
     expect(g.players[p].stock.mango[FRUIT.mango.ripe.length]).toBe(1);
-    expect(g.players[p].cash).toBe(10 - 3); // its second piece today: the Ripening Room's dollar off, not the Bargain Hunter's
+    expect(g.players[p].cash).toBe(10 - 4); // its second piece today: full price, with no dollar off from the Ripening Room or the Bargain Hunter
   });
 
   it('the computer builds what is worth building: nothing near the end, and the Order Book when it holds an order', () => {

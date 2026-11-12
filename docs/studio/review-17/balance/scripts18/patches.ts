@@ -4,6 +4,7 @@
 // (Constants such as the Nest Egg's cash or the guest rule cannot be patched this way: those variants were run on a
 // copy of the source tree with the constant edited; see RULES-18-RESULTS.md.)
 import { EVENT_CARDS, FARMER_CARDS, ORDER_CARDS, UPGRADES, type FruitId, type Stalls } from '../../../../../src/engine/data';
+import { UPGRADE_RATE } from '../../../../../src/engine/ai';
 import { arg } from './harness';
 
 const ev = (id: string) => EVENT_CARDS.find((e) => e.id === id)!;
@@ -26,6 +27,8 @@ export const PATCHES: Record<string, () => void> = {
   glutPlain: () => { delete ev('glut').costFruit; },
   // ----- upgrades (for what-if rows only) -----
   juice5: () => { UPGRADES.juicebar.cost = 5; },
+  /** No computer chooses a Ripening Room, so a seat forced to build one is measured with no rival holding one (PLAN-082). */
+  ripeNever: () => { for (const l of ['easy', 'normal', 'hard'] as const) UPGRADE_RATE[l].ripening = 0; },
   barrow5: () => { UPGRADES.barrow.cost = 5; },
 };
 

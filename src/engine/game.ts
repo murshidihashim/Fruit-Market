@@ -11,11 +11,11 @@
 // evening favours) -> night (fruit ages).
 
 import {
-  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
+  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
-  GUEST_JOINS_FULL_ROW, NO_MANGO_DAYS, ORDER_BOOK_BONUS, RIPENING_DISCOUNT, SHARED_TIP, TOP_UP,
+  GUEST_JOINS_FULL_ROW, NO_MANGO_DAYS, ORDER_BOOK_BONUS, SHARED_TIP, TOP_UP,
   acceptsStage, deliveryPos, favourDeckFor, freshPos, orderQty, prefOf, sharpEarsTip, stageAt, stakeFor, trackLength,
   type CustomerCard, type EventCard, type FarmerCard, type FavourId, type FruitId, type Pref, type Stalls, type TraitId, type UpgradeId, type Want,
 } from './data';
@@ -288,11 +288,10 @@ export function handLimit(p: Player): number {
 }
 
 /** What this shop pays for one fruit at the market (a Bargain Hunter's first fruit each day is $1 off; rules 11: Big
- *  Basket's extra piece costs the normal price; rules 18: a Ripening Room takes $1 off green fruit). Never below $1. */
+ *  Basket's extra piece costs the normal price). Never below $1. A Ripening Room gives no discount (DEC-101). */
 export function buyCost(s: GameState, p: number, f: FruitId, pos: number): number {
   const pl = s.players[p];
-  let c = marketCost(s, f, pos);
-  if (pl?.upgrades.includes('ripening') && stageAt(f, pos) === 'unripe') c = Math.max(1, c - RIPENING_DISCOUNT);
+  const c = marketCost(s, f, pos);
   return pl?.trait === 'bargain' && pl.boughtToday === 0 ? Math.max(1, c - 1) : c;
 }
 
@@ -519,7 +518,7 @@ function applyTrait(s: GameState, p: number, t: TraitId) {
   const pl = s.players[p];
   pl.trait = t;
   if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
-  if (t === 'charmer') for (let k = 0; k < 4; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
+  if (t === 'charmer') for (let k = 0; k < CHARMER_START_FAVOURS; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
   s.dayStartCash = s.players.map((x) => x.cash);
   s.log.push(`${pl.name} is a ${TRAITS[t].title}`);
 }

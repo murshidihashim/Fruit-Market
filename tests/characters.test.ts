@@ -21,12 +21,13 @@ describe('character cards (rules 5)', () => {
     });
   });
 
-  it('the Nest Egg character starts richer and the Charmer starts with four favour cards', () => {
+  it('the Nest Egg character starts richer and the Charmer starts with three favour cards (DEC-101)', () => {
     const toad = CHARACTER_AVATARS.find((a) => CHARACTER_TRAIT[a] === 'nestegg')!;
     const panda = CHARACTER_AVATARS.find((a) => CHARACTER_TRAIT[a] === 'charmer')!;
     const s = newGame(cfg(humans([toad, panda])));
     expect(s.players[0].cash).toBe(START_CASH + NEST_EGG_BONUS);
-    expect(s.players[1].favours).toHaveLength(4);
+    expect(s.players[1].favours).toHaveLength(3);
+    expect(TRAITS.charmer.text).toBe('Start with 3 favour cards, hold up to 4, and earn up to 2 favour cards a day.');
   });
 
   it('other avatars still draw three traits to choose from', () => {

@@ -354,8 +354,6 @@ export const JUICE_TIP = 1;
 export const JUICE_CAP = 2;
 /** ... and each of them pays this much. */
 export const JUICE_VALUE = 2;
-/** Ripening Room (rules 18): green fruit costs this much less at the market (never below $1). */
-export const RIPENING_DISCOUNT = 1;
 /** Order Book (rules 18): a standing order pays its holder this much more for each piece it delivers. */
 export const ORDER_BOOK_BONUS = 2;
 /** The cheapest piece at the Wholesale Market (soft fruit), for the Juice Bar card's tip (REP-089 option C). */
@@ -364,8 +362,8 @@ const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
 /**
  * Stall upgrades: each changes what a shop does. They are offered on the evening after each Market Day (days 3, 6,
  * 9, 12), whether or not Market Days are switched on. Rules 14: five upgrades at real prices, and a stall has room
- * for two. Rules 18: costs of $6, $6, $5, $4 and $3; the Ripening Room also makes green mangoes cheaper and the Order
- * Book also pays more for each piece delivered.
+ * for two. Rules 18: costs of $6, $6, $5, $4 and $3; the Order Book also pays more for each piece delivered. The
+ * Ripening Room's $1 off green mangoes was dropped before rules 18 shipped (DEC-101): it undid the dearer green mango.
  */
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   juicebar: {
@@ -377,7 +375,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   },
   barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: `Buy up to ${BARROW_BUY} pieces of fruit a day and hold ${BARROW_SHELF}.` },
   premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 5, text: 'Your fresh fruit may be priced $1 above what customers normally pay. A guest never pays more than its fixed price.' },
-  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 4, text: `Your green mangoes cost $${RIPENING_DISCOUNT} less (never below $1) and ripen in one night instead of two.` },
+  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 4, text: 'Your green mangoes ripen in one night instead of two.' },
   orderbook: { id: 'orderbook', title: 'Order Book', icon: '📒', cost: 3, text: `You win tied bids for standing orders, your stake is halved, and an order pays you $${ORDER_BOOK_BONUS} more for each piece you deliver.` },
 };
 /** A stall has room for this many upgrades (rules 14). */
@@ -448,6 +446,8 @@ export const TOP_UP = 5;
 export function sharpEarsTip(stalls: number): number {
   return stalls >= 3 ? 2 : 1;
 }
+/** Charmer: favour cards in hand when the game starts (4 until DEC-101, which found the Charmer above fair at every table). */
+export const CHARMER_START_FAVOURS = 3;
 /** Charmer: favour cards this shop can earn in one day (everyone else: 1). */
 export const CHARMER_DAILY_FAVOURS = 2;
 export const FAVOUR_HAND_LIMIT = 3;
@@ -463,7 +463,7 @@ export const TRAITS: Record<TraitId, TraitDef> = {
   haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against equally fresh fruit.' },
   basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day, at the normal price.' },
   bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less (never below $1).' },
-  charmer: { id: 'charmer', title: 'Charmer', text: 'Start with 4 favour cards, hold up to 4, and earn up to 2 favour cards a day.' },
+  charmer: { id: 'charmer', title: 'Charmer', text: `Start with ${CHARMER_START_FAVOURS} favour cards, hold up to 4, and earn up to 2 favour cards a day.` },
   favourite: { id: 'favourite', title: 'Tip Jar', text: `A customer who leaves with their whole order tips you $${SHARED_TIP} if you sold them any of it, $${LOCAL_FAVOURITE_TIP} if you served them alone.` },
   nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}, and buy first on day 3.` },
   keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name one fruit: none of your pieces of that fruit age tonight.' },

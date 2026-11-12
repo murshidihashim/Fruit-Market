@@ -210,7 +210,7 @@ On the evening after each Market Day every upgrade you have not built is on offe
 | 🧃 Juice Bar | $6 | +$1 for each okay or soft fruit a customer buys from you (customers and guests in the rush; not a standing order, the night hawker or the jam maker). Each night up to 2 pieces of fruit that would spoil become juice: $2 each. Tip: before the last day, $1 soft fruit makes $2 of juice. |
 | 🛒 Handcart | $6 | Buy up to 5 pieces of fruit a day and hold 10. |
 | 🪧 Premium Display | $5 | Your fresh fruit may be priced $1 above a customer's normal limit. A guest never pays more than its fixed price. |
-| 🌡️ Ripening Room | $4 | Your green mangoes cost $1 less (never below $1) and ripen in one night instead of two. |
+| 🌡️ Ripening Room | $4 | Your green mangoes ripen in one night instead of two. |
 | 📒 Order Book | $3 | You win tied bids for standing orders, your stake is halved, and an order pays you $2 more for each piece you deliver. |
 
 ## Shopkeepers
@@ -222,7 +222,7 @@ Before the game, each stall picks one of eight shopkeepers, so even the sixth st
 | Rosa | Haggler | You win tied prices against equally fresh fruit. |
 | Uncle Benny | Big Basket | Buy 1 extra fruit every day, at the normal price. |
 | Raj | Bargain Hunter | Your first fruit each day costs $1 less (never below $1). |
-| Ah Chen | Charmer | Start with 4 favour cards, hold up to 4, and earn up to 2 favour cards a day. |
+| Ah Chen | Charmer | Start with 3 favour cards, hold up to 4, and earn up to 2 favour cards a day. |
 | Kiki | Tip Jar | A customer who leaves with their whole order tips you $1 if you sold them any of it, $2 if you served them alone. |
 | Saleh | Nest Egg | Start with $15 instead of $10, and buy first on day 3 (the first Market Day). A Priority card played the evening before goes ahead of him. |
 | Pak Din | Shade Cloth | Each night, name one fruit: none of your pieces of that fruit age tonight. |
@@ -309,10 +309,11 @@ What changed from rules version 17, in plain words.
 - **Out of cash.** At dawn, from Day 2, a stall with an empty shelf and less than $5 is topped up to $5 by the market.
 - **Standing orders.** The winner puts down a stake (the number that used to be the fine) when it wins. The order is filled from the winner's crate only. A full delivery brings the stake back; anything less loses it. There are no fines, rivals' fruit is never taken, and rivals are paid nothing.
 - **Order Book.** Costs $3. It wins tied bids, halves the stake, and adds $2 to what an order pays for each piece.
-- **Ripening Room.** Costs $4. Green mangoes cost its owner $1 less and ripen in one night.
+- **Ripening Room.** Costs $4. Its owner's green mangoes ripen in one night. (A $1 discount on green mangoes was built and then dropped before release: it undid the dearer green mango.)
 - **Juice Bar** costs $6 and **Premium Display** $5. The Handcart stays at $6.
 - **Tip Jar.** $1 from a customer who leaves with their whole order if Kiki sold them any of it, $2 if she served them alone.
 - **Nest Egg** starts with $15.
+- **Charmer.** Ah Chen starts with 3 favour cards (4 before). She still holds up to 4 and earns up to 2 a day.
 - **Sharp Ears.** The tip is $2 at 3 to 6 stalls and $1 at 2 stalls, at most once a day. Farah peeks in the evening.
 - **Green mango.** $4 at the market.
 - **Customers.** Coral Mei, Magic Kumar and Professor Pebble pay $4 for a blueberry.

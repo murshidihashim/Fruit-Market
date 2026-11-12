@@ -554,17 +554,19 @@ export function wantsFavouredTrade(s: GameState, p: number): boolean {
  * Rules 18: what an upgrade adds to a computer stall's cash for each day left when no rival has built the same one,
  * as measured in computer games with each upgrade forced and compared with never building (3 stalls, 10 days;
  * docs/studio/review-17/balance/RULES-18-RESULTS.md). The Order Book is not here: it pays by the order, not by the
- * day (see upgradeWorth).
+ * day (see upgradeWorth). The Ripening Room was measured again after its discount was dropped (DEC-101, PLAN-082):
+ * with no rival holding one it added $1.54 a game at Normal and $2.81 at Hard, which with its $4 cost over the seven
+ * days left is 0.8 and 1.0 a day (it was 1.7 and 1.5 with the discount).
  */
 export const UPGRADE_RATE: Record<Level, Record<Exclude<UpgradeId, 'orderbook'>, number>> = {
-  easy: { juicebar: 1.35, premium: 1.3, barrow: 0.75, ripening: 1.7 },
-  normal: { juicebar: 1.35, premium: 1.3, barrow: 0.75, ripening: 1.7 },
-  hard: { juicebar: 1.3, premium: 1.0, barrow: 1.05, ripening: 1.5 },
+  easy: { juicebar: 1.35, premium: 1.3, barrow: 0.75, ripening: 0.8 },
+  normal: { juicebar: 1.35, premium: 1.3, barrow: 0.75, ripening: 0.8 },
+  hard: { juicebar: 1.3, premium: 1.0, barrow: 1.05, ripening: 1.0 },
 };
 /**
  * An upgrade is worth less the more rivals have built the same one: they then fight over the same cheap mangoes, the
- * same old fruit or the same top prices. Measured: a Ripening Room was worth $7.7 a game where almost no rival had
- * one and $2.7 where both did; a Premium Display $4.2 and $1.6. Each rival with the same upgrade divides the daily
+ * same old fruit or the same top prices. Measured (while it still had its discount): a Ripening Room was worth $7.7 a
+ * game where almost no rival had one and $2.7 where both did; a Premium Display $4.2 and $1.6. Each rival with the same upgrade divides the daily
  * rate by a further `1 + UPGRADE_CROWD`, which also keeps a table of computers from all building the same thing.
  */
 export const UPGRADE_CROWD = 0.35;
