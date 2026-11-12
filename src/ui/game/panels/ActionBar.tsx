@@ -1,7 +1,6 @@
 // The bar along the bottom: what's happening now, and the main button for this phase.
 // While you buy, Undo and Done keep their places the whole time (PLAN-085): they are not taken away while a piece is
 // on its way, and a tap on Done then is kept until the piece has landed.
-import { useRef } from 'preact/hooks';
 import { count, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import * as A from '../../anim';
@@ -18,28 +17,28 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   const rivalBuy = s.phase === 'buy' && !activeHuman;
   // The lorry is unloading: buying has just started and nobody has bought yet.
   const unloading = busy && s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0);
-  // The rush (PLAN-090): the selling hint and Skip are for the bell, before the first customer's card. Once a card is
-  // up the rush sheet has its own buttons and lies over this bar, so the hint is not drawn under it, nor after the
-  // last card while the last coins count. Skip stays on the page until the takings, unseen: the performance script
-  // times the rush by it (scripts/perf-budget.cjs).
-  const rushDay = useRef(-1);
-  if (c.show) rushDay.current = s.day;
+  // The bell and the rush (PLAN-091): the bar says nothing from the bell to the takings. While the bell rings its sheet
+  // says what it is ("The bell · Every crate and every price is open"), and the approved Favoured-Trade screen draws no
+  // words under it; a tap on the table ends it. Once a customer's card is up, the rush sheet has its own buttons and
+  // lies over this bar. Skip stays on the page until the takings, unseen and out of reach: the performance script
+  // times the rush by it (scripts/perf-budget.cjs); the rush card's own "Skip to the end" is the one a person taps.
   const selling = busy && s.phase === 'reveal' && !night;
-  const cards = selling && rushDay.current === s.day;
-  // A beat that plays by itself says what it is. Not on your own buying turn: the buttons stay where they are.
+  // A beat that plays by itself says what it is ('': a beat that has nothing to add here, and no other hint shows
+  // then either). Not on your own buying turn: the buttons stay where they are.
   const beat = !busy || myBuy ? null
     : night ? 'Night falls…'
     : s.phase === 'morning' || unloading ? 'The lorry arrives…'
-    : s.phase === 'reveal' ? (cards ? '' : 'Selling… tap to speed up')
-    // The bell rings at the flip before a Favoured Trade question, and a card just played travels to its tag (PLAN-085).
-    : s.phase === 'tie' ? 'Every price is open'
+    // The bell rings before the rush, and at the flip before a Favoured Trade question; a card just played travels to
+    // its tag under the open rows (PLAN-085).
+    : s.phase === 'reveal' || s.phase === 'tie' ? ''
     : null;
+  const quiet = beat === null;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
   return (
     <footer class="actionbar">
-      {selling && <button class="btn skip" style={cards ? 'visibility:hidden' : undefined} aria-hidden={cards ? 'true' : undefined} tabIndex={cards ? -1 : undefined}
+      {selling && <button class="btn skip" style="visibility:hidden" aria-hidden="true" tabIndex={-1}
         onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip</button>}
-      {beat !== null && <div class="hint-bar">{beat}</div>}
+      {!quiet && <div class="hint-bar">{beat}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
@@ -52,15 +51,15 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
           <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
         </>
       )}
-      {!beat && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
-      {!beat && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
-      {!beat && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
-      {!beat && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}
-      {!beat && s.phase === 'tie' && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} has a tied price and is deciding…</div>}
+      {quiet && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
+      {quiet && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
+      {quiet && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
+      {quiet && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}
+      {quiet && s.phase === 'tie' && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} has a tied price and is deciding…</div>}
       {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out <small class="btn-sub">next day</small></button>}
       {/* an evening beat of your own (an upgrade being built): the bar keeps its room */}
-      {busy && !beat && s.phase === 'evening' && activeHuman && <div class="hint-bar" />}
-      {!beat && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
+      {busy && quiet && s.phase === 'evening' && activeHuman && <div class="hint-bar" />}
+      {quiet && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
       {!busy && s.phase === 'reveal' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : <button class="btn primary wide big" onClick={() => { c.setHandedTo(null); c.proceed(); }}>

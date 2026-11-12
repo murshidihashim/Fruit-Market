@@ -66,13 +66,18 @@ describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
 });
 
 describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
-  it('no Skip beside "Night falls…", and no selling hint once a customer\'s card is up or after the last one', () => {
+  it('no Skip beside "Night falls…", and nothing said from the bell to the takings (PLAN-091)', () => {
     const bar = read('src/ui/game/panels/ActionBar.tsx');
     expect(bar).toContain("const selling = busy && s.phase === 'reveal' && !night;");
-    expect(bar).toContain('const cards = selling && rushDay.current === s.day;');
-    expect(bar).toContain("s.phase === 'reveal' ? (cards ? '' : 'Selling… tap to speed up')");
+    // the bell, before the rush and at the flip, and the rush itself: the bar has nothing to add, and no other hint shows
+    expect(bar).toContain(": s.phase === 'reveal' || s.phase === 'tie' ? ''");
+    expect(bar).not.toContain('Selling…');
+    expect(bar).not.toContain('Every price is open');
+    expect(bar).toContain('const quiet = beat === null;');
+    expect(bar).toContain('{!quiet && <div class="hint-bar">{beat}</div>}');
+    expect(bar).not.toMatch(/\{!beat && |\{busy && !beat && /);
     // Skip stays on the page until the takings (the performance script times the rush by it), unseen and out of reach
-    expect(bar).toContain("{selling && <button class=\"btn skip\" style={cards ? 'visibility:hidden' : undefined} aria-hidden={cards ? 'true' : undefined} tabIndex={cards ? -1 : undefined}");
+    expect(bar).toContain('{selling && <button class="btn skip" style="visibility:hidden" aria-hidden="true" tabIndex={-1}');
     expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.actionbar .skip')");
   });
 });
