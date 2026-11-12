@@ -64,6 +64,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const layerRef = useRef<HTMLDivElement>(null);
   /** Fruit tapped while the last purchase was still animating (offline); bought in order as soon as the table is free. */
   const buyQueue = useRef<{ f: FruitId; pos: number }[]>([]);
+  /** Done was tapped while a piece was still on its way: buying ends as soon as the table is free (PLAN-085). */
+  const endQueued = useRef(false);
 
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
@@ -189,17 +191,27 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // to be shown. It only ever changes how fast this screen draws: never the game, and nothing is sent.
       if (!queue.current.length && waitsForPerson(sRef.current, online ? seat : null)) A.resetHurry();
       setTick((t) => t + 1);
-      const q = buyQueue.current.shift();
-      if (q) {
-        const cur = sRef.current;
-        const me = activePlayer(cur);
-        if (cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human') window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
-        else buyQueue.current = [];
-      }
+      // Taps made while the piece was on its way: the next piece to buy, then Done (PLAN-085).
+      const cur = sRef.current;
+      const me = activePlayer(cur);
+      const mine = cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human' && (!online || me === seat);
+      const q = mine ? buyQueue.current.shift() : undefined;
+      if (!mine) { buyQueue.current = []; endQueued.current = false; }
+      else if (q) window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
+      else if (endQueued.current) { endQueued.current = false; window.setTimeout(sendEndBuy, 0); }
     }
   }
 
   // ---------- turn handling ----------
+
+  /** Ends this person's buying turn (the table must be free). */
+  const sendEndBuy = () => {
+    if (busyRef.current) return;
+    if (online) { if (!sending.current && online.act({ kind: 'endBuy' })) sending.current = true; return; }
+    const cur = sRef.current;
+    const me = activePlayer(cur);
+    if (cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human') attempt(() => playLocal(sRef.current, me, { kind: 'endBuy' }));
+  };
 
   const attempt = (fn: () => GameState) => {
     if (busyRef.current) return false;
@@ -392,16 +404,24 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     const t = turnStart.current;
     if (busyRef.current) return;
     buyQueue.current = [];
+    endQueued.current = false;
     if (t && t !== sRef.current) void apply(t);
     setFreeFruit(null);
     setScout(null);
+  };
+
+  /** Done buying: at once, or as soon as the piece on its way has landed. */
+  const endBuy = () => {
+    setFreeFruit(null);
+    if (busyRef.current) { endQueued.current = true; return; }
+    sendEndBuy();
   };
 
   return {
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
-    humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,
+    humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay,
   };
 }
 

@@ -1,33 +1,41 @@
-// The visual table: farmers market in the centre, a stall for each player around it,
-// customers queueing at the top. data-a attributes are animation anchors (see anim.ts).
+// The visual table (PLAN-085, drawn to the approved Buying screen): today's customers at the top, the stalls in
+// buying order, the Wholesale Market as the board's lanes of 3, 4, 5 and 6 boxes in the middle, your shelf under it.
+// data-a attributes are animation anchors (see anim.ts). What is drawn of a piece on its way is held back until it
+// lifts off or lands (tableShown.ts). Styles: table.css (loaded here, so after the older table styles).
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId, type Stage } from '../engine/data';
 import {
   buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
-  type Customer, type GameState,
+  type Customer, type GameState, type Stock,
 } from '../engine/game';
+import { partsOf, stallOf, type LookSet } from '../net/looks';
 import { Face, Fruit } from './art';
 import { FavourChip } from './phoneCards';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
 import { shownFavours, shownWants } from './rushShown';
+import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
+import { buyState, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
-import { Icon, LorrySprite } from './icons';
-// PLAN-085, the market and what moves on it: what is drawn of a piece on its way is held back until it lifts off or
-// lands (tableShown.ts); the styles are in table.css (loaded here, so after the older table styles).
-import type { Stock } from '../engine/game';
-import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
-import { marketBefore, ticketLines } from './tableModel';
+import { Icon, LorrySprite, RoofBand } from './icons';
 import { BEAT, FRAME, moveMs } from './motion';
 import './table.css';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
 export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
 export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
+
+/**
+ * A stall's awning as a strip (DEC-103): over your own shelf, and thin on a stall's box as its rivals see it. It is
+ * drawn from the look the player already has: the stall's colour and the roof they wear. Only for show.
+ */
+export function Awning({ p, look, thin }: { p: number; look?: LookSet; thin?: boolean }) {
+  return <RoofBand cls={`tb-awn ${thin ? 'thin' : ''}`} colour={seatColour(p)} roof={stallOf(look).roof} scale={thin ? 1 : 2} />;
+}
 
 export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
   if (n <= 0) return null;
@@ -181,7 +189,7 @@ export function SeatBoard({ b }: { b: Board }) {
   );
 }
 
-// ---------- rivals ----------
+// ---------- the stalls ----------
 
 /** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
  *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
@@ -217,45 +225,117 @@ export function boughtToday(s: GameState, p: number): Bought[] {
 /** "1 mango (green), 2 apples": today's purchases in words, for the box's spoken label and the pop-up. */
 export const boughtWords = (buys: Bought[]) => buys.map((b) => `${b.n} ${(b.n === 1 ? FRUIT[b.f].name : FRUIT[b.f].plural).toLowerCase()}${b.green ? (b.green === b.n ? ' (green)' : ` (${b.green} green)`) : ''}`).join(', ');
 
+/** Today's purchases as drawn: a piece counts once it has landed on the stall (boughtToday reads tableShown.ts). */
+const shownBuys = (s: GameState, p: number): Bought[] => boughtToday(s, p);
+
+/** A stall's purchases as marks: a picture for each piece while they fit in the box, a picture and a number when not. */
+function BuyMarks({ buys, compact }: { buys: Bought[]; compact: boolean }) {
+  const total = buys.reduce((a, b) => a + b.n, 0);
+  if (!total) return null;
+  const each = !compact && total <= 5;
+  return (
+    <span class="tk-seat-buys tb-buys" aria-hidden="true">
+      {buys.map((b) => (each
+        ? Array.from({ length: b.n }, (_, i) => <Fruit id={b.f} size={14} stage={i < b.green ? 'unripe' : 'fresh'} />)
+        : <span><Fruit id={b.f} size={compact ? 11 : 13} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n}</span>))}
+    </span>
+  );
+}
+
+/** A shopkeeper's face in a square frame (the stall's mark on its box: other parts of the table look for .tk-swatch). */
+function StallFace({ who, look, size }: { who: string; look?: LookSet; size: number }) {
+  return <span class="tk-swatch tb-face" style={`--s:${size}px`} aria-hidden="true"><Face who={who} size={size - 3} worn={look ? partsOf(look) : undefined} /></span>;
+}
+
+/** While stalls buy (and before, in the morning and at the bid), the row holds every stall in buying order, you among them. */
+const inBuyingOrder = (s: GameState): boolean => s.phase === 'morning' || s.phase === 'order' || s.phase === 'buy';
+
 /**
- * A rival as a box in the rivals strip (PLAN-072): the stall's pattern with the shopkeeper's face, the name, cash and
- * a short note (what they are doing, then their price and result as each customer is served). Tap it to open their
- * stall below the strip. `rv-chip`: the rival cash chips that used to sit in the top bar live here now. Rules 18:
- * small fruit marks with counts show what the stall bought today, from buying until the bell.
+ * A rival as a box in the stalls' row (the approved Buying and Pricing screens): the thin awning strip, the
+ * shopkeeper's face, the name and cash, and what it bought today (rules 18: public from buying until the bell).
+ * While stalls buy the box carries its place in the buying order and says "buying now" or "waiting"; once crates are
+ * shut it says how many pieces it put out. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
+ * names the browser tests know a rival's box by.
  */
-export function RivalStall({ s, p, open, onOpen, board, off }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean }) {
+export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean; compact?: boolean;
+  /** Four or more boxes in the row: "buying" for "buying now". */
+  brief?: boolean }) {
   useCashShown();
   useStockShown();
   const pl = s.players[p];
   const cash = shownCash(p, pl.cash);
+  const buying = inBuyingOrder(s);
+  const state = buyState(s, p);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const compact = s.players.length > 4;
   const base = rivalNote(s, p, active);
-  // The price board's state, in a word: it is sealed until the cards around the customer turn over.
-  const note = !board ? (active && s.phase === 'buy' ? 'buying' : base)
-    : s.phase === 'stall' ? (board.state === 'thinking' ? 'choosing' : 'ready')
-    : s.phase === 'bid' ? base // how many pieces it put out; a sealed stall's box turns grey
-    : board.state !== 'open' ? base
-    : board.res === 'won' ? `sold at $${board.price}` : board.res === 'lost' ? 'no sale' : `asks $${board.price}`;
-  const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding')
-    : board.state === 'sealed' ? ', sealed' : `, price $${board.price}${board.res === 'won' ? ', sold' : board.res === 'lost' ? ', no sale' : ''}`;
-  const buys = boughtToday(s, p);
+  // Stocking: only whether a stall has opened is public. Pricing: how many pieces it put out.
+  const note = s.phase === 'stall' && board ? (board.state === 'thinking' ? 'filling…' : 'ready') : base;
+  const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding') : board.state === 'sealed' ? ', sealed' : '';
+  const buys = shownBuys(s, p);
+  const got = !buying ? '' : s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
   return (
-    <button type="button" class={`rival-stall rv-chip tk-seat ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${board?.res ?? ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''}`} data-a={`p${p}`}
-      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open} aria-label={`${pl.name}'s stall: $${cash}${base ? `, ${base}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
-      {/* Five or six stalls: the box is narrow, so the name gets its own line and the note is left to the box's shade
-          (grey once a stall is ready or sealed) and to its spoken label. */}
-      <Swatch p={p} who={pl.avatar} look={pl.look} size={compact ? 20 : 30} />
-      <span class="tk-seat-body">
-        <span class="tk-seat-name">{pl.name}</span>
-        <span class="tk-seat-line"><b data-a={`p${p}-cash`}>${cash}</b>{!compact && note && <> · {note}</>}</span>
-        {buys.length > 0 && (
-          <span class="tk-seat-buys" aria-hidden="true">
-            {buys.map((b) => <span><Fruit id={b.f} size={compact ? 10 : 12} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n}</span>)}
-          </span>
-        )}
+    <button type="button" class={`rival-stall rv-chip tb-stall ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''} ${buying ? `buy-${state}` : ''}`} data-a={`p${p}`}
+      onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open}
+      aria-label={`${pl.name}'s stall: $${cash}${buying ? `, ${s.order.indexOf(p) + 1} in the buying order` : ''}${note ? `, ${note}` : ''}${got ? `, ${got}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
+      <Awning p={p} look={pl.look} thin />
+      <span class="tb-who">
+        <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
+        {/* the name takes up to two lines, with the cash after it, so "Uncle Benny" reads in full at four stalls */}
+        <span class="tb-id"><span class="tk-seat-name">{pl.name}</span> <b class="tb-cash" data-a={`p${p}-cash`}>${cash}</b></span>
       </span>
+      <span class="tb-got"><BuyMarks buys={buys} compact={!!compact} />{(got || note) && <span>{got || note}</span>}</span>
+      {buying && <i class="tb-ord" aria-hidden="true">{s.order.indexOf(p) + 1}</i>}
     </button>
+  );
+}
+
+/** Your own stall in the buying order: the same box, on mustard while you buy. It opens nothing (your shelf is below). */
+function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boolean; brief: boolean }) {
+  useCashShown();
+  const pl = s.players[p];
+  const state = buyState(s, p);
+  const buys = shownBuys(s, p);
+  const got = s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
+  return (
+    <div class={`tb-stall me ${compact ? 'compact' : ''} buy-${state}`} data-a="me-stall" role="img"
+      aria-label={`Your stall: $${shownCash(p, pl.cash)}, ${s.order.indexOf(p) + 1} in the buying order${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
+      <Awning p={p} look={pl.look} thin />
+      <span class="tb-who">
+        <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
+        <span class="tb-id"><span class="tk-seat-name">You</span> <b class="tb-cash">${shownCash(p, pl.cash)}</b></span>
+      </span>
+      <span class="tb-got"><BuyMarks buys={buys} compact={compact} />{got && <span>{got}</span>}</span>
+      <i class="tb-ord" aria-hidden="true">{s.order.indexOf(p) + 1}</i>
+    </div>
+  );
+}
+
+/**
+ * The stalls' row (the approved Buying and Pricing screens). While stalls buy: "Stalls · in buying order", every
+ * stall with its place in the order, you among them, and what each bought today. While crates are shut: "Rival crates
+ * · shut until the bell", your rivals with how many pieces each put out. The rest of the day: your rivals and their
+ * cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
+ */
+export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
+  s: GameState; viewer: number; boards: Record<number, Board>; open: number | null; onOpen: (p: number) => void; onClose: () => void; off: number[];
+}) {
+  const buying = inBuyingOrder(s);
+  const shut = s.phase === 'stall' || s.phase === 'bid';
+  const list = buying ? s.order.filter((p) => !!s.players[p]) : seats(s.players.length, viewer).map((x) => x.p);
+  const compact = list.length > 4;
+  return (
+    <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
+      <div class="tb-row-head">
+        <b class="tk-label">{buying ? 'Stalls · in buying order' : shut ? 'Rival crates · shut until the bell' : 'Rival stalls'}</b>
+        {(buying || shut) && <span class="tb-side">{buying ? 'What each bought today' : 'Bought today'}</span>}
+      </div>
+      <div class="tb-stall-row">
+        {list.map((p) => (p === viewer
+          ? <MyBox key={p} s={s} p={p} compact={compact} brief={list.length > 3} />
+          : <RivalStall key={p} s={s} p={p} board={boards[p]} open={open === p} off={off.includes(p)} compact={compact} brief={list.length > 3} onOpen={() => onOpen(p)} />))}
+      </div>
+      {open !== null && <RivalDrop s={s} p={open} onClose={onClose} />}
+    </div>
   );
 }
 
@@ -267,7 +347,7 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   const out = outCount(s, p);
   const open = s.phase === 'reveal';
   const crate = open ? LANES.filter((f) => forSale(s, p, f) > 0) : [];
-  const buys = boughtToday(s, p);
+  const buys = shownBuys(s, p);
   // A favour card won in the rush counts once it has reached the stall (rushShown.ts).
   const favours = shownFavours(p, pl.favours).length;
   return (
@@ -327,12 +407,12 @@ export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; 
   );
 }
 
-// ---------- your stall: the shelf dock ----------
+// ---------- your stall: the shelf ----------
 
-/** Freshness groups in the order the shelf dock shows them, and the word for each. */
+/** Freshness groups in the order the shelf shows them, and the word for each. */
 const SHELF_STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
 
-/** A shelf's pieces of each fruit counted by freshness (fresh, okay, soft, green), for the shelf dock. */
+/** A shelf's pieces of each fruit counted by freshness (fresh, okay, soft, green). */
 export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
   return LANES.map((f) => {
     const by: Partial<Record<Stage, number>> = {};
@@ -342,14 +422,22 @@ export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: 
   });
 }
 
+/** The night's slide, as the night's own script sets it (game/animator.tsx): null at dusk, its length in ms while
+ *  every piece moves, 'done' once the pieces rest. Undefined: it is not night. */
+export type ShelfNight = number | 'done' | null | undefined;
+
 /**
- * Your shelf, docked above the action bar so it is always in view (PLAN-072): your stall's pattern and face, the
- * shelf space, and the four fruits in the board's order with your pieces counted by freshness. Favour cards sit on a
- * slim row above. Fruit flies to and from the fruit groups (data-a anchors); your cash is in the top bar.
+ * Your shelf, under the market and always in view (the approved Buying screen): your awning as a strip, "Your shelf ·
+ * 3 of 8", and a chip for each group of pieces with what tonight does to it ("okay tomorrow", "ripe tomorrow",
+ * "spoils tonight"; a Heatwave, a Monsoon and your Shade Cloth are counted, tableModel.shelfChips). The favour cards
+ * you hold lie beside them. Each fruit has a place here that a bought piece travels to (data-a), also when you hold
+ * none of it; a piece is counted once it has landed (tableShown.ts). At night a chip that spoils tips off and the
+ * others take tomorrow's letter. Your cash is in the top bar.
  */
-export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; board?: Board }) {
+export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; night?: ShelfNight }) {
   const pl = s.players[p];
-  // During the rush the shelf drops as each customer is served (stockShown.ts); otherwise this is the real shelf.
+  // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
+  // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
   const used = count(shelf);
@@ -358,36 +446,39 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
   const closing = closingNote(s, p)?.chip;
   // A favour card won in the rush lies here once it has reached the stall (rushShown.ts).
   const favours = shownFavours(p, pl.favours);
+  const groups = shelfChips(s, p, shelf);
+  const head = tonightHead(s, p);
+  const n = groups.reduce((a, g) => a + g.chips.length, 0) + favours.length;
+  const go = night !== undefined && night !== null;
   return (
-    <section class={`my-stall dock tk-dock ${active ? 'active' : ''}`} data-a={`p${p}`} aria-label="Your shelf">
-      {(favours.length > 0 || closing) && (
-        <div class={`tk-dock-cards ${flashCards ? 'glow' : ''}`}>
-          {closing && <span class="tk-chip warn">{closing}</span>}
-          {favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
-        </div>
-      )}
-      <div class="tk-dock-row">
-        <Swatch p={p} who={pl.avatar} look={pl.look} size={50} />
-        <div class="tk-dock-id">
-          <span class="tk-dock-name"><b class="ms-name">{pl.name}</b>{pl.name.trim().toLowerCase() !== 'you' && <span class="you-tag">YOU</span>}</span>
-          <span class={`tk-shelf ${used >= cap ? 'full' : ''}`} title="Shelf space" aria-label={`Shelf space: ${used} of ${cap} used`}>Shelf {used} / {cap}</span>
-          {(pl.trait || pl.upgrades.length > 0) && (
-            <span class="tk-dock-marks">
-              {pl.trait && <span title={`${TRAITS[pl.trait].title}: ${TRAITS[pl.trait].text}`}><Icon name={TRAIT_ICON[pl.trait]} size={13} /></span>}
-              {pl.upgrades.map((u) => <span title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={13} /></span>)}
+    <section class={`my-stall dock tk-dock tb-dock c${Math.min(n, 8)} ${active ? 'active' : ''} ${go ? 'night' : ''} ${night === 'done' ? 'rest' : ''}`} data-a={`p${p}`} aria-label="Your shelf"
+      style={typeof night === 'number' ? `--ns-ms:${Math.round(night)}ms` : undefined}>
+      <Awning p={p} look={pl.look} />
+      <div class="tb-dock-head">
+        <b class={`tk-label tk-shelf ${used >= cap ? 'full' : ''}`} aria-label={`Shelf space: ${used} of ${cap} used`}>Your shelf<i> · </i><span>{used} of {cap}</span></b>
+        {(pl.trait || pl.upgrades.length > 0) && (
+          <span class="tk-dock-marks">
+            {pl.trait && <span title={`${TRAITS[pl.trait].title}: ${TRAITS[pl.trait].text}`}><Icon name={TRAIT_ICON[pl.trait]} size={13} /></span>}
+            {pl.upgrades.map((u) => <span title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={13} /></span>)}
+          </span>
+        )}
+        {closing ? <span class="tk-chip warn">{closing}</span> : head && <span class="tb-side">{head}</span>}
+      </div>
+      <div class={`stk tb-chips ${flashCards ? 'glow' : ''}`}>
+        {groups.map(({ f, chips }) => (chips.length
+          ? chips.map((c, i) => (
+            <span class={`tb-chip ${i === 0 ? 'stk-f' : ''} ${c.tone} ${go && c.gone ? 'gone' : ''}`} data-a={i === 0 ? `p${p}-${f}` : undefined}
+              role="img" aria-label={`${c.n} ${(c.n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}, ${STAGE_WORD[c.stage]}: ${c.words}`} title={c.words}>
+              <Fruit id={f} size={16} stage={c.stage} />
+              <Lamp stage={go && c.next ? c.next : c.stage} size={13} />
+              {c.n > 1 && <b>×{c.n}</b>}
+              <span class="tb-chip-w">{c.words}</span>
+              {/* the short form, where the words have no room: the letter the pieces carry tomorrow, or a cross */}
+              {!go && (c.gone || (c.next && c.next !== c.stage)) && <span class="tb-chip-to" aria-hidden="true">➜{c.next ? <Lamp stage={c.next} size={13} /> : <i>{c.tone === 'good' ? '$' : '✕'}</i>}</span>}
             </span>
-          )}
-        </div>
-        <div class="stk tk-dock-fruits">
-          {shelfGroups(shelf).map(({ f, n, stages }) => (
-            <span class={`stk-f tk-dk-f ${n ? '' : 'none'}`} data-a={`p${p}-${f}`}
-              aria-label={`${FRUIT[f].plural}: ${n ? stages.map((x) => `${x.n} ${STAGE_WORD[x.stage]}`).join(', ') : 'none'}`}>
-              <span class="tk-dk-n"><Fruit id={f} size={22} /><b>{n}</b></span>
-              <span class="tk-dk-st">{stages.map(({ stage, n: k }) => <i class={`st-${stage}`}>{STAGE_LETTER[stage]}{k}</i>)}</span>
-            </span>
-          ))}
-          {board?.state === 'open' && <span class={`tk-gain ${board.res ?? ''}`}>${board.price}{board.res === 'won' ? ' sold' : board.res === 'lost' ? ' no sale' : ''}</span>}
-        </div>
+          ))
+          : <i class="tb-place stk-f" data-a={`p${p}-${f}`} aria-hidden="true" />))}
+        {favours.map((id, i) => <FavourChip id={id} usable={!!onCard && active && FAVOURS[id].when === s.phase} onOpen={() => onCard?.(i)} />)}
       </div>
     </section>
   );
