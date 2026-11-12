@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge commit f50c9d5 (helper commits 655d26c, 016a18c, ca7b6f6)",
   "reports": [
     "REP-106"

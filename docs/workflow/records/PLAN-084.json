@@ -1,22 +1,41 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-104",
     "REP-106",
-    "REP-108"
+    "REP-108",
+    "REP-110"
   ],
   "decisions": [
     "DEC-086",
     "DEC-094",
     "DEC-095",
-    "DEC-098"
+    "DEC-098",
+    "DEC-104",
+    "DEC-105"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "The rush: one card for each customer with every stall's offer in price order, what you earned, Next customer and Skip to the end",
+      "The morning, the standing-order bid and the evening as sheets laid on the table; coins travel for the top-up, the fine and the stake; a built upgrade travels to the stall",
+      "The bids are turned over together and the winner is shown with the stake on the order card"
+    ],
+    "changed": [
+      "Nothing in the rush changes before its customer: tickets, cash, shelves and a won favour card",
+      "A rush of four customers takes about 10 seconds untouched (was about 13)",
+      "A tap at the bell ends only the bell",
+      "The evening has one main button; offers are cards, cheapest first, none chosen at first",
+      "The bid screen shows what a bid means in three lines (If you win, Deliver all, Fall short)"
+    ],
+    "fixed": [
+      "After Skip in the rush, money still being counted is no longer shown twice",
+      "Online, the bidding marks and your own held bid now update while the room holds the bids"
+    ],
+    "removed": [
+      "The rush boards on the rival seats",
+      "The \"Psst\" whisper and the upgrade intro paragraph in the evening"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -24,7 +43,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4; this is the first part of package 3, \"the screens one beat at a time, the rush first\"). One card for each customer in the rush: DEC-086. The screen designs are the mock-ups kept in docs/studio/review-18/mockups (REP-104, DEC-090 to DEC-095).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-084",
   "title": "Release A, package 3, part 1: the rush; the morning, the standing-order bid and the evening",
   "problem": "The cards are in the game but the screens around them are still the old layouts, and what happens on them is cut, not shown. The rush gives its result away at the bell (tickets already ticked, a won favour card already on the stall), shows one card for each fruit and takes about 17 seconds; on a phone 640 tall it hides the stalls' offers. The morning needs a scroll, part of the order card sits behind the bidding controls, nobody is shown winning the standing order, and the evening has a Build button in every offer.",
@@ -47,32 +66,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes; the rush pace test is changed with the pace, as a stated change",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged code 04d12ed: 65 files, 659 tests passed, 1 skipped. The rush pace test was changed with the pace (one fruit 2.3 to 2.5 s, four customers 9.5 to 11 s), and one bid-screen test in tests/rules18.test.ts now reads the approved three stake lines; both are stated changes."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes: solo game to the results, performance budget, online match with 0 leaks, reconnect",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on the merged code: PASS (solo game to the results with no errors; performance budget OK with a longest task of 151 ms and 0.5 slow frames in a hundred; online match with 82 pricing frames and 0 leaks; reconnect 5 of 5), run while five helpers used the same machine."
     },
     {
       "id": "T3",
       "text": "Each of the four screens seen in the running game at 390x844 and 360x640, with 4 and with 6 stalls, beside its mock-up, by me; differences listed; no control off the screen or covered",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Seen by me beside the mock-ups: the rush at 390x844 with 4 stalls and 360x640 with 6 (helper's pictures on c3d6fe6); the morning, the bid (bidding and turned over) and the evening at both sizes with 4 and 6 stalls (helper's montages on 850d7c2); and the morning, the bid and the evening again from the merged build at 390x844 with 4 stalls and 360x640 with 6, where the element check found no control off the screen or covered. Differences and gaps are listed in REP-110: on 360x640 the evening's favour cards and part of the bid card scroll, with the buttons in view."
     },
     {
       "id": "T4",
       "text": "In the rush nothing changes before its customer: ticket, cash, shelf, won favour card (measured frame by frame); pass-and-play and online show no secret early",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Rush: 20 frame-by-frame runs with 0 problems (ticket, cash, shelf, won favour card), and pass-and-play with 0 problems, measured by the helper on c3d6fe6. Bid: the first person's bid drawn for the second on 0 frames (helper, c95d14a). Online on the merged code: 82 pricing frames checked, 0 leaks (my run)."
     },
     {
       "id": "T5",
       "text": "A rush of four customers takes about 10 seconds untouched (measured); with reduced motion nothing travels and every pause to read is kept",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Measured by the helper on c3d6fe6, not measured again on the merged code: four customers 10.28 s untouched (13.25 s before), 1.55 s when tapped through, 4.27 s with reduced motion, where nothing travels and the pauses to read are kept."
     },
     {
       "id": "T6",

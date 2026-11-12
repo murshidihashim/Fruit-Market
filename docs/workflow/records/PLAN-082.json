@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb, commit 9c0d11b",
   "reports": [
     "REP-105",

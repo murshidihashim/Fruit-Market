@@ -2588,6 +2588,30 @@
         "REP-106"
       ],
       "reviewTrigger": "If the usage allowance stops the work again; if merging the helpers' work costs more time than it saves; if the owner prefers one package at a time"
+    },
+    {
+      "id": "DEC-105",
+      "title": "The core game goes live first, as release 1.20.0; the rest of release A follows",
+      "question": "Does release A wait until every package is finished, or does the core game go live first so the owner can test it on the live game?",
+      "choice": "The core game goes live today as release 1.20.0, for the owner to test: rules version 18, the new cards, and the day's screens as they stand today (the rush, the morning, the standing-order bid and the evening rebuilt; stocking, pricing, the bell, the takings, the market and the night still in their earlier layout). The digital game comes before the print kit, which is paused. The rest of release A follows in later releases as each part is finished and checked: the remaining screens, the text rewrite, the stamp book with Results, Trophies, Wardrobe and Home, then the print kit. This replaces item 2 of DEC-102 (everything first, then live) and the single release A of DEC-098. Each later release still needs the owner's word. The build is published only if the full checks pass on it.",
+      "rationale": "The owner wants to test the core game on the live game now and have the rest worked on after. He chose this over a preview copy tonight with the live game tomorrow. The game plays correctly on rules 18 in its present state: the standard checks and the browser tests pass on the merged code.",
+      "impact": {
+        "player": "Every phone updates to rules 18. A game paused under the old rules cannot be continued (the game says so). The Daily market's board starts afresh for rules 18, since boards are kept apart by rules version. Seven older trophies cannot be earned until the stamp book release. Four screens are in the new look and the rest in the earlier one; the text is not yet rewritten.",
+        "technical": "Version 1.20.0. The usual path: merge to main, the full checks on the CI machines (first run there for this branch), the preview copy, then Deploy LIVE game. An Android app already installed keeps the version it was built with; play between versions is refused with an update message. The helpers on the remaining screens, the text and the stamp book keep working on the branch; their work is not in this release.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-110"
+      ],
+      "reviewTrigger": "If the full checks fail on the release build (then nothing is published and the owner is told); when the owner has played the live game; when each later part is ready for its own release"
     }
   ],
   "history": [
@@ -3598,6 +3622,14 @@
     {
       "at": "2026-11-12 17:09",
       "text": "PLAN-084: the morning, the standing-order bid and the evening merged as built so far (merge 04d12ed, at the helper's commit 850d7c2) so that part 2 can start from it; npm run verify on the merged code: PASS (65 files, 659 tests, 1 skipped). The helper's final report, the browser tests on the merged code and the look beside the mock-ups are still to come; PLAN-084's checks stay NOT RUN until then. PLAN-085: two helpers started from 04d12ed (the sheets; the table). Five helpers now work side by side (DEC-104). An hourly scheduled check-in was set so the work restarts by itself after a usage-limit pause."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "DEC-105: Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\". Read as the owner's word to publish today's build of the core game once the full checks pass on it. The print kit helper was paused; its work (the decks print on rules 18) is kept on its branch, unmerged (PLAN-087). The owner also asked that the work be paced to finish inside the usage allowance before it resets on 2026-11-13 19:00; every helper was given a deadline tonight."
+    },
+    {
+      "at": "2026-11-12 17:29",
+      "text": "PLAN-084 built and checked on the merged code (REP-110): npm run verify PASS (65 files, 659 tests, 1 skipped); npm run test:e2e on the merged code: PASS (solo game to the results with no errors; performance budget OK with a longest task of 151 ms and 0.5 slow frames in a hundred; online match with 82 pricing frames and 0 leaks; reconnect 5 of 5), run while five helpers used the same machine. The helper on the morning, the bid and the evening reported on 850d7c2, the commit already merged. T6 (the owner has seen the screens) stays NOT RUN: he sees them on the live game. Release 1.20.0 prepared as a candidate (PLAN-077, 079, 081, 082, 083, 084)."
     }
   ]
 }

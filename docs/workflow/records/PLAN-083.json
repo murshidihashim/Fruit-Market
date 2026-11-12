@@ -1,5 +1,5 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merges 10ef387 and fd95996",
   "reports": [
     "REP-104",
