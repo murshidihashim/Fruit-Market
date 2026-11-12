@@ -63,7 +63,7 @@
 }
 /* the number (or "Guest", "Standing order") and the name run on as one line of words, two at most */
 #app .tkt .rt-hd {
-  flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 5px 6px;
+  flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 5px 6px 0; border-bottom: 5px solid var(--tk-ink);
   background: var(--tk-ink); color: var(--tk-paper); font: 800 0.5625rem/1.15 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
 }
 #app .tkt .rt-hd b { margin-right: 4px; color: var(--tk-yel); }
@@ -175,11 +175,14 @@
 /* ---------- a small phone: the close form, everything a little smaller ---------- */
 #app .tkt .rush-table.close .rt-pic { height: 54px; }
 #app .tkt .rush-table.close .rt-w { height: 22px; }
+#app .tkt .rush-table.close .rt-dots i { width: 9px; height: 9px; }
+#app .tkt .rush-table.close .rt-dots.many i { width: 7px; height: 7px; }
 #app .tkt .rush-table.close .rt-crate > .tb-awn { height: 5px !important; }
 #app .tkt .rush-table.close .rt-who { padding-top: 2px; font-size: 0.5625rem; }
 /* the marks stay clear of the customer between the columns */
-#app .tkt .rush-table.close .rt-badge { right: -3px; }
-#app .tkt .rush-table.close .rt-plus { right: -3px; }
+#app .tkt .rush-table.close .rt-badge { top: -8px; right: -3px; }
+/* the money lies inside the crate here, clear of the badge of the crate below */
+#app .tkt .rush-table.close .rt-plus { right: 2px; bottom: 2px; }
 #app .tkt .rush-table.close .rt-tag { font-size: 0.9375rem; }
 /* A short screen: the result line and the buttons a little smaller. Set by the screen's height and not by the close
    form, because the stage's own size decides that form: the line and the buttons must not change the stage's size. */
