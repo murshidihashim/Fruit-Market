@@ -13,7 +13,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   return (
     <footer class="actionbar">
       {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip ⏩</button>}
-      {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' || (s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0)) ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
+      {busy && <div class="hint-bar">{night ? 'Night falls…' : s.phase === 'morning' || (s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0)) ? 'The cart rolls in…' : s.phase === 'reveal' ? 'Selling… tap to speed up' : s.phase === 'stall' || s.phase === 'bid' ? '' : pl?.kind === 'human' ? 'Bought!' : `${pl?.name ?? ''} is shopping…`}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
