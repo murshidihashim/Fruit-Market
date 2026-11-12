@@ -12,7 +12,7 @@ import { dawnLines, fineLine, topUpLine } from '../src/ui/game/panels/MorningCar
 import { BidStatus, canGetLine } from '../src/ui/game/panels/OrderPanel';
 import { reachFrom, type ReachBoxes } from '../src/ui/game/reach';
 import { BEAT, FEEL } from '../src/ui/motion';
-import { EveningPanel, EveningTomorrow, daySoldLine, offersTonight, swipeHint } from '../src/ui/panel';
+import { EveningPanel, EveningTomorrow, daySoldLine, eveningKept, offersTonight, swipeHint } from '../src/ui/panel';
 
 // PLAN-084 (package 3, part 1): the morning, the standing-order bid and the evening as sheets laid on the table, and
 // their beats: coins at dawn, the bids turned over with the stake put on the card, a built upgrade and its price.
@@ -378,6 +378,17 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
     expect(theirs).not.toContain('heard');
     expect(mine).toContain(`+ ${s.queue.length - 1} walk-in`);
     expect(theirs).toContain(`+ ${s.queue.length} walk-in`);
+  });
+
+  it('the sheet comes back where it was: a sheet that has left cannot overwrite the place or the choice it kept', () => {
+    const live = eveningKept(null, 'g:3:0', 'orderbook', { scrollTop: 198 });
+    expect(live).toEqual({ key: 'g:3:0', pick: 'orderbook', scroll: 198 });
+    // its picture is scrolled once more as it slides away: by then the sheet is no longer on the table
+    expect(eveningKept(live, 'g:3:0', null, null)).toBe(live);
+    expect(eveningKept(live, 'g:3:0', 'orderbook', { scrollTop: 40 })).toEqual({ key: 'g:3:0', pick: 'orderbook', scroll: 40 });
+    const src = read('src/ui/panel.tsx');
+    expect(src).toContain('kept = eveningKept(kept, key, next, root.current);');
+    expect(src).toContain('if (kept?.key === key && kept.scroll > 0 && root.current) root.current.scrollTop = kept.scroll;');
   });
 
   it('an upgrade\'s price is held back until its coins leave, for the person and for a rival', async () => {

@@ -397,7 +397,15 @@ function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: Fr
 
 /** What the evening sheet keeps while it is away for a moment (the table is busy for a frame or two after a choice,
  *  and the sheet is drawn afresh): the offer chosen and how far the sheet was scrolled, for this stall's evening. */
-let kept: { key: string; pick: UpgradeId | null; scroll: number } | null = null;
+export interface EveningKept { key: string; pick: UpgradeId | null; scroll: number }
+let kept: EveningKept | null = null;
+/**
+ * The note taken at a choice or a scroll. Only the sheet on the table speaks (`el`): one that has left is scrolled
+ * once more as its picture slides away (sheet.ts), and by then it has no place to tell, so the note stays as it was.
+ */
+export function eveningKept(was: EveningKept | null, key: string, pick: UpgradeId | null, el: { scrollTop: number } | null): EveningKept | null {
+  return el ? { key, pick, scroll: el.scrollTop } : was;
+}
 
 /**
  * The evening's sheet on the game table (PLAN-084): the evening laid over everything under the top bar, with its
@@ -414,7 +422,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   const [pick, setPick] = useState<UpgradeId | null>(() => (kept?.key === key ? kept.pick : null));
   const root = useRef<HTMLDivElement>(null);
   useReach(root, 'beats', true);
-  const keep = (next: UpgradeId | null) => { kept = { key, pick: next, scroll: root.current?.scrollTop ?? 0 }; };
+  const keep = (next: UpgradeId | null) => { kept = eveningKept(kept, key, next, root.current); };
   useLayoutEffect(() => {
     // Back after a moment away: at the place it was scrolled to.
     if (kept?.key === key && kept.scroll > 0 && root.current) root.current.scrollTop = kept.scroll;
