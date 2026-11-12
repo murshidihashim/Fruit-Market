@@ -3742,6 +3742,10 @@
     {
       "at": "2026-11-12 23:13",
       "text": "DEC-108: Owner, 2026-11-12, answering two questions on the printed game (how a stall is paid at the table: the guidebook's way or the rulebook's crier paying from the bank; and whether the guidebook keeps \"45 to 90 minutes\"): \"1 follow guidebook\", \"2 keep it\". RULES.md's crier paragraph now follows the guidebook (each stall adds its own price to its cash track) and its opening line says a cash track, not coins. PLAN-091: RULES.md's words merged (ba448be) after the session read every change (no rule, number or meaning changed) and fixed four lines that still contradicted DEC-107 and the event table; the printed guidebook's text brought in line with DEC-107, the Charmer's limits and the glossary (6baf5f7)."
+    },
+    {
+      "at": "2026-11-12 23:17",
+      "text": "Owner, 2026-11-12: \"i also dislike the listing style animation / flow during the rush\". The rush's list of offers under each customer card (the Rush board, built in PLAN-084) is to be redrawn. Three mock-ups put to him (docs/studio/review-18/mockups, Rush-A, Rush-B, Rush-C): A, at the stalls (no sheet; the customer's ticket lifts in the row, pieces fly from the stall boxes, coins land on their cash, one line says what happened); B, the street (the stalls as counters side by side, cheapest on the left, the customer walks along them); C, who sold (the customer card and only the stalls that sold, a tap shows how it was decided). Nothing is built until he chooses; the day helper was told to leave the rush card alone."
     }
   ]
 }
