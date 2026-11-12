@@ -74,7 +74,8 @@
 #app .tkt .rt-w .x-fruit { flex: none; width: 18px; height: 18px; }
 /* the fruit being bought now is marked with its lane's colour */
 #app .tkt .rt-w.now { box-shadow: inset 4px 0 0 var(--lane); }
-#app .tkt .rt-dots { display: flex; gap: 3px; min-width: 0; overflow: hidden; }
+/* the dots wrap onto a second row where the card is too narrow for them all (four and a tick at a small phone) */
+#app .tkt .rt-dots { display: flex; flex-wrap: wrap; align-content: center; gap: 2px 3px; min-width: 0; max-height: 100%; overflow: hidden; }
 #app .tkt .rt-dots i { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--tk-ink); transition: background-color calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
 #app .tkt .rt-dots i.got { background: var(--tk-ink); }
 /* five pieces or more: smaller dots, so they and the price fit the card's width */
