@@ -469,7 +469,6 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const used = count(shelf);
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;
@@ -479,6 +478,10 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
   const head = tonightHead(s, p);
   const n = groups.reduce((a, g) => a + g.chips.length, 0) + favours.length;
   const go = night !== undefined && night !== null;
+  // The shelf follows the night as the lanes do (PLAN-090): a chip whose pieces leave tips off as the slide ends, and
+  // once the pieces rest the others carry tomorrow's letter and the pieces that left are no longer counted.
+  const rest = night === 'done';
+  const used = count(shelf) - (rest ? groups.reduce((a, g) => a + g.chips.reduce((x, c) => x + (c.gone ? c.n : 0), 0), 0) : 0);
   return (
     <section class={`my-stall dock tk-dock tb-dock c${Math.min(n, 8)} ${active ? 'active' : ''} ${go ? 'night' : ''} ${night === 'done' ? 'rest' : ''}`} data-a={`p${p}`} aria-label="Your shelf"
       style={typeof night === 'number' ? `--ns-ms:${Math.round(night)}ms` : undefined}>
@@ -501,8 +504,8 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
           ? chips.map((c, i) => (
             <span class={`tb-chip ${i === 0 ? 'stk-f' : ''} ${c.tone} ${go && c.gone ? 'gone' : ''}`} data-a={i === 0 ? `p${p}-${f}` : undefined}
               role="img" aria-label={`${c.n} ${(c.n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}, ${STAGE_WORD[c.stage]}: ${c.words}`} title={c.words}>
-              <Fruit id={f} size={16} stage={c.stage} />
-              <Lamp stage={go && c.next ? c.next : c.stage} size={13} />
+              <Fruit id={f} size={16} stage={rest && c.next ? c.next : c.stage} />
+              <Lamp stage={rest && c.next ? c.next : c.stage} size={13} />
               {c.n > 1 && <b>×{c.n}</b>}
               <span class="tb-chip-w">{c.words}</span>
               {/* a shelf with more kinds of piece than the full words have room for: the first word alone ("okay", "spoils") */}

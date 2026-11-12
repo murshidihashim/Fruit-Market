@@ -550,8 +550,8 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void, s
       const j = Math.min(sh.juice, sh.leaving[f]);
       sh.juice -= j;
       for (let k = 0; k < j; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: NIGHT.juiceCoin, path: 'flat' })); d += NIGHT.gap; }
-      // The rest spoil: a piece tips off that fruit's place on the shelf (three at most are drawn for one fruit).
-      for (let k = 0; k < Math.min(sh.leaving[f] - j, 3); k++) { jobs.push(A.drop([`p${p}-${f}`], <Fruit id={f} size={24} stage="notso" />, d)); d += NIGHT.gap; }
+      // The rest spoil: their chips tip off the shelf as the slide ends (table.tsx MyStall; PLAN-090: the old wobbling
+      // drop is gone, the shelf follows the night as the lanes do).
     });
   }
   await Promise.all([A.hold(NIGHT.read), ...jobs]);

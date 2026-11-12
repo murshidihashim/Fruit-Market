@@ -9,7 +9,7 @@ import { holdCash, shownCash } from '../src/ui/cashShown';
 import { arriving, dealsOf, holdArrival, holdDeals, holdDelivery, moves, shareOut } from '../src/ui/game/animator';
 import { NightShift } from '../src/ui/game/panels/NightShift';
 import { shownStock } from '../src/ui/stockShown';
-import { Market, Street, boughtToday } from '../src/ui/table';
+import { Market, MyStall, Street, boughtToday } from '../src/ui/table';
 import { deliveryBoxes, marketBefore, nightSteps, ticketLines } from '../src/ui/tableModel';
 import { cardShown, countMarket, releaseTable, shownMarket, tableHeld, turnCard } from '../src/ui/tableShown';
 
@@ -250,6 +250,32 @@ describe('the night: a box whose piece has slid away reads as empty (PLAN-090)',
     // a Monsoon: nothing slides, nothing changes
     const rain = { ...s, event: { id: 'monsoon', title: 'Monsoon', text: '', ageExtra: -1 } } as GameState;
     expect(toStaticHtml(h(NightShift, { s: rain, viewer: 0, slide: 'done' })).split(`data-a="m-blueberry-${top}"`)[0].split('<button').pop()).toMatch(/\bhas\b/);
+  });
+});
+
+describe('the night on your shelf: it follows the night as the lanes do (PLAN-090)', () => {
+  it('a chip whose pieces leave tips off during the slide; at rest the others carry tomorrow\'s letter and the count has dropped', () => {
+    const s = game();
+    s.players[0].stock.blueberry[0] = 1; // soft: spoils tonight
+    s.players[0].stock.apple[FRUIT.apple.ripe.indexOf('fresh')] = 2; // the oldest fresh box: okay tomorrow
+    const shelf = (night: number | 'done' | null | undefined) => toStaticHtml(h(MyStall, { s, p: 0, night }));
+    const chip = (html: string, f: string) => html.split(`data-a="p0-${f}"`)[1].split('</span></span>')[0];
+    // by day, at dusk and while the pieces slide: three pieces, today's letters
+    for (const night of [undefined, null, 500] as const) {
+      expect(shelf(night)).toMatch(/Shelf space: 3 of \d+ used/);
+      expect(chip(shelf(night), 'apple')).toContain('>F</i>');
+    }
+    expect(shelf(undefined)).not.toMatch(/class="tb-chip[^"]*\bgone\b/);
+    expect(shelf(500)).toMatch(/class="tb-chip[^"]*\bwarn\b[^"]*\bgone\b[^"]*"[^>]*data-a="p0-blueberry"/);
+    // at rest: the spoiled piece is no longer counted, and the apples carry tomorrow's letter
+    expect(shelf('done')).toMatch(/Shelf space: 2 of \d+ used/);
+    expect(chip(shelf('done'), 'apple')).toContain('>O</i>');
+    expect(chip(shelf('done'), 'apple')).not.toContain('>F</i>');
+  });
+
+  it('the night\'s script no longer drops a wobbling piece from the shelf', async () => {
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync('src/ui/game/animator.tsx', 'utf8')).not.toContain('A.drop(');
   });
 });
 
