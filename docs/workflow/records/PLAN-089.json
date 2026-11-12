@@ -1,0 +1,75 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-101",
+    "REP-111"
+  ],
+  "decisions": [
+    "DEC-087",
+    "DEC-098",
+    "DEC-104",
+    "DEC-105"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-11: \"Plain, with a Malaysian market feel\" (DEC-087: the voice across every card and screen). Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A in six packages, package 4 the text). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-089",
+  "title": "Release A, package 4, part 2: the labels on the screens",
+  "problem": "Release 1.20.0 rewrote the text of the cards, the story, the tutorial and How to play. The labels on the screens are untouched: about 200 audit entries remain in screen files, and the helpers who rebuilt the screens invented about 150 labels and sentences that nobody has checked against the glossary. The same thing is not always called the same word.",
+  "scope": [
+    "The audit's remaining entries applied where the text still exists in the rebuilt screens",
+    "Every label invented while rebuilding the screens checked against the glossary and DEC-087: kept, shortened or reworded; one word for one thing on every screen",
+    "The wording faults noted by the builders: the stale buying tip, \"No peeking!\", quotes around quips and customer words, the app's description",
+    "Part 1's loose ends: the full list of all 575 entries, the before-and-after samples and the unsure Malaysian wording for the owner",
+    "A list of where RULES.md now differs in wording from the cards, for the owner to decide"
+  ],
+  "exclusions": [
+    "Any layout, rule, number or id",
+    "RULES.md itself",
+    "The stamp book's screens (their text is applied with PLAN-086)",
+    "The print kit's text (PLAN-087)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code (the scripts still find their buttons)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each changed screen looked at by me at 390x844 and 360x640 with 6 stalls: nothing cut off or pushed out of view",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The same seed still gives the same game",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has read the before-and-after samples",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

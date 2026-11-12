@@ -3666,6 +3666,10 @@
     {
       "at": "2026-11-12 19:45",
       "text": "Release 1.20.0 published 2026-11-12 19:43 (DEC-106; PLAN-077, 079, 081, 082, 083, 084, 085, 088): main c17a053 (pull request #11). The full checks on the CI machines passed first (CI run 136: verify, solo game, performance budget OK at the 250 ms limit with 3 slow frames of 747 at night and a longest night frame of 66.7 ms, online match 56 pricing frames 0 leaks, abandoned match, quick match, four players, reconnect 5 of 5; the longest-task figure was not read from the log). Deploy LIVE game run 39: verify, release check, deploy, live smoke test and tag v1.20.0 all passed. Checked from the session: the live page answers 200, the server reports rules version 18 and the page serves the build CI made. The live smoke script could not be run from the session's machine (its network reaches the site with curl only). Not yet done: a person playing it on a phone; the owner is testing it. The stamp book, the rest of the text list, the screen labels and the print kit continue on the working branch for the next release."
+    },
+    {
+      "at": "2026-11-12 19:48",
+      "text": "After the publish, three helpers were resumed for the next release, each first merging the working branch into its own: the stamp book (PLAN-086, to report by 23:30), the print kit (PLAN-087, by 23:00) and the text, now part 2, the labels on the screens (PLAN-089 opened, by 22:30). The fixes for the known gaps of the day's screens (REP-111 section 4) wait for the owner's play of 1.20.0, so that what he finds goes into the same piece of work."
     }
   ]
 }
