@@ -9,6 +9,7 @@ import { RIVALS } from '../src/engine/data';
 import { activePlayer, beginBuying, decideTie, finishReveal, newGame, publicView, tiedPrices, type GameState } from '../src/engine/game';
 import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
+import { fx } from '../src/ui/fx';
 import { bellRings } from '../src/ui/game/animator';
 import { CratesOpen, TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
 import { tieStory } from '../src/ui/game/tieStory';
@@ -121,6 +122,29 @@ describe('the bell\'s script and the flip', () => {
     await vi.runAllTimersAsync();
     await ring;
     expect([...new Set(steps)]).toEqual(Array.from({ length: s.players.length + 1 }, (_, i) => i));
+  });
+
+  it('makes one sound: the player\'s own bell, rung once by the game table as the bell first shows (PLAN-091)', async () => {
+    const s = asks[0];
+    for (const reduced of [true, false]) {
+      fakeClock(reduced);
+      // the bell's script makes no sound of its own (it used to add the card sound to the bell's)
+      const sounds = (['card', 'tap', 'bell', 'coin'] as const).map((k) => vi.spyOn(fx, k).mockImplementation(() => undefined));
+      // the game table's setBell, as useGameController.ts has it
+      let up = false;
+      const setBell = (open: number | null) => { if (open !== null && !up) fx.bell(); up = open !== null; };
+      const ring = bellRings(s, setBell);
+      await vi.runAllTimersAsync();
+      await ring;
+      expect(sounds.map((x) => x.mock.calls.length), reduced ? 'reduced motion' : 'usual pace').toEqual([0, 0, 1, 0]);
+      sounds.forEach((x) => x.mockRestore());
+    }
+    const ctrl = read('src/ui/game/useGameController.ts');
+    expect(ctrl).toContain('if (open !== null && !bellUp.current) fx.bell();');
+    // the bell's own sound is the one the player wears, the brass hand bell when none is chosen
+    expect(read('src/ui/fx.ts')).toContain('bell: () => (BELLS[wornSounds().bell] ?? BELLS.bell_brass)(),');
+    // a row turning has its own small sound, but not as the bell first shows (reduced motion opens every row then)
+    expect(read('src/ui/game/panels/DaySheet.tsx')).toContain('if (was !== null && c.bell > was) fx.tap();');
   });
 
   it('at the flip before a question the rows are shut together with the new state, so no open row is drawn before the bell', () => {

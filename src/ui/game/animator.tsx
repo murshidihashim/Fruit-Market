@@ -345,9 +345,10 @@ export type BellShow = number | null;
 
 /**
  * The bell (rules 15; PLAN-085): the bell swings and sounds, then stall by stall, in today's line-up, each row's
- * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. With reduced motion
- * nothing travels: every row is open at once and the reading pause is kept. A tap ends the bell where it stands:
- * every row is shown open and the pause is over.
+ * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. The sound is one: the
+ * player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
+ * nothing here makes a sound. With reduced motion nothing travels: every row is open at once and the reading pause
+ * is kept. A tap ends the bell where it stands: every row is shown open and the pause is over.
  */
 export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
   const n = g.players.length;
@@ -355,12 +356,10 @@ export async function bellRings(g: GameState, setBell?: (open: BellShow) => void
   // drew them over a few frames), and the pause to read is kept.
   if (A.isReduced()) {
     setBell?.(n);
-    fx.card();
     await A.hold(A.BEAT.bell.read);
     return;
   }
   setBell?.(0);
-  fx.card();
   await A.wait(A.BEAT.bell.swing);
   for (let k = 1; k <= n && !A.hurried(); k++) {
     setBell?.(k);

@@ -197,7 +197,9 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     for (let i = was ?? 0; i < c.bell; i++) {
       rows[i]?.querySelectorAll('.ds-pz, .ds-none').forEach((el) => el.animate(TURN, { duration: A.ms(A.FEEL.turn), delay: A.moveMs(A.BEAT.bell.lid), fill: 'backwards', easing: A.EASE.travel }));
     }
-    if (c.bell > (was ?? 0)) fx.tap();
+    // A row turning has its own small sound; not as the bell first shows (with reduced motion every row is open then):
+    // that moment has the bell's own sound alone (PLAN-091).
+    if (was !== null && c.bell > was) fx.tap();
   }, [c.bell]);
   // The question comes onto the sheet under the open rows.
   const asked = step === 'tie' && !c.busy && c.active >= 0 ? c.active : -1;
