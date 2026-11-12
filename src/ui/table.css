@@ -284,3 +284,19 @@
   #app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { inset: -12px -2px -6px; }
   #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chips .favchip::before { inset: -7px; }
 }
+
+/* ---------- a standing order's strip does not move the rows (PLAN-090) ----------
+   The strip lies under tomorrow's customers from the morning an order is announced until it is delivered, and it used
+   to push the stalls, the lanes and everything under them down by its 34 px (28 and its 6 px margin) on that morning.
+   The customer band is now always as tall as it is with the strip on it: on a day without a standing order the row's
+   tickets take the strip's room for a taller picture (on the shortest phones, where the tickets have no picture while
+   a strip is there, the picture comes back). The tickets change with the day's new cards or under a sheet; the rows
+   below never move. Where the browser cannot tell whether the strip is there (:has), everything is as it was. */
+#app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 90px; }
+@media (max-height: 779px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 60px; }
+}
+@media (max-height: 650px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 34px; }
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street .tkc-pc { display: block; }
+}
