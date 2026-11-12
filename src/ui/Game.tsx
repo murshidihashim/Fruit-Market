@@ -40,7 +40,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
-  const { busy, busyRef, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
+  const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
@@ -123,14 +123,16 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     && (isDraftNight(s) || evPl.trait === 'keeper' || evPl.favours.some((f) => FAVOURS[f].when === 'evening'));
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
-    if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} />;
+    if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
     // The bell: every crate opens with its prices before the first customer is served (rules 15).
     if (c.bell && s.phase === 'reveal') return <CratesOpen s={s} viewer={viewer} />;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
     if (ordering) return <OrderPanel key={`or-${s.day}-${bidder}`} s={s} p={bidder} onBid={(price) => { fx.card(); act({ kind: 'order', price }); }} />;
-    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting canChange={!!online} onBid={(price) => { if (online) { fx.card(); act({ kind: 'order', price }); } }} />;
+    // Offline the computer stalls decide first, so this shows before the person's own turn: it must not say "Bid in"
+    // then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
+    if (orderWait) return <OrderPanel key={`ow-${s.day}-${viewer}`} s={s} p={viewer} waiting canChange={!!online} decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (online) { fx.card(); act({ kind: 'order', price }); } }} />;
     if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
     if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
     if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts) => { fx.card(); act({ kind: 'prices', posts }); }} />;
@@ -141,10 +143,18 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   })();
   const offSeats = offline.map((x) => x.seat);
 
-  // A tap on the table speeds up the animation playing (PLAN-076: not the tap on the button that starts one, such as
-  // Lights out, which used to skip the whole night when you were the last stall to close).
+  // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
+  // tap on a button (PLAN-076: Lights out used to skip the whole night when you were the last stall to close). A market
+  // box that cannot be bought from lets the tap through (ticket.css), so the lanes count as the table. While a
+  // customer's card is up in the rush, a tap that reaches here (the bottom bar, beside Skip) moves on to the next
+  // customer, like a tap anywhere else at that moment; only Skip hurries the whole rush.
+  const tapTable = (e: MouseEvent) => {
+    if ((e.target as Element).closest?.('button')) return;
+    if (show) A.speedStep();
+    else c.hurry();
+  };
   return (
-    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={(e) => busyRef.current && !(e.target as Element).closest?.('button') && A.hurryUp()}>
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
       <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (

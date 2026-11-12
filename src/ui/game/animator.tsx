@@ -15,8 +15,7 @@ import { rushPace, rushSeats } from './rush';
 export async function delivery(g: GameState) {
   if (g.phase !== 'morning' && g.phase !== 'buy') return;
   const jobs: Promise<void>[] = [];
-  // Let the lorry pull up (its drive-in is CSS, about 0.9 s), then unload into each fruit's slot.
-  if (A.find('lorry')) await A.wait(650);
+  // No lorry is drawn today, so nothing waits for one to pull up (PLAN-081): the fruit leaves for the lanes at once.
   let d = 0;
   for (const f of FRUITS) {
     const n = Math.min(g.delivery[f] ?? 0, 4);
@@ -110,19 +109,25 @@ function payNow(l: LineResult) {
   }
 }
 
+/** How long "No sales today" stays up, and how long every open crate stays on the table at the bell, in ms at normal speed. */
+export const NO_SALES_READ = 1100;
+export const bellRead = (stalls: number) => 1500 + 350 * stalls;
+
 export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (on: boolean) => void) {
   const r = g.results!;
   const lines = r.lines.filter((l) => l.offers.length > 0);
   if (!lines.length) {
     const t = A.tag('street', 'No sales today', 'big');
-    await A.wait(1100);
+    // A pause to read, so it is kept with reduced motion (PLAN-081: it used to shrink to a twentieth of a second).
+    await A.hold(NO_SALES_READ);
     t.remove();
     return;
   }
-  // The bell (rules 15): every crate opens with its prices. They stay on the table long enough to read, then the rush starts.
+  // The bell (rules 15): every crate opens with its prices. They stay on the table long enough to read, then the rush
+  // starts. A reading pause too: with reduced motion the open crates stay just as long (a tap or Skip still ends it).
   setBell?.(true);
   fx.card();
-  await A.wait(1500 + 350 * g.players.length);
+  await A.hold(bellRead(g.players.length));
   setBell?.(false);
   // Routine sales (one rival, no contest, not you) settle together; showdowns get the stage.
   const shows = lines.filter((l) => explainLine(g, l, viewer).showdown);
@@ -194,13 +199,29 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   holdCash(null);
 }
 
-export async function nightfall(g: GameState, setNight: (on: boolean) => void) {
+/**
+ * The night panel's slide, set from here so the panel and its slide run on one clock (PLAN-081): null while dusk falls,
+ * then the slide's length in ms while every piece moves one box older, then 'done' once the pieces rest in their new boxes.
+ */
+export type NightSlide = number | 'done' | null;
+/** The night's steps in ms at normal speed: dusk falls and the panel rises, every piece slides (slow enough to watch,
+ *  PLAN-076), a beat for the last piece to settle, then a moment to read the panel. 3.3 s in all before any spoiled
+ *  piece drops, as before. */
+export const NIGHT = { dusk: 950, slide: 1500, settle: 80, read: 770 };
+
+export async function nightfall(g: GameState, setNight: (on: boolean) => void, setSlide: (s: NightSlide) => void = () => {}) {
+  setSlide(null);
   setNight(true);
   fx.night();
-  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071). Dusk falls
-  // over the market for 0.7 s, then the slide starts at 0.95 s and takes 1.5 s, slow enough to watch (PLAN-076).
-  await A.wait(800);
-  await A.hold(2500);
+  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071). The slide
+  // is given its length from here and this script waits that long (and a beat more), whatever the speed, so the slide
+  // always ends before the panel goes. A tap ends the pause, and the pieces are then shown in their new boxes at once.
+  // With reduced motion nothing slides (the stylesheet turns the move off) and the pause is kept, to read the panel.
+  await A.wait(NIGHT.dusk);
+  setSlide(A.held(NIGHT.slide));
+  await A.hold(NIGHT.slide + NIGHT.settle);
+  setSlide('done');
+  await A.hold(NIGHT.read);
   const heat = g.event?.ageExtra ?? 0;
   const jobs: Promise<void>[] = [];
   let d = 0;

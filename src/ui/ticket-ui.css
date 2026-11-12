@@ -118,8 +118,10 @@
 
 /* ---------- nightfall (PLAN-076): dusk falls over the market, then the night sits in the middle of the screen ---------- */
 #app .game.gx.tkt { transition: background-color 0.7s ease; }
-#app .tkt > .centre > .tk-night { animation: tk-dusk 0.6s ease-in both; }
-#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in 0.45s 0.55s ease-out both; }
+/* --ns-k is the table's speed (1 normal, lower is quicker), set on the panel, so dusk keeps pace with the night's script
+   and the lanes are in view before the pieces slide, on the fast setting and after a tap as well (PLAN-081). */
+#app .tkt > .centre > .tk-night { animation: tk-dusk calc(0.6s * var(--ns-k, 1)) ease-in both; }
+#app .tkt > .centre > .tk-night > * { animation: tk-dusk-in calc(0.45s * var(--ns-k, 1)) calc(0.55s * var(--ns-k, 1)) ease-out both; }
 #app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
 #app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
 @keyframes tk-dusk { from { background-color: transparent; } to { background-color: var(--tk-ink); } }
@@ -140,3 +142,13 @@
 #app .tkt .op-status li.st-pass { background: var(--tk-kraft); }
 #app .tkt .op-status li.st-pass b { text-decoration: line-through; }
 #app .tkt .op-status li.st-wait span { color: var(--tk-slate); }
+/* Everything under the order's card (who is bidding, the line of advice, the price stepper and Pass) is one block, the
+   foot, laid out exactly as its parts were before. The customer row now stays on the table during the bid (PLAN-081),
+   so on a phone the whole panel no longer always fits: the foot then stays in view while the card scrolls behind it.
+   It reaches over the panel's own 8px of bottom padding, so nothing shows under it. */
+#app .tkt .order-panel .op-foot { flex: 1 0 auto; display: flex; flex-direction: column; gap: 8px; }
+/* Not on a short screen, where the foot alone would fill the panel and the card could not be read: there the panel
+   simply scrolls, as it always has. */
+@media (min-height: 700px) {
+  #app .tkt .order-panel .op-foot { position: sticky; bottom: -8px; z-index: 1; margin: -6px 0 -8px; padding: 6px 0 8px; background: var(--tk-paper); }
+}

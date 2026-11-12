@@ -18,3 +18,21 @@ export function undoPoint(start: GameState | null, s: GameState, humanTurn: bool
   if (start && activePlayer(start) === active && start.phase === 'buy' && start.day === s.day) return start;
   return s;
 }
+
+/**
+ * Is the table waiting for the person at this screen? A hurry asked for with a tap lasts until then (PLAN-081), so one
+ * tap carries through every rival's turn. The morning's news, the day's takings and the results each end on a button of
+ * the person's own. `seat` is their seat online; offline (null) any person at the phone counts, since it is handed over.
+ */
+export function waitsForPerson(s: GameState, seat: number | null): boolean {
+  if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return true;
+  if (seat === null) {
+    const a = activePlayer(s);
+    return a >= 0 && s.players[a].kind === 'human';
+  }
+  // Online, secret steps are taken by everyone at once: the person is waited for until their own entry is in the game.
+  if (s.phase === 'stall') return s.stalls[seat] === null;
+  if (s.phase === 'bid') return s.bids[seat] === null;
+  if (s.phase === 'order') return s.standing?.bids[seat] === null;
+  return activePlayer(s) === seat;
+}

@@ -15,8 +15,8 @@ import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
-import { delivery, moves, nightfall, reveal } from './animator';
-import { playLocal, undoPoint } from './turn';
+import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
+import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './panels/Showdown';
 
 
@@ -34,6 +34,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [handedTo, setHandedTo] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [night, setNight] = useState(false);
+  // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
+  const [nightSlide, setNightSlide] = useState<NightSlide>(null);
   // The bell has just rung: every crate is open on the table for a moment before the rush (rules 15).
   const [bell, setBell] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
@@ -90,8 +92,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     A.setBaseSpeed(loadSettings().fast);
     return () => A.setLayer(null);
   });
-  // Leaving the table mid-rush must not leave held-back totals behind for the next game.
-  useEffect(() => () => { holdCash(null); releaseStock(); }, []);
+  // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
+  // table (a game left while a rival was playing) does not carry over to this one either.
+  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); }; }, []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -104,16 +107,21 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     const prev = sRef.current;
     busyRef.current = true;
     setBusy(true);
-    A.resetHurry();
+    // Rules 18: when no stall has ripe fruit, nobody stocks or prices, and the rush follows buying directly.
+    const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'tie' || prev.phase === 'stall' || prev.phase === 'buy') && next.phase === 'reveal';
+    // A tap's hurry is not reset at each step any more (PLAN-081): it lasts until the table waits for this player again
+    // (see the end of this function), so one tap carries through every rival's turn. The rush is the exception: it
+    // always starts at its own pace, with its own tap (next customer) and Skip.
+    if (rush) A.resetHurry();
     try {
       if (next.day !== prev.day) {
         // The night is drawn from this stall's own view: what spoils behind a rival's shutter is not shown (rules 15).
-        await nightfall(publicView(prev, viewer), setNight);
+        await nightfall(publicView(prev, viewer), setNight, setNightSlide);
+        // The new day's pieces are already in their new boxes: the panel shows them at rest for its last moment.
+        setNightSlide(null);
         setLastNight(overnightLoss(prev, next, viewer));
         setLastJuice(overnightJuice(prev, next, viewer));
       }
-      // Rules 18: when no stall has ripe fruit, nobody stocks or prices, and the rush follows buying directly.
-      const rush = next.day === prev.day && (prev.phase === 'bid' || prev.phase === 'tie' || prev.phase === 'stall' || prev.phase === 'buy') && next.phase === 'reveal';
       // The game has already paid every sale. Show each total as it was before the rush; the sales add up as the coins land.
       // A standing order's stake has come back too (rules 18): it shows only once the rush is over.
       if (rush && next.results) holdCash(next.players.map((pl, i) => pl.cash - next.results!.income[i] - (next.results!.order?.holder === i ? next.results!.order.back : 0)));
@@ -141,6 +149,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       releaseStock();
       busyRef.current = false;
       setBusy(false);
+      // The hurry ends where the player decides something again. Online it also lasts through the states still waiting
+      // to be shown. It only ever changes how fast this screen draws: never the game, and nothing is sent.
+      if (!queue.current.length && waitsForPerson(sRef.current, online ? seat : null)) A.resetHurry();
       setTick((t) => t + 1);
       const q = buyQueue.current.shift();
       if (q) {
@@ -229,13 +240,20 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (busyRef.current) return;
     if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return;
     if (active < 0 || s.players[active].kind !== 'ai') return;
-    const t = window.setTimeout(() => {
-      if (busyRef.current) return;
+    // The pause before each rival action. A tap on the table ends it at once and keeps the next ones short (PLAN-081).
+    let live = true;
+    void A.pause(loadSettings().fast ? 150 : 380).then(() => {
+      if (!live || busyRef.current) return;
       const next = aiStep(sRef.current);
       if (next) void apply(next);
-    }, loadSettings().fast ? 150 : 380);
-    return () => window.clearTimeout(t);
+    });
+    return () => { live = false; };
   }, [s, tick]);
+
+  /** A tap on the table (not on a button): hurry what is playing, and the rivals' turns, until this player decides again. */
+  const hurry = () => {
+    if (busyRef.current || !waitsForPerson(sRef.current, online ? seat : null)) A.hurryUp();
+  };
 
 
   useEffect(() => {
@@ -321,7 +339,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   };
 
   return {
-    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, bell, banner, revealDone,
+    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,

@@ -13,7 +13,8 @@ const endWaits = () => { for (const done of [...waiting]) done(); };
 
 export function setLayer(el: HTMLElement | null) { layer = el; }
 export function setBaseSpeed(fast: boolean) { base = fast ? 0.55 : 1; }
-/** Tap-to-skip: makes the rest of the current sequence very quick. */
+/** Tap-to-skip: ends every pause and makes what plays next very quick, until resetHurry() (the game screen calls that
+ *  when the table waits for the player again, so one tap carries through every rival's turn). */
 export function hurryUp() { hurry = 0.15; endWaits(); }
 export function resetHurry() { hurry = 1; step = 1; }
 export const hurried = () => hurry < 1;
@@ -40,8 +41,12 @@ function sleep(t: number) {
   });
 }
 export const wait = (n: number) => sleep(n * k());
+/** How long hold(n) lasts at this moment, in ms: for a move that must end together with the pause (the night's slide). */
+export const held = (n: number) => n * base * hurry * step;
 /** A pause to read something: kept with reduced motion (nothing moves then, but the words still need time). */
-export const hold = (n: number) => sleep(n * base * hurry * step);
+export const hold = (n: number) => sleep(held(n));
+/** A fixed pause between two turns (the caller picks its length): short while hurried, and a tap ends it at once. */
+export const pause = (n: number) => sleep(n * hurry);
 export const frame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
 export function find(keys: string | string[]): HTMLElement | null {
