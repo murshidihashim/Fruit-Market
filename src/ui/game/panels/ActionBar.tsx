@@ -44,7 +44,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       )}
       {!beat && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
       {!beat && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
-      {!beat && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Crate ready'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
+      {!beat && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
       {!beat && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}
       {!beat && s.phase === 'tie' && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} has a tied price and is deciding…</div>}
       {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out <small class="btn-sub">next day</small></button>}

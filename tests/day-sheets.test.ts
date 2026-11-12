@@ -180,12 +180,12 @@ describe('coins at dawn: the top-up and the fine (PLAN-084)', () => {
     const mine = dawnLines(publicView(next, 0), 0);
     expect(mine.map((d) => [d.kind, d.p, d.amount])).toEqual([['fine', 1, 4], ['up', 0, 3]]);
     expect(mine[0].text).toBe(`${next.players[1].name} was fined $4`);
-    expect(mine[1].text).toBe('You are topped up to $5. Your shelf was empty and you had less than $5.');
+    expect(mine[1].text).toBe('The market tops you up to $5. Your shelf was empty and you had less than $5.');
     const theirs = dawnLines(publicView(next, 1), 1);
     expect(theirs[0].text).toBe('You were fined $4');
     expect(theirs[1].text).toBe('Mia had an empty shelf and was topped up to $5');
     expect(fineLine(publicView(next, 1), 1)).toBe('You were fined $4');
-    expect(topUpLine(publicView(next, 0), 0)).toBe('Your shelf was empty, so you were topped up to $5 (+$3)');
+    expect(topUpLine(publicView(next, 0), 0)).toBe('Your shelf was empty, so the market topped you up to $5 (+$3)');
     expect(dawnLines(game(3), 0)).toEqual([]);
   });
 });
@@ -305,8 +305,8 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
   it('says what there is to deliver the order with: the shelf, the market, tomorrow\'s lorry', () => {
     const v = publicView(bidding, 0);
     const line = canGetLine(v, 0, v.standing!);
-    expect(line).toMatch(/^On your shelf: \d+ · at the Wholesale Market today: \d+( · on tomorrow's lorry: \d+)?$/);
-    expect(line).toContain(`at the Wholesale Market today: ${bidding.market[o.fruit].reduce((a, n) => a + n, 0)}`);
+    expect(line).toMatch(/^On your shelf: \d+ · at the market today: \d+( · on tomorrow's lorry: \d+)?$/);
+    expect(line).toContain(`at the market today: ${bidding.market[o.fruit].reduce((a, n) => a + n, 0)}`);
   });
 });
 

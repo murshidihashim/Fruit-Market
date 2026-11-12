@@ -215,7 +215,7 @@ describe('the Favoured Trade question, in words (tieStory.ts)', () => {
   it('the asked stall reads who is tied and what the rush gives it without the card and with it, as the game itself would play it', () => {
     const view = publicView(s, asked);
     const story = tieStory(view, asked, asked);
-    expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) set \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
+    expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) ask \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
     // the two outcomes are the game's own, played on a copy with only this stall deciding
     const alone = { ...view, tieAsk: [asked] };
     // what the card does: it puts this stall first, or, when both outcomes give it the same takings, it says so
@@ -264,9 +264,9 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
     expect(nightSteps(s, 0, 'apple')).toBe(1);
     expect(tonightWord(s, 0, 'apple', soft)).toEqual({ text: 'spoils tonight', bad: true });
     expect(tonightWord(s, 0, 'apple', FRESH('apple')).bad).toBe(false);
-    expect(shelfRowText(s, 0, 'apple', soft)).toMatch(/Soft sells \$2 less · spoils tonight$/);
-    expect(shelfRowText(s, 0, 'mango', FRUIT.mango.ripe.length)).toBe('Still Green · ripe tomorrow');
-    if (green > FRUIT.mango.ripe.length) expect(shelfRowText(s, 0, 'mango', green)).toBe(`Still Green · ripe in ${green - FRUIT.mango.ripe.length + 1} nights`);
+    expect(shelfRowText(s, 0, 'apple', soft)).toMatch(/soft sells \$2 less · spoils tonight$/);
+    expect(shelfRowText(s, 0, 'mango', FRUIT.mango.ripe.length)).toBe('Still green · ripe tomorrow');
+    if (green > FRUIT.mango.ripe.length) expect(shelfRowText(s, 0, 'mango', green)).toBe(`Still green · ripe in ${green - FRUIT.mango.ripe.length + 1} nights`);
     // a Heatwave ages two boxes; no night follows the last day
     const heat = EVENT_CARDS.find((e) => (e.ageExtra ?? 0) > 0)!;
     expect(nightSteps({ ...s, event: heat }, 0, 'apple')).toBe(1 + heat.ageExtra!);

@@ -10,7 +10,7 @@ import { GUEST_EVENT, customerArt, customerFocus, focusCss, guestArt, guestFocus
 
 /** The letters printed on the board's boxes. */
 export const STAGE_LETTER: Record<Stage, string> = { unripe: 'G', fresh: 'F', okay: 'O', notso: 'S' };
-export const STAGE_WORD: Record<Stage, string> = { unripe: 'Green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
+export const STAGE_WORD: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
 
 /** A freshness letter in a round lamp: filled when it applies, hollow when it does not. */
 export function Lamp({ stage, on = true, size = 16 }: { stage: Stage; on?: boolean; size?: number }) {

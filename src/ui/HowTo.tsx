@@ -74,7 +74,7 @@ const SLIDES = [
             <li><span class="beat-n">{k < DAY_STEPS ? k + 1 : ''}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p class="muted">Stalls are secret. Before the bell you know only how many pieces each rival has in its crate: not which fruit, and not the price. Buying is done in the open, so you can watch what rivals take. What a rival bought today stays on show until the bell.</p>
+        <p class="muted">Stalls are secret. Before the bell you know only how many pieces each rival has in its crate: not which fruit, and not the price. Buying is done in the open, so you can watch what rivals take while they buy. It is not shown again afterwards, so remember what matters.</p>
       </>
     ),
   },
@@ -115,7 +115,7 @@ const SLIDES = [
     title: 'Evening and night',
     body: (
       <>
-        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (1 a day; {CHARMER_DAILY_FAVOURS} for the Charmer). You hold up to {FAVOUR_HAND_LIMIT}. Play it when its card says: on your buying turn, after prices flip, or in the evening.</p>
+        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (1 a day; {CHARMER_DAILY_FAVOURS} for the Charmer). You hold up to {FAVOUR_HAND_LIMIT} ({FAVOUR_HAND_LIMIT + 1} for the Charmer). Play it when its card says: on your buying turn, after prices flip, or in the evening.</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
         <p><b>Gossip</b> shows you tomorrow's walk-ins. <b>Scout</b> shows you one of today's.</p>
         <p>You take an evening turn only when you have something to decide. At night <b>all fruit ages one step</b>. A Soft piece that ages spoils and is thrown away.</p>
@@ -143,7 +143,7 @@ const SLIDES = [
         <li>Blueberries are cheap but last only 3 days. Sell them first.</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none. With a Juice Bar, up to {JUICE_CAP} of them become juice instead: ${JUICE_VALUE} each.</li>
-        <li>Watch what rivals buy. What each stall bought today stays on show until the bell. Older fruit is secret. Before the bell you see only how many pieces are in each crate. If you remember what they hold, you can guess which fruit.</li>
+        <li>Watch what rivals take while they buy. It is not shown again after buying. Before the bell you see only how many pieces are in each crate. If you remember what they hold, you can guess which fruit.</li>
         <li>No customer wants a mango in the first {NO_MANGO_DAYS} days. Every mango arrives Green and needs {FRUIT.mango.unripeSlots} nights to ripen.</li>
         <li>From Day 2, a stall with an empty shelf and less than ${TOP_UP} at dawn is topped up to ${TOP_UP}. Nobody is out of the game.</li>
         <li>Nobody waits overnight: a customer who does not get everything today is gone tomorrow.</li>

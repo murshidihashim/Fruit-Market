@@ -120,7 +120,7 @@ export function noSaleReason(s: GameState, l: LineResult, o: Offer, viewer: numb
     ? `${cust} buys Fresh only, up to $${top}${withDisplay}.`
     : `${cust} pays up to ${items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0]}${pref === 'everyday' ? '; never Soft' : ''}.`;
   if (o.price > top) {
-    return { kind: 'price', tag: `over top price $${top}`, headline: `Price too high. ${cust} pays at most $${top}${display ? ` for Fresh, with ${mine ? 'your' : 'a'} Premium Display` : ''}.`, detail: pays };
+    return { kind: 'price', tag: `over $${top}`, headline: `Price too high. ${cust} pays at most $${top}${display ? ` for Fresh, with ${mine ? 'your' : 'a'} Premium Display` : ''}.`, detail: pays };
   }
   if (pref === 'premium') {
     return { kind: 'freshOnly', tag: 'Fresh only', headline: `Fresh only. ${mine || isYou(who) ? 'Yours' : `${who}'s`} were not Fresh.`, detail: `${cust} is a Premium customer.` };
@@ -478,7 +478,7 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
     return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${nameIn(name(next))} by $${next.price - w.price}. ${w.sold} sold.`, detail: short, tags };
   }
   const full = w.price >= l.max;
-  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at top price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
+  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
 }
 
 /** At most one rival reaction per line, based only on what happened, and the same whoever is watching (PLAN-068). */
