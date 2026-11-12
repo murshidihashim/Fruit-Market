@@ -38,8 +38,6 @@ export const daySheetOn = (s: GameState, viewer: number, c: GameController, onli
 
 /** A price tag turning over, by size and fade only: it grows from its middle line. */
 const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];
-/** How long your tags take to turn face down as you ring the bell, in ms at normal speed. */
-const SEAL_MS = 200;
 
 const piece = (c: Crate, f: FruitId, pos: number) => c[f]?.[pos] ?? 0;
 const withPiece = (c: Crate, f: FruitId, pos: number, n: number, len: number): Crate => {
@@ -116,7 +114,7 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
     const was = wasStep.current;
     wasStep.current = step;
     if (A.isReduced() || was !== 'price' || step !== 'sealed') return;
-    root.current?.querySelectorAll('.ds-tag-back').forEach((el) => el.animate(TURN, { duration: A.ms(SEAL_MS), easing: A.EASE.travel }));
+    root.current?.querySelectorAll('.ds-tag-back').forEach((el) => el.animate(TURN, { duration: A.ms(A.BEAT.price.seal), easing: A.EASE.travel }));
   }, [step]);
 
   // The Favoured Trade question, asked as it is today: once the table is still, of the stall whose turn it is.

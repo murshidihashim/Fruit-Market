@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { EVENT_CARDS, FRUIT, RIVALS, type FruitId } from '../src/engine/data';
 import { emptyStock, newGame, type GameState } from '../src/engine/game';
 import { dayStep, ownStep, type DayNow } from '../src/ui/game/daySheet';
+import { BEAT } from '../src/ui/motion';
 import { nightSteps, tonightWord } from '../src/ui/game/tonight';
 import { nth, shelfRowText, tieOrderText } from '../src/ui/panel';
 
@@ -98,7 +99,11 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(sheet).not.toMatch(/setTimeout|setInterval|onAnimationEnd|onTransitionEnd|\.finished/);
     expect(sheet).not.toMatch(/rotate|skew|steps\(/);
     expect(sheet).toContain("const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];");
+    // its lengths are named on the table's clock (motion.ts): a piece's slide, and your tags turning face down
     expect(sheet).toContain('duration: A.BEAT.stock.fly');
+    expect(sheet).toContain('duration: A.ms(A.BEAT.price.seal)');
+    expect(sheet).not.toMatch(/duration: \d|_MS = \d/);
+    expect([BEAT.stock.fly, BEAT.price.seal]).toEqual([260, 200]);
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
     expect(css).not.toMatch(/@keyframes|animation:|transition:/);
     // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin, on a short phone

@@ -48,6 +48,8 @@ export const BEAT = {
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
   /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece). */
   stock: { fly: 260 },
+  /** Pricing: your price tags turn face down as you ring the bell (flow study D3: seal 200 ms). */
+  price: { seal: 200 },
   /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
   bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
   /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
