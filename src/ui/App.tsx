@@ -2,18 +2,19 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
-import { dailyConfig, dailyTwist } from '../engine/daily';
+import { dailyConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, FriendBody, Popup, ReplaceBody, Shopfront } from './Home';
 import { startOrAsk, waitingGame } from './paused';
+import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { HowTo } from './HowTo';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
-import { LOOKS, worn } from './looks';
+import { worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { fx, setMusic } from './fx';
@@ -21,10 +22,10 @@ import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
-import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, unlocked } from './progress';
-import { GROUPS, progressOf } from './achievements';
+import { LEAGUE, leagueConfig, leagueStage } from './progress';
+import { TrophyScreen } from './Trophies';
 import {
-  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
+  consumeSaveNotice, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
   saveSettings, todayKey, type Settings,
 } from './store';
 
@@ -76,7 +77,6 @@ function Main() {
   // if the player says "Start anyway" (PLAN-081).
   const [swap, setSwap] = useState<{ what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
-  const [wardFrom, setWardFrom] = useState<Screen>('home');
   const [, refresh] = useState(0);
 
   const go = (sc: Screen) => {
@@ -139,6 +139,7 @@ function Main() {
           }
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
+        onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
       />
     );
   }
@@ -146,12 +147,10 @@ function Main() {
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
   if (screen === 'online') return <Online initialCode={joinCode ?? invite} onExit={() => { setJoinCode(undefined); go('home'); }} />;
   if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
-  if (screen === 'trophies') return <Trophies onBack={() => go('home')} onWardrobe={() => { setWardFrom('trophies'); go('wardrobe'); }} />;
-  if (screen === 'wardrobe') return <Wardrobe onBack={() => go(wardFrom)} />;
+  if (screen === 'trophies') return <TrophyScreen onBack={() => go('home')} />;
+  if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;
 
-  const daily = loadDaily();
   const today = todayKey();
-  const streak = dailyStreak(daily);
   const waiting = waitingGame(game);
   const league = leagueStage();
   const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
@@ -164,7 +163,7 @@ function Main() {
       <Shopfront
         resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
         cash={waiting ? waiting.cash : null}
-        dailyLine={`${daily[today] !== undefined ? `Today's best: $${daily[today]}` : `Same market for everyone · ${dailyTwist(today).title}`}${streak ? ` · ${streak}-day streak` : ''}`}
+        table={waiting ? game : null}
         leagueLine={league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
         today={today}
         notice={saveNotice}
@@ -173,7 +172,7 @@ function Main() {
         onFriend={() => open('friend')}
         onDaily={orAsk('the Daily market', startDaily)}
         onLeague={orAsk('a Market League game', startLeague)}
-        onWardrobe={() => { setWardFrom('home'); go('wardrobe'); }}
+        onWardrobe={() => go('wardrobe')}
         onAccount={() => open('account')}
         onTrophies={() => go('trophies')}
         onHowTo={() => go('howto')}
@@ -338,62 +337,6 @@ function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
   const computers = rivals.length - friends;
   const part = (n: number, word: string) => (n ? `, ${n} ${word}${n > 1 ? 's' : ''}` : '');
   return `${rivals.length + 1} stalls: you${part(friends, 'friend')}${part(computers, 'computer')}`;
-}
-
-function Trophies({ onBack, onWardrobe }: { onBack: () => void; onWardrobe: () => void }) {
-  const have = unlocked();
-  const sets = loadSets();
-  const [colour, setColour] = useState(loadColour());
-  const league = leagueStage();
-  return (
-    <div class="page">
-      <header class="topbar"><button class="icon-btn" onClick={onBack}>←</button><div class="day"><b>Trophies</b></div><span /></header>
-      <main class="scroll pad">
-        <button class="btn primary wide" onClick={onWardrobe}>Wardrobe: {loadLooks().length}/{LOOKS.length} looks</button>
-        <section class="panel">
-          <h3>Market League <span class="muted small">{Math.min(league, LEAGUE.length)}/{LEAGUE.length}</span></h3>
-          <ol class="league-list">
-            {LEAGUE.map((st, i) => <li class={i < league ? 'done' : i === league ? 'now' : ''}><span>{i + 1}. {st.title}</span><small>{st.rivals.length} rival{st.rivals.length > 1 ? 's' : ''} · {st.rivals.map((r) => r.level).join(', ')}</small></li>)}
-          </ol>
-        </section>
-        <section class="panel">
-          <h3>Achievements <span class="muted small">{have.length}/{ACHIEVEMENTS.length}</span></h3>
-          {GROUPS.map((t) => {
-            const list = ACHIEVEMENTS.filter((a) => a.card.group === t.id);
-            return (
-              <div class="ach-theme">
-                <h4>{t.title} <span class="muted small">{list.filter((a) => have.includes(a.id)).length}/{list.length}</span></h4>
-                <div class="ach-list">
-                  {list.map((a) => (
-                    <div class={`ach ${have.includes(a.id) ? 'got' : ''}`}>
-                      <b>{a.title}</b><small>{a.text}</small>
-                      {a.goal && !have.includes(a.id) && <small class="ach-prog">{progressOf(a, sets, loadStats())} / {a.goal.target}</small>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </section>
-        <section class="panel">
-          <h3>Stall colour</h3>
-          <p class="small muted">Pick any colour. Your awning uses it in every game.</p>
-          <div class="colour-pick">
-            {COLOURS.map((c) => {
-              const ok = colourUnlocked(c);
-              return (
-                <button type="button" class={colour === c.hex ? 'on' : ''} disabled={!ok} title={c.name}
-                  onClick={() => { saveColour(c.id); setColour(c.hex); fx.tap(); }}>
-                  <i style={{ background: `repeating-linear-gradient(90deg, ${c.hex} 0 8px, var(--cream) 8px 16px)` }} />
-                  <small>{c.name}</small>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      </main>
-    </div>
-  );
 }
 
 function SettingsScreen({ onBack }: { onBack: () => void }) {

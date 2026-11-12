@@ -1,24 +1,37 @@
-// The home screen, "Ticket Booth" (home A, PLAN-074): the black bar with the account and Dress up, a band of the four
-// fruit lanes, the title, your stall (your shopkeeper's picture), one black button, the Daily market and the Market
-// League as tickets, and Trophies, How to play and Settings on a kraft strip. The look is the game table's
-// (Market Ticket, ticket.css); the styles are in booth.css. The opening (Opening.tsx, "Lane Drop") plays on this very
-// screen: it puts "hm-intro" on <html>, which animates the title and everything under the band into place.
-import { useEffect, useState } from 'preact/hooks';
+// The home screen, "Ticket Booth" (PLAN-074; DEC-097, boards "Home-A", "Home-B" and "Home-Waiting"): the black bar
+// with the account and the Wardrobe (your shopkeeper's picture, dressed), a band of the four fruit lanes, the title,
+// a row that is swiped sideways (today's market first, your next goals one swipe on, and your table first when a game
+// is waiting), dots that can also be tapped, one black button, the Market League as a ticket, and Trophies, How to
+// play and Settings on a kraft strip. The look is the game table's (Market Ticket, ticket.css); the styles are in
+// booth.css. The opening (Opening.tsx, "Lane Drop") plays on this very screen: it puts "hm-intro" on <html>, which
+// animates the title and everything under the band into place.
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { RIVALS, type FruitId } from '../engine/data';
+import { dailyConfig } from '../engine/daily';
+import { stageAt, type FruitId } from '../engine/data';
+import { activePlayer, count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
+import { LOOKS } from '../net/looks';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
-import { shopScene } from './deckArt';
+import { TIER_COUNT, standing } from './achievements';
+import { CALM_ART, eventArt, eventFocus, focusCss } from './deckArt';
+import { newsChips } from './eventChips';
 import { FruitSvg } from './fruitIcons';
-import { myAvatar } from './Wardrobe';
+import { myAvatar, worn } from './looks';
+import { snapshot } from './progress';
+import { FramedFace, TrophyPic, shownAvatar } from './stampCard';
+import { goals } from './stamps';
+import { loadDaily } from './store';
+import { currentStreak } from './streak';
 
 export interface ShopProps {
   /** "Day 4/10" when a game is waiting to be continued, else null. */
   resume: string | null;
   /** Your cash in the waiting game (one person at the table), else null. */
   cash: number | null;
-  dailyLine: string;
+  /** The game that is waiting, for its page in the row (null when none is). */
+  table: GameState | null;
   leagueLine: string;
   today: string;
   notice: string | null;
@@ -44,31 +57,168 @@ export function LaneBand({ class: cls, style }: { class?: string; style?: string
   );
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** "11 Nov" from a date key. */
+const shortDate = (key: string): string => { const [, m, d] = key.split('-').map(Number); return `${d} ${MONTHS[(m || 1) - 1]}`; };
+
+/** Today's market (the first page): today's event and its effect, what the lorry brings, how many have played and the
+ *  best so far, and one button to play. The event and the lorry are the first morning of today's Daily market, which is
+ *  the same for everyone and public from its first screen. */
+function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
+  const first = useMemo(() => newGame(dailyConfig(today, 'You')), [today]);
+  const [res, setRes] = useState<BoardResult | null>(null);
+  useEffect(() => { let alive = true; void fetchDaily(today).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [today]);
+  const daily = loadDaily();
+  const streak = currentStreak(Object.keys(daily), today);
+  const e = first.event;
+  const chip = newsChips(e)[0];
+  const src = e ? eventArt(e.id) : CALM_ART;
+  const best = res && !res.error && res.top.length ? res.top[0].cash : null;
+  return (
+    <div class="hm-slot" data-page="today">
+      <div class="hm-sh"><span>Today's market · {shortDate(today)}</span>{streak > 0 && <b>{streak}-day streak</b>}</div>
+      <div class="hm-sb">
+        <div class="hm-t1">
+          <div class="hm-ev">
+            {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: focusCss(eventFocus(e ? e.id : 'calm')) }} />}
+            <span class="hm-evn">{e ? e.title : 'Calm Day'}</span>
+            <span class="hm-chip">{chip ? `${chip.big} ${chip.small.toLowerCase()}` : 'No event today'}</span>
+          </div>
+          <div class="hm-tr">
+            <span class="hm-lb">Today's lorry brings</span>
+            <div class="hm-ln4">{LANES.map((f) => <span class={`hm-ln f-${f}`}><i><FruitSvg id={f} size={16} alt={f} /></i>{first.delivery[f] ?? 0}</span>)}</div>
+            <span class="hm-lb">Same market for all</span>
+            <span class="hm-st">
+              {daily[today] !== undefined ? <>Your best today <b>${daily[today]}</b></> : best !== null ? <><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></> : 'First try counts on the board'}
+            </span>
+          </div>
+        </div>
+        <button class="hm-act" onClick={onDaily}><PlayIcon />Play today's market</button>
+      </div>
+    </div>
+  );
+}
+
+/** Your next goals (one swipe on): the three trophy tiers nearest to done, with progress and what each gives. */
+function GoalsPage() {
+  const snap = snapshot();
+  const three = goals(snap).slice(0, 3);
+  const held = standing(snap).length;
+  return (
+    <div class="hm-slot" data-page="goals">
+      <div class="hm-sh"><span>Your next goals</span><b>{held} of {TIER_COUNT} tiers</b></div>
+      <div class="hm-sb hm-goals">
+        {three.map((g) => {
+          const look = LOOKS.find((l) => l.from.kind === 'trophy' && l.from.id === g.step.id);
+          return (
+            <div class="hm-gl">
+              <span class="hm-sw"><TrophyPic pic={g.card.pic} /></span>
+              <span class="hm-gt"><b>{g.step.text.replace(/\.$/, '')}</b><span>{look ? `Unlocks ${look.title} · +${g.stamps} stamps` : `+${g.stamps} stamps`}</span></span>
+              <span class="hm-pg">{g.card.money ? `$${g.value}/$${g.goal}` : `${g.value}/${g.goal}`}<span class="hm-pb"><i style={{ width: `${Math.round(g.share * 100)}%` }} /></span></span>
+            </div>
+          );
+        })}
+        {three.length === 0 && <p class="hm-st">Every trophy tier is earned.</p>}
+      </div>
+    </div>
+  );
+}
+
+const PHASE_WORDS: Record<string, string> = {
+  morning: 'The morning news is in.', order: 'A standing order is up for bids.', stall: 'Time to fill your crate.', bid: 'Time to set your prices.',
+  tie: 'A tied price to settle.', reveal: 'The rush is on.', evening: 'It is evening.',
+};
+
+/** Your table (first when a game is waiting): the day, your shelf and cash when one person plays, every stall's cash
+ *  (which the table shows to all), and where the game stopped. A shared phone shows no shelf: it is one person's secret. */
+function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
+  const solo = cash !== null;
+  const me = g.players.findIndex((p) => p.kind === 'human');
+  const pl = g.players[me];
+  const order = g.players.map((_, i) => i).sort((a, b) => g.players[b].cash - g.players[a].cash);
+  const pieces = solo && pl ? LANES.flatMap((f) => pl.stock[f].flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) })))) : [];
+  const size = pl ? shelfSize(pl) : 8;
+  const turn = activePlayer(g);
+  const place = g.order.indexOf(me) + 1;
+  const where = g.phase === 'buy'
+    ? `${place > 0 ? `You buy ${['first', 'second', 'third', 'fourth', 'fifth', 'sixth'][place - 1] ?? ''}. ` : ''}${turn === me ? 'It is your turn to buy.' : ''}`
+    : PHASE_WORDS[g.phase] ?? '';
+  return (
+    <div class="hm-slot" data-page="table">
+      <div class="hm-sh"><span>Your table · day {g.day} of {g.config.days}</span>{solo && <b>You have ${cash}</b>}</div>
+      <div class="hm-sb">
+        <div class={`hm-wt ${solo ? '' : 'one'}`}>
+          {solo && pl && (
+            <div class="hm-cl">
+              <span class="hm-lb">Your shelf · {count(pl.stock)} of {size}</span>
+              <div class="hm-shf">
+                {Array.from({ length: Math.max(size, pieces.length) }, (_, i) => (pieces[i]
+                  ? <span class="hm-sl"><FruitSvg id={pieces[i].f} stage={pieces[i].stage} size={24} alt={pieces[i].f} /></span>
+                  : <span class="hm-sl e" role="img" aria-label="Empty space" />))}
+              </div>
+            </div>
+          )}
+          <div class="hm-cl">
+            <span class="hm-lb">The table</span>
+            {order.map((i) => (
+              <span class={`hm-rw ${solo && i === me ? 'me' : ''}`}>
+                <FramedFace who={shownAvatar(g.players, i)} size={20} look={i === me ? worn() : g.players[i].look} />
+                <span>{solo && i === me ? 'You' : g.players[i].name}</span><b>${g.players[i].cash}</b>
+              </span>
+            ))}
+          </div>
+        </div>
+        <div class="hm-nb"><b>Today: {g.event ? g.event.title : 'Calm Day'}.</b> {where}</div>
+      </div>
+    </div>
+  );
+}
+
 export function Shopfront(p: ShopProps) {
   const me = signedInAs();
-  const avatar = myAvatar();
-  const keeper = RIVALS.find((r) => r.avatar === avatar);
-  const scene = shopScene(avatar);
+  const pages = [...(p.table ? ['table'] : []), 'today', 'goals'];
+  const names: Record<string, string> = { table: 'Your table', today: 'Today\'s market', goals: 'Your next goals' };
+  const [page, setPage] = useState(0);
+  const car = useRef<HTMLDivElement>(null);
+  // The row is swiped with a finger (it scrolls sideways and stops on a page); the dots follow, and a tap on a dot
+  // moves the row. Reduced motion: the row jumps.
+  const onScroll = () => {
+    const el = car.current;
+    if (!el || !el.firstElementChild) return;
+    const w = (el.firstElementChild as HTMLElement).offsetWidth + 8;
+    setPage(Math.max(0, Math.min(pages.length - 1, Math.round(el.scrollLeft / w))));
+  };
+  const goTo = (i: number) => {
+    const el = car.current;
+    const slot = el?.children[i] as HTMLElement | undefined;
+    if (!el || !slot) return;
+    const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollTo({ left: slot.offsetLeft - el.offsetLeft - 16, behavior: still ? 'auto' : 'smooth' });
+    setPage(i);
+  };
+  const hint = page === 0 ? (pages[1] === 'today' ? 'Swipe for today' : 'Swipe for your goals') : page === pages.length - 1 ? `Swipe back for ${pages[0] === 'table' ? 'your table' : 'today'}` : 'Swipe for your goals';
   return (
     <div class="home hm">
       <div class="hm-in">
         <header class="hm-bar">
           {accountsAvailable() ? <button class="hm-acct" onClick={p.onAccount}><PersonIcon /><span>{me ? `Hi, ${me}` : 'Create account'}</span></button> : <span />}
-          <button class="hm-dress" onClick={p.onWardrobe}><ShirtIcon /><span>Dress up</span></button>
+          <button class="hm-dress" onClick={p.onWardrobe}><FramedFace who={myAvatar()} size={32} look={worn()} /><span>Wardrobe</span></button>
         </header>
         <LaneBand />
         <div class="hm-title">
           <h1 class="hm-name">Fruit<br />Market</h1>
-          <p>Where the whole world shops <span>…and every price is a secret</span></p>
+          <p>Run a fruit stall. <span>Every price is a secret.</span></p>
         </div>
         <div class="hm-rest">
           {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
-          <div class="hm-stall">
-            <div class="hm-stall-head"><span>Your stall{keeper ? ` · ${keeper.name}` : ''}</span>{p.resume && <b>{p.resume.replace('/', ' of ')}</b>}</div>
-            <div class="hm-stall-pic">
-              {scene && <img src={scene} alt="" decoding="async" draggable={false} />}
-              {p.resume && p.cash !== null && <b class="hm-cash">${p.cash}</b>}
-            </div>
+          <div class="hm-car" ref={car} onScroll={onScroll}>
+            {p.table && <TablePage g={p.table} cash={p.cash} />}
+            <TodayPage today={p.today} onDaily={p.onDaily} />
+            <GoalsPage />
+          </div>
+          <div class="hm-dots">
+            {pages.map((id, i) => <button type="button" class={i === page ? 'on' : ''} aria-label={names[id]} aria-current={i === page ? 'true' : undefined} onClick={() => goTo(i)} />)}
+            <span>{hint}</span>
           </div>
           <div class="hm-play">
             {p.resume ? (
@@ -87,17 +237,11 @@ export function Shopfront(p: ShopProps) {
             )}
           </div>
           <div class="hm-tickets">
-            <button class="hm-tk" onClick={p.onDaily}>
-              <span class="hm-tk-ic"><DailyIcon /></span>
-              <span class="hm-tk-txt"><small class="red">Daily market</small><span>{p.dailyLine}</span></span>
-              <span class="hm-tk-go">Play</span>
-            </button>
             <button class="hm-tk" onClick={p.onLeague}>
               <span class="hm-tk-ic"><TrophyIcon /></span>
               <span class="hm-tk-txt"><small>Market League</small><span>{p.leagueLine}</span></span>
             </button>
           </div>
-          <DailyPeek date={p.today} />
           <nav class="hm-foot">
             <button onClick={p.onTrophies}>Trophies</button>
             <button onClick={p.onHowTo}>How to play</button>
@@ -163,7 +307,7 @@ export function FriendBody({ onCreate, onJoin, onQuick }: { onCreate: () => void
   const ok = clean.length === CODE_LENGTH;
   return (
     <>
-      <button class="btn primary big wide popup-opt" onClick={onCreate}><b>Create a room</b><small>Share a link with 1 to 3 friends</small></button>
+      <button class="btn primary big wide popup-opt" onClick={onCreate}><b>Create a room</b><small>Share a link with 1 to 5 friends</small></button>
       <div class="acct-field">
         <label class="small" for="join-code">Join with a code</label>
         <div class="join-row">
@@ -172,20 +316,8 @@ export function FriendBody({ onCreate, onJoin, onQuick }: { onCreate: () => void
           <button class="btn" disabled={!ok} onClick={() => onJoin(clean)}>Join</button>
         </div>
       </div>
-      <button class="btn wide popup-opt" onClick={onQuick}><b>Quick match</b><small>Meet a stranger, 2 players</small></button>
+      <button class="btn wide popup-opt" onClick={onQuick}><b>Quick match</b><small>Play a stranger, 2 players</small></button>
     </>
-  );
-}
-
-function DailyPeek({ date }: { date: string }) {
-  const [res, setRes] = useState<BoardResult | null>(null);
-  useEffect(() => { let alive = true; void fetchDaily(date).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [date]);
-  if (!res || res.error || !res.top.length) return null;
-  return (
-    <div class="daily-peek" aria-label="Today's leaderboard">
-      <small>Today's top stalls{res.players ? ` · ${res.players} played` : ''}</small>
-      {res.top.slice(0, 3).map((e, i) => <span><b>{i + 1}.</b> {e.name} <b>${e.cash}</b></span>)}
-    </div>
   );
 }
 
@@ -195,16 +327,8 @@ function PersonIcon() {
   return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" {...line}><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" /></svg>;
 }
 
-function ShirtIcon() {
-  return <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" {...line}><path d="M8 3 3 7l3 3 2-1v12h8V9l2 1 3-3-5-4c-1 2-2.5 3-4 3S9 5 8 3Z" /></svg>;
-}
-
 function PlayIcon() {
   return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>;
-}
-
-function DailyIcon() {
-  return <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" {...line} stroke-width="2"><rect x="3" y="5" width="18" height="16" /><path d="M3 10h18M8 3v4M16 3v4" /><circle cx="12" cy="15.5" r="2" /></svg>;
 }
 
 function TrophyIcon() {

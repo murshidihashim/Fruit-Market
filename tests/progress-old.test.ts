@@ -98,7 +98,10 @@ describe('progress stored by the live game loads', () => {
     const had = loadLooks();
     const fresh = syncLooks().map((l) => l.id);
     for (const id of had) expect(loadLooks(), id).toContain(id);
-    expect(worn()).toEqual({ hat: 'gold_crown', neck: 'scarf', roof: 'roof_stars', prop: 'prop_cat', colour: 'col_teal' });
+    // what was on is still on; the rank reached shows by itself (its title and frame), until the player picks another
+    const rank = myPlace().rankNo;
+    expect(rank).toBeGreaterThanOrEqual(3);
+    expect(worn()).toEqual({ hat: 'gold_crown', neck: 'scarf', roof: 'roof_stars', prop: 'prop_cat', colour: 'col_teal', title: `title_rank${rank}`, frame: ['', 'frame_plain', 'frame_painted', 'frame_lantern', 'frame_brass', 'frame_carved', 'frame_gold'][rank] });
     expect(fresh).toEqual(expect.arrayContaining(['title_league', 'title_rank2', 'frame_painted', 'tag_chalk', 'bell_bicycle', 'coin_jar', 'stamp_soldout']));
     // a skill title is not handed out for a trophy from before: nobody knows who the rivals were
     expect(fresh).not.toContain('title_rich');
@@ -159,7 +162,7 @@ describe('progress stored by the live game loads', () => {
     expect(myStamps().total).toBe(0);
     expect(myPlace()).toMatchObject({ level: 1, filled: 0, size: 15 });
     expect(syncLooks()).toEqual([]);
-    expect(worn()).toEqual({});
+    expect(worn()).toEqual({ title: 'title_rank1', frame: 'frame_plain' });
   });
 
   it('damaged entries fall back to empty and never stop the rest from loading', () => {

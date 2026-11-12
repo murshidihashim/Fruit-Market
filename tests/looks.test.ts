@@ -134,12 +134,24 @@ describe('owning and wearing', () => {
     const looks = await import('../src/ui/looks');
     store.set('fm.ach', JSON.stringify(['first_win', 'league']));
     looks.syncLooks();
-    expect(looks.toggleLook('monocle')).toEqual({}); // not owned
-    expect(looks.toggleLook('straw_boater')).toEqual({ hat: 'straw_boater' });
-    expect(looks.toggleLook('gold_crown')).toEqual({ hat: 'gold_crown' }); // same slot: replaces
+    // PLAN-086: the first rank's title and plain frame are on from the start, until the player picks another.
+    const sign = { title: 'title_rank1', frame: 'frame_plain' };
+    expect(looks.toggleLook('monocle')).toEqual(sign); // not owned
+    expect(looks.toggleLook('straw_boater')).toEqual({ ...sign, hat: 'straw_boater' });
+    expect(looks.toggleLook('gold_crown')).toEqual({ ...sign, hat: 'gold_crown' }); // same slot: replaces
     expect(looks.wornParts()).toEqual(['gold_crown']);
-    expect(looks.toggleLook('gold_crown')).toEqual({});
+    expect(looks.toggleLook('gold_crown')).toEqual(sign);
     expect(looks.wornParts()).toEqual([]);
+    // a title earned with a trophy can be picked in its place, and taken off again
+    expect(looks.toggleLook('title_league')).toEqual({ ...sign, title: 'title_league' });
+    expect(looks.toggleLook('title_league')).toEqual(sign);
+    // the stall colour is a look like the others, kept where it always was
+    expect(looks.toggleLook('col_teal')).toEqual({ ...sign, colour: 'col_teal' });
+    expect(store.get('fm.colour')).toBe('"teal"');
+    expect(store.get('fm.worn')).toBe('{}');
+    // a sound is put on like a look and never shown to others
+    expect(looks.toggleLook('bell_brass')).toEqual({ ...sign, colour: 'col_teal' });
+    expect(looks.wornSounds()).toEqual({ bell: 'bell_brass', coin: 'coin_till' });
   });
 
   it('ignores a worn look that is no longer owned or sits in the wrong slot', async () => {

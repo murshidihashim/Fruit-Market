@@ -1,0 +1,219 @@
+/* =====================================================================
+   The stamp book screens (PLAN-086, DEC-099, DEC-103): the results, Trophies (the stamp book, the trophy cards, the
+   collection) and the Wardrobe, as drawn on the boards in docs/studio/review-18/mockups (Results, Stamp-Book,
+   Trophy-Cards, Wardrobe). The look is the game table's: ink, paper, kraft, mustard, square corners.
+   Every rule starts with ".sbk" (the root of each of these screens), so nothing here reaches another screen and the
+   older page styles do not reach in. Colours come from palette.css only. Nothing here is animated by the stylesheet:
+   the stamps are moved by the results screen itself, on the game's one clock (motion.ts).
+   ===================================================================== */
+.sbk {
+  --k-ink: var(--c-1f272a); --k-paper: var(--c-fffcf5); --k-kraft: var(--c-ddd4c6); --k-pale: var(--c-efe9df); --k-stone: var(--c-c9b8a0);
+  --k-slate: var(--c-5a6266); --k-yel: var(--c-fec400); --k-red: var(--c-e73c35); --k-red-d: var(--c-b62528); --k-green: var(--c-0e9a58);
+  --k-bronze: var(--c-c99563); --k-new: var(--c-fff2c2);
+  height: 100%; min-height: 0; display: flex; flex-direction: column; background: var(--k-paper); color: var(--k-ink); color-scheme: light;
+  font: 600 0.75rem/1.3 var(--f-label); text-align: left;
+}
+.sbk button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0; text-align: inherit; }
+.sbk button:focus-visible { outline: 3px solid var(--k-yel); outline-offset: -3px; }
+.sbk b { font-weight: 800; }
+.sbk p { margin: 0; line-height: 1.3; }
+.sbk h1, .sbk h2 { margin: 0; color: inherit; text-shadow: none; }
+.sbk .sbk-lab { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.sbk .sbk-sub { color: var(--k-slate); }
+.sbk .sbk-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sbk .sbk-in { width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; }
+.sbk .sbk-sec { padding: 10px 12px 0; display: flex; flex-direction: column; gap: 5px; }
+.sbk .sbk-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+
+/* ---------- the black bar and the tabs ---------- */
+.sbk .sbk-bar {
+  flex: none; min-height: 52px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; background: var(--k-ink); color: var(--k-paper);
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+}
+.sbk .sbk-back { width: 44px; height: 44px; margin-left: -10px; display: grid; place-items: center; color: var(--k-paper); }
+.sbk .sbk-bar h1 { font: 400 1.125rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0; }
+.sbk .sbk-lv { margin-left: auto; background: var(--k-yel); color: var(--k-ink); padding: 6px 8px; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.sbk .sbk-tabs { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 2px solid var(--k-ink); }
+.sbk .sbk-tabs button { min-height: 36px; padding: 4px 2px; text-align: center; font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.sbk .sbk-tabs button.on { background: var(--k-yel); }
+
+/* ---------- shared parts: the stamp card, pips, the awning strip, the signboard ---------- */
+.sbk .sbk-card { border: 2px solid var(--k-ink); display: flex; flex-direction: column; background: var(--k-paper); }
+.sbk .sbk-ch { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--k-ink); color: var(--k-paper); padding: 7px 9px; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.sbk .sbk-ch b { color: var(--k-yel); }
+.sbk .sbk-perf { height: 0; border-top: 2px dashed var(--k-ink); margin: 0 9px; }
+.sbk .sbk-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+.sbk .sbk-cell, .sbk-fly { aspect-ratio: 1; border: 1.5px dashed var(--k-stone); border-radius: 50%; box-sizing: border-box; display: block; }
+.sbk .sbk-cell.s { border: 2px solid var(--k-ink); background: radial-gradient(circle, var(--k-ink) 0 34%, var(--k-paper) 35% 52%, var(--k-ink) 53% 100%); }
+.sbk .sbk-cell.n, .sbk-fly { border: 2px solid var(--c-b62528); background: radial-gradient(circle, var(--c-b62528) 0 34%, var(--c-fffcf5) 35% 52%, var(--c-b62528) 53% 100%); transform: rotate(-12deg); }
+/* a stamp on its way from its line to the card (the results move it; it takes no taps and no room) */
+.sbk-fly { position: fixed; left: 0; top: 0; z-index: 30; margin: 0; pointer-events: none; will-change: transform; }
+.sbk .sbk-pip { width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box; display: grid; place-items: center; flex: none; font: 800 0.5625rem/1 var(--f-label); font-style: normal; border: 1.5px dashed var(--k-stone); color: var(--k-stone); }
+.sbk .sbk-pip.on { border: 2px solid var(--k-ink); color: var(--k-ink); }
+.sbk .sbk-pip.on.bronze { background: var(--k-bronze); }
+.sbk .sbk-pip.on.silver { background: var(--k-kraft); }
+.sbk .sbk-pip.on.gold { background: var(--k-yel); }
+.sbk .sbk-pip.new { box-shadow: 0 0 0 2px var(--k-red-d); }
+.sbk .sbk-awn { height: 14px; flex: none; position: relative; border-bottom: 2px solid var(--k-ink); margin-bottom: 7px; background: repeating-linear-gradient(90deg, var(--a, var(--k-red)) 0 14px, var(--k-paper) 14px 28px); }
+.sbk .sbk-awn::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 7px;
+  background: radial-gradient(circle at 7px 0, var(--a, var(--k-red)) 0 6px, transparent 6.5px) 0 0 / 28px 7px repeat-x, radial-gradient(circle at 21px 0, var(--k-paper) 0 6px, transparent 6.5px) 0 0 / 28px 7px repeat-x;
+}
+.sbk .sbk-awn.thin { height: 8px; }
+.sbk .sbk-pg { height: 6px; background: var(--k-kraft); position: relative; display: block; }
+.sbk .sbk-pg i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--k-ink); }
+
+/* the signboard: your stall's name, your title and your level, in the frame you have on */
+.sbk .sbk-sign { margin: 10px 12px 0; border: 2px solid var(--k-ink); outline: 2px solid var(--k-ink); outline-offset: 3px; display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--k-paper); min-width: 0; }
+.sbk .sbk-sign .sbk-pic { width: 56px; height: 56px; flex: none; border: 2px solid var(--k-ink); box-sizing: border-box; overflow: hidden; background: var(--k-kraft); }
+.sbk .sbk-pic img.sbk-scene { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; display: block; }
+.sbk .sbk-sign-tx { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sbk .sbk-sign h2 { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.sbk .sbk-sign .sbk-lvl { margin-left: auto; text-align: center; flex: none; }
+.sbk .sbk-sign .sbk-lvl b { display: block; font: 400 1.875rem/1 var(--f-display); }
+/* frames (simple line work): the first is a single rule; each rank adds to it */
+.sbk .fr-plain { outline: 0; }
+.sbk .fr-painted { outline: 2px solid var(--k-ink); }
+.sbk .fr-lantern { outline: 2px dashed var(--k-red-d); }
+.sbk .fr-brass { outline: 3px solid var(--k-yel); box-shadow: 0 0 0 7px var(--k-ink); }
+.sbk .fr-carved { outline: 4px double var(--k-ink); outline-offset: 2px; background: var(--k-pale); }
+.sbk .fr-gold { outline: 4px double var(--k-yel); outline-offset: 2px; box-shadow: 0 0 0 9px var(--k-ink); }
+/* a small portrait in a frame (the results rows, the lobby) */
+.sbk-face { position: relative; display: inline-grid; place-items: center; flex: none; padding: 1px; border: 1.5px solid var(--c-1f272a); background: var(--c-fffcf5); line-height: 0; }
+.sbk-face .xf { border-radius: 0; box-shadow: none; }
+.sbk-face .xf .xf-img, .sbk-face .xf-clip { border-radius: 0; }
+.sbk-face.fr-painted { outline: 1.5px solid var(--c-1f272a); outline-offset: 1px; }
+.sbk-face.fr-lantern { outline: 1.5px dashed var(--c-b62528); outline-offset: 1px; }
+.sbk-face.fr-brass { border-color: var(--c-fec400); outline: 1.5px solid var(--c-1f272a); }
+.sbk-face.fr-carved { outline: 3px double var(--c-1f272a); outline-offset: 0; }
+.sbk-face.fr-gold { border-color: var(--c-fec400); outline: 3px double var(--c-fec400); outline-offset: 0; }
+/* price-tag styles (levels 2, 5 and 8): the same digits, size and weight in each */
+.sbk-tag { display: inline-grid; place-items: center; min-width: 30px; height: 22px; padding: 0 5px; box-sizing: border-box; border: 2px solid var(--c-1f272a); background: var(--c-fffcf5); color: var(--c-1f272a); font: 400 0.8125rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.sbk-tag.tg-chalk { background: var(--c-1f272a); color: var(--c-fffcf5); border-style: dashed; border-color: var(--c-fffcf5); outline: 2px solid var(--c-1f272a); }
+.sbk-tag.tg-star { background: var(--c-fec400); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); height: 26px; padding-bottom: 4px; }
+.sbk-tag.tg-hand { border-width: 2px 2px 4px 2px; transform: rotate(-3deg); background: var(--c-efe9df); }
+/* the "Sold out" results stamp (level 10) */
+.sbk-stamp { display: inline-block; flex: none; padding: 2px 4px; border: 2px solid var(--c-b62528); color: var(--c-b62528); font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; transform: rotate(-8deg); white-space: nowrap; }
+
+/* ---------- the results ---------- */
+.game.tkt.sbk-over > .scroll { padding: 0; gap: 0; background: var(--c-fffcf5); }
+.sbk.sbk-res { height: auto; min-height: 100%; flex: 1 0 auto; }
+.sbk .sbk-win { background: var(--k-ink); color: var(--k-paper); padding: calc(12px + env(safe-area-inset-top)) 12px 14px; display: flex; align-items: center; gap: 10px; }
+.sbk .sbk-win .sbk-pic { width: 64px; height: 64px; flex: none; border: 2px solid var(--k-yel); box-sizing: border-box; overflow: hidden; background: var(--k-kraft); display: grid; place-items: center; }
+.sbk .sbk-win small { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--k-yel); }
+.sbk .sbk-win h2 { margin: 4px 0 3px; font: 400 1.875rem/0.95 var(--f-display); text-transform: uppercase; color: var(--k-paper); overflow-wrap: anywhere; }
+.sbk .sbk-win.long h2 { font-size: 1.25rem; line-height: 1.05; }
+.sbk .sbk-pods { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px 0; }
+.sbk .sbk-pod { display: flex; align-items: center; gap: 7px; border: 2px solid var(--k-ink); padding: 0 7px 0 0; min-height: 36px; background: var(--k-paper); }
+.sbk .sbk-pod.me { background: var(--k-yel); }
+.sbk .sbk-pod .sbk-sw { align-self: stretch; width: 10px; flex: none; border-right: 2px solid var(--k-ink); background: repeating-linear-gradient(0deg, var(--a) 0 6px, var(--k-paper) 6px 12px); }
+.sbk .sbk-pod .sbk-md { width: 30px; flex: none; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.06em; }
+.sbk .sbk-pod .sbk-nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sbk .sbk-pod .sbk-nm b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbk .sbk-pod .sbk-nm small { font: 700 0.5625rem/1 var(--f-label); color: var(--k-slate); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbk .sbk-pod.me .sbk-nm small { color: var(--k-ink); }
+.sbk .sbk-pod .sbk-cs { margin-left: auto; flex: none; font: 400 1.0625rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.sbk .sbk-note { margin: 8px 12px 0; padding: 6px 8px; background: var(--k-pale); font-weight: 700; }
+.sbk .sbk-note.good { background: var(--k-green); color: var(--k-paper); }
+.sbk .sbk-earn { display: flex; align-items: center; gap: 8px; padding: 5px 9px; min-height: 20px; }
+.sbk .sbk-earn > b { width: 30px; flex: none; font: 400 0.9375rem/1 var(--f-display); color: var(--k-red-d); }
+.sbk .sbk-earn .sbk-pip { margin-left: auto; }
+.sbk .sbk-earn.wait, .sbk .sbk-wait { visibility: hidden; }
+.sbk .sbk-next { display: flex; align-items: center; gap: 8px; padding: 8px 9px; background: var(--k-yel); min-height: 18px; }
+.sbk .sbk-next b { font: 400 0.8125rem/1.1 var(--f-display); }
+.sbk .sbk-close { display: flex; gap: 6px; }
+.sbk .sbk-close > span { flex: 1 1 0; min-width: 0; border: 2px dashed var(--k-ink); padding: 6px 8px; display: flex; flex-direction: column; gap: 3px; }
+.sbk .sbk-more { padding: 10px 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.sbk .sbk-more .sbk-box { border: 2px solid var(--k-ink); padding: 8px 9px; display: flex; flex-direction: column; gap: 4px; }
+.sbk .sbk-more svg { width: 100%; height: auto; display: block; }
+.sbk .sbk-key { display: flex; flex-wrap: wrap; gap: 3px 10px; font-weight: 700; }
+.sbk .sbk-key i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
+.sbk .sbk-rc { padding-left: 8px; border-left: 3px solid var(--k-ink); font-weight: 500; }
+.sbk .sbk-board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.sbk .sbk-board li { display: flex; align-items: center; gap: 6px; padding: 3px 6px; background: var(--k-pale); }
+.sbk .sbk-board li.me { background: var(--k-yel); }
+.sbk .sbk-board li b:last-child { margin-left: auto; font: 400 0.875rem/1 var(--f-display); }
+/* the buttons stay in reach at the bottom of the screen while the page scrolls */
+.sbk .sbk-acts { position: sticky; bottom: 0; z-index: 2; margin-top: auto; background: var(--k-paper); padding: 8px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); display: flex; flex-direction: column; gap: 6px; }
+.sbk .sbk-btns { display: flex; gap: 6px; }
+.sbk .sbk-btn { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 0 8px; background: var(--k-ink); color: var(--k-yel); font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.04em; text-align: center; }
+.sbk .sbk-btn.gh { background: var(--k-paper); color: var(--k-ink); box-shadow: inset 0 0 0 2px var(--k-ink); font-size: 0.75rem; }
+.sbk .sbk-btn:disabled { opacity: 0.45; cursor: default; }
+.sbk .sbk-foot { display: flex; justify-content: space-between; gap: 8px; color: var(--k-slate); }
+.sbk .sbk-foot button { text-decoration: underline; color: var(--k-ink); min-height: 24px; }
+
+/* ---------- Trophies: the stamp book ---------- */
+.sbk .sbk-how { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; padding: 8px 9px; background: var(--k-kraft); }
+.sbk .sbk-how b { text-align: right; }
+.sbk .sbk-rk { display: flex; align-items: center; gap: 8px; border: 2px solid var(--k-ink); padding: 3px 8px; min-height: 30px; }
+.sbk .sbk-rk .sbk-n { width: 22px; height: 22px; flex: none; background: var(--k-ink); color: var(--k-paper); display: grid; place-items: center; font: 800 0.6875rem/1 var(--f-label); }
+.sbk .sbk-rk.done { background: var(--k-pale); }
+.sbk .sbk-rk.done .sbk-n { background: var(--k-green); }
+.sbk .sbk-rk.now { background: var(--k-yel); }
+.sbk .sbk-rk.later { border-style: dashed; color: var(--k-slate); }
+.sbk .sbk-rk.later .sbk-n { background: var(--k-stone); }
+.sbk .sbk-rk .sbk-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sbk .sbk-rk .sbk-t b { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
+.sbk .sbk-rk .sbk-r { margin-left: auto; font: 700 0.625rem/1.2 var(--f-label); text-align: right; max-width: 46%; }
+.sbk .sbk-rew { display: flex; gap: 3px; flex-wrap: wrap; padding: 5px 6px; border: 2px solid var(--k-ink); border-top: 0; margin-top: -5px; }
+.sbk .sbk-rew span { border: 1.5px solid var(--k-ink); padding: 3px 5px; font-size: 0.625rem; background: var(--k-paper); }
+.sbk .sbk-rew .got { background: var(--k-ink); color: var(--k-paper); }
+.sbk .sbk-rew .nx { background: var(--k-yel); }
+.sbk .sbk-rew .soon { border-style: dashed; color: var(--k-slate); }
+
+/* ---------- Trophies: the cards ---------- */
+.sbk .sbk-strip { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: var(--k-kraft); }
+.sbk .sbk-strip > span:last-child { display: flex; align-items: center; gap: 4px; }
+.sbk .sbk-tc { display: flex; align-items: stretch; border: 2px solid var(--k-ink); min-height: 54px; background: var(--k-paper); }
+.sbk .sbk-tc.new { background: var(--k-new); }
+.sbk .sbk-tc .sbk-pic { width: 54px; flex: none; border-right: 2px solid var(--k-ink); overflow: hidden; background: var(--k-kraft); display: grid; place-items: center; }
+.sbk .sbk-tc .sbk-pic img.sbk-art { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sbk .sbk-tc .sbk-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 5px 8px; }
+.sbk .sbk-tc .sbk-tx b { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
+.sbk .sbk-tc .sbk-pips { display: flex; align-items: center; gap: 4px; padding: 0 8px; flex: none; }
+
+/* ---------- Trophies: the collection ---------- */
+.sbk .sbk-thumbs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+.sbk .sbk-th { aspect-ratio: 1; border: 2px solid var(--k-ink); box-sizing: border-box; overflow: hidden; background: var(--k-kraft); display: block; position: relative; }
+.sbk .sbk-th img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; display: block; }
+.sbk .sbk-th.no { display: grid; place-items: center; border-style: dashed; font: 400 1.125rem/1 var(--f-display); color: var(--k-stone); }
+.sbk .sbk-th small { position: absolute; left: 0; right: 0; bottom: 0; padding: 1px 2px; background: var(--k-ink); color: var(--k-paper); font: 700 0.4375rem/1.1 var(--f-label); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- the Wardrobe ---------- */
+.sbk .sbk-stage { margin: 10px 12px 0; border: 2px solid var(--k-ink); outline: 2px solid var(--k-ink); outline-offset: 3px; background: var(--k-paper); }
+.sbk .sbk-stage .sbk-srow { display: flex; align-items: center; gap: 10px; padding: 6px 8px 8px; min-width: 0; }
+.sbk .sbk-stage .sbk-sc { width: 84px; height: 84px; flex: none; overflow: hidden; border: 2px solid var(--k-ink); box-sizing: border-box; background: var(--k-kraft); display: grid; place-items: center; position: relative; }
+.sbk .sbk-stage .sbk-sc .sbk-prop { position: absolute; right: 2px; bottom: 2px; }
+.sbk .sbk-stage .sbk-snm { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.sbk .sbk-stage .sbk-snm > b { font: 400 1.1875rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.sbk .sbk-where { display: flex; gap: 6px; }
+.sbk .sbk-where > div { flex: 1 1 0; min-width: 0; border: 2px solid var(--k-ink); display: flex; flex-direction: column; }
+.sbk .sbk-where .sbk-cap { padding: 4px 6px; background: var(--k-ink); color: var(--k-paper); font: 800 0.53rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.sbk .sbk-where .sbk-wi { display: flex; align-items: center; gap: 6px; padding: 3px 6px 6px; min-width: 0; }
+.sbk .sbk-where .sbk-wi > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbk .sbk-slot { display: flex; align-items: center; gap: 8px; border: 2px solid var(--k-ink); padding: 4px 8px; min-height: 30px; width: 100%; box-sizing: border-box; background: var(--k-paper); }
+.sbk .sbk-slot .sbk-k { width: 74px; flex: none; font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--k-slate); }
+.sbk .sbk-slot .sbk-v { font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sbk .sbk-slot .sbk-nn { margin-left: auto; color: var(--k-slate); font-size: 0.625rem; text-align: right; flex: none; max-width: 42%; }
+.sbk .sbk-slot.lock { border-style: dashed; color: var(--k-slate); }
+.sbk .sbk-slot.open { background: var(--k-yel); }
+.sbk .sbk-sws { display: flex; gap: 3px; margin-left: auto; flex: none; }
+.sbk .sbk-sws button { width: 20px; height: 22px; border: 1.5px solid var(--k-ink); box-sizing: border-box; position: relative; }
+.sbk .sbk-sws button::after { content: ""; position: absolute; inset: -9px -1px; }
+.sbk .sbk-sws button.on { outline: 2px solid var(--k-ink); outline-offset: 1px; }
+.sbk .sbk-picks { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border: 2px solid var(--k-ink); border-top: 0; margin-top: -5px; }
+.sbk .sbk-pick { flex: 1 1 46%; min-width: 0; min-height: 40px; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 4px 6px; border: 1.5px solid var(--k-ink); background: var(--k-paper); }
+.sbk .sbk-pick.on { background: var(--k-ink); color: var(--k-paper); }
+.sbk .sbk-pick.locked { border-style: dashed; color: var(--k-slate); }
+.sbk .sbk-pick small { font: 600 0.5625rem/1.15 var(--f-label); }
+
+@media (max-width: 370px) {
+  .sbk .sbk-tabs button { font-size: 0.53rem; letter-spacing: 0.03em; }
+  .sbk .sbk-slot .sbk-k { width: 62px; }
+  .sbk .sbk-win h2 { font-size: 1.5rem; }
+  .sbk .sbk-sws button { width: 18px; }
+}
+
+/* ---------- the online lobby: what each player has on ---------- */
+.sbk-seat-awn { flex: none; align-self: stretch; width: 8px; min-height: 30px; border: 1.5px solid var(--c-1f272a); box-sizing: border-box; }
+.sbk-seat-title { flex: none; font: 700 0.625rem/1 var(--f-label); color: var(--c-5a6266); max-width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

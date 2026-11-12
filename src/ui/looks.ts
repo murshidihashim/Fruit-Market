@@ -3,6 +3,7 @@
 // show: nothing here changes a rule. A look is owned when it has been earned (a trophy tier, a stall level, or free)
 // or granted by the server; `syncLooks` hands out any that are owed, so it also works for players who earned trophies
 // before a look existed.
+import { CHARACTER_AVATARS } from '../engine/data';
 import { tierById } from './achievements';
 import { colourId, loadGranted, loadLooks, loadWorn, saveColour, saveLooks, saveWorn, snapshot } from './progress';
 import { placeOf } from './stamps';
@@ -10,6 +11,11 @@ import { LOOKS, lookById, partsOf, slotIsPublic, stallOf, type Look, type LookSe
 import type { Snapshot } from './achievements';
 
 export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../net/looks';
+
+/** The shopkeeper this phone's player last chose (the first one until they choose). */
+export const myAvatar = (): string => {
+  try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
+};
 
 /** The trophy tier that earns a look, if it comes from one. */
 export const achievementFor = (l: Look) => (l.from.kind === 'trophy' ? tierById(l.from.id) : undefined);
@@ -43,6 +49,13 @@ function wornAll(): LookSet {
   const out: LookSet = Object.fromEntries(Object.entries(loadWorn()).filter(([slot, id]) => own.has(id) && lookById(id)?.slot === slot));
   const col = lookById(`col_${colourId()}`);
   if (col) out.colour = col.id;
+  // The title and the frame of the highest rank reached are on until the player picks another: a rank shows by itself.
+  for (const slot of ['title', 'frame'] as const) {
+    if (out[slot]) continue;
+    const best = LOOKS.filter((l) => l.slot === slot && l.from.kind === 'level' && own.has(l.id))
+      .sort((a, b) => (b.from.kind === 'level' ? b.from.level : 0) - (a.from.kind === 'level' ? a.from.level : 0))[0];
+    if (best) out[slot] = best.id;
+  }
   return out;
 }
 
@@ -68,7 +81,10 @@ export function toggleLook(id: string): LookSet {
     saveColour(colourId() === id.slice(4) ? '' : id.slice(4));
     return worn();
   }
-  const now = Object.fromEntries(Object.entries(wornAll()).filter(([slot]) => slot !== 'colour'));
+  // What was picked is what is stored (never the colour, kept on its own, nor a rank's title or frame that is only
+  // on because nothing else was picked).
+  const own = new Set([...loadLooks(), ...loadGranted()]);
+  const now = Object.fromEntries(Object.entries(loadWorn()).filter(([slot, x]) => slot !== 'colour' && own.has(x) && lookById(x)?.slot === slot));
   if (now[look.slot] === id) delete now[look.slot];
   else now[look.slot] = id;
   saveWorn(now);

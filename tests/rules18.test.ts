@@ -869,11 +869,11 @@ describe('H. rulings', () => {
     expect(standing(s, 2)).toMatchObject({ rank: 3 });
     // A single winner reads as before.
     s.players[0].cash = 61;
-    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'YOU WIN!', margin: 'By just $1. What a finish!', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
+    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'YOU WIN!', margin: 'By $1.', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
     expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 WINS!', mine: 'I came 2nd' });
     // Level on cash, not on fruit sold: one winner, as before.
     s.players[0].cash = 60; s.players[0].stats.sold = 8;
-    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 WINS!', margin: 'A dead heat, decided on fruit sold!' });
+    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 WINS!', margin: 'Tied on cash. Decided by fruit sold.' });
     // Fifth and sixth place have a name too.
     const six = bare(6);
     six.phase = 'over';

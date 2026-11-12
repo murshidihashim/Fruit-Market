@@ -146,7 +146,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await moves(prev, next);
       } else if (rush) {
         setRevealDone(false);
-        await reveal(next, viewer, setShow, setBell);
+        // The bell has its own sound (PLAN-086): the one this player has on, heard on this phone only.
+        await reveal(next, viewer, setShow, (on) => { if (on) fx.bell(); setBell(on); });
         setBell(false);
         setRevealDone(true);
       } else await moves(prev, next);
