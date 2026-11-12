@@ -3,7 +3,7 @@
 // card, a built upgrade travelling from its offer to the stall, and the Priority stall's mark going to the front of
 // tomorrow's line. They only draw: the game has already made each change. What a beat is about to show is held back
 // until it does (holdBack), so a number changes as its coin lifts off or lands and never before.
-import { ORDER_CARDS, UPGRADES, type UpgradeId } from '../../engine/data';
+import { FAVOURS, ORDER_CARDS, UPGRADES, type FavourId, type UpgradeId } from '../../engine/data';
 import type { GameState, Standing } from '../../engine/game';
 import { Coin } from '../art';
 import * as A from '../anim';
@@ -56,6 +56,18 @@ export function beforeDawn(s: GameState): number[] | null {
   const fine = s.dayFines ?? [];
   if (!s.players.some((_, i) => (up[i] ?? 0) > 0 || (fine[i] ?? 0) > 0)) return null;
   return s.players.map((pl, i) => pl.cash - (up[i] ?? 0) + (fine[i] ?? 0));
+}
+
+/**
+ * The favour card stall `p` has just played, as the game says it aloud: everyone at a table sees which card is played
+ * (only what Gossip or Scout shows stays secret), and the game writes it in its log ("Rosa played Gossip"). The hand
+ * itself cannot tell: online a rival's cards reach this phone face down, as stand-ins (server/room.ts redact).
+ * Null when no new log line names a card this stall played.
+ */
+export function playedFavour(prev: GameState, next: GameState, p: number): FavourId | null {
+  const said = new Set(next.log.slice(prev.log.length));
+  const who = next.players[p]?.name;
+  return (Object.keys(FAVOURS) as FavourId[]).find((id) => said.has(`${who} played ${FAVOURS[id].title}`)) ?? null;
 }
 
 /** The upgrade the person has just asked to build, and where its offer lay on the screen (noted as Build is tapped). */
