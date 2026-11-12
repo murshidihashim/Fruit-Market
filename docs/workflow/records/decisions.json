@@ -2564,6 +2564,30 @@
         "REP-109"
       ],
       "reviewTrigger": "When each screen is built: shown to the owner beside its board. If the awning strip crowds a 360 by 640 screen or a six-stall table"
+    },
+    {
+      "id": "DEC-104",
+      "title": "Release A's remaining packages are built side by side",
+      "question": "The owner asked for the work to go faster. Release A was being built one package after another, with one or two helpers at a time. How is it sped up without dropping a check?",
+      "choice": "The remaining packages of release A are built at the same time, by separate helpers in separate work folders, where their files do not overlap: the rest of the screens (package 3), the text outside the screens (package 4, part 1), the stamp book's first version (package 5) and the print kit (package 6, part 1). The screen labels (package 4, part 2) and the release preparation (package 6, part 2) follow when the screens are merged. Each package keeps its own plan, checks and report; nothing is merged before it is reviewed and the checks are run on the merged code. For release A this sets aside the workflow's rule of one active work package. This is a reading of the owner's three words, not something he was asked in detail; he can ask for one package at a time again at any point.",
+      "rationale": "Owner: \"speed it up please\", after being told about 40% of release A was built. The packages left touch different files for the most part, and all of them were already approved (DEC-087, DEC-097 to DEC-099, DEC-103). Nothing is taken out of the checks.",
+      "impact": {
+        "player": "None: the same release, sooner.",
+        "technical": "Up to five helpers at once on a machine with four processor cores: timing checks run by a helper can be thrown off by the others, so the standard and browser checks are run again by the session on the merged code when the machine is quiet. More merges by hand where shared files meet (Game.tsx, useGameController.ts, animator.tsx, cards.tsx). The usage allowance is used up sooner; if it runs out, all the work pauses until it resets.",
+        "data": "None"
+      },
+      "cost": "RM0 known: the same usage allowance, used sooner. Not checked: whether the owner's plan charges for use beyond the allowance.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"speed it up please\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-106"
+      ],
+      "reviewTrigger": "If the usage allowance stops the work again; if merging the helpers' work costs more time than it saves; if the owner prefers one package at a time"
     }
   ],
   "history": [
@@ -3566,6 +3590,10 @@
     {
       "at": "2026-11-12 12:32",
       "text": "DEC-103: Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\". Stocking and the day's takings are built as drawn (package 3); the results, the stamp book, the trophy cards and the Wardrobe as drawn, with the rank names kept (package 5); looks show in a game as an awning strip over the player's shelf and a thin one on the player's box as rivals see it. The six boards are saved in docs/studio/review-18/mockups."
+    },
+    {
+      "at": "2026-11-12 17:05",
+      "text": "DEC-104: Owner, 2026-11-12: \"speed it up please\". Read as: build the remaining packages of release A side by side. Three more helpers started from f2d9d33: the stamp book's first version (PLAN-086), the print kit on rules 18 (PLAN-087) and the text outside the screens (PLAN-088). The helper on the morning, the bid and the evening (PLAN-084) was asked to wrap up and report. PLAN-085 (package 3, part 2: the sheets and the table) is opened and starts when part 1 is merged. Checks are not reduced: each package is reviewed, merged and checked on the merged code."
     }
   ]
 }

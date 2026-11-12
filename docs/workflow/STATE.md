@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 12:32 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 17:05 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
@@ -14,13 +14,15 @@ Updated 2026-11-12 12:32 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | 1. Flow repairs and two defects | PLAN-081 | Implemented, merge `f50c9d5` (REP-107) |
 | Balance choices (DEC-101) | PLAN-082 | Implemented, `9c0d11b` (REP-107) |
 | 2. New pictures and card faces; shared motion blocks | PLAN-083 | Verified, merges `10ef387` and `fd95996` (REP-108); the owner keeps the cards as built (DEC-102) |
-| **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **Active, in progress** |
-| 3, later parts. Pricing, the bell and Favoured Trade; buying and the lanes; the lorry, stocking, the night, the results | not opened | |
-| 4. The text (DEC-087) | not opened | |
-| 5. Trophies, stamp book, Trophies, Wardrobe, Results, Home (DEC-097, DEC-099) | not opened | |
-| 6. Print kit and release preparation | not opened | |
+| **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **In progress: the rush merged (`f2d9d33`); the other three with a helper** |
+| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | Opened; two helpers start when part 1 is merged |
+| 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | In progress (helper) |
+| 4, part 2. The screen labels | not opened | After the screens are merged |
+| 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | In progress (helper) |
+| 6, part 1. The print kit on rules 18 | PLAN-087 | In progress (helper) |
+| 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
-PLAN-084 is built by two helpers in separate work folders: one on the rush, one on the morning, the bid and the evening. Briefs: the session scratchpad (`brief-084-rush.md`, `brief-084-panels.md`). When they report: review, merge (shared files: `Game.tsx`, `table.tsx`, `useGameController.ts`, `motion.ts`, `cards.css`), run `npm run verify` and `npm run test:e2e`, look at each screen beside its mock-up at 390x844 and 360x640 with 4 and 6 stalls, record T1 to T5, show the owner (T6).
+**Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. PLAN-085's two helpers start from the commit that merges PLAN-084's panels.
 
 ## Checks (latest, on `fd95996`)
 - `npm run verify`: PASS (63 files, 605 tests, 1 skipped).
@@ -33,6 +35,7 @@ PLAN-084 is built by two helpers in separate work folders: one on the rush, one 
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
 - **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
+- **DEC-104 (2026-11-12):** "speed it up please": the remaining packages are built side by side; no check is dropped.
 - Publishing release A still needs his own word for that build, after the merge to `main`, the full checks and the preview copy.
 - Not blocking: tracker 1 (ruler) or 2 (tray) for the print kit; Pasar Malam's night sky; whether a waiting game's table page comes first on Home (assumed yes).
 
