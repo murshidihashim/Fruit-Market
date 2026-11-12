@@ -8,6 +8,7 @@ import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
 import { fitSheet } from '../src/ui/game/daySheet';
+import { covers } from '../src/ui/game/underSheet';
 import { CratesOpen } from '../src/ui/game/panels/PricingTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { stripStep } from '../src/ui/game/panels/TopBar';
@@ -140,13 +141,34 @@ describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)
   });
 });
 
-describe('the table under a sheet (Game.tsx)', () => {
+describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
   it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
     const game = read('src/ui/Game.tsx');
-    expect(game).toContain("sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);");
+    expect(game).toContain('if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);');
     expect(game).toContain('covered.current = !!mid;');
+    expect(read('src/ui/game/underSheet.ts')).toContain("centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);");
     // the hooks come before the hand-over and results screens return early
     expect(game.indexOf('const covered = useRef(false);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
+    expect(game.indexOf('useEffect(() => () => underSheet.current?.stop(), []);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
+  });
+
+  it('each row of the table a sheet covers all of is out of reach too, measured where things come to rest (PLAN-091)', () => {
+    // a row covered to the pixel; one the sheet covers in part can still be seen and tapped
+    const sheet = { top: 170, bottom: 578, left: 0, right: 360 };
+    expect(covers(sheet, { top: 170, bottom: 204, left: 0, right: 360 })).toBe(true);
+    expect(covers(sheet, { top: 530, bottom: 578.5, left: 0, right: 360 })).toBe(true);
+    expect(covers(sheet, { top: 72, bottom: 170, left: 0, right: 360 })).toBe(false);
+    expect(covers(sheet, { top: 560, bottom: 620, left: 0, right: 360 })).toBe(false);
+    expect(covers({ ...sheet, left: 8, right: 352 }, { top: 300, bottom: 340, left: 0, right: 360 })).toBe(false);
+    const src = read('src/ui/game/underSheet.ts');
+    // the rows: the street's strips one by one, the stalls row and your shelf; the rush's own sheet counts too
+    expect(src).toContain("const ROWS = ':scope > .street-wrap > *, :scope > .seats, :scope > .my-stall';");
+    expect(src).toContain("...game.querySelectorAll<HTMLElement>(':scope > .rush-sheet:not(.leaving)'),");
+    expect(src).toContain("row.toggleAttribute('inert', b.bottom > b.top && sheets.some((s) => covers(s, b)));");
+    // offsets, not the box on the screen: a sheet sliding in or off is measured where it comes to rest
+    expect(src).toContain('top += e.offsetTop;');
+    // measured again whenever a sheet or a row changes its size between drawings
+    expect(src).toContain('const watch = typeof ResizeObserver === \'undefined\' ? null : new ResizeObserver(mark);');
   });
 });
 

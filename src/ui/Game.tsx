@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useLayoutEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -13,6 +13,7 @@ import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
+import { coverWatch } from './game/underSheet';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
 import { useTableShown } from './tableShown';
@@ -50,12 +51,17 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
-  // The Wholesale Market under a sheet cannot be seen, so it is put out of reach of the keyboard and of screen readers
-  // too for as long as a sheet lies over it (PLAN-090). The rows a sheet covers only on some phones are left as they are.
+  // What a sheet lies over cannot be seen, so it is put out of reach of the keyboard and of screen readers too: the
+  // Wholesale Market for as long as a sheet is up (PLAN-090), and each row of the table a sheet covers, measured on
+  // this phone (PLAN-091; game/underSheet.ts).
   const covered = useRef(false);
+  const underSheet = useRef<ReturnType<typeof coverWatch> | null>(null);
   useLayoutEffect(() => {
-    sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);
+    const centre = sheet.centre.current;
+    const game = centre?.parentElement;
+    if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);
   });
+  useEffect(() => () => underSheet.current?.stop(), []);
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
