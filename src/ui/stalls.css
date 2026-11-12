@@ -17,8 +17,13 @@
 #app .game.tkt .tb-line { grid-column: 1 / -1; grid-row: 3; min-width: 0; display: flex; align-items: center; gap: 5px; }
 #app .game.tkt .tb-line .tb-cash { flex: none; }
 #app .game.tkt .tb-line .tb-got { flex: 1 1 0; }
+#app .game.tkt .tb-line { gap: 4px; }
 /* a picture for each piece: four fit beside a cash of two figures in a row of four boxes */
 #app .game.tkt .tb-buys.each .x-fruit { width: 11px; height: 11px; }
+/* a picture and a number for each fruit (five pieces with a Handcart, or a cash of three figures): three fruits fit */
+#app .game.tkt .tb-buys:not(.each) { gap: 0; font-size: 0.5625rem; }
+#app .game.tkt .tb-buys:not(.each) > span { gap: 0; margin-right: 1px; }
+#app .game.tkt .tb-buys:not(.each) .x-fruit { width: 10px; height: 10px; }
 /* five or six stalls: the box's own grid places the cash beside the face and the rest on the last line */
 #app .game.tkt .tb-stall.compact .tb-line { display: contents; }
 #app .game.tkt .tb-stall.compact .tb-buys > span { margin-right: 1px; }
@@ -50,6 +55,8 @@
    the fruit and today's letter on the chip's colour (mustard: leaves tonight; green: good news), with the shelf's name
    down to its count. A chip may still give way a little on the fullest shelf, and stays where it is. */
 @media (max-height: 779px) {
+  /* the face's frame is 22 px here: the face is drawn to fit inside it (it was 23 px and lost its right and lower edge) */
+  #app .game.tkt .tb-stall:not(.compact) .tb-face .xf { width: 19px !important; height: 19px !important; }
   #app .game.tkt .tb-dock > .tb-awn { height: 10px !important; }
   #app .game.tkt .tb-chips { --chip-gap: 4px; min-width: 0; }
   #app .game.tkt .tb-chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
@@ -61,6 +68,8 @@
   /* three or four: today's letter and tomorrow's, side by side */
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip { gap: 2px; padding: 0 3px; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to { display: inline-flex; gap: 2px; font-size: 0; }
+  /* (a slim mark between the two letters in place of the arrow, which is twice as wide) */
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to::before { content: "\203A"; font: 800 0.6875rem/1 var(--tk-txt); }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to i { font-size: 0.625rem; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip b { font-size: 0.6875rem; }
   /* five or more: the fruit and today's letter; the chip's colour says what tonight does */
@@ -72,6 +81,4 @@
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip b { font-size: 0.625rem; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf { font-size: 0; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf span { font-size: 0.625rem; }
-  /* the bottom bar is one height whoever's turn it is (a line of words was 4 px taller than the buttons) */
-  #app .game.tkt > .actionbar .hint-bar { min-height: 48px; }
 }

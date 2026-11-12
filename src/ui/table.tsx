@@ -486,7 +486,10 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
             {pl.upgrades.map((u) => <span title={UPGRADES[u].title}><Icon name={UP_ICON[u]} size={13} /></span>)}
           </span>
         )}
-        {closing ? <span class="tk-chip warn">{closing}</span> : head && <span class="tb-side">{head}</span>}
+        {/* With a Shade Cloth the line has two parts ("After tonight's Heatwave · Shade Cloth on mangoes") and no room
+            for both: the Shade Cloth's is shown, as nothing else on the table says which fruit it is on (the event is
+            named in the top bar); the whole line is the hover text. */}
+        {closing ? <span class="tk-chip warn">{closing}</span> : head && <span class="tb-side" title={head}>{head.split(' · ').pop()}</span>}
       </div>
       <div class={`stk tb-chips ${flashCards ? 'glow' : ''}`}>
         {groups.map(({ f, chips }) => (chips.length
