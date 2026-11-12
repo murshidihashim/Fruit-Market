@@ -262,10 +262,12 @@ export function daySoldLine(s: GameState, p: number): string {
   return [`Sold $${sales}`, `bought $${bought}`, ...(net === null ? [] : [`${net < 0 ? 'down' : 'up'} $${Math.abs(net)} today`])].join(' · ');
 }
 
-/** The offers tonight, in the order they are laid out: every upgrade the stall has not built (none when it is full). */
+/** The offers tonight, in the order they are laid out, the cheapest first: every upgrade the stall has not built
+ *  (none when it is full). */
 export function offersTonight(s: GameState, p: number): UpgradeId[] {
   const pl = s.players[p];
-  return pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u));
+  const offers = pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u));
+  return [...offers].sort((a, b) => UPGRADES[a].cost - UPGRADES[b].cost);
 }
 
 /** Under the row of offers: which ones lie past the first two, to the right ("Swipe for Premium Display $5 and Handcart $6"). */
@@ -429,11 +431,13 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   };
   return (
     <>
-      <div class="mid-panel mid-evening fm-sheet sh-evening" ref={root} onScroll={() => keep(chosen)}>
+      {/* With an upgrade chosen the bar holds two buttons. It grows upward over the sheet's foot, never downward:
+          the table's rows under the sheet keep their places (sheets.css, data-two). */}
+      <div class="mid-panel mid-evening fm-sheet sh-evening" data-two={chosen ? '' : undefined} ref={root} onScroll={() => keep(chosen)}>
         <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} />
       </div>
       {/* Only the main button is a `.btn` (the browser tests press that one). */}
-      <div class="pp-lock ev-lock">
+      <div class="pp-lock ev-lock" data-two={chosen ? '' : undefined}>
         {chosen ? (
           <>
             <button type="button" class="btn primary wide big" onClick={build}>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>

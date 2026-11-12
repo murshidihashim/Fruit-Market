@@ -71,8 +71,9 @@ export const BEAT = {
   /** The standing order's bids: face down for a breath, turned over together (FEEL.turn), a moment to read them and
    *  who won, then the stake put on the card and a moment to see it there. */
   order: { down: 250, read: 600, after: 500 },
-  /** The evening: a moment to see a built upgrade on the stall, after its card (FEEL.travel) and the coins have landed. */
-  evening: { seen: 300 },
+  /** The evening: a moment to see a built upgrade on the stall, after its card (FEEL.travel) and the coins have
+   *  landed; and how long the label of a favour played in the evening stays up (a beat of under a second). */
+  evening: { seen: 300, label: 800 },
 } as const;
 
 /** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */

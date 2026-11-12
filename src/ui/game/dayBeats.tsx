@@ -25,13 +25,14 @@ export function coinShares(amount: number, most = COINS): number[] {
 }
 
 /**
- * A payment as coins: they travel from one spot to another a little apart, each in FEEL.coin. `onLift` and `onLand`
- * are given each coin's share, so a total can fall as its coins leave and climb as they arrive. With reduced motion,
- * or when a spot is not on the screen, nothing travels and every call is still made (the shared move's rule).
+ * A payment as coins: they travel from one spot to another a little apart, each in FEEL.coin, flat along the table
+ * (a stall's cash is in the top bar, so an arc would leave the screen). `onLift` and `onLand` are given each coin's
+ * share, so a total can fall as its coins leave and climb as they arrive. With reduced motion, or when a spot is not
+ * on the screen, nothing travels and every call is still made (the shared move's rule).
  */
 export function coins(from: A.Spot, to: A.Spot, amount: number, o: { onLift?: (share: number) => void; onLand?: (share: number) => void; fade?: boolean } = {}): Promise<void> {
   return Promise.all(coinShares(amount).map((share, k) => A.fly(from, to, <Coin size={22} />, {
-    duration: A.FEEL.coin, delay: k * A.BEAT.coins.gap, path: 'low', fade: o.fade,
+    duration: A.FEEL.coin, delay: k * A.BEAT.coins.gap, path: 'flat', fade: o.fade,
     onLift: () => o.onLift?.(share), onLand: () => o.onLand?.(share),
   }))).then(() => undefined);
 }
@@ -228,7 +229,7 @@ export async function firstInLine(s: GameState, p: number): Promise<void> {
   const pl = s.players[p];
   try {
     const from = typeof document === 'undefined' ? null : document.querySelector(`[data-a="p${p}"] .tk-swatch`);
-    await A.fly(from ?? `p${p}`, 'tm-first', <Swatch p={p} who={pl.avatar} look={pl.look} size={26} />, { duration: A.FEEL.travel, path: 'low', onLand: () => keepBack(HOLD_FIRST, false) });
+    await A.fly(from ?? `p${p}`, 'tm-first', <Swatch p={p} who={pl.avatar} look={pl.look} size={26} />, { duration: A.FEEL.travel, path: 'flat', onLand: () => keepBack(HOLD_FIRST, false) });
   } finally {
     keepBack(HOLD_FIRST, false);
   }

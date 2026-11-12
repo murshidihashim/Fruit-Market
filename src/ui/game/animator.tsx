@@ -58,7 +58,9 @@ export async function moves(prev: GameState, next: GameState) {
       const played = before.favours.find((id, k) => pl.favours[k] !== id) ?? before.favours[before.favours.length - 1];
       const t = A.tag(`p${i}`, `${FAVOURS[played].title}!`, 'favour');
       fx.card();
-      jobs.push(A.hold(A.BEAT.label.read).then(() => t.remove()));
+      // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
+      // nothing else shows what happened, the label is held for the full pause.
+      jobs.push((prev.phase === 'evening' && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
     }
     // An upgrade built (PLAN-084): its price travels to the market as coins and, for your own, the card travels from
     // its offer to your stall, where its mark lands on the shelf dock (dayBeats.tsx).

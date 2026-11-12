@@ -116,6 +116,16 @@
 }
 #app .tkt > .centre > .ob-lock .ob-pass:disabled { opacity: 0.45; cursor: default; }
 @media (max-height: 700px) {
+  /* a short phone: the order's card and the bidders a little smaller, so more of them is in view above your bid */
+  #app .tkt .sh-order .wc-order .wc-body { gap: 8px; padding: 8px 8px 0; }
+  #app .tkt .sh-order .wc-order .wc-main { gap: 5px; }
+  #app .tkt .sh-order .wc-sqpic { width: 64px; height: 64px; }
+  #app .tkt .sh-order .wc-ttl-o { font-size: 1.125rem; }
+  #app .tkt .sh-order .wc-stats { padding: 8px; }
+  #app .tkt .sh-order .wc-stat { flex-direction: row; align-items: baseline; gap: 6px; padding: 5px 8px; }
+  #app .tkt .sh-order .wc-foot { padding-top: 4px; padding-bottom: 4px; }
+  #app .tkt .ob-status li { padding: 3px 5px; }
+  #app .tkt .ob-get { gap: 3px; padding: 6px 8px; }
   #app .tkt .ob-top { gap: 8px; padding: 8px 12px; }
   #app .tkt .ob-foot { gap: 6px; box-shadow: 0 -2px 0 var(--tk-ink); padding-top: 6px; }
   #app .tkt .ob-step { height: 46px; }
@@ -156,8 +166,12 @@
 #app .tkt .ev-who .xf { flex: none; box-sizing: border-box; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; }
 #app .tkt .ev-who.heard { padding: 2px 5px 2px 2px; background: var(--tk-paper); box-shadow: inset 0 0 0 2px var(--tk-ink); }
 #app .tkt .ev-rest { margin-left: auto; color: var(--tk-slate); }
-/* one main button; "Lights out without building" under it when an upgrade is chosen */
+/* One main button; "Lights out without building" under it when an upgrade is chosen. The bar then holds two buttons
+   and is taller by the second one (48 px and the 6 px between them). It grows upward, over the foot of the sheet,
+   which ends that much sooner: the bar's own row keeps its height, so your shelf under the sheet does not move. */
 #app .tkt > .centre > .ev-lock { gap: 6px; }
+#app .tkt > .centre > .ev-lock[data-two] { z-index: 6; margin-top: -54px; }
+#app .tkt > .centre > .sh-evening[data-two] { margin-bottom: calc(54px - var(--drop, 0px)); }
 #app .tkt > .centre > .ev-lock .ev-out {
   all: unset; min-height: 48px; box-sizing: border-box; display: grid; place-items: center; text-align: center; cursor: pointer;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase;
@@ -166,6 +180,9 @@
 .fx-layer .fm-upcard { width: 92px; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
 .fx-layer .fm-upcard-pic { display: block; width: 100%; height: 40px; object-fit: cover; border-bottom: 2px solid var(--x-ink); }
 .fx-layer .fm-upcard b { padding: 4px 5px; font: 400 0.6875rem/1 var(--f-display); text-transform: uppercase; }
+/* The order's strip keeps one height, with or without the winner's face on it, so the rows under it never shift
+   when the bids are in. */
+#app .tkt .order-strip { min-height: 28px; }
 /* Priority played: that stall's mark at the front of tomorrow's line */
 #app .tkt .tomorrow .tm-first { flex: none; box-sizing: border-box; height: 26px; display: inline-flex; align-items: center; gap: 4px; padding-right: 5px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-first .xf { border-radius: 0; }
