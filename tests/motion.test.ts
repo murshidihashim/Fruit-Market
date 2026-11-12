@@ -73,8 +73,9 @@ describe('the lengths are named in one place (motion.ts)', () => {
     expect(bellLength(6)).toBe(2900);
     expect(BEAT.tie).toEqual({ ask: 600, stamp: 180, pause: 600 });
     expect(NO_SALES_READ).toBe(1100);
-    // the rush: one card for each customer, at the flow study's pace (PLAN-084; rush.test.ts pins what a customer takes)
-    expect(BEAT.rush).toEqual({ cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 });
+    // the rush: the round table, at the flow study's pace (PLAN-084, PLAN-092: fruit by fruit, the tags turning to the next
+    // fruit once a fruit's coins are back; rush.test.ts pins what a customer takes)
+    expect(BEAT.rush).toEqual({ cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 300, read: 1000, cardOut: 200, favour: 340 });
     // the night (PLAN-085): 2.5 s in all, the spoiled pieces tipping off as the slide ends
     expect(NIGHT).toMatchObject({ dusk: 400, slide: 900, settle: 80, read: 920, end: 200, spoil: 300, gap: 80, juiceCoin: 360 });
     expect(NIGHT.dusk + NIGHT.slide + NIGHT.settle + NIGHT.read + NIGHT.end).toBe(2500);
@@ -89,7 +90,7 @@ describe('the lengths are named in one place (motion.ts)', () => {
 
   it('the table\'s scripts and panels hold no lengths of their own', () => {
     const files = ['src/ui/anim.ts', 'src/ui/sheet.ts', 'src/ui/cashShown.ts', 'src/ui/panel.tsx', 'src/ui/Game.tsx', 'src/ui/game/animator.tsx', 'src/ui/game/rush.ts',
-      'src/ui/game/useGameController.ts', 'src/ui/game/panels/NightShift.tsx', 'src/ui/game/panels/Showdown.tsx', 'src/ui/game/panels/ActionBar.tsx'];
+      'src/ui/game/useGameController.ts', 'src/ui/game/panels/NightShift.tsx', 'src/ui/game/panels/RushTable.tsx', 'src/ui/game/panels/ActionBar.tsx'];
     const bare = [/\b(?:wait|hold|held|pause|ms|moveMs|timer)\(\s*\d{2,}/, /\bduration:\s*\d{2,}/, /\bdelay:\s*\d{2,}/, /setTimeout\([^\n]*,\s*\d{2,}\s*\)/];
     const found = files.flatMap((f) => read(f).split('\n').map((l, i) => ({ at: `${f}:${i + 1}`, l })).filter((x) => !/^\s*(\/\/|\*|\/\*)/.test(x.l) && bare.some((re) => re.test(x.l))).map((x) => `${x.at}: ${x.l.trim()}`));
     expect(found).toEqual([]);
@@ -192,15 +193,15 @@ describe('one speed for scripts and stylesheets', () => {
     expect([...used].filter((name) => !(name in CSS_MS))).toEqual([]);
     for (const name of ['sheet-in', 'sheet-out', 'news-turn', 'rush-rows', 'sky', 'dusk', 'rise', 'rise-after', 'stamp']) expect(CSS_MS).toHaveProperty(name);
     // the two older names for the speed (the rush only, the night only) are gone
-    const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/Showdown.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
+    const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/RushTable.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
     expect(sources).not.toMatch(/--rs-k|--ns-k/);
     // the moves the stylesheets make on the table follow the one speed
     const motion = read('src/ui/motion.css');
     for (const sel of ['.tk-news-face']) {
       expect(motion).toMatch(new RegExp(`${sel.replace(/[.]/g, '\\.')}[^{]*\\{ (transition|animation)-duration: calc\\(var\\(--mk, 1\\) \\* var\\(--t-`));
     }
-    // the rush has its own stylesheet (PLAN-084): the offers turn up, and the sheet comes and goes, at the one speed
-    const rush = read('src/ui/rush.css');
+    // the rush has its own stylesheet (PLAN-084; the round table, PLAN-092): the tags turn up, and the stage comes and goes, at the one speed
+    const rush = read('src/ui/rushTable.css');
     for (const name of ['rush-rows', 'sheet-in', 'sheet-out']) expect(rush).toContain(`calc(var(--mk, 1) * var(--t-${name}))`);
     expect(rush).not.toMatch(/(?:animation|transition)[^;{}]*\b\d+(?:\.\d+)?m?s\b/);
     const night = read('src/ui/ticket-ui.css');
@@ -210,7 +211,7 @@ describe('one speed for scripts and stylesheets', () => {
     const main = read('src/main.tsx');
     expect(main.indexOf("'./ui/motion.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket-ui.css'"));
     expect(main.indexOf("'./ui/ticket-ui.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket.css'"));
-    expect(main.indexOf("'./ui/rush.css'")).toBeGreaterThan(main.indexOf("'./ui/motion.css'"));
+    expect(main.indexOf("'./ui/rushTable.css'")).toBeGreaterThan(main.indexOf("'./ui/motion.css'"));
   });
 });
 
@@ -526,8 +527,8 @@ describe('the shared slide (anim.ts boxOf, flipFrom, flipTo)', () => {
     expect(a.moves).toEqual([]);
   });
 
-  it('the rush card uses it (it was written out once, in the rush only)', () => {
-    const src = read('src/ui/game/panels/Showdown.tsx');
+  it('the rush uses it for the customer coming to the round table and going back (it was written out once, in the rush only)', () => {
+    const src = read('src/ui/game/panels/RushTable.tsx');
     expect(src).toContain('A.flipFrom(el.current, ticket()');
     expect(src).toContain('A.flipTo(el.current, ticket()');
     expect(src).not.toMatch(/\.animate\(/);

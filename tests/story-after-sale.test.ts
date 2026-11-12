@@ -9,7 +9,7 @@ import {
 } from '../src/engine/game';
 import { closingLeftovers, explainLine, gameRecap, noSaleReason } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
-import { RushView } from '../src/ui/game/panels/Showdown';
+import { RushView } from '../src/ui/game/panels/RushTable';
 import { rushCards } from '../src/ui/game/rush';
 import { endBuying, settleTies } from './stall-step';
 
@@ -451,19 +451,20 @@ describe('Closing Day recap', () => {
   });
 });
 
-describe('Showdown card', () => {
-  it('does not say "You offer 0" for fruit that did not qualify', () => {
+describe('the rush at the round table', () => {
+  it('does not say "You offer 0" for fruit that did not qualify: the crate says why it cannot sell', () => {
     const start = market(['Wei Jie', 'apple']);
     start.players[0].stock.apple[FRESH('apple')] = 2;
     start.players[1].stock.apple[FRESH('apple')] = 2;
     const s = bell(start, 'apple', [2, 2, 0], [5, 4, 0]);
     const l = line(s);
-    // The customer's card in the rush (PLAN-084: one card for each customer, built from the day's results).
+    // The customer at the round table (PLAN-092: built from the day's results and the open crates).
     const card = rushCards(s, 0).find((c) => c.blocks.some((b) => b.line === l))!;
-    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
-    expect(html).toContain('none can sell');
+    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', at: 0, served: [] }, viewer: 0 }));
     expect(html).not.toMatch(/offer 0/);
-    expect(html).toContain('over $4');
-    expect(html).toContain('2 offered');
+    // your crate is over the customer's price; it still shows its two pieces
+    const mine = html.split('data-a="rt-crate-0"')[1].split('data-a="rt-fav-')[0];
+    expect(mine).toContain('over $4');
+    expect(mine).toContain('aria-label="2 in the crate: fresh"');
   });
 });

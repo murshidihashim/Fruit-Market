@@ -13,7 +13,7 @@ import { toStaticHtml } from '../src/ui/cards';
 import { favourArt } from '../src/ui/deckArt';
 import { playedFavour } from '../src/ui/game/dayBeats';
 import { rushCards } from '../src/ui/game/rush';
-import { RushView } from '../src/ui/game/panels/Showdown';
+import { RushView } from '../src/ui/game/panels/RushTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { RivalDrop, Stalls } from '../src/ui/table';
 
@@ -101,7 +101,7 @@ describe('a favour card won by a rival in the rush is shown face down, online an
           const theirs = c.favour!.player !== viewer;
           if (theirs) rivalCards++;
           expect(c.favour!.id, where).toBe(theirs ? null : g.results!.favours.find((f) => f.customer === c.name)!.favour);
-          const html = toStaticHtml(h(RushView, { s, a: { card: c, n: 1, of: cards.length, stage: 'result', row: [], served: [] } }));
+          const html = toStaticHtml(h(RushView, { s, a: { card: c, n: 1, of: cards.length, stage: 'result', at: 0, served: [] }, viewer }));
           if (theirs) {
             expect(html, where).toContain('aria-label="Favour card, face down"');
             for (const id of IDS) if (!mine.has(id)) expect(html.includes(`Favour card: ${FAVOURS[id].title}`) || html.includes(favourArt(id)), `${where} rush card names ${id}`).toBe(false);

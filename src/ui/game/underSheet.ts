@@ -31,17 +31,21 @@ const NOT_A_SHEET = '.market-stall, .tk-sheet, .pp-lock';
 
 /**
  * Marks the rows a sheet covers as inert, and lets the others go. `sheet`: a sheet is in the middle of the table (the
- * market under it is inert then). The rush's own sheet, over the table from the customers down, counts too.
+ * market under it is inert then). The rush's round table (panels/RushTable.tsx), over the table from under the
+ * customers down, counts too; while it is up the customers' row is drawn above the bell's rows (rushTable.css), so
+ * that row stays in reach.
  */
 export function markCovered(game: HTMLElement, centre: HTMLElement, sheet: boolean): void {
   centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);
   const sheets = [
     ...(sheet ? [...centre.children].filter((el): el is HTMLElement => el instanceof HTMLElement && !el.matches(NOT_A_SHEET)) : []),
-    ...game.querySelectorAll<HTMLElement>(':scope > .rush-sheet:not(.leaving)'),
+    ...game.querySelectorAll<HTMLElement>(':scope > .rush-table:not(.leaving)'),
   ].filter((el) => el.offsetHeight > 0).map(laidOut);
+  const lifted = !!game.querySelector(':scope > .rush-table');
   for (const row of game.querySelectorAll<HTMLElement>(ROWS)) {
     const b = laidOut(row);
-    row.toggleAttribute('inert', b.bottom > b.top && sheets.some((s) => covers(s, b)));
+    const above = lifted && row.parentElement?.classList.contains('street-wrap');
+    row.toggleAttribute('inert', !above && b.bottom > b.top && sheets.some((s) => covers(s, b)));
   }
 }
 
@@ -60,7 +64,7 @@ export function coverWatch(): { update: (game: HTMLElement, centre: HTMLElement,
   const watch = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(mark);
   return {
     update(game, centre, sheet) {
-      const rush = game.querySelector(':scope > .rush-sheet');
+      const rush = game.querySelector(':scope > .rush-table');
       const now: unknown[] = [game, centre, sheet, rush, rush?.classList.contains('leaving'), ...centre.children];
       if (watch && now.length === was.length && now.every((x, i) => x === was[i])) return;
       was = now;
@@ -68,7 +72,7 @@ export function coverWatch(): { update: (game: HTMLElement, centre: HTMLElement,
       mark();
       if (!watch) return;
       for (const el of watched) if (!el.isConnected) { watch.unobserve(el); watched.delete(el); }
-      for (const el of [...centre.children, ...game.querySelectorAll(`:scope > .rush-sheet, ${ROWS}`)]) {
+      for (const el of [...centre.children, ...game.querySelectorAll(`:scope > .rush-table, ${ROWS}`)]) {
         if (watched.has(el)) continue;
         watched.add(el);
         watch.observe(el);

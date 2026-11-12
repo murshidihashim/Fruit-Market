@@ -166,10 +166,11 @@ describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
     expect(covers(sheet, { top: 560, bottom: 620, left: 0, right: 360 })).toBe(false);
     expect(covers({ ...sheet, left: 8, right: 352 }, { top: 300, bottom: 340, left: 0, right: 360 })).toBe(false);
     const src = read('src/ui/game/underSheet.ts');
-    // the rows: the street's strips one by one, the stalls row and your shelf; the rush's own sheet counts too
+    // the rows: the street's strips one by one, the stalls row and your shelf; the rush's round table counts too, and
+    // while it is up the customers' row, drawn above the bell's rows, stays in reach (PLAN-092)
     expect(src).toContain("const ROWS = ':scope > .street-wrap > *, :scope > .seats, :scope > .my-stall';");
-    expect(src).toContain("...game.querySelectorAll<HTMLElement>(':scope > .rush-sheet:not(.leaving)'),");
-    expect(src).toContain("row.toggleAttribute('inert', b.bottom > b.top && sheets.some((s) => covers(s, b)));");
+    expect(src).toContain("...game.querySelectorAll<HTMLElement>(':scope > .rush-table:not(.leaving)'),");
+    expect(src).toContain("row.toggleAttribute('inert', !above && b.bottom > b.top && sheets.some((s) => covers(s, b)));");
     // offsets, not the box on the screen: a sheet sliding in or off is measured where it comes to rest
     expect(src).toContain('top += e.offsetTop;');
     // a drawing that changed nothing in the middle measures nothing (the table draws often while things move)

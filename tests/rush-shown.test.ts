@@ -5,7 +5,8 @@ import { autoplay } from '../src/engine/ai';
 import { newGame, servingCustomers, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
 import {
-  boughtToday, favourShown, holdRush, landPiece, lineShown, piecesLanded, releaseRush, rushHeld, serveLine, showFavour, shownFavours, shownWants,
+  boughtToday, favourShown, holdRush, landPiece, liftPiece, lineShown, paidShown, payShown, piecesLanded, piecesLifted, releaseRush, rushHeld, serveLine,
+  showFavour, shownFavours, shownWants,
 } from '../src/ui/rushShown';
 import { MyStall, Street } from '../src/ui/table';
 
@@ -138,5 +139,30 @@ describe('a favour card won in the rush is held back until it has reached its st
     expect(theirs.players.map((_, p) => count(p))).toEqual(real.map((n, p) => n - won[p] + (p === f.player ? 1 : 0)));
     // the cards it already held are the ones shown: the card won is the last in the hand
     expect(shownFavours(f.player, hand)).toEqual(hand.slice(0, count(f.player)));
+  });
+});
+
+describe('the round table: pieces leaving a crate and a stall\'s money (rushShown.ts, PLAN-092)', () => {
+  const s = days.find((x) => x.results!.lines.some((l) => l.offers.some((o) => o.sold > 1)))!;
+  const l = s.results!.lines.find((x) => x.offers.some((o) => o.sold > 1))!;
+  const o = l.offers.find((x) => x.sold > 1)!;
+
+  it('counts the pieces that have left a stall\'s crate for a customer, stall by stall, and says when its money has landed', () => {
+    // nothing held back: nothing is waiting to leave, and the money is there
+    expect(piecesLifted(l.customerId, l.fruit, o.player)).toBe(0);
+    expect(paidShown(l.customerId, l.fruit, o.player)).toBe(true);
+    holdRush(s.results!, s.players.length);
+    expect(paidShown(l.customerId, l.fruit, o.player)).toBe(false);
+    liftPiece(l.customerId, l.fruit, o.player);
+    liftPiece(l.customerId, l.fruit, o.player, 2);
+    expect(piecesLifted(l.customerId, l.fruit, o.player)).toBe(3);
+    // another stall's crate, and another customer, are untouched
+    expect(piecesLifted(l.customerId, l.fruit, (o.player + 1) % s.players.length)).toBe(0);
+    expect(piecesLifted(l.customerId + 1000, l.fruit, o.player)).toBe(0);
+    payShown(l.customerId, l.fruit, o.player);
+    expect(paidShown(l.customerId, l.fruit, o.player)).toBe(true);
+    expect(paidShown(l.customerId, l.fruit, (o.player + 1) % s.players.length)).toBe(false);
+    releaseRush();
+    expect(piecesLifted(l.customerId, l.fruit, o.player)).toBe(0);
   });
 });

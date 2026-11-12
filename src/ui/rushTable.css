@@ -1,0 +1,199 @@
+/* =====================================================================
+   Fruit Market · the rush as a round table (DEC-109; panels/RushTable.tsx).
+   Drawn to the approved board (docs/studio/review-18/mockups, Rush-D): today's customers stay in their row at the top;
+   under it a stage lies over the rest of the table, down to a result line and the two buttons. On the stage: the
+   customer in the middle, every stall's open crate round them in a seat of its own, the table's ring and a line from
+   the customer to each crate that can sell.
+   The table underneath is not laid out again: the stage is placed over the grid's rows (rivals to act) and is no part
+   of them. Where each crate sits is worked out from the stage's size (rush.ts tableLay): round the customer on a tall
+   phone, in two columns either side of them on a small one (.close).
+   Only position, size and fade are animated, at the table's one speed (--mk, motion.ts). Imported after motion.css.
+   Every rule that lays the stage out starts with "#app .tkt", like the rest of the table (ticket.css).
+   ===================================================================== */
+#app .tkt > .rush-table {
+  all: unset; position: absolute; inset: 0; grid-row: rivals / act; grid-column: 1 / -1; z-index: 9;
+  box-sizing: border-box; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; cursor: pointer;
+  background: var(--tk-paper); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); letter-spacing: 0; text-align: left;
+  animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#app .tkt > .rush-table *, #app .tkt > .rush-table *::before, #app .tkt > .rush-table *::after { box-sizing: border-box; }
+#app .tkt > .rush-table :where(i, em) { font-style: normal; }
+/* the stage fades in over the table (the customer then comes from the row), and slides off when the rush is over */
+@keyframes rt-in { from { opacity: 0; } }
+@keyframes rt-out { to { opacity: 0; transform: translateY(20px); } }
+#app .tkt > .rush-table.leaving { pointer-events: none; animation: rt-out calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(0.4, 0, 1, 1) both; }
+/* a very short screen, where the table scrolls (styles.css): the stage fills the screen, so its buttons stay in reach */
+@media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
+  #app .tkt > .rush-table { position: fixed; max-width: 520px; margin: 0 auto; }
+}
+
+/* ---------- the customer row stays at the top ----------
+   The bell's open rows lie over the customer row (bell.css, .sh-day.full) and stay under the rush until the takings.
+   While the stage is up the row is drawn above them; it fades in as the stage comes and out as the stage leaves, so
+   the bell's rows show again where they were. */
+#app .tkt:has(> .rush-table) > .street-wrap { position: relative; z-index: 9; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+#app .tkt:has(> .rush-table.leaving) > .street-wrap { animation: rt-gone calc(var(--mk, 1) * var(--t-sheet-out)) ease both; }
+@keyframes rt-gone { to { opacity: 0; } }
+
+/* ---------- the customer's place in the row: they are at the stalls ---------- */
+#app .tkt .street > .cust.rush-away { visibility: visible; }
+#app .tkt .street > .cust.rush-away > * { visibility: hidden; }
+#app .tkt .street > .cust.rush-away::after {
+  content: var(--rt-at, "") "\A at the stalls"; white-space: pre-line;
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; text-align: center;
+  border: 2px dashed var(--x-lamp-off); color: var(--tk-slate); font: 800 0.5rem/1.3 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* ---------- the stage ---------- */
+#app .tkt .rt-stage { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 4px; }
+#app .tkt .rt-lines { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+#app .tkt .rt-ring { fill: none; stroke: var(--tk-kraft); stroke-width: 18; }
+#app .tkt .rt-to line { stroke: var(--tk-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+#app .tkt .rt-to line.first { stroke-width: 3.5; stroke-dasharray: none; }
+/* the lines show once the tags have turned to the customer's fruit, and fade as the customer leaves */
+#app .tkt .rt-to { animation: rt-in calc(var(--mk, 1) * var(--t-rush-rows)) ease both; }
+#app .tkt .rush-table.st-in .rt-to { visibility: hidden; }
+#app .tkt .rush-table.st-out .rt-to { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
+
+/* ---------- the customer in the middle ---------- */
+#app .tkt .rt-mid { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; pointer-events: none; }
+#app .tkt .rt-cust {
+  width: var(--card-w, 150px); display: flex; flex-direction: column; overflow: hidden;
+  border: 3px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); box-shadow: 0 4px 0 var(--tk-ink);
+}
+/* the number (or "Guest", "Standing order") and the name run on as one line of words, two at most */
+#app .tkt .rt-hd {
+  flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 5px 6px 0; border-bottom: 5px solid var(--tk-ink);
+  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.5625rem/1.15 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
+}
+#app .tkt .rt-hd b { margin-right: 4px; color: var(--tk-yel); }
+#app .tkt .rt-pic { flex: none; height: 84px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
+#app .tkt .rt-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#app .tkt .rt-w { flex: none; display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 6px; }
+#app .tkt .rt-w + .rt-w { border-top: 1px solid var(--tk-tint); }
+#app .tkt .rt-w .x-fruit { flex: none; width: 18px; height: 18px; }
+/* the fruit being bought now is marked with its lane's colour */
+#app .tkt .rt-w.now { box-shadow: inset 4px 0 0 var(--lane); }
+/* the dots wrap onto a second row where the card is too narrow for them all (four and a tick at a small phone) */
+#app .tkt .rt-dots { display: flex; flex-wrap: wrap; align-content: center; gap: 2px 3px; min-width: 0; max-height: 100%; overflow: hidden; }
+#app .tkt .rt-dots i { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--tk-ink); transition: background-color calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
+#app .tkt .rt-dots i.got { background: var(--tk-ink); }
+/* five pieces or more: smaller dots, so they and the price fit the card's width */
+#app .tkt .rt-dots.many { gap: 2px; }
+#app .tkt .rt-dots.many i { width: 8px; height: 8px; border-width: 1px; }
+#app .tkt .rt-max { flex: none; margin-left: auto; font: 400 0.9375rem/1 var(--tk-disp); white-space: nowrap; }
+#app .tkt .rt-w.done .rt-max { opacity: 0.4; }
+#app .tkt .rt-w.done::after { content: '✓'; flex: none; width: 12px; text-align: center; font: 800 0.8125rem/1 var(--tk-txt); color: var(--c-0e9a58); }
+#app .tkt .rt-ft {
+  flex: none; display: flex; align-items: center; gap: 3px; padding: 3px 6px 5px; color: var(--tk-slate);
+  font: 800 0.5rem/1.15 var(--tk-txt); letter-spacing: 0.03em; text-transform: uppercase;
+}
+#app .tkt .rt-ft span { min-width: 0; margin-left: 2px; }
+#app .tkt .rt-lamp {
+  flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); font: 800 0.5rem/1 var(--tk-txt);
+}
+#app .tkt .rt-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
+
+/* ---------- a stall's crate in its seat ---------- */
+#app .tkt .rt-crate {
+  position: absolute; z-index: 1; display: flex; flex-direction: column; border: 2px solid var(--tk-ink); background: var(--tk-paper);
+  transition: opacity calc(var(--mk, 1) * var(--t-rush-rows)) ease;
+}
+#app .tkt .rt-crate > .tb-awn { margin: 0; }
+#app .tkt .rt-who { flex: none; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 3px 5px 0; font: 800 0.5625rem/1 var(--tk-txt); white-space: nowrap; }
+#app .tkt .rt-who .xf { flex: none; box-shadow: 0 0 0 1.5px var(--tk-ink); }
+#app .tkt .rt-who b { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#app .tkt .rt-tagrow { flex: none; height: 30px; display: flex; align-items: center; gap: 4px; padding: 0 4px; animation: rt-in calc(var(--mk, 1) * var(--t-rush-rows)) ease both; }
+#app .tkt .rt-tagw { position: relative; flex: none; }
+/* the price tag, cut like the printed game's tag */
+#app .tkt .rt-tag {
+  display: block; padding: 2px 4px 2px 9px; border: 2px solid var(--tk-ink); background: var(--tk-paper);
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); font: 400 1.0625rem/1 var(--tk-disp); font-variant-numeric: tabular-nums;
+}
+/* the crate's pieces of the fruit, two to a column, each with its freshness letter; "+3" for those not drawn */
+#app .tkt .rt-pcs { margin-left: auto; display: grid; grid-template-rows: repeat(2, 14px); grid-auto-flow: column; grid-auto-columns: 15px; gap: 1px 2px; }
+#app .tkt .rt-pc { position: relative; display: block; width: 14px; height: 14px; }
+#app .tkt .rt-pc .x-fruit { display: block; width: 13px; height: 13px; }
+#app .tkt .rt-pc i {
+  position: absolute; right: -2px; bottom: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--tk-paper);
+  box-shadow: inset 0 0 0 1px var(--tk-ink); color: var(--tk-ink); font: 800 0.375rem/9px var(--tk-txt); text-align: center;
+}
+#app .tkt .rt-pcs em { display: grid; place-items: center; font: 800 0.5rem/1 var(--tk-txt); }
+/* what became of the offer, or why it cannot sell: up to two lines (a tie's reason is the longest) */
+#app .tkt .rt-say {
+  flex: 1 1 auto; min-height: 0; display: flex; align-items: center; padding: 0 4px 2px; overflow: hidden; color: var(--tk-slate);
+  font: 800 0.5rem/1.15 var(--tk-txt); letter-spacing: 0.01em; text-transform: uppercase;
+}
+/* a crate without the fruit, or not in a standing order, has no tag: it says so where the tag would be */
+#app .tkt .rt-crate.none .rt-tagrow, #app .tkt .rt-crate.off .rt-tagrow { display: none; }
+#app .tkt .rt-badge {
+  position: absolute; top: -11px; right: -8px; z-index: 2; padding: 4px 5px; background: var(--tk-ink); color: var(--tk-yel);
+  font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
+}
+/* the crate that sells first; one that cannot sell to this customer (over their price, a freshness they will not take);
+   one without the fruit, or not in a standing order */
+#app .tkt .rt-crate.first { background: var(--tk-yel); box-shadow: 0 0 0 3px var(--tk-yel), 0 0 0 5px var(--tk-ink); }
+#app .tkt .rt-crate.first .rt-say { color: var(--tk-ink); }
+#app .tkt .rt-crate.over { opacity: 0.55; }
+#app .tkt .rt-crate.over .rt-tag { color: var(--x-lamp-off); border-style: dashed; }
+#app .tkt .rt-crate.none, #app .tkt .rt-crate.off { opacity: 0.45; border-style: dashed; }
+/* what a stall was paid, as its first coin lands */
+#app .tkt .rt-plus {
+  position: absolute; right: -6px; bottom: -8px; z-index: 3; padding: 3px 5px; border: 2px solid var(--tk-ink);
+  background: var(--tk-melon); color: var(--tk-paper); font: 400 0.75rem/1 var(--tk-disp);
+  animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both;
+}
+/* a favour card, small: on a crate, and while it travels there (or, at the bell, to a tied tag). Face down: the deck's back */
+.rh-fav { flex: none; display: block; box-sizing: border-box; width: 22px; height: 22px; overflow: hidden; border: 2px solid var(--x-ink); background: var(--x-paper); }
+.rh-fav.back { background-color: var(--x-sky); background-size: 12px 12px; }
+/* a favour card won lies on the crate's left edge; its place is there from the start, unseen, to travel to */
+#app .tkt .rt-fav, #app .tkt .rt-favspot { position: absolute; left: -9px; top: 50%; z-index: 3; width: 22px; height: 22px; margin-top: -11px; }
+#app .tkt .rt-favspot { visibility: hidden; pointer-events: none; }
+/* while the customer comes in, the crates wait with their tags down; as the customer leaves, the tags fade */
+#app .tkt .rush-table.st-out .rt-tagrow, #app .tkt .rush-table.st-out .rt-say, #app .tkt .rush-table.st-out .rt-badge, #app .tkt .rush-table.st-out .rt-plus {
+  opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease;
+}
+
+/* ---------- the result line and the two buttons ---------- */
+/* one height all through, so the stage above it never changes size when the words do: four lines of the game's
+   sentence, and five in a smaller size for the longest (about one customer in twenty-five, up to some 250 letters) */
+#app .tkt .rt-line {
+  flex: none; height: 78px; margin: 6px 12px 0; display: flex; align-items: center; gap: 10px; padding: 6px 10px; overflow: hidden;
+  background: var(--tk-ink); color: var(--tk-paper); font: 600 0.75rem/1.3 var(--tk-txt);
+}
+#app .tkt .rt-line.long { padding-top: 4px; padding-bottom: 4px; font-size: 0.6875rem; line-height: 1.25; }
+#app .tkt .rt-line b { flex: none; font: 400 1.25rem/1 var(--tk-disp); color: var(--tk-yel); }
+#app .tkt .rt-line b.nil { color: var(--x-lamp-off); }
+#app .tkt .rt-line span { min-width: 0; }
+#app .tkt .rt-line.show > * { animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+#app .tkt .rt-line .rt-now { color: var(--tk-kraft); font-weight: 700; }
+#app .tkt .rt-foot { flex: none; display: flex; gap: 6px; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); }
+#app .tkt .rt-foot button { all: unset; box-sizing: border-box; height: 52px; display: grid; place-items: center; text-align: center; cursor: pointer; text-transform: uppercase; }
+#app .tkt .rt-foot .rt-skip { flex: none; width: 104px; padding: 0 8px; border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 800 0.6875rem/1.2 var(--tk-txt); letter-spacing: 0.08em; }
+#app .tkt .rt-foot .rt-next { flex: 1 1 0; min-width: 0; background: var(--tk-ink); color: var(--tk-yel); font: 400 1rem/1 var(--tk-disp); letter-spacing: 0.04em; }
+
+/* ---------- a small phone: the close form, everything a little smaller ---------- */
+#app .tkt .rush-table.close .rt-pic { height: 54px; }
+#app .tkt .rush-table.close .rt-w { height: 22px; }
+#app .tkt .rush-table.close .rt-dots i { width: 9px; height: 9px; }
+#app .tkt .rush-table.close .rt-dots.many i { width: 7px; height: 7px; }
+#app .tkt .rush-table.close .rt-crate > .tb-awn { height: 5px !important; }
+#app .tkt .rush-table.close .rt-who { padding-top: 2px; font-size: 0.5625rem; }
+/* the marks stay clear of the customer between the columns */
+#app .tkt .rush-table.close .rt-badge { top: -8px; right: -3px; }
+/* the money lies inside the crate here, clear of the badge of the crate below */
+#app .tkt .rush-table.close .rt-plus { right: 2px; bottom: 2px; }
+#app .tkt .rush-table.close .rt-tag { font-size: 0.9375rem; }
+/* A short screen: the result line and the buttons a little smaller. Set by the screen's height and not by the close
+   form, because the stage's own size decides that form: the line and the buttons must not change the stage's size. */
+@media (max-height: 700px) {
+  #app .tkt .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
+  #app .tkt .rt-line.long { font-size: 0.625rem; }
+  #app .tkt .rt-foot { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt .rt-foot button { height: 48px; }
+}
+@media (max-width: 379px) {
+  #app .tkt .rt-line { margin-left: 8px; margin-right: 8px; }
+  #app .tkt .rt-foot { padding-left: 8px; padding-right: 8px; }
+}
