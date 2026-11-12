@@ -43,10 +43,17 @@ describe('account on the phone', () => {
     expect(acct.signedInAs()).toBe('mia_77');
     expect(accounts.get('mia_77')!.profile.achievements).toEqual(['first_win', 'rich']);
 
+    st.saveDaily({ '2026-11-10': 61, '2026-11-11': 48 });
     expect(await acct.signOut()).toBeNull();
     expect(acct.signedInAs()).toBeNull();
     expect(progress.unlocked()).toEqual([]);
     expect(progress.leagueStage()).toBe(0);
+    // PLAN-090: the games played and the Daily dates go too (the stamps are worked out from them), so the next
+    // person on this phone starts with none of them
+    expect(st.loadStats()).toEqual({ played: 0, wins: 0, bestCash: 0, totalSold: 0 });
+    expect(st.loadDaily()).toEqual({});
+    expect(store.has('fm.stats')).toBe(false);
+    expect(store.has('fm.daily')).toBe(false);
 
     expect(await acct.signIn('MIA_77', 'correct horse')).toBeNull();
     expect(progress.unlocked()).toEqual(['first_win', 'rich']);
@@ -54,6 +61,9 @@ describe('account on the phone', () => {
     expect(progress.loadWorn()).toEqual({ hat: 'hat_straw' });
     expect(progress.leagueStage()).toBe(2);
     expect(st.loadStats().totalSold).toBe(55);
+    // ... and the account brings them back on sign-in
+    expect(st.loadStats().played).toBe(4);
+    expect(Object.keys(st.loadDaily()).sort()).toEqual(['2026-11-10', '2026-11-11']);
     expect(st.loadName()).toBe('Mia');
   });
 

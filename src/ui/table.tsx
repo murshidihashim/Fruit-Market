@@ -18,7 +18,7 @@ import { shownSold, shownStock, useStockShown } from './stockShown';
 import { shownFavours, shownWants } from './rushShown';
 import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
-import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, stockChips, wantText, LANES } from './boardModel';
+import { SEEN_WALK_IN, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, wantText, LANES } from './boardModel';
 import { buyState, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
@@ -27,7 +27,9 @@ import { BEAT, FRAME, moveMs } from './motion';
 import './table.css';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
-export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
+// PLAN-090: six of them, one for each of up to six stalls, so the fifth and sixth stall no longer share the first and
+// second stall's colour (on their awnings, and as their line on the results' cash chart).
+export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark, C.xInk, C.xFlesh];
 export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
 
 /**
@@ -36,20 +38,6 @@ export const seatColour = (p: number) => SEAT_COLOURS[p % SEAT_COLOURS.length];
  */
 export function Awning({ p, look, thin }: { p: number; look?: LookSet; thin?: boolean }) {
   return <RoofBand cls={`tb-awn ${thin ? 'thin' : ''}`} colour={chosenColour(look) ?? seatColour(p)} roof={stallOf(look).roof} scale={thin ? 1 : 2} />;
-}
-
-export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: number; size?: number }) {
-  if (n <= 0) return null;
-  const stage = stageAt(f, pos);
-  const shown = Math.min(n, 3);
-  return (
-    <span class={`pile p${shown}`}>
-      {Array.from({ length: shown }, (_, i) => (
-        <span class="pi" style={{ '--i': i } as any}><Fruit id={f} size={size} stage={stage} /></span>
-      ))}
-      {n > 1 && <b class="pn">{n}</b>}
-    </span>
-  );
 }
 
 // ---------- market ----------
@@ -87,11 +75,15 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
               const ok = !night && !!onPick && n > 0 && (!canPick || canPick(f, pos));
               const cost = buyCost(s, p, f, pos);
               const slide = !!night && night.go && night.steps > 0;
+              // The night (PLAN-090): a box reads as empty once its piece has slid away, and as filled once a piece
+              // has arrived in it (a box that loses one piece and gets another stays filled all through).
+              const after = slide ? market[f][pos + night.steps] ?? 0 : n;
+              const has = !slide ? n > 0 : night.rest ? after > 0 : n > 0 && after > 0;
               return (
-                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
+                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${has ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
                   aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${n} left`}>
-                  <Lamp stage={stage} on={n > 0} size={14} />
+                  <Lamp stage={stage} on={has} size={14} />
                   {n > 0 && (
                     <span class={`tb-pc ${night ? `ns-piece ${slide ? 'moved' : ''} ${slide && pos - night.steps < 0 ? 'gone' : ''} ${night.rest ? 'rest' : ''}` : ''}`}
                       style={night ? `--steps:${Math.min(night.steps, pos + 1)}` : undefined}>
@@ -176,20 +168,6 @@ export function NextLorry({ s, cls = '' }: { s: GameState; cls?: string }) {
 /** A shop's price board for the current showdown: sealed while pricing, flipped open at the reveal. */
 export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; res?: 'won' | 'lost'; tag?: string; /** A computer prices after the people at the table. */ ai?: boolean }
 
-export function SeatBoard({ b }: { b: Board }) {
-  if (b.state === 'thinking') {
-    return b.ai
-      ? <span class="sb thinking" aria-label="Prices next, after you"><i class="sb-hourglass" aria-hidden="true" />next in line</span>
-      : <span class="sb thinking" aria-label="Still deciding prices"><i class="sb-hourglass" aria-hidden="true" />deciding<span class="waiting-dots" /></span>;
-  }
-  return (
-    <span class={`sb ${b.state} ${b.res ?? ''}`}>
-      <span class="sb-face">{b.state === 'open' ? `$${b.price}` : <i class="seal" aria-label="Sealed price" />}</span>
-      {b.tag ? <small>{b.tag}</small> : b.state === 'sealed' && <small>sealed</small>}
-    </span>
-  );
-}
-
 // ---------- the stalls ----------
 
 /** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
@@ -209,11 +187,15 @@ export function rivalNote(s: GameState, p: number, active: boolean): string {
 export interface Bought { f: FruitId; n: number; green: number }
 
 /**
- * Rules 18: what a stall took from the market today, by fruit. It is public from the moment of purchase until the
- * bell, so it is shown only while buying, stocking and pricing; older stock stays secret.
+ * What a stall took from the market today, by fruit, as the screen draws it. The owner's ruling (it replaces "on show
+ * until the bell", DEC-086): "players can only see what others buy during buying phase, it is hidden afterwards". So
+ * this is empty from stocking onwards: beside a crate being filled, the marks read as what is in the crate. Every
+ * place on screen that lists today's purchases reads it from here (the stalls' boxes, your own box, a rival's
+ * details, their spoken labels). Only the drawing changed: the game, what a stall may know (publicView) and what the
+ * room sends are as they were, and a computer stall still remembers what it saw bought. Older stock stays secret.
  */
 export function boughtToday(s: GameState, p: number): Bought[] {
-  if (s.phase !== 'buy' && s.phase !== 'stall' && s.phase !== 'bid') return [];
+  if (s.phase !== 'buy') return [];
   const b = s.players[p].boughtFruit;
   if (!b) return [];
   return LANES.map((f) => {
@@ -259,9 +241,9 @@ const inBuyingOrder = (s: GameState): boolean => s.phase === 'morning' || s.phas
 
 /**
  * A rival as a box in the stalls' row (the approved Buying and Pricing screens): the thin awning strip, the
- * shopkeeper's face, the name and cash, and what it bought today (rules 18: public from buying until the bell).
+ * shopkeeper's face, the name and cash and, only while stalls buy, what it bought today (boughtToday).
  * While stalls buy the box carries its place in the buying order and says "buying now" or "waiting"; once crates are
- * shut it says how many pieces it put out. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
+ * shut it keeps its cash and says how many pieces it put out ("3 out", "filling…", "ready"), and nothing else. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
  * names the browser tests know a rival's box by.
  */
 export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean; compact?: boolean;
@@ -337,8 +319,8 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
 /**
  * The stalls' row (the approved Buying and Pricing screens). While stalls buy: "Stalls · in buying order", every
  * stall with its place in the order, you among them, and what each bought today. While crates are shut: "Rival crates
- * · shut until the bell", your rivals with how many pieces each put out. The rest of the day: your rivals and their
- * cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
+ * · shut until the bell", your rivals with how many pieces each put out, and no purchases. The rest of the day: your
+ * rivals and their cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
  */
 export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
   s: GameState; viewer: number; boards: Record<number, Board>; open: number | null; onOpen: (p: number) => void; onClose: () => void; off: number[];
@@ -351,7 +333,8 @@ export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
     <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
       <div class="tb-row-head">
         <b class="tk-label">{buying ? 'Stalls · in buying order' : shut ? 'Rival crates · shut until the bell' : 'Rival stalls'}</b>
-        {(buying || shut) && <span class="tb-side">{buying ? 'What each bought today' : 'Bought today'}</span>}
+        {/* today's purchases are on show only while stalls buy (boughtToday), and so is the label that names them */}
+        {s.phase === 'buy' && <span class="tb-side">What each bought today</span>}
       </div>
       <div class="tb-stall-row">
         {list.map((p) => (p === viewer
@@ -411,27 +394,6 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
   );
 }
 
-/** Freshness chips for a shop's stock. With `anchors`, fruit can fly to and from them. */
-export function StockChips({ s, p, anchors, empty }: { s: GameState; p: number; anchors?: boolean; empty: string }) {
-  const groups = stockChips(shownStock(p, s.players[p].stock));
-  const any = groups.some((g) => g.chips.length > 0);
-  return (
-    <div class="stk">
-      {groups.map(({ f, chips }) => (
-        <span class="stk-f" data-a={anchors ? `p${p}-${f}` : undefined}>
-          {chips.map(({ pos, stage, n }) => (
-            <span class={`ms-cell has st-${stage} ${pos === 0 ? 'rotting' : ''}`} data-a={anchors ? `p${p}-${f}-${pos}` : undefined}
-              title={`${FRUIT[f].name}: ${stage === 'notso' ? 'soft' : stage}${FRUIT[f].drop[pos] ? `, customers pay $${FRUIT[f].drop[pos]} less` : ''}`}>
-              <Fruit id={f} size={20} stage={stage} />{n > 1 && <b>×{n}</b>}<span>{lifeLabel(f, pos)}</span>
-            </span>
-          ))}
-        </span>
-      ))}
-      {!any && <span class="stk-empty">{empty}</span>}
-    </div>
-  );
-}
-
 // ---------- your stall: the shelf ----------
 
 /** Freshness groups in the order the shelf shows them, and the word for each. */
@@ -465,7 +427,6 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
   const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
-  const used = count(shelf);
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;
@@ -475,6 +436,10 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
   const head = tonightHead(s, p);
   const n = groups.reduce((a, g) => a + g.chips.length, 0) + favours.length;
   const go = night !== undefined && night !== null;
+  // The shelf follows the night as the lanes do (PLAN-090): a chip whose pieces leave tips off as the slide ends, and
+  // once the pieces rest the others carry tomorrow's letter and the pieces that left are no longer counted.
+  const rest = night === 'done';
+  const used = count(shelf) - (rest ? groups.reduce((a, g) => a + g.chips.reduce((x, c) => x + (c.gone ? c.n : 0), 0), 0) : 0);
   return (
     <section class={`my-stall dock tk-dock tb-dock c${Math.min(n, 8)} ${active ? 'active' : ''} ${go ? 'night' : ''} ${night === 'done' ? 'rest' : ''}`} data-a={`p${p}`} aria-label="Your shelf"
       style={typeof night === 'number' ? `--ns-ms:${Math.round(night)}ms` : undefined}>
@@ -497,8 +462,8 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
           ? chips.map((c, i) => (
             <span class={`tb-chip ${i === 0 ? 'stk-f' : ''} ${c.tone} ${go && c.gone ? 'gone' : ''}`} data-a={i === 0 ? `p${p}-${f}` : undefined}
               role="img" aria-label={`${c.n} ${(c.n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}, ${STAGE_WORD[c.stage]}: ${c.words}`} title={c.words}>
-              <Fruit id={f} size={16} stage={c.stage} />
-              <Lamp stage={go && c.next ? c.next : c.stage} size={13} />
+              <Fruit id={f} size={16} stage={rest && c.next ? c.next : c.stage} />
+              <Lamp stage={rest && c.next ? c.next : c.stage} size={13} />
               {c.n > 1 && <b>×{c.n}</b>}
               <span class="tb-chip-w">{c.words}</span>
               {/* a shelf with more kinds of piece than the full words have room for: the first word alone ("okay", "spoils") */}
@@ -570,7 +535,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     // portrait, and no picture is requested until the card is face up for this player.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
-      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
+      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-c={c ? c.id : undefined} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
         role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
         <TicketBack fruits={backs} label={later ? 'Tomorrow' : 'Walk-in'} />
       </div>
@@ -589,7 +554,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />

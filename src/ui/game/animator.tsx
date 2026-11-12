@@ -174,7 +174,17 @@ export function arriving(prev: GameState, next: GameState, viewer: number): numb
  *  new state is drawn. */
 export function holdArrival(ids: number[]) {
   holdCards(ids);
+  // Where each card lies in the row now (PLAN-090): a card that gets a new place when the standing order's card is
+  // dealt to the front slides there, measured here before the row changes.
+  rowWas = null;
+  if (!ids.length) return;
+  rowWas = new Map();
+  for (const el of rowCards()) { const box = A.boxOf(el); if (box && el.dataset.c) rowWas.set(el.dataset.c, box); }
 }
+
+/** Where each customer's card lay in the row before the customers arrived, by the customer's id (data-c, table.tsx). */
+let rowWas: Map<string, A.Box> | null = null;
+const rowCards = (): HTMLElement[] => (typeof document === 'undefined' ? [] : [...document.querySelectorAll<HTMLElement>('.street > .cust[data-c]')]);
 
 /**
  * The customers arrive (PLAN-085; flow study D3): the walk-in cards turn face up one after another, a little apart,
@@ -183,7 +193,17 @@ export function holdArrival(ids: number[]) {
  * reduced motion the cards are simply face up.
  */
 export async function arrive(ids: number[]) {
+  const was = rowWas;
+  rowWas = null;
   if (!ids.length) return;
+  // A card whose place in the row has changed slides to it from where it lay (the shared slide: position only).
+  if (was) {
+    for (const el of rowCards()) {
+      const from = el.dataset.c ? was.get(el.dataset.c) : undefined;
+      const at = A.boxOf(el);
+      if (from && at && Math.abs(from.left - at.left) >= 1) A.flipFrom(el, { ...at, left: from.left }, { duration: A.FEEL.travel });
+    }
+  }
   fx.card();
   const half = A.FEEL.turn / 2;
   await Promise.all(ids.map(async (id, i) => {
@@ -530,8 +550,8 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void, s
       const j = Math.min(sh.juice, sh.leaving[f]);
       sh.juice -= j;
       for (let k = 0; k < j; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: NIGHT.juiceCoin, path: 'flat' })); d += NIGHT.gap; }
-      // The rest spoil: a piece tips off that fruit's place on the shelf (three at most are drawn for one fruit).
-      for (let k = 0; k < Math.min(sh.leaving[f] - j, 3); k++) { jobs.push(A.drop([`p${p}-${f}`], <Fruit id={f} size={24} stage="notso" />, d)); d += NIGHT.gap; }
+      // The rest spoil: their chips tip off the shelf as the slide ends (table.tsx MyStall; PLAN-090: the old wobbling
+      // drop is gone, the shelf follows the night as the lanes do).
     });
   }
   await Promise.all([A.hold(NIGHT.read), ...jobs]);
