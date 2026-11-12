@@ -127,6 +127,7 @@
   #app .tkt .sh-order .wc-ttl-o { font-size: 1.125rem; }
   #app .tkt .sh-order .wc-stats { padding: 8px; }
   #app .tkt .sh-order .wc-stat { flex-direction: row; align-items: baseline; gap: 6px; padding: 5px 8px; }
+  #app .tkt .sh-order .wc-stat .wc-coins { position: static; align-self: center; margin-left: auto; transform: none; }
   #app .tkt .sh-order .wc-foot { padding-top: 4px; padding-bottom: 4px; }
   #app .tkt .ob-status li { padding: 3px 5px; }
   #app .tkt .ob-get { gap: 3px; padding: 6px 8px; }
