@@ -174,4 +174,7 @@
 @media (prefers-reduced-motion: reduce) {
   .hm-intro .home.hm *, .op.op-ld .op-skip { animation: none !important; }
   .op-lanes { display: none; }
+  /* Nothing fades with reduced motion (styles.css turns every animation off), so the cover that waits for the pictures
+     would stay over the finished home until the opening ends. Once the pictures are in, it is simply gone. */
+  .op.op-ld:not(.op-wait) .op-cover { display: none; }
 }
