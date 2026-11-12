@@ -139,6 +139,24 @@ export function ContinueBody({ day, days, stalls, cash, onResume, onStartOver }:
   );
 }
 
+/**
+ * Asked before another game replaces the one that is waiting (PLAN-081): the Daily market, a Market League game or a
+ * new game. Says which game is waiting and what starting would do. Keeping the game is the main button.
+ * `what` completes "Starting … ends this game", for example "the Daily market".
+ */
+export function ReplaceBody({ day, days, stalls, cash, what, onKeep, onStart }: { day: number; days: number; stalls: number; cash: number | null; what: string; onKeep: () => void; onStart: () => void }) {
+  return (
+    <>
+      <div class="popup-info">
+        <span><b>Day {day} of {days}</b><small>{stalls} stalls{cash !== null ? ` · you have $${cash}` : ''}</small></span>
+      </div>
+      <p class="small">You have a game waiting. Starting {what} ends this game.</p>
+      <button class="btn primary big wide" onClick={onKeep}>Keep my game</button>
+      <button class="btn wide" onClick={onStart}>Start anyway</button>
+    </>
+  );
+}
+
 export function FriendBody({ onCreate, onJoin, onQuick }: { onCreate: () => void; onJoin: (code: string) => void; onQuick: () => void }) {
   const [code, setCode] = useState('');
   const clean = normaliseCode(code);

@@ -4,7 +4,7 @@
 // instead of risking a fine for each piece, only its own crate fills the order, and rivals are not involved.
 import { useState } from 'preact/hooks';
 import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS } from '../../../engine/data';
-import { orderStake, type GameState } from '../../../engine/game';
+import { orderStake, type GameState, type Standing } from '../../../engine/game';
 import { Coin, Face, Fruit } from '../../art';
 
 /** "3 mangoes", "1 apple". */
@@ -45,9 +45,20 @@ export function stakeHint(s: GameState, p: number): string | null {
   return s.players[p].cash < stake ? `You need $${stake} in cash for the stake, so you can only pass.` : null;
 }
 
+/**
+ * The line a waiting stall reads under the bidders. `decided`: it has bid or passed. Before that the line must not say
+ * "Bid in" (PLAN-081): offline the computer stalls decide first, so the panel is on screen before the person's own turn.
+ */
+export function bidWaitText(mine: Standing['bids'][number], decided: boolean, canChange: boolean): string {
+  if (!decided) return 'The other stalls bid first. Your turn is next';
+  const own = mine === 'pass' ? 'You passed' : typeof mine === 'number' ? `Your bid: $${mine}` : 'Bid in';
+  return `${own}. ${canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}`;
+}
+
 /** Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
- *  `waiting`: this stall has decided and others have not; with `canChange` (online) it may still change its mind. */
-export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; p: number; waiting?: boolean; canChange?: boolean; onBid: (price: number | null) => void }) {
+ *  `waiting`: this stall is not being asked now, because it has decided and others have not (`decided`; with
+ *  `canChange`, online, it may still change its mind) or because the computer stalls decide before it. */
+export function OrderPanel({ s, p, waiting, canChange, decided = true, onBid }: { s: GameState; p: number; waiting?: boolean; canChange?: boolean; decided?: boolean; onBid: (price: number | null) => void }) {
   const o = s.standing!;
   const card = ORDER_CARDS[o.card];
   const mine = o.bids[p];
@@ -69,21 +80,22 @@ export function OrderPanel({ s, p, waiting, canChange, onBid }: { s: GameState; 
         </div>
         <OrderRules s={s} p={p} />
       </div>
-      <BidStatus s={s} p={p} />
-      {waiting && <div class="hint-bar waiting-dots">{mine === 'pass' ? 'You passed' : typeof mine === 'number' ? `Your bid: $${mine}` : 'Bid in'}. {canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}</div>}
-      {!locked && short && <div class="hint-bar">{hint}</div>}
-      {!locked && (
-        <>
-          {!short && (
-            <div class="op-bid" role="group" aria-label="Your secret bid per piece">
-              <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
-              <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
-              <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
-            </div>
-          )}
-          {mine !== 'pass' && !short && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
-        </>
-      )}
+      {/* Everything under the order's card (who is bidding, the line of advice, the price and Pass) stays in view at
+          the foot of the panel while the card scrolls behind it. PLAN-081: the customer row now stays on the table
+          during the bid, so on a phone the whole panel no longer always fits. The order of the parts is unchanged. */}
+      <div class="op-foot">
+        <BidStatus s={s} p={p} />
+        {waiting && <div class="hint-bar waiting-dots">{bidWaitText(mine, decided, !!canChange)}</div>}
+        {!locked && short && <div class="hint-bar">{hint}</div>}
+        {!locked && !short && (
+          <div class="op-bid" role="group" aria-label="Your secret bid per piece">
+            <button type="button" class="btn step" aria-label="Bid $1 less" disabled={v <= 1} onClick={() => setV(v - 1)}>−</button>
+            <span class="op-price"><Coin size={22} /><b>{v}</b><small>a piece</small></span>
+            <button type="button" class="btn step" aria-label="Bid $1 more" disabled={v >= o.ceiling} onClick={() => setV(v + 1)}>+</button>
+          </div>
+        )}
+        {!locked && !short && mine !== 'pass' && <button type="button" class="btn ghost op-pass" onClick={() => onBid(null)}>{waiting ? 'Pass instead' : "Pass: I don't want this order"}</button>}
+      </div>
     </div>
     {!locked && !short && (
       <div class="pp-lock">

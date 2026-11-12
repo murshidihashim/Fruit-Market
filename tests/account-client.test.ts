@@ -69,6 +69,30 @@ describe('account on the phone', () => {
     expect([...progress.unlocked()].sort()).toEqual(['first_win', 'no_waste']);
   });
 
+  it('keeps trophy names that contain a space through sign-up, every sync and another phone (PLAN-081)', async () => {
+    const acct = await import('../src/ui/account');
+    const progress = await import('../src/ui/progress');
+    const sets = { beaten: ['Rosa', 'Uncle Benny', 'Ah Chen'], customers: ['John', 'Rara Jenab', 'Hock Seng'], guests: ['Influencer', 'Gym Club', 'Hotel Chef'] };
+    progress.saveSets(sets);
+    expect(await acct.signUp('ben_08', 'a long password')).toBeNull();
+    // Signing up writes the server's copy back to the phone: nothing may be missing from it.
+    expect(progress.loadSets()).toEqual(sets);
+    expect(accounts.get('ben_08')!.profile.progress).toEqual(sets);
+    expect(await acct.syncNow()).toBeNull();
+    expect(await acct.syncNow()).toBeNull();
+    expect(progress.loadSets()).toEqual(sets);
+
+    // Another phone: signed out (which clears the phone), a guest game there, then signed in again.
+    expect(await acct.signOut()).toBeNull();
+    expect(progress.loadSets()).toEqual({});
+    progress.saveSets({ beaten: ['Pak Din'], customers: ['Mei Ling'] });
+    expect(await acct.signIn('ben_08', 'a long password')).toBeNull();
+    const joined = progress.loadSets();
+    expect([...joined.beaten].sort()).toEqual(['Ah Chen', 'Pak Din', 'Rosa', 'Uncle Benny']);
+    expect([...joined.customers].sort()).toEqual(['Hock Seng', 'John', 'Mei Ling', 'Rara Jenab']);
+    expect([...joined.guests].sort()).toEqual(['Gym Club', 'Hotel Chef', 'Influencer']);
+  });
+
   it('shows the server message for a wrong password and keeps the phone as it was', async () => {
     const acct = await import('../src/ui/account');
     const progress = await import('../src/ui/progress');

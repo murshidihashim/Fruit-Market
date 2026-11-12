@@ -433,6 +433,13 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
   );
 }
 
+/**
+ * Before today's walk-ins arrive: the morning, the Market Day bid for a standing order, and buying. The row then holds
+ * today's regular and the walk-ins face down, and the strip holds tomorrow's crowd. PLAN-081: the bid counts too (the
+ * row used to empty during it, and the strip showed today's crowd under the label "Tomorrow").
+ */
+export const beforeArrival = (s: GameState): boolean => s.phase === 'morning' || s.phase === 'order' || s.phase === 'buy';
+
 /** Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). */
 export function Street({ s, viewer, onTip, onScout, away, served }: {
   s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void;
@@ -440,7 +447,7 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
   away?: number; served?: number[];
 }) {
   const rush = (c: Customer) => (c.id === away ? 'away' : served?.includes(c.id) ? 'served' : undefined);
-  const before = s.phase === 'morning' || s.phase === 'buy';
+  const before = beforeArrival(s);
   const extra = s.event?.extra;
   // Walk-ins wait face down; a player who played Gossip or Scout on one sees its front.
   const walkIn = (c: Customer) => c.seenBy?.includes(viewer)
@@ -466,7 +473,7 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
  * in the morning, so the strip shows while stalls buy too (from nextForecast and nextQueue, then forecast and queue).
  */
 export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
-  const before = s.phase === 'morning' || s.phase === 'buy';
+  const before = beforeArrival(s);
   const forecast = before ? s.nextForecast : s.forecast;
   const queue = before ? s.nextQueue ?? [] : s.queue;
   if (s.phase === 'over' || (!forecast && !queue.length)) return null;

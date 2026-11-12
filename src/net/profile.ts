@@ -33,6 +33,14 @@ const MAX_LIST = 300;
 const MAX_DAILY = 400;
 const MAX_SETS = 24;
 const ID_RE = /^[A-Za-z0-9_.:-]{1,40}$/;
+/**
+ * A member of a progress set: an id, or a name the game shows, such as "Uncle Benny" or "Hock Seng" (PLAN-081: names
+ * with a space used to be dropped at every sync, so some achievements could never complete for a signed-in player).
+ * Words of the same characters as an id, with one space between words: none at either end, never two in a row, and no
+ * other blank character. At most 40 characters, spaces included. Everything else (set names, achievement and look ids,
+ * the colour, what is worn) stays an id.
+ */
+const MEMBER_RE = /^(?=.{1,40}$)[A-Za-z0-9_.:-]+(?: [A-Za-z0-9_.:-]+)*$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function emptyProfile(): Profile {
@@ -45,7 +53,9 @@ export function emptyProfile(): Profile {
 const num = (x: unknown, max = 1e9): number => (typeof x === 'number' && Number.isFinite(x) ? Math.max(0, Math.min(max, Math.floor(x))) : 0);
 // eslint-disable-next-line no-control-regex -- stripping control characters on purpose
 const text = (x: unknown, max: number): string => (typeof x === 'string' ? x.replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, max) : '');
-const ids = (x: unknown): string[] => (Array.isArray(x) ? [...new Set(x.filter((e): e is string => typeof e === 'string' && ID_RE.test(e)))].slice(0, MAX_LIST) : []);
+/** A list of distinct strings that pass the check, cut to the list limit. */
+const list = (x: unknown, ok: RegExp): string[] => (Array.isArray(x) ? [...new Set(x.filter((e): e is string => typeof e === 'string' && ok.test(e)))].slice(0, MAX_LIST) : []);
+const ids = (x: unknown): string[] => list(x, ID_RE);
 
 /** Turns anything into a safe, well-formed profile: unknown fields are dropped and every value is limited. */
 export function cleanProfile(raw: unknown): Profile {
@@ -69,7 +79,8 @@ export function cleanProfile(raw: unknown): Profile {
   const s = (r.stats && typeof r.stats === 'object' ? r.stats : {}) as Record<string, unknown>;
   out.stats = { played: num(s.played), wins: num(s.wins), bestCash: num(s.bestCash), totalSold: num(s.totalSold) };
   if (r.progress && typeof r.progress === 'object') {
-    for (const [k, v] of Object.entries(r.progress as Record<string, unknown>).slice(0, MAX_SETS)) if (ID_RE.test(k)) out.progress[k] = ids(v);
+    // The set's name is an id; its members may be names (see MEMBER_RE).
+    for (const [k, v] of Object.entries(r.progress as Record<string, unknown>).slice(0, MAX_SETS)) if (ID_RE.test(k)) out.progress[k] = list(v, MEMBER_RE);
   }
   return out;
 }
