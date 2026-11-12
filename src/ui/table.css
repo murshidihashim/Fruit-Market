@@ -261,3 +261,26 @@
 }
 
 #app .tkt .tb-dock-head .tk-shelf i { font-style: normal; }
+
+/* ---------- touch areas (PLAN-090): at least 40 px where the layout allows ----------
+   Each is an unseen area laid over the thing and reaching a little past its edge. Nothing is moved or resized. */
+/* a lane's heading (22 px, 18 on a short phone): its area reaches up over the market's label, which opens nothing */
+#app .game.tkt .tb-lh { position: relative; overflow: visible; }
+#app .game.tkt .tb-lh > span { min-width: 0; overflow: hidden; }
+#app .game.tkt .tb-lh:not(:disabled)::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; top: -22px; }
+/* a box you can buy from: the boxes of a lane stand 3 px apart, so its area can only reach half-way to the next one
+   (a larger area would take the next box's taps); it stays as tall as the box and the gap */
+#app .game.tkt .tb-box.pick::before { content: ''; position: absolute; inset: -3.5px -4.5px; }
+/* tomorrow's customer (26 px, 22 on a short phone): up to the tickets and down to the band's edge */
+#app .game.tkt .tomorrow { overflow: visible; }
+#app .game.tkt .tomorrow .tm-chip:not(.tm-back) { position: relative; }
+#app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { content: ''; position: absolute; inset: -8px -2px -6px; }
+/* a favour card on your shelf (26 px): 7 px above and below, and to each side where it is only a picture */
+#app .game.tkt .tb-chips { overflow: clip; overflow-clip-margin: 7px; }
+#app .game.tkt .tb-chips .favchip { position: relative; }
+#app .game.tkt .tb-chips .favchip::before { content: ''; position: absolute; inset: -7px 0; }
+#app .game.tkt .tb-dock.c8 .tb-chips .favchip::before { inset: -7px; }
+@media (max-height: 779px) {
+  #app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { inset: -12px -2px -6px; }
+  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chips .favchip::before { inset: -7px; }
+}
