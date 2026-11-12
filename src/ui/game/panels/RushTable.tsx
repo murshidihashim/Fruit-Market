@@ -175,7 +175,7 @@ function Customer({ c, at, stage, el }: { c: RushCard; at: number; stage: RushSt
   const soft = c.kind !== 'order' && pref === 'bargain';
   const [aw, ah] = ART_SIZE[guest ? 'event' : 'customer'];
   return (
-    <article class={`rt-cust ${guest ? 'guest' : ''}`} ref={el} data-a="rs-card">
+    <article class={`rt-cust ${guest ? 'guest' : ''}`} ref={el} data-a="rs-card" data-c={c.customerId}>
       <header class="rt-hd">
         {num !== undefined ? <b>{String(num).padStart(2, '0')}</b> : <b>{c.kind === 'order' ? 'Standing order' : guest ? 'Guest' : ''}</b>}
         <span>{look.title}</span>
