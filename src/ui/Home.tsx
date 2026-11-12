@@ -8,14 +8,14 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { stageAt, type FruitId } from '../engine/data';
+import { FRUIT, lookOf, stageAt, type FruitId } from '../engine/data';
 import { activePlayer, count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { LOOKS } from '../net/looks';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
 import { TIER_COUNT, standing } from './achievements';
-import { CALM_ART, eventArt, eventFocus, focusCss } from './deckArt';
+import { CALM_ART, customerArt, customerFocus, eventArt, eventFocus, focusCss } from './deckArt';
 import { newsChips } from './eventChips';
 import { FruitSvg } from './fruitIcons';
 import { myAvatar, syncLooks, worn } from './looks';
@@ -61,9 +61,11 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 /** "11 Nov" from a date key. */
 const shortDate = (key: string): string => { const [, m, d] = key.split('-').map(Number); return `${d} ${MONTHS[(m || 1) - 1]}`; };
 
-/** Today's market (the first page): today's event and its effect, what the lorry brings, how many have played and the
- *  best so far, and one button to play. The event and the lorry are the first morning of today's Daily market, which is
- *  the same for everyone and public from its first screen. */
+/** Today's market (the first page): what the first morning of today's Daily market puts on the table, which is the same
+ *  for everyone and public from the game's first screen: the lorry's load and, since no game has an event card on its
+ *  first day (events are turned over each morning from day 2 and never shown early), the customer who stands first in
+ *  the row, face up, with what they want. Should a first day ever carry an event, it is shown with its effect. Then
+ *  how many have played and the best so far, and one button to play. */
 function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
   const first = useMemo(() => newGame(dailyConfig(today, 'You')), [today]);
   const [res, setRes] = useState<BoardResult | null>(null);
@@ -72,7 +74,10 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
   const streak = currentStreak(Object.keys(daily), today);
   const e = first.event;
   const chip = newsChips(e)[0];
-  const src = e ? eventArt(e.id) : CALM_ART;
+  const who = e ? null : first.forecast;
+  const src = e ? eventArt(e.id) : who ? customerArt(who.name) : CALM_ART;
+  const pos = focusCss(e ? eventFocus(e.id) : who ? customerFocus(who.name) : eventFocus('calm'));
+  const wants = who ? who.wants.map((w) => `${w.qty} ${(w.qty === 1 ? FRUIT[w.fruit].name : FRUIT[w.fruit].plural).toLowerCase()}`).join(' · ') : '';
   const best = res && !res.error && res.top.length ? res.top[0].cash : null;
   return (
     <div class="hm-slot" data-page="today">
@@ -80,9 +85,10 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
       <div class="hm-sb">
         <div class="hm-t1">
           <div class="hm-ev">
-            {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: focusCss(eventFocus(e ? e.id : 'calm')) }} />}
-            <span class="hm-evn">{e ? e.title : 'Calm Day'}</span>
-            <span class="hm-chip">{chip ? `${chip.big} ${chip.small.toLowerCase()}` : 'No event today'}</span>
+            <span class="hm-lb">{e ? 'Today\'s event' : who ? 'First customer' : 'Today'}</span>
+            {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: pos }} />}
+            <span class="hm-evn">{e ? e.title : who ? lookOf(who.name).title : 'Calm Day'}</span>
+            <span class="hm-chip">{e ? (chip ? `${chip.big} ${chip.small.toLowerCase()}` : e.title) : who ? `Wants ${wants}` : 'No event today'}</span>
           </div>
           <div class="hm-tr">
             <span class="hm-lb">Today's lorry brings</span>

@@ -69,9 +69,9 @@
 /* today's market */
 .home.hm .hm-t1 { display: grid; grid-template-columns: minmax(0, 140px) minmax(0, 1fr); gap: 10px; }
 .home.hm .hm-ev { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.home.hm .hm-ev img { width: 100%; height: 88px; display: block; box-sizing: border-box; border: 2px solid var(--hm-ink); object-fit: cover; }
+.home.hm .hm-ev img { width: 100%; height: 80px; display: block; box-sizing: border-box; border: 2px solid var(--hm-ink); object-fit: cover; }
 .home.hm .hm-evn { font: 400 1rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
-.home.hm .hm-chip { align-self: flex-start; padding: 3px 6px; background: var(--hm-melon); color: var(--hm-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.home.hm .hm-chip { align-self: flex-start; padding: 3px 6px; background: var(--hm-melon); color: var(--hm-paper); font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .home.hm .hm-tr { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .home.hm .hm-ln4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-bottom: 4px; }
 .home.hm .hm-ln { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--hm-paper); font: 400 1.0625rem/1 var(--f-display); }
