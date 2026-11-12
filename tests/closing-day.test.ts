@@ -6,7 +6,7 @@ import { aiStep } from '../src/engine/ai';
 import { beginBuying, count, finishReveal, newGame, type GameConfig, type GameState } from '../src/engine/game';
 import { closingNote, dayLedger, jamDue, standing, withJamPaid } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
-import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
+import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { MyStall } from '../src/ui/table';
 
 // Closing Day (REP-089 3.1): the jam maker pays JAM_PRICE for each ripe leftover (RULES.md, approved in REP-032/033).
@@ -118,18 +118,19 @@ describe('the final sales card counts the jam maker', () => {
     const s = closing({}, 3);
     const l = dayLedger(s, 0);
     expect(l).toMatchObject({ jam: 3 * JAM_PRICE, jamTonight: true });
-    const html = toStaticHtml(h(SalesSummary, { s, viewer: 0 }));
+    const html = toStaticHtml(h(TakingsView, { s, viewer: 0 }));
     expect(html).toContain('MARKET CLOSED');
     expect(html).toContain(`Jam maker tonight <b class="good">+$${3 * JAM_PRICE}</b>`);
     const net = finishReveal(s).players[0].cash - s.dayStartCash![0];
     expect(l.net).toBe(net);
-    expect(html).toContain(`Net <b class="${net >= 0 ? 'good' : 'bad'}">${net >= 0 ? '+' : '−'}$${Math.abs(net)}</b>`);
+    // the net is the takings' "Up today" (or "Down today", or "Even today") on the approved Takings board (PLAN-085)
+    expect(html).toContain(`${net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Even today'} <b class="${net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}">${net > 0 ? '+' : net < 0 ? '−' : ''}$${Math.abs(net)}</b>`);
   });
 
   it('shows no jam money with Closing Day off, and none on an ordinary day', () => {
     const off = closing({ marketDays: false }, 3);
     expect(dayLedger(off, 0)).toMatchObject({ jam: 0, jamTonight: false });
-    expect(toStaticHtml(h(SalesSummary, { s: off, viewer: 0 }))).not.toContain('Jam maker');
+    expect(toStaticHtml(h(TakingsView, { s: off, viewer: 0 }))).not.toContain('Jam maker');
     const day3 = until(newGame(cfg(4)), (s) => s.day === 3 && s.phase === 'reveal');
     expect(dayLedger(day3, 0)).toMatchObject({ jam: 0, jamTonight: false });
     expect(dayLedger(day3, 0).net).toBe(day3.players[0].cash - day3.dayStartCash![0]);
