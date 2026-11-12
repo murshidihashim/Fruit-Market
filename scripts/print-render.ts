@@ -70,6 +70,15 @@ export async function renderPdf(browser: Browser, tmp: string, out: string, file
       return out;
     }, FONTS);
     if (problems.length) throw new Error(`${file}: it would print wrong\n${[...new Set(problems)].join('\n')}`);
+    // Not an error, but worth a word: a card so full that its picture is smaller than the app's smallest (76 units).
+    const squeezed = await page.evaluate(() => [...document.querySelectorAll('.pk-slot .cd-pic, .pk-bleed .cd-pic')].flatMap((pic) => {
+      const cd = pic.closest('.cd');
+      if (!cd) return [];
+      const u = cd.getBoundingClientRect().width / 252;
+      const tall = pic.getBoundingClientRect().height / u;
+      return tall < 75.5 ? [`${pic.closest('[data-card]')?.getAttribute('data-card') ?? '?'}: picture ${Math.round(tall)} units tall, the app's smallest is 76`] : [];
+    }));
+    for (const note of new Set(squeezed)) console.log(`  note, ${file}: ${note}`);
     const laidOut = await page.evaluate(() => document.querySelectorAll('.pg, .page').length);
     await page.pdf({ path: join(out, file), preferCSSPageSize: true, printBackground: true });
     const written = pdfPages(join(out, file));

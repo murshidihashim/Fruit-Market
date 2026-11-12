@@ -271,6 +271,10 @@ body { color: var(--x-ink); font-family: var(--f-label); -webkit-print-color-adj
 .pk-grid { position: absolute; left: 10.5mm; top: 16.5mm; display: grid; grid-template-columns: repeat(3, ${CARD_W}mm); grid-auto-rows: ${CARD_H}mm; }
 .pk-slot { width: ${CARD_W}mm; height: ${CARD_H}mm; background: var(--x-ink); }
 .pk-slot.is-empty { background: transparent; }
+/* A card whose words need more room than the app's card allows lets its picture give way a little further (the app's
+   smallest picture is 76 units). Only a card that would otherwise push its footer off the card is changed by this:
+   scripts/print-deck.ts names each one when it runs. */
+.pg .cd-pic { min-height: calc(var(--u) * 62); }
 /* a pattern back's tiles, laid from the corner the app's repeating background starts at (see deckBack) */
 .pk-tiles { position: absolute; inset: 0; overflow: hidden; display: grid; grid-template-columns: repeat(4, calc(var(--u) * 72)); grid-auto-rows: calc(var(--u) * 72); }
 .pk-tiles img { display: block; width: 100%; height: 100%; }
