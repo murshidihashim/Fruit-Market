@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
@@ -8,7 +8,7 @@ import { dayLedger, jamDue, standing, tonightLine, withJamPaid } from '../src/en
 import { LANES } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import {
-  TIGHTEST, TakingsView, chipWords, closer, extras, keepPlace, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
+  TIGHTEST, TakingsView, chipWords, closer, extras, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
 } from '../src/ui/game/panels/SalesSummary';
 
 // The day's takings (PLAN-085; the approved Takings board): the ledger's lines, the list of stalls, the favour card
@@ -143,7 +143,7 @@ describe('the ledger', () => {
     const { s } = find((x, p) => p === 0 && x.results!.income[0] > 0 && x.day < x.config.days);
     const old = { ...s, dayStartCash: undefined };
     expect(takingsRows(old, 0).some((x) => x.key === 'other')).toBe(false);
-    expect(view(old)).not.toMatch(/Up today|Down today/);
+    expect(view(old)).not.toMatch(/Up today|Down today|Even today/);
     // the list then shows each stall's sales for the day
     expect(view(old)).toContain(`<span class="tg-td">+$${s.results!.income[0]} today</span>`);
   });
@@ -157,11 +157,14 @@ describe('the takings as drawn', () => {
       const rem = s.config.days - s.day;
       expect(html).toContain(`Day ${s.day} · your takings`);
       expect(html).toContain(rem === 0 ? 'MARKET CLOSED' : rem === 1 ? '1 day to go' : `${rem} days to go`);
-      expect(html).toContain(net >= 0 ? `Up today <b class="good">+$${net}</b>` : `Down today <b class="bad">−$${-net}</b>`);
+      expect(html).toContain(net > 0 ? `Up today <b class="good">+$${net}</b>` : net < 0 ? `Down today <b class="bad">−$${-net}</b>` : 'Even today <b class="flat">$0</b>');
       // plain words: no exclamation marks anywhere on the card
       expect(html.replace(/<[^>]*>/g, ' ')).not.toContain('!');
     }
     expect(all.some(({ s }) => dayLedger(s, 0).net! < 0)).toBe(true);
+    // a day that changed nothing is "Even today"
+    const even = find((s, p) => dayLedger(s, p).net === 0);
+    expect(view(even.s, even.p)).toContain('Even today <b class="flat">$0</b>');
   });
 
   it('every stall once, first to last, with its day and its cash; this stall\'s row is marked', () => {
@@ -300,46 +303,6 @@ describe('what tonight does to the shelf', () => {
     // an empty shelf has nothing to say
     const empty = find((x, q) => x.day < x.config.days && count(x.players[q].stock) === 0);
     expect(view(empty.s, empty.p)).not.toContain('tg-shelf');
-  });
-});
-
-describe('as the takings leave', () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('the sheet\'s picture keeps its place when the rows above the middle have changed (the evening\'s shorter customer band)', () => {
-    const frames: (() => void)[] = [];
-    vi.stubGlobal('requestAnimationFrame', (f: () => void) => { frames.push(f); return 0; });
-    const rect = (top: number, bottom: number) => ({ top, bottom, width: 390 });
-    // the table as the evening lays it out: the middle cell starts 142 px higher than it did under the takings
-    const rows: Record<string, ReturnType<typeof rect>> = {
-      ':scope > .centre > .market-stall': rect(216, 679), ':scope > .street-wrap': rect(82, 160), ':scope > .my-stall': rect(679, 772),
-    };
-    const table = (connected: boolean) => ({
-      isConnected: connected,
-      querySelector: (sel: string) => (rows[sel] ? { getClientRects: () => [rows[sel]], getBoundingClientRect: () => rows[sel] } : null),
-    }) as unknown as Element;
-    const picture = (connected: boolean) => {
-      const set: Record<string, string> = {};
-      return { set, el: { isConnected: connected, style: { setProperty: (k: string, v: string) => { set[k] = v; } } } as unknown as HTMLElement };
-    };
-    const kept = picture(true);
-    keepPlace(kept.el, table(true));
-    // nothing is measured or written in the middle of the draw that takes the takings off
-    expect(kept.set).toEqual({});
-    expect(frames.length).toBe(1);
-    frames[0]();
-    // from the top of the customer band (82) to the foot of the shelf (772), measured from the middle cell as it now lies
-    expect(kept.set).toEqual({ '--rise': '134px', '--drop': '93px' });
-    // no picture was kept (reduced motion, or the table has gone): nothing is written
-    const gone = picture(false);
-    keepPlace(gone.el, table(true));
-    frames[1]();
-    expect(gone.set).toEqual({});
-    const away = picture(true);
-    keepPlace(away.el, table(false));
-    frames[2]();
-    expect(away.set).toEqual({});
-    expect(read('src/ui/game/panels/SalesSummary.tsx')).toContain('return () => { if (sheet && game) keepPlace(sheet, game); };');
   });
 });
 

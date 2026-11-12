@@ -8,7 +8,8 @@
    below it by a negative margin measured from the rows themselves (game/reach.ts), as the morning's sheet does
    (sheets.css). Where there is less room the takings are drawn closer, a step at a time (data-tight, written by
    SalesSummary.tsx), before anything scrolls.
-   Nothing here moves by itself: the sheet slides on and off by the table's one rule (sheet.ts).
+   Nothing here moves by itself: the day's sheet (daysheet.css) lies under the takings and is the panel that slides
+   (sheet.ts); the takings are uncovered as the last customer's card leaves and go when the day is closed.
    Imported after ticket.css and sheets.css, so a rule here wins over theirs. Colours come from palette.css only.
    ===================================================================== */
 #app .tkt > .centre > .sales-card {

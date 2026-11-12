@@ -123,8 +123,8 @@ describe('the final sales card counts the jam maker', () => {
     expect(html).toContain(`Jam maker tonight <b class="good">+$${3 * JAM_PRICE}</b>`);
     const net = finishReveal(s).players[0].cash - s.dayStartCash![0];
     expect(l.net).toBe(net);
-    // the net is the takings' "Up today" (or "Down today") on the approved Takings board (PLAN-085)
-    expect(html).toContain(`${net >= 0 ? 'Up today' : 'Down today'} <b class="${net >= 0 ? 'good' : 'bad'}">${net >= 0 ? '+' : '−'}$${Math.abs(net)}</b>`);
+    // the net is the takings' "Up today" (or "Down today", or "Even today") on the approved Takings board (PLAN-085)
+    expect(html).toContain(`${net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Even today'} <b class="${net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}">${net > 0 ? '+' : net < 0 ? '−' : ''}$${Math.abs(net)}</b>`);
   });
 
   it('shows no jam money with Closing Day off, and none on an ordinary day', () => {
