@@ -20,6 +20,17 @@
    walk-ins turn face up. */
 #app .tkt .street { --pic: 56px; min-height: calc(48px + var(--pic) + var(--lines, 2) * 20px); }
 #app .tkt .street .tkc-pc { height: var(--pic); }
+/* a very short phone (360 by 640): the row's tickets go without their pictures, so the lanes keep their six boxes when
+   a standing order's strip and your favour cards are on the table as well (a tap on a ticket still shows its picture) */
+@media (max-height: 650px) {
+  #app .tkt .street-wrap .street { --pic: 0px; }
+  #app .tkt .street-wrap .street .tkc-pc { display: none; }
+  /* a face-down card's four squares are drawn smaller there, so the card is no taller than a ticket without its
+     picture and the row keeps one height when the walk-ins turn face up */
+  #app .tkt .street-wrap .street .tkc-dn { grid-template-columns: repeat(2, 22px); gap: 3px; padding: 4px 0; }
+  #app .tkt .street-wrap .street .tkc-dn span { width: 22px; height: 22px; }
+  #app .tkt .street-wrap .street .tkc-dn .x-fruit { width: 15px; height: 15px; }
+}
 /* a walk-in turns face up: its back turns away, then its face shows; the standing order's card is dealt to the front */
 #app .tkt .street > .cust.tb-turn-out > * { animation: tb-turn-out calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0.4, 0, 1, 1) both; }
 #app .tkt .street > .cust.tb-turn-in > * { animation: tb-turn-in calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0, 0, 0.2, 1) both; }
@@ -232,8 +243,11 @@
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-to { display: inline-flex; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip > span { display: none; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip { padding: 0; }
-  #app .tkt > .actionbar { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-  #app .tkt > .actionbar .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }
+  /* the bottom bar, and the buttons a sheet puts in its place, stay one height, so your shelf does not move between them */
+  #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt > .actionbar .btn, #app .tkt > .centre > .pp-lock .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }
+  /* a line of words in the bar is as tall as its button, so your shelf does not move between the two */
+  #app .tkt > .actionbar .hint-bar { min-height: 48px; }
 }
 @media (max-width: 379px) {
   #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
