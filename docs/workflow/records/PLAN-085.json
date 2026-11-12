@@ -1,10 +1,11 @@
 {
-  "release": "unreleased",
+  "release": "1.20.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-104",
     "REP-106",
-    "REP-109"
+    "REP-109",
+    "REP-111"
   ],
   "decisions": [
     "DEC-086",
@@ -14,13 +15,31 @@
     "DEC-095",
     "DEC-098",
     "DEC-103",
-    "DEC-104"
+    "DEC-104",
+    "DEC-105",
+    "DEC-106"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "One sheet that stays on the table from stocking to the takings; stocking and pricing as on the boards, drawn closer in steps to fit the room",
+      "The Wholesale Market as lanes of 3, 4, 5 and 6 boxes; buying as travel from the box to the shelf; a rival's whole turn as one move; the lorry unloading a crate into each lane; walk-ins turning face up one after another",
+      "The night on the market's own lanes: every piece slides one box along (two in a Heatwave, none in a Monsoon) and a piece leaving the last box tips off",
+      "The stalls in buying order with what each bought today; your shelf with what tonight does to each piece; awning strips on your shelf and on a rival's box",
+      "The day's takings as a ledger that adds up, every stall's day and cash, a favour card won, what tonight does to your shelf",
+      "The bell: every stall's prices turn over stall by stall; the Favoured Trade question as its card, which travels to the tied price and stamps it"
+    ],
+    "changed": [
+      "The table rows keep their places from the morning to the night; the customer row no longer grows when walk-ins turn face up",
+      "The night takes about 2.5 seconds (was about 3.7)",
+      "Undo sends the piece back to its box"
+    ],
+    "fixed": [
+      "The first-game tip no longer squeezes stocking and pricing into a narrow column",
+      "On a shared phone the next person's shelf was drawn for a few frames before the hand-over"
+    ],
+    "removed": [
+      "The old stocking, pricing, takings and night panels"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -28,7 +47,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The designs are the boards in docs/studio/review-18/mockups: Pricing and Favoured-Trade (DEC-090 to DEC-095), Buying with the market as lanes (DEC-094), Stocking, Takings and the awning strip (DEC-103: \"okay approve all 3\").",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-085",
   "title": "Release A, package 3, part 2: one sheet from stocking to the takings; the market, the stalls, buying, the lorry and the night",
   "problem": "Between stocking and the takings the market flashes back and the table blinks four times; stocking and the takings are old layouts. The Wholesale Market is a shortened list, not the board's lanes; the customer row grows when walk-ins turn face up; at night two rows vanish and the table jumps; fruit and crates appear instead of travelling.",
@@ -49,38 +68,38 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On ca39c60: 70 files, 722 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code: solo game to the results, performance budget, online match with 0 leaks, reconnect",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On the complete build (ca39c60), with the machine quiet: solo game to the results with no errors; performance budget OK (longest task 187 ms against 200, opening the game screen 211 ms, 0.69 slow frames in a hundred, 626 page elements of 800); online match with 66 pricing frames and 0 leaks; an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. Runs on the merged code: 141 ms and 187 ms with the machine quiet (PASS); 216, 260 and 344 ms while helpers and other tests were loading it (FAIL at the 200 ms limit). The CI machines measured 63 ms on the four-screen build, against their limit of 250 ms."
     },
     {
       "id": "T3",
       "text": "Each screen seen in the running game at 390x844 and 360x640, with 4 and with 6 stalls, beside its board, by me; differences listed; no control off the screen or covered",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "From the release build: the morning, buying, stocking, pricing, the bell with a Favoured Trade question, the takings and the evening at 390x844 with 4 stalls and at 360x640 with 6 (REP-111, two pictures), every control in view; and the helpers' montages beside the boards for stocking, pricing, buying, the stalls, the bell and the takings at both sizes with 2, 4 and 6 stalls. Differences listed in REP-111 section 3."
     },
     {
       "id": "T4",
       "text": "The table rows do not move and the market does not show between stocking and the takings; numbers change when a piece lifts and lands, not before (measured)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helpers' measures: the table rows hold the same positions at every step from morning to night at 390x844 and 360x640 (before: the customer row grew 20 px and two rows vanished at night); 0 frames with a market lane showing between stocking and the takings in three runs; a bought piece is in the air 93 to 426 ms after the tap, the box's number changes at lift-off, shelf and cash on landing. Not measured again by me on the release build."
     },
     {
       "id": "T5",
       "text": "No secret early: a rival's prices and crate before the bell, pass-and-play hand-over, online leak check at 0",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "No rival price, fruit or letter on a shut row before the bell (9 watched runs, helper); a rival's box, details and row are drawn the same whatever its shelf holds (tests/shelf-tonight.test.ts); online leak check on the release build: 66 pricing frames, 0 leaks; pass-and-play with one tap on Done: 0 frames of another person's shelf (helper, both sizes); with a double tap: 169 of 186 frames leaked before the repair, 0 of 185 after it (my run on the release build)."
     },
     {
       "id": "T6",
       "text": "With reduced motion nothing travels and every pause to read is kept",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helpers: with reduced motion the lanes are full at once, a bought piece is on the shelf at once, walk-ins are face up at once, the bell opens every row in one frame and keeps 1.2 s to read, a stocking piece is drawn in the crate at once. The Favoured Trade card being played was not watched with reduced motion."
     },
     {
       "id": "T7",
