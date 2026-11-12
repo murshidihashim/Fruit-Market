@@ -11,7 +11,7 @@ import { LANES } from '../src/ui/boardModel';
 import { DeckBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UpgradeCard, toStaticHtml } from '../src/ui/cards';
 import { tileArt, type DeckId } from '../src/ui/deckArt';
 import {
-  GUESTS, PER_SHEET, UPGRADE_COPIES, artFile, backArt, deckProblems, doc, factoryPages, kitCss, mirrored, printDecks, sheets,
+  GUESTS, PER_SHEET, UPGRADE_COPIES, artFile, backArt, deckProblems, doc, factoryPages, handFixes, kitCss, mirrored, printDecks, replacedDecks, sheets,
   type DeckKey, type PrintCard, type PrintDeck,
 } from '../scripts/print-cards';
 
@@ -232,5 +232,34 @@ describe('print kit: sheets and factory pages', () => {
     expect(html).not.toMatch(/url\('[^']*node_modules/);
     expect(html).toContain('font/woff2;base64,');
     expect(html).not.toContain('loading="lazy"');
+  });
+});
+
+describe('print kit: for someone who holds the earlier printing (the update pack)', () => {
+  it('replaces four decks whole, with the kit\'s own cards', () => {
+    const replaced = replacedDecks();
+    expect(replaced.map((r) => r.deck.key)).toEqual(['orders', 'upgrades', 'shopkeepers', 'favours']);
+    for (const r of replaced) expect(r.deck.cards, r.deck.key).toEqual(deck(r.deck.key).cards);
+    for (const u of Object.values(UPGRADES)) expect(replaced[1].why).toContain(`${u.title} $${u.cost}`);
+    for (const t of ['charmer', 'favourite', 'nestegg', 'earful'] as const) expect(replaced[2].why).toContain(TRAITS[t].title);
+    expect(replaced[3].why).toContain(`${FAVOUR_DECK.length} cards`);
+  });
+
+  it('lists the six cards to correct by hand, each still in the game, with the data\'s numbers', () => {
+    const fixes = handFixes();
+    expect(fixes.map((f) => f.deck)).toEqual(['Customers', 'Customers', 'Customers', 'Lorries', 'Lorries', 'Events']);
+    (['Mei Ling', 'Kumar', 'Hafiz'] as const).forEach((key, i) => {
+      const n = CUSTOMER_CARDS.findIndex((c) => c.name === key);
+      const max = CUSTOMER_CARDS[n].wants.find((w) => w.fruit === 'blueberry')!.max;
+      expect(fixes[i].card).toBe(`No ${String(n + 1).padStart(2, '0')} · ${lookOf(key).title}`);
+      expect(fixes[i].fix).toContain(`$${max} `);
+    });
+    const table = (name: string) => FARMER_CARDS.find((c) => c.name === name)!.table;
+    expect(fixes[3].card).toContain('Summer Run');
+    expect(fixes[3].fix).toContain(`5 stalls: ${table('Berries and Melons')[5].apple}. At 6 stalls: ${table('Berries and Melons')[6].apple} `);
+    expect(fixes[4].fix).toContain(`3 stalls: ${table('Short Load')[3].watermelon} `);
+    const glut = EVENT_CARDS.find((e) => e.id === 'glut')!;
+    expect(fixes[5].card).toBe(glut.title);
+    expect(fixes[5].fix).toContain(`$${-glut.costFruit!.blueberry!} less`);
   });
 });

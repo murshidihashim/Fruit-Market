@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import type { Browser } from 'playwright';
 
 /** The fonts every card is set in (print-fonts.css). A missing one would fall back without a word and change every fit. */
-const FONTS = ['400 10px "Ticket Display"', '400 10px Archivo', '500 10px Archivo', '600 10px Archivo', '800 10px Archivo'];
+export const CARD_FONTS = ['400 10px "Ticket Display"', '400 10px Archivo', '500 10px Archivo', '600 10px Archivo', '800 10px Archivo'];
 
 /** How many pages a PDF written by Chromium holds. */
 export function pdfPages(file: string): number {
@@ -15,10 +15,11 @@ export function pdfPages(file: string): number {
 }
 
 /**
- * Write `html` (pages are <section class="pg">) to `out/file`. `tmp` holds the HTML while the browser reads it.
+ * Write `html` (pages are <section class="pg"> or "page") to `out/file`. `tmp` holds the HTML while the browser reads it.
+ * `fonts`: the faces the document is set in (the cards' own unless given).
  * Returns the number of pages written.
  */
-export async function renderPdf(browser: Browser, tmp: string, out: string, file: string, html: string): Promise<number> {
+export async function renderPdf(browser: Browser, tmp: string, out: string, file: string, html: string, fonts: string[] = CARD_FONTS): Promise<number> {
   const htmlFile = join(tmp, file.replace(/\.pdf$/, '.html'));
   writeFileSync(htmlFile, html);
   const page = await browser.newPage();
@@ -28,7 +29,7 @@ export async function renderPdf(browser: Browser, tmp: string, out: string, file
       await Promise.all(fonts.map((f) => document.fonts.load(f)));
       await document.fonts.ready;
       await Promise.all([...document.images].map((i) => (i.complete ? Promise.resolve() : i.decode().catch(() => undefined))));
-    }, FONTS);
+    }, fonts);
     const problems = await page.evaluate((fonts) => {
       const out: string[] = [];
       const name = (el: Element) => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} "${(el.textContent ?? '').trim().slice(0, 40)}"`;
@@ -68,7 +69,7 @@ export async function renderPdf(browser: Browser, tmp: string, out: string, file
         if (s.whiteSpace === 'nowrap' && s.overflow === 'hidden' && el.textContent?.trim() && el.scrollWidth > el.clientWidth + 1) out.push(`cut short: ${name(el)}`);
       });
       return out;
-    }, FONTS);
+    }, fonts);
     if (problems.length) throw new Error(`${file}: it would print wrong\n${[...new Set(problems)].join('\n')}`);
     // Not an error, but worth a word: a card so full that its picture is smaller than the app's smallest (76 units).
     const squeezed = await page.evaluate(() => [...document.querySelectorAll('.pk-slot .cd-pic, .pk-bleed .cd-pic')].flatMap((pic) => {

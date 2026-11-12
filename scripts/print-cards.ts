@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-  CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, FRUIT, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, UPGRADES, lookOf,
+  CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, FRUIT, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, TRAITS, UPGRADES, lookOf,
   type CustomerCard, type EventCard, type FavourId, type UpgradeId,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
@@ -206,6 +206,49 @@ export function printDeck(key: DeckKey): PrintDeck {
   const d = printDecks().find((x) => x.key === key);
   if (!d) throw new Error(`no deck ${key}`);
   return d;
+}
+
+// ---------- for someone who holds the earlier printing ----------
+// The earlier printing (the rules 15 cards, made outside this repository) carries the numbers of rules 17 (REP-100).
+// What rules 18 changed on those cards is history, not game data, so each old value is written here once; every new
+// value is read from the data. tests/print-kit.test.ts checks that each card named here is still in the game.
+
+/** Decks the update pack replaces whole: every card changed, or the cards are held in secret and must share one back. */
+export function replacedDecks(): { deck: PrintDeck; why: string }[] {
+  const costs = Object.values(UPGRADES).map((u) => `${u.title} $${u.cost}`).join(', ');
+  const perks = (['charmer', 'favourite', 'nestegg', 'earful'] as const).map((t) => TRAITS[t].title).join(', ');
+  return [
+    { deck: orderDeck(), why: 'Every card changed: the fine is now a stake.' },
+    { deck: upgradeDeck(), why: `New costs and words: ${costs}.` },
+    { deck: shopkeeperDeck(), why: `Four perks changed: ${perks}.` },
+    { deck: favourDeck(), why: `${FAVOURS.favouredTrade.title} is now played after the prices flip. Favour cards are held in secret, so the whole deck needs one back. The deck is ${FAVOUR_DECK.length} cards at every table size.` },
+  ];
+}
+
+export interface HandFix { deck: string; card: string; fix: string }
+
+/** The cards of the earlier printing that need one number or one line changed by hand. */
+export function handFixes(): HandFix[] {
+  const customer = (key: string): HandFix => {
+    const n = CUSTOMER_CARDS.findIndex((c) => c.name === key);
+    const want = CUSTOMER_CARDS[n]?.wants.find((w) => w.fruit === 'blueberry');
+    if (!want) throw new Error(`earlier printing: no blueberry customer ${key}`);
+    return { deck: 'Customers', card: `No ${two(n + 1)} · ${lookOf(key).title}`, fix: `Blueberry price: $${want.max} (the card says $3).` };
+  };
+  const lorry = (name: string, printedAs: string, fix: (t: (typeof FARMER_CARDS)[number]['table']) => string): HandFix => {
+    const card = FARMER_CARDS.find((c) => c.name === name);
+    if (!card) throw new Error(`earlier printing: no lorry ${name}`);
+    return { deck: 'Lorries', card: printedAs === name ? name : `${printedAs} (now called ${name})`, fix: fix(card.table) };
+  };
+  const glut = EVENT_CARDS.find((e) => e.id === 'glut');
+  const off = glut?.costFruit?.blueberry;
+  if (!glut || !off) throw new Error('earlier printing: Blueberry Glut no longer changes the market price');
+  return [
+    customer('Mei Ling'), customer('Kumar'), customer('Hafiz'),
+    lorry('Berries and Melons', 'Summer Run', (t) => `Apples at 5 stalls: ${t[5].apple}. At 6 stalls: ${t[6].apple} (the card says 1 and 1).`),
+    lorry('Short Load', 'Short Load', (t) => `Watermelons at 3 stalls: ${t[3].watermelon} (the card says 1).`),
+    { deck: 'Events', card: glut.title, fix: `Add: blueberries cost $${-off} less at the Wholesale Market that day (never below $1).` },
+  ];
 }
 
 // ---------- pictures ----------
