@@ -8,7 +8,7 @@ import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { holdCash, shownCash } from '../src/ui/cashShown';
 import { favourArt } from '../src/ui/deckArt';
-import { reveal, bellRead } from '../src/ui/game/animator';
+import { reveal, bellLength } from '../src/ui/game/animator';
 import { RushView, type ShowState } from '../src/ui/game/panels/Showdown';
 import { MAX_PIECES, blockSpan, blockStarts, offeredPieces, piecesMoving, rushCards, rushPace, rushTotal, type RushBlock, type RushCard, type RushStage } from '../src/ui/game/rush';
 import { BEAT, FEEL } from '../src/ui/motion';
@@ -113,7 +113,7 @@ describe('one card for each customer', () => {
     const none = cards.find((c) => c.blocks.every((b) => !b.rows.length))!;
     expect(none.earned).toBe(0);
     expect(none.text).toMatch(/^“.+”$/);
-    for (const b of none.blocks) expect(b.none).toBe(`No ${FRUIT[b.fruit].plural.toLowerCase()} for ${lookOf(none.name).title}!`);
+    for (const b of none.blocks) expect(b.none).toBe(`Nobody had ${FRUIT[b.fruit].plural.toLowerCase()} for ${lookOf(none.name).title}.`);
   });
 
   it('a standing order collected today and a special guest have cards of their own kind', () => {
@@ -422,7 +422,7 @@ describe('the rush as it plays (animator.tsx reveal)', () => {
       expect(at('out') - at('result')).toBeGreaterThanOrEqual(BEAT.rush.read);
       expect(at('out') - at('result')).toBeLessThan(BEAT.rush.read + 50);
     });
-    expect(seen[0].at).toBe(bellRead(s.players.length));
+    expect(seen[0].at).toBe(bellLength(s.players.length));
     // afterwards everything shows as it is
     expect(rushHeld()).toBe(false);
     s.players.forEach((pl, p) => expect(shownCash(p, pl.cash)).toBe(pl.cash));

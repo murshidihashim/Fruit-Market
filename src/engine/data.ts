@@ -30,25 +30,25 @@ export interface FruitDef {
 export const FRUIT: Record<FruitId, FruitDef> = {
   blueberry: {
     id: 'blueberry', name: 'Blueberry', plural: 'Blueberries', color: '#4f5bd5',
-    theme: 'Cheap and popular, but soft in 3 days. Sell fast!',
+    theme: 'Cheap. Lasts 3 days: Fresh, Okay, Soft.',
     ripe: ['notso', 'okay', 'fresh'], drop: [2, 1, 0], unripeSlots: 0,
     cost: { fresh: 2, okay: 1, notso: 1, unripe: 1 },
   },
   watermelon: {
     id: 'watermelon', name: 'Watermelon', plural: 'Watermelons', color: '#2e9e4f',
-    theme: 'The steady seller. Two Fresh days, then Okay, then Soft.',
+    theme: 'Lasts 4 days: 2 Fresh, then Okay, then Soft.',
     ripe: ['notso', 'okay', 'fresh', 'fresh'], drop: [2, 1, 0, 0], unripeSlots: 0,
     cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 },
   },
   apple: {
     id: 'apple', name: 'Apple', plural: 'Apples', color: '#e0393e',
-    theme: 'The keeper: four Fresh days. Never the best price, never a loss.',
+    theme: 'Lasts 6 days: 4 Fresh, then Okay, then Soft.',
     ripe: ['notso', 'okay', 'fresh', 'fresh', 'fresh', 'fresh'], drop: [2, 1, 0, 0, 0, 0], unripeSlots: 0,
     cost: { fresh: 3, okay: 2, notso: 1, unripe: 1 },
   },
   mango: {
     id: 'mango', name: 'Mango', plural: 'Mangoes', color: '#f2b705',
-    theme: 'Always arrives green for $4. Ripens in 2 nights, then one Fresh day at a premium.',
+    theme: 'Arrives Green for $4. Ripens in 2 nights, then lasts 3 days: Fresh, Okay, Soft.',
     ripe: ['notso', 'okay', 'fresh'], drop: [2, 1, 0], unripeSlots: 2,
     cost: { fresh: 6, okay: 3, notso: 1, unripe: 4 },
   },
@@ -116,27 +116,28 @@ const lorry = (...rows: [string, string, string, string, string]): FarmerCard['t
 
 // 20 unique lorry cards: five gluts, four pairs, six mixed, two light, two heavy and the Seconds Lorry. Shuffled at
 // set-up; reshuffled when empty. Rules 14: loads average 8 / 11 / 15 / 19 / 24 pieces at 2 to 6 stalls. Rules 18: Short
-// Load's 3-stall row carries one more watermelon, and Summer Run's apple grows at 5 and 6 stalls.
+// Load's 3-stall row carries one more watermelon, and Berries and Melons brings more apples at 5 and 6
+// stalls. A name says what is on the lorry (DEC-087); the rules never look a card up by its name.
 const RAW_LORRIES: Omit<FarmerCard, 'unripe'>[] = [
-  { name: 'Blueberry Bonanza', table: lorry('4/1/1/1', '6/2/1/1', '8/3/2/1', '10/3/3/2', '13/4/3/2') },
-  { name: 'Watermelon Wagon', table: lorry('1/4/1/1', '2/6/2/1', '3/8/2/2', '3/10/3/2', '4/13/3/3') },
-  { name: 'Orchard Run', table: lorry('2/1/4/1', '2/2/5/1', '3/3/7/1', '4/3/9/2', '5/4/12/2') },
+  { name: 'Blueberry Lorry', table: lorry('4/1/1/1', '6/2/1/1', '8/3/2/1', '10/3/3/2', '13/4/3/2') },
+  { name: 'Watermelon Lorry', table: lorry('1/4/1/1', '2/6/2/1', '3/8/2/2', '3/10/3/2', '4/13/3/3') },
+  { name: 'Apple Lorry', table: lorry('2/1/4/1', '2/2/5/1', '3/3/7/1', '4/3/9/2', '5/4/12/2') },
   { name: 'Highland Apples', table: lorry('1/1/5/0', '1/1/6/0', '1/1/9/0', '2/2/11/0', '2/2/14/0') },
-  { name: 'Mango Rush', table: lorry('2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14') },
+  { name: 'Mango Lorry', table: lorry('2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14') },
   { name: 'Mango Growers', table: lorry('2/2/2/4', '3/3/2/5', '4/3/3/6', '4/4/4/8', '6/5/5/11') },
   { name: 'Mango Season', table: lorry('2/1/1/4', '2/2/2/6', '4/3/2/8', '5/3/3/10', '7/4/3/13') },
-  { name: 'Summer Run', table: lorry('3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/2/2', '10/11/2/2') },
-  { name: 'Tropical Pair', table: lorry('1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11') },
-  { name: 'Breakfast Run', table: lorry('3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2') },
-  { name: 'Premium Picks', table: lorry('1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11') },
+  { name: 'Berries and Melons', table: lorry('3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/2/2', '10/11/2/2') },
+  { name: 'Melons and Mangoes', table: lorry('1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11') },
+  { name: 'Berries and Apples', table: lorry('3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2') },
+  { name: 'Apples and Mangoes', table: lorry('1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11') },
   { name: 'Mixed Basket', table: lorry('2/2/2/2', '3/3/2/2', '4/4/4/3', '5/5/4/5', '6/6/6/7') },
-  { name: 'Balanced Cart', table: lorry('3/2/2/2', '3/3/3/3', '5/4/3/4', '5/5/4/5', '8/7/5/6') },
+  { name: 'Even Load', table: lorry('3/2/2/2', '3/3/3/3', '5/4/3/4', '5/5/4/5', '8/7/5/6') },
   { name: 'Farmer\'s Choice', table: lorry('2/2/2/3', '3/3/3/3', '4/5/3/4', '5/5/4/5', '6/7/5/8') },
-  { name: 'Kampung Truck', table: lorry('3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8') },
-  { name: 'Quiet Delivery', table: lorry('1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3') },
+  { name: 'Kampung Lorry', table: lorry('3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8') },
+  { name: 'Small Load', table: lorry('1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3') },
   { name: 'Short Load', table: lorry('2/1/1/1', '2/2/1/1', '3/2/1/1', '3/3/2/2', '5/3/2/2') },
   { name: 'Convoy', table: lorry('3/3/3/2', '5/4/4/4', '6/6/5/6', '8/7/7/7', '9/9/8/9') },
-  { name: 'Wholesaler\'s Overstock', table: lorry('3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4') },
+  { name: 'Overstock', table: lorry('3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4') },
   { name: 'Seconds Lorry', table: lorry('3/3/2/1', '3/3/3/2', '5/4/4/3', '5/6/5/4', '8/8/6/4'), okay: true },
 ];
 
@@ -230,7 +231,7 @@ export function acceptsStage(pref: Pref | undefined, stage: Stage): boolean {
 export const PREF_INFO: Record<Pref, { title: string; short: string; text: string }> = {
   premium: { title: 'Premium', short: 'Fresh only', text: 'Buys Fresh fruit only.' },
   everyday: { title: 'Everyday', short: 'Fresh or Okay', text: 'Buys Fresh or Okay fruit.' },
-  bargain: { title: 'Bargain', short: 'Any freshness', text: 'Buys Fresh, Okay or Soft fruit.' },
+  bargain: { title: 'Bargain', short: 'Fresh, Okay or Soft', text: 'Buys Fresh, Okay or Soft fruit.' },
 };
 
 export type EventId =
@@ -271,60 +272,62 @@ export interface EventCard {
   inspector?: number;
   /** No stall may post a price above this for each fruit today. */
   maxPrice?: Record<FruitId, number>;
-  /** A short tagline shown before the rule text (owner's wording). */
+  /** A tagline once shown before the rule text. No card has one since DEC-087 (the title says it). The field stays
+   *  because a game saved earlier still carries its day's event with one. */
   flavour?: string;
   /** Pasar Malam: after the rush a hawker buys 1 of each fruit left in each stall's crate at this price, any freshness. */
   hawker?: number;
 }
 
 export const EVENT_CARDS: EventCard[] = [
-  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, flavour: 'Big crowds, bigger spending!', text: 'Customers pay $1 more per fruit. Add 1 walk-in (2 at 4–6 stalls), up to a row of five.' },
+  { id: 'festival', title: 'Festival', icon: '🎉', priceAll: 1, walkIns: 1, text: 'Every customer pays $1 more for each piece. Add 1 walk-in (2 at 4 to 6 stalls). The row still holds 5 customers at most.' },
   { id: 'superfood', title: 'Superfood Trend', icon: '💪', price: { blueberry: 1 },
     extra: { name: 'Gym Club', wants: [{ fruit: 'blueberry', qty: 2, max: 8, fixed: true }] },
-    flavour: 'Blueberries are the new superfood!', text: 'Blueberry customers pay $1 more each. Gym Club wants 2 Fresh/Okay blueberries at $8 each.' },
+    text: 'Customers pay $1 more for each blueberry. Guest: the Gym Club wants 2 blueberries, Fresh or Okay, top price $8.' },
   { id: 'mangoCraze', title: 'Mango Craze', icon: '📱', price: { mango: 2 },
     extra: { name: 'Influencer', wants: [{ fruit: 'mango', qty: 1, max: 15, fixed: true }] },
-    flavour: 'Mangoes go viral!', text: 'Mango customers pay $2 more each. An influencer wants 1 Fresh mango at $15.' },
+    text: 'Customers pay $2 more for each mango. Guest: the Influencer wants 1 Fresh mango, top price $15.' },
   { id: 'hotel', title: 'Hotel Order', icon: '🏨',
     extra: { name: 'Hotel Chef', wants: [{ fruit: 'apple', qty: 1, max: 8, fixed: true }, { fruit: 'watermelon', qty: 1, max: 8, fixed: true }, { fruit: 'blueberry', qty: 1, max: 7, fixed: true }] },
-    flavour: 'Room service is calling!', text: 'Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7). Fresh/Okay only.' },
-  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, flavour: 'Melting weather, sizzling sales!', text: 'Watermelon customers pay $2 more each. All fruit ages an extra step tonight.' },
-  { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, flavour: 'Bad news from the orchard!', text: 'No apples arrive. Apple customers pay $2 more each.' },
-  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, costFruit: { blueberry: -1 }, flavour: 'Blueberries everywhere!', text: 'Deliver 1 extra per 2 stalls, rounded up. Blueberries cost $1 less at the market (never below $1). Blueberry customers pay $1 less each.' },
-  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, flavour: 'A bumper crop rolls in!', text: 'Deliver 1 extra of each fruit per 4 stalls, rounded up. Customers pay $1 less per fruit.' },
-  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, flavour: 'Slim pickings on the farm!', text: 'Halve today’s delivery, rounded up. Customers pay $1 more per fruit.' },
-  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, flavour: 'Same fruit, bigger bill!', text: 'All Wholesale Market fruit costs $1 more today.' },
-  { id: 'priceControls', title: 'Price Controls', icon: '⚖️', flavour: 'Keep those prices in check!', text: 'Stall prices cannot exceed the limits shown today.',
+    text: 'Guest: the Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7), Fresh or Okay.' },
+  { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Customers pay $2 more for each watermelon. Tonight all fruit ages 2 steps.' },
+  { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, text: 'The lorry brings no apples. Customers pay $2 more for each apple.' },
+  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, costFruit: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (round up). Blueberries cost $1 less at the Wholesale Market (never below $1). Customers pay $1 less for each blueberry.' },
+  { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, text: 'The lorry brings 1 extra of each fruit for every 4 stalls (round up). Every customer pays $1 less for each piece.' },
+  { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, text: 'The lorry brings half of each fruit (round up). Every customer pays $1 more for each piece.' },
+  { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every piece at the Wholesale Market costs $1 more today.' },
+  { id: 'priceControls', title: 'Price Controls', icon: '⚖️', text: 'Today no stall may set a price above the limit shown for each fruit.',
     maxPrice: { blueberry: 5, watermelon: 7, apple: 6, mango: 10 } },
-  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, flavour: 'Surprise inspection!', text: 'Before buying, pay $2 per Soft fruit on your shelf, up to your cash. Never the final day.' },
-  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, flavour: 'The fruit is stuck in traffic!', text: 'No delivery today. Existing market stock stays.' },
-  { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, flavour: 'Here come the hungry tourists!', text: 'Add 2 walk-ins at 2–3 stalls, 3 at 4 stalls, or 4 at 5–6 stalls, up to a row of five. Prices unchanged.' },
-  { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, flavour: 'Rain checks for everyone!', text: 'Remove 1 walk-in (2 at 4–6 stalls). No fruit ages tonight, including market stock.' },
-  { id: 'durian', title: 'Durian Season', icon: '🌰', cost: -1, priceAll: -1, flavour: 'Durian steals the spotlight!', text: 'Wholesale fruit costs $1 less, minimum $1. Customers pay $1 less per fruit.' },
+  { id: 'inspector', title: 'Health Inspector', icon: '🕵️', inspector: 2, text: 'Before buying, pay $2 for each Soft piece on your shelf (never more than your cash). Never on the last day.' },
+  { id: 'strike', title: 'Lorry Breakdown', icon: '🚚', noDelivery: true, text: 'No lorry today. Fruit already at the Wholesale Market stays.' },
+  { id: 'touristBus', title: 'Tourist Bus', icon: '🚌', walkIns: 2, text: 'Add 2 walk-ins (3 at 4 stalls, 4 at 5 or 6 stalls). The row still holds 5 customers at most.' },
+  { id: 'monsoon', title: 'Monsoon Downpour', icon: '🌧️', walkIns: -1, ageExtra: -1, text: 'Remove 1 walk-in (2 at 4 to 6 stalls). No fruit ages tonight, at the stalls or at the Wholesale Market.' },
+  { id: 'durian', title: 'Durian Season', icon: '🌰', cost: -1, priceAll: -1, text: 'Every piece at the Wholesale Market costs $1 less (never below $1). Every customer pays $1 less for each piece.' },
   { id: 'kenduri', title: 'Kenduri', icon: '💍',
     extra: { name: 'Wedding Caterer', wants: [{ fruit: 'watermelon', qty: 3, max: 8, fixed: true }] },
-    flavour: 'There’s a wedding to feed!', text: 'After walk-ins, a caterer wants 3 Fresh/Okay watermelons at $8 each.' },
-  // Rules 18: the extra mangoes really arrive ripe (Fresh), as the card has always said.
-  { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, flavour: 'It’s raining mangoes!', text: 'Deliver 1 extra ripe mango per 2 stalls, rounded up. Mango customers pay $2 less each.' },
-  { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, flavour: 'One last sale before closing!', text: 'After the rush, a hawker buys 1 of each fruit left in every stall’s crate at $3 each. Any freshness!' },
+    text: 'Guest: the Wedding Caterer wants 3 watermelons, Fresh or Okay, top price $8.' },
+  // Rules 18: the extra mangoes really arrive ripe (Fresh; Okay on the Seconds Lorry), as the card has always said.
+  { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, text: 'The lorry brings 1 extra ripe mango for every 2 stalls (round up). Customers pay $2 less for each mango.' },
+  { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, text: 'After the rush, the night hawker buys 1 of each fruit left in every stall’s crate for $3 each, any freshness.' },
   { id: 'bakeOff', title: 'Bake-Off', icon: '🥧', price: { apple: 1 },
     extra: { name: 'Bakery', wants: [{ fruit: 'apple', qty: 2, max: 7, fixed: true }] },
-    flavour: 'Ready, set, bake!', text: 'Apple customers pay $1 more each. The bakery wants 2 Fresh/Okay apples at $7 each.' },
+    text: 'Customers pay $1 more for each apple. Guest: the Bakery wants 2 apples, Fresh or Okay, top price $7.' },
 ];
 
 export type FavourId = 'gossip' | 'freeFruit' | 'priority' | 'scout' | 'favouredTrade' | 'fridge';
 
-/** `when`: the step a card is played in. 'tie' (rules 18) is Favoured Trade's own step, after prices flip. */
+/** `when`: the step a card is played in. 'tie' (rules 18) is Favoured Trade's own step, after prices flip. Every place
+ *  that shows a card names that step beside `text`, so `text` says only what the card does. */
 export interface FavourDef { id: FavourId; title: string; icon: string; text: string; when: 'buy' | 'tie' | 'evening' }
 
 export const FAVOURS: Record<FavourId, FavourDef> = {
-  gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Play in the evening: secretly see tomorrow\'s walk-ins: who they are, what they want, how many and their top price.' },
-  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take one fruit of your choice from the Wholesale Market for free.' },
-  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'Play in the evening: you buy first tomorrow.' },
-  scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Play on your buying turn: look at the front of one walk-in who arrives today. Everyone sees you played it, but not what you saw.' },
+  gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Look at all of tomorrow\'s walk-ins. Only you see them.' },
+  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free.' },
+  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. Only 1 Priority can be played each evening.' },
+  scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
   // Rules 18: played after the flip, in the open, and only by a stall with a tied price (before, in secret with the prices).
-  favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'After prices flip: if one of your prices is tied, play this to win every tied price today.' },
-  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'All your ripe fruit becomes one step fresher.' },
+  favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' },
+  fridge: { id: 'fridge', title: 'Fridge', icon: '🧊', when: 'buy', text: 'Every ripe piece on your shelf becomes one step fresher. Green pieces do not change.' },
 };
 
 export const FAVOUR_DECK: FavourId[] = [
@@ -356,8 +359,6 @@ export const JUICE_CAP = 2;
 export const JUICE_VALUE = 2;
 /** Order Book (rules 18): a standing order pays its holder this much more for each piece it delivers. */
 export const ORDER_BOOK_BONUS = 2;
-/** The cheapest piece at the Wholesale Market (soft fruit), for the Juice Bar card's tip (REP-089 option C). */
-const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
 
 /**
  * Stall upgrades: each changes what a shop does. They are offered on the evening after each Market Day (days 3, 6,
@@ -368,15 +369,15 @@ const TIRED_COST = Math.min(...FRUITS.map((f) => FRUIT[f].cost.notso));
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   juicebar: {
     id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 6,
-    // Four lines on the printed card, the most its fixed text box holds (scripts/print-deck.ts checks the fit). The tip
-    // says "before the last day": no night follows the final day, so fruit bought then is never juiced. Rules 18: the
-    // +$1 is for sales to customers and guests in the rush only (not a standing order, the night hawker or the jam maker).
-    text: `+$${JUICE_TIP} for each okay or soft fruit a customer buys from you. Each night up to ${JUICE_CAP} pieces that would spoil become juice: $${JUICE_VALUE} each. Tip: before the last day, $${TIRED_COST} soft fruit makes $${JUICE_VALUE} of juice.`,
+    // Rules 18: the +$1 is for sales to customers and guests in the rush only (not a standing order, the night hawker
+    // or the jam maker), which "a customer buys from you" says. The card's old tip ("before the last day, $1 soft
+    // fruit makes $2 of juice") was advice, not a rule, and is gone (DEC-087).
+    text: `+$${JUICE_TIP} for each Okay or Soft piece a customer buys from you. Each night up to ${JUICE_CAP} of your pieces that would spoil become juice: $${JUICE_VALUE} each.`,
   },
-  barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: `Buy up to ${BARROW_BUY} pieces of fruit a day and hold ${BARROW_SHELF}.` },
-  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 5, text: 'Your fresh fruit may be priced $1 above what customers normally pay. A guest never pays more than its fixed price.' },
-  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 4, text: 'Your green mangoes ripen in one night instead of two.' },
-  orderbook: { id: 'orderbook', title: 'Order Book', icon: '📒', cost: 3, text: `You win tied bids for standing orders, your stake is halved, and an order pays you $${ORDER_BOOK_BONUS} more for each piece you deliver.` },
+  barrow: { id: 'barrow', title: 'Handcart', icon: '🛒', cost: 6, text: `Buy up to ${BARROW_BUY} pieces a day. Your shelf holds ${BARROW_SHELF}.` },
+  premium: { id: 'premium', title: 'Premium Display', icon: '🪧', cost: 5, text: 'You may price a Fresh piece $1 above a customer\'s top price. A guest never pays more than its fixed price.' },
+  ripening: { id: 'ripening', title: 'Ripening Room', icon: '🌡️', cost: 4, text: 'Your Green mangoes ripen in 1 night instead of 2.' },
+  orderbook: { id: 'orderbook', title: 'Order Book', icon: '📒', cost: 3, text: `You win tied bids for standing orders. Your stake is halved. A standing order pays you $${ORDER_BOOK_BONUS} more for each piece you deliver.` },
 };
 /** A stall has room for this many upgrades (rules 14). */
 export const MAX_UPGRADES = 2;
@@ -390,14 +391,14 @@ export const MAX_UPGRADES = 2;
 export interface OrderCard { name: string; title: string; quirk: string; fruit: FruitId; /** The highest bid allowed. */ ceiling: number; /** What the winner puts down when it wins (rules 18; before, the fine per missed piece). */ stake: number }
 
 export const ORDER_CARDS: OrderCard[] = [
-  { name: 'School Canteen', title: 'The School Canteen', quirk: 'Four hundred lunchboxes, each with blueberries.', fruit: 'blueberry', ceiling: 9, stake: 6 },
-  { name: 'Smoothie Stand', title: 'The Smoothie Stand', quirk: 'The blender never stops.', fruit: 'blueberry', ceiling: 9, stake: 6 },
-  { name: 'Beach Resort', title: 'The Beach Resort', quirk: 'Watermelon by the pool, every afternoon.', fruit: 'watermelon', ceiling: 12, stake: 8 },
-  { name: 'Company Picnic', title: 'The Company Picnic', quirk: 'The boss promised watermelon.', fruit: 'watermelon', ceiling: 12, stake: 8 },
-  { name: 'Pie Factory', title: 'The Pie Factory', quirk: 'A thousand pies by Friday.', fruit: 'apple', ceiling: 11, stake: 7 },
-  { name: 'Cider Press', title: 'The Cider Press', quirk: 'Pressing day waits for no one.', fruit: 'apple', ceiling: 11, stake: 7 },
-  { name: 'Airline Caterer', title: 'The Airline Caterer', quirk: 'First class wants ripe mango.', fruit: 'mango', ceiling: 18, stake: 12 },
-  { name: 'Royal Banquet', title: 'The Royal Banquet', quirk: 'Only the ripest mango for the palace.', fruit: 'mango', ceiling: 18, stake: 12 },
+  { name: 'School Canteen', title: 'The School Canteen', quirk: 'Fruit cups for Friday recess.', fruit: 'blueberry', ceiling: 9, stake: 6 },
+  { name: 'Smoothie Stand', title: 'The Smoothie Stand', quirk: 'Sells blueberry smoothies at the pasar malam.', fruit: 'blueberry', ceiling: 9, stake: 6 },
+  { name: 'Beach Resort', title: 'The Beach Resort', quirk: 'Cut watermelon for the guests by the pool.', fruit: 'watermelon', ceiling: 12, stake: 8 },
+  { name: 'Company Picnic', title: 'The Company Picnic', quirk: 'For the company family day.', fruit: 'watermelon', ceiling: 12, stake: 8 },
+  { name: 'Pie Factory', title: 'The Pie Factory', quirk: 'Apple pies for the cafes in town.', fruit: 'apple', ceiling: 11, stake: 7 },
+  { name: 'Cider Press', title: 'The Cider Press', quirk: 'Pressing apples this week.', fruit: 'apple', ceiling: 11, stake: 7 },
+  { name: 'Airline Caterer', title: 'The Airline Caterer', quirk: 'Mango for the in-flight meals.', fruit: 'mango', ceiling: 18, stake: 12 },
+  { name: 'Royal Banquet', title: 'The Royal Banquet', quirk: 'Mango for the palace dinner.', fruit: 'mango', ceiling: 18, stake: 12 },
 ];
 /** What a stall puts down for a card: the card's stake, halved (rounded down) with an Order Book. */
 export function stakeFor(stake: number, orderBook: boolean): number {
@@ -460,14 +461,14 @@ export type TraitId = 'haggler' | 'basket' | 'bargain' | 'charmer' | 'favourite'
 export interface TraitDef { id: TraitId; title: string; text: string }
 
 export const TRAITS: Record<TraitId, TraitDef> = {
-  haggler: { id: 'haggler', title: 'Haggler', text: 'You win tied prices against equally fresh fruit.' },
-  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra fruit every day, at the normal price.' },
-  bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first fruit each day costs $1 less (never below $1).' },
-  charmer: { id: 'charmer', title: 'Charmer', text: `Start with ${CHARMER_START_FAVOURS} favour cards, hold up to 4, and earn up to 2 favour cards a day.` },
-  favourite: { id: 'favourite', title: 'Tip Jar', text: `A customer who leaves with their whole order tips you $${SHARED_TIP} if you sold them any of it, $${LOCAL_FAVOURITE_TIP} if you served them alone.` },
-  nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}, and buy first on day 3.` },
-  keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name one fruit: none of your pieces of that fruit age tonight.' },
-  earful: { id: 'earful', title: 'Sharp Ears', text: 'Each evening, peek at one of tomorrow\'s walk-ins. Once a day, a walk-in you have seen tips $2 if you sell to them ($1 at 2 stalls).' },
+  haggler: { id: 'haggler', title: 'Haggler', text: 'You win a tied price when your piece is as fresh as the rival\'s.' },
+  basket: { id: 'basket', title: 'Big Basket', text: 'Buy 1 extra piece each day.' },
+  bargain: { id: 'bargain', title: 'Bargain Hunter', text: 'Your first piece each day costs $1 less (never below $1).' },
+  charmer: { id: 'charmer', title: 'Charmer', text: `Start with ${CHARMER_START_FAVOURS} favour cards. Hold up to ${FAVOUR_HAND_LIMIT + 1}. Earn up to ${CHARMER_DAILY_FAVOURS} a day.` },
+  favourite: { id: 'favourite', title: 'Tip Jar', text: `A customer who leaves with their whole order tips you $${SHARED_TIP} if you sold them any of it, or $${LOCAL_FAVOURITE_TIP} if you served them alone.` },
+  nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}. Buy first on Day 3.` },
+  keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name 1 fruit. Your pieces of that fruit do not age tonight.' },
+  earful: { id: 'earful', title: 'Sharp Ears', text: `Each evening, look at one of tomorrow's walk-ins. Once a day, a walk-in you have seen tips you $${sharpEarsTip(3)} when you sell to them ($${sharpEarsTip(2)} at 2 stalls).` },
 };
 export const TRAIT_OFFER = 3;
 
@@ -478,47 +479,47 @@ export interface Look { icon: string; title: string; quirk: string }
 /** Every customer is a character. The key is the card's hidden code name (saves, rooms and art use it); `title` is the
  *  approved display name (DEC-064, DEC-065), the only name players read. Unknown names fall back to a generic shopper. */
 export const CUSTOMER_LOOKS: Record<string, Look> = {
-  John: { icon: '🧑', title: 'Cowboy Jack', quirk: 'Pays with coins he panned from the river.' },
-  Robert: { icon: '🧑', title: 'Bobby Books', quirk: 'Reads the label on every blueberry.' },
-  Daniel: { icon: '🧑', title: 'Dr Bubbles', quirk: 'Swears apples power his experiments.' },
-  'Rara Jenab': { icon: '🧕', title: 'Rara Jenab', quirk: 'Cheers every mango she buys. "Ra-ra, Jenab!"' },
-  Aisyah: { icon: '🧑', title: 'Zara Zapp', quirk: 'Needs watermelon for the lab snacks.' },
-  Ravi: { icon: '🧑', title: 'Ravi Rocket', quirk: 'Saves the day, one mango at a time.' },
-  'Mei Ling': { icon: '🧑', title: 'Coral Mei', quirk: 'Splashes anyone selling soggy fruit.' },
-  Farid: { icon: '🧑', title: 'Postman Pip', quirk: 'You never see him arrive. Or pay.' },
-  Siti: { icon: '🧑', title: 'Madam Siti', quirk: 'Measures every watermelon with her tape.' },
-  Kumar: { icon: '🧑', title: 'Magic Kumar', quirk: 'Pulls three wishes out of a hat. All of them are fruit.' },
-  Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Apples keep her voice sharp for the show.' },
-  Hafiz: { icon: '🧑', title: 'Professor Pebble', quirk: 'Says "RAWR" and means five blueberries.' },
-  'Wei Jie': { icon: '🕵️', title: 'Inspector Wei', quirk: 'Inspects every fruit with a magnifying glass.' },
-  Nurul: { icon: '🧑', title: 'Miss Marigold', quirk: 'Sprinkles petals on every watermelon.' },
-  Priya: { icon: '👩‍🔬', title: 'Dr Priya', quirk: 'Researching the perfect apple pie.' },
+  John: { icon: '🧑', title: 'Cowboy Jack', quirk: 'Pans for gold up the river.' },
+  Robert: { icon: '🧑', title: 'Bobby Books', quirk: 'Runs the town library.' },
+  Daniel: { icon: '🧑', title: 'Dr Bubbles', quirk: 'Teaches science at the school.' },
+  'Rara Jenab': { icon: '🧕', title: 'Rara Jenab', quirk: 'Hosting an open house this weekend.' },
+  Aisyah: { icon: '🧑', title: 'Zara Zapp', quirk: 'Buys watermelon for the whole lab.' },
+  Ravi: { icon: '🧑', title: 'Ravi Rocket', quirk: 'Delivers parcels by motorbike.' },
+  'Mei Ling': { icon: '🧑', title: 'Coral Mei', quirk: 'Dives for a living. Not fussy about fruit.' },
+  Farid: { icon: '🧑', title: 'Postman Pip', quirk: 'Eats an apple on his round.' },
+  Siti: { icon: '🧑', title: 'Madam Siti', quirk: 'Sews clothes to order by the market.' },
+  Kumar: { icon: '🧑', title: 'Magic Kumar', quirk: 'Does magic shows at the pasar malam.' },
+  Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Has a show tonight.' },
+  Hafiz: { icon: '🧑', title: 'Professor Pebble', quirk: 'Digs up bones for the museum.' },
+  'Wei Jie': { icon: '🕵️', title: 'Inspector Wei', quirk: 'On a case. Buys whatever is cheap.' },
+  Nurul: { icon: '🧑', title: 'Miss Marigold', quirk: 'Sells flowers two stalls down.' },
+  Priya: { icon: '👩‍🔬', title: 'Dr Priya', quirk: 'Testing an apple pie recipe.' },
   Ahmad: { icon: '🧑‍✈️', title: 'Captain Ahmad', quirk: 'Buying mangoes for the whole crew.' },
-  Sarah: { icon: '🧑', title: 'Lola Lens', quirk: 'Photographs every mango before she buys it.' },
+  Sarah: { icon: '🧑', title: 'Lola Lens', quirk: 'Takes the wedding photos in town.' },
   Tan: { icon: '👴', title: 'Grandpa Tan', quirk: 'Remembers when apples cost ten cents.' },
-  Lina: { icon: '💃', title: 'Miss Cha-Cha', quirk: 'Cha-chas all the way down the street.' },
-  Zul: { icon: '🧑', title: 'Sleepy Zul', quirk: 'Wants fresh fruit. Has not had his coffee.' },
-  Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints every mango before she eats it.' },
-  Vijay: { icon: '🧑', title: 'Otto Oddjob', quirk: 'Calculates the best fruit salad.' },
-  'Hui Min': { icon: '🧑', title: 'Mina Moss', quirk: 'Rangers are wild about watermelon.' },
-  Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Cools down after every call with watermelon.' },
-  'Jia Wen': { icon: '🧑', title: 'Marina Wen', quirk: 'Pays in coins from far ports. Reads the mango map twice.' },
-  Rizal: { icon: '🎧', title: 'DJ Rizal', quirk: 'Drops the beat, then drops by for blueberries.' },
-  Devi: { icon: '🧑‍🌾', title: 'Devi Bloom', quirk: 'Grows everything except mangoes. Buys them all.' },
+  Lina: { icon: '💃', title: 'Miss Cha-Cha', quirk: 'Teaches dance class on Tuesdays.' },
+  Zul: { icon: '🧑', title: 'Sleepy Zul', quirk: 'Works the night shift.' },
+  Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints the stalls on market mornings.' },
+  Vijay: { icon: '🧑', title: 'Otto Oddjob', quirk: 'Does odd jobs around the market.' },
+  'Hui Min': { icon: '🧑', title: 'Mina Moss', quirk: 'Park ranger. Buys for the whole camp.' },
+  Osman: { icon: '👨‍🚒', title: 'Firefighter Osman', quirk: 'Buys watermelon for the fire station.' },
+  'Jia Wen': { icon: '🧑', title: 'Marina Wen', quirk: 'Her ship sails again tomorrow.' },
+  Rizal: { icon: '🎧', title: 'DJ Rizal', quirk: 'Plays at weddings on weekends.' },
+  Devi: { icon: '🧑‍🌾', title: 'Devi Bloom', quirk: 'Grows vegetables. Buys her mangoes here.' },
   Marcus: { icon: '🧑', title: 'Marcus Hook', quirk: 'Sells fish at dawn, buys apples by noon.' },
-  Fatimah: { icon: '🎓', title: 'Professor Fatimah', quirk: 'Lectures on the science of the perfect watermelon.' },
-  Ben: { icon: '🛎️', title: 'Benny Bell', quirk: 'Rings a little bell for every watermelon he carries.' },
-  Yuki: { icon: '🧑', title: 'Akira Swift', quirk: 'Slices a mango in one clean stroke.' },
-  Hadi: { icon: '👷', title: 'Hadi Hammer', quirk: 'Builds towers of blueberries on his lunch break.' },
-  Lakshmi: { icon: '🥐', title: 'Baker Lakshmi', quirk: 'Her famous apple tart starts at your stall.' },
-  Kenji: { icon: '🥋', title: 'Kenji Kaze', quirk: 'Flips a mango, catches it, pays for it.' },
-  Mira: { icon: '🧑', title: 'Herbalist Mira', quirk: 'Brews a mango tonic. Do not ask what is in it.' },
+  Fatimah: { icon: '🎓', title: 'Professor Fatimah', quirk: 'Marks exam papers at the kopitiam.' },
+  Ben: { icon: '🛎️', title: 'Benny Bell', quirk: 'Carries bags at the hotel up the road.' },
+  Yuki: { icon: '🧑', title: 'Akira Swift', quirk: 'Trains with the fencing club.' },
+  Hadi: { icon: '👷', title: 'Hadi Hammer', quirk: 'On lunch break from the building site.' },
+  Lakshmi: { icon: '🥐', title: 'Baker Lakshmi', quirk: 'Bakes apple tarts before sunrise.' },
+  Kenji: { icon: '🥋', title: 'Kenji Kaze', quirk: 'Teaches karate after school.' },
+  Mira: { icon: '🧑', title: 'Herbalist Mira', quirk: 'Sells jamu and herbal tea.' },
   'Hock Seng': { icon: '🧓', title: 'Uncle Hock Seng', quirk: 'Has strong opinions about the price of apples.' },
-  Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Will post your stall if the mangoes are perfect.' },
-  'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Need. More. Antioxidants.' },
-  'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Running a five-star breakfast buffet.' },
-  'Wedding Caterer': { icon: '💍', title: 'The Wedding Caterer', quirk: 'Feeding five hundred guests by sundown.' },
-  Bakery: { icon: '🥧', title: 'The Bakery', quirk: 'Needs apples for the prize-winning pie.' },
+  Influencer: { icon: '🤳', title: 'The Influencer', quirk: 'Filming a mango video today.' },
+  'Gym Club': { icon: '🏋️', title: 'The Gym Club', quirk: 'Blueberries after training.' },
+  'Hotel Chef': { icon: '👨‍🍳', title: 'The Hotel Chef', quirk: 'Buying for the hotel breakfast.' },
+  'Wedding Caterer': { icon: '💍', title: 'The Wedding Caterer', quirk: 'Cooking for a kenduri tonight.' },
+  Bakery: { icon: '🥧', title: 'The Bakery', quirk: 'Needs apples for the pies.' },
   // Standing orders (rules 14): on their due day they stand at the front of the row like a customer.
   ...Object.fromEntries(ORDER_CARDS.map((c) => [c.name, { icon: '📒', title: c.title, quirk: c.quirk }])),
 };
@@ -549,46 +550,46 @@ export const CHARACTER_TRAIT: Record<string, TraitId> = {
  *  happened; their buying and pricing come from the difficulty level, not from these personalities. Older saves and
  *  progress may still hold a former name (see LEGACY_RIVAL_NAMES); anything that must recognise a shopkeeper uses the avatar. */
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
-  { name: 'Rosa', avatar: '🦊', quip: 'Too easy!', lines: {
-    undercut: ['Too easy!', 'A dollar cheaper. Sorry, not sorry!', 'Sharper than you again!'],
-    fullPrice: ['Full price? Lovely.', 'They didn\'t even haggle!'],
-    stung: ['Hmph. Lucky.', 'That one was mine!', 'Next time, darling.'],
-    lost: ['Fine, keep your customer.', 'I meant to do that.'] } },
-  { name: 'Uncle Benny', avatar: '🐻', quip: 'Big baskets, big deals!', lines: {
-    undercut: ['Big baskets, big deals!', 'Cheaper AND bigger.', 'Fill the basket, friend!'],
-    fullPrice: ['Top dollar! Ka-ching!', 'Full price, full basket!'],
-    stung: ['Aiyo, my customer!', 'I want a recount.', 'You were quicker. Hmph.'],
-    lost: ['Plenty more fruit where that came from.', 'Oof. Too pricey.'] } },
-  { name: 'Ah Chen', avatar: '🐼', quip: 'Smile and sell!', lines: {
-    undercut: ['Smile and sell!', 'Charm AND a cheaper price.', 'Sorry, sweetheart!'],
-    fullPrice: ['Full price, with a smile.', 'A fair price, gladly paid.'],
-    stung: ['You charmed them first. Cheeky!', 'So close... breathe.', 'Well played, friend.'],
-    lost: ['Charm is a long game.', 'I will win them tomorrow.'] } },
-  { name: 'Saleh', avatar: '🐸', quip: 'Every sen counts!', lines: {
-    undercut: ['Every sen counts!', 'Jimat, jimat! Mine is cheaper.', 'Sorry, my price wins.'],
-    fullPrice: ['Full price? Terima kasih!', 'Rezeki! Full price today.'],
-    stung: ['Aiyo, that one was mine!', 'Next time, my friend.', 'You were quick, I will say that.'],
-    lost: ['Never mind, I saved for this.', 'Tomorrow is another day.'] } },
-  { name: 'Raj', avatar: '🦝', quip: 'Found a bargain!', lines: {
-    undercut: ['Found a bargain, sold a bargain!', 'Cheap and cheerful!', 'Lucky me!'],
-    fullPrice: ['Full price. Lucky day!', 'Ka-ching, lucky Raj!'],
-    stung: ['Unlucky! That was mine.', 'You got lucky there.', 'Next time, friend!'],
-    lost: ['Luck will turn.', 'Not my day. Tomorrow!'] } },
-  { name: 'Kiki', avatar: '🐷', quip: 'Thank you, thank you!', lines: {
-    undercut: ['A kinder price for everyone!', 'Cheaper, with a smile.', 'Thank you, thank you!'],
-    fullPrice: ['Thank you, full price!', 'So kind of them. Full price!'],
-    stung: ['Oh! You were faster.', 'I wanted to serve them!', 'Next time, dear.'],
-    lost: ['Kindness comes back around.', 'No worries. Another day.'] } },
-  { name: 'Pak Din', avatar: '🐢', quip: 'Slow and steady!', lines: {
-    undercut: ['Slow and steady wins!', 'A little cheaper, a lot fresher.', 'Patience pays, friend.'],
-    fullPrice: ['Full price. Worth the wait!', 'Kept it fresh, sold it full.'],
-    stung: ['Hmm. Too slow today.', 'You beat the old tortoise.', 'Next time, young one.'],
-    lost: ['My fruit will keep.', 'There is always tomorrow.'] } },
-  { name: 'Farah', avatar: '🦜', quip: 'I heard that!', lines: {
-    undercut: ['I heard what they wanted!', 'Little bird told me. Cheaper!', 'Squawk! Mine!'],
-    fullPrice: ['Full price! I knew it.', 'Heard it first, sold it first.'],
-    stung: ['I should have listened closer.', 'Squawk! That was mine!', 'You heard it too?'],
-    lost: ['I will hear the next one.', 'Fine, fine. Tomorrow!'] } },
+  { name: 'Rosa', avatar: '🦊', quip: 'Ask around. Mine is always a little cheaper.', lines: {
+    undercut: ['Mine was cheaper.'],
+    fullPrice: ['They didn\'t even haggle.'],
+    stung: ['That one was mine.'],
+    lost: ['Fine. I priced too high.'] } },
+  { name: 'Uncle Benny', avatar: '🐻', quip: 'Thirty years at this stall.', lines: {
+    undercut: ['Cheaper at my stall.'],
+    fullPrice: ['Full price. No bargaining.'],
+    stung: ['Aiyo, my customer.'],
+    lost: ['Too pricey.'] } },
+  { name: 'Ah Chen', avatar: '🐼', quip: 'My regulars know where to find me.', lines: {
+    undercut: ['Cheaper today.'],
+    fullPrice: ['A fair price.'],
+    stung: ['So close.'],
+    lost: ['Tomorrow, then.'] } },
+  { name: 'Saleh', avatar: '🐸', quip: 'Every sen counts.', lines: {
+    undercut: ['Jimat. Mine is cheaper.'],
+    fullPrice: ['Rezeki. Full price today.'],
+    stung: ['One dollar too dear.'],
+    lost: ['Never mind. I saved for this.'] } },
+  { name: 'Raj', avatar: '🦝', quip: 'First to the lorry every morning.', lines: {
+    undercut: ['Bought cheap, sold cheap.'],
+    fullPrice: ['Full price. Lucky day.'],
+    stung: ['Unlucky. That was mine.'],
+    lost: ['Not my day.'] } },
+  { name: 'Kiki', avatar: '🐷', quip: 'Thank you, come again.', lines: {
+    undercut: ['A little cheaper.'],
+    fullPrice: ['Full price. Thank you.'],
+    stung: ['I wanted to serve them.'],
+    lost: ['Another day.'] } },
+  { name: 'Pak Din', avatar: '🐢', quip: 'Shade keeps it fresh.', lines: {
+    undercut: ['Patience pays.'],
+    fullPrice: ['Kept it fresh. Full price.'],
+    stung: ['Hmm. A dollar too high.'],
+    lost: ['My fruit will keep.'] } },
+  { name: 'Farah', avatar: '🦜', quip: 'I hear what people want.', lines: {
+    undercut: ['I heard what they wanted.'],
+    fullPrice: ['Full price. I knew it.'],
+    stung: ['I should have listened closer.'],
+    lost: ['I will hear the next one.'] } },
 ];
 
 /** The eight playable characters, in table order. */

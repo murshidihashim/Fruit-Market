@@ -459,13 +459,14 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     }
   });
 
-  it('the morning\'s event card shows the picture, the title, what it changes, the tagline and the text', () => {
+  it('the morning\'s event card shows the picture, the title, what it changes and the text, and no tagline (DEC-087)', () => {
     EVENT_CARDS.forEach((e, i) => {
       const s = html(EventTicket, { card: e, n: i + 1, art: eventArt(e.id), focus: eventFocus(e.id), chips: newsChips(e) });
       expect(s).toContain(`<b>No ${two(i + 1)}</b>`);
       expect(s).toContain(`<b class="wc-ttl">${e.title}</b>`);
       expect(s).toContain(`<p class="wc-txt">${esc(e.text)}</p>`);
-      expect(s).toContain(esc(e.flavour!));
+      expect(e.flavour, e.id).toBeUndefined();
+      expect(s).not.toContain('wc-flavour');
       expect(s.match(/class="wc-chip"/g)).toHaveLength(newsChips(e).length);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
       expect(s).toContain('Stays in force until night');

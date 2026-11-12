@@ -39,27 +39,42 @@ export const SPEED = { fast: 0.55, hurry: 0.15, step: 0.15 } as const;
 export const BEAT = {
   /** A piece of fruit or a coin flying between two spots, the swell where it lands, and the gap between two pieces. */
   piece: { fly: 520, land: 300, gap: 90 },
-  /** The lorry's delivery: each piece to its lane, and the gap between two. */
-  lorry: { fly: 600, gap: 70 },
-  /** The pause before each rival action (shorter on the fast setting). */
-  rival: { pause: 380, pauseFast: 150 },
+  /** The lorry (PLAN-085): it drives in beside the market's label, one crate of each fruit slides to that fruit's
+   *  entry box (`gap` apart), and it drives off after the last stall has bought. About 1.2 s for four crates. */
+  lorry: { drive: 300, crate: 360, gap: 120, off: 300 },
+  /** The pause before each rival action (shorter on the fast setting). A rival's whole buying turn is one beat
+   *  (PLAN-085): its pieces leave `gap` apart, each taking FEEL.travel, about a second with the pause. */
+  rival: { pause: 380, pauseFast: 150, gap: 100 },
+  /** Customers arrive (PLAN-085): the walk-ins turn face up one after another, `gap` apart, each in FEEL.turn. */
+  arrive: { gap: 100 },
+  /** Passing a shared phone: taps are ignored for `guard` after the hand-over screen appears, so the second tap of
+   *  a double tap on Done cannot start the next person's turn while the first still holds the phone. */
+  handoff: { guard: 500 },
   /** Labels over a stall: the pop as one appears; how long a played favour or a built upgrade stays up; a favour card
    *  won in the rush; a bonus tip; a "+$7" floating up; a message at the bottom of the screen. */
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
-  /** Filling your crate: a piece from the shelf row to the crate. */
-  stock: { fly: 480 },
-  /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
-  bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
+  /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece). */
+  stock: { fly: 260 },
+  /** Pricing: your price tags turn face down as you ring the bell (flow study D3: seal 200 ms). */
+  price: { seal: 200 },
+  /** The bell (flow study D3): the bell swings and sounds (`swing`); then stall by stall, `gap` apart, a row lifts
+   *  (`lid`) and its price tags turn face up (FEEL.turn); then a pause to read. About 2.6 s at four stalls. "No sales
+   *  today"; the older crate's turn (motion.css). */
+  bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100, crateTurn: 400 },
+  /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
+   *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
+  tie: { ask: 600, stamp: 180, pause: 600 },
   /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
    *  stalls' offers turn up under it, and for each fruit wanted the pieces go to the card (`pieceGap` apart, FEEL.travel
    *  each) and the coins come back (`coinGap` apart, FEEL.coin each). A further fruit starts `fruit` after the one
    *  before. The result is then held to be read and the card slides back. A favour card won slides to its stall
    *  while the result is read. About 2.4 s for one fruit and 0.5 s more for each further fruit. */
   rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 },
-  /** The night: dusk falls and the panel rises, every piece slides one box, a beat to settle, a moment to read, a
-   *  spoiled piece dropping (and the gap between two), a juice coin, the last beat; in the stylesheet, the sky
-   *  darkening, the dusk over the market, and the panel's parts rising after it. */
-  night: { dusk: 950, slide: 1500, settle: 80, read: 770, spoil: 900, gap: 80, juiceCoin: 480, end: 400, sky: 700, duskFade: 600, rise: 450, riseAfter: 550 },
+  /** The night (PLAN-085, about 2.5 s): dusk falls over the table, every piece slides one box along its lane, a beat
+   *  to settle, a moment to read (a Juice Bar's coins travel then, `gap` apart), the last beat before dawn; a piece
+   *  leaving the last box tips off over `spoil`; in the stylesheet, the sky darkening and the dusk over the market
+   *  (`rise` and `riseAfter` are the older panel's, kept for its stylesheet). */
+  night: { dusk: 400, slide: 900, settle: 80, read: 920, spoil: 300, gap: 80, juiceCoin: 360, end: 200, sky: 400, duskFade: 400, rise: 450, riseAfter: 550 },
   /** The morning: the news card turning over, and the "FINAL DAY!" stamp. */
   morning: { newsTurn: 550, stamp: 1100 },
   /** Coins that carry a payment between a stall's cash and the table (the dawn's top-up and fine, a standing order's
@@ -79,8 +94,9 @@ export const BEAT = {
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
   land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
-  'rush-rows': BEAT.rush.rows,
+  'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
+  lorry: BEAT.lorry.drive, 'lorry-off': BEAT.lorry.off,
 };
 
 // ---------- the one speed ----------

@@ -2612,6 +2612,30 @@
         "REP-110"
       ],
       "reviewTrigger": "If the full checks fail on the release build (then nothing is published and the owner is told); when the owner has played the live game; when each later part is ready for its own release"
+    },
+    {
+      "id": "DEC-106",
+      "title": "Release 1.20.0 is published when the rest of the day's screens are in it",
+      "question": "Release 1.20.0 was prepared and merged to main with four rebuilt screens (DEC-105). Is it published as it stands, or held?",
+      "choice": "Held. 1.20.0 is published after these are ready: stocking, pricing, the bell and Favoured Trade; the day's takings; the market lanes, the stalls, the shelf, buying, the lorry and the night. Ready means merged, the standard and browser checks passing on the merged code, each screen looked at beside its design, and the full checks passing on the CI machines. Then it is published on this word, without asking again; if a required check fails, nothing is published and the owner is told. The two gaps he named are fixed in the same release: the scroll on a small phone in the evening and the bid, and sentences such as \"You wins\". Other finished work that is merged and checked by then may ride along; the stamp book, the screen labels and the print kit do not hold the release. This replaces the timing in DEC-105 (as it stands, today).",
+      "rationale": "The owner asked for the gaps to be fixed and the remaining screens of the day to be built now, and then set the publishing point after them. The preview copy has the four-screen build meanwhile.",
+      "impact": {
+        "player": "The first live build of rules 18 has every screen of the day in the new look.",
+        "technical": "Version 1.20.0 stays a candidate; its release entry is extended when the screens are merged (PLAN-085). main holds the four-screen build (acaaee2) and the preview copy follows it. The takings was split to a third helper.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens.",
+        "date": "2026-11-12"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-110"
+      ],
+      "reviewTrigger": "When the three groups of screens are merged and checked: publish. If a required check fails or a screen cannot be finished tonight: tell the owner before publishing anything"
     }
   ],
   "history": [
@@ -3630,6 +3654,14 @@
     {
       "at": "2026-11-12 17:29",
       "text": "PLAN-084 built and checked on the merged code (REP-110): npm run verify PASS (65 files, 659 tests, 1 skipped); npm run test:e2e on the merged code: PASS (solo game to the results with no errors; performance budget OK with a longest task of 151 ms and 0.5 slow frames in a hundred; online match with 82 pricing frames and 0 leaks; reconnect 5 of 5), run while five helpers used the same machine. The helper on the morning, the bid and the evening reported on 850d7c2, the commit already merged. T6 (the owner has seen the screens) stays NOT RUN: he sees them on the live game. Release 1.20.0 prepared as a candidate (PLAN-077, 079, 081, 082, 083, 084)."
+    },
+    {
+      "at": "2026-11-12 17:45",
+      "text": "DEC-106: Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens. Release 1.20.0 was merged to main as pull request #10 (acaaee2) at 17:32 and is NOT published: the scheduled publishing step was cancelled. It is published when the remaining screens of the day are merged and checked. The two named gaps are being fixed by the helper that built those screens (due 19:00) and by the text helper (the name sentences first). The two screen helpers were given first deliveries at 21:30 and the takings was split to its own helper (due 20:30). Seven helpers share the machine."
+    },
+    {
+      "at": "2026-11-12 19:24",
+      "text": "PLAN-085 and PLAN-088 (part 1) built, merged and checked on ca39c60 (REP-111): npm run verify PASS (722 tests passed, 1 skipped); npm run test:e2e PASS on a quiet machine (longest task 187 ms, 0 leaks, reconnect 5 of 5). Merged in order: the text with the name-sentence fix (295dc8c); the bid and evening small-phone fit (d860435); the sheet with stocking and pricing (caf5e05) and its refit (after 0d76d20); the market, the lorry and the night (0d76d20 and the next merge); the takings (1942b91); the stalls row and shelf with two repairs (b9dd496: the hand-over guard against a double tap, the Heatwave shelf chip); the bell and Favoured Trade (ca39c60). Eight helpers were used; the helpers that had already built a part before it was split off (the bell, the takings, the stalls) had their work kept and finished by the second helper. The stamp book (PLAN-086: data done, screens a first pass, 787faa3), the rest of the text list and the print kit (PLAN-087: decks print on rules 18, d244989) are paused on their branches. Release 1.20.0's entry extended with PLAN-085 and PLAN-088; publishing follows DEC-106 once the full checks pass on the CI machines."
     }
   ]
 }

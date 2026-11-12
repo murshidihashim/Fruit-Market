@@ -1,30 +1,31 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
-import { EveningSheet, PricePanel, StallPanel } from './panel';
-import { Market, MyStall, RivalDrop, RivalStall, Street, Tomorrow, seats, type Board } from './table';
+import { BEAT } from './motion';
+import { EveningSheet } from './panel';
+import { Market, MyStall, Stalls, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
+import { useTableShown } from './tableShown';
 import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
 import { Showdown } from './game/panels/Showdown';
-import { SalesSummary } from './game/panels/SalesSummary';
+import { DaySheet, daySheetOn } from './game/panels/DaySheet';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
-import { CratesOpen, TiePanel } from './game/panels/PricingTable';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -42,6 +43,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   useStockShown();
   // A customer's ticket is ticked, and a favour card won appears on your shelf, as that customer is served (rushShown.ts).
   useRushShown();
+  // A box's number, your shelf and a stall's purchases change as a piece lifts off or lands, and a walk-in's face shows
+  // as its card is turned (tableShown.ts).
+  useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
@@ -50,10 +54,16 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
   // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
+  // When the hand-over screen came up (0: it is not up). A tap sooner than BEAT.handoff.guard after that is the tail of
+  // the last person's own tapping (a double tap on Done), so it must not open the next person's stall.
+  const handoffAt = useRef(0);
+  if (!c.needHandoff) handoffAt.current = 0;
+  else if (!handoffAt.current) handoffAt.current = performance.now();
+
   if (c.needHandoff) {
     const pl = s.players[active];
     return (
-      <div class="handoff" onClick={() => { fx.tap(); c.setHandedTo(active); }}>
+      <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
         <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
@@ -107,11 +117,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.
   const tying = s.phase === 'tie' && activeHuman && !busy;
-  // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
-  // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
-  // one person at the table (online, or a single human): a shared phone hands over between people instead.
-  const openedMine = online ? !c.myBidTurn : humans.length === 1 && s.stalls[viewer] !== null;
-  const priceWait = (s.phase === 'stall' && !stalling && openedMine) || (s.phase === 'bid' && c.myBidTurn && busy);
+  // One sheet stays on the table from stocking to the day's takings (PLAN-085): while this stall fills its crate, while
+  // the rivals open and price, at the bell, for the Favoured Trade question and for the takings. On a shared phone it
+  // is drawn only for the person the phone was handed to (game/daySheet.ts).
+  const dayOn = daySheetOn(s, viewer, c, !!online);
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
@@ -125,8 +134,6 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
-    // The bell: every crate opens with its prices before the first customer is served (rules 15).
-    if (c.bell && s.phase === 'reveal') return <CratesOpen s={s} viewer={viewer} />;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
@@ -134,11 +141,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     // "Bid in" then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
     if (orderUp) return <OrderPanel key={`or-${s.day}-${orderSeat}`} s={s} p={orderSeat} waiting={!ordering} canChange={!!online} shown={c.orderShow}
       decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
-    if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
-    if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
-    if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts) => { fx.card(); act({ kind: 'prices', posts }); }} />;
-    if (s.phase === 'tie' && active >= 0 && !busy) return <TiePanel key={`tie-${s.day}-${active}`} s={s} viewer={viewer} asked={active} onDecide={tying ? (play) => { fx.card(); act({ kind: 'tie', play }); } : undefined} />;
-    if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
+    // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
+    // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
+    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;
     if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
@@ -177,12 +182,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
-      {rivals.length > 0 && (
-        <div class={`seats n${rivals.length}`} role="group" aria-label="Your rivals">
-          {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} off={offSeats.includes(p)} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
-          {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
-        </div>
-      )}
+      {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}
+      {rivals.length > 0 && <Stalls s={s} viewer={viewer} boards={boards} open={openRival} off={offSeats}
+        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)} />}
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
@@ -194,7 +196,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />
         {mid}
       </div>
-      <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+      <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
       {/* While stocking or pricing, bidding for a standing order or deciding the evening, the panel's own buttons
           (.pp-lock) take the action bar's place. */}

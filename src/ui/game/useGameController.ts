@@ -14,9 +14,10 @@ import * as A from '../anim';
 import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
 import { holdRush, releaseRush } from '../rushShown';
+import { releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
-import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
+import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './panels/Showdown';
@@ -38,8 +39,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [night, setNight] = useState(false);
   // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
   const [nightSlide, setNightSlide] = useState<NightSlide>(null);
-  // The bell has just rung: every crate is open on the table for a moment before the rush (rules 15).
-  const [bell, setBell] = useState(false);
+  // The bell is ringing (rules 15; PLAN-085): how many rows have turned face up so far; null when it is not ringing.
+  const [bell, setBell] = useState<BellShow>(null);
   // The bids for a standing order are in and are being turned over on the table (PLAN-084).
   const [orderShow, setOrderShow] = useState<OrderShow | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
@@ -63,6 +64,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const layerRef = useRef<HTMLDivElement>(null);
   /** Fruit tapped while the last purchase was still animating (offline); bought in order as soon as the table is free. */
   const buyQueue = useRef<{ f: FruitId; pos: number }[]>([]);
+  /** Done was tapped while a piece was still on its way: buying ends as soon as the table is free (PLAN-085). */
+  const endQueued = useRef(false);
 
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
@@ -71,7 +74,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const secret = s.phase === 'stall' || s.phase === 'bid' || s.phase === 'order';
   const activeHuman = online ? active === seat && !secret : active >= 0 && s.players[active].kind === 'human';
   const lastViewer = useRef(seat ?? humans[0]);
-  if (!online && activeHuman) lastViewer.current = active;
+  // On a shared phone the table is drawn for the person who holds it: the next person's shelf is not drawn until the
+  // phone has been handed to them (PLAN-085: a beat may now play between one person's last tap and the hand-over).
+  if (!online && activeHuman && (!multi || handedTo === active)) lastViewer.current = active;
   const viewer = seat ?? lastViewer.current;
   const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
   // Online: whose secret prices are still missing, and who still has to press continue.
@@ -98,7 +103,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
   // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); }; }, []);
+  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); releaseTable(); }; }, []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -116,7 +121,10 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     // A tap's hurry is not reset at each step any more (PLAN-081): it lasts until the table waits for this player again
     // (see the end of this function), so one tap carries through every rival's turn. The rush is the exception: it
     // always starts at its own pace, with its own tap (next customer) and Skip.
-    if (rush) A.resetHurry();
+    // The flip before a Favoured Trade question (rules 18; PLAN-085): the bell rings here, at its own pace, and not
+    // again before the rush.
+    const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';
+    if (rush || flip) A.resetHurry();
     try {
       if (next.day !== prev.day) {
         // The night is drawn from this stall's own view: what spoils behind a rival's shutter is not shown (rules 15).
@@ -142,6 +150,21 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // a standing order are in, they stay on the table to be turned over (the sheet is drawn with the new state).
       const turned = holdBack(prev, next);
       if (turned) setOrderShow(turned);
+      // A Favoured Trade answer (PLAN-085): where the card lies is noted before the question leaves the table.
+      const tied = tieAnswer(prev, next);
+      const cardFrom = tied ? tieFrom(tied, viewer) : null;
+      // The flip before a Favoured Trade question: the bell is set ringing together with the new state, so the rows
+      // are drawn shut from their first frame (they used to show open for a frame or two before the bell's script
+      // shut them and turned them over). With reduced motion they are open at once, as the bell's script shows them.
+      if (flip) setBell(A.isReduced() ? next.players.length : 0);
+      // The table likewise (PLAN-085, tableShown.ts): the lanes before today's crates land, a box's number until its
+      // piece lifts off, the shelf, the "bought today" marks and the cash until it lands, and the walk-ins face down
+      // until their cards are turned.
+      const toBuy = next.day === prev.day && (prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy';
+      if (toBuy) holdDelivery(next);
+      holdDeals(prev, next, viewer);
+      const walkIns = arriving(prev, next, viewer);
+      holdArrival(walkIns);
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -149,21 +172,35 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         // The new day opens on the morning's event card; the lorry unloads only when buying starts (PLAN-065).
         setNight(false);
-      } else if ((prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy') {
+      } else if (toBuy) {
         // The bids turned over together, the winner shown and its stake put on the order's card (PLAN-084).
         if (turned) await bidsTurned(turned, viewer, setOrderShow);
         await delivery(next);
-        await moves(prev, next);
+        await moves(prev, next, viewer);
+      } else if (flip) {
+        await bellRings(next, setBell);
+        setBell(null);
       } else if (rush) {
         setRevealDone(false);
-        await reveal(next, viewer, setShow, setBell);
-        setBell(false);
+        // Nobody stocks or prices today: the walk-ins still turn face up before the bell.
+        await arrive(walkIns);
+        // A card just played slides to its price tag and stamps it; the bell is not shown a second time.
+        if (tied?.played) await tiePlayed(tied.p, cardFrom);
+        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');
+        setBell(null);
         setRevealDone(true);
-      } else await moves(prev, next);
+      } else if (tied) {
+        if (tied.played) await tiePlayed(tied.p, cardFrom);
+      } else {
+        await moves(prev, next, viewer);
+        // The last stall has bought: the walk-ins turn face up one after another (PLAN-085).
+        await arrive(walkIns);
+      }
     } finally {
       holdCash(null);
       releaseStock();
       releaseRush();
+      releaseTable();
       setOrderShow(null);
       busyRef.current = false;
       setBusy(false);
@@ -171,17 +208,27 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // to be shown. It only ever changes how fast this screen draws: never the game, and nothing is sent.
       if (!queue.current.length && waitsForPerson(sRef.current, online ? seat : null)) A.resetHurry();
       setTick((t) => t + 1);
-      const q = buyQueue.current.shift();
-      if (q) {
-        const cur = sRef.current;
-        const me = activePlayer(cur);
-        if (cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human') window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
-        else buyQueue.current = [];
-      }
+      // Taps made while the piece was on its way: the next piece to buy, then Done (PLAN-085).
+      const cur = sRef.current;
+      const me = activePlayer(cur);
+      const mine = cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human' && (!online || me === seat);
+      const q = mine ? buyQueue.current.shift() : undefined;
+      if (!mine) { buyQueue.current = []; endQueued.current = false; }
+      else if (q) window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
+      else if (endQueued.current) { endQueued.current = false; window.setTimeout(sendEndBuy, 0); }
     }
   }
 
   // ---------- turn handling ----------
+
+  /** Ends this person's buying turn (the table must be free). */
+  const sendEndBuy = () => {
+    if (busyRef.current) return;
+    if (online) { if (!sending.current && online.act({ kind: 'endBuy' })) sending.current = true; return; }
+    const cur = sRef.current;
+    const me = activePlayer(cur);
+    if (cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human') attempt(() => playLocal(sRef.current, me, { kind: 'endBuy' }));
+  };
 
   const attempt = (fn: () => GameState) => {
     if (busyRef.current) return false;
@@ -234,7 +281,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   useEffect(() => {
     if (!online || busyRef.current || !queue.current.length) return;
-    const next = queue.current.shift()!;
+    let next = queue.current.shift()!;
+    // A stall's buying turn is one beat where it can be (PLAN-085, DEC-098): the steps of that turn that are already
+    // waiting here are shown together. Only what has arrived is gathered, so nothing waits for a step still to come.
+    const cur = sRef.current;
+    while (cur.phase === 'buy' && next.phase === 'buy' && next.day === cur.day && next.turn === cur.turn && queue.current.length
+      && queue.current[0].phase === 'buy' && queue.current[0].day === cur.day) next = queue.current.shift()!;
     if (JSON.stringify(next) === JSON.stringify(sRef.current)) { setTick((t) => t + 1); return; }
     void apply(next);
   }, [tick, online]);
@@ -266,9 +318,18 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (active < 0 || s.players[active].kind !== 'ai') return;
     // The pause before each rival action. A tap on the table ends it at once and keeps the next ones short (PLAN-081).
     let live = true;
-    void A.pause(A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause).then(() => {
+    // A rival asked about Favoured Trade answers a moment later, so its question can be read (PLAN-085).
+    void A.pause((A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause) + (s.phase === 'tie' ? A.BEAT.tie.ask : 0)).then(() => {
       if (!live || busyRef.current) return;
-      const next = aiStep(sRef.current);
+      const cur = sRef.current;
+      let next = aiStep(cur);
+      // A rival's whole buying turn is one beat (PLAN-085, DEC-098): its steps are taken together, up to and with the
+      // one that ends its turn, as long as the table stays in buying (the step that brings the customers is its own).
+      while (next && cur.phase === 'buy' && next.phase === 'buy' && next.day === cur.day && next.turn === cur.turn) {
+        const more = aiStep(next);
+        if (!more || more.phase !== 'buy' || more.day !== cur.day) break;
+        next = more;
+      }
       if (next) void apply(next);
     });
     return () => { live = false; };
@@ -357,16 +418,28 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(null);
       return;
     }
-    if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); }
+    // The pieces travel back to their boxes (PLAN-085): the turn's first state is shown like any other step.
+    const t = turnStart.current;
+    if (busyRef.current) return;
+    buyQueue.current = [];
+    endQueued.current = false;
+    if (t && t !== sRef.current) void apply(t);
     setFreeFruit(null);
     setScout(null);
+  };
+
+  /** Done buying: at once, or as soon as the piece on its way has landed. */
+  const endBuy = () => {
+    setFreeFruit(null);
+    if (busyRef.current) { endQueued.current = true; return; }
+    sendEndBuy();
   };
 
   return {
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
-    humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,
+    humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay,
   };
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
-import { FRUITS, RIVALS, lookOf } from '../src/engine/data';
+import { FRUIT, FRUITS, RIVALS, lookOf } from '../src/engine/data';
 import { newGame, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
@@ -37,26 +37,37 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     expect(g.find((x) => x.f === 'mango')).toMatchObject({ n: 0, stages: [] });
   });
 
-  it('shows your name, shelf space and an anchor for every fruit, even an empty one', () => {
+  // PLAN-085: the shelf is drawn to the approved Buying screen. It says "Your shelf" and how full it is, and no
+  // longer carries the player's name (the stalls' row above it names every stall in buying order).
+  it('says "Your shelf", how full it is, and keeps a place for every fruit, even one you hold none of', () => {
     const s = game();
     const html = toStaticHtml(h(MyStall, { s, p: 0 }));
     expect(html).toContain('class="my-stall dock');
-    expect(html).toContain('>Me<');
+    expect(html).toContain('>Your shelf<');
     expect(html).toMatch(/Shelf space: 0 of \d+ used/);
-    for (const f of FRUITS) expect(html).toContain(`data-a="p0-${f}"`);
+    expect(html).not.toContain('>Me<');
+    for (const f of FRUITS) expect(html.split(`data-a="p0-${f}"`)).toHaveLength(2);
   });
 
-  it('does not repeat "YOU" next to a player called You', () => {
+  it('a chip for each group of pieces says what tonight does to it, and the first chip of a fruit is its place', () => {
     const s = game();
-    const you = { ...s, players: s.players.map((pl, i) => (i ? pl : { ...pl, name: 'You' })) };
-    expect(toStaticHtml(h(MyStall, { s: you, p: 0 }))).not.toContain('you-tag');
-    expect(toStaticHtml(h(MyStall, { s, p: 0 }))).toContain('you-tag');
+    s.players[0].stock.apple[FRUIT.apple.ripe.length - 1] = 2; // fresh, in the lorry's box
+    s.players[0].stock.blueberry[0] = 1; // soft: its last day
+    const html = toStaticHtml(h(MyStall, { s, p: 0 }));
+    expect(html).toContain('>fresh tomorrow<');
+    expect(html).toContain('>spoils tonight<');
+    expect(html).toMatch(/class="tb-chip stk-f[^"]*"[^>]*data-a="p0-apple"/);
+    expect(html).toMatch(/class="tb-chip stk-f[^"]*warn[^"]*"[^>]*data-a="p0-blueberry"/);
+    expect(html.split('data-a="p0-apple"')).toHaveLength(2);
+    // a fruit you hold none of keeps an empty place for a bought piece to land on
+    expect(html).toMatch(/class="tb-place stk-f"[^>]*data-a="p0-mango"/);
+    expect(html).toContain('>After tonight<');
   });
 
   it('the first-game tip after a purchase describes the shelf chips as they are now (counts by freshness)', () => {
     const tip = TIPS.find((t) => t.id === 'bought')!.text;
     expect(tip).not.toContain('nights it has left');
-    expect(tip).toContain('fresh');
+    expect(tip).toContain('The letters under each fruit count your pieces');
   });
 });
 

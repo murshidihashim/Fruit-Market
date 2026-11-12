@@ -1,57 +1,141 @@
-// Table animations: the morning delivery, buying, selling and nightfall.
+// Table animations: the lorry, buying, the customers' arrival, selling and nightfall.
 // Each one returns when its animation has finished. They only draw; they never change the game.
 // Every length is named in ../motion.ts (BEAT); pauses to read use A.hold, which reduced motion keeps.
-import { FAVOURS, FRUIT, FRUITS, JUICE_VALUE, type FruitId } from '../../engine/data';
-import { leavingTonight, nightOutlook, type GameState } from '../../engine/game';
+import { FAVOURS, FRUITS, JUICE_VALUE, stageAt, type FruitId } from '../../engine/data';
+import { leavingTonight, marketCost, nightOutlook, type GameState } from '../../engine/game';
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { laneClass } from '../cards';
-import { holdCash, payCash, shownCash } from '../cashShown';
+import { holdCash, payCash, shownCash, takeCash } from '../cashShown';
 import { landPiece, releaseRush, serveLine, showFavour } from '../rushShown';
 import { releaseStock, sellStock, stockHeld } from '../stockShown';
+import { deliveryBoxes } from '../tableModel';
+import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
 import { fx } from '../fx';
 import { FavourMark, type ShowState } from './panels/Showdown';
 import { built, firstInLine } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, blockStarts, rushCards, rushPace, type RushBlock, type RushCard } from './rush';
 
-/** The lorry unloads today's delivery into the market: played as buying starts, after the morning's event card (PLAN-065). */
-export async function delivery(g: GameState) {
-  if (g.phase !== 'morning' && g.phase !== 'buy') return;
-  const jobs: Promise<void>[] = [];
-  // No lorry is drawn today, so nothing waits for one to pull up (PLAN-081): the fruit leaves for the lanes at once.
-  let d = 0;
-  for (const f of FRUITS) {
-    const n = Math.min(g.delivery[f] ?? 0, 4);
-    const unripe = g.deliveryUnripe === f;
-    const pos = unripe ? g.market[f].length - 1 : FRUIT[f].ripe.length - 1;
-    for (let i = 0; i < n; i++) {
-      jobs.push(A.fly(['lorry', 'sky'], [`m-${f}-${pos}`, `mk-${f}`, 'truck'], <Fruit id={f} size={26} stage={unripe ? 'unripe' : 'fresh'} />, { delay: d, duration: A.BEAT.lorry.fly }));
-      d += A.BEAT.lorry.gap;
-    }
-  }
-  if (jobs.length) fx.card();
-  await Promise.all(jobs);
+// ---------- the lorry ----------
+
+/** Buying is about to start: the lanes are held back at what they held before today's lorry (tableShown.ts), so a
+ *  box's number counts up only as its crate lands. Called before the new state is drawn. */
+export function holdDelivery(g: GameState) {
+  for (const c of deliveryBoxes(g)) shiftMarket(c.f, c.pos, -c.n);
 }
 
-export async function moves(prev: GameState, next: GameState) {
+/**
+ * The lorry unloads (PLAN-085; flow study D3), played as buying starts: it drives in beside the market's label
+ * (table.tsx Lorry; the stylesheet moves it, over the same length), one crate for each fruit slides to that fruit's
+ * entry box, a little apart, and the box's number counts up as its crate lands. About 1.2 s. A tap shows the full
+ * lanes at once; with reduced motion nothing travels and the numbers are simply there.
+ */
+export async function delivery(g: GameState) {
+  if (g.phase !== 'buy') return;
+  const crates = deliveryBoxes(g);
+  if (!crates.length) return;
+  fx.card();
+  await A.wait(A.BEAT.lorry.drive);
+  await Promise.all(crates.map((c, i) => A.fly('lorry', [`m-${c.f}-${c.pos}`, `mk-${c.f}`, 'truck'], <span class="tb-crate"><Fruit id={c.f} size={16} stage={c.stage} /></span>, {
+    delay: i * A.BEAT.lorry.gap, duration: A.BEAT.lorry.crate, path: 'low', swell: false,
+  }).then(() => countMarket(c.f, c.pos, c.n))));
+}
+
+// ---------- buying ----------
+
+/** Pieces that left a box of the market (n above 0) or came back to it (below 0) between two states. */
+export interface Deal { f: FruitId; pos: number; n: number }
+export function dealsOf(prev: GameState, next: GameState): Deal[] {
+  const out: Deal[] = [];
+  for (const f of FRUITS) for (let pos = 0; pos < next.market[f].length; pos++) {
+    const n = (prev.market[f][pos] ?? 0) - next.market[f][pos];
+    if (n) out.push({ f, pos, n });
+  }
+  return out;
+}
+
+/** At most this many copies travel for the pieces of one box; the last one carries the rest. */
+const MAX_PER_BOX = 5;
+
+/** Whose pieces move between two states of a buying turn: the stall whose turn it was (buying is done in the open). */
+const buyerOf = (prev: GameState, next: GameState): number => (prev.phase === 'buy' && next.day === prev.day ? prev.order[prev.turn] ?? -1 : -1);
+
+/**
+ * A buying step is about to be shown (a purchase, a rival's whole turn, pieces taken back): the table is held back at
+ * what it was (tableShown.ts, cashShown.ts), so that a box's number changes as a piece lifts out of it, and the shelf,
+ * the stall's "bought today" marks and its cash as the piece lands. Called before the new state is drawn. `viewer`:
+ * the stall this screen draws a shelf for (a rival's shelf is never drawn).
+ */
+export function holdDeals(prev: GameState, next: GameState, viewer: number) {
+  const p = buyerOf(prev, next);
+  const deals = p >= 0 ? dealsOf(prev, next) : [];
+  if (!deals.length) return;
+  for (const d of deals) {
+    shiftMarket(d.f, d.pos, d.n);
+    shiftBought(p, d.f, -d.n);
+    if (p === viewer) shiftShelf(p, d.f, d.pos, -d.n);
+  }
+  holdCash(prev.players.map((pl) => pl.cash));
+}
+
+/** A sum shared out over parts by their weights, in whole dollars that add up to the sum. */
+export function shareOut(sum: number, weights: number[]): number[] {
+  const all = weights.reduce((a, w) => a + w, 0);
+  let left = sum;
+  let rest = all;
+  return weights.map((w) => {
+    const part = rest > 0 ? Math.round(left * w / rest) : 0;
+    left -= part;
+    rest -= w;
+    return part;
+  });
+}
+
+/**
+ * What changed between two states, as travel (PLAN-085; flow study D3). Buying: each piece lifts out of its box and
+ * travels in a low arc to that fruit's place on the buyer's stall (your shelf, or a rival's box); the box's number
+ * drops as it lifts, and the shelf's, the "bought today" marks and the cash change as it lands. A rival's whole turn
+ * arrives as one step and is one beat: its pieces leave a little apart. Pieces taken back travel the other way.
+ */
+export async function moves(prev: GameState, next: GameState, viewer = -1) {
   const jobs: Promise<void>[] = [];
-  let d = 0;
-  for (const f of FRUITS) {
-    for (let pos = 0; pos < next.market[f].length; pos++) {
-      const diff = prev.market[f][pos] - next.market[f][pos];
-      if (!diff) continue;
-      // Whose shelf changed. A rival's shelf is secret (rules 15: online it is not even sent), but buying is done in the
-      // open, so the piece still flies to the stall whose turn it was.
-      let p = next.players.findIndex((pl, i) => pl.stock[f][pos] !== prev.players[i].stock[f][pos]);
-      if (p < 0 && prev.phase === 'buy') p = prev.order[prev.turn] ?? -1;
-      if (p < 0) continue;
-      for (let k = 0; k < Math.min(Math.abs(diff), 5); k++) {
-        const node = <Fruit id={f} size={30} stage={pos >= FRUIT[f].ripe.length ? 'unripe' : undefined} />;
-        if (diff > 0) jobs.push(A.fly([`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], [`p${p}-${f}`, `p${p}`], node, { delay: d }));
-        else jobs.push(A.fly([`p${p}-${f}`, `p${p}`], [`m-${f}-${pos}`, `mk-${f}`, `cart-${f}`], node, { delay: d }));
-        d += A.BEAT.piece.gap;
+  const counting: Promise<void>[] = [];
+  const p = buyerOf(prev, next);
+  const deals = p >= 0 ? dealsOf(prev, next) : [];
+  const pieces = deals.flatMap((d) => {
+    const k = Math.min(Math.abs(d.n), MAX_PER_BOX);
+    return Array.from({ length: k }, (_, i) => ({ d, carries: i === k - 1 ? Math.abs(d.n) - (k - 1) : 1 }));
+  });
+  if (pieces.length) {
+    // What the stall paid (or got back), shared over the pieces by what each box costs.
+    const paid = prev.players[p].cash - next.players[p].cash;
+    const shares = shareOut(Math.abs(paid), pieces.map((x) => x.carries * marketCost(prev, x.d.f, x.d.pos)));
+    const gap = p === viewer ? A.BEAT.piece.gap : A.BEAT.rival.gap;
+    pieces.forEach((x, i) => {
+      const { f, pos } = x.d;
+      const node = <Fruit id={f} size={26} stage={stageAt(f, pos)} />;
+      const box = [`m-${f}-${pos}`, `mk-${f}`];
+      const place = [`p${p}-${f}`, `p${p}`];
+      const o = { delay: i * gap, duration: A.FEEL.travel, path: 'low' as const };
+      if (x.d.n > 0) {
+        jobs.push(A.fly(box, place, node, {
+          ...o,
+          onLift: () => shiftMarket(f, pos, -x.carries),
+          onLand: () => {
+            shiftBought(p, f, x.carries);
+            if (p === viewer) shiftShelf(p, f, pos, x.carries);
+            if (paid > 0 && shares[i]) { counting.push(takeCash(p, shares[i])); if (p === viewer) A.floatText(`p${p}-cash`, `−$${shares[i]}`); }
+          },
+        }));
+      } else {
+        jobs.push(A.fly(place, box, node, {
+          ...o,
+          onLift: () => { shiftBought(p, f, -x.carries); if (p === viewer) shiftShelf(p, f, pos, -x.carries); },
+          onLand: () => { shiftMarket(f, pos, x.carries); if (paid < 0 && shares[i]) counting.push(payCash(p, shares[i])); },
+        }));
       }
-    }
+    });
+    fx.buy();
   }
   next.players.forEach((pl, i) => {
     const before = prev.players[i];
@@ -71,8 +155,44 @@ export async function moves(prev: GameState, next: GameState) {
   });
   // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line.
   if (next.priorityNext !== null && prev.priorityNext === null) jobs.push(firstInLine(next, next.priorityNext));
-  if (jobs.length && d > 0) fx.buy();
   await Promise.all(jobs);
+  // The cash is still counting down as the last piece lands: the beat ends when it has.
+  await Promise.all(counting);
+}
+
+// ---------- the customers arrive ----------
+
+/** The walk-ins that arrive face down on this screen as the last stall finishes buying (a card this player has
+ *  already seen with Gossip or Scout is face up for them, and is not turned). */
+export function arriving(prev: GameState, next: GameState, viewer: number): number[] {
+  if (prev.phase !== 'buy' || next.phase === 'buy' || next.day !== prev.day) return [];
+  const here = new Set(next.firstMarket.map((c) => c.id));
+  return prev.queue.filter((c) => here.has(c.id) && !c.seenBy?.includes(viewer)).map((c) => c.id);
+}
+
+/** The customers are about to arrive: these walk-ins stay face down until their card is turned. Called before the
+ *  new state is drawn. */
+export function holdArrival(ids: number[]) {
+  holdCards(ids);
+}
+
+/**
+ * The customers arrive (PLAN-085; flow study D3): the walk-in cards turn face up one after another, a little apart,
+ * each in a card's turn (its back turns away, then its face shows; the stylesheet draws both halves at the same
+ * speed). The standing order's card is dealt to the front of the row meanwhile. About 0.6 s; a tap hurries it; with
+ * reduced motion the cards are simply face up.
+ */
+export async function arrive(ids: number[]) {
+  if (!ids.length) return;
+  fx.card();
+  const half = A.FEEL.turn / 2;
+  await Promise.all(ids.map(async (id, i) => {
+    await A.wait(i * A.BEAT.arrive.gap);
+    turnCard(id, 'out');
+    await A.wait(half);
+    turnCard(id, 'up');
+    await A.wait(half);
+  }));
 }
 
 /** Pays a stall on the table (cashShown.ts: its total counts up), and keeps the count so the rush can wait for it to end. */
@@ -191,11 +311,102 @@ function settle(card: RushCard, pay: Pay, favour = true) {
   if (favour && card.favour) showFavour(card.customerId, card.favour.player);
 }
 
-/** How long "No sales today" stays up, and how long every open crate stays on the table at the bell, in ms at normal speed. */
+/** How long "No sales today" stays up, in ms at normal speed. */
 export const NO_SALES_READ = A.BEAT.bell.noSales;
-export const bellRead = (stalls: number) => A.BEAT.bell.read + A.BEAT.bell.readPerStall * stalls;
+/** The bell's travel (flow study D3): the bell swings, then stall by stall a row lifts and its price tags turn face up. */
+export const bellOpening = (stalls: number) => A.BEAT.bell.swing + Math.max(0, stalls - 1) * A.BEAT.bell.gap + A.BEAT.bell.lid + A.FEEL.turn;
+/** The whole bell untouched, in ms at normal speed: the travel and the pause to read. About 2.6 s at four stalls. */
+export const bellLength = (stalls: number) => bellOpening(stalls) + A.BEAT.bell.read;
 
-export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (on: boolean) => void) {
+/** The bell while it rings: how many rows have turned face up so far (0 while it swings); null when it is not ringing. */
+export type BellShow = number | null;
+
+/**
+ * The bell (rules 15; PLAN-085): the bell swings and sounds, then stall by stall, in today's line-up, each row's
+ * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. With reduced motion
+ * nothing travels: every row is open at once and the reading pause is kept. A tap ends the bell where it stands:
+ * every row is shown open and the pause is over.
+ */
+export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
+  const n = g.players.length;
+  // Reduced motion: every row is open in one and the same frame (stepping through the rows without a pause still
+  // drew them over a few frames), and the pause to read is kept.
+  if (A.isReduced()) {
+    setBell?.(n);
+    fx.card();
+    await A.hold(A.BEAT.bell.read);
+    return;
+  }
+  setBell?.(0);
+  fx.card();
+  await A.wait(A.BEAT.bell.swing);
+  for (let k = 1; k <= n && !A.hurried(); k++) {
+    setBell?.(k);
+    if (k < n) await A.wait(A.BEAT.bell.gap);
+  }
+  setBell?.(n);
+  if (A.hurried()) return;
+  await A.wait(A.BEAT.bell.lid + A.FEEL.turn);
+  if (A.hurried()) return;
+  await A.hold(A.BEAT.bell.read);
+}
+
+// ---------- Favoured Trade (rules 18): the question under the open rows, and the card played ----------
+
+/** Kept out of sight until the card has landed on the tag: the stamp of a Favoured Trade just played (daysheet.css). */
+const HOLD_STAMP = 'fm-hold-stamp';
+const holdStamp = (on: boolean) => { if (typeof document !== 'undefined') document.documentElement?.classList?.toggle(HOLD_STAMP, on); };
+
+/** The stall that has just answered the Favoured Trade question, and whether it played the card (null: not such a step). */
+export function tieAnswer(prev: GameState, next: GameState): { p: number; played: boolean } | null {
+  const p = prev.phase === 'tie' ? prev.tieAsk?.[0] : undefined;
+  if (p === undefined || next.day !== prev.day) return null;
+  return { p, played: !prev.players[p].favouredTrade && !!next.players[p]?.favouredTrade };
+}
+
+/**
+ * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading for
+ * this stall, the stall's own row for a rival), and its stamp is held back until the card has landed on the tag.
+ * Returns the place to travel from.
+ */
+export function tieFrom(a: { p: number; played: boolean }, viewer: number): A.Box | null {
+  if (!a.played || typeof document === 'undefined') return null;
+  holdStamp(true);
+  return A.boxOf(a.p === viewer ? document.querySelector('[data-a="tie-kind"]') : document.querySelector(`[data-a="bell-p${a.p}"] .tk-swatch`));
+}
+
+/**
+ * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag and stamps it
+ * (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced motion
+ * nothing travels: the card's name is shown on the stall's row for a pause to read.
+ */
+export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
+  if (typeof document === 'undefined') { holdStamp(false); return; }
+  const tag = document.querySelector(`[data-a^="bell-${p}-"].tie`);
+  let spot: HTMLElement | null = null;
+  if (from) {
+    // The question has left the table by now: a place that is not drawn stands in for where the card lay.
+    spot = document.createElement('i');
+    spot.setAttribute('aria-hidden', 'true');
+    spot.style.cssText = `position:fixed;left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;visibility:hidden;pointer-events:none`;
+    document.body.appendChild(spot);
+  }
+  fx.card();
+  const label = A.isReduced() ? A.tag(`bell-p${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
+  try {
+    await A.fly(spot ?? `bell-p${p}`, tag ?? `bell-p${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
+    document.querySelectorAll(`[data-a^="bell-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
+    await A.wait(A.BEAT.tie.stamp);
+    await A.hold(A.isReduced() ? A.BEAT.label.read : A.BEAT.tie.pause);
+  } finally {
+    holdStamp(false);
+    spot?.remove();
+    label?.remove();
+  }
+}
+
+/** `rung`: the bell has already rung today (the Favoured Trade step came between), so it is not shown again. */
+export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (open: BellShow) => void, rung = false) {
   const r = g.results!;
   if (!r.lines.some((l) => l.offers.length > 0)) {
     const t = A.tag('street', 'No sales today', 'big');
@@ -204,12 +415,10 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     t.remove();
     return;
   }
-  // The bell (rules 15): every crate opens with its prices. They stay on the table long enough to read, then the rush
-  // starts. A reading pause too: with reduced motion the open crates stay just as long (a tap or Skip still ends it).
-  setBell?.(true);
-  fx.card();
-  await A.hold(bellRead(g.players.length));
-  setBell?.(false);
+  // The bell (rules 15): every row opens with its prices, stall by stall, and stays long enough to read; then the
+  // rush starts.
+  if (!rung) await bellRings(g, setBell);
+  setBell?.(null);
   // A tap on the table ends the bell and nothing more: the rush then starts at its own pace. Skip hurries the whole
   // rush; it also lets the shelves go, which tells the two apart.
   if (A.hurried() && stockHeld()) A.resetHurry();
@@ -284,52 +493,48 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
 }
 
 /**
- * The night panel's slide, set from here so the panel and its slide run on one clock (PLAN-081): null while dusk falls,
- * then the slide's length in ms while every piece moves one box older, then 'done' once the pieces rest in their new boxes.
+ * The night's slide, set from here so the lanes, your shelf and their slide run on one clock (PLAN-081): null while
+ * dusk falls, then the slide's length in ms while every piece moves one box older, then 'done' once the pieces rest
+ * in their new boxes.
  */
 export type NightSlide = number | 'done' | null;
-/** The night's steps in ms at normal speed: dusk falls and the panel rises, every piece slides (slow enough to watch,
- *  PLAN-076), a beat for the last piece to settle, then a moment to read the panel. 3.3 s in all before any spoiled
- *  piece drops, as before. Named in motion.ts with the other lengths. */
+/** The night's steps in ms at normal speed (PLAN-085, about 2.5 s in all): dusk falls over the table, every piece
+ *  slides one box along its lane, a beat for the last piece to settle, a moment to read the lanes, then dawn. Named
+ *  in motion.ts with the other lengths. */
 export const NIGHT = A.BEAT.night;
 
 export async function nightfall(g: GameState, setNight: (on: boolean) => void, setSlide: (s: NightSlide) => void = () => {}) {
   setSlide(null);
   setNight(true);
   fx.night();
-  // The night panel (NightShift) slides every piece one box older before the spoiled ones drop (PLAN-071). The slide
-  // is given its length from here and this script waits that long (and a beat more), whatever the speed, so the slide
-  // always ends before the panel goes. A tap ends the pause, and the pieces are then shown in their new boxes at once.
-  // With reduced motion nothing slides (the stylesheet turns the move off) and the pause is kept, to read the panel.
+  // Dusk falls: the customer row and the stalls stay where they are, dimmed, and the lanes turn to ink (table.css).
+  // Then every piece slides one box along its lane, in the market (panels/NightShift) and on your shelf (table.tsx
+  // MyStall): a piece leaving the last box tips off and fades as the slide ends. The slide is given its length from
+  // here and this script waits that long (and a beat more), whatever the speed, so the slide always ends before dawn.
+  // A tap ends the pause, and the pieces are then shown in their new boxes at once. With reduced motion nothing
+  // slides (the stylesheet turns the move off) and the pause is kept, to read the lanes.
   await A.wait(NIGHT.dusk);
   setSlide(A.held(NIGHT.slide));
   await A.hold(NIGHT.slide + NIGHT.settle);
   setSlide('done');
-  await A.hold(NIGHT.read);
-  const heat = g.event?.ageExtra ?? 0;
+  // On your own shelf (a rival's is never drawn) the pieces that leave are shown while the lanes are read: a Juice
+  // Bar's pieces become coins that travel to the cash (one coin for each piece), and the rest tip off the shelf.
+  // The engine's own forecast for each shelf, so the picture matches the night (Heatwave, Monsoon, Juice Bar).
   const jobs: Promise<void>[] = [];
   let d = 0;
-  const spoil = (anchor: string[], f: FruitId, n: number) => {
-    for (let k = 0; k < Math.min(n, 3); k++) { jobs.push(A.drop(anchor, <Fruit id={f} size={26} stage="notso" />, d)); d += NIGHT.gap; }
-  };
-  // A Juice Bar's pieces fly to the cash as coins instead of rotting (one sprite each, like the drop they replace).
-  const juice = (p: number, f: FruitId, n: number) => {
-    for (let k = 0; k < n; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: NIGHT.juiceCoin })); d += NIGHT.gap; }
-  };
-  // The engine's own forecast for each shelf, so the picture matches the night (Cold Room, Heatwave, Juice Bar).
   const juiced = g.players.map((_, p) => nightOutlook(g, p).juice);
   const shelves = g.players.map((_, p) => ({ leaving: leavingTonight(g, p), juice: juiced[p] }));
   for (const f of FRUITS) {
-    spoil([`cart-${f}`], f, g.market[f][0] + (heat ? g.market[f][1] : 0));
     shelves.forEach((sh, p) => {
       // The juice comes from the first pieces leaving, fruit by fruit (the rules only count how many).
       const j = Math.min(sh.juice, sh.leaving[f]);
       sh.juice -= j;
-      juice(p, f, j);
-      spoil([`p${p}-${f}`], f, sh.leaving[f] - j);
+      for (let k = 0; k < j; k++) { jobs.push(A.fly([`p${p}-${f}`, `p${p}`], `p${p}-cash`, <Coin size={22} />, { delay: d, duration: NIGHT.juiceCoin, path: 'flat' })); d += NIGHT.gap; }
+      // The rest spoil: a piece tips off that fruit's place on the shelf (three at most are drawn for one fruit).
+      for (let k = 0; k < Math.min(sh.leaving[f] - j, 3); k++) { jobs.push(A.drop([`p${p}-${f}`], <Fruit id={f} size={24} stage="notso" />, d)); d += NIGHT.gap; }
     });
   }
-  await Promise.all(jobs);
+  await Promise.all([A.hold(NIGHT.read), ...jobs]);
   juiced.forEach((n, p) => { if (n) A.floatText(`p${p}-cash`, `+$${n * JUICE_VALUE} juice`); });
   if (juiced.some((n) => n > 0)) fx.coin();
   await A.wait(NIGHT.end);
