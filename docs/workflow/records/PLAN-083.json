@@ -38,7 +38,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (release A in packages; this is package 2). Designs: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\" (DEC-095); \"lets use pattern for now\" (DEC-096); \"picture style is right, proceed to draw all the cards\" (DEC-094).",
     "date": "2026-11-12"
   },
-  "delivery": "verified",
+  "delivery": "released",
   "id": "PLAN-083",
   "title": "Release A, package 2: the new pictures and card faces in the game; shared motion blocks",
   "problem": "The game still shows the old pictures and the old card faces, and its animations are built from separate pieces with their own timings. The approved designs (docs/studio/review-18/mockups) and the drawn pictures (docs/studio/art-drafts/cards-18) are not in the game yet.",

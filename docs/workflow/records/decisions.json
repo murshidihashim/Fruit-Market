@@ -2115,7 +2115,7 @@
         "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-077",
       "reports": [
         "REP-100"
@@ -2140,7 +2140,7 @@
         "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-101",
@@ -2190,7 +2190,7 @@
         "evidence": "\"go with B\"",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-102",
@@ -2338,7 +2338,7 @@
         "evidence": "Owner, 2026-11-12: \"keep lorry column\"; \"picture style is right, proceed to draw all the cards, do it detailed as i i want the artsyle to feel polished and ready to print\"; \"now give 3 designs each for respective cards, now it looks to plain and all are very generic, keep the 3 design styles within a coherent design\"; \"for the wholesale market in the app, dont use the short broad, i need to be 3,4,5,6 columns, it needs to feel like a board game still\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2508,7 +2508,7 @@
         "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-105",
         "REP-106",
@@ -2534,7 +2534,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-107",
         "REP-108"
@@ -2607,7 +2607,7 @@
         "evidence": "Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-110"
       ],
@@ -2631,7 +2631,7 @@
         "evidence": "Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens.",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-110"
       ],
@@ -3662,6 +3662,10 @@
     {
       "at": "2026-11-12 19:24",
       "text": "PLAN-085 and PLAN-088 (part 1) built, merged and checked on ca39c60 (REP-111): npm run verify PASS (722 tests passed, 1 skipped); npm run test:e2e PASS on a quiet machine (longest task 187 ms, 0 leaks, reconnect 5 of 5). Merged in order: the text with the name-sentence fix (295dc8c); the bid and evening small-phone fit (d860435); the sheet with stocking and pricing (caf5e05) and its refit (after 0d76d20); the market, the lorry and the night (0d76d20 and the next merge); the takings (1942b91); the stalls row and shelf with two repairs (b9dd496: the hand-over guard against a double tap, the Heatwave shelf chip); the bell and Favoured Trade (ca39c60). Eight helpers were used; the helpers that had already built a part before it was split off (the bell, the takings, the stalls) had their work kept and finished by the second helper. The stamp book (PLAN-086: data done, screens a first pass, 787faa3), the rest of the text list and the print kit (PLAN-087: decks print on rules 18, d244989) are paused on their branches. Release 1.20.0's entry extended with PLAN-085 and PLAN-088; publishing follows DEC-106 once the full checks pass on the CI machines."
+    },
+    {
+      "at": "2026-11-12 19:45",
+      "text": "Release 1.20.0 published 2026-11-12 19:43 (DEC-106; PLAN-077, 079, 081, 082, 083, 084, 085, 088): main c17a053 (pull request #11). The full checks on the CI machines passed first (CI run 136: verify, solo game, performance budget OK at the 250 ms limit with 3 slow frames of 747 at night and a longest night frame of 66.7 ms, online match 56 pricing frames 0 leaks, abandoned match, quick match, four players, reconnect 5 of 5; the longest-task figure was not read from the log). Deploy LIVE game run 39: verify, release check, deploy, live smoke test and tag v1.20.0 all passed. Checked from the session: the live page answers 200, the server reports rules version 18 and the page serves the build CI made. The live smoke script could not be run from the session's machine (its network reaches the site with curl only). Not yet done: a person playing it on a phone; the owner is testing it. The stamp book, the rest of the text list, the screen labels and the print kit continue on the working branch for the next release."
     }
   ]
 }

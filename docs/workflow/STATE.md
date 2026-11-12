@@ -1,12 +1,14 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 19:24 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 19:45 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, 44 commits ahead of `main`. It holds rules version 18, never merged, never on the preview, not published.
-- **The plan (REP-106, DEC-098 to DEC-100, changed by DEC-105):** the core game goes live first as **release 1.20.0**. It is a candidate on `main` (`acaaee2`, pull request #10, four rebuilt screens, REP-110) and on the preview copy, **not published**. By DEC-106 it is published, without asking again, when the rest of the day's screens (PLAN-085) and the two named fixes are merged and every check passes, including the full checks on the CI machines; then mark it published in the records. The rest of release A follows in later releases: the remaining screens, the text, the stamp book, then the print kit. Releases B (Market Month, five-day Daily) and C after that.
-- **Deadline:** the owner wants the rest ready inside the usage allowance before it resets on 2026-11-13 19:00. Digital first; the print kit is paused.
+- **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with `main` apart from the records of the publish.
+- **What 1.20.0 holds (REP-110, REP-111):** rules 18, the new cards, the whole day rebuilt on the table with its motion, the text of cards, story, tutorial and How to play.
+- **Next release (the rest of release A, DEC-105):** the stamp book with Results, Trophies, Wardrobe and Home (PLAN-086, paused first pass); the screen labels and the rest of the text list (PLAN-088 part 2); the print kit (PLAN-087, paused); the privacy page for the stamp book's counts; fixes from the owner's play of 1.20.0. Each release needs the owner's word. Then releases B (Market Month, five-day Daily) and C.
+- **Deadline:** the owner wants the rest ready inside the usage allowance before it resets on 2026-11-13 19:00.
+- **Helpers to resume** (agent ids, branches and next steps: scratchpad `helpers.md`, `p086-stamps/REPORT-paused.md`, `p087-print/REPORT-paused.md`): each must first merge `ccr-d8bcd65d-gblqqb` into its branch.
 
 ## Release A, package by package
 | Package | Plan | Delivery |
@@ -25,17 +27,17 @@ Updated 2026-11-12 19:24 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 
 **Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.
 
-## Checks (on `ca39c60`, the code of release 1.20.0)
+## Checks (on `ca39c60`, the code of release 1.20.0; CI and the live deploy passed on `c17a053`)
 - `npm run verify`: PASS. On ca39c60: 70 files, 722 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts).
 - `npm run test:e2e`: PASS. On the complete build (ca39c60), with the machine quiet: solo game to the results with no errors; performance budget OK (longest task 187 ms against 200, opening the game screen 211 ms, 0.69 slow frames in a hundred, 626 page elements of 800); online match with 66 pricing frames and 0 leaks; an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. Runs on the merged code: 141 ms and 187 ms with the machine quiet (PASS); 216, 260 and 344 ms while helpers and other tests were loading it (FAIL at the 200 ms limit). The CI machines measured 63 ms on the four-screen build, against their limit of 250 ms.
-- On the CI machines: see the history's newest lines.
+- On the CI machines: PASS (run 136). Deploy LIVE game run 39: PASS, live smoke test included.
 - Balance target: PASS at 2, 3 and 4 stalls; narrow FAIL at 6 stalls and against Hard computers, accepted by the owner (DEC-102).
 - Played by people: NOT RUN.
 
 ## Decided, and waiting on the owner
 - **DEC-102 (2026-11-12):** the cards stay as built; the preview copy is not updated at milestones, release A is finished first and then goes live; the balance is accepted for release A, Raj and Saleh watched in playtests.
 - **DEC-103 (2026-11-12):** stocking and the takings (package 3) and the results, stamp book, trophy cards and Wardrobe (package 5) are built as drawn in REP-109; rank names kept; looks show as an awning strip over the shelf and on a rival's view of the box. Boards: `docs/studio/review-18/mockups`.
-- **DEC-106 (2026-11-12):** 1.20.0 is held and published when the rest of the day's screens are ready (see above); the small-phone scroll in the evening and the bid, and the "You wins" sentences, are fixed in it.
+- **DEC-106 (2026-11-12), done:** 1.20.0 was held and published when the rest of the day's screens were ready; the small-phone scroll in the evening and the bid, and the "You wins" sentences, are fixed in it.
 - **DEC-105 (2026-11-12):** the core game goes live first; the stamp book, the screen labels and the print kit follow in later releases.
 - **DEC-104 (2026-11-12):** "speed it up please": the remaining packages are built side by side; no check is dropped.
 - Each later release needs his own word for that build.

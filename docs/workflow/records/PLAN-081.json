@@ -30,7 +30,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (three releases; release A's packages are listed in REP-106 section 4, this is the first).",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-081",
   "title": "Release A, package 1: flow repairs and two defects",
   "problem": "Several steps stall or mislead today (found by reading the code in docs/studio/review-18/FLOW-AND-MOTION.md), and two defects can lose a player's game or trophy progress. They are fixed before any new motion is built on top.",
