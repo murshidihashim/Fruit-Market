@@ -36,14 +36,14 @@ describe('printed supply and demand', () => {
   it('lorry cards print what they deliver for 2 to 6 stalls (rules 11: 20 unique cards)', () => {
     expect(FARMER_CARDS).toHaveLength(20);
     expect(new Set(FARMER_CARDS.map((c) => c.name)).size).toBe(20);
-    const bonanza = FARMER_CARDS.find((c) => c.name === 'Blueberry Bonanza')!;
+    const bonanza = FARMER_CARDS.find((c) => c.name === 'Blueberry Lorry')!;
     const row = (shops: number) => (['blueberry', 'watermelon', 'apple', 'mango'] as FruitId[]).map((f) => printedSupply(bonanza, f, shops));
     expect(row(2)).toEqual([4, 1, 1, 1]);
     expect(row(3)).toEqual([6, 2, 1, 1]);
     expect(row(4)).toEqual([8, 3, 2, 1]);
     expect(row(5)).toEqual([10, 3, 3, 2]);
     expect(row(6)).toEqual([13, 4, 3, 2]);
-    const rush = FARMER_CARDS.find((c) => c.name === 'Mango Rush')!;
+    const rush = FARMER_CARDS.find((c) => c.name === 'Mango Lorry')!;
     expect(printedSupply(rush, 'mango', 4)).toBe(9);
   });
 
@@ -200,7 +200,7 @@ describe('open stalls and posted prices', () => {
     // A Haggler no longer beats fresher fruit, but wins a tie with equally fresh fruit whatever the buying order.
     expect(run((s) => { s.players[0].stock.apple[2] = 3; s.players[1].stock.apple[fresh('apple')] = 3; s.players[0].trait = 'haggler'; })).toBe(1);
     expect(run((s) => { s.players.forEach((p) => { p.stock.apple[fresh('apple')] = 3; }); s.order = [1, 0]; s.players[0].trait = 'haggler'; })).toBe(0);
-    expect(TRAITS.haggler.text).toContain('equally fresh');
+    expect(TRAITS.haggler.text).toContain('as fresh as the rival');
   });
 
   it('a Premium Display lets fresh fruit go $1 over the limit; fruit too old for the price is reported', () => {

@@ -139,7 +139,7 @@ describe('tonight in words', () => {
     expect(HEATWAVE.ageExtra).toBe(1);
     for (const day of [4, 5]) {
       const hot = salesCard(day, [0, 3], [], true);
-      expect(heatwaveLine(hot, 0)).toBe('Heatwave: everything ages twice tonight.');
+      expect(heatwaveLine(hot, 0)).toBe('Heatwave: all fruit ages 2 steps tonight.');
       // The night agrees: the okay blueberries leave a step early.
       expect(forecastAndNight(hot).o.spoil).toBe(3);
     }
@@ -147,12 +147,13 @@ describe('tonight in words', () => {
     expect(heatwaveLine(salesCard(10, [0, 3], [], true), 0)).toBeNull(); // the final day: no night follows
   });
 
-  it('day highlight: no spoil warning for juice; Heatwave counted', () => {
+  it('fruit that spoils tonight is not a day highlight: the sales card\'s own line says it once (DEC-087)', () => {
     const texts = (s: GameState) => dayHighlights(s, 0).map((x) => x.text);
-    expect(texts(salesCard(4, [2], ['juicebar'])).join(' ')).not.toMatch(/spoil/);
-    expect(texts(salesCard(4, [5], ['juicebar']))).toContain('3 of your fruit will spoil tonight; 2 become juice (+$4).');
-    expect(texts(salesCard(4, [0, 3], [], true))).toContain('3 of your fruit will spoil tonight.');
-    expect(texts(salesCard(4, [3]))).toContain('3 of your fruit will spoil tonight.');
+    for (const s of [salesCard(4, [2], ['juicebar']), salesCard(4, [5], ['juicebar']), salesCard(4, [0, 3], [], true), salesCard(4, [3])]) expect(texts(s).join(' ')).not.toMatch(/spoil/);
+    // The same facts, Heatwave counted, on the card's line above the highlights.
+    expect(tonightLine(salesCard(4, [5], ['juicebar']), 0)).toBe('3 spoil tonight, 2 become juice (+$4)');
+    expect(tonightLine(salesCard(4, [0, 3], [], true), 0)).toBe('3 fruit spoil tonight');
+    expect(tonightLine(salesCard(4, [3]), 0)).toBe('3 fruit spoil tonight');
   });
 
   it('the sales card shows juice as juice, and the spoil count after the Juice Bar\'s share', () => {
@@ -174,7 +175,7 @@ describe('tonight in words', () => {
     expect(evening(salesCard(4, [2], ['juicebar']))).toContain('class="info-card good"><div>2 fruit become juice tonight (+$4)</div>');
     const hot = evening(salesCard(4, [0, 3], [], true));
     expect(hot).toContain('class="info-card warn"><div>3 fruit spoil tonight</div>');
-    expect(hot).toContain('Heatwave: everything ages twice tonight.');
+    expect(hot).toContain('Heatwave: all fruit ages 2 steps tonight.');
     // the old forecast counted only the last-day slot and warned every stall about the Heatwave
   });
 
@@ -185,13 +186,13 @@ describe('tonight in words', () => {
     expect(juice).toEqual({ pieces: 2, dollars: 4 });
     expect(next.players[0].cash - s.players[0].cash).toBe(juice.dollars);
     expect(overnightLines(overnightLoss(s, next, 0), juice)).toEqual([
-      { tone: 'bad', text: '3 of your fruit spoiled overnight.' },
-      { tone: 'good', text: 'Your Juice Bar made $4 from 2 fruit overnight.' },
+      { tone: 'bad', text: '3 of your pieces spoiled overnight.' },
+      { tone: 'good', text: 'Your Juice Bar made $4 overnight.' },
     ]);
     const only = salesCard(4, [2], ['juicebar']);
     const after = playNight(only);
     expect(overnightLoss(only, after, 0)).toBe(0);
-    expect(overnightLines(0, overnightJuice(only, after, 0)).map((x) => x.text)).toEqual(['Your Juice Bar made $4 from 2 fruit overnight.']);
+    expect(overnightLines(0, overnightJuice(only, after, 0)).map((x) => x.text)).toEqual(['Your Juice Bar made $4 overnight.']);
     expect(overnightLines(0)).toEqual([]);
   });
 });

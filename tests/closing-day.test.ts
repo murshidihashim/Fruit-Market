@@ -54,7 +54,7 @@ describe('Closing Day words', () => {
 
   it('on Closing Day ripe leftovers are worth the jam price, everywhere it is said', () => {
     const n = closingNote(closing({}, 2), 0)!;
-    expect(n.morning).toBe(`Ripe fruit left tonight goes to the jam maker for $${JAM_PRICE} each. Sell what you can!`);
+    expect(n.morning).toBe(`Closing Day: the jam maker pays $${JAM_PRICE} for each ripe piece you have left tonight.`);
     expect(n.chip).toBe(`Leftovers = $${JAM_PRICE} each`);
     expect(n.stocking).toBe(`Closing Day: ripe fruit left tonight goes to the jam maker at $${JAM_PRICE} each.`);
     expect(n.each).toBe(JAM_PRICE);
@@ -64,7 +64,7 @@ describe('Closing Day words', () => {
   it('with Closing Day switched off every leftover is worth $0, and the jam maker is never mentioned', () => {
     const n = closingNote(closing({ marketDays: false }, 2), 0)!;
     expect(n).toEqual({
-      morning: 'Anything unsold tonight is worth $0. Sell it all!', chip: 'Unsold = $0',
+      morning: 'Last day: anything unsold tonight is worth $0.', chip: 'Unsold = $0',
       stocking: 'Last day: anything unsold tonight is worth $0.', each: 0,
     });
   });
@@ -73,7 +73,7 @@ describe('Closing Day words', () => {
     const n = closingNote(closing({}, 0, 3), 0)!;
     expect(n.chip).toBe('Unsold = $0');
     expect(n.morning).toBe('Green fruit left tonight is worth $0: the jam maker buys ripe fruit only.');
-    expect(n.stocking).toMatch(/green fruit left tonight is worth \$0/);
+    expect(n.stocking).toMatch(/Green fruit left tonight is worth \$0/);
     expect(n.each).toBe(0);
     // ripe and green together: the chip names ripe fruit, since the jam maker pays nothing for the green ones
     const mixed = closing({}, 1, 3);

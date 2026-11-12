@@ -210,7 +210,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(show.stage).toBe('in');
     expect(show.order.holder).toBe(0);
     expect(show.text).toBe(won.log[won.log.length - 1]);
-    expect(show.text).toBe(`Mia won ${title}'s order at $1 a piece and put down a $${o.stake} stake`);
+    expect(show.text).toBe(`Mia won the standing order from ${title} at $1 a piece and put down a $${o.stake} stake`);
     // every rival's bid is in the order that is shown (the bids are public once every stall has decided)
     const open = toStaticHtml(h(BidStatus, { s: publicView(won, 0), p: 0, order: show.order, open: true }));
     for (const [i, b] of show.order.bids.entries()) if (i !== 0 && typeof b === 'number') expect(open).toContain(`<b>$${b}</b>`);
@@ -224,7 +224,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(none.standing).toBeNull();
     const gone = bidsIn(all, none)!;
     expect(gone.text).toBe(none.log[none.log.length - 1]);
-    expect(gone.text).toBe(`Nobody wanted ${title}'s order`);
+    expect(gone.text).toBe(`Nobody bid for the standing order from ${title}`);
     expect(gone.order.bids).toEqual(['pass', 'pass', 'pass', 'pass']);
     // any other step of the game shows nothing
     expect(bidsIn(bidding, bidding)).toBeNull();

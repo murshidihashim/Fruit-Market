@@ -88,7 +88,7 @@ describe('rules version 8', () => {
     const titles = new Set(Array.from({ length: 7 }, (_, k) => dailyTwist(`2026-11-${String(k + 1).padStart(2, '0')}`).title));
     expect(titles.size).toBe(7);
     expect(dailyTwist('2026-11-05')).toEqual(dailyTwist('2026-11-05'));
-    const quick = Array.from({ length: 7 }, (_, k) => `2026-11-${String(k + 1).padStart(2, '0')}`).find((d) => dailyTwist(d).title === 'Quick day')!;
+    const quick = Array.from({ length: 7 }, (_, k) => `2026-11-${String(k + 1).padStart(2, '0')}`).find((d) => dailyTwist(d).title === 'Quick game')!;
     expect(dailyConfig(quick, 'Me').days).toBe(8);
   });
 });

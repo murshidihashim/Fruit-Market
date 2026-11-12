@@ -63,16 +63,16 @@ describe('the morning\'s lorry card (boardModel.todaysLorry)', () => {
   });
 
   it('two cards that print the same row are told apart by the deck, or not named at all', () => {
-    // At 3 stalls Balanced Cart and Farmer's Choice both bring 3 of everything.
-    const a = FARMER_CARDS.findIndex((c) => c.name === 'Balanced Cart');
+    // At 3 stalls Even Load and Farmer's Choice both bring 3 of everything.
+    const a = FARMER_CARDS.findIndex((c) => c.name === 'Even Load');
     const b = FARMER_CARDS.findIndex((c) => c.name === 'Farmer\'s Choice');
     expect(lorryLoad(FARMER_CARDS[a], null, 3)).toEqual(lorryLoad(FARMER_CARDS[b], null, 3));
     const base = newGame(cfg(3, 5));
     const s: GameState = { ...base, event: null, delivery: lorryLoad(FARMER_CARDS[a], null, 3), deliveryUnripe: 'mango' };
     const others = FARMER_CARDS.map((_, i) => i).filter((i) => i !== a && i !== b);
-    // Day 1, tomorrow's card drawn: 18 cards left. Balanced Cart is not in the deck, Farmer's Choice still is.
+    // Day 1, tomorrow's card drawn: 18 cards left. Even Load is not in the deck, Farmer's Choice still is.
     const next = FARMER_CARDS[others[0]];
-    expect(todaysLorry({ ...s, day: 1, nextFarmer: next, farmerDeck: [b, ...others.slice(1)] })?.name).toBe('Balanced Cart');
+    expect(todaysLorry({ ...s, day: 1, nextFarmer: next, farmerDeck: [b, ...others.slice(1)] })?.name).toBe('Even Load');
     // Both are out of the deck (one was an earlier day's lorry): it cannot be told, so no name.
     expect(todaysLorry({ ...s, day: 2, nextFarmer: next, farmerDeck: others.slice(1) })).toBeNull();
     // Online (no deck) and after a reshuffle (the deck's size no longer tells what was drawn): no name.

@@ -114,25 +114,25 @@ describe('rules 11: customers per day (spec section 3)', () => {
 
 describe('rules 11: lorry deck (spec section 4)', () => {
   const SPEC: [string, string[]][] = [
-    ["Blueberry Bonanza", ['4/1/1/1', '6/2/1/1', '8/3/2/1', '10/3/3/2', '13/4/3/2']],
-    ["Watermelon Wagon", ['1/4/1/1', '2/6/2/1', '3/8/2/2', '3/10/3/2', '4/13/3/3']],
-    ["Orchard Run", ['2/1/4/1', '2/2/5/1', '3/3/7/1', '4/3/9/2', '5/4/12/2']],
+    ["Blueberry Lorry", ['4/1/1/1', '6/2/1/1', '8/3/2/1', '10/3/3/2', '13/4/3/2']],
+    ["Watermelon Lorry", ['1/4/1/1', '2/6/2/1', '3/8/2/2', '3/10/3/2', '4/13/3/3']],
+    ["Apple Lorry", ['2/1/4/1', '2/2/5/1', '3/3/7/1', '4/3/9/2', '5/4/12/2']],
     ["Highland Apples", ['1/1/5/0', '1/1/6/0', '1/1/9/0', '2/2/11/0', '2/2/14/0']],
-    ["Mango Rush", ['2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14']],
+    ["Mango Lorry", ['2/2/1/5', '2/2/1/6', '3/3/1/9', '4/3/2/11', '5/5/2/14']],
     ["Mango Growers", ['2/2/2/4', '3/3/2/5', '4/3/3/6', '4/4/4/8', '6/5/5/11']],
     ["Mango Season", ['2/1/1/4', '2/2/2/6', '4/3/2/8', '5/3/3/10', '7/4/3/13']],
-    ["Summer Run", ['3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/2/2', '10/11/2/2']], // rules 18: its apple grows at 5 and 6 stalls
-    ["Tropical Pair", ['1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11']],
-    ["Breakfast Run", ['3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2']],
-    ["Premium Picks", ['1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11']],
+    ["Berries and Melons", ['3/4/1/1', '4/5/1/1', '7/6/1/1', '8/8/2/2', '10/11/2/2']], // rules 18: its apple grows at 5 and 6 stalls
+    ["Melons and Mangoes", ['1/3/1/4', '1/4/1/5', '2/7/1/6', '2/7/2/8', '3/10/2/11']],
+    ["Berries and Apples", ['3/1/3/1', '4/2/4/1', '6/2/6/1', '8/3/7/2', '10/3/9/2']],
+    ["Apples and Mangoes", ['1/1/3/4', '1/2/3/5', '2/2/6/6', '2/3/6/8', '3/3/8/11']],
     ["Mixed Basket", ['2/2/2/2', '3/3/2/2', '4/4/4/3', '5/5/4/5', '6/6/6/7']],
-    ["Balanced Cart", ['3/2/2/2', '3/3/3/3', '5/4/3/4', '5/5/4/5', '8/7/5/6']],
+    ["Even Load", ['3/2/2/2', '3/3/3/3', '5/4/3/4', '5/5/4/5', '8/7/5/6']],
     ["Farmer's Choice", ['2/2/2/3', '3/3/3/3', '4/5/3/4', '5/5/4/5', '6/7/5/8']],
-    ["Kampung Truck", ['3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8']],
-    ["Quiet Delivery", ['1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3']],
+    ["Kampung Lorry", ['3/3/0/3', '4/3/0/3', '5/5/0/5', '6/6/0/6', '9/8/0/8']],
+    ["Small Load", ['1/1/1/1', '2/2/2/1', '3/2/2/2', '3/3/3/2', '4/4/3/3']],
     ["Short Load", ['2/1/1/1', '2/2/1/1', '3/2/1/1', '3/3/2/2', '5/3/2/2']], // rules 18: one more watermelon at 3 stalls
     ["Convoy", ['3/3/3/2', '5/4/4/4', '6/6/5/6', '8/7/7/7', '9/9/8/9']],
-    ["Wholesaler's Overstock", ['3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4']],
+    ["Overstock", ['3/3/3/1', '4/4/4/2', '5/6/6/3', '6/7/8/4', '8/10/10/4']],
     ["Seconds Lorry", ['3/3/2/1', '3/3/3/2', '5/4/4/3', '5/6/5/4', '8/8/6/4']],
   ];
 
@@ -348,7 +348,7 @@ describe('rules 11: upgrades and favours (spec section 7)', () => {
     expect(Object.keys(UPGRADES).sort()).toEqual(['barrow', 'juicebar', 'orderbook', 'premium', 'ripening']);
     expect([UPGRADES.juicebar.cost, UPGRADES.barrow.cost, UPGRADES.premium.cost, UPGRADES.ripening.cost, UPGRADES.orderbook.cost]).toEqual([6, 6, 5, 4, 3]);
     expect(JUICE_CAP).toBe(2);
-    expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces of fruit a day and hold 10.');
+    expect(UPGRADES.barrow.text).toBe('Buy up to 5 pieces a day. Your shelf holds 10.');
   });
 
   it('favour deck: one deck of 12 cards (2 of each) at every table size (rules 18; before, 18 at 5 and 6 stalls)', () => {
