@@ -123,6 +123,16 @@ describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)
   });
 });
 
+describe('the table under a sheet (Game.tsx)', () => {
+  it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
+    const game = read('src/ui/Game.tsx');
+    expect(game).toContain("sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);");
+    expect(game).toContain('covered.current = !!mid;');
+    // the hooks come before the hand-over and results screens return early
+    expect(game.indexOf('const covered = useRef(false);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
+  });
+});
+
 describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () => {
   it('last of all the sheet also lies over the rows above it, and pricing then says the rivals\' pieces once', () => {
     // 360 by 780: the closest step is 332 tall in a cell of 264 with 48 more over your shelf: it takes the rows above too

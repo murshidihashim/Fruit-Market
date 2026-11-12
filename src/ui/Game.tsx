@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useMemo, useRef } from 'preact/hooks';
+import { useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -50,6 +50,12 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
+  // The Wholesale Market under a sheet cannot be seen, so it is put out of reach of the keyboard and of screen readers
+  // too for as long as a sheet lies over it (PLAN-090). The rows a sheet covers only on some phones are left as they are.
+  const covered = useRef(false);
+  useLayoutEffect(() => {
+    sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);
+  });
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
@@ -156,6 +162,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
+  covered.current = !!mid;
   const offSeats = offline.map((x) => x.seat);
 
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
