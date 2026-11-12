@@ -72,6 +72,9 @@
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to::before { content: "\203A"; font: 800 0.6875rem/1 var(--tk-txt); }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to i { font-size: 0.625rem; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip b { font-size: 0.6875rem; }
+  /* (four chips that all change letter were 4 px short of the row at 360 wide: they stand a little closer) */
+  #app .game.tkt .tb-dock.c4 .tb-chips { --chip-gap: 3px; }
+  #app .game.tkt .tb-dock.c4 .tb-chip { padding: 0 2px; }
   /* five or more: the fruit and today's letter; the chip's colour says what tonight does */
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chips { --chip-gap: 3px; }
   #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip { gap: 1px; padding: 0 2px; }
