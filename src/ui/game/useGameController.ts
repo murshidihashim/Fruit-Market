@@ -148,6 +148,10 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // A Favoured Trade answer (PLAN-085): where the card lies is noted before the question leaves the table.
       const tied = tieAnswer(prev, next);
       const cardFrom = tied ? tieFrom(tied, viewer) : null;
+      // The flip before a Favoured Trade question: the bell is set ringing together with the new state, so the rows
+      // are drawn shut from their first frame (they used to show open for a frame or two before the bell's script
+      // shut them and turned them over). With reduced motion they are open at once, as the bell's script shows them.
+      if (flip) setBell(A.isReduced() ? next.players.length : 0);
       sRef.current = next;
       setS(next);
       onChange(next);

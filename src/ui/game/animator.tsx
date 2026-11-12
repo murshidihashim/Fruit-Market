@@ -209,6 +209,14 @@ export type BellShow = number | null;
  */
 export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
   const n = g.players.length;
+  // Reduced motion: every row is open in one and the same frame (stepping through the rows without a pause still
+  // drew them over a few frames), and the pause to read is kept.
+  if (A.isReduced()) {
+    setBell?.(n);
+    fx.card();
+    await A.hold(A.BEAT.bell.read);
+    return;
+  }
   setBell?.(0);
   fx.card();
   await A.wait(A.BEAT.bell.swing);

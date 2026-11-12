@@ -45,9 +45,12 @@ export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer:
   );
 }
 
-/** What a stall's row says aloud once it is open: "Saleh: 1 mangoes at $10, 1 apples at $5". */
-const rowSaid = (s: GameState, x: BellRow, shared?: boolean) =>
-  `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'nothing out'}`;
+/** What a stall's row says aloud once it is open: "Saleh: 1 mangoes at $10, 1 apples at $5", and its tied prices in
+ *  the game's words ("tied: apples at $5 with Rosa"). */
+const rowSaid = (s: GameState, x: BellRow, shared?: boolean) => {
+  const ties = tieWords(s, x.player);
+  return `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'nothing out'}${ties ? `; tied: ${ties}` : ''}`;
+};
 
 /**
  * The bell: every stall's row in today's line-up, with a price tag for each fruit it put out (the price and the
@@ -60,6 +63,11 @@ export function CratesOpen({ s, viewer, open = null, shared, children }: {
   s: GameState; viewer: number; open?: number | null; shared?: boolean; children?: ComponentChildren;
 }) {
   const rows = bellRows(s, viewer);
+  // Your own tied prices in the game's words, under the rows, when the rush is next (while a Favoured Trade question
+  // is asked, its card says who is tied). It keeps its place while the bell rings and fades in once every row is
+  // open: a tie is not told before the rival's row has turned. Not on a shared phone, where "your" is nobody's.
+  const tied = !shared && s.phase === 'reveal' ? tieWords(s, viewer) : '';
+  const told = open === null || open >= rows.length;
   return (
     <div class="ds-bell" role="status" aria-label="The bell: every crate is open">
       <div class="ds-bell-head">
@@ -92,7 +100,7 @@ export function CratesOpen({ s, viewer, open = null, shared, children }: {
           );
         })}
       </div>
-      {children}
+      {children || (tied ? <p class={`ds-bell-note ${told ? '' : 'wait'}`} data-a="bell-ties" aria-hidden={told ? undefined : 'true'}>{told ? `Your prices are tied: ${tied}.` : ''}</p> : null)}
     </div>
   );
 }

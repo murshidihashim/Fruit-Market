@@ -9,6 +9,13 @@
    Imported after daysheet.css, so a rule here wins over the same part there. No colour and no motion of its own.
    ===================================================================== */
 
+/* your own tied prices in words, under the rows, when no question is asked: it fades in once every row is open */
+#app .tkt .sh-day .ds-bell-note {
+  all: unset; flex: none; display: block; min-height: 1.3em; margin: 0 12px; padding: 7px 9px; background: var(--tk-kraft); color: var(--tk-ink);
+  transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease;
+}
+#app .tkt .sh-day .ds-bell-note.wait { opacity: 0; }
+
 /* every table: a little less air round the rows, so four stalls and the question fit a tall phone */
 #app .tkt .ds-stalls { padding-top: 8px; padding-bottom: 8px; }
 #app .tkt .ds-stall { min-height: 44px; padding: 5px 8px; }
