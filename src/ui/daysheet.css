@@ -82,13 +82,6 @@
 #app .tkt .sh-day .ds-amt.still { border-right: 0; }
 #app .tkt .sh-day .ds-amt span { font: 400 1.375rem/1 var(--tk-disp); }
 #app .tkt .sh-day .ds-amt small { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tk-slate); }
-/* a long shelf: the rows grow closer before they scroll under your crate */
-#app .tkt .ds-rows.many { gap: 4px; }
-#app .tkt .ds-rows.many .ds-srow { min-height: 42px; }
-#app .tkt .ds-rows.many .ds-info-cell { padding-top: 3px; padding-bottom: 3px; }
-#app .tkt .ds-rows.many .ds-st { min-height: 38px; }
-/* with a long shelf the note makes room for the rows (the first-game tip says the same) */
-#app .tkt .ds-rows.many ~ .ds-note { display: none; }
 
 /* ---------- pricing: a row for each fruit in your crate ---------- */
 #app .tkt .ds-prow { flex: none; display: flex; align-items: stretch; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
@@ -106,18 +99,47 @@
 }
 #app .tkt .ds-fav { flex: none; display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 2px dashed var(--tk-ink); }
 
-/* ---------- a short phone: everything a little closer, so more of each step is in view ---------- */
-@media (max-height: 700px) {
-  #app .tkt .ds-stock, #app .tkt .ds-price { gap: 4px; padding: 6px 12px 6px; }
-  #app .tkt .ds-stick { gap: 4px; margin: -6px -12px 0; padding: 6px 12px 2px; }
-  #app .tkt .ds-crate { min-height: 36px; padding: 3px 8px; }
-  #app .tkt .ds-srow, #app .tkt .ds-rows.many .ds-srow { min-height: 40px; }
-  #app .tkt .ds-srow .ds-info-cell { padding-top: 3px; padding-bottom: 3px; }
-  #app .tkt .sh-day .ds-st { min-height: 38px; }
-  #app .tkt .ds-tag { min-height: 44px; }
-  #app .tkt .ds-prow .ds-info-cell { gap: 3px; padding: 4px 8px; }
-  #app .tkt .ds-note, #app .tkt .ds-fav { padding: 5px 8px; }
-}
+/* ---------- drawn closer, a step at a time, when the sheet's parts are taller than the room it has ----------
+   The room is measured (DaySheet.tsx fit), never assumed: the table's rows above and below decide it. The step is
+   written on the sheet (data-tight) and nothing is drawn again for it. Step 1: the spacing. Step 2: fewer lines (the
+   labels of the two notes go, the stocking note goes, the rows lose their slack). Step 3: the tie order and the
+   Favoured Trade reminder as one line each (.ds-brief), and the lowest rows. If the closest step is still too tall
+   on a tall phone, the sheet also lies over your shelf (data-over), which stocking and pricing repeat anyway. */
+#app .tkt .ds-brief { display: none; }
+#app .tkt .sh-day[data-tight] .ds-stock, #app .tkt .sh-day[data-tight] .ds-price { gap: 4px; padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sh-day[data-tight] .ds-stick { gap: 4px; margin-top: -6px; padding-top: 6px; }
+#app .tkt .sh-day[data-tight] .ds-crate { min-height: 36px; padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-day[data-tight] .ds-rows { gap: 4px; }
+#app .tkt .sh-day[data-tight] .ds-srow { min-height: 42px; }
+#app .tkt .sh-day[data-tight] .ds-srow .ds-info-cell { padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-day[data-tight] .ds-st { min-height: 38px; }
+#app .tkt .sh-day[data-tight] .ds-tag { min-height: 44px; }
+#app .tkt .sh-day[data-tight] .ds-prow .ds-info-cell { gap: 3px; padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-day[data-tight] .ds-note, #app .tkt .sh-day[data-tight] .ds-fav { padding-top: 5px; padding-bottom: 5px; }
+/* step 2 */
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-note .ds-lab { display: none; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-stock .ds-note { display: none; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-note, #app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-fav { padding-top: 3px; padding-bottom: 3px; font-size: 0.6875rem; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-srow { min-height: 38px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-srow .ds-info-cell { gap: 6px; padding-top: 1px; padding-bottom: 1px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-txt { gap: 1px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-txt span { font-size: 0.6875rem; line-height: 1.2; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-st { min-height: 36px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-tag { min-height: 40px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-prow .ds-info-cell { gap: 2px; padding-top: 2px; padding-bottom: 2px; }
+#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-prow .ds-info-cell > span { font-size: 0.6875rem; line-height: 1.2; }
+/* step 3 */
+#app .tkt .sh-day[data-tight='3'] .ds-price { flex: none; padding-bottom: 4px; }
+#app .tkt .sh-day[data-tight='3'] .ds-price .ds-note, #app .tkt .sh-day[data-tight='3'] .ds-price .ds-fav { display: none; }
+#app .tkt .sh-day[data-tight='3'] .ds-brief { flex: none; display: flex; flex-direction: column; gap: 2px; margin: 0 12px 6px; padding: 4px 8px; background: var(--tk-kraft); font-size: 0.6875rem; line-height: 1.25; }
+#app .tkt .sh-day[data-tight='3'] .ds-srow { min-height: 36px; }
+#app .tkt .sh-day[data-tight='3'] .ds-st { min-height: 34px; }
+#app .tkt .sh-day[data-tight='3'] .ds-tag { min-height: 38px; }
+#app .tkt .sh-day[data-tight='3'] .ds-tag-face { font-size: 1.375rem; }
+#app .tkt .sh-day[data-tight='3'] .ds-crate { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
+#app .tkt .sh-day[data-tight='3'] .ds-pcx { width: 24px; height: 24px; }
+/* the closest step is still too tall for the middle cell: the sheet lies over your shelf as well */
+#app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }
 /* a narrow phone: the same sheet, a little tighter (as the rest of the table, ticket.css) */
 @media (max-width: 379px) {
   #app .tkt .ds-stock, #app .tkt .ds-price { padding-left: 8px; padding-right: 8px; }
@@ -125,4 +147,5 @@
   #app .tkt .sh-day .ds-st { width: 40px; }
   #app .tkt .sh-day .ds-amt { width: 52px; }
   #app .tkt .ds-tag { width: 56px; }
+  #app .tkt .sh-day[data-tight='3'] .ds-brief { margin-left: 8px; margin-right: 8px; }
 }

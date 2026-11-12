@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { EVENT_CARDS, FRUIT, RIVALS, type FruitId } from '../src/engine/data';
 import { emptyStock, newGame, type GameState } from '../src/engine/game';
-import { dayStep, ownStep, type DayNow } from '../src/ui/game/daySheet';
+import { TIGHTEST, dayStep, fitSheet, ownStep, type DayNow } from '../src/ui/game/daySheet';
 import { BEAT } from '../src/ui/motion';
 import { nightSteps, tonightWord } from '../src/ui/game/tonight';
 import { nth, shelfRowText, tieOrderText } from '../src/ui/panel';
@@ -148,5 +148,45 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
   it('pricing says how a tie falls and where you stand in today\'s line-up', () => {
     expect(tieOrderText(stocking(), 0)).toBe('The fresher piece sells first, then the Haggler, then whoever bought earlier. You bought 2nd today.');
     expect([1, 2, 3, 4, 11, 12, 13, 21].map(nth)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st']);
+  });
+});
+
+describe('stocking and pricing are drawn closer before anything scrolls (daySheet.ts fitSheet, DaySheet.tsx fit)', () => {
+  it('a step at a time and no closer than it needs; over your shelf only when the closest step is still too tall', () => {
+    expect(TIGHTEST).toBe(3);
+    // it fits as the approved screen draws it
+    expect(fitSheet([270], 277, 99)).toEqual({ tight: 0, over: false });
+    // three fruits priced in a 277 px cell: two steps closer; four fruits: the closest step
+    expect(fitSheet([355, 310, 277], 277, 99)).toEqual({ tight: 2, over: false });
+    expect(fitSheet([421, 380, 330, 277], 277, 99)).toEqual({ tight: 3, over: false });
+    // a six-row shelf is too tall even then: the sheet lies over your shelf too, at the roomiest step that fits there
+    expect(fitSheet([406, 372, 340, 320], 277, 99)).toEqual({ tight: 1, over: true });
+    expect(fitSheet([390, 360, 330, 300], 277, 120)).toEqual({ tight: 0, over: true });
+    // a short phone, where the sheet already lies over your shelf: nothing more to take, so the closest step scrolls
+    expect(fitSheet([500, 470, 440, 420], 370, 0)).toEqual({ tight: 3, over: false });
+    // nothing fits anywhere: over your shelf at the closest step, and it scrolls with the main button in view
+    expect(fitSheet([600, 560, 520, 500], 277, 99)).toEqual({ tight: 3, over: true });
+    // a pixel of rounding is not a reason to draw closer
+    expect(fitSheet([278], 277, 0)).toEqual({ tight: 0, over: false });
+  });
+
+  it('the room is measured from the sheet itself, each time the rows are laid out and at each step of the day', () => {
+    const sheet = read('src/ui/game/panels/DaySheet.tsx');
+    expect(sheet).toContain('const room = el.clientHeight;');
+    expect(sheet).toContain('needs.push(el.scrollHeight);');
+    expect(sheet).toContain('if (needs[t] <= room + 1) break;');
+    expect(sheet).toContain("useReach(root, 'row', true, true, (el) => { if (fitting.current) fit(el); });");
+    expect(sheet).not.toMatch(/innerHeight|innerWidth|matchMedia/);
+    // the step is written on the sheet: nothing is drawn again for it
+    expect(sheet).not.toMatch(/setTight|useState<number>/);
+    const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    // no fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone)
+    expect(css.match(/max-height: \d+px/g)).toEqual(['max-height: 760px', 'max-height: 760px', 'max-height: 760px']);
+    expect(css).toContain("#app .tkt .sh-day[data-tight='3'] .ds-price .ds-note, #app .tkt .sh-day[data-tight='3'] .ds-price .ds-fav { display: none; }");
+    expect(css).toContain('#app .tkt .ds-brief { display: none; }');
+    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }');
+    // the one-line forms say the same as the blocks they stand in for
+    expect(sheet).toContain('Ties: fresher, then the Haggler, then earlier.');
+    expect(sheet).toContain('You hold Favoured Trade: if you tie, you are asked.');
   });
 });
