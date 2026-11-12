@@ -17,6 +17,13 @@ import { SEEN_WALK_IN, lifeLabel, marketDayTomorrow, nextLorry, nextLorryName, p
 import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite } from './icons';
+// PLAN-085, the market and what moves on it: what is drawn of a piece on its way is held back until it lifts off or
+// lands (tableShown.ts); the styles are in table.css (loaded here, so after the older table styles).
+import type { Stock } from '../engine/game';
+import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
+import { marketBefore, ticketLines } from './tableModel';
+import { BEAT, FRAME, moveMs } from './motion';
+import './table.css';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
 export const SEAT_COLOURS = [C.xRed, C.xGreen, C.xMustardDark, C.xSkyDark];
@@ -40,63 +47,97 @@ export function Pile({ f, n, pos, size = 20 }: { f: FruitId; n: number; pos: num
 
 export { LANES, STAGE_LETTER };
 
+/** The night on the lanes: how many boxes every piece slides, whether the slide has started, and whether it is over. */
+export interface NightLanes { steps: number; go: boolean; rest: boolean }
+
 /**
- * The Wholesale Market as on the printed board (PLAN-072): one lane per fruit in the board's order (blueberry,
- * watermelon, mango, apple), the freshest box at the top, each box with its letter (G, F, O, S), the pieces in it and
- * what one costs. Tap a box to buy one piece.
+ * The board's lanes (DEC-094): one lane for each fruit in the board's order (blueberry 3 boxes, watermelon 4, mango 5,
+ * apple 6), one box for each day of a fruit's life, the freshest at the top. On top of a lane: how many pieces are
+ * wanted today. In a box: its letter (G, F, O, S), the piece with how many there are, and what one costs. An empty box
+ * is drawn as an empty box. `market`: the pieces to draw (held back while a piece is on its way). `night`: every piece
+ * slides along its lane and a piece leaving the last box tips off (the night's own script says when).
+ */
+export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
+  s: GameState; p: number; market: Stock; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
+  onPulse?: () => void; night?: NightLanes;
+}) {
+  const pz = pulse(s);
+  const view = market === s.market ? s : { ...s, market };
+  return (
+    <div class="tk-lanes tb-lanes">
+      {LANES.map((f) => {
+        const want = wantText(pz[FRUITS.indexOf(f)]);
+        return (
+          <div class={`tk-lane tb-lane ${f}`}>
+            <button type="button" class="pz tk-lane-head tb-lh" data-a={`mk-${f}`} disabled={!onPulse} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
+              aria-label={`${FRUIT[f].plural}: ${want} wanted today`}>
+              <i class="tb-lh-ico"><Fruit id={f} size={14} /></i>
+              <span>{want} wanted</span>
+            </button>
+            {shownColumn(view, f).map(({ pos, stage, n }) => {
+              const ok = !night && !!onPick && n > 0 && (!canPick || canPick(f, pos));
+              const cost = buyCost(s, p, f, pos);
+              const slide = !!night && night.go && night.steps > 0;
+              return (
+                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
+                  data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
+                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${n} left`}>
+                  <Lamp stage={stage} on={n > 0} size={14} />
+                  {n > 0 && (
+                    <span class={`tb-pc ${night ? `ns-piece ${slide ? 'moved' : ''} ${slide && pos - night.steps < 0 ? 'gone' : ''} ${night.rest ? 'rest' : ''}` : ''}`}
+                      style={night ? `--steps:${Math.min(night.steps, pos + 1)}` : undefined}>
+                      <i class="tb-tkn"><Fruit id={f} size={17} stage={stage} /></i>{n > 1 && <b class="tb-n">×{n}</b>}
+                    </span>
+                  )}
+                  <span class="price">${cost}</span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** How many boxes the longest lane has (the apple's six), for the height of a box. */
+export const laneRows = (s: GameState): number => Math.max(...FRUITS.map((f) => shownColumn(s, f).length));
+
+/**
+ * The Wholesale Market in the middle of the table. Tap a box to buy one piece. Until today's crates have landed the
+ * lanes show the market as it stood before the lorry (tableModel.marketBefore), and a box's number drops as a piece
+ * lifts out of it (tableShown.ts).
  */
 export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
   /** A line under the market's label (the evening's warning: what spoils tonight). */
   note?: { text: string; good: boolean };
-  /** The lorry is at the market from the morning delivery until buying ends: fruit flies in from its place. */
+  /** The lorry stands beside the market's label from the delivery until the last stall has bought. */
   lorry?: boolean;
 }) {
-  const pz = pulse(s);
-  // A green box no lorry ever fills (the watermelon's) is left out (shownColumn); a box with fruit in it always shows.
-  const cols = FRUITS.map((f) => shownColumn(s, f));
-  const lanes = LANES.map((f) => [f, FRUITS.indexOf(f)] as const);
-  const rows = Math.max(...cols.map((c) => c.length));
+  // The lorry's load is in the game from dawn; on the table it is unloaded as buying starts.
+  const market = s.phase === 'morning' || s.phase === 'order' ? marketBefore(s) : shownMarket(s.market);
   const buyer = s.phase === 'buy' ? s.players[s.order[s.turn]] : null;
   const me = s.players[p];
-  const turn = !buyer ? '' : s.order[s.turn] === p ? `Your turn · ${me.boughtToday} of ${buyLimit(me)} bought` : `${buyer.name} is buying`;
+  const turn = !buyer ? '' : s.order[s.turn] === p ? `Your turn · ${shownBoughtCount(p, me.boughtToday)} of ${buyLimit(me)} bought` : `${buyer.name} is buying`;
   return (
-    <div class="market-stall tk-market" style={{ '--rows': rows }}>
-      <div class="tk-label-row">
+    <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
+      <div class="tk-label-row tb-mk-head">
         <b class="tk-label" data-a="truck">Wholesale market</b>
-        {lorry && <i class="tk-anchor" data-a="lorry" aria-hidden="true" />}
+        {lorry !== undefined && <Lorry here={lorry} />}
         {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
-        {turn && <span class="tk-side">{turn}</span>}
+        {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
+        {turn ? <span class="tk-side">{turn}</span> : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
       </div>
-      {note && <p class={`tk-info ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</p>}
-      <div class="tk-lanes">
-        {lanes.map(([f, i]) => (
-          <div class={`tk-lane ${f}`}>
-            <button type="button" class="pz tk-lane-head" data-a={`mk-${f}`} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
-              aria-label={`${FRUIT[f].plural}: ${wantText(pz[i])} wanted today`}>
-              <Fruit id={f} size={20} />
-              <span>{wantText(pz[i])} want</span>
-            </button>
-            {cols[i].map(({ pos, stage, n }) => {
-              const ok = !!onPick && n > 0 && (!canPick || canPick(f, pos));
-              return (
-                <button type="button" class={`mk-cell tk-box st-${stage} ${ok ? 'pick' : ''} ${n ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
-                  data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${buyCost(s, p, f, pos)}, ${n} left`}>
-                  <Lamp stage={stage} />
-                  {n > 0 && <span class="tk-box-n"><Fruit id={f} size={20} stage={stage} /><b>{n}</b></span>}
-                  <span class="price">${buyCost(s, p, f, pos)}</span>
-                </button>
-              );
-            })}
-          </div>
-        ))}
+      <MarketLanes s={s} p={p} market={market} onPick={onPick} canPick={canPick} onPulse={onPulse} />
+      {/* Shown where the lanes leave room for it (table.css): the letters, and tomorrow's lorry. */}
+      <div class="tb-mk-foot">
+        <div class="tk-legend" role="note" aria-label="The letters on the boxes: G is green and not ripe yet, F is fresh, O is okay, S is soft">
+          {(['unripe', 'fresh', 'okay', 'notso'] as Stage[]).map((st) => <span><Lamp stage={st} size={14} />{STAGE_WORD[st]}</span>)}
+        </div>
+        <NextLorry s={s} />
       </div>
-      <div class="tk-legend" role="note" aria-label="The letters on the boxes: G is green and not ripe yet, F is fresh, O is okay, S is soft">
-        {(['unripe', 'fresh', 'okay', 'notso'] as Stage[]).map((st) => <span><Lamp stage={st} size={16} />{STAGE_WORD[st]}</span>)}
-      </div>
-      <NextLorry s={s} />
     </div>
   );
 }
@@ -168,7 +209,9 @@ export function boughtToday(s: GameState, p: number): Bought[] {
   if (!b) return [];
   return LANES.map((f) => {
     const t = b[f] ?? [];
-    return { f, n: t.reduce((a, x) => a + x, 0), green: t.slice(FRUIT[f].ripe.length).reduce((a, x) => a + x, 0) };
+    // As drawn: a piece counts once it has landed on the stall (PLAN-085, tableShown.ts).
+    const n = shownBought(p, f, t.reduce((a, x) => a + x, 0));
+    return { f, n, green: Math.min(n, t.slice(FRUIT[f].ripe.length).reduce((a, x) => a + x, 0)) };
   }).filter((x) => x.n > 0);
 }
 /** "1 mango (green), 2 apples": today's purchases in words, for the box's spoken label and the pop-up. */
@@ -353,21 +396,24 @@ export function MyStall({ s, p, onCard, flashCards, board }: { s: GameState; p: 
 // ---------- delivery lorry ----------
 
 /**
- * The farmer's lorry: drives into the street with the morning delivery, stays while shops buy,
- * and drives off when buying ends. Decoration only; fruit flies from it in animator.delivery().
+ * The lorry beside the market's label: it drives in as buying starts, stands there while stalls buy, and drives off
+ * after the last (table.css; the lengths are the clock's, motion.ts). A crate of each fruit slides from it to that
+ * fruit's entry box (animator.delivery). It is taken away on the clock, a frame after it has driven off.
  */
 export function Lorry({ here }: { here: boolean }) {
   const was = useRef(here);
   const [leaving, setLeaving] = useState(false);
   useEffect(() => {
-    if (was.current && !here) setLeaving(true);
-    if (here) setLeaving(false);
+    const left = was.current && !here;
     was.current = here;
+    if (!left) { if (here) setLeaving(false); return undefined; }
+    setLeaving(true);
+    const t = window.setTimeout(() => setLeaving(false), moveMs(BEAT.lorry.off) + FRAME);
+    return () => window.clearTimeout(t);
   }, [here]);
   if (!here && !leaving) return null;
   return (
-    <span class={`lorry ${here ? 'here' : 'leaving'}`} aria-hidden="true" data-a="lorry"
-      onAnimationEnd={(e) => { if (!here && e.target === e.currentTarget) setLeaving(false); }}>
+    <span class={`tb-lorry ${here ? 'here' : 'leaving'}`} aria-hidden="true" data-a={here ? 'lorry' : undefined}>
       <LorrySprite />
     </span>
   );
@@ -390,17 +436,20 @@ export function nameSize(name: string): string | undefined {
   return n > 16 ? 'nm-xl' : n > 11 && n <= 14 ? 'nm-m' : undefined;
 }
 
-export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: {
+export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, turn }: {
   s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void;
   /** In the rush: 'away' while the card is up in the pop-up, 'served' once it is back with a tick. */
   rush?: 'away' | 'served';
+  /** The card is being turned face up as the customers arrive: its back turns away ('out'), then its face shows
+   *  ('in'); the standing order's card is dealt to the front of the row ('deal'). */
+  turn?: 'out' | 'in' | 'deal';
 }) {
   if (kind === 'mystery' || !c) {
     // Face down: only the card's back shows, with the fruit printed on it. No name, type, amount, price or
     // portrait, and no picture is requested until the card is face up for this player.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
-      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
+      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}`} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
         role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
         <TicketBack fruits={backs} label={later ? 'Tomorrow' : 'Walk-in'} />
       </div>
@@ -419,7 +468,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
@@ -442,7 +491,13 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
  */
 export const beforeArrival = (s: GameState): boolean => s.phase === 'morning' || s.phase === 'order' || s.phase === 'buy';
 
-/** Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). */
+/**
+ * Today's customers, side by side as compact cards (tomorrow's are in the Tomorrow strip). The row keeps one height
+ * all day: it is as tall as the tallest ticket of the day from the morning on (`--lines`, table.css), so it does not
+ * grow when the walk-ins turn face up. Before they arrive the cards stand in the order they will arrive in. As they
+ * arrive each walk-in stays face down until its card is turned (tableShown.ts; the arrival's script turns them one
+ * after another), and the standing order's card is dealt to the front.
+ */
 export function Street({ s, viewer, onTip, onScout, away, served }: {
   s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void;
   /** The rush pop-up: the customer whose card is up in the middle, and those already served. */
@@ -455,16 +510,25 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
   const walkIn = (c: Customer) => c.seenBy?.includes(viewer)
     ? <CustomerChar key={c.id} s={s} c={c} kind="today" onTip={onTip} heard />
     : <CustomerChar key={c.id} s={s} c={c} kind="mystery" onPick={onScout ? () => onScout(c.id) : undefined} />;
+  // Just arrived: a walk-in whose card has not been turned yet is still drawn face down, in its place.
+  const arriving = s.firstMarket.some((c) => cardShown(c.id) !== undefined);
+  const arrived = (c: Customer) => {
+    const st = cardShown(c.id);
+    if (st === 'down' || st === 'out') return <CustomerChar key={c.id} s={s} c={c} kind="mystery" turn={st === 'out' ? 'out' : undefined} />;
+    return <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} rush={rush(c)} turn={st === 'up' ? 'in' : arriving && c.order ? 'deal' : undefined} />;
+  };
+  const guest: Customer | null = before && extra ? { id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) } : null;
   const n = s.secondMarket.length + s.firstMarket.length + (before ? 1 + (extra ? 1 : 0) + s.queue.length : 0);
+  const lines = ticketLines([...s.secondMarket, ...s.firstMarket, ...(before ? [s.forecast, guest, ...s.queue] : [])]);
   // Five cards fit across a phone; with more, the row scrolls sideways and the next card shows cut off at the edge
   // as a hint. On a desktop the cards stand two by two in the left column (--pairs rows), sized to fit its height.
   return (
-    <div class={`street ${n > 5 ? 'many' : ''}`} style={{ '--pairs': Math.max(1, Math.ceil(n / 2)) }} aria-label="Today's customers">
+    <div class={`street ${n > 5 ? 'many' : ''}`} style={{ '--pairs': Math.max(1, Math.ceil(n / 2)), '--lines': lines }} aria-label="Today's customers">
       {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} rush={rush(c)} />)}
-      {s.firstMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} rush={rush(c)} />)}
+      {s.firstMarket.map(arrived)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
-      {before && extra && <CustomerChar key="extra" s={s} c={{ id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) }} kind="today" onTip={onTip} />}
       {before && s.queue.map(walkIn)}
+      {guest && <CustomerChar key="extra" s={s} c={guest} kind="today" onTip={onTip} />}
     </div>
   );
 }
@@ -473,6 +537,7 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
  * Tomorrow's customers as a strip of mini chips: the expected customer face up (tap for their card), each walk-in as a
  * card back showing only the fruit it wants (its front if you played Gossip on it). Rules 16: tomorrow's crowd is drawn
  * in the morning, so the strip shows while stalls buy too (from nextForecast and nextQueue, then forecast and queue).
+ * At its end: the name of tomorrow's lorry (the approved Buying screen).
  */
 export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
   const before = beforeArrival(s);
@@ -486,6 +551,8 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
       {c.wants.map((w) => <span class="tm-w"><Fruit id={w.fruit} size={16} />{w.qty}</span>)}
     </button>
   );
+  const lorry = nextLorryName(s);
+  const load = nextLorry(s);
   return (
     <div class="tomorrow" aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
@@ -505,6 +572,7 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
           </span>
         );
       })}
+      {lorry && load && <span class="tm-lorry" title={`Tomorrow's lorry: ${load.map((l) => `${l.n} ${FRUIT[l.f].plural.toLowerCase()}${l.green ? ' (green)' : ''}`).join(', ')}`}>{lorry}</span>}
     </div>
   );
 }

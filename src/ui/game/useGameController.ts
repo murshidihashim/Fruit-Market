@@ -14,9 +14,10 @@ import * as A from '../anim';
 import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
 import { holdRush, releaseRush } from '../rushShown';
+import { releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
-import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
+import { arrive, arriving, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, type NightSlide } from './animator';
 import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './panels/Showdown';
@@ -71,7 +72,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const secret = s.phase === 'stall' || s.phase === 'bid' || s.phase === 'order';
   const activeHuman = online ? active === seat && !secret : active >= 0 && s.players[active].kind === 'human';
   const lastViewer = useRef(seat ?? humans[0]);
-  if (!online && activeHuman) lastViewer.current = active;
+  // On a shared phone the table is drawn for the person who holds it: the next person's shelf is not drawn until the
+  // phone has been handed to them (PLAN-085: a beat may now play between one person's last tap and the hand-over).
+  if (!online && activeHuman && (!multi || handedTo === active)) lastViewer.current = active;
   const viewer = seat ?? lastViewer.current;
   const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
   // Online: whose secret prices are still missing, and who still has to press continue.
@@ -98,7 +101,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
   // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); }; }, []);
+  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); releaseTable(); }; }, []);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -142,6 +145,14 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // a standing order are in, they stay on the table to be turned over (the sheet is drawn with the new state).
       const turned = holdBack(prev, next);
       if (turned) setOrderShow(turned);
+      // The table likewise (PLAN-085, tableShown.ts): the lanes before today's crates land, a box's number until its
+      // piece lifts off, the shelf, the "bought today" marks and the cash until it lands, and the walk-ins face down
+      // until their cards are turned.
+      const toBuy = next.day === prev.day && (prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy';
+      if (toBuy) holdDelivery(next);
+      holdDeals(prev, next, viewer);
+      const walkIns = arriving(prev, next, viewer);
+      holdArrival(walkIns);
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -149,21 +160,28 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (next.day !== prev.day) {
         // The new day opens on the morning's event card; the lorry unloads only when buying starts (PLAN-065).
         setNight(false);
-      } else if ((prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy') {
+      } else if (toBuy) {
         // The bids turned over together, the winner shown and its stake put on the order's card (PLAN-084).
         if (turned) await bidsTurned(turned, viewer, setOrderShow);
         await delivery(next);
-        await moves(prev, next);
+        await moves(prev, next, viewer);
       } else if (rush) {
         setRevealDone(false);
+        // Nobody stocks or prices today: the walk-ins still turn face up before the bell.
+        await arrive(walkIns);
         await reveal(next, viewer, setShow, setBell);
         setBell(false);
         setRevealDone(true);
-      } else await moves(prev, next);
+      } else {
+        await moves(prev, next, viewer);
+        // The last stall has bought: the walk-ins turn face up one after another (PLAN-085).
+        await arrive(walkIns);
+      }
     } finally {
       holdCash(null);
       releaseStock();
       releaseRush();
+      releaseTable();
       setOrderShow(null);
       busyRef.current = false;
       setBusy(false);
@@ -234,7 +252,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   useEffect(() => {
     if (!online || busyRef.current || !queue.current.length) return;
-    const next = queue.current.shift()!;
+    let next = queue.current.shift()!;
+    // A stall's buying turn is one beat where it can be (PLAN-085, DEC-098): the steps of that turn that are already
+    // waiting here are shown together. Only what has arrived is gathered, so nothing waits for a step still to come.
+    const cur = sRef.current;
+    while (cur.phase === 'buy' && next.phase === 'buy' && next.day === cur.day && next.turn === cur.turn && queue.current.length
+      && queue.current[0].phase === 'buy' && queue.current[0].day === cur.day) next = queue.current.shift()!;
     if (JSON.stringify(next) === JSON.stringify(sRef.current)) { setTick((t) => t + 1); return; }
     void apply(next);
   }, [tick, online]);
@@ -268,7 +291,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     let live = true;
     void A.pause(A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause).then(() => {
       if (!live || busyRef.current) return;
-      const next = aiStep(sRef.current);
+      const cur = sRef.current;
+      let next = aiStep(cur);
+      // A rival's whole buying turn is one beat (PLAN-085, DEC-098): its steps are taken together, up to and with the
+      // one that ends its turn, as long as the table stays in buying (the step that brings the customers is its own).
+      while (next && cur.phase === 'buy' && next.phase === 'buy' && next.day === cur.day && next.turn === cur.turn) {
+        const more = aiStep(next);
+        if (!more || more.phase !== 'buy' || more.day !== cur.day) break;
+        next = more;
+      }
       if (next) void apply(next);
     });
     return () => { live = false; };
@@ -357,7 +388,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(null);
       return;
     }
-    if (turnStart.current) { const t = turnStart.current; sRef.current = t; setS(t); onChange(t); }
+    // The pieces travel back to their boxes (PLAN-085): the turn's first state is shown like any other step.
+    const t = turnStart.current;
+    if (busyRef.current) return;
+    buyQueue.current = [];
+    if (t && t !== sRef.current) void apply(t);
     setFreeFruit(null);
     setScout(null);
   };

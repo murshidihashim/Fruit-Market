@@ -14,6 +14,7 @@ import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
+import { useTableShown } from './tableShown';
 import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
@@ -42,6 +43,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   useStockShown();
   // A customer's ticket is ticked, and a favour card won appears on your shelf, as that customer is served (rushShown.ts).
   useRushShown();
+  // A box's number, your shelf and a stall's purchases change as a piece lifts off or lands, and a walk-in's face shows
+  // as its card is turned (PLAN-085, tableShown.ts).
+  useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
