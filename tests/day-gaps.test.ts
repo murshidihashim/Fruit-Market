@@ -132,7 +132,7 @@ describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () =>
     expect(fitSheet([420, 390, 360, 300], 264, 48, 158)).toEqual({ tight: 3, over: true, up: false });
     expect(fitSheet([500, 470, 440, 420], 370, 0, 0)).toEqual({ tight: 3, over: false, up: false });
     const css = read('src/ui/daysheet.css');
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); }');
+    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }');
     expect(css).toContain('#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }');
   });
 });

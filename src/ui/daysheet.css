@@ -16,7 +16,7 @@
    says how many pieces each rival put out (.ds-rivals). Under the takings it keeps to its cell; the bell's rows and
    the Favoured Trade question lie over the rows around it (bell.css). */
 @media (max-height: 760px) {
-  #app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
+  #app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
 }
 #app .tkt .ds-rivals { display: none; }
 @media (max-height: 760px) {
@@ -196,7 +196,7 @@
 #app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }
 /* last of all (a six-box shelf on a narrow, tall phone) it lies over the rows above it too, up to the customers'
    tickets, as on a short phone; pricing then says how many pieces each rival put out, once */
-#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); }
+#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }
 #app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }
 #app .tkt .sh-day[data-up] .ds-rivals .ds-lab { flex: none; }
 /* The first-game tip lies at the sheet's foot, in room the sheet keeps free for it (DaySheet.tsx writes --tip), so it

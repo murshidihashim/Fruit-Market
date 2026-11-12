@@ -23,6 +23,9 @@
 
 /* ---------- the morning ---------- */
 #app .tkt > .centre > .sh-morning { gap: 10px; padding: 0 12px 10px; }
+/* The sheet starts two pixels higher than the measured reach: on a short phone tomorrow's strip lies 4 px under the
+   tickets, not 6, and its top edge showed above the sheet (PLAN-090). */
+#app .tkt > .centre > .sh-morning { margin-top: calc(-2px - var(--rise, 0px)); }
 #app .tkt > .centre > .sh-morning > :first-child:not(.dw) { margin-top: 10px; }
 /* dawn's money: the market's top-up on mustard, the inspector's fine on pale red, edge to edge under the customers */
 #app .tkt .dw { flex: none; display: flex; flex-direction: column; margin: 0 -12px; }

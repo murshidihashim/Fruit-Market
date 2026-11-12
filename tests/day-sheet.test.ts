@@ -129,7 +129,7 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin
     expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
     expect(css).not.toMatch(/grid-template/);
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
+    expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
     // the bell's rows and the question reach over the rows around the middle by the same kind of margin (bell.css)
     expect(read('src/ui/bell.css')).toContain('#app .tkt > .centre > .sh-day.full { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
     const main = read('src/main.tsx');
