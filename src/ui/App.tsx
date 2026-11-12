@@ -1,7 +1,7 @@
 // Screens: home, new-game setup, how to play, settings/stats, and the game itself.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
-import { newGame, winners, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
+import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
 import { dailyConfig, dailyTwist } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
@@ -21,11 +21,11 @@ import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
-import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, THEMES, unlocked } from './progress';
-import { progressOf } from './achievements';
+import { ACHIEVEMENTS, COLOURS, colourUnlocked, LEAGUE, leagueConfig, leagueStage, loadColour, loadLooks, loadSets, saveColour, unlocked } from './progress';
+import { GROUPS, progressOf } from './achievements';
 import {
-  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveDaily, saveGame, saveName,
-  saveSettings, saveStats, todayKey, type Settings,
+  consumeSaveNotice, dailyStreak, loadDaily, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
+  saveSettings, todayKey, type Settings,
 } from './store';
 
 type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
@@ -70,7 +70,6 @@ function Main() {
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
-  const recorded = useRef<string | null>(null);
   // The small menus in front of the home screen, a room code typed into the friend menu, and where the wardrobe was opened from.
   const [popup, setPopup] = useState<PopupKind | null>(null);
   // A game is waiting and something that would replace it was tapped: the question on screen, with what to start
@@ -108,7 +107,6 @@ function Main() {
     track('players', cfg.players.length);
     const g = newGame(cfg);
     setLastConfig(cfg);
-    recorded.current = null;
     setGame(g);
     saveGame(g);
     setScreen('game');
@@ -117,22 +115,9 @@ function Main() {
   const onChange = (g: GameState) => {
     setGame(g);
     if (g.phase !== 'over') return saveGame(g);
+    // The finished game is counted once by the results (progress.ts finishGame): games, wins, pieces sold, the Daily
+    // market's date, trophies and stamps. Online games are counted there too.
     saveGame(null);
-    const id = `${g.config.seed}:${g.config.daily ?? ''}`;
-    if (recorded.current === id) return;
-    recorded.current = id;
-    const me = g.players.findIndex((p) => p.kind === 'human');
-    const st = loadStats();
-    st.played++;
-    if (winners(g).includes(me)) st.wins++; // rules 18: a shared win is a win
-    st.bestCash = Math.max(st.bestCash, g.players[me].cash);
-    st.totalSold += g.players[me].stats.sold;
-    saveStats(st);
-    if (g.config.daily) {
-      const d = loadDaily();
-      d[g.config.daily] = Math.max(d[g.config.daily] ?? 0, g.players[me].cash);
-      saveDaily(d);
-    }
   };
 
   const startDaily = () => start(dailyConfig(todayKey(), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
@@ -373,8 +358,8 @@ function Trophies({ onBack, onWardrobe }: { onBack: () => void; onWardrobe: () =
         </section>
         <section class="panel">
           <h3>Achievements <span class="muted small">{have.length}/{ACHIEVEMENTS.length}</span></h3>
-          {THEMES.map((t) => {
-            const list = ACHIEVEMENTS.filter((a) => a.theme === t.id);
+          {GROUPS.map((t) => {
+            const list = ACHIEVEMENTS.filter((a) => a.card.group === t.id);
             return (
               <div class="ach-theme">
                 <h4>{t.title} <span class="muted small">{list.filter((a) => have.includes(a.id)).length}/{list.length}</span></h4>

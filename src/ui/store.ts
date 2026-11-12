@@ -73,9 +73,9 @@ export function loadGame(): GameState | null {
     const olderDaily = !!game?.config?.daily && (env.ai ?? 1) !== AI_VERSION;
     if (env.rules === RULES_VERSION && game && !olderDaily) return game;
     saveNotice = env.rules !== RULES_VERSION
-      ? 'Your unfinished game was from an older version of the rules, so it couldn\'t be resumed.'
+      ? 'Your unfinished game used older rules and could not be continued.'
       : olderDaily
-        ? 'Your unfinished daily challenge was from an older version of the game, so it couldn\'t be resumed.'
+        ? 'Your unfinished Daily market game was from an older version and could not be continued.'
         : 'Your unfinished game couldn\'t be read, so it was cleared.';
     write(K.save, null);
     return null;

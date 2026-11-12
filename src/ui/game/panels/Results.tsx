@@ -6,7 +6,7 @@ import { gameRecap } from '../../../engine/story';
 import { Coin, Face } from '../../art';
 import { Icon } from '../../icons';
 import { UP_ICON } from '../../panel';
-import { checkAchievements, LEAGUE, recordLeague } from '../../progress';
+import { finishGame, LEAGUE } from '../../progress';
 import { partsOf } from '../../../net/looks';
 import { syncLooks } from '../../looks';
 import { DailyResult } from './DailyResult';
@@ -57,9 +57,12 @@ export function finishWords(s: GameState, viewer: number): { win: boolean; share
 }
 
 export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online }: { s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean }) {
-  // Checked once when the results first show; both only report what's new.
-  const [earned] = useState(() => checkAchievements(s, viewer, !!online));
-  const [cleared] = useState(() => recordLeague(s, viewer));
+  // Counted once when the results first show (progress.ts finishGame). On a shared phone only the phone's owner counts:
+  // the first person at the table, whoever played last.
+  const owner = online ? viewer : Math.max(0, s.players.findIndex((p) => p.kind === 'human'));
+  const [sum] = useState(() => finishGame(s, owner, !!online));
+  const earned = sum?.tiers ?? [];
+  const cleared = sum?.cleared ?? false;
   // New looks are handed out after both checks, so a League win or a milestone counts too.
   const [newLooks] = useState(() => syncLooks());
   const order = ranking(s);

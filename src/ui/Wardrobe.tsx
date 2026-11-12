@@ -21,10 +21,10 @@ function Tile({ look, on, owned, colour, avatar, onPick }: { look: Look; on: boo
       : <RoofBand cls="wd-band" colour={colour} roof={look.slot === 'roof' ? look.id : undefined} trim={look.slot === 'trim' ? look.id : undefined} />;
   return (
     <button type="button" class={`wd-tile ${on ? 'on' : ''} ${owned ? '' : 'locked'}`} disabled={!owned} aria-pressed={owned ? on : undefined} onClick={onPick}
-      title={owned ? look.title : `Locked. ${ach?.title}: ${ach?.text}`}>
+      title={owned ? look.title : `Locked. ${ach?.card.title}: ${ach?.step.text}`}>
       <span class={`wd-art ${owned ? '' : 'dim'}`}>{art}</span>
       <b>{look.title}</b>
-      <small>{owned ? (on ? 'Wearing' : 'Tap to use') : `Earn: ${ach?.title ?? ''}`}</small>
+      <small>{owned ? (on ? 'Wearing' : 'Tap to use') : `Earn: ${ach?.card.title ?? ''}`}</small>
     </button>
   );
 }
