@@ -189,6 +189,13 @@ describe('the two buttons', () => {
     // the scripts' own words
     const smoke = read('scripts/smoke.cjs');
     for (const sel of ['[data-a="tie-note"]', '.pp-lock .btn.ghost', '.pp-lock .btn.primary']) expect(smoke).toContain(sel);
+    // the layout sweep answers the question too, playing the card the first time and keeping it the next (PLAN-091)
+    const sweep = read('scripts/qa-sweep.cjs');
+    const ask = `if (await has('[data-a="tie-note"]') && await has('.pp-lock .btn.ghost')) {`;
+    expect(sweep).toContain(ask);
+    expect(sweep).toContain("await page.click(play ? '.pp-lock .btn.primary' : '.pp-lock .btn.ghost');");
+    // before the one-button step, which cannot press either of the two
+    expect(sweep.indexOf(ask)).toBeLessThan(sweep.indexOf("const lock = page.locator('.pp-lock .btn:not([disabled])');"));
   });
 });
 
