@@ -60,7 +60,10 @@ export function tieStory(s: GameState, asked: number, viewer: number): TieStory 
   }
   const keep = rushIf(s, asked, false);
   const play = rushIf(s, asked, true);
-  const card = 'Play Favoured Trade and you sell first, on every tied price today.';
+  // When the game's own two outcomes give the stall the same takings (it sells first already, or every tied stall
+  // sells out anyway), the card says so instead of promising a first place that changes nothing.
+  const card = keep && play && keep.income[asked] === play.income[asked] ? 'Favoured Trade would not change what you take today.'
+    : 'Play Favoured Trade and you sell first, on every tied price today.';
   if (!keep || !play) return { title: said(t), why: card, without: null, with: null, also };
   // The first customer who chooses between the tied stalls shows who sells first as things stand.
   const line = keep.lines.find((l) => l.fruit === t.fruit && l.offers.some((o) => o.player === asked && !o.tooOld) && l.offers.some((o) => t.rivals.includes(o.player) && !o.tooOld));

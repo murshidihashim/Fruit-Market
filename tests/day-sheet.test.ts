@@ -202,9 +202,12 @@ describe('the Favoured Trade question, in words (tieStory.ts)', () => {
     const view = publicView(s, asked);
     const story = tieStory(view, asked, asked);
     expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) ask \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
-    expect(story.why).toContain('Play Favoured Trade and you sell first, on every tied price today.');
     // the two outcomes are the game's own, played on a copy with only this stall deciding
     const alone = { ...view, tieAsk: [asked] };
+    // what the card does: it puts this stall first, or, when both outcomes give it the same takings, it says so
+    const same = decideTie(alone, asked, false).results!.income[asked] === decideTie(alone, asked, true).results!.income[asked];
+    expect(story.why).toContain(same ? 'Favoured Trade would not change what you take today.' : 'Play Favoured Trade and you sell first, on every tied price today.');
+    expect(story.why).not.toContain(same ? 'Play Favoured Trade and you sell first' : 'would not change');
     for (const [play, line] of [[false, story.without], [true, story.with]] as const) {
       const r = decideTie(alone, asked, play).results!;
       expect(line).toContain(`You take $${r.income[asked]} today.`);

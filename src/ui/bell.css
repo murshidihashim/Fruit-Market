@@ -1,0 +1,51 @@
+/* =====================================================================
+   Fruit Market · the bell and the Favoured Trade question: how they fit (PLAN-085, item 4).
+   The rows of the bell and the question's card are drawn in daysheet.css, to the approved phone screen
+   (docs/studio/review-18/mockups: Favoured-Trade). This sheet only draws them closer where the screen would not
+   hold them: with five or six stalls, and on a short phone. The rows are the same size whether the question is up
+   or not, so nothing moves as it comes in. Measured at 390 by 844 and 360 by 640 with 2, 4 and 6 stalls: the
+   heading, every row, the question and its two buttons are in view together. If a table still does not fit (many
+   stalls with four fruits out on a short phone) the sheet scrolls and the question stays in view (DaySheet.tsx).
+   Imported after daysheet.css, so a rule here wins over the same part there. No colour and no motion of its own.
+   ===================================================================== */
+
+/* every table: a little less air round the rows, so four stalls and the question fit a tall phone */
+#app .tkt .ds-stalls { padding-top: 8px; padding-bottom: 8px; }
+#app .tkt .ds-stall { min-height: 44px; padding: 5px 8px; }
+#app .tkt .ds-tags { gap: 5px 8px; }
+
+/* five and six stalls: lower rows, a smaller mark, and a tag's freshness letters overlap so three tags keep to one line */
+#app .tkt .ds-stalls.n5, #app .tkt .ds-stalls.n6 { gap: 4px; }
+#app .tkt .ds-stalls.n5 .ds-stall, #app .tkt .ds-stalls.n6 .ds-stall { min-height: 36px; padding: 2px 6px; gap: 6px; }
+#app .tkt .ds-stalls.n5 .ds-stall .tk-swatch, #app .tkt .ds-stalls.n6 .ds-stall .tk-swatch { scale: 0.8; margin: -3px; }
+#app .tkt .ds-stalls.n5 .ds-nm, #app .tkt .ds-stalls.n6 .ds-nm { width: 54px; font-size: 0.6875rem; line-height: 1.15; }
+#app .tkt .ds-stalls.n5 .ds-tags, #app .tkt .ds-stalls.n6 .ds-tags { gap: 4px 5px; }
+#app .tkt .ds-stalls.n5 .ds-pz, #app .tkt .ds-stalls.n6 .ds-pz { min-height: 28px; padding: 2px 5px; gap: 3px; }
+#app .tkt .ds-stalls.n5 .ds-pz.tie, #app .tkt .ds-stalls.n6 .ds-pz.tie { box-shadow: 0 0 0 2px var(--tk-ink); }
+#app .tkt .ds-stalls.n5 .ds-pz.back, #app .tkt .ds-stalls.n6 .ds-pz.back { width: 52px; }
+#app .tkt .ds-stalls.n5 .ds-marks, #app .tkt .ds-stalls.n6 .ds-marks { gap: 0; }
+#app .tkt .ds-stalls.n5 .ds-marks .ds-lamp + .ds-lamp, #app .tkt .ds-stalls.n6 .ds-marks .ds-lamp + .ds-lamp { margin-left: -6px; }
+#app .tkt .ds-stalls.n5 .ds-marks em, #app .tkt .ds-stalls.n6 .ds-marks em { margin-left: 2px; }
+
+/* a short phone: the same for every table, closer still; the asked stall's card drops its small print */
+@media (max-height: 700px) {
+  #app .tkt .ds-bell-head { padding: 5px 12px; }
+  #app .tkt .ds-bell-head b { font-size: 1.125rem; }
+  #app .tkt .ds-stalls, #app .tkt .ds-stalls.n5, #app .tkt .ds-stalls.n6 { gap: 3px; padding-top: 5px; padding-bottom: 5px; }
+  #app .tkt .ds-stall, #app .tkt .ds-stalls.n5 .ds-stall, #app .tkt .ds-stalls.n6 .ds-stall { min-height: 34px; padding: 2px 6px; gap: 6px; }
+  #app .tkt .ds-stall .tk-swatch { scale: 0.8; margin: -3px; }
+  #app .tkt .ds-nm, #app .tkt .ds-stalls.n5 .ds-nm, #app .tkt .ds-stalls.n6 .ds-nm { width: 50px; font-size: 0.6875rem; line-height: 1.15; }
+  #app .tkt .ds-nm small { font-size: 0.625rem; }
+  #app .tkt .ds-tags, #app .tkt .ds-stalls.n5 .ds-tags, #app .tkt .ds-stalls.n6 .ds-tags { gap: 4px; }
+  #app .tkt .ds-pz, #app .tkt .ds-stalls.n5 .ds-pz, #app .tkt .ds-stalls.n6 .ds-pz { min-height: 26px; padding: 2px 4px; gap: 3px; }
+  #app .tkt .ds-pz b { font-size: 0.875rem; }
+  #app .tkt .ds-pz.tie { box-shadow: 0 0 0 2px var(--tk-ink); }
+  #app .tkt .ds-pz.back { width: 48px; }
+  #app .tkt .ds-marks { gap: 0; }
+  #app .tkt .ds-marks .ds-lamp { width: 14px; height: 14px; font-size: 0.5625rem; }
+  #app .tkt .ds-marks .ds-lamp + .ds-lamp, #app .tkt .ds-stalls.n5 .ds-marks .ds-lamp + .ds-lamp, #app .tkt .ds-stalls.n6 .ds-marks .ds-lamp + .ds-lamp { margin-left: -5px; }
+  #app .tkt .ds-marks em { margin-left: 2px; }
+  #app .tkt .ds-tie-kind { padding: 5px 8px; }
+  #app .tkt .sh-day .ds-tie.mine .ds-tie-foot { display: none; }
+  #app .tkt .ds-tie-body { gap: 4px; padding: 7px 10px; }
+}
