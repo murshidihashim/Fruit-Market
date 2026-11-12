@@ -64,8 +64,8 @@ describe('choosing a shopkeeper (CharacterPick)', () => {
     expect(html.match(/is-selected/g)).toHaveLength(1);
     expect(html.match(/cp-card on/g)).toHaveLength(1);
     // the tagline shows once, under the card, not on it
-    expect(html).toContain('class="cp-quip">“Big baskets, big deals!”');
-    expect(html.split('Big baskets, big deals!').length - 1).toBe(1);
+    expect(html).toContain(`class="cp-quip">“${RIVALS[1].quip}”`);
+    expect(html.split(RIVALS[1].quip).length - 1).toBe(1);
     expect(html.match(/aria-label="(Previous|Next) shopkeeper"/g)).toHaveLength(2);
   });
 });

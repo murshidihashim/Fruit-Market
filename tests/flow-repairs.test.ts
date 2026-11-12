@@ -6,7 +6,7 @@ import { activePlayer, beginBuying, bidOrder, finishReveal, newGame, publicView,
 import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { ReplaceBody } from '../src/ui/Home';
-import { NIGHT, NO_SALES_READ, bellRead, nightfall, reveal, type NightSlide } from '../src/ui/game/animator';
+import { NIGHT, NO_SALES_READ, bellLength, nightfall, reveal, type NightSlide } from '../src/ui/game/animator';
 import { NightShift } from '../src/ui/game/panels/NightShift';
 import { bidWaitText } from '../src/ui/game/panels/OrderPanel';
 import { waitsForPerson } from '../src/ui/game/turn';
@@ -54,24 +54,35 @@ afterEach(() => { A.setBaseSpeed(false); A.resetHurry(); vi.useRealTimers(); vi.
 
 describe('reduced motion keeps the reading pauses at the bell', () => {
   const atBell = playTo((s) => s.phase === 'reveal' && !!s.results && s.results.lines.some((l) => l.offers.length > 0));
-  /** How long the open crates stay on the table, in ms. */
-  async function bellShown(tapAt?: number): Promise<number> {
+  /** The bell as it rings (PLAN-085): how long it stays on the table, and when each stall's row turned face up, in ms. */
+  async function bellShown(tapAt?: number): Promise<{ shown: number; rows: number[] }> {
     let on = -1, off = -1;
-    const done = reveal(atBell, 0, () => undefined, (open) => { if (open) on = Date.now(); else if (off < 0) off = Date.now(); });
+    const rows: number[] = [];
+    const done = reveal(atBell, 0, () => undefined, (open) => {
+      if (open === null) { if (off < 0) off = Date.now(); return; }
+      if (on < 0) on = Date.now();
+      while (rows.length < open) rows.push(Date.now() - on);
+    });
     if (tapAt !== undefined) { await vi.advanceTimersByTimeAsync(tapAt); A.hurryUp(); }
     await vi.runAllTimersAsync();
     await done;
-    return off - on;
+    return { shown: off - on, rows };
   }
 
-  it('the open crates stay as long with reduced motion as without (they used to flash by in a twentieth of the time)', async () => {
-    const full = bellRead(atBell.players.length);
-    expect(full).toBe(1500 + 350 * 4);
+  it('the rows open stall by stall and are then read; with reduced motion every row is open at once and the pause to read is kept', async () => {
+    const n = atBell.players.length;
+    expect(bellLength(n)).toBe(300 + 3 * 180 + 220 + 280 + 1200);
     fakeClock(false);
-    expect(await bellShown()).toBe(full);
+    const full = await bellShown();
+    expect(full.shown).toBe(bellLength(n));
+    // the bell swings for 300 ms, then a row opens every 180 ms, in today's line-up
+    expect(full.rows).toEqual([300, 480, 660, 840]);
     fakeClock(true);
     expect(A.isReduced()).toBe(true);
-    expect(await bellShown()).toBe(full);
+    const still = await bellShown();
+    expect(still.rows).toEqual([0, 0, 0, 0]);
+    // nothing travels, and the open prices stay as long to be read (they used to flash by in a twentieth of the time)
+    expect(still.shown).toBe(A.BEAT.bell.read);
   });
 
   it('"No sales today" stays its full time with reduced motion', async () => {
@@ -94,12 +105,19 @@ describe('reduced motion keeps the reading pauses at the bell', () => {
     }
   });
 
-  it('a tap still ends the pause at once, and the fast setting still shortens it', async () => {
+  it('a tap ends the bell where it stands, with every row shown open, and the fast setting still shortens it', async () => {
+    const n = atBell.players.length;
+    // while the rows are still opening
+    fakeClock(false);
+    const early = await bellShown(400);
+    expect(early.shown).toBe(400);
+    expect(early.rows).toHaveLength(n);
+    // during the pause to read (reduced motion: the rows are open from the start)
     fakeClock(true);
-    expect(await bellShown(400)).toBe(400);
-    fakeClock(true);
+    expect((await bellShown(400)).shown).toBe(400);
+    fakeClock(false);
     A.setBaseSpeed(true);
-    expect(await bellShown()).toBeLessThan(bellRead(atBell.players.length) * 0.6);
+    expect((await bellShown()).shown).toBeLessThan(bellLength(n) * 0.6);
   });
 });
 
@@ -229,15 +247,15 @@ describe('the night: the panel and its slide on one clock', () => {
     return { start: start.at, length: start.slide as number, rest: rest.at, end: Date.now() - t0, first: slides[0].slide };
   }
 
-  it('at normal speed: dusk, a 1.5 s slide, then the panel goes, 3.7 s in all as before', async () => {
+  it('at normal speed: dusk, a 0.9 s slide, then dawn, 2.5 s in all (PLAN-085: it was 3.7 s)', async () => {
     fakeClock(false);
     const n = await night();
     expect(n.first).toBeNull();
     expect(n).toMatchObject({ start: NIGHT.dusk, length: NIGHT.slide });
     expect(n.rest).toBeGreaterThanOrEqual(n.start + n.length);
     expect(n.end).toBeGreaterThan(n.rest);
-    expect(n.end).toBeGreaterThanOrEqual(3650);
-    expect(n.end).toBeLessThanOrEqual(3750);
+    expect(n.end).toBeGreaterThanOrEqual(2450);
+    expect(n.end).toBeLessThanOrEqual(2550);
   });
 
   it('with "Fast rivals" on, the slide is shorter too and still ends before the panel goes (it used to be cut off)', async () => {

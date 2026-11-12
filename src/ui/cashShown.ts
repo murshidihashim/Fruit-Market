@@ -33,6 +33,22 @@ export async function payCash(player: number, amount: number): Promise<void> {
   }
 }
 
+/** Money leaves a stall (a fine, a stake, an upgrade's price): the shown total falls, in the same steps as it climbs. */
+export async function takeCash(player: number, amount: number): Promise<void> {
+  const mine = held;
+  if (!mine || amount <= 0) return;
+  const steps = Math.min(amount, 10);
+  let left = amount;
+  for (let i = 0; i < steps; i++) {
+    if (held !== mine) return; // the real totals are showing again
+    const part = Math.ceil(left / (steps - i));
+    left -= part;
+    mine[player] -= part;
+    changed();
+    if (i < steps - 1) await wait(FEEL.countStep);
+  }
+}
+
 /** Redraws the calling component whenever the shown totals change. */
 export function useCashShown(): void {
   const [, set] = useState(0);

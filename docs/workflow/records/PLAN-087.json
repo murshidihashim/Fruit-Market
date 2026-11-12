@@ -1,0 +1,78 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-104",
+    "REP-106"
+  ],
+  "decisions": [
+    "DEC-082",
+    "DEC-085",
+    "DEC-089",
+    "DEC-095",
+    "DEC-096",
+    "DEC-098",
+    "DEC-104"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The card design: DEC-095 (design A) and DEC-096 (backs).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-087",
+  "title": "Release A, package 6, part 1: the print kit on rules 18 with the new cards",
+  "problem": "scripts/print-deck.ts cannot run on the rules 18 deck (it expects 18 favour cards and finds 12) and prints the old card faces. The tracker test packs still say rules version 17.",
+  "scope": [
+    "Every deck prints from the game's data on rules 18, in card design A with the new pictures, at 63 by 88 mm with bleed and cut marks",
+    "Card backs in the pattern design (DEC-096); the customer back keeps its earlier design",
+    "Both freshness trackers still print as test packs (DEC-089) and say rules version 18",
+    "The update pack made right for the previous printing, or dropped with the reason",
+    "A test that fails when the kit and the game's data disagree"
+  ],
+  "exclusions": [
+    "Choosing between tracker 1 and tracker 2 (the owner's choice after trying both, DEC-089)",
+    "Any rule or number",
+    "Redrawing a picture",
+    "Ordering a print"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Every print script runs to the end; deck sizes and card counts match the game's data (test)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Every page of the output looked at by me: nothing cut off or overflowing, fronts and backs line up, cut marks in place",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "One card of each kind beside the same card in the app; differences listed",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "A proof print on paper",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { FRUITS, type FruitId } from '../engine/data';
 import type { DayResult, Stock } from '../engine/game';
+import { shownShelf } from './tableShown';
 
 type Sold = Record<FruitId, number>;
 interface Hold { final: Stock[]; delta: Stock[]; sold: Sold[] }
@@ -71,10 +72,11 @@ export function sellStock(player: number, f: FruitId, n: number): void {
 /** Whether the shelves are being held back now. */
 export const stockHeld = (): boolean => held !== null;
 
-/** The shelf to draw for a stall right now. */
+/** The shelf to draw for a stall right now. While a bought piece is on its way it is not on the shelf yet (PLAN-085,
+ *  tableShown.ts): the shelf's number rises as the piece lands. */
 export function shownStock(player: number, real: Stock): Stock {
-  if (!held || !held.final[player]) return real;
-  return shelfAt(held.final[player], held.delta[player], held.sold[player]);
+  if (!held || !held.final[player]) return shownShelf(player, real);
+  return shownShelf(player, shelfAt(held.final[player], held.delta[player], held.sold[player]));
 }
 
 /** Pieces of a fruit a stall has sold so far as drawn (all of today's sales when nothing is held back). */

@@ -1,0 +1,89 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-106",
+    "REP-109"
+  ],
+  "decisions": [
+    "DEC-086",
+    "DEC-097",
+    "DEC-098",
+    "DEC-099",
+    "DEC-103",
+    "DEC-104"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The stamp book: DEC-099. Home: DEC-097 (\"go with A (which can be swiped to show  b)\"). The screens as drawn: DEC-103 (\"okay approve all 3\").",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-086",
+  "title": "Release A, package 5: the stamp book's first version; Results, Trophies, Wardrobe and Home",
+  "problem": "Seven trophies cannot be earned under rules 18, most looks show nowhere, and nothing a player does adds up to anything. The home screen's stall picture serves no purpose (DEC-097).",
+  "scope": [
+    "The first version in PROGRESSION.md section G, items 1 to 10: trophy fixes, stamps, the stall level and six ranks worked out from stored counts, tiers for what a finished game shows, online games counted, the forgiving streak, the three door-openers",
+    "Results, the stamp book, the trophy cards and the Wardrobe as on their boards (DEC-103); rewards for levels 2 to 10 that need no new pictures",
+    "Home as chosen in DEC-097: today's market first, the next goals a swipe on, a waiting game's table first",
+    "Looks made visible on Home, in the online lobby and on the results",
+    "The text entries of the audit that live in these files"
+  ],
+  "exclusions": [
+    "Any rule, save-envelope or online-message change",
+    "The weekly goal, card backs and table themes as rewards, any shop or price (releases B and C)",
+    "The awning strip on the game table (PLAN-085)",
+    "New pictures"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Progress stored by the live game (1.19.1) and by this branch loads with every trophy and look kept; players with trophies start with their stamps (tests)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Stamps, levels and ranks match PROGRESSION.md C2 to C4 for sample histories; every trophy is earnable under rules 18 or listed (tests)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "Each screen seen at 390x844 and 360x640 beside its board, for a new player and a long-time player, by me; differences listed",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T6",
+      "text": "Every new value kept on the phone or sent to the optional account is listed and the privacy page agrees",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T7",
+      "text": "The owner has seen the screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

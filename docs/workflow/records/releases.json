@@ -460,6 +460,39 @@
       "date": "2026-11-11",
       "commit": "35bda0a",
       "tagged": true
+    },
+    {
+      "version": "1.20.0",
+      "status": "published",
+      "plans": [
+        "PLAN-077",
+        "PLAN-079",
+        "PLAN-081",
+        "PLAN-082",
+        "PLAN-083",
+        "PLAN-084",
+        "PLAN-085",
+        "PLAN-088"
+      ],
+      "notes": [
+        "New rules (version 18). A game paused under the old rules cannot be continued",
+        "Standing orders: the lowest bid wins and puts down a stake, which comes back for a full delivery. You see who is bidding and can change your mind until the last stall decides",
+        "A stall with an empty shelf and less than $5 at dawn is topped up to $5",
+        "Favoured Trade is asked after the prices flip, when one of your prices is tied",
+        "All five upgrades are on offer after each Market Day, at new prices. A green mango costs $4. Tip Jar, Nest Egg, Sharp Ears and the Charmer are rebalanced",
+        "Every card is redrawn: customers, events, lorries, shopkeepers, favours, upgrades and standing orders. Tap a card to open it",
+        "The whole day is rebuilt on the table: the morning, the bid, buying, stocking, pricing, the bell, the rush, the takings, the evening and the night",
+        "The Wholesale Market is laid out as the board's lanes of 3, 4, 5 and 6 boxes. Fruit travels from its box to your shelf, the lorry unloads into the lanes, and at night every piece slides one box along",
+        "One sheet stays on the table from stocking to the takings, and the rush shows one card for each customer. Nothing is given away before its moment",
+        "Your shelf shows what tonight does to each piece. The stalls are listed in buying order with what each bought today",
+        "The text of the cards, the story, the tutorial and How to play is rewritten: plain and short",
+        "Starting a new game asks first when a game is waiting",
+        "Fixed: a stall stuck at $0; trophy progress lost for shopkeepers with a space in their name; sentences such as \"You wins\"",
+        "Still to come: the stamp book with new Results, Trophies and Home screens, and the labels on the screens. Seven older trophies cannot be earned until then"
+      ],
+      "date": "2026-11-12",
+      "commit": "c17a053",
+      "tagged": true
     }
   ]
 }

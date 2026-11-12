@@ -1,28 +1,34 @@
 // Illustrated rules, one swipe-able card per idea, in the order a game unfolds: what to expect, how a
 // day runs, what you sell, how customers choose, what you can do after the rush, and how it ends.
+// The wording follows RULES.md (rules 18) and the glossary (DEC-087): plain, one fact to a sentence.
 import { useState } from 'preact/hooks';
-import { BASE_BUY, FRUIT, FRUITS, FAVOURS, JAM_PRICE, START_CASH, JUICE_CAP, JUICE_VALUE, LAST_CALL_BONUS, UPGRADES, deliveredGreen, stageAt, type FruitId } from '../engine/data';
+import {
+  BASE_BUY, CHARMER_DAILY_FAVOURS, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, FAVOURS, JAM_PRICE, START_CASH, JUICE_CAP, JUICE_VALUE, LAST_CALL_BONUS,
+  MAX_UPGRADES, NO_MANGO_DAYS, ORDER_LEAD, TOP_UP, UPGRADES, deliveredGreen, stageAt, type FruitId,
+} from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './icons';
 import { UP_ICON } from './panel';
 import { MARKET_DAY_LIST } from './rulesText';
 
 const GAME_PHASES = [
-  ['Set-up', `Pick a shopkeeper with one perk. Each stall starts with $${START_CASH}.`],
-  ['Ordinary days', 'Seven phases a day, from morning to night.'],
-  ['Market Days', `Days ${MARKET_DAY_LIST}: a standing order to bid for, and a stall upgrade that evening.`],
+  ['Set-up', 'Pick a shopkeeper with one perk.'],
+  ['Ordinary days', 'Five steps, then evening and night.'],
+  ['Market Days', `Days ${MARKET_DAY_LIST}: a standing order to bid for, and an upgrade to build that evening.`],
   ['Closing Day', `The last day. Customers pay $${LAST_CALL_BONUS} more, then the jam maker buys your ripe leftovers for $${JAM_PRICE} each.`],
-  ['Final count', 'Most cash wins.'],
+  ['The end', 'Most cash wins.'],
 ];
 
+/** The five steps of a day, then evening and night (the top bar and the rules count five steps). */
+const DAY_STEPS = 5;
 const DAY_BEATS = [
-  ['Morning', 'The lorry unloads fruit at the Wholesale Market. An event card changes the day.'],
+  ['Morning', 'From Day 2 an event card is turned over. The lorry unloads at the Wholesale Market.'],
   ['Buying', `Each stall buys up to ${BASE_BUY} pieces. The poorest stall goes first, then the others clockwise.`],
-  ['Stocking', 'Pick the exact fruit for your for-sale crate. Only crate fruit sells. Rivals learn how many pieces you put out, not which fruit.'],
-  ['The bell', 'Set one secret price per fruit. Prices and crates open together.'],
-  ['The rush', 'Customers buy from the cheapest stall first. You get paid on the spot.'],
-  ['Evening', 'Play favour cards. After a Market Day, build one upgrade.'],
-  ['Night', 'All fruit ages one step. Spoiled fruit is thrown away.'],
+  ['Stocking', 'Put the pieces you want to sell in your crate. Only those can sell today. Rivals see how many, not which fruit.'],
+  ['The bell', 'Set one secret price for each fruit in your crate. Prices and crates open together.'],
+  ['The rush', 'Customers buy from the cheapest stall first. You are paid at once.'],
+  ['Evening', 'Play an evening favour card. After a Market Day, build 1 upgrade.'],
+  ['Night', 'All fruit ages one step. A Soft piece that ages spoils and is thrown away.'],
 ];
 
 /**
@@ -42,42 +48,42 @@ export function FruitTrack({ f }: { f: FruitId }) {
 const SLIDES = [
   {
     part: 'Overview',
-    title: 'Welcome to Fruit Market',
+    title: 'The game',
     body: (
       <>
-        <p>You run a fruit stall in a busy market. Every day you <b>buy</b> fruit from the farmers and <b>sell</b> it to the town's customers, against 1 to 5 rival stalls. There is about one customer a day for every stall. Fruit gets older every night, so you are always racing the clock.</p>
+        <p>You run a fruit stall. Each day you <b>buy</b> fruit at the Wholesale Market and <b>sell</b> it to customers, against 1 to 5 rival stalls. There is about 1 customer a day for each stall. Fruit ages every night.</p>
         <div class="demo-row"><Coin size={34} /><span class="big-num">${START_CASH}</span><span class="muted">each stall starts with</span></div>
-        <p>A game lasts 8, 10 or 14 days and goes like this:</p>
+        <p>A game lasts 8, 10 or 14 days:</p>
         <ol class="day-strip">
           {GAME_PHASES.map(([name, text], k) => (
             <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p><b>Most cash after the last day wins.</b> Upgrades are worth nothing at the end. Leftover ripe fruit earns only ${JAM_PRICE} each from the jam maker, when Closing Day is on (the default).</p>
+        <p>Upgrades are worth nothing at the end. Leftover ripe fruit earns only ${JAM_PRICE} each from the jam maker.</p>
       </>
     ),
   },
   {
     part: 'The day',
-    title: 'The seven phases of a day',
+    title: 'A day, step by step',
     body: (
       <>
-        <p>Every day runs through the same seven phases, in this order:</p>
+        <p>Every day has the same five steps, then evening and night:</p>
         <ol class="day-strip">
           {DAY_BEATS.map(([name, text], k) => (
-            <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
+            <li><span class="beat-n">{k < DAY_STEPS ? k + 1 : ''}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p class="muted">Secrets are the heart of the game. Stalls are hidden: before the bell you only know how many pieces each rival put out, not which fruit, and never their prices. Buying is done in the open, so watch what they take.</p>
+        <p class="muted">Stalls are secret. Before the bell you know only how many pieces each rival has in its crate: not which fruit, and not the price. Buying is done in the open, so you can watch what rivals take. What a rival bought today stays on show until the bell.</p>
       </>
     ),
   },
   {
     part: 'The day',
-    title: 'Four fruits, four personalities',
+    title: 'The four fruits',
     body: (
       <>
-        <p>Every night all fruit moves one step older, from <b>fresh</b> to <b>okay</b> to <b>soft</b>, and then it spoils. Customers pay full price for fresh fruit, <b>$1 less</b> for okay and <b>$2 less</b> for soft. Some customers are fussier: <b>Premium</b> customers only buy fresh fruit, <b>Everyday</b> customers buy fresh or okay, and <b>Bargain</b> customers buy anything. The oldest step is on the left.</p>
+        <p>Every night all fruit ages one step: <b>Fresh</b>, then <b>Okay</b>, then <b>Soft</b>, then it spoils. Customers pay their top price for Fresh, <b>$1 less</b> for Okay and <b>$2 less</b> for Soft. <b>Premium</b> customers buy Fresh only. <b>Everyday</b> customers buy Fresh or Okay. <b>Bargain</b> customers buy Fresh, Okay or Soft. The oldest step is on the left.</p>
         {FRUITS.map((f) => (
           <div class="demo-fruit">
             <FruitTrack f={f} />
@@ -90,17 +96,17 @@ const SLIDES = [
   },
   {
     part: 'The day',
-    title: 'The rush: who gets the sale?',
+    title: 'The rush: who sells',
     body: (
       <>
-        <p>Bobby Books wants <b>3 blueberries</b> and pays up to <b>$5</b> for a fresh one ($4 okay; he won't take soft fruit).</p>
+        <p>Bobby Books wants <b>3 blueberries</b> and pays up to <b>$5</b> for a Fresh one ($4 for Okay; he will not take Soft).</p>
         <div class="demo-ex">
-          <div><b>Stall A</b> 2 fresh <Fruit id="blueberry" size={18} /> asks <b>$4</b></div>
-          <div><b>Stall B</b> 1 okay <Fruit id="blueberry" size={18} /> asks <b>$3</b></div>
-          <div><b>Stall C</b> 2 fresh <Fruit id="blueberry" size={18} /> asks <b>$5</b></div>
+          <div><b>Stall A</b> 2 Fresh <Fruit id="blueberry" size={18} /> at <b>$4</b></div>
+          <div><b>Stall B</b> 1 Okay <Fruit id="blueberry" size={18} /> at <b>$3</b></div>
+          <div><b>Stall C</b> 2 Fresh <Fruit id="blueberry" size={18} /> at <b>$5</b></div>
         </div>
-        <p>Bobby Books buys from the <b>cheapest stall</b> first. B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was fresh.</p>
-        <p>If two stalls ask the same price, a stall that holds Favoured Trade may play it once the prices are flipped, and it wins the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who isn't fully served leaves at the end of the day.</p>
+        <p>Bobby Books buys from the <b>cheapest stall</b> first. B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was Fresh.</p>
+        <p>If two stalls set the same price, a stall that holds Favoured Trade may play it once the prices have flipped, and it wins the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who does not get everything leaves at the end of the day.</p>
       </>
     ),
   },
@@ -109,10 +115,10 @@ const SLIDES = [
     title: 'Evening and night',
     body: (
       <>
-        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (one a day; two for the Charmer). Play it when its card says: in your buying turn, after prices flip, or in the evening.</p>
+        <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (1 a day; {CHARMER_DAILY_FAVOURS} for the Charmer). You hold up to {FAVOUR_HAND_LIMIT}. Play it when its card says: on your buying turn, after prices flip, or in the evening.</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
-        <p><b>Gossip</b> lets you secretly see tomorrow's walk-ins and <b>Scout</b> lets you peek at one of today's. Cash is your score, so spend it only where it pays you back.</p>
-        <p>Then night falls: <b>all fruit ages one step</b>, and anything past soft spoils and is thrown away.</p>
+        <p><b>Gossip</b> shows you tomorrow's walk-ins. <b>Scout</b> shows you one of today's.</p>
+        <p>You take an evening turn only when you have something to decide. At night <b>all fruit ages one step</b>. A Soft piece that ages spoils and is thrown away.</p>
       </>
     ),
   },
@@ -121,25 +127,27 @@ const SLIDES = [
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> turns up: one big order, collected two days later. Every stall names the price per piece it would do it for, or passes: you see who is bidding, never their price, and you can change your mind until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back; deliver fewer and it is lost. Rivals are not involved.</p>
-        <p>That evening you may build <b>one stall upgrade</b> (your stall has room for two), which costs cash and changes how you play:</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> is turned over: one big order, collected {ORDER_LEAD} days later. Each stall bids a price per piece, or passes. You see who is bidding, not the price. You may change your bid until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the standing order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back. Deliver fewer and it is lost. Rivals are not involved.</p>
+        <p>That evening you may build <b>1 upgrade</b>. Your stall has room for {MAX_UPGRADES}.</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
-        <p>On the <b>final day</b> (Closing Day, on by default), customers pay ${LAST_CALL_BONUS} more. Afterwards the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each (green fruit gets nothing). That's the last chance to turn fruit into cash.</p>
-        <p><b>Most cash wins.</b> Upgrades count for nothing, and leftover fruit only for what the jam maker pays. If you tie, the stall that sold more fruit wins. If that is level too, you share the win.</p>
+        <p>The last day is <b>Closing Day</b>. Customers pay ${LAST_CALL_BONUS} more. After the rush the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each. Green fruit earns nothing.</p>
+        <p><b>Most cash wins.</b> Upgrades count for nothing. If stalls tie, the one that sold more fruit wins. If that is level too, they share the win.</p>
       </>
     ),
   },
   {
     part: 'The finish',
-    title: 'Tips from the market',
+    title: 'Tips',
     body: (
       <ul class="tips">
-        <li>Blueberries are cheap but spoil in 3 days. Sell them quickly!</li>
+        <li>Blueberries are cheap but last only 3 days. Sell them first.</li>
         <li>If no rival is selling a fruit, charge the most customers will pay for it.</li>
         <li>Fruit that spoils tonight is worth $0 tomorrow, so any sale beats none. With a Juice Bar, up to {JUICE_CAP} of them become juice instead: ${JUICE_VALUE} each.</li>
-        <li>Watch what rivals buy. What each stall bought today stays on show until the bell; older fruit is hidden. At the bell you only know how many pieces they put out: remember what they hold and you can guess which fruit.</li>
-        <li>A stall with an empty shelf and less than $5 at dawn is topped up to $5 by the market, so nobody is out of the game.</li>
-        <li>Nobody waits overnight: a customer who does not get everything today is gone tomorrow.</li>      </ul>
+        <li>Watch what rivals buy. What each stall bought today stays on show until the bell. Older fruit is secret. Before the bell you see only how many pieces are in each crate. If you remember what they hold, you can guess which fruit.</li>
+        <li>No customer wants a mango in the first {NO_MANGO_DAYS} days. Every mango arrives Green and needs {FRUIT.mango.unripeSlots} nights to ripen.</li>
+        <li>From Day 2, a stall with an empty shelf and less than ${TOP_UP} at dawn is topped up to ${TOP_UP}. Nobody is out of the game.</li>
+        <li>Nobody waits overnight: a customer who does not get everything today is gone tomorrow.</li>
+      </ul>
     ),
   },
 ];
@@ -159,7 +167,7 @@ export function HowTo({ onDone }: { onDone: () => void }) {
         <div class="dots">{SLIDES.map((_, k) => <span class={k === i ? 'on' : ''} onClick={() => setI(k)} />)}</div>
         <div class="row2">
           <button class="btn" disabled={i === 0} onClick={() => setI(i - 1)}>← Back</button>
-          {i < SLIDES.length - 1 ? <button class="btn primary" onClick={() => setI(i + 1)}>Next →</button> : <button class="btn primary" onClick={onDone}>Let's play!</button>}
+          {i < SLIDES.length - 1 ? <button class="btn primary" onClick={() => setI(i + 1)}>Next →</button> : <button class="btn primary" onClick={onDone}>Done</button>}
         </div>
       </main>
     </div>
