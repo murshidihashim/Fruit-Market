@@ -190,6 +190,9 @@ describe('the customer row keeps its height, and the walk-ins turn face up one b
     expect(arriving(prev, prev, 0)).toEqual([]);
     holdArrival(ids);
     const row = () => toStaticHtml(h(Street, { s: next, viewer: 0 }));
+    // every card in the row carries its customer's id, face down or face up, so it can slide to a new place (PLAN-090)
+    for (const c of next.firstMarket) expect(row()).toContain(`data-c="${c.id}"`);
+    for (const c of prev.queue) expect(toStaticHtml(h(Street, { s: prev, viewer: 0 }))).toContain(`data-c="${c.id}"`);
     const faceDown = () => (row().match(/class="cust mystery/g) ?? []).length;
     expect(faceDown()).toBe(ids.length);
     turnCard(ids[0], 'out');

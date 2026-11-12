@@ -174,7 +174,17 @@ export function arriving(prev: GameState, next: GameState, viewer: number): numb
  *  new state is drawn. */
 export function holdArrival(ids: number[]) {
   holdCards(ids);
+  // Where each card lies in the row now (PLAN-090): a card that gets a new place when the standing order's card is
+  // dealt to the front slides there, measured here before the row changes.
+  rowWas = null;
+  if (!ids.length) return;
+  rowWas = new Map();
+  for (const el of rowCards()) { const box = A.boxOf(el); if (box && el.dataset.c) rowWas.set(el.dataset.c, box); }
 }
+
+/** Where each customer's card lay in the row before the customers arrived, by the customer's id (data-c, table.tsx). */
+let rowWas: Map<string, A.Box> | null = null;
+const rowCards = (): HTMLElement[] => (typeof document === 'undefined' ? [] : [...document.querySelectorAll<HTMLElement>('.street > .cust[data-c]')]);
 
 /**
  * The customers arrive (PLAN-085; flow study D3): the walk-in cards turn face up one after another, a little apart,
@@ -183,7 +193,17 @@ export function holdArrival(ids: number[]) {
  * reduced motion the cards are simply face up.
  */
 export async function arrive(ids: number[]) {
+  const was = rowWas;
+  rowWas = null;
   if (!ids.length) return;
+  // A card whose place in the row has changed slides to it from where it lay (the shared slide: position only).
+  if (was) {
+    for (const el of rowCards()) {
+      const from = el.dataset.c ? was.get(el.dataset.c) : undefined;
+      const at = A.boxOf(el);
+      if (from && at && Math.abs(from.left - at.left) >= 1) A.flipFrom(el, { ...at, left: from.left }, { duration: A.FEEL.travel });
+    }
+  }
   fx.card();
   const half = A.FEEL.turn / 2;
   await Promise.all(ids.map(async (id, i) => {
