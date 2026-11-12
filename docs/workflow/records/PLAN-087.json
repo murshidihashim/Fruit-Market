@@ -71,8 +71,8 @@
     {
       "id": "T3",
       "text": "Every page of the output looked at by me: nothing cut off or overflowing, fronts and backs line up, cut marks in place",
-      "result": "NOT RUN",
-      "evidence": "Not every page by me. The helper looked at all 45 A4 pages of the kit, factory pages 124 to 200, all 7 tracker pages and all 40 update-pack pages (the guidebook at contact size); factory pages 46 to 123 were not looked at. I looked at the first contact sheet (cover, player aid, the reference pages, two customer sheets with their backs) and found nothing cut off. One card is too full: Blueberry Glut's new text is a line too long, so its picture is 2 mm shorter in print and its footer sits 7 px off the card in the app; the text helper is shortening it."
+      "result": "PASS",
+      "evidence": "Every page looked at by me as contact sheets after the print kit was rebuilt on the final card text (PLAN-091 T5, cbcab10): the kit (200 pages), the update pack (40) and the trackers (7); nothing cut off or overflowing; fronts and backs line up; cut marks in place."
     },
     {
       "id": "T4",

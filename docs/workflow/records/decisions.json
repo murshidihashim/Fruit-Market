@@ -1605,7 +1605,7 @@
         "evidence": "2. Complete shopkeeper roster. ID Final approved name Existing ability. S1 Rosa Haggler. S2 Uncle Benny Big Basket. S3 Ah Chen Charmer. S4 Saleh Nest Egg. S5 Raj Bargain Hunter. S6 Kiki Tip Jar. All six shopkeeper abilities remain unchanged. 3. Special guests. ID Final approved name. G1 The Influencer. G2 The Gym Club. G3 The Hotel Chef. change to above, appeoved",
         "date": "2026-11-07"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-088"
       ],
@@ -1630,7 +1630,7 @@
         "evidence": "c1Cowboy Jack C2 Bobby Books C3 Dr. Bubbles C4 Rara Jenab C5 Zara Zapp C6 Ravi Rocket C7 Coral Mei C8 Postman Pip C9 Madam Siti C10 Magic Kumar C11 Rockstar Grace C12 Professor Pebble C13 Inspector Wei C14 Miss Marigold C15 Dr Priya C16 Captain Ahmad C17 Lola Lens C18 Grandpa Tan C19 Miss Cha-Cha C20 Sleepy Zul C21 Anna the Artist C22 Otto Oddjob C23 Mina Moss C24 Firefighter Osman C25 Marina Wen C26 DJ Rizal C27 Devi Bloom C28 Marcus Hook C29 Professor Fatimah C30 Benny Bell C31 Akira Swift C32 Hadi Hammer C33 Baker Lakshmi C34 Kenji Kaze C35 Herbalist Mira C36 Uncle Hock Seng (section 1 of the owner's 'Final approved name' roster; sections 2 and 3 were sent with 'change to above, appeoved')",
         "date": "2026-11-07"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-088"
       ],
@@ -2166,7 +2166,7 @@
         "evidence": "\"Plain, with a Malaysian market feel\"",
         "date": "2026-11-11"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-101"
       ],
@@ -2242,7 +2242,7 @@
         "evidence": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2266,7 +2266,7 @@
         "evidence": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2290,7 +2290,7 @@
         "evidence": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2314,7 +2314,7 @@
         "evidence": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2362,7 +2362,7 @@
         "evidence": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2386,7 +2386,7 @@
         "evidence": "Owner, 2026-11-12: \"lets use pattern for now\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2410,7 +2410,7 @@
         "evidence": "Owner, 2026-11-12: \"go with A (which can be swiped to show  b)\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-104",
         "REP-106"
@@ -2460,7 +2460,7 @@
         "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-106"
       ],
@@ -2559,7 +2559,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-109"
       ],
@@ -3791,6 +3791,10 @@
     {
       "at": "2026-11-13 02:42",
       "text": "PLAN-092 (the rush as a round table, DEC-109) merged (0185fb6) and checked: verify PASS (838 tests), e2e PASS (0 leaks), the helper's frame-by-frame check 37 runs with 0 problems, seen by me at both sizes with 2, 4 and 6 stalls. Store screenshots redone for the new screens (56b8fde). Candidate 1.21.0 now holds PLAN-086, 089, 090, 091 and 092 (REP-115). The owner was sent a recording of Days 1 to 3 and pictures of every step of the day. Not published: waiting for his word, and for his choice on standing orders (REP-113, REP-114)."
+    },
+    {
+      "at": "2026-11-13 07:55",
+      "text": "Records tidy: delivery of twelve decisions brought up to date with the plans that built them. Released: DEC-064 and DEC-065 (PLAN-049, 1.8.0); DEC-087, DEC-090 to DEC-093, DEC-095 and DEC-096 (PLAN-083, PLAN-085 and PLAN-088, 1.20.0; the print kit, PLAN-087, is built but not published). Implemented in candidate 1.21.0: DEC-097 (Home), DEC-099 (the stamp book's first version) and DEC-103 (stocking and the takings released in 1.20.0; Results, the stamp book, trophy cards and the Wardrobe in 1.21.0). PLAN-087 T3 now PASS: every page of the kit, the update pack and the trackers was looked at by me on the final card text (PLAN-091 T5, cbcab10)."
     }
   ]
 }
