@@ -3493,6 +3493,10 @@
     {
       "at": "2026-11-12 08:43",
       "text": "Browser tests on the combined code of PLAN-081 and PLAN-082: PASS (npm run test:e2e run by me on the combined code (PLAN-081 and PLAN-082, commit 9c0d11b), 2026-11-12: results visible: 1 errors: []; BUDGET OK; frames checked during pricing: 78 | leaks: 0; RECONNECT OK: 5 cycles; E2E OK, exit 0). The approved mock-up sources were saved in docs/studio/review-18/mockups (commit 767268a). PLAN-083 opened: release A, package 2, the new pictures and card faces in the game and the shared motion blocks, built by two helpers in separate work folders."
+    },
+    {
+      "at": "2026-11-12 10:38",
+      "text": "Owner: \"approve package 2\". PLAN-083 (release A, package 2: the new pictures and card faces in the game; shared motion blocks) is confirmed as approved; it was opened on his earlier \"okay yes\" to REP-106. Building continues; publishing is not part of it. The balance question from REP-107 (accept for release A, or tune further) is still open."
     }
   ]
 }
