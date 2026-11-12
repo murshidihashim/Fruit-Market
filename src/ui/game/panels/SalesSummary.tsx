@@ -8,7 +8,7 @@
 import type { Ref } from 'preact';
 import { useRef } from 'preact/hooks';
 import { FAVOURS, FRUIT, ORDER_LEAD, TRAITS, lookOf, stageAt, type FruitId, type Stage } from '../../../engine/data';
-import { count, places, ranking, servingCustomers, shadePick, shelfSize, type GameState } from '../../../engine/game';
+import { count, places, ranking, servingCustomers, shelfSize, type GameState } from '../../../engine/game';
 import { dayLedger, standing, tonightLine, withJamPaid } from '../../../engine/story';
 import { Face, Fruit } from '../../art';
 import { LANES, spoilsTonight } from '../../boardModel';
@@ -16,6 +16,7 @@ import { ART_SIZE, CardArt } from '../../cards';
 import { GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus } from '../../deckArt';
 import { Lamp, STAGE_WORD } from '../../ticket';
 import { useReach } from '../reach';
+import { nightSteps, tonightWord } from '../tonight';
 
 /** Money outside the customer lines: the Pasar Malam hawker, Sharp Ears and Tip Jar tips (in the sales total), and
  *  (rules 18) what became of a standing order's stake (outside the sales total, under "Other"). */
@@ -124,38 +125,35 @@ export interface ShelfChip {
   fruit: FruitId; stage: Stage; n: number;
   /** Their freshness tomorrow. Null: they leave the shelf tonight (spoiled, or juiced by a Juice Bar). */
   next: Stage | null;
+  /** What tonight does to them, in the words the stocking rows use (tonight.ts): "ripe tomorrow", "spoils tonight". */
+  text: string;
+  /** They are lost tonight. */
+  bad: boolean;
 }
 
 /**
- * What tonight does to each piece on shop `p`'s shelf, by the night's own rule (game.ts ageShelf): every piece moves
- * one box older, two in a Heatwave, none in a Monsoon, and none for the fruit under a Shade Cloth (a stall that has
- * not chosen yet is forecast with the suggested fruit, as leavingTonight does). Nothing on the final day, which no
- * night follows. tests/takings.test.ts holds this against leavingTonight, the engine's own count.
+ * What tonight does to each piece on shop `p`'s shelf, by the night's own steps (tonight.ts nightSteps, which the
+ * stocking rows read too): every piece moves one box older, two in a Heatwave, none in a Monsoon, and none for the
+ * fruit under a Shade Cloth. One chip for each fruit, freshness and outcome, in the board's lane order, the freshest
+ * first. Nothing on the final day, which no night follows. tests/takings.test.ts holds this against leavingTonight,
+ * the engine's own count, and against the next morning's shelf.
  */
 export function shelfTonight(s: GameState, p: number): ShelfChip[] {
   const pl = s.players[p];
   if (!pl || s.phase === 'over' || s.day >= s.config.days) return [];
-  const steps = Math.max(0, 1 + (s.event?.ageExtra ?? 0));
-  const shade = pl.trait !== 'keeper' ? null : pl.shade === undefined ? shadePick(s, p) : pl.shade;
   const out: ShelfChip[] = [];
   for (const f of LANES) {
-    const by = f === shade ? 0 : steps;
+    const by = nightSteps(s, p, f);
     for (let pos = pl.stock[f].length - 1; pos >= 0; pos--) {
       const n = pl.stock[f][pos];
       if (n <= 0) continue;
-      const chip: ShelfChip = { fruit: f, stage: stageAt(f, pos), n, next: pos - by < 0 ? null : stageAt(f, pos - by) };
+      const chip: ShelfChip = { fruit: f, stage: stageAt(f, pos), n, next: pos - by < 0 ? null : stageAt(f, pos - by), ...tonightWord(s, p, f, pos) };
       const same = out.find((c) => c.fruit === f && c.stage === chip.stage && c.next === chip.next);
       if (same) same.n += n;
       else out.push(chip);
     }
   }
   return out;
-}
-
-/** A chip's words: where the pieces go tonight, or how fresh they are tomorrow. `juice`, `spoil`: the night's totals. */
-export function chipWords(c: ShelfChip, juice: number, spoil: number): string {
-  if (c.next === null) return juice > 0 ? (spoil > 0 ? (c.n === 1 ? 'leaves tonight' : 'leave tonight') : 'juice tonight') : c.n === 1 ? 'spoils tonight' : 'spoil tonight';
-  return c.stage === 'unripe' && c.next === 'fresh' ? 'ripe tomorrow' : `${STAGE_WORD[c.next]} tomorrow`;
 }
 
 const money = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}$${Math.abs(n)}`;
@@ -210,7 +208,6 @@ export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number;
   const tonight = s.phase === 'reveal' ? tonightLine(s, viewer) : null;
   const spoil = tonight ? spoilsTonight(s, viewer) : 0;
   const chips = s.phase === 'reveal' ? shelfTonight(s, viewer) : [];
-  const leaving = sum(chips.filter((c) => c.next === null).map((c) => c.n));
   const nightEvent = s.event?.ageExtra ? s.event.title : null;
   return (
     <div class="sales-card" ref={root}>
@@ -265,15 +262,12 @@ export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number;
         <div class="tg-shelf">
           <div class="tg-lab"><b class="tk-label">Your shelf · {count(pl.stock)} of {shelfSize(pl)}</b><span>After tonight{nightEvent ? `'s ${nightEvent}` : ''}</span></div>
           <div class="tg-chips">
-            {chips.map((c) => {
-              const words = chipWords(c, leaving - spoil, spoil);
-              return (
-                <span class={`tg-chip st-${c.stage} ${c.next === null ? 'bad' : ''}`} role="img"
-                  aria-label={`${c.n} ${STAGE_WORD[c.stage]} ${(c.n === 1 ? FRUIT[c.fruit].name : FRUIT[c.fruit].plural).toLowerCase()}: ${words}`}>
-                  <Fruit id={c.fruit} size={14} stage={c.stage} /><Lamp stage={c.stage} on={false} size={14} />{c.n > 1 && <b>×{c.n}</b>}{words}
-                </span>
-              );
-            })}
+            {chips.map((c) => (
+              <span class={`tg-chip st-${c.stage} ${c.bad ? 'bad' : ''}`} role="img"
+                aria-label={`${c.n} ${STAGE_WORD[c.stage]} ${(c.n === 1 ? FRUIT[c.fruit].name : FRUIT[c.fruit].plural).toLowerCase()}: ${c.text}`}>
+                <Fruit id={c.fruit} size={14} stage={c.stage} /><Lamp stage={c.stage} on={false} size={14} />{c.n > 1 && <b>×{c.n}</b>}{c.text}
+              </span>
+            ))}
           </div>
           {tonight && <div class={spoil > 0 ? 'sc-waste' : 'sc-juice'}>{tonight}</div>}
         </div>

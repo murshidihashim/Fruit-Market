@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
-import { FAVOURS, FRUITS, RIVALS, lookOf, stageAt, type FruitId, type Stage } from '../src/engine/data';
+import { FAVOURS, FRUITS, RIVALS, lookOf, stageAt } from '../src/engine/data';
 import { count, leavingTonight, newGame, nightOutlook, places, publicView, ranking, servingCustomers, type GameState } from '../src/engine/game';
 import { dayLedger, jamDue, standing, tonightLine, withJamPaid } from '../src/engine/story';
 import { LANES } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import {
-  TIGHTEST, TakingsView, chipWords, closer, extras, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
+  TIGHTEST, TakingsView, closer, extras, rushOver, shelfTonight, stallRows, takingsRows, type Fitting, type TakingsRow,
 } from '../src/ui/game/panels/SalesSummary';
+import { tonightWord } from '../src/ui/game/tonight';
 
 // The day's takings (PLAN-085; the approved Takings board): the ledger's lines, the list of stalls, the favour card
 // won and what tonight does to the shelf all come from what the game worked out, and never from a rival's shelf.
@@ -273,19 +274,22 @@ describe('what tonight does to the shelf', () => {
     expect(checked).toBeGreaterThan(300);
   });
 
-  it('a chip\'s words: where the pieces go tonight, or how fresh they are tomorrow', () => {
-    const chip = (stage: Stage, next: Stage | null, n = 1) => ({ fruit: 'mango' as FruitId, stage, n, next });
-    expect(chipWords(chip('unripe', 'fresh'), 0, 0)).toBe('ripe tomorrow');
-    expect(chipWords(chip('unripe', 'unripe'), 0, 0)).toBe('green tomorrow');
-    expect(chipWords(chip('fresh', 'okay'), 0, 0)).toBe('okay tomorrow');
-    expect(chipWords(chip('okay', 'notso'), 0, 0)).toBe('soft tomorrow');
-    expect(chipWords(chip('fresh', 'fresh'), 0, 0)).toBe('fresh tomorrow'); // a Monsoon, or under the Shade Cloth
-    expect(chipWords(chip('notso', null), 0, 1)).toBe('spoils tonight');
-    expect(chipWords(chip('notso', null, 2), 0, 2)).toBe('spoil tonight');
-    // a Juice Bar: juice when it takes every piece that leaves; otherwise the game does not say which piece spoils
-    expect(chipWords(chip('notso', null, 2), 2, 0)).toBe('juice tonight');
-    expect(chipWords(chip('notso', null, 3), 2, 1)).toBe('leave tonight');
-    expect(chipWords(chip('notso', null, 1), 2, 1)).toBe('leaves tonight');
+  it('a chip says what the stocking row of the same box says (tonight.ts), and only pieces that leave are marked lost', () => {
+    const words = new Set<string>();
+    for (const { s } of all) for (const p of seats(s)) {
+      const chips = shelfTonight(s, p);
+      for (const f of FRUITS) s.players[p].stock[f].forEach((n, pos) => {
+        if (!n || s.day === s.config.days) return;
+        const said = tonightWord(s, p, f, pos);
+        const chip = chips.find((c) => c.fruit === f && c.stage === stageAt(f, pos) && c.text === said.text);
+        expect(chip, `${f} box ${pos} day ${s.day}`).toBeDefined();
+        expect(chip!.bad).toBe(said.bad);
+        words.add(said.text);
+      });
+      for (const c of chips) if (c.bad) expect(c.next).toBeNull();
+    }
+    // these nights say all of these
+    for (const w of ['ripe tomorrow', 'okay tomorrow', 'soft tomorrow', 'spoils tonight', 'still green tomorrow']) expect(words, w).toContain(w);
   });
 
   it('the card says it: the shelf\'s count, the chips and the night\'s own sentence', () => {
