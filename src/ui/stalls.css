@@ -1,0 +1,77 @@
+/* =====================================================================
+   Fruit Market · the stalls' row, your shelf and the bottom bar, finished (PLAN-085, item 5).
+   The row and the shelf are laid out in table.css; these rules are the repairs found when the built screens were
+   measured at 390 by 844 and 360 by 640 with 2, 4 and 6 stalls: fruit and words cut off inside a stall's box, shelf
+   chips that ran under the bottom bar or off the side of a short phone, and rows whose height changed with a look or
+   with whose turn it was. Every rule starts with "#app .game.tkt", one class more than table.css, so it wins whatever
+   order the two stylesheets load in. Colours come from palette.css only. Nothing here moves by itself.
+   ===================================================================== */
+
+/* ---------- the awning strips keep their height whatever roof is worn ----------
+   A roof look sets the strip's height on the element (icons.tsx RoofBand): 14 px on your shelf, also on a short phone
+   where the strip is 10 px, so the shelf row grew by 4 px for a player with a roof on. */
+#app .game.tkt .tb-dock > .tb-awn { height: 14px !important; }
+#app .game.tkt .tb-awn.thin { height: 7px !important; }
+
+/* ---------- a stall's box: the cash, then what it bought or is doing, on one line across the box ---------- */
+#app .game.tkt .tb-line { grid-column: 1 / -1; grid-row: 3; min-width: 0; display: flex; align-items: center; gap: 5px; }
+#app .game.tkt .tb-line .tb-cash { flex: none; }
+#app .game.tkt .tb-line .tb-got { flex: 1 1 0; }
+/* a picture for each piece: four fit beside a cash of two figures in a row of four boxes */
+#app .game.tkt .tb-buys.each .x-fruit { width: 11px; height: 11px; }
+/* five or six stalls: the box's own grid places the cash beside the face and the rest on the last line */
+#app .game.tkt .tb-stall.compact .tb-line { display: contents; }
+#app .game.tkt .tb-stall.compact .tb-buys > span { margin-right: 1px; }
+/* the box's word in its corner while crates are shut ("3 out", "ready"), where its number stood while stalls bought */
+#app .game.tkt .tb-ord.tb-note { max-width: calc(100% - 4px); box-sizing: border-box; overflow: hidden; white-space: nowrap; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ---------- your shelf: every piece stays in view ----------
+   Two rows of chips on a tall phone. One to four chips say what tonight does in full ("okay tomorrow"); five or six
+   say the first word ("okay", "spoils"), three to a row; seven or more show the letter the pieces carry tomorrow. */
+#app .game.tkt .tb-chips { --chip-gap: 5px; gap: var(--chip-gap); }
+#app .game.tkt .tb-place { margin-right: calc(0px - var(--chip-gap)); }
+#app .game.tkt .tb-chip-s { display: none; }
+#app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-w { display: none; }
+#app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-s { display: inline; }
+#app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-to { display: none; }
+/* eight or more things on the shelf (ten pieces with a Handcart, and favour cards): closer chips, favour cards as pictures */
+#app .game.tkt .tb-dock.c8 .tb-chips { --chip-gap: 4px; }
+#app .game.tkt .tb-dock.c8 .tb-chip { gap: 3px; padding: 0 4px; }
+#app .game.tkt .tb-dock.c8 .favchip > span { display: none; }
+#app .game.tkt .tb-dock.c8 .favchip { padding: 0; }
+
+@media (max-width: 379px) {
+  #app .game.tkt .tb-buys.each .x-fruit { width: 10px; height: 10px; }
+}
+
+/* ---------- a shorter phone: one row of chips beside the shelf's name ----------
+   The row is as wide as the phone less the name, so the chips close up as the shelf fills, and none leaves the screen:
+   one chip in full words, two with the first word, three or four as letters (today's and tomorrow's), five or more as
+   the fruit and today's letter on the chip's colour (mustard: leaves tonight; green: good news), with the shelf's name
+   down to its count. A chip may still give way a little on the fullest shelf, and stays where it is. */
+@media (max-height: 779px) {
+  #app .game.tkt .tb-dock > .tb-awn { height: 10px !important; }
+  #app .game.tkt .tb-chips { --chip-gap: 4px; min-width: 0; }
+  #app .game.tkt .tb-chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+  #app .game.tkt .tb-chip > * { flex: none; }
+  #app .game.tkt .tb-dock.c2 .tb-chip-w { display: none; }
+  #app .game.tkt .tb-dock.c2 .tb-chip-s { display: inline; }
+  #app .game.tkt .tb-dock.c2 .tb-chip-to { display: none; }
+  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-w, #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-s { display: none; }
+  /* three or four: today's letter and tomorrow's, side by side */
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip { gap: 2px; padding: 0 3px; }
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to { display: inline-flex; gap: 2px; font-size: 0; }
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to i { font-size: 0.625rem; }
+  #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip b { font-size: 0.6875rem; }
+  /* five or more: the fruit and today's letter; the chip's colour says what tonight does */
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chips { --chip-gap: 3px; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip { gap: 1px; padding: 0 2px; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip-to { display: none; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .x-fruit { width: 14px; height: 14px; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .tk-lamp { --s: 12px; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip b { font-size: 0.625rem; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf { font-size: 0; }
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-dock-head .tk-shelf span { font-size: 0.625rem; }
+  /* the bottom bar is one height whoever's turn it is (a line of words was 4 px taller than the buttons) */
+  #app .game.tkt > .actionbar .hint-bar { min-height: 48px; }
+}

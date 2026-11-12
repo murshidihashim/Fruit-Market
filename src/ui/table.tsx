@@ -228,19 +228,25 @@ export const boughtWords = (buys: Bought[]) => buys.map((b) => `${b.n} ${(b.n ==
 /** Today's purchases as drawn: a piece counts once it has landed on the stall (boughtToday reads tableShown.ts). */
 const shownBuys = (s: GameState, p: number): Bought[] => boughtToday(s, p);
 
-/** A stall's purchases as marks: a picture for each piece while they fit in the box, a picture and a number when not. */
-function BuyMarks({ buys, compact }: { buys: Bought[]; compact: boolean }) {
+/**
+ * A stall's purchases as marks: a picture for each piece while they fit beside the stall's cash (`room` pieces: four
+ * in a row of four boxes, three when the cash has three figures, five in a wider box), and otherwise a picture for
+ * each fruit with how many (a picture alone is one piece, so the marks read the same way in both forms).
+ */
+function BuyMarks({ buys, compact, room = 5 }: { buys: Bought[]; compact: boolean; room?: number }) {
   const total = buys.reduce((a, b) => a + b.n, 0);
   if (!total) return null;
-  const each = !compact && total <= 5;
+  const each = !compact && total <= room;
   return (
-    <span class="tk-seat-buys tb-buys" aria-hidden="true">
+    <span class={`tk-seat-buys tb-buys ${each ? 'each' : ''}`} aria-hidden="true">
       {buys.map((b) => (each
         ? Array.from({ length: b.n }, (_, i) => <Fruit id={b.f} size={14} stage={i < b.green ? 'unripe' : 'fresh'} />)
-        : <span><Fruit id={b.f} size={compact ? 11 : 13} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n}</span>))}
+        : <span><Fruit id={b.f} size={compact ? 11 : 13} stage={b.green === b.n ? 'unripe' : 'fresh'} />{b.n > 1 && b.n}</span>))}
     </span>
   );
 }
+/** How many piece pictures fit beside a stall's cash: `brief` is a row of four or more boxes. */
+const marksRoom = (brief: boolean | undefined, cash: number): number => (!brief ? 5 : cash >= 100 ? 3 : 4);
 
 /** A shopkeeper's face in a square frame (the stall's mark on its box: other parts of the table look for .tk-swatch). */
 function StallFace({ who, look, size }: { who: string; look?: LookSet; size: number }) {
@@ -273,6 +279,13 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: {
   const said = !board ? '' : board.state === 'thinking' ? (board.ai ? ', prices next, after you' : ', still deciding') : board.state === 'sealed' ? ', sealed' : '';
   const buys = shownBuys(s, p);
   const got = !buying ? '' : s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
+  // Words and purchases do not fit one line of a box (measured at 390 and 360 wide with 3 to 6 stalls: the words
+  // were cut off behind the fruit). So while crates are shut the box's word ("3 out", "ready") stands in its corner,
+  // where its number stood while stalls bought; and a stall that is buying shows what it has bought so far on its
+  // mustard box, with "buying now" beside it only where the box is wide enough (two stalls).
+  const shut = s.phase === 'stall' || s.phase === 'bid';
+  const corner = buying ? String(s.order.indexOf(p) + 1) : shut ? note : '';
+  const word = buying ? (buys.length && s.players.length > 2 ? '' : got) : shut ? '' : note;
   return (
     <button type="button" class={`rival-stall rv-chip tb-stall ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''} ${buying ? `buy-${state}` : ''}`} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open}
@@ -280,11 +293,15 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: {
       <Awning p={p} look={pl.look} thin />
       <span class="tb-who">
         <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
-        {/* the name takes up to two lines, with the cash after it, so "Uncle Benny" reads in full at four stalls */}
-        <span class="tb-id"><span class="tk-seat-name">{pl.name}</span> <b class="tb-cash" data-a={`p${p}-cash`}>${cash}</b></span>
+        {/* the name takes up to two lines, so "Uncle Benny" reads in full at four stalls */}
+        <span class="tb-id"><span class="tk-seat-name">{pl.name}</span></span>
       </span>
-      <span class="tb-got"><BuyMarks buys={buys} compact={!!compact} />{(got || note) && <span>{got || note}</span>}</span>
-      {buying && <i class="tb-ord" aria-hidden="true">{s.order.indexOf(p) + 1}</i>}
+      {/* the cash, then what the stall bought today or what it is doing, on one line across the box */}
+      <span class="tb-line">
+        <b class="tb-cash" data-a={`p${p}-cash`}>${cash}</b>
+        <span class="tb-got"><BuyMarks buys={buys} compact={!!compact} room={marksRoom(brief, cash)} />{word && <span>{word}</span>}</span>
+      </span>
+      {corner && <i class={`tb-ord ${buying ? '' : 'tb-note'}`} aria-hidden="true">{corner}</i>}
     </button>
   );
 }
@@ -296,15 +313,21 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
   const state = buyState(s, p);
   const buys = shownBuys(s, p);
   const got = s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
+  const cash = shownCash(p, pl.cash);
+  // As a rival's box: once you have bought, the fruit stands for the word, except where the box is wide (two stalls).
+  const word = buys.length && s.players.length > 2 ? '' : got;
   return (
     <div class={`tb-stall me ${compact ? 'compact' : ''} buy-${state}`} data-a="me-stall" role="img"
-      aria-label={`Your stall: $${shownCash(p, pl.cash)}, ${s.order.indexOf(p) + 1} in the buying order${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
+      aria-label={`Your stall: $${cash}, ${s.order.indexOf(p) + 1} in the buying order${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
       <Awning p={p} look={pl.look} thin />
       <span class="tb-who">
         <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
-        <span class="tb-id"><span class="tk-seat-name">You</span> <b class="tb-cash">${shownCash(p, pl.cash)}</b></span>
+        <span class="tb-id"><span class="tk-seat-name">You</span></span>
       </span>
-      <span class="tb-got"><BuyMarks buys={buys} compact={compact} />{got && <span>{got}</span>}</span>
+      <span class="tb-line">
+        <b class="tb-cash">${cash}</b>
+        <span class="tb-got"><BuyMarks buys={buys} compact={compact} room={marksRoom(brief, cash)} />{word && <span>{word}</span>}</span>
+      </span>
       <i class="tb-ord" aria-hidden="true">{s.order.indexOf(p) + 1}</i>
     </div>
   );
@@ -366,7 +389,8 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
       ) : (
         <span class="tk-note">
           {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. Which fruit shows at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
-          {buys.length > 0 ? 'Older fruit stays behind the shutter.' : 'The shelf stays behind the shutter.'}
+          {/* the shutter is a piece of the printed game: on the phone the shelf "stays secret" (the glossary's word) */}
+          {buys.length > 0 ? 'Older fruit stays secret.' : 'The shelf stays secret.'}
         </span>
       )}
       {buys.length > 0 && (
@@ -473,6 +497,8 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
               <Lamp stage={go && c.next ? c.next : c.stage} size={13} />
               {c.n > 1 && <b>×{c.n}</b>}
               <span class="tb-chip-w">{c.words}</span>
+              {/* a shelf with more kinds of piece than the full words have room for: the first word alone ("okay", "spoils") */}
+              <span class="tb-chip-s" aria-hidden="true">{c.words.split(' ')[0]}</span>
               {/* the short form, where the words have no room: the letter the pieces carry tomorrow, or a cross */}
               {!go && (c.gone || (c.next && c.next !== c.stage)) && <span class="tb-chip-to" aria-hidden="true">➜{c.next ? <Lamp stage={c.next} size={13} /> : <i>{c.tone === 'good' ? '$' : '✕'}</i>}</span>}
             </span>
