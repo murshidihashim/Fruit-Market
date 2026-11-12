@@ -16,7 +16,7 @@ import { holdStock, releaseStock } from '../stockShown';
 import { holdRush, releaseRush } from '../rushShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
-import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
+import { bellRings, delivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './panels/Showdown';
@@ -38,8 +38,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [night, setNight] = useState(false);
   // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
   const [nightSlide, setNightSlide] = useState<NightSlide>(null);
-  // The bell has just rung: every crate is open on the table for a moment before the rush (rules 15).
-  const [bell, setBell] = useState(false);
+  // The bell is ringing (rules 15; PLAN-085): how many rows have turned face up so far; null when it is not ringing.
+  const [bell, setBell] = useState<BellShow>(null);
   // The bids for a standing order are in and are being turned over on the table (PLAN-084).
   const [orderShow, setOrderShow] = useState<OrderShow | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
@@ -116,7 +116,10 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     // A tap's hurry is not reset at each step any more (PLAN-081): it lasts until the table waits for this player again
     // (see the end of this function), so one tap carries through every rival's turn. The rush is the exception: it
     // always starts at its own pace, with its own tap (next customer) and Skip.
-    if (rush) A.resetHurry();
+    // The flip before a Favoured Trade question (rules 18; PLAN-085): the bell rings here, at its own pace, and not
+    // again before the rush.
+    const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';
+    if (rush || flip) A.resetHurry();
     try {
       if (next.day !== prev.day) {
         // The night is drawn from this stall's own view: what spoils behind a rival's shutter is not shown (rules 15).
@@ -142,6 +145,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // a standing order are in, they stay on the table to be turned over (the sheet is drawn with the new state).
       const turned = holdBack(prev, next);
       if (turned) setOrderShow(turned);
+      // A Favoured Trade answer (PLAN-085): where the card lies is noted before the question leaves the table.
+      const tied = tieAnswer(prev, next);
+      const cardFrom = tied ? tieFrom(tied, viewer) : null;
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -154,11 +160,18 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         if (turned) await bidsTurned(turned, viewer, setOrderShow);
         await delivery(next);
         await moves(prev, next);
+      } else if (flip) {
+        await bellRings(next, setBell);
+        setBell(null);
       } else if (rush) {
         setRevealDone(false);
-        await reveal(next, viewer, setShow, setBell);
-        setBell(false);
+        // A card just played slides to its price tag and stamps it; the bell is not shown a second time.
+        if (tied?.played) await tiePlayed(tied.p, cardFrom);
+        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');
+        setBell(null);
         setRevealDone(true);
+      } else if (tied) {
+        if (tied.played) await tiePlayed(tied.p, cardFrom);
       } else await moves(prev, next);
     } finally {
       holdCash(null);
@@ -266,7 +279,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (active < 0 || s.players[active].kind !== 'ai') return;
     // The pause before each rival action. A tap on the table ends it at once and keeps the next ones short (PLAN-081).
     let live = true;
-    void A.pause(A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause).then(() => {
+    // A rival asked about Favoured Trade answers a moment later, so its question can be read (PLAN-085).
+    void A.pause((A.isFast() ? A.BEAT.rival.pauseFast : A.BEAT.rival.pause) + (s.phase === 'tie' ? A.BEAT.tie.ask : 0)).then(() => {
       if (!live || busyRef.current) return;
       const next = aiStep(sRef.current);
       if (next) void apply(next);

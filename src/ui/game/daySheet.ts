@@ -1,7 +1,6 @@
 // Which step the day's sheet shows (PLAN-085). One sheet stays on the table from stocking to the day's takings:
-// stocking, waiting for the rivals to open, pricing, sealed while the rivals price, and then, kept up as a plain sheet
-// under their own panels, the bell, the Favoured Trade question and the takings. The rush card (panels/Showdown.tsx)
-// lies over it between the bell and the takings.
+// stocking, waiting for the rivals to open, pricing, sealed while the rivals price, the bell, the Favoured Trade
+// question, and the takings. The rush card (panels/Showdown.tsx) lies over it between the bell and the takings.
 // Pure, so tests can check it: above all that nothing secret of one person is drawn for another.
 import type { Phase } from '../../engine/game';
 
@@ -21,8 +20,8 @@ export interface DayNow {
    * phone: the game has moved on to the next person, and the hand-over screen has not been tapped yet.
    */
   mine: boolean;
-  /** The bell is ringing. */
-  bell: boolean;
+  /** The bell is ringing: how many rows have turned face up (null: it is not ringing). */
+  bell: number | null;
   /** The bell has rung on this table today. */
   rung: boolean;
   /** A customer's card is up in the rush. */
@@ -47,20 +46,21 @@ export function dayStep(x: DayNow): DayStep | null {
     return 'sealed';
   }
   // From the flip on, every crate and every price is public.
-  if (x.phase === 'tie') return x.bell ? 'bell' : 'tie';
+  if (x.phase === 'tie') return x.bell !== null ? 'bell' : 'tie';
   if (x.phase === 'reveal') {
     if (x.done && !x.rush) return 'takings';
-    if (x.bell) return 'bell';
-    // Under a customer's card the open crates stay; once the last card has gone, the takings (the last coins may
+    if (x.bell !== null) return 'bell';
+    // Under a customer's card the open rows stay; once the last card has gone, the takings (the last coins may
     // still be counting). The takings never show before the rush has played.
     if (x.rush) return 'bell';
     if (x.rushed) return 'takings';
-    // Before the bell (a frame or two, or "No sales today") the sealed prices stay; after it, the open crates (the
-    // rush was skipped and is being settled).
+    // Before the bell (a frame or two, or "No sales today") the sealed prices stay; after it, the open rows (a card
+    // just played is travelling to its tag, or the rush was skipped and is being settled).
     return x.rung ? 'bell' : x.mine ? 'sealed' : null;
   }
   return null;
 }
 
-/** The steps the sheet draws itself: stocking and pricing. In the others it lies plain under that step's own panel. */
-export const ownStep = (step: DayStep): boolean => step === 'stock' || step === 'wait' || step === 'price' || step === 'sealed';
+/** The steps that lie over the customers, the rivals and your shelf (the approved Favoured-Trade and Takings screens);
+ *  stocking and pricing lie in the middle of the table, between the rivals and your shelf. */
+export const fullReach = (step: DayStep): boolean => step === 'bell' || step === 'tie' || step === 'takings';

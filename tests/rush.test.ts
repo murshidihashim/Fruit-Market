@@ -8,7 +8,7 @@ import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { holdCash, shownCash } from '../src/ui/cashShown';
 import { favourArt } from '../src/ui/deckArt';
-import { reveal, bellRead } from '../src/ui/game/animator';
+import { reveal, bellLength } from '../src/ui/game/animator';
 import { RushView, type ShowState } from '../src/ui/game/panels/Showdown';
 import { MAX_PIECES, blockSpan, blockStarts, offeredPieces, piecesMoving, rushCards, rushPace, rushTotal, type RushBlock, type RushCard, type RushStage } from '../src/ui/game/rush';
 import { BEAT, FEEL } from '../src/ui/motion';
@@ -422,7 +422,7 @@ describe('the rush as it plays (animator.tsx reveal)', () => {
       expect(at('out') - at('result')).toBeGreaterThanOrEqual(BEAT.rush.read);
       expect(at('out') - at('result')).toBeLessThan(BEAT.rush.read + 50);
     });
-    expect(seen[0].at).toBe(bellRead(s.players.length));
+    expect(seen[0].at).toBe(bellLength(s.players.length));
     // afterwards everything shows as it is
     expect(rushHeld()).toBe(false);
     s.players.forEach((pl, p) => expect(shownCash(p, pl.cash)).toBe(pl.cash));
