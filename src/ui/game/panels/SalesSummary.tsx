@@ -186,14 +186,15 @@ function closerOnceSeen(el: HTMLElement): void {
  * gone, and takes them away on "Close for the day"; the sheet under them is the panel that slides (sheet.ts). The
  * takings reach from the top of the customer band down over your shelf, measured from the rows themselves (reach.ts).
  */
-export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
+/** `shared`: several people share this phone, so this stall's row carries its name and not "You" (as the rush card). */
+export function SalesSummary({ s, viewer, shared }: { s: GameState; viewer: number; shared?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   useReach(root, 'street', true, true, closerOnceSeen);
-  return <TakingsView s={s} viewer={viewer} root={root} />;
+  return <TakingsView s={s} viewer={viewer} shared={shared} root={root} />;
 }
 
 /** The takings themselves, without hooks (so tests can render them to a string). */
-export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number; root?: Ref<HTMLDivElement> }) {
+export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer: number; shared?: boolean; root?: Ref<HTMLDivElement> }) {
   const r = s.results!;
   const pl = s.players[viewer];
   const rem = s.config.days - s.day;
@@ -243,7 +244,7 @@ export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number;
             <li class={`tg-stall ${x.me ? 'me' : ''}`}>
               <i class="tg-pl">{x.place}</i>
               <Face who={x.avatar} size={26} />
-              <span class="tg-name">{x.name}</span>
+              <span class="tg-name">{x.me && !shared ? 'You' : x.name}</span>
               {x.today !== null && <span class="tg-td">{x.today < 0 ? '−' : '+'}${Math.abs(x.today)} today</span>}
               <b class="tg-cash">${x.cash}</b>
             </li>

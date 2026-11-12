@@ -19,7 +19,7 @@ import { shelfRowText, tieOrderText } from '../src/ui/panel';
 const read = (f: string) => readFileSync(f, 'utf8');
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
 
-const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, rushed: false, done: false, ...x });
+const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, done: false, ...x });
 
 describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
   it('stays from stocking to the takings: stocking, waiting, pricing, sealed, the bell, the takings', () => {
@@ -36,9 +36,12 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     expect(dayStep(now({ phase: 'reveal', busy: true, bell: 0, rung: true }))).toBe('bell');
     expect(dayStep(now({ phase: 'reveal', busy: true, bell: 3, rung: true }))).toBe('bell');
     // under a customer's card the open rows stay; when the last card has gone, the takings
-    expect(dayStep(now({ phase: 'reveal', busy: true, rung: true, rush: true, rushed: true }))).toBe('bell');
-    expect(dayStep(now({ phase: 'reveal', busy: true, rung: true, rushed: true }))).toBe('takings');
-    expect(dayStep(now({ phase: 'reveal', rung: true, rushed: true, done: true }))).toBe('takings');
+    expect(dayStep(now({ phase: 'reveal', busy: true, rung: true, rush: true }))).toBe('bell');
+    // the last card has gone and the last coins are still counting: the open rows stay (PLAN-090)
+    expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
+    // the rush is truly done: the takings
+    expect(dayStep(now({ phase: 'reveal', rung: true, done: true }))).toBe('takings');
+    expect(dayStep(now({ phase: 'reveal', rung: true, done: true, rush: true }))).toBe('bell');
     // a saved game opened on the takings
     expect(dayStep(now({ phase: 'reveal', done: true }))).toBe('takings');
     // no step outside these phases, and none before your own stocking turn
@@ -106,7 +109,7 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeGreaterThan(rows);
     expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeLessThan(end);
     // the takings are their own panel, mounted after the sheet, which stays under them
-    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} />}")).toBeGreaterThan(end);
+    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}")).toBeGreaterThan(end);
   });
 
   it('the sheet moves by position, size and fade only, on the table\'s clock, and waits for nothing', () => {

@@ -26,8 +26,6 @@ export interface DayNow {
   rung: boolean;
   /** A customer's card is up in the rush. */
   rush: boolean;
-  /** A customer's card has been up on this table today. */
-  rushed: boolean;
   /** The rush has been played and the takings may be read. */
   done: boolean;
 }
@@ -50,12 +48,11 @@ export function dayStep(x: DayNow): DayStep | null {
   if (x.phase === 'reveal') {
     if (x.done && !x.rush) return 'takings';
     if (x.bell !== null) return 'bell';
-    // Under a customer's card the open rows stay; once the last card has gone, the takings (the last coins may
-    // still be counting). The takings never show before the rush has played.
+    // The takings show when the rush is truly done (PLAN-090): not as the last card leaves, while the last coins
+    // are still counting. Until then the open rows stay: under a customer's card, after the last one, while a card
+    // just played travels to its tag, and while a skipped rush is settled. Before the bell (a frame or two, or "No
+    // sales today") the sealed prices stay.
     if (x.rush) return 'bell';
-    if (x.rushed) return 'takings';
-    // Before the bell (a frame or two, or "No sales today") the sealed prices stay; after it, the open rows (a card
-    // just played is travelling to its tag, or the rush was skipped and is being settled).
     return x.rung ? 'bell' : x.mine ? 'sealed' : null;
   }
   return null;

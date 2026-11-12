@@ -21,21 +21,20 @@ import type { GameController } from '../useGameController';
 import { CratesOpen, TieBar, TieCard } from './PricingTable';
 import { SalesSummary } from './SalesSummary';
 
-/** What the step rule needs, read from the game and its screen. `rung`: the bell has rung on this table today;
- *  `rushed`: a customer's card has been up on it today. */
-export function dayNow(s: GameState, viewer: number, c: GameController, online: boolean, rung: boolean, rushed: boolean): DayNow {
+/** What the step rule needs, read from the game and its screen. `rung`: the bell has rung on this table today. */
+export function dayNow(s: GameState, viewer: number, c: GameController, online: boolean, rung: boolean): DayNow {
   return {
     phase: s.phase, busy: c.busy, myTurn: c.myBidTurn,
     opened: online ? !c.myBidTurn : s.stalls[viewer] !== null,
     mine: s.players[viewer]?.kind === 'human' && (online || c.humans.length === 1 || c.handedTo === viewer),
-    bell: c.bell, rung: rung || s.phase === 'tie', rush: !!c.show, rushed, done: c.revealDone,
+    bell: c.bell, rung: rung || s.phase === 'tie', rush: !!c.show, done: c.revealDone,
   };
 }
 
 /** Is the day's sheet on the table now? (The game table asks; the sheet then works out its own step.) From the flip
  *  on it always is: every crate and every price is public then. */
 export const daySheetOn = (s: GameState, viewer: number, c: GameController, online: boolean): boolean =>
-  s.phase === 'tie' || s.phase === 'reveal' || dayStep(dayNow(s, viewer, c, online, false, false)) !== null;
+  s.phase === 'tie' || s.phase === 'reveal' || dayStep(dayNow(s, viewer, c, online, false)) !== null;
 
 /** A card turning over, by size and fade only: it grows from its middle line. */
 const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];
@@ -103,10 +102,8 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
   }, []);
   const rung = useRef(false);
   if (c.bell !== null || s.phase === 'tie') rung.current = true;
-  const rushed = useRef(false);
-  if (c.show) rushed.current = true;
   // (The game table draws the sheet only while it has a step; from the flip on the open rows are always safe to show.)
-  const step: DayStep = dayStep(dayNow(s, viewer, c, online, rung.current, rushed.current)) ?? 'bell';
+  const step: DayStep = dayStep(dayNow(s, viewer, c, online, rung.current)) ?? 'bell';
   // Stocking and pricing fit themselves to the middle of the table; the bell and the question are drawn on the sheet
   // over the rows around it; under the takings (their own panel) the sheet lies plain.
   const own = ownStep(step);
@@ -230,7 +227,7 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
       {tying && <TieBar onDecide={(play) => { fx.card(); c.act({ kind: 'tie', play }); }} />}
       {/* The takings are their own panel, mounted as they always were, over the sheet, which stays under them so the
           lanes do not show between the rush and the takings. */}
-      {step === 'takings' && <SalesSummary s={s} viewer={viewer} />}
+      {step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}
     </>
   );
 }
