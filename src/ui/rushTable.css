@@ -61,12 +61,12 @@
   width: var(--card-w, 150px); display: flex; flex-direction: column; overflow: hidden;
   border: 3px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); box-shadow: 0 4px 0 var(--tk-ink);
 }
+/* the number (or "Guest", "Standing order") and the name run on as one line of words, two at most */
 #app .tkt .rt-hd {
-  flex: none; display: flex; gap: 4px; align-items: baseline; padding: 5px 6px; background: var(--tk-ink); color: var(--tk-paper);
-  font: 800 0.5625rem/1.15 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
+  flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 5px 6px;
+  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.5625rem/1.15 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
 }
-#app .tkt .rt-hd b { flex: none; color: var(--tk-yel); }
-#app .tkt .rt-hd span { min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+#app .tkt .rt-hd b { margin-right: 4px; color: var(--tk-yel); }
 #app .tkt .rt-pic { flex: none; height: 84px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
 #app .tkt .rt-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 #app .tkt .rt-w { flex: none; display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 6px; }
@@ -177,6 +177,9 @@
 #app .tkt .rush-table.close .rt-w { height: 22px; }
 #app .tkt .rush-table.close .rt-crate > .tb-awn { height: 5px !important; }
 #app .tkt .rush-table.close .rt-who { padding-top: 2px; font-size: 0.5625rem; }
+/* the marks stay clear of the customer between the columns */
+#app .tkt .rush-table.close .rt-badge { right: -3px; }
+#app .tkt .rush-table.close .rt-plus { right: -3px; }
 #app .tkt .rush-table.close .rt-tag { font-size: 0.9375rem; }
 #app .tkt .rush-table.close .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
 #app .tkt .rush-table.close .rt-line.long { font-size: 0.625rem; }

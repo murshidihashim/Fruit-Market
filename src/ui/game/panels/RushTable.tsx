@@ -179,7 +179,7 @@ function Customer({ c, at, stage, el }: { c: RushCard; at: number; stage: RushSt
   return (
     <article class={`rt-cust ${guest ? 'guest' : ''}`} ref={el} data-a="rs-card" data-c={c.customerId}>
       <header class="rt-hd">
-        {num !== undefined ? <b>{String(num).padStart(2, '0')}</b> : <b>{c.kind === 'order' ? 'Standing order' : guest ? 'Guest' : ''}</b>}
+        {num !== undefined ? <b>{String(num).padStart(2, '0')}</b> : c.kind !== 'customer' && <b>{c.kind === 'order' ? 'Standing order' : 'Guest'}</b>}
         <span>{look.title}</span>
       </header>
       <div class="rt-pic">
