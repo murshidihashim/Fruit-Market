@@ -55,8 +55,8 @@
     {
       "id": "T3",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": "Started; result to be added"
+      "result": "PASS",
+      "evidence": "npm run test:e2e run by me on the combined code (PLAN-081 and PLAN-082, commit 9c0d11b), 2026-11-12: results visible: 1 errors: []; BUDGET OK; frames checked during pricing: 78 | leaks: 0; RECONNECT OK: 5 cycles; E2E OK, exit 0"
     }
   ]
 }

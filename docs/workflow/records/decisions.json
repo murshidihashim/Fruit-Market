@@ -3489,6 +3489,10 @@
     {
       "at": "2026-11-12 08:37",
       "text": "PLAN-082 built (9c0d11b) and measured (REP-107): the Charmer starts with 3 favour cards and the Ripening Room has no discount. With both, the largest distance from fair at Normal level is 3.2 / 3.7 / 3.9 / 4.3 at 2 / 3 / 4 / 6 stalls (it was 4.5 / 3.3 / 4.0 / 4.6); Nest Egg is +4.3 at 6 stalls; at Hard level the Bargain Hunter is +5.6 and +4.8 at 3 and 4 stalls. DEC-101's review trigger is met, so the owner is asked: accept for release A and watch Raj and Saleh in playtests (recommended), or tune further. The Ripening Room is built by about one Normal stall in six and is mid-table in worth; the Juice Bar is now the strongest upgrade. Computer players' value for the room was measured again (0.8 a day at Normal, 1.0 at Hard). One test corrected on purpose (tests/price-read.test.ts)."
+    },
+    {
+      "at": "2026-11-12 08:43",
+      "text": "Browser tests on the combined code of PLAN-081 and PLAN-082: PASS (npm run test:e2e run by me on the combined code (PLAN-081 and PLAN-082, commit 9c0d11b), 2026-11-12: results visible: 1 errors: []; BUDGET OK; frames checked during pricing: 78 | leaks: 0; RECONNECT OK: 5 cycles; E2E OK, exit 0). The approved mock-up sources were saved in docs/studio/review-18/mockups (commit 767268a). PLAN-083 opened: release A, package 2, the new pictures and card faces in the game and the shared motion blocks, built by two helpers in separate work folders."
     }
   ]
 }

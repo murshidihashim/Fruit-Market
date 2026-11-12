@@ -1,0 +1,67 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-104",
+    "REP-106"
+  ],
+  "decisions": [
+    "DEC-094",
+    "DEC-095",
+    "DEC-096",
+    "DEC-098"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (release A in packages; this is package 2). Designs: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\" (DEC-095); \"lets use pattern for now\" (DEC-096); \"picture style is right, proceed to draw all the cards\" (DEC-094).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-083",
+  "title": "Release A, package 2: the new pictures and card faces in the game; shared motion blocks",
+  "problem": "The game still shows the old pictures and the old card faces, and its animations are built from separate pieces with their own timings. The approved designs (docs/studio/review-18/mockups) and the drawn pictures (docs/studio/art-drafts/cards-18) are not in the game yet.",
+  "scope": [
+    "Every new picture is in the game: 36 customers, 8 standing-order clients, 20 events and Calm Day, 8 shopkeeper scenes, 6 favours, 5 upgrades, 6 back patterns; each with a focus point so narrow frames keep the subject",
+    "Card faces follow the approved designs wherever a card is drawn: event, lorry, shopkeeper, favour, upgrade and standing order in design A; the customer front and back as on the Main board; pattern backs; the label \"Upgrade\"",
+    "Card wording comes from the game's data as it is today; the text rewrite is package 4",
+    "Shared motion blocks from the flow study (section F, step 1): timings named in one place and one speed for scripts and stylesheets; one shared move with a soft landing and calls on lift-off and landing; a sheet that slides in and out for the middle panel; a count of slow frames in the performance budget"
+  ],
+  "exclusions": [
+    "Any rule or balance change",
+    "Rebuilding the screens and their beats (package 3): layouts stay as they are apart from the cards themselves",
+    "The text rewrite (package 4), trophies and the stamp book (package 5), the print kit (package 6)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes; a test proves every card in the game's data has a picture file",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes; the performance budget holds with the new pictures and reports slow frames",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each card face seen in the running game at 390x844 and 360x640 beside its mock-up, by me; differences listed",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner has seen the cards in the game",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

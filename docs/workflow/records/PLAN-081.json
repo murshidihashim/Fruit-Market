@@ -61,7 +61,7 @@
       "id": "T2",
       "text": "npm run test:e2e passes: a solo game that meets the Favoured Trade step reaches the results, the performance budget holds, the online match has 0 leaks",
       "result": "PASS",
-      "evidence": "npm run test:e2e run by the helper on the package's final commit ca7b6f6: solo game reached the results with no errors; BUDGET OK (516 of 800 elements, 121 ms to open, longest task 128 ms); online match 88 frames checked, 0 leaks; quick match; RECONNECT OK, 5 cycles. The random solo game did not meet the Favoured Trade step; the helper ran the solo script twice from a saved game one move before that step and it played the step and reached the results. To be run again by me on the combined code after PLAN-082"
+      "evidence": "npm run test:e2e run by the helper on the package's final commit ca7b6f6: solo game reached the results with no errors; BUDGET OK (516 of 800 elements, 121 ms to open, longest task 128 ms); online match 88 frames checked, 0 leaks; quick match; RECONNECT OK, 5 cycles. The random solo game did not meet the Favoured Trade step; the helper ran the solo script twice from a saved game one move before that step and it played the step and reached the results. Run again by me on the combined code after PLAN-082, 2026-11-12: E2E OK, 0 leaks, reconnect 5 cycles"
     },
     {
       "id": "T3",
