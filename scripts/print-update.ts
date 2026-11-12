@@ -15,7 +15,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
-  BARROW_SHELF, BASE_BUY, BASE_SHELF, BIG_TABLE, CHARACTER_TRAIT, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK,
+  BARROW_SHELF, BASE_BUY, BASE_SHELF, BIG_TABLE, CHARACTER_TRAIT, CHARMER_DAILY_FAVOURS, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK,
   FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS, MARKET_DAY_EVERY, MAX_STALLS, MAX_UPGRADES, MIN_STALLS,
   NEST_EGG_BONUS, ORDER_BOOK_BONUS, ORDER_CARDS, ORDER_LEAD, RIVALS, ROW_CAP, START_CASH, STREET_PRICE, TOP_UP, TRAITS, UPGRADES, deliveredGreen,
   orderQty, stageAt, stakeFor,
@@ -230,7 +230,7 @@ function changeSheet(): string {
       <li><b>No order that cannot be collected.</b> Do not turn over a standing order if its due day would be after the last day (in a Standard game, none on day 9).</li>
       <li><b>Out of cash.</b> At dawn, from Day 2, a stall with an empty shelf and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank.</li>
       <li><b>${esc(FAVOURS.favouredTrade.title)} is played after the prices flip</b>, in the open, by a stall with a tied price.</li>
-      <li><b>Today's purchases are public until the bell.</b> Older fruit on a shelf stays secret.</li>
+      <li><b>What a stall buys is seen only while it buys.</b> After buying it is hidden with the rest of the shelf.</li>
       <li><b>Days 1 and 2 have no mango customers</b>, and Mango Craze is never Day 2's event. A green mango costs $${FRUIT.mango.cost.unripe}.</li>
       <li><b>One favour deck of ${FAVOUR_DECK.length}</b> (${FAVOUR_COPIES} of each card) at every table size.</li>
     </ol>
@@ -304,15 +304,15 @@ function guideHtml(): string {
 <p>Each player runs a small fruit stall. Each morning you buy fruit at the Wholesale Market. Each day you sell it to customers. Fruit ages every night, sells for less as it ages, and is then thrown away. The stall with the most cash at the end of the last day wins.</p>
 <p>Three things pull against you every day:</p>
 <ol>
-  <li><b>The clock.</b> Every night all fruit gets one step older. Older fruit sells for less, and then it is thrown away.</li>
+  <li><b>The clock.</b> Every night all fruit ages one step. Older fruit sells for less, and then it spoils.</li>
   <li><b>The secret price.</b> You never see a rival's prices until the bell. Price too high and the customer walks past you. Price too low and you give money away.</li>
-  <li><b>The shut crate.</b> Stalls are secret. Before prices are set you learn only how many pieces each rival put out, not which fruit.</li>
+  <li><b>The shut crate.</b> Stalls are secret. Before prices are set you learn only how many pieces each rival has in its crate, not which fruit.</li>
 </ol>
 <div class="new">
   <h3>What is new in rules version ${RULES_VERSION}</h3>
   <p><b>Out of cash.</b> At dawn, from Day 2, a stall with an empty shelf and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank.</p>
   <p><b>Standing orders: a stake, not fines.</b> The winner puts down the card's stake. It comes back for a full delivery and is lost otherwise. Only the winner's crate fills the order; rivals are not involved.</p>
-  <p><b>Today's purchases are public until the bell.</b> Older fruit stays secret.</p>
+  <p><b>What a stall buys is seen while it buys.</b> After buying it goes behind the shutter with the rest of the shelf: you need not say what you bought, and nobody may ask.</p>
   <p><b>Favoured Trade is played after prices flip</b>, by a stall with a tied price, in the open.</p>
   <p><b>Days 1 and 2 have no mango customers</b>, and Mango Craze is never Day 2's event.</p>
   <p><b>Numbers.</b> A green mango costs $${FRUIT.mango.cost.unripe}. Upgrades cost ${Object.values(UPGRADES).map((u) => `${u.title} $${u.cost}`).join(', ')}. Nest Egg starts with $${START_CASH + NEST_EGG_BONUS}. One favour deck of ${FAVOUR_DECK.length} at every table size. The three Bargain blueberry customers pay $${BLUEBERRY_BARGAIN}.</p>
@@ -323,7 +323,7 @@ function guideHtml(): string {
 <p>1 Wholesale Market board (three panels) · 6 stall sheets, 6 shutters and 6 counters (each counter carries a cash track) · 200 fruit pieces, 50 of each fruit · 24 price tags, four per stall · 12 cash markers, two per stall · 36 served-alone chips, six per stall · ${CUSTOMER_CARDS.length} customer cards and ${GUESTS.length} guest cards · ${EVENT_CARDS.length} event cards and ${FARMER_CARDS.length} lorry cards · ${FAVOUR_DECK.length} favour cards · ${Object.keys(UPGRADES).length * UPGRADE_COPIES} upgrade cards, ${UPGRADE_COPIES} of each · ${ORDER_CARDS.length} standing-order cards · ${RIVALS.length} shopkeeper cards · day marker, first-player token, Shade Cloth marker, six +$200 chips. You also need a dry-wipe pen or pencil for each stall.</p>
 
 <h2>The fruit</h2>
-<p>Every fruit follows the same rule. A <b>Fresh</b> piece sells at the customer's full price. An <b>Okay</b> piece sells for $${OKAY_LESS} less. A <b>Soft</b> piece sells for $${SOFT_LESS} less. <b>Green</b> fruit cannot be sold until it ripens. A fruit's last two days are Okay, then Soft; every day before that is Fresh. Mangoes always arrive Green and spend ${FRUIT.mango.unripeSlots} nights ripening first.</p>
+<p>Every fruit follows the same rule. A <b>Fresh</b> piece sells at the customer's top price. An <b>Okay</b> piece sells for $${OKAY_LESS} less. A <b>Soft</b> piece sells for $${SOFT_LESS} less. <b>Green</b> fruit cannot be sold until it ripens. A fruit's last two days are Okay, then Soft; every day before that is Fresh. Mangoes always arrive Green and spend ${FRUIT.mango.unripeSlots} nights ripening first.</p>
 <p>Each lane on the board, and on your stall sheet, is that fruit's life from right (newest) to left (oldest). Every night, every piece slides one box to the left. A piece that slides out of its Soft box is thrown away.</p>
 <table class="lanes"><tr><th>Fruit</th><th>Lasts</th><th>Its boxes, oldest on the left, with the cost to buy from each</th></tr>${laneRows}</table>
 <p class="tiny">S = Soft, O = Okay, F = Fresh, G = Green. Every mango arrives green; no other fruit does.</p>
@@ -340,7 +340,7 @@ function guideHtml(): string {
   <li><b>Each stall</b> takes a stall sheet, the shutter, the counter, cash markers and chips in the same pattern, four price tags and a pen. Stand the shutter in front of your sheet and lay the counter in front of the shutter: the shutter stays up all game. On your counter's cash track, put your Tens marker on ${START_CASH - (START_CASH % 10)} and your Ones marker on ${START_CASH % 10}: you start with $${START_CASH}.</li>
   <li><b>First player.</b> Give the first-player token to a stall at random.</li>
   <li><b>Shopkeepers.</b> Lay the ${RIVALS.length} shopkeeper cards face up. Starting with the player to the left of the token, each stall picks one. It gives you one perk for the whole game. Saleh moves his cash to $${START_CASH + NEST_EGG_BONUS}. Ah Chen draws ${CHARMER_START_FAVOURS} favour cards once the deck is ready.</li>
-  <li><b>Favours and upgrades.</b> Use ${FAVOUR_COPIES} of each favour card (${FAVOUR_DECK.length} cards) at every table size. Shuffle them face down beside the board. Lay the upgrade cards face up in ${Object.keys(UPGRADES).length} piles. Shuffle the ${ORDER_CARDS.length} standing-order cards face down beside them.</li>
+  <li><b>Favour cards and upgrades.</b> Use ${FAVOUR_COPIES} of each favour card (${FAVOUR_DECK.length} cards) at every table size. Shuffle them face down beside the board. Lay the upgrade cards face up in ${Object.keys(UPGRADES).length} piles. Shuffle the ${ORDER_CARDS.length} standing-order cards face down beside them.</li>
   <li><b>Customers.</b> Shuffle the ${CUSTOMER_CARDS.length} customer cards. Keep the ${GUESTS.length} guest cards to one side. Deal today's crowd in a row on the table: one regular face up, then one walk-in face down for every stall after the first, up to four. No mango customers on Day 1 or Day 2 (see Customers).</li>
 </ol>
 
@@ -375,15 +375,15 @@ function guideHtml(): string {
 <p>Serve the customers one at a time, left to right. The stall that bought last this morning is the crier: they read each customer aloud. For each fruit on the card:</p>
 <ol>
   <li>The customer buys from the cheapest stall that has a piece they will take at that price.</li>
-  <li>That stall hands over the oldest piece on its counter that is fresh enough for its price, puts it on one of the card's circles, and adds its own posted price to its cash track.</li>
+  <li>That stall hands over the oldest piece on its counter that is fresh enough for its price, puts it on one of the card's circles, and adds its own price to its cash track.</li>
   <li>If the customer still wants more, they carry on with the same stall, and then spill to the next cheapest stall, until the circles are full or nobody else can sell.</li>
 </ol>
 <p><b>Tied prices</b> are broken in this order: a stall that played Favoured Trade; then the stall whose piece is younger; then Rosa the Haggler; then whoever bought earlier this morning.</p>
-<p><b>Serving alone.</b> The first stall to sell to a customer puts one of its chips on the card. If a second stall sells to the same customer, the chip comes off. When the whole order is filled and a chip is still there, that stall served the customer alone: it draws a favour card (one a day at most, and never past a hand of ${FAVOUR_HAND_LIMIT}).</p>
+<p><b>Serving alone.</b> The first stall to sell to a customer puts one of its chips on the card. If a second stall sells to the same customer, the chip comes off. When the whole order is filled and a chip is still there, that stall served the customer alone: it draws a favour card (one a day at most, ${CHARMER_DAILY_FAVOURS} for the Charmer, and never past a hand of ${FAVOUR_HAND_LIMIT}, ${FAVOUR_HAND_LIMIT + 1} for the Charmer).</p>
 <p><b>After the last customer.</b> Every customer leaves, served or not. Put any unsold counter pieces back behind the shutter, each in the same box of the shelf row, and wipe your tags.</p></div></div>
 
 <h3>Evening and night</h3>
-<p><b>Evening.</b> In buying order, each stall may play evening favours (Priority, Gossip). Only one Priority card may be played each evening: a second one stays in its owner's hand. On the evening after a Market Day (days ${MARKET_DAYS}) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
+<p><b>Evening.</b> In buying order, each stall may play evening favour cards (Priority, Gossip). Only one Priority card may be played each evening: a second one stays in its owner's hand. On the evening after a Market Day (days ${MARKET_DAYS}) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
 <p><b>Night.</b> On the board, and behind every shutter, every piece slides one box to the left. Pieces that slide out of a Soft box go back to the supply. Tomorrow's row moves up to become today's. Then pass the first-player token one seat clockwise and move the day marker on.</p>
 
 <h2>Market Days, Closing Day and the end</h2>
@@ -417,7 +417,7 @@ function guideHtml(): string {
 <p class="tiny">"Customers pay $1 more" raises every customer's top price. A Heatwave night slides every piece two boxes. After a Monsoon Downpour nothing slides at all. The Health Inspector charges for the Soft pieces on your sheet before anyone buys: count them yourself, behind your shutter, and pay.</p>
 
 <h2>Favour cards</h2>
-<p>You earn a favour by serving a customer's whole remaining order by yourself. Keep favours face down in front of you, so everyone can count them. Hold up to ${FAVOUR_HAND_LIMIT}. A played card goes to a discard pile; shuffle the pile into a new deck when the deck runs out.</p>
+<p>You earn a favour card by serving a customer's whole remaining order by yourself. Keep favour cards face down in front of you, so everyone can count them. Hold up to ${FAVOUR_HAND_LIMIT} (the Charmer ${FAVOUR_HAND_LIMIT + 1}). A played card goes to a discard pile; shuffle the pile into a new deck when the deck runs out.</p>
 <table><tr><th>Favour</th><th>When</th><th>Effect</th></tr>${favRows}</table>
 
 <h2>Stall upgrades</h2>
@@ -430,12 +430,12 @@ function guideHtml(): string {
 
 <h2>Small print</h2>
 <h3>When a deck runs out</h3>
-<p><b>Customers.</b> Shuffle every customer card that is not on the table into a new deck. <b>Favours.</b> Shuffle the discard pile into a new deck; cards in hands stay there. <b>Events and lorries.</b> Shuffle all 20 again. <b>Fruit pieces.</b> If a pile ever runs out, use any stand-in.</p>
+<p><b>Customers.</b> Shuffle every customer card that is not on the table into a new deck. <b>Favour cards.</b> Shuffle the discard pile into a new deck; cards in hands stay there. <b>Events and lorries.</b> Shuffle all 20 again. <b>Fruit pieces.</b> If a pile ever runs out, use any stand-in.</p>
 <h3>Reminders people ask about</h3>
 <ul>
   <li>The lorry comes every day, Market Days included, unless an event says otherwise.</li>
   <li>Only pieces in your crate can sell. Pieces on your shelf do not sell, and they still age tonight.</li>
-  <li>You are paid your own posted price, not the customer's top price.</li>
+  <li>You are paid your own price, not the customer's top price.</li>
   <li>You always hand over your oldest piece that is fresh enough for your price. You do not choose.</li>
   <li>A standing order takes pieces from its winner's crate only. Rivals are not involved.</li>
   <li>A Juice Bar's $${JUICE_TIP} is for Okay or Soft pieces sold to customers and guests in the rush: not for a standing order, the night hawker or the jam maker.</li>
@@ -446,7 +446,7 @@ function guideHtml(): string {
 </ul>
 <h3>Other ways to play</h3>
 <table><tr><th>Option</th><th>What changes</th></tr>
-<tr><td><b>Basic game</b></td><td>No shopkeepers, favours, upgrades or standing orders: just buying, stocking and the bell. Good for a first game.</td></tr>
+<tr><td><b>Basic game</b></td><td>No shopkeepers, favour cards, upgrades or standing orders: just buying, stocking and the bell. Good for a first game.</td></tr>
 <tr><td><b>Fixed prices (beginner)</b></td><td>Ignore the prices on the cards. Every customer pays the same top price for a Fresh piece: blueberry $${STREET_PRICE.blueberry}, watermelon $${STREET_PRICE.watermelon}, apple $${STREET_PRICE.apple}, mango $${STREET_PRICE.mango}. Generous customers pay $${GENEROUS_BONUS} more: numbers ${list(GENEROUS)}.</td></tr>
 <tr><td><b>No Market Days, or no Closing Day</b></td><td>Either can be switched off before you start.</td></tr></table>
 <p class="oneline"><b>The day on one line.</b> Morning: event, top-up for a stall out of cash, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters, Favoured Trade for a tied price · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: favours, upgrades · Night: everything slides one box left.</p>
