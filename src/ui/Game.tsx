@@ -7,13 +7,14 @@ import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
 import { EveningSheet } from './panel';
-import { Market, MyStall, RivalDrop, RivalStall, Street, Tomorrow, seats, type Board } from './table';
+import { Market, MyStall, Stalls, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
+import { useTableShown } from './tableShown';
 import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
@@ -41,6 +42,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   useStockShown();
   // A customer's ticket is ticked, and a favour card won appears on your shelf, as that customer is served (rushShown.ts).
   useRushShown();
+  // A box's number, your shelf and a stall's purchases change as a piece lifts off or lands, and a walk-in's face shows
+  // as its card is turned (tableShown.ts).
+  useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
@@ -171,12 +175,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
-      {rivals.length > 0 && (
-        <div class={`seats n${rivals.length}`} role="group" aria-label="Your rivals">
-          {rivals.map((p) => <RivalStall s={s} p={p} board={boards[p]} open={openRival === p} off={offSeats.includes(p)} onOpen={() => c.setRival(openRival === p ? null : p)} />)}
-          {openRival !== null && <RivalDrop s={s} p={openRival} onClose={() => c.setRival(null)} />}
-        </div>
-      )}
+      {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}
+      {rivals.length > 0 && <Stalls s={s} viewer={viewer} boards={boards} open={openRival} off={offSeats}
+        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)} />}
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
@@ -188,7 +189,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />
         {mid}
       </div>
-      <MyStall s={s} p={viewer} board={boards[viewer]} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+      <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
       {/* While stocking or pricing, bidding for a standing order or deciding the evening, the panel's own buttons
           (.pp-lock) take the action bar's place. */}

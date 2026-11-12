@@ -138,6 +138,29 @@
   #app .tkt .ob-price { min-height: 46px; padding-top: 9px; }
   #app .tkt .ob-lines { gap: 3px; padding: 6px 8px; }
 }
+/* A bid sheet with more to show than it holds is drawn closer, a step at a time (OrderPanel.tsx writes the step on
+   the sheet, data-tight), before the part above your bid would scroll: first the spacing; then a smaller picture on
+   the order's card and the "you can get" note without its heading; then the note is left out (the card says what is
+   wanted and by when) and the bidders and the stepper are drawn smaller. */
+#app .tkt .sh-order[data-tight] .ob-top { gap: 5px; padding-top: 6px; padding-bottom: 5px; }
+#app .tkt .sh-order[data-tight] .ob-sec { gap: 3px; }
+#app .tkt .sh-order[data-tight] .ob-get { gap: 2px; padding: 5px 8px; }
+#app .tkt .sh-order[data-tight] .ob-foot { gap: 4px; padding-top: 4px; }
+#app .tkt .sh-order[data-tight] .ob-lines { gap: 2px; padding: 4px 8px; }
+#app .tkt .sh-order[data-tight] .wc-order .wc-foot { padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-order[data-tight] .wc-stats { padding: 6px 8px; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-order .wc-body { gap: 8px; padding: 6px 8px 0; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-order .wc-main { gap: 3px; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-sqpic { width: 48px; height: 48px; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-ttl-o { font-size: 1rem; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-stat { flex-direction: row; align-items: baseline; gap: 6px; padding: 4px 8px; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-stat .wc-coins { position: static; align-self: center; margin-left: auto; transform: none; }
+#app .tkt .sh-order[data-tight]:not([data-tight='1']) .ob-get .tk-label { display: none; }
+#app .tkt .sh-order[data-tight='3'] .ob-get { display: none; }
+#app .tkt .sh-order[data-tight='3'] .ob-status li { padding: 2px 4px; }
+#app .tkt .sh-order[data-tight='3'] .ob-status .xf { width: 18px !important; height: 18px !important; }
+#app .tkt .sh-order[data-tight='3'] .ob-step { height: 42px; }
+#app .tkt .sh-order[data-tight='3'] .ob-price { min-height: 42px; padding-top: 7px; }
 
 /* ---------- the evening ---------- */
 #app .tkt > .centre > .sh-evening { gap: 0; padding: 0; }
@@ -182,6 +205,49 @@
   all: unset; min-height: 48px; box-sizing: border-box; display: grid; place-items: center; text-align: center; cursor: pointer;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase;
 }
+/* A night with more to show than its sheet holds is drawn closer, a step at a time (EveningSheet writes the step on
+   the sheet, data-tight), before it scrolls: 1 the spacing; 2 shorter pictures and closer cards; 3 the favours as a
+   compact row (name, when it is played, Play: a tap opens the card, as always); 4 the offers compact (picture, name,
+   cost, one line: choosing one opens its whole card over the table). */
+#app .tkt .sh-evening[data-tight] .evening-panel { gap: 8px; padding-bottom: 8px; }
+#app .tkt .sh-evening[data-tight] .ev-head { padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sh-evening[data-tight] .ev-sec { gap: 4px; }
+#app .tkt .sh-evening[data-tight] .ev-tomorrow { padding-top: 5px; padding-bottom: 5px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .uo-pick .uo-pic { height: 30px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) :is(.uo-kind, .fav-kind) { padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .uo-nm { margin-top: 5px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .uo-cost { margin-top: 4px; padding: 3px 6px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .uo-tx { margin: 5px 7px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .uo-ft { padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .fav .fav-pic { height: 26px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .fav-nm { margin-top: 5px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .fav-when { margin-top: 4px; padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .fav-tx { margin: 4px 7px 5px; }
+#app .tkt .sh-evening[data-tight]:not([data-tight='1']) .fav-play { min-height: 36px; margin-bottom: 6px; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav { flex-direction: row; flex-wrap: wrap; align-items: baseline; align-content: flex-start; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) :is(.fav-kind, .fav-pic, .fav-tx) { display: none; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav-nm { flex: 1 1 auto; margin: 7px 6px 0 8px; white-space: nowrap; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav-when { flex: none; margin: 3px 8px 0; padding: 0; background: none; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav-play { flex: 0 0 calc(100% - 12px); min-height: 34px; margin: 6px; }
+#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav:not(.ready) { padding-bottom: 7px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick { position: relative; padding-left: 56px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) :is(.uo-kind, .uo-ft) { display: none; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick:disabled .uo-ft { display: block; margin: 0 0 0 -56px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick .uo-pic { position: absolute; left: 0; top: 0; width: 56px; height: 57px; border-bottom: 0; border-right: 2px solid var(--x-ink); }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-nm { min-height: 24px; margin: 6px 6px 0; font-size: 0.75rem; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-cost { margin: 3px 6px 6px; padding: 2px 5px; font-size: 0.875rem; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-tx { margin: 0 0 0 -56px; padding: 4px 6px; border-top: 2px solid var(--x-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .evening-panel { gap: 6px; padding-bottom: 6px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .ev-head { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .ev-sec { gap: 3px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .fav-play { min-height: 32px; margin: 5px 6px; }
+/* (Steps 3 and 4 carry the same :not() as step 2, so their rules win over step 2's.)
+   The whole card of a compact offer, opened by choosing it: over the whole table, like a favour card. */
+#app .tkt > .centre > .ev-card { position: fixed; inset: 0; z-index: 30; margin: 0; }
+/* A night that still holds more than its sheet shows scrolls, with the buttons in view: a shade at the foot of the
+   sheet says there is more below (EveningSheet marks the sheet, data-more, until its end is in view). */
+#app .tkt .sh-evening .ev-more { position: sticky; bottom: 0; z-index: 2; flex: none; display: block; height: 0; pointer-events: none; }
+#app .tkt .sh-evening[data-more] .ev-more::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(transparent, color-mix(in srgb, var(--tk-ink) 38%, transparent)); }
 /* a built upgrade's card on its way from the offer to your stall (game/dayBeats.tsx) */
 .fx-layer .fm-upcard { width: 92px; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
 .fx-layer .fm-upcard-pic { display: block; width: 100%; height: 40px; object-fit: cover; border-bottom: 2px solid var(--x-ink); }

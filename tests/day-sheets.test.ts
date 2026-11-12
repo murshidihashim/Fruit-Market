@@ -9,10 +9,10 @@ import { toStaticHtml } from '../src/ui/cards';
 import { holdCash, payCash, shownCash, takeCash } from '../src/ui/cashShown';
 import { COINS, beforeDawn, bidsIn, bidsTurned, built, coinShares, dawnCoins, holdBack, noteOffer, takeDawn, type OrderShow } from '../src/ui/game/dayBeats';
 import { TIGHTEST, closer, dawnLines, fineLine, topUpLine, type Fitting } from '../src/ui/game/panels/MorningCard';
-import { BidStatus, canGetLine } from '../src/ui/game/panels/OrderPanel';
-import { reachFrom, type ReachBoxes } from '../src/ui/game/reach';
+import { BID_STEPS, BidStatus, canGetLine } from '../src/ui/game/panels/OrderPanel';
+import { drawCloser, reachFrom, type Holding, type ReachBoxes, type Stepped } from '../src/ui/game/reach';
 import { BEAT, FEEL } from '../src/ui/motion';
-import { EveningPanel, EveningTomorrow, daySoldLine, eveningKept, offersTonight, swipeHint } from '../src/ui/panel';
+import { EVENING_STEPS, EveningPanel, EveningTomorrow, daySoldLine, eveningKept, offersTonight, swipeHint } from '../src/ui/panel';
 
 // PLAN-084 (package 3, part 1): the morning, the standing-order bid and the evening as sheets laid on the table, and
 // their beats: coins at dawn, the bids turned over with the stake put on the card, a built upgrade and its price.
@@ -210,7 +210,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(show.stage).toBe('in');
     expect(show.order.holder).toBe(0);
     expect(show.text).toBe(won.log[won.log.length - 1]);
-    expect(show.text).toBe(`Mia won ${title}'s order at $1 a piece and put down a $${o.stake} stake`);
+    expect(show.text).toBe(`Mia won the standing order from ${title} at $1 a piece and put down a $${o.stake} stake`);
     // every rival's bid is in the order that is shown (the bids are public once every stall has decided)
     const open = toStaticHtml(h(BidStatus, { s: publicView(won, 0), p: 0, order: show.order, open: true }));
     for (const [i, b] of show.order.bids.entries()) if (i !== 0 && typeof b === 'number') expect(open).toContain(`<b>$${b}</b>`);
@@ -224,7 +224,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(none.standing).toBeNull();
     const gone = bidsIn(all, none)!;
     expect(gone.text).toBe(none.log[none.log.length - 1]);
-    expect(gone.text).toBe(`Nobody wanted ${title}'s order`);
+    expect(gone.text).toBe(`Nobody bid for the standing order from ${title}`);
     expect(gone.order.bids).toEqual(['pass', 'pass', 'pass', 'pass']);
     // any other step of the game shows nothing
     expect(bidsIn(bidding, bidding)).toBeNull();
@@ -490,6 +490,44 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     const css = read('src/ui/sheets.css');
     expect(css).toContain("#app .tkt .sh-morning[data-tight='3'] .wc-evpic");
     expect(css).not.toMatch(/\.tight-\d/);
+  });
+
+  it('the bid and the evening are drawn closer, a step at a time, before anything scrolls', () => {
+    /** Stand-ins: a sheet, and a part of it that holds so many px at each step where `room` px show. */
+    const sheet = (): Stepped => ({ dataset: {} });
+    const part = (holds: number[], room: number, on: Stepped): Holding => ({ clientHeight: room, get scrollHeight() { return Math.max(room, holds[Number(on.dataset.tight ?? 0)]); } });
+    // the bid on a small phone with six stalls: the card, the bidders and the note hold 367 px where 293 show
+    const bid = sheet();
+    expect(drawCloser(bid, part([367, 331, 297, 250], 293, bid), BID_STEPS)).toBe(3);
+    expect(bid.dataset.tight).toBe('3');
+    const roomy = sheet();
+    expect(drawCloser(roomy, part([326, 300, 280, 240], 330, roomy), BID_STEPS)).toBe(0);
+    expect(roomy.dataset.tight).toBeUndefined();
+    // the evening keeps room for the second button while an offer can still be chosen, so choosing one changes nothing
+    const night = (on: Stepped): Holding => ({ clientHeight: 720, get scrollHeight() { return [767, 700, 660, 500, 400][Number(on.dataset.tight ?? 0)]; } });
+    const open = sheet();
+    expect(drawCloser(open, night(open), EVENING_STEPS, 54)).toBe(2);
+    const plain = sheet();
+    expect(drawCloser(plain, night(plain), EVENING_STEPS)).toBe(1);
+    // never more steps than there are, and asked again a sheet never goes back
+    const full = sheet();
+    expect(drawCloser(full, { clientHeight: 100, scrollHeight: 900 }, EVENING_STEPS)).toBe(EVENING_STEPS);
+    expect(drawCloser(open, part([767, 700, 660, 500, 400], 900, open), EVENING_STEPS)).toBe(2);
+    // where it is used, and what each step draws
+    expect(read('src/ui/game/panels/OrderPanel.tsx')).toContain('drawCloser(root.current, top.current, BID_STEPS)');
+    expect(read('src/ui/panel.tsx')).toContain('drawCloser(el, eveningHolds(el), EVENING_STEPS, canBuild && !chosen ? TWO_BUTTONS : 0)');
+    const css = read('src/ui/sheets.css');
+    expect(css).toContain("#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-sqpic { width: 48px; height: 48px; }");
+    expect(css).toContain("#app .tkt .sh-order[data-tight='3'] .ob-get { display: none; }");
+    expect(css).toContain("#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) :is(.fav-kind, .fav-pic, .fav-tx) { display: none; }");
+    expect(css).toContain("#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-tx { margin: 0 0 0 -56px; padding: 4px 6px; border-top: 2px solid var(--x-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }");
+    expect(css).toContain('#app .tkt > .centre > .ev-card { position: fixed; inset: 0; z-index: 30; margin: 0; }');
+    // an offer drawn compact shows one line of its text: choosing it opens its whole card, with Close
+    expect(read('src/ui/panel.tsx')).toContain('if (u && root.current?.dataset.tight === String(EVENING_STEPS)) setOpen(u);');
+    expect(read('src/ui/panel.tsx')).toContain('<UpgradeCard id={open} eager />');
+    // a night that still scrolls says so at its foot
+    expect(css).toContain('#app .tkt .sh-evening[data-more] .ev-more::before');
+    expect(read('src/ui/panel.tsx')).toContain('<i class="ev-more" aria-hidden="true" />');
   });
 
   it('the bottom bar keeps its height when it holds two buttons, so your shelf under the sheet does not move', () => {

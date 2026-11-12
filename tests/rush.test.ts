@@ -113,7 +113,7 @@ describe('one card for each customer', () => {
     const none = cards.find((c) => c.blocks.every((b) => !b.rows.length))!;
     expect(none.earned).toBe(0);
     expect(none.text).toMatch(/^“.+”$/);
-    for (const b of none.blocks) expect(b.none).toBe(`No ${FRUIT[b.fruit].plural.toLowerCase()} for ${lookOf(none.name).title}!`);
+    for (const b of none.blocks) expect(b.none).toBe(`Nobody had ${FRUIT[b.fruit].plural.toLowerCase()} for ${lookOf(none.name).title}.`);
   });
 
   it('a standing order collected today and a special guest have cards of their own kind', () => {

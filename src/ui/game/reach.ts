@@ -111,6 +111,24 @@ export function useReach(ref: MutableRef<HTMLElement | null>, up: ReachUp, down:
   }, []);
 }
 
+/** What drawing closer needs of a sheet, and of the part of it that scrolls (page elements; stand-ins in tests). */
+export interface Stepped { dataset: DOMStringMap }
+export interface Holding { readonly scrollHeight: number; readonly clientHeight: number }
+/**
+ * A sheet with more to show than it holds is drawn closer, a step at a time, before anything scrolls: the step is
+ * written on the sheet (data-tight; sheets.css draws each step). It stops when `part` (the sheet, or the part of it
+ * that scrolls) shows all it holds, or after `most` steps. `spare`: room to keep free at the foot, in px. A sheet
+ * never goes back a step. Returns the step the sheet is at.
+ */
+export function drawCloser(sheet: Stepped, part: Holding, most: number, spare = 0): number {
+  let step = Number(sheet.dataset.tight ?? 0);
+  while (step < most && part.scrollHeight > part.clientHeight - spare + 1) {
+    step += 1;
+    sheet.dataset.tight = String(step);
+  }
+  return step;
+}
+
 const lifting = new WeakMap<Element, number>();
 /**
  * A sheet has left the table. The picture of it that slides off (sheet.ts) lies in the place kept for such pictures,

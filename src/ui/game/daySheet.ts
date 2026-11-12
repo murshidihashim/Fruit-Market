@@ -61,6 +61,38 @@ export function dayStep(x: DayNow): DayStep | null {
   return null;
 }
 
-/** The steps that lie over the customers, the rivals and your shelf (the approved Favoured-Trade and Takings screens);
- *  stocking and pricing lie in the middle of the table, between the rivals and your shelf. */
-export const fullReach = (step: DayStep): boolean => step === 'bell' || step === 'tie' || step === 'takings';
+/** The steps the sheet draws itself over the customers, the rivals and your shelf (the approved Favoured-Trade
+ *  screen): the bell's rows and the Favoured Trade question under them. Stocking and pricing lie in the middle of the
+ *  table; under the takings, which are their own panel, the sheet lies plain. */
+export const fullReach = (step: DayStep): boolean => step === 'bell' || step === 'tie';
+
+/** How many steps closer stocking and pricing may be drawn when they would otherwise need a scroll (daysheet.css, data-tight). */
+export const TIGHTEST = 3;
+
+export interface SheetFit {
+  /** The step to draw the sheet at: 0 as the approved screens draw it, up to TIGHTEST. */
+  tight: number;
+  /** The sheet also lies over your shelf. */
+  over: boolean;
+}
+
+/**
+ * How to draw the sheet so that everything on it is in view. `needs[t]` is how tall its parts are at step t, measured
+ * until one fits the room (so the list may be short); `room` is the height it has in the middle of the table; `drop`
+ * is how much more it would have if it also lay over your shelf (0 where it already does, on a short phone).
+ * It is drawn closer a step at a time, and no closer than it needs. Only when the closest step is still too tall does
+ * it take the room over your shelf, and then at the roomiest step that fits there. If nothing fits it scrolls, at the
+ * closest step, with its main button in view.
+ */
+export function fitSheet(needs: number[], room: number, drop: number): SheetFit {
+  const fits = (r: number) => needs.findIndex((n) => n <= r + 1);
+  const inCell = fits(room);
+  if (inCell >= 0) return { tight: inCell, over: false };
+  const last = Math.max(0, needs.length - 1);
+  if (drop <= 0) return { tight: last, over: false };
+  const over = fits(room + drop);
+  return { tight: over >= 0 ? over : last, over: true };
+}
+
+/** The steps the sheet draws itself: stocking and pricing. In the others it lies plain under that step's own panel. */
+export const ownStep = (step: DayStep): boolean => step === 'stock' || step === 'wait' || step === 'price' || step === 'sealed';

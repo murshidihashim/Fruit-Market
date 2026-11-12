@@ -9,6 +9,11 @@
    Imported after daysheet.css, so a rule here wins over the same part there. No colour and no motion of its own.
    ===================================================================== */
 
+/* ---------- the sheet's reach while it shows the bell's rows and the question ----------
+   From the top of the customer band to the foot of your shelf, as the approved screen: the same element drawn larger
+   than the middle cell by a margin measured from the rows (DaySheet.tsx writes --rise-full; reach.ts writes --drop). */
+#app .tkt > .centre > .sh-day.full { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
+
 /* your own tied prices in words, under the rows, when no question is asked: it fades in once every row is open */
 #app .tkt .sh-day .ds-bell-note {
   all: unset; flex: none; display: block; min-height: 1.3em; margin: 0 12px; padding: 7px 9px; background: var(--tk-kraft); color: var(--tk-ink);
@@ -61,4 +66,9 @@
   #app .tkt .ds-tie-kind { padding: 5px 8px; }
   #app .tkt .sh-day .ds-tie.mine .ds-tie-foot { display: none; }
   #app .tkt .ds-tie-body { gap: 4px; padding: 7px 10px; }
+  #app .tkt .ds-tie-ttl { font-size: 1rem; }
+  #app .tkt .sh-day .ds-tie-txt { font-size: 0.75rem; }
+  #app .tkt .ds-tie-line { padding: 4px 8px; }
+  #app .tkt > .centre > .ds-tie-lock { padding: 0 10px 10px; }
+  #app .tkt > .centre > .ds-tie-lock .btn { min-height: 46px; }
 }

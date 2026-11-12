@@ -76,9 +76,9 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(l.max).toBe(4);
     expect(offerOf(l, 0).tooOld).toBe(true);
     const st = explainLine(s, l, 0);
-    expect(st.headline).toBe(`Too pricey! $4 is ${wei}'s top.`);
+    expect(st.headline).toBe(`Price too high. ${wei} pays at most $4.`);
     expect(st.headline).not.toContain('too old');
-    expect(st.tags[0]).toBe('over $4 top');
+    expect(st.tags[0]).toBe('over top price $4');
     // The control: the same fresh apples at $4 sell.
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [4, 0, 0])), 0).sold).toBe(2);
   });
@@ -88,8 +88,8 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[OKAY('apple')] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [4, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`Too old for $4! Your apples didn't qualify.`);
-    expect(st.detail).toBe('At $4 only fresh sells; okay up to $3, soft up to $2.');
+    expect(st.headline).toBe('Too old for $4. Your apples could not sell at that price.');
+    expect(st.detail).toBe('At $4 only Fresh sells; Okay up to $3, Soft up to $2.');
     expect(st.tags[0]).toBe('too old for $4');
   });
 
@@ -98,9 +98,9 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[OKAY('apple')] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [1, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`Fresh only! Yours weren't fresh.`);
+    expect(st.headline).toBe('Fresh only. Yours were not Fresh.');
     expect(st.headline + st.detail).not.toMatch(/too old|\$1 less/);
-    expect(st.tags[0]).toBe('fresh only');
+    expect(st.tags[0]).toBe('Fresh only');
   });
 
   it('an Everyday customer never takes soft fruit', () => {
@@ -108,8 +108,8 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[0].stock.apple[TIRED] = 2;
     const s = bell(start, 'apple', [2, 0, 0], [1, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe(`No soft apples for ${lookOf('Tan').title}!`);
-    expect(st.tags[0]).toBe("won't take soft");
+    expect(st.headline).toBe(`${lookOf('Tan').title} will not take Soft apples.`);
+    expect(st.tags[0]).toBe("won't take Soft");
   });
 
   it('a Premium Display stall\'s top is $1 higher for fresh fruit', () => {
@@ -119,8 +119,8 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [7, 0, 0])), 0).sold).toBe(2); // Tan's top is $6; the display sells at $7
     const s = bell(start, 'apple', [2, 0, 0], [8, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.tags[0]).toBe('over $7 top');
-    expect(st.headline).toContain("$7 is");
+    expect(st.tags[0]).toBe('over top price $7');
+    expect(st.headline).toContain('pays at most $7 for Fresh, with your Premium Display');
     expect(st.headline).not.toContain('too old');
   });
 
@@ -129,9 +129,9 @@ describe('why a stall could not sell (no-sale reason)', () => {
     start.players[1].stock.apple[OKAY('apple')] = 2;
     const s = bell(start, 'apple', [0, 2, 0], [0, 3, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.tags).toEqual(['fresh only']);
-    expect(st.headline).toBe(`Nothing good enough for ${lookOf('Ravi').title}.`);
-    expect(noSaleReason(s, line(s), offerOf(line(s), 1), 0).headline).toContain("Rosa's weren't fresh");
+    expect(st.tags).toEqual(['Fresh only']);
+    expect(st.headline).toBe(`Nothing ${lookOf('Ravi').title} would buy.`);
+    expect(noSaleReason(s, line(s), offerOf(line(s), 1), 0).headline).toContain("Rosa's were not Fresh");
   });
 });
 
@@ -163,7 +163,7 @@ describe('offers that did not qualify are not in the price contest', () => {
   it('a rival\'s offer that did not qualify was not "beaten", and there was no tie with it', () => {
     const over = weiDay(4, 5);
     expect(offerOf(line(over), 1).tooOld).toBe(true);
-    expect(explainLine(over, line(over), 0).headline).toBe('Sold 2 at $4!');
+    expect(explainLine(over, line(over), 0).headline).toBe('Sold 2 at $4.');
     expect(dayHighlights(over, 0).map((x) => x.text).join(' ')).not.toContain('You beat');
     const r = rivalReaction(over, line(over), 0, new Set());
     expect(r === null || ![...quips('stung'), ...quips('lost')].includes(r.text)).toBe(true);
@@ -200,7 +200,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const { s, at } = lola(1, FRESH('mango'));
     expect(lookOf(line(s).name).title).toBe('Lola Lens');
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Rosa undercut you by $1!');
+    expect(st.headline).toBe('Rosa undercut you by $1.');
     expect(st.detail).toBe("You $8, Rosa $7. $6 would've sold 2. A $7 tie loses too: Rosa is the Haggler.");
     expect(offerOf(line(at(7)), 0).sold).toBe(0);
     expect(offerOf(line(at(6)), 0).sold).toBe(2);
@@ -225,7 +225,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     expect(offerOf(line(at(7)), 0).sold).toBe(2);
     // The same words when you win the tie itself.
     const won = at(7);
-    expect(explainLine(won, line(won), 0).headline).toBe('Tie at $7. You win: Haggler!');
+    expect(explainLine(won, line(won), 0).headline).toBe('Tie at $7. You win: Haggler.');
   });
 
   it('a tie the Haggler wins still sells what is left of the order (review case: John, 2 watermelons)', () => {
@@ -253,7 +253,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'apple', [3, 0, 3], [mine, 0, 5]);
     const s = at(6);
     expect(offerOf(line(s), 0).qty).toBe(1);
-    expect(explainLine(s, line(s), 0).detail).toBe(`You $6, ${BENNY.name} $5. Match $5 and you win (you bought first): 3 sold.`);
+    expect(explainLine(s, line(s), 0).detail).toBe(`You $6, ${BENNY.name} $5. Match $5 and you win (you bought earlier today): 3 sold.`);
     expect(offerOf(line(at(5)), 0).sold).toBe(3);
   });
 
@@ -267,9 +267,9 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'watermelon', [5, 2, 3], [mine, 5, 4]);
     const s = at(8);
     const [aisyah, kumar] = s.results!.lines.map((l) => explainLine(s, l, 0).detail);
-    expect(aisyah).toBe(`You $8, ${BENNY.name} $4. Match $4 and you win (you bought first): 3 sold.`);
+    expect(aisyah).toBe(`You $8, ${BENNY.name} $4. Match $4 and you win (you bought earlier today): 3 sold.`);
     // Benny's $4 could tie you for Kumar too (he would have kept his melons), so the sure price is $3.
-    expect(kumar).toBe("You $8, Rosa $5. $3 would've sold 2. Ties go to fresher fruit, then who bought first.");
+    expect(kumar).toBe("You $8, Rosa $5. $3 would've sold 2. Ties go to fresher fruit, then whoever bought earlier today.");
     expect(offerOf(line(at(3), 1), 0).sold).toBe(2);
     expect(offerOf(line(at(4), 0), 0).sold).toBe(3);
   });
@@ -282,7 +282,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const s = at(8);
     expect(offerOf(line(s, 1), 0).sold).toBe(2); // Kenji bought 2 of your 3 at $8
     expect(explainLine(s, line(s), 0).detail).toBe(
-      `You $8, ${BENNY.name} $6. $5 would've sold 3. Ties go to fresher fruit, then who bought first. Only 1 went unsold anyway.`,
+      `You $8, ${BENNY.name} $6. $5 would've sold 3. Ties go to fresher fruit, then whoever bought earlier today. Only 1 went unsold anyway.`,
     );
     expect(offerOf(line(at(5)), 0).sold).toBe(3);
   });
@@ -311,8 +311,8 @@ describe('what-if advice follows the tie order and your crate', () => {
     const at = (mine: number) => bell(start, 'apple', [2, 1, 1], [mine, 4, 3]);
     const s = at(5);
     const st = explainLine(s, line(s), 0);
-    expect(st.headline).toBe('Rosa undercut you by $1!');
-    expect(st.detail).toBe(`You $5, Rosa $4 and ${BENNY.name} $3. Match $3 and you win (you bought first): 2 sold.`);
+    expect(st.headline).toBe('Rosa undercut you by $1.');
+    expect(st.detail).toBe(`You $5, Rosa $4 and ${BENNY.name} $3. Match $3 and you win (you bought earlier today): 2 sold.`);
     expect(offerOf(line(at(3)), 0).sold).toBe(2);
   });
 
@@ -324,7 +324,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const details = s.results!.lines.map((l) => explainLine(s, l, 0).detail ?? '');
     const claimed = details.map((d) => Number(/(?:you'd have sold |would have sold |: )(\d+)(?: sold)?[.,]/.exec(d)?.[1] ?? 0));
     expect(claimed.reduce((a, b) => a + b, 0)).toBeLessThanOrEqual(forSale(s, 0, 'mango'));
-    expect(details[0]).toContain('Match $6 and you win (you bought first): 2 sold.');
+    expect(details[0]).toContain('Match $6 and you win (you bought earlier today): 2 sold.');
     expect(details[1]).not.toMatch(/would've sold|Match /);
   });
 
@@ -366,7 +366,7 @@ describe('what-if advice follows the tie order and your crate', () => {
     const need: Record<string, number> = { at: 20, match: 20, lose: 20, only: 5, after: 5, tieWon: 20, soldAll: 20, allBut: 5 };
     const seen: Record<string, number> = Object.fromEntries(Object.keys(need).map((k) => [k, 0]));
     const wrong: string[] = [];
-    const WHY = "(?: is the Haggler| has Favoured Trade|'s fruit was fresher| bought first)";
+    const WHY = "(?: is the Haggler| has Favoured Trade|'s fruit was fresher| bought earlier today)";
     for (let seed = 1; seed <= 90; seed++) {
       const n = 2 + (seed % 3);
       let s = newGame({
@@ -470,7 +470,7 @@ describe('Showdown card', () => {
     const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
     expect(html).toContain('none qualify');
     expect(html).not.toMatch(/offer 0/);
-    expect(html).toContain('over $4 top');
+    expect(html).toContain('over top price $4');
     expect(html).toContain('2 offered');
   });
 });

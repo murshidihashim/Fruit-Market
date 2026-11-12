@@ -75,8 +75,10 @@ export function bidsIn(prev: GameState, next: GameState): OrderShow | null {
   if (prev.phase !== 'order' || next.phase === 'order' || next.day !== prev.day || !was) return null;
   const title = ORDER_CARDS[was.card].title;
   const now = next.standing && next.standing.card === was.card && next.standing.holder !== null ? next.standing : null;
-  if (!now) return { order: { ...was, bids: was.bids.map(() => 'pass' as const) }, stage: 'in', text: `Nobody wanted ${title}'s order` };
-  return { order: now, stage: 'in', text: `${next.players[now.holder!].name} won ${title}'s order at $${now.price} a piece and put down a $${now.staked ?? 0} stake` };
+  // The sentence is the game's own (its newest log line about this order), so the sheet and the log never disagree.
+  const text = [...next.log].reverse().find((l) => l.includes(title)) ?? '';
+  if (!now) return { order: { ...was, bids: was.bids.map(() => 'pass' as const) }, stage: 'in', text };
+  return { order: now, stage: 'in', text };
 }
 
 /**

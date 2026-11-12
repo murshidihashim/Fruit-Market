@@ -11,7 +11,7 @@ import {
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, Face, Fruit } from './art';
 import { SEEN_WALK_IN, buyerCap, buyersFor, nextLorryName, stallWantText, stallWanted, LANES } from './boardModel';
-import { ART_SIZE, CardArt } from './cards';
+import { ART_SIZE, CardArt, UpgradeCard } from './cards';
 import { upgradeArt, upgradeFocus } from './deckArt';
 import { STAGE_LETTER, STAGE_WORD } from './ticket';
 import { Icon, type IconName } from './icons';
@@ -19,7 +19,7 @@ import { FavourMini } from './phoneCards';
 import { nth, pricingTable } from './game/pricingTable';
 import { nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
-import { useReach } from './game/reach';
+import { drawCloser, useReach, type Holding } from './game/reach';
 
 // ---------- favour cards ----------
 
@@ -438,6 +438,28 @@ export function eveningKept(was: EveningKept | null, key: string, pick: UpgradeI
   return el ? { key, pick, scroll: el.scrollTop } : was;
 }
 
+/** How many steps closer the evening sheet may be drawn before it scrolls (sheets.css, data-tight). */
+export const EVENING_STEPS = 4;
+/** How much taller the bar is with two buttons in it (sheets.css, data-two): the room kept for the second one. */
+const TWO_BUTTONS = 54;
+/**
+ * How much the evening sheet holds. Its parts are spread to fill the sheet (tomorrow's line lies at its foot), so the
+ * sheet's own measure never says how much room is left over: that is taken off here, from the parts themselves.
+ */
+function eveningHolds(el: HTMLElement): Holding {
+  return {
+    clientHeight: el.clientHeight,
+    get scrollHeight() {
+      const panel = el.firstElementChild;
+      if (!(panel instanceof HTMLElement)) return el.scrollHeight;
+      const st = getComputedStyle(panel);
+      let used = (parseFloat(st.paddingTop) || 0) + (parseFloat(st.paddingBottom) || 0) + (parseFloat(st.rowGap) || 0) * Math.max(0, panel.children.length - 1);
+      for (const part of Array.from(panel.children)) used += part.getBoundingClientRect().height;
+      return el.scrollHeight - Math.max(0, panel.clientHeight - used);
+    },
+  };
+}
+
 /**
  * The evening's sheet on the game table (PLAN-084): the evening laid over everything under the top bar, with its
  * buttons in the action bar's place. One main button: it builds the chosen upgrade ("Build Order Book · $3", beside
@@ -452,15 +474,27 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   const key = `${s.config.seed}:${s.day}:${p}`;
   const [pick, setPick] = useState<UpgradeId | null>(() => (kept?.key === key ? kept.pick : null));
   const root = useRef<HTMLDivElement>(null);
-  useReach(root, 'beats', true);
+  // Only an offer that can be built now stays chosen (the cash or the offers may have changed).
+  const chosen = pick && isDraftNight(s) && offersTonight(s, p).includes(pick) && canUpgrade(s, p, pick) === null ? pick : null;
+  // A night with more to show than the sheet holds is drawn closer, a step at a time (sheets.css, data-tight), before
+  // it scrolls. While an offer can still be chosen, room is kept for the second button, so choosing one never changes
+  // the step. A night that still scrolls says so at its foot (data-more) until its end is in view.
+  const canBuild = isDraftNight(s) && offersTonight(s, p).some((u) => canUpgrade(s, p, u) === null);
+  const more = () => { const el = root.current; if (el) el.toggleAttribute('data-more', el.scrollHeight - el.scrollTop - el.clientHeight > 4); };
+  useReach(root, 'beats', true, true, (el) => { drawCloser(el, eveningHolds(el), EVENING_STEPS, canBuild && !chosen ? TWO_BUTTONS : 0); more(); });
+  useLayoutEffect(more, [chosen]);
   const keep = (next: UpgradeId | null) => { kept = eveningKept(kept, key, next, root.current); };
   useLayoutEffect(() => {
     // Back after a moment away: at the place it was scrolled to.
     if (kept?.key === key && kept.scroll > 0 && root.current) root.current.scrollTop = kept.scroll;
   }, []);
-  // Only an offer that can be built now stays chosen (the cash or the offers may have changed).
-  const chosen = pick && isDraftNight(s) && offersTonight(s, p).includes(pick) && canUpgrade(s, p, pick) === null ? pick : null;
-  const choose = (u: UpgradeId | null) => { setPick(u); keep(u); };
+  // Drawn compact (the closest step), an offer shows one line of its text: choosing it opens its whole card.
+  const [open, setOpen] = useState<UpgradeId | null>(null);
+  const choose = (u: UpgradeId | null) => {
+    setPick(u);
+    keep(u);
+    if (u && root.current?.dataset.tight === String(EVENING_STEPS)) setOpen(u);
+  };
   const build = () => {
     if (!chosen) return;
     // Where the card lies now: it travels from there to the stall once it is built (dayBeats.ts).
@@ -472,8 +506,9 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
     <>
       {/* With an upgrade chosen the bar holds two buttons. It grows upward over the sheet's foot, never downward:
           the table's rows under the sheet keep their places (sheets.css, data-two). */}
-      <div class="mid-panel mid-evening fm-sheet sh-evening" data-two={chosen ? '' : undefined} ref={root} onScroll={() => keep(chosen)}>
+      <div class="mid-panel mid-evening fm-sheet sh-evening" data-two={chosen ? '' : undefined} ref={root} onScroll={() => { keep(chosen); more(); }}>
         <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} />
+        <i class="ev-more" aria-hidden="true" />
       </div>
       {/* Only the main button is a `.btn` (the browser tests press that one). */}
       <div class="pp-lock ev-lock" data-two={chosen ? '' : undefined}>
@@ -484,6 +519,15 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
           </>
         ) : <button type="button" class="btn primary wide big" onClick={onDone}>Lights out <small class="btn-sub">next day</small></button>}
       </div>
+      {/* The whole card of a compact offer, opened over the table like a favour card: a tap beside it closes it too. */}
+      {open && (
+        <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={() => setOpen(null)}>
+          <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
+            <UpgradeCard id={open} eager />
+            <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={() => setOpen(null)}>Close</button></div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -247,15 +247,15 @@ describe('the night: the panel and its slide on one clock', () => {
     return { start: start.at, length: start.slide as number, rest: rest.at, end: Date.now() - t0, first: slides[0].slide };
   }
 
-  it('at normal speed: dusk, a 1.5 s slide, then the panel goes, 3.7 s in all as before', async () => {
+  it('at normal speed: dusk, a 0.9 s slide, then dawn, 2.5 s in all (PLAN-085: it was 3.7 s)', async () => {
     fakeClock(false);
     const n = await night();
     expect(n.first).toBeNull();
     expect(n).toMatchObject({ start: NIGHT.dusk, length: NIGHT.slide });
     expect(n.rest).toBeGreaterThanOrEqual(n.start + n.length);
     expect(n.end).toBeGreaterThan(n.rest);
-    expect(n.end).toBeGreaterThanOrEqual(3650);
-    expect(n.end).toBeLessThanOrEqual(3750);
+    expect(n.end).toBeGreaterThanOrEqual(2450);
+    expect(n.end).toBeLessThanOrEqual(2550);
   });
 
   it('with "Fast rivals" on, the slide is shorter too and still ends before the panel goes (it used to be cut off)', async () => {

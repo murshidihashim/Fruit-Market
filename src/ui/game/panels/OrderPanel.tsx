@@ -12,7 +12,10 @@ import { Face, Fruit } from '../../art';
 import { nextLorry } from '../../boardModel';
 import { OrderTicket } from '../../phoneCards';
 import type { OrderShow } from '../dayBeats';
-import { useReach } from '../reach';
+import { drawCloser, useReach } from '../reach';
+
+/** How many steps closer the bid sheet may be drawn before the part above your bid scrolls (sheets.css, data-tight). */
+export const BID_STEPS = 3;
 
 /** "3 mangoes", "1 apple". */
 const pieces = (n: number, f: keyof typeof FRUIT) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
@@ -107,7 +110,13 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
   const mine = o.bids[p];
   const [v, setV] = useState(typeof mine === 'number' ? mine : Math.max(1, o.ceiling - 2));
   const root = useRef<HTMLDivElement>(null);
-  useReach(root, 'street', true);
+  // On a short phone, or with many stalls, the card, the bidders and the note hold more than the sheet shows: the
+  // sheet is then drawn closer, a step at a time (sheets.css, data-tight), before anything scrolls. Only once the
+  // sheet's reach has been measured, and again when the bids are turned over (the part above your bid changes).
+  const top = useRef<HTMLDivElement>(null);
+  const reached = useRef(false);
+  const closer = () => { if (root.current && top.current) drawCloser(root.current, top.current, BID_STEPS); };
+  useReach(root, 'street', true, true, () => { reached.current = true; closer(); });
   const stake = shown ? o.staked ?? o.stake : orderStake(s, p);
   // Rules 18: a stall may only bid with the stake in cash. It can always pass.
   const hint = shown ? null : stakeHint(s, p);
@@ -123,9 +132,11 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
   const again = !!waiting && !!canChange && !shown;
   // On a short phone the card and the bidders scroll above your bid. As the bids are turned over the bidders are
   // brought into view, so the winner never lies under the foot of the sheet.
-  const top = useRef<HTMLDivElement>(null);
   const turning = !!shown;
-  useLayoutEffect(() => { if (turning && top.current) top.current.scrollTop = top.current.scrollHeight; }, [turning]);
+  useLayoutEffect(() => {
+    if (reached.current) closer();
+    if (turning && top.current) top.current.scrollTop = top.current.scrollHeight;
+  }, [turning, shown?.stage]);
   return (
     <>
     <div class="price-panel order-panel mid-panel tk-panel fm-sheet sh-order" data-a="order-panel" data-stage={shown ? shown.stage : 'bid'} ref={root}>

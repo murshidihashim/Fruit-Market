@@ -29,19 +29,19 @@ export async function submitDaily(g: GameState): Promise<BoardResult> {
       body: JSON.stringify({ date: g.config.daily, name: me.name, actions: g.moves ?? [], rv: RULES_VERSION, av: AI_VERSION, claim: deviceClaim() }),
     });
     const body = (await res.json()) as BoardResult & { error?: string };
-    return res.ok ? body : { top: [], error: body.error ?? 'Could not submit' };
+    return res.ok ? body : { top: [], error: body.error ?? 'Your score could not be sent.' };
   } catch {
-    return { top: [], error: 'Offline: score not submitted' };
+    return { top: [], error: 'Offline. Your score was not sent.' };
   }
 }
 
 export async function fetchDaily(date: string): Promise<BoardResult> {
-  if (!serverBase()) return { top: [], error: 'offline' };
+  if (!serverBase()) return { top: [], error: 'Leaderboard needs an internet connection' };
   try {
     const res = await fetch(`${serverBase()}/api/daily?date=${date}`);
     return (await res.json()) as BoardResult;
   } catch {
-    return { top: [], error: 'offline' };
+    return { top: [], error: 'Leaderboard needs an internet connection' };
   }
 }
 

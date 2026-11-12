@@ -1,0 +1,135 @@
+/* =====================================================================
+   Fruit Market · the day's takings (PLAN-085; panels/SalesSummary.tsx).
+   Drawn to the approved board (docs/studio/review-18/mockups, Takings): a sheet over the table from the customer band
+   down to your shelf, with the main button under it. On it, top to bottom: "The rush is over" with today's customers
+   as small portraits; the ledger and "Up today"; every stall's day and cash in order; a favour card won today; what
+   tonight does to the fruit left on your shelf. Sizes are the board's at 390 x 844.
+   The table underneath is not laid out again: the sheet stays in the middle cell and reaches over the rows above and
+   below it by a negative margin measured from the rows themselves (game/reach.ts), as the morning's sheet does
+   (sheets.css). Where there is less room the takings are drawn closer, a step at a time (data-tight, written by
+   SalesSummary.tsx), before anything scrolls.
+   Nothing here moves by itself: the day's sheet (daysheet.css) lies under the takings and is the panel that slides
+   (sheet.ts); the takings are uncovered as the last customer's card leaves and go when the day is closed.
+   Imported after ticket.css and sheets.css, so a rule here wins over theirs. Colours come from palette.css only.
+   ===================================================================== */
+#app .tkt > .centre > .sales-card {
+  z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px));
+  --g: 10px; --side: 12px; --sh: 40px;
+  gap: 0; padding: 0 0 var(--g); font: 600 0.75rem/1.3 var(--tk-txt); letter-spacing: 0; text-align: left;
+}
+#app .tkt .sales-card > * { flex: none; }
+#app .tkt .sales-card *, #app .tkt .sales-card *::before, #app .tkt .sales-card *::after { box-sizing: border-box; }
+#app .tkt .sales-card :where(i, em) { font-style: normal; }
+#app .tkt .sales-card .tk-label { font-size: 0.625rem; line-height: 1.2; }
+
+/* ---------- the rush is over: today's customers, the ones who bought nothing faded ---------- */
+#app .tkt .tg-strip { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 8px var(--side); background: var(--tk-kraft); }
+#app .tkt .tg-strip .tk-label { min-width: 0; }
+#app .tkt .tg-strip .tk-label > span { white-space: nowrap; }
+#app .tkt .tg-queue { flex: none; margin-left: auto; display: flex; gap: 5px; }
+#app .tkt .tg-face { flex: none; width: 30px; height: 30px; display: block; overflow: hidden; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .tg-face.no .x-art { opacity: 0.35; }
+#app .tkt .tg-queue.many { gap: 4px; }
+#app .tkt .tg-queue.many .tg-face { width: 24px; height: 24px; }
+
+/* ---------- the ledger ---------- */
+#app .tkt .tg-led { display: flex; flex-direction: column; margin: var(--g) var(--side) 0; border: 2px solid var(--tk-ink); }
+#app .tkt .tg-hd {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 9px;
+  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase;
+}
+#app .tkt .tg-hd b { flex: none; font: inherit; letter-spacing: inherit; color: var(--tk-yel); }
+#app .tkt .tg-rows { display: flex; flex-direction: column; }
+#app .tkt .tg-row { display: flex; align-items: center; gap: 8px; min-height: 31px; padding: 7px 9px; border-bottom: 1.5px dashed var(--tk-ink); }
+#app .tkt .tg-row > b { flex: none; margin-left: auto; font: 400 1.0625rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
+#app .tkt .tg-row > b.good { color: var(--c-0e9a58); }
+#app .tkt .tg-row > b.bad { color: var(--tk-red-d); }
+#app .tkt .tg-row > b.flat { color: var(--tk-slate); }
+#app .tkt .tg-ic { flex: none; display: inline-flex; align-items: center; gap: 2px; }
+#app .tkt .tg-ic > span { display: inline-flex; align-items: center; gap: 1px; margin-right: 3px; font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tg-net { display: flex; align-items: center; gap: 8px; padding: 9px; background: var(--tk-yel); font: 400 0.8125rem/1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase; }
+#app .tkt .tg-net > b { flex: none; margin-left: auto; font: 400 1.625rem/1 var(--tk-disp); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+
+/* ---------- every stall after today, first to last; your row on mustard ---------- */
+#app .tkt .tg-stalls { display: flex; flex-direction: column; gap: 5px; padding: var(--g) var(--side) 0; }
+#app .tkt .tg-lab { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#app .tkt .tg-lab > span { flex: none; color: var(--tk-slate); }
+#app .tkt .tg-list { all: unset; display: flex; flex-direction: column; gap: 5px; }
+#app .tkt .tg-stall {
+  all: unset; height: var(--sh); display: flex; align-items: center; gap: 7px; padding: 0 7px;
+  border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink);
+}
+#app .tkt .tg-stall.me { background: var(--tk-yel); }
+#app .tkt .tg-pl { flex: none; width: 20px; height: 20px; display: grid; place-items: center; background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); }
+#app .tkt .tg-stall .xf { flex: none; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; background: var(--tk-paper); }
+#app .tkt .tg-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .tg-td { flex: none; margin-left: auto; color: var(--tk-slate); font: 700 0.6875rem/1 var(--tk-txt); font-variant-numeric: tabular-nums; }
+#app .tkt .tg-stall.me .tg-td { color: var(--tk-ink); }
+#app .tkt .tg-cash { flex: none; min-width: 44px; text-align: right; font: 400 1rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
+#app .tkt .tg-rank { color: var(--tk-slate); }
+
+/* ---------- a favour card won today ---------- */
+#app .tkt .tg-won { display: flex; align-items: center; gap: 8px; margin: var(--g) var(--side) 0; padding: 6px 8px; border: 2px dashed var(--tk-ink); }
+#app .tkt .tg-won + .tg-won { margin-top: 6px; }
+#app .tkt .tg-tag { flex: none; max-width: 56px; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1.1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .tg-won .x-art { flex: none; width: 54px; height: 34px; border: 1.5px solid var(--tk-ink); }
+#app .tkt .tg-won > span { min-width: 0; }
+
+/* ---------- your shelf after tonight ---------- */
+#app .tkt .tg-shelf { display: flex; flex-direction: column; gap: 5px; margin: var(--g) var(--side) 0; padding: 8px 9px; background: var(--tk-kraft); }
+#app .tkt .tg-won + .tg-shelf { margin-top: 6px; }
+#app .tkt .tg-shelf .tg-lab > span { flex: 0 1 auto; min-width: 0; color: var(--tk-ink); text-align: right; }
+#app .tkt .tg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+#app .tkt .tg-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border: 2px solid var(--tk-ink); background: var(--tk-paper); font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
+#app .tkt .tg-chip.bad { background: var(--tk-yel); }
+#app .tkt .tg-chip > b { font-weight: 800; }
+#app .tkt .tg-chip .tk-lamp { border-width: 1px; background: var(--tk-paper); }
+#app .tkt .tg-chip.st-unripe .tk-lamp { background: var(--c-cfeedd); }
+#app .tkt .tg-chip.st-notso .tk-lamp { background: var(--c-fbd5d2); }
+/* tonight in the game's own words (and the juice money) */
+#app .tkt .sales-card .tg-shelf :is(.sc-waste, .sc-juice) { all: unset; display: block; font: 600 0.75rem/1.3 var(--tk-txt); color: var(--tk-ink); }
+
+/* ---------- less room: drawn closer, a step at a time ----------
+   1: the spacing.  2: smaller rows.  3: without the customers' strip.  4: the stalls as plain lines, no faces. */
+#app .tkt > .centre > .sales-card[data-tight] { --g: 6px; --sh: 34px; }
+#app .tkt .sales-card[data-tight] .tg-strip { min-height: 38px; padding-top: 5px; padding-bottom: 5px; }
+#app .tkt .sales-card[data-tight] .tg-face { width: 26px; height: 26px; }
+#app .tkt .sales-card[data-tight] .tg-queue.many .tg-face { width: 22px; height: 22px; }
+#app .tkt .sales-card[data-tight] .tg-hd { padding-top: 5px; padding-bottom: 5px; }
+#app .tkt .sales-card[data-tight] .tg-row { min-height: 25px; padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sales-card[data-tight] .tg-net { padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sales-card[data-tight] .tg-net > b { font-size: 1.375rem; }
+#app .tkt .sales-card[data-tight] :is(.tg-stalls, .tg-list) { gap: 4px; }
+#app .tkt .sales-card[data-tight] .tg-stall .xf { width: 24px !important; height: 24px !important; }
+#app .tkt .sales-card[data-tight] .tg-won { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sales-card[data-tight] .tg-shelf { gap: 4px; padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sales-card[data-tight] .tg-chip { padding-top: 2px; padding-bottom: 2px; }
+
+#app .tkt > .centre > .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) { --g: 5px; --sh: 28px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-row { min-height: 21px; padding-top: 2px; padding-bottom: 2px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-row > b { font-size: 0.9375rem; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-net { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-net > b { font-size: 1.25rem; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) :is(.tg-stalls, .tg-list) { gap: 3px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-stall .xf { width: 20px !important; height: 20px !important; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-pl { width: 18px; height: 18px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-cash { font-size: 0.875rem; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-won .x-art { width: 40px; height: 26px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-shelf { padding-top: 4px; padding-bottom: 4px; }
+
+#app .tkt .sales-card:is([data-tight='3'], [data-tight='4']) .tg-strip { display: none; }
+
+#app .tkt > .centre > .sales-card[data-tight='4'] { --g: 4px; --sh: 21px; }
+#app .tkt .sales-card[data-tight='4'] :is(.tg-stalls, .tg-list) { gap: 2px; }
+#app .tkt .sales-card[data-tight='4'] .tg-stall { border-width: 1.5px; }
+#app .tkt .sales-card[data-tight='4'] .tg-stall .xf { display: none; }
+#app .tkt .sales-card[data-tight='4'] .tg-pl { width: 15px; height: 15px; }
+#app .tkt .sales-card[data-tight='4'] .tg-won { padding-top: 2px; padding-bottom: 2px; }
+#app .tkt .sales-card[data-tight='4'] .tg-won .x-art { display: none; }
+#app .tkt .sales-card[data-tight='4'] .tg-tag { max-width: none; }
+
+/* a narrow phone: the same sheet, a little tighter at the sides (as the rest of the table, ticket.css) */
+@media (max-width: 379px) {
+  #app .tkt > .centre > .sales-card { --side: 8px; padding-left: 0; padding-right: 0; }
+  #app .tkt .tg-stall { gap: 6px; padding: 0 6px; }
+}
