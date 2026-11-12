@@ -11,7 +11,7 @@ export function newsChips(e: EventCard | null | undefined): NewsChip[] {
   if (!e) return [];
   const out: NewsChip[] = [];
   if (e.priceAll) out.push({ big: signed(e.priceAll, true), small: 'Every customer pays' });
-  for (const f of LANES) if (e.price?.[f]) out.push({ fruit: f, big: signed(e.price[f]!, true), small: `Per ${FRUIT[f].name.toLowerCase()}` });
+  for (const f of LANES) if (e.price?.[f]) out.push({ fruit: f, big: signed(e.price[f]!, true), small: `a ${FRUIT[f].name.toLowerCase()}` });
   if (e.cost) out.push({ big: signed(e.cost, true), small: 'Wholesale Market' });
   if (e.maxPrice) out.push({ big: 'Limit', small: 'On every price' });
   if (e.inspector) out.push({ big: `−$${e.inspector}`, small: 'Per Soft piece' });

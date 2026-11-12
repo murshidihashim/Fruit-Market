@@ -41,7 +41,7 @@ function useArtReady(src: string | null): boolean {
 /** Rules 18, out of cash: who the market topped up at dawn, in words (null when nobody was). */
 export function topUpLine(s: GameState, viewer: number): string | null {
   if (!s.dayTopUps || !s.dayTopUps.some((x) => x > 0)) return null;
-  return s.players.map((pl, i) => (s.dayTopUps![i] ? `${i === viewer ? 'Your shelf was empty, so you were topped up' : `${pl.name} had an empty shelf and was topped up`} to $${TOP_UP} (+$${s.dayTopUps![i]})` : '')).filter(Boolean).join(' · ');
+  return s.players.map((pl, i) => (s.dayTopUps![i] ? `${i === viewer ? 'Your shelf was empty, so the market topped you up' : `${pl.name} had an empty shelf and was topped up`} to $${TOP_UP} (+$${s.dayTopUps![i]})` : '')).filter(Boolean).join(' · ');
 }
 
 /** Health Inspector: who was fined at the start of today, in words (null when nobody was). */
@@ -73,7 +73,7 @@ export function dawnLines(s: GameState, viewer: number): DawnLine[] {
   for (const p of seats) {
     const n = s.dayTopUps?.[p] ?? 0;
     if (n > 0) out.push({ p, kind: 'up', amount: n, text: p === viewer
-      ? `You are topped up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
+      ? `The market tops you up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
       : `${s.players[p].name} had an empty shelf and was topped up to $${TOP_UP}` });
   }
   return out;

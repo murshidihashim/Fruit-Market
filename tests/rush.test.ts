@@ -120,7 +120,7 @@ describe('one card for each customer', () => {
     const order = find(all, (s) => !!s.results!.order);
     const o = order.cards.find((c) => c.kind === 'order')!;
     expect(order.cards[0]).toBe(o); // it stands first in the row and is served first
-    expect(o.blocks[0].heading).toMatch(/^Wants \d+ [a-z]+ · Fresh or Okay$/);
+    expect(o.blocks[0].heading).toMatch(/^Wants \d+ [a-z]+ · fresh or okay$/);
     const r = order.s.results!.order!;
     expect(o.extras).toEqual(r.back > 0 ? [{ player: r.holder, amount: r.back }] : []);
     const guest = find(all, (_s, cs) => cs.some((c) => c.kind === 'guest'));

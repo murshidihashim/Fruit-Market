@@ -38,7 +38,7 @@ export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer:
             <span class="tk-crate-name"><Swatch p={x.player} size={18} /><span>{pl.name}</span>{x.sealed && <i class="tk-sealed" aria-hidden="true">sealed</i>}</span>
             <span class="tk-crate-count">
               {waiting ? <small>{opening ? 'filling…' : 'ready'}</small>
-                : n ? <><b>{n}</b><small>{n === 1 ? 'piece' : 'pieces'}</small></> : <small>empty</small>}
+                : n ? <><b>{n}</b><small>{n === 1 ? 'piece out' : 'pieces out'}</small></> : <small>nothing out</small>}
             </span>
           </div>
         );

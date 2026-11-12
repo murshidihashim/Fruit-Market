@@ -73,7 +73,7 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   const on = lorryRow(stalls);
   const said = LANES.map((f) => piecesOf(today ? today[f] : card ? card.table[on][f] : 0, f).toLowerCase()).join(', ');
   // What arrives green and when it ripens, then the Seconds Lorry's word on the rest.
-  const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive Green`] : [];
+  const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive green`] : [];
   const notes = [first, green ? `Ripe in ${ripeIn} nights` : '', ...rest].filter(Boolean);
   return (
     <article class="wc wc-lorry">
@@ -112,7 +112,7 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake, held }: {
         <div class="wc-main">
           <b class="wc-ttl wc-ttl-o">{card.title}</b>
           <span class={`wc-rw ${laneClass(card.fruit)}`}><FruitSvg id={card.fruit} size={22} alt="" /><Dots n={qty} label={piecesOf(qty, card.fruit)} /></span>
-          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · Fresh or Okay`}</span>
+          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · fresh or okay`}</span>
         </div>
       </div>
       <div class="wc-stats">

@@ -57,7 +57,7 @@ export function shadeOf(s: GameState, p: number): FruitId | null {
 /** Does a night follow today? Not after the final day. */
 export const nightFollows = (s: GameState): boolean => s.phase !== 'over' && s.day < s.config.days;
 
-const WORD: Record<Stage, string> = { unripe: 'Green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
+const WORD: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
 
 /** How a chip is tinted: plain, good news (ripe tomorrow, juice), a warning (spoils tonight). */
 export type ChipTone = 'plain' | 'good' | 'warn';

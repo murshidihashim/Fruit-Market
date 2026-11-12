@@ -90,7 +90,7 @@ export function canGetLine(s: GameState, p: number, o: Standing): string {
   const lorry = nextLorry(s)?.find((l) => l.f === o.fruit);
   return [
     `On your shelf: ${count(s.players[p].stock, o.fruit)}`,
-    `at the Wholesale Market today: ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
+    `at the market today: ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
     ...(lorry ? [`on tomorrow's lorry: ${lorry.n}`] : []),
   ].join(' · ');
 }

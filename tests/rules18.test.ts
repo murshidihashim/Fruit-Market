@@ -168,7 +168,7 @@ describe('A. out of cash: the top-up', () => {
     const s = bare(2);
     s.players[0].cash = 1;
     const g = passEvening(evening(s, 1));
-    expect(topUpLine(publicView(g, 0), 0)).toBe('Your shelf was empty, so you were topped up to $5 (+$4)');
+    expect(topUpLine(publicView(g, 0), 0)).toBe('Your shelf was empty, so the market topped you up to $5 (+$4)');
     expect(topUpLine(publicView(g, 1), 1)).toBe('P0 had an empty shelf and was topped up to $5 (+$4)');
     // Nothing is said on a morning without a top-up.
     expect(topUpLine(newGame(humans(2)), 0)).toBeNull();
@@ -1201,7 +1201,7 @@ describe('K. Favoured Trade after prices flip', () => {
     expect(tieWords(s, 2)).toBe('apples at $6 with P0 and P1');
     const mine = toStaticHtml(h(TiePanel, { s: publicView(s, 2), viewer: 2, asked: 2, onDecide: () => undefined }));
     // PLAN-085: the question is the card itself, under the open rows
-    expect(mine).toContain('You, P0 and P1 all set $6 for apples');
+    expect(mine).toContain('You, P0 and P1 all ask $6 for apples');
     expect(mine).toContain('A tied price: apples at $6 with P0 and P1. Play Favoured Trade or keep it');
     expect(mine).toContain('Play Favoured Trade and you sell first, on every tied price today.');
     expect(mine).toContain('Without it');
@@ -1211,7 +1211,7 @@ describe('K. Favoured Trade after prices flip', () => {
     expect(mine).toContain('data-a="tie-note"');
     const theirs = toStaticHtml(h(TiePanel, { s: publicView(s, 0), viewer: 0, asked: 2 }));
     expect(theirs).toContain('P2 is deciding');
-    expect(theirs).toContain('P2, you and P1 all set $6 for apples');
+    expect(theirs).toContain('P2, you and P1 all ask $6 for apples');
     expect(theirs).toContain('P2 holds Favoured Trade and is deciding whether to play it.');
     expect(theirs).not.toContain('Play it');
     expect(theirs).not.toContain('Without it');

@@ -76,14 +76,14 @@ describe('every crate is open, and your price rows', () => {
     // PLAN-085: the rivals' crates are the rival boxes of the table now; the sheet holds your own rows, how a tie
     // falls, and (where it lies over the rival boxes, on a short phone) how many pieces each rival put out
     expect(html).toContain('Your secret prices');
-    expect(html).toContain('Saleh 3 · Kiki 1</span>'); // how many, never which fruit
+    expect(html).toContain('Saleh 3 · Kiki 1 out'); // how many, never which fruit
     expect(html.match(/class="ds-prow /g)).toHaveLength(2); // your watermelons and your apples
     expect(html.match(/class="ds-dial"/g)).toHaveLength(2);
-    expect(html).toContain('2 in crate');
+    expect(html).toContain('2 out');
     expect(html).toContain('The fresher piece sells first, then the Haggler, then whoever bought earlier.');
     expect(html).not.toMatch(/\$97|>97</);
-    expect(html).toContain('Seal prices');
-    expect(html).toContain('2 prices');
+    expect(html).toContain('Ring the bell');
+    expect(html).toContain('seal 2 prices');
     // once you have rung the bell your tags lie face down: no price of yours is drawn, and nothing can be changed
     const own = startingPrices(s, 0);
     const sealed = toStaticHtml(h(PricePanelView, { s, p: 0, vals: own, notice: false, sealed: true, onPrice: () => undefined, onNotice: () => undefined }));

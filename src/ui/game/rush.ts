@@ -131,7 +131,7 @@ function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, piece
   });
   return {
     line: l, fruit: l.fruit, want: l.want, rows,
-    heading: `Wants ${l.want} ${fruitWord(l.fruit, l.want)} · ${c.order ? 'Fresh or Okay' : 'cheapest first'}`,
+    heading: `Wants ${l.want} ${fruitWord(l.fruit, l.want)} · ${c.order ? 'fresh or okay' : 'cheapest first'}`,
     got: rows.reduce((a, x) => a + x.sold, 0),
     none: l.offers.length ? null : story.headline,
     story: [story.headline, story.detail].filter(Boolean).join(' '),

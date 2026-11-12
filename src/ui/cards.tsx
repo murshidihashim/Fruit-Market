@@ -222,7 +222,7 @@ const SIZES = Array.from({ length: MAX_STALLS - MIN_STALLS + 1 }, (_, i) => (MIN
 export const lorryRow = (stalls: number): Stalls => Math.min(MAX_STALLS, Math.max(MIN_STALLS, stalls)) as Stalls;
 /** A lorry card's footer: what arrives green, and the Seconds Lorry's word on the rest. */
 export function lorryNotes(card: Pick<FarmerCard, 'unripe' | 'okay'>): string[] {
-  return [card.unripe ? `${FRUIT[card.unripe].plural} arrive Green` : '', card.okay ? (card.unripe ? 'Other fruit arrives Okay' : 'Fruit arrives Okay') : ''].filter(Boolean);
+  return [card.unripe ? `${FRUIT[card.unripe].plural} arrive green` : '', card.okay ? (card.unripe ? 'Other fruit arrives okay' : 'Fruit arrives okay') : ''].filter(Boolean);
 }
 
 /**
@@ -302,7 +302,7 @@ export function FavourCard({ id, eager, class: cls }: { id: FavourId; eager?: bo
  * card's own text (data.ts UPGRADES). The numbers are the rules' own constants.
  */
 export const UPGRADE_FIGURE: Record<UpgradeId, { big: string; small: string }> = {
-  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each Okay or Soft piece a customer buys' },
+  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each okay or soft piece sold' },
   barrow: { big: `${BARROW_BUY}`, small: 'Pieces a day' },
   premium: { big: '+$1', small: 'On a Fresh piece' },
   ripening: { big: '1 night', small: 'Green mangoes ripen' },

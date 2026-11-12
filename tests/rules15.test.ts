@@ -143,8 +143,8 @@ describe('on screen', () => {
 
   it('a rival crate is shut while prices are set: how many pieces, not which fruit', () => {
     const html = toStaticHtml(h(PricingTableView, { s: view(bell({ mango: 2 })), viewer: 0 }));
-    expect(html).toContain('2</b><small>pieces</small>');
-    expect(html).toContain('1</b><small>piece</small>');
+    expect(html).toContain('2</b><small>pieces out');
+    expect(html).toContain('1</b><small>piece out');
     expect(html).toContain('which fruit is secret until the bell');
     expect(html).not.toMatch(/mango|blueberr/i);
     expect(html).not.toContain('97');
@@ -159,7 +159,7 @@ describe('on screen', () => {
 
   it('a rival box says how many pieces are out, never what is on the shelf; every crate shows once the bell has rung', () => {
     const s = bell({ apple: 1, mango: 1 });
-    expect(rivalNote(view(s), 1, false)).toBe('2 in crate');
+    expect(rivalNote(view(s), 1, false)).toBe('2 out');
     expect(rivalNote(view({ ...s, phase: 'buy' }), 1, false)).toBe('');
     expect(rivalNote(view({ ...s, phase: 'morning' }), 1, false)).toBe('');
     const rung = { ...s, phase: 'reveal' as const, bids: [[{ fruit: 'apple' as const, price: 6 }], [{ fruit: 'apple' as const, price: 5 }, { fruit: 'mango' as const, price: 10 }], [{ fruit: 'blueberry' as const, price: 4 }]] };

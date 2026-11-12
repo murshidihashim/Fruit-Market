@@ -133,7 +133,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">
-        <b class="tk-label" data-a="truck">Wholesale Market</b>
+        <b class="tk-label" data-a="truck">Wholesale market</b>
         {lorry !== undefined && <Lorry here={lorry} />}
         {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
@@ -196,11 +196,11 @@ export function SeatBoard({ b }: { b: Board }) {
  *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
 export function rivalNote(s: GameState, p: number, active: boolean): string {
   if (s.phase === 'evening') return active ? 'deciding…' : 'waiting';
-  if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} in crate` : 'empty'; }
+  if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} out` : 'none out'; }
   if (s.phase === 'reveal') {
     // At the bell the crates are open; the pieces still out drop as each customer is served (stockShown.ts).
     const out = FRUITS.reduce((a, f) => a + Math.max(0, forSale(s, p, f) - shownSold(s.results, p, f)), 0);
-    return out ? `${out} in crate` : 'empty';
+    return out ? `${out} out` : 'none out';
   }
   return '';
 }

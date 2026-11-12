@@ -54,7 +54,7 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     s.players[0].stock.apple[FRUIT.apple.ripe.length - 1] = 2; // fresh, in the lorry's box
     s.players[0].stock.blueberry[0] = 1; // soft: its last day
     const html = toStaticHtml(h(MyStall, { s, p: 0 }));
-    expect(html).toContain('>Fresh tomorrow<');
+    expect(html).toContain('>fresh tomorrow<');
     expect(html).toContain('>spoils tonight<');
     expect(html).toMatch(/class="tb-chip stk-f[^"]*"[^>]*data-a="p0-apple"/);
     expect(html).toMatch(/class="tb-chip stk-f[^"]*warn[^"]*"[^>]*data-a="p0-blueberry"/);

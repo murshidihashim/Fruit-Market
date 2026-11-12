@@ -97,17 +97,17 @@ describe('Fill your crate (rows since PLAN-072)', () => {
     const html = toStaticHtml([h(StallPanelView, { s, p: 0, crate, onStep: () => undefined }), h(StallBar, { total: 1, onSubmit: () => undefined })]);
     expect(html).toContain('Fill your crate');
     expect(html).toContain('Your crate: 1 in it');
-    expect(html).toContain('1 piece in crate');
+    expect(html).toContain('1 piece out');
     expect(html).not.toContain('Market Day');
     expect(html.match(/class="ds-srow /g)).toHaveLength(3); // the soft apple, the fresh apple and the green mango
     expect(html.match(/class="mini-step"/g)).toHaveLength(2); // the soft and the fresh apple boxes
     expect(html.match(/class="crate-piece/g)).toHaveLength(1);
-    expect(html).toContain('Crate ready');
-    expect(html).toMatch(/Mango, Green: 1 on your shelf"/);
+    expect(html).toContain('Open my stall');
+    expect(html).toMatch(/Mango, green: 1 on your shelf"/);
     // green fruit is shown but is not for sale; an older piece says what it loses
     expect(html).toMatch(/class="ds-srow mango off /);
-    expect(html).toContain('Still Green');
-    expect(html).toContain('Soft sells $2 less');
+    expect(html).toContain('Still green');
+    expect(html).toContain('soft sells $2 less');
     // a piece on its way to the crate is drawn there only when it lands
     const flying = toStaticHtml(h(StallPanelView, { s, p: 0, crate, landed: { apple: [0, 0, 0, 0, 0, 0, 0] }, onStep: () => undefined }));
     expect(flying).not.toContain('class="crate-piece');

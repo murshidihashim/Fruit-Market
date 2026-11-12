@@ -289,7 +289,7 @@ describe('what tonight does to the shelf', () => {
       for (const c of chips) if (c.bad) expect(c.next).toBeNull();
     }
     // these nights say all of these
-    for (const w of ['ripe tomorrow', 'Okay tomorrow', 'Soft tomorrow', 'spoils tonight', 'still Green tomorrow']) expect(words, w).toContain(w);
+    for (const w of ['ripe tomorrow', 'okay tomorrow', 'soft tomorrow', 'spoils tonight', 'still green tomorrow']) expect(words, w).toContain(w);
   });
 
   it('the card says it: the shelf\'s count, the chips and the night\'s own sentence', () => {

@@ -55,7 +55,7 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
   const night = tonightWord(s, p, f, pos);
   if (stage === 'unripe') {
     const nights = pos - FRUIT[f].ripe.length + 1;
-    return night.text === 'ripe tomorrow' ? 'Still Green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still Green · ripe in ${nights} nights` : 'Still Green';
+    return night.text === 'ripe tomorrow' ? 'Still green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still green · ripe in ${nights} nights` : 'Still green';
   }
   const drop = FRUIT[f].drop[pos] ?? 0;
   const best = Math.max(0, ...buyersFor(s, f).map((x) => x.max));
@@ -90,7 +90,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
     <div class={`ds-stock stall-panel ${waiting ? 'waiting' : ''}`}>
       {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
       <div class="ds-stick">
-        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} in crate</span></div>
+        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
         <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} in it`}>
           <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
           <span class="ds-pcs">
@@ -126,7 +126,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
       </div>
       <div class="ds-note">
         <b class="ds-lab">Only the crate sells today</b>
-        <span>Rivals see how many pieces are in your crate, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
+        <span>Rivals see how many pieces you put out, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
       </div>
     </div>
   );
@@ -136,7 +136,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
 export function StallBar({ total, onSubmit }: { total: number; onSubmit: () => void }) {
   return (
     <div class="pp-lock">
-      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Crate ready <small class="btn-sub">{total} in crate</small></> : 'Sell nothing today'}</button>
+      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Sell nothing today'}</button>
     </div>
   );
 }
@@ -189,7 +189,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
       </div>
       {fruits.length === 0 && <div class="ds-info">Your crate is empty today.</div>}
       {/* Only drawn where the sheet lies over the rivals' boxes (a short phone): how many pieces each put out. */}
-      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')}</span></div>}
+      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')} out</span></div>}
       <div class={`ds-rows prices n${fruits.length}`}>
         {fruits.map((f) => {
           const price = Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f));
@@ -209,7 +209,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
             <div class={`ds-prow ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
               <div class="ds-info-cell">
                 <div class="ds-out">
-                  <Fruit id={f} size={22} /><b>{out} in crate</b>
+                  <Fruit id={f} size={22} /><b>{out} out</b>
                   {dots.map((st) => <i class={`ds-lamp lg st-${st}`} aria-hidden="true">{STAGE_LETTER[st]}</i>)}
                   {out > dots.length && <em>+{out - dots.length}</em>}
                 </div>
@@ -250,7 +250,7 @@ export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; va
   return (
     <div class="pp-lock">
       {error && <div class="error">{error}</div>}
-      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Seal prices <small class="btn-sub">{posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
+      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
     </div>
   );
 }

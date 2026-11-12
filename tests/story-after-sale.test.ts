@@ -78,7 +78,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const st = explainLine(s, l, 0);
     expect(st.headline).toBe(`Price too high. ${wei} pays at most $4.`);
     expect(st.headline).not.toContain('too old');
-    expect(st.tags[0]).toBe('over top price $4');
+    expect(st.tags[0]).toBe('over $4');
     // The control: the same fresh apples at $4 sell.
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [4, 0, 0])), 0).sold).toBe(2);
   });
@@ -119,7 +119,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [7, 0, 0])), 0).sold).toBe(2); // Tan's top is $6; the display sells at $7
     const s = bell(start, 'apple', [2, 0, 0], [8, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.tags[0]).toBe('over top price $7');
+    expect(st.tags[0]).toBe('over $7');
     expect(st.headline).toContain('pays at most $7 for Fresh, with your Premium Display');
     expect(st.headline).not.toContain('too old');
   });
@@ -470,7 +470,7 @@ describe('Showdown card', () => {
     const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
     expect(html).toContain('none can sell');
     expect(html).not.toMatch(/offer 0/);
-    expect(html).toContain('over top price $4');
+    expect(html).toContain('over $4');
     expect(html).toContain('2 offered');
   });
 });
