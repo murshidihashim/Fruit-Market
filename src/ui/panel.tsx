@@ -1,23 +1,23 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
-import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { BEAT, boxOf, fly } from './anim';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { boxOf } from './anim';
 import { believe, planPrices } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
-  validatePrices, type Crate, type Customer, type GameState, type Post, type Stall,
+  validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
 import { Coin, Face, Fruit } from './art';
-import { SEEN_WALK_IN, buyerCap, buyersAt, buyersFor, demandBoard, nextLorryName, stallWanted, LANES } from './boardModel';
+import { SEEN_WALK_IN, buyerCap, buyersFor, nextLorryName, stallWantText, stallWanted, LANES } from './boardModel';
 import { ART_SIZE, CardArt } from './cards';
 import { upgradeArt, upgradeFocus } from './deckArt';
-import { fruitSvgUrl } from './fruitIcons';
-import { Lamp, STAGE_WORD, Swatch } from './ticket';
+import { STAGE_LETTER, STAGE_WORD } from './ticket';
 import { Icon, type IconName } from './icons';
 import { FavourMini } from './phoneCards';
-import { PricingTableView } from './game/panels/PricingTable';
+import { pricingTable } from './game/pricingTable';
+import { nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
 import { useReach } from './game/reach';
 
@@ -33,27 +33,10 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
   );
 }
 
-// ---------- open stalls ----------
-
-/**
- * Step 1 of selling (rules 12, PLAN-060; drawn as rows in PLAN-072): fill your crate with the exact pieces you will
- * sell today. One row for every box of your shelf that holds fruit, with − and + beside it; each + sends that piece
- * flying into your crate. Everyone sees every crate once all stalls open.
- */
-export function StallPanel({ s, p, onSubmit }: { s: GameState; p: number; onSubmit: (stall: Stall, crate: Crate) => void }) {
-  const pl = s.players[p];
-  const [crate, setCrate] = useState<Crate>(() => startingCrate(s, p));
-  const step = (f: FruitId, pos: number, d: number, from?: Element | null) => {
-    const have = pl.stock[f][pos] ?? 0;
-    setCrate((c) => {
-      const t = [...(c[f] ?? new Array(pl.stock[f].length).fill(0))];
-      t[pos] = Math.max(0, Math.min(have, t[pos] + d));
-      return { ...c, [f]: t };
-    });
-    if (d > 0 && from) flyToCrate(from, f, stageAt(f, pos));
-  };
-  return <StallPanelView s={s} p={p} crate={crate} onStep={step} onSubmit={() => onSubmit(crateCounts(crate), crate)} />;
-}
+// ---------- stocking: fill your crate (PLAN-085, the approved Stocking screen) ----------
+// Stocking and pricing are two steps of the one sheet that stays on the table from stocking to the day's takings
+// (game/panels/DaySheet.tsx holds the sheet and its state). The views here are drawn from their state alone (no
+// hooks, so tests can draw them); each has its own main button, which takes the action bar's place.
 
 /** Where filling your stall starts: nothing out (owner's choice, PLAN-061); you add each piece yourself. */
 export function startingCrate(s: GameState, p: number): Crate {
@@ -61,16 +44,36 @@ export function startingCrate(s: GameState, p: number): Crate {
   return Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Crate;
 }
 
-/** A piece of fruit travels from its shelf row into your crate: the table's shared move (anim.ts), so it keeps the
- *  table's one speed and is not drawn when motion is reduced. Nothing waits for it. */
-function flyToCrate(from: Element, f: FruitId, stage: Stage) {
-  const to = document.getElementById('my-crate');
-  if (to) void fly(from, to, <img src={fruitSvgUrl(f, stage)} alt="" width={24} height={24} />, { duration: BEAT.stock.fly, path: 'low', swell: false });
+/** The name of a box of the shelf: its fruit and its place ("apple-2"). A piece in the crate carries it, so it knows
+ *  which row it came from. */
+export const boxKey = (f: FruitId, pos: number) => `${f}-${pos}`;
+
+/** What a row of the shelf says under "2 on shelf": who wants it, what an older piece loses, what tonight does to it. */
+export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): string {
+  const stage = stageAt(f, pos);
+  const night = tonightWord(s, p, f, pos);
+  if (stage === 'unripe') {
+    const nights = pos - FRUIT[f].ripe.length + 1;
+    return night.text === 'ripe tomorrow' ? 'Still green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still green · ripe in ${nights} nights` : 'Still green';
+  }
+  const drop = FRUIT[f].drop[pos] ?? 0;
+  const best = Math.max(0, ...buyersFor(s, f).map((x) => x.max));
+  return [
+    stallWantText(s, p, f),
+    drop ? `${STAGE_WORD[stage]} sells $${drop} less` : stallWanted(s, p, f) > 0 ? `best price $${best}` : '',
+    night.text === 'spoils tonight' || night.text === 'juice tonight' ? night.text : '',
+  ].filter(Boolean).join(' · ');
 }
 
-/** The Stocking screen drawn from its state (no hooks, so tests can draw it). */
-export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
-  s: GameState; p: number; crate: Crate; onStep: (f: FruitId, pos: number, d: number, from?: Element | null) => void; onSubmit: () => void;
+/**
+ * Stocking, drawn from its state: your crate with the pieces in it, then one row for every box of your shelf that
+ * holds fruit, with − and + on the ripe ones; green fruit is shown but is not for sale. `landed`: the pieces drawn in
+ * the crate (a piece on its way there is drawn when it lands; without it, every piece of `crate`). `waiting`: your
+ * stall is open and the rivals are still opening theirs, so nothing can be changed.
+ */
+export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
+  s: GameState; p: number; crate: Crate; landed?: Crate; waiting?: boolean;
+  onStep: (f: FruitId, pos: number, d: number, row?: Element | null) => void;
 }) {
   const pl = s.players[p];
   const counts = crateCounts(crate);
@@ -80,61 +83,65 @@ export function StallPanelView({ s, p, crate, onStep, onSubmit }: {
   const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : null;
   // One row for every box of your shelf that holds fruit: the board's lane order, the freshest box first.
   const rows = LANES.flatMap((f) => pl.stock[f].map((n, pos) => ({ f, pos, n, stage: stageAt(f, pos) })).filter((x) => x.n > 0).reverse());
-  const pieces = LANES.flatMap((f) => (crate[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) }))).reverse());
+  const drawn = landed ?? crate;
+  const pieces = LANES.flatMap((f) => (drawn[f] ?? []).flatMap((n, pos) => Array.from({ length: n }, () => ({ f, pos, stage: stageAt(f, pos) }))).reverse());
   return (
-    <>
-      <div class="price-panel stall-panel mid-panel tk-panel">
-        {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
-        <div class="tk-stick">
-          <div class="tk-label-row"><b class="tk-label">Fill your crate</b><span class="tk-side">{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
-          <div class="tk-crate mine" id="my-crate" aria-label={`Your crate: ${total} out`}>
-            <span class="tk-crate-name"><Swatch p={p} size={18} /><span>Your crate</span></span>
-            <span class="tk-crate-items">
-              {pieces.length ? pieces.map((x) => <span class={`crate-piece st-${x.stage}`}><Fruit id={x.f} size={20} stage={x.stage} /></span>) : <span class="tk-crate-none">empty</span>}
-            </span>
-          </div>
+    <div class={`ds-stock stall-panel ${waiting ? 'waiting' : ''}`}>
+      {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
+      <div class="ds-stick">
+        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
+        <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} out`}>
+          <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
+          <span class="ds-pcs">
+            {pieces.length ? pieces.map((x) => <span class={`crate-piece ds-pcx st-${x.stage}`} data-box={boxKey(x.f, x.pos)}><Fruit id={x.f} size={18} stage={x.stage} /><i class={`ds-lamp st-${x.stage}`}>{STAGE_LETTER[x.stage]}</i></span>)
+              : total === 0 && <span class="ds-none">empty</span>}
+          </span>
         </div>
-        {note && <div class="tk-info warn">{note}</div>}
-        {ripe === 0 && <div class="tk-info">You have no ripe fruit to sell today.</div>}
-        <div class={`tk-rows ${rows.length > 3 ? 'many' : ''}`}>
-          {rows.map(({ f, pos, n, stage }) => {
-            const k = crate[f]?.[pos] ?? 0;
-            const sell = stage !== 'unripe';
-            const word = STAGE_WORD[stage];
-            const drop = FRUIT[f].drop[pos] ?? 0;
-            const wanted = stallWanted(s, p, f);
-            return (
-              <div class={`tk-row ${f} ${sell ? '' : 'off'} ${k ? 'in' : ''}`} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
-                <div class="tk-row-info">
-                  <Lamp stage={stage} size={20} /><Fruit id={f} size={26} stage={stage} />
-                  <span class="tk-row-text"><b>{n} on shelf</b><small>{sell ? `${wanted} wanted${drop ? ` · sells $${drop} less` : ''}` : 'still green'}</small></span>
-                </div>
-                {sell && (
-                  <span class="mini-step">
-                    <button type="button" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={() => onStep(f, pos, -1)}>−</button>
-                    <b><span>{k}</span><small>in crate</small></b>
-                    <button type="button" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.tk-row'))}>+</button>
-                  </span>
-                )}
+      </div>
+      {note && <div class="ds-info warn">{note}</div>}
+      {ripe === 0 && <div class="ds-info">You have no ripe fruit to sell today.</div>}
+      <div class={`ds-rows ${rows.length > 4 ? 'many' : ''}`}>
+        {rows.map(({ f, pos, n, stage }) => {
+          const k = crate[f]?.[pos] ?? 0;
+          const sell = stage !== 'unripe';
+          const word = STAGE_WORD[stage];
+          return (
+            <div class={`ds-srow ${f} ${sell ? '' : 'off'} ${k ? 'in' : ''}`} data-box={boxKey(f, pos)} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
+              <div class="ds-info-cell">
+                <i class={`ds-lamp lg st-${stage}`} aria-hidden="true">{STAGE_LETTER[stage]}</i><Fruit id={f} size={26} stage={stage} />
+                <span class="ds-txt"><b>{n} on shelf</b><span>{shelfRowText(s, p, f, pos)}</span></span>
               </div>
-            );
-          })}
-        </div>
-        {rows.length <= 3 && <p class="tk-note">Only the crate can sell today. Rivals will see how many pieces you put out, not which fruit, and never your price.</p>}
+              {sell && !waiting && (
+                <span class="mini-step">
+                  <button type="button" class="ds-st" aria-label={`One less ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k <= 0} onClick={(e) => onStep(f, pos, -1, e.currentTarget.closest('.ds-srow'))}>−</button>
+                  <b class="ds-amt"><span>{k}</span><small>in crate</small></b>
+                  <button type="button" class="ds-st" aria-label={`One more ${word} ${FRUIT[f].name.toLowerCase()}`} disabled={k >= n} onClick={(e) => onStep(f, pos, 1, e.currentTarget.closest('.ds-srow'))}>+</button>
+                </span>
+              )}
+              {sell && waiting && <b class="ds-amt still"><span>{k}</span><small>in crate</small></b>}
+            </div>
+          );
+        })}
       </div>
-      <div class="pp-lock">
-        <button class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+      <div class="ds-note">
+        <b class="ds-lab">Only the crate sells today</b>
+        <span>Rivals see how many pieces you put out, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
       </div>
-    </>
+    </div>
   );
 }
 
-// ---------- pricing ----------
+/** Stocking's main button, in the action bar's place. */
+export function StallBar({ total, onSubmit }: { total: number; onSubmit: () => void }) {
+  return (
+    <div class="pp-lock">
+      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+    </div>
+  );
+}
 
-/**
- * Step 2: one secret price per fruit you put out. The bell reveals every stall's prices at once.
- * Like the stall panel: compact rows in the middle of the table, the Seal button in the action bar's place.
- */
+// ---------- pricing (PLAN-085, the approved Pricing screen) ----------
+
 /** "The Bell" notice never opens by itself (owner, PLAN-064; it opened on Day 1 before): only from the i button. */
 export const bellOpensOnStart = (_s: GameState): boolean => false;
 
@@ -144,82 +151,109 @@ export function startingPrices(s: GameState, p: number): Record<string, number> 
   return Object.fromEntries(FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => [f, plan.find((b) => b.fruit === f)?.price ?? minPrice(s, f)]));
 }
 
-/** `waiting`: your stall is open and the rivals are still opening theirs (PLAN-065). The same panel stays on screen
- *  into pricing; the rivals' crates show what is in them as soon as pricing starts. */
-export function PricePanel({ s, p, onSubmit, waiting }: { s: GameState; p: number; onSubmit: (posts: Post[]) => void; waiting?: boolean }) {
-  const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, p));
-  // Prices are suggested once every stall is open (the planner then sees every crate).
-  useEffect(() => { if (s.phase === 'bid') setVals(startingPrices(s, p)); }, [s.phase]);
-  const [notice, setNotice] = useState(() => bellOpensOnStart(s));
+/** The prices as they would be sealed now: one for each fruit put out, never over today's limit. */
+export function postsOf(s: GameState, p: number, vals: Record<string, number>): Post[] {
+  return FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => ({ fruit: f, price: Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f)) }));
+}
+
+/** "1st", "2nd", "3rd", "4th": a place in today's line-up. */
+export const nth = (n: number): string => `${n}${n % 10 === 1 && n % 100 !== 11 ? 'st' : n % 10 === 2 && n % 100 !== 12 ? 'nd' : n % 10 === 3 && n % 100 !== 13 ? 'rd' : 'th'}`;
+
+/** How the game breaks a tie, and where this stall stands in today's line-up (the last of the tie-breaks). */
+export function tieOrderText(s: GameState, p: number): string {
+  const at = s.order.indexOf(p);
+  return `The fresher piece sells first, then the Haggler, then whoever bought earlier.${at >= 0 ? ` You bought ${nth(at + 1)} today.` : ''}`;
+}
+
+/**
+ * Pricing, drawn from its state (no hooks, so tests can draw it): one row for each fruit in your crate with the
+ * freshness of its pieces, what is wanted, the best price, and its own − and +; then how a tie falls, and a reminder
+ * when you hold Favoured Trade. Rules 15: the rivals' crates are shut, so "wanted" and "best price" are worked out on
+ * the same guess the suggested prices use (engine/ai believe: only how many pieces each rival put out), never on a
+ * rival's real crate or price. `sealed`: you have rung the bell; your price tags lie face down and nothing can be changed.
+ */
+export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }: {
+  s: GameState; p: number; vals: Record<string, number>; notice: boolean; sealed?: boolean;
+  onPrice: (f: FruitId, price: number) => void; onNotice: (open: boolean) => void;
+}) {
+  const pl = s.players[p];
+  const seats = pricingTable(s, p).seats;
+  const mine = seats.find((x) => x.me);
+  const rivals = seats.filter((x) => !x.me);
+  const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
+  const b = believe(s, p, false);
   return (
-    <PricePanelView s={s} p={p} vals={vals} notice={notice} waiting={waiting}
-      onPrice={(f, price) => setVals((v) => ({ ...v, [f]: price }))}
-      onNotice={setNotice} onSubmit={onSubmit} />
+    <div class={`ds-price ${sealed ? 'sealed' : ''}`}>
+      <div class="ds-lab-row">
+        <b class="ds-lab">Your secret prices</b>
+        <button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button>
+        <span>{sealed ? 'Sealed until the bell' : 'One price for each fruit'}</span>
+      </div>
+      {fruits.length === 0 && <div class="ds-info">You put nothing out today.</div>}
+      {/* Only drawn where the sheet lies over the rivals' boxes (a short phone): how many pieces each put out. */}
+      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')} out</span></div>}
+      <div class={`ds-rows prices n${fruits.length}`}>
+        {fruits.map((f) => {
+          const price = Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f));
+          const lo = minPrice(s, f);
+          const lines = buyersFor(b, f);
+          const top = Math.max(0, ...lines.map((x) => buyerCap(b, p, f, x).cap));
+          const best = Math.max(0, ...lines.map((x) => x.max));
+          const hi = Math.min(maxPrice(s, f), Math.max(1, top) + 2);
+          const wanted = lines.reduce((a, x) => a + x.w.qty, 0);
+          const dots = mine?.fruits.find((x) => x.f === f)?.dots ?? [];
+          const out = forSale(s, p, f);
+          const word = dots[0] && dots[0] !== 'fresh' ? STAGE_WORD[dots[0]] : '';
+          const said = !lines.length ? 'Nobody wants these today'
+            : top <= 0 ? `${wanted} wanted · nobody takes yours`
+            : `${wanted} wanted · best price $${best}${top !== best && word ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for yours` : ''}`;
+          return (
+            <div class={`ds-prow ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
+              <div class="ds-info-cell">
+                <div class="ds-out">
+                  <Fruit id={f} size={22} /><b>{out} out</b>
+                  {dots.map((st) => <i class={`ds-lamp lg st-${st}`} aria-hidden="true">{STAGE_LETTER[st]}</i>)}
+                  {out > dots.length && <em>+{out - dots.length}</em>}
+                </div>
+                <span>{said}</span>
+              </div>
+              <span class="ds-dial">
+                <button type="button" class="ds-st" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={sealed || price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
+                <span class="ds-tag" role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
+                  {/* A sealed tag shows its back only: the price is not drawn under it. */}
+                  {!sealed && <span class="ds-tag-face pc-num">${price}</span>}
+                  {sealed && <span class="ds-tag-back" aria-hidden="true">Sealed</span>}
+                </span>
+                <button type="button" class="ds-st" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={sealed || price >= hi} onClick={() => onPrice(f, price + 1)}>+</button>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      {fruits.length > 0 && (
+        <div class="ds-note">
+          <b class="ds-lab">If your price ties with a rival's</b>
+          <span>{tieOrderText(s, p)}</span>
+        </div>
+      )}
+      {/* Rules 18: Favoured Trade is not played with the prices. A holder with a tied price is asked after the flip. */}
+      {pl.favours.includes('favouredTrade') && fruits.length > 0 && (
+        <div class="ds-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade. If you tie, you are asked after the prices flip.</span></div>
+      )}
+      {notice && <BellNotice onClose={() => onNotice(false)} />}
+    </div>
   );
 }
 
-/** The pricing screen drawn from its state (no hooks, so tests can draw it): every rival's crate, shut, with how many
- *  pieces it holds (rules 15), then one row per fruit you put out with its own − and + (PLAN-072). */
-export function PricePanelView({ s, p, vals, notice, waiting, onPrice, onNotice, onSubmit }: {
-  s: GameState; p: number; vals: Record<string, number>; notice: boolean; waiting?: boolean;
-  onPrice: (f: FruitId, price: number) => void; onNotice: (open: boolean) => void;
-  onSubmit: (posts: Post[]) => void;
-}) {
-  const pl = s.players[p];
-  const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
-  const priceOf = (f: FruitId) => Math.min(vals[f], maxPrice(s, f));
-  const posts: Post[] = FRUITS.filter((f) => fruits.includes(f)).map((f) => ({ fruit: f, price: priceOf(f) }));
+/** Pricing's main button, in the action bar's place: it seals the prices and rings the bell. */
+export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; vals: Record<string, number>; onSubmit: (posts: Post[]) => void }) {
+  const posts = postsOf(s, p, vals);
   const error = validatePrices(s, p, posts);
-  // Rules 15: the rivals' crates are shut, so "wanted" and "would buy" are worked out on the same guess the suggested
-  // prices use (engine/ai believe: only how many pieces each rival put out), never on a rival's real crate.
-  const b = believe(s, p, false);
-  const board = demandBoard(b, p);
   return (
-    <>
-      <div class="price-panel mid-panel tk-panel">
-        <div class="tk-label-row"><b class="tk-label">Rival crates · shut until the bell</b><button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button></div>
-        <PricingTableView s={s} viewer={p} waiting={waiting} />
-        {waiting ? <p class="pp-wait tk-note">Rivals are opening their stalls…</p> : (
-          <>
-            <div class="tk-label-row"><b class="tk-label">Your secret prices</b><span class="tk-side">One price per fruit</span></div>
-            {fruits.length === 0 && <div class="tk-info">You put nothing out today.</div>}
-            <div class={`tk-rows prices n${fruits.length}`}>
-              {fruits.map((f) => {
-                const price = priceOf(f);
-                const lo = minPrice(s, f);
-                const top = Math.max(0, ...buyersFor(b, f).map((x) => buyerCap(b, p, f, x).cap));
-                const hi = Math.min(maxPrice(s, f), Math.max(1, top) + 2);
-                const wanted = board.find((r) => r.f === f)?.wanted ?? 0;
-                const buy = buyersAt(b, p, f, price);
-                return (
-                  <div class={`tk-row price ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
-                    <div class="tk-row-info">
-                      <Fruit id={f} size={30} />
-                      <span class="tk-row-text"><b>{forSale(s, p, f)} out · {wanted} wanted</b><small>{top > 0 ? `${buy} buy at $${price} · top $${top}` : 'Nobody wants yours'}</small></span>
-                    </div>
-                    <span class="pbub tk-dial">
-                      <button type="button" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
-                      <span class="pc-num">${price}</span>
-                      <button type="button" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={() => onPrice(f, price + 1)}>+</button>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Rules 18: Favoured Trade is no longer played with the prices. A holder with a tied price is asked after the flip. */}
-            {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="tk-note">You hold Favoured Trade. If one of your prices ties at the bell, you will be asked whether to play it.</p>}
-            {fruits.length > 0 && <p class="tk-note">You see how many pieces each rival put out, not which fruit: that shows at the bell. Cheapest stall sells first; okay fruit pays $1 less.</p>}
-          </>
-        )}
-      </div>
-      <div class="pp-lock">
-        {!waiting && error && <div class="error">{error}</div>}
-        {waiting
-          ? <button class="btn primary big wide tk-go" disabled>Waiting for rivals…</button>
-          : <button class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>}
-      </div>
-      {notice && <BellNotice onClose={() => onNotice(false)} />}
-    </>
+    <div class="pp-lock">
+      {error && <div class="error">{error}</div>}
+      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
+    </div>
   );
 }
 

@@ -4,7 +4,7 @@ import { h } from 'preact';
 import { emptyStock, newGame, submitPrices, type Customer, type GameState } from '../src/engine/game';
 import { FRUIT, type FruitId } from '../src/engine/data';
 import { buyersAt, demandBoard } from '../src/ui/boardModel';
-import { BellNotice, PricePanelView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
+import { BellNotice, PriceBar, PricePanelView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
 import { PricingTableView } from '../src/ui/game/panels/PricingTable';
 import { toStaticHtml } from '../src/ui/cards';
 
@@ -13,11 +13,11 @@ const OKAY = (f: FruitId) => FRUIT[f].ripe.lastIndexOf('okay');
 const buyer = (id: number, f: FruitId, qty: number, max: number, pref: Customer['pref'] = 'everyday'): Customer =>
   ({ id, name: `C${id}`, pref, wants: [{ fruit: f, qty, max }], original: [{ fruit: f, qty, max }] });
 
-/** The pricing screen as PricePanel first draws it. */
-const panel = (s: GameState) => toStaticHtml(h(PricePanelView, {
-  s, p: 0, vals: startingPrices(s, 0), favoured: false, notice: bellOpensOnStart(s),
-  onPrice: () => undefined, onFavoured: () => undefined, onNotice: () => undefined, onSubmit: () => undefined,
-}));
+/** The pricing step as the day's sheet first draws it (PLAN-085): the rows, and the main button under them. */
+const panel = (s: GameState, sealed = false) => toStaticHtml([
+  h(PricePanelView, { s, p: 0, vals: startingPrices(s, 0), notice: bellOpensOnStart(s), sealed, onPrice: () => undefined, onNotice: () => undefined }),
+  h(PriceBar, { s, p: 0, vals: startingPrices(s, 0), onSubmit: () => undefined }),
+]);
 
 /** Three stalls at the bell on `day`: you have 2 fresh watermelons and 2 okay apples; Saleh 3 watermelons; Kiki sealed. */
 function bell(day = 2): GameState {
@@ -70,16 +70,27 @@ describe('the demand board', () => {
 });
 
 describe('every crate is open, and your price rows', () => {
-  it('every rival crate is drawn; each fruit you put out has its own price row, and a sealed price never shows', () => {
+  it('each fruit you put out has its own price row; a rival is only a number of pieces, and a sealed price never shows', () => {
     const s = bell();
     const html = panel(s);
-    expect(html).toContain('Rival crates · shut until the bell');
-    expect(html.match(/class="crate tk-crate/g)).toHaveLength(2); // the two rivals
-    expect(html).toContain('3</b><small>pieces out'); // Saleh: how many, never which fruit
-    expect(html.match(/class="tk-row price /g)).toHaveLength(2); // your watermelons and your apples
-    expect(html.match(/class="pbub tk-dial"/g)).toHaveLength(2);
+    // PLAN-085: the rivals' crates are the rival boxes of the table now; the sheet holds your own rows, how a tie
+    // falls, and (where it lies over the rival boxes, on a short phone) how many pieces each rival put out
+    expect(html).toContain('Your secret prices');
+    expect(html).toContain('Saleh 3 · Kiki 1 out'); // how many, never which fruit
+    expect(html.match(/class="ds-prow /g)).toHaveLength(2); // your watermelons and your apples
+    expect(html.match(/class="ds-dial"/g)).toHaveLength(2);
+    expect(html).toContain('2 out');
+    expect(html).toContain('The fresher piece sells first, then the Haggler, then whoever bought earlier.');
     expect(html).not.toMatch(/\$97|>97</);
     expect(html).toContain('Ring the bell');
+    expect(html).toContain('seal 2 prices');
+    // once you have rung the bell your tags lie face down: no price of yours is drawn, and nothing can be changed
+    const own = startingPrices(s, 0);
+    const sealed = toStaticHtml(h(PricePanelView, { s, p: 0, vals: own, notice: false, sealed: true, onPrice: () => undefined, onNotice: () => undefined }));
+    expect(sealed.match(/class="ds-tag-back"/g)).toHaveLength(2);
+    expect(sealed).not.toContain('ds-tag-face');
+    for (const price of Object.values(own)) expect(sealed).not.toContain(`$${price}<`);
+    expect(sealed.match(/<button[^>]*class="ds-st"[^>]*disabled/g)).toHaveLength(4);
     const table = toStaticHtml(h(PricingTableView, { s, viewer: 0 }));
     expect(table).not.toContain('tk-dial');
     expect(table).toContain('prices sealed');

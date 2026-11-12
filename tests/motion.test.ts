@@ -55,7 +55,8 @@ describe('the lengths are named in one place (motion.ts)', () => {
     expect(BEAT.piece).toEqual({ fly: 520, land: 300, gap: 90 });
     expect(BEAT.lorry).toEqual({ fly: 600, gap: 70 });
     expect(BEAT.rival).toEqual({ pause: 380, pauseFast: 150 });
-    expect(BEAT.stock.fly).toBe(480);
+    // filling your crate: a piece slides between its shelf row and the crate in 260 ms (PLAN-085; flow study D3)
+    expect(BEAT.stock.fly).toBe(260);
     expect([BEAT.label.read, BEAT.label.favourWon, BEAT.label.bonus, BEAT.label.float, BEAT.label.toast]).toEqual([1100, 800, 500, 1300, 2000]);
     // the bell: 2.9 s at four stalls; "No sales today" 1.1 s
     expect(bellRead(4)).toBe(2900);
@@ -679,7 +680,8 @@ describe('the sheet: the middle panel slides onto the table and off again (sheet
       ['src/ui/game/panels/SalesSummary.tsx', /<div class="sales-card"/], ['src/ui/game/panels/PricingTable.tsx', /<div class="mid-panel tk-bell"/],
       ['src/ui/game/panels/OrderPanel.tsx', /class="[^"]*\bmid-panel\b/], ['src/ui/game/panels/NightShift.tsx', /class="mid-panel night-shift/],
       // PLAN-084: the evening's sheet is drawn in panel.tsx with its own buttons (it was a wrapper in Game.tsx)
-      ['src/ui/panel.tsx', /class="price-panel stall-panel mid-panel/], ['src/ui/panel.tsx', /<div class="mid-panel mid-evening /],
+      // PLAN-085: stocking and pricing are steps of the day's sheet, which stays up under the bell and the takings
+      ['src/ui/game/panels/DaySheet.tsx', /<div class=\{`mid-panel sh-day /], ['src/ui/panel.tsx', /<div class="mid-panel mid-evening /],
     ] as const;
     for (const [f, re] of roots) expect(read(f), f).toMatch(re);
   });

@@ -6,7 +6,7 @@ import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
-import { EveningSheet, PricePanel, StallPanel } from './panel';
+import { EveningSheet } from './panel';
 import { Market, MyStall, RivalDrop, RivalStall, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
@@ -19,12 +19,11 @@ import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
 import { Showdown } from './game/panels/Showdown';
-import { SalesSummary } from './game/panels/SalesSummary';
+import { DaySheet, daySheetOn } from './game/panels/DaySheet';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
-import { CratesOpen, TiePanel } from './game/panels/PricingTable';
 import { EventPop, Popovers } from './game/panels/Popovers';
 
 interface Props {
@@ -107,11 +106,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.
   const tying = s.phase === 'tie' && activeHuman && !busy;
-  // Your stall is open and the rivals are still opening theirs: the pricing table waits on screen with their crates shut,
-  // and stays there into pricing, so the crates drop in once and the lids lift as pricing starts (PLAN-065). Only for
-  // one person at the table (online, or a single human): a shared phone hands over between people instead.
-  const openedMine = online ? !c.myBidTurn : humans.length === 1 && s.stalls[viewer] !== null;
-  const priceWait = (s.phase === 'stall' && !stalling && openedMine) || (s.phase === 'bid' && c.myBidTurn && busy);
+  // One sheet stays on the table from stocking to the day's takings (PLAN-085): while this stall fills its crate, while
+  // the rivals open and price, at the bell, for the Favoured Trade question and for the takings. On a shared phone it
+  // is drawn only for the person the phone was handed to (game/daySheet.ts).
+  const dayOn = daySheetOn(s, viewer, c, !!online);
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
@@ -125,8 +123,6 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
-    // The bell: every crate opens with its prices before the first customer is served (rules 15).
-    if (c.bell && s.phase === 'reveal') return <CratesOpen s={s} viewer={viewer} />;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
@@ -134,11 +130,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     // "Bid in" then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
     if (orderUp) return <OrderPanel key={`or-${s.day}-${orderSeat}`} s={s} p={orderSeat} waiting={!ordering} canChange={!!online} shown={c.orderShow}
       decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
-    if (stalling) return <StallPanel key={`st-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(stall, crate) => { fx.card(); act({ kind: 'stall', stall, crate }); }} />;
-    if (priceWait) return <PricePanel key={`pr-${s.day}-${viewer}`} s={s} p={viewer} waiting onSubmit={() => undefined} />;
-    if (pricing) return <PricePanel key={`pr-${s.day}-${bidder}`} s={s} p={bidder} onSubmit={(posts) => { fx.card(); act({ kind: 'prices', posts }); }} />;
-    if (s.phase === 'tie' && active >= 0 && !busy) return <TiePanel key={`tie-${s.day}-${active}`} s={s} viewer={viewer} asked={active} onDecide={tying ? (play) => { fx.card(); act({ kind: 'tie', play }); } : undefined} />;
-    if (s.phase === 'reveal') return !show && c.revealDone ? <SalesSummary s={s} viewer={viewer} /> : null;
+    // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
+    // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
+    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;
     if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;

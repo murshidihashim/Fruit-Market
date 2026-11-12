@@ -5,6 +5,7 @@ import './ui/ticket-ui.css';
 import './ui/sheets.css';
 import './ui/motion.css';
 import './ui/rush.css';
+import './ui/daysheet.css';
 import { App } from './ui/App';
 import { installTelemetry } from './net/telemetry';
 import { startAccountSync } from './ui/account';
