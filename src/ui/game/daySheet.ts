@@ -71,6 +71,8 @@ export interface SheetFit {
   tight: number;
   /** The sheet also lies over your shelf. */
   over: boolean;
+  /** The sheet also lies over the rows above it, up to the customers' tickets (the stalls row among them). */
+  up: boolean;
 }
 
 /**
@@ -81,14 +83,19 @@ export interface SheetFit {
  * it take the room over your shelf, and then at the roomiest step that fits there. If nothing fits it scrolls, at the
  * closest step, with its main button in view.
  */
-export function fitSheet(needs: number[], room: number, drop: number): SheetFit {
+export function fitSheet(needs: number[], room: number, drop: number, rise = 0): SheetFit {
   const fits = (r: number) => needs.findIndex((n) => n <= r + 1);
   const inCell = fits(room);
-  if (inCell >= 0) return { tight: inCell, over: false };
+  if (inCell >= 0) return { tight: inCell, over: false, up: false };
   const last = Math.max(0, needs.length - 1);
-  if (drop <= 0) return { tight: last, over: false };
-  const over = fits(room + drop);
-  return { tight: over >= 0 ? over : last, over: true };
+  if (drop <= 0 && rise <= 0) return { tight: last, over: false, up: false };
+  const over = drop > 0 ? fits(room + drop) : -1;
+  if (over >= 0) return { tight: over, over: true, up: false };
+  // Last of all (PLAN-090: a six-box shelf on a narrow, tall phone) it also lies over the stalls row, as it does on
+  // a short phone, at the roomiest step that fits there.
+  if (rise <= 0) return { tight: last, over: true, up: false };
+  const all = fits(room + drop + rise);
+  return { tight: all >= 0 ? all : last, over: drop > 0, up: true };
 }
 
 /** The steps the sheet draws itself: stocking and pricing. In the others it lies plain under that step's own panel. */

@@ -7,6 +7,7 @@ import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
+import { fitSheet } from '../src/ui/game/daySheet';
 import { CratesOpen } from '../src/ui/game/panels/PricingTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { stripStep } from '../src/ui/game/panels/TopBar';
@@ -92,5 +93,31 @@ describe('after a Favoured Trade answer (PricingTable.tsx, DaySheet.tsx)', () =>
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     expect(sheet).toContain('if (tying) answered.current = true;');
     expect(sheet).toContain('answered={answered.current}');
+  });
+});
+
+describe('the first-game tip for stocking and pricing covers no control (Game.tsx, DaySheet.tsx, daysheet.css)', () => {
+  it('is not shown at the standing-order bid, and at stocking and pricing the sheet keeps room free for it', () => {
+    // "Secret prices" is about pricing fruit: it used to come up at the standing-order bid, over the bid's stepper
+    expect(read('src/ui/Game.tsx')).toContain("pricing: c.myBidTurn && s.phase !== 'order',");
+    expect(read('src/ui/Game.tsx')).toContain('tip={!!coach} />');
+    const sheet = read('src/ui/game/panels/DaySheet.tsx');
+    expect(sheet).toContain("el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');");
+    const css = read('src/ui/daysheet.css');
+    expect(css).toContain('#app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }');
+  });
+});
+
+describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () => {
+  it('last of all the sheet also lies over the rows above it, and pricing then says the rivals\' pieces once', () => {
+    // 360 by 780: the closest step is 332 tall in a cell of 264 with 48 more over your shelf: it takes the rows above too
+    expect(fitSheet([420, 390, 360, 332], 264, 48, 158)).toEqual({ tight: 0, over: true, up: true });
+    expect(fitSheet([520, 490, 460, 432], 264, 48, 158)).toEqual({ tight: 2, over: true, up: true });
+    // over your shelf is still tried first, and nothing changes where the sheet already lies there (a short phone)
+    expect(fitSheet([420, 390, 360, 300], 264, 48, 158)).toEqual({ tight: 3, over: true, up: false });
+    expect(fitSheet([500, 470, 440, 420], 370, 0, 0)).toEqual({ tight: 3, over: false, up: false });
+    const css = read('src/ui/daysheet.css');
+    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); }');
+    expect(css).toContain('#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }');
   });
 });

@@ -94,7 +94,7 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
 describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
   it('the game table draws one sheet for all these steps, keyed by the day and the stall, so it is never replaced between them', () => {
     const game = read('src/ui/Game.tsx');
-    expect(game).toContain('if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;');
+    expect(game).toContain('if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;');
     for (const old of ['<StallPanel', '<PricePanel', '<CratesOpen', '<TiePanel', '<SalesSummary']) expect(game).not.toContain(old);
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     // one root element whose class does not change with the step (sheet.ts slides a panel in only when its class changes)
@@ -286,19 +286,19 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
   it('a step at a time and no closer than it needs; over your shelf only when the closest step is still too tall', () => {
     expect(TIGHTEST).toBe(3);
     // it fits as the approved screen draws it
-    expect(fitSheet([270], 277, 99)).toEqual({ tight: 0, over: false });
+    expect(fitSheet([270], 277, 99)).toEqual({ tight: 0, over: false, up: false });
     // three fruits priced in a 277 px cell: two steps closer; four fruits: the closest step
-    expect(fitSheet([355, 310, 277], 277, 99)).toEqual({ tight: 2, over: false });
-    expect(fitSheet([421, 380, 330, 277], 277, 99)).toEqual({ tight: 3, over: false });
+    expect(fitSheet([355, 310, 277], 277, 99)).toEqual({ tight: 2, over: false, up: false });
+    expect(fitSheet([421, 380, 330, 277], 277, 99)).toEqual({ tight: 3, over: false, up: false });
     // a six-row shelf is too tall even then: the sheet lies over your shelf too, at the roomiest step that fits there
-    expect(fitSheet([406, 372, 340, 320], 277, 99)).toEqual({ tight: 1, over: true });
-    expect(fitSheet([390, 360, 330, 300], 277, 120)).toEqual({ tight: 0, over: true });
+    expect(fitSheet([406, 372, 340, 320], 277, 99)).toEqual({ tight: 1, over: true, up: false });
+    expect(fitSheet([390, 360, 330, 300], 277, 120)).toEqual({ tight: 0, over: true, up: false });
     // a short phone, where the sheet already lies over your shelf: nothing more to take, so the closest step scrolls
-    expect(fitSheet([500, 470, 440, 420], 370, 0)).toEqual({ tight: 3, over: false });
+    expect(fitSheet([500, 470, 440, 420], 370, 0)).toEqual({ tight: 3, over: false, up: false });
     // nothing fits anywhere: over your shelf at the closest step, and it scrolls with the main button in view
-    expect(fitSheet([600, 560, 520, 500], 277, 99)).toEqual({ tight: 3, over: true });
+    expect(fitSheet([600, 560, 520, 500], 277, 99)).toEqual({ tight: 3, over: true, up: false });
     // a pixel of rounding is not a reason to draw closer
-    expect(fitSheet([278], 277, 0)).toEqual({ tight: 0, over: false });
+    expect(fitSheet([278], 277, 0)).toEqual({ tight: 0, over: false, up: false });
   });
 
   it('the room is measured from the sheet itself, each time the rows are laid out and at each step of the day', () => {

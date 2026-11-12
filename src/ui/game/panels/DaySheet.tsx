@@ -50,6 +50,7 @@ const SWING: Keyframe[] = [0, -4, 4, -3, 2, 0].map((x) => ({ transform: `transla
 function fit(el: HTMLElement): void {
   delete el.dataset.tight;
   el.removeAttribute('data-over');
+  el.removeAttribute('data-up');
   const room = el.clientHeight;
   const needs: number[] = [];
   for (let t = 0; t <= TIGHTEST; t++) {
@@ -57,12 +58,15 @@ function fit(el: HTMLElement): void {
     needs.push(el.scrollHeight);
     if (needs[t] <= room + 1) break;
   }
-  // On a short phone the sheet already lies over your shelf (daysheet.css): there is no more room to take there.
-  const drop = getComputedStyle(el).marginBottom === '0px' ? parseFloat(el.style.getPropertyValue('--drop')) || 0 : 0;
-  const to = fitSheet(needs, room, drop);
+  // On a short phone the sheet already lies over your shelf and the rows above it (daysheet.css): there is no more
+  // room to take there.
+  const lies = getComputedStyle(el);
+  const more = (margin: string, name: string) => (margin === '0px' ? parseFloat(el.style.getPropertyValue(name)) || 0 : 0);
+  const to = fitSheet(needs, room, more(lies.marginBottom, '--drop'), more(lies.marginTop, '--rise'));
   if (to.tight) el.dataset.tight = String(to.tight);
   else delete el.dataset.tight;
   if (to.over) el.setAttribute('data-over', '');
+  if (to.up) el.setAttribute('data-up', '');
 }
 
 const piece = (c: Crate, f: FruitId, pos: number) => c[f]?.[pos] ?? 0;
@@ -72,7 +76,9 @@ const withPiece = (c: Crate, f: FruitId, pos: number, n: number, len: number): C
   return { ...c, [f]: t };
 };
 
-export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: number; c: GameController; online: boolean }) {
+export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: number; c: GameController; online: boolean;
+  /** A first-game tip is up over the table. */
+  tip?: boolean }) {
   const pl = s.players[viewer];
   const root = useRef<HTMLDivElement>(null);
   // On a short phone the middle of the table is too low for stocking and pricing: there the sheet starts under the
@@ -152,9 +158,13 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    // The first-game tip for stocking and pricing lies at the sheet's foot: the sheet keeps that much room free
+    // under its last line, so the tip covers no row and no stepper (PLAN-090), and is fitted with that room taken.
+    const note = tip && own ? el.closest('.game')?.querySelector<HTMLElement>(':scope > .coach') : null;
+    el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');
     if (own) fit(el);
-    else { delete el.dataset.tight; el.removeAttribute('data-over'); }
-  }, [step]);
+    else { delete el.dataset.tight; el.removeAttribute('data-over'); el.removeAttribute('data-up'); }
+  }, [step, tip]);
 
   // ---------- motion: nothing here is waited for ----------
   // The sheet's box changes with where it lies: it grows from the middle of the table over the rows above and below

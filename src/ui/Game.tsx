@@ -96,7 +96,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
   const coach = online || busy ? null : tipFor(s, {
-    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn,
+    // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)
+    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn && s.phase !== 'order',
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
   });
   // Rivals sit across the table in one row, in turn order after you.
@@ -150,7 +151,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
     // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
     // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
-    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;
+    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;
     if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
