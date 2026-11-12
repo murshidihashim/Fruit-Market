@@ -481,6 +481,12 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   return (
     <div class="tomorrow" aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
+      {/* Priority played this evening (PLAN-084): that stall's mark stands at the front of tomorrow's line. */}
+      {s.priorityNext !== null && s.players[s.priorityNext] && (
+        <span class="tm-first" data-a="tm-first" role="img" aria-label={`${s.priorityNext === viewer ? 'You buy' : `${s.players[s.priorityNext].name} buys`} first tomorrow`}>
+          <Swatch p={s.priorityNext} who={s.players[s.priorityNext].avatar} look={s.players[s.priorityNext].look} size={22} /><b>1st</b>
+        </span>
+      )}
       {forecast && front(forecast, false)}
       {queue.map((c) => {
         if (c.seenBy?.includes(viewer)) return front(c, true);

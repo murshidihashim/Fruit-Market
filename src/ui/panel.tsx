@@ -1,21 +1,25 @@
 // Decision panels: price cards for setting secret prices and upgrade cards for the evening.
 // (A rival's stall opens below their seat; see RivalDrop in table.tsx.)
-import { useEffect, useState } from 'preact/hooks';
-import { BEAT, fly } from './anim';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { BEAT, boxOf, fly } from './anim';
 import { believe, planPrices } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, UPGRADES, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type Stage, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, crateCounts, forSale, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
-  validatePrices, type Crate, type GameState, type Post, type Stall,
+  canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
+  validatePrices, type Crate, type Customer, type GameState, type Post, type Stall,
 } from '../engine/game';
-import { closingNote, heatwaveLine, tonightText } from '../engine/story';
-import { Coin, Fruit } from './art';
-import { buyerCap, buyersAt, buyersFor, demandBoard, stallWanted, LANES } from './boardModel';
+import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
+import { Coin, Face, Fruit } from './art';
+import { SEEN_WALK_IN, buyerCap, buyersAt, buyersFor, demandBoard, nextLorryName, stallWanted, LANES } from './boardModel';
+import { ART_SIZE, CardArt } from './cards';
+import { upgradeArt, upgradeFocus } from './deckArt';
 import { fruitSvgUrl } from './fruitIcons';
 import { Lamp, STAGE_WORD, Swatch } from './ticket';
 import { Icon, type IconName } from './icons';
-import { FavourMini, UpgradeOffer } from './phoneCards';
+import { FavourMini } from './phoneCards';
 import { PricingTableView } from './game/panels/PricingTable';
+import { noteOffer } from './game/dayBeats';
+import { useReach } from './game/reach';
 
 // ---------- favour cards ----------
 
@@ -248,10 +252,86 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
 export const UP_ICON: Record<UpgradeId, IconName> = { barrow: 'handcart', premium: 'signboard', juicebar: 'juicer', ripening: 'sun', orderbook: 'fv_favouredTrade' };
 export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket: 'crate', bargain: 'tag', charmer: 'heart', favourite: 'star', nestegg: 'egg', keeper: 'moon', earful: 'ear' };
 
-export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
-  s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void;
+/** A small number in words, as the evening says it ("room for two"). */
+const WORDS = ['none', 'one', 'two', 'three', 'four', 'five'];
+const inWords = (n: number) => WORDS[n] ?? String(n);
+
+/** The evening's heading: the day's money in one line ("Sold $15 · bought $8 · up $7 today"), from the day's ledger. */
+export function daySoldLine(s: GameState, p: number): string {
+  const { sales, bought, net } = dayLedger(s, p);
+  return [`Sold $${sales}`, `bought $${bought}`, ...(net === null ? [] : [`${net < 0 ? 'down' : 'up'} $${Math.abs(net)} today`])].join(' · ');
+}
+
+/** The offers tonight, in the order they are laid out: every upgrade the stall has not built (none when it is full). */
+export function offersTonight(s: GameState, p: number): UpgradeId[] {
+  const pl = s.players[p];
+  return pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u));
+}
+
+/** Under the row of offers: which ones lie past the first two, to the right ("Swipe for Premium Display $5 and Handcart $6"). */
+export function swipeHint(offers: UpgradeId[]): string {
+  const more = offers.slice(2).map((u) => `${UPGRADES[u].title} $${UPGRADES[u].cost}`);
+  const list = more.length > 1 ? `${more.slice(0, -1).join(', ')} and ${more[more.length - 1]}` : more[0];
+  return `${list ? `Swipe for ${list}. ` : ''}A stall has room for ${inWords(MAX_UPGRADES)}.`;
+}
+
+/**
+ * An upgrade on offer, as a card you choose: label, picture, name, cost and the card's text. Tap it to choose it;
+ * the evening's main button then builds it. `why`: the reason it cannot be built now (it is then greyed and says so).
+ */
+function UpgradePick({ id, chosen, why, onPick }: { id: UpgradeId; chosen: boolean; why: string | null; onPick?: () => void }) {
+  const d = UPGRADES[id];
+  return (
+    <button type="button" class={`uo uo-pick ${chosen ? 'sel' : ''}`} data-up={id} aria-pressed={chosen} disabled={!!why || !onPick} onClick={onPick}
+      aria-label={`Upgrade: ${d.title}, $${d.cost}. ${d.text}${why ? ` ${why}.` : ''}`}>
+      <span class="uo-kind">Upgrade</span>
+      <CardArt class="uo-pic" src={upgradeArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(id)} />
+      <b class="uo-nm">{d.title}</b>
+      <span class="uo-cost">{`$${d.cost}`}</span>
+      <span class="uo-tx">{d.text}</span>
+      <span class="uo-ft">{why ?? 'Build once'}</span>
+    </button>
+  );
+}
+
+/**
+ * Tomorrow in one line: the expected customer and what they want at their printed price, any walk-in whose front
+ * this stall has seen (Gossip, Sharp Ears: for this stall only), how many walk-ins are still face down, and the lorry.
+ */
+export function EveningTomorrow({ s, p }: { s: GameState; p: number }) {
+  const seen = s.queue.filter((c) => c.seenBy?.includes(p));
+  const hidden = s.queue.length - seen.length;
+  const lorry = nextLorryName(s);
+  if (!s.forecast && !s.queue.length && !lorry) return null;
+  const who = (c: Customer, heard: boolean) => (
+    <span class={`ev-who ${heard ? 'heard' : ''}`} title={heard ? SEEN_WALK_IN : undefined}
+      aria-label={`${lookOf(c.name).title} wants ${c.wants.map((w) => `${w.qty} ${FRUIT[w.fruit].plural} at $${w.max}`).join(' and ')}`}>
+      <Face who={c.name} size={22} />
+      {c.wants.map((w) => <span aria-hidden="true"><Fruit id={w.fruit} size={14} />{w.qty} at ${w.max}</span>)}
+    </span>
+  );
+  const rest = [hidden > 0 ? `+ ${hidden} walk-in${hidden === 1 ? '' : 's'}` : '', lorry ?? ''].filter(Boolean).join(' · ');
+  return (
+    <div class="ev-tomorrow" aria-label="Tomorrow">
+      <b class="tk-label">Tomorrow</b>
+      {s.forecast && who(s.forecast, false)}
+      {seen.map((c) => who(c, true))}
+      {rest && <span class="ev-rest">{rest}</span>}
+    </div>
+  );
+}
+
+/**
+ * The evening, as the approved Evening screen (PLAN-084): the day's money in the heading, tonight's warning, the
+ * upgrade offers as cards in a row (after a Market Day), Shade Cloth's fruit, the favour cards you hold, and tomorrow
+ * in one line. Drawn from its state alone (no hooks, so tests can draw it). `pick`: the offer chosen to build; the
+ * button that builds it is the evening's main button (EveningSheet), not a button on every card.
+ */
+export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick }: {
+  s: GameState; p: number; onUpgrade?: (u: UpgradeId) => void; onCard: (i: number) => void;
   /** Shade Cloth (rules 11): name the fruit that does not age tonight (null: none). */
   onShade?: (f: FruitId | null) => void;
+  pick?: UpgradeId | null; onPick?: (u: UpgradeId | null) => void;
 }) {
   const pl = s.players[p];
   // Tonight follows the night's own rules (a Heatwave, a Monsoon, the Juice Bar): "3 spoil tonight, 2 become juice (+$4)".
@@ -260,9 +340,10 @@ export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
   const heat = heatwaveLine(s, p);
   // Only juice money tonight is good news: the card turns green; anything spoiling or a Heatwave keeps it a warning.
   const good = night.spoil === 0 && !heat;
-  const left = s.config.days - s.day;
+  const offers = isDraftNight(s) ? offersTonight(s, p) : [];
   return (
     <div class="evening-panel">
+      <header class="ev-head"><b>Evening</b><span>{daySoldLine(s, p)}</span></header>
       {(tonight || heat) && (
         <div class={`info-card ${good ? 'good' : 'warn'}`}>
           {tonight && <div>{tonight}</div>}
@@ -270,21 +351,26 @@ export function EveningPanel({ s, p, onUpgrade, onCard, onShade }: {
         </div>
       )}
       {isDraftNight(s) && (
-        <>
-          <div class="pp-intro"><b>Stall upgrades</b><span>After each Market Day you may build one upgrade. Your stall has room for two. Cash spent is cash you can't win with: {left} day{left === 1 ? '' : 's'} left to earn it back.</span></div>
-          {/* The offers as cards in a row that swipes sideways (the approved evening screen, PLAN-083). */}
-          <div class="uo-row" role="group" aria-label="Upgrades on offer">
-            {(pl.upgradeOffer ?? (Object.keys(UPGRADES) as UpgradeId[]).filter((u) => !pl.upgrades.includes(u))).map((u) => (
-              <UpgradeOffer id={u} owned={pl.upgrades.includes(u)} why={canUpgrade(s, p, u)} onBuild={() => onUpgrade(u)} />
-            ))}
-          </div>
+        <section class="ev-sec">
+          <div class="ev-lab"><b class="tk-label">{offers.length ? 'Build one upgrade tonight' : 'Your upgrades'}</b><span>Built {pl.upgrades.length} of {MAX_UPGRADES}</span></div>
+          {/* The offers as cards in a row that swipes sideways: tap one to choose it, then build it with the main button. */}
+          {offers.length > 0 && (
+            <div class="uo-row" role="group" aria-label="Upgrades on offer">
+              {offers.map((u) => <UpgradePick id={u} chosen={pick === u} why={canUpgrade(s, p, u)} onPick={onPick ? () => onPick(pick === u ? null : u) : undefined} />)}
+            </div>
+          )}
+          {offers.length > 0 && <p class="ev-hint">{swipeHint(offers)}</p>}
           {pl.upgrades.length > 0 && <div class="owned-row">Built: {pl.upgrades.map((u) => <span class="chip"><Icon name={UP_ICON[u]} size={16} /> {UPGRADES[u].title}</span>)}</div>}
-        </>
+        </section>
       )}
       {pl.trait === 'keeper' && onShade && <ShadePick s={s} p={p} onShade={onShade} />}
-      {pl.favours.length > 0 && <div class="pp-intro"><b>Up your sleeve</b><span>Favour cards you can play.</span></div>}
-      <FavourRow s={s} p={p} phase="evening" onCard={onCard} />
-      {s.players.length > 1 && <div class="whisper"><b class="psst">Psst…</b> the rivals are plotting tonight too.</div>}
+      {pl.favours.length > 0 && (
+        <section class="ev-sec">
+          <div class="ev-lab"><b class="tk-label">Your favours</b><span>{pl.favours.length} of {handLimit(pl)} held</span></div>
+          <FavourRow s={s} p={p} phase="evening" onCard={onCard} />
+        </section>
+      )}
+      <EveningTomorrow s={s} p={p} />
     </div>
   );
 }
@@ -294,13 +380,66 @@ function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: Fr
   const pl = s.players[p];
   const chosen = pl.shade === undefined ? shadePick(s, p) : pl.shade;
   return (
-    <>
-      <div class="pp-intro"><b>Shade Cloth</b><span>Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</span></div>
+    <section class="ev-sec ev-shade">
+      <div class="ev-lab"><b class="tk-label">Shade Cloth</b></div>
+      <p class="ev-hint">Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</p>
       <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
         {LANES.map((f) => (
           <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>
         ))}
         <button type="button" role="radio" aria-checked={chosen === null} class={chosen === null ? 'on' : ''} onClick={() => onShade(null)}>None</button>
+      </div>
+    </section>
+  );
+}
+
+/** What the evening sheet keeps while it is away for a moment (the table is busy for a frame or two after a choice,
+ *  and the sheet is drawn afresh): the offer chosen and how far the sheet was scrolled, for this stall's evening. */
+let kept: { key: string; pick: UpgradeId | null; scroll: number } | null = null;
+
+/**
+ * The evening's sheet on the game table (PLAN-084): the evening laid over everything under the top bar, with its
+ * buttons in the action bar's place. One main button: it builds the chosen upgrade ("Build Order Book · $3", beside
+ * "Lights out without building"), or, with nothing chosen, it is "Lights out". The evening never ends by itself.
+ */
+export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
+  s: GameState; p: number; onUpgrade: (u: UpgradeId) => void; onCard: (i: number) => void;
+  onShade?: (f: FruitId | null) => void;
+  /** Lights out: this stall's evening is over. */
+  onDone: () => void;
+}) {
+  const key = `${s.config.seed}:${s.day}:${p}`;
+  const [pick, setPick] = useState<UpgradeId | null>(() => (kept?.key === key ? kept.pick : null));
+  const root = useRef<HTMLDivElement>(null);
+  useReach(root, 'beats', true);
+  const keep = (next: UpgradeId | null) => { kept = { key, pick: next, scroll: root.current?.scrollTop ?? 0 }; };
+  useLayoutEffect(() => {
+    // Back after a moment away: at the place it was scrolled to.
+    if (kept?.key === key && kept.scroll > 0 && root.current) root.current.scrollTop = kept.scroll;
+  }, []);
+  // Only an offer that can be built now stays chosen (the cash or the offers may have changed).
+  const chosen = pick && isDraftNight(s) && offersTonight(s, p).includes(pick) && canUpgrade(s, p, pick) === null ? pick : null;
+  const choose = (u: UpgradeId | null) => { setPick(u); keep(u); };
+  const build = () => {
+    if (!chosen) return;
+    // Where the card lies now: it travels from there to the stall once it is built (dayBeats.ts).
+    noteOffer(p, chosen, boxOf(root.current?.querySelector(`[data-up="${chosen}"]`)));
+    keep(null);
+    onUpgrade(chosen);
+  };
+  return (
+    <>
+      <div class="mid-panel mid-evening fm-sheet sh-evening" ref={root} onScroll={() => keep(chosen)}>
+        <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} />
+      </div>
+      {/* Only the main button is a `.btn` (the browser tests press that one). */}
+      <div class="pp-lock ev-lock">
+        {chosen ? (
+          <>
+            <button type="button" class="btn primary wide big" onClick={build}>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>
+            <button type="button" class="ev-out" onClick={onDone}>Lights out without building</button>
+          </>
+        ) : <button type="button" class="btn primary wide big" onClick={onDone}>Lights out <small class="btn-sub">next day</small></button>}
       </div>
     </>
   );

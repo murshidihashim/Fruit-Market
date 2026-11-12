@@ -16,6 +16,7 @@ import { holdStock, releaseStock } from '../stockShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
 import { delivery, moves, nightfall, reveal, type NightSlide } from './animator';
+import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './panels/Showdown';
 
@@ -38,6 +39,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [nightSlide, setNightSlide] = useState<NightSlide>(null);
   // The bell has just rung: every crate is open on the table for a moment before the rush (rules 15).
   const [bell, setBell] = useState(false);
+  // The bids for a standing order are in and are being turned over on the table (PLAN-084).
+  const [orderShow, setOrderShow] = useState<OrderShow | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [revealDone, setRevealDone] = useState(initial.phase === 'reveal');
   const [cardInfo, setCardInfo] = useState<number | null>(null);
@@ -131,6 +134,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // The day's takings must not show before the rush has played: the card of an earlier day would otherwise be drawn
       // for a moment with today's results on it, ahead of the bell.
       if (rush) setRevealDone(false);
+      // What the coming beat will show is held back at what it was (PLAN-084): every total before dawn's fine and
+      // top-up, the winner's cash before a standing order's stake, an upgrade's price and its mark. When the bids for
+      // a standing order are in, they stay on the table to be turned over (the sheet is drawn with the new state).
+      const turned = holdBack(prev, next);
+      if (turned) setOrderShow(turned);
       sRef.current = next;
       setS(next);
       onChange(next);
@@ -139,6 +147,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         // The new day opens on the morning's event card; the lorry unloads only when buying starts (PLAN-065).
         setNight(false);
       } else if ((prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy') {
+        // The bids turned over together, the winner shown and its stake put on the order's card (PLAN-084).
+        if (turned) await bidsTurned(turned, viewer, setOrderShow);
         await delivery(next);
         await moves(prev, next);
       } else if (rush) {
@@ -150,6 +160,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     } finally {
       holdCash(null);
       releaseStock();
+      setOrderShow(null);
       busyRef.current = false;
       setBusy(false);
       // The hurry ends where the player decides something again. Online it also lasts through the states still waiting
@@ -342,7 +353,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   };
 
   return {
-    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, banner, revealDone,
+    s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, pickMarket, playCard, reallyPlay,

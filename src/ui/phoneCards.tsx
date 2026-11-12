@@ -7,6 +7,7 @@ import {
   FAVOURS, FRUIT, PREF_INFO, UPGRADES, lookOf, prefOf,
   type FarmerCard, type FavourId, type FruitId, type OrderCard as OrderDef, type UpgradeId,
 } from '../engine/data';
+import { Coin } from './art';
 import { LANES } from './boardModel';
 import { ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass, lorryNotes, lorryRow, type CardLine } from './cards';
 import {
@@ -96,9 +97,10 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
 
 // ---------- a standing order, at the bid ----------
 
-/** A standing order as the bid shows it: the client's picture, what it wants, the highest bid allowed and the stake. */
-export function OrderTicket({ card, qty, due, day, ceiling, stake }: {
-  card: OrderDef; qty: number; due: number; day: number; ceiling: number; stake: number;
+/** A standing order as the bid shows it: the client's picture, what it wants, the highest bid allowed and the stake.
+ *  `held`: the winner's stake has been put down, so its coins lie on the card (PLAN-084). */
+export function OrderTicket({ card, qty, due, day, ceiling, stake, held }: {
+  card: OrderDef; qty: number; due: number; day: number; ceiling: number; stake: number; held?: boolean;
 }) {
   const left = due - day;
   return (
@@ -114,7 +116,7 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake }: {
       </div>
       <div class="wc-stats">
         <div class="wc-stat"><b>{`$${ceiling}`}</b><span>Highest bid, each</span></div>
-        <div class="wc-stat y"><b>{`$${stake}`}</b><span>Stake</span></div>
+        <div class={cx('wc-stat', 'y', held && 'held')} data-a="order-stake"><b>{`$${stake}`}</b><span>{held ? 'Stake held' : 'Stake'}</span>{held && <i class="wc-coins" aria-hidden="true"><Coin size={16} /><Coin size={16} /><Coin size={16} /></i>}</div>
       </div>
       <footer class="wc-foot">Lowest bid wins · No favour card · No tips</footer>
     </article>

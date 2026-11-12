@@ -63,6 +63,16 @@ export const BEAT = {
   night: { dusk: 950, slide: 1500, settle: 80, read: 770, spoil: 900, gap: 80, juiceCoin: 480, end: 400, sky: 700, duskFade: 600, rise: 450, riseAfter: 550 },
   /** The morning: the news card turning over, and the "FINAL DAY!" stamp. */
   morning: { newsTurn: 550, stamp: 1100 },
+  /** Coins that carry a payment between a stall's cash and the table (the dawn's top-up and fine, a standing order's
+   *  stake, an upgrade's price): the gap between two coins. Each coin takes FEEL.coin. */
+  coins: { gap: 60 },
+  /** Dawn: a breath after the news has turned over, before the coins. */
+  dawn: { after: 250 },
+  /** The standing order's bids: face down for a breath, turned over together (FEEL.turn), a moment to read them and
+   *  who won, then the stake put on the card and a moment to see it there. */
+  order: { down: 250, read: 600, after: 500 },
+  /** The evening: a moment to see a built upgrade on the stall, after its card (FEEL.travel) and the coins have landed. */
+  evening: { seen: 300 },
 } as const;
 
 /** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */

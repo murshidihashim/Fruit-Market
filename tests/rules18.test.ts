@@ -24,7 +24,7 @@ import { AI_VERSION, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomV
 import { freshRoom, GRACE_MS, redact, Room, type Conn, type RoomIO } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { ripeLine, topUpLine } from '../src/ui/game/panels/MorningCard';
-import { OrderRules, OrderStrip, stakeHint } from '../src/ui/game/panels/OrderPanel';
+import { OrderStrip, StakeLines, stakeHint } from '../src/ui/game/panels/OrderPanel';
 import { TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
 import { finishWords } from '../src/ui/game/panels/Results';
 import { extras } from '../src/ui/game/panels/SalesSummary';
@@ -322,10 +322,14 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
   it('the bidding panel and the strip speak of the stake, not of fines or rivals', () => {
     const s = marketDay(3, 30);
     const stake = s.standing!.stake;
-    const panel = toStaticHtml(h(OrderRules, { s: publicView(s, 0), p: 0 }));
-    expect(panel).toContain(`The winner puts down a stake of <b>$${stake}</b> now`);
-    expect(panel).toContain('Rivals are not involved');
-    expect(panel).not.toMatch(/fined|\$1 under/);
+    // PLAN-084, the approved bid screen: three lines say what a bid of $6 means for this stall (they took the place
+    // of the three rule lines, which also said that rivals are not involved).
+    const qty = s.standing!.qty;
+    const panel = toStaticHtml(h(StakeLines, { s: publicView(s, 0), p: 0, bid: 6 }));
+    expect(panel).toContain(`<dt>If you win</dt><dd>You pay the $${stake} stake now. You have $30.</dd>`);
+    expect(panel).toContain(`<dt>Deliver all ${qty}</dt><dd>$${6 * qty}, and the $${stake} stake comes back.</dd>`);
+    expect(panel).toMatch(/<dt>Fall short<\/dt><dd>\$6 for each [a-z]+ you deliver\. The stake is lost\.<\/dd>/);
+    expect(panel).not.toMatch(/fined|\$1 under|rival/i);
     expect(stakeHint(publicView(s, 0), 0)).toBeNull();
     // Without the stake in cash a stall can only pass.
     const poor = structuredClone(s);
@@ -334,9 +338,10 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     // With an Order Book the panel shows the halved stake and the extra pay.
     const book = structuredClone(s);
     book.players[0].upgrades = ['orderbook'];
-    const bh = toStaticHtml(h(OrderRules, { s: publicView(book, 0), p: 0 }));
-    expect(bh).toContain(`a stake of <b>$${Math.floor(stake / 2)}</b> now (halved by your Order Book)`);
-    expect(bh).toContain('plus $2 a piece with your Order Book');
+    const bh = toStaticHtml(h(StakeLines, { s: publicView(book, 0), p: 0, bid: 6 }));
+    expect(bh).toContain(`You pay the $${Math.floor(stake / 2)} stake now (halved by your Order Book)`);
+    expect(bh).toContain(`$${6 * qty}, plus $2 a piece with your Order Book, and the $${Math.floor(stake / 2)} stake comes back.`);
+    expect(bh).toMatch(/\$8 for each [a-z]+ you deliver/);
     let won = bidOrder(s, 0, 6);
     for (const p of [1, 2]) won = bidOrder(won, p, null);
     expect(toStaticHtml(h(OrderStrip, { s: publicView(won, 1), viewer: 1 }))).toContain(`stake $${stake} held`);

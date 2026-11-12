@@ -1,0 +1,175 @@
+/* =====================================================================
+   Fruit Market · the morning, the standing-order bid and the evening as sheets laid on the table (PLAN-084),
+   drawn to the approved phone screens (docs/studio/review-18/mockups: Morning, Standing-Order, Evening).
+   The cards themselves are in cards.css; the table and the older panels in ticket.css. Imported after those, so a
+   rule here wins over theirs. Colours come from palette.css only. Drawing only: nothing here changes a rule.
+   ===================================================================== */
+
+/* ---------- a sheet reaches over the rows above and below the middle cell ----------
+   The rows of the table keep their places. A sheet stays in the middle cell, like every middle panel, and is drawn
+   larger than the cell by a negative margin: --rise px above it and --drop px below it, measured from the rows
+   themselves and written on the sheet (game/reach.ts). It lies above the rivals and your shelf (5) and level with the
+   top bar (6, earlier in the page), and under the full-screen news (7). The picture of a sheet that slides off
+   (sheet.ts) is drawn by the same rule in its own cell, so it keeps the same reach. */
+#app .tkt > .centre > .fm-sheet { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
+
+/* things kept out of sight until their piece has landed (game/dayBeats.tsx): a new upgrade's mark on your shelf,
+   the Priority stall's mark at the front of tomorrow's line. They keep their place, so the piece knows where to land. */
+:root.fm-hold-mark #app .tkt .tk-dock-marks > span:last-child { visibility: hidden; }
+:root.fm-hold-first #app .tkt .tm-first { visibility: hidden; }
+
+/* ---------- the morning ---------- */
+#app .tkt > .centre > .sh-morning { gap: 10px; padding: 0 12px 10px; }
+#app .tkt > .centre > .sh-morning > :first-child:not(.dw) { margin-top: 10px; }
+/* dawn's money: the market's top-up on mustard, the inspector's fine on pale red, edge to edge under the customers */
+#app .tkt .dw { flex: none; display: flex; flex-direction: column; margin: 0 -12px; }
+#app .tkt .dw-row { all: unset; display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--tk-yel); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .dw-row.fine { background: var(--c-fbd5d2); }
+#app .tkt .dw-row + .dw-row { padding-top: 0; }
+#app .tkt .dw-row.fine + .dw-row.up { padding-top: 9px; }
+#app .tkt .dw-n { flex: none; min-width: 34px; font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
+/* tomorrow's lorry in one line */
+#app .tkt .mt-next { flex: none; display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--tk-kraft); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .mt-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .mt-load { flex: none; margin-left: auto; display: flex; align-items: center; gap: 6px; }
+#app .tkt .mt-load span { display: inline-flex; align-items: center; gap: 3px; }
+/* A morning with more to say than its sheet holds is drawn closer, a step at a time (MorningCard.tsx), before it
+   would need a scroll: first the spacing, then the event's tagline and the lorry's rows, then the event's picture. */
+#app .tkt > .centre > .sh-morning[class*='tight-'] { gap: 6px; padding-bottom: 6px; }
+#app .tkt > .centre > .sh-morning[class*='tight-'] > :first-child:not(.dw) { margin-top: 6px; }
+#app .tkt .sh-morning[class*='tight-'] .dw-row { padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sh-morning[class*='tight-'] .wc-body { gap: 8px; padding: 7px 9px; }
+#app .tkt .sh-morning[class*='tight-'] .wc-main { gap: 5px; }
+#app .tkt .sh-morning[class*='tight-'] .wc-foot { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-morning[class*='tight-'] .wc-lt { margin-top: 4px; margin-bottom: 4px; }
+#app .tkt .sh-morning[class*='tight-'] .mt-next { padding-top: 5px; padding-bottom: 5px; }
+#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-flavour { display: none; }
+#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-lt span { height: 16px; }
+#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-lt .wc-lt-h { height: 22px; }
+#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-ttl { font-size: 1.125rem; }
+#app .tkt .sh-morning.tight-3 .wc-evpic { width: 104px; height: 76px; }
+#app .tkt .sh-morning.tight-3 .wc-chip { padding: 4px 6px; }
+
+/* ---------- the standing-order bid ----------
+   The order's card, who is bidding and what there is to deliver with take the room that is left and scroll inside it
+   on a short phone; your bid, the three lines of the stake and the buttons always stay in view under them. */
+#app .tkt > .centre > .sh-order { gap: 0; padding: 0; overflow: hidden; }
+#app .tkt .ob-top { flex: 1 1 auto; min-height: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px 12px 10px; overflow-x: hidden; overflow-y: auto; }
+#app .tkt .ob-top > * { flex: none; }
+#app .tkt .ob-sec { display: flex; flex-direction: column; gap: 5px; }
+/* who is bidding: bidding on mustard, passed plain, still deciding with a dashed edge */
+#app .tkt .ob-status { all: unset; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+#app .tkt .ob-status.n1 { grid-template-columns: minmax(0, 1fr); }
+#app .tkt .ob-status:is(.n2, .n4) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#app .tkt .ob-status li {
+  all: unset; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 5px 6px; border: 2px solid var(--tk-ink);
+  background: var(--tk-paper); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt);
+}
+#app .tkt .ob-status li.st-in { background: var(--tk-yel); }
+#app .tkt .ob-status li.st-wait { border-style: dashed; }
+#app .tkt .ob-status .xf { flex: none; box-sizing: border-box; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; }
+#app .tkt .ob-who { min-width: 0; display: flex; flex-direction: column; }
+#app .tkt .ob-who b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#app .tkt .ob-who span { margin-top: 2px; font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+/* the bids turned over: every price shows at once (a card turn, at the table's one speed); the winner on mustard */
+#app .tkt .ob-status.open li { background: var(--tk-paper); animation: ob-turn calc(var(--mk, 1) * var(--t-turn)) cubic-bezier(.3, 0, .2, 1) both; }
+#app .tkt .ob-status.open li.st-pass { opacity: 0.55; }
+#app .tkt .ob-status.open li.won { background: var(--tk-yel); box-shadow: 0 0 0 2px var(--tk-ink); }
+#app .tkt .ob-status.open .ob-bid-n { font-size: 0.6875rem; }
+@keyframes ob-turn { from { transform: scaleY(0.05); opacity: 0; } to { transform: none; opacity: 1; } }
+/* what there is to deliver the order with */
+#app .tkt .ob-get { display: flex; flex-direction: column; gap: 6px; padding: 9px 10px; background: var(--tk-tint); font: 600 0.75rem/1.3 var(--tk-txt); }
+/* your bid */
+#app .tkt .ob-foot { flex: none; display: flex; flex-direction: column; gap: 8px; padding: 2px 12px 4px; background: var(--tk-paper); }
+#app .tkt .ob-bid { display: flex; align-items: stretch; border: 2px solid var(--tk-ink); }
+#app .tkt .ob-bid.won { background: var(--tk-yel); }
+#app .tkt .ob-step { all: unset; flex: none; width: 52px; height: 52px; display: grid; place-items: center; cursor: pointer; background: var(--tk-ink); color: var(--tk-yel); font: 400 1.5rem/1 var(--tk-disp); }
+#app .tkt .ob-step:disabled { opacity: 0.35; cursor: default; }
+#app .tkt .ob-price { flex: 1 1 auto; min-width: 0; min-height: 52px; box-sizing: border-box; display: flex; align-items: baseline; justify-content: center; gap: 6px; padding-top: 12px; font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ob-price b { font: 400 1.875rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
+#app .tkt .ob-price b.ob-none { font-size: 1.25rem; text-transform: uppercase; }
+#app .tkt .ob-price small { all: unset; }
+/* the three lines of the stake */
+#app .tkt .ob-lines { all: unset; display: flex; flex-direction: column; gap: 5px; padding: 9px 10px; border: 2px solid var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ob-lines div { display: flex; align-items: baseline; gap: 8px; }
+#app .tkt .ob-lines dt { all: unset; flex: none; width: 74px; font: 800 0.625rem/1.3 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
+#app .tkt .ob-lines dd { all: unset; min-width: 0; }
+/* once the bids are turned over the result takes the lines' place, in a box of the same size (nothing below jumps) */
+#app .tkt .ob-after { position: relative; }
+#app .tkt .ob-after .ob-lines { visibility: hidden; }
+#app .tkt .ob-result {
+  all: unset; position: absolute; inset: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 6px 12px; text-align: center;
+  background: var(--tk-ink); color: var(--tk-paper); font: 700 0.8125rem/1.3 var(--tk-txt);
+}
+#app .tkt .ob-result.hid { visibility: hidden; }
+#app .tkt .ob-note { min-height: 1.3em; color: var(--tk-slate); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ob-hint { all: unset; display: block; padding: 9px 10px; background: var(--c-fbd5d2); color: var(--tk-ink); font: 600 0.8125rem/1.3 var(--tk-txt); }
+/* the winner's stake lies on the card */
+.wc-stat.y.held { position: relative; }
+.wc-coins { position: absolute; right: 8px; top: 50%; display: flex; transform: translateY(-50%); }
+.wc-coins > * + * { margin-left: -6px; }
+/* Pass beside the main button */
+#app .tkt > .centre > .ob-lock { flex-direction: row; gap: 6px; }
+#app .tkt > .centre > .ob-lock .ob-pass {
+  all: unset; flex: 0 0 110px; min-height: 52px; box-sizing: border-box; display: grid; place-items: center; padding: 0 6px; text-align: center; cursor: pointer;
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 400 0.875rem/1.1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase;
+}
+#app .tkt > .centre > .ob-lock .ob-pass:disabled { opacity: 0.45; cursor: default; }
+@media (max-height: 700px) {
+  #app .tkt .ob-top { gap: 8px; padding: 8px 12px; }
+  #app .tkt .ob-foot { gap: 6px; box-shadow: 0 -2px 0 var(--tk-ink); padding-top: 6px; }
+  #app .tkt .ob-step { height: 46px; }
+  #app .tkt .ob-price { min-height: 46px; padding-top: 9px; }
+  #app .tkt .ob-lines { gap: 3px; padding: 6px 8px; }
+}
+
+/* ---------- the evening ---------- */
+#app .tkt > .centre > .sh-evening { gap: 0; padding: 0; }
+#app .tkt .sh-evening .evening-panel { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 12px; }
+#app .tkt .ev-head { position: sticky; top: 0; z-index: 2; flex: none; display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; background: var(--tk-kraft); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ev-head b { flex: none; font: 400 1.125rem/1 var(--tk-disp); text-transform: uppercase; }
+#app .tkt .evening-panel .info-card { flex: none; margin: 0 12px; padding: 6px 8px; border: 0; background: var(--c-fbd5d2); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .evening-panel .info-card.good { background: var(--c-cfeedd); }
+#app .tkt .ev-sec { flex: none; display: flex; flex-direction: column; gap: 7px; padding: 0 12px; }
+#app .tkt .ev-lab { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ev-hint { all: unset; display: block; color: var(--tk-slate); font: 600 0.75rem/1.3 var(--tk-txt); }
+/* the offers: cards in a row that swipes sideways; tap one to choose it */
+#app .tkt .ev-sec .uo-row, #app .tkt .ev-sec .fav-row { margin: 0 -12px; padding: 4px 12px 4px 16px; }
+#app .tkt .ev-sec .fav-row { padding-left: 12px; }
+#app .tkt .uo-pick { appearance: none; -webkit-appearance: none; padding: 0; border-radius: 0; cursor: pointer; }
+#app .tkt .uo-pick .uo-pic { display: block; object-fit: cover; }
+#app .tkt .uo-pick.sel { box-shadow: 0 0 0 4px var(--tk-yel); }
+#app .tkt .uo-pick:disabled { cursor: default; }
+#app .tkt .uo-pick:disabled > :not(.uo-kind, .uo-ft) { opacity: 0.5; }
+/* Shade Cloth's fruit */
+#app .tkt .shade-pick { margin: 0; gap: 6px; }
+#app .tkt .shade-pick button {
+  all: unset; flex: 1 1 0; min-width: 0; min-height: 44px; box-sizing: border-box; display: grid; place-items: center; cursor: pointer;
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase;
+}
+#app .tkt .shade-pick button.on { background: var(--tk-yel); box-shadow: inset 0 0 0 3px var(--tk-ink); }
+#app .tkt .evening-panel .owned-row { color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+/* tomorrow in one line, at the foot of the sheet */
+#app .tkt .ev-tomorrow { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: auto 12px 0; padding: 7px 9px; background: var(--tk-kraft); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .ev-who { display: inline-flex; align-items: center; gap: 6px; }
+#app .tkt .ev-who > span { display: inline-flex; align-items: center; gap: 3px; }
+#app .tkt .ev-who .xf { flex: none; box-sizing: border-box; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; }
+#app .tkt .ev-who.heard { padding: 2px 5px 2px 2px; background: var(--tk-paper); box-shadow: inset 0 0 0 2px var(--tk-ink); }
+#app .tkt .ev-rest { margin-left: auto; color: var(--tk-slate); }
+/* one main button; "Lights out without building" under it when an upgrade is chosen */
+#app .tkt > .centre > .ev-lock { gap: 6px; }
+#app .tkt > .centre > .ev-lock .ev-out {
+  all: unset; min-height: 48px; box-sizing: border-box; display: grid; place-items: center; text-align: center; cursor: pointer;
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase;
+}
+/* a built upgrade's card on its way from the offer to your stall (game/dayBeats.tsx) */
+.fx-layer .fm-upcard { width: 92px; box-sizing: border-box; display: flex; flex-direction: column; border: 3px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
+.fx-layer .fm-upcard-pic { display: block; width: 100%; height: 40px; object-fit: cover; border-bottom: 2px solid var(--x-ink); }
+.fx-layer .fm-upcard b { padding: 4px 5px; font: 400 0.6875rem/1 var(--f-display); text-transform: uppercase; }
+/* Priority played: that stall's mark at the front of tomorrow's line */
+#app .tkt .tomorrow .tm-first { flex: none; box-sizing: border-box; height: 26px; display: inline-flex; align-items: center; gap: 4px; padding-right: 5px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
+#app .tkt .tomorrow .tm-first .xf { border-radius: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  #app .tkt .ob-status.open li { animation: none; }
+}
