@@ -2,7 +2,9 @@
 // The game works out every sale at the bell, so the customers' tickets are already ticked and a favour card won in the
 // rush is already in its stall's hand. Like the cash (cashShown.ts) and the shelves (stockShown.ts), this holds both
 // back: a fruit on a ticket is ticked when that customer's sale has been shown, and a favour card won appears when
-// it has reached its stall. It only changes what is drawn, never the game.
+// it has reached its stall. At the round table (panels/RushTable.tsx) it also says how many pieces have left each
+// crate for the customer so far, and whether a stall's money for them has landed. It only changes what is drawn,
+// never the game.
 import { useEffect, useState } from 'preact/hooks';
 import type { FruitId, Want } from '../engine/data';
 import type { DayResult } from '../engine/game';
@@ -12,6 +14,10 @@ interface Hold {
   served: Set<string>;
   /** Pieces that have landed on a customer's card so far, under the same names. */
   landed: Map<string, number>;
+  /** Pieces that have left a stall's crate for a customer so far, as "<customer id>:<fruit>:<stall>". */
+  lifted: Map<string, number>;
+  /** Stalls whose money for a customer's fruit has landed, under the same names. */
+  paid: Set<string>;
   /** Favour cards won today that have not reached their stall yet, by stall. */
   hidden: number[];
   /** Customers whose favour card has reached its stall. */
@@ -26,12 +32,13 @@ const tell = (ls: Set<() => void>) => ls.forEach((l) => l());
 const changed = () => { tell(table); tell(card); };
 
 const name = (customerId: number, fruit: FruitId) => `${customerId}:${fruit}`;
+const stallName = (customerId: number, fruit: FruitId, player: number) => `${customerId}:${fruit}:${player}`;
 
 /** Starts holding back today's tickets and the favour cards won today (`r`: the day's results, `stalls`: how many stalls). */
 export function holdRush(r: DayResult, stalls: number): void {
   const hidden = Array.from({ length: stalls }, () => 0);
   for (const f of r.favours) if (hidden[f.player] !== undefined) hidden[f.player]++;
-  held = { served: new Set(), landed: new Map(), hidden, favoured: new Set() };
+  held = { served: new Set(), landed: new Map(), lifted: new Map(), paid: new Set(), hidden, favoured: new Set() };
   changed();
 }
 
@@ -55,6 +62,27 @@ export function landPiece(customerId: number, fruit: FruitId, n = 1): void {
 
 /** How many pieces have landed on a customer's card so far (0 when nothing is held back: ask lineShown first). */
 export const piecesLanded = (customerId: number, fruit: FruitId): number => held?.landed.get(name(customerId, fruit)) ?? 0;
+
+/** A piece of fruit has left a stall's crate for a customer (`n` pieces at once when several are drawn as one). */
+export function liftPiece(customerId: number, fruit: FruitId, player: number, n = 1): void {
+  if (!held || n <= 0) return;
+  const k = stallName(customerId, fruit, player);
+  held.lifted.set(k, (held.lifted.get(k) ?? 0) + n);
+  tell(card);
+}
+
+/** How many pieces have left a stall's crate for a customer so far (0 when nothing is held back: ask lineShown first). */
+export const piecesLifted = (customerId: number, fruit: FruitId, player: number): number => held?.lifted.get(stallName(customerId, fruit, player)) ?? 0;
+
+/** A stall's money for a customer's fruit has landed: its crate may say what it was paid. */
+export function payShown(customerId: number, fruit: FruitId, player: number): void {
+  if (!held || held.paid.has(stallName(customerId, fruit, player))) return;
+  held.paid.add(stallName(customerId, fruit, player));
+  tell(card);
+}
+
+/** Has a stall's money for this customer's fruit landed? Always, when nothing is held back. */
+export const paidShown = (customerId: number, fruit: FruitId, player: number): boolean => !held || held.paid.has(stallName(customerId, fruit, player));
 
 /** A customer's sale of one fruit has been shown: its row on the ticket may be ticked. */
 export function serveLine(customerId: number, fruit: FruitId): void {
@@ -111,5 +139,6 @@ function useListener(ls: Set<() => void>): void {
 
 /** Redraws the calling component whenever a ticket or a favour card changes (the game table). */
 export function useRushShown(): void { useListener(table); }
-/** Redraws the calling component at those changes and whenever a piece lands on the customer's card (the card itself). */
+/** Redraws the calling component at those changes and whenever a piece leaves a crate or lands on the customer, or a
+ *  stall's money lands (the round table itself). */
 export function useRushCard(): void { useListener(card); }

@@ -64,12 +64,13 @@ export const BEAT = {
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
   tie: { ask: 600, stamp: 180, pause: 600 },
-  /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
-   *  stalls' offers turn up under it, and for each fruit wanted the pieces go to the card (`pieceGap` apart, FEEL.travel
-   *  each) and the coins come back (`coinGap` apart, FEEL.coin each). A further fruit starts `fruit` after the one
-   *  before. The result is then held to be read and the card slides back. A favour card won slides to its stall
-   *  while the result is read. About 2.4 s for one fruit and 0.5 s more for each further fruit. */
-  rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 },
+  /** One customer at the round table (rush.ts rushPace; DEC-109): the customer comes from the row to the middle
+   *  (`cardIn`), every crate's price tag turns to the fruit they want (`rows`), the pieces go from the crates to the
+   *  customer (`pieceGap` apart, FEEL.travel each) and the coins come back (`coinGap` apart, FEEL.coin each). Fruit by
+   *  fruit, as the game serves them: once a fruit's coins are back the tags turn to the next (`fruit`). The result is
+   *  then held to be read and the customer goes back. A favour card won slides to its stall's crate while the result
+   *  is read. About 2.4 s for one fruit and about 1 s more for each further fruit. */
+  rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 300, read: 1000, cardOut: 200, favour: 340 },
   /** The night (PLAN-085, about 2.5 s): dusk falls over the table, every piece slides one box along its lane, a beat
    *  to settle, a moment to read (a Juice Bar's coins travel then, `gap` apart), the last beat before dawn; a piece
    *  leaving the last box tips off over `spoil`; in the stylesheet, the sky darkening and the dusk over the market

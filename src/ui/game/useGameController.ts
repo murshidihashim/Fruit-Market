@@ -20,7 +20,7 @@ import { loadSettings } from '../store';
 import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
-import type { ShowState } from './panels/Showdown';
+import type { ShowState } from './rush';
 
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {

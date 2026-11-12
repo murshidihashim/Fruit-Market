@@ -20,7 +20,7 @@ import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
-import { Showdown } from './game/panels/Showdown';
+import { RushTable } from './game/panels/RushTable';
 import { DaySheet, daySheetOn } from './game/panels/DaySheet';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
@@ -112,7 +112,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   // The lorry drives in once the morning's news has been read (Start buying), then unloads (PLAN-065).
   const lorryHere = s.phase === 'buy' && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public). In the rush every
-  // stall's price is on the customer's card (panels/Showdown.tsx), which lies over the seats.
+  // stall's price is on its crate at the round table (panels/RushTable.tsx), which lies over the seats.
   const boards: Record<number, Board> = {};
   if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (s.phase === 'stall') rivals.forEach((p) => { boards[p] = { state: s.stalls[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
@@ -192,8 +192,10 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         </div>
       )}
 
-      <section class="street-wrap" data-a="street">
-        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} />
+      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css). */}
+      <section class="street-wrap" data-a="street" style={show ? `--rt-at:"Customer ${show.n} of ${show.of}"` : undefined}>
+        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
+          away={show?.card.customerId} served={show?.served} />
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
@@ -217,9 +219,9 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
           (.pp-lock) take the action bar's place. */}
       {!pricing && !stalling && !orderUp && !tying && !evSheet && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
-      {/* The rush: a sheet over the table from the customer row down, under the flying fruit. It stays a moment after
-          the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
-      <Showdown s={s} a={show} shared={!online && humans.length > 1} />
+      {/* The rush: the round table, a stage over the table from under the customer row down, under the flying fruit.
+          It stays a moment after the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
+      <RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} />
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
