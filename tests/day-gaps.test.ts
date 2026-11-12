@@ -7,6 +7,7 @@ import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
+import { CratesOpen } from '../src/ui/game/panels/PricingTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { stripStep } from '../src/ui/game/panels/TopBar';
 
@@ -60,5 +61,36 @@ describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
     const shared = toStaticHtml(h(TakingsView, { s, viewer: 0, shared: true }));
     expect(shared).toContain('<span class="tg-name">Mira</span>');
     expect(shared).not.toContain('<span class="tg-name">You</span>');
+  });
+});
+
+describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
+  it('no Skip beside "Night falls…", and no selling hint once a customer\'s card is up or after the last one', () => {
+    const bar = read('src/ui/game/panels/ActionBar.tsx');
+    expect(bar).toContain("const selling = busy && s.phase === 'reveal' && !night;");
+    expect(bar).toContain('const cards = selling && rushDay.current === s.day;');
+    expect(bar).toContain("s.phase === 'reveal' ? (cards ? '' : 'Selling… tap to speed up')");
+    // Skip stays on the page until the takings (the performance script times the rush by it), unseen and out of reach
+    expect(bar).toContain("{selling && <button class=\"btn skip\" style={cards ? 'visibility:hidden' : undefined} aria-hidden={cards ? 'true' : undefined} tabIndex={cards ? -1 : undefined}");
+    expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.actionbar .skip')");
+  });
+});
+
+describe('after a Favoured Trade answer (PricingTable.tsx, DaySheet.tsx)', () => {
+  it('the stall that has just answered is not told again that its prices are tied', () => {
+    // this stall asks what a rival asks for a fruit both put out: a tied price
+    const g: GameState = structuredClone(atTakings());
+    const rival = g.bids.findIndex((b, i) => i !== 0 && !!b && b.length > 0);
+    const post = g.bids[rival]![0];
+    g.stalls[0] = { ...g.stalls[0], [post.fruit]: 1 };
+    g.bids[0] = [...(g.bids[0] ?? []).filter((b) => b.fruit !== post.fruit), { fruit: post.fruit, price: post.price }];
+    const told = toStaticHtml(h(CratesOpen, { s: g, viewer: 0 }));
+    expect(told).toContain('Your prices are tied: ');
+    const quiet = toStaticHtml(h(CratesOpen, { s: g, viewer: 0, answered: true }));
+    expect(quiet).not.toContain('Your prices are tied');
+    expect(quiet).not.toContain('data-a="bell-ties"');
+    const sheet = read('src/ui/game/panels/DaySheet.tsx');
+    expect(sheet).toContain('if (tying) answered.current = true;');
+    expect(sheet).toContain('answered={answered.current}');
   });
 });
