@@ -96,15 +96,16 @@ export function characterArt(who: string): string | null {
 
 // ---------- focus points ----------
 // Where the subject is in each picture, as percentages of its width and height. A frame narrower or flatter than the
-// picture is cropped round this point (CSS object-position), so the face or the subject stays in view. Every customer
-// and shopkeeper is drawn with the head in the middle of the picture; the height is set a little above the eyes so a
-// flat frame keeps the hat. Checked in every frame a picture is used in (PLAN-083).
+// picture is cropped round this point (CSS object-position), so the face or the subject stays in view. Checked in
+// every frame a picture is used in (PLAN-083): the full cards, the phone cards, the row's tickets at every width, the
+// rush card and the small portraits.
 
 export type Focus = readonly [x: number, y: number];
+/** All 36 customers are drawn to one pattern: the head is a circle centred half way across and 49% to 51% of the way
+ *  down (measured in the files). The point is set a little above the eyes, so a flat frame keeps the hat or the hair. */
 const CUSTOMER_FOCUS: Focus = [50, 40];
-/** Customers whose hat, hair or headscarf reaches higher than most: the flat frame is cut lower down instead. */
-const CUSTOMER_FOCUS_Y: Record<string, number> = {};
-/** A shopkeeper card keeps the awning and the face (as on the approved card). */
+/** The eight shopkeepers are drawn to the same pattern under their awning. A shopkeeper card keeps the awning and the
+ *  face (as on the approved card), so its frame is cut from the top. */
 const SHOP_FOCUS: Focus = [50, 12];
 const ORDER_FOCUS: Record<string, Focus> = {
   'airline-caterer': [44, 60], 'beach-resort': [50, 62], 'cider-press': [52, 52], 'company-picnic': [58, 52],
@@ -112,7 +113,7 @@ const ORDER_FOCUS: Record<string, Focus> = {
 };
 const EVENT_FOCUS: Record<string, Focus> = {
   calm: [56, 42], festival: [50, 62], superfood: [38, 42], mangoCraze: [50, 42], hotel: [48, 55], heatwave: [50, 30],
-  blight: [50, 46], glut: [50, 52], goodHarvest: [46, 48], badHarvest: [52, 48], priceHike: [52, 45], priceControls: [50, 38],
+  blight: [50, 46], glut: [50, 40], goodHarvest: [46, 48], badHarvest: [52, 48], priceHike: [52, 45], priceControls: [50, 38],
   inspector: [48, 40], strike: [50, 55], touristBus: [50, 52], monsoon: [50, 42], durian: [42, 45], kenduri: [50, 48],
   mangoWindfall: [48, 48], pasarMalam: [55, 50], bakeOff: [55, 55],
 };
@@ -129,8 +130,7 @@ const UPGRADE_FOCUS: Record<UpgradeId, Focus> = {
 
 /** A customer's or standing-order client's focus point. */
 export function customerFocus(key: string): Focus {
-  if (ORDER_KEYS.has(key)) return ORDER_FOCUS[slug(key)] ?? [50, 50];
-  return [CUSTOMER_FOCUS[0], CUSTOMER_FOCUS_Y[key] ?? CUSTOMER_FOCUS[1]];
+  return ORDER_KEYS.has(key) ? ORDER_FOCUS[slug(key)] ?? [50, 50] : CUSTOMER_FOCUS;
 }
 export const shopFocus = (_avatar: string): Focus => SHOP_FOCUS;
 export const eventFocus = (id: string): Focus => EVENT_FOCUS[id] ?? [50, 50];

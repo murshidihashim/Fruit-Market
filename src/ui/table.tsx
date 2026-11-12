@@ -414,7 +414,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush }: 
     <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${c.wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when fresh`}`).join('\n')}`}>
-      <Ticket who={c.name} lines={lines} />
+      <Ticket who={c.name} lines={lines} order={!!c.order} />
       {(done || special || heard) && (
         <span class="cust-marks">
           {done && <i class="happy-mark"><Icon name="heart" size={13} /></i>}

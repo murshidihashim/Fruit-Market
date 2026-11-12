@@ -328,7 +328,7 @@ export function UpgradeCard({ id, eager, class: cls }: { id: UpgradeId; eager?: 
   );
 }
 
-/** "3 at 2 or 3 stalls, 4 at 4, 5 at 5 or 6": how many pieces a standing order wants at each table size. */
+/** "3 at 2–3 · 4 at 4 · 5 at 5–6": how many pieces a standing order wants at each table size (data.ts orderQty). */
 function orderSizes(): string {
   const by = new Map<number, number[]>();
   for (const n of SIZES) by.set(orderQty(n), [...(by.get(orderQty(n)) ?? []), n]);

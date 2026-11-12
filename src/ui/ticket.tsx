@@ -53,9 +53,10 @@ export function dotsNeed(lines: { qty: number; max: number; done?: boolean }[]):
 /**
  * A customer as a ticket in the row (the approved phone screens): the number and name on a black heading, the picture,
  * one row per fruit in the board's lane order (a dot for each piece, and the most they pay for a fresh piece today),
- * and the legend: which freshness they buy.
+ * and the legend: which freshness they buy. `order`: a standing order collected today, which stands in the row like a
+ * customer; it takes Fresh or Okay pieces at its own price, so its legend is not a price key.
  */
-export function Ticket({ who, lines, class: cls }: { who: string; lines: TicketLine[]; class?: string }) {
+export function Ticket({ who, lines, class: cls, order }: { who: string; lines: TicketLine[]; class?: string; order?: boolean }) {
   const look = lookOf(who);
   const guest = !!GUEST_EVENT[who];
   const num = guest ? undefined : customerNumber(who);
@@ -79,7 +80,7 @@ export function Ticket({ who, lines, class: cls }: { who: string; lines: TicketL
           <b>${x.max}</b>
         </div>
       ))}
-      <footer class="tkc-bd" role="img" aria-label={`${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
+      <footer class="tkc-bd" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
         <i class="tkc-lamp">F</i>
         <i class={cx('tkc-lamp', pref === 'premium' && 'off')}>O</i>
         <i class={cx('tkc-lamp', pref !== 'bargain' && 'off')}>S</i>

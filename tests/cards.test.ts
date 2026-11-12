@@ -422,6 +422,13 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
       for (const w of order) expect(s).toContain(`${'<i></i>'.repeat(w.qty)}</span><em class="tkc-n">×${w.qty}</em>`);
     });
     for (const g of GUESTS) expect(html(Ticket, { who: g.name, lines: g.wants })).toContain(`<header class="tkc-hd">${lookOf(g.name).title}</header>`);
+    // A standing order collected today stands in the row too: its client's picture, and a legend that is not a price key.
+    for (const o of ORDER_CARDS) {
+      const s = html(Ticket, { who: o.name, lines: [{ fruit: o.fruit, qty: 4, max: o.ceiling }], order: true });
+      expect(s).toContain(`src="${customerArt(o.name)}"`);
+      expect(s).toContain('aria-label="Takes Fresh or Okay fruit at its price"');
+      expect(s).not.toContain('pays $');
+    }
   });
 
   it('a ticket knows how wide it must be for its dots: more pieces and longer prices need more room', () => {
