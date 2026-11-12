@@ -1,5 +1,5 @@
-// Retired (PLAN-049): the card backs are now part of the full print kit, drawn by scripts/print-deck.ts in the
-// Great Fruit Exchange look (each sheet of fronts is followed by its mirrored backs). This wrapper keeps the old
+// Retired (PLAN-049): the card backs are part of the full print kit, drawn by scripts/print-deck.ts in the approved
+// card design (each sheet of fronts is followed by its mirrored backs; PLAN-087). This wrapper keeps the old
 // command working for the QA sweep: node scripts/print-backs.cjs <outdir> builds the whole kit into <outdir>.
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
