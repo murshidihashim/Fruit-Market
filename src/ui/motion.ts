@@ -48,9 +48,6 @@ export const BEAT = {
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
   /** Filling your crate: a piece from the shelf row to the crate. */
   stock: { fly: 480 },
-  /** A sale: the gap between two pieces going to the customer, the coins that come back (the first after `coinAfter`,
-   *  the rest `coinGap` apart), and the gap between two routine sales. */
-  sale: { pieceGap: 90, coinAfter: 380, coinGap: 110, coin: 480, routineGap: 120 },
   /** The bell: every crate open on the table (a base and a little more for each stall), "No sales today", a crate turning over. */
   bell: { read: 1500, readPerStall: 350, noSales: 1100, crateTurn: 400 },
   /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the

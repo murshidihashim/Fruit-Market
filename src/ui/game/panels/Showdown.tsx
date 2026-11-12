@@ -165,13 +165,10 @@ export function RushView({ s, a, card, shared, leaving, onNext: next, onSkip: sk
             );
           })}
         </div>
-        <div class={`rh-why ${done ? 'show' : ''}`} role="status">
-          {done && (
-            <>
-              <b class={c.earned > 0 ? '' : 'nil'}>{c.earned > 0 ? `+$${c.earned}` : '$0'}</b>
-              <span>{c.text}</span>
-            </>
-          )}
+        {/* The line takes its room from the start, unseen (rush.css), so the offers above it do not move when it shows. */}
+        <div class={`rh-why ${done ? 'show' : ''}`} role="status" aria-hidden={done ? undefined : 'true'}>
+          <b class={c.earned > 0 ? '' : 'nil'}>{c.earned > 0 ? `+$${c.earned}` : '$0'}</b>
+          <span>{c.text}</span>
         </div>
       </div>
       <div class="rh-foot">

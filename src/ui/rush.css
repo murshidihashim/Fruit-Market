@@ -108,7 +108,7 @@
 #app .tkt .rh-of.me .rh-res.miss { box-shadow: inset 0 0 0 1.5px var(--tk-slate); }
 #app .tkt .rh-of .rh-fav { margin-left: auto; }
 #app .tkt .rh-of .rh-fav + .rh-res { margin-left: 0; }
-/* what you earned from this customer, and how it went */
+/* what you earned from this customer, and how it went: unseen, but at its full height, until the sales have been shown */
 #app .tkt .rh-why { flex: none; min-height: 38px; display: flex; align-items: center; gap: 10px; padding: 9px 10px; background: var(--tk-ink); color: var(--tk-paper); visibility: hidden; }
 #app .tkt .rh-why.show { visibility: visible; animation: rush-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
 #app .tkt .rh-why b { flex: none; font: 400 1.25rem/1 var(--tk-disp); color: var(--tk-yel); }

@@ -55,7 +55,6 @@ describe('the lengths are named in one place (motion.ts)', () => {
     expect(BEAT.piece).toEqual({ fly: 520, land: 300, gap: 90 });
     expect(BEAT.lorry).toEqual({ fly: 600, gap: 70 });
     expect(BEAT.rival).toEqual({ pause: 380, pauseFast: 150 });
-    expect(BEAT.sale).toEqual({ pieceGap: 90, coinAfter: 380, coinGap: 110, coin: 480, routineGap: 120 });
     expect(BEAT.stock.fly).toBe(480);
     expect([BEAT.label.read, BEAT.label.favourWon, BEAT.label.bonus, BEAT.label.float, BEAT.label.toast]).toEqual([1100, 800, 500, 1300, 2000]);
     // the bell: 2.9 s at four stalls; "No sales today" 1.1 s

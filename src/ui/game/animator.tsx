@@ -155,17 +155,19 @@ async function sell(card: RushCard, viewer: number) {
  */
 async function gifts(card: RushCard, viewer: number) {
   const from = onSheet('.rh-card .wc-custpic') ?? 'rs-card';
-  const stallOf = (player: number) => {
+  // A stall's row on this card (the first fruit it sold), and a part of it: its mark, or the result at its end.
+  const stallOf = (player: number, part: string) => {
     const b = card.blocks.find((x) => x.rows.some((row) => row.player === player && row.sold > 0)) ?? card.blocks.find((x) => x.rows.some((row) => row.player === player));
-    return b ? offerRow(b.fruit, player) : 'rs-card';
+    return b ? onSheet(`[data-a="${offerRow(b.fruit, player)}"] ${part}`) ?? offerRow(b.fruit, player) : 'rs-card';
   };
-  const jobs = card.extras.map((x) => A.fly(from, x.player === viewer ? `p${viewer}-cash` : stallOf(x.player), <Coin size={24} />, {
+  const jobs = card.extras.map((x) => A.fly(from, x.player === viewer ? `p${viewer}-cash` : stallOf(x.player, '.tk-swatch'), <Coin size={24} />, {
     duration: A.FEEL.coin, path: 'low', onLand: () => { fx.coin(); void payCash(x.player, x.amount); },
   }));
   const f = card.favour;
   if (f) {
     fx.card();
-    jobs.push(A.fly(from, stallOf(f.player), <FavourMark id={f.id} />, { duration: A.BEAT.rush.favour, path: 'low', onLand: () => showFavour(card.customerId, f.player) }));
+    // The card lands beside the row's result, where it then lies (panels/Showdown.tsx).
+    jobs.push(A.fly(from, stallOf(f.player, '.rh-res'), <FavourMark id={f.id} />, { duration: A.BEAT.rush.favour, path: 'low', swell: false, onLand: () => showFavour(card.customerId, f.player) }));
   }
   await Promise.all(jobs);
 }

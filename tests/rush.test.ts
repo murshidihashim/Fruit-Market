@@ -291,7 +291,9 @@ describe('the rush card', () => {
     expect(before).not.toContain('class="got"');
     expect(before).not.toMatch(/wc-rw [^"]* done/);
     expect(before).not.toContain('Sold ');
-    expect(before).toContain('<div class="rh-why " role="status"></div>');
+    // the result line is not shown yet (it keeps its room, unseen, so the offers do not move when it shows)
+    expect(before).toContain('<div class="rh-why " role="status" aria-hidden="true">');
+    expect(before).not.toContain('rh-why show');
     // one fruit's sale has been shown: its rows are marked, the other fruit's are not
     const [first, second] = card.blocks;
     serveLine(card.customerId, first.fruit);
@@ -302,6 +304,7 @@ describe('the rush card', () => {
     serveLine(card.customerId, second.fruit);
     const done = html(show('result'));
     expect(done.match(/class="rh-res/g)).toHaveLength(first.rows.length + second.rows.length);
+    expect(done).toContain('<div class="rh-why show" role="status">');
     expect(done).toContain(`<b class="">+$${card.earned}</b>`);
     expect(done).toContain(`<span>${card.text.replace(/&/g, '&amp;').replace(/'/g, '&#39;')}</span>`);
   });
