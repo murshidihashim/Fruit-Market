@@ -1,0 +1,84 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-104",
+    "REP-106",
+    "REP-108"
+  ],
+  "decisions": [
+    "DEC-086",
+    "DEC-094",
+    "DEC-095",
+    "DEC-098"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4; this is the first part of package 3, \"the screens one beat at a time, the rush first\"). One card for each customer in the rush: DEC-086. The screen designs are the mock-ups kept in docs/studio/review-18/mockups (REP-104, DEC-090 to DEC-095).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-084",
+  "title": "Release A, package 3, part 1: the rush; the morning, the standing-order bid and the evening",
+  "problem": "The cards are in the game but the screens around them are still the old layouts, and what happens on them is cut, not shown. The rush gives its result away at the bell (tickets already ticked, a won favour card already on the stall), shows one card for each fruit and takes about 17 seconds; on a phone 640 tall it hides the stalls' offers. The morning needs a scroll, part of the order card sits behind the bidding controls, nobody is shown winning the standing order, and the evening has a Build button in every offer.",
+  "scope": [
+    "The rush as on the Rush mock-up: one card for each customer with every stall's offer in price order, what you earned, Next customer and Skip to the end; readable at 390x844 and 360x640 with 2 to 6 stalls",
+    "Nothing before its moment in the rush: a ticket is ticked, cash rises, a shelf empties and a won favour card appears only when that customer's sale is shown",
+    "The sale as travel: fruit to the customer, coins back to the stall, a won favour card to the stall; the rush moves on by itself about a second after each customer and a tap moves on sooner; about 10 seconds for four customers",
+    "The morning as on the Morning mock-up, with coins travelling for the $5 top-up and the inspector's fine",
+    "The standing-order bid as on the Standing-Order mock-up; the bids turned over together, the winner shown, the stake placed on the order card",
+    "The evening as on the Evening mock-up: upgrades and favours as cards, one main button; a built upgrade travels to the stall",
+    "The table stays put: a sheet may cover the rows under it but does not move them"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or online-protocol change",
+    "Pricing, the bell and Favoured Trade; stocking; buying and the market lanes; the lorry and the customers' arrival; the night; the results (later parts of package 3)",
+    "Ending the evening by itself: the owner asked on 2026-11-11 (PLAN-076) that the Wholesale Market stay in view until Lights out is tapped, so the tap stays",
+    "The text rewrite (package 4): labels come from the mock-ups and the game's data, new ones are listed for that package"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes; the rush pace test is changed with the pace, as a stated change",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes: solo game to the results, performance budget, online match with 0 leaks, reconnect",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each of the four screens seen in the running game at 390x844 and 360x640, with 4 and with 6 stalls, beside its mock-up, by me; differences listed; no control off the screen or covered",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "In the rush nothing changes before its customer: ticket, cash, shelf, won favour card (measured frame by frame); pass-and-play and online show no secret early",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "A rush of four customers takes about 10 seconds untouched (measured); with reduced motion nothing travels and every pause to read is kept",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T6",
+      "text": "The owner has seen the screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

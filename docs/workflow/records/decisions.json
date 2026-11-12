@@ -3497,6 +3497,14 @@
     {
       "at": "2026-11-12 10:38",
       "text": "Owner: \"approve package 2\". PLAN-083 (release A, package 2: the new pictures and card faces in the game; shared motion blocks) is confirmed as approved; it was opened on his earlier \"okay yes\" to REP-106. Building continues; publishing is not part of it. The balance question from REP-107 (accept for release A, or tune further) is still open."
+    },
+    {
+      "at": "2026-11-12 12:05",
+      "text": "PLAN-083 implemented (REP-108): the new pictures and card faces (merge 10ef387) and the shared motion blocks (merge fd95996) are on the working branch. verify PASS (605 tests); browser tests PASS (0 leaks, reconnect 5 of 5, budget OK); each card seen beside its mock-up at 390x844 and 360x640, differences listed in REP-108; pass-and-play hand-over shows nothing of the first person's prices. Performance, 3 runs on the new build and 3 on the build before the package, same script, processor slowed 4x: game screen opens in 116 to 276 ms (before 126 to 199; limit 350 here, 600 on CI); longest task 106 to 155 ms (before 96 to 191; limit 200 here, 250 on CI); page elements 533 to 540 (before 504 to 512; limit 800); slow frames 0.24 to 0.3 in a hundred (before 0.16 to 0.22; limit 2); budget passed in 3 of 3 new runs. T4 (the owner has seen the cards) NOT RUN: six pictures sent, awaiting his word. Open with the owner: anything to change on the cards; whether to update the preview copy (a merge to main); the balance question from REP-107."
+    },
+    {
+      "at": "2026-11-12 12:06",
+      "text": "PLAN-084 opened under DEC-098: release A, package 3, part 1 (the rush; the morning, the standing-order bid and the evening), built by two helpers in separate work folders. Package 3 is built in parts because the screens share files; later parts: pricing, the bell and Favoured Trade; buying and the market lanes; the lorry, stocking, the night and the results. Kept as the owner asked on 2026-11-11 (PLAN-076): the Wholesale Market stays in view in the evening until Lights out is tapped; the evening does not end by itself, although REP-106 suggested it could."
     }
   ]
 }

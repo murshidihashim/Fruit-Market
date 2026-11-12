@@ -1,9 +1,10 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merges 10ef387 and fd95996",
   "reports": [
     "REP-104",
-    "REP-106"
+    "REP-106",
+    "REP-108"
   ],
   "decisions": [
     "DEC-094",
@@ -12,10 +13,23 @@
     "DEC-098"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "90 new pictures in the game: 36 customers, 8 standing-order clients, 20 events and Calm Day, 8 shopkeeper scenes, 6 favours, 5 upgrades, 6 back patterns",
+      "Shared motion blocks: one clock for every pause and move, one smooth move for fruit and coins, a middle panel that slides in and off, a count of slow frames in the performance check"
+    ],
+    "changed": [
+      "Every card follows the approved designs: event, lorry, shopkeeper, favour, upgrade and standing order in design A; the customer front and back; pattern backs; the label \"Upgrade\"",
+      "Tapping a customer, a favour or a standing order opens the full card",
+      "With reduced motion nothing travels and every pause to read is kept"
+    ],
+    "fixed": [
+      "The day's takings card flashed for two frames before the bell",
+      "The rush card started 140 px to the right of the customer's ticket",
+      "The \"FINAL DAY!\" stamp and the labels over a stall were lost with reduced motion"
+    ],
+    "removed": [
+      "73 old card pictures and the old newspaper-style event card"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -23,7 +37,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (release A in packages; this is package 2). Designs: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\" (DEC-095); \"lets use pattern for now\" (DEC-096); \"picture style is right, proceed to draw all the cards\" (DEC-094).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-083",
   "title": "Release A, package 2: the new pictures and card faces in the game; shared motion blocks",
   "problem": "The game still shows the old pictures and the old card faces, and its animations are built from separate pieces with their own timings. The approved designs (docs/studio/review-18/mockups) and the drawn pictures (docs/studio/art-drafts/cards-18) are not in the game yet.",
@@ -42,26 +56,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes; a test proves every card in the game's data has a picture file",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify run by me on fd95996 (merges 10ef387 cards, fd95996 motion), 2026-11-12: 63 test files, 605 passed, 1 skipped; lint, types, records check and build pass. tests/cards.test.ts fails if any customer, guest, event, Calm Day, shopkeeper scene or face, order client, favour, upgrade or back tile has no picture file, or a file is left unused."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes; the performance budget holds with the new pictures and reports slow frames",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e run by me on fd95996 (cards and motion together), 2026-11-12: results visible: 1 errors: []; BUDGET OK first try (page elements 528 of 800, game screen opens in 234 ms of 350, longest task 151 ms of 200, slow frames 20 of 6,897, 0.29 in a hundred, limit 2); frames checked during pricing: 82 | leaks: 0; RECONNECT OK: 5 cycles; E2E OK, exit 0. Performance, 3 runs on the new build and 3 on the build before the package, same script, processor slowed 4x: game screen opens in 116 to 276 ms (before 126 to 199; limit 350 here, 600 on CI); longest task 106 to 155 ms (before 96 to 191; limit 200 here, 250 on CI); page elements 533 to 540 (before 504 to 512; limit 800); slow frames 0.24 to 0.3 in a hundred (before 0.16 to 0.22; limit 2); budget passed in 3 of 3 new runs."
     },
     {
       "id": "T3",
       "text": "Each card face seen in the running game at 390x844 and 360x640 beside its mock-up, by me; differences listed",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "By me, 2026-11-12, on fd95996: 26 screenshots at 390x844 and 26 at 360x640 from saved games (no page errors), and the game's own cards drawn on one page, each looked at beside its mock-up (docs/workflow/reports/img/REP-108-*.png). Differences are listed in REP-108 section 2. Not right yet, left for package 3: at 360x640 the rush hides the stalls' offers below the fold (before this package only their names showed); the morning needs a scroll; part of the order card sits behind the bidding controls. Pass-and-play checked in a browser: on all 61 frames with the hand-over screen up, the table and the first person's pricing panel are off the page."
     },
     {
       "id": "T4",
       "text": "The owner has seen the cards in the game",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Six pictures of the real cards sent to the owner 2026-11-12; awaiting his word. The preview copy is not updated (needs a merge to main)."
     }
   ]
 }
