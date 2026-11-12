@@ -112,9 +112,10 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 
   // Rematch without a new invitation.
   if (done) {
-    await A.page.click('text=Play again');
+    // The button, not the note: "… wants to play again." holds the same words.
+    await A.page.click('button:has-text("Play again")');
     await B.page.waitForSelector('text=wants to play again');
-    await B.page.click('text=Play again');
+    await B.page.click('button:has-text("Play again")');
     await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
     console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
 
