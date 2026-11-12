@@ -60,7 +60,7 @@ export const BEAT = {
   /** The bell (flow study D3): the bell swings and sounds (`swing`); then stall by stall, `gap` apart, a row lifts
    *  (`lid`) and its price tags turn face up (FEEL.turn); then a pause to read. About 2.6 s at four stalls. "No sales
    *  today"; the older crate's turn (motion.css). */
-  bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100, crateTurn: 400 },
+  bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100 },
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
   tie: { ask: 600, stamp: 180, pause: 600 },
@@ -94,7 +94,7 @@ export const BEAT = {
 /** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
-  land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
+  land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp,
   'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
   lorry: BEAT.lorry.drive, 'lorry-off': BEAT.lorry.off,

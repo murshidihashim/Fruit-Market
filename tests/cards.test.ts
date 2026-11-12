@@ -20,7 +20,7 @@ import {
 } from '../src/ui/deckArt';
 import { cardChips, newsChips } from '../src/ui/eventChips';
 import { FruitSvg, fruitSvgString, fruitSvgUrl } from '../src/ui/fruitIcons';
-import { CustomerWide, EventTicket, FavourChip, FavourMini, LorryTicket, OrderTicket, UpgradeOffer } from '../src/ui/phoneCards';
+import { CustomerWide, EventTicket, FavourChip, FavourMini, LorryTicket, OrderTicket } from '../src/ui/phoneCards';
 import { Ticket, TicketBack, dotsNeed } from '../src/ui/ticket';
 
 // The card system (PLAN-083, the rules 18 card set): the cards are drawn to the approved designs
@@ -515,16 +515,6 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(rush).toContain(`src="${customerArt(c.name)}"`);
     expect(html(CustomerWide, { who: o.name, order: true, lines: [{ fruit: o.fruit, qty: 4, max: 9 }] })).toContain('<span>Standing order</span><span>Due today</span>');
 
-    for (const id of UPS) {
-      const s = html(UpgradeOffer, { id, why: null, onBuild: () => undefined });
-      expect(s).toContain('<span class="uo-kind">Upgrade</span>');
-      expect(s).toContain(`>${UPGRADES[id].title}</b>`);
-      expect(s).toContain(esc(UPGRADES[id].text));
-      expect(s).toContain(`src="${upgradeArt(id)}"`);
-      expect(s).toMatch(/<button type="button" class="uo-buy"[^>]*>Build \$\d+<\/button>/);
-      expect(html(UpgradeOffer, { id, owned: true, onBuild: () => undefined })).not.toContain('<button');
-      expect(html(UpgradeOffer, { id, why: 'Not enough cash', onBuild: () => undefined })).toContain('disabled');
-    }
     for (const id of FAV) {
       const mini = html(FavourMini, { id, ready: true, onOpen: () => undefined });
       expect(mini).toMatch(/^<button type="button" class="fav ready"/);

@@ -1,7 +1,7 @@
 // The bell and the Favoured Trade question (rules 15 and 18; PLAN-085, the approved Favoured-Trade screen). Both are
 // steps of the one sheet that stays on the table from stocking to the day's takings (DaySheet.tsx).
-// Before the bell a rival's crate is shut: only how many pieces it put out is known (PricingTableView). At the bell
-// every stall's row shows its price tags (CratesOpen), stall by stall in today's line-up. A stall that holds Favoured
+// Before the bell a rival's crate is shut: only how many pieces it put out is known. At the bell every stall's row
+// shows its price tags (CratesOpen), stall by stall in today's line-up. A stall that holds Favoured
 // Trade and has a tied price is then asked, under the open rows, whether to play it (TieCard).
 // Nothing here reads a rival's crate or price before the flip (pricingTable.ts bellRows returns nothing until then).
 import type { ComponentChildren } from 'preact';
@@ -12,40 +12,11 @@ import { tagOf } from '../../../net/looks';
 import { Fruit } from '../../art';
 import { shownAvatar } from '../../looks';
 import { STAGE_LETTER, STAGE_WORD, Swatch } from '../../ticket';
-import { bellRows, nth, pricingTable, type BellRow } from '../pricingTable';
+import { bellRows, nth, type BellRow } from '../pricingTable';
 import { listOf, tieStory } from '../tieStory';
 
-const pieces = (n: number) => `${n} ${n === 1 ? 'piece' : 'pieces'}`;
 /** At most this many freshness letters stand on a price tag; "+2" stands for the rest. */
 const MAX_TAG_MARKS = 3;
-
-/** The rivals' crates in turn order after you, shut.
- *  `waiting`: you have opened your stall and the rivals are still opening theirs (flow A, PLAN-065): a crate then
- *  shows only whether that rival has opened. */
-export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer: number; waiting?: boolean }) {
-  const rivals = pricingTable(s, viewer).seats.filter((x) => !x.me);
-  if (!rivals.length) return null;
-  return (
-    <section class={`crates tk-crates shut n${rivals.length} ${waiting ? 'waiting' : ''}`} aria-label="Every rival's crate, shut until the bell: only how many pieces are in each">
-      {rivals.map((x) => {
-        const pl = s.players[x.player];
-        const opening = waiting && s.stalls[x.player] === null;
-        const n = x.out ?? 0;
-        const label = waiting ? `${pl.name} ${opening ? 'is still filling its crate' : 'is ready'}`
-          : `${pl.name}: ${n ? `${pieces(n)} in the crate, which fruit is secret until the bell` : 'empty crate'}${x.sealed ? ', prices sealed' : ', not sealed yet'}`;
-        return (
-          <div key={`c${x.player}`} class={`crate tk-crate ${x.sealed ? 'sealed' : ''} ${opening ? 'opening' : ''}`} role="group" aria-label={label}>
-            <span class="tk-crate-name"><Swatch p={x.player} size={18} /><span>{pl.name}</span>{x.sealed && <i class="tk-sealed" aria-hidden="true">sealed</i>}</span>
-            <span class="tk-crate-count">
-              {waiting ? <small>{opening ? 'filling…' : 'ready'}</small>
-                : n ? <><b>{n}</b><small>{n === 1 ? 'piece out' : 'pieces out'}</small></> : <small>nothing out</small>}
-            </span>
-          </div>
-        );
-      })}
-    </section>
-  );
-}
 
 /** What a stall's row says aloud once it is open: "Saleh: 1 mangoes at $10, 1 apples at $5", and its tied prices in
  *  the game's words ("tied: apples at $5 with Rosa"). */

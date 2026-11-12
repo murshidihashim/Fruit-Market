@@ -37,7 +37,7 @@ const LONG_LINE = 160;
 export function FavourMark({ id }: { id: FavourId | null }) {
   return id
     ? <span class="rh-fav" role="img" aria-label={`Favour card: ${FAVOURS[id].title}`}><CardArt src={favourArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus(id)} /></span>
-    : <span class="rh-fav back" role="img" aria-label="A favour card, face down" style={{ backgroundImage: `url(${tileArt('favour')})` }} />;
+    : <span class="rh-fav back" role="img" aria-label="Favour card, face down" style={{ backgroundImage: `url(${tileArt('favour')})` }} />;
 }
 
 /** The customer from their ticket in the row to the middle (and back): the shared slide (anim.ts), measured once each way. */

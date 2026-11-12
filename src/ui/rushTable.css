@@ -7,7 +7,7 @@
    The table underneath is not laid out again: the stage is placed over the grid's rows (rivals to act) and is no part
    of them. Where each crate sits is worked out from the stage's size (rush.ts tableLay): round the customer on a tall
    phone, in two columns either side of them on a small one (.close).
-   Only position, size and fade are animated, at the table's one speed (--mk, motion.ts). Imported after rush.css.
+   Only position, size and fade are animated, at the table's one speed (--mk, motion.ts). Imported after motion.css.
    Every rule that lays the stage out starts with "#app .tkt", like the rest of the table (ticket.css).
    ===================================================================== */
 #app .tkt > .rush-table {

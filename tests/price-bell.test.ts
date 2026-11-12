@@ -5,7 +5,6 @@ import { emptyStock, newGame, submitPrices, type Customer, type GameState } from
 import { FRUIT, type FruitId } from '../src/engine/data';
 import { buyersAt, demandBoard } from '../src/ui/boardModel';
 import { BellNotice, PriceBar, PricePanelView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
-import { PricingTableView } from '../src/ui/game/panels/PricingTable';
 import { toStaticHtml } from '../src/ui/cards';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
@@ -91,9 +90,6 @@ describe('every crate is open, and your price rows', () => {
     expect(sealed).not.toContain('ds-tag-face');
     for (const price of Object.values(own)) expect(sealed).not.toContain(`$${price}<`);
     expect(sealed.match(/<button[^>]*class="ds-st"[^>]*disabled/g)).toHaveLength(4);
-    const table = toStaticHtml(h(PricingTableView, { s, viewer: 0 }));
-    expect(table).not.toContain('tk-dial');
-    expect(table).toContain('prices sealed');
   });
 });
 

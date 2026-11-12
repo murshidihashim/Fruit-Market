@@ -69,7 +69,7 @@ function beforeAFineAndATopUp(): { prev: GameState; next: GameState } {
   return { prev: s, next };
 }
 
-describe('coins carry a payment (dayBeats.ts)', () => {
+describe('coins carry a payment (dayBeats.tsx)', () => {
   it('at most five coins travel, and their shares add up to the sum', () => {
     expect(COINS).toBe(5);
     expect(coinShares(3)).toEqual([1, 1, 1]);

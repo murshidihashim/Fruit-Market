@@ -3,7 +3,7 @@
 // data-a attributes are animation anchors (see anim.ts). What is drawn of a piece on its way is held back until it
 // lifts off or lands (tableShown.ts). Styles: table.css (loaded here, so after the older table styles).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, stageAt, trackSlots, type FruitId, type Stage } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, trackSlots, type FruitId, type Stage } from '../engine/data';
 import {
   buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
   type Customer, type GameState, type Stock,
@@ -396,19 +396,6 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
 
 // ---------- your stall: the shelf ----------
 
-/** Freshness groups in the order the shelf shows them, and the word for each. */
-const SHELF_STAGES: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
-
-/** A shelf's pieces of each fruit counted by freshness (fresh, okay, soft, green). */
-export function shelfGroups(stock: Record<FruitId, number[]>): { f: FruitId; n: number; stages: { stage: Stage; n: number }[] }[] {
-  return LANES.map((f) => {
-    const by: Partial<Record<Stage, number>> = {};
-    stock[f].forEach((n, pos) => { if (n > 0) { const st = stageAt(f, pos); by[st] = (by[st] ?? 0) + n; } });
-    const stages = SHELF_STAGES.filter((st) => by[st]).map((st) => ({ stage: st, n: by[st] ?? 0 }));
-    return { f, n: stages.reduce((a, x) => a + x.n, 0), stages };
-  });
-}
-
 /** The night's slide, as the night's own script sets it (game/animator.tsx): null at dusk, its length in ms while
  *  every piece moves, 'done' once the pieces rest. Undefined: it is not night. */
 export type ShelfNight = number | 'done' | null | undefined;
@@ -512,15 +499,6 @@ export function face(name: string) {
 }
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
-
-/**
- * A size step for the name banner on a small card (styles.css .nm-*): the banner is one line, and at five cards
- * across a phone the longer names would run off the card's edge at the standard size.
- */
-export function nameSize(name: string): string | undefined {
-  const n = lookOf(name).title.length;
-  return n > 16 ? 'nm-xl' : n > 11 && n <= 14 ? 'nm-m' : undefined;
-}
 
 export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, turn }: {
   s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void;

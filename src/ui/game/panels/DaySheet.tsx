@@ -51,6 +51,7 @@ function fit(el: HTMLElement): void {
   delete el.dataset.tight;
   el.removeAttribute('data-over');
   el.removeAttribute('data-up');
+  el.removeAttribute('data-top');
   const room = el.clientHeight;
   const needs: number[] = [];
   for (let t = 0; t <= TIGHTEST; t++) {
@@ -67,6 +68,17 @@ function fit(el: HTMLElement): void {
   else delete el.dataset.tight;
   if (to.over) el.setAttribute('data-over', '');
   if (to.up) el.setAttribute('data-up', '');
+  // A first-game tip lies at the sheet's foot (--tip). On a small phone with a full shelf even the closest step does
+  // not leave it that room: then, while the tip is up, the sheet also lies over the customers' tickets, which hold no
+  // control (and each row of the sheet says what its fruit's customers want), at the roomiest step that fits there
+  // (PLAN-091). Once the tip is closed the sheet is fitted again without it.
+  if (!(parseFloat(el.style.getPropertyValue('--tip')) > 0) || el.scrollHeight <= el.clientHeight + 1) return;
+  el.setAttribute('data-top', '');
+  for (let t = 0; t <= TIGHTEST; t++) {
+    if (t) el.dataset.tight = String(t);
+    else delete el.dataset.tight;
+    if (el.scrollHeight <= el.clientHeight) break;
+  }
 }
 
 const piece = (c: Crate, f: FruitId, pos: number) => c[f]?.[pos] ?? 0;
@@ -100,7 +112,11 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     const reach = () => {
       const m = mid.getBoundingClientRect();
       if (!m.width || !street.getClientRects().length) return;
-      el.style.setProperty('--rise-full', `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), beats: null, dock: null, notice: false }, 'street', false).rise}px`);
+      const rise = `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), beats: null, dock: null, notice: false }, 'street', false).rise}px`;
+      if (el.style.getPropertyValue('--rise-full') === rise) return;
+      el.style.setProperty('--rise-full', rise);
+      // stocking and pricing with a first-game tip up may lie over the customers' tickets by this much (fit)
+      if (fitting.current && el.hasAttribute('data-top')) fit(el);
     };
     const watch = new ResizeObserver(reach);
     for (const x of [game, mid, street]) watch.observe(x);
@@ -162,8 +178,11 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     // under its last line, so the tip covers no row and no stepper (PLAN-090), and is fitted with that room taken.
     const note = tip && own ? el.closest('.game')?.querySelector<HTMLElement>(':scope > .coach') : null;
     el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');
+    // Where the sheet lay over the customers' tickets for the tip, it slides back to its place as the tip is closed.
+    const was = el.hasAttribute('data-top') ? A.boxOf(el) : null;
     if (own) fit(el);
-    else { delete el.dataset.tight; el.removeAttribute('data-over'); el.removeAttribute('data-up'); }
+    else { delete el.dataset.tight; el.removeAttribute('data-over'); el.removeAttribute('data-up'); el.removeAttribute('data-top'); }
+    if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });
   }, [step, tip]);
 
   // ---------- motion: nothing here is waited for ----------
@@ -197,7 +216,9 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     for (let i = was ?? 0; i < c.bell; i++) {
       rows[i]?.querySelectorAll('.ds-pz, .ds-none').forEach((el) => el.animate(TURN, { duration: A.ms(A.FEEL.turn), delay: A.moveMs(A.BEAT.bell.lid), fill: 'backwards', easing: A.EASE.travel }));
     }
-    if (c.bell > (was ?? 0)) fx.tap();
+    // A row turning has its own small sound; not as the bell first shows (with reduced motion every row is open then):
+    // that moment has the bell's own sound alone (PLAN-091).
+    if (was !== null && c.bell > was) fx.tap();
   }, [c.bell]);
   // The question comes onto the sheet under the open rows.
   const asked = step === 'tie' && !c.busy && c.active >= 0 ? c.active : -1;

@@ -484,7 +484,7 @@ describe('the round table', () => {
     const theirs = find(all, (_x, cs) => cs.some((x) => x.favour && x.favour.player !== 0));
     const r = theirs.cards.find((x) => x.favour && x.favour.player !== 0)!;
     const back = toStaticHtml(h(RushView, { s: theirs.s, a: { card: r, n: 1, of: 1, stage: 'result', at: 0, served: [] }, viewer: 0 }));
-    expect(crate(back, r.favour!.player)).toContain('class="rh-fav back" role="img" aria-label="A favour card, face down"');
+    expect(crate(back, r.favour!.player)).toContain('class="rh-fav back" role="img" aria-label="Favour card, face down"');
     for (const id of Object.keys(FAVOURS) as FavourId[]) {
       expect(back).not.toContain(favourArt(id));
       expect(back).not.toContain(FAVOURS[id].title);

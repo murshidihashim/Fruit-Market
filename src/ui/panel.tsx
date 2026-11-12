@@ -503,7 +503,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   };
   const build = () => {
     if (!chosen) return;
-    // Where the card lies now: it travels from there to the stall once it is built (dayBeats.ts).
+    // Where the card lies now: it travels from there to the stall once it is built (dayBeats.tsx).
     noteOffer(p, chosen, boxOf(root.current?.querySelector(`[data-up="${chosen}"]`)));
     keep(null);
     onUpgrade(chosen);

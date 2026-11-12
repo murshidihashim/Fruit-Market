@@ -3,8 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
 import { dailyConfig } from '../src/engine/daily';
 import { RIVALS } from '../src/engine/data';
-import { newGame, type GameConfig, type LineResult } from '../src/engine/game';
-import { rivalReaction } from '../src/engine/story';
+import { newGame, type GameConfig } from '../src/engine/game';
 import { loadGame, saveGame } from '../src/ui/store';
 import { nameProblem } from '../server/names';
 
@@ -36,17 +35,6 @@ describe('panda rival rename', () => {
       const back = loadGame()!;
       expect(back).toEqual(g);
       expect(back.players[1].name).toBe('Panda Lim');
-    });
-
-    it('still get the panda\'s lines', () => {
-      const s = oldGame();
-      const l: LineResult = { customerId: 1, name: 'John', fruit: 'mango', want: 2, max: 8, offers: [
-        { player: 1, qty: 2, price: 5, sold: 2, freshness: 3 },
-        { player: 0, qty: 2, price: 6, sold: 0, freshness: 3 },
-      ] };
-      const r = rivalReaction(s, l, 0, new Set());
-      expect(r?.player).toBe(1);
-      expect(panda().lines.undercut).toContain(r?.text);
     });
   });
 

@@ -4,14 +4,14 @@
 // round its focus point, and the same numbers, names and text as the full card. Drawing only. Styles: cards.css.
 import type { ComponentChildren } from 'preact';
 import {
-  FAVOURS, FRUIT, PREF_INFO, UPGRADES, lookOf, prefOf,
-  type FarmerCard, type FavourId, type FruitId, type OrderCard as OrderDef, type UpgradeId,
+  FAVOURS, FRUIT, PREF_INFO, lookOf, prefOf,
+  type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef,
 } from '../engine/data';
 import { Coin } from './art';
 import { LANES } from './boardModel';
 import { ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass, lorryNotes, lorryRow, type CardLine } from './cards';
 import {
-  GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, upgradeArt, upgradeFocus, type Focus,
+  GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, type Focus,
 } from './deckArt';
 import type { NewsChip } from './eventChips';
 import { FruitSvg } from './fruitIcons';
@@ -168,27 +168,11 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
   );
 }
 
-// ---------- the evening: upgrade offers and the favour cards you hold ----------
+// ---------- the evening: the favour cards you hold ----------
 
-/**
- * An upgrade on offer in the evening: label, picture, name, cost, the card's text, and the Build button at its foot
- * (a built upgrade says so instead). `why`: the reason it cannot be built now (null: it can).
- */
-export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned?: boolean; why?: string | null; onBuild: () => void }) {
-  const d = UPGRADES[id];
-  return (
-    <article class={cx('uo', owned && 'owned')}>
-      <span class="uo-kind">Upgrade</span>
-      <CardArt class="uo-pic" src={upgradeArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(id)} />
-      <b class="uo-nm">{d.title}</b>
-      <span class="uo-cost">{`$${d.cost}`}</span>
-      <span class="uo-tx">{d.text}</span>
-      {owned
-        ? <span class="uo-ft">Built</span>
-        : <button type="button" class="uo-buy" disabled={!!why} title={why ?? ''} onClick={onBuild}>{`Build $${d.cost}`}</button>}
-    </article>
-  );
-}
+/** When a favour card you hold is played, on its band as the evening shows it: the approved Evening board's words
+ *  ("Play in the evening"). The printed card says it under "When to play" (cards.tsx FAVOUR_WHEN), and is unchanged. */
+export const FAVOUR_BAND: Record<FavourDef['when'], string> = { ...FAVOUR_WHEN, evening: 'Play in the evening' };
 
 /**
  * A favour card you hold, as the evening shows it. The whole card is one button: it opens the card, where it can be
@@ -197,11 +181,11 @@ export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned
 export function FavourMini({ id, ready, onOpen }: { id: FavourId; ready?: boolean; onOpen: () => void }) {
   const d = FAVOURS[id];
   return (
-    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_WHEN[d.when]}. ${d.text}`}>
+    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_BAND[d.when]}. ${d.text}`}>
       <span class="fav-kind"><span>Favour</span><b>Secret</b></span>
       <CardArt class="fav-pic" src={favourArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={favourFocus(id)} />
       <span class="fav-nm">{d.title}</span>
-      <span class="fav-when">{FAVOUR_WHEN[d.when]}</span>
+      <span class="fav-when">{FAVOUR_BAND[d.when]}</span>
       <span class="fav-tx">{d.text}</span>
       {ready && <span class="fav-play">{`Play ${d.title}`}</span>}
     </button>
