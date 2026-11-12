@@ -108,6 +108,21 @@ describe('the first-game tip for stocking and pricing covers no control (Game.ts
   });
 });
 
+describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)', () => {
+  it('can still be opened as its whole card, with the reason; it is never chosen', () => {
+    const src = read('src/ui/panel.tsx');
+    // a tap on it opens the card; choosing is for an offer that can be built
+    expect(src).toContain("disabled={why ? !onOpen : !onPick}");
+    expect(src).toContain("aria-disabled={why ? 'true' : undefined} onClick={why ? onOpen : onPick}");
+    expect(src).toContain('pick={chosen} onPick={choose} onOpen={setOpen} />');
+    expect(src).toContain('{canUpgrade(s, p, open) && <p class="cd-pop-why">{canUpgrade(s, p, open)}</p>}');
+    // it is still drawn greyed, and on the smallest phone it still says why under its one line
+    const css = read('src/ui/sheets.css');
+    expect(css).toContain("#app .tkt .uo-pick:is(:disabled, [aria-disabled='true']) > :not(.uo-kind, .uo-ft) { opacity: 0.5; }");
+    expect(css).toContain(".uo-pick:is(:disabled, [aria-disabled='true']) .uo-ft { display: block;");
+  });
+});
+
 describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () => {
   it('last of all the sheet also lies over the rows above it, and pricing then says the rivals\' pieces once', () => {
     // 360 by 780: the closest step is 332 tall in a cell of 264 with 48 more over your shelf: it takes the rows above too

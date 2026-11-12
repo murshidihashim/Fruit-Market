@@ -313,10 +313,13 @@ export function swipeHint(offers: UpgradeId[]): string {
  * An upgrade on offer, as a card you choose: label, picture, name, cost and the card's text. Tap it to choose it;
  * the evening's main button then builds it. `why`: the reason it cannot be built now (it is then greyed and says so).
  */
-function UpgradePick({ id, chosen, why, onPick }: { id: UpgradeId; chosen: boolean; why: string | null; onPick?: () => void }) {
+function UpgradePick({ id, chosen, why, onPick, onOpen }: { id: UpgradeId; chosen: boolean; why: string | null; onPick?: () => void;
+  /** Opens the whole card. An offer that cannot be built is never chosen, but a tap still opens it to be read (PLAN-090). */
+  onOpen?: () => void }) {
   const d = UPGRADES[id];
   return (
-    <button type="button" class={`uo uo-pick ${chosen ? 'sel' : ''}`} data-up={id} aria-pressed={chosen} disabled={!!why || !onPick} onClick={onPick}
+    <button type="button" class={`uo uo-pick ${chosen ? 'sel' : ''}`} data-up={id} aria-pressed={chosen} disabled={why ? !onOpen : !onPick}
+      aria-disabled={why ? 'true' : undefined} onClick={why ? onOpen : onPick}
       aria-label={`Upgrade: ${d.title}, $${d.cost}. ${d.text}${why ? ` ${why}.` : ''}`}>
       <span class="uo-kind">Upgrade</span>
       <CardArt class="uo-pic" src={upgradeArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(id)} />
@@ -361,8 +364,10 @@ export function EveningTomorrow({ s, p }: { s: GameState; p: number }) {
  * in one line. Drawn from its state alone (no hooks, so tests can draw it). `pick`: the offer chosen to build; the
  * button that builds it is the evening's main button (EveningSheet), not a button on every card.
  */
-export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick }: {
+export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick, onOpen }: {
   s: GameState; p: number; onUpgrade?: (u: UpgradeId) => void; onCard: (i: number) => void;
+  /** Opens an offer's whole card (one that cannot be built now). */
+  onOpen?: (u: UpgradeId) => void;
   /** Shade Cloth (rules 11): name the fruit that does not age tonight (null: none). */
   onShade?: (f: FruitId | null) => void;
   pick?: UpgradeId | null; onPick?: (u: UpgradeId | null) => void;
@@ -390,7 +395,7 @@ export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick }: {
           {/* The offers as cards in a row that swipes sideways: tap one to choose it, then build it with the main button. */}
           {offers.length > 0 && (
             <div class="uo-row" role="group" aria-label="Upgrades on offer">
-              {offers.map((u) => <UpgradePick id={u} chosen={pick === u} why={canUpgrade(s, p, u)} onPick={onPick ? () => onPick(pick === u ? null : u) : undefined} />)}
+              {offers.map((u) => <UpgradePick id={u} chosen={pick === u} why={canUpgrade(s, p, u)} onPick={onPick ? () => onPick(pick === u ? null : u) : undefined} onOpen={onOpen ? () => onOpen(u) : undefined} />)}
             </div>
           )}
           {offers.length > 0 && <p class="ev-hint">{swipeHint(offers)}</p>}
@@ -508,7 +513,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
       {/* With an upgrade chosen the bar holds two buttons. It grows upward over the sheet's foot, never downward:
           the table's rows under the sheet keep their places (sheets.css, data-two). */}
       <div class="mid-panel mid-evening fm-sheet sh-evening" data-two={chosen ? '' : undefined} ref={root} onScroll={() => { keep(chosen); more(); }}>
-        <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} />
+        <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} onOpen={setOpen} />
         <i class="ev-more" aria-hidden="true" />
       </div>
       {/* Only the main button is a `.btn` (the browser tests press that one). */}
@@ -525,6 +530,8 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
         <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={() => setOpen(null)}>
           <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
             <UpgradeCard id={open} eager />
+            {/* why it cannot be built now, in the game's words (as an opened favour card says why it cannot be played) */}
+            {canUpgrade(s, p, open) && <p class="cd-pop-why">{canUpgrade(s, p, open)}</p>}
             <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={() => setOpen(null)}>Close</button></div>
           </div>
         </div>

@@ -179,7 +179,7 @@
 #app .tkt .uo-pick .uo-pic { display: block; object-fit: cover; }
 #app .tkt .uo-pick.sel { box-shadow: 0 0 0 4px var(--tk-yel); }
 #app .tkt .uo-pick:disabled { cursor: default; }
-#app .tkt .uo-pick:disabled > :not(.uo-kind, .uo-ft) { opacity: 0.5; }
+#app .tkt .uo-pick:is(:disabled, [aria-disabled='true']) > :not(.uo-kind, .uo-ft) { opacity: 0.5; }
 /* Shade Cloth's fruit */
 #app .tkt .shade-pick { margin: 0; gap: 6px; }
 #app .tkt .shade-pick button {
@@ -232,7 +232,7 @@
 #app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) .fav:not(.ready) { padding-bottom: 7px; }
 #app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick { position: relative; padding-left: 56px; }
 #app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) :is(.uo-kind, .uo-ft) { display: none; }
-#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick:disabled .uo-ft { display: block; margin: 0 0 0 -56px; }
+#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick:is(:disabled, [aria-disabled='true']) .uo-ft { display: block; margin: 0 0 0 -56px; }
 #app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-pick .uo-pic { position: absolute; left: 0; top: 0; width: 56px; height: 57px; border-bottom: 0; border-right: 2px solid var(--x-ink); }
 #app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-nm { min-height: 24px; margin: 6px 6px 0; font-size: 0.75rem; }
 #app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-cost { margin: 3px 6px 6px; padding: 2px 5px; font-size: 0.875rem; }
