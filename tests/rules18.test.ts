@@ -728,7 +728,10 @@ describe('G. today\'s purchases are public until the bell', () => {
     expect(atBell('easy', melons)).toEqual({ watermelon: 2 });
   });
 
-  it('on screen: each rival\'s box shows fruit marks with counts from buying until the bell, and the pop-up lists them', () => {
+  // The owner's ruling after playing the live game (it replaces "on show until the bell", DEC-086, on the screen):
+  // "players can only see what others buy during buying phase, it is hidden afterwards". Beside a crate being filled
+  // the marks read as the crate's contents. Only the drawing changed: the tests above still hold the game's own data.
+  it('on screen: each rival\'s box shows fruit marks with counts while stalls buy and not afterwards, and the pop-up the same', () => {
     let s = bought();
     // What the rival's box and its pop-up draw (table.tsx RivalStall and RivalDrop), from this stall's own view.
     expect(boughtToday(publicView(s, 1), 0)).toEqual([{ f: 'mango', n: 1, green: 1 }, { f: 'apple', n: 1, green: 0 }]);
@@ -736,13 +739,18 @@ describe('G. today\'s purchases are public until the bell', () => {
     expect(boughtToday(redact(s, 2), 0)).toEqual(boughtToday(publicView(s, 1), 0)); // online, every phone gets the same
     // A rival that bought nothing shows nothing.
     expect(boughtToday(publicView(s, 0), 1)).toEqual([]);
-    // After the bell the marks are gone (the crates are open by then).
+    // From stocking on nothing of it is drawn, for a rival or for the stall itself, on any phone ...
     while (s.phase === 'buy') s = engine.endBuyTurn(s, activePlayer(s));
+    expect(s.phase).toBe('stall');
+    for (const view of [publicView(s, 1), redact(s, 2), publicView(s, 0)]) expect(boughtToday(view, 0)).toEqual([]);
+    // ... although the game still holds it until the bell (what a stall may know has not changed)
+    expect(publicView(s, 1).players[0].boughtFruit?.apple?.some((n) => n > 0)).toBe(true);
     s = openStall(s, 0, { apple: 1 });
-    expect(boughtToday(publicView(s, 1), 0)).toHaveLength(2); // still pricing
+    expect(s.phase).toBe('bid');
+    expect(boughtToday(publicView(s, 1), 0)).toEqual([]); // pricing
     s = submitPrices(s, 0, [{ fruit: 'apple', price: 5 }]);
     expect(s.phase).toBe('reveal');
-    expect(boughtToday(publicView(s, 1), 0)).toEqual([]);
+    expect(boughtToday(publicView(s, 1), 0)).toEqual([]); // the bell
   });
 
   it('whole computer games: a rival\'s shelf, crate before the bell, prices and bid amounts never reach another seat', () => {

@@ -187,11 +187,15 @@ export function rivalNote(s: GameState, p: number, active: boolean): string {
 export interface Bought { f: FruitId; n: number; green: number }
 
 /**
- * Rules 18: what a stall took from the market today, by fruit. It is public from the moment of purchase until the
- * bell, so it is shown only while buying, stocking and pricing; older stock stays secret.
+ * What a stall took from the market today, by fruit, as the screen draws it. The owner's ruling (it replaces "on show
+ * until the bell", DEC-086): "players can only see what others buy during buying phase, it is hidden afterwards". So
+ * this is empty from stocking onwards: beside a crate being filled, the marks read as what is in the crate. Every
+ * place on screen that lists today's purchases reads it from here (the stalls' boxes, your own box, a rival's
+ * details, their spoken labels). Only the drawing changed: the game, what a stall may know (publicView) and what the
+ * room sends are as they were, and a computer stall still remembers what it saw bought. Older stock stays secret.
  */
 export function boughtToday(s: GameState, p: number): Bought[] {
-  if (s.phase !== 'buy' && s.phase !== 'stall' && s.phase !== 'bid') return [];
+  if (s.phase !== 'buy') return [];
   const b = s.players[p].boughtFruit;
   if (!b) return [];
   return LANES.map((f) => {
@@ -237,9 +241,9 @@ const inBuyingOrder = (s: GameState): boolean => s.phase === 'morning' || s.phas
 
 /**
  * A rival as a box in the stalls' row (the approved Buying and Pricing screens): the thin awning strip, the
- * shopkeeper's face, the name and cash, and what it bought today (rules 18: public from buying until the bell).
+ * shopkeeper's face, the name and cash and, only while stalls buy, what it bought today (boughtToday).
  * While stalls buy the box carries its place in the buying order and says "buying now" or "waiting"; once crates are
- * shut it says how many pieces it put out. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
+ * shut it keeps its cash and says how many pieces it put out ("3 out", "filling…", "ready"), and nothing else. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
  * names the browser tests know a rival's box by.
  */
 export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: { s: GameState; p: number; open?: boolean; onOpen: () => void; board?: Board; off?: boolean; compact?: boolean;
@@ -315,8 +319,8 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
 /**
  * The stalls' row (the approved Buying and Pricing screens). While stalls buy: "Stalls · in buying order", every
  * stall with its place in the order, you among them, and what each bought today. While crates are shut: "Rival crates
- * · shut until the bell", your rivals with how many pieces each put out. The rest of the day: your rivals and their
- * cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
+ * · shut until the bell", your rivals with how many pieces each put out, and no purchases. The rest of the day: your
+ * rivals and their cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
  */
 export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
   s: GameState; viewer: number; boards: Record<number, Board>; open: number | null; onOpen: (p: number) => void; onClose: () => void; off: number[];
@@ -329,7 +333,8 @@ export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
     <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
       <div class="tb-row-head">
         <b class="tk-label">{buying ? 'Stalls · in buying order' : shut ? 'Rival crates · shut until the bell' : 'Rival stalls'}</b>
-        {(buying || shut) && <span class="tb-side">{buying ? 'What each bought today' : 'Bought today'}</span>}
+        {/* today's purchases are on show only while stalls buy (boughtToday), and so is the label that names them */}
+        {s.phase === 'buy' && <span class="tb-side">What each bought today</span>}
       </div>
       <div class="tb-stall-row">
         {list.map((p) => (p === viewer
