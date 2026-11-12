@@ -10,7 +10,7 @@ import { dayHighlights, heatwaveLine, overnightJuice, overnightLines, overnightL
 import { evaluate, type Context } from '../src/ui/achievements';
 import { spoilsTonight } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
-import { SalesSummary } from '../src/ui/game/panels/SalesSummary';
+import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { EveningPanel } from '../src/ui/panel';
 
 // Tonight's forecast (REP-089 3.4): the warnings follow the night's own rules. A Heatwave
@@ -158,11 +158,11 @@ describe('tonight in words', () => {
   it('the sales card shows juice as juice, and the spoil count after the Juice Bar\'s share', () => {
     const juice = salesCard(4, [2], ['juicebar']);
     expect(spoilsTonight(juice, 0)).toBe(0);
-    const html = toStaticHtml(h(SalesSummary, { s: juice, viewer: 0 }));
+    const html = toStaticHtml(h(TakingsView, { s: juice, viewer: 0 }));
     expect(html).toContain('2 fruit become juice tonight (+$4)');
     expect(html).not.toMatch(/spoil/);
     expect(html).toContain('class="sc-juice">2 fruit become juice tonight (+$4)');
-    const both = toStaticHtml(h(SalesSummary, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
+    const both = toStaticHtml(h(TakingsView, { s: salesCard(4, [5], ['juicebar']), viewer: 0 }));
     expect(both).toContain('class="sc-waste">3 spoil tonight, 2 become juice (+$4)');
     expect(spoilsTonight(salesCard(4, [0, 3], [], true), 0)).toBe(3);
   });
