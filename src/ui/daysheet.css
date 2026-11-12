@@ -16,7 +16,7 @@
    says how many pieces each rival put out (.ds-rivals). Under the takings it keeps to its cell; the bell's rows and
    the Favoured Trade question lie over the rows around it (bell.css). */
 @media (max-height: 760px) {
-  #app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
+  #app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }
 }
 #app .tkt .ds-rivals { display: none; }
 @media (max-height: 760px) {
@@ -194,6 +194,15 @@
 #app .tkt .sh-day[data-tight='3'] .ds-pcx { width: 24px; height: 24px; }
 /* the closest step is still too tall for the middle cell: the sheet lies over your shelf as well */
 #app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }
+/* last of all (a six-box shelf on a narrow, tall phone) it lies over the rows above it too, up to the customers'
+   tickets, as on a short phone; pricing then says how many pieces each rival put out, once */
+#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }
+#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }
+#app .tkt .sh-day[data-up] .ds-rivals .ds-lab { flex: none; }
+/* The first-game tip lies at the sheet's foot, in room the sheet keeps free for it (DaySheet.tsx writes --tip), so it
+   covers no row and no stepper. Where the sheet lies over your shelf the tip ends at the shelf's foot too. */
+#app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }
+#app .game.gx.tkt.coach-row:has(.sh-day[data-over]) > .coach { grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; }
 /* a narrow phone: the same sheet, a little tighter (as the rest of the table, ticket.css) */
 @media (max-width: 379px) {
   #app .tkt .ds-stock, #app .tkt .ds-price { padding-left: 8px; padding-right: 8px; }

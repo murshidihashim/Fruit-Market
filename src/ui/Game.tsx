@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useMemo, useRef } from 'preact/hooks';
+import { useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -50,10 +50,19 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
+  // The Wholesale Market under a sheet cannot be seen, so it is put out of reach of the keyboard and of screen readers
+  // too for as long as a sheet lies over it (PLAN-090). The rows a sheet covers only on some phones are left as they are.
+  const covered = useRef(false);
+  useLayoutEffect(() => {
+    sheet.centre.current?.querySelector(':scope > .market-stall')?.toggleAttribute('inert', covered.current);
+  });
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
+  // The day on which a customer's card was last up in the rush: until then the bell is what is on the table.
+  const rushDay = useRef(-1);
+  if (show) rushDay.current = s.day;
   // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
   // When the hand-over screen came up (0: it is not up). A tap sooner than BEAT.handoff.guard after that is the tail of
@@ -93,7 +102,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
   const coach = online || busy ? null : tipFor(s, {
-    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn,
+    // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)
+    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn && s.phase !== 'order',
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
   });
   // Rivals sit across the table in one row, in turn order after you.
@@ -122,6 +132,9 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   // the rivals open and price, at the bell, for the Favoured Trade question and for the takings. On a shared phone it
   // is drawn only for the person the phone was handed to (game/daySheet.ts).
   const dayOn = daySheetOn(s, viewer, c, !!online);
+  // The strip of the day's steps follows what is on the table (PLAN-090): the standing order while its bids are turned
+  // over (the game is at buying by then), and the bell until the first customer's card is up (the game is at the rush).
+  const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
@@ -144,11 +157,12 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
     // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
     // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
-    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;
+    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;
     if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
+  covered.current = !!mid;
   const offSeats = offline.map((x) => x.seat);
 
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
@@ -163,7 +177,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   };
   return (
     <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
-      <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
+      <TopBar s={s} viewer={viewer} night={c.night} on={onTable} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
         <div class="net">

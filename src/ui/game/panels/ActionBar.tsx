@@ -1,6 +1,7 @@
 // The bar along the bottom: what's happening now, and the main button for this phase.
 // While you buy, Undo and Done keep their places the whole time (PLAN-085): they are not taken away while a piece is
 // on its way, and a tap on Done then is kept until the piece has landed.
+import { useRef } from 'preact/hooks';
 import { count, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import * as A from '../../anim';
@@ -17,19 +18,28 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   const rivalBuy = s.phase === 'buy' && !activeHuman;
   // The lorry is unloading: buying has just started and nobody has bought yet.
   const unloading = busy && s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0);
+  // The rush (PLAN-090): the selling hint and Skip are for the bell, before the first customer's card. Once a card is
+  // up the rush sheet has its own buttons and lies over this bar, so the hint is not drawn under it, nor after the
+  // last card while the last coins count. Skip stays on the page until the takings, unseen: the performance script
+  // times the rush by it (scripts/perf-budget.cjs).
+  const rushDay = useRef(-1);
+  if (c.show) rushDay.current = s.day;
+  const selling = busy && s.phase === 'reveal' && !night;
+  const cards = selling && rushDay.current === s.day;
   // A beat that plays by itself says what it is. Not on your own buying turn: the buttons stay where they are.
   const beat = !busy || myBuy ? null
     : night ? 'Night falls…'
     : s.phase === 'morning' || unloading ? 'The lorry arrives…'
-    : s.phase === 'reveal' ? 'Selling… tap to speed up'
+    : s.phase === 'reveal' ? (cards ? '' : 'Selling… tap to speed up')
     // The bell rings at the flip before a Favoured Trade question, and a card just played travels to its tag (PLAN-085).
     : s.phase === 'tie' ? 'Every price is open'
     : null;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
   return (
     <footer class="actionbar">
-      {busy && s.phase === 'reveal' && <button class="btn skip" onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip</button>}
-      {beat && <div class="hint-bar">{beat}</div>}
+      {selling && <button class="btn skip" style={cards ? 'visibility:hidden' : undefined} aria-hidden={cards ? 'true' : undefined} tabIndex={cards ? -1 : undefined}
+        onClick={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }}>Skip</button>}
+      {beat !== null && <div class="hint-bar">{beat}</div>}
       {!busy && s.phase === 'morning' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
