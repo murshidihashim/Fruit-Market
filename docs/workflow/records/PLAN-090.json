@@ -1,0 +1,74 @@
+{
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-110",
+    "REP-111"
+  ],
+  "decisions": [
+    "DEC-098",
+    "DEC-103",
+    "DEC-105",
+    "DEC-106"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Fixes inside packages the owner approved (PLAN-084, PLAN-085, PLAN-086: the screens as on his boards). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105); and, on two of these gaps, \"fix below gaps\" (DEC-106).",
+    "date": "2026-11-12"
+  },
+  "delivery": "in progress",
+  "id": "PLAN-090",
+  "title": "Release 1.21.0: fixes for the known gaps of the day's screens",
+  "problem": "Release 1.20.0 went out with a list of known gaps (REP-111 section 4): the strip of the day's steps is wrong during the bell and the bid reveal, the takings come a moment early, some tap targets are small, a few labels are cut at 360 px, the night leaves a solid edge on an empty box, and old styles and code are left from the rebuild.",
+  "scope": [
+    "The day's sheets: the steps strip, the takings' moment and \"You\" on your own row, rival crates named once, cut labels at 360 px, bottom-bar leftovers, the tied-prices line after a Favoured Trade answer, the first-game tip over the bid's stepper, opening an upgrade's card when it cannot be afforded, the table under a sheet for keyboard and screen reader if simple",
+    "The table: the night's empty boxes, tap targets, the standing order's card dealt in with a slide, the shelf following the night, the order strip's 34 px",
+    "Stamp book leftovers: a chart colour for each stall, signing out clears the counts the stamps come from, the results headline without a shout",
+    "Dead styles and code from the rebuild, only where provably unused",
+    "What the owner finds when he plays 1.20.0, as it comes in"
+  ],
+  "exclusions": [
+    "Any rule, number or secret",
+    "Any label wording (PLAN-089)",
+    "New designs"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each fixed screen looked at by me at 390x844 and 360x640 with 6 stalls",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The table rows still keep their places and no secret is shown early (the helpers' measures, repeated)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has played the release",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

@@ -13,9 +13,17 @@
   ],
   "changes": {
     "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "changed": [
+      "The labels on every screen of the day in the plain voice: 72 more audit entries applied (382 of 575 in all; 79 already gone; 111 in the stamp book's and print kit's files, applied there)",
+      "Lorries are named plainly (Blueberry Lorry, Watermelon Lorry, Kampung Lorry); the pass-the-phone screen says \"Everyone else look away\"; the stocking button reads \"Crate ready · 3 in crate\"",
+      "Blueberry Glut's text is a line shorter, so its card no longer overflows"
+    ],
+    "fixed": [
+      "The stale first-game tip about the shelf"
+    ],
+    "removed": [
+      "The shopkeepers' quips on the picker; quotes around a customer's words in the rush"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -23,7 +31,7 @@
     "evidence": "Owner, 2026-11-11: \"Plain, with a Malaysian market feel\" (DEC-087: the voice across every card and screen). Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A in six packages, package 4 the text). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-089",
   "title": "Release A, package 4, part 2: the labels on the screens",
   "problem": "Release 1.20.0 rewrote the text of the cards, the story, the tutorial and How to play. The labels on the screens are untouched: about 200 audit entries remain in screen files, and the helpers who rebuilt the screens invented about 150 labels and sentences that nobody has checked against the glossary. The same thing is not always called the same word.",
@@ -44,26 +52,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged code (21d4e72: the stamp book, the labels and the print kit together): 74 files, 802 tests passed, 1 skipped."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code (the scripts still find their buttons)",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Not yet as one passing run on the merged code. npm run test:e2e on 21d4e72, two helpers sharing the machine: solo game to the results with no errors; performance budget OK on the script's second try (231 ms, then 154 ms, limit 200); online match 72 pricing frames, 0 leaks; quick match; four players; reconnect 5 of 5. The rematch step failed because the test script tapped a note that holds the words \"play again\" after the label rewrite; with the script pointed at the button (961aac1) the online test passes alone: 70 frames, 0 leaks, rematch, abandoned match, no page errors. The whole run is repeated on the release build. The helper's own run on its branch (938e0b2) passed."
     },
     {
       "id": "T3",
       "text": "Each changed screen looked at by me at 390x844 and 360x640 with 6 stalls: nothing cut off or pushed out of view",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Seen by me on the merged build in the pictures of the stamp book and the day's screens; the helper looked at 35 screens at each size with 6 stalls as tiled sheets and measured 104 card faces with 0 overflow (Blueberry Glut now fits in 4 lines)."
     },
     {
       "id": "T4",
       "text": "The same seed still gives the same game",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helper: 277 computer games, one sha256 (bb6a3de6...bd09) at f2d9d33, 11b6e41, 4bee1aa and 938e0b2."
     },
     {
       "id": "T5",

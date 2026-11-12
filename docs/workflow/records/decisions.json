@@ -3674,6 +3674,10 @@
     {
       "at": "2026-11-12 20:08",
       "text": "PLAN-087 (the print kit) built and merged (d1f5f01): npm run verify PASS (735 tests passed, 1 skipped); every deck, both trackers and the update pack print on rules 18 in the app's card design; the cards match the app's side by side. Not done: a proof print on paper; every page looked at by the session (the helper looked at most). Still open for the owner: tracker 1 or 2; the guest back, which has no approved design; the 3.5 mm dots on customer cards against 15 mm fruit pieces. The printed files are in print/kit, print/update-18 and print/tracker-test."
+    },
+    {
+      "at": "2026-11-12 21:10",
+      "text": "Merged for the next release (1.21.0, not prepared yet): the stamp book's first version with Results, Trophies, Wardrobe and Home (PLAN-086, 8515872, with its price tags, awning colour and shopkeeper pictures wired into the day's screens), the labels on the screens (PLAN-089, 21d4e72) and the print kit (PLAN-087). npm run verify on the merged code (21d4e72: the stamp book, the labels and the print kit together): 74 files, 802 tests passed, 1 skipped. npm run test:e2e on 21d4e72, two helpers sharing the machine: solo game to the results with no errors; performance budget OK on the script's second try (231 ms, then 154 ms, limit 200); online match 72 pricing frames, 0 leaks; quick match; four players; reconnect 5 of 5. The rematch step failed because the test script tapped a note that holds the words \"play again\" after the label rewrite; with the script pointed at the button (961aac1) the online test passes alone: 70 frames, 0 leaks, rematch, abandoned match, no page errors. The whole run is repeated on the release build. The privacy page now names the stamp book's counts (09b4abc). PLAN-090 opened: two helpers fix the known gaps of 1.20.0 on the day's sheets and on the table, to report by 22:30. For the owner to decide with the release: the Home page's first customer in place of an event, old games counted as 3 stamps each, the 14 feat titles, the stocking button's new words, and the wording list from the text work."
     }
   ]
 }

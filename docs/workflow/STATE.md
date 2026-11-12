@@ -1,14 +1,14 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 20:08 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 21:10 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.20.0, rules version 18 (`c17a053`, published 2026-11-12 19:43, tagged `v1.20.0`). The preview copy is `main`, the same build.
 - **Working branch:** `ccr-d8bcd65d-gblqqb`, level with `main` apart from the records of the publish.
 - **What 1.20.0 holds (REP-110, REP-111):** rules 18, the new cards, the whole day rebuilt on the table with its motion, the text of cards, story, tutorial and How to play.
-- **Next release (the rest of release A, DEC-105):** the stamp book with Results, Trophies, Wardrobe and Home (PLAN-086, paused first pass); the screen labels and the rest of the text list (PLAN-088 part 2); the print kit (PLAN-087, paused); the privacy page for the stamp book's counts; fixes from the owner's play of 1.20.0. Each release needs the owner's word. Then releases B (Market Month, five-day Daily) and C.
+- **Next release, 1.21.0 (not prepared, not approved for publishing):** merged on the working branch: the stamp book with Results, Trophies, Wardrobe and Home (PLAN-086), the screen labels (PLAN-089), the print kit (PLAN-087), the privacy page. Still to come: the gap fixes (PLAN-090), then one whole `npm run test:e2e` on the final code, version 1.21.0 with its release entry and player notes, a report (REP-112) with the choices for the owner (Home's first page, old games as 3 stamps each, the feat titles, the stocking button's words, the wording list), and his word to publish. Then releases B (Market Month, five-day Daily) and C.
 - **Deadline:** the owner wants the rest ready inside the usage allowance before it resets on 2026-11-13 19:00.
-- **Helpers to resume** (agent ids, branches and next steps: scratchpad `helpers.md`, `p086-stamps/REPORT-paused.md`, `p087-print/REPORT-paused.md`): each must first merge `ccr-d8bcd65d-gblqqb` into its branch.
+- **Helpers:** agent ids, branches and briefs are in the scratchpad file `helpers.md`; each merges `ccr-d8bcd65d-gblqqb` into its branch before new work.
 
 ## Release A, package by package
 | Package | Plan | Delivery |
@@ -20,9 +20,10 @@ Updated 2026-11-12 20:08 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | **3, part 1. The rush; the morning, the standing-order bid and the evening** | PLAN-084 | Implemented and checked on the merged code (`04d12ed`, REP-110); in release 1.20.0; the owner has not seen it yet |
 | 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | Implemented and checked on the merged code (`ca39c60`, REP-111); in release 1.20.0 |
 | 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | Implemented, merged and checked (REP-111); in release 1.20.0. Left for part 2: 203 audit entries in screen files, the helper's full list and the owner's read of the samples |
-| 4, part 2. The screen labels | PLAN-089 | In progress (the text helper, resumed 2026-11-12 19:50; report due 22:30) |
-| 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | In progress again (helper resumed 2026-11-12 19:50; report due 23:30). Data done, screens a first pass (`787faa3`), unmerged. Notes: scratchpad `p086-stamps/REPORT-paused.md` |
+| 4, part 2. The screen labels | PLAN-089 | Implemented and merged (`21d4e72`) |
+| 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | Implemented and merged (`8515872`); the whole browser run on the release build still to do |
 | 6, part 1. The print kit on rules 18 | PLAN-087 | Implemented and merged (`d1f5f01`): `print/kit`, `print/update-18`, `print/tracker-test`. Not done: a proof print; the owner's choice of tracker 1 or 2 |
+| Fixes for the known gaps of 1.20.0 | PLAN-090 | In progress: two helpers (the day's sheets: agent ab5b5cb6b52b6dd09; the table: agent a2bc3537f93a0a952), reports due 22:30 on 2026-11-12 |
 | 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
 **Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.
