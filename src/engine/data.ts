@@ -254,8 +254,8 @@ export interface EventCard {
   costFruit?: Partial<Record<FruitId, number>>;
   /** Extra fruit of every kind in today's delivery, per 4 stalls (rounded up). */
   supplyAll?: number;
-  /** Extra fruit of one kind in today's delivery, per 2 stalls (rounded up). Rules 18: these extra pieces arrive ripe
-   *  (Fresh, or Okay on the Seconds Lorry) even when the lorry brings that fruit green (Mango Windfall). */
+  /** Extra fruit of one kind in today's delivery, per 2 stalls (rounded up). Rules 18: when the lorry brings that fruit
+   *  green (Mango Windfall), these extra pieces arrive ripe, in the Fresh space, on every lorry (game.ts). */
   supplyEach?: Partial<Record<FruitId, number>>;
   /** No fruit of this kind is delivered today. */
   noFruit?: FruitId;
