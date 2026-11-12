@@ -5,7 +5,7 @@
 // PLAN-084: laid out as the approved Standing-Order screen. One sheet stays on the table from the first stall's bid
 // until the bids have been turned over: the order's card and who is bidding scroll if they must, while your bid, the
 // three lines of the stake and the buttons always stay in view under them.
-import { useRef, useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS, stakeFor } from '../../../engine/data';
 import { count, orderStake, type GameState, type Standing } from '../../../engine/game';
 import { Face, Fruit } from '../../art';
@@ -121,10 +121,15 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
   if (!shown) lone.current = short;
   // Online a stall that has decided may still change its mind: its buttons then say so.
   const again = !!waiting && !!canChange && !shown;
+  // On a short phone the card and the bidders scroll above your bid. As the bids are turned over the bidders are
+  // brought into view, so the winner never lies under the foot of the sheet.
+  const top = useRef<HTMLDivElement>(null);
+  const turning = !!shown;
+  useLayoutEffect(() => { if (turning && top.current) top.current.scrollTop = top.current.scrollHeight; }, [turning]);
   return (
     <>
     <div class="price-panel order-panel mid-panel tk-panel fm-sheet sh-order" data-a="order-panel" data-stage={shown ? shown.stage : 'bid'} ref={root}>
-      <div class="ob-top">
+      <div class="ob-top" ref={top}>
         {/* The order's card (PLAN-083), who is bidding, and what there is to deliver it with. */}
         <OrderTicket card={card} qty={o.qty} due={o.due} day={s.day} ceiling={o.ceiling} stake={stake} held={shown?.stage === 'paid'} />
         <div class="ob-sec">
