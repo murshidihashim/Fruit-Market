@@ -29,6 +29,10 @@
    does not have: the tip then opened a second column and squeezed the whole table. It lies at the foot of the middle
    instead, as the other tips do, over the sheet's last lines until it is closed. */
 #app .game.gx.tkt.coach-row > .coach, #app .game.gx.tkt.coach-row > .coach.top { grid-area: mid; align-self: end; margin: 0 auto 8px; }
+/* on a short phone the sheet ends at the foot of your shelf, and so does the tip */
+@media (max-height: 760px) {
+  #app .game.gx.tkt.coach-row > .coach, #app .game.gx.tkt.coach-row > .coach.top { grid-area: auto; grid-column: 1 / -1; grid-row: mid-start / dock-end; }
+}
 
 /* ---------- shared marks ---------- */
 #app .tkt .ds-lab { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
@@ -83,6 +87,8 @@
 #app .tkt .ds-rows.many .ds-srow { min-height: 42px; }
 #app .tkt .ds-rows.many .ds-info-cell { padding-top: 3px; padding-bottom: 3px; }
 #app .tkt .ds-rows.many .ds-st { min-height: 38px; }
+/* with a long shelf the note makes room for the rows (the first-game tip says the same) */
+#app .tkt .ds-rows.many ~ .ds-note { display: none; }
 
 /* ---------- pricing: a row for each fruit in your crate ---------- */
 #app .tkt .ds-prow { flex: none; display: flex; align-items: stretch; border: 2px solid var(--tk-ink); background: var(--tk-paper); }

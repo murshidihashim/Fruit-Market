@@ -103,7 +103,7 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(css).not.toMatch(/@keyframes|animation:|transition:/);
     // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin, on a short phone
     expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
-    expect(css).not.toMatch(/grid-template-rows|grid-row/);
+    expect(css).not.toMatch(/grid-template/);
     expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
     const main = read('src/main.tsx');
     expect(main.indexOf("'./ui/daysheet.css'")).toBeGreaterThan(main.indexOf("'./ui/rush.css'"));
