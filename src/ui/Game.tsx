@@ -1,11 +1,12 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
 import { Face } from './art';
 import * as A from './anim';
+import { BEAT } from './motion';
 import { EveningSheet } from './panel';
 import { Market, MyStall, Stalls, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
@@ -53,10 +54,16 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
   // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
+  // When the hand-over screen came up (0: it is not up). A tap sooner than BEAT.handoff.guard after that is the tail of
+  // the last person's own tapping (a double tap on Done), so it must not open the next person's stall.
+  const handoffAt = useRef(0);
+  if (!c.needHandoff) handoffAt.current = 0;
+  else if (!handoffAt.current) handoffAt.current = performance.now();
+
   if (c.needHandoff) {
     const pl = s.players[active];
     return (
-      <div class="handoff" onClick={() => { fx.tap(); c.setHandedTo(active); }}>
+      <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
         <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>

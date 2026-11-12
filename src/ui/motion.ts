@@ -47,6 +47,9 @@ export const BEAT = {
   rival: { pause: 380, pauseFast: 150, gap: 100 },
   /** Customers arrive (PLAN-085): the walk-ins turn face up one after another, `gap` apart, each in FEEL.turn. */
   arrive: { gap: 100 },
+  /** Passing a shared phone: taps are ignored for `guard` after the hand-over screen appears, so the second tap of
+   *  a double tap on Done cannot start the next person's turn while the first still holds the phone. */
+  handoff: { guard: 500 },
   /** Labels over a stall: the pop as one appears; how long a played favour or a built upgrade stays up; a favour card
    *  won in the rush; a bonus tip; a "+$7" floating up; a message at the bottom of the screen. */
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },

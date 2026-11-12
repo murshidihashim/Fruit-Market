@@ -95,7 +95,9 @@ export function shelfChips(s: GameState, p: number, stock: Stock = s.players[p].
     const chips: ShelfChip[] = [];
     const add = (c: ShelfChip) => {
       const last = chips[chips.length - 1];
-      if (last && last.stage === c.stage && last.words === c.words) last.n += c.n;
+      // pieces share a chip only when they also carry the same letter tomorrow (two green pieces can ripen into
+      // different boxes on a Heatwave night)
+      if (last && last.stage === c.stage && last.words === c.words && last.next === c.next) last.n += c.n;
       else if (c.n > 0) chips.push(c);
     };
     let toJuice = juiced[f];
