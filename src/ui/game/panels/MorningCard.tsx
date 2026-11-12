@@ -95,8 +95,33 @@ export function TomorrowLorry({ s }: { s: GameState }) {
   );
 }
 
-/** How many steps closer the morning sheet may be drawn when it would otherwise need a scroll (sheets.css .tight-N). */
-const TIGHTEST = 3;
+/** How many steps closer the morning sheet may be drawn when it would otherwise need a scroll (sheets.css, data-tight). */
+export const TIGHTEST = 3;
+/** What the steps need of a sheet (a page element; a stand-in in tests). */
+export interface Fitting { dataset: DOMStringMap; readonly scrollHeight: number; readonly clientHeight: number }
+/**
+ * When the sheet's parts are taller than the sheet, it is drawn a little closer, a step at a time. The step is
+ * written on the sheet itself (data-tight); the card is not drawn again for it. A sheet never goes back a step: a
+ * morning only gains lines.
+ */
+export function closer(el: Fitting): void {
+  let step = Number(el.dataset.tight ?? 0);
+  while (step < TIGHTEST && el.scrollHeight > el.clientHeight + 1) {
+    step += 1;
+    el.dataset.tight = String(step);
+  }
+}
+/**
+ * Called when the sheet's reach has been measured (reach.ts). A sheet that slides onto the table is clear as glass on
+ * its first frame (sheet.ts: it fades in from nothing), so that frame is left as it is and the steps are taken before
+ * the next one is drawn. Nobody sees the difference, and the pause as a morning comes is two short ones in place of
+ * one long one (on a slow phone the one was over the game's limit of 200 ms: scripts/perf-budget.cjs). A sheet that
+ * can be seen at once (reduced motion, or back after a moment away) takes its steps there and then.
+ */
+function closerOnceSeen(el: HTMLElement): void {
+  if (getComputedStyle(el).opacity !== '0') { closer(el); return; }
+  requestAnimationFrame(() => { if (el.isConnected) closer(el); });
+}
 
 /** `table`: this is the morning's sheet on the game table (the same card is also shown full screen from the top bar). */
 export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; viewer: number; lost: number; juice?: NightJuice; table?: boolean }) {
@@ -123,7 +148,7 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
 
   // On the table the sheet reaches from under the customers' tickets to your shelf (the approved Morning screen).
   const root = useRef<HTMLDivElement>(null);
-  useReach(root, 'row', false, !!table);
+  useReach(root, 'row', false, !!table, closerOnceSeen);
   // Coins at dawn (PLAN-084): the totals stay as they were before the fine and the top-up until the coins travel,
   // once the news has been turned over. Only for the morning that has just broken on this table.
   const before = useMemo(() => (table ? takeDawn(s) : null), []);
@@ -142,16 +167,12 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
   // A tap on the sheet while dawn's coins are on their way ends their pauses, so they leave at once. The table's pace
   // is put back straight away: this hurry is for the coins only, not for the buying that follows.
   const hurryCoins = () => { if (coins.current) { hurryUp(); resetHurry(); } };
-  // When the sheet's parts are taller than the sheet, it is drawn a little closer (sheets.css), a step at a time.
-  const [tight, setTight] = useState(0);
-  useLayoutEffect(() => {
-    const el = root.current;
-    if (table && el && tight < TIGHTEST && el.scrollHeight > el.clientHeight + 1) setTight(tight + 1);
-  });
+  // Once the event's picture is in, the sheet is looked at again (the page is at rest by then, so this costs nothing).
+  useEffect(() => { if (table && ready && root.current) closer(root.current); }, [ready]);
 
   const said = [fineLine(s, viewer), topUpLine(s, viewer)].filter(Boolean).join('. ');
   return (
-    <div class={`morning-card tk-morning ${table ? 'fm-sheet sh-morning' : ''} ${rem <= 3 ? 'finale' : ''} ${tight ? `tight-${tight}` : ''}`} ref={root} onClick={hurryCoins}>
+    <div class={`morning-card tk-morning ${table ? 'fm-sheet sh-morning' : ''} ${rem <= 3 ? 'finale' : ''}`} ref={root} onClick={hurryCoins}>
       {/* The inspector's fine, and (rules 18, out of cash) the market's top-up of a stall with an empty shelf and less
           than $5 at dawn. */}
       {dawn.length > 0 && (

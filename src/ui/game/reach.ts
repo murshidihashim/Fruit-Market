@@ -6,7 +6,7 @@
 // Nothing is moved and no row is resized: the sheet stays a child of the middle cell and is drawn larger than the cell
 // by a negative margin (sheets.css), measured here from the rows themselves. The measure is written on the sheet's own
 // element (--rise, --drop), so the picture of the sheet that slides off when it leaves (sheet.ts) keeps the same reach.
-import { useEffect, useLayoutEffect, type MutableRef } from 'preact/hooks';
+import { useLayoutEffect, useRef, type MutableRef } from 'preact/hooks';
 import { FEEL, FRAME, moveMs } from '../motion';
 
 /** Where a sheet's top edge lies: under the customers' tickets ('row', over tomorrow's strip, the order strip and the
@@ -59,35 +59,55 @@ function measure(game: Element): ReachBoxes | null {
   };
 }
 
+/** The reach last measured for each kind of sheet. */
+const known = new Map<string, Reach>();
+
+/** The rows a sheet's reach is measured from. When any of them changes its size the middle cell does too. */
+const ROWS = ':scope > .street-wrap, :scope > .seats, :scope > .my-stall, :scope > .tk-top, :scope > .centre > .market-stall';
+
 /**
- * Put `ref` on a sheet (a middle panel with the class `fm-sheet`). After every draw, and whenever a row changes its
- * size, the reach is measured and written on the sheet. `down`: the sheet also lies over your shelf. `on`: false for
- * a copy of the panel that is not on the table (the morning's news opened full screen).
+ * Put `ref` on a sheet (a middle panel with the class `fm-sheet`). The reach is measured and written on the sheet
+ * before the sheet is first painted, and again whenever a row changes its size. `down`: the sheet also lies over your
+ * shelf. `on`: false for a copy of the panel that is not on the table (the morning's news opened full screen).
+ * `fitted` is called each time the reach has been written (the morning draws itself closer there).
+ *
+ * The page itself says when the rows have been laid out (a ResizeObserver, whose first word comes in the same frame
+ * the sheet appears in, before it is painted). The rows are never measured in the middle of a draw: that makes the
+ * browser lay the whole table out there and then, and on a slow phone it made the morning one long pause.
  */
-export function useReach(ref: MutableRef<HTMLElement | null>, up: ReachUp, down: boolean, on = true): void {
-  const fit = () => {
+export function useReach(ref: MutableRef<HTMLElement | null>, up: ReachUp, down: boolean, on = true, fitted?: (el: HTMLElement) => void): void {
+  const then = useRef(fitted);
+  then.current = fitted;
+  useLayoutEffect(() => {
     const el = on ? ref.current : null;
     const game = el?.closest('.game');
-    const boxes = game ? measure(game) : null;
-    if (!el || !boxes) return;
-    const r = reachFrom(boxes, up, down);
-    el.style.setProperty('--rise', `${r.rise}px`);
-    el.style.setProperty('--drop', `${r.drop}px`);
-  };
-  // Before the sheet is first painted, and after every draw (a row may have changed with the game).
-  useLayoutEffect(fit);
-  useEffect(() => {
-    const game = on ? ref.current?.closest('.game') : null;
-    if (!game || typeof ResizeObserver === 'undefined') return;
-    const watch = new ResizeObserver(fit);
-    watch.observe(game);
-    game.querySelectorAll(':scope > .street-wrap, :scope > .seats, :scope > .my-stall, :scope > .tk-top, :scope > .centre > .market-stall').forEach((el) => watch.observe(el));
-    return () => watch.disconnect();
-  }, []);
-  // As the sheet leaves: its picture slides off above the rows it lay over (see liftOff).
-  useLayoutEffect(() => {
-    const game = on ? ref.current?.closest('.game') : null;
-    return game ? () => liftOff(game) : undefined;
+    if (!el || !game) return;
+    const write = (r: Reach) => {
+      el.style.setProperty('--rise', `${r.rise}px`);
+      el.style.setProperty('--drop', `${r.drop}px`);
+    };
+    // The rows keep their places all game, so a sheet starts with the reach the last sheet of its kind had: it is
+    // then laid out once, not twice. The measure that follows in the same frame puts it right if the table changed
+    // (another game, a turned phone). Nothing is asked of the page here: even the window's size would be a layout.
+    const kind = `${up}:${down}`;
+    const was = known.get(kind);
+    if (was) write(was);
+    const fit = () => {
+      const boxes = measure(game);
+      if (!boxes) return;
+      const r = reachFrom(boxes, up, down);
+      write(r);
+      known.set(kind, r);
+      then.current?.(el);
+    };
+    const watch = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    if (!watch) fit();
+    else {
+      watch.observe(game);
+      game.querySelectorAll(ROWS).forEach((row) => watch.observe(row));
+    }
+    // As the sheet leaves: its picture slides off above the rows it lay over (see liftOff).
+    return () => { watch?.disconnect(); liftOff(game); };
   }, []);
 }
 

@@ -8,7 +8,7 @@ import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { holdCash, payCash, shownCash, takeCash } from '../src/ui/cashShown';
 import { COINS, beforeDawn, bidsIn, bidsTurned, built, coinShares, dawnCoins, holdBack, noteOffer, takeDawn, type OrderShow } from '../src/ui/game/dayBeats';
-import { dawnLines, fineLine, topUpLine } from '../src/ui/game/panels/MorningCard';
+import { TIGHTEST, closer, dawnLines, fineLine, topUpLine, type Fitting } from '../src/ui/game/panels/MorningCard';
 import { BidStatus, canGetLine } from '../src/ui/game/panels/OrderPanel';
 import { reachFrom, type ReachBoxes } from '../src/ui/game/reach';
 import { BEAT, FEEL } from '../src/ui/motion';
@@ -460,6 +460,36 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     const main = read('src/main.tsx');
     expect(main.indexOf("'./ui/sheets.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket-ui.css'"));
     expect(main.indexOf("'./ui/motion.css'")).toBeGreaterThan(main.indexOf("'./ui/sheets.css'"));
+  });
+
+  it('a morning with more to say than its sheet holds is drawn closer, a step at a time, and no closer than it needs', () => {
+    /** A stand-in for the sheet: how tall its parts are at each step, and the room it has. */
+    const sheet = (parts: number[], room: number): Fitting => {
+      const dataset: DOMStringMap = {};
+      return { dataset, clientHeight: room, get scrollHeight() { return Math.max(room, parts[Number(dataset.tight ?? 0)]); } };
+    };
+    const stepOf = (parts: number[], room: number) => { const el = sheet(parts, room); closer(el); return el.dataset.tight; };
+    expect(stepOf([470, 430, 400, 385], 475)).toBeUndefined(); // it fits as the approved screen draws it
+    expect(stepOf([508, 446, 409, 389], 450)).toBe('1');
+    expect(stepOf([508, 446, 409, 389], 410)).toBe('2');
+    expect(stepOf([508, 446, 409, 389], 381)).toBe(String(TIGHTEST)); // closest, and then the sheet scrolls
+    // asked again (a row changed its size), a sheet never goes back a step
+    const el = sheet([508, 446, 409, 389], 410);
+    closer(el);
+    closer(el);
+    expect(el.dataset.tight).toBe('2');
+    // the step is written on the sheet as the page is laid out: the card is not drawn again for it, the rows are never
+    // measured in the middle of a draw, and the steps wait for the frame after the one on which the sheet is still clear
+    const card = read('src/ui/game/panels/MorningCard.tsx');
+    expect(card).not.toMatch(/setTight|tight-\$\{/);
+    expect(card).toContain("if (getComputedStyle(el).opacity !== '0') { closer(el); return; }");
+    expect(card).toContain('requestAnimationFrame(() => { if (el.isConnected) closer(el); });');
+    const reach = read('src/ui/game/reach.ts');
+    expect(reach).not.toMatch(/useLayoutEffect\(fit\)|innerWidth|innerHeight/);
+    expect(reach).toContain('new ResizeObserver(fit)');
+    const css = read('src/ui/sheets.css');
+    expect(css).toContain("#app .tkt .sh-morning[data-tight='3'] .wc-evpic");
+    expect(css).not.toMatch(/\.tight-\d/);
   });
 
   it('the bottom bar keeps its height when it holds two buttons, so your shelf under the sheet does not move', () => {

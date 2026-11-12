@@ -36,22 +36,23 @@
 #app .tkt .mt-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #app .tkt .mt-load { flex: none; margin-left: auto; display: flex; align-items: center; gap: 6px; }
 #app .tkt .mt-load span { display: inline-flex; align-items: center; gap: 3px; }
-/* A morning with more to say than its sheet holds is drawn closer, a step at a time (MorningCard.tsx), before it
-   would need a scroll: first the spacing, then the event's tagline and the lorry's rows, then the event's picture. */
-#app .tkt > .centre > .sh-morning[class*='tight-'] { gap: 6px; padding-bottom: 6px; }
-#app .tkt > .centre > .sh-morning[class*='tight-'] > :first-child:not(.dw) { margin-top: 6px; }
-#app .tkt .sh-morning[class*='tight-'] .dw-row { padding-top: 6px; padding-bottom: 6px; }
-#app .tkt .sh-morning[class*='tight-'] .wc-body { gap: 8px; padding: 7px 9px; }
-#app .tkt .sh-morning[class*='tight-'] .wc-main { gap: 5px; }
-#app .tkt .sh-morning[class*='tight-'] .wc-foot { padding-top: 4px; padding-bottom: 4px; }
-#app .tkt .sh-morning[class*='tight-'] .wc-lt { margin-top: 4px; margin-bottom: 4px; }
-#app .tkt .sh-morning[class*='tight-'] .mt-next { padding-top: 5px; padding-bottom: 5px; }
-#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-flavour { display: none; }
-#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-lt span { height: 16px; }
-#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-lt .wc-lt-h { height: 22px; }
-#app .tkt .sh-morning:is(.tight-2, .tight-3) .wc-ttl { font-size: 1.125rem; }
-#app .tkt .sh-morning.tight-3 .wc-evpic { width: 104px; height: 76px; }
-#app .tkt .sh-morning.tight-3 .wc-chip { padding: 4px 6px; }
+/* A morning with more to say than its sheet holds is drawn closer, a step at a time (MorningCard.tsx writes the step
+   on the sheet, data-tight), before it would need a scroll: first the spacing, then the event's tagline and the
+   lorry's rows, then the event's picture. */
+#app .tkt > .centre > .sh-morning[data-tight] { gap: 6px; padding-bottom: 6px; }
+#app .tkt > .centre > .sh-morning[data-tight] > :first-child:not(.dw) { margin-top: 6px; }
+#app .tkt .sh-morning[data-tight] .dw-row { padding-top: 6px; padding-bottom: 6px; }
+#app .tkt .sh-morning[data-tight] .wc-body { gap: 8px; padding: 7px 9px; }
+#app .tkt .sh-morning[data-tight] .wc-main { gap: 5px; }
+#app .tkt .sh-morning[data-tight] .wc-foot { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-morning[data-tight] .wc-lt { margin-top: 4px; margin-bottom: 4px; }
+#app .tkt .sh-morning[data-tight] .mt-next { padding-top: 5px; padding-bottom: 5px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-flavour { display: none; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-lt span { height: 16px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-lt .wc-lt-h { height: 22px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-ttl { font-size: 1.125rem; }
+#app .tkt .sh-morning[data-tight='3'] .wc-evpic { width: 104px; height: 76px; }
+#app .tkt .sh-morning[data-tight='3'] .wc-chip { padding: 4px 6px; }
 
 /* ---------- the standing-order bid ----------
    The order's card, who is bidding and what there is to deliver with take the room that is left and scroll inside it
