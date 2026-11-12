@@ -1,16 +1,20 @@
 {
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, commit 9c0d11b",
   "reports": [
     "REP-105",
-    "REP-106"
+    "REP-106",
+    "REP-107"
   ],
   "decisions": [
     "DEC-101"
   ],
   "changes": {
     "added": [],
-    "changed": [],
+    "changed": [
+      "Ah Chen (the Charmer) starts with 3 favour cards, not 4",
+      "The Ripening Room no longer makes green mangoes $1 cheaper; it still ripens them in one night"
+    ],
     "fixed": [],
     "removed": []
   },
@@ -20,7 +24,7 @@
     "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-082",
   "title": "Rules 18 balance: Charmer 3 favour cards, Ripening Room without the discount",
   "problem": "Under rules 18 the Charmer is above fair at every table size, and the Ripening Room's discount largely cancels the dearer green mango and makes the room the strongest upgrade.",
@@ -39,20 +43,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes; tests cover the Charmer's hand and the Ripening Room's price",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify, 2026-11-12, run by me: 61 test files, 545 tests passed, 1 skipped. tests/characters.test.ts covers the Charmer's hand and card text; tests/rules18.test.ts covers the Ripening Room's price and text. tests/price-read.test.ts was corrected on purpose: it did not allow for pieces a stall delivers to its own standing order"
     },
     {
       "id": "T2",
       "text": "Balance report: every shopkeeper within 4 points of fair at 2, 3, 4 and 6 stalls with Normal computers; the Hard-computer run reported",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "FAIL",
+      "evidence": "Run, target missed narrowly. Normal computers: largest distance 3.2 / 3.7 / 3.9 / 4.3 at 2 / 3 / 4 / 6 stalls (3,600 / 2,800 / 2,000 / 2,600 games); Nest Egg is +4.3 at 6 stalls. Hard computers: Bargain Hunter +5.6 at 3 stalls and +4.8 at 4 (1,600 and 1,200 games). 45 of 48 results within 4 points. The Charmer is +2.3 / +3.7 / +1.8 / +1.2. The Ripening Room is built by 16 to 18% of Normal stalls (was 50 to 90%). REP-107"
     },
     {
       "id": "T3",
       "text": "npm run test:e2e passes",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Started; result to be added"
     }
   ]
 }
