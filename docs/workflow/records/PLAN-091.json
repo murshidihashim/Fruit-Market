@@ -1,10 +1,11 @@
 {
-  "release": "unreleased",
+  "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-110",
     "REP-111",
-    "REP-112"
+    "REP-112",
+    "REP-114"
   ],
   "decisions": [
     "DEC-087",
@@ -16,10 +17,26 @@
     "DEC-108"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "A collection page opens its full card",
+      "The Favoured Trade step in the QA sweep"
+    ],
+    "changed": [
+      "The bell rings once, with the player's chosen bell",
+      "The bottom bar is quiet during the bell, the rush and the night",
+      "First-game tips fit a small phone",
+      "The evening's favour cards say Play in the evening; Results say Rematch and Main menu; Home says Dress up (the boards' words)",
+      "A favour card played by a rival is named from what the game records publicly; a rival's won card stays face down",
+      "RULES.md and the printed guidebook use the cards' words; at the table each stall pays itself on its own cash track (DEC-108)"
+    ],
+    "fixed": [
+      "On a shared phone the results spoke to whoever played last; now to the phone's owner",
+      "With reduced motion the opening showed a blank page for a second",
+      "A look granted by the server and worn was dropped when an account synced"
+    ],
+    "removed": [
+      "Unused code and styles left by the rebuild of the screens and the stamp book"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -27,7 +44,7 @@
     "evidence": "Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as: do the work that the rush of 12 November cut short or listed as known gaps, inside the packages already approved (PLAN-084 to PLAN-090) and the decisions behind them. Not read as the word to publish 1.21.0, which is asked for separately. RULES.md's wording is brought in step with the cards on this word (it was put to the owner as waiting for his word; words only, no rule changes).",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-091",
   "title": "Release A, finishing: the work the rush of 12 November cut short",
   "problem": "To go live on 12 November the screens, the text and the stamp book were built by eight helpers in a few hours, with small faults listed as known gaps (REP-111, REP-112), checks left NOT RUN, dead code left behind, and some documents out of date.",
@@ -50,38 +67,38 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on 41fc7b0 (all three parts merged): 79 files, 830 tests passed, 1 skipped."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on 41fc7b0: solo game to the results with no errors; performance budget passed on the script's retry (206 ms then 125 ms against 200, with the rush helper running); online match 58 pricing frames, 0 leaks, rematch, takeover; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Pass-and-play to the results and reduced motion over a whole game, on the final build, with no page errors and no secret shown",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Helpers: pass-and-play to the results, only the phone's owner earns stamps and the page speaks to the owner (fixed); a whole solo game with reduced motion at 360x640 reaches the results; the opening on Home with reduced motion (fixed). Not repeated by me on the final build; repeated after the round-table rush lands."
     },
     {
       "id": "T4",
       "text": "Every changed screen looked at by me at 390x844 and 360x640; dead-code removal leaves every screen the same",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Seen by me: the day's screens and the stamp book's screens from the merged builds (the tour of 2026-11-13 00:20 and the helpers' sheets); dead code removed with pictures of every day screen and every stamp-book screen before and after, identical apart from frames that also differ between two runs of one build."
     },
     {
       "id": "T5",
       "text": "Every print script runs on the final card text; every page of the kit looked at",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "print-deck, print-update and print-trackers run on the final card text (cbcab10); every page of the kit (200), the update pack (40) and the trackers (7) looked at by me as contact sheets; nothing cut off; Blueberry Glut fits; tests/print-kit.test.ts 13 passed."
     },
     {
       "id": "T6",
       "text": "RULES.md: no rule, number or meaning changed (diff read by me)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "I read RULES.md's whole word diff (merge ba448be): names and wording only, no rule, number or meaning changed; four lines that still contradicted DEC-107, the event table, the app and rules 15 were fixed by me; the crier paragraph follows the guidebook (DEC-108)."
     }
   ]
 }

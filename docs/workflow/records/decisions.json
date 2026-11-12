@@ -3782,6 +3782,10 @@
     {
       "at": "2026-11-13 00:14",
       "text": "REP-114 (analysis of the owner's standing-order proposal, highest bid +$2 and stake -$2): mango orders with no bidder fall only 4 to 6 points (56% to 52% at 4 stalls); the higher top bid hardly moves winning bids; careful bidding is worth a little more; low bids are punished much less; shopkeeper balance unchanged within the noise. Not a fix for mango orders. Options put to him: keep the numbers and show the sums, take the proposal, or a direct mango fix (due in 3 days, one piece fewer, or no mango cards), each to be measured first. Nothing changed."
+    },
+    {
+      "at": "2026-11-13 01:22",
+      "text": "PLAN-091 (finishing pass) merged and checked: the stamp book part (dc47462), the day-screens part (41fc7b0), RULES.md (ba448be), the print kit rebuilt and every page looked at (cbcab10). verify PASS (830 tests); e2e PASS. The owner was sent a recording of Days 1 to 3 and pictures of every step and of Home, Results, Trophies and the Wardrobe (candidate 1.21.0). STATE.md shortened to what is needed to resume. Waiting: the round-table rush (PLAN-092), and the owner's answers on publishing 1.21.0 and on standing orders."
     }
   ]
 }
