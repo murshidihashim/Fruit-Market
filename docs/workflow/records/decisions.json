@@ -3594,6 +3594,10 @@
     {
       "at": "2026-11-12 17:05",
       "text": "DEC-104: Owner, 2026-11-12: \"speed it up please\". Read as: build the remaining packages of release A side by side. Three more helpers started from f2d9d33: the stamp book's first version (PLAN-086), the print kit on rules 18 (PLAN-087) and the text outside the screens (PLAN-088). The helper on the morning, the bid and the evening (PLAN-084) was asked to wrap up and report. PLAN-085 (package 3, part 2: the sheets and the table) is opened and starts when part 1 is merged. Checks are not reduced: each package is reviewed, merged and checked on the merged code."
+    },
+    {
+      "at": "2026-11-12 17:09",
+      "text": "PLAN-084: the morning, the standing-order bid and the evening merged as built so far (merge 04d12ed, at the helper's commit 850d7c2) so that part 2 can start from it; npm run verify on the merged code: PASS (65 files, 659 tests, 1 skipped). The helper's final report, the browser tests on the merged code and the look beside the mock-ups are still to come; PLAN-084's checks stay NOT RUN until then. PLAN-085: two helpers started from 04d12ed (the sheets; the table). Five helpers now work side by side (DEC-104). An hourly scheduled check-in was set so the work restarts by itself after a usage-limit pause."
     }
   ]
 }

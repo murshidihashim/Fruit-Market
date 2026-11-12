@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-12 17:05 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-12 17:09 (Asia/Kuala_Lumpur), session checkpoint. This file holds only what is needed to resume. The story of how we got here is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.19.1, rules version 16 (`35bda0a`, published 2026-11-11). The preview copy is `main` (`f78c023`), also rules 16.
@@ -14,19 +14,19 @@ Updated 2026-11-12 17:05 (Asia/Kuala_Lumpur), session checkpoint. This file hold
 | 1. Flow repairs and two defects | PLAN-081 | Implemented, merge `f50c9d5` (REP-107) |
 | Balance choices (DEC-101) | PLAN-082 | Implemented, `9c0d11b` (REP-107) |
 | 2. New pictures and card faces; shared motion blocks | PLAN-083 | Verified, merges `10ef387` and `fd95996` (REP-108); the owner keeps the cards as built (DEC-102) |
-| **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **In progress: the rush merged (`f2d9d33`); the other three with a helper** |
-| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | Opened; two helpers start when part 1 is merged |
+| **3, part 1. The rush; the morning, the standing-order bid and the evening** | **PLAN-084** | **In progress: the rush merged (`f2d9d33`); the other three merged as built so far (`04d12ed`), the helper's report and the checks on the merged code still to come** |
+| 3, part 2. One sheet from stocking to the takings; the market lanes, the stalls, buying, the lorry, the night | PLAN-085 | In progress (two helpers, from `04d12ed`) |
 | 4, part 1. The text outside the screens (DEC-087) | PLAN-088 | In progress (helper) |
 | 4, part 2. The screen labels | not opened | After the screens are merged |
 | 5. Trophy fixes, stamp book, Results, Trophies, Wardrobe, Home (DEC-097, DEC-099, DEC-103) | PLAN-086 | In progress (helper) |
 | 6, part 1. The print kit on rules 18 | PLAN-087 | In progress (helper) |
 | 6, part 2. Release preparation (version, release entry, player notes) | not opened | Last |
 
-**Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. PLAN-085's two helpers start from the commit that merges PLAN-084's panels.
+**Side by side (DEC-104):** the owner asked for speed, so the packages left are built at the same time by helpers in separate work folders (`.claude/worktrees`), each from a brief in the session scratchpad (`brief-common.md` plus `brief-084-panels.md`, `brief-085-sheets.md`, `brief-085-table.md`, `brief-086-stamps.md`, `brief-087-print.md`, `brief-088-text.md`). Helpers commit on their own branch and do not push. For each one that reports: review the report and the diff, merge with `--no-ff` (shared files: `Game.tsx`, `useGameController.ts`, `animator.tsx`, `table.tsx`, `motion.ts`, `cards.tsx`, `cards.css`), run `npm run verify` and `npm run test:e2e` on the merged code, look at each screen beside its board at 390x844 and 360x640 with 4 and 6 stalls, record the plan's checks, write the report, show the owner. An hourly scheduled check-in ("Release A: keep the work moving") restarts stopped helpers; delete it when release A is ready.
 
-## Checks (latest, on `fd95996`)
-- `npm run verify`: PASS (63 files, 605 tests, 1 skipped).
-- `npm run test:e2e`: PASS (solo game, performance budget, online match 0 leaks, reconnect 5 of 5).
+## Checks
+- `npm run verify` on `04d12ed`: PASS (65 files, 659 tests, 1 skipped).
+- `npm run test:e2e`: last run by the session on `fd95996`, PASS (solo game, performance budget, online match 0 leaks, reconnect 5 of 5). NOT RUN on `04d12ed`.
 - Performance before and after package 2 (3 runs each): no clear change; about 30 more page elements; more pieces of work over 50 ms; all far inside the limits. Not run on the CI machines.
 - Pass-and-play hand-over: PASS (nothing of the first person's prices on the page).
 - Balance target (every shopkeeper within 4 points): PASS at 2, 3 and 4 stalls; FAIL narrowly at 6 stalls (Nest Egg +4.3) and against Hard computers (Bargain Hunter +5.6, +4.8).
