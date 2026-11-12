@@ -2660,6 +2660,30 @@
         "REP-111"
       ],
       "reviewTrigger": "If players miss the marks and ask for them back; if online play needs the server to stop sending the purchases after buying"
+    },
+    {
+      "id": "DEC-108",
+      "title": "At the table each stall pays itself on its own cash track; the guidebook keeps its playing time",
+      "question": "The printed guidebook and RULES.md differed on how a stall is paid at the table (the guidebook: each stall adds its own price to its cash track; RULES.md: a crier pays the stalls from the bank), and the guidebook's cover says \"45 to 90 minutes\" with no measurement behind it.",
+      "choice": "1. Follow the guidebook: the crier reads the customers aloud and pays nobody; a stall that sells adds its own price to its own cash track. RULES.md now says so. 2. The guidebook keeps \"45 to 90 minutes\".",
+      "rationale": "The cash track on the counter (DEC-085) replaced coins, so the crier no longer needs to hand money out; the guidebook already describes it that way.",
+      "impact": {
+        "player": "The printed game reads the same in the rulebook and the guidebook. The app is unchanged.",
+        "technical": "RULES.md, two sentences. No code, no rules version change.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering two questions on the printed game (how a stall is paid at the table: the guidebook's way or the rulebook's crier paying from the bank; and whether the guidebook keeps \"45 to 90 minutes\"): \"1 follow guidebook\", \"2 keep it\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-112"
+      ],
+      "reviewTrigger": "After the first table playtest of the printed kit: is the crier still needed, and how long a game really takes"
     }
   ],
   "history": [
@@ -3714,6 +3738,10 @@
     {
       "at": "2026-11-12 22:51",
       "text": "PLAN-091 opened: Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as the finishing pass on the work cut short on 12 November, not as the word to publish 1.21.0. Three helpers started from 1cbcc7c: the day's screens, the stamp book, and RULES.md's words. The session updated the creative bible (setting per DEC-087, eight shopkeepers, card pictures, the voice), the game brief (rules 18, 2 to 6 stalls, accounts optional, no purchases), the store listing and the online notes (accounts optional). PLAN-084 and PLAN-085: the owner has seen the screens (he played 1.20.0) — PASS."
+    },
+    {
+      "at": "2026-11-12 23:13",
+      "text": "DEC-108: Owner, 2026-11-12, answering two questions on the printed game (how a stall is paid at the table: the guidebook's way or the rulebook's crier paying from the bank; and whether the guidebook keeps \"45 to 90 minutes\"): \"1 follow guidebook\", \"2 keep it\". RULES.md's crier paragraph now follows the guidebook (each stall adds its own price to its cash track) and its opening line says a cash track, not coins. PLAN-091: RULES.md's words merged (ba448be) after the session read every change (no rule, number or meaning changed) and fixed four lines that still contradicted DEC-107 and the event table; the printed guidebook's text brought in line with DEC-107, the Charmer's limits and the glossary (6baf5f7)."
     }
   ]
 }

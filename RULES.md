@@ -4,7 +4,7 @@
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys fruit at the Wholesale Market and sells it to the town. Fruit ages every night, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
-Every rule here can be played with cards and coins on a table; the app only does the bookkeeping.
+Every rule here can be played with cards and a cash track on a table; the app only does the bookkeeping.
 
 ## The big idea
 
@@ -246,7 +246,7 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Order of customers.** Lay the customer cards in one row, always in this order: a standing order collected today, the regular, the walk-ins in the order they were drawn, then a guest such as the Hotel Chef. Serve them left to right.
 
-**The crier.** One player reads the customers aloud and pays the stalls from the bank, so stalls never swap coins with each other. Use the player who bought last that morning. For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (Soft included), at **top − 1 Fresh or Okay**, at **the top itself Fresh only**, and above the top nothing (a Premium Display may go $1 over for Fresh fruit, but never for a guest). The cheapest price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
+**The crier.** One player reads the customers aloud: the player who bought last that morning. The crier pays nobody. A stall that sells hands over the piece, puts it on one of the card's circles and adds its own price to its own cash track, so nobody swaps money (as the printed guidebook says). For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (Soft included), at **top − 1 Fresh or Okay**, at **the top itself Fresh only**, and above the top nothing (a Premium Display may go $1 over for Fresh fruit, but never for a guest). The cheapest price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
 
 **Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $110 to $130, the last stall with about $50 to $80. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
 
