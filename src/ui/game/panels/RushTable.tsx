@@ -30,6 +30,8 @@ const MAX_SHOWN = 4;
 /** The stage's size before it has been measured (a test draws it without a page). */
 const STAGE_GUESS: [number, number] = [390, 450];
 const ORDINAL = ['', '1st', '2nd'];
+/** A result sentence longer than this many letters is set a size smaller, so that it fits the line's five lines. */
+const LONG_LINE = 160;
 
 /** A favour card won in the rush, small: its face for the stall that won it, the deck's back for every other stall. */
 export function FavourMark({ id }: { id: FavourId | null }) {
@@ -131,7 +133,7 @@ export function RushView({ s, a, viewer, size = STAGE_GUESS, card, stage, shared
         </div>
       </div>
       {/* The line keeps its room from the start, so the table above it does not move when its words change. */}
-      <div class={`rt-line ${done ? 'show' : ''}`} role="status">
+      <div class={`rt-line ${done ? 'show' : ''} ${done && c.text.length > LONG_LINE ? 'long' : ''}`} role="status">
         {done
           ? <><b class={c.earned > 0 ? '' : 'nil'}>{c.earned > 0 ? `+$${c.earned}` : '$0'}</b><span>{c.text}</span></>
           : a.stage !== 'in' && b ? <span class="rt-now">{b.heading}</span> : null}

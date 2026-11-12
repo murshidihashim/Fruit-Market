@@ -408,7 +408,7 @@ describe('the round table', () => {
     expect(before).not.toContain('class="got"');
     expect(before).not.toMatch(/rt-w [^"]*done/);
     expect(before).not.toContain('Sold ');
-    expect(before).toContain('<div class="rt-line " role="status">');
+    expect(before).toMatch(/<div class="rt-line +" role="status">/);
     // every crate still holds the pieces it had when the customer came
     for (const r of first.rows) if (r.used && first.crates[r.player]) expect(crate(before, r.player).match(/class="rt-pc"/g)?.length ?? 0).toBe(Math.min(first.crates[r.player]!.length, 4) - (first.crates[r.player]!.length > 4 ? 1 : 0));
     // pieces leave a crate as they lift off, and fill dots as they land
@@ -429,7 +429,7 @@ describe('the round table', () => {
     expect(html(show('rows', 1))).not.toContain('Sold ');
     serveLine(card.customerId, second.fruit);
     const done = html(show('result', 1));
-    expect(done).toContain('<div class="rt-line show" role="status">');
+    expect(done).toMatch(/<div class="rt-line show (long)?" role="status">/);
     expect(done).toContain(`<b class="">+$${card.earned}</b>`);
     expect(done).toContain(`<span>${esc(card.text)}</span>`);
   });
