@@ -20,6 +20,12 @@
    walk-ins turn face up. */
 #app .tkt .street { --pic: 56px; min-height: calc(48px + var(--pic) + var(--lines, 2) * 20px); }
 #app .tkt .street .tkc-pc { height: var(--pic); }
+/* a very short phone (360 by 640): the row's tickets go without their pictures, so the lanes keep their six boxes when
+   a standing order's strip and your favour cards are on the table as well (a tap on a ticket still shows its picture) */
+@media (max-height: 650px) {
+  #app .tkt .street-wrap .street { --pic: 0px; }
+  #app .tkt .street-wrap .street .tkc-pc { display: none; }
+}
 /* a walk-in turns face up: its back turns away, then its face shows; the standing order's card is dealt to the front */
 #app .tkt .street > .cust.tb-turn-out > * { animation: tb-turn-out calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0.4, 0, 1, 1) both; }
 #app .tkt .street > .cust.tb-turn-in > * { animation: tb-turn-in calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0, 0, 0.2, 1) both; }
