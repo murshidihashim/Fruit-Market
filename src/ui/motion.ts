@@ -58,9 +58,16 @@ export const BEAT = {
   stock: { fly: 260, gap: 70 },
   /** Pricing: your price tags turn face down as you ring the bell (flow study D3: seal 200 ms). */
   price: { seal: 200 },
-  /** The bell (flow study D3): the bell swings and sounds (`swing`); then stall by stall, `gap` apart, a row lifts
-   *  (`lid`) and its price tags turn face up (FEEL.turn); then a pause to read. About 2.6 s at four stalls. "No sales
-   *  today"; the older crate's turn (motion.css). */
+  /** The round table before the rush (flow A; PLAN-099). As your stall opens the table forms: your crate and every
+   *  rival's travel from where they were (the stocking sheet, the stalls' row) to their seats (`form`). When the
+   *  room changes (the pricing sheet slides up from the foot of the table, FEEL.sheetIn, and away again,
+   *  FEEL.sheetOut) the crates glide to their new places (`glide`). Once every stall is open, a rival's lid lifts off
+   *  its face-down squares (BEAT.bell.lid). */
+  table: { form: 320, glide: 240 },
+  /** The bell (flow study D3; at the round table, PLAN-099): the bell comes into the middle of the table
+   *  (FEEL.sheetIn) and swings and sounds (`swing`); then seat by seat, clockwise from yours, `gap` apart, a crate's lid
+   *  lifts (`lid`), its squares turn into its pieces and its price tags turn face up (FEEL.turn); then a pause to read.
+   *  About 2.6 s at four stalls. "No sales today"; the older crate's turn (motion.css). */
   bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100 },
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
@@ -96,7 +103,7 @@ export const BEAT = {
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
   land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp,
-  'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid,
+  'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid, 'table-form': BEAT.table.form, 'table-glide': BEAT.table.glide, seal: BEAT.price.seal,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
   lorry: BEAT.lorry.drive, 'lorry-off': BEAT.lorry.off,
 };

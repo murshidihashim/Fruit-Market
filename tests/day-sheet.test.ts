@@ -1,5 +1,6 @@
-// One sheet from stocking to the day's takings (PLAN-085): which step it shows, that nothing secret is drawn early or
-// for the wrong person, the bell's rows, the Favoured Trade question, and that the sheet is one element that stays.
+// The day from stocking to the takings (PLAN-085; the round table between them, PLAN-099): which step is on the table,
+// that nothing secret is drawn early or for the wrong person, the crates at the bell, the Favoured Trade question,
+// and that the day's sheet and the round table are each one element that stays.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
@@ -7,14 +8,16 @@ import { aiActFor } from '../src/engine/ai';
 import { EVENT_CARDS, FRUIT, RIVALS, type FruitId } from '../src/engine/data';
 import { activePlayer, applyAction, decideTie, emptyStock, newGame, publicView, tiedPrices, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
-import { TIGHTEST, dayStep, fitSheet, fullReach, ownStep, type DayNow } from '../src/ui/game/daySheet';
+import { TIGHTEST, dayStep, fitSheet, onSheet, ownStep, type DayNow } from '../src/ui/game/daySheet';
 import { BEAT } from '../src/ui/motion';
-import { bellRows, flipped, nth } from '../src/ui/game/pricingTable';
+import { flipped, nth } from '../src/ui/game/pricingTable';
 import { tieAnswer } from '../src/ui/game/animator';
-import { CratesOpen, TieCard } from '../src/ui/game/panels/PricingTable';
+import { TieCard } from '../src/ui/game/panels/PricingTable';
+import { PreView } from '../src/ui/game/panels/RushTable';
+import { preTable, tableSeats, tableStep, type TableFacts } from '../src/ui/game/tableNow';
 import { tieStory } from '../src/ui/game/tieStory';
 import { nightSteps, tonightWord } from '../src/ui/game/tonight';
-import { shelfRowText, tieOrderText } from '../src/ui/panel';
+import { shelfRowText, tieOrderLine } from '../src/ui/panel';
 
 const read = (f: string) => readFileSync(f, 'utf8');
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
@@ -79,50 +82,59 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     // from the flip on everything on the sheet is public
     expect(dayStep(now({ phase: 'tie', mine: false, rung: true }))).toBe('tie');
     expect(dayStep(now({ phase: 'reveal', mine: false, bell: 2, rung: true }))).toBe('bell');
-    // the sheet works that out from the person the phone was handed to
+    // the sheet and the round table work that out from the person the phone was handed to
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     expect(sheet).toContain("mine: s.players[viewer]?.kind === 'human' && (online || c.humans.length === 1 || c.handedTo === viewer),");
+    expect(read('src/ui/game/panels/RushTable.tsx')).toContain('const step = tableStep(dayStep(dayNow(s, viewer, c, !!online)));');
   });
 
-  it('stocking and pricing fit the middle of the table; the bell and the question are drawn on the sheet over the rows around it; under the takings it lies plain', () => {
+  it('the day\'s sheet draws stocking and lies plain under the takings; every step between is the round table\'s (PLAN-099)', () => {
     const steps = ['stock', 'wait', 'price', 'sealed', 'bell', 'tie', 'takings'] as const;
-    expect(steps.map(ownStep)).toEqual([true, true, true, true, false, false, false]);
-    expect(steps.map(fullReach)).toEqual([false, false, false, false, true, true, false]);
+    expect(steps.map(ownStep)).toEqual([true, false, false, false, false, false, false]);
+    expect(steps.map(onSheet)).toEqual([true, false, false, false, false, false, true]);
+    expect(steps.map(tableStep)).toEqual([null, 'wait', 'price', 'sealed', 'bell', 'tie', null]);
+    expect(onSheet(null)).toBe(false);
+    expect(tableStep(null)).toBeNull();
   });
 });
 
-describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
-  it('the game table draws one sheet for all these steps, keyed by the day and the stall, so it is never replaced between them', () => {
+describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)', () => {
+  it('the game table draws the day\'s sheet for stocking and the takings, keyed by the day and the stall, and the round table between them', () => {
     const game = read('src/ui/Game.tsx');
     expect(game).toContain('if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;');
     for (const old of ['<StallPanel', '<PricePanel', '<CratesOpen', '<TiePanel', '<SalesSummary']) expect(game).not.toContain(old);
+    expect(game).toContain('<RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} c={c} online={!!online} from={crateFrom.current} />');
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     // one root element whose class does not change with the step (sheet.ts slides a panel in only when its class changes)
     expect(sheet.match(/<div class=\{`mid-panel sh-day /g)).toHaveLength(1);
-    const root = sheet.indexOf('<div class={`mid-panel sh-day ');
-    const end = sheet.indexOf('</div>\n      {step === \'stock\'', root);
-    expect(end).toBeGreaterThan(root);
-    // the bell's rows and the Favoured Trade question are drawn on the sheet itself, in its one element
-    const rows = sheet.indexOf('<CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared} answered={answered.current}>');
-    expect(rows).toBeGreaterThan(root);
-    expect(rows).toBeLessThan(end);
-    expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeGreaterThan(rows);
-    expect(sheet.indexOf('<TieCard key={`tie-${asked}`}')).toBeLessThan(end);
+    for (const gone of ['CratesOpen', 'TieCard', 'PricePanelView', 'PriceBar']) expect(sheet).not.toContain(gone);
     // the takings are their own panel, mounted after the sheet, which stays under them
-    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}")).toBeGreaterThan(end);
+    const root = sheet.indexOf('<div class={`mid-panel sh-day ');
+    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}")).toBeGreaterThan(root);
+    // the round table is one element from the moment the stall opens to the last customer: the same section is drawn
+    // before the rush and in it, so nothing is swapped as the first customer comes in
+    const table = read('src/ui/game/panels/RushTable.tsx');
+    expect(table.match(/<section class=\{`rush-table /g)).toHaveLength(1);
+    expect(table.match(/<TableView /g)?.length).toBe(3);
+    expect(table).toContain("key={`seat-${p}`}");
   });
 
-  it('the sheet moves by position, size and fade only, on the table\'s clock, and waits for nothing', () => {
+  it('the day\'s sheet and the round table move by position, size and fade only, on the table\'s clock, and wait for nothing', () => {
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     expect(sheet).not.toMatch(/setTimeout|setInterval|onAnimationEnd|onTransitionEnd|\.finished/);
     expect(sheet).not.toMatch(/rotate|skew|steps\(/);
-    expect(sheet).toContain("const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];");
-    // its lengths are named on the table's clock (motion.ts): a piece's slide, and your tags turning face down
+    // its lengths are named on the table's clock (motion.ts): a piece's slide
     expect(sheet).toContain('duration: A.BEAT.stock.fly');
-    expect(sheet).toContain('duration: A.ms(A.BEAT.price.seal)');
     expect(sheet).not.toMatch(/duration: \d|_MS = \d/);
+    // the round table's moves (tableBeats.ts): the crates travel to their seats, your tags turn face down, the bell
+    // swings and the crates open, the question comes in
+    const beats = read('src/ui/game/tableBeats.ts');
+    expect(beats).toContain("const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];");
+    expect(beats).toContain('duration: A.ms(A.BEAT.price.seal)');
+    expect(beats).toContain('duration: A.BEAT.table.form');
+    expect(beats).not.toMatch(/setTimeout|setInterval|onAnimationEnd|onTransitionEnd|\.finished|rotate|skew|steps\(|duration: \d/);
+    for (const frames of beats.match(/\{ (transform|opacity)[^}]*\}/g) ?? []) expect(frames).not.toMatch(/(?<!transform|opacity|translate\w*|scale\w*): /);
     expect([BEAT.stock.fly, BEAT.price.seal]).toEqual([260, 200]);
-    for (const frames of sheet.match(/\{ (transform|opacity)[^}]*\}/g) ?? []) expect(frames).not.toMatch(/(?<!transform|opacity|translate\w*|scale\w*): /);
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
     expect(css).not.toMatch(/@keyframes|animation:/);
     for (const t of css.match(/transition:[^;]+;/g) ?? []) expect(t).toMatch(/^transition: (none|opacity calc\(var\(--mk, 1\) \* var\(--t-[\w-]+\)\) ease);$/);
@@ -130,10 +142,8 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx)', () => {
     expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
     expect(css).not.toMatch(/grid-template/);
     expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
-    // the bell's rows and the question reach over the rows around the middle by the same kind of margin (bell.css)
-    expect(read('src/ui/bell.css')).toContain('#app .tkt > .centre > .sh-day.full { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
     const main = read('src/main.tsx');
-    expect(main.indexOf("'./ui/daysheet.css'")).toBeGreaterThan(main.indexOf("'./ui/rush.css'"));
+    expect(main.indexOf("'./ui/daysheet.css'")).toBeGreaterThan(main.indexOf("'./ui/rushTable.css'"));
   });
 });
 
@@ -154,41 +164,47 @@ function rung(): GameState {
   return s;
 }
 
-describe('the bell: every stall\'s row in today\'s line-up (pricingTable.ts bellRows, PricingTable.tsx)', () => {
-  it('reads nothing before the flip; after it, each stall\'s tags with its price, pieces and tied prices', () => {
+describe('the crates at the round table (tableNow.ts tableSeats, RushTable.tsx)', () => {
+  const facts = (more: Partial<TableFacts> = {}): TableFacts => ({ step: 'bell', sent: null, own: null, vals: null, open: null, ...more });
+
+  it('reads no rival\'s crate or price before the flip; after it, every crate with its pieces and price tags, clockwise from yours', () => {
     const s = rung();
-    for (const phase of ['stall', 'bid', 'buy', 'morning'] as const) {
-      expect(flipped({ ...s, phase })).toBe(false);
-      expect(bellRows({ ...s, phase }, 0)).toEqual([]);
+    for (const phase of ['stall', 'bid', 'buy', 'morning'] as const) expect(flipped({ ...s, phase })).toBe(false);
+    // a rival at pricing: a number of face-down pieces and nothing else, whatever the crate really holds
+    const bid = { ...structuredClone(s), phase: 'bid' as const, bids: [null, null, null] };
+    for (const seat of tableSeats(publicView(bid, 0), 0, facts({ step: 'price', vals: { apple: 7 } })).filter((x) => !x.me)) {
+      expect(seat).toMatchObject({ look: 'squares', pieces: [], tags: [] });
     }
-    const rows = bellRows(s, 0);
-    expect(rows.map((x) => [x.player, x.nth, x.me])).toEqual([[2, 1, false], [0, 2, true], [1, 3, false]]);
-    expect(rows[1].tags).toEqual([{ f: 'apple', price: 6, out: 2, marks: ['fresh', 'fresh'], more: 0, tied: true, stamped: false }]);
+    // seats clockwise from yours (the rush's seat order), not in the line-up
+    const seats = tableSeats(s, 0, facts());
+    expect(seats.map((x) => [x.player, x.me, x.look])).toEqual([[0, true, 'open'], [1, false, 'open'], [2, false, 'open']]);
+    expect(seats[0].tags).toEqual([{ f: 'apple', price: 6, up: true, tied: true, stamped: false }]);
     // the board's lane order: mango before apple
-    expect(rows[2].tags.map((t) => [t.f, t.price, t.tied])).toEqual([['mango', 10, false], ['apple', 6, true]]);
-    expect(rows[0].tags.map((t) => t.tied)).toEqual([false]);
+    expect(seats[1].tags.map((t) => [t.f, t.price, t.tied])).toEqual([['mango', 10, false], ['apple', 6, true]]);
+    expect(seats[2].tags.map((t) => t.tied)).toEqual([false]);
     // a stall that has played Favoured Trade has its tied tag stamped
     const played = structuredClone(s);
     played.players[1].favouredTrade = true;
-    expect(bellRows(played, 0)[2].tags.map((t) => t.stamped)).toEqual([false, true]);
+    expect(tableSeats(played, 0, facts())[1].tags.map((t) => t.stamped)).toEqual([false, true]);
     expect([1, 2, 3, 4, 11, 12, 13, 21].map(nth)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st']);
   });
 
-  it('draws the rows open, or only the backs of the tags of a row that has not turned yet', () => {
+  it('draws the crates open, or a crate that has not opened yet as its face-down squares', () => {
     const s = rung();
-    const open = toStaticHtml(h(CratesOpen, { s, viewer: 0 }));
+    const draw = (open: number | null, shared = false) => toStaticHtml(h(PreView, { s, viewer: 0, shared, pre: preTable(s, 0, { ...facts({ open }), asked: -1, mine: false, online: false, waiting: '', shared, answered: false, left: null }) }));
+    const open = draw(null);
     expect(open).toContain('The bell');
-    expect(open.match(/class="ds-stall /g)).toHaveLength(3);
-    expect(open).toContain('bought 1st');
-    expect(open).toContain('P1: 1 mangoes at $10, 1 apples at $6');
-    expect(open.match(/class="ds-pz tie /g)).toHaveLength(2);
-    // two rows have turned: the third shows two backs and no price
-    const part = toStaticHtml(h(CratesOpen, { s, viewer: 0, open: 2 }));
-    expect(part.match(/class="ds-pz back"/g)).toHaveLength(2);
-    expect(part).not.toContain('$10');
-    expect(part).toContain('P1: still shut');
+    expect(open.match(/class="rt-crate /g)).toHaveLength(3);
+    expect(open).toContain('aria-label="P1: 1 mango at $10, 1 apple at $6, tied"');
+    expect(open.match(/class="rt-tg [^"]*\btie\b/g)).toHaveLength(2);
+    // two crates have opened: the third shows one face-down square and no price
+    const part = draw(2);
+    expect(part.match(/class="rt-sq"/g)).toHaveLength(1);
+    expect(part).not.toContain('$4');
+    expect(part).toContain('aria-label="P2: 1 piece, face down, sealed"');
     // a shared phone names every stall
-    expect(toStaticHtml(h(CratesOpen, { s, viewer: 0, shared: true }))).not.toContain('<b>You</b>');
+    expect(draw(null, true)).not.toContain('<b>You</b>');
+    expect(open).toContain('<b>You</b>');
   });
 });
 
@@ -278,7 +294,7 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
   });
 
   it('pricing says how a tie falls and where you stand in today\'s line-up', () => {
-    expect(tieOrderText(rung(), 0)).toBe('The fresher piece sells first, then the Haggler, then whoever bought earlier. You bought 2nd today.');
+    expect(tieOrderLine(rung(), 0)).toBe('Ties: fresher, then the Haggler, then earlier. You bought 2nd.');
   });
 });
 
@@ -312,12 +328,18 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
     expect(sheet).not.toMatch(/setTight|useState<number>/);
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
     // no fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone)
-    expect(css.match(/max-height: \d+px/g)).toEqual(['max-height: 760px', 'max-height: 760px', 'max-height: 760px']);
-    expect(css).toContain("#app .tkt .sh-day[data-tight='3'] .ds-price .ds-note, #app .tkt .sh-day[data-tight='3'] .ds-price .ds-fav { display: none; }");
-    expect(css).toContain('#app .tkt .ds-brief { display: none; }');
+    expect(css.match(/max-height: \d+px/g)).toEqual(['max-height: 760px', 'max-height: 760px']);
     expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }');
-    // the one-line forms say the same as the blocks they stand in for
-    expect(sheet).toContain('Ties: fresher, then the Haggler, then earlier.');
-    expect(sheet).toContain('You hold Favoured Trade: if you tie, you are asked.');
+    // pricing is the round table's sheet now (PLAN-099): drawn closer a step at a time against the room the seats need
+    // above it, measured from the sheet itself, its rows scrolling inside it past the closest step
+    const table = read('src/ui/game/panels/RushTable.tsx');
+    expect(table).toContain('const need = tableMin(n, w, h);');
+    expect(table).toContain('for (let t = 1; t <= 3 && left < need; t++) {');
+    const rush = read('src/ui/rushTable.css');
+    expect(rush).toContain("#app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }");
+    // the pricing sheet's one-line forms
+    const panel = read('src/ui/panel.tsx');
+    expect(panel).toContain('Ties: fresher, then the Haggler, then earlier.');
+    expect(panel).toContain('You hold Favoured Trade: if you tie, you are asked.');
   });
 });

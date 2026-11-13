@@ -1,39 +1,43 @@
 /* =====================================================================
-   Fruit Market · the rush as a round table (DEC-109; panels/RushTable.tsx).
-   Drawn to the approved board (docs/studio/review-18/mockups, Rush-D): today's customers stay in their row at the top;
-   under it a stage lies over the rest of the table, down to a result line and the two buttons. On the stage: the
-   customer in the middle, every stall's open crate round them in a seat of its own, the table's ring and a line from
-   the customer to each crate that can sell.
+   Fruit Market · the round table, from "Open my stall" to the end of the rush (flow A, PLAN-099, DEC-116; the rush
+   itself DEC-109; panels/RushTable.tsx).
+   Drawn to the approved boards (docs/studio/review-18/mockups: Rush-D, and reveal-flows flow A with a face-down square
+   for each piece): today's customers stay in their row at the top; under it a stage lies over the rest of the table,
+   down to a line of words and the table's foot. On the stage: every stall's crate in a seat of its own, the table's
+   ring, and in the middle the bell, the Favoured Trade question or the customer, with a line from the customer to each
+   crate that can sell. While prices are set, a sheet slides up over the table's foot (.rt-sheet) and the seats are
+   laid out in the room above it.
    The table underneath is not laid out again: the stage is placed over the grid's rows (rivals to act) and is no part
-   of them. Where each crate sits is worked out from the stage's size (rush.ts tableLay): round the customer on a tall
-   phone, in two columns either side of them on a small one (.close).
+   of them. Where each crate sits is worked out from the stage's size (rush.ts tableLay): round the middle on a tall
+   phone, in two columns either side of it on a small one (.close); crates lower than 72 px draw their pieces and tags
+   side by side (.low).
    Only position, size and fade are animated, at the table's one speed (--mk, motion.ts). Imported after motion.css.
    Every rule that lays the stage out starts with "#app .tkt", like the rest of the table (ticket.css).
    ===================================================================== */
 #app .tkt > .rush-table {
   all: unset; position: absolute; inset: 0; grid-row: rivals / act; grid-column: 1 / -1; z-index: 9;
-  box-sizing: border-box; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; cursor: pointer;
-  background: var(--tk-paper); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); letter-spacing: 0; text-align: left;
-  animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  box-sizing: border-box; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden;
+  color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); letter-spacing: 0; text-align: left;
 }
+#app .tkt > .rush-table:not(.pre) { cursor: pointer; }
 #app .tkt > .rush-table *, #app .tkt > .rush-table *::before, #app .tkt > .rush-table *::after { box-sizing: border-box; }
 #app .tkt > .rush-table :where(i, em) { font-style: normal; }
-/* the stage fades in over the table (the customer then comes from the row), and slides off when the rush is over */
+/* The table forms over the rows (PLAN-099): its paper, its ring, the line and the foot fade in while every crate
+   travels from where it was to its seat (RushTable.tsx); it slides off when the takings come. */
 @keyframes rt-in { from { opacity: 0; } }
 @keyframes rt-out { to { opacity: 0; transform: translateY(20px); } }
+#app .tkt > .rush-table > .rt-bg { position: absolute; inset: 0; z-index: 0; background: var(--tk-paper); pointer-events: none; }
+#app .tkt > .rush-table > .rt-bg, #app .tkt .rt-lines, #app .tkt > .rush-table > .rt-line, #app .tkt > .rush-table > .rt-foot {
+  animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
 #app .tkt > .rush-table.leaving { pointer-events: none; animation: rt-out calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(0.4, 0, 1, 1) both; }
 /* a very short screen, where the table scrolls (styles.css): the stage fills the screen, so its buttons stay in reach */
 @media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
   #app .tkt > .rush-table { position: fixed; max-width: 520px; margin: 0 auto; }
 }
 
-/* ---------- the customer row stays at the top ----------
-   The bell's open rows lie over the customer row (bell.css, .sh-day.full) and stay under the rush until the takings.
-   While the stage is up the row is drawn above them; it fades in as the stage comes and out as the stage leaves, so
-   the bell's rows show again where they were. */
-#app .tkt:has(> .rush-table) > .street-wrap { position: relative; z-index: 9; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
-#app .tkt:has(> .rush-table.leaving) > .street-wrap { animation: rt-gone calc(var(--mk, 1) * var(--t-sheet-out)) ease both; }
-@keyframes rt-gone { to { opacity: 0; } }
+/* ---------- the customer row stays at the top, above the table ---------- */
+#app .tkt:has(> .rush-table) > .street-wrap { position: relative; z-index: 9; }
 
 /* ---------- the customer's place in the row: they are at the stalls ---------- */
 #app .tkt .street > .cust.rush-away { visibility: visible; }
@@ -45,7 +49,7 @@
 }
 
 /* ---------- the stage ---------- */
-#app .tkt .rt-stage { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 4px; }
+#app .tkt .rt-stage { position: relative; z-index: 1; flex: 1 1 auto; min-height: 0; margin-top: 4px; }
 #app .tkt .rt-lines { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
 #app .tkt .rt-ring { fill: none; stroke: var(--tk-kraft); stroke-width: 18; }
 #app .tkt .rt-to line { stroke: var(--tk-ink); stroke-width: 2; stroke-dasharray: 5 4; }
@@ -96,9 +100,12 @@
 #app .tkt .rt-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
 
 /* ---------- a stall's crate in its seat ---------- */
+/* when the room changes (the pricing sheet comes up or goes) a crate glides to its new place and size */
 #app .tkt .rt-crate {
   position: absolute; z-index: 1; display: flex; flex-direction: column; border: 2px solid var(--tk-ink); background: var(--tk-paper);
-  transition: opacity calc(var(--mk, 1) * var(--t-rush-rows)) ease;
+  transition: opacity calc(var(--mk, 1) * var(--t-rush-rows)) ease,
+    left calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1), top calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1),
+    width calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1), height calc(var(--mk, 1) * var(--t-table-glide)) cubic-bezier(.3, 0, .2, 1);
 }
 #app .tkt .rt-crate > .tb-awn { margin: 0; }
 #app .tkt .rt-who { flex: none; display: flex; align-items: center; gap: 4px; min-width: 0; padding: 2px 5px 0; font: 800 0.5625rem/1 var(--tk-txt); white-space: nowrap; }
@@ -168,16 +175,20 @@
 /* one height all through, so the stage above it never changes size when the words do: four lines of the game's
    sentence, and five in a smaller size for the longest (about one customer in twenty-five, up to some 250 letters) */
 #app .tkt .rt-line {
-  flex: none; height: 78px; margin: 6px 12px 0; display: flex; align-items: center; gap: 10px; padding: 6px 10px; overflow: hidden;
+  position: relative; z-index: 1; flex: none; height: 78px; margin: 6px 12px 0; display: flex; align-items: center; gap: 10px; padding: 6px 10px; overflow: hidden;
   background: var(--tk-ink); color: var(--tk-paper); font: 600 0.75rem/1.3 var(--tk-txt);
 }
+/* before the bell the line keeps its room unseen, so nothing moves when the bell's words come into it */
+#app .tkt .rt-line.empty { visibility: hidden; }
 #app .tkt .rt-line.long { padding-top: 4px; padding-bottom: 4px; font-size: 0.6875rem; line-height: 1.25; }
 #app .tkt .rt-line b { flex: none; font: 400 1.25rem/1 var(--tk-disp); color: var(--tk-yel); }
 #app .tkt .rt-line b.nil { color: var(--x-lamp-off); }
 #app .tkt .rt-line span { min-width: 0; }
 #app .tkt .rt-line.show > * { animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
 #app .tkt .rt-line .rt-now { color: var(--tk-kraft); font-weight: 700; }
-#app .tkt .rt-foot { flex: none; display: flex; gap: 6px; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); }
+#app .tkt .rt-foot { position: relative; z-index: 1; flex: none; display: flex; gap: 6px; padding: 8px 12px max(12px, env(safe-area-inset-bottom)); }
+/* the foot keeps a button's height when it has nothing in it, so the stage is the same size before the rush and in it */
+#app .tkt .rt-foot > .rt-room { flex: 1 1 auto; height: 52px; }
 #app .tkt .rt-foot button { all: unset; box-sizing: border-box; height: 52px; display: grid; place-items: center; text-align: center; cursor: pointer; text-transform: uppercase; }
 #app .tkt .rt-foot .rt-skip { flex: none; width: 104px; padding: 0 8px; border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 800 0.6875rem/1.2 var(--tk-txt); letter-spacing: 0.08em; }
 #app .tkt .rt-foot .rt-next { flex: 1 1 0; min-width: 0; background: var(--tk-ink); color: var(--tk-yel); font: 400 1rem/1 var(--tk-disp); letter-spacing: 0.04em; }
@@ -201,9 +212,246 @@
   #app .tkt .rt-line { height: 70px; margin-top: 4px; font-size: 0.6875rem; }
   #app .tkt .rt-line.long { font-size: 0.625rem; }
   #app .tkt .rt-foot { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
-  #app .tkt .rt-foot button { height: 48px; }
+  #app .tkt .rt-foot button, #app .tkt .rt-foot > .rt-room, #app .tkt .rt-foot > .rt-hint { height: 48px; min-height: 48px; }
 }
 @media (max-width: 379px) {
   #app .tkt .rt-line { margin-left: 8px; margin-right: 8px; }
   #app .tkt .rt-foot { padding-left: 8px; padding-right: 8px; }
+}
+
+/* =====================================================================
+   Before the rush (PLAN-099, flow A): the crates in their seats from the moment this stall opens, pricing on a sheet
+   at the table's foot, the bell in the middle, the Favoured Trade question in the middle.
+   ===================================================================== */
+
+/* ---------- a crate before the bell ----------
+   A rival's crate is shut with its lid on (planks) while stalls are opening; the lid lifts once every stall is open and
+   shows one face-down square for each piece it put out. Its word stands on its corner ("filling…", "3 out",
+   "pricing…", "sealed") and lifts off as the crate opens at the bell; then the squares turn into the pieces. */
+#app .tkt .rt-crate.look-lid .rt-box, #app .tkt .rt-crate.look-squares .rt-box { position: relative; }
+#app .tkt .rt-lid {
+  position: absolute; inset: 0; z-index: 1; border-top: 2px solid var(--tk-ink);
+  background: repeating-linear-gradient(180deg, var(--tk-kraft) 0 9px, var(--c-d3c1a1) 9px 10px);
+  transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease, transform calc(var(--mk, 1) * var(--t-bell-lid)) cubic-bezier(.4, 0, 1, 1);
+}
+#app .tkt .rt-lid.off { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+/* a face-down piece: a black square in the piece's own cell, so the piece turns over where it lies */
+#app .tkt .rt-pc.back .rt-sq {
+  position: absolute; left: 1px; top: 1px; display: block; width: 14px; height: 14px; border: 1.5px solid var(--tk-ink); border-radius: 0;
+  background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 3px, var(--x-ink-2) 3px 6px);
+}
+#app .tkt .rt-word {
+  position: absolute; top: -8px; right: 4px; z-index: 3; padding: 3px 5px 2px; background: var(--tk-ink); color: var(--tk-yel);
+  font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
+  transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease, transform calc(var(--mk, 1) * var(--t-bell-lid)) cubic-bezier(.4, 0, 1, 1);
+}
+#app .tkt .rt-word.busy { color: var(--tk-paper); }
+#app .tkt .rt-word.off { opacity: 0; transform: translateY(-8px); }
+#app .tkt .rt-crate.me { background: var(--tk-tint); }
+
+/* ---------- price tags on a crate: every fruit's tag before the rush ----------
+   Cut like the printed game's tag (the rush's own tag, .rt-tag): the fruit and the price; face down, the tag's back.
+   Sizes (PLAN-099, item 3): 18 px high, the digits 12 px and the fruit 11 px, two to a line on a crate of 98 px; from
+   three tags on one crate, small: 15 px high, the digits 10 px and the fruit 9 px, three to a line. A crate that still
+   cannot hold them is drawn closer (data-fit, below). */
+#app .tkt .rt-tags { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 3px 4px; padding: 0 3px 4px 4px; }
+#app .tkt .rt-tags:empty { display: none; }
+#app .tkt .rt-tg {
+  position: relative; flex: none; display: block;
+  filter: drop-shadow(1.5px 0 0 var(--tk-ink)) drop-shadow(-1.5px 0 0 var(--tk-ink)) drop-shadow(0 1.5px 0 var(--tk-ink)) drop-shadow(0 -1.5px 0 var(--tk-ink));
+}
+#app .tkt .rt-tgf {
+  display: flex; align-items: center; gap: 1px; height: 18px; padding: 0 3px 0 7px; background: var(--tk-paper);
+  clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font: 400 0.75rem/1 var(--tk-disp); font-variant-numeric: tabular-nums;
+}
+#app .tkt .rt-tgf .x-fruit { display: block; flex: none; width: 11px; height: 11px; }
+#app .tkt .rt-tgf b { font: inherit; }
+/* face down: the tag's back, the same size as its face */
+#app .tkt .rt-tg.down .rt-tgf { background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 3px, var(--x-ink-2) 3px 6px); }
+#app .tkt .rt-tg.down .x-fruit { opacity: 0; }
+#app .tkt .rt-tgb { display: block; width: 14px; }
+/* a price another stall asks too is marked; Favoured Trade played on it stamps it (the stamp waits until the card lands) */
+#app .tkt .rt-tg.tie .rt-tgf { background: var(--tk-yel); }
+#app .tkt .rt-tg .ds-stamp { right: -8px; top: -11px; width: 16px; height: 16px; font-size: 0.4375rem; }
+#app .tkt .rt-tags.small { gap: 3px 4px; }
+#app .tkt .rt-tags.small .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
+#app .tkt .rt-tags.small .rt-tgf .x-fruit { width: 9px; height: 9px; }
+#app .tkt .rt-tags.small .rt-tgb { width: 12px; }
+/* as the first customer comes in, the tags of the bell fade; the tag for the fruit being bought shows in its place */
+#app .tkt .rt-tags.fade { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease; }
+
+/* ---------- a low crate (the close form while the pricing sheet is up, or a very small phone) ----------
+   One line under its face and name: its squares or pieces; a crate with price tags (your own while you price) has its
+   pieces beside its name and its tags in that line. */
+#app .tkt .rt-crate.low { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr); }
+#app .tkt .rt-crate.low > .tb-awn { grid-column: 1 / -1; height: 5px !important; }
+#app .tkt .rt-crate.low > .rt-who { grid-column: 1; grid-row: 2; padding-top: 1px; }
+#app .tkt .rt-crate.low > .rt-box {
+  grid-column: 1 / -1; grid-row: 3; grid-template-columns: none; grid-template-rows: 16px; grid-auto-flow: column; grid-auto-columns: 16px;
+  justify-content: start; align-content: center; padding-top: 1px; padding-bottom: 1px;
+}
+#app .tkt .rt-crate.low > .rt-tags { grid-column: 1 / -1; grid-row: 3; align-self: center; flex-wrap: nowrap; padding: 0 4px 0 6px; }
+#app .tkt .rt-crate.low.tagged > .rt-box { grid-column: 2; grid-row: 2; padding: 1px 4px 0 0; }
+#app .tkt .rt-crate.low .rt-word { top: -7px; }
+
+/* ---------- a crate drawn closer, when its pieces and tags would not fit (RushTable.tsx measures) ----------
+   1: smaller pieces (14 px), the tags small. 2: smaller still (12 px). */
+#app .tkt .rt-crate[data-fit] .rt-box { grid-template-columns: repeat(auto-fill, 14px); grid-auto-rows: 14px; gap: 1px; padding-top: 1px; padding-bottom: 1px; }
+#app .tkt .rt-crate[data-fit] .rt-pc { width: 14px; height: 14px; }
+#app .tkt .rt-crate[data-fit] .rt-pc .x-fruit { width: 11px; height: 11px; }
+#app .tkt .rt-crate[data-fit] .rt-pc i { width: 7px; height: 7px; font-size: 0.3125rem; line-height: 7px; }
+#app .tkt .rt-crate[data-fit] .rt-pc.back .rt-sq { width: 12px; height: 12px; }
+#app .tkt .rt-crate[data-fit] .rt-tags { gap: 2px 4px; padding-bottom: 2px; }
+#app .tkt .rt-crate[data-fit] .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
+#app .tkt .rt-crate[data-fit] .rt-tgf .x-fruit { width: 9px; height: 9px; }
+#app .tkt .rt-crate[data-fit='2'] .rt-box { grid-template-columns: repeat(auto-fill, 12px); grid-auto-rows: 12px; }
+#app .tkt .rt-crate[data-fit='2'] .rt-pc { width: 12px; height: 12px; }
+#app .tkt .rt-crate[data-fit='2'] .rt-pc .x-fruit { width: 10px; height: 10px; }
+#app .tkt .rt-crate[data-fit='2'] .rt-pc i { width: 6px; height: 6px; font-size: 0.25rem; line-height: 6px; }
+#app .tkt .rt-crate[data-fit='2'] .rt-pc.back .rt-sq { width: 10px; height: 10px; }
+#app .tkt .rt-crate.low[data-fit] > .rt-box { grid-template-rows: 14px; grid-auto-columns: 14px; }
+#app .tkt .rt-crate.low[data-fit='2'] > .rt-box { grid-template-rows: 12px; grid-auto-columns: 12px; }
+
+/* ---------- the bell in the middle of the table ---------- */
+#app .tkt .rt-bell {
+  position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--tk-ink); color: var(--tk-yel); box-shadow: 0 0 0 4px var(--tk-paper), 0 0 0 6px var(--tk-ink);
+  opacity: 0; transform: scale(0.6);
+  transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease, transform calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(.4, 0, 1, 1);
+}
+#app .tkt .rt-bell.on {
+  opacity: 1; transform: none;
+  transition: opacity calc(var(--mk, 1) * var(--t-sheet-in)) ease, transform calc(var(--mk, 1) * var(--t-sheet-in)) cubic-bezier(.2, .8, .2, 1);
+}
+#app .tkt .rt-bell-in { display: grid; place-items: center; }
+
+/* ---------- the Favoured Trade question in the middle (PricingTable.tsx TieCard) ----------
+   A compact card in the room between the seats (rush.ts middleOf); why a stall sells first is the line under the
+   table, and the asked stall's two buttons stand in the foot. */
+#app .tkt .rt-ask { position: absolute; z-index: 4; display: grid; place-items: center; pointer-events: auto; }
+#app .tkt .rt-ask .ds-tie {
+  width: min(100%, 200px); max-height: 100%; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column;
+  border: 3px solid var(--tk-ink); background: var(--tk-paper); box-shadow: 0 4px 0 var(--tk-ink);
+}
+#app .tkt .rt-ask .ds-tie-kind {
+  flex: none; display: flex; flex-direction: column; gap: 3px; padding: 5px 7px; background: var(--tk-ink); color: var(--tk-paper);
+  font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase;
+}
+#app .tkt .rt-ask .ds-tie-kind b { color: var(--tk-yel); font-size: 0.5625rem; }
+#app .tkt .rt-ask .ds-tie-kind span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .rt-ask .ds-tie-body { display: flex; flex-direction: column; gap: 5px; padding: 6px 7px 7px; }
+#app .tkt .rt-ask .ds-tie-ttl { font: 400 0.8125rem/1.1 var(--tk-disp); text-transform: uppercase; }
+#app .tkt .rt-ask .ds-tie-txt { margin: 0; font: 600 0.625rem/1.25 var(--tk-txt); }
+#app .tkt .rt-ask .ds-tie-line { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; background: var(--tk-kraft); font: 600 0.625rem/1.25 var(--tk-txt); }
+#app .tkt .rt-ask .ds-tie-line.with { background: var(--tk-yel); }
+#app .tkt .rt-ask .ds-tie-line .ds-lab { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .rt-ask .ds-tie-foot { margin: 0; color: var(--tk-slate); font: 600 0.5625rem/1.25 var(--tk-txt); }
+#app .tkt .rt-ask .ds-tie.theirs .ds-tie-foot { color: var(--tk-ink); font: 800 0.6875rem/1.2 var(--tk-txt); }
+/* a narrow middle (the close form on a small phone): the card's heading in one line, its small print goes */
+#app .tkt .rush-table.close .rt-ask .ds-tie.mine .ds-tie-foot { display: none; }
+#app .tkt .rush-table.close .rt-ask .ds-tie-kind span { display: none; }
+#app .tkt .rush-table.close .rt-ask .ds-tie-body { gap: 4px; padding: 5px 6px 6px; }
+#app .tkt .rush-table.close .rt-ask .ds-tie-ttl { font-size: 0.75rem; }
+#app .tkt .rush-table.close .rt-ask .ds-tie-line { padding: 3px 5px; }
+
+/* ---------- the line under the table before the rush: the bell, or why a tied stall sells first ---------- */
+#app .tkt .rt-line .rt-bellsay { display: flex; align-items: center; gap: 10px; min-width: 0; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+#app .tkt .rt-line .rt-bellhead { display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+#app .tkt .rt-line .rt-bellhead svg { flex: none; }
+#app .tkt .rt-line .rt-why { animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+
+/* ---------- the foot before the rush: what the table waits for, or the asked stall's two buttons ---------- */
+#app .tkt .rt-foot > .rt-hint {
+  all: unset; flex: 1 1 auto; height: 52px; display: flex; align-items: center; justify-content: center; text-align: center;
+  color: var(--tk-slate); font: italic 400 0.875rem/1.2 var(--tk-txt); animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both;
+}
+#app .tkt .rt-foot > .ds-tie-lock { all: unset; flex: 1 1 auto; display: flex; flex-direction: row-reverse; gap: 6px; animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both; }
+#app .tkt .rt-foot > .ds-tie-lock .btn {
+  all: unset; box-sizing: border-box; flex: 1 1 0; height: 52px; display: grid; place-items: center; cursor: pointer; text-transform: uppercase;
+  background: var(--tk-ink); color: var(--tk-yel); font: 400 1rem/1 var(--tk-disp); letter-spacing: 0.04em;
+}
+#app .tkt .rt-foot > .ds-tie-lock .btn.ghost { border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); }
+@media (max-height: 700px) {
+  #app .tkt .rt-foot > .ds-tie-lock .btn, #app .tkt .rt-foot > .rt-hint { height: 48px; }
+}
+
+/* ---------- pricing: the sheet that slides up from the table's foot ----------
+   One row for each fruit with − and +, what is wanted and the best price; how a tie falls; the Favoured Trade note;
+   Ring the bell. It lies over the line and the foot (which keep their room unseen) and the seats are laid out in the
+   room above it. Drawn closer a step at a time when the table above it would be too low (data-tight, RushTable.tsx);
+   past the closest step its rows scroll inside it, and the bell's button stays in view. */
+#app .tkt .rush-table.pricing > .rt-line, #app .tkt .rush-table.pricing > .rt-foot { visibility: hidden; }
+#app .tkt .rt-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; flex-direction: column; gap: 5px; min-height: 0;
+  padding: 7px 12px max(12px, env(safe-area-inset-bottom)); border-top: 3px solid var(--tk-ink); background: var(--tk-paper);
+  animation: rt-sheet-in calc(var(--mk, 1) * var(--t-sheet-in)) cubic-bezier(.2, .8, .2, 1) both;
+  transition: transform calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(.4, 0, 1, 1);
+}
+@keyframes rt-sheet-in { from { transform: translateY(100%); } }
+#app .tkt .rt-sheet.gone { transform: translateY(100%); pointer-events: none; }
+#app .tkt .rt-sheet .ps-in { display: flex; flex-direction: column; gap: 5px; min-height: 0; flex: 0 1 auto; }
+#app .tkt .rt-sheet .ps-head { flex: none; display: flex; align-items: baseline; gap: 8px; color: var(--tk-slate); font: 600 0.6875rem/1 var(--tk-txt); }
+#app .tkt .rt-sheet .ps-head .ds-lab { color: var(--tk-ink); }
+#app .tkt .rt-sheet .ps-head .pp-info { align-self: center; margin-right: auto; width: 18px; height: 18px; font-size: 0.6875rem; }
+#app .tkt .rt-sheet .ps-rows { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 5px; overflow-y: auto; scrollbar-width: none; }
+#app .tkt .rt-sheet .ps-row { flex: none; display: flex; align-items: stretch; min-height: 44px; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .rt-sheet .ps-info {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 3px 7px; border-left: 8px solid var(--lane);
+  font: 600 0.6875rem/1.15 var(--tk-txt);
+}
+#app .tkt .rt-sheet .ps-info .x-fruit { display: block; flex: none; }
+#app .tkt .rt-sheet .ps-info > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#app .tkt .rt-sheet .ds-out { gap: 4px; }
+#app .tkt .rt-sheet .ds-out b { font-size: 0.6875rem; }
+#app .tkt .rt-sheet .ds-dial { flex: none; display: flex; align-items: stretch; }
+#app .tkt .rt-sheet .ds-st {
+  all: unset; flex: none; width: 40px; min-height: 40px; display: grid; place-items: center; cursor: pointer;
+  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.25rem/1 var(--tk-disp);
+}
+#app .tkt .rt-sheet .ds-st:disabled { background: var(--c-bdbebe); color: var(--tk-paper); cursor: default; }
+#app .tkt .rt-sheet .ds-tag { position: relative; flex: none; width: 58px; display: grid; place-items: center; border-left: 2px solid var(--tk-ink); border-right: 2px solid var(--tk-ink); }
+#app .tkt .rt-sheet .ds-tag-face { font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; min-width: 0; }
+#app .tkt .rt-sheet .ps-note { flex: none; display: flex; align-items: center; gap: 6px; margin: 0; color: var(--tk-slate); font: 600 0.6875rem/1.25 var(--tk-txt); }
+#app .tkt .rt-sheet .ps-note.ps-fav { color: var(--tk-ink); }
+#app .tkt .rt-sheet > .pp-lock {
+  all: unset; flex: none; display: flex; flex-direction: column; gap: 4px; margin-top: 2px;
+}
+#app .tkt .rt-sheet > .pp-lock .error { text-align: center; font: 700 0.75rem/1.2 var(--tk-txt); color: var(--tk-red-d); }
+#app .tkt .rt-sheet > .pp-lock .btn {
+  all: unset; box-sizing: border-box; height: 52px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
+  background: var(--tk-ink); color: var(--tk-yel); font: 400 1.1875rem/1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
+}
+#app .tkt .rt-sheet > .pp-lock .btn small { all: unset; font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.08em; color: var(--tk-paper); }
+#app .tkt .rt-sheet > .pp-lock .btn:disabled { opacity: 0.45; cursor: default; }
+/* drawn closer: 1, less air and lower rows (40 px); 2, lower still (38 px) and a lower button; 3, the Favoured Trade
+   note goes (the question says it again if a tie comes) */
+#app .tkt .rt-sheet[data-tight] { gap: 3px; padding-top: 5px; }
+#app .tkt .rt-sheet[data-tight] .ps-in, #app .tkt .rt-sheet[data-tight] .ps-rows { gap: 3px; }
+#app .tkt .rt-sheet[data-tight] .ps-row { min-height: 40px; }
+#app .tkt .rt-sheet[data-tight] .ds-st { min-height: 36px; }
+#app .tkt .rt-sheet[data-tight] .ps-info { padding-top: 1px; padding-bottom: 1px; gap: 2px; }
+#app .tkt .rt-sheet[data-tight] > .pp-lock .btn { height: 46px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) { gap: 2px; padding-top: 4px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ps-in, #app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ps-rows { gap: 2px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ps-row { min-height: 38px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ds-st { min-height: 34px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) > .pp-lock .btn { height: 44px; }
+#app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }
+@media (max-height: 700px) {
+  #app .tkt .rt-sheet { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #app .tkt .rt-sheet > .pp-lock .btn { height: 48px; }
+}
+@media (max-width: 379px) {
+  #app .tkt .rt-sheet { padding-left: 8px; padding-right: 8px; }
+  #app .tkt .rt-sheet .ds-st { width: 38px; }
+  #app .tkt .rt-sheet .ds-tag { width: 54px; }
+}
+
+/* the first-game tip, while the round table is up, lies over the customers' tickets, which hold no control */
+#app .game.gx.tkt.table-up > .coach, #app .game.gx.tkt.table-up.coach-row > .coach { grid-area: auto; grid-column: 1 / -1; grid-row: street; align-self: end; margin: 0 auto 4px; }
+
+/* ---------- reduced motion: every end state at once ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #app .tkt .rt-crate, #app .tkt .rt-lid, #app .tkt .rt-word, #app .tkt .rt-bell, #app .tkt .rt-bell.on, #app .tkt .rt-sheet, #app .tkt .rt-tags.fade { transition: none; }
+  #app .tkt .rt-sheet, #app .tkt > .rush-table > .rt-bg, #app .tkt .rt-lines, #app .tkt > .rush-table > .rt-line, #app .tkt > .rush-table > .rt-foot { animation: none; }
 }

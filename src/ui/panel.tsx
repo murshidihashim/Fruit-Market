@@ -188,40 +188,38 @@ export function postsOf(s: GameState, p: number, vals: Record<string, number>): 
   return FRUITS.filter((f) => forSale(s, p, f) > 0).map((f) => ({ fruit: f, price: Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f)) }));
 }
 
-/** How the game breaks a tie, and where this stall stands in today's line-up (the last of the tie-breaks). */
-export function tieOrderText(s: GameState, p: number): string {
+/** How the game breaks a tie, and where this stall stands in today's line-up (the last of the tie-breaks), in one line
+ *  (the pricing sheet at the round table). */
+export function tieOrderLine(s: GameState, p: number): string {
   const at = s.order.indexOf(p);
-  return `The fresher piece sells first, then the Haggler, then whoever bought earlier.${at >= 0 ? ` You bought ${nth(at + 1)} today.` : ''}`;
+  return `Ties: fresher, then the Haggler, then earlier.${at >= 0 ? ` You bought ${nth(at + 1)}.` : ''}`;
 }
 
 /**
- * Pricing, drawn from its state (no hooks, so tests can draw it): one row for each fruit in your crate with the
- * freshness of its pieces, what is wanted, the best price, and its own − and +; then how a tie falls, and a reminder
- * when you hold Favoured Trade. Rules 15: the rivals' crates are shut, so "wanted" and "best price" are worked out on
- * the same guess the suggested prices use (engine/ai believe: only how many pieces each rival put out), never on a
- * rival's real crate or price. `sealed`: you have rung the bell; your price tags lie face down and nothing can be changed.
+ * Pricing, the sheet that slides up from the foot of the round table (PLAN-099, flow A), drawn from its state (no
+ * hooks, so tests can draw it): one row for each fruit in your crate with the freshness of its pieces, what is wanted,
+ * the best price, and its own − and +; then how a tie falls, and a reminder when you hold Favoured Trade. The crates
+ * round the table above it show the rest: yours with your tags as you set them, the rivals' as face-down squares.
+ * Rules 15: the rivals' crates are shut, so "wanted" and "best price" are worked out on the same guess the suggested
+ * prices use (engine/ai believe: only how many pieces each rival put out), never on a rival's real crate or price.
  */
-export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }: {
-  s: GameState; p: number; vals: Record<string, number>; notice: boolean; sealed?: boolean;
+export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
+  s: GameState; p: number; vals: Record<string, number>; notice: boolean;
   onPrice: (f: FruitId, price: number) => void; onNotice: (open: boolean) => void;
 }) {
   const pl = s.players[p];
-  const seats = pricingTable(s, p).seats;
-  const mine = seats.find((x) => x.me);
-  const rivals = seats.filter((x) => !x.me);
+  const mine = pricingTable(s, p).seats.find((x) => x.me);
   const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
   const b = believe(s, p, false);
   return (
-    <div class={`ds-price ${sealed ? 'sealed' : ''}`}>
-      <div class="ds-lab-row">
+    <div class="ps-in">
+      <div class="ps-head">
         <b class="ds-lab">Your secret prices</b>
         <button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button>
-        <span>{sealed ? 'Sealed until the bell' : 'One price for each fruit'}</span>
+        <span>One price for each fruit</span>
       </div>
       {fruits.length === 0 && <div class="ds-info">Your crate is empty today.</div>}
-      {/* Only drawn where the sheet lies over the rivals' boxes (a short phone): how many pieces each put out. */}
-      {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')} out</span></div>}
-      <div class={`ds-rows prices n${fruits.length}`}>
+      <div class={`ps-rows n${fruits.length}`}>
         {fruits.map((f) => {
           const price = Math.min(vals[f] ?? minPrice(s, f), maxPrice(s, f));
           const lo = minPrice(s, f);
@@ -237,51 +235,41 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
             : top <= 0 ? `${wanted} wanted · nobody takes yours`
             : `${wanted} wanted · best price $${best}${top !== best && word ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for yours` : ''}`;
           return (
-            <div class={`ds-prow ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
-              <div class="ds-info-cell">
+            <div class={`ps-row ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
+              <div class="ps-info">
                 <div class="ds-out">
-                  <Fruit id={f} size={22} /><b>{out} out</b>
-                  {dots.map((st) => <i class={`ds-lamp lg st-${st}`} aria-hidden="true">{STAGE_LETTER[st]}</i>)}
+                  <Fruit id={f} size={18} /><b>{out} out</b>
+                  {dots.map((st) => <i class={`ds-lamp st-${st}`} aria-hidden="true">{STAGE_LETTER[st]}</i>)}
                   {out > dots.length && <em>+{out - dots.length}</em>}
                 </div>
                 <span>{said}</span>
               </div>
               <span class="ds-dial">
-                <button type="button" class="ds-st" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={sealed || price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
-                <span class={`ds-tag tg-${tagOf(pl.look)}`} role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
-                  {/* A sealed tag shows its back only: the price is not drawn under it. */}
-                  {!sealed && <span class="ds-tag-face pc-num">${price}</span>}
-                  {sealed && <span class="ds-tag-back" aria-hidden="true">Sealed</span>}
-                </span>
-                <button type="button" class="ds-st" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={sealed || price >= hi} onClick={() => onPrice(f, price + 1)}>+</button>
+                <button type="button" class="ds-st" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={price <= lo} onClick={(e) => { e.stopPropagation(); onPrice(f, price - 1); }}>−</button>
+                <span class={`ds-tag tg-${tagOf(pl.look)}`} role="img" aria-label={`$${price}`}><span class="ds-tag-face pc-num">${price}</span></span>
+                <button type="button" class="ds-st" aria-label={`Raise the price of ${FRUIT[f].plural}`} disabled={price >= hi} onClick={(e) => { e.stopPropagation(); onPrice(f, price + 1); }}>+</button>
               </span>
             </div>
           );
         })}
       </div>
-      {fruits.length > 0 && (
-        <div class="ds-note">
-          <b class="ds-lab">If your price ties with a rival's</b>
-          <span>{tieOrderText(s, p)}</span>
-        </div>
-      )}
+      {fruits.length > 0 && <p class="ps-note">{tieOrderLine(s, p)}</p>}
       {/* Rules 18: Favoured Trade is not played with the prices. A holder with a tied price is asked after the flip. */}
-      {pl.favours.includes('favouredTrade') && fruits.length > 0 && (
-        <div class="ds-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade. If you tie, you are asked after the prices flip.</span></div>
-      )}
+      {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="ps-note ps-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade: if you tie, you are asked.</span></p>}
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </div>
   );
 }
 
-/** Pricing's main button, in the action bar's place: it seals the prices and rings the bell. */
-export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; vals: Record<string, number>; onSubmit: (posts: Post[]) => void }) {
+/** Pricing's main button, at the foot of the pricing sheet: it seals the prices and rings the bell. `sealed`: the bell
+ *  has been rung and the sheet is sliding away; nothing can be pressed. */
+export function PriceBar({ s, p, vals, sealed, onSubmit }: { s: GameState; p: number; vals: Record<string, number>; sealed?: boolean; onSubmit: (posts: Post[]) => void }) {
   const posts = postsOf(s, p, vals);
   const error = validatePrices(s, p, posts);
   return (
     <div class="pp-lock">
       {error && <div class="error">{error}</div>}
-      <button type="button" class="btn primary big wide tk-go" disabled={!!error} onClick={() => onSubmit(posts)}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
+      <button type="button" class="btn primary big wide tk-go" disabled={!!error || sealed} onClick={(e) => { e.stopPropagation(); onSubmit(posts); }}>Ring the bell <small class="btn-sub">seal {posts.length} {posts.length === 1 ? 'price' : 'prices'}</small></button>
     </div>
   );
 }

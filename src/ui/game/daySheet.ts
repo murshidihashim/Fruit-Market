@@ -1,6 +1,7 @@
-// Which step the day's sheet shows (PLAN-085). One sheet stays on the table from stocking to the day's takings:
-// stocking, waiting for the rivals to open, pricing, sealed while the rivals price, the bell, the Favoured Trade
-// question, and the takings. The rush card (panels/Showdown.tsx) lies over it between the bell and the takings.
+// Which step of the day is on the table (PLAN-085; PLAN-099). Stocking is drawn on the day's sheet (panels/DaySheet.tsx).
+// From the moment this stall has opened, the round table takes over (game/tableNow.ts, panels/RushTable.tsx): waiting
+// for the rivals to open, pricing on a sheet at the table's foot, sealed while the rivals price, the bell, the Favoured
+// Trade question and the rush. The day's sheet comes back for the takings.
 // Pure, so tests can check it: above all that nothing secret of one person is drawn for another.
 import type { Phase } from '../../engine/game';
 
@@ -39,7 +40,7 @@ export function dayStep(x: DayNow): DayStep | null {
   }
   if (x.phase === 'bid') {
     if (!x.mine) return null;
-    // Every stall is open and this one prices next: its crate waits on the sheet until the table is still.
+    // Every stall is open and this one prices next: its crate waits at the round table until the table is still.
     if (x.myTurn) return x.busy ? 'wait' : 'price';
     return 'sealed';
   }
@@ -58,12 +59,7 @@ export function dayStep(x: DayNow): DayStep | null {
   return null;
 }
 
-/** The steps the sheet draws itself over the customers, the rivals and your shelf (the approved Favoured-Trade
- *  screen): the bell's rows and the Favoured Trade question under them. Stocking and pricing lie in the middle of the
- *  table; under the takings, which are their own panel, the sheet lies plain. */
-export const fullReach = (step: DayStep): boolean => step === 'bell' || step === 'tie';
-
-/** How many steps closer stocking and pricing may be drawn when they would otherwise need a scroll (daysheet.css, data-tight). */
+/** How many steps closer stocking may be drawn when it would otherwise need a scroll (daysheet.css, data-tight). */
 export const TIGHTEST = 3;
 
 export interface SheetFit {
@@ -98,5 +94,10 @@ export function fitSheet(needs: number[], room: number, drop: number, rise = 0):
   return { tight: all >= 0 ? all : last, over: drop > 0, up: true };
 }
 
-/** The steps the sheet draws itself: stocking and pricing. In the others it lies plain under that step's own panel. */
-export const ownStep = (step: DayStep): boolean => step === 'stock' || step === 'wait' || step === 'price' || step === 'sealed';
+/** The step the sheet draws itself: stocking. Under the takings, their own panel, it lies plain. Every step between
+ *  them (waiting for the rivals, pricing, the bell, the Favoured Trade question) is played at the round table
+ *  (PLAN-099; game/tableNow.ts, panels/RushTable.tsx). */
+export const ownStep = (step: DayStep): boolean => step === 'stock';
+
+/** Is the day's sheet itself on the table at this step? Stocking and the takings. */
+export const onSheet = (step: DayStep | null): boolean => step === 'stock' || step === 'takings';

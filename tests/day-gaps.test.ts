@@ -10,7 +10,8 @@ import { FavourCard, toStaticHtml } from '../src/ui/cards';
 import { FavourMini } from '../src/ui/phoneCards';
 import { fitSheet } from '../src/ui/game/daySheet';
 import { covers } from '../src/ui/game/underSheet';
-import { CratesOpen } from '../src/ui/game/panels/PricingTable';
+import { PreView } from '../src/ui/game/panels/RushTable';
+import { preTable } from '../src/ui/game/tableNow';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
 import { stripStep } from '../src/ui/game/panels/TopBar';
 
@@ -74,7 +75,6 @@ describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
     expect(bar).toContain(": night ? ''");
     expect(bar).not.toContain('Night falls');
     expect(read('src/ui/game/panels/NightShift.tsx')).toContain('<b class="tk-label">Night falls</b>');
-    expect(bar).toContain("const selling = busy && s.phase === 'reveal' && !night;");
     // the bell, before the rush and at the flip, and the rush itself: the bar has nothing to add, and no other hint shows
     expect(bar).toContain(": s.phase === 'reveal' || s.phase === 'tie' ? ''");
     expect(bar).not.toContain('Selling…');
@@ -82,13 +82,17 @@ describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
     expect(bar).toContain('const quiet = beat === null;');
     expect(bar).toContain('{!quiet && <div class="hint-bar">{beat}</div>}');
     expect(bar).not.toMatch(/\{!beat && |\{busy && !beat && /);
-    // Skip stays on the page until the takings (the performance script times the rush by it), unseen and out of reach
-    expect(bar).toContain('{selling && <button class="btn skip" style="visibility:hidden" aria-hidden="true" tabIndex={-1}');
-    expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.actionbar .skip')");
+    // From the moment the stall opens to the takings the round table's own foot takes the bar's place, and the bar is
+    // not drawn (PLAN-099): the hidden Skip the performance script once timed the rush by is gone with it; the script
+    // reads the round table instead (it says when it is playing: data-busy).
+    expect(bar).not.toContain('btn skip');
+    expect(read('src/ui/Game.tsx')).toContain('!tableOn && <ActionBar');
+    expect(read('src/ui/game/panels/RushTable.tsx')).toContain("data-busy={busy ? '' : undefined}");
+    expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.rush-table[data-busy]')");
   });
 });
 
-describe('after a Favoured Trade answer (PricingTable.tsx, DaySheet.tsx)', () => {
+describe('after a Favoured Trade answer (tableNow.ts, RushTable.tsx)', () => {
   it('the stall that has just answered is not told again that its prices are tied', () => {
     // this stall asks what a rival asks for a fruit both put out: a tied price
     const g: GameState = structuredClone(atTakings());
@@ -96,14 +100,16 @@ describe('after a Favoured Trade answer (PricingTable.tsx, DaySheet.tsx)', () =>
     const post = g.bids[rival]![0];
     g.stalls[0] = { ...g.stalls[0], [post.fruit]: 1 };
     g.bids[0] = [...(g.bids[0] ?? []).filter((b) => b.fruit !== post.fruit), { fruit: post.fruit, price: post.price }];
-    const told = toStaticHtml(h(CratesOpen, { s: g, viewer: 0 }));
-    expect(told).toContain('Your prices are tied: ');
-    const quiet = toStaticHtml(h(CratesOpen, { s: g, viewer: 0, answered: true }));
+    const draw = (answered: boolean) => toStaticHtml(h(PreView, { s: g, viewer: 0, pre: preTable(g, 0, {
+      step: 'bell', sent: null, own: null, vals: null, open: null, asked: -1, mine: false, online: false, waiting: '', shared: false, answered, left: null,
+    }) }));
+    expect(draw(false)).toContain('Your prices are tied: ');
+    const quiet = draw(true);
     expect(quiet).not.toContain('Your prices are tied');
     expect(quiet).not.toContain('data-a="bell-ties"');
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    expect(sheet).toContain('if (tying) answered.current = true;');
-    expect(sheet).toContain('answered={answered.current}');
+    const table = read('src/ui/game/panels/RushTable.tsx');
+    expect(table).toContain('if (tying) answered.current = s.day;');
+    expect(table).toContain('answered: answered.current === s.day');
   });
 });
 
@@ -150,7 +156,8 @@ describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
   it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
     const game = read('src/ui/Game.tsx');
     expect(game).toContain('if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);');
-    expect(game).toContain('covered.current = !!mid;');
+    // the round table lies over the market too (PLAN-099)
+    expect(game).toContain('covered.current = !!mid || tableOn;');
     expect(read('src/ui/game/underSheet.ts')).toContain("centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);");
     // the hooks come before the hand-over and results screens return early
     expect(game.indexOf('const covered = useRef(false);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
@@ -181,7 +188,7 @@ describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
 });
 
 describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () => {
-  it('last of all the sheet also lies over the rows above it, and pricing then says the rivals\' pieces once', () => {
+  it('last of all the sheet also lies over the rows above it (pricing is the round table\'s since PLAN-099, where every rival crate shows its pieces)', () => {
     // 360 by 780: the closest step is 332 tall in a cell of 264 with 48 more over your shelf: it takes the rows above too
     expect(fitSheet([420, 390, 360, 332], 264, 48, 158)).toEqual({ tight: 0, over: true, up: true });
     expect(fitSheet([520, 490, 460, 432], 264, 48, 158)).toEqual({ tight: 2, over: true, up: true });
@@ -190,7 +197,7 @@ describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () =>
     expect(fitSheet([500, 470, 440, 420], 370, 0, 0)).toEqual({ tight: 3, over: false, up: false });
     const css = read('src/ui/daysheet.css');
     expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }');
-    expect(css).toContain('#app .tkt .sh-day[data-up] .ds-rivals { flex: none; display: flex; align-items: baseline; gap: 8px; }');
+    expect(css).not.toContain('ds-rivals');
   });
 });
 

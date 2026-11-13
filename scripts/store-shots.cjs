@@ -54,7 +54,7 @@ const path = require('path');
       if (await p.locator('button[aria-label^="One more"]:not([disabled])').count()) { await p.locator('button[aria-label^="One more"]:not([disabled])').first().click(); await p.waitForTimeout(300); continue; }
       if (await p.locator('button:has-text("Open my stall")').count()) { await p.click('button:has-text("Open my stall")'); continue; }
       if (await p.locator('.pp-lock .btn:not([disabled])').count()) {
-        if ((await p.locator('.ds-prow').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
+        if ((await p.locator('.rt-sheet .ps-row').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn:not([disabled])'); await p.waitForTimeout(1800);
         for (let w = 0; w < 40 && !(await p.locator('.rush-table').count()); w++) await p.waitForTimeout(150);
         if ((await p.locator('.rush-table').count()) && once('show')) { await p.waitForTimeout(1600); await shot('5-rush'); }
