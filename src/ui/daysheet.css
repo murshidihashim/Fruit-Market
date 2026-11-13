@@ -115,6 +115,14 @@
 #app .tkt .sh-day[data-tight='3'] .ds-st { min-height: 34px; }
 #app .tkt .sh-day[data-tight='3'] .ds-crate { min-height: 32px; padding-top: 2px; padding-bottom: 2px; }
 #app .tkt .sh-day[data-tight='3'] .ds-pcx { width: 24px; height: 24px; }
+/* The − and + keep a place to tap 40 px tall and wide at every step (PLAN-096): an unseen area over the row's own
+   2 px edge, and at the closest step over half the 4 px between two rows as well, so two rows' areas never overlap;
+   across, 2 px past the outer side of each where a narrow phone draws them 40 px wide. Nothing is moved. */
+#app .tkt .sh-day .ds-st { position: relative; }
+#app .tkt .sh-day .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
+#app .tkt .sh-day .mini-step > .ds-st:first-child::before { left: -2px; }
+#app .tkt .sh-day .mini-step > .ds-st:last-child::before { right: -2px; }
+#app .tkt .sh-day[data-tight='3'] .ds-st::before { top: -3px; bottom: -3px; }
 /* the closest step is still too tall for the middle cell: the sheet lies over your shelf as well */
 #app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }
 /* last of all (a six-box shelf on a narrow, tall phone) it lies over the rows above it too, up to the customers'

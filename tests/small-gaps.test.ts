@@ -108,6 +108,27 @@ describe('places to tap of at least 40 px (rushTable.css, booth.css)', () => {
     expect(18 - px(info.left) - px(info.right)).toBe(40);
   });
 
+  it('the stocking sheet\'s − and + at every step, without moving a row', () => {
+    const css = read('src/ui/daysheet.css');
+    const area = rule(css, '#app .tkt .sh-day .ds-st::before');
+    const closest = { ...area, ...rule(css, "#app .tkt .sh-day[data-tight='3'] .ds-st::before") };
+    // the button's own height at each step: 44, 38 and 36, and 34 at the closest
+    const heights = [
+      [px(rule(css, '#app .tkt .sh-day .ds-st')['min-height']), area],
+      [px(rule(css, '#app .tkt .sh-day[data-tight] .ds-st')['min-height']), area],
+      [px(rule(css, "#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-st")['min-height']), area],
+      [px(rule(css, "#app .tkt .sh-day[data-tight='3'] .ds-st")['min-height']), closest],
+    ] as const;
+    expect(heights.map(([h]) => h)).toEqual([44, 38, 36, 34]);
+    for (const [h, a] of heights) expect(h - px(a.top) - px(a.bottom)).toBeGreaterThanOrEqual(40);
+    // at the closest step the rows stand 4 px apart: the areas reach 1 px into the gap from each side
+    expect(css).toContain('#app .tkt .sh-day[data-tight] .ds-rows { gap: 4px; }');
+    expect(px(closest.top)).toBe(-3);
+    // across: 40 px on a narrow phone, 2 px more on the outer side
+    expect(px(rule(css.slice(css.indexOf('@media (max-width: 379px)')), '#app .tkt .sh-day .ds-st').width)).toBe(40);
+    expect(px(rule(css, '#app .tkt .sh-day .mini-step > .ds-st:first-child::before').left)).toBe(-2);
+  });
+
   it('Home\'s dots: 40 px tall; the first and the last 40 px across', () => {
     const css = read('src/ui/booth.css');
     const dot = rule(css, '.home.hm .hm-dots button');
