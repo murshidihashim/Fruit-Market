@@ -36,7 +36,6 @@
   font: 800 calc(var(--s, 16px) * 0.6) / 1 var(--tk-txt); font-style: normal; background: transparent; color: var(--tk-ink); border: 1.5px solid var(--tk-ink);
 }
 #app .tkt .tk-lamp.on { background: var(--tk-ink); color: var(--tk-paper); }
-#app .tkt .tk-lamps { display: inline-flex; gap: 3px; }
 #app .tkt .tk-label { font: 800 0.6875rem/1.2 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .tkt .tk-label.red { color: var(--tk-red-d); }
 #app .tkt .tk-label-row { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -48,7 +47,6 @@
 #app .tkt .tk-info { all: unset; display: block; padding: 6px 8px; background: var(--tk-kraft); font: 600 0.75rem/1.3 var(--tk-txt); }
 #app .tkt .tk-info.warn { background: var(--c-fbd5d2); }
 #app .tkt .tk-info.good { background: var(--c-cfeedd); }
-#app .tkt .tk-anchor { width: 1px; height: 1px; margin-left: auto; }
 
 /* the six stall-sheet patterns, with the shopkeeper's face on them */
 #app .tkt .tk-swatch {
@@ -117,36 +115,6 @@
 #app .tkt .street > .cust.special .tk-cust { box-shadow: 0 0 0 3px var(--tk-yel); }
 #app .tkt .street > .cust.pickable .tk-cust { box-shadow: 0 0 0 3px var(--tk-ink); }
 #app .tkt .tk-cust { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; background: var(--tk-paper); color: var(--tk-ink); }
-/* the name takes up to two lines, so "Professor Pebble" reads in full on a ticket a fifth of a phone wide */
-#app .tkt .tk-cust-head {
-  flex: none; height: 27px; box-sizing: border-box; display: flex; align-items: center; padding: 0 5px; overflow: hidden;
-  background: var(--tk-ink); color: var(--tk-paper); font: 800 0.625rem/1.12 var(--tk-txt); letter-spacing: 0.03em; text-transform: uppercase;
-}
-#app .tkt .tk-cust-head span { min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
-/* the portrait: the picture is drawn a quarter larger than its window and moved up, so the whole head shows and the
-   face is as big as the ticket allows */
-#app .tkt .tk-cust-pic { position: relative; flex: none; aspect-ratio: 87 / 66; max-height: 84px; overflow: hidden; background: var(--tk-tint); }
-#app .tkt .tk-cust-no { position: absolute; left: 0; top: 0; padding: 2px 4px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
-#app .tkt .tk-cust-pic img { position: absolute; left: -17%; top: -7%; width: 126%; height: auto; max-width: none; display: block; }
-#app .tkt .tk-cust.guest .tk-cust-pic img { left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
-/* the freshness lamps stand down the picture's right edge, clear of the face */
-#app .tkt .tk-cust-buys { position: absolute; right: 0; top: 0; display: flex; padding: 3px 2px; background: var(--tk-paper); }
-#app .tkt .tk-cust-buys .tk-lamps { flex-direction: column; gap: 2px; }
-#app .tkt .tk-cust-rows { all: unset; display: flex; flex-direction: column; gap: 2px; padding: 3px 4px 4px 0; }
-#app .tkt .tk-cust-rows li { all: unset; display: flex; align-items: center; gap: 3px; height: 19px; padding-left: 3px; border-left: 5px solid var(--lane); font: 700 0.6875rem/1 var(--tk-txt); }
-#app .tkt .tk-cust-rows li b { margin-left: auto; font: 400 0.8125rem/1 var(--tk-disp); }
-#app .tkt .tk-cust-rows li .x-fruit { flex: none; width: 15px; height: 15px; }
-#app .tkt .tk-cust-rows li.up b { color: var(--tk-melon); }
-#app .tkt .tk-cust-rows li.down b { color: var(--tk-slate); }
-#app .tkt .tk-cust-rows li.done > * { opacity: 0.35; }
-#app .tkt .tk-cust-rows li.done::after { content: '✓'; margin-left: 2px; font: 800 0.75rem/1 var(--tk-txt); color: var(--tk-melon); }
-#app .tkt .tk-cust-foot { margin-top: auto; display: flex; padding: 3px 5px 4px; }
-#app .tkt .tk-cust.back .tk-cust-head { justify-content: center; }
-#app .tkt .tk-cust-back {
-  flex: 1 1 auto; min-height: 96px; display: flex; flex-wrap: wrap; align-content: center; align-items: center; justify-content: center; gap: 5px; padding: 6px;
-  background: repeating-linear-gradient(135deg, var(--tk-paper) 0 6px, var(--tk-tint) 6px 12px);
-}
-#app .tkt .tk-cust-back span { width: 32px; height: 32px; display: grid; place-items: center; background: var(--tk-paper); box-shadow: inset 0 0 0 2px var(--tk-ink); }
 #app .tkt .cust-marks { all: unset; position: absolute; right: 3px; top: 30px; z-index: 2; display: flex; gap: 2px; }
 #app .tkt .cust-marks i { all: unset; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--tk-paper); box-shadow: inset 0 0 0 1.5px var(--tk-ink); }
 #app .tkt .cust .rush-tick {
@@ -174,27 +142,10 @@
 
 /* ---------- rivals ---------- */
 #app .tkt > .seats { all: unset; grid-area: rivals; position: relative; z-index: 5; display: flex; gap: 6px; min-width: 0; padding: 6px 12px; }
-#app .tkt .tk-seat {
-  all: unset; flex: 1 1 0; min-width: 0; height: 44px; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 0 4px 0 5px; cursor: pointer;
-  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 2px var(--tk-ink);
-}
-#app .tkt .tk-seat.active { box-shadow: inset 0 0 0 2px var(--tk-ink), 0 0 0 3px var(--tk-yel); }
-#app .tkt .tk-seat.open, #app .tkt .tk-seat.won { background: var(--tk-yel); }
-#app .tkt .tk-seat.off { opacity: 0.5; }
-#app .tkt .tk-seat-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; }
 #app .tkt .tk-seat-name { font: 800 0.6875rem/1 var(--tk-txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#app .tkt .tk-seat-line { font: 600 0.6875rem/1 var(--tk-txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#app .tkt .tk-seat-line b { font-weight: 800; }
-#app .tkt .tk-seat.b-sealed { background: var(--tk-kraft); }
 /* Rules 18: what a rival bought today, as small fruit marks with counts (public until the bell). */
-#app .tkt .tk-seat.has-buys .tk-seat-body { gap: 2px; }
 #app .tkt .tk-seat-buys { display: flex; gap: 4px; min-width: 0; overflow: hidden; font: 800 0.625rem/1 var(--tk-txt); }
 #app .tkt .tk-seat-buys > span { flex: none; display: inline-flex; align-items: center; gap: 1px; }
-#app .tkt .tk-seat.compact .tk-seat-buys { grid-column: 1 / 3; grid-row: 3; gap: 2px; font-size: 0.5625rem; }
-#app .tkt .tk-seat.compact { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: center; gap: 2px 4px; padding: 0 4px; }
-#app .tkt .tk-seat.compact .tk-seat-body { display: contents; }
-#app .tkt .tk-seat.compact .tk-seat-line { grid-column: 2; grid-row: 1; align-self: center; font-size: 0.75rem; }
-#app .tkt .tk-seat.compact .tk-seat-name { grid-column: 1 / 3; grid-row: 2; font-size: 0.59rem; letter-spacing: -0.01em; }
 #app .tkt .seats .rival-drop {
   all: unset; position: absolute; top: calc(100% - 3px); left: 12px; right: 12px; z-index: 8; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink);
@@ -203,17 +154,15 @@
 #app .tkt .rival-drop .rd-head > b { all: unset; flex: 1 1 auto; min-width: 0; font: 400 1rem/1.05 var(--tk-disp); text-transform: uppercase; }
 #app .tkt .rival-drop .tk-cash { background: var(--tk-ink); color: var(--tk-paper); font-size: 1rem; }
 #app .tkt .rival-drop .rd-close { all: unset; width: 34px; height: 34px; display: grid; place-items: center; cursor: pointer; box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 1.125rem/1 var(--tk-txt); }
-#app .tkt .rival-drop .tk-dock-fruits { margin: 0; justify-content: space-around; }
 #app .tkt .rival-drop .rd-extra { all: unset; display: flex; flex-wrap: wrap; gap: 5px; }
 
 /* ---------- the middle of the table ---------- */
 #app .tkt > .centre::before { display: none; }
-#app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card, #app .tkt > .auction.rush {
+#app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card {
   all: unset; grid-area: mid; box-sizing: border-box; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding: 6px 12px 8px;
   background: var(--tk-paper); color: var(--tk-ink);
 }
 #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card { z-index: 4; overflow-x: hidden; overflow-y: auto; }
-#app .tkt > .auction.rush { position: relative; z-index: 6; overflow-y: auto; cursor: pointer; }
 #app .tkt > .rush-dim { all: unset; position: absolute; inset: 0; z-index: 5; }
 
 /* the Wholesale Market: four lanes, the freshest box at the top */
@@ -239,8 +188,6 @@
    what is playing: the lanes count as the table (PLAN-081) */
 #app .tkt .tk-market .mk-cell:disabled { pointer-events: none; }
 #app .tkt .tk-box .x-fruit { width: 19px; height: 19px; }
-#app .tkt .tk-box-n { display: inline-flex; align-items: center; gap: 1px; }
-#app .tkt .tk-box-n b { font: 400 0.875rem/1 var(--tk-disp); }
 #app .tkt .tk-box .price { all: unset; margin-left: auto; font: 700 0.75rem/1 var(--tk-txt); }
 #app .tkt .mk-cover {
   all: unset; position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; text-align: center;
@@ -260,36 +207,10 @@
   #app .tkt .tk-box .tk-lamp { --s: 14px; }
 }
 
-/* the morning: today's news in a red frame, then what the lorry unloaded */
-#app .tkt .tk-news { position: relative; flex: none; perspective: 900px; }
-#app .tkt .tk-news-back, #app .tkt .tk-news-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
-#app .tkt .tk-news-back {
-  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-  background: var(--tk-ink) repeating-linear-gradient(135deg, transparent 0 14px, var(--x-ink-2) 14px 28px); color: var(--tk-paper); font: 700 0.75rem/1 var(--tk-txt);
-}
-#app .tkt .tk-news-back b { font: 400 1.5rem/1 var(--tk-disp); text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-news-face { padding: 8px; background: var(--tk-apple); transform: rotateY(180deg); }
-#app .tkt .tk-news.go .tk-news-back { transform: rotateY(-180deg); }
-#app .tkt .tk-news.go .tk-news-face { transform: none; }
-#app .tkt .tk-news-in { display: flex; flex-direction: column; gap: 7px; padding: 8px 10px; background: var(--tk-paper); }
-#app .tkt .tk-news-top { display: flex; align-items: stretch; gap: 10px; }
-#app .tkt .tk-news-pic { flex: none; display: block; width: 112px; height: 84px; object-fit: cover; }
-#app .tkt .tk-news-head { min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-#app .tkt .tk-news-title { font: 400 1.5rem/1 var(--tk-disp); text-transform: uppercase; overflow-wrap: anywhere; }
-#app .tkt .tk-news-flavour { font: italic 600 0.75rem/1.25 var(--tk-txt); color: var(--tk-red-d); }
-#app .tkt .tk-fx { display: flex; gap: 6px; }
-#app .tkt .tk-fx-chip { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--tk-ink); color: var(--tk-paper); }
-#app .tkt .tk-fx-ico, #app .tkt .tk-load-ico { flex: none; display: grid; padding: 3px; border-radius: 50%; background: var(--tk-paper); }
-#app .tkt .tk-fx-chip b { display: block; font: 400 1.25rem/1 var(--tk-disp); text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-fx-chip small { display: block; margin-top: 3px; font: 800 0.625rem/1.1 var(--tk-txt); letter-spacing: 0.05em; text-transform: uppercase; }
-#app .tkt .tk-news-text { all: unset; display: block; font: 500 0.8125rem/1.4 var(--tk-txt); }
+/* the morning: the most a stall may charge today (Price Controls), then what the lorry unloaded */
 #app .tkt .minprices { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 800 0.75rem/1 var(--tk-txt); }
 #app .tkt .minprices span { display: inline-flex; align-items: center; gap: 2px; }
 #app .tkt .tk-unload { flex: none; display: flex; flex-direction: column; gap: 6px; }
-#app .tkt .tk-unload-row { display: flex; gap: 6px; }
-#app .tkt .tk-load { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 4px; background: var(--lane); }
-#app .tkt .tk-load.none { opacity: 0.45; }
-#app .tkt .tk-load b { padding: 3px 9px; background: var(--tk-paper); color: var(--tk-ink); font: 400 1.25rem/1.15 var(--tk-disp); }
 
 /* stocking and pricing: one row per fruit, in its lane colour, with − and + */
 #app .tkt .mini-step { all: unset; flex: none; display: flex; gap: 6px; }
@@ -302,50 +223,6 @@
 #app .tkt .mini-step > b small { font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .pp-info { all: unset; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--tk-ink); font: italic 800 0.8125rem/1 var(--tk-txt); cursor: pointer; }
 #app .tkt .tk-drop-crate { display: flex; align-items: center; gap: 10px; }
-
-/* the rush: the customer, a box per stall, then why */
-#app .tkt .tk-dots { display: flex; gap: 5px; }
-#app .tkt .tk-dots i { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--tk-ink); }
-#app .tkt .tk-dots i.on { background: var(--tk-ink); }
-#app .tkt .tk-rush-cust { all: unset; flex: none; height: 94px; box-sizing: border-box; display: flex; align-items: flex-end; gap: 10px; padding: 8px 10px 0; background: var(--lane); color: var(--lane-ink); }
-#app .tkt .tk-rush-pic { flex: none; width: 92px; height: 86px; overflow: hidden; }
-#app .tkt .tk-rush-pic img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; }
-#app .tkt .tk-rush-who { align-self: center; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding-bottom: 8px; }
-#app .tkt .tk-rush-who b { font: 400 1.25rem/1 var(--tk-disp); text-transform: uppercase; overflow-wrap: anywhere; }
-#app .tkt .tk-rush-who small { font: 700 0.75rem/1 var(--tk-txt); }
-#app .tkt .tk-tag { align-self: flex-start; padding: 4px 8px; background: var(--tk-paper); color: var(--tk-ink); font: 400 0.8125rem/1.15 var(--tk-disp); text-transform: uppercase; }
-#app .tkt .tk-offers { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-#app .tkt .tk-rush.n1 .tk-offers { grid-template-columns: minmax(0, 1fr); }
-#app .tkt .tk-rush.n2 .tk-offers, #app .tkt .tk-rush.n4 .tk-offers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-#app .tkt .tk-offers .rs-seat {
-  all: unset; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 7px 6px;
-  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); opacity: 0; transform: translateY(8px); transition: opacity 0.18s ease, transform 0.18s ease;
-}
-#app .tkt .tk-offers .rs-seat.dealt { opacity: 1; transform: none; }
-#app .tkt .tk-offers .rs-seat.me { background: var(--c-ffe58a); }
-#app .tkt .tk-offers .rs-seat.lost { opacity: 0.72; }
-#app .tkt .tk-offers .rs-who { all: unset; max-width: 100%; display: flex; align-items: center; gap: 5px; font: 800 0.75rem/1 var(--tk-txt); }
-#app .tkt .tk-offers .rs-pname { all: unset; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#app .tkt .tk-offers .rs-price { all: unset; font: 400 1.875rem/1 var(--tk-disp); animation: tk-turn 0.38s ease both; }
-#app .tkt .tk-offers .rs-back { all: unset; font: 400 1.875rem/1 var(--tk-disp); opacity: 0.22; }
-/* one stall only: its box lies flat, name, price and result in a row */
-#app .tkt .tk-rush.n1 .rs-seat { flex-direction: row; justify-content: space-between; padding: 8px 12px; }
-#app .tkt .tk-rush.n4 .rs-price, #app .tkt .tk-rush.n5 .rs-price, #app .tkt .tk-rush.n6 .rs-price,
-#app .tkt .tk-rush.n4 .rs-back, #app .tkt .tk-rush.n5 .rs-back, #app .tkt .tk-rush.n6 .rs-back { font-size: 1.5rem; }
-#app .tkt .tk-rush.n4 .rs-seat, #app .tkt .tk-rush.n5 .rs-seat, #app .tkt .tk-rush.n6 .rs-seat { gap: 4px; padding: 6px 5px; }
-#app .tkt .tk-offers .rs-off { all: unset; display: inline-flex; align-items: center; gap: 3px; font: 600 0.6875rem/1 var(--tk-txt); white-space: nowrap; }
-#app .tkt .tk-offers .rs-tag {
-  all: unset; max-width: 100%; box-sizing: border-box; display: inline-flex; align-items: center; gap: 3px; padding: 5px 7px; text-align: center;
-  background: var(--tk-kraft); color: var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
-}
-#app .tkt .tk-offers .rs-seat.won .rs-tag { background: var(--tk-ink); color: var(--tk-yel); }
-#app .tkt .tk-why { all: unset; flex: none; min-height: 52px; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px; padding: 8px 12px; background: var(--tk-ink); color: var(--tk-paper); visibility: hidden; }
-#app .tkt .tk-why.show { visibility: visible; }
-#app .tkt .tk-why b { all: unset; font: 400 0.9375rem/1.2 var(--tk-disp); text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-why small { all: unset; font: 500 0.75rem/1.35 var(--tk-txt); }
-#app .tkt .tk-why .au-say { all: unset; font: italic 600 0.75rem/1.3 var(--tk-txt); opacity: 0.9; }
-#app .tkt .tk-rush .rs-hint { display: none; }
-@keyframes tk-turn { from { transform: rotateX(90deg); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* night falls: the lanes again, every piece sliding down a box */
 #app .tkt .ns-piece {
@@ -363,29 +240,10 @@
 /* ---------- your shelf ---------- */
 #app .tkt > .my-stall { all: unset; grid-area: dock; position: relative; z-index: 5; display: block; box-sizing: border-box; background: var(--tk-paper); color: var(--tk-ink); border-top: 3px solid var(--tk-ink); }
 #app .tkt > .my-stall.active { box-shadow: inset 0 3px 0 var(--tk-yel); }
-#app .tkt .tk-dock-row { height: 56px; display: flex; align-items: center; gap: 8px; padding-right: 12px; }
-#app .tkt .tk-dock-id { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-#app .tkt .tk-dock-name { display: flex; align-items: center; gap: 4px; }
-#app .tkt .tk-dock-name .you-tag { all: unset; padding: 2px 3px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.06em; }
-#app .tkt .tk-dock-id .ms-name { all: unset; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 0.875rem/1 var(--tk-disp); text-transform: uppercase; }
 #app .tkt .tk-shelf { font: 700 0.6875rem/1 var(--tk-txt); text-transform: uppercase; white-space: nowrap; }
 #app .tkt .tk-shelf.full { color: var(--tk-red-d); }
 #app .tkt .tk-dock-marks { display: flex; gap: 4px; height: 13px; }
-#app .tkt .tk-dock-fruits { all: unset; margin-left: auto; display: flex; align-items: center; gap: 8px; }
-#app .tkt .tk-dk-f { all: unset; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-#app .tkt .tk-dk-f.none { opacity: 0.35; }
 #app .tkt .tk-dk-n { display: flex; align-items: center; gap: 2px; font: 400 0.9375rem/1 var(--tk-disp); }
-#app .tkt .tk-dk-st { display: flex; gap: 2px; min-height: 12px; }
-#app .tkt .tk-dk-st i { padding: 1.5px 2.5px; font: 800 0.5625rem/1 var(--tk-txt); font-style: normal; background: var(--fresh); }
-#app .tkt .tk-dk-st i.st-okay { background: var(--okay); }
-#app .tkt .tk-dk-st i.st-notso { background: var(--notso); }
-#app .tkt .tk-dk-st i.st-unripe { background: var(--unripe); }
-#app .tkt .tk-gain { padding: 5px 7px; background: var(--tk-yel); font: 400 0.8125rem/1 var(--tk-disp); white-space: nowrap; }
-#app .tkt .tk-gain.lost { background: var(--tk-kraft); }
-#app .tkt .tk-dock-cards { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 12px 0; }
-#app .tkt .tk-fav { all: unset; box-sizing: border-box; height: 28px; display: inline-flex; align-items: center; gap: 4px; padding: 0 7px 0 4px; cursor: pointer; box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
-#app .tkt .tk-fav small { all: unset; }
-#app .tkt .tk-fav.usable, #app .tkt .tk-dock-cards.glow .tk-fav { background: var(--tk-yel); }
 
 /* ---------- the one black button ---------- */
 #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock {
@@ -418,22 +276,19 @@
 #app .tkt > .actionbar .buy-hint { all: unset; display: flex; align-items: center; font: 800 0.75rem/1.1 var(--tk-txt); text-transform: uppercase; }
 
 /* ---------- the day's takings, the evening and the standing order, in the same boxes ---------- */
-#app .tkt .sales-card .sc-waste, #app .tkt .sales-card .sc-juice, #app .tkt .sales-card .hl { all: unset; display: block; padding: 6px 8px; background: var(--tk-kraft); font: 600 0.75rem/1.3 var(--tk-txt); }
+#app .tkt .sales-card .sc-waste, #app .tkt .sales-card .sc-juice { all: unset; display: block; padding: 6px 8px; background: var(--tk-kraft); font: 600 0.75rem/1.3 var(--tk-txt); }
 #app .tkt .sales-card .sc-waste { background: var(--c-fbd5d2); }
-#app .tkt .sales-card .hl span { margin-right: 6px; }
 #app .tkt .sales-card .takings { all: unset; display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 6px; }
 #app .tkt .sales-card .takings > span { all: unset; height: 40px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: inset 0 0 0 2px var(--tk-ink); font: 400 1rem/1 var(--tk-disp); }
 #app .tkt .sales-card .takings > span.me { background: var(--tk-yel); }
-#app .tkt .sales-card .takings > span.zero { opacity: 0.5; }
-#app .tkt .evening-panel .up-card, #app .tkt .evening-panel .info-card, #app .tkt .order-panel .op-card { border-radius: 0; box-shadow: none; }
-#app .tkt .evening-panel .btn.up-buy, #app .tkt .order-panel .btn.step {
+#app .tkt .evening-panel .info-card { border-radius: 0; box-shadow: none; }
+#app .tkt .order-panel .btn.step {
   border: 0; border-radius: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel); font-family: var(--tk-disp); font-weight: 400; text-transform: uppercase;
 }
 #app .tkt .evening-panel .chip, #app .tkt .trait-card { border-radius: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  #app .tkt .tk-news-back, #app .tkt .tk-news-face, #app .tkt .ns-piece, #app .tkt .tk-offers .rs-seat { transition: none; }
-  #app .tkt .tk-offers .rs-price { animation: none; }
+  #app .tkt .ns-piece { transition: none; }
 }
 
 /* a phone: the event's name a little smaller, so its longest word ("Breakdown") fits beside the last day's date, the
@@ -448,9 +303,8 @@
   #app .tkt .tk-me { gap: 6px; }
   #app .tkt .tk-cash { padding-left: 7px; padding-right: 7px; }
   #app .tkt .tk-seat-name { font-size: 0.65rem; letter-spacing: -0.01em; }
-  #app .tkt .tk-seat-line { font-size: 0.64rem; }
   #app .tkt > .street-wrap, #app .tkt > .seats { padding-left: 8px; padding-right: 8px; }
-  #app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card, #app .tkt > .auction.rush { padding-left: 8px; padding-right: 8px; }
+  #app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-left: 8px; padding-right: 8px; }
 }
 /* the narrowest phones (320 px): the top bar's day, rank and cash a little smaller, so the event's name still fits */
@@ -467,8 +321,6 @@
 @media (max-height: 760px) {
   #app .tkt .tk-top-row { height: 46px; }
   #app .tkt .tk-beats { height: 26px; }
-  #app .tkt .tk-cust-pic { aspect-ratio: 87 / 58; }
-  #app .tkt .tk-cust-head { height: 25px; }
 }
 
 /* ---------- pop-ups over the table, in the same boxes ---------- */
@@ -488,13 +340,4 @@
 /* a customer's own ticket, large (tap a ticket) */
 #app .tkt .tip-pop.tip-card-pop { padding: 12px; gap: 10px; }
 #app .tkt .tk-cust.big { flex: none; width: min(100%, 250px); margin: 0 auto; box-shadow: 0 0 0 3px var(--tk-ink); }
-#app .tkt .tk-cust.big .tk-cust-head { height: 34px; padding: 0 9px; font-size: 0.9375rem; }
-#app .tkt .tk-cust.big .tk-cust-pic { aspect-ratio: 5 / 3; max-height: none; }
-#app .tkt .tk-cust.big .tk-cust-no { padding: 4px 7px; font-size: 0.8125rem; }
-#app .tkt .tk-cust.big .tk-cust-quirk { all: unset; display: block; padding: 7px 9px 2px; font: italic 600 0.8125rem/1.3 var(--tk-txt); }
-#app .tkt .tk-cust.big .tk-cust-rows { gap: 3px; padding: 6px 9px 0 0; }
-#app .tkt .tk-cust.big .tk-cust-rows li { height: 30px; gap: 6px; padding-left: 7px; border-left-width: 9px; font-size: 1rem; }
-#app .tkt .tk-cust.big .tk-cust-rows li .x-fruit { width: 24px; height: 24px; }
-#app .tkt .tk-cust.big .tk-cust-rows li b { font-size: 1.375rem; }
-#app .tkt .tk-cust.big .tk-cust-foot { align-items: center; gap: 8px; padding: 8px 9px 9px; font: 700 0.75rem/1 var(--tk-txt); }
 #app .tkt .coach > b { color: var(--tk-ink); font: 400 1rem/1.1 var(--tk-disp); text-transform: uppercase; }

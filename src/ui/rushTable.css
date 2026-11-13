@@ -348,7 +348,6 @@
 #app .tkt .rt-ask .ds-tie-kind span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #app .tkt .rt-ask .ds-tie-body { display: flex; flex-direction: column; gap: 5px; padding: 6px 7px 7px; }
 #app .tkt .rt-ask .ds-tie-ttl { font: 400 0.8125rem/1.1 var(--tk-disp); text-transform: uppercase; }
-#app .tkt .rt-ask .ds-tie-txt { margin: 0; font: 600 0.625rem/1.25 var(--tk-txt); }
 #app .tkt .rt-ask .ds-tie-line { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; background: var(--tk-kraft); font: 600 0.625rem/1.25 var(--tk-txt); }
 #app .tkt .rt-ask .ds-tie-line.with { background: var(--tk-yel); }
 #app .tkt .rt-ask .ds-tie-line .ds-lab { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }

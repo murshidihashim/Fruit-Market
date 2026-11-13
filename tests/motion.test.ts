@@ -201,11 +201,10 @@ describe('one speed for scripts and stylesheets', () => {
     // the two older names for the speed (the rush only, the night only) are gone
     const sources = [...sheets.map((s) => s.css), read('src/ui/game/panels/RushTable.tsx'), read('src/ui/game/panels/NightShift.tsx')].join('\n');
     expect(sources).not.toMatch(/--rs-k|--ns-k/);
-    // the moves the stylesheets make on the table follow the one speed
+    // the moves the stylesheets make on the table follow the one speed (motion.css's own rule for the morning's old
+    // news card, .tk-news-face, went with the unused styles in PLAN-096: no screen draws that card any more)
     const motion = read('src/ui/motion.css');
-    for (const sel of ['.tk-news-face']) {
-      expect(motion).toMatch(new RegExp(`${sel.replace(/[.]/g, '\\.')}[^{]*\\{ (transition|animation)-duration: calc\\(var\\(--mk, 1\\) \\* var\\(--t-`));
-    }
+    expect(motion).not.toMatch(/tk-news/);
     // the rush has its own stylesheet (PLAN-084; the round table, PLAN-092): the tags turn up, and the stage comes and goes, at the one speed
     const rush = read('src/ui/rushTable.css');
     for (const name of ['rush-rows', 'sheet-in', 'sheet-out']) expect(rush).toContain(`calc(var(--mk, 1) * var(--t-${name}))`);
@@ -546,7 +545,7 @@ describe('no stepped landings or pops', () => {
     expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
     const css = read('src/ui/styles.css');
     const rule = (sel: string) => css.split('\n').find((l) => l.startsWith(sel))!;
-    for (const sel of ['.morning-card, .sales-card, .auction {', '.phase-banner {']) {
+    for (const sel of ['.morning-card, .sales-card {', '.phase-banner {']) {
       expect(rule(sel)).toMatch(/animation: /);
       expect(rule(sel)).not.toMatch(/steps\(/);
     }
