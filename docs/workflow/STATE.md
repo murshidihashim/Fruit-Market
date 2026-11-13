@@ -36,4 +36,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - PLAN-003: Package C, paid part: capacity and cost evidence (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
 - PLAN-096: Small gaps on the phone: the morning's scroll, the event chip, small taps, faint labels, unused styles (awaiting approval)
+- PLAN-097: In-game text that sounds natural (awaiting approval)
 <!-- records:pending:end -->

@@ -1,0 +1,59 @@
+{
+  "id": "PLAN-097",
+  "title": "In-game text that sounds natural",
+  "problem": "The owner asked: \"do all the in game text summary and fix to sound more natural, summarise first and get my approval to change\".",
+  "scope": [
+    "An inventory of every player-facing sentence and label, with proposed rewrites, summarised for the owner (no change before his approval)",
+    "After approval: the approved rewrites in the app, with the tests and browser scripts that read them"
+  ],
+  "exclusions": [
+    "Any rule, number or card effect",
+    "The fixed names of things unless the owner chooses to rename them",
+    "The print kit until printing resumes"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The owner has approved the summary of changes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Every changed screen seen by me at 390x844 and 360x640: nothing cut off",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "Owner, 2026-11-13: \"summarise first and get my approval to change\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-117"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
