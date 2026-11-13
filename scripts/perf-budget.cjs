@@ -68,8 +68,9 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   // A control whose box is under MIN_TAP is listed with its box and its touch area: how far from its middle a tap still
   // lands on it (or on something inside it), found by asking the page what lies under each point. The touch area counts
   // an unseen area laid over the control (a ::before or ::after, PLAN-090 and PLAN-096) and leaves out any part that
-  // something else covers. STRICT_TAP fails on touch areas under MIN_TAP. The page is given a moment between controls,
-  // so the looking adds no long task of its own.
+  // something else covers. A control whose middle is covered (a sheet lies over it) cannot be tapped at that moment and
+  // is listed apart. STRICT_TAP fails on touch areas under MIN_TAP. The page is given a moment between controls, so the
+  // looking adds no long task of its own.
   const small = async () => p.evaluate(async (min) => {
     const out = [];
     const all = [...document.querySelectorAll('button:not([disabled]), [role=button], input, a')]
@@ -81,7 +82,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
       const reach = (dx, dy) => { let n = 0; while (n < min && on(dx * (n + 1), dy * (n + 1))) n++; return n; };
       const w = on(0, 0) ? reach(-1, 0) + reach(1, 0) + 1 : 0;
       const h = on(0, 0) ? reach(0, -1) + reach(0, 1) + 1 : 0;
-      out.push({ name: `${String(e.className || e.tagName).split(' ')[0]} ${Math.round(r.width)}x${Math.round(r.height)} (touch ${w}x${h})`, under: Math.min(w, h) < min });
+      out.push({ name: `${String(e.className || e.tagName).split(' ')[0]} ${Math.round(r.width)}x${Math.round(r.height)}${on(0, 0) ? ` (touch ${w}x${h})` : ''}`, under: on(0, 0) && Math.min(w, h) < min, covered: !on(0, 0) });
       await new Promise((ok) => setTimeout(ok, 0));
     }
     return out;
@@ -144,7 +145,8 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     rush: { frames: frames.rush.length, slow: slow(frames.rush), longestMs: Math.max(0, ...frames.rush) },
     night: { frames: frames.night.length, slow: slow(frames.night), longestMs: Math.max(0, ...frames.night) },
     smallTapTargets: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => t.under).map((t) => t.name))]])),
-    smallBoxesWithTouchArea: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => !t.under).map((t) => t.name))]])),
+    smallBoxesWithTouchArea: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => !t.under && !t.covered).map((t) => t.name))]])),
+    smallButCoveredNow: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => t.covered).map((t) => t.name))]])),
   };
   console.log(JSON.stringify(report, null, 1));
   const fails = [];
