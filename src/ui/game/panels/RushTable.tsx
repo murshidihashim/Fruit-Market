@@ -481,7 +481,7 @@ function Crate({ s, p, at, me, shared, low, close, seat, rush }: {
         </div>
         <div key="all" class={`rt-tags ${seat.tags.length >= SMALL_TAGS ? 'small' : ''}`}>{seat.tags.map((t) => <Tag p={p} t={t} look={pl.look} />)}</div>
         {/* the word on the corner lifts off like a lid as the crate opens (rushTable.css) */}
-        {(seat.word || seat.was) && <i class={`rt-word ${seat.word ? '' : 'off'} ${seat.word === 'filling…' || seat.word === 'pricing…' ? 'busy' : ''}`} aria-hidden="true">{seat.word || seat.was}</i>}
+        {(seat.word || seat.was) && <i key={seat.word || seat.was} class={`rt-word ${seat.word ? '' : 'off'} ${seat.word === 'filling…' || seat.word === 'pricing…' ? 'busy' : ''}`} aria-hidden="true">{seat.word || seat.was}</i>}
       </div>
     );
   }

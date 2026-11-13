@@ -244,6 +244,8 @@
   position: absolute; top: -8px; right: 4px; z-index: 3; padding: 3px 5px 2px; background: var(--tk-ink); color: var(--tk-yel);
   font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
   transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease, transform calc(var(--mk, 1) * var(--t-bell-lid)) cubic-bezier(.4, 0, 1, 1);
+  /* a new word ("filling…" to "ready", "3 out" to "pricing…" to "sealed") fades in where the last one stood */
+  animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease backwards;
 }
 #app .tkt .rt-word.busy { color: var(--tk-paper); }
 #app .tkt .rt-word.off { opacity: 0; transform: translateY(-8px); }
@@ -459,8 +461,12 @@
   #app .tkt .rt-sheet .ds-tag { width: 54px; }
 }
 
-/* the first-game tip, while the round table is up, lies over the customers' tickets, which hold no control */
-#app .game.gx.tkt.table-up > .coach, #app .game.gx.tkt.table-up.coach-row > .coach { grid-area: auto; grid-column: 1 / -1; grid-row: street; align-self: end; margin: 0 auto 4px; }
+/* the first-game tip, while the round table is up, lies over the customers' tickets, which hold no control: the table
+   and its pricing sheet stay in reach (written to win over the day's sheet's own place for it, daysheet.css) */
+#app .game.gx.tkt.table-up > .coach, #app .game.gx.tkt.table-up > .coach.top,
+#app .game.gx.tkt.table-up.coach-row > .coach, #app .game.gx.tkt.table-up.coach-row > .coach.top {
+  grid-area: auto; grid-column: 1 / -1; grid-row: street; align-self: end; top: auto; bottom: 4px; margin: 0 auto;
+}
 
 /* ---------- reduced motion: every end state at once ---------- */
 @media (prefers-reduced-motion: reduce) {
