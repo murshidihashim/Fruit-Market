@@ -173,8 +173,9 @@ export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; 
 /** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
  *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
 export function rivalNote(s: GameState, p: number, active: boolean): string {
-  // Rules 19: in the evening every stall decides at the same time; a stall that is done says so.
-  if (s.phase === 'evening') return active ? 'deciding…' : 'lights out';
+  // Rules 19: in the evening every stall decides at the same time; a stall that has said Lights out says so ("closed": the
+  // browser tests find the Lights out button by its words, so the box must not repeat them).
+  if (s.phase === 'evening') return active ? 'deciding…' : 'closed';
   if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} out` : 'none out'; }
   if (s.phase === 'reveal') {
     // At the bell the crates are open; the pieces still out drop as each customer is served (stockShown.ts).

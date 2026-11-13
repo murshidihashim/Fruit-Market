@@ -218,6 +218,27 @@ function ghostSpot(box: A.Box): HTMLElement | null {
 }
 
 /**
+ * Rules 19: the computers' evening is one beat, so labels stand over several stalls at once. Each keeps to its own
+ * stall: no wider than the stall's box, on two lines if it needs them, centred over it. Nothing moves for this; the
+ * label is only drawn narrower.
+ */
+export function fitTag(t: { el: HTMLElement | null }, p: number): void {
+  const el = t.el;
+  const box = el && typeof document !== 'undefined' ? document.querySelector(`[data-a="p${p}"]`) : null;
+  const layer = el?.parentElement;
+  if (!el || !box || !layer) return;
+  const r = box.getBoundingClientRect();
+  const L = layer.getBoundingClientRect();
+  el.style.whiteSpace = 'normal';
+  el.style.textAlign = 'center';
+  el.style.borderRadius = '12px';
+  el.style.width = 'max-content';
+  el.style.maxWidth = `${Math.max(72, Math.floor(r.width))}px`;
+  const half = el.offsetWidth / 2;
+  el.style.left = `${Math.min(Math.max(r.left + r.width / 2 - L.left, half + 6), layer.clientWidth - half - 6)}px`;
+}
+
+/**
  * An upgrade has been built by stall `p`. Its price leaves the stall's cash as coins that travel to the market, the
  * total falling as they lift. The person's own build is also seen arriving: the card travels from where its offer lay
  * to the stall, and its mark shows on the shelf dock as it lands. The label over the stall stays until the pieces
@@ -230,6 +251,7 @@ export async function built(p: number, u: UpgradeId, also = ''): Promise<void> {
   // `also`: the favour cards the stall played in the same step (rules 19: a computer's whole evening is one step), named
   // on the same label, so each stall has one label.
   const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');
+  fitTag(label, p);
   let rang = false;
   const jobs: Promise<void>[] = [
     coins(`p${p}-cash`, 'truck', d.cost, { fade: true, onLift: (share) => { if (!rang) { rang = true; fx.coin(); } void takeCash(p, share); } }),

@@ -72,7 +72,11 @@ describe('a solo evening: the computers first, together, then the person straigh
     const anim = read('src/ui/game/animator.tsx');
     expect(anim).toContain('if (builtNow) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1], cards));');
     expect(anim).toContain('if (!builtNow) {');
-    expect(read('src/ui/game/dayBeats.tsx')).toContain("const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');");
+    const beats = read('src/ui/game/dayBeats.tsx');
+    expect(beats).toContain("const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');\n  fitTag(label, p);");
+    // Labels over several stalls at once keep to their own stall's width (on two lines if need be).
+    expect(anim).toContain('if (evening) fitTag(t, i);');
+    expect(beats).toContain("el.style.maxWidth = `${Math.max(72, Math.floor(r.width))}px`;");
   });
 });
 
@@ -81,7 +85,7 @@ describe('online: everyone at once', () => {
   const done1 = endEvening(g, 1);
 
   it('a stall\'s box says whether it is still deciding or its lights are out', () => {
-    expect(rivalNote(done1, 1, false)).toBe('lights out');
+    expect(rivalNote(done1, 1, false)).toBe('closed');
     expect(rivalNote(done1, 2, true)).toBe('deciding…');
     const src = read('src/ui/table.tsx');
     expect(src).toContain("const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;");

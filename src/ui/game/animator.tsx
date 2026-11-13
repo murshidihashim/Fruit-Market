@@ -13,7 +13,7 @@ import { deliveryBoxes } from '../tableModel';
 import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
 import { fx } from '../fx';
 import { FavourMark } from './panels/RushTable';
-import { built, firstInLine, firstMoved, playedFavours } from './dayBeats';
+import { built, firstInLine, firstMoved, fitTag, playedFavours } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, rushCards, type RushBlock, type RushCard, type ShowState } from './rush';
 
 // ---------- the lorry ----------
@@ -153,6 +153,7 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
       // A stall that also built names its cards on the upgrade's label (one label for each stall).
       if (!builtNow) {
         const t = A.tag(`p${i}`, cards, 'favour');
+        if (evening) fitTag(t, i);
         // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
         // nothing else shows what happened, the label is held for the full pause.
         jobs.push((evening && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
