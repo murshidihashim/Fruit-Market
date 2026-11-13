@@ -3851,6 +3851,10 @@
     {
       "at": "2026-11-13 08:46",
       "text": "DEC-111 approved by the owner's own words: an Auto load button when filling the crate. Built as PLAN-094 into candidate 1.21.0. The owner asked whether the Wardrobe and unlockables are fixed: answered from PROGRESSION.md section G and PLAN-086 (the first version is in candidate 1.21.0, not live; the weekly goal, card backs, table themes and rewards from level 12 up are later steps). The speed test (perf-budget) stalled once for 25 minutes in the e2e run on d98afc4; it was stopped, and the same test then finished with BUDGET OK; the full e2e is run again."
+    },
+    {
+      "at": "2026-11-13 08:47",
+      "text": "Correction to the line of 08:46: the speed test in the e2e run on d98afc4 started at 08:29 and was stopped by me at about 08:40, so it ran about 11 minutes, not 25, and it was not shown to be stuck; the run has no result (NOT RUN). The full e2e is run again on ac3d804 with its start and end times logged."
     }
   ]
 }
