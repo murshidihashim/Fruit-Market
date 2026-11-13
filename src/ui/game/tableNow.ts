@@ -115,6 +115,9 @@ export function tableSeats(s: GameState, viewer: number, x: TableFacts): TableSe
     if (me) {
       // Your own crate, face up; your tags as you set them, face down once the bell has been rung.
       const own = (flip ? null : x.own) ?? s.crates?.[p] ?? (s.stalls[p] ? crateStock(s, p) : null);
+      // A stall with nothing ripe opens with an empty crate (rules 18: it takes no stocking turn). Otherwise a crate
+      // this screen does not know (online, back in a room while crates are kept back) is drawn shut.
+      if (!own && count(s.players[p].stock, undefined, true) === 0) return seat;
       if (!own) return { ...seat, look: 'lid', word: s.phase === 'stall' ? 'ready' : '' };
       seat.pieces = piecesOf(own);
       const fruits = fruitsOf(own);
@@ -226,7 +229,8 @@ export function crateFit(w: number, h: number, seat: Pick<TableSeat, 'look' | 's
   const chrome = 4 + (low || close ? 5 : 7) + (low || close ? 19 : 20);
   const tagW = (t: SeatTag, small: boolean) => {
     const digits = t.up && t.price !== null ? String(t.price).length + 1 : 2;
-    return small ? 20 + digits * 6.2 : 22 + digits * 7.4;
+    // measured: "$3" 38 px and "$11" 46 px as drawn; small, about a sixth less
+    return small ? 21 + digits * 6.4 : 22.5 + digits * 7.8;
   };
   const fits = (step: 0 | 1 | 2): boolean => {
     const cell = step === 0 ? 16 : step === 1 ? 14 : 12;
@@ -236,7 +240,7 @@ export function crateFit(w: number, h: number, seat: Pick<TableSeat, 'look' | 's
     if (low) {
       // one line under the face and the name: the squares or pieces (as many as it takes; RushTable.tsx says how many
       // more), or, for a crate with tags, the tags (its pieces stand beside its name)
-      const line = seat.tags.reduce((a, t) => a + tagW(t, small) + 4, 6);
+      const line = seat.tags.reduce((a, t) => a + tagW(t, small) + 3, 6);
       return line <= w - 4 && chrome + Math.max(cell, seat.tags.length ? tagH : 0) + 2 <= h;
     }
     const inner = w - 4;
@@ -244,10 +248,10 @@ export function crateFit(w: number, h: number, seat: Pick<TableSeat, 'look' | 's
     const rows = Math.ceil(cells / perRow);
     const box = rows ? rows * cell + (rows - 1) * gap + 4 : 14;
     let tagRows = 0, used = Infinity;
-    const between = 4;
+    const between = 3;
     for (const t of seat.tags) {
       const tw = tagW(t, small);
-      if (used + between + tw > inner - 7) { tagRows++; used = tw; } else used += between + tw;
+      if (used + between + tw > inner - 5) { tagRows++; used = tw; } else used += between + tw;
     }
     const tags = tagRows ? tagRows * tagH + (tagRows - 1) * 3 + 4 : 0;
     return chrome + box + tags <= h;

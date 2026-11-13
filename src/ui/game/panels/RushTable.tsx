@@ -160,6 +160,8 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   });
   const on = !!a || !!pre;
   const [drawn, leaving] = useLeaving<{ a: ShowState | null; pre: PreTable | null }>(on ? { a, pre } : null);
+  // The question stays a moment as it goes, so it leaves the middle and does not just vanish.
+  const [asking, askGoing] = useLeaving<{ asked: number; mine: boolean }>(asked >= 0 ? { asked, mine: tying } : null);
   const size = useStageSize(stage, !!drawn);
 
   // ---------- the room above the pricing sheet ----------
@@ -238,7 +240,7 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   ) : null;
   return (
     <TableView s={s} viewer={viewer} shared={shared} lay={lay} size={[w, hFull]} area={area} measured={!!size} leaving={leaving} el={root} stage={stage} card={card}
-      a={drawn.a} pre={drawn.pre} sheet={sheet} busy={c.busy && s.phase === 'reveal'}
+      a={drawn.a} pre={drawn.pre} ask={asking ? { ...asking, leaving: askGoing } : null} sheet={sheet} busy={c.busy && s.phase === 'reveal'}
       foot={drawn.pre?.mine ? <TieBar onDecide={(play) => { fx.card(); c.act({ kind: 'tie', play }); }} /> : null}
       onNext={(e) => { e.stopPropagation(); A.speedStep(); }}
       // Skip hurries the whole rush and shows the final shelves at once.
@@ -266,8 +268,10 @@ export function PreView({ s, pre, viewer, size = STAGE_GUESS, shared, foot }: {
  * Trade question, the customer), the line of words and the foot. One element all through the day's middle, so that
  * nothing is swapped between the bell and the rush.
  */
-function TableView({ s, viewer, shared, lay, size, area, measured, leaving, el, stage, card, a, pre, sheet, foot, busy, onNext: next, onSkip: skip }: {
+function TableView({ s, viewer, shared, lay, size, area, measured, leaving, el, stage, card, a, pre, ask, sheet, foot, busy, onNext: next, onSkip: skip }: {
   s: GameState; viewer: number; shared?: boolean; lay: TableLay; size: [number, number]; area?: number | null; measured: boolean; leaving?: boolean;
+  /** The Favoured Trade question in the middle (when not given: the one `pre` asks), and whether it is going. */
+  ask?: { asked: number; mine: boolean; leaving?: boolean } | null;
   el?: Ref<HTMLElement>; stage?: Ref<HTMLDivElement>; card?: Ref<HTMLElement>;
   a?: ShowState | null; pre?: PreTable | null; sheet?: ComponentChildren; foot?: ComponentChildren; busy?: boolean;
   onNext?: (e: MouseEvent) => void; onSkip?: (e: MouseEvent) => void;
@@ -288,6 +292,8 @@ function TableView({ s, viewer, shared, lay, size, area, measured, leaving, el, 
   // A long reason for a tie (with another tied price after it) is set a size smaller, as a long result is.
   const longWhy = !a && !!pre && pre.step === 'tie' && pre.asked >= 0 && (() => { const t = tieStory(s, pre.asked, pre.mine ? pre.asked : viewer); return t.why.length + (t.also?.length ?? 0) > LONG_LINE; })();
   const cls = a ? `st-${a.stage}` : `pre at-${pre?.step}${pre?.after ? ' after' : ''}`;
+  // The question in the middle: while it is asked, and for a moment after the answer, as it goes (`ask`).
+  const q = ask !== undefined ? ask : pre && pre.asked >= 0 ? { asked: pre.asked, mine: pre.mine } : null;
   return (
     <section class={`rush-table ${cls} ${lay.close ? 'close' : 'round'} ${lay.low ? 'low' : ''} ${leaving ? 'leaving' : ''} ${pricing ? 'pricing' : ''}`} ref={el}
       data-n={a?.n} data-of={a?.of} data-step={a ? 'rush' : pre?.step} data-busy={busy ? '' : undefined}
@@ -302,9 +308,10 @@ function TableView({ s, viewer, shared, lay, size, area, measured, leaving, el, 
         <div class="rt-mid">
           {(pre && !a && (pre.step === 'sealed' || pre.step === 'bell' || pre.step === 'tie') && !pre.after) || first
             ? <div key="bell" class={`rt-bell ${pre?.ringing ? 'on' : ''}`} aria-hidden="true"><i class="rt-bell-in"><BellIcon size={30} /></i></div> : null}
-          {pre && !a && pre.asked >= 0 && (
-            <div key="ask" class="rt-ask" style={{ left: `${mid.left}px`, top: `${mid.top}px`, width: `${mid.width}px`, height: `${mid.height}px` }}>
-              <TieCard s={s} viewer={viewer} asked={pre.asked} mine={pre.mine} />
+          {q && !a && (
+            <div key="ask" class={`rt-ask ${q.leaving ? 'leaving' : ''}`} style={{ left: `${mid.left}px`, top: `${mid.top}px`, width: `${mid.width}px`, height: `${mid.height}px` }}
+              aria-hidden={q.leaving ? 'true' : undefined}>
+              <TieCard s={s} viewer={viewer} asked={q.asked} mine={q.mine} />
             </div>
           )}
           {a && c && <Customer key={c.customerId} c={c} at={a.at} stage={a.stage} el={card} />}

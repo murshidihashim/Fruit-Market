@@ -32,18 +32,20 @@ export function tagsSealed(root: Element): void {
 
 /**
  * The bell: as it first shows it swings in the middle (`from` null); then seat by seat, clockwise from yours, a crate
- * opens: its word lifts off (rushTable.css), and its squares turn into its pieces and its price tags turn face up, a
- * lid's length later. Your own pieces are face up already: only your tags turn. `from`..`to`: the seats opening now.
+ * opens: its word lifts off like a lid (rushTable.css) while its squares turn over into its pieces where they lie, and
+ * its price tags turn face up once the lid is off. Your own pieces are face up already: only your tags turn.
+ * `from`..`to`: the seats opening now.
  */
 export function cratesOpen(root: Element, from: number | null, to: number): void {
   if (A.isReduced()) return;
   if (from === null) root.querySelector('.rt-bell-in')?.animate(SWING, { duration: A.ms(A.BEAT.bell.swing), easing: 'ease-in-out' });
   const crates = root.querySelectorAll('.rt-crate');
+  const turn = (els: NodeListOf<Element>, delay: number) => els.forEach((el) => el.animate(TURN, { duration: A.ms(A.FEEL.turn), delay, fill: 'backwards', easing: A.EASE.travel }));
   for (let i = from ?? 0; i < to; i++) {
     const crate = crates[i];
     if (!crate) continue;
-    const turning = crate.classList.contains('me') ? '.rt-tg' : '.rt-pc, .rt-tg, .rt-empty';
-    crate.querySelectorAll(turning).forEach((el) => el.animate(TURN, { duration: A.ms(A.FEEL.turn), delay: A.moveMs(A.BEAT.bell.lid), fill: 'backwards', easing: A.EASE.travel }));
+    if (!crate.classList.contains('me')) turn(crate.querySelectorAll('.rt-pc, .rt-empty'), 0);
+    turn(crate.querySelectorAll('.rt-tg'), A.moveMs(A.BEAT.bell.lid));
   }
 }
 

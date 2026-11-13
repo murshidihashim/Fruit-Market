@@ -158,7 +158,7 @@ describe('the Favoured Trade question in the middle of the table', () => {
     const v = publicView(asking, asked);
     const html = toStaticHtml(h(PreView, { s: v, viewer: asked, pre: preTable(v, asked, pre('tie', { asked, mine: true })) }));
     const mid = html.slice(html.indexOf('<div class="rt-mid">'), html.indexOf('<div class="rt-line'));
-    expect(mid).toContain('<div class="rt-ask"');
+    expect(mid).toMatch(/<div class="rt-ask "/);
     expect(mid).toContain('data-a="tie-card"');
     expect(mid).toContain('Without it');
     expect(mid).not.toContain('class="rt-bell on"');

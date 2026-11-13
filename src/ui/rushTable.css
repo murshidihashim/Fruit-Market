@@ -254,7 +254,7 @@
    Sizes (PLAN-099, item 3): 18 px high, the digits 12 px and the fruit 11 px, two to a line on a crate of 98 px; from
    three tags on one crate, small: 15 px high, the digits 10 px and the fruit 9 px, three to a line. A crate that still
    cannot hold them is drawn closer (data-fit, below). */
-#app .tkt .rt-tags { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 3px 4px; padding: 0 3px 4px 4px; }
+#app .tkt .rt-tags { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding: 0 2px 4px 3px; }
 #app .tkt .rt-tags:empty { display: none; }
 #app .tkt .rt-tg {
   position: relative; flex: none; display: block;
@@ -273,7 +273,7 @@
 /* a price another stall asks too is marked; Favoured Trade played on it stamps it (the stamp waits until the card lands) */
 #app .tkt .rt-tg.tie .rt-tgf { background: var(--tk-yel); }
 #app .tkt .rt-tg .ds-stamp { right: -8px; top: -11px; width: 16px; height: 16px; font-size: 0.4375rem; }
-#app .tkt .rt-tags.small { gap: 3px 4px; }
+#app .tkt .rt-tags.small { gap: 3px; }
 #app .tkt .rt-tags.small .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
 #app .tkt .rt-tags.small .rt-tgf .x-fruit { width: 9px; height: 9px; }
 #app .tkt .rt-tags.small .rt-tgb { width: 12px; }
@@ -301,7 +301,7 @@
 #app .tkt .rt-crate[data-fit] .rt-pc .x-fruit { width: 11px; height: 11px; }
 #app .tkt .rt-crate[data-fit] .rt-pc i { width: 7px; height: 7px; font-size: 0.3125rem; line-height: 7px; }
 #app .tkt .rt-crate[data-fit] .rt-pc.back .rt-sq { width: 12px; height: 12px; }
-#app .tkt .rt-crate[data-fit] .rt-tags { gap: 2px 4px; padding-bottom: 2px; }
+#app .tkt .rt-crate[data-fit] .rt-tags { gap: 2px 3px; padding-bottom: 2px; }
 #app .tkt .rt-crate[data-fit] .rt-tgf { height: 15px; padding: 0 3px 0 7px; clip-path: polygon(5px 0, 100% 0, 100% 100%, 5px 100%, 0 50%); font-size: 0.625rem; }
 #app .tkt .rt-crate[data-fit] .rt-tgf .x-fruit { width: 9px; height: 9px; }
 #app .tkt .rt-crate[data-fit='2'] .rt-box { grid-template-columns: repeat(auto-fill, 12px); grid-auto-rows: 12px; }
@@ -329,6 +329,11 @@
    A compact card in the room between the seats (rush.ts middleOf); why a stall sells first is the line under the
    table, and the asked stall's two buttons stand in the foot. */
 #app .tkt .rt-ask { position: absolute; z-index: 4; display: grid; place-items: center; pointer-events: auto; }
+/* answered: the question leaves the middle as a sheet does */
+#app .tkt .rt-ask.leaving {
+  opacity: 0; transform: translateY(16px); pointer-events: none;
+  transition: opacity calc(var(--mk, 1) * var(--t-sheet-out)) ease, transform calc(var(--mk, 1) * var(--t-sheet-out)) cubic-bezier(.4, 0, 1, 1);
+}
 #app .tkt .rt-ask .ds-tie {
   width: min(100%, 200px); max-height: 100%; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column;
   border: 3px solid var(--tk-ink); background: var(--tk-paper); box-shadow: 0 4px 0 var(--tk-ink);
@@ -347,6 +352,13 @@
 #app .tkt .rt-ask .ds-tie-line .ds-lab { font: 800 0.5rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .tkt .rt-ask .ds-tie-foot { margin: 0; color: var(--tk-slate); font: 600 0.5625rem/1.25 var(--tk-txt); }
 #app .tkt .rt-ask .ds-tie.theirs .ds-tie-foot { color: var(--tk-ink); font: 800 0.6875rem/1.2 var(--tk-txt); }
+/* the card's picture, as on mock-up A; not where the middle is narrow or the screen short */
+#app .tkt .rt-ask .ds-tie-art { flex: none; height: 54px; overflow: hidden; border-bottom: 2px solid var(--tk-ink); background: var(--tk-tint); }
+#app .tkt .rt-ask .ds-tie-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+#app .tkt .rush-table.close .rt-ask .ds-tie-art { display: none; }
+@media (max-height: 700px) {
+  #app .tkt .rt-ask .ds-tie-art { display: none; }
+}
 /* a narrow middle (the close form on a small phone): the card's heading in one line, its small print goes */
 #app .tkt .rush-table.close .rt-ask .ds-tie.mine .ds-tie-foot { display: none; }
 #app .tkt .rush-table.close .rt-ask .ds-tie-kind span { display: none; }

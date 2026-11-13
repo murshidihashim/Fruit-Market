@@ -7,6 +7,8 @@
 import type { GameState } from '../../../engine/game';
 import { tiedPrices } from '../../../engine/game';
 import { FAVOURS, FRUIT } from '../../../engine/data';
+import { ART_SIZE, CardArt } from '../../cards';
+import { favourArt, favourFocus } from '../../deckArt';
 import { listOf, tieStory } from '../tieStory';
 
 /** The tied prices of the stall being asked, in words: "apples at $6 with Rosa". */
@@ -29,6 +31,8 @@ export function TieCard({ s, viewer, asked, mine }: { s: GameState; viewer: numb
     <section class={`ds-tie ${mine ? 'mine' : 'theirs'}`} data-a="tie-card"
       aria-label={mine ? `A tied price: ${ties}. Play Favoured Trade or keep it` : `${pl.name} has a tied price and is deciding whether to play Favoured Trade`}>
       <header class="ds-tie-kind" data-a="tie-kind"><span>Favour · {mine ? 'your card' : `${pl.name}'s card`}</span><b>{FAVOURS.favouredTrade.title}</b></header>
+      {/* the card's own picture, where the middle of the table has the room (rushTable.css) */}
+      <div class="ds-tie-art" aria-hidden="true"><CardArt src={favourArt('favouredTrade')} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus('favouredTrade')} /></div>
       <div class="ds-tie-body">
         <b class="ds-tie-ttl">{t.title}</b>
         {t.without && <div class="ds-tie-line"><b class="ds-lab">Without it</b><span>{t.without}</span></div>}
