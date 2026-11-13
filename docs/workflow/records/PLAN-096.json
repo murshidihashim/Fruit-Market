@@ -7,7 +7,8 @@
     "The event chip shows its whole name at 360 px",
     "Tap targets of at least 40 px where the speed test lists them (Home dots, event chip, market cells, price chips), without moving the layout",
     "Faint labels darkened to readable contrast (freshness letters, rank numbers, Home dots)",
-    "Unused style rules removed, with pictures of every screen before and after identical"
+    "Unused style rules removed, with pictures of every screen before and after identical",
+    "The pricing sheet's minus and plus at least 40 px on the smallest phone with six stalls (found in PLAN-099)"
   ],
   "exclusions": [
     "Any rule, number or text change",
@@ -40,11 +41,11 @@
     }
   ],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "Owner, 2026-11-13: \"3 yes\" to writing this plan; building it needs his word.",
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, quoting the five items of the plan: \"do this now, approve\".",
     "date": "2026-11-13"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

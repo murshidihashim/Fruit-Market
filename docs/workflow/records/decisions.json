@@ -4061,6 +4061,10 @@
     {
       "at": "2026-11-13 16:47",
       "text": "Release 1.22.0 published (DEC-117): pull request #13, CI run 139 PASS (16:00 to 16:19); merged to main as f15874d at 16:25; main CI run 140 PASS (16:25 to 16:40) and the preview updated with its smoke test passing; Deploy LIVE game run 41 (16:44 to 16:46): verify, release check, deploy, live smoke test and tag v1.22.0 all passed. The live site answers rules version 19 and its code carries 1.22.0, the pricing sheet of the round table and the evening's waiting line. PLAN-095, PLAN-098 and PLAN-099 are released."
+    },
+    {
+      "at": "2026-11-13 18:46",
+      "text": "PLAN-096 approved by the owner (\"do this now, approve\"), with the pricing sheet's small minus and plus (found in PLAN-099) added to its tap targets. A helper builds it from the head of the branch after 1.22.0."
     }
   ]
 }
