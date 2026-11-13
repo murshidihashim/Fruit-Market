@@ -42,7 +42,7 @@
     "evidence": "Fixes inside packages the owner approved (PLAN-084, PLAN-085, PLAN-086: the screens as on his boards). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105); and, on two of these gaps, \"fix below gaps\" (DEC-106).",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-090",
   "title": "Release 1.21.0: fixes for the known gaps of the day's screens",
   "problem": "Release 1.20.0 went out with a list of known gaps (REP-111 section 4): the strip of the day's steps is wrong during the bell and the bid reveal, the takings come a moment early, some tap targets are small, a few labels are cut at 360 px, the night leaves a solid edge on an empty box, and old styles and code are left from the rebuild.",

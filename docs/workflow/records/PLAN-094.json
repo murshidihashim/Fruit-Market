@@ -47,7 +47,7 @@
     "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
     "date": "2026-11-13"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb, ac3d804",
   "reports": [

@@ -8,8 +8,9 @@ import { emptyStock, forSale, newGame, oldestCrate, outCount, publicView, type C
 import { RULES_VERSION } from '../src/net/protocol';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
-import { CratesOpen } from '../src/ui/game/panels/PricingTable';
-import { PricePanelView, startingPrices } from '../src/ui/panel';
+import { PreView } from '../src/ui/game/panels/RushTable';
+import { preTable, type TableStep } from '../src/ui/game/tableNow';
+import { PriceSheetView, startingPrices } from '../src/ui/panel';
 import { rivalNote } from '../src/ui/table';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
@@ -141,11 +142,20 @@ describe('pricing without peeking (believe)', () => {
 describe('on screen', () => {
   const view = (s: GameState) => publicView(s, 0);
 
-  it('the pricing screen says the same thing whatever a rival really put out', () => {
-    const draw = (s: GameState) => toStaticHtml(h(PricePanelView, {
+  /** The round table before the rush (PLAN-099), drawn whole for stall 0. */
+  const round = (s: GameState, step: TableStep, open: number | null = null, vals: Record<string, number> | null = null) => toStaticHtml(h(PreView, { s, viewer: 0, pre: preTable(s, 0, {
+    step, sent: null, own: null, vals, open, asked: -1, mine: false, online: false, waiting: '', shared: false, answered: false, left: null,
+  }) }));
+  /** Each seat's crate in a drawing, clockwise from stall 0's. */
+  const crates = (html: string) => html.split('<div class="rt-crate ').slice(1);
+
+  it('the pricing screen says the same thing whatever a rival really put out: the sheet, and the table above it', () => {
+    const draw = (s: GameState) => toStaticHtml(h(PriceSheetView, {
       s: view(s), p: 0, vals: startingPrices(view(s), 0), notice: false, onPrice: () => undefined, onNotice: () => undefined,
-    }));
+    })) + round(view(s), 'price', null, startingPrices(view(s), 0));
     expect(draw(bell({ apple: 2 }))).toBe(draw(bell({ mango: 2 })));
+    // a rival's crate at pricing: one face-down square for each piece it put out
+    expect(crates(round(view(bell({ apple: 1, mango: 1 })), 'price'))[1].match(/class="rt-sq"/g)).toHaveLength(2);
   });
 
   it('a rival box says how many pieces are out, never what is on the shelf; every crate shows once the bell has rung', () => {
@@ -154,16 +164,19 @@ describe('on screen', () => {
     expect(rivalNote(view({ ...s, phase: 'buy' }), 1, false)).toBe('');
     expect(rivalNote(view({ ...s, phase: 'morning' }), 1, false)).toBe('');
     const rung = { ...s, phase: 'reveal' as const, bids: [[{ fruit: 'apple' as const, price: 6 }], [{ fruit: 'apple' as const, price: 5 }, { fruit: 'mango' as const, price: 10 }], [{ fruit: 'blueberry' as const, price: 4 }]] };
-    const table = toStaticHtml(h(CratesOpen, { s: view(rung), viewer: 0 }));
+    const table = round(view(rung), 'bell');
     expect(table).toContain('Every crate and every price is open');
-    // before the flip the bell's rows hold nothing of anyone's, whatever the state carries (PLAN-085)
-    const early = toStaticHtml(h(CratesOpen, { s: { ...rung, phase: 'bid' as const }, viewer: 0 }));
-    expect(early).not.toMatch(/\$10|\$5|\$6|\$4|mango|apple|blueberr/i);
-    // while the bell rings, a row that has not turned yet shows only the backs of its tags
-    const ringing = toStaticHtml(h(CratesOpen, { s: view(rung), viewer: 0, open: 0 }));
+    // before the flip the rivals' crates hold nothing of theirs but a number, whatever the state carries (PLAN-099:
+    // your own crate is face up, your pieces only)
+    const early = crates(round({ ...rung, phase: 'bid' as const }, 'sealed'));
+    for (const rival of early.slice(1)) expect(rival).not.toMatch(/\$\d|mango|apple|blueberr/i);
+    expect(early[0]).not.toMatch(/\$\d|mango|blueberr/i);
+    // while the bell rings, a crate that has not opened yet shows only its face-down squares, your own its tags' backs
+    const ringing = round(view(rung), 'bell', 0);
     expect(ringing).not.toMatch(/\$10|\$5<|\$6<|\$4</);
-    expect(ringing.match(/class="ds-pz back"/g)).toHaveLength(4);
-    expect(table).toContain('Saleh: 1 mangoes at $10, 1 apples at $5'); // the printed board's lane order
+    expect(ringing.match(/class="rt-sq"/g)).toHaveLength(3);
+    expect(ringing.match(/class="rt-tg [^"]*down/g)).toHaveLength(1);
+    expect(table).toContain('Saleh: 1 mango at $10, 1 apple at $5'); // the printed board's lane order
     expect(table).toContain('Your crate: 2 apples at $6');
   });
 });

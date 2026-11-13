@@ -31,9 +31,9 @@ const NOT_A_SHEET = '.market-stall, .tk-sheet, .pp-lock';
 
 /**
  * Marks the rows a sheet covers as inert, and lets the others go. `sheet`: a sheet is in the middle of the table (the
- * market under it is inert then). The rush's round table (panels/RushTable.tsx), over the table from under the
- * customers down, counts too; while it is up the customers' row is drawn above the bell's rows (rushTable.css), so
- * that row stays in reach.
+ * market under it is inert then). The round table (panels/RushTable.tsx; from the moment this stall opens to the end
+ * of the rush, PLAN-099), over the table from under the customers down, counts too; while it is up the customers'
+ * row is drawn above it (rushTable.css), so that row stays in reach.
  */
 export function markCovered(game: HTMLElement, centre: HTMLElement, sheet: boolean): void {
   centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);

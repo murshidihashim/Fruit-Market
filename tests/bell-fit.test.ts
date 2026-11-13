@@ -1,18 +1,30 @@
-// The bell and the Favoured Trade question, finished (PLAN-085, item 4): nothing of a row is told before it has
-// turned, the rows are shut from the first frame of the flip, reduced motion opens them in one step, your own ties
-// are said in the game's words, and the card says when it would change nothing.
+// The bell and the Favoured Trade question at the round table (PLAN-085, item 4; flow A, PLAN-099): nothing of a crate
+// is told before it has opened, the crates are shut from the first frame of the flip, reduced motion opens them in
+// one step, your own ties are said in the game's words, and the card says when it would change nothing.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { aiActFor } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
-import { activePlayer, beginBuying, decideTie, finishReveal, newGame, publicView, tiedPrices, type GameState } from '../src/engine/game';
+import { activePlayer, beginBuying, decideTie, finishReveal, newGame, outCount, publicView, tiedPrices, type GameState } from '../src/engine/game';
 import * as A from '../src/ui/anim';
 import { toStaticHtml } from '../src/ui/cards';
 import { fx } from '../src/ui/fx';
 import { bellRings } from '../src/ui/game/animator';
-import { CratesOpen, TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
+import { TiePanel, tieWords } from '../src/ui/game/panels/PricingTable';
+import { PreView } from '../src/ui/game/panels/RushTable';
+import { seatOrder } from '../src/ui/game/rush';
+import { preTable, type PreFacts, type TableStep } from '../src/ui/game/tableNow';
 import { tieStory } from '../src/ui/game/tieStory';
+
+/** What the round table knows besides the game, as a stall with nothing else going on sees it. */
+const facts = (step: TableStep, open: number | null, more: Partial<PreFacts> = {}): PreFacts => ({
+  step, sent: null, own: null, vals: null, open, asked: -1, mine: false, online: false, waiting: '', shared: false, answered: false, left: null, ...more,
+});
+/** The round table drawn whole, before the rush. */
+const table = (s: GameState, viewer: number, x: PreFacts) => toStaticHtml(h(PreView, { s, viewer, pre: preTable(s, viewer, x) }));
+/** Each seat's crate in the drawing, clockwise from the viewer's. */
+const crates = (html: string) => html.split('<div class="rt-crate ').slice(1).map((c) => c.split('<div class="rt-crate ')[0]);
 
 const read = (f: string) => readFileSync(f, 'utf8');
 
@@ -39,57 +51,73 @@ const rush = (s: GameState, play: boolean) => decideTie({ ...s, tieAsk: [activeP
 
 afterEach(() => { A.setBaseSpeed(false); A.resetHurry(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-describe('the open rows: nothing of a row before it has turned, and ties in the game\'s words', () => {
+describe('the open crates: nothing of a crate before it has opened, and ties in the game\'s words', () => {
   it('whole computer games reach the tie step', () => {
     expect(asks.length).toBeGreaterThan(2);
   });
 
-  it('a row that is still shut shows the backs of its tags and says nothing: no price, no fruit, no tie', () => {
+  it('a crate still shut shows one face-down square for each piece and says nothing else: no price, no fruit, no tie', () => {
     for (const s of asks.slice(0, 6)) {
       const n = s.players.length;
+      const v = publicView(s, 0);
+      const order = seatOrder(n, 0);
       for (let open = 0; open <= n; open++) {
-        const html = toStaticHtml(h(CratesOpen, { s: publicView(s, 0), viewer: 0, open }));
-        const rows = html.split('<div class="ds-stall ').slice(1);
-        expect(rows).toHaveLength(n);
-        rows.forEach((row, i) => {
-          if (i < open) { expect(row).toMatch(/^(me)? up"/); return; }
-          expect(row).toMatch(/^(me)? down"/);
-          expect(row).toContain('still shut');
-          expect(row).not.toMatch(/\$\d|tied|ds-lamp|ds-stamp|x-fruit/);
-          expect(row.match(/class="ds-pz back"/g) ?? []).toHaveLength(row.match(/class="ds-pz/g)?.length ?? 0);
+        const seats = crates(table(v, 0, facts('bell', open)));
+        expect(seats).toHaveLength(n);
+        seats.forEach((crate, i) => {
+          const p = order[i];
+          if (i < open) { expect(crate).toMatch(/^look-open /); return; }
+          if (p === 0) {
+            // your own crate: your pieces face up, your tags face down until it opens (first, at the bell's first step)
+            expect(crate).toMatch(/^look-open me /);
+            expect(crate).not.toMatch(/\$\d/);
+            expect(crate.match(/class="rt-tg [^"]*down/g) ?? []).toHaveLength(crate.match(/class="rt-tg /g)?.length ?? 0);
+            return;
+          }
+          expect(crate).toMatch(/^look-squares /);
+          expect(crate).not.toMatch(/\$\d|tied|rt-tg|rt-pc"|ds-stamp|x-fruit|rt-empty/);
+          const out = outCount(v, p) ?? 0;
+          expect(crate.match(/class="rt-sq"/g) ?? []).toHaveLength(out > 10 ? 9 : out);
+          expect(crate).toContain(out ? `${out} ${out === 1 ? 'piece' : 'pieces'}, face down` : 'nothing out');
         });
       }
     }
   });
 
-  it('an open row says its tied prices aloud in the game\'s words', () => {
+  it('an open crate says its prices aloud, the tied ones marked', () => {
     const s = asks[0];
     const asked = activePlayer(s);
-    const html = toStaticHtml(h(CratesOpen, { s: publicView(s, asked), viewer: asked }));
+    const html = table(publicView(s, asked), asked, facts('tie', null));
     expect(tieWords(s, asked)).not.toBe('');
-    expect(html).toContain(`; tied: ${tieWords(s, asked)}"`);
-    // every stall that shares the price says so on its own row
-    for (const r of tiedPrices(s, asked)[0].rivals) expect(html).toContain(`; tied: ${tieWords(s, r)}"`);
+    for (const t of tiedPrices(s, asked)) {
+      // every stall that shares the price marks it on its own crate, and says so
+      for (const p of [asked, ...t.rivals]) {
+        expect(html).toMatch(new RegExp(`class="rt-tg [^"]*\\btie\\b[^"]*" data-a="rt-tag-${p}-${t.fruit}"`));
+        expect(html).toContain(`at $${t.price}`);
+      }
+    }
+    expect(html).toContain(', tied');
   });
 
-  it('before the rush your own ties are said under the rows, once every row is open; not while a question is asked, and not on a shared phone', () => {
+  it('before the rush your own ties are said under the table, once every crate is open; not while a question is asked, not once you have been asked, and not on a shared phone', () => {
     const s = asks[0];
     const asked = activePlayer(s);
     const kept = publicView(rush(s, false), asked);
     const words = `Your prices are tied: ${tieWords(kept, asked)}.`;
     const n = kept.players.length;
-    expect(toStaticHtml(h(CratesOpen, { s: kept, viewer: asked }))).toContain(`data-a="bell-ties">${words}</p>`);
-    expect(toStaticHtml(h(CratesOpen, { s: kept, viewer: asked, open: n }))).toContain(words);
-    // while the bell rings the line keeps its place and says nothing yet
-    const ringing = toStaticHtml(h(CratesOpen, { s: kept, viewer: asked, open: n - 1 }));
-    expect(ringing).toContain('class="ds-bell-note wait"');
+    expect(table(kept, asked, facts('bell', null))).toContain(`<span data-a="bell-ties">${words}</span>`);
+    expect(table(kept, asked, facts('bell', n))).toContain(words);
+    // while the bell rings the line says what the bell is, and nothing of a tie yet
+    const ringing = table(kept, asked, facts('bell', n - 1));
+    expect(ringing).toContain('Every crate and every price is open.');
     expect(ringing).not.toContain('Your prices are tied');
-    // the question's card says who is tied; a shared phone has no "your"
-    expect(toStaticHtml(h(CratesOpen, { s: publicView(s, asked), viewer: asked }))).not.toContain('ds-bell-note');
-    expect(toStaticHtml(h(CratesOpen, { s: kept, viewer: asked, shared: true }))).not.toContain('ds-bell-note');
+    // the question's card says who is tied; once asked it is not said again; a shared phone has no "your"
+    expect(table(publicView(s, asked), asked, facts('tie', null))).not.toContain('bell-ties');
+    expect(table(kept, asked, facts('bell', null, { answered: true }))).not.toContain('bell-ties');
+    expect(table(kept, asked, facts('bell', null, { shared: true }))).not.toContain('bell-ties');
     // a stall with no tied price has nothing to read there
     const free = kept.players.findIndex((_, p) => tiedPrices(kept, p).length === 0);
-    if (free >= 0) expect(toStaticHtml(h(CratesOpen, { s: publicView(rush(s, false), free), viewer: free }))).not.toContain('ds-bell-note');
+    if (free >= 0) expect(table(publicView(rush(s, false), free), free, facts('bell', null))).not.toContain('bell-ties');
   });
 });
 
@@ -143,8 +171,8 @@ describe('the bell\'s script and the flip', () => {
     expect(ctrl).toContain('if (open !== null && !bellUp.current) fx.bell();');
     // the bell's own sound is the one the player wears, the brass hand bell when none is chosen
     expect(read('src/ui/fx.ts')).toContain('bell: () => (BELLS[wornSounds().bell] ?? BELLS.bell_brass)(),');
-    // a row turning has its own small sound, but not as the bell first shows (reduced motion opens every row then)
-    expect(read('src/ui/game/panels/DaySheet.tsx')).toContain('if (was !== null && c.bell > was) fx.tap();');
+    // a crate opening has its own small sound, but not as the bell first shows (reduced motion opens every crate then)
+    expect(read('src/ui/game/panels/RushTable.tsx')).toContain('if (was !== null && c.bell > was) fx.tap();');
   });
 
   it('at the flip before a question the rows are shut together with the new state, so no open row is drawn before the bell', () => {
@@ -185,7 +213,8 @@ describe('the two buttons', () => {
     const html = toStaticHtml(h(TiePanel, { s: publicView(s, asked), viewer: asked, asked, onDecide: () => undefined }));
     expect(html).toMatch(/<div class="pp-lock ds-tie-lock"><button type="button" class="btn primary wide big">Play it<\/button><button type="button" class="btn ghost wide big">Keep it<\/button><\/div>/);
     expect(html).toContain('data-a="tie-note"');
-    expect(read('src/ui/bell.css')).toContain('#app .tkt > .centre > .ds-tie-lock { flex-direction: row-reverse; }');
+    // in the round table's foot (PLAN-099)
+    expect(read('src/ui/rushTable.css')).toContain('#app .tkt .rt-foot > .ds-tie-lock { all: unset; flex: 1 1 auto; display: flex; flex-direction: row-reverse;');
     // the scripts' own words
     const smoke = read('scripts/smoke.cjs');
     for (const sel of ['[data-a="tie-note"]', '.pp-lock .btn.ghost', '.pp-lock .btn.primary']) expect(smoke).toContain(sel);
@@ -199,17 +228,25 @@ describe('the two buttons', () => {
   });
 });
 
-describe('the fit (bell.css)', () => {
-  it('is read after the sheet\'s own stylesheet, moves nothing but a fade on the table\'s clock, and takes its colours from the palette', () => {
-    const main = read('src/main.tsx');
-    expect(main.indexOf("'./ui/bell.css'")).toBeGreaterThan(main.indexOf("'./ui/daysheet.css'"));
-    const css = read('src/ui/bell.css').replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).not.toMatch(/@keyframes|animation:|rotate|skew/);
-    for (const t of css.match(/transition:[^;]+;/g) ?? []) expect(t).toBe('transition: opacity calc(var(--mk, 1) * var(--t-bell-lid)) ease;');
-    expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
-    // closer rows for five and six stalls and on a short phone; the rows of the table are not laid out here
-    expect(css).toContain('#app .tkt .ds-stalls.n5 .ds-stall, #app .tkt .ds-stalls.n6 .ds-stall {');
-    expect(css).toContain('@media (max-height: 700px) {');
-    expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b|grid-template/);
+describe('the round table before the rush (rushTable.css; the bell\'s rows and bell.css are gone, PLAN-099)', () => {
+  it('moves by position, size and fade only, on the table\'s clock, and takes its colours from the palette', () => {
+    expect(read('src/main.tsx')).not.toContain('bell.css');
+    const all = read('src/ui/rushTable.css');
+    const css = all.slice(all.indexOf('Before the rush (PLAN-099, flow A)')).replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(css).not.toMatch(/rotate|skew|#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
+    // every move at the one speed: a length read from the clock, times --mk
+    for (const t of css.match(/(?:transition|animation):[^;]+;/g) ?? []) {
+      if (/: none;$/.test(t)) continue;
+      expect(t).toMatch(/calc\(var\(--mk, 1\) \* var\(--t-[a-z-]+\)\)/);
+      expect(t).not.toMatch(/\b\d+(?:\.\d+)?m?s\b/);
+    }
+    // the only frames of its own: the pricing sheet coming up from the table's foot (position only)
+    expect(css.match(/@keyframes [\w-]+ \{[^}]*\}/g)).toEqual(['@keyframes rt-sheet-in { from { transform: translateY(100%); }']);
+    // reduced motion: every end state at once
+    expect(css).toContain('@media (prefers-reduced-motion: reduce) {');
+    // the rows of the table are not laid out here
+    expect(css).not.toMatch(/#app \.tkt > \.(seats|my-stall|actionbar|tk-top)\b/);
+    // the old rows, the old question layout and the bell's sheet are gone from the day's sheet
+    expect(read('src/ui/daysheet.css')).not.toMatch(/ds-stall|ds-bell|ds-pz|ds-tie|sh-day\.full|ds-price|ds-brief|ds-rivals/);
   });
 });

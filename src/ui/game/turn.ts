@@ -1,5 +1,5 @@
 // Pure turn rules used by the game screen, kept apart from Preact so they can be unit tested.
-import { activePlayer, applyAction, type Action, type GameState } from '../../engine/game';
+import { activePlayer, applyAction, eveningOpen, type Action, type GameState } from '../../engine/game';
 
 /** Applies one local move. In a daily challenge the move is also logged, so the leaderboard can replay it. */
 export function playLocal(before: GameState, who: number, a: Action): GameState {
@@ -34,5 +34,7 @@ export function waitsForPerson(s: GameState, seat: number | null): boolean {
   if (s.phase === 'stall') return s.stalls[seat] === null;
   if (s.phase === 'bid') return s.bids[seat] === null;
   if (s.phase === 'order') return s.standing?.bids[seat] === null;
+  // Rules 19: the evening likewise, until this person has said Lights out.
+  if (s.phase === 'evening') return eveningOpen(s, seat);
   return activePlayer(s) === seat;
 }

@@ -65,9 +65,15 @@ export function beforeDawn(s: GameState): number[] | null {
  * Null when no new log line names a card this stall played.
  */
 export function playedFavour(prev: GameState, next: GameState, p: number): FavourId | null {
-  const said = new Set(next.log.slice(prev.log.length));
+  return playedFavours(prev, next, p)[0] ?? null;
+}
+
+/** Every favour card stall `p` has played between two states, in the order the game said so. Rules 19: the computers'
+ *  evening arrives as one step, in which a stall may play two cards (Priority and Gossip). */
+export function playedFavours(prev: GameState, next: GameState, p: number): FavourId[] {
   const who = next.players[p]?.name;
-  return (Object.keys(FAVOURS) as FavourId[]).find((id) => said.has(`${who} played ${FAVOURS[id].title}`)) ?? null;
+  const ids = Object.keys(FAVOURS) as FavourId[];
+  return next.log.slice(prev.log.length).map((l) => ids.find((id) => l === `${who} played ${FAVOURS[id].title}`)).filter((id): id is FavourId => !!id);
 }
 
 /** The upgrade the person has just asked to build, and where its offer lay on the screen (noted as Build is tapped). */
@@ -114,12 +120,19 @@ export function holdBack(prev: GameState, next: GameState): OrderShow | null {
   const cash = () => holdCash(prev.players.map((pl) => pl.cash));
   const show = bidsIn(prev, next);
   if (show) { if ((show.order.staked ?? 0) > 0) cash(); return show; }
-  if (prev.phase !== 'evening' || next.phase !== 'evening') return null;
+  // The evening, as it opens (rules 19: online the computers' choices arrive with it) or as a stall decides.
+  if (next.phase !== 'evening' || (prev.phase !== 'evening' && prev.phase !== 'reveal')) return null;
   const built = next.players.some((pl, i) => pl.upgrades.length > prev.players[i].upgrades.length);
   if (built) cash();
   if (mine && next.players[mine.p]?.upgrades.includes(mine.u) && !prev.players[mine.p].upgrades.includes(mine.u)) { offer = mine; keepBack(HOLD_MARK, true); }
-  if (next.priorityNext !== null && prev.priorityNext === null) keepBack(HOLD_FIRST, true);
+  if (firstMoved(prev, next)) keepBack(HOLD_FIRST, true);
   return null;
+}
+
+/** Rules 19: a Priority card played has changed who would buy first tomorrow (a later card from a stall earlier in
+ *  today's line-up takes the front of the line; any other later card changes nothing there). */
+export function firstMoved(prev: GameState, next: GameState): boolean {
+  return next.priorityNext !== null && next.priorityNext !== prev.priorityNext && next.day === prev.day;
 }
 
 // ---------- the morning: coins at dawn ----------
@@ -205,16 +218,40 @@ function ghostSpot(box: A.Box): HTMLElement | null {
 }
 
 /**
+ * Rules 19: the computers' evening is one beat, so labels stand over several stalls at once. Each keeps to its own
+ * stall: no wider than the stall's box, on two lines if it needs them, centred over it. Nothing moves for this; the
+ * label is only drawn narrower.
+ */
+export function fitTag(t: { el: HTMLElement | null }, p: number): void {
+  const el = t.el;
+  const box = el && typeof document !== 'undefined' ? document.querySelector(`[data-a="p${p}"]`) : null;
+  const layer = el?.parentElement;
+  if (!el || !box || !layer) return;
+  const r = box.getBoundingClientRect();
+  const L = layer.getBoundingClientRect();
+  el.style.whiteSpace = 'normal';
+  el.style.textAlign = 'center';
+  el.style.borderRadius = '12px';
+  el.style.width = 'max-content';
+  el.style.maxWidth = `${Math.max(72, Math.floor(r.width))}px`;
+  const half = el.offsetWidth / 2;
+  el.style.left = `${Math.min(Math.max(r.left + r.width / 2 - L.left, half + 6), layer.clientWidth - half - 6)}px`;
+}
+
+/**
  * An upgrade has been built by stall `p`. Its price leaves the stall's cash as coins that travel to the market, the
  * total falling as they lift. The person's own build is also seen arriving: the card travels from where its offer lay
  * to the stall, and its mark shows on the shelf dock as it lands. The label over the stall stays until the pieces
  * have landed and a moment more; with reduced motion nothing travels and the label is held for a pause to read.
  */
-export async function built(p: number, u: UpgradeId): Promise<void> {
+export async function built(p: number, u: UpgradeId, also = ''): Promise<void> {
   const d = UPGRADES[u];
   const from = offer && offer.p === p && offer.u === u ? ghostSpot(offer.box) : null;
   offer = null;
-  const label = A.tag(`p${p}`, `Built: ${d.title}`, 'upgrade');
+  // `also`: the favour cards the stall played in the same step (rules 19: a computer's whole evening is one step), named
+  // on the same label, so each stall has one label.
+  const label = A.tag(`p${p}`, `${also ? `${also} · ` : ''}Built: ${d.title}`, 'upgrade');
+  fitTag(label, p);
   let rang = false;
   const jobs: Promise<void>[] = [
     coins(`p${p}-cash`, 'truck', d.cost, { fade: true, onLift: (share) => { if (!rang) { rang = true; fx.coin(); } void takeCash(p, share); } }),

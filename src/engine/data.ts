@@ -323,7 +323,8 @@ export interface FavourDef { id: FavourId; title: string; icon: string; text: st
 export const FAVOURS: Record<FavourId, FavourDef> = {
   gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Look at all of tomorrow\'s walk-ins. Only you see them.' },
   freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free.' },
-  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. Only 1 Priority can be played each evening.' },
+  // Rules 19: several stalls may play Priority in the same evening (rules 18 allowed one).
+  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. If several are played, the stall earliest in today\'s line-up goes first; the others go back.' },
   scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
   // Rules 18: played after the flip, in the open, and only by a stall with a tied price (before, in secret with the prices).
   favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' },
@@ -388,17 +389,17 @@ export const MAX_UPGRADES = 2;
 // held on the card). On the due day the order is served first, from the holder's crate only, and pays the bid for each
 // piece. A holder that delivers every piece gets its stake back; otherwise the stake is lost. Rivals are not involved.
 
-export interface OrderCard { name: string; title: string; quirk: string; fruit: FruitId; /** The highest bid allowed. */ ceiling: number; /** What the winner puts down when it wins (rules 18; before, the fine per missed piece). */ stake: number }
+export interface OrderCard { name: string; title: string; quirk: string; fruit: FruitId; /** The highest bid allowed (rules 19: $2 more). */ ceiling: number; /** What the winner puts down when it wins (rules 18; before, the fine per missed piece; rules 19: $2 less). */ stake: number }
 
 export const ORDER_CARDS: OrderCard[] = [
-  { name: 'School Canteen', title: 'The School Canteen', quirk: 'Fruit cups for Friday recess.', fruit: 'blueberry', ceiling: 9, stake: 6 },
-  { name: 'Smoothie Stand', title: 'The Smoothie Stand', quirk: 'Sells blueberry smoothies at the pasar malam.', fruit: 'blueberry', ceiling: 9, stake: 6 },
-  { name: 'Beach Resort', title: 'The Beach Resort', quirk: 'Cut watermelon for the guests by the pool.', fruit: 'watermelon', ceiling: 12, stake: 8 },
-  { name: 'Company Picnic', title: 'The Company Picnic', quirk: 'For the company family day.', fruit: 'watermelon', ceiling: 12, stake: 8 },
-  { name: 'Pie Factory', title: 'The Pie Factory', quirk: 'Apple pies for the cafes in town.', fruit: 'apple', ceiling: 11, stake: 7 },
-  { name: 'Cider Press', title: 'The Cider Press', quirk: 'Pressing apples this week.', fruit: 'apple', ceiling: 11, stake: 7 },
-  { name: 'Airline Caterer', title: 'The Airline Caterer', quirk: 'Mango for the in-flight meals.', fruit: 'mango', ceiling: 18, stake: 12 },
-  { name: 'Royal Banquet', title: 'The Royal Banquet', quirk: 'Mango for the palace dinner.', fruit: 'mango', ceiling: 18, stake: 12 },
+  { name: 'School Canteen', title: 'The School Canteen', quirk: 'Fruit cups for Friday recess.', fruit: 'blueberry', ceiling: 11, stake: 4 },
+  { name: 'Smoothie Stand', title: 'The Smoothie Stand', quirk: 'Sells blueberry smoothies at the pasar malam.', fruit: 'blueberry', ceiling: 11, stake: 4 },
+  { name: 'Beach Resort', title: 'The Beach Resort', quirk: 'Cut watermelon for the guests by the pool.', fruit: 'watermelon', ceiling: 14, stake: 6 },
+  { name: 'Company Picnic', title: 'The Company Picnic', quirk: 'For the company family day.', fruit: 'watermelon', ceiling: 14, stake: 6 },
+  { name: 'Pie Factory', title: 'The Pie Factory', quirk: 'Apple pies for the cafes in town.', fruit: 'apple', ceiling: 13, stake: 5 },
+  { name: 'Cider Press', title: 'The Cider Press', quirk: 'Pressing apples this week.', fruit: 'apple', ceiling: 13, stake: 5 },
+  { name: 'Airline Caterer', title: 'The Airline Caterer', quirk: 'Mango for the in-flight meals.', fruit: 'mango', ceiling: 20, stake: 10 },
+  { name: 'Royal Banquet', title: 'The Royal Banquet', quirk: 'Mango for the palace dinner.', fruit: 'mango', ceiling: 20, stake: 10 },
 ];
 /** What a stall puts down for a card: the card's stake, halved (rounded down) with an Order Book. */
 export function stakeFor(stake: number, orderBook: boolean): number {

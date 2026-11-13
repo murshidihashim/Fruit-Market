@@ -211,8 +211,8 @@ export function Shopfront(p: ShopProps) {
       <div class="hm-in">
         <header class="hm-bar">
           {accountsAvailable() ? <button class="hm-acct" onClick={p.onAccount}><PersonIcon /><span>{me ? `Hi, ${me}` : 'Create account'}</span></button> : <span />}
-          {/* The board's word (Home-A): "Dress up". It opens the Wardrobe, which keeps its own title. */}
-          <button class="hm-dress" onClick={p.onWardrobe}><FramedFace who={myAvatar()} size={32} look={worn()} /><span>Dress up</span></button>
+          {/* "Wardrobe" (the owner, 2026-11-13; the Home-A board said "Dress up"): the same word as the screen it opens. */}
+          <button class="hm-dress" onClick={p.onWardrobe}><FramedFace who={myAvatar()} size={32} look={worn()} /><span>Wardrobe</span></button>
         </header>
         <LaneBand />
         <div class="hm-title">

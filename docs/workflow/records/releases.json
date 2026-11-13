@@ -496,7 +496,7 @@
     },
     {
       "version": "1.21.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-086",
         "PLAN-089",
@@ -524,6 +524,27 @@
         "At the rush every stall's seat shows all the fruit it has for sale, and a piece leaves when a customer takes it",
         "The morning's lorry card shows only what it unloads at your table",
         "Auto load: one tap fills your crate with the fruit customers want today"
+      ],
+      "date": "2026-11-13",
+      "commit": "0f503ee",
+      "tagged": true
+    },
+    {
+      "version": "1.22.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-095",
+        "PLAN-098",
+        "PLAN-099"
+      ],
+      "notes": [
+        "Standing orders now allow a bid $2 higher and need a $2 smaller stake",
+        "Buttons now say Home and Wardrobe, the names of the screens they open",
+        "In the evening everyone decides at the same time: no more waiting for each stall's turn",
+        "Several Priority cards can be played in one evening: the stall earliest in the line-up buys first, and the other cards go back to their hands",
+        "From Open my stall to the end of the rush everything happens at one round table: you price with the table in view, the bell rings in the middle and the crates open one by one",
+        "Before the bell each rival crate shows a black square for every piece it put out",
+        "A game left unfinished under the earlier rules starts again; your trophies, stamps and looks are kept"
       ]
     }
   ]

@@ -13,7 +13,7 @@ import { deliveryBoxes } from '../tableModel';
 import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
 import { fx } from '../fx';
 import { FavourMark } from './panels/RushTable';
-import { built, firstInLine, playedFavour } from './dayBeats';
+import { built, firstInLine, firstMoved, fitTag, playedFavours } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, rushCards, type RushBlock, type RushCard, type ShowState } from './rush';
 
 // ---------- the lorry ----------
@@ -137,26 +137,37 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
     });
     fx.buy();
   }
+  // Rules 19: the computers' evening is one step, so several stalls may build and play cards in it. Each stall's beat
+  // runs at the same time as the others', each label on its own stall.
+  const evening = next.phase === 'evening' && next.day === prev.day;
   next.players.forEach((pl, i) => {
     const before = prev.players[i];
-    if (pl.favours.length < before.favours.length) {
-      // The card played is named as the game says it aloud (its log), not from the hand that held it: online a rival's
-      // hand is only stand-ins (PLAN-091). When nothing public names it, the label says only that a card was played.
-      const played = playedFavour(prev, next, i);
-      const t = A.tag(`p${i}`, played ? FAVOURS[played].title : 'A favour card', 'favour');
+    const builtNow = pl.upgrades.length > before.upgrades.length;
+    // The card played is named as the game says it aloud (its log), not from the hand that held it: online a rival's
+    // hand is only stand-ins (PLAN-091). When nothing public names it, the label says only that a card was played.
+    const fewer = pl.favours.length < before.favours.length;
+    const played = fewer ? playedFavours(prev, next, i) : [];
+    const cards = !fewer ? '' : played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';
+    if (cards) {
       fx.card();
-      // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
-      // nothing else shows what happened, the label is held for the full pause.
-      jobs.push((prev.phase === 'evening' && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
+      // A stall that also built names its cards on the upgrade's label (one label for each stall).
+      if (!builtNow) {
+        const t = A.tag(`p${i}`, cards, 'favour');
+        if (evening) fitTag(t, i);
+        // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
+        // nothing else shows what happened, the label is held for the full pause.
+        jobs.push((evening && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
+      }
     }
     // An upgrade built (PLAN-084): its price travels to the market as coins and, for your own, the card travels from
     // its offer to your stall, where its mark lands on the shelf dock (dayBeats.tsx).
-    if (pl.upgrades.length > before.upgrades.length) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1]));
+    if (builtNow) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1], cards));
     const gained = pl.cash - before.cash;
-    if (gained > 0 && pl.favours.length < before.favours.length) A.floatText(`p${i}-cash`, `+$${gained}`);
+    if (gained > 0 && fewer) A.floatText(`p${i}-cash`, `+$${gained}`);
   });
-  // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line.
-  if (next.priorityNext !== null && prev.priorityNext === null) jobs.push(firstInLine(next, next.priorityNext));
+  // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line (rules 19: or a card from a stall
+  // earlier in today's line-up takes it there).
+  if (firstMoved(prev, next)) jobs.push(firstInLine(next, next.priorityNext!));
   await Promise.all(jobs);
   // The cash is still counting down as the last piece lands: the beat ends when it has.
   await Promise.all(counting);
@@ -309,20 +320,23 @@ function settle(card: RushCard, pay: Pay, favour = true) {
 
 /** How long "No sales today" stays up, in ms at normal speed. */
 export const NO_SALES_READ = A.BEAT.bell.noSales;
-/** The bell's travel (flow study D3): the bell swings, then stall by stall a row lifts and its price tags turn face up. */
+/** The bell's travel (flow study D3; PLAN-099): the bell swings in the middle of the round table, then seat by seat a
+ *  crate's lid lifts, its pieces and its price tags turn face up. */
 export const bellOpening = (stalls: number) => A.BEAT.bell.swing + Math.max(0, stalls - 1) * A.BEAT.bell.gap + A.BEAT.bell.lid + A.FEEL.turn;
 /** The whole bell untouched, in ms at normal speed: the travel and the pause to read. About 2.6 s at four stalls. */
 export const bellLength = (stalls: number) => bellOpening(stalls) + A.BEAT.bell.read;
 
-/** The bell while it rings: how many rows have turned face up so far (0 while it swings); null when it is not ringing. */
+/** The bell while it rings: how many seats have opened so far, clockwise from this stall's (0 while it swings); null
+ *  when it is not ringing. */
 export type BellShow = number | null;
 
 /**
- * The bell (rules 15; PLAN-085): the bell swings and sounds, then stall by stall, in today's line-up, each row's
- * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. The sound is one: the
- * player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
- * nothing here makes a sound. With reduced motion nothing travels: every row is open at once and the reading pause
- * is kept. A tap ends the bell where it stands: every row is shown open and the pause is over.
+ * The bell (rules 15; PLAN-085; at the round table, PLAN-099): the bell swings and sounds in the middle of the table,
+ * then seat by seat, clockwise from this stall's, each crate opens: its lid lifts, its face-down squares turn into its
+ * pieces and its price tags turn face up (panels/RushTable.tsx draws them), then a pause to read. The sound is one:
+ * the player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
+ * nothing here makes a sound. With reduced motion nothing travels: every crate is open at once and the reading pause
+ * is kept. A tap ends the bell where it stands: every crate is shown open and the pause is over.
  */
 export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
   const n = g.players.length;
@@ -360,24 +374,25 @@ export function tieAnswer(prev: GameState, next: GameState): { p: number; played
 }
 
 /**
- * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading for
- * this stall, the stall's own row for a rival), and its stamp is held back until the card has landed on the tag.
- * Returns the place to travel from.
+ * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading, in the
+ * middle of the round table, PLAN-099; the stall's crate when the question is not on this screen), and its stamp is
+ * held back until the card has landed on the tag. Returns the place to travel from. `_viewer`: the stall this screen
+ * belongs to (every stall reads the question in the middle now).
  */
-export function tieFrom(a: { p: number; played: boolean }, viewer: number): A.Box | null {
+export function tieFrom(a: { p: number; played: boolean }, _viewer: number): A.Box | null {
   if (!a.played || typeof document === 'undefined') return null;
   holdStamp(true);
-  return A.boxOf(a.p === viewer ? document.querySelector('[data-a="tie-kind"]') : document.querySelector(`[data-a="bell-p${a.p}"] .tk-swatch`));
+  return A.boxOf(document.querySelector('[data-a="tie-kind"]') ?? document.querySelector(`[data-a="rt-crate-${a.p}"] .rt-who`));
 }
 
 /**
- * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag and stamps it
- * (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced motion
- * nothing travels: the card's name is shown on the stall's row for a pause to read.
+ * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag on its crate and
+ * stamps it (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced
+ * motion nothing travels: the card's name is shown over the stall's crate for a pause to read.
  */
 export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
   if (typeof document === 'undefined') { holdStamp(false); return; }
-  const tag = document.querySelector(`[data-a^="bell-${p}-"].tie`);
+  const tag = document.querySelector(`[data-a^="rt-tag-${p}-"].tie`);
   let spot: HTMLElement | null = null;
   if (from) {
     // The question has left the table by now: a place that is not drawn stands in for where the card lay.
@@ -387,10 +402,10 @@ export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
     document.body.appendChild(spot);
   }
   fx.card();
-  const label = A.isReduced() ? A.tag(`bell-p${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
+  const label = A.isReduced() ? A.tag(`rt-crate-${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
   try {
-    await A.fly(spot ?? `bell-p${p}`, tag ?? `bell-p${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
-    document.querySelectorAll(`[data-a^="bell-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
+    await A.fly(spot ?? `rt-crate-${p}`, tag ?? `rt-crate-${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
+    document.querySelectorAll(`[data-a^="rt-tag-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
     await A.wait(A.BEAT.tie.stamp);
     await A.hold(A.isReduced() ? A.BEAT.label.read : A.BEAT.tie.pause);
   } finally {

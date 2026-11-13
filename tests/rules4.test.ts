@@ -91,7 +91,7 @@ describe('the queue and Market Gossip', () => {
     if (s.phase === 'evening' && s.queue.length) {
       const t = structuredClone(s);
       t.players[1].favours = ['gossip'];
-      t.turn = t.order.indexOf(1);
+      t.eveningDone![1] = false; // rules 19: the card makes stall 1 one of the stalls still deciding
       const after = playFavour(t, 1, 0);
       expect(after.queue.every((c) => c.seenBy!.includes(1))).toBe(true);
       expect(after.queue.some((c) => c.seenBy!.includes(0))).toBe(false);
@@ -253,7 +253,7 @@ describe('options', () => {
 
 describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
-    expect(RULES_VERSION).toBe(18);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r18:a6');
+    expect(RULES_VERSION).toBe(19);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r19:a6');
   });
 });

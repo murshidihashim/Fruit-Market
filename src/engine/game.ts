@@ -1,4 +1,4 @@
-// Core rules (rules version 18). Every action takes a state and returns a new state
+// Core rules (rules version 19). Every action takes a state and returns a new state
 // (the input is never changed), so the UI can keep history and the whole game can be saved as JSON.
 //
 // A day: morning (event, top-up for a stall out of cash, lorry, tomorrow's strip; on a Market Day every stall bids
@@ -8,7 +8,7 @@
 // (one secret price per fruit, revealed together at the bell) -> ties (rules 18: a stall with a tied price may play
 // Favoured Trade, in the open) -> sales (queue order, cheapest stall
 // first, leftover demand spills to the next stall) -> evening (specialities after Market Days,
-// evening favours) -> night (fruit ages).
+// evening favours; rules 19: every stall decides at the same time) -> night (fruit ages).
 
 import {
   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
@@ -215,9 +215,24 @@ export interface GameState {
   firstMarket: Customer[];
   secondMarket: Customer[];
   firstPlayer: number;
+  /** The stall that buys first tomorrow by a Priority card (null: none). Rules 19: while the evening lasts, the one
+   *  earliest in today's line-up of the stalls that have played Priority (see `priorityPlayed`). */
   priorityNext: number | null;
   order: number[];
   turn: number;
+  /**
+   * Rules 19: in the evening every stall decides at the same time. Which stalls are done: a stall with nothing to
+   * decide is done as the evening opens, any other once it says Lights out. Night falls when every stall is done. Only
+   * set during the evening (a state saved before rules 19 has none: see `eveningDoneOf`).
+   */
+  eveningDone?: boolean[];
+  /** Rules 19: the stalls that have played Priority this evening, in the order played. At nightfall the one earliest
+   *  in today's line-up goes first tomorrow; every other Priority card played that evening goes back to its owner's
+   *  hand, unused. Only set during the evening. */
+  priorityPlayed?: number[];
+  /** Rules 19: the stalls whose Priority card went back to the hand at the last nightfall, because a stall earlier in
+   *  that day's line-up played one too (the morning says so). Absent when none did. */
+  priorityBack?: number[];
   /** What each shop put out for sale today (null until it has opened its stall). */
   stalls: (Stall | null)[];
   /** Rules 12: which pieces each shop put in its crate (null until it has opened its stall). */
@@ -375,8 +390,58 @@ export function activePlayer(s: GameState): number {
     const ai = open('ai');
     return ai >= 0 ? ai : open('human');
   }
-  if (s.phase === 'buy' || s.phase === 'evening') return s.order[s.turn] ?? -1;
+  // Rules 19: in the evening every stall with something to decide does so at the same time. The one stall named here is
+  // for code that needs one (pass-and-play hands the phone person by person; aiStep acts for it): a computer stall that
+  // has not decided first, then a person, each in today's line-up, as in the standing-order bid.
+  if (s.phase === 'evening') {
+    const line = lineUp(s);
+    const open = (kind: 'ai' | 'human') => line.find((p) => s.players[p]?.kind === kind && eveningOpen(s, p)) ?? -1;
+    const ai = open('ai');
+    return ai >= 0 ? ai : open('human');
+  }
+  if (s.phase === 'buy') return s.order[s.turn] ?? -1;
   return -1;
+}
+
+/** Today's line-up: the buying order set at dawn (every seat in seat order when there is none yet). */
+function lineUp(s: GameState): number[] {
+  return s.order.length ? s.order : s.players.map((_, i) => i);
+}
+
+/**
+ * Rules 19: which stalls are done for the evening (see `eveningDone`). A state from before rules 19 has no such list
+ * and is read the way it was played then: stalls before `turn` in the line-up have closed, the stall at `turn` is
+ * deciding, and a later stall is done only if it has nothing to decide.
+ */
+function eveningDoneOf(s: GameState): boolean[] {
+  if (s.eveningDone) return s.eveningDone;
+  const line = lineUp(s);
+  return s.players.map((_, p) => {
+    const k = line.indexOf(p);
+    return k < s.turn || (k > s.turn && !eveningChoice(s, p));
+  });
+}
+
+/** Rules 19: is stall `p` still deciding this evening (it has not said Lights out)? */
+export function eveningOpen(s: GameState, p: number): boolean {
+  return s.phase === 'evening' && !!s.players[p] && !eveningDoneOf(s)[p];
+}
+
+/** Rules 19: why stall `p` cannot act in the evening now (null: it can, whatever the other stalls are doing). */
+function eveningBlock(s: GameState, p: number): string | null {
+  if (s.phase !== 'evening' || !s.players[p]) return 'Not your turn';
+  return eveningDoneOf(s)[p] ? 'Your lights are already out' : null;
+}
+
+/** The stalls that have played Priority this evening (a state from before rules 19 records only the one it allowed). */
+function priorityPlays(s: GameState): number[] {
+  return s.priorityPlayed ?? (s.priorityNext !== null ? [s.priorityNext] : []);
+}
+
+/** Of these stalls, the one earliest in today's line-up. */
+function earliest(s: GameState, ps: number[]): number {
+  const line = lineUp(s);
+  return ps.reduce((a, b) => (line.indexOf(b) < line.indexOf(a) ? b : a));
 }
 
 // ---------- pacing (no formulas: everything is printed or counted) ----------
@@ -902,9 +967,10 @@ function customersArrive(s: GameState) {
 export interface FavourArgs { fruit?: FruitId; pos?: number; /** Scout: the id of the face-down walk-in to look at. */ customer?: number }
 
 export function canPlayFavour(s: GameState, p: number, idx: number): string | null {
-  if (!s.players[p].favours[idx]) return 'No such card';
-  if (activePlayer(s) !== p) return 'Not your turn';
-  return favourBlock(s, p, idx);
+  if (!s.players[p]?.favours[idx]) return 'No such card';
+  // Rules 19: in the evening every stall that has not said Lights out may play its cards, at the same time.
+  const turn = s.phase === 'evening' ? eveningBlock(s, p) : activePlayer(s) !== p ? 'Not your turn' : null;
+  return turn ?? favourBlock(s, p, idx);
 }
 
 /** Why this shop's card cannot be played in this phase, leaving aside whose turn it is (null: it can be played). */
@@ -918,8 +984,9 @@ function favourBlock(s: GameState, p: number, idx: number): string | null {
   if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Play this after prices flip, when one of your prices is tied';
   if (def.when !== s.phase) return `Play this ${def.when === 'buy' ? 'on your buying turn' : 'in the evening'}`;
   if (id === 'priority' && s.day >= s.config.days) return 'This is the last day';
-  // Rules 18: only one Priority card can be played each evening. A second one is refused and stays in the hand.
-  if (id === 'priority' && s.priorityNext !== null) return 'A Priority card was already played this evening. Only 1 can be played each evening. Keep yours';
+  // Rules 19: any number of stalls may play Priority in the same evening (rules 18 refused a second one), one card each:
+  // a second card of its own could only come back.
+  if (id === 'priority' && priorityPlays(s).includes(p)) return 'You have already played Priority tonight';
   if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins left to look at';
   if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins left to look at';
   return null;
@@ -931,6 +998,7 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
   // Rules 18: playing Favoured Trade from the hand is the asked stall's "play it" in the tie step.
   if (state.players[p].favours[idx] === 'favouredTrade') return decideTie(state, p, true);
   const s = clone(state);
+  holdEvening(s);
   const pl = s.players[p];
   const id = pl.favours[idx];
   switch (id) {
@@ -947,7 +1015,10 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       break;
     }
     case 'priority':
-      s.priorityNext = p;
+      // Rules 19: who goes first is settled at nightfall, by today's line-up (settlePriority). Until then the Tomorrow
+      // strip shows the stall that would.
+      s.priorityPlayed = [...priorityPlays(s), p];
+      s.priorityNext = earliest(s, s.priorityPlayed);
       break;
     case 'scout': {
       // Only this shop sees the front of one walk-in who arrives today; everyone sees the card was played.
@@ -969,7 +1040,8 @@ export function playFavour(state: GameState, p: number, idx: number, args: Favou
       break;
   }
   pl.favours.splice(idx, 1);
-  pl.stats.played = [...new Set([...(pl.stats.played ?? []), id])];
+  // A Priority card counts as played once it is used, at nightfall (settlePriority): one that goes back was not.
+  if (id !== 'priority') pl.stats.played = [...new Set([...(pl.stats.played ?? []), id])];
   s.log.push(`${pl.name} played ${FAVOURS[id].title}`);
   return s;
 }
@@ -1458,13 +1530,18 @@ export function finishReveal(state: GameState): GameState {
     if (c) c.seenBy = [...(c.seenBy ?? []), p];
   });
   if (isDraftNight(s)) dealUpgrades(s);
+  // Rules 19: every stall with something to decide does so now, at the same time; a stall with nothing to decide is
+  // done from the start. Night falls when every stall is done (at once, when none has a choice).
+  s.priorityPlayed = [];
+  s.eveningDone = s.players.map((_, p) => !eveningChoice(s, p));
   return settleEvening(s);
 }
 
 /**
  * Rules 18: does this stall have anything to decide this evening? An upgrade on offer that it can afford and has room
  * for, an evening favour card it can play (Priority, Gossip), or the Shade Cloth's choice of tonight's fruit (a person
- * names it in the evening; a computer shop picks at nightfall). A stall with no choice takes no evening turn.
+ * names it in the evening; a computer shop picks at nightfall). Rules 19: a stall with no choice is done as the evening
+ * opens; every other stall decides at the same time.
  */
 export function eveningChoice(s: GameState, p: number): boolean {
   const pl = s.players[p];
@@ -1474,10 +1551,38 @@ export function eveningChoice(s: GameState, p: number): boolean {
   return pl.trait === 'keeper' && pl.kind === 'human' && shelfSteps(s, pl) > 0 && count(pl.stock) > 0;
 }
 
-/** Moves the evening on to the next stall (in line-up order) with something to decide. When no stall has, night falls. */
+/** Rules 19: night falls once every stall is done for the evening. */
 function settleEvening(s: GameState): GameState {
-  while (s.turn < s.order.length && !eveningChoice(s, s.order[s.turn])) s.turn++;
-  return s.turn >= s.order.length ? nightfall(s) : s;
+  return eveningDoneOf(s).every(Boolean) ? nightfall(s) : s;
+}
+
+/** Before a stall acts in the evening: a state saved before rules 19 is given its list of who is done (read the old
+ *  way), so a stall that has just made its last choice still says Lights out for itself. */
+function holdEvening(s: GameState) {
+  if (s.phase !== 'evening') return;
+  s.eveningDone ??= eveningDoneOf(s);
+  s.priorityPlayed ??= priorityPlays(s);
+}
+
+/**
+ * Rules 19, at nightfall: of the stalls that played Priority this evening, the one earliest in today's line-up buys
+ * first tomorrow and its card is used; every other Priority card played goes back to its owner's hand. Returns the
+ * stalls whose card went back.
+ */
+function settlePriority(s: GameState): number[] {
+  const played = priorityPlays(s);
+  delete s.priorityPlayed;
+  if (!played.length) return [];
+  const first = earliest(s, played);
+  s.priorityNext = first;
+  const winner = s.players[first];
+  winner.stats.played = [...new Set([...(winner.stats.played ?? []), 'priority' as const])];
+  const back = played.filter((p) => p !== first);
+  for (const p of back) {
+    s.players[p].favours.push('priority');
+    s.log.push(`${s.players[p].name}'s Priority card goes back to the hand: ${winner.name} is earlier in today's line-up and buys first tomorrow`);
+  }
+  return back;
 }
 
 // ---------- evening ----------
@@ -1494,7 +1599,8 @@ function dealUpgrades(s: GameState) {
 export function canUpgrade(s: GameState, p: number, u: UpgradeId): string | null {
   const pl = s.players[p];
   if (!s.config.upgrades) return 'Upgrades are off';
-  if (s.phase !== 'evening' || activePlayer(s) !== p) return 'Not your turn';
+  const turn = eveningBlock(s, p);
+  if (turn) return turn;
   if (!isDraftNight(s)) return 'Upgrades are offered after Market Days';
   if (pl.upgrades.includes(u)) return 'Already built';
   if (pl.upgrades.length >= MAX_UPGRADES) return `Your stall has room for ${MAX_UPGRADES} upgrades`;
@@ -1507,6 +1613,7 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
   const why = canUpgrade(state, p, u);
   if (why) throw new RuleError(why);
   const s = clone(state);
+  holdEvening(s);
   const pl = s.players[p];
   pl.cash -= UPGRADES[u].cost;
   pl.stats.spent += UPGRADES[u].cost;
@@ -1524,7 +1631,8 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
 export function canShade(s: GameState, p: number, f: FruitId | null): string | null {
   const pl = s.players[p];
   if (!pl || pl.trait !== 'keeper') return 'Only the Shade Cloth can do that';
-  if (s.phase !== 'evening' || activePlayer(s) !== p) return 'Not your turn';
+  const turn = eveningBlock(s, p);
+  if (turn) return turn;
   if (f !== null && !FRUITS.includes(f)) return 'Unknown fruit';
   return null;
 }
@@ -1534,6 +1642,7 @@ export function setShade(state: GameState, p: number, f: FruitId | null): GameSt
   const why = canShade(state, p, f);
   if (why) throw new RuleError(why);
   const s = clone(state);
+  holdEvening(s);
   s.players[p].shade = f;
   return s;
 }
@@ -1564,14 +1673,19 @@ export function shadePick(s: GameState, p: number): FruitId | null {
   return best;
 }
 
+/** Lights out: stall `p` is done for the evening. Rules 19: night falls when every stall is. */
 export function endEvening(state: GameState, p: number): GameState {
-  requireActive(state, p, 'evening');
+  const why = eveningBlock(state, p);
+  if (why) throw new RuleError(why);
   const s = clone(state);
-  s.turn++;
+  holdEvening(s);
+  s.eveningDone![p] = true;
   return settleEvening(s);
 }
 
 function nightfall(s: GameState): GameState {
+  const back = settlePriority(s);
+  delete s.eveningDone;
   const heat = s.event?.ageExtra ?? 0;
   age(s.market, Math.max(0, 1 + heat));
   // Shade Cloth: a computer shop (or a person who did not choose) shades the fruit with the most to lose.
@@ -1580,6 +1694,8 @@ function nightfall(s: GameState): GameState {
   s.firstPlayer = (s.firstPlayer + 1) % s.players.length;
   s.day++;
   startDay(s);
+  if (back.length) s.priorityBack = back;
+  else delete s.priorityBack;
   return s;
 }
 

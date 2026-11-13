@@ -1,0 +1,83 @@
+{
+  "id": "PLAN-099",
+  "title": "One table from Open my stall to the rush (flow A)",
+  "problem": "The bell shows a list of rows and then swaps to the round table for the rush; the owner finds the jump jarring.",
+  "scope": [
+    "After Open my stall the crates go to their seats round the table; rival crates shut, with a black square for each piece out, filling or ready",
+    "Pricing on a sheet at the bottom with the table in view above it",
+    "The bell rung in the middle; crates open one by one clockwise from yours",
+    "Favoured Trade asked in the middle of the table (yours, or a rival deciding)",
+    "The first customer comes in and the rush continues at the same table; the bell list removed",
+    "Online, pass-and-play hand-over, reduced motion, 2 to 6 stalls at 390x844 and 360x640"
+  ],
+  "exclusions": [
+    "Any rule, number, save or message change",
+    "The takings, the evening and the night"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 8ef525d: 82 files, 895 tests passed, 1 skipped (the existing skip)."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes; the online leak check stays 0",
+      "result": "PASS",
+      "evidence": "npm run test:e2e by the helper on 3a5ee2e (the merge adds records and a comment): solo game to the results; speed test OK (longest task 171 ms against 200, DOM 585, 0.61 slow frames in 100); online match 74 pricing frames, 0 leaks; quick match, four players, rejoin."
+    },
+    {
+      "id": "T3",
+      "text": "Nothing secret before the bell: a rival crate shows only its count; on a shared phone the hand-over hides your crate",
+      "result": "PASS",
+      "evidence": "tests/round-table.test.ts (13): a rival crate shows a lid, then only its count of face-down squares once every stall is open, online too; nothing is read from a rival's crate before the flip; the hand-over hides the table. The online browser test's leak check stays 0."
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me beside mock-up A at 390x844 and 360x640 with 2, 4 and 6 stalls, with and without a tie",
+      "result": "PASS",
+      "evidence": "The helper's 24 runs at 390x844 and 360x640 with 2, 4 and 6 stalls, with and without a tie (asked of you, of a rival, several tied), checked automatically for crates off screen, under the sheet or overlapping and buttons covered: none. Seen by me: the comparison of mock-up A with the built frames at 4 stalls, and a recording of Day 1 of a played game at 390x844 (pricing at rest: every seat in view above the sheet, the squares, Ring the bell)."
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": "A clip of the built flow (Open my stall to the first customer) and the comparison sheet sent to the owner on 2026-11-13 14:02; his view is not yet received."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, after the three animated flows: \"three crate flow should be A, but players need to know how many fruits are up for sale for each crate, add a black square per fruit to indicate this (like design c)\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "implemented",
+  "release": "1.22.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 8ef525d",
+  "reports": [
+    "REP-118",
+    "REP-119"
+  ],
+  "decisions": [
+    "DEC-109",
+    "DEC-116"
+  ],
+  "changes": {
+    "added": [
+      "One table from Open my stall to the takings: every crate goes to its seat round the middle; a rival crate shows a black face-down square for each piece it put out once every stall is open; pricing on a sheet at the foot with every seat in view; the bell rung in the middle and the crates opened one by one clockwise; Favoured Trade asked in the middle"
+    ],
+    "changed": [
+      "The rush starts at the same table without a swap; after the last customer the crates stay until the takings"
+    ],
+    "fixed": [
+      "The Bell notice in pricing was covered by the rival crates row (found by the text pictures); that screen is replaced"
+    ],
+    "removed": [
+      "The bell's list of rows and the old pricing panel"
+    ]
+  },
+  "playerNotes": [
+    "From Open my stall to the end of the rush everything happens at one round table: you price with the table in view, the bell rings in the middle and the crates open one by one",
+    "Before the bell each rival crate shows a black square for every piece it put out"
+  ]
+}

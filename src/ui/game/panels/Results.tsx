@@ -223,9 +223,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   };
   // A tap on the page (not on a button) hurries the stamps.
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
-  // The board's words (PLAN-091): "Rematch" and "Main menu". The Daily market is played once a day, so its main button
+  // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Main menu' : 'Rematch';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Home' : 'Rematch';
   return (
     <section class="sbk sbk-res results" onClick={hurry}>
       <div class="sbk-in" style="flex: 1 0 auto">
@@ -287,7 +287,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           </div>
           <div class="sbk-foot">
             <span>Scroll: cash day by day · your best moments</span>
-            <span><button onClick={share}>Share</button>{!s.config.daily && <> · <button onClick={onExit}>Main menu</button></>}</span>
+            <span><button onClick={share}>Share</button>{!s.config.daily && <> · <button onClick={onExit}>Home</button></>}</span>
           </div>
         </div>
       </div>

@@ -118,7 +118,7 @@ const SLIDES = [
         <p>Serve a customer's <b>whole order by yourself</b> and you draw a secret favour card (1 a day; {CHARMER_DAILY_FAVOURS} for the Charmer). You hold up to {FAVOUR_HAND_LIMIT} ({FAVOUR_HAND_LIMIT + 1} for the Charmer). Play it when its card says: on your buying turn, after prices flip, or in the evening.</p>
         <div class="demo-chips">{Object.values(FAVOURS).map((f) => <span class="chip"><FavourIcon id={f.id} size={16} /> {f.title}</span>)}</div>
         <p><b>Gossip</b> shows you tomorrow's walk-ins. <b>Scout</b> shows you one of today's.</p>
-        <p>You take an evening turn only when you have something to decide. At night <b>all fruit ages one step</b>. A Soft piece that ages spoils and is thrown away.</p>
+        <p>Everyone with something to decide in the evening does it at the same time, then taps Lights out. At night <b>all fruit ages one step</b>. A Soft piece that ages spoils and is thrown away.</p>
       </>
     ),
   },

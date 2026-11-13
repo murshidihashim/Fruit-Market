@@ -18,6 +18,7 @@ import { CALM_ART, eventArt, eventFocus } from '../../deckArt';
 import { newsChips } from '../../eventChips';
 import { EventTicket, LorryTicket, type NewsCard } from '../../phoneCards';
 import { dawnCoins, takeDawn } from '../dayBeats';
+import { priorityBackLine } from '../evening';
 import { useReach } from '../reach';
 
 /** True once the picture is downloaded and decoded (or after a short wait, so a slow picture never holds up the game).
@@ -129,6 +130,8 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
   // Overnight: fruit lost, then what the Juice Bar made; on the final day, what leftovers are worth.
   const night = overnightLines(lost, juice).map((l) => <div class={`mc-loss tk-info ${l.tone === 'good' ? 'good' : 'warn'}`}>{l.text}</div>);
   const closing = closingNote(s, viewer)?.morning;
+  // Rules 19: several stalls played Priority last evening; the earliest in the line-up buys first, the rest came back.
+  const first = priorityBackLine(s, viewer);
   // A day with no event (Day 1, or every day when events are off) gets a "Calm Day" in the same layout, so every
   // morning looks alike (PLAN-062). It is not a card in the deck: nothing is drawn for it in the rules.
   const card: NewsCard = s.event ?? {
@@ -186,6 +189,7 @@ export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; v
         </div>
       )}
       {night}
+      {first && <div class={`mc-loss tk-info ${first.tone}`}>{first.text}</div>}
       {closing && <div class="mc-loss tk-info warn">{closing}</div>}
       <div class={`wc-flip ${ready ? 'go' : ''}`} key={`${s.day}-${card.id}`}>
         <div class="wc-flip-back" aria-hidden="true"><EventBack wide /></div>

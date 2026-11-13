@@ -11,7 +11,7 @@ import { newGame, publicView, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { favourArt } from '../src/ui/deckArt';
-import { playedFavour } from '../src/ui/game/dayBeats';
+import { playedFavour, playedFavours } from '../src/ui/game/dayBeats';
 import { rushCards } from '../src/ui/game/rush';
 import { RushView } from '../src/ui/game/panels/RushTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
@@ -75,11 +75,22 @@ describe('a favour card played is named as the game says it aloud, not from the 
     expect(playedFavour(a, b, other)).toBeNull();
   });
 
+  // Rules 19: the computers' evening is one step, so the label names every card the stall played in it (from the log).
   it('the label over the stall reads the log (animator.tsx), never the hand', () => {
     const src = readFileSync('src/ui/game/animator.tsx', 'utf8');
-    expect(src).toContain('const played = playedFavour(prev, next, i);');
-    expect(src).toContain("const t = A.tag(`p${i}`, played ? FAVOURS[played].title : 'A favour card', 'favour');");
+    expect(src).toContain('const played = fewer ? playedFavours(prev, next, i) : [];');
+    expect(src).toContain("const cards = !fewer ? '' : played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';");
+    expect(src).toContain('const t = A.tag(`p${i}`, cards, \'favour\');');
     expect(src).not.toContain('before.favours.find(');
+  });
+
+  it('rules 19: two cards played by one stall in one step are both named, in the order the game said them', () => {
+    const { a, b, p } = plays[0];
+    const who = a.players[p].name;
+    const two = { ...b, log: [...a.log, `${who} played Priority`, 'Someone else played Gossip', `${who} played Gossip`] };
+    expect(playedFavours(a, two, p)).toEqual(['priority', 'gossip']);
+    expect(playedFavour(a, two, p)).toBe('priority');
+    expect(playedFavours(a, { ...b, log: a.log }, p)).toEqual([]);
   });
 });
 

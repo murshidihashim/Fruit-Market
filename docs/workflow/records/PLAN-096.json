@@ -1,0 +1,61 @@
+{
+  "id": "PLAN-096",
+  "title": "Small gaps on the phone: the morning's scroll, the event chip, small taps, faint labels, unused styles",
+  "problem": "Known since 1.21.0: the morning scrolls a little on a small phone with six stalls; the event chip in the top bar is cut at 360 px; some tap targets are under 40 px (Home's dots, the event chip, market cells, price chips); some labels are faint (freshness letters, later rank numbers); about 700 unused style rules remain.",
+  "scope": [
+    "The morning fits a 360x640 phone with six stalls without scrolling",
+    "The event chip shows its whole name at 360 px",
+    "Tap targets of at least 40 px where the speed test lists them (Home dots, event chip, market cells, price chips), without moving the layout",
+    "Faint labels darkened to readable contrast (freshness letters, rank numbers, Home dots)",
+    "Unused style rules removed, with pictures of every screen before and after identical"
+  ],
+  "exclusions": [
+    "Any rule, number or text change",
+    "New screens"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes; the speed test lists no tap target under 40 px on the buy and price screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls; every screen before and after the style clean-up compared",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "Owner, 2026-11-13: \"3 yes\" to writing this plan; building it needs his word.",
+    "date": "2026-11-13"
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-117"
+  ],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

@@ -32,7 +32,7 @@
     "evidence": "Owner, 2026-11-11: \"Plain, with a Malaysian market feel\" (DEC-087: the voice across every card and screen). Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A in six packages, package 4 the text). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105).",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-089",
   "title": "Release A, package 4, part 2: the labels on the screens",
   "problem": "Release 1.20.0 rewrote the text of the cards, the story, the tutorial and How to play. The labels on the screens are untouched: about 200 audit entries remain in screen files, and the helpers who rebuilt the screens invented about 150 labels and sentences that nobody has checked against the glossary. The same thing is not always called the same word.",

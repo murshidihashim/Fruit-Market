@@ -44,7 +44,7 @@
     "evidence": "Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as: do the work that the rush of 12 November cut short or listed as known gaps, inside the packages already approved (PLAN-084 to PLAN-090) and the decisions behind them. Not read as the word to publish 1.21.0, which is asked for separately. RULES.md's wording is brought in step with the cards on this word (it was put to the owner as waiting for his word; words only, no rule changes).",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-091",
   "title": "Release A, finishing: the work the rush of 12 November cut short",
   "problem": "To go live on 12 November the screens, the text and the stamp book were built by eight helpers in a few hours, with small faults listed as known gaps (REP-111, REP-112), checks left NOT RUN, dead code left behind, and some documents out of date.",
