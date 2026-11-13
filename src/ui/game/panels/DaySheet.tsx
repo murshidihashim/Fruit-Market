@@ -8,12 +8,12 @@
 // after the flip (pricingTable.ts bellRows), and on a shared phone nothing of a stall's is drawn until the phone has
 // been handed to its owner (daySheet.ts). Styles: daysheet.css.
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { stageAt, type FruitId } from '../../../engine/data';
+import { FRUITS, stageAt, type FruitId } from '../../../engine/data';
 import { crateCounts, type Crate, type GameState } from '../../../engine/game';
 import * as A from '../../anim';
 import { Fruit } from '../../art';
 import { fx } from '../../fx';
-import { PriceBar, PricePanelView, StallBar, StallPanelView, bellOpensOnStart, boxKey, startingCrate, startingPrices } from '../../panel';
+import { PriceBar, PricePanelView, StallBar, StallPanelView, autoCrate, bellOpensOnStart, boxKey, startingCrate, startingPrices } from '../../panel';
 import { TIGHTEST, dayStep, fitSheet, fullReach, ownStep, type DayNow, type DayStep } from '../daySheet';
 import { nth } from '../pricingTable';
 import { reachFrom, useReach } from '../reach';
@@ -162,6 +162,28 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     }
   };
   const total = Object.values(crateCounts(crate)).reduce((a, n) => a + (n ?? 0), 0);
+  // "Auto load" (the owner, 2026-11-13): every piece it adds slides from its shelf row into the crate, a moment apart.
+  const loads = FRUITS.flatMap((f) => (autoCrate(s, viewer, crate)[f] ?? []).map((n, pos) => ({ f, pos, n: n - piece(crate, f, pos) }))).filter((x) => x.n > 0);
+  const autoLoad = () => {
+    if (!loads.length) return;
+    fx.tap();
+    setCrate(autoCrate(s, viewer, crate));
+    const box = root.current?.querySelector('.ds-pcs');
+    let i = 0;
+    for (const { f, pos, n } of loads) {
+      const key = boxKey(f, pos);
+      const row = root.current?.querySelector(`.ds-srow[data-box="${key}"]`);
+      const shelf = row?.querySelector('.x-fruit') ?? row;
+      if (!shelf || !box) continue;
+      setAir((a) => ({ ...a, [key]: (a[key] ?? 0) + n }));
+      for (let k = 0; k < n; k++) {
+        void A.fly(shelf, box, <Fruit id={f} size={22} stage={stageAt(f, pos)} />, {
+          delay: i++ * A.BEAT.stock.gap, duration: A.BEAT.stock.fly, path: 'low', swell: false,
+          onLand: () => setAir((a) => ({ ...a, [key]: Math.max(0, (a[key] ?? 0) - 1) })),
+        });
+      }
+    }
+  };
 
   // ---------- pricing ----------
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, viewer));
@@ -256,7 +278,7 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
           </CratesOpen>
         )}
       </div>
-      {step === 'stock' && <StallBar total={total} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
+      {step === 'stock' && <StallBar total={total} onAuto={loads.length ? autoLoad : null} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
       {step === 'price' && <PriceBar s={s} p={viewer} vals={vals} onSubmit={(posts) => { fx.card(); c.act({ kind: 'prices', posts }); }} />}
       {tying && <TieBar onDecide={(play) => { fx.card(); c.act({ kind: 'tie', play }); }} />}
       {/* The takings are their own panel, mounted as they always were, over the sheet, which stays under them so the

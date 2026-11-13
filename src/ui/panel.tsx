@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { boxOf } from './anim';
 import { believe, planPrices } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, acceptsStage, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
   validatePrices, type Crate, type Customer, type GameState, type Post,
@@ -43,6 +43,30 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
 export function startingCrate(s: GameState, p: number): Crate {
   const pl = s.players[p];
   return Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Crate;
+}
+
+/**
+ * The crate "Auto load" fills (the owner, 2026-11-13): for every fruit wanted today, as many pieces as are wanted
+ * (the shelf row's "N wanted"), or every ripe piece on the shelf when there are fewer. Pieces already in the crate
+ * count towards it and stay where they are. The pieces added are the oldest a customer who wants that fruit would take
+ * (oldest first is the game's own way to fill a crate, rules 12), so nothing goes out that nobody would buy. A fruit
+ * nobody wants is left on the shelf. Your own crate only: nothing here looks at a rival.
+ */
+export function autoCrate(s: GameState, p: number, crate: Crate): Crate {
+  const pl = s.players[p];
+  const out = Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map((_, pos) => crate[f]?.[pos] ?? 0)])) as Crate;
+  for (const f of FRUITS) {
+    const buyers = buyersFor(s, f);
+    let need = stallWanted(s, p, f) - (out[f] ?? []).reduce((a, n) => a + n, 0);
+    for (let pos = 0; pos < FRUIT[f].ripe.length && need > 0; pos++) {
+      if (!buyers.some((x) => acceptsStage(x.c.pref, stageAt(f, pos)))) continue;
+      const k = Math.min(need, (pl.stock[f][pos] ?? 0) - out[f]![pos]);
+      if (k <= 0) continue;
+      out[f]![pos] += k;
+      need -= k;
+    }
+  }
+  return out;
 }
 
 /** The name of a box of the shelf: its fruit and its place ("apple-2"). A piece in the crate carries it, so it knows
@@ -132,11 +156,17 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
   );
 }
 
-/** Stocking's main button, in the action bar's place. */
-export function StallBar({ total, onSubmit }: { total: number; onSubmit: () => void }) {
+/** Stocking's buttons, in the action bar's place: "Auto load" (what is wanted, autoCrate; greyed when the crate
+ *  already holds it) beside the main button. */
+export function StallBar({ total, onSubmit, onAuto }: { total: number; onSubmit: () => void; onAuto?: (() => void) | null }) {
   return (
     <div class="pp-lock">
-      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Sell nothing today'}</button>
+      <div class="tk-pair">
+        {onAuto !== undefined && (
+          <button type="button" class="btn ghost tk-auto" disabled={!onAuto} onClick={onAuto ?? undefined}>Auto load <small class="btn-sub">what's wanted</small></button>
+        )}
+        <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Sell nothing today'}</button>
+      </div>
     </div>
   );
 }

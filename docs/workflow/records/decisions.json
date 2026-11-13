@@ -2733,6 +2733,30 @@
         "REP-115"
       ],
       "reviewTrigger": "If six crates with many pieces crowd a small phone; when the owner has seen it"
+    },
+    {
+      "id": "DEC-111",
+      "title": "An Auto load button when filling the crate",
+      "question": "The owner asked for a button that puts all the wanted fruit into the crate at once.",
+      "choice": "Beside \"Open my stall\", a button \"Auto load · what's wanted\". For every fruit wanted today it fills the crate up to the number the shelf row says is wanted (\"5 wanted\"), or with every ripe piece when there are fewer. Pieces already in the crate count and stay. The pieces added are the oldest that a customer who wants that fruit would take (the game's own order for a crate, rules 12), so nothing goes out that nobody would buy. A fruit nobody wants stays on the shelf. Each piece slides from its row into the crate. The button is greyed when there is nothing to add; − and + still change any row after it. Assumed by me, stated to the owner: oldest first, and no more than is wanted.",
+      "rationale": "The owner's own words. Filling the crate piece by piece is the slowest step of a day on a phone.",
+      "impact": {
+        "player": "One tap fills the crate with what customers want.",
+        "technical": "panel.tsx autoCrate and StallBar; DaySheet.tsx autoLoad; ticket.css (PLAN-094).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-116"
+      ],
+      "reviewTrigger": "If the owner wants the freshest pieces first, or more than is wanted"
     }
   ],
   "history": [
@@ -3823,6 +3847,10 @@
     {
       "at": "2026-11-13 08:19",
       "text": "DEC-110 approved by the owner's own words: every seat at the rush shows its stall's whole crate and loses each piece a customer takes; the morning's lorry card shows this table's row only. Built as PLAN-093 into candidate 1.21.0. The owner also asked whether checks ran overnight (none on GitHub since 1.20.0; verify and e2e ran on this machine until 02:40) and what is pending (answered from the records; twelve decisions' delivery tidied)."
+    },
+    {
+      "at": "2026-11-13 08:46",
+      "text": "DEC-111 approved by the owner's own words: an Auto load button when filling the crate. Built as PLAN-094 into candidate 1.21.0. The owner asked whether the Wardrobe and unlockables are fixed: answered from PROGRESSION.md section G and PLAN-086 (the first version is in candidate 1.21.0, not live; the weekly goal, card backs, table themes and rewards from level 12 up are later steps). The speed test (perf-budget) stalled once for 25 minutes in the e2e run on d98afc4; it was stopped, and the same test then finished with BUDGET OK; the full e2e is run again."
     }
   ]
 }

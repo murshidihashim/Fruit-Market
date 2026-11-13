@@ -7,7 +7,8 @@ import {
   applyAction, beginBuying, crateCounts, crateStock, emptyStock, newGame, oldestCrate, openStall, submitPrices, validateCrate,
   type Customer, type GameState,
 } from '../src/engine/game';
-import { StallBar, StallPanelView, startingCrate } from '../src/ui/panel';
+import { StallBar, StallPanelView, autoCrate, startingCrate } from '../src/ui/panel';
+import { stallWanted } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { RULES_VERSION } from '../src/net/protocol';
 import { endBuying } from './stall-step';
@@ -116,6 +117,61 @@ describe('Fill your crate (rows since PLAN-072)', () => {
     const waiting = toStaticHtml(h(StallPanelView, { s, p: 0, crate, waiting: true, onStep: () => undefined }));
     expect(waiting).not.toContain('class="mini-step"');
     expect(toStaticHtml(h(StallBar, { total: 0, onSubmit: () => undefined }))).toContain('Sell nothing today');
+  });
+
+  it('"Auto load" puts out what is wanted (the owner, 2026-11-13): the oldest pieces a buyer takes, never more than wanted', () => {
+    // An Everyday buyer wants 3 apples: the soft ones are not for them, so the two fresh ones go out, and no more.
+    const s = stocking([buyer(1, 'apple', 3, 9, 'everyday')]);
+    expect(stallWanted(s, 0, 'apple')).toBe(3);
+    const auto = autoCrate(s, 0, startingCrate(s, 0));
+    expect(auto.apple![0]).toBe(0);
+    expect(auto.apple![FRESH('apple')]).toBe(2);
+    expect(validateCrate(s, 0, auto)).toBeNull();
+    // A Bargain buyer takes soft pieces too: the oldest go first, up to what is wanted.
+    const cheap = stocking([buyer(1, 'apple', 3, 9, 'bargain')]);
+    const load = autoCrate(cheap, 0, startingCrate(cheap, 0));
+    expect(load.apple![0]).toBe(2);
+    expect(load.apple![FRESH('apple')]).toBe(1);
+    // What is in the crate already counts and stays; a second tap adds nothing.
+    const mine = { ...startingCrate(cheap, 0), apple: startingCrate(cheap, 0).apple!.map((_, i) => (i === FRESH('apple') ? 2 : 0)) };
+    const topped = autoCrate(cheap, 0, mine);
+    expect(topped.apple![FRESH('apple')]).toBe(2);
+    expect(topped.apple![0]).toBe(1);
+    expect(autoCrate(cheap, 0, topped)).toEqual(topped);
+    // Nobody wants apples: nothing goes out.
+    const none = stocking([buyer(1, 'mango', 2, 9, 'everyday')]);
+    expect(Object.values(autoCrate(none, 0, startingCrate(none, 0))).every((t) => t!.every((n) => n === 0))).toBe(true);
+    // The button, beside the main one; greyed when there is nothing to add.
+    expect(toStaticHtml(h(StallBar, { total: 0, onSubmit: () => undefined, onAuto: () => undefined }))).toMatch(/<button type="button" class="btn ghost tk-auto">Auto load/);
+    expect(toStaticHtml(h(StallBar, { total: 2, onSubmit: () => undefined, onAuto: null }))).toMatch(/class="btn ghost tk-auto" disabled[ =>]/);
+  });
+
+  it('"Auto load" in whole games: a crate the rules accept, within the shelf and what is wanted, from ripe pieces a buyer takes', () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 12; seed++) {
+      // Every seat is played by the computer, except that stall 0 fills its crate with "Auto load".
+      let s = newGame({ players: RIVALS.slice(0, 3 + (seed % 3)).map((r) => ({ name: r.name, kind: 'ai' as const, avatar: r.avatar })), days: 10, unripe: true, upgrades: true, events: true, seed });
+      for (let step = 0; step < 4000 && s.phase !== 'over'; step++) {
+        if (s.phase === 'stall' && s.stalls[0] === null) {
+          const crate = autoCrate(s, 0, startingCrate(s, 0));
+          expect(validateCrate(s, 0, crate)).toBeNull();
+          for (const f of Object.keys(crate) as FruitId[]) {
+            const out = crate[f]!.reduce((a, n) => a + n, 0);
+            expect(out).toBeLessThanOrEqual(stallWanted(s, 0, f));
+            crate[f]!.forEach((n, pos) => {
+              expect(n).toBeLessThanOrEqual(s.players[0].stock[f][pos]);
+              if (n) expect(pos).toBeLessThan(FRUIT[f].ripe.length);
+            });
+            checked++;
+          }
+          expect(autoCrate(s, 0, crate)).toEqual(crate);
+          s = openStall(s, 0, crateCounts(crate), crate);
+          continue;
+        }
+        s = autoplay(s, 1);
+      }
+    }
+    expect(checked).toBeGreaterThan(200);
   });
 
   it('starts with nothing out (PLAN-061): you add each piece yourself', () => {

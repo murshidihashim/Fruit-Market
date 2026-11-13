@@ -53,8 +53,9 @@ export const BEAT = {
   /** Labels over a stall: the pop as one appears; how long a played favour or a built upgrade stays up; a favour card
    *  won in the rush; a bonus tip; a "+$7" floating up; a message at the bottom of the screen. */
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
-  /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece). */
-  stock: { fly: 260 },
+  /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece); with
+   *  "Auto load", the gap between two pieces leaving the shelf. */
+  stock: { fly: 260, gap: 70 },
   /** Pricing: your price tags turn face down as you ring the bell (flow study D3: seal 200 ms). */
   price: { seal: 200 },
   /** The bell (flow study D3): the bell swings and sounds (`swing`); then stall by stall, `gap` apart, a row lifts

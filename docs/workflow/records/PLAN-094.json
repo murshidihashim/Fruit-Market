@@ -1,0 +1,66 @@
+{
+  "id": "PLAN-094",
+  "title": "Auto load when filling the crate",
+  "problem": "Filling the crate takes a tap for every piece.",
+  "scope": [
+    "A button beside Open my stall that fills the crate with what is wanted: up to each fruit's wanted count, the oldest pieces a wanting customer takes, keeping what is already in the crate; greyed when nothing is left to add"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or message change",
+    "Computer players",
+    "The printed game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Tests: the oldest pieces a buyer takes, never more than wanted, what is in the crate stays, a second tap adds nothing; in whole games a crate the rules accept",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me at 390x844 and 360x640",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "in progress",
+  "release": "1.21.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-116"
+  ],
+  "decisions": [
+    "DEC-111"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

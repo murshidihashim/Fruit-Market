@@ -394,6 +394,14 @@
 #app .tkt > .actionbar .btn, #app .tkt > .centre > .pp-lock .btn { flex-wrap: wrap; row-gap: 3px; white-space: nowrap; }
 #app .tkt > .actionbar .btn small, #app .tkt > .centre > .pp-lock .btn small { all: unset; font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; color: var(--tk-paper); }
 #app .tkt > .actionbar .btn:disabled, #app .tkt > .centre > .pp-lock .btn:disabled { opacity: 0.45; cursor: default; }
+/* stocking: "Auto load" (paper, the smaller) beside "Open my stall" */
+#app .tkt > .centre > .pp-lock > .tk-pair { display: flex; align-items: stretch; gap: 8px; }
+#app .tkt > .centre > .pp-lock .btn.tk-auto {
+  flex: 0 0 auto; max-width: 42%; padding: 0 10px; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
+}
+#app .tkt > .centre > .pp-lock .btn.tk-auto small { color: var(--tk-ink); font-size: 0.625rem; }
+/* beside it the main button's words may take two lines ("Sell nothing today" on a narrow phone) */
+#app .tkt > .centre > .pp-lock > .tk-pair > .tk-go { white-space: normal; line-height: 1.05; }
 #app .tkt > .actionbar .btn.ghost, #app .tkt > .actionbar .btn.skip { flex: 0 0 auto; min-width: 52px; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem; }
 #app .tkt > .actionbar .hint-bar { all: unset; flex: 1 1 auto; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; font: 600 0.8125rem/1.25 var(--tk-txt); color: var(--tk-ink); }
 #app .tkt > .actionbar .buy-hint { all: unset; display: flex; align-items: center; font: 800 0.75rem/1.1 var(--tk-txt); text-transform: uppercase; }
