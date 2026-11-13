@@ -24,8 +24,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e passes; the speed test lists no tap target under 40 px on the buy and price screens",
-      "result": "FAIL",
-      "evidence": "Speed test only, on this machine. npm run test:e2e on the merge (same files as 8336ed4): solo game PASS; online match 72 pricing frames, 0 leaks; abandoned match, four players, reconnect 5 of 5 PASS. The speed test FAILED both tries: longest task 244 and 226 ms against 200 (p95 157 and 171 ms; opening 258 and 321 ms against 350); no tap target under 40 px on the buy and price screens. The same test run three times on each build, taking turns, with nothing else running: 1.22.0 as live 238, 280, 260 ms (p95 158, 168, 155); this build 273, 315, 238 ms (p95 161, 177, 164). Both fail on this machine today, the new build within the spread of the old; the 1.22.0 build passed here at 171 ms the day it was built. GitHub's CI (verify:full) is the check that decides; to run on this branch."
+      "result": "PASS",
+      "evidence": "GitHub CI run 141 (verify:full, started by hand on the branch at 347bdd7, 00:55 to 01:12 on 2026-11-14): 904 tests, build, solo game, speed test OK at the first try (longest task 105 ms, p95 90 ms, opening the game screen 165 ms, DOM 582, 0.12 slow frames in 100; no tap target under 40 px on the buy and price screens: tm-chip, pz and mk-cell reach 40 to 42 px through their touch areas), online match 76 pricing frames with 0 leaks, rematch, abandoned match, quick match, four players, reconnect 5 of 5. Earlier on this machine: the speed test failed (longest task 226 to 315 ms against 200) for this build and for the live 1.22.0 build alike, three runs each, taking turns; every other part passed."
     },
     {
       "id": "T3",

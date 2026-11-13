@@ -4069,6 +4069,10 @@
     {
       "at": "2026-11-14 00:54",
       "text": "PLAN-096 (small gaps) merged as 8336ed4: verify PASS (904 tests); browser tests FAIL on this machine on the speed test only (the live 1.22.0 build fails it here too, three runs each); the style clean-up compared screen by screen and by computed style (0 differences). Still under 40 px and left: market boxes on short screens (3 px apart, a bigger area would take the next box's taps), Home's middle dot with three pages, Trophies tabs, ladder rows and some buying-screen buttons (outside the plan). Faint labels outside the plan: Home's Wants chip and lorry tiles, set-up labels, Trophies' unearned pips. Before-and-after sheets sent to the owner. Noticed: scripts/smoke.cjs waits for a highlight no screen draws, so one of its pictures is never taken. From these commits on, each commit names Murshidi Hashim as author and Claude as committer, so that GitHub shows its signature as verified; earlier commits are left as they are."
+    },
+    {
+      "at": "2026-11-14 01:19",
+      "text": "PLAN-096: GitHub CI run 141 on the branch (347bdd7) PASS, browser tests included: the speed test's longest task 105 ms and p95 90 ms, 0 leaks online. T2 recorded PASS on that evidence; the local speed-test failure was this machine (the live build failed it here too). The before-and-after sheets are with the owner; not published."
     }
   ]
 }
