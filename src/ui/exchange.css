@@ -36,8 +36,6 @@
 }
 
 /* Small shared pieces any screen can use. */
-.x-kicker { font-family: var(--f-label); font-weight: 600; letter-spacing: calc(0.18em * var(--ls, 1)); text-transform: uppercase; color: var(--x-red); }
 .x-title { font-family: var(--f-display); color: var(--x-ink); line-height: 1; letter-spacing: 0.01em; }
-.x-rule { border: 0; border-top: 2px solid var(--x-ink); box-shadow: 0 3px 0 -1px var(--x-paper), 0 4px 0 0 var(--x-ink); margin: 6px 0 8px; }
 .x-art { display: block; width: 100%; height: 100%; object-fit: cover; background: var(--x-paper); }
 .x-art-missing { display: grid; place-items: center; background: repeating-linear-gradient(45deg, var(--x-paper) 0 8px, var(--x-card) 8px 16px); color: var(--x-slate); font-family: var(--f-label); font-size: 11px; letter-spacing: calc(0.1em * var(--ls, 1)); text-transform: uppercase; text-align: center; }

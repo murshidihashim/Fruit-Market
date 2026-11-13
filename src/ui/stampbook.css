@@ -163,7 +163,7 @@
 .sbk .sbk-rk.done .sbk-n { background: var(--k-green); }
 .sbk .sbk-rk.now { background: var(--k-yel); }
 .sbk .sbk-rk.later { border-style: dashed; color: var(--k-slate); }
-.sbk .sbk-rk.later .sbk-n { background: var(--k-stone); }
+.sbk .sbk-rk.later .sbk-n { background: var(--k-stone); color: var(--k-ink); }
 .sbk .sbk-rk .sbk-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sbk .sbk-rk .sbk-t b { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; }
 .sbk .sbk-rk .sbk-r { margin-left: auto; font: 700 0.625rem/1.2 var(--f-label); text-align: right; max-width: 46%; }

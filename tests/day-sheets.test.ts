@@ -470,12 +470,13 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
       return { dataset, clientHeight: room, get scrollHeight() { return Math.max(room, parts[Number(dataset.tight ?? 0)]); } };
     };
     const stepOf = (parts: number[], room: number) => { const el = sheet(parts, room); closer(el); return el.dataset.tight; };
-    expect(stepOf([470, 430, 400, 385], 475)).toBeUndefined(); // it fits as the approved screen draws it
-    expect(stepOf([508, 446, 409, 389], 450)).toBe('1');
-    expect(stepOf([508, 446, 409, 389], 410)).toBe('2');
-    expect(stepOf([508, 446, 409, 389], 381)).toBe(String(TIGHTEST)); // closest, and then the sheet scrolls
+    expect(stepOf([470, 430, 400, 385, 340, 330], 475)).toBeUndefined(); // it fits as the approved screen draws it
+    expect(stepOf([508, 446, 409, 389, 340, 330], 450)).toBe('1');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 410)).toBe('2');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 381)).toBe('4');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 320)).toBe(String(TIGHTEST)); // closest, and then the sheet scrolls
     // asked again (a row changed its size), a sheet never goes back a step
-    const el = sheet([508, 446, 409, 389], 410);
+    const el = sheet([508, 446, 409, 389, 340, 330], 410);
     closer(el);
     closer(el);
     expect(el.dataset.tight).toBe('2');
@@ -489,7 +490,7 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     expect(reach).not.toMatch(/useLayoutEffect\(fit\)|innerWidth|innerHeight/);
     expect(reach).toContain('new ResizeObserver(fit)');
     const css = read('src/ui/sheets.css');
-    expect(css).toContain("#app .tkt .sh-morning[data-tight='3'] .wc-evpic");
+    expect(css).toContain("#app .tkt .sh-morning:is([data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-evpic");
     expect(css).not.toMatch(/\.tight-\d/);
   });
 

@@ -97,7 +97,7 @@ export function TomorrowLorry({ s }: { s: GameState }) {
 }
 
 /** How many steps closer the morning sheet may be drawn when it would otherwise need a scroll (sheets.css, data-tight). */
-export const TIGHTEST = 3;
+export const TIGHTEST = 5;
 /** What the steps need of a sheet (a page element; a stand-in in tests). */
 export interface Fitting { dataset: DOMStringMap; readonly scrollHeight: number; readonly clientHeight: number }
 /**
