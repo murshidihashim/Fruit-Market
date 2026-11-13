@@ -1,6 +1,6 @@
 # Fruit Market · game brief
 
-Updated 2026-10-26 (Asia/Kuala_Lumpur). Items marked *hypothesis* have no player evidence yet.
+Updated 2026-11-12 22:50 (Asia/Kuala_Lumpur), rules version 18. Items marked *hypothesis* have no player evidence yet.
 
 ## One line
 Run a fruit stall for 8–14 days: buy fruit before it spoils, set secret prices, and outsell your rivals.
@@ -10,16 +10,18 @@ Casual players aged 12+ who like short strategy games: families passing one phon
 playing online, and solo players against computer shops. Plays on Android phones and in a browser.
 
 ## Core loop (one day)
-1. **Morning:** a delivery arrives, and today's event and customers are shown.
-2. **Buy:** take fruit from the market, cheapest-cash shop first. There is a limit per day.
-3. **Price:** everyone sets secret prices at the same time.
-4. **Sales showdown:** each customer buys the cheapest offer first; the outcome is explained.
-5. **Evening:** build upgrades and play favour cards. Overnight, fruit ages and some spoils.
+1. **Morning:** the lorry unloads into the Wholesale Market; today's event and customers are shown. On a Market Day stalls bid for a standing order.
+2. **Buying:** take fruit from the market, poorest stall first. What a stall takes is seen while it buys, then hidden (DEC-107).
+3. **Stocking:** put pieces from your shelf into your crate. Rivals learn only how many.
+4. **The bell:** everyone sets secret prices; at the bell the crates open. A tied price may be won with Favoured Trade.
+5. **The rush:** each customer buys the cheapest offer that is fresh enough.
 
-Win: the most cash after the last day (upgrades count for nothing; unsold fruit only for the jam maker's $1 per ripe piece on Closing Day). Ties go to whoever sold more fruit.
+Evening: build an upgrade after a Market Day and play favour cards. Night: every piece ages; some spoil.
+
+Win: the most cash after the last day (upgrades count for nothing; unsold fruit only for the jam maker's $1 per ripe piece on Closing Day). A tie on cash goes to whoever sold more fruit; if that is level too, the stalls share the win.
 
 ## Session
-- 2–4 shops; Quick 8, Standard 10, Long 14 days.
+- 2 to 6 stalls; Quick 8, Standard 10, Long 14 days.
 - Match length about 10–20 minutes (*hypothesis*; not measured with real players).
 - Modes: solo versus computer (Easy, Normal, Hard), pass-and-play, online room by link,
   quick match, daily challenge with a leaderboard, Market League ladder.
@@ -28,7 +30,7 @@ Win: the most cash after the last day (upgrades count for nothing; unsold fruit 
 The tension of secret pricing ("undercut or hold?") plus spoilage pressure, and the reveal of each sale.
 
 ## Exclusions (decided)
-- No accounts, cloud save, chat, ads or purchases (see `docs/studio/09`, "deferred").
+- No chat, ads or purchases (see `docs/studio/09`, "deferred"). Accounts are optional and only carry progress between phones; nothing is sold (DEC-099).
 - No iOS until the Android and browser versions are proven.
 
 ## Preservation constraints

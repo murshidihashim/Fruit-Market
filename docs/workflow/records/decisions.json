@@ -1605,7 +1605,7 @@
         "evidence": "2. Complete shopkeeper roster. ID Final approved name Existing ability. S1 Rosa Haggler. S2 Uncle Benny Big Basket. S3 Ah Chen Charmer. S4 Saleh Nest Egg. S5 Raj Bargain Hunter. S6 Kiki Tip Jar. All six shopkeeper abilities remain unchanged. 3. Special guests. ID Final approved name. G1 The Influencer. G2 The Gym Club. G3 The Hotel Chef. change to above, appeoved",
         "date": "2026-11-07"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-088"
       ],
@@ -1630,7 +1630,7 @@
         "evidence": "c1Cowboy Jack C2 Bobby Books C3 Dr. Bubbles C4 Rara Jenab C5 Zara Zapp C6 Ravi Rocket C7 Coral Mei C8 Postman Pip C9 Madam Siti C10 Magic Kumar C11 Rockstar Grace C12 Professor Pebble C13 Inspector Wei C14 Miss Marigold C15 Dr Priya C16 Captain Ahmad C17 Lola Lens C18 Grandpa Tan C19 Miss Cha-Cha C20 Sleepy Zul C21 Anna the Artist C22 Otto Oddjob C23 Mina Moss C24 Firefighter Osman C25 Marina Wen C26 DJ Rizal C27 Devi Bloom C28 Marcus Hook C29 Professor Fatimah C30 Benny Bell C31 Akira Swift C32 Hadi Hammer C33 Baker Lakshmi C34 Kenji Kaze C35 Herbalist Mira C36 Uncle Hock Seng (section 1 of the owner's 'Final approved name' roster; sections 2 and 3 were sent with 'change to above, appeoved')",
         "date": "2026-11-07"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-088"
       ],
@@ -2115,7 +2115,7 @@
         "evidence": "change standing order so that rivals fulfil at -1, for decision to bid, make it so that everyone can see if rivals are bidding and everyone can still bid as long as there's a player still deciding; then audit for any discrepancies between the digital and physical one earlier; match physical to digital rules with regards to when tmr customers are drawn; offer all 5 upgrade options during market; put cash tracks outside the shutter for physical since its supposed to be public. Owner's answers: rivals are paid \"Winner's bid minus $1\"; \"Amounts stay secret\"; physical: \"Update pack, kept in repo\".",
         "date": "2026-11-11"
       },
-      "delivery": "verified",
+      "delivery": "released",
       "plan": "PLAN-077",
       "reports": [
         "REP-100"
@@ -2140,7 +2140,7 @@
         "evidence": "Owner's answers on 2026-11-11 to the questions put after REP-101: Fix now? \"Wait for everything\". $0 rule: \"Top up to $5 if shelf empty (Recommended)\". Balance set: \"Show me each change first\", then ticked: \"Tip Jar pays more often, Nest Egg starts with $15, Sharp Ears $2 from 3 stalls, Fix how Normal computers price\"; \"New costs, Ripening Room: cheaper green mango, Order Book: $2 more a piece\"; \"Green mango costs $4, Bargain blueberry pays $4, Fix two lorry rows, More apples on lorries\". Standing orders: first \"lets think about reworking this mechanism, or should it stay\", then \"Stake instead of fines (Recommended)\". Rival buys: \"Show today's buys (Recommended)\". Day 1: first \"im leaning more towards only delaying mango customers\", then \"Delay mango customers only\". Text voice: \"Plain, with a Malaysian market feel\". Empty steps, ticked: \"Skip Stocking with nothing ripe, Evening only when you have a choice, Faster rush\" (not ticked: buying ends itself at the limit). Rule gaps: \"Go through them one by one\", then ticked: \"Juice Bar: rush sales only, Premium Display: not on guests, Sharp Ears: evening, once a day, Priority beats Nest Egg\"; \"Final tie is shared, One favour deck of 12, Event fixes (tested first)\"; on Favoured Trade: \"give the pros and cons for each option for favoured trades before the flip\" (open). Trophies: \"Change them to fit the rules (Recommended)\". Printed freshness tracking: \"Mock up options 1 and 2 first\" (open).",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-101",
@@ -2166,7 +2166,7 @@
         "evidence": "\"Plain, with a Malaysian market feel\"",
         "date": "2026-11-11"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-101"
       ],
@@ -2190,7 +2190,7 @@
         "evidence": "\"go with B\"",
         "date": "2026-11-11"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-079",
       "reports": [
         "REP-102",
@@ -2242,7 +2242,7 @@
         "evidence": "Owner on the card mock-ups (REP-104), 2026-11-12: \"For lorry, i prefer the old one where it shows straight away the number of fruits for all player option\"; \"for customer card back, remove the 'how many..until stocking' replace with four squares, with each fruit occupying a dedicated square\" and \"the four square is referring to 4 large squares to indicate wants (as the 2 squares currently)\"; \"for event, change 'market Notice' to Event, and i'd like the artwork to be slightly bigger\"; \"for customer front, remove the 'fresh or okay' just keep the legend, and combine everything in one [row] with just 'okay -1, soft -2' in a nicer way, generate suitable scenes related to the character rather than just the plain yellow background\"; \"for customer front card, make it so that fruits follow the blueberry, watermelon, mango, apple, order on the card\"; \"generate artworks for favour an upgrade cards as well\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2266,7 +2266,7 @@
         "evidence": "Owner on the revised card mock-ups, 2026-11-12: \"why is there black bar on the event card\"; \"i like the previous previous design with red boxes (?) for lorry better\"; \"keep the art generated for favoured trade within the same design artstyle as the rest of the game\"; \"change 'stall upgrade' to 'upgrade'\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2290,7 +2290,7 @@
         "evidence": "Owner on the card mock-ups, 2026-11-12: \"now the lorry card doesnt look that clean, redesign it\"; \"remove the black bar from the artwork for favour and upgrade card\"; \"also include the design for the back of other cards as well\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2314,7 +2314,7 @@
         "evidence": "Owner, 2026-11-12: \"okay so now make sure that all fruits referenced in the artstyle across all the cards uses the same fruit icons (standardise)\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2338,7 +2338,7 @@
         "evidence": "Owner, 2026-11-12: \"keep lorry column\"; \"picture style is right, proceed to draw all the cards, do it detailed as i i want the artsyle to feel polished and ready to print\"; \"now give 3 designs each for respective cards, now it looks to plain and all are very generic, keep the 3 design styles within a coherent design\"; \"for the wholesale market in the app, dont use the short broad, i need to be 3,4,5,6 columns, it needs to feel like a board game still\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2362,7 +2362,7 @@
         "evidence": "Owner, 2026-11-12: \"use design a for the cards, except for customer fromt and back cards, use the previous versions for customer front and back\"; \"now lets design the back of lorry, event, favour cards, upgrade, all the cards basically, give me 3 coherent suggestions per card\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2386,7 +2386,7 @@
         "evidence": "Owner, 2026-11-12: \"lets use pattern for now\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "released",
       "reports": [
         "REP-104"
       ],
@@ -2410,7 +2410,7 @@
         "evidence": "Owner, 2026-11-12: \"go with A (which can be swiped to show  b)\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-104",
         "REP-106"
@@ -2460,7 +2460,7 @@
         "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-106"
       ],
@@ -2508,7 +2508,7 @@
         "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-105",
         "REP-106",
@@ -2534,7 +2534,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions put with REP-108 in order: \"1 keep it for now\", \"2 lets push everything to live after its ready\", \"3 accept it for now\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-107",
         "REP-108"
@@ -2559,7 +2559,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\".",
         "date": "2026-11-12"
       },
-      "delivery": "not started",
+      "delivery": "implemented",
       "reports": [
         "REP-109"
       ],
@@ -2607,7 +2607,7 @@
         "evidence": "Owner, 2026-11-12: \"focus on the digital  part first, can it be live by 6pm? what else do you need to settle, can we publish the core gamplay first to test? the rest can be worked accordingly after it has been published\"; then, told that a build today would have the rush, the morning, the bid and the evening rebuilt and the other screens in their earlier layout, and offered a preview tonight with the live game tomorrow: \"live today but dont need to be exactly at 7pm, settle what else that needs to be settled for the core gameplay mechanism, cards now to publish it live for me to test\".",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-110"
       ],
@@ -2631,11 +2631,158 @@
         "evidence": "Owner, 2026-11-12: \"fix below gaps: on a small phone the evening's favour cards and part of the bid card scroll; a line can read 'You wins: Haggler!'\"; \"build now: Stocking, pricing, the bell, Favoured Trade, takings; Market lanes, stalls, shelf, buying, lorry, night\"; then \"publish after everything below is ready\", naming those same screens.",
         "date": "2026-11-12"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-110"
       ],
       "reviewTrigger": "When the three groups of screens are merged and checked: publish. If a required check fails or a screen cannot be finished tonight: tell the owner before publishing anything"
+    },
+    {
+      "id": "DEC-107",
+      "title": "What a stall bought is seen only while buying",
+      "question": "Rules 18 kept each stall's purchases of the day on show until the bell (DEC-086). In the live game the owner found the fruit marks on the rival boxes confusing while he filled his crate: they read as the rival's crate. How long are a stall's purchases shown?",
+      "choice": "Only while buying is going on. From stocking onwards a stall's box shows no bought fruit: not in the stalls row, not in a rival's details, not in spoken labels. While crates are shut a rival's box shows its cash and how many pieces are out, nothing else. On the table: what you take is seen as you take it; after buying you need not say what you bought and nobody may ask. This replaces the ruling in DEC-086 that today's purchases stay public until the bell, and the bought-today marks drawn on the approved Pricing board. Computer stalls keep remembering what they saw bought, as a person would. The engine, the saves and the online messages are not changed, so the rules version stays 18: the same facts were public during buying, they are simply not drawn again.",
+      "rationale": "The owner's ruling after playing. A mark that stays on a shut crate looks like the crate's contents, which are secret; and the table game has no such memory aid.",
+      "impact": {
+        "player": "The rival boxes are plainer after buying. A player who wants to know what a rival holds has to remember what they watched.",
+        "technical": "Screens only: the stalls row, the rival's details pop-up, spoken labels, the on-screen test of rules 18 section G. RULES.md (four sentences) and How to play reworded. No engine, save or message change; RULES_VERSION stays 18. Goes out in release 1.21.0.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-111"
+      ],
+      "reviewTrigger": "If players miss the marks and ask for them back; if online play needs the server to stop sending the purchases after buying"
+    },
+    {
+      "id": "DEC-108",
+      "title": "At the table each stall pays itself on its own cash track; the guidebook keeps its playing time",
+      "question": "The printed guidebook and RULES.md differed on how a stall is paid at the table (the guidebook: each stall adds its own price to its cash track; RULES.md: a crier pays the stalls from the bank), and the guidebook's cover says \"45 to 90 minutes\" with no measurement behind it.",
+      "choice": "1. Follow the guidebook: the crier reads the customers aloud and pays nobody; a stall that sells adds its own price to its own cash track. RULES.md now says so. 2. The guidebook keeps \"45 to 90 minutes\".",
+      "rationale": "The cash track on the counter (DEC-085) replaced coins, so the crier no longer needs to hand money out; the guidebook already describes it that way.",
+      "impact": {
+        "player": "The printed game reads the same in the rulebook and the guidebook. The app is unchanged.",
+        "technical": "RULES.md, two sentences. No code, no rules version change.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, answering two questions on the printed game (how a stall is paid at the table: the guidebook's way or the rulebook's crier paying from the bank; and whether the guidebook keeps \"45 to 90 minutes\"): \"1 follow guidebook\", \"2 keep it\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-112"
+      ],
+      "reviewTrigger": "After the first table playtest of the printed kit: is the crier still needed, and how long a game really takes"
+    },
+    {
+      "id": "DEC-109",
+      "title": "The rush as a round table",
+      "question": "The owner disliked the rush's list of offers under each customer card. Which of three layouts of his idea (the customer comes to the middle and the open crates stand round it) is built?",
+      "choice": "D, the round table (docs/studio/review-18/mockups/png/Rush-D.png): each customer travels from its ticket to the middle of the table; every stall's open crate sits round it in a fixed seat for the whole rush, with its price tag for the fruit being bought and its pieces; crates over the customer's price are dimmed, crates without the fruit are dashed; the selling crate is marked and a piece travels from it to the customer while the coins travel back. The customer row stays at the top; the result line and Skip to the end and Next customer stay. It replaces the Rush board approved earlier (DEC-086's one card for each customer stays).",
+      "rationale": "The owner's own idea and choice. It reads like a table: the stalls are round the customer, as at a market, instead of a list.",
+      "impact": {
+        "player": "The rush shows the stalls round each customer; the same rules, the same pace.",
+        "technical": "A new rush component in place of Showdown.tsx (PLAN-092); the rush's timing and its held-back numbers are kept; the browser scripts that play the rush follow it.",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
+        "date": "2026-11-12"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-113",
+        "REP-115"
+      ],
+      "reviewTrigger": "When built: shown to the owner at both phone sizes with 2, 4 and 6 stalls; if six crates crowd a small phone"
+    },
+    {
+      "id": "DEC-110",
+      "title": "The rush shows each stall's whole crate; the morning's lorry shows this table's row only",
+      "question": "The owner asked for two changes to the screens after seeing the recording of candidate 1.21.0 (REP-115).",
+      "choice": "1. At the round-table rush every seat shows all the fruit that stall has out for sale, piece by piece with its freshness letter, from the first customer to the last; a piece leaves the seat when a customer takes it (it travels to the customer, as before). While a fruit is being bought the seat's other fruit is greyed and its price tag for that fruit shows. 2. The morning's lorry card shows only what the lorry unloads at this table: the row for this table's size, or the \"Today\" row when an event changed the load. The printed lorry card keeps every table size.",
+      "rationale": "The owner's own words. A seat that holds its fruit reads as that stall's table, and the fruit leaving shows the sale; the other table sizes on the lorry card are noise on a phone.",
+      "impact": {
+        "player": "The rush shows what every stall still has for sale; the morning is shorter.",
+        "technical": "rush.ts records each stall's whole crate before each customer; RushTable.tsx draws it; phoneCards.tsx LorryTicket draws one row (PLAN-093).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-115",
+        "REP-116"
+      ],
+      "reviewTrigger": "If six crates with many pieces crowd a small phone; when the owner has seen it"
+    },
+    {
+      "id": "DEC-111",
+      "title": "An Auto load button when filling the crate",
+      "question": "The owner asked for a button that puts all the wanted fruit into the crate at once.",
+      "choice": "Beside \"Open my stall\", a button \"Auto load · what's wanted\". For every fruit wanted today it fills the crate up to the number the shelf row says is wanted (\"5 wanted\"), or with every ripe piece when there are fewer. Pieces already in the crate count and stay. The pieces added are the oldest that a customer who wants that fruit would take (the game's own order for a crate, rules 12), so nothing goes out that nobody would buy. A fruit nobody wants stays on the shelf. Each piece slides from its row into the crate. The button is greyed when there is nothing to add; − and + still change any row after it. Assumed by me, stated to the owner: oldest first, and no more than is wanted.",
+      "rationale": "The owner's own words. Filling the crate piece by piece is the slowest step of a day on a phone.",
+      "impact": {
+        "player": "One tap fills the crate with what customers want.",
+        "technical": "panel.tsx autoCrate and StallBar; DaySheet.tsx autoLoad; ticket.css (PLAN-094).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "implemented",
+      "reports": [
+        "REP-116",
+        "REP-117"
+      ],
+      "reviewTrigger": "If the owner wants the freshest pieces first, or more than is wanted"
+    },
+    {
+      "id": "DEC-112",
+      "title": "Publish 1.21.0",
+      "question": "Candidate 1.21.0 holds the stamp book with Results, Trophies, Wardrobe and Home, the screens' words, the fixes and purchases shown only while buying, the finishing pass, the round-table rush, the seats that hold their fruit, the one-row lorry card and Auto load. Is it published?",
+      "choice": "Published, by the release path: merged to main, the full checks on the CI machines (verify and the browser tests), the preview updated, then the Deploy LIVE game workflow (verify, release check, deploy, live smoke test, tag v1.21.0). If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's own word after seeing the recording, the pictures of the round-table rush and of Auto load.",
+      "impact": {
+        "player": "Players get 1.21.0 on their next visit; old saves and progress keep loading (tested).",
+        "technical": "Merge to main, CI, deploy-web.yml with confirm=PUBLISH, tag v1.21.0; releases.json marked published afterwards.",
+        "data": "The stamp book's counts kept on the phone and, for an account, with it (privacy page updated in 1.21.0)."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"push it live\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-117"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -3662,6 +3809,82 @@
     {
       "at": "2026-11-12 19:24",
       "text": "PLAN-085 and PLAN-088 (part 1) built, merged and checked on ca39c60 (REP-111): npm run verify PASS (722 tests passed, 1 skipped); npm run test:e2e PASS on a quiet machine (longest task 187 ms, 0 leaks, reconnect 5 of 5). Merged in order: the text with the name-sentence fix (295dc8c); the bid and evening small-phone fit (d860435); the sheet with stocking and pricing (caf5e05) and its refit (after 0d76d20); the market, the lorry and the night (0d76d20 and the next merge); the takings (1942b91); the stalls row and shelf with two repairs (b9dd496: the hand-over guard against a double tap, the Heatwave shelf chip); the bell and Favoured Trade (ca39c60). Eight helpers were used; the helpers that had already built a part before it was split off (the bell, the takings, the stalls) had their work kept and finished by the second helper. The stamp book (PLAN-086: data done, screens a first pass, 787faa3), the rest of the text list and the print kit (PLAN-087: decks print on rules 18, d244989) are paused on their branches. Release 1.20.0's entry extended with PLAN-085 and PLAN-088; publishing follows DEC-106 once the full checks pass on the CI machines."
+    },
+    {
+      "at": "2026-11-12 19:45",
+      "text": "Release 1.20.0 published 2026-11-12 19:43 (DEC-106; PLAN-077, 079, 081, 082, 083, 084, 085, 088): main c17a053 (pull request #11). The full checks on the CI machines passed first (CI run 136: verify, solo game, performance budget OK at the 250 ms limit with 3 slow frames of 747 at night and a longest night frame of 66.7 ms, online match 56 pricing frames 0 leaks, abandoned match, quick match, four players, reconnect 5 of 5; the longest-task figure was not read from the log). Deploy LIVE game run 39: verify, release check, deploy, live smoke test and tag v1.20.0 all passed. Checked from the session: the live page answers 200, the server reports rules version 18 and the page serves the build CI made. The live smoke script could not be run from the session's machine (its network reaches the site with curl only). Not yet done: a person playing it on a phone; the owner is testing it. The stamp book, the rest of the text list, the screen labels and the print kit continue on the working branch for the next release."
+    },
+    {
+      "at": "2026-11-12 19:48",
+      "text": "After the publish, three helpers were resumed for the next release, each first merging the working branch into its own: the stamp book (PLAN-086, to report by 23:30), the print kit (PLAN-087, by 23:00) and the text, now part 2, the labels on the screens (PLAN-089 opened, by 22:30). The fixes for the known gaps of the day's screens (REP-111 section 4) wait for the owner's play of 1.20.0, so that what he finds goes into the same piece of work."
+    },
+    {
+      "at": "2026-11-12 20:08",
+      "text": "PLAN-087 (the print kit) built and merged (d1f5f01): npm run verify PASS (735 tests passed, 1 skipped); every deck, both trackers and the update pack print on rules 18 in the app's card design; the cards match the app's side by side. Not done: a proof print on paper; every page looked at by the session (the helper looked at most). Still open for the owner: tracker 1 or 2; the guest back, which has no approved design; the 3.5 mm dots on customer cards against 15 mm fruit pieces. The printed files are in print/kit, print/update-18 and print/tracker-test."
+    },
+    {
+      "at": "2026-11-12 21:10",
+      "text": "Merged for the next release (1.21.0, not prepared yet): the stamp book's first version with Results, Trophies, Wardrobe and Home (PLAN-086, 8515872, with its price tags, awning colour and shopkeeper pictures wired into the day's screens), the labels on the screens (PLAN-089, 21d4e72) and the print kit (PLAN-087). npm run verify on the merged code (21d4e72: the stamp book, the labels and the print kit together): 74 files, 802 tests passed, 1 skipped. npm run test:e2e on 21d4e72, two helpers sharing the machine: solo game to the results with no errors; performance budget OK on the script's second try (231 ms, then 154 ms, limit 200); online match 72 pricing frames, 0 leaks; quick match; four players; reconnect 5 of 5. The rematch step failed because the test script tapped a note that holds the words \"play again\" after the label rewrite; with the script pointed at the button (961aac1) the online test passes alone: 70 frames, 0 leaks, rematch, abandoned match, no page errors. The whole run is repeated on the release build. The privacy page now names the stamp book's counts (09b4abc). PLAN-090 opened: two helpers fix the known gaps of 1.20.0 on the day's sheets and on the table, to report by 22:30. For the owner to decide with the release: the Home page's first customer in place of an event, old games counted as 3 stamps each, the 14 feat titles, the stocking button's new words, and the wording list from the text work."
+    },
+    {
+      "at": "2026-11-12 21:44",
+      "text": "DEC-107: Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\". A stall's purchases are now drawn only while buying is going on; the helper on the table makes it its first fix, the text helper rewords How to play, and RULES.md is reworded in four places by the session. The engine and the rules version are unchanged. The owner also said \"okay now go through all the required changes\": read as go ahead with the whole list; where a label is drawn on a board he approved, the board's words are restored (the stocking button returns to \"Open my stall\"); Home's first page and old games at 3 stamps each stand as built unless he says otherwise."
+    },
+    {
+      "at": "2026-11-12 22:07",
+      "text": "Release 1.21.0 prepared as a candidate (REP-112; PLAN-086, PLAN-089, PLAN-090; DEC-107) on 050fb22: npm run verify PASS (819 tests passed, 1 skipped); npm run test:e2e PASS. On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5. The owner's ruling on purchases is in: marks only while buying, with a test and RULES.md reworded. The approved boards' words were restored where the label rewrite had changed them. Not published: awaiting the owner's word; the full checks on the CI machines run after the merge to main."
+    },
+    {
+      "at": "2026-11-12 22:51",
+      "text": "PLAN-091 opened: Owner, 2026-11-12: \"continue all the works needed to be done from when i rushed earlier\". Read as the finishing pass on the work cut short on 12 November, not as the word to publish 1.21.0. Three helpers started from 1cbcc7c: the day's screens, the stamp book, and RULES.md's words. The session updated the creative bible (setting per DEC-087, eight shopkeepers, card pictures, the voice), the game brief (rules 18, 2 to 6 stalls, accounts optional, no purchases), the store listing and the online notes (accounts optional). PLAN-084 and PLAN-085: the owner has seen the screens (he played 1.20.0) — PASS."
+    },
+    {
+      "at": "2026-11-12 23:13",
+      "text": "DEC-108: Owner, 2026-11-12, answering two questions on the printed game (how a stall is paid at the table: the guidebook's way or the rulebook's crier paying from the bank; and whether the guidebook keeps \"45 to 90 minutes\"): \"1 follow guidebook\", \"2 keep it\". RULES.md's crier paragraph now follows the guidebook (each stall adds its own price to its cash track) and its opening line says a cash track, not coins. PLAN-091: RULES.md's words merged (ba448be) after the session read every change (no rule, number or meaning changed) and fixed four lines that still contradicted DEC-107 and the event table; the printed guidebook's text brought in line with DEC-107, the Charmer's limits and the glossary (6baf5f7)."
+    },
+    {
+      "at": "2026-11-12 23:17",
+      "text": "Owner, 2026-11-12: \"i also dislike the listing style animation / flow during the rush\". The rush's list of offers under each customer card (the Rush board, built in PLAN-084) is to be redrawn. Three mock-ups put to him (docs/studio/review-18/mockups, Rush-A, Rush-B, Rush-C): A, at the stalls (no sheet; the customer's ticket lifts in the row, pieces fly from the stall boxes, coins land on their cash, one line says what happened); B, the street (the stalls as counters side by side, cheapest on the left, the customer walks along them); C, who sold (the customer card and only the stalls that sold, a tap shows how it was decided). Nothing is built until he chooses; the day helper was told to leave the rush card alone."
+    },
+    {
+      "at": "2026-11-12 23:32",
+      "text": "REP-113 (analysis): owner, 2026-11-12: \"analyse if standing order makes sense with the cost involved\". 1,500 computer games each at 3, 4 and 6 stalls (Normal) and 1,000 at 4 stalls (Hard), plus a paired test of bidding styles: a careful bid is worth about $1 to $1.60 a game over never bidding; wild low bids lose $4 to $32; winning bids sit at 65 to 74% of the highest bid; about half of mango orders find no bidder and half of those taken fail. Options put to him: leave it, show the sums on the bid sheet (no rule change), or change mango orders or the reward (rules version 19, after a balance run). Nothing changed. Also put to him: three layouts of his idea for the rush, the customer in the middle with the open crates round them (Rush-D round table, Rush-E market square, Rush-F price ring, in docs/studio/review-18/mockups)."
+    },
+    {
+      "at": "2026-11-12 23:59",
+      "text": "DEC-109: Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\". PLAN-092 opened; a helper builds it from the board. Owner, same message, on standing orders: \"add +2 to max bid and reduce stake by -2 for all standing order cards, how would this affect balance and fix mango orders\". Read as a question before a rules change: the proposal (blueberry $11 / $4, watermelon $14 / $6, apple $13 / $5, mango $20 / $10) is being measured with the rules 18 balance scripts (patch orderPlus2) at 3, 4 and 6 stalls and with Hard computers; nothing in the game is changed until he decides on the results (REP-114)."
+    },
+    {
+      "at": "2026-11-13 00:14",
+      "text": "REP-114 (analysis of the owner's standing-order proposal, highest bid +$2 and stake -$2): mango orders with no bidder fall only 4 to 6 points (56% to 52% at 4 stalls); the higher top bid hardly moves winning bids; careful bidding is worth a little more; low bids are punished much less; shopkeeper balance unchanged within the noise. Not a fix for mango orders. Options put to him: keep the numbers and show the sums, take the proposal, or a direct mango fix (due in 3 days, one piece fewer, or no mango cards), each to be measured first. Nothing changed."
+    },
+    {
+      "at": "2026-11-13 01:22",
+      "text": "PLAN-091 (finishing pass) merged and checked: the stamp book part (dc47462), the day-screens part (41fc7b0), RULES.md (ba448be), the print kit rebuilt and every page looked at (cbcab10). verify PASS (830 tests); e2e PASS. The owner was sent a recording of Days 1 to 3 and pictures of every step and of Home, Results, Trophies and the Wardrobe (candidate 1.21.0). STATE.md shortened to what is needed to resume. Waiting: the round-table rush (PLAN-092), and the owner's answers on publishing 1.21.0 and on standing orders."
+    },
+    {
+      "at": "2026-11-13 02:42",
+      "text": "PLAN-092 (the rush as a round table, DEC-109) merged (0185fb6) and checked: verify PASS (838 tests), e2e PASS (0 leaks), the helper's frame-by-frame check 37 runs with 0 problems, seen by me at both sizes with 2, 4 and 6 stalls. Store screenshots redone for the new screens (56b8fde). Candidate 1.21.0 now holds PLAN-086, 089, 090, 091 and 092 (REP-115). The owner was sent a recording of Days 1 to 3 and pictures of every step of the day. Not published: waiting for his word, and for his choice on standing orders (REP-113, REP-114)."
+    },
+    {
+      "at": "2026-11-13 07:55",
+      "text": "Records tidy: delivery of twelve decisions brought up to date with the plans that built them. Released: DEC-064 and DEC-065 (PLAN-049, 1.8.0); DEC-087, DEC-090 to DEC-093, DEC-095 and DEC-096 (PLAN-083, PLAN-085 and PLAN-088, 1.20.0; the print kit, PLAN-087, is built but not published). Implemented in candidate 1.21.0: DEC-097 (Home), DEC-099 (the stamp book's first version) and DEC-103 (stocking and the takings released in 1.20.0; Results, the stamp book, trophy cards and the Wardrobe in 1.21.0). PLAN-087 T3 now PASS: every page of the kit, the update pack and the trackers was looked at by me on the final card text (PLAN-091 T5, cbcab10)."
+    },
+    {
+      "at": "2026-11-13 08:19",
+      "text": "DEC-110 approved by the owner's own words: every seat at the rush shows its stall's whole crate and loses each piece a customer takes; the morning's lorry card shows this table's row only. Built as PLAN-093 into candidate 1.21.0. The owner also asked whether checks ran overnight (none on GitHub since 1.20.0; verify and e2e ran on this machine until 02:40) and what is pending (answered from the records; twelve decisions' delivery tidied)."
+    },
+    {
+      "at": "2026-11-13 08:46",
+      "text": "DEC-111 approved by the owner's own words: an Auto load button when filling the crate. Built as PLAN-094 into candidate 1.21.0. The owner asked whether the Wardrobe and unlockables are fixed: answered from PROGRESSION.md section G and PLAN-086 (the first version is in candidate 1.21.0, not live; the weekly goal, card backs, table themes and rewards from level 12 up are later steps). The speed test (perf-budget) stalled once for 25 minutes in the e2e run on d98afc4; it was stopped, and the same test then finished with BUDGET OK; the full e2e is run again."
+    },
+    {
+      "at": "2026-11-13 08:47",
+      "text": "Correction to the line of 08:46: the speed test in the e2e run on d98afc4 started at 08:29 and was stopped by me at about 08:40, so it ran about 11 minutes, not 25, and it was not shown to be stuck; the run has no result (NOT RUN). The full e2e is run again on ac3d804 with its start and end times logged."
+    },
+    {
+      "at": "2026-11-13 09:00",
+      "text": "DEC-112: the owner said \"push it live\". PLAN-093 and PLAN-094 recorded: verify PASS (841 tests on ac3d804); e2e PASS (npm run test:e2e on ac3d804 (08:47 to 09:00): solo game to the results, no errors; performance budget OK (longest task 193 ms against 200, 0.99 slow frames in 1). Release 1.21.0 now holds PLAN-086, 089, 090, 091, 092, 093 and 094 (REP-117). Next: pull request to main, CI, then the Deploy LIVE game workflow."
     }
   ]
 }

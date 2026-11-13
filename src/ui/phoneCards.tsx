@@ -4,14 +4,14 @@
 // round its focus point, and the same numbers, names and text as the full card. Drawing only. Styles: cards.css.
 import type { ComponentChildren } from 'preact';
 import {
-  FAVOURS, FRUIT, PREF_INFO, UPGRADES, lookOf, prefOf,
-  type FarmerCard, type FavourId, type FruitId, type OrderCard as OrderDef, type UpgradeId,
+  FAVOURS, FRUIT, PREF_INFO, lookOf, prefOf,
+  type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef,
 } from '../engine/data';
 import { Coin } from './art';
 import { LANES } from './boardModel';
 import { ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass, lorryNotes, lorryRow, type CardLine } from './cards';
 import {
-  GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, upgradeArt, upgradeFocus, type Focus,
+  GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, type Focus,
 } from './deckArt';
 import type { NewsChip } from './eventChips';
 import { FruitSvg } from './fruitIcons';
@@ -58,12 +58,11 @@ export function EventTicket({ card, n, art, focus, chips, children }: {
 
 // ---------- the morning: today's lorry ----------
 
-const SIZES = [2, 3, 4, 5, 6] as const;
-
 /**
- * Today's lorry as the morning shows it: its lanes carry the pieces for every table size, with this table's row boxed.
- * `card`: today's lorry card, when it is known (boardModel.todaysLorry). `today`: what was really unloaded, given when
- * an event changed the load or the card is not known; it is then the boxed row, labelled "Today", above the card's rows.
+ * Today's lorry as the morning shows it: one row of its lanes, what it unloads at this table (the owner, 2026-11-13:
+ * only the row that applies; the printed card, cards.tsx LorryCard, keeps every table size). `card`: today's lorry
+ * card, when it is known (boardModel.todaysLorry). `today`: what was really unloaded, given when an event changed the
+ * load or the card is not known; that row is then labelled "Today" in place of the card's row for this table.
  */
 export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   card: FarmerCard | null; stalls: number; today?: Record<FruitId, number>;
@@ -71,7 +70,8 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   green: FruitId | null; ripeIn: number;
 }) {
   const on = lorryRow(stalls);
-  const said = LANES.map((f) => piecesOf(today ? today[f] : card ? card.table[on][f] : 0, f).toLowerCase()).join(', ');
+  const load = today ?? (card ? card.table[on] : null);
+  const said = LANES.map((f) => piecesOf(load ? load[f] : 0, f).toLowerCase()).join(', ');
   // What arrives green and when it ripens, then the Seconds Lorry's word on the rest.
   const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive green`] : [];
   const notes = [first, green ? `Ripe in ${ripeIn} nights` : '', ...rest].filter(Boolean);
@@ -81,15 +81,10 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
       <div class="wc-lt" role="img" aria-label={`Today's delivery${card ? ` (${card.name})` : ''}: ${said}`}>
         <span />
         {LANES.map((f) => <span class={`wc-lt-h ${laneClass(f)}`}><FruitSvg id={f} size={14} alt="" /></span>)}
-        {/* What really came goes first, so it is in view before the card's printed rows. */}
-        {today && [
-          <span class="wc-lt-l on">Today</span>,
-          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), 'on', !today[f] && 'nil')}>{today[f]}</span>),
+        {load && [
+          <span class="wc-lt-l on">{today ? 'Today' : `${on} stalls`}</span>,
+          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), 'on', !load[f] && 'nil')}>{load[f]}</span>),
         ]}
-        {card && SIZES.map((n) => [
-          <span class={cx('wc-lt-l', n === on && (today ? 'mark' : 'on'))}>{`${n} stalls`}</span>,
-          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), n === on && !today && 'on', !card.table[n][f] && 'nil')}>{card.table[n][f]}</span>),
-        ])}
       </div>
       {notes.length > 0 && <footer class="wc-foot">{notes.join(' · ')}</footer>}
     </article>
@@ -143,7 +138,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
   return (
     <article class={cx('wc', 'wc-cust', guest && 'guest')}>
       <header class="wc-kind">
-        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : order ? 'Standing order' : guest ? 'Special guest' : 'Customer'}</span>
+        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : order ? 'Standing order' : guest ? 'Guest' : 'Customer'}</span>
         <span>{order ? 'Due today' : PREF_INFO[pref].title}</span>
       </header>
       <div class="wc-body">
@@ -159,7 +154,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
           ))}
         </div>
       </div>
-      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
+      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
         <i class="wc-lamp">F</i>
         <i class={cx('wc-lamp', !okay && 'off')}>O</i>{!order && <span class={okay ? '' : 'no'}>{`−$${OKAY_LESS}`}</span>}
         <i class={cx('wc-lamp', !soft && 'off')}>S</i>{!order && <span class={soft ? '' : 'no'}>{`−$${SOFT_LESS}`}</span>}
@@ -168,27 +163,11 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
   );
 }
 
-// ---------- the evening: upgrade offers and the favour cards you hold ----------
+// ---------- the evening: the favour cards you hold ----------
 
-/**
- * An upgrade on offer in the evening: label, picture, name, cost, the card's text, and the Build button at its foot
- * (a built upgrade says so instead). `why`: the reason it cannot be built now (null: it can).
- */
-export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned?: boolean; why?: string | null; onBuild: () => void }) {
-  const d = UPGRADES[id];
-  return (
-    <article class={cx('uo', owned && 'owned')}>
-      <span class="uo-kind">Upgrade</span>
-      <CardArt class="uo-pic" src={upgradeArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(id)} />
-      <b class="uo-nm">{d.title}</b>
-      <span class="uo-cost">{`$${d.cost}`}</span>
-      <span class="uo-tx">{d.text}</span>
-      {owned
-        ? <span class="uo-ft">Built</span>
-        : <button type="button" class="uo-buy" disabled={!!why} title={why ?? ''} onClick={onBuild}>{`Build $${d.cost}`}</button>}
-    </article>
-  );
-}
+/** When a favour card you hold is played, on its band as the evening shows it: the approved Evening board's words
+ *  ("Play in the evening"). The printed card says it under "When to play" (cards.tsx FAVOUR_WHEN), and is unchanged. */
+export const FAVOUR_BAND: Record<FavourDef['when'], string> = { ...FAVOUR_WHEN, evening: 'Play in the evening' };
 
 /**
  * A favour card you hold, as the evening shows it. The whole card is one button: it opens the card, where it can be
@@ -197,11 +176,11 @@ export function UpgradeOffer({ id, owned, why, onBuild }: { id: UpgradeId; owned
 export function FavourMini({ id, ready, onOpen }: { id: FavourId; ready?: boolean; onOpen: () => void }) {
   const d = FAVOURS[id];
   return (
-    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_WHEN[d.when]}. ${d.text}`}>
+    <button type="button" class={cx('fav', ready && 'ready')} onClick={onOpen} aria-label={`Favour card: ${d.title}. ${FAVOUR_BAND[d.when]}. ${d.text}`}>
       <span class="fav-kind"><span>Favour</span><b>Secret</b></span>
       <CardArt class="fav-pic" src={favourArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={favourFocus(id)} />
       <span class="fav-nm">{d.title}</span>
-      <span class="fav-when">{FAVOUR_WHEN[d.when]}</span>
+      <span class="fav-when">{FAVOUR_BAND[d.when]}</span>
       <span class="fav-tx">{d.text}</span>
       {ready && <span class="fav-play">{`Play ${d.title}`}</span>}
     </button>

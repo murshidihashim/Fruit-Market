@@ -1,55 +1,28 @@
 // The bell and the Favoured Trade question (rules 15 and 18; PLAN-085, the approved Favoured-Trade screen). Both are
 // steps of the one sheet that stays on the table from stocking to the day's takings (DaySheet.tsx).
-// Before the bell a rival's crate is shut: only how many pieces it put out is known (PricingTableView). At the bell
-// every stall's row shows its price tags (CratesOpen), stall by stall in today's line-up. A stall that holds Favoured
+// Before the bell a rival's crate is shut: only how many pieces it put out is known. At the bell every stall's row
+// shows its price tags (CratesOpen), stall by stall in today's line-up. A stall that holds Favoured
 // Trade and has a tied price is then asked, under the open rows, whether to play it (TieCard).
 // Nothing here reads a rival's crate or price before the flip (pricingTable.ts bellRows returns nothing until then).
 import type { ComponentChildren } from 'preact';
 import type { GameState } from '../../../engine/game';
 import { tiedPrices } from '../../../engine/game';
 import { FAVOURS, FRUIT } from '../../../engine/data';
+import { tagOf } from '../../../net/looks';
 import { Fruit } from '../../art';
+import { shownAvatar } from '../../looks';
 import { STAGE_LETTER, STAGE_WORD, Swatch } from '../../ticket';
-import { bellRows, nth, pricingTable, type BellRow } from '../pricingTable';
+import { bellRows, nth, type BellRow } from '../pricingTable';
 import { listOf, tieStory } from '../tieStory';
 
-const pieces = (n: number) => `${n} ${n === 1 ? 'piece' : 'pieces'}`;
 /** At most this many freshness letters stand on a price tag; "+2" stands for the rest. */
 const MAX_TAG_MARKS = 3;
-
-/** The rivals' crates in turn order after you, shut.
- *  `waiting`: you have opened your stall and the rivals are still opening theirs (flow A, PLAN-065): a crate then
- *  shows only whether that rival has opened. */
-export function PricingTableView({ s, viewer, waiting }: { s: GameState; viewer: number; waiting?: boolean }) {
-  const rivals = pricingTable(s, viewer).seats.filter((x) => !x.me);
-  if (!rivals.length) return null;
-  return (
-    <section class={`crates tk-crates shut n${rivals.length} ${waiting ? 'waiting' : ''}`} aria-label="Every rival's crate, shut until the bell: only how many pieces each put out">
-      {rivals.map((x) => {
-        const pl = s.players[x.player];
-        const opening = waiting && s.stalls[x.player] === null;
-        const n = x.out ?? 0;
-        const label = waiting ? `${pl.name} ${opening ? 'is still opening' : 'has opened'}`
-          : `${pl.name}: ${n ? `${pieces(n)} out, which fruit is secret until the bell` : 'nothing out'}${x.sealed ? ', prices sealed' : ', not sealed yet'}`;
-        return (
-          <div key={`c${x.player}`} class={`crate tk-crate ${x.sealed ? 'sealed' : ''} ${opening ? 'opening' : ''}`} role="group" aria-label={label}>
-            <span class="tk-crate-name"><Swatch p={x.player} size={18} /><span>{pl.name}</span>{x.sealed && <i class="tk-sealed" aria-hidden="true">sealed</i>}</span>
-            <span class="tk-crate-count">
-              {waiting ? <small>{opening ? 'opening…' : 'ready'}</small>
-                : n ? <><b>{n}</b><small>{n === 1 ? 'piece out' : 'pieces out'}</small></> : <small>nothing out</small>}
-            </span>
-          </div>
-        );
-      })}
-    </section>
-  );
-}
 
 /** What a stall's row says aloud once it is open: "Saleh: 1 mangoes at $10, 1 apples at $5", and its tied prices in
  *  the game's words ("tied: apples at $5 with Rosa"). */
 const rowSaid = (s: GameState, x: BellRow, shared?: boolean) => {
   const ties = tieWords(s, x.player);
-  return `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'nothing out'}${ties ? `; tied: ${ties}` : ''}`;
+  return `${x.me && !shared ? 'Your crate' : s.players[x.player].name}: ${x.tags.length ? x.tags.map((t) => `${t.out} ${FRUIT[t.f].plural.toLowerCase()} at $${t.price}`).join(', ') : 'empty crate'}${ties ? `; tied: ${ties}` : ''}`;
 };
 
 /**
@@ -59,14 +32,16 @@ const rowSaid = (s: GameState, x: BellRow, shared?: boolean) => {
  * not turned yet shows the backs of its tags and nothing else. `shared`: several people share this phone, so a
  * stall's row carries its name and not "You".
  */
-export function CratesOpen({ s, viewer, open = null, shared, children }: {
-  s: GameState; viewer: number; open?: number | null; shared?: boolean; children?: ComponentChildren;
+export function CratesOpen({ s, viewer, open = null, shared, answered, children }: {
+  s: GameState; viewer: number; open?: number | null; shared?: boolean;
+  /** This stall has just answered the Favoured Trade question: its card said who is tied, so it is not told again. */
+  answered?: boolean; children?: ComponentChildren;
 }) {
   const rows = bellRows(s, viewer);
   // Your own tied prices in the game's words, under the rows, when the rush is next (while a Favoured Trade question
   // is asked, its card says who is tied). It keeps its place while the bell rings and fades in once every row is
   // open: a tie is not told before the rival's row has turned. Not on a shared phone, where "your" is nobody's.
-  const tied = !shared && s.phase === 'reveal' ? tieWords(s, viewer) : '';
+  const tied = !shared && !answered && s.phase === 'reveal' ? tieWords(s, viewer) : '';
   const told = open === null || open >= rows.length;
   return (
     <div class="ds-bell" role="status" aria-label="The bell: every crate is open">
@@ -81,14 +56,14 @@ export function CratesOpen({ s, viewer, open = null, shared, children }: {
           return (
             <div key={`o${x.player}`} class={`ds-stall ${x.me ? 'me' : ''} ${up ? 'up' : 'down'}`} role="group" data-a={`bell-p${x.player}`}
               aria-label={up ? rowSaid(s, x, shared) : `${x.me && !shared ? 'Your crate' : pl.name}: still shut`}>
-              <Swatch p={x.player} who={pl.avatar} look={pl.look} size={30} />
+              <Swatch p={x.player} who={shownAvatar(s.players, x.player)} look={pl.look} size={30} />
               <span class="ds-nm"><b>{x.me && !shared ? 'You' : pl.name}</b><small>bought {nth(x.nth)}</small></span>
               <span class="ds-tags">
-                {!x.tags.length && up && <span class="ds-none">nothing out</span>}
+                {!x.tags.length && up && <span class="ds-none">empty crate</span>}
                 {x.tags.map((t) => (up ? (
-                  <span class={`ds-pz ${t.tied ? 'tie' : ''} ${t.stamped ? 'stamped' : ''}`} data-a={`bell-${x.player}-${t.f}`}>
+                  <span class={`ds-pz ${t.tied ? 'tie' : ''} ${t.stamped ? 'stamped' : ''} tg-${tagOf(pl.look)}`} data-a={`bell-${x.player}-${t.f}`}>
                     <Fruit id={t.f} size={18} /><b>${t.price}</b>
-                    <span class="ds-marks" role="img" aria-label={`${t.out} out: ${t.marks.map((st) => STAGE_WORD[st]).join(', ')}`}>
+                    <span class="ds-marks" role="img" aria-label={`${t.out} in the crate: ${t.marks.map((st) => STAGE_WORD[st]).join(', ')}`}>
                       {t.marks.slice(0, MAX_TAG_MARKS).map((st) => <i class={`ds-lamp st-${st}`}>{STAGE_LETTER[st]}</i>)}
                       {t.out > MAX_TAG_MARKS && <em>+{t.out - MAX_TAG_MARKS}</em>}
                     </span>

@@ -7,9 +7,9 @@ import {
   beginBuying, emptyStock, finishReveal, forSale, newGame, rowCount, openStall, submitPrices,
   type Customer, type GameState, type LineResult,
 } from '../src/engine/game';
-import { closingLeftovers, dayHighlights, explainLine, gameRecap, noSaleReason, rivalReaction } from '../src/engine/story';
+import { closingLeftovers, explainLine, gameRecap, noSaleReason } from '../src/engine/story';
 import { toStaticHtml } from '../src/ui/cards';
-import { RushView } from '../src/ui/game/panels/Showdown';
+import { RushView } from '../src/ui/game/panels/RushTable';
 import { rushCards } from '../src/ui/game/rush';
 import { endBuying, settleTies } from './stall-step';
 
@@ -78,7 +78,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const st = explainLine(s, l, 0);
     expect(st.headline).toBe(`Price too high. ${wei} pays at most $4.`);
     expect(st.headline).not.toContain('too old');
-    expect(st.tags[0]).toBe('over top price $4');
+    expect(st.tags[0]).toBe('over $4');
     // The control: the same fresh apples at $4 sell.
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [4, 0, 0])), 0).sold).toBe(2);
   });
@@ -119,7 +119,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     expect(offerOf(line(bell(start, 'apple', [2, 0, 0], [7, 0, 0])), 0).sold).toBe(2); // Tan's top is $6; the display sells at $7
     const s = bell(start, 'apple', [2, 0, 0], [8, 0, 0]);
     const st = explainLine(s, line(s), 0);
-    expect(st.tags[0]).toBe('over top price $7');
+    expect(st.tags[0]).toBe('over $7');
     expect(st.headline).toContain('pays at most $7 for Fresh, with your Premium Display');
     expect(st.headline).not.toContain('too old');
   });
@@ -143,16 +143,12 @@ describe('offers that did not qualify are not in the price contest', () => {
     start.players[1].stock.apple[rosaPos] = 2;
     return bell(start, 'apple', [mine === null ? 0 : 2, 2, 0], [mine ?? 0, rosa, 0]);
   }
-  const quips = (pool: keyof typeof ROSA.lines) => ROSA.lines[pool];
 
   it('your over-the-top offer was not "undercut" or "edged out", today or in the recap', () => {
     const s = weiDay(5, 4);
     expect(offerOf(line(s), 0).tooOld).toBe(true);
     const st = explainLine(s, line(s), 0);
     expect(st.headline).not.toMatch(/undercut|Tie/);
-    expect(dayHighlights(s, 0).map((x) => x.text).join(' ')).not.toMatch(/edged you out|undercut/);
-    const r = rivalReaction(s, line(s), 0, new Set());
-    expect(r === null || !quips('undercut').includes(r.text)).toBe(true);
     // Two such days in the history: no "$0 sale", no "undercut", no "took 2 customers".
     const t = finishReveal(s);
     t.history = [t.history![0], { ...t.history![0], day: 2 }];
@@ -164,9 +160,6 @@ describe('offers that did not qualify are not in the price contest', () => {
     const over = weiDay(4, 5);
     expect(offerOf(line(over), 1).tooOld).toBe(true);
     expect(explainLine(over, line(over), 0).headline).toBe('Sold 2 at $4.');
-    expect(dayHighlights(over, 0).map((x) => x.text).join(' ')).not.toContain('You beat');
-    const r = rivalReaction(over, line(over), 0, new Set());
-    expect(r === null || ![...quips('stung'), ...quips('lost')].includes(r.text)).toBe(true);
     const t = finishReveal(over);
     expect(gameRecap(t, 0).best.join(' ')).not.toContain('You beat');
     // Rosa's okay apples at $4 cannot sell to Wei at his top, so a Haggler on your side won no tie.
@@ -458,19 +451,20 @@ describe('Closing Day recap', () => {
   });
 });
 
-describe('Showdown card', () => {
-  it('does not say "You offer 0" for fruit that did not qualify', () => {
+describe('the rush at the round table', () => {
+  it('does not say "You offer 0" for fruit that did not qualify: the crate says why it cannot sell', () => {
     const start = market(['Wei Jie', 'apple']);
     start.players[0].stock.apple[FRESH('apple')] = 2;
     start.players[1].stock.apple[FRESH('apple')] = 2;
     const s = bell(start, 'apple', [2, 2, 0], [5, 4, 0]);
     const l = line(s);
-    // The customer's card in the rush (PLAN-084: one card for each customer, built from the day's results).
+    // The customer at the round table (PLAN-092: built from the day's results and the open crates).
     const card = rushCards(s, 0).find((c) => c.blocks.some((b) => b.line === l))!;
-    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', row: [], served: [] } }));
-    expect(html).toContain('none qualify');
+    const html = toStaticHtml(h(RushView, { s, a: { card, n: 1, of: 1, stage: 'result', at: 0, served: [] }, viewer: 0 }));
     expect(html).not.toMatch(/offer 0/);
-    expect(html).toContain('over top price $4');
-    expect(html).toContain('2 offered');
+    // your crate is over the customer's price; it still shows its two pieces
+    const mine = html.split('data-a="rt-crate-0"')[1].split('data-a="rt-fav-')[0];
+    expect(mine).toContain('over $4');
+    expect(mine).toContain('aria-label="In the crate: 2 apples (fresh)"');
   });
 });

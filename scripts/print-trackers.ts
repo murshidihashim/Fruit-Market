@@ -1,5 +1,6 @@
-// Test prints of the two ways to track freshness on the table (PLAN-080, REP-103). No rule changes: both trackers
-// follow the fruit lives in the game data (src/engine/data.ts) and the ageing rules in RULES.md as they stand.
+// Test prints of the two ways to track freshness on the table (PLAN-080, REP-103; rules version 18, PLAN-087). No rule
+// changes: both trackers follow the fruit lives, costs and limits in the game data (src/engine/data.ts) and the ageing
+// rules in RULES.md as they stand. Both stay test packs until the owner has tried them and chosen one (DEC-089).
 //   npx vite-node scripts/print-trackers.ts [outdir]      (normally: print/tracker-test)
 // Writes two PDFs:
 //   1 Ruler: fruit stays in the column it was bought into and a loose ruler slides one column a night.
@@ -10,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
-import { FRUIT, stageAt, type FruitId, type Stage } from '../src/engine/data';
+import { BARROW_SHELF, BASE_SHELF, FRUIT, JUICE_CAP, stageAt, type FruitId, type Stage } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
 import { fruitSvgString } from '../src/ui/fruitIcons';
 
@@ -31,8 +32,10 @@ const LONGEST = Math.max(...LANES.map((f) => boxes(f).length));
 const fruit = (f: FruitId, mm: number) => `<span class="fr" style="width:${mm}mm;height:${mm}mm">${fruitSvgString(f, 'fresh', 32)}</span>`;
 const lamp = (st: Stage) => `<i class="lamp" style="background:${TINT[st]}">${LETTER[st]}</i>`;
 const foot = (what: string) => `<div class="foot">Fruit Market · freshness tracker test · rules version ${RULES_VERSION} (no rule changes) · ${what} · print at 100% (actual size)</div>`;
+/** What Okay and Soft fruit sell for under the customer's price: the same for every fruit (data.ts FRUIT.drop, oldest first). */
+const [SOFT_LESS, OKAY_LESS] = FRUIT.apple.drop;
 const KEY = `<div class="key"><b class="lab">What a piece sells for</b>
-  <span>${lamp('unripe')} Green: cannot be sold</span><span>${lamp('fresh')} Fresh: the customer's price</span><span>${lamp('okay')} Okay: $1 less</span><span>${lamp('notso')} Soft: $2 less</span></div>`;
+  <span>${lamp('unripe')} Green: cannot be sold</span><span>${lamp('fresh')} Fresh: the customer's price</span><span>${lamp('okay')} Okay: $${OKAY_LESS} less</span><span>${lamp('notso')} Soft: $${SOFT_LESS} less</span></div>`;
 
 const BASE_CSS = `
 @font-face { font-family: 'Archivo'; font-weight: 500; src: url('${FONT('archivo', 'archivo-latin-500-normal.woff2')}') format('woff2'); }
@@ -142,7 +145,7 @@ function rulerHtml(): string {
       <li><b>Bell.</b> Flip your price tags. Move your shutter back to the second black line: your crate shows, your shelf stays hidden. To read a piece, look up its column to the ruler, in that fruit's row.</li>
       <li><b>Rush.</b> Sell as now. The oldest piece that is fresh enough goes first: that is the one furthest left.</li>
       <li><b>After the rush.</b> Shutter back to the first line. <b>Unsold pieces stay where they are.</b></li>
-      <li><b>Night.</b> Every stall and the market slide the ruler <b>one column right</b>, together, where everyone can see. Then throw away any piece under &times; or left of the ruler (a Juice Bar juices up to two of them).</li>
+      <li><b>Night.</b> Every stall and the market slide the ruler <b>one column right</b>, together, where everyone can see. Then throw away any piece under &times; or left of the ruler (a Juice Bar juices up to ${JUICE_CAP} of them).</li>
     </ol>
     <h2 class="disp">Special nights and cards</h2>
     <ul>
@@ -252,7 +255,7 @@ function trayHtml(): string {
       <li><b>Bell.</b> Flip your tags and slide <b>the whole tray</b> out in front of your shutter. Every piece is on its own letter.</li>
       <li><b>Rush.</b> Sell as now. The oldest piece that is fresh enough goes first: that is the one furthest left.</li>
       <li><b>After the rush.</b> Pull the tray back onto its bay. <b>Unsold pieces stay on the tray.</b> Wipe your tags.</li>
-      <li><b>Night.</b> Every piece on your tray and your shelf, and on the market mat, slides <b>one box left</b>. A piece that leaves the S box is thrown away (a Juice Bar juices up to two of them).</li>
+      <li><b>Night.</b> Every piece on your tray and your shelf, and on the market mat, slides <b>one box left</b>. A piece that leaves the S box is thrown away (a Juice Bar juices up to ${JUICE_CAP} of them).</li>
     </ol>
     <h2 class="disp">Special nights and cards</h2>
     <ul>
@@ -268,7 +271,7 @@ function trayHtml(): string {
     <header class="bar"><b class="disp">Stall · tray tracker</b><span class="lab">The front of the table is at the top · one sheet for each stall</span></header>
     <div class="band" style="margin-top:2mm"><span><b>Shutter.</b> It stands in front of this sheet all game</span><span>Counter and cash are in front of it</span></div>
     <div class="bay">${tray()}<div class="here"><div><b class="disp">Crate tray bay</b><p>Your tray lies here until the bell, and comes back here after the rush.</p></div></div></div>
-    <div class="block"><div class="bhead"><b class="disp">Shelf</b><span class="lab">Kept back, always hidden · newest fruit on the right · 8 pieces in all, tray and shelf (10 with a Handcart)</span></div>${LANES.map((f) => lane(f, false)).join('')}</div>
+    <div class="block"><div class="bhead"><b class="disp">Shelf</b><span class="lab">Kept back, always hidden · newest fruit on the right · ${BASE_SHELF} pieces in all, tray and shelf (${BARROW_SHELF} with a Handcart)</span></div>${LANES.map((f) => lane(f, false)).join('')}</div>
     ${KEY}
     <p class="rule"><b>Buy:</b> the shelf box with the same letter and place as on the market mat. <b>Stock:</b> straight forward onto the tray. <b>Bell:</b> the whole tray comes out. <b>After the rush:</b> the tray comes back; unsold pieces stay on it.</p>
     <p class="rule"><b>Night:</b> every piece on the tray and the shelf slides one box left. A piece that leaves the S box is thrown away. Heatwave: two boxes. Monsoon Downpour: none.</p>

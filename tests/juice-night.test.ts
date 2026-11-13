@@ -6,7 +6,7 @@ import {
   activePlayer, applyAction, beginBuying, emptyStock, finishReveal, leavingTonight, newGame, nightOutlook,
   type GameState, type Level,
 } from '../src/engine/game';
-import { dayHighlights, heatwaveLine, overnightJuice, overnightLines, overnightLoss, tonightLine, tonightText } from '../src/engine/story';
+import { heatwaveLine, overnightJuice, overnightLines, overnightLoss, tonightLine, tonightText } from '../src/engine/story';
 import { evaluate, type Context } from '../src/ui/achievements';
 import { spoilsTonight } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
@@ -147,10 +147,8 @@ describe('tonight in words', () => {
     expect(heatwaveLine(salesCard(10, [0, 3], [], true), 0)).toBeNull(); // the final day: no night follows
   });
 
-  it('fruit that spoils tonight is not a day highlight: the sales card\'s own line says it once (DEC-087)', () => {
-    const texts = (s: GameState) => dayHighlights(s, 0).map((x) => x.text);
-    for (const s of [salesCard(4, [2], ['juicebar']), salesCard(4, [5], ['juicebar']), salesCard(4, [0, 3], [], true), salesCard(4, [3])]) expect(texts(s).join(' ')).not.toMatch(/spoil/);
-    // The same facts, Heatwave counted, on the card's line above the highlights.
+  it('the sales card\'s own line says what spoils tonight, once (DEC-087)', () => {
+    // Heatwave counted.
     expect(tonightLine(salesCard(4, [5], ['juicebar']), 0)).toBe('3 spoil tonight, 2 become juice (+$4)');
     expect(tonightLine(salesCard(4, [0, 3], [], true), 0)).toBe('3 fruit spoil tonight');
     expect(tonightLine(salesCard(4, [3]), 0)).toBe('3 fruit spoil tonight');

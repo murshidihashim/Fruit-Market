@@ -37,7 +37,7 @@ Beat six markets of tougher rivals, unlock achievements and new awning colours.
 📅 DAILY CHALLENGE
 The same market for everyone, every day. Climb the daily leaderboard, keep your streak going and share your result.
 
-✅ No ads. No accounts. Solo play works offline.
+✅ No ads. Accounts are optional. Solo play works offline.
 
 Designed by Murshidi bin Md Hashim, from the original Fruit Market board game.
 

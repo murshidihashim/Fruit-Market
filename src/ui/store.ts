@@ -73,9 +73,9 @@ export function loadGame(): GameState | null {
     const olderDaily = !!game?.config?.daily && (env.ai ?? 1) !== AI_VERSION;
     if (env.rules === RULES_VERSION && game && !olderDaily) return game;
     saveNotice = env.rules !== RULES_VERSION
-      ? 'Your unfinished game was from an older version of the rules, so it couldn\'t be resumed.'
+      ? 'Your unfinished game used older rules and could not be continued.'
       : olderDaily
-        ? 'Your unfinished daily challenge was from an older version of the game, so it couldn\'t be resumed.'
+        ? 'Your unfinished Daily market game was from an older version and could not be continued.'
         : 'Your unfinished game couldn\'t be read, so it was cleared.';
     write(K.save, null);
     return null;
@@ -89,6 +89,10 @@ export function loadGame(): GameState | null {
 
 export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION, game: g } satisfies SaveEnvelope) : null);
 
+/** Forgets the games played and the Daily dates on this phone (PLAN-090: signing out). The stamp book works its
+ *  stamps for games played and Daily markets out from them, so the next person on the phone must not keep them, as
+ *  they do not keep the trophies. An account holds both and brings them back on sign-in. */
+export function clearPlayed() { write(K.stats, null); write(K.daily, null); }
 export const loadDaily = () => read<DailyRecord>(K.daily, {});
 export const saveDaily = (d: DailyRecord) => { write(K.daily, d); profileChanged(); };
 
@@ -119,14 +123,3 @@ export function todayKey(d = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Consecutive days (ending today or yesterday) with a daily challenge played. */
-export function dailyStreak(rec: DailyRecord, today = new Date()): number {
-  let n = 0;
-  const d = new Date(today);
-  if (rec[todayKey(d)] === undefined) d.setDate(d.getDate() - 1);
-  while (rec[todayKey(d)] !== undefined) {
-    n++;
-    d.setDate(d.getDate() - 1);
-  }
-  return n;
-}

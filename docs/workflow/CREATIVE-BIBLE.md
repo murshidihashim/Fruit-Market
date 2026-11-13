@@ -1,22 +1,27 @@
 # Fruit Market · creative bible (short)
 
-Updated 2026-10-26 (Asia/Kuala_Lumpur). Sources: REP-010, REP-011. Status of each part is shown.
+Updated 2026-11-12 22:50 (Asia/Kuala_Lumpur). Sources: REP-010, REP-011, REP-101 (voice), REP-104 (cards). Status of each part is shown.
 Creative approval never means implementation approval; changes to the game go through a PLAN.
 
-## Identity (owner approved, DEC-017)
-**A sunny harbour market where the whole world comes to shop.** The mix is deliberate:
-- **Customers** come from every culture and every flight of fancy: astronauts, cowboys, vampires,
-  grandpas, mermaids. Names and roles mix freely; no culture is tied to a role or a cliché.
-- **The look** is a seaside market: terracotta awnings, harbour teal, olive, saffron, cream. A
-  harbour that trades with everywhere explains why apples, mangoes, blueberries and watermelons sit side by side.
+## Identity (owner approved, DEC-017; setting and voice replaced by DEC-087)
+**A Malaysian market: a pasar with a wholesale market behind it, where a town's people come to shop.** DEC-087 (2026-11-11) replaced the earlier "sunny harbour market where the whole world comes to shop". Character lines and event names lean Malaysian (kenduri, pasar malam, kopitiam, kampung); character names stay. The mix is deliberate:
+- **Customers** are the town's people, each with a job or a hobby (a firefighter, a baker, a postman, a herbalist).
+  Names and roles mix freely; no culture is tied to a role or a cliché.
+- **The look** is the Market Ticket card design (DEC-081; design A in DEC-095): ink, mustard, kraft and the four fruit colours,
+  with flat pictures built from the game's own shapes (DEC-091, DEC-094).
 - **Money** is plain market dollars ($), the same for every visitor, not a real-world currency.
-- **Shopkeepers** are six human stallholders: Rosa, Uncle Benny, Ah Chen, Saleh, Raj and Kiki (DEC-064, which renamed Kiran and added the familiar titles),
+- **Shopkeepers** are eight human stallholders: Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki, Pak Din and Farah (DEC-064 renamed Kiran and added the familiar titles),
   changed from animal traders by the owner (DEC-040, which replaces DEC-018's animal rule). Their personality shows in their lines, not in how they play (cosmetic).
 
 ## Design pillars (owner approved, DEC-015)
 1. **Fresh fruit, fast money:** every decision is a race against spoilage.
 2. **Outprice rivals in secret:** commit a price blind, then see the reveal.
 3. **A cheerful town market:** playful, short sessions, readable on a phone.
+
+## Voice (owner approved, DEC-087)
+Plain and short on every card and screen: rules in plain sentences, one short concrete line per character, no shouted headlines,
+puns or exclamation marks. The words to use are in `docs/studio/review-17/text/GLOSSARY.md`. Where a label is drawn on a board the
+owner approved, the board's words win (2026-11-12).
 
 ## Cast rules (owner direction, DEC-018)
 - Shopkeeper names are a first name, with a familiar title only where the owner chose one (Uncle Benny, Ah Chen; DEC-064). No real-world surnames or
@@ -33,22 +38,24 @@ Creative approval never means implementation approval; changes to the game go th
 ## Samples
 - **Character:** *Grandpa Tan* (cosmetic). Cardigan, cane, paper bag; wants a fair price; remembers
   when apples cost ten cents. On a full-price sale: "Ten dollars? In my day…"
-- **Event:** *Health Inspector*. A clipboard at night; every Not-so fruit costs $2, which teaches
+- **Event:** *Health Inspector*. Before buying, every Soft piece on your shelf costs $2, which teaches
   "sell old fruit first".
-- **Key screen:** the reveal. Price boards flip highest to lowest, coins fly to the winner, and the losing
-  offer is tagged "$1 too high".
+- **Key screen:** the rush. One card for each customer, every stall's offer under it in price order; the fruit travels
+  to the customer and the coins back to the stall.
 
 ## Cast coherence (owner approved: T1 and DEC-040, rules DEC-041, 2026-10-28)
 
-**Theme: townsfolk of the harbour market (DEC-039, T1).** Every character is an ordinary person with a job or a
+**Theme: townsfolk of the market (DEC-039, T1; setting as in DEC-087).** Every character is an ordinary person with a job or a
 hobby and one playful detail. Nobody is an animal, creature, robot or monster. Costumes are only what a job
 or hobby needs (a baker's hat, a rider's helmet).
 
-- **Shopkeepers (6):** a first name (familiar titles as approved in DEC-064); the perk shows in their lines and manner, not their species.
-- **Customers (36 + 3 event customers):** the owner's own playful names (DEC-065): a first name with a playful nickname (Bobby Books, Ravi Rocket, Marina Wen) or a job title (Firefighter Osman, Baker Lakshmi), plus a quirk that says what the person *does* (never who they are). Guests stay "The Influencer", "The Gym Club", "The Hotel Chef" (DEC-064).
+- **Shopkeepers (8):** a first name (familiar titles as approved in DEC-064); the perk shows in their lines and manner, not their species.
+- **Customers (36, plus 5 guests who come with their events):** the owner's own playful names (DEC-065): a first name with a playful nickname (Bobby Books, Ravi Rocket, Marina Wen) or a job title (Firefighter Osman, Baker Lakshmi), plus a quirk that says what the person *does* (never who they are). Guests are named for what they are: The Influencer, The Gym Club, The Hotel Chef, The Wedding Caterer, The Bakery (DEC-064).
 - **Diversity:** names and roles mix freely across cultures; no culture is tied to a role or a cliche (DEC-017).
   Respectful titles (Mak, Pak, Auntie) are used only when a character's own manner calls for it.
-- **Portrait rules** (tied to `docs/ART-STYLE.md`): a 16x16 head and shoulders with a 1 pixel ink outline; one face
+- **Card pictures** (DEC-094): every customer, guest, event, shopkeeper, favour and upgrade has a drawn picture in the approved style
+  (`docs/studio/art-drafts/cards-18`, `public/art-ticket`). The old pixel portraits below are kept only where the game still draws a small face.
+- **Old portrait rules** (tied to `docs/ART-STYLE.md`): a 16x16 head and shoulders with a 1 pixel ink outline; one face
   template for everyone; a person is told apart by hair, one accessory, skin tone and shirt colour; skin tones
   from the shared set; every colour from `src/ui/palette.ts`; light from the top left; no text and no creature parts.
 - **One source:** the screen, the printed cards, the character pick and the gallery draw the same portraits from the

@@ -8,7 +8,7 @@ import { emptyStock, forSale, newGame, oldestCrate, outCount, publicView, type C
 import { RULES_VERSION } from '../src/net/protocol';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
-import { CratesOpen, PricingTableView } from '../src/ui/game/panels/PricingTable';
+import { CratesOpen } from '../src/ui/game/panels/PricingTable';
 import { PricePanelView, startingPrices } from '../src/ui/panel';
 import { rivalNote } from '../src/ui/table';
 
@@ -140,15 +140,6 @@ describe('pricing without peeking (believe)', () => {
 
 describe('on screen', () => {
   const view = (s: GameState) => publicView(s, 0);
-
-  it('a rival crate is shut while prices are set: how many pieces, not which fruit', () => {
-    const html = toStaticHtml(h(PricingTableView, { s: view(bell({ mango: 2 })), viewer: 0 }));
-    expect(html).toContain('2</b><small>pieces out');
-    expect(html).toContain('1</b><small>piece out');
-    expect(html).toContain('which fruit is secret until the bell');
-    expect(html).not.toMatch(/mango|blueberr/i);
-    expect(html).not.toContain('97');
-  });
 
   it('the pricing screen says the same thing whatever a rival really put out', () => {
     const draw = (s: GameState) => toStaticHtml(h(PricePanelView, {

@@ -53,23 +53,25 @@ export const BEAT = {
   /** Labels over a stall: the pop as one appears; how long a played favour or a built upgrade stays up; a favour card
    *  won in the rush; a bonus tip; a "+$7" floating up; a message at the bottom of the screen. */
   label: { pop: 280, read: 1100, favourWon: 800, bonus: 500, float: 1300, toast: 2000 },
-  /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece). */
-  stock: { fly: 260 },
+  /** Filling your crate: a piece from the shelf row to the crate, and back (flow study D3: 260 ms a piece); with
+   *  "Auto load", the gap between two pieces leaving the shelf. */
+  stock: { fly: 260, gap: 70 },
   /** Pricing: your price tags turn face down as you ring the bell (flow study D3: seal 200 ms). */
   price: { seal: 200 },
   /** The bell (flow study D3): the bell swings and sounds (`swing`); then stall by stall, `gap` apart, a row lifts
    *  (`lid`) and its price tags turn face up (FEEL.turn); then a pause to read. About 2.6 s at four stalls. "No sales
    *  today"; the older crate's turn (motion.css). */
-  bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100, crateTurn: 400 },
+  bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100 },
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
   tie: { ask: 600, stamp: 180, pause: 600 },
-  /** One customer in the rush (rush.ts rushPace; flow study D3): the customer's card slides in from the row, the
-   *  stalls' offers turn up under it, and for each fruit wanted the pieces go to the card (`pieceGap` apart, FEEL.travel
-   *  each) and the coins come back (`coinGap` apart, FEEL.coin each). A further fruit starts `fruit` after the one
-   *  before. The result is then held to be read and the card slides back. A favour card won slides to its stall
-   *  while the result is read. About 2.4 s for one fruit and 0.5 s more for each further fruit. */
-  rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 500, read: 1000, cardOut: 200, favour: 340 },
+  /** One customer at the round table (rush.ts rushPace; DEC-109): the customer comes from the row to the middle
+   *  (`cardIn`), every crate's price tag turns to the fruit they want (`rows`), the pieces go from the crates to the
+   *  customer (`pieceGap` apart, FEEL.travel each) and the coins come back (`coinGap` apart, FEEL.coin each). Fruit by
+   *  fruit, as the game serves them: once a fruit's coins are back the tags turn to the next (`fruit`). The result is
+   *  then held to be read and the customer goes back. A favour card won slides to its stall's crate while the result
+   *  is read. About 2.4 s for one fruit and about 1 s more for each further fruit. */
+  rush: { cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 300, read: 1000, cardOut: 200, favour: 340 },
   /** The night (PLAN-085, about 2.5 s): dusk falls over the table, every piece slides one box along its lane, a beat
    *  to settle, a moment to read (a Juice Bar's coins travel then, `gap` apart), the last beat before dawn; a piece
    *  leaving the last box tips off over `spoil`; in the stylesheet, the sky darkening and the dusk over the market
@@ -93,7 +95,7 @@ export const BEAT = {
 /** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */
 export const CSS_MS: Record<string, number> = {
   travel: FEEL.travel, coin: FEEL.coin, turn: FEEL.turn, 'sheet-in': FEEL.sheetIn, 'sheet-out': FEEL.sheetOut, count: FEEL.countStep,
-  land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp, 'crate-turn': BEAT.bell.crateTurn,
+  land: BEAT.piece.land, 'news-turn': BEAT.morning.newsTurn, stamp: BEAT.morning.stamp,
   'rush-rows': BEAT.rush.rows, 'bell-lid': BEAT.bell.lid,
   sky: BEAT.night.sky, dusk: BEAT.night.duskFade, rise: BEAT.night.rise, 'rise-after': BEAT.night.riseAfter,
   lorry: BEAT.lorry.drive, 'lorry-off': BEAT.lorry.off,

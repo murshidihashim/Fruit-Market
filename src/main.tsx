@@ -5,7 +5,7 @@ import './ui/ticket-ui.css';
 import './ui/stalls.css';
 import './ui/sheets.css';
 import './ui/motion.css';
-import './ui/rush.css';
+import './ui/rushTable.css';
 import './ui/daysheet.css';
 import './ui/bell.css';
 import './ui/takings.css';

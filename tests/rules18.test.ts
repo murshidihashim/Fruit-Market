@@ -728,7 +728,10 @@ describe('G. today\'s purchases are public until the bell', () => {
     expect(atBell('easy', melons)).toEqual({ watermelon: 2 });
   });
 
-  it('on screen: each rival\'s box shows fruit marks with counts from buying until the bell, and the pop-up lists them', () => {
+  // The owner's ruling after playing the live game (it replaces "on show until the bell", DEC-086, on the screen):
+  // "players can only see what others buy during buying phase, it is hidden afterwards". Beside a crate being filled
+  // the marks read as the crate's contents. Only the drawing changed: the tests above still hold the game's own data.
+  it('on screen: each rival\'s box shows fruit marks with counts while stalls buy and not afterwards, and the pop-up the same', () => {
     let s = bought();
     // What the rival's box and its pop-up draw (table.tsx RivalStall and RivalDrop), from this stall's own view.
     expect(boughtToday(publicView(s, 1), 0)).toEqual([{ f: 'mango', n: 1, green: 1 }, { f: 'apple', n: 1, green: 0 }]);
@@ -736,13 +739,18 @@ describe('G. today\'s purchases are public until the bell', () => {
     expect(boughtToday(redact(s, 2), 0)).toEqual(boughtToday(publicView(s, 1), 0)); // online, every phone gets the same
     // A rival that bought nothing shows nothing.
     expect(boughtToday(publicView(s, 0), 1)).toEqual([]);
-    // After the bell the marks are gone (the crates are open by then).
+    // From stocking on nothing of it is drawn, for a rival or for the stall itself, on any phone ...
     while (s.phase === 'buy') s = engine.endBuyTurn(s, activePlayer(s));
+    expect(s.phase).toBe('stall');
+    for (const view of [publicView(s, 1), redact(s, 2), publicView(s, 0)]) expect(boughtToday(view, 0)).toEqual([]);
+    // ... although the game still holds it until the bell (what a stall may know has not changed)
+    expect(publicView(s, 1).players[0].boughtFruit?.apple?.some((n) => n > 0)).toBe(true);
     s = openStall(s, 0, { apple: 1 });
-    expect(boughtToday(publicView(s, 1), 0)).toHaveLength(2); // still pricing
+    expect(s.phase).toBe('bid');
+    expect(boughtToday(publicView(s, 1), 0)).toEqual([]); // pricing
     s = submitPrices(s, 0, [{ fruit: 'apple', price: 5 }]);
     expect(s.phase).toBe('reveal');
-    expect(boughtToday(publicView(s, 1), 0)).toEqual([]);
+    expect(boughtToday(publicView(s, 1), 0)).toEqual([]); // the bell
   });
 
   it('whole computer games: a rival\'s shelf, crate before the bell, prices and bid amounts never reach another seat', () => {
@@ -865,20 +873,20 @@ describe('H. rulings', () => {
     s.phase = 'over';
     [60, 60, 20].forEach((c, i) => { s.players[i].cash = c; s.players[i].stats.sold = 7; });
     expect(finishWords(s, 0)).toEqual({
-      win: true, shared: true, headline: 'YOU SHARE THE WIN WITH P1', margin: 'Level on cash and on fruit sold.',
+      win: true, shared: true, headline: 'You share the win with P1', margin: 'Level on cash and on fruit sold.',
       medals: ['1ST', '1ST', '3RD'], mine: 'I shared the win',
     });
-    expect(finishWords(s, 2)).toMatchObject({ win: false, headline: 'P0 AND P1 SHARE THE WIN', mine: 'I came 3rd' });
+    expect(finishWords(s, 2)).toMatchObject({ win: false, headline: 'P0 and P1 share the win', mine: 'I came 3rd' });
     expect(standing(s, 0)).toMatchObject({ rank: 1, text: 'Tied with P1' });
     expect(standing(s, 1)).toMatchObject({ rank: 1, text: 'Tied with P0' });
     expect(standing(s, 2)).toMatchObject({ rank: 3 });
     // A single winner reads as before.
     s.players[0].cash = 61;
-    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'YOU WIN!', margin: 'By just $1. What a finish!', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
-    expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 WINS!', mine: 'I came 2nd' });
+    expect(finishWords(s, 0)).toMatchObject({ win: true, shared: false, headline: 'You win', margin: 'By $1.', medals: ['1ST', '2ND', '3RD'], mine: 'I won' });
+    expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 wins', mine: 'I came 2nd' });
     // Level on cash, not on fruit sold: one winner, as before.
     s.players[0].cash = 60; s.players[0].stats.sold = 8;
-    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 WINS!', margin: 'A dead heat, decided on fruit sold!' });
+    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 wins', margin: 'Tied on cash. Decided by fruit sold.' });
     // Fifth and sixth place have a name too.
     const six = bare(6);
     six.phase = 'over';
@@ -932,7 +940,7 @@ describe('H. rulings', () => {
     s.event = ev('glut');
     expect(cost()).toEqual([1, 1, 1]);
     expect(marketCost(s, 'apple', FRESH('apple'))).toBe(3); // only blueberries
-    expect(ev('glut').text).toContain('Blueberries cost $1 less at the Wholesale Market (never below $1).');
+    expect(ev('glut').text).toContain('Blueberries cost $1 less to buy (never below $1).');
     // A Price Hike day is unaffected by the new field.
     s.event = ev('priceHike');
     expect(cost()).toEqual([3, 2, 2]);
@@ -1312,7 +1320,7 @@ describe('online (the room server)', () => {
     expect(hs.room.d.game!.phase).toBe('stall');
     expect(a.view!.submitted).toEqual([false, true]); // Ben is not being waited for
     await b.say({ t: 'act', id: nid(), v: b.view!.version, action: { kind: 'stall', stall: {} } });
-    expect(b.errors.slice(-1)[0]).toBe('You have no ripe fruit to put out today');
+    expect(b.errors.slice(-1)[0]).toBe('You have no ripe fruit to sell today');
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'stall', stall: { apple: 2 } } });
     expect(hs.room.d.game!.phase).toBe('bid'); // the stocking step ended with Ana's crate alone
     expect(a.view!.submitted).toEqual([false, true]);

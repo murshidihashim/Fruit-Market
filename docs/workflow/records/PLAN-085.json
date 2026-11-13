@@ -47,7 +47,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The designs are the boards in docs/studio/review-18/mockups: Pricing and Favoured-Trade (DEC-090 to DEC-095), Buying with the market as lanes (DEC-094), Stocking, Takings and the awning strip (DEC-103: \"okay approve all 3\").",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-085",
   "title": "Release A, package 3, part 2: one sheet from stocking to the takings; the market, the stalls, buying, the lorry and the night",
   "problem": "Between stocking and the takings the market flashes back and the table blinks four times; stocking and the takings are old layouts. The Wholesale Market is a shortened list, not the board's lanes; the customer row grows when walk-ins turn face up; at night two rows vanish and the table jumps; fruit and crates appear instead of travelling.",
@@ -104,8 +104,8 @@
     {
       "id": "T7",
       "text": "The owner has seen the screens",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner played release 1.20.0 on the live game on 2026-11-12 and ruled on what he saw (DEC-107: a rival's purchases hidden after buying); pictures sent with REP-110 and REP-111."
     }
   ]
 }

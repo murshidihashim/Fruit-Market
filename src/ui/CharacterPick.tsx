@@ -48,7 +48,6 @@ export function CharacterPickView({ value, taken = {}, seat, dx = 0, drag = fals
 }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
   const go = (d: number) => onStep?.(d);
-  const me = RIVALS[at];
   return (
     <div class="char-pick" role="group" aria-label="Choose your shopkeeper">
       <div class="cp-stage" aria-live="polite" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
@@ -69,7 +68,6 @@ export function CharacterPickView({ value, taken = {}, seat, dx = 0, drag = fals
           );
         })}
       </div>
-      <p class="cp-quip" key={me.avatar}>{`“${me.quip}”`}</p>
       <div class="cp-nav">
         <button type="button" class="cp-arrow" aria-label="Previous shopkeeper" onClick={() => go(-1)}>‹</button>
         {hint

@@ -20,6 +20,8 @@ export const PATCHES: Record<string, () => void> = {
   stakeHigh: () => stakes({ blueberry: 9, watermelon: 12, apple: 10, mango: 18 }),
   mangoStake9: () => { for (const c of ORDER_CARDS) if (c.fruit === 'mango') c.stake = 9; },
   mangoStake8: () => { for (const c of ORDER_CARDS) if (c.fruit === 'mango') c.stake = 8; },
+  /** The owner's proposal of 2026-11-12: every card's highest bid $2 higher and its stake $2 lower (REP-114). */
+  orderPlus2: () => { for (const c of ORDER_CARDS) { c.ceiling += 2; c.stake -= 2; } },
   // ----- fruit and decks -----
   apples: () => { for (const n of APPLE_LORRIES) for (const k of [3, 4, 5, 6] as Stalls[]) lorry(n).table[k].apple += 1; },
   // ----- events -----

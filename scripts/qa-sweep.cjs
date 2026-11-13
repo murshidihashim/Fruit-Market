@@ -92,6 +92,8 @@ function audit() {
   const browser = await chromium.launch();
   const report = [];
   const errors = [];
+  /** Each Favoured Trade question met, by size, and how it was answered. */
+  const answers = [];
   for (const [label, w, h] of SIZES) {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, hasTouch: w < 800 });
     const page = await ctx.newPage();
@@ -107,31 +109,51 @@ function audit() {
     const has = async (t) => (await page.locator(t).count()) > 0;
     try {
       await check('home');
-      await page.click('text=How to play');
+      await page.click('button:has-text("How to play")');
       await check('howto-1');
       for (let i = 2; i <= 9 && (await has('button.btn.primary:has-text("Next")')); i++) { await page.click('button.btn.primary:has-text("Next")'); await check(`howto-${i}`); }
       await page.click('.icon-btn');
-      await page.click('text=Settings'); await check('settings');
+      await page.click('button:has-text("Settings")'); await check('settings');
       await page.click('.icon-btn');
-      await page.click('text=Trophies'); await check('trophies');
-      await page.click('.icon-btn').catch(() => {});
-      await page.click('text=New game'); await check('setup');
-      await page.click('text=Start game');
+      await page.click('button:has-text("Trophies")'); await check('trophies');
+      // Trophies has the stamp book's own back arrow (PLAN-086)
+      await page.click('.sbk-back');
+      await page.click('button:has-text("New game")'); await check('setup');
+      await page.click('button:has-text("Start game")');
       const seen = new Set();
       const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
+      let asked = 0;
       for (let i = 0; i < 700 && !(await has('.results')); i++) {
         try {
           if (await has('.trait-card')) { if (once('trait')) await check('shopkeeper'); await page.click('.trait-card'); continue; }
-          if (await has('text=Start buying')) { if (once('morning')) await check('morning'); await page.click('text=Start buying'); continue; }
-          if (await has('text=/Done buying|Skip buying/')) { if (once('buy')) await check('buying'); await page.click('text=/Done buying|Skip buying/'); continue; }
+          if (await has('button:has-text("Start buying")')) { if (once('morning')) await check('morning'); await page.click('button:has-text("Start buying")'); continue; }
+          if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
+            if (once('buy')) await check('buying');
+            // Buy some fruit (as the performance script does), so that there is something to stock and price, and a
+            // price can tie with a rival's: the Favoured Trade step below only comes up then.
+            const pick = page.locator('.mk-cell.pick');
+            if (await pick.count() && Math.random() < 0.7) { await pick.first().click(); continue; }
+            await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
+            continue;
+          }
           // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
           if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
           // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
           if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+          // The Favoured Trade step (rules 18): a stall that holds the card and has a tied price is asked after the flip,
+          // with two buttons, "Play it" and "Keep it" (the one-button step below cannot press either). Wherever a tie
+          // happens it is swept once; the card is played the first time and kept the next, so both answers are played.
+          if (await has('[data-a="tie-note"]') && await has('.pp-lock .btn.ghost')) {
+            if (once('tie')) await check('favoured-trade');
+            const play = asked++ % 2 === 0;
+            await page.click(play ? '.pp-lock .btn.primary' : '.pp-lock .btn.ghost');
+            answers.push(`${label}: ${play ? 'played' : 'kept'}`);
+            continue;
+          }
           const lock = page.locator('.pp-lock .btn:not([disabled])');
           if (await lock.count()) { if (once('pricing')) await check('pricing'); await lock.click(); if (once('reveal')) { await page.waitForTimeout(2600); await check('reveal'); } continue; }
-          if (await has('text=Lights out')) { if (once('evening')) await check('evening'); await page.click('text=Lights out'); continue; }
-          for (const t of ['Close for the day', 'Final results']) if (await has(`text=${t}`)) { if (once('summary')) await check('summary'); await page.click(`text=${t}`); break; }
+          if (await has('button:has-text("Lights out")')) { if (once('evening')) await check('evening'); await page.click('button:has-text("Lights out")'); continue; }
+          for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) await check('summary'); await page.click(`button:has-text("${t}")`); break; }
           await page.waitForTimeout(100);
         } catch { await page.waitForTimeout(150); }
       }
@@ -149,8 +171,10 @@ function audit() {
     lines.push('');
   }
   const page = report.filter((r) => r.pageOverflow).map((r) => `${r.size}/${r.screen}`);
-  lines.push(`## page scrolls sideways: ${page.length ? page.join(', ') : 'none'}`, '', `## script errors: ${errors.length ? '\n' + errors.map((e) => '- ' + e).join('\n') : 'none'}`);
-  fs.writeFileSync(`${outDir}/qa-report.json`, JSON.stringify({ report, errors }, null, 1));
+  lines.push(`## page scrolls sideways: ${page.length ? page.join(', ') : 'none'}`, '');
+  lines.push(`## Favoured Trade questions: ${answers.length ? answers.join(', ') : 'none came up in these games'}`, '');
+  lines.push(`## script errors: ${errors.length ? '\n' + errors.map((e) => '- ' + e).join('\n') : 'none'}`);
+  fs.writeFileSync(`${outDir}/qa-report.json`, JSON.stringify({ report, answers, errors }, null, 1));
   fs.writeFileSync(`${outDir}/qa-report.md`, lines.join('\n'));
   console.log(lines.join('\n'));
 })();

@@ -261,3 +261,42 @@
 }
 
 #app .tkt .tb-dock-head .tk-shelf i { font-style: normal; }
+
+/* ---------- touch areas (PLAN-090): at least 40 px where the layout allows ----------
+   Each is an unseen area laid over the thing and reaching a little past its edge. Nothing is moved or resized. */
+/* a lane's heading (22 px, 18 on a short phone): its area reaches up over the market's label, which opens nothing */
+#app .game.tkt .tb-lh { position: relative; overflow: visible; }
+#app .game.tkt .tb-lh > span { min-width: 0; overflow: hidden; }
+#app .game.tkt .tb-lh:not(:disabled)::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; top: -22px; }
+/* a box you can buy from: the boxes of a lane stand 3 px apart, so its area can only reach half-way to the next one
+   (a larger area would take the next box's taps); it stays as tall as the box and the gap */
+#app .game.tkt .tb-box.pick::before { content: ''; position: absolute; inset: -3.5px -4.5px; }
+/* tomorrow's customer (26 px, 22 on a short phone): up to the tickets and down to the band's edge */
+#app .game.tkt .tomorrow { overflow: visible; }
+#app .game.tkt .tomorrow .tm-chip:not(.tm-back) { position: relative; }
+#app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { content: ''; position: absolute; inset: -8px -2px -6px; }
+/* a favour card on your shelf (26 px): 7 px above and below, and to each side where it is only a picture */
+#app .game.tkt .tb-chips { overflow: clip; overflow-clip-margin: 7px; }
+#app .game.tkt .tb-chips .favchip { position: relative; }
+#app .game.tkt .tb-chips .favchip::before { content: ''; position: absolute; inset: -7px 0; }
+#app .game.tkt .tb-dock.c8 .tb-chips .favchip::before { inset: -7px; }
+@media (max-height: 779px) {
+  #app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { inset: -12px -2px -6px; }
+  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chips .favchip::before { inset: -7px; }
+}
+
+/* ---------- a standing order's strip does not move the rows (PLAN-090) ----------
+   The strip lies under tomorrow's customers from the morning an order is announced until it is delivered, and it used
+   to push the stalls, the lanes and everything under them down by its 34 px (28 and its 6 px margin) on that morning.
+   The customer band is now always as tall as it is with the strip on it: on a day without a standing order the row's
+   tickets take the strip's room for a taller picture (on the shortest phones, where the tickets have no picture while
+   a strip is there, the picture comes back). The tickets change with the day's new cards or under a sheet; the rows
+   below never move. Where the browser cannot tell whether the strip is there (:has), everything is as it was. */
+#app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 90px; }
+@media (max-height: 779px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 60px; }
+}
+@media (max-height: 650px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 34px; }
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street .tkc-pc { display: block; }
+}

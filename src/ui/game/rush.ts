@@ -1,16 +1,28 @@
-// The rush, one card for each customer (DEC-086): pure helpers that turn the day's results into the cards the rush
-// shows, one after another, and say how long each one takes. No drawing here; the card is panels/Showdown.tsx and
-// the timing runs in animator.tsx. Everything shown comes from the day's results and the open crates, which are public
-// once the bell has rung.
-import { FAVOURS, FRUIT, FRUITS, TRAITS, stageAt, type FavourId, type FruitId, type Stage } from '../../engine/data';
+// The rush as a round table (DEC-109; before it, one card for each customer, DEC-086): pure helpers that turn the day's
+// results into what the rush shows, customer after customer, where every stall's crate sits round the table, and how
+// long each step takes. No drawing here; the table is panels/RushTable.tsx and the timing runs in animator.tsx.
+// Everything shown comes from the day's results and the open crates, which are public once the bell has rung.
+import { FAVOURS, FRUIT, FRUITS, TRAITS, lookOf, stageAt, type FavourId, type FruitId, type Stage } from '../../engine/data';
 import { crateStock, eligible, servingCustomers, type Customer, type GameState, type LineResult, type Offer, type Stock } from '../../engine/game';
-import { customerReaction, rushLine } from '../../engine/story';
+import { rushLine } from '../../engine/story';
 import { LANES } from '../boardModel';
 import { GUEST_EVENT } from '../deckArt';
 import { BEAT, FEEL } from '../motion';
 
-/** A customer's card in the rush: it arrives, the stalls' offers turn up, the sales are shown, the result is read, it leaves. */
+/** A customer at the table: they come to the middle, the crates' tags turn to the fruit they want (fruit by fruit), the
+ *  sales are shown, the result is read, they leave. */
 export type RushStage = 'in' | 'rows' | 'result' | 'out';
+
+/** What the rush shows at a moment: the customer in the middle and the step they are at. */
+export interface ShowState {
+  /** The customer being served. */
+  card: RushCard;
+  n: number; of: number; stage: RushStage;
+  /** The fruit whose price tags are up on the crates: an index into card.blocks. */
+  at: number;
+  /** Customers already served in this rush (their tickets in the row are dimmed and ticked). */
+  served: number[];
+}
 
 /** One stall's offer of one fruit to the customer. */
 export interface RushRow {
@@ -25,8 +37,12 @@ export interface RushRow {
   /** Each piece it offered, in the order it would hand them over; for an offer that did not qualify, the pieces it had
    *  out. Null when that cannot be worked out. */
   pieces: Stage[] | null;
+  /** The same pieces as places in the crate (the board's boxes, oldest first): the first `sold` of them leave it. */
+  used: number[] | null;
   /** Did any of its pieces qualify for this customer at its price? */
   qualified: boolean;
+  /** Its place in the line of offers that can sell (1: it sells first), or 0 when it cannot sell. */
+  rank: number;
   sold: number;
   /** What it was paid: the price of each piece sold, and a Juice Bar's extra. */
   paid: number;
@@ -48,6 +64,9 @@ export interface RushBlock {
   none: string | null;
   /** How it went, in the words every stall at the table reads (story.ts rushLine). */
   story: string;
+  /** Every stall's open crate of this fruit as this customer finds it, by stall: the places of its pieces (the board's
+   *  boxes, oldest first), or null when that cannot be worked out. */
+  crates: (number[] | null)[];
 }
 
 export interface RushCard {
@@ -55,6 +74,8 @@ export interface RushCard {
   name: string;
   /** A walk-in or the day's regular, an event's special guest, or a standing order collected today. */
   kind: 'customer' | 'guest' | 'order';
+  /** A standing order: the stall that holds it, the only one it buys from (null for every other customer). */
+  holder: number | null;
   /** What the card prints: each fruit they came for today, with the price they pay for a fresh piece. */
   wants: { fruit: FruitId; qty: number; max: number }[];
   /** One block for each fruit, in the board's lane order. */
@@ -67,6 +88,10 @@ export interface RushCard {
   earned: number;
   /** The result line under the offers. */
   text: string;
+  /** Every stall's open crate as this customer finds it, by stall: for each fruit it has out, the places of its pieces
+   *  (the board's boxes, oldest first); null when that cannot be worked out. The round table draws each stall's whole
+   *  crate in its seat, and a piece leaves it when a customer takes it (the owner, 2026-11-13). */
+  stock: (Partial<Record<FruitId, number[]>> | null)[];
 }
 
 const fruitWord = (f: FruitId, n: number) => (n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase();
@@ -81,15 +106,41 @@ const copy = (s: Stock): Stock => Object.fromEntries(FRUITS.map((f) => [f, [...s
  */
 export function offeredPieces(s: GameState): Map<LineResult, (Stage[] | null)[]> {
   const out = new Map<LineResult, (Stage[] | null)[]>();
+  for (const [l, used] of replay(s).used) out.set(l, used.map((u) => u && u.map((pos) => stageAt(l.fruit, pos))));
+  return out;
+}
+
+/** What the day's sales played again give: for each line, the places of the pieces each offer handed over (`used`) and
+ *  every stall's crate of that fruit before the line (`before`); for each customer, every stall's whole crate before
+ *  the customer (`start`). */
+interface Replay {
+  used: Map<LineResult, (number[] | null)[]>;
+  before: Map<LineResult, (number[] | null)[]>;
+  start: Map<number, (Partial<Record<FruitId, number[]>> | null)[]>;
+}
+
+/** The day's sales played again on a copy of the open crates (see offeredPieces). */
+function replay(s: GameState): Replay {
+  const out = new Map<LineResult, (number[] | null)[]>();
+  const before = new Map<LineResult, (number[] | null)[]>();
+  const start = new Map<number, (Partial<Record<FruitId, number[]>> | null)[]>();
   const r = s.results;
-  if (!r || !s.crates) return out;
-  const crates = s.players.map((_, p) => copy(crateStock(s, p)));
+  if (!r || !s.crates) return { used: out, before, start };
+  // Only the open crates: a stall without one (it put nothing out) has an empty crate, never its shelf.
+  const crates = s.players.map((pl, p) => (s.crates?.[p] ? copy(crateStock(s, p)) : Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map(() => 0)])) as Stock));
   const customers = new Map(servingCustomers(s).map((c) => [c.id, c]));
   const lost = new Set<number>();
+  const places = (crate: Stock, f: FruitId) => crate[f].flatMap((n, pos) => (pos < FRUIT[f].ripe.length ? Array.from({ length: n }, () => pos) : []));
   for (const l of r.lines) {
     const c = customers.get(l.customerId);
     const f = l.fruit;
     const ripe = FRUIT[f].ripe.length;
+    // A customer's lines come together, so the crates before their first line are the crates as they find them.
+    if (!start.has(l.customerId)) {
+      start.set(l.customerId, crates.map((crate, p) => (lost.has(p) ? null
+        : Object.fromEntries(FRUITS.map((g) => [g, places(crate, g)]).filter(([, at]) => at.length)) as Partial<Record<FruitId, number[]>>)));
+    }
+    before.set(l, crates.map((crate, p) => (lost.has(p) ? null : places(crate, f))));
     const used = l.offers.map((o): number[] | null => {
       const crate = crates[o.player]?.[f];
       if (!c || !crate || lost.has(o.player)) return null;
@@ -107,10 +158,10 @@ export function offeredPieces(s: GameState): Map<LineResult, (Stage[] | null)[]>
       if (got.length !== o.qty || !got.length || Math.max(...got) !== o.freshness) { lost.add(o.player); return null; }
       return got;
     });
-    out.set(l, used.map((u) => u && u.map((pos) => stageAt(f, pos))));
+    out.set(l, used);
     l.offers.forEach((o, i) => { for (const pos of o.tooOld ? [] : used[i]?.slice(0, o.sold) ?? []) crates[o.player][f][pos]--; });
   }
-  return out;
+  return { used: out, before, start };
 }
 
 /** What a row says once its sale has been shown: "Sold 1", with the money for your own stall; otherwise why it did not sell. */
@@ -119,14 +170,17 @@ function rowResult(o: Offer, me: boolean, paid: number, tag: string): string {
   return me ? `Sold ${o.sold} · +$${paid}` : `Sold ${o.sold}`;
 }
 
-function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, pieces: (Stage[] | null)[] | undefined): RushBlock {
+function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, used: (number[] | null)[] | undefined, crates: (number[] | null)[] | undefined): RushBlock {
   const story = rushLine(s, l);
+  let rank = 0;
   const rows = l.offers.map((o, i): RushRow => {
     const me = o.player === viewer;
     const paid = o.sold * o.price + (o.juice ?? 0);
+    const u = used?.[i] ?? null;
     return {
       i, player: o.player, me, price: o.price, qty: o.qty, freshest: o.tooOld ? null : stageAt(l.fruit, o.freshness),
-      pieces: pieces?.[i] ?? null, qualified: !o.tooOld, sold: o.sold, paid, result: rowResult(o, me, paid, story.tags[i] ?? ''),
+      pieces: u && u.map((pos) => stageAt(l.fruit, pos)), used: u, qualified: !o.tooOld, rank: o.tooOld ? 0 : ++rank,
+      sold: o.sold, paid, result: rowResult(o, me, paid, story.tags[i] ?? ''),
     };
   });
   return {
@@ -135,6 +189,7 @@ function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, piece
     got: rows.reduce((a, x) => a + x.sold, 0),
     none: l.offers.length ? null : story.headline,
     story: [story.headline, story.detail].filter(Boolean).join(' '),
+    crates: crates ?? s.players.map(() => null),
   };
 }
 
@@ -146,12 +201,12 @@ function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, piece
 export function rushCards(s: GameState, viewer: number): RushCard[] {
   const r = s.results;
   if (!r) return [];
-  const pieces = offeredPieces(s);
+  const played = replay(s);
   const favours = [...r.favours];
   return servingCustomers(s).flatMap((c): RushCard[] => {
     const lines = r.lines.filter((l) => l.customerId === c.id);
     if (!lines.length) return [];
-    const blocks = [...lines].sort((a, b) => LANES.indexOf(a.fruit) - LANES.indexOf(b.fruit)).map((l) => blockOf(s, c, l, viewer, pieces.get(l)));
+    const blocks = [...lines].sort((a, b) => LANES.indexOf(a.fruit) - LANES.indexOf(b.fruit)).map((l) => blockOf(s, c, l, viewer, played.used.get(l), played.before.get(l)));
     const tips = [
       ...(r.earful ?? []).filter((x) => x.customer === c.name).map((x) => ({ ...x, trait: 'earful' as const })),
       ...(r.tipJar ?? []).filter((x) => x.customer === c.name).map((x) => ({ ...x, trait: 'favourite' as const })),
@@ -170,21 +225,15 @@ export function rushCards(s: GameState, viewer: number): RushCard[] {
       ...(won && won.player === viewer ? [`Favour card: ${FAVOURS[won.favour].title}.`] : []),
     ];
     return [{
-      customerId: c.id, name: c.name, kind: c.order ? 'order' : GUEST_EVENT[c.name] ? 'guest' : 'customer',
+      customerId: c.id, name: c.name, kind: c.order ? 'order' : GUEST_EVENT[c.name] ? 'guest' : 'customer', holder: c.order ? c.order.holder : null,
       wants: blocks.map((b) => ({ fruit: b.fruit, qty: b.want, max: b.line.max })),
       blocks, extras,
       favour: won ? { player: won.player, id: won.player === viewer ? won.favour : null } : null,
       earned: sold + mine.reduce((a, x) => a + x.tip, 0),
-      text: told.length ? told.join(' ') : `“${customerReaction(s, c.id, c.name)}”`,
+      text: told.length ? told.join(' ') : `${lookOf(c.name).title} leaves with nothing.`,
+      stock: played.start.get(c.id) ?? s.players.map(() => null),
     }];
   });
-}
-
-/** What a row's freshness marks say aloud: "2 offered: okay, fresh", or that none qualified. */
-export function rowSaid(row: RushRow, word: Record<Stage, string>): string {
-  if (!row.qualified) return 'none qualify';
-  const marks = row.pieces ?? (row.freshest ? [row.freshest] : []);
-  return `${row.qty} offered: ${[...new Set(marks)].map((st) => word[st]).join(', ')}`;
 }
 
 /** At most this many pieces of one sale travel to the card; the rest land with the last of them. */
@@ -195,32 +244,36 @@ export const MAX_COINS = 3;
 /** How many pieces travel to the card for one fruit. */
 export const piecesMoving = (b: RushBlock): number => b.rows.reduce((a, x) => a + Math.min(x.sold, MAX_PIECES), 0);
 
-/** How long one fruit's sale takes to show, in ms at normal speed: the pieces to the card, then the coins back. 0 when nothing sold. */
+/** How long one fruit's sale takes to show, in ms at normal speed: the pieces from the crates to the customer, then the
+ *  coins back. 0 when nothing sold. */
 export function blockSpan(b: RushBlock): number {
   const n = piecesMoving(b);
   return n ? (n - 1) * BEAT.rush.pieceGap + FEEL.travel + FEEL.coin : 0;
 }
 
-/** When each fruit's sale starts, in ms after the first: a fruit that sold starts `BEAT.rush.fruit` after the one before. */
+/** When each fruit's sale starts, in ms after the first. The customer is served fruit by fruit, as the game does: once a
+ *  fruit's coins are back, the crates' tags turn to the next fruit (`BEAT.rush.fruit`) and its sale starts. */
 export function blockStarts(card: RushCard): number[] {
   let at = 0;
-  return card.blocks.map((b) => {
+  return card.blocks.map((b, k) => {
+    if (k > 0) at += BEAT.rush.fruit;
     const start = at;
-    if (piecesMoving(b)) at += BEAT.rush.fruit;
+    at += blockSpan(b);
     return start;
   });
 }
 
 /**
  * How long each step of one customer takes at normal speed, in ms (the fast setting, a tap and Skip scale these down):
- * the card in from the row, the offers turned up, the sales shown, the result held to be read, the card back to the
- * row. About 2.4 s for a customer who buys one fruit, 0.5 s more for a second, and less for one nobody could serve.
- * The numbers are named in ../motion.ts (BEAT.rush, FEEL) with every other length.
+ * the customer in from the row, the crates' tags turned to the first fruit, the sales shown fruit by fruit, the result
+ * held to be read, the customer back to the row. About 2.4 s for a customer who buys one fruit, about 1 s more for a
+ * second, and less for one nobody could serve. The numbers are named in ../motion.ts (BEAT.rush, FEEL).
  */
 export function rushPace(card: RushCard): Record<'in' | 'rows' | 'sell' | 'read' | 'out', number> {
   const r = BEAT.rush;
   const starts = blockStarts(card);
-  return { in: r.cardIn, rows: r.rows, sell: Math.max(0, ...card.blocks.map((b, k) => (piecesMoving(b) ? starts[k] + blockSpan(b) : 0))), read: r.read, out: r.cardOut };
+  const k = card.blocks.length - 1;
+  return { in: r.cardIn, rows: r.rows, sell: k < 0 ? 0 : starts[k] + blockSpan(card.blocks[k]), read: r.read, out: r.cardOut };
 }
 
 /** The whole of one customer's card at normal speed, in ms. */
@@ -228,3 +281,74 @@ export function rushTotal(card: RushCard): number {
   const p = rushPace(card);
   return p.in + p.rows + p.sell + p.read + p.out;
 }
+
+// ---------- the round table: where every crate sits (DEC-109) ----------
+
+/** A box on the stage, in px from the stage's top left corner. */
+export interface Place { left: number; top: number; width: number; height: number }
+
+/** The table's sizes, in px. `round`: drawn in full, the crates round the customer (a tall phone). `close`: two columns
+ *  of crates either side of the customer (a small phone). A crate's size, and the customer's card at its largest
+ *  (three fruit lines); the card's width may shrink to fit between the columns. */
+export const TABLE = {
+  round: { crate: [98, 96], card: [150, 216] },
+  close: { crate: [104, 90], card: [140, 176] },
+  /** From the stage's edge to a crate, and between a crate and the customer. */
+  pad: 6, gap: 6,
+  /** The narrowest the customer's card may be drawn between two columns of crates. */
+  minCard: 116,
+} as const;
+
+/** Each seat, clockwise from the top left, as a point on a square whose sides run from -1 to 1. `round`: spread evenly
+ *  round the ring (for six: two above, two at the sides, two below). `close`: two columns either side. */
+const SEATS: Record<'round' | 'close', Record<number, [number, number][]>> = {
+  round: {
+    1: [[0, -1]],
+    2: [[-1, 0], [1, 0]],
+    3: [[0, -1], [1, 0.58], [-1, 0.58]],
+    4: [[-1, -1], [1, -1], [1, 1], [-1, 1]],
+    5: [[0, -1], [1, -0.32], [0.73, 1], [-0.73, 1], [-1, -0.32]],
+    6: [[-0.58, -1], [0.58, -1], [1, 0], [0.58, 1], [-0.58, 1], [-1, 0]],
+  },
+  close: {
+    1: [[-1, 0]],
+    2: [[-1, 0], [1, 0]],
+    3: [[-1, -1], [1, 0], [-1, 1]],
+    4: [[-1, -1], [1, -1], [1, 1], [-1, 1]],
+    5: [[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, 0]],
+    6: [[-1, -1], [1, -1], [1, 0], [1, 1], [-1, 1], [-1, 0]],
+  },
+};
+
+/** How the table is laid out on a stage of this size: each seat's crate (in seat order), the box the customer's card
+ *  stands in (centred), and whether it is the close form. Seats stay where they are for the whole rush. */
+export interface TableLay { close: boolean; seats: Place[]; card: Place; crate: { width: number; height: number } }
+
+const overlap = (a: Place, b: Place, gap: number) =>
+  a.left < b.left + b.width + gap && b.left < a.left + a.width + gap && a.top < b.top + b.height + gap && b.top < a.top + a.height + gap;
+
+export function tableLay(n: number, w: number, h: number): TableLay {
+  const { pad, gap } = TABLE;
+  const lay = (form: 'round' | 'close'): TableLay => {
+    const k = Math.max(1, Math.min(6, n));
+    const units = SEATS[form][k];
+    const perColumn = form === 'close' ? Math.max(1, ...[-1, 1].map((x) => units.filter((u) => u[0] === x).length)) : 1;
+    // Close: the crates shrink to fit three to a column on a short stage, and to leave the card its narrowest on a narrow one.
+    const cw = form === 'close' ? Math.min(TABLE.close.crate[0], Math.floor((w - 2 * pad - 2 * gap - TABLE.minCard) / 2)) : TABLE.round.crate[0];
+    const ch = form === 'close' ? Math.min(TABLE.close.crate[1], Math.floor((h - 2 * pad - (perColumn - 1) * gap) / perColumn)) : TABLE.round.crate[1];
+    const cardW = form === 'close' ? Math.max(TABLE.minCard, Math.min(TABLE.close.card[0], w - 2 * pad - 2 * gap - 2 * cw)) : TABLE.round.card[0];
+    const cardH = Math.min(TABLE[form].card[1], h - 2 * pad);
+    const seats = units.slice(0, n).map(([x, y]): Place => ({
+      left: Math.round(pad + (w - 2 * pad - cw) * (x + 1) / 2), top: Math.round(pad + (h - 2 * pad - ch) * (y + 1) / 2), width: cw, height: ch,
+    }));
+    return { close: form === 'close', seats, card: { left: Math.round((w - cardW) / 2), top: Math.round((h - cardH) / 2), width: cardW, height: cardH }, crate: { width: cw, height: ch } };
+  };
+  const round = lay('round');
+  const fits = round.seats.every((a, i) => a.left >= 0 && a.top >= 0 && a.left + a.width <= w && a.top + a.height <= h
+    && !overlap(a, round.card, gap) && round.seats.every((b, j) => j === i || !overlap(a, b, gap)));
+  return fits ? round : lay('close');
+}
+
+/** The stalls in their seats: this screen's stall first, then the others in turn order after it (as they sit across
+ *  the table on every other screen). */
+export const seatOrder = (n: number, viewer: number): number[] => Array.from({ length: n }, (_, i) => ((viewer < 0 ? 0 : viewer) + i) % n);

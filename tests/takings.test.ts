@@ -190,7 +190,8 @@ describe('the takings as drawn', () => {
       expect(html.match(/class="tg-stall me"/g)?.length).toBe(1);
       expect(html).toContain(`The stalls after day ${s.day}`);
       expect(html).toContain(standing(after, p).text.replace(/&/g, '&amp;'));
-      const names = rows.map((x) => html.indexOf(`<span class="tg-name">${x.name}</span>`));
+      // this stall's own row says "You" on a phone that is not shared (PLAN-090)
+      const names = rows.map((x) => html.indexOf(`<span class="tg-name">${x.me ? 'You' : x.name}</span>`));
       expect(names.every((at) => at > 0)).toBe(true);
       expect([...names].sort((a, b) => a - b)).toEqual(names);
     }

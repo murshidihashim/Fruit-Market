@@ -17,7 +17,7 @@ export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
   return (
     <div class="full-sheet event-sheet" role="dialog" aria-label="Today and tomorrow" onClick={() => c.setEventInfo(false)}>
       <MorningCard s={c.s} viewer={viewer} lost={0} />
-      <button type="button" class="btn primary big wide" onClick={() => c.setEventInfo(false)}>Back to the market</button>
+      <button type="button" class="btn primary big wide" onClick={() => c.setEventInfo(false)}>Back</button>
     </div>
   );
 }
@@ -62,7 +62,6 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
     <div class="tip-pop" onClick={() => setPulseInfo(false)}>
       <b>What customers want</b>
       <span>The number on each lane is the pieces today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ means walk-ins who are not here yet may want more)' : ''}.</span>
-      <span>Stalls are secret: you cannot see what a rival holds, only how many pieces it puts out for sale.</span>
       <small>Tap to close.</small>
     </div>
   )}
@@ -94,7 +93,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
         <button class="btn primary wide" onClick={() => setMenu(false)}>Resume</button>
         <FullScreenButton />
         {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
-        <button class="btn wide" onClick={onExit}>Quit to menu</button>
+        <button class="btn wide" onClick={onExit}>Home</button>
       </div>
     </div>
   )}

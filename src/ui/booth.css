@@ -26,7 +26,7 @@
 .home.hm .hm-acct span, .home.hm .hm-dress span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home.hm .hm-acct, .home.hm .hm-dress, .home.hm .hm-foot button, .home.hm .hm-b { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 .home.hm .hm-acct svg, .home.hm .hm-dress svg { flex: none; }
-.home.hm .hm-dress { flex: none; height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: var(--hm-yel); color: var(--hm-ink); }
+.home.hm .hm-dress { flex: none; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 4px; background: var(--hm-yel); color: var(--hm-ink); }
 
 /* ---------- the four fruit lanes (also drawn by the opening, outside .home) ---------- */
 .hm-lanes { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 47px; box-sizing: border-box; border-bottom: 3px solid var(--hm-ink); }
@@ -44,18 +44,78 @@
 .home.hm .hm-title p { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); }
 .home.hm .hm-title p span { font-style: italic; color: var(--hm-red); }
 
-/* ---------- your stall, the black button, the tickets ---------- */
+/* ---------- the swipe row, the black button, the ticket ---------- */
 .home.hm .hm-rest { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; background: transparent; }
 .home.hm .save-notice { margin: 0 16px; border-radius: 0; }
-.home.hm .hm-stall { flex: none; margin: 0 16px; padding: 3px; display: flex; flex-direction: column; box-shadow: inset 0 0 0 3px var(--hm-ink); }
-.home.hm .hm-stall-head {
-  height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--hm-ink); color: var(--hm-paper);
+/* The row that is swiped sideways (DEC-097): today's market, your next goals, and your table first when a game waits.
+   It scrolls with the finger and stops on a page; the next page shows at the edge. */
+.home.hm .hm-car {
+  flex: none; display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 0 16px; scroll-snap-type: x mandatory; scroll-padding: 0 16px;
+  scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+}
+.home.hm .hm-car::-webkit-scrollbar { display: none; }
+.home.hm .hm-slot { flex: 0 0 calc(100% - 8px); min-width: 0; box-sizing: border-box; scroll-snap-align: start; padding: 3px; display: flex; flex-direction: column; box-shadow: inset 0 0 0 3px var(--hm-ink); }
+.home.hm .hm-car > .hm-slot:only-child { flex-basis: 100%; }
+.home.hm .hm-sh {
+  min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--hm-ink); color: var(--hm-paper);
   font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
-.home.hm .hm-stall-head b { padding: 3px 6px; background: var(--hm-yel); color: var(--hm-ink); font-weight: 800; }
-.home.hm .hm-stall-pic { position: relative; height: clamp(110px, 21vh, 190px); overflow: hidden; background: var(--hm-tint); }
-.home.hm .hm-stall-pic img { position: absolute; left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-58%); display: block; }
-.home.hm .hm-cash { position: absolute; right: 8px; bottom: 8px; padding: 5px 9px; background: var(--hm-paper); font: 400 1.25rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.home.hm .hm-sh span { overflow: hidden; text-overflow: ellipsis; }
+.home.hm .hm-sh b { flex: none; padding: 3px 6px; background: var(--hm-yel); color: var(--hm-ink); font-weight: 800; }
+.home.hm .hm-sb { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.home.hm .hm-lb { font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
+.home.hm .hm-act { min-height: 40px; margin-top: auto; background: var(--hm-yel); color: var(--hm-ink); font: 400 0.9375rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.home.hm .hm-act:active { transform: translateY(2px); }
+/* today's market */
+.home.hm .hm-t1 { display: grid; grid-template-columns: minmax(0, 140px) minmax(0, 1fr); gap: 10px; }
+.home.hm .hm-ev { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.home.hm .hm-ev img { width: 100%; height: 80px; display: block; box-sizing: border-box; border: 2px solid var(--hm-ink); object-fit: cover; }
+.home.hm .hm-evn { font: 400 1rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.home.hm .hm-chip { align-self: flex-start; padding: 3px 6px; background: var(--hm-melon); color: var(--hm-paper); font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.home.hm .hm-tr { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.home.hm .hm-ln4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-bottom: 4px; }
+.home.hm .hm-ln { height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--hm-paper); font: 400 1.0625rem/1 var(--f-display); }
+.home.hm .hm-ln.f-blueberry { background: var(--hm-berry); }
+.home.hm .hm-ln.f-watermelon { background: var(--hm-melon); }
+.home.hm .hm-ln.f-mango { background: var(--hm-mango); color: var(--hm-ink); }
+.home.hm .hm-ln.f-apple { background: var(--hm-apple); }
+.home.hm .hm-ln i { width: 22px; height: 22px; border-radius: 50%; background: var(--hm-paper); display: grid; place-items: center; }
+.home.hm .hm-st { margin: 0; font: 700 0.75rem/1.3 var(--f-label); }
+.home.hm .hm-st b { font-weight: 800; color: var(--hm-red); }
+/* your next goals */
+.home.hm .hm-goals { gap: 0; justify-content: space-around; }
+.home.hm .hm-gl { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 2px dashed var(--c-c9b8a0); }
+.home.hm .hm-gl:first-child { border-top: 0; padding-top: 0; }
+.home.hm .hm-gl:last-child { padding-bottom: 0; }
+.home.hm .hm-sw { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--hm-ink); display: grid; place-items: center; overflow: hidden; background: var(--hm-tint); }
+.home.hm .hm-sw img.sbk-art { width: 100%; height: 100%; display: block; object-fit: cover; }
+.home.hm .hm-gt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.home.hm .hm-gt b { font: 800 0.8125rem/1.15 var(--f-label); }
+.home.hm .hm-gt span { font: 700 0.6875rem/1.2 var(--f-label); color: var(--hm-slate); }
+.home.hm .hm-pg { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; font: 400 0.8125rem/1 var(--f-display); }
+.home.hm .hm-pb { width: 62px; height: 8px; box-sizing: border-box; border: 2px solid var(--hm-ink); background: var(--hm-paper); display: block; }
+.home.hm .hm-pb i { display: block; height: 100%; background: var(--hm-melon); }
+/* a game is waiting: your table */
+.home.hm .hm-wt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; }
+.home.hm .hm-wt.one { grid-template-columns: minmax(0, 1fr); }
+.home.hm .hm-cl { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.home.hm .hm-shf { display: grid; grid-template-columns: repeat(4, 34px); gap: 4px; }
+.home.hm .hm-sl { width: 34px; height: 34px; box-sizing: border-box; border: 2px solid var(--hm-ink); background: var(--hm-paper); display: grid; place-items: center; }
+.home.hm .hm-sl.e { border: 2px dashed var(--c-c9b8a0); }
+.home.hm .hm-rw { display: flex; align-items: center; gap: 7px; font: 700 0.78rem/1 var(--f-label); min-width: 0; }
+.home.hm .hm-rw > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home.hm .hm-rw b { margin-left: auto; font: 400 0.875rem/1 var(--f-display); }
+.home.hm .hm-rw.me { background: var(--hm-yel); margin: 0 -4px; padding: 3px 4px; }
+.home.hm .hm-nb { background: var(--hm-tint); padding: 8px 10px; font: 700 0.75rem/1.3 var(--f-label); }
+.home.hm .hm-nb b { font-weight: 800; }
+/* the dots under the row: a tap moves the row too */
+.home.hm .hm-dots { flex: none; display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: -2px; }
+.home.hm .hm-dots button { width: 8px; height: 8px; background: var(--c-c9b8a0); position: relative; }
+.home.hm .hm-dots button::after { content: ""; position: absolute; inset: -14px -3px; }
+.home.hm .hm-dots button.on { width: 22px; background: var(--hm-ink); }
+.home.hm .hm-dots span { margin-left: 6px; font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
+/* the Wardrobe button: your shopkeeper, dressed */
+.home.hm .hm-dress .sbk-face { border-width: 2px; padding: 0; }
 .home.hm .hm-play { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
 .home.hm .hm-go {
   min-height: 60px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--hm-ink); color: var(--hm-yel);
@@ -72,10 +132,6 @@
 .home.hm .hm-tk-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 8px 12px; font: 700 0.875rem/1.25 var(--f-label); }
 .home.hm .hm-tk-txt small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
 .home.hm .hm-tk-txt small.red { color: var(--hm-red); }
-.home.hm .hm-tk-go { align-self: center; flex: none; margin-right: 12px; padding: 5px 8px; background: var(--hm-yel); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
-.home.hm .daily-peek { width: auto; margin: 0 16px; padding: 8px 12px; border-radius: 0; background: var(--hm-tint); color: var(--hm-ink); box-shadow: none; }
-.home.hm .daily-peek small { color: var(--hm-slate); }
-.home.hm .daily-peek b { color: var(--hm-red); }
 .home.hm .hm-foot {
   margin-top: auto; flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--hm-kraft);
   padding: 6px max(8px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
@@ -118,4 +174,7 @@
 @media (prefers-reduced-motion: reduce) {
   .hm-intro .home.hm *, .op.op-ld .op-skip { animation: none !important; }
   .op-lanes { display: none; }
+  /* Nothing fades with reduced motion (styles.css turns every animation off), so the cover that waits for the pictures
+     would stay over the finished home until the opening ends. Once the pictures are in, it is simply gone. */
+  .op.op-ld:not(.op-wait) .op-cover { display: none; }
 }

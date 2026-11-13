@@ -1,0 +1,84 @@
+{
+  "release": "1.21.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-101",
+    "REP-111",
+    "REP-112"
+  ],
+  "decisions": [
+    "DEC-087",
+    "DEC-098",
+    "DEC-104",
+    "DEC-105"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "The labels on every screen of the day in the plain voice: 72 more audit entries applied (382 of 575 in all; 79 already gone; 111 in the stamp book's and print kit's files, applied there)",
+      "Lorries are named plainly (Blueberry Lorry, Watermelon Lorry, Kampung Lorry); the pass-the-phone screen says \"Everyone else look away\"; the stocking button reads \"Crate ready · 3 in crate\"",
+      "Blueberry Glut's text is a line shorter, so its card no longer overflows"
+    ],
+    "fixed": [
+      "The stale first-game tip about the shelf"
+    ],
+    "removed": [
+      "The shopkeepers' quips on the picker; quotes around a customer's words in the rush"
+    ]
+  },
+  "playerNotes": [],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-11: \"Plain, with a Malaysian market feel\" (DEC-087: the voice across every card and screen). Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A in six packages, package 4 the text). Owner, 2026-11-12: \"the rest can be worked accordingly after it has been published\" (DEC-105).",
+    "date": "2026-11-12"
+  },
+  "delivery": "implemented",
+  "id": "PLAN-089",
+  "title": "Release A, package 4, part 2: the labels on the screens",
+  "problem": "Release 1.20.0 rewrote the text of the cards, the story, the tutorial and How to play. The labels on the screens are untouched: about 200 audit entries remain in screen files, and the helpers who rebuilt the screens invented about 150 labels and sentences that nobody has checked against the glossary. The same thing is not always called the same word.",
+  "scope": [
+    "The audit's remaining entries applied where the text still exists in the rebuilt screens",
+    "Every label invented while rebuilding the screens checked against the glossary and DEC-087: kept, shortened or reworded; one word for one thing on every screen",
+    "The wording faults noted by the builders: the stale buying tip, \"No peeking!\", quotes around quips and customer words, the app's description",
+    "Part 1's loose ends: the full list of all 575 entries, the before-and-after samples and the unsure Malaysian wording for the owner",
+    "A list of where RULES.md now differs in wording from the cards, for the owner to decide"
+  ],
+  "exclusions": [
+    "Any layout, rule, number or id",
+    "RULES.md itself",
+    "The stamp book's screens (their text is applied with PLAN-086)",
+    "The print kit's text (PLAN-087)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes on the merged code",
+      "result": "PASS",
+      "evidence": "On 050fb22: 76 files, 819 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts)."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes on the merged code (the scripts still find their buttons)",
+      "result": "PASS",
+      "evidence": "On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5."
+    },
+    {
+      "id": "T3",
+      "text": "Each changed screen looked at by me at 390x844 and 360x640 with 6 stalls: nothing cut off or pushed out of view",
+      "result": "PASS",
+      "evidence": "Seen by me on the merged build in the pictures of the stamp book and the day's screens; the helper looked at 35 screens at each size with 6 stalls as tiled sheets and measured 104 card faces with 0 overflow (Blueberry Glut now fits in 4 lines)."
+    },
+    {
+      "id": "T4",
+      "text": "The same seed still gives the same game",
+      "result": "PASS",
+      "evidence": "Helper: 277 computer games, one sha256 (bb6a3de6...bd09) at f2d9d33, 11b6e41, 4bee1aa and 938e0b2."
+    },
+    {
+      "id": "T5",
+      "text": "The owner has read the before-and-after samples",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ]
+}

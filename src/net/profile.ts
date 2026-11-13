@@ -27,11 +27,18 @@ export interface Profile {
   stats: ProfileStats;
   /** Sets that achievements count towards, such as shopkeepers won with or events seen. */
   progress: Record<string, string[]>;
+  /**
+   * Plain counts the stamp book is worked out from (PLAN-086): wins with each shopkeeper, pieces sold of each fruit,
+   * standing orders delivered, online wins, finished games by length, and a few personal bests. Two copies keep the
+   * higher number. Older apps neither send nor read it, and the server keeps what it has.
+   */
+  counts: Record<string, number>;
 }
 
 const MAX_LIST = 300;
 const MAX_DAILY = 400;
 const MAX_SETS = 24;
+const MAX_COUNTS = 48;
 const ID_RE = /^[A-Za-z0-9_.:-]{1,40}$/;
 /**
  * A member of a progress set: an id, or a name the game shows, such as "Uncle Benny" or "Hock Seng" (PLAN-081: names
@@ -46,7 +53,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export function emptyProfile(): Profile {
   return {
     v: PROFILE_VERSION, at: 0, name: '', avatar: '', colour: '', achievements: [], looks: [], worn: {}, league: 0, daily: {},
-    stats: { played: 0, wins: 0, bestCash: 0, totalSold: 0 }, progress: {},
+    stats: { played: 0, wins: 0, bestCash: 0, totalSold: 0 }, progress: {}, counts: {},
   };
 }
 
@@ -82,6 +89,9 @@ export function cleanProfile(raw: unknown): Profile {
     // The set's name is an id; its members may be names (see MEMBER_RE).
     for (const [k, v] of Object.entries(r.progress as Record<string, unknown>).slice(0, MAX_SETS)) if (ID_RE.test(k)) out.progress[k] = list(v, MEMBER_RE);
   }
+  if (r.counts && typeof r.counts === 'object') {
+    for (const [k, v] of Object.entries(r.counts as Record<string, unknown>).slice(0, MAX_COUNTS)) if (ID_RE.test(k) && num(v) > 0) out.counts[k] = num(v);
+  }
   return out;
 }
 
@@ -97,6 +107,8 @@ export function mergeProfiles(a: Profile, b: Profile): Profile {
   for (const [d, v] of Object.entries(newer.daily)) daily[d] = Math.max(daily[d] ?? 0, v);
   const progress: Record<string, string[]> = {};
   for (const k of new Set([...Object.keys(a.progress), ...Object.keys(b.progress)])) progress[k] = union(a.progress[k] ?? [], b.progress[k] ?? []);
+  const counts: Record<string, number> = { ...a.counts };
+  for (const [k, v] of Object.entries(b.counts)) counts[k] = Math.max(counts[k] ?? 0, v);
   const looks = union(a.looks, b.looks);
   const worn: Record<string, string> = {};
   // What is on show comes from the copy that changed last, so taking something off sticks.
@@ -117,11 +129,12 @@ export function mergeProfiles(a: Profile, b: Profile): Profile {
       bestCash: Math.max(a.stats.bestCash, b.stats.bestCash), totalSold: Math.max(a.stats.totalSold, b.stats.totalSold),
     },
     progress,
+    counts: Object.fromEntries(Object.entries(counts).slice(0, MAX_COUNTS)),
   };
 }
 
 /** True when the profile has nothing in it worth uploading. */
 export function isBlank(p: Profile): boolean {
   return p.achievements.length === 0 && p.looks.length === 0 && p.league === 0 && Object.keys(p.daily).length === 0
-    && p.stats.played === 0 && Object.values(p.progress).every((v) => v.length === 0);
+    && p.stats.played === 0 && Object.values(p.progress).every((v) => v.length === 0) && Object.keys(p.counts).length === 0;
 }

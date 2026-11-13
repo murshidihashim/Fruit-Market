@@ -99,7 +99,7 @@ export function canGetLine(s: GameState, p: number, o: Standing): string {
  * Every stall names the price per piece it would fill the order for (secret), or passes. The lowest bid wins.
  * `waiting`: this stall is not being asked now, because it has decided and others have not (`decided`; with
  * `canChange`, online, it may still change its mind) or because the computer stalls decide before it.
- * `shown`: the bids are in and are being turned over (dayBeats.ts); nothing can be pressed then.
+ * `shown`: the bids are in and are being turned over (dayBeats.tsx); nothing can be pressed then.
  */
 export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, onBid }: {
   s: GameState; p: number; waiting?: boolean; canChange?: boolean; decided?: boolean; shown?: OrderShow | null; onBid: (price: number | null) => void;
@@ -199,7 +199,7 @@ export function OrderStrip({ s, viewer }: { s: GameState; viewer: number }) {
   const o = s.standing;
   if (!o || s.phase === 'over') return null;
   const card = ORDER_CARDS[o.card];
-  const due = o.due === s.day ? 'today' : o.due === s.day + 1 ? 'tomorrow' : `day ${o.due}`;
+  const due = o.due === s.day ? 'today' : o.due === s.day + 1 ? 'tomorrow' : `Day ${o.due}`;
   const holder = o.holder === null ? null : s.players[o.holder];
   const bids = o.holder === null ? '' : o.bids.map((b, i) => `${i === viewer ? 'You' : s.players[i].name} ${b === 'pass' || b === null ? 'passed' : `$${b}`}`).join(' · ');
   return (
@@ -209,7 +209,7 @@ export function OrderStrip({ s, viewer }: { s: GameState; viewer: number }) {
       <span class="os-want"><Fruit id={o.fruit} size={16} />×{o.qty} {due}</span>
       {holder
         ? <span class="os-who"><Face who={holder.avatar} size={18} /> {o.holder === viewer ? 'You' : holder.name} at ${o.price}</span>
-        : <span class="os-who">up to ${o.ceiling} each</span>}
+        : <span class="os-who">bids up to ${o.ceiling}</span>}
       <span class="os-fine">{holder ? `stake $${o.staked ?? 0} held` : `stake $${o.stake}`}</span>
     </div>
   );

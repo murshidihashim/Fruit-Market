@@ -6,7 +6,7 @@ import { newGame, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { customerArt } from '../src/ui/deckArt';
-import { MyStall, Street, Tomorrow, nameSize, shelfGroups } from '../src/ui/table';
+import { MyStall, Street, Tomorrow } from '../src/ui/table';
 import { TIPS } from '../src/ui/tutorial';
 
 // The game screen layout the owner approved ("Phone A"): today's customers in one row, a slim Tomorrow strip,
@@ -22,21 +22,6 @@ const afterBuying = (): GameState => {
 };
 
 describe('your shelf dock (table.tsx MyStall)', () => {
-  it('counts the pieces of every fruit by freshness and keeps all four fruits as places fruit can fly to', () => {
-    const stock = Object.fromEntries(FRUITS.map((f) => [f, [0, 0, 0, 0, 0, 0, 0, 0, 0]])) as GameState['players'][number]['stock'];
-    stock.blueberry[2] = 2; // fresh
-    stock.blueberry[1] = 1; // okay
-    stock.blueberry[0] = 3; // tired
-    stock.apple[1] = 3; // okay
-    const g = shelfGroups(stock);
-    // Drawn in the table board's lane order (shortest life first), with all four fruits always present.
-    expect(g.map((x) => x.f)).toEqual(['blueberry', 'watermelon', 'mango', 'apple']);
-    expect([...g.map((x) => x.f)].sort()).toEqual([...FRUITS].sort());
-    expect(g.find((x) => x.f === 'blueberry')!.stages).toEqual([{ stage: 'fresh', n: 2 }, { stage: 'okay', n: 1 }, { stage: 'notso', n: 3 }]);
-    expect(g.find((x) => x.f === 'apple')!.stages).toEqual([{ stage: 'okay', n: 3 }]);
-    expect(g.find((x) => x.f === 'mango')).toMatchObject({ n: 0, stages: [] });
-  });
-
   // PLAN-085: the shelf is drawn to the approved Buying screen. It says "Your shelf" and how full it is, and no
   // longer carries the player's name (the stalls' row above it names every stall in buying order).
   it('says "Your shelf", how full it is, and keeps a place for every fruit, even one you hold none of', () => {
@@ -64,19 +49,11 @@ describe('your shelf dock (table.tsx MyStall)', () => {
     expect(html).toContain('>After tonight<');
   });
 
-  it('the first-game tip after a purchase describes the shelf chips as they are now (counts by freshness)', () => {
+  it('the first-game tip after a purchase says where the piece went, and nothing about how the shelf used to look', () => {
     const tip = TIPS.find((t) => t.id === 'bought')!.text;
     expect(tip).not.toContain('nights it has left');
-    expect(tip).toContain('The letters under each fruit count your pieces');
-  });
-});
-
-describe('small customer cards (table.tsx nameSize)', () => {
-  it('longer names get a smaller banner step so they stay on the card', () => {
-    expect(nameSize('Zara Zapp')).toBeUndefined();
-    expect(nameSize('Rockstar Grace')).toBe('nm-m');
-    expect(nameSize('Professor Pebble')).toBeUndefined(); // the card's own x-long step
-    expect(nameSize('Firefighter Osman')).toBe('nm-xl');
+    expect(tip).not.toContain('letters');
+    expect(tip).toContain('The piece is on your shelf, at the bottom of the screen.');
   });
 });
 

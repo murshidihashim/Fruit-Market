@@ -97,7 +97,7 @@ export interface CardLine { fruit: FruitId; qty: number; max: number; done?: boo
 export function PrefLegend({ pref, class: cls }: { pref: Pref; class?: string }) {
   const b = BUYS[pref];
   return (
-    <div class={cx('cd-leg', cls)} role="img" aria-label={`${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, soft fruit $${SOFT_LESS} less.`}>
+    <div class={cx('cd-leg', cls)} role="img" aria-label={`${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
       <span><i class="cd-lamp">F</i></span>
       <span class={b.okay ? '' : 'no'}><i class={cx('cd-lamp', !b.okay && 'off')}>O</i>{`−$${OKAY_LESS}`}</span>
       <span class={b.soft ? '' : 'no'}><i class={cx('cd-lamp', !b.soft && 'off')}>S</i>{`−$${SOFT_LESS}`}</span>
@@ -120,7 +120,7 @@ export function TradingCard({ who, wants, n, guest, eager, class: cls }: {
   return (
     <article class={cx('cd', 'cd-m', 'cd-cust', guest && 'cd-guest', cls)}>
       <header class="cd-kind">
-        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : 'Special guest'}</span>
+        <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : 'Guest'}</span>
         <span>{PREF_INFO[pref].title}</span>
       </header>
       <strong class="cd-name" style={titleSize(look.title, NAME_BOX, 26, 21)}>{look.title}</strong>
@@ -302,9 +302,9 @@ export function FavourCard({ id, eager, class: cls }: { id: FavourId; eager?: bo
  * card's own text (data.ts UPGRADES). The numbers are the rules' own constants.
  */
 export const UPGRADE_FIGURE: Record<UpgradeId, { big: string; small: string }> = {
-  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each okay or soft fruit a customer buys' },
-  barrow: { big: `${BARROW_BUY}`, small: 'Pieces of fruit a day' },
-  premium: { big: '+$1', small: 'On your fresh fruit' },
+  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each okay or soft piece sold' },
+  barrow: { big: `${BARROW_BUY}`, small: 'Pieces a day' },
+  premium: { big: '+$1', small: 'On a Fresh piece' },
   ripening: { big: '1 night', small: 'Green mangoes ripen' },
   orderbook: { big: `+$${ORDER_BOOK_BONUS}`, small: 'Each piece you deliver' },
 };

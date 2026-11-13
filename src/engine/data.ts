@@ -254,8 +254,8 @@ export interface EventCard {
   costFruit?: Partial<Record<FruitId, number>>;
   /** Extra fruit of every kind in today's delivery, per 4 stalls (rounded up). */
   supplyAll?: number;
-  /** Extra fruit of one kind in today's delivery, per 2 stalls (rounded up). Rules 18: these extra pieces arrive ripe
-   *  (Fresh, or Okay on the Seconds Lorry) even when the lorry brings that fruit green (Mango Windfall). */
+  /** Extra fruit of one kind in today's delivery, per 2 stalls (rounded up). Rules 18: when the lorry brings that fruit
+   *  green (Mango Windfall), these extra pieces arrive ripe, in the Fresh space, on every lorry (game.ts). */
   supplyEach?: Partial<Record<FruitId, number>>;
   /** No fruit of this kind is delivered today. */
   noFruit?: FruitId;
@@ -292,7 +292,7 @@ export const EVENT_CARDS: EventCard[] = [
     text: 'Guest: the Hotel Chef wants 1 apple ($8), 1 watermelon ($8) and 1 blueberry ($7), Fresh or Okay.' },
   { id: 'heatwave', title: 'Heatwave', icon: '🔥', price: { watermelon: 2 }, ageExtra: 1, text: 'Customers pay $2 more for each watermelon. Tonight all fruit ages 2 steps.' },
   { id: 'blight', title: 'Apple Blight', icon: '🍎', noFruit: 'apple', price: { apple: 2 }, text: 'The lorry brings no apples. Customers pay $2 more for each apple.' },
-  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, costFruit: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (round up). Blueberries cost $1 less at the Wholesale Market (never below $1). Customers pay $1 less for each blueberry.' },
+  { id: 'glut', title: 'Blueberry Glut', icon: '🫐', supplyEach: { blueberry: 1 }, price: { blueberry: -1 }, costFruit: { blueberry: -1 }, text: 'The lorry brings 1 extra blueberry for every 2 stalls (round up). Blueberries cost $1 less to buy (never below $1). Customers pay $1 less for each.' },
   { id: 'goodHarvest', title: 'Good Harvest', icon: '🌾', supplyAll: 1, priceAll: -1, text: 'The lorry brings 1 extra of each fruit for every 4 stalls (round up). Every customer pays $1 less for each piece.' },
   { id: 'badHarvest', title: 'Bad Harvest', icon: '🐛', supplyMult: 0.5, priceAll: 1, text: 'The lorry brings half of each fruit (round up). Every customer pays $1 more for each piece.' },
   { id: 'priceHike', title: 'Price Hike', icon: '📈', cost: 1, text: 'Every piece at the Wholesale Market costs $1 more today.' },
@@ -550,42 +550,42 @@ export const CHARACTER_TRAIT: Record<string, TraitId> = {
  *  happened; their buying and pricing come from the difficulty level, not from these personalities. Older saves and
  *  progress may still hold a former name (see LEGACY_RIVAL_NAMES); anything that must recognise a shopkeeper uses the avatar. */
 export const RIVALS: { name: string; avatar: string; quip: string; lines: RivalLines }[] = [
-  { name: 'Rosa', avatar: '🦊', quip: 'Ask around. Mine is always a little cheaper.', lines: {
+  { name: 'Rosa', avatar: '🦊', quip: '', lines: {
     undercut: ['Mine was cheaper.'],
     fullPrice: ['They didn\'t even haggle.'],
     stung: ['That one was mine.'],
     lost: ['Fine. I priced too high.'] } },
-  { name: 'Uncle Benny', avatar: '🐻', quip: 'Thirty years at this stall.', lines: {
+  { name: 'Uncle Benny', avatar: '🐻', quip: '', lines: {
     undercut: ['Cheaper at my stall.'],
     fullPrice: ['Full price. No bargaining.'],
     stung: ['Aiyo, my customer.'],
     lost: ['Too pricey.'] } },
-  { name: 'Ah Chen', avatar: '🐼', quip: 'My regulars know where to find me.', lines: {
+  { name: 'Ah Chen', avatar: '🐼', quip: '', lines: {
     undercut: ['Cheaper today.'],
     fullPrice: ['A fair price.'],
     stung: ['So close.'],
     lost: ['Tomorrow, then.'] } },
-  { name: 'Saleh', avatar: '🐸', quip: 'Every sen counts.', lines: {
+  { name: 'Saleh', avatar: '🐸', quip: '', lines: {
     undercut: ['Jimat. Mine is cheaper.'],
     fullPrice: ['Rezeki. Full price today.'],
     stung: ['One dollar too dear.'],
     lost: ['Never mind. I saved for this.'] } },
-  { name: 'Raj', avatar: '🦝', quip: 'First to the lorry every morning.', lines: {
+  { name: 'Raj', avatar: '🦝', quip: '', lines: {
     undercut: ['Bought cheap, sold cheap.'],
     fullPrice: ['Full price. Lucky day.'],
     stung: ['Unlucky. That was mine.'],
     lost: ['Not my day.'] } },
-  { name: 'Kiki', avatar: '🐷', quip: 'Thank you, come again.', lines: {
+  { name: 'Kiki', avatar: '🐷', quip: '', lines: {
     undercut: ['A little cheaper.'],
     fullPrice: ['Full price. Thank you.'],
     stung: ['I wanted to serve them.'],
     lost: ['Another day.'] } },
-  { name: 'Pak Din', avatar: '🐢', quip: 'Shade keeps it fresh.', lines: {
+  { name: 'Pak Din', avatar: '🐢', quip: '', lines: {
     undercut: ['Patience pays.'],
     fullPrice: ['Kept it fresh. Full price.'],
     stung: ['Hmm. A dollar too high.'],
     lost: ['My fruit will keep.'] } },
-  { name: 'Farah', avatar: '🦜', quip: 'I hear what people want.', lines: {
+  { name: 'Farah', avatar: '🦜', quip: '', lines: {
     undercut: ['I heard what they wanted.'],
     fullPrice: ['Full price. I knew it.'],
     stung: ['I should have listened closer.'],

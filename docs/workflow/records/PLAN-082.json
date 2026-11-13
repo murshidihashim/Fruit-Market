@@ -24,7 +24,7 @@
     "evidence": "Owner, 2026-11-12, answering the three balance choices in order: \"1 yes\", \"2 drop the discount\", \"3 as they are\".",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-082",
   "title": "Rules 18 balance: Charmer 3 favour cards, Ripening Room without the discount",
   "problem": "Under rules 18 the Charmer is above fair at every table size, and the Ripening Room's discount largely cancels the dearer green mango and makes the room the strongest upgrade.",

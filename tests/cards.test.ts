@@ -20,7 +20,7 @@ import {
 } from '../src/ui/deckArt';
 import { cardChips, newsChips } from '../src/ui/eventChips';
 import { FruitSvg, fruitSvgString, fruitSvgUrl } from '../src/ui/fruitIcons';
-import { CustomerWide, EventTicket, FavourChip, FavourMini, LorryTicket, OrderTicket, UpgradeOffer } from '../src/ui/phoneCards';
+import { CustomerWide, EventTicket, FavourChip, FavourMini, LorryTicket, OrderTicket } from '../src/ui/phoneCards';
 import { Ticket, TicketBack, dotsNeed } from '../src/ui/ticket';
 
 // The card system (PLAN-083, the rules 18 card set): the cards are drawn to the approved designs
@@ -182,7 +182,7 @@ describe('customer cards (the Main board)', () => {
   it('a special guest is marked as one, has no number and uses its event\'s picture', () => {
     for (const g of GUESTS) {
       const s = html(TradingCard, { who: g.name, wants: g.wants, guest: true });
-      expect(s).toContain('<span>Special guest</span>');
+      expect(s).toContain('<span>Guest</span>');
       expect(s).not.toContain('· Customer');
       expect(s).toContain(`src="${guestArt(g.name)}"`);
       expect(s).toContain(`>${lookOf(g.name).title}</strong>`);
@@ -477,19 +477,25 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(calm).not.toContain('Stays in force');
   });
 
-  it('the morning\'s lorry card boxes the table\'s row, or a "Today" row when an event changed the load or the card is not known', () => {
+  it('the morning\'s lorry card shows only what it unloads at this table: the table\'s row, or a "Today" row when an event changed the load or the card is not known', () => {
     const card = FARMER_CARDS[0];
     const plain = html(LorryTicket, { card, stalls: 4, green: 'mango', ripeIn: 2 });
     expect(plain).toContain(`<b>Today</b> · ${card.name}`);
     expect(plain).toContain('<span class="wc-lt-l on">4 stalls</span>');
-    expect(plain.match(/wc-lt-n [^"]* on"/g)).toHaveLength(4);
+    // No other table size (the owner, 2026-11-13): one row of four numbers, this table's.
+    for (const n of [2, 3, 5, 6]) expect(plain).not.toContain(`${n} stalls`);
+    expect(plain.match(/wc-lt-l/g)).toHaveLength(1);
+    expect([...plain.matchAll(/wc-lt-n ln-([a-z]+) on[^"]*">(\d+)</g)].map((m) => [m[1], Number(m[2])])).toEqual(LANES.map((f) => [f, card.table[4][f]]));
     expect(plain).not.toContain('>Today</span>');
     expect(plain).toContain('Mangoes arrive green · Ripe in 2 nights');
     const today = { blueberry: 9, watermelon: 4, mango: 2, apple: 0 };
     const changed = html(LorryTicket, { card, stalls: 4, today, green: 'mango', ripeIn: 2 });
-    expect(changed).toContain('<span class="wc-lt-l mark">4 stalls</span>');
+    expect(changed).not.toContain('stalls</span>');
     expect(changed).toContain('<span class="wc-lt-l on">Today</span>');
     expect([...changed.matchAll(/wc-lt-n ln-([a-z]+) on[^"]*">(\d+)</g)].map((m) => [m[1], Number(m[2])])).toEqual(LANES.map((f) => [f, today[f]]));
+    expect(changed.match(/wc-lt-n /g)).toHaveLength(4);
+    // A table larger or smaller than the card prints uses the nearest row it has.
+    expect(html(LorryTicket, { card, stalls: 7, green: null, ripeIn: 0 })).toContain('<span class="wc-lt-l on">6 stalls</span>');
     const unknown = html(LorryTicket, { card: null, stalls: 3, today, green: 'mango', ripeIn: 2 });
     expect(unknown).toContain('<b>Today</b></span>');
     expect(unknown).not.toContain('stalls</span>');
@@ -515,16 +521,6 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(rush).toContain(`src="${customerArt(c.name)}"`);
     expect(html(CustomerWide, { who: o.name, order: true, lines: [{ fruit: o.fruit, qty: 4, max: 9 }] })).toContain('<span>Standing order</span><span>Due today</span>');
 
-    for (const id of UPS) {
-      const s = html(UpgradeOffer, { id, why: null, onBuild: () => undefined });
-      expect(s).toContain('<span class="uo-kind">Upgrade</span>');
-      expect(s).toContain(`>${UPGRADES[id].title}</b>`);
-      expect(s).toContain(esc(UPGRADES[id].text));
-      expect(s).toContain(`src="${upgradeArt(id)}"`);
-      expect(s).toMatch(/<button type="button" class="uo-buy"[^>]*>Build \$\d+<\/button>/);
-      expect(html(UpgradeOffer, { id, owned: true, onBuild: () => undefined })).not.toContain('<button');
-      expect(html(UpgradeOffer, { id, why: 'Not enough cash', onBuild: () => undefined })).toContain('disabled');
-    }
     for (const id of FAV) {
       const mini = html(FavourMini, { id, ready: true, onOpen: () => undefined });
       expect(mini).toMatch(/^<button type="button" class="fav ready"/);

@@ -5,7 +5,6 @@ import { emptyStock, newGame, submitPrices, type Customer, type GameState } from
 import { FRUIT, type FruitId } from '../src/engine/data';
 import { buyersAt, demandBoard } from '../src/ui/boardModel';
 import { BellNotice, PriceBar, PricePanelView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
-import { PricingTableView } from '../src/ui/game/panels/PricingTable';
 import { toStaticHtml } from '../src/ui/cards';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
@@ -91,9 +90,6 @@ describe('every crate is open, and your price rows', () => {
     expect(sealed).not.toContain('ds-tag-face');
     for (const price of Object.values(own)) expect(sealed).not.toContain(`$${price}<`);
     expect(sealed.match(/<button[^>]*class="ds-st"[^>]*disabled/g)).toHaveLength(4);
-    const table = toStaticHtml(h(PricingTableView, { s, viewer: 0 }));
-    expect(table).not.toContain('tk-dial');
-    expect(table).toContain('prices sealed');
   });
 });
 
@@ -110,8 +106,8 @@ describe('"The Bell" notice', () => {
 
   it("says the crier's lines, in the engine's tie order", () => {
     const html = toStaticHtml(h(BellNotice, { onClose: () => undefined }));
-    for (const line of ['THE BELL', 'Price every fruit you put out!', 'Prices stay secret until the bell.', 'Crates stay shut until the bell: you only see how many pieces.', 'Lowest price sells first!',
-      'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.', 'Fulfil all of a customer’s orders to earn a favour card.']) {
+    for (const line of ['THE BELL', 'Set one price for each fruit in your crate.', 'Prices stay secret until the bell.', 'Crates stay shut until the bell: you only see how many pieces.', 'The lowest price sells first.',
+      'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.', 'Serve a customer’s whole order by yourself to earn a favour card.']) {
       expect(html).toContain(line);
     }
     expect(html.match(/class="bn-badge"/g)).toHaveLength(6);

@@ -20,7 +20,7 @@ import { loadSettings } from '../store';
 import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
-import type { ShowState } from './panels/Showdown';
+import type { ShowState } from './rush';
 
 
 export function useGameController(initial: GameState, onChange: (s: GameState) => void, online?: OnlineClient) {
@@ -40,7 +40,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
   const [nightSlide, setNightSlide] = useState<NightSlide>(null);
   // The bell is ringing (rules 15; PLAN-085): how many rows have turned face up so far; null when it is not ringing.
-  const [bell, setBell] = useState<BellShow>(null);
+  const [bell, showBell] = useState<BellShow>(null);
+  // The bell has its own sound (PLAN-086): the one this player has on, heard on this phone only. It sounds once, as
+  // the bell starts to ring (the first time the bell shows anything), and is ready again once the bell is put away.
+  const bellUp = useRef(false);
+  const setBell = (open: BellShow) => {
+    if (open !== null && !bellUp.current) fx.bell();
+    bellUp.current = open !== null;
+    showBell(open);
+  };
   // The bids for a standing order are in and are being turned over on the table (PLAN-084).
   const [orderShow, setOrderShow] = useState<OrderShow | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
@@ -349,7 +357,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
     // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
-    const text = s.phase === 'morning' ? (rem === 1 ? 'FINAL DAY!' : rem === 3 ? 'FINAL 3 DAYS' : '') : '';
+    const text = s.phase === 'morning' ? (rem === 1 ? 'LAST DAY' : rem === 3 ? 'LAST 3 DAYS' : '') : '';
     if (!text) return;
     setBanner(text);
     const t = window.setTimeout(() => setBanner(null), A.BEAT.morning.stamp);
@@ -378,13 +386,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (!id || canPlayFavour(s, active, idx)) return;
     if (id === 'freeFruit') {
       setFreeFruit(idx);
-      return say('Tap a fruit at the market to take it free');
+      return say('Tap a piece at the Wholesale Market to take it for free');
     }
     if (id === 'scout') {
       const unseen = s.queue.filter((q) => !q.seenBy?.includes(active));
       if (unseen.length === 1) return act({ kind: 'favour', idx, args: { customer: unseen[0].id } });
       setScout(idx);
-      return say('Tap a walk-in to look at them');
+      return say('Tap a walk-in to look at it');
     }
     act({ kind: 'favour', idx });
   };

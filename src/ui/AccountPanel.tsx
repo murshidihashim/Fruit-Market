@@ -38,7 +38,6 @@ export function AccountPanel({ onChange }: { onChange: () => void }) {
   if (me) {
     return (
       <section class="panel acct">
-        <h3>Account</h3>
         <p>Signed in as <b>{me}</b>. Your trophies, looks and records follow you to any phone you sign in on.</p>
         <button class="btn wide" disabled={busy} onClick={() => run(syncNow, 'Saved to your account.')}>Save to my account now</button>
         <button class="btn wide" disabled={busy} onClick={async () => { if (await run(signOut, 'Signed out. This phone is ready for a new player.')) { setPw(''); } }}>Sign out</button>
@@ -70,7 +69,6 @@ export function AccountPanel({ onChange }: { onChange: () => void }) {
 
   return (
     <section class="panel acct">
-      <h3>Account</h3>
       <p class="small muted">Optional. An ID and a password keep your trophies, looks and records safe and let you use them on another phone. There is no email, so <b>there is no way to reset a forgotten password</b>. Don't use a password you use anywhere else.</p>
       {field(id, setId, 'ID (letters, numbers, underscores)', 'text', 'username')}
       {field(pw, setPw, 'Password (8 or more characters)', 'password', 'current-password')}

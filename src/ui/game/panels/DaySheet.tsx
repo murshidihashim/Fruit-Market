@@ -8,12 +8,12 @@
 // after the flip (pricingTable.ts bellRows), and on a shared phone nothing of a stall's is drawn until the phone has
 // been handed to its owner (daySheet.ts). Styles: daysheet.css.
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { stageAt, type FruitId } from '../../../engine/data';
+import { FRUITS, stageAt, type FruitId } from '../../../engine/data';
 import { crateCounts, type Crate, type GameState } from '../../../engine/game';
 import * as A from '../../anim';
 import { Fruit } from '../../art';
 import { fx } from '../../fx';
-import { PriceBar, PricePanelView, StallBar, StallPanelView, bellOpensOnStart, boxKey, startingCrate, startingPrices } from '../../panel';
+import { PriceBar, PricePanelView, StallBar, StallPanelView, autoCrate, bellOpensOnStart, boxKey, startingCrate, startingPrices } from '../../panel';
 import { TIGHTEST, dayStep, fitSheet, fullReach, ownStep, type DayNow, type DayStep } from '../daySheet';
 import { nth } from '../pricingTable';
 import { reachFrom, useReach } from '../reach';
@@ -21,21 +21,20 @@ import type { GameController } from '../useGameController';
 import { CratesOpen, TieBar, TieCard } from './PricingTable';
 import { SalesSummary } from './SalesSummary';
 
-/** What the step rule needs, read from the game and its screen. `rung`: the bell has rung on this table today;
- *  `rushed`: a customer's card has been up on it today. */
-export function dayNow(s: GameState, viewer: number, c: GameController, online: boolean, rung: boolean, rushed: boolean): DayNow {
+/** What the step rule needs, read from the game and its screen. `rung`: the bell has rung on this table today. */
+export function dayNow(s: GameState, viewer: number, c: GameController, online: boolean, rung: boolean): DayNow {
   return {
     phase: s.phase, busy: c.busy, myTurn: c.myBidTurn,
     opened: online ? !c.myBidTurn : s.stalls[viewer] !== null,
     mine: s.players[viewer]?.kind === 'human' && (online || c.humans.length === 1 || c.handedTo === viewer),
-    bell: c.bell, rung: rung || s.phase === 'tie', rush: !!c.show, rushed, done: c.revealDone,
+    bell: c.bell, rung: rung || s.phase === 'tie', rush: !!c.show, done: c.revealDone,
   };
 }
 
 /** Is the day's sheet on the table now? (The game table asks; the sheet then works out its own step.) From the flip
  *  on it always is: every crate and every price is public then. */
 export const daySheetOn = (s: GameState, viewer: number, c: GameController, online: boolean): boolean =>
-  s.phase === 'tie' || s.phase === 'reveal' || dayStep(dayNow(s, viewer, c, online, false, false)) !== null;
+  s.phase === 'tie' || s.phase === 'reveal' || dayStep(dayNow(s, viewer, c, online, false)) !== null;
 
 /** A card turning over, by size and fade only: it grows from its middle line. */
 const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];
@@ -51,6 +50,8 @@ const SWING: Keyframe[] = [0, -4, 4, -3, 2, 0].map((x) => ({ transform: `transla
 function fit(el: HTMLElement): void {
   delete el.dataset.tight;
   el.removeAttribute('data-over');
+  el.removeAttribute('data-up');
+  el.removeAttribute('data-top');
   const room = el.clientHeight;
   const needs: number[] = [];
   for (let t = 0; t <= TIGHTEST; t++) {
@@ -58,12 +59,26 @@ function fit(el: HTMLElement): void {
     needs.push(el.scrollHeight);
     if (needs[t] <= room + 1) break;
   }
-  // On a short phone the sheet already lies over your shelf (daysheet.css): there is no more room to take there.
-  const drop = getComputedStyle(el).marginBottom === '0px' ? parseFloat(el.style.getPropertyValue('--drop')) || 0 : 0;
-  const to = fitSheet(needs, room, drop);
+  // On a short phone the sheet already lies over your shelf and the rows above it (daysheet.css): there is no more
+  // room to take there.
+  const lies = getComputedStyle(el);
+  const more = (margin: string, name: string) => (margin === '0px' ? parseFloat(el.style.getPropertyValue(name)) || 0 : 0);
+  const to = fitSheet(needs, room, more(lies.marginBottom, '--drop'), more(lies.marginTop, '--rise'));
   if (to.tight) el.dataset.tight = String(to.tight);
   else delete el.dataset.tight;
   if (to.over) el.setAttribute('data-over', '');
+  if (to.up) el.setAttribute('data-up', '');
+  // A first-game tip lies at the sheet's foot (--tip). On a small phone with a full shelf even the closest step does
+  // not leave it that room: then, while the tip is up, the sheet also lies over the customers' tickets, which hold no
+  // control (and each row of the sheet says what its fruit's customers want), at the roomiest step that fits there
+  // (PLAN-091). Once the tip is closed the sheet is fitted again without it.
+  if (!(parseFloat(el.style.getPropertyValue('--tip')) > 0) || el.scrollHeight <= el.clientHeight + 1) return;
+  el.setAttribute('data-top', '');
+  for (let t = 0; t <= TIGHTEST; t++) {
+    if (t) el.dataset.tight = String(t);
+    else delete el.dataset.tight;
+    if (el.scrollHeight <= el.clientHeight) break;
+  }
 }
 
 const piece = (c: Crate, f: FruitId, pos: number) => c[f]?.[pos] ?? 0;
@@ -73,7 +88,9 @@ const withPiece = (c: Crate, f: FruitId, pos: number, n: number, len: number): C
   return { ...c, [f]: t };
 };
 
-export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: number; c: GameController; online: boolean }) {
+export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: number; c: GameController; online: boolean;
+  /** A first-game tip is up over the table. */
+  tip?: boolean }) {
   const pl = s.players[viewer];
   const root = useRef<HTMLDivElement>(null);
   // On a short phone the middle of the table is too low for stocking and pricing: there the sheet starts under the
@@ -95,7 +112,11 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
     const reach = () => {
       const m = mid.getBoundingClientRect();
       if (!m.width || !street.getClientRects().length) return;
-      el.style.setProperty('--rise-full', `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), beats: null, dock: null, notice: false }, 'street', false).rise}px`);
+      const rise = `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), beats: null, dock: null, notice: false }, 'street', false).rise}px`;
+      if (el.style.getPropertyValue('--rise-full') === rise) return;
+      el.style.setProperty('--rise-full', rise);
+      // stocking and pricing with a first-game tip up may lie over the customers' tickets by this much (fit)
+      if (fitting.current && el.hasAttribute('data-top')) fit(el);
     };
     const watch = new ResizeObserver(reach);
     for (const x of [game, mid, street]) watch.observe(x);
@@ -103,10 +124,8 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
   }, []);
   const rung = useRef(false);
   if (c.bell !== null || s.phase === 'tie') rung.current = true;
-  const rushed = useRef(false);
-  if (c.show) rushed.current = true;
   // (The game table draws the sheet only while it has a step; from the flip on the open rows are always safe to show.)
-  const step: DayStep = dayStep(dayNow(s, viewer, c, online, rung.current, rushed.current)) ?? 'bell';
+  const step: DayStep = dayStep(dayNow(s, viewer, c, online, rung.current)) ?? 'bell';
   // Stocking and pricing fit themselves to the middle of the table; the bell and the question are drawn on the sheet
   // over the rows around it; under the takings (their own panel) the sheet lies plain.
   const own = ownStep(step);
@@ -143,6 +162,28 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
     }
   };
   const total = Object.values(crateCounts(crate)).reduce((a, n) => a + (n ?? 0), 0);
+  // "Auto load" (the owner, 2026-11-13): every piece it adds slides from its shelf row into the crate, a moment apart.
+  const loads = FRUITS.flatMap((f) => (autoCrate(s, viewer, crate)[f] ?? []).map((n, pos) => ({ f, pos, n: n - piece(crate, f, pos) }))).filter((x) => x.n > 0);
+  const autoLoad = () => {
+    if (!loads.length) return;
+    fx.tap();
+    setCrate(autoCrate(s, viewer, crate));
+    const box = root.current?.querySelector('.ds-pcs');
+    let i = 0;
+    for (const { f, pos, n } of loads) {
+      const key = boxKey(f, pos);
+      const row = root.current?.querySelector(`.ds-srow[data-box="${key}"]`);
+      const shelf = row?.querySelector('.x-fruit') ?? row;
+      if (!shelf || !box) continue;
+      setAir((a) => ({ ...a, [key]: (a[key] ?? 0) + n }));
+      for (let k = 0; k < n; k++) {
+        void A.fly(shelf, box, <Fruit id={f} size={22} stage={stageAt(f, pos)} />, {
+          delay: i++ * A.BEAT.stock.gap, duration: A.BEAT.stock.fly, path: 'low', swell: false,
+          onLand: () => setAir((a) => ({ ...a, [key]: Math.max(0, (a[key] ?? 0) - 1) })),
+        });
+      }
+    }
+  };
 
   // ---------- pricing ----------
   const [vals, setVals] = useState<Record<string, number>>(() => startingPrices(s, viewer));
@@ -155,9 +196,16 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
+    // The first-game tip for stocking and pricing lies at the sheet's foot: the sheet keeps that much room free
+    // under its last line, so the tip covers no row and no stepper (PLAN-090), and is fitted with that room taken.
+    const note = tip && own ? el.closest('.game')?.querySelector<HTMLElement>(':scope > .coach') : null;
+    el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');
+    // Where the sheet lay over the customers' tickets for the tip, it slides back to its place as the tip is closed.
+    const was = el.hasAttribute('data-top') ? A.boxOf(el) : null;
     if (own) fit(el);
-    else { delete el.dataset.tight; el.removeAttribute('data-over'); }
-  }, [step]);
+    else { delete el.dataset.tight; el.removeAttribute('data-over'); el.removeAttribute('data-up'); el.removeAttribute('data-top'); }
+    if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });
+  }, [step, tip]);
 
   // ---------- motion: nothing here is waited for ----------
   // The sheet's box changes with where it lies: it grows from the middle of the table over the rows above and below
@@ -190,11 +238,16 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
     for (let i = was ?? 0; i < c.bell; i++) {
       rows[i]?.querySelectorAll('.ds-pz, .ds-none').forEach((el) => el.animate(TURN, { duration: A.ms(A.FEEL.turn), delay: A.moveMs(A.BEAT.bell.lid), fill: 'backwards', easing: A.EASE.travel }));
     }
-    if (c.bell > (was ?? 0)) fx.tap();
+    // A row turning has its own small sound; not as the bell first shows (with reduced motion every row is open then):
+    // that moment has the bell's own sound alone (PLAN-091).
+    if (was !== null && c.bell > was) fx.tap();
   }, [c.bell]);
   // The question comes onto the sheet under the open rows.
   const asked = step === 'tie' && !c.busy && c.active >= 0 ? c.active : -1;
   const tying = asked >= 0 && c.activeHuman && asked === viewer;
+  // Once this stall has been asked, the line under the rows that says its prices are tied is not shown again today.
+  const answered = useRef(false);
+  if (tying) answered.current = true;
   useLayoutEffect(() => {
     const card = asked < 0 ? null : root.current?.querySelector('.ds-tie');
     if (!card || !root.current) return;
@@ -220,17 +273,17 @@ export function DaySheet({ s, viewer, c, online }: { s: GameState; viewer: numbe
         )}
         {/* The bell's rows, and under them the Favoured Trade question, are drawn on the sheet itself (PLAN-085). */}
         {full && (
-          <CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared}>
+          <CratesOpen s={s} viewer={viewer} open={c.bell} shared={shared} answered={answered.current}>
             {asked >= 0 && <TieCard key={`tie-${asked}`} s={s} viewer={viewer} asked={asked} mine={tying} />}
           </CratesOpen>
         )}
       </div>
-      {step === 'stock' && <StallBar total={total} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
+      {step === 'stock' && <StallBar total={total} onAuto={loads.length ? autoLoad : null} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
       {step === 'price' && <PriceBar s={s} p={viewer} vals={vals} onSubmit={(posts) => { fx.card(); c.act({ kind: 'prices', posts }); }} />}
       {tying && <TieBar onDecide={(play) => { fx.card(); c.act({ kind: 'tie', play }); }} />}
       {/* The takings are their own panel, mounted as they always were, over the sheet, which stays under them so the
           lanes do not show between the rush and the takings. */}
-      {step === 'takings' && <SalesSummary s={s} viewer={viewer} />}
+      {step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}
     </>
   );
 }

@@ -4,7 +4,7 @@
      .cd-bk   a deck's pattern back                                cards.tsx
      .wc      a card at phone width (the morning, the bid, the rush)  phoneCards.tsx
      .tkc     a customer's small ticket in the row, and its back   ticket.tsx
-     .uo .fav .favchip   upgrade offers and the favour cards you hold  phoneCards.tsx
+     .uo .fav .favchip   upgrade offers and the favour cards you hold  panel.tsx, phoneCards.tsx
      .cd-pop  a full card opened over the table
    Sizing a full card: set --card-w on the card or any parent (default 252px). --u is one unit, a 252nd of that width,
    and every length of a full card is a number of units taken from the approved board, so the card scales as a whole.
@@ -247,7 +247,6 @@
 .wc-lt-h .x-fruit { width: 18px; height: 18px; padding: 2px; border-radius: 50%; background: var(--x-paper); }
 .wc-lt-l { justify-items: start; padding: 0 6px; font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 .wc-lt-l.on { background: var(--x-ink); color: var(--x-mustard); }
-.wc-lt-l.mark { box-shadow: inset 0 0 0 1.5px var(--x-ink); }
 .wc-lt-n { background: var(--lane); color: var(--lane-ink); font: 400 0.8125rem/1 var(--f-display); }
 .wc-lt-n.nil { color: color-mix(in srgb, var(--lane-ink) 55%, var(--lane)); }
 .wc-lt-n.on { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
@@ -370,8 +369,6 @@
 .uo-nm { margin: 8px 7px 0; font: 400 1.0625rem/1 var(--f-display); text-transform: uppercase; }
 .uo-cost { align-self: flex-start; margin: 7px 7px 0; padding: 4px 7px; background: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); }
 .uo-tx { margin: 7px 7px 8px; font: 600 0.6875rem/1.3 var(--f-label); }
-.uo .uo-buy { flex: none; min-height: 44px; margin: auto 7px 7px; padding: 0 6px; border: 0; border-radius: 0; background: var(--x-ink); color: var(--x-mustard); font: 400 0.875rem/1 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
-.uo .uo-buy:disabled { opacity: 0.45; cursor: default; }
 .uo-ft { flex: none; margin-top: auto; padding: 5px 7px; background: var(--x-kraft); text-align: center; font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 /* a favour card you hold: the whole card is the button that opens it */
 .fav { flex: 1 0 150px; min-width: 0; display: flex; flex-direction: column; padding: 0; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label); letter-spacing: 0; text-align: left; cursor: pointer; }

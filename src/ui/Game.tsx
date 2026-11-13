@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useMemo, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -13,6 +13,7 @@ import { fx } from './fx';
 import { tipFor } from './tutorial';
 import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
+import { coverWatch } from './game/underSheet';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
 import { useTableShown } from './tableShown';
@@ -20,7 +21,7 @@ import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
-import { Showdown } from './game/panels/Showdown';
+import { RushTable } from './game/panels/RushTable';
 import { DaySheet, daySheetOn } from './game/panels/DaySheet';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
@@ -35,9 +36,11 @@ interface Props {
   onRematch: () => void;
   /** Online play: the server owns the game; this screen sends actions and animates the states it receives. */
   online?: OnlineClient;
+  /** The results' second button: the same table again with the person as this shopkeeper (PLAN-086). */
+  onPlayAs?: (avatar: string) => void;
 }
 
-export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
@@ -48,10 +51,24 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   useTableShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
+  // What a sheet lies over cannot be seen, so it is put out of reach of the keyboard and of screen readers too: the
+  // Wholesale Market for as long as a sheet is up (PLAN-090), and each row of the table a sheet covers, measured on
+  // this phone (PLAN-091; game/underSheet.ts).
+  const covered = useRef(false);
+  const underSheet = useRef<ReturnType<typeof coverWatch> | null>(null);
+  useLayoutEffect(() => {
+    const centre = sheet.centre.current;
+    const game = centre?.parentElement;
+    if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);
+  });
+  useEffect(() => () => underSheet.current?.stop(), []);
   const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
+  // The day on which a customer's card was last up in the rush: until then the bell is what is on the table.
+  const rushDay = useRef(-1);
+  if (show) rushDay.current = s.day;
   // The customers, the rivals and your shelf keep their places all day; only the middle changes (PLAN-072).
 
   // When the hand-over screen came up (0: it is not up). A tap sooner than BEAT.handoff.guard after that is the tail of
@@ -66,7 +83,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
         <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
         <h2>Pass the phone to {pl.name}</h2>
-        <p>{s.phase === 'order' ? 'A secret bid for the standing order. No peeking!' : s.phase === 'bid' ? 'Secret prices. No peeking!' : s.phase === 'stall' ? 'Fill your for-sale crate. No peeking!' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
+        <p>{s.phase === 'order' ? 'A secret bid for the standing order. Everyone else look away.' : s.phase === 'bid' ? 'Secret prices. Everyone else look away.' : s.phase === 'stall' ? 'Fill your crate. Everyone else look away.' : s.phase === 'buy' ? 'Your turn to buy fruit.' : s.phase === 'tie' ? 'One of your prices is tied. Play Favoured Trade, or keep it?' : 'Your evening.'}</p>
         <button class="btn primary big">Tap to start</button>
       </div>
     );
@@ -74,11 +91,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
 
   if (s.phase === 'over') {
     return (
-      <div class="game tkt">
-        <TopBar s={s} viewer={viewer} onMenu={() => c.setMenu(true)} />
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit}
+      <div class="game tkt sbk-over">
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
-          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch!`) : undefined}
+          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch.`) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
       </div>
     );
@@ -92,7 +108,8 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
   const coach = online || busy ? null : tipFor(s, {
-    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn,
+    // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)
+    myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn && s.phase !== 'order',
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
   });
   // Rivals sit across the table in one row, in turn order after you.
@@ -101,7 +118,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // The lorry drives in once the morning's news has been read (Start buying), then unloads (PLAN-065).
   const lorryHere = s.phase === 'buy' && !s.event?.noDelivery;
   // Price boards on the seats: sealed while pricing (only whether a shop has finished is public). In the rush every
-  // stall's price is on the customer's card (panels/Showdown.tsx), which lies over the seats.
+  // stall's price is on its crate at the round table (panels/RushTable.tsx), which lies over the seats.
   const boards: Record<number, Board> = {};
   if (s.phase === 'bid') rivals.forEach((p) => { boards[p] = { state: s.bids[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
   if (s.phase === 'stall') rivals.forEach((p) => { boards[p] = { state: s.stalls[p] === null ? 'thinking' : 'sealed', ai: s.players[p].kind === 'ai' }; });
@@ -121,6 +138,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   // the rivals open and price, at the bell, for the Favoured Trade question and for the takings. On a shared phone it
   // is drawn only for the person the phone was handed to (game/daySheet.ts).
   const dayOn = daySheetOn(s, viewer, c, !!online);
+  // The strip of the day's steps follows what is on the table (PLAN-090): the standing order while its bids are turned
+  // over (the game is at buying by then), and the bell until the first customer's card is up (the game is at the rush).
+  const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
@@ -143,11 +163,12 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
       decided={!!online || (s.standing?.bids[viewer] ?? null) !== null} onBid={(price) => { if (ordering || online) { fx.card(); act({ kind: 'order', price }); } }} />;
     // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
     // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
-    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} />;
+    if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;
     if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
+  covered.current = !!mid;
   const offSeats = offline.map((x) => x.seat);
 
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
@@ -162,7 +183,7 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
   };
   return (
     <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
-      <TopBar s={s} viewer={viewer} night={c.night} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
+      <TopBar s={s} viewer={viewer} night={c.night} on={onTable} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
         <div class="net">
@@ -177,8 +198,10 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
         </div>
       )}
 
-      <section class="street-wrap" data-a="street">
-        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined} />
+      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css). */}
+      <section class="street-wrap" data-a="street" style={show ? `--rt-at:"Customer ${show.n} of ${show.of}"` : undefined}>
+        <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
+          away={show?.card.customerId} served={show?.served} />
         <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
@@ -202,9 +225,9 @@ export function Game({ initial, onExit, onChange, onRematch, online }: Props) {
           (.pp-lock) take the action bar's place. */}
       {!pricing && !stalling && !orderUp && !tying && !evSheet && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
-      {/* The rush: a sheet over the table from the customer row down, under the flying fruit. It stays a moment after
-          the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
-      <Showdown s={s} a={show} shared={!online && humans.length > 1} />
+      {/* The rush: the round table, a stage over the table from under the customer row down, under the flying fruit.
+          It stays a moment after the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
+      <RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} />
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}

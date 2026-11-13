@@ -1,9 +1,10 @@
 {
-  "release": "unreleased",
+  "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-106",
-    "REP-109"
+    "REP-109",
+    "REP-112"
   ],
   "decisions": [
     "DEC-086",
@@ -14,10 +15,21 @@
     "DEC-104"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "The stamp book: stamps for days played, wins, the Daily market and trophy tiers; a stall level from 1 to 30 on six ranks, worked out from stored counts",
+      "Trophies as 48 cards with Bronze, Silver and Gold tiers (109 tiers); a collection of the customers served and the events seen",
+      "Results with the stamps landing, the next reward, two things that are close, Play again and Play as another shopkeeper",
+      "Home: today's market, your next goals and a waiting game on a swipe row (DEC-097)",
+      "The Wardrobe with frames, titles, price tags, a results stamp, bell and coin sounds for levels 2 to 10; looks shown on Home, in the lobby, on the results and on the table"
+    ],
+    "changed": [
+      "Online games count as games; the daily streak forgives one missed day",
+      "Seven trophies that rules 18 made impossible can be earned again (PROGRESSION.md C6)"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "The old Trophies screen; the Daily ticket and the top-stalls strip on Home"
+    ]
   },
   "playerNotes": [],
   "approval": {
@@ -25,7 +37,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The stamp book: DEC-099. Home: DEC-097 (\"go with A (which can be swiped to show  b)\"). The screens as drawn: DEC-103 (\"okay approve all 3\").",
     "date": "2026-11-12"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "id": "PLAN-086",
   "title": "Release A, package 5: the stamp book's first version; Results, Trophies, Wardrobe and Home",
   "problem": "Seven trophies cannot be earned under rules 18, most looks show nowhere, and nothing a player does adds up to anything. The home screen's stall picture serves no purpose (DEC-097).",
@@ -46,38 +58,38 @@
     {
       "id": "T1",
       "text": "npm run verify passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On 050fb22: 76 files, 819 tests passed, 1 skipped (an existing skip in tests/price-read.test.ts)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes on the merged code",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On the release code (050fb22), machine quiet: solo game to the results with no errors; performance budget OK (longest task 125 ms against 200), 0.44 slow frames in a hundred, 602 page elements of 800; online match with 86 pricing frames and 0 leaks, rematch, an abandoned match taken over by a computer; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Progress stored by the live game (1.19.1) and by this branch loads with every trophy and look kept; players with trophies start with their stamps (tests)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/progress-old.test.ts loads the stored shapes of 1.19.1 with every trophy and look kept; tests/stamps.test.ts: a player with trophies starts with their stamps. Games finished before this version count as Standard games (3 stamps each), so a player with 64 old games starts near level 12: a choice for the owner."
     },
     {
       "id": "T4",
       "text": "Stamps, levels and ranks match PROGRESSION.md C2 to C4 for sample histories; every trophy is earnable under rules 18 or listed (tests)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/stamps.test.ts against PROGRESSION.md C2 to C4; tests/achievements.test.ts \"earnable under rules 18\": 68 of 109 tiers earned in 30 computer games, the other 41 listed with the reason; 92 in a 150-game run; none out of reach. The first version has 48 cards and 109 tiers (the study names 55 and 125)."
     },
     {
       "id": "T5",
       "text": "Each screen seen at 390x844 and 360x640 beside its board, for a new player and a long-time player, by me; differences listed",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "From the merged build, looked at by me: Home (today's market, next goals, a waiting game), the stamp book, the trophy cards, the collection, the Wardrobe and the results at 390x844 for a long-time player and at 360x640 for a new player; no page errors. The helper's sheets beside the boards cover both sizes and both players. Differences from the boards are listed in its report (Home's first page shows the first customer and the lorry, since no game has an event on day 1)."
     },
     {
       "id": "T6",
       "text": "Every new value kept on the phone or sent to the optional account is listed and the privacy page agrees",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper listed every new value (fm.counts, fm.granted, fm.counted, five new sets in fm.prog, the new look choices; counts and looks sent to the optional account; the look message to a room). docs/privacy.html and public/privacy.html updated to match (09b4abc)."
     },
     {
       "id": "T7",

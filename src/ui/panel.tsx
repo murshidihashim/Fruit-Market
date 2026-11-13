@@ -3,12 +3,13 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { boxOf } from './anim';
 import { believe, planPrices } from '../engine/ai';
-import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
+import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, acceptsStage, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
   validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
+import { tagOf } from '../net/looks';
 import { Coin, Face, Fruit } from './art';
 import { SEEN_WALK_IN, buyerCap, buyersFor, nextLorryName, stallWantText, stallWanted, LANES } from './boardModel';
 import { ART_SIZE, CardArt, UpgradeCard } from './cards';
@@ -42,6 +43,30 @@ export function FavourRow({ s, p, phase, onCard }: { s: GameState; p: number; ph
 export function startingCrate(s: GameState, p: number): Crate {
   const pl = s.players[p];
   return Object.fromEntries(FRUITS.map((f) => [f, new Array<number>(pl.stock[f].length).fill(0)])) as Crate;
+}
+
+/**
+ * The crate "Auto load" fills (the owner, 2026-11-13): for every fruit wanted today, as many pieces as are wanted
+ * (the shelf row's "N wanted"), or every ripe piece on the shelf when there are fewer. Pieces already in the crate
+ * count towards it and stay where they are. The pieces added are the oldest a customer who wants that fruit would take
+ * (oldest first is the game's own way to fill a crate, rules 12), so nothing goes out that nobody would buy. A fruit
+ * nobody wants is left on the shelf. Your own crate only: nothing here looks at a rival.
+ */
+export function autoCrate(s: GameState, p: number, crate: Crate): Crate {
+  const pl = s.players[p];
+  const out = Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map((_, pos) => crate[f]?.[pos] ?? 0)])) as Crate;
+  for (const f of FRUITS) {
+    const buyers = buyersFor(s, f);
+    let need = stallWanted(s, p, f) - (out[f] ?? []).reduce((a, n) => a + n, 0);
+    for (let pos = 0; pos < FRUIT[f].ripe.length && need > 0; pos++) {
+      if (!buyers.some((x) => acceptsStage(x.c.pref, stageAt(f, pos)))) continue;
+      const k = Math.min(need, (pl.stock[f][pos] ?? 0) - out[f]![pos]);
+      if (k <= 0) continue;
+      out[f]![pos] += k;
+      need -= k;
+    }
+  }
+  return out;
 }
 
 /** The name of a box of the shelf: its fruit and its place ("apple-2"). A piece in the crate carries it, so it knows
@@ -90,7 +115,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
       {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
       <div class="ds-stick">
         <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
-        <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} out`}>
+        <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} in it`}>
           <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
           <span class="ds-pcs">
             {pieces.length ? pieces.map((x) => <span class={`crate-piece ds-pcx st-${x.stage}`} data-box={boxKey(x.f, x.pos)}><Fruit id={x.f} size={18} stage={x.stage} /><i class={`ds-lamp st-${x.stage}`}>{STAGE_LETTER[x.stage]}</i></span>)
@@ -131,11 +156,17 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
   );
 }
 
-/** Stocking's main button, in the action bar's place. */
-export function StallBar({ total, onSubmit }: { total: number; onSubmit: () => void }) {
+/** Stocking's buttons, in the action bar's place: "Auto load" (what is wanted, autoCrate; greyed when the crate
+ *  already holds it) beside the main button. */
+export function StallBar({ total, onSubmit, onAuto }: { total: number; onSubmit: () => void; onAuto?: (() => void) | null }) {
   return (
     <div class="pp-lock">
-      <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Keep everything back'}</button>
+      <div class="tk-pair">
+        {onAuto !== undefined && (
+          <button type="button" class="btn ghost tk-auto" disabled={!onAuto} onClick={onAuto ?? undefined}>Auto load <small class="btn-sub">what's wanted</small></button>
+        )}
+        <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Sell nothing today'}</button>
+      </div>
     </div>
   );
 }
@@ -186,7 +217,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
         <button type="button" class="pp-info" aria-label="How the bell works" onClick={() => onNotice(true)}>i</button>
         <span>{sealed ? 'Sealed until the bell' : 'One price for each fruit'}</span>
       </div>
-      {fruits.length === 0 && <div class="ds-info">You put nothing out today.</div>}
+      {fruits.length === 0 && <div class="ds-info">Your crate is empty today.</div>}
       {/* Only drawn where the sheet lies over the rivals' boxes (a short phone): how many pieces each put out. */}
       {rivals.length > 0 && <div class="ds-rivals"><b class="ds-lab">Rival crates</b><span>{rivals.map((x) => `${s.players[x.player].name} ${x.out ?? 0}`).join(' · ')} out</span></div>}
       <div class={`ds-rows prices n${fruits.length}`}>
@@ -216,7 +247,7 @@ export function PricePanelView({ s, p, vals, notice, sealed, onPrice, onNotice }
               </div>
               <span class="ds-dial">
                 <button type="button" class="ds-st" aria-label={`Lower the price of ${FRUIT[f].plural}`} disabled={sealed || price <= lo} onClick={() => onPrice(f, price - 1)}>−</button>
-                <span class="ds-tag" role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
+                <span class={`ds-tag tg-${tagOf(pl.look)}`} role="img" aria-label={sealed ? 'Your price, sealed' : `$${price}`}>
                   {/* A sealed tag shows its back only: the price is not drawn under it. */}
                   {!sealed && <span class="ds-tag-face pc-num">${price}</span>}
                   {sealed && <span class="ds-tag-back" aria-hidden="true">Sealed</span>}
@@ -257,12 +288,12 @@ export function PriceBar({ s, p, vals, onSubmit }: { s: GameState; p: number; va
 /** "The Bell" (PLAN-059): the market's notice of how the bell works, in the crier's words. */
 export function BellNotice({ onClose }: { onClose: () => void }) {
   const lines: [IconName, string][] = [
-    ['tag', 'Price every fruit you put out!'],
+    ['tag', 'Set one price for each fruit in your crate.'],
     ['hourglass', 'Prices stay secret until the bell.'],
     ['crate', 'Crates stay shut until the bell: you only see how many pieces.'],
-    ['coin', 'Lowest price sells first!'],
-    ['scales', 'A tie? Favoured Trade, then freshest fruit, then the Haggler, then the early bird.'],
-    ['heart', 'Fulfil all of a customer’s orders to earn a favour card.'],
+    ['coin', 'The lowest price sells first.'],
+    ['scales', 'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.'],
+    ['heart', 'Serve a customer’s whole order by yourself to earn a favour card.'],
   ];
   return (
     <div class="bell-notice" role="dialog" aria-modal="true" aria-label="The Bell" onClick={onClose}>
@@ -272,7 +303,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
         <ul class="bn-rules">
           {lines.map(([icon, text]) => <li><span class="bn-badge"><Icon name={icon} size={18} /></span>{text}</li>)}
         </ul>
-        <button type="button" class="btn primary wide" onClick={onClose}>Ring the bell!</button>
+        <button type="button" class="btn primary wide" onClick={onClose}>Got it</button>
       </div>
     </div>
   );
@@ -312,10 +343,13 @@ export function swipeHint(offers: UpgradeId[]): string {
  * An upgrade on offer, as a card you choose: label, picture, name, cost and the card's text. Tap it to choose it;
  * the evening's main button then builds it. `why`: the reason it cannot be built now (it is then greyed and says so).
  */
-function UpgradePick({ id, chosen, why, onPick }: { id: UpgradeId; chosen: boolean; why: string | null; onPick?: () => void }) {
+function UpgradePick({ id, chosen, why, onPick, onOpen }: { id: UpgradeId; chosen: boolean; why: string | null; onPick?: () => void;
+  /** Opens the whole card. An offer that cannot be built is never chosen, but a tap still opens it to be read (PLAN-090). */
+  onOpen?: () => void }) {
   const d = UPGRADES[id];
   return (
-    <button type="button" class={`uo uo-pick ${chosen ? 'sel' : ''}`} data-up={id} aria-pressed={chosen} disabled={!!why || !onPick} onClick={onPick}
+    <button type="button" class={`uo uo-pick ${chosen ? 'sel' : ''}`} data-up={id} aria-pressed={chosen} disabled={why ? !onOpen : !onPick}
+      aria-disabled={why ? 'true' : undefined} onClick={why ? onOpen : onPick}
       aria-label={`Upgrade: ${d.title}, $${d.cost}. ${d.text}${why ? ` ${why}.` : ''}`}>
       <span class="uo-kind">Upgrade</span>
       <CardArt class="uo-pic" src={upgradeArt(id)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(id)} />
@@ -360,8 +394,10 @@ export function EveningTomorrow({ s, p }: { s: GameState; p: number }) {
  * in one line. Drawn from its state alone (no hooks, so tests can draw it). `pick`: the offer chosen to build; the
  * button that builds it is the evening's main button (EveningSheet), not a button on every card.
  */
-export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick }: {
+export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick, onOpen }: {
   s: GameState; p: number; onUpgrade?: (u: UpgradeId) => void; onCard: (i: number) => void;
+  /** Opens an offer's whole card (one that cannot be built now). */
+  onOpen?: (u: UpgradeId) => void;
   /** Shade Cloth (rules 11): name the fruit that does not age tonight (null: none). */
   onShade?: (f: FruitId | null) => void;
   pick?: UpgradeId | null; onPick?: (u: UpgradeId | null) => void;
@@ -389,7 +425,7 @@ export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick }: {
           {/* The offers as cards in a row that swipes sideways: tap one to choose it, then build it with the main button. */}
           {offers.length > 0 && (
             <div class="uo-row" role="group" aria-label="Upgrades on offer">
-              {offers.map((u) => <UpgradePick id={u} chosen={pick === u} why={canUpgrade(s, p, u)} onPick={onPick ? () => onPick(pick === u ? null : u) : undefined} />)}
+              {offers.map((u) => <UpgradePick id={u} chosen={pick === u} why={canUpgrade(s, p, u)} onPick={onPick ? () => onPick(pick === u ? null : u) : undefined} onOpen={onOpen ? () => onOpen(u) : undefined} />)}
             </div>
           )}
           {offers.length > 0 && <p class="ev-hint">{swipeHint(offers)}</p>}
@@ -497,7 +533,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   };
   const build = () => {
     if (!chosen) return;
-    // Where the card lies now: it travels from there to the stall once it is built (dayBeats.ts).
+    // Where the card lies now: it travels from there to the stall once it is built (dayBeats.tsx).
     noteOffer(p, chosen, boxOf(root.current?.querySelector(`[data-up="${chosen}"]`)));
     keep(null);
     onUpgrade(chosen);
@@ -507,7 +543,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
       {/* With an upgrade chosen the bar holds two buttons. It grows upward over the sheet's foot, never downward:
           the table's rows under the sheet keep their places (sheets.css, data-two). */}
       <div class="mid-panel mid-evening fm-sheet sh-evening" data-two={chosen ? '' : undefined} ref={root} onScroll={() => { keep(chosen); more(); }}>
-        <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} />
+        <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} onOpen={setOpen} />
         <i class="ev-more" aria-hidden="true" />
       </div>
       {/* Only the main button is a `.btn` (the browser tests press that one). */}
@@ -524,6 +560,8 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
         <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={() => setOpen(null)}>
           <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
             <UpgradeCard id={open} eager />
+            {/* why it cannot be built now, in the game's words (as an opened favour card says why it cannot be played) */}
+            {canUpgrade(s, p, open) && <p class="cd-pop-why">{canUpgrade(s, p, open)}</p>}
             <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={() => setOpen(null)}>Close</button></div>
           </div>
         </div>

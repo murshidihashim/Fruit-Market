@@ -1,0 +1,70 @@
+{
+  "id": "PLAN-094",
+  "title": "Auto load when filling the crate",
+  "problem": "Filling the crate takes a tap for every piece.",
+  "scope": [
+    "A button beside Open my stall that fills the crate with what is wanted: up to each fruit's wanted count, the oldest pieces a wanting customer takes, keeping what is already in the crate; greyed when nothing is left to add"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or message change",
+    "Computer players",
+    "The printed game"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "npm run verify on ac3d804: 841 tests passed, 1 skipped; lint, types and build passed."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "PASS",
+      "evidence": "npm run test:e2e on ac3d804 (08:47 to 09:00): solo game to the results, no errors; performance budget OK (longest task 193 ms against 200, 0.99 slow frames in 100 against 2); online match 80 pricing frames, 0 leaks, rematch, takeover; quick match; four people and two computers; reconnect 5 of 5."
+    },
+    {
+      "id": "T3",
+      "text": "Tests: the oldest pieces a buyer takes, never more than wanted, what is in the crate stays, a second tap adds nothing; in whole games a crate the rules accept",
+      "result": "PASS",
+      "evidence": "tests/rules12.test.ts: an Everyday buyer gets the fresh pieces and not the soft ones; a Bargain buyer the oldest first, up to what is wanted; what is in the crate stays; a second tap adds nothing; nothing goes out for a fruit nobody wants; the button greys out; in 12 whole computer games every auto-loaded crate is accepted by the rules, within the shelf, ripe, and no more than wanted (over 200 fruit checked)."
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me at 390x844 and 360x640",
+      "result": "PASS",
+      "evidence": "Seen by me in played games: 4 stalls at 390x844 (before, pieces sliding in, loaded and greyed) and 6 and 4 stalls at 360x640; \"Sell nothing today\" now wraps to two lines beside the button instead of running out of it."
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "PASS",
+      "evidence": "Pictures sent to the owner on 2026-11-13; he answered \"push it live\"."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "implemented",
+  "release": "1.21.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, ac3d804",
+  "reports": [
+    "REP-116"
+  ],
+  "decisions": [
+    "DEC-111"
+  ],
+  "changes": {
+    "added": [
+      "Auto load beside Open my stall: fills each wanted fruit up to its wanted count with the oldest pieces a buyer takes; greyed when nothing is left to add"
+    ],
+    "changed": [
+      "The main button's words may wrap to two lines beside it"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

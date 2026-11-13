@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { autoplay } from '../src/engine/ai';
 import { newGame, type GameState, type LineResult } from '../src/engine/game';
-import { dayHighlights, explainLine, gameRecap, rivalReaction, standing } from '../src/engine/story';
+import { explainLine, gameRecap, standing } from '../src/engine/story';
 
 function game(): GameState {
   const s = newGame({
@@ -67,35 +67,9 @@ describe('sale explanations', () => {
     ], 3);
     expect(explainLine(s, l, 0).detail).toContain('Right price, too few pieces');
   });
-
-  it('gives a smug reaction only to the rival who actually undercut', () => {
-    const s = game();
-    const l = line([
-      { player: 1, qty: 2, price: 5, sold: 2, freshness: 3 },
-      { player: 0, qty: 2, price: 6, sold: 0, freshness: 3 },
-    ]);
-    const r = rivalReaction(s, l, 0, new Set());
-    expect(r?.player).toBe(1);
-  });
 });
 
 describe('highlights and recaps', () => {
-  it('are deterministic and only mention real events', () => {
-    let a = game();
-    let b = game();
-    // Play both to the first reveal with the same moves.
-    const step = (s: GameState) => {
-      while (s.phase !== 'reveal') {
-        s = autoplay({ ...s, players: s.players.map((p) => ({ ...p, kind: 'ai' as const })) }, 1);
-      }
-      return s;
-    };
-    a = step(a);
-    b = step(b);
-    expect(dayHighlights(a, 0)).toEqual(dayHighlights(b, 0));
-    for (const h of dayHighlights(a, 0)) expect(h.text.length).toBeGreaterThan(5);
-  });
-
   it('builds a game recap from the day history', () => {
     const g = game();
     const s = autoplay({ ...g, players: g.players.map((p) => ({ ...p, kind: 'ai' as const })) });

@@ -25,7 +25,7 @@ export function extras(r: NonNullable<GameState['results']>, viewer: number): st
   const hawk = (r.hawker ?? []).filter((x) => x.player === viewer);
   if (hawk.length) out.push(`The night hawker bought ${hawk.length} of your leftover fruit (+$${hawk.reduce((a, x) => a + x.price, 0)}).`);
   const tips = (r.earful ?? []).filter((x) => x.player === viewer);
-  if (tips.length) out.push(`Sharp Ears: ${tips.length} walk-in${tips.length === 1 ? '' : 's'} you heard about tipped you $${tips.reduce((a, x) => a + x.tip, 0)}.`);
+  if (tips.length) out.push(`Sharp Ears: ${tips.length} walk-in${tips.length === 1 ? '' : 's'} you had seen tipped you $${tips.reduce((a, x) => a + x.tip, 0)}.`);
   const jar = (r.tipJar ?? []).filter((x) => x.player === viewer);
   if (jar.length) out.push(`Tip Jar: ${jar.length} customer${jar.length === 1 ? '' : 's'} left with their whole order and tipped you $${jar.reduce((a, x) => a + x.tip, 0)}.`);
   if (r.order && r.order.holder === viewer) {
@@ -186,14 +186,15 @@ function closerOnceSeen(el: HTMLElement): void {
  * gone, and takes them away on "Close for the day"; the sheet under them is the panel that slides (sheet.ts). The
  * takings reach from the top of the customer band down over your shelf, measured from the rows themselves (reach.ts).
  */
-export function SalesSummary({ s, viewer }: { s: GameState; viewer: number }) {
+/** `shared`: several people share this phone, so this stall's row carries its name and not "You" (as the rush card). */
+export function SalesSummary({ s, viewer, shared }: { s: GameState; viewer: number; shared?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   useReach(root, 'street', true, true, closerOnceSeen);
-  return <TakingsView s={s} viewer={viewer} root={root} />;
+  return <TakingsView s={s} viewer={viewer} shared={shared} root={root} />;
 }
 
 /** The takings themselves, without hooks (so tests can render them to a string). */
-export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number; root?: Ref<HTMLDivElement> }) {
+export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer: number; shared?: boolean; root?: Ref<HTMLDivElement> }) {
   const r = s.results!;
   const pl = s.players[viewer];
   const rem = s.config.days - s.day;
@@ -243,7 +244,7 @@ export function TakingsView({ s, viewer, root }: { s: GameState; viewer: number;
             <li class={`tg-stall ${x.me ? 'me' : ''}`}>
               <i class="tg-pl">{x.place}</i>
               <Face who={x.avatar} size={26} />
-              <span class="tg-name">{x.name}</span>
+              <span class="tg-name">{x.me && !shared ? 'You' : x.name}</span>
               {x.today !== null && <span class="tg-td">{x.today < 0 ? '−' : '+'}${Math.abs(x.today)} today</span>}
               <b class="tg-cash">${x.cash}</b>
             </li>

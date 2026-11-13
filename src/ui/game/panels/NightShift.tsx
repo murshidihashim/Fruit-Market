@@ -15,7 +15,7 @@ import type { NightSlide } from '../animator';
 export function NightShift({ s, viewer, slide = null }: { s: GameState; viewer: number; slide?: NightSlide }) {
   const steps = nightSteps(s);
   const sub = steps === 0 ? `No fruit ages tonight${s.event ? ` (${s.event.title})` : ''}.`
-    : steps === 1 ? 'Every piece slides down one box.' : `Every piece slides down. ${s.event?.title ?? 'Tonight'}: ${steps} boxes tonight.`;
+    : steps === 1 ? 'Every piece slides down one box.' : `${s.event?.title ?? 'Tonight'}: every piece slides down ${steps} boxes.`;
   return (
     <div class="mid-panel night-shift tk-night tb-night" data-a="night-shift" style={{ '--rows': laneRows(s), ...(typeof slide === 'number' ? { '--ns-ms': `${Math.round(slide)}ms` } : {}) }}>
       <div class="tk-label-row tb-mk-head">

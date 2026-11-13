@@ -43,7 +43,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4; this is the first part of package 3, \"the screens one beat at a time, the rush first\"). One card for each customer in the rush: DEC-086. The screen designs are the mock-ups kept in docs/studio/review-18/mockups (REP-104, DEC-090 to DEC-095).",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-084",
   "title": "Release A, package 3, part 1: the rush; the morning, the standing-order bid and the evening",
   "problem": "The cards are in the game but the screens around them are still the old layouts, and what happens on them is cut, not shown. The rush gives its result away at the bell (tickets already ticked, a won favour card already on the stall), shows one card for each fruit and takes about 17 seconds; on a phone 640 tall it hides the stalls' offers. The morning needs a scroll, part of the order card sits behind the bidding controls, nobody is shown winning the standing order, and the evening has a Build button in every offer.",
@@ -96,8 +96,8 @@
     {
       "id": "T6",
       "text": "The owner has seen the screens",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner played release 1.20.0 on the live game on 2026-11-12 and ruled on what he saw (DEC-107: a rival's purchases hidden after buying); pictures sent with REP-110 and REP-111."
     }
   ]
 }
