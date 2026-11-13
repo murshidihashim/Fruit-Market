@@ -2728,9 +2728,10 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
-        "REP-115"
+        "REP-115",
+        "REP-116"
       ],
       "reviewTrigger": "If six crates with many pieces crowd a small phone; when the owner has seen it"
     },
@@ -2752,11 +2753,36 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
-        "REP-116"
+        "REP-116",
+        "REP-117"
       ],
       "reviewTrigger": "If the owner wants the freshest pieces first, or more than is wanted"
+    },
+    {
+      "id": "DEC-112",
+      "title": "Publish 1.21.0",
+      "question": "Candidate 1.21.0 holds the stamp book with Results, Trophies, Wardrobe and Home, the screens' words, the fixes and purchases shown only while buying, the finishing pass, the round-table rush, the seats that hold their fruit, the one-row lorry card and Auto load. Is it published?",
+      "choice": "Published, by the release path: merged to main, the full checks on the CI machines (verify and the browser tests), the preview updated, then the Deploy LIVE game workflow (verify, release check, deploy, live smoke test, tag v1.21.0). If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's own word after seeing the recording, the pictures of the round-table rush and of Auto load.",
+      "impact": {
+        "player": "Players get 1.21.0 on their next visit; old saves and progress keep loading (tested).",
+        "technical": "Merge to main, CI, deploy-web.yml with confirm=PUBLISH, tag v1.21.0; releases.json marked published afterwards.",
+        "data": "The stamp book's counts kept on the phone and, for an account, with it (privacy page updated in 1.21.0)."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"push it live\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-117"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -3855,6 +3881,10 @@
     {
       "at": "2026-11-13 08:47",
       "text": "Correction to the line of 08:46: the speed test in the e2e run on d98afc4 started at 08:29 and was stopped by me at about 08:40, so it ran about 11 minutes, not 25, and it was not shown to be stuck; the run has no result (NOT RUN). The full e2e is run again on ac3d804 with its start and end times logged."
+    },
+    {
+      "at": "2026-11-13 09:00",
+      "text": "DEC-112: the owner said \"push it live\". PLAN-093 and PLAN-094 recorded: verify PASS (841 tests on ac3d804); e2e PASS (npm run test:e2e on ac3d804 (08:47 to 09:00): solo game to the results, no errors; performance budget OK (longest task 193 ms against 200, 0.99 slow frames in 1). Release 1.21.0 now holds PLAN-086, 089, 090, 091, 092, 093 and 094 (REP-117). Next: pull request to main, CI, then the Deploy LIVE game workflow."
     }
   ]
 }

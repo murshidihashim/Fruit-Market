@@ -15,32 +15,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on d98afc4: 839 tests passed, 1 skipped; and on ac3d804 (with PLAN-094): 841 passed, 1 skipped; lint, types and build passed."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on ac3d804 (08:47 to 09:00): solo game to the results, no errors; performance budget OK (longest task 193 ms against 200, 0.99 slow frames in 100 against 2); online match 80 pricing frames, 0 leaks, rematch, takeover; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Tests: each customer finds every crate as the one before left it; the bell's crate first; a piece leaves as it lifts off; nothing leaves before its moment; the lorry card has one row",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rush.test.ts: every customer's crates, in whole games, agree with the bell's crates and with what each customer before took; a piece leaves its seat as it lifts off, every sold piece has left once the sale is shown, the other fruit is greyed, nothing is greyed as the customer comes in; tests/cards.test.ts: the lorry card has one row, the table's or Today; tests/story-after-sale.test.ts reads the seat's new words."
     },
     {
       "id": "T4",
       "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Seen by me in played games (single-file builds): 4 stalls at 390x844, 6 stalls at 390x844 and at 360x640, 2 stalls at 360x640; seats fit, pieces readable with their letters, Empty after a sell-out, the tag's point drawn, the morning's lorry one row (REP-116 pictures)."
     },
     {
       "id": "T5",
       "text": "The owner has seen it",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Pictures sent to the owner on 2026-11-13 (REP-116); he answered \"push it live\"."
     }
   ],
   "approval": {
@@ -48,21 +48,32 @@
     "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
     "date": "2026-11-13"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "1.21.0",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, d98afc4",
   "reports": [
-    "REP-115"
+    "REP-115",
+    "REP-116"
   ],
   "decisions": [
     "DEC-109",
     "DEC-110"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "Each rush customer records every stall's whole open crate as they find it (rush.ts)"
+    ],
+    "changed": [
+      "Every seat at the rush shows all its fruit for sale, five pieces to a row with freshness letters; a piece leaves when a customer takes it; Empty when sold out; the other fruit greyed while one is bought",
+      "The money a stall earns at the rush takes the corner where its 1st or 2nd was",
+      "The morning's lorry card shows only this table's row, or Today's"
+    ],
+    "fixed": [
+      "The rush's price tag left a stray mark at its point; its outline now follows the shape"
+    ],
+    "removed": [
+      "The lorry card's rows for other table sizes in the app (the printed card keeps them)"
+    ]
   },
   "playerNotes": []
 }

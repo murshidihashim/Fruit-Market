@@ -1,28 +1,26 @@
 # Current state · Fruit Market
 
-Updated 2026-11-13 02:43 (Asia/Kuala_Lumpur), session checkpoint. Uncommitted files at this update: none after the records commit. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-13 09:01 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.20.0, rules version 18 (`c17a053`, tagged `v1.20.0`, published 2026-11-12 19:43). The preview copy is the same build.
-- **Working branch:** `ccr-d8bcd65d-gblqqb` (head `56b8fde` at this update). Nothing on it is published.
-- **Candidate 1.21.0** (REP-112, REP-115; version and release entry prepared): the stamp book, Results, Trophies, Wardrobe, Home (PLAN-086); screen labels with the approved boards' words (PLAN-089); fixes from 1.20.0 and DEC-107, purchases shown only while buying (PLAN-090); the finishing pass and new store screenshots (PLAN-091); the rush as a round table (PLAN-092, DEC-109); the privacy page. **Not approved for publishing.**
-- **In progress:** nothing. No helper is running. The owner was sent a recording of Days 1 to 3 and pictures of every step (REP-115).
-- **Waiting on the owner:** (1) the word to publish 1.21.0; (2) standing orders after REP-113 and REP-114: keep the numbers and show the sums on the bid sheet (recommended), take his proposal (+$2 top bid, −$2 stake), or test a direct mango fix; (3) REP-112 section 3 choices (Home's first page, old games as 3 stamps, the market's box height, the fifth and sixth seat colours, title names, two card wordings, Malaysian wording); (4) "Main menu"/"Dress up" on two boards against "Home"/"Wardrobe" elsewhere; (5) tracker 1 or 2 after a proof print.
-- **Allowance:** the owner wanted the work finished before the usage allowance resets on 2026-11-13 19:00.
+- **Live:** 1.20.0, rules version 18 (`c17a053`, tagged `v1.20.0`, published 2026-11-12 19:43).
+- **Publishing now: 1.21.0** (DEC-112, the owner's "push it live", REP-117): PLAN-086, 089, 090, 091, 092, 093 (the rush's seats hold their fruit; the lorry card shows one row) and 094 (Auto load). Path: pull request to main, CI `verify:full`, then the *Deploy LIVE game* workflow; after it, mark the release published in `releases.json`. If a required check fails, nothing is published and the owner is told.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`.
+- **Waiting on the owner:** (1) standing orders after REP-113 and REP-114: keep the numbers and show the sums on the bid sheet (recommended), take his proposal (+$2 top bid, −$2 stake), or test a direct mango fix; (2) REP-112 section 3 choices (Home's first page, old games as 3 stamps, the market's box height, the fifth and sixth seat colours, title names, two card wordings, Malaysian wording); (3) "Main menu"/"Dress up" against "Home"/"Wardrobe"; (4) tracker 1 or 2 after a proof print.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
-## Checks (on `0185fb6`, candidate 1.21.0 with the round table)
-- `npm run verify`: PASS (838 tests, 1 skipped). `npm run test:e2e`: PASS (longest frame 151 ms against 200; online match 44 pricing frames, 0 leaks, rematch, takeover; quick match; four players; reconnect 5 of 5). Rush frame by frame, 37 runs: 0 problems.
-- Print kit rebuilt from the final text; every page looked at as contact sheets (`cbcab10`). Proof print: NOT RUN.
-- On the CI machines: NOT RUN for 1.21.0. Played by people: the owner, on 1.20.0.
+## Checks (on `ac3d804`, release 1.21.0)
+- `npm run verify`: PASS (841 tests, 1 skipped). `npm run test:e2e`: PASS (speed test OK, longest task 193 ms against 200; online match 80 pricing frames, 0 leaks, rematch, takeover; quick match; four players; reconnect 5 of 5).
+- Print kit rebuilt from the final text; every page looked at (`cbcab10`). Proof print: NOT RUN.
+- On the CI machines: running with the merge. Played by people: the owner, on 1.20.0.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).
 
 ## Known issues
-- The performance budget can fail while helpers load the machine (206 to 344 ms seen); passes when quiet and on CI.
+- The performance budget's longest task is near its limit on this machine (125 to 344 ms seen by load; 193 ms on the last run); 63 ms on CI.
 - The morning scrolls 63 px at 360x640 with 6 stalls; the event chip in the top bar is cut at 360 px.
 - About 700 unused old style rules remain in `styles.css` and `ticket.css`.
 - QA sweep: small tap targets and low-contrast labels (Home dots, freshness letters, later rank numbers).
