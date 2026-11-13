@@ -3977,6 +3977,10 @@
     {
       "at": "2026-11-13 10:26",
       "text": "PLAN-095 (rules 19 standing-order numbers, Home and Wardrobe) implemented: verify PASS (841 tests), e2e PASS on 955f63a. Not published."
+    },
+    {
+      "at": "2026-11-13 10:52",
+      "text": "Three animated flows for the crate reveal, from Open my stall to the first customer, sent to the owner (docs/studio/review-18/mockups/reveal-flows: flow-a/b/c.mp4, flows-sheet.png, index.html): A the table forms at once (7.9 s), B gather at the bell (8.7 s), C fruit by fruit (9.9 s). Mock-ups only; the game is unchanged until he chooses. Recommended: B, optionally with A's one-by-one opening."
     }
   ]
 }
