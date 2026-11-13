@@ -4013,6 +4013,10 @@
     {
       "at": "2026-11-13 11:15",
       "text": "PLAN-098 (the evening for everyone at once, DEC-115) merged as c1b41cd: verify PASS (882 tests); the helper's e2e PASS; the solo evening seen by me at both sizes; an online evening not yet looked at by me. PLAN-099 (flow A) started by a helper on c1b41cd."
+    },
+    {
+      "at": "2026-11-13 11:27",
+      "text": "Owner: \"for rep118, list down all the text changes with a column for me to edit\". The 109 changes of REP-118 put in a private sheet (https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49): Now, Proposed, Your version (his to type), Decision (Use proposed, Use my version, Keep as now), Why; and a second sheet with the 8 names and my picks. PLAN-097 stays awaiting approval until he finishes it."
     }
   ]
 }
