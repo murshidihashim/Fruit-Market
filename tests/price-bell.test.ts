@@ -4,19 +4,25 @@ import { h } from 'preact';
 import { emptyStock, newGame, submitPrices, type Customer, type GameState } from '../src/engine/game';
 import { FRUIT, type FruitId } from '../src/engine/data';
 import { buyersAt, demandBoard } from '../src/ui/boardModel';
-import { BellNotice, PriceBar, PricePanelView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
+import { BellNotice, PriceBar, PriceSheetView, bellOpensOnStart, startingPrices } from '../src/ui/panel';
 import { toStaticHtml } from '../src/ui/cards';
+import { PreView } from '../src/ui/game/panels/RushTable';
+import { preTable } from '../src/ui/game/tableNow';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
 const OKAY = (f: FruitId) => FRUIT[f].ripe.lastIndexOf('okay');
 const buyer = (id: number, f: FruitId, qty: number, max: number, pref: Customer['pref'] = 'everyday'): Customer =>
   ({ id, name: `C${id}`, pref, wants: [{ fruit: f, qty, max }], original: [{ fruit: f, qty, max }] });
 
-/** The pricing step as the day's sheet first draws it (PLAN-085): the rows, and the main button under them. */
-const panel = (s: GameState, sealed = false) => toStaticHtml([
-  h(PricePanelView, { s, p: 0, vals: startingPrices(s, 0), notice: bellOpensOnStart(s), sealed, onPrice: () => undefined, onNotice: () => undefined }),
+/** The pricing step as the round table's sheet first draws it (PLAN-099): the rows, and the main button under them. */
+const panel = (s: GameState) => toStaticHtml([
+  h(PriceSheetView, { s, p: 0, vals: startingPrices(s, 0), notice: bellOpensOnStart(s), onPrice: () => undefined, onNotice: () => undefined }),
   h(PriceBar, { s, p: 0, vals: startingPrices(s, 0), onSubmit: () => undefined }),
 ]);
+/** The round table above the sheet, at a step before the bell. */
+const round = (s: GameState, step: 'price' | 'sealed', vals: Record<string, number> | null) => toStaticHtml(h(PreView, { s, viewer: 0, pre: preTable(s, 0, {
+  step, sent: null, own: null, vals, open: null, asked: -1, mine: false, online: false, waiting: '', shared: false, answered: false, left: null,
+}) }));
 
 /** Three stalls at the bell on `day`: you have 2 fresh watermelons and 2 okay apples; Saleh 3 watermelons; Kiki sealed. */
 function bell(day = 2): GameState {
@@ -72,24 +78,31 @@ describe('every crate is open, and your price rows', () => {
   it('each fruit you put out has its own price row; a rival is only a number of pieces, and a sealed price never shows', () => {
     const s = bell();
     const html = panel(s);
-    // PLAN-085: the rivals' crates are the rival boxes of the table now; the sheet holds your own rows, how a tie
-    // falls, and (where it lies over the rival boxes, on a short phone) how many pieces each rival put out
+    // PLAN-099: the rivals' crates sit round the table above the sheet; the sheet holds your own rows and how a tie falls
     expect(html).toContain('Your secret prices');
-    expect(html).toContain('Saleh 3 · Kiki 1 out'); // how many, never which fruit
-    expect(html.match(/class="ds-prow /g)).toHaveLength(2); // your watermelons and your apples
+    expect(html.match(/class="ps-row /g)).toHaveLength(2); // your watermelons and your apples
     expect(html.match(/class="ds-dial"/g)).toHaveLength(2);
     expect(html).toContain('2 out');
-    expect(html).toContain('The fresher piece sells first, then the Haggler, then whoever bought earlier.');
+    expect(html).toContain('Ties: fresher, then the Haggler, then earlier.');
     expect(html).not.toMatch(/\$97|>97</);
     expect(html).toContain('Ring the bell');
     expect(html).toContain('seal 2 prices');
-    // once you have rung the bell your tags lie face down: no price of yours is drawn, and nothing can be changed
+    // the table above it: how many pieces each rival put out, never which fruit; your tags as you set them
     const own = startingPrices(s, 0);
-    const sealed = toStaticHtml(h(PricePanelView, { s, p: 0, vals: own, notice: false, sealed: true, onPrice: () => undefined, onNotice: () => undefined }));
-    expect(sealed.match(/class="ds-tag-back"/g)).toHaveLength(2);
-    expect(sealed).not.toContain('ds-tag-face');
+    const table = round(s, 'price', own);
+    expect(table).toContain('Saleh: 3 pieces, face down, 3 out');
+    expect(table).toContain('Kiki: 1 piece, face down, 1 out');
+    expect(table).not.toMatch(/\$97|>97</);
+    for (const [f, price] of Object.entries(own)) {
+      expect(table).toContain(`data-a="rt-tag-0-${f}"`);
+      expect(table).toContain(`<b>$${price}</b>`);
+    }
+    // once you have rung the bell your tags lie face down: no price of yours is drawn, and the sheet's button is gone
+    const sealed = round(s, 'sealed', null);
+    expect(sealed.match(/class="rt-tg [^"]*down/g)).toHaveLength(2);
     for (const price of Object.values(own)) expect(sealed).not.toContain(`$${price}<`);
-    expect(sealed.match(/<button[^>]*class="ds-st"[^>]*disabled/g)).toHaveLength(4);
+    expect(sealed).not.toContain('Ring the bell');
+    expect(toStaticHtml(h(PriceBar, { s, p: 0, vals: own, sealed: true, onSubmit: () => undefined }))).toMatch(/<button[^>]*disabled/);
   });
 });
 

@@ -320,20 +320,23 @@ function settle(card: RushCard, pay: Pay, favour = true) {
 
 /** How long "No sales today" stays up, in ms at normal speed. */
 export const NO_SALES_READ = A.BEAT.bell.noSales;
-/** The bell's travel (flow study D3): the bell swings, then stall by stall a row lifts and its price tags turn face up. */
+/** The bell's travel (flow study D3; PLAN-099): the bell swings in the middle of the round table, then seat by seat a
+ *  crate's lid lifts, its pieces and its price tags turn face up. */
 export const bellOpening = (stalls: number) => A.BEAT.bell.swing + Math.max(0, stalls - 1) * A.BEAT.bell.gap + A.BEAT.bell.lid + A.FEEL.turn;
 /** The whole bell untouched, in ms at normal speed: the travel and the pause to read. About 2.6 s at four stalls. */
 export const bellLength = (stalls: number) => bellOpening(stalls) + A.BEAT.bell.read;
 
-/** The bell while it rings: how many rows have turned face up so far (0 while it swings); null when it is not ringing. */
+/** The bell while it rings: how many seats have opened so far, clockwise from this stall's (0 while it swings); null
+ *  when it is not ringing. */
 export type BellShow = number | null;
 
 /**
- * The bell (rules 15; PLAN-085): the bell swings and sounds, then stall by stall, in today's line-up, each row's
- * price tags turn face up (the sheet draws them: panels/PricingTable.tsx), then a pause to read. The sound is one: the
- * player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
- * nothing here makes a sound. With reduced motion nothing travels: every row is open at once and the reading pause
- * is kept. A tap ends the bell where it stands: every row is shown open and the pause is over.
+ * The bell (rules 15; PLAN-085; at the round table, PLAN-099): the bell swings and sounds in the middle of the table,
+ * then seat by seat, clockwise from this stall's, each crate opens: its lid lifts, its face-down squares turn into its
+ * pieces and its price tags turn face up (panels/RushTable.tsx draws them), then a pause to read. The sound is one:
+ * the player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
+ * nothing here makes a sound. With reduced motion nothing travels: every crate is open at once and the reading pause
+ * is kept. A tap ends the bell where it stands: every crate is shown open and the pause is over.
  */
 export async function bellRings(g: GameState, setBell?: (open: BellShow) => void) {
   const n = g.players.length;
@@ -371,24 +374,25 @@ export function tieAnswer(prev: GameState, next: GameState): { p: number; played
 }
 
 /**
- * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading for
- * this stall, the stall's own row for a rival), and its stamp is held back until the card has landed on the tag.
- * Returns the place to travel from.
+ * Before the answer is shown: when the card is played, the place it lies now is noted (the question's heading, in the
+ * middle of the round table, PLAN-099; the stall's crate when the question is not on this screen), and its stamp is
+ * held back until the card has landed on the tag. Returns the place to travel from. `_viewer`: the stall this screen
+ * belongs to (every stall reads the question in the middle now).
  */
-export function tieFrom(a: { p: number; played: boolean }, viewer: number): A.Box | null {
+export function tieFrom(a: { p: number; played: boolean }, _viewer: number): A.Box | null {
   if (!a.played || typeof document === 'undefined') return null;
   holdStamp(true);
-  return A.boxOf(a.p === viewer ? document.querySelector('[data-a="tie-kind"]') : document.querySelector(`[data-a="bell-p${a.p}"] .tk-swatch`));
+  return A.boxOf(document.querySelector('[data-a="tie-kind"]') ?? document.querySelector(`[data-a="rt-crate-${a.p}"] .rt-who`));
 }
 
 /**
- * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag and stamps it
- * (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced motion
- * nothing travels: the card's name is shown on the stall's row for a pause to read.
+ * Favoured Trade played by stall `p`: the card slides from where it lay to the stall's tied price tag on its crate and
+ * stamps it (the stamp shows as it lands), then a pause. The rush follows; the bell is not shown again. With reduced
+ * motion nothing travels: the card's name is shown over the stall's crate for a pause to read.
  */
 export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
   if (typeof document === 'undefined') { holdStamp(false); return; }
-  const tag = document.querySelector(`[data-a^="bell-${p}-"].tie`);
+  const tag = document.querySelector(`[data-a^="rt-tag-${p}-"].tie`);
   let spot: HTMLElement | null = null;
   if (from) {
     // The question has left the table by now: a place that is not drawn stands in for where the card lay.
@@ -398,10 +402,10 @@ export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
     document.body.appendChild(spot);
   }
   fx.card();
-  const label = A.isReduced() ? A.tag(`bell-p${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
+  const label = A.isReduced() ? A.tag(`rt-crate-${p}`, FAVOURS.favouredTrade.title, 'favour') : null;
   try {
-    await A.fly(spot ?? `bell-p${p}`, tag ?? `bell-p${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
-    document.querySelectorAll(`[data-a^="bell-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
+    await A.fly(spot ?? `rt-crate-${p}`, tag ?? `rt-crate-${p}`, <FavourMark id="favouredTrade" />, { duration: A.FEEL.travel, path: 'low', swell: false, onLand: () => holdStamp(false) });
+    document.querySelectorAll(`[data-a^="rt-tag-${p}-"].tie`).forEach((el) => A.pulse(el.getAttribute('data-a') ?? ''));
     await A.wait(A.BEAT.tie.stamp);
     await A.hold(A.isReduced() ? A.BEAT.label.read : A.BEAT.tie.pause);
   } finally {

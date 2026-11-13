@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep, computersEvening } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
-import { activePlayer, canPlayFavour, eveningOpen, winners, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
+import { activePlayer, canPlayFavour, eveningOpen, winners, RuleError, type Action, type Crate, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
@@ -44,8 +44,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // The bell has its own sound (PLAN-086): the one this player has on, heard on this phone only. It sounds once, as
   // the bell starts to ring (the first time the bell shows anything), and is ready again once the bell is put away.
   const bellUp = useRef(false);
+  /** The day on which the bell last rang on this table: from then until the takings the crates stay open. */
+  const rangOn = useRef(0);
   const setBell = (open: BellShow) => {
     if (open !== null && !bellUp.current) fx.bell();
+    if (open !== null) rangOn.current = sRef.current.day;
     bellUp.current = open !== null;
     showBell(open);
   };
@@ -74,6 +77,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const buyQueue = useRef<{ f: FruitId; pos: number }[]>([]);
   /** Done was tapped while a piece was still on its way: buying ends as soon as the table is free (PLAN-085). */
   const endQueued = useRef(false);
+  /** Online: the crate this screen sent as its stall opened (the room sends it back only once every stall is open). */
+  const sentCrate = useRef<{ day: number; seat: number; crate: Crate } | null>(null);
+  /** This stall's crate as it opened it today: the game's, or online the one this screen sent while the room keeps
+   *  crates back (null when neither is known). */
+  const ownCrate = (st: GameState, p: number): Crate | null =>
+    st.crates?.[p] ?? (sentCrate.current && sentCrate.current.day === st.day && sentCrate.current.seat === p ? sentCrate.current.crate : null);
 
   const humans = useMemo(() => s.players.map((p, i) => (p.kind === 'human' ? i : -1)).filter((i) => i >= 0), [s.players.length]);
   const multi = humans.length > 1;
@@ -324,6 +333,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (sending.current) return;
       if (!online.act(a)) return say('Reconnecting…');
       sending.current = true;
+      // The room keeps every crate back until every stall has opened (rules 15), this one's too: the round table
+      // draws this stall's crate from what it sent (PLAN-099).
+      if (a.kind === 'stall' && a.crate && online.seat !== null) sentCrate.current = { day: sRef.current.day, seat: online.seat, crate: a.crate };
       return;
     }
     const who = seat ?? (a.kind === 'stall' || a.kind === 'prices' ? activePlayer(sRef.current) : active);
@@ -474,7 +486,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
     humans, active, actor, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, eveningWaits, votedMe,
-    humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay,
+    humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay, ownCrate,
+    /** The bell has rung on this table today (the Favoured Trade question follows it). */
+    rung: (s.phase === 'tie' ? (rangOn.current = s.day) : rangOn.current) === s.day,
   };
 }
 

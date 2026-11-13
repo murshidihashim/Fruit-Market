@@ -117,6 +117,8 @@ interface Replay {
   used: Map<LineResult, (number[] | null)[]>;
   before: Map<LineResult, (number[] | null)[]>;
   start: Map<number, (Partial<Record<FruitId, number[]>> | null)[]>;
+  /** Every stall's crate after the last line. */
+  end: (Stock | null)[];
 }
 
 /** The day's sales played again on a copy of the open crates (see offeredPieces). */
@@ -125,7 +127,7 @@ function replay(s: GameState): Replay {
   const before = new Map<LineResult, (number[] | null)[]>();
   const start = new Map<number, (Partial<Record<FruitId, number[]>> | null)[]>();
   const r = s.results;
-  if (!r || !s.crates) return { used: out, before, start };
+  if (!r || !s.crates) return { used: out, before, start, end: s.players.map(() => null) };
   // Only the open crates: a stall without one (it put nothing out) has an empty crate, never its shelf.
   const crates = s.players.map((pl, p) => (s.crates?.[p] ? copy(crateStock(s, p)) : Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map(() => 0)])) as Stock));
   const customers = new Map(servingCustomers(s).map((c) => [c.id, c]));
@@ -161,7 +163,13 @@ function replay(s: GameState): Replay {
     out.set(l, used);
     l.offers.forEach((o, i) => { for (const pos of o.tooOld ? [] : used[i]?.slice(0, o.sold) ?? []) crates[o.player][f][pos]--; });
   }
-  return { used: out, before, start };
+  return { used: out, before, start, end: crates.map((crate, p) => (lost.has(p) ? null : crate)) };
+}
+
+/** Every stall's crate once the day's sales have all been made: what is left in it (null when that cannot be worked
+ *  out). The round table shows the crates so between the last customer and the takings (PLAN-099). */
+export function cratesLeft(s: GameState): (Stock | null)[] {
+  return replay(s).end;
 }
 
 /** What a row says once its sale has been shown: "Sold 1", with the money for your own stall; otherwise why it did not sell. */
@@ -289,14 +297,17 @@ export interface Place { left: number; top: number; width: number; height: numbe
 
 /** The table's sizes, in px. `round`: drawn in full, the crates round the customer (a tall phone). `close`: two columns
  *  of crates either side of the customer (a small phone). A crate's size, and the customer's card at its largest
- *  (three fruit lines); the card's width may shrink to fit between the columns. */
+ *  (three fruit lines); the card's width may shrink to fit between the columns. `wide`: the widest a crate of the close
+ *  form is drawn while nothing stands in the middle (pricing, PLAN-099), so that a low crate still holds its pieces and
+ *  its price tags. `low`: a crate lower than this draws its pieces and its tags side by side (rushTable.css). */
 export const TABLE = {
   round: { crate: [98, 96], card: [150, 216] },
-  close: { crate: [104, 90], card: [140, 176] },
+  close: { crate: [104, 90], card: [140, 176], wide: 168 },
   /** From the stage's edge to a crate, and between a crate and the customer. */
   pad: 6, gap: 6,
   /** The narrowest the customer's card may be drawn between two columns of crates. */
   minCard: 116,
+  low: 72,
 } as const;
 
 /** Each seat, clockwise from the top left, as a point on a square whose sides run from -1 to 1. `round`: spread evenly
@@ -321,32 +332,104 @@ const SEATS: Record<'round' | 'close', Record<number, [number, number][]>> = {
 };
 
 /** How the table is laid out on a stage of this size: each seat's crate (in seat order), the box the customer's card
- *  stands in (centred), and whether it is the close form. Seats stay where they are for the whole rush. */
-export interface TableLay { close: boolean; seats: Place[]; card: Place; crate: { width: number; height: number } }
+ *  stands in (centred), whether it is the close form, and whether its crates are low (pieces and tags side by side).
+ *  Seats stay where they are for the whole rush. */
+export interface TableLay { close: boolean; low: boolean; seats: Place[]; card: Place; crate: { width: number; height: number } }
+
+/** How a table is laid out besides its size (PLAN-099). `form`: keep this form (while the pricing sheet takes part of
+ *  the stage, the table keeps the form the whole stage has, so the seats only glide when the sheet goes). `free`:
+ *  nothing stands in the middle, so the close form's crates may take the middle's room as well. */
+export interface LayOpts { form?: 'round' | 'close'; free?: boolean }
 
 const overlap = (a: Place, b: Place, gap: number) =>
   a.left < b.left + b.width + gap && b.left < a.left + a.width + gap && a.top < b.top + b.height + gap && b.top < a.top + a.height + gap;
 
-export function tableLay(n: number, w: number, h: number): TableLay {
+export function tableLay(n: number, w: number, h: number, o: LayOpts = {}): TableLay {
   const { pad, gap } = TABLE;
   const lay = (form: 'round' | 'close'): TableLay => {
     const k = Math.max(1, Math.min(6, n));
     const units = SEATS[form][k];
     const perColumn = form === 'close' ? Math.max(1, ...[-1, 1].map((x) => units.filter((u) => u[0] === x).length)) : 1;
-    // Close: the crates shrink to fit three to a column on a short stage, and to leave the card its narrowest on a narrow one.
-    const cw = form === 'close' ? Math.min(TABLE.close.crate[0], Math.floor((w - 2 * pad - 2 * gap - TABLE.minCard) / 2)) : TABLE.round.crate[0];
+    // Close: the crates shrink to fit three to a column on a short stage, and to leave the card its narrowest on a
+    // narrow one; with nothing in the middle they may be as wide as half the stage (at most TABLE.close.wide).
+    const cw = form !== 'close' ? TABLE.round.crate[0]
+      : o.free ? Math.min(TABLE.close.wide, Math.floor((w - 2 * pad - gap) / 2))
+      : Math.min(TABLE.close.crate[0], Math.floor((w - 2 * pad - 2 * gap - TABLE.minCard) / 2));
     const ch = form === 'close' ? Math.min(TABLE.close.crate[1], Math.floor((h - 2 * pad - (perColumn - 1) * gap) / perColumn)) : TABLE.round.crate[1];
     const cardW = form === 'close' ? Math.max(TABLE.minCard, Math.min(TABLE.close.card[0], w - 2 * pad - 2 * gap - 2 * cw)) : TABLE.round.card[0];
     const cardH = Math.min(TABLE[form].card[1], h - 2 * pad);
     const seats = units.slice(0, n).map(([x, y]): Place => ({
       left: Math.round(pad + (w - 2 * pad - cw) * (x + 1) / 2), top: Math.round(pad + (h - 2 * pad - ch) * (y + 1) / 2), width: cw, height: ch,
     }));
-    return { close: form === 'close', seats, card: { left: Math.round((w - cardW) / 2), top: Math.round((h - cardH) / 2), width: cardW, height: cardH }, crate: { width: cw, height: ch } };
+    return { close: form === 'close', low: ch < TABLE.low, seats, card: { left: Math.round((w - cardW) / 2), top: Math.round((h - cardH) / 2), width: cardW, height: cardH }, crate: { width: cw, height: ch } };
   };
+  if (o.form === 'close') return lay('close');
   const round = lay('round');
+  // With nothing in the middle, only the seats themselves must keep clear of each other.
   const fits = round.seats.every((a, i) => a.left >= 0 && a.top >= 0 && a.left + a.width <= w && a.top + a.height <= h
-    && !overlap(a, round.card, gap) && round.seats.every((b, j) => j === i || !overlap(a, b, gap)));
-  return fits ? round : lay('close');
+    && (o.free || !overlap(a, round.card, gap)) && round.seats.every((b, j) => j === i || !overlap(a, b, gap)));
+  return fits && (o.free ? o.form === 'round' : true) ? round : lay('close');
+}
+
+/** The lowest a crate of the close form is drawn while the pricing sheet takes part of the stage (PLAN-099): its
+ *  awning, its face and name with its tags beside them, and one line of pieces. */
+export const LOWEST_CRATE = 46;
+
+/**
+ * The least height the table needs above the pricing sheet (PLAN-099), in the form the whole stage has (`h`): for the
+ * round form, the lowest stage on which its seats still keep clear of each other; for the close form, a column of the
+ * lowest crates. The pricing sheet is drawn closer, and then scrolls its rows, so as to leave the table this much.
+ */
+export function tableMin(n: number, w: number, h: number): number {
+  const { pad, gap } = TABLE;
+  const full = tableLay(n, w, h);
+  if (full.close) {
+    const k = Math.max(1, Math.ceil(Math.min(6, Math.max(1, n)) / 2));
+    return Math.min(h, 2 * pad + k * LOWEST_CRATE + (k - 1) * gap);
+  }
+  for (let at = TABLE.round.crate[1] + 2 * pad; at < h; at += 4) if (!tableLay(n, w, at, { form: 'round', free: true }).close) return at;
+  return h;
+}
+
+/**
+ * The room in the middle of the table, between the seats (PLAN-099): where the bell rings and the Favoured Trade
+ * question is asked. Two boxes are tried round the middle, one as wide as the seats level with it allow and then as
+ * tall as the seats over and under it allow, the other the other way round; the larger is taken (a box narrower than
+ * a card can be read in is not).
+ */
+export function middleOf(lay: TableLay, w: number, h: number): Place {
+  const { pad, gap } = TABLE;
+  const cx = w / 2, cy = h / 2;
+  const across = (x0: number, x1: number, y0: number, y1: number) => {
+    let left = x0, right = x1;
+    for (const s of lay.seats) {
+      if (s.top >= y1 || s.top + s.height <= y0) continue;
+      if (s.left + s.width <= cx) left = Math.max(left, s.left + s.width + gap);
+      else if (s.left >= cx) right = Math.min(right, s.left - gap);
+      else { left = right = cx; }
+    }
+    return [left, right];
+  };
+  const down = (x0: number, x1: number, y0: number, y1: number) => {
+    let top = y0, bottom = y1;
+    for (const s of lay.seats) {
+      if (s.left >= x1 || s.left + s.width <= x0) continue;
+      if (s.top + s.height <= cy) top = Math.max(top, s.top + s.height + gap);
+      else if (s.top >= cy) bottom = Math.min(bottom, s.top - gap);
+      else { top = bottom = cy; }
+    }
+    return [top, bottom];
+  };
+  const box = (l: number, r: number, t: number, b: number): Place => ({ left: Math.round(l), top: Math.round(t), width: Math.max(0, Math.round(r - l)), height: Math.max(0, Math.round(b - t)) });
+  // wide first: what is level with the middle, then over and under
+  const [l1, r1] = across(pad, w - pad, cy - 1, cy + 1);
+  const [t1, b1] = down(l1, r1, pad, h - pad);
+  // tall first: what is over and under the middle, then beside it
+  const [t2, b2] = down(cx - 1, cx + 1, pad, h - pad);
+  const [l2, r2] = across(pad, w - pad, t2, b2);
+  const a = box(l1, r1, t1, b1), b = box(l2, r2, t2, b2);
+  const room = (x: Place) => (x.width >= TABLE.minCard - 16 ? x.width * x.height : 0);
+  return room(b) > room(a) ? b : a;
 }
 
 /** The stalls in their seats: this screen's stall first, then the others in turn order after it (as they sit across

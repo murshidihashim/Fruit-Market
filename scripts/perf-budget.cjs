@@ -37,16 +37,17 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2']));
     window.__long = [];
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push([Math.round(e.duration), e.startTime]))).observe({ type: 'longtask', buffered: true });
-    // Smoothness: how long every frame took while the rush plays (from the bell to the takings: Skip is on the bar
-    // for exactly that long) and while the night plays. A frame is only counted when the one before it was in the
-    // same beat, so the time before a beat is not charged to its first frame.
+    // Smoothness: how long every frame took while the rush plays (from the bell to the takings: the round table says
+    // it is playing with data-busy for exactly that long while the game is at the rush, PLAN-099) and while the night
+    // plays. A frame is only counted when the one before it was in the same beat, so the time before a beat is not
+    // charged to its first frame.
     window.__frames = { rush: [], night: [] };
     window.__beatDom = 0;
     window.__beat = () => {
       const g = document.querySelector('.game');
       if (!g) return null;
       if (g.classList.contains('is-night')) return 'night';
-      return g.classList.contains('ph-reveal') && document.querySelector('.actionbar .skip') ? 'rush' : null;
+      return g.classList.contains('ph-reveal') && document.querySelector('.rush-table[data-busy]') ? 'rush' : null;
     };
     let last = 0, was = null;
     const frame = (t) => {

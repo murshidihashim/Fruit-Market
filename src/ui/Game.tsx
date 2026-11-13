@@ -22,7 +22,9 @@ import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
 import { TraitPick } from './game/panels/TraitPick';
 import { RushTable } from './game/panels/RushTable';
-import { DaySheet, daySheetOn } from './game/panels/DaySheet';
+import { DaySheet, dayNow, daySheetOn } from './game/panels/DaySheet';
+import { dayStep } from './game/daySheet';
+import { tableStep } from './game/tableNow';
 import { Results } from './game/panels/Results';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
@@ -76,8 +78,13 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const handoffAt = useRef(0);
   if (!c.needHandoff) handoffAt.current = 0;
   else if (!handoffAt.current) handoffAt.current = performance.now();
+  // Whether the round table was up at the last drawing, and where your crate lay on the stocking sheet as it came up.
+  const tableWas = useRef(false);
+  const crateFrom = useRef<A.Box | null>(null);
 
   if (c.needHandoff) {
+    // The hand-over screen hides the whole table: the last person's crate and price tags go with it (PLAN-099).
+    tableWas.current = false;
     const pl = s.players[active];
     return (
       <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
@@ -134,10 +141,17 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const orderUp = !!c.orderShow || (s.phase === 'order' && !!s.standing && s.players[viewer]?.kind === 'human');
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price decides, in the open, whether to play it.
   const tying = s.phase === 'tie' && activeHuman && !busy;
-  // One sheet stays on the table from stocking to the day's takings (PLAN-085): while this stall fills its crate, while
-  // the rivals open and price, at the bell, for the Favoured Trade question and for the takings. On a shared phone it
-  // is drawn only for the person the phone was handed to (game/daySheet.ts).
+  // The day's sheet (PLAN-085): while this stall fills its crate, and for the takings. On a shared phone it is drawn
+  // only for the person the phone was handed to (game/daySheet.ts).
   const dayOn = daySheetOn(s, viewer, c, !!online);
+  // Between them, from the moment this stall opens to the last customer of the rush, the round table lies over the
+  // table under the customers (flow A, PLAN-099; panels/RushTable.tsx): the crates in their seats, pricing on a sheet
+  // at its foot, the bell, the Favoured Trade question and the rush. It decides for itself when it is up; here it is
+  // only asked so that what it lies over is put out of reach, and so that your crate can travel from the stocking
+  // sheet to its seat as the table forms (where it lay is measured now, before the sheet leaves the page).
+  const tableOn = !!show || tableStep(dayStep(dayNow(s, viewer, c, !!online))) !== null;
+  if (tableOn && !tableWas.current) crateFrom.current = A.boxOf(typeof document === 'undefined' ? null : document.getElementById('my-crate'));
+  tableWas.current = tableOn;
   // The strip of the day's steps follows what is on the table (PLAN-090): the standing order while its bids are turned
   // over (the game is at buying by then), and the bell until the first customer's card is up (the game is at the rush).
   const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;
@@ -171,7 +185,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
-  covered.current = !!mid;
+  // The round table lies over the market too, so the market is out of reach while it is up.
+  covered.current = !!mid || tableOn;
   const offSeats = offline.map((x) => x.seat);
 
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
@@ -185,7 +200,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     else c.hurry();
   };
   return (
-    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${tableOn ? 'table-up' : ''}${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
       <TopBar s={s} viewer={viewer} night={c.night} on={onTable} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
       {c.eventInfo && <EventPop c={c} viewer={viewer} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
@@ -224,13 +239,14 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       </div>
       <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
 
-      {/* While stocking or pricing, bidding for a standing order or deciding the evening, the panel's own buttons
-          (.pp-lock) take the action bar's place. */}
-      {!pricing && !stalling && !orderUp && !tying && !evSheet && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
+          the action bar's place; while the round table is up, its own foot does. */}
+      {!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
-      {/* The rush: the round table, a stage over the table from under the customer row down, under the flying fruit.
-          It stays a moment after the last customer, to slide off, so it is drawn here all the time and decides for itself. */}
-      <RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} />
+      {/* The round table, from the moment this stall opens to the end of the rush: a stage over the table from under the
+          customer row down, under the flying fruit. It stays a moment after it is done, to slide off, so it is drawn
+          here all the time and decides for itself. */}
+      <RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} c={c} online={!!online} from={crateFrom.current} />
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}

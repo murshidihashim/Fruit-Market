@@ -73,6 +73,10 @@ describe('the lengths are named in one place (motion.ts)', () => {
     expect(bellLength(6)).toBe(2900);
     expect(BEAT.tie).toEqual({ ask: 600, stamp: 180, pause: 600 });
     expect(NO_SALES_READ).toBe(1100);
+    // the round table before the rush (PLAN-099): the crates travel to their seats as the table forms, as a piece
+    // crosses the table, and glide when the pricing sheet comes or goes
+    expect(BEAT.table).toEqual({ form: 320, glide: 240 });
+    expect(BEAT.table.form).toBe(FEEL.travel);
     // the rush: the round table, at the flow study's pace (PLAN-084, PLAN-092: fruit by fruit, the tags turning to the next
     // fruit once a fruit's coins are back; rush.test.ts pins what a customer takes)
     expect(BEAT.rush).toEqual({ cardIn: 250, rows: 300, pieceGap: 80, coinGap: 60, fruit: 300, read: 1000, cardOut: 200, favour: 340 });
@@ -90,7 +94,9 @@ describe('the lengths are named in one place (motion.ts)', () => {
 
   it('the table\'s scripts and panels hold no lengths of their own', () => {
     const files = ['src/ui/anim.ts', 'src/ui/sheet.ts', 'src/ui/cashShown.ts', 'src/ui/panel.tsx', 'src/ui/Game.tsx', 'src/ui/game/animator.tsx', 'src/ui/game/rush.ts',
-      'src/ui/game/useGameController.ts', 'src/ui/game/panels/NightShift.tsx', 'src/ui/game/panels/RushTable.tsx', 'src/ui/game/panels/ActionBar.tsx'];
+      'src/ui/game/useGameController.ts', 'src/ui/game/panels/NightShift.tsx', 'src/ui/game/panels/RushTable.tsx', 'src/ui/game/panels/ActionBar.tsx',
+      // the round table before the rush (PLAN-099)
+      'src/ui/game/tableBeats.ts', 'src/ui/game/tableNow.ts', 'src/ui/game/panels/DaySheet.tsx'];
     const bare = [/\b(?:wait|hold|held|pause|ms|moveMs|timer)\(\s*\d{2,}/, /\bduration:\s*\d{2,}/, /\bdelay:\s*\d{2,}/, /setTimeout\([^\n]*,\s*\d{2,}\s*\)/];
     const found = files.flatMap((f) => read(f).split('\n').map((l, i) => ({ at: `${f}:${i + 1}`, l })).filter((x) => !/^\s*(\/\/|\*|\/\*)/.test(x.l) && bare.some((re) => re.test(x.l))).map((x) => `${x.at}: ${x.l.trim()}`));
     expect(found).toEqual([]);
