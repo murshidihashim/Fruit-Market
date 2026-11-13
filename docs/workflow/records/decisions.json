@@ -2802,7 +2802,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
         "REP-114"
       ],
@@ -2826,7 +2826,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
         "REP-117"
       ],
@@ -3973,6 +3973,10 @@
     {
       "at": "2026-11-13 10:20",
       "text": "REP-118: the in-game text review for PLAN-097, put to the owner for approval. About 1,800 strings a player can meet; 109 proposed changes (12 errors, 97 wording fixes; the top 25 on the day's screens) and 8 names left for his choice. Nothing changed yet."
+    },
+    {
+      "at": "2026-11-13 10:26",
+      "text": "PLAN-095 (rules 19 standing-order numbers, Home and Wardrobe) implemented: verify PASS (841 tests), e2e PASS on 955f63a. Not published."
     }
   ]
 }

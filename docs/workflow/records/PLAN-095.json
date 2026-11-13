@@ -20,8 +20,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on 955f63a (finished 10:26): solo game to the results; speed test OK (longest task 164 ms against 200, 0.93 slow frames in 100); online match 58 pricing frames, 0 leaks; takeover; quick match; four people and two computers; reconnect 5 of 5."
     },
     {
       "id": "T3",
@@ -41,7 +41,7 @@
     "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
     "date": "2026-11-13"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
