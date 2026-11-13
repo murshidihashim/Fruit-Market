@@ -40,8 +40,11 @@
 #app .tkt .mt-load { flex: none; margin-left: auto; display: flex; align-items: center; gap: 6px; }
 #app .tkt .mt-load span { display: inline-flex; align-items: center; gap: 3px; }
 /* A morning with more to say than its sheet holds is drawn closer, a step at a time (MorningCard.tsx writes the step
-   on the sheet, data-tight), before it would need a scroll: first the spacing, then the event's tagline and the
-   lorry's rows, then the event's picture. */
+   on the sheet, data-tight), before it would need a scroll: 1 the spacing; 2 the event's tagline and the lorry's
+   rows; 3 the event's picture; 4 a smaller picture and slimmer headings, chips and lines; 5 the event's words flow
+   round its picture and on under it, the whole width of the card (PLAN-096: a small phone with six stalls). Every
+   step keeps the rules of the steps before it: each later rule has the same weight as the earlier ones and comes after
+   them. */
 #app .tkt > .centre > .sh-morning[data-tight] { gap: 6px; padding-bottom: 6px; }
 #app .tkt > .centre > .sh-morning[data-tight] > :first-child:not(.dw) { margin-top: 6px; }
 #app .tkt .sh-morning[data-tight] .dw-row { padding-top: 6px; padding-bottom: 6px; }
@@ -50,12 +53,33 @@
 #app .tkt .sh-morning[data-tight] .wc-foot { padding-top: 4px; padding-bottom: 4px; }
 #app .tkt .sh-morning[data-tight] .wc-lt { margin-top: 4px; margin-bottom: 4px; }
 #app .tkt .sh-morning[data-tight] .mt-next { padding-top: 5px; padding-bottom: 5px; }
-#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-flavour { display: none; }
-#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-lt span { height: 16px; }
-#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-lt .wc-lt-h { height: 22px; }
-#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3']) .wc-ttl { font-size: 1.125rem; }
-#app .tkt .sh-morning[data-tight='3'] .wc-evpic { width: 104px; height: 76px; }
-#app .tkt .sh-morning[data-tight='3'] .wc-chip { padding: 4px 6px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-flavour { display: none; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-lt span { height: 16px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-lt .wc-lt-h { height: 22px; }
+#app .tkt .sh-morning:is([data-tight='2'], [data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-ttl { font-size: 1.125rem; }
+#app .tkt .sh-morning:is([data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-evpic { width: 104px; height: 76px; }
+#app .tkt .sh-morning:is([data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-chip { padding: 4px 6px; }
+#app .tkt > .centre > .sh-morning:is([data-tight='4'], [data-tight='5']) { gap: 4px; padding-bottom: 4px; }
+#app .tkt > .centre > .sh-morning:is([data-tight='4'], [data-tight='5']) > :first-child:not(.dw) { margin-top: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .dw-row { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .dw-n { font-size: 1.0625rem; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .mc-loss { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-kind { padding-top: 4px; padding-bottom: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-body { gap: 8px; padding: 5px 8px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-main { gap: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-evpic { width: 80px; height: 58px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-chip { padding: 2px 5px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-foot { padding-top: 2px; padding-bottom: 2px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .wc-lt { margin-top: 3px; margin-bottom: 3px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .tk-unload { gap: 4px; }
+#app .tkt .sh-morning:is([data-tight='4'], [data-tight='5']) .mt-next { padding-top: 3px; padding-bottom: 3px; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-body { display: block; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-body::after { content: ''; display: block; clear: both; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-evpic { float: left; margin: 0 8px 4px 0; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-main { display: block; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-main > * + * { margin-top: 4px; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-ttl { display: block; }
+#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-chip { display: flex; width: fit-content; }
 
 /* ---------- the standing-order bid ----------
    The order's card, who is bidding and what there is to deliver with take the room that is left and scroll inside it
