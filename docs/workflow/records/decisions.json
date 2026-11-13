@@ -2802,7 +2802,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-114"
       ],
@@ -2826,7 +2826,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-117"
       ],
@@ -2850,7 +2850,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-117"
       ],
@@ -2874,7 +2874,7 @@
         "evidence": "Owner, 2026-11-13, after the three animated flows: \"three crate flow should be A, but players need to know how many fruits are up for sale for each crate, add a black square per fruit to indicate this (like design c)\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-118"
       ],
@@ -2898,7 +2898,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"publish\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-119"
       ],
@@ -4057,6 +4057,10 @@
     {
       "at": "2026-11-13 15:56",
       "text": "DEC-117: the owner said \"publish\". Release 1.22.0 prepared: PLAN-095 (rules 19 standing orders, Home and Wardrobe), PLAN-098 (the evening for everyone at once), PLAN-099 (one round table from Open my stall to the rush); version 1.22.0, release entry with player notes, REP-119. The text pass (PLAN-097) and the small fixes (PLAN-096) are not in it."
+    },
+    {
+      "at": "2026-11-13 16:47",
+      "text": "Release 1.22.0 published (DEC-117): pull request #13, CI run 139 PASS (16:00 to 16:19); merged to main as f15874d at 16:25; main CI run 140 PASS (16:25 to 16:40) and the preview updated with its smoke test passing; Deploy LIVE game run 41 (16:44 to 16:46): verify, release check, deploy, live smoke test and tag v1.22.0 all passed. The live site answers rules version 19 and its code carries 1.22.0, the pricing sheet of the round table and the evening's waiting line. PLAN-095, PLAN-098 and PLAN-099 are released."
     }
   ]
 }

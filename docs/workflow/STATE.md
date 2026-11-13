@@ -1,20 +1,20 @@
 # Current state · Fruit Market
 
-Updated 2026-11-13 09:49 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-13 16:47 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.21.0, rules version 18 (`0f503ee`, tagged `v1.21.0`, published 2026-11-13 09:47; DEC-112, REP-117). The preview copy is the same build. It holds PLAN-086, 089, 090, 091, 092, 093 (the rush's seats hold their fruit; the lorry card shows one row) and 094 (Auto load).
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main after the release, plus the record of publishing.
+- **Live:** 1.22.0, rules version 19 (`f15874d`, tagged `v1.22.0`, published 2026-11-13 16:46; DEC-117, REP-119): standing orders $2 higher bid and $2 lower stake (PLAN-095), Home and Wardrobe buttons, the evening for everyone at once (PLAN-098), one round table from Open my stall to the rush (PLAN-099). The preview copy is the same build.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus the record of publishing.
 - **In progress:** nothing. No helper is running.
-- **Waiting on the owner:** (1) standing orders after REP-113 and REP-114: keep the numbers and show the sums on the bid sheet (recommended), take his proposal (+$2 top bid, −$2 stake), or test a direct mango fix; (2) REP-112 section 3 choices (Home's first page, old games as 3 stamps, the market's box height, the fifth and sixth seat colours, title names, two card wordings, Malaysian wording); (3) "Main menu"/"Dress up" against "Home"/"Wardrobe"; (4) tracker 1 or 2 after a proof print; (5) a small plan for the known gaps below, if wanted.
+- **Waiting on the owner:** (1) the text pass (PLAN-097, REP-118): he edits on the picture page https://claude.ai/artifact/98Pq8XD7TEpDvhBsysD2F5 (store collection `edits`, one document per row `c001`…) or the sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49 (Names tab for 8 name choices), then says "done"; (2) the small gaps (PLAN-096, awaiting approval); (3) REP-112 section 3 choices; (4) tracker 1 or 2 after a proof print.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
-## Checks (1.21.0, live)
-- Local on `ac3d804`: `npm run verify` PASS (841 tests); `npm run test:e2e` PASS (longest task 193 ms against 200; 0 leaks; reconnect 5 of 5).
-- CI: run 137 on the pull request PASS; run 138 on main PASS, preview updated. Deploy run 40 PASS (live smoke test, tag `v1.21.0`).
-- Print kit rebuilt from the final text; every page looked at (`cbcab10`). Proof print: NOT RUN. Played by people on 1.21.0: NOT RUN.
+## Checks (1.22.0, live)
+- Local on the merge `8ef525d`: `npm run verify` PASS (895 tests); e2e PASS on each part's branch (0 leaks).
+- CI: run 139 on pull request #13 PASS; run 140 on main PASS, preview updated. Deploy run 41 PASS (live smoke test, tag `v1.22.0`); live `/api/version` answers rules 19.
+- Print: the cards show rules 19's standing-order numbers; the update pack's guidebook still states rules 18 (printing paused). Proof print: NOT RUN. Played by people on 1.22.0: NOT RUN.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).

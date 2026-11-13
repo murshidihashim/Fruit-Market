@@ -531,7 +531,7 @@
     },
     {
       "version": "1.22.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-095",
         "PLAN-098",
@@ -545,7 +545,10 @@
         "From Open my stall to the end of the rush everything happens at one round table: you price with the table in view, the bell rings in the middle and the crates open one by one",
         "Before the bell each rival crate shows a black square for every piece it put out",
         "A game left unfinished under the earlier rules starts again; your trophies, stamps and looks are kept"
-      ]
+      ],
+      "date": "2026-11-13",
+      "commit": "f15874d",
+      "tagged": true
     }
   ]
 }
