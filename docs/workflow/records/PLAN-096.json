@@ -18,26 +18,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 8336ed4: 83 files, 904 tests passed, 1 skipped (the existing skip). New tests/small-gaps.test.ts (11): the morning's measured heights fit after the right step, each step keeps the earlier ones and hides nothing new, the chip's wrap rules, the 40 px minimum for the pricing and stocking minus and plus, the info button and Home's dots, and the contrast of every changed label."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes; the speed test lists no tap target under 40 px on the buy and price screens",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "FAIL",
+      "evidence": "Speed test only, on this machine. npm run test:e2e on the merge (same files as 8336ed4): solo game PASS; online match 72 pricing frames, 0 leaks; abandoned match, four players, reconnect 5 of 5 PASS. The speed test FAILED both tries: longest task 244 and 226 ms against 200 (p95 157 and 171 ms; opening 258 and 321 ms against 350); no tap target under 40 px on the buy and price screens. The same test run three times on each build, taking turns, with nothing else running: 1.22.0 as live 238, 280, 260 ms (p95 158, 168, 155); this build 273, 315, 238 ms (p95 161, 177, 164). Both fail on this machine today, the new build within the spread of the old; the 1.22.0 build passed here at 171 ms the day it was built. GitHub's CI (verify:full) is the check that decides; to run on this branch."
     },
     {
       "id": "T3",
       "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls; every screen before and after the style clean-up compared",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "By the helper: pictures of every screen at 2, 4 and 6 stalls, 390x844 and 360x640, before and after the style clean-up (two 'before' runs to learn the noise): all 68 screens outside the day itself identical; every in-game difference of the same kind as between two runs of one build (rival timers). A stronger check read every element's computed style at 817 moments with the old and the new stylesheet: 978,375 rows, 0 differences. Seen by me: the four before-and-after sheets at 360x640 (morning, event chip, touch areas, faint labels)."
     },
     {
       "id": "T4",
       "text": "The owner has seen it",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "The before-and-after sheets sent to the owner on 2026-11-14 00:54; his view is not yet received."
     }
   ],
   "approval": {
@@ -45,18 +45,31 @@
     "evidence": "Owner, 2026-11-13, quoting the five items of the plan: \"do this now, approve\".",
     "date": "2026-11-13"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 8336ed4",
   "reports": [
     "REP-117"
   ],
   "decisions": [],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "Two closer steps for the morning sheet on a small phone (a smaller event picture; the event's words flow round it)"
+    ],
+    "changed": [
+      "The event chip in the top bar wraps its name on two lines below 420 px and drops its picture when the name would not fit; faint labels drawn in darker shades of the same colours (lane headings, money chips, the Last day tag, empty market boxes, a freshness a customer won't take, the stamp book's later ranks, Home's inactive dot, a minus or plus that cannot be pressed); the speed test and QA sweep measure the area a tap reaches"
+    ],
+    "fixed": [
+      "The morning scrolled 21 to 60 px on a 360x640 phone with six stalls on busy days; it now fits (rare hand-made extremes with several two-line notices still scroll)",
+      "The event chip's name was cut at 320 to 390 px in 87 of 126 cases tried; now none",
+      "Touch areas of at least 40 px for the event chip, the pricing and stocking minus and plus, the pricing info button and Home's dots, without moving anything"
+    ],
+    "removed": [
+      "907 lines of style rules no screen uses (756 rules, 41 dead selectors, 5 unused animations); the page's style block from 488 KB to 423 KB"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "On a small phone the morning fits the screen, and the event's name in the top bar is shown in full",
+    "Some small buttons are easier to tap and some faint labels are easier to read"
+  ]
 }

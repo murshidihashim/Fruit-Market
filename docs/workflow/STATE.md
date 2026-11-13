@@ -1,12 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-13 16:47 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-14 00:54 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.22.0, rules version 19 (`f15874d`, tagged `v1.22.0`, published 2026-11-13 16:46; DEC-117, REP-119): standing orders $2 higher bid and $2 lower stake (PLAN-095), Home and Wardrobe buttons, the evening for everyone at once (PLAN-098), one round table from Open my stall to the rush (PLAN-099). The preview copy is the same build.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus the record of publishing.
-- **In progress:** nothing. No helper is running.
-- **Waiting on the owner:** (1) the text pass (PLAN-097, REP-118): he edits on the picture page https://claude.ai/artifact/98Pq8XD7TEpDvhBsysD2F5 (store collection `edits`, one document per row `c001`…) or the sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49 (Names tab for 8 name choices), then says "done"; (2) the small gaps (PLAN-096, awaiting approval); (3) REP-112 section 3 choices; (4) tracker 1 or 2 after a proof print.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus the record of publishing plus PLAN-096 (merge `8336ed4`), not published.
+- **In progress:** PLAN-096 (small gaps, approved): implemented; verify PASS; local e2e FAIL on the speed test only (the live build fails it here too); CI on the branch (workflow_dispatch) to confirm; the owner has not yet seen the before-and-after sheets. No helper is running.
+- **Commits:** author Murshidi Hashim, committer Claude <noreply@anthropic.com> (so GitHub shows the signature as verified); set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, no local git user override.
+- **Waiting on the owner:** (1) the text pass (PLAN-097, REP-118): he edits on the picture page https://claude.ai/artifact/98Pq8XD7TEpDvhBsysD2F5 (store collection `edits`, one document per row `c001`…) or the sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49 (Names tab for 8 name choices), then says "done"; (2) his look at PLAN-096's before-and-after sheets, and "publish" when he wants it live; (3) REP-112 section 3 choices; (4) tracker 1 or 2 after a proof print.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
@@ -20,10 +21,8 @@ When work runs side by side (DEC-104), helpers build in their own work folders (
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).
 
 ## Known issues
-- The performance budget's longest task is near its limit on this machine (125 to 344 ms seen by load; 193 ms on the last run); 63 ms on CI.
-- The morning scrolls 63 px at 360x640 with 6 stalls; the event chip in the top bar is cut at 360 px.
-- About 700 unused old style rules remain in `styles.css` and `ticket.css`.
-- QA sweep: small tap targets and low-contrast labels (Home dots, freshness letters, later rank numbers).
+- The performance budget's longest task is near its limit on this machine (125 to 344 ms seen by load; 238 to 315 ms on 2026-11-14 for both 1.22.0 and the PLAN-096 build); 63 ms on CI.
+- After PLAN-096: rare hand-made mornings with several two-line notices still scroll at 360x640; market boxes on short screens, Home's middle dot (three pages), Trophies tabs, ladder rows and some buying buttons are under 40 px; Home's Wants chip and lorry tiles, set-up labels and Trophies' unearned pips are faint. `scripts/smoke.cjs` waits for a highlight no screen draws.
 - Older: live telemetry and leaderboard data have no backup (PLAN-003, proposed); branch protection not confirmed.
 
 ## Resume instruction
