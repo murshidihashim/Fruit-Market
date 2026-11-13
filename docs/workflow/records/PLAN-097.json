@@ -46,7 +46,8 @@
   "release": "unreleased",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
-    "REP-117"
+    "REP-117",
+    "REP-118"
   ],
   "decisions": [],
   "changes": {
