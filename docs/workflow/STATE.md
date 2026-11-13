@@ -1,20 +1,20 @@
 # Current state · Fruit Market
 
-Updated 2026-11-13 09:01 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-13 09:49 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.20.0, rules version 18 (`c17a053`, tagged `v1.20.0`, published 2026-11-12 19:43).
-- **Publishing now: 1.21.0** (DEC-112, the owner's "push it live", REP-117): PLAN-086, 089, 090, 091, 092, 093 (the rush's seats hold their fruit; the lorry card shows one row) and 094 (Auto load). Path: pull request to main, CI `verify:full`, then the *Deploy LIVE game* workflow; after it, mark the release published in `releases.json`. If a required check fails, nothing is published and the owner is told.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`.
-- **Waiting on the owner:** (1) standing orders after REP-113 and REP-114: keep the numbers and show the sums on the bid sheet (recommended), take his proposal (+$2 top bid, −$2 stake), or test a direct mango fix; (2) REP-112 section 3 choices (Home's first page, old games as 3 stamps, the market's box height, the fifth and sixth seat colours, title names, two card wordings, Malaysian wording); (3) "Main menu"/"Dress up" against "Home"/"Wardrobe"; (4) tracker 1 or 2 after a proof print.
+- **Live:** 1.21.0, rules version 18 (`0f503ee`, tagged `v1.21.0`, published 2026-11-13 09:47; DEC-112, REP-117). The preview copy is the same build. It holds PLAN-086, 089, 090, 091, 092, 093 (the rush's seats hold their fruit; the lorry card shows one row) and 094 (Auto load).
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main after the release, plus the record of publishing.
+- **In progress:** nothing. No helper is running.
+- **Waiting on the owner:** (1) standing orders after REP-113 and REP-114: keep the numbers and show the sums on the bid sheet (recommended), take his proposal (+$2 top bid, −$2 stake), or test a direct mango fix; (2) REP-112 section 3 choices (Home's first page, old games as 3 stamps, the market's box height, the fifth and sixth seat colours, title names, two card wordings, Malaysian wording); (3) "Main menu"/"Dress up" against "Home"/"Wardrobe"; (4) tracker 1 or 2 after a proof print; (5) a small plan for the known gaps below, if wanted.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
-## Checks (on `ac3d804`, release 1.21.0)
-- `npm run verify`: PASS (841 tests, 1 skipped). `npm run test:e2e`: PASS (speed test OK, longest task 193 ms against 200; online match 80 pricing frames, 0 leaks, rematch, takeover; quick match; four players; reconnect 5 of 5).
-- Print kit rebuilt from the final text; every page looked at (`cbcab10`). Proof print: NOT RUN.
-- On the CI machines: running with the merge. Played by people: the owner, on 1.20.0.
+## Checks (1.21.0, live)
+- Local on `ac3d804`: `npm run verify` PASS (841 tests); `npm run test:e2e` PASS (longest task 193 ms against 200; 0 leaks; reconnect 5 of 5).
+- CI: run 137 on the pull request PASS; run 138 on main PASS, preview updated. Deploy run 40 PASS (live smoke test, tag `v1.21.0`).
+- Print kit rebuilt from the final text; every page looked at (`cbcab10`). Proof print: NOT RUN. Played by people on 1.21.0: NOT RUN.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).

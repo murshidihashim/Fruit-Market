@@ -2410,7 +2410,7 @@
         "evidence": "Owner, 2026-11-12: \"go with A (which can be swiped to show  b)\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-104",
         "REP-106"
@@ -2460,7 +2460,7 @@
         "evidence": "Owner, 2026-11-12, answering the three decisions in REP-106 in order: \"okay yes\", \"yes\", \"yes\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-106"
       ],
@@ -2559,7 +2559,7 @@
         "evidence": "Owner, 2026-11-12, answering the three questions of REP-109: \"okay approve all 3\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-109"
       ],
@@ -2655,7 +2655,7 @@
         "evidence": "Owner, 2026-11-12, after playing release 1.20.0: \"fix so that rival's fruit doesnt show when placing fruit in the open stall/ crate cause it is confusing, the rule is that players can only see what others buy during buying phase, it is hidden afterwards\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-111"
       ],
@@ -2703,7 +2703,7 @@
         "evidence": "Owner, 2026-11-12, shown three layouts of his idea (REP-113 history): \"use d round table\".",
         "date": "2026-11-12"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-113",
         "REP-115"
@@ -2728,7 +2728,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-115",
         "REP-116"
@@ -2753,7 +2753,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"include an auto load button during crate unloading which allows players to unload all wanted fruits into the crate\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-116",
         "REP-117"
@@ -2778,7 +2778,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"push it live\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-117"
       ],
@@ -3885,6 +3885,10 @@
     {
       "at": "2026-11-13 09:00",
       "text": "DEC-112: the owner said \"push it live\". PLAN-093 and PLAN-094 recorded: verify PASS (841 tests on ac3d804); e2e PASS (npm run test:e2e on ac3d804 (08:47 to 09:00): solo game to the results, no errors; performance budget OK (longest task 193 ms against 200, 0.99 slow frames in 1). Release 1.21.0 now holds PLAN-086, 089, 090, 091, 092, 093 and 094 (REP-117). Next: pull request to main, CI, then the Deploy LIVE game workflow."
+    },
+    {
+      "at": "2026-11-13 09:49",
+      "text": "Release 1.21.0 published (DEC-112): Pull request #12: CI run 137 PASS (verify:full, 09:02 to 09:23); merged to main as 0f503ee at 09:26; main CI run 138 PASS (09:26 to 09:42) and the preview updated with its smoke test passing. Deploy LIVE game run 40 (09:45 to 09:47): verify, release check, deploy, live smoke test and tag v1.21.0 all passed; the live site answers and its code carries 1.21.0 and Auto load. Live and preview now run 1.21.0 (commit 0f503ee, tag v1.21.0). Its plans PLAN-086, 089, 090, 091, 092, 093 and 094 are released."
     }
   ]
 }

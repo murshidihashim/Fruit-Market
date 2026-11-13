@@ -37,7 +37,7 @@
     "evidence": "Owner, 2026-11-12: \"okay yes\" to decision 1 of REP-106 (DEC-098: release A is built as six work packages in the order given in REP-106 section 4). Owner, 2026-11-12: \"speed it up please\". (DEC-104: the remaining packages are built side by side.) The stamp book: DEC-099. Home: DEC-097 (\"go with A (which can be swiped to show  b)\"). The screens as drawn: DEC-103 (\"okay approve all 3\").",
     "date": "2026-11-12"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "id": "PLAN-086",
   "title": "Release A, package 5: the stamp book's first version; Results, Trophies, Wardrobe and Home",
   "problem": "Seven trophies cannot be earned under rules 18, most looks show nowhere, and nothing a player does adds up to anything. The home screen's stall picture serves no purpose (DEC-097).",

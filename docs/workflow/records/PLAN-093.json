@@ -48,7 +48,7 @@
     "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
     "date": "2026-11-13"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.21.0",
   "build": "branch ccr-d8bcd65d-gblqqb, d98afc4",
   "reports": [
