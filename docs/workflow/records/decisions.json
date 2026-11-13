@@ -2831,6 +2831,30 @@
         "REP-117"
       ],
       "reviewTrigger": "None"
+    },
+    {
+      "id": "DEC-115",
+      "title": "The evening is one shared step: every stall decides at once",
+      "question": "The owner asked that every player can build their upgrade at the same time instead of waiting stall by stall.",
+      "choice": "Every stall with something to decide in the evening (an upgrade after a Market Day, Gossip, Priority, the Shade Cloth's fruit) decides at the same time and says when it is done; night falls when all are done. Computer stalls decide at once. Priority, the one choice that depended on the order: any number may be played; at nightfall the stall earliest in today's line-up goes first tomorrow and the other Priority cards go back to their owners' hands (assumption stated to the owner). Part of rules version 19 (not yet published).",
+      "rationale": "The owner's words: no waiting for each stall's evening turn, in a solo game or online.",
+      "impact": {
+        "player": "The evening no longer waits stall by stall.",
+        "technical": "Engine evening step, room server, evening screens and beats, RULES.md, the Priority card text (PLAN-098).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-117"
+      ],
+      "reviewTrigger": "If the owner wants Priority settled another way"
     }
   ],
   "history": [
@@ -3941,6 +3965,10 @@
     {
       "at": "2026-11-13 10:09",
       "text": "Owner answered the three questions of the 1.21.0 report: \"1 b\" (DEC-113, rules 19 standing orders), \"2 home wardrobe\" (DEC-114), \"3 yes\" (write the plan for the small gaps: PLAN-096, proposed). He also asked: \"do all the in game text summary and fix to sound more natural, summarise first and get my approval to change\": a helper inventories every player-facing string and proposes rewrites (no change until he approves; PLAN-097 to follow). Rules 19 built (PLAN-095): verify PASS (841 tests); the 30-game trophy sample no longer shows Juice money and three Sharp Ears wins, still reachable (6 of 460 computer stalls in 120 games earned $20 from a Juice Bar)."
+    },
+    {
+      "at": "2026-11-13 10:14",
+      "text": "Owner asked for two more things: the evening built together (DEC-115, PLAN-098, a helper builds it inside rules 19) and \"rework the parts where the crates are revealed before the rush ... open in the middle of the screen in the round table, animate for me 3 flows for this, from after u finished unloading until the rush starts\": a helper animates three flows as mock-ups (the table forms at once; gather at the bell; fruit by fruit); nothing in the game changes until he chooses. The text review helper is still working; no text is changed until he approves."
     }
   ]
 }

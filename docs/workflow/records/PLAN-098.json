@@ -1,0 +1,67 @@
+{
+  "id": "PLAN-098",
+  "title": "The evening, everyone at once",
+  "problem": "The evening goes stall by stall; each stall waits its turn to build, and a solo player watches every computer's turn first.",
+  "scope": [
+    "Every stall decides its evening at the same time and says when it is done; night falls when all are done",
+    "Priority settled at nightfall by today's line-up; the other cards return to their hands",
+    "Online rooms, takeover and reconnect; pass-and-play hand-over; the evening screens and beats; RULES.md and the Priority card text"
+  ],
+  "exclusions": [
+    "Any other rule or number",
+    "The print kit"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Tests: any order; night only when all are done; Priority by line-up with the others returned; computer-only evening ends at once; pass-and-play; online two people at once and a takeover",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me in a solo game and an online game at 390x844 and 360x640",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-117"
+  ],
+  "decisions": [
+    "DEC-115"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
