@@ -19,9 +19,10 @@ export function endBuying(state: GameState): GameState {
 }
 
 /**
- * Rules 18: a stall takes an evening turn only when it has something to decide, so which stalls must close the evening
- * depends on the position. This ends every evening turn that is open and returns the next morning (or the same state
- * when the game is not in the evening). A position set to the evening by hand starts with the stall at `turn`.
+ * Rules 18: a stall decides in the evening only when it has something to decide, so which stalls must close the evening
+ * depends on the position. Rules 19: those stalls decide at the same time. This says Lights out for every stall still
+ * deciding and returns the next morning (or the same state when the game is not in the evening). A position set to the
+ * evening by hand (with no list of who is done) is read the rules 18 way: it starts with the stall at `turn`.
  */
 export function passEvening(state: GameState): GameState {
   let s = state;
