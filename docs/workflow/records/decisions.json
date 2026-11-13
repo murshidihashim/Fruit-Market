@@ -2879,6 +2879,30 @@
         "REP-118"
       ],
       "reviewTrigger": "When built: the owner sees it at both phone sizes with 2, 4 and 6 stalls; if the pricing sheet hides crates on a small phone"
+    },
+    {
+      "id": "DEC-117",
+      "title": "Publish 1.22.0 (rules version 19)",
+      "question": "Since 1.21.0 the branch holds rules version 19 (standing orders $2 higher bid and $2 lower stake; the evening for everyone at once), the Home and Wardrobe buttons, and one round table from Open my stall to the rush. Is it published?",
+      "choice": "Published as 1.22.0 by the release path: pull request to main, CI verify:full, the preview updated, then the Deploy LIVE game workflow with its checks, live smoke test and tag v1.22.0. If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's word after the clip of flow A and the evening pictures.",
+      "impact": {
+        "player": "New rules version: phones on 1.21.0 are asked to update before joining a room; a game saved under rules 18 starts again with a notice; progress, trophies, stamps and looks are kept.",
+        "technical": "package.json 1.22.0; releases.json; merge to main; deploy-web.yml; tag v1.22.0.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"publish\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-119"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -4029,6 +4053,10 @@
     {
       "at": "2026-11-13 14:02",
       "text": "PLAN-099 (flow A, DEC-116) merged as 8ef525d: verify PASS (895 tests), the helper's e2e PASS with 0 leaks, 24 picture runs checked; a clip of the built flow sent to the owner. Note: the merge c1b41cd of 11:13 was recorded under the author 'Claude' instead of Murshidi Hashim (the merge command lacked the author setting); it is pushed and later work is built on it, so it is left as it is and every later merge sets the author."
+    },
+    {
+      "at": "2026-11-13 15:56",
+      "text": "DEC-117: the owner said \"publish\". Release 1.22.0 prepared: PLAN-095 (rules 19 standing orders, Home and Wardrobe), PLAN-098 (the evening for everyone at once), PLAN-099 (one round table from Open my stall to the rush); version 1.22.0, release entry with player notes, REP-119. The text pass (PLAN-097) and the small fixes (PLAN-096) are not in it."
     }
   ]
 }
