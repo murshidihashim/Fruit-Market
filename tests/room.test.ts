@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
-import { activePlayer, canBuy, newGame } from '../src/engine/game';
+import { activePlayer, canBuy, emptyStock, eveningOpen, newGame, type GameState } from '../src/engine/game';
 import { PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import { freshRoom, GRACE_MS, redact, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
@@ -88,7 +88,8 @@ async function botStep(c: Client): Promise<boolean> {
     return true;
   }
   if (g.phase === 'order' && !v.submitted[me]) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'order', price: null } }); return true; }
-  if (g.phase === 'evening' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endEvening' } }); return true; }
+  // Rules 19: in the evening every person decides at the same time, until they say Lights out.
+  if (g.phase === 'evening' && eveningOpen(g, me)) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'endEvening' } }); return true; }
   // Rules 18: after the flip a stall holding Favoured Trade with a tied price is asked whether to play it.
   if (g.phase === 'tie' && activePlayer(g) === me) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'tie', play: false } }); return true; }
   return false;
@@ -599,5 +600,155 @@ describe('looks in a room', () => {
     expect(a.view!.seats[1].look).toEqual({ roof: 'roof_stars' });
     await b.say({ t: 'look', look: {} });
     expect(a.view!.game!.players[1].look).toBeUndefined();
+  });
+});
+
+// Rules 19: the evening for everyone at once. The computers decide as it opens; every person decides at the same time
+// and the room waits only for those who have not said Lights out.
+describe('the evening in a room, everyone at once (rules 19)', () => {
+  /** Puts the match at the end of `day`'s rush, every stall with $30, no perks, no cards, empty shelves and today's
+   *  line-up `order`; `set` changes what a test needs. Both people then press continue, as on their phones. */
+  async function evening(h: Harness, a: Client, b: Client, order: number[], set: (g: GameState) => void = () => {}, day = 3) {
+    const g = structuredClone(h.room.d.game!);
+    g.players.forEach((pl) => { pl.cash = 30; pl.upgrades = []; pl.favours = []; pl.trait = null; pl.traitOffer = []; pl.stock = emptyStock(true); });
+    g.day = day; g.phase = 'reveal'; g.results = null; g.event = null; g.nextEvent = null; g.standing = null;
+    g.firstMarket = []; g.secondMarket = []; g.queue = []; g.order = order; g.turn = 0; g.priorityNext = null;
+    set(g);
+    h.room.d.game = g;
+    h.room.d.version++;
+    h.room.d.votes = [];
+    h.room.broadcast();
+    await a.say({ t: 'continue', v: a.view!.version });
+    await b.say({ t: 'continue', v: b.view!.version });
+  }
+
+  it('two people build at the same time: a choice made on the same state as another person\'s still stands', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    await evening(h, a, b, [0, 1]);
+    expect(a.view!.game!.phase).toBe('evening');
+    expect(a.view!.game!.eveningDone).toEqual([false, false]);
+    const v0 = a.view!.version;
+    expect(b.view!.version).toBe(v0);
+    // Both tap Build on the evening as it opened; B's arrives after A's has moved the room on.
+    await a.say({ t: 'act', id: nid(), v: v0, action: { kind: 'upgrade', upgrade: 'juicebar' } });
+    await b.say({ t: 'act', id: nid(), v: v0, action: { kind: 'upgrade', upgrade: 'premium' } });
+    expect(a.errors).toEqual([]);
+    expect(b.errors).toEqual([]);
+    expect(h.room.d.game!.players.map((pl) => pl.upgrades)).toEqual([['juicebar'], ['premium']]);
+    // B says Lights out first (B is second in the line-up): the room waits for A only.
+    await b.say({ t: 'act', id: nid(), v: v0, action: { kind: 'endEvening' } });
+    expect(h.room.d.game!.phase).toBe('evening');
+    expect(a.view!.game!.eveningDone).toEqual([false, true]);
+    // A stall that is done can do nothing more tonight, and a choice from before the evening opened is refused.
+    await b.say({ t: 'act', id: nid(), v: b.view!.version, action: { kind: 'upgrade', upgrade: 'barrow' } });
+    expect(b.errors).toContain('Your lights are already out');
+    await a.say({ t: 'act', id: nid(), v: v0 - 1, action: { kind: 'endEvening' } });
+    expect(a.errors).toContain('The game moved on. Try again.');
+    expect(h.room.d.game!.phase).toBe('evening');
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'endEvening' } });
+    expect(h.room.d.game!.day).toBe(4);
+    expect(h.room.d.game!.phase).toBe('morning');
+    // Outside the evening a stale version is refused as before.
+    await a.say({ t: 'act', id: nid(), v: v0, action: { kind: 'endEvening' } });
+    expect(a.errors.filter((e) => e === 'The game moved on. Try again.')).toHaveLength(2);
+  });
+
+  it('the computers decide as the evening opens: no phone is sent an evening with a computer still deciding', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8, 2);
+    const before = a.inbox.length;
+    // Every stall holds a Priority card; today's line-up is computer 2, computer 3, A, B.
+    await evening(h, a, b, [2, 3, 0, 1], (g) => { g.players.forEach((pl) => { pl.favours = ['priority']; }); }, 4);
+    const evenings = a.inbox.slice(before).map((r) => JSON.parse(r)).filter((m) => m.t === 'room' && m.game?.phase === 'evening');
+    expect(evenings.length).toBeGreaterThan(0);
+    for (const v of evenings) expect([v.game.eveningDone[2], v.game.eveningDone[3]]).toEqual([true, true]);
+    // The first computer in the line-up played its card; the second kept its own.
+    expect(evenings[0].game.priorityPlayed).toEqual([2]);
+    expect(evenings[0].game.eveningDone.slice(0, 2)).toEqual([false, false]);
+    // A plays Priority too and says Lights out; B says Lights out without playing. A is later in the line-up than
+    // computer 2, so A's card goes back to A's hand.
+    const v = a.view!.version;
+    await a.say({ t: 'act', id: nid(), v, action: { kind: 'favour', idx: 0 } });
+    await b.say({ t: 'act', id: nid(), v, action: { kind: 'endEvening' } });
+    await a.say({ t: 'act', id: nid(), v, action: { kind: 'endEvening' } });
+    expect(a.errors).toEqual([]);
+    expect(b.errors).toEqual([]);
+    const g = h.room.d.game!;
+    expect(g.day).toBe(5);
+    expect(g.order[0]).toBe(2);
+    expect(g.players[0].favours).toEqual(['priority']);
+    expect(g.priorityBack).toEqual([0]);
+    // A's hand reaches B as stand-ins only, as ever.
+    expect(b.view!.game!.priorityBack).toEqual([0]);
+  });
+
+  it('a person who leaves during the evening is taken over and the computer finishes that evening at once', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    await evening(h, a, b, [1, 0]);
+    expect(a.view!.game!.eveningDone).toEqual([false, false]);
+    await b.say({ t: 'leave' });
+    expect(h.room.d.seats[1].bot).toBe(true);
+    expect(h.room.d.game!.phase).toBe('evening');
+    expect(a.view!.game!.eveningDone).toEqual([false, true]);
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'endEvening' } });
+    expect(h.room.d.game!.day).toBe(4);
+  });
+
+  it('a seat taken over after the grace period closes its evening, and the night falls when it was the last', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    await evening(h, a, b, [0, 1]);
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'endEvening' } });
+    expect(h.room.d.game!.phase).toBe('evening'); // waiting for B
+    b.close();
+    h.t += GRACE_MS - 1000;
+    await h.room.alarm();
+    expect(h.room.d.game!.phase).toBe('evening'); // B may still come back
+    h.t += 2000;
+    await h.room.alarm();
+    expect(h.room.d.seats[1].bot).toBe(true);
+    expect(h.room.d.game!.day).toBe(4);
+    expect(a.view!.game!.phase).toBe('morning');
+  });
+
+  it('a person who reconnects during the evening carries on deciding', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8);
+    await evening(h, a, b, [0, 1]);
+    const token = b.token;
+    b.close();
+    const b2 = h.connect('B2');
+    await b2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Friend', avatar: '👩‍🍳' });
+    expect(b2.view!.game!.eveningDone).toEqual([false, false]);
+    await b2.say({ t: 'act', id: nid(), v: b2.view!.version, action: { kind: 'upgrade', upgrade: 'premium' } });
+    expect(b2.errors).toEqual([]);
+    expect(h.room.d.game!.players[1].upgrades).toEqual(['premium']);
+    await b2.say({ t: 'act', id: nid(), v: b2.view!.version, action: { kind: 'endEvening' } });
+    await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'endEvening' } });
+    expect(h.room.d.game!.day).toBe(4);
+  });
+
+  it('whole matches with computer rivals finish, every evening with the people closing in either order', async () => {
+    for (const aFirst of [true, false]) {
+      const h = new Harness();
+      const { a, b } = await lobbyOf2(h);
+      await start(h, a, b, 8, 2);
+      for (let i = 0; i < 4000 && h.room.d.status === 'playing'; i++) {
+        const moved = aFirst ? (await botStep(a)) || (await botStep(b)) : (await botStep(b)) || (await botStep(a));
+        if (!moved) throw new Error(`stuck in ${h.room.d.game?.phase}`);
+      }
+      expect(h.room.d.status).toBe('finished');
+      // No phone was ever sent an evening in which a computer stall had not decided.
+      for (const c of [a, b]) for (const m of c.inbox.map((r) => JSON.parse(r))) {
+        if (m.t === 'room' && m.game?.phase === 'evening') expect([m.game.eveningDone[2], m.game.eveningDone[3]]).toEqual([true, true]);
+      }
+    }
   });
 });

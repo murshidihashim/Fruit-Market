@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, FRUITS, PREF_INFO, TRAITS, UPGRADES, lookOf, prefOf, trackSlots, type FruitId, type Stage } from '../engine/data';
 import {
-  buyCost, buyLimit, count, effectiveMax, forSale, outCount, shelfSize,
+  buyCost, buyLimit, count, effectiveMax, eveningOpen, forSale, outCount, shelfSize,
   type Customer, type GameState, type Stock,
 } from '../engine/game';
 import { partsOf, stallOf, type LookSet } from '../net/looks';
@@ -173,7 +173,9 @@ export interface Board { state: 'thinking' | 'sealed' | 'open'; price?: number; 
 /** What a rival's box says after their cash. Rules 15: stalls are secret, so nothing about the shelf; once every stall
  *  is open, how many pieces this one put out; in the rush, how many of them are left. Public facts only. */
 export function rivalNote(s: GameState, p: number, active: boolean): string {
-  if (s.phase === 'evening') return active ? 'deciding…' : 'waiting';
+  // Rules 19: in the evening every stall decides at the same time; a stall that has said Lights out says so ("closed": the
+  // browser tests find the Lights out button by its words, so the box must not repeat them).
+  if (s.phase === 'evening') return active ? 'deciding…' : 'closed';
   if (s.phase === 'bid') { const n = outCount(s, p) ?? 0; return n ? `${n} out` : 'none out'; }
   if (s.phase === 'reveal') {
     // At the bell the crates are open; the pieces still out drop as each customer is served (stockShown.ts).
@@ -255,7 +257,7 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: {
   const cash = shownCash(p, pl.cash);
   const buying = inBuyingOrder(s);
   const state = buyState(s, p);
-  const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
   const base = rivalNote(s, p, active);
   // Stocking: only whether a stall has opened is public. Pricing: how many pieces it put out.
   const note = s.phase === 'stall' && board ? (board.state === 'thinking' ? 'filling…' : 'ready') : base;
@@ -413,7 +415,7 @@ export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: 
   // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
-  const active = (s.phase === 'buy' || s.phase === 'evening') && s.order[s.turn] === p;
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
   const cap = shelfSize(pl);
   // The final day: what fruit left on the shelf tonight is worth ("Leftovers = $1 each", "Unsold = $0").
   const closing = closingNote(s, p)?.chip;

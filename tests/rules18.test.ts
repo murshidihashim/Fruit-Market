@@ -830,24 +830,28 @@ describe('H. rulings', () => {
     expect(passEvening(evening(s, 3)).order[0]).toBe(1); // the poorest
   });
 
-  it('only one Priority card can be played each evening: a second is refused and stays in the hand', () => {
+  // Rules 19 replaced this ruling (the owner's request of 13 November 2026): a second Priority card is no longer refused.
+  // The stall earliest in today's line-up goes first and the others' cards go back (tests/rules19.test.ts).
+  it('rules 19: a second Priority card is not refused; the earlier stall in the line-up goes first, the other card goes back', () => {
     const s = evening(bare(3), 4);
     s.players[0].favours = ['priority'];
     s.players[1].favours = ['priority', 'gossip'];
     let g = playFavour(s, 0, 0);
     expect(g.priorityNext).toBe(0);
     g = applyAction(g, 0, { kind: 'endEvening' });
-    expect(activePlayer(g)).toBe(1); // stall 1 still has Gossip to decide on
-    expect(canPlayFavour(g, 1, 0)).toBe('A Priority card was already played this evening. Only 1 can be played each evening. Keep yours');
-    expect(() => playFavour(g, 1, 0)).toThrow(/Only 1 can be played each evening/);
-    expect(g.players[1].favours).toEqual(['priority', 'gossip']);
+    expect(activePlayer(g)).toBe(1); // stall 1 still has its cards to decide on
+    expect(canPlayFavour(g, 1, 0)).toBeNull();
+    g = playFavour(g, 1, 0);
+    expect(g.priorityNext).toBe(0); // stall 0 is earlier in today's line-up
+    expect(g.players[1].favours).toEqual(['gossip']);
     const next = passEvening(g);
     expect(next.order[0]).toBe(0);
-    expect(next.players[1].favours).toEqual(['priority', 'gossip']);
-    // The next evening the card can be played.
+    expect(next.players[1].favours).toEqual(['gossip', 'priority']); // back in the hand, unused
+    expect(next.priorityBack).toEqual([1]);
+    // The next evening the card can be played again.
     const e2 = evening(next, next.day);
     e2.order = [1, 0, 2];
-    expect(canPlayFavour(e2, 1, 0)).toBeNull();
+    expect(canPlayFavour(e2, 1, 1)).toBeNull();
   });
 
   it('the end of the game: most cash, then most fruit sold, and stalls still tied share the win', () => {

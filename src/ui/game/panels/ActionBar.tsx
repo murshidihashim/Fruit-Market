@@ -7,10 +7,11 @@ import * as A from '../../anim';
 import { fx } from '../../fx';
 import { releaseStock } from '../../stockShown';
 import { shownBoughtCount } from '../../tableShown';
+import { eveningWaitLine } from '../evening';
 import type { GameController } from '../useGameController';
 
 export function ActionBar({ c, pl, limit, picker, online }: { c: GameController; pl: Player | undefined; limit: number; picker: number; online: boolean }) {
-  const { s, busy, night, active, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, freeFruit, turnStart } = c;
+  const { s, busy, night, active, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, eveningWaits, freeFruit, turnStart } = c;
   // Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so its player was never asked.
   const nothingRipe = !!s.players[c.viewer] && count(s.players[c.viewer].stock, undefined, true) === 0;
   const myBuy = s.phase === 'buy' && activeHuman && !!pl;
@@ -60,7 +61,11 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
       {!busy && s.phase === 'evening' && activeHuman && <button class="btn primary wide big" onClick={() => { fx.tap(); c.act({ kind: 'endEvening' }); }}>Lights out <small class="btn-sub">next day</small></button>}
       {/* an evening beat of your own (an upgrade being built): the bar keeps its room */}
       {busy && quiet && s.phase === 'evening' && activeHuman && <div class="hint-bar" />}
-      {quiet && s.phase === 'evening' && !activeHuman && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is closing up…</div>}
+      {/* Rules 19: nobody waits for a turn in the evening. Online, once you have said Lights out, the bar says who the
+          evening is still waiting for. Offline the computers decide as the evening opens, so the bar only keeps its room. */}
+      {quiet && s.phase === 'evening' && !activeHuman && (online
+        ? <div class="hint-bar waiting-dots">{eveningWaitLine(waitingFor(eveningWaits))}</div>
+        : <div class="hint-bar" />)}
       {!busy && s.phase === 'reveal' && (votedMe
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : <button class="btn primary wide big" onClick={() => { c.setHandedTo(null); c.proceed(); }}>

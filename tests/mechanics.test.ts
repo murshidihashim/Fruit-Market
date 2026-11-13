@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { aiStep } from '../src/engine/ai';
 import { FRUIT, JUICE_VALUE, TRAITS, UPGRADES, freshPos, type TraitId, type UpgradeId } from '../src/engine/data';
 import {
-  applyAction, beginBuying, buyCost, canUpgrade, finishReveal, newGame, pickTrait,
+  activePlayer, applyAction, beginBuying, buyCost, canUpgrade, finishReveal, newGame, pickTrait,
   type GameConfig, type GameState,
 } from '../src/engine/game';
 
@@ -98,8 +98,8 @@ describe('specialities draft', () => {
     s.players[p].stock.blueberry[0] = 5; // all of these spoil tonight
     const cash = s.players[p].cash;
     const spoiled = s.players[p].stats.spoiled;
-    // Everyone closes up without building anything.
-    while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
+    // Everyone closes up without building anything (rules 19: each stall that is still deciding says Lights out).
+    while (s.phase === 'evening') s = applyAction(s, activePlayer(s), { kind: 'endEvening' });
     expect(s.day).toBe(4);
     expect(s.players[p].cash).toBe(cash + 4);
     expect(s.players[p].stats.spoiled - spoiled).toBe(3);
@@ -126,7 +126,7 @@ describe('specialities draft', () => {
     while (s.phase === 'bid') s = applyAction(s, s.bids.findIndex((x) => x === null), { kind: 'prices', posts: [] });
     expect(s.results!.income[p]).toBe(0);
     s = finishReveal(s);
-    while (s.phase === 'evening') s = applyAction(s, s.order[s.turn], { kind: 'endEvening' });
+    while (s.phase === 'evening') s = applyAction(s, activePlayer(s), { kind: 'endEvening' });
     expect(s.day).toBe(5);
     expect(s.players[p].cash).toBe(20 - 2 + 2 * JUICE_VALUE); // +$2, whatever the customers did
     expect(s.players[p].stats.juiced).toBe(2);

@@ -91,7 +91,7 @@ describe('the queue and Market Gossip', () => {
     if (s.phase === 'evening' && s.queue.length) {
       const t = structuredClone(s);
       t.players[1].favours = ['gossip'];
-      t.turn = t.order.indexOf(1);
+      t.eveningDone![1] = false; // rules 19: the card makes stall 1 one of the stalls still deciding
       const after = playFavour(t, 1, 0);
       expect(after.queue.every((c) => c.seenBy!.includes(1))).toBe(true);
       expect(after.queue.some((c) => c.seenBy!.includes(0))).toBe(false);

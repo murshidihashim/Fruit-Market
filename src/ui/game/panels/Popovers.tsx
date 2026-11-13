@@ -7,6 +7,7 @@ import { FavourCard, OrderCard, TradingCard } from '../../cards';
 import { GUEST_EVENT } from '../../deckArt';
 import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
+import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
 import { Wardrobe } from '../../Wardrobe';
 import { useState } from 'preact/hooks';
@@ -24,7 +25,8 @@ export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
 
 export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coach: Tip | null; onExit: () => void; onWear?: (look: Record<string, string>) => void }) {
   const [wardrobe, setWardrobe] = useState(false);
-  const { s, active, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, menu, setMenu } = c;
+  // `actor`: the stall this phone plays for now (online its own seat, which in the evening need not be `active`).
+  const { s, actor, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, menu, setMenu } = c;
   return (
     <>
   {coach && (
@@ -41,14 +43,16 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
 
   {/* A favour card you hold, opened from the dock or the evening: the whole card, then Play (when it can be played
       now) and Close. A tap beside the card closes it too. */}
-  {cardInfo !== null && s.players[active]?.favours[cardInfo] && (() => {
-    const id = s.players[active].favours[cardInfo];
-    const why = canPlayFavour(s, active, cardInfo);
+  {cardInfo !== null && s.players[actor]?.favours[cardInfo] && (() => {
+    const id = s.players[actor].favours[cardInfo];
+    const why = canPlayFavour(s, actor, cardInfo);
     return (
       <div class="cd-pop" role="dialog" aria-label={`Favour card: ${FAVOURS[id].title}`} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
         <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
           <FavourCard id={id} eager />
           {why && <p class="cd-pop-why">{why}</p>}
+          {/* Rules 19: a Priority card played after one from a stall earlier in today's line-up goes back to the hand. */}
+          {!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class="cd-pop-why">{priorityNote(s, actor)}</p>}
           <div class="cd-pop-btns">
             {!why && <button type="button" class="btn primary" onClick={() => c.reallyPlay(cardInfo)}>Play</button>}
             <button type="button" class="btn ghost" onClick={() => setCardInfo(null)}>Close</button>

@@ -7,6 +7,9 @@
 //   Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so nobody waits for it. After the flip,
 //   stalls holding Favoured Trade with a tied price are asked in turn, in the open (the 'tie' step); a seat that is
 //   away is played by the computer, which keeps the card.
+// - Rules 19: the evening is one shared step, in the open. The computers decide as it opens (a seat taken over by the
+//   computer at once, whenever that happens), and every person decides at the same time; night falls when every stall
+//   has said Lights out. An evening action made on an earlier state of the same evening still stands.
 // - Each browser receives its own filtered view: no pending prices, no hidden favour cards,
 //   no deck order and no random seed (which would reveal future customers and events), and since rules 15
 //   no rival shelf and no rival crate before the bell (only how many pieces it holds).
@@ -15,11 +18,11 @@
 // - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
 //   computer plays their seat (they can reconnect and take it back at any time).
 
-import { aiActFor, aiStep, planOrderBid } from '../src/engine/ai';
+import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
 import { cleanLook } from '../src/net/looks';
 import { RIVALS, type FavourId } from '../src/engine/data';
-import { bidOrder, canBidOrder,
+import { bidOrder, canBidOrder, eveningOpen,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
   publicView, type Action, type Crate, type Customer, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
@@ -64,6 +67,9 @@ export interface RoomData {
   undo?: { seat: number; day: number; game: GameState };
   /** The latest take-back, shown to everyone as a message. */
   lastUndo?: { seat: number; n: number };
+  /** Rules 19: the version the current evening opened at. An evening action made on that state or a later one still
+   *  stands, since every stall decides at the same time (unset: only the latest state is accepted). */
+  eveningFrom?: number;
 }
 
 export interface Conn {
@@ -137,6 +143,9 @@ export function redact(g: GameState, seat: number, pending?: readonly unknown[])
 }
 
 const clean = safeName;
+
+/** Rules 19: the actions a stall takes in the evening, at the same time as the others. */
+const EVENING_ACTIONS = new Set<Action['kind']>(['upgrade', 'favour', 'shade', 'endEvening']);
 
 export class Room {
   constructor(public d: RoomData, private io: RoomIO) {}
@@ -451,7 +460,12 @@ export class Room {
       return this.accepted(conn, seat, m.id);
     }
 
-    if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
+    // Rules 19: in the evening each stall's choices touch only its own stall (Priority is settled by the line-up at
+    // nightfall), so another person's choice made meanwhile does not make this one stale. The engine checks that this
+    // stall has not said Lights out.
+    const sameEvening = g.phase === 'evening' && EVENING_ACTIONS.has(a.kind) && typeof m.v === 'number'
+      && d.eveningFrom !== undefined && m.v >= d.eveningFrom && m.v <= d.version;
+    if (m.v !== d.version && !sameEvening) throw new RuleError('The game moved on. Try again.');
     this.markTurnStart(g, seat);
     const next = applyAction(g, seat, a); // throws RuleError if illegal (wrong turn, no cash, etc.)
     this.remember(seat, m.id);
@@ -516,10 +530,20 @@ export class Room {
   }
 
   private commit(next: GameState) {
-    this.d.game = next;
-    this.d.version++;
+    const d = this.d;
+    const was = d.game;
+    // Rules 19: the computers' evening choices are made as the evening opens and arrive with it, so every phone shows
+    // them together (and nobody's evening sheet is drawn before them).
+    d.game = (next.phase === 'evening' && computersEvening(next, (p) => this.computer(next, p))) || next;
+    d.version++;
+    if (d.game.phase === 'evening' && !(was?.phase === 'evening' && was.day === d.game.day)) d.eveningFrom = d.version;
     this.broadcast();
     this.advance();
+  }
+
+  /** A stall the computer decides for: a computer stall, or a seat it is minding for a person who left. */
+  private computer(g: GameState, p: number): boolean {
+    return g.players[p]?.kind === 'ai' || (p < this.d.seats.length && !!this.d.seats[p].bot);
   }
 
   /** Runs computer turns and resolves prices once every human has locked theirs in. */
@@ -535,8 +559,22 @@ export class Room {
         if (d.status !== 'finished') { d.status = 'finished'; d.rematch = []; this.broadcast(); }
         return;
       }
-      // Turns taken in the open, one stall at a time: buying, the evening and (rules 18) the tie step.
-      if (g.phase === 'buy' || g.phase === 'evening' || g.phase === 'tie') {
+      // Rules 19: the evening, everyone at once. Any computer still deciding (a seat just taken over) decides now, and
+      // the room then waits only for the people who have not said Lights out. When the last stall to close is a
+      // computer, its Lights out brings the night as a step of its own, after its choices have been shown.
+      if (g.phase === 'evening') {
+        const shown = computersEvening(g, (p) => this.computer(g, p));
+        const last = shown ? null : g.order.find((p) => eveningOpen(g, p) && this.computer(g, p));
+        const n = shown ?? (last === undefined || last === null ? null : aiActFor(g, last));
+        if (!n) return;
+        d.undo = undefined;
+        d.game = n;
+        d.version++;
+        this.broadcast();
+        continue;
+      }
+      // Turns taken in the open, one stall at a time: buying and (rules 18) the tie step.
+      if (g.phase === 'buy' || g.phase === 'tie') {
         const p = activePlayer(g);
         if (p < 0 || (g.players[p].kind !== 'ai' && !isBot(p))) return;
         const n = isBot(p) ? aiActFor(g, p) : aiStep(g);
