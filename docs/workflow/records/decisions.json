@@ -2855,6 +2855,30 @@
         "REP-117"
       ],
       "reviewTrigger": "If the owner wants Priority settled another way"
+    },
+    {
+      "id": "DEC-116",
+      "title": "The crate reveal happens at the round table (flow A), with a face-down square for every piece",
+      "question": "Which of three animated flows (docs/studio/review-18/mockups/reveal-flows) takes the game from Open my stall to the first customer of the rush?",
+      "choice": "A, the table forms at once: after Open my stall every crate goes to its seat round the table; pricing happens on a small sheet at the bottom while the table stays in view; at the bell, rung in the middle, the crates open one by one clockwise from yours; a tie's Favoured Trade question is asked in the middle; then the first customer comes in and the rush goes on at the same table. Before the bell every rival crate shows one black, face-down square for each piece it has out (the count is public; no fruit, no price), as in flow C. The bell list of rows goes.",
+      "rationale": "The owner's choice: the reveal happens where the rush happens, with nothing swapping from a list to a table, and everyone can see how much each stall is selling.",
+      "impact": {
+        "player": "One table from Open my stall to the end of the rush.",
+        "technical": "Day sheet, pricing, the bell, the Favoured Trade question and the rush table; motion beats; browser scripts that play this part (PLAN-099).",
+        "data": "None: counts only, as today"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, after the three animated flows: \"three crate flow should be A, but players need to know how many fruits are up for sale for each crate, add a black square per fruit to indicate this (like design c)\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-118"
+      ],
+      "reviewTrigger": "When built: the owner sees it at both phone sizes with 2, 4 and 6 stalls; if the pricing sheet hides crates on a small phone"
     }
   ],
   "history": [
@@ -3981,6 +4005,10 @@
     {
       "at": "2026-11-13 10:52",
       "text": "Three animated flows for the crate reveal, from Open my stall to the first customer, sent to the owner (docs/studio/review-18/mockups/reveal-flows: flow-a/b/c.mp4, flows-sheet.png, index.html): A the table forms at once (7.9 s), B gather at the bell (8.7 s), C fruit by fruit (9.9 s). Mock-ups only; the game is unchanged until he chooses. Recommended: B, optionally with A's one-by-one opening."
+    },
+    {
+      "at": "2026-11-13 11:08",
+      "text": "DEC-116: the owner chose flow A for the crate reveal, with a black face-down square for every piece in a crate before the bell. Built as PLAN-099 after the evening work (PLAN-098) is merged, since both touch the same screens."
     }
   ]
 }
