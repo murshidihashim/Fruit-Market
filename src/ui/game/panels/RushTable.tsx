@@ -1,8 +1,8 @@
 // The rush as a round table (DEC-109; the approved board: docs/studio/review-18/mockups, Rush-D). Today's customers
 // stay in their row at the top. Under it a stage lies over the rest of the table, down to a result line and two
 // buttons. Each customer in turn comes from their ticket to the middle of the stage as their card; every stall's open
-// crate sits round them in a seat of its own for the whole rush. A crate shows the stall's awning, face and name, its
-// price tag for the fruit being bought now and its pieces of that fruit. A sale is a piece travelling from the crate
+// crate sits round them in a seat of its own for the whole rush. A crate shows the stall's awning, face and name, every
+// piece it has out for sale (a piece leaves when a customer takes it), and its price tag for the fruit being bought now. A sale is a piece travelling from the crate
 // to the customer and the coins travelling back (animator.tsx reveal). The rush moves on by itself; a tap moves on
 // sooner, and "Skip to the end" ends it.
 // Nothing is drawn before its moment (rushShown.ts): a piece leaves its crate as it lifts off, a dot on the card fills
@@ -21,12 +21,14 @@ import { FruitSvg } from '../../fruitIcons';
 import { shownAvatar } from '../../looks';
 import { favourShown, lineShown, paidShown, piecesLanded, piecesLifted, useRushCard } from '../../rushShown';
 import { releaseStock } from '../../stockShown';
+import { LANES } from '../../boardModel';
 import { Awning } from '../../table';
 import { STAGE_LETTER, STAGE_WORD } from '../../ticket';
 import { seatOrder, tableLay, type Place, type RushBlock, type RushCard, type RushStage, type ShowState, type TableLay } from '../rush';
 
-/** At most this many of a crate's pieces are drawn (two to a column); "+3" in the last place stands for the rest. */
-const MAX_SHOWN = 4;
+/** At most this many of a crate's pieces are drawn (five to a row, two rows, on a crate of the usual width); "+3" in the
+ *  last place stands for the rest. */
+const MAX_SHOWN = 10;
 /** The stage's size before it has been measured (a test draws it without a page). */
 const STAGE_GUESS: [number, number] = [390, 450];
 const ORDINAL = ['', '1st', '2nd'];
@@ -210,10 +212,12 @@ function Customer({ c, at, stage, el }: { c: RushCard; at: number; stage: RushSt
 }
 
 /**
- * A stall's open crate in its seat. While a fruit is being bought: its price tag for that fruit and its pieces of it,
- * with their freshness letters. A crate that cannot sell to this customer says why from the start (over their price,
- * a freshness they will not take, none of the fruit); the one that sells first is marked "1st", the next "2nd". What
- * became of an offer shows once that fruit's sale has been shown, and the money as it lands.
+ * A stall's open crate in its seat: all the fruit it has out for sale, piece by piece with each piece's freshness
+ * letter, from the first customer to the last; a piece leaves the crate when a customer takes it (the owner,
+ * 2026-11-13). While a fruit is being bought, the crate's other fruit is greyed and its price tag for that fruit shows.
+ * A crate that cannot sell to this customer says why from the start (over their price, a freshness they will not take,
+ * none of the fruit); the one that sells first is marked "1st", the next "2nd". What became of an offer shows once
+ * that fruit's sale has been shown, and the money as it lands.
  */
 function Crate({ s, p, c, b, at, me, shared, stage }: {
   s: GameState; p: number; c: RushCard; b: RushBlock | undefined; at: Place; me: boolean; shared?: boolean; stage: RushStage;
@@ -226,10 +230,7 @@ function Crate({ s, p, c, b, at, me, shared, stage }: {
   // A standing order buys from its holder's crate only: every other crate sits it out.
   const off = c.holder !== null && c.holder !== p;
   const kind = !up ? '' : off ? 'off' : !row ? 'none' : !row.qualified ? 'over' : row.rank === 1 && !shown ? 'first' : '';
-  // The pieces in the crate now: as this customer found it, less those that have left for them so far.
-  const crate = b && f ? b.crates[p] : null;
-  const gone = row?.used ? row.used.slice(0, shown ? row.sold : Math.min(row.sold, piecesLifted(c.customerId, b!.fruit, p))) : [];
-  const left = crate ? without(crate, gone).sort((x, y) => y - x) : [];
+  const pieces = crateNow(c, p);
   const tied = !!row && row.qualified && !!f && pl.favouredTrade && tiedPrices(s, p).some((t) => t.fruit === f);
   const say = !up ? ''
     : off ? 'not their order'
@@ -240,11 +241,19 @@ function Crate({ s, p, c, b, at, me, shared, stage }: {
   const paid = up && !!row && row.sold > 0 && paidShown(c.customerId, b!.fruit, p);
   const fav = c.favour && c.favour.player === p && favourShown(c.customerId) ? c.favour : null;
   const name = me && !shared ? 'You' : pl.name;
+  const drawn = pieces && pieces.length > MAX_SHOWN ? pieces.slice(0, MAX_SHOWN - 1) : pieces ?? [];
   return (
     <div class={`rt-crate ${kind} ${me ? 'me' : ''}`} data-a={`rt-crate-${p}`} style={{ left: `${at.left}px`, top: `${at.top}px`, width: `${at.width}px`, height: `${at.height}px` }}
       role="group" aria-label={`${name}${say ? `: ${say}` : ''}`}>
       <Awning p={p} look={pl.look} thin />
-      <div class="rt-who"><Face who={shownAvatar(s.players, p)} size={20} /><b>{name}</b></div>
+      <div class="rt-who"><Face who={shownAvatar(s.players, p)} size={18} /><b>{name}</b></div>
+      <div class="rt-box" data-a={`rt-pcs-${p}`} role="img" aria-label={pieces ? crateWords(pieces) : 'Crate not known'}>
+        {drawn.map(({ fruit: g, pos }) => (
+          <span class={`rt-pc ${up && g !== f ? 'dim' : ''}`} data-a={`rt-pc-${p}-${g}-${pos}`}><FruitSvg id={g} size={13} alt="" /><i>{STAGE_LETTER[stageAt(g, pos)]}</i></span>
+        ))}
+        {pieces && pieces.length > MAX_SHOWN && <em>+{pieces.length - MAX_SHOWN + 1}</em>}
+        {pieces && !pieces.length && <span class="rt-empty">Empty</span>}
+      </div>
       <div class="rt-tagrow" key={up && f ? `${c.customerId}-${f}` : 'shut'}>
         {up && row && !off && (
           <span class="rt-tagw">
@@ -252,22 +261,48 @@ function Crate({ s, p, c, b, at, me, shared, stage }: {
             {tied && <i class="ds-stamp" role="img" aria-label={`${FAVOURS.favouredTrade.title} played`}>FT</i>}
           </span>
         )}
-        {up && f && !off && left.length > 0 && (
-          <span class="rt-pcs" data-a={`rt-pcs-${p}`} role="img" aria-label={`${left.length} in the crate: ${[...new Set(left.map((pos) => STAGE_WORD[stageAt(f, pos)]))].join(', ')}`}>
-            {left.slice(0, left.length > MAX_SHOWN ? MAX_SHOWN - 1 : MAX_SHOWN).map((pos) => (
-              <span class="rt-pc" data-a={`rt-pc-${p}-${pos}`}><FruitSvg id={f} size={13} alt="" /><i>{STAGE_LETTER[stageAt(f, pos)]}</i></span>
-            ))}
-            {left.length > MAX_SHOWN && <em>+{left.length - MAX_SHOWN + 1}</em>}
-          </span>
-        )}
+        <span class="rt-say">{say}</span>
       </div>
-      <span class="rt-say">{say}</span>
-      {up && row && row.rank > 0 && row.rank < ORDINAL.length && !off && <span class="rt-badge">{ORDINAL[row.rank]}</span>}
-      {paid && <span class="rt-plus">+${row!.paid}</span>}
+      {paid ? <span class="rt-plus">+${row!.paid}</span>
+        : up && row && row.rank > 0 && row.rank < ORDINAL.length && !off && <span class="rt-badge">{ORDINAL[row.rank]}</span>}
       {fav && <span class="rt-fav"><FavourMark id={fav.id} /></span>}
       <i class="rt-favspot" data-a={`rt-fav-${p}`} aria-hidden="true" />
     </div>
   );
+}
+
+/**
+ * A stall's crate at this moment of the rush: as this customer found it, less the pieces that have left for them so
+ * far (all of a fruit's sold pieces once its sale has been shown), in the board's lane order and freshest first.
+ * Null when the crate cannot be worked out.
+ */
+export function crateNow(c: RushCard, p: number): { fruit: FruitId; pos: number }[] | null {
+  const stock = c.stock[p];
+  if (!stock) return null;
+  const out: { fruit: FruitId; pos: number }[] = [];
+  for (const g of LANES) {
+    const had = stock[g];
+    if (!had?.length) continue;
+    const r = c.blocks.find((x) => x.fruit === g)?.rows.find((x) => x.player === p);
+    const n = !r ? 0 : lineShown(c.customerId, g) ? r.sold : Math.min(r.sold, piecesLifted(c.customerId, g, p));
+    // The pieces it handed over, where they are known; otherwise its freshest (a standing order and a customer both
+    // take the freshest they will accept, so this is right but for a rare tie of freshness).
+    const left = (r?.used ? without(had, r.used.slice(0, n)) : [...had]).sort((x, y) => y - x);
+    for (const pos of r?.used ? left : left.slice(n)) out.push({ fruit: g, pos });
+  }
+  return out;
+}
+
+/** "In the crate: 2 apples (Fresh, Okay), 1 mango (Fresh)". */
+function crateWords(pieces: { fruit: FruitId; pos: number }[]): string {
+  if (!pieces.length) return 'Empty crate';
+  const parts = LANES.flatMap((g) => {
+    const mine = pieces.filter((x) => x.fruit === g);
+    if (!mine.length) return [];
+    const kinds = [...new Set(mine.map((x) => STAGE_WORD[stageAt(g, x.pos)]))].join(', ');
+    return [`${mine.length} ${(mine.length === 1 ? FRUIT[g].name : FRUIT[g].plural).toLowerCase()} (${kinds})`];
+  });
+  return `In the crate: ${parts.join(', ')}`;
 }
 
 /** A list of crate places with some pieces taken out (one for each entry in `gone`). */

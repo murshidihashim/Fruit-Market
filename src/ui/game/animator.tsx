@@ -247,7 +247,7 @@ async function sellBlock(card: RushCard, b: RushBlock, viewer: number, pay: Pay)
       // A big sale is drawn as four pieces: the last one carries the pieces not drawn as well.
       const carries = k === pieces - 1 ? 1 + row.sold - pieces : 1;
       const pos = row.used?.[k];
-      const from = [...(pos === undefined ? [] : [`rt-pc-${row.player}-${pos}`]), `rt-pcs-${row.player}`, crateOf(row.player)];
+      const from = [...(pos === undefined ? [] : [`rt-pc-${row.player}-${b.fruit}-${pos}`]), `rt-pcs-${row.player}`, crateOf(row.player)];
       jobs.push(A.fly(from, onTable(`${want} .rt-dots i:nth-child(${sent + 1})`) ?? to, <Fruit id={b.fruit} size={24} stage={row.pieces?.[k] ?? row.freshest ?? undefined} />, {
         delay: last, duration: A.FEEL.travel, path: 'low', swell: false,
         onLift: () => liftPiece(card.customerId, b.fruit, row.player, carries),

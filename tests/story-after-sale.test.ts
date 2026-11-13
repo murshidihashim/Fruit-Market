@@ -465,6 +465,6 @@ describe('the rush at the round table', () => {
     // your crate is over the customer's price; it still shows its two pieces
     const mine = html.split('data-a="rt-crate-0"')[1].split('data-a="rt-fav-')[0];
     expect(mine).toContain('over $4');
-    expect(mine).toContain('aria-label="2 in the crate: fresh"');
+    expect(mine).toContain('aria-label="In the crate: 2 apples (fresh)"');
   });
 });

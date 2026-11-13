@@ -1,0 +1,68 @@
+{
+  "id": "PLAN-093",
+  "title": "The rush's seats hold their fruit; the lorry card shows one row",
+  "problem": "At the rush a seat showed only the fruit the current customer wanted; the morning's lorry card printed the load for every table size.",
+  "scope": [
+    "Every seat at the rush shows its stall's whole open crate from the first customer to the last; a piece leaves when a customer takes it; the other fruit greyed while a fruit is bought",
+    "The morning's lorry card shows this table's row, or the Today row when an event changed the load"
+  ],
+  "exclusions": [
+    "Any rule, balance, save or message change",
+    "The printed lorry card",
+    "The rush's pace and order"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Tests: each customer finds every crate as the one before left it; the bell's crate first; a piece leaves as it lifts off; nothing leaves before its moment; the lorry card has one row",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Seen by me at 390x844 and 360x640 with 2, 4 and 6 stalls",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has seen it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "in progress",
+  "release": "1.21.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-115"
+  ],
+  "decisions": [
+    "DEC-109",
+    "DEC-110"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

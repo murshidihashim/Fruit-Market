@@ -58,12 +58,11 @@ export function EventTicket({ card, n, art, focus, chips, children }: {
 
 // ---------- the morning: today's lorry ----------
 
-const SIZES = [2, 3, 4, 5, 6] as const;
-
 /**
- * Today's lorry as the morning shows it: its lanes carry the pieces for every table size, with this table's row boxed.
- * `card`: today's lorry card, when it is known (boardModel.todaysLorry). `today`: what was really unloaded, given when
- * an event changed the load or the card is not known; it is then the boxed row, labelled "Today", above the card's rows.
+ * Today's lorry as the morning shows it: one row of its lanes, what it unloads at this table (the owner, 2026-11-13:
+ * only the row that applies; the printed card, cards.tsx LorryCard, keeps every table size). `card`: today's lorry
+ * card, when it is known (boardModel.todaysLorry). `today`: what was really unloaded, given when an event changed the
+ * load or the card is not known; that row is then labelled "Today" in place of the card's row for this table.
  */
 export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   card: FarmerCard | null; stalls: number; today?: Record<FruitId, number>;
@@ -71,7 +70,8 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
   green: FruitId | null; ripeIn: number;
 }) {
   const on = lorryRow(stalls);
-  const said = LANES.map((f) => piecesOf(today ? today[f] : card ? card.table[on][f] : 0, f).toLowerCase()).join(', ');
+  const load = today ?? (card ? card.table[on] : null);
+  const said = LANES.map((f) => piecesOf(load ? load[f] : 0, f).toLowerCase()).join(', ');
   // What arrives green and when it ripens, then the Seconds Lorry's word on the rest.
   const [first, ...rest] = card ? lorryNotes(card) : green ? [`${FRUIT[green].plural} arrive green`] : [];
   const notes = [first, green ? `Ripe in ${ripeIn} nights` : '', ...rest].filter(Boolean);
@@ -81,15 +81,10 @@ export function LorryTicket({ card, stalls, today, green, ripeIn }: {
       <div class="wc-lt" role="img" aria-label={`Today's delivery${card ? ` (${card.name})` : ''}: ${said}`}>
         <span />
         {LANES.map((f) => <span class={`wc-lt-h ${laneClass(f)}`}><FruitSvg id={f} size={14} alt="" /></span>)}
-        {/* What really came goes first, so it is in view before the card's printed rows. */}
-        {today && [
-          <span class="wc-lt-l on">Today</span>,
-          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), 'on', !today[f] && 'nil')}>{today[f]}</span>),
+        {load && [
+          <span class="wc-lt-l on">{today ? 'Today' : `${on} stalls`}</span>,
+          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), 'on', !load[f] && 'nil')}>{load[f]}</span>),
         ]}
-        {card && SIZES.map((n) => [
-          <span class={cx('wc-lt-l', n === on && (today ? 'mark' : 'on'))}>{`${n} stalls`}</span>,
-          ...LANES.map((f) => <span class={cx('wc-lt-n', laneClass(f), n === on && !today && 'on', !card.table[n][f] && 'nil')}>{card.table[n][f]}</span>),
-        ])}
       </div>
       {notes.length > 0 && <footer class="wc-foot">{notes.join(' · ')}</footer>}
     </article>

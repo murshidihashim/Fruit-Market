@@ -88,6 +88,10 @@ export interface RushCard {
   earned: number;
   /** The result line under the offers. */
   text: string;
+  /** Every stall's open crate as this customer finds it, by stall: for each fruit it has out, the places of its pieces
+   *  (the board's boxes, oldest first); null when that cannot be worked out. The round table draws each stall's whole
+   *  crate in its seat, and a piece leaves it when a customer takes it (the owner, 2026-11-13). */
+  stock: (Partial<Record<FruitId, number[]>> | null)[];
 }
 
 const fruitWord = (f: FruitId, n: number) => (n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase();
@@ -106,22 +110,37 @@ export function offeredPieces(s: GameState): Map<LineResult, (Stage[] | null)[]>
   return out;
 }
 
-/** The day's sales played again on a copy of the open crates (see offeredPieces): for each line, the places of the
- *  pieces each offer handed over (`used`), and every stall's crate of that fruit before the line (`before`). */
-function replay(s: GameState): { used: Map<LineResult, (number[] | null)[]>; before: Map<LineResult, (number[] | null)[]> } {
+/** What the day's sales played again give: for each line, the places of the pieces each offer handed over (`used`) and
+ *  every stall's crate of that fruit before the line (`before`); for each customer, every stall's whole crate before
+ *  the customer (`start`). */
+interface Replay {
+  used: Map<LineResult, (number[] | null)[]>;
+  before: Map<LineResult, (number[] | null)[]>;
+  start: Map<number, (Partial<Record<FruitId, number[]>> | null)[]>;
+}
+
+/** The day's sales played again on a copy of the open crates (see offeredPieces). */
+function replay(s: GameState): Replay {
   const out = new Map<LineResult, (number[] | null)[]>();
   const before = new Map<LineResult, (number[] | null)[]>();
+  const start = new Map<number, (Partial<Record<FruitId, number[]>> | null)[]>();
   const r = s.results;
-  if (!r || !s.crates) return { used: out, before };
+  if (!r || !s.crates) return { used: out, before, start };
   // Only the open crates: a stall without one (it put nothing out) has an empty crate, never its shelf.
   const crates = s.players.map((pl, p) => (s.crates?.[p] ? copy(crateStock(s, p)) : Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map(() => 0)])) as Stock));
   const customers = new Map(servingCustomers(s).map((c) => [c.id, c]));
   const lost = new Set<number>();
+  const places = (crate: Stock, f: FruitId) => crate[f].flatMap((n, pos) => (pos < FRUIT[f].ripe.length ? Array.from({ length: n }, () => pos) : []));
   for (const l of r.lines) {
     const c = customers.get(l.customerId);
     const f = l.fruit;
     const ripe = FRUIT[f].ripe.length;
-    before.set(l, crates.map((crate, p) => (lost.has(p) ? null : crate[f].flatMap((n, pos) => (pos < ripe ? Array.from({ length: n }, () => pos) : [])))));
+    // A customer's lines come together, so the crates before their first line are the crates as they find them.
+    if (!start.has(l.customerId)) {
+      start.set(l.customerId, crates.map((crate, p) => (lost.has(p) ? null
+        : Object.fromEntries(FRUITS.map((g) => [g, places(crate, g)]).filter(([, at]) => at.length)) as Partial<Record<FruitId, number[]>>)));
+    }
+    before.set(l, crates.map((crate, p) => (lost.has(p) ? null : places(crate, f))));
     const used = l.offers.map((o): number[] | null => {
       const crate = crates[o.player]?.[f];
       if (!c || !crate || lost.has(o.player)) return null;
@@ -142,7 +161,7 @@ function replay(s: GameState): { used: Map<LineResult, (number[] | null)[]>; bef
     out.set(l, used);
     l.offers.forEach((o, i) => { for (const pos of o.tooOld ? [] : used[i]?.slice(0, o.sold) ?? []) crates[o.player][f][pos]--; });
   }
-  return { used: out, before };
+  return { used: out, before, start };
 }
 
 /** What a row says once its sale has been shown: "Sold 1", with the money for your own stall; otherwise why it did not sell. */
@@ -212,6 +231,7 @@ export function rushCards(s: GameState, viewer: number): RushCard[] {
       favour: won ? { player: won.player, id: won.player === viewer ? won.favour : null } : null,
       earned: sold + mine.reduce((a, x) => a + x.tip, 0),
       text: told.length ? told.join(' ') : `${lookOf(c.name).title} leaves with nothing.`,
+      stock: played.start.get(c.id) ?? s.players.map(() => null),
     }];
   });
 }
@@ -271,8 +291,8 @@ export interface Place { left: number; top: number; width: number; height: numbe
  *  of crates either side of the customer (a small phone). A crate's size, and the customer's card at its largest
  *  (three fruit lines); the card's width may shrink to fit between the columns. */
 export const TABLE = {
-  round: { crate: [98, 88], card: [150, 216] },
-  close: { crate: [104, 80], card: [140, 176] },
+  round: { crate: [98, 96], card: [150, 216] },
+  close: { crate: [104, 90], card: [140, 176] },
   /** From the stage's edge to a crate, and between a crate and the customer. */
   pad: 6, gap: 6,
   /** The narrowest the customer's card may be drawn between two columns of crates. */

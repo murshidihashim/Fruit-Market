@@ -477,19 +477,25 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
     expect(calm).not.toContain('Stays in force');
   });
 
-  it('the morning\'s lorry card boxes the table\'s row, or a "Today" row when an event changed the load or the card is not known', () => {
+  it('the morning\'s lorry card shows only what it unloads at this table: the table\'s row, or a "Today" row when an event changed the load or the card is not known', () => {
     const card = FARMER_CARDS[0];
     const plain = html(LorryTicket, { card, stalls: 4, green: 'mango', ripeIn: 2 });
     expect(plain).toContain(`<b>Today</b> · ${card.name}`);
     expect(plain).toContain('<span class="wc-lt-l on">4 stalls</span>');
-    expect(plain.match(/wc-lt-n [^"]* on"/g)).toHaveLength(4);
+    // No other table size (the owner, 2026-11-13): one row of four numbers, this table's.
+    for (const n of [2, 3, 5, 6]) expect(plain).not.toContain(`${n} stalls`);
+    expect(plain.match(/wc-lt-l/g)).toHaveLength(1);
+    expect([...plain.matchAll(/wc-lt-n ln-([a-z]+) on[^"]*">(\d+)</g)].map((m) => [m[1], Number(m[2])])).toEqual(LANES.map((f) => [f, card.table[4][f]]));
     expect(plain).not.toContain('>Today</span>');
     expect(plain).toContain('Mangoes arrive green · Ripe in 2 nights');
     const today = { blueberry: 9, watermelon: 4, mango: 2, apple: 0 };
     const changed = html(LorryTicket, { card, stalls: 4, today, green: 'mango', ripeIn: 2 });
-    expect(changed).toContain('<span class="wc-lt-l mark">4 stalls</span>');
+    expect(changed).not.toContain('stalls</span>');
     expect(changed).toContain('<span class="wc-lt-l on">Today</span>');
     expect([...changed.matchAll(/wc-lt-n ln-([a-z]+) on[^"]*">(\d+)</g)].map((m) => [m[1], Number(m[2])])).toEqual(LANES.map((f) => [f, today[f]]));
+    expect(changed.match(/wc-lt-n /g)).toHaveLength(4);
+    // A table larger or smaller than the card prints uses the nearest row it has.
+    expect(html(LorryTicket, { card, stalls: 7, green: null, ripeIn: 0 })).toContain('<span class="wc-lt-l on">6 stalls</span>');
     const unknown = html(LorryTicket, { card: null, stalls: 3, today, green: 'mango', ripeIn: 2 });
     expect(unknown).toContain('<b>Today</b></span>');
     expect(unknown).not.toContain('stalls</span>');

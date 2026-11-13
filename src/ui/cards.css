@@ -247,7 +247,6 @@
 .wc-lt-h .x-fruit { width: 18px; height: 18px; padding: 2px; border-radius: 50%; background: var(--x-paper); }
 .wc-lt-l { justify-items: start; padding: 0 6px; font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 .wc-lt-l.on { background: var(--x-ink); color: var(--x-mustard); }
-.wc-lt-l.mark { box-shadow: inset 0 0 0 1.5px var(--x-ink); }
 .wc-lt-n { background: var(--lane); color: var(--lane-ink); font: 400 0.8125rem/1 var(--f-display); }
 .wc-lt-n.nil { color: color-mix(in srgb, var(--lane-ink) 55%, var(--lane)); }
 .wc-lt-n.on { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); }

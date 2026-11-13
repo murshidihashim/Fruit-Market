@@ -2709,6 +2709,30 @@
         "REP-115"
       ],
       "reviewTrigger": "When built: shown to the owner at both phone sizes with 2, 4 and 6 stalls; if six crates crowd a small phone"
+    },
+    {
+      "id": "DEC-110",
+      "title": "The rush shows each stall's whole crate; the morning's lorry shows this table's row only",
+      "question": "The owner asked for two changes to the screens after seeing the recording of candidate 1.21.0 (REP-115).",
+      "choice": "1. At the round-table rush every seat shows all the fruit that stall has out for sale, piece by piece with its freshness letter, from the first customer to the last; a piece leaves the seat when a customer takes it (it travels to the customer, as before). While a fruit is being bought the seat's other fruit is greyed and its price tag for that fruit shows. 2. The morning's lorry card shows only what the lorry unloads at this table: the row for this table's size, or the \"Today\" row when an event changed the load. The printed lorry card keeps every table size.",
+      "rationale": "The owner's own words. A seat that holds its fruit reads as that stall's table, and the fruit leaving shows the sale; the other table sizes on the lorry card are noise on a phone.",
+      "impact": {
+        "player": "The rush shows what every stall still has for sale; the morning is shorter.",
+        "technical": "rush.ts records each stall's whole crate before each customer; RushTable.tsx draws it; phoneCards.tsx LorryTicket draws one row (PLAN-093).",
+        "data": "None"
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-13, in his own words: \"for the rush phase, make it so that fruits for sale is on the player & rival's respective round table, fruit should disappear from a player's round table after a customer took it\" and \"when the cards are drawn during buying phase, just keep the relevant lorry unload info, dont show the full supply profile for other stall counts\".",
+        "date": "2026-11-13"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-115"
+      ],
+      "reviewTrigger": "If six crates with many pieces crowd a small phone; when the owner has seen it"
     }
   ],
   "history": [
@@ -3795,6 +3819,10 @@
     {
       "at": "2026-11-13 07:55",
       "text": "Records tidy: delivery of twelve decisions brought up to date with the plans that built them. Released: DEC-064 and DEC-065 (PLAN-049, 1.8.0); DEC-087, DEC-090 to DEC-093, DEC-095 and DEC-096 (PLAN-083, PLAN-085 and PLAN-088, 1.20.0; the print kit, PLAN-087, is built but not published). Implemented in candidate 1.21.0: DEC-097 (Home), DEC-099 (the stamp book's first version) and DEC-103 (stocking and the takings released in 1.20.0; Results, the stamp book, trophy cards and the Wardrobe in 1.21.0). PLAN-087 T3 now PASS: every page of the kit, the update pack and the trackers was looked at by me on the final card text (PLAN-091 T5, cbcab10)."
+    },
+    {
+      "at": "2026-11-13 08:19",
+      "text": "DEC-110 approved by the owner's own words: every seat at the rush shows its stall's whole crate and loses each piece a customer takes; the morning's lorry card shows this table's row only. Built as PLAN-093 into candidate 1.21.0. The owner also asked whether checks ran overnight (none on GitHub since 1.20.0; verify and e2e ran on this machine until 02:40) and what is pending (answered from the records; twelve decisions' delivery tidied)."
     }
   ]
 }

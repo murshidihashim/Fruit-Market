@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
-import { FAVOURS, FRUIT, FRUITS, RIVALS, lookOf, stageAt, type FavourId } from '../src/engine/data';
+import { FAVOURS, FRUIT, FRUITS, RIVALS, lookOf, stageAt, type FavourId, type FruitId } from '../src/engine/data';
 import { autoplay } from '../src/engine/ai';
 import { newGame, servingCustomers, type GameState } from '../src/engine/game';
 import { rushLine } from '../src/engine/story';
@@ -223,6 +223,33 @@ describe('every stall\'s open crate, as each customer finds it', () => {
     expect(checked).toBeGreaterThan(1000);
   });
 
+  it('every stall\'s whole crate as each customer finds it: the bell\'s crate first, then less what each customer took (the owner, 2026-11-13)', () => {
+    let checked = 0;
+    for (const s of all) {
+      const cards = rushCards(s, 0);
+      if (!cards.length) continue;
+      cards.forEach((c, i) => {
+        expect(c.stock).toHaveLength(s.players.length);
+        c.stock.forEach((st, p) => {
+          if (!st) return;
+          for (const f of FRUITS) {
+            const n = st[f]?.length ?? 0;
+            // the first customer finds the crate as it was at the bell
+            if (i === 0 && !s.results!.order) expect(n).toBe((s.crates?.[p]?.[f] ?? []).reduce((a, k) => a + k, 0));
+            // each block's crate of a fruit is this crate, as far as it can be worked out
+            const b = c.blocks.find((x) => x.fruit === f);
+            if (b?.crates[p]) expect(b.crates[p]).toEqual(st[f] ?? []);
+            // the next customer finds it less what this one took
+            const next = cards[i + 1]?.stock[p];
+            if (next) expect(next[f]?.length ?? 0).toBe(n - (b?.rows.find((r) => r.player === p)?.sold ?? 0));
+            checked++;
+          }
+        });
+      });
+    }
+    expect(checked).toBeGreaterThan(1000);
+  });
+
   it('marks the offers that can sell in the order they sell: 1st, 2nd and so on', () => {
     for (const s of all) for (const c of rushCards(s, 0)) for (const b of c.blocks) {
       expect(b.rows.filter((r) => r.qualified).map((r) => r.rank)).toEqual(b.rows.filter((r) => r.qualified).map((_, i) => i + 1));
@@ -295,7 +322,7 @@ function cardOf(...fruits: number[][]): RushCard {
     line: { customerId: 1, name: 'Wei Jie', fruit: FRUITS[k], want: 4, max: 6, offers: [] }, fruit: FRUITS[k], want: 4, heading: '', none: null, story: '', got: sum(sold), crates: [],
     rows: sold.map((n, i) => ({ i, player: i, me: i === 0, price: 4, qty: Math.max(n, 1), freshest: 'fresh', pieces: null, used: null, qualified: true, rank: i + 1, sold: n, paid: n * 4, result: '' })),
   }));
-  return { customerId: 1, name: 'Wei Jie', kind: 'customer', holder: null, wants: [], blocks, extras: [], favour: null, earned: 0, text: '' };
+  return { customerId: 1, name: 'Wei Jie', kind: 'customer', holder: null, wants: [], blocks, extras: [], favour: null, earned: 0, text: '', stock: [] };
 }
 
 describe('rush pace', () => {
@@ -409,13 +436,16 @@ describe('the round table', () => {
     expect(before).not.toMatch(/rt-w [^"]*done/);
     expect(before).not.toContain('Sold ');
     expect(before).toMatch(/<div class="rt-line +" role="status">/);
-    // every crate still holds the pieces it had when the customer came
-    for (const r of first.rows) if (r.used && first.crates[r.player]) expect(crate(before, r.player).match(/class="rt-pc"/g)?.length ?? 0).toBe(Math.min(first.crates[r.player]!.length, 4) - (first.crates[r.player]!.length > 4 ? 1 : 0));
+    // every crate still holds the pieces it had when the customer came, of every fruit
+    const drawn = (page: string, p: number, f?: FruitId) => crate(page, p).match(new RegExp(`data-a="rt-pc-${p}-${f ?? '[a-z]+'}-`, 'g'))?.length ?? 0;
+    const had = (p: number, f?: FruitId) => (f ? [f] : FRUITS).reduce((a, g) => a + (card.stock[p]?.[g]?.length ?? 0), 0);
+    s.players.forEach((_, p) => { if (card.stock[p] && had(p) <= 10) expect(drawn(before, p)).toBe(had(p)); });
     // pieces leave a crate as they lift off, and fill dots as they land
     const seller = first.rows.find((r) => r.sold > 0)!;
     liftPiece(card.customerId, first.fruit, seller.player);
     landPiece(card.customerId, first.fruit);
     const one = html(show('rows'));
+    if (had(seller.player) <= 10) expect(drawn(one, seller.player, first.fruit)).toBe(had(seller.player, first.fruit) - 1);
     expect(one.match(/class="got"/g)).toHaveLength(1);
     expect(one).not.toContain('rt-plus');
     // the money as it lands
@@ -424,6 +454,13 @@ describe('the round table', () => {
     // one fruit's sale has been shown: its crates say what became of each offer, the other fruit's do not yet
     serveLine(card.customerId, first.fruit);
     const half = html(show('rows'));
+    // once the sale is shown, every piece a stall sold has left its crate; the crate's other fruit is greyed meanwhile
+    for (const r of first.rows) if (card.stock[r.player] && had(r.player) <= 10) expect(drawn(half, r.player, first.fruit)).toBe(had(r.player, first.fruit) - r.sold);
+    const marks = [...half.matchAll(/class="rt-pc( dim)?" data-a="rt-pc-\d-([a-z]+)-/g)];
+    expect(marks.length).toBeGreaterThan(0);
+    for (const m of marks) expect(!!m[1]).toBe(m[2] !== first.fruit);
+    // while the customer comes in, nothing is greyed: every crate shows all it has for sale
+    expect(html(show('in'))).not.toContain('rt-pc dim');
     for (const r of first.rows) expect(crate(half, r.player)).toContain(esc(r.sold > 0 ? `Sold ${r.sold}` : r.result));
     expect(half.match(/class="got"/g) ?? []).toHaveLength(first.got);
     expect(html(show('rows', 1))).not.toContain('Sold ');
