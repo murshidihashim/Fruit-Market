@@ -97,7 +97,7 @@
   flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); font: 800 0.5rem/1 var(--tk-txt);
 }
-#app .tkt .rt-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
+#app .tkt .rt-lamp.off { background: none; color: var(--c-6b6f7a); box-shadow: inset 0 0 0 1px var(--c-6b6f7a); }
 
 /* ---------- a stall's crate in its seat ---------- */
 /* when the room changes (the pricing sheet comes up or goes) a crate glides to its new place and size */
@@ -152,12 +152,12 @@
 #app .tkt .rt-crate.first { background: var(--tk-yel); box-shadow: 0 0 0 3px var(--tk-yel), 0 0 0 5px var(--tk-ink); }
 #app .tkt .rt-crate.first .rt-say { color: var(--tk-ink); }
 #app .tkt .rt-crate.over { opacity: 0.55; }
-#app .tkt .rt-crate.over .rt-tag { color: var(--x-lamp-off); }
+#app .tkt .rt-crate.over .rt-tag { color: var(--c-6b6f7a); }
 #app .tkt .rt-crate.none, #app .tkt .rt-crate.off { opacity: 0.45; border-style: dashed; }
 /* what a stall was paid, as its first coin lands: in the corner where its place in the line was */
 #app .tkt .rt-plus {
   position: absolute; top: -11px; right: -8px; z-index: 3; padding: 3px 5px; border: 2px solid var(--tk-ink);
-  background: var(--tk-melon); color: var(--tk-paper); font: 400 0.75rem/1 var(--tk-disp);
+  background: var(--c-0a7443); color: var(--tk-paper); font: 400 0.75rem/1 var(--tk-disp);
   animation: rt-in calc(var(--mk, 1) * var(--t-sheet-in)) ease both;
 }
 /* a favour card, small: on a crate, and while it travels there (or, at the bell, to a tied tag). Face down: the deck's back */
@@ -422,7 +422,7 @@
   all: unset; flex: none; width: 40px; min-height: 40px; display: grid; place-items: center; cursor: pointer;
   background: var(--tk-ink); color: var(--tk-yel); font: 400 1.25rem/1 var(--tk-disp);
 }
-#app .tkt .rt-sheet .ds-st:disabled { background: var(--c-bdbebe); color: var(--tk-paper); cursor: default; }
+#app .tkt .rt-sheet .ds-st:disabled { background: var(--c-bdbebe); color: var(--c-2f3a3e); cursor: default; }
 #app .tkt .rt-sheet .ds-tag { position: relative; flex: none; width: 58px; display: grid; place-items: center; border-left: 2px solid var(--tk-ink); border-right: 2px solid var(--tk-ink); }
 #app .tkt .rt-sheet .ds-tag-face { font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; min-width: 0; }
 #app .tkt .rt-sheet .ps-note { flex: none; display: flex; align-items: center; gap: 6px; margin: 0; color: var(--tk-slate); font: 600 0.6875rem/1.25 var(--tk-txt); }
@@ -451,6 +451,21 @@
 #app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ds-st { min-height: 34px; }
 #app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) > .pp-lock .btn { height: 44px; }
 #app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }
+/* The − and + keep a place to tap 40 px tall and wide at every step (PLAN-096): an unseen area over the row's own edge
+   (2 px above and below; on the − to its left, on the + to its right, where a narrow phone draws them 38 px wide), and
+   at the closest steps over half the 2 px between two rows as well, so two rows' areas meet and never overlap. The
+   rows' scrolling box reaches 1 px past the rows there, so the first and last rows' areas are not cut off. Nothing
+   is moved or redrawn. */
+#app .tkt .rt-sheet .ds-st { position: relative; }
+#app .tkt .rt-sheet .ds-st::before { content: ''; position: absolute; top: -2px; bottom: -2px; left: 0; right: 0; }
+#app .tkt .rt-sheet .ds-dial > .ds-st:first-child::before { left: -2px; }
+#app .tkt .rt-sheet .ds-dial > .ds-st:last-child::before { right: -2px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ds-st::before { top: -3px; bottom: -3px; }
+#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3']) .ps-rows { padding-block: 1px; margin-block: -1px; }
+/* the "i" beside the heading (18 px): 40 px to tap, over the heading's words and the top of the first row's words
+   below it, and up only as far as the sheet's own edge */
+#app .tkt .rt-sheet .ps-head .pp-info { position: relative; }
+#app .tkt .rt-sheet .ps-head .pp-info::before { content: ''; position: absolute; top: -8px; bottom: -14px; left: -11px; right: -11px; }
 @media (max-height: 700px) {
   #app .tkt .rt-sheet { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   #app .tkt .rt-sheet > .pp-lock .btn { height: 48px; }

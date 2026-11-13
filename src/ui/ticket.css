@@ -43,8 +43,8 @@
 #app .tkt .tk-side { font: 700 0.75rem/1 var(--tk-txt); white-space: nowrap; }
 #app .tkt .tk-note { all: unset; display: block; font: 500 0.75rem/1.35 var(--tk-txt); }
 #app .tkt .tk-chip { flex: none; padding: 3px 6px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.625rem/1.1 var(--tk-txt); letter-spacing: 0.05em; text-transform: uppercase; }
-#app .tkt .tk-chip.warn { background: var(--tk-apple); color: var(--tk-paper); }
-#app .tkt .tk-chip.good { background: var(--tk-melon); color: var(--tk-paper); }
+#app .tkt .tk-chip.warn { background: var(--tk-red-d); color: var(--tk-paper); }
+#app .tkt .tk-chip.good { background: var(--c-0a7443); color: var(--tk-paper); }
 #app .tkt .tk-info { all: unset; display: block; padding: 6px 8px; background: var(--tk-kraft); font: 600 0.75rem/1.3 var(--tk-txt); }
 #app .tkt .tk-info.warn { background: var(--c-fbd5d2); }
 #app .tkt .tk-info.good { background: var(--c-cfeedd); }
@@ -79,13 +79,22 @@
 #app .tkt .tk-day .day-label { all: unset; font: 400 1.25rem/1 var(--tk-disp); text-transform: uppercase; white-space: nowrap; }
 #app .tkt .tk-day .day-label small { all: unset; font: 700 0.8125rem/1 var(--tk-txt); }
 #app .tkt .tk-left { align-self: flex-start; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-left.last { padding: 2px 4px; background: var(--tk-apple); color: var(--tk-paper); }
+#app .tkt .tk-left.last { padding: 2px 4px; background: var(--tk-red-d); color: var(--tk-paper); }
+/* Today's event: its picture and its name in up to two lines. The name is never cut (PLAN-096): where the name's
+   longest word does not fit beside the picture, the picture gives way. The chip is a wrapping row laid out from the
+   right (the name first, then the picture to its left); a picture that has no room wraps onto a second line, which
+   lies wholly under the chip's foot and out of sight. An empty strut as tall as the chip's inside keeps the first
+   line that tall, so the name stays in the middle with or without the picture. */
 #app .tkt .tk-event {
-  all: unset; flex: 0 1 auto; min-width: 0; box-sizing: border-box; display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 3px 9px 3px 4px; cursor: pointer;
-  background: var(--tk-yel); color: var(--tk-ink); font: 800 0.75rem/1.05 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
+  all: unset; flex: 0 1 auto; min-width: 0; box-sizing: border-box; display: flex; flex-flow: row-reverse wrap; justify-content: flex-end; align-items: center; align-content: flex-start;
+  gap: 6px; height: 40px; padding: 3px 9px 3px 4px; overflow: hidden; cursor: pointer;
+  background: var(--tk-yel) padding-box; color: var(--tk-ink); font: 800 0.75rem/1.05 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
+  /* the yellow is 36 px tall; a clear edge above and below makes the place to tap 40 px tall (PLAN-096) */
+  border-block: 2px solid transparent;
 }
-#app .tkt .tk-event .xev { flex: none; border-radius: 0; overflow: hidden; }
-#app .tkt .tk-event > span:last-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+#app .tkt .tk-event::before { content: ''; order: -1; flex: none; width: 0; height: 30px; margin-left: -6px; }
+#app .tkt .tk-event .xev { flex: none; order: 1; border-radius: 0; overflow: hidden; }
+#app .tkt .tk-event > span:last-child { flex: 1 1 0; min-width: min-content; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 #app .tkt .tk-me { margin-left: auto; flex: none; display: flex; align-items: center; gap: 8px; }
 #app .tkt .tk-rank { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; color: var(--tk-yel); }
 #app .tkt .tk-cash { padding: 5px 9px; background: var(--tk-paper); color: var(--tk-ink); font: 400 1.25rem/1.15 var(--tk-disp); font-variant-numeric: tabular-nums; }
@@ -160,6 +169,8 @@
 #app .tkt .order-strip .os-k { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; color: var(--tk-red-d); }
 #app .tkt .order-strip .os-want, #app .tkt .order-strip .os-who { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; }
 #app .tkt .order-strip .os-fine { margin-left: auto; }
+#app .tkt .order-strip.due .os-k { color: var(--c-9c2b32); }
+#app .tkt .order-strip.due .os-fine { color: var(--c-2f3a3e); }
 
 /* ---------- rivals ---------- */
 #app .tkt > .seats { all: unset; grid-area: rivals; position: relative; z-index: 5; display: flex; gap: 6px; min-width: 0; padding: 6px 12px; }
@@ -425,15 +436,32 @@
   #app .tkt .tk-offers .rs-price { animation: none; }
 }
 
+/* a phone: the event's name a little smaller, so its longest word ("Breakdown") fits beside the last day's date, the
+   rank and a cash of three figures (PLAN-096) */
+@media (max-width: 419px) {
+  #app .tkt .tk-event { font-size: 0.625rem; letter-spacing: 0.03em; }
+}
 /* a narrow phone: the same table, a little tighter */
 @media (max-width: 379px) {
-  #app .tkt .tk-top-row { gap: 7px; padding-right: 8px; }
-  #app .tkt .tk-event { font-size: 0.625rem; letter-spacing: 0.03em; padding-right: 6px; }
+  #app .tkt .tk-top-row { gap: 5px; padding-right: 6px; }
+  #app .tkt .tk-event { padding-right: 6px; }
+  #app .tkt .tk-me { gap: 6px; }
+  #app .tkt .tk-cash { padding-left: 7px; padding-right: 7px; }
   #app .tkt .tk-seat-name { font-size: 0.65rem; letter-spacing: -0.01em; }
   #app .tkt .tk-seat-line { font-size: 0.64rem; }
   #app .tkt > .street-wrap, #app .tkt > .seats { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card, #app .tkt > .auction.rush { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-left: 8px; padding-right: 8px; }
+}
+/* the narrowest phones (320 px): the top bar's day, rank and cash a little smaller, so the event's name still fits */
+@media (max-width: 339px) {
+  #app .tkt .tk-top-row { gap: 4px; padding-left: 2px; }
+  #app .tkt .tk-menu { width: 40px; }
+  #app .tkt .tk-day .day-label { font-size: 1.0625rem; }
+  #app .tkt .tk-day .day-label small { font-size: 0.6875rem; }
+  #app .tkt .tk-event { padding-left: 3px; padding-right: 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
+  #app .tkt .tk-me { gap: 5px; }
+  #app .tkt .tk-cash { padding-left: 6px; padding-right: 6px; font-size: 1.0625rem; }
 }
 /* a short phone: smaller portraits and a slimmer bar leave more of the middle */
 @media (max-height: 760px) {

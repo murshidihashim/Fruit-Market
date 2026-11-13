@@ -1238,7 +1238,7 @@ b, strong { font-weight: 700; }
 .ptag.favour { background: var(--x-card); }
 .ptag.upgrade { background: var(--good-bg); }
 .ptag.lost-fine { background: var(--bad-bg); color: var(--x-red-d); }
-.floattext { color: var(--x-green); text-shadow: 0 2px 0 var(--x-paper), 0 -1px 0 var(--x-paper); font-weight: 600; }
+.floattext { color: var(--c-0a7443); text-shadow: 0 2px 0 var(--x-paper), 0 -1px 0 var(--x-paper); font-weight: 600; }
 .floattext.minus { color: var(--x-red-d); }
 .net-strip { background: var(--x-mustard); color: var(--x-ink); border-bottom: 2px solid var(--x-ink); font-weight: 600; }
 .net-strip.bad { background: var(--x-red-d); color: var(--x-paper); }

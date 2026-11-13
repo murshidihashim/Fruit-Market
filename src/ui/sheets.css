@@ -221,7 +221,7 @@
 #app .tkt .ev-who > span { display: inline-flex; align-items: center; gap: 3px; }
 #app .tkt .ev-who .xf { flex: none; box-sizing: border-box; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; }
 #app .tkt .ev-who.heard { padding: 2px 5px 2px 2px; background: var(--tk-paper); box-shadow: inset 0 0 0 2px var(--tk-ink); }
-#app .tkt .ev-rest { margin-left: auto; color: var(--tk-slate); }
+#app .tkt .ev-rest { margin-left: auto; color: var(--c-2f3a3e); }
 /* One main button; "Lights out without building" under it when an upgrade is chosen. The bar then holds two buttons
    and is taller by the second one (48 px and the 6 px between them). It grows upward, over the foot of the sheet,
    which ends that much sooner: the bar's own row keeps its height, so your shelf under the sheet does not move. */

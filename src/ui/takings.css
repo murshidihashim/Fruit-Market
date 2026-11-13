@@ -42,7 +42,7 @@
 #app .tkt .tg-rows { display: flex; flex-direction: column; }
 #app .tkt .tg-row { display: flex; align-items: center; gap: 8px; min-height: 31px; padding: 7px 9px; border-bottom: 1.5px dashed var(--tk-ink); }
 #app .tkt .tg-row > b { flex: none; margin-left: auto; font: 400 1.0625rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
-#app .tkt .tg-row > b.good { color: var(--c-0e9a58); }
+#app .tkt .tg-row > b.good { color: var(--c-0a7443); }
 #app .tkt .tg-row > b.bad { color: var(--tk-red-d); }
 #app .tkt .tg-row > b.flat { color: var(--tk-slate); }
 #app .tkt .tg-ic { flex: none; display: inline-flex; align-items: center; gap: 2px; }

@@ -329,7 +329,7 @@
 .tkc-dots i { flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--x-ink); background: var(--lane); }
 .tkc-n { display: block; overflow: hidden; white-space: nowrap; max-width: calc((var(--nr, 0) * 1px - 0.5px - 100cqw) * 999); font: 800 11px/1 var(--f-label); }
 .tkc-rw > b { flex: none; margin-left: auto; font: 400 12px/1 var(--f-display); }
-.tkc-rw.up > b { color: var(--x-green); }
+.tkc-rw.up > b { color: var(--c-0a7443); }
 .tkc-rw.down > b { color: var(--x-slate); }
 .tkc-rw.done > * { opacity: 0.35; }
 .tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }

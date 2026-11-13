@@ -46,7 +46,7 @@
 #app .tkt .ds-info.warn { background: var(--c-fbd5d2); }
 #app .tkt .ds-note { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 8px 9px; background: var(--tk-kraft); }
 #app .tkt .ds-kind { flex: none; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
-#app .tkt .ds-none { color: var(--tk-slate); }
+#app .tkt .ds-none { color: var(--c-2f3a3e); }
 #app .tkt .ds-out { display: flex; align-items: center; gap: 5px; }
 #app .tkt .ds-out b { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 #app .tkt .ds-out em { font: 800 0.625rem/1 var(--tk-txt); }
@@ -55,7 +55,7 @@
   all: unset; flex: none; width: 44px; min-height: 44px; display: grid; place-items: center; cursor: pointer;
   background: var(--tk-ink); color: var(--tk-yel); font: 400 1.375rem/1 var(--tk-disp);
 }
-#app .tkt .sh-day .ds-st:disabled { background: var(--c-bdbebe); color: var(--tk-paper); cursor: default; opacity: 1; }
+#app .tkt .sh-day .ds-st:disabled { background: var(--c-bdbebe); color: var(--c-2f3a3e); cursor: default; opacity: 1; }
 /* Favoured Trade played on a tied price: its stamp on the tag at the round table, shown as the card lands
    (animator.tsx holds it back until then) */
 #app .tkt .ds-stamp {
