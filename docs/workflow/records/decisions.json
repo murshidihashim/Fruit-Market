@@ -2850,7 +2850,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "reports": [
         "REP-117"
       ],
@@ -4009,6 +4009,10 @@
     {
       "at": "2026-11-13 11:08",
       "text": "DEC-116: the owner chose flow A for the crate reveal, with a black face-down square for every piece in a crate before the bell. Built as PLAN-099 after the evening work (PLAN-098) is merged, since both touch the same screens."
+    },
+    {
+      "at": "2026-11-13 11:15",
+      "text": "PLAN-098 (the evening for everyone at once, DEC-115) merged as c1b41cd: verify PASS (882 tests); the helper's e2e PASS; the solo evening seen by me at both sizes; an online evening not yet looked at by me. PLAN-099 (flow A) started by a helper on c1b41cd."
     }
   ]
 }

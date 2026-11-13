@@ -15,26 +15,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge c1b41cd: 81 files, 882 tests passed, 1 skipped (the existing skip in price-read.test.ts)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e by the helper on 74f10a8 (the merge adds only records): solo game to the results; speed test OK on the first try (longest task 149 ms against 200); online match 0 leaks, takeover; quick match; four people; reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "Tests: any order; night only when all are done; Priority by line-up with the others returned; computer-only evening ends at once; pass-and-play; online two people at once and a takeover",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "tests/rules19.test.ts (19 tests: any order, night only when all are done, Priority by line-up with the others returned, computer-only evening at once, older saves); tests/evening-screens.test.ts (14); 6 room tests (two people at once, takeover during the evening); 1 store test. Changed on purpose: rules18 (Priority rule), mechanics (2 loops close with activePlayer), rules4, room botStep, favour-secret label pin. 150 computer-only games play out identically to the start commit."
     },
     {
       "id": "T4",
       "text": "Seen by me in a solo game and an online game at 390x844 and 360x640",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Solo seen by me at 390x844 (4 stalls) and 360x640 (6 stalls), Day 3 Market Day evening: the upgrade sheet at once, Lights out, the night with rival boxes saying closed. An online evening has not been looked at by me; it is covered by the room tests and the online browser test."
     },
     {
       "id": "T5",
@@ -48,9 +48,9 @@
     "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
     "date": "2026-11-13"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge c1b41cd",
   "reports": [
     "REP-117"
   ],
@@ -58,10 +58,21 @@
     "DEC-115"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "The evening is one shared step: every stall decides at once and says Lights out; night falls when all are done",
+      "A rival's box says deciding or closed in the evening; the bar waits by name only after your Lights out"
+    ],
+    "changed": [
+      "Priority: several may be played; at nightfall the stall earliest in today's line-up goes first and the other cards go back to their hands (the card, RULES.md, the evening sheet and the next morning say so)",
+      "Computers decide their evening at once as it opens; their builds and cards are one beat, each label on its own stall"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "Waiting for each stall's evening turn"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "In the evening everyone decides at the same time: no more waiting for each stall's turn",
+    "Several Priority cards can be played in one evening: the stall earliest in the line-up buys first, and the other cards go back to their hands"
+  ]
 }
