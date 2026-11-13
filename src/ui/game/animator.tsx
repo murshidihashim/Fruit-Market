@@ -13,7 +13,7 @@ import { deliveryBoxes } from '../tableModel';
 import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
 import { fx } from '../fx';
 import { FavourMark } from './panels/RushTable';
-import { built, firstInLine, playedFavour } from './dayBeats';
+import { built, firstInLine, firstMoved, playedFavours } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, rushCards, type RushBlock, type RushCard, type ShowState } from './rush';
 
 // ---------- the lorry ----------
@@ -137,26 +137,36 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
     });
     fx.buy();
   }
+  // Rules 19: the computers' evening is one step, so several stalls may build and play cards in it. Each stall's beat
+  // runs at the same time as the others', each label on its own stall.
+  const evening = next.phase === 'evening' && next.day === prev.day;
   next.players.forEach((pl, i) => {
     const before = prev.players[i];
-    if (pl.favours.length < before.favours.length) {
-      // The card played is named as the game says it aloud (its log), not from the hand that held it: online a rival's
-      // hand is only stand-ins (PLAN-091). When nothing public names it, the label says only that a card was played.
-      const played = playedFavour(prev, next, i);
-      const t = A.tag(`p${i}`, played ? FAVOURS[played].title : 'A favour card', 'favour');
+    const builtNow = pl.upgrades.length > before.upgrades.length;
+    // The card played is named as the game says it aloud (its log), not from the hand that held it: online a rival's
+    // hand is only stand-ins (PLAN-091). When nothing public names it, the label says only that a card was played.
+    const fewer = pl.favours.length < before.favours.length;
+    const played = fewer ? playedFavours(prev, next, i) : [];
+    const cards = !fewer ? '' : played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';
+    if (cards) {
       fx.card();
-      // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
-      // nothing else shows what happened, the label is held for the full pause.
-      jobs.push((prev.phase === 'evening' && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
+      // A stall that also built names its cards on the upgrade's label (one label for each stall).
+      if (!builtNow) {
+        const t = A.tag(`p${i}`, cards, 'favour');
+        // A pause to read. In the evening the whole beat stays under a second (PLAN-084); with reduced motion, when
+        // nothing else shows what happened, the label is held for the full pause.
+        jobs.push((evening && !A.isReduced() ? A.hold(A.BEAT.evening.label) : A.hold(A.BEAT.label.read)).then(() => t.remove()));
+      }
     }
     // An upgrade built (PLAN-084): its price travels to the market as coins and, for your own, the card travels from
     // its offer to your stall, where its mark lands on the shelf dock (dayBeats.tsx).
-    if (pl.upgrades.length > before.upgrades.length) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1]));
+    if (builtNow) jobs.push(built(i, pl.upgrades[pl.upgrades.length - 1], cards));
     const gained = pl.cash - before.cash;
-    if (gained > 0 && pl.favours.length < before.favours.length) A.floatText(`p${i}-cash`, `+$${gained}`);
+    if (gained > 0 && fewer) A.floatText(`p${i}-cash`, `+$${gained}`);
   });
-  // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line.
-  if (next.priorityNext !== null && prev.priorityNext === null) jobs.push(firstInLine(next, next.priorityNext));
+  // Priority played (PLAN-084): that stall's mark goes to the front of tomorrow's line (rules 19: or a card from a stall
+  // earlier in today's line-up takes it there).
+  if (firstMoved(prev, next)) jobs.push(firstInLine(next, next.priorityNext!));
   await Promise.all(jobs);
   // The cash is still counting down as the last piece lands: the beat ends when it has.
   await Promise.all(counting);

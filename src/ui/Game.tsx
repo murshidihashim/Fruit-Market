@@ -149,7 +149,10 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   // only when there is something to decide (an upgrade you can build after a Market Day, Shade Cloth's fruit, an
   // evening favour you can play: the game's own rule, PLAN-084); tonight's warning sits on the market instead. The
   // night plays once every stall has tapped Lights out.
-  const eveningChoices = s.phase === 'evening' && active >= 0 && eveningChoice(s, active);
+  // Rules 19: every stall decides at the same time, so online the sheet is this phone's own seat (offline, the person
+  // the phone has been handed to).
+  const evP = c.actor;
+  const eveningChoices = s.phase === 'evening' && evP >= 0 && eveningChoice(s, evP);
   const evSheet = s.phase === 'evening' && activeHuman && !busy && eveningChoices;
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
@@ -164,7 +167,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     // Stocking, pricing, the bell, the Favoured Trade question and the takings: one element, kept while its contents
     // change, so the lanes never show between them (sheet.ts slides a panel only when it is replaced).
     if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;
-    if (evSheet) return <EveningSheet key={`ev-${s.day}-${active}`} s={s} p={active} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
+    if (evSheet) return <EveningSheet key={`ev-${s.day}-${evP}`} s={s} p={evP} onUpgrade={(u) => act({ kind: 'upgrade', upgrade: u })} onCard={c.playCard} onShade={(f) => act({ kind: 'shade', fruit: f })}
       onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }} />;
     return null;
   })();
@@ -211,7 +214,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
-          note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, active) : undefined}
+          note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, evP) : undefined}
           onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />

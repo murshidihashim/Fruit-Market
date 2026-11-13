@@ -3,9 +3,9 @@
 // Offline, actions run through the engine here; online, they go to the room server and the
 // states it sends back are queued and animated one at a time.
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { aiStep } from '../../engine/ai';
+import { aiStep, computersEvening } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
-import { activePlayer, canPlayFavour, winners, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
+import { activePlayer, canPlayFavour, eveningOpen, winners, RuleError, type Action, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
@@ -80,7 +80,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const active = activePlayer(s);
   const seat = online?.seat ?? null;
   const secret = s.phase === 'stall' || s.phase === 'bid' || s.phase === 'order';
-  const activeHuman = online ? active === seat && !secret : active >= 0 && s.players[active].kind === 'human';
+  // Rules 19: online, every person decides in the evening at the same time, until they say Lights out. (Offline the
+  // phone is handed person by person: the evening's `active` is the next person still deciding.)
+  const activeHuman = online
+    ? (s.phase === 'evening' ? seat !== null && eveningOpen(s, seat) : active === seat && !secret)
+    : active >= 0 && s.players[active].kind === 'human';
+  /** The stall this phone acts for now: its own seat online, the stall whose turn it is offline. */
+  const actor = online ? seat ?? -1 : active;
   const lastViewer = useRef(seat ?? humans[0]);
   // On a shared phone the table is drawn for the person who holds it: the next person's shelf is not drawn until the
   // phone has been handed to them (PLAN-085: a beat may now play between one person's last tap and the hand-over).
@@ -93,6 +99,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // People the match is waiting on (a seat a computer is playing never holds things up).
   const live = online && meta ? humans.filter((i) => !meta.seats[i]?.bot) : humans;
   const humansMissingBids = online && meta ? live.filter((i) => !meta.submitted[i]) : [];
+  // Rules 19: the people the evening is still waiting for (a computer has always decided).
+  const eveningWaits = s.phase === 'evening' ? live.filter((i) => eveningOpen(s, i)) : [];
   const votedMe = !!online && !!meta && meta.votes.includes(viewer);
   const humansNotVoted = online && meta ? live.filter((i) => !meta.votes.includes(i)) : [];
   const offline = online && meta ? meta.seats.filter((x) => !x.connected || x.bot) : [];
@@ -296,6 +304,16 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     while (cur.phase === 'buy' && next.phase === 'buy' && next.day === cur.day && next.turn === cur.turn && queue.current.length
       && queue.current[0].phase === 'buy' && queue.current[0].day === cur.day) next = queue.current.shift()!;
     if (JSON.stringify(next) === JSON.stringify(sRef.current)) { setTick((t) => t + 1); return; }
+    // Rules 19: while this person is still deciding in the evening, another stall's choice is not played as a beat: the
+    // evening sheet lies over the table, and taking it away for a rival's label would lose the person's place. Its box
+    // and its cash simply change; the person sees the rest of the evening once they say Lights out.
+    if (eveningAside(cur, next, online.seat)) {
+      sRef.current = next;
+      setS(next);
+      onChange(next);
+      setTick((t) => t + 1);
+      return;
+    }
     void apply(next);
   }, [tick, online]);
 
@@ -324,6 +342,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     if (busyRef.current) return;
     if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return;
     if (active < 0 || s.players[active].kind !== 'ai') return;
+    // Rules 19: the computers decide as the evening opens, all at once and without a pause: their builds and favour
+    // cards are one beat, each label on its own stall. When a computer is the last stall to close, its Lights out (the
+    // night) follows as a step of its own.
+    if (s.phase === 'evening') {
+      const cur = sRef.current;
+      const next = computersEvening(cur, (p) => cur.players[p].kind === 'ai') ?? aiStep(cur);
+      if (next) void apply(next);
+      return;
+    }
     // The pause before each rival action. A tap on the table ends it at once and keeps the next ones short (PLAN-081).
     let live = true;
     // A rival asked about Favoured Trade answers a moment later, so its question can be read (PLAN-085).
@@ -375,21 +402,21 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   };
 
   const playCard = (idx: number) => {
-    const id = s.players[active]?.favours[idx];
+    const id = s.players[actor]?.favours[idx];
     if (!id) return;
     setCardInfo(idx);
   };
 
   const reallyPlay = (idx: number) => {
-    const id = s.players[active]?.favours[idx];
+    const id = s.players[actor]?.favours[idx];
     setCardInfo(null);
-    if (!id || canPlayFavour(s, active, idx)) return;
+    if (!id || canPlayFavour(s, actor, idx)) return;
     if (id === 'freeFruit') {
       setFreeFruit(idx);
       return say('Tap a piece at the Wholesale Market to take it for free');
     }
     if (id === 'scout') {
-      const unseen = s.queue.filter((q) => !q.seenBy?.includes(active));
+      const unseen = s.queue.filter((q) => !q.seenBy?.includes(actor));
       if (unseen.length === 1) return act({ kind: 'favour', idx, args: { customer: unseen[0].id } });
       setScout(idx);
       return say('Tap a walk-in to look at it');
@@ -446,9 +473,19 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   return {
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
-    humans, active, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, votedMe,
+    humans, active, actor, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, eveningWaits, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay,
   };
 }
 
 export type GameController = ReturnType<typeof useGameController>;
+
+/**
+ * Rules 19, online: a state that only changes other stalls while this person is still deciding in the evening (the
+ * same evening, and their own stall as it was). It is drawn at once, not played as a beat.
+ */
+export function eveningAside(prev: GameState, next: GameState, seat: number | null): boolean {
+  if (seat === null || prev.phase !== 'evening' || next.phase !== 'evening' || prev.day !== next.day) return false;
+  if (!eveningOpen(prev, seat) || !eveningOpen(next, seat)) return false;
+  return JSON.stringify(prev.players[seat]) === JSON.stringify(next.players[seat]);
+}

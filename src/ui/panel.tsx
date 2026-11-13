@@ -20,6 +20,7 @@ import { FavourMini } from './phoneCards';
 import { nth, pricingTable } from './game/pricingTable';
 import { nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
+import { priorityNote } from './game/evening';
 import { drawCloser, useReach, type Holding } from './game/reach';
 
 // ---------- favour cards ----------
@@ -410,6 +411,8 @@ export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick, onOpe
   // Only juice money tonight is good news: the card turns green; anything spoiling or a Heatwave keeps it a warning.
   const good = night.spoil === 0 && !heat;
   const offers = isDraftNight(s) ? offersTonight(s, p) : [];
+  // Rules 19: where Priority stands tonight, when several stalls may play it (who buys first, or that a card goes back).
+  const first = priorityNote(s, p);
   return (
     <div class="evening-panel">
       <header class="ev-head"><b>Evening</b><span>{daySoldLine(s, p)}</span></header>
@@ -433,10 +436,11 @@ export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick, onOpe
         </section>
       )}
       {pl.trait === 'keeper' && onShade && <ShadePick s={s} p={p} onShade={onShade} />}
-      {pl.favours.length > 0 && (
+      {(pl.favours.length > 0 || first) && (
         <section class="ev-sec">
           <div class="ev-lab"><b class="tk-label">Your favours</b><span>{pl.favours.length} of {handLimit(pl)} held</span></div>
           <FavourRow s={s} p={p} phase="evening" onCard={onCard} />
+          {first && <p class="ev-hint" role="status">{first}</p>}
         </section>
       )}
       <EveningTomorrow s={s} p={p} />
