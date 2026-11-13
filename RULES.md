@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 19: standing orders pay up to $2 more and need a $2 smaller stake; before it, rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the lists are in "Rules version 19" and "Rules version 18" below).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 19: standing orders pay up to $2 more and need a $2 smaller stake, and every stall decides its evening at the same time; before it, rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the lists are in "Rules version 19" and "Rules version 18" below).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys fruit at the Wholesale Market and sells it to the town. Fruit ages every night, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -133,8 +133,9 @@ Customers buy in row order; a standing order collected today goes first (see Sta
 - A customer who doesn't get everything leaves at the end of the day. Nobody waits overnight.
 
 ### Evening and night
-- **Evening:** play evening favour cards (Priority, Gossip). Only one Priority card can be played each evening: a second one is refused and stays in its owner's hand. On the evening after each Market Day (days 3, 6, 9 and 12), build **one upgrade** from those you have not built (one only, that evening; a stall has room for two). Pak Din (Shade Cloth) names tonight's fruit. Farah (Sharp Ears) looks at one of tomorrow's walk-ins.
-- **Who takes an evening turn:** only a stall with something to decide: an upgrade on offer that it can afford and has room for, an evening favour card it can play, or the Shade Cloth's fruit to name. If no stall has, there is no evening and night falls.
+- **Evening:** play evening favour cards (Priority, Gossip). On the evening after each Market Day (days 3, 6, 9 and 12), build **one upgrade** from those you have not built (one only, that evening; a stall has room for two). Pak Din (Shade Cloth) names tonight's fruit. Farah (Sharp Ears) looks at one of tomorrow's walk-ins.
+- **Everyone at once:** every stall with something to decide (an upgrade on offer that it can afford and has room for, an evening favour card it can play, or the Shade Cloth's fruit to name) decides at the same time; nobody waits for a turn. Each says "Lights out" when it is done, and night falls when every one of them has. If no stall has anything to decide, there is no evening and night falls.
+- **Priority:** any number of stalls may play Priority in the same evening, one card each. At nightfall the stall earliest in today's line-up goes first tomorrow, and every other Priority card played that evening goes back to its owner's hand, unused.
 - **Night:** all fruit at the Wholesale Market and in every stall ages one step (two after a Heatwave, none after a Monsoon Downpour). Spoiled fruit is thrown away.
 
 ## Market rhythm
@@ -199,7 +200,7 @@ Guest prices are fixed (Closing Day's +$1 still applies). Mango Craze is never D
 | 🔍 Scout | Your buying turn | Look at one of today's walk-ins. Everyone sees that you played it, not what you saw. |
 | 🧊 Fridge | Your buying turn | Every ripe piece on your shelf becomes one step fresher. Green pieces do not change. |
 | 🤝 Favoured Trade | After prices flip | If one of your prices is tied, play this to win every tied price today. |
-| ⏩ Priority | Evening | You buy first tomorrow. Only 1 Priority can be played each evening. |
+| ⏩ Priority | Evening | You buy first tomorrow. If several are played, the stall earliest in today's line-up goes first; the others go back. |
 
 ## Stall upgrades
 
@@ -266,9 +267,9 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **First-player token.** On Day 1 give it to a random stall. It moves one seat clockwise every night.
 
-**Dawn line-up.** At dawn every stall counts its cash. The stall with the least cash goes first, then the others follow clockwise round the table from it; a tie for least cash goes to the first of them clockwise from the first-player token (on Day 1 the order is simply the seats from the token). Today's buying order, the evening order and the last tie-break all use this row. A Priority card moves its owner to the front. On Day 3 Nest Egg goes first, or second behind a Priority card. A stall that is topped up (empty shelf, less than $5) takes its top-up before the cash is counted.
+**Dawn line-up.** At dawn every stall counts its cash. The stall with the least cash goes first, then the others follow clockwise round the table from it; a tie for least cash goes to the first of them clockwise from the first-player token (on Day 1 the order is simply the seats from the token). Today's buying order, which Priority card counts in the evening and the last tie-break all use this row. A Priority card moves its owner to the front. On Day 3 Nest Egg goes first, or second behind a Priority card. A stall that is topped up (empty shelf, less than $5) takes its top-up before the cash is counted.
 
-**Evening.** Keep favour cards face down in front of you, so everyone can count them. A stall takes an evening turn, in line-up order, only if it has something to decide: an upgrade it can afford and has room for after a Market Day, an evening favour card it can play, or the Shade Cloth's fruit to name.
+**Evening.** Keep favour cards face down in front of you, so everyone can count them. Every stall with something to decide (an upgrade it can afford and has room for after a Market Day, an evening favour card it can play, or the Shade Cloth's fruit to name) does it at the same time, and says "Lights out" when it is done. If more than one Priority card is played, at nightfall the stall earliest in today's line-up goes first tomorrow and the others take their cards back into their hands.
 
 **Favoured Trade.** When the tags are flipped, look for tied prices. A stall with a tied price that holds Favoured Trade may play it now. Tied stalls that hold it decide one at a time, in today's buying order, in the open.
 
@@ -307,6 +308,7 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 What changed from rules version 18, in plain words.
 
 - **Standing orders.** Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower: blueberry $11 and $4, watermelon $14 and $6, apple $13 and $5, mango $20 and $10 (half the stake, rounded down, with an Order Book). Nothing else about standing orders changed. The owner's choice (DEC-113) after the measurement in REP-114: a little less risk for the winner and a little more room to bid, more mango orders taken (about one in twenty more) and the shopkeepers as even as before.
+- **The evening, everyone at once.** Every stall with something to decide in the evening decides at the same time and says Lights out when it is done; nobody waits for the stalls before it. Any number of stalls may play Priority (one card each): at nightfall the one earliest in today's line-up goes first tomorrow, and the other Priority cards played go back to their owners' hands. Rules 18 allowed one Priority card an evening. Gossip and the Shade Cloth are not affected. In the app the computer stalls decide as the evening opens.
 
 ## Rules version 18
 

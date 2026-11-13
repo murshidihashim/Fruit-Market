@@ -1,7 +1,8 @@
 // Saved games: versioned envelope, older saves, other rules and broken data.
 import { beforeEach, describe, expect, it } from 'vitest';
+import { aiStep } from '../src/engine/ai';
 import { dailyConfig } from '../src/engine/daily';
-import { newGame } from '../src/engine/game';
+import { activePlayer, newGame } from '../src/engine/game';
 import { AI_VERSION, RULES_VERSION } from '../src/net/protocol';
 import { consumeSaveNotice, loadGame, saveGame, SAVE_VERSION } from '../src/ui/store';
 
@@ -36,6 +37,25 @@ describe('saved games', () => {
     expect(loadGame()).toBeNull();
     expect(consumeSaveNotice()).toMatch(/older rules/);
     expect(mem.has('fm.save')).toBe(false);
+  });
+
+  // Rules 19 changed the evening (everyone at once). A game saved under rules 18 is restarted with the notice; a save
+  // that is read as the current rules but has no list of who is done for the evening still plays on.
+  it('rules 19: an evening saved under rules 18 is set aside with the notice; an evening without the new list still plays on', () => {
+    const g = structuredClone(game());
+    g.phase = 'evening'; g.day = 2; g.order = [0, 1]; g.turn = 1; // rules 18: stall 0 has closed, stall 1 is deciding
+    mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: 18, ai: AI_VERSION, game: g }));
+    expect(loadGame()).toBeNull();
+    expect(consumeSaveNotice()).toBe('Your unfinished game used older rules and could not be continued.');
+    expect(mem.has('fm.save')).toBe(false);
+    // A bare save from before v1.2 is read as the current rules.
+    mem.set('fm.save', JSON.stringify(g));
+    let s = loadGame()!;
+    expect(s.eveningDone).toBeUndefined();
+    expect(activePlayer(s)).toBe(1);
+    for (let i = 0; i < 10 && s.phase === 'evening'; i++) s = aiStep(s)!;
+    expect(s.day).toBe(3);
+    expect(s.phase).toBe('morning');
   });
 
   it('resumes an ordinary game saved before computer-player versions were recorded', () => {

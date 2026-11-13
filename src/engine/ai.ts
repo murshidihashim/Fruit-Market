@@ -11,7 +11,7 @@ import {
   capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView, boughtStock, emptyStock, orderStake,
-  decideTie, rushIncome,
+  decideTie, rushIncome, eveningOpen,
   type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
 } from './game';
 import { Rng } from './rng';
@@ -630,11 +630,12 @@ export function aiStep(s: GameState): GameState | null {
 
 /**
  * One computer action for player `p` whatever kind of player they are. The online server uses it
- * to play for someone who has left the match. Only acts when it really is `p`'s turn.
+ * to play for someone who has left the match. Only acts when it really is `p`'s turn (rules 19: in the evening, while
+ * `p` has not said Lights out, whoever else is still deciding).
  */
 export function aiActFor(s: GameState, p: number): GameState | null {
   if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
-  if (activePlayer(s) !== p) return null;
+  if (s.phase === 'evening' ? !eveningOpen(s, p) : activePlayer(s) !== p) return null;
   const pl = s.players[p];
   if (s.phase === 'order') return bidOrder(s, p, planOrderBid(s, p));
   if (s.phase === 'buy') {
@@ -653,8 +654,11 @@ export function aiActFor(s: GameState, p: number): GameState | null {
   // Rules 18: a computer stall answers the tie step at once. A seat it is only minding for a person keeps the card.
   if (s.phase === 'tie') return decideTie(s, p, pl.kind === 'ai' && wantsFavouredTrade(s, p));
   if (s.phase === 'evening') {
+    // Rules 19: a Priority card played after one from a stall earlier in today's line-up would only come back, so a
+    // computer keeps it then. (Computers decide first, in line-up order, so this is the rules 18 choice.)
     const pi = pl.favours.indexOf('priority');
-    if (pi >= 0 && !canPlayFavour(s, p, pi) && s.priorityNext === null) return playFavour(s, p, pi);
+    const ahead = s.priorityNext !== null && s.order.indexOf(s.priorityNext) < s.order.indexOf(p);
+    if (pi >= 0 && !canPlayFavour(s, p, pi) && !ahead) return playFavour(s, p, pi);
     const gi = pl.favours.indexOf('gossip');
     if (gi >= 0 && !canPlayFavour(s, p, gi) && level(s, p) !== 'easy') return playFavour(s, p, gi);
     const u = pickUpgrade(s, p);
@@ -662,6 +666,28 @@ export function aiActFor(s: GameState, p: number): GameState | null {
     return endEvening(s, p);
   }
   return null;
+}
+
+/**
+ * Rules 19: the computers' evening, all at once. Every stall `who` names that has not said Lights out decides now, one
+ * after another in today's line-up (the order aiStep takes them in), and the evening is returned as it stands just
+ * before night falls; null when there was nothing for them to do. The step that brings the night (the last computer's
+ * Lights out, when every person is done) is left to the caller, so the computers' choices can be shown before it.
+ * Offline `who` is the computer stalls; online also the seats a computer is minding for a person who left.
+ */
+export function computersEvening(s: GameState, who: (p: number) => boolean): GameState | null {
+  if (s.phase !== 'evening') return null;
+  let cur = s;
+  let moved = false;
+  for (const p of s.order) {
+    for (let guard = 0; guard < 20 && who(p) && eveningOpen(cur, p); guard++) {
+      const next = aiActFor(cur, p);
+      if (!next || next.phase !== 'evening' || next.day !== cur.day) return moved ? cur : null;
+      cur = next;
+      moved = true;
+    }
+  }
+  return moved ? cur : null;
 }
 
 /** Plays a whole game with only AIs (used by tests and balance simulations). */

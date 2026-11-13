@@ -323,7 +323,8 @@ export interface FavourDef { id: FavourId; title: string; icon: string; text: st
 export const FAVOURS: Record<FavourId, FavourDef> = {
   gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Look at all of tomorrow\'s walk-ins. Only you see them.' },
   freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free.' },
-  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. Only 1 Priority can be played each evening.' },
+  // Rules 19: several stalls may play Priority in the same evening (rules 18 allowed one).
+  priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. If several are played, the stall earliest in today\'s line-up goes first; the others go back.' },
   scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
   // Rules 18: played after the flip, in the open, and only by a stall with a tied price (before, in secret with the prices).
   favouredTrade: { id: 'favouredTrade', title: 'Favoured Trade', icon: '🤝', when: 'tie', text: 'If one of your prices is tied, play this to win every tied price today.' },
