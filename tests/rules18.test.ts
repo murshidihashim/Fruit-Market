@@ -113,8 +113,8 @@ function dueDay(g: GameState, stock: Record<number, number[]>): GameState {
 // ---------------------------------------------------------------------------------------------------------------------
 
 describe('J. versions', () => {
-  it('rules version 18, computer players version 6', () => {
-    expect(RULES_VERSION).toBe(18);
+  it('rules version 19 (rules 18 and the standing-order numbers of PLAN-095), computer players version 6', () => {
+    expect(RULES_VERSION).toBe(19);
     expect(AI_VERSION).toBe(6);
   });
 });
@@ -190,8 +190,10 @@ describe('A. out of cash: the top-up', () => {
 
 describe('B. standing orders: a stake instead of fines, and rivals are not involved', () => {
   it('the stake is the number on the card, halved (rounded down) with an Order Book', () => {
-    expect(FRUITS.map((f) => ORDER_CARDS.find((c) => c.fruit === f)!.stake)).toEqual([6, 8, 7, 12]);
-    expect(ORDER_CARDS.map((c) => stakeFor(c.stake, true))).toEqual([3, 3, 4, 4, 3, 3, 6, 6]);
+    // Rules 19 (the owner's choice after REP-114): the stake $2 lower and the highest bid $2 higher than in rules 18.
+    expect(FRUITS.map((f) => ORDER_CARDS.find((c) => c.fruit === f)!.stake)).toEqual([4, 6, 5, 10]);
+    expect(FRUITS.map((f) => ORDER_CARDS.find((c) => c.fruit === f)!.ceiling)).toEqual([11, 14, 13, 20]);
+    expect(ORDER_CARDS.map((c) => stakeFor(c.stake, true))).toEqual([2, 2, 3, 3, 2, 2, 5, 5]);
     expect('orderRivalPay' in engine).toBe(false);
   });
 

@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the list is in "Rules version 18" below).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 19: standing orders pay up to $2 more and need a $2 smaller stake; before it, rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the lists are in "Rules version 19" and "Rules version 18" below).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys fruit at the Wholesale Market and sells it to the town. Fruit ages every night, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -156,10 +156,10 @@ A standing order is one big public order, turned over on a Market Day morning an
 
 | Standing order | Fruit | Highest bid | Stake | Stake with an Order Book |
 |---|---|---|---|---|
-| The School Canteen, The Smoothie Stand | Blueberry | $9 | $6 | $3 |
-| The Beach Resort, The Company Picnic | Watermelon | $12 | $8 | $4 |
-| The Pie Factory, The Cider Press | Apple | $11 | $7 | $3 |
-| The Airline Caterer, The Royal Banquet | Mango | $18 | $12 | $6 |
+| The School Canteen, The Smoothie Stand | Blueberry | $11 | $4 | $2 |
+| The Beach Resort, The Company Picnic | Watermelon | $14 | $6 | $3 |
+| The Pie Factory, The Cider Press | Apple | $13 | $5 | $2 |
+| The Airline Caterer, The Royal Banquet | Mango | $20 | $10 | $5 |
 
 A standing order draws no favour card and pays no tips (a Juice Bar adds nothing to its pieces either), and no event or Closing Day changes what it pays. No standing order is turned over if it could not be collected by the last day. Standing orders are not used in the Basic game.
 
@@ -301,6 +301,12 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 - **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
 - **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
 - **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy; they never read a crate before the bell, so they can be fooled. Rules 18: an Easy computer uses none of what it saw bought, a Normal computer only today's purchases, a Hard computer everything it saw.
+
+## Rules version 19
+
+What changed from rules version 18, in plain words.
+
+- **Standing orders.** Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower: blueberry $11 and $4, watermelon $14 and $6, apple $13 and $5, mango $20 and $10 (half the stake, rounded down, with an Order Book). Nothing else about standing orders changed. The owner's choice (DEC-113) after the measurement in REP-114: a little less risk for the winner and a little more room to bid, more mango orders taken (about one in twenty more) and the shopkeepers as even as before.
 
 ## Rules version 18
 

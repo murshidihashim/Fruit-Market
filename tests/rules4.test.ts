@@ -253,7 +253,7 @@ describe('options', () => {
 
 describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
-    expect(RULES_VERSION).toBe(18);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r18:a6');
+    expect(RULES_VERSION).toBe(19);
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r19:a6');
   });
 });

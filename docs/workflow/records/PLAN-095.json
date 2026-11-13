@@ -1,0 +1,67 @@
+{
+  "id": "PLAN-095",
+  "title": "Rules version 19 (standing-order numbers) and the Home and Wardrobe buttons",
+  "problem": "The owner chose his standing-order proposal (DEC-113) and one name for each screen (DEC-114).",
+  "scope": [
+    "Standing-order cards: highest bid $2 higher, stake $2 lower; RULES_VERSION 19; RULES.md table and a Rules version 19 section; the print kit's cards rebuilt",
+    "Results and the Daily market say Home; Home's button says Wardrobe"
+  ],
+  "exclusions": [
+    "Any other rule or number",
+    "The update pack and its guidebook (printing paused, DEC-105)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "On the working tree with rules 19 and the names (2026-11-13 10:09): 841 tests passed, 1 skipped; lint, types, build, records."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Tests hold the new numbers and version; every trophy still reachable",
+      "result": "PASS",
+      "evidence": "tests/rules18.test.ts: stakes [4, 6, 5, 10], highest bids [11, 14, 13, 20], with an Order Book [2, 2, 3, 3, 2, 2, 5, 5]; rules version 19; the Daily board key r19. tests/achievements.test.ts: Juice money and three Sharp Ears wins moved to the reached-later list: in 120 computer games 6 of 460 stalls earned $20 or more from a Juice Bar."
+    },
+    {
+      "id": "T4",
+      "text": "The printed standing-order cards show the new numbers",
+      "result": "PASS",
+      "evidence": "print/kit rebuilt with scripts/print-deck.ts; Cards_Standing_Orders_A4.pdf page 1 looked at: $11/$4, $14/$6, $13/$5, $20/$10, rules version 19 in the foot."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
+    "date": "2026-11-13"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-114"
+  ],
+  "decisions": [
+    "DEC-113",
+    "DEC-114"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Standing orders: highest bid $2 higher, stake $2 lower (rules version 19)",
+      "The Results and Daily market buttons say Home; Home's button says Wardrobe"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Standing orders now allow a bid $2 higher and need a $2 smaller stake",
+    "Buttons now say Home and Wardrobe, the names of the screens they open"
+  ]
+}
