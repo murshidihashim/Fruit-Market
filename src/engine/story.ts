@@ -146,9 +146,9 @@ function offerTag(s: GameState, l: LineResult, o: Offer, viewer: number): string
   const tie = l.offers.find((w) => w.sold > 0 && w.price === o.price);
   if (tie) {
     if (s.players[tie.player].favouredTrade && !s.players[o.player].favouredTrade) return 'lost tie: Favoured Trade';
-    return tie.freshness > o.freshness ? 'lost tie: fresher won' : haggled(s, tie, o) ? 'lost tie: Haggler' : 'lost tie: bought later';
+    return tie.freshness > o.freshness ? 'lost tie: fresher fruit' : haggled(s, tie, o) ? 'lost tie: Haggler' : 'lost tie: bought later';
   }
-  return 'order filled first';
+  return 'order already filled';
 }
 
 // ---------- what if you had priced lower ----------
@@ -347,7 +347,7 @@ export function explainLine(s: GameState, l: LineResult, viewer: number): LineSt
     if (!top) {
       // Nothing sold, so no offer qualified: say "too high" only when price was the reason for every one.
       const allPrice = l.offers.every((o) => noSaleReason(s, l, o, viewer).kind === 'price');
-      return { showdown, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `Nothing ${cust} would buy.`, tags };
+      return { showdown, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `${cust} found nothing to buy.`, tags };
     }
     const losers = others.filter((o) => o.sold === 0 && inContest(o));
     const headline = losers.length
@@ -462,7 +462,7 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
   if (!winners.length) {
     const why = l.offers.map((o) => noSaleReason(s, l, o, NOBODY));
     const allPrice = why.every((x) => x.kind === 'price');
-    return { showdown: true, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `Nothing ${cust} would buy.`, detail: allPrice ? why[0].detail : undefined, tags };
+    return { showdown: true, tone: 'neutral', headline: allPrice ? `Every price was too high for ${cust}.` : `${cust} found nothing to buy.`, detail: allPrice ? why[0].detail : undefined, tags };
   }
   if (winners.length > 1) {
     return { showdown: true, tone: 'neutral', headline: `${namesAnd(winners.map(name))} split the order: ${sold} sold.`, detail: short, tags };
@@ -476,7 +476,7 @@ export function rushLine(s: GameState, l: LineResult): LineStory {
     return { showdown: true, tone: 'neutral', headline: `${name(w)} beat ${nameIn(name(next))} by $${next.price - w.price}. ${w.sold} sold.`, detail: short, tags };
   }
   const full = w.price >= l.max;
-  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at full price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
+  return { showdown: true, tone: 'neutral', headline: full ? `${name(w)} sold ${w.sold} at top price.` : `${name(w)} sold ${w.sold} at $${w.price}.`, detail: short, tags };
 }
 
 // One plain line for each outcome (DEC-087). The audit would cut these altogether; the rush card (src/ui/game/rush.ts)

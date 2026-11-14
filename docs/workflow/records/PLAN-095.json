@@ -41,7 +41,7 @@
     "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
     "date": "2026-11-13"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.22.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

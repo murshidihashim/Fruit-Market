@@ -147,7 +147,7 @@ describe('your shelf: the chips say what the night does (tableModel.shelfChips a
     g.day = g.config.days;
     g.players[0].stock.apple[0] = 2;
     const words = shelfChips(g, 0).flatMap((x) => x.chips.map((c) => c.words));
-    expect(words).toEqual(['soft']);
+    expect(words).toEqual(['Soft']);
     expect(toStaticHtml(h(MyStall, { s: g, p: 0 }))).not.toMatch(/tomorrow|tonight</);
   });
 });

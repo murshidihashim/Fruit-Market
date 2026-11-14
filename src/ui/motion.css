@@ -27,10 +27,6 @@
   display: grid; grid-template: "mid" minmax(0, 1fr) / minmax(0, 1fr);
 }
 
-/* ---------- the one speed on the moves the stylesheets already make ----------
-   These keep the lengths they had (ticket.css, ticket-ui.css); they now come from motion.ts and follow the table's speed. */
-#app .tkt .tk-news-back, #app .tkt .tk-news-face { transition-duration: calc(var(--mk, 1) * var(--t-news-turn)); }
-
 /* ---------- reduced motion: nothing travels, the state is shown at once, and what is there to be read stays ----------
    styles.css switches every animation and transition off. The "FINAL DAY!" stamp is drawn by an animation, so without
    one it must simply be there for as long as the game shows it. */

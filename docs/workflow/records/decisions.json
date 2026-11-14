@@ -2802,7 +2802,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-114"
       ],
@@ -2826,7 +2826,7 @@
         "evidence": "Owner, 2026-11-13, answering three questions after the 1.21.0 release report: \"1 b\", \"2 home wardrobe\", \"3 yes\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-117"
       ],
@@ -2850,7 +2850,7 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"also make so that each player access and build the upgrade together rather than waiting player by player\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-117"
       ],
@@ -2874,7 +2874,7 @@
         "evidence": "Owner, 2026-11-13, after the three animated flows: \"three crate flow should be A, but players need to know how many fruits are up for sale for each crate, add a black square per fruit to indicate this (like design c)\".",
         "date": "2026-11-13"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "reports": [
         "REP-118"
       ],
@@ -2898,9 +2898,33 @@
         "evidence": "Owner, 2026-11-13, in his own words: \"publish\".",
         "date": "2026-11-13"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-119"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-118",
+      "title": "Publish 1.23.0 (the text pass and the small phone fixes)",
+      "question": "Since 1.22.0 the branch holds the small phone fixes (PLAN-096) and the text pass with the owner's edits (PLAN-097); rules version unchanged at 19. Is it published?",
+      "choice": "Published as 1.23.0 by the release path: pull request to main, CI verify:full, the preview updated, then the Deploy LIVE game workflow with its checks, live smoke test and tag v1.23.0. If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's word after editing the texts.",
+      "impact": {
+        "player": "Clearer wording; the morning and the top bar fit small phones; larger touch areas; darker labels. Same rules version: no update prompt, saves carry over.",
+        "technical": "package.json 1.23.0; releases.json; merge to main; deploy-web.yml; tag v1.23.0.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-14, in his own words: \"publish\".",
+        "date": "2026-11-14"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-120"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
@@ -4057,6 +4081,30 @@
     {
       "at": "2026-11-13 15:56",
       "text": "DEC-117: the owner said \"publish\". Release 1.22.0 prepared: PLAN-095 (rules 19 standing orders, Home and Wardrobe), PLAN-098 (the evening for everyone at once), PLAN-099 (one round table from Open my stall to the rush); version 1.22.0, release entry with player notes, REP-119. The text pass (PLAN-097) and the small fixes (PLAN-096) are not in it."
+    },
+    {
+      "at": "2026-11-13 16:47",
+      "text": "Release 1.22.0 published (DEC-117): pull request #13, CI run 139 PASS (16:00 to 16:19); merged to main as f15874d at 16:25; main CI run 140 PASS (16:25 to 16:40) and the preview updated with its smoke test passing; Deploy LIVE game run 41 (16:44 to 16:46): verify, release check, deploy, live smoke test and tag v1.22.0 all passed. The live site answers rules version 19 and its code carries 1.22.0, the pricing sheet of the round table and the evening's waiting line. PLAN-095, PLAN-098 and PLAN-099 are released."
+    },
+    {
+      "at": "2026-11-13 18:46",
+      "text": "PLAN-096 approved by the owner (\"do this now, approve\"), with the pricing sheet's small minus and plus (found in PLAN-099) added to its tap targets. A helper builds it from the head of the branch after 1.22.0."
+    },
+    {
+      "at": "2026-11-14 00:54",
+      "text": "PLAN-096 (small gaps) merged as 8336ed4: verify PASS (904 tests); browser tests FAIL on this machine on the speed test only (the live 1.22.0 build fails it here too, three runs each); the style clean-up compared screen by screen and by computed style (0 differences). Still under 40 px and left: market boxes on short screens (3 px apart, a bigger area would take the next box's taps), Home's middle dot with three pages, Trophies tabs, ladder rows and some buying-screen buttons (outside the plan). Faint labels outside the plan: Home's Wants chip and lorry tiles, set-up labels, Trophies' unearned pips. Before-and-after sheets sent to the owner. Noticed: scripts/smoke.cjs waits for a highlight no screen draws, so one of its pictures is never taken. From these commits on, each commit names Murshidi Hashim as author and Claude as committer, so that GitHub shows its signature as verified; earlier commits are left as they are."
+    },
+    {
+      "at": "2026-11-14 01:19",
+      "text": "PLAN-096: GitHub CI run 141 on the branch (347bdd7) PASS, browser tests included: the speed test's longest task 105 ms and p95 90 ms, 0 leaks online. T2 recorded PASS on that evidence; the local speed-test failure was this machine (the live build failed it here too). The before-and-after sheets are with the owner; not published."
+    },
+    {
+      "at": "2026-11-14 14:03",
+      "text": "PLAN-097 (text pass, REP-118) approved: the owner edited the picture page (pictures retaken on the current build) and said \"okay ive edited, reflect the changes in the digital and physical copy\". 92 rows use the proposal, 16 his own words (including: Home's waiting game shows \"Today:\" and the event card's name; the pass-the-phone subtitles removed; \"+$5 from the Market\" in the morning), 1 kept. Rows 33 and 34 now share a line with rows 32 and 35, so those choices apply; row 106 is no longer in the game. The print kit takes the same wording where it carries these texts. The 8 name choices are not part of this."
+    },
+    {
+      "at": "2026-11-14 14:47",
+      "text": "PLAN-097 merged as 2694ab5 (verify PASS, the helper's e2e PASS, pictures of the owner's 16 rows seen). DEC-118: the owner said \"publish\"; release 1.23.0 prepared with PLAN-096 and PLAN-097, REP-120. The update pack (rules 18 evening text) is not rebuilt; the 8 name choices stay open."
     }
   ]
 }

@@ -11,7 +11,7 @@ export const listOf = (xs: string[]): string => (xs.length <= 1 ? xs.join('') : 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
 export interface TieStory {
-  /** "You and Farah both ask $5 for blueberries". */
+  /** "You and Farah both charge $5 for blueberries". */
   title: string;
   /** Who sells first as things stand and why, and what the card does. */
   why: string;
@@ -51,19 +51,19 @@ export function tieStory(s: GameState, asked: number, viewer: number): TieStory 
   const mine = asked === viewer;
   const name = (p: number, start = false) => (p === viewer ? (start ? 'You' : 'you') : s.players[p].name);
   const fruitOf = (f: FruitId) => FRUIT[f].plural.toLowerCase();
-  const said = (t: (typeof ties)[number]) => `${listOf([name(asked, true), ...t.rivals.map((p) => name(p))])} ${t.rivals.length > 1 ? 'all' : 'both'} ask $${t.price} for ${fruitOf(t.fruit)}`;
+  const said = (t: (typeof ties)[number]) => `${listOf([name(asked, true), ...t.rivals.map((p) => name(p))])} ${t.rivals.length > 1 ? 'all' : 'both'} charge $${t.price} for ${fruitOf(t.fruit)}`;
   const t = ties[0];
   if (!t) return { title: `${name(asked, true)} ${mine ? 'hold' : 'holds'} Favoured Trade`, why: '', without: null, with: null, also: null };
   const also = ties.length > 1 ? `Also tied: ${ties.slice(1).map((x) => `${fruitOf(x.fruit)} at $${x.price} with ${listOf(x.rivals.map((p) => name(p)))}`).join('; ')}.` : null;
   if (!mine) {
-    return { title: said(t), why: `${s.players[asked].name} holds Favoured Trade and is deciding whether to play it. With the card ${s.players[asked].name} sells first on every tied price today.`, without: null, with: null, also };
+    return { title: said(t), why: `${s.players[asked].name} holds Favoured Trade and is deciding whether to play it. If played, ${s.players[asked].name} sells first on every tied price today.`, without: null, with: null, also };
   }
   const keep = rushIf(s, asked, false);
   const play = rushIf(s, asked, true);
   // When the game's own two outcomes give the stall the same takings (it sells first already, or every tied stall
   // sells out anyway), the card says so instead of promising a first place that changes nothing.
-  const card = keep && play && keep.income[asked] === play.income[asked] ? 'Favoured Trade would not change what you take today.'
-    : 'Play Favoured Trade and you sell first, on every tied price today.';
+  const card = keep && play && keep.income[asked] === play.income[asked] ? 'Favoured Trade wouldn\'t change what you make today.'
+    : 'Play Favoured Trade to sell first on every tied price today.';
   if (!keep || !play) return { title: said(t), why: card, without: null, with: null, also };
   // The first customer who chooses between the tied stalls shows who sells first as things stand.
   const line = keep.lines.find((l) => l.fruit === t.fruit && l.offers.some((o) => o.player === asked && !o.tooOld) && l.offers.some((o) => t.rivals.includes(o.player) && !o.tooOld));
@@ -75,21 +75,21 @@ export function tieStory(s: GameState, asked: number, viewer: number): TieStory 
     const rn = s.players[rival].name;
     if (at(rival) < at(asked)) {
       const by = firstBy(s, them, me);
-      why = by === 'card' ? `${rn} played Favoured Trade, so ${rn} sells first.`
-        : by === 'fresher' ? `${rn}'s ${fruitOf(t.fruit)} are fresher, so ${rn} sells first.`
-        : by === 'haggler' ? `${rn} is the Haggler, so ${rn} sells first.`
-        : `${rn} bought earlier today, so ${rn} sells first.`;
+      why = by === 'card' ? `${rn} sells first: Favoured Trade.`
+        : by === 'fresher' ? `${rn} sells first: fresher ${fruitOf(t.fruit)}.`
+        : by === 'haggler' ? `${rn} sells first: the Haggler.`
+        : `${rn} sells first: bought earlier today.`;
     } else {
       const by = firstBy(s, me, them);
-      why = by === 'fresher' ? `Your ${fruitOf(t.fruit)} are fresher, so you sell first already.`
-        : by === 'haggler' ? 'You are the Haggler, so you sell first already.'
-        : 'You bought earlier today, so you sell first already.';
+      why = by === 'fresher' ? `You already sell first: fresher ${fruitOf(t.fruit)}.`
+        : by === 'haggler' ? 'You already sell first: you\'re the Haggler.'
+        : 'You already sell first: you bought earlier today.';
     }
   }
   const out = (r: DayResult) => {
     const rival = t.rivals[0];
     const pieces = (p: number) => `${soldOf(r, p, t.fruit)} of ${s.stalls[p]?.[t.fruit] ?? 0}`;
-    return `${cap(name(asked))} sell ${pieces(asked)}. ${s.players[rival].name} sells ${pieces(rival)}. You take $${r.income[asked]} today.`;
+    return `${cap(name(asked))} sell ${pieces(asked)}. ${s.players[rival].name} sells ${pieces(rival)}. You make $${r.income[asked]} today.`;
   };
   return { title: said(t), why: `${why} ${card}`, without: out(keep), with: out(play), also };
 }

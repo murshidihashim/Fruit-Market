@@ -147,7 +147,7 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)
   });
 });
 
-/** Three stalls after the flip: P0 and P1 both ask $6 for apples; P2 asks $4 for blueberries. */
+/** Three stalls after the flip: P0 and P1 both charge $6 for apples; P2 charges $4 for blueberries. */
 function rung(): GameState {
   const g = newGame({ players: [0, 1, 2].map((i) => ({ name: `P${i}`, kind: i === 0 ? 'human' as const : 'ai' as const, level: 'normal' as const, avatar: RIVALS[i].avatar })), days: 8, unripe: true, upgrades: true, events: false, seed: 5 });
   const s: GameState = structuredClone(g);
@@ -234,16 +234,16 @@ describe('the Favoured Trade question, in words (tieStory.ts)', () => {
   it('the asked stall reads who is tied and what the rush gives it without the card and with it, as the game itself would play it', () => {
     const view = publicView(s, asked);
     const story = tieStory(view, asked, asked);
-    expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) ask \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
+    expect(story.title).toMatch(new RegExp(`^You(, .+)? and .+ (both|all) charge \\$${t.price} for ${FRUIT[t.fruit].plural.toLowerCase()}$`));
     // the two outcomes are the game's own, played on a copy with only this stall deciding
     const alone = { ...view, tieAsk: [asked] };
     // what the card does: it puts this stall first, or, when both outcomes give it the same takings, it says so
     const same = decideTie(alone, asked, false).results!.income[asked] === decideTie(alone, asked, true).results!.income[asked];
-    expect(story.why).toContain(same ? 'Favoured Trade would not change what you take today.' : 'Play Favoured Trade and you sell first, on every tied price today.');
-    expect(story.why).not.toContain(same ? 'Play Favoured Trade and you sell first' : 'would not change');
+    expect(story.why).toContain(same ? 'Favoured Trade wouldn\'t change what you make today.' : 'Play Favoured Trade to sell first on every tied price today.');
+    expect(story.why).not.toContain(same ? 'Play Favoured Trade to sell first' : 'wouldn\'t change');
     for (const [play, line] of [[false, story.without], [true, story.with]] as const) {
       const r = decideTie(alone, asked, play).results!;
-      expect(line).toContain(`You take $${r.income[asked]} today.`);
+      expect(line).toContain(`You make $${r.income[asked]} today.`);
       const sold = r.lines.filter((l) => l.fruit === t.fruit).reduce((a, l) => a + (l.offers.find((o) => o.player === asked)?.sold ?? 0), 0);
       expect(line).toContain(`You sell ${sold} of ${view.stalls[asked]![t.fruit]}.`);
     }
@@ -252,7 +252,7 @@ describe('the Favoured Trade question, in words (tieStory.ts)', () => {
     expect(view.players[asked].favours).toContain('favouredTrade');
     const html = toStaticHtml(h(TieCard, { s: view, viewer: asked, asked, mine: true }));
     expect(html).toContain('Favour · your card');
-    expect(html).toContain('The card is discarded once you play it. Rivals can see that you are deciding.');
+    expect(html).toContain('Once played, the card is gone. Rivals can see you\'re deciding.');
   });
 
   it('everyone else reads who is tied and that the stall is deciding, never its outcomes', () => {
@@ -290,7 +290,7 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
     const heat = EVENT_CARDS.find((e) => (e.ageExtra ?? 0) > 0)!;
     expect(nightSteps({ ...s, event: heat }, 0, 'apple')).toBe(1 + heat.ageExtra!);
     expect(nightSteps({ ...s, day: s.config.days }, 0, 'apple')).toBe(0);
-    expect(tonightWord({ ...s, day: s.config.days }, 0, 'apple', soft).text).toBe('does not age tonight');
+    expect(tonightWord({ ...s, day: s.config.days }, 0, 'apple', soft).text).toBe('won\'t age tonight');
   });
 
   it('pricing says how a tie falls and where you stand in today\'s line-up', () => {
@@ -340,6 +340,6 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
     // the pricing sheet's one-line forms
     const panel = read('src/ui/panel.tsx');
     expect(panel).toContain('Ties: fresher, then the Haggler, then earlier.');
-    expect(panel).toContain('You hold Favoured Trade: if you tie, you are asked.');
+    expect(panel).toContain('You hold Favoured Trade. If you tie, you\'ll be asked after the prices flip.');
   });
 });

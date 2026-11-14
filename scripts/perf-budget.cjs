@@ -3,7 +3,7 @@
 //   - DOM size on the game screen        (fails above MAX_DOM)
 //   - main-thread long tasks during play  (fails if any is longer than MAX_TASK_MS)
 //   - the one-off task that opens the game screen (fails above MAX_ENTRY_MS)
-//   - tap targets smaller than MIN_TAP px on the buy, price and evening screens
+//   - tap targets smaller than MIN_TAP px on the buy, price and evening screens, by the area a tap reaches
 //     (reported; set STRICT_TAP=1 to fail on them)
 //   - smoothness: slow frames while the rush and the night play, the two beats with the most on the move
 //     (a frame is slow when it took longer than SLOW_FRAME_MS; fails above MAX_SLOW_FRAMES in a hundred)
@@ -65,9 +65,28 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   await p.goto('file://' + file);
   await p.waitForSelector('text=New game');
 
-  const small = async () => p.evaluate((min) => [...document.querySelectorAll('button:not([disabled]), [role=button], input, a')]
-    .filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && Math.min(r.width, r.height) < min && e.type !== 'checkbox'; })
-    .map((e) => `${String(e.className || e.tagName).split(' ')[0]} ${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`), MIN_TAP);
+  // A control whose box is under MIN_TAP is listed with its box and its touch area: how far from its middle a tap still
+  // lands on it (or on something inside it), found by asking the page what lies under each point. The touch area counts
+  // an unseen area laid over the control (a ::before or ::after, PLAN-090 and PLAN-096) and leaves out any part that
+  // something else covers. A control whose middle is covered (a sheet lies over it) cannot be tapped at that moment and
+  // is listed apart. STRICT_TAP fails on touch areas under MIN_TAP. The page is given a moment between controls, so the
+  // looking adds no long task of its own.
+  const small = async () => p.evaluate(async (min) => {
+    const out = [];
+    const all = [...document.querySelectorAll('button:not([disabled]), [role=button], input, a')]
+      .filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && Math.min(r.width, r.height) < min && e.type !== 'checkbox'; });
+    for (const e of all) {
+      const r = e.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const on = (dx, dy) => { const t = document.elementFromPoint(x + dx, y + dy); return !!t && (t === e || e.contains(t)); };
+      const reach = (dx, dy) => { let n = 0; while (n < min && on(dx * (n + 1), dy * (n + 1))) n++; return n; };
+      const w = on(0, 0) ? reach(-1, 0) + reach(1, 0) + 1 : 0;
+      const h = on(0, 0) ? reach(0, -1) + reach(0, 1) + 1 : 0;
+      out.push({ name: `${String(e.className || e.tagName).split(' ')[0]} ${Math.round(r.width)}x${Math.round(r.height)}${on(0, 0) ? ` (touch ${w}x${h})` : ''}`, under: on(0, 0) && Math.min(w, h) < min, covered: !on(0, 0) });
+      await new Promise((ok) => setTimeout(ok, 0));
+    }
+    return out;
+  }, MIN_TAP);
   const domCount = () => p.evaluate(() => document.querySelectorAll('*').length);
 
   await p.click('text=New game');
@@ -111,7 +130,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   const long = all.filter(([, t]) => t >= entry + 1500).map(([d]) => d);
   const longest = Math.max(0, ...long);
   const entryMs = Math.max(0, ...entryTasks);
-  const tapCount = Object.values(taps).reduce((a, x) => a + x.length, 0);
+  const tapCount = Object.values(taps).reduce((a, x) => a + x.filter((t) => t.under).length, 0);
   const slow = (list) => list.filter((ms) => ms > SLOW_FRAME_MS).length;
   const drawn = frames.rush.length + frames.night.length;
   const slowFrames = slow(frames.rush) + slow(frames.night);
@@ -125,7 +144,9 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     slowFrames, slowFramesPer100: slowPer100, slowFrameMs: SLOW_FRAME_MS, slowFrameBudgetPer100: MAX_SLOW_FRAMES,
     rush: { frames: frames.rush.length, slow: slow(frames.rush), longestMs: Math.max(0, ...frames.rush) },
     night: { frames: frames.night.length, slow: slow(frames.night), longestMs: Math.max(0, ...frames.night) },
-    smallTapTargets: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v)]])),
+    smallTapTargets: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => t.under).map((t) => t.name))]])),
+    smallBoxesWithTouchArea: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => !t.under && !t.covered).map((t) => t.name))]])),
+    smallButCoveredNow: Object.fromEntries(Object.entries(taps).map(([k, v]) => [k, [...new Set(v.filter((t) => t.covered).map((t) => t.name))]])),
   };
   console.log(JSON.stringify(report, null, 1));
   const fails = [];

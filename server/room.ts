@@ -153,18 +153,18 @@ export class Room {
   // ---------- connection events ----------
 
   async message(conn: Conn, raw: string): Promise<void> {
-    if (raw.length > MAX_MSG) return conn.send({ t: 'error', msg: 'Message too large' });
+    if (raw.length > MAX_MSG) return conn.send({ t: 'error', msg: 'Something went wrong. Try again.' });
     let m: ClientMsg;
     try {
       m = JSON.parse(raw);
     } catch {
-      return conn.send({ t: 'error', msg: 'Bad message' });
+      return conn.send({ t: 'error', msg: 'Something went wrong. Try again.' });
     }
-    if (!m || typeof m !== 'object' || typeof (m as { t?: unknown }).t !== 'string') return conn.send({ t: 'error', msg: 'Bad message' });
+    if (!m || typeof m !== 'object' || typeof (m as { t?: unknown }).t !== 'string') return conn.send({ t: 'error', msg: 'Something went wrong. Try again.' });
     if (m.t === 'ping') return conn.send({ t: 'pong' });
     this.d.lastActive = this.io.now();
     if (m.t === 'hello') this.hello(conn, m);
-    else if (conn.seat === null) return conn.send({ t: 'error', msg: 'Say hello first' });
+    else if (conn.seat === null) return conn.send({ t: 'error', msg: 'Something went wrong. Try again.' });
     else {
       try {
         this.dispatch(conn, conn.seat, m);
@@ -351,7 +351,7 @@ export class Room {
       case 'start': {
         if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can start');
         if (d.seats.length < 2) throw new RuleError('Waiting for another player to join');
-        if (d.seats.some((s) => !s.ready)) throw new RuleError('Everyone must be ready');
+        if (d.seats.some((s) => !s.ready)) throw new RuleError('Everyone needs to be ready first.');
         const online = new Set(this.io.conns().map((c) => c.seat));
         if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
         // Computer shops take the characters the people did not pick.
@@ -408,27 +408,27 @@ export class Room {
     const d = this.d;
     const g = d.game;
     if (d.status !== 'playing' || !g) throw new RuleError('No game in progress');
-    if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Bad action');
+    if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Something went wrong. Try again.');
     const seen = d.seen[seat];
     if (seen.includes(m.id)) return conn.send({ t: 'ack', id: m.id }); // replay: already handled
     const a = m.action as Action;
-    if (!a || typeof a !== 'object') throw new RuleError('Bad action');
-    if (a.kind === 'begin' || a.kind === 'finish') throw new RuleError('Use continue');
+    if (!a || typeof a !== 'object') throw new RuleError('Something went wrong. Try again.');
+    if (a.kind === 'begin' || a.kind === 'finish') throw new RuleError('Something went wrong. Try again.');
 
     if (a.kind === 'stall') {
-      if (g.phase !== 'stall') throw new RuleError('It is not the stocking step.');
+      if (g.phase !== 'stall') throw new RuleError('It\'s not time to fill crates.');
       if (g.stalls[seat] !== null) throw new RuleError('You have no ripe fruit to sell today');
       if (d.pending[seat]) throw new RuleError('Your crate is already set.');
-      if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Bad crate');
+      if (!a.stall || typeof a.stall !== 'object' || Array.isArray(a.stall)) throw new RuleError('Something went wrong. Try again.');
       const stall: Stall = {};
       for (const [f, n] of Object.entries(a.stall).slice(0, 8)) stall[f as keyof Stall] = Number(n);
       // Rules 12: the exact pieces, one count per shelf space for each fruit (optional; without it the oldest go out).
       let crate: Crate | undefined;
       if (a.crate !== undefined) {
-        if (!a.crate || typeof a.crate !== 'object' || Array.isArray(a.crate)) throw new RuleError('Bad crate');
+        if (!a.crate || typeof a.crate !== 'object' || Array.isArray(a.crate)) throw new RuleError('Something went wrong. Try again.');
         crate = {};
         for (const [f, t] of Object.entries(a.crate).slice(0, 8)) {
-          if (!Array.isArray(t) || t.length > 12) throw new RuleError('Bad crate');
+          if (!Array.isArray(t) || t.length > 12) throw new RuleError('Something went wrong. Try again.');
           crate[f as keyof Crate] = t.map(Number);
         }
         const bad = validateCrate(g, seat, crate);
@@ -452,7 +452,7 @@ export class Room {
     if (a.kind === 'prices') {
       if (g.phase !== 'bid') throw new RuleError('Prices are not being set now');
       if (d.pending[seat]) throw new RuleError('Your prices are already sealed.');
-      if (!Array.isArray(a.posts) || a.posts.length > 8) throw new RuleError('Bad prices');
+      if (!Array.isArray(a.posts) || a.posts.length > 8) throw new RuleError('Something went wrong. Try again.');
       const posts: Post[] = a.posts.map((b) => ({ fruit: b.fruit, price: Number(b.price) }));
       const err = validatePrices(g, seat, posts);
       if (err) throw new RuleError(err);
@@ -486,7 +486,7 @@ export class Room {
     const d = this.d;
     const g = d.game;
     if (d.status !== 'playing' || !g) throw new RuleError('No game in progress');
-    if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Bad action');
+    if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Something went wrong. Try again.');
     if (d.seen[seat].includes(m.id)) return conn.send({ t: 'ack', id: m.id }); // replay: already handled
     if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
     if (g.phase !== 'buy' || activePlayer(g) !== seat || d.seats[seat].bot) throw new RuleError('You can take back purchases during your own buying turn only');

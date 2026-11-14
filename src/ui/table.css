@@ -39,7 +39,7 @@
 @keyframes tb-turn-in { from { transform: scaleX(0.04); } }
 @keyframes tb-deal { from { transform: translateX(-60px); opacity: 0; } }
 /* tomorrow's lorry, by name, at the end of tomorrow's strip */
-#app .tkt .tomorrow .tm-lorry { flex: 0 1 auto; min-width: 0; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1 var(--tk-txt); color: var(--tk-slate); }
+#app .tkt .tomorrow .tm-lorry { flex: 0 1 auto; min-width: 0; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1 var(--tk-txt); color: var(--c-2f3a3e); }
 
 /* ---------- the stalls ---------- */
 #app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 0; }
@@ -104,7 +104,9 @@
   height: 22px; box-sizing: border-box; justify-content: flex-start; gap: 4px; padding: 0 4px; overflow: hidden;
   background: var(--lane); color: var(--tk-paper); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.06em;
 }
-#app .tkt .tb-lane.mango .tb-lh { background: var(--c-b98a00); }
+#app .tkt .tb-lane.mango .tb-lh { background: var(--c-b98a00); color: var(--tk-ink); }
+#app .tkt .tb-lane.watermelon .tb-lh { background: var(--c-0a7443); }
+#app .tkt .tb-lane.apple .tb-lh { background: var(--tk-red-d); }
 /* a heading that opens nothing (at night) lets a tap through to the table, where it hurries what is playing */
 #app .tkt .tb-lh:disabled { cursor: default; pointer-events: none; }
 #app .tkt .tb-lh-ico { flex: none; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--tk-paper); }
@@ -114,11 +116,11 @@
 #app .tkt .tb-box.has.st-notso { background: var(--c-fbd5d2); }
 /* an empty box is drawn as an empty box */
 #app .tkt .tb-box:not(.has) { opacity: 1; border: 2px dashed var(--c-8d9396); background: none; }
-#app .tkt .tb-box:not(.has) .price { color: var(--c-8d9396); }
+#app .tkt .tb-box:not(.has) .price { color: var(--c-6b6f7a); }
 /* the box you can buy from: a full ink edge */
 #app .tkt .tb-box.pick { border-color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
 #app .tkt .tb-box .tk-lamp { border: 0; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
-#app .tkt .tb-box:not(.has) .tk-lamp { background: none; color: var(--c-8d9396); box-shadow: inset 0 0 0 1px var(--c-8d9396); }
+#app .tkt .tb-box:not(.has) .tk-lamp { background: none; color: var(--c-6b6f7a); box-shadow: inset 0 0 0 1px var(--c-6b6f7a); }
 #app .tkt .tb-pc { flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 2px; }
 #app .tkt .tb-tkn { flex: none; width: 22px; height: 22px; max-height: calc(var(--bh) - 6px); box-sizing: border-box; display: grid; place-items: center; border: 1.5px solid var(--tk-ink); background: var(--tk-paper); }
 #app .tkt .tb-box .tb-tkn .x-fruit { width: 16px; height: 16px; max-height: calc(var(--bh) - 10px); }
@@ -198,7 +200,8 @@
 #app .tkt .tk-night.tb-night .tb-box.has.st-unripe { background: var(--c-cfeedd); }
 #app .tkt .tk-night.tb-night .tb-box.has.st-notso { background: var(--c-fbd5d2); }
 #app .tkt .tk-night.tb-night .tb-box:not(.has) { border: 2px dashed var(--c-8d9396); background: none; }
-#app .tkt .tb-night .tb-box:not(.has) .tk-lamp { color: var(--c-8d9396); }
+#app .tkt .tb-night .tb-box:not(.has) .tk-lamp { color: var(--c-8d9396); box-shadow: inset 0 0 0 1px var(--c-8d9396); }
+#app .tkt .tb-night .tb-box:not(.has) .price { color: var(--c-8d9396); }
 /* the slide is as long as the night's script says (--ns-ms, set on the panel and on your shelf); a piece leaving the
    last box tips off its lane and fades over the last third */
 #app .tkt .tb-pc.ns-piece { transition: transform var(--ns-ms, 0ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 0ms) * 0.33) ease calc(var(--ns-ms, 0ms) * 0.67); }
@@ -237,7 +240,7 @@
   #app .tkt .tb-dock-head .tk-shelf span { display: block; }
   #app .tkt .tb-dock-head .tb-side { display: none; }
   #app .tkt .tb-dock-head .tk-dock-marks, #app .tkt .tb-dock-head .tk-chip { position: absolute; right: 8px; top: 0; height: 12px; box-sizing: border-box; padding: 0 3px; background: var(--tk-paper); }
-  #app .tkt .tb-dock-head .tk-chip.warn { background: var(--tk-apple); line-height: 12px; }
+  #app .tkt .tb-dock-head .tk-chip.warn { background: var(--tk-red-d); line-height: 12px; }
   #app .tkt .tb-chips { grid-area: chips; height: 26px; padding: 5px 12px 0 6px; flex-wrap: nowrap; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-w { display: none; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-to { display: inline-flex; }

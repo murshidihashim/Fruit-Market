@@ -1,5 +1,6 @@
 // Layout and accessibility sweep: opens every main screen at phone, tablet and desktop sizes,
-// takes screenshots and reports sideways overflow, small tap targets, low text contrast and buttons without a name.
+// takes screenshots and reports sideways overflow, small tap targets (by the area a tap reaches), low text contrast and
+// buttons without a name.
 // Usage: node scripts/qa-sweep.cjs <dist-single/index.html> <outdir>
 // It only reads the game; it never changes a rule. The report is <outdir>/qa-report.json and qa-report.md.
 const { chromium } = require('playwright');
@@ -39,7 +40,7 @@ function audit() {
     return { base, hasImage };
   };
 
-  const out = { overflow: [], small: [], contrast: [], unnamed: [], pageOverflow: document.documentElement.scrollWidth > vw + 1 };
+  const out = { overflow: [], small: [], covered: [], contrast: [], unnamed: [], pageOverflow: document.documentElement.scrollWidth > vw + 1 };
 
   for (const el of document.querySelectorAll('body *')) {
     if (!visible(el)) continue;
@@ -57,7 +58,19 @@ function audit() {
     const r = el.getBoundingClientRect();
     const label = (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim();
     if (!label && !el.querySelector('img[alt]')) out.unnamed.push(`${name(el)} at ${Math.round(r.left)},${Math.round(r.top)}`);
-    if (Math.min(r.width, r.height) < 40) out.small.push(`${name(el)} ${Math.round(r.width)}x${Math.round(r.height)} "${label.slice(0, 24)}"`);
+    if (Math.min(r.width, r.height) < 40) {
+      // The touch area: how far from the control's middle a tap still lands on it (an unseen ::before or ::after over it
+      // counts, a part something else covers does not). A control is small when that area is under 40 px; a disabled
+      // control, which takes no tap now, by its box. A control whose middle something else covers (a sheet over the
+      // table) cannot be tapped at that moment: it is listed under "covered", not "small".
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const on = (dx, dy) => { const t = document.elementFromPoint(x + dx, y + dy); return !!t && (t === el || el.contains(t)); };
+      const reach = (dx, dy) => { let n = 0; while (n < 40 && on(dx * (n + 1), dy * (n + 1))) n++; return n; };
+      const tw = on(0, 0) ? reach(-1, 0) + reach(1, 0) + 1 : 0;
+      const th = on(0, 0) ? reach(0, -1) + reach(0, 1) + 1 : 0;
+      if (!el.disabled && !on(0, 0)) out.covered.push(`${name(el)} ${Math.round(r.width)}x${Math.round(r.height)} "${label.slice(0, 24)}"`);
+      else if (el.disabled || Math.min(tw, th) < 40) out.small.push(`${name(el)} ${Math.round(r.width)}x${Math.round(r.height)}${el.disabled ? ' (disabled)' : ` (touch ${tw}x${th})`} "${label.slice(0, 24)}"`);
+    }
   }
 
   const seen = new Set();
@@ -164,7 +177,7 @@ function audit() {
   await browser.close();
 
   const lines = ['# QA sweep', ''];
-  for (const key of ['overflow', 'unnamed', 'small', 'contrast']) {
+  for (const key of ['overflow', 'unnamed', 'small', 'covered', 'contrast']) {
     const bad = report.filter((r) => r[key].length);
     lines.push(`## ${key}: ${bad.length} screens affected`);
     for (const r of bad) lines.push(`- ${r.size} / ${r.screen}: ${r[key].slice(0, 6).join('; ')}${r[key].length > 6 ? ` (+${r[key].length - 6} more)` : ''}`);

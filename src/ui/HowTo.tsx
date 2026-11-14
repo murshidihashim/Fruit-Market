@@ -74,7 +74,7 @@ const SLIDES = [
             <li><span class="beat-n">{k < DAY_STEPS ? k + 1 : ''}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p class="muted">Stalls are secret. Before the bell you know only how many pieces each rival has in its crate: not which fruit, and not the price. Buying is done in the open, so you can watch what rivals take while they buy. It is not shown again afterwards, so remember what matters.</p>
+        <p class="muted">What a stall holds is secret. Before the bell you only know how many pieces each rival has in their crate, not which fruit or the price. Buying happens in the open, so watch what rivals take: it isn't shown again afterwards.</p>
       </>
     ),
   },
@@ -99,14 +99,14 @@ const SLIDES = [
     title: 'The rush: who sells',
     body: (
       <>
-        <p>Bobby Books wants <b>3 blueberries</b> and pays up to <b>$5</b> for a Fresh one ($4 for Okay; he will not take Soft).</p>
+        <p>Bobby Books wants <b>3 blueberries</b> and pays up to <b>$5</b> for a Fresh one ($4 for Okay; he won't take Soft).</p>
         <div class="demo-ex">
           <div><b>Stall A</b> 2 Fresh <Fruit id="blueberry" size={18} /> at <b>$4</b></div>
           <div><b>Stall B</b> 1 Okay <Fruit id="blueberry" size={18} /> at <b>$3</b></div>
           <div><b>Stall C</b> 2 Fresh <Fruit id="blueberry" size={18} /> at <b>$5</b></div>
         </div>
         <p>Bobby Books buys from the <b>cheapest stall</b> first. B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was Fresh.</p>
-        <p>If two stalls set the same price, a stall that holds Favoured Trade may play it once the prices have flipped, and it wins the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who does not get everything leaves at the end of the day.</p>
+        <p>If two stalls set the same price, a stall holding Favoured Trade can play it after the prices flip to win the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who doesn't get everything leaves at the end of the day.</p>
       </>
     ),
   },
@@ -127,7 +127,7 @@ const SLIDES = [
     title: 'Market Days and Closing Day',
     body: (
       <>
-        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. In the morning a <b>standing order</b> is turned over: one big order, collected {ORDER_LEAD} days later. Each stall bids a price per piece, or passes. You see who is bidding, not the price. You may change your bid until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the standing order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back. Deliver fewer and it is lost. Rivals are not involved.</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. That morning a <b>standing order</b> is turned over: one big order, collected {ORDER_LEAD} days later. Each stall bids a price per piece, or passes. You see who is bidding but not their bids, and you can change yours until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back; deliver fewer and it's lost. Only the winner can fill it.</p>
         <p>That evening you may build <b>1 upgrade</b>. Your stall has room for {MAX_UPGRADES}.</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
         <p>The last day is <b>Closing Day</b>. Customers pay ${LAST_CALL_BONUS} more. After the rush the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each. Green fruit earns nothing.</p>

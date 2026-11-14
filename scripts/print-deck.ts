@@ -161,7 +161,7 @@ function playerAid(): Page {
   const ladder = [
     ['Above the top', '<span class="none">Nothing sells</span> <span>(a Premium Display may go $1 over for fresh fruit, never for a guest)</span>', ''],
     ['The top', '<b>Fresh only</b>', ic(['fresh'])],
-    ['Top − 1', '<b>Fresh or okay</b>', ic(['fresh', 'okay'])],
+    ['Top − 1', '<b>Fresh or Okay</b>', ic(['fresh', 'okay'])],
     ['Top − 2 or less', '<b>Any fruit</b> (Fresh, Okay or Soft)', ic(['fresh', 'okay', 'notso'])],
   ].map(([lvl, what, icons]) => `<div class="lvl">${esc(lvl)}</div><div class="what">${what}</div><div class="ic">${icons}</div>`).join('');
   return {

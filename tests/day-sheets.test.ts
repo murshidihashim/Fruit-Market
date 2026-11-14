@@ -180,7 +180,7 @@ describe('coins at dawn: the top-up and the fine (PLAN-084)', () => {
     const mine = dawnLines(publicView(next, 0), 0);
     expect(mine.map((d) => [d.kind, d.p, d.amount])).toEqual([['fine', 1, 4], ['up', 0, 3]]);
     expect(mine[0].text).toBe(`${next.players[1].name} was fined $4`);
-    expect(mine[1].text).toBe('The market tops you up to $5. Your shelf was empty and you had less than $5.');
+    expect(mine[1].text).toBe('from the Market');
     const theirs = dawnLines(publicView(next, 1), 1);
     expect(theirs[0].text).toBe('You were fined $4');
     expect(theirs[1].text).toBe('Mia had an empty shelf and was topped up to $5');
@@ -210,7 +210,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(show.stage).toBe('in');
     expect(show.order.holder).toBe(0);
     expect(show.text).toBe(won.log[won.log.length - 1]);
-    expect(show.text).toBe(`Mia won the standing order from ${title} at $1 a piece and put down a $${o.stake} stake`);
+    expect(show.text).toBe(`Mia won the standing order for ${title} at $1 a piece and put down a $${o.stake} stake.`);
     // every rival's bid is in the order that is shown (the bids are public once every stall has decided)
     const open = toStaticHtml(h(BidStatus, { s: publicView(won, 0), p: 0, order: show.order, open: true }));
     for (const [i, b] of show.order.bids.entries()) if (i !== 0 && typeof b === 'number') expect(open).toContain(`<b>$${b}</b>`);
@@ -224,7 +224,7 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     expect(none.standing).toBeNull();
     const gone = bidsIn(all, none)!;
     expect(gone.text).toBe(none.log[none.log.length - 1]);
-    expect(gone.text).toBe(`Nobody bid for the standing order from ${title}`);
+    expect(gone.text).toBe(`Nobody bid for ${title}'s standing order.`);
     expect(gone.order.bids).toEqual(['pass', 'pass', 'pass', 'pass']);
     // any other step of the game shows nothing
     expect(bidsIn(bidding, bidding)).toBeNull();
@@ -306,8 +306,8 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
   it('says what there is to deliver the order with: the shelf, the market, tomorrow\'s lorry', () => {
     const v = publicView(bidding, 0);
     const line = canGetLine(v, 0, v.standing!);
-    expect(line).toMatch(/^On your shelf: \d+ · at the market today: \d+( · on tomorrow's lorry: \d+)?$/);
-    expect(line).toContain(`at the market today: ${bidding.market[o.fruit].reduce((a, n) => a + n, 0)}`);
+    expect(line).toMatch(/^Your shelf \d+ · Wholesale Market \d+( · tomorrow's lorry \d+)?$/);
+    expect(line).toContain(`Wholesale Market ${bidding.market[o.fruit].reduce((a, n) => a + n, 0)}`);
   });
 });
 
@@ -470,12 +470,13 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
       return { dataset, clientHeight: room, get scrollHeight() { return Math.max(room, parts[Number(dataset.tight ?? 0)]); } };
     };
     const stepOf = (parts: number[], room: number) => { const el = sheet(parts, room); closer(el); return el.dataset.tight; };
-    expect(stepOf([470, 430, 400, 385], 475)).toBeUndefined(); // it fits as the approved screen draws it
-    expect(stepOf([508, 446, 409, 389], 450)).toBe('1');
-    expect(stepOf([508, 446, 409, 389], 410)).toBe('2');
-    expect(stepOf([508, 446, 409, 389], 381)).toBe(String(TIGHTEST)); // closest, and then the sheet scrolls
+    expect(stepOf([470, 430, 400, 385, 340, 330], 475)).toBeUndefined(); // it fits as the approved screen draws it
+    expect(stepOf([508, 446, 409, 389, 340, 330], 450)).toBe('1');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 410)).toBe('2');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 381)).toBe('4');
+    expect(stepOf([508, 446, 409, 389, 340, 330], 320)).toBe(String(TIGHTEST)); // closest, and then the sheet scrolls
     // asked again (a row changed its size), a sheet never goes back a step
-    const el = sheet([508, 446, 409, 389], 410);
+    const el = sheet([508, 446, 409, 389, 340, 330], 410);
     closer(el);
     closer(el);
     expect(el.dataset.tight).toBe('2');
@@ -489,7 +490,7 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     expect(reach).not.toMatch(/useLayoutEffect\(fit\)|innerWidth|innerHeight/);
     expect(reach).toContain('new ResizeObserver(fit)');
     const css = read('src/ui/sheets.css');
-    expect(css).toContain("#app .tkt .sh-morning[data-tight='3'] .wc-evpic");
+    expect(css).toContain("#app .tkt .sh-morning:is([data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-evpic");
     expect(css).not.toMatch(/\.tight-\d/);
   });
 

@@ -115,7 +115,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
     <div class={`ds-stock stall-panel ${waiting ? 'waiting' : ''}`}>
       {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
       <div class="ds-stick">
-        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} {total === 1 ? 'piece' : 'pieces'} out</span></div>
+        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} in your crate</span></div>
         <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} in it`}>
           <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
           <span class="ds-pcs">
@@ -151,7 +151,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
       </div>
       <div class="ds-note">
         <b class="ds-lab">Only the crate sells today</b>
-        <span>Rivals see how many pieces you put out, not which fruit, and never your price. What stays on your shelf ages tonight.</span>
+        <span>Rivals see how many pieces are in your crate, but not which fruit or your price.</span>
       </div>
     </div>
   );
@@ -255,7 +255,7 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
       </div>
       {fruits.length > 0 && <p class="ps-note">{tieOrderLine(s, p)}</p>}
       {/* Rules 18: Favoured Trade is not played with the prices. A holder with a tied price is asked after the flip. */}
-      {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="ps-note ps-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade: if you tie, you are asked.</span></p>}
+      {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="ps-note ps-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade. If you tie, you'll be asked after the prices flip.</span></p>}
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </div>
   );
@@ -279,7 +279,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
   const lines: [IconName, string][] = [
     ['tag', 'Set one price for each fruit in your crate.'],
     ['hourglass', 'Prices stay secret until the bell.'],
-    ['crate', 'Crates stay shut until the bell: you only see how many pieces.'],
+    ['crate', 'Crates stay shut until the bell. You only see how many pieces are in each.'],
     ['coin', 'The lowest price sells first.'],
     ['scales', 'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.'],
     ['heart', 'Serve a customer’s whole order by yourself to earn a favour card.'],
@@ -443,7 +443,7 @@ function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: Fr
   return (
     <section class="ev-sec ev-shade">
       <div class="ev-lab"><b class="tk-label">Shade Cloth</b></div>
-      <p class="ev-hint">Name one fruit: none of your pieces of it age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</p>
+      <p class="ev-hint">Pick a fruit: your pieces of it don't age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</p>
       <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
         {LANES.map((f) => (
           <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>

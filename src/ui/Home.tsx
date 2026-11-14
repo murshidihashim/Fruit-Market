@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
 import { FRUIT, lookOf, stageAt, type FruitId } from '../engine/data';
-import { activePlayer, count, newGame, shelfSize, type GameState } from '../engine/game';
+import { count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { LOOKS } from '../net/looks';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
@@ -88,7 +88,7 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
             <span class="hm-lb">{e ? 'Today\'s event' : who ? 'First customer' : 'Today'}</span>
             {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: pos }} />}
             <span class="hm-evn">{e ? e.title : who ? lookOf(who.name).title : 'Calm Day'}</span>
-            <span class="hm-chip">{e ? (chip ? `${chip.big} ${chip.small.toLowerCase()}` : e.title) : who ? `Wants ${wants}` : 'No event today'}</span>
+            <span class="hm-chip">{e ? (chip ? `${chip.big} ${chip.small.charAt(0).toLowerCase()}${chip.small.slice(1)}` : e.title) : who ? `Wants ${wants}` : 'No event today'}</span>
           </div>
           <div class="hm-tr">
             <span class="hm-lb">Today's lorry brings</span>
@@ -124,19 +124,14 @@ function GoalsPage() {
             </div>
           );
         })}
-        {three.length === 0 && <p class="hm-st">Every trophy tier is earned.</p>}
+        {three.length === 0 && <p class="hm-st">You've earned every trophy tier.</p>}
       </div>
     </div>
   );
 }
 
-const PHASE_WORDS: Record<string, string> = {
-  morning: 'The morning news is in.', order: 'A standing order is up for bids.', stall: 'Time to fill the crates.', bid: 'Time to set prices.',
-  tie: 'A tied price to settle.', reveal: 'The rush is on.', evening: 'It is evening.',
-};
-
 /** Your table (first when a game is waiting): the day, your shelf and cash when one person plays, every stall's cash
- *  (which the table shows to all), and where the game stopped. A shared phone shows no shelf: it is one person's secret. */
+ *  (which the table shows to all), and today's event card by name (Calm Day on a day without one), in every phase. A shared phone shows no shelf: it is one person's secret. */
 function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
   const solo = cash !== null;
   const me = g.players.findIndex((p) => p.kind === 'human');
@@ -144,14 +139,9 @@ function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
   const order = g.players.map((_, i) => i).sort((a, b) => g.players[b].cash - g.players[a].cash);
   const pieces = solo && pl ? LANES.flatMap((f) => pl.stock[f].flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) })))) : [];
   const size = pl ? shelfSize(pl) : 8;
-  const turn = activePlayer(g);
-  const place = g.order.indexOf(me) + 1;
-  const where = g.phase !== 'buy' ? PHASE_WORDS[g.phase] ?? ''
-    : !solo ? 'The stalls are buying.'
-      : `${place > 0 ? `You buy ${['first', 'second', 'third', 'fourth', 'fifth', 'sixth'][place - 1] ?? ''}. ` : ''}${turn === me ? 'It is your turn to buy.' : ''}`;
   return (
     <div class="hm-slot" data-page="table">
-      <div class="hm-sh"><span>Your table · day {g.day} of {g.config.days}</span>{solo && <b>You have ${cash}</b>}</div>
+      <div class="hm-sh"><span>Your table · Day {g.day} of {g.config.days}</span>{solo && <b>You have ${cash}</b>}</div>
       <div class="hm-sb">
         <div class={`hm-wt ${solo ? '' : 'one'}`}>
           {solo && pl && (
@@ -174,7 +164,7 @@ function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
             ))}
           </div>
         </div>
-        <div class="hm-nb"><b>Today: {g.event ? g.event.title : 'Calm Day'}.</b> {where}</div>
+        <div class="hm-nb"><b>Today: {g.event ? g.event.title : 'Calm Day'}</b></div>
       </div>
     </div>
   );

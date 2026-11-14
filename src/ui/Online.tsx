@@ -124,13 +124,13 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
 
   const available = onlineAvailable();
   return (
-    <Shell title="Online multiplayer" onBack={exit}>
-      {!available && <section class="panel"><p class="warn-text">Online play needs the web version or a configured server. See ONLINE.md.</p></section>}
+    <Shell title="Play online" onBack={exit}>
+      {!available && <section class="panel"><p class="warn-text">Online play isn't available in this version.</p></section>}
       <section class="panel">
         <h3>You</h3>
         <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
         <h3>Your shopkeeper</h3>
-        <p class="small muted">One perk for the whole game. If someone in the room already has your shopkeeper, you will get a free one and can change it in the lobby.</p>
+        <p class="small muted">One perk for the whole game. If someone in the room already has your shopkeeper, you'll get another one and can change it in the lobby.</p>
         <CharacterPick value={avatar} onPick={setAvatar} />
       </section>
       {initialCode ? (
@@ -142,8 +142,8 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
         <>
           <section class="panel">
             <h3>Quick match</h3>
-            <p class="small muted">Play a stranger who's looking for a game right now. Always 2 players; for 3 or 4, start a private game below.</p>
-            <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find an opponent'}</button>
+            <p class="small muted">Play a stranger who's looking for a game right now. Always 2 players. For more, start a private game below.</p>
+            <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a player'}</button>
           </section>
           <section class="panel">
             <h3>Start a private game</h3>
@@ -192,16 +192,16 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
     }
   };
   const share = async () => {
-    try { await navigator.share({ title: 'Fruit Market', text: `Join my Fruit Market game! Room ${v.code}`, url: link }); } catch { void copy(); }
+    try { await navigator.share({ title: 'Fruit Market', text: `Join my Fruit Market game. Room ${v.code}`, url: link }); } catch { void copy(); }
   };
 
   if (v.quick) {
     return (
       <Shell title="Quick match" onBack={onExit}>
         <section class="panel center-text">
-          <h3>Looking for an opponent</h3>
+          <h3>Looking for a player</h3>
           <div class="waiting-dots big-wait">Waiting for someone to join</div>
-          <p class="small muted">The match starts as soon as another player taps Find an opponent. Tap ← to stop looking.</p>
+          <p class="small muted">The game starts as soon as another player taps Find a player. Tap ← to stop looking.</p>
         </section>
       </Shell>
     );
@@ -217,7 +217,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         <div class="room-code" aria-label="Room code">{v.code.split('').map((c) => <span>{c}</span>)}</div>
         <input id="invite-link" class="input" readOnly value={link} onFocus={(e) => (e.target as HTMLInputElement).select()} />
         <div class="row2">
-          <button class="btn" onClick={copy}>{copied ? 'Copied!' : 'Copy link'}</button>
+          <button class="btn" onClick={copy}>{copied ? 'Copied' : 'Copy link'}</button>
           {typeof navigator !== 'undefined' && 'share' in navigator ? <button class="btn" onClick={share}>Share</button> : <span />}
         </div>
       </section>
@@ -239,7 +239,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
             </div>
           ))}
           {/* Computer stalls take a shopkeeper only when the match starts, so their seat shows a plain badge. */}
-          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer rival {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
+          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
           {Array.from({ length: openSeats }, () => <div class="seat-row ghost open-seat">Open seat · send the link</div>)}
         </div>
         {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
@@ -247,7 +247,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
 
       <section class="panel">
         <h3>Your shopkeeper</h3>
-        <p class="small muted">Pick one that is free. Each shopkeeper has one perk for the whole game.</p>
+        <p class="small muted">Pick one nobody has taken. Each shopkeeper has one perk for the whole game.</p>
         <CharacterPick
           value={me?.avatar ?? ''}
           taken={Object.fromEntries(v.seats.filter((x) => x.seat !== v.you).map((x) => [x.avatar, x.name]))}
@@ -258,11 +258,11 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       <section class="panel">
         <h3>Your look</h3>
         <p class="small muted">Your colour, looks, frame and title. Everyone in the room sees what you pick.</p>
-        <button class="btn wide" onClick={() => { fx.tap(); setWardrobe(true); }}>Open the wardrobe</button>
+        <button class="btn wide" onClick={() => { fx.tap(); setWardrobe(true); }}>Open the Wardrobe</button>
       </section>
 
       <section class="panel">
-        <h3>Match settings {!host && <span class="muted small">(host decides)</span>}</h3>
+        <h3>Game settings {!host && <span class="muted small">(host decides)</span>}</h3>
         <div class="seg">
           {([[8, 'Quick'], [10, 'Standard'], [14, 'Long']] as const).map(([d, l]) => (
             <button class={v.config.days === d ? 'on' : ''} disabled={!host} onClick={() => set({ days: d })}>{l}<small>{d} days</small></button>
@@ -270,7 +270,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         </div>
         <div class="seg small">
           {[0, 1, 2, 3, 4].map((n) => (
-            <button class={v.config.ai === n ? 'on' : ''} disabled={!host || v.seats.length + n > MAX_SEATS} onClick={() => set({ ai: n })}>{n === 0 ? 'No AI' : `+${n} AI`}</button>
+            <button class={v.config.ai === n ? 'on' : ''} disabled={!host || v.seats.length + n > MAX_SEATS} onClick={() => set({ ai: n })}>{n === 0 ? 'None' : `+${n} computer`}</button>
           ))}
         </div>
       </section>
@@ -278,10 +278,10 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       <button class={`btn big wide ${me?.ready ? '' : 'primary'}`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
       {host && (
         <button class="btn primary big wide" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>
-          {allReady ? 'Start the match' : v.seats.length < 2 ? 'Waiting for a player…' : 'Waiting for everyone to be ready…'}
+          {allReady ? 'Start the game' : v.seats.length < 2 ? 'Waiting for a player…' : 'Waiting for everyone to be ready…'}
         </button>
       )}
-      {!host && <p class="center-text muted small">The host starts the match when everyone is ready.</p>}
+      {!host && <p class="center-text muted small">The host starts the game when everyone is ready.</p>}
     </Shell>
   );
 }

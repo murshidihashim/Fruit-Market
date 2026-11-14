@@ -57,7 +57,7 @@ async function newMatch() {
   await A.page.waitForSelector('text=Ben');
   await A.page.click("text=I'm ready");
   await B.page.click("text=I'm ready");
-  await A.page.click('text=Start the match');
+  await A.page.click('text=Start the game');
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   return [A, B];
 }
@@ -118,11 +118,11 @@ async function quicks() {
   for (let i = 1; i <= N.quick; i++) {
     const started = Date.now();
     const A = await player('Quinn'), B = await player('Robin');
-    await A.page.goto(base); await A.page.click('text=Play a friend'); await A.page.click('text=Quick match'); await A.page.click('text=Find an opponent');
-    await A.page.waitForSelector('text=Looking for an opponent');
+    await A.page.goto(base); await A.page.click('text=Play a friend'); await A.page.click('text=Quick match'); await A.page.click('text=Find a player');
+    await A.page.waitForSelector('text=Looking for a player');
     await B.page.goto(base); await B.page.click('text=Play a friend'); await B.page.click('text=Quick match');
     const t0 = Date.now();
-    await B.page.click('text=Find an opponent');
+    await B.page.click('text=Find a player');
     const [a, b] = await Promise.all([waitBack(A), waitBack(B)]);
     await record('quick', i, [A, B], a === null || b === null ? null : Date.now() - t0);
     await closeAll([A, B]);

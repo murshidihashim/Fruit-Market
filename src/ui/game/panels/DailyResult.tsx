@@ -31,7 +31,7 @@ export function DailyResult({ s }: { s: GameState }) {
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
   return (
     <div class="sbk-box daily-result">
-      <div class="sbk-row"><span class="sbk-lab">Daily market {s.config.daily}</span>{res?.rank && <span class="dr-rank">You are <b>#{res.rank}</b> today</span>}</div>
+      <div class="sbk-row"><span class="sbk-lab">Daily market {s.config.daily}</span>{res?.rank && <span class="dr-rank">You're <b>#{res.rank}</b> today</span>}</div>
       {!res ? <span class="sbk-sub">Checking the leaderboard…</span>
         : res.error ? <span class="sbk-sub">{res.error}</span>
         : (

@@ -468,7 +468,7 @@ export const TRAITS: Record<TraitId, TraitDef> = {
   charmer: { id: 'charmer', title: 'Charmer', text: `Start with ${CHARMER_START_FAVOURS} favour cards. Hold up to ${FAVOUR_HAND_LIMIT + 1}. Earn up to ${CHARMER_DAILY_FAVOURS} a day.` },
   favourite: { id: 'favourite', title: 'Tip Jar', text: `A customer who leaves with their whole order tips you $${SHARED_TIP} if you sold them any of it, or $${LOCAL_FAVOURITE_TIP} if you served them alone.` },
   nestegg: { id: 'nestegg', title: 'Nest Egg', text: `Start with $${START_CASH + NEST_EGG_BONUS} instead of $${START_CASH}. Buy first on Day 3.` },
-  keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name 1 fruit. Your pieces of that fruit do not age tonight.' },
+  keeper: { id: 'keeper', title: 'Shade Cloth', text: 'Each night, name 1 fruit. Your pieces of it don\'t age that night.' },
   earful: { id: 'earful', title: 'Sharp Ears', text: `Each evening, look at one of tomorrow's walk-ins. Once a day, a walk-in you have seen tips you $${sharpEarsTip(3)} when you sell to them ($${sharpEarsTip(2)} at 2 stalls).` },
 };
 export const TRAIT_OFFER = 3;
@@ -487,8 +487,8 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   Aisyah: { icon: '🧑', title: 'Zara Zapp', quirk: 'Buys watermelon for the whole lab.' },
   Ravi: { icon: '🧑', title: 'Ravi Rocket', quirk: 'Delivers parcels by motorbike.' },
   'Mei Ling': { icon: '🧑', title: 'Coral Mei', quirk: 'Dives for a living. Not fussy about fruit.' },
-  Farid: { icon: '🧑', title: 'Postman Pip', quirk: 'Eats an apple on his round.' },
-  Siti: { icon: '🧑', title: 'Madam Siti', quirk: 'Sews clothes to order by the market.' },
+  Farid: { icon: '🧑', title: 'Postman Pip', quirk: 'Eats an apple on his rounds.' },
+  Siti: { icon: '🧑', title: 'Madam Siti', quirk: 'Sews clothes to order near the market.' },
   Kumar: { icon: '🧑', title: 'Magic Kumar', quirk: 'Does magic shows at the pasar malam.' },
   Grace: { icon: '🧑‍🎤', title: 'Rockstar Grace', quirk: 'Has a show tonight.' },
   Hafiz: { icon: '🧑', title: 'Professor Pebble', quirk: 'Digs up bones for the museum.' },
@@ -498,7 +498,7 @@ export const CUSTOMER_LOOKS: Record<string, Look> = {
   Ahmad: { icon: '🧑‍✈️', title: 'Captain Ahmad', quirk: 'Buying mangoes for the whole crew.' },
   Sarah: { icon: '🧑', title: 'Lola Lens', quirk: 'Takes the wedding photos in town.' },
   Tan: { icon: '👴', title: 'Grandpa Tan', quirk: 'Remembers when apples cost ten cents.' },
-  Lina: { icon: '💃', title: 'Miss Cha-Cha', quirk: 'Teaches dance class on Tuesdays.' },
+  Lina: { icon: '💃', title: 'Miss Cha-Cha', quirk: 'Teaches a dance class on Tuesdays.' },
   Zul: { icon: '🧑', title: 'Sleepy Zul', quirk: 'Works the night shift.' },
   Anna: { icon: '👩‍🎨', title: 'Anna the Artist', quirk: 'Paints the stalls on market mornings.' },
   Vijay: { icon: '🧑', title: 'Otto Oddjob', quirk: 'Does odd jobs around the market.' },

@@ -10,9 +10,9 @@ const signed = (n: number, money = false) => `${n > 0 ? '+' : '−'}${money ? '$
 export function newsChips(e: EventCard | null | undefined): NewsChip[] {
   if (!e) return [];
   const out: NewsChip[] = [];
-  if (e.priceAll) out.push({ big: signed(e.priceAll, true), small: 'Every customer pays' });
+  if (e.priceAll) out.push({ big: signed(e.priceAll, true), small: 'From every customer' });
   for (const f of LANES) if (e.price?.[f]) out.push({ fruit: f, big: signed(e.price[f]!, true), small: `a ${FRUIT[f].name.toLowerCase()}` });
-  if (e.cost) out.push({ big: signed(e.cost, true), small: 'Wholesale Market' });
+  if (e.cost) out.push({ big: signed(e.cost, true), small: 'At the Wholesale Market' });
   if (e.maxPrice) out.push({ big: 'Limit', small: 'On every price' });
   if (e.inspector) out.push({ big: `−$${e.inspector}`, small: 'Per Soft piece' });
   if (e.walkIns) out.push({ big: e.walkIns > 0 ? 'More' : 'Fewer', small: 'Walk-ins today' });
@@ -22,8 +22,8 @@ export function newsChips(e: EventCard | null | undefined): NewsChip[] {
   if (e.supplyMult && e.supplyMult < 1) out.push({ big: 'Half', small: 'A lorry today' });
   if (e.supplyAll) out.push({ big: 'Extra', small: 'Of every fruit' });
   for (const f of LANES) if (e.supplyEach?.[f]) out.push({ fruit: f, big: 'Extra', small: `${FRUIT[f].plural.toLowerCase()} today` });
-  if (e.hawker) out.push({ big: `$${e.hawker}`, small: 'Night hawker pays' });
-  if (e.ageExtra) out.push({ big: e.ageExtra > 0 ? `+${e.ageExtra}` : 'None', small: e.ageExtra > 0 ? 'Extra ageing tonight' : 'Ageing tonight' });
+  if (e.hawker) out.push({ big: `$${e.hawker}`, small: 'From the night hawker' });
+  if (e.ageExtra) out.push({ big: e.ageExtra > 0 ? `+${e.ageExtra}` : 'No', small: e.ageExtra > 0 ? 'Extra ageing tonight' : 'Ageing tonight' });
   return out.slice(0, 3);
 }
 

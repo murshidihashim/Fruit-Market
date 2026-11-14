@@ -74,7 +74,7 @@ export function dawnLines(s: GameState, viewer: number): DawnLine[] {
   for (const p of seats) {
     const n = s.dayTopUps?.[p] ?? 0;
     if (n > 0) out.push({ p, kind: 'up', amount: n, text: p === viewer
-      ? `The market tops you up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
+      ? 'from the Market'
       : `${s.players[p].name} had an empty shelf and was topped up to $${TOP_UP}` });
   }
   return out;
@@ -97,7 +97,7 @@ export function TomorrowLorry({ s }: { s: GameState }) {
 }
 
 /** How many steps closer the morning sheet may be drawn when it would otherwise need a scroll (sheets.css, data-tight). */
-export const TIGHTEST = 3;
+export const TIGHTEST = 5;
 /** What the steps need of a sheet (a page element; a stand-in in tests). */
 export interface Fitting { dataset: DOMStringMap; readonly scrollHeight: number; readonly clientHeight: number }
 /**

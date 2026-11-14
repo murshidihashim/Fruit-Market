@@ -284,28 +284,6 @@
 .wc-cust .wc-kind { grid-area: kind; }
 .wc-cust .wc-body { grid-area: body; }
 .wc-cust .wc-leg { grid-area: leg; }
-@media (max-height: 879.98px) {
-  .tk-rush .wc-cust { grid-template-areas: "kind leg" "body body"; }
-  .tk-rush .wc-cust .wc-kind > span:last-child { display: none; }
-  .tk-rush .wc-cust .wc-leg { gap: 4px; padding: 0 9px 0 0; font-size: 0.5625rem; }
-  .tk-rush .wc-cust .wc-lamp { width: 14px; height: 14px; font-size: 0.5625rem; }
-  .tk-rush .wc-cust .wc-lamp + .wc-lamp, .tk-rush .wc-cust .wc-leg span + .wc-lamp { margin-left: 6px; }
-  .tk-rush .wc-cust .wc-body { gap: 8px; padding: 6px 9px; }
-  .tk-rush .wc-cust .wc-main { gap: 4px; }
-  .tk-rush .wc-cust .wc-custpic { width: 64px; height: 64px; }
-  .tk-rush .wc-cust .wc-ttl-c { font-size: 1rem; }
-}
-@media (min-height: 880px) and (max-height: 999.98px) {
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust { grid-template-areas: "kind leg" "body body"; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-kind > span:last-child { display: none; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-leg { gap: 4px; padding: 0 9px 0 0; font-size: 0.5625rem; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-lamp { width: 14px; height: 14px; font-size: 0.5625rem; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-lamp + .wc-lamp, .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-leg span + .wc-lamp { margin-left: 6px; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-body { gap: 8px; padding: 6px 9px; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-main { gap: 4px; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-custpic { width: 64px; height: 64px; }
-  .tk-rush:is(.n4, .n5, .n6) .wc-cust .wc-ttl-c { font-size: 1rem; }
-}
 
 /* ====================================================================
    A customer's ticket in the row (the approved phone screens), and its back
@@ -329,7 +307,7 @@
 .tkc-dots i { flex: none; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--x-ink); background: var(--lane); }
 .tkc-n { display: block; overflow: hidden; white-space: nowrap; max-width: calc((var(--nr, 0) * 1px - 0.5px - 100cqw) * 999); font: 800 11px/1 var(--f-label); }
 .tkc-rw > b { flex: none; margin-left: auto; font: 400 12px/1 var(--f-display); }
-.tkc-rw.up > b { color: var(--x-green); }
+.tkc-rw.up > b { color: var(--c-0a7443); }
 .tkc-rw.down > b { color: var(--x-slate); }
 .tkc-rw.done > * { opacity: 0.35; }
 .tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }

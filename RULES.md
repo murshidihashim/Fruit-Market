@@ -226,7 +226,7 @@ Before the game, each stall picks one of eight shopkeepers, so even the sixth st
 | Ah Chen | Charmer | Start with 3 favour cards. Hold up to 4. Earn up to 2 a day. |
 | Kiki | Tip Jar | A customer who leaves with their whole order tips you $1 if you sold them any of it, or $2 if you served them alone. |
 | Saleh | Nest Egg | Start with $15 instead of $10. Buy first on Day 3 (the first Market Day). A Priority card played the evening before goes ahead of him. |
-| Pak Din | Shade Cloth | Each night, name 1 fruit. Your pieces of that fruit do not age tonight. |
+| Pak Din | Shade Cloth | Each night, name 1 fruit. Your pieces of it don't age that night. |
 | Farah | Sharp Ears | Each evening, look at one of tomorrow's walk-ins. Once a day, a walk-in you have seen (also by Gossip or Scout) tips you $2 when you sell to them ($1 at 2 stalls). |
 
 In the app, Farah looks at the first walk-in in tomorrow's row she has not already seen, at the start of the evening (or just before the night when no evening is held). A computer Pak Din, or a person who does not choose, shades the fruit with the most value about to drop.

@@ -71,7 +71,7 @@ describe('rush result line (shared)', () => {
           if (/^Tie at/.test(st.headline)) seen.tie++;
           if (/ sold \d+ at /.test(st.headline)) seen.sold++;
           if (/split the order/.test(st.headline)) seen.split++;
-          if (/^(Every price was too high for|Nothing .+ would buy\.|Nobody had \w+ for)/.test(st.headline)) seen.none++;
+          if (/^(Every price was too high for|.+ found nothing to buy\.|Nobody had \w+ for)/.test(st.headline)) seen.none++;
         }
         s = finishReveal(s);
       }

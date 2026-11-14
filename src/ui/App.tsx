@@ -164,7 +164,7 @@ function Main() {
         resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
         cash={waiting ? waiting.cash : null}
         table={waiting ? game : null}
-        leagueLine={league >= LEAGUE.length ? 'Champion! Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
+        leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
         today={today}
         notice={saveNotice}
         onContinue={() => open('continue')}
@@ -308,7 +308,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
             );
           })()}
           <p class="small shop-total">{shopTotal(seats.slice(0, rivals))}</p>
-          {seats.slice(0, rivals).some((s) => s.kind === 'human') && <p class="small muted">Friends share this phone and take turns. Secret prices are hidden between turns.</p>}
+          {seats.slice(0, rivals).some((s) => s.kind === 'human') && <p class="small muted">Friends take turns on this phone. Each player's secrets stay hidden between turns.</p>}
         </section>
         <section class="panel">
           <h3>Game length</h3>
@@ -354,7 +354,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
         <section class="panel">
           <Toggle on={st.sound} set={(v) => upd({ sound: v })} title="Sound" text="Coins, cards and cheers." />
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
-          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast rivals" text="Computer players move quicker." />
+          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast rivals" text="Computer stalls move faster." />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.patterns} set={(v) => upd({ patterns: v })} title="Freshness patterns" text="Stripes and dots as well as colours, for colour-blind players." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
