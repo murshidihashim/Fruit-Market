@@ -2903,6 +2903,30 @@
         "REP-119"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-118",
+      "title": "Publish 1.23.0 (the text pass and the small phone fixes)",
+      "question": "Since 1.22.0 the branch holds the small phone fixes (PLAN-096) and the text pass with the owner's edits (PLAN-097); rules version unchanged at 19. Is it published?",
+      "choice": "Published as 1.23.0 by the release path: pull request to main, CI verify:full, the preview updated, then the Deploy LIVE game workflow with its checks, live smoke test and tag v1.23.0. If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's word after editing the texts.",
+      "impact": {
+        "player": "Clearer wording; the morning and the top bar fit small phones; larger touch areas; darker labels. Same rules version: no update prompt, saves carry over.",
+        "technical": "package.json 1.23.0; releases.json; merge to main; deploy-web.yml; tag v1.23.0.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-14, in his own words: \"publish\".",
+        "date": "2026-11-14"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-120"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -4077,6 +4101,10 @@
     {
       "at": "2026-11-14 14:03",
       "text": "PLAN-097 (text pass, REP-118) approved: the owner edited the picture page (pictures retaken on the current build) and said \"okay ive edited, reflect the changes in the digital and physical copy\". 92 rows use the proposal, 16 his own words (including: Home's waiting game shows \"Today:\" and the event card's name; the pass-the-phone subtitles removed; \"+$5 from the Market\" in the morning), 1 kept. Rows 33 and 34 now share a line with rows 32 and 35, so those choices apply; row 106 is no longer in the game. The print kit takes the same wording where it carries these texts. The 8 name choices are not part of this."
+    },
+    {
+      "at": "2026-11-14 14:47",
+      "text": "PLAN-097 merged as 2694ab5 (verify PASS, the helper's e2e PASS, pictures of the owner's 16 rows seen). DEC-118: the owner said \"publish\"; release 1.23.0 prepared with PLAN-096 and PLAN-097, REP-120. The update pack (rules 18 evening text) is not rebuilt; the 8 name choices stay open."
     }
   ]
 }

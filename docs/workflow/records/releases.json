@@ -549,6 +549,19 @@
       "date": "2026-11-13",
       "commit": "f15874d",
       "tagged": true
+    },
+    {
+      "version": "1.23.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-096",
+        "PLAN-097"
+      ],
+      "notes": [
+        "On a small phone the morning fits the screen, and the event's name in the top bar is shown in full",
+        "Some small buttons are easier to tap and some faint labels are easier to read",
+        "Clearer wording across the game; the Home screen shows today's event for a game you have waiting"
+      ]
     }
   ]
 }

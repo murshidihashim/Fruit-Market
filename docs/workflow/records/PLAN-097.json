@@ -15,26 +15,26 @@
     {
       "id": "T1",
       "text": "The owner has approved the summary of changes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner edited the picture page (16 rows in his words, 1 keep, the rest on the proposal) and said \"okay ive edited, reflect the changes in the digital and physical copy\"; for the Today line: \"today event should be the same for all event card\"."
     },
     {
       "id": "T2",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 2694ab5: 83 files, 904 tests passed, 1 skipped (the existing skip)."
     },
     {
       "id": "T3",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e by the helper on 4ecc2fc (the merge adds only records): solo game, speed test OK, online leak check 0, quick match, four players, reconnect."
     },
     {
       "id": "T4",
       "text": "Every changed screen seen by me at 390x844 and 360x640: nothing cut off",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper's pictures at 390x844 and 360x640 of 33 changed rows including all 16 owner rows: nothing overflows or is cut; the morning still fits 360x640 with six stalls. Seen by me: the before-and-after sheet of the owner's 16 rows."
     }
   ],
   "approval": {
@@ -42,19 +42,26 @@
     "evidence": "Owner, 2026-11-14, after editing the picture page (18 rows: 16 his own words, 1 keep, 1 proposal; the other rows left on \"Use proposed\"): \"okay ive edited, reflect the changes in the digital and physical copy\".",
     "date": "2026-11-14"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "delivery": "implemented",
+  "release": "1.23.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 2694ab5",
   "reports": [
     "REP-117",
-    "REP-118"
+    "REP-118",
+    "REP-120"
   ],
   "decisions": [],
   "changes": {
     "added": [],
-    "changed": [],
+    "changed": [
+      "Player-facing wording across the game (REP-118): 92 proposals and 16 rows in the owner's words, including Home's waiting game showing \"Today:\" and the event card's name, \"+$n from the Market\" for the top-up, shorter buying and stocking tips, Favoured Trade and evening notes; the same words on the printed cards"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "The pass-the-phone subtitles for the standing-order bid, pricing, stocking and the evening"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Clearer wording across the game; the Home screen shows today's event for a game you have waiting"
+  ]
 }
