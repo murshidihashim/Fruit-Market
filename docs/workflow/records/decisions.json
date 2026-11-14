@@ -4073,6 +4073,10 @@
     {
       "at": "2026-11-14 01:19",
       "text": "PLAN-096: GitHub CI run 141 on the branch (347bdd7) PASS, browser tests included: the speed test's longest task 105 ms and p95 90 ms, 0 leaks online. T2 recorded PASS on that evidence; the local speed-test failure was this machine (the live build failed it here too). The before-and-after sheets are with the owner; not published."
+    },
+    {
+      "at": "2026-11-14 14:03",
+      "text": "PLAN-097 (text pass, REP-118) approved: the owner edited the picture page (pictures retaken on the current build) and said \"okay ive edited, reflect the changes in the digital and physical copy\". 92 rows use the proposal, 16 his own words (including: Home's waiting game shows \"Today:\" and the event card's name; the pass-the-phone subtitles removed; \"+$5 from the Market\" in the morning), 1 kept. Rows 33 and 34 now share a line with rows 32 and 35, so those choices apply; row 106 is no longer in the game. The print kit takes the same wording where it carries these texts. The 8 name choices are not part of this."
     }
   ]
 }

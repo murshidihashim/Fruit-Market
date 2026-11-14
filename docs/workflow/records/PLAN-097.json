@@ -4,12 +4,12 @@
   "problem": "The owner asked: \"do all the in game text summary and fix to sound more natural, summarise first and get my approval to change\".",
   "scope": [
     "An inventory of every player-facing sentence and label, with proposed rewrites, summarised for the owner (no change before his approval)",
-    "After approval: the approved rewrites in the app, with the tests and browser scripts that read them"
+    "After approval: the approved rewrites in the app, with the tests and browser scripts that read them",
+    "The same wording in the print kit wherever the printed cards, rules sheet or update pack carry these texts (owner, 2026-11-14)"
   ],
   "exclusions": [
     "Any rule, number or card effect",
-    "The fixed names of things unless the owner chooses to rename them",
-    "The print kit until printing resumes"
+    "The fixed names of things unless the owner chooses to rename them"
   ],
   "acceptance": [
     {
@@ -38,11 +38,11 @@
     }
   ],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "Owner, 2026-11-13: \"summarise first and get my approval to change\".",
-    "date": "2026-11-13"
+    "status": "approved",
+    "evidence": "Owner, 2026-11-14, after editing the picture page (18 rows: 16 his own words, 1 keep, 1 proposal; the other rows left on \"Use proposed\"): \"okay ive edited, reflect the changes in the digital and physical copy\".",
+    "date": "2026-11-14"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
