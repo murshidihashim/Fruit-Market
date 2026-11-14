@@ -119,7 +119,7 @@ describe('"The Bell" notice', () => {
 
   it("says the crier's lines, in the engine's tie order", () => {
     const html = toStaticHtml(h(BellNotice, { onClose: () => undefined }));
-    for (const line of ['THE BELL', 'Set one price for each fruit in your crate.', 'Prices stay secret until the bell.', 'Crates stay shut until the bell: you only see how many pieces.', 'The lowest price sells first.',
+    for (const line of ['THE BELL', 'Set one price for each fruit in your crate.', 'Prices stay secret until the bell.', 'Crates stay shut until the bell. You only see how many pieces are in each.', 'The lowest price sells first.',
       'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.', 'Serve a customer’s whole order by yourself to earn a favour card.']) {
       expect(html).toContain(line);
     }

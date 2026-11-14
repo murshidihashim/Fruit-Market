@@ -125,7 +125,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">
-        <b class="tk-label" data-a="truck">Wholesale market</b>
+        <b class="tk-label" data-a="truck">Wholesale Market</b>
         {lorry !== undefined && <Lorry here={lorry} />}
         {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
@@ -374,9 +374,9 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
         </div>
       ) : (
         <span class="tk-note">
-          {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. Which fruit shows at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
+          {s.phase === 'bid' && out !== null ? `${out ? `${out} ${out === 1 ? 'piece' : 'pieces'}` : 'Nothing'} in the crate today. You'll see which fruit at the bell. ` : open ? 'Nothing in the crate today. ' : ''}
           {/* the shutter is a piece of the printed game: on the phone the shelf "stays secret" (the glossary's word) */}
-          {buys.length > 0 ? 'Older fruit stays secret.' : 'The shelf stays secret.'}
+          The shelf stays secret.
         </span>
       )}
       {buys.length > 0 && (

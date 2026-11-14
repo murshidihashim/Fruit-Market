@@ -41,8 +41,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await A.page.click(`button:has-text("I'm ready")`);
   await B.page.click(`button:has-text("I'm ready")`);
   await shot(B, '02-lobby-guest');
-  await A.page.waitForSelector('button:has-text("Start the match")');
-  await A.page.click('button:has-text("Start the match")');
+  await A.page.waitForSelector('button:has-text("Start the game")');
+  await A.page.click('button:has-text("Start the game")');
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   console.log('match started on both devices');
 

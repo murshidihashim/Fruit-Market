@@ -166,7 +166,7 @@ describe('what is close', () => {
     // the customer book names who is still to meet when three or fewer are left
     const nearly = snap({ sets: { customers: CUSTOMER_CARDS.slice(0, 34).map((c) => c.name) }, have: new Set(['town_12']) });
     expect(tierById('town_36')!.step.goal).toBe(CUSTOMER_CARDS.length);
-    expect(closeLines(nearly, (k) => k.toUpperCase(), ['Mira', 'Hock Seng'])[0]).toEqual({ title: 'Customer book 34 of 36', sub: 'Not met: MIRA, HOCK SENG' });
+    expect(closeLines(nearly, (k) => k.toUpperCase(), ['Mira', 'Hock Seng'])[0]).toEqual({ title: 'Customers served: 34 of 36', sub: 'Still to meet: MIRA, HOCK SENG' });
   });
   it('with no shopkeeper part way, the second line is the next one round the table after the one just played', () => {
     const lines = closeLines(snap(), (k) => k, [], '🦊');

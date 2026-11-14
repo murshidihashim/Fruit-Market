@@ -77,7 +77,7 @@ function BookTab({ place, look }: { place: Place; look: LookSet }) {
               <button type="button" class={`sbk-rk ${state}`} aria-expanded={open === i} onClick={() => { fx.tap(); setOpen(open === i ? -1 : i); }}>
                 <span class="sbk-n">{i + 1}</span>
                 <span class="sbk-t"><b>{r.name}</b><span>Levels {r.from} to {r.to}{state === 'now' ? ' · you are here' : ''}</span></span>
-                <span class="sbk-r">{state === 'done' ? <>{rewards.length} rewards<br />all yours</> : state === 'now' ? <>{r.card} stamps<br />a card</> : <>{RANK_GIVES[i]}{coming ? ' · coming' : ''}</>}</span>
+                <span class="sbk-r">{state === 'done' ? <>{rewards.length} rewards<br />all yours</> : state === 'now' ? <>{r.card} stamps<br />per card</> : <>{RANK_GIVES[i]}{coming ? ' · coming' : ''}</>}</span>
               </button>
               {open === i && (
                 <div class="sbk-rew">
@@ -199,7 +199,7 @@ export function CollectionTab({ snap, setOpen }: { snap: Snapshot; setOpen: (pag
         <div class="sbk-row"><span class="sbk-lab">Events</span><span>{events.size} of {EVENT_CARDS.length} seen</span></div>
         <div class="sbk-thumbs">{EVENT_CARDS.map((e) => <Page met={events.has(e.id)} src={eventArt(e.id)} pos={focusCss(eventFocus(e.id))} name={e.title} onOpen={() => setOpen({ kind: 'event', id: e.id })} />)}</div>
       </div>
-      <p class="sbk-sub" style="padding: 12px">A page is a shadow until you serve that customer or see that event.</p>
+      <p class="sbk-sub" style="padding: 12px">A page stays dark until you serve that customer or see that event.</p>
     </>
   );
 }

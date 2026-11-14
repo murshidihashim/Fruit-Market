@@ -64,7 +64,7 @@ export function StakeLines({ s, p, bid, order }: { s: GameState; p: number; bid:
     <dl class="ob-lines">
       <div><dt>If you win</dt><dd>You pay the ${stake} stake now{book ? ' (halved by your Order Book)' : ''}. You have ${s.players[p].cash}.</dd></div>
       <div><dt>Deliver all {o.qty}</dt><dd>${bid * o.qty}{book ? `, plus $${ORDER_BOOK_BONUS} a piece with your Order Book,` : ','} and the ${stake} stake comes back.</dd></div>
-      <div><dt>Fall short</dt><dd>${each} for each {one(o.fruit)} you deliver. The stake is lost.</dd></div>
+      <div><dt>Fall short</dt><dd>${each} for each {one(o.fruit)} you deliver. You lose the stake.</dd></div>
     </dl>
   );
 }
@@ -89,9 +89,9 @@ export function bidWaitText(mine: Standing['bids'][number], decided: boolean, ca
 export function canGetLine(s: GameState, p: number, o: Standing): string {
   const lorry = nextLorry(s)?.find((l) => l.f === o.fruit);
   return [
-    `On your shelf: ${count(s.players[p].stock, o.fruit)}`,
-    `at the market today: ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
-    ...(lorry ? [`on tomorrow's lorry: ${lorry.n}`] : []),
+    `Your shelf ${count(s.players[p].stock, o.fruit)}`,
+    `Wholesale Market ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
+    ...(lorry ? [`tomorrow's lorry ${lorry.n}`] : []),
   ].join(' · ');
 }
 
@@ -144,12 +144,12 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
         {/* The order's card (PLAN-083), who is bidding, and what there is to deliver it with. */}
         <OrderTicket card={card} qty={o.qty} due={o.due} day={s.day} ceiling={o.ceiling} stake={stake} held={shown?.stage === 'paid'} />
         <div class="ob-sec">
-          <b class="tk-label">{shown && shown.stage !== 'in' ? 'The bids' : 'Who is bidding · prices stay secret'}</b>
+          <b class="tk-label">{shown && shown.stage !== 'in' ? 'The bids' : 'Who Is Bidding'}</b>
           <BidStatus s={s} p={p} order={o} open={!!shown && shown.stage !== 'in'} />
         </div>
         {!shown && (
           <div class="ob-get">
-            <b class="tk-label">{FRUIT[o.fruit].plural} you can get by day {o.due}</b>
+            <b class="tk-label">{FRUIT[o.fruit].plural} you can get by Day {o.due}</b>
             <span>{canGetLine(s, p, o)}</span>
           </div>
         )}

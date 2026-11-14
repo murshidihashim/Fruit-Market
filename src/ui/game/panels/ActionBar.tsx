@@ -46,7 +46,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         </>
       )}
       {quiet && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
-      {quiet && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Bid in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
+      {quiet && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Your bid is in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
       {quiet && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
       {quiet && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}
       {quiet && s.phase === 'tie' && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} has a tied price and is deciding…</div>}

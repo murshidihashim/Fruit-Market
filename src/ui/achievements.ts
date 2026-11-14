@@ -155,7 +155,7 @@ export const CARDS: Card[] = [
       step('orders_8', 'gold', ORDER_CARDS.length, 'Deliver a standing order in full for all 8 clients.', (s) => sizeOf(s, 'clients', ORDER_NAMES)),
     ] },
   feat('juice_regular', 'fruit', 'Juice money', { kind: 'upgrade', id: 'juicebar' }, 'silver', 'Earn $20 from your Juice Bar in one game.'),
-  feat('jam_session', 'fruit', 'Nothing for the jam maker', { kind: 'event', id: 'pasarMalam' }, 'bronze', 'Finish the last day with no ripe piece left, and 20 or more sold.'),
+  feat('jam_session', 'fruit', 'Nothing for the jam maker', { kind: 'event', id: 'pasarMalam' }, 'bronze', 'Sell 20 or more pieces in a game and end it with no ripe fruit left.'),
 
   // 4. The book
   { id: 'customers', group: 'book', title: 'Customers served', pic: { kind: 'customer', key: 'Osman' }, unit: 'customers served', value: (s) => customersServed(s).length,
@@ -183,7 +183,7 @@ export const CARDS: Card[] = [
     steps: [step('sky_high', 'bronze', 12, 'Sell a piece of fruit for $12 or more.'), step('sale_15', 'silver', 15, 'Sell a piece of fruit for $15 or more.')] },
   { id: 'sole', group: 'feats', title: 'Sole Supplier', pic: { kind: 'fruit', id: 'apple' }, unit: 'customers served alone in one game', value: (s) => n(s, 'bestSole'),
     steps: [step('sole_1', 'bronze', 1, 'Serve a customer alone.'), step('sole_2', 'silver', 2, 'Serve 2 customers alone in one game.'), step('sole_five', 'gold', 3, 'Serve 3 customers alone in one game.')] },
-  feat('full_house', 'feats', 'The whole row', { kind: 'event', id: 'kenduri' }, 'silver', 'Sell to every customer in the row in one day, four or more.'),
+  feat('full_house', 'feats', 'The whole row', { kind: 'event', id: 'kenduri' }, 'silver', 'Sell to every customer in a row of 4 or more, in one day.'),
   { id: 'best_day', group: 'feats', title: 'Best day', pic: { kind: 'event', id: 'superfood' }, unit: 'in one day', money: true, value: (s) => n(s, 'bestDay'),
     steps: [step('big_day', 'bronze', 40, 'Earn $40 or more in one day.'), step('day_55', 'silver', 55, 'Earn $55 or more in one day.'), step('day_70', 'gold', 70, 'Earn $70 or more in one day.')] },
   feat('festival_rush', 'feats', 'Festival Rush', { kind: 'event', id: 'festival' }, 'silver', 'Earn $40 or more on a Festival day.'),

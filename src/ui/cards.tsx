@@ -211,7 +211,7 @@ export function Gazette({ event, n, eager, class: cls }: { event: EventCard; n?:
       <Pic src={eventArt(event.id)} alt={event.title} size={ART_SIZE.event} focus={eventFocus(event.id)} eager={eager} tall />
       <Blocks chips={cardChips(event)} />
       <p class="cd-txt">{event.text}</p>
-      <footer class="cd-ft"><span>Keep this card out until night</span></footer>
+      <footer class="cd-ft"><span>Lasts until night</span></footer>
     </article>
   );
 }
@@ -222,7 +222,7 @@ const SIZES = Array.from({ length: MAX_STALLS - MIN_STALLS + 1 }, (_, i) => (MIN
 export const lorryRow = (stalls: number): Stalls => Math.min(MAX_STALLS, Math.max(MIN_STALLS, stalls)) as Stalls;
 /** A lorry card's footer: what arrives green, and the Seconds Lorry's word on the rest. */
 export function lorryNotes(card: Pick<FarmerCard, 'unripe' | 'okay'>): string[] {
-  return [card.unripe ? `${FRUIT[card.unripe].plural} arrive green` : '', card.okay ? (card.unripe ? 'Other fruit arrives okay' : 'Fruit arrives okay') : ''].filter(Boolean);
+  return [card.unripe ? `${FRUIT[card.unripe].plural} arrive green` : '', card.okay ? (card.unripe ? 'Other fruit arrives Okay' : 'Fruit arrives Okay') : ''].filter(Boolean);
 }
 
 /**
@@ -302,7 +302,7 @@ export function FavourCard({ id, eager, class: cls }: { id: FavourId; eager?: bo
  * card's own text (data.ts UPGRADES). The numbers are the rules' own constants.
  */
 export const UPGRADE_FIGURE: Record<UpgradeId, { big: string; small: string }> = {
-  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each okay or soft piece sold' },
+  juicebar: { big: `+$${JUICE_TIP}`, small: 'Each Okay or Soft piece sold' },
   barrow: { big: `${BARROW_BUY}`, small: 'Pieces a day' },
   premium: { big: '+$1', small: 'On a Fresh piece' },
   ripening: { big: '1 night', small: 'Green mangoes ripen' },
@@ -323,7 +323,7 @@ export function UpgradeCard({ id, eager, class: cls }: { id: UpgradeId; eager?: 
         <div class="cd-blk cd-blk-k"><b>{fig.big}</b><small>{fig.small}</small></div>
       </div>
       <p class="cd-txt">{d.text}</p>
-      <footer class="cd-ft"><span>After a market day</span><span>{`Room for ${WORDS[MAX_UPGRADES] ?? MAX_UPGRADES}`}</span></footer>
+      <footer class="cd-ft"><span>After a Market Day</span><span>{`Room for ${WORDS[MAX_UPGRADES] ?? MAX_UPGRADES}`}</span></footer>
     </article>
   );
 }
@@ -356,7 +356,7 @@ export function OrderCard({ card, qty, due, bid, stake, class: cls }: {
         <div class="cd-blk cd-blk-y"><b>{`$${stake ?? card.stake}`}</b><small>Stake</small></div>
       </div>
       <p class="cd-quirk">{card.quirk}</p>
-      <p class="cd-txt">{`Lowest bid wins and pays the stake. Deliver ${qty !== undefined ? `all ${qty}` : 'every piece'} and the stake comes back. Fall short and it is lost.`}</p>
+      <p class="cd-txt">{`Lowest bid wins and pays the stake. Deliver ${qty !== undefined ? `all ${qty}` : 'every piece'} and the stake comes back. Fall short and it's lost.`}</p>
       <footer class="cd-ft"><span>No favour card</span><span>No tips</span></footer>
     </article>
   );

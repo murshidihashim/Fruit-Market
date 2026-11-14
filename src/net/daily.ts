@@ -20,7 +20,7 @@ export interface BoardEntry { name: string; cash: number; sold: number }
 export interface BoardResult { rank?: number; top: BoardEntry[]; players?: number; error?: string }
 
 export async function submitDaily(g: GameState): Promise<BoardResult> {
-  if (!serverBase() || !g.config.daily) return { top: [], error: 'Leaderboard needs an internet connection' };
+  if (!serverBase() || !g.config.daily) return { top: [], error: 'The leaderboard needs an internet connection.' };
   const me = g.players.find((p) => p.kind === 'human')!;
   try {
     const res = await fetch(`${serverBase()}/api/daily`, {
@@ -36,12 +36,12 @@ export async function submitDaily(g: GameState): Promise<BoardResult> {
 }
 
 export async function fetchDaily(date: string): Promise<BoardResult> {
-  if (!serverBase()) return { top: [], error: 'Leaderboard needs an internet connection' };
+  if (!serverBase()) return { top: [], error: 'The leaderboard needs an internet connection.' };
   try {
     const res = await fetch(`${serverBase()}/api/daily?date=${date}`);
     return (await res.json()) as BoardResult;
   } catch {
-    return { top: [], error: 'Leaderboard needs an internet connection' };
+    return { top: [], error: 'The leaderboard needs an internet connection.' };
   }
 }
 

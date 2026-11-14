@@ -51,7 +51,7 @@ export function EventTicket({ card, n, art, focus, chips, children }: {
           {children}
         </div>
       </div>
-      {n !== undefined && n > 0 && <footer class="wc-foot">Stays in force until night</footer>}
+      {n !== undefined && n > 0 && <footer class="wc-foot">Lasts until night</footer>}
     </article>
   );
 }
@@ -101,13 +101,13 @@ export function OrderTicket({ card, qty, due, day, ceiling, stake, held }: {
   const left = due - day;
   return (
     <article class="wc wc-order">
-      <header class="wc-kind"><span>Standing order</span><span><b>{left <= 0 ? 'Due today' : left === 1 ? 'Due tomorrow' : `Due in ${left} days`}</b>{` · day ${due}`}</span></header>
+      <header class="wc-kind"><span>Standing order</span><span><b>{left <= 0 ? 'Due today' : left === 1 ? 'Due tomorrow' : `Due in ${left} days`}</b>{` · Day ${due}`}</span></header>
       <div class="wc-body">
         <CardArt class="wc-sqpic" src={customerArt(card.name)} alt="" w={ART_SIZE.customer[0]} h={ART_SIZE.customer[1]} eager focus={customerFocus(card.name)} />
         <div class="wc-main">
           <b class="wc-ttl wc-ttl-o">{card.title}</b>
           <span class={`wc-rw ${laneClass(card.fruit)}`}><FruitSvg id={card.fruit} size={22} alt="" /><Dots n={qty} label={piecesOf(qty, card.fruit)} /></span>
-          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · fresh or okay`}</span>
+          <span class="wc-lab">{`${piecesOf(qty, card.fruit)} · Fresh or Okay`}</span>
         </div>
       </div>
       <div class="wc-stats">

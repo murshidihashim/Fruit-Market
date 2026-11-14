@@ -846,7 +846,7 @@ function awardOrder(s: GameState) {
   const o = s.standing!;
   const bidders = o.bids.map((b, p) => ({ b, p })).filter((x): x is { b: number; p: number } => typeof x.b === 'number');
   if (bidders.length === 0) {
-    s.log.push(`Nobody bid for the standing order from ${ORDER_CARDS[o.card].title}`);
+    s.log.push(`Nobody bid for ${ORDER_CARDS[o.card].title}'s standing order.`);
     s.standing = null;
   } else {
     // Lowest bid wins. Ties: an Order Book, then the earlier stall in today's buying order (the poorer one).
@@ -858,7 +858,7 @@ function awardOrder(s: GameState) {
     const hp = s.players[o.holder];
     o.staked = Math.min(hp.cash, orderStake(s, o.holder));
     hp.cash -= o.staked;
-    s.log.push(`${hp.name} won the standing order from ${ORDER_CARDS[o.card].title} at $${o.price} a piece and put down a $${o.staked} stake`);
+    s.log.push(`${hp.name} won the standing order for ${ORDER_CARDS[o.card].title} at $${o.price} a piece and put down a $${o.staked} stake.`);
   }
   s.phase = 'buy';
   s.turn = 0;
@@ -881,7 +881,7 @@ export function canBuy(s: GameState, p: number, f: FruitId, pos: number): string
   const pl = s.players[p];
   if (s.phase !== 'buy' || activePlayer(s) !== p) return 'Not your turn';
   if ((s.market[f][pos] ?? 0) <= 0) return 'None left';
-  if (pl.boughtToday >= buyLimit(pl)) return `You can buy ${buyLimit(pl)} pieces of fruit a day`;
+  if (pl.boughtToday >= buyLimit(pl)) return `You can only buy ${buyLimit(pl)} pieces a day`;
   if (count(pl.stock) >= shelfSize(pl)) return 'Your shelf is full';
   if (pl.cash < buyCost(s, p, f, pos)) return 'Not enough cash';
   return null;
@@ -981,7 +981,7 @@ function favourBlock(s: GameState, p: number, idx: number): string | null {
   const def = FAVOURS[id];
   // Rules 18: Favoured Trade is played in its own step after prices flip, by the stall being asked (decideTie). Its
   // card may be tapped then; at any other time it cannot be played.
-  if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Play this after prices flip, when one of your prices is tied';
+  if (id === 'favouredTrade') return s.phase === 'tie' ? null : 'Play this after the prices flip, if one of your prices is tied';
   if (def.when !== s.phase) return `Play this ${def.when === 'buy' ? 'on your buying turn' : 'in the evening'}`;
   if (id === 'priority' && s.day >= s.config.days) return 'This is the last day';
   // Rules 19: any number of stalls may play Priority in the same evening (rules 18 refused a second one), one card each:
@@ -1084,12 +1084,12 @@ export function validateCrate(s: GameState, p: number, c: Crate): string | null 
   const pl = s.players[p];
   for (const [f, t] of Object.entries(c) as [FruitId, number[]][]) {
     if (!FRUITS.includes(f)) return 'Unknown fruit';
-    if (!Array.isArray(t) || t.length !== pl.stock[f].length) return 'Bad crate';
+    if (!Array.isArray(t) || t.length !== pl.stock[f].length) return 'Something went wrong. Try again.';
     for (let i = 0; i < t.length; i++) {
       const n = t[i];
       if (!Number.isInteger(n) || n < 0) return 'Whole numbers only';
       if (n > pl.stock[f][i]) return `You don't have that many ${FRUIT[f].plural.toLowerCase()} there`;
-      if (n > 0 && i >= FRUIT[f].ripe.length) return 'Green fruit cannot be sold yet';
+      if (n > 0 && i >= FRUIT[f].ripe.length) return 'Green fruit can\'t be sold yet';
     }
   }
   return null;
@@ -1630,7 +1630,7 @@ export function buyUpgrade(state: GameState, p: number, u: UpgradeId): GameState
 
 export function canShade(s: GameState, p: number, f: FruitId | null): string | null {
   const pl = s.players[p];
-  if (!pl || pl.trait !== 'keeper') return 'Only the Shade Cloth can do that';
+  if (!pl || pl.trait !== 'keeper') return 'Only a Shade Cloth stall can do that';
   const turn = eveningBlock(s, p);
   if (turn) return turn;
   if (f !== null && !FRUITS.includes(f)) return 'Unknown fruit';

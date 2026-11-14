@@ -58,7 +58,7 @@ describe('rules 12: the crate holds exact pieces', () => {
   it('a crate must match the shelf: never more than a space holds, no green fruit, whole numbers', () => {
     const s = stocking([]);
     expect(validateCrate(s, 0, { apple: [3, 0, 0, 0, 0, 0] })).toMatch(/don't have that many/);
-    expect(validateCrate(s, 0, { apple: [1, 0, 0] })).toBe('Bad crate');
+    expect(validateCrate(s, 0, { apple: [1, 0, 0] })).toBe('Something went wrong. Try again.');
     expect(validateCrate(s, 0, { apple: [0.5, 0, 0, 0, 0, 0] })).toBe('Whole numbers only');
     s.players[0].stock.mango[FRUIT.mango.ripe.length] = 1;
     expect(validateCrate(s, 0, { mango: [0, 0, 0, 1, 0] })).toMatch(/Green fruit/);
@@ -98,7 +98,7 @@ describe('Fill your crate (rows since PLAN-072)', () => {
     const html = toStaticHtml([h(StallPanelView, { s, p: 0, crate, onStep: () => undefined }), h(StallBar, { total: 1, onSubmit: () => undefined })]);
     expect(html).toContain('Fill your crate');
     expect(html).toContain('Your crate: 1 in it');
-    expect(html).toContain('1 piece out');
+    expect(html).toContain('1 in your crate');
     expect(html).not.toContain('Market Day');
     expect(html.match(/class="ds-srow /g)).toHaveLength(3); // the soft apple, the fresh apple and the green mango
     expect(html.match(/class="mini-step"/g)).toHaveLength(2); // the soft and the fresh apple boxes

@@ -25,7 +25,7 @@ function howEarned(l: Look, s: Snapshot): string {
     const t = achievementFor(l);
     if (!t) return '';
     // the tier is held, but its title needs a game against Normal or harder computers, a Daily market or people
-    if (l.from.fair && s.have.has(l.from.id)) return 'Do it again against Normal or harder computers, in a Daily market or with people.';
+    if (l.from.fair && s.have.has(l.from.id)) return 'Earn it again against Normal or Hard computers, in the Daily market, or with friends.';
     return `${TIER_NAME[t.step.tier]}: ${t.step.text}`;
   }
   return '';
@@ -99,7 +99,7 @@ export function WardrobeTab({ look, fresh, place, snap, onChange }: { look: Look
               <>
                 <button type="button" class={`sbk-slot ${mine.length === 0 ? 'lock' : ''} ${open === id ? 'open' : ''}`} aria-expanded={open === id} onClick={() => { fx.tap(); setOpen(open === id ? null : id); }}>
                   <span class="sbk-k">{slot.title}</span>
-                  <span class="sbk-v">{onLook?.title ?? (mine.length ? 'None on' : 'Nothing yet')}</span>
+                  <span class="sbk-v">{onLook?.title ?? (mine.length ? 'None' : 'Nothing yet')}</span>
                   {id === 'tag' && <span class={`sbk-tag tg-${tagOf(look)}`} aria-hidden="true">$7</span>}
                   <span class="sbk-nn">{note}</span>
                 </button>

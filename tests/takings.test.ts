@@ -144,7 +144,7 @@ describe('the ledger', () => {
     const { s } = find((x, p) => p === 0 && x.results!.income[0] > 0 && x.day < x.config.days);
     const old = { ...s, dayStartCash: undefined };
     expect(takingsRows(old, 0).some((x) => x.key === 'other')).toBe(false);
-    expect(view(old)).not.toMatch(/Up today|Down today|Even today/);
+    expect(view(old)).not.toMatch(/Up today|Down today|Broke even/);
     // the list then shows each stall's sales for the day
     expect(view(old)).toContain(`<span class="tg-td">+$${s.results!.income[0]} today</span>`);
   });
@@ -158,14 +158,14 @@ describe('the takings as drawn', () => {
       const rem = s.config.days - s.day;
       expect(html).toContain(`Day ${s.day} · your takings`);
       expect(html).toContain(rem === 0 ? 'MARKET CLOSED' : rem === 1 ? '1 day to go' : `${rem} days to go`);
-      expect(html).toContain(net > 0 ? `Up today <b class="good">+$${net}</b>` : net < 0 ? `Down today <b class="bad">−$${-net}</b>` : 'Even today <b class="flat">$0</b>');
+      expect(html).toContain(net > 0 ? `Up today <b class="good">+$${net}</b>` : net < 0 ? `Down today <b class="bad">−$${-net}</b>` : 'Broke even <b class="flat">$0</b>');
       // plain words: no exclamation marks anywhere on the card
       expect(html.replace(/<[^>]*>/g, ' ')).not.toContain('!');
     }
     expect(all.some(({ s }) => dayLedger(s, 0).net! < 0)).toBe(true);
-    // a day that changed nothing is "Even today"
+    // a day that changed nothing is "Broke even"
     const even = find((s, p) => dayLedger(s, p).net === 0);
-    expect(view(even.s, even.p)).toContain('Even today <b class="flat">$0</b>');
+    expect(view(even.s, even.p)).toContain('Broke even <b class="flat">$0</b>');
   });
 
   it('every stall once, first to last, with its day and its cash; this stall\'s row is marked', () => {
@@ -188,7 +188,7 @@ describe('the takings as drawn', () => {
       const html = view(s, p);
       expect(html.match(/class="tg-stall /g)?.length).toBe(s.players.length);
       expect(html.match(/class="tg-stall me"/g)?.length).toBe(1);
-      expect(html).toContain(`The stalls after day ${s.day}`);
+      expect(html).toContain(`The stalls after Day ${s.day}`);
       expect(html).toContain(standing(after, p).text.replace(/&/g, '&amp;'));
       // this stall's own row says "You" on a phone that is not shared (PLAN-090)
       const names = rows.map((x) => html.indexOf(`<span class="tg-name">${x.me ? 'You' : x.name}</span>`));
@@ -212,7 +212,7 @@ describe('the takings as drawn', () => {
     const mine = s.results!.favours.filter((f) => f.player === p);
     const html = view(s, p);
     expect(html.match(/Favour won/g)?.length).toBe(mine.length);
-    for (const f of mine) expect(html).toContain(`<span>${FAVOURS[f.favour].title}. You alone filled ${lookOf(f.customer).title}'s whole order.</span>`);
+    for (const f of mine) expect(html).toContain(`<span>${FAVOURS[f.favour].title}. You served ${lookOf(f.customer).title}'s whole order alone.</span>`);
     // a stall that won none sees none, whatever the others won
     const none = find((x, q) => x.results!.favours.length > 0 && !x.results!.favours.some((f) => f.player === q));
     expect(view(none.s, none.p)).not.toContain('Favour won');
@@ -290,7 +290,7 @@ describe('what tonight does to the shelf', () => {
       for (const c of chips) if (c.bad) expect(c.next).toBeNull();
     }
     // these nights say all of these
-    for (const w of ['ripe tomorrow', 'okay tomorrow', 'soft tomorrow', 'spoils tonight', 'still green tomorrow']) expect(words, w).toContain(w);
+    for (const w of ['ripe tomorrow', 'Okay tomorrow', 'Soft tomorrow', 'spoils tonight', 'still green tomorrow']) expect(words, w).toContain(w);
   });
 
   it('the card says it: the shelf\'s count, the chips and the night\'s own sentence', () => {

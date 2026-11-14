@@ -65,7 +65,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
   {pulseInfo && (
     <div class="tip-pop" onClick={() => setPulseInfo(false)}>
       <b>What customers want</b>
-      <span>The number on each lane is the pieces today's customers still want{s.phase === 'buy' || s.phase === 'morning' ? ' (+ means walk-ins who are not here yet may want more)' : ''}.</span>
+      <span>Each lane shows how many fruits today’s customers potentially want. Use this to plan your purchases.</span>
       <small>Tap to close.</small>
     </div>
   )}

@@ -9,12 +9,12 @@ export interface Tip { id: string; title: string; text: string }
 // says the same sentence (ids already kept on a phone, 'trait' among them, are harmless).
 export const TIPS: Tip[] = [
   { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top. Tap Start buying.' },
-  { id: 'buy', title: 'Your turn to buy', text: 'Tap a box with a black border to buy 1 piece. Each lane is one fruit, freshest at the top: G Green, F Fresh, O Okay, S Soft. Fresher costs more, and customers pay more for it. Buy what the customer tickets ask for.' },
-  { id: 'bought', title: 'On your shelf', text: 'The piece is on your shelf, at the bottom of the screen. Tap Done buying when you have finished.' },
+  { id: 'buy', title: 'Your turn to buy', text: 'Tap a fruit to buy, freshest at the top. Buy what the customers want. Fresher costs more, but customers pay more for it.' },
+  { id: 'bought', title: 'On your shelf', text: 'It\'s on your shelf. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Fill your crate', text: 'Tap + beside a row to put that piece in your crate. Only pieces in your crate can sell today. Rivals see how many, not which fruit.' },
-  { id: 'bid', title: 'Secret prices', text: 'Set a price for each fruit with − and +. You see how many pieces each rival has in its crate, not which fruit. Prices and crates open at the bell. The cheapest stall sells first.' },
+  { id: 'bid', title: 'Secret prices', text: 'Set a price for each fruit with − and +. You see how many pieces each rival has in their crate, not which fruit. Prices and crates open at the bell. The cheapest stall sells first.' },
   { id: 'reveal', title: 'The rush', text: 'Each customer bought from the cheapest stall with fruit fresh enough for their price. Ties go to Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.' },
-  { id: 'evening', title: 'Evening', text: 'Each night all fruit ages one step. You may play an evening favour card. After a Market Day you may also build 1 upgrade. An upgrade costs cash, and cash is your score.' },
+  { id: 'evening', title: 'Evening', text: 'Play favour card now. After a Market Day you can also build 1 upgrade. Tonight all fruit ages one step.' },
   { id: 'day2', title: 'From Day 2', text: 'From now on the poorest stall buys first, then the others clockwise. Most cash after the last day wins.' },
 ];
 
