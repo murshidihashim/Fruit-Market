@@ -1,0 +1,58 @@
+{
+  "id": "PLAN-100",
+  "title": "Print pack at rules 19: the guidebook and the update pack",
+  "problem": "The printed rules guidebook and update pack still described rules 18 (one Priority card each evening, stalls in turn); the cards were already rebuilt at rules 19 with the text pass.",
+  "scope": [
+    "The guidebook: rules 19 under \"What is new\" (the evening for everyone at once, standing orders $2 higher bid and $2 lower stake), the evening rules and rulings",
+    "The update pack change sheet and board patches: the same two changes, an Evening patch",
+    "Rebuild print/update-19 (replacing print/update-18) and the card kit; print README at rules 19"
+  ],
+  "exclusions": [
+    "Any rule change",
+    "The tracker choice",
+    "Printing itself"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "No rules 18 evening text left in the printed files",
+      "result": "PASS",
+      "evidence": "pdftotext of the three update-19 PDFs: no \"one Priority\" or \"in buying order, each stall\" line; the guidebook (12 pages) has the rules 19 evening in What is new, Evening and the one-line summary."
+    },
+    {
+      "id": "T2",
+      "text": "tests/print-kit.test.ts passes",
+      "result": "PASS",
+      "evidence": "13 tests passed."
+    },
+    {
+      "id": "T3",
+      "text": "The owner has checked the pack",
+      "result": "NOT RUN",
+      "evidence": "Shared with the owner for checking."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-14: \"update the rule book and update ... then share the cards and rule book pack here for me to verify\".",
+    "date": "2026-11-14"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "An Evening patch for the board"
+    ],
+    "changed": [
+      "The rules guidebook and update pack at rules version 19"
+    ],
+    "fixed": [],
+    "removed": [
+      "print/update-18 (replaced by print/update-19)"
+    ]
+  },
+  "playerNotes": []
+}

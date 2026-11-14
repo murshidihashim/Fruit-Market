@@ -4105,6 +4105,10 @@
     {
       "at": "2026-11-14 14:47",
       "text": "PLAN-097 merged as 2694ab5 (verify PASS, the helper's e2e PASS, pictures of the owner's 16 rows seen). DEC-118: the owner said \"publish\"; release 1.23.0 prepared with PLAN-096 and PLAN-097, REP-120. The update pack (rules 18 evening text) is not rebuilt; the 8 name choices stay open."
+    },
+    {
+      "at": "2026-11-14 14:58",
+      "text": "PLAN-100 approved by the owner (\"update the rule book and update\") and built: the guidebook and the update pack at rules 19 (print/update-19), the card kit rebuilt; shared with the owner to check. Print only; the game is unchanged."
     }
   ]
 }
