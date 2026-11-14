@@ -74,7 +74,7 @@ export function dawnLines(s: GameState, viewer: number): DawnLine[] {
   for (const p of seats) {
     const n = s.dayTopUps?.[p] ?? 0;
     if (n > 0) out.push({ p, kind: 'up', amount: n, text: p === viewer
-      ? `The market tops you up to $${TOP_UP}. Your shelf was empty and you had less than $${TOP_UP}.`
+      ? 'from the Market'
       : `${s.players[p].name} had an empty shelf and was topped up to $${TOP_UP}` });
   }
   return out;

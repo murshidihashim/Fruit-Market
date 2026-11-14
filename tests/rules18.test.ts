@@ -330,7 +330,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     const panel = toStaticHtml(h(StakeLines, { s: publicView(s, 0), p: 0, bid: 6 }));
     expect(panel).toContain(`<dt>If you win</dt><dd>You pay the $${stake} stake now. You have $30.</dd>`);
     expect(panel).toContain(`<dt>Deliver all ${qty}</dt><dd>$${6 * qty}, and the $${stake} stake comes back.</dd>`);
-    expect(panel).toMatch(/<dt>Fall short<\/dt><dd>\$6 for each [a-z]+ you deliver\. The stake is lost\.<\/dd>/);
+    expect(panel).toMatch(/<dt>Fall short<\/dt><dd>\$6 for each [a-z]+ you deliver\. You lose the stake\.<\/dd>/);
     expect(panel).not.toMatch(/fined|\$1 under|rival/i);
     expect(stakeHint(publicView(s, 0), 0)).toBeNull();
     // Without the stake in cash a stall can only pass.
@@ -892,7 +892,7 @@ describe('H. rulings', () => {
     expect(finishWords(s, 1)).toMatchObject({ win: false, headline: 'P0 wins', mine: 'I came 2nd' });
     // Level on cash, not on fruit sold: one winner, as before.
     s.players[0].cash = 60; s.players[0].stats.sold = 8;
-    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 wins', margin: 'Tied on cash. Decided by fruit sold.' });
+    expect(finishWords(s, 1)).toMatchObject({ shared: false, headline: 'P0 wins', margin: 'Tied on cash, so fruit sold decided it.' });
     // Fifth and sixth place have a name too.
     const six = bare(6);
     six.phase = 'over';
@@ -1058,7 +1058,7 @@ describe('K. Favoured Trade after prices flip', () => {
     let s = stocking(2, [buyer(1, 'apple', 2, 8)]);
     s.players.forEach((p) => { p.stock.apple[FRESH('apple')] = 2; });
     s.players[0].favours = ['favouredTrade'];
-    const why = 'Play this after prices flip, when one of your prices is tied';
+    const why = 'Play this after the prices flip, if one of your prices is tied';
     expect(canPlayFavour(s, 0, 0)).toBe(why); // stocking
     s = openStall(openStall(s, 0, { apple: 2 }), 1, { apple: 2 });
     expect(s.phase).toBe('bid');
@@ -1215,9 +1215,9 @@ describe('K. Favoured Trade after prices flip', () => {
     expect(tieWords(s, 2)).toBe('apples at $6 with P0 and P1');
     const mine = toStaticHtml(h(TiePanel, { s: publicView(s, 2), viewer: 2, asked: 2, onDecide: () => undefined }));
     // PLAN-085: the question is the card itself, under the open rows
-    expect(mine).toContain('You, P0 and P1 all ask $6 for apples');
+    expect(mine).toContain('You, P0 and P1 all charge $6 for apples');
     expect(mine).toContain('A tied price: apples at $6 with P0 and P1. Play Favoured Trade or keep it');
-    expect(mine).toContain('Play Favoured Trade and you sell first, on every tied price today.');
+    expect(mine).toContain('Play Favoured Trade to sell first on every tied price today.');
     expect(mine).toContain('Without it');
     expect(mine).toContain('With it');
     expect(mine).toContain('Play it');
@@ -1225,7 +1225,7 @@ describe('K. Favoured Trade after prices flip', () => {
     expect(mine).toContain('data-a="tie-note"');
     const theirs = toStaticHtml(h(TiePanel, { s: publicView(s, 0), viewer: 0, asked: 2 }));
     expect(theirs).toContain('P2 is deciding');
-    expect(theirs).toContain('P2, you and P1 all ask $6 for apples');
+    expect(theirs).toContain('P2, you and P1 all charge $6 for apples');
     expect(theirs).toContain('P2 holds Favoured Trade and is deciding whether to play it.');
     expect(theirs).not.toContain('Play it');
     expect(theirs).not.toContain('Without it');
@@ -1352,7 +1352,7 @@ describe('online (the room server)', () => {
     expect(hs.room.d.game!.phase).toBe('bid');
     // Favoured Trade can no longer ride along with the prices.
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'favour', idx: 0 } });
-    expect(a.errors.slice(-1)[0]).toContain('after prices flip');
+    expect(a.errors.slice(-1)[0]).toContain('after the prices flip');
     await a.say({ t: 'act', id: nid(), v: a.view!.version, action: { kind: 'prices', posts: [{ fruit: 'apple', price: 6 }] } });
     await b.say({ t: 'act', id: nid(), v: b.view!.version, action: { kind: 'prices', posts: [{ fruit: 'apple', price: 6 }] } });
     expect(hs.room.d.game!.phase).toBe('tie');

@@ -48,17 +48,17 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
     if (name === 'Ben') {
       // Computer shops take seats: 2 people + 1 computer = 3 of 4, one open seat.
       await settle();
-      await host.page.click('text=+1 AI');
+      await host.page.click('button:text-is("+1 computer")');
       await settle();
       l = await lobby();
-      expect(l.heading === 'Players 3 of 6' && l.open === 3, `3 of 6 with 3 open seats after +1 AI, got ${JSON.stringify(l)}`);
+      expect(l.heading === 'Players 3 of 6' && l.open === 3, `3 of 6 with 3 open seats after +1 computer, got ${JSON.stringify(l)}`);
       expect(await host.page.locator('text=Invite friends (up to 4)').count() === 1, '"Invite friends (up to 4)" with one computer shop');
-      await host.page.click('text=No AI');
+      await host.page.click('button:text-is("None")');
       await settle();
     }
   }
   await settle();
-  await host.page.click('text=+2 AI');
+  await host.page.click('button:text-is("+2 computer")');
   await settle();
   l = await lobby();
   expect(l.heading === 'Players 6 of 6' && l.open === 0 && l.full === 1, `6 of 6, no open seats, "Room full", got ${JSON.stringify(l)}`);
@@ -70,7 +70,7 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
   await fifth.page.waitForSelector('text=This room is full', { timeout: 10000 });
 
   for (const P of [host, ...others]) await P.page.click("text=I'm ready");
-  await host.page.click('text=Start the match');
+  await host.page.click('text=Start the game');
   await Promise.all([host, ...others].map((P) => P.page.waitForSelector('.market-stall', { timeout: 20000 })));
   const rivals = await host.page.locator('.rv-chip').count();
   expect(rivals === 5, `5 rivals in the game, got ${rivals}`);

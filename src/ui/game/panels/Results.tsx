@@ -55,7 +55,7 @@ export function finishWords(s: GameState, viewer: number): { win: boolean; share
     win, shared,
     // The plain form, no exclamation mark (PLAN-090): the page's own style sets the headline in capitals.
     headline: shared ? (win ? `You share the win with ${others.join(' and ')}` : `${sharers.join(' and ')} share the win`) : win ? 'You win' : `${champ.name} wins`,
-    margin: shared ? 'Level on cash and on fruit sold.' : gap === 0 ? 'Tied on cash. Decided by fruit sold.' : `By $${gap}.`,
+    margin: shared ? 'Level on cash and on fruit sold.' : gap === 0 ? 'Tied on cash, so fruit sold decided it.' : `By $${gap}.`,
     medals: place.map((k) => RANKS[k - 1]),
     mine: win ? (shared ? 'I shared the win' : 'I won') : `I came ${RANKS[place[viewer] - 1].toLowerCase()}`,
   };
@@ -231,7 +231,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
       <div class="sbk-in" style="flex: 1 0 auto">
         <div class={`sbk-win ${words.headline.length > 14 ? 'long' : ''}`}>
           <span class="sbk-pic"><StallPic avatar={shownAvatar(s.players, champSeat)} size={60} /></span>
-          <div><small>Market closed · day {s.config.days}</small><h2>{words.headline}</h2>{order.length > 1 && <span>{margin}</span>}</div>
+          <div><small>Market closed · Day {s.config.days}</small><h2>{words.headline}</h2>{order.length > 1 && <span>{margin}</span>}</div>
         </div>
 
         <div class="sbk-pods podium">
@@ -262,7 +262,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
 
         {close.length > 0 && (
           <div class={`sbk-sec ${landed ? '' : 'sbk-wait'}`}>
-            <span class="sbk-lab">Close</span>
+            <span class="sbk-lab">Nearly there</span>
             <div class="sbk-close">{close.map((c) => <span><b>{c.title}</b><span class="sbk-sub">{c.sub}</span></span>)}</div>
           </div>
         )}
@@ -274,7 +274,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           {(recap.best.length > 0 || recap.worst.length > 0) && (
             <div class="sbk-box recap">
               {recap.best.length > 0 && <><span class="sbk-lab">Your best moments</span>{recap.best.map((t) => <div class="sbk-rc">{t}</div>)}</>}
-              {recap.worst.length > 0 && <><span class="sbk-lab">What cost you</span>{recap.worst.map((t) => <div class="sbk-rc">{t}</div>)}</>}
+              {recap.worst.length > 0 && <><span class="sbk-lab">Where you lost out</span>{recap.worst.map((t) => <div class="sbk-rc">{t}</div>)}</>}
             </div>
           )}
         </div>

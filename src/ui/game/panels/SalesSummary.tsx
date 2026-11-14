@@ -235,10 +235,10 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
             </div>
           ))}
         </div>
-        {net !== null && <div class="tg-net">{net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Even today'} <b class={net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}>{money(net)}</b></div>}
+        {net !== null && <div class="tg-net">{net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Broke even'} <b class={net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}>{money(net)}</b></div>}
       </div>
       <div class="tg-stalls">
-        <div class="tg-lab"><b class="tk-label">The stalls after day {s.day}</b><span>Cash</span></div>
+        <div class="tg-lab"><b class="tk-label">The stalls after Day {s.day}</b><span>Cash</span></div>
         <ol class="tg-list">
           {stalls.map((x) => (
             <li class={`tg-stall ${x.me ? 'me' : ''}`}>
@@ -256,7 +256,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
         <div class="tg-won">
           <b class="tg-tag">Favour won</b>
           <CardArt src={favourArt(x.favour)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus(x.favour)} />
-          <span>{FAVOURS[x.favour].title}. You alone filled {lookOf(x.customer).title}'s whole order.</span>
+          <span>{FAVOURS[x.favour].title}. You served {lookOf(x.customer).title}'s whole order alone.</span>
         </div>
       ))}
       {(chips.length > 0 || tonight) && (

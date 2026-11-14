@@ -57,7 +57,7 @@ export function shadeOf(s: GameState, p: number): FruitId | null {
 /** Does a night follow today? Not after the final day. */
 export const nightFollows = (s: GameState): boolean => s.phase !== 'over' && s.day < s.config.days;
 
-const WORD: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
+const WORD: Record<Stage, string> = { unripe: 'green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
 
 /** How a chip is tinted: plain, good news (ripe tomorrow, juice), a warning (spoils tonight). */
 export type ChipTone = 'plain' | 'good' | 'warn';
@@ -65,7 +65,7 @@ export type ChipTone = 'plain' | 'good' | 'warn';
 /** Pieces of one fruit on a shelf that share a box letter and a fate tonight. */
 export interface ShelfChip {
   f: FruitId; stage: Stage; n: number;
-  /** The words on the chip: "okay tomorrow", "ripe tomorrow", "spoils tonight", "stays fresh". */
+  /** The words on the chip: "Okay tomorrow", "ripe tomorrow", "spoils tonight", "stays Fresh". */
   words: string;
   /** The box letter the pieces carry tomorrow (null: they are gone, or no night follows). */
   next: Stage | null;

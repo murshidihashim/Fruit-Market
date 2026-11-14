@@ -212,7 +212,7 @@ export function closeLines(s: Snapshot, names: (key: string) => string, missing:
   const other = all.find((g) => !g.card.avatar && g.goal > 1 && g.value > 0);
   if (other) {
     lines.push(other.card.id === 'customers' && missing.length > 0 && missing.length <= 3
-      ? { title: `Customer book ${other.value} of ${other.goal}`, sub: `Not met: ${missing.map(names).join(', ')}` }
+      ? { title: `Customers served: ${other.value} of ${other.goal}`, sub: `Still to meet: ${missing.map(names).join(', ')}` }
       : { title: `${other.card.title} · ${progressWords(other)}`, sub: more(other) });
   }
   const keepers = all.filter((g) => g.card.avatar);

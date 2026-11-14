@@ -329,7 +329,7 @@ function TableView({ s, viewer, shared, lay, size, area, measured, leaving, el, 
           <>
             <button type="button" class="rt-skip" onClick={skip}>Skip to the end</button>
             {/* After the last customer comes the day's takings: the button carries that card's own title. */}
-            <button type="button" class="rt-next" onClick={next}>{a.n < a.of ? 'Next customer' : rem === 0 ? 'Market closed' : `End of day ${s.day}`}</button>
+            <button type="button" class="rt-next" onClick={next}>{a.n < a.of ? 'Next customer' : rem === 0 ? 'Market closed' : `End of Day ${s.day}`}</button>
           </>
         ) : foot ?? (pre?.hint ? <div key={pre.hint.text} class={`hint-bar rt-hint ${pre.hint.dots ? 'waiting-dots' : ''}`}>{pre.hint.text}</div> : <i class="rt-room" aria-hidden="true" />)}
       </div>

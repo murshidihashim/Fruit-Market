@@ -62,8 +62,8 @@ async function newRoom(env: Env, quick = false): Promise<string | null> {
 
 async function readBody(req: Request): Promise<unknown> {
   const text = await req.text();
-  if (text.length > MAX_BODY) throw new RuleError('Too large');
-  try { return JSON.parse(text); } catch { throw new RuleError('Bad JSON'); }
+  if (text.length > MAX_BODY) throw new RuleError('Something went wrong. Try again.');
+  try { return JSON.parse(text); } catch { throw new RuleError('Something went wrong. Try again.'); }
 }
 
 export default {

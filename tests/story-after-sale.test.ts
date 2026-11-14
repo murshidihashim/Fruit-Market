@@ -130,7 +130,7 @@ describe('why a stall could not sell (no-sale reason)', () => {
     const s = bell(start, 'apple', [0, 2, 0], [0, 3, 0]);
     const st = explainLine(s, line(s), 0);
     expect(st.tags).toEqual(['Fresh only']);
-    expect(st.headline).toBe(`Nothing ${lookOf('Ravi').title} would buy.`);
+    expect(st.headline).toBe(`${lookOf('Ravi').title} found nothing to buy.`);
     expect(noSaleReason(s, line(s), offerOf(line(s), 1), 0).headline).toContain("Rosa's were not Fresh");
   });
 });

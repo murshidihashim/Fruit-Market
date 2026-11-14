@@ -37,7 +37,7 @@ export function TieCard({ s, viewer, asked, mine }: { s: GameState; viewer: numb
         <b class="ds-tie-ttl">{t.title}</b>
         {t.without && <div class="ds-tie-line"><b class="ds-lab">Without it</b><span>{t.without}</span></div>}
         {t.with && <div class="ds-tie-line with"><b class="ds-lab">With it</b><span>{t.with}</span></div>}
-        <p class="ds-tie-foot">{mine ? 'The card is discarded once you play it. Rivals can see that you are deciding.' : `${pl.name} is deciding…`}</p>
+        <p class="ds-tie-foot">{mine ? 'Once played, the card is gone. Rivals can see you\'re deciding.' : `${pl.name} is deciding…`}</p>
       </div>
     </section>
   );

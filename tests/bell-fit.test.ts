@@ -193,14 +193,14 @@ describe('the question says when the card would change nothing', () => {
       const [keep, play] = [rush(s, false), rush(s, true)].map((g) => g.results!.income[asked]);
       if (keep === play) {
         same++;
-        expect(story.why).toContain('Favoured Trade would not change what you take today.');
-        expect(story.why).not.toContain('Play Favoured Trade and you sell first');
+        expect(story.why).toContain('Favoured Trade wouldn\'t change what you make today.');
+        expect(story.why).not.toContain('Play Favoured Trade to sell first');
       } else {
         expect(play).toBeGreaterThan(keep);
-        expect(story.why).toContain('Play Favoured Trade and you sell first, on every tied price today.');
+        expect(story.why).toContain('Play Favoured Trade to sell first on every tied price today.');
       }
-      expect(story.without).toContain(`You take $${keep} today.`);
-      expect(story.with).toContain(`You take $${play} today.`);
+      expect(story.without).toContain(`You make $${keep} today.`);
+      expect(story.with).toContain(`You make $${play} today.`);
     }
     expect(same).toBeGreaterThan(0);
   });
