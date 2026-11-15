@@ -420,7 +420,7 @@ function guideHtml(): string {
 
 <h2>Event cards (${EVENT_CARDS.length})</h2>
 <table><tr><th>Event</th><th>What it does today</th></tr>${evRows}</table>
-<p class="tiny">"Customers pay $1 more" raises every customer's top price. A Heatwave night slides every piece two boxes. After a Monsoon Downpour nothing slides at all. The Health Inspector charges for the Soft pieces on your sheet before anyone buys: count them yourself, behind your shutter, and pay.</p>
+<p class="tiny">On the card, a price has a small badge beside it: a lorry for a price at the Wholesale Market, a customer's face for what customers pay. A card that brings a guest only names it; the guest's own card says what it wants. "Customers pay $1 more" raises every customer's top price. A Heatwave night slides every piece two boxes. After a Monsoon Downpour nothing slides at all. The Health Inspector charges for the Soft pieces on your sheet before anyone buys: count them yourself, behind your shutter, and pay.</p>
 
 <h2>Favour cards</h2>
 <p>You earn a favour card by serving a customer's whole remaining order by yourself. Keep favour cards face down in front of you, so everyone can count them. Hold up to ${FAVOUR_HAND_LIMIT} (the Charmer ${FAVOUR_HAND_LIMIT + 1}). A played card goes to a discard pile; shuffle the pile into a new deck when the deck runs out.</p>

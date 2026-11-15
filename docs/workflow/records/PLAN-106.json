@@ -15,20 +15,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes; print kit tests pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 80f7d46: 942 tests passed, 1 skipped; card tests pin the badge per event from the data, one-line titles, the guest sentences, same-size boxes; print kit rebuilt and its checker passed every card."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper's npm run test:e2e on 5b4904a (after the owner's review): PASS, speed test OK, 0 leaks, quick match, four players, reconnect."
     },
     {
       "id": "T3",
       "text": "Before/after sheets of every deck and the app at 390x844 and 360x640 seen",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Before/after sheets of every deck and of the app mornings at 390x844 and 360x640 with 6 stalls, seen by me; no overflow; the morning's squeeze steps unchanged in all 12 cases. After the review: events and the app mornings (six events, 390x844 and 360x640) and the Player Aid seen; no overflow."
     },
     {
       "id": "T4",
@@ -42,16 +42,28 @@
     "evidence": "Owner, 2026-11-15: his list of print kit changes, then \"both, colours ok, tags ok, remove all deck of\".",
     "date": "2026-11-15"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
-  "reports": [],
+  "delivery": "implemented",
+  "release": "1.24.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 80f7d46",
+  "reports": [
+    "REP-121"
+  ],
   "decisions": [],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Small square badges on event money figures: a lorry for a Wholesale Market price, a customer face for what customers pay; also on the morning's event chips; a key on the Player Aid and a sentence in the guidebook"
+    ],
+    "changed": [
+      "Customer and guest cards: one picture size; top and bottom bars in the type colour (Premium #4b2a85 with a gold edge, Everyday #0b5c59, Bargain #f39233)",
+      "Event cards: one-line titles and one picture size (97 units); effect boxes side by side, all one size; events that bring a guest only say who joins the row",
+      "Shopkeeper footer \"Fruit Market\", centred"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "\"Deck of N\" (and \"5 kinds\") on every card back"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "A fresh card look: customer types in colour, and event cards show a lorry or a customer face beside each price change"
+  ]
 }

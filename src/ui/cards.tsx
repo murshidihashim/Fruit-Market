@@ -1,6 +1,7 @@
 // The card system (PLAN-083, the rules 18 card set): one set of cards for the app and the print kit, drawn to the
 // designs the owner approved (docs/studio/review-18/mockups).
-//   TradingCard       a customer or a special guest: black heading, picture, fruit rows with a price tag, one legend row
+//   TradingCard       a customer or a special guest: a heading bar in the customer type's colour, a picture of one
+//                     size, the fruit rows with a price tag, one legend bar
 //   TradingCardBack   a face-down customer: four fixed fruit squares, filled for the fruit wanted, nothing else
 //   Gazette           an event            \
 //   LorryCard         a lorry              |  design A, "Ticket": a small spaced label and number, a thick rule, a big
@@ -15,8 +16,8 @@
 import type { ComponentChildren, FunctionComponent } from 'preact';
 import { isValidElement } from 'preact';
 import {
-  BARROW_BUY, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, JUICE_TIP,
-  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_CARDS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty,
+  BARROW_BUY, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, JUICE_TIP,
+  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty,
   prefOf,
   type EventCard, type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef, type Pref, type Stalls,
   type UpgradeId,
@@ -27,7 +28,7 @@ import {
   customerArt, customerFocus, eventArt, eventFocus, favourArt, favourFocus, focusCss, guestArt, guestFocus, shopFocus, shopScene, tileArt,
   upgradeArt, upgradeFocus, type DeckId, type Focus,
 } from './deckArt';
-import { cardChips, type NewsChip } from './eventChips';
+import { cardChips, type Pay } from './eventChips';
 import { FruitSvg } from './fruitIcons';
 
 /** Pixel sizes of the picture files in public/art-ticket (for width and height, so nothing jumps while loading). */
@@ -72,6 +73,8 @@ export function customerNumber(key: string): number | undefined {
 /** The width of a card's title line, in card units: design A has 13 units of padding, the customer card 9. */
 const TITLE_BOX = 252 - 6 - 26;
 const NAME_BOX = 252 - 6 - 18;
+/** The smallest size fitTitle tries on one line; every event title fits on one line well above it. */
+export const ONE_LINE_MIN = 8;
 /** A title's size as a style (cards.css reads --ts). */
 const titleSize = (text: string, box: number, big: number, small: number) => ({ '--ts': fitTitle(text, box, big, small).size });
 
@@ -105,6 +108,9 @@ export function PrefLegend({ pref, class: cls }: { pref: Pref; class?: string })
   );
 }
 
+/** The class that colours a customer card's top and bottom bars by the customer's type (cards.css .pref-*). */
+export const prefClass = (p: Pref) => `pref-${p}`;
+
 /**
  * A customer's card. `who` is the hidden code key; the name shown is lookOf(who).title. `wants` are the rows to print,
  * with the prices to show (pass the day's prices if the screen shows those); they are drawn in the board's lane order.
@@ -118,7 +124,7 @@ export function TradingCard({ who, wants, n, guest, eager, class: cls }: {
   const num = guest ? undefined : n ?? customerNumber(who);
   const [w, h] = ART_SIZE[guest ? 'event' : 'customer'];
   return (
-    <article class={cx('cd', 'cd-m', 'cd-cust', guest && 'cd-guest', cls)}>
+    <article class={cx('cd', 'cd-m', 'cd-cust', prefClass(pref), guest && 'cd-guest', cls)}>
       <header class="cd-kind">
         <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : 'Guest'}</span>
         <span>{PREF_INFO[pref].title}</span>
@@ -166,28 +172,86 @@ export function TradingCardBack({ fruits, class: cls }: { fruits: FruitId[]; cla
 
 // ---------- design A, "Ticket" ----------
 
-/** The coloured number blocks under a card's picture. A block about one fruit is in that fruit's lane colour. */
-function Blocks({ chips }: { chips: NewsChip[] }) {
+/** Whose price a money figure on an event is, in words (a badge's label for a screen reader, the player aid's key). */
+export const PAY_WORD: Record<Pay, string> = { market: 'A price at the Wholesale Market', customer: 'What customers pay' };
+
+/** A lorry and a customer's face, drawn small for the badges (one colour: the badge's ink, with cut-outs in the
+ *  badge's colour). */
+function PayIcon({ pay }: { pay: Pay }) {
+  return pay === 'market'
+    ? (
+      <svg class="cd-pb-i" viewBox="0 0 24 16" aria-hidden="true">
+        <path d="M0 1h14v10H0z" /><path d="M15 4h4.5l4.5 4.5V13H15z" /><path class="w" d="M16.5 5.5h2.4l2.6 2.6h-5z" />
+        <circle cx="5" cy="13" r="3" /><circle cx="19" cy="13" r="3" /><circle class="w" cx="5" cy="13" r="1.2" /><circle class="w" cx="19" cy="13" r="1.2" />
+      </svg>
+    )
+    : (
+      <svg class="cd-pb-i" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="8" r="7.5" />
+        <circle class="w" cx="5.4" cy="6.3" r="1.3" /><circle class="w" cx="10.6" cy="6.3" r="1.3" />
+        <path class="w" d="M4.2 9.6Q8 14 11.8 9.6Q8 11.6 4.2 9.6z" />
+      </svg>
+    );
+}
+
+/** The badge on the left of an event's money figure (PLAN-106, the owner's second look): a small square with a lorry
+ *  (grey) for a price at the Wholesale Market, or a customer's face (the Everyday teal) for what customers pay. */
+export function PayBadge({ pay }: { pay: Pay }) {
+  return <span class={`cd-pb cd-pb-${pay}`} role="img" aria-label={PAY_WORD[pay]}><PayIcon pay={pay} /></span>;
+}
+
+/**
+ * The boxes under an event's picture, side by side (cardChips): one box for each thing the event changes, every box the
+ * same size on every event card (half the row; a card with one box has one half-width box). A box about one fruit is in
+ * that fruit's lane colour; a price has its badge on its left. Price Controls has a row of four boxes of the same height,
+ * one for each fruit's limit, its badge beside the fruit.
+ */
+function Boxes({ event }: { event: EventCard }) {
+  const chips = cardChips(event);
   if (!chips.length) return null;
+  if (event.maxPrice) {
+    return (
+      <div class="cd-two cd-lims">
+        {chips.map((c) => (
+          <div class={cx('cd-blk', 'cd-blk-f', c.fruit && laneClass(c.fruit))} role="img" aria-label={`${c.fruit ? FRUIT[c.fruit].name : ''}: ${c.small} ${c.big}`}>
+            <span class="cd-fig">{c.fruit && <span class="cd-ic"><FruitSvg id={c.fruit} size={17} alt="" /></span>}{c.pay && <PayBadge pay={c.pay} />}</span>
+            <b>{`≤${c.big}`}</b>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
-    <div class={`cd-two cd-n${chips.length}`}>
+    <div class="cd-two cd-fx">
       {chips.map((c) => (
         <div class={cx('cd-blk', c.fruit ? `cd-blk-f ${laneClass(c.fruit)}` : 'cd-blk-k')}>
           {c.fruit && <span class="cd-ic"><FruitSvg id={c.fruit} size={17} alt={FRUIT[c.fruit].name} /></span>}
-          <span class="cd-blk-t"><b>{c.big}</b><small>{c.small}</small></span>
+          <span class="cd-blk-t"><span class="cd-fig">{c.pay && <PayBadge pay={c.pay} />}<b>{c.big}</b></span><small>{c.small}</small></span>
         </div>
       ))}
     </div>
   );
 }
 
-/** A design A card's label line, rule and title. `right`: the number or the short note beside the label. */
-function Head({ label, right, title, big = 31, small = 25 }: { label: string; right?: ComponentChildren; title: string; big?: number; small?: number }) {
+/**
+ * An event's words on its card and the morning's (the owner, PLAN-106): an event that brings a guest says only that the
+ * guest joins the row, by the guest's name; the guest's own card says what it wants and pays. Every other sentence is
+ * the event's own (data.ts), which the guidebook prints in full. A text without a "Guest:" sentence is left as it is.
+ */
+export function eventCardText(e: { text: string; extra?: { name: string } }): string {
+  const at = e.text.indexOf('Guest:');
+  if (!e.extra || at < 0) return e.text;
+  return [e.text.slice(0, at).trim(), `${lookOf(e.extra.name).title} joins the row.`].filter(Boolean).join(' ');
+}
+
+/** A design A card's label line, rule and title. `right`: the number or the short note beside the label. `oneLine`: the
+ *  title is on one line, as large as fits up to `big` (an event card). */
+function Head({ label, right, title, big = 31, small = 25, oneLine }: { label: string; right?: ComponentChildren; title: string; big?: number; small?: number; oneLine?: boolean }) {
   return (
     <>
       <div class="cd-top"><span>{label}</span>{right}</div>
       <i class="cd-rule" />
-      <strong class="cd-ttl" style={titleSize(title, TITLE_BOX, big, small)}>{title}</strong>
+      <strong class="cd-ttl" style={titleSize(title, TITLE_BOX, big, oneLine ? ONE_LINE_MIN : small)}>{title}</strong>
     </>
   );
 }
@@ -202,15 +266,16 @@ function Pic({ src, alt, size, focus, eager, tall }: { src: string | null; alt: 
   );
 }
 
-/** An event card. `n` is its number (default: its place in the event deck, 1 to 20). The text is the event text from data.ts. */
+/** An event card. `n` is its number (default: its place in the event deck, 1 to 20). The title is on one line and the
+ *  picture is one size on every event card (PLAN-106). The text is the event text from data.ts (eventCardText). */
 export function Gazette({ event, n, eager, class: cls }: { event: EventCard; n?: number; eager?: boolean; class?: string }) {
   const num = n ?? EVENT_CARDS.findIndex((e) => e.id === event.id) + 1;
   return (
     <article class={cx('cd', 'cd-a', 'cd-event', cls)}>
-      <Head label="Event" right={num > 0 && <b>{`No ${two(num)}`}</b>} title={event.title} />
+      <Head label="Event" right={num > 0 && <b>{`No ${two(num)}`}</b>} title={event.title} oneLine />
       <Pic src={eventArt(event.id)} alt={event.title} size={ART_SIZE.event} focus={eventFocus(event.id)} eager={eager} tall />
-      <Blocks chips={cardChips(event)} />
-      <p class="cd-txt">{event.text}</p>
+      <Boxes event={event} />
+      <p class="cd-txt">{eventCardText(event)}</p>
       <footer class="cd-ft"><span>Lasts until night</span></footer>
     </article>
   );
@@ -274,7 +339,7 @@ export function StallSign({ avatar, pattern, selected, takenBy, eager, class: cl
       <Pic src={shopScene(avatar)} alt={name} size={ART_SIZE.scene} focus={shopFocus(avatar)} eager={eager} tall />
       {trait && <div class="cd-two"><div class="cd-blk cd-blk-y"><small>Perk</small><b>{trait.title}</b></div></div>}
       {trait && <p class="cd-txt">{trait.text}</p>}
-      <footer class="cd-ft"><span>Your perk all game</span></footer>
+      <footer class="cd-ft cd-ft-c"><span>Fruit Market</span></footer>
       {takenBy && <span class="cd-taken">{`Taken by ${takenBy}`}</span>}
     </article>
   );
@@ -364,18 +429,19 @@ export function OrderCard({ card, qty, due, bid, stake, class: cls }: {
 
 // ---------- pattern backs (DEC-096) ----------
 
-/** Each deck's name on its back, the size its name is set at, and how many cards it holds. */
-const DECKS: Record<DeckId, { name: string; size: number; count: string }> = {
-  lorry: { name: 'Lorry', size: 34, count: `Deck of ${FARMER_CARDS.length}` },
-  event: { name: 'Event', size: 34, count: `Deck of ${EVENT_CARDS.length}` },
-  favour: { name: 'Favour', size: 34, count: `Deck of ${FAVOUR_DECK.length}` },
-  upgrade: { name: 'Upgrade', size: 32, count: `${Object.keys(UPGRADES).length} kinds` },
-  shopkeeper: { name: 'Shopkeeper', size: 25, count: `Deck of ${RIVALS.length}` },
-  order: { name: 'Standing order', size: 27, count: `Deck of ${ORDER_CARDS.length}` },
+/** Each deck's name on its back, and the size its name is set at. A back does not say how many cards the deck holds
+ *  (the owner, PLAN-106). */
+const DECKS: Record<DeckId, { name: string; size: number }> = {
+  lorry: { name: 'Lorry', size: 34 },
+  event: { name: 'Event', size: 34 },
+  favour: { name: 'Favour', size: 34 },
+  upgrade: { name: 'Upgrade', size: 32 },
+  shopkeeper: { name: 'Shopkeeper', size: 25 },
+  order: { name: 'Standing order', size: 27 },
 };
 
-/** A deck's back: its tile repeated in a darker tone of the deck's colour, with a paper band for the name, a rule and
- *  the deck's size. `wide`: the band on a card that is wider than it is tall (the morning's news, face down). */
+/** A deck's back: its tile repeated in a darker tone of the deck's colour, with a paper band for the game's name, a
+ *  rule and the deck's name. `wide`: the band on a card that is wider than it is tall (the morning's news, face down). */
 export function DeckBack({ deck, wide, class: cls }: { deck: DeckId; wide?: boolean; class?: string }) {
   const d = DECKS[deck];
   return (
@@ -385,7 +451,6 @@ export function DeckBack({ deck, wide, class: cls }: { deck: DeckId; wide?: bool
         <span class="cd-sm">Fruit Market</span>
         <i class="cd-rl" />
         <span class="cd-wd" style={{ '--ts': d.size }}>{d.name}</span>
-        <span class="cd-ds">{d.count}</span>
       </div>
     </article>
   );

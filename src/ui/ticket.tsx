@@ -5,7 +5,7 @@ import { FRUIT, PREF_INFO, lookOf, prefOf, type FruitId, type Stage } from '../e
 import { partsOf, type LookSet } from '../net/looks';
 import { Face, Fruit } from './art';
 import { LANES } from './boardModel';
-import { OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass } from './cards';
+import { OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass, prefClass } from './cards';
 import { GUEST_EVENT, customerArt, customerFocus, focusCss, guestArt, guestFocus } from './deckArt';
 
 /** The letters printed on the board's boxes. */
@@ -51,7 +51,8 @@ export function dotsNeed(lines: { qty: number; max: number; done?: boolean }[]):
 }
 
 /**
- * A customer as a ticket in the row (the approved phone screens): the number and name on a black heading, the picture,
+ * A customer as a ticket in the row (the approved phone screens): the number and name on a heading in the customer
+ * type's colour (black for a standing order), the picture,
  * one row per fruit in the board's lane order (a dot for each piece, and the most they pay for a fresh piece today),
  * and the legend: which freshness they buy. `order`: a standing order collected today, which stands in the row like a
  * customer; it takes Fresh or Okay pieces at its own price, so its legend is not a price key.
@@ -65,7 +66,7 @@ export function Ticket({ who, lines, class: cls, order }: { who: string; lines: 
   const rows = byLane(lines);
   const need = dotsNeed(rows);
   return (
-    <article class={cx('tkc', 'tk-cust', guest && 'guest', cls)} style={{ '--nr': need.roomy, '--nt': need.tight }}>
+    <article class={cx('tkc', 'tk-cust', !order && prefClass(pref), guest && 'guest', cls)} style={{ '--nr': need.roomy, '--nt': need.tight }}>
       <header class="tkc-hd">{num !== undefined && <b>{`${two(num)} `}</b>}{look.title}</header>
       <div class="tkc-pc">
         {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: focusCss(guest ? guestFocus(who) : customerFocus(who)) }} />}

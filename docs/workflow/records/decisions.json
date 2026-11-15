@@ -2927,6 +2927,30 @@
         "REP-120"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-119",
+      "title": "Publish 1.24.0",
+      "question": "Since 1.23.0 the branch holds the shopkeeper choice after everyone joins (PLAN-102), the first-time How to play on Day 1 online (PLAN-103), the turn order with seat numbers and the FIRST token (PLAN-104), the iPhone price-tag fix (PLAN-105), the new card look (PLAN-106) and the print pack at rules 19 (PLAN-100). Rules version stays 19; protocol 4. Is it published?",
+      "choice": "Published as 1.24.0 by the release path: pull request to main, CI verify:full, the preview updated, then the Deploy LIVE game workflow with its checks, live smoke test and tag v1.24.0. If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's word after the preview and the card sheets.",
+      "impact": {
+        "player": "Rooms: shopkeepers chosen after everyone joins; first-timers get a one-screen How to play online; clearer turn order; iPhone price tags fixed; new card look. Phones on 1.23.0 are asked to update before joining a room.",
+        "technical": "package.json 1.24.0; releases.json; merge to main; deploy-web.yml; tag v1.24.0.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16: \"okay now regenerate the print kit, then publish 1.24.0\".",
+        "date": "2026-11-16"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-121"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -4161,6 +4185,26 @@
     {
       "at": "2026-11-15 22:34",
       "text": "PLAN-104 changed at the owner's answers (\"Dont need the reason-line wording\"; the bar waits for the token: \"Yes\"): merged as c9071a0, verify PASS, the helper's e2e PASS. To go to the preview next."
+    },
+    {
+      "at": "2026-11-15 23:21",
+      "text": "On the preview: pull request #17 (PLAN-104 turn order, PLAN-105 iPhone price-tag fix; main c587898) and #18 (PLAN-104 follow-up: no reason line, the buying bar waits for the token; main 0af559f), both with CI PASS on the pull request and on main; the preview serves the new code (no reason line). The live game stays 1.23.0."
+    },
+    {
+      "at": "2026-11-15 23:26",
+      "text": "PLAN-106 merged as e3482dd (verify PASS 940 tests; print kit rebuilt). For the owner: event pictures are now 78 units on every card (most were 124), set by Blueberry Glut's two-line title and longest text; letting event titles shrink onto one line would allow about 95. Sheets sent."
+    },
+    {
+      "at": "2026-11-16 04:37",
+      "text": "PLAN-106 owner review: \"the rest is okay\"; for event cards: option A (titles may shrink to one line so pictures grow back), events that bring a guest only say the guest joins the row (no order or price), effect boxes side by side again (same size), and the wide MARKET/CUSTOMER word tags replaced by small icon-only badges (lorry for a Wholesale Market price, customer face for what customers pay) with a key on the Player Aid. Back with the helper."
+    },
+    {
+      "at": "2026-11-16 05:07",
+      "text": "PLAN-106 event cards reworked at the owner's review and merged as 80f7d46: one-line titles, pictures 97 units on every event, boxes side by side and one size, guest events name only the guest, icon badges (lorry / customer face) instead of the word tags, key on the Player Aid. verify PASS (942); the helper's e2e PASS. Sheets sent to the owner."
+    },
+    {
+      "at": "2026-11-16 07:04",
+      "text": "DEC-119: the owner said \"okay now regenerate the print kit, then publish 1.24.0\". Print kit, update pack and tracker tests regenerated (print-kit test PASS). Release 1.24.0 prepared: PLAN-100, PLAN-102 to PLAN-106; version 1.24.0, release entry with player notes, REP-121."
     }
   ]
 }

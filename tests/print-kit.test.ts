@@ -8,7 +8,9 @@ import {
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
 import { LANES } from '../src/ui/boardModel';
-import { DeckBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UpgradeCard, toStaticHtml } from '../src/ui/cards';
+import {
+  DeckBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UpgradeCard, eventCardText, toStaticHtml,
+} from '../src/ui/cards';
 import { tileArt, type DeckId } from '../src/ui/deckArt';
 import {
   GUESTS, PER_SHEET, UPGRADE_COPIES, artFile, backArt, deckProblems, doc, factoryPages, handFixes, kitCss, mirrored, printDecks, replacedDecks, sheets,
@@ -78,7 +80,7 @@ describe('print kit: the decks are the game\'s (PLAN-087)', () => {
     EVENT_CARDS.forEach((e, i) => {
       const card = deck('events').cards[i];
       expect(card.front).toBe(toStaticHtml(h(Gazette, { event: e, eager: true })));
-      expect(shows(card.front, e.title) && shows(card.front, e.text), e.id).toBe(true);
+      expect(shows(card.front, e.title) && shows(card.front, eventCardText(e)), e.id).toBe(true);
     });
     FARMER_CARDS.forEach((c, i) => {
       const card = deck('lorries').cards[i];
@@ -180,10 +182,8 @@ describe('print kit: pictures and backs', () => {
       expect(tiles.length).toBe(20);
       expect(new Set(tiles)).toEqual(new Set([tileArt(kind)]));
     }
-    // The deck size on each back is the data's.
-    expect(deck('favours').cards[0].back).toContain(`Deck of ${FAVOUR_DECK.length}`);
-    expect(deck('lorries').cards[0].back).toContain(`Deck of ${FARMER_CARDS.length}`);
-    expect(deck('orders').cards[0].back).toContain(`Deck of ${ORDER_CARDS.length}`);
+    // No back says how many cards its deck holds (the owner, PLAN-106).
+    for (const d of DECKS) for (const c of d.cards) expect(c.back, c.label).not.toMatch(/Deck of|kinds</);
   });
 });
 

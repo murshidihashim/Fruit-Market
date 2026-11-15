@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { h, type FunctionComponent } from 'preact';
 import {
-  CHARACTER_TRAIT, CUSTOMER_CARDS, CUSTOMER_LOOKS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, ORDER_CARDS,
+  CHARACTER_TRAIT, CUSTOMER_CARDS, CUSTOMER_LOOKS, EVENT_CARDS, FARMER_CARDS, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, ORDER_CARDS,
   PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty, prefOf,
   type FavourId, type FruitId, type Stage, type Stalls, type UpgradeId,
 } from '../src/engine/data';
 import { Logo } from '../src/ui/art';
 import { LANES } from '../src/ui/boardModel';
 import {
-  CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UPGRADE_FIGURE, UpgradeCard,
-  customerNumber, toStaticHtml,
+  CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, ONE_LINE_MIN, OrderCard, PAY_WORD, StallSign, TradingCard, TradingCardBack,
+  UPGRADE_FIGURE, UpgradeCard, customerNumber, eventCardText, prefClass, toStaticHtml,
 } from '../src/ui/cards';
 import { capsWidth, fitTitle, titleLines } from '../src/ui/cardType';
 import {
@@ -179,6 +179,38 @@ describe('customer cards (the Main board)', () => {
     expect(everyday).toContain('Everyday: Buys Fresh or Okay fruit.');
   });
 
+  it('the top and bottom bars take the customer type\'s colour (PLAN-106): the card, the rush\'s card and the row\'s ticket, a guest too; never a face-down card or a standing order', () => {
+    const PREFS = ['premium', 'everyday', 'bargain'] as const;
+    const classes = (s: string) => s.match(/^<article class="([^"]*)"/)![1].split(' ');
+    for (const c of [...CUSTOMER_CARDS, ...GUESTS]) {
+      const p = prefOf(c.name);
+      const guest = GUESTS.includes(c);
+      const card = html(TradingCard, { who: c.name, wants: c.wants, guest });
+      expect(classes(card), c.name).toContain(prefClass(p));
+      for (const q of PREFS) if (q !== p) expect(card).not.toContain(prefClass(q));
+      expect(classes(html(CustomerWide, { who: c.name, lines: c.wants })), c.name).toContain(prefClass(p));
+      expect(classes(html(Ticket, { who: c.name, lines: c.wants })), c.name).toContain(prefClass(p));
+    }
+    // Every type is on the cards, and each has its own class.
+    expect(new Set(CUSTOMER_CARDS.map((c) => prefOf(c.name)))).toEqual(new Set(PREFS));
+    expect(new Set(PREFS.map(prefClass)).size).toBe(3);
+    // A face-down card gives nothing away, its colour included; a standing order in the row keeps the black bars.
+    const fruits: FruitId[] = ['apple', 'mango'];
+    for (const s of [html(TradingCardBack, { fruits }), html(TicketBack, { fruits, label: 'Walk-in' })]) expect(s).not.toMatch(/pref-/);
+    const o = ORDER_CARDS[0];
+    expect(html(CustomerWide, { who: o.name, order: true, lines: [{ fruit: o.fruit, qty: 4, max: 9 }] })).not.toMatch(/pref-/);
+    expect(html(Ticket, { who: o.name, order: true, lines: [{ fruit: o.fruit, qty: 4, max: 9 }] })).not.toMatch(/pref-/);
+  });
+
+  it('every customer and guest card has the same picture box, whatever the number of fruits it wants (PLAN-106)', () => {
+    const css = readFileSync('src/ui/cards.css', 'utf8');
+    const rule = css.match(/\n\.cd-mpic \{([^}]*)\}/)![1];
+    expect(rule).toMatch(/flex: none; height: calc\(var\(--u\) \* \d+\)/);
+    expect(rule).not.toMatch(/flex: 1|min-height/);
+    // nothing else sizes it
+    expect(css.match(/\.cd-mpic[^{]*\{/g)).toEqual(['.cd-mpic {']);
+  });
+
   it('a special guest is marked as one, has no number and uses its event\'s picture', () => {
     for (const g of GUESTS) {
       const s = html(TradingCard, { who: g.name, wants: g.wants, guest: true });
@@ -227,6 +259,9 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain(esc(t.text));
       expect(s).toContain(`src="${shopScene(r.avatar)}"`);
       expect(s).toContain(`alt="${r.name}"`);
+      // The footer is the game's name, centred (the owner, PLAN-106; it said "Your perk all game").
+      expect(s).toContain('<footer class="cd-ft cd-ft-c"><span>Fruit Market</span></footer>');
+      expect(s).not.toMatch(/your perk/i);
     });
   });
 
@@ -247,12 +282,94 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain('<span>Event</span>');
       expect(s).toContain(`<b>No ${two(i + 1)}</b>`);
       expect(s).toContain(`>${e.title}</strong>`);
-      expect(s).toContain(`<p class="cd-txt">${esc(e.text)}</p>`);
+      expect(s).toContain(`<p class="cd-txt">${esc(eventCardText(e))}</p>`);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
+      // One box for each thing the event changes, side by side (Price Controls: a box for each fruit's limit).
       const chips = cardChips(e);
       expect(chips.length, e.id).toBeGreaterThan(0);
       expect(s.match(/class="cd-blk /g), e.id).toHaveLength(chips.length);
-      for (const c of chips) expect(s).toContain(`<b>${c.big}</b><small>${c.small}</small>`);
+      expect(s).toContain(e.maxPrice ? '<div class="cd-two cd-lims">' : '<div class="cd-two cd-fx">');
+      if (!e.maxPrice) {
+        expect(chips.length, e.id).toBeLessThanOrEqual(2); // two boxes share a row
+        for (const c of chips) expect(s).toContain(`<b>${c.big}</b></span><small>${c.small}</small>`);
+      }
+    });
+    // The event's picture and its boxes are one size on every card (cards.css): a box is half the row, also alone.
+    const css = readFileSync('src/ui/cards.css', 'utf8');
+    expect(css).toMatch(/\n\.cd-event \.cd-pic \{ flex: none; height: calc\(var\(--u\) \* \d+\); min-height: 0; \}/);
+    expect(css).toMatch(/\n\.cd-fx \.cd-blk \{ flex: 0 0 calc\(\(100% - var\(--u\) \* 5\) \/ 2\); height: calc\(var\(--u\) \* (\d+)\);/);
+    const box = css.match(/\n\.cd-fx \.cd-blk \{[^}]*height: calc\(var\(--u\) \* (\d+)\)/)![1];
+    expect(css).toMatch(new RegExp(`\\n\\.cd-lims \\.cd-blk \\{ height: calc\\(var\\(--u\\) \\* ${box}\\);`));
+  });
+
+  it('an event title is on one line, as large as fits, in a box of one height (PLAN-106)', () => {
+    for (const e of EVENT_CARDS) {
+      const s = html(Gazette, { event: e });
+      const size = Number(s.match(/<strong class="cd-ttl" style="--ts:([\d.]+)">/)![1]);
+      expect(size, e.id).toBe(fitTitle(e.title, 220, 31, ONE_LINE_MIN).size);
+      expect(titleLines(e.title, size, 220 * 0.98), e.id).toBe(1);
+      expect(size, e.id).toBeGreaterThanOrEqual(16); // the longest, Monsoon Downpour, still well above the card's small print
+      expect(size, e.id).toBeLessThanOrEqual(31);
+    }
+    expect(fitTitle('Heatwave', 220, 31, ONE_LINE_MIN)).toEqual({ size: 31, lines: 1 });
+    expect(readFileSync('src/ui/cards.css', 'utf8')).toContain('.cd-event .cd-ttl { height: calc(var(--u) * 29.5); display: flex; align-items: center; white-space: nowrap; }');
+  });
+
+  it('an event that brings a guest only names it; the guest\'s own card says what it wants (PLAN-106)', () => {
+    const said = Object.fromEntries(EVENT_CARDS.filter((e) => e.extra).map((e) => [e.id, eventCardText(e)]));
+    expect(said).toEqual({
+      superfood: 'Customers pay $1 more for each blueberry. The Gym Club joins the row.',
+      mangoCraze: 'Customers pay $2 more for each mango. The Influencer joins the row.',
+      hotel: 'The Hotel Chef joins the row.',
+      kenduri: 'The Wedding Caterer joins the row.',
+      bakeOff: 'Customers pay $1 more for each apple. The Bakery joins the row.',
+    });
+    for (const e of EVENT_CARDS) {
+      if (!e.extra) { expect(eventCardText(e), e.id).toBe(e.text); continue; }
+      // The data's guest sentence is the last one, and it is the only part left out; its name is the guest's own.
+      const at = e.text.indexOf('Guest:');
+      expect(at, e.id).toBeGreaterThanOrEqual(0);
+      expect(e.text.slice(at).match(/\.(\s|$)/g), e.id).toHaveLength(1);
+      expect(eventCardText(e).startsWith(e.text.slice(0, at).trim()), e.id).toBe(true);
+      expect(eventCardText(e), e.id).toContain(`${lookOf(e.extra.name).title} joins the row.`);
+      expect(eventCardText(e), e.id).not.toMatch(/\$\d+(?!\smore|\sless)|wants|Fresh/);
+      // The morning's card says the same.
+      expect(html(EventTicket, { card: e, n: 1, art: eventArt(e.id), focus: eventFocus(e.id), chips: newsChips(e) })).toContain(`<p class="wc-txt">${esc(eventCardText(e))}</p>`);
+    }
+    // A text without a guest sentence (an older save's) is left as it is.
+    expect(eventCardText({ text: 'Something else.', extra: { name: 'Gym Club' } })).toBe('Something else.');
+  });
+
+  it('a price on an event has a badge on its left that says whose price it is, from the field the event changes (PLAN-106)', () => {
+    for (const e of EVENT_CARDS) {
+      // What the data says each figure is: customers' prices or the Wholesale Market's, in the order the figures come.
+      const want: string[] = [];
+      if (e.priceAll) want.push('customer');
+      for (const f of LANES) if (e.price?.[f]) want.push('customer');
+      if (e.cost) want.push('market');
+      if (e.maxPrice) for (const f of LANES) if (e.maxPrice[f]) want.push('customer');
+      const chips = cardChips(e);
+      expect(chips.flatMap((c) => (c.pay ? [c.pay] : [])), e.id).toEqual(want);
+      // On the card: a box with a price has its badge right before its figure; a box without one has none.
+      const s = html(Gazette, { event: e });
+      const boxes = s.split('<div class="cd-blk ').slice(1);
+      expect(boxes.length, e.id).toBe(chips.length);
+      boxes.forEach((b, k) => {
+        const pay = chips[k].pay;
+        if (!pay) { expect(b, `${e.id} ${k}`).not.toContain('cd-pb'); return; }
+        expect(b, `${e.id} ${k}`).toContain(`<span class="cd-pb cd-pb-${pay}" role="img" aria-label="${PAY_WORD[pay]}"><svg`);
+        if (!e.maxPrice) expect(b, `${e.id} ${k}`).toMatch(new RegExp(`<span class="cd-fig"><span class="cd-pb cd-pb-${pay}"[^>]*><svg.*?</svg></span><b>`));
+      });
+      // No word tag is left.
+      expect(s).not.toMatch(/>(Market|Customer)<|cd-pay/);
+    }
+    // Every event and its badges, as the owner was shown them.
+    const badges = Object.fromEntries(EVENT_CARDS.map((e) => [e.id, cardChips(e).flatMap((c) => (c.pay ? [`${c.pay} ${c.big}`] : []))]));
+    expect(badges).toEqual({
+      festival: ['customer +$1'], superfood: ['customer +$1'], mangoCraze: ['customer +$2'], hotel: [], heatwave: ['customer +$2'],
+      blight: ['customer +$2'], glut: ['customer −$1'], goodHarvest: ['customer −$1'], badHarvest: ['customer +$1'], priceHike: ['market +$1'],
+      priceControls: ['customer $5', 'customer $7', 'customer $10', 'customer $6'], inspector: [], strike: [], touristBus: [], monsoon: [],
+      durian: ['customer −$1', 'market −$1'], kenduri: [], mangoWindfall: ['customer −$2'], pasarMalam: [], bakeOff: ['customer +$1'],
     });
   });
 
@@ -265,12 +382,14 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
     for (const e of EVENT_CARDS) {
       const have = numbers(e);
       for (const c of [...cardChips(e), ...newsChips(e)]) for (const m of c.big.matchAll(/\d+/g)) expect(have.has(Number(m[0])), `${e.id}: ${c.big}`).toBe(true);
-      // A block about one fruit carries that fruit's icon and lane colour.
+      // A box about one fruit carries that fruit's icon and lane colour.
       for (const c of cardChips(e)) if (c.fruit) expect(html(Gazette, { event: e })).toContain(`cd-blk-f ln-${c.fruit}`);
     }
     // Price Controls prints each fruit's limit.
     const pc = EVENT_CARDS.find((e) => e.id === 'priceControls')!;
     expect(cardChips(pc).map((c) => [c.fruit, c.big])).toEqual(LANES.map((f) => [f, `$${pc.maxPrice![f]}`]));
+    expect([...html(Gazette, { event: pc }).matchAll(/<div class="cd-blk cd-blk-f ln-([a-z]+)"[^>]*>.*?<b>([^<]*)<\/b><\/div>/g)].map((m) => [m[1], m[2]]))
+      .toEqual(LANES.map((f) => [f, `≤$${pc.maxPrice![f]}`]));
   });
 
   it('a lorry card carries the pieces for every table size in the four lanes, and boxes the table\'s row', () => {
@@ -347,17 +466,15 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
     expect(html(OrderCard, { card: ORDER_CARDS[0] })).toContain('3 at 2–3 · 4 at 4 · 5 at 5–6 stalls');
   });
 
-  it('the six pattern backs show the deck\'s tile, its name and how many cards it holds', () => {
-    const count: Record<DeckId, string> = {
-      lorry: `Deck of ${FARMER_CARDS.length}`, event: `Deck of ${EVENT_CARDS.length}`, favour: `Deck of ${FAVOUR_DECK.length}`,
-      upgrade: `${UPS.length} kinds`, shopkeeper: `Deck of ${RIVALS.length}`, order: `Deck of ${ORDER_CARDS.length}`,
-    };
+  it('the six pattern backs show the deck\'s tile and its name, and not how many cards it holds (PLAN-106)', () => {
+    const NAME: Record<DeckId, string> = { lorry: 'Lorry', event: 'Event', favour: 'Favour', upgrade: 'Upgrade', shopkeeper: 'Shopkeeper', order: 'Standing order' };
     for (const d of DECKS) {
       const s = html(DeckBack, { deck: d });
       expect(s).toContain(`cd-bk cd-bk-${d}`);
       expect(s).toContain(`background-image:url(${tileArt(d)})`);
       expect(s).toContain('>Fruit Market<');
-      expect(s).toContain(`>${count[d]}<`);
+      expect(s).toContain(`>${NAME[d]}<`);
+      expect(seen(s)).not.toMatch(/deck of|kinds|\d/i);
       expect(s).not.toContain('<img'); // a back shows no card's picture
     }
     const order: DeckId = 'order';
@@ -464,10 +581,12 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
       const s = html(EventTicket, { card: e, n: i + 1, art: eventArt(e.id), focus: eventFocus(e.id), chips: newsChips(e) });
       expect(s).toContain(`<b>No ${two(i + 1)}</b>`);
       expect(s).toContain(`<b class="wc-ttl">${e.title}</b>`);
-      expect(s).toContain(`<p class="wc-txt">${esc(e.text)}</p>`);
+      expect(s).toContain(`<p class="wc-txt">${esc(eventCardText(e))}</p>`);
       expect(e.flavour, e.id).toBeUndefined();
       expect(s).not.toContain('wc-flavour');
       expect(s.match(/class="wc-chip"/g)).toHaveLength(newsChips(e).length);
+      // A price has the printed card's badge on its left (PLAN-106).
+      for (const c of newsChips(e)) expect(s, e.id).toContain(`<span class="wc-chip">${c.pay ? `<span class="cd-pb cd-pb-${c.pay}" role="img" aria-label="${PAY_WORD[c.pay]}">` : '<b>'}`);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
       expect(s).toContain('Lasts until night');
     });
