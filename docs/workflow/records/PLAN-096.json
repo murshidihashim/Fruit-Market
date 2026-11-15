@@ -45,7 +45,7 @@
     "evidence": "Owner, 2026-11-13, quoting the five items of the plan: \"do this now, approve\".",
     "date": "2026-11-13"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.23.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 8336ed4",
   "reports": [

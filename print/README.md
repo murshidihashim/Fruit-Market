@@ -1,13 +1,13 @@
 # Fruit Market print kit
 
-The tabletop game's cards and paper pieces, at rules version 18, in the approved card design (DEC-090 to DEC-096).
+The tabletop game's cards and paper pieces, at rules version 19, in the approved card design (DEC-090 to DEC-096).
 Every card is drawn by the app's own card components (`src/ui/cards.tsx`) from the game data
 (`src/engine/data.ts`), so the table and the app show the same names, numbers and pictures. Nothing is typed twice.
 
 | Folder | What it is | Built by |
 |---|---|---|
 | `print/kit` | Every card with its back, the player aid, the character reference | `npx vite-node scripts/print-deck.ts` |
-| `print/update-18` | For someone who holds the earlier printing: guidebook, stall sheets, counters, the cards that changed | `npx vite-node scripts/print-update.ts` |
+| `print/update-19` | For someone who holds the earlier printing: guidebook, stall sheets, counters, the cards that changed | `npx vite-node scripts/print-update.ts` |
 | `print/tracker-test` | The two freshness trackers, as test packs (DEC-089) | `npx vite-node scripts/print-trackers.ts` |
 | `print/art` | The earlier illustrations at print resolution. Not used since rules 18 (the cards use `public/art-ticket`) | kept by hand |
 
@@ -57,7 +57,7 @@ outside that; each page names its card in the margin, and how many to print when
 guests go front, back, front, back (their backs differ). The other decks have their fronts first and their one shared
 back last. The files are RGB; ask the printer to convert to CMYK and send a proof first.
 
-## The update pack (`print/update-18`)
+## The update pack (`print/update-19`)
 
 For someone who holds the earlier printing (the rules 15 printing, with or without its rules 17 update pack). It is
 not needed with a fresh print of `print/kit`, except for the guidebook, the stall sheets and the counters, which are
@@ -65,9 +65,9 @@ only here.
 
 | File | Pages | What it is | How to print |
 |---|---|---|---|
-| `Fruit-Market-Update-18-1-Stall-Sheets-and-Counters.pdf` | 14 | A change sheet (2 pages: start here), six stall sheets, six counters with the cash track | Single-sided; the counters are landscape, cut on the dashed line |
-| `Fruit-Market-Update-18-2-Replacement-Cards.pdf` | 16 | The four decks that changed throughout, whole: 8 standing orders, 30 upgrades, 8 shopkeepers, 12 favours | Double-sided, flip on the long edge: 8 sheets |
-| `Fruit-Market-Rules-Guidebook-v18.pdf` | 10 | The whole rules guidebook at rules version 18 | Either way |
+| `Fruit-Market-Update-19-1-Stall-Sheets-and-Counters.pdf` | 14 | A change sheet (2 pages: start here), six stall sheets, six counters with the cash track | Single-sided; the counters are landscape, cut on the dashed line |
+| `Fruit-Market-Update-19-2-Replacement-Cards.pdf` | 16 | The four decks that changed throughout, whole: 8 standing orders, 30 upgrades, 8 shopkeepers, 12 favours | Double-sided, flip on the long edge: 8 sheets |
+| `Fruit-Market-Rules-Guidebook-v19.pdf` | 10 | The whole rules guidebook at rules version 19 | Either way |
 
 The change sheet also lists six cards to correct by hand (three customers, two lorries, one event) and has patches to
 lay over the board's words and its green mango price. New cards have a new design and a new back, so a deck is

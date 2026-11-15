@@ -1,21 +1,21 @@
 # Current state · Fruit Market
 
-Updated 2026-11-14 00:54 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-14 15:43 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.22.0, rules version 19 (`f15874d`, tagged `v1.22.0`, published 2026-11-13 16:46; DEC-117, REP-119): standing orders $2 higher bid and $2 lower stake (PLAN-095), Home and Wardrobe buttons, the evening for everyone at once (PLAN-098), one round table from Open my stall to the rush (PLAN-099). The preview copy is the same build.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus the record of publishing plus PLAN-096 (merge `8336ed4`), not published.
-- **In progress:** PLAN-096 (small gaps, approved): implemented; verify PASS; local e2e FAIL on the speed test only (the live build fails it here too); GitHub CI run 141 on the branch PASS (longest task 105 ms, 0 leaks); the owner has not yet seen the before-and-after sheets. No helper is running.
+- **Live:** 1.23.0, rules version 19 (`1ae24d6`, tagged `v1.23.0`, published 2026-11-14 15:39; DEC-118, REP-120): the small phone fixes (PLAN-096) and the text pass with the owner's edits (PLAN-097), on top of 1.22.0. The preview copy is the same build.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus PLAN-100 (print pack at rules 19: guidebook and update pack in `print/update-19`, cards rebuilt) and the record of publishing.
+- **In progress:** nothing. No helper is running.
 - **Commits:** author Murshidi Hashim, committer Claude <noreply@anthropic.com> (so GitHub shows the signature as verified); set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, no local git user override.
-- **Waiting on the owner:** (1) the text pass (PLAN-097, REP-118): he edits on the picture page https://claude.ai/artifact/98Pq8XD7TEpDvhBsysD2F5 (store collection `edits`, one document per row `c001`…) or the sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49 (Names tab for 8 name choices), then says "done"; (2) his look at PLAN-096's before-and-after sheets, and "publish" when he wants it live; (3) REP-112 section 3 choices; (4) tracker 1 or 2 after a proof print.
+- **Waiting on the owner:** (1) his check of the print pack (cards, guidebook v19, update pack 19) and tracker 1 or 2 after a proof print; (2) the 8 name choices (REP-118; sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49, Names tab); (3) whether the buying and tie hand-over subtitles go too; (4) REP-112 section 3 choices; (5) playing 1.23.0.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
-## Checks (1.22.0, live)
-- Local on the merge `8ef525d`: `npm run verify` PASS (895 tests); e2e PASS on each part's branch (0 leaks).
-- CI: run 139 on pull request #13 PASS; run 140 on main PASS, preview updated. Deploy run 41 PASS (live smoke test, tag `v1.22.0`); live `/api/version` answers rules 19.
-- Print: the cards show rules 19's standing-order numbers; the update pack's guidebook still states rules 18 (printing paused). Proof print: NOT RUN. Played by people on 1.22.0: NOT RUN.
+## Checks (1.23.0, live)
+- Local on the merge `2694ab5`: `npm run verify` PASS (904 tests); e2e PASS on the text pass branch (0 leaks); the local speed test fails on this machine for 1.22.0 too.
+- CI: run 141 on the branch PASS; pull request #14 PASS; run 143 on main PASS, preview updated. Deploy run 42 PASS (live smoke test, tag `v1.23.0`); live `/api/version` answers rules 19, live code carries 1.23.0.
+- Print: cards, guidebook and update pack at rules 19 (PLAN-100); the owner's check and proof print: NOT RUN. Played by people on 1.23.0: NOT RUN.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).

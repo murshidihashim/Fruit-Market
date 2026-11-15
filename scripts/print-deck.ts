@@ -1,4 +1,4 @@
-// The tabletop print kit (PLAN-087, rules version 18): every deck of cards in the approved card design, each with its
+// The tabletop print kit (PLAN-087; rules version 19): every deck of cards in the approved card design, each with its
 // back, plus the player aid and the character reference. The cards are the app's own (scripts/print-cards.ts draws them
 // with src/ui/cards.tsx from the game data), so the printed cards and the app always show the same names, numbers and art.
 //   npx vite-node scripts/print-deck.ts [outdir]     (normally: print/kit)
@@ -206,7 +206,7 @@ function coverPage(): Page {
       + `<p class="lede">Every card of the tabletop game, in the same design as the app: ${cards} cards in ${DECKS.length} decks, each with its back, for up to ${MAX_STALLS} stalls. Names, numbers and prices come from the game data (rules version ${RULES_VERSION}), so the cards match the app.</p>`
       + `<table class="pk-toc"><thead><tr><th>Part</th><th>What it is</th><th>Pages</th></tr></thead><tbody>${rows}</tbody></table>`
       + `<div class="pk-boxes"><div class="pk-box"><h4>Printing at home</h4><ul><li>A4 card (250 to 300 gsm), 100% or “actual size”, background graphics on.</li><li>Double-sided, flip on the long edge: each fronts page is followed by its backs, mirrored to line up. The ${cards} cards take ${sheetCount} sheets.</li><li>Cut on the dashed lines. Cards are ${CARD_W} × ${CARD_H} mm (poker size).</li><li>Each dot on a customer card is one piece that customer wants.</li></ul></div>`
-      + `<div class="pk-box"><h4>Not in this file</h4><ul><li>The rules guidebook, the stall sheets and the counters with the cash track: the update pack (print/update-18; its guidebook gives the standing-order numbers of rules 18, the cards here those of rules ${RULES_VERSION}).</li><li>The two freshness trackers on test: print/tracker-test.</li><li>The market board, shutters, fruit pieces, price tags and markers: from the earlier printing.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
+      + `<div class="pk-box"><h4>Not in this file</h4><ul><li>The rules guidebook, the stall sheets and the counters with the cash track: the update pack (print/update-${RULES_VERSION}).</li><li>The two freshness trackers on test: print/tracker-test.</li><li>The market board, shutters, fruit pieces, price tags and markers: from the earlier printing.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
   };
 }
 

@@ -2922,7 +2922,7 @@
         "evidence": "Owner, 2026-11-14, in his own words: \"publish\".",
         "date": "2026-11-14"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-120"
       ],
@@ -4105,6 +4105,18 @@
     {
       "at": "2026-11-14 14:47",
       "text": "PLAN-097 merged as 2694ab5 (verify PASS, the helper's e2e PASS, pictures of the owner's 16 rows seen). DEC-118: the owner said \"publish\"; release 1.23.0 prepared with PLAN-096 and PLAN-097, REP-120. The update pack (rules 18 evening text) is not rebuilt; the 8 name choices stay open."
+    },
+    {
+      "at": "2026-11-14 14:58",
+      "text": "PLAN-100 approved by the owner (\"update the rule book and update\") and built: the guidebook and the update pack at rules 19 (print/update-19), the card kit rebuilt; shared with the owner to check. Print only; the game is unchanged."
+    },
+    {
+      "at": "2026-11-14 15:43",
+      "text": "Release 1.23.0 published (DEC-118): pull request #14, CI PASS (14:48 to 15:05); merged to main as 1ae24d6 at 15:09; main CI run 143 PASS and the preview updated with its smoke test passing; Deploy LIVE game run 42 (15:37 to 15:39) PASS: verify, release check, deploy, live smoke test and tag v1.23.0. The live site answers rules version 19 and its code carries 1.23.0 and the new wording. PLAN-096 and PLAN-097 are released. PLAN-100 (print pack at rules 19) is on the branch, not part of the game."
+    },
+    {
+      "at": "2026-11-15 08:21",
+      "text": "PLAN-101: the owner set STATS_KEY (Cloudflare and GitHub; the first two tries did not match, the third did). The read-only Player numbers workflow reads the live counters: 32 new players and 102 games started in the last 30 days (including the owner's own play and the deploy smoke test). The owner said \"yes to weekly report\": it runs every Monday 09:07 Malaysia time once on main, with totals only on the public run page; no new data is collected (PLAN-018 stays proposed)."
     }
   ]
 }

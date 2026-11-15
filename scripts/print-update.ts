@@ -1,4 +1,4 @@
-// The tabletop update pack (PLAN-077; rules version 18 and the new card design, PLAN-087): what someone who holds the
+// The tabletop update pack (PLAN-077; rules version 18 and the new card design, PLAN-087; rules 19, PLAN-100): what someone who holds the
 // earlier printing needs to play by the current rules, without printing the whole kit again.
 //   npx vite-node scripts/print-update.ts [outdir]      (normally: print/update-<rules version>)
 // Writes three PDFs:
@@ -233,12 +233,15 @@ function changeSheet(): string {
       <li><b>What a stall buys is seen only while it buys.</b> After buying it is hidden with the rest of the shelf.</li>
       <li><b>Days 1 and 2 have no mango customers</b>, and Mango Craze is never Day 2's event. A green mango costs $${FRUIT.mango.cost.unripe}.</li>
       <li><b>One favour deck of ${FAVOUR_DECK.length}</b> (${FAVOUR_COPIES} of each card) at every table size.</li>
+      <li><b>The evening, everyone at once.</b> Every stall decides its evening at the same time and says "lights out" when done. Any number of stalls may play Priority, one card each: the one earliest in today's buying order goes first tomorrow; the other Priority cards go back to their owners' hands.</li>
+      <li><b>Standing orders: a higher bid, a smaller stake.</b> Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower than the rules 18 cards (the replacement cards carry the new numbers).</li>
     </ol>
     <p>All five upgrade piles are on offer after each Market Day. The guidebook lists every change and ruling of rules version ${RULES_VERSION} under "What is new".</p>
     <h2 class="disp">Notes for your board and shutters</h2>
     <p>The board and shutters still read as before. Cut these out and lay or tape them over the old words:</p>
     <div class="patch"><b class="disp">1 Morning</b>Today's event (from Day 2). Top up a stall that is out of cash. Unload the lorry. Turn over tomorrow's lorry and deal tomorrow's customers. Market Day: bid for the standing order.</div>
     <div class="patch"><b class="disp">3 Stocking</b>Turn today's walk-ins face up. Behind your shutter, move the pieces you will sell into your crate. Say how many, not which fruit.</div>
+    <div class="patch"><b class="disp">Evening</b>All stalls at once: play evening favours, build an upgrade after a Market Day, then say "lights out". Several Priority cards: the earliest in today's buying order goes first; the others go back to hand.</div>
     <div class="patch"><b class="disp">Standing order</b>Bid in the open: a tag face down, or "pass". Change your mind until the last stall decides. The winner puts down the stake: back if it delivers every piece, lost if not.</div>
     <div class="patch"><b class="disp">Green mango: $${FRUIT.mango.cost.unripe}</b>Lay this over the price in both green boxes of the mango lane on the board. A green mango costs $${FRUIT.mango.cost.unripe} (the board says $3).</div>
     <div class="patch"><b class="disp">Green mango: $${FRUIT.mango.cost.unripe}</b>The second green box. A green mango costs $${FRUIT.mango.cost.unripe}.</div>
@@ -310,13 +313,16 @@ function guideHtml(): string {
 </ol>
 <div class="new">
   <h3>What is new in rules version ${RULES_VERSION}</h3>
+  <p><b>The evening, everyone at once.</b> Every stall decides its evening at the same time (favour cards, and an upgrade after a Market Day) and says "lights out" when it is done; nobody waits for the stall before it. Any number of stalls may play Priority, one card each: at nightfall the one earliest in today's buying order goes first tomorrow, and the other Priority cards go back to their owners' hands.</p>
+  <p><b>Standing orders: a higher bid, a smaller stake.</b> Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower (the table under "Market Days" gives the numbers).</p>
+  <h3>And since rules version 17</h3>
   <p><b>Out of cash.</b> At dawn, from Day 2, a stall with an empty shelf and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank.</p>
   <p><b>Standing orders: a stake, not fines.</b> The winner puts down the card's stake. It comes back for a full delivery and is lost otherwise. Only the winner's crate fills the order; rivals are not involved.</p>
   <p><b>What a stall buys is seen while it buys.</b> After buying it goes behind the shutter with the rest of the shelf: you need not say what you bought, and nobody may ask.</p>
   <p><b>Favoured Trade is played after prices flip</b>, by a stall with a tied price, in the open.</p>
   <p><b>Days 1 and 2 have no mango customers</b>, and Mango Craze is never Day 2's event.</p>
   <p><b>Numbers.</b> A green mango costs $${FRUIT.mango.cost.unripe}. Upgrades cost ${Object.values(UPGRADES).map((u) => `${u.title} $${u.cost}`).join(', ')}. Nest Egg starts with $${START_CASH + NEST_EGG_BONUS}. One favour deck of ${FAVOUR_DECK.length} at every table size. The three Bargain blueberry customers pay $${BLUEBERRY_BARGAIN}.</p>
-  <p><b>Rulings.</b> A guest joins a full row. The final tie after cash and fruit sold is a shared win. Only one Priority card an evening; on Day 3 it goes ahead of Nest Egg. A Juice Bar's $${JUICE_TIP} is for customers and guests only. A Premium Display never raises a guest's price.</p>
+  <p><b>Rulings.</b> A guest joins a full row. The final tie after cash and fruit sold is a shared win. On Day 3 Priority goes ahead of Nest Egg. A Juice Bar's $${JUICE_TIP} is for customers and guests only. A Premium Display never raises a guest's price.</p>
 </div>
 
 <h2>What is in the box</h2>
@@ -383,7 +389,7 @@ function guideHtml(): string {
 <p><b>After the last customer.</b> Every customer leaves, served or not. Put any unsold counter pieces back behind the shutter, each in the same box of the shelf row, and wipe your tags.</p></div></div>
 
 <h3>Evening and night</h3>
-<p><b>Evening.</b> In buying order, each stall may play evening favour cards (Priority, Gossip). Only one Priority card may be played each evening: a second one stays in its owner's hand. On the evening after a Market Day (days ${MARKET_DAYS}) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
+<p><b>Evening.</b> All stalls at once: each stall may play evening favour cards (Priority, Gossip) and says "lights out" when it is done. Any number of stalls may play Priority, one card each; at nightfall the one earliest in today's buying order goes first tomorrow and the other Priority cards go back to their owners' hands. On the evening after a Market Day (days ${MARKET_DAYS}) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
 <p><b>Night.</b> On the board, and behind every shutter, every piece slides one box to the left. Pieces that slide out of a Soft box go back to the supply. Tomorrow's row moves up to become today's. Then pass the first-player token one seat clockwise and move the day marker on.</p>
 
 <h2>Market Days, Closing Day and the end</h2>
@@ -449,7 +455,7 @@ function guideHtml(): string {
 <tr><td><b>Basic game</b></td><td>No shopkeepers, favour cards, upgrades or standing orders: just buying, stocking and the bell. Good for a first game.</td></tr>
 <tr><td><b>Fixed prices (beginner)</b></td><td>Ignore the prices on the cards. Every customer pays the same top price for a Fresh piece: blueberry $${STREET_PRICE.blueberry}, watermelon $${STREET_PRICE.watermelon}, apple $${STREET_PRICE.apple}, mango $${STREET_PRICE.mango}. Generous customers pay $${GENEROUS_BONUS} more: numbers ${list(GENEROUS)}.</td></tr>
 <tr><td><b>No Market Days, or no Closing Day</b></td><td>Either can be switched off before you start.</td></tr></table>
-<p class="oneline"><b>The day on one line.</b> Morning: event, top-up for a stall out of cash, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters, Favoured Trade for a tied price · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: favours, upgrades · Night: everything slides one box left.</p>
+<p class="oneline"><b>The day on one line.</b> Morning: event, top-up for a stall out of cash, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters, Favoured Trade for a tied price · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: everyone at once, favours, upgrades, lights out · Night: everything slides one box left.</p>
 <p class="tiny">These tabletop rules are rules version ${RULES_VERSION}, the same rules the Fruit Market app plays by. The table pieces (the three-panel board, the crate row above the shelf, the cash track on the counter, the shutter and price tags) are how those rules are run by hand.</p>
 </body></html>`;
 }

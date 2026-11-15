@@ -1,0 +1,34 @@
+name: Player numbers
+
+# Reads the live game's anonymous counters with the STATS_KEY secret and writes a short summary
+# (totals only, no error lines) to this run's summary page. Read-only: it changes nothing.
+on:
+  workflow_dispatch:
+  # Every Monday 09:07 Malaysia time (01:07 UTC): the weekly report. Runs only once this file is on main.
+  schedule:
+    - cron: '7 1 * * 1'
+  push:
+    branches: [ccr-d8bcd65d-gblqqb]
+    paths: [.github/workflows/stats.yml, scripts/stats-summary.mjs]
+
+permissions:
+  contents: read
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the live counters
+        env:
+          STATS_KEY: ${{ secrets.STATS_KEY }}
+        run: |
+          test -n "$STATS_KEY" || { echo "STATS_KEY is not set as a GitHub secret"; exit 1; }
+          # A pasted password often carries a space or line break at either end; send it without them.
+          KEY=$(printf '%s' "$STATS_KEY" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+          echo "::add-mask::$KEY"
+          code=$(curl -sS -o stats.json -w '%{http_code}' -H "x-stats-key: $KEY" "https://fruit-market.murshidi-hashim.workers.dev/api/stats?days=90")
+          echo "HTTP $code"
+          test "$code" = 200 || { echo "The live game refused the key (HTTP $code): the Cloudflare and GitHub secrets may differ"; exit 1; }
+      - name: Summary
+        run: node scripts/stats-summary.mjs stats.json | tee -a "$GITHUB_STEP_SUMMARY"
