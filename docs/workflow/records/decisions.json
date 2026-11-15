@@ -4165,6 +4165,10 @@
     {
       "at": "2026-11-15 23:21",
       "text": "On the preview: pull request #17 (PLAN-104 turn order, PLAN-105 iPhone price-tag fix; main c587898) and #18 (PLAN-104 follow-up: no reason line, the buying bar waits for the token; main 0af559f), both with CI PASS on the pull request and on main; the preview serves the new code (no reason line). The live game stays 1.23.0."
+    },
+    {
+      "at": "2026-11-15 23:26",
+      "text": "PLAN-106 merged as e3482dd (verify PASS 940 tests; print kit rebuilt). For the owner: event pictures are now 78 units on every card (most were 124), set by Blueberry Glut's two-line title and longest text; letting event titles shrink onto one line would allow about 95. Sheets sent."
     }
   ]
 }

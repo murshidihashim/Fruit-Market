@@ -15,20 +15,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes; print kit tests pass",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge e3482dd: 940 tests passed, 1 skipped; new card tests (MARKET/CUSTOMER tag per event from the data, type colours, fixed picture sizes, no count on any back, shopkeeper footer); print kit rebuilt and its checker passed every card."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "FAIL",
+      "evidence": "The helper's npm run test:e2e: everything passed (online leaks 0) except the speed test, 231 to 268 ms against 200 on a shared machine; the start commit also failed it once (230 ms). To be settled on GitHub CI."
     },
     {
       "id": "T3",
       "text": "Before/after sheets of every deck and the app at 390x844 and 360x640 seen",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Before/after sheets of every deck and of the app mornings at 390x844 and 360x640 with 6 stalls, seen by me; no overflow; the morning's squeeze steps unchanged in all 12 cases."
     },
     {
       "id": "T4",
@@ -42,16 +42,24 @@
     "evidence": "Owner, 2026-11-15: his list of print kit changes, then \"both, colours ok, tags ok, remove all deck of\".",
     "date": "2026-11-15"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge e3482dd",
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "MARKET and CUSTOMER tags on event money lines, also on the morning's event chips"
+    ],
+    "changed": [
+      "Customer and guest cards: one picture size; top and bottom bars in the type colour (Premium #4b2a85 with a gold edge, Everyday #0b5c59, Bargain #f39233)",
+      "Event cards: one picture size (78 units, set by Blueberry Glut) and one size of effect line",
+      "Shopkeeper footer \"Fruit Market\", centred"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "\"Deck of N\" (and \"5 kinds\") on every card back"
+    ]
   },
   "playerNotes": []
 }
