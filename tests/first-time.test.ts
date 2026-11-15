@@ -1,0 +1,120 @@
+// PLAN-103: "First time? How to play" in the room lobby. The panel reads exactly as the owner wrote it, with every
+// number taken from the game data; it shows only to a player who has never finished a game; "Got it" hides it for good.
+import { beforeEach, describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { h } from 'preact';
+import { BASE_BUY, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, MARKET_DAY_EVERY } from '../src/engine/data';
+import { OKAY_LESS, SOFT_LESS, toStaticHtml } from '../src/ui/cards';
+import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, hasFinishedGame, nthWord, showFirstTime } from '../src/ui/FirstTime';
+import { saveStats } from '../src/ui/store';
+
+/** The owner's text (15 November), with the game's straight apostrophe for his curly ones. */
+const OWNER = `RUN YOUR STALL.
+Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!
+
+YOUR DAILY ROUTINE
+1. Check the market.
+Read today's news and see who's shopping.
+2. Buy fruit.
+Poorest stall goes first, then clockwise. Buy up to 4 pieces.
+3. Stock your stall.
+Choose what to sell. Rivals see how many pieces, but not which fruit.
+4. Set secret prices.
+Set one price per fruit. Reveal fruit and prices together at the bell!
+5. The Rush.
+Customers buy from the cheapest qualifying stall, then the next cheapest until their order is filled or no suitable fruit remains.
+6. Repeat!
+
+MARKET DAYS
+Every third day, except the last:
+Bid for a standing order. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.
+
+THREE THINGS TO REMEMBER
+Watch your rivals. Purchases are public as they happen, but aren't shown again. Shelves stay hidden.
+
+Fruit ages nightly: Fresh → Okay → Soft → gone. Mangoes arrive Green and ripen first. Customers pay $1 less for Okay and $2 less for Soft; some refuse older fruit.
+
+Complete orders, earn favours. Serve a customer's whole order alone. Draw up to 1 per day; hold up to 3.`;
+
+const BLOCK = new Set(['div', 'p', 'h3', 'h4', 'ol', 'ul', 'li', 'section', 'article']);
+const VOID = new Set(['img', 'br', 'hr', 'input', 'image', 'path', 'circle', 'rect', 'use']);
+
+/** The words a reader (or a screen reader) gets, one line per block; pictures marked aria-hidden are left out. */
+function readText(html: string): string[] {
+  let out = '';
+  let hidden = 0;
+  for (const m of html.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>|([^<]+)/g)) {
+    const [, close, tag, attrs, text] = m;
+    if (text !== undefined) { if (!hidden) out += text; continue; }
+    const selfClosing = VOID.has(tag) || attrs.endsWith('/');
+    if (close) { if (hidden) hidden--; else if (BLOCK.has(tag)) out += '\n'; continue; }
+    if (selfClosing) continue;
+    if (hidden || attrs.includes('aria-hidden="true"')) { hidden++; continue; }
+    if (BLOCK.has(tag)) out += '\n';
+  }
+  const unescaped = out.replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  return unescaped.split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
+
+const mem = new Map<string, string>();
+beforeEach(() => {
+  mem.clear();
+  (globalThis as { localStorage?: unknown }).localStorage = {
+    getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => mem.set(k, v), removeItem: (k: string) => mem.delete(k),
+  };
+});
+
+describe('first-time panel: the words', () => {
+  it("reads exactly as the owner's text", () => {
+    const lines = OWNER.split('\n').map((l) => l.trim()).filter(Boolean);
+    expect(readText(toStaticHtml(h(FirstTimeText, {})))).toEqual(lines);
+  });
+
+  it('takes its numbers from the game data (the text above pins today\'s values)', () => {
+    expect(BASE_BUY).toBe(4);
+    expect(MARKET_DAY_EVERY).toBe(3);
+    expect(nthWord(MARKET_DAY_EVERY)).toBe('third');
+    expect([OKAY_LESS, SOFT_LESS]).toEqual([1, 2]);
+    // Every fruit takes the same off for Okay and Soft (rules 4), so one pair of numbers is true for all of them.
+    for (const f of FRUITS) {
+      expect(FRUIT[f].drop[FRUIT[f].ripe.indexOf('okay')]).toBe(OKAY_LESS);
+      expect(FRUIT[f].drop[FRUIT[f].ripe.indexOf('notso')]).toBe(SOFT_LESS);
+    }
+    expect(FAVOUR_HAND_LIMIT).toBe(3);
+    // The source builds these sentences from the constants, not from typed numbers.
+    const src = readFileSync('src/ui/FirstTime.tsx', 'utf8');
+    for (const k of ['${BASE_BUY}', '${nthWord(MARKET_DAY_EVERY)}', '${OKAY_LESS}', '${SOFT_LESS}', '${FAVOUR_HAND_LIMIT}']) expect(src).toContain(k);
+  });
+});
+
+describe('first-time panel: who sees it', () => {
+  it('shows to a player who has never finished a game', () => {
+    expect(hasFinishedGame()).toBe(false);
+    expect(showFirstTime()).toBe(true);
+  });
+
+  it('does not show once a game has been finished, with counting on or off', () => {
+    saveStats({ played: 1, wins: 0, bestCash: 12, totalSold: 9 });
+    expect(showFirstTime()).toBe(false);
+    mem.set('fm.settings', JSON.stringify({ analytics: false }));
+    expect(showFirstTime()).toBe(false);
+  });
+
+  it('"Got it" hides it for good on this device', () => {
+    dismissFirstTime();
+    expect(mem.get(FIRST_TIME_KEY)).toBe('1');
+    expect(showFirstTime()).toBe(false);
+    expect(showFirstTime()).toBe(false);
+  });
+
+  it('sits in the private room lobby, after the players, and never holds up Ready or Start', () => {
+    const src = readFileSync('src/ui/Online.tsx', 'utf8');
+    const lobby = src.slice(src.indexOf('function Lobby('), src.indexOf('function Picking('));
+    const panel = lobby.indexOf('<FirstTimePanel');
+    expect(panel).toBeGreaterThan(lobby.indexOf('Players {v.seats.length'));
+    expect(panel).toBeLessThan(lobby.indexOf("I'm ready"));
+    // Not in a quick match (it starts at once) and not part of what the Ready and Start buttons check.
+    expect(lobby.indexOf('if (v.quick)')).toBeLessThan(panel);
+    expect(lobby).toContain('const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);');
+  });
+});
