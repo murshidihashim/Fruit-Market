@@ -4,6 +4,9 @@ name: Player numbers
 # (totals only, no error lines) to this run's summary page. Read-only: it changes nothing.
 on:
   workflow_dispatch:
+  # Every Monday 09:07 Malaysia time (01:07 UTC): the weekly report. Runs only once this file is on main.
+  schedule:
+    - cron: '7 1 * * 1'
   push:
     branches: [ccr-d8bcd65d-gblqqb]
     paths: [.github/workflows/stats.yml, scripts/stats-summary.mjs]

@@ -1,0 +1,48 @@
+{
+  "id": "PLAN-101",
+  "title": "Player numbers: a read-only summary of the live counters, weekly",
+  "problem": "The owner asked how to track how many people play. The live game already keeps anonymous daily counters (docs/ANALYTICS.md), but nobody could read them: STATS_KEY was never set.",
+  "scope": [
+    "The owner set STATS_KEY in Cloudflare and GitHub",
+    "A GitHub Actions workflow (Player numbers) reads /api/stats with the key and writes a summary of totals only: new players, player-days, opens, games started and finished by type, coming back next day and a week later, where games stop, day by day",
+    "Run on demand and every Monday 09:07 Malaysia time (the schedule needs the file on main)"
+  ],
+  "exclusions": [
+    "Any new counter or data collected (PLAN-018 stays proposed)",
+    "Any game change",
+    "Error lines in the summary (the page is public)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "The run reads the live counters and writes the summary",
+      "result": "PASS",
+      "evidence": "Run 43656784237 (attempt 2): HTTP 200, summary written (32 new players in 30 days, 102 games started)."
+    },
+    {
+      "id": "T2",
+      "text": "The weekly run fires on a Monday",
+      "result": "NOT RUN",
+      "evidence": "Needs the file on main; first Monday after the merge."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15: \"how do i track how many players have played this\", then \"key set\" and \"yes to weekly report\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      ".github/workflows/stats.yml and scripts/stats-summary.mjs: the Player numbers summary, on demand and weekly"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
