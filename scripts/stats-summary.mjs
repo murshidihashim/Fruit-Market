@@ -30,7 +30,6 @@ const w30 = last(30);
 out.push('', '## Coming back (last 30 days, approximate)', '', '| | Share |', '|---|---:|');
 out.push(`| Back the next day (day 1 ÷ day 0) | ${pct(total(w30, 'active:d1'), total(w30, 'active:d0'))} |`);
 out.push(`| Back a week later (day 7 ÷ day 0) | ${pct(total(w30, 'active:d7'), total(w30, 'active:d0'))} |`);
-out.push(`| First-game tips finished (last tip ÷ first tip) | ${pct(total(w30, 'tutorial:day2'), total(w30, 'tutorial:trait'))} |`);
 out.push('', '## Where games stop (last 30 days)', '', '| Day of the game | Games that reached it | Games left on that day |', '|---|---:|---:|');
 for (let n = 1; n <= 14; n++) {
   const reached = total(w30, `day_reached:${n}`), quit = total(w30, `quit_day:${n}`);
