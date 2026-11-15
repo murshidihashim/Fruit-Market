@@ -4169,6 +4169,10 @@
     {
       "at": "2026-11-15 23:26",
       "text": "PLAN-106 merged as e3482dd (verify PASS 940 tests; print kit rebuilt). For the owner: event pictures are now 78 units on every card (most were 124), set by Blueberry Glut's two-line title and longest text; letting event titles shrink onto one line would allow about 95. Sheets sent."
+    },
+    {
+      "at": "2026-11-16 04:37",
+      "text": "PLAN-106 owner review: \"the rest is okay\"; for event cards: option A (titles may shrink to one line so pictures grow back), events that bring a guest only say the guest joins the row (no order or price), effect boxes side by side again (same size), and the wide MARKET/CUSTOMER word tags replaced by small icon-only badges (lorry for a Wholesale Market price, customer face for what customers pay) with a key on the Player Aid. Back with the helper."
     }
   ]
 }
