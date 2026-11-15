@@ -4117,6 +4117,10 @@
     {
       "at": "2026-11-15 08:21",
       "text": "PLAN-101: the owner set STATS_KEY (Cloudflare and GitHub; the first two tries did not match, the third did). The read-only Player numbers workflow reads the live counters: 32 new players and 102 games started in the last 30 days (including the owner's own play and the deploy smoke test). The owner said \"yes to weekly report\": it runs every Monday 09:07 Malaysia time once on main, with totals only on the public run page; no new data is collected (PLAN-018 stays proposed)."
+    },
+    {
+      "at": "2026-11-15 08:24",
+      "text": "PLAN-102 requested by the owner: in private rooms, shopkeepers are chosen after everyone has joined (a choosing step after Start the game, everyone at once, first come, then confirm). Assumptions stated to the owner: quick match unchanged; computers take the shopkeepers left; protocol version bumped. Building in a helper."
     }
   ]
 }
