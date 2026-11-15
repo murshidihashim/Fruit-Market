@@ -10,8 +10,8 @@ import {
 import { Logo } from '../src/ui/art';
 import { LANES } from '../src/ui/boardModel';
 import {
-  CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, OrderCard, PAY_WORD, StallSign, TradingCard, TradingCardBack, UPGRADE_FIGURE,
-  UpgradeCard, customerNumber, prefClass, toStaticHtml,
+  CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, ONE_LINE_MIN, OrderCard, PAY_WORD, StallSign, TradingCard, TradingCardBack,
+  UPGRADE_FIGURE, UpgradeCard, customerNumber, eventCardText, prefClass, toStaticHtml,
 } from '../src/ui/cards';
 import { capsWidth, fitTitle, titleLines } from '../src/ui/cardType';
 import {
@@ -282,49 +282,94 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain('<span>Event</span>');
       expect(s).toContain(`<b>No ${two(i + 1)}</b>`);
       expect(s).toContain(`>${e.title}</strong>`);
-      expect(s).toContain(`<p class="cd-txt">${esc(e.text)}</p>`);
+      expect(s).toContain(`<p class="cd-txt">${esc(eventCardText(e))}</p>`);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
-      // One line for each thing the event changes (Price Controls: one more, its limits), all in one box size.
-      const chips = newsChips(e);
+      // One box for each thing the event changes, side by side (Price Controls: a box for each fruit's limit).
+      const chips = cardChips(e);
       expect(chips.length, e.id).toBeGreaterThan(0);
-      expect(s.match(/class="cd-fx-l /g), e.id).toHaveLength(chips.length + (e.maxPrice ? 1 : 0));
-      for (const c of chips) expect(s).toContain(`<b>${c.big}</b><small>${c.small}</small>`);
+      expect(s.match(/class="cd-blk /g), e.id).toHaveLength(chips.length);
+      expect(s).toContain(e.maxPrice ? '<div class="cd-two cd-lims">' : '<div class="cd-two cd-fx">');
+      if (!e.maxPrice) {
+        expect(chips.length, e.id).toBeLessThanOrEqual(2); // two boxes share a row
+        for (const c of chips) expect(s).toContain(`<b>${c.big}</b></span><small>${c.small}</small>`);
+      }
     });
-    // The event's picture and its lines are one size on every card (cards.css).
+    // The event's picture and its boxes are one size on every card (cards.css): a box is half the row, also alone.
     const css = readFileSync('src/ui/cards.css', 'utf8');
     expect(css).toMatch(/\n\.cd-event \.cd-pic \{ flex: none; height: calc\(var\(--u\) \* \d+\); min-height: 0; \}/);
-    expect(css).toMatch(/\n\.cd-fx-l \{\n\s+flex: none; height: calc\(var\(--u\) \* \d+\);/);
+    expect(css).toMatch(/\n\.cd-fx \.cd-blk \{ flex: 0 0 calc\(\(100% - var\(--u\) \* 5\) \/ 2\); height: calc\(var\(--u\) \* (\d+)\);/);
+    const box = css.match(/\n\.cd-fx \.cd-blk \{[^}]*height: calc\(var\(--u\) \* (\d+)\)/)![1];
+    expect(css).toMatch(new RegExp(`\\n\\.cd-lims \\.cd-blk \\{ height: calc\\(var\\(--u\\) \\* ${box}\\);`));
   });
 
-  it('a money figure on an event says whose money it is, from the field the event changes (PLAN-106)', () => {
+  it('an event title is on one line, as large as fits, in a box of one height (PLAN-106)', () => {
     for (const e of EVENT_CARDS) {
-      const chips = newsChips(e);
+      const s = html(Gazette, { event: e });
+      const size = Number(s.match(/<strong class="cd-ttl" style="--ts:([\d.]+)">/)![1]);
+      expect(size, e.id).toBe(fitTitle(e.title, 220, 31, ONE_LINE_MIN).size);
+      expect(titleLines(e.title, size, 220 * 0.98), e.id).toBe(1);
+      expect(size, e.id).toBeGreaterThanOrEqual(16); // the longest, Monsoon Downpour, still well above the card's small print
+      expect(size, e.id).toBeLessThanOrEqual(31);
+    }
+    expect(fitTitle('Heatwave', 220, 31, ONE_LINE_MIN)).toEqual({ size: 31, lines: 1 });
+    expect(readFileSync('src/ui/cards.css', 'utf8')).toContain('.cd-event .cd-ttl { height: calc(var(--u) * 29.5); display: flex; align-items: center; white-space: nowrap; }');
+  });
+
+  it('an event that brings a guest only names it; the guest\'s own card says what it wants (PLAN-106)', () => {
+    const said = Object.fromEntries(EVENT_CARDS.filter((e) => e.extra).map((e) => [e.id, eventCardText(e)]));
+    expect(said).toEqual({
+      superfood: 'Customers pay $1 more for each blueberry. The Gym Club joins the row.',
+      mangoCraze: 'Customers pay $2 more for each mango. The Influencer joins the row.',
+      hotel: 'The Hotel Chef joins the row.',
+      kenduri: 'The Wedding Caterer joins the row.',
+      bakeOff: 'Customers pay $1 more for each apple. The Bakery joins the row.',
+    });
+    for (const e of EVENT_CARDS) {
+      if (!e.extra) { expect(eventCardText(e), e.id).toBe(e.text); continue; }
+      // The data's guest sentence is the last one, and it is the only part left out; its name is the guest's own.
+      const at = e.text.indexOf('Guest:');
+      expect(at, e.id).toBeGreaterThanOrEqual(0);
+      expect(e.text.slice(at).match(/\.(\s|$)/g), e.id).toHaveLength(1);
+      expect(eventCardText(e).startsWith(e.text.slice(0, at).trim()), e.id).toBe(true);
+      expect(eventCardText(e), e.id).toContain(`${lookOf(e.extra.name).title} joins the row.`);
+      expect(eventCardText(e), e.id).not.toMatch(/\$\d+(?!\smore|\sless)|wants|Fresh/);
+      // The morning's card says the same.
+      expect(html(EventTicket, { card: e, n: 1, art: eventArt(e.id), focus: eventFocus(e.id), chips: newsChips(e) })).toContain(`<p class="wc-txt">${esc(eventCardText(e))}</p>`);
+    }
+    // A text without a guest sentence (an older save's) is left as it is.
+    expect(eventCardText({ text: 'Something else.', extra: { name: 'Gym Club' } })).toBe('Something else.');
+  });
+
+  it('a price on an event has a badge on its left that says whose price it is, from the field the event changes (PLAN-106)', () => {
+    for (const e of EVENT_CARDS) {
       // What the data says each figure is: customers' prices or the Wholesale Market's, in the order the figures come.
       const want: string[] = [];
       if (e.priceAll) want.push('customer');
       for (const f of LANES) if (e.price?.[f]) want.push('customer');
       if (e.cost) want.push('market');
-      if (e.maxPrice) want.push('customer');
+      if (e.maxPrice) for (const f of LANES) if (e.maxPrice[f]) want.push('customer');
+      const chips = cardChips(e);
       expect(chips.flatMap((c) => (c.pay ? [c.pay] : [])), e.id).toEqual(want);
-      // A line with a tag carries it on its left, before its figure; a line without one has none.
+      // On the card: a box with a price has its badge right before its figure; a box without one has none.
       const s = html(Gazette, { event: e });
-      const lines = [...s.matchAll(/<div class="cd-fx-l (?!cd-fx-lim)[^"]*">(.*?)<\/div>/g)].map((m) => m[1]);
-      expect(lines.length, e.id).toBe(chips.length);
-      lines.forEach((l, k) => {
+      const boxes = s.split('<div class="cd-blk ').slice(1);
+      expect(boxes.length, e.id).toBe(chips.length);
+      boxes.forEach((b, k) => {
         const pay = chips[k].pay;
-        if (pay) {
-          expect(l.startsWith(`<span class="cd-pay cd-pay-${pay}"><svg`), `${e.id} ${k}`).toBe(true);
-          expect(l).toContain(`</svg>${PAY_WORD[pay]}</span>`);
-        } else expect(l, `${e.id} ${k}`).not.toContain('cd-pay');
+        if (!pay) { expect(b, `${e.id} ${k}`).not.toContain('cd-pb'); return; }
+        expect(b, `${e.id} ${k}`).toContain(`<span class="cd-pb cd-pb-${pay}" role="img" aria-label="${PAY_WORD[pay]}"><svg`);
+        if (!e.maxPrice) expect(b, `${e.id} ${k}`).toMatch(new RegExp(`<span class="cd-fig"><span class="cd-pb cd-pb-${pay}"[^>]*><svg.*?</svg></span><b>`));
       });
+      // No word tag is left.
+      expect(s).not.toMatch(/>(Market|Customer)<|cd-pay/);
     }
-    // Every event and its tags, as the owner was shown them.
-    const tags = Object.fromEntries(EVENT_CARDS.map((e) => [e.id, newsChips(e).flatMap((c) => (c.pay ? [`${c.pay} ${c.big}`] : []))]));
-    expect(tags).toEqual({
+    // Every event and its badges, as the owner was shown them.
+    const badges = Object.fromEntries(EVENT_CARDS.map((e) => [e.id, cardChips(e).flatMap((c) => (c.pay ? [`${c.pay} ${c.big}`] : []))]));
+    expect(badges).toEqual({
       festival: ['customer +$1'], superfood: ['customer +$1'], mangoCraze: ['customer +$2'], hotel: [], heatwave: ['customer +$2'],
       blight: ['customer +$2'], glut: ['customer −$1'], goodHarvest: ['customer −$1'], badHarvest: ['customer +$1'], priceHike: ['market +$1'],
-      priceControls: ['customer Limit'], inspector: [], strike: [], touristBus: [], monsoon: [], durian: ['customer −$1', 'market −$1'], kenduri: [],
-      mangoWindfall: ['customer −$2'], pasarMalam: [], bakeOff: ['customer +$1'],
+      priceControls: ['customer $5', 'customer $7', 'customer $10', 'customer $6'], inspector: [], strike: [], touristBus: [], monsoon: [],
+      durian: ['customer −$1', 'market −$1'], kenduri: [], mangoWindfall: ['customer −$2'], pasarMalam: [], bakeOff: ['customer +$1'],
     });
   });
 
@@ -337,15 +382,14 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
     for (const e of EVENT_CARDS) {
       const have = numbers(e);
       for (const c of [...cardChips(e), ...newsChips(e)]) for (const m of c.big.matchAll(/\d+/g)) expect(have.has(Number(m[0])), `${e.id}: ${c.big}`).toBe(true);
-      // A line about one fruit carries that fruit's icon and lane colour; so does each of Price Controls' limits.
-      for (const c of newsChips(e)) if (c.fruit) expect(html(Gazette, { event: e })).toContain(`cd-fx-f ln-${c.fruit}`);
-      if (e.maxPrice) for (const c of cardChips(e)) expect(html(Gazette, { event: e })).toContain(`<span class="cd-lim ln-${c.fruit}"`);
+      // A box about one fruit carries that fruit's icon and lane colour.
+      for (const c of cardChips(e)) if (c.fruit) expect(html(Gazette, { event: e })).toContain(`cd-blk-f ln-${c.fruit}`);
     }
     // Price Controls prints each fruit's limit.
     const pc = EVENT_CARDS.find((e) => e.id === 'priceControls')!;
     expect(cardChips(pc).map((c) => [c.fruit, c.big])).toEqual(LANES.map((f) => [f, `$${pc.maxPrice![f]}`]));
-    expect([...html(Gazette, { event: pc }).matchAll(/<span class="cd-lim ln-([a-z]+)"[^>]*>.*?<b>([^<]*)<\/b><\/span>/g)].map((m) => [m[1], m[2]]))
-      .toEqual(LANES.map((f) => [f, `$${pc.maxPrice![f]}`]));
+    expect([...html(Gazette, { event: pc }).matchAll(/<div class="cd-blk cd-blk-f ln-([a-z]+)"[^>]*>.*?<b>([^<]*)<\/b><\/div>/g)].map((m) => [m[1], m[2]]))
+      .toEqual(LANES.map((f) => [f, `≤$${pc.maxPrice![f]}`]));
   });
 
   it('a lorry card carries the pieces for every table size in the four lanes, and boxes the table\'s row', () => {
@@ -537,12 +581,12 @@ describe('the cards at phone size (phoneCards.tsx, ticket.tsx)', () => {
       const s = html(EventTicket, { card: e, n: i + 1, art: eventArt(e.id), focus: eventFocus(e.id), chips: newsChips(e) });
       expect(s).toContain(`<b>No ${two(i + 1)}</b>`);
       expect(s).toContain(`<b class="wc-ttl">${e.title}</b>`);
-      expect(s).toContain(`<p class="wc-txt">${esc(e.text)}</p>`);
+      expect(s).toContain(`<p class="wc-txt">${esc(eventCardText(e))}</p>`);
       expect(e.flavour, e.id).toBeUndefined();
       expect(s).not.toContain('wc-flavour');
       expect(s.match(/class="wc-chip"/g)).toHaveLength(newsChips(e).length);
-      // A money figure has the printed card's tag (PLAN-106).
-      for (const c of newsChips(e)) expect(s, e.id).toContain(`<span class="wc-chip">${c.pay ? `<span class="cd-pay cd-pay-${c.pay}">` : '<b>'}`);
+      // A price has the printed card's badge on its left (PLAN-106).
+      for (const c of newsChips(e)) expect(s, e.id).toContain(`<span class="wc-chip">${c.pay ? `<span class="cd-pb cd-pb-${c.pay}" role="img" aria-label="${PAY_WORD[c.pay]}">` : '<b>'}`);
       expect(s).toContain(`src="${eventArt(e.id)}"`);
       expect(s).toContain('Lasts until night');
     });

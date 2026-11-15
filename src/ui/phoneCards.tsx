@@ -9,7 +9,10 @@ import {
 } from '../engine/data';
 import { Coin } from './art';
 import { LANES } from './boardModel';
-import { ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, PayTag, SOFT_LESS, byLane, customerNumber, laneClass, lorryNotes, lorryRow, prefClass, type CardLine } from './cards';
+import {
+  ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, PayBadge, SOFT_LESS, byLane, customerNumber, eventCardText, laneClass, lorryNotes, lorryRow, prefClass,
+  type CardLine,
+} from './cards';
 import {
   GUEST_EVENT, customerArt, customerFocus, favourArt, favourFocus, guestArt, guestFocus, type Focus,
 } from './deckArt';
@@ -27,12 +30,13 @@ function Dots({ n, label, got = 0 }: { n: number; label: string; got?: number })
 
 // ---------- the morning: today's event ----------
 
-/** What the morning's news prints: an event card, or the "Calm Day" of a day without one. */
-export interface NewsCard { id: string; title: string; text: string; flavour?: string }
+/** What the morning's news prints: an event card, or the "Calm Day" of a day without one. `extra`: the guest an event
+ *  brings (its words then say only that the guest joins the row: cards.tsx eventCardText). */
+export interface NewsCard { id: string; title: string; text: string; flavour?: string; extra?: { name: string } }
 
 /**
  * Today's event as the morning shows it: the picture beside the title, what it changes on mustard chips (a money
- * figure with the printed card's Market or Customer tag), then the card's own words. `n`: the card's number in the event deck (a Calm Day is not a card, so it has none). `children`:
+ * figure with the printed card's badge), then the card's words (cards.tsx eventCardText). `n`: the card's number in the event deck (a Calm Day is not a card, so it has none). `children`:
  * anything more the morning adds under the text (the price limits of Price Controls).
  */
 export function EventTicket({ card, n, art, focus, chips, children }: {
@@ -45,9 +49,9 @@ export function EventTicket({ card, n, art, focus, chips, children }: {
         <CardArt class="wc-evpic" src={art} alt="" w={ART_SIZE.event[0]} h={ART_SIZE.event[1]} eager focus={focus} />
         <div class="wc-main">
           <b class="wc-ttl">{card.title}</b>
-          {chips.map((c) => <span class="wc-chip">{c.pay && <PayTag pay={c.pay} />}<b>{c.big}</b>{c.small}</span>)}
+          {chips.map((c) => <span class="wc-chip">{c.pay && <PayBadge pay={c.pay} />}<b>{c.big}</b>{c.small}</span>)}
           {card.flavour && <span class="wc-flavour">{card.flavour}</span>}
-          <p class="wc-txt">{card.text}</p>
+          <p class="wc-txt">{eventCardText(card)}</p>
           {children}
         </div>
       </div>

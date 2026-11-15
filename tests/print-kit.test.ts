@@ -8,7 +8,9 @@ import {
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
 import { LANES } from '../src/ui/boardModel';
-import { DeckBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UpgradeCard, toStaticHtml } from '../src/ui/cards';
+import {
+  DeckBack, FavourCard, Gazette, LorryCard, OrderCard, StallSign, TradingCard, TradingCardBack, UpgradeCard, eventCardText, toStaticHtml,
+} from '../src/ui/cards';
 import { tileArt, type DeckId } from '../src/ui/deckArt';
 import {
   GUESTS, PER_SHEET, UPGRADE_COPIES, artFile, backArt, deckProblems, doc, factoryPages, handFixes, kitCss, mirrored, printDecks, replacedDecks, sheets,
@@ -78,7 +80,7 @@ describe('print kit: the decks are the game\'s (PLAN-087)', () => {
     EVENT_CARDS.forEach((e, i) => {
       const card = deck('events').cards[i];
       expect(card.front).toBe(toStaticHtml(h(Gazette, { event: e, eager: true })));
-      expect(shows(card.front, e.title) && shows(card.front, e.text), e.id).toBe(true);
+      expect(shows(card.front, e.title) && shows(card.front, eventCardText(e)), e.id).toBe(true);
     });
     FARMER_CARDS.forEach((c, i) => {
       const card = deck('lorries').cards[i];
