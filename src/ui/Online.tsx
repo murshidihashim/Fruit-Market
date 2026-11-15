@@ -8,9 +8,7 @@ import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, typ
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
-import { FirstTimePanel, dismissFirstTime, showFirstTime } from './FirstTime';
 import { Game } from './Game';
-import { HowTo } from './HowTo';
 import { loadName, saveName } from './store';
 import { titleOf } from '../net/looks';
 import { FramedFace, awningColour } from './stampCard';
@@ -193,9 +191,6 @@ function Shell({ title, onBack, children }: { title: string; onBack: () => void;
 function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
   const me = v.seats[v.you];
   const [wardrobe, setWardrobe] = useState(false);
-  // PLAN-103: a player who has never finished a game sees the owner's short guide until they tap Got it.
-  const [firstTime, setFirstTime] = useState(showFirstTime);
-  const [rules, setRules] = useState(false);
   const host = !!me?.host;
   const link = inviteLink(v.code);
   const [copied, setCopied] = useState(false);
@@ -228,8 +223,6 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   }
 
   if (wardrobe) return <Wardrobe onBack={() => setWardrobe(false)} onChange={(l) => client.wear(l)} />;
-  // All the rules, opened from the first-time panel: closing it comes back to the lobby as it was.
-  if (rules) return <HowTo onDone={() => setRules(false)} />;
 
   return (
     <Shell title={`Room ${v.code}`} onBack={onExit}>
@@ -267,10 +260,6 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         </div>
         {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
       </section>
-
-      {firstTime && (
-        <FirstTimePanel onRules={() => { fx.tap(); setRules(true); }} onDone={() => { fx.tap(); dismissFirstTime(); setFirstTime(false); }} />
-      )}
 
       <section class="panel">
         <h3>Your look</h3>
