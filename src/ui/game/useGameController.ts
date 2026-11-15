@@ -18,7 +18,8 @@ import { releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings } from '../store';
 import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
-import { bidsTurned, holdBack, type OrderShow } from './dayBeats';
+import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
+import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
 import { playLocal, undoPoint, waitsForPerson } from './turn';
 import type { ShowState } from './rush';
 
@@ -128,7 +129,10 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
   // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseStock(); releaseRush(); releaseTable(); }; }, []);
+  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseToken(); releaseStock(); releaseRush(); releaseTable(); }; }, []);
+  // PLAN-104: once the day's line-up is on show at rest (buying has begun, and no beat holds the First token), this
+  // phone remembers it: the beat is not played again, and tomorrow's token slides from here.
+  useEffect(() => { if (!beforeBuying(s) && s.order.length && !tokenHeld()) noteSeen(s); }, [s.day, s.phase]);
 
   const say = (msg: string) => {
     setToast(msg);
@@ -187,6 +191,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // until their cards are turned.
       const toBuy = next.day === prev.day && (prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy';
       if (toBuy) holdDelivery(next);
+      // PLAN-104: as buying starts and the stalls' row is seen for the day, the First token waits where it lay until
+      // its beat (rowAppears is a case of toBuy).
+      holdFirstToken(prev, next);
       holdDeals(prev, next, viewer);
       const walkIns = arriving(prev, next, viewer);
       holdArrival(walkIns);
@@ -200,6 +207,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       } else if (toBuy) {
         // The bids turned over together, the winner shown and its stake put on the order's card (PLAN-084).
         if (turned) await bidsTurned(turned, viewer, setOrderShow);
+        // Who buys first, and why: on Day 1 the token is drawn at random round the seats (PLAN-104).
+        if (rowAppears(prev, next)) await firstToken(next);
         await delivery(next);
         await moves(prev, next, viewer);
       } else if (flip) {
@@ -223,6 +232,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       }
     } finally {
       holdCash(null);
+      releaseToken();
       releaseStock();
       releaseRush();
       releaseTable();

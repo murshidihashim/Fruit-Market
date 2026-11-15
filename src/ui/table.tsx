@@ -24,6 +24,8 @@ import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite, RoofBand } from './icons';
 import { BEAT, FRAME, moveMs } from './motion';
+import { firstLine, seatNo } from './firstBuyer';
+import { shownToken } from './firstShown';
 import './table.css';
 
 /** Each player's awning colour (deck-art red, green, mustard and blue, DEC-066). */
@@ -244,7 +246,7 @@ const inBuyingOrder = (s: GameState): boolean => s.phase === 'morning' || s.phas
 /**
  * A rival as a box in the stalls' row (the approved Buying and Pricing screens): the thin awning strip, the
  * shopkeeper's face, the name and cash and, only while stalls buy, what it bought today (boughtToday).
- * While stalls buy the box carries its place in the buying order and says "buying now" or "waiting"; once crates are
+ * While stalls buy the box carries its seat round the table (PLAN-104; the row stands in buying order) and says "buying now" or "waiting"; once crates are
  * shut it keeps its cash and says how many pieces it put out ("3 out", "filling…", "ready"), and nothing else. Tap it to open the stall's details. `rv-chip` and `rival-stall` are the
  * names the browser tests know a rival's box by.
  */
@@ -269,12 +271,14 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief }: {
   // where its number stood while stalls bought; and a stall that is buying shows what it has bought so far on its
   // mustard box, with "buying now" beside it only where the box is wide enough (two stalls).
   const shut = s.phase === 'stall' || s.phase === 'bid';
-  const corner = buying ? String(s.order.indexOf(p) + 1) : shut ? note : '';
+  // PLAN-104: while stalls buy the corner holds the stall's seat round the table, the same all game and on every phone;
+  // the boxes stand in buying order, so the seats read on clockwise from the first buyer (3, 4, 1, 2).
+  const corner = buying ? String(seatNo(p)) : shut ? note : '';
   const word = buying ? (buys.length && s.players.length > 2 ? '' : got) : shut ? '' : note;
   return (
     <button type="button" class={`rival-stall rv-chip tb-stall ${compact ? 'compact' : ''} ${active ? 'active' : ''} ${open ? 'open' : ''} ${board ? `b-${board.state}` : ''} ${off ? 'off' : ''} ${buys.length ? 'has-buys' : ''} ${buying ? `buy-${state}` : ''}`} data-a={`p${p}`}
       onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-expanded={!!open}
-      aria-label={`${pl.name}'s stall: $${cash}${buying ? `, ${s.order.indexOf(p) + 1} in the buying order` : ''}${note ? `, ${note}` : ''}${got ? `, ${got}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
+      aria-label={`${pl.name}'s stall: $${cash}${buying ? `, seat ${seatNo(p)}${s.order[0] === p ? ', buys first' : ''}` : ''}${note ? `, ${note}` : ''}${got ? `, ${got}` : ''}${said}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}. Tap for more`}>
       <Awning p={p} look={pl.look} thin />
       <span class="tb-who">
         <StallFace who={pl.avatar} look={pl.look} size={compact ? 20 : 26} />
@@ -303,7 +307,7 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
   const word = buys.length && s.players.length > 2 ? '' : got;
   return (
     <div class={`tb-stall me ${compact ? 'compact' : ''} buy-${state}`} data-a="me-stall" role="img"
-      aria-label={`Your stall: $${cash}, ${s.order.indexOf(p) + 1} in the buying order${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
+      aria-label={`Your stall: $${cash}, seat ${seatNo(p)}${s.order[0] === p ? ', you buy first' : ''}${got ? `, ${got}` : ''}${buys.length ? `, bought today: ${boughtWords(buys)}` : ''}`}>
       <Awning p={p} look={pl.look} thin />
       <span class="tb-who">
         <StallFace who={shownAvatar(s.players, p)} look={pl.look} size={compact ? 20 : 26} />
@@ -313,7 +317,7 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
         <b class="tb-cash">${cash}</b>
         <span class="tb-got"><BuyMarks buys={buys} compact={compact} room={marksRoom(brief, cash)} />{word && <span>{word}</span>}</span>
       </span>
-      <i class="tb-ord" aria-hidden="true">{s.order.indexOf(p) + 1}</i>
+      <i class="tb-ord" aria-hidden="true">{seatNo(p)}</i>
     </div>
   );
 }
@@ -322,7 +326,10 @@ function MyBox({ s, p, compact, brief }: { s: GameState; p: number; compact: boo
  * The stalls' row (the approved Buying and Pricing screens). While stalls buy: "Stalls · in buying order", every
  * stall with its place in the order, you among them, and what each bought today. While crates are shut: "Rival crates
  * · shut until the bell", your rivals with how many pieces each put out, and no purchases. The rest of the day: your
- * rivals and their cash. The row keeps its place and its height all day. 2 to 6 stalls: five or six stand closer, in smaller boxes.
+ * rivals and their cash. The row keeps its place and its height all day. While stalls buy a line under the title says
+ * who buys first and why (PLAN-104; its room stays, empty, the rest of the day), and each box's corner holds its seat
+ * round the table, so the clockwise order from the first buyer can be read. 2 to 6 stalls: five or six stand closer,
+ * in smaller boxes.
  */
 export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
   s: GameState; viewer: number; boards: Record<number, Board>; open: number | null; onOpen: (p: number) => void; onClose: () => void; off: number[];
@@ -331,17 +338,26 @@ export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
   const shut = s.phase === 'stall' || s.phase === 'bid';
   const list = buying ? s.order.filter((p) => !!s.players[p]) : seats(s.players.length, viewer).map((x) => x.p);
   const compact = list.length > 4;
+  // PLAN-104: the First token on today's first buyer, and under the title who buys first, why, and that the rest follow
+  // clockwise. Both wait for the day's beat (firstShown.ts): the token is not drawn where it is going before it gets there.
+  const token = buying ? shownToken(s) : null;
+  const at = token && token.at !== null ? list.indexOf(token.at) : -1;
+  const line = buying ? firstLine(s, viewer) : null;
   return (
-    <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
+    <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''} ${buying ? 'buying' : ''} ${token && !token.why ? 'tb-drawing' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
       <div class="tb-row-head">
         <b class="tk-label">{buying ? 'Stalls · in buying order' : shut ? 'Rival crates · shut until the bell' : 'Rival stalls'}</b>
         {/* today's purchases are on show only while stalls buy (boughtToday), and so is the label that names them */}
         {s.phase === 'buy' && <span class="tb-side">What each bought today</span>}
       </div>
-      <div class="tb-stall-row">
+      {/* the line keeps its room the rest of the day, empty, so the market below never moves */}
+      {buying ? <p role="note" class={`tb-why ${token?.why ? 'go' : 'off'}`} key={`why-${s.day}-${token?.why ? 1 : 0}`} aria-hidden={!token?.why} aria-label={line?.aria}
+        title={line?.aria}>{line && <><b>{line.head}</b> · {line.tail}</>}</p> : <p class="tb-why off" aria-hidden="true" />}
+      <div class="tb-stall-row" style={`--n:${list.length}`}>
         {list.map((p) => (p === viewer
           ? <MyBox key={p} s={s} p={p} compact={compact} brief={list.length > 3} />
           : <RivalStall key={p} s={s} p={p} board={boards[p]} open={open === p} off={off.includes(p)} compact={compact} brief={list.length > 3} onOpen={() => onOpen(p)} />))}
+        {at >= 0 && <i class="tb-first" data-a="first-token" style={`--k:${at}`} aria-hidden="true">First</i>}
       </div>
       {open !== null && <RivalDrop s={s} p={open} onClose={onClose} />}
     </div>

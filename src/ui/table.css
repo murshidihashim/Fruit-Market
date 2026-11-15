@@ -46,7 +46,24 @@
 #app .tkt .tb-row-head { flex: none; height: 13px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 #app .tkt .tb-row-head .tk-label { font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
 #app .tkt .tb-side { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1.1 var(--tk-txt); color: var(--tk-slate); }
-#app .tkt .tb-stall-row { flex: none; display: flex; gap: 5px; min-width: 0; }
+#app .tkt .tb-stall-row { --g: 5px; position: relative; flex: none; display: flex; gap: var(--g); min-width: 0; }
+/* PLAN-104: while stalls buy, who buys first and why, under the title (on a shorter phone, where the title is put away,
+   in its place); it keeps its room while the token is on its way and fades in once it has landed */
+#app .tkt .tb-why { flex: none; height: 14px; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.6875rem/14px var(--tk-txt); color: var(--tk-slate); }
+#app .tkt .tb-why b { font-weight: 800; color: var(--tk-ink); }
+#app .tkt .tb-why.off { visibility: hidden; }
+/* while the token is on its way the row does not give away where it lands: no box is marked as buying yet */
+#app .tkt .tb-stalls.tb-drawing .tb-stall.buy-now { background: var(--tk-paper); }
+#app .tkt .tb-stalls.tb-drawing .tb-got > span:last-child:not(.tb-buys) { visibility: hidden; }
+#app .tkt .tb-why.go { animation: tb-why-in calc(var(--mk, 1) * var(--t-travel, 320ms)) ease both; }
+@keyframes tb-why-in { from { opacity: 0; } }
+/* the First token: a small round token on the first buyer's box, over its awning; it lies on the row, so it can
+   travel from box to box (the boxes are all one width: box k starts k widths and gaps from the left) */
+#app .tkt .tb-first {
+  position: absolute; z-index: 2; top: -4px; left: calc(var(--k, 0) * (100% + var(--g)) / var(--n, 1) - 3px); height: 15px; padding: 0 5px;
+  box-sizing: border-box; display: grid; place-items: center; border: 1.5px solid var(--tk-ink); border-radius: 8px; background: var(--tk-yel);
+  color: var(--tk-ink); font: 800 0.5rem/1 var(--tk-txt); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none;
+}
 #app .tkt .tb-stall {
   all: unset; position: relative; flex: 1 1 0; min-width: 0; height: 66px; box-sizing: border-box; overflow: hidden;
   display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 3px 5px; align-items: center; padding: 0 5px 4px;
@@ -256,6 +273,7 @@
   #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
   #app .tkt .tb-dock-head, #app .tkt .tb-chips { padding-left: 8px; padding-right: 8px; }
   #app .tkt .tb-stall-row, #app .tkt .tb-lanes, #app .tkt .tk-night.tb-night .tb-lanes { gap: 4px; }
+  #app .tkt .tb-stall-row { --g: 4px; }
   #app .tkt .tomorrow .tm-lorry { display: none; }
 }
 @media (max-height: 779px) and (max-width: 379px) {
