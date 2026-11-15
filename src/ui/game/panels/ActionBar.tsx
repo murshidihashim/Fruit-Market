@@ -5,6 +5,7 @@ import { count, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import { fx } from '../../fx';
 import { shownBoughtCount } from '../../tableShown';
+import { tokenOnItsWay } from '../../firstShown';
 import { eveningWaitLine } from '../evening';
 import type { GameController } from '../useGameController';
 
@@ -20,7 +21,11 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // (PLAN-099; panels/RushTable.tsx), and the game table does not draw the bar then.
   // A beat that plays by itself says what it is ('': a beat that has nothing to add here, and no other hint shows
   // then either). Not on your own buying turn: the buttons stay where they are.
-  const beat = !busy || myBuy ? null
+  // PLAN-104: while the First token goes round the seats or slides to today's first buyer, the bar does not give away
+  // where it lands: it keeps its room, empty, and your buying buttons wait too, until the token is there.
+  const drawing = tokenOnItsWay();
+  const beat = drawing ? ''
+    : !busy || myBuy ? null
     // The night's own heading says it (the text audit, entry 391): the bar is empty, and no other hint shows then.
     : night ? ''
     : s.phase === 'morning' || unloading ? 'The lorry arrives…'
@@ -37,7 +42,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
         : <button class="btn primary wide big" onClick={c.proceed}>Start buying</button>)}
-      {myBuy && pl && (
+      {myBuy && pl && !drawing && (
         <>
           <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done

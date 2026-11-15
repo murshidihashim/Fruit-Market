@@ -1,0 +1,57 @@
+{
+  "id": "PLAN-106",
+  "title": "Card design: standard picture sizes, customer type colours, MARKET/CUSTOMER tags, cleaner backs (print kit and app)",
+  "problem": "The owner's list for the print kit: picture boxes differ in size between cards; customer types are not told apart at a glance; event cards do not show clearly whether a price change is at the Wholesale Market or from customers; backs carry \"Deck of N\"; the shopkeeper footer says \"Your perk all game\".",
+  "scope": [
+    "Customer cards: one picture size, fruit and tags laid out to fit; top and bottom bars coloured by type (Premium deep purple with gold edge, Everyday teal, Bargain warm orange)",
+    "Guest and event cards: one picture size each; event effect boxes one size; MARKET (lorry, grey) and CUSTOMER (customer face) tags on money lines",
+    "Shopkeeper footer \"Fruit Market\", centred; no \"Deck of N\" on any back",
+    "The same design in the app and the print kit; print kit and update pack rebuilt"
+  ],
+  "exclusions": [
+    "Any rule, number or card meaning change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes; print kit tests pass",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Before/after sheets of every deck and the app at 390x844 and 360x640 seen",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner has checked the sheets",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15: his list of print kit changes, then \"both, colours ok, tags ok, remove all deck of\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
