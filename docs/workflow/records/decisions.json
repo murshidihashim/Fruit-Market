@@ -4125,6 +4125,10 @@
     {
       "at": "2026-11-15 09:30",
       "text": "PLAN-102 merged as c84e2f0: verify PASS (915 tests), e2e PASS on the merge (0 leaks, longest task 162 ms). Open for the owner: the new lines, whether the back arrow while choosing leaves or only disconnects, and two lobby problems found (+3/+4 computer buttons off the edge, the HOST tag hard to read)."
+    },
+    {
+      "at": "2026-11-15 09:35",
+      "text": "PLAN-103 approved: the owner wrote the text of the \"First time? How to play\" panel himself (\"use this\"); checked against the rules: correct (it leaves out the Charmer's extra favour and that the host can switch upgrades off). Building in a helper."
     }
   ]
 }
