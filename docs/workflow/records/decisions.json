@@ -4137,6 +4137,10 @@
     {
       "at": "2026-11-15 10:28",
       "text": "PLAN-103 changed at the owner's word (\"it should appear after game has started, before calm day is drawn, try to fit everything in one popup\"): out of the lobby, one popup on Day 1 of an online game before the morning card; merged as 1b2032f, verify PASS."
+    },
+    {
+      "at": "2026-11-15 18:41",
+      "text": "PLAN-104 approved from the owner's two requests (a first-player token, random on Day 1 and passed by the rules; the stall badge to show seat order, not buying position). Built as option 1: seat numbers on the badges and a First token on today's first buyer with the reason. The owner asked to see 1.23.0 on the preview: it already runs 1.23.0; the new work goes to the preview only on his word."
     }
   ]
 }
