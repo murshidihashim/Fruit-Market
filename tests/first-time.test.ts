@@ -1,11 +1,12 @@
-// PLAN-103: "First time? How to play" in the room lobby. The panel reads exactly as the owner wrote it, with every
+// PLAN-103: "First time? How to play", one pop-up over Day 1 of an online game. It reads exactly as the owner wrote it, with every
 // number taken from the game data; it shows only to a player who has never finished a game; "Got it" hides it for good.
 import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { BASE_BUY, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, MARKET_DAY_EVERY } from '../src/engine/data';
 import { OKAY_LESS, SOFT_LESS, toStaticHtml } from '../src/ui/cards';
-import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, hasFinishedGame, nthWord, showFirstTime } from '../src/ui/FirstTime';
+import { newGame } from '../src/engine/game';
+import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, firstTimeMoment, hasFinishedGame, nthWord, showFirstTime } from '../src/ui/FirstTime';
 import { saveStats } from '../src/ui/store';
 
 /** The owner's text (15 November), with the game's straight apostrophe for his curly ones. */
@@ -64,7 +65,7 @@ beforeEach(() => {
   };
 });
 
-describe('first-time panel: the words', () => {
+describe('first-time pop-up: the words', () => {
   it("reads exactly as the owner's text", () => {
     const lines = OWNER.split('\n').map((l) => l.trim()).filter(Boolean);
     expect(readText(toStaticHtml(h(FirstTimeText, {})))).toEqual(lines);
@@ -87,7 +88,7 @@ describe('first-time panel: the words', () => {
   });
 });
 
-describe('first-time panel: who sees it', () => {
+describe('first-time pop-up: who sees it', () => {
   it('shows to a player who has never finished a game', () => {
     expect(hasFinishedGame()).toBe(false);
     expect(showFirstTime()).toBe(true);
@@ -107,14 +108,29 @@ describe('first-time panel: who sees it', () => {
     expect(showFirstTime()).toBe(false);
   });
 
-  it('sits in the private room lobby, after the players, and never holds up Ready or Start', () => {
-    const src = readFileSync('src/ui/Online.tsx', 'utf8');
-    const lobby = src.slice(src.indexOf('function Lobby('), src.indexOf('function Picking('));
-    const panel = lobby.indexOf('<FirstTimePanel');
-    expect(panel).toBeGreaterThan(lobby.indexOf('Players {v.seats.length'));
-    expect(panel).toBeLessThan(lobby.indexOf("I'm ready"));
-    // Not in a quick match (it starts at once) and not part of what the Ready and Start buttons check.
-    expect(lobby.indexOf('if (v.quick)')).toBeLessThan(panel);
-    expect(lobby).toContain('const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);');
+  it('shows over an online game on Day 1, before the morning card, and only until Start buying', () => {
+    const g = newGame({ players: [{ name: 'A', kind: 'human', avatar: 'a' }, { name: 'B', kind: 'human', avatar: 'b' }], days: 8, unripe: true, upgrades: true, events: true, seed: 5 });
+    expect(g.day).toBe(1);
+    expect(g.phase).toBe('morning');
+    expect(firstTimeMoment(g, true, false)).toBe(true);
+    // Solo and pass-and-play games have the first-game tips instead.
+    expect(firstTimeMoment(g, false, false)).toBe(false);
+    // Once this player has tapped Start buying (a resumed game), or on any later step or day: not shown.
+    expect(firstTimeMoment(g, true, true)).toBe(false);
+    expect(firstTimeMoment({ ...g, phase: 'buy' }, true, false)).toBe(false);
+    expect(firstTimeMoment({ ...g, day: 2 }, true, false)).toBe(false);
+  });
+
+  it('is drawn by the game in place of the morning card, not in the lobby', () => {
+    const game = readFileSync('src/ui/Game.tsx', 'utf8');
+    expect(game).toContain("const [firstTime, setFirstTime] = useState(() => !!online && showFirstTime());");
+    expect(game).toContain('const firstUp = firstTime && firstTimeMoment(s, !!online, c.votedMe);');
+    // The morning card (and its news) waits. This player's Start buying lies under the pop-up, out of reach.
+    const morning = game.indexOf("if (s.phase === 'morning' && firstUp) return null;");
+    expect(morning).toBeGreaterThan(-1);
+    expect(morning).toBeLessThan(game.indexOf('<MorningCard s={s} viewer={viewer} lost={c.lastNight}'));
+    // Got it is remembered before the pop-up goes.
+    expect(game).toContain('dismissFirstTime(); setFirstTime(false);');
+    expect(readFileSync('src/ui/Online.tsx', 'utf8')).not.toMatch(/FirstTime/);
   });
 });

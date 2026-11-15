@@ -1,8 +1,12 @@
-// PLAN-103: "First time? How to play" in a private room's lobby, in the owner's own words. The first-game tips are
-// off in online games, so a player who was invited to a room and has never finished a game reads this while the
-// room fills. It never blocks Ready or Start. "Got it" hides it for good on this device; "All the rules" opens the
-// full How to play. Every number comes from the game data, so the words cannot drift from the rules.
+// PLAN-103: "First time? How to play", in the owner's own words, as one pop-up over the game. The first-game tips are
+// off in online games, so when an online game starts (a private room or a quick match), a player who has never
+// finished a game reads this on Day 1, before the morning's news is turned over. It only holds up this player's own
+// morning card: the morning already waits for each person's Start buying. "Got it" hides it for good on this device;
+// "All the rules" opens the full How to play and comes back here. Every number comes from the game data, so the words
+// cannot drift from the rules.
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import { BASE_BUY, FAVOUR_HAND_LIMIT, MARKET_DAY_EVERY, type Stage } from '../engine/data';
+import type { GameState } from '../engine/game';
 import { DeckBack, OKAY_LESS, SOFT_LESS } from './cards';
 import { FruitSvg } from './fruitIcons';
 import { BEATS } from './game/panels/TopBar';
@@ -10,7 +14,7 @@ import { loadStats } from './store';
 import { STAGE_LETTER } from './ticket';
 import './firstTime.css';
 
-/** Set once the player taps "Got it": the panel does not come back on this device. */
+/** Set once the player taps "Got it": the pop-up does not come back on this device. */
 export const FIRST_TIME_KEY = 'fm.firstTimeDone';
 
 /**
@@ -23,12 +27,18 @@ export const hasFinishedGame = () => loadStats().played > 0;
 
 const dismissed = () => { try { return localStorage.getItem(FIRST_TIME_KEY) === '1'; } catch { return false; } };
 
-/** The panel shows to a player who has never finished a game and has not tapped "Got it". */
+/** For a player who has never finished a game and has not tapped "Got it". */
 export const showFirstTime = () => !hasFinishedGame() && !dismissed();
 
 export function dismissFirstTime() {
-  try { localStorage.setItem(FIRST_TIME_KEY, '1'); } catch { /* storage unavailable: hidden until the lobby is drawn again */ }
+  try { localStorage.setItem(FIRST_TIME_KEY, '1'); } catch { /* storage unavailable: hidden for the rest of this game only */ }
 }
+
+/**
+ * The moment for the pop-up: an online game on the morning of Day 1, before this player has tapped Start buying.
+ * Solo and pass-and-play games have the first-game tips (tutorial.ts) instead.
+ */
+export const firstTimeMoment = (s: GameState, online: boolean, voted: boolean) => online && s.day === 1 && s.phase === 'morning' && !voted;
 
 const NTH: Record<number, string> = { 2: 'second', 3: 'third', 4: 'fourth', 5: 'fifth', 6: 'sixth' };
 /** "third" for a Market Day every 3 days. */
@@ -52,49 +62,71 @@ function Lamp({ stage }: { stage: Stage }) {
 export function FirstTimeText() {
   return (
     <div class="ft-text">
-      <h4>RUN YOUR STALL.</h4>
-      <p>Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!</p>
+      <section class="ft-part ft-intro">
+        <h4>RUN YOUR STALL.</h4>
+        <p>Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!</p>
+      </section>
 
-      <h4>YOUR DAILY ROUTINE</h4>
-      <ol class="ft-steps">
-        {STEPS.map((s) => (
-          <li>
-            <div class="ft-step-head"><b>{s.lead}</b>{s.beat && <span class="ft-beat" aria-hidden="true">{s.beat}</span>}</div>
-            {s.text && <div>{s.text}</div>}
-          </li>
-        ))}
-      </ol>
+      <section class="ft-part">
+        <h4>YOUR DAILY ROUTINE</h4>
+        <ol class="ft-steps">
+          {STEPS.map((s, i) => (
+            <li class={`ft-step-${i + 1}`}>
+              <div class="ft-step-head"><b>{s.lead}</b>{s.beat && <span class="ft-beat" aria-hidden="true">{s.beat}</span>}</div>
+              {s.text && <div>{s.text}</div>}
+            </li>
+          ))}
+        </ol>
+      </section>
 
-      <h4>MARKET DAYS</h4>
-      <p>{`Every ${nthWord(MARKET_DAY_EVERY)} day, except the last:`}</p>
-      <p>Bid for a standing order. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.</p>
+      <section class="ft-part">
+        <h4>MARKET DAYS</h4>
+        <p class="ft-when">{`Every ${nthWord(MARKET_DAY_EVERY)} day, except the last:`}</p>
+        <p>Bid for a standing order. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.</p>
+      </section>
 
-      <h4>THREE THINGS TO REMEMBER</h4>
-      <p><b>Watch your rivals.</b> Purchases are public as they happen, but aren't shown again. Shelves stay hidden.</p>
-      <p>
-        <b>Fruit ages nightly:</b>{' '}
-        <span class="ft-nw"><Lamp stage="fresh" />Fresh</span> → <span class="ft-nw"><Lamp stage="okay" />Okay</span> → <span class="ft-nw"><Lamp stage="notso" />Soft</span> → gone.
-        {' '}Mangoes arrive <span class="ft-nw">Green<span class="ft-fruit" aria-hidden="true"><FruitSvg id="mango" stage="unripe" size={18} alt="" /></span></span> and ripen first.
-        {` Customers pay $${OKAY_LESS} less for Okay and $${SOFT_LESS} less for Soft; some refuse older fruit.`}
-      </p>
-      <div class="ft-favours">
-        <span class="ft-card" aria-hidden="true"><DeckBack deck="favour" /></span>
-        <p><b>Complete orders, earn favours.</b>{` Serve a customer's whole order alone. Draw up to 1 per day; hold up to ${FAVOUR_HAND_LIMIT}.`}</p>
-      </div>
+      <section class="ft-part">
+        <h4>THREE THINGS TO REMEMBER</h4>
+        <p><b>Watch your rivals.</b> Purchases are public as they happen, but aren't shown again. Shelves stay hidden.</p>
+        <p>
+          <b>Fruit ages nightly:</b>{' '}
+          <span class="ft-nw"><Lamp stage="fresh" />Fresh</span> → <span class="ft-nw"><Lamp stage="okay" />Okay</span> → <span class="ft-nw"><Lamp stage="notso" />Soft</span> → gone.
+          {' '}Mangoes arrive <span class="ft-nw">Green<span class="ft-fruit" aria-hidden="true"><FruitSvg id="mango" stage="unripe" size={14} alt="" /></span></span> and ripen first.
+          {` Customers pay $${OKAY_LESS} less for Okay and $${SOFT_LESS} less for Soft; some refuse older fruit.`}
+        </p>
+        <div class="ft-favours">
+          <span class="ft-card" aria-hidden="true"><DeckBack deck="favour" /></span>
+          <p><b>Complete orders, earn favours.</b>{` Serve a customer's whole order alone. Draw up to 1 per day; hold up to ${FAVOUR_HAND_LIMIT}.`}</p>
+        </div>
+      </section>
     </div>
   );
 }
 
-/** The panel in the lobby. It sits among the lobby's panels and scrolls with the page: nothing waits for it. */
-export function FirstTimePanel({ onRules, onDone }: { onRules: () => void; onDone: () => void }) {
+/** How many steps closer the pop-up may be drawn when it would otherwise need a scroll (firstTime.css, data-tight). */
+export const FT_TIGHTEST = 3;
+
+/** One pop-up over the table. A tap outside its box does nothing: it closes only with its buttons. */
+export function FirstTimePopup({ onRules, onDone }: { onRules: () => void; onDone: () => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  // Drawn a step closer while the words do not fit; past the last step the words scroll inside the box.
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    let step = 0;
+    el.dataset.tight = '0';
+    while (step < FT_TIGHTEST && el.scrollHeight > el.clientHeight + 1) { step += 1; el.dataset.tight = String(step); }
+  }, []);
   return (
-    <section class="panel ft-panel" aria-labelledby="ft-title">
-      <h3 id="ft-title">First time? How to play</h3>
-      <FirstTimeText />
-      <div class="row2 ft-actions">
-        <button type="button" class="btn" onClick={onRules}>All the rules</button>
-        <button type="button" class="btn primary" onClick={onDone}>Got it</button>
+    <div class="ft-pop" role="dialog" aria-modal="true" aria-labelledby="ft-title" onClick={(e) => e.stopPropagation()}>
+      <div class="ft-box" ref={box}>
+        <h3 id="ft-title">First time? How to play</h3>
+        <FirstTimeText />
+        <div class="ft-actions">
+          <button type="button" class="btn" onClick={onRules}>All the rules</button>
+          <button type="button" class="btn primary" onClick={onDone}>Got it</button>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
