@@ -17,6 +17,7 @@ import { coverWatch } from './game/underSheet';
 import { useStockShown } from './stockShown';
 import { useRushShown } from './rushShown';
 import { useTableShown } from './tableShown';
+import { useTokenShown } from './firstShown';
 import { useSheet } from './sheet';
 import { TopBar } from './game/panels/TopBar';
 import { MorningCard } from './game/panels/MorningCard';
@@ -53,6 +54,9 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   // A box's number, your shelf and a stall's purchases change as a piece lifts off or lands, and a walk-in's face shows
   // as its card is turned (tableShown.ts).
   useTableShown();
+  // The First token goes round the seats or slides to today's first buyer, and the reason shows as it lands
+  // (firstShown.ts, PLAN-104).
+  useTokenShown();
   // The middle panel slides onto the table and off again (sheet.ts); the table underneath stays where it is.
   const sheet = useSheet();
   // What a sheet lies over cannot be seen, so it is put out of reach of the keyboard and of screen readers too: the

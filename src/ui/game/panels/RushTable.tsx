@@ -418,6 +418,11 @@ function Customer({ c, at, stage, el }: { c: RushCard; at: number; stage: RushSt
   );
 }
 
+/** A tag's key carries what it shows, so a new price gives a new element. Safari (iOS) keeps the picture of an element
+ *  drawn through a CSS filter (the tag's ink edge, rushTable.css .rt-tg) and did not repaint the price when only the
+ *  text inside changed: the tag kept showing the old price while the player stepped it. A new element is always drawn. */
+const tagKey = (t: SeatTag) => `${t.f}-${t.up ? t.price ?? 'x' : 'down'}-${t.tied ? 't' : ''}${t.stamped ? 's' : ''}`;
+
 /** A price tag on a crate, cut like the printed game's tag: the fruit and its price, face up; its back, face down. A
  *  tag another stall matches is marked; a tag Favoured Trade was played on is stamped. */
 function Tag({ p, t, look }: { p: number; t: SeatTag; look?: LookSet }) {
@@ -479,7 +484,7 @@ function Crate({ s, p, at, me, shared, low, close, seat, rush }: {
           {seat.look === 'open' && !pieces.length && <span class="rt-empty">Empty</span>}
           {!me && <i class={`rt-lid ${seat.look === 'lid' ? '' : 'off'}`} />}
         </div>
-        <div key="all" class={`rt-tags ${seat.tags.length >= SMALL_TAGS ? 'small' : ''}`}>{seat.tags.map((t) => <Tag p={p} t={t} look={pl.look} />)}</div>
+        <div key="all" class={`rt-tags ${seat.tags.length >= SMALL_TAGS ? 'small' : ''}`}>{seat.tags.map((t) => <Tag key={tagKey(t)} p={p} t={t} look={pl.look} />)}</div>
         {/* the word on the corner lifts off like a lid as the crate opens (rushTable.css) */}
         {(seat.word || seat.was) && <i key={seat.word || seat.was} class={`rt-word ${seat.word ? '' : 'off'} ${seat.word === 'filling…' || seat.word === 'pricing…' ? 'busy' : ''}`} aria-hidden="true">{seat.word || seat.was}</i>}
       </div>
@@ -517,7 +522,7 @@ function Crate({ s, p, at, me, shared, low, close, seat, rush }: {
       </div>
       {first ? (
         // The bell's tags fade as the first customer comes in; then the tag for each fruit they want shows in turn.
-        <div key="all" class={`rt-tags fade ${openTags(s, p).length >= SMALL_TAGS ? 'small' : ''}`} aria-hidden="true">{openTags(s, p).map((t) => <Tag p={p} t={t} look={pl.look} />)}</div>
+        <div key="all" class={`rt-tags fade ${openTags(s, p).length >= SMALL_TAGS ? 'small' : ''}`} aria-hidden="true">{openTags(s, p).map((t) => <Tag key={tagKey(t)} p={p} t={t} look={pl.look} />)}</div>
       ) : (
         <div class="rt-tagrow" key={up && f ? `${c.customerId}-${f}` : 'shut'}>
           {up && row && !off && (

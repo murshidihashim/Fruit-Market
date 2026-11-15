@@ -10,6 +10,7 @@ import * as A from '../anim';
 import { CardArt, ART_SIZE } from '../cards';
 import { holdCash, payCash, takeCash } from '../cashShown';
 import { upgradeArt, upgradeFocus } from '../deckArt';
+import { beforeBeat, holdToken, noteSeen, releaseToken, seenToday, yesterday } from '../firstShown';
 import { fx } from '../fx';
 import { Swatch } from '../ticket';
 
@@ -203,6 +204,104 @@ export async function bidsTurned(show: OrderShow, viewer: number, set: (s: Order
   } finally {
     set(null);
   }
+}
+
+// ---------- the morning: the First token (PLAN-104) ----------
+
+/** Buying starts on this step: the morning sheet (or the standing order's, which lies over the row as well) goes and
+ *  the stalls' row is seen for the day. */
+export const rowAppears = (prev: GameState, next: GameState): boolean =>
+  next.day === prev.day && (prev.phase === 'morning' || prev.phase === 'order') && next.phase === 'buy' && next.order.length > 0;
+
+/**
+ * Called before the new state is drawn, as the row appears for the day: the token stays where it lay (or out of
+ * sight) and the reason waits, unless this phone has already shown the day.
+ */
+export function holdFirstToken(prev: GameState, next: GameState): void {
+  if (rowAppears(prev, next) && !seenToday(next)) holdToken(beforeBeat(next));
+}
+
+/** Where box `k` of the stalls' row is, left to right, from the row's own left edge (null: not drawn). */
+function boxLefts(): number[] | null {
+  const row = typeof document === 'undefined' ? null : document.querySelector('.tb-stall-row');
+  if (!row) return null;
+  const boxes = [...row.querySelectorAll(':scope > .tb-stall')] as HTMLElement[];
+  return boxes.length ? boxes.map((b) => b.offsetLeft) : null;
+}
+
+/**
+ * The First token's beat, as the row appears for the day (holdFirstToken has kept it back). Day 1: the token goes
+ * round the seats, the boxes left to right (they stand clockwise from the token's seat), for about two seconds, slowing
+ * down, and lands on the first buyer; the line "picked at random" then shows. A later day: it slides from where it lay
+ * yesterday to today's first buyer, and the reason shows. With reduced motion nothing travels: the token is on the
+ * first buyer and the reason shows at once. A tap ends the move. Each phone plays a day's beat once (firstShown.ts).
+ */
+export async function firstToken(next: GameState): Promise<void> {
+  if (seenToday(next)) return;
+  const first = next.order[0];
+  const from = next.day === 1 ? null : yesterday(next);
+  const length = next.day === 1 ? FIRST_SPIN : FIRST_SLIDE;
+  try {
+    // The sheet over the row (the morning's, or the standing order's) leaves the table first.
+    await A.wait(A.FEEL.sheetOut);
+    holdToken({ at: first, why: false });
+    await A.frame();
+    const el = typeof document === 'undefined' ? null : document.querySelector<HTMLElement>('[data-a="first-token"]');
+    const lefts = boxLefts();
+    const n = lefts?.length ?? 0;
+    const moved = lefts && n > 1 ? (next.day === 1 ? spinFrames(lefts) : from !== null && from !== first ? slideFrames(lefts, next.order.indexOf(from)) : null) : null;
+    // A token that was not on the row (this phone did not see yesterday) fades in where it lies; one already on the
+    // first buyer stays put.
+    const frames = moved ?? (from === null ? [{ opacity: 0 }, { opacity: 1 }] : null);
+    const dur = moved ? length : A.FEEL.turn;
+    if (el && frames && A.moveMs(dur) > 0) {
+      const anim = el.animate(frames, { duration: A.moveMs(dur), easing: moved && next.day === 1 ? 'linear' : A.EASE.travel, fill: 'backwards' });
+      // A tap ends the wait (and so the move); the move ends by itself otherwise.
+      await Promise.race([anim.finished.catch(() => undefined), A.wait(dur)]);
+      anim.finish();
+    }
+    holdToken({ at: first, why: true });
+    // A moment to read who buys first and why (kept with reduced motion), before the lorry comes.
+    await A.hold(next.day === 1 ? A.BEAT.label.read : A.BEAT.evening.label);
+  } finally {
+    noteSeen(next);
+    releaseToken();
+  }
+}
+
+/** Day 1's spin, in ms at normal speed, and a later morning's slide. */
+export const FIRST_SPIN = 2000;
+export const FIRST_SLIDE = 480;
+
+/**
+ * Day 1's spin as keyframes on the token, which is drawn at box 0 (the first buyer): it goes round the boxes left to
+ * right, a box at a time, at least twice round and ten boxes in all, slowing down as it goes, and stops on box 0. From
+ * the last box back to the first (round the table) it fades out and in again rather than crossing the row backwards.
+ * Position and fade only. Pure, so tests can check it.
+ */
+export function spinFrames(lefts: number[]): Keyframe[] {
+  const n = lefts.length;
+  const hops = Math.max(2, Math.ceil(10 / n)) * n;
+  // The k-th hop ends at this share of the whole time: each hop takes a little longer than the one before.
+  const at = (k: number) => (k / hops) ** 1.5;
+  const x = (box: number) => `translateX(${(lefts[box] - lefts[0]).toFixed(1)}px)`;
+  const out: Keyframe[] = [{ offset: 0, transform: x(0), opacity: 0 }, { offset: at(0.4), transform: x(0), opacity: 1 }];
+  for (let k = 1; k <= hops; k++) {
+    const box = k % n;
+    const t = at(k);
+    if (box === 0) {
+      // round the table: out at the end of the row, in again at its start
+      const mid = (at(k - 1) + t) / 2;
+      out.push({ offset: mid, transform: x(n - 1), opacity: 0 }, { offset: mid, transform: x(0), opacity: 0 }, { offset: t, transform: x(0), opacity: 1 });
+    } else out.push({ offset: t, transform: x(box), opacity: 1 });
+  }
+  return out;
+}
+
+/** A later morning's slide: from yesterday's first buyer (box `from` in today's row) to today's, box 0. */
+export function slideFrames(lefts: number[], from: number): Keyframe[] | null {
+  if (from <= 0 || from >= lefts.length) return null;
+  return [{ transform: `translateX(${(lefts[from] - lefts[0]).toFixed(1)}px)` }, { transform: 'none' }];
 }
 
 // ---------- the evening: an upgrade built, Priority played ----------

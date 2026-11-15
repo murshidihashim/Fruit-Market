@@ -4141,6 +4141,18 @@
     {
       "at": "2026-11-15 18:41",
       "text": "PLAN-104 approved from the owner's two requests (a first-player token, random on Day 1 and passed by the rules; the stall badge to show seat order, not buying position). Built as option 1: seat numbers on the badges and a First token on today's first buyer with the reason. The owner asked to see 1.23.0 on the preview: it already runs 1.23.0; the new work goes to the preview only on his word."
+    },
+    {
+      "at": "2026-11-15 19:31",
+      "text": "At the owner's word (\"preview the new work\"): pull request #16 (PLAN-102 and PLAN-103), CI PASS, merged to main as e0c0cd8; main CI PASS and the preview updated; the preview serves the choosing step and the first-time popup. The live game stays 1.23.0."
+    },
+    {
+      "at": "2026-11-15 20:33",
+      "text": "PLAN-104 merged as 8a04062: verify PASS (934 tests); GitHub CI run 148 on the branch PASS with the speed test at 82 ms (the local machine is borderline for every build). Open for the owner: the reason-line wording, holding the \"is buying\" bar until the token lands, and whether to send it to the preview."
+    },
+    {
+      "at": "2026-11-15 21:33",
+      "text": "PLAN-105: the owner reported that on iOS the price tag does not change when the price is amended. Likely cause: the crate tags are painted through a CSS filter (drop-shadow edge) and Safari does not repaint a filtered element when only its text changes. Fix: each tag keyed by its price and face so a new element is drawn. verify PASS; not checked on a real iPhone (no Safari here)."
     }
   ]
 }
