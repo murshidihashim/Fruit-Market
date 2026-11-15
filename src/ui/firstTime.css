@@ -1,0 +1,29 @@
+/* PLAN-103: "First time? How to play" in the room lobby (FirstTime.tsx). The text is the content; the pictures stay small. */
+.ft-panel h3 { margin-bottom: 4px; }
+.ft-text { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; line-height: 1.4; overflow-wrap: anywhere; }
+.ft-text h4 { margin: 8px 0 0; font: 800 0.8rem/1.2 var(--f-label); letter-spacing: 0.08em; color: var(--x-red-d); }
+.ft-text h4:first-child { margin-top: 0; }
+.ft-text p { margin: 0; }
+.ft-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ft-steps li { padding: 6px 9px; border: 1.5px solid var(--x-ink); border-radius: 10px; background: var(--x-paper); }
+.ft-step-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+/* the name of the step on the bar along the top of the game */
+.ft-beat {
+  flex: none; padding: 3px 6px; border-bottom: 2px solid var(--x-ink); background: var(--x-mustard); color: var(--x-ink);
+  font: 800 0.62rem/1 var(--f-label); letter-spacing: 0.02em; text-transform: uppercase;
+}
+/* Fresh, Okay and Soft: the freshness letters of the board */
+.ft-lamp {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 3px; vertical-align: -3px; border-radius: 50%;
+  background: var(--x-ink); color: var(--x-paper); font: 800 0.6rem/1 var(--f-label); font-style: normal;
+}
+.ft-lamp-okay { background: var(--x-slate); }
+.ft-lamp-notso { background: none; color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ft-nw { white-space: nowrap; }
+.ft-fruit { display: inline-block; margin-left: 3px; vertical-align: -4px; }
+.ft-fruit img { display: block; }
+.ft-favours { display: flex; align-items: flex-start; gap: 10px; }
+/* a favour card, face down, at the size of a thumbnail */
+.ft-card { flex: none; display: block; }
+.ft-card .cd-bk { --card-w: 40px; }
+.ft-actions { margin-top: 12px; }
