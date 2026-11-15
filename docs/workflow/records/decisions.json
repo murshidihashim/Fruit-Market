@@ -4141,6 +4141,10 @@
     {
       "at": "2026-11-15 18:41",
       "text": "PLAN-104 approved from the owner's two requests (a first-player token, random on Day 1 and passed by the rules; the stall badge to show seat order, not buying position). Built as option 1: seat numbers on the badges and a First token on today's first buyer with the reason. The owner asked to see 1.23.0 on the preview: it already runs 1.23.0; the new work goes to the preview only on his word."
+    },
+    {
+      "at": "2026-11-15 19:31",
+      "text": "At the owner's word (\"preview the new work\"): pull request #16 (PLAN-102 and PLAN-103), CI PASS, merged to main as e0c0cd8; main CI PASS and the preview updated; the preview serves the choosing step and the first-time popup. The live game stays 1.23.0."
     }
   ]
 }
