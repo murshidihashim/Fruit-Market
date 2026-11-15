@@ -73,8 +73,8 @@ export function FirstTimeText() {
       <p><b>Watch your rivals.</b> Purchases are public as they happen, but aren't shown again. Shelves stay hidden.</p>
       <p>
         <b>Fruit ages nightly:</b>{' '}
-        <Lamp stage="fresh" />Fresh → <Lamp stage="okay" />Okay → <Lamp stage="notso" />Soft → gone.
-        {' '}Mangoes arrive Green<span class="ft-fruit" aria-hidden="true"><FruitSvg id="mango" stage="unripe" size={18} alt="" /></span> and ripen first.
+        <span class="ft-nw"><Lamp stage="fresh" />Fresh</span> → <span class="ft-nw"><Lamp stage="okay" />Okay</span> → <span class="ft-nw"><Lamp stage="notso" />Soft</span> → gone.
+        {' '}Mangoes arrive <span class="ft-nw">Green<span class="ft-fruit" aria-hidden="true"><FruitSvg id="mango" stage="unripe" size={18} alt="" /></span></span> and ripen first.
         {` Customers pay $${OKAY_LESS} less for Okay and $${SOFT_LESS} less for Soft; some refuse older fruit.`}
       </p>
       <div class="ft-favours">
