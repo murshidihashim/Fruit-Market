@@ -107,6 +107,9 @@
 .cd-rule { flex: none; display: block; height: calc(var(--u) * 4); margin: calc(var(--u) * 5) 0 calc(var(--u) * 9); background: var(--x-ink); }
 /* the title: on one line as large as fits (up to 31), or on two lines at 25 (cardType.ts sets --ts) */
 .cd-ttl { flex: none; display: block; font: 400 calc(var(--u) * var(--ts, 25)) / 0.95 var(--f-display); text-transform: uppercase; }
+/* an event title is on one line (PLAN-106), smaller when it is long, in a box as tall as the largest: the picture under it
+   is in the same place on every event card */
+.cd-event .cd-ttl { height: calc(var(--u) * 29.5); display: flex; align-items: center; white-space: nowrap; }
 /* the picture: 98 units tall (118 on a shopkeeper), plus its two rules. It gives way, down to 76, on the few cards whose
    text is long. An event's picture is one size on every event card (PLAN-106: the most the fullest card holds). */
 .cd-pic {
@@ -114,7 +117,7 @@
   border-top: calc(var(--u) * 3) solid var(--x-ink); border-bottom: calc(var(--u) * 3) solid var(--x-ink); background: var(--x-kraft);
 }
 .cd-pic.cd-pic-l { flex-basis: calc(var(--u) * 124); }
-.cd-event .cd-pic { flex: none; height: calc(var(--u) * 78); min-height: 0; }
+.cd-event .cd-pic { flex: none; height: calc(var(--u) * 97); min-height: 0; }
 .cd-perf {
   position: absolute; left: 0; right: 0; bottom: calc(var(--u) * -7); height: calc(var(--u) * 8);
   background: radial-gradient(circle at calc(var(--u) * 5.5) calc(var(--u) * 4), var(--x-paper) calc(var(--u) * 3), transparent calc(var(--u) * 3.6)) calc(var(--u) * 2) 0 / calc(var(--u) * 11) calc(var(--u) * 8) repeat-x;
@@ -132,32 +135,34 @@
 .cd-blk-cost { flex: none; width: calc(var(--u) * 74); }
 .cd-ic { flex: none; width: calc(var(--u) * 24); height: calc(var(--u) * 24); border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); }
 .cd-ic .x-fruit { width: calc(var(--u) * 17); height: calc(var(--u) * 17); }
-/* an event's lines (PLAN-106): one box per thing the event changes, every box the same size on every event card; a
-   money figure has a tag on its left that says whose money it is */
-.cd-fx { flex: none; display: flex; flex-direction: column; gap: calc(var(--u) * 4); margin-top: calc(var(--u) * 10); }
-.cd-fx-l {
-  flex: none; height: calc(var(--u) * 26); display: flex; align-items: center; gap: calc(var(--u) * 6); padding: 0 calc(var(--u) * 7) 0 calc(var(--u) * 4);
-  background: var(--x-ink); color: var(--x-paper);
+/* an event's boxes (PLAN-106), side by side: every box the same size on every event card, half the row (a card with one
+   box has one half-width box). A box about one fruit has the fruit's icon and lane colour. Price Controls' limits are
+   a row of four boxes of the same height: the fruit and its badge over the limit. */
+.cd-fx .cd-blk { flex: 0 0 calc((100% - var(--u) * 5) / 2); height: calc(var(--u) * 56); justify-content: center; }
+.cd-lims .cd-blk { height: calc(var(--u) * 56); justify-content: center; gap: calc(var(--u) * 5); padding: 0 calc(var(--u) * 4); }
+.cd-event .cd-blk-f { flex-direction: row; align-items: center; gap: calc(var(--u) * 6); padding-left: calc(var(--u) * 6); padding-right: calc(var(--u) * 6); background: var(--lane); color: var(--lane-ink); }
+.cd-event .cd-lims .cd-blk-f { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 5); padding: 0 calc(var(--u) * 4); }
+.cd-lims .cd-blk b { font-size: calc(var(--u) * 16); white-space: nowrap; }
+.cd-lims .cd-fig { gap: calc(var(--u) * 3); }
+.cd-lims .cd-ic { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
+.cd-lims .cd-ic .x-fruit { width: calc(var(--u) * 15); height: calc(var(--u) * 15); }
+.cd-lims .cd-pb { width: calc(var(--u) * 14); height: calc(var(--u) * 14); }
+.cd-lims .cd-pb-i { width: calc(var(--u) * 11); height: calc(var(--u) * 11); }
+.cd-blk-t { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); }
+.cd-event .cd-blk-f small { letter-spacing: 0.04em; }
+/* the figure, with its badge on its left when it is a price */
+.cd-fig { display: flex; align-items: center; gap: calc(var(--u) * 4); }
+/* the badge: a small square, a lorry on grey for a price at the Wholesale Market, a customer's face on the Everyday teal
+   for what customers pay; edged in paper so it reads on black and on every lane's colour. A little taller than the
+   figure's capitals. */
+.cd-pb {
+  --pay: var(--x-slate); flex: none; box-sizing: border-box; width: calc(var(--u) * 17); height: calc(var(--u) * 17); display: inline-grid; place-items: center;
+  border-radius: calc(var(--u) * 2.5); background: var(--pay); color: var(--x-paper); box-shadow: 0 0 0 calc(var(--u) * 1.25) var(--x-paper);
 }
-.cd-fx-l b { flex: none; font: 400 calc(var(--u) * 17) / 1 var(--f-display); }
-.cd-fx-l small { min-width: 0; font: 800 calc(var(--u) * 7.5) / 1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; color: inherit; }
-.cd-fx-k b { color: var(--x-mustard); }
-.cd-fx-f { background: var(--lane); color: var(--lane-ink); }
-.cd-fx .cd-ic { width: calc(var(--u) * 21); height: calc(var(--u) * 21); }
-.cd-fx .cd-ic .x-fruit { width: calc(var(--u) * 15); height: calc(var(--u) * 15); }
-/* Price Controls: the limit for each fruit, in the fruit's lane */
-.cd-fx-lim { gap: calc(var(--u) * 4); padding: 0; background: none; }
-.cd-lim { flex: 1 1 0; align-self: stretch; display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 4); background: var(--lane); color: var(--lane-ink); }
-/* the tag: a lorry and MARKET (grey) for what stalls pay at the Wholesale Market, a customer and CUSTOMER (Everyday
-   teal) for what customers pay; both in paper on their colour, edged in paper so they read on a lane's colour too */
-.cd-pay {
-  --pay: var(--x-slate); flex: none; box-sizing: border-box; width: calc(var(--u) * 66); height: calc(var(--u) * 18); display: inline-flex; align-items: center; justify-content: center;
-  gap: calc(var(--u) * 3); background: var(--pay); color: var(--x-paper); box-shadow: 0 0 0 calc(var(--u) * 1.25) var(--x-paper);
-  font: 800 calc(var(--u) * 7) / 1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
-}
-.cd-pay-customer { --pay: var(--x-everyday); }
-.cd-pay-i { flex: none; display: block; width: auto; height: calc(var(--u) * 9); fill: currentColor; }
-.cd-pay-i .w { fill: var(--pay); }
+.cd-pb-customer { --pay: var(--x-everyday); }
+.cd-pb-i { display: block; width: calc(var(--u) * 13); height: calc(var(--u) * 13); fill: currentColor; }
+.cd-pb-market .cd-pb-i { height: calc(var(--u) * 9); }
+.cd-pb-i .w { fill: var(--pay); }
 .cd-keeper .cd-blk b { font-size: calc(var(--u) * 17); }
 .cd-favour .cd-blk b { font-size: calc(var(--u) * 14); }
 /* the text keeps a little air above the footer, also on the cards whose picture gives way to it */
@@ -265,9 +270,9 @@
 .wc .wc-evpic { flex: none; width: 128px; height: 92px; border: 2px solid var(--x-ink); }
 .wc-chip { align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 7px; background: var(--x-mustard); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 .wc-chip b { flex: none; font: 400 0.8125rem/1 var(--f-display); letter-spacing: 0; white-space: nowrap; }
-/* a money figure's Market or Customer tag (cards.css .cd-pay), at phone size */
-.wc-chip:has(.cd-pay) { align-items: center; padding: 2px 7px 2px 2px; }
-.wc-chip .cd-pay { --u: 1.05px; box-shadow: none; }
+/* a price's badge (.cd-pb), at phone size: the chip stays as tall as one without */
+.wc-chip:has(.cd-pb) { align-items: center; padding-top: 3px; padding-bottom: 3px; padding-left: 3px; }
+.wc-chip .cd-pb { --u: 0.95px; box-shadow: none; }
 .wc-flavour { color: var(--x-slate); font-size: 0.6875rem; }
 /* the event card is turned over each morning: its deck's back first, then the face */
 .wc-flip { position: relative; flex: none; perspective: 900px; }

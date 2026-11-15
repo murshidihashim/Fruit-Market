@@ -17,7 +17,7 @@ import {
   type Stage,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
-import { toStaticHtml } from '../src/ui/cards';
+import { PAY_WORD, PayBadge, toStaticHtml } from '../src/ui/cards';
 import { FruitSvg } from '../src/ui/fruitIcons';
 import {
   CARD_H, CARD_W, GUESTS, PER_SHEET, ROOT, UPGRADE_COPIES, deckProblems, doc, factoryPages, kitCss, plural, printDecks, sheets,
@@ -49,6 +49,7 @@ const MARKET_DAYS = [1, 2, 3, 4].map((k) => k * MARKET_DAY_EVERY);
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const two = (n: number) => String(n).padStart(2, '0');
+const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const list = (xs: (string | number)[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 // ---------- styles of the A4 pages: reference, player aid, cover ----------
@@ -95,6 +96,11 @@ const A4_CSS = `
 .pk-box { padding: 2.4mm 2.8mm; border: 0.5mm solid var(--x-ink); }
 .pk-box h4 { margin: 0 0 1.2mm; font: 800 2.7mm/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--x-red-d); }
 .pk-box p { margin: 0; font: 500 2.9mm/1.38 var(--f-label); }
+/* the key to the badges on the event cards' prices (PLAN-106): the badge is the card's own, at the card's size */
+.pk-aid-head { display: flex; justify-content: space-between; align-items: center; gap: 3mm; }
+.pk-key { margin: 0; display: flex; align-items: center; gap: 1.2mm; font: 500 2.5mm/1.2 var(--f-label); white-space: nowrap; --u: ${CARD_W / 252}mm; }
+.pk-key b { font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.pk-key .sep { margin: 0 0.8mm; color: var(--x-slate); }
 .pk-small { margin: auto 0 0; font: 600 2.3mm/1.3 var(--f-label); letter-spacing: 0.04em; color: var(--x-slate); text-align: center; }
 
 .pk-cover { gap: 5mm; }
@@ -167,7 +173,8 @@ function playerAid(): Page {
   return {
     html: `<section class="pg pk-a4 pk-aid">`
       + `<div class="pk-mast"><h1>Fruit Market</h1><div class="ed"><span>Player aid</span><span>Rules version ${RULES_VERSION}</span></div></div>`
-      + `<div class="pk-aid-head"><strong>A day in five steps</strong></div>`
+      + `<div class="pk-aid-head"><strong>A day in five steps</strong>`
+      + `<p class="pk-key"><b>Event cards:</b>${toStaticHtml(h(PayBadge, { pay: 'market' }))}<span>${esc(lower(PAY_WORD.market))}</span><span class="sep">·</span>${toStaticHtml(h(PayBadge, { pay: 'customer' }))}<span>${esc(lower(PAY_WORD.customer))}</span></p></div>`
       + `<div class="pk-beats">${beats.join('')}</div>`
       + `<section class="pk-crier"><header><b>The crier’s price rule</b><span>Read each customer line aloud</span></header>`
       + `<p>The crier (the player who bought last that morning) pays the stalls from the bank. For each customer line, say the real <b>top price</b> for the day: the card price plus any event, Closing Day or Fixed-prices change. Then which fruit qualifies at each price:</p>`
