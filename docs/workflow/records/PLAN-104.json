@@ -15,20 +15,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes, with tests of the reason and the seat badge",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 8a04062: 85 files, 934 tests passed, 1 skipped; tests/first-buyer.test.ts (12): the reason on Day 1, least cash, a tie with the token, Priority, Nest Egg Day 3, Priority on Day 3; the badge is the seat in every phase and every online view."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "GitHub CI run 148 (verify:full, started by hand on 8a04062): solo game; speed test OK at the first try (longest task 82 ms, p95 82, opening 121 ms, DOM 579; run 141 was 105 ms, DOM 582); online match 54 pricing frames with 0 leaks, rematch, abandoned match, quick match, four players, reconnect 5 of 5. On the helper's shared machine the speed test sat just over 200 ms for this build (203 to 227) and for the build before it once in two; CI is the deciding check."
     },
     {
       "id": "T3",
       "text": "Pictures and a clip at 390x844 and 360x640 with 4 and 6 stalls",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper's sheet (Day 1, least cash, tie, Priority, Nest Egg Day 3; 390x844 and 360x640; 4 and 6 stalls) and two clips (Day 1 spin, Day 2 slide), seen by me; no overflow measured."
     },
     {
       "id": "T4",
@@ -42,16 +42,22 @@
     "evidence": "Owner, 2026-11-15: \"include a first player token as well, show that the token is randomised on the first day and is passed to players following the rules, players currently are confused with the turn orders now\"; and on the buying row: \"make it so that the number on the card is not the buying order ... make it so that its the turn order so players understand that they are second since they are clockwise to the player who buys first\".",
     "date": "2026-11-15"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 8a04062",
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "A First token on today's first buyer with the reason (picked at random, least cash, a tie, Priority card, Nest Egg on Day 3) and who follows; on Day 1 it spins round the stalls and lands at random, later days it slides"
+    ],
+    "changed": [
+      "The number on each stall card in the buying row is its seat round the table, not its place in the buying order"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "The buying row shows who buys first and why, and each stall's seat number, so the clockwise order is easy to follow"
+  ]
 }
