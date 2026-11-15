@@ -215,7 +215,7 @@ export const rowAppears = (prev: GameState, next: GameState): boolean =>
 
 /**
  * Called before the new state is drawn, as the row appears for the day: the token stays where it lay (or out of
- * sight) and the reason waits, unless this phone has already shown the day.
+ * sight), and nothing says who buys first, unless this phone has already shown the day.
  */
 export function holdFirstToken(prev: GameState, next: GameState): void {
   if (rowAppears(prev, next) && !seenToday(next)) holdToken(beforeBeat(next));
@@ -232,9 +232,9 @@ function boxLefts(): number[] | null {
 /**
  * The First token's beat, as the row appears for the day (holdFirstToken has kept it back). Day 1: the token goes
  * round the seats, the boxes left to right (they stand clockwise from the token's seat), for about two seconds, slowing
- * down, and lands on the first buyer; the line "picked at random" then shows. A later day: it slides from where it lay
- * yesterday to today's first buyer, and the reason shows. With reduced motion nothing travels: the token is on the
- * first buyer and the reason shows at once. A tap ends the move. Each phone plays a day's beat once (firstShown.ts).
+ * down, and lands on the first buyer. A later day: it slides from where it lay yesterday to today's first buyer. Only
+ * then do the row and the bottom bar say who is buying. With reduced motion nothing travels: the token is on the first
+ * buyer at once. A tap ends the move. Each phone plays a day's beat once (firstShown.ts).
  */
 export async function firstToken(next: GameState): Promise<void> {
   if (seenToday(next)) return;
@@ -244,7 +244,7 @@ export async function firstToken(next: GameState): Promise<void> {
   try {
     // The sheet over the row (the morning's, or the standing order's) leaves the table first.
     await A.wait(A.FEEL.sheetOut);
-    holdToken({ at: first, why: false });
+    holdToken({ at: first, landed: false });
     await A.frame();
     const el = typeof document === 'undefined' ? null : document.querySelector<HTMLElement>('[data-a="first-token"]');
     const lefts = boxLefts();
@@ -260,9 +260,10 @@ export async function firstToken(next: GameState): Promise<void> {
       await Promise.race([anim.finished.catch(() => undefined), A.wait(dur)]);
       anim.finish();
     }
-    holdToken({ at: first, why: true });
-    // A moment to read who buys first and why (kept with reduced motion), before the lorry comes.
-    await A.hold(next.day === 1 ? A.BEAT.label.read : A.BEAT.evening.label);
+    // Landed: the row marks who is buying and the bottom bar says so (or shows your buttons). A moment to see where it
+    // landed before the lorry comes (none with reduced motion: nothing moved, so nothing is added to the wait).
+    holdToken({ at: first, landed: true });
+    await A.wait(A.BEAT.evening.seen);
   } finally {
     noteSeen(next);
     releaseToken();

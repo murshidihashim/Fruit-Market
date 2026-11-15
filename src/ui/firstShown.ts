@@ -1,14 +1,15 @@
-// The First token on the stalls' row (PLAN-104): where it is drawn and whether the reason under the row title shows.
+// The First token on the stalls' row (PLAN-104): where it is drawn, and whether it has landed on today's first buyer.
 // Its moment is the start of buying, when the row is first seen on a new day (the morning sheet, or the standing
 // order's, leaves the table): the token spins round the seats on Day 1 and lands on the first buyer, and on a later
-// day slides from yesterday's first buyer to today's (game/dayBeats.tsx firstToken). Until then it is not drawn where it is going. Each phone plays a
-// day's beat once: it remembers the last day it showed, and with it where the token lay, for the next morning's slide.
-// It only changes what is drawn, never the game.
+// day slides from yesterday's first buyer to today's (game/dayBeats.tsx firstToken). Until it has landed nothing gives
+// away where it is going: not the token, not the row's "buying" mark, not the bottom bar. Each phone plays a day's beat
+// once: it remembers the last day it showed, and with it where the token lay, for the next day's slide. It only
+// changes what is drawn, never the game.
 import { useEffect, useState } from 'preact/hooks';
 import type { GameState } from '../engine/game';
 
-/** How the token is drawn now: on stall `at` (null: not on the row), and whether the reason shows. */
-export interface TokenShown { at: number | null; why: boolean }
+/** How the token is drawn now: on stall `at` (null: not on the row), and whether it has landed there. */
+export interface TokenShown { at: number | null; landed: boolean }
 
 /** The last morning this phone has shown, and who was first then. */
 interface Seen { game: string; day: number; p: number }
@@ -58,7 +59,7 @@ export function yesterday(s: GameState): number | null {
 export const beforeBuying = (s: GameState): boolean => s.phase === 'morning' || s.phase === 'order';
 
 /** Before a day's beat: the token lies where this phone last showed it (yesterday's first buyer), or nowhere. */
-export const beforeBeat = (s: GameState): TokenShown => ({ at: yesterday(s), why: false });
+export const beforeBeat = (s: GameState): TokenShown => ({ at: yesterday(s), landed: false });
 
 let held: TokenShown | null = null;
 const listeners = new Set<() => void>();
@@ -72,16 +73,18 @@ export function holdToken(t: TokenShown | null): void {
 export const releaseToken = () => { if (held) holdToken(null); };
 /** A beat is holding the token (its day is not shown yet). */
 export const tokenHeld = (): boolean => held !== null;
+/** The token is on its way and has not landed: the bottom bar waits with who is buying and your buying buttons. */
+export const tokenOnItsWay = (): boolean => held !== null && !held.landed;
 
 /**
- * How to draw the token for state `s`. While a beat holds it, as the beat says. On a morning this phone has not yet
- * shown, as it lay before (the morning sheet covers the row; the beat plays as it leaves). Otherwise on today's first
- * buyer, with the reason.
+ * How to draw the token for state `s`. While a beat holds it, as the beat says. Before buying on a day this phone has
+ * not yet shown, as it lay before (a sheet covers the row; the beat plays as buying starts). Otherwise landed on
+ * today's first buyer.
  */
 export function shownToken(s: GameState): TokenShown {
   if (held) return held;
   if (beforeBuying(s) && !seenToday(s)) return beforeBeat(s);
-  return { at: s.order[0] ?? null, why: true };
+  return { at: s.order[0] ?? null, landed: true };
 }
 
 /** Redraws the calling component whenever the token's hold changes. */

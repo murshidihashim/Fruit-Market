@@ -5,9 +5,9 @@ import { RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, newGame, publicView, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
-import { Stalls } from '../src/ui/table';
-import { firstBuyer, firstLine, seatNo } from '../src/ui/firstBuyer';
-import { resetSeen, shownToken } from '../src/ui/firstShown';
+import { Market, Stalls } from '../src/ui/table';
+import { firstBuyer, firstSaid, seatNo } from '../src/ui/firstBuyer';
+import { holdToken, releaseToken, resetSeen, shownToken, tokenOnItsWay } from '../src/ui/firstShown';
 import { slideFrames, spinFrames } from '../src/ui/game/dayBeats';
 
 // The stalls' boxes redraw themselves when a held-back total changes (hooks); a still picture needs none of that.
@@ -64,7 +64,7 @@ describe('who buys first, and why (firstBuyer.ts)', () => {
     }
     const s = playTo(game(4, 2), (x) => x.phase === 'buy');
     const name = s.firstPlayer === 0 ? 'You buy first' : `${s.players[s.firstPlayer].name} buys first`;
-    expect(firstLine(s, 0)?.text).toBe(`${name} · picked at random · then clockwise`);
+    expect(firstSaid(s, 0)).toBe(`${name}: picked at random on Day 1. The others follow clockwise round the seats.`);
   });
 
   it('a later day: the least cash at dawn, with that cash, then clockwise', () => {
@@ -81,14 +81,14 @@ describe('who buys first, and why (firstBuyer.ts)', () => {
           continue;
         }
         expect(firstBuyer(s)).toEqual({ p: s.order[0], why: { kind: 'cash', cash: Math.min(...cash) } });
-        expect(firstLine(s, 0)?.tail).toBe(`least cash $${Math.min(...cash)} · then clockwise`);
+        expect(firstSaid(s, 0)).toMatch(new RegExp(`^(You buy|.+ buys) first: the least cash at dawn, \\$${Math.min(...cash)}\\. The others follow clockwise round the seats\\.$`));
         checked++;
       }
     }
     expect(checked).toBeGreaterThan(5);
   });
 
-  it('a tie for the least cash: the first of the tied stalls clockwise from the token, which the line names by seat', () => {
+  it('a tie for the least cash: the first of the tied stalls clockwise from the token, which the sentence names by seat', () => {
     const eve = evening(game(4, 7), 1);
     // two stalls end the day with the same, smallest sum (over the top-up: they keep it at dawn)
     const x: GameState = structuredClone(eve);
@@ -100,7 +100,7 @@ describe('who buys first, and why (firstBuyer.ts)', () => {
     const first = rota.indexOf(1) < rota.indexOf(3) ? 1 : 3;
     expect(s.order[0]).toBe(first);
     expect(firstBuyer(s)).toEqual({ p: first, why: { kind: 'tie', cash: 8, from: s.firstPlayer } });
-    expect(firstLine(s, 0)?.tail).toBe(`tied at $8, first from seat ${s.firstPlayer + 1} · then clockwise`);
+    expect(firstSaid(s, 0)).toBe(`${s.players[first].name} buys first: tied for the least cash at $8, and the first of the tied stalls clockwise from seat ${s.firstPlayer + 1}, where the first-player token is today. The others follow clockwise round the seats.`);
   });
 
   it('a Priority card played the evening before: Priority card, then the least cash and on clockwise', () => {
@@ -111,7 +111,7 @@ describe('who buys first, and why (firstBuyer.ts)', () => {
     expect(firstBuyer(s)).toEqual({ p, why: { kind: 'priority', egg: null } });
     const second = s.order[1];
     expect(second).toBe(leastCash(s));
-    expect(firstLine(s, 0)?.tail).toBe(`Priority card · then ${second === 0 ? 'you' : s.players[second].name}, clockwise`);
+    expect(firstSaid(s, 0)).toBe(`${s.players[p].name} buys first: a Priority card played last evening. Then ${second === 0 ? 'you' : s.players[second].name}, and the others clockwise from there.`);
   });
 
   it('Nest Egg on Day 3; with a Priority card the evening before, Priority first and Nest Egg next', () => {
@@ -122,13 +122,13 @@ describe('who buys first, and why (firstBuyer.ts)', () => {
     const s = dawn(eve, 3);
     expect(s.order[0]).toBe(egg);
     expect(firstBuyer(s)).toEqual({ p: egg, why: { kind: 'nestEgg' } });
-    expect(firstLine(s, 0)?.text).toBe(`${s.players[egg].name} buys first · Nest Egg, Day 3 · then ${s.order[1] === 0 ? 'you' : s.players[s.order[1]].name}, clockwise`);
+    expect(firstSaid(s, 0)).toBe(`${s.players[egg].name} buys first: Nest Egg buys first on Day 3. Then ${s.order[1] === 0 ? 'you' : s.players[s.order[1]].name}, and the others clockwise from there.`);
 
     const p = notFirst(s, [egg]);
     const t = dawn(priority(eve, p), 3);
     expect(t.order.slice(0, 2)).toEqual([p, egg]);
     expect(firstBuyer(t)).toEqual({ p, why: { kind: 'priority', egg } });
-    expect(firstLine(t, 0)?.tail).toBe(`Priority card · ${s.players[egg].name} next, Nest Egg`);
+    expect(firstSaid(t, 0)).toBe(`${p === 0 ? 'You buy' : `${t.players[p].name} buys`} first: a Priority card played last evening. Then ${s.players[egg].name}, with Nest Egg, then the others clockwise from the least cash.`);
     // not on Day 2: Nest Egg is only for Day 3
     const d2 = dawn(start, 2);
     expect(firstBuyer(d2)?.why.kind).not.toBe('nestEgg');
@@ -161,7 +161,12 @@ describe('the badge on a stall\'s box is its seat (table.tsx Stalls)', () => {
             // the screen reader hears the seat, never a place in the line
             expect(html).not.toContain('in the buying order,');
             for (const p of at.order) expect(html).toContain(`seat ${p + 1}`);
-            expect(html).toContain(at.order[0] === v ? 'seat ' + (v + 1) + ', you buy first' : 'buys first');
+            // who buys first and why is said on the first box once the token lies there (not before buying, on a day
+            // this phone has not shown), and nowhere on the screen in words
+            const said = firstSaid(view, v)!;
+            if (at.phase === 'buy') expect(html).toContain(at.order[0] === v ? `. ${said}"` : `. ${said} Tap for more"`);
+            else expect(html).not.toContain('buy first');
+            expect(html).not.toContain('tb-why');
           }
           expect(badges(row(publicView(at, 0), 0))).toEqual(at.order.map((p) => p + 1));
         }
@@ -174,20 +179,48 @@ describe('the badge on a stall\'s box is its seat (table.tsx Stalls)', () => {
   it('the token sits on the first box once the day is on show, and not on a morning this phone has not shown yet', () => {
     resetSeen();
     const morning = dawn(game(4, 23), 2);
-    expect(shownToken(morning)).toEqual({ at: null, why: false });
+    expect(shownToken(morning)).toEqual({ at: null, landed: false });
     expect(row(morning, 0)).not.toContain('data-a="first-token"');
-    expect(row(morning, 0)).toContain('tb-why off');
+    expect(row(morning, 0)).not.toContain('buy first');
     // the standing order's sheet lies over the row too: still not its moment
-    expect(shownToken({ ...morning, phase: 'order' })).toEqual({ at: null, why: false });
+    expect(shownToken({ ...morning, phase: 'order' })).toEqual({ at: null, landed: false });
     const buy = playTo(morning, (x) => x.phase === 'buy');
-    expect(shownToken(buy)).toEqual({ at: buy.order[0], why: true });
+    expect(shownToken(buy)).toEqual({ at: buy.order[0], landed: true });
     expect(row(buy, 0)).toContain('<i class="tb-first" data-a="first-token" style="--k:0" aria-hidden="true">First</i>');
-    expect(row(buy, 0)).toContain('tb-why go');
-    // after buying the row holds your rivals in seat order: no token and no line
+    expect(row(buy, 0)).toContain(firstSaid(buy, 0)!);
+    // the owner's review: no line of words under the title, and no room kept for one (the row is as tall as before)
+    for (const at of [morning, buy]) expect(row(at, 0)).not.toContain('tb-why');
+    expect(row(buy, 0)).not.toContain('then clockwise');
+    // after buying the row holds your rivals in seat order: no token, nothing said about who buys first
     const later = playTo(buy, (x) => x.phase === 'stall');
     expect(row(later, 0)).not.toContain('first-token');
-    expect(row(later, 0)).toContain('<p class="tb-why off" aria-hidden="true"></p>');
-    expect(row(later, 0)).not.toContain('buys first');
+    expect(row(later, 0)).not.toContain('tb-why');
+    expect(row(later, 0)).not.toContain('buy first');
+  });
+});
+
+describe('nothing gives away where the token lands while it is on its way', () => {
+  it('the row marks nobody as buying, and the market does not say "Your turn", until it has landed', () => {
+    resetSeen();
+    const buy = playTo(game(4, 2), (x) => x.phase === 'buy');
+    const me = buy.order[0];
+    const row = () => toStaticHtml(h(Stalls, { s: buy, viewer: me, boards: {}, open: null, onOpen: () => undefined, onClose: () => undefined, off: [] }));
+    const market = () => toStaticHtml(h(Market, { s: buy, p: me }));
+    expect(market()).toContain('Your turn · 0 of');
+    expect(row()).not.toContain('tb-drawing');
+    try {
+      holdToken({ at: me, landed: false });
+      expect(tokenOnItsWay()).toBe(true);
+      expect(market()).not.toContain('Your turn');
+      expect(row()).toContain('tb-drawing');
+      expect(row()).not.toContain('buy first');
+      holdToken({ at: me, landed: true });
+      expect(tokenOnItsWay()).toBe(false);
+      expect(market()).toContain('Your turn · 0 of');
+      expect(row()).not.toContain('tb-drawing');
+    } finally {
+      releaseToken();
+    }
   });
 });
 
