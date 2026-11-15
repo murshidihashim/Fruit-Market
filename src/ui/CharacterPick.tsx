@@ -16,8 +16,12 @@ const hasSwiped = () => { try { return localStorage.getItem(SWIPED) === '1'; } c
 const SWIPE = 40;
 
 /** `taken` maps a character's avatar to the name of the shop that already has it. `seat`: the stall being picked for
- *  (0 is the first), when that is known; the cards then show that stall's sheet pattern. */
-export function CharacterPick({ value, taken = {}, seat, onPick }: { value: string; taken?: Record<string, string>; seat?: number; onPick: (avatar: string) => void }) {
+ *  (0 is the first), when that is known; the cards then show that stall's sheet pattern. `chosen` (PLAN-102, the
+ *  online choosing step, where looking at a card does not take it): the card this player has, marked instead of the
+ *  middle one ('' for none yet). `fixed`: the choice is final, so the signs stay put and the arrows go. */
+export function CharacterPick({ value, taken = {}, seat, chosen, fixed, onPick }: {
+  value: string; taken?: Record<string, string>; seat?: number; chosen?: string; fixed?: boolean; onPick: (avatar: string) => void;
+}) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
   const [dx, setDx] = useState(0);
   const [drag, setDrag] = useState(false);
@@ -31,19 +35,20 @@ export function CharacterPick({ value, taken = {}, seat, onPick }: { value: stri
   };
   const end = () => {
     if (!drag) return;
+    if (fixed) { setDrag(false); setDx(0); return; }
     setDrag(false); setDx(0);
     if (dx < -SWIPE) go(1); else if (dx > SWIPE) go(-1);
   };
   return (
-    <CharacterPickView value={value} taken={taken} seat={seat} dx={dx} drag={drag} hint={hint} onStep={go}
-      onDown={(e) => { x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
+    <CharacterPickView value={value} taken={taken} seat={seat} chosen={chosen} fixed={fixed} dx={dx} drag={drag} hint={hint} onStep={go}
+      onDown={(e) => { if (fixed) return; x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
       onMove={(e) => { if (drag) setDx(e.clientX - x0.current); }} onEnd={end} />
   );
 }
 
 /** The picker drawn from its state (no hooks, so tests can draw it). `dx`: how far the finger has dragged the signs. */
-export function CharacterPickView({ value, taken = {}, seat, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
-  value: string; taken?: Record<string, string>; seat?: number; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
+export function CharacterPickView({ value, taken = {}, seat, chosen, fixed, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
+  value: string; taken?: Record<string, string>; seat?: number; chosen?: string; fixed?: boolean; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
   onDown?: (e: PointerEvent) => void; onMove?: (e: PointerEvent) => void; onEnd?: () => void;
 }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
@@ -63,18 +68,18 @@ export function CharacterPickView({ value, taken = {}, seat, dx = 0, drag = fals
           };
           return (
             <div class={`cp-card ${o === 0 ? 'on' : ''}`} style={style} aria-hidden={o !== 0}>
-              <StallSign avatar={r.avatar} pattern={seat === undefined ? undefined : seatPattern(seat)} selected={o === 0} takenBy={taken[r.avatar]} eager={Math.abs(o) <= 1} />
+              <StallSign avatar={r.avatar} pattern={seat === undefined ? undefined : seatPattern(seat)} selected={chosen === undefined ? o === 0 : r.avatar === chosen} takenBy={taken[r.avatar]} eager={Math.abs(o) <= 1} />
             </div>
           );
         })}
       </div>
-      <div class="cp-nav">
+      {!fixed && <div class="cp-nav">
         <button type="button" class="cp-arrow" aria-label="Previous shopkeeper" onClick={() => go(-1)}>‹</button>
         {hint
           ? <span class="cp-hint">‹ Swipe to choose ›</span>
           : <span class="cp-dots" aria-hidden="true">{RIVALS.map((r, k) => <i class={`${k === at ? 'on' : ''} ${taken[r.avatar] ? 'taken' : ''}`} />)}</span>}
         <button type="button" class="cp-arrow" aria-label="Next shopkeeper" onClick={() => go(1)}>›</button>
-      </div>
+      </div>}
     </div>
   );
 }
