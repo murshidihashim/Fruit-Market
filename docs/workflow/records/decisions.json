@@ -4173,6 +4173,10 @@
     {
       "at": "2026-11-16 04:37",
       "text": "PLAN-106 owner review: \"the rest is okay\"; for event cards: option A (titles may shrink to one line so pictures grow back), events that bring a guest only say the guest joins the row (no order or price), effect boxes side by side again (same size), and the wide MARKET/CUSTOMER word tags replaced by small icon-only badges (lorry for a Wholesale Market price, customer face for what customers pay) with a key on the Player Aid. Back with the helper."
+    },
+    {
+      "at": "2026-11-16 05:07",
+      "text": "PLAN-106 event cards reworked at the owner's review and merged as 80f7d46: one-line titles, pictures 97 units on every event, boxes side by side and one size, guest events name only the guest, icon badges (lorry / customer face) instead of the word tags, key on the Player Aid. verify PASS (942); the helper's e2e PASS. Sheets sent to the owner."
     }
   ]
 }
