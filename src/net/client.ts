@@ -140,7 +140,9 @@ export class OnlineClient {
   rename(name: string) { this.send({ t: 'rename', name }); }
   continue() { if (this.view) this.send({ t: 'continue', v: this.view.version }); }
   ready(ready: boolean) { this.send({ t: 'ready', ready }); }
+  /** In the choosing step (PLAN-102): ask for a shopkeeper, then confirm it. */
   character(avatar: string) { this.send({ t: 'character', avatar }); }
+  confirm() { this.send({ t: 'confirm' }); }
   /** Tell the room what you are wearing; it is also remembered for a reconnect. */
   wear(look: Record<string, string>) { this.look = look; this.send({ t: 'look', look }); }
   config(config: RoomConfig) { this.send({ t: 'config', config }); }

@@ -3,6 +3,7 @@
 // Usage: node scripts/e2e-four.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
+const { pickShopkeeper } = require('./e2e-pick.cjs');
 
 const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 const players = [];
@@ -71,8 +72,14 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
 
   for (const P of [host, ...others]) await P.page.click("text=I'm ready");
   await host.page.click('text=Start the game');
+  // PLAN-102: four people choose at the same time, first come; the two computers take two of the four left.
+  await Promise.all([host, ...others].map((P) => P.page.waitForSelector('text=Choose your shopkeeper', { timeout: 20000 })));
+  await Promise.all([host, ...others].map((P) => pickShopkeeper(P)));
   await Promise.all([host, ...others].map((P) => P.page.waitForSelector('.market-stall', { timeout: 20000 })));
   const rivals = await host.page.locator('.rv-chip').count();
+  const last = [...host.frames].reverse().find((f) => f.includes('"t":"room"') && f.includes('"game":{'));
+  const avatars = last ? JSON.parse(last).game.players.map((x) => x.avatar) : [];
+  expect(avatars.length === 6 && new Set(avatars).size === 6, `six different shopkeepers in the game, got ${JSON.stringify(avatars)}`);
   expect(rivals === 5, `5 rivals in the game, got ${rivals}`);
   await host.page.screenshot({ path: `${out}/four-3-game.png` });
   console.log('four players + 2 computers: lobby counts OK (1→3 with a computer→6, Room full), 5th person refused, all 6 stalls in the game');

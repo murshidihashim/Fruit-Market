@@ -1,7 +1,9 @@
-// Online multiplayer screens: create or join a private room, the lobby, then the shared match.
+// Online multiplayer screens: create or join a private room, the lobby, choosing shopkeepers (PLAN-102), then the
+// shared match. A quick match picks its shopkeeper before searching and starts at once.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
 import { track } from '../net/telemetry';
+import { RIVALS } from '../engine/data';
 import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
@@ -55,7 +57,8 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   const [name, setName] = useState(loadName());
   const nameRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
-  // The character you ask for when you enter a room; if another player already has it, the room gives you a free one.
+  // Quick match: the character you ask for when you enter; if the other player already has it, you get a free one.
+  // A private room chooses shopkeepers after the host starts (PLAN-102); this is then only where the browsing starts.
   const [avatar, setAvatar] = useState(() => {
     try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
   });
@@ -116,6 +119,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
       );
     }
     if (!v) return <Shell title="Online" onBack={exit}><div class="waiting-dots big-wait">Connecting to room {client.code}</div></Shell>;
+    if (v.status === 'picking') return <Picking client={client} v={v} onExit={() => { client.leave(); exit(); }} />;
     if (v.game && v.status !== 'lobby') {
       return <Game key={v.game.config.seed} initial={v.game} online={client} onExit={exit} onChange={() => {}} onRematch={() => client.rematch()} />;
     }
@@ -123,46 +127,57 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   }
 
   const available = onlineAvailable();
+  const quickPanel = (
+    <section class="panel">
+      <h3>Quick match</h3>
+      <p class="small muted">Play a stranger who's looking for a game right now. Always 2 players. For more, start a private game.</p>
+      <h3>Your shopkeeper</h3>
+      <p class="small muted">For quick match. One perk for the whole game. If the other player has yours, you get another one.</p>
+      <CharacterPick value={avatar} onPick={setAvatar} />
+      <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a player'}</button>
+    </section>
+  );
+  const privatePanels = (
+    <>
+      <section class="panel">
+        <h3>Start a private game</h3>
+        <p class="small muted">You'll get a link to send to up to 5 friends, anywhere. 2 to 6 players. {PICK_LATER}</p>
+        <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
+      </section>
+      <section class="panel">
+        <h3>Join with a code</h3>
+        <div class="join-row">
+          <input id="online-code" class="input code-input" value={code} placeholder="ABC123" maxLength={CODE_LENGTH} autocapitalize="characters" onInput={(e) => setCode(normaliseCode((e.target as HTMLInputElement).value))} />
+          <button class="btn" disabled={code.length !== CODE_LENGTH || !available} onClick={() => { fx.tap(); begin(code); }}>Join</button>
+        </div>
+      </section>
+    </>
+  );
   return (
     <Shell title="Play online" onBack={exit}>
       {!available && <section class="panel"><p class="warn-text">Online play isn't available in this version.</p></section>}
       <section class="panel">
         <h3>You</h3>
         <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
-        <h3>Your shopkeeper</h3>
-        <p class="small muted">One perk for the whole game. If someone in the room already has your shopkeeper, you'll get another one and can change it in the lobby.</p>
-        <CharacterPick value={avatar} onPick={setAvatar} />
       </section>
       {initialCode ? (
         <section class="panel">
           <h3>Invited to room {initialCode}</h3>
+          <p class="small muted">{PICK_LATER}</p>
           <button class="btn primary big wide" onClick={() => begin(initialCode)}>Join the game</button>
         </section>
       ) : (
-        <>
-          <section class="panel">
-            <h3>Quick match</h3>
-            <p class="small muted">Play a stranger who's looking for a game right now. Always 2 players. For more, start a private game below.</p>
-            <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a player'}</button>
-          </section>
-          <section class="panel">
-            <h3>Start a private game</h3>
-            <p class="small muted">You'll get a link to send to up to 5 friends, anywhere. 2 to 6 players.</p>
-            <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
-          </section>
-          <section class="panel">
-            <h3>Join with a code</h3>
-            <div class="join-row">
-              <input id="online-code" class="input code-input" value={code} placeholder="ABC123" maxLength={CODE_LENGTH} autocapitalize="characters" onInput={(e) => setCode(normaliseCode((e.target as HTMLInputElement).value))} />
-              <button class="btn" disabled={code.length !== CODE_LENGTH || !available} onClick={() => { fx.tap(); begin(code); }}>Join</button>
-            </div>
-          </section>
-        </>
+        // A quick match starts the moment a stranger is found, so its shopkeeper is chosen here (PLAN-102). Coming from
+        // Create a room, the private game comes first and the quick match (with its picker) after it.
+        quick ? <>{quickPanel}{privatePanels}</> : <>{privatePanels}{quickPanel}</>
       )}
       {err && <p class="error center-text">{err}</p>}
     </Shell>
   );
 }
+
+/** PLAN-102: in a private room, shopkeepers are chosen once everyone is in. */
+const PICK_LATER = 'Everyone chooses a shopkeeper when the host starts.';
 
 function Shell({ title, onBack, children }: { title: string; onBack: () => void; children: any }) {
   return (
@@ -238,21 +253,12 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
           ))}
-          {/* Computer stalls take a shopkeeper only when the match starts, so their seat shows a plain badge. */}
+          {/* Shopkeepers are chosen after the host starts (PLAN-102): until then each seat shows its frame and looks round
+              a plain face, and computer stalls a plain badge. */}
           {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
           {Array.from({ length: openSeats }, () => <div class="seat-row ghost open-seat">Open seat · send the link</div>)}
         </div>
         {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
-      </section>
-
-      <section class="panel">
-        <h3>Your shopkeeper</h3>
-        <p class="small muted">Pick one nobody has taken. Each shopkeeper has one perk for the whole game.</p>
-        <CharacterPick
-          value={me?.avatar ?? ''}
-          taken={Object.fromEntries(v.seats.filter((x) => x.seat !== v.you).map((x) => [x.avatar, x.name]))}
-          onPick={(a) => { fx.tap(); client.character(a); }}
-        />
       </section>
 
       <section class="panel">
@@ -282,6 +288,74 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         </button>
       )}
       {!host && <p class="center-text muted small">The host starts the game when everyone is ready.</p>}
+      <p class="center-text muted small">{PICK_LATER}</p>
+    </Shell>
+  );
+}
+
+const keeperName = (avatar: string) => RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Shopkeeper';
+
+/** PLAN-102: after the host starts a private room, everyone chooses a shopkeeper at the same time. Looking at a card
+ *  does not take it; "Choose" asks the room for it (first come), and it can be changed until "Confirm". The match
+ *  begins when every person has confirmed; the computers then take shopkeepers from those left. */
+function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
+  const me = v.seats[v.you];
+  const mine = me?.avatar ?? '';
+  const taken: Record<string, string> = Object.fromEntries(v.seats.filter((x) => x.seat !== v.you && x.avatar).map((x) => [x.avatar, x.name]));
+  // Browsing starts at your own pick, or the shopkeeper you used last, or the first one free.
+  const [look, setLook] = useState(() => {
+    let last = '';
+    try { last = localStorage.getItem('fm.avatar') ?? ''; } catch { /* ignore */ }
+    return mine || (CHARACTER_AVATARS.includes(last) && !taken[last] ? last : CHARACTER_AVATARS.find((a) => !taken[a]) ?? CHARACTER_AVATARS[0]);
+  });
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => client.onError((m) => setErr(m)), [client]);
+  const done = !!me?.confirmed;
+  const shown = done ? mine : look;
+  const takenBy = taken[shown];
+  const left = v.seats.filter((x) => !x.confirmed).length;
+
+  const choose = () => {
+    fx.tap();
+    setErr(null);
+    try { localStorage.setItem('fm.avatar', look); } catch { /* ignore */ }
+    client.character(look);
+  };
+  const confirm = () => { fx.card(); setErr(null); client.confirm(); };
+
+  return (
+    <Shell title={`Room ${v.code}`} onBack={onExit}>
+      {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
+      <section class="panel">
+        <h3>Choose your shopkeeper</h3>
+        <p class="small muted">Pick one nobody has taken. Each shopkeeper has one perk for the whole game.</p>
+        <CharacterPick value={shown} taken={taken} chosen={mine} fixed={done} onPick={(a) => { setErr(null); setLook(a); }} />
+        {done
+          ? <p class="center-text small pick-wait">{left ? 'Confirmed. Waiting for the others.' : 'Confirmed. The game is starting.'}</p>
+          : shown === mine
+            ? <button class="btn primary big wide pick-confirm" onClick={confirm}>Confirm {keeperName(mine)}</button>
+            : <button class="btn primary big wide pick-choose" disabled={!!takenBy} onClick={choose}>{takenBy ? `Taken by ${takenBy}` : `Choose ${keeperName(shown)}`}</button>}
+        {!done && mine && shown !== mine && <p class="center-text muted small">You have {keeperName(mine)}. You can change until you confirm.</p>}
+        {err && <p class="error center-text">{err}</p>}
+      </section>
+
+      <section class="panel">
+        <h3>Players</h3>
+        <div class="seat-list">
+          {v.seats.map((x) => (
+            <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
+              <i class="sbk-seat-awn" style={{ background: awningColour(x.look, x.seat) }} aria-hidden="true" />
+              <FramedFace who={x.avatar} size={32} look={x.look} />
+              <span class="seat-name">{x.name}{x.seat === v.you && ' (you)'}</span>
+              {x.avatar && <small class="sbk-seat-title">{keeperName(x.avatar)}</small>}
+              <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
+              <span class={`ready-tag ${x.confirmed ? 'yes' : ''}`}>{x.confirmed ? 'CONFIRMED' : 'choosing'}</span>
+            </div>
+          ))}
+          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span></div>)}
+        </div>
+        {v.config.ai > 0 && <p class="small muted">The computers take shopkeepers from those left.</p>}
+      </section>
     </Shell>
   );
 }

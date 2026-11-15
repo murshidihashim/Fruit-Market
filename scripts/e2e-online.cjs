@@ -2,6 +2,7 @@
 // Usage: node scripts/e2e-online.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
+const { pickShopkeeper } = require('./e2e-pick.cjs');
 const players = [];
 const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 (async () => {
@@ -43,6 +44,10 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await shot(B, '02-lobby-guest');
   await A.page.waitForSelector('button:has-text("Start the game")');
   await A.page.click('button:has-text("Start the game")');
+  // PLAN-102: everyone chooses a shopkeeper after the start; the lobby had no picker.
+  await Promise.all([A.page.waitForSelector('text=Choose your shopkeeper'), B.page.waitForSelector('text=Choose your shopkeeper')]);
+  await shot(B, '02b-choosing-guest');
+  await Promise.all([pickShopkeeper(A), pickShopkeeper(B)]);
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   console.log('match started on both devices');
 

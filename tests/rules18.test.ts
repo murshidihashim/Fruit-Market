@@ -20,7 +20,7 @@ import {
   type Customer, type GameConfig, type GameState,
 } from '../src/engine/game';
 import * as engine from '../src/engine/game';
-import { AI_VERSION, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import { AI_VERSION, CHARACTER_AVATARS, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import { freshRoom, GRACE_MS, redact, Room, type Conn, type RoomIO } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { ripeLine, topUpLine } from '../src/ui/game/panels/MorningCard';
@@ -1305,6 +1305,12 @@ async function roomAt(game: (g: GameState) => GameState) {
   await a.say({ t: 'ready', ready: true });
   await b.say({ t: 'ready', ready: true });
   await a.say({ t: 'start' });
+  // PLAN-102: each person chooses a shopkeeper (the first one free) and confirms.
+  for (const c of [a, b]) {
+    const used = new Set(c.view!.seats.map((x) => x.avatar));
+    await c.say({ t: 'character', avatar: CHARACTER_AVATARS.find((x) => !used.has(x))! });
+    await c.say({ t: 'confirm' });
+  }
   expect(hs.room.d.status).toBe('playing');
   hs.room.d.game = game(hs.room.d.game!);
   hs.room.d.pending = hs.room.d.game.players.map(() => null);

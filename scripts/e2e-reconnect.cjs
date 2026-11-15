@@ -12,6 +12,7 @@
 const net = require('node:net');
 const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
+const { pickShopkeeper } = require('./e2e-pick.cjs');
 
 const [server = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 let base = server; // pages use the relay below, so the test can cut their connections
@@ -58,6 +59,7 @@ async function newMatch() {
   await A.page.click("text=I'm ready");
   await B.page.click("text=I'm ready");
   await A.page.click('text=Start the game');
+  await Promise.all([pickShopkeeper(A), pickShopkeeper(B)]); // PLAN-102: choose and confirm after the start
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   return [A, B];
 }
