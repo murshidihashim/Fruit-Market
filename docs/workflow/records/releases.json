@@ -568,7 +568,7 @@
     },
     {
       "version": "1.24.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-100",
         "PLAN-102",
@@ -584,7 +584,10 @@
         "On iPhones the price tag on your crate now updates as you change the price",
         "A fresh card look: customer types in colour, and event cards show a lorry or a customer face beside each price change",
         "Phones on 1.23.0 are asked to update before joining a room; games, trophies and progress carry over"
-      ]
+      ],
+      "date": "2026-11-16",
+      "commit": "3aed6c7",
+      "tagged": true
     }
   ]
 }

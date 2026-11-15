@@ -1,21 +1,21 @@
 # Current state · Fruit Market
 
-Updated 2026-11-14 15:43 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-16 07:55 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.23.0, rules version 19 (`1ae24d6`, tagged `v1.23.0`, published 2026-11-14 15:39; DEC-118, REP-120): the small phone fixes (PLAN-096) and the text pass with the owner's edits (PLAN-097), on top of 1.22.0. The preview copy is the same build.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus PLAN-100 (print pack at rules 19: guidebook and update pack in `print/update-19`, cards rebuilt) and the record of publishing.
-- **In progress:** nothing. No helper is running.
+- **Live:** 1.24.0, rules version 19, protocol 4 (`3aed6c7`, tagged `v1.24.0`, published 2026-11-16 07:54; DEC-119, REP-121): shopkeepers chosen after everyone joins a room (PLAN-102), first-time How to play popup online (PLAN-103), seat numbers and the FIRST token (PLAN-104), iPhone price-tag fix (PLAN-105), new card look in app and print (PLAN-106), print pack at rules 19 (PLAN-100). The preview is the same build.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus the record of publishing.
+- **In progress:** nothing. No helper is running. Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 - **Commits:** author Murshidi Hashim, committer Claude <noreply@anthropic.com> (so GitHub shows the signature as verified); set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, no local git user override.
-- **Waiting on the owner:** (1) his check of the print pack (cards, guidebook v19, update pack 19) and tracker 1 or 2 after a proof print; (2) the 8 name choices (REP-118; sheet https://claude.ai/artifact/9qFHHGGkm6nLxjVNi8zv49, Names tab); (3) whether the buying and tie hand-over subtitles go too; (4) REP-112 section 3 choices; (5) playing 1.23.0.
+- **Waiting on the owner:** (1) the iPhone price-tag fix seen on a real iPhone; (2) a proof print (Bangsar shops suggested) and tracker 1 or 2; (3) the back arrow while choosing a shopkeeper (leave or disconnect), the +3/+4 computer buttons and HOST tag fixes, in-game tips online for first-timers; (4) the 8 name choices (REP-118); (5) REP-112 section 3 choices.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
 
-## Checks (1.23.0, live)
-- Local on the merge `2694ab5`: `npm run verify` PASS (904 tests); e2e PASS on the text pass branch (0 leaks); the local speed test fails on this machine for 1.22.0 too.
-- CI: run 141 on the branch PASS; pull request #14 PASS; run 143 on main PASS, preview updated. Deploy run 42 PASS (live smoke test, tag `v1.23.0`); live `/api/version` answers rules 19, live code carries 1.23.0.
-- Print: cards, guidebook and update pack at rules 19 (PLAN-100); the owner's check and proof print: NOT RUN. Played by people on 1.23.0: NOT RUN.
+## Checks (1.24.0, live)
+- Local on the merge 7ed9e3b: `npm run verify` PASS (942 tests); e2e PASS on each part (0 leaks).
+- CI: pull request #19 PASS; main PASS, preview updated. Deploy run 43 PASS (live smoke test, tag `v1.24.0`); live `/api/version` answers rules 19, live code carries 1.24.0.
+- Print: kit, update pack and tracker tests regenerated for 1.24.0. Proof print: NOT RUN. Played by people on 1.24.0: NOT RUN. iPhone fix on a real iPhone: NOT RUN.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).

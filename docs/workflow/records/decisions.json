@@ -2946,7 +2946,7 @@
         "evidence": "Owner, 2026-11-16: \"okay now regenerate the print kit, then publish 1.24.0\".",
         "date": "2026-11-16"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-121"
       ],
@@ -4205,6 +4205,10 @@
     {
       "at": "2026-11-16 07:04",
       "text": "DEC-119: the owner said \"okay now regenerate the print kit, then publish 1.24.0\". Print kit, update pack and tracker tests regenerated (print-kit test PASS). Release 1.24.0 prepared: PLAN-100, PLAN-102 to PLAN-106; version 1.24.0, release entry with player notes, REP-121."
+    },
+    {
+      "at": "2026-11-16 07:55",
+      "text": "Release 1.24.0 published (DEC-119): pull request #19, CI PASS (07:08 to 07:26); merged to main as 3aed6c7; main CI PASS and the preview updated; Deploy LIVE game run 43 (07:53 to 07:54) PASS: verify, release check, deploy, live smoke test and tag v1.24.0. The live site answers rules 19 and its code carries 1.24.0, the choosing step and the first-time popup. PLAN-100 and PLAN-102 to PLAN-106 released."
     }
   ]
 }

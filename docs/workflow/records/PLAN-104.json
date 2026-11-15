@@ -42,7 +42,7 @@
     "evidence": "Owner, 2026-11-15: \"include a first player token as well, show that the token is randomised on the first day and is passed to players following the rules, players currently are confused with the turn orders now\"; and on the buying row: \"make it so that the number on the card is not the buying order ... make it so that its the turn order so players understand that they are second since they are clockwise to the player who buys first\".",
     "date": "2026-11-15"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.24.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge c9071a0",
   "reports": [

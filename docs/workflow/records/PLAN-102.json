@@ -44,7 +44,7 @@
     "evidence": "Owner, 2026-11-15: \"for create a room thingy, make it so that players choose a character after everyone has joined, instead of when everyone is still joining\".",
     "date": "2026-11-15"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.24.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge c84e2f0",
   "reports": [
