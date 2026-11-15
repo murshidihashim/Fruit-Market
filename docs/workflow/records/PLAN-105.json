@@ -1,0 +1,47 @@
+{
+  "id": "PLAN-105",
+  "title": "Fix: on iPhones a crate's price tag kept the old price while pricing",
+  "problem": "Owner's report: on iOS the price tag does not change when the player amends the price. The crate's tags are drawn with a CSS filter (their ink edge); Safari keeps the drawn picture of a filtered element and did not repaint it when only the price text inside changed.",
+  "scope": [
+    "Key each crate tag by what it shows (fruit, price, face up or down, tie, stamp), so a new price makes a new element that Safari draws",
+    "A test that every list of tags carries the key"
+  ],
+  "exclusions": [
+    "Any rule or look change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with the new test",
+      "result": "PASS",
+      "evidence": "936 tests passed, 1 skipped; tests/tag-repaint.test.ts (2)."
+    },
+    {
+      "id": "T2",
+      "text": "Checked on an iPhone: the tag follows the price as it is stepped",
+      "result": "NOT RUN",
+      "evidence": "No Safari engine in this environment (Chromium only); needs the owner or a player on an iPhone, on the preview."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15: \"theres a bug in the game where ios players price tag doesnt change when they amend the price\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [
+      "On iPhones the price tag on your crate now shows the new price as you change it"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "On iPhones the price tag on your crate now updates as you change the price"
+  ]
+}
