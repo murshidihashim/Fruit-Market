@@ -2927,6 +2927,30 @@
         "REP-120"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-119",
+      "title": "The scene after the last day: the takings counted day by day",
+      "question": "When a game ends, the Results page appears in one frame. What do players see between the last day's takings and the results, to show how the stalls finished?",
+      "choice": "Coin stacks, one for each stall, with each day's takings falling onto them in turn for every day of the game (storyboard A of three, with the owner's change). The last day's takings sheet shows your own day only, so the count keeps the surprise. About 5.5 seconds, skipped by a tap. Boards Count-1 to Count-6 in docs/studio/review-18/mockups.",
+      "rationale": "The owner chose A (Counting the takings) over B (Closing time) and C (The ten days), and asked for the coins to fall day by day. It reuses the game's own parts: no new pictures or sounds.",
+      "impact": {
+        "player": "A count of about 5.5 seconds after the last day, which a tap skips; the last day's takings no longer list every stall's cash.",
+        "technical": "A new part at the top of the Results page and a small change to the last day's takings (PLAN-107). No rule, save or server change.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16, in his own words: \"design A but with the coins falling per the 10 days\"; then \"yes\" to three questions asked together: \"Is this the design to build? If yes, I write the plan for your approval.\", \"May the last takings sheet show only your own day?\" and \"Is about 5.5 seconds, skipped by a tap, right?\" (taken as yes to all three).",
+        "date": "2026-11-16"
+      },
+      "delivery": "not started",
+      "reports": [
+        "REP-121"
+      ],
+      "reviewTrigger": "If most players skip the count, if it holds up an online room, or if it does not fit six stalls on a small phone"
     }
   ],
   "history": [
@@ -4161,6 +4185,10 @@
     {
       "at": "2026-11-15 22:34",
       "text": "PLAN-104 changed at the owner's answers (\"Dont need the reason-line wording\"; the bar waits for the token: \"Yes\"): merged as c9071a0, verify PASS, the helper's e2e PASS. To go to the preview next."
+    },
+    {
+      "at": "2026-11-16 06:45",
+      "text": "DEC-119 approved in the owner's words: the scene after the last day is the takings counted day by day (\"design A but with the coins falling per the 10 days\", then \"yes\"). Three storyboards were drawn first (Counting the takings, Closing time, The ten days) on the design page https://claude.ai/artifact/LU9e6gkRRRgrxHFwpF3yPP; the chosen boards are kept as Count-1 to Count-6 (REP-121). PLAN-107 written and awaiting approval. Nothing is built."
     }
   ]
 }

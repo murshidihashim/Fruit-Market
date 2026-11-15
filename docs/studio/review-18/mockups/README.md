@@ -12,6 +12,7 @@ These are the sources of the boards on the design page, kept here so the build f
 | `Home-A`, `Home-B`, `Home-Waiting` | The home screen: today's market first, your next goals a swipe away, your table first when a game is waiting | DEC-097 |
 | `Stocking`, `Takings` | Two more screens of the day: filling your crate, and the day's takings | DEC-103 |
 | `Results`, `Stamp-Book`, `Trophy-Cards`, `Wardrobe` | The stamp book screens: the stamps a game earned, the ladder of six ranks, trophies as cards with tiers, and the looks with where they show in a game (an awning strip over your shelf and on your box as a rival sees it) | DEC-099, DEC-103 |
+| `Count-1` to `Count-6` | The scene after the last day (PLAN-107): the takings counted day by day on a coin stack for each stall, at days 1, 4, 7 and 10, then the result, and six stalls on a 360 by 640 phone. These come from a second design page, https://claude.ai/artifact/LU9e6gkRRRgrxHFwpF3yPP, where the options not chosen stay | DEC-119 |
 
 The look: ink `#1f272a`, paper `#fffcf5`, kraft `#ddd4c6`, pale `#efe9df`, stone `#bdb4a6`, slate `#5a6266`, mustard `#fec400`, red `#e73c35`, dark red `#b62528`, green `#0e9a58`, blue `#3558a2`. Archivo and Archivo Black. Square corners. Lanes in the order blueberry, watermelon, mango, apple.
 

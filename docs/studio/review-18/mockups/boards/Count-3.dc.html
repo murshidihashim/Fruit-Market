@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D3: day 7 has landed and the lead changes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&amp;family=Archivo+Black&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f272a}a:hover{color:#b62528}
+.ph{width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;background:#fffcf5;color:#1f272a;font:600 12px/1.3 Archivo,system-ui,sans-serif;overflow:hidden;position:relative}
+.win{flex:none;background:#1f272a;color:#fffcf5;padding:14px 12px;display:flex;align-items:center;gap:10px}
+.win small{display:block;font:800 10px/1 Archivo,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fec400}
+.win h2{margin:6px 0 4px;font:400 26px/.95 'Archivo Black',sans-serif;text-transform:uppercase}
+.win span{color:#ddd4c6}
+.win .evp{margin-left:auto;flex:none;width:96px;height:62px;object-fit:cover;border:2px solid #fffcf5;box-sizing:border-box;display:block}
+.days{flex:none;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));border-bottom:2px solid #1f272a;font:800 11px/1 Archivo,sans-serif;text-align:center;color:#5a6266}
+.days span{padding:10px 0}
+.days .dn{background:#1f272a;color:#fffcf5}
+.days .on{background:#fec400;color:#1f272a}
+.tbl{flex:1;position:relative;display:flex;align-items:flex-end;gap:8px;padding:0 12px}
+.ln{position:absolute;left:12px;right:12px;height:0;border-top:2px dashed #ddd4c6}
+.ln em{position:absolute;right:0;top:-14px;font:800 9px/1 Archivo,sans-serif;font-style:normal;color:#5a6266;letter-spacing:.06em}
+.col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative}
+.stk{width:56px;display:flex;flex-direction:column-reverse;border:2px solid #1f272a;border-top:0;border-bottom:0}
+.stk i{display:block;box-sizing:border-box;border-top:2px solid #1f272a;background:repeating-linear-gradient(0deg,#b98a00 0 1px,transparent 1px 5px),linear-gradient(90deg,transparent 0 8px,#ffe58a 8px 16px,transparent 16px),#fec400}
+.stk i.new{background:repeating-linear-gradient(0deg,#b98a00 0 1px,transparent 1px 5px),#ffe58a}
+.gone{width:60px;height:14px;box-sizing:border-box;border:2px dashed #5a6266;background:#efe9df;margin-bottom:12px}
+.gain{background:#cfeedd;color:#1f272a;box-shadow:inset 0 0 0 2px #0e9a58;font:800 11px/1 Archivo,sans-serif;padding:5px 6px;margin-bottom:6px}
+.gain.neg{background:#fbd5d2;box-shadow:inset 0 0 0 2px #b62528}
+.plate{align-self:stretch;position:relative;height:112px;box-sizing:border-box;border:2px solid #1f272a;background:#fffcf5;display:flex;flex-direction:column;align-items:center;gap:4px}
+.me .plate{background:#fec400}
+.awn{align-self:stretch;height:12px;background:repeating-linear-gradient(90deg,var(--a) 0 10px,#fffcf5 10px 20px);border-bottom:2px solid #1f272a;margin-bottom:5px}
+.pl{position:absolute;left:0;top:14px;background:#1f272a;color:#fffcf5;font:800 9px/1 Archivo,sans-serif;letter-spacing:.06em;padding:4px 4px}
+.plate img{width:40px;height:40px;border:2px solid #1f272a;box-sizing:border-box;display:block}
+.plate b{font:800 11px/1 Archivo,sans-serif;white-space:nowrap}
+.plate .cs{font:400 17px/1 'Archivo Black',sans-serif}
+.skip{flex:none;text-align:center;padding:12px 0 16px;color:#5a6266;font:700 11px/1 Archivo,sans-serif}
+</style>
+</helmet>
+<div class="ph">
+  <div class="win"><div><small>Counting the takings</small><h2>Day 7</h2><span>Kenduri. You pass Ah Chen.</span></div><img class="evp" src="/_blob/38848df6cb208f1d43a9537f6c110bb3" alt="The Kenduri card"></div>
+
+  <div class="days"><span class="dn">1</span><span class="dn">2</span><span class="dn">3</span><span class="dn">4</span><span class="dn">5</span><span class="dn">6</span><span class="on">7</span><span>8</span><span>9</span><span>10</span></div>
+
+  <div class="tbl">
+    <i class="ln" style="bottom: 262px"><em>$30</em></i>
+    <i class="ln" style="bottom: 412px"><em>$60</em></i>
+    <i class="ln" style="bottom: 562px"><em>$90</em></i>
+
+    <div class="col me">
+      <span class="gain">+$11</span>
+      <div class="stk"><i style="height: 50px"></i><i style="height: 20px"></i><i style="height: 25px"></i><i style="height: 25px"></i><i style="height: 35px"></i><i style="height: 45px"></i><i style="height: 50px"></i><i class="new" style="height: 55px"></i></div>
+      <div class="plate"><div class="awn" style="--a: #e73c35"></div><span class="pl">1ST</span><img src="/_blob/7ec847704e70fff5058e715c6949bf54" alt="Rosa"><b>You</b><span class="cs">$61</span></div>
+    </div>
+    <div class="col">
+      <span class="gain">+$6</span>
+      <div class="stk"><i style="height: 50px"></i><i style="height: 30px"></i><i style="height: 35px"></i><i style="height: 35px"></i><i style="height: 40px"></i><i style="height: 35px"></i><i style="height: 35px"></i><i class="new" style="height: 30px"></i></div>
+      <div class="plate"><div class="awn" style="--a: #3558a2"></div><span class="pl">2ND</span><img src="/_blob/5e619e49290b8a4943822d149982cedf" alt="Ah Chen"><b>Ah Chen</b><span class="cs">$58</span></div>
+    </div>
+    <div class="col">
+      <span class="gain">+$5</span>
+      <div class="stk"><i style="height: 50px"></i><i style="height: 15px"></i><i style="height: 25px"></i><i style="height: 25px"></i><i style="height: 30px"></i><i style="height: 35px"></i><i style="height: 30px"></i><i class="new" style="height: 25px"></i></div>
+      <div class="plate"><div class="awn" style="--a: #0e9a58"></div><span class="pl">3RD</span><img src="/_blob/479978044c380ca1e85bf3f09ff701ba" alt="Farah"><b>Farah</b><span class="cs">$47</span></div>
+    </div>
+    <div class="col">
+      <span class="gain neg">−$2</span>
+      <i class="gone"></i>
+      <div class="stk"><i style="height: 50px"></i><i style="height: 10px"></i><i style="height: 20px"></i><i style="height: 25px"></i><i style="height: 15px"></i><i style="height: 30px"></i><i style="height: 25px"></i></div>
+      <div class="plate"><div class="awn" style="--a: #b98a00"></div><span class="pl">4TH</span><img src="/_blob/4b9df8666eda0e9a49392164b22b6b3f" alt="Uncle Benny"><b>Uncle Benny</b><span class="cs">$35</span></div>
+    </div>
+  </div>
+
+  <div class="skip">Tap anywhere to skip</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

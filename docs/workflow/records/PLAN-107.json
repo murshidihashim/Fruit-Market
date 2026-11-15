@@ -1,0 +1,84 @@
+{
+  "id": "PLAN-107",
+  "title": "The end of the game: the takings counted day by day",
+  "problem": "When the last day ends, the Results page replaces the table in one frame, and nothing shows how the game was won. Owner, 2026-11-16: \"design an animation scene which happens after a game ends, to show the results between player\"; of three storyboards he picked the coin stacks with a change: \"design A but with the coins falling per the 10 days\" (DEC-119, REP-121).",
+  "scope": [
+    "A scene at the top of the Results page, played once when a game ends: a strip of the game's days, the day's event card in the header, and a coin stack for each stall in seat order with its awning, portrait, name, cash and place (boards Count-1 to Count-6 in docs/studio/review-18/mockups)",
+    "For each day in turn, that day's change in cash falls onto every stall's stack with a tag showing the amount; a line marks each day; on a day a stall ends down, coins leave the top; the cash and the place on each plate change as the coins land",
+    "After the last day: the red 1ST stamp on the winner (on every stall that shares the win), today's headline words (\"You win\", \"Ah Chen wins\", a shared win) and the win or lose sound at the stamp; then the stacks give way to today's place rows, and the stamps earned play as they do now",
+    "Pace: about 5.5 seconds whatever the game's length (8, 10 or 14 days): the days take about 4.5 seconds together, then about a second to read. It never waits for a tap; a tap anywhere jumps to the final picture; Fast rivals makes it quicker as it does every other beat; with reduced motion the final picture shows at once and the pause to read it stays",
+    "The last day's takings sheet shows your own day only: the list \"The stalls after Day N\" and the line under it are left out on the final day, because the count that follows shows them. Every other day keeps them. The button keeps its words",
+    "It fits 2 to 6 stalls on 390x844 and 360x640: narrower stacks and plates, names on two lines, and the height set by the richest stall",
+    "The numbers come from what the game already keeps: each day's closing cash and event card, the starting cash (Nest Egg included) and the final cash, so the jam maker's money lands with the last day. A game with no day records (an old save) shows the final picture without the days",
+    "Played once for each game: not again after a reconnect or when a finished game is opened again. On a shared phone the headline names the winner and there is no \"You\", as today. Online each phone plays it by itself, and Rematch works as today once it ends"
+  ],
+  "exclusions": [
+    "Any rule, balance or scoring change: the rules version stays 19 and the game engine is only read",
+    "The save format, the room server, the leaderboard and the anonymous counters",
+    "The rest of the Results page (stamps earned, the nearly-there lines, the cash chart, your best moments, the buttons), except that the stamps wait for the count to end",
+    "New pictures, new sounds and new dependencies",
+    "The two storyboards not chosen (Closing time, The ten days) and a button to watch the count again",
+    "The print kit",
+    "Publishing the live game (a separate approval)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with new tests of the count's numbers: each day's band is that day's change in closing cash; the first band is the starting cash (Nest Egg included); the last day ends on the final cash with the jam maker's money; a down day takes coins away; the place shown each day is the game's own ranking, shared places included; a game with no day records gives the final picture; games of 8, 10 and 14 days take the same time; the last day's takings leave out the stalls list and every other day keeps it",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes: the solo game reaches the results, the performance budget holds, and the online match, rematch, quick match, four players and reconnect pass with 0 leaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Pictures at 390x844 and 360x640 with 2, 4 and 6 stalls, showing a win, a loss, a shared win and a day a stall ends down, and a clip of the whole count; looked at; nothing overflows",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The count ends by itself, a tap jumps to the final picture, and reduced motion shows the final picture at once (a test or a timed run for each)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner has tried it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-121"
+  ],
+  "decisions": [
+    "DEC-119"
+  ],
+  "changes": {
+    "added": [
+      "After the last day the takings are counted day by day: each day's coins fall onto every stall's stack, places change as stacks pass each other, and the winner is stamped"
+    ],
+    "changed": [
+      "The last day's takings show your own day; every stall's cash is shown in the count that follows",
+      "The win or lose sound plays when the winner is stamped"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "After the last day, watch the takings counted day by day before the results"
+  ]
+}
