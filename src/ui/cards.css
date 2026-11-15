@@ -15,6 +15,15 @@
   --x-lamp-off: var(--c-8d9396);  /* a freshness a customer will not buy */
 }
 
+/* A customer type's colours (PLAN-106) for a customer card's top and bottom bars, the rush's card and the row's
+   ticket: the bar, the words on it, the customer's number, a freshness the type will not buy, the rule between the
+   legend's cells and (Premium) the gold edge. A card without a type class (a face-down card, a standing order) keeps
+   the black bars. Contrast of the words on each bar: exchange.css. */
+.pref-premium { --bar: var(--x-premium); --bar-ink: var(--x-paper); --bar-num: var(--x-mustard); --bar-dim: var(--x-premium-dim); --bar-edge: var(--x-mustard); }
+.pref-everyday { --bar: var(--x-everyday); --bar-ink: var(--x-paper); --bar-num: var(--x-mustard); --bar-dim: var(--x-everyday-dim); }
+.pref-bargain { --bar: var(--x-bargain); --bar-ink: var(--x-ink); --bar-num: var(--x-ink); --bar-dim: var(--x-bargain-dim); }
+:is(.pref-premium, .pref-everyday, .pref-bargain) { --bar-rule: color-mix(in srgb, var(--bar-ink) 30%, var(--bar)); }
+
 /* a fruit's lane: its colour, and the ink that reads on it */
 .ln-blueberry { --lane: var(--c-3558a2); --lane-ink: var(--x-paper); }
 .ln-watermelon { --lane: var(--c-0e9a58); --lane-ink: var(--x-paper); }
@@ -46,18 +55,21 @@
 .cd-dots { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 6); }
 .cd-dots i { flex: none; width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; border: calc(var(--u) * 2) solid var(--x-ink); background: var(--lane); }
 
-/* ---------- the customer card (Main board): black heading, picture, fruit rows, one legend row ---------- */
+/* ---------- the customer card (Main board): a heading bar in the type's colour, the picture, fruit rows, one legend bar ---------- */
 .cd-kind {
   flex: none; display: flex; justify-content: space-between; align-items: center; gap: calc(var(--u) * 6); padding: calc(var(--u) * 7) calc(var(--u) * 9);
-  background: var(--x-ink); color: var(--x-paper); font: 800 calc(var(--u) * 10) / 1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 calc(var(--u) * -2.5) 0 var(--bar-edge, transparent);
+  font: 800 calc(var(--u) * 10) / 1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
-.cd-kind b { font-weight: 800; color: var(--x-mustard); }
+.cd-kind b { font-weight: 800; color: var(--bar-num, var(--x-mustard)); }
 /* the name: on one line as large as fits (up to 26), or on two lines at 21 (cardType.ts sets --ts) */
 .cd-name { flex: none; display: block; margin: calc(var(--u) * 8) calc(var(--u) * 9) 0; font: 400 calc(var(--u) * var(--ts, 21)) / 1 var(--f-display); text-transform: uppercase; }
-/* the picture takes the room the name, the quirk and the rows leave, so every card is full to the legend */
-.cd-mpic { flex: 1 1 0; min-height: calc(var(--u) * 72); margin: calc(var(--u) * 7) calc(var(--u) * 9) 0; border: calc(var(--u) * 2) solid var(--x-ink); overflow: hidden; background: var(--x-kraft); }
+/* the picture is one size on every customer and guest card (PLAN-106: 125 units with its border, the most the fullest
+   card holds: a name on two lines, a quirk on two lines and two fruit rows). The quirk sits under it and the fruit rows
+   stand on the legend, so a price tag is always the same height above the legend bar. */
+.cd-mpic { flex: none; height: calc(var(--u) * 125); margin: calc(var(--u) * 7) calc(var(--u) * 9) 0; border: calc(var(--u) * 2) solid var(--x-ink); overflow: hidden; background: var(--x-kraft); }
 .cd-quirk { flex: none; margin: calc(var(--u) * 6) calc(var(--u) * 9) 0; color: var(--x-slate); font-size: calc(var(--u) * 11); }
-.cd-rows { flex: none; }
+.cd-rows { flex: none; margin-top: auto; }
 .cd-rows li { display: flex; align-items: center; gap: calc(var(--u) * 6); margin: calc(var(--u) * 5) calc(var(--u) * 9) 0; }
 .cd-rows .x-fruit { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
 .cd-tag {
@@ -67,10 +79,14 @@
 /* a fruit this customer has already bought today */
 .cd-rows li.done > * { opacity: 0.35; }
 .cd-rows li.done::after { content: '✓'; flex: none; font: 800 calc(var(--u) * 14) / 1 var(--f-label); color: var(--x-green); }
-.cd-leg { flex: none; margin-top: calc(var(--u) * 26); display: grid; grid-template-columns: repeat(3, 1fr); background: var(--x-ink); color: var(--x-paper); font: 400 calc(var(--u) * 13) / 1 var(--f-display); }
+.cd-leg {
+  flex: none; margin-top: calc(var(--u) * 10); display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper));
+  box-shadow: inset 0 calc(var(--u) * 2.5) 0 var(--bar-edge, transparent); font: 400 calc(var(--u) * 13) / 1 var(--f-display);
+}
 .cd-leg span { display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 6); padding: calc(var(--u) * 8) 0; }
-.cd-leg span + span { box-shadow: inset calc(var(--u) * 2) 0 0 var(--x-slate); }
-.cd-leg .no { color: var(--x-lamp-off); }
+.cd-leg span + span { box-shadow: inset calc(var(--u) * 2) 0 0 var(--bar-rule, var(--x-slate)); }
+.cd-leg .no { color: var(--bar-dim, var(--x-lamp-off)); }
+.cd-leg .cd-lamp.off { color: var(--bar-dim, var(--x-lamp-off)); box-shadow: inset 0 0 0 calc(var(--u) * 1.5) var(--bar-dim, var(--x-lamp-off)); }
 
 /* ---------- the customer back: four fixed fruit squares, filled for the fruit wanted ---------- */
 .cd-custback { background: var(--x-ink); color: var(--x-paper); }
@@ -91,13 +107,14 @@
 .cd-rule { flex: none; display: block; height: calc(var(--u) * 4); margin: calc(var(--u) * 5) 0 calc(var(--u) * 9); background: var(--x-ink); }
 /* the title: on one line as large as fits (up to 31), or on two lines at 25 (cardType.ts sets --ts) */
 .cd-ttl { flex: none; display: block; font: 400 calc(var(--u) * var(--ts, 25)) / 0.95 var(--f-display); text-transform: uppercase; }
-/* the picture: 98 units tall (118 on an event or a shopkeeper), plus its two rules. It gives way, down to 76, on the few
-   cards whose text is long. */
+/* the picture: 98 units tall (118 on a shopkeeper), plus its two rules. It gives way, down to 76, on the few cards whose
+   text is long. An event's picture is one size on every event card (PLAN-106: the most the fullest card holds). */
 .cd-pic {
   flex: 0 1 calc(var(--u) * 104); min-height: calc(var(--u) * 76); position: relative; margin: calc(var(--u) * 9) calc(var(--u) * -13) 0;
   border-top: calc(var(--u) * 3) solid var(--x-ink); border-bottom: calc(var(--u) * 3) solid var(--x-ink); background: var(--x-kraft);
 }
 .cd-pic.cd-pic-l { flex-basis: calc(var(--u) * 124); }
+.cd-event .cd-pic { flex: none; height: calc(var(--u) * 78); min-height: 0; }
 .cd-perf {
   position: absolute; left: 0; right: 0; bottom: calc(var(--u) * -7); height: calc(var(--u) * 8);
   background: radial-gradient(circle at calc(var(--u) * 5.5) calc(var(--u) * 4), var(--x-paper) calc(var(--u) * 3), transparent calc(var(--u) * 3.6)) calc(var(--u) * 2) 0 / calc(var(--u) * 11) calc(var(--u) * 8) repeat-x;
@@ -107,9 +124,6 @@
 .cd-blk { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); padding: calc(var(--u) * 7) calc(var(--u) * 8); color: var(--x-paper); }
 .cd-blk b { font: 400 calc(var(--u) * 20) / 1 var(--f-display); }
 .cd-blk small { font: 800 calc(var(--u) * 8) / 1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; }
-.cd-blk-t { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); }
-.cd-blk-f { flex-direction: row; align-items: center; gap: calc(var(--u) * 6); padding-left: calc(var(--u) * 6); padding-right: calc(var(--u) * 6); background: var(--lane); color: var(--lane-ink); }
-.cd-blk-f small { letter-spacing: 0.04em; }
 .cd-blk-k { background: var(--x-ink); }
 .cd-blk-k b { color: var(--x-mustard); }
 .cd-blk-y { background: var(--x-mustard); color: var(--x-ink); }
@@ -118,11 +132,32 @@
 .cd-blk-cost { flex: none; width: calc(var(--u) * 74); }
 .cd-ic { flex: none; width: calc(var(--u) * 24); height: calc(var(--u) * 24); border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); }
 .cd-ic .x-fruit { width: calc(var(--u) * 17); height: calc(var(--u) * 17); }
-/* four blocks (the price limits of Price Controls): the fruit above its limit */
-.cd-n4 .cd-blk { padding: calc(var(--u) * 6) calc(var(--u) * 5); }
-.cd-n4 .cd-blk-f { flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 4); }
-.cd-n4 .cd-blk b { font-size: calc(var(--u) * 16); }
-.cd-n3 .cd-blk b { font-size: calc(var(--u) * 17); }
+/* an event's lines (PLAN-106): one box per thing the event changes, every box the same size on every event card; a
+   money figure has a tag on its left that says whose money it is */
+.cd-fx { flex: none; display: flex; flex-direction: column; gap: calc(var(--u) * 4); margin-top: calc(var(--u) * 10); }
+.cd-fx-l {
+  flex: none; height: calc(var(--u) * 26); display: flex; align-items: center; gap: calc(var(--u) * 6); padding: 0 calc(var(--u) * 7) 0 calc(var(--u) * 4);
+  background: var(--x-ink); color: var(--x-paper);
+}
+.cd-fx-l b { flex: none; font: 400 calc(var(--u) * 17) / 1 var(--f-display); }
+.cd-fx-l small { min-width: 0; font: 800 calc(var(--u) * 7.5) / 1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; color: inherit; }
+.cd-fx-k b { color: var(--x-mustard); }
+.cd-fx-f { background: var(--lane); color: var(--lane-ink); }
+.cd-fx .cd-ic { width: calc(var(--u) * 21); height: calc(var(--u) * 21); }
+.cd-fx .cd-ic .x-fruit { width: calc(var(--u) * 15); height: calc(var(--u) * 15); }
+/* Price Controls: the limit for each fruit, in the fruit's lane */
+.cd-fx-lim { gap: calc(var(--u) * 4); padding: 0; background: none; }
+.cd-lim { flex: 1 1 0; align-self: stretch; display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 4); background: var(--lane); color: var(--lane-ink); }
+/* the tag: a lorry and MARKET (grey) for what stalls pay at the Wholesale Market, a customer and CUSTOMER (Everyday
+   teal) for what customers pay; both in paper on their colour, edged in paper so they read on a lane's colour too */
+.cd-pay {
+  --pay: var(--x-slate); flex: none; box-sizing: border-box; width: calc(var(--u) * 66); height: calc(var(--u) * 18); display: inline-flex; align-items: center; justify-content: center;
+  gap: calc(var(--u) * 3); background: var(--pay); color: var(--x-paper); box-shadow: 0 0 0 calc(var(--u) * 1.25) var(--x-paper);
+  font: 800 calc(var(--u) * 7) / 1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
+}
+.cd-pay-customer { --pay: var(--x-everyday); }
+.cd-pay-i { flex: none; display: block; width: auto; height: calc(var(--u) * 9); fill: currentColor; }
+.cd-pay-i .w { fill: var(--pay); }
 .cd-keeper .cd-blk b { font-size: calc(var(--u) * 17); }
 .cd-favour .cd-blk b { font-size: calc(var(--u) * 14); }
 /* the text keeps a little air above the footer, also on the cards whose picture gives way to it */
@@ -134,6 +169,8 @@
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: calc(var(--u) * 3) calc(var(--u) * 6);
   font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-red-d);
 }
+/* a footer of one centred word (the shopkeeper's: Fruit Market) */
+.cd-ft.cd-ft-c { justify-content: center; }
 /* a standing order: what it wants on a band in the fruit's colour, with the freshness it takes */
 .cd-want { flex: none; display: flex; align-items: center; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 11); padding: calc(var(--u) * 4) calc(var(--u) * 8); background: var(--lane); color: var(--lane-ink); }
 .cd-want .cd-dots { gap: calc(var(--u) * 4); }
@@ -199,9 +236,7 @@
 .cd-sm { font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.18em; text-transform: uppercase; }
 .cd-rl { align-self: stretch; flex: none; display: block; height: calc(var(--u) * 4); background: var(--x-ink); }
 .cd-wd { font: 400 calc(var(--u) * var(--ts, 26)) / 0.95 var(--f-display); text-transform: uppercase; }
-.cd-ds { align-self: stretch; padding-top: calc(var(--u) * 8); border-top: calc(var(--u) * 2) dashed var(--x-ink); font: 800 calc(var(--u) * 8.5) / 1 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; color: var(--x-red-d); }
 .cd-bk-order .cd-band { background: var(--x-mustard); }
-.cd-bk-order .cd-ds { color: var(--x-ink); }
 /* a back at the width of a phone card (the morning's news, face down): it fills the card it will turn into */
 .cd-bk.cd-bk-wide { --u: 1px; width: auto; height: auto; position: absolute; inset: 0; background-size: 56px 56px; }
 .cd-bk-wide .cd-band { gap: 6px; padding: 12px 13px 10px; }
@@ -229,7 +264,10 @@
 /* today's event: the picture beside the title, what it changes on mustard chips, then the card's words */
 .wc .wc-evpic { flex: none; width: 128px; height: 92px; border: 2px solid var(--x-ink); }
 .wc-chip { align-self: flex-start; display: inline-flex; align-items: baseline; gap: 5px; padding: 5px 7px; background: var(--x-mustard); font: 800 0.5625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
-.wc-chip b { font: 400 0.8125rem/1 var(--f-display); letter-spacing: 0; }
+.wc-chip b { flex: none; font: 400 0.8125rem/1 var(--f-display); letter-spacing: 0; white-space: nowrap; }
+/* a money figure's Market or Customer tag (cards.css .cd-pay), at phone size */
+.wc-chip:has(.cd-pay) { align-items: center; padding: 2px 7px 2px 2px; }
+.wc-chip .cd-pay { --u: 1.05px; box-shadow: none; }
 .wc-flavour { color: var(--x-slate); font-size: 0.6875rem; }
 /* the event card is turned over each morning: its deck's back first, then the face */
 .wc-flip { position: relative; flex: none; perspective: 900px; }
@@ -265,17 +303,20 @@
 .wc-stat b { font: 400 1.25rem/1 var(--f-display); }
 .wc-stat span { font: 800 0.5625rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
 
-/* a customer in the rush: the picture, each fruit they came for with its price tag, the legend */
+/* a customer in the rush: the picture, each fruit they came for with its price tag, the legend; the heading and the
+   legend in the customer type's colours (PLAN-106) */
+.wc-cust .wc-kind { background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 -2px 0 var(--bar-edge, transparent); }
+.wc-cust .wc-kind b { color: var(--bar-num, var(--x-mustard)); }
 .wc .wc-custpic { flex: none; width: 96px; height: 96px; border: 2px solid var(--x-ink); }
 .wc-ttl-c { font-size: 1.125rem; }
 .wc-cust .wc-rw .x-fruit { width: 20px; height: 20px; }
 .wc-tag { flex: none; margin-left: auto; padding: 4px 7px 4px 13px; background: var(--x-ink); color: var(--x-mustard); font: 400 0.875rem/1 var(--f-display); clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
 .wc-rw.later { opacity: 0.4; }
-.wc-leg { flex: none; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: var(--x-ink); color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.wc-leg { flex: none; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 2px 0 var(--bar-edge, transparent); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 .wc-lamp { flex: none; width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0; }
 .wc-lamp + .wc-lamp, .wc-leg span + .wc-lamp { margin-left: 12px; }
-.wc-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
-.wc-leg .no { color: var(--x-lamp-off); }
+.wc-lamp.off { background: none; color: var(--bar-dim, var(--x-lamp-off)); box-shadow: inset 0 0 0 1px var(--bar-dim, var(--x-lamp-off)); }
+.wc-leg .no { color: var(--bar-dim, var(--x-lamp-off)); }
 /* In the rush the card is the approved one (heading strip, a 96 px picture, the legend strip) where the screen is tall
    enough for the card, the offers and the result under it. On a shorter screen it is drawn smaller so the result stays
    in view: a 64 px picture, and the legend in the heading strip in place of the customer's type (the legend says the
@@ -293,8 +334,8 @@
 .tkc :where(i, em) { font-style: normal; }
 /* the heading holds two lines; on a ticket narrower than the approved one the type follows the ticket's width, so a
    name breaks where it does there */
-.tkc-hd { flex: none; height: 26px; overflow: hidden; padding: 4px 5px; background: var(--x-ink); color: var(--x-paper); font: 800 7.5px/1.2 var(--f-label); font-size: min(7.5px, 8.96cqw); letter-spacing: 0.02em; text-transform: uppercase; }
-.tkc-hd b { font-weight: 800; color: var(--x-mustard); }
+.tkc-hd { flex: none; height: 26px; overflow: hidden; padding: 4px 5px; background: var(--bar, var(--x-ink)); color: var(--bar-ink, var(--x-paper)); box-shadow: inset 0 -1.5px 0 var(--bar-edge, transparent); font: 800 7.5px/1.2 var(--f-label); font-size: min(7.5px, 8.96cqw); letter-spacing: 0.02em; text-transform: uppercase; }
+.tkc-hd b { font-weight: 800; color: var(--bar-num, var(--x-mustard)); }
 .tkc-pc { flex: none; height: 56px; overflow: hidden; border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); }
 .tkc-pc img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .tkc-rw { flex: none; display: flex; align-items: center; gap: 3px; padding: 3px 4px; }
@@ -311,9 +352,9 @@
 .tkc-rw.down > b { color: var(--x-slate); }
 .tkc-rw.done > * { opacity: 0.35; }
 .tkc-rw.done::after { content: '✓'; flex: none; margin-left: 2px; font: 800 11px/1 var(--f-label); color: var(--x-green); }
-.tkc-bd { flex: none; margin-top: auto; display: flex; gap: 3px; padding: 3px 4px; background: var(--x-ink); }
+.tkc-bd { flex: none; margin-top: auto; display: flex; gap: 3px; padding: 3px 4px; background: var(--bar, var(--x-ink)); box-shadow: inset 0 1.5px 0 var(--bar-edge, transparent); }
 .tkc-lamp { flex: none; width: 12px; height: 12px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); font: 800 8px/1 var(--f-label); }
-.tkc-lamp.off { background: none; color: var(--x-lamp-off); box-shadow: inset 0 0 0 1px var(--x-lamp-off); }
+.tkc-lamp.off { background: none; color: var(--bar-dim, var(--x-lamp-off)); box-shadow: inset 0 0 0 1px var(--bar-dim, var(--x-lamp-off)); }
 /* face down: four fixed squares, one per fruit, filled for the fruit wanted */
 .tkc-dn { flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, 26px); gap: 4px; align-content: center; justify-content: center; padding: 6px 0; background: var(--x-ink); }
 .tkc-dn span { width: 26px; height: 26px; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--x-slate); }

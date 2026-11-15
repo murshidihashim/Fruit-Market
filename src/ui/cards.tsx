@@ -1,6 +1,7 @@
 // The card system (PLAN-083, the rules 18 card set): one set of cards for the app and the print kit, drawn to the
 // designs the owner approved (docs/studio/review-18/mockups).
-//   TradingCard       a customer or a special guest: black heading, picture, fruit rows with a price tag, one legend row
+//   TradingCard       a customer or a special guest: a heading bar in the customer type's colour, a picture of one
+//                     size, the fruit rows with a price tag, one legend bar
 //   TradingCardBack   a face-down customer: four fixed fruit squares, filled for the fruit wanted, nothing else
 //   Gazette           an event            \
 //   LorryCard         a lorry              |  design A, "Ticket": a small spaced label and number, a thick rule, a big
@@ -15,8 +16,8 @@
 import type { ComponentChildren, FunctionComponent } from 'preact';
 import { isValidElement } from 'preact';
 import {
-  BARROW_BUY, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, JUICE_TIP,
-  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_CARDS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty,
+  BARROW_BUY, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, JUICE_TIP,
+  MAX_STALLS, MAX_UPGRADES, MIN_STALLS, ORDER_BOOK_BONUS, ORDER_LEAD, PREF_INFO, RIVALS, TRAITS, UPGRADES, lookOf, orderQty,
   prefOf,
   type EventCard, type FarmerCard, type FavourDef, type FavourId, type FruitId, type OrderCard as OrderDef, type Pref, type Stalls,
   type UpgradeId,
@@ -27,7 +28,7 @@ import {
   customerArt, customerFocus, eventArt, eventFocus, favourArt, favourFocus, focusCss, guestArt, guestFocus, shopFocus, shopScene, tileArt,
   upgradeArt, upgradeFocus, type DeckId, type Focus,
 } from './deckArt';
-import { cardChips, type NewsChip } from './eventChips';
+import { cardChips, newsChips, type NewsChip, type Pay } from './eventChips';
 import { FruitSvg } from './fruitIcons';
 
 /** Pixel sizes of the picture files in public/art-ticket (for width and height, so nothing jumps while loading). */
@@ -105,6 +106,9 @@ export function PrefLegend({ pref, class: cls }: { pref: Pref; class?: string })
   );
 }
 
+/** The class that colours a customer card's top and bottom bars by the customer's type (cards.css .pref-*). */
+export const prefClass = (p: Pref) => `pref-${p}`;
+
 /**
  * A customer's card. `who` is the hidden code key; the name shown is lookOf(who).title. `wants` are the rows to print,
  * with the prices to show (pass the day's prices if the screen shows those); they are drawn in the board's lane order.
@@ -118,7 +122,7 @@ export function TradingCard({ who, wants, n, guest, eager, class: cls }: {
   const num = guest ? undefined : n ?? customerNumber(who);
   const [w, h] = ART_SIZE[guest ? 'event' : 'customer'];
   return (
-    <article class={cx('cd', 'cd-m', 'cd-cust', guest && 'cd-guest', cls)}>
+    <article class={cx('cd', 'cd-m', 'cd-cust', prefClass(pref), guest && 'cd-guest', cls)}>
       <header class="cd-kind">
         <span>{num !== undefined ? <><b>{two(num)}</b>{' · Customer'}</> : 'Guest'}</span>
         <span>{PREF_INFO[pref].title}</span>
@@ -166,17 +170,57 @@ export function TradingCardBack({ fruits, class: cls }: { fruits: FruitId[]; cla
 
 // ---------- design A, "Ticket" ----------
 
-/** The coloured number blocks under a card's picture. A block about one fruit is in that fruit's lane colour. */
-function Blocks({ chips }: { chips: NewsChip[] }) {
+/** What a money figure on an event is about, on its tag: the Wholesale Market or the customers. */
+export const PAY_WORD: Record<Pay, string> = { market: 'Market', customer: 'Customer' };
+
+/** A lorry and a customer, drawn small for the tags (one colour: the tag's ink, with cut-outs in the tag's colour). */
+function PayIcon({ pay }: { pay: Pay }) {
+  return pay === 'market'
+    ? (
+      <svg class="cd-pay-i" viewBox="0 0 24 16" aria-hidden="true">
+        <path d="M0 1h14v10H0z" /><path d="M15 4h4.5l4.5 4.5V13H15z" /><path class="w" d="M16.5 5.5h2.4l2.6 2.6h-5z" />
+        <circle cx="5" cy="13" r="3" /><circle cx="19" cy="13" r="3" /><circle class="w" cx="5" cy="13" r="1.2" /><circle class="w" cx="19" cy="13" r="1.2" />
+      </svg>
+    )
+    : (
+      <svg class="cd-pay-i" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="5.5" r="4.5" /><path d="M0.5 16C0.5 12 3.5 10.5 8 10.5S15.5 12 15.5 16z" />
+        <circle class="w" cx="6.3" cy="5" r="0.9" /><circle class="w" cx="9.7" cy="5" r="0.9" />
+      </svg>
+    );
+}
+
+/** The tag on the left of an event's money figure (PLAN-106): a lorry and "Market" for what stalls pay at the
+ *  Wholesale Market (grey), a customer and "Customer" for what customers pay (the Everyday teal). */
+export function PayTag({ pay }: { pay: Pay }) {
+  return <span class={`cd-pay cd-pay-${pay}`}><PayIcon pay={pay} />{PAY_WORD[pay]}</span>;
+}
+
+/**
+ * The lines under an event's picture: one box of one size for each thing the event changes (its figure, in the fruit's
+ * lane colour when it is about one fruit), a money figure with its Market or Customer tag. `limits`: Price Controls'
+ * limit for each fruit, in one more line.
+ */
+function Lines({ chips, limits }: { chips: NewsChip[]; limits?: NewsChip[] }) {
   if (!chips.length) return null;
   return (
-    <div class={`cd-two cd-n${chips.length}`}>
+    <div class="cd-fx">
       {chips.map((c) => (
-        <div class={cx('cd-blk', c.fruit ? `cd-blk-f ${laneClass(c.fruit)}` : 'cd-blk-k')}>
+        <div class={cx('cd-fx-l', c.fruit ? `cd-fx-f ${laneClass(c.fruit)}` : 'cd-fx-k')}>
+          {c.pay && <PayTag pay={c.pay} />}
           {c.fruit && <span class="cd-ic"><FruitSvg id={c.fruit} size={17} alt={FRUIT[c.fruit].name} /></span>}
-          <span class="cd-blk-t"><b>{c.big}</b><small>{c.small}</small></span>
+          <b>{c.big}</b><small>{c.small}</small>
         </div>
       ))}
+      {limits && (
+        <div class="cd-fx-l cd-fx-lim">
+          {limits.map((c) => (
+            <span class={cx('cd-lim', c.fruit && laneClass(c.fruit))} role="img" aria-label={`${c.fruit ? FRUIT[c.fruit].name : ''} ${c.small} ${c.big}`}>
+              {c.fruit && <span class="cd-ic"><FruitSvg id={c.fruit} size={17} alt="" /></span>}<b>{c.big}</b>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -209,7 +253,7 @@ export function Gazette({ event, n, eager, class: cls }: { event: EventCard; n?:
     <article class={cx('cd', 'cd-a', 'cd-event', cls)}>
       <Head label="Event" right={num > 0 && <b>{`No ${two(num)}`}</b>} title={event.title} />
       <Pic src={eventArt(event.id)} alt={event.title} size={ART_SIZE.event} focus={eventFocus(event.id)} eager={eager} tall />
-      <Blocks chips={cardChips(event)} />
+      <Lines chips={newsChips(event)} limits={event.maxPrice ? cardChips(event) : undefined} />
       <p class="cd-txt">{event.text}</p>
       <footer class="cd-ft"><span>Lasts until night</span></footer>
     </article>
@@ -274,7 +318,7 @@ export function StallSign({ avatar, pattern, selected, takenBy, eager, class: cl
       <Pic src={shopScene(avatar)} alt={name} size={ART_SIZE.scene} focus={shopFocus(avatar)} eager={eager} tall />
       {trait && <div class="cd-two"><div class="cd-blk cd-blk-y"><small>Perk</small><b>{trait.title}</b></div></div>}
       {trait && <p class="cd-txt">{trait.text}</p>}
-      <footer class="cd-ft"><span>Your perk all game</span></footer>
+      <footer class="cd-ft cd-ft-c"><span>Fruit Market</span></footer>
       {takenBy && <span class="cd-taken">{`Taken by ${takenBy}`}</span>}
     </article>
   );
@@ -364,18 +408,19 @@ export function OrderCard({ card, qty, due, bid, stake, class: cls }: {
 
 // ---------- pattern backs (DEC-096) ----------
 
-/** Each deck's name on its back, the size its name is set at, and how many cards it holds. */
-const DECKS: Record<DeckId, { name: string; size: number; count: string }> = {
-  lorry: { name: 'Lorry', size: 34, count: `Deck of ${FARMER_CARDS.length}` },
-  event: { name: 'Event', size: 34, count: `Deck of ${EVENT_CARDS.length}` },
-  favour: { name: 'Favour', size: 34, count: `Deck of ${FAVOUR_DECK.length}` },
-  upgrade: { name: 'Upgrade', size: 32, count: `${Object.keys(UPGRADES).length} kinds` },
-  shopkeeper: { name: 'Shopkeeper', size: 25, count: `Deck of ${RIVALS.length}` },
-  order: { name: 'Standing order', size: 27, count: `Deck of ${ORDER_CARDS.length}` },
+/** Each deck's name on its back, and the size its name is set at. A back does not say how many cards the deck holds
+ *  (the owner, PLAN-106). */
+const DECKS: Record<DeckId, { name: string; size: number }> = {
+  lorry: { name: 'Lorry', size: 34 },
+  event: { name: 'Event', size: 34 },
+  favour: { name: 'Favour', size: 34 },
+  upgrade: { name: 'Upgrade', size: 32 },
+  shopkeeper: { name: 'Shopkeeper', size: 25 },
+  order: { name: 'Standing order', size: 27 },
 };
 
-/** A deck's back: its tile repeated in a darker tone of the deck's colour, with a paper band for the name, a rule and
- *  the deck's size. `wide`: the band on a card that is wider than it is tall (the morning's news, face down). */
+/** A deck's back: its tile repeated in a darker tone of the deck's colour, with a paper band for the game's name, a
+ *  rule and the deck's name. `wide`: the band on a card that is wider than it is tall (the morning's news, face down). */
 export function DeckBack({ deck, wide, class: cls }: { deck: DeckId; wide?: boolean; class?: string }) {
   const d = DECKS[deck];
   return (
@@ -385,7 +430,6 @@ export function DeckBack({ deck, wide, class: cls }: { deck: DeckId; wide?: bool
         <span class="cd-sm">Fruit Market</span>
         <i class="cd-rl" />
         <span class="cd-wd" style={{ '--ts': d.size }}>{d.name}</span>
-        <span class="cd-ds">{d.count}</span>
       </div>
     </article>
   );
