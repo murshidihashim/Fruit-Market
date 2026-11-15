@@ -43,9 +43,11 @@
     "date": "2026-11-15"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.24.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 80f7d46",
-  "reports": [],
+  "reports": [
+    "REP-121"
+  ],
   "decisions": [],
   "changes": {
     "added": [
@@ -61,5 +63,7 @@
       "\"Deck of N\" (and \"5 kinds\") on every card back"
     ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "A fresh card look: customer types in colour, and event cards show a lorry or a customer face beside each price change"
+  ]
 }

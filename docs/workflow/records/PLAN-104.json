@@ -43,9 +43,11 @@
     "date": "2026-11-15"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.24.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge c9071a0",
-  "reports": [],
+  "reports": [
+    "REP-121"
+  ],
   "decisions": [],
   "changes": {
     "added": [
@@ -58,6 +60,6 @@
     "removed": []
   },
   "playerNotes": [
-    "The buying row shows who buys first and why, and each stall's seat number, so the clockwise order is easy to follow"
+    "The buying row shows each stall's seat number and a FIRST token on whoever buys first: it spins on Day 1 and moves each morning"
   ]
 }

@@ -2927,6 +2927,30 @@
         "REP-120"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-119",
+      "title": "Publish 1.24.0",
+      "question": "Since 1.23.0 the branch holds the shopkeeper choice after everyone joins (PLAN-102), the first-time How to play on Day 1 online (PLAN-103), the turn order with seat numbers and the FIRST token (PLAN-104), the iPhone price-tag fix (PLAN-105), the new card look (PLAN-106) and the print pack at rules 19 (PLAN-100). Rules version stays 19; protocol 4. Is it published?",
+      "choice": "Published as 1.24.0 by the release path: pull request to main, CI verify:full, the preview updated, then the Deploy LIVE game workflow with its checks, live smoke test and tag v1.24.0. If a required check fails, nothing is published and the owner is told.",
+      "rationale": "The owner's word after the preview and the card sheets.",
+      "impact": {
+        "player": "Rooms: shopkeepers chosen after everyone joins; first-timers get a one-screen How to play online; clearer turn order; iPhone price tags fixed; new card look. Phones on 1.23.0 are asked to update before joining a room.",
+        "technical": "package.json 1.24.0; releases.json; merge to main; deploy-web.yml; tag v1.24.0.",
+        "data": "None new."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16: \"okay now regenerate the print kit, then publish 1.24.0\".",
+        "date": "2026-11-16"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-121"
+      ],
+      "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
     }
   ],
   "history": [
@@ -4177,6 +4201,10 @@
     {
       "at": "2026-11-16 05:07",
       "text": "PLAN-106 event cards reworked at the owner's review and merged as 80f7d46: one-line titles, pictures 97 units on every event, boxes side by side and one size, guest events name only the guest, icon badges (lorry / customer face) instead of the word tags, key on the Player Aid. verify PASS (942); the helper's e2e PASS. Sheets sent to the owner."
+    },
+    {
+      "at": "2026-11-16 07:04",
+      "text": "DEC-119: the owner said \"okay now regenerate the print kit, then publish 1.24.0\". Print kit, update pack and tracker tests regenerated (print-kit test PASS). Release 1.24.0 prepared: PLAN-100, PLAN-102 to PLAN-106; version 1.24.0, release entry with player notes, REP-121."
     }
   ]
 }

@@ -565,6 +565,26 @@
       "date": "2026-11-14",
       "commit": "1ae24d6",
       "tagged": true
+    },
+    {
+      "version": "1.24.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-100",
+        "PLAN-102",
+        "PLAN-103",
+        "PLAN-104",
+        "PLAN-105",
+        "PLAN-106"
+      ],
+      "notes": [
+        "In a private room everyone chooses a shopkeeper once all players have joined",
+        "New to the game? Your first online game opens with a one-screen How to play",
+        "The buying row shows each stall's seat number and a FIRST token on whoever buys first: it spins on Day 1 and moves each morning",
+        "On iPhones the price tag on your crate now updates as you change the price",
+        "A fresh card look: customer types in colour, and event cards show a lorry or a customer face beside each price change",
+        "Phones on 1.23.0 are asked to update before joining a room; games, trophies and progress carry over"
+      ]
     }
   ]
 }

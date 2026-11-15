@@ -38,9 +38,11 @@
     "date": "2026-11-14"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.24.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
-  "reports": [],
+  "reports": [
+    "REP-121"
+  ],
   "decisions": [],
   "changes": {
     "added": [
