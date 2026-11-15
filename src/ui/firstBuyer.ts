@@ -51,18 +51,6 @@ export function firstBuyer(s: GameState): FirstBuyer | null {
   return { p, why: { kind: 'cash', cash: least } };
 }
 
-/** The reason in a few words, as the stalls' row shows it beside the first buyer's name. */
-export function whyWords(why: FirstWhy): string {
-  switch (why.kind) {
-    case 'random': return 'picked at random';
-    case 'cash': return `least cash $${why.cash}`;
-    case 'tie': return `tied at $${why.cash}, first from seat ${seatNo(why.from)}`;
-    case 'priority': return 'Priority card';
-    case 'nestEgg': return 'Nest Egg, Day 3';
-    case 'none': return '';
-  }
-}
-
 /** The reason in a sentence, for a screen reader. */
 function whySaid(why: FirstWhy): string {
   switch (why.kind) {
@@ -75,19 +63,12 @@ function whySaid(why: FirstWhy): string {
   }
 }
 
-/** The line under the stalls' row title: who buys first, why, and how the rest follow. */
-export interface FirstLine {
-  /** "Kiki buys first" */
-  head: string;
-  /** "least cash $2 · then clockwise" */
-  tail: string;
-  /** The two together, as the row shows them. */
-  text: string;
-  /** In whole sentences, for a screen reader. */
-  aria: string;
-}
-
-export function firstLine(s: GameState, viewer: number): FirstLine | null {
+/**
+ * Who buys first, why, and how the rest follow, in whole sentences for a screen reader. It is read on the first
+ * buyer's box; the screen shows the First token there and no words (the owner, PLAN-104 review). Null before the day
+ * has a line-up.
+ */
+export function firstSaid(s: GameState, viewer: number): string | null {
   const f = firstBuyer(s);
   if (!f) return null;
   const me = f.p === viewer;
@@ -98,10 +79,8 @@ export function firstLine(s: GameState, viewer: number): FirstLine | null {
   // cash, who is next. After a Priority card on Day 3 Nest Egg is next, and the rest follow it.
   const jumped = f.why.kind === 'priority' || f.why.kind === 'nestEgg';
   const second = s.order[1];
-  const rest = egg !== null ? `${name(egg)} next, Nest Egg` : jumped && second !== undefined ? `then ${name(second)}, clockwise` : 'then clockwise';
-  const tail = [whyWords(f.why), rest].filter(Boolean).join(' · ');
   const said = whySaid(f.why);
   const then = egg !== null ? `Then ${name(egg)}, with Nest Egg, then the others clockwise from the least cash.`
     : jumped && second !== undefined ? `Then ${name(second)}, and the others clockwise from there.` : 'The others follow clockwise round the seats.';
-  return { head, tail, text: `${head} · ${tail}`, aria: `${head}${said ? `: ${said}` : ''}. ${then}` };
+  return `${head}${said ? `: ${said}` : ''}. ${then}`;
 }

@@ -47,16 +47,10 @@
 #app .tkt .tb-row-head .tk-label { font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
 #app .tkt .tb-side { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1.1 var(--tk-txt); color: var(--tk-slate); }
 #app .tkt .tb-stall-row { --g: 5px; position: relative; flex: none; display: flex; gap: var(--g); min-width: 0; }
-/* PLAN-104: while stalls buy, who buys first and why, under the title (on a shorter phone, where the title is put away,
-   in its place); it keeps its room while the token is on its way and fades in once it has landed */
-#app .tkt .tb-why { flex: none; height: 14px; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.6875rem/14px var(--tk-txt); color: var(--tk-slate); }
-#app .tkt .tb-why b { font-weight: 800; color: var(--tk-ink); }
-#app .tkt .tb-why.off { visibility: hidden; }
-/* while the token is on its way the row does not give away where it lands: no box is marked as buying yet */
+/* PLAN-104: while the First token is on its way the row does not give away where it lands: no box is marked as buying
+   yet (the bottom bar waits too, game/panels/ActionBar.tsx) */
 #app .tkt .tb-stalls.tb-drawing .tb-stall.buy-now { background: var(--tk-paper); }
 #app .tkt .tb-stalls.tb-drawing .tb-got > span:last-child:not(.tb-buys) { visibility: hidden; }
-#app .tkt .tb-why.go { animation: tb-why-in calc(var(--mk, 1) * var(--t-travel, 320ms)) ease both; }
-@keyframes tb-why-in { from { opacity: 0; } }
 /* the First token: a small round token on the first buyer's box, over its awning; it lies on the row, so it can
    travel from box to box (the boxes are all one width: box k starts k widths and gaps from the left) */
 #app .tkt .tb-first {
