@@ -4153,6 +4153,10 @@
     {
       "at": "2026-11-15 21:33",
       "text": "PLAN-105: the owner reported that on iOS the price tag does not change when the price is amended. Likely cause: the crate tags are painted through a CSS filter (drop-shadow edge) and Safari does not repaint a filtered element when only its text changes. Fix: each tag keyed by its price and face so a new element is drawn. verify PASS; not checked on a real iPhone (no Safari here)."
+    },
+    {
+      "at": "2026-11-15 22:10",
+      "text": "PLAN-106 approved: the owner's card changes for the print kit, applied to the app too (\"both\"); customer colours Premium deep purple, Everyday teal, Bargain orange; MARKET/CUSTOMER tags on event money lines; \"Deck of\" removed from every back. Building in a helper. PR #17 (PLAN-104 and the iPhone fix) is on its way to the preview."
     }
   ]
 }
