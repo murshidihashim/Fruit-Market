@@ -125,11 +125,10 @@ describe('first-time pop-up: who sees it', () => {
     const game = readFileSync('src/ui/Game.tsx', 'utf8');
     expect(game).toContain("const [firstTime, setFirstTime] = useState(() => !!online && showFirstTime());");
     expect(game).toContain('const firstUp = firstTime && firstTimeMoment(s, !!online, c.votedMe);');
-    // The morning card (and its news) waits; so does this player's Start buying, which sits under the pop-up.
+    // The morning card (and its news) waits. This player's Start buying lies under the pop-up, out of reach.
     const morning = game.indexOf("if (s.phase === 'morning' && firstUp) return null;");
     expect(morning).toBeGreaterThan(-1);
     expect(morning).toBeLessThan(game.indexOf('<MorningCard s={s} viewer={viewer} lost={c.lastNight}'));
-    expect(game).toContain('!firstUp && <ActionBar');
     // Got it is remembered before the pop-up goes.
     expect(game).toContain('dismissFirstTime(); setFirstTime(false);');
     expect(readFileSync('src/ui/Online.tsx', 'utf8')).not.toMatch(/FirstTime/);

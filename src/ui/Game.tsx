@@ -250,7 +250,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}
-      {!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && !firstUp && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       {/* The round table, from the moment this stall opens to the end of the rush: a stage over the table from under the
           customer row down, under the flying fruit. It stays a moment after it is done, to slide off, so it is drawn
