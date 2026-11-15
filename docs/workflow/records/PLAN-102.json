@@ -17,20 +17,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes, with server tests for the picking step",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge c84e2f0: 83 files, 915 tests passed, 1 skipped; 11 new tests for the choosing step in tests/room.test.ts."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes (online match with the choosing step, leak check 0, four players, reconnect)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on the merge c84e2f0: solo game, speed test OK (longest task 162 ms), online match 74 pricing frames with 0 leaks and the choosing step, quick match, four players with six different shopkeepers, reconnect 5 of 5."
     },
     {
       "id": "T3",
       "text": "The screens seen at 390x844 and 360x640",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper's pictures at 390x844 and 360x640 (Play online, invite, lobby with 2 and 5, the choosing step, the first morning), seen by me; sheet sent to the owner."
     },
     {
       "id": "T4",
@@ -44,16 +44,24 @@
     "evidence": "Owner, 2026-11-15: \"for create a room thingy, make it so that players choose a character after everyone has joined, instead of when everyone is still joining\".",
     "date": "2026-11-15"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge c84e2f0",
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "A \"Choose your shopkeeper\" step in private rooms after the host starts: choose, then confirm; taken shopkeepers greyed with the taker's name"
+    ],
+    "changed": [
+      "Private rooms: no shopkeeper choice before joining or in the lobby; the picker on Play online is for quick match only; protocol version 4"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "The lobby's shopkeeper panel"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "In a private room everyone chooses a shopkeeper once all players have joined"
+  ]
 }
