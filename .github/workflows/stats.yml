@@ -21,7 +21,10 @@ jobs:
           STATS_KEY: ${{ secrets.STATS_KEY }}
         run: |
           test -n "$STATS_KEY" || { echo "STATS_KEY is not set as a GitHub secret"; exit 1; }
-          code=$(curl -sS -o stats.json -w '%{http_code}' -H "x-stats-key: $STATS_KEY" "https://fruit-market.murshidi-hashim.workers.dev/api/stats?days=90")
+          # A pasted password often carries a space or line break at either end; send it without them.
+          KEY=$(printf '%s' "$STATS_KEY" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+          echo "::add-mask::$KEY"
+          code=$(curl -sS -o stats.json -w '%{http_code}' -H "x-stats-key: $KEY" "https://fruit-market.murshidi-hashim.workers.dev/api/stats?days=90")
           echo "HTTP $code"
           test "$code" = 200 || { echo "The live game refused the key (HTTP $code): the Cloudflare and GitHub secrets may differ"; exit 1; }
       - name: Summary
