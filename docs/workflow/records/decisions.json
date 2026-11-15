@@ -4157,6 +4157,10 @@
     {
       "at": "2026-11-15 22:10",
       "text": "PLAN-106 approved: the owner's card changes for the print kit, applied to the app too (\"both\"); customer colours Premium deep purple, Everyday teal, Bargain orange; MARKET/CUSTOMER tags on event money lines; \"Deck of\" removed from every back. Building in a helper. PR #17 (PLAN-104 and the iPhone fix) is on its way to the preview."
+    },
+    {
+      "at": "2026-11-15 22:34",
+      "text": "PLAN-104 changed at the owner's answers (\"Dont need the reason-line wording\"; the bar waits for the token: \"Yes\"): merged as c9071a0, verify PASS, the helper's e2e PASS. To go to the preview next."
     }
   ]
 }

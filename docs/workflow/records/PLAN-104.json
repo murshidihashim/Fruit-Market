@@ -16,13 +16,13 @@
       "id": "T1",
       "text": "npm run verify passes, with tests of the reason and the seat badge",
       "result": "PASS",
-      "evidence": "npm run verify on the merge 8a04062: 85 files, 934 tests passed, 1 skipped; tests/first-buyer.test.ts (12): the reason on Day 1, least cash, a tie with the token, Priority, Nest Egg Day 3, Priority on Day 3; the badge is the seat in every phase and every online view."
+      "evidence": "npm run verify on the merge 8a04062: 85 files, 934 tests passed, 1 skipped; tests/first-buyer.test.ts (12): the reason on Day 1, least cash, a tie with the token, Priority, Nest Egg Day 3, Priority on Day 3; the badge is the seat in every phase and every online view. After the owner's review (no reason line; the bar waits for the token): verify on the merge c9071a0, 937 tests passed; tests/first-buyer.test.ts now 13."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
       "result": "PASS",
-      "evidence": "GitHub CI run 148 (verify:full, started by hand on 8a04062): solo game; speed test OK at the first try (longest task 82 ms, p95 82, opening 121 ms, DOM 579; run 141 was 105 ms, DOM 582); online match 54 pricing frames with 0 leaks, rematch, abandoned match, quick match, four players, reconnect 5 of 5. On the helper's shared machine the speed test sat just over 200 ms for this build (203 to 227) and for the build before it once in two; CI is the deciding check."
+      "evidence": "GitHub CI run 148 (verify:full, started by hand on 8a04062): solo game; speed test OK at the first try (longest task 82 ms, p95 82, opening 121 ms, DOM 579; run 141 was 105 ms, DOM 582); online match 54 pricing frames with 0 leaks, rematch, abandoned match, quick match, four players, reconnect 5 of 5. On the helper's shared machine the speed test sat just over 200 ms for this build (203 to 227) and for the build before it once in two; CI is the deciding check. After the owner's review: the helper's npm run test:e2e on 6a7e72a PASS (speed test longest task 168 ms, leaks 0)."
     },
     {
       "id": "T3",
@@ -44,12 +44,12 @@
   },
   "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb, merge 8a04062",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge c9071a0",
   "reports": [],
   "decisions": [],
   "changes": {
     "added": [
-      "A First token on today's first buyer with the reason (picked at random, least cash, a tie, Priority card, Nest Egg on Day 3) and who follows; on Day 1 it spins round the stalls and lands at random, later days it slides"
+      "A First token on today's first buyer; on Day 1 it spins round the stalls and lands at random, later days it slides; the buying bar and \"Your turn\" wait until it lands; screen readers hear why that stall buys first"
     ],
     "changed": [
       "The number on each stall card in the buying row is its seat round the table, not its place in the buying order"
