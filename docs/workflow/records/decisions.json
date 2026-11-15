@@ -4161,6 +4161,10 @@
     {
       "at": "2026-11-15 22:34",
       "text": "PLAN-104 changed at the owner's answers (\"Dont need the reason-line wording\"; the bar waits for the token: \"Yes\"): merged as c9071a0, verify PASS, the helper's e2e PASS. To go to the preview next."
+    },
+    {
+      "at": "2026-11-15 23:21",
+      "text": "On the preview: pull request #17 (PLAN-104 turn order, PLAN-105 iPhone price-tag fix; main c587898) and #18 (PLAN-104 follow-up: no reason line, the buying bar waits for the token; main 0af559f), both with CI PASS on the pull request and on main; the preview serves the new code (no reason line). The live game stays 1.23.0."
     }
   ]
 }
