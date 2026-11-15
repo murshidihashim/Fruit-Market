@@ -4129,6 +4129,10 @@
     {
       "at": "2026-11-15 09:35",
       "text": "PLAN-103 approved: the owner wrote the text of the \"First time? How to play\" panel himself (\"use this\"); checked against the rules: correct (it leaves out the Charmer's extra favour and that the host can switch upgrades off). Building in a helper."
+    },
+    {
+      "at": "2026-11-15 10:01",
+      "text": "PLAN-103 merged as 4f17e06 (verify PASS 921 tests; the helper's e2e PASS). The owner asked for a first-player token that shows the random Day 1 pick and how the order passes; options sent (a \"First\" token on today's first buyer with the reason, recommended; or the rules' token plus a separate marker)."
     }
   ]
 }

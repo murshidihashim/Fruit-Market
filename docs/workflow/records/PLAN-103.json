@@ -14,20 +14,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes, with a test of the text, who sees it and Got it",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 4f17e06: 921 tests passed, 1 skipped; tests/first-time.test.ts (6): the text line for line, numbers from the data, shown only with 0 games played, Got it hides it for good."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e by the helper on 5ddba19 (the merge adds only records since the last full run): solo, speed test, online leaks 0, quick match, four players, reconnect."
     },
     {
       "id": "T3",
       "text": "The screens seen at 390x844 and 360x640",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The helper's 14 pictures at 390x844 and 360x640, seen by me on the sheet; nothing cut or wider than the screen."
     },
     {
       "id": "T4",
@@ -41,16 +41,20 @@
     "evidence": "Owner, 2026-11-15, after the drafts: his own text for the panel, then \"use this\".",
     "date": "2026-11-15"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "branch ccr-d8bcd65d-gblqqb",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 4f17e06",
   "reports": [],
   "decisions": [],
   "changes": {
-    "added": [],
+    "added": [
+      "\"First time? How to play\" panel in the private room lobby for a player with no finished game, in the owner's words; Got it and All the rules"
+    ],
     "changed": [],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "New to the game? The room lobby shows a short How to play while everyone joins"
+  ]
 }
