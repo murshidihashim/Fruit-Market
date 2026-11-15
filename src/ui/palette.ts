@@ -215,6 +215,14 @@ export const C = {
   tGrey: '#bdbebe',
   // The rules 18 card set (PLAN-083): the grey of a freshness lamp that is off.
   tLampOff: '#8d9396',
+  // Customer types on the card's top and bottom bars (PLAN-106, the owner's colours): Premium deep purple with a gold
+  // edge, Everyday teal, Bargain warm orange; each with the colour of a freshness it will not buy (the dim lamp).
+  xPremium: '#4b2a85',
+  xPremiumDim: '#b3a6d6',
+  xEveryday: '#0b5c59',
+  xEverydayDim: '#a3d1cd',
+  xBargain: '#f39233',
+  xBargainDim: '#5a3311',
   tApple: '#e73c35',
   tAppleDark: '#b62528',
   tAppleTint: '#fbd5d2',

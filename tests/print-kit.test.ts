@@ -180,10 +180,8 @@ describe('print kit: pictures and backs', () => {
       expect(tiles.length).toBe(20);
       expect(new Set(tiles)).toEqual(new Set([tileArt(kind)]));
     }
-    // The deck size on each back is the data's.
-    expect(deck('favours').cards[0].back).toContain(`Deck of ${FAVOUR_DECK.length}`);
-    expect(deck('lorries').cards[0].back).toContain(`Deck of ${FARMER_CARDS.length}`);
-    expect(deck('orders').cards[0].back).toContain(`Deck of ${ORDER_CARDS.length}`);
+    // No back says how many cards its deck holds (the owner, PLAN-106).
+    for (const d of DECKS) for (const c of d.cards) expect(c.back, c.label).not.toMatch(/Deck of|kinds</);
   });
 });
 

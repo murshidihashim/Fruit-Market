@@ -3,17 +3,21 @@
 import { FRUIT, type EventCard, type FruitId } from '../engine/data';
 import { LANES } from './boardModel';
 
-export interface NewsChip { fruit?: FruitId; big: string; small: string }
+/** Whose money a figure is (PLAN-106): what stalls pay when they buy at the Wholesale Market, or what customers pay. */
+export type Pay = 'market' | 'customer';
+/** `pay`: set on a figure about a price, from the field the event changes: `cost` is the Wholesale Market's; `priceAll`, `price` and `maxPrice` are customers'. The other figures (the inspector's fine, the night
+ *  hawker, the crowd, the lorry, the night) have none. */
+export interface NewsChip { fruit?: FruitId; big: string; small: string; pay?: Pay }
 const signed = (n: number, money = false) => `${n > 0 ? '+' : '−'}${money ? '$' : ''}${Math.abs(n)}`;
 
 /** What today's event changes, as big figures (at most three): prices first, then the crowd, the lorry and the night. */
 export function newsChips(e: EventCard | null | undefined): NewsChip[] {
   if (!e) return [];
   const out: NewsChip[] = [];
-  if (e.priceAll) out.push({ big: signed(e.priceAll, true), small: 'From every customer' });
-  for (const f of LANES) if (e.price?.[f]) out.push({ fruit: f, big: signed(e.price[f]!, true), small: `a ${FRUIT[f].name.toLowerCase()}` });
-  if (e.cost) out.push({ big: signed(e.cost, true), small: 'At the Wholesale Market' });
-  if (e.maxPrice) out.push({ big: 'Limit', small: 'On every price' });
+  if (e.priceAll) out.push({ big: signed(e.priceAll, true), small: 'From every customer', pay: 'customer' });
+  for (const f of LANES) if (e.price?.[f]) out.push({ fruit: f, big: signed(e.price[f]!, true), small: `a ${FRUIT[f].name.toLowerCase()}`, pay: 'customer' });
+  if (e.cost) out.push({ big: signed(e.cost, true), small: 'At the Wholesale Market', pay: 'market' });
+  if (e.maxPrice) out.push({ big: 'Limit', small: 'On every price', pay: 'customer' });
   if (e.inspector) out.push({ big: `−$${e.inspector}`, small: 'Per Soft piece' });
   if (e.walkIns) out.push({ big: e.walkIns > 0 ? 'More' : 'Fewer', small: 'Walk-ins today' });
   if (e.extra) out.push({ big: 'Guest', small: 'Joins the row' });
@@ -32,6 +36,6 @@ export function newsChips(e: EventCard | null | undefined): NewsChip[] {
  * card prints the limit for each fruit (the morning shows them in a row under the text).
  */
 export function cardChips(e: EventCard): NewsChip[] {
-  if (e.maxPrice) return LANES.map((f) => ({ fruit: f, big: `$${e.maxPrice![f]}`, small: 'Limit' }));
+  if (e.maxPrice) return LANES.map((f) => ({ fruit: f, big: `$${e.maxPrice![f]}`, small: 'Limit', pay: 'customer' }));
   return newsChips(e);
 }
