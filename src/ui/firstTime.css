@@ -1,0 +1,56 @@
+/* PLAN-103: "First time? How to play" as one pop-up over the game on Day 1 of an online game (FirstTime.tsx).
+   The text is the content; the pictures stay small. It is drawn to fit a 390x844 phone without a scroll; on a shorter
+   phone it is drawn a step closer (data-tight 1 to 3, body text never under 11px), and past that it scrolls inside its box. */
+.ft-pop {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 8px;
+  background: color-mix(in srgb, var(--x-ink) 62%, transparent);
+}
+.ft-box {
+  --fs: 12.5px; --gap: 7px;
+  box-sizing: border-box; width: min(100%, 470px); max-height: calc(100dvh - 16px); overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: var(--gap); padding: 12px 13px;
+  background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: 14px;
+}
+.ft-box h3 { margin: 0; font: 400 1.15rem/1.1 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; }
+.ft-text { display: flex; flex-direction: column; gap: var(--gap); font-size: var(--fs); line-height: 1.3; overflow-wrap: anywhere; }
+.ft-part { display: flex; flex-direction: column; gap: 3px; }
+.ft-text h4 { margin: 0; font: 800 11px/1.2 var(--f-label); letter-spacing: 0.08em; color: var(--x-red-d); }
+.ft-text p { margin: 0; }
+/* the six steps: two to a row, the long fifth across the box */
+.ft-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.ft-steps li { padding: 4px 6px; border: 1.5px solid var(--x-ink); border-radius: 8px; background: var(--x-paper); min-width: 0; }
+.ft-steps .ft-step-5, .ft-steps .ft-step-6 { grid-column: 1 / -1; }
+.ft-step-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+/* the name of the step on the bar along the top of the game */
+.ft-beat {
+  flex: none; padding: 2px 4px; border-bottom: 2px solid var(--x-ink); background: var(--x-mustard); color: var(--x-ink);
+  font: 800 9px/1 var(--f-label); letter-spacing: 0.02em; text-transform: uppercase;
+}
+/* Fresh, Okay and Soft: the freshness letters of the board */
+.ft-lamp {
+  display: inline-grid; place-items: center; width: 13px; height: 13px; margin-right: 2px; vertical-align: -2px; border-radius: 50%;
+  background: var(--x-ink); color: var(--x-paper); font: 800 8px/1 var(--f-label); font-style: normal;
+}
+.ft-lamp-okay { background: var(--x-slate); }
+.ft-lamp-notso { background: none; color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ft-nw { white-space: nowrap; }
+.ft-fruit { display: inline-block; margin-left: 2px; vertical-align: -3px; }
+.ft-fruit img { display: block; }
+.ft-favours { display: flex; align-items: flex-start; gap: 8px; }
+/* a favour card, face down, at the size of a thumbnail */
+.ft-card { flex: none; display: block; }
+.ft-card .cd-bk { --card-w: 28px; }
+.ft-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
+.ft-actions .btn { min-height: 44px; padding: 8px 10px; font-size: 0.9rem; }
+
+/* a step closer at a time while the words do not fit */
+.ft-box[data-tight='1'] { --fs: 12px; --gap: 6px; padding: 10px 11px; }
+.ft-box[data-tight='2'] { --fs: 11.5px; --gap: 5px; padding: 9px 10px; }
+.ft-box[data-tight='2'] h3 { font-size: 1.05rem; }
+.ft-box[data-tight='3'] { --fs: 11px; --gap: 4px; padding: 8px 9px; }
+.ft-box[data-tight='3'] h3 { font-size: 1rem; }
+.ft-box:is([data-tight='2'], [data-tight='3']) .ft-steps li { padding: 3px 5px; }
+.ft-box:is([data-tight='2'], [data-tight='3']) .ft-actions .btn { min-height: 40px; }
+
+/* All the rules, opened from the pop-up, over the whole game */
+.ft-rules { position: fixed; inset: 0; z-index: 61; background: var(--x-cream); }

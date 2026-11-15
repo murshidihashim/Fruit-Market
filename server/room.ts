@@ -17,6 +17,10 @@
 //   (stale actions are rejected), so double taps and replays can't apply twice.
 // - Nobody waits forever: a player who drops out of a match gets GRACE_MS to come back, then a
 //   computer plays their seat (they can reconnect and take it back at any time).
+// - PLAN-102, private rooms: people join without a shopkeeper. When the host starts, the room moves to 'picking':
+//   everyone chooses at the same time (first to ask gets one), then confirms; once every person has confirmed, the
+//   computers take shopkeepers from those left and the match begins. A seat that is away past the grace period, or
+//   leaves, is given a free shopkeeper and counts as confirmed. Quick matches skip this step.
 
 import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
@@ -44,6 +48,8 @@ export interface SeatData {
   offlineSince?: number;
   /** A computer is playing this seat because its player left. */
   bot?: boolean;
+  /** PLAN-102: this person has confirmed their shopkeeper in the choosing step. */
+  confirmed?: boolean;
 }
 
 export interface RoomData {
@@ -182,7 +188,7 @@ export class Room {
     const d = this.d;
     const seat = conn.seat;
     if (seat !== null && seat < d.seats.length && !this.online().has(seat)) {
-      if (d.status === 'playing' && d.seats[seat].offlineSince === undefined) d.seats[seat].offlineSince = this.io.now();
+      if ((d.status === 'playing' || d.status === 'picking') && d.seats[seat].offlineSince === undefined) d.seats[seat].offlineSince = this.io.now();
       if (d.status === 'lobby' && d.quick) this.removeSeat(seat);
     }
     this.schedule();
@@ -205,7 +211,7 @@ export class Room {
   private schedule() {
     const d = this.d;
     let at = d.lastActive + ROOM_TTL_MS;
-    if (d.status === 'playing') {
+    if (d.status === 'playing' || d.status === 'picking') {
       for (const x of d.seats) if (x.offlineSince !== undefined && !x.bot) at = Math.min(at, x.offlineSince + GRACE_MS);
     }
     this.io.setAlarm(at);
@@ -218,13 +224,14 @@ export class Room {
   /** Seats whose grace period has run out are handed to the computer, and the match moves on. */
   private takeOverDropped() {
     const d = this.d;
-    if (d.status !== 'playing') return;
+    if (d.status !== 'playing' && d.status !== 'picking') return;
     const now = this.io.now();
     let changed = false;
     d.seats.forEach((x) => {
       if (!x.bot && x.offlineSince !== undefined && now - x.offlineSince >= GRACE_MS) { x.bot = true; changed = true; }
     });
     if (!changed) return;
+    if (d.status === 'picking') return this.pickedFor();
     d.undo = undefined;
     d.version++;
     this.broadcast();
@@ -256,10 +263,11 @@ export class Room {
     if (seat < 0) {
       if (d.status !== 'lobby') return conn.send({ t: 'error', msg: 'This game has already started.', fatal: true });
       if (d.seats.length >= MAX_SEATS - d.config.ai) return conn.send({ t: 'error', msg: 'This room is full.', fatal: true });
-      // Each seat gets its own character: the one asked for if it is free, otherwise the first free one.
+      // Quick match: each seat gets its own character, the one asked for if it is free, otherwise the first free one.
+      // A private room (PLAN-102): nobody has a shopkeeper until the choosing step after the host starts.
       const taken = new Set(d.seats.map((x) => x.avatar));
       const free = CHARACTER_AVATARS.filter((a) => !taken.has(a));
-      const avatar = CHARACTER_AVATARS.includes(m.avatar) && !taken.has(m.avatar) ? m.avatar : (free[0] ?? CHARACTER_AVATARS[0]);
+      const avatar = !d.quick ? '' : CHARACTER_AVATARS.includes(m.avatar) && !taken.has(m.avatar) ? m.avatar : (free[0] ?? CHARACTER_AVATARS[0]);
       const look = cleanLook(m.look);
       d.seats.push({ name: clean(m.name, `Player ${d.seats.length + 1}`), avatar, token: this.io.randomHex(24), ready: false, host: d.seats.length === 0, ...(Object.keys(look).length ? { look } : {}) });
       d.seen.push([]);
@@ -274,8 +282,10 @@ export class Room {
       }
     }
     this.io.setSeat(conn, seat);
-    // Back in time (or later): the seat is theirs again.
+    // Back in time (or later): the seat is theirs again. Back while shopkeepers are still being chosen after the
+    // computer chose for them: they may change it and confirm again.
     if (d.seats[seat].offlineSince !== undefined || d.seats[seat].bot) {
+      if (d.status === 'picking' && d.seats[seat].bot) delete d.seats[seat].confirmed;
       delete d.seats[seat].offlineSince;
       delete d.seats[seat].bot;
       d.version++;
@@ -300,11 +310,20 @@ export class Room {
     const me = d.seats[seat];
     switch (m.t) {
       case 'character': {
-        if (d.status !== 'lobby') return;
+        // PLAN-102: shopkeepers are chosen after the host starts, first come, and can be changed until confirmed.
+        if (d.status !== 'picking' || me.confirmed) return;
         if (!CHARACTER_AVATARS.includes(m.avatar)) throw new RuleError('Pick one of the eight shopkeepers');
         if (d.seats.some((x, i) => i !== seat && x.avatar === m.avatar)) throw new RuleError('That shopkeeper is taken');
         me.avatar = m.avatar;
+        d.version++;
         return this.broadcast();
+      }
+      case 'confirm': {
+        if (d.status !== 'picking' || me.confirmed) return;
+        if (!me.avatar) throw new RuleError('Choose a shopkeeper first');
+        me.confirmed = true;
+        d.version++;
+        return this.pickedFor();
       }
       case 'look': {
         // Looks are only for show, so they may change at any time, even mid-match.
@@ -334,6 +353,12 @@ export class Room {
         return this.broadcast();
       }
       case 'leave': {
+        if (d.status === 'picking') {
+          // Leaving while shopkeepers are chosen: the seat is given one and a computer will play it.
+          me.bot = true;
+          me.offlineSince ??= this.io.now();
+          return this.pickedFor();
+        }
         if (d.status === 'playing') {
           // Leaving a match on purpose: a computer takes the seat straight away.
           me.bot = true;
@@ -354,12 +379,11 @@ export class Room {
         if (d.seats.some((s) => !s.ready)) throw new RuleError('Everyone needs to be ready first.');
         const online = new Set(this.io.conns().map((c) => c.seat));
         if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
-        // Computer shops take the characters the people did not pick.
-        const usedByPeople = new Set(d.seats.map((x) => x.avatar));
-        const pool = RIVALS.filter((r) => !usedByPeople.has(r.avatar));
-        d.aiNames = Array.from({ length: d.config.ai }, () => pool.splice(this.io.randomInt(pool.length), 1)[0]);
-        this.newMatch();
-        return;
+        // PLAN-102: everyone now chooses a shopkeeper; the match begins when every person has confirmed.
+        d.seats.forEach((x) => { x.avatar = ''; delete x.confirmed; });
+        d.status = 'picking';
+        d.version++;
+        return this.broadcast();
       }
       case 'rematch': {
         if (d.status !== 'finished') return;
@@ -381,6 +405,29 @@ export class Room {
       default:
         return;
     }
+  }
+
+  // ---------- choosing shopkeepers (PLAN-102) ----------
+
+  /** A seat nobody is choosing for (its person left, or is away past the grace period) gets a free shopkeeper and
+   *  counts as confirmed; once every seat has confirmed, the computers take shopkeepers from those left and the
+   *  match begins. Otherwise everyone is shown who has confirmed. */
+  private pickedFor() {
+    const d = this.d;
+    if (d.status !== 'picking') return;
+    const free = () => CHARACTER_AVATARS.filter((a) => !d.seats.some((x) => x.avatar === a));
+    for (const x of d.seats) {
+      if (!x.bot || x.confirmed) continue;
+      if (!x.avatar) { const f = free(); x.avatar = f[this.io.randomInt(f.length)]; }
+      x.confirmed = true;
+    }
+    d.version++;
+    // If every person has left, wait: nobody is there to play, and the room will expire.
+    if (!this.needed().length || !d.seats.every((x) => x.confirmed)) return this.broadcast();
+    const usedByPeople = new Set(d.seats.map((x) => x.avatar));
+    const pool = RIVALS.filter((r) => !usedByPeople.has(r.avatar));
+    d.aiNames = Array.from({ length: d.config.ai }, () => pool.splice(this.io.randomInt(pool.length), 1)[0]);
+    this.newMatch();
   }
 
   // ---------- the match ----------
@@ -632,6 +679,7 @@ export class Room {
     const seats: PublicSeat[] = d.seats.map((s, i) => ({
       seat: i, name: s.name, avatar: s.avatar, ready: s.ready, connected: online.has(i), host: s.host,
       ...(s.look ? { look: s.look } : {}),
+      ...(s.confirmed ? { confirmed: true } : {}),
       ...(s.offlineSince !== undefined && !online.has(i) ? { offlineSince: s.offlineSince, takeoverAt: s.offlineSince + GRACE_MS } : {}),
       ...(s.bot ? { bot: true } : {}),
     }));

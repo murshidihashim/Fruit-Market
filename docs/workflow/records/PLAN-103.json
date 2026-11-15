@@ -1,0 +1,60 @@
+{
+  "id": "PLAN-103",
+  "title": "\"First time? How to play\" in the room lobby, in the owner's words",
+  "problem": "The first-game tips are off in online games, so a new player invited to a room gets no help; 43 of 102 games started were online and most games stop on Day 1.",
+  "scope": [
+    "One popup over Day 1 of an online game (private room or quick match), before the morning card, for a player with no finished game, with the owner's text and numbers from the data; fits a 390x844 and a 360x640 screen without scrolling",
+    "Got it (remembered) and All the rules (opens How to play, then back)"
+  ],
+  "exclusions": [
+    "Any rule change",
+    "The in-game tips online (not decided)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with a test of the text, who sees it and Got it",
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 1b2032f: 922 tests passed, 1 skipped; tests/first-time.test.ts (7): the text, when it shows (online Day 1 morning only), not in the lobby, Got it."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "PASS",
+      "evidence": "npm run test:e2e by the helper on 687a31f: solo, speed test, online match with the popup and leaks 0, quick match, four players, reconnect."
+    },
+    {
+      "id": "T3",
+      "text": "The screens seen at 390x844 and 360x640",
+      "result": "PASS",
+      "evidence": "The helper's pictures at 390x844 and 360x640 (popup over Day 1, How to play, after Got it, quick match), seen by me; at 360x640 it fits without scrolling."
+    },
+    {
+      "id": "T4",
+      "text": "The owner has tried it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15, after the drafts: his own text for the panel, then \"use this\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 1b2032f",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "\"First time? How to play\" as one popup on Day 1 of an online game for a player with no finished game, in the owner's words; Got it and All the rules"
+    ],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "New to the game? Your first online game opens with a one-screen How to play"
+  ]
+}

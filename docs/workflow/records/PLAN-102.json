@@ -1,0 +1,67 @@
+{
+  "id": "PLAN-102",
+  "title": "Private rooms: choose shopkeepers after everyone has joined",
+  "problem": "In a private room each person picks a shopkeeper before joining and can change it in the lobby while others are still joining; the owner wants the choice made once everyone is in.",
+  "scope": [
+    "No shopkeeper choice before joining or in the lobby of a private room",
+    "After the host taps Start the game: a step where every person chooses a shopkeeper at once (taken ones greyed, first come), then confirms; the computers take the rest and the match begins",
+    "Server: a picking status between lobby and playing; joining refused while picking; a seat gone past the grace period gets a free shopkeeper",
+    "Protocol version bumped so older phones are asked to update",
+    "Quick match unchanged"
+  ],
+  "exclusions": [
+    "Any rule, number or save change (rules version stays 19)",
+    "Quick match"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with server tests for the picking step",
+      "result": "PASS",
+      "evidence": "npm run verify on the merge c84e2f0: 83 files, 915 tests passed, 1 skipped; 11 new tests for the choosing step in tests/room.test.ts."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes (online match with the choosing step, leak check 0, four players, reconnect)",
+      "result": "PASS",
+      "evidence": "npm run test:e2e on the merge c84e2f0: solo game, speed test OK (longest task 162 ms), online match 74 pricing frames with 0 leaks and the choosing step, quick match, four players with six different shopkeepers, reconnect 5 of 5."
+    },
+    {
+      "id": "T3",
+      "text": "The screens seen at 390x844 and 360x640",
+      "result": "PASS",
+      "evidence": "The helper's pictures at 390x844 and 360x640 (Play online, invite, lobby with 2 and 5, the choosing step, the first morning), seen by me; sheet sent to the owner."
+    },
+    {
+      "id": "T4",
+      "text": "The owner has tried it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15: \"for create a room thingy, make it so that players choose a character after everyone has joined, instead of when everyone is still joining\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "implemented",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge c84e2f0",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "A \"Choose your shopkeeper\" step in private rooms after the host starts: choose, then confirm; taken shopkeepers greyed with the taker's name"
+    ],
+    "changed": [
+      "Private rooms: no shopkeeper choice before joining or in the lobby; the picker on Play online is for quick match only; protocol version 4"
+    ],
+    "fixed": [],
+    "removed": [
+      "The lobby's shopkeeper panel"
+    ]
+  },
+  "playerNotes": [
+    "In a private room everyone chooses a shopkeeper once all players have joined"
+  ]
+}

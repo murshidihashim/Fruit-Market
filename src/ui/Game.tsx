@@ -1,6 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -30,6 +30,8 @@ import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
 import { EventPop, Popovers } from './game/panels/Popovers';
+import { FirstTimePopup, dismissFirstTime, firstTimeMoment, showFirstTime } from './FirstTime';
+import { HowTo } from './HowTo';
 
 interface Props {
   initial: GameState;
@@ -81,6 +83,12 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   // Whether the round table was up at the last drawing, and where your crate lay on the stocking sheet as it came up.
   const tableWas = useRef(false);
   const crateFrom = useRef<A.Box | null>(null);
+  // PLAN-103: a player who has never finished a game gets the owner's "First time? How to play" as one pop-up when an
+  // online game starts, before Day 1's news is turned over. It holds up only this player's own morning card (the
+  // morning waits for each person's Start buying anyway). Asked once, as the game opens.
+  const [firstTime, setFirstTime] = useState(() => !!online && showFirstTime());
+  const [firstRules, setFirstRules] = useState(false);
+  const firstUp = firstTime && firstTimeMoment(s, !!online, c.votedMe);
 
   if (c.needHandoff) {
     // The hand-over screen hides the whole table: the last person's crate and price tags go with it (PLAN-099).
@@ -171,6 +179,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const mid = (() => {
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
+    if (s.phase === 'morning' && firstUp) return null;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
@@ -251,6 +260,11 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
       <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} />
+      {firstUp && !firstRules && (
+        <FirstTimePopup onRules={() => { fx.tap(); setFirstRules(true); }} onDone={() => { fx.tap(); dismissFirstTime(); setFirstTime(false); }} />
+      )}
+      {/* All the rules, opened from the pop-up: closing them comes back to the pop-up. */}
+      {firstUp && firstRules && <div class="ft-rules" onClick={(e) => e.stopPropagation()}><HowTo onDone={() => setFirstRules(false)} /></div>}
     </div>
   );
 }

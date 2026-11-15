@@ -13,8 +13,9 @@ export const RULES_VERSION = 19;
  * players run only on the room server. 1 = up to 1.8.0; 2 = Closing Day jam value and the real tie order (PLAN-051).
  */
 export const AI_VERSION = 6;
-/** Bump whenever the messages between phones and the room server change, so old and new builds never share a room (PLAN-023: undo and rename). */
-export const PROTOCOL_VERSION = 3;
+/** Bump whenever the messages between phones and the room server change, so old and new builds never share a room
+ *  (3, PLAN-023: undo and rename; 4, PLAN-102: shopkeepers are chosen after the host starts a private room). */
+export const PROTOCOL_VERSION = 4;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
 export const MAX_SEATS = 6;
@@ -23,10 +24,14 @@ export const NAME_MAX = 14;
 export interface RoomConfig { days: 8 | 10 | 14; ai: number; unripe: boolean; upgrades: boolean; events: boolean }
 export const DEFAULT_CONFIG: RoomConfig = { days: 10, ai: 0, unripe: true, upgrades: true, events: true };
 
-export type RoomStatus = 'lobby' | 'playing' | 'finished';
+/** 'picking' (PLAN-102): a private room after the host starts, while everyone chooses a shopkeeper. */
+export type RoomStatus = 'lobby' | 'picking' | 'playing' | 'finished';
 
 export interface PublicSeat {
+  /** `avatar`: the seat's shopkeeper; empty in a private room until it is chosen (PLAN-102). */
   seat: number; name: string; avatar: string; ready: boolean; connected: boolean; host: boolean;
+  /** Set once this player has confirmed their shopkeeper in the choosing step. */
+  confirmed?: boolean;
   /** What this player's shopkeeper and stall wear (see src/net/looks.ts). */
   look?: Record<string, string>;
   /** Set while this player is disconnected during a match. */
@@ -62,6 +67,7 @@ export type ClientMsg =
   | { t: 'hello'; token?: string; name: string; avatar: string; look?: Record<string, string>; rv?: number; pv?: number }
   | { t: 'look'; look: Record<string, string> }
   | { t: 'character'; avatar: string }
+  | { t: 'confirm' }
   | { t: 'rename'; name: string }
   | { t: 'undo'; id: string; v: number }
   | { t: 'ready'; ready: boolean }

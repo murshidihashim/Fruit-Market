@@ -1,0 +1,57 @@
+{
+  "id": "PLAN-104",
+  "title": "Turn order shown clearly: seat numbers and a First token with its reason",
+  "problem": "Players are confused by the turn order: the badge on each stall card repeats the buying position, and nothing shows who buys first and why (random on Day 1, then least cash, Priority, Nest Egg on Day 3) or that the order runs clockwise.",
+  "scope": [
+    "The badge on each stall card shows its fixed seat number round the table, so the clockwise order from the first buyer can be read",
+    "A First token on today's first buyer with the reason (picked at random, least cash, tie nearest the token, Priority card, Nest Egg Day 3) and \"then clockwise\"",
+    "Day 1: the token spins round the seats and lands at random; later mornings it slides to the new first buyer; none with reduced motion"
+  ],
+  "exclusions": [
+    "Any rule change (the engine already decides the order)",
+    "The print kit beyond a trivial player-aid line"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with tests of the reason and the seat badge",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Pictures and a clip at 390x844 and 360x640 with 4 and 6 stalls",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner has tried it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-15: \"include a first player token as well, show that the token is randomised on the first day and is passed to players following the rules, players currently are confused with the turn orders now\"; and on the buying row: \"make it so that the number on the card is not the buying order ... make it so that its the turn order so players understand that they are second since they are clockwise to the player who buys first\".",
+    "date": "2026-11-15"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

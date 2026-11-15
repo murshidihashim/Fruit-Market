@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { activePlayer, canBuy, emptyStock, eveningOpen, newGame, type GameState } from '../src/engine/game';
-import { PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import { CHARACTER_AVATARS, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import { freshRoom, GRACE_MS, redact, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
@@ -60,7 +60,17 @@ async function start(_h: Harness, a: Client, b: Client, days: 8 | 10 | 14 = 8, a
   await a.say({ t: 'ready', ready: true });
   await b.say({ t: 'ready', ready: true });
   await a.say({ t: 'start' });
+  await pickAll(a, b);
 }
+
+/** PLAN-102: in the choosing step each person takes the first shopkeeper nobody has, in turn, and confirms. */
+async function pickAll(...cs: Client[]) {
+  for (const c of cs) {
+    await c.say({ t: 'character', avatar: firstFree(c) });
+    await c.say({ t: 'confirm' });
+  }
+}
+const firstFree = (c: Client) => { const used = new Set(c.view!.seats.map((x) => x.avatar)); return CHARACTER_AVATARS.find((x) => !used.has(x))!; };
 
 /** One sensible move for a client, decided only from its own filtered view. */
 async function botStep(c: Client): Promise<boolean> {
@@ -361,6 +371,8 @@ describe('online room', () => {
     expect(h.room.d.status).toBe('playing');
     expect(h.room.d.game!.day).toBe(1);
     expect(a.view!.seats.map((s) => s.name)).toEqual(['Murshidi', 'Friend']);
+    // PLAN-102: a rematch keeps the shopkeepers already chosen; there is no second choosing step.
+    expect(h.room.d.game!.players.map((p) => p.avatar)).toEqual(['🦊', '🐻']);
   });
 
   it('only the host can start, and only when everyone is ready', async () => {
@@ -376,8 +388,9 @@ describe('online room', () => {
 });
 
 describe('characters in a room', () => {
-  it('gives every seat its own character, even when two players ask for the same one', async () => {
+  it('gives every seat of a quick match its own character, even when two players ask for the same one', async () => {
     const h = new Harness();
+    h.room = new Room(freshRoom('QUICK3', h.t, true), h);
     const a = h.connect('A');
     const b = h.connect('B');
     await a.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'A', avatar: '🦊' });
@@ -385,17 +398,21 @@ describe('characters in a room', () => {
     const seats = b.view!.seats;
     expect(seats[0].avatar).toBe('🦊');
     expect(new Set(seats.map((x) => x.avatar)).size).toBe(2);
+    expect(b.view!.status).toBe('playing');
   });
 
-  it('lets a player switch to a free character in the lobby and refuses a taken one', async () => {
+  it('lets a player switch to a free character while choosing and refuses a taken one', async () => {
     const h = new Harness();
     const { a, b } = await lobbyOf2(h);
-    const mine = a.view!.seats[0].avatar;
-    await b.say({ t: 'character', avatar: mine });
+    await a.say({ t: 'ready', ready: true });
+    await b.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    await a.say({ t: 'character', avatar: '🦊' });
+    await b.say({ t: 'character', avatar: '🦊' });
     expect(b.errors.slice(-1)[0]).toContain('taken');
-    const free = ['🐷', '🐸'].find((x) => x !== mine && x !== a.view!.seats[1].avatar)!;
-    await b.say({ t: 'character', avatar: free });
-    expect(a.view!.seats[1].avatar).toBe(free);
+    await b.say({ t: 'character', avatar: '🐷' });
+    await b.say({ t: 'character', avatar: '🐸' });
+    expect(a.view!.seats[1].avatar).toBe('🐸');
     await b.say({ t: 'character', avatar: 'not a character' });
     expect(b.errors.slice(-1)[0]).toContain('eight shopkeepers');
   });
@@ -407,6 +424,192 @@ describe('characters in a room', () => {
     const avatars = h.room.d.game!.players.map((p) => p.avatar);
     expect(new Set(avatars).size).toBe(4);
     expect(h.room.d.game!.players.every((p) => p.trait)).toBe(true);
+  });
+});
+
+// PLAN-102: in a private room, shopkeepers are chosen after the host starts, by everyone at once.
+describe('choosing shopkeepers after everyone has joined', () => {
+  async function toPicking(h: Harness, ai = 0) {
+    const { a, b } = await lobbyOf2(h);
+    await a.say({ t: 'config', config: { days: 8, ai, unripe: true, upgrades: true, events: true } });
+    await a.say({ t: 'ready', ready: true });
+    await b.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    return { a, b };
+  }
+
+  it('people join a private room without a shopkeeper, and cannot pick one in the lobby', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    expect(a.view!.seats.map((x) => x.avatar)).toEqual(['', '']);
+    await b.say({ t: 'character', avatar: '🐸' });
+    expect(a.view!.seats[1].avatar).toBe('');
+  });
+
+  it('Start the game moves the room to the choosing step, with the same checks as before', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await a.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    expect(a.errors.slice(-1)[0]).toContain('ready');
+    await b.say({ t: 'ready', ready: true });
+    await b.say({ t: 'start' });
+    expect(b.errors.slice(-1)[0]).toContain('host');
+    await a.say({ t: 'start' });
+    expect(a.view!.status).toBe('picking');
+    expect(b.view!.status).toBe('picking');
+    expect(b.view!.game).toBeNull();
+    expect(b.view!.seats.every((x) => x.avatar === '' && !x.confirmed)).toBe(true);
+    // The lobby's settings and names are closed now.
+    await a.say({ t: 'config', config: { days: 14, ai: 2, unripe: true, upgrades: true, events: true } });
+    expect(a.errors.slice(-1)[0]).toContain('host');
+    expect(h.room.d.config.days).toBe(10);
+    await b.say({ t: 'rename', name: 'Later' });
+    expect(b.errors.slice(-1)[0]).toContain('lobby only');
+  });
+
+  it('first to ask gets a shopkeeper; changing frees the old one; everyone sees it at once', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await b.say({ t: 'character', avatar: '🐷' });
+    expect(a.view!.seats[1].avatar).toBe('🐷');
+    await a.say({ t: 'character', avatar: '🐷' });
+    expect(a.errors.slice(-1)[0]).toContain('taken');
+    expect(a.view!.seats[0].avatar).toBe('');
+    await b.say({ t: 'character', avatar: '🐸' });
+    await a.say({ t: 'character', avatar: '🐷' });
+    expect(b.view!.seats.map((x) => x.avatar)).toEqual(['🐷', '🐸']);
+  });
+
+  it('confirming needs a shopkeeper, fixes it, and the match waits for every person', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'confirm' });
+    expect(a.errors.slice(-1)[0]).toContain('Choose a shopkeeper first');
+    await a.say({ t: 'character', avatar: '🦜' });
+    await a.say({ t: 'confirm' });
+    expect(b.view!.seats[0].confirmed).toBe(true);
+    expect(b.view!.seats[1].confirmed).toBeUndefined();
+    expect(h.room.d.status).toBe('picking');
+    await a.say({ t: 'character', avatar: '🐢' }); // confirmed: no more changes
+    expect(b.view!.seats[0].avatar).toBe('🦜');
+    await b.say({ t: 'character', avatar: '🐢' });
+    await b.say({ t: 'confirm' });
+    expect(h.room.d.status).toBe('playing');
+    expect(a.view!.game!.players.map((p) => p.avatar)).toEqual(['🦜', '🐢']);
+    expect(a.view!.game!.players.every((p) => p.trait)).toBe(true);
+  });
+
+  it('when everyone has confirmed, the computers take shopkeepers from those left', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h, 3);
+    await pickAll(a, b);
+    const avatars = h.room.d.game!.players.map((p) => p.avatar);
+    expect(avatars.length).toBe(5);
+    expect(new Set(avatars).size).toBe(5);
+    expect(avatars.slice(0, 2)).toEqual(['🦊', '🐻']);
+    expect(h.room.d.game!.players.slice(2).every((p) => p.kind === 'ai' && CHARACTER_AVATARS.includes(p.avatar))).toBe(true);
+  });
+
+  it('nobody can join while shopkeepers are chosen, but a player with their token comes back to their seat', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'character', avatar: '🐼' });
+    const stranger = h.connect('X');
+    await stranger.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Late', avatar: '🦸' });
+    expect(stranger.errors.slice(-1)[0]).toContain('already started');
+    expect(stranger.seat).toBeNull();
+    const token = a.token;
+    a.close();
+    const a2 = h.connect('A2');
+    await a2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Murshidi', avatar: '🦸' });
+    expect(a2.seat).toBe(0);
+    expect(a2.view!.status).toBe('picking');
+    expect(a2.view!.seats[0].avatar).toBe('🐼');
+    expect(b.view!.seats[0].connected).toBe(true);
+  });
+
+  it('a player away past the grace period is given a free shopkeeper, and the match begins', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h, 1);
+    await a.say({ t: 'character', avatar: '🦊' });
+    await a.say({ t: 'confirm' });
+    b.close();
+    expect(a.view!.seats[1].takeoverAt).toBe(h.t + GRACE_MS);
+    expect(h.alarmAt).toBeLessThanOrEqual(h.t + GRACE_MS);
+    h.t += GRACE_MS - 1000;
+    await h.room.alarm();
+    expect(h.room.d.status).toBe('picking');
+    h.t += 2000;
+    await h.room.alarm();
+    expect(h.room.d.status).toBe('playing');
+    const players = h.room.d.game!.players;
+    expect(players.length).toBe(3);
+    expect(new Set(players.map((p) => p.avatar)).size).toBe(3);
+    expect(CHARACTER_AVATARS.includes(players[1].avatar)).toBe(true);
+    expect(a.view!.seats[1].bot).toBe(true);
+    // A alone can play the whole game to the end.
+    for (let i = 0; i < 3000 && a.view!.status !== 'finished'; i++) if (!(await botStep(a))) break;
+    expect(a.view!.status).toBe('finished');
+  });
+
+  it('a seat taken over keeps the shopkeeper it chose; if its player is back before the start, they may change it', async () => {
+    const h = new Harness();
+    const c = h.connect('C');
+    const { a, b } = await lobbyOf2(h);
+    await c.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Third', avatar: '🦸' });
+    for (const x of [a, b, c]) await x.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    await b.say({ t: 'character', avatar: '🐢' });
+    const token = b.token;
+    b.close();
+    h.t += GRACE_MS + 1;
+    await h.room.alarm();
+    expect(a.view!.seats[1]).toMatchObject({ avatar: '🐢', confirmed: true, bot: true });
+    expect(h.room.d.status).toBe('picking'); // A and C are still choosing
+    const b2 = h.connect('B2');
+    await b2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Friend', avatar: '🦸' });
+    expect(a.view!.seats[1].bot).toBeUndefined();
+    expect(a.view!.seats[1].confirmed).toBeUndefined();
+    await b2.say({ t: 'character', avatar: '🐼' });
+    await pickAll(a, c);
+    expect(h.room.d.status).toBe('picking');
+    await b2.say({ t: 'confirm' });
+    expect(h.room.d.status).toBe('playing');
+    expect(h.room.d.game!.players[1].avatar).toBe('🐼');
+  });
+
+  it('a player who leaves while choosing is given a shopkeeper at once and a computer plays the seat', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'character', avatar: '🦊' });
+    await a.say({ t: 'confirm' });
+    await b.say({ t: 'leave' });
+    expect(h.room.d.status).toBe('playing');
+    expect(a.view!.seats[1].bot).toBe(true);
+    expect(a.view!.game!.players[1].avatar).not.toBe('🦊');
+    expect(CHARACTER_AVATARS.includes(a.view!.game!.players[1].avatar)).toBe(true);
+  });
+
+  it('waits instead of starting when every person has left', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'leave' });
+    await b.say({ t: 'leave' });
+    expect(h.room.d.status).toBe('picking');
+    expect(h.room.d.game).toBeNull();
+  });
+
+  it('the choosing step survives a restart of the room', async () => {
+    const h = new Harness();
+    const { a } = await toPicking(h);
+    await a.say({ t: 'character', avatar: '🐷' });
+    const h2 = new Harness();
+    h2.room = new Room(JSON.parse(JSON.stringify(h.room.d)), h2);
+    const a2 = h2.connect('A2');
+    await a2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token: a.token, name: 'Murshidi', avatar: '🦸' });
+    expect(a2.view!.status).toBe('picking');
+    expect(a2.view!.seats[0].avatar).toBe('🐷');
   });
 });
 

@@ -2,6 +2,7 @@
 // Usage: node scripts/e2e-online.cjs <base-url> <screenshot-dir>
 const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
+const { pickShopkeeper } = require('./e2e-pick.cjs');
 const players = [];
 const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 (async () => {
@@ -43,6 +44,10 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await shot(B, '02-lobby-guest');
   await A.page.waitForSelector('button:has-text("Start the game")');
   await A.page.click('button:has-text("Start the game")');
+  // PLAN-102: everyone chooses a shopkeeper after the start; the lobby had no picker.
+  await Promise.all([A.page.waitForSelector('text=Choose your shopkeeper'), B.page.waitForSelector('text=Choose your shopkeeper')]);
+  await shot(B, '02b-choosing-guest');
+  await Promise.all([pickShopkeeper(A), pickShopkeeper(B)]);
   await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
   console.log('match started on both devices');
 
@@ -54,6 +59,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     const has = async (sel) => (await p.locator(sel).count()) > 0;
     if (await has('.results')) return 'done';
     if (await has('.trait-card')) { await p.click('.trait-card'); return 'moved'; }
+    // PLAN-103: a player with no finished game gets "First time? How to play" on Day 1 before the morning card.
+    if (await has('.ft-pop')) { if (!once.has(`ft-${P.tag}`)) { once.add(`ft-${P.tag}`); await shot(P, `02c-first-time-${P.tag}`); } await p.click('.ft-pop button:has-text("Got it")'); return 'moved'; }
     if (await has('button:has-text("Start buying")')) { await p.click('button:has-text("Start buying")'); return 'moved'; }
     if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
       const c = p.locator('.mk-cell.pick');
