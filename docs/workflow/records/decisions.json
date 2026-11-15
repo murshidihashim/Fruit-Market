@@ -4133,6 +4133,10 @@
     {
       "at": "2026-11-15 10:01",
       "text": "PLAN-103 merged as 4f17e06 (verify PASS 921 tests; the helper's e2e PASS). The owner asked for a first-player token that shows the random Day 1 pick and how the order passes; options sent (a \"First\" token on today's first buyer with the reason, recommended; or the rules' token plus a separate marker)."
+    },
+    {
+      "at": "2026-11-15 10:28",
+      "text": "PLAN-103 changed at the owner's word (\"it should appear after game has started, before calm day is drawn, try to fit everything in one popup\"): out of the lobby, one popup on Day 1 of an online game before the morning card; merged as 1b2032f, verify PASS."
     }
   ]
 }
