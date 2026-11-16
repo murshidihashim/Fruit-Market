@@ -52,7 +52,7 @@ const save = (name: string, html: string) => writeFileSync(join(OUT, `${name}.ht
 
 // ---------- 1. Stall sheet: crate band in front of the shelf band, two shutter lines (A4 landscape) ----------
 {
-  const BW = 24, BH = 16.5, ICON = 19, TAG = 34;
+  const BW = 24, BH = 15.5, ICON = 19, TAG = 34;
   const lane = (f: FruitId, crate: boolean) => {
     const bs = boxes(f);
     const cells = Array.from({ length: MAXBOX }, (_, i) => {
@@ -61,7 +61,7 @@ const save = (name: string, html: string) => writeFileSync(join(OUT, `${name}.ht
       if (st === 'unripe' && crate) return `<span class="cell no"><span class="ltr G">G</span><i>not in a crate</i></span>`;
       return `<span class="cell ${st === 'unripe' ? 'g' : ''}" style="${crate && st !== 'unripe' ? `background:${TINT[f]}` : ''}"><span class="ltr ${LETTER[st]}">${LETTER[st]}</span></span>`;
     }).join('');
-    const tag = crate ? `<span class="tagspot">PRICE TAG<br><i>flip it here at the bell</i></span>` : '';
+    const tag = crate ? `<span class="tagspot"><b>PRICE $</b><span class="wr"></span><i>write it with your pen</i></span>` : '';
     return `<div class="lane" style="--c:${LANE[f]}"><span class="lh">${fruit(f, 9)}<b>${FRUIT[f].name}</b></span><span class="cells">${cells}</span>${tag}</div>`;
   };
   const extra = `
@@ -82,67 +82,55 @@ const save = (name: string, html: string) => writeFileSync(join(OUT, `${name}.ht
 .cell.no { background: repeating-linear-gradient(135deg, #fff 0 1.5mm, ${KRAFT} 1.5mm 3mm); box-shadow: inset 0 0 0 0.3mm ${SLATE}; opacity: 0.8; }
 .cell.no i { position: absolute; left: 1mm; bottom: 0.8mm; font-size: 5pt; font-style: normal; font-weight: 700; color: ${SLATE}; }
 .cell.none { box-shadow: none; background: transparent; }
-.tagspot { margin-left: auto; width: ${TAG}mm; height: ${BH}mm; border: 0.45mm dashed ${INK}; background: #fff; display: grid; place-items: center; text-align: center; font-weight: 800; font-size: 6pt; letter-spacing: 0.1em; line-height: 1.3; }
-.tagspot i { font-style: normal; font-weight: 600; letter-spacing: 0; font-size: 5.5pt; color: ${SLATE}; }
+.tagspot { margin-left: auto; width: ${TAG}mm; height: ${BH}mm; box-shadow: inset 0 0 0 0.6mm ${INK}; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 0 2.5mm; gap: 1mm; }
+.tagspot b { font-family: 'Disp'; font-weight: 400; font-size: 11pt; }
+.tagspot .wr { border-bottom: 0.35mm solid ${SLATE}; height: 0; }
+.tagspot i { font-style: normal; font-weight: 600; font-size: 5.3pt; color: ${SLATE}; }
+.sold { margin-top: 2mm; } .sg { display: grid; grid-template-columns: repeat(40, 1fr); margin-top: 0.8mm; } .sg span { height: 5mm; display: grid; place-items: center; font-size: 5pt; font-weight: 600; background: #fff; box-shadow: inset 0 0 0 0.2mm ${INK}; } .sg span.ten { background: ${KRAFT}; }
 .key { margin-top: 2.2mm; display: flex; gap: 4.5mm; align-items: center; font-size: 6.8pt; font-weight: 600; }
 .key > span { display: inline-flex; align-items: center; gap: 1.2mm; }
 `;
   const body = `
 <div class="bar top"><span class="disp">STALL</span><span class="pat"></span><span class="lab y" style="flex:1">Stripes</span><span class="lab">▲ Rivals sit this side · your counter lies in front</span></div>
-<div class="line"><span>LINE 1 · THE SHUTTER STANDS HERE UNTIL THE BELL</span><em>Stocking and setting prices: nobody sees past it</em></div>
-<div class="band crate"><div class="bh"><span class="lab">Your crate · today's sale</span><span class="lab" style="color:${SLATE}">Slide a piece straight up from the shelf box below it. Green fruit can't go in.</span></div>
+<div class="line"><span>LINE 1 · THE SHUTTER STANDS HERE UNTIL THE BELL</span><em>Stocking and writing prices: nobody sees past it</em></div>
+<div class="band crate"><div class="bh"><span class="lab">Your crate · today's sale</span><span class="lab" style="color:${SLATE}">Slide a piece up from the shelf box below it (not green). Write a price for each fruit you sell.</span></div>
 ${LANES.map((f) => lane(f, true)).join('')}</div>
-<div class="line"><span>LINE 2 · AT THE BELL THE SHUTTER STEPS BACK HERE</span><em>Your crate shows; your shelf stays hidden</em></div>
+<div class="line"><span>LINE 2 · AT THE BELL THE SHUTTER STEPS BACK HERE</span><em>All together: your crate and prices show; your shelf stays hidden</em></div>
 <div class="band shelf"><div class="bh"><span class="lab">Your shelf · always hidden · holds ${BASE_SHELF} (${BARROW_SHELF} with a Handcart)</span><span class="lab" style="color:${SLATE}">Bought fruit goes in the box with the same letter and place as at the market</span></div>
 ${LANES.map((f) => lane(f, false)).join('')}</div>
-<div class="key"><span><span class="ltr G">G</span>Green: can't be sold yet</span><span><span class="ltr">F</span>Fresh: the customer's price</span><span><span class="ltr">O</span>Okay: $${FRUIT.apple.drop[1]} less</span><span><span class="ltr">S</span>Soft: $${FRUIT.apple.drop[0]} less</span><span style="margin-left:auto"><b>Night:</b>&nbsp;every piece slides one box left. Out of S: thrown away.</span></div>
+<div class="sold"><span class="lab">Fruit sold · cross off one for each piece you sell · only needed if stalls tie on cash at the end</span><div class="sg">${Array.from({ length: 80 }, (_, i) => `<span class="${(i + 1) % 10 === 0 ? 'ten' : ''}">${i + 1}</span>`).join('')}</div></div>
 <div class="foot">Fruit Market · stall sheet · A4 landscape · mock-up for review (PLAN-111)</div>`;
   save('1-stall-sheet', page(297, 210, body, extra));
 }
 
-// ---------- 2. Counters: two to an A4 landscape sheet ----------
+// ---------- 2. Counters: cash and crate count only, four to an A4 landscape sheet ----------
 {
   const extra = `
-.sheet { padding: 6mm 8mm; display: flex; flex-direction: column; gap: 5mm; }
-.ctr { flex: 1; border: 0.5mm dashed ${SLATE}; padding: 2.5mm 3mm; display: flex; flex-direction: column; gap: 2mm; }
-.ch { height: 8mm; }
-.cols { flex: 1; display: flex; gap: 4mm; }
+.sheet { padding: 6mm 7mm 9mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; }
+.ctr { border: 0.5mm dashed ${SLATE}; padding: 2.5mm 3mm; display: flex; flex-direction: column; gap: 2.4mm; }
+.ch { height: 8mm; } .ch .disp { font-size: 12pt; }
 .box { background: #fff; box-shadow: inset 0 0 0 0.6mm ${INK}; padding: 1.6mm 2mm; display: flex; flex-direction: column; gap: 1mm; }
-.grid { display: grid; } .grid span { display: grid; place-items: center; box-shadow: inset 0 0 0 0.25mm ${INK}; background: #fff; font-weight: 800; }
-.tens { grid-template-columns: repeat(10, 11.5mm); } .tens span { height: 9.5mm; font-size: 7.5pt; }
-.ones { grid-template-columns: repeat(10, 11.5mm); } .ones span { height: 9.5mm; font-size: 7.5pt; }
-.on { background: ${YEL} !important; }
-.sold { grid-template-columns: repeat(20, 6.1mm); } .sold span { height: 5.6mm; font-size: 5.6pt; font-weight: 600; }
-.sold span.ten { background: ${KRAFT}; }
-.count { grid-template-columns: repeat(11, 11.2mm); } .count span { height: 9mm; font-size: 8pt; }
-.count span.c { background: ${INK}; color: ${YEL}; }
-.tags { display: flex; gap: 2.5mm; } .tags span { width: 24mm; height: 13mm; border: 0.45mm dashed ${INK}; background: #fff; display: grid; place-items: center; font-weight: 800; font-size: 5.8pt; letter-spacing: 0.1em; color: ${SLATE}; }
-.chipspot { flex: 1; height: 14mm; border: 0.45mm dashed ${SLATE}; display: grid; place-items: center; font-weight: 800; font-size: 6pt; letter-spacing: 0.08em; text-transform: uppercase; color: ${SLATE}; }
+.grid { display: grid; grid-template-columns: repeat(10, 1fr); } .grid span { height: 9mm; display: grid; place-items: center; box-shadow: inset 0 0 0 0.25mm ${INK}; background: #fff; font-weight: 800; font-size: 8pt; }
+.count { grid-template-columns: repeat(11, 1fr); } .count span { height: 10mm; font-size: 9pt; }
+.on { background: ${YEL} !important; } .count span.c { background: ${INK}; color: ${YEL}; }
 .note { font-size: 6pt; color: ${SLATE}; font-weight: 600; }
+.pat.checks { background-image: repeating-conic-gradient(${INK} 0 25%, ${PAPER} 0 50%); background-size: 4mm 4mm; }
+.pat.zigzag { background-image: linear-gradient(135deg, ${INK} 25%, transparent 25%), linear-gradient(225deg, ${INK} 25%, transparent 25%), linear-gradient(315deg, ${INK} 25%, transparent 25%), linear-gradient(45deg, ${INK} 25%, transparent 25%); background-size: 3mm 3mm; background-position: -1.5mm 0, -1.5mm 0, 0 0, 0 0; }
 `;
-  const counter = (name: string, pat: string) => `
+  const counter = (name: string, pat: string, count: number) => `
 <div class="ctr">
-  <div class="bar ch"><span class="disp">COUNTER</span><span class="pat ${pat}"></span><span class="lab y" style="flex:1">${name} · in front of your shutter</span><span class="lab">Everything here is public</span></div>
-  <div class="cols">
-    <div class="box" style="flex:none">
-      <span class="lab">Cash · tens marker</span>
-      <div class="grid tens">${Array.from({ length: 20 }, (_, i) => `<span class="${i === 1 ? 'on' : ''}">${i * 10}</span>`).join('')}</div>
-      <span class="lab">+ ones marker</span>
-      <div class="grid ones">${Array.from({ length: 10 }, (_, i) => `<span class="${i === 0 ? 'on' : ''}">${i}</span>`).join('')}</div>
-      <span class="note">Yellow = where you start: $10. Past $199, take a +$200 chip.</span>
-      <div style="display:flex; gap:2.5mm; margin-top:auto"><span class="chipspot">Your served-alone chips</span><span class="chipspot">+$200 chips</span></div>
-    </div>
-    <div style="flex:1; display:flex; flex-direction:column; gap:2mm">
-      <div class="box"><span class="lab">Crate count · how many pieces you're selling today (never which fruit)</span>
-        <div class="grid count">${Array.from({ length: 11 }, (_, i) => `<span class="${i === 3 ? 'c' : ''}">${i}</span>`).join('')}</div></div>
-      <div class="box"><span class="lab">Fruit sold · cross off one for each piece you sell (a tie on cash goes to more fruit sold)</span>
-        <div class="grid sold">${Array.from({ length: 80 }, (_, i) => `<span class="${(i + 1) % 10 === 0 ? 'ten' : ''}">${i + 1}</span>`).join('')}</div></div>
-      <div class="box" style="flex-direction:row; align-items:center; gap:3mm"><span class="lab" style="width:22mm">Price tags · face down until the bell</span>
-        <div class="tags"><span>TAG</span><span>TAG</span><span>TAG</span><span>TAG</span></div></div>
-    </div>
+  <div class="bar ch"><span class="disp">COUNTER</span><span class="pat ${pat}"></span><span class="lab y" style="flex:1">${name}</span><span class="lab">Public</span></div>
+  <div class="box">
+    <span class="lab">Cash · tens marker, then ones marker</span>
+    <div class="grid">${Array.from({ length: 20 }, (_, i) => `<span class="${i === 1 ? 'on' : ''}">${i * 10}</span>`).join('')}</div>
+    <div class="grid">${Array.from({ length: 10 }, (_, i) => `<span class="${i === 0 ? 'on' : ''}">+${i}</span>`).join('')}</div>
+    <span class="note">Yellow = where you start: $10. Past $199, take a +$200 chip.</span>
   </div>
+  <div class="box"><span class="lab">Crate count · how many pieces you're selling today (never which fruit)</span>
+    <div class="grid count">${Array.from({ length: 11 }, (_, i) => `<span class="${i === count ? 'c' : ''}">${i}</span>`).join('')}</div></div>
 </div>`;
-  save('2-counters', page(297, 210, counter('Stripes', '') + counter('Dots', 'dots') + `<div class="foot">Fruit Market · counters · two to an A4 landscape sheet, cut on the dashed lines · mock-up for review (PLAN-111)</div>`, extra));
+  save('2-counters', page(297, 210, counter('Stripes', '', 3) + counter('Dots', 'dots', 5) + counter('Checks', 'checks', 0) + counter('Zigzag', 'zigzag', 2)
+    + `<div class="foot">Fruit Market · counters · four to an A4 landscape sheet, cut on the dashed lines · mock-up for review (PLAN-111)</div>`, extra));
 }
 
 // ---------- 3. Shutter: half an A3 sheet, folded at both ends (both faces shown) ----------
@@ -173,8 +161,8 @@ ${LANES.map((f) => lane(f, false)).join('')}</div>
   const inside = `<div class="face"><div class="wing" style="background:${KRAFT}"></div><div class="mid"><div class="steps">
 <div><b>1 Morning</b>News, lorry, tomorrow's crowd. Market Day: bid for the standing order.</div>
 <div><b>2 Buying</b>Poorest first. Up to 4 pieces into your shelf, same letter and place.</div>
-<div><b>3 Stocking</b>Slide pieces up into your crate. Set your crate count.</div>
-<div><b>4 The bell</b>Tags face down, then flip together. Step the shutter back to line 2.</div>
+<div><b>3 Stocking</b>Slide pieces up into your crate. Set your crate count. Write a price on each crate lane you sell.</div>
+<div><b>4 The bell</b>When everyone is ready, all step the shutter back to line 2 together.</div>
 <div><b>5 The rush</b>Cheapest first; your oldest piece that qualifies goes. Shutter back to line 1.</div>
 </div><div style="padding:0 8mm; font-weight:700; font-size:7.5pt">Evening: favour cards, an upgrade after a Market Day, then "lights out". Night: every piece slides one box left.</div>
 <div class="keyrow"><span><span class="ltr G">G</span>Green: can't be sold yet</span><span><span class="ltr">F</span>Fresh: the customer's price</span><span><span class="ltr">O</span>Okay: $1 less</span><span><span class="ltr">S</span>Soft: $2 less</span></div>
