@@ -28,6 +28,18 @@ function useClient(client: OnlineClient | null) {
   }, [client]);
 }
 
+/** The time now, ticking once a second while `on` (a countdown is on screen). */
+function useNow(on: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!on) return;
+    setNow(Date.now());
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [on]);
+  return now;
+}
+
 /** Your own name in the lobby: shown as text; tap Rename to change it. The new name is sent when you finish typing. */
 function MyName({ name, host, onRename }: { name: string; host: boolean; onRename: (n: string) => void }) {
   const [editing, setEditing] = useState(false);
@@ -63,6 +75,9 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
     try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
   });
   const [code, setCode] = useState(initialCode ?? '');
+  // The room this screen was opened for (an invite link, or a code typed into the friend menu). PLAN-107 (ON-03): once
+  // joining it has failed, Back forgets it and shows the online menu.
+  const [invited, setInvited] = useState(initialCode);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   useClient(client);
@@ -111,10 +126,17 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   if (client) {
     const v = client.view;
     if (client.conn === 'failed') {
+      const back = () => {
+        fx.tap();
+        setClient(null);
+        setCode('');
+        setInvited(undefined);
+        try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
+      };
       return (
         <Shell title="Online" onBack={exit}>
           <section class="panel center-text"><h3>Couldn't join</h3><p>{client.error}</p></section>
-          <button class="btn primary wide" onClick={() => { setClient(null); setCode(''); }}>Back</button>
+          <button class="btn primary wide" onClick={back}>Back</button>
         </Shell>
       );
     }
@@ -160,11 +182,11 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
         <h3>You</h3>
         <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
       </section>
-      {initialCode ? (
+      {invited ? (
         <section class="panel">
-          <h3>Invited to room {initialCode}</h3>
+          <h3>Invited to room {invited}</h3>
           <p class="small muted">{PICK_LATER}</p>
-          <button class="btn primary big wide" onClick={() => begin(initialCode)}>Join the game</button>
+          <button class="btn primary big wide" onClick={() => begin(invited)}>Join the game</button>
         </section>
       ) : (
         // A quick match starts the moment a stranger is found, so its shopkeeper is chosen here (PLAN-102). Coming from
@@ -188,6 +210,15 @@ function Shell({ title, onBack, children }: { title: string; onBack: () => void;
   );
 }
 
+/** The host's start button in a private lobby. PLAN-107 (ON-05): never "everyone to be ready" while a seat is
+ *  disconnected: it names who the room is waiting for. */
+export function startLabel(v: RoomView): string {
+  const away = v.seats.filter((x) => !x.connected);
+  if (v.seats.length >= 2 && !away.length && v.seats.every((x) => x.ready)) return 'Start the game';
+  if (v.seats.length < 2) return 'Waiting for a player…';
+  return away.length ? `Waiting for ${away.map((x) => x.name).join(' and ')} to come back` : 'Waiting for everyone to be ready…';
+}
+
 function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
   const me = v.seats[v.you];
   const [wardrobe, setWardrobe] = useState(false);
@@ -195,6 +226,10 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const link = inviteLink(v.code);
   const [copied, setCopied] = useState(false);
   const allReady = v.seats.length >= 2 && v.seats.every((x) => x.ready && x.connected);
+  // PLAN-107 (ON-05): a seat whose person closed the tab is freed after the grace period (the room sends when); until
+  // then a line counts down to it, and the start button names who the room is waiting for.
+  const away = v.seats.filter((x) => !x.connected);
+  const now = useNow(away.some((x) => x.takeoverAt !== undefined));
   // Computer shops take seats too, so they count toward the 4.
   const openSeats = Math.max(0, MAX_SEATS - v.seats.length - v.config.ai);
   const friendsAllowed = Math.max(1, MAX_SEATS - v.config.ai - 1);
@@ -284,9 +319,11 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       <button class={`btn big wide ${me?.ready ? '' : 'primary'}`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
       {host && (
         <button class="btn primary big wide" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>
-          {allReady ? 'Start the game' : v.seats.length < 2 ? 'Waiting for a player…' : 'Waiting for everyone to be ready…'}
+          {startLabel(v)}
         </button>
       )}
+      {away.map((x) => (x.takeoverAt === undefined ? null
+        : <p class="center-text small warn-text">{x.name} disconnected. Their seat is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
       {!host && <p class="center-text muted small">The host starts the game when everyone is ready.</p>}
       <p class="center-text muted small">{PICK_LATER}</p>
     </Shell>

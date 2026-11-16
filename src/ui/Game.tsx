@@ -27,6 +27,7 @@ import { DaySheet, dayNow, daySheetOn } from './game/panels/DaySheet';
 import { dayStep } from './game/daySheet';
 import { tableStep } from './game/tableNow';
 import { Results } from './game/panels/Results';
+import { rematchLine } from './game/rematch';
 import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
@@ -70,7 +71,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);
   });
   useEffect(() => () => underSheet.current?.stop(), []);
-  const { busy, active, activeHuman, viewer, meta, humans, waitingFor, offline, freeFruit, show, act } = c;
+  const { busy, active, activeHuman, viewer, meta, humans, offline, freeFruit, show, act } = c;
   // Rules 15, secret stalls: the screen is drawn from what this stall may see. A rival's shelf is blank, and its crate
   // is only a number of pieces until the bell (online the server has already sent it that way).
   const s = useMemo(() => publicView(c.s, viewer), [c.s, viewer]);
@@ -113,7 +114,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <div class="game tkt sbk-over">
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
-          rematchNote={online && meta && meta.rematch.length ? (meta.rematch.includes(viewer) ? `Waiting for ${waitingFor(humans.filter((i) => !meta.rematch.includes(i)))} to accept…` : `${waitingFor(meta.rematch)} wants a rematch.`) : undefined}
+          rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
       </div>
     );
