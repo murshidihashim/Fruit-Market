@@ -543,6 +543,9 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
   const wants = shownWants(s.results, c);
   const done = wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
+  // S10 (PLAN-110): back in the row after their turn, a customer who bought something is ticked; one who left with
+  // nothing is greyed, with no tick (the takings count only the first as served).
+  const left = rush === 'served' && !boughtAny(s.results, c.id) ? 'none' : rush;
   // The ticket prints today's price (events and generous customers change it). A finished row is ticked and shows
   // what was asked for; a changed price is tinted.
   const lines: TicketLine[] = wants.map((w, i) => {
@@ -551,7 +554,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
@@ -562,9 +565,15 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
           {heard && <i class="ear" title={SEEN_WALK_IN}><Icon name="ear" size={13} /></i>}
         </span>
       )}
-      {rush === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
+      {left === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
+      {left === 'none' && <i class="rush-none" role="img" aria-label="Left with nothing" />}
     </div>
   );
+}
+
+/** Did this customer buy anything in today's rush (from any stall)? */
+export function boughtAny(r: GameState['results'], customerId: number): boolean {
+  return !!r && r.lines.some((l) => l.customerId === customerId && l.offers.some((o) => o.sold > 0));
 }
 
 /**

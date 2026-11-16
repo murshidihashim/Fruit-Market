@@ -42,7 +42,7 @@ const pieces = (n: number) => `${n} piece${n === 1 ? '' : 's'}`;
 
 /** One line of the day's ledger. */
 export interface TakingsRow {
-  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'bought' | 'staked' | 'other';
+  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'topup' | 'bought' | 'staked' | 'fine' | 'other';
   label: string;
   /** Dollars in (above 0) or out (below 0). Null: a line with no money in it today (a stake that did not come back). */
   amount: number | null;
@@ -84,8 +84,11 @@ export function takingsRows(s: GameState, viewer: number): TakingsRow[] {
   if (ears.length) rows.push({ key: 'ears', label: `${TRAITS.earful.title} tip`, amount: earTips });
   if (jar.length) rows.push({ key: 'jar', label: `${TRAITS.favourite.title} tip${jar.length === 1 ? '' : 's'}`, amount: jarTips });
   if (hawk.length) rows.push({ key: 'hawker', label: `Night hawker · ${pieces(hawk.length)}`, amount: hawkPay });
+  // S6 (PLAN-110): dawn's money, so "Up today" matches the morning.
+  if (l.topUp > 0) rows.push({ key: 'topup', label: 'Top-up from the Market', amount: l.topUp });
   if (l.bought > 0) rows.push({ key: 'bought', label: bought > 0 ? `Bought ${pieces(bought)} this morning` : 'Bought fruit this morning', amount: -l.bought });
   if (put > 0) rows.push({ key: 'staked', label: 'Stake on a standing order', amount: -put });
+  if (l.fine > 0) rows.push({ key: 'fine', label: 'Health Inspector fine', amount: -l.fine });
   if (rest !== 0) rows.push({ key: 'other', label: 'Other', amount: rest });
   return rows;
 }

@@ -6,10 +6,9 @@
 // until the bids have been turned over: the order's card and who is bidding scroll if they must, while your bid, the
 // three lines of the stake and the buttons always stay in view under them.
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS, stakeFor } from '../../../engine/data';
-import { count, orderStake, type GameState, type Standing } from '../../../engine/game';
+import { FRUIT, ORDER_BOOK_BONUS, ORDER_CARDS, acceptsStage, deliveryPos, stageAt, stakeFor, type FruitId } from '../../../engine/data';
+import { orderStake, printedSupply, shelfPos, type GameState, type Standing } from '../../../engine/game';
 import { Face, Fruit } from '../../art';
-import { nextLorry } from '../../boardModel';
 import { OrderTicket } from '../../phoneCards';
 import type { OrderShow } from '../dayBeats';
 import { drawCloser, useReach } from '../reach';
@@ -85,13 +84,40 @@ export function bidWaitText(mine: Standing['bids'][number], decided: boolean, ca
   return `${own}. ${canChange ? 'You can change it until the last stall decides' : 'Waiting for the other stalls'}`;
 }
 
-/** What a stall can get of the order's fruit by the due day, from what is in view: its shelf, the market, tomorrow's lorry. */
+/**
+ * Will a piece of the order's fruit at track position `pos` still be one the order takes (Fresh or Okay: it buys like
+ * an Everyday customer, game.ts) on the due day? `from`: the day the stall can first have it on its shelf (today for its
+ * shelf and the market, tomorrow for tomorrow's lorry). Tonight ages as today's event says; each later night one step
+ * (those events are not known yet). A Ripening Room puts a green mango one night from ripe as it is bought, and a Shade
+ * Cloth can keep the order's fruit from ageing on the shelf every night.
+ */
+function readyBy(s: GameState, p: number, f: FruitId, pos: number, from: number, due: number): boolean {
+  const pl = s.players[p];
+  let at = shelfPos(pl, f, pos);
+  if (pl.trait !== 'keeper') for (let d = from; d < due; d++) at -= d === s.day ? Math.max(0, 1 + (s.event?.ageExtra ?? 0)) : 1;
+  return at >= 0 && acceptsStage('everyday', stageAt(f, at));
+}
+
+/** Of these pieces (by track position), how many can still be delivered on the due day. */
+function readyCount(s: GameState, p: number, f: FruitId, track: number[], from: number, due: number): number {
+  return track.reduce((a, n, pos) => a + (n > 0 && readyBy(s, p, f, pos, from, due) ? n : 0), 0);
+}
+
+/**
+ * What a stall can get of the order's fruit by the due day, from what is in view: its shelf, the market, tomorrow's
+ * lorry. Only pieces that can still be Fresh or Okay that day count (S4): a blueberry bought today is Soft by then, and a
+ * green mango from tomorrow's lorry is not ripe yet without a Ripening Room.
+ */
 export function canGetLine(s: GameState, p: number, o: Standing): string {
-  const lorry = nextLorry(s)?.find((l) => l.f === o.fruit);
+  const f = o.fruit;
+  const card = s.nextFarmer;
+  const lorry = card && o.due > s.day + 1 ? printedSupply(card, f, s.players.length) : 0;
+  const green = !!card && !!s.config.unripe && card.unripe === f;
+  const lorryPos = green ? s.market[f].length - 1 : card ? deliveryPos(card, f) : 0;
   return [
-    `Your shelf ${count(s.players[p].stock, o.fruit)}`,
-    `Wholesale Market ${s.market[o.fruit].reduce((a, n) => a + n, 0)}`,
-    ...(lorry ? [`tomorrow's lorry ${lorry.n}`] : []),
+    `Your shelf ${readyCount(s, p, f, s.players[p].stock[f], s.day, o.due)}`,
+    `Wholesale Market ${readyCount(s, p, f, s.market[f], s.day, o.due)}`,
+    ...(lorry > 0 ? [`tomorrow's lorry ${readyBy(s, p, f, lorryPos, s.day + 1, o.due) ? lorry : 0}`] : []),
   ].join(' · ');
 }
 
