@@ -4,9 +4,9 @@
 // the engine used to sort them (cheapest first; ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler,
 // then today's buying order, which was set at dawn with the poorest shop first).
 
-import { FRUIT, JAM_PRICE, JUICE_VALUE, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
+import { FRUIT, JUICE_VALUE, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
 import {
-  count, eligible, isLastCall, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
+  count, eligible, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
 } from './game';
 
@@ -622,26 +622,18 @@ export function gameRecap(s: GameState, viewer: number): Recap {
 }
 
 /**
- * The viewer's fruit still on the shelf when the game ended. On Closing Day the jam maker has already paid for the
- * ripe pieces (they stay on the shelf), so only fruit he did not buy is "worth $0": green fruit, or every piece when
- * Closing Day is switched off.
+ * The viewer's fruit still on the shelf when the game ended. Rules 20: it is worth nothing (there is no jam maker),
+ * green or ripe.
  */
 export function closingLeftovers(s: GameState, viewer: number): { n: number; text: string }[] {
   if (s.phase !== 'over') return [];
-  const stock = s.players[viewer].stock;
-  const all = count(stock);
-  const ripe = count(stock, undefined, true);
-  const jam = s.jam?.[viewer] ?? 0;
-  const out: { n: number; text: string }[] = [];
-  if (jam > 0) out.push({ n: ripe, text: `${ripe} ripe fruit left at closing: the jam maker paid $${jam}.` });
-  const unpaid = s.jam ? all - ripe : all;
-  if (unpaid > 0) out.push({ n: unpaid, text: s.jam ? `${unpaid} green fruit left at closing (worth $0).` : `${unpaid} fruit left unsold at closing (worth $0).` });
-  return out;
+  const all = count(s.players[viewer].stock);
+  return all > 0 ? [{ n: all, text: `${all} fruit left unsold at the end (worth $0).` }] : [];
 }
 
-// ---------- Closing Day ----------
+// ---------- the last day ----------
 
-/** The final day's word on leftover fruit, for each place that shows it. Null: show nothing there. */
+/** The last day's word on leftover fruit, for each place that shows it. Null: show nothing there. */
 export interface ClosingNote {
   /** The morning card (only with fruit on the shelf). */
   morning: string | null;
@@ -649,53 +641,21 @@ export interface ClosingNote {
   chip: string | null;
   /** The Stocking panel's note. */
   stocking: string;
-  /** What the jam maker pays tonight for each piece now on this shelf that he buys: JAM_PRICE, or 0 (nothing paid). */
-  each: number;
 }
 
 /**
  * What the viewer's leftovers are worth tonight, in one place so the morning card, the shelf chip and the Stocking
- * panel cannot disagree with the night (finishReveal): on Closing Day the jam maker pays JAM_PRICE for each ripe
- * piece left and nothing for green fruit; with Closing Day switched off every leftover is worth $0. Null before the
- * final day and once the game is over.
+ * panel say the same: on the last day anything unsold is worth $0 (rules 20: no Closing Day and no jam maker, so the
+ * last day is an ordinary day with no night after it). Null before the last day and once the game is over.
  */
 export function closingNote(s: GameState, viewer: number): ClosingNote | null {
   if (s.day !== s.config.days || s.phase === 'over') return null;
-  const stock = s.players[viewer].stock;
-  const all = count(stock);
-  const ripe = count(stock, undefined, true);
-  if (isLastCall(s)) {
-    const stocking = `Closing Day: ripe fruit left tonight goes to the jam maker at $${JAM_PRICE} each.`;
-    if (ripe > 0) {
-      // With green fruit on the shelf too, the chip names ripe fruit: the jam maker pays nothing for green.
-      return {
-        morning: `Closing Day: the jam maker pays $${JAM_PRICE} for each ripe piece you have left tonight.`,
-        chip: `${all > ripe ? 'Ripe leftovers' : 'Leftovers'} = $${JAM_PRICE} each`, stocking, each: JAM_PRICE,
-      };
-    }
-    if (all > 0) {
-      return {
-        morning: 'Green fruit left tonight is worth $0: the jam maker buys ripe fruit only.',
-        chip: 'Unsold = $0', stocking: 'Closing Day: Green fruit left tonight is worth $0. The jam maker buys ripe fruit only.', each: 0,
-      };
-    }
-    return { morning: null, chip: null, stocking, each: 0 };
-  }
+  const all = count(s.players[viewer].stock);
   return {
     morning: all > 0 ? 'Last day: anything unsold tonight is worth $0.' : null,
     chip: all > 0 ? 'Unsold = $0' : null,
     stocking: 'Last day: anything unsold tonight is worth $0.',
-    each: 0,
   };
-}
-
-/**
- * Jam money shop `p` is still owed: on Closing Day, after the rush and before the market closes (when the final sales
- * card is drawn), the jam maker will pay JAM_PRICE for each ripe piece left. 0 at any other time.
- */
-export function jamDue(s: GameState, p: number): number {
-  if (s.phase !== 'reveal' || !isLastCall(s) || s.jam) return 0;
-  return count(s.players[p].stock, undefined, true) * JAM_PRICE;
 }
 
 /** The day's money on the sales card. */
@@ -704,40 +664,29 @@ export interface DayLedger {
   sales: number;
   /** What the viewer paid for fruit today. */
   bought: number;
-  /** The jam maker's money: already paid, or still to come tonight (`jamTonight`). */
-  jam: number;
-  jamTonight: boolean;
+  /** The Health Inspector's fine at dawn (paid before the day's starting cash was counted). */
+  fine: number;
+  /** The market's top-up at dawn (given before the day's starting cash was counted). */
+  topUp: number;
   /** Anything else that changed the viewer's cash since the day began. */
   other: number;
-  /** The day's cash change, jam money included; null when the day's starting cash is unknown (an older save). */
+  /** The day's cash change, dawn's fine and top-up included (S6, PLAN-110: so it matches the morning); null when the
+   *  day's starting cash is unknown (an older save). */
   net: number | null;
 }
 
 /**
- * The viewer's day in money: sales, fruit bought, the jam maker and anything else. On Closing Day the final sales
- * card is drawn before the jam maker pays, so his money is counted here as "tonight" and included in the net.
+ * The viewer's day in money: sales, fruit bought, dawn's fine and top-up, and anything else. The day's starting cash
+ * is counted after dawn's fine and top-up (the buying order reads it), so they are added back here. Rules 20: nothing
+ * is paid after the last rush, so on the last day too the cash on the sales card is the final cash.
  */
 export function dayLedger(s: GameState, viewer: number): DayLedger {
   const r = s.results;
   const sales = r?.income[viewer] ?? 0;
   const bought = r?.spent?.[viewer] ?? 0;
-  const paid = s.jam?.[viewer] ?? 0;
-  const due = jamDue(s, viewer);
+  const fine = s.dayFines?.[viewer] ?? 0;
+  const topUp = s.dayTopUps?.[viewer] ?? 0;
   const start = s.dayStartCash?.[viewer];
   const change = start === undefined ? null : s.players[viewer].cash - start;
-  return {
-    sales, bought, jam: paid + due, jamTonight: due > 0,
-    other: change === null ? 0 : change - sales + bought - paid,
-    net: change === null ? null : change + due,
-  };
-}
-
-/**
- * The game as it will stand once the jam maker has paid (the same state when nothing is due), for the standing line
- * on the final sales card. Presentation only: never hand the result back to the engine.
- */
-export function withJamPaid(s: GameState): GameState {
-  const due = s.players.map((_, p) => jamDue(s, p));
-  if (due.every((d) => d === 0)) return s;
-  return { ...s, players: s.players.map((pl, p) => ({ ...pl, cash: pl.cash + due[p] })) };
+  return { sales, bought, fine, topUp, other: change === null ? 0 : change - sales + bought, net: change === null ? null : change - fine + topUp };
 }

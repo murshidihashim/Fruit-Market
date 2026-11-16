@@ -1,13 +1,14 @@
 // Local persistence: settings, stats, saved game, daily challenge records.
+import type { FavourId } from '../engine/data';
 import type { GameState } from '../engine/game';
 import { AI_VERSION, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
-export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; patterns: boolean }
+export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
 export interface DailyRecord { [date: string]: number }
 
-const K = { settings: 'fm.settings', stats: 'fm.stats', save: 'fm.save', daily: 'fm.daily', name: 'fm.name' };
+const K = { settings: 'fm.settings', stats: 'fm.stats', save: 'fm.save', daily: 'fm.daily', name: 'fm.name', undo: 'fm.undo' };
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -27,7 +28,15 @@ function write(key: string, value: unknown) {
   }
 }
 
-export const loadSettings = () => read<Settings>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, patterns: false });
+/**
+ * The settings on this phone. S11 (PLAN-110): the Freshness patterns switch is gone (the letters F, O, S and G already
+ * tell the boxes apart); settings saved while it was there still load, and the old value is dropped.
+ */
+export function loadSettings(): Settings {
+  const st: Settings & { patterns?: boolean } = read<Settings & { patterns?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true });
+  delete st.patterns;
+  return st;
+}
 export const saveSettings = (s: Settings) => write(K.settings, s);
 
 export const loadStats = () => read<Stats>(K.stats, { played: 0, wins: 0, bestCash: 0, totalSold: 0 });
@@ -88,6 +97,33 @@ export function loadGame(): GameState | null {
 }
 
 export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION, game: g } satisfies SaveEnvelope) : null);
+
+/**
+ * S18 (PLAN-110): where Undo goes back to on the buying turn in progress (game/turn.ts), kept beside the saved game and
+ * not in it (the save's envelope is unchanged), so a person who leaves mid-turn (Home, or a reload) still has Undo when
+ * they come back. It is read back only for the same game, day, turn and stall, at the rules it was saved under.
+ */
+interface UndoSave { rules: number; seed: number; daily: string; day: number; turn: number; seat: number; at: GameState; after?: FavourId }
+
+export function saveUndo(point: { at: GameState; after?: FavourId } | null) {
+  const at = point?.at;
+  if (!at || at.phase !== 'buy') return write(K.undo, null);
+  write(K.undo, { rules: RULES_VERSION, seed: at.config.seed, daily: at.config.daily ?? '', day: at.day, turn: at.turn, seat: at.order[at.turn], at, ...(point.after ? { after: point.after } : {}) } satisfies UndoSave);
+}
+
+/** The Undo point kept for this game's buying turn in progress, or null. */
+export function loadUndo(g: GameState): { at: GameState; after?: FavourId } | null {
+  if (g.phase !== 'buy') return null;
+  let u: UndoSave | null = null;
+  try { const raw = localStorage.getItem(K.undo); u = raw ? JSON.parse(raw) : null; } catch { return null; }
+  if (!u || typeof u !== 'object' || !looksLikeGame(u.at)) return null;
+  const same = u.rules === RULES_VERSION && u.seed === g.config.seed && u.daily === (g.config.daily ?? '') && u.day === g.day && u.turn === g.turn
+    && u.seat === g.order[g.turn] && u.at.phase === 'buy' && u.at.day === g.day && u.at.turn === g.turn && u.at.order[u.at.turn] === u.seat;
+  if (!same) return null;
+  // Nothing bought since: the point is the game itself (Undo then has nothing to take back).
+  const at = JSON.stringify(u.at) === JSON.stringify(g) ? g : u.at;
+  return { at, ...(u.after ? { after: u.after } : {}) };
+}
 
 /** Forgets the games played and the Daily dates on this phone (PLAN-090: signing out). The stamp book works its
  *  stamps for games played and Daily markets out from them, so the next person on the phone must not keep them, as

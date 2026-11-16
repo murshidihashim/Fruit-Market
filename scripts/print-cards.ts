@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-  CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, FRUIT, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, TRAITS, UPGRADES, lookOf,
+  BIG_TABLE, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, FRUIT, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, TRAITS, UPGRADES, lookOf,
   type CustomerCard, type EventCard, type FavourId, type UpgradeId,
 } from '../src/engine/data';
 import { RULES_VERSION } from '../src/net/protocol';
@@ -105,7 +105,8 @@ function customerDeck(): PrintDeck {
     what: `${CUSTOMER_CARDS.length} customer cards; each back shows the fruit that customer wants`,
     cards: CUSTOMER_CARDS.map((c, i) => ({
       id: `customer:${c.name}`, copy: 1, label: `Customer ${two(i + 1)} · ${lookOf(c.name).title}`,
-      front: toStaticHtml(h(TradingCard, { who: c.name, wants: c.wants, eager: true })),
+      // PLAN-111: the fruit this customer wants one more of at a full table (game.ts makeCustomer: the card's first want).
+      front: toStaticHtml(h(TradingCard, { who: c.name, wants: c.wants, eager: true, bigTable: { fruit: c.wants[0].fruit, stalls: BIG_TABLE } })),
       back: toStaticHtml(h(TradingCardBack, { fruits: c.wants.map((w) => w.fruit) })),
       backKind: 'customer', art: customerArt(c.name),
     })),

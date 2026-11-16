@@ -3,7 +3,8 @@
 // finished a game reads this on Day 1, before the morning's news is turned over. It only holds up this player's own
 // morning card: the morning already waits for each person's Start buying. "Got it" hides it for good on this device;
 // "All the rules" opens the full How to play and comes back here. Every number comes from the game data, so the words
-// cannot drift from the rules.
+// cannot drift from the rules. REP-122 C-02 (PLAN-109) added one condition to the owner's Market Days words: a standing
+// order comes only if it can be delivered by the last day (none on Day 9 of a 10-day game).
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { BASE_BUY, FAVOUR_HAND_LIMIT, MARKET_DAY_EVERY, type Stage } from '../engine/data';
 import type { GameState } from '../engine/game';
@@ -82,7 +83,7 @@ export function FirstTimeText() {
       <section class="ft-part">
         <h4>MARKET DAYS</h4>
         <p class="ft-when">{`Every ${nthWord(MARKET_DAY_EVERY)} day, except the last:`}</p>
-        <p>Bid for a standing order. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.</p>
+        <p>Bid for a standing order, if it can be delivered by the last day. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.</p>
       </section>
 
       <section class="ft-part">

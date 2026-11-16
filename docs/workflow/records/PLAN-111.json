@@ -1,0 +1,87 @@
+{
+  "id": "PLAN-111",
+  "title": "New table set: board, shutters and pieces, with the app's market boxes and a crate shown by stepping the shutter back (print and play)",
+  "problem": "The owner has no board, shutters, fruit pieces, price tags, markers, chips or tokens, and no files exist for them, so the printed game cannot be played. Tracking freshness by sliding every piece each night is slow and easy to get wrong.",
+  "scope": [
+    "Board in two A3 panels side by side (84 cm): on the left the Wholesale Market in the app's box style (four fruit lanes, each box with its letter, cost and where the lorry unloads), with today's event and tomorrow's lorry beside it, each next to its deck for an easy flip, and the day track (1 to 14, Market Days and game ends marked); on the right the customer rows (today: up to 5 and a guest; tomorrow: the regular and up to 4 walk-ins; the customer deck) and the crier's price rule. Favour cards, upgrades and standing orders have no space on the board: their piles sit beside it",
+    "Stall sheets with a crate band in front of the shelf band (each crate box in line with its shelf box), two shutter lines, a write-on price box at the end of each crate lane (dry-wipe, behind the shutter until the bell) and the Fruit sold row (1 to 80) along the bottom; at the bell every shutter steps back one line together, so crate and prices show and no piece is carried",
+    "6 shutters (half A3, folded to stand, both sides), 6 counters with only the cash track and a public crate-count track (0 to 10), four to an A4 sheet, 6 bid cards for standing orders (write the bid, lay it face down; the back shows the stall pattern), a token sheet (12 cash markers, 36 served-alone chips, day marker, first-player token, Shade Cloth marker, 6 +$200 chips, 6 crate-count markers); no price tags; all rectangles for a guillotine",
+    "A shopping list: 200 wooden cubes, 10 mm, 50 each of blue, green, yellow and red; 6 dry-wipe pens",
+    "Guidebook, player aid and RULES.md print-and-play part: set-up, the bell with the shutter step, what is in the box (no rule change)",
+    "Print tests from the game data (parts counted, card spaces fit 63 x 88 mm, boxes fit a 10 mm cube, each lane has its fruit's boxes, crate boxes line up with shelf boxes, day track to 14)",
+    "The print-shop package rebuilt with a print order and the shopping list; the update pack and both tracker test packs retired",
+    "Customer cards (print only): the fruit a customer wants one more of at 6 stalls is marked \"+1 at 6 stalls\" on its row. The rows print in lane order and on 14 of the 26 two-fruit cards the first fruit in the data (the one the game adds to) is not the top row, so \"the first fruit on their card\" in the printed rules pointed at the wrong fruit; the guidebook will name the mark instead"
+  ],
+  "exclusions": [
+    "No game rule or card change; the app is unchanged",
+    "No ordering, printing or buying: the owner decides and pays",
+    "No punched or die-cut shapes"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with the new print tests",
+      "result": "PASS",
+      "evidence": "npm run verify: 1018 tests passed (1 skipped, as before), including the new tests/print-table.test.ts (board boxes and costs from the data, decks beside their cards, day track, customer guide, six stall sheets with price boxes and Fruit sold, counters with the crate count above the cash, six shutters, bid cards and every token) and tests/print-kit.test.ts (\"+1 at 6 stalls\" on the right row)."
+    },
+    {
+      "id": "T2",
+      "text": "Every new page seen as a picture",
+      "result": "PASS",
+      "evidence": "Every new page rendered and seen: both board panels, a stall sheet, counters, a shutter sheet, the bid cards and tokens, customer card sheet 1; the guidebook text checked for old wording (no price tags, no three-panel board, no earlier printing)."
+    },
+    {
+      "id": "T3",
+      "text": "Sizes measured from the PDFs (card spaces, boxes, crate and shelf in line, shutters, cut sizes)",
+      "result": "PASS",
+      "evidence": "Sizes from the PDFs: board 2 x A3, stall sheets and counters A4 landscape, shutters A3 (half 420 x 148.5 mm, folds at 70 mm), bid cards 63 x 88 mm, tokens 13.5 mm; the print checks (fonts, fit, page count) pass for every file."
+    },
+    {
+      "id": "T4",
+      "text": "The owner's small test: one stall sheet, one shutter and the market panel, a few days with coins or beads",
+      "result": "NOT RUN",
+      "evidence": "Waits for the owner's small test at the table."
+    },
+    {
+      "id": "T5",
+      "text": "A full table game with the printed set",
+      "result": "NOT RUN",
+      "evidence": "Waits for the printed set."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"approve plan 111, for the customer street use the Guide you shared earlier, now generate the new board (wholesale market + customer street), player shelf/crate, the new counter, shutter\"",
+    "date": "2026-11-16"
+  },
+  "delivery": "implemented",
+  "release": "1.25.0",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-125",
+    "REP-126"
+  ],
+  "decisions": [
+    "DEC-121"
+  ],
+  "changes": {
+    "added": [
+      "print/table: the board in two A3 panels, six stall sheets, six counters, six shutters, bid cards and tokens, and the rules guidebook for the new table (scripts/print-table.ts, scripts/print-update.ts)",
+      "print/fruit-3d: 3D-printable fruit in three styles (scripts/fruit-3d.py)",
+      "Customer cards: \"+1 at 6 stalls\" on the fruit that gets the extra piece",
+      "tests/print-table.test.ts"
+    ],
+    "changed": [
+      "Guidebook, player aid and RULES.md print-and-play part: prices written on the stall sheet, the shutter steps back at the bell, the crate count and cash on the counter, bid cards for standing orders; no rule change"
+    ],
+    "fixed": [
+      "The printed rule \"one more of the first fruit on their card\" pointed at the wrong fruit on 14 customer cards; the cards now mark it"
+    ],
+    "removed": [
+      "print/update-20 (the update pack for the earlier printing) and print/tracker-test (the freshness tracker tests)"
+    ]
+  },
+  "playerNotes": [
+    "Print and play: a new printable board, stall sheets, shutters, counters and tokens, and customer cards that mark the \"+1 at 6 stalls\" fruit"
+  ]
+}

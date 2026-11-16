@@ -14,20 +14,20 @@
     {
       "id": "T1",
       "text": "npm run verify passes (print kit tests included)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 4bb18df: records, palette, lint, types, 989 tests passed (1 skipped, as before), build. Includes the new tests/review-words.test.ts (17 checks of this package's words against the engine) and the print and tracker tests. npm run test:e2e on the merge: PASS (E2E OK: solo game, 0 leaks in 48 frames, abandoned match taken over by a computer, quick match, four players plus two computers, 5 reconnect cycles; the speed budget's first try was 218 ms against 200 ms with the PLAN-110 helper's tests on the same machine and its own retry passed at 185 ms)."
     },
     {
       "id": "T2",
       "text": "The rebuilt kit's pages seen",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "Every changed print page rendered to pictures and seen: kit cover, player aid, Events sheets 1 and 3, Favours, their factory pages; update-20 guidebook (12 pages), stall sheets and counters (14 pages, the new Fruit sold tally), replacement favours; both tracker packs. App screens seen at 390x844 and 360x640: Home, How to play slides 1 and 6, the first-time pop-up, the evening tip, the Glut morning card and market chip, the favour card (Hold up to 3; Charmer Hold up to 4). Pictures in the session scratchpad p109/."
     },
     {
       "id": "T3",
       "text": "The owner has checked the kit",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Waits for the owner (the proof print and the preview of 1.25.0)."
     }
   ],
   "approval": {
@@ -35,9 +35,9 @@
     "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
     "date": "2026-11-16"
   },
-  "delivery": "not started",
-  "release": "unreleased",
-  "build": "",
+  "delivery": "implemented",
+  "release": "1.25.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 4bb18df",
   "reports": [
     "REP-123"
   ],
@@ -45,10 +45,35 @@
     "DEC-120"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Counter card: a Fruit sold tally (1 to 80) so a table can settle a tie on cash (C-09)",
+      "Blueberry Glut's cheaper market price as its own figure on the card, on the morning card and as a chip at the Wholesale Market (C-06, S20)",
+      "tests/review-words.test.ts: this package's words checked against the engine"
+    ],
+    "changed": [
+      "Home: \"Daily market · {date}\" and \"Play the Daily market\" (C-13)",
+      "The evening tip says only what this evening offers the stall (a favour card, an upgrade, both, or the Shade Cloth) and how much fruit ages tonight (C-14, S16)",
+      "How to play, the first-time pop-up, the player aid, the guidebook and RULES.md: a standing order comes only if it can be collected by the last day, so none on Day 9 of a 10-day game (C-02)",
+      "Player aid and RULES.md: the crier reads the customers and pays nobody; each stall adds its own takings (C-03, DEC-108)",
+      "Price badges: the \"what customers pay\" face on ink; the Wholesale Market badge is a crate of fruit (C-08)",
+      "Daily twists: Fixed prices says generous customers pay $2 more; the Basic game says no standing orders; RULES.md allows 8- and 14-day Daily twists (C-16)",
+      "Free Fruit: does not count toward the pieces you may buy today, on the card, in RULES.md and the guidebook (C-10)",
+      "A favour card opened from a hand shows its holder's limit (4 for the Charmer); the printed card says \"Hold 3 (Charmer 4)\" (S15)",
+      "RULES.md: the day-chip rule covers both Green boxes and the Ripening Room (C-19); shopkeepers online are chosen after the host starts (ON-11); what counts as fruit sold (C-09)",
+      "Print kit, update pack (update-20) and tracker packs rebuilt at rules version 20"
+    ],
+    "fixed": [
+      "C-04 the coloured bands named in the guidebook; C-05 \"an apple\"; C-11 the kit says the board and shutters come from the earlier printing; C-18 small slips in the guidebook, change sheet and README",
+      "C-20 code comments and records (game brief at rules 20, \"Daily market\", \"game length\"; the creative bible's look includes the customer-type colours)"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Home calls the daily game the Daily market",
+    "The evening tip says what you can do this evening and how much your fruit ages tonight",
+    "How to play says a standing order comes only if it can be collected by the last day",
+    "Blueberry Glut shows its cheaper market price on the card and at the market",
+    "A favour card shows your own hand limit (4 for the Charmer)",
+    "Daily twists say the whole change: Fixed prices keeps the generous customers' $2, and the Basic game has no standing orders"
+  ]
 }

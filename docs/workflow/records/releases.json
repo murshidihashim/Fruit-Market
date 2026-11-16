@@ -590,10 +590,14 @@
       "tagged": true
     },
     {
-      "version": "1.24.1",
+      "version": "1.25.0",
       "status": "candidate",
       "plans": [
-        "PLAN-107"
+        "PLAN-107",
+        "PLAN-108",
+        "PLAN-109",
+        "PLAN-110",
+        "PLAN-111"
       ],
       "notes": [
         "On a standing order's due day your stocking rows show the pieces the order takes, and Auto load puts them in first",
@@ -601,9 +605,29 @@
         "Online: a wrong or closed room code says so, with a way back",
         "Online: a rematch starts when everyone still there agrees, and a computer plays for anyone who left",
         "Online: in a private room, a player who closed the app is let go after about a minute so the host can start",
-        "Invite links shared from the Android app now open the game"
+        "Invite links shared from the Android app now open the game",
+        "No more Closing Day or jam maker: the last day is an ordinary day, and fruit left at the end is worth nothing",
+        "In the Daily market and the League you are offered only perks no rival holds",
+        "The final takings now match the results",
+        "The jam trophy becomes \"Sold out\": sell 20 or more pieces and end with no ripe fruit; stamps already earned stay",
+        "Phones on 1.24 are asked to update before joining a room, a game saved halfway on 1.24 starts fresh, and the Daily market starts a new board",
+        "Home calls the daily game the Daily market",
+        "The evening tip says what you can do this evening and how much your fruit ages tonight",
+        "How to play says a standing order comes only if it can be collected by the last day",
+        "Blueberry Glut shows its cheaper market price on the card and at the market",
+        "A favour card shows your own hand limit (4 for the Charmer)",
+        "Daily twists say the whole change: Fixed prices keeps the generous customers' $2, and the Basic game has no standing orders",
+        "The evening and takings money lines now add up, fines and top-ups included",
+        "The market's \"wanted\" heads only count fruit a walk-in can really want",
+        "Undo on your buying turn survives a trip to Home or a reload",
+        "Short phones keep the top and bottom bars in view",
+        "Pass-and-play keeps each person's shelf and takings to themselves",
+        "Online: the menu shows the room code, warns before you leave, and Home takes you back to your match",
+        "Online: a look change or a reconnect no longer interrupts someone else's turn",
+        "Clearer colours: the FIRST token stands out, and stall colours no longer match the customer types",
+        "Print and play: a new printable board, stall sheets, shutters, counters and tokens, and customer cards that mark the \"+1 at 6 stalls\" fruit"
       ],
-      "date": "2026-11-16",
+      "date": "2026-11-17",
       "commit": "",
       "tagged": false
     }

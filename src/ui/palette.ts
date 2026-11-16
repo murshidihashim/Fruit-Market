@@ -307,6 +307,11 @@ export const C = {
   xVisor: '#3c9a64',
   xVisorLight: '#bfe7c9',
   xNewsGrey: '#8a8f9a',
+  // C-12 (PLAN-110): the stall colours Royal, Plum and Teal, kept apart from the customer-type colours above (at least
+  // 3:1 from Premium purple and Everyday teal). The colours they replace stay above for the rest of the game.
+  stallRoyal: '#9a7fe0',
+  stallPlum: '#bb77bb',
+  stallTeal: '#46b8ac',
 } as const;
 
 /** The roles named in docs/ART-STYLE.md. */

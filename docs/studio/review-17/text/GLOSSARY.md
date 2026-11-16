@@ -25,10 +25,11 @@ One word for one thing. The first table is the set of words chosen; the lists af
 | **customer · regular · walk-in · guest** | Customer is anyone who buys. The regular is drawn face up a day ahead. A walk-in is face down until buying ends. A guest comes with an event. Never "shopper", "buyer", "special guest", "special customer". |
 | **top price** | The most a customer pays for a Fresh piece today. Okay sells for \$1 less, Soft for \$2 less. Never "full price", "what customers normally pay". |
 | **order · standing order** | An order is what one customer wants. A standing order is the Market Day card that stalls bid for. Always "standing order" in full. Its limit is the "highest bid". The stall that wins it is "the winner". |
-| **Market Day · Closing Day · last day** | Market Days are days 3, 6, 9 and 12. Closing Day is the name of the last day. In a sentence say "the last day". Never "final day". Write "Day 3" with a capital. |
+| **Market Day · last day** | Market Days are days 3, 6, 9 and 12. In a sentence say "the last day". Never "final day". Write "Day 3" with a capital. (Rules 20: Closing Day and the jam maker are gone; the last day is an ordinary day.) |
 | **favour card** | Always two words. You "play" it. Never "favour" alone or "card" alone when a favour card is meant. |
 | **upgrade** | You "build" one. "Stall upgrade" only as a card type heading. |
 | **cash** | What you have and what wins. "\$" with digits. Never "money", "coins", "dollars". |
+| **fruit sold** | What breaks a tie on cash at the end: every piece a stall sold to a customer, a guest, a standing order or the night hawker (not a piece a Juice Bar turns into juice). On the table, the "Fruit sold" row on each counter. (PLAN-109, REP-122 C-09.) |
 | **serve a customer alone** | Filling a customer's whole remaining order by yourself. Earns a favour card. |
 | **look at (a walk-in)** | What Gossip, Scout and Sharp Ears do. Never "peek", "hear about", "secretly see". |
 | **buy** | What a stall does at the Wholesale Market. Never "shop", "shopping". |
@@ -40,7 +41,7 @@ One word for one thing. The first table is the set of words chosen; the lists af
 
 ## Words kept on purpose
 
-- **Lights out** (evening button), **Close for the day**, **jam maker**, **night hawker**, **the crier**: flavour words that name one thing each and are used consistently.
+- **Lights out** (evening button), **Close for the day**, **night hawker**, **the crier**: flavour words that name one thing each and are used consistently.
 - **Shutter, counter, price tag, cash track, chip, marker**: tabletop pieces. They belong in the printed pack and should not appear in the app (one does: "The shelf stays behind the shutter").
 - **Kenduri, Pasar Malam, kampung, sen, aiyo, jimat, rezeki, terima kasih**: already in the game. The proposals add open house, kopitiam, jamu and family day, and reuse pasar malam (twice) and kenduri, in seven flavour lines and nowhere else.
 - **Stranger** for the other player in a quick match.
@@ -694,4 +695,24 @@ One word for one thing. The first table is the set of words chosen; the lists af
 | `src/ui/Online.tsx:275` | Lobby: for players who are not the host | `The host starts the match when everyone is ready.` | changed |
 | `src/net/client.ts:36` | Online screen: error | `'Could not find a match. Try again.'` | changed |
 | `server/worker.ts:325` | Online screen: error from the server | `'Could not find a match, try again'` | changed |
+
+## Later fixes (PLAN-109, the 1.24.0 review)
+
+Second words the 1.24.0 review found (REP-122 C-13 and C-18), and what PLAN-109 did. Some were "kept as is" above;
+they are changed now. Line numbers are those of the review (commit b0f7108).
+
+| Where | Was | Now | Word |
+|---|---|---|---|
+| Home: the Daily market page's heading (`src/ui/Home.tsx:84`) | `Today's market · {date}` | `Daily market · {date}` | Daily market |
+| Home: the Daily market page's button (`src/ui/Home.tsx:102`) | `Play today's market` | `Play the Daily market` | Daily market |
+| Guidebook, Evening (`scripts/print-update.ts:397`) | `Farah peeks at one of tomorrow's walk-ins.` | `Farah looks at one of tomorrow's walk-ins.` | look at |
+| Guidebook, Stocking (`scripts/print-update.ts:377`) | `they still get older tonight` | `they still age tonight` | ages |
+| Stall sheets, green boxes (`scripts/print-update.ts:101`) | `Not ripe: cannot sell` | `Cannot be sold` | Green |
+| Player aid, Evening & night (`scripts/print-deck.ts:165`) | `Play evening favours (Priority, Gossip).` | `Play evening favour cards (Priority, Gossip).` | favour card |
+| Player aid, the crier's price rule (`scripts/print-deck.ts:182`) | `The cheapest posted price sells first` | `The cheapest price sells first` | set a price |
+| Guidebook, the day on one line (`scripts/print-update.ts:463`) | `Evening: everyone at once, favours, upgrades` | `Evening: everyone at once, favour cards, upgrades` | favour card |
+| Change sheet, the Evening patch (`scripts/print-update.ts:246`) | `play evening favours` | `play evening favour cards` | favour card |
+| Change sheet, rule change 5 (`scripts/print-update.ts:230`) | `none on day 9` | `none on Day 9 of a 10-day game` | Day 9 |
+
+RULES.md's "Closing Day (final day)" (REP-122 C-18 d) went with Closing Day itself in rules 20 (PLAN-108).
 

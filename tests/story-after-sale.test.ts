@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
-import { FRUIT, JAM_PRICE, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
+import { FRUIT, RIVALS, lookOf, prefOf, type FruitId } from '../src/engine/data';
 import { aiStep, autoplay } from '../src/engine/ai';
 import { RULES10_CUSTOMERS } from './rules10-cards';
 import {
@@ -423,8 +423,8 @@ describe('what-if advice follows the tie order and your crate', () => {
   }, 120_000);
 });
 
-describe('Closing Day recap', () => {
-  /** The final day's sales are done; your shelf is replaced by `ripe` okay apples and `green` unripe mangoes. */
+describe('the last day recap (rules 20: no jam maker)', () => {
+  /** The last day's sales are done; your shelf is replaced by `ripe` okay apples and `green` unripe mangoes. */
   function closing(marketDays: boolean, ripe: number, green: number): GameState {
     let s = newGame({
       players: RIVALS.slice(0, 2).map((r) => ({ name: r.name, kind: 'ai' as const, level: 'normal' as const, avatar: r.avatar })),
@@ -438,16 +438,15 @@ describe('Closing Day recap', () => {
     return finishReveal(s);
   }
 
-  it('says the jam maker paid for ripe leftovers; only green ones (or every one with Closing Day off) are worth $0', () => {
-    const on = closing(true, 20, 1);
-    expect(on.jam?.[0]).toBe(20 * JAM_PRICE);
-    const paid = `20 ripe fruit left at closing: the jam maker paid $${20 * JAM_PRICE}.`;
-    expect(gameRecap(on, 0).worst.join(' ')).not.toContain('unsold at closing');
-    expect(gameRecap(on, 0).worst).toContain(paid);
-    expect(closingLeftovers(on, 0)).toEqual([{ n: 20, text: paid }, { n: 1, text: '1 green fruit left at closing (worth $0).' }]);
-    const off = closing(false, 20, 1);
-    expect(off.jam).toBeUndefined();
-    expect(closingLeftovers(off, 0)).toEqual([{ n: 21, text: '21 fruit left unsold at closing (worth $0).' }]);
+  it('every piece left over, ripe or green, is worth $0, with Market Days on or off', () => {
+    for (const marketDays of [true, false]) {
+      const end = closing(marketDays, 20, 1);
+      const line = '21 fruit left unsold at the end (worth $0).';
+      expect(closingLeftovers(end, 0)).toEqual([{ n: 21, text: line }]);
+      expect(gameRecap(end, 0).worst).toContain(line);
+      expect(gameRecap(end, 0).worst.join(' ')).not.toMatch(/jam|closing/i);
+    }
+    expect(closingLeftovers(closing(true, 0, 0), 0)).toEqual([]);
   });
 });
 

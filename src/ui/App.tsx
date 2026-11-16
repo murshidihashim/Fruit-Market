@@ -17,6 +17,7 @@ import { Wardrobe } from './Wardrobe';
 import { worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
+import { openMatch } from '../net/client';
 import { fx, setMusic } from './fx';
 import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
@@ -24,6 +25,8 @@ import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { LEAGUE, leagueConfig, leagueStage } from './progress';
 import { TrophyScreen } from './Trophies';
+import { BackArrow } from './stampCard';
+import { Toggle } from './Toggle';
 import {
   consumeSaveNotice, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
   saveSettings, todayKey, type Settings,
@@ -170,7 +173,7 @@ function Main() {
   }
   if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
-  if (screen === 'online') return <Online initialCode={joinCode ?? invite} onExit={() => go('home')} />;
+  if (screen === 'online') return <Online initialCode={joinCode ?? invite} typed={!!joinCode} onExit={() => go('home')} />;
   if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
   if (screen === 'trophies') return <TrophyScreen onBack={() => go('home')} />;
   if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;
@@ -202,6 +205,8 @@ function Main() {
         onTrophies={() => go('trophies')}
         onHowTo={() => go('howto')}
         onSettings={() => go('settings')}
+        room={openMatch()}
+        onRoom={(code) => { setJoinCode(code); go('online'); }}
       />
       {popup === 'new' && <Popup title="New game" onClose={close}><Setup onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'continue' && waiting && (
@@ -270,9 +275,12 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
     usedChars.add(a);
   }
   const seatName = (i: number) => seats[i].name.trim() || `Player ${i + 2}`;
+  // S8 (PLAN-110): with friends on this phone a blank name is "Player 1", as the friends' are "Player 2" and on (it was
+  // "You", which read "Pass the phone to You"). Alone, the person is "You" as before.
+  const myName = () => name.trim() || (humanSeats.length > 0 ? 'Player 1' : 'You');
   const takenForMe: Record<string, string> = Object.fromEntries(humanSeats.map(({ i }) => [picks[i], seatName(i)]));
   const takenFor = (i: number): Record<string, string> => ({
-    [myChar]: name.trim() || 'You',
+    [myChar]: myName(),
     ...Object.fromEntries(humanSeats.filter((h) => h.i !== i).map((h) => [picks[h.i], seatName(h.i)])),
   });
 
@@ -281,7 +289,7 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
     // Computer shops take the characters the people did not pick.
     const pool = RIVALS.filter((r) => !usedChars.has(r.avatar)).sort(() => Math.random() - 0.5);
     const players: PlayerConfig[] = [
-      { name: name.trim() || 'You', kind: 'human', avatar: myChar },
+      { name: myName(), kind: 'human', avatar: myChar },
       ...seats.slice(0, rivals).map((st, i): PlayerConfig => {
         if (st.kind === 'human') return { name: seatName(i), kind: 'human', avatar: picks[i] };
         const r = pool.shift()!;
@@ -346,16 +354,6 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
   );
 }
 
-function Toggle({ on, set, title, text }: { on: boolean; set: (v: boolean) => void; title: string; text: string }) {
-  return (
-    <label class="toggle">
-      <span><b>{title}</b><small>{text}</small></span>
-      <input type="checkbox" checked={on} onChange={(e) => set((e.target as HTMLInputElement).checked)} />
-      <i />
-    </label>
-  );
-}
-
 /** "4 shops: you, 2 friends, 1 computer" for the new-game screen. */
 function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
   const friends = rivals.filter((s) => s.kind === 'human').length;
@@ -366,25 +364,28 @@ function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
 
 function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [st, setSt] = useState<Settings>(loadSettings());
+  // S19 (PLAN-110): "Replay the tutorial next game" says that it worked.
+  const [replay, setReplay] = useState(false);
   const stats = loadStats();
   const upd = (p: Partial<Settings>) => {
     const n = { ...st, ...p };
     setSt(n);
     saveSettings(n);
   };
+  // S17 (PLAN-110): in the square Market Ticket look, under the black bar Trophies has.
   return (
-    <div class="page">
-      <header class="topbar"><button class="icon-btn" onClick={onBack}>←</button><div class="day"><b>Settings</b></div><span /></header>
+    <div class="page tk-page settings">
+      <header class="topbar"><button class="icon-btn" aria-label="Back" onClick={onBack}><BackArrow /></button><div class="day"><b>Settings</b></div></header>
       <main class="scroll pad">
         <section class="panel">
           <Toggle on={st.sound} set={(v) => upd({ sound: v })} title="Sound" text="Coins, cards and cheers." />
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
           <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast rivals" text="Computer stalls move faster." />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
-          <Toggle on={st.patterns} set={(v) => upd({ patterns: v })} title="Freshness patterns" text="Stripes and dots as well as colours, for colour-blind players." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
           <FullScreenButton />
-          <button class="btn wide" onClick={() => { resetTutorial(); fx.tap(); }}>Replay the tutorial next game</button>
+          <button class="btn wide" disabled={replay} onClick={() => { resetTutorial(); fx.tap(); setReplay(true); }}>Replay the tutorial next game</button>
+          {replay && <p class="tk-done" role="status">Done. The tips will show in your next game.</p>}
         </section>
         <section class="panel">
           <h3>Your stats</h3>

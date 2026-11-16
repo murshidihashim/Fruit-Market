@@ -2973,9 +2973,36 @@
       "delivery": "in progress",
       "reports": [
         "REP-123",
-        "REP-124"
+        "REP-124",
+        "REP-127"
       ],
       "reviewTrigger": "If the balance check moves a shopkeeper more than 3 points, or the owner changes a choice"
+    },
+    {
+      "id": "DEC-121",
+      "title": "A new table set (board, shutters, pieces) with an easier freshness tracker",
+      "question": "The owner no longer has the earlier printing's board, shutters, fruit pieces, price tags, markers, chips and tokens, and there are no files for them. How are they made again, and how should a table track freshness more easily (the owner asked about a stack of small cards for each piece)?",
+      "choice": "Owner's choice (2026-11-16): freshness tracked with the boxes of the app's Wholesale Market (each box marked G, F, O or S; every piece slides one box left at night), on the market board and on each stall sheet; the ruler is dropped. Proposed for the bell: each stall sheet has a crate band in front of its shelf band and two shutter lines, and at the bell the shutter steps back from line 1 to line 2, so the crate shows without carrying a piece (REP-126). A new set for a print shop (three A3 board panels, stall sheets, shutters, counters, price tags, a token sheet, all rectangles) and 200 bought 10 mm wooden cubes. The update pack and tracker test packs are retired. No rule change.",
+      "rationale": "The owner wants the table to look like the app's market and found carrying crate pieces out at the bell too troublesome; stepping the shutter back reveals the whole crate in one move per stall with no extra part (REP-125, REP-126).",
+      "impact": {
+        "player": "People who print the game get every part, and nobody moves fruit at night.",
+        "technical": "New print scripts and tests from the game data; the guidebook, player aid and RULES.md print-and-play part updated. The app is unchanged.",
+        "data": "None."
+      },
+      "cost": "RM0 for the work. Printing, wooden cubes and pens are the owner's spending, quoted by the shop and seller.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16: \"approve plan 111, for the customer street use the Guide you shared earlier, now generate the new board (wholesale market + customer street), player shelf/crate, the new counter, shutter\"",
+        "date": "2026-11-16"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-111",
+      "reviewTrigger": "The owner's small table test (PLAN-111 T4): if stepping the shutter back hides or shows the wrong band, try a loose crate tray (tracker test 2) instead.",
+      "reports": [
+        "REP-125",
+        "REP-126"
+      ]
     }
   ],
   "history": [
@@ -4250,6 +4277,62 @@
     {
       "at": "2026-11-16 14:32",
       "text": "PLAN-107 (Major) merged (68864cd) and implemented: S2, S3 (undo point moves to just after the last favour card), ON-01 to ON-06; verify PASS (965 tests), e2e PASS, screens at 390 and 360 PASS, room tests PASS, a 1.24.0 phone against the new room server PASS; real Android NOT RUN. Prepared as release 1.24.1 (rules 19 kept) for the preview; publishing waits for the owner's word (REP-124). PLAN-108 (rules 20) built and checked on its own branch (verify PASS on a trial merge, e2e PASS, screens and print seen) and held off the main line until 1.24.1 is live. Balance: the first run had Ah Chen at 3 Hard stalls -3.1 points (over the 3-point line); a second batch of 7,200 games on new seeds showed +0.4, and over both (9,600 games a side) no shopkeeper moved more than 0.7 points; every stall ends about $4 poorer. The approved trophy name \"Sold out\" clashes with the level-10 \"Sold out\" stamp; the owner is asked (recommendation \"Clean shelf\")."
+    },
+    {
+      "at": "2026-11-16 15:27",
+      "text": "1.24.1 on the preview: pull request #20 merged to main (e1cccbd); main CI PASS (verify:full) and the preview updated and smoke-tested at 15:09; the preview answers rules 19 and its code carries 1.24.1. Waiting for the owner to try it and give his word to publish (REP-124). PLAN-108 merged into the working branch after that (0ff8d2c), not into main: verify PASS (972 tests); e2e every part PASS with 0 leaks, the speed test failed twice under load and passed alone (162 ms). PLAN-109 (print and words) and PLAN-110 (smaller bugs and polish) started with helpers from 0ff8d2c."
+    },
+    {
+      "at": "2026-11-16 16:58",
+      "text": "PLAN-109 (print kit and words) merged (4bb18df) and implemented: C-02 to C-06, C-08 to C-11, C-13, C-14 with S16, C-16, C-18 to C-20, ON-11, S15 and S20; rules version 20 and AI version 7 kept, no rule or number changed. verify PASS (989 tests), e2e PASS, every changed print page and app screen seen (PASS); the owner's check of the kit NOT RUN. The print kit, update-20 and tracker packs are rebuilt; the counter card gains a Fruit sold tally. Differences from the review rows: Blueberry Glut's printed card keeps 2 boxes (the PLAN-106 design), the printed favour footer is \"Hold 3 (Charmer 4)\" to fit. Seen: on price-change days the market chip cuts \"Your turn · N of M bought\" at 360; handed to PLAN-110 (S12/S13)."
+    },
+    {
+      "at": "2026-11-16 18:02",
+      "text": "PLAN-110 (smaller bugs and polish) merged (b61d386) and implemented: S4 to S14, S17 to S19, S8, ON-07 to ON-15, C-07, C-12, C-21 (ON-10 already fixed by PLAN-107); rules version 20, AI version 7, protocol 4 and the save envelope kept. verify PASS (1009 tests), e2e PASS, screens at 390, 360 and 320 PASS; real phones NOT RUN. Room server: a move made on a version after the game last changed still stands (a look change or a comeback no longer makes it stale); seats left on purpose are marked; a 1.24.x phone sees the same message shapes. Not fixed: names cut in 5 to 6 stall boxes, unsent crate or prices are warned about rather than kept, the shared-step top bar shows the last person's rank and cash. No print colour changed, so the kit is not rebuilt."
+    },
+    {
+      "at": "2026-11-16 20:46",
+      "text": "The owner no longer has the earlier printing's board, shutters and pieces and asked for new ones, and whether each fruit piece should be a stack of small cards to track freshness. REP-125 compares four ways (card stacks, dice, sliding the fruit, sliding the ruler) and recommends the ruler with plain wooden cubes; proposed as DEC-121 and PLAN-111, awaiting the owner. The print-shop package sent earlier (REP-124 files) stays valid for the cards; the stall sheets, counters, guidebook and board patches are on hold."
+    },
+    {
+      "at": "2026-11-16 20:51",
+      "text": "Owner's answer to REP-125: use the boxes of the app's Wholesale Market for the physical market and for each stall, not the ruler; carrying crate pieces at the bell is too troublesome. REP-126 revises DEC-121 and PLAN-111: the crate band sits in front of the shelf band and the shutter steps back one line at the bell, so no piece is carried; rulers dropped. Still awaiting his approval of the plan, the fruit pieces (cubes or printed tiles) and the board (A3 panels or foam board)."
+    },
+    {
+      "at": "2026-11-16 20:57",
+      "text": "Owner asked whether the stall sheet keeps fruit type private before prices are set, as the app shows rivals only face-down boxes. It does: the shutter on line 1 hides the crate and shelf through stocking and pricing (RULES.md: one number, not which fruit). Added to PLAN-111: a public crate-count track (0 to 10) and a marker on each counter, so the number stays in view like the app's boxes instead of only being said aloud; no rule change."
+    },
+    {
+      "at": "2026-11-16 21:06",
+      "text": "PLAN-111 mock-ups shared with the owner for visual review before any print file is built (docs/studio/table-set/mockups): the stall sheet (A4, crate band in front of the shelf band, two shutter lines, a price-tag place on each crate lane), two counters to an A4 sheet (cash track, crate count, Fruit sold, tag and chip places), the shutter (half A3, both faces), and the three A3 board panels (the Wholesale Market in the app's style with today's and tomorrow's lorry, the street with the day track, decks and upgrade piles, the customer rows with the crier's price rule). Numbers drawn from the game data. Awaiting his visual changes and approval."
+    },
+    {
+      "at": "2026-11-16 22:57",
+      "text": "Owner asked why the mock-ups had price tags in two places and wanted the counter to hold only the cash track and the crate count. Revised mock-ups: prices are written with the dry-wipe pen in a box at the end of each crate lane, behind the shutter, and show when every shutter steps back together at the bell (no price tags, no face-down tags, which also stops tags showing how many fruits a stall sells); the counter has only cash and crate count (four to an A4 sheet); the Fruit sold row moves to the bottom of the stall sheet; a bid card per stall replaces the tag for standing-order bids. No rule change."
+    },
+    {
+      "at": "2026-11-16 23:24",
+      "text": "Owner asked how the board panels connect and why there are spaces for favour cards. Mock-ups revised: the three A3 panels lie side by side in one row (customers, Wholesale Market, street; 126 cm), with the lorry deck moved next to the market's lorry spaces and the customer deck onto the customer panel; a to-scale table drawing for 6 stalls (180 x 95 cm table, counters beside the stall sheets). The favour space is the shuffled face-down deck that players draw from at random, as the app does (drawFavour), plus a played-favours pile that is reshuffled when the deck runs out; the five upgrade piles are face up because every stall may build any of them (rules 17, dealUpgrades)."
+    },
+    {
+      "at": "2026-11-16 23:36",
+      "text": "Owner: the board in two panels only. Left: the Wholesale Market, with today's event and tomorrow's lorry and their decks beside them for an easy flip; right: today's and tomorrow's customers; the street panel removed; favour cards, upgrades and standing orders get no space on the board. Mock-ups redrawn (left panel with the day track under the decks; right panel with the customer deck; a 150 x 95 cm table for 6 stalls) and PLAN-111 scope updated. Still awaiting his approval of the plan, the fruit pieces and the board finish."
+    },
+    {
+      "at": "2026-11-17 01:45",
+      "text": "Owner: print \"+1 at 6 stalls\" on the customer cards. Done in the print kit only (cards.tsx bigTable prop, passed by scripts/print-cards.ts; the app is unchanged because its numbers already include the extra piece): the mark sits on the row of the card's first want, which game.ts makeCustomer adds to. Found while checking: on 14 of 26 two-fruit cards that fruit prints on the second row, so the printed rule \"the first fruit on their card\" was wrong at the table for those cards. print-kit test checks one mark per card on the right row; verify PASS (1009 tests); print kit rebuilt (customer cards, combined kit, character reference) and the print-shop cards file rebuilt."
+    },
+    {
+      "at": "2026-11-17 01:56",
+      "text": "PLAN-111 approved by the owner. Built scripts/print-table.ts and print/table: the board in two A3 panels (Wholesale Market with today's event, tomorrow's lorry, their decks and the day track; the customers with the ten-point set-up guide), six stall sheets (A4), six counters (four to an A4), six shutters (one A3 each, printed on one side and folded in half for double thickness). All pass the print checks (fonts, fit, page count). Assumed until the owner says otherwise: 10 mm fruit pieces and laminated A3 panels. Owner then asked for 3D-printable fruit with three mock-ups each: scripts/fruit-3d.py writes print/fruit-3d (A token 12-13 mm that stacks, B mini fruit 10-16 mm, C 10 mm stacking cube with the fruit raised on two sides; 12 STL files and four pictures). Still to do in PLAN-111: bid cards and the token sheet, the guidebook, player aid and RULES.md, the print tests, the print-shop package."
+    },
+    {
+      "at": "2026-11-17 02:28",
+      "text": "PLAN-111 implemented: bid cards and token sheet added; the guidebook (12 pages), player aid and RULES.md describe the new table (written prices, shutter step, crate count, bid card); the update pack and tracker tests retired; tests/print-table.test.ts added; verify PASS (1018 tests); every new page seen. Print-shop package rebuilt (cards, player aid, board, stall sheets, counters, shutters, bid cards and tokens, guidebook, print order, 3D STL files). The owner's table test and a full printed game NOT RUN. The fruit style (A, B or C, or wooden cubes) is still the owner's choice; every box fits pieces up to about 13 mm."
+    },
+    {
+      "at": "2026-11-17 05:19",
+      "text": "Owner: \"can u combine 1.24.1 and 1.25.0 and push it to preview\". 1.24.1 was never published (the live game is 1.24.0), so its candidate is withdrawn and PLAN-107 joins PLAN-108 to PLAN-111 in release candidate 1.25.0 (rules version 20, protocol 4). The PLAN-108 player note about the trophy now names it as built (\"Sold out\"); the name clash with the level-10 stamp is still the owner's to settle. Pull request to main for the preview (REP-127); publishing still needs the owner's word."
     }
   ]
 }

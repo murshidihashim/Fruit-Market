@@ -16,26 +16,26 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "npm run verify on the merge b61d386 (PLAN-108, PLAN-109 and PLAN-110 together): records, palette, lint, types, 1009 tests passed (1 skipped, as before), build. New tests: tests/review-110.test.ts (16) and 4 room tests (a look change or a comeback does not make a turn stale, who left on purpose, the choosing countdown, a finished room)."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "npm run test:e2e on the merge b61d386: solo game, 0 leaks in 36 frames, abandoned match, quick match, four players plus two computers, 5 reconnect cycles all OK. The speed budget's longest task was over its 200 ms limit on both tries (210, 217 ms) on this machine, so the run ended E2E FAILED on that check alone. Run alone back to back, the merge passed once (193 ms) and failed once (266 ms), while the start commit 0ff8d2c failed all three times (232, 228 ms, and 352 ms to open the game screen against 350): the same range, so the machine, not the change (STATE Known issues; 63 ms on CI). CI on the pull request to main is the deciding run."
     },
     {
       "id": "T3",
       "text": "The changed screens seen at 390x844 and 360x640",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "Seen at 390x844, 360x640 and 320x568 on the helper's branch: buying at 4 and 6 stalls, full shelf, bid, evening with stake, fine and takings, evening warning, price-chip day, FIRST token, pass-and-play (shared takings, morning, hand-over), menus offline and online, Settings, How to play, Trophies and Wardrobe, Home; online in three browsers against a local room server (ON-07 to ON-09, ON-14 measured, ON-15). On the merge with PLAN-109: the market head on Blueberry Glut, Price Hike and 6-stall days at 390, 360 and 320 (no word cut, no sideways scroll, no page errors). Pictures in the session scratchpad p110/ and p110m/. Not seen on screen (unit and room tests only): S10's tick during a live rush, the ON-12 tie, the ON-13 timing race."
     },
     {
       "id": "T4",
       "text": "The owner has checked the result on the preview",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Waits for the 1.25.0 preview."
     }
   ],
   "approval": {
@@ -43,9 +43,9 @@
     "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
     "date": "2026-11-16"
   },
-  "delivery": "not started",
-  "release": "unreleased",
-  "build": "",
+  "delivery": "implemented",
+  "release": "1.25.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge b61d386",
   "reports": [
     "REP-123"
   ],
@@ -53,10 +53,41 @@
     "DEC-120"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "A Sound switch in the in-game menu; \"Replay the tutorial next game\" says it worked (S19)",
+      "Online menu: the room code, a warning before Home that a computer will play for you, and \"Back to room X\" on Home (ON-08)",
+      "Choosing step online: a countdown to a computer choosing for someone who dropped out, \"left\" and \"away\" tags, and a confirm on ← (ON-07, ON-09)",
+      "Pass-and-play: each person sees their own day at their next hand-over (S8)",
+      "Undo on a buying turn is kept through Home → Continue and a reload; the menu warns before unsent choices are lost (S18)"
+    ],
+    "changed": [
+      "The bid's fruit count counts only pieces still Fresh or Okay on the due day (S4)",
+      "The evening money line names the stake, a top-up, a fine and an upgrade, so it adds up (S5)",
+      "\"Up/Down today\" and the takings include the Health Inspector's fine and the top-up (S6)",
+      "Lane heads read the walk-ins' card backs: no \"? wanted\" for a fruit no walk-in wants, no mangoes on Days 1 and 2 (S7)",
+      "With a full shelf the button says \"shelf full\" and Free Fruit is not offered (S9)",
+      "Only customers who bought get a ✓; the others are greyed (S10)",
+      "Short phones: the top and bottom bars stay in place, lane heads whole, fewer cut words (S12, S13)",
+      "Settings, How to play and the pass-the-phone screen in the square ticket look (S17)",
+      "The FIRST token dark red and larger (C-07); the stall colours Royal, Plum and Teal lighter, apart from the customer-type colours (C-12); small words on watermelon green and apple red outlined in the app (C-21)",
+      "Room server: a change of look or someone coming back no longer makes another person's move stale (ON-13); a standing order tie gives its reason without the buying order (ON-12)",
+      "Lobby tags stay inside the row (ON-14); a typed code says \"Room X\"; a finished room says \"This game has finished.\" (ON-15)"
+    ],
+    "fixed": [
+      "S4 to S14, S17 to S19, S8, ON-07 to ON-09, ON-12 to ON-15, C-07, C-12, C-21 from the 1.24.0 review (REP-122); ON-10 was already fixed by PLAN-107"
+    ],
+    "removed": [
+      "The Freshness patterns switch (S11); settings saved with it still load"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "The evening and takings money lines now add up, fines and top-ups included",
+    "The market's \"wanted\" heads only count fruit a walk-in can really want",
+    "Undo on your buying turn survives a trip to Home or a reload",
+    "Short phones keep the top and bottom bars in view",
+    "Pass-and-play keeps each person's shelf and takings to themselves",
+    "Online: the menu shows the room code, warns before you leave, and Home takes you back to your match",
+    "Online: a look change or a reconnect no longer interrupts someone else's turn",
+    "Clearer colours: the FIRST token stands out, and stall colours no longer match the customer types"
+  ]
 }

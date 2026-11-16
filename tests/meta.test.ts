@@ -71,7 +71,7 @@ describe('daily leaderboard', () => {
   });
 
   it('rejects games played against older computer players (the replay would differ)', () => {
-    expect(AI_VERSION).toBe(6);
+    expect(AI_VERSION).toBe(7);
     const { s, moves } = playDaily();
     // An app from 1.8.0 or earlier sends no computer-player version: that is version 1.
     expect(() => verifyDaily({ date: DATE, name: 'Tester', actions: moves, rv: RULES_VERSION }, NOW, OWNER)).toThrow(UPDATE_MSG);
@@ -80,7 +80,10 @@ describe('daily leaderboard', () => {
     expect(() => verifyDaily(sub(moves, { av: 3 }), NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { av: 4 }), NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { av: 5 }), NOW, OWNER)).toThrow(UPDATE_MSG);
-    expect(verifyDaily(sub(moves, { av: 6 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
+    // 1.24.0 (rules 19, computer players 6, the jam value): asked to update.
+    expect(() => verifyDaily(sub(moves, { av: 6 }), NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(() => verifyDaily(sub(moves, { rv: 19, av: 6 }), NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(verifyDaily(sub(moves, { av: 7 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
   });
 
   it('keeps a daily board for each rules and computer-player version', () => {

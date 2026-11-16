@@ -1,21 +1,20 @@
 // Illustrated rules, one swipe-able card per idea, in the order a game unfolds: what to expect, how a
 // day runs, what you sell, how customers choose, what you can do after the rush, and how it ends.
-// The wording follows RULES.md (rules 18) and the glossary (DEC-087): plain, one fact to a sentence.
+// The wording follows RULES.md (rules 20) and the glossary (DEC-087): plain, one fact to a sentence.
 import { useState } from 'preact/hooks';
 import {
-  BASE_BUY, CHARMER_DAILY_FAVOURS, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, FAVOURS, JAM_PRICE, START_CASH, JUICE_CAP, JUICE_VALUE, LAST_CALL_BONUS,
+  BASE_BUY, CHARMER_DAILY_FAVOURS, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, FAVOURS, START_CASH, JUICE_CAP, JUICE_VALUE,
   MAX_UPGRADES, NO_MANGO_DAYS, ORDER_LEAD, TOP_UP, UPGRADES, deliveredGreen, stageAt, type FruitId,
 } from '../engine/data';
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './icons';
 import { UP_ICON } from './panel';
-import { MARKET_DAY_LIST } from './rulesText';
+import { MARKET_DAY_LIST, NO_ORDER_DAYS } from './rulesText';
 
 const GAME_PHASES = [
   ['Set-up', 'Pick a shopkeeper with one perk.'],
   ['Ordinary days', 'Five steps, then evening and night.'],
-  ['Market Days', `Days ${MARKET_DAY_LIST}: a standing order to bid for, and an upgrade to build that evening.`],
-  ['Closing Day', `The last day. Customers pay $${LAST_CALL_BONUS} more, then the jam maker buys your ripe leftovers for $${JAM_PRICE} each.`],
+  ['Market Days', `Days ${MARKET_DAY_LIST}: a standing order to bid for (if it can be collected by the last day), and an upgrade to build that evening.`],
   ['The end', 'Most cash wins.'],
 ];
 
@@ -59,7 +58,7 @@ const SLIDES = [
             <li><span class="beat-n">{k + 1}</span><div><b>{name}</b><small>{text}</small></div></li>
           ))}
         </ol>
-        <p>Upgrades are worth nothing at the end. Leftover ripe fruit earns only ${JAM_PRICE} each from the jam maker.</p>
+        <p>Upgrades are worth nothing at the end, and so is fruit left on your shelf.</p>
       </>
     ),
   },
@@ -124,14 +123,14 @@ const SLIDES = [
   },
   {
     part: 'The finish',
-    title: 'Market Days and Closing Day',
+    title: 'Market Days and the end',
     body: (
       <>
-        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. That morning a <b>standing order</b> is turned over: one big order, collected {ORDER_LEAD} days later. Each stall bids a price per piece, or passes. You see who is bidding but not their bids, and you can change yours until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back; deliver fewer and it's lost. Only the winner can fill it.</p>
+        <p>Days {MARKET_DAY_LIST} are <b>Market Days</b>. That morning a <b>standing order</b> is turned over: one big order, collected {ORDER_LEAD} days later. It comes only if it can be collected by the last day, so there is none on {NO_ORDER_DAYS}. Each stall bids a price per piece, or passes. You see who is bidding but not their bids, and you can change yours until the last stall decides. The <b>lowest bid wins</b> and puts down a <b>stake</b>. On the due day the order takes the winner's own Fresh or Okay pieces and pays the bid for each. Deliver them all and the stake comes back; deliver fewer and it's lost. Only the winner can fill it.</p>
         <p>That evening you may build <b>1 upgrade</b>. Your stall has room for {MAX_UPGRADES}.</p>
         <div class="demo-chips">{Object.values(UPGRADES).map((u) => <span class="chip"><Icon name={UP_ICON[u.id]} size={16} /> {u.title} ${u.cost}</span>)}</div>
-        <p>The last day is <b>Closing Day</b>. Customers pay ${LAST_CALL_BONUS} more. After the rush the <b>jam maker</b> buys every stall's leftover ripe fruit for ${JAM_PRICE} each. Green fruit earns nothing.</p>
-        <p><b>Most cash wins.</b> Upgrades count for nothing. If stalls tie, the one that sold more fruit wins. If that is level too, they share the win.</p>
+        <p>The last day is an ordinary day. After its rush the market closes. Fruit left on your shelf is worth nothing.</p>
+        <p><b>Most cash wins.</b> Upgrades count for nothing. If stalls tie, the one that sold more fruit wins: every piece sold to a customer, a guest, a standing order or the night hawker counts. If that is level too, they share the win.</p>
       </>
     ),
   },
@@ -156,7 +155,7 @@ export function HowTo({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
   const s = SLIDES[i];
   return (
-    <div class="page howto">
+    <div class="page howto tk-page">
       <header class="topbar"><button class="icon-btn" onClick={onDone} aria-label="Close">✕</button><div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
       <main class="scroll pad">
         <section class="panel slide" key={i}>

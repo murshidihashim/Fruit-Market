@@ -1,6 +1,6 @@
 # Fruit Market · game brief
 
-Updated 2026-11-12 22:50 (Asia/Kuala_Lumpur), rules version 18. Items marked *hypothesis* have no player evidence yet.
+Updated 2026-11-16 16:39 (Asia/Kuala_Lumpur), rules version 20. Items marked *hypothesis* have no player evidence yet.
 
 ## One line
 Run a fruit stall for 8–14 days: buy fruit before it spoils, set secret prices, and outsell your rivals.
@@ -18,13 +18,13 @@ playing online, and solo players against computer shops. Plays on Android phones
 
 Evening: build an upgrade after a Market Day and play favour cards. Night: every piece ages; some spoil.
 
-Win: the most cash after the last day (upgrades count for nothing; unsold fruit only for the jam maker's $1 per ripe piece on Closing Day). A tie on cash goes to whoever sold more fruit; if that is level too, the stalls share the win.
+Win: the most cash after the last day (upgrades and fruit left on the shelf count for nothing; rules 20 removed Closing Day and the jam maker). A tie on cash goes to whoever sold more fruit; if that is level too, the stalls share the win.
 
 ## Session
 - 2 to 6 stalls; Quick 8, Standard 10, Long 14 days.
-- Match length about 10–20 minutes (*hypothesis*; not measured with real players).
+- Game length about 10–20 minutes (*hypothesis*; not measured with real players).
 - Modes: solo versus computer (Easy, Normal, Hard), pass-and-play, online room by link,
-  quick match, daily challenge with a leaderboard, Market League ladder.
+  quick match, the Daily market with a leaderboard, Market League ladder.
 
 ## Hook (hypothesis)
 The tension of secret pricing ("undercut or hold?") plus spoilage pressure, and the reveal of each sale.
@@ -40,4 +40,4 @@ they are unless an approved plan changes them (details in `CLAUDE.md`).
 ## Unknowns to test with real players
 - Do first-time players understand why a sale was lost?
 - Do they finish their first game, and replay without being asked?
-- Match length on real phones.
+- Game length on real phones.

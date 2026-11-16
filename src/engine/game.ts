@@ -12,7 +12,7 @@
 
 import {
   BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CHARMER_DAILY_FAVOURS, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS,
-  FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, LAST_CALL_BONUS,
+  FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, FRUITS, GENEROUS_BONUS, JUICE_CAP, JUICE_TIP, JUICE_VALUE,
   LOCAL_FAVOURITE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MIN_STALLS, NEST_EGG_BONUS, PULSE_MAX, PULSE_MIN, START_CASH, STREET_PRICE,
   CHARACTER_TRAIT, TRAIT_OFFER, TRAITS, UPGRADES, BIG_TABLE, MAX_UPGRADES, ORDER_CARDS, ORDER_LEAD, ROW_CAP,
   GUEST_JOINS_FULL_ROW, NO_MANGO_DAYS, ORDER_BOOK_BONUS, SHARED_TIP, TOP_UP,
@@ -37,7 +37,8 @@ export interface GameConfig {
   upgrades: boolean;
   events: boolean;
   seed: number;
-  /** Market Days every 3rd day (+1 walk-in) and Last Call on the final day. On unless set to false. */
+  /** Market Days on days 3, 6, 9 and 12 (a standing order each). On unless set to false. Rules 20: the switch no longer
+   *  brings a Closing Day; the last day is an ordinary day whatever it says. */
   marketDays?: boolean;
   /** Core market (prototype A): no traits and no favour cards (switch upgrades off as well). */
   core?: boolean;
@@ -81,7 +82,8 @@ export interface Player extends PlayerConfig {
   upgradeOffer?: UpgradeId[];
   /**
    * Rules 18: the pieces this stall took from the market today, one count per shelf space (the shape of its shelf).
-   * Public from the moment of purchase until the bell; cleared each morning. Its older stock stays secret.
+   * Seen by every stall while it buys (DEC-107: the screen shows it only during buying); it stays in the public view,
+   * for what a computer stall remembers, until it is cleared the next morning. Its older stock stays secret.
    */
   boughtFruit?: Crate;
 }
@@ -248,8 +250,6 @@ export interface GameState {
   results: DayResult | null;
   /** Market pulse markers (advanced option). */
   pulse?: Record<FruitId, number>;
-  /** Last Call: what the jam maker paid each shop for leftover fruit. */
-  jam?: number[];
   /** One entry per finished day, for recaps. Presentation only. */
   history?: DayRecord[];
   /** Each shop's cash when the day began (for the day's net result). */
@@ -329,18 +329,18 @@ export function isDraftNight(s: GameState, day = s.day): boolean {
   return s.config.upgrades && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
 }
 
-export const isLastCall = (s: GameState, day = s.day): boolean => marketDaysOn(s) && day === s.config.days;
-
-/** Everything added to a customer's price for this fruit today: event, Last Call and (option) market pulse. */
+/** Everything added to a customer's price for this fruit today: the event and (option) the market pulse. Rules 20: the
+ *  last day adds nothing (Closing Day and its $1 are gone). */
 export function priceMod(s: GameState, f: FruitId): number {
   const e = s.event;
-  return (e?.priceAll ?? 0) + (e?.price?.[f] ?? 0) + (isLastCall(s) ? LAST_CALL_BONUS : 0) + (s.config.pulse ? s.pulse?.[f] ?? 0 : 0);
+  return (e?.priceAll ?? 0) + (e?.price?.[f] ?? 0) + (s.config.pulse ? s.pulse?.[f] ?? 0 : 0);
 }
 
 /** A customer's top price for a fresh fruit today. */
 export function effectiveMax(s: GameState, w: Want, generous?: boolean): number {
-  // An event customer's printed price is final: today's event modifiers are not added a second time (Last Call still applies).
-  if (w.fixed) return Math.max(1, w.max + (isLastCall(s) ? LAST_CALL_BONUS : 0));
+  // An event customer's printed price is final: today's event modifiers are not added a second time (rules 20: nothing
+  // is added on the last day either).
+  if (w.fixed) return Math.max(1, w.max);
   const base = s.config.street ? STREET_PRICE[w.fruit] + (generous ? GENEROUS_BONUS : 0) : w.max;
   return Math.max(1, base + priceMod(s, w.fruit));
 }
@@ -638,13 +638,7 @@ export function newGame(config: GameConfig): GameState {
     history: [],
   };
   if (config.pulse) s.pulse = Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
-  const traitIds = Object.keys(TRAITS) as TraitId[];
-  for (const pl of s.players) {
-    // Rules 5: a character card fixes the perk. Any other avatar (tests, daily challenge) still draws 3 traits to choose from.
-    const fixed = !config.core && CHARACTER_TRAIT[pl.avatar] !== undefined;
-    pl.traitOffer = config.core || fixed ? [] : r.shuffle([...traitIds]).slice(0, TRAIT_OFFER);
-    pl.trait = null;
-  }
+  const perks = dealPerks(s, r);
   s.rng = r.state;
   // Day 1's crowd: one expected customer (face up) and the walk-ins (face down).
   s.forecast = drawCustomer(s, false, 1);
@@ -652,11 +646,42 @@ export function newGame(config: GameConfig): GameState {
   startDay(s);
   // A character's perk applies at once. Otherwise computer shops pick their trait straight away; people pick on the first morning.
   s.players.forEach((pl, i) => {
-    const perk = config.core ? undefined : CHARACTER_TRAIT[pl.avatar];
+    const perk = perks[i];
     if (perk) applyTrait(s, i, perk);
     else if (pl.kind === 'ai' && pl.traitOffer?.length) applyTrait(s, i, pl.traitOffer[0]);
   });
   return s;
+}
+
+/**
+ * The perks at set-up. Rules 5: a shopkeeper brings its own perk. Rules 20 (C-01): no two stalls ever hold the same
+ * perk. A stall with no shopkeeper of its own (the person in the Daily market and the Market League, whose rivals are
+ * shopkeepers) is dealt up to TRAIT_OFFER of the perks that no other stall holds or has been offered, never so many
+ * that a stall dealt after it would get none; a computer stall is dealt one and keeps it. A second stall with the same
+ * shopkeeper (only a hand-made set-up can have one) is dealt like a stall with none. Each deal still shuffles all eight
+ * perks and leaves out the taken ones, so it draws on the seed as before rules 20. Returns each stall's own perk
+ * (undefined: none, or one to pick from its offer); sets every stall's offer.
+ */
+function dealPerks(s: GameState, r: Rng): (TraitId | undefined)[] {
+  const all = Object.keys(TRAITS) as TraitId[];
+  const taken = new Set<TraitId>();
+  const own = s.players.map((pl): TraitId | undefined => {
+    const t = s.config.core ? undefined : CHARACTER_TRAIT[pl.avatar];
+    if (t === undefined || taken.has(t)) return undefined;
+    taken.add(t);
+    return t;
+  });
+  const dealt = s.players.map((_, i) => !s.config.core && own[i] === undefined);
+  s.players.forEach((pl, i) => {
+    pl.trait = null;
+    pl.traitOffer = [];
+    if (!dealt[i]) return;
+    const free = r.shuffle([...all]).filter((t) => !taken.has(t));
+    const later = dealt.slice(i + 1).filter(Boolean).length;
+    pl.traitOffer = free.slice(0, pl.kind === 'ai' ? 1 : Math.max(1, Math.min(TRAIT_OFFER, free.length - later)));
+    for (const t of pl.traitOffer) taken.add(t);
+  });
+  return own;
 }
 
 export function canPickTrait(s: GameState, p: number, t: TraitId): string | null {
@@ -664,6 +689,8 @@ export function canPickTrait(s: GameState, p: number, t: TraitId): string | null
   if (!pl || s.phase !== 'morning' || s.day !== 1) return 'Perks are picked on the first morning';
   if (pl.trait) return 'You already have a perk';
   if (!pl.traitOffer?.includes(t)) return 'That perk is not on offer';
+  // Rules 20 (C-01): the deal never offers a perk another stall holds; this keeps it so.
+  if (s.players.some((o, i) => i !== p && o.trait === t)) return 'Another stall has that perk';
   return null;
 }
 
@@ -989,6 +1016,8 @@ function favourBlock(s: GameState, p: number, idx: number): string | null {
   if (id === 'priority' && priorityPlays(s).includes(p)) return 'You have already played Priority tonight';
   if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins left to look at';
   if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins left to look at';
+  // S9 (PLAN-110): the free piece could not land (playFavour refuses it too); the card is not offered then.
+  if (id === 'freeFruit' && count(pl.stock) >= shelfSize(pl)) return 'Your shelf is full';
   return null;
 }
 
@@ -1344,7 +1373,7 @@ function resolve(s: GameState) {
     for (const w of c.wants) {
       if (w.qty <= 0) continue;
       // Rules 18: a standing order pays its holder the bid for each piece, and $2 more with an Order Book. No event
-      // and no Closing Day changes that.
+      // changes that.
       const orderPay = c.order ? c.order.price + (s.players[c.order.holder].upgrades.includes('orderbook') ? ORDER_BOOK_BONUS : 0) : 0;
       const max = c.order ? orderPay : effectiveMax(s, w, c.generous);
       const offers: (Offer & { used: number[] })[] = [];
@@ -1385,7 +1414,7 @@ function resolve(s: GameState) {
         for (const i of sold) { pl.stock[w.fruit][i]--; crates[o.player][w.fruit][i]--; }
         left[o.player][w.fruit] -= n;
         // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well. Rules 18: only for sales to
-        // customers and guests in the rush, so not for a standing order's pieces (nor the night hawker or the jam maker).
+        // customers and guests in the rush, so not for a standing order's pieces (nor the night hawker).
         const juice = !c.order && pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
         if (juice) o.juice = juice;
         const gain = n * o.price + juice;
@@ -1508,15 +1537,7 @@ export function finishReveal(state: GameState): GameState {
   s.firstMarket = [];
   if (s.standing && s.standing.due <= s.day) s.standing = null;
   if (s.day >= s.config.days) {
-    // Last Call: the jam maker buys leftover ripe fruit.
-    if (isLastCall(s)) {
-      s.jam = s.players.map((pl) => {
-        const n = count(pl.stock, undefined, true);
-        pl.cash += n * JAM_PRICE;
-        pl.stats.earned += n * JAM_PRICE;
-        return n * JAM_PRICE;
-      });
-    }
+    // Rules 20: after the last rush the market simply closes. Fruit left on a shelf is worth nothing (no jam maker).
     s.phase = 'over';
     return s;
   }

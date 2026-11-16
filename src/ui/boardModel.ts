@@ -49,18 +49,23 @@ export function stockChips(stock: Record<FruitId, number[]>): { f: FruitId; chip
 export interface Pulse { f: FruitId; demand: number; more: boolean; supply: number }
 export type Mood = 'none' | 'open' | 'good' | 'war';
 
-/** Fruit customers want today vs ripe fruit sitting in all shops. */
+/**
+ * Fruit customers want today vs ripe fruit sitting in all shops. `more`: a walk-in still face down may want more of
+ * it. S7 (PLAN-110): read from the walk-ins' card backs, which are public and show the fruits each one wants, so a
+ * fruit on no back (mangoes on Days 1 and 2) reads "0" and not "?".
+ */
 export function pulse(s: GameState): Pulse[] {
   const before = s.phase === 'morning' || s.phase === 'buy';
   const custs: Customer[] = [...s.secondMarket, ...s.firstMarket];
   if (before && s.forecast) custs.push(s.forecast);
   const extra = before ? s.event?.extra?.wants ?? [] : [];
+  const backs = before && walkInsToday(s) > 0 ? s.queue : [];
   return FRUITS.map((f) => {
     let demand = 0;
     for (const c of custs) for (const w of c.wants) if (w.fruit === f) demand += Math.max(0, w.qty);
     for (const w of extra) if (w.fruit === f) demand += w.qty;
     const supply = s.players.reduce((a, p) => a + count(p.stock, f, true), 0);
-    return { f, demand, more: before && walkInsToday(s) > 0, supply };
+    return { f, demand, more: backs.some((c) => c.wants.some((w) => w.fruit === f)), supply };
   });
 }
 
@@ -142,14 +147,14 @@ export function todaysLorry(s: GameState): FarmerCard | null {
   return found.length === 1 ? found[0] : null;
 }
 
-/** Tomorrow is a Market Day: one more walk-in (the lorry still comes). */
+/** Tomorrow is a Market Day: a standing order may be turned over (the lorry still comes; since rules 14 no extra walk-in). */
 export function marketDayTomorrow(s: GameState): boolean {
   return s.day < s.config.days && isMarketDay(s, s.day + 1);
 }
 
 /**
  * Fruit in a shop that really spoils tonight, by the night's own rules: none after a Monsoon, one more
- * step in a Heatwave, and up to 3 pieces become juice instead with a Juice Bar (those are not counted here).
+ * step in a Heatwave, and up to JUICE_CAP (2) pieces become juice instead with a Juice Bar (those are not counted here).
  */
 export function spoilsTonight(s: GameState, p: number): number {
   return nightOutlook(s, p).spoil;

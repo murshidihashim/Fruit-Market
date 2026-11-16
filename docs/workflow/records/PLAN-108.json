@@ -18,32 +18,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 0ff8d2c (with PLAN-107): records, palette, lint, types, 972 tests passed (1 skipped, as before), build. New tests/last-day.test.ts and tests/rules20.test.ts: last-day prices equal an ordinary day's, nothing paid for leftovers, takings equal the results over 10 games at 2 to 6 stalls (S1), the trophy, the perk deal over 120 Daily dates, every League stage x 150 seeds and 600 random set-ups, and a rules-19 save refused with its notice."
     },
     {
       "id": "T2",
       "text": "npm run test:e2e passes (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "Helper run on its branch: E2E OK, 0 leaks (speed test passed on its own retry). On the merge 0ff8d2c every part passed (solo game, online match with a leaver: 0 leaks in 32 pricing frames, no page errors; quick match; four players; reconnect 5 cycles) but the speed test failed twice (239 and 207 ms over the 200 ms limit) while two helpers were installing; run alone on the quiet machine it passed (162 ms). CI runs the whole set again before 1.25.0."
     },
     {
       "id": "T3",
       "text": "The changed screens seen at 390x844 and 360x640",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "Two whole games to the results at 390x844 (4 stalls) and 360x640 (3 stalls): the last morning (\"Last day: anything unsold tonight is worth $0.\", \"Unsold = $0\"), stocking, takings (\"MARKET CLOSED\", the list equal to the results: $98/$63/$56/$51 and $122/$89/$34), results; the Daily perk choice (only perks no rival holds), the trophy card, How to play. Guidebook pages 2, 5, 6, 7, 11, the change sheet and the player aid seen. Pictures in the session scratchpad p108/."
     },
     {
       "id": "T4",
       "text": "The owner has checked the result on the preview",
       "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "evidence": "Comes with 1.25.0 on the preview."
     },
     {
       "id": "T5",
       "text": "Balance report before and after recorded in RULES.md",
-      "result": "NOT RUN",
-      "evidence": "Not run yet"
+      "result": "PASS",
+      "evidence": "RULES.md \"Rules version 20\": shopkeeper win shares and average cash before and after at 2, 3, 4 and 6 Normal stalls and 3 and 4 Hard stalls (rules 18 scripts, 2,000 to 4,000 games a side). Ah Chen at 3 Hard stalls moved -3.1 points; a second batch of 7,200 games on new seeds gave +0.4, and over both (9,600 a side) no shopkeeper moved more than 0.7 points. Average cash about $4 lower at every table. npm run balance and npm run simulate agree."
     }
   ],
   "approval": {
@@ -51,20 +51,42 @@
     "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
     "date": "2026-11-16"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "",
+  "delivery": "implemented",
+  "release": "1.25.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 0ff8d2c",
   "reports": [
-    "REP-123"
+    "REP-123",
+    "REP-124"
   ],
   "decisions": [
     "DEC-120"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "tests/last-day.test.ts and tests/rules20.test.ts",
+      "RULES.md \"Rules version 20\" (with the balance check) and a short \"Market League\" section",
+      "Print update pack print/update-20 (replaces update-19), with a note to ignore Closing Day words on old pieces"
+    ],
+    "changed": [
+      "RULES_VERSION 20 and AI_VERSION 7: computer players value leftover fruit on the last day at $0 and price to sell",
+      "The perk deal (C-01): a stall without a shopkeeper (the Daily market, the Market League) is offered only perks no other stall holds; no two stalls can hold the same perk",
+      "Trophy \"Nothing for the jam maker\": new name and description, same id and condition, counted from the shelf",
+      "fruit_unsold counts ripe pieces left on the shelf (it counted jam dollars; 0 with Market Days off); docs/ANALYTICS.md lists it and fruit_spoiled",
+      "How to play, the morning card, stocking note, shelf chip, recap, Market Days switch text, glossary, RULES.md, guidebook and player aid without Closing Day; print kit rebuilt"
+    ],
+    "fixed": [
+      "S1: on the last day the takings list now matches the results (no jam money paid after it)",
+      "C-01: a rival's perk offered in the Daily market and League; two Nest Eggs where only one worked"
+    ],
+    "removed": [
+      "Closing Day (+$1 on the last day) and the jam maker ($1 for each ripe piece left)"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "No more Closing Day or jam maker: the last day is an ordinary day, and fruit left at the end is worth nothing",
+    "In the Daily market and the League you are offered only perks no rival holds",
+    "The final takings now match the results",
+    "The jam trophy becomes \"Sold out\": sell 20 or more pieces and end with no ripe fruit; stamps already earned stay",
+    "Phones on 1.24 are asked to update before joining a room, a game saved halfway on 1.24 starts fresh, and the Daily market starts a new board"
+  ]
 }

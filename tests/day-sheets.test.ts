@@ -307,7 +307,9 @@ describe('the standing-order bid: the bids turned over (PLAN-084)', () => {
     const v = publicView(bidding, 0);
     const line = canGetLine(v, 0, v.standing!);
     expect(line).toMatch(/^Your shelf \d+ · Wholesale Market \d+( · tomorrow's lorry \d+)?$/);
-    expect(line).toContain(`Wholesale Market ${bidding.market[o.fruit].reduce((a, n) => a + n, 0)}`);
+    // S4 (PLAN-110): only pieces still Fresh or Okay on the due day count, so never more than the market holds.
+    const n = Number(/Wholesale Market (\d+)/.exec(line)![1]);
+    expect(n).toBeLessThanOrEqual(bidding.market[o.fruit].reduce((a, k) => a + k, 0));
   });
 });
 
@@ -351,7 +353,8 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
   });
 
   it('the heading is the day\'s money, and the hint names the offers further along the row', () => {
-    expect(daySoldLine(draft, 0)).toMatch(/^Sold \$\d+ · bought \$\d+ · (up|down) \$\d+ today$/);
+    // S5 (PLAN-110): a stake put down today (and any other money of the day) is named, so the numbers add up
+    expect(daySoldLine(draft, 0)).toMatch(/^Sold \$\d+ · bought \$\d+( · stake \$\d+)? · (up|down) \$\d+ today$/);
     expect(view(draft)).toContain(`<header class="ev-head"><b>Evening</b><span>${daySoldLine(draft, 0)}</span></header>`);
     const all = Object.keys(UPGRADES) as UpgradeId[];
     expect(swipeHint(all)).toBe(`Swipe for ${UPGRADES[all[2]].title} $${UPGRADES[all[2]].cost}, ${UPGRADES[all[3]].title} $${UPGRADES[all[3]].cost} and ${UPGRADES[all[4]].title} $${UPGRADES[all[4]].cost}. A stall has room for two.`);

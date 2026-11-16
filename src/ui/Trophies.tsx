@@ -218,6 +218,9 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
   const [card, setCard] = useState<CollectionPage | null>(null);
   const snap = snapshot();
   const place = placeOf(snap);
+  // S14 (PLAN-110): each page opens at its top, not where the last one was scrolled to.
+  const scroller = useRef<HTMLElement>(null);
+  useEffect(() => { if (scroller.current) scroller.current.scrollTop = 0; }, [tab]);
   return (
     <>
     <div class="sbk">
@@ -229,7 +232,7 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
       <nav class="sbk-tabs" aria-label="Trophies pages">
         {TABS.map((t) => <button type="button" class={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={() => { fx.tap(); setTab(t.id); }}>{t.title}</button>)}
       </nav>
-      <main class="sbk-scroll">
+      <main class="sbk-scroll" ref={scroller}>
         <div class="sbk-in">
           {tab === 'book' && <BookTab place={place} look={look} />}
           {tab === 'cards' && <CardsTab snap={snap} />}

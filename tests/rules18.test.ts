@@ -113,9 +113,9 @@ function dueDay(g: GameState, stock: Record<number, number[]>): GameState {
 // ---------------------------------------------------------------------------------------------------------------------
 
 describe('J. versions', () => {
-  it('rules version 19 (rules 18 and the standing-order numbers of PLAN-095), computer players version 6', () => {
-    expect(RULES_VERSION).toBe(19);
-    expect(AI_VERSION).toBe(6);
+  it('rules version 20 (rules 18, the standing-order numbers of PLAN-095 and no Closing Day), computer players version 7', () => {
+    expect(RULES_VERSION).toBe(20);
+    expect(AI_VERSION).toBe(7);
   });
 });
 
@@ -311,7 +311,7 @@ describe('B. standing orders: a stake instead of fines, and rivals are not invol
     expect(gain[0]).toBe(3 * 7 + Math.floor(o.stake / 2));
   });
 
-  it('pays no tips and no Juice Bar dollar, and no event or Closing Day changes what it pays', () => {
+  it('pays no tips and no Juice Bar dollar, and no event changes what it pays', () => {
     const f = ORDER_CARDS[structuredClone(marketDay(2)).standing!.card].fruit;
     // Kiki (Tip Jar) with a Juice Bar delivers three Okay pieces on a Festival (customers pay $1 more).
     const { gain, s } = collect(shelf(f, { [OKAY(f)]: 3 }), shelf(f, {}), (g) => { g.players[0].trait = 'favourite'; g.players[0].upgrades = ['juicebar']; });

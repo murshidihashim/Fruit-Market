@@ -1,14 +1,14 @@
 # Fruit Market · creative bible (short)
 
-Updated 2026-11-12 22:50 (Asia/Kuala_Lumpur). Sources: REP-010, REP-011, REP-101 (voice), REP-104 (cards). Status of each part is shown.
+Updated 2026-11-16 16:39 (Asia/Kuala_Lumpur). Sources: REP-010, REP-011, REP-101 (voice), REP-104 (cards), PLAN-106 (customer-type colours). Status of each part is shown.
 Creative approval never means implementation approval; changes to the game go through a PLAN.
 
 ## Identity (owner approved, DEC-017; setting and voice replaced by DEC-087)
 **A Malaysian market: a pasar with a wholesale market behind it, where a town's people come to shop.** DEC-087 (2026-11-11) replaced the earlier "sunny harbour market where the whole world comes to shop". Character lines and event names lean Malaysian (kenduri, pasar malam, kopitiam, kampung); character names stay. The mix is deliberate:
 - **Customers** are the town's people, each with a job or a hobby (a firefighter, a baker, a postman, a herbalist).
   Names and roles mix freely; no culture is tied to a role or a cliché.
-- **The look** is the Market Ticket card design (DEC-081; design A in DEC-095): ink, mustard, kraft and the four fruit colours,
-  with flat pictures built from the game's own shapes (DEC-091, DEC-094).
+- **The look** is the Market Ticket card design (DEC-081; design A in DEC-095): ink, mustard, kraft, the four fruit colours
+  and the three customer-type colours (purple Premium, teal Everyday, orange Bargain; PLAN-106), with flat pictures built from the game's own shapes (DEC-091, DEC-094).
 - **Money** is plain market dollars ($), the same for every visitor, not a real-world currency.
 - **Shopkeepers** are eight human stallholders: Rosa, Uncle Benny, Ah Chen, Saleh, Raj, Kiki, Pak Din and Farah (DEC-064 renamed Kiran and added the familiar titles),
   changed from animal traders by the owner (DEC-040, which replaces DEC-018's animal rule). Their personality shows in their lines, not in how they play (cosmetic).

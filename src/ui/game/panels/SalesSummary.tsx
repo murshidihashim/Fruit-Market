@@ -9,7 +9,7 @@ import type { Ref } from 'preact';
 import { useRef } from 'preact/hooks';
 import { FAVOURS, FRUIT, ORDER_LEAD, TRAITS, lookOf, stageAt, type FruitId, type Stage } from '../../../engine/data';
 import { count, places, ranking, servingCustomers, shelfSize, type GameState } from '../../../engine/game';
-import { dayLedger, standing, tonightLine, withJamPaid } from '../../../engine/story';
+import { dayLedger, standing, tonightLine } from '../../../engine/story';
 import { Face, Fruit } from '../../art';
 import { LANES, spoilsTonight } from '../../boardModel';
 import { ART_SIZE, CardArt } from '../../cards';
@@ -42,7 +42,7 @@ const pieces = (n: number) => `${n} piece${n === 1 ? '' : 's'}`;
 
 /** One line of the day's ledger. */
 export interface TakingsRow {
-  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'jam' | 'bought' | 'staked' | 'other';
+  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'topup' | 'bought' | 'staked' | 'fine' | 'other';
   label: string;
   /** Dollars in (above 0) or out (below 0). Null: a line with no money in it today (a stake that did not come back). */
   amount: number | null;
@@ -84,9 +84,11 @@ export function takingsRows(s: GameState, viewer: number): TakingsRow[] {
   if (ears.length) rows.push({ key: 'ears', label: `${TRAITS.earful.title} tip`, amount: earTips });
   if (jar.length) rows.push({ key: 'jar', label: `${TRAITS.favourite.title} tip${jar.length === 1 ? '' : 's'}`, amount: jarTips });
   if (hawk.length) rows.push({ key: 'hawker', label: `Night hawker · ${pieces(hawk.length)}`, amount: hawkPay });
-  if (l.jam > 0) rows.push({ key: 'jam', label: l.jamTonight ? 'Jam maker tonight' : 'Jam maker', amount: l.jam });
+  // S6 (PLAN-110): dawn's money, so "Up today" matches the morning.
+  if (l.topUp > 0) rows.push({ key: 'topup', label: 'Top-up from the Market', amount: l.topUp });
   if (l.bought > 0) rows.push({ key: 'bought', label: bought > 0 ? `Bought ${pieces(bought)} this morning` : 'Bought fruit this morning', amount: -l.bought });
   if (put > 0) rows.push({ key: 'staked', label: 'Stake on a standing order', amount: -put });
+  if (l.fine > 0) rows.push({ key: 'fine', label: 'Health Inspector fine', amount: -l.fine });
   if (rest !== 0) rows.push({ key: 'other', label: 'Other', amount: rest });
   return rows;
 }
@@ -96,15 +98,14 @@ export interface StallRow { p: number; place: number; name: string; avatar: stri
 
 /**
  * Every stall after today, first to last (stalls level on cash and fruit sold share a place). `today` is the day's
- * change in cash, and the cash is as it will stand once the jam maker has paid on the final day, so the list agrees
- * with the line under it (story.ts standing) and with "Up today". An older save without the day's starting cash
- * shows the day's sales instead.
+ * change in cash. Rules 20: nothing is paid after the last rush (no jam maker), so on the last day the list is the
+ * final result, and it agrees with the line under it (story.ts standing), with "Up today" and with the results
+ * (REP-122 S1). An older save without the day's starting cash shows the day's sales instead.
  */
 export function stallRows(s: GameState, viewer: number): StallRow[] {
-  const after = withJamPaid(s);
-  const place = places(after);
-  return ranking(after).map((p) => {
-    const pl = after.players[p];
+  const place = places(s);
+  return ranking(s).map((p) => {
+    const pl = s.players[p];
     return { p, place: place[p], name: pl.name, avatar: pl.avatar, today: dayLedger(s, p).net ?? s.results?.income[p] ?? null, cash: pl.cash, me: p === viewer };
   });
 }
@@ -202,13 +203,16 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
   const { net } = dayLedger(s, viewer);
   const crowd = rushOver(s);
   const stalls = stallRows(s, viewer);
-  const st = standing(withJamPaid(s), viewer);
+  const st = standing(s, viewer);
   const won = r.favours.filter((x) => x.player === viewer);
   // What tonight does to the shelf: fruit that spoils, and fruit a Juice Bar turns into juice. Nothing on the final
   // day, when no night follows.
-  const tonight = s.phase === 'reveal' ? tonightLine(s, viewer) : null;
+  // S8 (PLAN-110): on a phone several people share, the takings are everybody's: no one person's ledger, favour card
+  // or shelf (each person sees their own when the phone is passed to them).
+  const own = !shared;
+  const tonight = own && s.phase === 'reveal' ? tonightLine(s, viewer) : null;
   const spoil = tonight ? spoilsTonight(s, viewer) : 0;
-  const chips = s.phase === 'reveal' ? shelfTonight(s, viewer) : [];
+  const chips = own && s.phase === 'reveal' ? shelfTonight(s, viewer) : [];
   const nightEvent = s.event?.ageExtra ? s.event.title : null;
   return (
     <div class="sales-card" ref={root}>
@@ -225,7 +229,9 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
           </span>
         </div>
       )}
-      <div class="tg-led">
+      {!own && <div class="tg-led tg-shared"><div class="tg-hd"><span>Day {s.day} · the takings</span><b>{rem === 0 ? 'MARKET CLOSED' : `${rem} day${rem > 1 ? 's' : ''} to go`}</b></div>
+        <p class="tg-note">Each person sees their own takings when the phone is passed to them.</p></div>}
+      {own && <div class="tg-led">
         <div class="tg-hd"><span>Day {s.day} · your takings</span><b>{rem === 0 ? 'MARKET CLOSED' : `${rem} day${rem > 1 ? 's' : ''} to go`}</b></div>
         <div class="tg-rows ledger" aria-label="Day ledger">
           {rows.map((x) => (
@@ -236,7 +242,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
           ))}
         </div>
         {net !== null && <div class="tg-net">{net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Broke even'} <b class={net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}>{money(net)}</b></div>}
-      </div>
+      </div>}
       <div class="tg-stalls">
         <div class="tg-lab"><b class="tk-label">The stalls after Day {s.day}</b><span>Cash</span></div>
         <ol class="tg-list">
@@ -250,9 +256,9 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
             </li>
           ))}
         </ol>
-        {s.players.length > 1 && <div class={`tg-rank r${st.rank}`}>{st.text}</div>}
+        {own && s.players.length > 1 && <div class={`tg-rank r${st.rank}`}>{st.text}</div>}
       </div>
-      {won.map((x) => (
+      {own && won.map((x) => (
         <div class="tg-won">
           <b class="tg-tag">Favour won</b>
           <CardArt src={favourArt(x.favour)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus(x.favour)} />
