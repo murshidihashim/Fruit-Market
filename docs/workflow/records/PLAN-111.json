@@ -9,7 +9,8 @@
     "A shopping list: 200 wooden cubes, 10 mm, 50 each of blue, green, yellow and red; 6 dry-wipe pens",
     "Guidebook, player aid and RULES.md print-and-play part: set-up, the bell with the shutter step, what is in the box (no rule change)",
     "Print tests from the game data (parts counted, card spaces fit 63 x 88 mm, boxes fit a 10 mm cube, each lane has its fruit's boxes, crate boxes line up with shelf boxes, day track to 14)",
-    "The print-shop package rebuilt with a print order and the shopping list; the update pack and both tracker test packs retired"
+    "The print-shop package rebuilt with a print order and the shopping list; the update pack and both tracker test packs retired",
+    "Customer cards (print only): the fruit a customer wants one more of at 6 stalls is marked \"+1 at 6 stalls\" on its row. The rows print in lane order and on 14 of the 26 two-fruit cards the first fruit in the data (the one the game adds to) is not the top row, so \"the first fruit on their card\" in the printed rules pointed at the wrong fruit; the guidebook will name the mark instead"
   ],
   "exclusions": [
     "No game rule or card change; the app is unchanged",

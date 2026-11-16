@@ -4316,6 +4316,10 @@
     {
       "at": "2026-11-16 23:36",
       "text": "Owner: the board in two panels only. Left: the Wholesale Market, with today's event and tomorrow's lorry and their decks beside them for an easy flip; right: today's and tomorrow's customers; the street panel removed; favour cards, upgrades and standing orders get no space on the board. Mock-ups redrawn (left panel with the day track under the decks; right panel with the customer deck; a 150 x 95 cm table for 6 stalls) and PLAN-111 scope updated. Still awaiting his approval of the plan, the fruit pieces and the board finish."
+    },
+    {
+      "at": "2026-11-17 01:45",
+      "text": "Owner: print \"+1 at 6 stalls\" on the customer cards. Done in the print kit only (cards.tsx bigTable prop, passed by scripts/print-cards.ts; the app is unchanged because its numbers already include the extra piece): the mark sits on the row of the card's first want, which game.ts makeCustomer adds to. Found while checking: on 14 of 26 two-fruit cards that fruit prints on the second row, so the printed rule \"the first fruit on their card\" was wrong at the table for those cards. print-kit test checks one mark per card on the right row; verify PASS (1009 tests); print kit rebuilt (customer cards, combined kit, character reference) and the print-shop cards file rebuilt."
     }
   ]
 }

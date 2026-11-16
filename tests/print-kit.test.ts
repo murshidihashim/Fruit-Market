@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import { h } from 'preact';
 import {
-  CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, TRAITS, UPGRADES,
+  BIG_TABLE, CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, FAVOURS, MAX_STALLS, MIN_STALLS, ORDER_CARDS, RIVALS, TRAITS, UPGRADES,
   lookOf,
   type FavourId, type Stalls, type UpgradeId,
 } from '../src/engine/data';
@@ -69,7 +69,12 @@ describe('print kit: the decks are the game\'s (PLAN-087)', () => {
   it('draws every front with the app\'s own card, from the data', () => {
     CUSTOMER_CARDS.forEach((c, i) => {
       const card = deck('customers').cards[i];
-      expect(card.front, c.name).toBe(toStaticHtml(h(TradingCard, { who: c.name, wants: c.wants, eager: true })));
+      expect(card.front, c.name).toBe(toStaticHtml(h(TradingCard, { who: c.name, wants: c.wants, eager: true, bigTable: { fruit: c.wants[0].fruit, stalls: BIG_TABLE } })));
+      // PLAN-111: one "+1 at 6 stalls" mark, on the row of the fruit the game adds a piece to (game.ts makeCustomer: the first want)
+      const mark = `+1 at ${BIG_TABLE} stalls`;
+      expect(card.front.split(mark).length - 1, c.name).toBe(1);
+      const row = card.front.split('<li').find((li) => li.includes(mark)) ?? '';
+      expect(row, c.name).toContain(`>$${c.wants[0].max}<`);
       expect(shows(card.front, lookOf(c.name).title), c.name).toBe(true);
       for (const w of c.wants) expect(card.front, `${c.name} ${w.fruit}`).toContain(`>$${w.max}<`);
     });

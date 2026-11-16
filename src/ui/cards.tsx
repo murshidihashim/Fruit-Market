@@ -115,9 +115,12 @@ export const prefClass = (p: Pref) => `pref-${p}`;
  * A customer's card. `who` is the hidden code key; the name shown is lookOf(who).title. `wants` are the rows to print,
  * with the prices to show (pass the day's prices if the screen shows those); they are drawn in the board's lane order.
  * `guest`: a special guest (an event's customer), who has no number and borrows its event's picture.
+ * `bigTable`: the printed card only (PLAN-111): the fruit that gets one more piece at a full table is marked "+1 at
+ * N stalls" on its own row, since the rows print in lane order and the card's first fruit is not always the top row.
+ * The app never passes it: on screen the number already includes the extra piece.
  */
-export function TradingCard({ who, wants, n, guest, eager, class: cls }: {
-  who: string; wants: CardLine[]; n?: number; guest?: boolean; eager?: boolean; class?: string;
+export function TradingCard({ who, wants, n, guest, eager, bigTable, class: cls }: {
+  who: string; wants: CardLine[]; n?: number; guest?: boolean; eager?: boolean; bigTable?: { fruit: FruitId; stalls: number }; class?: string;
 }) {
   const look = lookOf(who);
   const pref = prefOf(who);
@@ -139,6 +142,7 @@ export function TradingCard({ who, wants, n, guest, eager, class: cls }: {
           <li class={cx(laneClass(x.fruit), x.done && 'done')}>
             <FruitSvg id={x.fruit} size={22} alt={FRUIT[x.fruit].name} />
             <Dots n={x.qty} label={piecesOf(x.qty, x.fruit)} />
+            {bigTable?.fruit === x.fruit && <i class="cd-plus">{`+1 at ${bigTable.stalls} stalls`}</i>}
             <b class="cd-tag">{`$${x.max}`}</b>
           </li>
         ))}

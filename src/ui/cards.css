@@ -76,6 +76,8 @@
   flex: none; margin-left: auto; padding: calc(var(--u) * 5) calc(var(--u) * 8) calc(var(--u) * 5) calc(var(--u) * 15); background: var(--x-ink); color: var(--x-mustard);
   font: 400 calc(var(--u) * 15) / 1 var(--f-display); clip-path: polygon(calc(var(--u) * 9) 0, 100% 0, 100% 100%, calc(var(--u) * 9) 100%, 0 50%);
 }
+/* PLAN-111, print only: the fruit a customer wants one more of at a full table */
+.cd-plus { flex: none; padding: calc(var(--u) * 2) calc(var(--u) * 4); border: calc(var(--u) * 1.5) solid var(--x-ink); font: 800 calc(var(--u) * 9) / 1 var(--f-label); font-style: normal; letter-spacing: 0.02em; white-space: nowrap; }
 /* a fruit this customer has already bought today */
 .cd-rows li.done > * { opacity: 0.35; }
 .cd-rows li.done::after { content: '✓'; flex: none; font: 800 calc(var(--u) * 14) / 1 var(--f-label); color: var(--x-green); }
