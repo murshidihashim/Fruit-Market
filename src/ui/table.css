@@ -316,3 +316,41 @@
   #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 34px; }
   #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street .tkc-pc { display: block; }
 }
+
+/* ---------- S12 and S13 (PLAN-110): short and narrow phones ----------
+   Where the table is taller than the screen (a 320 x 568 phone: 785 px of table), the top bar (day, cash, today's
+   event and the day's steps) and the bottom bar (the main button) stay in place and the table moves between them. On a
+   screen the table fits, nothing moves. */
+#app .game.tkt > .tk-top { position: sticky; top: 0; }
+#app .game.tkt > .actionbar, #app .game.tkt > .centre > .pp-lock { position: sticky; bottom: 0; }
+/* a lane's heading keeps its number whole: a little tighter on a phone ("2+ wanted" was cut at 390 px), and the word
+   "wanted" is left out where the lane is narrower still (the heading's own words for a screen reader keep it) */
+@media (max-width: 419px) {
+  #app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh { gap: 3px; padding: 0 3px; letter-spacing: 0.02em; }
+}
+@media (max-width: 379px) {
+  #app .tkt .tb-lh .tb-lh-w { display: none; }
+  #app .tkt .tb-lh { justify-content: center; }
+  #app .tkt .tk-side-w { display: none; }
+}
+/* beside a price chip ("+$1 each today") the market's label keeps "Your turn · 0 of 4" whole */
+#app .tkt .tb-mk-head:has(.tk-chip) .tk-side-w { display: none; }
+/* the evening's warning beside the market's label ("Heatwave: all fruit ages 2 steps tonight.") takes two lines
+   rather than being cut */
+#app .tkt .tb-mk-head:has(> .tk-side.warn, > .tk-side.good) { height: auto; min-height: 16px; }
+#app .tkt .tb-mk-head > .tk-side:is(.warn, .good) { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.15; }
+/* pricing: a fruit's line ("4 wanted · best price $6, so $5 for Okay") takes two lines rather than being cut */
+#app .tkt .rt-sheet .ps-info > span { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+/* the narrowest phones: a box's letter, piece, count and price no longer run into each other */
+@media (max-width: 339px) {
+  #app .tkt .tb-box, #app .tkt .tk-night.tb-night .tb-box { gap: 1px; padding: 0 2px; }
+  #app .tkt .tb-box .tk-lamp { width: 12px; height: 12px; font-size: 0.5rem; }
+  #app .tkt .tb-tkn { width: 18px; height: 18px; }
+  #app .tkt .tb-box .tb-tkn .x-fruit { width: 13px; height: 13px; }
+  #app .tkt .tb-n { font-size: 0.6875rem; }
+  #app .tkt .tb-box .price { font-size: 0.625rem; margin-left: auto; }
+  /* the day's steps share the bar by the length of their words ("3 Stocking" was cut) */
+  #app .tkt .tk-beats li { flex: 1 1 auto; padding: 0 2px; font-size: 0.6rem; letter-spacing: 0; }
+  /* five or six stalls: a smaller face, so the cash beside it is whole */
+  #app .tkt .tb-stall.compact .tk-swatch.tb-face { --s: 16px; }
+}

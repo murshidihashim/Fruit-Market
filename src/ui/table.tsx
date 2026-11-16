@@ -71,7 +71,7 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
             <button type="button" class="pz tk-lane-head tb-lh" data-a={`mk-${f}`} disabled={!onPulse} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
               aria-label={`${FRUIT[f].plural}: ${want} wanted today`}>
               <i class="tb-lh-ico"><Fruit id={f} size={14} /></i>
-              <span>{want} wanted</span>
+              <span>{want}<span class="tb-lh-w"> wanted</span></span>
             </button>
             {shownColumn(view, f).map(({ pos, stage, n }) => {
               const ok = !night && !!onPick && n > 0 && (!canPick || canPick(f, pos));
@@ -124,7 +124,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   const buyer = s.phase === 'buy' ? s.players[s.order[s.turn]] : null;
   const me = s.players[p];
   // PLAN-104: not while the First token is on its way (it would give away where it lands).
-  const turn = !buyer || tokenOnItsWay() ? '' : s.order[s.turn] === p ? `Your turn · ${shownBoughtCount(p, me.boughtToday)} of ${buyLimit(me)} bought` : '';
+  // S13 (PLAN-110): on a narrow phone, or beside a price chip, "bought" is left out (the Done button says the rest).
+  const turn = !buyer || tokenOnItsWay() ? null : s.order[s.turn] === p ? <>Your turn · {shownBoughtCount(p, me.boughtToday)} of {buyLimit(me)}<span class="tk-side-w"> bought</span></> : null;
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">

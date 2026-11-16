@@ -127,6 +127,8 @@ export function Online({ initialCode, typed, quick, onExit }: { initialCode?: st
   };
 
   const exit = () => {
+    // ON-08: said before Home is drawn, so its "Back to room" ticket is there at once.
+    if (client?.view?.status === 'playing' && !client.view.seats[client.view.you]?.left) rememberMatch(client.code);
     client?.stop();
     try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
     onExit();

@@ -53,7 +53,8 @@ describe('the lanes (table.tsx Market)', () => {
     const lanes = html.split('class="tk-lane tb-lane ').slice(1);
     expect(lanes.map((l) => l.split('"')[0])).toEqual(['blueberry', 'watermelon', 'mango', 'apple']);
     expect(lanes.map((l) => (l.match(/class="mk-cell /g) ?? []).length)).toEqual([3, 4, 5, 6]);
-    for (const l of lanes) expect(l).toMatch(/>[0-9?]+\+? wanted</);
+    // S12 (PLAN-110): the word "wanted" has its own span, left out on a narrow phone so the number is never cut
+    for (const l of lanes) expect(l).toMatch(/>[0-9?]+\+?<span class="tb-lh-w"> wanted<\/span></);
     // an empty box is still drawn, and is not a box to buy from
     expect(html).toMatch(/class="mk-cell tk-box tb-box st-\w+\s+"/);
   });

@@ -202,6 +202,7 @@
 #app .home.hm :is(.hm-ln.f-watermelon, .hm-ln.f-apple) {
   text-shadow: -1px -1px 0 var(--x-ink), 1px -1px 0 var(--x-ink), -1px 1px 0 var(--x-ink), 1px 1px 0 var(--x-ink);
 }
-#app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n).nil { text-shadow: none; }
+/* (a lorry's row for this table is ink on paper, and a number of nothing is faint on purpose: no outline on either) */
+#app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n):is(.nil, .on) { text-shadow: none; }
 #app .home.hm .hm-chip, #app .host-tag, #app .ready-tag.yes, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
 
