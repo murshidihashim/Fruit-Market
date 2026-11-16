@@ -12,6 +12,8 @@ import { partsOf, stallOf, type LookSet } from '../net/looks';
 import { chosenColour, shownAvatar } from './looks';
 import { Face, Fruit } from './art';
 import { FavourChip } from './phoneCards';
+import { PayBadge } from './cards';
+import { marketChips } from './eventChips';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
@@ -130,7 +132,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
       <div class="tk-label-row tb-mk-head">
         <b class="tk-label" data-a="truck">Wholesale Market</b>
         {lorry !== undefined && <Lorry here={lorry} />}
-        {!!s.event?.cost && <span class={`tk-chip ${s.event.cost > 0 ? 'warn' : 'good'}`}>{s.event.cost > 0 ? '+' : '−'}${Math.abs(s.event.cost)} each today</span>}
+        {/* today's price changes here, with the event card's badge for a price at the Wholesale Market (REP-122 S20, C-08) */}
+        {marketChips(s.event).map((c) => <span class={`tk-chip ${c.up ? 'warn' : 'good'}`}><PayBadge pay="market" />{c.text}</span>)}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
         {turn ? <span class="tk-side">{turn}</span> : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
       </div>
