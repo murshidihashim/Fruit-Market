@@ -21,6 +21,10 @@
 //   everyone chooses at the same time (first to ask gets one), then confirms; once every person has confirmed, the
 //   computers take shopkeepers from those left and the match begins. A seat that is away past the grace period, or
 //   leaves, is given a free shopkeeper and counts as confirmed. Quick matches skip this step.
+// - PLAN-107: a private lobby frees a seat whose person has been away for the grace period (a quick lobby frees it at
+//   once). After a match, a rematch waits only for the people still connected; a seat whose person has gone is played
+//   by the computer in the rematch, and its person can take it back with their seat token as in any match. On a
+//   buying turn, Undo takes back purchases only: a favour card once played stays played (DEC-120).
 
 import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
@@ -69,7 +73,8 @@ export interface RoomData {
   aiNames: { name: string; avatar: string; quip: string }[];
   /** A quick-match room: strangers are seated ready and the match starts as soon as two are in. */
   quick?: boolean;
-  /** The state a person's buying turn began in, so they can take their purchases back (never sent to anyone). */
+  /** The state a person's buying turn began in, or just after the last favour card they played on it (DEC-120), so
+   *  they can take their purchases back (never sent to anyone). */
   undo?: { seat: number; day: number; game: GameState };
   /** The latest take-back, shown to everyone as a message. */
   lastUndo?: { seat: number; n: number };
@@ -98,9 +103,22 @@ export interface RoomIO {
 
 export function freshRoom(code: string, now: number, quick = false): RoomData {
   return {
-    code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG, upgrades: !quick }, // quick matches skip upgrades: 2-player games with them are the most lopsided (REP-086)
+    // Every room starts with the default settings. A quick match keeps upgrades (DEC-120, 2026-11-16, the owner's
+    // choice): it always played with them, as its settings are the defaults when the match starts (see hello).
+    code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG },
     game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
   };
+}
+
+/**
+ * PLAN-107 (ON-03): what a phone is told when its room code leads to no room. A phone that brings a seat token for
+ * this code was in the room, which has since closed (rooms close after a day with nobody in them); any other was given
+ * a wrong or old code. Sent as a fatal error, which every app since the first online version shows and stops on.
+ */
+export function roomGoneMsg(hello: string): string {
+  let token: unknown;
+  try { token = (JSON.parse(hello) as { token?: unknown }).token; } catch { /* not a hello: the plain message */ }
+  return typeof token === 'string' && token ? 'That room has closed.' : 'That room doesn\'t exist or has closed. Check the code.';
 }
 
 /** Stands in for a rival's favour card: only the number of cards is public. */
@@ -183,16 +201,17 @@ export class Room {
     await this.io.persist(this.d);
   }
 
-  /** A connection went away. In a match the seat starts its grace period; in a quick lobby it's freed. */
+  /** A connection went away. In a match, while shopkeepers are chosen and (PLAN-107) in a private lobby the seat starts
+   *  its grace period; in a quick lobby it's freed. After a match, the rematch may now have everyone still here. */
   async closed(conn: Conn): Promise<void> {
     const d = this.d;
     const seat = conn.seat;
-    if (seat !== null && seat < d.seats.length && !this.online().has(seat)) {
-      if ((d.status === 'playing' || d.status === 'picking') && d.seats[seat].offlineSince === undefined) d.seats[seat].offlineSince = this.io.now();
-      if (d.status === 'lobby' && d.quick) this.removeSeat(seat);
-    }
+    const gone = seat !== null && seat < d.seats.length && !this.online().has(seat);
+    if (gone && d.status === 'lobby' && d.quick) this.removeSeat(seat);
+    else if (gone && d.status !== 'finished' && d.seats[seat].offlineSince === undefined) d.seats[seat].offlineSince = this.io.now();
+    if (gone && d.status === 'finished' && d.rematch.length) this.tryRematch();
+    else this.broadcast();
     this.schedule();
-    this.broadcast();
     await this.io.persist(d);
   }
 
@@ -203,6 +222,7 @@ export class Room {
       return;
     }
     this.takeOverDropped();
+    this.freeLobbySeats();
     this.schedule();
     await this.io.persist(this.d);
   }
@@ -211,10 +231,25 @@ export class Room {
   private schedule() {
     const d = this.d;
     let at = d.lastActive + ROOM_TTL_MS;
-    if (d.status === 'playing' || d.status === 'picking') {
+    if (d.status === 'playing' || d.status === 'picking' || (d.status === 'lobby' && !d.quick)) {
       for (const x of d.seats) if (x.offlineSince !== undefined && !x.bot) at = Math.min(at, x.offlineSince + GRACE_MS);
     }
     this.io.setAlarm(at);
+  }
+
+  /** PLAN-107 (ON-05): a private lobby seat whose person has been away for the grace period is freed, as a quick lobby
+   *  frees one at once, so a closed tab never holds the room up. The host's tag passes on if it was theirs. */
+  private freeLobbySeats() {
+    const d = this.d;
+    if (d.status !== 'lobby' || d.quick) return;
+    const now = this.io.now();
+    const online = this.online();
+    let freed = false;
+    for (let i = d.seats.length - 1; i >= 0; i--) {
+      const x = d.seats[i];
+      if (x.offlineSince !== undefined && !online.has(i) && now - x.offlineSince >= GRACE_MS) { this.removeSeat(i); freed = true; }
+    }
+    if (freed) this.broadcast();
   }
 
   private online(): Set<number> {
@@ -388,9 +423,7 @@ export class Room {
       case 'rematch': {
         if (d.status !== 'finished') return;
         if (!d.rematch.includes(seat)) d.rematch.push(seat);
-        if (this.needed().every((i) => d.rematch.includes(i))) this.newMatch();
-        else this.broadcast();
-        return;
+        return this.tryRematch();
       }
       case 'continue': {
         const g = d.game;
@@ -431,6 +464,23 @@ export class Room {
   }
 
   // ---------- the match ----------
+
+  /** PLAN-107 (ON-04, the backlog's B-01 item 3): the rematch starts once every person still connected has asked for
+   *  it. A seat whose person has gone (Home, or the app closed) is played by the computer from the start, and its person
+   *  can take it back with their seat token. Nobody here: nothing starts. */
+  private tryRematch() {
+    const d = this.d;
+    const online = this.online();
+    const here = this.needed().filter((i) => online.has(i));
+    if (!here.length || !here.every((i) => d.rematch.includes(i))) return this.broadcast();
+    const now = this.io.now();
+    d.seats.forEach((x, i) => {
+      if (online.has(i) || x.bot) return;
+      x.bot = true;
+      x.offlineSince ??= now;
+    });
+    this.newMatch();
+  }
 
   private newMatch() {
     const d = this.d;
@@ -515,6 +565,11 @@ export class Room {
     if (m.v !== d.version && !sameEvening) throw new RuleError('The game moved on. Try again.');
     this.markTurnStart(g, seat);
     const next = applyAction(g, seat, a); // throws RuleError if illegal (wrong turn, no cash, etc.)
+    // S3 (DEC-120): a favour card played on a buying turn stays played. Undo now goes back to just after it, so the
+    // card, and what it showed (Scout), can never be taken back; purchases made before it stay too.
+    if (a.kind === 'favour' && g.phase === 'buy' && next.phase === 'buy' && activePlayer(next) === seat) {
+      this.d.undo = { seat, day: g.day, game: JSON.parse(JSON.stringify(next)) };
+    }
     this.remember(seat, m.id);
     conn.send({ t: 'ack', id: m.id });
     this.commit(next);
@@ -528,7 +583,8 @@ export class Room {
     this.d.undo = { seat, day: g.day, game: JSON.parse(JSON.stringify(g)) };
   }
 
-  /** Design 1 (PLAN-023): the server puts the active player back to where their own buying turn began. */
+  /** Design 1 (PLAN-023): the server puts the active player back to where their own buying turn began, or (DEC-120) to
+   *  just after the last favour card they played on it. */
   private undo(conn: Conn, seat: number, m: Extract<ClientMsg, { t: 'undo' }>) {
     const d = this.d;
     const g = d.game;
