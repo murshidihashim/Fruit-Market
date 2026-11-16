@@ -5,7 +5,7 @@
   "scope": [
     "The last day is an ordinary day: customers pay no extra $1, and fruit left at the end is worth nothing",
     "The jam maker, Closing Day and \"Last Call\" leave the engine, the computer players, the screens, How to play, the tips, RULES.md and the guidebook; the Market Days switch no longer brings a Closing Day",
-    "The trophy \"Nothing for the jam maker\" is renamed (same condition: sell 20 or more pieces and end with no ripe fruit), and stamps already earned are kept",
+    "The trophy \"Nothing for the jam maker\" is renamed \"Sold out\" (same condition: sell 20 or more pieces and end with no ripe fruit), and stamps already earned are kept",
     "C-01: the Daily market and the League deal only perks no rival holds",
     "RULES_VERSION 19 to 20 (a game saved mid-way on 1.24.0 cannot be continued, as with every rules change; the Daily leaderboard starts a new board)",
     "S1 (the last day's places leave out the jam money) goes away with the jam maker",
@@ -47,11 +47,11 @@
     }
   ],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+    "date": "2026-11-16"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "",
   "reports": [

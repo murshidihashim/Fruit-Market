@@ -2966,11 +2966,11 @@
       "cost": "RM0",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval",
-        "evidence": "Choices and request received; the plan (REP-123) awaits the owner's word.",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+        "date": "2026-11-16"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "reports": [
         "REP-123"
       ],
@@ -4241,6 +4241,10 @@
     {
       "at": "2026-11-16 12:15",
       "text": "The owner said \"choices done\" and \"remove closing day completely from the game, there's no jam maker\". His 53 saved choices read from the REP-122 page: Fix on 50, No on C-17, S1 cleared, S11 note \"remove the switch\", C-15 not chosen; options S3 favour card stays played, ON-01 keep upgrades in quick match (rules text changes), C-01 only perks no rival holds. DEC-120 and PLAN-107 to PLAN-110 proposed in REP-123, awaiting his approval; Closing Day removal is a rules change (rules 20)."
+    },
+    {
+      "at": "2026-11-16 12:21",
+      "text": "DEC-120 approved: the owner said \"okay approve\" to REP-123. PLAN-107 (Major) and PLAN-108 (rules 20) start side by side with helpers; PLAN-109 and PLAN-110 follow. Trophy \"Nothing for the jam maker\" becomes \"Sold out\" and the Major fixes go out first as 1.24.1 (REP-123 recommendations, approved with the plan); publishing each release still needs the owner's word."
     }
   ]
 }
