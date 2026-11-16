@@ -2973,7 +2973,8 @@
       "delivery": "in progress",
       "reports": [
         "REP-123",
-        "REP-124"
+        "REP-124",
+        "REP-127"
       ],
       "reviewTrigger": "If the balance check moves a shopkeeper more than 3 points, or the owner changes a choice"
     },
@@ -4328,6 +4329,10 @@
     {
       "at": "2026-11-17 02:28",
       "text": "PLAN-111 implemented: bid cards and token sheet added; the guidebook (12 pages), player aid and RULES.md describe the new table (written prices, shutter step, crate count, bid card); the update pack and tracker tests retired; tests/print-table.test.ts added; verify PASS (1018 tests); every new page seen. Print-shop package rebuilt (cards, player aid, board, stall sheets, counters, shutters, bid cards and tokens, guidebook, print order, 3D STL files). The owner's table test and a full printed game NOT RUN. The fruit style (A, B or C, or wooden cubes) is still the owner's choice; every box fits pieces up to about 13 mm."
+    },
+    {
+      "at": "2026-11-17 05:19",
+      "text": "Owner: \"can u combine 1.24.1 and 1.25.0 and push it to preview\". 1.24.1 was never published (the live game is 1.24.0), so its candidate is withdrawn and PLAN-107 joins PLAN-108 to PLAN-111 in release candidate 1.25.0 (rules version 20, protocol 4). The PLAN-108 player note about the trophy now names it as built (\"Sold out\"); the name clash with the level-10 stamp is still the owner's to settle. Pull request to main for the preview (REP-127); publishing still needs the owner's word."
     }
   ]
 }

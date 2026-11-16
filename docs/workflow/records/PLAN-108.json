@@ -52,7 +52,7 @@
     "date": "2026-11-16"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.25.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 0ff8d2c",
   "reports": [
     "REP-123",
@@ -86,7 +86,7 @@
     "No more Closing Day or jam maker: the last day is an ordinary day, and fruit left at the end is worth nothing",
     "In the Daily market and the League you are offered only perks no rival holds",
     "The final takings now match the results",
-    "The trophy for ending with no ripe fruit has a new name; stamps already earned stay",
+    "The jam trophy becomes \"Sold out\": sell 20 or more pieces and end with no ripe fruit; stamps already earned stay",
     "Phones on 1.24 are asked to update before joining a room, a game saved halfway on 1.24 starts fresh, and the Daily market starts a new board"
   ]
 }

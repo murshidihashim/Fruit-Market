@@ -1,10 +1,10 @@
 # Current state · Fruit Market
 
-Updated 2026-11-16 20:51 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-17 05:19 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.24.0, rules version 19, protocol 4 (`3aed6c7`, tagged `v1.24.0`, published 2026-11-16 07:54; DEC-119, REP-121): shopkeepers chosen after everyone joins a room (PLAN-102), first-time How to play popup online (PLAN-103), seat numbers and the FIRST token (PLAN-104), iPhone price-tag fix (PLAN-105), new card look in app and print (PLAN-106), print pack at rules 19 (PLAN-100). The preview is the same build.
-- **Preview:** 1.24.1 (main e1cccbd, pull request #20, CI PASS, updated 15:09). Live is still 1.24.0. Main must stay 1.24.1 until it is published: open no other pull request to main before then (the live deploy builds main).
+- **Preview:** 1.25.0 candidate (PLAN-107 to PLAN-111, rules 20; 1.24.1 folded in, never published; REP-127), going to main by pull request. Live is still 1.24.0. Publishing needs the owner's word.
 - **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus PLAN-108 (merge 0ff8d2c, rules 20) PLAN-109 (merge 4bb18df) and PLAN-110 (merge b61d386). This is the 1.25.0 content.
 - **In progress (DEC-120, REP-123 approved "okay approve"):**
   - PLAN-107 (Major fixes): implemented; 1.24.1 on the preview. Waits for the owner on the preview, then his word to publish (then mark the release published and tag via the deploy).

@@ -55,7 +55,7 @@
     "date": "2026-11-16"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.25.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-125",
@@ -81,5 +81,7 @@
       "print/update-20 (the update pack for the earlier printing) and print/tracker-test (the freshness tracker tests)"
     ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Print and play: a new printable board, stall sheets, shutters, counters and tokens, and customer cards that mark the \"+1 at 6 stalls\" fruit"
+  ]
 }

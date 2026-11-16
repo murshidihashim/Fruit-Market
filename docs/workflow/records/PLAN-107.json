@@ -54,7 +54,7 @@
     "date": "2026-11-16"
   },
   "delivery": "implemented",
-  "release": "1.24.1",
+  "release": "1.25.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 68864cd",
   "reports": [
     "REP-123",
