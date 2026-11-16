@@ -1,4 +1,4 @@
-// The tabletop print kit (PLAN-087; rules version 20, PLAN-108): every deck of cards in the approved card design, each with its
+// The tabletop print kit (PLAN-087; rules version 20, PLAN-108; the 1.24.0 review's print fixes, PLAN-109): every deck of cards in the approved card design, each with its
 // back, plus the player aid and the character reference. The cards are the app's own (scripts/print-cards.ts draws them
 // with src/ui/cards.tsx from the game data), so the printed cards and the app always show the same names, numbers and art.
 //   npx vite-node scripts/print-deck.ts [outdir]     (normally: print/kit)
@@ -162,7 +162,7 @@ function playerAid(): Page {
     beat('3', 'Stocking', 'Today’s walk-ins turn face up. Secretly move the pieces you will sell into your <b>crate</b>. Then say how many pieces are in it, not which fruit. Only pieces in your crate can sell.'),
     beat('4', 'The bell', 'Secretly set <b>one price per fruit</b> in your crate. Then everyone shows prices and crates together. No lower limit. A stall with a tied price may then play Favoured Trade.'),
     beat('5', 'The rush', 'A standing order collected today goes first, then the row left to right. Each fruit goes to the <b>cheapest stall</b> with fruit fresh enough for its price; what is still wanted goes to the next stall. Serve a customer’s whole remaining order by yourself and <b>draw a favour card</b> (one a day at most).'),
-    beat('+', 'Evening & night', `Play evening favours (Priority, Gossip). On the evening after each Market Day (days ${list(MARKET_DAYS)}) build <b>one</b> stall upgrade. At night all fruit ages one step; spoiled fruit is thrown away.`, 'night'),
+    beat('+', 'Evening & night', `Play evening favour cards (Priority, Gossip). On the evening after each Market Day (days ${list(MARKET_DAYS)}) build <b>one</b> stall upgrade. At night all fruit ages one step; spoiled fruit is thrown away.`, 'night'),
   ];
   const ladder = [
     ['Above the top', '<span class="none">Nothing sells</span> <span>(a Premium Display may go $1 over for fresh fruit, never for a guest)</span>', ''],
@@ -177,13 +177,13 @@ function playerAid(): Page {
       + `<p class="pk-key"><b>Event cards:</b>${toStaticHtml(h(PayBadge, { pay: 'market' }))}<span>${esc(lower(PAY_WORD.market))}</span><span class="sep">·</span>${toStaticHtml(h(PayBadge, { pay: 'customer' }))}<span>${esc(lower(PAY_WORD.customer))}</span></p></div>`
       + `<div class="pk-beats">${beats.join('')}</div>`
       + `<section class="pk-crier"><header><b>The crier’s price rule</b><span>Read each customer line aloud</span></header>`
-      + `<p>The crier (the player who bought last that morning) pays the stalls from the bank. For each customer line, say the real <b>top price</b> for the day: the card price plus any event or Fixed-prices change. Then which fruit qualifies at each price:</p>`
+      + `<p>The crier (the player who bought last that morning) reads each customer aloud and pays nobody: each stall adds its own price to its own cash track. For each customer line, say the real <b>top price</b> for the day: the card price plus any event or Fixed-prices change (a guest’s price is fixed). Then which fruit qualifies at each price:</p>`
       + `<div class="pk-ladder">${ladder}</div>`
-      + `<p>The <b>cheapest</b> posted price sells first, and each stall hands over its <b>oldest piece that still qualifies</b>. On a tie, the stall whose freshest handed-over piece is younger sells first.</p></section>`
+      + `<p>The <b>cheapest</b> price sells first, and each stall hands over its <b>oldest piece that still qualifies</b>. On a tie, the stall whose freshest handed-over piece is younger sells first.</p></section>`
       + `<div class="pk-boxes">`
       + `<div class="pk-box"><h4>Freshness types</h4><p><b>Premium:</b> ${esc(PREF_INFO.premium.short)}. <b>Everyday:</b> ${esc(PREF_INFO.everyday.short)}. <b>Bargain:</b> ${esc(PREF_INFO.bargain.short)}. A stall cannot sell fruit a customer will not take.</p></div>`
       + `<div class="pk-box"><h4>Ties at the bell</h4><p>Favoured Trade, then fresher fruit (the younger handed-over piece), then the Haggler, then whoever bought earlier today.</p></div>`
-      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): a standing order in the morning and an upgrade that evening. <b>The last day</b> is an ordinary day: fruit left at the end is worth nothing. Guests’ prices are fixed: nothing is added to them.</p></div>`
+      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): a standing order, if it can be collected in time, and an upgrade that evening. <b>The last day</b> is an ordinary day; leftover fruit is worth nothing. <b>Most cash wins</b>; a tie goes to more fruit sold.</p></div>`
       + `</div><p class="pk-small">Full rules: RULES.md. Every number on this page comes from the game data.</p></section>`,
   };
 }
@@ -213,7 +213,7 @@ function coverPage(): Page {
       + `<p class="lede">Every card of the tabletop game, in the same design as the app: ${cards} cards in ${DECKS.length} decks, each with its back, for up to ${MAX_STALLS} stalls. Names, numbers and prices come from the game data (rules version ${RULES_VERSION}), so the cards match the app.</p>`
       + `<table class="pk-toc"><thead><tr><th>Part</th><th>What it is</th><th>Pages</th></tr></thead><tbody>${rows}</tbody></table>`
       + `<div class="pk-boxes"><div class="pk-box"><h4>Printing at home</h4><ul><li>A4 card (250 to 300 gsm), 100% or “actual size”, background graphics on.</li><li>Double-sided, flip on the long edge: each fronts page is followed by its backs, mirrored to line up. The ${cards} cards take ${sheetCount} sheets.</li><li>Cut on the dashed lines. Cards are ${CARD_W} × ${CARD_H} mm (poker size).</li><li>Each dot on a customer card is one piece that customer wants.</li></ul></div>`
-      + `<div class="pk-box"><h4>Not in this file</h4><ul><li>The rules guidebook, the stall sheets and the counters with the cash track: the update pack (print/update-${RULES_VERSION}).</li><li>The two freshness trackers on test: print/tracker-test.</li><li>The market board, shutters, fruit pieces, price tags and markers: from the earlier printing.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
+      + `<div class="pk-box"><h4>Not in this file</h4><ul><li>The rules guidebook, the stall sheets and the counters with the cash track: the update pack (print/update-${RULES_VERSION}).</li><li>The two freshness trackers on test: print/tracker-test.</li><li><b>Not printed here at all:</b> the market board and the six shutters. They come from the earlier printing and are not in this repository, nor are the fruit pieces, price tags, markers, chips and tokens.</li><li>Factory files are RGB; the printer converts to CMYK.</li></ul></div></div></section>`,
   };
 }
 
