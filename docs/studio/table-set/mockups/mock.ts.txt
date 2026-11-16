@@ -204,7 +204,7 @@ ${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span cla
 <div class="main"><div class="lanes">${LANES.map(lane).join('')}</div>
 <div class="side"><div class="slot card"><b>Today's lorry</b><span>Unload it into the ▼ LORRY boxes</span></div><div class="slot card"><b>Tomorrow's lorry</b><span>Face up</span></div>
 <div class="down" style="text-align:left">The Seconds Lorry unloads into the freshest O box instead.</div></div></div>
-<div class="foot">Fruit Market · board 1 of 3 · the Wholesale Market · A3 landscape · mock-up for review (PLAN-111)</div>`;
+<div class="foot">Fruit Market · board 2 of 3 · the Wholesale Market · lies in the middle: the customers on its left, the street on its right · A3 landscape · mock-up for review (PLAN-111)</div>`;
   save('4-board-market', page(420, 297, body, extra));
 }
 
@@ -232,10 +232,10 @@ ${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span cla
   const slot = (title: string, sub = '', more = '') => `<div class="slot card"><b>${title}</b>${more}${sub ? `<small>${sub}</small>` : ''}</div>`;
   const body = `<div class="bar top"><span class="disp">THE STREET</span><span class="lab y" style="flex:1">Day track, the decks and the upgrade piles</span></div>
 <div class="track">${days.map((d) => `<span class="${market(d) ? 'md' : ''} ${end[d] ? 'end' : ''}"><b>${d}</b>${market(d) ? '<i>Market Day</i>' : ''}${end[d] ? `<i>${end[d]}</i>` : ''}</span>`).join('')}</div>
-<div class="row">${slot('Event deck', 'Face down. From Day 2, turn one over each morning')}${slot("Today's event", 'Face up until night')}${slot('Lorry deck', 'Face down')}${slot('Customer deck', 'Face down. Regulars face up, walk-ins face down')}${slot('Favour deck', 'Face down')}${slot('Standing orders', 'Market Day: turn one over to bid for')}</div>
+<div class="row">${slot('Lorry deck', 'Face down. Beside the market\'s lorry spaces')}${slot('Event deck', 'Face down. From Day 2, turn one over each morning')}${slot("Today's event", 'Face up until night')}${slot('Favour deck', 'Shuffled, face down. Draw from the top: nobody knows what comes')}${slot('Played favours', 'Shuffled again when the favour deck runs out')}${slot('Standing orders', 'Face down. Market Day: turn one over to bid for')}</div>
 <div class="row">${ups.map((u) => slot(u.title, `${u.text}`, `<span class="cost">$${u.cost}</span>`)).join('')}${slot('Up for bid', 'The standing order stalls are bidding for')}</div>
 <div class="bank"><span class="lab">The bank</span><span>From Day 2, at dawn, a stall with an empty shelf and under $${TOP_UP} is topped up to $${TOP_UP}.</span><span style="margin-left:auto">+$200 chips here</span></div>
-<div class="foot">Fruit Market · board 2 of 3 · the street · A3 landscape · mock-up for review (PLAN-111)</div>`;
+<div class="foot">Fruit Market · board 3 of 3 · the street · lies right of the Wholesale Market, lorry deck next to its lorries · A3 landscape · mock-up for review (PLAN-111)</div>`;
   save('5-board-street', page(420, 297, body, extra));
 }
 
@@ -258,14 +258,14 @@ ${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span cla
     `<div class="slot card guest"><b>Guest</b><small>Joins the end, even when the row is full</small></div>`].join('');
   const tomorrow = [`<div class="slot card"><b>Regular</b><small>Face up</small></div>`,
     ...[1, 2, 3, 4].map((n) => `<div class="slot card"><b>Walk-in ${n}</b><small>Face down</small></div>`),
-    `<div class="slot card"><b>Served</b><small>Customers who have left</small></div>`].join('');
+    `<div class="slot card"><b>Customer deck</b><small>Shuffled, face down. Customers who have left go in a pile beside it</small></div>`].join('');
   const body = `<div class="bar top"><span class="disp">THE CUSTOMERS</span><span class="lab y" style="flex:1">The crier reads each customer aloud, left to right</span></div>
 <div class="rh"><span class="disp">TODAY</span><span>At most ${ROW_CAP} customers, then a guest. The cheapest stall sells first.</span></div>
 <div class="row">${today}</div>
 <div class="rh"><span class="disp">TOMORROW</span><span>Dealt each morning, so everyone buys knowing both days</span></div>
 <div class="row">${tomorrow}</div>
 <div class="rule"><div><b>Above the top</b>Nothing sells</div><div><b>The top</b>Fresh only</div><div><b>Top − 1</b>Fresh or Okay</div><div><b>Top − 2 or less</b>Any fruit: Fresh, Okay or Soft</div></div>
-<div class="foot">Fruit Market · board 3 of 3 · the customers · A3 landscape · mock-up for review (PLAN-111)</div>`;
+<div class="foot">Fruit Market · board 1 of 3 · the customers · lies left of the Wholesale Market · A3 landscape · mock-up for review (PLAN-111)</div>`;
   save('6-board-customers', page(420, 297, body, extra));
 }
 console.log('ok', OUT);

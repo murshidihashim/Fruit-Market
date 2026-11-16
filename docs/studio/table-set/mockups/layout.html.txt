@@ -1,0 +1,65 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+/* Top-down table layout, to scale: 1 cm = 8 px. Table 180 x 95 cm, 6 stalls. */
+body { margin: 0; padding: 16px; background: #fbf7ee; font: 12px/1.3 "Helvetica Neue", Arial, sans-serif; color: #1f272a; width: 1500px; }
+h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: .03em; }
+.sub { margin: 0 0 12px; color: #555; font-size: 13px; }
+.table { margin: 44px 0 46px; position: relative; width: 1440px; height: 760px; background: #c9a77c; border-radius: 18px; box-shadow: inset 0 0 0 6px #a7855c; }
+.p { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 800; font-size: 13px; letter-spacing: .04em; }
+.board { background: #fffcf5; box-shadow: inset 0 0 0 2px #1f272a; flex-direction: column; gap: 4px; }
+.board small { font-weight: 600; font-size: 11px; color: #5a6266; letter-spacing: 0; }
+.board.mk { background: #fff6d0; }
+.sheet { background: #eef0f3; box-shadow: inset 0 0 0 2px #5a6266; flex-direction: column; font-size: 11px; }
+.crate { position: absolute; left: 0; right: 0; height: 50%; background: #fff6d0; box-shadow: inset 0 0 0 2px #fec400; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.shelf { position: absolute; left: 0; right: 0; height: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #5a6266; }
+.ctr { background: #fff; box-shadow: inset 0 0 0 2px #1f272a; font-size: 10px; }
+.shut { background: #1f272a; color: #fec400; font-size: 9px; }
+.seat { background: #1f272a; color: #fff; border-radius: 50%; font-size: 11px; }
+.bowl { background: #fff; border-radius: 50%; box-shadow: inset 0 0 0 3px #5a6266; font-size: 11px; flex-direction: column; }
+.join { position: absolute; top: 0; bottom: 0; width: 0; border-left: 3px dashed #c8322c; }
+.note { margin-top: 10px; font-size: 13px; }
+.note li { margin: 3px 0; }
+</style></head>
+<body>
+<h1>THE TABLE, SEEN FROM ABOVE (6 STALLS, TO SCALE)</h1>
+<p class="sub">A 180 × 95 cm table. The three A3 board panels lie side by side in the middle, 126 cm long. Three stalls sit on each long side.</p>
+<div class="table" id="t"></div>
+<ul class="note">
+  <li><b>Board, left to right:</b> the customers · the Wholesale Market · the street. The edges just touch (red dashes): today's lorry on the market sits next to the lorry deck on the street.</li>
+  <li><b>Each stall, from the middle out:</b> shutter on line 1 · stall sheet (crate band, then shelf band) · the player. The counter (cash and crate count, public) lies beside the sheet, in front of the shutter.</li>
+  <li><b>On the short ends:</b> the fruit supply (200 cubes) in a bowl, and the bank's chips.</li>
+  <li>The board always needs 126 cm of length. With 2 to 4 stalls (two on each side) a 140 × 90 cm table is enough.</li>
+</ul>
+<script>
+const S = 8; // px per cm
+const t = document.getElementById('t');
+const add = (cls, x, y, w, h, html, style = '') => { const d = document.createElement('div'); d.className = 'p ' + cls; Object.assign(d.style, { left: x * S + 'px', top: y * S + 'px', width: w * S + 'px', height: h * S + 'px' }); d.innerHTML = html; if (style) d.setAttribute('style', d.getAttribute('style') + style); t.appendChild(d); return d; };
+// boards: 3 x A3 landscape (42 x 29.7) centred
+const bx = (180 - 126) / 2, by = (95 - 29.7) / 2;
+add('board', bx, by, 42, 29.7, 'THE CUSTOMERS<small>today\'s row · tomorrow\'s row · customer deck</small>');
+add('board mk', bx + 42, by, 42, 29.7, 'WHOLESALE MARKET<small>four fruit lanes · today\'s and tomorrow\'s lorry</small>');
+add('board', bx + 84, by, 42, 29.7, 'THE STREET<small>day track · decks · upgrade piles</small>');
+[42, 84].forEach((dx) => { const j = document.createElement('div'); j.className = 'join'; j.style.left = (bx + dx) * S + 'px'; j.style.top = by * S + 'px'; j.style.height = 29.7 * S + 'px'; j.style.bottom = 'auto'; t.appendChild(j); });
+// stalls: sheet 29.7 x 21, counter 14 x 9.9 between sheet and board
+const names = ['Stripes', 'Dots', 'Checks', 'Zigzag', 'Bars', 'Diamonds'];
+const gx = [14, 67.6, 121.2];
+gx.forEach((g, i) => {
+  const x = g + 15;
+  // top side: the player sits at the top edge; the crate band faces the middle
+  const st = add('sheet', x, 2, 29.7, 21, '');
+  st.innerHTML = '<div class="shelf" style="top:0">shelf (hidden)</div><div class="crate" style="bottom:0">crate</div>';
+  add('shut', x - 1, 23, 31.7, 1, 'SHUTTER · LINE 1');
+  add('ctr', g, 13.6, 14, 9.9, 'COUNTER<br>' + names[i]);
+  add('seat', x + 10.85, -3.2, 8, 4.4, 'player');
+  // bottom side
+  const sb = add('sheet', x, 72, 29.7, 21, '');
+  sb.innerHTML = '<div class="crate" style="top:0">crate</div><div class="shelf" style="bottom:0">shelf (hidden)</div>';
+  add('shut', x - 1, 71, 31.7, 1, 'SHUTTER · LINE 1');
+  add('ctr', g, 71.5, 14, 9.9, 'COUNTER<br>' + names[i + 3]);
+  add('seat', x + 10.85, 93.8, 8, 4.4, 'player');
+});
+add('bowl', 5, 37, 16, 16, 'FRUIT<br><small>200 cubes</small>');
+add('bowl', 159, 37, 16, 16, 'BANK<br><small>chips</small>');
+</script>
+</body></html>
