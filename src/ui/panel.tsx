@@ -126,7 +126,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
   const counts = crateCounts(crate);
   const total = FRUITS.reduce((a, f) => a + (counts[f] ?? 0), 0);
   const ripe = count(pl.stock, undefined, true);
-  // The final day: what leftovers are worth tonight (the jam maker, or $0 when Closing Day is off).
+  // The last day: anything left tonight is worth $0 (rules 20: no jam maker).
   const note = s.day >= s.config.days ? closingNote(s, p)?.stocking ?? null : null;
   // One row for every box of your shelf that holds fruit: the board's lane order, the freshest box first.
   const rows = LANES.flatMap((f) => pl.stock[f].map((n, pos) => ({ f, pos, n, stage: stageAt(f, pos) })).filter((x) => x.n > 0).reverse());

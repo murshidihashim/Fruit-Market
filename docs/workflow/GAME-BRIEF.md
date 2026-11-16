@@ -18,7 +18,7 @@ playing online, and solo players against computer shops. Plays on Android phones
 
 Evening: build an upgrade after a Market Day and play favour cards. Night: every piece ages; some spoil.
 
-Win: the most cash after the last day (upgrades count for nothing; unsold fruit only for the jam maker's $1 per ripe piece on Closing Day). A tie on cash goes to whoever sold more fruit; if that is level too, the stalls share the win.
+Win: the most cash after the last day (upgrades and fruit left on the shelf count for nothing; rules 20 removed Closing Day and the jam maker). A tie on cash goes to whoever sold more fruit; if that is level too, the stalls share the win.
 
 ## Session
 - 2 to 6 stalls; Quick 8, Standard 10, Long 14 days.

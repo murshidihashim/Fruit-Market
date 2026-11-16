@@ -1,4 +1,4 @@
-// The tabletop print kit (PLAN-087; rules version 19): every deck of cards in the approved card design, each with its
+// The tabletop print kit (PLAN-087; rules version 20, PLAN-108): every deck of cards in the approved card design, each with its
 // back, plus the player aid and the character reference. The cards are the app's own (scripts/print-cards.ts draws them
 // with src/ui/cards.tsx from the game data), so the printed cards and the app always show the same names, numbers and art.
 //   npx vite-node scripts/print-deck.ts [outdir]     (normally: print/kit)
@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import {
-  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK, JAM_PRICE, LAST_CALL_BONUS,
+  BARROW_BUY, BARROW_SHELF, BASE_BUY, BASE_SHELF, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK,
   MARKET_DAY_EVERY, MAX_STALLS, ORDER_CARDS, PREF_INFO, RIVALS, TOP_UP, UPGRADES,
   type Stage,
 } from '../src/engine/data';
@@ -177,13 +177,13 @@ function playerAid(): Page {
       + `<p class="pk-key"><b>Event cards:</b>${toStaticHtml(h(PayBadge, { pay: 'market' }))}<span>${esc(lower(PAY_WORD.market))}</span><span class="sep">·</span>${toStaticHtml(h(PayBadge, { pay: 'customer' }))}<span>${esc(lower(PAY_WORD.customer))}</span></p></div>`
       + `<div class="pk-beats">${beats.join('')}</div>`
       + `<section class="pk-crier"><header><b>The crier’s price rule</b><span>Read each customer line aloud</span></header>`
-      + `<p>The crier (the player who bought last that morning) pays the stalls from the bank. For each customer line, say the real <b>top price</b> for the day: the card price plus any event, Closing Day or Fixed-prices change. Then which fruit qualifies at each price:</p>`
+      + `<p>The crier (the player who bought last that morning) pays the stalls from the bank. For each customer line, say the real <b>top price</b> for the day: the card price plus any event or Fixed-prices change. Then which fruit qualifies at each price:</p>`
       + `<div class="pk-ladder">${ladder}</div>`
       + `<p>The <b>cheapest</b> posted price sells first, and each stall hands over its <b>oldest piece that still qualifies</b>. On a tie, the stall whose freshest handed-over piece is younger sells first.</p></section>`
       + `<div class="pk-boxes">`
       + `<div class="pk-box"><h4>Freshness types</h4><p><b>Premium:</b> ${esc(PREF_INFO.premium.short)}. <b>Everyday:</b> ${esc(PREF_INFO.everyday.short)}. <b>Bargain:</b> ${esc(PREF_INFO.bargain.short)}. A stall cannot sell fruit a customer will not take.</p></div>`
       + `<div class="pk-box"><h4>Ties at the bell</h4><p>Favoured Trade, then fresher fruit (the younger handed-over piece), then the Haggler, then whoever bought earlier today.</p></div>`
-      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): a standing order in the morning and an upgrade that evening. <b>Closing Day:</b> customers pay $${LAST_CALL_BONUS} more; then the jam maker buys leftover ripe fruit at $${JAM_PRICE} each. Guests’ prices are fixed: only Closing Day adds to them.</p></div>`
+      + `<div class="pk-box"><h4>Market rhythm</h4><p><b>Market Days</b> (days ${list(MARKET_DAYS)}, never the last): a standing order in the morning and an upgrade that evening. <b>The last day</b> is an ordinary day: fruit left at the end is worth nothing. Guests’ prices are fixed: nothing is added to them.</p></div>`
       + `</div><p class="pk-small">Full rules: RULES.md. Every number on this page comes from the game data.</p></section>`,
   };
 }

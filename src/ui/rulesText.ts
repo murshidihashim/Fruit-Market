@@ -1,6 +1,6 @@
 // Rule sentences the set-up screen and How to play show, built from the game data so they cannot drift from the
 // rules again (the "Unripe fruit" switch said "$1 now" long after green fruit stopped costing $1: REP-089 3.7).
-import { FRUIT, FRUITS, JAM_PRICE, LAST_CALL_BONUS, MARKET_DAY_EVERY, deliveredGreen } from '../engine/data';
+import { FRUIT, FRUITS, MARKET_DAY_EVERY, deliveredGreen } from '../engine/data';
 
 const nights = (n: number) => `${n} night${n === 1 ? '' : 's'}`;
 const list = (xs: (string | number)[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
@@ -19,7 +19,8 @@ export function unripeSetupText(): string {
   return parts.length ? `Every lorry brings ${parts.join('; ')}.` : 'No lorry brings green fruit at the moment.';
 }
 
-/** The "Market Days" switch, which also turns on Closing Day (the final day's bonus and the jam maker). */
+/** The "Market Days" switch. Rules 20: it turns Market Days on and off and nothing else (it no longer brings a
+ *  Closing Day). Upgrades are offered after those days either way (isDraftNight). */
 export function marketDaysSetupText(): string {
-  return `Days ${MARKET_DAY_LIST}: a standing order to bid for, and an upgrade that evening. Closing Day on the last day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`;
+  return `Days ${MARKET_DAY_LIST}: a standing order to bid for. Switched off, there are no standing orders, and upgrades still come on those evenings.`;
 }

@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { aiStep, computersEvening } from '../../engine/ai';
 import type { FruitId } from '../../engine/data';
-import { activePlayer, canPlayFavour, eveningOpen, winners, RuleError, type Action, type Crate, type Customer, type GameState, publicView } from '../../engine/game';
+import { activePlayer, canPlayFavour, count, eveningOpen, winners, RuleError, type Action, type Crate, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLoss, type NightJuice } from '../../engine/story';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
@@ -462,7 +462,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     trackOnce(`${gameKey}:end`, 'game_end', winners(s).includes(viewer) ? 'win' : 'lose');
     trackOnce(`${gameKey}:cash`, 'final_cash', Math.min(300, Math.floor(s.players[viewer].cash / 25) * 25));
     trackOnce(`${gameKey}:spoiled`, 'fruit_spoiled', Math.min(10, s.players[viewer].stats.spoiled));
-    trackOnce(`${gameKey}:unsold`, 'fruit_unsold', Math.min(12, s.jam?.[viewer] ?? 0));
+    trackOnce(`${gameKey}:unsold`, 'fruit_unsold', Math.min(12, count(s.players[viewer].stock, undefined, true)));
     trackOnce('first_game_complete', 'first_game_complete');
   }, [s.phase]);
 

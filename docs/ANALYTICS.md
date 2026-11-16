@@ -16,6 +16,8 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `day_reached` | 1–14 | Once per game per day (resuming doesn't count again) |
 | `game_end` | `win` / `lose` | Once per game |
 | `final_cash` | bucket of $25 (0–300) | Once per game |
+| `fruit_spoiled` | pieces that spoiled in the game (0–10; 10 means 10 or more) | Once per game |
+| `fruit_unsold` | ripe pieces left on the shelf at the end (0–12; 12 means 12 or more). Rules 20 (PLAN-108): counted from the shelf; before, it counted the jam maker's dollars, which were 0 with Market Days off | Once per game |
 | `first_game_complete` | — | Once per device |
 | `quit_day` | 1–14 | Leaving a local game before it ends |
 | `tutorial` | step id | Each first-game tip dismissed |

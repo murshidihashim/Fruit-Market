@@ -1,6 +1,6 @@
 # Fruit Market: Rules
 
-*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 19: standing orders pay up to $2 more and need a $2 smaller stake, and every stall decides its evening at the same time; before it, rules version 18: a top-up for a stall out of cash, standing orders with a stake, today's purchases seen only while buying, Favoured Trade after the flip, and new numbers; the lists are in "Rules version 19" and "Rules version 18" below).*
+*Game design by Murshidi bin Md Hashim. Tabletop edition rules (rules version 20: no Closing Day and no jam maker, so the last day is an ordinary day, and in the app's Daily market and Market League you are offered only perks no rival holds; before it, rules version 19: standing orders pay up to $2 more and need a $2 smaller stake, and every stall decides its evening at the same time; the lists are in "Rules version 20" and "Rules version 19" below).*
 
 Fruit Market is a game about buying and selling fruit. Each player runs a small fruit stall that buys fruit at the Wholesale Market and sells it to the town. Fruit ages every night, so you have to turn it into cash fast. Every day ends with one question: **how much can I charge before my rival, or the rot, gets me?**
 
@@ -30,7 +30,7 @@ Had Stall A been alone in serving him, A would have drawn a favour card. That is
 
 ## Goal
 
-Have the **most cash** at the end of the last day. Upgrades are worth nothing at the end. Fruit left on your shelf is worth only what the jam maker pays on Closing Day: $1 for each ripe piece, nothing for green fruit, and nothing if Closing Day is switched off. Ties go to whoever sold more fruit. If that is level too, the tied stalls share the win.
+Have the **most cash** at the end of the last day. Upgrades are worth nothing at the end. Fruit left on your shelf at the end is worth nothing. Ties go to whoever sold more fruit. If that is level too, the tied stalls share the win.
 
 ## Players and length
 
@@ -72,7 +72,7 @@ Every night all fruit ages one step: it moves one space left. Fruit that falls o
 | The Wedding Caterer | Kenduri | 3 watermelons at $8 | Everyday (Fresh or Okay) |
 | The Bakery | Bake-Off | 2 apples at $7 | Everyday (Fresh or Okay) |
 
-A guest's price is fixed: the event's own price change is **not** added on top (on a Mango Craze the Influencer still pays at most $15 for a Fresh mango), and a Premium Display does not raise it. Only Closing Day adds its $1. As for anyone, Okay fruit sells for $1 less and Soft fruit for $2 less.
+A guest's price is fixed: the event's own price change is **not** added on top (on a Mango Craze the Influencer still pays at most $15 for a Fresh mango), and a Premium Display does not raise it. As for anyone, Okay fruit sells for $1 less and Soft fruit for $2 less.
 
 ### Decks running out
 
@@ -141,9 +141,9 @@ Customers buy in row order; a standing order collected today goes first (see Sta
 ## Market rhythm
 
 - **Market Days (days 3, 6, 9 and 12, never the last day):** a standing order is turned over in the morning (when its due day still falls inside the game), and each stall may build an upgrade that evening. The lorry still comes. A Market Day no longer adds walk-ins.
-- **Closing Day (final day):** customers pay $1 more. Afterwards the **jam maker** buys every stall's leftover ripe fruit for $1 each.
+- **The last day** is an ordinary day: customers pay their usual prices. After its rush the market closes, and fruit left on a shelf is worth nothing.
 
-Market Days and Closing Day are on by default and can be switched off in the set-up.
+Market Days are always on in the app. On a table they can be left out: then there are no standing orders, and upgrades are still built on the evenings after days 3, 6, 9 and 12.
 
 ## Standing orders
 
@@ -162,7 +162,7 @@ A standing order is one big public order, turned over on a Market Day morning an
 | The Pie Factory, The Cider Press | Apple | $13 | $5 | $2 |
 | The Airline Caterer, The Royal Banquet | Mango | $20 | $10 | $5 |
 
-A standing order draws no favour card and pays no tips (a Juice Bar adds nothing to its pieces either), and no event or Closing Day changes what it pays. No standing order is turned over if it could not be collected by the last day. Standing orders are not used in the Basic game.
+A standing order draws no favour card and pays no tips (a Juice Bar adds nothing to its pieces either), and no event changes what it pays. No standing order is turned over if it could not be collected by the last day. Standing orders are not used in the Basic game.
 
 ## Event cards
 
@@ -189,7 +189,7 @@ A standing order draws no favour card and pays no tips (a Juice Bar adds nothing
 | 🏮 Pasar Malam | After the rush, the night hawker buys 1 of each fruit left in every stall’s crate for $3 each, any freshness. |
 | 🥧 Bake-Off | Customers pay $1 more for each apple. Guest: the Bakery wants 2 apples, Fresh or Okay, top price $7. |
 
-Guest prices are fixed (Closing Day's +$1 still applies). Mango Craze is never Day 2's event. A Mango Windfall's extra mangoes arrive ripe.
+Guest prices are fixed. Mango Craze is never Day 2's event. A Mango Windfall's extra mangoes arrive ripe.
 
 ## Favour cards (12: 2 of each, at every table size)
 
@@ -208,7 +208,7 @@ On the evening after each Market Day every upgrade you have not built is on offe
 
 | Upgrade | Cost | Effect |
 |---|---|---|
-| 🧃 Juice Bar | $6 | +$1 for each Okay or Soft piece a customer buys from you (customers and guests in the rush; not a standing order, the night hawker or the jam maker). Each night up to 2 of your pieces that would spoil become juice: $2 each. |
+| 🧃 Juice Bar | $6 | +$1 for each Okay or Soft piece a customer buys from you (customers and guests in the rush; not a standing order or the night hawker). Each night up to 2 of your pieces that would spoil become juice: $2 each. |
 | 🛒 Handcart | $6 | Buy up to 5 pieces a day. Your shelf holds 10. |
 | 🪧 Premium Display | $5 | You may price a Fresh piece $1 above a customer's top price. A guest never pays more than its fixed price. |
 | 🌡️ Ripening Room | $4 | Your Green mangoes ripen in 1 night instead of 2. |
@@ -216,7 +216,7 @@ On the evening after each Market Day every upgrade you have not built is on offe
 
 ## Shopkeepers
 
-Before the game, each stall picks one of eight shopkeepers, so even the sixth stall chooses from at least three. A shopkeeper gives one perk for the whole game, and everyone can see it. **No two stalls can be the same shopkeeper.** Computer stalls take the shopkeepers the people did not pick. On a table, lay the eight shopkeeper cards face up and pick in turn, starting with the player to the left of the first-player token. In the app, pick on the set-up screen, or when you enter an online room (a taken shopkeeper is greyed out, and you can change yours in the lobby until the game starts).
+Before the game, each stall picks one of eight shopkeepers, so even the sixth stall chooses from at least three. A shopkeeper gives one perk for the whole game, and everyone can see it. **No two stalls can be the same shopkeeper, and no two stalls ever hold the same perk** (rules 20: this holds in the Daily market and the Market League too, below). Computer stalls take the shopkeepers the people did not pick. On a table, lay the eight shopkeeper cards face up and pick in turn, starting with the player to the left of the first-player token. In the app, pick on the set-up screen, or when you enter an online room (a taken shopkeeper is greyed out, and you can change yours in the lobby until the game starts).
 
 | Shopkeeper | Perk | Effect |
 |---|---|---|
@@ -247,9 +247,9 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Order of customers.** Lay the customer cards in one row, always in this order: a standing order collected today, the regular, the walk-ins in the order they were drawn, then a guest such as the Hotel Chef. Serve them left to right.
 
-**The crier.** One player reads the customers aloud: the player who bought last that morning. The crier pays nobody. A stall that sells hands over the piece, puts it on one of the card's circles and adds its own price to its own cash track, so nobody swaps money (as the printed guidebook says). For each customer line the crier says the real top price for the day (card price plus any event, Closing Day or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (Soft included), at **top − 1 Fresh or Okay**, at **the top itself Fresh only**, and above the top nothing (a Premium Display may go $1 over for Fresh fruit, but never for a guest). The cheapest price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
+**The crier.** One player reads the customers aloud: the player who bought last that morning. The crier pays nobody. A stall that sells hands over the piece, puts it on one of the card's circles and adds its own price to its own cash track, so nobody swaps money (as the printed guidebook says). For each customer line the crier says the real top price for the day (card price plus any event or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (Soft included), at **top − 1 Fresh or Okay**, at **the top itself Fresh only**, and above the top nothing (a Premium Display may go $1 over for Fresh fruit, but never for a guest). The cheapest price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
 
-**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $110 to $130, the last stall with about $50 to $80. A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
+**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $105 to $120, the last stall with about $50 to $80 (rules 20). A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
 
 **Components for 6 stalls.** About 50 tokens of each fruit, 6 of each upgrade, 8 standing-order cards and 12 favour cards.
 
@@ -302,6 +302,33 @@ At dawn, throw away piles that have reached "spoiled". A Health Inspector, if on
 - **After stocking, one number.** When every stall is ready, each says how many pieces are in its crate. Not which fruit, not how fresh.
 - **At the bell, crates open.** Prices and crates are revealed together: which fruit each stall is selling, how many, and at what price. Shelves stay hidden.
 - **Computer stalls play by the same rule.** They price from the piece counts, today's orders and what they saw each stall buy; they never read a crate before the bell, so they can be fooled. Rules 18: an Easy computer uses none of what it saw bought, a Normal computer only today's purchases, a Hard computer everything it saw.
+
+## Rules version 20
+
+What changed from rules version 19, in plain words (2026-11-16, DEC-120, PLAN-108).
+
+- **No Closing Day and no jam maker.** The owner's words: "remove closing day completely from the game, there's no jam maker". The last day is an ordinary day: customers pay their usual prices (before, every customer and guest paid $1 more), and nothing is paid for fruit left over (before, the jam maker paid $1 for each ripe piece). Fruit left on your shelf at the end is worth nothing. The Market Days switch now turns only Market Days on and off; it no longer brings a Closing Day.
+- **One perk each in the Daily market and the Market League** (REP-122 C-01). There you play as yourself and are dealt perks to choose from. Before, the 3 came from all 8, so a rival's perk was often offered (45 of 51 Daily days checked), and with two Nest Eggs only one worked: on the Old Town stage Saleh's perk could do nothing. Now only perks no rival holds are dealt, and no two stalls ever hold the same perk. Nothing changes on a table, where every stall is a shopkeeper.
+- **The trophy "Nothing for the jam maker"** is now called **"Sold out"**: sell 20 or more pieces in a game and end it with no ripe fruit on your shelf. Stamps already earned are kept.
+- **In the app** computer players no longer count a piece left on the last day at the jam maker's $1, so they price it to sell (computer players version 7). As with every rules change, a game saved halfway under rules 19 cannot be continued, and the Daily market starts a new board.
+
+**Balance, before and after** (computer games only, no playtest; nothing was tuned). The rules 18 measurement scripts (`docs/studio/review-17/balance/scripts18`) played the same seeds under rules 19 and rules 20, every stall a shopkeeper picked at random. Win share in %:
+
+| Shopkeeper | 2 stalls, Normal | 3 stalls, Normal | 4 stalls, Normal | 6 stalls, Normal | 3 stalls, Hard | 4 stalls, Hard |
+|---|---|---|---|---|---|---|
+| Fair share | 50.0 | 33.3 | 25.0 | 16.7 | 33.3 | 25.0 |
+| Rosa (Haggler) | 46.5 → 45.6 | 26.9 → 28.1 | 23.2 → 23.7 | 15.3 → 15.2 | 30.1 → 31.0 | 22.1 → 21.7 |
+| Uncle Benny (Big Basket) | 46.4 → 46.2 | 33.2 → 32.3 | 23.4 → 23.1 | 13.5 → 12.2 | 31.6 → 30.5 | 26.4 → 25.6 |
+| Raj (Bargain Hunter) | 55.2 → 55.4 | 35.7 → 35.5 | 26.9 → 26.8 | 20.5 → 20.1 | 36.2 → 37.0 | 30.4 → 30.3 |
+| Ah Chen (Charmer) | 51.5 → 51.4 | 35.7 → 35.8 | 24.6 → 25.3 | 17.6 → 18.1 | 35.3 → 32.2 | 25.3 → 25.8 |
+| Kiki (Tip Jar) | 52.3 → 52.1 | 32.8 → 32.5 | 25.3 → 25.1 | 14.9 → 14.6 | 32.8 → 34.3 | 27.4 → 27.7 |
+| Saleh (Nest Egg) | 51.5 → 52.6 | 33.2 → 34.2 | 28.0 → 28.9 | 21.2 → 22.2 | 32.9 → 34.8 | 24.2 → 23.7 |
+| Pak Din (Shade Cloth) | 48.8 → 48.7 | 33.6 → 33.0 | 24.2 → 22.8 | 13.2 → 13.0 | 32.9 → 31.9 | 21.3 → 21.7 |
+| Farah (Sharp Ears) | 48.0 → 48.3 | 35.6 → 35.3 | 24.3 → 24.1 | 17.4 → 18.2 | 34.7 → 34.9 | 22.6 → 23.4 |
+| Average final cash | $97.7 → $93.4 | $93.4 → $89.5 | $91.2 → $87.1 | $89.9 → $85.5 | $100.4 → $96.6 | $97.6 → $93.8 |
+| Games (each side) | 4,000 | 4,000 | 3,000 | 2,000 | 2,400 | 2,000 |
+
+No shopkeeper moved by more than 3 points but one: Ah Chen at 3 stalls, Hard level, from 35.3 to 32.2 (3.1 points; the standard error of that difference is about 2.2 points, so it may be chance). A second batch of 7,200 games at 3 Hard stalls, on new seeds, showed it was chance: there Ah Chen moved from 32.5 to 32.9, and over both batches (9,600 games each side) no shopkeeper moved by more than 0.7 points (Ah Chen 33.2 to 32.8). Every stall ends a game about $4 poorer: the last day's $1 a piece and the jam money are gone. On the last day computer stalls now buy a little less (at 3 Normal stalls 2.0 pieces instead of 2.2), sell about as many (2.7 instead of 2.8, at $6.00 a piece instead of $6.88) and keep fewer ripe pieces to the end (1.4 instead of 1.5). `npm run balance` (Hard computers, 400 games a test) agrees: at 3 stalls every perk's win share moved by 2.8 points or less, and a 10-day game's average cash fell from $101.3 to $97.7. These tables seat shopkeepers only, so the new perk deal of the Daily market and the League (C-01) is not in them.
 
 ## Rules version 19
 
@@ -389,6 +416,12 @@ Each day has a small twist, the same for everyone, rotating through seven: the u
 
 Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
 
+**Your perk.** You play as yourself, not as a shopkeeper. On the first morning you are dealt 3 of the perks no rival holds and keep one: here 3 of the 5 that Rosa (Haggler), Uncle Benny (Big Basket) and Ah Chen (Charmer) do not hold. If fewer than 3 were free, you would be dealt those that are. (Rules 20. Before, the 3 came from all 8, so a rival's perk could be offered and two stalls could hold the same one.) On a Basic game day there are no perks.
+
+## Market League
+
+Six stages, one after another, each against one to three computer shopkeepers; win a stage to move on to the next. You play as yourself, and your perk is dealt as in the Daily market: 3 of the perks no rival holds (at least 5 are free at every stage), and you keep one. So on the Old Town stage, against Saleh, you are never offered his Nest Egg.
+
 ## What changed from the paper draft
 
 | Paper draft | This edition | Why |
@@ -399,4 +432,4 @@ Everyone in the world plays the same shuffled decks each day: you against Rosa (
 | Lorry card fruits only | The missing fruit still arrives (1) | Prevents days where nobody can sell anything |
 | Event cards (6 types) | 20 events, each a surprise on the morning it is drawn | Every morning can change the day |
 | First player rotates | Poorest stall buys first | Stops early leaders running away |
-| (none) | Perks, upgrades, Market Days, Closing Day | Every game opens differently and has an arc |
+| (none) | Perks, upgrades, Market Days | Every game opens differently and has an arc |

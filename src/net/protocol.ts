@@ -5,14 +5,15 @@ import type { Action, GameState } from '../engine/game';
 export { CHARACTER_AVATARS };
 
 /** Bump whenever the game rules change, so phones on an older build can't join a room that plays by newer rules. */
-export const RULES_VERSION = 19;
+export const RULES_VERSION = 20;
 /**
  * Bump whenever the computer players change (src/engine/ai.ts), even when the rules don't. Daily scores are verified by
  * replaying the game with the server's computer players (server/meta.ts verifyDaily), so a daily must be submitted and
  * replayed with the same version, and each version has its own daily board. Online rooms don't need it: their computer
- * players run only on the room server. 1 = up to 1.8.0; 2 = Closing Day jam value and the real tie order (PLAN-051).
+ * players run only on the room server. 1 = up to 1.8.0; 2 = Closing Day jam value and the real tie order (PLAN-051);
+ * 7 = rules 20 (PLAN-108): no jam value, so on the last day fruit left over is worth $0 to them.
  */
-export const AI_VERSION = 6;
+export const AI_VERSION = 7;
 /** Bump whenever the messages between phones and the room server change, so old and new builds never share a room
  *  (3, PLAN-023: undo and rename; 4, PLAN-102: shopkeepers are chosen after the host starts a private room). */
 export const PROTOCOL_VERSION = 4;

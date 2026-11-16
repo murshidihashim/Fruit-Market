@@ -155,7 +155,8 @@ export const CARDS: Card[] = [
       step('orders_8', 'gold', ORDER_CARDS.length, 'Deliver a standing order in full for all 8 clients.', (s) => sizeOf(s, 'clients', ORDER_NAMES)),
     ] },
   feat('juice_regular', 'fruit', 'Juice money', { kind: 'upgrade', id: 'juicebar' }, 'silver', 'Earn $20 from your Juice Bar in one game.'),
-  feat('jam_session', 'fruit', 'Nothing for the jam maker', { kind: 'event', id: 'pasarMalam' }, 'bronze', 'Sell 20 or more pieces in a game and end it with no ripe fruit left.'),
+  // Rules 20: "Nothing for the jam maker" until the jam maker left the game. The id stays, so stamps already earned stay.
+  feat('jam_session', 'fruit', 'Sold out', { kind: 'event', id: 'pasarMalam' }, 'bronze', 'Sell 20 or more pieces in a game and end it with no ripe fruit on your shelf.'),
 
   // 4. The book
   { id: 'customers', group: 'book', title: 'Customers served', pic: { kind: 'customer', key: 'Osman' }, unit: 'customers served', value: (s) => customersServed(s).length,
@@ -285,7 +286,7 @@ export interface Facts {
   /** Computer shopkeepers at the table (today's names), and those playing as Hard. */
   rivals: string[];
   hardRivals: string[];
-  noWaste: boolean; jamNone: boolean; comeback: boolean; bareStall: boolean; beatHard: boolean; hardSweep: boolean;
+  noWaste: boolean; soldOut: boolean; comeback: boolean; bareStall: boolean; beatHard: boolean; hardSweep: boolean;
   /** Normal or harder computers, a Daily market, or another person at the table: a skill title may be shown for it. */
   fair: boolean;
 }
@@ -362,8 +363,8 @@ export function gameFacts(g: GameState, me: number): Facts {
     favours: [...(pl.stats.played ?? [])], upgrades: [...pl.upgrades], trait,
     rivals: named(ais), hardRivals: named(ais.filter((p) => p.level === 'hard')),
     noWaste: won && pl.stats.spoiled === 0,
-    // Last Call pays for every ripe piece left; with no jam maker in the game, the shelf itself is counted.
-    jamNone: (g.jam ? g.jam[me] ?? 0 : count(pl.stock, undefined, true)) === 0 && pl.stats.sold >= 20,
+    // Sold out: no ripe piece left on the shelf at the end (green fruit does not count), with 20 or more sold.
+    soldOut: count(pl.stock, undefined, true) === 0 && pl.stats.sold >= 20,
     comeback: won && !!d5 && d5[me] === Math.min(...d5) && d5.some((c) => c !== d5[me]),
     bareStall: won && pl.upgrades.length === 0 && g.config.upgrades,
     beatHard: won && ais.some((p) => p.level === 'hard'),
@@ -440,7 +441,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
 
   // Feats that are simply done in this game.
   const feats: Record<string, boolean> = {
-    first_win: f.won, first_sale: f.sold > 0, mango_mogul: f.mangoes >= 10, juice_regular: f.juice >= 20, jam_session: f.jamNone,
+    first_win: f.won, first_sale: f.sold > 0, mango_mogul: f.mangoes >= 10, juice_regular: f.juice >= 20, jam_session: f.soldOut,
     fully_fitted: f.upgrades.length >= 2, no_waste: f.noWaste, tie_breaker: f.tie, full_house: f.wholeRow, festival_rush: f.festival,
     comeback: f.comeback, bare_stall: f.bareStall, beat_hard: f.beatHard, hard_sweep: f.hardSweep, online_win: ctx.online && f.won,
     // counted tiers this game reaches by itself, also when the game was counted before

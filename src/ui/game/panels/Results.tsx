@@ -240,7 +240,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
             const look = lookOfSeat(i);
             const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
             return (
-              <div class={`sbk-pod ${i === owner ? 'me' : ''}`} title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}${s.jam?.[i] ? ` · jam maker +$${s.jam[i]}` : ''}`}>
+              <div class={`sbk-pod ${i === owner ? 'me' : ''}`} title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
                 <i class="sbk-sw" style={{ '--a': awningColour(look, i) }} />
                 <span class="sbk-md">{words.medals[i]}</span>
                 <FramedFace who={shownAvatar(s.players, i)} size={26} look={look} />

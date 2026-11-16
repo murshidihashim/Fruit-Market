@@ -5,10 +5,10 @@
 // A walk-in's front is used only when this shop has seen the card (Market Gossip or Scout).
 // Each call to aiStep does one action, so the UI can animate them one at a time.
 
-import { CUSTOMER_CARDS, FARMER_CARDS, FAVOURS, FRUIT, FRUITS, JAM_PRICE, JUICE_CAP, JUICE_TIP, JUICE_VALUE, ORDER_BOOK_BONUS, ORDER_LEAD, ROW_CAP, UPGRADES, acceptsStage, freshPos, orderQty, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
+import { CUSTOMER_CARDS, FARMER_CARDS, FAVOURS, FRUIT, FRUITS, JUICE_CAP, JUICE_TIP, JUICE_VALUE, ORDER_BOOK_BONUS, ORDER_LEAD, ROW_CAP, UPGRADES, acceptsStage, freshPos, orderQty, prefOf, stageAt, type FruitId, type UpgradeId } from './data';
 import {
   activePlayer, beginBuying, bestCap, buy, maxPrice, printedSupply, buyCost, buyUpgrade, canBuy, canPlayFavour, canUpgrade,
-  capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, isLastCall, minPrice,
+  capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView, boughtStock, emptyStock, orderStake,
   decideTie, rushIncome, eveningOpen,
@@ -191,9 +191,10 @@ function scarceTomorrow(s: GameState, f: FruitId): boolean {
 export const UNSEEN_RIPE: Record<FruitId, number> = { blueberry: 0.2, watermelon: 0.2, apple: 0.2, mango: 1.2 };
 export const UNSEEN_GREEN = 0.5;
 
-/** What one piece is worth to this shop; `cost` is what it would pay for it (0 for a free one). `s` is the shop's
- *  planning view (planView): its rivals' shelves hold only what it recalls. */
-function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine: number, cost: number): number {
+/** What one piece is worth to this shop, before its cost (the caller takes that off). `s` is the shop's planning view
+ *  (planView): its rivals' shelves hold only what it recalls. Rules 20: the cost was read here only for the jam
+ *  maker's dollar on Closing Day, which is gone. */
+function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine: number): number {
   const pl = s.players[p];
   const stage = stageAt(f, pos);
   const daysLeft = s.config.days - s.day; // days after today
@@ -232,13 +233,7 @@ function fruitValue(s: GameState, p: number, f: FruitId, pos: number, extraMine:
     const spoilingSoon = FRUITS.reduce((a, x) => a + pl.stock[x][0], 0) + extraMine;
     if (spoilingSoon < JUICE_CAP) later = Math.max(later, JUICE_VALUE * (1 - pSell));
   }
-  // Closing Day: ripe fruit that doesn't sell goes to the jam maker. Counted only for a piece that costs no more than
-  // the jam maker pays (a free one, or one at the jam price), which can't lose money. The sale chance here is a hopeful guess:
-  // counting the jam on dearer pieces made computers buy last-day fruit that mostly went for jam at a loss (PLAN-051
-  // balance run). It also needs some expected buyer for this fruit at this freshness (`qty`: today's face-up customers
-  // and, while buying, face-down walk-ins guessed from the fruit on their backs), so it never props up a piece that
-  // nobody is expected to want.
-  if (planner && daysLeft === 0 && isLastCall(s) && qty > 0 && cost <= JAM_PRICE) later = Math.max(later, JAM_PRICE * (1 - pSell));
+  // Rules 20: on the last day a piece that does not sell is worth nothing (no jam maker, no night), so `later` stays 0.
   // Fruit that will be scarce tomorrow (few on the next lorry) is worth keeping.
   if (laterDays > 0 && planner && scarceTomorrow(s, f)) {
     later += 0.5 * Math.max(0, price - 1) * (1 - pSell * 0.5);
@@ -254,7 +249,7 @@ function pickPurchase(state: GameState, p: number): { f: FruitId; pos: number; s
     for (let pos = 0; pos < s.market[f].length; pos++) {
       if (canBuy(s, p, f, pos)) continue;
       const cost = buyCost(s, p, f, pos);
-      let score = fruitValue(s, p, f, shelfPos(s.players[p], f, pos), 0, cost) - cost;
+      let score = fruitValue(s, p, f, shelfPos(s.players[p], f, pos), 0) - cost;
       if (lv === 'easy') score += (rand(s, p, f.length * 13 + pos) - 0.5) * 6;
       const o = s.standing;
       if (o && o.holder === p && o.price !== null && o.fruit === f) {
@@ -286,7 +281,7 @@ export function buyPhaseFavour(s: GameState, p: number): GameState | null {
       let best: { f: FruitId; pos: number; v: number } | null = null;
       for (const f of FRUITS) for (let pos = 0; pos < s.market[f].length; pos++) {
         if (!s.market[f][pos]) continue;
-        const v = fruitValue(view, p, f, pos, 0, 0);
+        const v = fruitValue(view, p, f, pos, 0);
         if (!best || v > best.v) best = { f, pos, v };
       }
       if (best) return playFavour(s, p, i, { fruit: best.f, pos: best.pos });
@@ -406,10 +401,9 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
     const price = Math.max(floor, topCap - Math.floor(rand(s, p, FRUITS.indexOf(f) * 17) * 4));
     return { price, sold: mine.length };
   }
-  // Value of a fruit that doesn't sell today: kept for tomorrow (none if it rots tonight), or on the final day what the
-  // jam maker pays for it on Closing Day (every ripe piece, including the ones that would have rotted tonight).
-  const jam = lastDay && isLastCall(s) ? JAM_PRICE : 0;
-  let keep = lastDay ? jam : (lv === 'hard' ? HARD.keep : 0.3) * topCap;
+  // Value of a fruit that doesn't sell today: kept for tomorrow (none if it rots tonight). Rules 20: on the last day
+  // it is worth nothing (no jam maker), so the price is the one that brings in the most from sales alone.
+  let keep = lastDay ? 0 : (lv === 'hard' ? HARD.keep : 0.3) * topCap;
   if (!lastDay && keep > 0 && scarceTomorrow(s, f)) keep = Math.max(keep, 0.45 * topCap);
   const lastUnits = mine.filter((i) => i === 0).length; // these rot tonight
   // Rules 18: Favoured Trade is played after the flip, so while pricing nobody has played it. A stall that holds the
@@ -430,7 +424,7 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
       const rs = rivalStalls.map((x) => ({ ...x, price: priceOf(x.player, k) }));
       const sold = simulateSales(s, f, { ...myStall, price: q }, rs, plain);
       const unsold = Math.max(0, mine.length - sold);
-      const keptValue = lastDay ? unsold * jam : Math.max(0, unsold - lastUnits) * keep;
+      const keptValue = lastDay ? 0 : Math.max(0, unsold - lastUnits) * keep;
       ev += q * sold + keptValue;
       soldSum += sold;
     }
