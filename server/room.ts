@@ -54,6 +54,8 @@ export interface SeatData {
   bot?: boolean;
   /** PLAN-102: this person has confirmed their shopkeeper in the choosing step. */
   confirmed?: boolean;
+  /** ON-09 (PLAN-110): this person left on purpose (their phone forgot the seat), so a computer plays it for good. */
+  left?: boolean;
 }
 
 export interface RoomData {
@@ -81,6 +83,10 @@ export interface RoomData {
   /** Rules 19: the version the current evening opened at. An evening action made on that state or a later one still
    *  stands, since every stall decides at the same time (unset: only the latest state is accepted). */
   eveningFrom?: number;
+  /** ON-13 (PLAN-110): the version at which the game last changed. A version bump that leaves the game as it was (a
+   *  change of look, someone coming back, a seat handed to the computer) does not make an action stale: an action made
+   *  on this version or a later one still stands (unset, in a room from before: only the latest version is accepted). */
+  gameFrom?: number;
 }
 
 export interface Conn {
@@ -296,7 +302,8 @@ export class Room {
     if (m.rv !== RULES_VERSION || m.pv !== PROTOCOL_VERSION) return conn.send({ t: 'error', msg: UPDATE_MSG, fatal: true, update: true });
     let seat = typeof m.token === 'string' ? d.seats.findIndex((s) => s.token === m.token) : -1;
     if (seat < 0) {
-      if (d.status !== 'lobby') return conn.send({ t: 'error', msg: 'This game has already started.', fatal: true });
+      // ON-15 (PLAN-110): a newcomer to a finished room is told so, not that it has started.
+      if (d.status !== 'lobby') return conn.send({ t: 'error', msg: d.status === 'finished' ? 'This game has finished.' : 'This game has already started.', fatal: true });
       if (d.seats.length >= MAX_SEATS - d.config.ai) return conn.send({ t: 'error', msg: 'This room is full.', fatal: true });
       // Quick match: each seat gets its own character, the one asked for if it is free, otherwise the first free one.
       // A private room (PLAN-102): nobody has a shopkeeper until the choosing step after the host starts.
@@ -323,6 +330,7 @@ export class Room {
       if (d.status === 'picking' && d.seats[seat].bot) delete d.seats[seat].confirmed;
       delete d.seats[seat].offlineSince;
       delete d.seats[seat].bot;
+      delete d.seats[seat].left;
       d.version++;
     }
     conn.send({ t: 'welcome', seat, token: d.seats[seat].token, code: d.code });
@@ -391,12 +399,14 @@ export class Room {
         if (d.status === 'picking') {
           // Leaving while shopkeepers are chosen: the seat is given one and a computer will play it.
           me.bot = true;
+          me.left = true;
           me.offlineSince ??= this.io.now();
           return this.pickedFor();
         }
         if (d.status === 'playing') {
           // Leaving a match on purpose: a computer takes the seat straight away.
           me.bot = true;
+          me.left = true;
           me.offlineSince ??= this.io.now();
           d.undo = undefined;
           d.version++;
@@ -428,7 +438,7 @@ export class Room {
       case 'continue': {
         const g = d.game;
         if (d.status !== 'playing' || !g || (g.phase !== 'morning' && g.phase !== 'reveal')) return;
-        if (m.v !== d.version) return; // already moved on
+        if (!this.current(m.v)) return; // already moved on
         if (!d.votes.includes(seat)) d.votes.push(seat);
         if (!this.tryContinue()) this.broadcast();
         return;
@@ -496,7 +506,7 @@ export class Room {
     d.rematch = [];
     d.undo = undefined;
     d.lastUndo = undefined;
-    d.version++;
+    this.moved();
     this.broadcast();
     this.advance();
   }
@@ -562,7 +572,7 @@ export class Room {
     // stall has not said Lights out.
     const sameEvening = g.phase === 'evening' && EVENING_ACTIONS.has(a.kind) && typeof m.v === 'number'
       && d.eveningFrom !== undefined && m.v >= d.eveningFrom && m.v <= d.version;
-    if (m.v !== d.version && !sameEvening) throw new RuleError('The game moved on. Try again.');
+    if (!this.current(m.v) && !sameEvening) throw new RuleError('The game moved on. Try again.');
     this.markTurnStart(g, seat);
     const next = applyAction(g, seat, a); // throws RuleError if illegal (wrong turn, no cash, etc.)
     // S3 (DEC-120): a favour card played on a buying turn stays played. Undo now goes back to just after it, so the
@@ -573,6 +583,19 @@ export class Room {
     this.remember(seat, m.id);
     conn.send({ t: 'ack', id: m.id });
     this.commit(next);
+  }
+
+  /** ON-13 (PLAN-110): was a message made on the game as it is now? Its version is the latest, or one from after the
+   *  game last changed (the versions since only changed a look, or who is connected). */
+  private current(v: unknown): boolean {
+    const d = this.d;
+    return typeof v === 'number' && v <= d.version && v >= (d.gameFrom ?? d.version);
+  }
+
+  /** The game has changed: a new version, and actions made on an older one are stale. */
+  private moved() {
+    this.d.version++;
+    this.d.gameFrom = this.d.version;
   }
 
   /** Remembers the state a person's buying turn began in (the first action of the turn), so they can take purchases back. */
@@ -591,7 +614,7 @@ export class Room {
     if (d.status !== 'playing' || !g) throw new RuleError('No game in progress');
     if (typeof m.id !== 'string' || m.id.length > 64) throw new RuleError('Something went wrong. Try again.');
     if (d.seen[seat].includes(m.id)) return conn.send({ t: 'ack', id: m.id }); // replay: already handled
-    if (m.v !== d.version) throw new RuleError('The game moved on. Try again.');
+    if (!this.current(m.v)) throw new RuleError('The game moved on. Try again.');
     if (g.phase !== 'buy' || activePlayer(g) !== seat || d.seats[seat].bot) throw new RuleError('You can take back purchases during your own buying turn only');
     const u = d.undo;
     if (!u || u.seat !== seat || u.day !== g.day || u.game.phase !== 'buy' || activePlayer(u.game) !== seat) throw new RuleError('Nothing to take back');
@@ -601,7 +624,7 @@ export class Room {
     this.remember(seat, m.id);
     conn.send({ t: 'ack', id: m.id });
     d.lastUndo = { seat, n: (d.lastUndo?.n ?? 0) + 1 };
-    d.version++;
+    this.moved();
     this.broadcast();
     this.advance();
   }
@@ -638,7 +661,7 @@ export class Room {
     // Rules 19: the computers' evening choices are made as the evening opens and arrive with it, so every phone shows
     // them together (and nobody's evening sheet is drawn before them).
     d.game = (next.phase === 'evening' && computersEvening(next, (p) => this.computer(next, p))) || next;
-    d.version++;
+    this.moved();
     if (d.game.phase === 'evening' && !(was?.phase === 'evening' && was.day === d.game.day)) d.eveningFrom = d.version;
     this.broadcast();
     this.advance();
@@ -672,7 +695,7 @@ export class Room {
         if (!n) return;
         d.undo = undefined;
         d.game = n;
-        d.version++;
+        this.moved();
         this.broadcast();
         continue;
       }
@@ -684,7 +707,7 @@ export class Room {
         if (!n) return;
         d.undo = undefined;
         d.game = n;
-        d.version++;
+        this.moved();
         this.broadcast();
         continue;
       }
@@ -704,7 +727,7 @@ export class Room {
         d.game = s;
         d.pending = s.players.map(() => null);
         d.votes = [];
-        d.version++;
+        this.moved();
         this.broadcast();
         continue;
       }
@@ -738,6 +761,7 @@ export class Room {
       ...(s.confirmed ? { confirmed: true } : {}),
       ...(s.offlineSince !== undefined && !online.has(i) ? { offlineSince: s.offlineSince, takeoverAt: s.offlineSince + GRACE_MS } : {}),
       ...(s.bot ? { bot: true } : {}),
+      ...(s.left ? { left: true } : {}),
     }));
     const g = d.game;
     const submitted = g

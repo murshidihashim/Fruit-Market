@@ -11,23 +11,45 @@ import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
 import { Wardrobe } from '../../Wardrobe';
 import { useState } from 'preact/hooks';
+import type { GameState } from '../../../engine/game';
+import { loadSettings, saveSettings } from '../../store';
+import { Toggle } from '../../Toggle';
 import type { GameController } from '../useGameController';
 
 /** S3 (DEC-120): said on a favour card about to be played on a buying turn. */
 export const UNDO_AFTER_CARD = 'Once played, it stays played. Undo then takes back only what you buy after it.';
 
-export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
+export function EventPop({ c, viewer, shared }: { c: GameController; viewer: number; shared?: boolean }) {
   // Fills the screen like the morning card (PLAN-013); tap anywhere or the button to go back.
   return (
     <div class="full-sheet event-sheet" role="dialog" aria-label="Today and tomorrow" onClick={() => c.setEventInfo(false)}>
-      <MorningCard s={c.s} viewer={viewer} lost={0} />
+      <MorningCard s={c.s} viewer={viewer} lost={0} shared={shared} />
       <button type="button" class="btn primary big wide" onClick={() => c.setEventInfo(false)}>Back</button>
     </div>
   );
 }
 
-export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coach: Tip | null; onExit: () => void; onWear?: (look: Record<string, string>) => void }) {
+/**
+ * S18 (PLAN-110): what is lost if the person leaves now. A purchase is kept with the game (and Undo with it), but a crate
+ * being filled, prices being set and a bid being chosen are kept only once they are sent. Null when nothing would be.
+ */
+export function unsentChoice(s: GameState, mine: boolean): string | null {
+  if (!mine) return null;
+  if (s.phase === 'stall') return 'Your crate is kept only once you open your stall.';
+  if (s.phase === 'bid') return 'Your prices are kept only once you ring the bell.';
+  if (s.phase === 'order') return 'Your bid is kept only once you bid or pass.';
+  return null;
+}
+
+/** `room`: online, the room's code (ON-08: the menu names it, and Home asks first, since the match goes on). */
+export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController; coach: Tip | null; onExit: () => void; onWear?: (look: Record<string, string>) => void; room?: string }) {
   const [wardrobe, setWardrobe] = useState(false);
+  // ON-08: online, Home first asks whether to leave the match.
+  const [leaving, setLeaving] = useState(false);
+  // S19: the sound switch, as in Settings.
+  const [sound, setSound] = useState(() => loadSettings().sound);
+  const closeMenu = () => { setLeaving(false); c.setMenu(false); };
+  const unsent = unsentChoice(c.s, c.myBidTurn);
   // `actor`: the stall this phone plays for now (online its own seat, which in the evening need not be `active`).
   const { s, actor, cardInfo, setCardInfo, pulseInfo, setPulseInfo, tip, setTip, menu, setMenu } = c;
   return (
@@ -95,15 +117,31 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
 
   {wardrobe && onWear && <div class="wd-overlay"><Wardrobe onBack={() => setWardrobe(false)} onChange={onWear} /></div>}
   {menu && (
-    <div class="modal-bg" onClick={() => setMenu(false)}>
-      <div class="modal center" onClick={(e) => e.stopPropagation()}>
-        <h2>Paused</h2>
-        <p class="muted">Your game is saved automatically.</p>
-        <button class="btn primary wide" onClick={() => setMenu(false)}>Resume</button>
-        <FullScreenButton />
-        {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
-        <button class="btn wide" onClick={onExit}>Home</button>
-      </div>
+    <div class="modal-bg" onClick={closeMenu}>
+      {room && leaving ? (
+        <div class="modal center game-menu" role="dialog" aria-label="Leave the match?" onClick={(e) => e.stopPropagation()}>
+          <h2>Leave the match?</h2>
+          <p>The match goes on without you: a computer will play for you until you come back.</p>
+          <p class="gm-room">To come back, open room {room} from Home.</p>
+          {unsent && <p class="gm-warn">{unsent}</p>}
+          <button class="btn primary wide" onClick={() => setLeaving(false)}>Stay in the match</button>
+          <button class="btn wide" onClick={onExit}>Leave</button>
+        </div>
+      ) : (
+        <div class="modal center game-menu" role="dialog" aria-label="Menu" onClick={(e) => e.stopPropagation()}>
+          {/* ON-08: an online match never pauses, so online the menu says so and names the room. */}
+          <h2>{room ? 'Menu' : 'Paused'}</h2>
+          {room
+            ? <p class="gm-room">Room {room}. The match goes on while this menu is open.</p>
+            : <p class="muted">Your game is saved automatically.</p>}
+          {unsent && <p class="gm-warn">{unsent}</p>}
+          <button class="btn primary wide" onClick={closeMenu}>{room ? 'Back to the match' : 'Resume'}</button>
+          <Toggle on={sound} set={(v) => { const st = loadSettings(); saveSettings({ ...st, sound: v }); setSound(v); }} title="Sound" text="Coins, cards and cheers." />
+          <FullScreenButton />
+          {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
+          <button class="btn wide" onClick={room ? () => setLeaving(true) : onExit}>Home</button>
+        </div>
+      )}
     </div>
   )}
     </>

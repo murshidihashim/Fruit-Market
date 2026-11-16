@@ -74,7 +74,7 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
             <button type="button" class="pz tk-lane-head tb-lh" data-a={`mk-${f}`} disabled={!onPulse} onClick={(e) => { e.stopPropagation(); onPulse?.(); }}
               aria-label={`${FRUIT[f].plural}: ${want} wanted today`}>
               <i class="tb-lh-ico"><Fruit id={f} size={14} /></i>
-              <span>{want} wanted</span>
+              <span>{want}<span class="tb-lh-w"> wanted</span></span>
             </button>
             {shownColumn(view, f).map(({ pos, stage, n }) => {
               const ok = !night && !!onPick && n > 0 && (!canPick || canPick(f, pos));
@@ -127,7 +127,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
   const buyer = s.phase === 'buy' ? s.players[s.order[s.turn]] : null;
   const me = s.players[p];
   // PLAN-104: not while the First token is on its way (it would give away where it lands).
-  const turn = !buyer || tokenOnItsWay() ? '' : s.order[s.turn] === p ? `Your turn · ${shownBoughtCount(p, me.boughtToday)} of ${buyLimit(me)} bought` : '';
+  // S13 (PLAN-110): on a narrow phone, or beside a price chip, "bought" is left out (the Done button says the rest).
+  const turn = !buyer || tokenOnItsWay() ? null : s.order[s.turn] === p ? <>Your turn · {shownBoughtCount(p, me.boughtToday)} of {buyLimit(me)}<span class="tk-side-w"> bought</span></> : null;
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">
@@ -433,8 +434,21 @@ export type ShelfNight = number | 'done' | null | undefined;
  * none of it; a piece is counted once it has landed (tableShown.ts). At night a chip that spoils tips off and the
  * others take tomorrow's letter. Your cash is in the top bar.
  */
-export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; night?: ShelfNight }) {
+/**
+ * Your shelf, at the foot of the table. `hidden` (S8, PLAN-110): several people share this phone and the step on
+ * screen is everybody's (the morning, the rush and the takings, the night), so no one person's shelf or favour cards
+ * are drawn; each person sees their own once the phone is passed to them.
+ */
+export function MyStall({ s, p, onCard, flashCards, night, hidden }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; night?: ShelfNight; hidden?: boolean }) {
   const pl = s.players[p];
+  if (hidden) {
+    return (
+      <section class="my-stall dock tk-dock tb-dock c0 shared" aria-label="Shelves hidden">
+        <div class="tb-dock-head"><b class="tk-label">Shelves hidden</b><span class="tb-side">The phone is shared</span></div>
+        <div class="stk tb-chips" />
+      </section>
+    );
+  }
   // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
@@ -549,6 +563,9 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
   const wants = shownWants(s.results, c);
   const done = wants.every((w) => w.qty <= 0);
   const special = c.name === s.event?.extra?.name;
+  // S10 (PLAN-110): back in the row after their turn, a customer who bought something is ticked; one who left with
+  // nothing is greyed, with no tick (the takings count only the first as served).
+  const left = rush === 'served' && !boughtAny(s.results, c.id) ? 'none' : rush;
   // The ticket prints today's price (events and generous customers change it). A finished row is ticked and shows
   // what was asked for; a changed price is tinted.
   const lines: TicketLine[] = wants.map((w, i) => {
@@ -557,7 +574,7 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${rush ? ` rush-${rush}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
@@ -568,9 +585,15 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
           {heard && <i class="ear" title={SEEN_WALK_IN}><Icon name="ear" size={13} /></i>}
         </span>
       )}
-      {rush === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
+      {left === 'served' && <i class="rush-tick" role="img" aria-label="Served">✓</i>}
+      {left === 'none' && <i class="rush-none" role="img" aria-label="Left with nothing" />}
     </div>
   );
+}
+
+/** Did this customer buy anything in today's rush (from any stall)? */
+export function boughtAny(r: GameState['results'], customerId: number): boolean {
+  return !!r && r.lines.some((l) => l.customerId === customerId && l.offers.some((o) => o.sold > 0));
 }
 
 /**

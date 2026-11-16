@@ -42,7 +42,7 @@ const pieces = (n: number) => `${n} piece${n === 1 ? '' : 's'}`;
 
 /** One line of the day's ledger. */
 export interface TakingsRow {
-  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'bought' | 'staked' | 'other';
+  key: 'sold' | 'order' | 'stake' | 'ears' | 'jar' | 'hawker' | 'topup' | 'bought' | 'staked' | 'fine' | 'other';
   label: string;
   /** Dollars in (above 0) or out (below 0). Null: a line with no money in it today (a stake that did not come back). */
   amount: number | null;
@@ -84,8 +84,11 @@ export function takingsRows(s: GameState, viewer: number): TakingsRow[] {
   if (ears.length) rows.push({ key: 'ears', label: `${TRAITS.earful.title} tip`, amount: earTips });
   if (jar.length) rows.push({ key: 'jar', label: `${TRAITS.favourite.title} tip${jar.length === 1 ? '' : 's'}`, amount: jarTips });
   if (hawk.length) rows.push({ key: 'hawker', label: `Night hawker · ${pieces(hawk.length)}`, amount: hawkPay });
+  // S6 (PLAN-110): dawn's money, so "Up today" matches the morning.
+  if (l.topUp > 0) rows.push({ key: 'topup', label: 'Top-up from the Market', amount: l.topUp });
   if (l.bought > 0) rows.push({ key: 'bought', label: bought > 0 ? `Bought ${pieces(bought)} this morning` : 'Bought fruit this morning', amount: -l.bought });
   if (put > 0) rows.push({ key: 'staked', label: 'Stake on a standing order', amount: -put });
+  if (l.fine > 0) rows.push({ key: 'fine', label: 'Health Inspector fine', amount: -l.fine });
   if (rest !== 0) rows.push({ key: 'other', label: 'Other', amount: rest });
   return rows;
 }
@@ -204,9 +207,12 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
   const won = r.favours.filter((x) => x.player === viewer);
   // What tonight does to the shelf: fruit that spoils, and fruit a Juice Bar turns into juice. Nothing on the final
   // day, when no night follows.
-  const tonight = s.phase === 'reveal' ? tonightLine(s, viewer) : null;
+  // S8 (PLAN-110): on a phone several people share, the takings are everybody's: no one person's ledger, favour card
+  // or shelf (each person sees their own when the phone is passed to them).
+  const own = !shared;
+  const tonight = own && s.phase === 'reveal' ? tonightLine(s, viewer) : null;
   const spoil = tonight ? spoilsTonight(s, viewer) : 0;
-  const chips = s.phase === 'reveal' ? shelfTonight(s, viewer) : [];
+  const chips = own && s.phase === 'reveal' ? shelfTonight(s, viewer) : [];
   const nightEvent = s.event?.ageExtra ? s.event.title : null;
   return (
     <div class="sales-card" ref={root}>
@@ -223,7 +229,9 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
           </span>
         </div>
       )}
-      <div class="tg-led">
+      {!own && <div class="tg-led tg-shared"><div class="tg-hd"><span>Day {s.day} · the takings</span><b>{rem === 0 ? 'MARKET CLOSED' : `${rem} day${rem > 1 ? 's' : ''} to go`}</b></div>
+        <p class="tg-note">Each person sees their own takings when the phone is passed to them.</p></div>}
+      {own && <div class="tg-led">
         <div class="tg-hd"><span>Day {s.day} · your takings</span><b>{rem === 0 ? 'MARKET CLOSED' : `${rem} day${rem > 1 ? 's' : ''} to go`}</b></div>
         <div class="tg-rows ledger" aria-label="Day ledger">
           {rows.map((x) => (
@@ -234,7 +242,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
           ))}
         </div>
         {net !== null && <div class="tg-net">{net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Broke even'} <b class={net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}>{money(net)}</b></div>}
-      </div>
+      </div>}
       <div class="tg-stalls">
         <div class="tg-lab"><b class="tk-label">The stalls after Day {s.day}</b><span>Cash</span></div>
         <ol class="tg-list">
@@ -248,9 +256,9 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
             </li>
           ))}
         </ol>
-        {s.players.length > 1 && <div class={`tg-rank r${st.rank}`}>{st.text}</div>}
+        {own && s.players.length > 1 && <div class={`tg-rank r${st.rank}`}>{st.text}</div>}
       </div>
-      {won.map((x) => (
+      {own && won.map((x) => (
         <div class="tg-won">
           <b class="tg-tag">Favour won</b>
           <CardArt src={favourArt(x.favour)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} eager focus={favourFocus(x.favour)} />

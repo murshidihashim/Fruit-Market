@@ -664,21 +664,29 @@ export interface DayLedger {
   sales: number;
   /** What the viewer paid for fruit today. */
   bought: number;
+  /** The Health Inspector's fine at dawn (paid before the day's starting cash was counted). */
+  fine: number;
+  /** The market's top-up at dawn (given before the day's starting cash was counted). */
+  topUp: number;
   /** Anything else that changed the viewer's cash since the day began. */
   other: number;
-  /** The day's cash change; null when the day's starting cash is unknown (an older save). */
+  /** The day's cash change, dawn's fine and top-up included (S6, PLAN-110: so it matches the morning); null when the
+   *  day's starting cash is unknown (an older save). */
   net: number | null;
 }
 
 /**
- * The viewer's day in money: sales, fruit bought and anything else. Rules 20: nothing is paid after the last rush, so
- * on the last day too the cash on the sales card is the final cash.
+ * The viewer's day in money: sales, fruit bought, dawn's fine and top-up, and anything else. The day's starting cash
+ * is counted after dawn's fine and top-up (the buying order reads it), so they are added back here. Rules 20: nothing
+ * is paid after the last rush, so on the last day too the cash on the sales card is the final cash.
  */
 export function dayLedger(s: GameState, viewer: number): DayLedger {
   const r = s.results;
   const sales = r?.income[viewer] ?? 0;
   const bought = r?.spent?.[viewer] ?? 0;
+  const fine = s.dayFines?.[viewer] ?? 0;
+  const topUp = s.dayTopUps?.[viewer] ?? 0;
   const start = s.dayStartCash?.[viewer];
   const change = start === undefined ? null : s.players[viewer].cash - start;
-  return { sales, bought, other: change === null ? 0 : change - sales + bought, net: change };
+  return { sales, bought, fine, topUp, other: change === null ? 0 : change - sales + bought, net: change === null ? null : change - fine + topUp };
 }

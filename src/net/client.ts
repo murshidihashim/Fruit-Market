@@ -60,6 +60,22 @@ const originOf = (url: string): string => {
 };
 
 const tokenKey = (code: string) => `fm.room.${code}`;
+const MATCH_KEY = 'fm.match';
+
+/** ON-08 (PLAN-110): this phone left an online match it can go back to (Home, or the app closed): its room code. */
+export function rememberMatch(code: string) {
+  try { localStorage.setItem(MATCH_KEY, code); } catch { /* private mode: Home cannot offer the way back */ }
+}
+/** The match this phone can go back to: only while its seat is still on the phone. */
+export function openMatch(): string | null {
+  try {
+    const code = localStorage.getItem(MATCH_KEY);
+    return code && localStorage.getItem(tokenKey(code)) ? code : null;
+  } catch { return null; }
+}
+export function forgetMatch() {
+  try { localStorage.removeItem(MATCH_KEY); } catch { /* nothing kept */ }
+}
 
 function loadToken(code: string): string | undefined {
   try { return localStorage.getItem(tokenKey(code)) ?? undefined; } catch { return undefined; }

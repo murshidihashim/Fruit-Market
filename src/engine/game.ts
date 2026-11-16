@@ -1016,6 +1016,8 @@ function favourBlock(s: GameState, p: number, idx: number): string | null {
   if (id === 'priority' && priorityPlays(s).includes(p)) return 'You have already played Priority tonight';
   if (id === 'gossip' && (s.queue.length === 0 || s.queue.every((c) => c.seenBy?.includes(p)))) return 'No walk-ins left to look at';
   if (id === 'scout' && s.queue.every((c) => c.seenBy?.includes(p))) return 'No walk-ins left to look at';
+  // S9 (PLAN-110): the free piece could not land (playFavour refuses it too); the card is not offered then.
+  if (id === 'freeFruit' && count(pl.stock) >= shelfSize(pl)) return 'Your shelf is full';
   return null;
 }
 

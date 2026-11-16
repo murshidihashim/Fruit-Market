@@ -190,11 +190,15 @@ export function recordLeague(g: GameState, me: number): boolean {
 
 export interface Colour { id: string; name: string; hex: string }
 
-/** The eight stall colours. Their names are in the one look list (src/net/looks.ts: "col_" and the id). */
+/**
+ * The eight stall colours. Their names are in the one look list (src/net/looks.ts: "col_" and the id). C-12 (PLAN-110):
+ * Teal, Plum and Royal are lighter than before, so no stall wears the Premium purple or the Everyday teal of the
+ * customer cards; a look saved with their ids loads as before, in the new shade.
+ */
 const colour = (id: string, hex: string): Colour => ({ id, name: lookById(`col_${id}`)?.title ?? id, hex });
 export const COLOURS: Colour[] = [
-  colour('terra', C.terracotta), colour('teal', C.teal), colour('olive', C.c_7d8c3a), colour('gold', C.c_d99a2b),
-  colour('plum', C.c_7b4a8c), colour('night', C.c_3d4f86), colour('rose', C.c_c9607a), colour('royal', C.c_5b3fa8),
+  colour('terra', C.terracotta), colour('teal', C.stallTeal), colour('olive', C.c_7d8c3a), colour('gold', C.c_d99a2b),
+  colour('plum', C.stallPlum), colour('night', C.c_3d4f86), colour('rose', C.c_c9607a), colour('royal', C.stallRoyal),
 ];
 /** A stall colour's hex by its id, or null. */
 export const colourHex = (id: string | undefined): string | null => COLOURS.find((x) => x.id === id)?.hex ?? null;

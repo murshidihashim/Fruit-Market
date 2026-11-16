@@ -2,7 +2,7 @@
 // While you buy, Undo and Done keep their places the whole time (PLAN-085): they are not taken away while a piece is
 // on its way, and a tap on Done then is kept until the piece has landed.
 import { FAVOURS } from '../../../engine/data';
-import { count, type Player } from '../../../engine/game';
+import { count, shelfSize, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import { fx } from '../../fx';
 import { shownBoughtCount } from '../../tableShown';
@@ -37,6 +37,9 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
     : null;
   const quiet = beat === null;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
+  // S9 (PLAN-110): what can still be bought is the smaller of the day's pieces and the shelf's free spaces.
+  const room = pl ? Math.max(0, shelfSize(pl) - count(pl.stock)) : 0;
+  const more = Math.min(Math.max(0, limit - bought), room);
   const after = turnStart.current?.after;
   return (
     <footer class="actionbar">
@@ -52,7 +55,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
           <button class={`btn ghost ${after ? 'undo-after' : ''}`} aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(turnStart.current, s, active, online)} onClick={c.undo}>↶{after && <small>after {FAVOURS[after].title}</small>}</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
               along and make it narrower, and they keep their places the whole turn. */}
-          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
+          <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : room === 0 ? 'shelf full' : `${more} more allowed`}</small></button>
         </>
       )}
       {quiet && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}

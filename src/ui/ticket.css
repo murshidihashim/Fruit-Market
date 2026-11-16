@@ -112,6 +112,9 @@
 #app .tkt .street > .cust { all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 112px; display: flex; cursor: pointer; }
 #app .tkt .street > .cust.rush-away { visibility: hidden; }
 #app .tkt .street > .cust.rush-served .tk-cust, #app .tkt .street > .cust.happy .tk-cust { opacity: 0.45; }
+/* S10 (PLAN-110): a customer who left with nothing is greyed, with no tick */
+#app .tkt .street > .cust.rush-none .tk-cust { opacity: 0.35; filter: grayscale(1); }
+#app .tkt .cust .rush-none { all: unset; position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 #app .tkt .street > .cust.special .tk-cust { box-shadow: 0 0 0 3px var(--tk-yel); }
 #app .tkt .street > .cust.pickable .tk-cust { box-shadow: 0 0 0 3px var(--tk-ink); }
 #app .tkt .tk-cust { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; background: var(--tk-paper); color: var(--tk-ink); }

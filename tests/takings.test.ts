@@ -63,8 +63,9 @@ describe('the ledger', () => {
       expect(new Set(rows.map((x) => x.key)).size).toBe(rows.length);
       for (const x of rows) seen.add(x.key);
     }
-    // these games reach every line but a Sharp Ears tip and "Other" (the next test)
-    expect([...seen].sort()).toEqual(['bought', 'hawker', 'jar', 'order', 'sold', 'stake', 'staked']);
+    // these games reach every line but a Sharp Ears tip, a top-up and "Other" (the next test); S6 (PLAN-110): a
+    // Health Inspector's fine at dawn has its own line
+    expect([...seen].sort()).toEqual(['bought', 'fine', 'hawker', 'jar', 'order', 'sold', 'stake', 'staked']);
   });
 
   it('a Sharp Ears tip has its own line, and a change no line explains stays under "Other"', () => {
@@ -179,8 +180,9 @@ describe('the takings as drawn', () => {
       for (const x of rows) {
         expect(x.cash).toBe(s.players[x.p].cash);
         expect(x.today).toBe(dayLedger(s, x.p).net);
-        // a stall's cash is where it started the day plus what the day changed
-        expect(x.cash).toBe(s.dayStartCash![x.p] + x.today!);
+        // a stall's cash is where it started the day plus what the day changed; S6 (PLAN-110): the day's starting
+        // cash is counted after dawn's fine and top-up, and the day's change includes them
+        expect(x.cash).toBe(s.dayStartCash![x.p] + (s.dayFines?.[x.p] ?? 0) - (s.dayTopUps?.[x.p] ?? 0) + x.today!);
         expect(x.me).toBe(x.p === p);
       }
       // this stall's row says what "Up today" says, and its place is the place in the line under the list

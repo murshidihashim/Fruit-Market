@@ -1,6 +1,7 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { FAVOURS } from '../engine/data';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
 import { heatwaveLine, tonightText } from '../engine/story';
 import type { OnlineClient } from '../net/client';
@@ -11,7 +12,6 @@ import { EveningSheet } from './panel';
 import { Market, MyStall, Stalls, Street, Tomorrow, seats, type Board } from './table';
 import { fx } from './fx';
 import { tipFor } from './tutorial';
-import { loadSettings } from './store';
 import { useGameController } from './game/useGameController';
 import { coverWatch } from './game/underSheet';
 import { useStockShown } from './stockShown';
@@ -99,12 +99,25 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     // The hand-over screen hides the whole table: the last person's crate and price tags go with it (PLAN-099).
     tableWas.current = false;
     const pl = s.players[active];
+    // S8 (PLAN-110): the takings on a shared phone are everybody's, so each person's own day waits for them here.
+    const mine = c.ownDay(active);
     return (
-      <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.setHandedTo(active); }}>
-        <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
-        <h2>Pass the phone to {pl.name}</h2>
-        {s.phase === 'buy' ? <p>Your turn to buy fruit.</p> : s.phase === 'tie' ? <p>One of your prices is tied. Play Favoured Trade, or keep it?</p> : null}
-        <button class="btn primary big">Tap to start</button>
+      <div class="handoff" onClick={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.handTo(active); }}>
+        <div class="ho-card">
+          <div class="avatar xl"><Face who={pl.avatar} size={96} /></div>
+          <span class="ho-lab">Pass the phone to</span>
+          <h2>{pl.name}</h2>
+          {s.phase === 'buy' ? <p>Your turn to buy fruit.</p> : s.phase === 'tie' ? <p>One of your prices is tied. Play Favoured Trade, or keep it?</p> : null}
+          {mine && (
+            <div class="ho-own" role="note">
+              <b class="ho-lab">Your Day {mine.day}</b>
+              <span>{mine.line}</span>
+              {mine.won.map((f) => <span>Favour won: {FAVOURS[f].title}</span>)}
+              {mine.night.map((t) => <span>{t}</span>)}
+            </div>
+          )}
+          <button class="btn primary big">Tap to start</button>
+        </div>
       </div>
     );
   }
@@ -187,7 +200,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     if (s.phase === 'morning' && firstUp) return null;
     if (s.phase === 'morning' && !busy) return picker >= 0
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
-      : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table />;
+      : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table shared={!online && humans.length > 1} />;
     // Offline the computer stalls decide first, so the sheet is up before the person's own turn: it must not say
     // "Bid in" then (PLAN-081). Online a waiting stall has always sent its choice (the room holds it until everyone has).
     if (orderUp) return <OrderPanel key={`or-${s.day}-${orderSeat}`} s={s} p={orderSeat} waiting={!ordering} canChange={!!online} shown={c.orderShow}
@@ -201,6 +214,9 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   })();
   // The round table lies over the market too, so the market is out of reach while it is up.
   covered.current = !!mid || tableOn;
+  // S8 (PLAN-110): a step everybody at a shared phone watches together (the morning, the rush and the takings, the
+  // night): no one person's shelf is drawn.
+  const together = !online && humans.length > 1 && (s.phase === 'morning' || s.phase === 'reveal' || !!c.night);
   const offSeats = offline.map((x) => x.seat);
 
   // A tap on the table hurries what is playing until your next decision (PLAN-081), the rivals' turns included. Not a
@@ -214,15 +230,16 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     else c.hurry();
   };
   return (
-    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${tableOn ? 'table-up' : ''}${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''} ${loadSettings().patterns ? 'patterns' : ''}`} onClick={tapTable}>
+    <div class={`game gx tkt ph-${s.phase} ${coach && (s.phase === 'stall' || s.phase === 'bid') ? 'coach-row' : ''} ${tableOn ? 'table-up' : ''}${c.night ? 'is-night' : ''} ${s.config.days - s.day < 3 ? 'finale' : ''} ${s.day === s.config.days ? 'final-day' : ''}`} onClick={tapTable}>
       <TopBar s={s} viewer={viewer} night={c.night} on={onTable} onMenu={() => c.setMenu(true)} onEvent={() => c.setEventInfo(!c.eventInfo)} />
-      {c.eventInfo && <EventPop c={c} viewer={viewer} />}
+      {c.eventInfo && <EventPop c={c} viewer={viewer} shared={together} />}
       {online && (c.conn !== 'open' || offline.length > 0) && (
         <div class="net">
           {c.conn !== 'open' && <div class="net-strip bad">Reconnecting to the room…</div>}
           {c.conn === 'open' && offline.map((x) => (
             <div class="net-strip">
-              {x.bot ? `A computer is playing for ${x.name} until they come back.`
+              {x.left ? `${x.name} left. A computer plays for them.`
+                : x.bot ? `A computer is playing for ${x.name} until they come back.`
                 : x.takeoverAt ? `${x.name} disconnected. A computer takes over in ${Math.max(0, Math.ceil((x.takeoverAt - c.nowTick) / 1000))}s.`
                 : `${x.name} is offline.`}
             </div>
@@ -251,7 +268,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />
         {mid}
       </div>
-      <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} />
+      <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} hidden={together} />
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}
@@ -264,7 +281,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <div class="fx-layer" ref={c.layerRef} />
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
-      <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} />
+      <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} room={online?.code} />
       {firstUp && !firstRules && (
         <FirstTimePopup onRules={() => { fx.tap(); setFirstRules(true); }} onDone={() => { fx.tap(); dismissFirstTime(); setFirstTime(false); }} />
       )}

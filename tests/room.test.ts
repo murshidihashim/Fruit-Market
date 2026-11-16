@@ -135,6 +135,17 @@ describe('online room', () => {
     expect(h.room.d.status).toBe('finished');
   });
 
+  it('ON-15 (PLAN-110): a newcomer to a finished room is told it has finished', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b, 8, 2);
+    await playOut(h, a, b);
+    const late = h.connect('L');
+    await late.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Late', avatar: '🦸' });
+    expect(late.errors.slice(-1)[0]).toBe('This game has finished.');
+    expect(late.seat).toBeNull();
+  });
+
   it('never reveals secret prices, hidden cards, decks or the seed', async () => {
     const h = new Harness();
     const { a, b } = await lobbyOf2(h);
@@ -591,6 +602,34 @@ describe('choosing shopkeepers after everyone has joined', () => {
     expect(CHARACTER_AVATARS.includes(a.view!.game!.players[1].avatar)).toBe(true);
   });
 
+  it('ON-09 (PLAN-110): a seat whose person left on purpose says so; one that dropped out does not', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'character', avatar: '🦊' });
+    await a.say({ t: 'confirm' });
+    await b.say({ t: 'leave' });
+    expect(a.view!.seats[1].left).toBe(true);
+    // A drops out and comes back with the seat token: never "left".
+    const token = a.token;
+    a.close();
+    const a2 = h.connect('A2');
+    await a2.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, token, name: 'Murshidi', avatar: '🧑‍🍳' });
+    expect(a2.view!.seats[0].left).toBeUndefined();
+    expect(a2.view!.seats[1].left).toBe(true);
+  });
+
+  it('ON-07 (PLAN-110): a person who drops out while choosing is shown with the time a computer takes over', async () => {
+    const h = new Harness();
+    const { a, b } = await toPicking(h);
+    await a.say({ t: 'character', avatar: '🦊' });
+    await a.say({ t: 'confirm' });
+    b.close();
+    const seat = a.view!.seats[1];
+    expect(seat.connected).toBe(false);
+    expect(seat.takeoverAt).toBe(h.t + GRACE_MS);
+    expect(seat.left).toBeUndefined();
+  });
+
   it('waits instead of starting when every person has left', async () => {
     const h = new Harness();
     const { a, b } = await toPicking(h);
@@ -705,6 +744,41 @@ describe('undo and rename in a room', () => {
     await buyer.say({ t: 'undo', id, v: v1 });
     expect(buyer.view!.version).toBe(v2);
     expect(other.view!.undone!.n).toBe(1);
+  });
+
+  it('ON-13 (PLAN-110): a change of look or someone coming back does not make the buyer\'s tap stale', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer, other } = await toBuyTurn(h, a, b);
+    // The buyer taps while the other person changes their look: the room moves on a version, the game does not.
+    const v0 = buyer.view!.version;
+    await other.say({ t: 'look', look: { hat: 'party_hat' } });
+    expect(buyer.view!.version).toBeGreaterThan(v0);
+    expect(buyer.view!.game!.players[other.view!.you].look).toEqual({ hat: 'party_hat' });
+    const g = h.room.d.game!;
+    const me = buyer.view!.you;
+    const f = FRUITS.find((x) => g.market[x].some((n, pos) => n > 0 && !canBuy(g, me, x, pos)))!;
+    const pos = g.market[f].findIndex((n, k) => n > 0 && !canBuy(g, me, f, k));
+    await buyer.say({ t: 'act', id: nid(), v: v0, action: { kind: 'buy', fruit: f, pos } });
+    expect(buyer.errors).toEqual([]);
+    expect(mine(buyer).boughtToday).toBe(1);
+    // The other person drops out and comes back while the buyer taps Undo, then Done: neither is refused.
+    const v1 = buyer.view!.version;
+    const token = other.token;
+    other.close();
+    const back = h.connect('B2');
+    await back.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'Friend', avatar: '👩‍🍳', token });
+    expect(buyer.view!.version).toBeGreaterThan(v1);
+    await buyer.say({ t: 'undo', id: nid(), v: v1 });
+    expect(buyer.errors).toEqual([]);
+    expect(mine(buyer).boughtToday).toBe(0);
+    const v2 = buyer.view!.version;
+    await back.say({ t: 'look', look: {} });
+    await buyer.say({ t: 'act', id: nid(), v: v2, action: { kind: 'endBuy' } });
+    expect(buyer.errors).toEqual([]);
+    // A tap made before the game itself changed is still refused.
+    await buyer.say({ t: 'act', id: nid(), v: v0, action: { kind: 'endBuy' } });
+    expect(buyer.errors.slice(-1)[0]).toContain('moved on');
   });
 
   it('cannot take back after the turn has ended', async () => {

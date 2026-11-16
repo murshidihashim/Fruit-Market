@@ -1,10 +1,10 @@
 // Online multiplayer screens: create or join a private room, the lobby, choosing shopkeepers (PLAN-102), then the
 // shared match. A quick match picks its shopkeeper before searching and starts at once.
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { createRoom, inviteLink, OnlineClient, onlineAvailable, quickMatch } from '../net/client';
+import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
 import { RIVALS } from '../engine/data';
-import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, type RoomConfig, type RoomView } from '../net/protocol';
+import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, type PublicSeat, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
@@ -64,7 +64,8 @@ function MyName({ name, host, onRename }: { name: string; host: boolean; onRenam
   );
 }
 
-export function Online({ initialCode, quick, onExit }: { initialCode?: string; quick?: boolean; onExit: () => void }) {
+/** `typed`: the code was typed on Home (ON-15: "Room X", not an invitation). */
+export function Online({ initialCode, typed, quick, onExit }: { initialCode?: string; typed?: boolean; quick?: boolean; onExit: () => void }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
   const [name, setName] = useState(loadName());
   const nameRef = useRef<HTMLInputElement>(null);
@@ -82,7 +83,14 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   const [err, setErr] = useState<string | null>(null);
   useClient(client);
 
-  useEffect(() => () => client?.stop(), [client]);
+  // ON-08 (PLAN-110): a match left mid-way (Home, Android's back button) can be gone back to from Home; a match that has
+  // finished, or a room that could not be joined, is forgotten.
+  useEffect(() => () => {
+    if (client?.view?.status === 'playing' && client.conn !== 'failed' && !client.view.seats[client.view.you]?.left) rememberMatch(client.code);
+    client?.stop();
+  }, [client]);
+  const status = client?.view?.status;
+  useEffect(() => { if (status === 'finished' || client?.conn === 'failed') forgetMatch(); }, [status, client?.conn]);
 
   // Refreshing or reopening the link with a seat token on this device goes straight back in.
   useEffect(() => {
@@ -91,6 +99,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   }, []);
 
   const begin = (c: string) => {
+    forgetMatch();
     const nm = name.trim() || 'Player';
     saveName(name.trim());
     try { localStorage.setItem('fm.avatar', avatar); } catch { /* ignore */ }
@@ -118,6 +127,8 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
   };
 
   const exit = () => {
+    // ON-08: said before Home is drawn, so its "Back to room" ticket is there at once.
+    if (client?.view?.status === 'playing' && !client.view.seats[client.view.you]?.left) rememberMatch(client.code);
     client?.stop();
     try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
     onExit();
@@ -184,7 +195,7 @@ export function Online({ initialCode, quick, onExit }: { initialCode?: string; q
       </section>
       {invited ? (
         <section class="panel">
-          <h3>Invited to room {invited}</h3>
+          <h3>{typed ? `Room ${invited}` : `Invited to room ${invited}`}</h3>
           <p class="small muted">{PICK_LATER}</p>
           <button class="btn primary big wide" onClick={() => begin(invited)}>Join the game</button>
         </section>
@@ -332,6 +343,13 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
 
 const keeperName = (avatar: string) => RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Shopkeeper';
 
+/** ON-07 (PLAN-110): the choosing step's line for a person who dropped out before confirming. */
+export function pickAwayLine(x: PublicSeat, now: number): string {
+  if (x.left) return `${x.name} left. A computer chooses for them.`;
+  if (x.bot || x.takeoverAt === undefined) return `${x.name} disconnected. A computer chooses for them.`;
+  return `${x.name} disconnected. A computer chooses for them in ${Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.`;
+}
+
 /** PLAN-102: after the host starts a private room, everyone chooses a shopkeeper at the same time. Looking at a card
  *  does not take it; "Choose" asks the room for it (first come), and it can be changed until "Confirm". The match
  *  begins when every person has confirmed; the computers then take shopkeepers from those left. */
@@ -351,6 +369,24 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const shown = done ? mine : look;
   const takenBy = taken[shown];
   const left = v.seats.filter((x) => !x.confirmed).length;
+  // ON-07 (PLAN-110): a person who dropped out while choosing: the room hands their seat to a computer after the grace
+  // period, and says when; the screen counts down to it instead of waiting in silence.
+  const away = v.seats.filter((x) => x.seat !== v.you && !x.connected && !x.confirmed);
+  const now = useNow(away.some((x) => x.takeoverAt !== undefined && !x.bot));
+  // ON-09: the back arrow here leaves the game for good, so it asks first.
+  const [leaving, setLeaving] = useState(false);
+  if (leaving) {
+    return (
+      <Shell title={`Room ${v.code}`} onBack={() => setLeaving(false)}>
+        <section class="panel center-text">
+          <h3>Leave the game?</h3>
+          <p>A computer will play for you, and you cannot come back to this game.</p>
+        </section>
+        <button class="btn primary big wide" onClick={() => { fx.tap(); setLeaving(false); }}>Stay</button>
+        <button class="btn big wide" onClick={onExit}>Leave</button>
+      </Shell>
+    );
+  }
 
   const choose = () => {
     fx.tap();
@@ -361,18 +397,19 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const confirm = () => { fx.card(); setErr(null); client.confirm(); };
 
   return (
-    <Shell title={`Room ${v.code}`} onBack={onExit}>
+    <Shell title={`Room ${v.code}`} onBack={() => { fx.tap(); setLeaving(true); }}>
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
       <section class="panel">
         <h3>Choose your shopkeeper</h3>
         <p class="small muted">Pick one nobody has taken. Each shopkeeper has one perk for the whole game.</p>
         <CharacterPick value={shown} taken={taken} chosen={mine} fixed={done} onPick={(a) => { setErr(null); setLook(a); }} />
         {done
-          ? <p class="center-text small pick-wait">{left ? 'Confirmed. Waiting for the others.' : 'Confirmed. The game is starting.'}</p>
+          ? <p class="center-text small pick-wait">{left ? (away.length ? 'Confirmed.' : 'Confirmed. Waiting for the others.') : 'Confirmed. The game is starting.'}</p>
           : shown === mine
             ? <button class="btn primary big wide pick-confirm" onClick={confirm}>Confirm {keeperName(mine)}</button>
             : <button class="btn primary big wide pick-choose" disabled={!!takenBy} onClick={choose}>{takenBy ? `Taken by ${takenBy}` : `Choose ${keeperName(shown)}`}</button>}
         {!done && mine && shown !== mine && <p class="center-text muted small">You have {keeperName(mine)}. You can change until you confirm.</p>}
+        {away.map((x) => <p class="center-text small warn-text pick-away">{pickAwayLine(x, now)}</p>)}
         {err && <p class="error center-text">{err}</p>}
       </section>
 
@@ -386,7 +423,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
               <span class="seat-name">{x.name}{x.seat === v.you && ' (you)'}</span>
               {x.avatar && <small class="sbk-seat-title">{keeperName(x.avatar)}</small>}
               <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
-              <span class={`ready-tag ${x.confirmed ? 'yes' : ''}`}>{x.confirmed ? 'CONFIRMED' : 'choosing'}</span>
+              <span class={`ready-tag ${x.confirmed ? 'yes' : ''}`}>{x.left ? 'left' : x.confirmed ? 'CONFIRMED' : x.connected ? 'choosing' : 'away'}</span>
             </div>
           ))}
           {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span></div>)}
