@@ -1,6 +1,6 @@
 # Current state · Fruit Market
 
-Updated 2026-11-16 20:46 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-16 20:51 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.24.0, rules version 19, protocol 4 (`3aed6c7`, tagged `v1.24.0`, published 2026-11-16 07:54; DEC-119, REP-121): shopkeepers chosen after everyone joins a room (PLAN-102), first-time How to play popup online (PLAN-103), seat numbers and the FIRST token (PLAN-104), iPhone price-tag fix (PLAN-105), new card look in app and print (PLAN-106), print pack at rules 19 (PLAN-100). The preview is the same build.
@@ -14,7 +14,7 @@ Updated 2026-11-16 20:46 (Asia/Kuala_Lumpur), session checkpoint. Only what is n
   - Next: prepare 1.25.0 (PLAN-108, PLAN-109, PLAN-110: version, releases candidate, REP, pull request to main) only after 1.24.1 is published; then the owner tries the preview and gives his word to publish.
   - Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 - **Commits:** author Murshidi Hashim, committer Claude <noreply@anthropic.com> (so GitHub shows the signature as verified); set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, no local git user override.
-- **Waiting on the owner:** (0) try 1.24.1 on the preview and say whether to publish it (REP-124); the trophy's name ("Sold out" clashes with the level-10 "Sold out" stamp; recommended "Clean shelf"); (1) the iPhone price-tag fix seen on a real iPhone; (2) DEC-121 / PLAN-111 (REP-125): he no longer has the board, shutters and pieces; the proposal is a new table set with the freshness ruler (tracker 1) and bought 10 mm wooden cubes; three questions (freshness way, cubes or printed tiles, A3 panels or foam board). He has the print-shop package (cards safe to print now; stall sheets, counters, guidebook and board patches on hold); (3) the back arrow while choosing a shopkeeper (leave or disconnect), the +3/+4 computer buttons and HOST tag fixes, in-game tips online for first-timers; (4) the 8 name choices (REP-118); (5) REP-112 section 3 choices.
+- **Waiting on the owner:** (0) try 1.24.1 on the preview and say whether to publish it (REP-124); the trophy's name ("Sold out" clashes with the level-10 "Sold out" stamp; recommended "Clean shelf"); (1) the iPhone price-tag fix seen on a real iPhone; (2) DEC-121 / PLAN-111 (REP-125): he no longer has the board, shutters and pieces; he chose the app's market boxes for the market and each stall (no ruler); REP-126 revises the plan: crate band in front of the shelf band, the shutter steps back one line at the bell so no piece is carried. Open: approve PLAN-111, cubes or printed tiles, A3 panels or foam board. He has the print-shop package (cards safe to print now; stall sheets, counters, guidebook and board patches on hold); (3) the back arrow while choosing a shopkeeper (leave or disconnect), the +3/+4 computer buttons and HOST tag fixes, in-game tips online for first-timers; (4) the 8 name choices (REP-118); (5) REP-112 section 3 choices.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
@@ -48,5 +48,5 @@ stopped and recommend the next small task. Wait for my approval before implement
 - DEC-121: A new table set (board, shutters, pieces) with an easier freshness tracker (awaiting approval)
 - PLAN-003: Package C, paid part: capacity and cost evidence (proposed)
 - PLAN-018: Data insights: balance, retention and online health from anonymous counters (proposed)
-- PLAN-111: New table set: board, shutters, pieces and the freshness ruler (print and play) (awaiting approval)
+- PLAN-111: New table set: board, shutters and pieces, with the app's market boxes and a crate shown by stepping the shutter back (print and play) (awaiting approval)
 <!-- records:pending:end -->

@@ -2981,8 +2981,8 @@
       "id": "DEC-121",
       "title": "A new table set (board, shutters, pieces) with an easier freshness tracker",
       "question": "The owner no longer has the earlier printing's board, shutters, fruit pieces, price tags, markers, chips and tokens, and there are no files for them. How are they made again, and how should a table track freshness more easily (the owner asked about a stack of small cards for each piece)?",
-      "choice": "Proposed: slide the ruler (tracker test 1, DEC-089): pieces stay in the column they were bought into and one ruler per stall and one for the market slide a column each night. A new set built for a print shop (three A3 board panels, stall sheets, rulers, shutters, counters, price tags, a token sheet, all rectangles) and 200 bought 10 mm wooden cubes in four colours. The update pack for the earlier printing is retired. No rule change.",
-      "rationale": "A card stack per piece needs about 900 small cards and 50 to 80 actions a night; sliding the fruit needs 10 to 20 moves per stall behind the shutter; the ruler needs 7 slides at the whole table, done in the open, and keeps the pieces plain and cheap (REP-125).",
+      "choice": "Owner's choice (2026-11-16): freshness tracked with the boxes of the app's Wholesale Market (each box marked G, F, O or S; every piece slides one box left at night), on the market board and on each stall sheet; the ruler is dropped. Proposed for the bell: each stall sheet has a crate band in front of its shelf band and two shutter lines, and at the bell the shutter steps back from line 1 to line 2, so the crate shows without carrying a piece (REP-126). A new set for a print shop (three A3 board panels, stall sheets, shutters, counters, price tags, a token sheet, all rectangles) and 200 bought 10 mm wooden cubes. The update pack and tracker test packs are retired. No rule change.",
+      "rationale": "The owner wants the table to look like the app's market and found carrying crate pieces out at the bell too troublesome; stepping the shutter back reveals the whole crate in one move per stall with no extra part (REP-125, REP-126).",
       "impact": {
         "player": "People who print the game get every part, and nobody moves fruit at night.",
         "technical": "New print scripts and tests from the game data; the guidebook, player aid and RULES.md print-and-play part updated. The app is unchanged.",
@@ -2997,9 +2997,10 @@
       },
       "delivery": "not started",
       "plan": "PLAN-111",
-      "reviewTrigger": "The owner's small table test (PLAN-111 T4): if the ruler confuses players, switch to sliding the fruit with the same parts.",
+      "reviewTrigger": "The owner's small table test (PLAN-111 T4): if stepping the shutter back hides or shows the wrong band, try a loose crate tray (tracker test 2) instead.",
       "reports": [
-        "REP-125"
+        "REP-125",
+        "REP-126"
       ]
     }
   ],
@@ -4291,6 +4292,10 @@
     {
       "at": "2026-11-16 20:46",
       "text": "The owner no longer has the earlier printing's board, shutters and pieces and asked for new ones, and whether each fruit piece should be a stack of small cards to track freshness. REP-125 compares four ways (card stacks, dice, sliding the fruit, sliding the ruler) and recommends the ruler with plain wooden cubes; proposed as DEC-121 and PLAN-111, awaiting the owner. The print-shop package sent earlier (REP-124 files) stays valid for the cards; the stall sheets, counters, guidebook and board patches are on hold."
+    },
+    {
+      "at": "2026-11-16 20:51",
+      "text": "Owner's answer to REP-125: use the boxes of the app's Wholesale Market for the physical market and for each stall, not the ruler; carrying crate pieces at the bell is too troublesome. REP-126 revises DEC-121 and PLAN-111: the crate band sits in front of the shelf band and the shutter steps back one line at the bell, so no piece is carried; rulers dropped. Still awaiting his approval of the plan, the fruit pieces (cubes or printed tiles) and the board (A3 panels or foam board)."
     }
   ]
 }
