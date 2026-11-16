@@ -96,7 +96,8 @@ export function planOrderBid(s: GameState, p: number): number | null {
 
 /**
  * Rules 18: how much a computer stall recalls of what its rivals bought. Hard: everything it saw (their whole
- * shelves, as before). Normal: only today's purchases, which stay on show until the bell. Easy: none of it. The
+ * shelves, as before). Normal: only today's purchases, which every stall saw while they were bought (DEC-107: the
+ * screen shows them only during buying; the data stays in the public view until the next morning). Easy: none of it. The
  * value is what `publicView` takes as `memory`. A seat a computer plays for a person plays as Normal.
  */
 export function recall(s: GameState, p: number): boolean | 'today' {

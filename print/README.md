@@ -38,7 +38,10 @@ Rebuild all three after any change to names, prices, card text, card design or p
 | `Cards_<Deck>_A4.pdf` (8 files) | 38 in all | A deck on A4: each page of fronts is followed by its backs |
 | `Factory_<Deck>_bleed.pdf` (8 files) | 155 in all | A deck for a card printer: one card to a page |
 
-All 19 files together are about 21 MB.
+All 19 files together are about 20 MB.
+
+**The board and the shutters are not in this kit** (nor anywhere in this repository): they come from the earlier
+printing. See "Not in the repository" at the end. The kit's contents page and the guidebook say so too.
 
 ### Printing at home
 
@@ -65,7 +68,7 @@ only here.
 
 | File | Pages | What it is | How to print |
 |---|---|---|---|
-| `Fruit-Market-Update-20-1-Stall-Sheets-and-Counters.pdf` | 14 | A change sheet (2 pages: start here), six stall sheets, six counters with the cash track | Single-sided; the counters are landscape, cut on the dashed line |
+| `Fruit-Market-Update-20-1-Stall-Sheets-and-Counters.pdf` | 14 | A change sheet (2 pages: start here), six stall sheets, six counters with the cash track and the Fruit sold row | Single-sided; the counters are landscape, cut on the dashed line |
 | `Fruit-Market-Update-20-2-Replacement-Cards.pdf` | 16 | The four decks that changed throughout, whole: 8 standing orders, 30 upgrades, 8 shopkeepers, 12 favours | Double-sided, flip on the long edge: 8 sheets |
 | `Fruit-Market-Rules-Guidebook-v20.pdf` | 12 | The whole rules guidebook at rules version 20 | Either way |
 
@@ -73,6 +76,10 @@ The change sheet also lists six cards to correct by hand (three customers, two l
 lay over the board's words and its green mango price. New cards have a new design and a new back, so a deck is
 replaced whole: never mix new cards into an old deck. What changed since the earlier printing is written once, in
 `scripts/print-cards.ts` (`replacedDecks`, `handFixes`).
+
+Each counter has a **Fruit sold** row (1 to 80) for the tie-break: a tie on cash goes to the stall that sold more
+fruit, and a stall crosses off one number for each piece it sells (to a customer, a guest, a standing order or the
+night hawker), which is what the app counts. Counters printed from an earlier pack have no such row.
 
 ## The tracker test packs (`print/tracker-test`)
 
@@ -93,11 +100,16 @@ Single-sided. For six stalls print the stall sheet six times, and the tray page 
 - `scripts/print-render.ts` refuses to write a PDF with a picture that did not load, a font that fell back, a card or
   page whose contents do not fit, or a wrong number of pages.
 - A card whose words need more room than the app's card allows lets its picture give way a little further, in print
-  only, and the script names it when it runs. Today that is one card: Blueberry Glut (its picture is 2 mm shorter).
+  only, and the script names it when it runs. Today no card needs it (an event card's picture is one size on every
+  card since PLAN-106, and it has room for one row of two boxes: Blueberry Glut shows its two prices and leaves its
+  extra blueberries to its words).
 - On screen a pattern back repeats its tile as a background. In print the same tile is laid as a grid of pictures:
   the same pattern, in a file less than half the size.
 
 ## Not in the repository
 
-The market board, the shutters, the fruit pieces, the price tags and the markers were made outside the repository
-with the earlier printing and are not rebuilt here.
+The market board, the shutters, the fruit pieces, the price tags, the markers, chips and tokens were made outside the
+repository with the earlier printing and are not rebuilt here. Someone who prints only today's files has the cards,
+the player aid, the stall sheets, the counters and the guidebook, but no board or shutters: the guidebook's set-up
+and the change sheet's patches assume the earlier board. The kit's contents page ("Not in this file") and the
+guidebook ("What is in the box") say where each part comes from.

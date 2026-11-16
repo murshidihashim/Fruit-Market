@@ -9,7 +9,8 @@ import { newGame } from '../src/engine/game';
 import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, firstTimeMoment, hasFinishedGame, nthWord, showFirstTime } from '../src/ui/FirstTime';
 import { saveStats } from '../src/ui/store';
 
-/** The owner's text (15 November), with the game's straight apostrophe for his curly ones. */
+/** The owner's text (15 November), with the game's straight apostrophe for his curly ones, and the one condition
+ *  REP-122 C-02 added to Market Days (PLAN-109): a standing order only if it can be delivered by the last day. */
 const OWNER = `RUN YOUR STALL.
 Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!
 
@@ -28,7 +29,7 @@ Customers buy from the cheapest qualifying stall, then the next cheapest until t
 
 MARKET DAYS
 Every third day, except the last:
-Bid for a standing order. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.
+Bid for a standing order, if it can be delivered by the last day. Lowest bid wins and pays a stake. Deliver the required fruit when due to reclaim it; fall short and lose it. Build an upgrade in the evening.
 
 THREE THINGS TO REMEMBER
 Watch your rivals. Purchases are public as they happen, but aren't shown again. Shelves stay hidden.

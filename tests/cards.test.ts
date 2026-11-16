@@ -10,7 +10,7 @@ import {
 import { Logo } from '../src/ui/art';
 import { LANES } from '../src/ui/boardModel';
 import {
-  CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, ONE_LINE_MIN, OrderCard, PAY_WORD, StallSign, TradingCard, TradingCardBack,
+  CardArt, DeckBack, EventBack, FavourCard, Gazette, HOLD_NOTE, LorryCard, ONE_LINE_MIN, OrderCard, PAY_WORD, StallSign, TradingCard, TradingCardBack,
   UPGRADE_FIGURE, UpgradeCard, customerNumber, eventCardText, prefClass, toStaticHtml,
 } from '../src/ui/cards';
 import { capsWidth, fitTitle, titleLines } from '../src/ui/cardType';
@@ -347,9 +347,12 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       if (e.priceAll) want.push('customer');
       for (const f of LANES) if (e.price?.[f]) want.push('customer');
       if (e.cost) want.push('market');
+      for (const f of LANES) if (e.costFruit?.[f]) want.push('market');
       if (e.maxPrice) for (const f of LANES) if (e.maxPrice[f]) want.push('customer');
       const chips = cardChips(e);
       expect(chips.flatMap((c) => (c.pay ? [c.pay] : [])), e.id).toEqual(want);
+      // Every price the event changes is on its card (REP-122 C-06: Blueberry Glut's price at the Wholesale Market).
+      expect(newsChips(e).filter((c) => c.pay).length, e.id).toBe(e.maxPrice ? 1 : want.length);
       // On the card: a box with a price has its badge right before its figure; a box without one has none.
       const s = html(Gazette, { event: e });
       const boxes = s.split('<div class="cd-blk ').slice(1);
@@ -367,7 +370,7 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
     const badges = Object.fromEntries(EVENT_CARDS.map((e) => [e.id, cardChips(e).flatMap((c) => (c.pay ? [`${c.pay} ${c.big}`] : []))]));
     expect(badges).toEqual({
       festival: ['customer +$1'], superfood: ['customer +$1'], mangoCraze: ['customer +$2'], hotel: [], heatwave: ['customer +$2'],
-      blight: ['customer +$2'], glut: ['customer −$1'], goodHarvest: ['customer −$1'], badHarvest: ['customer +$1'], priceHike: ['market +$1'],
+      blight: ['customer +$2'], glut: ['customer −$1', 'market −$1'], goodHarvest: ['customer −$1'], badHarvest: ['customer +$1'], priceHike: ['market +$1'],
       priceControls: ['customer $5', 'customer $7', 'customer $10', 'customer $6'], inspector: [], strike: [], touristBus: [], monsoon: [],
       durian: ['customer −$1', 'market −$1'], kenduri: [], mangoWindfall: ['customer −$2'], pasarMalam: [], bakeOff: ['customer +$1'],
     });
@@ -424,8 +427,15 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(s).toContain(`<p class="cd-txt">${esc(d.text).replace(/'/g, '\'')}</p>`);
       expect(s).toContain(`src="${favourArt(id)}"`);
       expect(s).toContain({ evening: 'In the evening', buy: 'On your buying turn', tie: 'After the prices flip' }[d.when]);
-      expect(s).toContain(`Hold up to ${FAVOUR_HAND_LIMIT}`);
+      // REP-122 S15: a card nobody holds (the printed card) gives both limits; a card in a hand gives its holder's own.
+      expect(s).toContain(`<span>${HOLD_NOTE}</span></footer>`);
+      expect(html(FavourCard, { id, hold: FAVOUR_HAND_LIMIT })).toContain(`<span>Hold up to ${FAVOUR_HAND_LIMIT}</span></footer>`);
+      expect(html(FavourCard, { id, hold: FAVOUR_HAND_LIMIT + 1 })).toContain(`<span>Hold up to ${FAVOUR_HAND_LIMIT + 1}</span></footer>`);
     }
+    expect(HOLD_NOTE).toBe('Hold 3 (Charmer 4)');
+    expect(TRAITS.charmer.text).toContain(`Hold up to ${FAVOUR_HAND_LIMIT + 1}.`);
+    // The phone's card is opened from its holder's hand, so it gives the holder's limit (game.ts handLimit).
+    expect(readFileSync('src/ui/game/panels/Popovers.tsx', 'utf8')).toContain('<FavourCard id={id} hold={handLimit(s.players[actor])} eager />');
   });
 
   it('an upgrade card is labelled "Upgrade" and shows its name, picture, cost and text', () => {

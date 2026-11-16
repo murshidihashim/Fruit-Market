@@ -1,7 +1,7 @@
 // Pop-ups over the table: today's event, the coach tip, a favour card, the demand bar help,
 // a customer's order and the pause menu. (A rival's stall opens below their seat; see table.tsx.)
 import { FAVOURS, ORDER_CARDS, lookOf } from '../../../engine/data';
-import { canPlayFavour, effectiveMax } from '../../../engine/game';
+import { canPlayFavour, effectiveMax, handLimit } from '../../../engine/game';
 import { track } from '../../../net/telemetry';
 import { FavourCard, OrderCard, TradingCard } from '../../cards';
 import { GUEST_EVENT } from '../../deckArt';
@@ -52,7 +52,7 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
     return (
       <div class="cd-pop" role="dialog" aria-label={`Favour card: ${FAVOURS[id].title}`} onClick={(e) => { e.stopPropagation(); setCardInfo(null); }}>
         <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
-          <FavourCard id={id} eager />
+          <FavourCard id={id} hold={handLimit(s.players[actor])} eager />
           {why && <p class="cd-pop-why">{why}</p>}
           {/* Rules 19: a Priority card played after one from a stall earlier in today's line-up goes back to the hand. */}
           {!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class="cd-pop-why">{priorityNote(s, actor)}</p>}

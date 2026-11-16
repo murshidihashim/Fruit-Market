@@ -175,14 +175,15 @@ export function TradingCardBack({ fruits, class: cls }: { fruits: FruitId[]; cla
 /** Whose price a money figure on an event is, in words (a badge's label for a screen reader, the player aid's key). */
 export const PAY_WORD: Record<Pay, string> = { market: 'A price at the Wholesale Market', customer: 'What customers pay' };
 
-/** A lorry and a customer's face, drawn small for the badges (one colour: the badge's ink, with cut-outs in the
- *  badge's colour). */
+/** A crate of fruit and a customer's face, drawn small for the badges (one colour: the badge's ink, with cut-outs in
+ *  the badge's colour). REP-122 C-08: the market's badge was a lorry, which the morning card also draws for today's
+ *  delivery; a crate of fruit is a price at the Wholesale Market and nothing else. */
 function PayIcon({ pay }: { pay: Pay }) {
   return pay === 'market'
     ? (
-      <svg class="cd-pb-i" viewBox="0 0 24 16" aria-hidden="true">
-        <path d="M0 1h14v10H0z" /><path d="M15 4h4.5l4.5 4.5V13H15z" /><path class="w" d="M16.5 5.5h2.4l2.6 2.6h-5z" />
-        <circle cx="5" cy="13" r="3" /><circle cx="19" cy="13" r="3" /><circle class="w" cx="5" cy="13" r="1.2" /><circle class="w" cx="19" cy="13" r="1.2" />
+      <svg class="cd-pb-i" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="4.2" cy="5.2" r="2.5" /><circle cx="8" cy="4.4" r="2.8" /><circle cx="11.8" cy="5.2" r="2.5" />
+        <path d="M0.4 8.6h15.2v7H0.4z" /><path class="w" d="M0.4 10.4h15.2v0.8H0.4zM0.4 13h15.2v0.8H0.4z" />
       </svg>
     )
     : (
@@ -194,8 +195,10 @@ function PayIcon({ pay }: { pay: Pay }) {
     );
 }
 
-/** The badge on the left of an event's money figure (PLAN-106, the owner's second look): a small square with a lorry
- *  (grey) for a price at the Wholesale Market, or a customer's face (the Everyday teal) for what customers pay. */
+/** The badge on the left of an event's money figure (PLAN-106, the owner's second look): a small square with a crate of
+ *  fruit (slate) for a price at the Wholesale Market, or a customer's face (ink) for what customers pay. Both colours are
+ *  neutral (REP-122 C-08: the face was on the Everyday teal, which read as "Everyday customers"). The Wholesale Market's
+ *  own price chip in the game carries the same crate. */
 export function PayBadge({ pay }: { pay: Pay }) {
   return <span class={`cd-pb cd-pb-${pay}`} role="img" aria-label={PAY_WORD[pay]}><PayIcon pay={pay} /></span>;
 }
@@ -348,8 +351,12 @@ export function StallSign({ avatar, pattern, selected, takenBy, eager, class: cl
 /** When a favour card is played, in the words of its blue block. */
 export const FAVOUR_WHEN: Record<FavourDef['when'], string> = { evening: 'In the evening', buy: 'On your buying turn', tie: 'After the prices flip' };
 
-/** A favour card. */
-export function FavourCard({ id, eager, class: cls }: { id: FavourId; eager?: boolean; class?: string }) {
+/** The hand limit on a favour card nobody holds (the printed card): the Charmer holds one more (REP-122 S15). */
+export const HOLD_NOTE = `Hold ${FAVOUR_HAND_LIMIT} (Charmer ${FAVOUR_HAND_LIMIT + 1})`;
+
+/** A favour card. `hold`: how many favour cards its holder may hold (game.ts handLimit), when the card is in a stall's
+ *  hand; without it the footer gives both limits, as on the printed card (S15). */
+export function FavourCard({ id, hold, eager, class: cls }: { id: FavourId; hold?: number; eager?: boolean; class?: string }) {
   const d = FAVOURS[id];
   return (
     <article class={cx('cd', 'cd-a', 'cd-favour', cls)}>
@@ -357,7 +364,7 @@ export function FavourCard({ id, eager, class: cls }: { id: FavourId; eager?: bo
       <Pic src={favourArt(id)} alt="" size={ART_SIZE.small} focus={favourFocus(id)} eager={eager} />
       <div class="cd-two"><div class="cd-blk cd-blk-b"><small>When to play</small><b>{FAVOUR_WHEN[d.when]}</b></div></div>
       <p class="cd-txt">{d.text}</p>
-      <footer class="cd-ft"><span>Discard after use</span><span>{`Hold up to ${FAVOUR_HAND_LIMIT}`}</span></footer>
+      <footer class="cd-ft"><span>Discard after use</span><span>{hold === undefined ? HOLD_NOTE : `Hold up to ${hold}`}</span></footer>
     </article>
   );
 }

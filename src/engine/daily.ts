@@ -1,6 +1,6 @@
 // The daily challenge: everyone plays the same decks against the same rivals each day.
 // Shared by the app and the server (which replays submitted games to check scores).
-import { RIVALS } from './data';
+import { GENEROUS_BONUS, RIVALS } from './data';
 import type { GameConfig } from './game';
 import { seedFromString } from './rng';
 
@@ -12,10 +12,12 @@ const TWISTS: Twist[] = [
   { title: 'The usual', text: 'The standard 10-day market.', patch: {} },
   { title: 'Quick game', text: 'Only 8 days.', patch: { days: 8 } },
   { title: 'No upgrades', text: 'No upgrades in this game.', patch: { upgrades: false } },
-  { title: 'Fixed prices', text: 'Every customer pays one fixed price for each fruit.', patch: { street: true } },
+  // REP-122 C-16: each twist says the whole change. Fixed prices keeps the generous customers' bonus (effectiveMax), and
+  // the Basic game has no standing orders either (drawStanding).
+  { title: 'Fixed prices', text: `Every customer pays one fixed price for each fruit. Generous customers pay $${GENEROUS_BONUS} more.`, patch: { street: true } },
   { title: 'No events', text: 'No event cards today.', patch: { events: false } },
   { title: 'Long game', text: '14 days.', patch: { days: 14 } },
-  { title: 'Basic game', text: 'No perks, favour cards or upgrades.', patch: { core: true, upgrades: false } },
+  { title: 'Basic game', text: 'No perks, favour cards, upgrades or standing orders.', patch: { core: true, upgrades: false } },
 ];
 export function dailyTwist(date: string): Twist {
   const day = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000);

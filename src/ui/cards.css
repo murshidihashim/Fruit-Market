@@ -152,17 +152,19 @@
 .cd-event .cd-blk-f small { letter-spacing: 0.04em; }
 /* the figure, with its badge on its left when it is a price */
 .cd-fig { display: flex; align-items: center; gap: calc(var(--u) * 4); }
-/* the badge: a small square, a lorry on grey for a price at the Wholesale Market, a customer's face on the Everyday teal
-   for what customers pay; edged in paper so it reads on black and on every lane's colour. A little taller than the
-   figure's capitals. */
+/* the badge: a small square, a crate of fruit on slate for a price at the Wholesale Market, a customer's face on ink
+   for what customers pay (REP-122 C-08: neutral colours, so the face no longer wears the Everyday teal); edged in paper
+   so it reads on black and on every lane's colour. A little taller than the figure's capitals. */
 .cd-pb {
   --pay: var(--x-slate); flex: none; box-sizing: border-box; width: calc(var(--u) * 17); height: calc(var(--u) * 17); display: inline-grid; place-items: center;
   border-radius: calc(var(--u) * 2.5); background: var(--pay); color: var(--x-paper); box-shadow: 0 0 0 calc(var(--u) * 1.25) var(--x-paper);
 }
-.cd-pb-customer { --pay: var(--x-everyday); }
+.cd-pb-customer { --pay: var(--x-ink); }
 .cd-pb-i { display: block; width: calc(var(--u) * 13); height: calc(var(--u) * 13); fill: currentColor; }
-.cd-pb-market .cd-pb-i { height: calc(var(--u) * 9); }
 .cd-pb-i .w { fill: var(--pay); }
+/* the same badge on the Wholesale Market's price chip in the game (table.tsx), at the chip's size */
+.tk-chip .cd-pb { --u: 0.7px; margin-right: 3px; vertical-align: middle; box-shadow: none; }
+.tk-chip .tk-chip-f { margin-left: 2px; vertical-align: middle; }
 .cd-keeper .cd-blk b { font-size: calc(var(--u) * 17); }
 .cd-favour .cd-blk b { font-size: calc(var(--u) * 14); }
 /* the text keeps a little air above the footer, also on the cards whose picture gives way to it */
