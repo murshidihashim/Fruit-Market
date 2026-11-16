@@ -155,7 +155,7 @@ export function HowTo({ onDone }: { onDone: () => void }) {
   const [i, setI] = useState(0);
   const s = SLIDES[i];
   return (
-    <div class="page howto">
+    <div class="page howto tk-page">
       <header class="topbar"><button class="icon-btn" onClick={onDone} aria-label="Close">✕</button><div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
       <main class="scroll pad">
         <section class="panel slide" key={i}>

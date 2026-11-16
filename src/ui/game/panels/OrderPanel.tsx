@@ -85,6 +85,22 @@ export function bidWaitText(mine: Standing['bids'][number], decided: boolean, ca
 }
 
 /**
+ * ON-12 (PLAN-110): who won the standing order, said on this stall's phone ("You won…" on the winner's own), and the
+ * reason when the lowest bids were tied: an Order Book, or else the stall earlier in today's buying order. The reason
+ * names no place in that order: who buys first is shown by the FIRST token's own beat, after the bids (PLAN-104).
+ * `said`: the game's own sentence, kept when nobody won.
+ */
+export function orderResultText(s: GameState, p: number, o: Standing, said: string): string {
+  if (o.holder === null || o.price === null) return said;
+  const won = `${o.holder === p ? 'You' : s.players[o.holder].name} won the standing order for ${ORDER_CARDS[o.card].title} at $${o.price} a piece and put down a $${o.staked ?? 0} stake.`;
+  const tied = o.bids.map((b, i) => (i !== o.holder && b === o.price ? i : -1)).filter((i) => i >= 0);
+  if (!tied.length) return won;
+  const book = (i: number) => s.players[i].upgrades.includes('orderbook');
+  const why = book(o.holder) && tied.some((i) => !book(i)) ? 'an Order Book wins a tie' : 'a tie goes to the stall earlier in today\'s buying order';
+  return `${won} Tied at $${o.price}: ${why}.`;
+}
+
+/**
  * Will a piece of the order's fruit at track position `pos` still be one the order takes (Fresh or Okay: it buys like
  * an Everyday customer, game.ts) on the due day? `from`: the day the stall can first have it on its shelf (today for its
  * shelf and the market, tomorrow for tomorrow's lorry). Tonight ages as today's event says; each later night one step
@@ -194,7 +210,7 @@ export function OrderPanel({ s, p, waiting, canChange, decided = true, shown, on
             </div>
             {/* Once the bids are turned over, who won takes the three lines' place in a box of the same size. */}
             {shown
-              ? <div class="ob-after"><StakeLines s={s} p={p} bid={price ?? v} order={o} /><p class={`ob-result ${shown.stage === 'in' ? 'hid' : ''}`} role="status">{shown.text}</p></div>
+              ? <div class="ob-after"><StakeLines s={s} p={p} bid={price ?? v} order={o} /><p class={`ob-result ${shown.stage === 'in' ? 'hid' : ''}`} role="status">{orderResultText(s, p, o, shown.text)}</p></div>
               : <StakeLines s={s} p={p} bid={v} />}
           </>
         )}

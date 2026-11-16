@@ -124,12 +124,17 @@ function closerOnceSeen(el: HTMLElement): void {
   requestAnimationFrame(() => { if (el.isConnected) closer(el); });
 }
 
-/** `table`: this is the morning's sheet on the game table (the same card is also shown full screen from the top bar). */
-export function MorningCard({ s, viewer, lost, juice, table }: { s: GameState; viewer: number; lost: number; juice?: NightJuice; table?: boolean }) {
+/**
+ * `table`: this is the morning's sheet on the game table (the same card is also shown full screen from the top bar).
+ * `shared`: several people share this phone and nobody holds it yet (S8, PLAN-110): every line names its stall, and
+ * nothing is said of one person's shelf (what spoiled overnight, fruit left on the last day).
+ */
+export function MorningCard({ s, viewer: holder, lost, juice, table, shared }: { s: GameState; viewer: number; lost: number; juice?: NightJuice; table?: boolean; shared?: boolean }) {
+  const viewer = shared ? -1 : holder;
   const rem = s.config.days - s.day + 1;
   // Overnight: fruit lost, then what the Juice Bar made; on the final day, what leftovers are worth.
-  const night = overnightLines(lost, juice).map((l) => <div class={`mc-loss tk-info ${l.tone === 'good' ? 'good' : 'warn'}`}>{l.text}</div>);
-  const closing = closingNote(s, viewer)?.morning;
+  const night = (shared ? [] : overnightLines(lost, juice)).map((l) => <div class={`mc-loss tk-info ${l.tone === 'good' ? 'good' : 'warn'}`}>{l.text}</div>);
+  const closing = shared ? null : closingNote(s, viewer)?.morning;
   // Rules 19: several stalls played Priority last evening; the earliest in the line-up buys first, the rest came back.
   const first = priorityBackLine(s, viewer);
   // A day with no event (Day 1, or every day when events are off) gets a "Calm Day" in the same layout, so every

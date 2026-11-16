@@ -45,6 +45,9 @@ export interface ShopProps {
   onTrophies: () => void;
   onHowTo: () => void;
   onSettings: () => void;
+  /** ON-08 (PLAN-110): an online match this phone left and can go back to: its room code (null when there is none). */
+  room?: string | null;
+  onRoom?: (code: string) => void;
 }
 
 /** The four fruit lanes, in the game's order and colours. The opening draws the same band (Opening.tsx). */
@@ -237,6 +240,12 @@ export function Shopfront(p: ShopProps) {
             )}
           </div>
           <div class="hm-tickets">
+            {p.room && p.onRoom && (
+              <button class="hm-tk hm-room" onClick={() => p.onRoom!(p.room!)}>
+                <span class="hm-tk-ic"><PlayIcon /></span>
+                <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
+              </button>
+            )}
             <button class="hm-tk" onClick={p.onLeague}>
               <span class="hm-tk-ic"><TrophyIcon /></span>
               <span class="hm-tk-txt"><small>Market League</small><span>{p.leagueLine}</span></span>

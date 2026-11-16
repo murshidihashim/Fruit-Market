@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
 import { FARMER_CARDS, RIVALS, type FruitId } from '../src/engine/data';
-import { canPlayFavour, emptyStock, newGame, shelfSize, type GameState } from '../src/engine/game';
+import { canPlayFavour, emptyStock, newGame, shelfSize, type GameState, type Standing } from '../src/engine/game';
 import { dayLedger } from '../src/engine/story';
 import { pulse, wantText } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
-import { canGetLine } from '../src/ui/game/panels/OrderPanel';
+import { canGetLine, orderResultText } from '../src/ui/game/panels/OrderPanel';
+import { unsentChoice } from '../src/ui/game/panels/Popovers';
+import { pickAwayLine } from '../src/ui/Online';
+import { loadSettings, loadUndo, saveSettings, saveUndo } from '../src/ui/store';
+import type { PublicSeat } from '../src/net/protocol';
 import { rushOver, takingsRows } from '../src/ui/game/panels/SalesSummary';
 import { daySoldLine } from '../src/ui/panel';
 import { CustomerChar, boughtAny } from '../src/ui/table';
@@ -178,3 +183,91 @@ describe('S10: only a customer who bought something is ticked', () => {
   });
 });
 
+// ---------- the screens ----------
+
+const mem = new Map<string, string>();
+const stubStorage = () => {
+  mem.clear();
+  (globalThis as { localStorage?: unknown }).localStorage = {
+    getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => mem.set(k, v), removeItem: (k: string) => mem.delete(k),
+  };
+};
+
+describe('S11: the Freshness patterns switch is gone', () => {
+  it('settings saved while it was there still load, without it', () => {
+    stubStorage();
+    mem.set('fm.settings', JSON.stringify({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false, patterns: true }));
+    const st = loadSettings();
+    expect(st).toEqual({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false });
+    expect('patterns' in st).toBe(false);
+    saveSettings({ ...st, sound: true });
+    expect(JSON.parse(mem.get('fm.settings')!)).not.toHaveProperty('patterns');
+  });
+
+  it('no screen or style reads it any more', () => {
+    for (const f of ['src/ui/App.tsx', 'src/ui/Game.tsx', 'src/ui/styles.css']) expect(readFileSync(f, 'utf8')).not.toMatch(/patterns/i);
+  });
+});
+
+describe('S18: Undo is kept when a buying turn is left and resumed', () => {
+  const buy = all.find((s) => s.phase === 'buy' && s.players[s.order[s.turn]].kind === 'ai' && autoplay(s, 1).phase === 'buy' && autoplay(s, 1).turn === s.turn)!;
+  const start = structuredClone(buy);
+  const after = autoplay(start, 1);
+
+  it('the point is read back for the same game, day, turn and stall only', () => {
+    stubStorage();
+    saveUndo({ at: start });
+    expect(loadUndo(after)?.at).toEqual(start);
+    // nothing bought since: the point is the game itself, so Undo has nothing to take back
+    expect(loadUndo(start)?.at).toBe(start);
+    const other = structuredClone(after);
+    other.config.seed += 1;
+    expect(loadUndo(other)).toBeNull();
+    const later = structuredClone(after);
+    later.turn += 1;
+    expect(loadUndo(later)).toBeNull();
+    expect(loadUndo({ ...after, phase: 'stall' })).toBeNull();
+    // a point after a favour card keeps its card (DEC-120: Undo goes back to just after it)
+    saveUndo({ at: start, after: 'scout' });
+    expect(loadUndo(after)?.after).toBe('scout');
+    saveUndo(null);
+    expect(loadUndo(after)).toBeNull();
+  });
+
+  it('a crate, prices or a bid not yet sent are named in the menu before leaving', () => {
+    expect(unsentChoice({ ...start, phase: 'stall' }, true)).toBe('Your crate is kept only once you open your stall.');
+    expect(unsentChoice({ ...start, phase: 'bid' }, true)).toBe('Your prices are kept only once you ring the bell.');
+    expect(unsentChoice({ ...start, phase: 'order' }, true)).toBe('Your bid is kept only once you bid or pass.');
+    expect(unsentChoice({ ...start, phase: 'stall' }, false)).toBeNull();
+    expect(unsentChoice(start, true)).toBeNull();
+  });
+});
+
+// ---------- online ----------
+
+describe('ON-07: the choosing step says when a computer takes over a seat', () => {
+  const seat = (x: Partial<PublicSeat>): PublicSeat => ({ seat: 2, name: 'Chandra', avatar: '', ready: true, connected: false, host: false, ...x });
+  it('counts down, then says the computer chooses; one who left is named as gone', () => {
+    expect(pickAwayLine(seat({ offlineSince: 0, takeoverAt: 45_000 }), 0)).toBe('Chandra disconnected. A computer chooses for them in 45s.');
+    expect(pickAwayLine(seat({ offlineSince: 0, takeoverAt: 45_000 }), 44_100)).toBe('Chandra disconnected. A computer chooses for them in 1s.');
+    expect(pickAwayLine(seat({ bot: true }), 0)).toBe('Chandra disconnected. A computer chooses for them.');
+    expect(pickAwayLine(seat({ bot: true, left: true }), 0)).toBe('Chandra left. A computer chooses for them.');
+  });
+});
+
+describe('ON-12: a tied standing order gives its reason, and "You" on the winner\'s phone', () => {
+  const s = structuredClone(all.find((x) => x.players.length === 4)!);
+  s.players.forEach((pl) => { pl.upgrades = []; });
+  const o: Standing = { card: 2, fruit: 'watermelon', qty: 4, ceiling: 14, stake: 6, due: 5, bids: [11, 11, 'pass', 12], holder: 1, price: 11, staked: 6 };
+  const title = 'The Beach Resort';
+
+  it('names the winner, then the tie-break, and never a place in the buying order', () => {
+    expect(orderResultText(s, 0, o, '')).toBe(`${s.players[1].name} won the standing order for ${title} at $11 a piece and put down a $6 stake. Tied at $11: a tie goes to the stall earlier in today's buying order.`);
+    expect(orderResultText(s, 1, o, '')).toMatch(/^You won the standing order /);
+    expect(orderResultText(s, 0, o, '')).not.toMatch(/first|buys/);
+    s.players[1].upgrades = ['orderbook'];
+    expect(orderResultText(s, 0, o, '')).toMatch(/Tied at \$11: an Order Book wins a tie\.$/);
+    expect(orderResultText(s, 0, { ...o, bids: [10, 11, 'pass', 12] }, '')).not.toContain('Tied');
+    expect(orderResultText(s, 0, { ...o, holder: null, price: null }, 'Nobody bid for it.')).toBe('Nobody bid for it.');
+  });
+});

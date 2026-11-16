@@ -427,8 +427,21 @@ export type ShelfNight = number | 'done' | null | undefined;
  * none of it; a piece is counted once it has landed (tableShown.ts). At night a chip that spoils tips off and the
  * others take tomorrow's letter. Your cash is in the top bar.
  */
-export function MyStall({ s, p, onCard, flashCards, night }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; night?: ShelfNight }) {
+/**
+ * Your shelf, at the foot of the table. `hidden` (S8, PLAN-110): several people share this phone and the step on
+ * screen is everybody's (the morning, the rush and the takings, the night), so no one person's shelf or favour cards
+ * are drawn; each person sees their own once the phone is passed to them.
+ */
+export function MyStall({ s, p, onCard, flashCards, night, hidden }: { s: GameState; p: number; onCard?: (i: number) => void; flashCards?: boolean; night?: ShelfNight; hidden?: boolean }) {
   const pl = s.players[p];
+  if (hidden) {
+    return (
+      <section class="my-stall dock tk-dock tb-dock c0 shared" aria-label="Shelves hidden">
+        <div class="tb-dock-head"><b class="tk-label">Shelves hidden</b><span class="tb-side">The phone is shared</span></div>
+        <div class="stk tb-chips" />
+      </section>
+    );
+  }
   // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);

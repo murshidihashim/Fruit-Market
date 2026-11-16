@@ -333,10 +333,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
   .game .actionbar .btn.wide { flex: 0 1 456px; }
 }
 
-/* colour-blind friendly freshness: okay = diagonal stripes, not so fresh = dots */
-.patterns .st-okay { background-image: repeating-linear-gradient(45deg, rgba(43, 36, 56, 0.16) 0 3px, transparent 3px 8px); }
-.patterns .st-notso { background-image: radial-gradient(rgba(43, 36, 56, 0.28) 1.5px, transparent 2px); background-size: 7px 7px; }
-
 /* first-game coach */
 .coach { position: absolute; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20; width: min(92%, 420px); display: flex; flex-direction: column; gap: 4px; padding: 10px 14px 12px; border-radius: 14px; background: var(--teal); color: var(--x-paper); box-shadow: 0 4px 0 var(--x-ink), 0 12px 28px rgba(0, 0, 0, 0.45); animation: pop 0.22s steps(3); }
 .coach.top { bottom: auto; top: 128px; }

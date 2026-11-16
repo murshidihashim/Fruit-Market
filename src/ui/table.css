@@ -52,11 +52,12 @@
 #app .tkt .tb-stalls.tb-drawing .tb-stall.buy-now { background: var(--tk-paper); }
 #app .tkt .tb-stalls.tb-drawing .tb-got > span:last-child:not(.tb-buys) { visibility: hidden; }
 /* the First token: a small round token on the first buyer's box, over its awning; it lies on the row, so it can
-   travel from box to box (the boxes are all one width: box k starts k widths and gaps from the left) */
+   travel from box to box (the boxes are all one width: box k starts k widths and gaps from the left). C-07 (PLAN-110):
+   dark red with paper type (6.2:1) and a little larger, so it stands apart from the mustard box of the stall buying now */
 #app .tkt .tb-first {
-  position: absolute; z-index: 2; top: -4px; left: calc(var(--k, 0) * (100% + var(--g)) / var(--n, 1) - 3px); height: 15px; padding: 0 5px;
-  box-sizing: border-box; display: grid; place-items: center; border: 1.5px solid var(--tk-ink); border-radius: 8px; background: var(--tk-yel);
-  color: var(--tk-ink); font: 800 0.5rem/1 var(--tk-txt); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none;
+  position: absolute; z-index: 2; top: -6px; left: calc(var(--k, 0) * (100% + var(--g)) / var(--n, 1) - 3px); height: 18px; padding: 0 6px;
+  box-sizing: border-box; display: grid; place-items: center; border: 2px solid var(--tk-ink); border-radius: 9px; background: var(--tk-red-d);
+  color: var(--tk-paper); font: 800 0.625rem/1 var(--tk-txt); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none;
 }
 #app .tkt .tb-stall {
   all: unset; position: relative; flex: 1 1 0; min-width: 0; height: 66px; box-sizing: border-box; overflow: hidden;

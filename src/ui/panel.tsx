@@ -362,7 +362,7 @@ const inWords = (n: number) => WORDS[n] ?? String(n);
  * S5 (PLAN-110): every other line of the takings that moved cash today is named too (a stake put down or back, dawn's
  * top-up or fine, an upgrade built tonight), so the numbers add up to the total.
  */
-export function daySoldLine(s: GameState, p: number): string {
+export function daySoldLine(s: GameState, p: number, today = true): string {
   const { sales, bought, fine, topUp, net } = dayLedger(s, p);
   const rows = takingsRows(s, p);
   const amount = (k: TakingsRow['key']) => rows.find((x) => x.key === k)?.amount ?? 0;
@@ -376,7 +376,7 @@ export function daySoldLine(s: GameState, p: number): string {
     ...(topUp > 0 ? [`top-up $${topUp}`] : []),
     ...(fine > 0 ? [`fine $${fine}`] : []),
     ...(other !== 0 ? [built ? `upgrade $${-other}` : `other ${other < 0 ? '−' : '+'}$${Math.abs(other)}`] : []),
-    ...(net === null ? [] : [`${net < 0 ? 'down' : 'up'} $${Math.abs(net)} today`]),
+    ...(net === null ? [] : [`${net < 0 ? 'down' : 'up'} $${Math.abs(net)}${today ? ' today' : ''}`]),
   ].join(' · ');
 }
 
