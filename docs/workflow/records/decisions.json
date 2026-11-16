@@ -4333,6 +4333,10 @@
     {
       "at": "2026-11-17 05:19",
       "text": "Owner: \"can u combine 1.24.1 and 1.25.0 and push it to preview\". 1.24.1 was never published (the live game is 1.24.0), so its candidate is withdrawn and PLAN-107 joins PLAN-108 to PLAN-111 in release candidate 1.25.0 (rules version 20, protocol 4). The PLAN-108 player note about the trophy now names it as built (\"Sold out\"); the name clash with the level-10 stamp is still the owner's to settle. Pull request to main for the preview (REP-127); publishing still needs the owner's word."
+    },
+    {
+      "at": "2026-11-17 06:11",
+      "text": "1.25.0 on the preview: pull request #21 checks PASS (verify:full and the Android build), merged to main as fee19d8; main CI PASS and the preview job updated the preview; the preview answers rules 20 and its code carries 1.25.0; live unchanged (1.24.0, rules 19). The owner is told to try it; publishing waits for his word."
     }
   ]
 }
