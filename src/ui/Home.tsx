@@ -61,7 +61,8 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 /** "11 Nov" from a date key. */
 const shortDate = (key: string): string => { const [, m, d] = key.split('-').map(Number); return `${d} ${MONTHS[(m || 1) - 1]}`; };
 
-/** Today's market (the first page): what the first morning of today's Daily market puts on the table, which is the same
+/** The Daily market page (the first page; REP-122 C-13: one name for the mode, as the glossary has it): what the first
+ *  morning of today's Daily market puts on the table, which is the same
  *  for everyone and public from the game's first screen: the lorry's load and, since no game has an event card on its
  *  first day (events are turned over each morning from day 2 and never shown early), the customer who stands first in
  *  the row, face up, with what they want. Should a first day ever carry an event, it is shown with its effect. Then
@@ -81,7 +82,7 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
   const best = res && !res.error && res.top.length ? res.top[0].cash : null;
   return (
     <div class="hm-slot" data-page="today">
-      <div class="hm-sh"><span>Today's market · {shortDate(today)}</span>{streak > 0 && <b>{streak}-day streak</b>}</div>
+      <div class="hm-sh"><span>Daily market · {shortDate(today)}</span>{streak > 0 && <b>{streak}-day streak</b>}</div>
       <div class="hm-sb">
         <div class="hm-t1">
           <div class="hm-ev">
@@ -99,7 +100,7 @@ function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
             </span>
           </div>
         </div>
-        <button class="hm-act" onClick={onDaily}><PlayIcon />Play today's market</button>
+        <button class="hm-act" onClick={onDaily}><PlayIcon />Play the Daily market</button>
       </div>
     </div>
   );

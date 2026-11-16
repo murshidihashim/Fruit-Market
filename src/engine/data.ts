@@ -306,7 +306,7 @@ export const EVENT_CARDS: EventCard[] = [
   { id: 'kenduri', title: 'Kenduri', icon: '💍',
     extra: { name: 'Wedding Caterer', wants: [{ fruit: 'watermelon', qty: 3, max: 8, fixed: true }] },
     text: 'Guest: the Wedding Caterer wants 3 watermelons, Fresh or Okay, top price $8.' },
-  // Rules 18: the extra mangoes really arrive ripe (Fresh; Okay on the Seconds Lorry), as the card has always said.
+  // Rules 18: the extra mangoes really arrive ripe, in the Fresh space on every lorry (game.ts), as the card has always said.
   { id: 'mangoWindfall', title: 'Mango Windfall', icon: '🥭', supplyEach: { mango: 1 }, price: { mango: -2 }, text: 'The lorry brings 1 extra ripe mango for every 2 stalls (round up). Customers pay $2 less for each mango.' },
   { id: 'pasarMalam', title: 'Pasar Malam', icon: '🏮', hawker: 3, text: 'After the rush, the night hawker buys 1 of each fruit left in every stall’s crate for $3 each, any freshness.' },
   { id: 'bakeOff', title: 'Bake-Off', icon: '🥧', price: { apple: 1 },
@@ -322,7 +322,8 @@ export interface FavourDef { id: FavourId; title: string; icon: string; text: st
 
 export const FAVOURS: Record<FavourId, FavourDef> = {
   gossip: { id: 'gossip', title: 'Gossip', icon: '👂', when: 'evening', text: 'Look at all of tomorrow\'s walk-ins. Only you see them.' },
-  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free.' },
+  // REP-122 C-10: the free piece is not one of the day's 4 (5 with a Handcart): playFavour takes it without counting it.
+  freeFruit: { id: 'freeFruit', title: 'Free Fruit', icon: '🎁', when: 'buy', text: 'Take 1 piece from the Wholesale Market for free. It does not count toward the pieces you may buy today.' },
   // Rules 19: several stalls may play Priority in the same evening (rules 18 allowed one).
   priority: { id: 'priority', title: 'Priority', icon: '⏩', when: 'evening', text: 'You buy first tomorrow. If several are played, the stall earliest in today\'s line-up goes first; the others go back.' },
   scout: { id: 'scout', title: 'Scout', icon: '🔍', when: 'buy', text: 'Look at one of today\'s walk-ins. Everyone sees that you played it, not what you saw.' },
