@@ -4296,6 +4296,10 @@
     {
       "at": "2026-11-16 20:51",
       "text": "Owner's answer to REP-125: use the boxes of the app's Wholesale Market for the physical market and for each stall, not the ruler; carrying crate pieces at the bell is too troublesome. REP-126 revises DEC-121 and PLAN-111: the crate band sits in front of the shelf band and the shutter steps back one line at the bell, so no piece is carried; rulers dropped. Still awaiting his approval of the plan, the fruit pieces (cubes or printed tiles) and the board (A3 panels or foam board)."
+    },
+    {
+      "at": "2026-11-16 20:57",
+      "text": "Owner asked whether the stall sheet keeps fruit type private before prices are set, as the app shows rivals only face-down boxes. It does: the shutter on line 1 hides the crate and shelf through stocking and pricing (RULES.md: one number, not which fruit). Added to PLAN-111: a public crate-count track (0 to 10) and a marker on each counter, so the number stays in view like the app's boxes instead of only being said aloud; no rule change."
     }
   ]
 }
