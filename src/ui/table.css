@@ -333,8 +333,21 @@
   #app .tkt .tb-lh { justify-content: center; }
   #app .tkt .tk-side-w { display: none; }
 }
-/* beside a price chip ("+$1 each today") the market's label keeps "Your turn · 0 of 4" whole */
+/* beside a price chip ("+$1 each today", or one for a single fruit) the market's label keeps "Your turn · 0 of 4" whole:
+   "bought" is left out, and where the chips leave too little room the words move under them, at the right */
 #app .tkt .tb-mk-head:has(.tk-chip) .tk-side-w { display: none; }
+#app .tkt .tb-mk-head:has(> .tk-chip) { height: auto; min-height: 16px; flex-wrap: wrap; row-gap: 3px; }
+#app .tkt .tb-mk-head:has(> .tk-chip) > .tk-side { flex: 0 0 auto; max-width: 100%; }
+/* a label that may take a second line (price chips, the evening's warning) leaves the lanes a line less room, so the
+   last box is never cut */
+#app .tkt .tb-market:has(> .tb-mk-head > .tk-chip, > .tb-mk-head > .tk-side.warn, > .tb-mk-head > .tk-side.good) .tb-lanes {
+  --bh: clamp(18px, calc((100cqh - 64px) / var(--rows, 6) - var(--bg)), 38px);
+}
+@media (max-height: 779px) {
+  #app .tkt .tb-market:has(> .tb-mk-head > .tk-chip, > .tb-mk-head > .tk-side.warn, > .tb-mk-head > .tk-side.good) .tb-lanes {
+    --bh: clamp(18px, calc((100cqh - 57px) / var(--rows, 6) - var(--bg)), 38px);
+  }
+}
 /* the evening's warning beside the market's label ("Heatwave: all fruit ages 2 steps tonight.") takes two lines
    rather than being cut */
 #app .tkt .tb-mk-head:has(> .tk-side.warn, > .tk-side.good) { height: auto; min-height: 16px; }
