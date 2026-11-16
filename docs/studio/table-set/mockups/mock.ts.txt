@@ -120,14 +120,14 @@ ${LANES.map((f) => lane(f, false)).join('')}</div>
   const counter = (name: string, pat: string, count: number) => `
 <div class="ctr">
   <div class="bar ch"><span class="disp">COUNTER</span><span class="pat ${pat}"></span><span class="lab y" style="flex:1">${name}</span><span class="lab">Public</span></div>
+  <div class="box"><span class="lab">Crate count · how many pieces you're selling today (never which fruit)</span>
+    <div class="grid count">${Array.from({ length: 11 }, (_, i) => `<span>${i}</span>`).join('')}</div></div>
   <div class="box">
     <span class="lab">Cash · tens marker, then ones marker</span>
     <div class="grid">${Array.from({ length: 20 }, (_, i) => `<span class="${i === 1 ? 'on' : ''}">${i * 10}</span>`).join('')}</div>
     <div class="grid">${Array.from({ length: 10 }, (_, i) => `<span class="${i === 0 ? 'on' : ''}">+${i}</span>`).join('')}</div>
     <span class="note">Yellow = where you start: $10. Past $199, take a +$200 chip.</span>
   </div>
-  <div class="box"><span class="lab">Crate count · how many pieces you're selling today (never which fruit)</span>
-    <div class="grid count">${Array.from({ length: 11 }, (_, i) => `<span class="${i === count ? 'c' : ''}">${i}</span>`).join('')}</div></div>
 </div>`;
   save('2-counters', page(297, 210, counter('Stripes', '', 3) + counter('Dots', 'dots', 5) + counter('Checks', 'checks', 0) + counter('Zigzag', 'zigzag', 2)
     + `<div class="foot">Fruit Market · counters · four to an A4 landscape sheet, cut on the dashed lines · mock-up for review (PLAN-111)</div>`, extra));
