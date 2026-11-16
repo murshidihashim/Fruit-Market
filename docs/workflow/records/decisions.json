@@ -2972,7 +2972,8 @@
       },
       "delivery": "in progress",
       "reports": [
-        "REP-123"
+        "REP-123",
+        "REP-124"
       ],
       "reviewTrigger": "If the balance check moves a shopkeeper more than 3 points, or the owner changes a choice"
     }
@@ -4245,6 +4246,10 @@
     {
       "at": "2026-11-16 12:21",
       "text": "DEC-120 approved: the owner said \"okay approve\" to REP-123. PLAN-107 (Major) and PLAN-108 (rules 20) start side by side with helpers; PLAN-109 and PLAN-110 follow. Trophy \"Nothing for the jam maker\" becomes \"Sold out\" and the Major fixes go out first as 1.24.1 (REP-123 recommendations, approved with the plan); publishing each release still needs the owner's word."
+    },
+    {
+      "at": "2026-11-16 14:32",
+      "text": "PLAN-107 (Major) merged (68864cd) and implemented: S2, S3 (undo point moves to just after the last favour card), ON-01 to ON-06; verify PASS (965 tests), e2e PASS, screens at 390 and 360 PASS, room tests PASS, a 1.24.0 phone against the new room server PASS; real Android NOT RUN. Prepared as release 1.24.1 (rules 19 kept) for the preview; publishing waits for the owner's word (REP-124). PLAN-108 (rules 20) built and checked on its own branch (verify PASS on a trial merge, e2e PASS, screens and print seen) and held off the main line until 1.24.1 is live. Balance: the first run had Ah Chen at 3 Hard stalls -3.1 points (over the 3-point line); a second batch of 7,200 games on new seeds showed +0.4, and over both (9,600 games a side) no shopkeeper moved more than 0.7 points; every stall ends about $4 poorer. The approved trophy name \"Sold out\" clashes with the level-10 \"Sold out\" stamp; the owner is asked (recommendation \"Clean shelf\")."
     }
   ]
 }
