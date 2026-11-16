@@ -4258,6 +4258,10 @@
     {
       "at": "2026-11-16 16:58",
       "text": "PLAN-109 (print kit and words) merged (4bb18df) and implemented: C-02 to C-06, C-08 to C-11, C-13, C-14 with S16, C-16, C-18 to C-20, ON-11, S15 and S20; rules version 20 and AI version 7 kept, no rule or number changed. verify PASS (989 tests), e2e PASS, every changed print page and app screen seen (PASS); the owner's check of the kit NOT RUN. The print kit, update-20 and tracker packs are rebuilt; the counter card gains a Fruit sold tally. Differences from the review rows: Blueberry Glut's printed card keeps 2 boxes (the PLAN-106 design), the printed favour footer is \"Hold 3 (Charmer 4)\" to fit. Seen: on price-change days the market chip cuts \"Your turn · N of M bought\" at 360; handed to PLAN-110 (S12/S13)."
+    },
+    {
+      "at": "2026-11-16 18:02",
+      "text": "PLAN-110 (smaller bugs and polish) merged (b61d386) and implemented: S4 to S14, S17 to S19, S8, ON-07 to ON-15, C-07, C-12, C-21 (ON-10 already fixed by PLAN-107); rules version 20, AI version 7, protocol 4 and the save envelope kept. verify PASS (1009 tests), e2e PASS, screens at 390, 360 and 320 PASS; real phones NOT RUN. Room server: a move made on a version after the game last changed still stands (a look change or a comeback no longer makes it stale); seats left on purpose are marked; a 1.24.x phone sees the same message shapes. Not fixed: names cut in 5 to 6 stall boxes, unsent crate or prices are warned about rather than kept, the shared-step top bar shows the last person's rank and cash. No print colour changed, so the kit is not rebuilt."
     }
   ]
 }
