@@ -1,12 +1,14 @@
 // The bar along the bottom: what's happening now, and the main button for this phase.
 // While you buy, Undo and Done keep their places the whole time (PLAN-085): they are not taken away while a piece is
 // on its way, and a tap on Done then is kept until the piece has landed.
+import { FAVOURS } from '../../../engine/data';
 import { count, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import { fx } from '../../fx';
 import { shownBoughtCount } from '../../tableShown';
 import { tokenOnItsWay } from '../../firstShown';
 import { eveningWaitLine } from '../evening';
+import { canUndo } from '../turn';
 import type { GameController } from '../useGameController';
 
 export function ActionBar({ c, pl, limit, picker, online }: { c: GameController; pl: Player | undefined; limit: number; picker: number; online: boolean }) {
@@ -35,6 +37,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
     : null;
   const quiet = beat === null;
   const bought = pl ? shownBoughtCount(active, pl.boughtToday) : 0;
+  const after = turnStart.current?.after;
   return (
     <footer class="actionbar">
       {!quiet && <div class="hint-bar">{beat}</div>}
@@ -44,7 +47,9 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         : <button class="btn primary wide big" onClick={c.proceed}>Start buying</button>)}
       {myBuy && pl && !drawing && (
         <>
-          <button class="btn ghost" aria-label="Undo purchases" disabled={online ? pl.boughtToday === 0 : !turnStart.current || turnStart.current === s} onClick={c.undo}>↶</button>
+          {/* S3 (DEC-120): Undo takes back purchases only. After a favour card it says so: it goes back to just after the
+              card, which stays played. */}
+          <button class="btn ghost" aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(turnStart.current, s, active, online)} onClick={c.undo}>↶{after && <small class="btn-sub undo-sub">after {FAVOURS[after].title}</small>}</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
               along and make it narrower, and they keep their places the whole turn. */}
           <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
