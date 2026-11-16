@@ -13,6 +13,9 @@ import { Wardrobe } from '../../Wardrobe';
 import { useState } from 'preact/hooks';
 import type { GameController } from '../useGameController';
 
+/** S3 (DEC-120): said on a favour card about to be played on a buying turn. */
+export const UNDO_AFTER_CARD = 'Once played, it stays played. Undo then takes back only what you buy after it.';
+
 export function EventPop({ c, viewer }: { c: GameController; viewer: number }) {
   // Fills the screen like the morning card (PLAN-013); tap anywhere or the button to go back.
   return (
@@ -53,6 +56,8 @@ export function Popovers({ c, coach, onExit, onWear }: { c: GameController; coac
           {why && <p class="cd-pop-why">{why}</p>}
           {/* Rules 19: a Priority card played after one from a stall earlier in today's line-up goes back to the hand. */}
           {!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class="cd-pop-why">{priorityNote(s, actor)}</p>}
+          {/* S3 (DEC-120): Undo takes back purchases only, so a card played on a buying turn is said to stay played. */}
+          {!why && s.phase === 'buy' && <p class="cd-pop-why">{UNDO_AFTER_CARD}</p>}
           <div class="cd-pop-btns">
             {!why && <button type="button" class="btn primary" onClick={() => c.reallyPlay(cardInfo)}>Play</button>}
             <button type="button" class="btn ghost" onClick={() => setCardInfo(null)}>Close</button>

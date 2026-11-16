@@ -20,7 +20,7 @@ import { loadSettings } from '../store';
 import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
-import { playLocal, undoPoint, waitsForPerson } from './turn';
+import { playLocal, undoPoint, waitsForPerson, type UndoPoint } from './turn';
 import type { ShowState } from './rush';
 
 
@@ -66,7 +66,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const [lastNight, setLastNight] = useState(0);
   // What the viewer's Juice Bar made last night, for the morning card.
   const [lastJuice, setLastJuice] = useState<NightJuice>({ pieces: 0, dollars: 0 });
-  const turnStart = useRef<GameState | null>(null);
+  /** Where Undo goes back to (turn.ts): the turn's start, or just after the last favour card played on it (DEC-120). */
+  const turnStart = useRef<UndoPoint | null>(null);
   const [meta, setMeta] = useState<RoomView | null>(online?.view ?? null);
   const [conn, setConn] = useState(online?.conn ?? 'open');
   const queue = useRef<GameState[]>([]);
@@ -102,6 +103,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   // phone has been handed to them (PLAN-085: a beat may now play between one person's last tap and the hand-over).
   if (!online && activeHuman && (!multi || handedTo === active)) lastViewer.current = active;
   const viewer = seat ?? lastViewer.current;
+  // Worked out as the screen is drawn (it changes only with the turn, or as a favour card is played), so the Undo button
+  // is right on the very draw that shows the card played.
+  turnStart.current = undoPoint(turnStart.current, s, activeHuman);
   const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
   // Online: whose secret prices are still missing, and who still has to press continue.
   const myBidTurn = online ? secret && !!meta && !meta.submitted[viewer] : secret && activeHuman;
@@ -399,10 +403,6 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
 
   useEffect(() => {
-    turnStart.current = undoPoint(turnStart.current, s, activeHuman);
-  }, [s.phase, active, s.day]);
-
-  useEffect(() => {
     if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
     // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
@@ -475,8 +475,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(null);
       return;
     }
-    // The pieces travel back to their boxes (PLAN-085): the turn's first state is shown like any other step.
-    const t = turnStart.current;
+    // The pieces travel back to their boxes (PLAN-085): the turn's first state (or the one just after the last favour
+    // card played, which stays played) is shown like any other step.
+    const t = turnStart.current?.at;
     if (busyRef.current) return;
     buyQueue.current = [];
     endQueued.current = false;

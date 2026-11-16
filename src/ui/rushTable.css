@@ -425,7 +425,7 @@
 #app .tkt .rt-sheet .ds-tag { position: relative; flex: none; width: 58px; display: grid; place-items: center; border-left: 2px solid var(--tk-ink); border-right: 2px solid var(--tk-ink); }
 #app .tkt .rt-sheet .ds-tag-face { font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; min-width: 0; }
 #app .tkt .rt-sheet .ps-note { flex: none; display: flex; align-items: center; gap: 6px; margin: 0; color: var(--tk-slate); font: 600 0.6875rem/1.25 var(--tk-txt); }
-#app .tkt .rt-sheet .ps-note.ps-fav { color: var(--tk-ink); }
+#app .tkt .rt-sheet .ps-note.ps-fav, #app .tkt .rt-sheet .ps-note.ps-order { color: var(--tk-ink); }
 #app .tkt .rt-sheet > .pp-lock {
   all: unset; flex: none; display: flex; flex-direction: column; gap: 4px; margin-top: 2px;
 }

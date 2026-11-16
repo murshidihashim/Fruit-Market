@@ -16,7 +16,7 @@ import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limit
 import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
 import { accountKey, handleAccount, idProblem, type AccountAction, type AccountRec } from './accounts';
-import { freshRoom, Room, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
+import { freshRoom, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
 
 interface Env {
   ROOMS: DurableObjectNamespace<RoomDO>;
@@ -197,7 +197,10 @@ export class RoomDO extends DurableObject<Env> {
       await this.ctx.storage.setAlarm(Date.now() + ROOM_TTL_MS);
       return new Response('Created', { status: 201 });
     }
-    if (!this.data) return new Response('Unknown room', { status: 404 });
+    // PLAN-107 (ON-03): a code that leads to no room (never made, or expired) still gets a connection, so the phone can
+    // be told so: its hello is answered with a message that stops it (webSocketMessage). A refused connection (404)
+    // looked like a network fault, and every app retried it for ever. Nothing is stored for such a code.
+    if (!this.data && !url.pathname.startsWith('/ws/')) return new Response('Unknown room', { status: 404 });
     if (url.pathname === '/status') {
       // Used by quick match: is someone still sitting alone in this lobby, waiting for an opponent?
       const room = this.room()!;
@@ -213,8 +216,9 @@ export class RoomDO extends DurableObject<Env> {
   async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
     const room = this.room();
     const c = this.conn(ws);
-    if (!room) { c.send({ t: 'error', msg: 'This room has expired.', fatal: true }); c.close(4000, 'Expired'); return; }
-    await room.message(c, typeof message === 'string' ? message : new TextDecoder().decode(message));
+    const raw = typeof message === 'string' ? message : new TextDecoder().decode(message);
+    if (!room) { c.send({ t: 'error', msg: roomGoneMsg(raw), fatal: true }); c.close(4004, 'Unknown room'); return; }
+    await room.message(c, raw);
   }
 
   async webSocketClose(ws: WebSocket): Promise<void> {

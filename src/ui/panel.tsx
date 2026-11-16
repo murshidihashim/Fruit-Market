@@ -5,13 +5,15 @@ import { boxOf } from './anim';
 import { believe, planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, acceptsStage, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, shadePick,
+  canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, rowCount, shadePick,
   validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
 import { tagOf } from '../net/looks';
 import { Coin, Face, Fruit } from './art';
-import { SEEN_WALK_IN, buyerCap, buyersFor, nextLorryName, stallWantText, stallWanted, LANES } from './boardModel';
+import {
+  SEEN_WALK_IN, buyerCap, buyersFor, customersWanted, nextLorryName, orderDueFor, orderPay, orderTakesPos, orderTitle, orderWanted, stallWantText, LANES,
+} from './boardModel';
 import { ART_SIZE, CardArt, UpgradeCard } from './cards';
 import { upgradeArt, upgradeFocus } from './deckArt';
 import { STAGE_LETTER, STAGE_WORD } from './ticket';
@@ -52,18 +54,33 @@ export function startingCrate(s: GameState, p: number): Crate {
  * count towards it and stay where they are. The pieces added are the oldest a customer who wants that fruit would take
  * (oldest first is the game's own way to fill a crate, rules 12), so nothing goes out that nobody would buy. A fruit
  * nobody wants is left on the shelf. Your own crate only: nothing here looks at a rival.
+ * S2 (PLAN-107): on its due day the standing order you hold is filled first, the way the rush fills it: from the
+ * crate, Fresh or Okay pieces, freshest first. Pieces already in the crate go to it first; then the freshest such
+ * pieces on the shelf are added for it, up to what it asks. The customers' pieces come after, as above.
  */
 export function autoCrate(s: GameState, p: number, crate: Crate): Crate {
   const pl = s.players[p];
-  const out = Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map((_, pos) => crate[f]?.[pos] ?? 0)])) as Crate;
+  const out = Object.fromEntries(FRUITS.map((f) => [f, pl.stock[f].map((_, pos) => crate[f]?.[pos] ?? 0)])) as Record<FruitId, number[]>;
   for (const f of FRUITS) {
     const buyers = buyersFor(s, f);
-    let need = stallWanted(s, p, f) - (out[f] ?? []).reduce((a, n) => a + n, 0);
+    const t = out[f];
+    let inCrate = t.reduce((a, n) => a + n, 0);
+    // The standing order takes its pieces from the crate before any customer is served.
+    let order = orderWanted(s, p, f);
+    for (let pos = t.length - 1; pos >= 0 && order > 0; pos--) {
+      if (!orderTakesPos(f, pos)) continue;
+      const from = Math.min(order, t[pos]);
+      order -= from;
+      inCrate -= from;
+      const k = Math.min(order, (pl.stock[f][pos] ?? 0) - t[pos]);
+      if (k > 0) { t[pos] += k; order -= k; }
+    }
+    let need = customersWanted(s, p, f) - inCrate;
     for (let pos = 0; pos < FRUIT[f].ripe.length && need > 0; pos++) {
       if (!buyers.some((x) => acceptsStage(x.c.pref, stageAt(f, pos)))) continue;
-      const k = Math.min(need, (pl.stock[f][pos] ?? 0) - out[f]![pos]);
+      const k = Math.min(need, (pl.stock[f][pos] ?? 0) - t[pos]);
       if (k <= 0) continue;
-      out[f]![pos] += k;
+      t[pos] += k;
       need -= k;
     }
   }
@@ -84,9 +101,13 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
   }
   const drop = FRUIT[f].drop[pos] ?? 0;
   const best = Math.max(0, ...buyersFor(s, f).map((x) => x.max));
+  // S2: on its due day a row the standing order takes from says so first. The order pays its own price whatever the
+  // freshness, so the customers' price words follow only when customers want the fruit too.
+  const customers = customersWanted(s, p, f) > 0;
+  const forOrder = orderWanted(s, p, f) > 0 && orderTakesPos(f, pos);
   return [
-    stallWantText(s, p, f),
-    drop ? `${STAGE_WORD[stage]} sells $${drop} less` : stallWanted(s, p, f) > 0 ? `best price $${best}` : '',
+    stallWantText(s, p, f, pos),
+    drop ? (customers || !forOrder ? `${STAGE_WORD[stage]} sells $${drop} less` : '') : customers ? `best price $${best}` : '',
     night.text === 'spoils tonight' || night.text === 'juice tonight' ? night.text : '',
   ].filter(Boolean).join(' · ');
 }
@@ -158,18 +179,30 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
 }
 
 /** Stocking's buttons, in the action bar's place: "Auto load" (what is wanted, autoCrate; greyed when the crate
- *  already holds it) beside the main button. */
-export function StallBar({ total, onSubmit, onAuto }: { total: number; onSubmit: () => void; onAuto?: (() => void) | null }) {
+ *  already holds it) beside the main button. S2: `stake`, the stake of a standing order this stall holds and could
+ *  deliver today: with an empty crate the button then says what that costs, never "Sell nothing today". */
+export function StallBar({ total, onSubmit, onAuto, stake }: { total: number; onSubmit: () => void; onAuto?: (() => void) | null; stake?: number }) {
   return (
     <div class="pp-lock">
       <div class="tk-pair">
         {onAuto !== undefined && (
           <button type="button" class="btn ghost tk-auto" disabled={!onAuto} onClick={onAuto ?? undefined}>Auto load <small class="btn-sub">what's wanted</small></button>
         )}
-        <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>{total ? <>Open my stall <small class="btn-sub">{total} out</small></> : 'Sell nothing today'}</button>
+        <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>
+          {total ? <>Open my stall <small class="btn-sub">{total} out</small></>
+            : stake !== undefined ? <>Deliver nothing today <small class="btn-sub">${stake} stake lost</small></>
+            : 'Sell nothing today'}
+        </button>
       </div>
     </div>
   );
+}
+
+/** S2: the stake of the standing order stall `p` holds and could deliver today (its shelf has a piece the order
+ *  takes), or undefined. */
+export function stakeAtRisk(s: GameState, p: number): number | undefined {
+  const o = orderDueFor(s, p);
+  return o && orderWanted(s, p, o.fruit) > 0 ? o.staked ?? o.stake : undefined;
 }
 
 // ---------- pricing (PLAN-085, the approved Pricing screen) ----------
@@ -211,6 +244,11 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
   const mine = pricingTable(s, p).seats.find((x) => x.me);
   const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
   const b = believe(s, p, false);
+  // S2: on its due day the standing order takes its pieces from the crate before any customer, and pays its own price
+  // for each, whatever price is set here. A note under the rows says so; a row's words are about the rest.
+  const o = orderDueFor(s, p);
+  const toOrder = o ? forSale(s, p, o.fruit) - rowCount(s, p, o.fruit) : 0;
+  const orderNote = o && toOrder > 0 ? orderPriceNote(orderTitle(o), toOrder, forSale(s, p, o.fruit), orderPay(s, p, o)) : null;
   return (
     <div class="ps-in">
       <div class="ps-head">
@@ -231,9 +269,12 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
           const dots = mine?.fruits.find((x) => x.f === f)?.dots ?? [];
           const out = forSale(s, p, f);
           const word = dots[0] && dots[0] !== 'fresh' ? STAGE_WORD[dots[0]] : '';
-          const said = !lines.length ? 'Nobody wants these today'
-            : top <= 0 ? `${wanted} wanted · nobody takes yours`
-            : `${wanted} wanted · best price $${best}${top !== best && word ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for yours` : ''}`;
+          const ordered = o && o.fruit === f ? toOrder : 0;
+          const yours = ordered ? 'the rest' : 'yours';
+          const said = o && ordered && ordered >= out ? `${ordered} for ${orderTitle(o)}`
+            : !lines.length ? (ordered ? 'Nobody wants the rest' : 'Nobody wants these today')
+            : top <= 0 ? `${wanted} wanted · nobody takes ${yours}`
+            : `${wanted} wanted · best price $${best}${top !== best && word && !ordered ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for ${yours}` : ''}`;
           return (
             <div class={`ps-row ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
               <div class="ps-info">
@@ -253,12 +294,20 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
           );
         })}
       </div>
+      {orderNote && <p class="ps-note ps-order">{orderNote}</p>}
       {fruits.length > 0 && <p class="ps-note">{tieOrderLine(s, p)}</p>}
       {/* Rules 18: Favoured Trade is not played with the prices. A holder with a tied price is asked after the flip. */}
       {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="ps-note ps-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade. If you tie, you'll be asked after the prices flip.</span></p>}
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </div>
   );
+}
+
+/** S2: the pricing sheet's note on a standing order's due day: its holder's pieces go to the order at the order's own
+ *  price, whatever price is set for the fruit, which is for the pieces left over. */
+export function orderPriceNote(title: string, toOrder: number, out: number, pay: number): string {
+  const rest = out - toOrder;
+  return `${title} takes ${rest ? toOrder : `all ${toOrder}`} at $${pay} each, whatever price you set.${rest ? ` Your price is for the other ${rest}.` : ''}`;
 }
 
 /** Pricing's main button, at the foot of the pricing sheet: it seals the prices and rings the bell. `sealed`: the bell
