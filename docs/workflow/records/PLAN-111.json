@@ -1,0 +1,71 @@
+{
+  "id": "PLAN-111",
+  "title": "New table set: board, shutters, pieces and the freshness ruler (print and play)",
+  "problem": "The owner has no board, shutters, fruit pieces, price tags, markers, chips or tokens, and no files exist for them, so the printed game cannot be played. Tracking freshness by sliding every piece each night is slow and easy to get wrong.",
+  "scope": [
+    "Market board in three A3 panels: the Wholesale Market with day columns and the market ruler's track; the street (day track to 14, Market Days, deck spaces, lorries, upgrade piles); the customer rows (today and tomorrow, six card spaces each)",
+    "Stall sheets in the ruler version, 7 rulers, 6 shutters (half A3, folded to stand, both sides), 6 counters (cash track, Fruit sold row, tag places), 30 price tags, a token sheet (12 cash markers, 36 served-alone chips, day marker, first-player token, Shade Cloth marker, 6 +$200 chips); all rectangles for a guillotine",
+    "A shopping list: 200 wooden cubes, 10 mm, 50 each of blue, green, yellow and red; 6 dry-wipe pens",
+    "Guidebook, player aid and RULES.md print-and-play part: set-up, the night step with the ruler, what is in the box (no rule change)",
+    "Print tests from the game data (parts counted, card spaces fit 63 x 88 mm, boxes fit a 10 mm cube, rulers cover each fruit's life, day track to 14)",
+    "The print-shop package rebuilt with a print order (paper, sides, finish, cut sizes) and the shopping list; the update pack for the earlier printing retired"
+  ],
+  "exclusions": [
+    "No game rule or card change; the app is unchanged",
+    "No ordering, printing or buying: the owner decides and pays",
+    "No punched or die-cut shapes"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes, with the new print tests",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Every new page seen as a picture",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Sizes measured from the PDFs (card spaces, boxes, shutters, cut sizes)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner's small test: one stall sheet, one ruler and the market panel, a few days with coins or beads",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "A full table game with the printed set",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-125"
+  ],
+  "decisions": [
+    "DEC-121"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

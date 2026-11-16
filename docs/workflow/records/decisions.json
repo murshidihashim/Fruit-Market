@@ -2976,6 +2976,31 @@
         "REP-124"
       ],
       "reviewTrigger": "If the balance check moves a shopkeeper more than 3 points, or the owner changes a choice"
+    },
+    {
+      "id": "DEC-121",
+      "title": "A new table set (board, shutters, pieces) with an easier freshness tracker",
+      "question": "The owner no longer has the earlier printing's board, shutters, fruit pieces, price tags, markers, chips and tokens, and there are no files for them. How are they made again, and how should a table track freshness more easily (the owner asked about a stack of small cards for each piece)?",
+      "choice": "Proposed: slide the ruler (tracker test 1, DEC-089): pieces stay in the column they were bought into and one ruler per stall and one for the market slide a column each night. A new set built for a print shop (three A3 board panels, stall sheets, rulers, shutters, counters, price tags, a token sheet, all rectangles) and 200 bought 10 mm wooden cubes in four colours. The update pack for the earlier printing is retired. No rule change.",
+      "rationale": "A card stack per piece needs about 900 small cards and 50 to 80 actions a night; sliding the fruit needs 10 to 20 moves per stall behind the shutter; the ruler needs 7 slides at the whole table, done in the open, and keeps the pieces plain and cheap (REP-125).",
+      "impact": {
+        "player": "People who print the game get every part, and nobody moves fruit at night.",
+        "technical": "New print scripts and tests from the game data; the guidebook, player aid and RULES.md print-and-play part updated. The app is unchanged.",
+        "data": "None."
+      },
+      "cost": "RM0 for the work. Printing, wooden cubes and pens are the owner's spending, quoted by the shop and seller.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "plan": "PLAN-111",
+      "reviewTrigger": "The owner's small table test (PLAN-111 T4): if the ruler confuses players, switch to sliding the fruit with the same parts.",
+      "reports": [
+        "REP-125"
+      ]
     }
   ],
   "history": [
@@ -4262,6 +4287,10 @@
     {
       "at": "2026-11-16 18:02",
       "text": "PLAN-110 (smaller bugs and polish) merged (b61d386) and implemented: S4 to S14, S17 to S19, S8, ON-07 to ON-15, C-07, C-12, C-21 (ON-10 already fixed by PLAN-107); rules version 20, AI version 7, protocol 4 and the save envelope kept. verify PASS (1009 tests), e2e PASS, screens at 390, 360 and 320 PASS; real phones NOT RUN. Room server: a move made on a version after the game last changed still stands (a look change or a comeback no longer makes it stale); seats left on purpose are marked; a 1.24.x phone sees the same message shapes. Not fixed: names cut in 5 to 6 stall boxes, unsent crate or prices are warned about rather than kept, the shared-step top bar shows the last person's rank and cash. No print colour changed, so the kit is not rebuilt."
+    },
+    {
+      "at": "2026-11-16 20:46",
+      "text": "The owner no longer has the earlier printing's board, shutters and pieces and asked for new ones, and whether each fruit piece should be a stack of small cards to track freshness. REP-125 compares four ways (card stacks, dice, sliding the fruit, sliding the ruler) and recommends the ruler with plain wooden cubes; proposed as DEC-121 and PLAN-111, awaiting the owner. The print-shop package sent earlier (REP-124 files) stays valid for the cards; the stall sheets, counters, guidebook and board patches are on hold."
     }
   ]
 }
