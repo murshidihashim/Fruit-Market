@@ -120,7 +120,7 @@ ${LANES.map((f) => lane(f, false)).join('')}</div>
   const counter = (name: string, pat: string, count: number) => `
 <div class="ctr">
   <div class="bar ch"><span class="disp">COUNTER</span><span class="pat ${pat}"></span><span class="lab y" style="flex:1">${name}</span><span class="lab">Public</span></div>
-  <div class="box"><span class="lab">Crate count · how many pieces you're selling today (never which fruit)</span>
+  <div class="box"><span class="lab">Crate count · how many pieces you're selling today</span>
     <div class="grid count">${Array.from({ length: 11 }, (_, i) => `<span>${i}</span>`).join('')}</div></div>
   <div class="box">
     <span class="lab">Cash · tens marker, then ones marker</span>
