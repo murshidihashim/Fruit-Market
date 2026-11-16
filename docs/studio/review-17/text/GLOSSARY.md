@@ -25,7 +25,7 @@ One word for one thing. The first table is the set of words chosen; the lists af
 | **customer · regular · walk-in · guest** | Customer is anyone who buys. The regular is drawn face up a day ahead. A walk-in is face down until buying ends. A guest comes with an event. Never "shopper", "buyer", "special guest", "special customer". |
 | **top price** | The most a customer pays for a Fresh piece today. Okay sells for \$1 less, Soft for \$2 less. Never "full price", "what customers normally pay". |
 | **order · standing order** | An order is what one customer wants. A standing order is the Market Day card that stalls bid for. Always "standing order" in full. Its limit is the "highest bid". The stall that wins it is "the winner". |
-| **Market Day · Closing Day · last day** | Market Days are days 3, 6, 9 and 12. Closing Day is the name of the last day. In a sentence say "the last day". Never "final day". Write "Day 3" with a capital. |
+| **Market Day · last day** | Market Days are days 3, 6, 9 and 12. In a sentence say "the last day". Never "final day". Write "Day 3" with a capital. (Rules 20: Closing Day and the jam maker are gone; the last day is an ordinary day.) |
 | **favour card** | Always two words. You "play" it. Never "favour" alone or "card" alone when a favour card is meant. |
 | **upgrade** | You "build" one. "Stall upgrade" only as a card type heading. |
 | **cash** | What you have and what wins. "\$" with digits. Never "money", "coins", "dollars". |
@@ -40,7 +40,7 @@ One word for one thing. The first table is the set of words chosen; the lists af
 
 ## Words kept on purpose
 
-- **Lights out** (evening button), **Close for the day**, **jam maker**, **night hawker**, **the crier**: flavour words that name one thing each and are used consistently.
+- **Lights out** (evening button), **Close for the day**, **night hawker**, **the crier**: flavour words that name one thing each and are used consistently.
 - **Shutter, counter, price tag, cash track, chip, marker**: tabletop pieces. They belong in the printed pack and should not appear in the app (one does: "The shelf stays behind the shutter").
 - **Kenduri, Pasar Malam, kampung, sen, aiyo, jimat, rezeki, terima kasih**: already in the game. The proposals add open house, kopitiam, jamu and family day, and reuse pasar malam (twice) and kenduri, in seven flavour lines and nowhere else.
 - **Stranger** for the other player in a quick match.

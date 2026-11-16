@@ -150,9 +150,7 @@ describe('specialities draft', () => {
     s = finishReveal(s);
     expect(s.phase).toBe('over');
     expect(s.players[p].stats.juiced ?? 0).toBe(0);
-    // Only the jam maker's money, when Closing Day is on: less than the juice would have paid.
-    const jam = s.jam?.[p] ?? 0;
-    expect(s.players[p].cash).toBe(20 - 3 + jam);
-    expect(jam).toBeLessThan(3 * JUICE_VALUE);
+    // Rules 20: and no jam maker either. The three pieces are simply left over, worth nothing.
+    expect(s.players[p].cash).toBe(20 - 3);
   });
 });

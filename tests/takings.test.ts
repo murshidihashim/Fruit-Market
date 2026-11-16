@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { autoplay } from '../src/engine/ai';
 import { FAVOURS, FRUITS, RIVALS, lookOf, stageAt } from '../src/engine/data';
-import { count, leavingTonight, newGame, nightOutlook, places, publicView, ranking, servingCustomers, type GameState } from '../src/engine/game';
-import { dayLedger, jamDue, standing, tonightLine, withJamPaid } from '../src/engine/story';
+import { count, finishReveal, leavingTonight, newGame, nightOutlook, places, publicView, ranking, servingCustomers, type GameState } from '../src/engine/game';
+import { dayLedger, standing, tonightLine } from '../src/engine/story';
 import { LANES } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import {
@@ -64,7 +64,7 @@ describe('the ledger', () => {
       for (const x of rows) seen.add(x.key);
     }
     // these games reach every line but a Sharp Ears tip and "Other" (the next test)
-    expect([...seen].sort()).toEqual(['bought', 'hawker', 'jam', 'jar', 'order', 'sold', 'stake', 'staked']);
+    expect([...seen].sort()).toEqual(['bought', 'hawker', 'jar', 'order', 'sold', 'stake', 'staked']);
   });
 
   it('a Sharp Ears tip has its own line, and a change no line explains stays under "Other"', () => {
@@ -128,11 +128,14 @@ describe('the ledger', () => {
     expect(row(takingsRows(later.s, won.p), 'staked')).toBeUndefined();
   });
 
-  it('the jam maker\'s money is a line on the final day, counted in "Up today"', () => {
-    const last = find((s, p) => s.day === s.config.days && jamDue(s, p) > 0);
-    expect(row(takingsRows(last.s, last.p), 'jam')).toEqual({ key: 'jam', label: 'Jam maker tonight', amount: jamDue(last.s, last.p) });
+  it('the last day has no jam maker line (rules 20): its takings are the final result', () => {
+    const last = find((s, p) => s.day === s.config.days && count(s.players[p].stock, undefined, true) > 0);
+    const end = finishReveal(last.s);
+    // ripe fruit left over, and nothing is paid for it when the market closes
+    expect(end.players.map((x) => x.cash)).toEqual(last.s.players.map((x) => x.cash));
+    expect(dayLedger(last.s, last.p).net).toBe(end.players[last.p].cash - last.s.dayStartCash![last.p]);
     const html = view(last.s, last.p);
-    expect(html).toContain(`Jam maker tonight <b class="good">+$${jamDue(last.s, last.p)}</b>`);
+    expect(html).not.toMatch(/[Jj]am maker/);
     expect(html).toContain('MARKET CLOSED');
     expect(html).not.toContain('to go');
     // no night follows the final day: nothing about the shelf
@@ -171,11 +174,10 @@ describe('the takings as drawn', () => {
   it('every stall once, first to last, with its day and its cash; this stall\'s row is marked', () => {
     for (const { s } of all) for (const p of [0, s.players.length - 1]) {
       const rows = stallRows(s, p);
-      const after = withJamPaid(s);
-      expect(rows.map((x) => x.p)).toEqual(ranking(after));
-      expect(rows.map((x) => x.place)).toEqual(ranking(after).map((i) => places(after)[i]));
+      expect(rows.map((x) => x.p)).toEqual(ranking(s));
+      expect(rows.map((x) => x.place)).toEqual(ranking(s).map((i) => places(s)[i]));
       for (const x of rows) {
-        expect(x.cash).toBe(after.players[x.p].cash);
+        expect(x.cash).toBe(s.players[x.p].cash);
         expect(x.today).toBe(dayLedger(s, x.p).net);
         // a stall's cash is where it started the day plus what the day changed
         expect(x.cash).toBe(s.dayStartCash![x.p] + x.today!);
@@ -184,12 +186,12 @@ describe('the takings as drawn', () => {
       // this stall's row says what "Up today" says, and its place is the place in the line under the list
       const me = rows.find((x) => x.me)!;
       expect(me.today).toBe(dayLedger(s, p).net);
-      expect(me.place).toBe(standing(after, p).rank);
+      expect(me.place).toBe(standing(s, p).rank);
       const html = view(s, p);
       expect(html.match(/class="tg-stall /g)?.length).toBe(s.players.length);
       expect(html.match(/class="tg-stall me"/g)?.length).toBe(1);
       expect(html).toContain(`The stalls after Day ${s.day}`);
-      expect(html).toContain(standing(after, p).text.replace(/&/g, '&amp;'));
+      expect(html).toContain(standing(s, p).text.replace(/&/g, '&amp;'));
       // this stall's own row says "You" on a phone that is not shared (PLAN-090)
       const names = rows.map((x) => html.indexOf(`<span class="tg-name">${x.me ? 'You' : x.name}</span>`));
       expect(names.every((at) => at > 0)).toBe(true);
@@ -220,14 +222,17 @@ describe('the takings as drawn', () => {
 
   it('nothing is drawn from a rival\'s shelf: the card is the same from what this stall may see', () => {
     let checked = 0;
+    // Rules 20: the last day too (before, its list counted jam money the table screen only knew for this stall: REP-122 S1).
+    let last = 0;
     for (const { s } of all) {
-      if (s.day === s.config.days) continue; // the final day counts jam money, which the table screen only knows for this stall
+      if (s.day === s.config.days) last++;
       for (const p of [0, 1]) {
         expect(view(publicView(s, p), p)).toBe(view(s, p));
         checked++;
       }
     }
     expect(checked).toBeGreaterThan(200);
+    expect(last).toBe(14);
   });
 });
 

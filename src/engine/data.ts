@@ -370,8 +370,8 @@ export const ORDER_BOOK_BONUS = 2;
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   juicebar: {
     id: 'juicebar', title: 'Juice Bar', icon: '🧃', cost: 6,
-    // Rules 18: the +$1 is for sales to customers and guests in the rush only (not a standing order, the night hawker
-    // or the jam maker), which "a customer buys from you" says. The card's old tip ("before the last day, $1 soft
+    // Rules 18: the +$1 is for sales to customers and guests in the rush only (not a standing order or the night
+    // hawker), which "a customer buys from you" says. The card's old tip ("before the last day, $1 soft
     // fruit makes $2 of juice") was advice, not a rule, and is gone (DEC-087).
     text: `+$${JUICE_TIP} for each Okay or Soft piece a customer buys from you. Each night up to ${JUICE_CAP} of your pieces that would spoil become juice: $${JUICE_VALUE} each.`,
   },
@@ -430,10 +430,6 @@ export const GENEROUS_BONUS = 2;
 /** Market pulse (advanced option): each fruit's price marker runs from -$1 to +$2. */
 export const PULSE_MIN = -1;
 export const PULSE_MAX = 2;
-/** Last Call: on the final day customers pay $1 more, and the jam maker buys leftover ripe fruit for $1 each. */
-export const LAST_CALL_BONUS = 1;
-export const JAM_PRICE = 1;
-
 /** Nest Egg: extra cash at the start (rules 18: $5, so $15 in all; it was $8). */
 export const NEST_EGG_BONUS = 5;
 /** Tip Jar: the tip from a customer whose whole order this stall filled alone ... */

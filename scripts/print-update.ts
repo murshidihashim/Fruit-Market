@@ -1,4 +1,4 @@
-// The tabletop update pack (PLAN-077; rules version 18 and the new card design, PLAN-087; rules 19, PLAN-100): what someone who holds the
+// The tabletop update pack (PLAN-077; rules version 18 and the new card design, PLAN-087; rules 19, PLAN-100; rules 20, PLAN-108): what someone who holds the
 // earlier printing needs to play by the current rules, without printing the whole kit again.
 //   npx vite-node scripts/print-update.ts [outdir]      (normally: print/update-<rules version>)
 // Writes three PDFs:
@@ -16,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
   BARROW_SHELF, BASE_BUY, BASE_SHELF, BIG_TABLE, CHARACTER_TRAIT, CHARMER_DAILY_FAVOURS, CHARMER_START_FAVOURS, CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, FAVOUR_DECK,
-  FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, GENEROUS_BONUS, JAM_PRICE, JUICE_TIP, LAST_CALL_BONUS, MARKET_DAY_EVERY, MAX_STALLS, MAX_UPGRADES, MIN_STALLS,
+  FAVOUR_HAND_LIMIT, FAVOURS, FRUIT, GENEROUS_BONUS, JUICE_TIP, MARKET_DAY_EVERY, MAX_STALLS, MAX_UPGRADES, MIN_STALLS,
   NEST_EGG_BONUS, ORDER_BOOK_BONUS, ORDER_CARDS, ORDER_LEAD, RIVALS, ROW_CAP, START_CASH, STREET_PRICE, TOP_UP, TRAITS, UPGRADES, deliveredGreen,
   orderQty, stageAt, stakeFor,
   type FruitId, type Stage,
@@ -235,7 +235,9 @@ function changeSheet(): string {
       <li><b>One favour deck of ${FAVOUR_DECK.length}</b> (${FAVOUR_COPIES} of each card) at every table size.</li>
       <li><b>The evening, everyone at once.</b> Every stall decides its evening at the same time and says "lights out" when done. Any number of stalls may play Priority, one card each: the one earliest in today's buying order goes first tomorrow; the other Priority cards go back to their owners' hands.</li>
       <li><b>Standing orders: a higher bid, a smaller stake.</b> Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower than the rules 18 cards (the replacement cards carry the new numbers).</li>
+      <li><b>No Closing Day and no jam maker.</b> The last day is an ordinary day: customers pay their usual prices. Fruit left on your shelf at the end is worth nothing.</li>
     </ol>
+    <p><b>Closing Day on your old pieces.</b> If your board, shutters or player aid from the earlier printing mention Closing Day, the jam maker or "last call", ignore those words.</p>
     <p>All five upgrade piles are on offer after each Market Day. The guidebook lists every change and ruling of rules version ${RULES_VERSION} under "What is new".</p>
     <h2 class="disp">Notes for your board and shutters</h2>
     <p>The board and shutters still read as before. Cut these out and lay or tape them over the old words:</p>
@@ -313,9 +315,12 @@ function guideHtml(): string {
 </ol>
 <div class="new">
   <h3>What is new in rules version ${RULES_VERSION}</h3>
+  <p><b>No Closing Day and no jam maker.</b> The last day is an ordinary day: customers pay their usual prices, with no extra $1. After its rush the market closes. Fruit left on your shelf at the end is worth nothing, ripe or green.</p>
+  <p><b>One perk each in the app.</b> In the app's Daily market and Market League you have no shopkeeper card, so you choose a perk: you are offered only perks no rival holds. On the table nothing changes: no two stalls can be the same shopkeeper.</p>
+  <h3>And in rules version 19</h3>
   <p><b>The evening, everyone at once.</b> Every stall decides its evening at the same time (favour cards, and an upgrade after a Market Day) and says "lights out" when it is done; nobody waits for the stall before it. Any number of stalls may play Priority, one card each: at nightfall the one earliest in today's buying order goes first tomorrow, and the other Priority cards go back to their owners' hands.</p>
   <p><b>Standing orders: a higher bid, a smaller stake.</b> Every standing-order card allows a highest bid $2 higher and asks a stake $2 lower (the table under "Market Days" gives the numbers).</p>
-  <h3>And since rules version 17</h3>
+  <h3>And in rules version 18</h3>
   <p><b>Out of cash.</b> At dawn, from Day 2, a stall with an empty shelf and less than $${TOP_UP} is topped up to $${TOP_UP} by the bank.</p>
   <p><b>Standing orders: a stake, not fines.</b> The winner puts down the card's stake. It comes back for a full delivery and is lost otherwise. Only the winner's crate fills the order; rivals are not involved.</p>
   <p><b>What a stall buys is seen while it buys.</b> After buying it goes behind the shutter with the rest of the shelf: you need not say what you bought, and nobody may ask.</p>
@@ -376,7 +381,7 @@ function guideHtml(): string {
 <div class="beat"><b>4</b><div><h3>The bell</h3>
 <p>Write one price on the tag of each fruit you have in your crate, and lay the tag face down. One price covers every piece of that fruit. There is no lowest price. When everyone is ready, flip all tags together and lay each one on its fruit on your counter. Then every crate comes out: move your crate pieces from behind the shutter onto your counter, each into the box with the same letter and place. Your shelf stays behind the shutter.</p>
 <p><b>Favoured Trade.</b> Once the tags are flipped, a stall that holds Favoured Trade and has a price tied with another stall's price for the same fruit may play it. Tied holders decide one at a time, in today's buying order, in the open: play it or keep it. It cannot be played before the flip.</p>
-<p>Your price decides which of your pieces can sell to a customer. Take the customer's top price for today (the price on the card, plus or minus any event, plus $${LAST_CALL_BONUS} on the last day): priced <b>at the top price</b>, only a Fresh piece sells; <b>$1 under</b>, a Fresh or Okay piece sells; <b>$2 under, or less</b>, any piece sells; <b>over the top price</b>, nothing sells to that customer. The customer must also accept the freshness: a Premium customer never takes Okay or Soft fruit, however cheap.</p></div></div>
+<p>Your price decides which of your pieces can sell to a customer. Take the customer's top price for today (the price on the card, plus or minus any event): priced <b>at the top price</b>, only a Fresh piece sells; <b>$1 under</b>, a Fresh or Okay piece sells; <b>$2 under, or less</b>, any piece sells; <b>over the top price</b>, nothing sells to that customer. The customer must also accept the freshness: a Premium customer never takes Okay or Soft fruit, however cheap.</p></div></div>
 <div class="beat"><b>5</b><div><h3>The rush</h3>
 <p>Serve the customers one at a time, left to right. The stall that bought last this morning is the crier: they read each customer aloud. For each fruit on the card:</p>
 <ol>
@@ -392,8 +397,8 @@ function guideHtml(): string {
 <p><b>Evening.</b> All stalls at once: each stall may play evening favour cards (Priority, Gossip) and says "lights out" when it is done. Any number of stalls may play Priority, one card each; at nightfall the one earliest in today's buying order goes first tomorrow and the other Priority cards go back to their owners' hands. On the evening after a Market Day (days ${MARKET_DAYS}) each stall may also build <b>one upgrade</b> from the five piles: pay its cost and take the card. A stall has room for ${MAX_UPGRADES}. Pak Din lays the Shade Cloth marker on one fruit lane of his sheet. Farah peeks at one of tomorrow's walk-ins.</p>
 <p><b>Night.</b> On the board, and behind every shutter, every piece slides one box to the left. Pieces that slide out of a Soft box go back to the supply. Tomorrow's row moves up to become today's. Then pass the first-player token one seat clockwise and move the day marker on.</p>
 
-<h2>Market Days, Closing Day and the end</h2>
-<p><b>Market Days</b> are days ${MARKET_DAYS}, but never the last day. They bring a standing order in the morning and an upgrade that evening. The lorry still comes. <b>Closing Day</b> is the last day. Every customer pays $${LAST_CALL_BONUS} more. After the rush, the jam maker buys every ripe piece left on every stall for $${JAM_PRICE} each. Green fruit is worth nothing. <b>The winner</b> is the stall with the most cash. Upgrades are worth nothing. If stalls tie, the one that sold more fruit wins. If they are still tied, they share the win.</p>
+<h2>Market Days and the end</h2>
+<p><b>Market Days</b> are days ${MARKET_DAYS}, but never the last day. They bring a standing order in the morning and an upgrade that evening. The lorry still comes. <b>The last day</b> is an ordinary day. After its rush the market closes. Fruit left on your shelf is worth nothing. <b>The winner</b> is the stall with the most cash. Upgrades are worth nothing. If stalls tie, the one that sold more fruit wins. If they are still tied, they share the win.</p>
 
 <h2>Standing orders</h2>
 <p>A standing order is one big public order. It is turned over on a Market Day morning and collected ${ORDER_LEAD} days later. It wants one fruit, Fresh or Okay: ${ORDER_SIZES}. Do not turn one over if its due day would be after the last day.</p>
@@ -405,10 +410,10 @@ function guideHtml(): string {
   <li><b>The stake comes back, or not.</b> If the winner delivered every piece, it takes its stake back at once. If not, the stake goes to the bank. There is no other fine.</li>
 </ol>
 <table><tr><th>Orders</th><th>Fruit</th><th>Highest bid allowed</th><th>Stake</th><th>Stake with an Order Book</th></tr>${orderRows}</table>
-<p>A standing order draws no favour card and pays no tips (a Juice Bar adds nothing either), and no event or Closing Day changes what it pays. It is not used in the Basic game.</p>
+<p>A standing order draws no favour card and pays no tips (a Juice Bar adds nothing either), and no event changes what it pays. It is not used in the Basic game.</p>
 
 <h2>Guests</h2>
-<p>Five events bring a guest card. The guest joins the end of today's row and is served like any other customer. A guest joins even when the row is full. A guest's price is fixed: the event's own price change is not added to it, and a Premium Display does not raise it. Only Closing Day adds its $${LAST_CALL_BONUS}.</p>
+<p>Five events bring a guest card. The guest joins the end of today's row and is served like any other customer. A guest joins even when the row is full. A guest's price is fixed: the event's own price change is not added to it, and a Premium Display does not raise it.</p>
 <table><tr><th>Guest</th><th>Event</th><th>Wants</th></tr>${guests}</table>
 
 <h2>How many walk-ins</h2>
@@ -444,7 +449,7 @@ function guideHtml(): string {
   <li>You are paid your own price, not the customer's top price.</li>
   <li>You always hand over your oldest piece that is fresh enough for your price. You do not choose.</li>
   <li>A standing order takes pieces from its winner's crate only. Rivals are not involved.</li>
-  <li>A Juice Bar's $${JUICE_TIP} is for Okay or Soft pieces sold to customers and guests in the rush: not for a standing order, the night hawker or the jam maker.</li>
+  <li>A Juice Bar's $${JUICE_TIP} is for Okay or Soft pieces sold to customers and guests in the rush: not for a standing order or the night hawker.</li>
   <li>On Day 3 a stall that played Priority buys first and Nest Egg second.</li>
   <li>Pasar Malam: after the last customer, the night hawker buys 1 of each fruit still in each stall's crate for $${HAWKER}, oldest piece first, any freshness.</li>
   <li>The Health Inspector never comes on the last day. If that card is drawn then, draw another.</li>
@@ -454,7 +459,7 @@ function guideHtml(): string {
 <table><tr><th>Option</th><th>What changes</th></tr>
 <tr><td><b>Basic game</b></td><td>No shopkeepers, favour cards, upgrades or standing orders: just buying, stocking and the bell. Good for a first game.</td></tr>
 <tr><td><b>Fixed prices (beginner)</b></td><td>Ignore the prices on the cards. Every customer pays the same top price for a Fresh piece: blueberry $${STREET_PRICE.blueberry}, watermelon $${STREET_PRICE.watermelon}, apple $${STREET_PRICE.apple}, mango $${STREET_PRICE.mango}. Generous customers pay $${GENEROUS_BONUS} more: numbers ${list(GENEROUS)}.</td></tr>
-<tr><td><b>No Market Days, or no Closing Day</b></td><td>Either can be switched off before you start.</td></tr></table>
+<tr><td><b>No Market Days</b></td><td>No standing orders. Upgrades are still built on the evenings after days ${MARKET_DAYS}.</td></tr></table>
 <p class="oneline"><b>The day on one line.</b> Morning: event, top-up for a stall out of cash, lorry, tomorrow's lorry and tomorrow's customers, standing-order bids on a Market Day · Buying: poorest first, up to 4 · Stocking: fill the crate behind the shutter, say how many · The bell: one tag per fruit, flip together, crates out onto the counters, Favoured Trade for a tied price · The rush: cheapest stall first, oldest fresh-enough piece, served-alone chips · Evening: everyone at once, favours, upgrades, lights out · Night: everything slides one box left.</p>
 <p class="tiny">These tabletop rules are rules version ${RULES_VERSION}, the same rules the Fruit Market app plays by. The table pieces (the three-panel board, the crate row above the shelf, the cash track on the counter, the shutter and price tags) are how those rules are run by hand.</p>
 </body></html>`;

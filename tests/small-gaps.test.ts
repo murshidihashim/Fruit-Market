@@ -35,7 +35,7 @@ describe('the morning on a small phone with six stalls (MorningCard.tsx, sheets.
     const measured: [string, number[], number, number][] = [
       // what it is, the heights at steps 0 to 5, the room, the step it needs
       ['Monsoon Downpour (two lines of title, two chips), a rival topped up, a Market Day', [463, 418, 406, 386, 337, 326], 326, 5],
-      ['the last day: the jam maker\'s note, Mango Windfall and its ripe line', [449, 414, 402, 380, 326, 326], 326, 4],
+      ['the last day: its leftovers note (measured with the rules 19 jam maker\'s note, which was longer), Mango Windfall and its ripe line', [449, 414, 402, 380, 326, 326], 326, 4],
       ['Price Controls (the event with a row of limits)', [439, 404, 392, 356, 326, 326], 326, 4],
       ['Health Inspector on a Market Day with a standing order, two stalls fined', [452, 411, 399, 381, 360, 360], 360, 4],
       ['by hand: Price Controls on a Market Day, you and a rival topped up', [503, 461, 449, 414, 362, 360], 360, 5],

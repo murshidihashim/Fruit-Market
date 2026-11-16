@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
-import { FARMER_CARDS, FRUIT, FRUITS, JAM_PRICE, LAST_CALL_BONUS, deliveredGreen } from '../src/engine/data';
+import { FARMER_CARDS, FRUIT, FRUITS, deliveredGreen } from '../src/engine/data';
 import { beginBuying, newGame } from '../src/engine/game';
 import { SEEN_WALK_IN, marketColumn, shownColumn } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
@@ -28,8 +28,9 @@ describe('green fruit', () => {
     expect(app).not.toContain('$1 now'); // the New game screen has no rules switches since PLAN-063
   });
 
-  it('the Market Days switch takes the Closing Day numbers from the game data', () => {
-    expect(marketDaysSetupText()).toBe(`Days 3, 6, 9 and 12: a standing order to bid for, and an upgrade that evening. Closing Day on the last day: +$${LAST_CALL_BONUS}, then the jam maker buys ripe leftovers at $${JAM_PRICE} each.`);
+  it('the Market Days switch says what it turns off, and no longer mentions a Closing Day (rules 20)', () => {
+    expect(marketDaysSetupText()).toBe('Days 3, 6, 9 and 12: a standing order to bid for. Switched off, there are no standing orders, and upgrades still come on those evenings.');
+    expect(marketDaysSetupText()).not.toMatch(/Closing Day|jam/);
   });
 
   it('How to play draws green steps only for fruit a lorry delivers green', () => {

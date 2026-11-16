@@ -131,16 +131,25 @@ describe('the trophies DEC-086 said to change (C6)', () => {
     expect(evaluate(g, 0, ctx()).got).toContain('full_house');
   });
 
-  it('Jam Session: nothing left for the jam maker on the last day, with 20 or more sold', () => {
+  it('Sold out (rules 20, the id jam_session kept): no ripe fruit left on your shelf at the end, with 20 or more sold', () => {
     const g = game();
+    const clear = (p: number) => { for (const f of Object.keys(g.players[p].stock) as (keyof typeof g.players[0]['stock'])[]) g.players[p].stock[f] = g.players[p].stock[f].map(() => 0); };
+    clear(0);
+    clear(1);
     g.players[0].stats.sold = 24;
-    g.jam = [0, 3];
+    g.players[1].stock.apple[0] = 3; // a rival's leftovers do not matter
     expect(evaluate(g, 0, ctx()).got).toContain('jam_session');
-    g.jam = [2, 0];
+    // green fruit left on the shelf does not count against it
+    g.players[0].stock.mango[g.players[0].stock.mango.length - 1] = 2;
+    expect(evaluate(g, 0, ctx()).got).toContain('jam_session');
+    // one ripe piece left does
+    g.players[0].stock.apple[0] = 1;
     expect(evaluate(g, 0, ctx()).got).not.toContain('jam_session');
-    g.jam = [0, 0];
+    g.players[0].stock.apple[0] = 0;
     g.players[0].stats.sold = 19;
     expect(evaluate(g, 0, ctx()).got).not.toContain('jam_session');
+    expect(tierById('jam_session')!.card.title).toBe('Sold out');
+    expect(tierById('jam_session')!.step.text).toBe('Sell 20 or more pieces in a game and end it with no ripe fruit on your shelf.');
   });
 
   it('Sole Supplier is the Gold tier at three customers served alone; one and two are Bronze and Silver', () => {
@@ -324,17 +333,21 @@ describe('a skill title needs a fair game (H5)', () => {
 // computers through the real engine, counted as the app counts them, earn the tiers below; the rest are listed with
 // the reason a computer run of this size cannot show them, and each of those is checked from stored numbers.
 describe('earnable under rules 18', () => {
-  /** Tiers a run of 30 whole computer games earns (seeds 1001 to 1030; the same run of 150 games earns 92 of 109). */
-  const IN_30_GAMES = ['first_sale', 'first_win', 'win_basket_1', 'rivals_3', 'worth_wait', 'jam_session', 'no_waste', 'full_price', 'tie_breaker', 'big_day', 'day_55',
+  /** Tiers a run of 30 whole computer games earns (seeds 1001 to 1030; the same run of 150 games earns 90 of 109 under
+   *  rules 20, 92 under rules 19). */
+  const IN_30_GAMES = ['first_sale', 'first_win', 'rivals_3', 'worth_wait', 'jam_session', 'no_waste', 'full_price', 'tie_breaker', 'big_day', 'day_55',
     'win_charmer_1', 'favours_3', 'fully_fitted', 'town_12', 'events_10', 'full_price_10', 'full_price_15', 'penny_under', 'sole_1', 'day_70', 'beat_hard', 'sky_high', 'sole_2',
     'festival_rush', 'fruit_watermelon_30', 'fruit_apple_30', 'red_carpet', 'event_all', 'penny_5', 'sold_100', 'fruit_blueberry_30', 'online_1', 'win_earful_1', 'shop_3',
     'fruit_mango_30', 'mango_mogul', 'full_house', 'cash_100', 'cash_130', 'rich', 'orders_5', 'town_36', 'guests_5', 'rivals_all', 'sole_five', 'online_win',
     'played_10', 'win_nestegg_1', 'hard_sweep', 'win_favourite_1', 'win_keeper_1', 'shop_6', 'comeback', 'win_haggler_1', 'win_charmer_3', 'penny_8', 'sold_500', 'win_bargain_1',
-    'shop_8', 'sale_15', 'fruit_watermelon_200', 'fruit_blueberry_200', 'fruit_apple_200', 'orders_8', 'win_keeper_3'];
-  /** The rest: why 30 computer games do not show them. None is out of reach under rules 19. */
+    'fruit_watermelon_200', 'fruit_blueberry_200', 'fruit_apple_200', 'orders_8', 'win_keeper_3'];
+  /** The rest: why 30 computer games do not show them. None is out of reach under rules 20. */
   const LATER: Record<string, string> = {
     // Rules 19 (PLAN-095): this sample's games changed with the standing-order numbers and no longer show these two.
     juice_regular: 'reached: 6 of 460 computer stalls in 120 games earned $20 or more from a Juice Bar (2026-11-13); one seat in 30 games may miss it',
+    // Rules 20 (PLAN-108): without Closing Day's $1 these games end differently; the long run still earns all three.
+    win_basket_1: 'reached in game 41 of the long run (rules 20)', shop_8: 'reached in game 41 of the long run (rules 20)',
+    sale_15: 'reached in game 62 of the long run (rules 20): a $15 sale no longer gets Closing Day\'s $1',
     explorer: 'needs a Daily market and a Market League game as well', card_sharp: 'computers do not play every kind of favour card; all six kinds are in the deck',
     bare_stall: 'a choice the computers rarely make (first seen in game 64 of the long run)',
     upgrades_5: 'a long count (game 94 of the long run)', upgrades_won: 'a long count (game 94 of the long run)',
@@ -353,7 +366,7 @@ describe('earnable under rules 18', () => {
     expect(new Set([...IN_30_GAMES, ...Object.keys(LATER)]).size).toBe(all.length);
   });
 
-  it('thirty whole computer games earn 66 of the tiers, the seven changed trophies among them', () => {
+  it('thirty whole computer games earn 63 of the tiers, the seven changed trophies among them', () => {
     let sets: Sets = {}, counts: Counts = {};
     const have = new Set<string>();
     const stats = { played: 0, totalSold: 0, wins: 0 };

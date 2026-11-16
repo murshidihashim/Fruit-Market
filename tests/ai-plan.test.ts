@@ -1,8 +1,8 @@
-// Computer players' price planner (PLAN-051 package B, REP-089 items 1 and 6): on Closing Day an unsold ripe
-// fruit is worth what the jam maker pays, and the planner's model of the rush follows the real tie order.
+// Computer players' price planner (PLAN-051 package B, REP-089 items 1 and 6): the planner's model of the rush follows
+// the real tie order. Rules 20 (PLAN-108): with no jam maker, a piece left on the last day is worth $0 to it.
 import { describe, expect, it } from 'vitest';
 import { aiStep, planPrices, rivalPrice, seller, simulateSales } from '../src/engine/ai';
-import { CUSTOMER_CARDS, FARMER_CARDS, FRUIT, JAM_PRICE, prefOf, type FruitId } from '../src/engine/data';
+import { CUSTOMER_CARDS, FARMER_CARDS, FRUIT, prefOf, type FruitId } from '../src/engine/data';
 import {
   beginBuying, emptyStock, endBuyTurn, finishReveal, newGame, openStall, submitPrices,
   type Customer, type GameConfig, type GameState,
@@ -119,56 +119,56 @@ describe("the planner's model of the rush follows the tie order", () => {
   });
 });
 
-describe('Closing Day: the planner counts what the jam maker pays', () => {
-  // Final day: one stall has 4 fresh apples. One buyer pays up to $10 for 1 (card $9 + $1 Closing Day bonus), another
-  // takes 3 at up to $3. Selling all 4 at $3 earns $12; $10 for one plus $3 from the jam maker for the other three
-  // earns $13. Counting leftovers as $0 (the old planner) chose $3.
-  const closing = () => {
-    const s = market([buyer(900, 'Big Spender', 1, 9), buyer(901, 'Bargain Bob', 3, 2)], { day: 8, days: 8 });
+describe('the last day: leftovers are worth $0 to the planner (rules 20)', () => {
+  // Rules 20: no Closing Day and no jam maker, so on the last day the planner counts a piece that does not sell at $0
+  // and prices to sell. Last day: one stall has 4 fresh apples. One buyer pays up to $10 for 1, another takes 3 at up
+  // to $3. Selling all 4 at $3 earns $12; $10 for one earns $10. Before rules 20 the planner added the jam maker's $1
+  // for each of the 3 left ($10 + $3 = $13) and asked $10.
+  const lastDay = () => {
+    const s = market([buyer(900, 'Big Spender', 1, 10), buyer(901, 'Bargain Bob', 3, 3)], { day: 8, days: 8 });
     s.players[0].stock.apple[fresh('apple')] = 4;
     return toPricing(s);
   };
 
-  it('a Hard computer asks $10, not $3', () => {
-    const s = closing();
+  it('a Hard computer asks $3 and sells all four, not $10 for one', () => {
+    const s = lastDay();
     s.players[0].level = 'hard';
-    expect(planPrices(s, 0).posts).toEqual([{ fruit: 'apple', price: 10 }]);
+    expect(planPrices(s, 0).posts).toEqual([{ fruit: 'apple', price: 3 }]);
   });
 
-  it('the suggested price for a person (Normal planner) is higher too', () => {
-    // A Normal planner takes $0 or $1 off its best price at random (the same every time for this state): here $1.
-    // The old planner suggested $2.
-    expect(planPrices(closing(), 0).posts).toEqual([{ fruit: 'apple', price: 9 }]);
+  it('the suggested price for a person (Normal planner) sells all four too', () => {
+    const [post] = planPrices(lastDay(), 0).posts;
+    expect(post.fruit).toBe('apple');
+    expect(post.price).toBeLessThanOrEqual(3);
   });
 
-  it('the payoff it plans for is real: $10 plus the jam maker beats selling all four at $3', () => {
+  it('the payoff it plans for is real: nothing is paid for the three left over', () => {
     const cash = (price: number) => {
-      const s = closing();
+      const s = lastDay();
       const end = finishReveal(submitPrices(s, 0, [{ fruit: 'apple', price }]));
       expect(end.phase).toBe('over');
       return end.players[0].cash - s.players[0].cash;
     };
-    expect(cash(10)).toBe(10 + 3 * JAM_PRICE);
+    expect(cash(10)).toBe(10);
     expect(cash(3)).toBe(12);
   });
 
-  it('counts tired fruit that would have rotted tonight at the jam price too', () => {
-    // Three tired apples (they would rot tonight on any other day). One buyer pays up to $8 for 1 (card $7 + $1
-    // Closing Day), so a tired apple can ask $6; another takes 2 at up to $4, where a tired apple can ask only $2.
-    // $6 for one plus 2 x $1 from the jam maker beats selling all three at $2. Counting those leftovers at $0, as
-    // fruit that rots tonight is counted on other days, chose $2.
-    const s = market([buyer(900, 'Big Spender', 1, 7), buyer(901, 'Bargain Bob', 2, 3)], { day: 8, days: 8 });
+  it('Soft fruit on the last day is priced to sell as well', () => {
+    // Three Soft apples. One buyer pays up to $7 for 1, so a Soft apple can ask $5; another takes 2 at up to $4, where
+    // a Soft apple can ask only $2. All three at $2 ($6) beat one at $5. Before rules 20 the planner added $1 for each
+    // of the 2 left ($5 + $2 = $7) and asked $5.
+    const s = market([buyer(900, 'Big Spender', 1, 7), buyer(901, 'Bargain Bob', 2, 4)], { day: 8, days: 8 });
     s.players[0].stock.apple[0] = 3;
     s.players[0].kind = 'ai';
     s.players[0].level = 'hard';
     const bid = toPricing(s);
-    expect(planPrices(bid, 0).posts).toEqual([{ fruit: 'apple', price: 6 }]);
+    expect(planPrices(bid, 0).posts).toEqual([{ fruit: 'apple', price: 2 }]);
     const cash = (price: number) => {
       const end = finishReveal(submitPrices(bid, 0, [{ fruit: 'apple', price }]));
       return end.players[0].cash - bid.players[0].cash;
     };
-    expect(cash(6)).toBe(6 + 2 * JAM_PRICE);
     expect(cash(2)).toBe(3 * 2);
+    expect(cash(5)).toBe(5);
   });
 });
 
@@ -274,8 +274,8 @@ describe('the planner uses only what it may know', () => {
   });
 });
 
-describe('Closing Day buying', () => {
-  it('computers do not buy fruit nobody wants just to sell it to the jam maker', () => {
+describe('last-day buying (rules 20: no jam maker)', () => {
+  it('computers do not buy fruit nobody wants on the last day', () => {
     for (const level of ['normal', 'hard'] as const) {
       let s = newGame({
         players: [0, 1].map((i) => ({ name: `A${i}`, kind: 'ai' as const, level, avatar: 'a' })),
@@ -297,16 +297,16 @@ describe('Closing Day buying', () => {
   });
 
   /**
-   * Final day, Closing Day on: a Normal computer with an empty shelf and $50 buys first (or last, after the rival has
+   * The last day: a Normal computer with an empty shelf and $50 buys first (or last, after the rival has
    * passed). The market has only 3 pieces of `fruit` at position `pos`, the rival holds `rivalFresh` fresh ones (seen
    * bought today: rules 18, a Normal computer recalls only today's purchases), and `crowd` are today's customers.
    * Returns how many pieces the computer bought with its first move.
    */
-  const lastDayBuy = (o: { fruit?: FruitId; pos: number; rivalFresh?: number; crowd: Customer[]; buysLast?: boolean; noJam?: boolean }) => {
+  const lastDayBuy = (o: { fruit?: FruitId; pos: number; rivalFresh?: number; crowd: Customer[]; buysLast?: boolean; noMarketDays?: boolean }) => {
     const fruit = o.fruit ?? 'apple';
     let s = newGame({
       players: [0, 1].map((i) => ({ name: `A${i}`, kind: 'ai' as const, level: 'normal' as const, avatar: 'a' })),
-      days: 8, unripe: true, upgrades: true, events: false, seed: 4, ...(o.noJam ? { marketDays: false } : {}),
+      days: 8, unripe: true, upgrades: true, events: false, seed: 4, ...(o.noMarketDays ? { marketDays: false } : {}),
     });
     s = structuredClone(s);
     s.day = 8; s.forecast = null; s.queue = []; s.secondMarket = []; s.event = null; s.nextEvent = null;
@@ -322,26 +322,26 @@ describe('Closing Day buying', () => {
     return aiStep(b)!.players[0].boughtToday;
   };
 
-  it('a $1 piece someone may buy is worth at least the jam price if it doesn\'t sell', () => {
-    // A tired apple costs $1. One buyer wants 1 apple; selling it is far from sure, but if it doesn't sell the jam maker
-    // still pays $1, so it can't lose money. Without the jam floor the computer would not buy it. (Rules 18: a Normal
-    // computer no longer sees the rival's shelf and allows for an average stall's carry-over, so the buyer here pays
-    // $9, not $8, to keep the piece on the same side of the line.)
-    expect(JAM_PRICE).toBe(1);
-    expect(lastDayBuy({ pos: 0, crowd: [buyer(900, 'Tester', 1, 9)] })).toBe(1);
-    // The same piece with Closing Day switched off (no jam maker) is not worth buying.
-    expect(lastDayBuy({ pos: 0, crowd: [buyer(900, 'Tester', 1, 9)], noJam: true })).toBe(0);
+  it('a $1 piece whose sale is far from sure is not bought: nothing pays for it if it does not sell', () => {
+    // A Soft apple costs $1. One buyer wants 1 apple; selling it is far from sure. Before rules 20 the jam maker's $1
+    // made it a piece that could not lose money, and the computer bought it. Now it is not worth buying, with Market
+    // Days on or off (the switch no longer brings a Closing Day).
+    expect(lastDayBuy({ pos: 0, crowd: [buyer(900, 'Tester', 1, 9)] })).toBe(0);
+    expect(lastDayBuy({ pos: 0, crowd: [buyer(900, 'Tester', 1, 9)], noMarketDays: true })).toBe(0);
   });
 
-  it('a $2 piece gets no jam floor, though someone may buy it', () => {
-    // An okay apple costs $2, more than the jam maker pays. Counting the jam maker's $1 for the chance it doesn't sell
-    // would make it look worth buying; such last-day pieces mostly went for jam at a loss (PLAN-051 balance run).
+  it('a piece that is likely to sell is still bought on the last day', () => {
+    // Fresh apples ($3) and two buyers who want 2 each at up to $9, nobody else holding apples: a sale is close to sure.
+    expect(lastDayBuy({ pos: fresh('apple'), crowd: [buyer(900, 'Tester', 2, 9), buyer(901, 'Second', 2, 9)] })).toBeGreaterThan(0);
+  });
+
+  it('a $2 piece someone may buy is not bought either', () => {
+    // An Okay apple costs $2. Before rules 20 such last-day pieces mostly went for jam at a loss (PLAN-051 balance run).
     expect(lastDayBuy({ pos: 1, rivalFresh: 1, crowd: [buyer(900, 'Tester', 2, 6)] })).toBe(0);
   });
 
-  it('a $1 piece nobody is expected to want gets no jam floor', () => {
-    // Tired watermelons cost $1 and nobody wants watermelon today. Buying last (no one else left to buy), counting the
-    // jam floor on top of the planner's hopeful guess at a sale would make one look worth buying.
+  it('a $1 piece nobody is expected to want is not bought', () => {
+    // Soft watermelons cost $1 and nobody wants watermelon today. Buying last (no one else left to buy).
     expect(lastDayBuy({ fruit: 'watermelon', pos: 0, crowd: [], buysLast: true })).toBe(0);
   });
 });
