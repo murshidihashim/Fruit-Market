@@ -1,0 +1,96 @@
+{
+  "id": "PLAN-107",
+  "title": "Review fixes, Major: delivery day, Scout and Undo, online dead ends (REP-122)",
+  "problem": "REP-122 found nine Major problems; the owner chose to fix eight (S1 goes with Closing Day in PLAN-108).",
+  "scope": [
+    "S2: on a standing order's due day the order's pieces count as wanted, Auto load loads them, and the row says who they are for",
+    "S3: Undo takes back purchases only; a favour card once played stays played (owner's option)",
+    "ON-01: quick matches keep upgrades (owner's option): RULES.md and the room's code comment say so; the game does not change",
+    "ON-02: Create a room forgets a used invite",
+    "ON-03: an unknown or expired room code says so, with a way back",
+    "ON-04: a rematch counts only the people still there and says who left",
+    "ON-05: a disconnected lobby seat is freed after the usual wait, and the host is told who is disconnected",
+    "ON-06: invite links from the Android app use the game's real address"
+  ],
+  "exclusions": [
+    "Any change to prices, cards or scoring",
+    "A real Android phone check (NOT RUN until the owner has one at hand)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 68864cd: records, palette, lint, types, 965 tests passed (1 skipped, as before), build."
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes (0 leaks)",
+      "result": "PASS",
+      "evidence": "npm run test:e2e (PORT=8811) on the merge 68864cd: E2E OK. Solo playthrough; speed budget OK first time (longest task 189 ms); online match with a leaver, 0 leaks in 58 pricing frames, same final cash on both phones, rematch started, computer took over an abandoned match; quick match; four players and two computers; reconnect 5 cycles, 0 failed."
+    },
+    {
+      "id": "T3",
+      "text": "The changed screens seen at 390x844 and 360x640",
+      "result": "PASS",
+      "evidence": "Seen at 390x844 and 360x640 against a local room server: the due day (the review's worst case: the holder has only the order's fruit and nobody else wants it; and a normal case), Scout then Undo, an unknown code and a closed room, Create a room after an invite, a private lobby with a closed tab (seat freed at about 75 s), a rematch with a leaver (three people, one goes Home). Pictures in the session scratchpad p107/shots."
+    },
+    {
+      "id": "T4",
+      "text": "The owner has checked the result on the preview",
+      "result": "NOT RUN",
+      "evidence": "Waits for the preview (REP-124)."
+    },
+    {
+      "id": "T5",
+      "text": "Room tests cover ON-03 to ON-05 (unknown code, rematch after a leaver, lobby seat freed)",
+      "result": "PASS",
+      "evidence": "tests/room.test.ts: unknown code (roomGoneMsg), three people finish and one goes Home then the rematch starts and the token takes the seat back, lobby seat kept if back in time and freed after the grace period with the host tag passed on, Undo after Scout, Fridge and Free Fruit online; plus tests/order-due-day.test.ts, tests/invite-link.test.ts (fake location), tests/online-words.test.ts and tests/turn.test.ts."
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+    "date": "2026-11-16"
+  },
+  "delivery": "implemented",
+  "release": "1.24.1",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 68864cd",
+  "reports": [
+    "REP-123",
+    "REP-124"
+  ],
+  "decisions": [
+    "DEC-120"
+  ],
+  "changes": {
+    "added": [
+      "Room server: a code with no room is answered with a message that stops the phone (\"That room doesn't exist or has closed. Check the code.\", or \"That room has closed.\" for a phone that was in it)",
+      "Room server: a private lobby frees a seat whose person has been away for the grace period (75 s); the host's button names who is away, with a countdown",
+      "Results online: who has left, and a computer plays for them in a rematch",
+      "Undo button label \"after Scout\" (or the card played) and a warning on the favour card before it is played"
+    ],
+    "changed": [
+      "A rematch waits only for the people still connected; a seat whose person has gone is played by the computer and can be taken back with the seat token",
+      "Undo on a buying turn goes back to just after the last favour card played (DEC-120): the card, what it showed and earlier purchases stay; offline and in the room server",
+      "Invite links are built from the game's web address whenever the page is not served from it (the Android app)",
+      "An invite link is read once and taken out of the address; leaving the online screen forgets it",
+      "RULES.md: quick matches keep upgrades (a dated note on the rules 8 history); the room's settings comment says so",
+      "ONLINE.md: rematch, lobby, unknown rooms and invite links"
+    ],
+    "fixed": [
+      "S2: on a standing order's due day the holder's wanted count, Auto load, the stocking rows and the bell now count the order's pieces; the big button no longer says \"Sell nothing today\" while the order can be delivered",
+      "S3: Scout could be played again through Undo",
+      "ON-02 to ON-06: Create a room after an invite, a wrong or expired code, a rematch after a leaver (also ON-10), a closed tab in a private lobby, Android invite links"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "On a standing order's due day your stocking rows show the pieces the order takes, and Auto load puts them in first",
+    "A favour card played while buying stays played: Undo takes back only what you buy after it",
+    "Online: a wrong or closed room code says so, with a way back",
+    "Online: a rematch starts when everyone still there agrees, and a computer plays for anyone who left",
+    "Online: in a private room, a player who closed the app is let go after about a minute so the host can start",
+    "Invite links shared from the Android app now open the game"
+  ]
+}

@@ -11,7 +11,7 @@ import { crateCounts, type Crate, type GameState } from '../../../engine/game';
 import * as A from '../../anim';
 import { Fruit } from '../../art';
 import { fx } from '../../fx';
-import { StallBar, StallPanelView, autoCrate, boxKey, startingCrate } from '../../panel';
+import { StallBar, StallPanelView, autoCrate, boxKey, stakeAtRisk, startingCrate } from '../../panel';
 import { TIGHTEST, dayStep, fitSheet, onSheet, ownStep, type DayNow, type DayStep } from '../daySheet';
 import { reachFrom, useReach } from '../reach';
 import type { GameController } from '../useGameController';
@@ -188,7 +188,7 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
       <div class={`mid-panel sh-day ${lies}`} data-step={step} data-a="day-sheet" ref={root}>
         {own && <StallPanelView s={s} p={viewer} crate={crate} landed={landed} onStep={move} />}
       </div>
-      {own && <StallBar total={total} onAuto={loads.length ? autoLoad : null} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
+      {own && <StallBar total={total} stake={stakeAtRisk(s, viewer)} onAuto={loads.length ? autoLoad : null} onSubmit={() => { fx.card(); c.act({ kind: 'stall', stall: crateCounts(crate), crate }); }} />}
       {/* The takings are their own panel, mounted over the sheet, which stays under them so the lanes do not show
           between the rush and the takings. */}
       {step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}

@@ -37,10 +37,27 @@ export async function quickMatch(): Promise<string> {
   return body.code;
 }
 
+/**
+ * The link a friend opens to join. From the game's own web page it is that page. PLAN-107 (ON-06): the Android app's
+ * page is served from the app itself (Capacitor's https://localhost), which opens nothing on a friend's phone, so
+ * whenever the room server (VITE_SERVER_URL) is somewhere other than the page, the link is built from the server: the
+ * Worker that hosts the rooms also serves the web game.
+ */
 export function inviteLink(code: string): string {
-  const base = typeof location !== 'undefined' && /^https?:$/.test(location.protocol) ? `${location.origin}${location.pathname}` : `${serverBase()}/`;
+  return inviteLinkFrom(code, typeof location !== 'undefined' ? location : null, serverBase());
+}
+
+/** inviteLink for a page at `page` (null: none) talking to the room server at `server` ('' when there is none). */
+export function inviteLinkFrom(code: string, page: Pick<Location, 'protocol' | 'origin' | 'pathname'> | null, server: string): string {
+  const web = page && /^https?:$/.test(page.protocol) ? page.origin : '';
+  const elsewhere = !!server && originOf(server) !== web;
+  const base = page && web && !elsewhere ? `${web}${page.pathname}` : `${server}/`;
   return `${base}?room=${code}`;
 }
+
+const originOf = (url: string): string => {
+  try { return new URL(url).origin; } catch { return url; }
+};
 
 const tokenKey = (code: string) => `fm.room.${code}`;
 

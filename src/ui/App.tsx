@@ -32,13 +32,30 @@ import {
 type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
 type PopupKind = 'new' | 'continue' | 'friend' | 'account';
 
+/**
+ * The room in an invite link. PLAN-107 (ON-02): it is read once, as the app opens, and taken out of the address, so it
+ * never comes back once used (Create a room used to show the old invite again). While a room is open the online screen
+ * puts its code back in the address, so a reload returns to it.
+ */
 function roomFromUrl(): string | undefined {
   try {
     const c = normaliseCode(new URLSearchParams(location.search).get('room') ?? '');
+    dropRoomFromAddress();
     return c.length === CODE_LENGTH ? c : undefined;
   } catch {
     return undefined;
   }
+}
+
+/** Takes `?room=` out of the address, leaving anything else in it. */
+function dropRoomFromAddress() {
+  try {
+    const params = new URLSearchParams(location.search);
+    if (!params.has('room')) return;
+    params.delete('room');
+    const rest = params.toString();
+    history.replaceState(null, '', `${location.pathname}${rest ? `?${rest}` : ''}${location.hash}`);
+  } catch { /* no address to change (a page without history): nothing to forget */ }
 }
 
 // The shopkeeper drawing used in the daily challenge and the league (the person there still picks a perk).
@@ -64,7 +81,7 @@ export function App() {
 }
 
 function Main() {
-  const [invite] = useState(roomFromUrl);
+  const [invite, setInvite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
   const [game, setGame] = useState<GameState | null>(() => loadGame());
   const [saveNotice] = useState(() => consumeSaveNotice());
@@ -77,6 +94,14 @@ function Main() {
   // if the player says "Start anyway" (PLAN-081).
   const [swap, setSwap] = useState<{ what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
+  // PLAN-107 (ON-02): an invite, or a code typed into the friend menu, is for one visit to the online screen. However
+  // the screen is left (its ←, Home from a game, Android's back button), the next visit starts from the online menu.
+  useEffect(() => {
+    if (screen === 'online') return;
+    setInvite(undefined);
+    setJoinCode(undefined);
+    dropRoomFromAddress();
+  }, [screen]);
   const [, refresh] = useState(0);
 
   const go = (sc: Screen) => {
@@ -145,7 +170,7 @@ function Main() {
   }
   if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
-  if (screen === 'online') return <Online initialCode={joinCode ?? invite} onExit={() => { setJoinCode(undefined); go('home'); }} />;
+  if (screen === 'online') return <Online initialCode={joinCode ?? invite} onExit={() => go('home')} />;
   if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
   if (screen === 'trophies') return <TrophyScreen onBack={() => go('home')} />;
   if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;

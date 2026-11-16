@@ -2946,11 +2946,36 @@
         "evidence": "Owner, 2026-11-16: \"okay now regenerate the print kit, then publish 1.24.0\".",
         "date": "2026-11-16"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "reports": [
         "REP-121"
       ],
       "reviewTrigger": "If a check fails on CI, or the live smoke test fails"
+    },
+    {
+      "id": "DEC-120",
+      "title": "Fixes chosen from the 1.24.0 review, and no Closing Day (rules 20)",
+      "question": "REP-122 listed 56 findings. Which are fixed, and how? And the owner's new request: remove Closing Day and the jam maker.",
+      "choice": "Fix 53 of the 56 findings as chosen on the choices page (50 rows tapped Fix, two of which also cover S16 and S20, and S11 by the owner's note), in four packages: PLAN-107 (Major), PLAN-108 (rules 20: no Closing Day or jam maker, one perk each in the Daily and League), PLAN-109 (print and words, kit rebuilt), PLAN-110 (smaller bugs and polish). Not fixed: C-17 (owner: No). Dropped: S1 (goes with the jam maker), C-15 (rewritten with rules 20). Options: S3 a played favour card stays played; ON-01 quick matches keep upgrades and the rules text changes; C-01 deal only perks no rival holds; S11 remove the switch.",
+      "rationale": "The owner's taps on the REP-122 choices page (53 saved, read 2026-11-16) and his message \"remove closing day completely from the game, there's no jam maker\".",
+      "impact": {
+        "player": "The last day becomes an ordinary day and leftover fruit is worth nothing; the bugs and online dead ends in REP-122 are fixed; the print kit is corrected.",
+        "technical": "RULES_VERSION 20; engine, computer players, screens, room server, print scripts.",
+        "data": "None new. The Daily leaderboard starts a new board at rules 20."
+      },
+      "cost": "RM0",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+        "date": "2026-11-16"
+      },
+      "delivery": "in progress",
+      "reports": [
+        "REP-123",
+        "REP-124"
+      ],
+      "reviewTrigger": "If the balance check moves a shopkeeper more than 3 points, or the owner changes a choice"
     }
   ],
   "history": [
@@ -4205,6 +4230,26 @@
     {
       "at": "2026-11-16 07:04",
       "text": "DEC-119: the owner said \"okay now regenerate the print kit, then publish 1.24.0\". Print kit, update pack and tracker tests regenerated (print-kit test PASS). Release 1.24.0 prepared: PLAN-100, PLAN-102 to PLAN-106; version 1.24.0, release entry with player notes, REP-121."
+    },
+    {
+      "at": "2026-11-16 07:55",
+      "text": "Release 1.24.0 published (DEC-119): pull request #19, CI PASS (07:08 to 07:26); merged to main as 3aed6c7; main CI PASS and the preview updated; Deploy LIVE game run 43 (07:53 to 07:54) PASS: verify, release check, deploy, live smoke test and tag v1.24.0. The live site answers rules 19 and its code carries 1.24.0, the choosing step and the first-time popup. PLAN-100 and PLAN-102 to PLAN-106 released."
+    },
+    {
+      "at": "2026-11-16 11:42",
+      "text": "REP-122: review of 1.24.0 start to finish, at the owner's request (\"go through the game end to end to find any potential bugs and design clashes\"). Three reviewers (solo and pass-and-play, online on a local room server, rules and print consistency) changed nothing and did not use the live site. 56 findings, none blocking: 9 Major (S1 final-day places leave out rivals' jam money; S2 a standing order's due day ignored by N wanted and Auto load, stake can be lost; S3 Scout reusable through Undo; ON-01 quick matches played with upgrades against RULES.md; ON-02 Create a room after an invite link; ON-03 a wrong or expired code connects for ever; ON-04 rematch waits for a player who left; ON-05 a closed tab blocks a private lobby; ON-06 Android invite links likely to localhost), 25 Minor, 22 Polish. Several printed items are affected (player aid crier rule, guidebook band colour, A APPLE, Blueberry Glut, event footer), so holding the proof print is recommended. Reviews and pictures in docs/studio/audit-124. No fix approved yet."
+    },
+    {
+      "at": "2026-11-16 12:15",
+      "text": "The owner said \"choices done\" and \"remove closing day completely from the game, there's no jam maker\". His 53 saved choices read from the REP-122 page: Fix on 50, No on C-17, S1 cleared, S11 note \"remove the switch\", C-15 not chosen; options S3 favour card stays played, ON-01 keep upgrades in quick match (rules text changes), C-01 only perks no rival holds. DEC-120 and PLAN-107 to PLAN-110 proposed in REP-123, awaiting his approval; Closing Day removal is a rules change (rules 20)."
+    },
+    {
+      "at": "2026-11-16 12:21",
+      "text": "DEC-120 approved: the owner said \"okay approve\" to REP-123. PLAN-107 (Major) and PLAN-108 (rules 20) start side by side with helpers; PLAN-109 and PLAN-110 follow. Trophy \"Nothing for the jam maker\" becomes \"Sold out\" and the Major fixes go out first as 1.24.1 (REP-123 recommendations, approved with the plan); publishing each release still needs the owner's word."
+    },
+    {
+      "at": "2026-11-16 14:32",
+      "text": "PLAN-107 (Major) merged (68864cd) and implemented: S2, S3 (undo point moves to just after the last favour card), ON-01 to ON-06; verify PASS (965 tests), e2e PASS, screens at 390 and 360 PASS, room tests PASS, a 1.24.0 phone against the new room server PASS; real Android NOT RUN. Prepared as release 1.24.1 (rules 19 kept) for the preview; publishing waits for the owner's word (REP-124). PLAN-108 (rules 20) built and checked on its own branch (verify PASS on a trial merge, e2e PASS, screens and print seen) and held off the main line until 1.24.1 is live. Balance: the first run had Ah Chen at 3 Hard stalls -3.1 points (over the 3-point line); a second batch of 7,200 games on new seeds showed +0.4, and over both (9,600 games a side) no shopkeeper moved more than 0.7 points; every stall ends about $4 poorer. The approved trophy name \"Sold out\" clashes with the level-10 \"Sold out\" stamp; the owner is asked (recommendation \"Clean shelf\")."
     }
   ]
 }

@@ -1,0 +1,70 @@
+{
+  "id": "PLAN-108",
+  "title": "Rules 20: no Closing Day or jam maker; one perk each in the Daily market and the League",
+  "problem": "The owner, 2026-11-16: \"remove closing day completely from the game, there's no jam maker\". REP-122 C-01: in the Daily market and the League a person can be dealt a rival's perk, and two Nest Eggs leave one doing nothing (owner chose: deal only perks no rival holds).",
+  "scope": [
+    "The last day is an ordinary day: customers pay no extra $1, and fruit left at the end is worth nothing",
+    "The jam maker, Closing Day and \"Last Call\" leave the engine, the computer players, the screens, How to play, the tips, RULES.md and the guidebook; the Market Days switch no longer brings a Closing Day",
+    "The trophy \"Nothing for the jam maker\" is renamed \"Sold out\" (same condition: sell 20 or more pieces and end with no ripe fruit), and stamps already earned are kept",
+    "C-01: the Daily market and the League deal only perks no rival holds",
+    "RULES_VERSION 19 to 20 (a game saved mid-way on 1.24.0 cannot be continued, as with every rules change; the Daily leaderboard starts a new board)",
+    "S1 (the last day's places leave out the jam money) goes away with the jam maker",
+    "Balance: npm run balance before and after; any shopkeeper moving more than 3 points is reported to the owner before publishing"
+  ],
+  "exclusions": [
+    "Any other rule or price change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The changed screens seen at 390x844 and 360x640",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "The owner has checked the result on the preview",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "Balance report before and after recorded in RULES.md",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+    "date": "2026-11-16"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-123"
+  ],
+  "decisions": [
+    "DEC-120"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

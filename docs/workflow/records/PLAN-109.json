@@ -1,0 +1,54 @@
+{
+  "id": "PLAN-109",
+  "title": "Review fixes: print kit and words (REP-122), kit rebuilt at rules 20",
+  "problem": "REP-122 found errors on the player aid, guidebook and event cards, and words that disagree with the game.",
+  "scope": [
+    "Print: C-03 one money rule at the table (DEC-108); C-04 coloured bands; C-05 \"an apple\"; C-06 Blueberry Glut's market price; C-08 badge colour and picture; C-09 what counts as fruit sold, with a tally on the counter card; C-10 Free Fruit does not count toward the 4 pieces; C-11 a note on the board and shutters; C-18 small slips",
+    "Words: C-02 standing orders only when they can be collected; C-13 \"Daily market\" on Home; C-14 and S16 the evening tip; C-16 Daily wording; C-19 the day-chip rule; C-20 records and code notes; ON-11 RULES.md on choosing shopkeepers; S15 the Charmer's favour-card limit",
+    "Print kit, update pack and tracker tests rebuilt at rules 20 (after PLAN-108)"
+  ],
+  "exclusions": [
+    "C-17: the event footer \"Lasts until night\" stays (owner: No)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes (print kit tests included)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "The rebuilt kit's pages seen",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The owner has checked the kit",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
+    "date": "2026-11-16"
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-123"
+  ],
+  "decisions": [
+    "DEC-120"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

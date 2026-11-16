@@ -568,7 +568,7 @@
     },
     {
       "version": "1.24.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-100",
         "PLAN-102",
@@ -584,7 +584,28 @@
         "On iPhones the price tag on your crate now updates as you change the price",
         "A fresh card look: customer types in colour, and event cards show a lorry or a customer face beside each price change",
         "Phones on 1.23.0 are asked to update before joining a room; games, trophies and progress carry over"
-      ]
+      ],
+      "date": "2026-11-16",
+      "commit": "3aed6c7",
+      "tagged": true
+    },
+    {
+      "version": "1.24.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-107"
+      ],
+      "notes": [
+        "On a standing order's due day your stocking rows show the pieces the order takes, and Auto load puts them in first",
+        "A favour card played while buying stays played: Undo takes back only what you buy after it",
+        "Online: a wrong or closed room code says so, with a way back",
+        "Online: a rematch starts when everyone still there agrees, and a computer plays for anyone who left",
+        "Online: in a private room, a player who closed the app is let go after about a minute so the host can start",
+        "Invite links shared from the Android app now open the game"
+      ],
+      "date": "2026-11-16",
+      "commit": "",
+      "tagged": false
     }
   ]
 }

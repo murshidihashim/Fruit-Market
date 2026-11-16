@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
-import { FRUITS } from '../src/engine/data';
+import { FRUITS, type FavourId } from '../src/engine/data';
 import { activePlayer, canBuy, emptyStock, eveningOpen, newGame, type GameState } from '../src/engine/game';
 import { CHARACTER_AVATARS, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
-import { freshRoom, GRACE_MS, redact, Room, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
+import { freshRoom, GRACE_MS, redact, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
   seat: number | null = null;
@@ -953,5 +953,218 @@ describe('the evening in a room, everyone at once (rules 19)', () => {
         if (m.t === 'room' && m.game?.phase === 'evening') expect([m.game.eveningDone[2], m.game.eveningDone[3]]).toEqual([true, true]);
       }
     }
+  });
+});
+
+// PLAN-107: the Major fixes from the 1.24.0 review (REP-122): quick matches keep upgrades (ON-01), an unknown room
+// says so (ON-03), a rematch goes ahead without someone who left (ON-04), a closed tab no longer blocks a private lobby
+// (ON-05), and Undo never takes back a favour card (S3, DEC-120).
+describe('PLAN-107: dead ends in a room', () => {
+  const hello = (name: string, token?: string): ClientMsg => ({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name, avatar: '🦸', ...(token ? { token } : {}) });
+
+  /** Three people in a private room, through the choosing step into a match. */
+  async function threeIn(h: Harness) {
+    const a = h.connect('A'); const b = h.connect('B'); const c = h.connect('C');
+    await a.say(hello('Aisyah')); await b.say(hello('Benny')); await c.say(hello('Chandra'));
+    await a.say({ t: 'config', config: { days: 8, ai: 0, unripe: true, upgrades: true, events: true } });
+    for (const x of [a, b, c]) await x.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    await pickAll(a, b, c);
+    expect(h.room.d.status).toBe('playing');
+    return { a, b, c };
+  }
+
+  it('ON-01: a quick match is made and played with upgrades, the settings every room starts with', async () => {
+    expect(freshRoom('QUICK3', 0, true).config.upgrades).toBe(true);
+    const h = new Harness();
+    h.room = new Room(freshRoom('QUICK3', h.t, true), h);
+    const a = h.connect('A'); const b = h.connect('B');
+    await a.say(hello('One'));
+    expect(a.view!.config.upgrades).toBe(true);
+    await b.say(hello('Two'));
+    expect(b.view!.status).toBe('playing');
+    expect(b.view!.game!.config.upgrades).toBe(true);
+  });
+
+  it('ON-03: a code with no room behind it is told so, in words that depend on whether the phone was in it', () => {
+    expect(roomGoneMsg(JSON.stringify(hello('New')))).toBe('That room doesn\'t exist or has closed. Check the code.');
+    expect(roomGoneMsg(JSON.stringify(hello('Back', 'a1b2c3')))).toBe('That room has closed.');
+    expect(roomGoneMsg('not json')).toBe('That room doesn\'t exist or has closed. Check the code.');
+  });
+
+  it('ON-04: three finish, one goes Home, the other two ask for a rematch and it starts with a computer in the empty seat', async () => {
+    const h = new Harness();
+    const { a, b, c } = await threeIn(h);
+    for (let i = 0; i < 6000 && h.room.d.status === 'playing'; i++) {
+      if (!((await botStep(a)) || (await botStep(b)) || (await botStep(c)))) throw new Error(`stuck in ${h.room.d.game?.phase}`);
+    }
+    expect(h.room.d.status).toBe('finished');
+    const token = b.token;
+    b.close(); // Home from the results
+    expect(a.view!.seats[1].connected).toBe(false);
+    await a.say({ t: 'rematch' });
+    expect(h.room.d.status).toBe('finished'); // still waiting for Chandra, who is here
+    await c.say({ t: 'rematch' });
+    expect(h.room.d.status).toBe('playing');
+    expect(a.view!.game!.day).toBe(1);
+    expect(a.view!.seats[1].bot).toBe(true);
+    // The match does not wait for the empty seat: both people can play it on.
+    for (let i = 0; i < 400 && a.view!.game!.day < 3; i++) if (!((await botStep(a)) || (await botStep(c)))) break;
+    expect(a.view!.game!.day).toBeGreaterThan(1);
+    // Benny comes back with his seat token and plays his own seat again.
+    const b2 = h.connect('B2');
+    await b2.say(hello('Benny', token));
+    expect(b2.seat).toBe(1);
+    expect(a.view!.seats[1].bot).toBeUndefined();
+    expect(a.view!.seats[1].connected).toBe(true);
+  });
+
+  it('ON-04: when the last person still waited for leaves, the rematch the others asked for starts', async () => {
+    const h = new Harness();
+    const { a, b, c } = await threeIn(h);
+    h.room.d.game!.phase = 'over';
+    h.room.d.status = 'finished';
+    h.room.d.rematch = [];
+    await a.say({ t: 'rematch' });
+    await c.say({ t: 'rematch' });
+    expect(h.room.d.status).toBe('finished');
+    b.close();
+    expect(h.room.d.status).toBe('playing');
+    expect(c.view!.seats[1].bot).toBe(true);
+    // Nobody left to ask: a room where every person has gone does not start on its own.
+    const h2 = new Harness();
+    const all = await threeIn(h2);
+    h2.room.d.game!.phase = 'over';
+    h2.room.d.status = 'finished';
+    all.a.close(); all.b.close(); all.c.close();
+    expect(h2.room.d.status).toBe('finished');
+  });
+
+  it('ON-05: a lobby seat whose tab was closed is freed after the grace period; back in time, it is kept', async () => {
+    const h = new Harness();
+    const a = h.connect('A'); const b = h.connect('B'); const c = h.connect('C');
+    await a.say(hello('Aisyah')); await b.say(hello('Gus')); await c.say(hello('Chandra'));
+    for (const x of [a, b, c]) await x.say({ t: 'ready', ready: true });
+    const token = b.token;
+    b.close();
+    // Until the grace period ends the seat stays, shown as away with the moment it is freed, and the host cannot start.
+    expect(a.view!.seats.map((x) => x.name)).toEqual(['Aisyah', 'Gus', 'Chandra']);
+    expect(a.view!.seats[1].connected).toBe(false);
+    expect(a.view!.seats[1].takeoverAt).toBe(h.t + GRACE_MS);
+    expect(h.alarmAt).toBe(h.t + GRACE_MS);
+    await a.say({ t: 'start' });
+    expect(a.errors.slice(-1)[0]).toBe('A player is disconnected');
+    // Back within the grace period: the same seat, still ready.
+    h.t += GRACE_MS - 1000;
+    await h.room.alarm();
+    const b2 = h.connect('B2');
+    await b2.say(hello('Gus', token));
+    expect(b2.seat).toBe(1);
+    expect(a.view!.seats[1]).toMatchObject({ name: 'Gus', connected: true, ready: true });
+    expect(a.view!.seats[1].takeoverAt).toBeUndefined();
+    // Gone for good: the seat is freed and the room can start without him.
+    b2.close();
+    h.t += GRACE_MS;
+    await h.room.alarm();
+    expect(a.view!.seats.map((x) => x.name)).toEqual(['Aisyah', 'Chandra']);
+    expect(c.view!.you).toBe(1);
+    await a.say({ t: 'start' });
+    expect(h.room.d.status).toBe('picking');
+  });
+
+  it('ON-05: a host who closed the tab is freed after the grace period too, and the host tag passes on', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    a.close();
+    h.t += GRACE_MS + 1;
+    await h.room.alarm();
+    expect(b.view!.seats.map((x) => x.name)).toEqual(['Friend']);
+    expect(b.view!.seats[0].host).toBe(true);
+    expect(b.view!.you).toBe(0);
+  });
+});
+
+describe('PLAN-107 (S3, DEC-120): Undo takes back purchases only; a favour card once played stays played', () => {
+  async function toBuyTurn(h: Harness, a: Client, b: Client) {
+    await start(h, a, b, 8, 0);
+    for (let i = 0; i < 20; i++) {
+      const g = a.view!.game!;
+      if (g.phase === 'buy') { const buyer = activePlayer(g) === a.view!.you ? a : b; return { buyer, other: buyer === a ? b : a }; }
+      await a.say({ t: 'continue', v: a.view!.version });
+      await b.say({ t: 'continue', v: b.view!.version });
+    }
+    throw new Error('no buying turn');
+  }
+  async function buyOne(c: Client) {
+    const v = c.view!; const g = v.game!; const me = v.you;
+    for (const f of FRUITS) for (let pos = 0; pos < g.market[f].length; pos++) {
+      if (!canBuy(g, me, f, pos)) { await c.say({ t: 'act', id: nid(), v: v.version, action: { kind: 'buy', fruit: f, pos } }); return; }
+    }
+    throw new Error('nothing to buy');
+  }
+  /** Deals the buyer these favour cards and one face-down walk-in to look at (in the room's own game, sent out again). */
+  function deal(h: Harness, seat: number, favours: FavourId[]) {
+    const g = h.room.d.game!;
+    g.players[seat].favours = favours;
+    if (!g.queue.some((q) => q.walkIn && !q.seenBy?.includes(seat))) {
+      g.queue.push({ id: 900, name: 'Walk-in', walkIn: true, pref: 'everyday', wants: [{ fruit: 'apple', qty: 2, max: 7 }], original: [{ fruit: 'apple', qty: 2, max: 7 }] });
+    }
+    h.room.d.version++;
+    h.room.broadcast();
+  }
+  const mine = (c: Client) => c.view!.game!.players[c.view!.you];
+
+  it('after Scout, Undo takes back only what was bought after it: the card and the walk-in it showed stay', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer, other } = await toBuyTurn(h, a, b);
+    const me = buyer.view!.you;
+    deal(h, me, ['scout']);
+    await buyOne(buyer);
+    const walkIn = buyer.view!.game!.queue.find((q) => q.walkIn && !q.seenBy?.includes(me))!;
+    await buyer.say({ t: 'act', id: nid(), v: buyer.view!.version, action: { kind: 'favour', idx: 0, args: { customer: walkIn.id } } });
+    expect(mine(buyer).favours).toEqual([]);
+    const seen = () => buyer.view!.game!.queue.find((q) => q.id === walkIn.id)!;
+    expect(seen().seenBy).toContain(me);
+    expect(seen().wants[0].qty).toBeGreaterThan(0);
+    // Nothing bought since the card: nothing to take back, and the piece bought before it stays.
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(buyer.errors.slice(-1)[0]).toBe('Nothing to take back');
+    expect(mine(buyer).boughtToday).toBe(1);
+    await buyOne(buyer);
+    expect(mine(buyer).boughtToday).toBe(2);
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(mine(buyer).boughtToday).toBe(1);
+    expect(mine(buyer).favours).toEqual([]);
+    expect(seen().seenBy).toContain(me);
+    expect(seen().wants[0].qty).toBeGreaterThan(0);
+    expect(other.view!.game!.log.slice(-1)[0]).toMatch(/played Scout$/);
+    // The other stall still sees the walk-in face down.
+    expect(other.view!.game!.queue.find((q) => q.id === walkIn.id)!.wants[0].qty).toBe(0);
+  });
+
+  it('Fridge and Free Fruit stay played as well', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const { buyer } = await toBuyTurn(h, a, b);
+    const me = buyer.view!.you;
+    h.room.d.game!.players[me].stock.apple[0] += 1; // an old piece the Fridge makes one step fresher
+    deal(h, me, ['freeFruit', 'fridge']);
+    const g = buyer.view!.game!;
+    const f = FRUITS.find((x) => g.market[x].some((n) => n > 0))!;
+    const pos = g.market[f].findIndex((n) => n > 0);
+    await buyer.say({ t: 'act', id: nid(), v: buyer.view!.version, action: { kind: 'favour', idx: 0, args: { fruit: f, pos } } });
+    expect(mine(buyer).favours).toEqual(['fridge']);
+    const free = JSON.stringify(mine(buyer).stock);
+    await buyer.say({ t: 'act', id: nid(), v: buyer.view!.version, action: { kind: 'favour', idx: 0 } });
+    expect(mine(buyer).favours).toEqual([]);
+    const cooled = JSON.stringify(mine(buyer).stock);
+    expect(cooled).not.toBe(free);
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(buyer.errors.slice(-1)[0]).toBe('Nothing to take back');
+    await buyOne(buyer);
+    await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
+    expect(mine(buyer).favours).toEqual([]);
+    expect(JSON.stringify(mine(buyer).stock)).toBe(cooled);
   });
 });

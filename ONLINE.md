@@ -36,7 +36,7 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 
 ## Tests
 
-- `tests/room.test.ts`: full matches with and without computer rivals; secret prices never leaving the server; duplicate and stale actions rejected; reconnect by token, with a stranger holding only the code refused; full rooms; leaving the lobby; expiry; host-only start; rematch.
+- `tests/room.test.ts`: full matches with and without computer rivals; secret prices never leaving the server; duplicate and stale actions rejected; reconnect by token, with a stranger holding only the code refused; full rooms; leaving the lobby; expiry; host-only start; rematch; and (PLAN-107) a rematch after someone left, a lobby seat freed after a closed tab, the unknown-room message, and Undo after a favour card.
 - `npm run test:e2e` runs everything below against a local server; CI runs it on every push.
 - `scripts/e2e-quick.cjs`: two browsers press Quick match and must land in the same game.
 - `scripts/e2e-online.cjs`: two independent browser profiles create a room, join by link, play a full match, refresh mid-game, check every network message for leaks, compare final results, and rematch.
@@ -46,6 +46,13 @@ node scripts/e2e-online.cjs http://127.0.0.1:8787 /tmp/shots  # two browsers pla
 A dropped player has **75 seconds** (`GRACE_MS` in `server/room.ts`) to reconnect. Everyone else sees a countdown. After that a computer plays their seat, so the match always finishes. The player can reconnect at any time and take the seat back. Leaving a match on purpose hands the seat over at once.
 
 Votes ("Open the market", "Close for the day", rematch) and secret prices wait only for seats a person is playing. A quick match only starts when both strangers are actually connected, and a stranger who gave up is never matched.
+
+Since PLAN-107 (1.24.1):
+
+- **Rematch:** it waits only for the people still connected. A seat whose person has gone (Home, or the app closed) is played by a computer in the rematch, and its person can take it back with the link, as in any match. The results say "Benny has left".
+- **Private lobby:** a seat whose person closed the tab is freed after the same 75 seconds (a quick-match lobby frees it at once). Until then the host's button says "Waiting for Gus to come back", with a countdown under it.
+- **A code with no room behind it** (never made, or closed after a day with nobody in it): the room server still accepts the connection and answers the phone's hello with a message every app stops on, "That room doesn't exist or has closed. Check the code." (or "That room has closed." to a phone that holds a seat token for it). It used to answer 404, which apps retried for ever.
+- **Invite links from the Android app** use the game's web address (`VITE_SERVER_URL`), not the app's own `https://localhost`.
 
 ## Abuse protection
 
