@@ -173,73 +173,61 @@ ${LANES.map((f) => lane(f, false)).join('')}</div>
 <p class="cap">OUTSIDE (FACES THE RIVALS)</p>${outside}<p class="cap">INSIDE (FACES YOU)</p>${inside}</div></body></html>`);
 }
 
-// ---------- 4. Board: the Wholesale Market, in the app's style (A3 landscape) ----------
-{
-  const extra = `
-.sheet { padding: 7mm 8mm 9mm; display: flex; flex-direction: column; gap: 3mm; }
-.top { height: 11mm; }
-.main { flex: 1; display: flex; gap: 5mm; }
-.lanes { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; align-items: start; }
-.mlane { display: flex; flex-direction: column; gap: 1.6mm; }
-.mh { height: 13mm; display: flex; align-items: center; gap: 2mm; padding: 0 2.5mm; color: #fff; font-weight: 800; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.06em; }
-.mh .badge { width: 9.5mm; height: 9.5mm; border-radius: 50%; background: #fff; display: grid; place-items: center; flex: none; }
-.mh small { margin-left: auto; font-size: 6.5pt; font-weight: 700; letter-spacing: 0.04em; opacity: 0.95; }
-.mb { height: 34mm; background: #fff; box-shadow: inset 0 0 0 0.6mm ${INK}; position: relative; padding: 2mm; }
-.mb.g { background: repeating-linear-gradient(135deg, #fff 0 2mm, #e4efd9 2mm 4mm); }
-.mb .cost { position: absolute; right: 2.2mm; top: 1.6mm; font-family: 'Disp'; font-size: 14pt; }
-.mb .life { position: absolute; left: 2.2mm; bottom: 1.6mm; font-size: 6.5pt; font-weight: 700; color: ${SLATE}; text-transform: uppercase; letter-spacing: 0.06em; }
-.mb .in { position: absolute; right: 2mm; bottom: 1.6mm; background: ${INK}; color: ${YEL}; font-size: 6pt; font-weight: 800; letter-spacing: 0.08em; padding: 0.6mm 1.4mm; }
-.mb .ltr { width: 6.5mm; height: 6.5mm; font-size: 9pt; }
-.side { width: 67mm; display: flex; flex-direction: column; gap: 3mm; }
-.card { width: 63mm; height: 88mm; }
-.down { font-size: 6.5pt; font-weight: 700; color: ${SLATE}; text-align: center; letter-spacing: 0.04em; }
-`;
-  const lane = (f: FruitId) => {
-    const slots = trackSlots(f);
-    return `<div class="mlane"><div class="mh" style="background:${LANE[f]};${f === 'mango' ? `color:${INK}` : ''}"><span class="badge">${fruit(f, 7)}</span>${FRUIT[f].plural}<small>${FRUIT[f].ripe.length} days${FRUIT[f].unripeSlots ? ` + ${FRUIT[f].unripeSlots} green` : ''}</small></div>
-${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span class="ltr ${LETTER[s.stage]}">${LETTER[s.stage]}</span><span class="cost">$${s.cost}</span><span class="life">${s.life}</span>${s.entry ? `<span class="in">▼ LORRY</span>` : ''}</div>`).join('')}
-<div class="down">▼ each night every piece moves down one box ▼<br>out of S: thrown away</div></div>`;
-  };
-  const body = `<div class="bar top"><span class="disp">WHOLESALE MARKET</span><span class="lab y" style="flex:1">Buy from any box: pay its price, and put the piece in your shelf box with the same letter and place</span></div>
-<div class="main"><div class="lanes">${LANES.map(lane).join('')}</div>
-<div class="side"><div class="slot card"><b>Today's lorry</b><span>Unload it into the ▼ LORRY boxes</span></div><div class="slot card"><b>Tomorrow's lorry</b><span>Face up</span></div>
-<div class="down" style="text-align:left">The Seconds Lorry unloads into the freshest O box instead.</div></div></div>
-<div class="foot">Fruit Market · board 2 of 3 · the Wholesale Market · lies in the middle: the customers on its left, the street on its right · A3 landscape · mock-up for review (PLAN-111)</div>`;
-  save('4-board-market', page(420, 297, body, extra));
-}
-
-// ---------- 5. Board: the street (day track, decks, upgrade piles) (A3 landscape) ----------
+// ---------- 4. Board, left panel: the Wholesale Market, today's event and tomorrow's lorry with their decks, the day track (A3 landscape) ----------
 {
   const days = Array.from({ length: 14 }, (_, i) => i + 1);
   const market = (d: number) => d % MARKET_DAY_EVERY === 0 && d < 14;
   const end: Record<number, string> = { 8: 'Quick ends', 10: 'Standard ends', 14: 'Long ends' };
-  const ups = Object.values(UPGRADES);
   const extra = `
-.sheet { padding: 7mm 8mm 9mm; display: flex; flex-direction: column; gap: 4mm; }
+.sheet { padding: 7mm 8mm 9mm; display: flex; flex-direction: column; gap: 3mm; }
 .top { height: 11mm; }
-.track { display: grid; grid-template-columns: repeat(14, 1fr); gap: 1.4mm; }
-.track span { height: 21mm; background: #fff; box-shadow: inset 0 0 0 0.5mm ${INK}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6mm; }
-.track b { font-family: 'Disp'; font-weight: 400; font-size: 15pt; line-height: 1; }
-.track i { font-style: normal; font-size: 5.2pt; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; line-height: 1.15; }
-.track .md { background: ${YEL}; }
-.track .end { box-shadow: inset 0 0 0 0.5mm ${INK}, inset 0 -2.4mm 0 ${INK}; }
-.row { display: flex; gap: 4.4mm; }
+.main { flex: 1; display: flex; gap: 5mm; }
+.lanes { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6mm; align-items: start; }
+.mlane { display: flex; flex-direction: column; gap: 1.6mm; }
+.mh { height: 13mm; display: flex; align-items: center; gap: 1.6mm; padding: 0 2mm; color: #fff; font-weight: 800; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.1; }
+.mh .badge { width: 8.5mm; height: 8.5mm; border-radius: 50%; background: #fff; display: grid; place-items: center; flex: none; }
+.mh small { display: block; font-size: 5.8pt; font-weight: 700; letter-spacing: 0.03em; opacity: 0.95; }
+.mb { height: 34mm; background: #fff; box-shadow: inset 0 0 0 0.6mm ${INK}; position: relative; padding: 2mm; }
+.mb.g { background: repeating-linear-gradient(135deg, #fff 0 2mm, #e4efd9 2mm 4mm); }
+.mb .cost { position: absolute; right: 2.2mm; top: 1.6mm; font-family: 'Disp'; font-size: 14pt; }
+.mb .life { position: absolute; left: 2.2mm; bottom: 1.6mm; font-size: 6pt; font-weight: 700; color: ${SLATE}; text-transform: uppercase; letter-spacing: 0.05em; }
+.mb .in { position: absolute; right: 2mm; bottom: 1.6mm; background: ${INK}; color: ${YEL}; font-size: 5.6pt; font-weight: 800; letter-spacing: 0.06em; padding: 0.6mm 1.2mm; }
+.mb .ltr { width: 6.5mm; height: 6.5mm; font-size: 9pt; }
+.side { width: 130mm; display: flex; flex-direction: column; gap: 3mm; }
+.pair { display: flex; gap: 4mm; }
 .card { width: 63mm; height: 88mm; }
 .card small { font-size: 6.5pt; padding: 0 3mm; }
-.cost { font-family: 'Disp'; font-size: 13pt; color: ${INK}; }
-.bank { display: flex; gap: 6mm; align-items: center; background: ${KRAFT}; padding: 2.5mm 4mm; font-size: 7.5pt; font-weight: 600; }
+.card.up { border-color: ${INK}; background: #fff8e0; }
+.down { font-size: 6.2pt; font-weight: 700; color: ${SLATE}; text-align: center; letter-spacing: 0.03em; }
+.track { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.2mm; }
+.track span { height: 13mm; background: #fff; box-shadow: inset 0 0 0 0.5mm ${INK}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3mm; }
+.track b { font-family: 'Disp'; font-weight: 400; font-size: 12pt; line-height: 1; }
+.track i { font-style: normal; font-size: 4.6pt; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; line-height: 1.1; }
+.track .md { background: ${YEL}; }
+.track .end { box-shadow: inset 0 0 0 0.5mm ${INK}, inset 0 -1.8mm 0 ${INK}; }
+.note { font-size: 6.6pt; font-weight: 600; color: ${INK}; }
 `;
-  const slot = (title: string, sub = '', more = '') => `<div class="slot card"><b>${title}</b>${more}${sub ? `<small>${sub}</small>` : ''}</div>`;
-  const body = `<div class="bar top"><span class="disp">THE STREET</span><span class="lab y" style="flex:1">Day track, the decks and the upgrade piles</span></div>
-<div class="track">${days.map((d) => `<span class="${market(d) ? 'md' : ''} ${end[d] ? 'end' : ''}"><b>${d}</b>${market(d) ? '<i>Market Day</i>' : ''}${end[d] ? `<i>${end[d]}</i>` : ''}</span>`).join('')}</div>
-<div class="row">${slot('Lorry deck', 'Face down. Beside the market\'s lorry spaces')}${slot('Event deck', 'Face down. From Day 2, turn one over each morning')}${slot("Today's event", 'Face up until night')}${slot('Favour deck', 'Shuffled, face down. Draw from the top: nobody knows what comes')}${slot('Played favours', 'Shuffled again when the favour deck runs out')}${slot('Standing orders', 'Face down. Market Day: turn one over to bid for')}</div>
-<div class="row">${ups.map((u) => slot(u.title, `${u.text}`, `<span class="cost">$${u.cost}</span>`)).join('')}${slot('Up for bid', 'The standing order stalls are bidding for')}</div>
-<div class="bank"><span class="lab">The bank</span><span>From Day 2, at dawn, a stall with an empty shelf and under $${TOP_UP} is topped up to $${TOP_UP}.</span><span style="margin-left:auto">+$200 chips here</span></div>
-<div class="foot">Fruit Market · board 3 of 3 · the street · lies right of the Wholesale Market, lorry deck next to its lorries · A3 landscape · mock-up for review (PLAN-111)</div>`;
-  save('5-board-street', page(420, 297, body, extra));
+  const lane = (f: FruitId) => {
+    const slots = trackSlots(f);
+    return `<div class="mlane"><div class="mh" style="background:${LANE[f]};${f === 'mango' ? `color:${INK}` : ''}"><span class="badge">${fruit(f, 6.5)}</span><span>${FRUIT[f].plural}<small>${FRUIT[f].ripe.length} days${FRUIT[f].unripeSlots ? ` + ${FRUIT[f].unripeSlots} green` : ''}</small></span></div>
+${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span class="ltr ${LETTER[s.stage]}">${LETTER[s.stage]}</span><span class="cost">$${s.cost}</span><span class="life">${s.life}</span>${s.entry ? `<span class="in">▼ LORRY</span>` : ''}</div>`).join('')}
+<div class="down">▼ each night every piece moves down one box ▼<br>out of S: thrown away</div></div>`;
+  };
+  const slot = (title: string, sub: string, cls = '') => `<div class="slot card ${cls}"><b>${title}</b><small>${sub}</small></div>`;
+  const body = `<div class="bar top"><span class="disp">WHOLESALE MARKET</span><span class="lab y" style="flex:1">Buy from any box: pay its price, and put the piece in your shelf box with the same letter and place</span></div>
+<div class="main"><div class="lanes">${LANES.map(lane).join('')}</div>
+<div class="side">
+  <div class="pair">${slot("Today's event", 'Face up until night. No event on Day 1', 'up')}${slot('Event deck', 'Face down. From Day 2, flip the top card onto today\'s event each morning')}</div>
+  <div class="pair">${slot("Tomorrow's lorry", 'Face up. Each morning unload this lorry into the ▼ LORRY boxes, then flip the next one on top of it', 'up')}${slot('Lorry deck', 'Face down. Reshuffle the lorries underneath when it runs out')}</div>
+  <span class="lab">Day track · the day marker moves each morning</span>
+  <div class="track">${days.map((d) => `<span class="${market(d) ? 'md' : ''} ${end[d] ? 'end' : ''}"><b>${d}</b>${market(d) ? '<i>Market Day</i>' : ''}${end[d] ? `<i>${end[d]}</i>` : ''}</span>`).join('')}</div>
+  <span class="note">The Seconds Lorry unloads into the freshest O box instead.</span>
+</div></div>
+<div class="foot">Fruit Market · board · left panel of 2 · the Wholesale Market · the customers panel lies on its right · A3 landscape · mock-up for review (PLAN-111)</div>`;
+  save('4-board-left', page(420, 297, body, extra));
 }
 
-// ---------- 6. Board: the customer rows (A3 landscape) ----------
+// ---------- 5. Board, right panel: the customer rows (A3 landscape) ----------
 {
   const extra = `
 .sheet { padding: 7mm 8mm 9mm; display: flex; flex-direction: column; gap: 3mm; }
@@ -265,7 +253,7 @@ ${slots.map((s) => `<div class="mb ${s.stage === 'unripe' ? 'g' : ''}"><span cla
 <div class="rh"><span class="disp">TOMORROW</span><span>Dealt each morning, so everyone buys knowing both days</span></div>
 <div class="row">${tomorrow}</div>
 <div class="rule"><div><b>Above the top</b>Nothing sells</div><div><b>The top</b>Fresh only</div><div><b>Top − 1</b>Fresh or Okay</div><div><b>Top − 2 or less</b>Any fruit: Fresh, Okay or Soft</div></div>
-<div class="foot">Fruit Market · board 1 of 3 · the customers · lies left of the Wholesale Market · A3 landscape · mock-up for review (PLAN-111)</div>`;
-  save('6-board-customers', page(420, 297, body, extra));
+<div class="foot">Fruit Market · board · right panel of 2 · the customers · lies on the right of the Wholesale Market · A3 landscape · mock-up for review (PLAN-111)</div>`;
+  save('5-board-right', page(420, 297, body, extra));
 }
 console.log('ok', OUT);
