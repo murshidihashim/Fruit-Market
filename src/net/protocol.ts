@@ -41,6 +41,9 @@ export interface PublicSeat {
   takeoverAt?: number;
   /** A computer is currently playing for this player. */
   bot?: boolean;
+  /** ON-09 (PLAN-110): this player left on purpose and cannot come back; a computer plays their seat for good. (Older
+   *  rooms never send it; older apps read the seat as one a computer plays until its person comes back.) */
+  left?: boolean;
 }
 
 /** What one browser receives. `game` is that player's own filtered view. */
