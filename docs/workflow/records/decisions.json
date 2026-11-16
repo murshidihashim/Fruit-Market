@@ -4254,6 +4254,10 @@
     {
       "at": "2026-11-16 15:27",
       "text": "1.24.1 on the preview: pull request #20 merged to main (e1cccbd); main CI PASS (verify:full) and the preview updated and smoke-tested at 15:09; the preview answers rules 19 and its code carries 1.24.1. Waiting for the owner to try it and give his word to publish (REP-124). PLAN-108 merged into the working branch after that (0ff8d2c), not into main: verify PASS (972 tests); e2e every part PASS with 0 leaks, the speed test failed twice under load and passed alone (162 ms). PLAN-109 (print and words) and PLAN-110 (smaller bugs and polish) started with helpers from 0ff8d2c."
+    },
+    {
+      "at": "2026-11-16 16:58",
+      "text": "PLAN-109 (print kit and words) merged (4bb18df) and implemented: C-02 to C-06, C-08 to C-11, C-13, C-14 with S16, C-16, C-18 to C-20, ON-11, S15 and S20; rules version 20 and AI version 7 kept, no rule or number changed. verify PASS (989 tests), e2e PASS, every changed print page and app screen seen (PASS); the owner's check of the kit NOT RUN. The print kit, update-20 and tracker packs are rebuilt; the counter card gains a Fruit sold tally. Differences from the review rows: Blueberry Glut's printed card keeps 2 boxes (the PLAN-106 design), the printed favour footer is \"Hold 3 (Charmer 4)\" to fit. Seen: on price-change days the market chip cuts \"Your turn · N of M bought\" at 360; handed to PLAN-110 (S12/S13)."
     }
   ]
 }
