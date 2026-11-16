@@ -50,11 +50,11 @@
     }
   ],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Owner, 2026-11-16: \"approve plan 111, for the customer street use the Guide you shared earlier, now generate the new board (wholesale market + customer street), player shelf/crate, the new counter, shutter\"",
+    "date": "2026-11-16"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "not started",
   "reports": [
