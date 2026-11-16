@@ -1,13 +1,13 @@
 # Current state · Fruit Market
 
-Updated 2026-11-16 07:55 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-16 11:42 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
 - **Live:** 1.24.0, rules version 19, protocol 4 (`3aed6c7`, tagged `v1.24.0`, published 2026-11-16 07:54; DEC-119, REP-121): shopkeepers chosen after everyone joins a room (PLAN-102), first-time How to play popup online (PLAN-103), seat numbers and the FIRST token (PLAN-104), iPhone price-tag fix (PLAN-105), new card look in app and print (PLAN-106), print pack at rules 19 (PLAN-100). The preview is the same build.
 - **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus the record of publishing.
-- **In progress:** nothing. No helper is running. Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
+- **In progress:** nothing being built. Review of 1.24.0 done (REP-122, `docs/studio/audit-124/`): 56 findings, 9 Major, none blocking; no fix approved yet. No helper is running. Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 - **Commits:** author Murshidi Hashim, committer Claude <noreply@anthropic.com> (so GitHub shows the signature as verified); set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL, no local git user override.
-- **Waiting on the owner:** (1) the iPhone price-tag fix seen on a real iPhone; (2) a proof print (Bangsar shops suggested) and tracker 1 or 2; (3) the back arrow while choosing a shopkeeper (leave or disconnect), the +3/+4 computer buttons and HOST tag fixes, in-game tips online for first-timers; (4) the 8 name choices (REP-118); (5) REP-112 section 3 choices.
+- **Waiting on the owner:** (0) which REP-122 fixes to make (recommended: the 9 Major as one package; print and words before the proof print); (1) the iPhone price-tag fix seen on a real iPhone; (2) a proof print (Bangsar shops suggested; best after the REP-122 print fixes) and tracker 1 or 2, and whether he still has the board, shutters and pieces; (3) the back arrow while choosing a shopkeeper (leave or disconnect), the +3/+4 computer buttons and HOST tag fixes, in-game tips online for first-timers; (4) the 8 name choices (REP-118); (5) REP-112 section 3 choices.
 
 ## How work is done now
 When work runs side by side (DEC-104), helpers build in their own work folders (`.claude/worktrees`) from briefs in the session scratchpad (`brief-common.md` and one brief per job; `helpers.md` lists ids and branches). They commit on their branch and never push. For each report: review, merge with `--no-ff`, `npm run verify` and `npm run test:e2e` on the merged code, look at the screens at 390x844 and 360x640, record the plan's checks, push. Publishing follows the release path in `CLAUDE.md` and needs the owner's word for that build.
@@ -15,7 +15,8 @@ When work runs side by side (DEC-104), helpers build in their own work folders (
 ## Checks (1.24.0, live)
 - Local on the merge 7ed9e3b: `npm run verify` PASS (942 tests); e2e PASS on each part (0 leaks).
 - CI: pull request #19 PASS; main PASS, preview updated. Deploy run 43 PASS (live smoke test, tag `v1.24.0`); live `/api/version` answers rules 19, live code carries 1.24.0.
-- Print: kit, update pack and tracker tests regenerated for 1.24.0. Proof print: NOT RUN. Played by people on 1.24.0: NOT RUN. iPhone fix on a real iPhone: NOT RUN.
+- Review REP-122 (on b0f7108): 9 whole solo games, online on a local room server (0 leaks in 624 messages), print and rules read against the data. Not run: real iPhone, real Android, `test:e2e` (nothing changed).
+- Print: kit, update pack and tracker tests regenerated for 1.24.0; REP-122 found errors on the player aid, guidebook and event cards. Proof print: NOT RUN. Played by people on 1.24.0: NOT RUN. iPhone fix on a real iPhone: NOT RUN.
 
 ## Sources
 Designs `docs/studio/review-18/mockups` (Rush-D chosen and built, DEC-109); design page https://claude.ai/artifact/TM2aRxtEpQsqxAo1cAK8Cx; pictures `docs/studio/art-drafts/cards-18`; studies `docs/studio/review-18`; balance scripts `docs/studio/review-17/balance/scripts18` (patch `orderPlus2` = the owner's standing-order proposal).
