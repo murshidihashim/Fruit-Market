@@ -142,14 +142,14 @@ export function todaysLorry(s: GameState): FarmerCard | null {
   return found.length === 1 ? found[0] : null;
 }
 
-/** Tomorrow is a Market Day: one more walk-in (the lorry still comes). */
+/** Tomorrow is a Market Day: a standing order may be turned over (the lorry still comes; since rules 14 no extra walk-in). */
 export function marketDayTomorrow(s: GameState): boolean {
   return s.day < s.config.days && isMarketDay(s, s.day + 1);
 }
 
 /**
  * Fruit in a shop that really spoils tonight, by the night's own rules: none after a Monsoon, one more
- * step in a Heatwave, and up to 3 pieces become juice instead with a Juice Bar (those are not counted here).
+ * step in a Heatwave, and up to JUICE_CAP (2) pieces become juice instead with a Juice Bar (those are not counted here).
  */
 export function spoilsTonight(s: GameState, p: number): number {
   return nightOutlook(s, p).spoil;

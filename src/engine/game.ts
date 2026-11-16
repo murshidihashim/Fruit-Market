@@ -82,7 +82,8 @@ export interface Player extends PlayerConfig {
   upgradeOffer?: UpgradeId[];
   /**
    * Rules 18: the pieces this stall took from the market today, one count per shelf space (the shape of its shelf).
-   * Public from the moment of purchase until the bell; cleared each morning. Its older stock stays secret.
+   * Seen by every stall while it buys (DEC-107: the screen shows it only during buying); it stays in the public view,
+   * for what a computer stall remembers, until it is cleared the next morning. Its older stock stays secret.
    */
   boughtFruit?: Crate;
 }
