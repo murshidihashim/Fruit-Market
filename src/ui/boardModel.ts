@@ -1,13 +1,13 @@
 // Pure helpers for the table: how the market board and the stall chips are laid out.
 // Kept free of Preact so they can be unit-tested against the engine's rules.
 import {
-  FARMER_CARDS, FRUIT, FRUITS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt,
+  FARMER_CARDS, FRUIT, FRUITS, ORDER_BOOK_BONUS, ORDER_CARDS, PREF_INFO, acceptsStage, deliveredGreen, lookOf, slotLife, stageAt,
   type EventCard, type FarmerCard, type FruitId, type Stage, type Want,
 } from '../engine/data';
 import {
-  bestCap, capFor, count, effectiveMax, eligible, eventSupply, forSale, isMarketDay, nightOutlook, printedSupply, rowCount, rowCustomers, rowStock,
-  walkInsToday,
-  type Customer, type GameState, type Stock,
+  bestCap, capFor, count, effectiveMax, eligible, eventSupply, forSale, isMarketDay, nightOutlook, orderDueToday, printedSupply, rowCount,
+  rowCustomers, rowStock, walkInsToday,
+  type Customer, type GameState, type Standing, type Stock,
 } from '../engine/game';
 import { hagglerWins } from '../engine/story';
 
@@ -177,18 +177,61 @@ const takesAny = (stock: Stock, f: FruitId, x: BuyerLine) =>
 
 /**
  * Pieces of this fruit wanted today by customers who would buy at least one of yours at some price (your freshness
- * suits them and their top price leaves something above $0): the Stocking panel's "N wanted".
+ * suits them and their top price leaves something above $0). A standing order is not a customer here (rowCustomers).
  */
-export function stallWanted(s: GameState, p: number, f: FruitId): number {
+export function customersWanted(s: GameState, p: number, f: FruitId): number {
   const pl = s.players[p];
   return buyersFor(s, f).filter((x) => bestCap(pl.stock, f, x.max, pl, x.c.pref, x.w.fixed) > 0).reduce((a, x) => a + x.w.qty, 0);
 }
 
-/** The Stocking panel's demand words for one fruit: "3 wanted", "Nobody takes yours" or "Nobody wants these". */
-export function stallWantText(s: GameState, p: number, f: FruitId): string {
-  const n = stallWanted(s, p, f);
-  if (n > 0) return `${n} wanted`;
-  return buyersFor(s, f).length ? 'Nobody takes yours' : 'Nobody wants these';
+// ---------- S2 (PLAN-107): the standing order on its due day ----------
+
+/** The standing order stall `p` holds that is collected today, or null. */
+export function orderDueFor(s: GameState, p: number): Standing | null {
+  const o = orderDueToday(s);
+  return o && o.holder === p ? o : null;
+}
+
+/** Rules 14: does a standing order take a piece at this place on the track? Fresh or Okay only (not Soft, not Green). */
+export const orderTakesPos = (f: FruitId, pos: number): boolean => pos < FRUIT[f].ripe.length && stageAt(f, pos) !== 'notso';
+
+/** The name the order goes by on screen: "The Beach Resort". */
+export const orderTitle = (o: Standing): string => ORDER_CARDS[o.card].title;
+
+/** What the holder is paid for each piece it delivers: its bid, and $2 more with an Order Book. */
+export const orderPay = (s: GameState, p: number, o: Standing): number =>
+  (o.price ?? 0) + (s.players[p].upgrades.includes('orderbook') ? ORDER_BOOK_BONUS : 0);
+
+/** Pieces of this fruit the standing order due today wants from stall `p`: all it asks for, when `p` holds it and its
+ *  shelf has a piece the order takes (as a customer's want counts when it would take one of yours); otherwise 0. */
+export function orderWanted(s: GameState, p: number, f: FruitId): number {
+  const o = orderDueFor(s, p);
+  if (!o || o.fruit !== f) return 0;
+  return s.players[p].stock[f].some((n, pos) => n > 0 && orderTakesPos(f, pos)) ? o.qty : 0;
+}
+
+/**
+ * Pieces of this fruit wanted today from stall `p`: by customers who would buy at least one of yours, and (S2) on its
+ * due day by the standing order `p` holds. What "Auto load" fills the crate up to.
+ */
+export function stallWanted(s: GameState, p: number, f: FruitId): number {
+  return customersWanted(s, p, f) + orderWanted(s, p, f);
+}
+
+/**
+ * The Stocking panel's demand words for one fruit: "3 wanted", "Nobody takes yours" or "Nobody wants these". S2: on
+ * the order's due day its holder reads "3 for The Beach Resort" first, on the rows the order takes from (`pos`; every
+ * row when not given), and "Nobody …" is never said of fruit the order wants.
+ */
+export function stallWantText(s: GameState, p: number, f: FruitId, pos?: number): string {
+  const n = customersWanted(s, p, f);
+  const o = orderDueFor(s, p);
+  const order = o && orderWanted(s, p, f) > 0 ? o : null;
+  const parts = [
+    ...(order && (pos === undefined || orderTakesPos(f, pos)) ? [`${order.qty} for ${orderTitle(order)}`] : []),
+    ...(n > 0 ? [`${n} wanted`] : order ? [] : [buyersFor(s, f).length ? 'Nobody takes yours' : 'Nobody wants these']),
+  ];
+  return parts.join(' · ') || (buyersFor(s, f).length ? 'Nobody else takes yours' : 'Nobody else wants these');
 }
 
 /** A buyer chip on the Price panel: the most this customer pays for your freshest piece they would take. */
