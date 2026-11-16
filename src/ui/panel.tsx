@@ -244,6 +244,11 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
   const mine = pricingTable(s, p).seats.find((x) => x.me);
   const fruits = LANES.filter((f) => forSale(s, p, f) > 0);
   const b = believe(s, p, false);
+  // S2: on its due day the standing order takes its pieces from the crate before any customer, and pays its own price
+  // for each, whatever price is set here. A note under the rows says so; a row's words are about the rest.
+  const o = orderDueFor(s, p);
+  const toOrder = o ? forSale(s, p, o.fruit) - rowCount(s, p, o.fruit) : 0;
+  const orderNote = o && toOrder > 0 ? orderPriceNote(orderTitle(o), toOrder, forSale(s, p, o.fruit), orderPay(s, p, o)) : null;
   return (
     <div class="ps-in">
       <div class="ps-head">
@@ -264,17 +269,12 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
           const dots = mine?.fruits.find((x) => x.f === f)?.dots ?? [];
           const out = forSale(s, p, f);
           const word = dots[0] && dots[0] !== 'fresh' ? STAGE_WORD[dots[0]] : '';
-          // S2: on its due day the standing order takes its pieces from the crate first and pays its own price for each,
-          // whatever the price set here; the words for the customers are then about the rest.
-          const o = orderDueFor(s, p);
-          const toOrder = o && o.fruit === f ? out - rowCount(s, p, f) : 0;
-          const forOrder = o && toOrder > 0 ? `${toOrder} for ${orderTitle(o)} at $${orderPay(s, p, o)} each, whatever your price` : '';
-          const yours = forOrder ? 'the rest' : 'yours';
-          const forCustomers = forOrder && toOrder >= out ? ''
-            : !lines.length ? (forOrder ? 'Nobody wants the rest' : 'Nobody wants these today')
+          const ordered = o && o.fruit === f ? toOrder : 0;
+          const yours = ordered ? 'the rest' : 'yours';
+          const said = o && ordered && ordered >= out ? `${ordered} for ${orderTitle(o)}`
+            : !lines.length ? (ordered ? 'Nobody wants the rest' : 'Nobody wants these today')
             : top <= 0 ? `${wanted} wanted · nobody takes ${yours}`
-            : `${wanted} wanted · best price $${best}${top !== best && word && !forOrder ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for ${yours}` : ''}`;
-          const said = [forOrder, forCustomers].filter(Boolean).join(' · ');
+            : `${wanted} wanted · best price $${best}${top !== best && word && !ordered ? `, so $${top} for ${word.charAt(0).toUpperCase()}${word.slice(1)}` : top !== best ? `, $${top} for ${yours}` : ''}`;
           return (
             <div class={`ps-row ${f}`} role="group" aria-label={`Price for your ${FRUIT[f].plural.toLowerCase()}`}>
               <div class="ps-info">
@@ -294,12 +294,20 @@ export function PriceSheetView({ s, p, vals, notice, onPrice, onNotice }: {
           );
         })}
       </div>
+      {orderNote && <p class="ps-note ps-order">{orderNote}</p>}
       {fruits.length > 0 && <p class="ps-note">{tieOrderLine(s, p)}</p>}
       {/* Rules 18: Favoured Trade is not played with the prices. A holder with a tied price is asked after the flip. */}
       {pl.favours.includes('favouredTrade') && fruits.length > 0 && <p class="ps-note ps-fav"><b class="ds-kind">Favour</b><span>You hold Favoured Trade. If you tie, you'll be asked after the prices flip.</span></p>}
       {notice && <BellNotice onClose={() => onNotice(false)} />}
     </div>
   );
+}
+
+/** S2: the pricing sheet's note on a standing order's due day: its holder's pieces go to the order at the order's own
+ *  price, whatever price is set for the fruit, which is for the pieces left over. */
+export function orderPriceNote(title: string, toOrder: number, out: number, pay: number): string {
+  const rest = out - toOrder;
+  return `${title} takes ${rest ? toOrder : `all ${toOrder}`} at $${pay} each, whatever price you set.${rest ? ` Your price is for the other ${rest}.` : ''}`;
 }
 
 /** Pricing's main button, at the foot of the pricing sheet: it seals the prices and rings the bell. `sealed`: the bell

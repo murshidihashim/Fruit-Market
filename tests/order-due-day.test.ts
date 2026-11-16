@@ -11,7 +11,7 @@ import {
 } from '../src/engine/game';
 import { customersWanted, orderWanted, stallWantText, stallWanted } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
-import { PriceSheetView, StallBar, autoCrate, shelfRowText, stakeAtRisk, startingCrate } from '../src/ui/panel';
+import { PriceSheetView, StallBar, autoCrate, orderPriceNote, shelfRowText, stakeAtRisk, startingCrate } from '../src/ui/panel';
 import { endBuying, passEvening } from './stall-step';
 
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
@@ -88,9 +88,12 @@ describe('S2: a standing order on its due day, as its holder stocks', () => {
     g = openStall(g, 1, {});
     expect(g.phase).toBe('bid');
     const html = toStaticHtml(h(PriceSheetView, { s: g, p: 0, vals: { [f]: 1 }, notice: false, onPrice: () => undefined, onNotice: () => undefined }));
-    expect(html).toContain(`3 for ${title} at $${o.price} each, whatever your price`);
+    expect(html).toContain(`<span>3 for ${title}</span>`);
+    expect(html).toContain(`${title} takes all 3 at $${o.price} each, whatever price you set.`);
     expect(html).not.toContain('nobody takes');
     expect(html).not.toContain('Nobody wants');
+    // With more pieces out than the order takes, the price is said to be for the rest.
+    expect(orderPriceNote(title, 3, 5, 7)).toBe(`${title} takes 3 at $7 each, whatever price you set. Your price is for the other 2.`);
   });
 
   it('with more pieces than the order: the order gets the freshest it takes, the customers the rest, and both are served', () => {

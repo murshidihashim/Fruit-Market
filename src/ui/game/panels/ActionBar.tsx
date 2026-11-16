@@ -49,7 +49,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         <>
           {/* S3 (DEC-120): Undo takes back purchases only. After a favour card it says so: it goes back to just after the
               card, which stays played. */}
-          <button class="btn ghost" aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(turnStart.current, s, active, online)} onClick={c.undo}>↶{after && <small class="btn-sub undo-sub">after {FAVOURS[after].title}</small>}</button>
+          <button class={`btn ghost ${after ? 'undo-after' : ''}`} aria-label={after ? `Undo purchases after ${FAVOURS[after].title}` : 'Undo purchases'} disabled={!canUndo(turnStart.current, s, active, online)} onClick={c.undo}>↶{after && <small>after {FAVOURS[after].title}</small>}</button>
           {/* A free fruit to pick is said on the Done button itself: a hint between the two buttons used to push Done
               along and make it narrower, and they keep their places the whole turn. */}
           <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : `${Math.max(0, limit - bought)} more allowed`}</small></button>
