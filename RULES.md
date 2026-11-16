@@ -30,7 +30,7 @@ Had Stall A been alone in serving him, A would have drawn a favour card. That is
 
 ## Goal
 
-Have the **most cash** at the end of the last day. Upgrades are worth nothing at the end. Fruit left on your shelf at the end is worth nothing. Ties go to whoever sold more fruit. If that is level too, the tied stalls share the win.
+Have the **most cash** at the end of the last day. Upgrades are worth nothing at the end. Fruit left on your shelf at the end is worth nothing. Ties go to whoever sold more fruit: every piece a stall sold to a customer, a guest, a standing order or the night hawker counts (pieces a Juice Bar turns into juice do not). If that is level too, the tied stalls share the win. On a table, each stall keeps this count on its counter (see Fruit sold, under Playing on a table).
 
 ## Players and length
 
@@ -140,7 +140,7 @@ Customers buy in row order; a standing order collected today goes first (see Sta
 
 ## Market rhythm
 
-- **Market Days (days 3, 6, 9 and 12, never the last day):** a standing order is turned over in the morning (when its due day still falls inside the game), and each stall may build an upgrade that evening. The lorry still comes. A Market Day no longer adds walk-ins.
+- **Market Days (days 3, 6, 9 and 12, never the last day):** a standing order is turned over in the morning (when its due day still falls inside the game, so a 10-day game has none on Day 9), and each stall may build an upgrade that evening. The lorry still comes. A Market Day no longer adds walk-ins.
 - **The last day** is an ordinary day: customers pay their usual prices. After its rush the market closes, and fruit left on a shelf is worth nothing.
 
 Market Days are always on in the app. On a table they can be left out: then there are no standing orders, and upgrades are still built on the evenings after days 3, 6, 9 and 12.
@@ -196,7 +196,7 @@ Guest prices are fixed. Mango Craze is never Day 2's event. A Mango Windfall's e
 | Card | When | Effect |
 |---|---|---|
 | 👂 Gossip | Evening | Look at all of tomorrow's walk-ins. Only you see them. Everyone sees that you played it. |
-| 🎁 Free Fruit | Your buying turn | Take 1 piece from the Wholesale Market for free. |
+| 🎁 Free Fruit | Your buying turn | Take 1 piece from the Wholesale Market for free. It does not count toward the pieces you may buy today. |
 | 🔍 Scout | Your buying turn | Look at one of today's walk-ins. Everyone sees that you played it, not what you saw. |
 | 🧊 Fridge | Your buying turn | Every ripe piece on your shelf becomes one step fresher. Green pieces do not change. |
 | 🤝 Favoured Trade | After prices flip | If one of your prices is tied, play this to win every tied price today. |
@@ -216,7 +216,7 @@ On the evening after each Market Day every upgrade you have not built is on offe
 
 ## Shopkeepers
 
-Before the game, each stall picks one of eight shopkeepers, so even the sixth stall chooses from at least three. A shopkeeper gives one perk for the whole game, and everyone can see it. **No two stalls can be the same shopkeeper, and no two stalls ever hold the same perk** (rules 20: this holds in the Daily market and the Market League too, below). Computer stalls take the shopkeepers the people did not pick. On a table, lay the eight shopkeeper cards face up and pick in turn, starting with the player to the left of the first-player token. In the app, pick on the set-up screen, or when you enter an online room (a taken shopkeeper is greyed out, and you can change yours in the lobby until the game starts).
+Before the game, each stall picks one of eight shopkeepers, so even the sixth stall chooses from at least three. A shopkeeper gives one perk for the whole game, and everyone can see it. **No two stalls can be the same shopkeeper, and no two stalls ever hold the same perk** (rules 20: this holds in the Daily market and the Market League too, below). Computer stalls take the shopkeepers the people did not pick. On a table, lay the eight shopkeeper cards face up and pick in turn, starting with the player to the left of the first-player token. In the app, pick on the set-up screen. In a private online room nobody picks in the lobby: once the host starts the game, everyone chooses at the same time (a shopkeeper goes to the first to choose it, and a taken one is marked with that player's name), and the game begins when every person has confirmed; a person who has left is given a free shopkeeper. A quick match uses the shopkeeper you chose on the online screen, or another free one if the other player has it.
 
 | Shopkeeper | Perk | Effect |
 |---|---|---|
@@ -249,13 +249,13 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **The crier.** One player reads the customers aloud: the player who bought last that morning. The crier pays nobody. A stall that sells hands over the piece, puts it on one of the card's circles and adds its own price to its own cash track, so nobody swaps money (as the printed guidebook says). For each customer line the crier says the real top price for the day (card price plus any event or Fixed prices change), then which fruit qualifies at each price: at **top − 2 or less any fruit** qualifies (Soft included), at **top − 1 Fresh or Okay**, at **the top itself Fresh only**, and above the top nothing (a Premium Display may go $1 over for Fresh fruit, but never for a guest). The cheapest price sells first, and each stall hands over its oldest piece that still qualifies. On a tie, the stall whose freshest handed-over piece is younger sells first.
 
-**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $105 to $120, the last stall with about $50 to $80 (rules 20). A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier is the bank (see above), so stalls never swap notes with each other.
+**Money.** The printed game keeps cash on a cash track on each stall's counter card, in front of the shutter, so everyone can read everyone's cash (cash is public). Without the printed track, use paper notes, not coins. In computer games a stall finishes a 10-day game with about $90 on average: the winner with about $105 to $120, the last stall with about $50 to $80 (rules 20). A bank of 60 × $1, 30 × $5, 20 × $10 and 10 × $50 is enough. The crier pays nobody (see above): each stall takes its own takings from the bank and pays the bank for what it buys, so stalls never swap notes with each other.
 
 **Components for 6 stalls.** About 50 tokens of each fruit, 6 of each upgrade, 8 standing-order cards and 12 favour cards.
 
 **Shade Cloth.** At night, Pak Din lays a fruit token on his stall sheet to name the fruit that does not age; take it back at dawn.
 
-**Sharp Ears.** In the evening, Farah looks at the front of one of tomorrow's walk-ins, like Scout. Mark it with her colour. When she sells that customer anything, the crier pays her tip. She is tipped at most once a day.
+**Sharp Ears.** In the evening, Farah looks at the front of one of tomorrow's walk-ins, like Scout. Mark it with her colour. When she sells that customer anything, Farah adds her tip to her cash track. She is tipped at most once a day.
 
 **The stall sheet, the shutter and the counter.** Each stall has one printed sheet with a shelf row and a crate row for each fruit, a shutter that stands in front of it all game so rivals cannot see, and a counter card that lies in front of the shutter. Move the fruit you will sell from the shelf row up to the crate row, say how many pieces that is, and write your price tags, all behind the shutter. At the bell flip your tags and move your crate pieces onto your counter, each into the box with the same letter and place. Unsold counter fruit goes back to the same box of the shelf row at the end of the day. The shelf is never shown.
 
@@ -275,9 +275,11 @@ The rules above are the same on a table and in the app. These are the ways to ru
 
 **Today's purchases.** What you take from the Wholesale Market is seen as you take it. When buying is over it goes behind your shutter with the rest of your shelf: you need not say what you bought, and nobody may ask.
 
+**Fruit sold.** Each counter has a Fruit sold row, numbered from 1. Each time a stall sells a piece (to a customer, a guest, a standing order or the night hawker), it crosses off the next number. The last number crossed off is its fruit sold, which breaks a tie on cash at the end.
+
 **Two ways to track age.** On the printed mat, tokens slide one slot per night and each slot shows how fresh the fruit is. With day chips, the piles keep still. Both give the same ages. The rest of this section describes chips, which also work on a stall's own shelf.
 
-**Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became Fresh. A pile's **age** is the clock number minus its chip. A fruit bought **Green** (only mangoes arrive Green) gets the chip of the clock number on which it ripens (the clock number now plus 2); it is Green until the clock reaches that number.
+**Day chips instead of moving fruit.** Fruit piles keep still. A *fruit clock* marker shows the clock number: it starts at 1 and moves on 1 each night (2 after a Heatwave night). Every pile of fruit carries a chip with the clock number on the day it became Fresh. A pile's **age** is the clock number minus its chip. A fruit bought **Green** (only mangoes arrive Green) gets the chip of the clock number on which it ripens: the clock number now plus 2 from the far Green box (where the lorry unloads), plus 1 from the near one. With a Ripening Room every Green mango gets plus 1, and on the evening you build one, give each Green mango already on your shelf the chip of the clock number plus 1. A pile is Green until the clock reaches its chip.
 
 | Age | Blueberry | Watermelon | Apple | Mango |
 |---|---|---|---|---|
@@ -414,7 +416,7 @@ Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP
 
 Each day has a small twist, the same for everyone, rotating through seven: the usual game, a quick 8-day game, no upgrades, fixed prices, no events, a long 14-day game, and the basic game.
 
-Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
+Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days (8 days on a quick game day, 14 on a long game day). On a fixed prices day generous customers still pay $2 more, as in the playtest option above. A basic game day has no perks, favour cards, upgrades or standing orders. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
 
 **Your perk.** You play as yourself, not as a shopkeeper. On the first morning you are dealt 3 of the perks no rival holds and keep one: here 3 of the 5 that Rosa (Haggler), Uncle Benny (Big Basket) and Ah Chen (Charmer) do not hold. If fewer than 3 were free, you would be dealt those that are. (Rules 20. Before, the 3 came from all 8, so a rival's perk could be offered and two stalls could hold the same one.) On a Basic game day there are no perks.
 
