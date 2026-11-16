@@ -21,32 +21,32 @@
     {
       "id": "T1",
       "text": "npm run verify passes, with the new print tests",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify: 1018 tests passed (1 skipped, as before), including the new tests/print-table.test.ts (board boxes and costs from the data, decks beside their cards, day track, customer guide, six stall sheets with price boxes and Fruit sold, counters with the crate count above the cash, six shutters, bid cards and every token) and tests/print-kit.test.ts (\"+1 at 6 stalls\" on the right row)."
     },
     {
       "id": "T2",
       "text": "Every new page seen as a picture",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Every new page rendered and seen: both board panels, a stall sheet, counters, a shutter sheet, the bid cards and tokens, customer card sheet 1; the guidebook text checked for old wording (no price tags, no three-panel board, no earlier printing)."
     },
     {
       "id": "T3",
       "text": "Sizes measured from the PDFs (card spaces, boxes, crate and shelf in line, shutters, cut sizes)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Sizes from the PDFs: board 2 x A3, stall sheets and counters A4 landscape, shutters A3 (half 420 x 148.5 mm, folds at 70 mm), bid cards 63 x 88 mm, tokens 13.5 mm; the print checks (fonts, fit, page count) pass for every file."
     },
     {
       "id": "T4",
       "text": "The owner's small test: one stall sheet, one shutter and the market panel, a few days with coins or beads",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Waits for the owner's small test at the table."
     },
     {
       "id": "T5",
       "text": "A full table game with the printed set",
       "result": "NOT RUN",
-      "evidence": ""
+      "evidence": "Waits for the printed set."
     }
   ],
   "approval": {
@@ -54,9 +54,9 @@
     "evidence": "Owner, 2026-11-16: \"approve plan 111, for the customer street use the Guide you shared earlier, now generate the new board (wholesale market + customer street), player shelf/crate, the new counter, shutter\"",
     "date": "2026-11-16"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "not started",
+  "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [
     "REP-125",
     "REP-126"
@@ -65,10 +65,21 @@
     "DEC-121"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "print/table: the board in two A3 panels, six stall sheets, six counters, six shutters, bid cards and tokens, and the rules guidebook for the new table (scripts/print-table.ts, scripts/print-update.ts)",
+      "print/fruit-3d: 3D-printable fruit in three styles (scripts/fruit-3d.py)",
+      "Customer cards: \"+1 at 6 stalls\" on the fruit that gets the extra piece",
+      "tests/print-table.test.ts"
+    ],
+    "changed": [
+      "Guidebook, player aid and RULES.md print-and-play part: prices written on the stall sheet, the shutter steps back at the bell, the crate count and cash on the counter, bid cards for standing orders; no rule change"
+    ],
+    "fixed": [
+      "The printed rule \"one more of the first fruit on their card\" pointed at the wrong fruit on 14 customer cards; the cards now mark it"
+    ],
+    "removed": [
+      "print/update-20 (the update pack for the earlier printing) and print/tracker-test (the freshness tracker tests)"
+    ]
   },
   "playerNotes": []
 }

@@ -4324,6 +4324,10 @@
     {
       "at": "2026-11-17 01:56",
       "text": "PLAN-111 approved by the owner. Built scripts/print-table.ts and print/table: the board in two A3 panels (Wholesale Market with today's event, tomorrow's lorry, their decks and the day track; the customers with the ten-point set-up guide), six stall sheets (A4), six counters (four to an A4), six shutters (one A3 each, printed on one side and folded in half for double thickness). All pass the print checks (fonts, fit, page count). Assumed until the owner says otherwise: 10 mm fruit pieces and laminated A3 panels. Owner then asked for 3D-printable fruit with three mock-ups each: scripts/fruit-3d.py writes print/fruit-3d (A token 12-13 mm that stacks, B mini fruit 10-16 mm, C 10 mm stacking cube with the fruit raised on two sides; 12 STL files and four pictures). Still to do in PLAN-111: bid cards and the token sheet, the guidebook, player aid and RULES.md, the print tests, the print-shop package."
+    },
+    {
+      "at": "2026-11-17 02:28",
+      "text": "PLAN-111 implemented: bid cards and token sheet added; the guidebook (12 pages), player aid and RULES.md describe the new table (written prices, shutter step, crate count, bid card); the update pack and tracker tests retired; tests/print-table.test.ts added; verify PASS (1018 tests); every new page seen. Print-shop package rebuilt (cards, player aid, board, stall sheets, counters, shutters, bid cards and tokens, guidebook, print order, 3D STL files). The owner's table test and a full printed game NOT RUN. The fruit style (A, B or C, or wooden cubes) is still the owner's choice; every box fits pieces up to about 13 mm."
     }
   ]
 }

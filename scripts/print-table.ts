@@ -34,7 +34,7 @@ const TINT: Record<FruitId, string> = { blueberry: '#dfe3fa', watermelon: '#d6ef
 const LANES: FruitId[] = ['blueberry', 'watermelon', 'mango', 'apple'];
 const LETTER: Record<Stage, string> = { unripe: 'G', fresh: 'F', okay: 'O', notso: 'S' };
 /** The six stalls, by their pattern (the same patterns as the earlier counters). */
-const STALLS = ['Stripes', 'Dots', 'Checks', 'Zigzag', 'Bars', 'Diamonds'] as const;
+export const STALLS = ['Stripes', 'Dots', 'Checks', 'Zigzag', 'Bars', 'Diamonds'] as const;
 const DAYS = 14;
 const GUEST_COUNT = EVENT_CARDS.filter((e) => e.extra).length;
 const [SOFT_LESS, OKAY_LESS] = FRUIT.apple.drop;
@@ -82,7 +82,7 @@ ${css}</style></head><body>${pages.map((p) => `<section class="page">${p}</secti
 const foot = (what: string) => `<div class="foot">Fruit Market · ${what} · rules version ${RULES_VERSION} · print at 100% (actual size)</div>`;
 
 // ---------- the board: two A3 landscape panels ----------
-function boardHtml(): string {
+export function boardHtml(): string {
   const market = (d: number) => d % MARKET_DAY_EVERY === 0 && d < DAYS;
   const end: Record<number, string> = { 8: 'Quick ends', 10: 'Standard ends', 14: 'Long ends' };
   const lane = (f: FruitId) => `<div class="mlane"><div class="mh" style="background:${LANE[f]};${f === 'mango' ? `color:${INK}` : ''}"><span class="badge">${fruit(f, 6.5)}</span><span>${FRUIT[f].plural}<small>${FRUIT[f].ripe.length} days${FRUIT[f].unripeSlots ? ` + ${FRUIT[f].unripeSlots} green` : ''}</small></span></div>
@@ -154,7 +154,7 @@ ${foot('board · right panel · lies on the right of the Wholesale Market · A3 
 }
 
 // ---------- stall sheets: A4 landscape, one per stall ----------
-function stallHtml(): string {
+export function stallHtml(): string {
   const BW = 24, BH = 15.5, TAG = 34;
   const lane = (f: FruitId, crate: boolean) => {
     const bs = boxes(f);
@@ -206,7 +206,7 @@ ${foot(`stall sheet · ${name} · A4 landscape`)}`;
 }
 
 // ---------- counters: four to an A4 landscape sheet ----------
-function counterHtml(): string {
+export function counterHtml(): string {
   const counter = (name: string) => `
 <div class="ctr">
   <div class="bar ch"><span class="disp">COUNTER</span><span class="sw ${pat(name)}"></span><span class="lab y" style="flex:1">${name}</span><span class="lab">Public</span></div>
@@ -238,7 +238,7 @@ function counterHtml(): string {
 }
 
 // ---------- shutters: one A3 sheet each, folded in half along its length ----------
-function shutterHtml(): string {
+export function shutterHtml(): string {
   const W = 420, HALF = 148.5, WING = 70;
   const steps = [
     ['1 Morning', "News, lorry, tomorrow's crowd. Market Day: bid for the standing order with your bid card."],
@@ -296,6 +296,56 @@ ${foot(`shutter · ${name} · A3 landscape, one side`)}`;
   return doc('A3 landscape', 420, 297, css, STALLS.map(sheet));
 }
 
+// ---------- bid cards and tokens: one A4 portrait sheet ----------
+/** What each stall's pieces are, in its own pattern: the two cash markers, the crate-count marker and the served-alone chips. */
+export const STALL_TOKENS = [['Tens', 1], ['Ones', 1], ['Crate', 1], ['Alone', 6]] as const;
+/** The shared tokens. */
+export const SHARED_TOKENS = [['Day', 1], ['First', 1], ['Shade Cloth', 1], ['+$200', 6]] as const;
+
+/** The six patterns as vector SVG patterns: on many small tokens, CSS gradients would be printed as large pictures. */
+const SVG_PATTERNS = `<svg width="0" height="0" style="position:absolute"><defs>
+<pattern id="p-stripes" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="${PAPER}"/><rect width="1.5" height="3" fill="${INK}"/></pattern>
+<pattern id="p-bars" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="${PAPER}"/><rect width="3" height="1.5" fill="${INK}"/></pattern>
+<pattern id="p-dots" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="${PAPER}"/><circle cx="1.5" cy="1.5" r="0.95" fill="${INK}"/></pattern>
+<pattern id="p-checks" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="${PAPER}"/><rect width="2" height="2" fill="${INK}"/><rect x="2" y="2" width="2" height="2" fill="${INK}"/></pattern>
+<pattern id="p-diamonds" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="${PAPER}"/><path d="M1.5 0.3 L2.7 1.5 L1.5 2.7 L0.3 1.5Z" fill="${INK}"/></pattern>
+<pattern id="p-zigzag" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="${PAPER}"/><path d="M0 2 L1.5 0.5 L3 2 L3 3 L1.5 1.5 L0 3Z" fill="${INK}"/></pattern>
+</defs></svg>`;
+const svgPat = (name: string) => `<svg class="sp" viewBox="0 0 30 30" preserveAspectRatio="xMidYMid slice"><rect width="30" height="30" fill="url(#p-${name.toLowerCase()})"/></svg>`;
+
+export function tokensHtml(): string {
+  const bid = (name: string) => `<div class="bid"><div class="bh">${svgPat(name)}</div><div class="bb"><span class="lab">${name} · bid card</span>
+<b class="disp">BID $</b><span class="wr"></span><small>per piece, for today's standing order</small>
+<p>Write your price, lay the card face down in front of your shutter. Change it while any stall is still deciding. When the last stall decides, flip all bid cards together: the lowest bid wins.</p></div></div>`;
+  const tok = (name: string, label: string, cls = '') => `<span class="tk ${cls}"><i>${svgPat(name)}</i><b>${label}</b></span>`;
+  const stallRows = STALLS.map((name) => `<div class="tr"><span class="tn">${name}</span>${STALL_TOKENS.flatMap(([label, n]) => Array.from({ length: n }, () => tok(name, label))).join('')}</div>`).join('');
+  const shared = SHARED_TOKENS.flatMap(([label, n]) => Array.from({ length: n }, () => `<span class="tk shared ${label === 'First' ? 'first' : ''}"><b>${label}</b></span>`)).join('');
+  const body = `${SVG_PATTERNS}<div class="bids">${STALLS.map(bid).join('')}</div>
+<div class="toks"><span class="lab">Tokens · cut on the lines · each stall's pieces carry its pattern</span>${stallRows}<div class="tr"><span class="tn">Shared</span>${shared}</div></div>
+${foot('bid cards and tokens · A4 portrait')}`;
+  const css = `
+.page { padding: 5mm 6.5mm 8mm; display: flex; flex-direction: column; gap: 3mm; }
+.bids { display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; gap: 0; justify-content: center; }
+.bid { border: 0.3mm dashed ${SLATE}; background: #fff; display: flex; flex-direction: column; }
+.bid .bh { height: 14mm; border-bottom: 0.6mm solid ${INK}; }
+.bid .bb { padding: 3mm 4mm; display: flex; flex-direction: column; gap: 1.5mm; }
+.bid .disp { font-size: 26pt; margin-top: 3mm; } .bid .wr { border-bottom: 0.4mm solid ${SLATE}; height: 9mm; }
+.bid small { font-size: 6.5pt; color: ${SLATE}; font-weight: 700; } .bid p { margin: 2mm 0 0; font-size: 6.6pt; line-height: 1.3; }
+.toks { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.toks > .lab { margin-bottom: 1.5mm; }
+.tr { display: flex; align-items: center; }
+.tn { width: 16mm; font-weight: 800; font-size: 6pt; text-transform: uppercase; letter-spacing: 0.06em; }
+.tk { width: 13.5mm; height: 13.5mm; box-shadow: inset 0 0 0 0.25mm ${SLATE}; background: #fff; display: flex; flex-direction: column; align-items: stretch; }
+.tk i { flex: 1; margin: 1.2mm 1.2mm 0; display: block; position: relative; }
+.sp { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.bid .bh { position: relative; }
+.tk b { text-align: center; font-weight: 800; font-size: 5.6pt; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.6mm 0 1mm; }
+.tk.shared { justify-content: center; background: ${YEL}; } .tk.shared b { font-size: 6pt; }
+.tk.first { background: ${RED}; color: ${PAPER}; }
+`;
+  return doc('A4 portrait', 210, 297, css, [body]);
+}
+
 async function main() {
   mkdirSync(OUT, { recursive: true });
   const tmp = mkdtempSync(join(tmpdir(), 'fm-table-'));
@@ -305,13 +355,17 @@ async function main() {
     await renderPdf(browser, tmp, OUT, 'Fruit-Market-Stall-Sheets-6xA4.pdf', stallHtml(), FONTS);
     await renderPdf(browser, tmp, OUT, 'Fruit-Market-Counters-2xA4.pdf', counterHtml(), FONTS);
     await renderPdf(browser, tmp, OUT, 'Fruit-Market-Shutters-6xA3.pdf', shutterHtml(), FONTS);
+    await renderPdf(browser, tmp, OUT, 'Fruit-Market-Bid-Cards-and-Tokens-A4.pdf', tokensHtml(), FONTS);
   } finally {
     await browser.close();
     rmSync(tmp, { recursive: true, force: true });
   }
 }
 
-main().catch((e: unknown) => {
-  console.error(e);
-  process.exit(1);
-});
+// Tests import the page builders (tests/print-table.test.ts); only a run from the command line writes the PDFs.
+if (!process.env.VITEST) {
+  main().catch((e: unknown) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

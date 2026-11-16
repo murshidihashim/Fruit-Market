@@ -134,8 +134,10 @@ describe('C-09: fruit sold, the tie-break', () => {
     expect(read('src/ui/HowTo.tsx')).toContain(`If stalls tie, the one that sold more fruit wins: every piece sold to ${counts} counts.`);
     const update = read('scripts/print-update.ts');
     expect(update).toContain(`every piece sold to ${counts} counts`);
-    expect(update).toContain('<b class="disp">Fruit sold</b>');
-    expect(update).toMatch(/const SOLD_MARKS = \d+;/);
+    // PLAN-111: the Fruit sold row moved from the counter to the stall sheet (scripts/print-table.ts)
+    const table = read('scripts/print-table.ts');
+    expect(table).toContain('Fruit sold · cross off one for each piece you sell');
+    expect(table).toContain('Array.from({ length: 80 }');
   });
 });
 
@@ -240,9 +242,11 @@ describe('C-03, C-04, C-11, C-18, C-19, ON-11, S15: print and RULES.md words', (
     const update = read('scripts/print-update.ts');
     expect(update).not.toMatch(/black band|Farah peeks|get older|Not ripe|the table under "Market Days"|than the rules 18 cards|evening favours\b|favours, upgrades/);
     expect(update).toContain('purple <b>Premium</b>');
-    expect(update).toContain('The board and the shutters are not printed from either');
-    expect(read('scripts/print-deck.ts')).toContain('the market board and the six shutters');
-    expect(read('print/README.md')).toContain('**The board and the shutters are not in this kit**');
+    // PLAN-111: the board and shutters are printed again, in the table set; the guidebook and kit cover say where each part comes from
+    expect(update).toContain('the board, stall sheets, counters, shutters, bid cards, tokens and this guidebook in the table set (print/table)');
+    expect(update).not.toMatch(/price tags?, four per stall|three panels|earlier printing/);
+    expect(read('scripts/print-deck.ts')).toContain('The board, stall sheets, counters, shutters, bid cards, tokens and the rules guidebook: the table set (print/table)');
+    expect(read('print/README.md')).toContain('**The board, shutters and pieces are in the table set**');
   });
 
   it('RULES.md: online choosing, and day chips for a mango from the near Green box or with a Ripening Room', () => {
