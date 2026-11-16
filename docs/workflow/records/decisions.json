@@ -4300,6 +4300,10 @@
     {
       "at": "2026-11-16 20:57",
       "text": "Owner asked whether the stall sheet keeps fruit type private before prices are set, as the app shows rivals only face-down boxes. It does: the shutter on line 1 hides the crate and shelf through stocking and pricing (RULES.md: one number, not which fruit). Added to PLAN-111: a public crate-count track (0 to 10) and a marker on each counter, so the number stays in view like the app's boxes instead of only being said aloud; no rule change."
+    },
+    {
+      "at": "2026-11-16 21:06",
+      "text": "PLAN-111 mock-ups shared with the owner for visual review before any print file is built (docs/studio/table-set/mockups): the stall sheet (A4, crate band in front of the shelf band, two shutter lines, a price-tag place on each crate lane), two counters to an A4 sheet (cash track, crate count, Fruit sold, tag and chip places), the shutter (half A3, both faces), and the three A3 board panels (the Wholesale Market in the app's style with today's and tomorrow's lorry, the street with the day track, decks and upgrade piles, the customer rows with the crier's price rule). Numbers drawn from the game data. Awaiting his visual changes and approval."
     }
   ]
 }
