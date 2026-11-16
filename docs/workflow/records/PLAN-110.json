@@ -1,0 +1,62 @@
+{
+  "id": "PLAN-110",
+  "title": "Review fixes: smaller bugs and polish (REP-122)",
+  "problem": "REP-122's Minor and Polish screen findings the owner chose to fix.",
+  "scope": [
+    "Numbers: S4 bid fruit count; S5 evening money line with the stake; S6 fine and top-up in the takings; S7 walk-in wants from card backs; S9 full shelf; S10 tick only for customers served",
+    "Screens: S11 remove the Freshness patterns switch (owner's note); S12 short phones; S13 cut words; S14 Trophies tabs; S17 Settings, How to play and pass-the-phone in the ticket look; S18 Undo kept after leaving mid-turn; S19 tutorial feedback and a sound switch in the menu",
+    "Pass-and-play S8: no secret shelf on shared screens, each person sees their own takings at the hand-over, default names",
+    "Online: ON-07 countdown while choosing; ON-08 online menu wording, a warning on Home and the room code; ON-09 wording for a player who left; ON-10 rematch note; ON-12 tie reason for a standing order; ON-13 look changes do not interrupt a turn; ON-14 lobby tags; ON-15 join wording",
+    "Look: C-07 FIRST token colour and size; C-12 stall colours apart from customer colours; C-21 contrast on the green and red lanes"
+  ],
+  "exclusions": [
+    "Any rule change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The changed screens seen at 390x844 and 360x640",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "The owner has checked the result on the preview",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-123"
+  ],
+  "decisions": [
+    "DEC-120"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

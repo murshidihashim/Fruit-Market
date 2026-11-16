@@ -1,0 +1,72 @@
+{
+  "id": "PLAN-107",
+  "title": "Review fixes, Major: delivery day, Scout and Undo, online dead ends (REP-122)",
+  "problem": "REP-122 found nine Major problems; the owner chose to fix eight (S1 goes with Closing Day in PLAN-108).",
+  "scope": [
+    "S2: on a standing order's due day the order's pieces count as wanted, Auto load loads them, and the row says who they are for",
+    "S3: Undo takes back purchases only; a favour card once played stays played (owner's option)",
+    "ON-01: quick matches keep upgrades (owner's option): RULES.md and the room's code comment say so; the game does not change",
+    "ON-02: Create a room forgets a used invite",
+    "ON-03: an unknown or expired room code says so, with a way back",
+    "ON-04: a rematch counts only the people still there and says who left",
+    "ON-05: a disconnected lobby seat is freed after the usual wait, and the host is told who is disconnected",
+    "ON-06: invite links from the Android app use the game's real address"
+  ],
+  "exclusions": [
+    "Any change to prices, cards or scoring",
+    "A real Android phone check (NOT RUN until the owner has one at hand)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify passes",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e passes (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T3",
+      "text": "The changed screens seen at 390x844 and 360x640",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T4",
+      "text": "The owner has checked the result on the preview",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    },
+    {
+      "id": "T5",
+      "text": "Room tests cover ON-03 to ON-05 (unknown code, rematch after a leaver, lobby seat freed)",
+      "result": "NOT RUN",
+      "evidence": "Not run yet"
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "",
+  "reports": [
+    "REP-123"
+  ],
+  "decisions": [
+    "DEC-120"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
