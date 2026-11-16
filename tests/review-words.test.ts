@@ -10,7 +10,7 @@ import {
   type GameConfig, type GameState,
 } from '../src/engine/game';
 import { PayBadge, toStaticHtml } from '../src/ui/cards';
-import { cardChips, marketChips, newsChips } from '../src/ui/eventChips';
+import { cardChips, marketChipFruit, marketChips, newsChips } from '../src/ui/eventChips';
 import { GAME_LENGTHS, NO_ORDER_DAYS, marketDaysWithoutOrder } from '../src/ui/rulesText';
 import { Market } from '../src/ui/table';
 import { TIPS, eveningTip, tipFor } from '../src/ui/tutorial';
@@ -81,17 +81,20 @@ describe('C-05, C-06, S20: event figures', () => {
   it('the Wholesale Market\'s own chip names every price change there, with the card\'s badge, and agrees with the box prices', () => {
     const chips = Object.fromEntries(EVENT_CARDS.map((e) => [e.id, marketChips(e)]).filter(([, c]) => c.length));
     expect(chips).toEqual({
-      glut: [{ text: '−$1 blueberries today', up: false }],
+      glut: [{ text: '−$1', up: false, fruit: 'blueberry' }],
       priceHike: [{ text: '+$1 each today', up: true }],
       durian: [{ text: '−$1 each today', up: false }],
     });
+    expect(marketChipFruit('blueberry')).toBe('blueberries today');
     const s = structuredClone(beginBuying(newGame(humans(2))));
     const plain = (f: FruitId, pos: number) => Math.max(1, FRUIT[f].cost[stageAt(f, pos)]);
     s.event = ev('glut');
     expect(marketCost(s, 'blueberry', 2)).toBe(plain('blueberry', 2) - 1);
     expect(marketCost(s, 'apple', 5)).toBe(plain('apple', 5));
     const html = toStaticHtml(h(Market, { s, p: 0 }));
-    expect(html).toContain(`<span class="tk-chip good">${toStaticHtml(h(PayBadge, { pay: 'market' }))}−$1 blueberries today</span>`);
+    // A figure for one fruit carries that fruit's picture, whose words finish the sentence: "−$1 blueberries today".
+    expect(html).toContain(`<span class="tk-chip good">${toStaticHtml(h(PayBadge, { pay: 'market' }))}−$1<img class="x-fruit tk-chip-f"`);
+    expect(html).toContain('alt="blueberries today"');
     s.event = ev('heatwave');
     expect(toStaticHtml(h(Market, { s, p: 0 }))).not.toContain('tk-chip');
   });

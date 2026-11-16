@@ -13,7 +13,8 @@ import { chosenColour, shownAvatar } from './looks';
 import { Face, Fruit } from './art';
 import { FavourChip } from './phoneCards';
 import { PayBadge } from './cards';
-import { marketChips } from './eventChips';
+import { marketChipFruit, marketChips } from './eventChips';
+import { FruitSvg } from './fruitIcons';
 import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type TicketLine } from './ticket';
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
@@ -133,7 +134,9 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
         <b class="tk-label" data-a="truck">Wholesale Market</b>
         {lorry !== undefined && <Lorry here={lorry} />}
         {/* today's price changes here, with the event card's badge for a price at the Wholesale Market (REP-122 S20, C-08) */}
-        {marketChips(s.event).map((c) => <span class={`tk-chip ${c.up ? 'warn' : 'good'}`}><PayBadge pay="market" />{c.text}</span>)}
+        {marketChips(s.event).map((c) => (
+          <span class={`tk-chip ${c.up ? 'warn' : 'good'}`}><PayBadge pay="market" />{c.text}{c.fruit && <FruitSvg class="tk-chip-f" id={c.fruit} size={12} alt={marketChipFruit(c.fruit)} />}</span>
+        ))}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
         {turn ? <span class="tk-side">{turn}</span> : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
       </div>

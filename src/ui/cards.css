@@ -164,6 +164,7 @@
 .cd-pb-i .w { fill: var(--pay); }
 /* the same badge on the Wholesale Market's price chip in the game (table.tsx), at the chip's size */
 .tk-chip .cd-pb { --u: 0.7px; margin-right: 3px; vertical-align: middle; box-shadow: none; }
+.tk-chip .tk-chip-f { margin-left: 2px; vertical-align: middle; }
 .cd-keeper .cd-blk b { font-size: calc(var(--u) * 17); }
 .cd-favour .cd-blk b { font-size: calc(var(--u) * 14); }
 /* the text keeps a little air above the footer, also on the cards whose picture gives way to it */

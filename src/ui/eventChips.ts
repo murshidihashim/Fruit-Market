@@ -52,9 +52,10 @@ export function cardChips(e: EventCard): NewsChip[] {
   return newsChips(e).slice(0, CARD_BOXES);
 }
 
-/** A price change at the Wholesale Market as the chip beside its name says it: "+$1 each today", "−$1 blueberries
- *  today". `up`: dearer (shown as a warning) or cheaper. */
-export interface MarketChip { text: string; up: boolean }
+/** A price change at the Wholesale Market as the chip beside its name says it: "+$1 each today", or for one fruit the
+ *  figure and that fruit's picture, whose words are "blueberries today" (the market's heading line has little room).
+ *  `up`: dearer (shown as a warning) or cheaper. */
+export interface MarketChip { text: string; up: boolean; fruit?: FruitId }
 
 /** What today's event does to prices at the Wholesale Market (S20): every fruit (`cost`), then one fruit (`costFruit`). */
 export function marketChips(e: EventCard | null | undefined): MarketChip[] {
@@ -63,7 +64,10 @@ export function marketChips(e: EventCard | null | undefined): MarketChip[] {
   if (e.cost) out.push({ text: `${signed(e.cost, true)} each today`, up: e.cost > 0 });
   for (const f of LANES) {
     const n = e.costFruit?.[f];
-    if (n) out.push({ text: `${signed(n, true)} ${FRUIT[f].plural.toLowerCase()} today`, up: n > 0 });
+    if (n) out.push({ text: signed(n, true), up: n > 0, fruit: f });
   }
   return out;
 }
+
+/** The words of a chip about one fruit's price: "blueberries today". */
+export const marketChipFruit = (f: FruitId) => `${FRUIT[f].plural.toLowerCase()} today`;
