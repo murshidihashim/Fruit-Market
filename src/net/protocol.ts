@@ -15,12 +15,44 @@ export const RULES_VERSION = 20;
  */
 export const AI_VERSION = 7;
 /** Bump whenever the messages between phones and the room server change, so old and new builds never share a room
- *  (3, PLAN-023: undo and rename; 4, PLAN-102: shopkeepers are chosen after the host starts a private room). */
-export const PROTOCOL_VERSION = 4;
+ *  (3, PLAN-023: undo and rename; 4, PLAN-102: shopkeepers are chosen after the host starts a private room; 5, PLAN-112:
+ *  public rooms, starting with computers after a wait, and preset reactions). */
+export const PROTOCOL_VERSION = 5;
 export const UPDATE_MSG = 'A new version of Fruit Market is out. Update the app (or refresh the page) to play online.';
 
 export const MAX_SEATS = 6;
 export const NAME_MAX = 14;
+
+/**
+ * PLAN-112: the preset reactions, 8 emoji and 4 short lines. Only the id travels between phones; each phone draws the
+ * reaction from this list. No free text, no numbers and no fruit, so a reaction can never say what is in a crate or
+ * what a price will be. The ids are fixed: the room server refuses any other.
+ */
+export const REACTIONS = [
+  { id: 'smile', show: '😀', words: 'Smile' },
+  { id: 'thumbs', show: '👍', words: 'Thumbs up' },
+  { id: 'clap', show: '👏', words: 'Clap' },
+  { id: 'wow', show: '😮', words: 'Surprised' },
+  { id: 'phew', show: '😅', words: 'Phew' },
+  { id: 'sob', show: '😭', words: 'Crying' },
+  { id: 'fire', show: '🔥', words: 'On fire' },
+  { id: 'thanks', show: '🙏', words: 'Thank you' },
+  { id: 'luck', show: 'Good luck', words: 'Good luck' },
+  { id: 'nice', show: 'Nice sale', words: 'Nice sale' },
+  { id: 'oops', show: 'Oops', words: 'Oops' },
+  { id: 'played', show: 'Well played', words: 'Well played' },
+] as const;
+export type ReactionId = (typeof REACTIONS)[number]['id'];
+export function isReaction(x: unknown): x is ReactionId {
+  return typeof x === 'string' && REACTIONS.some((r) => r.id === x);
+}
+/** One reaction every 2 s per seat; the room drops any sent sooner, quietly. */
+export const REACT_GAP_MS = 2000;
+/** PLAN-112: once a room has waited this long since it opened, its host may start with computers in the empty seats. */
+export const COMPUTERS_AFTER_MS = 60_000;
+
+/** PLAN-112: one public room still waiting for players, as the Public rooms list shows it. `waited`: ms since it opened. */
+export interface PublicRoom { code: string; host: string; taken: number; days: 8 | 10 | 14; waited: number }
 
 export interface RoomConfig { days: 8 | 10 | 14; ai: number; unripe: boolean; upgrades: boolean; events: boolean }
 export const DEFAULT_CONFIG: RoomConfig = { days: 10, ai: 0, unripe: true, upgrades: true, events: true };
@@ -65,6 +97,10 @@ export interface RoomView {
   quick?: boolean;
   /** Set after someone takes back their purchases; n counts how many times, so every phone can tell it is new. */
   undone?: { seat: number; n: number };
+  /** PLAN-112: a public room, listed for people looking for a game while it waits in the lobby. */
+  public?: boolean;
+  /** PLAN-112: how long the room had been open when this view was sent, in ms (the phone counts on from there). */
+  waited?: number;
 }
 
 export type ClientMsg =
@@ -76,7 +112,8 @@ export type ClientMsg =
   | { t: 'undo'; id: string; v: number }
   | { t: 'ready'; ready: boolean }
   | { t: 'config'; config: RoomConfig }
-  | { t: 'start' }
+  | { t: 'start'; computers?: boolean }
+  | { t: 'react'; r: ReactionId }
   | { t: 'leave' }
   | { t: 'act'; id: string; v: number; action: Action }
   | { t: 'continue'; v: number }
@@ -88,6 +125,7 @@ export type ServerMsg =
   | { t: 'welcome'; seat: number; token: string; code: string }
   | { t: 'error'; msg: string; id?: string; fatal?: boolean; update?: boolean }
   | { t: 'ack'; id: string }
+  | { t: 'react'; seat: number; r: ReactionId }
   | { t: 'pong' };
 
 export const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

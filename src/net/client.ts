@@ -1,7 +1,7 @@
 // Browser side of online play: one WebSocket to the room, automatic reconnects,
 // and a per-room seat token kept on this device so a refresh returns you to your seat.
 import type { Action } from '../engine/game';
-import { PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
+import { PROTOCOL_VERSION, REACT_GAP_MS, RULES_VERSION, type ClientMsg, type PublicRoom, type ReactionId, type RoomConfig, type RoomView, type ServerMsg } from './protocol';
 
 export type ConnState = 'connecting' | 'open' | 'reconnecting' | 'failed';
 
@@ -21,8 +21,9 @@ export function onlineAvailable(): boolean {
   return serverBase() !== '';
 }
 
-export async function createRoom(): Promise<string> {
-  const res = await fetch(`${serverBase()}/api/rooms`, { method: 'POST' });
+/** `pub` (PLAN-112): a public room, listed for people looking for a game while it waits for players. */
+export async function createRoom(pub = false): Promise<string> {
+  const res = await fetch(`${serverBase()}/api/rooms${pub ? '?public=1' : ''}`, { method: 'POST' });
   if (!res.ok) throw new Error('Could not create a room. Check your connection and try again.');
   const body = (await res.json()) as { code?: string };
   if (!body.code) throw new Error('Could not create a room.');
@@ -35,6 +36,14 @@ export async function quickMatch(): Promise<string> {
   const body = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
   if (!res.ok || !body.code) throw new Error(body.error ?? 'Could not find a game. Try again.');
   return body.code;
+}
+
+/** PLAN-112: the public rooms still waiting for players. Throws when the list cannot be read (offline, too many asks). */
+export async function publicRooms(): Promise<PublicRoom[]> {
+  const res = await fetch(`${serverBase()}/api/public`);
+  if (!res.ok) throw new Error('Could not load the public rooms.');
+  const body = (await res.json()) as { rooms?: unknown };
+  return Array.isArray(body.rooms) ? (body.rooms as PublicRoom[]) : [];
 }
 
 /**
@@ -92,6 +101,10 @@ export class OnlineClient {
   conn: ConnState = 'connecting';
   error: string | null = null;
   seat: number | null = null;
+  /** PLAN-112: when the room opened, on this phone's clock (from the room's `waited`, so a wrong phone clock is fine). */
+  openedAt = 0;
+  /** PLAN-112: when this phone last sent a reaction (the room passes on one every REACT_GAP_MS per seat). */
+  reactedAt = 0;
   private ws: WebSocket | null = null;
   private retry = 0;
   private timer: ReturnType<typeof setTimeout> | null = null;
@@ -100,6 +113,7 @@ export class OnlineClient {
   private listeners = new Set<() => void>();
   private viewListeners = new Set<(v: RoomView) => void>();
   private errorListeners = new Set<(msg: string) => void>();
+  private reactListeners = new Set<(seat: number, r: ReactionId) => void>();
   private onVisible = () => { if (document.visibilityState === 'visible' && this.conn !== 'open' && !this.stopped) this.open(); };
 
   constructor(public code: string, private name: string, private avatar: string, private look: Record<string, string> = {}) {
@@ -110,6 +124,8 @@ export class OnlineClient {
   subscribe(fn: () => void) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
   onView(fn: (v: RoomView) => void) { this.viewListeners.add(fn); return () => this.viewListeners.delete(fn); }
   onError(fn: (msg: string) => void) { this.errorListeners.add(fn); return () => this.errorListeners.delete(fn); }
+  /** PLAN-112: a reaction from a seat in the room (this phone's own included). */
+  onReact(fn: (seat: number, r: ReactionId) => void) { this.reactListeners.add(fn); return () => this.reactListeners.delete(fn); }
   private emit() { this.listeners.forEach((f) => f()); }
 
   private open() {
@@ -136,10 +152,14 @@ export class OnlineClient {
         this.error = null;
       } else if (m.t === 'room') {
         if (this.view && m.version < this.view.version) return;
+        if (typeof m.waited === 'number') this.openedAt = Date.now() - m.waited;
         this.view = m;
         this.seat = m.you;
         this.conn = 'open';
         this.viewListeners.forEach((f) => f(m));
+      } else if (m.t === 'react') {
+        if (typeof m.seat === 'number') this.reactListeners.forEach((f) => f(m.seat, m.r));
+        return;
       } else if (m.t === 'error') {
         if (m.fatal) { this.error = m.msg; this.stop(); this.conn = 'failed'; }
         this.errorListeners.forEach((f) => f(m.msg));
@@ -180,6 +200,17 @@ export class OnlineClient {
   wear(look: Record<string, string>) { this.look = look; this.send({ t: 'look', look }); }
   config(config: RoomConfig) { this.send({ t: 'config', config }); }
   start() { this.send({ t: 'start' }); }
+  /** PLAN-112: start with computers in every empty seat (the room allows it once it has waited a minute). */
+  startWithComputers() { this.send({ t: 'start', computers: true }); }
+  /** PLAN-112: can a reaction be sent now? (The room drops one sent sooner than REACT_GAP_MS after the last.) */
+  canReact(now = Date.now()) { return now - this.reactedAt >= REACT_GAP_MS; }
+  /** PLAN-112: sends a preset reaction: only its id. False when it is too soon after the last one, or offline. */
+  react(r: ReactionId): boolean {
+    if (!this.canReact()) return false;
+    if (!this.send({ t: 'react', r })) return false;
+    this.reactedAt = Date.now();
+    return true;
+  }
   rematch() { this.send({ t: 'rematch' }); }
 
   leave() {

@@ -1,6 +1,7 @@
 // Cloudflare Worker: serves the web build and hosts the online services.
-//   POST /api/rooms        -> { code }        creates a private room
+//   POST /api/rooms        -> { code }        creates a private room (?public=1: a public one, PLAN-112)
 //   POST /api/quick        -> { code, host }  quick match: join a stranger's room or wait in a new one
+//   GET  /api/public       -> { rooms }       the public rooms still waiting for players (PLAN-112)
 //   GET  /ws/:code         -> WebSocket       joins a room
 //   POST /api/t            -> 204             anonymous usage counters and error lines
 //   GET  /api/stats        -> report          (needs the STATS_KEY secret in an x-stats-key header)
@@ -17,6 +18,7 @@ import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
 import { accountKey, handleAccount, idProblem, type AccountAction, type AccountRec } from './accounts';
 import { freshRoom, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomData, type RoomIO } from './room';
+import { cleanListing, listDrop, listPut, listShow, type ListEntry } from './lobby';
 
 interface Env {
   ROOMS: DurableObjectNamespace<RoomDO>;
@@ -24,6 +26,7 @@ interface Env {
   BOARD: DurableObjectNamespace<BoardDO>;
   MATCH: DurableObjectNamespace<MatchDO>;
   ACCOUNT: DurableObjectNamespace<AccountDO>;
+  LOBBY: DurableObjectNamespace<LobbyDO>;
   ASSETS: Fetcher;
   STATS_KEY?: string;
   RL_ROOMS?: Limiter;
@@ -50,11 +53,11 @@ function randomCode(): string {
   return Array.from(bytes, (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join('');
 }
 
-async function newRoom(env: Env, quick = false): Promise<string | null> {
+async function newRoom(env: Env, quick = false, pub = false): Promise<string | null> {
   for (let i = 0; i < 5; i++) {
     const code = randomCode();
     const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
-    const res = await stub.fetch(`https://room/init?code=${code}${quick ? '&quick=1' : ''}`, { method: 'POST' });
+    const res = await stub.fetch(`https://room/init?code=${code}${quick ? '&quick=1' : ''}${pub ? '&public=1' : ''}`, { method: 'POST' });
     if (res.status === 201) return code;
   }
   return null;
@@ -75,8 +78,14 @@ export default {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
       const stop = await limited(req, env, 'rooms');
       if (stop) return stop;
-      const code = await newRoom(env);
+      const code = await newRoom(env, false, url.searchParams.get('public') === '1');
       return code ? json({ code }) : json({ error: 'Could not create a room, try again' }, 503);
+    }
+    if (url.pathname === '/api/public') {
+      if (req.method !== 'GET') return json({ error: 'GET only' }, 405);
+      const stop = await limited(req, env, 'public');
+      if (stop) return stop;
+      return env.LOBBY.get(env.LOBBY.idFromName('global')).fetch('https://lobby/list');
     }
     if (url.pathname === '/api/quick') {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
@@ -181,6 +190,10 @@ export class RoomDO extends DurableObject<Env> {
       randomInt: (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n,
       setAlarm: (at) => { void this.ctx.storage.setAlarm(at); },
       destroy: async () => { this.data = null; await this.ctx.storage.deleteAll(); },
+      listRoom: async (code, entry) => {
+        await this.env.LOBBY.get(this.env.LOBBY.idFromName('global'))
+          .fetch('https://lobby/put', { method: 'POST', body: JSON.stringify(entry ? { entry } : { code }) });
+      },
     };
   }
 
@@ -192,7 +205,7 @@ export class RoomDO extends DurableObject<Env> {
     const url = new URL(req.url);
     if (url.pathname === '/init' && req.method === 'POST') {
       if (this.data) return new Response('Exists', { status: 409 });
-      this.data = freshRoom(url.searchParams.get('code') ?? '', Date.now(), url.searchParams.get('quick') === '1');
+      this.data = freshRoom(url.searchParams.get('code') ?? '', Date.now(), url.searchParams.get('quick') === '1', url.searchParams.get('public') === '1');
       await this.ctx.storage.put('room', this.data);
       await this.ctx.storage.setAlarm(Date.now() + ROOM_TTL_MS);
       return new Response('Created', { status: 201 });
@@ -306,6 +319,26 @@ export class AccountDO extends DurableObject<Env> {
     if (out.rec === null) await this.ctx.storage.deleteAll();
     else if (out.rec) await this.ctx.storage.put('rec', out.rec);
     return json(out.body, out.status);
+  }
+}
+
+// ---------- public rooms (PLAN-112) ----------
+
+/** One object for the whole game: the public rooms still waiting for players (server/lobby.ts). */
+export class LobbyDO extends DurableObject<Env> {
+  async fetch(req: Request): Promise<Response> {
+    const url = new URL(req.url);
+    const now = Date.now();
+    const list = (await this.ctx.storage.get<ListEntry[]>('list')) ?? [];
+    if (url.pathname === '/put' && req.method === 'POST') {
+      let body: { entry?: unknown; code?: unknown } = {};
+      try { body = (await req.json()) as typeof body; } catch { return new Response(null, { status: 400 }); }
+      const entry = cleanListing(body.entry);
+      if (entry) await this.ctx.storage.put('list', listPut(list, entry, now));
+      else if (typeof body.code === 'string') await this.ctx.storage.put('list', listDrop(list, body.code, now));
+      return new Response(null, { status: 204 });
+    }
+    return json({ rooms: listShow(list, now) });
   }
 }
 

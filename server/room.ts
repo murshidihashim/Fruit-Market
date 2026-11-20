@@ -25,6 +25,10 @@
 //   once). After a match, a rematch waits only for the people still connected; a seat whose person has gone is played
 //   by the computer in the rematch, and its person can take it back with their seat token as in any match. On a
 //   buying turn, Undo takes back purchases only: a favour card once played stays played (DEC-120).
+// - PLAN-112: a public room is listed (server/lobby.ts) while it waits in the lobby with someone in it and a seat free;
+//   it is taken off when it starts, fills or closes. Once a room has waited COMPUTERS_AFTER_MS, its host may start with
+//   computers in the empty seats, even alone. Anyone in a room may send a preset reaction: only its id is checked and
+//   passed on to everyone, as {seat, id}, at most one every REACT_GAP_MS per seat (sooner ones are dropped quietly).
 
 import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
@@ -34,8 +38,9 @@ import { bidOrder, canBidOrder, eveningOpen,
   activePlayer, applyAction, newGame, openStall, RuleError, submitPrices, validateCrate, validatePrices, validateStall,
   publicView, type Action, type Crate, type Customer, type GameState, type PlayerConfig, type Post, type Stall,
 } from '../src/engine/game';
+import { LIST_REFRESH_MS, type Listing } from './lobby';
 import {
-  CHARACTER_AVATARS, DEFAULT_CONFIG, MAX_SEATS, PROTOCOL_VERSION, RULES_VERSION, UPDATE_MSG,
+  CHARACTER_AVATARS, COMPUTERS_AFTER_MS, DEFAULT_CONFIG, isReaction, MAX_SEATS, PROTOCOL_VERSION, REACT_GAP_MS, RULES_VERSION, UPDATE_MSG,
   type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
@@ -87,6 +92,12 @@ export interface RoomData {
    *  change of look, someone coming back, a seat handed to the computer) does not make an action stale: an action made
    *  on this version or a later one still stands (unset, in a room from before: only the latest version is accepted). */
   gameFrom?: number;
+  /** PLAN-112: a public room, listed while it waits for players. */
+  public?: boolean;
+  /** PLAN-112: what the list was last told about this room (its listing as JSON; '' or unset: not listed). */
+  listed?: string;
+  /** PLAN-112: when each seat last sent a reaction that was passed on. */
+  reactAt?: number[];
 }
 
 export interface Conn {
@@ -105,14 +116,18 @@ export interface RoomIO {
   randomInt(n: number): number;
   setAlarm(at: number): void;
   destroy(): void | Promise<void>;
+  /** PLAN-112: tells the public list about this room (null: take it off). Optional: rooms in tests may have no list. */
+  listRoom?(code: string, entry: Listing | null): Promise<void>;
 }
 
-export function freshRoom(code: string, now: number, quick = false): RoomData {
+export function freshRoom(code: string, now: number, quick = false, pub = false): RoomData {
   return {
     // Every room starts with the default settings. A quick match keeps upgrades (DEC-120, 2026-11-16, the owner's
     // choice): it always played with them, as its settings are the defaults when the match starts (see hello).
     code, createdAt: now, lastActive: now, status: 'lobby', seats: [], config: { ...DEFAULT_CONFIG },
     game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
+    // A quick match is never listed: it already finds a stranger on its own.
+    ...(pub && !quick ? { public: true } : {}),
   };
 }
 
@@ -195,6 +210,7 @@ export class Room {
     this.d.lastActive = this.io.now();
     if (m.t === 'hello') this.hello(conn, m);
     else if (conn.seat === null) return conn.send({ t: 'error', msg: 'Something went wrong. Try again.' });
+    else if (m.t === 'react') return this.react(conn.seat, (m as { r?: unknown }).r);
     else {
       try {
         this.dispatch(conn, conn.seat, m);
@@ -204,6 +220,7 @@ export class Room {
       }
     }
     this.schedule();
+    await this.announce();
     await this.io.persist(this.d);
   }
 
@@ -218,19 +235,63 @@ export class Room {
     if (gone && d.status === 'finished' && d.rematch.length) this.tryRematch();
     else this.broadcast();
     this.schedule();
+    await this.announce();
     await this.io.persist(d);
   }
 
   async alarm(): Promise<void> {
     if (this.io.now() - this.d.lastActive >= ROOM_TTL_MS) {
       for (const c of this.io.conns()) c.close(4000, 'Room expired');
+      if (this.d.listed) { this.d.listed = ''; await this.tellList(null); }
       await this.io.destroy();
       return;
     }
     this.takeOverDropped();
     this.freeLobbySeats();
     this.schedule();
+    // A listed room says again that it is still waiting, so the list keeps it.
+    await this.announce(true);
     await this.io.persist(this.d);
+  }
+
+  // ---------- the public list (PLAN-112) ----------
+
+  /** What the public list should show of this room, or null when it should not be listed: a public room waiting in the
+   *  lobby, with someone connected and a seat free (computer seats count as taken). */
+  listing(): Listing | null {
+    const d = this.d;
+    if (!d.public || d.quick || d.status !== 'lobby' || !d.seats.length) return null;
+    const taken = d.seats.length + d.config.ai;
+    if (taken >= MAX_SEATS || !this.online().size) return null;
+    const host = d.seats.find((x) => x.host) ?? d.seats[0];
+    return { code: d.code, host: host.name, taken, days: d.config.days, openedAt: d.createdAt };
+  }
+
+  /** Tells the list when what it shows of this room has changed (or, `again`, that a listed room is still waiting). */
+  private async announce(again = false) {
+    const e = this.listing();
+    const key = e ? JSON.stringify(e) : '';
+    if (key === (this.d.listed ?? '') && !(again && e)) return;
+    this.d.listed = key;
+    await this.tellList(e);
+  }
+
+  private async tellList(e: Listing | null) {
+    try { await this.io.listRoom?.(this.d.code, e); } catch { /* the list drops a room it stops hearing from on its own */ }
+  }
+
+  // ---------- reactions (PLAN-112) ----------
+
+  /** A preset reaction: only a known id is passed on, to everyone in the room, with the seat that sent it and nothing
+   *  else. Anything else, or one sent within REACT_GAP_MS of the seat's last, is dropped quietly. */
+  private react(seat: number, r: unknown) {
+    const d = this.d;
+    if (!isReaction(r) || seat >= d.seats.length) return;
+    const now = this.io.now();
+    const at = (d.reactAt ??= []);
+    if (at[seat] !== undefined && now - at[seat] < REACT_GAP_MS) return;
+    at[seat] = now;
+    for (const c of this.io.conns()) if (c.seat !== null) c.send({ t: 'react', seat, r });
   }
 
   /** One alarm per room: the next grace deadline or the expiry, whichever comes first. */
@@ -240,6 +301,7 @@ export class Room {
     if (d.status === 'playing' || d.status === 'picking' || (d.status === 'lobby' && !d.quick)) {
       for (const x of d.seats) if (x.offlineSince !== undefined && !x.bot) at = Math.min(at, x.offlineSince + GRACE_MS);
     }
+    if (this.listing()) at = Math.min(at, this.io.now() + LIST_REFRESH_MS);
     this.io.setAlarm(at);
   }
 
@@ -420,10 +482,18 @@ export class Room {
       }
       case 'start': {
         if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can start');
-        if (d.seats.length < 2) throw new RuleError('Waiting for another player to join');
-        if (d.seats.some((s) => !s.ready)) throw new RuleError('Everyone needs to be ready first.');
+        // PLAN-112: after the wait, the host may fill every empty seat with a computer and start, even alone. Their own
+        // tap counts as ready; everyone else in the room must still be ready and here.
+        const computers = m.computers === true;
+        if (computers && this.io.now() - d.createdAt < COMPUTERS_AFTER_MS) throw new RuleError('Wait a minute for players to join first.');
+        if (d.seats.length < 2 && !computers) throw new RuleError('Waiting for another player to join');
+        if (d.seats.some((s, i) => !s.ready && !(computers && i === seat))) throw new RuleError('Everyone needs to be ready first.');
         const online = new Set(this.io.conns().map((c) => c.seat));
         if (d.seats.some((_, i) => !online.has(i))) throw new RuleError('A player is disconnected');
+        if (computers) {
+          me.ready = true;
+          d.config = { ...d.config, ai: MAX_SEATS - d.seats.length };
+        }
         // PLAN-102: everyone now chooses a shopkeeper; the match begins when every person has confirmed.
         d.seats.forEach((x) => { x.avatar = ''; delete x.confirmed; });
         d.status = 'picking';
@@ -771,6 +841,8 @@ export class Room {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
       game: g ? redact(g, seat, d.pending) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
       ...(d.lastUndo ? { undone: d.lastUndo } : {}),
+      ...(d.public ? { public: true } : {}),
+      ...(d.status === 'lobby' ? { waited: Math.max(0, this.io.now() - d.createdAt) } : {}),
     };
   }
 
