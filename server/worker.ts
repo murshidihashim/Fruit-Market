@@ -329,16 +329,18 @@ export class LobbyDO extends DurableObject<Env> {
   async fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const now = Date.now();
-    const list = (await this.ctx.storage.get<ListEntry[]>('list')) ?? [];
     if (url.pathname === '/put' && req.method === 'POST') {
+      // Read the message before the list: storage reads and writes then follow each other with nothing waiting in
+      // between, so two rooms reporting at once cannot overwrite each other's news.
       let body: { entry?: unknown; code?: unknown } = {};
       try { body = (await req.json()) as typeof body; } catch { return new Response(null, { status: 400 }); }
+      const list = (await this.ctx.storage.get<ListEntry[]>('list')) ?? [];
       const entry = cleanListing(body.entry);
       if (entry) await this.ctx.storage.put('list', listPut(list, entry, now));
       else if (typeof body.code === 'string') await this.ctx.storage.put('list', listDrop(list, body.code, now));
       return new Response(null, { status: 204 });
     }
-    return json({ rooms: listShow(list, now) });
+    return json({ rooms: listShow((await this.ctx.storage.get<ListEntry[]>('list')) ?? [], now) });
   }
 }
 
