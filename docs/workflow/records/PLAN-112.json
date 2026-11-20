@@ -47,11 +47,11 @@
     }
   ],
   "approval": {
-    "status": "awaiting approval",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Owner, 2026-11-20: \"approve plan 112, use your picks\" (spectating later; emoji plus preset lines; start with computers after 60 s)",
+    "date": "2026-11-20"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "not started",
   "reports": [

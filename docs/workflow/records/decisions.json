@@ -3018,11 +3018,11 @@
       "cost": "RM0 for the work; small extra Cloudflare usage (capacity unmeasured, PLAN-003).",
       "owner": "Murshidi",
       "approval": {
-        "status": "awaiting approval",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-20: \"approve plan 112, use your picks\" (spectating later; emoji plus preset lines; start with computers after 60 s)",
+        "date": "2026-11-20"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "plan": "PLAN-112",
       "reviewTrigger": "After two weeks live: public rooms opened and started, and reactions sent, from the anonymous counters.",
       "reports": [
@@ -4370,6 +4370,10 @@
     {
       "at": "2026-11-20 22:51",
       "text": "Owner asked for a public lobby with real players and emotes and reactions. REP-128 proposes DEC-122 and PLAN-112 (public rooms and list, start with computers after a wait, 8 preset reactions with no game information, spectating later, protocol 5, 1.26.0); awaiting the owner, with three questions (spectating, reaction kinds, empty seats)."
+    },
+    {
+      "at": "2026-11-20 23:05",
+      "text": "PLAN-112 approved with the recommended answers: spectating later, reactions are emoji plus preset lines, the host may start with computers after 60 s. Build started by a helper in its own work folder (brief-112.md); review, merge, checks and records follow."
     }
   ]
 }
