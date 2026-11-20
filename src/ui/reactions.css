@@ -71,5 +71,5 @@
 }
 .rd-mute { display: flex; justify-content: flex-end; margin-top: 6px; }
 
-/* the results: the button stands in the corner of the screen */
-.rx-btn.rx-over { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; box-shadow: 0 2px 0 rgba(24, 40, 68, 0.25); }
+/* the results: the button stands in the top right corner, above the winner's name (at the bottom it covered Share) */
+.rx-btn.rx-over { position: fixed; right: 16px; top: calc(6px + env(safe-area-inset-top, 0px)); z-index: 20; box-shadow: 0 2px 0 rgba(24, 40, 68, 0.25); }
