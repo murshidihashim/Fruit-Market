@@ -3,8 +3,8 @@
 Updated 2026-11-17 05:19 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.24.0, rules version 19, protocol 4 (`3aed6c7`, tagged `v1.24.0`, published 2026-11-16 07:54; DEC-119, REP-121): shopkeepers chosen after everyone joins a room (PLAN-102), first-time How to play popup online (PLAN-103), seat numbers and the FIRST token (PLAN-104), iPhone price-tag fix (PLAN-105), new card look in app and print (PLAN-106), print pack at rules 19 (PLAN-100). The preview is the same build.
-- **Preview:** 1.25.0 (main fee19d8, pull request #21; CI PASS; preview answers rules 20 and carries 1.25.0). PLAN-107 to PLAN-111, with 1.24.1 folded in (REP-127). Live is still 1.24.0. Publishing needs the owner's word.
+- **Live:** 1.25.0, rules version 20, protocol 4 (fee19d8, tagged v1.25.0, published 2026-11-20 21:04; REP-127): PLAN-107 to PLAN-111 (1.24.1 folded in). The preview is the same build.
+- **Preview:** same as live (1.25.0).
 - **Working branch:** `ccr-d8bcd65d-gblqqb`: main plus PLAN-108 (merge 0ff8d2c, rules 20) PLAN-109 (merge 4bb18df) and PLAN-110 (merge b61d386). This is the 1.25.0 content.
 - **In progress (DEC-120, REP-123 approved "okay approve"):**
   - PLAN-107 (Major fixes): implemented; 1.24.1 on the preview. Waits for the owner on the preview, then his word to publish (then mark the release published and tag via the deploy).
