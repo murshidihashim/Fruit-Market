@@ -18,26 +18,26 @@
     {
       "id": "T1",
       "text": "npm run verify with the new room and list tests",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (d0cc64b): 95 test files, 1045 passed, 1 skipped (as before); new tests in tests/room.test.ts (12), tests/lobby.test.ts (6), tests/public-lobby.test.ts (9)"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e with the two-browser public room and reactions test, 0 leaks",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8815 npm run test:e2e on the merged branch: E2E OK. Solo game finished, 0 secret-price leaks in 78 frames; public room and reactions 4/4 reaction frames, 0 leaks; quick match, four players with computers, 5 reconnects OK. The speed check failed its first try (230 ms long task, noisy on this machine) and passed on the script's retry"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568 on a local room server: Public rooms list empty and with rooms, Public or Private, lobby countdown and \"Start with N computers\", reaction picker, bubbles in the lobby and game, mute and unmute, Settings \"Show reactions\", reduced motion"
     },
     {
       "id": "T4",
       "text": "A 1.25.0 phone against the new server is asked to update and nothing breaks",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Against the new server a protocol-4 hello (as a 1.25.0 phone sends) gets the existing update message and later messages are refused (room test and a raw socket check; not an installed 1.25.0 build). A room made the 1.25.0 way is private and never listed"
     },
     {
       "id": "T5",
@@ -51,9 +51,9 @@
     "evidence": "Owner, 2026-11-20: \"approve plan 112, use your picks\" (spectating later; emoji plus preset lines; start with computers after 60 s)",
     "date": "2026-11-20"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "not started",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge d0cc64b",
   "reports": [
     "REP-128"
   ],
@@ -61,10 +61,23 @@
     "DEC-122"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Public or Private when starting an online game; a Public rooms list on the online screen (host, seats taken of 6, game length, minutes waiting, Join), read every 5 s; a list server (LobbyDO) and GET /api/public",
+      "After a room has waited 60 s, its host may start with computers in every empty seat, even alone",
+      "12 preset reactions (8 emoji and Good luck, Nice sale, Oops, Well played): a bubble over the seat for 3 s, one every 2 s per player, mute a player in the room, a Settings switch \"Show reactions\"",
+      "Anonymous counters: public room opened, joined from the list, started with computers, reaction sent",
+      "A two-browser e2e test for a public room and reactions"
+    ],
+    "changed": [
+      "Online protocol 5: phones on 1.25.0 are asked to update before going online (rules version stays 20, AI 7)",
+      "Privacy page: a public room shows its host's name, seats, game length and waiting time to people looking for a game"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Online: start a public room and anyone can find it in the new Public rooms list and join",
+    "Online: after a minute of waiting, the host can fill the empty seats with computers and start",
+    "Online: send a reaction to the room, 8 emoji and 4 short lines; mute a player, or turn reactions off in Settings"
+  ]
 }

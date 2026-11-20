@@ -4374,6 +4374,10 @@
     {
       "at": "2026-11-20 23:05",
       "text": "PLAN-112 approved with the recommended answers: spectating later, reactions are emoji plus preset lines, the host may start with computers after 60 s. Build started by a helper in its own work folder (brief-112.md); review, merge, checks and records follow."
+    },
+    {
+      "at": "2026-11-21 01:06",
+      "text": "PLAN-112 implemented (merge d0cc64b): public rooms and the Public rooms list, start with computers after 60 s, and 12 preset reactions (the approved design said \"8 reactions\" but listed 8 emoji and 4 lines; all 12 are built, the lines without exclamation marks per DEC-087). Protocol 5. Quick-match rooms are never listed. T1 to T4 recorded; T5 (the owner on the preview with a second phone) not run yet."
     }
   ]
 }
