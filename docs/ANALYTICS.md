@@ -21,7 +21,8 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `first_game_complete` | — | Once per device |
 | `quit_day` | 1–14 | Leaving a local game before it ends |
 | `tutorial` | step id | Each first-game tip dismissed |
-| `online` | `create` / `quick` | Creating a room or searching for a quick match |
+| `online` | `create` / `public` / `quick` / `list_join` / `computers` | Creating a private room (`create`) or a public one (`public`, PLAN-112); searching for a quick match; joining a room from the Public rooms list (`list_join`); the host starting with computers in the empty seats after the wait (`computers`) |
+| `reaction` | — | A preset reaction sent in an online room (PLAN-112). A count only: never which reaction, by whom or in which room |
 | `daily_share` | — | Sharing the daily result |
 
 Error lines: the message and first stack frame, deduplicated, at most 5 per batch.
