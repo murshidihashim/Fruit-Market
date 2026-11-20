@@ -382,6 +382,7 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
           <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast rivals" text="Computer stalls move faster." />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
+          <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
           <FullScreenButton />
           <button class="btn wide" disabled={replay} onClick={() => { resetTutorial(); fx.tap(); setReplay(true); }}>Replay the tutorial next game</button>

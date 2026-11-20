@@ -97,6 +97,10 @@ export const BEAT = {
   /** The evening: a moment to see a built upgrade on the stall, after its card (FEEL.travel) and the coins have
    *  landed; and how long the label of a favour played in the evening stays up (a beat of under a second). */
   evening: { seen: 300, label: 800 },
+  /** PLAN-112: a reaction's bubble over a seat: it rises into place (FEEL.sheetIn), stays up to be read for `up` in
+   *  all, and fades away over its last `out`. A tap on it takes it away at once. Kept with reduced motion (a reading
+   *  pause): the bubble is then simply there for the same time. */
+  reaction: { up: 3000, out: 300 },
 } as const;
 
 /** The lengths the stylesheets use, by the name they read them under: `var(--t-<name>)`, a time in ms. */

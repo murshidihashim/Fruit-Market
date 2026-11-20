@@ -5,7 +5,9 @@
 export interface Limiter { limit(opts: { key: string }): Promise<{ success: boolean }> }
 
 /** Which binding guards which route (limits per minute are set in wrangler.jsonc). */
-export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', t: 'RL_EVENTS', account: 'RL_ACCOUNT' } as const;
+/** PLAN-112: the Public rooms list is read every few seconds while the online screen is open, so it shares the larger
+ *  per-minute limit of the usage counters (each route counts on its own key). */
+export const ROUTE_LIMITER = { rooms: 'RL_ROOMS', quick: 'RL_ROOMS', daily: 'RL_DAILY', t: 'RL_EVENTS', account: 'RL_ACCOUNT', public: 'RL_EVENTS' } as const;
 export type LimitedRoute = keyof typeof ROUTE_LIMITER;
 
 export async function allowed(limiter: Limiter | undefined, route: LimitedRoute, ip: string | null): Promise<boolean> {
