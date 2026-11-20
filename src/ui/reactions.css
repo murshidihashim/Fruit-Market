@@ -52,7 +52,8 @@
 
 /* the lobby and the choosing step: the button by the players' heading; a tap on another person's row opens their
    mute switch under it */
-.players-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.players-head { display: flex; align-items: flex-start; gap: 8px; }
+.players-head > h3 { flex: 1; min-width: 0; }
 .players-head .rx-btn { width: 36px; height: 36px; font-size: 1.15rem; }
 .seat-row.can-mute { cursor: pointer; }
 .seat-mute { display: flex; justify-content: flex-end; margin: -2px 0 2px; }

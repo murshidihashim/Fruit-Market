@@ -362,7 +362,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
 
       <section class="panel">
         {/* PLAN-112: the reaction button stands by the players (a row has no room for it at 320 wide). */}
-        <h3 class="players-head">Players {v.seats.length + v.config.ai} of {MAX_SEATS}<ReactButton onOpen={() => setReacting(true)} /></h3>
+        <div class="players-head"><h3>Players {v.seats.length + v.config.ai} of {MAX_SEATS}</h3><ReactButton onOpen={() => setReacting(true)} /></div>
         <div class="seat-list">
           {v.seats.map((x) => (<>
             {/* PLAN-112: a tap on another person's row offers to mute their reactions on this phone. */}
@@ -534,7 +534,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
       </section>
 
       <section class="panel">
-        <h3 class="players-head">Players<ReactButton onOpen={() => setReacting(true)} /></h3>
+        <div class="players-head"><h3>Players</h3><ReactButton onOpen={() => setReacting(true)} /></div>
         <div class="seat-list">
           {v.seats.map((x) => (
             <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`} data-seat={x.seat}>
