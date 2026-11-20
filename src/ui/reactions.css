@@ -1,0 +1,74 @@
+/* =====================================================================
+   PLAN-112: preset reactions in an online room (Reactions.tsx).
+   A bubble rises a few pixels into place over the seat that sent it and fades in (FEEL.sheetIn at the one speed,
+   --mk), stays to be read, and fades away over its last BEAT.reaction.out (--rx-out is when that starts). Only
+   position and fade are animated. With reduced motion nothing moves: the bubble is simply there until it goes.
+   ===================================================================== */
+
+.rx-layer { position: fixed; inset: 0; z-index: 35; pointer-events: none; }
+.rx-bubble {
+  position: fixed; transform: translate(-50%, -100%); pointer-events: auto; max-width: 160px;
+  display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 4px 12px; margin: 0;
+  border: 2px solid var(--x-ink); border-radius: 18px; background: var(--x-paper); color: var(--x-ink);
+  font: 700 0.92rem/1.15 var(--f-body); white-space: nowrap; box-shadow: 0 4px 0 rgba(24, 40, 68, 0.25);
+  animation: rx-in calc(var(--mk, 1) * var(--t-sheet-in, 180ms)) cubic-bezier(.2, .8, .2, 1) both,
+    rx-out var(--t-sheet-out, 120ms) cubic-bezier(.4, 0, 1, 1) var(--rx-out, 2700ms) both;
+}
+.rx-bubble.emoji { min-width: 44px; min-height: 44px; padding: 2px 6px; border-radius: 22px; font-size: 1.55rem; line-height: 1; }
+.rx-bubble.below { transform: translate(-50%, 0); }
+.rx-bubble.on-row { transform: translate(-50%, -50%); }
+.rx-bubble.on-row::after { display: none; }
+/* the tail points at the seat */
+.rx-bubble::after {
+  content: ''; position: absolute; left: 50%; bottom: -7px; width: 10px; height: 10px; margin-left: -6px;
+  background: var(--x-paper); border: 2px solid var(--x-ink); border-top: 0; border-left: 0; transform: rotate(45deg);
+}
+.rx-bubble.below::after { bottom: auto; top: -7px; transform: rotate(225deg); }
+@keyframes rx-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@keyframes rx-out { from { opacity: 1; } to { opacity: 0; } }
+.rx-bubble.below { animation-name: rx-in-below, rx-out; }
+@keyframes rx-in-below { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
+
+/* the button by your own seat */
+.rx-btn {
+  display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px; padding: 0;
+  border: 2px solid var(--x-ink); border-radius: 50%; background: var(--x-paper); color: var(--x-ink); font-size: 1.3rem; line-height: 1;
+  cursor: pointer;
+}
+.rx-btn:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
+
+/* the choices */
+.rx-pick .popup { width: min(360px, calc(100vw - 32px)); }
+.rx-grid { display: grid; gap: 8px; margin-top: 10px; }
+.rx-grid.emoji { grid-template-columns: repeat(4, 1fr); }
+.rx-grid.line { grid-template-columns: repeat(2, 1fr); }
+.rx-choice {
+  min-height: 48px; padding: 6px; border: 2px solid var(--x-ink); border-radius: 12px; background: var(--x-paper); color: var(--x-ink);
+  font: 700 0.95rem/1.15 var(--f-body); cursor: pointer;
+}
+.rx-grid.emoji .rx-choice { font-size: 1.6rem; line-height: 1; }
+.rx-choice:disabled { opacity: 0.45; cursor: default; }
+.rx-note { margin: 10px 0 0; text-align: center; }
+
+/* the lobby and the choosing step: the button by the players' heading; a tap on another person's row opens their
+   mute switch under it */
+.players-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.players-head .rx-btn { width: 36px; height: 36px; font-size: 1.15rem; }
+.seat-row.can-mute { cursor: pointer; }
+.seat-mute { display: flex; justify-content: flex-end; margin: -2px 0 2px; }
+.muted-tag { margin-left: 6px; padding: 1px 5px; border-radius: 4px; background: var(--x-ink); color: var(--x-paper); font: 700 0.6rem/1.3 var(--f-body); letter-spacing: 0.04em; }
+.rx-mute {
+  flex: none; min-height: 32px; padding: 2px 8px; border: 2px solid var(--x-ink); border-radius: 999px; background: var(--x-paper);
+  color: var(--x-ink); font: 600 0.75rem/1 var(--f-body); cursor: pointer;
+}
+.rx-mute.on { background: var(--x-ink); color: var(--x-paper); }
+
+/* the game: the button sits on your shelf's top corner, in the shelf's place in the layout; a rival's card has the mute switch */
+#app .game > .rx-btn.rx-game {
+  grid-area: dock; align-self: start; justify-self: end; position: relative; z-index: 6; margin: -32px 10px 0 0;
+  width: 38px; height: 38px; box-shadow: 0 2px 0 rgba(24, 40, 68, 0.25);
+}
+.rd-mute { display: flex; justify-content: flex-end; margin-top: 6px; }
+
+/* the results: the button stands in the corner of the screen */
+.rx-btn.rx-over { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; box-shadow: 0 2px 0 rgba(24, 40, 68, 0.25); }

@@ -8,6 +8,7 @@ import './ui/motion.css';
 import './ui/rushTable.css';
 import './ui/daysheet.css';
 import './ui/takings.css';
+import './ui/reactions.css';
 import { App } from './ui/App';
 import { installTelemetry } from './net/telemetry';
 import { startAccountSync } from './ui/account';

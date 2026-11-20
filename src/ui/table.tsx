@@ -341,8 +341,10 @@ function MyBox({ s, p, compact, brief, first }: { s: GameState; p: number; compa
  * buyer's box (PLAN-104; who buys first and why is said to a screen reader there, not written on the screen). 2 to 6
  * stalls: five or six stand closer, in smaller boxes.
  */
-export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
+export function Stalls({ s, viewer, boards, open, onOpen, onClose, off, mute }: {
   s: GameState; viewer: number; boards: Record<number, Board>; open: number | null; onOpen: (p: number) => void; onClose: () => void; off: number[];
+  /** PLAN-112, online: whether a person's reactions are muted on this phone, and a way to change it (null: not a person). */
+  mute?: (p: number) => { on: boolean; toggle: () => void } | null;
 }) {
   const buying = inBuyingOrder(s);
   const shut = s.phase === 'stall' || s.phase === 'bid';
@@ -367,14 +369,14 @@ export function Stalls({ s, viewer, boards, open, onOpen, onClose, off }: {
           : <RivalStall key={p} s={s} p={p} board={boards[p]} open={open === p} off={off.includes(p)} compact={compact} brief={list.length > 3} first={first(p)} onOpen={() => onOpen(p)} />))}
         {at >= 0 && <i class="tb-first" data-a="first-token" style={`--k:${at}`} aria-hidden="true">First</i>}
       </div>
-      {open !== null && <RivalDrop s={s} p={open} onClose={onClose} />}
+      {open !== null && <RivalDrop s={s} p={open} onClose={onClose} mute={mute?.(open) ?? null} />}
     </div>
   );
 }
 
 /** A rival's stall, opened from their seat. Rules 15: the shelf stays behind the shutter, so this shows cash, the perk,
  *  what is built, and today's crate: how many pieces before the bell, which fruit once it has rung. */
-export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose: () => void }) {
+export function RivalDrop({ s, p, onClose, mute }: { s: GameState; p: number; onClose: () => void; mute?: { on: boolean; toggle: () => void } | null }) {
   useCashShown();
   const pl = s.players[p];
   const out = outCount(s, p);
@@ -414,6 +416,14 @@ export function RivalDrop({ s, p, onClose }: { s: GameState; p: number; onClose:
           {pl.trait && <span class="tk-chip" title={TRAITS[pl.trait].text}>{TRAITS[pl.trait].title}</span>}
           {pl.upgrades.map((u) => <span class="tk-chip">{UPGRADES[u].title}</span>)}
           {favours > 0 && <span class="tk-chip">{favours} favour card{favours > 1 ? 's' : ''}</span>}
+        </div>
+      )}
+      {/* PLAN-112: an online player's reactions can be muted from their stall, on this phone, for this room. */}
+      {mute && (
+        <div class="rd-mute">
+          <button type="button" class={`rx-mute ${mute.on ? 'on' : ''}`} aria-pressed={mute.on} onClick={(e) => { e.stopPropagation(); mute.toggle(); }}>
+            {mute.on ? 'Unmute reactions' : 'Mute reactions'}
+          </button>
         </div>
       )}
     </div>

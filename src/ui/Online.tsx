@@ -1,10 +1,12 @@
-// Online multiplayer screens: create or join a private room, the lobby, choosing shopkeepers (PLAN-102), then the
-// shared match. A quick match picks its shopkeeper before searching and starts at once.
+// Online multiplayer screens: create or join a room, the lobby, choosing shopkeepers (PLAN-102), then the shared
+// match. A quick match picks its shopkeeper before searching and starts at once. PLAN-112: a room can be public, and
+// the online screen lists the public rooms still waiting for players; after a wait the host may start with computers;
+// everyone in a room can send preset reactions (Reactions.tsx).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, quickMatch, rememberMatch } from '../net/client';
+import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
 import { RIVALS } from '../engine/data';
-import { CHARACTER_AVATARS, CODE_LENGTH, MAX_SEATS, NAME_MAX, normaliseCode, type PublicSeat, type RoomConfig, type RoomView } from '../net/protocol';
+import { CHARACTER_AVATARS, CODE_LENGTH, COMPUTERS_AFTER_MS, MAX_SEATS, NAME_MAX, normaliseCode, type PublicRoom, type PublicSeat, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
 import { fx } from './fx';
@@ -15,6 +17,7 @@ import { FramedFace, awningColour } from './stampCard';
 import { syncLooks, worn } from './looks';
 import { syncTiers } from './progress';
 import { Wardrobe } from './Wardrobe';
+import { ReactButton, ReactionBubbles, ReactPicker, reactionsOn, useMutes } from './Reactions';
 
 function useClient(client: OnlineClient | null) {
   const [, force] = useState(0);
@@ -112,11 +115,18 @@ export function Online({ initialCode, typed, quick, onExit }: { initialCode?: st
     try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
   };
 
-  const create = async () => {
+  // PLAN-112: a new room is private unless Public is chosen.
+  const [pub, setPub] = useState(false);
+  const create = async (asPublic = pub) => {
     fx.tap();
     setBusy(true);
-    track('online', 'create');
-    try { begin(await createRoom()); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    track('online', asPublic ? 'public' : 'create');
+    try { begin(await createRoom(asPublic)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+  };
+  const joinListed = (c: string) => {
+    fx.tap();
+    track('online', 'list_join');
+    begin(c);
   };
 
   const findMatch = async () => {
@@ -170,12 +180,17 @@ export function Online({ initialCode, typed, quick, onExit }: { initialCode?: st
       <button class={`btn ${quick ? 'primary' : ''} big wide`} disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a player'}</button>
     </section>
   );
+  const listPanel = <PublicRooms disabled={busy || !available} onJoin={joinListed} onCreate={() => create(true)} onQuick={findMatch} />;
   const privatePanels = (
     <>
       <section class="panel">
-        <h3>Start a private game</h3>
-        <p class="small muted">You'll get a link to send to up to 5 friends, anywhere. 2 to 6 players. {PICK_LATER}</p>
-        <button class="btn primary big wide" disabled={busy || !available} onClick={create}>{busy ? 'Creating…' : 'Create room'}</button>
+        <h3>Start a game</h3>
+        <div class="seg small room-kind" role="group" aria-label="Who can join">
+          <button class={pub ? '' : 'on'} aria-pressed={!pub} onClick={() => { fx.tap(); setPub(false); }}>Private<small>by link or code</small></button>
+          <button class={pub ? 'on' : ''} aria-pressed={pub} onClick={() => { fx.tap(); setPub(true); }}>Public<small>anyone can join</small></button>
+        </div>
+        <p class="small muted">{pub ? PUBLIC_WORDS : 'You\'ll get a link to send to up to 5 friends, anywhere.'} 2 to 6 players. {PICK_LATER}</p>
+        <button class="btn primary big wide" disabled={busy || !available} onClick={() => create()}>{busy ? 'Creating…' : 'Create room'}</button>
       </section>
       <section class="panel">
         <h3>Join with a code</h3>
@@ -202,7 +217,8 @@ export function Online({ initialCode, typed, quick, onExit }: { initialCode?: st
       ) : (
         // A quick match starts the moment a stranger is found, so its shopkeeper is chosen here (PLAN-102). Coming from
         // Create a room, the private game comes first and the quick match (with its picker) after it.
-        quick ? <>{quickPanel}{privatePanels}</> : <>{privatePanels}{quickPanel}</>
+        // PLAN-112: the public rooms come second either way, after the panel this screen was opened for.
+        quick ? <>{quickPanel}{listPanel}{privatePanels}</> : <>{privatePanels}{listPanel}{quickPanel}</>
       )}
       {err && <p class="error center-text">{err}</p>}
     </Shell>
@@ -211,6 +227,60 @@ export function Online({ initialCode, typed, quick, onExit }: { initialCode?: st
 
 /** PLAN-102: in a private room, shopkeepers are chosen once everyone is in. */
 const PICK_LATER = 'Everyone chooses a shopkeeper when the host starts.';
+/** PLAN-112: what making a public room means, said before it is made. */
+const PUBLIC_WORDS = 'Your room and your name show in Public rooms until the game starts. Anyone can join.';
+/** How often the Public rooms list is read while it is on screen. */
+const LIST_EVERY_MS = 5000;
+
+/** PLAN-112: "Waiting 3 min" for a public room in the list. */
+export function waitedWords(ms: number): string {
+  const min = Math.floor(ms / 60_000);
+  return min < 1 ? 'Just opened' : `Waiting ${min} min`;
+}
+
+/** PLAN-112: the public rooms still waiting for players, read again every few seconds while this panel is on screen.
+ *  Join joins by code, exactly as typing the code does. */
+function PublicRooms({ disabled, onJoin, onCreate, onQuick }: { disabled: boolean; onJoin: (code: string) => void; onCreate: () => void; onQuick: () => void }) {
+  const [rooms, setRooms] = useState<PublicRoom[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (!onlineAvailable()) return;
+    let alive = true;
+    const load = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      publicRooms().then((r) => { if (alive) { setRooms(r); setFailed(false); } }).catch(() => { if (alive) setFailed(true); });
+    };
+    load();
+    const t = window.setInterval(load, LIST_EVERY_MS);
+    return () => { alive = false; window.clearInterval(t); };
+  }, []);
+  return (
+    <section class="panel public-rooms" aria-live="polite">
+      <h3>Public rooms</h3>
+      {rooms === null ? (
+        <p class="small muted">{failed ? 'Could not load the public rooms. Trying again.' : 'Looking for rooms…'}</p>
+      ) : rooms.length === 0 ? (
+        <>
+          <p class="small muted">No public rooms are waiting right now. Make one, or play a stranger with Quick match.</p>
+          <div class="row2">
+            <button class="btn" disabled={disabled} onClick={onCreate}>Create a public room</button>
+            <button class="btn" disabled={disabled} onClick={() => onQuick()}>Quick match</button>
+          </div>
+        </>
+      ) : (
+        <div class="pr-list">
+          {rooms.map((r) => (
+            <div class="pr-row" data-code={r.code}>
+              <span class="pr-who"><b>{r.host}</b><small>{r.days} days · {waitedWords(r.waited)}</small></span>
+              <span class="pr-n">{r.taken} of {MAX_SEATS}</span>
+              <button class="btn pr-join" disabled={disabled} aria-label={`Join ${r.host}'s room`} onClick={() => onJoin(r.code)}>Join</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
 function Shell({ title, onBack, children }: { title: string; onBack: () => void; children: any }) {
   return (
@@ -245,6 +315,12 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const openSeats = Math.max(0, MAX_SEATS - v.seats.length - v.config.ai);
   const friendsAllowed = Math.max(1, MAX_SEATS - v.config.ai - 1);
   const set = (patch: Partial<RoomConfig>) => client.config({ ...v.config, ...patch });
+  // PLAN-112: once the room has waited a minute with seats free, the host may start with computers in them.
+  const computers = computersOffer(v, client.openedAt, useNow(host && openSeats > 0 && !v.quick));
+  const [reacting, setReacting] = useState(false);
+  const [muteOpen, setMuteOpen] = useState<number | null>(null);
+  const mutes = useMutes(v.code);
+  const showReactions = reactionsOn();
 
   const copy = async () => {
     try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {
@@ -275,6 +351,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
       <section class="panel invite">
         <h3>{friendsAllowed === 1 ? 'Invite a friend' : `Invite friends (up to ${friendsAllowed})`}</h3>
+        {v.public && <p class="small muted public-note">Public room. People looking for a game can see it and join.</p>}
         <div class="room-code" aria-label="Room code">{v.code.split('').map((c) => <span>{c}</span>)}</div>
         <input id="invite-link" class="input" readOnly value={link} onFocus={(e) => (e.target as HTMLInputElement).select()} />
         <div class="row2">
@@ -284,21 +361,31 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       </section>
 
       <section class="panel">
-        <h3>Players {v.seats.length + v.config.ai} of {MAX_SEATS}</h3>
+        {/* PLAN-112: the reaction button stands by the players (a row has no room for it at 320 wide). */}
+        <h3 class="players-head">Players {v.seats.length + v.config.ai} of {MAX_SEATS}<ReactButton onOpen={() => setReacting(true)} /></h3>
         <div class="seat-list">
-          {v.seats.map((x) => (
-            <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
+          {v.seats.map((x) => (<>
+            {/* PLAN-112: a tap on another person's row offers to mute their reactions on this phone. */}
+            <div class={`seat-row ${x.seat === v.you ? 'me' : ''} ${showReactions && x.seat !== v.you ? 'can-mute' : ''}`} data-seat={x.seat}
+              {...(showReactions && x.seat !== v.you ? {
+                role: 'button', tabIndex: 0, 'aria-expanded': muteOpen === x.seat, 'aria-label': `${x.name}: mute or unmute their reactions`,
+                onClick: () => setMuteOpen(muteOpen === x.seat ? null : x.seat),
+                onKeyDown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMuteOpen(muteOpen === x.seat ? null : x.seat); } },
+              } : {})}>
               {/* What each player has on (PLAN-086): the awning colour, the signboard frame, the looks and the title. */}
               <i class="sbk-seat-awn" style={{ background: awningColour(x.look, x.seat) }} aria-hidden="true" />
               <FramedFace who={x.avatar} size={32} look={x.look} />
               {x.seat === v.you
                 ? <MyName name={x.name} host={x.host} onRename={(n) => client.rename(n)} />
-                : <span class="seat-name">{x.name}{x.host && <small class="host-tag">HOST</small>}</span>}
+                : <span class="seat-name">{x.name}{x.host && <small class="host-tag">HOST</small>}{showReactions && mutes.muted(x.seat, x.name) && <small class="muted-tag">MUTED</small>}</span>}
               {titleOf(x.look) && <small class="sbk-seat-title">{titleOf(x.look)}</small>}
               <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
               <span class={`ready-tag ${x.ready ? 'yes' : ''}`}>{x.ready ? 'READY' : 'not ready'}</span>
             </div>
-          ))}
+            {showReactions && muteOpen === x.seat && x.seat !== v.you && (
+              <div class="seat-mute"><MuteButton on={mutes.muted(x.seat, x.name)} name={x.name} toggle={() => { mutes.toggle(x.seat, x.name); setMuteOpen(null); }} /></div>
+            )}
+          </>))}
           {/* Shopkeepers are chosen after the host starts (PLAN-102): until then each seat shows its frame and looks round
               a plain face, and computer stalls a plain badge. */}
           {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span><span class="ready-tag yes">READY</span></div>)}
@@ -333,12 +420,44 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           {startLabel(v)}
         </button>
       )}
+      {computers && (computers.ready
+        ? <button class="btn big wide start-computers" disabled={!computers.othersReady} onClick={() => { fx.card(); track('online', 'computers'); client.startWithComputers(); }}>{computers.label}</button>
+        : <p class="center-text muted small start-computers-wait">{computers.label}</p>)}
       {away.map((x) => (x.takeoverAt === undefined ? null
         : <p class="center-text small warn-text">{x.name} disconnected. Their seat is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
       {!host && <p class="center-text muted small">The host starts the game when everyone is ready.</p>}
       <p class="center-text muted small">{PICK_LATER}</p>
+      <ReactionBubbles client={client} name={(seat) => v.seats[seat]?.name ?? ''} anchor={seatRow} onRow />
+      {reacting && <ReactPicker client={client} onClose={() => setReacting(false)} />}
     </Shell>
   );
+}
+
+/** PLAN-112: where a seat's row is on the lobby or choosing screen, for its reaction's bubble. */
+const seatRow = (seat: number) => (typeof document === 'undefined' ? null : document.querySelector(`.seat-row[data-seat="${seat}"]`));
+
+/** PLAN-112: mute or unmute a person's reactions, on this phone, for this room. */
+function MuteButton({ on, name, toggle }: { on: boolean; name: string; toggle: () => void }) {
+  return (
+    <button type="button" class={`rx-mute ${on ? 'on' : ''}`} aria-pressed={on}
+      onClick={(e) => { e.stopPropagation(); fx.tap(); toggle(); }}>{on ? `Unmute ${name}'s reactions` : `Mute ${name}'s reactions`}</button>
+  );
+}
+
+/**
+ * PLAN-112: the host's offer to start with computers in the empty seats, once the room has waited COMPUTERS_AFTER_MS
+ * since it opened (`openedAt`, on this phone's clock). Null when there is no offer to make: not the host, a quick
+ * match, or no seat free. Before the wait is over, the words say how long is left.
+ */
+export function computersOffer(v: RoomView, openedAt: number, now: number): { ready: boolean; othersReady: boolean; label: string } | null {
+  const me = v.seats[v.you];
+  const free = MAX_SEATS - v.seats.length - v.config.ai;
+  if (!me?.host || v.quick || v.status !== 'lobby' || free <= 0) return null;
+  const left = Math.ceil((openedAt + COMPUTERS_AFTER_MS - now) / 1000);
+  const n = MAX_SEATS - v.seats.length;
+  const othersReady = v.seats.every((x) => x.seat === v.you || (x.ready && x.connected));
+  if (left > 0) return { ready: false, othersReady, label: `In ${left}s you can start with computers in the empty seats.` };
+  return { ready: true, othersReady, label: `Start with ${n} computer${n === 1 ? '' : 's'}` };
 }
 
 const keeperName = (avatar: string) => RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Shopkeeper';
@@ -375,6 +494,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const now = useNow(away.some((x) => x.takeoverAt !== undefined && !x.bot));
   // ON-09: the back arrow here leaves the game for good, so it asks first.
   const [leaving, setLeaving] = useState(false);
+  const [reacting, setReacting] = useState(false);
   if (leaving) {
     return (
       <Shell title={`Room ${v.code}`} onBack={() => setLeaving(false)}>
@@ -414,10 +534,10 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
       </section>
 
       <section class="panel">
-        <h3>Players</h3>
+        <h3 class="players-head">Players<ReactButton onOpen={() => setReacting(true)} /></h3>
         <div class="seat-list">
           {v.seats.map((x) => (
-            <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`}>
+            <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`} data-seat={x.seat}>
               <i class="sbk-seat-awn" style={{ background: awningColour(x.look, x.seat) }} aria-hidden="true" />
               <FramedFace who={x.avatar} size={32} look={x.look} />
               <span class="seat-name">{x.name}{x.seat === v.you && ' (you)'}</span>
@@ -430,6 +550,8 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
         </div>
         {v.config.ai > 0 && <p class="small muted">The computers take shopkeepers from those left.</p>}
       </section>
+      <ReactionBubbles client={client} name={(seat) => v.seats[seat]?.name ?? ''} anchor={seatRow} onRow />
+      {reacting && <ReactPicker client={client} onClose={() => setReacting(false)} />}
     </Shell>
   );
 }

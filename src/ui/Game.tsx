@@ -34,6 +34,7 @@ import { NightShift } from './game/panels/NightShift';
 import { EventPop, Popovers } from './game/panels/Popovers';
 import { FirstTimePopup, dismissFirstTime, firstTimeMoment, showFirstTime } from './FirstTime';
 import { HowTo } from './HowTo';
+import { ReactButton, ReactionBubbles, ReactPicker, reactionsOn, useMutes } from './Reactions';
 
 interface Props {
   initial: GameState;
@@ -94,6 +95,16 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const [firstTime, setFirstTime] = useState(() => !!online && showFirstTime());
   const [firstRules, setFirstRules] = useState(false);
   const firstUp = firstTime && firstTimeMoment(s, !!online, c.votedMe);
+  // PLAN-112: preset reactions in an online game. The picker, who is muted on this phone, and the bubbles over the seats:
+  // a stall's crate at the round table while it is up, otherwise its box in the stalls' row, or your shelf.
+  const [reacting, setReacting] = useState(false);
+  const mutes = useMutes(online?.code);
+  const reactions = online && (
+    <>
+      <ReactionBubbles client={online} name={(p) => s.players[p]?.name ?? ''} anchor={(p) => seatOnScreen(p, viewer)} />
+      {reacting && <ReactPicker client={online} onClose={() => setReacting(false)} />}
+    </>
+  );
 
   if (c.needHandoff) {
     // The hand-over screen hides the whole table: the last person's crate and price tags go with it (PLAN-099).
@@ -129,6 +140,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
+        {online && <ReactButton class="rx-over" onOpen={() => setReacting(true)} />}
+        {reactions}
       </div>
     );
   }
@@ -256,7 +269,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       </section>
       {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}
       {rivals.length > 0 && <Stalls s={s} viewer={viewer} boards={boards} open={openRival} off={offSeats}
-        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)} />}
+        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)}
+        mute={online ? (p) => (s.players[p]?.kind === 'human' && reactionsOn() ? { on: mutes.muted(p, s.players[p].name), toggle: () => mutes.toggle(p, s.players[p].name) } : null) : undefined} />}
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
@@ -269,6 +283,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         {mid}
       </div>
       <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} hidden={together} />
+      {/* PLAN-112: the reaction button sits on your shelf's top corner (it shares the shelf's place in the layout). */}
+      {online && <ReactButton class="rx-game" onOpen={() => setReacting(true)} />}
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}
@@ -282,6 +298,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       {c.banner && <div class="phase-banner" key={c.banner} aria-hidden="true"><span>{c.banner}</span></div>}
       {c.toast && <div class="toast">{c.toast}</div>}
       <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} room={online?.code} />
+      {reactions}
       {firstUp && !firstRules && (
         <FirstTimePopup onRules={() => { fx.tap(); setFirstRules(true); }} onDone={() => { fx.tap(); dismissFirstTime(); setFirstTime(false); }} />
       )}
@@ -289,6 +306,17 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       {firstUp && firstRules && <div class="ft-rules" onClick={(e) => e.stopPropagation()}><HowTo onDone={() => setFirstRules(false)} /></div>}
     </div>
   );
+}
+
+/** PLAN-112: where a seat is on this screen, for its reaction's bubble: its crate at the round table while that is up,
+ *  otherwise its box in the stalls' row, or (your own) your shelf. Null when it is not on screen. */
+function seatOnScreen(p: number, viewer: number): Element | null {
+  if (typeof document === 'undefined') return null;
+  const shown = (sel: string) => {
+    const el = document.querySelector(sel);
+    return el && el.getBoundingClientRect().width > 0 ? el : null;
+  };
+  return shown(`[data-a="rt-crate-${p}"]`) ?? (p === viewer ? shown('section.my-stall') ?? shown('[data-a="me-stall"]') : shown(`.rival-stall[data-a="p${p}"]`));
 }
 
 /** The evening's warning on the market (PLAN-076), as the evening panel words it: what spoils or turns to juice tonight. */
