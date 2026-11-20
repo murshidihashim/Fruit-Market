@@ -1,0 +1,70 @@
+{
+  "id": "PLAN-112",
+  "title": "Public lobby and preset emotes and reactions (online)",
+  "problem": "Players cannot see or browse open games with real players, and cannot react to each other; quick match hides who is waiting.",
+  "scope": [
+    "Public or Private when creating a room; a public room list (host name, seats, game length, wait) kept by a list server like quick match, refreshed every few seconds",
+    "The host may start with computers in empty seats after a wait (proposed 60 s)",
+    "Eight preset reactions (emoji and short lines; no fruit, numbers or free text), shown as a bubble over the stall; one per 2 s per player; mute a player; a Settings switch hides all",
+    "Protocol 5; older phones asked to update; privacy page and anonymous counters (counts only)",
+    "Room-server, list-server and leak tests; a two-browser e2e test; screens at 390, 360 and 320"
+  ],
+  "exclusions": [
+    "Spectating (a later plan)",
+    "Free chat, friends lists, reporting",
+    "No game rule change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with the new room and list tests",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e with the two-browser public room and reactions test, 0 leaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "A 1.25.0 phone against the new server is asked to update and nothing breaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner on the preview with a second phone",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "awaiting approval",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-128"
+  ],
+  "decisions": [
+    "DEC-122"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

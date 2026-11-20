@@ -3003,6 +3003,31 @@
         "REP-125",
         "REP-126"
       ]
+    },
+    {
+      "id": "DEC-122",
+      "title": "A public lobby with real players, and preset emotes and reactions",
+      "question": "How can players find and join games with real players, and react to each other, without free chat?",
+      "choice": "Proposed: rooms can be Public; a public room list on the online screen (host name, seats, length, wait); the host may start with computers after 60 s; 8 preset reactions (emoji and short lines, no fruit, numbers or free text), rate-limited and mutable; spectating later; protocol 5, release 1.26.0 (REP-128).",
+      "rationale": "Players cannot see open games today and quick match hides who is waiting; preset reactions add social play without the moderation burden of chat, and carry no game information.",
+      "impact": {
+        "player": "A list of open public games to join, and reactions in online rooms; 1.25.0 phones are asked to update before going online.",
+        "technical": "A list server (Durable Object) like quick match, a public flag and reaction messages in the room server (protocol 5), the online screens and Settings.",
+        "data": "No new stored data; the public list shows the host name of a waiting public room; anonymous counts of public rooms and reactions; privacy page updated."
+      },
+      "cost": "RM0 for the work; small extra Cloudflare usage (capacity unmeasured, PLAN-003).",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "awaiting approval",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "plan": "PLAN-112",
+      "reviewTrigger": "After two weeks live: public rooms opened and started, and reactions sent, from the anonymous counters.",
+      "reports": [
+        "REP-128"
+      ]
     }
   ],
   "history": [
@@ -4341,6 +4366,10 @@
     {
       "at": "2026-11-20 21:04",
       "text": "Owner: \"push it live\". Deploy LIVE game run 44 on main fee19d8: PASS (verify, deploy, live smoke test), tag v1.25.0 on fee19d8. Live /api/version answers rules 20 and the live code carries 1.25.0. Release 1.25.0 marked published; PLAN-107 to PLAN-110 released; PLAN-111 (print only) shipped its card change in the release, its table test still waits for the owner. Open: the trophy name (\"Sold out\" shares the level-10 stamp name), the fruit pieces choice, the Android store build."
+    },
+    {
+      "at": "2026-11-20 22:51",
+      "text": "Owner asked for a public lobby with real players and emotes and reactions. REP-128 proposes DEC-122 and PLAN-112 (public rooms and list, start with computers after a wait, 8 preset reactions with no game information, spectating later, protocol 5, 1.26.0); awaiting the owner, with three questions (spectating, reaction kinds, empty seats)."
     }
   ]
 }
