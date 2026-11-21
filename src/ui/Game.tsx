@@ -32,7 +32,8 @@ import { ActionBar } from './game/panels/ActionBar';
 import { OrderPanel, OrderStrip } from './game/panels/OrderPanel';
 import { NightShift } from './game/panels/NightShift';
 import { EventPop, Popovers } from './game/panels/Popovers';
-import { FirstTimePopup, dismissFirstTime, firstTimeMoment, showFirstTime } from './FirstTime';
+import { FirstSale, FirstSaleStrip, FirstTimePopup, dismissFirstTime, firstTimeMoment, showFirstTime } from './FirstTime';
+import { spotlight } from './tutorial';
 import { HowTo } from './HowTo';
 import { ReactButton, ReactionBubbles, ReactPicker, reactionsOn, useMutes } from './Reactions';
 
@@ -153,7 +154,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const picker = s.phase !== 'morning' || s.day !== 1 ? -1
     : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
     : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
-  const coach = online || busy ? null : tipFor(s, {
+  // PLAN-113: while the guided first sale is on, it does the coach's Day 1 job.
+  const coach = online || busy || c.guided ? null : tipFor(s, {
     // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)
     myBuyTurn, boughtToday: pl?.boughtToday ?? 0, pricing: c.myBidTurn && s.phase !== 'order',
     picker: picker >= 0, evening: s.phase === 'evening' && activeHuman,
@@ -171,6 +173,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const limit = pl ? buyLimit(pl) : 4;
   const pricing = s.phase === 'bid' && c.myBidTurn && !busy;
   const stalling = s.phase === 'stall' && c.myBidTurn && !busy;
+  // PLAN-113: the guided first sale's one decision, at the person's pricing turn on Day 1 (null: not now).
+  const spot = c.guided && pricing ? spotlight(s, viewer) : null;
   // Rules 14: on a Market Day morning every stall bids in secret for the standing order. One sheet stays on the table
   // from the first stall's bid until the bids have been turned over (PLAN-084): while the computer stalls decide first,
   // while this stall bids, while it waits for the others (online it may still change its mind), and while the winner is
@@ -182,7 +186,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const tying = s.phase === 'tie' && activeHuman && !busy;
   // The day's sheet (PLAN-085): while this stall fills its crate, and for the takings. On a shared phone it is drawn
   // only for the person the phone was handed to (game/daySheet.ts).
-  const dayOn = daySheetOn(s, viewer, c, !!online);
+  // (PLAN-113: not while the guided first sale fills the person's crate for them.)
+  const dayOn = daySheetOn(s, viewer, c, !!online) && !c.guiding;
   // Between them, from the moment this stall opens to the last customer of the rush, the round table lies over the
   // table under the customers (flow A, PLAN-099; panels/RushTable.tsx): the crates in their seats, pricing on a sheet
   // at its foot, the bell, the Favoured Trade question and the rush. It decides for itself when it is up; here it is
@@ -211,7 +216,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
     // The night, shown: every piece slides one box older (PLAN-071).
     if (c.night) return <NightShift key={`ns-${s.day}`} s={s} viewer={viewer} slide={c.nightSlide} />;
     if (s.phase === 'morning' && firstUp) return null;
-    if (s.phase === 'morning' && !busy) return picker >= 0
+    // (While the guided first sale sets up the stall, the morning's news is shown, and the perk is the game's own pick.)
+    if (s.phase === 'morning' && !busy) return picker >= 0 && !c.guiding
       ? <TraitPick s={s} p={picker} onPick={(t) => { fx.card(); act({ kind: 'trait', trait: t }, picker); }} />
       : <MorningCard s={s} viewer={viewer} lost={c.lastNight} juice={c.lastJuice} table shared={!online && humans.length > 1} />;
     // Offline the computer stalls decide first, so the sheet is up before the person's own turn: it must not say
@@ -275,7 +281,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, evP) : undefined}
-          onPick={s.phase === 'buy' && activeHuman ? c.pickMarket : undefined}
+          onPick={s.phase === 'buy' && activeHuman && !c.guiding ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
         {/* where the picture of a panel that has just left slides off (sheet.ts) */}
@@ -288,7 +294,9 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}
-      {!pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
+      {/* PLAN-113: while the guided first sale sets up the person's stall, its strip takes the action bar's place. */}
+      {c.guiding ? !tableOn && <FirstSaleStrip s={s} me={viewer} onSkip={() => { fx.tap(); c.endGuide(true); }} />
+        : !pricing && !stalling && !orderUp && !tying && !evSheet && !tableOn && <ActionBar c={c} pl={pl} limit={limit} picker={picker} online={!!online} />}
 
       {/* The round table, from the moment this stall opens to the end of the rush: a stage over the table from under the
           customer row down, under the flying fruit. It stays a moment after it is done, to slide off, so it is drawn
@@ -299,6 +307,10 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       {c.toast && <div class="toast">{c.toast}</div>}
       <Popovers c={c} coach={coach} onExit={onExit} onWear={online ? (l) => online.wear(l) : undefined} room={online?.code} />
       {reactions}
+      {spot && (
+        <FirstSale key={`fs-${spot.customer.id}-${spot.fruit}`} s={s} me={viewer} sp={spot}
+          onRing={(posts) => { fx.card(); c.act({ kind: 'prices', posts }); c.endGuide(false); }} onSkip={() => { fx.tap(); c.endGuide(true); }} />
+      )}
       {firstUp && !firstRules && (
         <FirstTimePopup onRules={() => { fx.tap(); setFirstRules(true); }} onDone={() => { fx.tap(); dismissFirstTime(); setFirstTime(false); }} />
       )}
