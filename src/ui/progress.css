@@ -97,7 +97,7 @@
 .sbk .jp-pod-cs { font: 400 1.25rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .sbk .jp-pod .sbk-stamp { position: absolute; right: -4px; top: 10px; }
 .sbk .jp-best-in { display: flex; gap: 10px; align-items: flex-start; }
-.sbk .jp-ticket { flex: 0 0 118px; width: 118px; }
+#app .tkt .sbk .jp-ticket, .sbk .jp-ticket { flex: none; width: 118px; }
 .sbk .jp-best-tx { display: flex; flex-direction: column; gap: 5px; min-width: 0; font-size: 0.8125rem; font-weight: 500; }
 .sbk .jp-best-tx > b { font: 800 0.9375rem/1.15 var(--f-label); }
 .sbk .jp-best-tag { padding: 4px 0 0 2px; }
@@ -181,7 +181,7 @@
   .sbk .jp-pods { gap: 18px 4px; padding-left: 8px; padding-right: 8px; }
   .sbk .jp-pod-cs { font-size: 1.0625rem; }
   .sbk .jp-pod-nm { font-size: 0.6875rem; }
-  .sbk .jp-ticket { flex-basis: 108px; width: 108px; }
+  #app .tkt .sbk .jp-ticket, .sbk .jp-ticket { width: 112px; }
   .sbk .jp-rw-stall { flex-basis: 90px; width: 90px; }
   .sbk .jp-sb-pic { flex-basis: 96px; width: 96px; height: 72px; }
   .sbk .jp-wd-grid { gap: 6px; }
