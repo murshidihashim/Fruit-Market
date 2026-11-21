@@ -25,6 +25,7 @@ import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { LEAGUE, leagueConfig, leagueStage } from './progress';
 import { TrophyScreen } from './Trophies';
+import { LeagueScreen } from './League';
 import { BackArrow } from './stampCard';
 import { Toggle } from './Toggle';
 import {
@@ -32,7 +33,7 @@ import {
   saveSettings, todayKey, type Settings,
 } from './store';
 
-type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
+type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league';
 type PopupKind = 'new' | 'continue' | 'friend' | 'account';
 
 /**
@@ -186,9 +187,11 @@ function Main() {
   // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
   // replaced without a word by the Daily market, the Market League and New game.
   const orAsk = (what: string, go: () => void) => () => startOrAsk(waiting, go, (yes) => { fx.tap(); setSwap({ what, go: yes }); });
+  // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
+  // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
   return (
     <>
-      <Shopfront
+      {screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={orAsk('a Market League game', startLeague)} /> : <Shopfront
         resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
         cash={waiting ? waiting.cash : null}
         table={waiting ? game : null}
@@ -199,7 +202,7 @@ function Main() {
         onNew={orAsk('a new game', () => open('new'))}
         onFriend={() => open('friend')}
         onDaily={orAsk('the Daily market', startDaily)}
-        onLeague={orAsk('a Market League game', startLeague)}
+        onLeague={() => go('league')}
         onWardrobe={() => go('wardrobe')}
         onAccount={() => open('account')}
         onTrophies={() => go('trophies')}
@@ -207,7 +210,7 @@ function Main() {
         onSettings={() => go('settings')}
         room={openMatch()}
         onRoom={(code) => { setJoinCode(code); go('online'); }}
-      />
+      />}
       {popup === 'new' && <Popup title="New game" onClose={close}><Setup onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'continue' && waiting && (
         <Popup title="Continue" onClose={close}>
