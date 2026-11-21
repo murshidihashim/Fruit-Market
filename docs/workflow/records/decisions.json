@@ -3047,7 +3047,7 @@
         "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
         "date": "2026-11-21"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-113",
       "reviewTrigger": "After two weeks live: the share of finished games followed by a rematch or a new game, from the anonymous counters.",
       "reports": [
@@ -4407,6 +4407,10 @@
     {
       "at": "2026-11-21 16:56",
       "text": "Owner reviewed the redesign mock-ups (REP-129; canvas pages v1 to v3, real art, one four-player day) and approved the revised journey: \"implement page 6 from the mockup into the live game, approve\", clarified \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board). DEC-123 and PLAN-113 recorded as approved. The gameplay screens (Buying to Day Close) are not yet approved for building. Publishing still needs the owner's word for the build."
+    },
+    {
+      "at": "2026-11-21 19:11",
+      "text": "PLAN-113 implemented: the nine journey screens (three helpers, merged; fix 153c6fe). T1 to T3 PASS; T4 (the owner on the preview) not run. The full browser run found a PLAN-112 bug, the in-game reaction button covering the stocking sheet's last + button, so an online match stalled; it now steps aside while stocking and pricing. Stamps for a game against computers confirmed: +3 for 10 days (the earlier +0 was the counter before it animated)."
     }
   ]
 }
