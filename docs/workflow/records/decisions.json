@@ -3060,7 +3060,7 @@
       "id": "DEC-124",
       "title": "Market Sprint, its leaderboard, and a Market League campaign",
       "question": "How can the game be easier to pick up, more rewarding to replay solo and easier to share?",
-      "choice": "Proposed: a three-day Market Sprint as a second Daily format with a checked daily board, your place, a weekly ranking and one-tap retry (PLAN-114, 1.27.0); then the Market League as six authored stages with goals, mastery goals and rewards on the stall (PLAN-115, 1.28.0). Rules version 20 unchanged (REP-131).",
+      "choice": "a three-day Market Sprint as a second Daily format with a checked daily board, your place, a weekly ranking and one-tap retry (PLAN-114, 1.27.0); then the Market League as six authored stages with goals, mastery goals and rewards on the stall (PLAN-115, 1.28.0). Rules version 20 unchanged (REP-131).",
       "rationale": "The owner's brief: a quick, comparable replay hook built on the Bell, and a solo campaign that teaches the main decisions.",
       "impact": {
         "player": "A 5 to 8 minute daily format to retry and compare; a short campaign with something to earn in each stage.",
@@ -3070,11 +3070,11 @@
       "cost": "RM0 for the work; a little more storage on the existing Cloudflare plan (capacity unmeasured, PLAN-003).",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
+        "date": "2026-11-21"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "plan": "PLAN-114",
       "reviewTrigger": "Two weeks after 1.27.0 is live: Sprint plays, retries and next-day returns from the anonymous counters.",
       "reports": [
@@ -4450,6 +4450,10 @@
     {
       "at": "2026-11-21 20:21",
       "text": "Owner brief: a three-day Market Sprint in the Daily market, leaderboard rankings, and the Market League as a solo campaign. Proposed as DEC-124 with PLAN-114 (Sprint and boards, 1.27.0) and PLAN-115 (campaign, 1.28.0) in REP-131; three questions to the owner (retries, Sprint beside or instead of the Daily, the last three stages). Awaiting approval."
+    },
+    {
+      "at": "2026-11-21 20:23",
+      "text": "Owner approved DEC-124, PLAN-114 and PLAN-115 with the recommended answers: \"approve plan 114 and 115, use your picks\". Retries allowed with the best counting; the Sprint sits beside the Daily market; campaign stages 4 to 6 are a heatwave, a glut and a fussy premium buyer. Delivery in progress."
     }
   ]
 }

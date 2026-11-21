@@ -46,11 +46,11 @@
     }
   ],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
+    "date": "2026-11-21"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "not started",
   "reports": [
