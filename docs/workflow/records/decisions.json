@@ -3074,7 +3074,7 @@
         "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
         "date": "2026-11-21"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-114",
       "reviewTrigger": "Two weeks after 1.27.0 is live: Sprint plays, retries and next-day returns from the anonymous counters.",
       "reports": [
@@ -4454,6 +4454,10 @@
     {
       "at": "2026-11-21 20:23",
       "text": "Owner approved DEC-124, PLAN-114 and PLAN-115 with the recommended answers: \"approve plan 114 and 115, use your picks\". Retries allowed with the best counting; the Sprint sits beside the Daily market; campaign stages 4 to 6 are a heatwave, a glut and a fussy premium buyer. Delivery in progress."
+    },
+    {
+      "at": "2026-11-21 21:43",
+      "text": "PLAN-114 and PLAN-115 implemented and merged (verified at cc75e1c); T1 to T4 PASS, T5 (the owner on the preview) not run. The Sprint takes about 3 minutes at a human pace, below the 5 to 8 minute target; no rule changed. A player still called \"You\" now goes on the boards under a neutral name. The Hotel Order stage uses the Beach Resort standing order (there is no hotel order card). Release 1.27.0 waits for the owner's word for the preview."
     }
   ]
 }

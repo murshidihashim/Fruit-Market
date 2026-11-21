@@ -15,26 +15,26 @@
     {
       "id": "T1",
       "text": "npm run verify with tests for each stage's goals",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (cc75e1c): 100 test files, 1121 passed, 1 skipped (as before); tests/campaign.test.ts (18): the stage set-up changes nothing outside League stages, events, order and crowd on their days, the undercutting rival uses public information only, stars saved and old saves load"
     },
     {
       "id": "T2",
       "text": "e2e for a stage played to its goal",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8818 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo with the guided first sale; League stage 1 played to \"Village Square cleared\", stage 2 open; online match finished, rematch, leaver taken over, 0 leaks; public room 4/4 reactions, 0 leaks; Sprint played to results and Try again started the same Sprint (77 s each at test speed); four players; 5 reconnects; speed check OK first try"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568: League (new player, stage 3 with stars, cleared stage), results (stage 1 won, stage 4 lost, stage 6 won), Stamp Book (scratchpad p115); reviewed the League and stage 1 results"
     },
     {
       "id": "T4",
       "text": "Each stage clearable in a balance run",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "scripts/league-balance.ts over 500 seeds per stage (person seat played by a computer), clear rate Easy/Normal/Hard: 1 Village Square 52/78/90%, 2 Pasar Malam 19/39/64%, 3 The Hotel Order 17/38/62%, 4 Heatwave 19/48/74%, 5 Glut 14/37/69%, 6 Premium Buyers 13/38/65%; on each stage's fixed seed Normal and Hard clear and Easy does not"
     },
     {
       "id": "T5",
@@ -48,9 +48,9 @@
     "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
     "date": "2026-11-21"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "not started",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge cc75e1c, verified at cc75e1c",
   "reports": [
     "REP-131"
   ],
@@ -58,10 +58,20 @@
     "DEC-124"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Six authored League stages (Village Square, Pasar Malam, The Hotel Order, Heatwave, Glut, Premium Buyers), each with a lesson, a host moment before and after, and three star goals",
+      "League stars (18) with a new trophy card and the titles Star Pupil and Star Trader",
+      "A stage set-up option in the engine (events, order and customers on set days, an undercutting rival), used only by League stages"
+    ],
+    "changed": [
+      "The League screen shows each stage's goal, lesson and stars; cleared stages can be replayed for stars",
+      "Stage results show the host's line and the stars earned"
+    ],
     "fixed": [],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "The Market League is now a six-stage campaign that teaches when to undercut, the night hawker, standing orders, heatwaves, gluts and premium buyers",
+    "Earn up to 3 stars a stage; replay a cleared stage for the stars you missed"
+  ]
 }
