@@ -4417,6 +4417,10 @@
     {
       "at": "2026-11-21 19:31",
       "text": "Owner: \"push to preview\". Release candidate 1.26.0 = PLAN-112 (public rooms, start with computers, reactions; protocol 5) and PLAN-113 (the redesigned journey screens), rules version 20 unchanged (REP-130). Pull request to main for the preview; publishing still needs the owner's word."
+    },
+    {
+      "at": "2026-11-21 20:13",
+      "text": "1.26.0 on the preview: pull request #22 merged as 7760f0a after CI passed (checks and build); main CI run 160 passed (verify:full) and the preview job updated the preview Worker and passed its smoke test. The preview answers rules 20 and serves the 1.26.0 build (new Home and Quick match words found in its code). The owner's two-phone test (PLAN-112 T5, PLAN-113 T4) and the word to publish are next."
     }
   ]
 }
