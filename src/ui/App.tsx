@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
-import { dailyConfig } from '../engine/daily';
+import { dailyConfig, sprintConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront } from './Home';
@@ -93,6 +93,8 @@ function Main() {
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
+  // PLAN-114: games started in this visit, so that Try again on a Sprint (the same seed and date) opens a fresh table.
+  const [runs, setRuns] = useState(0);
   // The small menus in front of the home screen, a room code typed into the friend menu, and where the wardrobe was opened from.
   const [popup, setPopup] = useState<PopupKind | null>(null);
   // A game is waiting and something that would replace it was tapped: the question on screen, with what to start
@@ -138,10 +140,11 @@ function Main() {
     const look = worn();
     const first = cfg0.players.findIndex((p) => p.kind === 'human');
     const cfg = first >= 0 && Object.keys(look).length ? { ...cfg0, players: cfg0.players.map((p, i) => (i === first ? { ...p, look } : p)) } : cfg0;
-    track('game_start', cfg.daily ? 'daily' : cfg.players.filter((p) => p.kind === 'human').length > 1 ? 'pass_and_play' : 'solo');
+    track('game_start', cfg.sprint ? 'sprint' : cfg.daily ? 'daily' : cfg.players.filter((p) => p.kind === 'human').length > 1 ? 'pass_and_play' : 'solo');
     track('players', cfg.players.length);
     const g = newGame(cfg);
     setLastConfig(cfg);
+    setRuns((n) => n + 1);
     setGame(g);
     saveGame(g);
     setScreen('game');
@@ -156,16 +159,19 @@ function Main() {
   };
 
   const startDaily = () => start(dailyConfig(todayKey(), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
+  // PLAN-114: the day's Market Sprint. Its results' Try again starts the same Sprint (the same date) at once.
+  const startSprint = (date = todayKey()) => start(sprintConfig(date, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
 
   if (screen === 'game' && game) {
     return (
       <Game
-        key={`${game.config.seed}-${game.config.daily ?? ''}`}
+        key={`${game.config.seed}-${game.config.daily ?? ''}-${runs}`}
         initial={game}
         onChange={onChange}
         onExit={() => { if (game.phase !== 'over') track('quit_day', game.day); setScreen('home'); if (game.phase === 'over') setGame(null); }}
         onRematch={() => {
           const cfg = lastConfig ?? game.config;
+          if (cfg.sprint && cfg.daily) { track('sprint_retry'); startSprint(cfg.daily); return; }
           if (cfg.daily) { setGame(null); setScreen('home'); return; }
           if (cfg.league !== undefined) {
             if (leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
@@ -219,6 +225,7 @@ function Main() {
       onComputer={orAsk('a new game', () => open('new'))}
       onOnePhone={orAsk('a new game', () => open('phone'))}
       onDaily={orAsk('the Daily market', startDaily)}
+      onSprint={orAsk('the Sprint', () => startSprint())}
       onLeague={() => go('league')}
     />
   ) : (
@@ -232,6 +239,7 @@ function Main() {
       onContinue={() => open('continue')}
       onPlay={() => go('play')}
       onDaily={orAsk('the Daily market', startDaily)}
+      onSprint={orAsk('the Sprint', () => startSprint())}
       onLeague={() => go('league')}
       onWardrobe={() => go('wardrobe')}
       onAccount={() => open('account')}

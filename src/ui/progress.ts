@@ -8,6 +8,7 @@ import { ACHIEVEMENTS, evaluate, standing, tierById, type Achievement, type Coun
 import { earnLines, placeAt, stampsOf, type EarnLine, type Place } from './stamps';
 import { C } from './palette';
 import { profileChanged } from './changed';
+import { saveSprintBest } from './sprintStore';
 
 // ---------- trophies ----------
 
@@ -103,7 +104,9 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
     st.bestCash = Math.max(st.bestCash, g.players[me].cash);
     st.totalSold += g.players[me].stats.sold;
     saveStats(st);
-    if (g.config.daily) {
+    // PLAN-114: a Market Sprint keeps its own best of the day; the Daily market's record (stamps, streak) is not touched.
+    if (g.config.sprint && g.config.daily) saveSprintBest(g.config.daily, g.players[me].cash, g.players[me].stats.sold);
+    else if (g.config.daily) {
       const d = loadDaily();
       firstDaily = d[g.config.daily] === undefined;
       d[g.config.daily] = Math.max(d[g.config.daily] ?? 0, g.players[me].cash);
