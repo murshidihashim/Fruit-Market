@@ -34,7 +34,8 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     let seed = 777;
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
-    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2']));
+    // Every tip seen, and the guided first sale had (PLAN-113), so Day 1 is played by hand and measured as before.
+    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
     window.__long = [];
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push([Math.round(e.duration), e.startTime]))).observe({ type: 'longtask', buffered: true });
     // Smoothness: how long every frame took while the rush plays (from the bell to the takings: the round table says

@@ -54,3 +54,111 @@
 
 /* All the rules, opened from the pop-up, over the whole game */
 .ft-rules { position: fixed; inset: 0; z-index: 61; background: var(--x-cream); }
+
+/* =====================================================================
+   PLAN-113: the guided first sale (FirstTime.tsx FirstSaleStrip, FirstSale). The strip takes the action bar's place
+   while the game sets up the stall; the decision is one screen over the table at the pricing turn: the ink bar with
+   Skip, the question, the customer's card and what it says, every stall's crate, the price and Ring the bell. The
+   game's own ink borders, display type and colours (palette.css through exchange.css). It slides up from the foot as
+   the game's sheets do; with reduced motion it is simply there (styles.css switches animations off).
+   ===================================================================== */
+#app .tkt > .fs-strip {
+  grid-area: act; position: relative; z-index: 5; box-sizing: border-box; display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px max(12px, env(safe-area-inset-bottom)) 12px; background: var(--x-ink); color: var(--x-paper);
+}
+.fs-strip-in { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font: 600 0.8125rem/1.3 var(--f-label); }
+.fs-kicker { font: 800 11px/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-mustard); }
+.fs-skip {
+  flex: none; min-width: 56px; min-height: 44px; padding: 0 10px; border: 0; background: none; cursor: pointer;
+  color: var(--x-paper); font: 800 0.875rem/1 var(--f-label); text-decoration: underline; text-underline-offset: 3px;
+}
+
+.fs-pop {
+  position: fixed; inset: 0; z-index: 60; box-sizing: border-box; width: 100%; max-width: 520px; margin: 0 auto;
+  display: flex; flex-direction: column; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label);
+  animation: fs-in calc(var(--mk, 1) * var(--t-sheet-in, 180ms)) cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes fs-in { from { opacity: 0; transform: translateY(32px); } }
+.fs-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 46px; padding: 0 4px 0 14px; background: var(--x-ink); }
+.fs-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px 14px 8px; outline: none; }
+.fs-body h2 { margin: 0 0 10px; font: 400 1.3rem/1.08 var(--f-display); overflow-wrap: anywhere; }
+.fs-top { display: flex; align-items: center; gap: 12px; }
+.fs-card { flex: none; --card-w: 150px; }
+.fs-says { flex: 1; min-width: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font: 600 0.875rem/1.25 var(--f-label); }
+.fs-says li { padding-bottom: 4px; border-bottom: 2px solid var(--x-ink); }
+.fs-says b { font: 400 1.125rem/1 var(--f-display); }
+.fs-says .fs-dim { border: 0; color: var(--x-slate); font-size: 0.75rem; }
+
+/* the stalls: you first, then your rivals in their order round the table */
+.fs-stalls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 10px; margin-top: 18px; }
+.fs-stalls.n3, .fs-stalls.n5, .fs-stalls.n6 { grid-template-columns: 1fr 1fr 1fr; gap: 16px 6px; }
+.fs-stall { position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 6px; background: var(--x-paper); border: 2.5px solid var(--x-ink); }
+.fs-stall.me { box-shadow: 0 0 0 3px var(--x-mustard); }
+.fs-stall .tb-awn { width: 100%; }
+.fs-corner {
+  position: absolute; right: -2px; top: -13px; z-index: 2; padding: 3px 6px; background: var(--x-ink); color: var(--x-mustard);
+  font: 800 10px/1 var(--f-label); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.fs-stall.me .fs-corner { background: var(--x-mustard); color: var(--x-ink); box-shadow: 0 0 0 2px var(--x-ink); }
+.fs-who { box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 5px; padding: 4px 6px 0; font-size: 0.8125rem; }
+.fs-who b { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fs-face { flex: none; display: inline-flex; overflow: hidden; border: 2px solid var(--x-ink); border-radius: 50%; background: var(--c-efe9df); }
+.fs-crate { margin-top: 6px; display: flex; flex-direction: column; align-items: center; }
+.fs-crate-top { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 1px; margin-bottom: -4px; min-height: 18px; }
+.fs-crate-box { display: block; width: 100%; overflow: hidden; }
+.fs-crate-box img { display: block; }
+.fs-pc { position: relative; display: inline-flex; }
+.fs-pc .tk-lamp { position: absolute; right: -3px; bottom: -3px; }
+.fs-back { display: inline-block; margin: 0 1px; background: var(--x-ink) repeating-linear-gradient(135deg, transparent 0 3px, var(--x-slate) 3px 6px); border: 1.5px solid var(--x-ink); }
+.fs-empty { margin-bottom: 8px; font: 800 10px/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-slate); }
+.fs-tags { margin-top: 6px; min-height: 22px; display: flex; justify-content: center; }
+/* the price tag on its string, as on the round table */
+.fs-tag { position: relative; display: inline-block; filter: drop-shadow(1.5px 0 0 var(--x-ink)) drop-shadow(-1.5px 0 0 var(--x-ink)) drop-shadow(0 1.5px 0 var(--x-ink)) drop-shadow(0 -1.5px 0 var(--x-ink)); }
+.fs-tag-in { display: flex; align-items: center; gap: 3px; height: 24px; padding: 0 7px 0 13px; background: var(--x-paper); clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%); font: 400 1rem/1 var(--f-display); }
+.fs-tag-hole { position: absolute; left: 5px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--x-ink); }
+.fs-tag.mine .fs-tag-in { background: var(--x-mustard); }
+.fs-tag.sealed .fs-tag-in { background: var(--x-ink) repeating-linear-gradient(135deg, transparent 0 4px, var(--x-slate) 4px 8px); }
+.fs-tag.sealed .fs-tag-hole { background: var(--x-paper); }
+.fs-tag-back { display: inline-block; width: 26px; height: 12px; }
+.fs-tag.none { filter: none; align-self: center; font: 700 0.6875rem/1 var(--f-label); color: var(--x-slate); }
+.fs-others { margin: 12px 0 0; font: 600 0.8125rem/1.3 var(--f-label); color: var(--x-slate); }
+
+/* the price and the bell */
+.fs-foot { flex: none; padding: 8px 14px max(12px, env(safe-area-inset-bottom)); background: var(--x-paper); }
+.fs-price { display: flex; align-items: stretch; justify-content: space-between; border: 2.5px solid var(--x-ink); }
+.fs-step {
+  flex: none; width: 64px; min-height: 54px; border: 0; cursor: pointer; background: var(--x-ink); color: var(--x-mustard);
+  font: 400 2rem/1 var(--f-display);
+}
+.fs-step:disabled { color: var(--x-slate); cursor: default; }
+.fs-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 6px; text-align: center; }
+.fs-mid b { font: 400 2rem/1 var(--f-display); }
+.fs-mid span { font: 700 0.75rem/1.2 var(--f-label); color: var(--x-slate); }
+.fs-mid span.warn { color: var(--x-red-d); }
+.fs-error { margin: 6px 0 0; text-align: center; font: 700 0.75rem/1.2 var(--f-label); color: var(--x-red-d); }
+.fs-go {
+  box-sizing: border-box; width: 100%; min-height: 58px; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  border: 0; cursor: pointer; background: var(--x-mustard); color: var(--x-ink); box-shadow: 0 0 0 2.5px var(--x-ink), 0 5px 0 2.5px var(--x-ink);
+  font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.02em;
+}
+.fs-go:disabled { opacity: 0.5; cursor: default; }
+.fs-skip:focus-visible, .fs-step:focus-visible, .fs-go:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
+
+/* a short phone (under 700 px tall): the same screen drawn closer */
+.fs-pop.small .fs-bar { height: 44px; }
+.fs-pop.small .fs-body { padding: 8px 10px 6px; }
+.fs-pop.small .fs-body h2 { font-size: 1.05rem; margin-bottom: 6px; }
+.fs-pop.small .fs-card { --card-w: 96px; }
+.fs-pop.small .fs-stall { padding-bottom: 4px; }
+.fs-pop.small .fs-crate, .fs-pop.small .fs-tags { margin-top: 3px; }
+.fs-pop.small .fs-others { margin-top: 8px; }
+.fs-pop.small .fs-says { gap: 4px; font-size: 0.75rem; }
+.fs-pop.small .fs-says b { font-size: 0.9375rem; }
+.fs-pop.small .fs-says .fs-dim { font-size: 0.6875rem; }
+.fs-pop.small .fs-stalls { gap: 14px 8px; margin-top: 14px; }
+.fs-pop.small .fs-who { font-size: 0.75rem; }
+.fs-pop.small .fs-tag-in { height: 20px; font-size: 0.875rem; }
+.fs-pop.small .fs-foot { padding: 6px 10px max(8px, env(safe-area-inset-bottom)); }
+.fs-pop.small .fs-step { width: 54px; min-height: 46px; font-size: 1.6rem; }
+.fs-pop.small .fs-mid b { font-size: 1.6rem; }
+.fs-pop.small .fs-go { min-height: 48px; margin-top: 10px; font-size: 1.25rem; }

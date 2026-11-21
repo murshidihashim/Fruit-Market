@@ -149,6 +149,8 @@ function audit() {
             await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
             continue;
           }
+          // PLAN-113: a new player's first solo game asks one price on Day 1 (the guided first sale).
+          if (await has('.fs-pop .fs-go:not([disabled])')) { if (once('first-sale')) await check('first-sale'); await page.click('.fs-pop .fs-go'); continue; }
           // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
           if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
           // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
