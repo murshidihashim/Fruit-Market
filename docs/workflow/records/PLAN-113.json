@@ -47,10 +47,11 @@
     "date": "2026-11-21"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.26.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merges e77ae6b (A), 65ee1e8 (C), 49d24f3 (B), fix 153c6fe",
   "reports": [
-    "REP-129"
+    "REP-129",
+    "REP-130"
   ],
   "decisions": [
     "DEC-123"

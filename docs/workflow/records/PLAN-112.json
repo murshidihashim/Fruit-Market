@@ -52,10 +52,11 @@
     "date": "2026-11-20"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.26.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge d0cc64b",
   "reports": [
-    "REP-128"
+    "REP-128",
+    "REP-130"
   ],
   "decisions": [
     "DEC-122"

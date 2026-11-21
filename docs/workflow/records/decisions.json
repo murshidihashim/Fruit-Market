@@ -3026,7 +3026,8 @@
       "plan": "PLAN-112",
       "reviewTrigger": "After two weeks live: public rooms opened and started, and reactions sent, from the anonymous counters.",
       "reports": [
-        "REP-128"
+        "REP-128",
+        "REP-130"
       ]
     },
     {
@@ -3051,7 +3052,8 @@
       "plan": "PLAN-113",
       "reviewTrigger": "After two weeks live: the share of finished games followed by a rematch or a new game, from the anonymous counters.",
       "reports": [
-        "REP-129"
+        "REP-129",
+        "REP-130"
       ]
     }
   ],
@@ -4411,6 +4413,10 @@
     {
       "at": "2026-11-21 19:11",
       "text": "PLAN-113 implemented: the nine journey screens (three helpers, merged; fix 153c6fe). T1 to T3 PASS; T4 (the owner on the preview) not run. The full browser run found a PLAN-112 bug, the in-game reaction button covering the stocking sheet's last + button, so an online match stalled; it now steps aside while stocking and pricing. Stamps for a game against computers confirmed: +3 for 10 days (the earlier +0 was the counter before it animated)."
+    },
+    {
+      "at": "2026-11-21 19:31",
+      "text": "Owner: \"push to preview\". Release candidate 1.26.0 = PLAN-112 (public rooms, start with computers, reactions; protocol 5) and PLAN-113 (the redesigned journey screens), rules version 20 unchanged (REP-130). Pull request to main for the preview; publishing still needs the owner's word."
     }
   ]
 }
