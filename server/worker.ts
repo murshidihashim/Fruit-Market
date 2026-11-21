@@ -6,13 +6,19 @@
 //   POST /api/t            -> 204             anonymous usage counters and error lines
 //   GET  /api/stats        -> report          (needs the STATS_KEY secret in an x-stats-key header)
 //   GET  /api/daily?date=  -> top scores      POST /api/daily -> verified submission
+//   GET  /api/sprint?date=&me= -> the day's Market Sprint board and the week's ranking (PLAN-114; `me`: the device's
+//                                 owner hash, for its own place)        POST /api/sprint -> verified Sprint submission
 //   POST /api/account/{signup,login,sync,logout,password,delete} -> optional ID-and-password accounts (server/accounts.ts)
 //   GET  /api/version      -> { rules }
 //   anything else          -> the static game (dist/)
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
 import { DurableObject } from 'cloudflare:workers';
 import { CODE_ALPHABET, CODE_LENGTH, RULES_VERSION, normaliseCode } from '../src/net/protocol';
-import { addEntry, cleanIngest, dailyBoardKey, KEEP_DAYS, ownerOf, publicBoard, quickMatch, utcDay, verifyDaily, type DailyEntry, type QuickState } from './meta';
+import {
+  addEntry, addSprintEntry, addWeekScore, boardView, cleanIngest, dailyBoardKey, KEEP_DAYS, OWNER_RE, ownerOf, placeOf, publicBoard,
+  quickMatch, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily, weekView, type BoardView, type DailyEntry, type QuickState, type WeekEntry,
+} from './meta';
+import { isoWeek } from '../src/engine/daily';
 import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
 import { UPDATE_MSG } from '../src/net/protocol';
 import { RuleError } from '../src/engine/game';
@@ -132,8 +138,9 @@ export default {
         return env.BOARD.get(env.BOARD.idFromName(dailyBoardKey(d))).fetch('https://board/submit', { method: 'POST', body: JSON.stringify(body) });
       }
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date!)) return json({ error: 'Bad date' }, 400);
-      return env.BOARD.get(env.BOARD.idFromName(dailyBoardKey(date!))).fetch('https://board/top');
+      return env.BOARD.get(env.BOARD.idFromName(dailyBoardKey(date!))).fetch(`https://board/top${meParam(url)}`);
     }
+    if (url.pathname === '/api/sprint') return sprintRoute(req, env, url);
     const m = url.pathname.match(/^\/ws\/([A-Za-z0-9-]+)$/);
     if (m) {
       if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
@@ -283,12 +290,64 @@ export class StatsDO extends DurableObject<Env> {
   }
 }
 
+// ---------- the Market Sprint (PLAN-114) ----------
+
+/** "?me=<owner hash>" when the app asked for its own place, else nothing. */
+function meParam(url: URL): string {
+  const me = url.searchParams.get('me');
+  return me && OWNER_RE.test(me) ? `?me=${me}` : '';
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * The Sprint's boards: one per day (BoardDO under sprintBoardKey) and one per ISO week (BoardDO under sprintWeekKey),
+ * which adds each device's best Sprint of each day. A submission is replayed and put on the day's board first; the
+ * device's best of the day then goes to the week. Same rate limit as the Daily market (its own count), same name checks.
+ */
+async function sprintRoute(req: Request, env: Env, url: URL): Promise<Response> {
+  const board = (key: string) => env.BOARD.get(env.BOARD.idFromName(key));
+  if (req.method === 'POST') {
+    const stop = await limited(req, env, 'sprint');
+    if (stop) return stop;
+    let body: unknown;
+    try { body = await readBody(req); } catch (e) { return json({ error: (e as Error).message }, 400); }
+    const d = (body as { date?: unknown }).date;
+    if (typeof d !== 'string' || !DATE_RE.test(d)) return json({ error: 'Bad date' }, 400);
+    const res = await board(sprintBoardKey(d)).fetch('https://board/sprint/submit', { method: 'POST', body: JSON.stringify(body) });
+    const out = (await res.json()) as { error?: string; owner?: string; cash?: number; name?: string; best?: { name: string; cash: number; sold: number }; day?: BoardView };
+    if (!res.ok || !out.owner || !out.best) return json({ error: out.error ?? 'Could not check that game' }, res.ok ? 400 : res.status);
+    let week: BoardView | undefined;
+    try {
+      const w = await board(sprintWeekKey(d)).fetch('https://board/week/put', { method: 'POST', body: JSON.stringify({ owner: out.owner, date: d, ...out.best }) });
+      if (w.ok) week = (await w.json()) as BoardView;
+    } catch { /* the day's board already has the score; the week catches up on the next submission */ }
+    // The owner hash stays on the server.
+    return json({ ok: true, cash: out.cash, name: out.name, best: out.best, day: out.day, week, weekOf: isoWeek(d) });
+  }
+  const date = url.searchParams.get('date') ?? utcDay(Date.now());
+  if (!DATE_RE.test(date)) return json({ error: 'Bad date' }, 400);
+  const me = meParam(url);
+  const [day, week] = await Promise.all([
+    board(sprintBoardKey(date)).fetch(`https://board/sprint/view${me}`).then((r) => r.json()),
+    board(sprintWeekKey(date)).fetch(`https://board/week/view${me}`).then((r) => r.json()),
+  ]);
+  return json({ day, week, weekOf: isoWeek(date) });
+}
+
 // ---------- daily leaderboard ----------
 
-/** One object per daily challenge date. Every score is checked by replaying the game. */
+/**
+ * One object per daily challenge date. Every score is checked by replaying the game. PLAN-114: the same class also
+ * holds each day's Sprint board (paths under /sprint/, stored as "sprint") and each week's Sprint ranking (paths under
+ * /week/, stored as "week"), each in an object of its own name.
+ */
 export class BoardDO extends DurableObject<Env> {
   async fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
+    const me = url.searchParams.get('me') ?? undefined;
+    if (url.pathname.startsWith('/sprint/')) return this.sprint(req, url, me);
+    if (url.pathname.startsWith('/week/')) return this.week(req, url, me);
     const board = (await this.ctx.storage.get<DailyEntry[]>('board')) ?? [];
     if (url.pathname === '/submit') {
       try {
@@ -304,7 +363,33 @@ export class BoardDO extends DurableObject<Env> {
         return json({ error: msg }, msg === UPDATE_MSG ? 409 : 400);
       }
     }
-    return json({ top: publicBoard(board.slice(0, 20)), players: board.length });
+    return json({ top: publicBoard(board.slice(0, 20)), players: board.length, ...(me ? { rank: placeOf(board, me) } : {}) });
+  }
+
+  private async sprint(req: Request, url: URL, me: string | undefined): Promise<Response> {
+    const board = (await this.ctx.storage.get<DailyEntry[]>('sprint')) ?? [];
+    if (url.pathname !== '/sprint/submit') return json(boardView(board, me));
+    try {
+      const body = (await req.json()) as { claim?: unknown };
+      const owner = await ownerOf(body.claim);
+      const { entry } = verifyDaily(body as never, Date.now(), owner, true);
+      const next = addSprintEntry(board, entry);
+      await this.ctx.storage.put('sprint', next);
+      const best = next.find((x) => x.owner === owner);
+      return json({ ok: true, owner, cash: entry.cash, name: entry.name, best: best && { name: best.name, cash: best.cash, sold: best.sold }, day: boardView(next, owner) });
+    } catch (e) {
+      const msg = e instanceof RuleError ? e.message : 'Could not check that game';
+      return json({ error: msg }, msg === UPDATE_MSG ? 409 : 400);
+    }
+  }
+
+  private async week(req: Request, url: URL, me: string | undefined): Promise<Response> {
+    const week = (await this.ctx.storage.get<WeekEntry[]>('week')) ?? [];
+    if (url.pathname !== '/week/put') return json(weekView(week, me));
+    const b = (await req.json()) as { owner: string; name: string; date: string; cash: number; sold: number };
+    const next = addWeekScore(week, b.owner, b.name, b.date, b.cash, b.sold, Date.now());
+    await this.ctx.storage.put('week', next);
+    return json(weekView(next, b.owner));
   }
 }
 

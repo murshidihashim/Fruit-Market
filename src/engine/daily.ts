@@ -37,3 +37,33 @@ export function dailyConfig(date: string, name: string, avatar = DAILY_AVATAR): 
     ...dailyTwist(date).patch,
   };
 }
+
+// ---------- the Market Sprint (PLAN-114) ----------
+
+/** The Sprint's length in days. */
+export const SPRINT_DAYS = 3;
+
+/**
+ * The day's Market Sprint: a second Daily format beside the Daily market. Three days, four stalls, its own shared seed
+ * (never the Daily market's), and the Daily's three computer rivals at their Daily levels. Everyone starts alike: no
+ * upgrades, no weekly twist, and so no standing orders (they come on Market Days, which need upgrades on and a day 3
+ * that is not the last). The person picks a perk from the same seeded offer as everyone else, as in the Daily market.
+ */
+export function sprintConfig(date: string, name: string, avatar = DAILY_AVATAR): GameConfig {
+  const daily = dailyConfig(date, name, avatar);
+  return {
+    players: daily.players,
+    days: SPRINT_DAYS, unripe: true, upgrades: false, events: true,
+    seed: seedFromString(`fruit-market-sprint-r1-${date}`), daily: date, sprint: true,
+  };
+}
+
+/** The ISO week a date belongs to, as "2026-W47" (weeks start on Monday; week 1 holds the year's first Thursday). */
+export function isoWeek(date: string): string {
+  const t = Date.parse(`${date}T00:00:00Z`);
+  const dow = (new Date(t).getUTCDay() + 6) % 7; // Monday 0 … Sunday 6
+  const thursday = new Date(t + (3 - dow) * 86_400_000);
+  const year = thursday.getUTCFullYear();
+  const week = 1 + Math.floor((thursday.getTime() - Date.UTC(year, 0, 1)) / (7 * 86_400_000));
+  return `${year}-W${String(week).padStart(2, '0')}`;
+}
