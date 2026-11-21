@@ -81,7 +81,10 @@ export function verifyDaily(sub: DailySubmit, now: number, owner: string, sprint
   if (typeof sub.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(sub.date)) throw new RuleError('Bad date');
   if (!acceptableDates(now).includes(sub.date)) throw new RuleError(sprint ? 'That day\'s Sprint is closed.' : 'That day of the Daily market is closed.');
   if (!Array.isArray(sub.actions) || sub.actions.length > MAX_ACTIONS) throw new RuleError('Something went wrong. Try again.');
-  const name = safeName(sub.name, `Shopkeeper ${owner.slice(0, 4)}`);
+  // A player who never chose a name plays as "You" on their own phone; on a shared board that would read as everyone's
+  // own line, so the board gives them a neutral name instead (PLAN-114).
+  const fallback = `Shopkeeper ${owner.slice(0, 4)}`;
+  const name = typeof sub.name === 'string' && squash(sub.name) === 'you' ? fallback : safeName(sub.name, fallback);
   let s = newGame((sprint ? sprintConfig : dailyConfig)(sub.date, name));
   const me = s.players.findIndex((p) => p.kind === 'human');
   const moves = [...sub.actions];

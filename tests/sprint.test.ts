@@ -157,6 +157,9 @@ describe('the server: replaying a Sprint', () => {
     expect(() => verifyDaily(sub(moves, { date: '2020-01-01' }), NOW, OWNER, true)).toThrow('That day\'s Sprint is closed.');
     expect(() => verifyDaily(sub(moves.slice(0, 5)), NOW, OWNER, true)).toThrow();
     expect(verifyDaily(sub(moves, { name: 'Sh1tHead' }), NOW, OWNER, true).entry.name).toBe('Shopkeeper aaaa');
+    // A player who never chose a name plays as "You"; on the shared board that would read as everyone's own line.
+    expect(verifyDaily(sub(moves, { name: 'You' }), NOW, OWNER, true).entry.name).toBe('Shopkeeper aaaa');
+    expect(verifyDaily(sub(moves, { name: ' you ' }), NOW, OWNER, true).entry.name).toBe('Shopkeeper aaaa');
   });
 
   it('keeps a board for each day, apart from the Daily market\'s, and one ranking for each week', () => {
@@ -301,3 +304,4 @@ describe('your best Sprint of the day on the phone', () => {
     expect(loadSprintBest()).toEqual({ '2026-11-20': { cash: 5, sold: 1 } });
   });
 });
+
