@@ -1,25 +1,28 @@
-// Trophies (PLAN-086; boards "Stamp-Book", "Trophy-Cards" and "Wardrobe"): four pages under one black bar.
-// The stamp book: your stall's sign, the card being filled, what earns stamps, and the whole ladder with nothing
-// hidden. The cards: every trophy with its tiers and a progress line. The collection: the customers, guests and
+// Trophies (PLAN-086; boards "Stamp-Book", "Trophy-Cards" and "Wardrobe"): four pages under one bar. PLAN-113 draws
+// them in the redesigned market style: a paper bar with a round back button, the page's name and your level.
+// The stamp book: your stall, the card being filled, the next reward drawn as it will look on your stall, what earns
+// stamps, and the whole ladder with nothing hidden. The cards: every trophy with its tiers and a progress line. The collection: the customers, guests and
 // events you have met (a page is a shadow until then; a page that has been met opens its whole card). The Wardrobe is
 // the fourth page (Wardrobe.tsx).
 import type { VNode } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { CUSTOMER_CARDS, EVENT_CARDS, lookOf } from '../engine/data';
-import { frameOf, titleOf, type LookSet } from '../net/looks';
+import { CHARACTER_TRAIT, CUSTOMER_CARDS, EVENT_CARDS, RIVALS, TRAITS, lookOf } from '../engine/data';
+import { frameOf, lookById, stallOf, titleOf, type Look, type LookSet } from '../net/looks';
 import { ALL_GUESTS, CARDS, GROUPS, TIER_COUNT, TIER_NAME, customersServed, eventsSeen, guestsServed, nextStep, stepMet, stepValue, type Card, type Snapshot } from './achievements';
 import { Gazette, TradingCard } from './cards';
 import { customerArt, eventArt, eventFocus, focusCss, guestArt, guestFocus } from './deckArt';
 import { fx } from './fx';
 import { myAvatar, syncLooks, worn } from './looks';
 import { snapshot, syncTiers } from './progress';
-import { BackArrow, Pip, StallPic, StampGrid, TrophyPic, stallName } from './stampCard';
+import { RoofBand } from './icons';
+import { BackArrow, LookSwatch, Pip, StallPic, StampGrid, TrophyPic, myColour, stallName } from './stampCard';
 import { MAX_LEVEL, RANKS, REWARDS, TIER_STAMPS, nextReward, placeOf, progressWords, rewardBuilt, type Place } from './stamps';
 import { WardrobeTab } from './Wardrobe';
 
 export type TrophyTab = 'book' | 'cards' | 'collection' | 'wardrobe';
-const TABS: { id: TrophyTab; title: string }[] = [
-  { id: 'book', title: 'Stamp book' }, { id: 'cards', title: 'Cards' }, { id: 'collection', title: 'Collection' }, { id: 'wardrobe', title: 'Wardrobe' },
+const TABS: { id: TrophyTab; title: string; head: string }[] = [
+  { id: 'book', title: 'Stamp book', head: 'Stamp book' }, { id: 'cards', title: 'Cards', head: 'Trophy cards' },
+  { id: 'collection', title: 'Collection', head: 'Collection' }, { id: 'wardrobe', title: 'Wardrobe', head: 'Wardrobe' },
 ];
 
 /** The stall's sign: its name, the title on show and the level, in the frame on show. */
@@ -37,24 +40,57 @@ export function Sign({ look, level }: { look: LookSet; level: number }) {
 const RANK_GIVES = ['Price tags, a bell, a coin sound', 'Painted-board frame, "Sold out" stamp', 'Lantern-string frame, card backs', 'Brass-plate frame, Monsoon table',
   'Carved-wood frame, Festival table', 'Gold-leaf frame, Gold-thread awning'];
 
+/** Your stall at the top of the stamp book: your awning over your shopkeeper at the stall, the stall's name, the
+ *  title on show and your shopkeeper with their perk, in the signboard frame you have on. */
+function StallBox({ look }: { look: LookSet }) {
+  const avatar = myAvatar();
+  const keeper = RIVALS.find((r) => r.avatar === avatar);
+  const perk = TRAITS[CHARACTER_TRAIT[avatar]];
+  const stall = stallOf(look);
+  return (
+    <div class={`jp-box jp-sb-stall fr-${frameOf(look)}`}>
+      <span class="jp-sb-pic">
+        <RoofBand cls="jp-awn" colour={myColour(look)} roof={stall.roof} trim={stall.trim} />
+        <StallPic avatar={avatar} size={64} />
+      </span>
+      <div class="jp-sb-tx">
+        <h2>{stallName()}</h2>
+        {titleOf(look) && <span>{titleOf(look)}</span>}
+        {keeper && <span class="sbk-sub">{keeper.name}{perk ? ` · ${perk.title}` : ''}</span>}
+      </div>
+    </div>
+  );
+}
+
 function BookTab({ place, look }: { place: Place; look: LookSet }) {
   const [open, setOpen] = useState(place.rankNo - 1);
   const next = nextReward(place);
+  const first = next?.reward?.looks.map(lookById).find((x): x is Look => !!x);
   return (
     <>
-      <Sign look={look} level={place.level} />
+      <StallBox look={look} />
       <div class="sbk-sec">
-        <div class="sbk-card">
+        <div class="sbk-card jp-card">
           <div class="sbk-ch"><span>Card {place.level} of {MAX_LEVEL} · {place.rank.name}</span><b>{place.filled} of {place.size}</b></div>
-          <div style="padding: 9px"><StampGrid size={place.size} filled={place.filled} /></div>
-          <div class="sbk-perf" />
-          <div class="sbk-row" style="padding: 7px 9px">
+          <div style="padding: 10px"><StampGrid size={place.size} filled={place.filled} /></div>
+          <div class="jp-card-foot">
             {next
-              ? <><b>{next.stamps} {next.stamps === 1 ? 'stamp' : 'stamps'} {next.level > MAX_LEVEL ? 'to fill the book' : `to level ${next.level}`}</b><span>{next.reward ? `Next: ${next.reward.text}${rewardBuilt(next.reward) ? '' : ' · coming'}` : ''}</span></>
-              : <b>The book is full</b>}
+              ? <>{next.stamps} {next.stamps === 1 ? 'stamp' : 'stamps'} {next.level > MAX_LEVEL ? 'to fill the book' : `to level ${next.level}`}{next.reward ? ` · next: ${next.reward.text}` : ''}</>
+              : 'The book is full'}
           </div>
         </div>
       </div>
+
+      {next?.reward && (
+        <div class="jp-box jp-next">
+          <span class="sbk-lab">{first ? 'Next reward, on your stall' : 'Next reward'}</span>
+          <div class="jp-next-in">
+            {first && <span class="jp-next-sw"><LookSwatch slot={first.slot} id={first.id} look={look} avatar={myAvatar()} /></span>}
+            <b>{next.reward.text} · Level {next.level}</b>
+            {!rewardBuilt(next.reward) && <span class="sbk-sub">Coming in a later update</span>}
+          </div>
+        </div>
+      )}
 
       <div class="sbk-sec">
         <div class="sbk-row"><span class="sbk-lab">What earns stamps</span><span class="sbk-sub">Never spent, lost or sold</span></div>
@@ -223,13 +259,13 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
   useEffect(() => { if (scroller.current) scroller.current.scrollTop = 0; }, [tab]);
   return (
     <>
-    <div class="sbk">
-      <header class="sbk-bar">
-        <button class="sbk-back" onClick={onBack} aria-label="Back"><BackArrow /></button>
-        <h1>Trophies</h1>
-        <span class="sbk-lv">Level {place.level}</span>
+    <div class="sbk jp-page">
+      <header class="jp-bar">
+        <button class="jp-back sbk-back" onClick={onBack} aria-label="Back"><BackArrow /></button>
+        <h1>{TABS.find((t) => t.id === tab)?.head ?? 'Trophies'}</h1>
+        <span class="jp-lv">Level {place.level}</span>
       </header>
-      <nav class="sbk-tabs" aria-label="Trophies pages">
+      <nav class="sbk-tabs jp-tabs" aria-label="Trophies pages">
         {TABS.map((t) => <button type="button" class={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={() => { fx.tap(); setTab(t.id); }}>{t.title}</button>)}
       </nav>
       <main class="sbk-scroll" ref={scroller}>
@@ -237,7 +273,7 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
           {tab === 'book' && <BookTab place={place} look={look} />}
           {tab === 'cards' && <CardsTab snap={snap} />}
           {tab === 'collection' && <CollectionTab snap={snap} setOpen={setCard} />}
-          {tab === 'wardrobe' && <WardrobeTab look={look} fresh={fresh} place={place} snap={snap} onChange={(l) => { setLook(l); onLook?.(l); }} />}
+          {tab === 'wardrobe' && <WardrobeTab look={look} fresh={fresh} snap={snap} onChange={(l) => { setLook(l); onLook?.(l); }} />}
         </div>
       </main>
     </div>

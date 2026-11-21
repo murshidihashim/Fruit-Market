@@ -1,19 +1,16 @@
-// The Wardrobe (PLAN-086, board "Wardrobe"): your stall and shopkeeper as rivals see them, where the looks show in a
-// game, and every slot with what is on, how many are earned and how the next is earned. It is the fourth page of
-// Trophies; `Wardrobe` opens Trophies on it (from Home, the online lobby and the pause menu).
-// Worn looks are drawn on the portrait as Great Fruit Exchange regalia (DEC-069).
+// The Wardrobe (PLAN-086, board "Wardrobe"; PLAN-113, the redesigned market style): your stall as rivals see it at
+// the table, with what is on; then one page per slot, every look in it drawn as it shows, the one on marked, and how
+// to earn the ones still locked. It is the fourth page of Trophies; `Wardrobe` opens Trophies on it (from Home, the
+// online lobby and the pause menu). Worn looks are drawn on the portrait as Great Fruit Exchange regalia (DEC-069).
 import { useState } from 'preact/hooks';
-import { CHARACTER_TRAIT, RIVALS, TRAITS } from '../engine/data';
-import { LOOKS, SLOTS, colourOf, lookById, partsOf, stallOf, tagOf, titleOf, type Look, type LookSet, type Slot } from '../net/looks';
+import { RIVALS } from '../engine/data';
+import { LOOKS, SLOTS, lookById, tagOf, titleOf, type Look, type LookKind, type LookSet, type Slot } from '../net/looks';
 import { TIER_NAME, type Snapshot } from './achievements';
-import { Face } from './art';
 import { fx, playSound } from './fx';
-import { PropSprite, RoofBand } from './icons';
-import { achievementFor, earned, myAvatar, ownsLook, toggleLook, wornIn, wornSounds } from './looks';
-import { COLOURS, colourHex, loadGranted, loadLooks } from './progress';
-import { C } from './palette';
-import { Awning, FramedFace, stallName } from './stampCard';
-import type { Place } from './stamps';
+import { achievementFor, myAvatar, ownsLook, toggleLook, wornIn, wornSounds } from './looks';
+import { loadGranted, loadLooks } from './progress';
+import { LookSwatch, StallPreview, onWord } from './stampCard';
+import { loadName } from './store';
 import { TrophyScreen } from './Trophies';
 
 export { myAvatar } from './looks';
@@ -31,96 +28,70 @@ function howEarned(l: Look, s: Snapshot): string {
   return '';
 }
 
-const SLOT_ORDER: { head: string; slots: Slot[] }[] = [
-  { head: 'Your stall', slots: ['colour', 'roof', 'trim', 'prop', 'frame', 'title', 'tag', 'stamp'] },
-  { head: 'Your shopkeeper', slots: ['hat', 'face', 'neck', 'badge', 'hand'] },
-  { head: 'Sounds · only you hear these', slots: ['bell', 'coin'] },
-];
+/** The Wardrobe's pages, one per slot, in the order a player meets them: the stall, then the shopkeeper, then the
+ *  signboard, then the sounds. */
+const SLOT_ORDER: Slot[] = ['roof', 'trim', 'colour', 'prop', 'hat', 'face', 'neck', 'badge', 'hand', 'frame', 'title', 'tag', 'stamp', 'bell', 'coin'];
+/** Where the looks of a slot show, in a few words. */
+const WHERE: Record<LookKind, string> = {
+  stall: 'Shows on your stall at the table, on Home, in the online lobby and on the results.',
+  wear: 'Your shopkeeper wears it at the table, on Home, in the online lobby and on the results.',
+  sign: 'Shows on your signboard: on Home, in the online lobby and on the results.',
+  sound: 'Only you hear it.',
+};
+/** Slots that can be left empty (their first tile takes off what is on). The rest always have one on. */
+const CAN_BE_EMPTY = new Set<Slot>(['colour', 'roof', 'trim', 'prop', 'hat', 'face', 'neck', 'badge', 'hand', 'stamp']);
+const EMPTY_WORD: Partial<Record<Slot, string>> = { colour: 'Seat colour', roof: 'Plain', trim: 'None', prop: 'None', stamp: 'None' };
 
 /** The Wardrobe page. `onChange` hears what is on show to others after every change. */
-export function WardrobeTab({ look, fresh, place, snap, onChange }: { look: LookSet; fresh: Look[]; place: Place; snap: Snapshot; onChange: (look: LookSet) => void }) {
-  const [open, setOpen] = useState<Slot | null>(null);
+export function WardrobeTab({ look, fresh, snap, onChange }: { look: LookSet; fresh: Look[]; snap: Snapshot; onChange: (look: LookSet) => void }) {
+  const [slot, setSlot] = useState<Slot>('roof');
   const own = new Set([...loadLooks(), ...loadGranted()]);
   const avatar = myAvatar();
   const keeper = RIVALS.find((r) => r.avatar === avatar);
-  const perk = TRAITS[CHARACTER_TRAIT[avatar]];
-  const colour = colourHex(colourOf(look)) ?? C.terracotta;
-  const stall = stallOf(look);
   const sounds = wornSounds();
   const pick = (id: string) => { fx.tap(); const next = toggleLook(id); if (lookById(id)?.kind === 'sound') playSound(id); onChange(next); };
-  // what is on, in words: "teal, striped roof, bunting, brass scales"
-  const dressed = [colourOf(look) && COLOURS.find((c) => c.id === colourOf(look))?.name, stall.roof && lookById(stall.roof)?.title, stall.trim && lookById(stall.trim)?.title, stall.prop && lookById(stall.prop)?.title]
-    .filter((x): x is string => !!x).map((x) => x.toLowerCase()).join(', ');
-  const me = <FramedFace who={avatar} size={26} look={look} />;
+  const name = loadName().trim() || 'You';
+  const info = SLOTS.find((x) => x.id === slot)!;
+  const list = LOOKS.filter((l) => l.slot === slot);
+  const mine = list.filter((l) => own.has(l.id));
+  const on = slot === 'bell' ? sounds.bell : slot === 'coin' ? sounds.coin : slot === 'tag' ? `tag_${tagOf(look)}` : look[slot] ?? wornIn(slot);
+  const tile = (id: string | undefined, title: string, state: 'on' | 'own' | 'locked', note: string) => (
+    <button type="button" class={`jp-wd-it ${state}`} disabled={state === 'locked'} aria-pressed={state === 'locked' ? undefined : state === 'on'}
+      aria-label={`${title}. ${note}`} onClick={() => (id ? pick(id) : on && pick(on))}>
+      <span class="jp-wd-sw" aria-hidden="true"><LookSwatch slot={slot} id={id} look={look} avatar={avatar} /></span>
+      {slot !== 'title' && <b aria-hidden="true">{title}</b>}
+      <small aria-hidden="true">{note}</small>
+    </button>
+  );
   return (
     <>
-      <div class="sbk-stage">
-        {stall.roof || stall.trim ? <RoofBand cls="sbk-roof" colour={colour} roof={stall.roof} trim={stall.trim} scale={2} /> : <Awning colour={colour} />}
-        <div class="sbk-srow">
-          <div class="sbk-sc"><Face who={avatar} size={76} worn={partsOf(look)} />{stall.prop && <PropSprite id={stall.prop} size={30} cls="sbk-prop" />}</div>
-          <div class="sbk-snm">
-            <b>{stallName()}</b>
-            <span class="sbk-lab">{titleOf(look) ?? ''}</span>
-            <span class="sbk-sub">{keeper ? `${keeper.name} · ${perk?.title ?? ''}` : ''}{dressed ? ` · ${dressed}` : ''}</span>
-          </div>
-        </div>
+      <div class="jp-wd-prev">
+        <span class="sbk-lab">Your stall, as rivals see it</span>
+        <StallPreview look={look} avatar={avatar} name={`${keeper ? `${keeper.name} · ` : ''}${name}`} />
+        {titleOf(look) && <span class="jp-wd-title">{titleOf(look)}</span>}
       </div>
       {fresh.length > 0 && <p class="sbk-note" role="status">New: {fresh.slice(0, 4).map((l) => l.title).join(', ')}{fresh.length > 4 ? ` and ${fresh.length - 4} more` : ''}.</p>}
 
+      <nav class="jp-wd-tabs" aria-label="Wardrobe slots">
+        {SLOT_ORDER.map((id) => {
+          const s = SLOTS.find((x) => x.id === id)!;
+          return <button type="button" class={slot === id ? 'on' : ''} aria-current={slot === id ? 'page' : undefined} onClick={() => { fx.tap(); setSlot(id); }}>{s.title}</button>;
+        })}
+      </nav>
       <div class="sbk-sec">
-        <span class="sbk-lab">Where it shows in a game</span>
-        <div class="sbk-where">
-          <div><span class="sbk-cap">Your shelf</span><Awning colour={colour} /><div class="sbk-wi">{me}<span><b>You</b> · your shelf</span></div></div>
-          <div><span class="sbk-cap">How a rival sees you</span><Awning colour={colour} thin /><div class="sbk-wi">{me}<span><b>{stallName().replace(/'s stall$/, '').replace(/^Your stall$/, 'You')}</b> · your box</span></div></div>
-        </div>
-        <span class="sbk-sub">Also on Home, in the online lobby and on the results. Looks never change a rule, a price or what anyone can see.</span>
+        <div class="sbk-row"><span class="sbk-lab">{info.title}</span><span class="sbk-sub">{mine.length} of {list.length} earned</span></div>
+        <span class="sbk-sub">{WHERE[info.kind]}</span>
       </div>
-
-      {SLOT_ORDER.map((group, gi) => (
-        <div class="sbk-sec" style={gi === SLOT_ORDER.length - 1 ? 'padding-bottom: 14px' : undefined}>
-          <span class="sbk-lab">{group.head}</span>
-          {group.slots.map((id) => {
-            const slot = SLOTS.find((x) => x.id === id)!;
-            const list = LOOKS.filter((l) => l.slot === id);
-            const mine = list.filter((l) => own.has(l.id));
-            const on = id === 'bell' ? sounds.bell : id === 'coin' ? sounds.coin : id === 'tag' ? `tag_${tagOf(look)}` : look[id] ?? wornIn(id);
-            const onLook = on ? lookById(on) : undefined;
-            const next = list.find((l) => !own.has(l.id));
-            const note = mine.length === 0 && next ? howEarned(next, snap) : `${mine.length} of ${list.length} earned`;
-            if (id === 'colour') {
-              return (
-                <div class="sbk-slot">
-                  <span class="sbk-k">{slot.title}</span><span class="sbk-v">{onLook?.title ?? 'Not chosen'}</span>
-                  <span class="sbk-sws">{COLOURS.map((c) => <button type="button" class={on === `col_${c.id}` ? 'on' : ''} style={{ background: c.hex }} title={c.name} aria-label={c.name} aria-pressed={on === `col_${c.id}`} onClick={() => pick(`col_${c.id}`)} />)}</span>
-                </div>
-              );
-            }
-            return (
-              <>
-                <button type="button" class={`sbk-slot ${mine.length === 0 ? 'lock' : ''} ${open === id ? 'open' : ''}`} aria-expanded={open === id} onClick={() => { fx.tap(); setOpen(open === id ? null : id); }}>
-                  <span class="sbk-k">{slot.title}</span>
-                  <span class="sbk-v">{onLook?.title ?? (mine.length ? 'None' : 'Nothing yet')}</span>
-                  {id === 'tag' && <span class={`sbk-tag tg-${tagOf(look)}`} aria-hidden="true">$7</span>}
-                  <span class="sbk-nn">{note}</span>
-                </button>
-                {open === id && (
-                  <div class="sbk-picks">
-                    {list.map((l) => {
-                      const has = own.has(l.id) && ownsLook(l.id);
-                      return (
-                        <button type="button" class={`sbk-pick ${on === l.id ? 'on' : ''} ${has ? '' : 'locked'}`} disabled={!has} aria-pressed={has ? on === l.id : undefined} onClick={() => pick(l.id)}>
-                          <b>{l.title}</b>
-                          <small>{has ? (on === l.id ? 'In use' : 'Tap to use') : earned(l, snap, place.level) ? 'Tap to use' : howEarned(l, snap)}</small>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </>
-            );
-          })}
-        </div>
-      ))}
+      <div class="jp-wd-grid">
+        {CAN_BE_EMPTY.has(slot) && tile(undefined, EMPTY_WORD[slot] ?? 'Nothing', on ? 'own' : 'on', on ? 'Tap to take off' : 'On now')}
+        {list.map((l) => {
+          const has = own.has(l.id) && ownsLook(l.id);
+          const state = on === l.id ? 'on' : has ? 'own' : 'locked';
+          const note = state === 'on' ? onWord(l) : has ? 'Owned' : howEarned(l, snap);
+          return tile(l.id, l.title, state, note);
+        })}
+      </div>
+      <p class="sbk-sub jp-wd-foot">Looks never change a rule, a price or what anyone can see.</p>
     </>
   );
 }
