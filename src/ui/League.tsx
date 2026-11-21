@@ -8,6 +8,7 @@ import { Face } from './art';
 import { STAR_COUNT, stageStars } from './campaign';
 import { fx } from './fx';
 import { worn } from './looks';
+import { isReduced } from './motion';
 import { LEAGUE, leagueConfig, leagueStage, myStars } from './progress';
 import { stageGoal, stageLine, stageRivals } from './progressView';
 import { BackArrow, FramedFace, shownAvatar } from './stampCard';
@@ -23,7 +24,12 @@ interface Props { onBack: () => void; onPlay: (stage: number) => void }
 
 export function LeagueScreen(p: Props) {
   const [sel, setSel] = useState(() => Math.min(leagueStage(), LEAGUE.length - 1));
-  return <LeagueView {...p} sel={sel} onPick={setSel} />;
+  // The chosen stage shows at the top: the page scrolls up to it (at once when motion is reduced).
+  const pick = (i: number) => {
+    setSel(i);
+    document.getElementById('jp-lg-title')?.closest('section')?.scrollIntoView({ block: 'start', behavior: isReduced() ? 'auto' : 'smooth' });
+  };
+  return <LeagueView {...p} sel={sel} onPick={pick} />;
 }
 
 /** The screen itself, with the stage chosen (`sel`) given: it holds no state of its own. */

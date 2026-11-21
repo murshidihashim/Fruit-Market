@@ -61,7 +61,7 @@ const PREMIUM = ['Ravi', 'Lina', 'Anna'];
 
 export const LEAGUE: Stage[] = [
   {
-    title: 'Village Square', rivals: [{ idx: 0, level: 'easy' }], days: 6, seed: 1, marketDays: false,
+    title: 'Village Square', rivals: [{ idx: 0, level: 'easy' }], days: 6, seed: 58, marketDays: false,
     setup: { events: {}, undercut: [1] },
     lesson: 'Rosa always asks $1 under the top price. Go $1 under her and the customer comes to you.',
     pic: { kind: 'keeper', id: RIVALS[0].avatar },
@@ -101,7 +101,7 @@ export const LEAGUE: Stage[] = [
     before: 'The Beach Resort wants watermelons on day 5. The lowest bid wins.',
     after: 'The resort paid on time. A good order is steady money.',
     mastery: [
-      { id: 'ho_win', text: `Win ${RESORT_TITLE}'s order`, met: (g, me) => orderWon(g, me, RESORT_TITLE) !== null },
+      { id: 'ho_win', text: `Win the ${RESORT}'s order`, met: (g, me) => orderWon(g, me, RESORT_TITLE) !== null },
       { id: 'ho_full', text: 'Deliver every piece of the order', met: (g, me) => lines(g).some((l) => l.name === RESORT && soldOn(l, me) > 0 && soldOn(l, me) >= l.want) },
       { id: 'ho_bid', text: 'Win the order at $9 a piece or more', met: (g, me) => (orderWon(g, me, RESORT_TITLE) ?? 0) >= 9 },
     ],

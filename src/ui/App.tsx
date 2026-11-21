@@ -232,7 +232,7 @@ function Main() {
       resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
       cash={waiting ? waiting.cash : null}
       table={waiting ? game : null}
-      leagueLine={league >= LEAGUE.length ? `Replay the ${LEAGUE[LEAGUE.length - 1].title}` : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
+      leagueLine={league >= LEAGUE.length ? 'All stages cleared · replay for stars' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
       today={today}
       notice={saveNotice}
       onContinue={() => open('continue')}

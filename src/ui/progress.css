@@ -152,7 +152,7 @@
 .sbk .jp-lg-now .jp-star.on path { stroke: var(--k-yel); }
 /* the stage's moment: its picture from the card art, and its host's line */
 .sbk .jp-mo { align-self: stretch; margin: 6px 0 0; background: var(--k-paper); color: var(--k-ink); border: 2.5px solid var(--k-ink); text-align: left; }
-.sbk .jp-mo-pic { display: block; width: 100%; height: auto; aspect-ratio: 300 / 150; object-fit: cover; border-bottom: 2px solid var(--k-ink); }
+.sbk .jp-mo-pic { display: block; width: 100%; height: auto; aspect-ratio: 300 / 120; object-fit: cover; border-bottom: 2px solid var(--k-ink); }
 .sbk .jp-lg-now .jp-mo { border-color: var(--k-paper); }
 .sbk .jp-mo-say { display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
 .sbk .jp-mo-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; font: 600 0.875rem/1.25 var(--f-label); }
@@ -164,7 +164,9 @@
 .sbk .jp-ms li .jp-star { flex: none; }
 .sbk .jp-ms-new { margin-left: auto; padding: 2px 5px; background: var(--k-yel); color: var(--k-ink); font: 800 0.625rem/1 var(--f-label); font-style: normal; letter-spacing: 0.08em; text-transform: uppercase; }
 /* the stage on the results: its host's line after the game, and the stars */
-.sbk .jp-stage-end { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.sbk .jp-stage-end { display: flex; flex-direction: column; gap: 6px; }
+.sbk .jp-stage-end > .jp-mo, .sbk .jp-stage-end > .jp-ms, .sbk .jp-stage-end > .sbk-lab, .sbk .jp-stage-end > .sbk-sub { margin-left: 12px; margin-right: 12px; }
+.sbk .jp-stage-end > .jp-mo { margin-top: 4px; }
 
 /* ---------- the stamp book ---------- */
 .sbk .jp-sb-stall { flex-direction: row; align-items: center; gap: 12px; outline-offset: 3px; }
