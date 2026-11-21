@@ -258,6 +258,7 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
           <b class="jp-rw-name">{l.title}</b>
           <span class="sbk-sub">{earnedBy(l)}</span>
           {on ? <span class="jp-rw-on">{onWord(l)}</span> : <button type="button" class="jp-wear" onClick={wear}>{l.kind === 'sound' ? 'Use it' : 'Wear it'}</button>}
+          {up && <span class="sbk-sub">Stall level {level}: {up.text}{rewardBuilt(up) ? '' : ', coming in a later update'}.</span>}
           {more > 0 && <span class="sbk-sub">And {more} more in the Wardrobe.</span>}
         </div>
       </div>
@@ -358,8 +359,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
             const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
             const name = i === owner ? 'You' : pl.name;
             return (
-              <li class={`jp-pod ${i === owner ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`} aria-label={`${words.medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}
+              <li class={`jp-pod ${i === owner ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
                 title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
+                <span class="jp-sr">{`${words.medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
                 <i class="jp-pl" aria-hidden="true">{place[i]}</i>
                 <Awning p={i} look={look} thin />
                 <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
