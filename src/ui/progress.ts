@@ -1,13 +1,15 @@
 // Long-term goals kept on this device: trophy tiers and what they are counted from, the Market League (a ladder of
 // rivals), looks and the stall colour. The stamp book (stamps.ts) is worked out from these; it is never stored.
 import { RIVALS } from '../engine/data';
-import { winners, type GameConfig, type GameState, type Level } from '../engine/game';
+import { winners, type GameConfig, type GameState } from '../engine/game';
 import { lookById } from '../net/looks';
 import { loadDaily, loadStats, saveDaily, saveStats } from './store';
 import { ACHIEVEMENTS, evaluate, standing, tierById, type Achievement, type Counts, type Facts, type Sets, type Snapshot } from './achievements';
+import { LEAGUE, STAR_IDS } from './campaign';
 import { earnLines, placeAt, stampsOf, type EarnLine, type Place } from './stamps';
 import { C } from './palette';
 import { profileChanged } from './changed';
+import { saveSprintBest } from './sprintStore';
 
 // ---------- trophies ----------
 
@@ -72,6 +74,8 @@ export interface GameSummary {
   facts: Facts;
   /** This game cleared the Market League stage the player was on. */
   cleared: boolean;
+  /** PLAN-115: the campaign stars this game earned for the first time. */
+  stars: string[];
 }
 
 /** A finished game, told apart from every other: the same game opened twice gives the same words. */
@@ -103,7 +107,9 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
     st.bestCash = Math.max(st.bestCash, g.players[me].cash);
     st.totalSold += g.players[me].stats.sold;
     saveStats(st);
-    if (g.config.daily) {
+    // PLAN-114: a Market Sprint keeps its own best of the day; the Daily market's record (stamps, streak) is not touched.
+    if (g.config.sprint && g.config.daily) saveSprintBest(g.config.daily, g.players[me].cash, g.players[me].stats.sold);
+    else if (g.config.daily) {
       const d = loadDaily();
       firstDaily = d[g.config.daily] === undefined;
       d[g.config.daily] = Math.max(d[g.config.daily] ?? 0, g.players[me].cash);
@@ -113,6 +119,7 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
     try { localStorage.setItem(COUNTED_KEY, JSON.stringify([...seen, key].slice(-12))); } catch { /* storage unavailable */ }
   }
   const have = unlocked();
+  const starsBefore = myStars();
   const r = evaluate(g, me, { ...snapshot(), online, count: fresh });
   if (!r.facts) return null;
   saveSets(r.sets);
@@ -123,6 +130,7 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
     lines: earnLines(r.facts, { daily: !!g.config.daily, firstDaily, tiers: r.got }).filter((l) => fresh || l.tier),
     earned: afterStamps - beforeStamps, before: placeAt(beforeStamps), after: placeAt(afterStamps),
     tiers: ACHIEVEMENTS.filter((a) => r.got.includes(a.id)), facts: r.facts, cleared,
+    stars: myStars().filter((id) => !starsBefore.includes(id)),
   };
   last = { key, summary };
   return summary;
@@ -143,32 +151,29 @@ export function unlockAchievement(id: string): Achievement | null {
 
 // ---------- Market League ----------
 
-export interface Stage { title: string; rivals: { idx: number; level: Level }[]; days: 8 | 10 }
-
-// Retuned for rules version 3 (PLAN-012): a Normal-strength player wins about 64, 64, 52, 41, 33 and 20%
-// of games at each stage (computer stand-in, 300 games per stage), with no late cliff.
-export const LEAGUE: Stage[] = [
-  { title: 'Village Square', rivals: [{ idx: 0, level: 'easy' }], days: 8 },
-  { title: 'Harbour Steps', rivals: [{ idx: 2, level: 'easy' }], days: 8 },
-  { title: 'Old Town', rivals: [{ idx: 3, level: 'normal' }], days: 10 },
-  { title: 'Spice Lane', rivals: [{ idx: 1, level: 'easy' }, { idx: 4, level: 'easy' }], days: 10 },
-  { title: 'Grand Bazaar', rivals: [{ idx: 1, level: 'normal' }, { idx: 0, level: 'normal' }], days: 10 },
-  { title: 'Royal Market', rivals: [{ idx: 2, level: 'hard' }, { idx: 3, level: 'normal' }, { idx: 4, level: 'normal' }], days: 10 },
-];
+// PLAN-115: the six stages are authored scenarios (campaign.ts). A player's saved stage number still means the same
+// place on the ladder: a player at stage N plays stage N.
+export { LEAGUE, type Stage } from './campaign';
 
 export const leagueStage = (): number => { const n = readJson<unknown>(LADDER_KEY, 0); return typeof n === 'number' && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0; };
 export const saveLeagueStage = (n: number) => writeJson(LADDER_KEY, n);
 
-export function leagueConfig(stage: number, name: string, avatar: string, seed: number): GameConfig {
-  const st = LEAGUE[Math.min(stage, LEAGUE.length - 1)];
+/** A stage's game: its rivals, length and fixed seed, and the cards its set-up names. No upgrades: a short stage is
+ *  about its one lesson. `seed` replaces the stage's own (for tests and the balance run). */
+export function leagueConfig(stage: number, name: string, avatar: string, seed?: number): GameConfig {
+  const st = LEAGUE[Math.min(Math.max(0, stage), LEAGUE.length - 1)];
   return {
     players: [
       { name, kind: 'human', avatar },
       ...st.rivals.map((r) => ({ ...RIVALS[r.idx % RIVALS.length], kind: 'ai' as const, level: r.level })),
     ],
-    days: st.days, unripe: true, upgrades: true, events: true, seed, league: stage,
+    days: st.days, unripe: true, upgrades: false, events: true, seed: seed ?? st.seed, marketDays: st.marketDays,
+    league: Math.min(Math.max(0, stage), LEAGUE.length - 1), stage: st.setup,
   };
 }
+
+/** PLAN-115: the campaign's stars this phone holds (mastery goal ids, kept in the set "stars"). */
+export const myStars = (): string[] => (loadSets().stars ?? []).filter((id) => STAR_IDS.includes(id));
 
 /** Moves the player up a stage after a league game they won on the stage they were on. */
 function advanceLeague(g: GameState, me: number): boolean {

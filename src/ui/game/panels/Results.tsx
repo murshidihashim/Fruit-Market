@@ -20,7 +20,9 @@ import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, sho
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
 import { Awning, SEAT_COLOURS } from '../../table';
 import { Ticket } from '../../ticket';
+import { StageEnd } from '../../StageMoment';
 import { DailyResult } from './DailyResult';
+import { SprintResult } from '../../Sprint';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
 function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
@@ -326,7 +328,8 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const nudge = !online && !s.config.daily && league === undefined && onPlayAs ? close.find((c) => c.avatar && c.name) : undefined;
   // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
   const headline = win || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
-  const mode = s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, stage ${league + 1}` : online ? ' · Online' : '';
+  const sprint = !!s.config.sprint;
+  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, stage ${league + 1}` : online ? ' · Online' : '';
   const share = async () => {
     const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
     try {
@@ -338,9 +341,10 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
   // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Home' : 'Rematch';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
-  const what = online ? 'Rematch: the same room, a new market' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
+  // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
+  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
   const myLook = lookOfSeat(owner);
   const cols = order.length <= 4 ? order.length : 3;
   return (
@@ -373,11 +377,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           })}
         </ol>
 
-        {league !== undefined && (
-          <p class={`sbk-note ${cleared ? 'good' : ''}`}>
-            {cleared ? (league + 1 >= LEAGUE.length ? 'You won the Market League.' : `${LEAGUE[league].title} cleared. Next: ${LEAGUE[league + 1].title}`) : `Market League: win to clear ${LEAGUE[league].title}.`}
-          </p>
-        )}
+        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
+
+        {sprint && <SprintResult s={s} />}
 
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
 
@@ -397,7 +399,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
         )}
 
         <div class="sbk-more">
-          {s.config.daily && <DailyResult s={s} />}
+          {s.config.daily && !sprint && <DailyResult s={s} />}
           <CashChart s={s} viewer={owner} />
           {(recap.best.length > 0 || recap.worst.length > 0) && (
             <div class="sbk-box recap">
@@ -412,7 +414,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
-            {!s.config.daily && <button class="jp-sec" onClick={onExit}>Home</button>}
+            {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
           </div>
         </div>
       </div>

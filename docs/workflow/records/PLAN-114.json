@@ -1,0 +1,82 @@
+{
+  "id": "PLAN-114",
+  "title": "Market Sprint and its leaderboard",
+  "problem": "There is no short daily format to retry and compare; the Daily market takes 8 to 14 days.",
+  "scope": [
+    "Market Sprint: 3 days, 4 stalls, the day's shared seed, fixed shopkeepers and cash, the Daily's computer rivals, no upgrades or standing orders",
+    "Beside the Daily market on the Daily card, each labelled with its length",
+    "Score by final cash, then fruit sold; results with your best, your place, one concrete reason from the game, and Try again",
+    "A Sprint board per day, checked by server replay; your place, the top 10 and your neighbours; a weekly Sprint ranking",
+    "Run time measured in the browser and reported"
+  ],
+  "exclusions": [
+    "No rule, price or card changes; rules version 20",
+    "The Daily market itself and online play unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with Sprint set-up, replay and ranking tests",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (cc75e1c): 100 test files, 1121 passed, 1 skipped (as before); tests/sprint.test.ts (22): set-up, replay on the server, boards, places, weekly ranking, reasons, the neutral board name for \"You\""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e plus a Sprint played and retried, run time reported",
+      "result": "PASS",
+      "evidence": "PORT=8818 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo with the guided first sale; League stage 1 played to \"Village Square cleared\", stage 2 open; online match finished, rematch, leaver taken over, 0 leaks; public room 4/4 reactions, 0 leaks; Sprint played to results and Try again started the same Sprint (77 s each at test speed); four players; 5 reconnects; speed check OK first try. Human-pace runs (normal animation, reading pauses) took 175 s and 173 s: about 3 minutes, below the 5 to 8 minute target; no rule changed to lengthen it"
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568: Home before and after a Sprint, Play menu, results top, Sprint box and boards (scratchpad p114/shots); reviewed Home and results"
+    },
+    {
+      "id": "T4",
+      "text": "Balance run over 1,000 seeds",
+      "result": "PASS",
+      "evidence": "scripts/sprint-balance.ts over 1,000 dates (person seat played by a computer): win shares person 21.6% (Normal) or 42.1% (Hard); Rosa 11.7%, Uncle Benny (Hard) 36.9%, Ah Chen 29.9%; final cash mean $26, middle 80% $13 to $39; Rosa wins less than Ah Chen at the same level, cause not found"
+    },
+    {
+      "id": "T5",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
+    "date": "2026-11-21"
+  },
+  "delivery": "implemented",
+  "release": "1.27.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge fc24a2b and fix (neutral board name), verified at cc75e1c",
+  "reports": [
+    "REP-131",
+    "REP-132"
+  ],
+  "decisions": [
+    "DEC-124"
+  ],
+  "changes": {
+    "added": [
+      "Market Sprint: 3 days, 4 stalls, the same start for everyone each day, beside the Daily market",
+      "A Sprint board per day checked by server replay: top 10, your place, the players around you, and a weekly ranking",
+      "Sprint results: your best today and place, one reason from your game, Try again for the same Sprint"
+    ],
+    "changed": [
+      "The Daily card shows both formats with their lengths and your place"
+    ],
+    "fixed": [
+      "A player still called \"You\" goes on the Daily and Sprint boards under a neutral name"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Market Sprint: a 3-day daily game, the same for everyone, beside the Daily market",
+    "Retry the Sprint as often as you like; your best counts on today's board and this week's ranking",
+    "Sprint results say why a sale went your way or not"
+  ]
+}

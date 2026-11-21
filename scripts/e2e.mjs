@@ -1,5 +1,5 @@
 // Runs every browser test against fresh builds:
-//   solo playthrough and the performance budget (single-file build),
+//   solo playthrough, the Market League's first stage and the performance budget (single-file build),
 //   then the online match (with a player leaving), quick match, a public room with reactions (PLAN-112), four players
 //   in one room and rejoining from a background tab
 //   against a local server
@@ -17,6 +17,8 @@ const step = (name, cmd, env) => { try { run(cmd, env); } catch { failures.push(
 
 run('npx vite build --mode single');
 step('solo playthrough', `node scripts/smoke.cjs dist-single/index.html ${out} 3`);
+// PLAN-115: the Market League's first stage played to its goal, from the League screen to stage 2.
+step('league stage 1', `node scripts/e2e-league.cjs dist-single/index.html ${out}`);
 // Timings on a shared machine are noisy, so the budget gets one retry; a second miss fails.
 step('performance budget', 'node scripts/perf-budget.cjs dist-single/index.html || node scripts/perf-budget.cjs dist-single/index.html');
 
@@ -29,6 +31,8 @@ if (!process.env.E2E_SKIP_ONLINE) {
     step('quick match', `node scripts/e2e-quick.cjs ${server.base} ${out}`);
     // PLAN-112: a public room found in the list and joined from there; reactions both ways, in the lobby and the game.
     step('public room and reactions', `node scripts/e2e-public.cjs ${server.base} ${out}`);
+    // PLAN-114: today's Market Sprint played to its results (checked by the server's replay), then Try again.
+    step('market sprint', `node scripts/e2e-sprint.cjs ${server.base} ${out}`);
     step('four players in one room', `node scripts/e2e-four.cjs ${server.base} ${out}`);
     // Regression test for PLAN-004: rejoining from a background tab used to stay on "Connecting…".
     step('rejoin from a background tab', `node scripts/e2e-reconnect.cjs ${server.base} ${out}`, { HIDDEN: '1', RELOADS: '3', DROPS: '2', QUICKS: '0', LIMIT_MS: '15000' });

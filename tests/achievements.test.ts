@@ -33,16 +33,16 @@ const OLD_IDS = ['first_win', 'first_sale', 'explorer', 'no_waste', 'jam_session
   'sold_100', 'sold_500', 'sold_2000', 'played_10', 'played_50', 'played_200'];
 
 describe('the catalogue', () => {
-  it('has 48 cards and 109 tiers in eight groups, each code name once', () => {
+  it('has 49 cards and 112 tiers in eight groups, each code name once (PLAN-115 added League stars)', () => {
     const ids = ACHIEVEMENTS.map((a) => a.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(CARDS.length).toBe(48);
-    expect(ids.length).toBe(109);
-    expect(TIER_COUNT).toBe(109);
+    expect(CARDS.length).toBe(49);
+    expect(ids.length).toBe(112);
+    expect(TIER_COUNT).toBe(112);
     expect(new Set(CARDS.map((c) => c.id)).size).toBe(CARDS.length);
     for (const c of CARDS) expect(GROUPS.some((g) => g.id === c.group), c.id).toBe(true);
     for (const g of GROUPS) expect(CARDS.some((c) => c.group === g.id), g.id).toBe(true);
-    expect(GROUPS.map((g) => CARDS.filter((c) => c.group === g.id).length)).toEqual([3, 10, 10, 3, 3, 14, 3, 2]);
+    expect(GROUPS.map((g) => CARDS.filter((c) => c.group === g.id).length)).toEqual([3, 10, 10, 3, 3, 14, 4, 2]);
   });
 
   it('keeps every trophy of the live game under its code name, so what was earned stays earned', () => {
@@ -343,6 +343,8 @@ describe('earnable under rules 18', () => {
     'fruit_watermelon_200', 'fruit_blueberry_200', 'fruit_apple_200', 'orders_8', 'win_keeper_3'];
   /** The rest: why 30 computer games do not show them. None is out of reach under rules 20. */
   const LATER: Record<string, string> = {
+    // PLAN-115: stars come only from the Market League campaign's mastery goals, never from a game of this sample.
+    stars_6: 'earned on Market League stages only', stars_12: 'earned on Market League stages only', stars_18: 'earned on Market League stages only',
     // Rules 19 (PLAN-095): this sample's games changed with the standing-order numbers and no longer show these two.
     juice_regular: 'reached: 6 of 460 computer stalls in 120 games earned $20 or more from a Juice Bar (2026-11-13); one seat in 30 games may miss it',
     // Rules 20 (PLAN-108): without Closing Day's $1 these games end differently; the long run still earns all three.

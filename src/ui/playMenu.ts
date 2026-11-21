@@ -16,9 +16,9 @@ export const roomLine = (): string => `Invite 1 to ${MAX_SEATS - 1} friends by l
 export const computerLine = (): string => `2 to ${MAX_SEATS} stalls · Easy, Normal, Hard`;
 export const phoneLine = (): string => `Pass and play · 2 to ${MAX_SEATS} people`;
 
-/** "Stage 1 of 6 · Village Square · 8 days vs Rosa", or the replay line once every stage is cleared. */
+/** "Stage 1 of 6 · Village Square · 6 days vs Rosa", or the replay line once every stage is cleared. */
 export function leagueLine(stage: number): string {
-  if (stage >= LEAGUE.length) return `All ${LEAGUE.length} stages cleared · replay the ${LEAGUE[LEAGUE.length - 1].title}`;
+  if (stage >= LEAGUE.length) return `All ${LEAGUE.length} stages cleared · replay any stage for its stars`;
   const st = LEAGUE[stage];
   const names = st.rivals.map((r) => RIVALS[r.idx % RIVALS.length].name);
   const vs = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];

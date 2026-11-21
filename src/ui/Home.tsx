@@ -13,6 +13,7 @@ import { dailyConfig, dailyTwist } from '../engine/daily';
 import { FRUIT, RIVALS, lookOf, stageAt, type FruitId } from '../engine/data';
 import { count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
+import { ownerHash, placeWords } from '../net/sprint';
 import { LOOKS, type Look } from '../net/looks';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
@@ -26,6 +27,8 @@ import { LENGTHS, computerLine, leagueLine as leagueWords, phoneLine, quickLine,
 import { leagueStage, myPlace, snapshot, syncTiers } from './progress';
 import { BackArrow, FramedFace, TrophyPic, shownAvatar } from './stampCard';
 import { goals, nextReward, type Goal } from './stamps';
+import { SPRINT_TITLE, SprintRow, bestLine, useSprintBoards } from './Sprint';
+import { loadSprintBest } from './sprintStore';
 import { loadDaily, todayKey } from './store';
 import { currentStreak } from './streak';
 import { Awning, seatColour } from './table';
@@ -45,6 +48,8 @@ export interface ShopProps {
   /** Opens the Play menu. */
   onPlay: () => void;
   onDaily: () => void;
+  /** PLAN-114: starts today's Market Sprint. */
+  onSprint: () => void;
   onLeague: () => void;
   onWardrobe: () => void;
   onAccount: () => void;
@@ -111,14 +116,16 @@ function StallHero() {
   );
 }
 
-/** The Daily market: what the first morning of today's Daily puts on the table, which is the same for everyone and
+/** PLAN-114: the card holds both Daily formats, each with its length: the Market Sprint's row first, then the Daily
+ *  market under its own heading, with your best today and your place on each.
+ *  The Daily market: what the first morning of today's Daily puts on the table, which is the same for everyone and
  *  public from the game's first screen: the customer who stands first in the row (no game has an event card on its
  *  first day; should one ever, it is shown instead), and the lorry's load. Then today's twist, your best today or how
  *  many have played, and one button. */
-function DailyCard({ today, onDaily }: { today: string; onDaily: () => void }) {
+function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () => void; onSprint: () => void }) {
   const first = useMemo(() => newGame(dailyConfig(today, 'You')), [today]);
   const [res, setRes] = useState<BoardResult | null>(null);
-  useEffect(() => { let alive = true; void fetchDaily(today).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [today]);
+  useEffect(() => { let alive = true; void ownerHash().then((me) => fetchDaily(today, me)).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [today]);
   const daily = loadDaily();
   const streak = currentStreak(Object.keys(daily), today);
   const e = first.event;
@@ -128,14 +135,15 @@ function DailyCard({ today, onDaily }: { today: string; onDaily: () => void }) {
   return (
     <section class="jh-daily" data-page="today" aria-label="Daily market">
       <div class="jh-dh"><span>Daily market · {shortDate(today)}</span><small>{streak > 0 ? `${streak}-day streak` : 'same market for everyone'}</small></div>
+      <SprintRow today={today} onSprint={onSprint} />
+      <div class="jh-dsub"><b>Daily market · {first.config.days} days</b>{daily[today] !== undefined && <small>{bestLine(daily[today], res?.error ? null : placeWords(res ? { rank: res.rank, players: res.players ?? res.top.length } : undefined))}</small>}</div>
       <div class="jh-db">
         <div class="jh-dcard">{who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}</div>
         <div class="jh-dr">
           <span class="jh-lb">Today's lorry brings</span>
           <div class="jh-lorry">{LANES.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
           <p class="jh-dt">{firstWords} {dailyTwist(today).text}</p>
-          {daily[today] !== undefined ? <p class="jh-ds">Your best today <b>${daily[today]}</b></p>
-            : best !== null ? <p class="jh-ds"><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></p> : null}
+          {daily[today] === undefined && best !== null ? <p class="jh-ds"><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></p> : null}
           <button class="jh-dgo" onClick={onDaily}><PlayIcon />Play the Daily market</button>
         </div>
       </div>
@@ -236,7 +244,7 @@ export function Shopfront(p: ShopProps) {
               <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
             </button>
           )}
-          <DailyCard today={p.today} onDaily={p.onDaily} />
+          <DailyCard today={p.today} onDaily={p.onDaily} onSprint={p.onSprint} />
           <Goals />
           <nav class="jh-tiles" aria-label="Your progress">
             <button onClick={p.onLeague}><b>League</b><span>{p.leagueLine}</span></button>
@@ -266,6 +274,8 @@ export interface PlayMenuProps {
   onComputer: () => void;
   onOnePhone: () => void;
   onDaily: () => void;
+  /** PLAN-114: starts today's Market Sprint. */
+  onSprint: () => void;
   onLeague: () => void;
 }
 
@@ -282,7 +292,12 @@ export function PlayMenu(p: PlayMenuProps) {
   const ok = clean.length === CODE_LENGTH;
   const stage = leagueStage();
   const rivals = RIVALS.filter((r) => r.avatar !== avatar).slice(0, 3);
-  const daily = dailyConfig(todayKey(), 'You');
+  const today = todayKey();
+  const daily = dailyConfig(today, 'You');
+  // PLAN-114: both Daily formats, each with its length, your best today and your place on the Sprint's board.
+  const sprint = useSprintBoards(today);
+  const sprintBest = bestLine(loadSprintBest()[today]?.cash, placeWords(sprint?.day));
+  const dailyBest = loadDaily()[today];
   return (
     <div class="page tk-page jp">
       <header class="topbar jp-bar">
@@ -321,7 +336,8 @@ export function PlayMenu(p: PlayMenuProps) {
           {LENGTHS.map((l) => <button class={p.days === l.days ? 'on' : ''} aria-pressed={p.days === l.days} onClick={() => p.onDays(l.days)}>{l.word} <small>{l.days} days</small></button>)}
         </div>
         <button class="jp-tile wide" data-a="public" onClick={p.onPublic}><b>Public rooms</b><span>Join a room that is waiting for players, or open one</span></button>
-        <button class="jp-tile wide dark" data-a="daily" onClick={p.onDaily}><b>Daily market</b><span>{daily.days} days · {daily.players.length} stalls · same market for everyone today</span></button>
+        <button class="jp-tile wide dark" data-a="sprint" onClick={p.onSprint}><b>{SPRINT_TITLE}</b><span>{daily.players.length} stalls · same start for everyone today{sprintBest ? ` · ${sprintBest}` : ''}</span></button>
+        <button class="jp-tile wide dark" data-a="daily" onClick={p.onDaily}><b>Daily market · {daily.days} days</b><span>{daily.players.length} stalls · same market for everyone today{dailyBest !== undefined ? ` · Best today $${dailyBest}` : ''}</span></button>
         <button class="jp-tile wide" data-a="league" onClick={p.onLeague}><b>Market League</b><span>{leagueWords(stage)}</span></button>
       </main>
     </div>

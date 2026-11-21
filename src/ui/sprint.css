@@ -1,0 +1,42 @@
+/* PLAN-114: the Market Sprint. Home's Daily card (inside .jh, journey-home.css's colours) and the results' Sprint box
+   (inside .sbk, stampbook.css's colours). Square corners and ink edges, as the rest of the journey. */
+
+/* ---------- Home: the Sprint row and the Daily market's sub-heading ---------- */
+.home.hm.jh .jh-sp {
+  display: flex; align-items: center; gap: 10px; margin: 8px 8px 0; padding: 8px; background: var(--j-tint);
+  box-shadow: inset 0 0 0 2px var(--j-ink);
+}
+.home.hm.jh .jh-sp-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.home.hm.jh .jh-sp-tx b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-sp-ln { font: 700 0.75rem/1.25 var(--f-label); }
+.home.hm.jh .jh-sp-vs { display: flex; gap: 2px; }
+.home.hm.jh .jh-sp-go { flex: none; margin-top: 0; width: 132px; }
+.home.hm.jh .jh-dsub { margin: 10px 8px 0; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.home.hm.jh .jh-dsub b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-dsub small { font: 700 0.75rem/1.25 var(--f-label); text-align: right; }
+@media (max-width: 379px) {
+  .home.hm.jh .jh-sp { margin: 6px 6px 0; }
+  .home.hm.jh .jh-sp-go { width: 112px; }
+  .home.hm.jh .jh-dsub { margin: 8px 6px 0; }
+}
+@media (max-width: 339px) {
+  .home.hm.jh .jh-sp { flex-direction: column; align-items: stretch; }
+  .home.hm.jh .jh-sp-go { width: auto; }
+  .home.hm.jh .jh-dsub { flex-direction: column; gap: 3px; }
+  .home.hm.jh .jh-dsub small { text-align: left; }
+}
+
+/* ---------- the results: the Sprint box ---------- */
+.sbk .sp-res { gap: 8px; }
+.sbk .sp-best { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 12px; font: 700 0.9375rem/1.2 var(--f-label); }
+.sbk .sp-best b { font: 400 1.5rem/1 var(--f-display); }
+.sbk .sp-place b { color: var(--k-red-d); }
+.sbk .sp-why { margin: 0; padding: 8px 10px; background: var(--k-pale); border-left: 4px solid var(--k-red-d); font: 700 0.875rem/1.35 var(--f-label); }
+.sbk .sp-why.good { border-left-color: var(--k-green); }
+.sbk .sp-sec { display: flex; flex-direction: column; gap: 4px; }
+.sbk .sp-wk { font: 800 0.8125rem/1 var(--f-label); }
+.sbk .sp-note { font: 600 0.8125rem/1.25 var(--f-label); }
+.sbk .sp-board li { min-height: 28px; box-sizing: border-box; }
+.sbk .sp-board li small { margin-left: auto; color: var(--k-slate); font-weight: 600; }
+.sbk .sp-board li small + b:last-child { margin-left: 8px; }
+.sbk .sp-board li.sp-gap { justify-content: center; background: none; min-height: 16px; padding: 0; }

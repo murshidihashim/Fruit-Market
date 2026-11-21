@@ -108,6 +108,8 @@ export const LOOKS: Look[] = [
   ...RANK_NAMES.map((n, i) => item(`title_rank${i + 1}`, `${n} trader`, 'title', at(RANK_LEVELS[i]))),
   // Titles for feats. The ones rivals read as skill are `fair` (see Source).
   item('title_league', 'League Champion', 'title', by('league')),
+  item('title_stars_6', 'Star Pupil', 'title', by('stars_6')),
+  item('title_stars', 'Star Trader', 'title', by('stars_18')),
   item('title_rich', 'Fruit Tycoon', 'title', by('rich', true)),
   item('title_hard_sweep', 'Hard Sweep', 'title', by('hard_sweep')),
   item('title_sole', 'Sole Supplier', 'title', by('sole_five', true)),
