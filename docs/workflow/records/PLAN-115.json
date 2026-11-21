@@ -1,0 +1,67 @@
+{
+  "id": "PLAN-115",
+  "title": "The Market League as a solo campaign",
+  "problem": "The Market League is six plain games against computers; it does not teach the main decisions or give varied goals.",
+  "scope": [
+    "Six authored stages with a fixed seed and events on set days: Village Square (undercut), Pasar Malam (the hawker's floor), The Hotel Order (bid for a standing order), and three more",
+    "A goal to clear each stage and three optional mastery goals",
+    "Short illustrated character moments with the real art",
+    "Rewards shown on the stall through the Stamp Book, Collection and Wardrobe"
+  ],
+  "exclusions": [
+    "No rule, price or card changes; rules version 20 (a stage only chooses which existing card comes on which day)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with tests for each stage's goals",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "e2e for a stage played to its goal",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Each stage clearable in a balance run",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-131"
+  ],
+  "decisions": [
+    "DEC-124"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

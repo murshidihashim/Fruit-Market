@@ -1,0 +1,69 @@
+{
+  "id": "PLAN-114",
+  "title": "Market Sprint and its leaderboard",
+  "problem": "There is no short daily format to retry and compare; the Daily market takes 8 to 14 days.",
+  "scope": [
+    "Market Sprint: 3 days, 4 stalls, the day's shared seed, fixed shopkeepers and cash, the Daily's computer rivals, no upgrades or standing orders",
+    "Beside the Daily market on the Daily card, each labelled with its length",
+    "Score by final cash, then fruit sold; results with your best, your place, one concrete reason from the game, and Try again",
+    "A Sprint board per day, checked by server replay; your place, the top 10 and your neighbours; a weekly Sprint ranking",
+    "Run time measured in the browser and reported"
+  ],
+  "exclusions": [
+    "No rule, price or card changes; rules version 20",
+    "The Daily market itself and online play unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with Sprint set-up, replay and ranking tests",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e plus a Sprint played and retried, run time reported",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Balance run over 1,000 seeds",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-131"
+  ],
+  "decisions": [
+    "DEC-124"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
