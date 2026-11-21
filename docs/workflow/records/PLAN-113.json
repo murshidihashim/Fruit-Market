@@ -1,0 +1,65 @@
+{
+  "id": "PLAN-113",
+  "title": "The player journey in the redesigned market style",
+  "problem": "The screens around play (Home, menus, lobby, results, progress) do not carry the game's cards, characters and stalls, Play is split across menus, and Rematch is not prominent.",
+  "scope": [
+    "Home: illustrated stall, one Play, Daily preview with the real first customer and lorry fruit, next unlock on the stall, two goals",
+    "Play menu: Quick match, Private room, code, Computer, One phone, public rooms, with real counts and lengths",
+    "Quick match wait: shopkeeper card, timer, a practice price on a real customer card, computer game option",
+    "Private room: code and share link, stalls as seats with Ready, empty seats offer a computer",
+    "Guided first sale for new players on the day-1 table",
+    "Results and Rematch: rank tiles, best sale on the real card, earned reward on your stall, stamps, large Rematch",
+    "Market League, Stamp Book and Wardrobe in the same art, with the next reward and the equipped item on your stall"
+  ],
+  "exclusions": [
+    "No rule, scoring, reward, length or mode changes",
+    "The gameplay screens (Buying, Stocking, Bell, Rush, Day Close) until the owner approves them"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e: solo, quick match, private and public rooms, rematch; 0 leaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320 for all nine screens and their main states",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
+    "date": "2026-11-21"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-129"
+  ],
+  "decisions": [
+    "DEC-123"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

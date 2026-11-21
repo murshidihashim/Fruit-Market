@@ -3028,6 +3028,31 @@
       "reports": [
         "REP-128"
       ]
+    },
+    {
+      "id": "DEC-123",
+      "title": "The player journey in the redesigned market style",
+      "question": "How should the screens around play look, so they carry the game's cards, characters and stalls and make the next game obvious?",
+      "choice": "Build the nine journey screens of the redesign mock-ups (REP-129): Home, Play menu, Quick match wait, private room, a guided first sale, Results and Rematch, Market League, Stamp Book and Wardrobe, with the game's own art. Current rules only.",
+      "rationale": "The design audit and the owner's reviews asked for a stronger reason to rematch and for the illustrated cards and stalls on every screen.",
+      "impact": {
+        "player": "Home, menus, lobby, results and progress screens that look like the market itself; one Play menu; a guided first sale; a prominent Rematch. Nothing about scoring, rewards or modes changes.",
+        "technical": "Home, Online, FirstTime/tutorial, Results, Trophies (League, Stamp Book) and Wardrobe screens and their styles; no engine or server rule changes.",
+        "data": "None new."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
+        "date": "2026-11-21"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-113",
+      "reviewTrigger": "After two weeks live: the share of finished games followed by a rematch or a new game, from the anonymous counters.",
+      "reports": [
+        "REP-129"
+      ]
     }
   ],
   "history": [
@@ -4378,6 +4403,10 @@
     {
       "at": "2026-11-21 01:06",
       "text": "PLAN-112 implemented (merge d0cc64b): public rooms and the Public rooms list, start with computers after 60 s, and 12 preset reactions (the approved design said \"8 reactions\" but listed 8 emoji and 4 lines; all 12 are built, the lines without exclamation marks per DEC-087). Protocol 5. Quick-match rooms are never listed. T1 to T4 recorded; T5 (the owner on the preview with a second phone) not run yet."
+    },
+    {
+      "at": "2026-11-21 16:56",
+      "text": "Owner reviewed the redesign mock-ups (REP-129; canvas pages v1 to v3, real art, one four-player day) and approved the revised journey: \"implement page 6 from the mockup into the live game, approve\", clarified \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board). DEC-123 and PLAN-113 recorded as approved. The gameplay screens (Buying to Day Close) are not yet approved for building. Publishing still needs the owner's word for the build."
     }
   ]
 }
