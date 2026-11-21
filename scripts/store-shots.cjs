@@ -26,7 +26,7 @@ const path = require('path');
   await p.waitForTimeout(400);
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
-  await p.click('button:has-text("New game")');
+  await p.click('[data-a="play"]'); await p.click('[data-a="computer"]');
   await setRivals(p, 2);
   await p.click('button:has-text("Start game")');
   // A merchant trait is picked only when the game offers one (the Daily market, the Market League); a new game goes
@@ -70,7 +70,7 @@ const path = require('path');
   }
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(300);
-  await p.click('button:has-text("Trophies")');
+  await p.click('button:has-text("Stamps")');
   await p.waitForTimeout(300);
   await shot('7-trophies');
   console.log('saved', [...done].join(', '));

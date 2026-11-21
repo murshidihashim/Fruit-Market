@@ -15,11 +15,12 @@ const pages = [];
     p.on('console', (m) => P.consoleLog.push(`${m.type()}: ${m.text()}`));
     p.on('websocket', (ws) => ws.on('framereceived', (f) => P.frames.push(typeof f.payload === 'string' ? f.payload : '')));
     await p.addInitScript((n) => { localStorage.setItem('fm.name', n); localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false })); }, name);
-    pages.push(P); await p.goto(base); await p.click('text=Play a friend'); await p.click('text=Quick match'); return p;
+    pages.push(P); await p.goto(base); await p.click('[data-a="play"]'); return p;
   };
-  const A = await mk('Alice'); await A.click('text=Find a player');
-  await A.waitForSelector('text=Looking for a player'); await A.screenshot({ path: `${out}/q1-waiting.png` });
-  const B = await mk('Bob'); await B.click('text=Find a player');
+  // PLAN-113: with a saved name, Quick match in the Play menu starts looking at once.
+  const A = await mk('Alice'); await A.click('[data-a="quick"]');
+  await A.waitForSelector('text=Looking for a stall'); await A.screenshot({ path: `${out}/q1-waiting.png` });
+  const B = await mk('Bob'); await B.click('[data-a="quick"]');
   await Promise.all([A.waitForSelector('.market-stall', { timeout: 30000 }), B.waitForSelector('.market-stall', { timeout: 30000 })]);
   await A.waitForTimeout(800); await A.screenshot({ path: `${out}/q2-matched.png` });
   console.log('quick match: both in game', await A.locator('.rival-stall').innerText().then((t) => t.split('\n')[0]), '|', await B.locator('.rival-stall').innerText().then((t) => t.split('\n')[0]));

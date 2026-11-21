@@ -32,7 +32,7 @@ const path = require('path');
     await page.click('button:has-text("Continue")');
     await page.click('button:has-text("Resume")');
   } else {
-    await page.click('button:has-text("New game")');
+    await page.click('[data-a="play"]'); await page.click('[data-a="computer"]'); // PLAN-113: Home's Play, then Computer
     await setRivals(page, rivals);
     await page.click('button:has-text("Start game")');
     await page.waitForTimeout(250);
