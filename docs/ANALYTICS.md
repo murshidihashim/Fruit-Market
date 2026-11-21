@@ -11,7 +11,7 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `app_open` | `android` / `web` | Each app start |
 | `install_week` | `YYYY-wWW` | Once, on the first start of a new install |
 | `active` | `d0`…`d7`, `d14`, `d30`, `d30plus`, `legacy` | Once per calendar day: days since this device installed (`legacy` = installed before v1.2) |
-| `game_start` | `solo` / `pass_and_play` / `daily` / `online` | A new game starts (online: once per match) |
+| `game_start` | `solo` / `pass_and_play` / `daily` / `sprint` / `online` | A new game starts (online: once per match). `sprint`: the day's Market Sprint (PLAN-114), each try included |
 | `players` | 2–4 | With `game_start` (local games) |
 | `day_reached` | 1–14 | Once per game per day (resuming doesn't count again) |
 | `game_end` | `win` / `lose` | Once per game |
@@ -24,6 +24,7 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `online` | `create` / `public` / `quick` / `list_join` / `computers` | Creating a private room (`create`) or a public one (`public`, PLAN-112); searching for a quick match; joining a room from the Public rooms list (`list_join`); the host starting with computers in the empty seats after the wait (`computers`) |
 | `reaction` | — | A preset reaction sent in an online room (PLAN-112). A count only: never which reaction, by whom or in which room |
 | `daily_share` | — | Sharing the daily result |
+| `sprint_retry` | — | Try again on the Market Sprint's results (PLAN-114). The day and end counters count a Sprint once per day, however often it is retried |
 
 Error lines: the message and first stack frame, deduplicated, at most 5 per batch.
 
