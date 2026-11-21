@@ -35,10 +35,11 @@ export async function submitDaily(g: GameState): Promise<BoardResult> {
   }
 }
 
-export async function fetchDaily(date: string): Promise<BoardResult> {
+/** The day's Daily market board. PLAN-114: with `me` (this device's owner hash, net/sprint.ts) it also says your place. */
+export async function fetchDaily(date: string, me?: string): Promise<BoardResult> {
   if (!serverBase()) return { top: [], error: 'The leaderboard needs an internet connection.' };
   try {
-    const res = await fetch(`${serverBase()}/api/daily?date=${date}`);
+    const res = await fetch(`${serverBase()}/api/daily?date=${date}${me ? `&me=${me}` : ''}`);
     return (await res.json()) as BoardResult;
   } catch {
     return { top: [], error: 'The leaderboard needs an internet connection.' };

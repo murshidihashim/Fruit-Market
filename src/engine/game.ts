@@ -48,6 +48,9 @@ export interface GameConfig {
   pulse?: boolean;
   /** Date key (YYYY-MM-DD) when this is a daily challenge. */
   daily?: string;
+  /** PLAN-114: this daily challenge is the day's Market Sprint (3 days; `daily` holds its date). Read only by the app
+   *  and the server's leaderboard, never by the rules. */
+  sprint?: boolean;
   /** Market League stage, when this game is part of the league. */
   league?: number;
 }
