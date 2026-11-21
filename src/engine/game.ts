@@ -50,7 +50,27 @@ export interface GameConfig {
   daily?: string;
   /** Market League stage, when this game is part of the league. */
   league?: number;
+  /** PLAN-115: a league stage's fixed set-up. Read only in a Market League game (see `stageSetup`); ignored otherwise. */
+  stage?: StageSetup;
 }
+
+/**
+ * PLAN-115: what a Market League stage fixes beyond the seed. It only chooses among cards the game already has, and
+ * each part applies when it is given: a set-up without it plays as before.
+ */
+export interface StageSetup {
+  /** The event card (EVENT_CARDS id) of each day from day 2; with this list, a day not in it has no event. */
+  events?: Record<number, string>;
+  /** The standing order (ORDER_CARDS name) announced on a Market Day; with this list, other Market Days have none. */
+  orders?: Record<number, string>;
+  /** Customers (CUSTOMER_CARDS names) who come on a day: the first is the expected customer, then the walk-ins. */
+  crowd?: Record<number, string[]>;
+  /** Computer seats that price every fruit $1 under the best top price they can see in today's row. */
+  undercut?: number[];
+}
+
+/** The stage set-up in force: only in a Market League game (never in a Daily market). */
+export const stageSetup = (c: GameConfig): StageSetup | undefined => (c.league !== undefined && !c.daily ? c.stage : undefined);
 
 export interface Stats {
   sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number;
@@ -513,6 +533,8 @@ export function mangoFree(s: GameState, day: number): boolean {
 /** Draws the next customer card for `day`. Rules 18: for a mango-free day, a card that wants a mango goes to the
  *  bottom of the deck and another is drawn. */
 function drawCustomer(s: GameState, walkIn = false, day = s.day): Customer {
+  const named = scriptedCustomer(s, day);
+  if (named) return makeCustomer(s, named, walkIn);
   for (let skipped = 0; ; skipped++) {
     if (s.customerDeck.length === 0) {
       const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast, ...s.nextQueue, s.nextForecast].filter(Boolean).map((c) => c!.name));
@@ -521,8 +543,30 @@ function drawCustomer(s: GameState, walkIn = false, day = s.day): Customer {
     const i = s.customerDeck.shift()!;
     const card = CUSTOMER_CARDS[i];
     if (mangoFree(s, day) && skipped < CUSTOMER_CARDS.length && card.wants.some((w) => w.fruit === 'mango')) { s.customerDeck.push(i); continue; }
+    // PLAN-115: a customer a league stage names for a later day is kept back for that day.
+    if (skipped < CUSTOMER_CARDS.length && keptBack(s, card.name, day)) { s.customerDeck.push(i); continue; }
     return makeCustomer(s, card, walkIn);
   }
+}
+
+/** PLAN-115: the next customer a stage names for `day` who is not in the market already (taken out of the deck), or
+ *  null when the stage names none or every one named has come. */
+function scriptedCustomer(s: GameState, day: number): CustomerCard | null {
+  const names = stageSetup(s.config)?.crowd?.[day];
+  if (!names?.length) return null;
+  const inPlay = new Set([...s.firstMarket, ...s.secondMarket, ...s.queue, s.forecast, ...s.nextQueue, s.nextForecast].filter(Boolean).map((c) => c!.name));
+  const name = names.find((n) => !inPlay.has(n) && CUSTOMER_CARDS.some((c) => c.name === n));
+  if (name === undefined) return null;
+  const i = CUSTOMER_CARDS.findIndex((c) => c.name === name);
+  const k = s.customerDeck.indexOf(i);
+  if (k >= 0) s.customerDeck.splice(k, 1);
+  return CUSTOMER_CARDS[i];
+}
+
+/** PLAN-115: does a league stage name this customer for a day after `day`? */
+function keptBack(s: GameState, name: string, day: number): boolean {
+  const crowd = stageSetup(s.config)?.crowd;
+  return !!crowd && Object.entries(crowd).some(([d, names]) => Number(d) > day && names.includes(name));
 }
 
 function drawFarmer(s: GameState): FarmerCard {
@@ -708,7 +752,12 @@ function startDay(s: GameState) {
   // Rules 13: today's event is drawn this morning and never shown the day before. The Health Inspector is never the
   // last day's event.
   s.nextEvent = null;
-  if (s.day > 1 && s.config.events) {
+  const script = stageSetup(s.config)?.events;
+  if (s.day > 1 && s.config.events && script) {
+    // PLAN-115: a league stage says which card comes on which day; the deck is not drawn.
+    s.event = EVENT_CARDS.find((e) => e.id === script[s.day]) ?? null;
+    eventWalkIns(s);
+  } else if (s.day > 1 && s.config.events) {
     s.event = drawEvent(s);
     if (s.day === s.config.days && s.event.inspector) s.event = drawEvent(s);
     // Rules 18: Mango Craze is never the event of a mango-free day (its guest could not be served): the card goes to
@@ -828,8 +877,15 @@ export function beginBuying(state: GameState): GameState {
 function drawStanding(s: GameState) {
   if (s.standing && s.standing.due < s.day) s.standing = null;
   if (s.config.core || !isMarketDay(s) || s.day + ORDER_LEAD > s.config.days || s.standing) return;
-  if (!s.orderDeck || s.orderDeck.length === 0) s.orderDeck = withRng(s, (r) => r.shuffle(ORDER_CARDS.map((_, i) => i)));
-  const card = s.orderDeck.shift()!;
+  // PLAN-115: a league stage names the order of each Market Day it has one on (the deck is not drawn).
+  const script = stageSetup(s.config)?.orders;
+  const named = script ? ORDER_CARDS.findIndex((o) => o.name === script[s.day]) : -1;
+  if (script && named < 0) return;
+  let card = named;
+  if (!script) {
+    if (!s.orderDeck || s.orderDeck.length === 0) s.orderDeck = withRng(s, (r) => r.shuffle(ORDER_CARDS.map((_, i) => i)));
+    card = s.orderDeck.shift()!;
+  }
   const c = ORDER_CARDS[card];
   s.standing = { card, fruit: c.fruit, qty: orderQty(s.players.length), ceiling: c.ceiling, stake: c.stake, due: s.day + ORDER_LEAD, bids: s.players.map(() => null), holder: null, price: null };
 }
