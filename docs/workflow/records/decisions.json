@@ -4465,6 +4465,10 @@
     {
       "at": "2026-11-21 22:02",
       "text": "Owner: \"push to preview\". 1.26.0 was on the preview but never published (live is 1.25.0), so its candidate is withdrawn and PLAN-112 and PLAN-113 join PLAN-114 and PLAN-115 in release candidate 1.27.0 (rules version 20, protocol 5; REP-132). Pull request to main for the preview; publishing still needs the owner's word."
+    },
+    {
+      "at": "2026-11-21 22:52",
+      "text": "1.27.0 on the preview: pull request #23 merged as 3edfa16 after CI passed; main CI run 162 passed (verify:full) and the preview job updated the preview Worker. The preview answers rules 20 and serves the 1.27.0 build (the Sprint and the League stars found in its code). The owner's test on the preview (PLAN-112 T5, PLAN-113 T4, PLAN-114 and PLAN-115 T5) and the word to publish are next."
     }
   ]
 }
