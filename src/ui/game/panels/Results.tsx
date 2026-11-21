@@ -1,18 +1,25 @@
-// The final results (PLAN-086, board "Results"): who won and by how much, each stall with its awning colour, the
-// stamps this game earned landing on your card, the next reward, two "close" lines, and the buttons. Further down:
-// the Daily market board, the cash day by day and your best moments.
+// The final results (PLAN-086, board "Results"; PLAN-113, the redesigned market style): who won, every stall as a
+// tile with its awning, portrait and cash in finishing order; your best sale on the customer's own card; the stamps
+// this game earned landing on your card; then a reward earned this game on your stall with "Wear it" (or the next
+// reward, drawn as it will look); the "close" lines, and a large Rematch. Further down: the Daily market board, the
+// cash day by day and your best moments.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CUSTOMER_CARDS, JUICE_VALUE, lookOf } from '../../../engine/data';
 import { places, ranking, winners, type GameState } from '../../../engine/game';
 import { gameRecap } from '../../../engine/story';
-import { titleOf, type LookSet } from '../../../net/looks';
-import { customersServed } from '../../achievements';
+import { lookById, partsOf, tagOf, titleOf, type Look, type LookSet } from '../../../net/looks';
+import { TIER_NAME, customersServed } from '../../achievements';
 import * as A from '../../anim';
-import { syncLooks, worn } from '../../looks';
+import { Face } from '../../art';
+import { fx, playSound } from '../../fx';
+import { PropSprite, RoofBand } from '../../icons';
+import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
-import { FramedFace, Pip, StallPic, StampGrid, awningColour, shownAvatar } from '../../stampCard';
-import { cardSize, closeLines, nextReward, placeAt, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
-import { SEAT_COLOURS } from '../../table';
+import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
+import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
+import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
+import { Awning, SEAT_COLOURS } from '../../table';
+import { Ticket } from '../../ticket';
 import { DailyResult } from './DailyResult';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
@@ -90,7 +97,6 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const [shown, setShown] = useState(still ? end : start);
   const [line, setLine] = useState(still ? sum.lines.length : -1);
   const [level, setLevel] = useState(still ? sum.after.level : sum.before.level);
-  const [done, setDone] = useState(still);
   const grid = useRef<HTMLDivElement>(null);
   const rows = useRef<(HTMLElement | null)[]>([]);
 
@@ -142,7 +148,6 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
       setLine(sum.lines.length);
       setShown(end);
       setLevel(sum.after.level);
-      setDone(true);
       A.resetHurry();
       onDone();
     })();
@@ -153,8 +158,6 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const size = cardSize(level);
   const filled = Math.max(0, Math.min(size, shown - base));
   const fresh = Math.max(0, Math.min(filled, shown - Math.max(start, base)));
-  const next = nextReward(placeAt(end));
-  const up = sum.after.level > sum.before.level ? rewardAt(sum.after.level) : undefined;
   return (
     <div class="sbk-card" data-a="stamps">
       <div class="sbk-ch"><span>Stamps earned</span><b aria-live="polite">+{shown - start}</b></div>
@@ -171,12 +174,118 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
         <div class="sbk-row"><span class="sbk-lab">Card {level} · {rankOf(level).name}</span><span>{filled} of {size}</span></div>
         <StampGrid size={size} filled={filled} fresh={fresh} gridRef={grid} />
       </div>
-      <div class={`sbk-next ${done ? '' : 'sbk-wait'}`}>
-        {up
-          ? <><b>Stall level {sum.after.level}</b><span>{rewardBuilt(up) ? `New: ${up.text}` : `${up.text} · coming`}</span></>
-          : next
-            ? <><b>{next.stamps} {next.stamps === 1 ? 'stamp' : 'stamps'} {next.level > MAX_LEVEL ? 'to fill the book' : `to level ${next.level}`}</b><span>{next.reward ? (rewardBuilt(next.reward) ? next.reward.text : `${next.reward.text} · coming`) : ''}</span></>
-            : <b>The book is full</b>}
+    </div>
+  );
+}
+
+
+/** "1st", "2nd": a place in words, for the headline. */
+const placeWord = (k: number) => RANKS[k - 1].toLowerCase();
+
+/** The price-tag style a stall has on (the Wardrobe's), for the tag on the best sale. */
+const tagOfLook = (look: LookSet | undefined): string => tagOf(look);
+
+/** Your best sale: the customer's own card that day, the day, a sentence and your tag as it sold. */
+function BestSaleBox({ s, owner, tag }: { s: GameState; owner: number; tag: string }) {
+  const b = bestSale(s, owner);
+  if (!b) return null;
+  return (
+    <div class="jp-box jp-best">
+      <span class="sbk-lab">Your best sale</span>
+      <div class="jp-best-in">
+        <Ticket who={b.who} lines={b.wants} order={b.kind === 'order'} class="jp-ticket" />
+        <div class="jp-best-tx">
+          <b>{bestSaleDay(b)}</b>
+          <span>{bestSaleWords(b)}</span>
+          <span class="jp-best-tag"><PriceTag fruit={b.fruit} price={b.price} tag={tag} tone="sold" big /></span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** How a look was earned, in a few words: "Bronze · First Sale: Sell a piece of fruit." or "Stall level 3". */
+function earnedBy(l: Look): string {
+  if (l.from.kind === 'level') return `Stall level ${l.from.level}`;
+  const t = achievementFor(l);
+  return t ? `${TIER_NAME[t.step.tier]} · ${t.card.title}: ${t.step.text}` : '';
+}
+
+/** A look on your stall as it will show: the awning, your shopkeeper and the counter for the stall and what is worn;
+ *  the look on its own for the signboard and the sounds. */
+function RewardPic({ l, look, avatar }: { l: Look; look: LookSet; avatar: string }) {
+  if (l.kind !== 'stall' && l.kind !== 'wear') return <span class="jp-rw-sw"><LookSwatch slot={l.slot} id={l.id} look={look} avatar={avatar} /></span>;
+  const on = { ...look, [l.slot]: l.id };
+  return (
+    <span class="jp-rw-stall">
+      <RoofBand cls="jp-awn" colour={myColour(on)} roof={on.roof} trim={on.trim} />
+      <span class="jp-rw-face"><Face who={avatar} size={48} worn={partsOf(on)} /></span>
+      {on.prop && <PropSprite id={on.prop} size={26} cls="jp-rw-prop" />}
+    </span>
+  );
+}
+
+/**
+ * Under the stamps: a look this game earned, drawn on your stall, with "Wear it"; else the level this game reached;
+ * else the next reward and how many stamps it is away. Shown once the stamps have landed (`show`), never before.
+ */
+function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSummary | null; avatar: string; show: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [look, setLook] = useState<LookSet>(() => worn());
+  const [sounds, setSounds] = useState(() => wornSounds());
+  useEffect(() => {
+    if (show && !A.isReduced()) box.current?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: A.ms(A.FEEL.sheetIn), easing: A.EASE.sheet });
+  }, [show]);
+  const l = shownLook(fresh);
+  const level = sum?.after.level ?? 1;
+  const up = sum && sum.after.level > sum.before.level ? rewardAt(sum.after.level) : undefined;
+  const next = sum ? nextReward(sum.after) : null;
+  const cls = `jp-box jp-reward ${show ? '' : 'sbk-wait'}`;
+  if (l) {
+    const on = l.kind === 'sound' ? (l.slot === 'bell' ? sounds.bell : sounds.coin) === l.id : look[l.slot] === l.id || wornIn(l.slot) === l.id;
+    const wear = () => {
+      fx.tap();
+      setLook(toggleLook(l.id));
+      setSounds(wornSounds());
+      if (l.kind === 'sound') playSound(l.id);
+    };
+    const more = fresh.length - 1;
+    return (
+      <div class={cls} ref={box} role="status">
+        <RewardPic l={l} look={look} avatar={avatar} />
+        <div class="jp-rw-tx">
+          <span class="sbk-lab jp-good">{l.kind === 'sound' ? 'Earned · only you hear it' : l.kind === 'wear' ? 'Earned · for your shopkeeper' : 'Earned · on your stall'}</span>
+          <b class="jp-rw-name">{l.title}</b>
+          <span class="sbk-sub">{earnedBy(l)}</span>
+          {on ? <span class="jp-rw-on">{onWord(l)}</span> : <button type="button" class="jp-wear" onClick={wear}>{l.kind === 'sound' ? 'Use it' : 'Wear it'}</button>}
+          {up && <span class="sbk-sub">Stall level {level}: {up.text}{rewardBuilt(up) ? '' : ', coming in a later update'}.</span>}
+          {more > 0 && <span class="sbk-sub">And {more} more in the Wardrobe.</span>}
+        </div>
+      </div>
+    );
+  }
+  if (up) {
+    const first = up.looks.map(lookById).find((x): x is Look => !!x);
+    return (
+      <div class={cls} ref={box} role="status">
+        {first && <RewardPic l={first} look={look} avatar={avatar} />}
+        <div class="jp-rw-tx">
+          <span class="sbk-lab jp-good">Stall level {level}</span>
+          <b class="jp-rw-name">{up.text}</b>
+          {!rewardBuilt(up) && <span class="sbk-sub">Coming in a later update.</span>}
+        </div>
+      </div>
+    );
+  }
+  if (!next) return <div class={cls} ref={box}><div class="jp-rw-tx"><b class="jp-rw-name">The book is full</b></div></div>;
+  const first = next.reward?.looks.map(lookById).find((x): x is Look => !!x);
+  return (
+    <div class={cls} ref={box}>
+      {first && <RewardPic l={first} look={look} avatar={avatar} />}
+      <div class="jp-rw-tx">
+        <span class="sbk-lab">Next reward · {next.stamps} {next.stamps === 1 ? 'stamp' : 'stamps'} {next.level > MAX_LEVEL ? 'to fill the book' : `to level ${next.level}`}</span>
+        {next.reward && <b class="jp-rw-name">{next.reward.text}</b>}
+        {next.reward && !rewardBuilt(next.reward) && <span class="sbk-sub">Coming in a later update.</span>}
       </div>
     </div>
   );
@@ -184,13 +293,13 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
 
 export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
-  /** Starts the same table again with the person as another shopkeeper (the second button). */
+  /** Starts the same table again with the person as another shopkeeper (offered beside the "close" line about them). */
   onPlayAs?: (avatar: string) => void;
 }) {
   // Counted once when the results first show (progress.ts finishGame). On a shared phone only the phone's owner counts:
   // the first person at the table, whoever played last. The whole page then speaks to the owner (PLAN-091): "You",
-  // the margin, the bold line of the chart and "Your best moments" are theirs, as are the stamps, the card and the
-  // second button under them, so nothing of the other person's game is shown as theirs.
+  // the headline, the best sale, the bold line of the chart and "Your best moments" are theirs, as are the stamps,
+  // the reward and the card, so nothing of the other person's game is shown as theirs.
   const owner = online ? viewer : Math.max(0, s.players.findIndex((p) => p.kind === 'human'));
   const [sum] = useState(() => finishGame(s, owner, !!online));
   // New looks are handed out after the game is counted, so a level reached or a tier earned counts too.
@@ -200,9 +309,10 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
     const met = new Set(customersServed(snap));
     return closeLines(snap, (k) => lookOf(k).title, CUSTOMER_CARDS.map((c) => c.name).filter((k) => !met.has(k)), s.players[owner]?.avatar);
   });
-  const [landed, setLanded] = useState(false);
+  const [landed, setLanded] = useState(!sum);
   const cleared = sum?.cleared ?? false;
   const order = ranking(s);
+  const place = places(s);
   const words = finishWords(s, owner);
   const win = words.win;
   const champSeat = win ? owner : order[0];
@@ -214,6 +324,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const gap = second >= 0 ? s.players[champSeat].cash - s.players[second].cash : 0;
   const margin = gap > 0 ? `By $${gap} over ${second === owner ? 'you' : s.players[second].name}.` : words.margin;
   const nudge = !online && !s.config.daily && league === undefined && onPlayAs ? close.find((c) => c.avatar && c.name) : undefined;
+  // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
+  const headline = win || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
+  const mode = s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, stage ${league + 1}` : online ? ' · Online' : '';
   const share = async () => {
     const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
     try {
@@ -226,31 +339,39 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
   const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : s.config.daily ? 'Home' : 'Rematch';
+  // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
+  const what = online ? 'Rematch: the same room, a new market' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
+  const myLook = lookOfSeat(owner);
+  const cols = order.length <= 4 ? order.length : 3;
   return (
-    <section class="sbk sbk-res results" onClick={hurry}>
+    <section class="sbk sbk-res results jp-res" onClick={hurry}>
       <div class="sbk-in" style="flex: 1 0 auto">
-        <div class={`sbk-win ${words.headline.length > 14 ? 'long' : ''}`}>
-          <span class="sbk-pic"><StallPic avatar={shownAvatar(s.players, champSeat)} size={60} /></span>
-          <div><small>Market closed · Day {s.config.days}</small><h2>{words.headline}</h2>{order.length > 1 && <span>{margin}</span>}</div>
+        <div class={`sbk-win jp-head ${headline.length > 22 ? 'long' : ''}`}>
+          <small>Market closed · Day {s.config.days} of {s.config.days}{mode}</small>
+          <h2>{headline}</h2>
+          {order.length > 1 && <span>{margin}</span>}
         </div>
 
-        <div class="sbk-pods podium">
+        <ol class="jp-pods podium" style={{ '--n': cols }}>
           {order.map((i) => {
             const pl = s.players[i];
             const look = lookOfSeat(i);
             const sub = titleOf(look) ?? (pl.kind === 'ai' ? `${LEVEL_WORD[pl.level ?? 'normal']} computer` : '');
+            const name = i === owner ? 'You' : pl.name;
             return (
-              <div class={`sbk-pod ${i === owner ? 'me' : ''}`} title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
-                <i class="sbk-sw" style={{ '--a': awningColour(look, i) }} />
-                <span class="sbk-md">{words.medals[i]}</span>
-                <FramedFace who={shownAvatar(s.players, i)} size={26} look={look} />
-                <span class="sbk-nm"><b>{i === owner ? 'You' : pl.name}</b>{sub && <small>{sub}</small>}</span>
-                {look?.stamp && <span class="sbk-stamp">Sold out</span>}
-                <span class="sbk-cs">${pl.cash}</span>
-              </div>
+              <li class={`jp-pod ${i === owner ? 'me' : ''} ${place[i] === 1 ? 'first' : ''}`}
+                title={`Sold ${pl.stats.sold} · spoiled ${pl.stats.spoiled} · best sale $${pl.stats.bestSale}${pl.stats.juiced ? ` · juice +$${pl.stats.juiced * JUICE_VALUE}` : ''}`}>
+                <span class="jp-sr">{`${words.medals[i]}: ${name}${sub ? `, ${sub}` : ''}, $${pl.cash}`}</span>
+                <i class="jp-pl" aria-hidden="true">{place[i]}</i>
+                <Awning p={i} look={look} thin />
+                <span class="jp-pod-face" aria-hidden="true"><FramedFace who={shownAvatar(s.players, i)} size={place[i] === 1 ? 46 : 38} look={look} /></span>
+                <b class="jp-pod-nm" aria-hidden="true">{name}</b>
+                {look?.stamp && <span class="sbk-stamp" aria-hidden="true">Sold out</span>}
+                <strong class="jp-pod-cs" aria-hidden="true">${pl.cash}</strong>
+              </li>
             );
           })}
-        </div>
+        </ol>
 
         {league !== undefined && (
           <p class={`sbk-note ${cleared ? 'good' : ''}`}>
@@ -258,15 +379,22 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           </p>
         )}
 
+        <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
+
         {sum && <div class="sbk-sec"><StampsEarned sum={sum} onDone={() => setLanded(true)} /></div>}
+
+        <RewardBox fresh={newLooks} sum={sum} avatar={shownAvatar(s.players, owner)} show={landed} />
 
         {close.length > 0 && (
           <div class={`sbk-sec ${landed ? '' : 'sbk-wait'}`}>
             <span class="sbk-lab">Nearly there</span>
-            <div class="sbk-close">{close.map((c) => <span><b>{c.title}</b><span class="sbk-sub">{c.sub}</span></span>)}</div>
+            <div class="sbk-close">{close.map((c) => (
+              <span><b>{c.title}</b><span class="sbk-sub">{c.sub}</span>
+                {nudge === c && <button type="button" class="jp-playas" onClick={() => onPlayAs?.(c.avatar!)}>Play as {c.name}</button>}
+              </span>
+            ))}</div>
           </div>
         )}
-        {newLooks.length > 0 && landed && <p class="sbk-note" role="status">New in the Wardrobe: {newLooks.slice(0, 3).map((l) => l.title).join(', ')}{newLooks.length > 3 ? ` and ${newLooks.length - 3} more` : ''}.</p>}
 
         <div class="sbk-more">
           {s.config.daily && <DailyResult s={s} />}
@@ -279,15 +407,12 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           )}
         </div>
 
-        <div class="sbk-acts">
-          {rematchNote && <p class="rematch-note"><b>{rematchNote}</b></p>}
-          <div class="sbk-btns">
-            <button class="sbk-btn" disabled={rematchSent} onClick={onRematch}>{main}</button>
-            {nudge && <button class="sbk-btn gh" onClick={() => onPlayAs?.(nudge.avatar!)}>Play as {nudge.name}</button>}
-          </div>
-          <div class="sbk-foot">
-            <span>Scroll: cash day by day · your best moments</span>
-            <span><button onClick={share}>Share</button>{!s.config.daily && <> · <button onClick={onExit}>Home</button></>}</span>
+        <div class="sbk-acts jp-acts">
+          {rematchNote ? <p class="rematch-note"><b>{rematchNote}</b></p> : what && <p class="jp-what">{what}</p>}
+          <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
+          <div class="jp-two">
+            <button class="jp-sec" onClick={share}>Share</button>
+            {!s.config.daily && <button class="jp-sec" onClick={onExit}>Home</button>}
           </div>
         </div>
       </div>

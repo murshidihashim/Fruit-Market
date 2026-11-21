@@ -26,6 +26,7 @@ import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
 import { LEAGUE, leagueConfig, leagueStage } from './progress';
 import { TrophyScreen } from './Trophies';
+import { LeagueScreen } from './League';
 import { BackArrow } from './stampCard';
 import { Toggle } from './Toggle';
 import {
@@ -33,7 +34,7 @@ import {
   saveSettings, todayKey, type Settings,
 } from './store';
 
-type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
+type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league';
 type PopupKind = 'new' | 'phone' | 'continue' | 'account';
 
 /**
@@ -204,7 +205,9 @@ function Main() {
   // PLAN-113: Home and the Play menu share the pop-ups in front of them (the set-up, Continue, the question before a
   // waiting game is replaced, the account).
   const toOnline = (mode: 'room' | 'public', code?: string) => { setOnlineMode(mode); setJoinCode(code); setFrom('play'); go('online'); };
-  const body = screen === 'play' ? (
+  // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
+  // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
+  const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={orAsk('a Market League game', startLeague)} /> : screen === 'play' ? (
     <PlayMenu
       days={days}
       onDays={(d) => { fx.tap(); setDays(d); }}
@@ -216,20 +219,20 @@ function Main() {
       onComputer={orAsk('a new game', () => open('new'))}
       onOnePhone={orAsk('a new game', () => open('phone'))}
       onDaily={orAsk('the Daily market', startDaily)}
-      onLeague={orAsk('a Market League game', startLeague)}
+      onLeague={() => go('league')}
     />
   ) : (
     <Shopfront
       resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
       cash={waiting ? waiting.cash : null}
       table={waiting ? game : null}
-      leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} · ${LEAGUE[league].title}`}
+      leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
       today={today}
       notice={saveNotice}
       onContinue={() => open('continue')}
       onPlay={() => go('play')}
       onDaily={orAsk('the Daily market', startDaily)}
-      onLeague={orAsk('a Market League game', startLeague)}
+      onLeague={() => go('league')}
       onWardrobe={() => go('wardrobe')}
       onAccount={() => open('account')}
       onTrophies={() => go('trophies')}
