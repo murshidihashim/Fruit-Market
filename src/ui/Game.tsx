@@ -289,8 +289,10 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         {mid}
       </div>
       <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} hidden={together} />
-      {/* PLAN-112: the reaction button sits on your shelf's top corner (it shares the shelf's place in the layout). */}
-      {online && <ReactButton class="rx-game" onOpen={() => setReacting(true)} />}
+      {/* PLAN-112: the reaction button sits on your shelf's top corner (it shares the shelf's place in the layout).
+          PLAN-113: not while stocking and pricing (phase 'stall'): there it stood over the last row's + button of the
+          sheet above the shelf, which could then not be pressed (found by the online browser test on day 8). */}
+      {online && s.phase !== 'stall' && <ReactButton class="rx-game" onOpen={() => setReacting(true)} />}
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}
