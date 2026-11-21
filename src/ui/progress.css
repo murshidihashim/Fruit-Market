@@ -1,0 +1,189 @@
+/* =====================================================================
+   The progress screens in the redesigned market style (PLAN-113): the results and Rematch, the Market League, the
+   stamp book and the Wardrobe. Loaded after stampbook.css (stampCard.tsx), whose ".sbk" root and colours it builds
+   on. Every rule starts with ".sbk" or a "jp-" class, so nothing here reaches another screen. Colours come from
+   palette.css only. Nothing here is animated by the stylesheet: the results move their stamps and fade the reward in
+   themselves, on the game's one clock (motion.ts).
+   ===================================================================== */
+
+/* ---------- a price tag, cut like the printed game's tag (its outline is drawn round the cut shape) ---------- */
+.jp-tag {
+  position: relative; display: inline-block; flex: none; vertical-align: middle;
+  filter: drop-shadow(2px 0 0 var(--c-1f272a)) drop-shadow(-2px 0 0 var(--c-1f272a)) drop-shadow(0 2px 0 var(--c-1f272a)) drop-shadow(0 -2px 0 var(--c-1f272a));
+}
+.jp-tgf {
+  display: flex; align-items: center; gap: 3px; height: 24px; padding: 0 7px 0 14px; background: var(--c-fffcf5); color: var(--c-1f272a);
+  clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%); font: 400 0.9375rem/1 var(--f-display); font-variant-numeric: tabular-nums;
+}
+.jp-tgf::before { content: ""; position: absolute; left: 6px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: var(--c-1f272a); }
+.jp-tgf b { font: inherit; }
+.jp-tag.big .jp-tgf { height: 34px; padding: 0 10px 0 19px; gap: 4px; font-size: 1.375rem; clip-path: polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%); }
+.jp-tag.big .jp-tgf::before { left: 8px; width: 5px; height: 5px; margin-top: -2.5px; }
+.jp-tag.mine .jp-tgf { background: var(--c-fec400); }
+.jp-tag.sold .jp-tgf { background: var(--c-0e9a58); color: var(--c-fffcf5); }
+.jp-tag.sold .jp-tgf::before { background: var(--c-fffcf5); }
+/* the Wardrobe's price-tag styles: only the edge changes, as on the table (stampbook.css .rt-tg) */
+.jp-tag.tg-chalk .jp-tgf { outline: 1px dashed currentColor; outline-offset: -4px; }
+.jp-tag.tg-star .jp-tgf { outline: 3px double currentColor; outline-offset: -5px; }
+.jp-tag.tg-hand .jp-tgf { border-radius: 0 5px 2px 0 / 0 2px 5px 0; box-shadow: inset 0 -3px 0 var(--c-1f272a); }
+
+/* ---------- one look, drawn (stampCard.tsx LookSwatch) ---------- */
+.jp-band { display: block; width: 100%; height: 14px; background-repeat: repeat-x; border-bottom: 2px solid var(--c-1f272a); }
+.jp-col { display: block; width: 34px; height: 34px; border: 2px solid var(--c-1f272a); box-sizing: border-box; }
+.jp-none { display: block; width: 34px; height: 34px; border: 2px dashed var(--c-c9b8a0); box-sizing: border-box; border-radius: 50%; }
+.jp-sign { display: inline-block; max-width: 100%; padding: 4px 6px; border: 2px solid var(--c-1f272a); background: var(--c-fffcf5); font: 800 0.625rem/1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; text-align: center; overflow-wrap: anywhere; }
+.jp-snd { display: block; color: var(--c-1f272a); }
+
+/* ---------- your stall as a rival sees it (stampCard.tsx StallPreview) ---------- */
+.jp-stall { position: relative; width: 100%; max-width: 250px; box-sizing: border-box; border: 3px solid var(--c-1f272a); background: var(--c-fffcf5); display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 10px; }
+.jp-awn { display: block; flex: none; align-self: stretch; height: 14px; background-repeat: repeat-x; border-bottom: 2px solid var(--c-1f272a); }
+.jp-who { display: flex; align-items: center; gap: 8px; padding: 4px 8px 0; max-width: 100%; box-sizing: border-box; }
+.jp-who b { font: 800 0.9375rem/1.1 var(--f-label); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jp-crate { position: relative; display: flex; flex-direction: column; align-items: center; }
+.jp-crate-fruit { display: flex; gap: 2px; margin-bottom: -6px; position: relative; z-index: 1; }
+.jp-crate-box { display: block; overflow: hidden; line-height: 0; }
+.jp-crate-box img { display: block; }
+.jp-crate-prop { position: absolute; right: -34px; bottom: 0; }
+.jp-stall-stamp { position: absolute; right: 8px; top: 26px; }
+
+/* round portraits (the results tiles, the league): the signboard frame stays, drawn round the circle */
+.jp-pod .sbk-face, .jp-lg .sbk-face, .jp-stall .sbk-face { border-radius: 50%; padding: 0; border-width: 2px; }
+.jp-pod .sbk-face .xf, .jp-pod .sbk-face .xf-img, .jp-pod .sbk-face .xf-clip,
+.jp-lg .sbk-face .xf, .jp-lg .sbk-face .xf-img, .jp-lg .sbk-face .xf-clip,
+.jp-stall .sbk-face .xf, .jp-stall .sbk-face .xf-img, .jp-stall .sbk-face .xf-clip { border-radius: 50%; }
+.jp-round { display: inline-flex; flex: none; border: 2px solid var(--c-1f272a); border-radius: 50%; background: var(--c-efe9df); line-height: 0; }
+
+/* ---------- the stamp card: rows of eight on the first rank's card, a red stamp with a star ---------- */
+.sbk .sbk-grid.c8 { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+.sbk .sbk-cell { border: 2px dashed var(--c-5a6266); position: relative; }
+.sbk .sbk-cell.s, .sbk .sbk-cell.n, .sbk-fly { border: 2px solid var(--c-1f272a); background: var(--c-e73c35); }
+.sbk .sbk-cell.n { box-shadow: 0 0 0 2px var(--c-fec400); }
+.sbk .sbk-cell.s::after, .sbk .sbk-cell.n::after, .sbk-fly::after {
+  content: ""; position: absolute; inset: 22%; background: var(--c-fffcf5);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 14.8 4.4 18.1l1.4-6.3L1 7.5l6.4-.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 14.8 4.4 18.1l1.4-6.3L1 7.5l6.4-.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---------- a page: a paper bar with a round back button, the page's name and the level ---------- */
+.sbk .jp-bar {
+  flex: none; display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; min-height: 62px; box-sizing: border-box;
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+  background: var(--k-paper); color: var(--k-ink); border-bottom: 3px solid var(--k-ink);
+}
+.sbk .jp-back { width: 44px; height: 44px; border: 2px solid var(--k-ink); border-radius: 50%; display: grid; place-items: center; color: var(--k-ink); box-sizing: border-box; }
+.sbk .jp-bar h1 { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; text-align: center; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sbk .jp-lv { justify-self: end; background: var(--k-ink); color: var(--k-yel); padding: 6px 7px; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.sbk .jp-bar:has(.jp-lv) { grid-template-columns: 48px 1fr auto; }
+.sbk .jp-tabs { border-bottom: 2px solid var(--k-ink); }
+.sbk .jp-tabs button { min-height: 44px; }
+.sbk .sbk-rk { min-height: 44px; }
+.sbk .jp-tabs button.on { background: var(--k-ink); color: var(--k-yel); }
+.sbk .jp-box { margin: 10px 12px 0; border: 2.5px solid var(--k-ink); padding: 9px 10px; background: var(--k-paper); display: flex; flex-direction: column; gap: 6px; }
+.sbk .jp-yel { color: var(--k-yel); }
+.sbk .jp-good { color: var(--k-green); }
+
+/* ---------- the results ---------- */
+.sbk .jp-head { flex-direction: column; align-items: stretch; gap: 0; padding: calc(12px + env(safe-area-inset-top)) 14px 12px; }
+.sbk .jp-head h2 { margin: 5px 0 4px; font-size: 1.75rem; line-height: 1; }
+.sbk .jp-head.long h2 { font-size: 1.375rem; line-height: 1.05; }
+.sbk .jp-head > span { font-weight: 600; color: var(--k-paper); }
+.sbk .jp-pods { list-style: none; margin: 0; padding: 22px 12px 0; display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 18px 6px; align-items: end; }
+.sbk .jp-pod { position: relative; min-width: 0; border: 2.5px solid var(--k-ink); background: var(--k-paper); display: flex; flex-direction: column; align-items: center; gap: 3px; padding-bottom: 6px; }
+.sbk .jp-pod.me { background: var(--k-yel); }
+.sbk .jp-pod > .tb-awn { align-self: stretch; }
+.sbk .jp-pl { position: absolute; left: -2.5px; top: -18px; min-width: 20px; padding: 3px 5px; box-sizing: border-box; background: var(--k-ink); color: var(--k-paper); font: 800 0.75rem/1 var(--f-label); font-style: normal; text-align: center; }
+.sbk .jp-pod-face { margin-top: 5px; line-height: 0; }
+.sbk .jp-pod-nm { max-width: 100%; padding: 0 4px; box-sizing: border-box; font: 800 0.8125rem/1.1 var(--f-label); text-align: center; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.sbk .jp-pod-cs { font: 400 1.25rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.sbk .jp-pod .sbk-stamp { position: absolute; right: -4px; top: 10px; }
+.sbk .jp-best-in { display: flex; gap: 10px; align-items: flex-start; }
+.sbk .jp-ticket { flex: 0 0 118px; width: 118px; }
+.sbk .jp-best-tx { display: flex; flex-direction: column; gap: 5px; min-width: 0; font-size: 0.8125rem; font-weight: 500; }
+.sbk .jp-best-tx > b { font: 800 0.9375rem/1.15 var(--f-label); }
+.sbk .jp-best-tag { padding: 4px 0 0 2px; }
+.sbk .jp-reward { flex-direction: row; align-items: center; gap: 12px; }
+.sbk .jp-rw-stall { flex: 0 0 108px; width: 108px; border: 2px solid var(--k-ink); display: flex; flex-direction: column; align-items: center; padding-bottom: 6px; position: relative; background: var(--k-paper); }
+.sbk .jp-rw-face { margin-top: 5px; line-height: 0; }
+.sbk .jp-rw-prop { position: absolute; right: 4px; bottom: 4px; }
+.sbk .jp-rw-sw { flex: 0 0 86px; min-height: 64px; display: grid; place-items: center; border: 2px solid var(--k-ink); background: var(--k-pale); padding: 6px; box-sizing: border-box; }
+.sbk .jp-rw-tx { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.sbk .jp-rw-name { font: 400 1.125rem/1.05 var(--f-display); }
+.sbk .jp-rw-on { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--k-green); padding: 6px 0; }
+.sbk .jp-wear { min-height: 44px; padding: 0 16px; background: var(--k-yel); box-shadow: inset 0 0 0 2.5px var(--k-ink); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; text-align: center; }
+.sbk .jp-playas { align-self: flex-start; min-height: 44px; margin-top: 4px; padding: 0 10px; box-shadow: inset 0 0 0 2px var(--k-ink); font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.sbk .jp-acts { gap: 8px; border-top: 2px solid var(--k-ink); }
+.sbk .jp-what { text-align: center; font-weight: 700; }
+.sbk .jp-acts .rematch-note { text-align: center; }
+/* the Daily board's share button (DailyResult.tsx sets 40px on the element): a 44px tap target on the results */
+.sbk .daily-result .sbk-btn.gh { min-height: 44px !important; }
+.sbk .jp-main { flex: none; width: 100%; min-height: 58px; background: var(--k-yel); color: var(--k-ink); box-shadow: inset 0 0 0 2.5px var(--k-ink), 0 4px 0 var(--k-ink); font-size: 1.5rem; }
+.sbk .jp-two { display: flex; gap: 8px; }
+.sbk .jp-sec { flex: 1 1 0; min-height: 44px; box-shadow: inset 0 0 0 2.5px var(--k-ink); text-align: center; font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ---------- the Market League ---------- */
+.sbk .jp-lg-now { margin: 12px 12px 0; padding: 12px 10px 10px; background: var(--k-ink); color: var(--k-paper); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+.sbk .jp-lg-now h2 { font: 400 1.75rem/1 var(--f-display); }
+.sbk .jp-lg-vs { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 6px 0 4px; }
+.sbk .jp-lg-vs .jp-round { border-color: var(--k-paper); }
+.sbk .jp-vs { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
+.sbk .jp-lg-rivals { display: flex; gap: 4px; }
+.sbk .jp-go { align-self: stretch; min-height: 56px; margin-top: 6px; background: var(--k-yel); color: var(--k-ink); text-align: center; font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; }
+.sbk .jp-lg-list { list-style: none; margin: 0; padding: 10px 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.sbk .jp-lg { display: flex; align-items: center; gap: 10px; border: 2.5px solid var(--k-ink); padding: 6px 8px; min-height: 48px; box-sizing: border-box; }
+.sbk .jp-lg.now { background: var(--k-yel); }
+.sbk .jp-lg.done { background: var(--k-pale); }
+.sbk .jp-lg.later { border-style: dashed; color: var(--k-slate); }
+.sbk .jp-lg-n { flex: none; width: 24px; display: grid; place-items: center; font: 400 1.125rem/1 var(--f-display); font-style: normal; }
+.sbk .jp-lg.done .jp-lg-n { color: var(--k-green); }
+.sbk .jp-lg-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sbk .jp-lg-t b { font: 800 1rem/1.1 var(--f-label); color: var(--k-ink); }
+.sbk .jp-lg-t small { font: 600 0.6875rem/1.2 var(--f-label); color: var(--k-slate); }
+.sbk .jp-lg.now .jp-lg-t small { color: var(--k-ink); }
+.sbk .jp-lg-faces { flex: none; display: flex; gap: 2px; }
+.sbk .jp-lg-foot { padding: 10px 12px 16px; }
+
+/* ---------- the stamp book ---------- */
+.sbk .jp-sb-stall { flex-direction: row; align-items: center; gap: 12px; outline-offset: 3px; }
+.sbk .jp-sb-pic { position: relative; flex: 0 0 120px; width: 120px; height: 86px; border: 2px solid var(--k-ink); box-sizing: border-box; overflow: hidden; background: var(--k-kraft); }
+.sbk .jp-sb-pic .jp-awn { position: absolute; left: 0; right: 0; top: 0; z-index: 1; }
+.sbk .jp-sb-pic img.sbk-scene { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
+.sbk .jp-sb-tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sbk .jp-sb-tx h2 { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.sbk .jp-card { border-width: 2.5px; }
+.sbk .jp-card-foot { padding: 0 10px 10px; color: var(--k-slate); font-weight: 700; }
+.sbk .jp-next-in { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sbk .jp-next-sw { flex: none; min-width: 72px; min-height: 48px; display: grid; place-items: center; }
+.sbk .jp-next-in b { font-size: 0.875rem; }
+
+/* ---------- the Wardrobe ---------- */
+.sbk .jp-wd-prev { margin: 10px 12px 0; padding: 10px; background: var(--k-pale); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.sbk .jp-wd-title { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.sbk .jp-wd-tabs { display: flex; margin: 10px 12px 0; border: 2px solid var(--k-ink); overflow-x: auto; scrollbar-width: none; }
+.sbk .jp-wd-tabs::-webkit-scrollbar { display: none; }
+.sbk .jp-wd-tabs button { flex: none; min-height: 44px; padding: 0 12px; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.sbk .jp-wd-tabs button.on { background: var(--k-ink); color: var(--k-yel); }
+.sbk .jp-wd-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 12px 0; }
+.sbk .jp-wd-it { min-width: 0; min-height: 96px; border: 2px solid var(--k-ink); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 0 7px; text-align: center; background: var(--k-paper); }
+.sbk .jp-wd-it.on { box-shadow: 0 0 0 3px var(--k-yel); }
+.sbk .jp-wd-it.locked { border-style: dashed; cursor: default; }
+.sbk .jp-wd-it.locked .jp-wd-sw { opacity: 0.45; filter: grayscale(1); }
+.sbk .jp-wd-sw { align-self: stretch; min-height: 50px; display: grid; place-items: center; padding: 6px 6px 0; }
+.sbk .jp-wd-sw:has(.jp-band) { padding: 0; place-items: start stretch; min-height: 40px; }
+.sbk .jp-wd-it b { padding: 0 4px; font: 800 0.75rem/1.15 var(--f-label); }
+.sbk .jp-wd-it small { padding: 0 4px; font: 700 0.625rem/1.2 var(--f-label); color: var(--k-slate); }
+.sbk .jp-wd-it.on small { color: var(--k-green); text-transform: uppercase; letter-spacing: 0.06em; }
+.sbk .jp-wd-foot { padding: 10px 12px 16px; }
+
+@media (max-width: 370px) {
+  .sbk .jp-bar h1 { font-size: 1.0625rem; }
+  .sbk .jp-head h2 { font-size: 1.4375rem; }
+  .sbk .jp-head.long h2 { font-size: 1.1875rem; }
+  .sbk .jp-pods { gap: 18px 4px; padding-left: 8px; padding-right: 8px; }
+  .sbk .jp-pod-cs { font-size: 1.0625rem; }
+  .sbk .jp-pod-nm { font-size: 0.6875rem; }
+  .sbk .jp-ticket { flex-basis: 108px; width: 108px; }
+  .sbk .jp-rw-stall { flex-basis: 90px; width: 90px; }
+  .sbk .jp-sb-pic { flex-basis: 96px; width: 96px; height: 72px; }
+  .sbk .jp-wd-grid { gap: 6px; }
+  .sbk .jp-main { min-height: 52px; font-size: 1.25rem; }
+}
