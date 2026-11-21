@@ -3027,7 +3027,8 @@
       "reviewTrigger": "After two weeks live: public rooms opened and started, and reactions sent, from the anonymous counters.",
       "reports": [
         "REP-128",
-        "REP-130"
+        "REP-130",
+        "REP-132"
       ]
     },
     {
@@ -3053,7 +3054,8 @@
       "reviewTrigger": "After two weeks live: the share of finished games followed by a rematch or a new game, from the anonymous counters.",
       "reports": [
         "REP-129",
-        "REP-130"
+        "REP-130",
+        "REP-132"
       ]
     },
     {
@@ -3078,7 +3080,8 @@
       "plan": "PLAN-114",
       "reviewTrigger": "Two weeks after 1.27.0 is live: Sprint plays, retries and next-day returns from the anonymous counters.",
       "reports": [
-        "REP-131"
+        "REP-131",
+        "REP-132"
       ]
     }
   ],
@@ -4458,6 +4461,10 @@
     {
       "at": "2026-11-21 21:43",
       "text": "PLAN-114 and PLAN-115 implemented and merged (verified at cc75e1c); T1 to T4 PASS, T5 (the owner on the preview) not run. The Sprint takes about 3 minutes at a human pace, below the 5 to 8 minute target; no rule changed. A player still called \"You\" now goes on the boards under a neutral name. The Hotel Order stage uses the Beach Resort standing order (there is no hotel order card). Release 1.27.0 waits for the owner's word for the preview."
+    },
+    {
+      "at": "2026-11-21 22:02",
+      "text": "Owner: \"push to preview\". 1.26.0 was on the preview but never published (live is 1.25.0), so its candidate is withdrawn and PLAN-112 and PLAN-113 join PLAN-114 and PLAN-115 in release candidate 1.27.0 (rules version 20, protocol 5; REP-132). Pull request to main for the preview; publishing still needs the owner's word."
     }
   ]
 }
