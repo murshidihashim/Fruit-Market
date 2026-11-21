@@ -11,7 +11,7 @@ import {
   capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView, boughtStock, emptyStock, orderStake,
-  decideTie, rushIncome, eveningOpen,
+  decideTie, rushIncome, eveningOpen, stageSetup,
   type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
 } from './game';
 import { Rng } from './rng';
@@ -394,6 +394,8 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
   // Price Controls: never ask above the day's maximum.
   const topCap = Math.min(maxPrice(s, f), Math.max(...lines.map((l) => bestCap(sellStock(s, p), f, l.m, pl, l.pref, l.fixed))));
   const lastDay = s.day >= s.config.days;
+  // PLAN-115: a league stage's undercutting computer simply asks $1 under the best top price it sees in today's row.
+  if (depth === 0 && pl.kind === 'ai' && stageSetup(s.config)?.undercut?.includes(p)) return { price: Math.max(minPrice(s, f), topCap - 1), sold: mine.length };
   const rotsTonight = pl.stock[f][0] > 0;
   const floor = Math.max(minPrice(s, f), rotsTonight || lastDay ? 1 : lv === 'easy' ? 3 : 2);
   const rivals = s.players.map((_, i) => i).filter((i) => i !== p && rivalUnits(i) > 0);

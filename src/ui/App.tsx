@@ -24,7 +24,7 @@ import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
 import { track } from '../net/telemetry';
-import { LEAGUE, leagueConfig, leagueStage } from './progress';
+import { LEAGUE, finishGame, leagueConfig, leagueStage } from './progress';
 import { TrophyScreen } from './Trophies';
 import { LeagueScreen } from './League';
 import { BackArrow } from './stampCard';
@@ -93,7 +93,8 @@ function Main() {
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
-  // PLAN-114: games started in this visit, so that Try again on a Sprint (the same seed and date) opens a fresh table.
+  // PLAN-114 and PLAN-115: games started in this visit, so that Try again on a fixed seed (a Sprint, or a League stage)
+  // opens a fresh table.
   const [runs, setRuns] = useState(0);
   // The small menus in front of the home screen, a room code typed into the friend menu, and where the wardrobe was opened from.
   const [popup, setPopup] = useState<PopupKind | null>(null);
@@ -174,8 +175,10 @@ function Main() {
           if (cfg.sprint && cfg.daily) { track('sprint_retry'); startSprint(cfg.daily); return; }
           if (cfg.daily) { setGame(null); setScreen('home'); return; }
           if (cfg.league !== undefined) {
-            if (leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
-            start(leagueConfig(leagueStage(), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
+            // PLAN-115: "Next stage" after the stage was cleared; otherwise "Try again" plays the same stage.
+            const cleared = finishGame(game, 0)?.cleared ?? false;
+            if (cleared && leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
+            start(leagueConfig(cleared ? leagueStage() : cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
             return;
           }
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
@@ -203,7 +206,8 @@ function Main() {
   const today = todayKey();
   const waiting = waitingGame(game);
   const league = leagueStage();
-  const startLeague = () => start(leagueConfig(Math.min(league, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0], (Math.random() * 2 ** 31) >>> 0));
+  // PLAN-115: the screen plays the stage you are on, or a cleared stage again for its stars.
+  const startLeague = (stage = league) => start(leagueConfig(Math.min(stage, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
   const close = () => setPopup(null);
   // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
   // replaced without a word by the Daily market, the Market League and New game.
@@ -213,7 +217,7 @@ function Main() {
   const toOnline = (mode: 'room' | 'public', code?: string) => { setOnlineMode(mode); setJoinCode(code); setFrom('play'); go('online'); };
   // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
   // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
-  const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={orAsk('a Market League game', startLeague)} /> : screen === 'play' ? (
+  const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('a Market League game', () => startLeague(stage))()} /> : screen === 'play' ? (
     <PlayMenu
       days={days}
       onDays={(d) => { fx.tap(); setDays(d); }}
@@ -233,7 +237,7 @@ function Main() {
       resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
       cash={waiting ? waiting.cash : null}
       table={waiting ? game : null}
-      leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
+      leagueLine={league >= LEAGUE.length ? 'All stages cleared · replay for stars' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
       today={today}
       notice={saveNotice}
       onContinue={() => open('continue')}

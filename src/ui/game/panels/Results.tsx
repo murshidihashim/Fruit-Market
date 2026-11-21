@@ -20,6 +20,7 @@ import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, sho
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
 import { Awning, SEAT_COLOURS } from '../../table';
 import { Ticket } from '../../ticket';
+import { StageEnd } from '../../StageMoment';
 import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
 
@@ -376,11 +377,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           })}
         </ol>
 
-        {league !== undefined && (
-          <p class={`sbk-note ${cleared ? 'good' : ''}`}>
-            {cleared ? (league + 1 >= LEAGUE.length ? 'You won the Market League.' : `${LEAGUE[league].title} cleared. Next: ${LEAGUE[league + 1].title}`) : `Market League: win to clear ${LEAGUE[league].title}.`}
-          </p>
-        )}
+        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
 
         {sprint && <SprintResult s={s} />}
 

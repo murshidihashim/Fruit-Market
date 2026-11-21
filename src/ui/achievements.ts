@@ -10,6 +10,7 @@ import {
   type FavourId, type FruitId, type TraitId, type UpgradeId,
 } from '../engine/data';
 import { count, winners, type GameState, type LineResult } from '../engine/game';
+import { STAR_COUNT, STAR_IDS, starsEarned } from './campaign';
 import { bestStreak } from './streak';
 
 export type Tier = 'bronze' | 'silver' | 'gold';
@@ -198,6 +199,9 @@ export const CARDS: Card[] = [
   // 7. Market League and online
   { id: 'league', group: 'league', title: 'Market League', pic: { kind: 'event', id: 'bakeOff' }, unit: 'stages cleared', value: (s) => s.league,
     steps: [step('league_2', 'bronze', 2, 'Clear stage 2 of the Market League.'), step('league_4', 'silver', 4, 'Clear stage 4 of the Market League.'), step('league', 'gold', 6, 'Clear all six stages of the Market League.')] },
+  // PLAN-115: the campaign's mastery goals, one star each (stored in the set "stars").
+  { id: 'league_stars', group: 'league', title: 'League stars', pic: { kind: 'event', id: 'festival' }, unit: 'stars', value: (s) => sizeOf(s, 'stars', STAR_IDS),
+    steps: [step('stars_6', 'bronze', 6, 'Earn 6 stars in the Market League.'), step('stars_12', 'silver', 12, 'Earn 12 stars in the Market League.'), step('stars_18', 'gold', STAR_COUNT, `Earn all ${STAR_COUNT} stars in the Market League.`)] },
   { id: 'online_games', group: 'league', title: 'Online games', pic: { kind: 'event', id: 'durian' }, unit: 'online games finished', value: (s) => sizeOf(s, 'online'),
     steps: [step('online_1', 'bronze', 1, 'Finish an online game.'), step('online_10', 'silver', 10, 'Finish 10 online games.'), step('online_50', 'gold', 50, 'Finish 50 online games.')] },
   { id: 'online_wins', group: 'league', title: 'Online wins', pic: { kind: 'event', id: 'glut' }, unit: 'online wins', value: (s) => n(s, 'onlineWins'),
@@ -415,6 +419,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
   add(sets, 'customers', ...f.others);
   add(sets, 'clients', ...f.clients);
   add(sets, 'events', ...f.events);
+  add(sets, 'stars', ...starsEarned(g, me));
   add(sets, 'favours', ...f.favours);
   add(sets, 'built', ...f.upgrades);
   if (ctx.online) add(sets, 'online', String(g.config.seed));
