@@ -7,7 +7,7 @@ import { RIVALS } from '../src/engine/data';
 import { newGame, type GameState } from '../src/engine/game';
 import { LOOKS, lookById } from '../src/net/looks';
 import { toStaticHtml } from '../src/ui/cards';
-import { LeagueScreen } from '../src/ui/League';
+import { LeagueView } from '../src/ui/League';
 import { LEAGUE, finishGame, saveLeagueStage } from '../src/ui/progress';
 import { bestSale, bestSaleDay, bestSaleWords, pieces, shownLook, stageGoal, stageLine, stageRivals } from '../src/ui/progressView';
 import { gameStamps } from '../src/ui/stamps';
@@ -99,16 +99,17 @@ describe('a game against computers pays stamps', () => {
 
 describe('the Market League screen', () => {
   it('says each stage\'s real rivals, levels and length', () => {
-    expect(stageGoal(LEAGUE[0])).toBe(`Beat ${RIVALS[LEAGUE[0].rivals[0].idx].name} over 8 days to move up`);
-    expect(stageLine(LEAGUE[0])).toBe('Easy · 8 days');
-    expect(stageLine(LEAGUE[5])).toBe('Hard and Normal · 10 days');
-    expect(stageGoal(LEAGUE[3])).toMatch(/^Beat \S+( \S+)? and \S+ over 10 days to move up$/);
+    expect(stageGoal(LEAGUE[0])).toBe(`Beat ${RIVALS[LEAGUE[0].rivals[0].idx].name} over 6 days to move up`);
+    expect(stageLine(LEAGUE[0])).toBe('Easy · 6 days');
+    expect(stageLine(LEAGUE[3])).toBe('Normal and Easy · 6 days');
+    expect(stageLine(LEAGUE[5])).toBe('Normal · 6 days');
+    expect(stageGoal(LEAGUE[3])).toMatch(/^Beat \S+( \S+)? and \S+ over 6 days to move up$/);
     for (const st of LEAGUE) expect(stageRivals(st).map((r) => r.name)).toEqual(st.rivals.map((r) => RIVALS[r.idx % RIVALS.length].name));
   });
 
   it('opens on the stage the player is on, with its Play button, and lists all six', () => {
     saveLeagueStage(2);
-    const html = toStaticHtml(h(LeagueScreen, { onBack: () => {}, onPlay: () => {} }));
+    const html = toStaticHtml(h(LeagueView, { onBack: () => {}, onPlay: () => {}, sel: 2, onPick: () => {} }));
     expect(html).toContain(`Stage 3 of ${LEAGUE.length}`);
     expect(html).toContain('Play stage 3');
     for (const st of LEAGUE) expect(html).toContain(st.title);
@@ -116,9 +117,9 @@ describe('the Market League screen', () => {
     expect(html).not.toContain('!');
   });
 
-  it('after the last stage, offers the Royal Market again', () => {
+  it('after the last stage, offers the last stage again', () => {
     saveLeagueStage(LEAGUE.length);
-    const html = toStaticHtml(h(LeagueScreen, { onBack: () => {}, onPlay: () => {} }));
+    const html = toStaticHtml(h(LeagueView, { onBack: () => {}, onPlay: () => {}, sel: LEAGUE.length - 1, onPick: () => {} }));
     expect(html).toContain(`All ${LEAGUE.length} stages cleared`);
     expect(html).toContain(`Replay stage ${LEAGUE.length}`);
   });

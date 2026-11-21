@@ -42,9 +42,9 @@ describe('look list', () => {
     expect(LOOKS.some((l) => l.from.kind === 'pack')).toBe(false);
   });
 
-  it('adds the stamp book looks: 8 free colours, 6 frames, 20 titles, 4 price tags, a results stamp, 3 bells and 3 coin sounds', () => {
+  it('adds the stamp book looks: 8 free colours, 6 frames, 22 titles, 4 price tags, a results stamp, 3 bells and 3 coin sounds', () => {
     const count = (slot: string) => LOOKS.filter((l) => l.slot === slot).length;
-    expect(['colour', 'frame', 'title', 'tag', 'stamp', 'bell', 'coin'].map(count)).toEqual([8, 6, 20, 4, 1, 3, 3]);
+    expect(['colour', 'frame', 'title', 'tag', 'stamp', 'bell', 'coin'].map(count)).toEqual([8, 6, 22, 4, 1, 3, 3]);
     expect(LOOKS.filter((l) => l.slot === 'colour').every((l) => l.from.kind === 'free')).toBe(true);
     expect(LOOKS.filter((l) => l.slot === 'title' && l.from.kind === 'level').map((l) => l.title)).toEqual(
       ['Roadside Table trader', 'Five-Foot Way trader', 'Covered Stall trader', 'Corner Lot trader', 'Shophouse trader', 'Towkay trader']);

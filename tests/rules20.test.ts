@@ -66,8 +66,8 @@ describe('C-01: the Market League deals only perks no rival holds', () => {
     }
   });
 
-  it('the Old Town stage with Saleh never offers a second Nest Egg, so his perk always works', () => {
-    const stage = LEAGUE.findIndex((x) => x.title === 'Old Town');
+  it('the Pasar Malam stage with Saleh never offers a second Nest Egg, so his perk always works', () => {
+    const stage = LEAGUE.findIndex((x) => x.title === 'Pasar Malam');
     expect(LEAGUE[stage].rivals.map((r) => RIVALS[r.idx].name)).toEqual(['Saleh']);
     for (let seed = 1; seed <= 400; seed++) {
       const s = newGame(leagueConfig(stage, 'You', '🧑‍🍳', seed));
