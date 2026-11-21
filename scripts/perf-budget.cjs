@@ -34,7 +34,8 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
     let seed = 777;
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
-    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2']));
+    // Every tip seen, and the guided first sale had (PLAN-113), so Day 1 is played by hand and measured as before.
+    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
     window.__long = [];
     new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push([Math.round(e.duration), e.startTime]))).observe({ type: 'longtask', buffered: true });
     // Smoothness: how long every frame took while the rush plays (from the bell to the takings: the round table says
@@ -63,7 +64,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   const cdp = await ctx.newCDPSession(p);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   await p.goto('file://' + file);
-  await p.waitForSelector('text=New game');
+  await p.waitForSelector('[data-a="play"]');
 
   // A control whose box is under MIN_TAP is listed with its box and its touch area: how far from its middle a tap still
   // lands on it (or on something inside it), found by asking the page what lies under each point. The touch area counts
@@ -89,7 +90,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   }, MIN_TAP);
   const domCount = () => p.evaluate(() => document.querySelectorAll('*').length);
 
-  await p.click('text=New game');
+  await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-113: Home's Play, then Computer
   await p.waitForTimeout(1500); // a player spends a moment choosing options on the setup screen
   await p.evaluate(() => { window.__entry = performance.now(); });
   await p.click('text=Start game');

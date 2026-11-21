@@ -19,14 +19,15 @@ const path = require('path');
     let seed = 12345;
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
-    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2']));
+    // Every tip seen, and the guided first sale had (PLAN-113): the store pictures show the game as it is played after it.
+    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
     localStorage.setItem('fm.name', 'You');
   });
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(400);
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
-  await p.click('button:has-text("New game")');
+  await p.click('[data-a="play"]'); await p.click('[data-a="computer"]');
   await setRivals(p, 2);
   await p.click('button:has-text("Start game")');
   // A merchant trait is picked only when the game offers one (the Daily market, the Market League); a new game goes
@@ -70,7 +71,7 @@ const path = require('path');
   }
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(300);
-  await p.click('button:has-text("Trophies")');
+  await p.click('button:has-text("Stamps")');
   await p.waitForTimeout(300);
   await shot('7-trophies');
   console.log('saved', [...done].join(', '));

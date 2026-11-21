@@ -49,7 +49,7 @@ async function player(name) {
 async function newMatch() {
   const A = await player('Ann'), B = await player('Ben');
   await A.page.goto(base);
-  await A.page.click('text=Play a friend'); await A.page.click('text=Create a room');
+  await A.page.click('[data-a="play"]'); await A.page.click('[data-a="room"]');
   await A.page.click('text=Create room');
   await A.page.waitForSelector('#invite-link');
   const link = await A.page.inputValue('#invite-link');
@@ -120,11 +120,12 @@ async function quicks() {
   for (let i = 1; i <= N.quick; i++) {
     const started = Date.now();
     const A = await player('Quinn'), B = await player('Robin');
-    await A.page.goto(base); await A.page.click('text=Play a friend'); await A.page.click('text=Quick match'); await A.page.click('text=Find a player');
-    await A.page.waitForSelector('text=Looking for a player');
-    await B.page.goto(base); await B.page.click('text=Play a friend'); await B.page.click('text=Quick match');
+    // PLAN-113: with a saved name, Quick match in the Play menu starts looking at once.
+    await A.page.goto(base); await A.page.click('[data-a="play"]'); await A.page.click('[data-a="quick"]');
+    await A.page.waitForSelector('text=Looking for a stall');
+    await B.page.goto(base); await B.page.click('[data-a="play"]');
     const t0 = Date.now();
-    await B.page.click('text=Find a player');
+    await B.page.click('[data-a="quick"]');
     const [a, b] = await Promise.all([waitBack(A), waitBack(B)]);
     await record('quick', i, [A, B], a === null || b === null ? null : Date.now() - t0);
     await closeAll([A, B]);

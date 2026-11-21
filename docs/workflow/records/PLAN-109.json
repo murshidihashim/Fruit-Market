@@ -35,7 +35,7 @@
     "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
     "date": "2026-11-16"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.25.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 4bb18df",
   "reports": [

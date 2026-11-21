@@ -34,8 +34,8 @@
     {
       "id": "T4",
       "text": "The owner has checked the result on the preview",
-      "result": "NOT RUN",
-      "evidence": "Waits for the 1.25.0 preview."
+      "result": "PASS",
+      "evidence": "Owner tried 1.25.0 on the preview and said \"push it live\" (2026-11-20)."
     }
   ],
   "approval": {
@@ -43,7 +43,7 @@
     "evidence": "Owner, 2026-11-16: \"okay approve\" (to REP-123). The trophy name \"Sold out\" and two releases (1.24.1 with PLAN-107, then 1.25.0) were the recommendations in REP-123, approved with the plan; each release still needs his word to publish.",
     "date": "2026-11-16"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.25.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge b61d386",
   "reports": [

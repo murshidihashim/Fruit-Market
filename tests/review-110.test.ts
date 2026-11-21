@@ -198,7 +198,8 @@ describe('S11: the Freshness patterns switch is gone', () => {
     stubStorage();
     mem.set('fm.settings', JSON.stringify({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false, patterns: true }));
     const st = loadSettings();
-    expect(st).toEqual({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false });
+    // PLAN-112: "Show reactions" came later; settings saved before it load with it on.
+    expect(st).toEqual({ sound: false, haptics: true, fast: true, tips: true, music: false, analytics: false, reactions: true });
     expect('patterns' in st).toBe(false);
     saveSettings({ ...st, sound: true });
     expect(JSON.parse(mem.get('fm.settings')!)).not.toHaveProperty('patterns');

@@ -128,10 +128,10 @@ function audit() {
       await page.click('.icon-btn');
       await page.click('button:has-text("Settings")'); await check('settings');
       await page.click('.icon-btn');
-      await page.click('button:has-text("Trophies")'); await check('trophies');
+      await page.click('button:has-text("Stamps")'); await check('trophies');
       // Trophies has the stamp book's own back arrow (PLAN-086)
       await page.click('.sbk-back');
-      await page.click('button:has-text("New game")'); await check('setup');
+      await page.click('[data-a="play"]'); await check('play'); await page.click('[data-a="computer"]'); await check('setup');
       await page.click('button:has-text("Start game")');
       const seen = new Set();
       const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
@@ -149,6 +149,8 @@ function audit() {
             await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
             continue;
           }
+          // PLAN-113: a new player's first solo game asks one price on Day 1 (the guided first sale).
+          if (await has('.fs-pop .fs-go:not([disabled])')) { if (once('first-sale')) await check('first-sale'); await page.click('.fs-pop .fs-go'); continue; }
           // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
           if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
           // Fill your stall starts empty (PLAN-061): add every piece you can before opening.

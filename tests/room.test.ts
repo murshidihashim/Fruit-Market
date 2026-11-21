@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS, type FavourId } from '../src/engine/data';
 import { activePlayer, canBuy, emptyStock, eveningOpen, newGame, type GameState } from '../src/engine/game';
-import { CHARACTER_AVATARS, PROTOCOL_VERSION, RULES_VERSION, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import { CHARACTER_AVATARS, PROTOCOL_VERSION, REACT_GAP_MS, REACTIONS, RULES_VERSION, UPDATE_MSG, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import type { Listing } from '../server/lobby';
 import { freshRoom, GRACE_MS, redact, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
@@ -1240,5 +1241,217 @@ describe('PLAN-107 (S3, DEC-120): Undo takes back purchases only; a favour card 
     await buyer.say({ t: 'undo', id: nid(), v: buyer.view!.version });
     expect(mine(buyer).favours).toEqual([]);
     expect(JSON.stringify(mine(buyer).stock)).toBe(cooled);
+  });
+});
+
+describe('PLAN-112: public rooms, starting with computers, and reactions', () => {
+  const hello = (name: string, token?: string, pv: number = PROTOCOL_VERSION): ClientMsg => ({ t: 'hello', rv: RULES_VERSION, pv, name, avatar: '🦸', ...(token ? { token } : {}) });
+
+  /** A room that tells a stand-in list what it shows, as the Durable Object tells the real one. */
+  class ListHarness extends Harness {
+    told: { code: string; entry: Listing | null }[] = [];
+    async listRoom(code: string, entry: Listing | null) { this.told.push({ code, entry }); }
+    get last() { return this.told[this.told.length - 1]; }
+  }
+  const publicRoom = () => {
+    const h = new ListHarness();
+    h.room = new Room(freshRoom('PUBLIC', h.t, false, true), h);
+    return h;
+  };
+
+  it('a new room is private unless asked, and a quick match is never public', () => {
+    expect(freshRoom('ROOMAA', 0).public).toBeUndefined();
+    expect(freshRoom('ROOMAA', 0, false, true).public).toBe(true);
+    expect(freshRoom('ROOMAA', 0, true, true).public).toBeUndefined();
+  });
+
+  it('a public room is listed once its host is in, follows its seats and settings, and goes when it starts', async () => {
+    const h = publicRoom();
+    expect(h.told).toEqual([]);
+    const a = h.connect('A');
+    await a.say(hello('Aisyah'));
+    expect(h.last).toEqual({ code: 'PUBLIC', entry: { code: 'PUBLIC', host: 'Aisyah', taken: 1, days: 10, openedAt: h.t } });
+    expect(a.view!.public).toBe(true);
+    const b = h.connect('B');
+    await b.say(hello('Benny'));
+    expect(h.last.entry?.taken).toBe(2);
+    // A computer seat counts as taken; the game length follows the settings.
+    await a.say({ t: 'config', config: { days: 14, ai: 1, unripe: true, upgrades: true, events: true } });
+    expect(h.last.entry).toMatchObject({ taken: 3, days: 14 });
+    const n = h.told.length;
+    await a.say({ t: 'ready', ready: true }); // nothing the list shows changed: it is not told again
+    expect(h.told.length).toBe(n);
+    await b.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    expect(h.room.d.status).toBe('picking');
+    expect(h.last).toEqual({ code: 'PUBLIC', entry: null });
+    expect(h.room.listing()).toBeNull();
+  });
+
+  it('a full room is taken off the list, and listed again when a seat frees up', async () => {
+    const h = publicRoom();
+    const cs: Client[] = [];
+    for (let i = 0; i < 6; i++) { const c = h.connect(`P${i}`); await c.say(hello(`P${i}`)); cs.push(c); }
+    expect(h.room.d.seats.length).toBe(6);
+    expect(h.last.entry).toBeNull();
+    await cs[5].say({ t: 'leave' });
+    expect(h.last.entry?.taken).toBe(5);
+    // Computers filling the last seats fill the room too.
+    await cs[0].say({ t: 'config', config: { days: 10, ai: 1, unripe: true, upgrades: true, events: true } });
+    expect(h.last.entry).toBeNull();
+  });
+
+  it('a room with nobody connected is taken off; a closed room is taken off; a listed room says it is still there', async () => {
+    const h = publicRoom();
+    const a = h.connect('A');
+    await a.say(hello('Aisyah'));
+    // While listed, the room wakes within a minute to tell the list it is still waiting.
+    expect(h.alarmAt).toBeLessThanOrEqual(h.t + 60_000);
+    const n = h.told.length;
+    h.t += 60_000;
+    await h.room.alarm();
+    expect(h.told.length).toBe(n + 1);
+    expect(h.last.entry?.host).toBe('Aisyah');
+    a.close();
+    await Promise.resolve();
+    expect(h.last.entry).toBeNull();
+    // Back in time: listed again. Then the room expires: taken off before it goes.
+    const a2 = h.connect('A2');
+    await a2.say(hello('Aisyah', a.token));
+    expect(h.last.entry?.host).toBe('Aisyah');
+    h.t += ROOM_TTL_MS + 1;
+    await h.room.alarm();
+    expect(h.destroyed).toBe(true);
+    expect(h.last.entry).toBeNull();
+  });
+
+  it('a private room and a quick match never tell the list anything', async () => {
+    const h = new ListHarness();
+    const { a, b } = await lobbyOf2(h);
+    await a.say({ t: 'ready', ready: true });
+    await b.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    expect(h.told).toEqual([]);
+    const q = new ListHarness();
+    q.room = new Room(freshRoom('QUICKQ', q.t, true, true), q);
+    await q.connect('A').say(hello('One'));
+    expect(q.told).toEqual([]);
+  });
+
+  it('nobody can join a public room that has started, from the list or with the code', async () => {
+    const h = publicRoom();
+    const a = h.connect('A');
+    const b = h.connect('B');
+    await a.say(hello('Aisyah')); await b.say(hello('Benny'));
+    await a.say({ t: 'ready', ready: true }); await b.say({ t: 'ready', ready: true });
+    await a.say({ t: 'start' });
+    const late = h.connect('L');
+    await late.say(hello('Late'));
+    expect(late.errors).toEqual(['This game has already started.']);
+    expect(h.room.d.seats.length).toBe(2);
+  });
+
+  it('after a minute the host may start with computers in the empty seats, even alone', async () => {
+    const h = publicRoom();
+    const a = h.connect('A');
+    await a.say(hello('Aisyah'));
+    expect(a.view!.waited).toBe(0);
+    await a.say({ t: 'start', computers: true });
+    expect(a.errors.slice(-1)[0]).toBe('Wait a minute for players to join first.');
+    expect(h.room.d.config.ai).toBe(0);
+    await a.say({ t: 'start' });
+    expect(a.errors.slice(-1)[0]).toContain('another player');
+    h.t += 60_000;
+    await a.say({ t: 'start', computers: true });
+    expect(h.room.d.status).toBe('picking');
+    expect(h.room.d.config.ai).toBe(5);
+    expect(h.last.entry).toBeNull();
+    await pickAll(a);
+    expect(h.room.d.status).toBe('playing');
+    expect(h.room.d.game!.players.length).toBe(6);
+    expect(h.room.d.game!.players.filter((p) => p.kind === 'ai').length).toBe(5);
+  });
+
+  it('starting with computers still waits for everyone else to be ready and here', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    h.t += 60_000;
+    await a.say({ t: 'start', computers: true });
+    expect(a.errors.slice(-1)[0]).toContain('ready');
+    expect(h.room.d.config.ai).toBe(0); // nothing changed by a start that was refused
+    await b.say({ t: 'ready', ready: true });
+    await b.say({ t: 'start', computers: true });
+    expect(b.errors.slice(-1)[0]).toContain('host');
+    await a.say({ t: 'start', computers: true }); // the host's own tap counts as ready
+    expect(h.room.d.status).toBe('picking');
+    expect(h.room.d.config.ai).toBe(4);
+  });
+
+  it('a reaction with a known id is passed to everyone as {seat, id} and nothing else', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const before = [a.inbox.length, b.inbox.length];
+    await b.say({ t: 'react', r: 'clap' });
+    for (const got of [a.inbox.slice(before[0]), b.inbox.slice(before[1])]) expect(got).toEqual([JSON.stringify({ t: 'react', seat: 1, r: 'clap' })]);
+    // Extra fields in the message are never passed on.
+    h.t += 5000;
+    const n = a.inbox.length;
+    await a.say({ t: 'react', r: 'luck', text: 'my crate has 3 mangoes', price: 9 } as unknown as ClientMsg);
+    expect(a.inbox.slice(n)).toEqual([JSON.stringify({ t: 'react', seat: 0, r: 'luck' })]);
+    // Every id in the shared list is accepted; none shows a number or an exclamation mark.
+    for (const r of REACTIONS) {
+      h.t += REACT_GAP_MS;
+      await a.say({ t: 'react', r: r.id });
+      expect(JSON.parse(a.inbox[a.inbox.length - 1])).toEqual({ t: 'react', seat: 0, r: r.id });
+      expect(r.show).not.toMatch(/[0-9!]/);
+    }
+    expect(REACTIONS.length).toBe(12);
+  });
+
+  it('an unknown or malformed reaction, one from a phone with no seat, and one sent too soon are dropped quietly', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    const n = [a.inbox.length, b.inbox.length];
+    for (const r of ['hello', '', 7, null, { id: 'smile' }, ['smile'], 'SMILE', undefined]) await a.say({ t: 'react', r } as unknown as ClientMsg);
+    await a.say({ t: 'react' } as unknown as ClientMsg);
+    expect([a.inbox.length, b.inbox.length]).toEqual(n);
+    const stranger = h.connect('S');
+    await stranger.say({ t: 'react', r: 'smile' });
+    expect(b.inbox.length).toBe(n[1]);
+    // One every 2 s per seat: a second one sooner is dropped, the other seat is not held up.
+    await a.say({ t: 'react', r: 'smile' });
+    h.t += REACT_GAP_MS - 1;
+    await a.say({ t: 'react', r: 'fire' });
+    await b.say({ t: 'react', r: 'wow' });
+    h.t += 1;
+    await a.say({ t: 'react', r: 'thanks' });
+    const reacts = b.inbox.slice(n[1]).map((r) => JSON.parse(r)).filter((m) => m.t === 'react');
+    expect(reacts).toEqual([{ t: 'react', seat: 0, r: 'smile' }, { t: 'react', seat: 1, r: 'wow' }, { t: 'react', seat: 0, r: 'thanks' }]);
+    expect(a.errors).toEqual([]);
+  });
+
+  it('reactions work during the match too, and never change the game', async () => {
+    const h = new Harness();
+    const { a, b } = await lobbyOf2(h);
+    await start(h, a, b);
+    const v = h.room.d.version;
+    const game = JSON.stringify(h.room.d.game);
+    await a.say({ t: 'react', r: 'played' });
+    expect(JSON.parse(b.inbox[b.inbox.length - 1])).toEqual({ t: 'react', seat: 0, r: 'played' });
+    expect(h.room.d.version).toBe(v);
+    expect(JSON.stringify(h.room.d.game)).toBe(game);
+  });
+
+  it('a phone on protocol 4 (1.25.0) is asked to update and takes no seat', async () => {
+    const h = publicRoom();
+    const old = h.connect('OLD');
+    await old.say(hello('Old', undefined, 4));
+    const msg = old.inbox.map((r) => JSON.parse(r)).find((m) => m.t === 'error');
+    expect(msg).toEqual({ t: 'error', msg: UPDATE_MSG, fatal: true, update: true });
+    expect(h.room.d.seats.length).toBe(0);
+    expect(h.told).toEqual([]);
+    // Its later messages, a reaction among them, are refused without being passed on.
+    await old.say({ t: 'react', r: 'smile' });
+    expect(old.inbox.map((r) => JSON.parse(r).t)).toEqual(['error', 'error']);
   });
 });

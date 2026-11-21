@@ -32,7 +32,7 @@ const path = require('path');
     await page.click('button:has-text("Continue")');
     await page.click('button:has-text("Resume")');
   } else {
-    await page.click('button:has-text("New game")');
+    await page.click('[data-a="play"]'); await page.click('[data-a="computer"]'); // PLAN-113: Home's Play, then Computer
     await setRivals(page, rivals);
     await page.click('button:has-text("Start game")');
     await page.waitForTimeout(250);
@@ -58,6 +58,17 @@ const path = require('path');
         continue;
       }
       await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
+      continue;
+    }
+    // PLAN-113: a new player's first solo game sets up Day 1's stall by itself (its strip is up meanwhile), then asks one
+    // price: change it once with − or +, then ring the bell. Later days are played by hand below.
+    if (await has('.fs-strip') && once('first-sale-strip')) await shot('01c-first-sale-strip');
+    if (await has('.fs-pop .fs-go:not([disabled])')) {
+      await shot('04b-first-sale');
+      const step = page.locator('.fs-pop .fs-step:not([disabled])').first();
+      if (await step.count()) await step.click();
+      await page.click('.fs-pop .fs-go');
+      console.log('guided first sale: bell rung');
       continue;
     }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.

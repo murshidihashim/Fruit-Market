@@ -267,6 +267,17 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .char-pick { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 10px; }
 .join-row { display: flex; gap: 8px; align-items: center; }
 .join-row .input { margin-top: 0; }
+/* PLAN-112: the public rooms still waiting for players, and the choice of a public or private room */
+.pr-list { display: flex; flex-direction: column; gap: 6px; }
+.pr-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 8px 6px 12px; border-radius: 10px; background: var(--surface-2); }
+.pr-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pr-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-who small { color: var(--muted); font-size: 0.78rem; }
+.pr-n { flex: none; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+.pr-join { flex: none; min-width: 64px; min-height: 40px; }
+.public-rooms .row2 .btn { min-width: 0; }
+.public-note { margin: 0 0 6px; }
+.start-computers-wait { margin: 0; }
 .code-input { font-family: var(--f-pixel); font-size: 1.3rem; letter-spacing: calc(4px * var(--ls, 1)); text-transform: uppercase; }
 .room-code { display: flex; justify-content: center; gap: 6px; margin: 4px 0 10px; }
 .room-code span { width: 42px; height: 54px; display: grid; place-items: center; border-radius: 10px; background: var(--cream); color: var(--ink); font-family: var(--f-pixel); font-weight: 700; font-size: 1.7rem; box-shadow: 0 4px 0 var(--card-edge); }

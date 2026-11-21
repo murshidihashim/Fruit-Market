@@ -591,7 +591,7 @@
     },
     {
       "version": "1.25.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-107",
         "PLAN-108",
@@ -627,7 +627,29 @@
         "Clearer colours: the FIRST token stands out, and stall colours no longer match the customer types",
         "Print and play: a new printable board, stall sheets, shutters, counters and tokens, and customer cards that mark the \"+1 at 6 stalls\" fruit"
       ],
-      "date": "2026-11-17",
+      "date": "2026-11-20",
+      "commit": "fee19d8",
+      "tagged": true
+    },
+    {
+      "version": "1.26.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-112",
+        "PLAN-113"
+      ],
+      "notes": [
+        "Online: start a public room and anyone can find it in the new Public rooms list and join",
+        "Online: after a minute of waiting, the host can fill the empty seats with computers and start",
+        "Online: send a reaction to the room, 8 emoji and 4 short lines; mute a player, or turn reactions off in Settings",
+        "A new Home and one Play menu for every way to play",
+        "Quick match: practise a price while you wait, or play the computer now",
+        "New players get a guided first sale on their first game",
+        "Results show every stall, your best sale and your new look, with a big Rematch",
+        "New Market League screen; the Stamp Book and Wardrobe show your stall as rivals see it",
+        "Online: the reaction button no longer covers the stocking buttons"
+      ],
+      "date": "2026-11-21",
       "commit": "",
       "tagged": false
     }

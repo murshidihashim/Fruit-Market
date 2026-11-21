@@ -1,43 +1,49 @@
-// The home screen, "Ticket Booth" (PLAN-074; DEC-097, boards "Home-A", "Home-B" and "Home-Waiting"): the black bar
-// with the account and the Wardrobe (your shopkeeper's picture, dressed), a band of the four fruit lanes, the title,
-// a row that is swiped sideways (today's market first, your next goals one swipe on, and your table first when a game
-// is waiting), dots that can also be tapped, one black button, the Market League as a ticket, and Trophies, How to
-// play and Settings on a kraft strip. The look is the game table's (Market Ticket, ticket.css); the styles are in
-// booth.css. The opening (Opening.tsx, "Lane Drop") plays on this very screen: it puts "hm-intro" on <html>, which
-// animates the title and everything under the band into place.
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+// The home screen (PLAN-113, the player journey; before it the "Ticket Booth" of PLAN-074). Top to bottom: the four
+// fruit lanes (the band the opening folds into), the title with your stall level, your illustrated stall with your
+// shopkeeper and the next thing you can unlock, one Play button (Continue first when a game is waiting, with that
+// game's table under it), the Daily market with its real first customer card and the lorry's fruit, your next two
+// goals, and tiles for the Market League, the stamp book and the Wardrobe; How to play, Settings and the account on
+// the kraft strip at the foot. Play opens the Play menu (PlayMenu, below): every way to start a game on one screen.
+// The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css for the
+// rest. The opening (Opening.tsx, "Lane Drop") plays on this screen: "hm-intro" on <html> animates the title and
+// everything under the band (".hm-title", ".hm-rest") into place.
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { FRUIT, lookOf, stageAt, type FruitId } from '../engine/data';
+import { FRUIT, RIVALS, lookOf, stageAt, type FruitId } from '../engine/data';
 import { count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
-import { LOOKS } from '../net/looks';
+import { LOOKS, type Look } from '../net/looks';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
-import { TIER_COUNT, standing } from './achievements';
-import { CALM_ART, customerArt, customerFocus, eventArt, eventFocus, focusCss } from './deckArt';
-import { newsChips } from './eventChips';
+import { Face } from './art';
+import { Gazette, TradingCard } from './cards';
+import { shopScene } from './deckArt';
 import { FruitSvg } from './fruitIcons';
-import { myAvatar, syncLooks, worn } from './looks';
-import { snapshot, syncTiers } from './progress';
-import { FramedFace, TrophyPic, shownAvatar } from './stampCard';
-import { goals } from './stamps';
-import { loadDaily } from './store';
+import { PropSprite, RoofBand } from './icons';
+import { chosenColour, myAvatar, syncLooks, worn } from './looks';
+import { LENGTHS, computerLine, leagueLine as leagueWords, phoneLine, quickLine, roomLine } from './playMenu';
+import { leagueStage, myPlace, snapshot, syncTiers } from './progress';
+import { BackArrow, FramedFace, TrophyPic, shownAvatar } from './stampCard';
+import { goals, nextReward, type Goal } from './stamps';
+import { loadDaily, todayKey } from './store';
 import { currentStreak } from './streak';
+import { Awning, seatColour } from './table';
+import './journey-home.css';
 
 export interface ShopProps {
   /** "Day 4/10" when a game is waiting to be continued, else null. */
   resume: string | null;
   /** Your cash in the waiting game (one person at the table), else null. */
   cash: number | null;
-  /** The game that is waiting, for its page in the row (null when none is). */
+  /** The game that is waiting, for its table under Continue (null when none is). */
   table: GameState | null;
   leagueLine: string;
   today: string;
   notice: string | null;
   onContinue: () => void;
-  onNew: () => void;
-  onFriend: () => void;
+  /** Opens the Play menu. */
+  onPlay: () => void;
   onDaily: () => void;
   onLeague: () => void;
   onWardrobe: () => void;
@@ -63,88 +69,112 @@ export function LaneBand({ class: cls, style }: { class?: string; style?: string
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 /** "11 Nov" from a date key. */
 const shortDate = (key: string): string => { const [, m, d] = key.split('-').map(Number); return `${d} ${MONTHS[(m || 1) - 1]}`; };
+const pieces = (n: number, f: FruitId) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
+/** A tier's words as part of a line: "Sell a piece of fruit." becomes "sell a piece of fruit". */
+const asPart = (text: string) => text.replace(/\.$/, '').replace(/^./, (c) => c.toLowerCase());
 
-/** The Daily market page (the first page; REP-122 C-13: one name for the mode, as the glossary has it): what the first
- *  morning of today's Daily market puts on the table, which is the same
- *  for everyone and public from the game's first screen: the lorry's load and, since no game has an event card on its
- *  first day (events are turned over each morning from day 2 and never shown early), the customer who stands first in
- *  the row, face up, with what they want. Should a first day ever carry an event, it is shown with its effect. Then
- *  how many have played and the best so far, and one button to play. */
-function TodayPage({ today, onDaily }: { today: string; onDaily: () => void }) {
+/** The look a goal unlocks, if it unlocks one. */
+export const goalLook = (g: Goal): Look | undefined => LOOKS.find((l) => l.from.kind === 'trophy' && l.from.id === g.step.id);
+
+/**
+ * The picture of what a goal gives: the roof or trim on your awning, the hat (or other piece) on your shopkeeper, the
+ * prop itself; otherwise the trophy card's picture.
+ */
+function GoalPic({ g, look }: { g: Goal; look?: Look }) {
+  const me = worn();
+  if (look?.slot === 'roof' || look?.slot === 'trim') return <span class="jh-gpic awn"><RoofBand cls="tb-awn" colour={chosenColour(me) ?? seatColour(0)} roof={look.slot === 'roof' ? look.id : me.roof} trim={look.slot === 'trim' ? look.id : undefined} /></span>;
+  if (look?.kind === 'wear') return <span class="jh-gpic face"><Face who={myAvatar()} size={40} worn={[look.id]} /></span>;
+  if (look?.slot === 'prop') return <span class="jh-gpic"><PropSprite id={look.id} size={36} cls="jh-prop" /></span>;
+  return <span class="jh-gpic"><TrophyPic pic={g.card.pic} /></span>;
+}
+
+/**
+ * Your stall: your shopkeeper at their stall under your awning (your colour and roof), and on it the next thing you
+ * can unlock: the nearest goal that gives a look, else the next stall level's reward.
+ */
+function StallHero() {
+  const avatar = myAvatar();
+  const name = RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Your shopkeeper';
+  const snap = snapshot();
+  const g = goals(snap).find((x) => goalLook(x));
+  const look = g && goalLook(g);
+  const next = nextReward(myPlace());
+  const line = g && look ? `${look.title} · ${asPart(g.step.text)}`
+    : next?.reward ? `Level ${next.level}: ${next.reward.text} · ${next.stamps} ${next.stamps === 1 ? 'stamp' : 'stamps'}` : null;
+  const scene = shopScene(avatar);
+  return (
+    <div class="jh-stall">
+      {scene ? <img class="jh-scene" src={scene} alt={`${name} at your stall`} decoding="async" draggable={false} /> : <Face who={avatar} size={120} />}
+      <div class="jh-awn"><Awning p={0} look={worn()} /></div>
+      {line && <span class="jh-next"><b>Next</b> {line}</span>}
+    </div>
+  );
+}
+
+/** The Daily market: what the first morning of today's Daily puts on the table, which is the same for everyone and
+ *  public from the game's first screen: the customer who stands first in the row (no game has an event card on its
+ *  first day; should one ever, it is shown instead), and the lorry's load. Then today's twist, your best today or how
+ *  many have played, and one button. */
+function DailyCard({ today, onDaily }: { today: string; onDaily: () => void }) {
   const first = useMemo(() => newGame(dailyConfig(today, 'You')), [today]);
   const [res, setRes] = useState<BoardResult | null>(null);
   useEffect(() => { let alive = true; void fetchDaily(today).then((r) => { if (alive) setRes(r); }); return () => { alive = false; }; }, [today]);
   const daily = loadDaily();
   const streak = currentStreak(Object.keys(daily), today);
   const e = first.event;
-  const chip = newsChips(e)[0];
   const who = e ? null : first.forecast;
-  const src = e ? eventArt(e.id) : who ? customerArt(who.name) : CALM_ART;
-  const pos = focusCss(e ? eventFocus(e.id) : who ? customerFocus(who.name) : eventFocus('calm'));
-  const wants = who ? who.wants.map((w) => `${w.qty} ${(w.qty === 1 ? FRUIT[w.fruit].name : FRUIT[w.fruit].plural).toLowerCase()}`).join(' · ') : '';
   const best = res && !res.error && res.top.length ? res.top[0].cash : null;
+  const firstWords = who ? `First customer: ${lookOf(who.name).title}, ${who.wants.map((w) => `${pieces(w.qty, w.fruit)} up to $${w.max}`).join(' and ')}.` : e ? `Today's event: ${e.title}.` : '';
   return (
-    <div class="hm-slot" data-page="today">
-      <div class="hm-sh"><span>Daily market · {shortDate(today)}</span>{streak > 0 && <b>{streak}-day streak</b>}</div>
-      <div class="hm-sb">
-        <div class="hm-t1">
-          <div class="hm-ev">
-            <span class="hm-lb">{e ? 'Today\'s event' : who ? 'First customer' : 'Today'}</span>
-            {src && <img src={src} alt="" decoding="async" draggable={false} style={{ objectPosition: pos }} />}
-            <span class="hm-evn">{e ? e.title : who ? lookOf(who.name).title : 'Calm Day'}</span>
-            <span class="hm-chip">{e ? (chip ? `${chip.big} ${chip.small.charAt(0).toLowerCase()}${chip.small.slice(1)}` : e.title) : who ? `Wants ${wants}` : 'No event today'}</span>
-          </div>
-          <div class="hm-tr">
-            <span class="hm-lb">Today's lorry brings</span>
-            <div class="hm-ln4">{LANES.map((f) => <span class={`hm-ln f-${f}`}><i><FruitSvg id={f} size={16} alt={f} /></i>{first.delivery[f] ?? 0}</span>)}</div>
-            <span class="hm-lb">Same market for all</span>
-            <span class="hm-st">
-              {daily[today] !== undefined ? <>Your best today <b>${daily[today]}</b></> : best !== null ? <><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></> : dailyTwist(today).text}
-            </span>
-          </div>
+    <section class="jh-daily" data-page="today" aria-label="Daily market">
+      <div class="jh-dh"><span>Daily market · {shortDate(today)}</span><small>{streak > 0 ? `${streak}-day streak` : 'same market for everyone'}</small></div>
+      <div class="jh-db">
+        <div class="jh-dcard">{who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}</div>
+        <div class="jh-dr">
+          <span class="jh-lb">Today's lorry brings</span>
+          <div class="jh-lorry">{LANES.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
+          <p class="jh-dt">{firstWords} {dailyTwist(today).text}</p>
+          {daily[today] !== undefined ? <p class="jh-ds">Your best today <b>${daily[today]}</b></p>
+            : best !== null ? <p class="jh-ds"><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></p> : null}
+          <button class="jh-dgo" onClick={onDaily}><PlayIcon />Play the Daily market</button>
         </div>
-        <button class="hm-act" onClick={onDaily}><PlayIcon />Play the Daily market</button>
       </div>
-    </div>
+    </section>
   );
 }
 
-/** Your next goals (one swipe on): the three trophy tiers nearest to done, with progress and what each gives. */
-function GoalsPage() {
-  const snap = snapshot();
-  const three = goals(snap).slice(0, 3);
-  const held = standing(snap).length;
+/** Your next two goals: the trophy tiers nearest to done, with what each gives. */
+function Goals() {
+  const two = goals(snapshot()).slice(0, 2);
+  if (!two.length) return null;
   return (
-    <div class="hm-slot" data-page="goals">
-      <div class="hm-sh"><span>Your next goals</span><b>{held} of {TIER_COUNT} tiers</b></div>
-      <div class="hm-sb hm-goals">
-        {three.map((g) => {
-          const look = LOOKS.find((l) => l.from.kind === 'trophy' && l.from.id === g.step.id);
-          return (
-            <div class="hm-gl">
-              <span class="hm-sw"><TrophyPic pic={g.card.pic} /></span>
-              <span class="hm-gt"><b>{g.step.text.replace(/\.$/, '')}</b><span>{look ? `Unlocks ${look.title} · +${g.stamps} stamps` : `+${g.stamps} stamps`}</span></span>
-              <span class="hm-pg">{g.card.money ? `$${g.value}/$${g.goal}` : `${g.value}/${g.goal}`}<span class="hm-pb"><i style={{ width: `${Math.round(g.share * 100)}%` }} /></span></span>
-            </div>
-          );
-        })}
-        {three.length === 0 && <p class="hm-st">You've earned every trophy tier.</p>}
-      </div>
-    </div>
+    <section class="jh-goals" aria-label="Your next goals">
+      <span class="jh-h">Your next goals</span>
+      {two.map((g) => {
+        const look = goalLook(g);
+        return (
+          <div class="jh-goal">
+            <GoalPic g={g} look={look} />
+            <span class="jh-gt"><b>{g.step.text.replace(/\.$/, '')}</b><small>{look ? `${look.title} · +${g.stamps} stamps` : `+${g.stamps} stamps`}</small></span>
+            <span class="jh-gp">{g.card.money ? `$${g.value}/$${g.goal}` : `${g.value}/${g.goal}`}</span>
+          </div>
+        );
+      })}
+    </section>
   );
 }
 
-/** Your table (first when a game is waiting): the day, your shelf and cash when one person plays, every stall's cash
- *  (which the table shows to all), and today's event card by name (Calm Day on a day without one), in every phase. A shared phone shows no shelf: it is one person's secret. */
+/** Your table, when a game is waiting: the day, your shelf and cash when one person plays, every stall's cash (which
+ *  the table shows to all), and today's event card by name. A shared phone shows no shelf: it is one person's secret. */
 function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
   const solo = cash !== null;
   const me = g.players.findIndex((p) => p.kind === 'human');
   const pl = g.players[me];
   const order = g.players.map((_, i) => i).sort((a, b) => g.players[b].cash - g.players[a].cash);
-  const pieces = solo && pl ? LANES.flatMap((f) => pl.stock[f].flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) })))) : [];
+  const shelf = solo && pl ? LANES.flatMap((f) => pl.stock[f].flatMap((n, pos) => Array.from({ length: n }, () => ({ f, stage: stageAt(f, pos) })))) : [];
   const size = pl ? shelfSize(pl) : 8;
   return (
-    <div class="hm-slot" data-page="table">
+    <div class="hm-slot jh-table" data-page="table">
       <div class="hm-sh"><span>Your table · Day {g.day} of {g.config.days}</span>{solo && <b>You have ${cash}</b>}</div>
       <div class="hm-sb">
         <div class={`hm-wt ${solo ? '' : 'one'}`}>
@@ -152,8 +182,8 @@ function TablePage({ g, cash }: { g: GameState; cash: number | null }) {
             <div class="hm-cl">
               <span class="hm-lb">Your shelf · {count(pl.stock)} of {size}</span>
               <div class="hm-shf">
-                {Array.from({ length: Math.max(size, pieces.length) }, (_, i) => (pieces[i]
-                  ? <span class="hm-sl"><FruitSvg id={pieces[i].f} stage={pieces[i].stage} size={24} alt={pieces[i].f} /></span>
+                {Array.from({ length: Math.max(size, shelf.length) }, (_, i) => (shelf[i]
+                  ? <span class="hm-sl"><FruitSvg id={shelf[i].f} stage={shelf[i].stage} size={24} alt={shelf[i].f} /></span>
                   : <span class="hm-sl e" role="img" aria-label="Empty space" />))}
               </div>
             </div>
@@ -179,86 +209,121 @@ export function Shopfront(p: ShopProps) {
   // What is stored is brought up to date as the game opens: the tiers a player from before the stamp book has already
   // reached, and the looks their trophies and stall level give. Nothing is ever taken away.
   useState(() => { syncTiers(); syncLooks(); });
-  const pages = [...(p.table ? ['table'] : []), 'today', 'goals'];
-  const names: Record<string, string> = { table: 'Your table', today: 'Today\'s market', goals: 'Your next goals' };
-  const [page, setPage] = useState(0);
-  const car = useRef<HTMLDivElement>(null);
-  // The row is swiped with a finger (it scrolls sideways and stops on a page); the dots follow, and a tap on a dot
-  // moves the row. Reduced motion: the row jumps.
-  const onScroll = () => {
-    const el = car.current;
-    if (!el || !el.firstElementChild) return;
-    const w = (el.firstElementChild as HTMLElement).offsetWidth + 8;
-    setPage(Math.max(0, Math.min(pages.length - 1, Math.round(el.scrollLeft / w))));
-  };
-  const goTo = (i: number) => {
-    const el = car.current;
-    const slot = el?.children[i] as HTMLElement | undefined;
-    if (!el || !slot) return;
-    const still = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollTo({ left: slot.offsetLeft - el.offsetLeft - 16, behavior: still ? 'auto' : 'smooth' });
-    setPage(i);
-  };
-  const hint = page === 0 ? (pages[1] === 'today' ? 'Swipe for today' : 'Swipe for your goals') : page === pages.length - 1 ? `Swipe back for ${pages[0] === 'table' ? 'your table' : 'today'}` : 'Swipe for your goals';
+  const place = myPlace();
   return (
-    <div class="home hm">
+    <div class="home hm jh">
       <div class="hm-in">
-        <header class="hm-bar">
-          {accountsAvailable() ? <button class="hm-acct" onClick={p.onAccount}><PersonIcon /><span>{me ? `Hi, ${me}` : 'Create account'}</span></button> : <span />}
-          {/* "Wardrobe" (the owner, 2026-11-13; the Home-A board said "Dress up"): the same word as the screen it opens. */}
-          <button class="hm-dress" onClick={p.onWardrobe}><FramedFace who={myAvatar()} size={32} look={worn()} /><span>Wardrobe</span></button>
-        </header>
         <LaneBand />
-        <div class="hm-title">
+        <div class="hm-title jh-top">
           <h1 class="hm-name">Fruit<br />Market</h1>
-          <p>Run a fruit stall. <span>Every price is a secret.</span></p>
+          <span class="jh-lvl" aria-label={`Level ${place.level}, ${place.rank.name}`}><b>Level {place.level}</b><small>{place.rank.name}</small></span>
         </div>
         <div class="hm-rest">
           {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
-          <div class="hm-car" ref={car} onScroll={onScroll}>
-            {p.table && <TablePage g={p.table} cash={p.cash} />}
-            <TodayPage today={p.today} onDaily={p.onDaily} />
-            <GoalsPage />
-          </div>
-          <div class="hm-dots">
-            {pages.map((id, i) => <button type="button" class={i === page ? 'on' : ''} aria-label={names[id]} aria-current={i === page ? 'true' : undefined} onClick={() => goTo(i)} />)}
-            <span>{hint}</span>
-          </div>
-          <div class="hm-play">
+          <StallHero />
+          <div class="jh-play">
             {p.resume ? (
               <>
-                <button class="hm-go" onClick={p.onContinue}><PlayIcon />Continue<span class="hm-vh"> · </span><small>{p.resume}</small></button>
-                <div class="hm-two">
-                  <button class="hm-b" onClick={p.onNew}>New game</button>
-                  <button class="hm-b" onClick={p.onFriend}>Play a friend</button>
-                </div>
+                <button class="jh-go" onClick={p.onContinue}><PlayIcon />Continue<span class="hm-vh"> · </span><small>{p.resume}</small></button>
+                <button class="jh-go2" data-a="play" onClick={p.onPlay}>Play something else</button>
               </>
-            ) : (
-              <>
-                <button class="hm-go" onClick={p.onNew}>New game</button>
-                <button class="hm-b" onClick={p.onFriend}>Play a friend</button>
-              </>
-            )}
+            ) : <button class="jh-go" data-a="play" onClick={p.onPlay}>Play</button>}
           </div>
-          <div class="hm-tickets">
-            {p.room && p.onRoom && (
-              <button class="hm-tk hm-room" onClick={() => p.onRoom!(p.room!)}>
-                <span class="hm-tk-ic"><PlayIcon /></span>
-                <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
-              </button>
-            )}
-            <button class="hm-tk" onClick={p.onLeague}>
-              <span class="hm-tk-ic"><TrophyIcon /></span>
-              <span class="hm-tk-txt"><small>Market League</small><span>{p.leagueLine}</span></span>
+          {p.table && <TablePage g={p.table} cash={p.cash} />}
+          {p.room && p.onRoom && (
+            <button class="hm-tk hm-room jh-room" onClick={() => p.onRoom!(p.room!)}>
+              <span class="hm-tk-ic"><PlayIcon /></span>
+              <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
             </button>
-          </div>
-          <nav class="hm-foot">
-            <button onClick={p.onTrophies}>Trophies</button>
+          )}
+          <DailyCard today={p.today} onDaily={p.onDaily} />
+          <Goals />
+          <nav class="jh-tiles" aria-label="Your progress">
+            <button onClick={p.onLeague}><b>League</b><span>{p.leagueLine}</span></button>
+            <button onClick={p.onTrophies}><b>Stamps</b><span>{place.filled} of {place.size} · trophies</span></button>
+            <button onClick={p.onWardrobe}><b>Wardrobe</b><span class="jh-tface"><FramedFace who={myAvatar()} size={30} look={worn()} /></span></button>
+          </nav>
+          <nav class="hm-foot jh-foot">
             <button onClick={p.onHowTo}>How to play</button>
             <button onClick={p.onSettings}>Settings</button>
+            {accountsAvailable() && <button class="jh-acct" onClick={p.onAccount}>{me ? `Hi, ${me}` : 'Account'}</button>}
           </nav>
         </div>
       </div>
+    </div>
+  );
+}
+
+export interface PlayMenuProps {
+  /** The game length chosen for a game against computers or on one phone. */
+  days: number;
+  onDays: (days: number) => void;
+  onBack: () => void;
+  onQuick: () => void;
+  onRoom: () => void;
+  onPublic: () => void;
+  onJoin: (code: string) => void;
+  onComputer: () => void;
+  onOnePhone: () => void;
+  onDaily: () => void;
+  onLeague: () => void;
+}
+
+/**
+ * PLAN-113: the Play menu, every way to start a game on one screen: Quick match, a private room, joining with a code,
+ * a game against computers, one phone passed round, the public rooms, the Daily market and the Market League. Each says
+ * its real player count and length. The length chosen here is where the computer and one-phone set-up starts.
+ */
+export function PlayMenu(p: PlayMenuProps) {
+  const avatar = myAvatar();
+  const [joining, setJoining] = useState(false);
+  const [code, setCode] = useState('');
+  const clean = normaliseCode(code);
+  const ok = clean.length === CODE_LENGTH;
+  const stage = leagueStage();
+  const rivals = RIVALS.filter((r) => r.avatar !== avatar).slice(0, 3);
+  const daily = dailyConfig(todayKey(), 'You');
+  return (
+    <div class="page tk-page jp">
+      <header class="topbar jp-bar">
+        <button class="icon-btn" aria-label="Back" onClick={p.onBack}><BackArrow /></button>
+        <div class="day"><b>Play</b></div>
+        <span class="jp-me"><FramedFace who={avatar} size={34} look={worn()} /></span>
+      </header>
+      <main class="scroll jp-in">
+        <button class="jp-tile big" data-a="quick" onClick={p.onQuick}>
+          <span class="jp-tt"><b>Quick match</b><span>{quickLine()}</span></span>
+          <span class="jp-vs" aria-hidden="true"><Face who={avatar} size={44} /><i>vs</i><span class="jp-q">?</span></span>
+        </button>
+        <div class="jp-two">
+          <button class="jp-tile" data-a="room" onClick={p.onRoom}><b>Private room</b><span>{roomLine()}</span></button>
+          <button class="jp-tile" data-a="join" aria-expanded={joining} onClick={() => setJoining(!joining)}><b>Join with a code</b><span>{CODE_LENGTH} letters from a friend</span></button>
+        </div>
+        {joining && (
+          <div class="jp-join">
+            <label for="join-code">Room code</label>
+            <div class="join-row">
+              <input id="join-code" class="input" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
+                placeholder="ABC123" onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())} />
+              <button class="btn" disabled={!ok} onClick={() => p.onJoin(clean)}>Join</button>
+            </div>
+          </div>
+        )}
+        <div class="jp-two">
+          <button class="jp-tile" data-a="computer" onClick={p.onComputer}>
+            <b>Computer</b><span>{computerLine()}</span>
+            <span class="jp-faces" aria-hidden="true">{rivals.map((r) => <Face who={r.avatar} size={26} />)}</span>
+          </button>
+          <button class="jp-tile" data-a="phone" onClick={p.onOnePhone}><b>One phone</b><span>{phoneLine()}</span></button>
+        </div>
+        <div class="jp-len" role="group" aria-label="Game length for a computer or one-phone game">
+          <span class="jh-lb">Game length</span>
+          {LENGTHS.map((l) => <button class={p.days === l.days ? 'on' : ''} aria-pressed={p.days === l.days} onClick={() => p.onDays(l.days)}>{l.word} <small>{l.days} days</small></button>)}
+        </div>
+        <button class="jp-tile wide" data-a="public" onClick={p.onPublic}><b>Public rooms</b><span>Join a room that is waiting for players, or open one</span></button>
+        <button class="jp-tile wide dark" data-a="daily" onClick={p.onDaily}><b>Daily market</b><span>{daily.days} days · {daily.players.length} stalls · same market for everyone today</span></button>
+        <button class="jp-tile wide" data-a="league" onClick={p.onLeague}><b>Market League</b><span>{leagueWords(stage)}</span></button>
+      </main>
     </div>
   );
 }
@@ -311,36 +376,7 @@ export function ReplaceBody({ day, days, stalls, cash, what, onKeep, onStart }: 
   );
 }
 
-export function FriendBody({ onCreate, onJoin, onQuick }: { onCreate: () => void; onJoin: (code: string) => void; onQuick: () => void }) {
-  const [code, setCode] = useState('');
-  const clean = normaliseCode(code);
-  const ok = clean.length === CODE_LENGTH;
-  return (
-    <>
-      <button class="btn primary big wide popup-opt" onClick={onCreate}><b>Create a room</b><small>Share a link with 1 to 5 friends</small></button>
-      <div class="acct-field">
-        <label class="small" for="join-code">Join with a code</label>
-        <div class="join-row">
-          <input id="join-code" class="input" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
-            onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())} />
-          <button class="btn" disabled={!ok} onClick={() => onJoin(clean)}>Join</button>
-        </div>
-      </div>
-      <button class="btn wide popup-opt" onClick={onQuick}><b>Quick match</b><small>Play a stranger, 2 players</small></button>
-    </>
-  );
-}
-
-// Line icons for the booth (stroke in the text colour).
-const line = { fill: 'none', stroke: 'currentColor', 'stroke-width': 2.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' } as const;
-function PersonIcon() {
-  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" {...line}><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6" /></svg>;
-}
-
 function PlayIcon() {
   return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>;
 }
 
-function TrophyIcon() {
-  return <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" {...line} stroke-width="2"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" /><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8" /></svg>;
-}

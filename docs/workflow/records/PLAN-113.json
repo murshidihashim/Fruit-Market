@@ -1,0 +1,85 @@
+{
+  "id": "PLAN-113",
+  "title": "The player journey in the redesigned market style",
+  "problem": "The screens around play (Home, menus, lobby, results, progress) do not carry the game's cards, characters and stalls, Play is split across menus, and Rematch is not prominent.",
+  "scope": [
+    "Home: illustrated stall, one Play, Daily preview with the real first customer and lorry fruit, next unlock on the stall, two goals",
+    "Play menu: Quick match, Private room, code, Computer, One phone, public rooms, with real counts and lengths",
+    "Quick match wait: shopkeeper card, timer, a practice price on a real customer card, computer game option",
+    "Private room: code and share link, stalls as seats with Ready, empty seats offer a computer",
+    "Guided first sale for new players on the day-1 table",
+    "Results and Rematch: rank tiles, best sale on the real card, earned reward on your stall, stamps, large Rematch",
+    "Market League, Stamp Book and Wardrobe in the same art, with the next reward and the equipped item on your stall"
+  ],
+  "exclusions": [
+    "No rule, scoring, reward, length or mode changes",
+    "The gameplay screens (Buying, Stocking, Bell, Rush, Day Close) until the owner approves them"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (153c6fe): 98 test files, 1081 passed, 1 skipped (as before); new tests journey-a (10), first-sale (17), progress-view (9)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e: solo, quick match, private and public rooms, rematch; 0 leaks",
+      "result": "PASS",
+      "evidence": "PORT=8817 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo game with the guided first sale (bell rung), results reached; speed check failed once (208 ms, shared machine) and passed on the retry; online match finished, rematch started, leaver taken over and A finished alone, 0 leaks in 60 pricing frames; quick match; public room 4/4 reactions, 0 leaks; four players with computers; 5 reconnects. The first full run on the merge stalled on day 8 of the online match: the reaction button (PLAN-112) covered the last + button of the stocking sheet; fixed (the button steps aside while stocking and pricing) and rerun"
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320 for all nine screens and their main states",
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568 for all nine screens and their main states (helpers' folders p113-a, p113-B, p113-c; no sideways scroll, no button under 44 px); reviewed: Home, Play menu, private room, guided first sale, Results (loss with unlock), Wardrobe"
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
+    "date": "2026-11-21"
+  },
+  "delivery": "implemented",
+  "release": "1.26.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merges e77ae6b (A), 65ee1e8 (C), 49d24f3 (B), fix 153c6fe",
+  "reports": [
+    "REP-129",
+    "REP-130"
+  ],
+  "decisions": [
+    "DEC-123"
+  ],
+  "changes": {
+    "added": [
+      "One Play menu: Quick match, Private room, Join with a code, Computer, One phone, game length, Public rooms, Daily market, Market League",
+      "Quick match wait with your shopkeeper card, a price practice on a real customer card and \"Play the computer now\"",
+      "A guided first sale for a new player's first solo game, with Skip",
+      "A Market League screen: the current stage and the six stages"
+    ],
+    "changed": [
+      "Home: your stall scene, one Play, the Daily market with its first customer card and the lorry, your next two goals",
+      "Private room: each seat drawn as a stall with Ready, + Computer and Remove; code and link on top",
+      "Results: rank tiles with awnings and portraits, your best sale on the customer's card, an earned look shown on your stall with Wear it, a large Rematch",
+      "Stamp Book and Wardrobe: your stall as rivals see it and every look drawn"
+    ],
+    "fixed": [
+      "Online: the reaction button no longer covers the last + button while stocking and pricing"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "A new Home and one Play menu for every way to play",
+    "Quick match: practise a price while you wait, or play the computer now",
+    "New players get a guided first sale on their first game",
+    "Results show every stall, your best sale and your new look, with a big Rematch",
+    "New Market League screen; the Stamp Book and Wardrobe show your stall as rivals see it",
+    "Online: the reaction button no longer covers the stocking buttons"
+  ]
+}
