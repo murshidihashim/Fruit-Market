@@ -1,0 +1,128 @@
+/* =====================================================================
+   PLAN-113, the player journey: the online screens (Online.tsx): the Quick match wait with its price practice, and the
+   private room drawn as stalls. Market Ticket look (ink, paper, mustard, square corners, ink edges); the paper bar and
+   the colour tokens (--j-*) are in journey-home.css. Colours from palette.css only.
+   ===================================================================== */
+#app .page.jo { background: var(--j-paper); color: var(--j-ink); }
+#app .jo .scroll.pad { gap: 12px; }
+#app .jo .tb-awn { display: block; flex: none; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
+#app .jo .jl-lb { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
+#app .jo .seg button { border-radius: 0; box-shadow: none; border: 2px solid var(--j-ink); }
+#app .jo .seg button.on { background: var(--j-ink); color: var(--j-paper); }
+#app .jo .seg button.on small { color: var(--j-paper); }
+#app .jo .input { border-radius: 0; }
+
+/* ---------- the private room: the invite ---------- */
+#app .jo .jl-invite { display: flex; align-items: center; gap: 10px; padding: 10px 12px; box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+#app .jo .jl-code { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+#app .jo .room-code { justify-content: flex-start; gap: 2px; margin: 0; }
+#app .jo .room-code span {
+  width: auto; height: auto; border: 0; border-radius: 0; box-shadow: none; background: none; color: var(--j-ink);
+  font: 400 1.875rem/1 var(--f-display); letter-spacing: 0.04em;
+}
+#app .jo .jl-link {
+  width: 100%; min-width: 0; min-height: 44px; padding: 0; margin: -10px 0 -8px; border: 0; background: none; color: var(--j-slate); font: 600 0.75rem/1.3 var(--f-label);
+  -webkit-text-fill-color: var(--j-slate); text-overflow: ellipsis; outline-offset: 2px;
+}
+#app .jo .jl-share { flex: none; display: flex; flex-direction: column; gap: 6px; }
+#app .jo .jl-go, #app .jo .jl-b {
+  min-height: 46px; min-width: 112px; padding: 0 12px; border: 0; border-radius: 0; cursor: pointer; color: var(--j-ink);
+  font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
+}
+#app .jo .jl-go { background: var(--j-yel); box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+#app .jo .jl-b { background: var(--j-paper); box-shadow: inset 0 0 0 2px var(--j-ink); }
+#app .jo .jl-go:active, #app .jo .jl-b:active, #app .jo .jl-add:active { transform: translateY(2px); }
+
+/* ---------- the stalls ---------- */
+#app .jo .jl-head { align-items: center; gap: 8px; }
+#app .jo .jl-head h3 { margin: 0; padding: 0; border: 0; font: 800 0.8125rem/1.2 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
+#app .jo .jl-head h3 { white-space: nowrap; flex: none; }
+#app .jo .jl-len { flex: 1; min-width: 0; text-align: right; font: 600 0.8125rem/1.2 var(--f-label); color: var(--j-slate); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#app .jo .jl-head .rx-btn { width: 44px; height: 44px; }
+#app .jo .jl-seats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#app .jo .jl-seat {
+  min-width: 0; min-height: 176px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 8px 10px;
+  border: 0; border-radius: 0; background: var(--j-paper); box-shadow: inset 0 0 0 2.5px var(--j-ink); text-align: center; color: var(--j-ink);
+}
+#app .jo .jl-seat.me { box-shadow: inset 0 0 0 2.5px var(--j-ink), 0 0 0 3px var(--j-yel); }
+#app .jo .jl-seat > .tb-awn { align-self: stretch; margin: 0 -8px 4px; }
+#app .jo .jl-seat .sbk-face { border-width: 2.5px; }
+#app .jo .jl-seat .seat-name {
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; max-width: 100%; min-width: 0;
+  font: 400 1.0625rem/1.1 var(--f-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#app .jo .jl-seat .seat-rename { margin: 0; min-height: 44px; padding: 0 8px; font: 600 0.75rem/1 var(--f-label); color: var(--j-slate); }
+#app .jo .jl-seat .seat-edit { width: 100%; max-width: 100%; box-sizing: border-box; border-radius: 0; font: 600 0.9375rem/1.2 var(--f-label); }
+#app .jo .jl-seat .sbk-seat-title { max-width: 100%; }
+#app .jo .jl-chip { padding: 4px 7px; background: var(--j-tint); color: var(--j-red); font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+#app .jo .jl-chip.yes { background: var(--j-melon); color: var(--j-paper); }
+#app .jo .jl-chip.away { background: var(--j-ink); color: var(--j-paper); }
+#app .jo .jl-seat.off .sbk-face { opacity: 0.6; }
+#app .jo .jl-crate { margin-top: auto; display: block; width: 84px; overflow: hidden; }
+#app .jo .jl-crate img { display: block; }
+#app .jo .jl-cface .xf { border-radius: 50%; box-shadow: 0 0 0 2.5px var(--j-ink); background: var(--j-tint); }
+#app .jo .jl-seat.empty { justify-content: center; padding-top: 10px; background: transparent; box-shadow: none; outline: 2.5px dashed var(--j-ink); outline-offset: -2.5px; font: 600 0.8125rem/1.25 var(--f-label); }
+#app .jo .jl-seat.empty b { font: 800 0.9375rem/1.2 var(--f-label); }
+#app .jo .jl-wait { color: var(--j-slate); }
+#app .jo .jl-plus { width: 44px; height: 44px; border-radius: 50%; box-sizing: border-box; border: 2.5px dashed var(--j-ink); display: grid; place-items: center; font: 400 1.5rem/1 var(--f-display); color: var(--j-slate); background: var(--j-tint); }
+#app .jo .jl-add {
+  margin-top: auto; min-height: 44px; padding: 0 12px; border: 0; border-radius: 0; background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2px var(--j-ink);
+  font: 800 0.8125rem/1 var(--f-label); cursor: pointer;
+}
+#app .jo .seat-mute { align-self: stretch; justify-content: center; margin: 0; }
+#app .jo .jl-say { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
+#app .jo .room-full { margin: 0; }
+#app .jo .jl-look { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+#app .jo .jl-look small { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-slate); }
+
+/* ---------- the Quick match wait ---------- */
+#app .jo .jw-vs { display: flex; align-items: center; justify-content: center; gap: 12px; }
+#app .jo .jw-card { flex: none; --card-w: 150px; }
+#app .jo .jw-r { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#app .jo .jw-vsw { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
+#app .jo .jw-empty {
+  width: 120px; height: 168px; box-sizing: border-box; outline: 3px dashed var(--j-ink); outline-offset: -3px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px; padding: 8px; text-align: center; color: var(--j-slate);
+}
+#app .jo .jw-empty span { font: 400 3rem/1 var(--f-display); }
+#app .jo .jw-empty small { font: 800 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+#app .jo .jw-t { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; font: 600 0.875rem/1.3 var(--f-label); }
+#app .jo .jw-t b { font: 400 2.25rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+#app .jo .jw-pp { display: flex; flex-direction: column; gap: 8px; padding: 10px; box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+#app .jo .jw-pp-in { display: flex; gap: 10px; align-items: flex-start; }
+#app .jo .jw-pp-card { flex: none; --card-w: 120px; }
+#app .jo .jw-pp-r { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+#app .jo .jw-q { margin: 0; font: 600 0.9375rem/1.3 var(--f-label); }
+#app .jo .jw-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+#app .jo .jw-opts button {
+  width: 56px; height: 48px; border: 0; border-radius: 0; background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink);
+  font: 400 1.25rem/1 var(--f-display); cursor: pointer;
+}
+#app .jo .jw-opts button.on { background: var(--j-ink); color: var(--j-paper); }
+#app .jo .jw-opts button.best { background: var(--j-yel); color: var(--j-ink); }
+#app .jo .jw-said { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
+#app .jo .jw-said.yes { color: var(--j-melon); }
+#app .jo .jw-next { min-height: 44px; align-self: flex-start; padding: 0 12px; }
+#app .jo .jw-foot { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+
+@media (max-width: 379px) {
+  #app .jo > .topbar .day b { font-size: 1.125rem; }
+  #app .jo .jl-head h3 { font-size: 0.75rem; letter-spacing: 0.08em; }
+  #app .jo .jl-len { font-size: 0.75rem; }
+  #app .jo .jl-seats { gap: 8px; }
+  #app .jo .jl-seat { min-height: 164px; padding: 0 6px 8px; }
+  #app .jo .jl-seat > .tb-awn { margin: 0 -6px 4px; }
+  #app .jo .jl-seat .seat-name { font-size: 0.9375rem; }
+  #app .jo .room-code span { font-size: 1.5rem; }
+  #app .jo .jl-go, #app .jo .jl-b { min-width: 96px; padding: 0 8px; }
+  #app .jo .jw-card { --card-w: 128px; }
+  #app .jo .jw-empty { width: 104px; height: 150px; }
+  #app .jo .jw-pp-card { --card-w: 100px; }
+}
+@media (max-width: 339px) {
+  #app .jo .jw-pp-in { flex-direction: column; align-items: stretch; }
+  #app .jo .jw-pp-card { align-self: center; --card-w: 140px; }
+  #app .jo .jl-invite { flex-direction: column; align-items: stretch; }
+  #app .jo .jl-share { flex-direction: row; }
+  #app .jo .jl-share > * { flex: 1; }
+}

@@ -27,8 +27,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     });
     players.push(P);
     await page.goto(base);
-    await page.click('button:has-text("Play a friend")');
-    await page.click('button:has-text("Create a room")');
+    await page.click('[data-a="play"]');
+    await page.click('[data-a="public"]');
     return P;
   };
   const shot = (P, n) => P.page.screenshot({ path: `${out}/${n}.png` });
@@ -39,7 +39,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 
   // A makes a public room.
   const A = await mk('A', 'Aisha');
-  await A.page.click('.room-kind button:has-text("Public")');
+  // The Play menu's Public rooms opens with Public chosen (PLAN-113).
+  await A.page.click('.room-kind button[aria-pressed="true"]:has-text("Public")');
   await A.page.click('button:has-text("Create room")');
   await A.page.waitForSelector('.public-note');
   const code = (await A.page.locator('.room-code').innerText()).replace(/\s/g, '');

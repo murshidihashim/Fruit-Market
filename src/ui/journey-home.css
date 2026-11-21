@@ -1,0 +1,169 @@
+/* =====================================================================
+   PLAN-113, the player journey: Home and the Play menu (Home.tsx). The game table's look (Market Ticket): ink, paper,
+   mustard, the four fruit lanes, square corners and ink edges. booth.css still draws the parts the opening animates
+   (the band, the title, ".hm-rest") and the waiting game's table; these rules add the rest. Colours from palette.css.
+   ===================================================================== */
+.jh, .jp, .jo {
+  --j-ink: var(--x-ink); --j-paper: var(--x-paper); --j-yel: var(--x-mustard); --j-kraft: var(--x-wood); --j-tint: var(--c-efe9df);
+  --j-slate: var(--x-slate); --j-red: var(--x-red-d); --j-melon: var(--c-0e9a58);
+  --j-berry: var(--c-3558a2); --j-mango: var(--c-fec400); --j-apple: var(--c-e73c35);
+}
+.jh .f-blueberry, .jp .f-blueberry { --lane: var(--j-berry); }
+.jh .f-watermelon, .jp .f-watermelon { --lane: var(--j-melon); }
+.jh .f-mango, .jp .f-mango { --lane: var(--j-mango); }
+.jh .f-apple, .jp .f-apple { --lane: var(--j-apple); }
+.jh .tb-awn, .jp .tb-awn { display: block; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
+.jh-lb { font: 800 0.625rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
+
+/* ---------- the title and the level ---------- */
+.home.hm.jh .jh-top { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 12px 16px 6px; }
+.home.hm.jh h1.hm-name { font-size: 2.5rem; line-height: 0.92; }
+.home.hm.jh .jh-lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin-top: 4px; padding: 7px 10px; background: var(--j-ink); color: var(--j-paper); }
+.home.hm.jh .jh-lvl b { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--j-yel); }
+.home.hm.jh .jh-lvl small { font: 700 0.75rem/1.1 var(--f-label); }
+.home.hm.jh .hm-rest { gap: 12px; }
+
+/* ---------- your stall ---------- */
+.home.hm.jh .jh-stall { position: relative; flex: none; margin: 0 16px; height: 186px; overflow: hidden; background: var(--j-tint); box-shadow: inset 0 0 0 3px var(--j-ink); display: grid; place-items: center; }
+.home.hm.jh .jh-scene { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: cover; object-position: 50% 42%; display: block; }
+.home.hm.jh .jh-awn { position: absolute; left: 3px; right: 3px; top: 3px; }
+.home.hm.jh .jh-next {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; justify-self: start; max-width: max-content; padding: 6px 9px; background: var(--j-ink); color: var(--j-paper);
+  font: 700 0.8125rem/1.25 var(--f-label);
+}
+.home.hm.jh .jh-next b { color: var(--j-yel); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
+
+/* ---------- Play (and Continue) ---------- */
+.home.hm.jh .jh-play { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.home.hm.jh .jh-go {
+  min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--j-yel); color: var(--j-ink);
+  box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 5px;
+}
+.home.hm.jh .jh-go small { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.06em; }
+.home.hm.jh .jh-go:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
+.home.hm.jh .jh-go2 { min-height: 48px; box-shadow: inset 0 0 0 3px var(--j-ink); font: 800 0.875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.home.hm.jh .jh-go2:active { transform: translateY(2px); }
+.home.hm.jh .jh-table { margin: 0 16px; }
+.home.hm.jh .jh-room { margin: 0 16px; }
+
+/* ---------- the Daily market ---------- */
+.home.hm.jh .jh-daily { flex: none; margin: 0 16px; box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px; }
+.home.hm.jh .jh-dh {
+  min-height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
+  font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+}
+.home.hm.jh .jh-dh span { overflow: hidden; text-overflow: ellipsis; }
+.home.hm.jh .jh-dh small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); }
+.home.hm.jh .jh-db { display: flex; gap: 10px; padding: 10px 8px 8px; }
+.home.hm.jh .jh-dcard { flex: none; --card-w: 128px; }
+.home.hm.jh .jh-dr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.home.hm.jh .jh-lorry { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.home.hm.jh .jh-lorry span {
+  min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: var(--j-paper);
+  box-shadow: inset 0 0 0 2px var(--j-ink), inset 0 -6px 0 var(--lane); padding-bottom: 4px; box-sizing: border-box;
+}
+.home.hm.jh .jh-lorry b { font: 400 1.125rem/1 var(--f-display); }
+.home.hm.jh .jh-dt { margin: 0; font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-ds { margin: 0; font: 700 0.75rem/1.3 var(--f-label); }
+.home.hm.jh .jh-ds b { color: var(--j-red); font-weight: 800; }
+.home.hm.jh .jh-dgo {
+  margin-top: auto; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; background: var(--j-yel);
+  box-shadow: inset 0 0 0 2px var(--j-ink); font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
+}
+.home.hm.jh .jh-dgo svg { flex: none; width: 16px; height: 16px; }
+.home.hm.jh .jh-dgo:active { transform: translateY(2px); }
+
+/* ---------- your next goals ---------- */
+.home.hm.jh .jh-goals { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 6px; }
+.home.hm.jh .jh-h { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; }
+.home.hm.jh .jh-goal { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 10px; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-gpic { flex: none; width: 52px; height: 40px; display: grid; place-items: center; overflow: hidden; }
+.home.hm.jh .jh-gpic.awn { align-content: center; }
+.home.hm.jh .jh-gpic.awn .tb-awn { width: 52px; }
+.home.hm.jh .jh-gpic img.sbk-art { width: 40px; height: 40px; object-fit: cover; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-gpic .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+.home.hm.jh .jh-gt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.home.hm.jh .jh-gt b { font: 800 0.9375rem/1.15 var(--f-label); }
+.home.hm.jh .jh-gt small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-gp { flex: none; font: 400 1.125rem/1 var(--f-display); }
+
+/* ---------- League, Stamps, Wardrobe ---------- */
+.home.hm.jh .jh-tiles { flex: none; margin: 0 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.home.hm.jh .jh-tiles button {
+  min-height: 64px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 9px; text-align: left; box-shadow: inset 0 0 0 2px var(--j-ink);
+  font: 600 0.75rem/1.2 var(--f-label); overflow-wrap: anywhere;
+}
+.home.hm.jh .jh-tiles b { font: 800 0.875rem/1.1 var(--f-label); }
+.home.hm.jh .jh-tiles button:active { transform: translateY(2px); }
+.home.hm.jh .jh-tface .sbk-face { border-width: 2px; padding: 0; }
+.home.hm.jh .jh-foot { margin-top: auto; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(0, 1fr); }
+.home.hm.jh .jh-acct { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 379px) {
+  .home.hm.jh h1.hm-name { font-size: 2.125rem; }
+  .home.hm.jh .jh-stall { height: 156px; margin: 0 12px; }
+  .home.hm.jh .jh-play, .home.hm.jh .jh-daily, .home.hm.jh .jh-goals, .home.hm.jh .jh-tiles, .home.hm.jh .jh-table, .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
+  .home.hm.jh .jh-dcard { --card-w: 108px; }
+  .home.hm.jh .jh-db { gap: 8px; padding: 8px 6px 6px; }
+  .home.hm.jh .jh-tiles { gap: 6px; }
+  .home.hm.jh .jh-tiles button { padding: 7px; font-size: 0.6875rem; }
+}
+@media (max-width: 339px) {
+  .home.hm.jh .jh-db { flex-direction: column; align-items: stretch; }
+  .home.hm.jh .jh-dcard { align-self: center; --card-w: 128px; }
+  .home.hm.jh .jh-dh small { display: none; }
+}
+
+/* ---------- the Play menu ---------- */
+#app .page.jp { background: var(--j-paper); color: var(--j-ink); }
+#app .jp > .topbar.jp-bar, #app .jo > .topbar {
+  min-height: 60px; background: var(--j-paper); color: var(--j-ink); border-bottom: 3px solid var(--j-ink); box-shadow: none;
+  display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center;
+}
+#app .jp > .topbar .icon-btn, #app .jo > .topbar .icon-btn {
+  width: 46px; height: 46px; margin: 0; border-radius: 50%; box-shadow: inset 0 0 0 2.5px var(--j-ink); color: var(--j-ink); background: var(--j-paper);
+}
+#app .jp > .topbar .day, #app .jo > .topbar .day { text-align: center; min-width: 0; }
+#app .jp > .topbar .day b, #app .jo > .topbar .day b { color: var(--j-ink); font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+#app .jp .jp-me { justify-self: end; }
+#app .jp .jp-me .sbk-face { border-width: 2px; padding: 0; }
+#app .jp .jp-in { gap: 10px; padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left)); max-width: 560px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+#app .jp .jp-tile {
+  min-height: 92px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 12px; margin: 0; border: 0; border-radius: 0;
+  background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink); text-align: left; font: 500 0.8125rem/1.3 var(--f-label); cursor: pointer;
+}
+#app .jp .jp-tile b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; }
+#app .jp .jp-tile:active { transform: translateY(2px); }
+#app .jp .jp-tile:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
+#app .jp .jp-tile.big { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; background: var(--j-yel); box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); margin-bottom: 4px; }
+#app .jp .jp-tile.big b { font-size: 1.625rem; }
+#app .jp .jp-tt { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+#app .jp .jp-vs { flex: none; display: flex; align-items: center; gap: 4px; }
+#app .jp .jp-vs .xf { border-radius: 50%; box-shadow: 0 0 0 2.5px var(--j-ink); background: var(--j-tint); }
+#app .jp .jp-vs i { font: 400 1rem/1 var(--f-display); font-style: normal; text-transform: uppercase; }
+#app .jp .jp-q { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 2.5px dashed var(--j-ink); box-sizing: border-box; background: var(--j-tint); font: 400 1.375rem/1 var(--f-display); color: var(--j-slate); }
+#app .jp .jp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#app .jp .jp-faces { display: flex; gap: 2px; margin-top: auto; }
+#app .jp .jp-faces .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+#app .jp .jp-tile.wide { min-height: 64px; }
+#app .jp .jp-tile.dark { background: var(--j-ink); color: var(--j-paper); }
+#app .jp .jp-join { padding: 10px 12px 12px; box-shadow: inset 0 0 0 2.5px var(--j-ink); display: flex; flex-direction: column; gap: 6px; }
+#app .jp .jp-join label { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .jp .jp-join .input { border-radius: 0; min-height: 48px; font: 400 1.25rem/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; }
+#app .jp .jp-join .btn { min-height: 48px; padding: 0 16px; }
+#app .jp .jp-len { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+#app .jp .jp-len .jh-lb { grid-column: 1 / -1; }
+#app .jp .jp-len button {
+  min-height: 48px; padding: 4px 6px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-paper); color: var(--j-ink);
+  font: 800 0.8125rem/1.15 var(--f-label); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+#app .jp .jp-len button small { font: 600 0.75rem/1 var(--f-label); color: inherit; }
+#app .jp .jp-len button.on { background: var(--j-ink); color: var(--j-paper); }
+@media (max-width: 379px) {
+  #app .jp .jp-tile { padding: 10px; font-size: 0.75rem; }
+  #app .jp .jp-tile b { font-size: 0.9375rem; }
+  #app .jp .jp-tile.big b { font-size: 1.25rem; }
+  #app .jp .jp-two { gap: 8px; }
+  #app .jp .jp-vs .xf { width: 36px !important; height: 36px !important; }
+  #app .jp .jp-q { width: 36px; height: 36px; }
+}

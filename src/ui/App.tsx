@@ -5,8 +5,9 @@ import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig
 import { dailyConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
-import { ContinueBody, FriendBody, Popup, ReplaceBody, Shopfront } from './Home';
+import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront } from './Home';
 import { startOrAsk, waitingGame } from './paused';
+import { vsComputerConfig } from './playMenu';
 import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
@@ -14,7 +15,7 @@ import { Opening } from './Opening';
 import { HowTo } from './HowTo';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
-import { worn } from './looks';
+import { myAvatar, worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
@@ -32,8 +33,8 @@ import {
   saveSettings, todayKey, type Settings,
 } from './store';
 
-type Screen = 'home' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
-type PopupKind = 'new' | 'continue' | 'friend' | 'account';
+type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe';
+type PopupKind = 'new' | 'phone' | 'continue' | 'account';
 
 /**
  * The room in an invite link. PLAN-107 (ON-02): it is read once, as the app opens, and taken out of the address, so it
@@ -97,6 +98,10 @@ function Main() {
   // if the player says "Start anyway" (PLAN-081).
   const [swap, setSwap] = useState<{ what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
+  // PLAN-113: the Play menu's game length (for a computer or one-phone game), and which online screen it opened.
+  const [days, setDays] = useState(10);
+  const [onlineMode, setOnlineMode] = useState<'room' | 'public'>('room');
+  const [from, setFrom] = useState<Screen>('home');
   // PLAN-107 (ON-02): an invite, or a code typed into the friend menu, is for one visit to the online screen. However
   // the screen is left (its ←, Home from a game, Android's back button), the next visit starts from the online menu.
   useEffect(() => {
@@ -121,10 +126,11 @@ function Main() {
       if (swap) setSwap(null);
       else if (popup) setPopup(null);
       else if (screen === 'home') CapApp.exitApp();
+      else if (screen === 'online' || screen === 'quick') setScreen(from);
       else setScreen('home');
     });
     return () => { sub.then((h) => h.remove()); };
-  }, [screen, popup, swap]);
+  }, [screen, popup, swap, from]);
 
   const start = (cfg0: GameConfig) => {
     // The person holding the phone wears their looks in every offline game (the first human seat).
@@ -173,8 +179,17 @@ function Main() {
   }
   if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
-  if (screen === 'online') return <Online initialCode={joinCode ?? invite} typed={!!joinCode} onExit={() => go('home')} />;
-  if (screen === 'quick') return <Online quick onExit={() => go('home')} />;
+  // PLAN-113: the online screens go back to where they were opened from: the Play menu, or Home (an invite link, or
+  // "Back to room").
+  if (screen === 'online') return <Online initialCode={joinCode ?? invite} typed={!!joinCode} mode={onlineMode} onExit={() => go(from)} />;
+  if (screen === 'quick') {
+    return (
+      <Online quick onExit={() => go(from)} onComputer={(avatar) => {
+        const go2 = () => start(vsComputerConfig(nameOrDefault(loadName()), avatar, (Math.random() * 2 ** 31) >>> 0));
+        if (waitingGame(game)) { setScreen('home'); setSwap({ what: 'a game against the computer', go: go2 }); } else go2();
+      }} />
+    );
+  }
   if (screen === 'trophies') return <TrophyScreen onBack={() => go('home')} />;
   if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;
 
@@ -186,34 +201,54 @@ function Main() {
   // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
   // replaced without a word by the Daily market, the Market League and New game.
   const orAsk = (what: string, go: () => void) => () => startOrAsk(waiting, go, (yes) => { fx.tap(); setSwap({ what, go: yes }); });
+  // PLAN-113: Home and the Play menu share the pop-ups in front of them (the set-up, Continue, the question before a
+  // waiting game is replaced, the account).
+  const toOnline = (mode: 'room' | 'public', code?: string) => { setOnlineMode(mode); setJoinCode(code); setFrom('play'); go('online'); };
+  const body = screen === 'play' ? (
+    <PlayMenu
+      days={days}
+      onDays={(d) => { fx.tap(); setDays(d); }}
+      onBack={() => go('home')}
+      onQuick={() => { setFrom('play'); go('quick'); }}
+      onRoom={() => toOnline('room')}
+      onPublic={() => toOnline('public')}
+      onJoin={(code) => toOnline('room', code)}
+      onComputer={orAsk('a new game', () => open('new'))}
+      onOnePhone={orAsk('a new game', () => open('phone'))}
+      onDaily={orAsk('the Daily market', startDaily)}
+      onLeague={orAsk('a Market League game', startLeague)}
+    />
+  ) : (
+    <Shopfront
+      resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
+      cash={waiting ? waiting.cash : null}
+      table={waiting ? game : null}
+      leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} · ${LEAGUE[league].title}`}
+      today={today}
+      notice={saveNotice}
+      onContinue={() => open('continue')}
+      onPlay={() => go('play')}
+      onDaily={orAsk('the Daily market', startDaily)}
+      onLeague={orAsk('a Market League game', startLeague)}
+      onWardrobe={() => go('wardrobe')}
+      onAccount={() => open('account')}
+      onTrophies={() => go('trophies')}
+      onHowTo={() => go('howto')}
+      onSettings={() => go('settings')}
+      room={openMatch()}
+      onRoom={(code) => { setOnlineMode('room'); setJoinCode(code); setFrom('home'); go('online'); }}
+    />
+  );
   return (
     <>
-      <Shopfront
-        resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
-        cash={waiting ? waiting.cash : null}
-        table={waiting ? game : null}
-        leagueLine={league >= LEAGUE.length ? 'Replay the Royal Market' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
-        today={today}
-        notice={saveNotice}
-        onContinue={() => open('continue')}
-        onNew={orAsk('a new game', () => open('new'))}
-        onFriend={() => open('friend')}
-        onDaily={orAsk('the Daily market', startDaily)}
-        onLeague={orAsk('a Market League game', startLeague)}
-        onWardrobe={() => go('wardrobe')}
-        onAccount={() => open('account')}
-        onTrophies={() => go('trophies')}
-        onHowTo={() => go('howto')}
-        onSettings={() => go('settings')}
-        room={openMatch()}
-        onRoom={(code) => { setJoinCode(code); go('online'); }}
-      />
-      {popup === 'new' && <Popup title="New game" onClose={close}><Setup onStart={(c) => { close(); start(c); }} /></Popup>}
+      {body}
+      {popup === 'new' && <Popup title="New game" onClose={close}><Setup days={days} onStart={(c) => { close(); start(c); }} /></Popup>}
+      {popup === 'phone' && <Popup title="One phone" onClose={close}><Setup days={days} friend onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'continue' && waiting && (
         <Popup title="Continue" onClose={close}>
           <ContinueBody day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash}
             onResume={() => { close(); go('game'); }}
-            onStartOver={() => { saveGame(null); setGame(null); open('new'); }} />
+            onStartOver={() => { saveGame(null); setGame(null); close(); go('play'); }} />
         </Popup>
       )}
       {swap && waiting && (
@@ -223,31 +258,28 @@ function Main() {
             onStart={() => { const { go: yes } = swap; setSwap(null); yes(); }} />
         </Popup>
       )}
-      {popup === 'friend' && (
-        <Popup title="Play a friend" onClose={close}>
-          <FriendBody onCreate={() => { close(); go('online'); }} onJoin={(code) => { setJoinCode(code); close(); go('online'); }} onQuick={() => { close(); go('quick'); }} />
-        </Popup>
-      )}
       {popup === 'account' && <Popup title="Account" onClose={close}><AccountPanel onChange={() => refresh((n) => n + 1)} /></Popup>}
     </>
   );
 }
 
-function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
+/** The set-up for a game on this phone. PLAN-113: `days` is the length chosen in the Play menu; `friend` (One phone)
+ *  starts with a friend at stall 2 instead of computers. */
+function Setup({ onStart, days: days0 = 10, friend }: { onStart: (c: GameConfig) => void; days?: number; friend?: boolean }) {
   const [name, setName] = useState(loadName());
   const nameRef = useRef<HTMLInputElement>(null);
   // A blank name field takes focus so the keyboard opens (best effort: some phones only allow it from a tap).
   useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
-  const [myChar, setMyChar] = useState<string>(CHARACTER_AVATARS[0]);
+  const [myChar, setMyChar] = useState<string>(myAvatar);
   const [seats, setSeats] = useState<Seat[]>([
-    { kind: 'ai', level: 'easy', name: 'Player 2' },
+    friend ? { kind: 'human', level: 'normal', name: 'Player 2' } : { kind: 'ai', level: 'easy', name: 'Player 2' },
     { kind: 'ai', level: 'normal', name: 'Player 3' },
     { kind: 'ai', level: 'normal', name: 'Player 4' },
     { kind: 'ai', level: 'normal', name: 'Player 5' },
     { kind: 'ai', level: 'normal', name: 'Player 6' },
   ]);
-  const [rivals, setRivals] = useState(3);
-  const [days, setDays] = useState(10);
+  const [rivals, setRivals] = useState(friend ? 1 : 3);
+  const [days, setDays] = useState(days0);
   // The full game, always (owner, PLAN-063): event cards, stall upgrades, unripe fruit and Market Days on; the beginner
   // and expert playtest options (PLAN-015: basic game, fixed prices, price drift) off. The screen no longer shows them.
   const unripe = true, upgrades = true, events = true, marketDays = true;
@@ -286,6 +318,8 @@ function Setup({ onStart }: { onStart: (c: GameConfig) => void }) {
 
   const begin = () => {
     saveName(name.trim());
+    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the same key the online screens keep).
+    try { localStorage.setItem('fm.avatar', myChar); } catch { /* no storage: Home shows the first shopkeeper */ }
     // Computer shops take the characters the people did not pick.
     const pool = RIVALS.filter((r) => !usedChars.has(r.avatar)).sort(() => Math.random() - 0.5);
     const players: PlayerConfig[] = [
