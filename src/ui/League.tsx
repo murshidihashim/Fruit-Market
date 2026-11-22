@@ -166,7 +166,8 @@ const stageStarsIn = (list: Stage[], have: readonly string[]): number => list.re
 /** One stop on the road: its marker (number, tick or lock), its title and line, and its best stars. */
 function RoadStop({ st, n, state, sel, stars, onPick }: { st: Stage; n: number; state: RoadState; sel: number; stars: readonly string[]; onPick: (stage: number) => void }) {
   const got = stageStars(n, stars).length;
-  const mark = state === 'done' ? <Tick /> : state === 'later' && st.expert ? <Lock /> : st.expert ? 'X' : n + 1;
+  // An expert stage's marker: E1, E2 (a lock while it is closed).
+  const mark = state === 'done' ? <Tick /> : state === 'later' && st.expert ? <Lock /> : st.expert ? `E${n - LEAGUE.length + 1}` : n + 1;
   const sub = state === 'later' && st.expert ? opensAt(st, stars.length) : stageLine(st);
   const body = (
     <>

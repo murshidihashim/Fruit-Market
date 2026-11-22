@@ -421,7 +421,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
-            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry}>{retry}</button>}
+            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry} aria-label={retry}>Retry</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>
