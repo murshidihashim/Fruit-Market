@@ -1,0 +1,68 @@
+{
+  "id": "PLAN-118",
+  "title": "League pilot: 12 stages, the League road and three mastery trophies",
+  "problem": "The League has six stages of six days, all won the same way; there is no visible climb or mastery trophy.",
+  "scope": [
+    "Engine stage options (League only): starting cash and stock, starting day and phase, 1 to 6 days, rule parts on or off, rival habits, goals beyond winning",
+    "Chapter 1 Village Square: the six current stages plus six new ones (read the rival, sell before it spoils, time the mangoes, bid on a contract, rescue the stall, a four-stall finale)",
+    "3 stars a stage (clear plus 2 optional goals); earned stars kept",
+    "League road: next stage, best stars, next trophy, expert stages opened by stars; results name the missed goal with Retry",
+    "Mastery trophies Contract Trader, Night Market Regular and Market Reader with a title and an existing Wardrobe item"
+  ],
+  "exclusions": [
+    "No rule change; ordinary games' stamps unchanged; chapters open by League clears, not stall level"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with stage-option, goal and old-save tests",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e with a short stage from its starting phase",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Balance run for each new stage",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-134"
+  ],
+  "decisions": [
+    "DEC-127"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

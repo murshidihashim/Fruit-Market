@@ -1,0 +1,60 @@
+{
+  "id": "PLAN-119",
+  "title": "A clear job for each mode",
+  "problem": "The Play menu lists modes without their purpose; the weekly Sprint ranking rewards playing every day; the League does not lead into the Daily or Sprint.",
+  "scope": [
+    "Play menu: a Normal game group (Computer, One phone, rooms, Quick match), then League, Daily market and Sprint, each with its reason",
+    "Sprint weekly ranking counts each player's best 5 days; results show personal best, place and one decisive Rush moment",
+    "League to Sprint and Daily links; Daily twists that reuse combinations from finished chapters, chosen among existing twists and cards"
+  ],
+  "exclusions": [
+    "No rule change; the Daily keeps its full length and weekly twist"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with capped-ranking tests",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e: Play menu groups and a Sprint with the weekly ranking",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-134"
+  ],
+  "decisions": [
+    "DEC-127"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

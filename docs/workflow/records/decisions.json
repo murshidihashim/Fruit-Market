@@ -3133,6 +3133,31 @@
       "reports": [
         "REP-133"
       ]
+    },
+    {
+      "id": "DEC-127",
+      "title": "The Market League as a 120-stage campaign with a trophy road, and a clear job for each mode",
+      "question": "How should the League grow into a long campaign whose stages each pose a new problem, with trophies that show mastery, while each mode keeps a distinct job?",
+      "choice": "Proposed: a data-driven stage format on the same engine (starting stock, cash, phase, 1 to 6 days, rule parts, goals); a 12-stage pilot chapter with a League road, 3 stars a stage and three mastery trophies (PLAN-118, 1.28.0); the Play menu grouped by mode, a Sprint week of the best 5 days and League-to-Daily/Sprint links (PLAN-119); later chapters of ten as their own plans, measured before committing to 120 (REP-134).",
+      "rationale": "The owner's brief: each stage should change what you are trying to do, the climb should be visible, and trophies should say something about how you play.",
+      "impact": {
+        "player": "A League that teaches a new decision each stage, a visible road and mastery trophies; clearer modes.",
+        "technical": "New stage set-up options in the engine (League only), goal checks, the League road screen, the Play menu, the weekly Sprint count.",
+        "data": "League stars move to the new numbering, keeping what was earned; the Sprint week counts the same data differently."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "proposed",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "plan": "PLAN-118",
+      "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
+      "reports": [
+        "REP-134"
+      ]
     }
   ],
   "history": [
@@ -4531,6 +4556,10 @@
     {
       "at": "2026-11-22 15:21",
       "text": "PLAN-116 and PLAN-117 implemented and merged (verified at 9cfe292); T1 to T3 PASS, T4 (the owner on the preview) not run. Merging the two parts left Home without one import; added and verified. Daily market now even (each stall about a quarter of wins); in the Sprint Ah Chen wins 41.7% (Charmer perk), left for its own plan. Not done here: game-table labels at 10 to 11 px, the 320 px action bar over the last market row, the print kit's tie wording, 16 empty level rewards (levels 12 to 30)."
+    },
+    {
+      "at": "2026-11-22 15:33",
+      "text": "Owner brief: the Market League as a 120-stage campaign with its own trophy road; a job for each mode; build a 12-stage pilot first. Proposed as DEC-127 with PLAN-118 (pilot, road, mastery trophies, 1.28.0) and PLAN-119 (mode jobs, Sprint week of best 5 days, League links) in REP-134; later chapters of ten as their own plans. Three questions to the owner. Awaiting approval."
     }
   ]
 }
