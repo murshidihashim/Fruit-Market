@@ -3208,7 +3208,7 @@
         "evidence": "Owner, 2026-11-22: \"remove the your next goals, create it into a swipeable card which swipes with the stall, remove stamp book and wardrobe but make it into a button icon at the stall card so player can easily access the item; point of this exercise is to make everything fit into one page\"",
         "date": "2026-11-22"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-121",
       "reviewTrigger": "After the owner sees it.",
       "reports": [
@@ -4660,6 +4660,10 @@
     {
       "at": "2026-11-22 23:40",
       "text": "PLAN-121 audit (before the merge to main) found one Major: Home still scrolled at 390x844 and 360x640 with a League game waiting, and at 360x640 with a 14-letter name. Fixed: with a game waiting the League card leaves out the goal line and Next trophy (and, on shorter phones, the stars and part of the picture); the waiting table row shows only on taller phones; the stall name stays on one line; Continue is 44 px. Measured with a saved game in every mode: fits 412x915, 393x852, 390x844, 375x812, 375x667 and 360x640; 320x568 scrolls 60 px and a 1280x800 desktop 20 px (both open). npm run verify PASS."
+    },
+    {
+      "at": "2026-11-23 00:26",
+      "text": "1.30.0 published to the live game on the owner's word (\"push it live\"). Pull request #27 passed CI after the audit fix (b7ed371) and merged as 9bf3072; Deploy LIVE game run 47 passed and tagged v1.30.0. The live game serves the 1.30.0 build. PLAN-121 released. Not run: a real Android phone."
     }
   ]
 }
