@@ -3088,7 +3088,7 @@
       "id": "DEC-125",
       "title": "Fixes from the 1.27.0 review",
       "question": "Which problems found in the 1.27.0 review should be fixed before it goes live?",
-      "choice": "Proposed: fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the $9 League star becomes $8. Balance (Uncle Benny in the Daily and Sprint) and the owner's first-time text are left for the owner.",
+      "choice": "fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the $9 League star becomes $8. Balance (Uncle Benny in the Daily and Sprint) is PLAN-117; the owner's first-time text is tidied (B-06).",
       "rationale": "A review of 1.27.0 found no Blocker, but two Majors players would meet, and several words and screens that disagree with the game.",
       "impact": {
         "player": "One-phone turns cannot be taken by mistake; correct prices and lines; clearer screens and larger tap targets.",
@@ -3098,13 +3098,38 @@
       "cost": "RM0.",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+        "date": "2026-11-22"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "plan": "PLAN-116",
       "reviewTrigger": "After the owner tries the fixed build on the preview.",
+      "reports": [
+        "REP-133"
+      ]
+    },
+    {
+      "id": "DEC-126",
+      "title": "Uncle Benny plays at Normal in the Daily market and the Sprint",
+      "question": "Uncle Benny (Hard) wins 57 to 66 percent of Daily markets and 37 percent of Sprints (REP-133). Should he play at Normal there?",
+      "choice": "Yes: in the Daily market and the Market Sprint all three rivals play at Normal. The Daily's seed and boards are kept apart from the old set-up so old and new scores never mix, and old phones are asked to update before sending a Daily or Sprint score.",
+      "rationale": "One rival winning most shared games makes the daily boards feel unwinnable; the owner chose a fairer field.",
+      "impact": {
+        "player": "Daily market and Sprint rivals are all Normal; scores from before the change are on a separate board.",
+        "technical": "dailyConfig and sprintConfig rival levels; a new board key or version so replays match; balance runs.",
+        "data": "New daily board keys; the old boards are left as they are."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+        "date": "2026-11-22"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-117",
+      "reviewTrigger": "Win shares over 1,000 dates in the balance run, and two weeks of daily board scores after release.",
       "reports": [
         "REP-133"
       ]
@@ -4498,6 +4523,10 @@
     {
       "at": "2026-11-22 12:10",
       "text": "Owner: \"go through the game for fixes\". Two reviewers checked 1.27.0 at 7b98915 (play and rules; screens, online and polish): no Blocker; 2 Major, 15 Minor, 10 Polish, and balance notes (Uncle Benny in the Daily and Sprint; Ah Chen's perk explains her edge over Rosa). Proposed as DEC-125 / PLAN-116 in REP-133."
+    },
+    {
+      "at": "2026-11-22 13:37",
+      "text": "Owner approved PLAN-116 (the 1.27.0 review fixes, DEC-125), the tidy of the online first-time text (B-06), and a balance change: \"approve plan 116, yes to 2, yes to 3\". The balance change is recorded as DEC-126 / PLAN-117: Uncle Benny plays at Normal in the Daily market and the Sprint. Delivery in progress for both."
     }
   ]
 }

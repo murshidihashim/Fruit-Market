@@ -7,11 +7,11 @@
     "A-02 the Daily card's prices on Fixed prices days",
     "A-03 to A-08 League lines, names, the $9 star becomes $8, the level per rival; Best day as the net change; missed order on the one-phone note",
     "B-01 to B-05, B-07, B-08 lobby names, reaction button placement and size, dialog focus, free-seat invite words, contrast, text size",
-    "Polish A-10 to A-14 and B-09 to B-17"
+    "Polish A-10 to A-14 and B-09 to B-17",
+    "B-06 the online \"First time? How to play\" text: no exclamation marks, and the first buyer worded as the game's own tip (owner: \"yes to 2\")"
   ],
   "exclusions": [
-    "No rule, balance or protocol change",
-    "Balance (Uncle Benny's level) and the owner's first-time text (B-06): the owner's decision"
+    "No rule, balance or protocol change (Uncle Benny's level is PLAN-117)"
   ],
   "acceptance": [
     {
@@ -40,11 +40,11 @@
     }
   ],
   "approval": {
-    "status": "proposed",
-    "evidence": "",
-    "date": ""
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+    "date": "2026-11-22"
   },
-  "delivery": "not started",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "not started",
   "reports": [

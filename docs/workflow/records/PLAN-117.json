@@ -1,0 +1,61 @@
+{
+  "id": "PLAN-117",
+  "title": "Uncle Benny at Normal in the Daily market and the Sprint",
+  "problem": "Uncle Benny (Hard) wins 57 to 66 percent of Daily markets and 37 percent of Sprints (REP-133, A-09).",
+  "scope": [
+    "All three rivals at Normal in dailyConfig and sprintConfig",
+    "Old and new Daily and Sprint scores kept on separate boards; old phones asked to update before sending a score",
+    "Balance runs before and after: win shares over 1,000 dates for the Daily and the Sprint",
+    "The Daily card and RULES.md name the rivals' level"
+  ],
+  "exclusions": [
+    "No rule change; other modes keep their levels"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with tests for the new set-ups, board keys and replay",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "Balance: Daily and Sprint win shares before and after over 1,000 dates",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "npm run test:e2e (Daily and Sprint submitted and shown)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+    "date": "2026-11-22"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-133"
+  ],
+  "decisions": [
+    "DEC-126"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
