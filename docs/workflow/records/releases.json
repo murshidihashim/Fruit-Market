@@ -678,7 +678,7 @@
     },
     {
       "version": "1.29.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-120"
       ],
@@ -688,8 +688,8 @@
         "A short intro explains the Daily market and the Sprint before you start"
       ],
       "date": "2026-11-22",
-      "commit": "",
-      "tagged": false
+      "commit": "df7f802",
+      "tagged": true
     }
   ]
 }

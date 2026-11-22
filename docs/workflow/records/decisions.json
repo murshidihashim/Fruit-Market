@@ -3183,7 +3183,7 @@
         "evidence": "Owner, 2026-11-22: \"reword the current homescreen layout, maintain the same style but it should be; players stall with whatever customisations they unlocked; swipeable cards for 1. play, which opens up the play page 2. market league 2. daily market; market league and daily market should be removed from the play page since both are getting a separate card; users should be prompted after clicking daily market, design a screen to explain the objective of the game mode and what it does before starting a game; saved game for before should each appear at each card's game mode\" (with two screenshots of the current Home)",
         "date": "2026-11-22"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-120",
       "reviewTrigger": "After the owner tries it on the preview.",
       "reports": [
@@ -4646,6 +4646,10 @@
     {
       "at": "2026-11-22 22:29",
       "text": "Owner direction on the 1.29.0 Home: goals as a card that swipes with the stall, Stamp book and Wardrobe as icon buttons on the stall, everything on one page. Recorded as approved DEC-129 / PLAN-121."
+    },
+    {
+      "at": "2026-11-22 22:32",
+      "text": "1.29.0 published to the live game on the owner's word (\"audit for bugs and fix and then push it lvie\"). Pull request #26 failed CI once (the Sprint browser test used the old card-dot name after the R120-07 fix); the test was updated (b0a2b2c), CI passed, merged as df7f802; Deploy LIVE game run 46 passed and tagged v1.29.0. The live game answers rules 20 and serves the 1.29.0 build. PLAN-120 released. Not run: a real Android phone."
     }
   ]
 }
