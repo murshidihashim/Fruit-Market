@@ -90,6 +90,9 @@ async function flyStamp(from: Element, to: Element): Promise<void> {
   } finally { el.remove(); }
 }
 
+/** PLAN-123: what the stamps header says while the stamps are still landing. */
+export const STAMPS_PENDING = 'Adding up…';
+
 /**
  * "Stamps earned": each line appears in its turn and its stamps travel to the card one after another; a full card
  * turns over to the next. Nothing is shown before its moment, a tap hurries it, and with reduced motion the end is
@@ -102,6 +105,9 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const [shown, setShown] = useState(still ? end : start);
   const [line, setLine] = useState(still ? sum.lines.length : -1);
   const [level, setLevel] = useState(still ? sum.after.level : sum.before.level);
+  // PLAN-123 (preview finding 6): the total is said once every stamp has landed; until then the header says the stamps
+  // are being added up, so it never reads "+0" and then changes.
+  const [settled, setSettled] = useState(still);
   const grid = useRef<HTMLDivElement>(null);
   const rows = useRef<(HTMLElement | null)[]>([]);
 
@@ -153,6 +159,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
       setLine(sum.lines.length);
       setShown(end);
       setLevel(sum.after.level);
+      setSettled(true);
       A.resetHurry();
       onDone();
     })();
@@ -165,7 +172,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const fresh = Math.max(0, Math.min(filled, shown - Math.max(start, base)));
   return (
     <div class="sbk-card" data-a="stamps">
-      <div class="sbk-ch"><span>Stamps earned</span><b aria-live="polite">+{shown - start}</b></div>
+      <div class="sbk-ch"><span>Stamps earned</span><b aria-live="polite" data-a="stamps-total">{settled ? `+${end - start}` : STAMPS_PENDING}</b></div>
       <div style="padding: 4px 0">
         {sum.lines.map((l, i) => (
           <div class={`sbk-earn ${i > line ? 'wait' : ''}`} ref={(el) => { rows.current[i] = el; }}>
@@ -367,6 +374,9 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           {order.length > 1 && <span>{margin}</span>}
         </div>
 
+        {/* PLAN-123: the Sprint's box (this run, your best, the board and Try again) comes first, under the headline. */}
+        {sprint && <SprintResult s={s} onRetry={onRematch} />}
+
         <ol class="jp-pods podium" style={{ '--n': cols }}>
           {order.map((i) => {
             const pl = s.players[i];
@@ -388,10 +398,8 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           })}
         </ol>
 
-        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
+        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} onMain={onRematch} onRetry={cleared ? onRetry : undefined} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
-
-        {sprint && <SprintResult s={s} />}
 
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
 
