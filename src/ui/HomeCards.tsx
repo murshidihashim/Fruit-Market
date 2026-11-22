@@ -63,7 +63,7 @@ export function YourStall({ next }: { next: string | null }) {
     <section class="jh-stall2" aria-label={`Your stall: ${keeper ?? 'your shopkeeper'}${title ? `, ${title}` : ''}`}>
       <RoofBand cls="tb-awn jh-awn2" colour={myColour(look)} roof={stall.roof} trim={stall.trim} scale={3} />
       <div class="jh-st-in">
-        <span class="jh-keeper"><FramedFace who={avatar} size={104} look={look} /></span>
+        <span class="jh-keeper"><FramedFace who={avatar} size={104} look={look} portrait /></span>
         <div class="jh-st-side">
           <span class="jh-sign"><b>{stallName()}</b>{title ? <small>{title}</small> : keeper ? <small>{keeper}</small> : null}</span>
           <div class="jh-counter">
@@ -224,13 +224,12 @@ function DailyModeCard(p: ModeCardProps) {
             <span class="jh-lb">Today's lorry brings</span>
             <div class="jh-lorry">{LORRY.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
             <span class="jh-dtw"><b>{dailyTwist(p.today).title}</b> · {first.config.days} days · {first.config.players.length} stalls</span>
-            <span class="jh-vs jh-dvs" aria-hidden="true">{first.config.players.filter((pl) => pl.kind === 'ai').map((pl) => <Face who={pl.avatar ?? ''} size={28} />)}</span>
-            <span class="jh-dtw">{rivalsLine(first.config)}</span>
+            <span class="jh-vs jh-dvs" role="img" aria-label={rivalsLine(first.config)}>{first.config.players.filter((pl) => pl.kind === 'ai').map((pl) => <Face who={pl.avatar ?? ''} size={28} />)}</span>
             {echo && <span class="jh-decho" data-a="daily-echo">{echo}</span>}
             <span class="jh-dme">{mine ?? (res && !res.error && res.top.length ? `${res.players ?? res.top.length} played · best so far $${res.top[0].cash}` : 'Not played today')}</span>
           </div>
         </div>
-        {wd ? <ContinueButton slot="daily" w={wd} label="Continue the Daily market" onContinue={p.onContinue} />
+        {wd ? <ContinueButton slot="daily" w={wd} label="Continue" onContinue={p.onContinue} />
           : <button class="jh-dgo jh-cmain" data-a="daily" onClick={p.onDaily}><PlayIcon />Play the Daily market</button>}
         <div class="jh-sp2" data-a="sprint-row">
           <span class="jh-sp2-tx"><b>{SPRINT_TITLE}</b><small>{sprintMine ?? (sprint?.day?.players ? `${sprint.day.players} played · best so far $${sprint.day.top[0]?.cash ?? 0}` : MODE_REASON.sprint)}</small></span>
