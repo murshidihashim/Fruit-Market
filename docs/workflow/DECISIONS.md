@@ -2135,7 +2135,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 ### DEC-125 · Fixes from the 1.27.0 review
 
 - **Question:** Which problems found in the 1.27.0 review should be fixed before it goes live?
-- **Choice:** Proposed: fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the \$9 League star becomes \$8. Balance (Uncle Benny in the Daily and Sprint) and the owner's first-time text are left for the owner.
+- **Choice:** Proposed: fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the $9 League star becomes $8. Balance (Uncle Benny in the Daily and Sprint) and the owner's first-time text are left for the owner.
 - **Rationale:** A review of 1.27.0 found no Blocker, but two Majors players would meet, and several words and screens that disagree with the game.
 - **Player impact:** One-phone turns cannot be taken by mistake; correct prices and lines; clearer screens and larger tap targets.
 - **Technical impact:** UI, words and small game-flow guards; no engine rule changes.
