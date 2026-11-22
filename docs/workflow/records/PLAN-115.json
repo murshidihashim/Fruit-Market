@@ -48,7 +48,7 @@
     "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
     "date": "2026-11-21"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge cc75e1c, verified at cc75e1c",
   "reports": [

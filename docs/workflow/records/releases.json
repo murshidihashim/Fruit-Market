@@ -633,7 +633,7 @@
     },
     {
       "version": "1.28.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-112",
         "PLAN-113",
@@ -673,8 +673,8 @@
         "The Daily market on Basic game days no longer stops on the first morning"
       ],
       "date": "2026-11-22",
-      "commit": "",
-      "tagged": false
+      "commit": "9b8ee6c",
+      "tagged": true
     }
   ]
 }

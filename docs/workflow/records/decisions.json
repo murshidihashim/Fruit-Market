@@ -3022,7 +3022,7 @@
         "evidence": "Owner, 2026-11-20: \"approve plan 112, use your picks\" (spectating later; emoji plus preset lines; start with computers after 60 s)",
         "date": "2026-11-20"
       },
-      "delivery": "in progress",
+      "delivery": "released",
       "plan": "PLAN-112",
       "reviewTrigger": "After two weeks live: public rooms opened and started, and reactions sent, from the anonymous counters.",
       "reports": [
@@ -3050,7 +3050,7 @@
         "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
         "date": "2026-11-21"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-113",
       "reviewTrigger": "After two weeks live: the share of finished games followed by a rematch or a new game, from the anonymous counters.",
       "reports": [
@@ -3078,7 +3078,7 @@
         "evidence": "Owner, 2026-11-21: \"approve plan 114 and 115, use your picks\" (retries allowed, best counts; Sprint beside the Daily market; stages 4 to 6: heatwave, glut, fussy premium buyer)",
         "date": "2026-11-21"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-114",
       "reviewTrigger": "Two weeks after 1.27.0 is live: Sprint plays, retries and next-day returns from the anonymous counters.",
       "reports": [
@@ -3105,7 +3105,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
         "date": "2026-11-22"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-116",
       "reviewTrigger": "After the owner tries the fixed build on the preview.",
       "reports": [
@@ -3131,7 +3131,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
         "date": "2026-11-22"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-117",
       "reviewTrigger": "Win shares over 1,000 dates in the balance run, and two weeks of daily board scores after release.",
       "reports": [
@@ -3157,7 +3157,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
         "date": "2026-11-22"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-118",
       "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
       "reports": [
@@ -4582,6 +4582,10 @@
     {
       "at": "2026-11-22 18:27",
       "text": "Owner: \"audit for any bugs or errors or inconsistency and then push everything live, inclusive of 1.28\". Two reviewers audited c553fc9 (REP-135): one Blocker (an empty perk offer held the first morning in League stages 8, 9 and 11 and on the Daily's Basic game days; the Daily part is also in live 1.25.0) and Majors (Rosa Reads Back compared with every stall, the Sprint's decisive moment could claim a loss on fruit that sold anyway, The Eager Bidder spoken by the wrong rival, the release still named 1.27.0). Fixed in 2670dd9 and 1b322b8 with tests; minors and balance (expert difficulty, Ah Chen's Sprint edge) left for later. 1.27.0 was never published, so it is folded into release candidate 1.28.0 (PLAN-112 to PLAN-119). The owner gave the word to publish after the audit."
+    },
+    {
+      "at": "2026-11-22 19:23",
+      "text": "1.28.0 published to the live game on the owner's word (\"push everything live, inclusive of 1.28\", after the REP-135 audit). Pull request #25 merged as 9b8ee6c after CI passed (checks and build); Deploy LIVE game run 45 passed (verify, deploy, live smoke test) and tagged v1.28.0 on 9b8ee6c. The live game answers rules 20 and serves the 1.28.0 build (the League pilot in its code). PLAN-112 to PLAN-119 released. Not run: a real Android phone; the owner's own preview test (the owner chose to publish after the audit)."
     }
   ]
 }

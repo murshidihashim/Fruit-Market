@@ -46,7 +46,7 @@
     "evidence": "Owner, 2026-11-21: \"implement page 6 from the mockup into the live game, approve\", then \"page 6, meaning the whole ui/ux journey across the rest of the journey you shared\" (the nine screens of the v3 journey board)",
     "date": "2026-11-21"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merges e77ae6b (A), 65ee1e8 (C), 49d24f3 (B), fix 153c6fe",
   "reports": [

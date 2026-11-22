@@ -44,7 +44,7 @@
     "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
     "date": "2026-11-22"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merges 8b1e3f2 (part A) and part B, fix 9cfe292",
   "reports": [
