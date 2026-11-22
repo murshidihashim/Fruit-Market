@@ -3152,7 +3152,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
         "date": "2026-11-22"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-118",
       "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
       "reports": [
@@ -4568,6 +4568,10 @@
     {
       "at": "2026-11-22 16:31",
       "text": "1.27.0 with PLAN-116 and PLAN-117 on the preview: pull request #24 merged as fa9bae1 after CI passed; main CI run 164 passed and updated the preview. The preview answers rules 20 and its code carries the fixes (\"Invite 1 more friend\", \"The Resort Order\"). The owner's preview test and the word to publish 1.27.0 are next."
+    },
+    {
+      "at": "2026-11-22 17:10",
+      "text": "PLAN-118 and PLAN-119 implemented and merged (verified at 4cb4dad); T1 to T4 of PLAN-118 and T1 to T3 of PLAN-119 PASS; the owner on the preview not run. Merging the two parts kept both new results props (Retry, Try today's Sprint); the Play menu now says \"1 day\" for a 1-day stage. Differences from the brief: Read the Rival opens at the buying step; a lorry stage option; the Market League gold tier now needs all 12 stages (held tiers kept). For release 1.28.0 after 1.27.0 is published."
     }
   ]
 }
