@@ -48,9 +48,9 @@ export function awningColour(look: LookSet | undefined, seat: number): string {
 
 export { shownAvatar } from './looks';
 
-/** A small portrait in its player's signboard frame, wearing what they have on. */
-export function FramedFace({ who, size, look }: { who: string; size: number; look?: LookSet }) {
-  return <span class={`sbk-face fr-${frameOf(look)}`}><Face who={who} size={size} worn={partsOf(look)} /></span>;
+/** A small portrait in its player's signboard frame, wearing what they have on. `portrait`: the face at any size (Face). */
+export function FramedFace({ who, size, look, portrait }: { who: string; size: number; look?: LookSet; portrait?: boolean }) {
+  return <span class={`sbk-face fr-${frameOf(look)}`}><Face who={who} size={size} worn={partsOf(look)} portrait={portrait} /></span>;
 }
 
 /** A shopkeeper at their stall, cropped to the awning and the face (the picture on the signboard and the winner's block). */

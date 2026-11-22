@@ -1,8 +1,10 @@
 // Plays a full game in a phone-sized headless browser and saves screenshots. Exits with a failure when the game does
 // not reach the results screen (PLAN-081: it used to print a line and pass).
 // Usage: node scripts/smoke.cjs <dist-single/index.html> <outdir> [rivals=3] [saved-game.json]
-// With a saved game (a file holding what the game keeps under "fm.save") the script continues that game from the home
-// screen instead of starting a new one, so a chosen moment (such as the Favoured Trade step) can be played through.
+// With a saved game (a file holding what the game kept under "fm.save" up to 1.28.0, or now in one mode's slot,
+// "fm.save.<mode>") the script continues that game from the home screen instead of starting a new one, so a chosen
+// moment (such as the Favoured Trade step) can be played through. It is put under the old key, which the game moves to
+// its mode's slot as it opens (PLAN-120), and continued with its card's Continue.
 const { chromium } = require('playwright');
 const fs = require('fs');
 
@@ -29,7 +31,7 @@ const path = require('path');
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/${n}.png` });
   if (save) {
-    await page.click('button:has-text("Continue")');
+    await page.click('[data-a^="continue-"]');
     await page.click('button:has-text("Resume")');
   } else {
     await page.click('[data-a="play"]'); await page.click('[data-a="computer"]'); // PLAN-113: Home's Play, then Computer

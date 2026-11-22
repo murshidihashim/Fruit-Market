@@ -32,7 +32,7 @@ describe('panda rival rename', () => {
     it('still load, with the old name', () => {
       const g = oldGame();
       saveGame(g);
-      const back = loadGame()!;
+      const back = loadGame('play')!;
       expect(back).toEqual(g);
       expect(back.players[1].name).toBe('Panda Lim');
     });

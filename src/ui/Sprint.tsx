@@ -1,16 +1,14 @@
-// PLAN-114: the Market Sprint on screen. On Home's Daily card a row of its own beside the Daily market ("Sprint · 3
-// days", your best today and your place); on the results, the Sprint's box: your best today and place, one concrete
-// reason from the game's record, the day's top ten, the players around you and this week's ranking. PLAN-119: the box
+// PLAN-114: the Market Sprint on screen. Home's Daily card draws its row (PLAN-120: HomeCards.tsx); on the results,
+// the Sprint's box: your best today and place, one concrete reason from the game's record, the day's top ten, the players around you and this week's ranking. PLAN-119: the box
 // also shows this run's cash beside your best, the reason is the Rush's decisive moment, and the weekly ranking says
 // that your best 5 days count. Try again is the
 // results' main button (Results.tsx), which starts the same Sprint at once (App.tsx).
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { SPRINT_DAYS, SPRINT_WEEK_DAYS, sprintConfig } from '../engine/daily';
+import { SPRINT_DAYS, SPRINT_WEEK_DAYS } from '../engine/daily';
 import type { GameState } from '../engine/game';
 import { sprintReason } from '../engine/sprint';
 import { fetchSprint, placeWords, submitSprint, type BoardView, type PlacedEntry, type SprintBoards } from '../net/sprint';
-import { Face } from './art';
 import { worn } from './looks';
 import { FramedFace, shownAvatar } from './stampCard';
 import { loadSprintBest } from './sprintStore';
@@ -35,26 +33,6 @@ export function useSprintBoards(today: string): SprintBoards | null {
 export function bestLine(cash: number | undefined, place: string | null): string | null {
   if (cash === undefined) return null;
   return place ? `Best today $${cash} · ${place}` : `Best today $${cash}`;
-}
-
-/** The Sprint's row on Home's Daily card: its name and length, the stalls, your best and place, and its own button. */
-export function SprintRow({ today, onSprint }: { today: string; onSprint: () => void }) {
-  const res = useSprintBoards(today);
-  const best = loadSprintBest()[today]?.cash;
-  const place = placeWords(res?.day);
-  const cfg = sprintConfig(today, 'You');
-  const line = bestLine(best, place)
-    ?? (res?.day?.players ? `${res.day.players} played today · best so far $${res.day.top[0]?.cash ?? 0}` : `${cfg.players.length} stalls · the same start for everyone`);
-  return (
-    <div class="jh-sp" data-a="sprint-row">
-      <div class="jh-sp-tx">
-        <b>{SPRINT_TITLE}</b>
-        <span class="jh-sp-ln">{line}</span>
-        <span class="jh-sp-vs" aria-hidden="true">{cfg.players.slice(1).map((p) => <Face who={p.avatar ?? ''} size={22} />)}</span>
-      </div>
-      <button class="jh-dgo jh-sp-go" data-a="sprint" onClick={onSprint}><PlayIcon />Play the Sprint</button>
-    </div>
-  );
 }
 
 function Line({ e, mine }: { e: PlacedEntry; mine: ComponentChildren }) {
@@ -128,8 +106,4 @@ export function SprintResult({ s }: { s: GameState }) {
       )}
     </div>
   );
-}
-
-function PlayIcon() {
-  return <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 4v16l13-8z" fill="currentColor" /></svg>;
 }

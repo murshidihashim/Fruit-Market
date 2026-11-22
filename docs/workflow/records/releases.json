@@ -633,7 +633,7 @@
     },
     {
       "version": "1.28.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-112",
         "PLAN-113",
@@ -671,6 +671,21 @@
         "The weekly Sprint ranking counts your best 5 days",
         "Sprint results name the moment that decided your run",
         "The Daily market on Basic game days no longer stops on the first morning"
+      ],
+      "date": "2026-11-22",
+      "commit": "9b8ee6c",
+      "tagged": true
+    },
+    {
+      "version": "1.29.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-120"
+      ],
+      "notes": [
+        "A new Home: your stall with the looks you wear, then swipe between Play, Market League and Daily market",
+        "Each mode keeps its own unfinished game, so starting a Sprint no longer replaces your League game",
+        "A short intro explains the Daily market and the Sprint before you start"
       ],
       "date": "2026-11-22",
       "commit": "",

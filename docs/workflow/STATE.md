@@ -1,16 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-22 10:50 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-22 19:23 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live:** 1.25.0, rules version 20, protocol 4 (fee19d8, tagged v1.25.0).
-- **Preview:** 1.27.0 candidate (main 3edfa16, REP-132): PLAN-112 (public rooms, reactions, protocol 5), PLAN-113 (redesigned journey), PLAN-114 (Market Sprint and boards), PLAN-115 (League campaign). 1.26.0 was folded in, never published.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, pushed, level with main plus records.
-- **Active packages:** PLAN-112 to PLAN-115 implemented; each waits for the owner on the preview (T4/T5), then the owner's word to publish 1.27.0 (deploy-web.yml, PUBLISH), then mark the release published.
-- **Cancelled by the owner (not recorded as a plan):** shelf fruit not ageing (2026-11-21).
-- **Commits:** author Murshidi Hashim, committer Claude (GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL per commit).
-- **Waiting on the owner:** (1) try 1.27.0 on the preview and say whether to publish; (2) the gameplay screens of the redesign (Buying to Day Close, canvas v3) not approved for building; (3) Sprint length: about 3 minutes measured, target was 5 to 8; (4) Zara-style card wording "S -$2" on Everyday cards; (5) fruit pieces for the print kit and the small table test (PLAN-111 T4); (6) Android Play upload; (7) PLAN-003 capacity test, PLAN-018 insights (proposed); Cloudflare plan tier unknown; (8) making the repo private: Actions minutes (~2,500/month) and the Play privacy URL.
-- **Known issues:** Uncle Benny (Hard) wins 37% of Sprints; Rosa wins less than Ah Chen at the same level (cause unknown); Settings "forget games" does not clear fm.sprint; Sprint counts as "daily" for the Every mode trophy.
+- **Live and preview:** 1.28.0, rules version 20, protocol 5, computer-player version 8 (main 9b8ee6c, tagged v1.28.0, published 2026-11-22; REP-135). PLAN-112 to PLAN-119 released: public rooms and reactions, the redesigned journey, the Market Sprint and boards, the League campaign pilot (12 stages, 2 experts, road, mastery trophies), the 1.27 review fixes, Daily and Sprint rivals at Normal, a job for each mode.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus records.
+- **Active package:** none in progress.
+- **Left for later (REP-135 section 4):** expert stages easier than their base stages (RA-07); Ah Chen wins 42% of Sprints through the Charmer perk (RA-14); 16 empty stall-level rewards (levels 12 to 30); host lines after shared wins, stage 10 day count, Perk label contrast, Play menu punctuation, the Daily card's League line too frequent, weekly line "7 days" when 5 count, old-version message wording, reaction button below the fold at 320, small text in Wardrobe and Stamp book, How to play without the League or Sprint; game-table labels at 10 to 11 px; the print kit's tie wording.
+- **Next chapters:** League chapters of ten, each its own plan (REP-134 section 5).
+- **Commits:** author Murshidi Hashim, committer Claude, set per commit; run web checks and commits as separate commands.
+- **Waiting on the owner:** play 1.28.0; which later items to plan; the gameplay screen redesign (canvas v3) is not approved; Android Play upload; print pieces and table test; PLAN-003 capacity and backup, PLAN-018 insights (proposed); Cloudflare plan tier unknown.
 - Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 
 ## How work is done now

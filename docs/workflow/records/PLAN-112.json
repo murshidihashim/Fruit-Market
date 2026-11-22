@@ -51,7 +51,7 @@
     "evidence": "Owner, 2026-11-20: \"approve plan 112, use your picks\" (spectating later; emoji plus preset lines; start with computers after 60 s)",
     "date": "2026-11-20"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge d0cc64b",
   "reports": [

@@ -72,10 +72,11 @@ export function facePic(who: string, size: number, dressed = false): Pic {
  * that may reach a little past the circle (a hat above it, a neck piece below the chin).
  * Never pass a face-down customer: use TicketBack (ticket.tsx) or TradingCardBack (cards.tsx), which load no portrait.
  */
-export function Face({ who, size = 28, worn }: { who: string; size?: number; worn?: string[] }) {
+export function Face({ who, size = 28, worn, portrait }: { who: string; size?: number; worn?: string[]; portrait?: boolean }) {
   const key = shopFile(who);
   const wear = key && size >= WEAR_FROM && worn?.length ? wearUrl(key, worn) : null;
-  const pic = facePic(who, size, !!wear);
+  // `portrait` (PLAN-120): the face even at a size that would show the stall scene (Home draws its own stall round it).
+  const pic = facePic(who, size, !!wear || !!portrait);
   const img = pic.src && (
     <img class="xf-img" src={pic.src} width={pic.w} height={pic.h} alt="" decoding="async" loading="lazy" draggable={false}
       style={pic.pos ? { objectPosition: pic.pos } : undefined} />

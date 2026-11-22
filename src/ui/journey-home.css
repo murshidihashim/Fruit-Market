@@ -23,18 +23,9 @@
 .home.hm.jh .jh-lvl small { font: 700 0.75rem/1.1 var(--f-label); }
 .home.hm.jh .hm-rest { gap: 12px; }
 
-/* ---------- your stall ---------- */
-.home.hm.jh .jh-stall { position: relative; flex: none; margin: 0 16px; height: 186px; overflow: hidden; background: var(--j-tint); box-shadow: inset 0 0 0 3px var(--j-ink); display: grid; place-items: center; }
-.home.hm.jh .jh-scene { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: cover; object-position: 50% 42%; display: block; }
-.home.hm.jh .jh-awn { position: absolute; left: 3px; right: 3px; top: 3px; }
-.home.hm.jh .jh-next {
-  position: absolute; left: 10px; right: 10px; bottom: 10px; justify-self: start; max-width: max-content; padding: 6px 9px; background: var(--j-ink); color: var(--j-paper);
-  font: 700 0.8125rem/1.25 var(--f-label);
-}
-.home.hm.jh .jh-next b { color: var(--j-yel); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
-
-/* ---------- Play (and Continue) ---------- */
-.home.hm.jh .jh-play { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+/* ---------- Play, and the room an online match waits in (PLAN-120: the stall and the mode cards are in
+   home-cards.css) ---------- */
+.home.hm.jh .jh-room { margin: 0 16px; }
 .home.hm.jh .jh-go {
   min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--j-yel); color: var(--j-ink);
   box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 5px;
@@ -43,18 +34,8 @@
 .home.hm.jh .jh-go:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
 .home.hm.jh .jh-go2 { min-height: 48px; box-shadow: inset 0 0 0 3px var(--j-ink); font: 800 0.875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .home.hm.jh .jh-go2:active { transform: translateY(2px); }
-.home.hm.jh .jh-table { margin: 0 16px; }
-.home.hm.jh .jh-room { margin: 0 16px; }
 
-/* ---------- the Daily market ---------- */
-.home.hm.jh .jh-daily { flex: none; margin: 0 16px; box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px; }
-.home.hm.jh .jh-dh {
-  min-height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
-  font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
-}
-/* PLAN-116 (REP-133 B-15): the date is never cut off; on a narrow phone the label may take two lines. */
-.home.hm.jh .jh-dh span { min-width: 0; padding: 5px 0; overflow-wrap: anywhere; }
-.home.hm.jh .jh-dh small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); white-space: nowrap; }
+/* ---------- the Daily market: the first customer and the lorry (on its mode card) ---------- */
 .home.hm.jh .jh-db { display: flex; gap: 10px; padding: 10px 8px 8px; }
 .home.hm.jh .jh-dcard { flex: none; --card-w: 128px; }
 .home.hm.jh .jh-dr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
@@ -64,11 +45,8 @@
   box-shadow: inset 0 0 0 2px var(--j-ink), inset 0 -6px 0 var(--lane); padding-bottom: 4px; box-sizing: border-box;
 }
 .home.hm.jh .jh-lorry b { font: 400 1.125rem/1 var(--f-display); }
-.home.hm.jh .jh-dt { margin: 0; font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
-.home.hm.jh .jh-ds { margin: 0; font: 700 0.75rem/1.3 var(--f-label); }
 /* PLAN-119: the line naming what today's Daily uses that you met in the Market League. */
 .home.hm.jh .jh-decho { margin: 0; padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.75rem/1.3 var(--f-label); color: var(--j-ink); }
-.home.hm.jh .jh-ds b { color: var(--j-red); font-weight: 800; }
 .home.hm.jh .jh-dgo {
   margin-top: auto; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; background: var(--j-yel);
   box-shadow: inset 0 0 0 2px var(--j-ink); font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
@@ -90,7 +68,7 @@
 .home.hm.jh .jh-gt small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-gp { flex: none; font: 400 1.125rem/1 var(--f-display); }
 
-/* ---------- League, Stamps, Wardrobe ---------- */
+/* ---------- the stamp book and the Wardrobe (PLAN-120: the League has its card) ---------- */
 .home.hm.jh .jh-tiles { flex: none; margin: 0 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .home.hm.jh .jh-tiles button {
   min-height: 64px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 9px; text-align: left; box-shadow: inset 0 0 0 2px var(--j-ink);
@@ -104,18 +82,15 @@
 
 @media (max-width: 379px) {
   .home.hm.jh h1.hm-name { font-size: 2.125rem; }
-  .home.hm.jh .jh-stall { height: 156px; margin: 0 12px; }
-  .home.hm.jh .jh-play, .home.hm.jh .jh-daily, .home.hm.jh .jh-goals, .home.hm.jh .jh-tiles, .home.hm.jh .jh-table, .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
+  .home.hm.jh .jh-goals, .home.hm.jh .jh-tiles, .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
   .home.hm.jh .jh-dcard { --card-w: 108px; }
   .home.hm.jh .jh-db { gap: 8px; padding: 8px 6px 6px; }
   .home.hm.jh .jh-tiles { gap: 6px; }
   .home.hm.jh .jh-tiles button { padding: 7px; font-size: 0.75rem; }
-  .home.hm.jh .jh-dh { letter-spacing: 0.05em; }
 }
 @media (max-width: 339px) {
   .home.hm.jh .jh-db { flex-direction: column; align-items: stretch; }
   .home.hm.jh .jh-dcard { align-self: center; --card-w: 128px; }
-  .home.hm.jh .jh-dh small { display: none; }
 }
 
 /* ---------- the Play menu ---------- */
