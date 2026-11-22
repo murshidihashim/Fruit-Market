@@ -50,6 +50,8 @@ export function dailyConfig(date: string, name: string, avatar = DAILY_AVATAR): 
 
 /** The Sprint's length in days. */
 export const SPRINT_DAYS = 3;
+/** PLAN-119: the weekly Sprint ranking counts each player's best this many days of the week (server/meta.ts weekTotals). */
+export const SPRINT_WEEK_DAYS = 5;
 
 /**
  * The day's Market Sprint: a second Daily format beside the Daily market. Three days, four stalls, its own shared seed
