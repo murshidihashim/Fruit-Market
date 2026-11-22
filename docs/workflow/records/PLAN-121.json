@@ -15,20 +15,20 @@
     {
       "id": "T1",
       "text": "npm run verify",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge: 1226 passed, 1 skipped (as before); home-cards and review-133-b tests updated for the stall row and icon buttons"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8892 E2E_MINUTES=15 npm run test:e2e on bbc364c: E2E OK, leaks 0, speed check first try"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320: no vertical scroll at 390 and 360",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens and scroll heights in scratchpad p121: 390x844 844/844 and 360x640 640/640 in five Home states (new, goals, saved game, Daily card, Daily and Sprint waiting); 320x568 625/568 (scrolls 57 px, the foot strip below the fold); reviewed 390 with a saved game and 360 with the Daily card"
     },
     {
       "id": "T4",
@@ -42,18 +42,29 @@
     "evidence": "Owner, 2026-11-22: \"remove the your next goals, create it into a swipeable card which swipes with the stall, remove stamp book and wardrobe but make it into a button icon at the stall card so player can easily access the item; point of this exercise is to make everything fit into one page\"",
     "date": "2026-11-22"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "not started",
-  "reports": [],
+  "delivery": "implemented",
+  "release": "1.30.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, bbc364c merged",
+  "reports": [
+    "REP-137"
+  ],
   "decisions": [
     "DEC-129"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
+    "added": [
+      "Stamp book and Wardrobe buttons on the stall"
+    ],
+    "changed": [
+      "The stall and Your next goals swipe together at the top of Home",
+      "Mode cards are compact on shorter phones so Home fits one screen"
+    ],
     "fixed": [],
-    "removed": []
+    "removed": [
+      "The goals section and the Stamp book and Wardrobe tiles below the cards"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Home fits on one screen: swipe between your stall and your goals, and open the Stamp book or Wardrobe from your stall"
+  ]
 }

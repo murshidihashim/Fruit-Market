@@ -3208,10 +3208,12 @@
         "evidence": "Owner, 2026-11-22: \"remove the your next goals, create it into a swipeable card which swipes with the stall, remove stamp book and wardrobe but make it into a button icon at the stall card so player can easily access the item; point of this exercise is to make everything fit into one page\"",
         "date": "2026-11-22"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-121",
       "reviewTrigger": "After the owner sees it.",
-      "reports": []
+      "reports": [
+        "REP-137"
+      ]
     }
   ],
   "history": [
@@ -4650,6 +4652,10 @@
     {
       "at": "2026-11-22 22:32",
       "text": "1.29.0 published to the live game on the owner's word (\"audit for bugs and fix and then push it lvie\"). Pull request #26 failed CI once (the Sprint browser test used the old card-dot name after the R120-07 fix); the test was updated (b0a2b2c), CI passed, merged as df7f802; Deploy LIVE game run 46 passed and tagged v1.29.0. The live game answers rules 20 and serves the 1.29.0 build. PLAN-120 released. Not run: a real Android phone."
+    },
+    {
+      "at": "2026-11-22 23:24",
+      "text": "PLAN-121 merged (bbc364c): Home fits 390x844 and 360x640 without scrolling; 320x568 scrolls 57 px. Owner: \"push it live\". Release candidate 1.30.0 (REP-137); a quick audit runs before the merge to main."
     }
   ]
 }
