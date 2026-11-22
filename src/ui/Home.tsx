@@ -347,7 +347,7 @@ export function PlayMenu(p: PlayMenuProps) {
   );
 }
 
-/** A small menu in the middle of the screen, in front of the home screen. Focus stays inside it (focusTrap.ts). */
+/** A small menu in the middle of the screen, in front of the home screen. Focus stays inside it (focusTrap.tsx). */
 export function Popup({ title, onClose, children }: { title: string; onClose: () => void; children: ComponentChildren }) {
   const box = useRef<HTMLDivElement>(null);
   // Escape closes it (only the pop-up on top, when one is opened over another).

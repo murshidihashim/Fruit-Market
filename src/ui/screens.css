@@ -104,6 +104,6 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 @keyframes cp-nudge { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
 @media (prefers-reduced-motion: reduce) { .cp-hint { animation: none; } }
 
-/* PLAN-116 (REP-133 B-04): a pop-up takes focus as it opens (focusTrap.ts) so a screen reader reads its title; the box
+/* PLAN-116 (REP-133 B-04): a pop-up takes focus as it opens (focusTrap.tsx) so a screen reader reads its title; the box
    itself needs no ring (its buttons have theirs). */
 .modal[tabindex="-1"]:focus, .ft-box:focus { outline: none; }
