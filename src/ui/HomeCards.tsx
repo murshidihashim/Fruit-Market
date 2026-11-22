@@ -310,7 +310,7 @@ export function ModeCards(p: ModeCardProps & { start?: number }) {
         </button>
         <div class="jh-dots" role="group" aria-label="Cards">
           {CARDS.map((c, i) => (
-            <button class={`jh-dot ${i === at ? 'on' : ''}`} aria-label={c.name} aria-current={i === at ? 'true' : undefined} onClick={() => show(i)}><i /></button>
+            <button class={`jh-dot ${i === at ? 'on' : ''}`} aria-label={`Show the ${c.name} card`} aria-current={i === at ? 'true' : undefined} onClick={() => show(i)}><i /></button>
           ))}
         </div>
         <button class="jh-arr" aria-label="Next card" disabled={at === n - 1} onClick={() => show(at + 1)}>

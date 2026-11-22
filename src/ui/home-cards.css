@@ -181,3 +181,7 @@
   .sbk.jh-intro .jh-iside { align-self: stretch; }
 }
 .home.hm.jh .jh-dvs { justify-content: flex-start; padding: 0; }
+
+/* REP-136 R120-06: the intro's Continue keeps its day and cash on a small second line, as the cards' Continue does. */
+.ji-cont { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
+.ji-cont small { font: 700 0.8rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }

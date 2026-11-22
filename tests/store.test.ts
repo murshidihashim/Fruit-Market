@@ -56,7 +56,7 @@ describe('saved games', () => {
     g.phase = 'evening'; g.day = 2; g.order = [0, 1]; g.turn = 1; // rules 18: stall 0 has closed, stall 1 is deciding
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: 18, ai: AI_VERSION, game: g }));
     expect(loadGame('play')).toBeNull();
-    expect(consumeSaveNotice()).toBe('Your unfinished game used older rules and could not be continued.');
+    expect(consumeSaveNotice()).toBe('Your unfinished computer game used older rules and could not be continued.');
     expect(mem.has('fm.save')).toBe(false);
     // A bare save from before v1.2 is read as the current rules.
     mem.set('fm.save', JSON.stringify(g));
@@ -199,5 +199,16 @@ describe('PLAN-120: a saved game per mode', () => {
     expect(anySave()).toBe(true);
     clearGame('play');
     expect(anySave()).toBe(false);
+  });
+});
+
+describe('REP-136 R120-03: a Play save names its kind', () => {
+  it('a one phone game is named as such', async () => {
+    const { newGame } = await import('../src/engine/game');
+    const { loadGame, consumeSaveNotice } = await import('../src/ui/store');
+    const g = newGame({ players: [{ name: 'A', kind: 'human', avatar: '🦊' }, { name: 'B', kind: 'human', avatar: '🐻' }], days: 8, unripe: true, upgrades: true, events: true, seed: 3 });
+    localStorage.setItem('fm.save.play', JSON.stringify({ v: 2, rules: 1, game: g }));
+    expect(loadGame('play')).toBeNull();
+    expect(consumeSaveNotice()).toBe('Your unfinished one phone game used older rules and could not be continued.');
   });
 });

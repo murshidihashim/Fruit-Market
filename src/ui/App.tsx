@@ -102,7 +102,6 @@ function Main() {
   const [contSlot, setContSlot] = useState<SaveSlot>('play');
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
-  const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
   // PLAN-114 and PLAN-115: games started in this visit, so that Try again on a fixed seed (a Sprint, or a League stage)
   // opens a fresh table.
   const [runs, setRuns] = useState(0);
@@ -156,7 +155,6 @@ function Main() {
     // PLAN-118: a League stage that opens part-way is brought there by real game actions (nothing else changes).
     const g = openStage(newGame(cfg));
     const slot = slotOf(cfg);
-    setLastConfig(cfg);
     setRuns((n) => n + 1);
     putGame(slot, g);
     setActive(slot);
@@ -187,7 +185,9 @@ function Main() {
         onChange={onChange}
         onExit={() => { if (game.phase !== 'over') track('quit_day', game.day); setScreen('home'); dropFinished(); }}
         onRematch={() => {
-          const cfg = lastConfig ?? game.config;
+          // REP-136 R120-01: the finished game's own set-up (with a slot per mode, the last game started in this visit
+          // can be another mode's, and starting it would replace that mode's waiting game).
+          const cfg = game.config;
           if (cfg.sprint && cfg.daily) { track('sprint_retry'); startSprint(cfg.daily); return; }
           if (cfg.daily) { dropFinished(); setScreen('home'); return; }
           if (cfg.league !== undefined) {
@@ -199,8 +199,8 @@ function Main() {
           }
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
-        onRetry={() => { const cfg = lastConfig ?? game.config; if (cfg.league !== undefined) start(leagueConfig(cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0])); }}
-        onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
+        onRetry={() => { const cfg = game.config; if (cfg.league !== undefined) start(leagueConfig(cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0])); }}
+        onPlayAs={(avatar) => start({ ...asShopkeeper(game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
         // PLAN-119: a cleared League stage's results link to today's Sprint. PLAN-120: when a Sprint is waiting in its own
         // slot, the Sprint's intro opens instead (its Continue), so the link never replaces that game.
         onSprint={game.config.league !== undefined ? () => {

@@ -132,8 +132,11 @@ export function loadGame(slot: SaveSlot): GameState | null {
   if (!raw) return null;
   let data: unknown;
   try { data = JSON.parse(raw); } catch { data = null; }
-  const what = SLOT_WORDS[slot];
   const env = data as SaveEnvelope | null;
+  // REP-136 R120-03: a Play save names its kind, a computer game or a one phone game, from its own players.
+  const inner = env && typeof env === 'object' && 'game' in env ? env.game : data;
+  const humans = looksLikeGame(inner) && inner.config ? inner.config.players.filter((p) => p.kind === 'human').length : 0;
+  const what = slot === 'play' && humans > 0 ? (humans > 1 ? 'one phone game' : 'computer game') : SLOT_WORDS[slot];
   if (env && typeof env === 'object' && 'game' in env && typeof env.v === 'number') {
     const game = looksLikeGame(env.game) && env.game.config ? env.game : null;
     // A game that is not this slot's mode (never written so) cannot be read here.

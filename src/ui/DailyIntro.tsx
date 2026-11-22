@@ -114,7 +114,7 @@ export function DailyIntro(p: DailyIntroProps) {
           <div class="jh-igo">
             {w ? (
               <>
-                <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon />Continue · {waitWords(w)}</button>
+                <button class="jp-go" data-a="intro-continue" onClick={p.onContinue}><PlayIcon /><span class="ji-cont">Continue<small>{waitWords(w)}</small></span></button>
                 <button class="jh-go2 jh-c2" data-a="intro-start" onClick={p.onStart}>Start again</button>
               </>
             ) : <button class="jp-go" data-a="intro-start" onClick={p.onStart}><PlayIcon />Start</button>}
