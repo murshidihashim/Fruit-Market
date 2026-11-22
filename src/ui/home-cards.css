@@ -271,3 +271,13 @@
 /* REP-136 R120-06: the intro's Continue keeps its day and cash on a small second line, as the cards' Continue does. */
 .ji-cont { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
 .ji-cont small { font: 700 0.8rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }
+
+/* PLAN-123: labelled chips under the mode cards (in place of the arrows and dots): Play, League, Daily and Sprint each
+   one tap from the first view; a mode with a game waiting shows its day on the Continue colour. */
+.home.hm.jh .jh-chips { flex: 1 1 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.home.hm.jh .jh-dot.jh-chip { width: auto; min-width: 0; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 4px; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-paper); color: var(--j-ink); }
+.home.hm.jh .jh-chip b { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.home.hm.jh .jh-chip small { font: 600 0.6875rem/1.1 var(--f-label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.home.hm.jh .jh-chip.wait { background: var(--j-yel); }
+.home.hm.jh .jh-chip.on { background: var(--j-ink); color: var(--j-paper); }
+.home.hm.jh .jh-chip.on.wait { color: var(--j-yel); }

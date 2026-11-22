@@ -66,7 +66,7 @@ const stagesWords = (nos: readonly number[]): string => nos.map((n) => `stage ${
 /** Where a League trophy's stars come from, in words (PLAN-123: the mastery trophies count two named stages only). */
 export function trophyWhere(card: (typeof CARDS)[number]): string {
   const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
-  return k ? `Stars from ${stagesWords(MASTERY_STAGES[k])} count.` : 'Every League star counts.';
+  return k ? `Counts the stars of ${stagesWords(MASTERY_STAGES[k])}.` : 'Counts every League star.';
 }
 
 /**
