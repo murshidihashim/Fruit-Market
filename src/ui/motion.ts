@@ -123,8 +123,18 @@ const waiting = new Set<() => void>();
 const endWaits = () => { for (const done of [...waiting]) done(); };
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
-/** The player asked for less motion: nothing travels, the state is shown at once, and reading pauses are kept. */
-export const isReduced = () => typeof matchMedia !== 'undefined' && matchMedia(REDUCE).matches;
+/** PLAN-123: the game's own Reduced motion setting (Settings), beside the phone's. */
+let still = false;
+/** The player asked for less motion (the phone's setting or the game's): nothing travels, the state is shown at once,
+ *  and reading pauses are kept. */
+export const isReduced = () => still || (typeof matchMedia !== 'undefined' && matchMedia(REDUCE).matches);
+/** PLAN-123: turns the game's Reduced motion setting on or off. The page is marked (html.fm-still) so the stylesheets
+ *  stop every animation as they do for the phone's setting (motion.css). */
+export function setStill(on: boolean) {
+  still = on;
+  try { document.documentElement.classList.toggle('fm-still', on); } catch { /* no page (tests) */ }
+  publish();
+}
 
 /** The one speed (1 normal, lower is quicker). It only changes how fast this screen draws: never the game. */
 export const speed = () => base * hurry * step;
