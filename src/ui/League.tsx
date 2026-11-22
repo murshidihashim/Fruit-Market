@@ -77,7 +77,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
               const body = (
                 <>
                   <i class="jp-lg-n">{state === 'done' ? <Tick /> : i + 1}</i>
-                  <span class="jp-lg-t"><b>{x.title}</b><small>{stageLine(x)} · {rs.map((r) => r.name).join(', ')}</small></span>
+                  <span class="jp-lg-t"><b>{x.title}</b><small>{stageLine(x)}</small></span>
                   <span class="jp-lg-end">
                     <span class="jp-lg-faces" aria-hidden="true">{rs.map((r) => <FramedFace who={r.avatar} size={26} />)}</span>
                     <Stars got={got} total={x.mastery.length} size={13} />

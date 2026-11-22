@@ -85,9 +85,11 @@ const and = (xs: string[]): string => (xs.length <= 1 ? xs.join('') : `${xs.slic
 /** "Beat Rosa over 8 days to move up" (a shared win counts, as it does for the stage: progress.ts advanceLeague). */
 export const stageGoal = (st: Stage): string => `Beat ${and(stageRivals(st).map((r) => r.name))} over ${st.days} days to move up`;
 
-/** "Easy · 8 days", "Hard and Normal · 10 days": the computers' levels, hardest first, and the length. */
+/**
+ * "6 days · Rosa (Easy)", "6 days · Uncle Benny (Easy), Ah Chen (Normal)": the length, then each rival with its own
+ * level (REP-133, A-08: the levels used to stand apart from the names, so "Normal and Easy · Uncle Benny, Ah Chen" read
+ * as if Uncle Benny were Normal).
+ */
 export function stageLine(st: Stage): string {
-  const rank: Level[] = ['hard', 'normal', 'easy'];
-  const levels = rank.filter((l) => st.rivals.some((r) => r.level === l)).map((l) => LEVEL_WORD[l]);
-  return `${and(levels)} · ${st.days} days`;
+  return `${st.days} days · ${stageRivals(st).map((r) => `${r.name} (${LEVEL_WORD[r.level]})`).join(', ')}`;
 }

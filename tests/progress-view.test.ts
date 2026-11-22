@@ -100,9 +100,11 @@ describe('a game against computers pays stamps', () => {
 describe('the Market League screen', () => {
   it('says each stage\'s real rivals, levels and length', () => {
     expect(stageGoal(LEAGUE[0])).toBe(`Beat ${RIVALS[LEAGUE[0].rivals[0].idx].name} over 6 days to move up`);
-    expect(stageLine(LEAGUE[0])).toBe('Easy · 6 days');
-    expect(stageLine(LEAGUE[3])).toBe('Normal and Easy · 6 days');
-    expect(stageLine(LEAGUE[5])).toBe('Normal · 6 days');
+    // REP-133 A-08: each rival with its own level (the levels used to stand apart from the names).
+    expect(stageLine(LEAGUE[0])).toBe('6 days · Rosa (Easy)');
+    expect(stageLine(LEAGUE[2])).toBe('6 days · Uncle Benny (Easy), Ah Chen (Normal)');
+    expect(stageLine(LEAGUE[3])).toMatch(/^6 days · [A-Za-z ]+ \(Normal\), [A-Za-z ]+ \(Easy\)$/);
+    expect(stageLine(LEAGUE[5])).toBe('6 days · Uncle Benny (Normal), Ah Chen (Normal)');
     expect(stageGoal(LEAGUE[3])).toMatch(/^Beat \S+( \S+)? and \S+ over 6 days to move up$/);
     for (const st of LEAGUE) expect(stageRivals(st).map((r) => r.name)).toEqual(st.rivals.map((r) => RIVALS[r.idx % RIVALS.length].name));
   });

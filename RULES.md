@@ -424,7 +424,18 @@ Everyone in the world plays the same shuffled decks each day: you against Rosa, 
 
 ## Market League
 
-Six stages, one after another, each against one to three computer shopkeepers; win a stage to move on to the next. You play as yourself, and your perk is dealt as in the Daily market: 3 of the perks no rival holds (at least 5 are free at every stage), and you keep one. So on the Old Town stage, against Saleh, you are never offered his Nest Egg.
+Six short stages, one after another, each against one or two computer shopkeepers (PLAN-115). Win a stage to move on to the next; a shared win counts. Every stage lasts 6 days, has no upgrades, and has a fixed seed, so the same lorries and customers come every time it is played. Each stage says which of the game's own cards come on which day; the rules themselves do not change. You play as yourself, and your perk is dealt as in the Daily market: 3 of the perks no rival holds, and you keep one.
+
+| Stage | Rivals | What it is about |
+|---|---|---|
+| 1. Village Square | Rosa (Easy) | Rosa always asks $1 under the most a customer will pay for her fruit (so $2 under the card for an Okay piece). Go $1 under her. No event cards. |
+| 2. Pasar Malam | Saleh (Normal) | A Pasar Malam on days 2, 4 and 6: the night hawker pays $3 for 1 of each fruit left in your crate. No other event. |
+| 3. The Resort Order | Uncle Benny (Easy), Ah Chen (Normal) | Market Days are on: on day 3 the Beach Resort's standing order for watermelons is turned over, due on day 5. No event cards. |
+| 4. Heatwave | Raj (Normal), Kiki (Easy) | A Heatwave on days 3 and 5. No other event. |
+| 5. Glut | Pak Din (Normal), Farah (Normal) | A Blueberry Glut on days 2 and 4. No other event. |
+| 6. Premium Buyers | Uncle Benny (Normal), Ah Chen (Normal) | On day 5 Ravi Rocket, Miss Cha-Cha and Anna the Artist come for Fresh mangoes, and only on day 5. No event cards. |
+
+**Stars.** Each stage also has three optional goals, one star each (18 in all), read from the finished game: for example "Sell a fruit $1 under Rosa's price" or, on stage 3, "Win the order at $8 a piece or more". Play a cleared stage again for the stars you missed. Your progress is kept by stage number.
 
 ## What changed from the paper draft
 
