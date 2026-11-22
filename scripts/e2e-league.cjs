@@ -3,6 +3,10 @@
 // time). The player plays plainly: takes the first perk; buys ripe pieces of the fruit most wanted today, up to what is
 // wanted; puts out every piece; keeps a Favoured Trade card; and asks $1 under Rosa: $2 under each fruit's best price. It must win, see "Village Square cleared" and the stage's
 // stars on the results, and find stage 2 open on the League screen. Exits with a failure otherwise.
+// PLAN-118: then a short stage, Read the Rival (stage 7, one day), on a phone whose saved stage is 7: it must open at
+// buying with Rosa's three watermelons already bought and on show; the player buys apples and blueberries (not the
+// watermelons), puts every piece out, asks the best price the sheet shows, and must reach the results with the stage
+// cleared, its goals listed, and Retry offered beside Next stage. The League road must then show stage 8 next.
 // Usage: node scripts/e2e-league.cjs <dist-single/index.html> <outdir>
 const { chromium } = require('playwright');
 const fs = require('fs');
@@ -101,6 +105,96 @@ const path = require('path');
   await shot('03-next');
   if (!now.includes('Pasar Malam')) await fail(`the League screen opens on "${now}", not stage 2`);
   console.log('league: stage 2 open; errors:', errors);
+
+  // ---------- PLAN-118: a short stage from its starting step to its result ----------
+  const short = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  short.on('pageerror', (e) => errors.push(String(e)));
+  short.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  await short.addInitScript(() => {
+    localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, tips: false }));
+    // A phone that has played before: its saved stage is 7, and it has had the guided first sale.
+    if (!sessionStorage.getItem('seeded')) {
+      localStorage.setItem('fm.ladder', JSON.stringify(6));
+      localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
+      sessionStorage.setItem('seeded', '1');
+    }
+  });
+  await short.goto('file://' + path.resolve(file));
+  const has2 = async (t) => (await short.locator(t).count()) > 0;
+  const shot2 = (n) => short.screenshot({ path: `${out}/league-short-${n}.png` });
+  const fail2 = async (why) => { await shot2('stuck'); console.error(`League short stage FAILED: ${why}. Errors: ${errors.join(' | ')}`); await browser.close(); process.exit(1); };
+  await short.click('.jh-tiles button:has-text("League")');
+  await short.waitForSelector('.jp-league');
+  if (!(await short.locator('.jp-lg-now h2').innerText()).includes('Read the Rival')) await fail2('the League screen does not open on Read the Rival');
+  if (!(await has2('.lg-stop.now'))) await fail2('the road does not mark the next stage');
+  await short.click('.jp-go');
+  // It opens at buying, with Rosa's purchases made and on show.
+  await short.waitForSelector('button:has-text("Done buying"), button:has-text("Skip buying")', { timeout: 20000 }).catch(() => {});
+  if (!(await has2('button:has-text("Done buying"), button:has-text("Skip buying")'))) await fail2('the stage does not open at buying');
+  await shot2('01-open');
+  const t0 = Date.now();
+  for (let i = 0; i < 2000 && !(await has2('.results')); i++) {
+    try {
+      if (await has2('button:has-text("Done buying"), button:has-text("Skip buying")')) {
+        const pick = await short.evaluate(() => {
+          for (const lane of document.querySelectorAll('.tb-lane')) {
+            const f = [...lane.classList].find((c) => !c.startsWith('t'));
+            if (f !== 'apple' && f !== 'blueberry') continue;
+            const cell = [...lane.querySelectorAll('.mk-cell.pick')].find((c) => c.classList.contains('st-fresh'));
+            if (cell) return cell.getAttribute('data-a');
+          }
+          return null;
+        });
+        if (pick) { await short.click(`[data-a="${pick}"]`); await short.waitForTimeout(400); continue; }
+        await short.click('button:has-text("Done buying"), button:has-text("Skip buying")');
+        continue;
+      }
+      if (await has2('.fs-pop .fs-go:not([disabled])')) { await short.click('.fs-pop .fs-go'); continue; }
+      if (await has2('.bell-notice')) { await short.click('.bell-notice .btn'); continue; }
+      if (await has2('.coach .btn:not(.skip)')) { await short.click('.coach .btn:not(.skip)'); continue; }
+      const add = short.locator('.stall-panel .mini-step button:last-child:not([disabled])');
+      if (await add.count()) { await add.first().click(); continue; }
+      if (await has2('[data-a="tie-note"]') && await has2('.pp-lock .btn.ghost')) { await short.click('.pp-lock .btn.ghost'); continue; }
+      const lock = short.locator('.pp-lock .btn:not([disabled])');
+      if (await lock.count()) {
+        const rows = short.locator('.ps-row');
+        for (let k = 0; k < await rows.count(); k++) {
+          const row = rows.nth(k);
+          const m = /best price \$(\d+)/.exec(await row.locator('.ps-info').innerText());
+          if (!m) continue;
+          const target = Number(m[1]);
+          for (let c = 0; c < 20; c++) {
+            const now = Number((await row.locator('.ds-tag-face').innerText()).replace('$', ''));
+            const b = row.locator(`.ds-dial button:${now > target ? 'first' : 'last'}-child:not([disabled])`);
+            if (now === target || !(await b.count())) break;
+            await b.click();
+          }
+        }
+        await lock.click();
+        continue;
+      }
+      for (const t of ['Close for the day', 'See results']) if (await has2(`button:has-text("${t}")`)) { await short.click(`button:has-text("${t}")`); break; }
+      await short.waitForTimeout(120);
+    } catch {
+      await short.waitForTimeout(200);
+    }
+  }
+  if (!(await has2('.results'))) await fail2('the results screen was not reached');
+  console.log(`short stage played in ${Math.round((Date.now() - t0) / 1000)} s`);
+  await short.waitForTimeout(1200);
+  const end2 = await short.locator('.jp-stage-end').innerText();
+  await shot2('02-results');
+  if (!end2.includes('Read the Rival cleared')) await fail2(`the short stage was not cleared: "${end2.split('\n').slice(0, 3).join(' / ')}"`);
+  if ((await short.locator('.jp-stage-end .jp-ms li').count()) !== 3) await fail2('the results do not list the stage\'s three goals');
+  if (!(await has2('.jp-acts button[aria-label="Retry stage 7"]'))) await fail2('the results do not offer Retry');
+  if ((await short.locator('.jp-main').innerText()).trim().toLowerCase() !== 'next stage') await fail2('Next stage is not the first button');
+  console.log('short stage results:', end2.replace(/\s+/g, ' ').slice(0, 200));
+  await short.click('.jp-acts button:has-text("Home")');
+  await short.click('.jh-tiles button:has-text("League")');
+  await short.waitForSelector('.jp-league');
+  if (!(await short.locator('.lg-stop.now').innerText()).includes('Sell Before It Spoils')) await fail2('the road does not show stage 8 next');
+  await shot2('03-road');
+  console.log('league short stage: cleared, stage 8 next; errors:', errors);
   await browser.close();
   if (errors.length) { console.error('League stage FAILED: page errors'); process.exit(1); }
 })().catch((e) => { console.error(e); process.exit(1); });

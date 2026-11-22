@@ -38,6 +38,7 @@ export const achievementFor = (l: Look) => (l.from.kind === 'trophy' ? tierById(
 
 /** True when what is stored says a look has been earned. A pack look is never earned: only the server grants it. */
 export function earned(l: Look, s: Snapshot, level = placeOf(s).level): boolean {
+  if (l.also?.some((id) => s.have.has(id))) return true;
   if (l.from.kind === 'free') return true;
   if (l.from.kind === 'level') return level >= l.from.level;
   if (l.from.kind === 'trophy') return s.have.has(l.from.id) && (!l.from.fair || (s.sets.fair ?? []).includes(l.from.id));

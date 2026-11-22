@@ -68,7 +68,7 @@ export function leagueLine(stage: number): string {
   const st = LEAGUE[stage];
   const names = st.rivals.map((r) => RIVALS[r.idx % RIVALS.length].name);
   const vs = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
-  return `Stage ${stage + 1} of ${LEAGUE.length} · ${st.title} · ${st.days} days vs ${vs}`;
+  return `Stage ${stage + 1} of ${LEAGUE.length} · ${st.title} · ${st.days} ${st.days === 1 ? 'day' : 'days'} vs ${vs}`;
 }
 
 /** The wait's clock: "0:24", "1:05". */

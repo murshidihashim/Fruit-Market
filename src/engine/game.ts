@@ -68,12 +68,43 @@ export interface StageSetup {
   orders?: Record<number, string>;
   /** Customers (CUSTOMER_CARDS names) who come on a day: the first is the expected customer, then the walk-ins. */
   crowd?: Record<number, string[]>;
+  /** PLAN-118: the lorry (FARMER_CARDS name) of a day; a day not in it draws from the deck as usual. */
+  lorry?: Record<number, string>;
   /** Computer seats that price every fruit $1 under the best top price they can see in today's row. */
   undercut?: number[];
+  // PLAN-118: the stage options below. Each is set-up only, read through `stageSetup`, so every other mode ignores it.
+  /** Each seat's cash when the stage opens (by seat; a seat left out starts as usual). */
+  cash?: (number | undefined)[];
+  /** Each seat's shelf when the stage opens: for a fruit, pieces at each shelf position, oldest first (the shape of a
+   *  shelf: see `emptyStock`). A seat or fruit left out starts empty. */
+  shelf?: (Partial<Record<FruitId, number[]>> | undefined)[];
+  /**
+   * Where the stage opens. `day`: the days before it are played out first by real game actions, every seat played by
+   * the computer (see ai.ts `openStage`); the cash and shelf above are then set at that day's dawn and the stage's
+   * record starts there. `at`: the step the person first sees: the morning (default), the standing-order bid, or
+   * buying, with every stall ahead of the person in the line-up already done.
+   */
+  open?: { day?: number; at?: 'morning' | 'order' | 'buy' };
+  /** The seat holding the first-player token (day 1's buying order starts there; otherwise drawn by the seed). */
+  first?: number;
+  /** Rule parts switched off for the stage: favour cards, perks, standing orders, upgrades. */
+  off?: StagePart[];
+  /** Rival habit: a computer seat that first buys `n` pieces of `fruit` each day it can (freshest ripe first). The
+   *  habits act from the day the stage opens. */
+  overbuy?: { seat: number; fruit: FruitId; n: number }[];
+  /** Rival habit: computer seats that bid for every standing order at `price` a piece when they can pay the stake. */
+  bidLow?: { seat: number; price: number }[];
 }
+
+/** PLAN-118: rule parts a stage may switch off. */
+export type StagePart = 'favours' | 'perks' | 'orders' | 'upgrades';
 
 /** The stage set-up in force: only in a Market League game (never in a Daily market). */
 export const stageSetup = (c: GameConfig): StageSetup | undefined => (c.league !== undefined && !c.daily ? c.stage : undefined);
+/** PLAN-118: is a rule part on? Always outside a Market League stage that switches it off. */
+export const partOn = (c: GameConfig, part: StagePart): boolean => !stageSetup(c)?.off?.includes(part);
+/** PLAN-118: the day a stage opens on (1 outside a stage that opens later). */
+export const openDay = (c: GameConfig): number => Math.max(1, stageSetup(c)?.open?.day ?? 1);
 
 export interface Stats {
   sold: number; spoiled: number; earned: number; spent: number; bestSale: number; favours: number;
@@ -356,7 +387,7 @@ export function marketCost(s: GameState, f: FruitId, pos: number): number {
   return Math.max(1, FRUIT[f].cost[stage] + (s.event?.cost ?? 0) + (s.event?.costFruit?.[f] ?? 0));
 }
 
-export const marketDaysOn = (s: GameState): boolean => s.config.marketDays !== false;
+export const marketDaysOn = (s: GameState): boolean => s.config.marketDays !== false && partOn(s.config, 'orders');
 
 /** Market Day: every 3rd day (never the last). Rules 14: it brings a standing order; the lorry still comes. */
 export function isMarketDay(s: GameState, day = s.day): boolean {
@@ -365,7 +396,7 @@ export function isMarketDay(s: GameState, day = s.day): boolean {
 
 /** Specialities are offered on the evening after each Market Day day (3, 6, 9, 12), whether or not Market Days are on. */
 export function isDraftNight(s: GameState, day = s.day): boolean {
-  return s.config.upgrades && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
+  return s.config.upgrades && partOn(s.config, 'upgrades') && day % MARKET_DAY_EVERY === 0 && day < s.config.days;
 }
 
 /** Everything added to a customer's price for this fruit today: the event and (option) the market pulse. Rules 20: the
@@ -588,6 +619,12 @@ function keptBack(s: GameState, name: string, day: number): boolean {
   return !!crowd && Object.entries(crowd).some(([d, names]) => Number(d) > day && names.includes(name));
 }
 
+/** PLAN-118: the lorry a League stage names for a day, or null. */
+function scriptedFarmer(s: GameState, day: number): FarmerCard | null {
+  const n = stageSetup(s.config)?.lorry?.[day];
+  return n === undefined ? null : FARMER_CARDS.find((c) => c.name === n) ?? null;
+}
+
 function drawFarmer(s: GameState): FarmerCard {
   if (s.farmerDeck.length === 0) s.farmerDeck = withRng(s, (r) => r.shuffle(FARMER_CARDS.map((_, i) => i)));
   return FARMER_CARDS[s.farmerDeck.shift()!];
@@ -645,16 +682,72 @@ function age(stock: Stock, steps: number): number {
 function applyTrait(s: GameState, p: number, t: TraitId) {
   const pl = s.players[p];
   pl.trait = t;
-  if (t === 'nestegg') pl.cash = START_CASH + NEST_EGG_BONUS;
-  if (t === 'charmer') for (let k = 0; k < CHARMER_START_FAVOURS; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
+  if (t === 'nestegg') pl.cash = (stageCash(s, p) ?? START_CASH) + NEST_EGG_BONUS;
+  if (t === 'charmer' && partOn(s.config, 'favours')) for (let k = 0; k < CHARMER_START_FAVOURS; k++) { const f = drawFavour(s); if (f) pl.favours.push(f); }
   s.dayStartCash = s.players.map((x) => x.cash);
   s.log.push(`${pl.name} took the perk ${TRAITS[t].title}`);
 }
 
 // ---------- setup ----------
 
+/** PLAN-118: the cash a League stage gives a seat when it opens, if it sets one. */
+function stageCash(s: GameState, p: number): number | undefined {
+  return s.day === openDay(s.config) ? stageSetup(s.config)?.cash?.[p] : undefined;
+}
+
+/**
+ * PLAN-118: a League stage's set-up, checked before the game starts: cash of $0 or more, and a shelf that fits a
+ * stall (its shape, whole pieces, no more than BASE_SHELF in all). Null when it is sound.
+ */
+export function validateStageSetup(c: GameConfig): string | null {
+  const st = stageSetup(c);
+  if (!st) return null;
+  const n = c.players.length;
+  const day = openDay(c);
+  if (day > c.days) return 'The stage opens after its last day';
+  if (st.first !== undefined && (!Number.isInteger(st.first) || st.first < 0 || st.first >= n)) return 'No such seat for the first-player token';
+  for (const [p, cash] of (st.cash ?? []).entries()) if (cash !== undefined && (p >= n || !Number.isInteger(cash) || cash < 0)) return 'Bad starting cash';
+  for (const [p, shelf] of (st.shelf ?? []).entries()) {
+    if (!shelf) continue;
+    if (p >= n) return 'Bad starting shelf';
+    let pieces = 0;
+    for (const [f, t] of Object.entries(shelf) as [FruitId, number[]][]) {
+      if (!FRUIT[f] || t.length !== trackLength(f, c.unripe) || t.some((x) => !Number.isInteger(x) || x < 0)) return 'Bad starting shelf';
+      pieces += t.reduce((a, x) => a + x, 0);
+    }
+    if (pieces > BASE_SHELF) return 'A starting shelf holds no more than a stall can';
+  }
+  return null;
+}
+
+/**
+ * PLAN-118: on the dawn a League stage opens, each seat's cash and shelf are set as the stage says (before the day's
+ * buying order is worked out, so the poorest stall still buys first). When the stage opens after day 1, its record
+ * starts here: the earlier days' history and counts are cleared, so the stage's goals and results read its own days.
+ */
+function stageDawn(s: GameState) {
+  const st = stageSetup(s.config);
+  if (!st || s.day !== openDay(s.config)) return;
+  s.players.forEach((pl, p) => {
+    const cash = st.cash?.[p];
+    if (cash !== undefined) pl.cash = cash;
+    const shelf = st.shelf?.[p];
+    if (shelf) {
+      pl.stock = emptyStock(s.config.unripe);
+      for (const f of FRUITS) if (shelf[f]) pl.stock[f] = [...shelf[f]!];
+    }
+  });
+  if (s.day > 1) {
+    s.history = [];
+    s.players.forEach((pl) => { pl.stats = { sold: 0, spoiled: 0, earned: 0, spent: 0, bestSale: 0, favours: 0 }; });
+    s.log.push(`Day ${s.day}: the stage opens.`);
+  }
+}
+
 export function newGame(config: GameConfig): GameState {
   if (config.players.length < MIN_STALLS || config.players.length > MAX_STALLS) throw new RuleError(`A game needs ${MIN_STALLS} to ${MAX_STALLS} stalls`);
+  const bad = validateStageSetup(config);
+  if (bad) throw new RuleError(bad);
   const r = new Rng(config.seed || 1);
   const players: Player[] = config.players.map((pc) => ({
     ...pc,
@@ -701,6 +794,9 @@ export function newGame(config: GameConfig): GameState {
     history: [],
   };
   if (config.pulse) s.pulse = Object.fromEntries(FRUITS.map((f) => [f, 0])) as Record<FruitId, number>;
+  // PLAN-118: a League stage may say who holds the first-player token (the seed's draw above is made all the same).
+  const first = stageSetup(config)?.first;
+  if (first !== undefined) s.firstPlayer = first;
   const perks = dealPerks(s, r);
   s.rng = r.state;
   // Day 1's crowd: one expected customer (face up) and the walk-ins (face down).
@@ -728,13 +824,15 @@ export function newGame(config: GameConfig): GameState {
 function dealPerks(s: GameState, r: Rng): (TraitId | undefined)[] {
   const all = Object.keys(TRAITS) as TraitId[];
   const taken = new Set<TraitId>();
+  // PLAN-118: a League stage may switch perks off; it then deals as the core market does (none).
+  const noPerks = s.config.core || !partOn(s.config, 'perks');
   const own = s.players.map((pl): TraitId | undefined => {
-    const t = s.config.core ? undefined : CHARACTER_TRAIT[pl.avatar];
+    const t = noPerks ? undefined : CHARACTER_TRAIT[pl.avatar];
     if (t === undefined || taken.has(t)) return undefined;
     taken.add(t);
     return t;
   });
-  const dealt = s.players.map((_, i) => !s.config.core && own[i] === undefined);
+  const dealt = s.players.map((_, i) => !noPerks && own[i] === undefined);
   s.players.forEach((pl, i) => {
     pl.trait = null;
     pl.traitOffer = [];
@@ -767,6 +865,7 @@ export function pickTrait(state: GameState, p: number, t: TraitId): GameState {
 
 function startDay(s: GameState) {
   s.phase = 'morning';
+  stageDawn(s);
   s.event = null;
   // Rules 13: today's event is drawn this morning and never shown the day before. The Health Inspector is never the
   // last day's event.
@@ -813,9 +912,10 @@ function startDay(s: GameState) {
   s.delivery = {};
   s.deliveryUnripe = null;
   delete s.deliveryRipe;
-  // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5).
-  const card = s.nextFarmer ?? drawFarmer(s);
-  s.nextFarmer = s.day < s.config.days ? drawFarmer(s) : null;
+  // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5). PLAN-118: a League
+  // stage may name the lorry of a day.
+  const card = scriptedFarmer(s, s.day) ?? s.nextFarmer ?? drawFarmer(s);
+  s.nextFarmer = s.day < s.config.days ? scriptedFarmer(s, s.day + 1) ?? drawFarmer(s) : null;
   // Rules 16: tomorrow's crowd is drawn this morning (after today's walk-in event), so the Tomorrow strip shows while
   // stalls buy: one expected customer face up, the walk-ins face down. Tomorrow's event is not known yet (rules 13):
   // its walk-in change is made on the morning it is drawn.
@@ -1552,7 +1652,7 @@ function resolve(s: GameState) {
         const p = [...suppliers][0];
         const pl = s.players[p];
         // At most one favour card per shop per day, two for a Charmer (none in the core market).
-        if (!s.config.core && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < dailyFavours(p)) {
+        if (!s.config.core && partOn(s.config, 'favours') && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < dailyFavours(p)) {
           const fav = drawFavour(s);
           if (fav) {
             pl.favours.push(fav);

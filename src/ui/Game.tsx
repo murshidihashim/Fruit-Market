@@ -42,6 +42,8 @@ interface Props {
   onExit: () => void;
   onChange: (s: GameState) => void;
   onRematch: () => void;
+  /** PLAN-118: plays the same Market League stage again. */
+  onRetry?: () => void;
   /** Online play: the server owns the game; this screen sends actions and animates the states it receives. */
   online?: OnlineClient;
   /** The results' second button: the same table again with the person as this shopkeeper (PLAN-086). */
@@ -50,7 +52,7 @@ interface Props {
   onSprint?: () => void;
 }
 
-export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs, onSprint }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, onRetry, online, onPlayAs, onSprint }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
@@ -140,7 +142,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs, o
   if (s.phase === 'over') {
     return (
       <div class="game tkt sbk-over">
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs} onSprint={online ? undefined : onSprint}
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs} onRetry={online ? undefined : onRetry} onSprint={online ? undefined : onSprint}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online}

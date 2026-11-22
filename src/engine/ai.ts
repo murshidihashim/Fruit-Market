@@ -11,7 +11,7 @@ import {
   capAt, capFor, count, effectiveMax, rowCount, rowStock, endBuyTurn, endEvening, finishReveal, forSale, minPrice,
   openStall, playFavour, priceMod, rowCustomers, shelfSize, submitPrices, validatePrices, validateStall, buyLimit,
   bidOrder, isMarketDay, shelfPos, crateCounts, orderDueToday, outCount, publicView, boughtStock, emptyStock, orderStake,
-  decideTie, rushIncome, eveningOpen, stageSetup,
+  decideTie, rushIncome, eveningOpen, stageSetup, openDay,
   type Crate, type Customer, type GameState, type Level, type Post, type Stall, type Standing, type Stock,
 } from './game';
 import { Rng } from './rng';
@@ -395,7 +395,7 @@ function bestPost(s: GameState, p: number, f: FruitId, myUnits: number, rivalUni
   const topCap = Math.min(maxPrice(s, f), Math.max(...lines.map((l) => bestCap(sellStock(s, p), f, l.m, pl, l.pref, l.fixed))));
   const lastDay = s.day >= s.config.days;
   // PLAN-115: a league stage's undercutting computer simply asks $1 under the best top price it sees in today's row.
-  if (depth === 0 && pl.kind === 'ai' && stageSetup(s.config)?.undercut?.includes(p)) return { price: Math.max(minPrice(s, f), topCap - 1), sold: mine.length };
+  if (depth === 0 && pl.kind === 'ai' && s.day >= openDay(s.config) && !!stageSetup(s.config)?.undercut?.includes(p)) return { price: Math.max(minPrice(s, f), topCap - 1), sold: mine.length };
   const rotsTonight = pl.stock[f][0] > 0;
   const floor = Math.max(minPrice(s, f), rotsTonight || lastDay ? 1 : lv === 'easy' ? 3 : 2);
   const rivals = s.players.map((_, i) => i).filter((i) => i !== p && rivalUnits(i) > 0);
@@ -617,6 +617,57 @@ export function pickUpgrade(s: GameState, p: number, skip?: UpgradeId): UpgradeI
   return (best as { u: UpgradeId; v: number } | null)?.u ?? null;
 }
 
+/**
+ * PLAN-118: a League stage's rival habit: a computer seat that first buys `n` pieces of one fruit each day (the
+ * freshest ripe pieces it can), whatever it thinks of them. Null when it has its pieces or cannot buy more.
+ */
+function overbuy(s: GameState, p: number): GameState | null {
+  const pl = s.players[p];
+  const h = pl.kind === 'ai' && s.day >= openDay(s.config) ? stageSetup(s.config)?.overbuy?.find((x) => x.seat === p) : undefined;
+  if (!h) return null;
+  const got = (pl.boughtFruit?.[h.fruit] ?? []).reduce((a, x) => a + x, 0);
+  if (got >= h.n) return null;
+  for (let pos = FRUIT[h.fruit].ripe.length - 1; pos >= 0; pos--) if (!canBuy(s, p, h.fruit, pos)) return buy(s, p, h.fruit, pos);
+  return null;
+}
+
+/**
+ * PLAN-118: brings a new Market League game to where its stage opens (`StageSetup.open`), by real game actions only:
+ * the days before the opening day are played by the computer for every seat (the person's as a Normal computer);
+ * then, on the opening day, the game goes on to the step the stage opens at, with every computer ahead of the person
+ * already done. Any other game comes back as it is.
+ */
+export function openStage(state: GameState): GameState {
+  const open = stageSetup(state.config)?.open;
+  if (!open || state.phase === 'over') return state;
+  const day = openDay(state.config);
+  const at = open.at ?? 'morning';
+  let s = state;
+  for (let guard = 0; guard < 5000 && s.phase !== 'over'; guard++) {
+    if (s.day === day) {
+      // The opening day: past the morning (unless the stage opens there), the computers ahead of the person bid or
+      // buy, and the game stops where the person is first asked to decide.
+      if (s.phase === 'morning') { if (at === 'morning') return s; s = beginBuying(s); continue; }
+      const p = activePlayer(s);
+      if ((s.phase !== 'order' && s.phase !== 'buy') || p < 0 || s.players[p].kind !== 'ai') return s;
+      const next = aiActFor(s, p);
+      if (!next) return s;
+      s = next;
+      continue;
+    }
+    if (s.phase === 'morning') s = beginBuying(s);
+    else if (s.phase === 'reveal') s = finishReveal(s);
+    else {
+      // Every seat is played by the computer before the stage opens: the person's as a Normal computer.
+      const p = s.phase === 'evening' ? s.order.find((q) => eveningOpen(s, q)) ?? activePlayer(s) : activePlayer(s);
+      const next = p >= 0 ? aiActFor(s, p) : null;
+      if (!next) throw new Error(`Stage opening stuck in ${s.phase}`);
+      s = next;
+    }
+  }
+  return s;
+}
+
 /** Performs one action for the AI whose turn it is. Returns null when it is not an AI's turn. */
 export function aiStep(s: GameState): GameState | null {
   if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
@@ -634,8 +685,15 @@ export function aiActFor(s: GameState, p: number): GameState | null {
   if (s.phase === 'morning' || s.phase === 'reveal' || s.phase === 'over') return null;
   if (s.phase === 'evening' ? !eveningOpen(s, p) : activePlayer(s) !== p) return null;
   const pl = s.players[p];
-  if (s.phase === 'order') return bidOrder(s, p, planOrderBid(s, p));
+  if (s.phase === 'order') {
+    // PLAN-118: a League stage's eager bidder bids its set price whenever it can pay the stake.
+    const low = pl.kind === 'ai' && s.day >= openDay(s.config) ? stageSetup(s.config)?.bidLow?.find((x) => x.seat === p) : undefined;
+    if (low && s.standing && pl.cash >= orderStake(s, p)) return bidOrder(s, p, Math.min(s.standing.ceiling, low.price));
+    return bidOrder(s, p, planOrderBid(s, p));
+  }
   if (s.phase === 'buy') {
+    const habit = overbuy(s, p);
+    if (habit) return habit;
     const fav = buyPhaseFavour(s, p);
     if (fav) return fav;
     if (pl.boughtToday < buyLimit(pl)) {

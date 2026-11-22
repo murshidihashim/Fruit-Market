@@ -5,7 +5,7 @@ import { winners, type GameConfig, type GameState } from '../engine/game';
 import { lookById } from '../net/looks';
 import { loadDaily, loadStats, saveDaily, saveStats } from './store';
 import { ACHIEVEMENTS, evaluate, standing, tierById, type Achievement, type Counts, type Facts, type Sets, type Snapshot } from './achievements';
-import { LEAGUE, STAR_IDS } from './campaign';
+import { ALL_STAGES, heldStars, isExpert, lastDay, stageCleared } from './campaign';
 import { earnLines, placeAt, stampsOf, type EarnLine, type Place } from './stamps';
 import { C } from './palette';
 import { profileChanged } from './changed';
@@ -98,6 +98,8 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
   const fresh = !seen.includes(key);
   syncTiers();
   const beforeStamps = stampsOf(snapshot()).total;
+  // PLAN-118: the stars held before the game counts (a clear moves the ladder, which brings the stage's clear star).
+  const starsBefore = myStars();
   let firstDaily = false;
   let cleared = false;
   if (fresh) {
@@ -119,7 +121,6 @@ export function finishGame(g: GameState, me: number, online = false): GameSummar
     try { localStorage.setItem(COUNTED_KEY, JSON.stringify([...seen, key].slice(-12))); } catch { /* storage unavailable */ }
   }
   const have = unlocked();
-  const starsBefore = myStars();
   const r = evaluate(g, me, { ...snapshot(), online, count: fresh });
   if (!r.facts) return null;
   saveSets(r.sets);
@@ -151,34 +152,39 @@ export function unlockAchievement(id: string): Achievement | null {
 
 // ---------- Market League ----------
 
-// PLAN-115: the six stages are authored scenarios (campaign.ts). A player's saved stage number still means the same
-// place on the ladder: a player at stage N plays stage N.
-export { LEAGUE, type Stage } from './campaign';
+// PLAN-115: the stages are authored scenarios (campaign.ts). A player's saved stage number still means the same place
+// on the ladder: a player at stage N plays stage N. PLAN-118: the ladder has twelve stages (the first six are the six it
+// had), so a player who had cleared all six now finds stage 7 open. Expert stages are off the ladder (numbers 12 on).
+export { ALL_STAGES, EXPERTS, LEAGUE, type Stage } from './campaign';
 
 export const leagueStage = (): number => { const n = readJson<unknown>(LADDER_KEY, 0); return typeof n === 'number' && Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0; };
 export const saveLeagueStage = (n: number) => writeJson(LADDER_KEY, n);
 
 /** A stage's game: its rivals, length and fixed seed, and the cards its set-up names. No upgrades: a short stage is
- *  about its one lesson. `seed` replaces the stage's own (for tests and the balance run). */
+ *  about its one lesson. `seed` replaces the stage's own (for tests and the balance run). A stage that opens part-way
+ *  (its set-up's `open`) is brought there by ai.ts `openStage` once the game is made (see `leagueGame`). */
 export function leagueConfig(stage: number, name: string, avatar: string, seed?: number): GameConfig {
-  const st = LEAGUE[Math.min(Math.max(0, stage), LEAGUE.length - 1)];
+  const no = Math.min(Math.max(0, Math.floor(stage)), ALL_STAGES.length - 1);
+  const st = ALL_STAGES[no];
   return {
     players: [
       { name, kind: 'human', avatar },
       ...st.rivals.map((r) => ({ ...RIVALS[r.idx % RIVALS.length], kind: 'ai' as const, level: r.level })),
     ],
-    days: st.days, unripe: true, upgrades: false, events: true, seed: seed ?? st.seed, marketDays: st.marketDays,
-    league: Math.min(Math.max(0, stage), LEAGUE.length - 1), stage: st.setup,
+    days: lastDay(st), unripe: true, upgrades: false, events: true, seed: seed ?? st.seed, marketDays: st.marketDays,
+    league: no, stage: st.setup,
   };
 }
 
-/** PLAN-115: the campaign's stars this phone holds (mastery goal ids, kept in the set "stars"). */
-export const myStars = (): string[] => (loadSets().stars ?? []).filter((id) => STAR_IDS.includes(id));
+/** PLAN-115: the campaign's stars this phone holds (goal ids, kept in the set "stars"); PLAN-118: with the clear star
+ *  of each stage passed and the stars kept from retired goals (campaign.ts heldStars). */
+export const myStars = (): string[] => heldStars(loadSets().stars ?? [], leagueStage());
 
-/** Moves the player up a stage after a league game they won on the stage they were on. */
+/** Moves the player up a stage after a league game that met the clear goal of the stage they were on. Expert stages
+ *  are off the ladder. */
 function advanceLeague(g: GameState, me: number): boolean {
   const stage = g.config.league;
-  if (stage === undefined || stage !== leagueStage() || !winners(g).includes(me)) return false;
+  if (stage === undefined || isExpert(stage) || stage !== leagueStage() || !stageCleared(g, me)) return false;
   writeJson(LADDER_KEY, stage + 1);
   return true;
 }

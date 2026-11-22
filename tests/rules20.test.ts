@@ -54,6 +54,11 @@ describe('C-01: the Market League deals only perks no rival holds', () => {
     for (let stage = 0; stage < LEAGUE.length; stage++) {
       for (let seed = 1; seed <= 150; seed++) {
         const s = newGame(leagueConfig(stage, 'You', '🧑‍🍳', seed));
+        // PLAN-118: a stage that switches perks off deals none, to anyone.
+        if (LEAGUE[stage].setup.off?.includes('perks')) {
+          expect(s.players.every((p) => !p.trait && !p.traitOffer?.length), `stage ${stage + 1}`).toBe(true);
+          continue;
+        }
         const rivals = rivalsPerks(s, 0);
         expect(rivals.length).toBe(LEAGUE[stage].rivals.length);
         // at least five perks are free at every stage, so the person always has three to choose from
