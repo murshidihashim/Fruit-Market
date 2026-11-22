@@ -3138,7 +3138,7 @@
       "id": "DEC-127",
       "title": "The Market League as a 120-stage campaign with a trophy road, and a clear job for each mode",
       "question": "How should the League grow into a long campaign whose stages each pose a new problem, with trophies that show mastery, while each mode keeps a distinct job?",
-      "choice": "Proposed: a data-driven stage format on the same engine (starting stock, cash, phase, 1 to 6 days, rule parts, goals); a 12-stage pilot chapter with a League road, 3 stars a stage and three mastery trophies (PLAN-118, 1.28.0); the Play menu grouped by mode, a Sprint week of the best 5 days and League-to-Daily/Sprint links (PLAN-119); later chapters of ten as their own plans, measured before committing to 120 (REP-134).",
+      "choice": "a data-driven stage format on the same engine (starting stock, cash, phase, 1 to 6 days, rule parts, goals); a 12-stage pilot chapter with a League road, 3 stars a stage and three mastery trophies (PLAN-118, 1.28.0); the Play menu grouped by mode, a Sprint week of the best 5 days and League-to-Daily/Sprint links (PLAN-119); later chapters of ten as their own plans, measured before committing to 120 (REP-134).",
       "rationale": "The owner's brief: each stage should change what you are trying to do, the climb should be visible, and trophies should say something about how you play.",
       "impact": {
         "player": "A League that teaches a new decision each stage, a visible road and mastery trophies; clearer modes.",
@@ -3148,11 +3148,11 @@
       "cost": "RM0.",
       "owner": "Murshidi",
       "approval": {
-        "status": "proposed",
-        "evidence": "",
-        "date": ""
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
+        "date": "2026-11-22"
       },
-      "delivery": "not started",
+      "delivery": "in progress",
       "plan": "PLAN-118",
       "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
       "reports": [
@@ -4560,6 +4560,10 @@
     {
       "at": "2026-11-22 15:33",
       "text": "Owner brief: the Market League as a 120-stage campaign with its own trophy road; a job for each mode; build a 12-stage pilot first. Proposed as DEC-127 with PLAN-118 (pilot, road, mastery trophies, 1.28.0) and PLAN-119 (mode jobs, Sprint week of best 5 days, League links) in REP-134; later chapters of ten as their own plans. Three questions to the owner. Awaiting approval."
+    },
+    {
+      "at": "2026-11-22 15:41",
+      "text": "Owner approved DEC-127, PLAN-118 and PLAN-119 with the recommended answers: \"approve plan 118 and 119, use your picks\". Stars: 1 for the clear plus 2 optional per stage, earned stars kept; the Sprint week counts the best 5 days; 1.27.0 is published first after the owner's preview test and the pilot follows as 1.28.0. So PLAN-116 and PLAN-117 join release candidate 1.27.0 and go to the preview for that test. Delivery in progress."
     }
   ]
 }
