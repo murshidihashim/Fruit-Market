@@ -361,10 +361,10 @@ export const EXPERTS: Stage[] = [
       { stars: ['xr_melon'], text: 'You took the watermelons and left me with apples. Again.' },
       { text: 'You read me again. Well played.' },
     ],
-    clear: { id: 'xr_clear', text: 'End the day ahead of Rosa', met: (g, me) => aheadBy(g, me, 1) },
+    clear: { id: 'xr_clear', text: 'End the day ahead of Rosa', met: (g, me) => g.players[me].cash - g.players[1].cash >= 1 },
     mastery: [
       { id: 'xr_melon', text: 'Take $10 or more for watermelons', met: (g, me) => takings(g, me, 'watermelon') >= 10 },
-      { id: 'xr_ahead', text: 'End the day $5 ahead of Rosa', met: (g, me) => aheadBy(g, me, 5) },
+      { id: 'xr_ahead', text: 'End the day $5 ahead of Rosa', met: (g, me) => g.players[me].cash - g.players[1].cash >= 5 },
     ],
     expert: { of: 6, stars: 12 },
   },

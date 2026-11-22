@@ -1,5 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
+import { traitPicker } from './game/turn';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { FAVOURS } from '../engine/data';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
@@ -156,9 +157,7 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const bidder = online ? viewer : active;
   // On the first morning each person picks a merchant trait (online: only your own seat).
-  const picker = s.phase !== 'morning' || s.day !== 1 ? -1
-    : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
-    : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
+  const picker = traitPicker(s, viewer, !!online);
   // PLAN-113: while the guided first sale is on, it does the coach's Day 1 job.
   const coach = online || busy || c.guided ? null : tipFor(s, {
     // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)

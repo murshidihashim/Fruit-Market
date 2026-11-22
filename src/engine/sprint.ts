@@ -31,7 +31,11 @@ export function sprintReason(s: GameState, viewer: number): SprintReason | null 
   let sale: Sale | null = null;
   let under: Lost | null = null;
   for (const d of hist) {
-    for (const l of d.lines) {
+    // REP-135 RA-03: a lower price that sold first only cost you pieces that then stayed unsold. Pieces of the same fruit
+    // you sold to later customers that day are taken off (the crate's full count is not in the record, so this never
+    // claims more than was lost).
+    const laterSold = (from: number, f: string) => d.lines.slice(from + 1).reduce((a, x) => a + (x.fruit === f ? x.offers.find((o) => o.player === viewer)?.sold ?? 0 : 0), 0);
+    for (const [li, l] of d.lines.entries()) {
       const mine = l.offers.find((o) => o.player === viewer);
       if (!mine) continue;
       if (mine.sold > 0) {
@@ -47,7 +51,8 @@ export function sprintReason(s: GameState, viewer: number): SprintReason | null 
       // Every lower price that sold to this customer while your crate sold nothing: the pieces you could have sold.
       const cheaper = l.offers.filter((o) => o.player !== viewer && o.sold > 0 && o.price < mine.price);
       if (!cheaper.length) continue;
-      const lost = Math.min(mine.qty, cheaper.reduce((a, o) => a + o.sold, 0)) * mine.price;
+      const lost = Math.max(0, Math.min(mine.qty, cheaper.reduce((a, o) => a + o.sold, 0)) - laterSold(li, l.fruit)) * mine.price;
+      if (lost <= 0) continue;
       const lead = cheaper.reduce((a, o) => (o.sold > a.sold || (o.sold === a.sold && o.price < a.price) ? o : a));
       if (!under || lost > under.lost) under = { lost, day: d.day, rival: lead.player, who: lookOf(l.name).title, theirs: lead.price, mine: mine.price };
     }
