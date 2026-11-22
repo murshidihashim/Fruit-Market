@@ -67,6 +67,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   // PLAN-116 (REP-133 B-04): keyboard focus stays inside a pop-up (here the reactions); Escape closes it.
   await A.page.waitForTimeout(2100);
   await A.page.click('[data-a="react"]');
+  // focus moves onto the pop-up as it opens (after it is drawn)
+  await A.page.waitForFunction(() => !!document.activeElement?.closest('.rx-pick .popup'), null, { timeout: 3000 });
   for (let i = 0; i < 16; i++) {
     await A.page.keyboard.press(i < 12 ? 'Tab' : 'Shift+Tab');
     if (!(await A.page.evaluate(() => !!document.activeElement?.closest('.popup')))) throw new Error(`focus left the reaction pop-up after ${i + 1} key presses`);
