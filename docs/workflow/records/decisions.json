@@ -3102,7 +3102,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
         "date": "2026-11-22"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-116",
       "reviewTrigger": "After the owner tries the fixed build on the preview.",
       "reports": [
@@ -3127,7 +3127,7 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
         "date": "2026-11-22"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-117",
       "reviewTrigger": "Win shares over 1,000 dates in the balance run, and two weeks of daily board scores after release.",
       "reports": [
@@ -4527,6 +4527,10 @@
     {
       "at": "2026-11-22 13:37",
       "text": "Owner approved PLAN-116 (the 1.27.0 review fixes, DEC-125), the tidy of the online first-time text (B-06), and a balance change: \"approve plan 116, yes to 2, yes to 3\". The balance change is recorded as DEC-126 / PLAN-117: Uncle Benny plays at Normal in the Daily market and the Sprint. Delivery in progress for both."
+    },
+    {
+      "at": "2026-11-22 15:21",
+      "text": "PLAN-116 and PLAN-117 implemented and merged (verified at 9cfe292); T1 to T3 PASS, T4 (the owner on the preview) not run. Merging the two parts left Home without one import; added and verified. Daily market now even (each stall about a quarter of wins); in the Sprint Ah Chen wins 41.7% (Charmer perk), left for its own plan. Not done here: game-table labels at 10 to 11 px, the 320 px action bar over the last market row, the print kit's tie wording, 16 empty level rewards (levels 12 to 30)."
     }
   ]
 }

@@ -17,20 +17,20 @@
     {
       "id": "T1",
       "text": "npm run verify with tests for the fixed findings",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (9cfe292): 102 test files, 1152 passed, 1 skipped (as before); new tests review-127-a (18) and review-133-b"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e plus a one-phone double-tap step; 0 leaks",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8819 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo with the guided first sale; League stage 1 cleared; one phone: 3 hand-overs checked with double taps (new step); online match finished, rematch, leaver taken over, 0 leaks in 66 pricing frames; public room 4/4 reactions, 0 leaks, pop-up focus and Escape, reaction button clear of the market; Sprint and Try again; four players with \"Invite\" words; 5 reconnects. Speed check failed once (319 ms, shared machine) and passed on the retry"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568 (scratchpad p116-a/shots, p116-b menus, home, online, quick, each with contrast, clipping and touch-area reports); reviewed the online buying screen at 320 (reaction button clear of the market)"
     },
     {
       "id": "T4",
@@ -44,9 +44,9 @@
     "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
     "date": "2026-11-22"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
-  "build": "not started",
+  "build": "branch ccr-d8bcd65d-gblqqb, merges 8b1e3f2 (part A) and part B, fix 9cfe292",
   "reports": [
     "REP-133"
   ],
@@ -54,10 +54,28 @@
     "DEC-125"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Tap a small customer card on Home, set-up or the Quick match wait to see the whole card"
+    ],
+    "changed": [
+      "League: true host lines, card names, $8 resort-order star, each rival with its level, stage 3 renamed The Resort Order",
+      "Continue names the mode; dates read like 22 Nov; your row on the boards reads You",
+      "One set of words: Stamp book, the tie order, game lengths Quick, Standard, Long",
+      "The online first-time text without exclamation marks"
+    ],
+    "fixed": [
+      "One phone: nothing can be tapped for the next person until the hand-over",
+      "Daily card shows the prices the game will use on Fixed prices days",
+      "Best day matches the day's takings; a missed standing order shows on the one-phone note",
+      "Private room: long names wrap; the invite line counts free seats",
+      "Reaction button clear of prices and headers, 44 px touch areas; pop-ups keep keyboard focus; contrast and text size raised"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "One phone: the next person's turn cannot be tapped by mistake before the hand-over",
+    "The Daily card shows the real prices on Fixed prices days",
+    "League: host lines match what you did, and the resort-order star is $8",
+    "Clearer screens: tap a small card to see it whole, long names fit, bigger tap targets"
+  ]
 }
