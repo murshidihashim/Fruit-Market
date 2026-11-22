@@ -1,0 +1,63 @@
+{
+  "id": "PLAN-122",
+  "title": "Home centred, and the Level box opens the Stamp book",
+  "problem": "On taller phones Home leaves a large empty space between the mode cards and the bottom strip, and the Level box looks like a button but does nothing.",
+  "scope": [
+    "The stall row and the mode cards sit in the middle of the space between the title and the bottom strip",
+    "The Level box on Home becomes a button (44 px or taller) that opens the Stamp book"
+  ],
+  "exclusions": [
+    "No rule, save or mode change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "npm run verify: 1226 passed, 1 skipped (as before)"
+    },
+    {
+      "id": "T2",
+      "text": "Home still fits one screen at 412x915, 393x852, 390x844, 375x667 and 360x640, with a saved game in every mode and a 14-letter name",
+      "result": "PASS",
+      "evidence": "Measured in scratchpad p121/fit.cjs: page height equals screen height at every size; at 412x915 the space above and below the middle block is even (56 px each, plus the 12 px gap)"
+    },
+    {
+      "id": "T3",
+      "text": "Tapping the Level box opens the Stamp book",
+      "result": "PASS",
+      "evidence": "Browser check at 412x915 and 360x640: after the tap the Stamp book screen shows; the box is 44 px tall"
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23 (with a screenshot of Home at Level 6): \"make it so that its more centred and the level 6 box opens up to the stamp box\"",
+    "date": "2026-11-23"
+  },
+  "delivery": "implemented",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-130"
+  ],
+  "changes": {
+    "added": [
+      "The Level box on Home opens the Stamp book"
+    ],
+    "changed": [
+      "Home centres the stall and the mode cards between the title and the bottom strip"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Home is centred on taller phones, and tapping your level opens the Stamp book"
+  ]
+}
