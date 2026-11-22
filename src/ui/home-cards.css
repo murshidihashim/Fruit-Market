@@ -1,0 +1,188 @@
+/* =====================================================================
+   PLAN-120: Home's stall and its three mode cards (HomeCards.tsx), and the Daily intro (DailyIntro.tsx). The same look
+   as the rest of Home (journey-home.css): ink edges, paper, mustard actions, square corners. The row of cards is the
+   browser's own sideways scroll with snap points; nothing here is animated.
+   ===================================================================== */
+
+/* ---------- your stall ---------- */
+.home.hm.jh .jh-stall2 {
+  position: relative; flex: none; margin: 0 16px; overflow: hidden; background: var(--j-melon); box-shadow: inset 0 0 0 3px var(--j-ink);
+  display: flex; flex-direction: column; padding: 3px 3px 0;
+}
+.home.hm.jh .jh-awn2 { flex: none; height: 22px; border-bottom: 3px solid var(--j-ink); }
+.home.hm.jh .jh-st-in { display: flex; align-items: flex-end; gap: 12px; padding: 12px 12px 0; min-height: 150px; }
+.home.hm.jh .jh-keeper { flex: none; align-self: center; padding: 8px 0 44px; line-height: 0; }
+.home.hm.jh .jh-keeper .sbk-face { border-width: 3px; border-color: var(--j-ink); padding: 0; background: var(--j-tint); }
+.home.hm.jh .jh-st-side { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.home.hm.jh .jh-sign {
+  max-width: 100%; box-sizing: border-box; padding: 6px 9px; background: var(--j-paper); box-shadow: inset 0 0 0 2.5px var(--j-ink);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.home.hm.jh .jh-sign b { font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.home.hm.jh .jh-sign small { font: 700 0.75rem/1.1 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-counter { position: relative; display: flex; align-items: flex-end; gap: 6px; padding-bottom: 44px; }
+.home.hm.jh .jh-crate { position: relative; display: flex; flex-direction: column; align-items: center; }
+.home.hm.jh .jh-crate-fruit { display: flex; gap: 1px; margin-bottom: -7px; position: relative; z-index: 1; }
+.home.hm.jh .jh-crate-box { display: block; overflow: hidden; line-height: 0; }
+.home.hm.jh .jh-crate-box img { display: block; }
+.home.hm.jh .jh-prop2 { flex: none; }
+.home.hm.jh .jh-tag2 { position: absolute; left: 50%; bottom: 50px; transform: translateX(-50%); z-index: 2; }
+.home.hm.jh .jh-next2 {
+  position: absolute; left: 10px; right: 10px; bottom: 9px; max-width: max-content; padding: 6px 9px; background: var(--j-ink); color: var(--j-paper);
+  font: 700 0.8125rem/1.25 var(--f-label);
+}
+.home.hm.jh .jh-next2 b { color: var(--j-yel); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
+
+/* ---------- the row of mode cards ---------- */
+.home.hm.jh .jh-modes { flex: none; display: flex; flex-direction: column; gap: 8px; }
+.home.hm.jh .jh-row {
+  position: relative; display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 16px;
+  padding: 0 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.home.hm.jh .jh-row::-webkit-scrollbar { display: none; }
+/* each card is as tall as what it holds (the row is as tall as the tallest) */
+.home.hm.jh .jh-row { align-items: flex-start; }
+/* each mode's one-line reason (PLAN-119, playMenu.ts MODE_REASON), at the top of its card */
+.home.hm.jh .jh-why { font: 700 0.875rem/1.25 var(--f-label); color: var(--j-ink); }
+.home.hm.jh .jh-card .jh-decho { display: block; }
+.home.hm.jh .jh-card {
+  flex: 0 0 calc(100% - 46px); max-width: 480px; box-sizing: border-box; scroll-snap-align: start; scroll-snap-stop: always;
+  display: flex; flex-direction: column; background: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px;
+}
+.home.hm.jh .jh-ch {
+  min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
+  font: 800 0.8125rem/1.15 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.home.hm.jh .jh-ch span { min-width: 0; padding: 5px 0; overflow-wrap: anywhere; }
+.home.hm.jh .jh-ch small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); white-space: nowrap; }
+.home.hm.jh .jh-cb { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px 8px 8px; }
+.home.hm.jh .jh-cmain, .home.hm.jh .jh-cplay, .home.hm.jh .jh-wait { margin-top: auto; }
+.home.hm.jh .jh-cplay { margin-bottom: 5px; min-height: 72px; font-size: 2rem; }
+.home.hm.jh .jh-wait { display: flex; flex-direction: column; gap: 8px; }
+.home.hm.jh .jh-cgo {
+  min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 12px; background: var(--j-yel); color: var(--j-ink);
+  box-shadow: inset 0 0 0 3px var(--j-ink), 0 4px 0 var(--j-ink); margin-bottom: 4px; text-align: left;
+}
+.home.hm.jh .jh-cgo span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.home.hm.jh .jh-cgo b { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-cgo small { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.04em; }
+.home.hm.jh .jh-cgo svg { flex: none; }
+.home.hm.jh .jh-cgo:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 1px 0 var(--j-ink); }
+.home.hm.jh .jh-c2 { min-height: 44px; }
+
+/* the Play card */
+.home.hm.jh .jh-ways { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.home.hm.jh .jh-ways li { display: flex; flex-direction: column; gap: 2px; padding: 7px 8px; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+.home.hm.jh .jh-ways b { font: 400 0.9375rem/1.05 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-ways span { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-vs { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 0; }
+.home.hm.jh .jh-vs i { font: 400 1rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 4px; }
+.home.hm.jh .jh-vs .xf, .home.hm.jh .jh-round .xf { border-radius: 50%; }
+.home.hm.jh .jh-vs > .xf { box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+.home.hm.jh .jh-vs .sbk-face, .home.hm.jh .jh-lgvs .sbk-face, .home.hm.jh .jh-trow .sbk-face { border-radius: 50%; border-width: 2px; padding: 0; }
+.home.hm.jh .jh-vs .sbk-face .xf, .home.hm.jh .jh-vs .sbk-face .xf-img, .home.hm.jh .jh-vs .sbk-face .xf-clip,
+.home.hm.jh .jh-lgvs .sbk-face .xf, .home.hm.jh .jh-lgvs .sbk-face .xf-img, .home.hm.jh .jh-lgvs .sbk-face .xf-clip,
+.home.hm.jh .jh-trow .sbk-face .xf, .home.hm.jh .jh-trow .sbk-face .xf-img, .home.hm.jh .jh-trow .sbk-face .xf-clip { border-radius: 50%; }
+.home.hm.jh .jh-trow { display: flex; flex-wrap: wrap; gap: 6px; }
+.home.hm.jh .jh-tr { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px 3px 3px; box-shadow: inset 0 0 0 2px var(--j-ink); font: 400 0.875rem/1 var(--f-display); }
+.home.hm.jh .jh-tr.me { background: var(--j-yel); }
+
+/* the Market League card */
+.home.hm.jh .jh-lgpic { position: relative; line-height: 0; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { display: block; width: 100%; height: 118px; object-fit: cover; }
+.home.hm.jh .jh-lgvs { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; background: var(--j-ink); color: var(--j-paper); }
+.home.hm.jh .jh-lgvs i { font: 400 0.875rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 3px; }
+.home.hm.jh .jh-round { display: inline-flex; border: 2px solid var(--j-paper); border-radius: 50%; background: var(--j-tint); line-height: 0; }
+.home.hm.jh .jh-lgt { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-lgg { font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-lgs { display: flex; align-items: center; gap: 8px; }
+.home.hm.jh .jh-lgs small { font: 700 0.75rem/1 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-lgs .jp-star path { fill: none; stroke: var(--j-ink); }
+.home.hm.jh .jh-lgs .jp-star.on path { fill: var(--j-yel); }
+.home.hm.jh .jh-lgtr { padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.8125rem/1.3 var(--f-label); }
+.home.hm.jh .jh-lgtr b { font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.75rem; margin-right: 3px; }
+
+/* the Daily market card */
+.home.hm.jh .jh-card .jh-db { padding: 0; }
+.home.hm.jh .jh-dtw { font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-dtw b { color: var(--j-ink); }
+.home.hm.jh .jh-dme { font: 800 0.8125rem/1.3 var(--f-label); }
+.home.hm.jh .jh-sp2 { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--j-tint); box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-sp2-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.home.hm.jh .jh-sp2-tx b { font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-sp2-tx small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-sp2 .jh-dgo { margin: 0; flex: none; min-width: 112px; }
+.home.hm.jh .jh-sp2 .jh-cgo { margin: 0; flex: none; min-height: 48px; padding: 4px 10px; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-sp2 .jh-cgo b { font-size: 1rem; }
+
+/* the arrows and the dots */
+.home.hm.jh .jh-nav { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 16px; }
+.home.hm.jh .jh-arr {
+  width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 2.5px var(--j-ink); color: var(--j-ink); background: var(--j-paper);
+}
+.home.hm.jh .jh-arr:disabled { opacity: 0.35; }
+.home.hm.jh .jh-dots { display: flex; }
+.home.hm.jh .jh-dot { width: 44px; height: 44px; display: grid; place-items: center; }
+.home.hm.jh .jh-dot i { width: 12px; height: 12px; box-sizing: border-box; border: 2.5px solid var(--j-ink); background: var(--j-paper); }
+.home.hm.jh .jh-dot.on i { width: 26px; background: var(--j-ink); }
+.home.hm.jh .jh-arr:focus-visible, .home.hm.jh .jh-dot:focus-visible { outline: 3px solid var(--j-yel); outline-offset: -3px; }
+
+/* the tiles under the cards: two now (the League has a card of its own) */
+.home.hm.jh .jh-tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+@media (max-width: 379px) {
+  .home.hm.jh .jh-stall2 { margin: 0 12px; }
+  .home.hm.jh .jh-st-in { gap: 8px; padding: 10px 8px 0; min-height: 132px; }
+  .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 84px !important; height: 84px !important; }
+  .home.hm.jh .jh-row { padding: 0 12px 6px; scroll-padding: 0 12px; gap: 8px; }
+  .home.hm.jh .jh-card { flex-basis: calc(100% - 36px); }
+  .home.hm.jh .jh-nav { margin: 0 12px; }
+  .home.hm.jh .jh-crate { transform-origin: left bottom; }
+}
+@media (max-width: 339px) {
+  .home.hm.jh .jh-crate-fruit .fruit-svg, .home.hm.jh .jh-crate-fruit svg { width: 18px; height: 18px; }
+  .home.hm.jh .jh-keeper { padding-bottom: 40px; }
+  .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 70px !important; height: 70px !important; }
+  .home.hm.jh .jh-cb .jh-db { flex-direction: column; align-items: stretch; }
+  .home.hm.jh .jh-cb .jh-dcard { align-self: center; }
+  .home.hm.jh .jh-ways { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- the Daily intro ---------- */
+.sbk.jh-intro .jh-in { padding: 12px 12px 24px; gap: 12px; box-sizing: border-box; }
+.sbk.jh-intro .jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: inherit; }
+.sbk.jh-intro .jh-kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); box-shadow: inset 0 0 0 2.5px var(--k-ink); }
+.sbk.jh-intro .jh-kinds button { min-height: 44px; text-align: center; font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.sbk.jh-intro .jh-kinds button.on { background: var(--k-ink); color: var(--k-yel); }
+.sbk.jh-intro .jh-ihero { padding: 12px 10px; background: var(--k-ink); color: var(--k-paper); display: flex; flex-direction: column; gap: 6px; }
+.sbk.jh-intro .jh-ihero h2 { font: 400 1.625rem/1 var(--f-display); text-transform: uppercase; }
+.sbk.jh-intro .jh-igoal { font: 600 0.9375rem/1.35 var(--f-label); }
+.sbk.jh-intro .jh-ivs { display: flex; gap: 10px; align-items: flex-start; margin-top: 4px; }
+.sbk.jh-intro .jh-icard { flex: none; --card-w: 128px; }
+.sbk.jh-intro .jh-iside { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.sbk.jh-intro .jh-iwho { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; margin-bottom: 4px; }
+.sbk.jh-intro .jh-ifaces { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.sbk.jh-intro .jh-ifaces i { font: 400 0.875rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 2px; }
+.sbk.jh-intro .jh-ifaces .sbk-face { border-radius: 50%; border-width: 2px; padding: 0; }
+.sbk.jh-intro .jh-ifaces .sbk-face .xf, .sbk.jh-intro .jh-ifaces .sbk-face .xf-img, .sbk.jh-intro .jh-ifaces .sbk-face .xf-clip, .sbk.jh-intro .jh-round .xf { border-radius: 50%; }
+.sbk.jh-intro .jh-round { display: inline-flex; border: 2px solid var(--k-paper); border-radius: 50%; background: var(--k-pale); line-height: 0; }
+.sbk.jh-intro .jh-imine { margin-top: 4px; padding: 5px 7px; background: var(--k-yel); color: var(--k-ink); font: 800 0.8125rem/1.2 var(--f-label); align-self: flex-start; }
+.sbk.jh-intro .jh-irules { display: flex; flex-direction: column; gap: 10px; padding: 10px; box-shadow: inset 0 0 0 2.5px var(--k-ink); }
+.sbk.jh-intro .jh-irules > div { display: flex; flex-direction: column; gap: 4px; }
+.sbk.jh-intro .jh-irules > div + div { padding-top: 10px; border-top: 2px solid var(--k-ink); }
+.sbk.jh-intro .jh-irules p { font: 600 0.875rem/1.35 var(--f-label); }
+.sbk.jh-intro .jh-irules p.jh-iecho { padding-left: 8px; border-left: 4px solid var(--k-yel); font-weight: 700; }
+.sbk.jh-intro .jh-igo { display: flex; flex-direction: column; gap: 8px; }
+.sbk.jh-intro .jh-igo .jp-go { display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: inset 0 0 0 3px var(--k-ink), 0 4px 0 var(--k-ink); margin: 0 0 4px; }
+.sbk.jh-intro .jh-go2 {
+  min-height: 48px; text-align: center; box-shadow: inset 0 0 0 2.5px var(--k-ink); font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
+/* the card's own margins (the page's ".sbk p" rule would take them away) */
+.sbk.jh-intro .jh-icard .cd-quirk { margin: calc(var(--u) * 6) calc(var(--u) * 9) 0; }
+.sbk.jh-intro .jh-icard .cd-txt { margin-top: calc(var(--u) * 8); }
+.sbk.jh-intro .jh-icard .cd-a .cd-quirk { margin: calc(var(--u) * 9) 0 0; }
+@media (max-width: 339px) {
+  .sbk.jh-intro .jh-ivs { flex-direction: column; align-items: center; }
+  .sbk.jh-intro .jh-iside { align-self: stretch; }
+}
+.home.hm.jh .jh-dvs { justify-content: flex-start; padding: 0; }

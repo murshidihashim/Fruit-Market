@@ -150,12 +150,13 @@ describe('rules 20 and saved games', () => {
     expect(RULES_VERSION).toBe(20);
     expect(AI_VERSION).toBe(8);
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: 19, ai: 6, game: g }));
-    expect(loadGame()).toBeNull();
+    expect(loadGame('play')).toBeNull();
     expect(consumeSaveNotice()).toBe('Your unfinished game used older rules and could not be continued.');
     expect(mem.has('fm.save')).toBe(false);
-    // a rules 19 Daily market is set aside the same way
+    expect(mem.has('fm.save.play')).toBe(false); // PLAN-120: moved to the Play slot, then set aside
+    // a rules 19 Daily market is set aside the same way, and the notice names it (PLAN-120, REP-135 RA-13)
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: 19, ai: 6, game: newGame(dailyConfig('2026-11-15', 'A')) }));
-    expect(loadGame()).toBeNull();
-    expect(consumeSaveNotice()).toBe('Your unfinished game used older rules and could not be continued.');
+    expect(loadGame('daily')).toBeNull();
+    expect(consumeSaveNotice()).toBe('Your unfinished Daily market game used older rules and could not be continued.');
   });
 });

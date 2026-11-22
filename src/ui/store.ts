@@ -1,6 +1,6 @@
-// Local persistence: settings, stats, saved game, daily challenge records.
+// Local persistence: settings, stats, saved games (one per mode, PLAN-120), daily challenge records.
 import type { FavourId } from '../engine/data';
-import type { GameState } from '../engine/game';
+import type { GameConfig, GameState } from '../engine/game';
 import { AI_VERSION, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
@@ -51,12 +51,33 @@ export const saveStats = (s: Stats) => { write(K.stats, s); profileChanged(); };
 export const SAVE_VERSION = 2;
 interface SaveEnvelope { v: number; rules: number; ai?: number; game: GameState }
 
-let saveNotice: string | null = null;
+/**
+ * PLAN-120: a saved game per mode, so a game in one mode never replaces a game in another. `play` holds a game against
+ * computers or on one phone; `league` a Market League stage; `daily` the Daily market; `sprint` the Market Sprint.
+ * Online matches have no slot: their room keeps them ("Back to room"). Each slot holds the same envelope the single save
+ * held (SaveEnvelope), under its own key.
+ */
+export type SaveSlot = 'play' | 'league' | 'daily' | 'sprint';
+export const SAVE_SLOTS: readonly SaveSlot[] = ['play', 'league', 'daily', 'sprint'];
+/** The key a slot is kept under. The single save of 1.28.0 and earlier was "fm.save" (K.save). */
+export const slotKey = (slot: SaveSlot): string => `${K.save}.${slot}`;
 
-/** A message about a saved game that couldn't be resumed (shown once on the home screen). */
+/** The slot a game belongs to, from its set-up: a Sprint, a Daily market, a League stage, otherwise a Play game. */
+export function slotOf(cfg: Pick<GameConfig, 'daily' | 'sprint' | 'league'>): SaveSlot {
+  if (cfg.daily) return cfg.sprint ? 'sprint' : 'daily';
+  if (cfg.league !== undefined) return 'league';
+  return 'play';
+}
+
+/** How a notice names a slot's game: "Your unfinished Sprint game …" (REP-135 RA-13). */
+const SLOT_WORDS: Record<SaveSlot, string> = { play: 'game', league: 'League game', daily: 'Daily market game', sprint: 'Sprint game' };
+
+const notices: string[] = [];
+
+/** A message about saved games that couldn't be resumed (shown once on the home screen), or null. */
 export function consumeSaveNotice(): string | null {
-  const n = saveNotice;
-  saveNotice = null;
+  const n = notices.length ? notices.join(' ') : null;
+  notices.length = 0;
   return n;
 }
 
@@ -65,40 +86,91 @@ function looksLikeGame(g: unknown): g is GameState {
   return !!x && typeof x === 'object' && Array.isArray(x.players) && typeof x.phase === 'string' && typeof x.day === 'number';
 }
 
+function readRaw(key: string): string | null {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function writeRaw(key: string, raw: string) {
+  try { localStorage.setItem(key, raw); } catch { /* storage unavailable: play on without saving */ }
+}
+
+/** The game inside saved text (an envelope, or a bare game from before v1.2), whatever its versions, or null. */
+function gameIn(raw: string): GameState | null {
+  let data: unknown;
+  try { data = JSON.parse(raw); } catch { return null; }
+  const env = data as SaveEnvelope | null;
+  const g = env && typeof env === 'object' && 'game' in env ? env.game : data;
+  return looksLikeGame(g) && !!g.config && typeof g.config === 'object' ? g : null;
+}
+
 /**
- * The saved game, if it can be resumed. Saves from different rules are set aside (a game must
- * finish under the rules it started with), and unreadable saves are dropped instead of crashing.
- * An ordinary game from older computer players resumes and carries on with today's. A daily challenge
- * from older computer players is set aside: its score is checked by replaying the whole game with
- * today's computer players (server/meta.ts), so it could never be finished for the board.
+ * PLAN-120: moves the single save of 1.28.0 and earlier into its mode's slot, exactly as it was saved (its versions are
+ * checked when the slot is read, with the same notices). A Daily with the Sprint flag goes to the Sprint, a Daily alone
+ * to the Daily, a League stage to the League, anything else to Play. A save whose game cannot be read is cleared with a
+ * notice. A slot that already holds a game keeps it (that one was saved later, by this version). Safe to call again.
  */
-export function loadGame(): GameState | null {
-  let raw: string | null = null;
-  try { raw = localStorage.getItem(K.save); } catch { return null; }
+export function migrateOldSave(): void {
+  const raw = readRaw(K.save);
+  if (raw === null) return;
+  const game = gameIn(raw);
+  if (game) {
+    const key = slotKey(slotOf(game.config));
+    if (readRaw(key) === null) writeRaw(key, raw);
+  } else notices.push('Your unfinished game couldn\'t be read, so it was cleared.');
+  write(K.save, null);
+}
+
+/**
+ * A slot's saved game, if it can be resumed. Saves from different rules are set aside (a game must finish under the
+ * rules it started with), and unreadable saves are dropped instead of crashing. An ordinary game from older computer
+ * players resumes and carries on with today's. A Daily market or a Sprint from older computer players is set aside: its
+ * score is checked by replaying the whole game with today's computer players (server/meta.ts), so it could never be
+ * finished for the board. Each notice names the slot's mode. The old single save is moved to its slot first.
+ */
+export function loadGame(slot: SaveSlot): GameState | null {
+  migrateOldSave();
+  const raw = readRaw(slotKey(slot));
   if (!raw) return null;
   let data: unknown;
   try { data = JSON.parse(raw); } catch { data = null; }
+  const what = SLOT_WORDS[slot];
   const env = data as SaveEnvelope | null;
   if (env && typeof env === 'object' && 'game' in env && typeof env.v === 'number') {
-    const game = looksLikeGame(env.game) ? env.game : null;
-    const olderDaily = !!game?.config?.daily && (env.ai ?? 1) !== AI_VERSION;
-    if (env.rules === RULES_VERSION && game && !olderDaily) return game;
-    saveNotice = env.rules !== RULES_VERSION
-      ? 'Your unfinished game used older rules and could not be continued.'
+    const game = looksLikeGame(env.game) && env.game.config ? env.game : null;
+    // A game that is not this slot's mode (never written so) cannot be read here.
+    const here = !!game && slotOf(game.config) === slot;
+    const olderDaily = here && !!game.config.daily && (env.ai ?? 1) !== AI_VERSION;
+    if (env.rules === RULES_VERSION && here && !olderDaily) return game;
+    notices.push(env.rules !== RULES_VERSION
+      ? `Your unfinished ${what} used older rules and could not be continued.`
       : olderDaily
-        ? 'Your unfinished Daily market game was from an older version and could not be continued.'
-        : 'Your unfinished game couldn\'t be read, so it was cleared.';
-    write(K.save, null);
+        ? `Your unfinished ${what} was from an older version and could not be continued.`
+        : `Your unfinished ${what} couldn't be read, so it was cleared.`);
+    write(slotKey(slot), null);
     return null;
   }
   // Saves from before v1.2 were the bare game (rules version 2, the same rules as now).
-  if (looksLikeGame(data)) return data;
-  if (data !== null || raw) saveNotice = 'Your unfinished game couldn\'t be read, so it was cleared.';
-  write(K.save, null);
+  if (looksLikeGame(data) && data.config && slotOf(data.config) === slot) return data;
+  notices.push(`Your unfinished ${what} couldn't be read, so it was cleared.`);
+  write(slotKey(slot), null);
   return null;
 }
 
-export const saveGame = (g: GameState | null) => write(K.save, g ? ({ v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION, game: g } satisfies SaveEnvelope) : null);
+/** Every slot's saved game that can be resumed (a slot with none is left out). */
+export function loadGames(): Partial<Record<SaveSlot, GameState>> {
+  const out: Partial<Record<SaveSlot, GameState>> = {};
+  for (const slot of SAVE_SLOTS) {
+    const g = loadGame(slot);
+    if (g) out[slot] = g;
+  }
+  return out;
+}
+
+/** Saves a game into its mode's slot; every other slot is left as it is. */
+export const saveGame = (g: GameState) => write(slotKey(slotOf(g.config)), { v: SAVE_VERSION, rules: RULES_VERSION, ai: AI_VERSION, game: g } satisfies SaveEnvelope);
+/** Empties one slot (its game ended, or the player started it over). */
+export const clearGame = (slot: SaveSlot) => write(slotKey(slot), null);
+/** Whether this phone holds a saved game, in a slot or in the old single save (telemetry's check for older players). */
+export const anySave = (): boolean => readRaw(K.save) !== null || SAVE_SLOTS.some((s) => readRaw(slotKey(s)) !== null);
 
 /**
  * S18 (PLAN-110): where Undo goes back to on the buying turn in progress (game/turn.ts), kept beside the saved game and
