@@ -68,7 +68,9 @@ let bubbleKey = 0;
  * The bubbles over the seats. `anchor` finds the element of a seat on this screen (its stall, its row), `name` its
  * player's name now. Over a stall a bubble stands above it with its tail pointing down at it (under it, at the top of
  * the screen); on a row of a list (`onRow`) it sits on the row's right-hand side, so it cannot be read as the next
- * row's. A bubble that has no seat on screen to sit over stands at the top of the screen.
+ * row's. A bubble that has no seat on screen to sit over stands at the top of the screen. Your own shelf in the game
+ * (section.my-stall) takes the bubble inside it, in its middle: above it, the bubble covered the figures of the sheet over the shelf (the
+ * standing order's, PLAN-116, REP-133 B-10).
  */
 export function ReactionBubbles({ client, anchor, name, onRow }: { client: OnlineClient; anchor: (seat: number) => Element | null; name: (seat: number) => string; onRow?: boolean }) {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
@@ -93,8 +95,9 @@ export function ReactionBubbles({ client, anchor, name, onRow }: { client: Onlin
         const el = anchor(b.seat);
         const box = el?.getBoundingClientRect();
         const there = !!box && box.width > 0;
-        const row = there && !!onRow;
-        const x = there ? Math.max(56, Math.min(w - 56, box.left + box.width * (row ? 0.7 : 0.5))) : w / 2;
+        const inside = there && !!el?.classList.contains('my-stall');
+        const row = there && (!!onRow || inside);
+        const x = there ? Math.max(56, Math.min(w - 56, box.left + box.width * (row && !inside ? 0.7 : 0.5))) : w / 2;
         // Over the seat; under it when the seat is at the very top of the screen.
         const below = !row && (!there || box.top < 52);
         const y = !there ? 56 : row ? box.top + box.height / 2 : below ? box.bottom + 4 : box.top - 4;

@@ -9,7 +9,7 @@ import {
 import { Coin, FavourIcon, Fruit } from './art';
 import { Icon } from './icons';
 import { UP_ICON } from './panel';
-import { MARKET_DAY_LIST, NO_ORDER_DAYS } from './rulesText';
+import { MARKET_DAY_LIST, NO_ORDER_DAYS, TIE_ORDER } from './rulesText';
 
 const GAME_PHASES = [
   ['Set-up', 'Pick a shopkeeper with one perk.'],
@@ -105,7 +105,7 @@ const SLIDES = [
           <div><b>Stall C</b> 2 Fresh <Fruit id="blueberry" size={18} /> at <b>$5</b></div>
         </div>
         <p>Bobby Books buys from the <b>cheapest stall</b> first. B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was Fresh.</p>
-        <p>If two stalls set the same price, a stall holding Favoured Trade can play it after the prices flip to win the tie. Otherwise the tie goes to fresher fruit, then the Haggler, then whoever bought earlier today. A customer who doesn't get everything leaves at the end of the day.</p>
+        <p>If two stalls set the same price, a stall holding Favoured Trade can play it after the prices flip to win the tie. Otherwise ties go: {TIE_ORDER} in today's buying. A customer who doesn't get everything leaves at the end of the day.</p>
       </>
     ),
   },

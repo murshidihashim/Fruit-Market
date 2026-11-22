@@ -8,6 +8,12 @@ const list = (xs: (string | number)[]) => (xs.length < 2 ? xs.join('') : `${xs.s
 /** Market Days in the longest game (14 days): 3, 6, 9 and 12, as the print kit lists them. */
 export const MARKET_DAY_LIST = list([1, 2, 3, 4].map((k) => k * MARKET_DAY_EVERY));
 
+/** PLAN-116 (REP-133 B-17): how a tied price is settled, worded one way everywhere (the pricing panel's words). "Earlier"
+ *  is earlier in today's buying. */
+export const TIE_ORDER = 'fresher, then the Haggler, then earlier';
+/** The same, with Favoured Trade first, where the card is in play (it is played after the flip to win the tie). */
+export const TIE_ORDER_CARD = `Favoured Trade, then ${TIE_ORDER}`;
+
 /** The lengths a game can have: Quick, Standard and Long (the set-up screen, App.tsx and Online.tsx). */
 export const GAME_LENGTHS = [8, 10, 14] as const;
 

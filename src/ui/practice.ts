@@ -5,6 +5,7 @@
 // so the right price is the highest one that is still the cheapest fresh-enough offer. A tie is never the answer: who
 // wins a tie depends on the pieces' age, the Haggler and the buying order, which the puzzle does not show.
 import { CUSTOMER_CARDS, FRUIT, RIVALS, acceptsStage, lookOf, prefOf, type FruitId, type Pref, type Stage } from '../engine/data';
+import { TIE_ORDER } from './rulesText';
 
 export type Ripe = Exclude<Stage, 'unripe'>;
 /** Dollars off the card price at each freshness (the same for every fruit: FRUIT[f].drop). */
@@ -86,7 +87,7 @@ export function practiceVerdict(r: PracticeRound, price: number): { right: boole
   if (price > r.max) return { right: false, text: `$${price} is over ${name}'s top price of $${r.max}. No sale.` };
   if (rivalSells && price > rv.price) return { right: false, text: `${rv.name}'s $${rv.price} is cheaper, so ${name} buys there first.` };
   if (rivalSells && price === rv.price) {
-    return { right: false, text: `A tie with ${rv.name}. It goes to the fresher piece, then the Haggler, then whoever bought first, so it may not sell.` };
+    return { right: false, text: `A tie with ${rv.name}. Ties: ${TIE_ORDER}, so it may not sell.` };
   }
   if (price < r.answer) return { right: false, text: `$${price} sells, but $${r.answer} sells too and earns $${r.answer - price} more a piece.` };
   // price === r.answer

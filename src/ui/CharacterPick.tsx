@@ -5,6 +5,7 @@
 import { useRef, useState } from 'preact/hooks';
 import { RIVALS } from '../engine/data';
 import { StallSign } from './cards';
+import { CardPop } from './cardZoom';
 import { fx } from './fx';
 import { seatPattern } from './ticket';
 
@@ -27,6 +28,9 @@ export function CharacterPick({ value, taken = {}, seat, chosen, fixed, onPick }
   const [drag, setDrag] = useState(false);
   const x0 = useRef(0);
   const [hint, setHint] = useState(() => !hasSwiped());
+  // PLAN-116 (REP-133 B-08): a tap on the card in the middle (not a swipe) opens it whole, where its words are readable.
+  const moved = useRef(false);
+  const [zoom, setZoom] = useState(false);
   const go = (d: number) => {
     if (hint) { setHint(false); try { localStorage.setItem(SWIPED, '1'); } catch { /* storage blocked: the hint just shows again next time */ } }
     let k = at;
@@ -40,22 +44,30 @@ export function CharacterPick({ value, taken = {}, seat, chosen, fixed, onPick }
     if (dx < -SWIPE) go(1); else if (dx > SWIPE) go(-1);
   };
   return (
-    <CharacterPickView value={value} taken={taken} seat={seat} chosen={chosen} fixed={fixed} dx={dx} drag={drag} hint={hint} onStep={go}
-      onDown={(e) => { if (fixed) return; x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
-      onMove={(e) => { if (drag) setDx(e.clientX - x0.current); }} onEnd={end} />
+    <>
+      <CharacterPickView value={value} taken={taken} seat={seat} chosen={chosen} fixed={fixed} dx={dx} drag={drag} hint={hint} onStep={go}
+        onDown={(e) => { moved.current = false; if (fixed) return; x0.current = e.clientX; setDrag(true); setDx(0); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }}
+        onMove={(e) => { if (!drag) return; const d = e.clientX - x0.current; if (Math.abs(d) > 8) moved.current = true; setDx(d); }} onEnd={end}
+        onTap={() => { if (moved.current) return; fx.tap(); setZoom(true); }} />
+      {zoom && (
+        <CardPop title={RIVALS[at].name} wide onClose={() => setZoom(false)}>
+          <StallSign avatar={RIVALS[at].avatar} pattern={seat === undefined ? undefined : seatPattern(seat)} takenBy={taken[RIVALS[at].avatar]} eager />
+        </CardPop>
+      )}
+    </>
   );
 }
 
 /** The picker drawn from its state (no hooks, so tests can draw it). `dx`: how far the finger has dragged the signs. */
-export function CharacterPickView({ value, taken = {}, seat, chosen, fixed, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd }: {
+export function CharacterPickView({ value, taken = {}, seat, chosen, fixed, dx = 0, drag = false, hint = false, onStep, onDown, onMove, onEnd, onTap }: {
   value: string; taken?: Record<string, string>; seat?: number; chosen?: string; fixed?: boolean; dx?: number; drag?: boolean; hint?: boolean; onStep?: (d: number) => void;
-  onDown?: (e: PointerEvent) => void; onMove?: (e: PointerEvent) => void; onEnd?: () => void;
+  onDown?: (e: PointerEvent) => void; onMove?: (e: PointerEvent) => void; onEnd?: () => void; onTap?: () => void;
 }) {
   const at = Math.max(0, RIVALS.findIndex((r) => r.avatar === value));
   const go = (d: number) => onStep?.(d);
   return (
     <div class="char-pick" role="group" aria-label="Choose your shopkeeper">
-      <div class="cp-stage" aria-live="polite" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd}>
+      <div class="cp-stage" aria-live="polite" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onEnd} onPointerCancel={onEnd} onClick={onTap}>
         {RIVALS.map((r, k) => {
           let o = k - at;
           if (o > N / 2) o -= N;

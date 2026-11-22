@@ -140,8 +140,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
-          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
-        {online && <ReactButton class="rx-over" onOpen={() => setReacting(true)} />}
+          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online}
+          react={online && <ReactButton class="rx-over" onOpen={() => setReacting(true)} />} /></main>
         {reactions}
       </div>
     );

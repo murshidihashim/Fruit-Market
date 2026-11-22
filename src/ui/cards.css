@@ -422,7 +422,15 @@
 .cd-pop-btns { display: flex; gap: 8px; }
 .cd-pop .cd-pop-btns .btn { flex: 1 1 0; min-height: 52px; border: 0; border-radius: 0; box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.0625rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; }
 .cd-pop .cd-pop-btns .btn.ghost { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
-.cd-pop-hint { align-self: center; color: var(--x-paper); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.cd-pop-hint { align-self: center; color: var(--x-paper); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 
 /* picking a shopkeeper: the cards of the carousel are the picker's width (screens.css) */
 .cp-card { --card-w: 14.75rem; }
+
+/* PLAN-116 (REP-133 B-08): a small card off the table (Home, the set-up screen, the Quick match wait) opens whole on a
+   tap (cardZoom.tsx). Over the whole screen, above a pop-up; a shopkeeper's card is drawn wider than a customer's. */
+.card-zoom { cursor: zoom-in; }
+.card-zoom:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 3px; }
+.cd-pop.zoom-pop { position: fixed; z-index: 60; }
+.cd-pop.zoom-pop:focus { outline: none; }
+.cd-pop.zoom-pop.wide .cd-pop-in { width: 320px; --card-w: min(320px, calc(100vw - 32px)); }

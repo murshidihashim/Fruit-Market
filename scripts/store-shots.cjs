@@ -71,7 +71,7 @@ const path = require('path');
   }
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(300);
-  await p.click('button:has-text("Stamps")');
+  await p.click('button:has-text("Stamp book")');
   await p.waitForTimeout(300);
   await shot('7-trophies');
   console.log('saved', [...done].join(', '));

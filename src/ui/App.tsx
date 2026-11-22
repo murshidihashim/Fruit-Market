@@ -7,7 +7,7 @@ import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront } from './Home';
 import { startOrAsk, waitingGame } from './paused';
-import { vsComputerConfig } from './playMenu';
+import { LENGTHS, vsComputerConfig } from './playMenu';
 import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
@@ -395,7 +395,7 @@ function Setup({ onStart, days: days0 = 10, friend }: { onStart: (c: GameConfig)
         <section class="panel">
           <h3>Game length</h3>
           <div class="seg">
-            {[[8, 'Quick'], [10, 'Standard'], [14, 'Long']].map(([d, l]) => <button class={days === d ? 'on' : ''} onClick={() => setDays(d as number)}>{l}<small>{d} days</small></button>)}
+            {LENGTHS.map((l) => <button class={days === l.days ? 'on' : ''} onClick={() => setDays(l.days)}>{l.word}<small>{l.days} days</small></button>)}
           </div>
         </section>
         <div class="sticky-start"><button class="btn primary big wide" onClick={begin}>Start game</button></div>

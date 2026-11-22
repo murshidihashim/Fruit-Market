@@ -10,22 +10,24 @@ import { FIRST_TIME_KEY, FirstTimeText, dismissFirstTime, firstTimeMoment, hasFi
 import { saveStats } from '../src/ui/store';
 
 /** The owner's text (15 November), with the game's straight apostrophe for his curly ones, and the one condition
- *  REP-122 C-02 added to Market Days (PLAN-109): a standing order only if it can be delivered by the last day. */
+ *  REP-122 C-02 added to Market Days (PLAN-109): a standing order only if it can be delivered by the last day.
+ *  PLAN-116 (REP-133 B-06): no exclamation marks (house style), and the first buyer worded as the game's own tip
+ *  (tutorial.ts "From Day 2"): on Day 1 the First token is drawn, so "Poorest stall goes first" was not true then. */
 const OWNER = `RUN YOUR STALL.
-Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!
+Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win.
 
 YOUR DAILY ROUTINE
 1. Check the market.
 Read today's news and see who's shopping.
 2. Buy fruit.
-Poorest stall goes first, then clockwise. Buy up to 4 pieces.
+From Day 2 the poorest stall buys first, then the others clockwise. Buy up to 4 pieces.
 3. Stock your stall.
 Choose what to sell. Rivals see how many pieces, but not which fruit.
 4. Set secret prices.
-Set one price per fruit. Reveal fruit and prices together at the bell!
+Set one price per fruit. Reveal fruit and prices together at the bell.
 5. The Rush.
 Customers buy from the cheapest qualifying stall, then the next cheapest until their order is filled or no suitable fruit remains.
-6. Repeat!
+6. Repeat.
 
 MARKET DAYS
 Every third day, except the last:

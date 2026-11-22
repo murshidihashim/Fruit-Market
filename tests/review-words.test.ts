@@ -11,6 +11,7 @@ import {
 } from '../src/engine/game';
 import { PayBadge, toStaticHtml } from '../src/ui/cards';
 import { cardChips, marketChipFruit, marketChips, newsChips } from '../src/ui/eventChips';
+import { LENGTHS } from '../src/ui/playMenu';
 import { GAME_LENGTHS, NO_ORDER_DAYS, marketDaysWithoutOrder } from '../src/ui/rulesText';
 import { Market } from '../src/ui/table';
 import { TIPS, eveningTip, tipFor } from '../src/ui/tutorial';
@@ -35,9 +36,11 @@ function morningOf(day: number, extra: Partial<GameConfig> = {}): GameState {
 describe('C-02: a standing order only when it can be collected', () => {
   it('the Market Days without one are worked out as the engine draws them, at every game length', () => {
     expect(GAME_LENGTHS).toEqual([8, 10, 14]);
-    // The set-up screen's lengths (App.tsx) and the online lobby's (Online.tsx).
-    expect(read('src/ui/App.tsx')).toContain("[[8, 'Quick'], [10, 'Standard'], [14, 'Long']]");
-    expect(read('src/ui/Online.tsx')).toContain("[[8, 'Quick'], [10, 'Standard'], [14, 'Long']]");
+    // The set-up screen's lengths (App.tsx) and the online lobby's (Online.tsx): since PLAN-116 (REP-133 B-14) both
+    // draw the Play menu's list (playMenu.ts LENGTHS), which holds the same three lengths.
+    expect(read('src/ui/App.tsx')).toContain('{LENGTHS.map((l) =>');
+    expect(read('src/ui/Online.tsx')).toContain('{LENGTHS.map((l) =>');
+    expect(LENGTHS.map((l) => l.days)).toEqual([...GAME_LENGTHS]);
     expect(GAME_LENGTHS.map(marketDaysWithoutOrder)).toEqual([[], [9], []]);
     expect(NO_ORDER_DAYS).toBe('Day 9 of a 10-day game');
     for (const days of GAME_LENGTHS) {

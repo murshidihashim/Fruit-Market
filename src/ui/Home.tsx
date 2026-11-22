@@ -7,7 +7,7 @@
 // The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css for the
 // rest. The opening (Opening.tsx, "Lane Drop") plays on this screen: "hm-intro" on <html> animates the title and
 // everything under the band (".hm-title", ".hm-rest") into place.
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
 import { FRUIT, RIVALS, lookOf, stageAt, type FruitId } from '../engine/data';
@@ -19,7 +19,9 @@ import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
 import { Face } from './art';
 import { Gazette, TradingCard } from './cards';
+import { CardZoom } from './cardZoom';
 import { shopScene } from './deckArt';
+import { useFocusTrap } from './focusTrap';
 import { FruitSvg } from './fruitIcons';
 import { PropSprite, RoofBand } from './icons';
 import { chosenColour, myAvatar, syncLooks, worn } from './looks';
@@ -138,7 +140,8 @@ function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () =>
       <SprintRow today={today} onSprint={onSprint} />
       <div class="jh-dsub"><b>Daily market · {first.config.days} days</b>{daily[today] !== undefined && <small>{bestLine(daily[today], res?.error ? null : placeWords(res ? { rank: res.rank, players: res.players ?? res.top.length } : undefined))}</small>}</div>
       <div class="jh-db">
-        <div class="jh-dcard">{who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}</div>
+        {/* PLAN-116 (REP-133 B-08): the small card opens whole on a tap; the sentence beside it says its prices */}
+        <CardZoom class="jh-dcard" title={who ? lookOf(who.name).title : e ? e.title : 'Daily market'}>{who ? <TradingCard who={who.name} wants={who.wants} eager /> : e ? <Gazette event={e} eager /> : null}</CardZoom>
         <div class="jh-dr">
           <span class="jh-lb">Today's lorry brings</span>
           <div class="jh-lorry">{LANES.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
@@ -248,7 +251,7 @@ export function Shopfront(p: ShopProps) {
           <Goals />
           <nav class="jh-tiles" aria-label="Your progress">
             <button onClick={p.onLeague}><b>League</b><span>{p.leagueLine}</span></button>
-            <button onClick={p.onTrophies}><b>Stamps</b><span>{place.filled} of {place.size} · trophies</span></button>
+            <button onClick={p.onTrophies}><b>Stamp book</b><span>{place.filled} of {place.size} stamps</span></button>
             <button onClick={p.onWardrobe}><b>Wardrobe</b><span class="jh-tface"><FramedFace who={myAvatar()} size={30} look={worn()} /></span></button>
           </nav>
           <nav class="hm-foot jh-foot">
@@ -344,16 +347,14 @@ export function PlayMenu(p: PlayMenuProps) {
   );
 }
 
-/** A small menu in the middle of the screen, in front of the home screen. */
+/** A small menu in the middle of the screen, in front of the home screen. Focus stays inside it (focusTrap.ts). */
 export function Popup({ title, onClose, children }: { title: string; onClose: () => void; children: ComponentChildren }) {
-  useEffect(() => {
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, []);
+  const box = useRef<HTMLDivElement>(null);
+  // Escape closes it (only the pop-up on top, when one is opened over another).
+  useFocusTrap(box, onClose);
   return (
     <div class="modal-bg popup-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div class="modal popup" role="dialog" aria-modal="true" aria-label={title}>
+      <div class="modal popup" role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} ref={box}>
         <div class="popup-hd"><h2>{title}</h2><button class="icon-btn" aria-label="Close" onClick={onClose}>×</button></div>
         {children}
       </div>

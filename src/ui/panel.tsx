@@ -19,6 +19,7 @@ import { upgradeArt, upgradeFocus } from './deckArt';
 import { STAGE_LETTER, STAGE_WORD } from './ticket';
 import { Icon, type IconName } from './icons';
 import { FavourMini } from './phoneCards';
+import { TIE_ORDER, TIE_ORDER_CARD } from './rulesText';
 import { nth, pricingTable } from './game/pricingTable';
 import { nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
@@ -226,7 +227,7 @@ export function postsOf(s: GameState, p: number, vals: Record<string, number>): 
  *  (the pricing sheet at the round table). */
 export function tieOrderLine(s: GameState, p: number): string {
   const at = s.order.indexOf(p);
-  return `Ties: fresher, then the Haggler, then earlier.${at >= 0 ? ` You bought ${nth(at + 1)}.` : ''}`;
+  return `Ties: ${TIE_ORDER}.${at >= 0 ? ` You bought ${nth(at + 1)}.` : ''}`;
 }
 
 /**
@@ -331,7 +332,7 @@ export function BellNotice({ onClose }: { onClose: () => void }) {
     ['hourglass', 'Prices stay secret until the bell.'],
     ['crate', 'Crates stay shut until the bell. You only see how many pieces are in each.'],
     ['coin', 'The lowest price sells first.'],
-    ['scales', 'Ties: Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.'],
+    ['scales', `Ties: ${TIE_ORDER_CARD}.`],
     ['heart', 'Serve a customer’s whole order by yourself to earn a favour card.'],
   ];
   return (

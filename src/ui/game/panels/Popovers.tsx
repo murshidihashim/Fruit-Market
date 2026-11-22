@@ -9,6 +9,7 @@ import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
+import { TrapBox } from '../../focusTrap';
 import { Wardrobe } from '../../Wardrobe';
 import { useState } from 'preact/hooks';
 import type { GameState } from '../../../engine/game';
@@ -119,16 +120,16 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
   {menu && (
     <div class="modal-bg" onClick={closeMenu}>
       {room && leaving ? (
-        <div class="modal center game-menu" role="dialog" aria-label="Leave the match?" onClick={(e) => e.stopPropagation()}>
+        <TrapBox class="modal center game-menu" role="dialog" aria-modal="true" aria-label="Leave the match?" onEscape={closeMenu} onClick={(e) => e.stopPropagation()}>
           <h2>Leave the match?</h2>
           <p>The match goes on without you: a computer will play for you until you come back.</p>
           <p class="gm-room">To come back, open room {room} from Home.</p>
           {unsent && <p class="gm-warn">{unsent}</p>}
-          <button class="btn primary wide" onClick={() => setLeaving(false)}>Stay in the match</button>
+          <button class="btn primary wide" onClick={closeMenu}>Stay in the match</button>
           <button class="btn wide" onClick={onExit}>Leave</button>
-        </div>
+        </TrapBox>
       ) : (
-        <div class="modal center game-menu" role="dialog" aria-label="Menu" onClick={(e) => e.stopPropagation()}>
+        <TrapBox class="modal center game-menu" role="dialog" aria-modal="true" aria-label="Menu" onEscape={closeMenu} onClick={(e) => e.stopPropagation()}>
           {/* ON-08: an online match never pauses, so online the menu says so and names the room. */}
           <h2>{room ? 'Menu' : 'Paused'}</h2>
           {room
@@ -140,7 +141,7 @@ export function Popovers({ c, coach, onExit, onWear, room }: { c: GameController
           <FullScreenButton />
           {onWear && <button class="btn wide" onClick={() => { setMenu(false); setWardrobe(true); }}>Wardrobe</button>}
           <button class="btn wide" onClick={room ? () => setLeaving(true) : onExit}>Home</button>
-        </div>
+        </TrapBox>
       )}
     </div>
   )}

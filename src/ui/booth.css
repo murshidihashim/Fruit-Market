@@ -58,12 +58,13 @@
 .home.hm .hm-car > .hm-slot:only-child { flex-basis: 100%; }
 .home.hm .hm-sh {
   min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--hm-ink); color: var(--hm-paper);
-  font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
 }
-.home.hm .hm-sh span { overflow: hidden; text-overflow: ellipsis; }
-.home.hm .hm-sh b { flex: none; padding: 3px 6px; background: var(--hm-yel); color: var(--hm-ink); font-weight: 800; }
+/* PLAN-116 (REP-133 B-15): "Your table · Day 2 of 8" is never cut off; on a narrow phone it may take two lines. */
+.home.hm .hm-sh span { min-width: 0; padding: 5px 0; overflow-wrap: anywhere; }
+.home.hm .hm-sh b { flex: none; white-space: nowrap; padding: 3px 6px; background: var(--hm-yel); color: var(--hm-ink); font-weight: 800; }
 .home.hm .hm-sb { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.home.hm .hm-lb { font: 800 0.59rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
+.home.hm .hm-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--hm-slate); }
 .home.hm .hm-act { min-height: 40px; margin-top: auto; background: var(--hm-yel); color: var(--hm-ink); font: 400 0.9375rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .home.hm .hm-act:active { transform: translateY(2px); }
 /* today's market */
@@ -183,3 +184,6 @@
      would stay over the finished home until the opening ends. Once the pictures are in, it is simply gone. */
   .op.op-ld:not(.op-wait) .op-cover { display: none; }
 }
+/* PLAN-116 (REP-133 B-15): on a narrow phone the waiting table's names are not cut off: the shelf and the stalls stack. */
+@media (max-width: 379px) { .home.hm .hm-sh { letter-spacing: 0.05em; } }
+@media (max-width: 339px) { .home.hm .hm-wt { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
