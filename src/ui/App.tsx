@@ -201,8 +201,13 @@ function Main() {
         }}
         onRetry={() => { const cfg = lastConfig ?? game.config; if (cfg.league !== undefined) start(leagueConfig(cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0])); }}
         onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
-        // PLAN-119: a cleared League stage's results link to today's Sprint (the finished game is not waiting, so no question).
-        onSprint={game.config.league !== undefined ? () => { track('sprint_from_league'); startSprint(); } : undefined}
+        // PLAN-119: a cleared League stage's results link to today's Sprint. PLAN-120: when a Sprint is waiting in its own
+        // slot, the Sprint's intro opens instead (its Continue), so the link never replaces that game.
+        onSprint={game.config.league !== undefined ? () => {
+          track('sprint_from_league');
+          dropFinished();
+          if (waitingGame(games.sprint ?? null)) { setIntroKind('sprint'); setScreen('intro'); } else startSprint();
+        } : undefined}
       />
     );
   }
