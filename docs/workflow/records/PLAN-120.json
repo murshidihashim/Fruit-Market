@@ -17,20 +17,20 @@
     {
       "id": "T1",
       "text": "npm run verify with save-slot and migration tests (old saves still load)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on 36c78de: 106 test files, 1224 passed, 1 skipped (as before); store tests rewritten for slots and the migration of every old shape, one mode never replacing another, mode-named notices; tests/home-cards.test.ts"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e with the new Home and the Daily intro",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8824 E2E_MINUTES=15 npm run test:e2e on the merge c34e167: E2E OK (League stages, one phone, online 0 leaks, public room 0 leaks, Sprint from the intro); the reviewer's own run also PASS; CI covers the fix commit"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568 (scratchpad p120: new Home, looks, each card with and without a save, Play page, both intros) and the reviewer's sweep at 1280x800; reviewed the new Home and the League card with a save"
     },
     {
       "id": "T4",
@@ -44,18 +44,33 @@
     "evidence": "Owner, 2026-11-22: \"reword the current homescreen layout, maintain the same style but it should be; players stall with whatever customisations they unlocked; swipeable cards for 1. play, which opens up the play page 2. market league 2. daily market; market league and daily market should be removed from the play page since both are getting a separate card; users should be prompted after clicking daily market, design a screen to explain the objective of the game mode and what it does before starting a game; saved game for before should each appear at each card's game mode\" (with two screenshots of the current Home)",
     "date": "2026-11-22"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "not started",
-  "reports": [],
+  "delivery": "implemented",
+  "release": "1.29.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge c34e167, audit fixes 36c78de",
+  "reports": [
+    "REP-136"
+  ],
   "decisions": [
     "DEC-128"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Home: your stall with every look you wear, and swipeable cards for Play, Market League and Daily market",
+      "An intro screen before the Daily market or the Sprint",
+      "A saved game per mode, each on its own card; old saves move to their mode"
+    ],
+    "changed": [
+      "The Play page keeps the normal ways to play; the League and the Daily have their own cards",
+      "Notices about old saves name the mode"
+    ],
+    "fixed": [
+      "Results buttons never start another mode or replace its waiting game"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "A new Home: your stall with the looks you wear, then swipe between Play, Market League and Daily market",
+    "Each mode keeps its own unfinished game, so starting a Sprint no longer replaces your League game",
+    "A short intro explains the Daily market and the Sprint before you start"
+  ]
 }
