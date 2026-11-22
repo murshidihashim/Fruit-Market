@@ -25,7 +25,7 @@ import { useFocusTrap } from './focusTrap';
 import { FruitSvg } from './fruitIcons';
 import { PropSprite, RoofBand } from './icons';
 import { chosenColour, myAvatar, syncLooks, worn } from './looks';
-import { LENGTHS, computerLine, leagueLine as leagueWords, phoneLine, quickLine, roomLine } from './playMenu';
+import { LENGTHS, MODE_REASON, NORMAL_HEADING, computerLine, leagueEcho, leagueLine as leagueWords, phoneLine, quickLine, roomLine } from './playMenu';
 import { leagueStage, myPlace, snapshot, syncTiers } from './progress';
 import { BackArrow, FramedFace, TrophyPic, shownAvatar } from './stampCard';
 import { goals, nextReward, type Goal } from './stamps';
@@ -132,6 +132,8 @@ function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () =>
   const who = firstCustomer(first);
   const best = res && !res.error && res.top.length ? res.top[0].cash : null;
   const firstWords = who ? who.words : e ? `Today's event: ${e.title}.` : '';
+  // PLAN-119: what today's Daily uses that you met in the Market League (its twist's standing orders, its first customer).
+  const echo = leagueEcho(first.config, who?.name ?? null, leagueStage());
   return (
     <section class="jh-daily" data-page="today" aria-label="Daily market">
       <div class="jh-dh"><span>Daily market · {shortDate(today)}</span><small>{streak > 0 ? `${streak}-day streak` : 'same market for everyone'}</small></div>
@@ -144,6 +146,7 @@ function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () =>
           <span class="jh-lb">Today's lorry brings</span>
           <div class="jh-lorry">{LANES.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
           <p class="jh-dt">{firstWords} {dailyTwist(today).text} {rivalsLine(first.config)}</p>
+          {echo && <p class="jh-decho" data-a="daily-echo">{echo}</p>}
           {daily[today] === undefined && best !== null ? <p class="jh-ds"><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></p> : null}
           <button class="jh-dgo" onClick={onDaily}><PlayIcon />Play the Daily market</button>
         </div>
@@ -281,9 +284,11 @@ export interface PlayMenuProps {
 }
 
 /**
- * PLAN-113: the Play menu, every way to start a game on one screen: Quick match, a private room, joining with a code,
- * a game against computers, one phone passed round, the public rooms, the Daily market and the Market League. Each says
- * its real player count and length. The length chosen here is where the computer and one-phone set-up starts.
+ * PLAN-113: the Play menu, every way to start a game on one screen. PLAN-119 gives each mode its job: first the
+ * "Normal game" group (a full market your way: Quick match, a private room, joining with a code, a game against
+ * computers, one phone passed round, the public rooms, and the length for a computer or one-phone game), then the
+ * Market League, the Daily market and the Market Sprint, each with its one-line reason (playMenu.ts MODE_REASON).
+ * Each says its real player count and length.
  */
 export function PlayMenu(p: PlayMenuProps) {
   const avatar = myAvatar();
@@ -307,39 +312,50 @@ export function PlayMenu(p: PlayMenuProps) {
         <span class="jp-me"><FramedFace who={avatar} size={34} look={worn()} /></span>
       </header>
       <main class="scroll jp-in">
-        <button class="jp-tile big" data-a="quick" onClick={p.onQuick}>
-          <span class="jp-tt"><b>Quick match</b><span>{quickLine()}</span></span>
-          <span class="jp-vs" aria-hidden="true"><Face who={avatar} size={44} /><i>vs</i><span class="jp-q">?</span></span>
-        </button>
-        <div class="jp-two">
-          <button class="jp-tile" data-a="room" onClick={p.onRoom}><b>Private room</b><span>{roomLine()}</span></button>
-          <button class="jp-tile" data-a="join" aria-expanded={joining} onClick={() => setJoining(!joining)}><b>Join with a code</b><span>{CODE_LENGTH} letters from a friend</span></button>
-        </div>
-        {joining && (
-          <div class="jp-join">
-            <label for="join-code">Room code</label>
-            <div class="join-row">
-              <input id="join-code" class="input" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
-                placeholder="ABC123" onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())} />
-              <button class="btn" disabled={!ok} onClick={() => p.onJoin(clean)}>Join</button>
-            </div>
-          </div>
-        )}
-        <div class="jp-two">
-          <button class="jp-tile" data-a="computer" onClick={p.onComputer}>
-            <b>Computer</b><span>{computerLine()}</span>
-            <span class="jp-faces" aria-hidden="true">{rivals.map((r) => <Face who={r.avatar} size={26} />)}</span>
+        <section class="jp-grp" data-a="normal-game" aria-labelledby="jp-normal">
+          <h2 class="jp-gh" id="jp-normal">{NORMAL_HEADING}</h2>
+          <button class="jp-tile big" data-a="quick" onClick={p.onQuick}>
+            <span class="jp-tt"><b>Quick match</b><span>{quickLine()}</span></span>
+            <span class="jp-vs" aria-hidden="true"><Face who={avatar} size={44} /><i>vs</i><span class="jp-q">?</span></span>
           </button>
-          <button class="jp-tile" data-a="phone" onClick={p.onOnePhone}><b>One phone</b><span>{phoneLine()}</span></button>
-        </div>
-        <div class="jp-len" role="group" aria-label="Game length for a computer or one-phone game">
-          <span class="jh-lb">Game length</span>
-          {LENGTHS.map((l) => <button class={p.days === l.days ? 'on' : ''} aria-pressed={p.days === l.days} onClick={() => p.onDays(l.days)}>{l.word} <small>{l.days} days</small></button>)}
-        </div>
-        <button class="jp-tile wide" data-a="public" onClick={p.onPublic}><b>Public rooms</b><span>Join a room that is waiting for players, or open one</span></button>
-        <button class="jp-tile wide dark" data-a="sprint" onClick={p.onSprint}><b>{SPRINT_TITLE}</b><span>{daily.players.length} stalls · same start for everyone today{sprintBest ? ` · ${sprintBest}` : ''}</span></button>
-        <button class="jp-tile wide dark" data-a="daily" onClick={p.onDaily}><b>Daily market · {daily.days} days</b><span>{daily.players.length} stalls · same market for everyone today{dailyBest !== undefined ? ` · Best today $${dailyBest}` : ''}</span></button>
-        <button class="jp-tile wide" data-a="league" onClick={p.onLeague}><b>Market League</b><span>{leagueWords(stage)}</span></button>
+          <div class="jp-two">
+            <button class="jp-tile" data-a="room" onClick={p.onRoom}><b>Private room</b><span>{roomLine()}</span></button>
+            <button class="jp-tile" data-a="join" aria-expanded={joining} onClick={() => setJoining(!joining)}><b>Join with a code</b><span>{CODE_LENGTH} letters from a friend</span></button>
+          </div>
+          {joining && (
+            <div class="jp-join">
+              <label for="join-code">Room code</label>
+              <div class="join-row">
+                <input id="join-code" class="input" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
+                  placeholder="ABC123" onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())} />
+                <button class="btn" disabled={!ok} onClick={() => p.onJoin(clean)}>Join</button>
+              </div>
+            </div>
+          )}
+          <div class="jp-two">
+            <button class="jp-tile" data-a="computer" onClick={p.onComputer}>
+              <b>Computer</b><span>{computerLine()}</span>
+              <span class="jp-faces" aria-hidden="true">{rivals.map((r) => <Face who={r.avatar} size={26} />)}</span>
+            </button>
+            <button class="jp-tile" data-a="phone" onClick={p.onOnePhone}><b>One phone</b><span>{phoneLine()}</span></button>
+          </div>
+          <div class="jp-len" role="group" aria-label="Game length for a computer or one-phone game">
+            <span class="jh-lb">Game length</span>
+            {LENGTHS.map((l) => <button class={p.days === l.days ? 'on' : ''} aria-pressed={p.days === l.days} onClick={() => p.onDays(l.days)}>{l.word} <small>{l.days} days</small></button>)}
+          </div>
+          <button class="jp-tile wide" data-a="public" onClick={p.onPublic}><b>Public rooms</b><span>Join a room that is waiting for players, or open one</span></button>
+        </section>
+        <button class="jp-tile wide jp-mode" data-a="league" onClick={p.onLeague}>
+          <b>Market League</b><span class="jp-why">{MODE_REASON.league}</span><span>{leagueWords(stage)}</span>
+        </button>
+        <button class="jp-tile wide dark jp-mode" data-a="daily" onClick={p.onDaily}>
+          <b>Daily market · {daily.days} days</b><span class="jp-why">{MODE_REASON.daily}</span>
+          <span>{daily.players.length} stalls · same market for everyone today{dailyBest !== undefined ? ` · Best today $${dailyBest}` : ''}</span>
+        </button>
+        <button class="jp-tile wide dark jp-mode" data-a="sprint" onClick={p.onSprint}>
+          <b>{SPRINT_TITLE}</b><span class="jp-why">{MODE_REASON.sprint}</span>
+          <span>{daily.players.length} stalls · same start for everyone today{sprintBest ? ` · ${sprintBest}` : ''}</span>
+        </button>
       </main>
     </div>
   );

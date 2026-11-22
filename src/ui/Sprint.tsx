@@ -1,10 +1,12 @@
 // PLAN-114: the Market Sprint on screen. On Home's Daily card a row of its own beside the Daily market ("Sprint · 3
 // days", your best today and your place); on the results, the Sprint's box: your best today and place, one concrete
-// reason from the game's record, the day's top ten, the players around you and this week's ranking. Try again is the
+// reason from the game's record, the day's top ten, the players around you and this week's ranking. PLAN-119: the box
+// also shows this run's cash beside your best, the reason is the Rush's decisive moment, and the weekly ranking says
+// that your best 5 days count. Try again is the
 // results' main button (Results.tsx), which starts the same Sprint at once (App.tsx).
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { SPRINT_DAYS, sprintConfig } from '../engine/daily';
+import { SPRINT_DAYS, SPRINT_WEEK_DAYS, sprintConfig } from '../engine/daily';
 import type { GameState } from '../engine/game';
 import { sprintReason } from '../engine/sprint';
 import { fetchSprint, placeWords, submitSprint, type BoardView, type PlacedEntry, type SprintBoards } from '../net/sprint';
@@ -17,6 +19,10 @@ import './sprint.css';
 
 /** "Sprint · 3 days": the format's name with its length, as on the Daily card and the Play menu. */
 export const SPRINT_TITLE = `Sprint · ${SPRINT_DAYS} days`;
+/** PLAN-119: the weekly ranking's rule in words (server/meta.ts weekTotals counts the same days). */
+export const WEEK_NOTE = `Your best ${SPRINT_WEEK_DAYS} days count.`;
+/** PLAN-119: the label over the Rush's decisive moment on the results. */
+export const MOMENT_LABEL = 'Decisive moment';
 
 /** Today's Sprint boards (null while they load). */
 export function useSprintBoards(today: string): SprintBoards | null {
@@ -89,6 +95,7 @@ export function SprintResult({ s }: { s: GameState }) {
   const me = s.players.findIndex((p) => p.kind === 'human');
   const reason = me >= 0 ? sprintReason(s, me) : null;
   const best = loadSprintBest()[date]?.cash ?? (me >= 0 ? s.players[me].cash : undefined);
+  const run = me >= 0 ? s.players[me].cash : undefined;
   const place = placeWords(res?.day);
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
   return (
@@ -96,9 +103,15 @@ export function SprintResult({ s }: { s: GameState }) {
       <div class="sbk-row"><span class="sbk-lab">{SPRINT_TITLE} · {shortDate(date)}</span></div>
       <div class="sp-best">
         <span>Best today <b>${best}</b></span>
+        {run !== undefined && run !== best && <span class="sp-run">This run <b>${run}</b></span>}
         <span class="sp-place">{place ? <>Place <b>{place}</b></> : res && !res.error ? 'Not on the board yet' : res ? '' : 'Checking the board…'}</span>
       </div>
-      {reason && <p class={`sp-why ${reason.good ? 'good' : ''}`}>{reason.text}</p>}
+      {reason && (
+        <div class="sp-moment" data-a="sprint-moment">
+          <span class="sbk-lab">{MOMENT_LABEL}</span>
+          <p class={`sp-why ${reason.good ? 'good' : ''}`}>{reason.text}</p>
+        </div>
+      )}
       {res?.error && <span class="sbk-sub">{res.error}</span>}
       {res?.day && res.day.top.length > 0 && (
         <div class="sp-sec">
@@ -109,7 +122,7 @@ export function SprintResult({ s }: { s: GameState }) {
       {res?.week && res.week.top.length > 0 && (
         <div class="sp-sec">
           <div class="sbk-row"><span class="sbk-lab">This week</span>{placeWords(res.week) && <span class="sp-wk">{placeWords(res.week)}</span>}</div>
-          <span class="sbk-sub sp-note">Your best Sprint of each day, added up.</span>
+          <span class="sbk-sub sp-note" data-a="sprint-week-note">{WEEK_NOTE}</span>
           <Board v={res.week} mine={mine} />
         </div>
       )}

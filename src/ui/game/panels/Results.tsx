@@ -24,6 +24,7 @@ import { Ticket } from '../../ticket';
 import { StageEnd } from '../../StageMoment';
 import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
+import { LEAGUE_TO_SPRINT } from '../../playMenu';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
 function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
@@ -294,12 +295,14 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
-export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs, react }: {
+export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs, react, onSprint }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
   /** PLAN-116 (REP-133 B-11): online, the reaction button, in the row of buttons at the foot (over the header it hid words). */
   react?: ComponentChildren;
   /** Starts the same table again with the person as another shopkeeper (offered beside the "close" line about them). */
   onPlayAs?: (avatar: string) => void;
+  /** PLAN-119: today's Sprint, offered under a cleared Market League stage (the League's link to the Sprint). */
+  onSprint?: () => void;
 }) {
   // Counted once when the results first show (progress.ts finishGame). On a shared phone only the phone's owner counts:
   // the first person at the table, whoever played last. The whole page then speaks to the owner (PLAN-091): "You",
@@ -381,6 +384,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
         </ol>
 
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
+        {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
 
         {sprint && <SprintResult s={s} />}
 

@@ -184,6 +184,8 @@ function Main() {
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
         onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
+        // PLAN-119: a cleared League stage's results link to today's Sprint (the finished game is not waiting, so no question).
+        onSprint={game.config.league !== undefined ? () => { track('sprint_from_league'); startSprint(); } : undefined}
       />
     );
   }
