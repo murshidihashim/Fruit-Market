@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { FRUIT, RIVALS, stageAt, type FruitId } from '../engine/data';
+import { FRUIT, RIVALS, lookOf, stageAt, type FruitId } from '../engine/data';
 import { count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { ownerHash, placeWords } from '../net/sprint';
