@@ -359,12 +359,23 @@ export function Popup({ title, onClose, children }: { title: string; onClose: ()
   );
 }
 
+/** The waiting game in a pop-up: its mode first when known (REP-133 A-13, "Daily market"), then the day, the stalls and
+ *  your cash. */
+function WaitingInfo({ mode, day, days, stalls, cash }: { mode?: string; day: number; days: number; stalls: number; cash: number | null }) {
+  const you = cash !== null ? ` · you have $${cash}` : '';
+  return (
+    <div class="popup-info">
+      {mode
+        ? <span><b>{mode}</b><small>Day {day} of {days} · {stalls} stalls{you}</small></span>
+        : <span><b>Day {day} of {days}</b><small>{stalls} stalls{you}</small></span>}
+    </div>
+  );
+}
+
 export function ContinueBody({ mode, day, days, stalls, cash, onResume, onStartOver }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; onResume: () => void; onStartOver: () => void }) {
   return (
     <>
-      <div class="popup-info">
-        <span><b>{mode ? `${mode} · ` : ''}Day {day} of {days}</b><small>{stalls} stalls{cash !== null ? ` · you have $${cash}` : ''}</small></span>
-      </div>
+      <WaitingInfo mode={mode} day={day} days={days} stalls={stalls} cash={cash} />
       <button class="btn primary big wide" onClick={onResume}>Resume</button>
       <button class="btn wide" onClick={onStartOver}>Start over</button>
       <p class="small muted">Starting over ends this game.</p>
@@ -380,9 +391,7 @@ export function ContinueBody({ mode, day, days, stalls, cash, onResume, onStartO
 export function ReplaceBody({ mode, day, days, stalls, cash, what, onKeep, onStart }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; what: string; onKeep: () => void; onStart: () => void }) {
   return (
     <>
-      <div class="popup-info">
-        <span><b>{mode ? `${mode} · ` : ''}Day {day} of {days}</b><small>{stalls} stalls{cash !== null ? ` · you have $${cash}` : ''}</small></span>
-      </div>
+      <WaitingInfo mode={mode} day={day} days={days} stalls={stalls} cash={cash} />
       <p class="small">You have a game waiting. Starting {what} ends this game.</p>
       <button class="btn primary big wide" onClick={onKeep}>Keep my game</button>
       <button class="btn wide" onClick={onStart}>Start anyway</button>

@@ -340,6 +340,8 @@ describe('a paused game is not replaced without asking', () => {
     const tree = h(ReplaceBody, { ...waitingGame(paused)!, what: 'the Daily market', onKeep: () => picked.push('keep'), onStart: () => picked.push('start') });
     const html = toStaticHtml(tree);
     expect(html).toContain('Day 4 of 10');
+    // REP-133 A-13: the mode waiting comes first.
+    expect(html).toContain('<b>Computer game</b>');
     expect(html).toContain('4 stalls');
     expect(html).toContain(`you have $${paused.players[0].cash}`);
     expect(html).toContain('Starting the Daily market ends this game.');
