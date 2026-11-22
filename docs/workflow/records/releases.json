@@ -693,7 +693,7 @@
     },
     {
       "version": "1.30.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-121"
       ],
@@ -701,8 +701,8 @@
         "Home fits on one screen: swipe between your stall and your goals, and open the Stamp book or Wardrobe from your stall"
       ],
       "date": "2026-11-22",
-      "commit": "",
-      "tagged": false
+      "commit": "9bf3072",
+      "tagged": true
     }
   ]
 }

@@ -21,10 +21,15 @@
 .home.hm.jh .hm-lanes { height: 32px; }
 .home.hm.jh .hm-lane i { width: 24px; height: 24px; }
 .home.hm.jh .hm-lane i .x-fruit { width: 20px; height: 20px; }
-.home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 16px 2px; }
+.home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 16px 0; }
 .home.hm.jh h1.hm-name { font-size: 2rem; line-height: 0.92; white-space: nowrap; }
 .home.hm.jh h1.hm-name br { display: none; }
 .home.hm.jh .jh-lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; padding: 5px 8px; background: var(--j-ink); color: var(--j-paper); }
+.home.hm.jh button.jh-lvl { min-height: 44px; border: 0; border-radius: 0; font: inherit; cursor: pointer; text-align: right; justify-content: center; }
+.home.hm.jh button.jh-lvl:active { transform: translateY(2px); }
+.home.hm.jh button.jh-lvl:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
+.home.hm.jh .jh-mid { margin: auto 0; display: flex; flex-direction: column; gap: inherit; }
+.home.hm.jh .jh-mid + .jh-foot { margin-top: 0; }
 .home.hm.jh .jh-lvl b { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--j-yel); }
 .home.hm.jh .jh-lvl small { font: 700 0.75rem/1.1 var(--f-label); }
 .home.hm.jh .hm-rest { gap: 8px; }

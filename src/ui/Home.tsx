@@ -123,9 +123,12 @@ export function Shopfront(p: ShopProps) {
         <LaneBand />
         <div class="hm-title jh-top">
           <h1 class="hm-name">Fruit<br /> Market</h1>
-          <span class="jh-lvl" aria-label={`Level ${place.level}, ${place.rank.name}`}><b>Level {place.level}</b><small>{place.rank.name}</small></span>
+          {/* The level box opens the Stamp book (where the levels and their rewards are). */}
+          <button class="jh-lvl" data-a="level" aria-label={`Level ${place.level}, ${place.rank.name}. Open the Stamp book`} onClick={p.onTrophies}><b>Level {place.level}</b><small>{place.rank.name}</small></button>
         </div>
         <div class="hm-rest">
+          {/* The stall and the mode cards sit in the middle of the space between the title and the bottom strip. */}
+          <div class="jh-mid">
           {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
           {p.room && p.onRoom && (
             <button class="hm-tk hm-room jh-room" onClick={() => p.onRoom!(p.room!)}>
@@ -135,6 +138,7 @@ export function Shopfront(p: ShopProps) {
           )}
           <StallRow next={nextLine()} goals={goalsCard()} buttons={{ filled: place.filled, size: place.size, onTrophies: p.onTrophies, onWardrobe: p.onWardrobe }} />
           <ModeCards today={p.today} games={p.games} onContinue={p.onContinue} onPlay={p.onPlay} onLeague={p.onLeague} onDaily={p.onDaily} onSprint={p.onSprint} />
+          </div>
           <nav class="hm-foot jh-foot">
             <button onClick={p.onHowTo}>How to play</button>
             <button onClick={p.onSettings}>Settings</button>
