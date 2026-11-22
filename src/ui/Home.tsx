@@ -1,10 +1,10 @@
 // The home screen (PLAN-113, the player journey; before it the "Ticket Booth" of PLAN-074; PLAN-120, the stall and the
 // mode cards). Top to bottom: the four fruit lanes (the band the opening folds into), the title with your stall level,
-// "Back to room" when an online match is open, your stall drawn with every look you wear and the next thing you can
-// unlock, then three mode cards you swipe (HomeCards.tsx): Play (opens the Play menu), the Market League and the Daily
-// market with the Sprint, each with its own waiting game. Under them your next two goals, tiles for the stamp book and
-// the Wardrobe, and How to play, Settings and the account on the kraft strip at the foot. Play opens the Play menu
-// (PlayMenu, below): every way to start a normal game on one screen.
+// "Back to room" when an online match is open, then (PLAN-121, all on one phone screen) your stall drawn with every look
+// you wear, the next thing you can unlock and icon buttons for the stamp book and the Wardrobe, in a row that swipes to
+// your next two goals; then three mode cards you swipe (HomeCards.tsx): Play (opens the Play menu), the Market League
+// and the Daily market with the Sprint, each with its own waiting game; and How to play, Settings and the account on the
+// kraft strip at the foot. Play opens the Play menu (PlayMenu, below): every way to start a normal game on one screen.
 // The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css and
 // home-cards.css for the rest. The opening (Opening.tsx, "Lane Drop") plays on this screen: "hm-intro" on <html>
 // animates the title and everything under the band (".hm-title", ".hm-rest") into place.
@@ -18,7 +18,7 @@ import { accountsAvailable, signedInAs } from './account';
 import { Face } from './art';
 import { useFocusTrap } from './focusTrap';
 import { FruitSvg } from './fruitIcons';
-import { ModeCards, PlayIcon, YourStall } from './HomeCards';
+import { ModeCards, PlayIcon, StallRow } from './HomeCards';
 import { PropSprite, RoofBand } from './icons';
 import { chosenColour, myAvatar, syncLooks, worn } from './looks';
 import { LENGTHS, NORMAL_HEADING, computerLine, phoneLine, quickLine, roomLine } from './playMenu';
@@ -89,13 +89,14 @@ function nextLine(): string | null {
     : next?.reward ? `Level ${next.level}: ${next.reward.text} · ${next.stamps} ${next.stamps === 1 ? 'stamp' : 'stamps'}` : null;
 }
 
-/** Your next two goals: the trophy tiers nearest to done, with what each gives. */
-function Goals() {
+/** Your next two goals: the trophy tiers nearest to done, with what each gives. PLAN-121: the inside of the card that
+ *  swipes with your stall (null when no goal is left). */
+function goalsCard(): ComponentChildren | null {
   const two = goals(snapshot()).slice(0, 2);
   if (!two.length) return null;
   return (
-    <section class="jh-goals" aria-label="Your next goals">
-      <span class="jh-h">Your next goals</span>
+    <div class="jh-goals">
+      <div class="jh-ch"><span>Your next goals</span></div>
       {two.map((g) => {
         const look = goalLook(g);
         return (
@@ -106,7 +107,7 @@ function Goals() {
           </div>
         );
       })}
-    </section>
+    </div>
   );
 }
 
@@ -121,7 +122,7 @@ export function Shopfront(p: ShopProps) {
       <div class="hm-in">
         <LaneBand />
         <div class="hm-title jh-top">
-          <h1 class="hm-name">Fruit<br />Market</h1>
+          <h1 class="hm-name">Fruit<br /> Market</h1>
           <span class="jh-lvl" aria-label={`Level ${place.level}, ${place.rank.name}`}><b>Level {place.level}</b><small>{place.rank.name}</small></span>
         </div>
         <div class="hm-rest">
@@ -132,13 +133,8 @@ export function Shopfront(p: ShopProps) {
               <span class="hm-tk-txt"><small>Your online match</small><span>Back to room {p.room}</span></span>
             </button>
           )}
-          <YourStall next={nextLine()} />
+          <StallRow next={nextLine()} goals={goalsCard()} buttons={{ filled: place.filled, size: place.size, onTrophies: p.onTrophies, onWardrobe: p.onWardrobe }} />
           <ModeCards today={p.today} games={p.games} onContinue={p.onContinue} onPlay={p.onPlay} onLeague={p.onLeague} onDaily={p.onDaily} onSprint={p.onSprint} />
-          <Goals />
-          <nav class="jh-tiles two" aria-label="Your progress">
-            <button onClick={p.onTrophies}><b>Stamp book</b><span>{place.filled} of {place.size} stamps</span></button>
-            <button onClick={p.onWardrobe}><b>Wardrobe</b><span class="jh-tface"><FramedFace who={myAvatar()} size={30} look={worn()} /></span></button>
-          </nav>
           <nav class="hm-foot jh-foot">
             <button onClick={p.onHowTo}>How to play</button>
             <button onClick={p.onSettings}>Settings</button>

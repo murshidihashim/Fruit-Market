@@ -82,18 +82,57 @@ describe('the Play page keeps the Normal game group only', () => {
 });
 
 describe('Home: the stall and the three mode cards, each with its own waiting game', () => {
-  it('draws the stall, then Play, Market League and Daily market cards with arrows and dots', () => {
+  it('draws the stall and goals row, then Play, Market League and Daily market cards with arrows and dots', () => {
     const html = home({});
     expect(html).toContain('jh-stall2');
-    expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual(['play', 'league', 'daily']);
+    // PLAN-121: your stall and your next goals swipe in one row with two dots; the three mode cards follow with theirs
+    expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual(['stall', 'goals', 'play', 'league', 'daily']);
     expect(html).toContain('aria-label="Previous card"');
     expect(html).toContain('aria-label="Next card"');
-    expect((html.match(/<button class="jh-dot/g) ?? []).length).toBe(3);
+    expect((html.match(/<button class="jh-dot/g) ?? []).length).toBe(5);
+    for (const d of ['Show your stall', 'Show your next goals', 'Show the Play card', 'Show the Market League card', 'Show the Daily market card']) {
+      expect(html).toContain(`aria-label="${d}"`);
+    }
+    expect(html.indexOf('jh-stallrow')).toBeLessThan(html.indexOf('jh-modes'));
     // nothing waits: Play, Open the League, Play the Daily market, Play the Sprint
     expect(html).not.toContain('data-a="continue-');
     for (const a of ['play', 'league', 'daily', 'sprint']) expect(html).toContain(`data-a="${a}"`);
-    // the League tile left the tiles for its card
-    expect(html).not.toMatch(/jh-tiles[^>]*>\s*<button[^>]*><b>League/);
+  });
+
+  it('the goals are a card beside the stall, and the stamp book and the Wardrobe are icon buttons on the stall', () => {
+    const html = home({});
+    const goals = html.slice(html.indexOf('data-card="goals"'), html.indexOf('jh-modes'));
+    expect(goals).toContain('Your next goals');
+    expect((goals.match(/class="jh-goal"/g) ?? []).length).toBe(2);
+    // no goals section under the mode cards, and no tiles
+    expect(html.slice(html.indexOf('jh-modes'))).not.toContain('Your next goals');
+    expect(html).not.toContain('jh-tiles');
+    const stall = html.slice(html.indexOf('data-card="stall"'), html.indexOf('data-card="goals"'));
+    expect(stall).toMatch(/<button class="jh-ib" data-a="stamp-book" aria-label="Stamp book, \d+ of \d+ stamps">[\s\S]*?<span>Stamp book<\/span><\/button>/);
+    expect(stall).toMatch(/<button class="jh-ib" data-a="wardrobe">[\s\S]*?<span>Wardrobe<\/span><\/button>/);
+    expect(stall).toContain('class="icon xi"');
+    // the "Next …" line stays on the stall
+    expect(stall).toContain('jh-next2');
+  });
+
+  it('the icon buttons open the stamp book and the Wardrobe', () => {
+    const opened: string[] = [];
+    const tree = h(Shopfront, {
+      games: {}, today: DATE, notice: null, onContinue: noop, onPlay: noop, onDaily: noop, onSprint: noop, onLeague: noop,
+      onWardrobe: () => opened.push('wardrobe'), onAccount: noop, onTrophies: () => opened.push('book'), onHowTo: noop, onSettings: noop,
+    });
+    const find = (n: unknown, a: string): { props: { onClick: () => void } } | null => {
+      if (!n || typeof n !== 'object') return null;
+      const v = n as { type?: unknown; props?: { children?: unknown; 'data-a'?: string; onClick?: () => void } };
+      if (v.props?.['data-a'] === a) return v as { props: { onClick: () => void } };
+      if (typeof v.type === 'function') return find((v.type as (p: unknown) => unknown)(v.props), a);
+      const kids = v.props?.children;
+      for (const k of Array.isArray(kids) ? kids.flat(Infinity) : [kids]) { const f = find(k, a); if (f) return f; }
+      return null;
+    };
+    find(tree, 'stamp-book')!.props.onClick();
+    find(tree, 'wardrobe')!.props.onClick();
+    expect(opened).toEqual(['book', 'wardrobe']);
   });
 
   it('each card shows its own mode\'s game: "Day 4 of 10 · $23"', () => {
@@ -121,9 +160,11 @@ describe('Home: the stall and the three mode cards, each with its own waiting ga
     expect(waitWords(waitingGame(phone)!)).toBe('Day 3 of 8');
   });
 
-  it('"Back to room" for an open online match stays above the cards', () => {
-    const html = home({}, { room: 'ABC123', onRoom: noop });
+  it('"Back to room" for an open online match and an old-save notice stay above the stall and the cards', () => {
+    const html = home({}, { room: 'ABC123', onRoom: noop, notice: 'Your unfinished game couldn\'t be read, so it was cleared.' });
     expect(html).toContain('Back to room ABC123');
-    expect(html.indexOf('Back to room')).toBeLessThan(html.indexOf('jh-modes'));
+    expect(html.indexOf('Back to room')).toBeLessThan(html.indexOf('jh-stallrow'));
+    expect(html.indexOf('save-notice')).toBeLessThan(html.indexOf('jh-stallrow'));
+    expect(html.indexOf('jh-stallrow')).toBeLessThan(html.indexOf('jh-modes'));
   });
 });

@@ -98,7 +98,10 @@ describe('B-17: one set of words', () => {
   });
 
   it('the stamp book is called the stamp book', () => {
-    expect(readFileSync('src/ui/Home.tsx', 'utf8')).toContain('<b>Stamp book</b><span>{place.filled} of {place.size} stamps</span>');
+    // PLAN-121: an icon button on your stall (HomeCards.tsx), named with its stamps for a screen reader
+    const stall = readFileSync('src/ui/HomeCards.tsx', 'utf8');
+    expect(stall).toContain('aria-label={`Stamp book, ${buttons.filled} of ${buttons.size} stamps`}');
+    expect(stall).toContain('<span>Stamp book</span>');
     expect(readFileSync('src/ui/game/panels/Results.tsx', 'utf8')).toContain("'Open your stamp book'");
     expect(readFileSync('src/ui/Trophies.tsx', 'utf8')).toContain("?? 'Stamp book'");
   });

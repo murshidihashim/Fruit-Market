@@ -4,76 +4,121 @@
    browser's own sideways scroll with snap points; nothing here is animated.
    ===================================================================== */
 
+/* ---------- PLAN-121: Home on one screen ----------
+   Everything from the title to the kraft strip fits a 360x640 phone without scrolling. The rules below are the compact
+   Home; a phone with room to spare (760 px high and more) gets the bigger pictures and the extra lines back (".jh-x",
+   each mode's reason, the ways' second lines). Nothing that leaves a card is lost: the League screen, the Daily intro
+   and the Play page show it one tap away. */
+
+/* ---------- the row of your stall and your goals ---------- */
+.home.hm.jh .jh-stallrow { flex: none; display: flex; flex-direction: column; }
+.home.hm.jh .jh-stallrow.solo { padding: 0 16px; }
+.home.hm.jh .jh-srow {
+  display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 16px;
+  padding: 0 16px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.home.hm.jh .jh-srow::-webkit-scrollbar { display: none; }
+.home.hm.jh .jh-scard { flex: 0 0 calc(100% - 46px); max-width: 480px; box-sizing: border-box; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column; }
+.home.hm.jh .jh-scard > * { flex: 1 0 auto; }
+/* the two dots: drawn in a 32 px strip, each tap area 44 px (it reaches into the row's foot and the gap below, never over a card) */
+.home.hm.jh .jh-snav { height: 32px; display: flex; justify-content: center; align-items: center; }
+.home.hm.jh .jh-snav .jh-dot { position: relative; z-index: 1; margin: -4px 0 -8px; }
+
 /* ---------- your stall ---------- */
 .home.hm.jh .jh-stall2 {
-  position: relative; flex: none; margin: 0 16px; overflow: hidden; background: var(--j-melon); box-shadow: inset 0 0 0 3px var(--j-ink);
+  position: relative; overflow: hidden; background: var(--j-melon); box-shadow: inset 0 0 0 3px var(--j-ink);
   display: flex; flex-direction: column; padding: 3px 3px 0;
 }
-.home.hm.jh .jh-awn2 { flex: none; height: 22px; border-bottom: 3px solid var(--j-ink); }
-.home.hm.jh .jh-st-in { display: flex; align-items: flex-end; gap: 12px; padding: 12px 12px 0; min-height: 150px; }
-.home.hm.jh .jh-keeper { flex: none; align-self: center; padding: 6px 0 12px; line-height: 0; }
+.home.hm.jh .jh-awn2 { flex: none; height: 14px; border-bottom: 3px solid var(--j-ink); }
+.home.hm.jh .jh-st-in { flex: 1; display: flex; align-items: center; gap: 8px; padding: 8px 8px 0; }
+.home.hm.jh .jh-keeper { flex: none; align-self: center; padding: 0 0 8px; line-height: 0; }
 .home.hm.jh .jh-keeper .sbk-face { border-width: 3px; border-color: var(--j-ink); padding: 0; background: var(--j-tint); }
-.home.hm.jh .jh-st-side { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.home.hm.jh .jh-st-side { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .home.hm.jh .jh-sign {
-  max-width: 100%; box-sizing: border-box; padding: 6px 9px; background: var(--j-paper); box-shadow: inset 0 0 0 2.5px var(--j-ink);
-  display: flex; flex-direction: column; gap: 2px;
+  max-width: 100%; box-sizing: border-box; padding: 4px 7px; background: var(--j-paper); box-shadow: inset 0 0 0 2.5px var(--j-ink);
+  display: flex; flex-direction: column; gap: 1px;
 }
-.home.hm.jh .jh-sign b { font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.home.hm.jh .jh-sign b { font: 400 0.875rem/1.05 var(--f-display); text-transform: uppercase; display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home.hm.jh .jh-sign small { font: 700 0.75rem/1.1 var(--f-label); color: var(--j-slate); }
-.home.hm.jh .jh-counter { position: relative; display: flex; align-items: flex-end; gap: 6px; padding-bottom: 12px; }
+.home.hm.jh .jh-counter { position: relative; display: flex; align-items: flex-end; gap: 4px; padding-bottom: 8px; }
 .home.hm.jh .jh-crate { position: relative; display: flex; flex-direction: column; align-items: center; }
-.home.hm.jh .jh-crate-fruit { display: flex; gap: 1px; margin-bottom: -7px; position: relative; z-index: 1; }
+.home.hm.jh .jh-crate-fruit { display: flex; gap: 1px; margin-bottom: -6px; position: relative; z-index: 1; }
 .home.hm.jh .jh-crate-box { display: block; overflow: hidden; line-height: 0; }
 .home.hm.jh .jh-crate-box img { display: block; }
 .home.hm.jh .jh-prop2 { flex: none; }
-.home.hm.jh .jh-tag2 { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 2; }
+.home.hm.jh .jh-tag2 { position: absolute; left: 50%; bottom: 13px; transform: translateX(-50%); z-index: 2; }
+/* the stamp book and the Wardrobe: icon buttons with their names, on the stall's right */
+.home.hm.jh .jh-sbtns { flex: none; align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-bottom: 8px; }
+.home.hm.jh .jh-ib {
+  width: 76px; min-height: 44px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  padding: 4px 2px; background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink), 0 3px 0 var(--j-ink);
+  font: 800 0.75rem/1.05 var(--f-label); text-align: center;
+}
+.home.hm.jh .jh-ib:active { transform: translateY(2px); box-shadow: inset 0 0 0 2.5px var(--j-ink), 0 1px 0 var(--j-ink); }
+.home.hm.jh .jh-ibic { height: 22px; display: grid; place-items: center; line-height: 0; }
+.home.hm.jh .jh-ibface .sbk-face { border-width: 2px; padding: 0; }
 .home.hm.jh .jh-next2 {
-  position: relative; align-self: flex-start; margin: 0 7px 9px; max-width: calc(100% - 14px); box-sizing: border-box; padding: 6px 9px; background: var(--j-ink); color: var(--j-paper);
-  font: 700 0.8125rem/1.25 var(--f-label);
+  position: relative; align-self: flex-start; margin: 0 6px 6px; max-width: calc(100% - 12px); box-sizing: border-box; padding: 4px 8px; background: var(--j-ink); color: var(--j-paper);
+  font: 700 0.75rem/1.25 var(--f-label);
+  /* one line on a compact Home (a long line ends in "…"; a screen reader still reads it whole); a tall phone wraps it */
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .home.hm.jh .jh-next2 b { color: var(--j-yel); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
 
+/* ---------- your next goals (the card beside your stall) ---------- */
+.home.hm.jh .jh-goals { display: flex; flex-direction: column; gap: 6px; padding: 3px 3px 6px; background: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); }
+.home.hm.jh .jh-goal { display: flex; align-items: center; gap: 8px; min-height: 48px; margin: 0 3px; padding: 4px 8px; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-gpic { flex: none; width: 44px; height: 36px; display: grid; place-items: center; overflow: hidden; }
+.home.hm.jh .jh-gpic.awn { align-content: center; }
+.home.hm.jh .jh-gpic.awn .tb-awn { width: 44px; }
+.home.hm.jh .jh-gpic img.sbk-art { width: 36px; height: 36px; object-fit: cover; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-gpic .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+.home.hm.jh .jh-gt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.home.hm.jh .jh-gt b { font: 800 0.875rem/1.15 var(--f-label); }
+.home.hm.jh .jh-gt small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-gp { flex: none; font: 400 1rem/1 var(--f-display); }
+
 /* ---------- the row of mode cards ---------- */
-.home.hm.jh .jh-modes { flex: none; display: flex; flex-direction: column; gap: 8px; }
+.home.hm.jh .jh-modes { flex: none; display: flex; flex-direction: column; gap: 2px; }
 .home.hm.jh .jh-row {
   position: relative; display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 16px;
-  padding: 0 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  padding: 0 16px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .home.hm.jh .jh-row::-webkit-scrollbar { display: none; }
-/* each mode's one-line reason (PLAN-119, playMenu.ts MODE_REASON), at the top of its card */
-.home.hm.jh .jh-why { font: 700 0.875rem/1.25 var(--f-label); color: var(--j-ink); }
+/* each mode's one-line reason (PLAN-119, playMenu.ts MODE_REASON), at the top of its card when there is room */
+.home.hm.jh .jh-why { font: 700 0.8125rem/1.25 var(--f-label); color: var(--j-ink); }
 .home.hm.jh .jh-card .jh-decho { display: block; }
 .home.hm.jh .jh-card {
   flex: 0 0 calc(100% - 46px); max-width: 480px; box-sizing: border-box; scroll-snap-align: start; scroll-snap-stop: always;
   display: flex; flex-direction: column; background: var(--j-paper); box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px;
 }
 .home.hm.jh .jh-ch {
-  min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
+  min-height: 30px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
   font: 800 0.8125rem/1.15 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
 }
-.home.hm.jh .jh-ch span { min-width: 0; padding: 5px 0; overflow-wrap: anywhere; }
+.home.hm.jh .jh-ch span { min-width: 0; padding: 4px 0; overflow-wrap: anywhere; }
 .home.hm.jh .jh-ch small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); white-space: nowrap; }
-.home.hm.jh .jh-cb { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 10px 8px 8px; }
+.home.hm.jh .jh-cb { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 6px 6px 6px; }
 .home.hm.jh .jh-cmain, .home.hm.jh .jh-cplay, .home.hm.jh .jh-wait { margin-top: auto; }
-.home.hm.jh .jh-cplay { margin-bottom: 5px; min-height: 72px; font-size: 2rem; }
-.home.hm.jh .jh-wait { display: flex; flex-direction: column; gap: 8px; }
+.home.hm.jh .jh-cplay { margin-bottom: 5px; min-height: 56px; font-size: 1.75rem; }
+.home.hm.jh .jh-wait { display: flex; flex-direction: column; gap: 6px; }
 .home.hm.jh .jh-cgo {
-  min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 6px 12px; background: var(--j-yel); color: var(--j-ink);
-  box-shadow: inset 0 0 0 3px var(--j-ink), 0 4px 0 var(--j-ink); margin-bottom: 4px; text-align: left;
+  min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 4px 12px; background: var(--j-yel); color: var(--j-ink);
+  box-shadow: inset 0 0 0 3px var(--j-ink), 0 3px 0 var(--j-ink); margin-bottom: 3px; text-align: left;
 }
-.home.hm.jh .jh-cgo span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.home.hm.jh .jh-cgo b { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
-.home.hm.jh .jh-cgo small { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.04em; }
+.home.hm.jh .jh-cgo span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home.hm.jh .jh-cgo b { font: 400 1.125rem/1 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-cgo small { font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.04em; white-space: nowrap; }
 .home.hm.jh .jh-cgo svg { flex: none; }
 .home.hm.jh .jh-cgo:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 1px 0 var(--j-ink); }
-.home.hm.jh .jh-c2 { min-height: 44px; }
+.home.hm.jh .jh-c2, .home.hm.jh .jh-card .jh-dgo { min-height: 44px; }
 
 /* the Play card */
-.home.hm.jh .jh-ways { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-.home.hm.jh .jh-ways li { display: flex; flex-direction: column; gap: 2px; padding: 7px 8px; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-tint); }
-.home.hm.jh .jh-ways b { font: 400 0.9375rem/1.05 var(--f-display); text-transform: uppercase; }
-.home.hm.jh .jh-ways span { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
-.home.hm.jh .jh-vs { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 0; }
+.home.hm.jh .jh-ways { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.home.hm.jh .jh-ways li { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-tint); }
+.home.hm.jh .jh-ways b { font: 400 0.875rem/1.05 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-ways span { display: none; font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-vs { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 0; }
 .home.hm.jh .jh-vs i { font: 400 1rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 4px; }
 .home.hm.jh .jh-vs .xf, .home.hm.jh .jh-round .xf { border-radius: 50%; }
 .home.hm.jh .jh-vs > .xf { box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
@@ -85,32 +130,38 @@
 .home.hm.jh .jh-tr { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px 3px 3px; box-shadow: inset 0 0 0 2px var(--j-ink); font: 400 0.875rem/1 var(--f-display); }
 .home.hm.jh .jh-tr.me { background: var(--j-yel); }
 
-/* the Market League card */
+/* the Market League card: a short picture with you against its rivals */
 .home.hm.jh .jh-lgpic { position: relative; line-height: 0; box-shadow: inset 0 0 0 2px var(--j-ink); }
-.home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { display: block; width: 100%; height: 118px; object-fit: cover; }
-.home.hm.jh .jh-lgvs { position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; background: var(--j-ink); color: var(--j-paper); }
-.home.hm.jh .jh-lgvs i { font: 400 0.875rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 3px; }
+.home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { display: block; width: 100%; height: 60px; object-fit: cover; }
+.home.hm.jh .jh-lgvs { position: absolute; left: 5px; bottom: 5px; display: flex; align-items: center; gap: 3px; padding: 3px 6px 3px 3px; background: var(--j-ink); color: var(--j-paper); }
+.home.hm.jh .jh-lgvs i { font: 400 0.8125rem/1 var(--f-display); font-style: normal; text-transform: uppercase; margin: 0 3px; }
 .home.hm.jh .jh-round { display: inline-flex; border: 2px solid var(--j-paper); border-radius: 50%; background: var(--j-tint); line-height: 0; }
-.home.hm.jh .jh-lgt { font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; }
-.home.hm.jh .jh-lgg { font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
+.home.hm.jh .jh-lgt { font: 400 1.125rem/1 var(--f-display); text-transform: uppercase; }
+.home.hm.jh .jh-lgg { font: 600 0.75rem/1.3 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-lgs { display: flex; align-items: center; gap: 8px; }
 .home.hm.jh .jh-lgs small { font: 700 0.75rem/1 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-lgs .jp-star path { fill: none; stroke: var(--j-ink); }
 .home.hm.jh .jh-lgs .jp-star.on path { fill: var(--j-yel); }
-.home.hm.jh .jh-lgtr { padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.8125rem/1.3 var(--f-label); }
+.home.hm.jh .jh-lgtr { padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.75rem/1.3 var(--f-label); }
 .home.hm.jh .jh-lgtr b { font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.75rem; margin-right: 3px; }
 
-/* the Daily market card */
-.home.hm.jh .jh-card .jh-db { padding: 0; }
-.home.hm.jh .jh-dtw { font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
+/* the Daily market card: today's first customer as a small card that opens whole on a tap, the lorry in one row */
+.home.hm.jh .jh-card .jh-db { display: flex; flex-direction: row; align-items: flex-start; gap: 8px; padding: 0; }
+.home.hm.jh .jh-card .jh-dcard { flex: none; --card-w: 60px; }
+.home.hm.jh .jh-card .jh-dr { gap: 4px; }
+.home.hm.jh .jh-card .jh-lorry { gap: 3px; }
+.home.hm.jh .jh-card .jh-lorry span { min-height: 28px; flex-direction: row; gap: 4px; padding: 0 0 3px; box-shadow: inset 0 0 0 2px var(--j-ink), inset 0 -4px 0 var(--lane); }
+.home.hm.jh .jh-card .jh-lorry b { font-size: 1rem; }
+.home.hm.jh .jh-dtw { font: 600 0.75rem/1.3 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-dtw b { color: var(--j-ink); }
-.home.hm.jh .jh-dme { font: 800 0.8125rem/1.3 var(--f-label); }
-.home.hm.jh .jh-sp2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px; background: var(--j-tint); box-shadow: inset 0 0 0 2px var(--j-ink); }
-.home.hm.jh .jh-sp2-tx { flex: 1 1 140px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.home.hm.jh .jh-sp2-tx b { font: 400 1rem/1.05 var(--f-display); text-transform: uppercase; white-space: nowrap; }
+.home.hm.jh .jh-dme { font: 800 0.75rem/1.3 var(--f-label); }
+.home.hm.jh .jh-sp2 { display: flex; align-items: center; gap: 8px; padding: 3px 3px 3px 8px; background: var(--j-tint); box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-sp2-tx { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.home.hm.jh .jh-sp2-tx b { font: 400 0.9375rem/1.05 var(--f-display); text-transform: uppercase; }
 .home.hm.jh .jh-sp2-tx small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
-.home.hm.jh .jh-sp2 .jh-dgo { margin: 0; flex: 1 0 128px; max-width: 100%; }
-.home.hm.jh .jh-sp2 .jh-cgo { margin: 0; flex: 1 0 128px; min-height: 48px; padding: 4px 10px; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-sp2 .jh-dgo { margin: 0; flex: none; width: 108px; min-height: 44px; padding: 0 6px; }
+.home.hm.jh .jh-sp2 .jh-cgo { margin: 0; flex: none; min-height: 44px; padding: 3px 8px; gap: 6px; box-shadow: inset 0 0 0 2px var(--j-ink); }
+.home.hm.jh .jh-sp2 .jh-cgo svg { display: none; }
 .home.hm.jh .jh-sp2 .jh-cgo b { font-size: 1rem; }
 
 /* the arrows and the dots */
@@ -125,22 +176,57 @@
 .home.hm.jh .jh-dot.on i { width: 26px; background: var(--j-ink); }
 .home.hm.jh .jh-arr:focus-visible, .home.hm.jh .jh-dot:focus-visible { outline: 3px solid var(--j-yel); outline-offset: -3px; }
 
-/* the tiles under the cards: two now (the League has a card of its own) */
-.home.hm.jh .jh-tiles.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* the lines and pictures a phone with room to spare shows (and the compact Home leaves to the next screen) */
+.home.hm.jh .jh-why, .home.hm.jh .jh-x { display: none; }
+@media (min-height: 760px) {
+  .home.hm.jh .jh-why { display: block; }
+  .home.hm.jh .jh-x { display: flex; }
+  .home.hm.jh .jh-card .jh-decho, .home.hm.jh .jh-lgtr.jh-x { display: block; }
+  .home.hm.jh .jh-ways span { display: block; }
+  .home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { height: 96px; }
+  .home.hm.jh .jh-card .jh-dcard { --card-w: 76px; }
+  .home.hm.jh .jh-awn2 { height: 18px; }
+  .home.hm.jh .jh-st-in { gap: 8px; padding: 12px 8px 2px; }
+  .home.hm.jh .jh-ways.jh-x { display: grid; }
+  .home.hm.jh .jh-cgo { min-height: 52px; }
+  .home.hm.jh .jh-cgo b { font-size: 1.25rem; }
+  .home.hm.jh .jh-ib { width: 80px; min-height: 52px; }
+  .home.hm.jh .jh-next2 { margin: 0 7px 8px; padding: 6px 9px; font-size: 0.8125rem; white-space: normal; }
+}
+/* PLAN-121: with less height, the waiting game's table row is left out (Continue still names the day and your cash). */
+@media (max-height: 759px) {
+  .home.hm.jh .jh-wait .jh-trow { display: none; }
+  .home.hm.jh .jh-lgw .jh-lgart, .home.hm.jh .jh-lgw .jh-lgart img { height: 44px; }
+}
+/* The smallest phones (under 600 px high): a lower band, no faces on the Play card (the Play page has them) and a
+   shorter League picture. */
+@media (max-height: 599px) {
+  .home.hm.jh .hm-in .hm-lanes { height: 30px; }
+  .home.hm.jh .hm-in .hm-lane i { width: 22px; height: 22px; }
+  .home.hm.jh .hm-in .hm-lane i .x-fruit { width: 18px; height: 18px; }
+  .home.hm.jh .hm-in .jh-top { padding-top: 6px; padding-bottom: 0; }
+  .home.hm.jh .jh-card-play .jh-vs { display: none; }
+  .home.hm.jh .jh-lgart, .home.hm.jh .jh-lgart img { height: 44px; }
+}
 
 @media (max-width: 379px) {
-  .home.hm.jh .jh-stall2 { margin: 0 12px; }
-  .home.hm.jh .jh-st-in { gap: 8px; padding: 10px 8px 0; min-height: 132px; }
-  .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 84px !important; height: 84px !important; }
-  .home.hm.jh .jh-row { padding: 0 12px 6px; scroll-padding: 0 12px; gap: 8px; }
-  .home.hm.jh .jh-card { flex-basis: calc(100% - 36px); }
+  .home.hm.jh .jh-srow, .home.hm.jh .jh-row { padding: 0 12px 2px; scroll-padding: 0 12px; gap: 8px; }
+  .home.hm.jh .jh-srow { padding-bottom: 4px; }
+  .home.hm.jh .jh-stallrow.solo { padding: 0 12px; }
+  .home.hm.jh .jh-scard, .home.hm.jh .jh-card { flex-basis: calc(100% - 36px); }
+  .home.hm.jh .jh-st-in { gap: 6px; padding: 8px 6px 0; }
   .home.hm.jh .jh-nav { margin: 0 12px; }
 }
 @media (max-width: 339px) {
-  .home.hm.jh .jh-crate-fruit .fruit-svg, .home.hm.jh .jh-crate-fruit svg { width: 18px; height: 18px; }
-  .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 70px !important; height: 70px !important; }
-  .home.hm.jh .jh-cb .jh-db { flex-direction: row; gap: 6px; }
-  .home.hm.jh .jh-cb .jh-dcard { align-self: flex-start; --card-w: 96px; }
+  .home.hm.jh .jh-keeper .xf, .home.hm.jh .jh-keeper .sbk-face > .xf { width: 50px !important; height: 50px !important; }
+  .home.hm.jh .jh-sign b { font-size: 0.8125rem; }
+  .home.hm.jh .jh-counter { zoom: 0.8; }
+  .home.hm.jh .jh-ch { letter-spacing: 0.06em; }
+  .home.hm.jh .jh-card .jh-dr > .jh-lb { letter-spacing: 0.04em; }
+  .home.hm.jh .jh-sp2-tx b { font-size: 0.875rem; }
+  .home.hm.jh .jh-sp2 .jh-dgo { width: 104px; letter-spacing: 0.04em; }
+  /* each card takes the whole width here (the dots under each row still say there are more cards) */
+  .home.hm.jh .jh-scard, .home.hm.jh .jh-card { flex-basis: 100%; }
 }
 
 /* ---------- the Daily intro ---------- */
