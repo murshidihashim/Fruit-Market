@@ -5,6 +5,9 @@ import type { GameState } from '../engine/game';
 
 /** What the home screen says about the waiting game. */
 export interface WaitingGame {
+  /** Which kind of game is waiting (REP-133 A-13): "Daily market", "Sprint", "League stage 3", "Computer game" or
+   *  "One phone game". */
+  mode: string;
   day: number;
   /** The game's length in days. */
   days: number;
@@ -17,7 +20,16 @@ export interface WaitingGame {
 export function waitingGame(game: GameState | null): WaitingGame | null {
   if (!game || game.phase === 'over') return null;
   const humans = game.players.filter((pl) => pl.kind === 'human');
-  return { day: game.day, days: game.config.days, stalls: game.players.length, cash: humans.length === 1 ? humans[0].cash : null };
+  return { mode: modeOf(game), day: game.day, days: game.config.days, stalls: game.players.length, cash: humans.length === 1 ? humans[0].cash : null };
+}
+
+/** The name of a game's mode, as the Play menu names it. */
+export function modeOf(game: GameState): string {
+  const c = game.config;
+  if (c.sprint) return 'Sprint';
+  if (c.daily) return 'Daily market';
+  if (c.league !== undefined) return `League stage ${c.league + 1}`;
+  return game.players.filter((pl) => pl.kind === 'human').length > 1 ? 'One phone game' : 'Computer game';
 }
 
 /**

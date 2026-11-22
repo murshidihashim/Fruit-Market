@@ -16,7 +16,8 @@ describe('versions (PLAN-112)', () => {
   it('the messages changed, the rules and the computer players did not', () => {
     expect(PROTOCOL_VERSION).toBe(5);
     expect(RULES_VERSION).toBe(20);
-    expect(AI_VERSION).toBe(7);
+    // 8 since PLAN-117 (the Daily's rivals all at Normal); online rooms do not use it.
+    expect(AI_VERSION).toBe(8);
   });
 });
 

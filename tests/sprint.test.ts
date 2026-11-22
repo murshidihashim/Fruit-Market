@@ -57,7 +57,8 @@ describe('the Sprint set-up', () => {
     expect(SPRINT_DAYS).toBe(3);
     expect(c.players).toHaveLength(4);
     expect(c.players).toEqual(d.players);
-    expect(c.players.slice(1).map((p) => p.level)).toEqual(['normal', 'hard', 'normal']);
+    // PLAN-117: all three rivals at Normal (Uncle Benny was Hard up to 1.27.0).
+    expect(c.players.slice(1).map((p) => p.level)).toEqual(['normal', 'normal', 'normal']);
     expect(c).toMatchObject({ upgrades: false, events: true, unripe: true, daily: DATE, sprint: true });
     expect(c.core).toBeUndefined();
     expect(c.street).toBeUndefined();
@@ -120,7 +121,8 @@ describe('the Sprint set-up', () => {
     expect(dailyConfig(DATE, 'Me').sprint).toBeUndefined();
     expect(RULES_VERSION).toBe(20);
     expect(PROTOCOL_VERSION).toBe(5);
-    expect(AI_VERSION).toBe(7);
+    // 8 since PLAN-117 (the Daily's and the Sprint's rivals all at Normal: new boards).
+    expect(AI_VERSION).toBe(8);
   });
 
   it('names ISO weeks (Monday to Sunday; week 1 holds the first Thursday)', () => {

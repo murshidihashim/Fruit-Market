@@ -206,7 +206,7 @@ describe('the takings as drawn', () => {
       const crowd = rushOver(s);
       expect(crowd.map((x) => x.id)).toEqual(servingCustomers(s).map((c) => c.id));
       for (const x of crowd) expect(x.served).toBe(s.results!.lines.some((l) => l.customerId === x.id && l.offers.some((o) => o.sold > 0)));
-      expect(view(s)).toContain(`<span>The rush is over</span> · <span>${crowd.filter((x) => x.served).length} of ${crowd.length} served</span>`);
+      expect(view(s)).toContain(`<span>The rush is over</span> · <span>${crowd.filter((x) => x.served).length} of ${crowd.length} bought</span>`);
     }
     expect(all.some(({ s }) => rushOver(s).some((x) => !x.served))).toBe(true);
   });

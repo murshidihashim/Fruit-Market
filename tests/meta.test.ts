@@ -2,9 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import { aiStep, planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
-import { dailyConfig } from '../src/engine/daily';
+import { dailyConfig, sprintConfig } from '../src/engine/daily';
 import { applyAction, beginBuying, canBuy, finishReveal, newGame, type Action, type GameState } from '../src/engine/game';
-import { addEntry, cleanIngest, dailyBoardKey, NAME_TAKEN, ownerOf, publicBoard, quickMatch, QUICK_WAIT_MS, utcDay, verifyDaily } from '../server/meta';
+import { addEntry, cleanIngest, dailyBoardKey, NAME_TAKEN, ownerOf, publicBoard, quickMatch, QUICK_WAIT_MS, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily } from '../server/meta';
 import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
 
 const NOW = Date.UTC(2026, 9, 25, 12);
@@ -71,8 +71,11 @@ describe('daily leaderboard', () => {
   });
 
   it('rejects games played against older computer players (the replay would differ)', () => {
-    expect(AI_VERSION).toBe(7);
+    // PLAN-117: version 8 is the Daily with every rival at Normal; a phone still on 7 played against Hard Uncle Benny.
+    expect(AI_VERSION).toBe(8);
     const { s, moves } = playDaily();
+    expect(() => verifyDaily(sub(moves, { av: 7 }), NOW, OWNER)).toThrow(UPDATE_MSG);
+    expect(() => verifyDaily(sub(moves, { av: 7 }), NOW, OWNER, true)).toThrow(UPDATE_MSG);
     // An app from 1.8.0 or earlier sends no computer-player version: that is version 1.
     expect(() => verifyDaily({ date: DATE, name: 'Tester', actions: moves, rv: RULES_VERSION }, NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { av: 1 }), NOW, OWNER)).toThrow(UPDATE_MSG);
@@ -83,11 +86,23 @@ describe('daily leaderboard', () => {
     // 1.24.0 (rules 19, computer players 6, the jam value): asked to update.
     expect(() => verifyDaily(sub(moves, { av: 6 }), NOW, OWNER)).toThrow(UPDATE_MSG);
     expect(() => verifyDaily(sub(moves, { rv: 19, av: 6 }), NOW, OWNER)).toThrow(UPDATE_MSG);
-    expect(verifyDaily(sub(moves, { av: 7 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
+    expect(verifyDaily(sub(moves, { av: 8 }), NOW, OWNER).entry.cash).toBe(s.players[0].cash);
   });
 
   it('keeps a daily board for each rules and computer-player version', () => {
     expect(dailyBoardKey('2026-11-01')).toBe(`daily:2026-11-01:r${RULES_VERSION}:a${AI_VERSION}`);
+    // PLAN-117: the Normal-only set-up has boards of its own, apart from 1.27.0's (Uncle Benny at Hard, version 7).
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r20:a8');
+    expect(sprintBoardKey('2026-11-01')).toBe('sprint:2026-11-01:r20:a8');
+    expect(sprintWeekKey('2026-11-01')).toBe('sprintweek:2026-W44:r20:a8');
+  });
+
+  it('PLAN-117: replays the Daily and the Sprint with every rival at Normal', () => {
+    for (const cfg of [dailyConfig(DATE, 'Me'), sprintConfig(DATE, 'Me')]) {
+      expect(cfg.players.filter((p) => p.kind === 'ai').map((p) => [p.name, p.level])).toEqual([['Rosa', 'normal'], ['Uncle Benny', 'normal'], ['Ah Chen', 'normal']]);
+    }
+    const { state } = verifyDaily(sub(playDaily().moves), NOW, OWNER);
+    expect(state.players.filter((p) => p.kind === 'ai').every((p) => p.level === 'normal')).toBe(true);
   });
 
   it('replaces a blocked or reserved name with a neutral one', () => {

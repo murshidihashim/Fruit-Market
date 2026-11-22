@@ -12,6 +12,7 @@ import { Face } from './art';
 import { worn } from './looks';
 import { FramedFace, shownAvatar } from './stampCard';
 import { loadSprintBest } from './sprintStore';
+import { shortDate } from './dailyCard';
 import './sprint.css';
 
 /** "Sprint · 3 days": the format's name with its length, as on the Daily card and the Play menu. */
@@ -92,7 +93,7 @@ export function SprintResult({ s }: { s: GameState }) {
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
   return (
     <div class="sbk-sec sp-res" data-a="sprint-result">
-      <div class="sbk-row"><span class="sbk-lab">{SPRINT_TITLE} · {date}</span></div>
+      <div class="sbk-row"><span class="sbk-lab">{SPRINT_TITLE} · {shortDate(date)}</span></div>
       <div class="sp-best">
         <span>Best today <b>${best}</b></span>
         <span class="sp-place">{place ? <>Place <b>{place}</b></> : res && !res.error ? 'Not on the board yet' : res ? '' : 'Checking the board…'}</span>

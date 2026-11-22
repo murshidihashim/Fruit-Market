@@ -1,5 +1,5 @@
 // Runs every browser test against fresh builds:
-//   solo playthrough, the Market League's first stage and the performance budget (single-file build),
+//   solo playthrough, the Market League's first stage, a one-phone hand-over and the performance budget (single-file build),
 //   then the online match (with a player leaving), quick match, a public room with reactions (PLAN-112), four players
 //   in one room and rejoining from a background tab
 //   against a local server
@@ -19,6 +19,9 @@ run('npx vite build --mode single');
 step('solo playthrough', `node scripts/smoke.cjs dist-single/index.html ${out} 3`);
 // PLAN-115: the Market League's first stage played to its goal, from the League screen to stage 2.
 step('league stage 1', `node scripts/e2e-league.cjs dist-single/index.html ${out}`);
+// PLAN-116 (REP-133 A-01): one phone, two people: a double tap on Done and a tap on the market across a hand-over act
+// for nobody; the next person's turn waits for their "Pass the phone".
+step('one phone hand-over', `node scripts/e2e-phone.cjs dist-single/index.html ${out}`);
 // Timings on a shared machine are noisy, so the budget gets one retry; a second miss fails.
 step('performance budget', 'node scripts/perf-budget.cjs dist-single/index.html || node scripts/perf-budget.cjs dist-single/index.html');
 

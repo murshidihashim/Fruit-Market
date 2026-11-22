@@ -125,6 +125,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
               <b class="ho-lab">Your Day {mine.day}</b>
               <span>{mine.line}</span>
               {mine.won.map((f) => <span>Favour won: {FAVOURS[f].title}</span>)}
+              {mine.order && <span>{mine.order}</span>}
               {mine.night.map((t) => <span>{t}</span>)}
             </div>
           )}
@@ -281,7 +282,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere}
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, evP) : undefined}
-          onPick={s.phase === 'buy' && activeHuman && !c.guiding ? c.pickMarket : undefined}
+          onPick={s.phase === 'buy' && activeHuman && !c.guiding && !c.handoffDue ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
         {/* where the picture of a panel that has just left slides off (sheet.ts) */}

@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { dailyConfig, dailyTwist } from '../engine/daily';
-import { FRUIT, RIVALS, lookOf, stageAt, type FruitId } from '../engine/data';
+import { FRUIT, RIVALS, stageAt, type FruitId } from '../engine/data';
 import { count, newGame, shelfSize, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
 import { ownerHash, placeWords } from '../net/sprint';
@@ -31,11 +31,12 @@ import { SPRINT_TITLE, SprintRow, bestLine, useSprintBoards } from './Sprint';
 import { loadSprintBest } from './sprintStore';
 import { loadDaily, todayKey } from './store';
 import { currentStreak } from './streak';
+import { firstCustomer, rivalsLine, shortDate } from './dailyCard';
 import { Awning, seatColour } from './table';
 import './journey-home.css';
 
 export interface ShopProps {
-  /** "Day 4/10" when a game is waiting to be continued, else null. */
+  /** "Daily market · Day 4/10" when a game is waiting to be continued (its mode, REP-133 A-13), else null. */
   resume: string | null;
   /** Your cash in the waiting game (one person at the table), else null. */
   cash: number | null;
@@ -71,10 +72,6 @@ export function LaneBand({ class: cls, style }: { class?: string; style?: string
   );
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-/** "11 Nov" from a date key. */
-const shortDate = (key: string): string => { const [, m, d] = key.split('-').map(Number); return `${d} ${MONTHS[(m || 1) - 1]}`; };
-const pieces = (n: number, f: FruitId) => `${n} ${(n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
 /** A tier's words as part of a line: "Sell a piece of fruit." becomes "sell a piece of fruit". */
 const asPart = (text: string) => text.replace(/\.$/, '').replace(/^./, (c) => c.toLowerCase());
 
@@ -129,9 +126,10 @@ function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () =>
   const daily = loadDaily();
   const streak = currentStreak(Object.keys(daily), today);
   const e = first.event;
-  const who = e ? null : first.forecast;
+  // REP-133 A-02: the card and the sentence show the prices the game will use (a Fixed prices day's, not the card's).
+  const who = firstCustomer(first);
   const best = res && !res.error && res.top.length ? res.top[0].cash : null;
-  const firstWords = who ? `First customer: ${lookOf(who.name).title}, ${who.wants.map((w) => `${pieces(w.qty, w.fruit)} up to $${w.max}`).join(' and ')}.` : e ? `Today's event: ${e.title}.` : '';
+  const firstWords = who ? who.words : e ? `Today's event: ${e.title}.` : '';
   return (
     <section class="jh-daily" data-page="today" aria-label="Daily market">
       <div class="jh-dh"><span>Daily market · {shortDate(today)}</span><small>{streak > 0 ? `${streak}-day streak` : 'same market for everyone'}</small></div>
@@ -142,7 +140,7 @@ function DailyCard({ today, onDaily, onSprint }: { today: string; onDaily: () =>
         <div class="jh-dr">
           <span class="jh-lb">Today's lorry brings</span>
           <div class="jh-lorry">{LANES.map((f) => <span class={`f-${f}`}><FruitSvg id={f} size={22} alt={FRUIT[f].plural} /><b>{first.delivery[f] ?? 0}</b></span>)}</div>
-          <p class="jh-dt">{firstWords} {dailyTwist(today).text}</p>
+          <p class="jh-dt">{firstWords} {dailyTwist(today).text} {rivalsLine(first.config)}</p>
           {daily[today] === undefined && best !== null ? <p class="jh-ds"><b>{res?.players ?? res?.top.length}</b> played · best so far <b>${best}</b></p> : null}
           <button class="jh-dgo" onClick={onDaily}><PlayIcon />Play the Daily market</button>
         </div>
@@ -361,12 +359,23 @@ export function Popup({ title, onClose, children }: { title: string; onClose: ()
   );
 }
 
-export function ContinueBody({ day, days, stalls, cash, onResume, onStartOver }: { day: number; days: number; stalls: number; cash: number | null; onResume: () => void; onStartOver: () => void }) {
+/** The waiting game in a pop-up: its mode first when known (REP-133 A-13, "Daily market"), then the day, the stalls and
+ *  your cash. */
+function WaitingInfo({ mode, day, days, stalls, cash }: { mode?: string; day: number; days: number; stalls: number; cash: number | null }) {
+  const you = cash !== null ? ` · you have $${cash}` : '';
+  return (
+    <div class="popup-info">
+      {mode
+        ? <span><b>{mode}</b><small>Day {day} of {days} · {stalls} stalls{you}</small></span>
+        : <span><b>Day {day} of {days}</b><small>{stalls} stalls{you}</small></span>}
+    </div>
+  );
+}
+
+export function ContinueBody({ mode, day, days, stalls, cash, onResume, onStartOver }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; onResume: () => void; onStartOver: () => void }) {
   return (
     <>
-      <div class="popup-info">
-        <span><b>Day {day} of {days}</b><small>{stalls} stalls{cash !== null ? ` · you have $${cash}` : ''}</small></span>
-      </div>
+      <WaitingInfo mode={mode} day={day} days={days} stalls={stalls} cash={cash} />
       <button class="btn primary big wide" onClick={onResume}>Resume</button>
       <button class="btn wide" onClick={onStartOver}>Start over</button>
       <p class="small muted">Starting over ends this game.</p>
@@ -379,12 +388,10 @@ export function ContinueBody({ day, days, stalls, cash, onResume, onStartOver }:
  * new game. Says which game is waiting and what starting would do. Keeping the game is the main button.
  * `what` completes "Starting … ends this game", for example "the Daily market".
  */
-export function ReplaceBody({ day, days, stalls, cash, what, onKeep, onStart }: { day: number; days: number; stalls: number; cash: number | null; what: string; onKeep: () => void; onStart: () => void }) {
+export function ReplaceBody({ mode, day, days, stalls, cash, what, onKeep, onStart }: { mode?: string; day: number; days: number; stalls: number; cash: number | null; what: string; onKeep: () => void; onStart: () => void }) {
   return (
     <>
-      <div class="popup-info">
-        <span><b>Day {day} of {days}</b><small>{stalls} stalls{cash !== null ? ` · you have $${cash}` : ''}</small></span>
-      </div>
+      <WaitingInfo mode={mode} day={day} days={days} stalls={stalls} cash={cash} />
       <p class="small">You have a game waiting. Starting {what} ends this game.</p>
       <button class="btn primary big wide" onClick={onKeep}>Keep my game</button>
       <button class="btn wide" onClick={onStart}>Start anyway</button>
