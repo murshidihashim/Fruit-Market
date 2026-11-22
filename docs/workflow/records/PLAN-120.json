@@ -1,0 +1,61 @@
+{
+  "id": "PLAN-120",
+  "title": "Home as the stall plus swipeable mode cards, and a saved game per mode",
+  "problem": "Home is a long page; the League and the Daily are repeated on the Play page; one saved game slot means starting any game replaces a game in another mode.",
+  "scope": [
+    "Home: the player's stall with every look they wear (roof, trim, colour, hat, frame, prop, sign), level and next unlock",
+    "Three swipeable cards in the same style: Play (opens the Play page), Market League (stage, stars, next trophy, opens the League), Daily market (today's customer and lorry, the Sprint row, your place)",
+    "The League and the Daily removed from the Play page",
+    "A Daily intro screen before a Daily or Sprint game: what the mode is, today's twist, rivals, how you are scored and ranked, retries, then Start",
+    "A saved game per mode (Play: computer or one phone; League; Daily; Sprint), each shown on its card with Continue; old single saves migrate to their mode; Settings, How to play, Account, Stamp book and Wardrobe stay reachable"
+  ],
+  "exclusions": [
+    "No rule, balance or protocol change",
+    "Online matches keep their room (Back to room), not a save slot"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with save-slot and migration tests (old saves still load)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e with the new Home and the Daily intro",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"reword the current homescreen layout, maintain the same style but it should be; players stall with whatever customisations they unlocked; swipeable cards for 1. play, which opens up the play page 2. market league 2. daily market; market league and daily market should be removed from the play page since both are getting a separate card; users should be prompted after clicking daily market, design a screen to explain the objective of the game mode and what it does before starting a game; saved game for before should each appear at each card's game mode\" (with two screenshots of the current Home)",
+    "date": "2026-11-22"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [],
+  "decisions": [
+    "DEC-128"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

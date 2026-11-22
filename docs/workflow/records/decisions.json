@@ -3164,6 +3164,29 @@
         "REP-134",
         "REP-135"
       ]
+    },
+    {
+      "id": "DEC-128",
+      "title": "Home as the player's stall and three swipeable mode cards, with a saved game per mode",
+      "question": "How should Home lead into the modes, and where should a game in progress wait?",
+      "choice": "Home shows the player's stall with every look they wear, then three swipeable cards: Play (opens the Play page), Market League, Daily market (with the Sprint). The League and the Daily leave the Play page. Tapping the Daily (or the Sprint) opens a screen that explains the mode before the game starts. Each mode keeps its own saved game, shown on its card (Play: computer or one phone; League; Daily; Sprint); old saves still load into their mode.",
+      "rationale": "The owner's direction: a clearer Home in the same style, one place per mode, and no game in one mode replacing a game in another.",
+      "impact": {
+        "player": "A Home built around their stall; one swipe to each mode; a mode's unfinished game waits on its own card; a short explainer before the Daily and Sprint.",
+        "technical": "Home.tsx, App.tsx routing, the Play page, a new Daily intro screen, save slots per mode in store.ts with a migration of the single old save.",
+        "data": "Saved games stored per mode on the phone; the old single save moves to its mode's slot. Nothing leaves the phone."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"reword the current homescreen layout, maintain the same style but it should be; players stall with whatever customisations they unlocked; swipeable cards for 1. play, which opens up the play page 2. market league 2. daily market; market league and daily market should be removed from the play page since both are getting a separate card; users should be prompted after clicking daily market, design a screen to explain the objective of the game mode and what it does before starting a game; saved game for before should each appear at each card's game mode\" (with two screenshots of the current Home)",
+        "date": "2026-11-22"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-120",
+      "reviewTrigger": "After the owner tries it on the preview.",
+      "reports": []
     }
   ],
   "history": [
@@ -4586,6 +4609,10 @@
     {
       "at": "2026-11-22 19:23",
       "text": "1.28.0 published to the live game on the owner's word (\"push everything live, inclusive of 1.28\", after the REP-135 audit). Pull request #25 merged as 9b8ee6c after CI passed (checks and build); Deploy LIVE game run 45 passed (verify, deploy, live smoke test) and tagged v1.28.0 on 9b8ee6c. The live game answers rules 20 and serves the 1.28.0 build (the League pilot in its code). PLAN-112 to PLAN-119 released. Not run: a real Android phone; the owner's own preview test (the owner chose to publish after the audit)."
+    },
+    {
+      "at": "2026-11-22 19:35",
+      "text": "Owner direction on Home (with screenshots of 1.28.0): the stall with its unlocked looks; swipeable cards for Play, Market League and Daily market; League and Daily removed from the Play page; an explainer screen before a Daily game; each mode's saved game on its own card. Recorded as approved DEC-128 / PLAN-120 (save slots per mode noted as a data change, with old saves migrated). Assumptions stated: the Sprint stays inside the Daily card and gets the same explainer; online matches keep their room, not a save slot."
     }
   ]
 }
