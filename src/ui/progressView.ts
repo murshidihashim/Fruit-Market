@@ -5,7 +5,7 @@ import type { GameState, Level } from '../engine/game';
 import type { Look } from '../net/looks';
 import type { CardLine } from './cards';
 import { GUEST_EVENT } from './deckArt';
-import type { Stage } from './progress';
+import { stageLength, type Stage } from './campaign';
 
 /** The one sale that brought a player the most money in a game: a customer, one fruit, on one day. */
 export interface BestSale {
@@ -82,14 +82,24 @@ export const stageRivals = (st: Stage): { name: string; avatar: string; level: L
 
 const and = (xs: string[]): string => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
-/** "Beat Rosa over 8 days to move up" (a shared win counts, as it does for the stage: progress.ts advanceLeague). */
-export const stageGoal = (st: Stage): string => `Beat ${and(stageRivals(st).map((r) => r.name))} over ${st.days} days to move up`;
+/**
+ * The stage's clear goal, as the League screen says it: "Beat Rosa over 6 days to move up" for a stage cleared by a
+ * win (a shared win counts, as it does for the stage: campaign.ts stageCleared), otherwise the goal's own words with
+ * the length: "1 day: end the day $8 ahead of Rosa".
+ */
+export function stageGoal(st: Stage): string {
+  const n = stageLength(st);
+  const days = `${n} ${n === 1 ? 'day' : 'days'}`;
+  if (st.clear.win) return `Beat ${and(stageRivals(st).map((r) => r.name))} over ${days}${st.expert ? '' : ' to move up'}`;
+  return `${days}: ${st.clear.text.charAt(0).toLowerCase()}${st.clear.text.slice(1)}`;
+}
 
 /**
  * "6 days · Rosa (Easy)", "6 days · Uncle Benny (Easy), Ah Chen (Normal)": the length, then each rival with its own
  * level (REP-133, A-08: the levels used to stand apart from the names, so "Normal and Easy · Uncle Benny, Ah Chen" read
- * as if Uncle Benny were Normal).
+ * as if Uncle Benny were Normal). PLAN-118: the days the stage is played ("1 day" for a puzzle).
  */
 export function stageLine(st: Stage): string {
-  return `${st.days} days · ${stageRivals(st).map((r) => `${r.name} (${LEVEL_WORD[r.level]})`).join(', ')}`;
+  const n = stageLength(st);
+  return `${n} ${n === 1 ? 'day' : 'days'} · ${stageRivals(st).map((r) => `${r.name} (${LEVEL_WORD[r.level]})`).join(', ')}`;
 }

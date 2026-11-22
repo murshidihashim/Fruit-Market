@@ -5,7 +5,7 @@
 import { useState } from 'preact/hooks';
 import { RIVALS } from '../engine/data';
 import { LOOKS, SLOTS, lookById, tagOf, titleOf, type Look, type LookKind, type LookSet, type Slot } from '../net/looks';
-import { TIER_NAME, type Snapshot } from './achievements';
+import { TIER_NAME, tierById, type Snapshot } from './achievements';
 import { fx, playSound } from './fx';
 import { achievementFor, myAvatar, ownsLook, toggleLook, wornIn, wornSounds } from './looks';
 import { loadGranted, loadLooks } from './progress';
@@ -23,7 +23,9 @@ function howEarned(l: Look, s: Snapshot): string {
     if (!t) return '';
     // the tier is held, but its title needs a game against Normal or harder computers, a Daily market or people
     if (l.from.fair && s.have.has(l.from.id)) return 'Earn it again against Normal or Hard computers, in the Daily market, or with friends.';
-    return `${TIER_NAME[t.step.tier]}: ${t.step.text}`;
+    // PLAN-118: a look a League mastery trophy also hands over says both ways.
+    const also = (l.also ?? []).map(tierById).find((x) => !!x);
+    return `${TIER_NAME[t.step.tier]}: ${t.step.text}${also ? ` Or ${TIER_NAME[also.step.tier]} ${also.card.title}: ${also.step.text.charAt(0).toLowerCase()}${also.step.text.slice(1)}` : ''}`;
   }
   return '';
 }

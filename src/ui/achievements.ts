@@ -10,7 +10,7 @@ import {
   type FavourId, type FruitId, type TraitId, type UpgradeId,
 } from '../engine/data';
 import { count, winners, type GameState, type LineResult } from '../engine/game';
-import { STAR_COUNT, STAR_IDS, starsEarned } from './campaign';
+import { LEAGUE, STAR_COUNT, heldStars, masteryStars, starsEarned, type MASTERY_STAGES } from './campaign';
 import { bestStreak } from './streak';
 
 export type Tier = 'bronze' | 'silver' | 'gold';
@@ -103,6 +103,24 @@ const feat = (id: string, group: GroupId, title: string, pic: Pic, tier: Tier, t
   ({ id, group, title, pic, unit: '', value: done(id), steps: [step(id, tier, 1, text)] });
 
 const traitOfAvatar = (avatar: string): TraitId => CHARACTER_TRAIT[avatar];
+
+/**
+ * PLAN-118: the three mastery trophies. Each counts the stars held on two League stages about one skill (6 in all):
+ * Bronze at 2, Silver at 4, Gold at 6. Bronze gives a Wardrobe item that is already drawn, Gold a title (src/net/looks.ts).
+ */
+const mastery = (k: keyof typeof MASTERY_STAGES, title: string, pic: Pic, what: string): Card => {
+  const ids = masteryStars(k);
+  return {
+    id: `mastery_${k}`, group: 'league', title, pic, unit: 'stars',
+    value: (s) => heldStars(s.sets.stars ?? [], s.league).filter((id) => ids.includes(id)).length,
+    steps: [2, 4, ids.length].map((goal, i) => step(`${k}_${goal}`, TIERS[i], goal, `Earn ${goal} of the ${ids.length} stars on the ${what} stages of the Market League.`)),
+  };
+};
+const MASTERY_CARDS: Card[] = [
+  mastery('contract', 'Contract Trader', { kind: 'customer', key: 'Pie Factory' }, 'standing-order'),
+  mastery('night', 'Night Market Regular', { kind: 'event', id: 'pasarMalam' }, 'Pasar Malam and old-stock'),
+  mastery('reader', 'Market Reader', { kind: 'keeper', avatar: RIVALS[0].avatar }, 'rival-reading'),
+];
 
 const KEEPER_CARDS: Card[] = RIVALS.map((r): Card => {
   const t = traitOfAvatar(r.avatar);
@@ -198,11 +216,14 @@ export const CARDS: Card[] = [
   feat('hard_sweep', 'feats', 'Hard Sweep', { kind: 'event', id: 'blight' }, 'gold', 'Win a 4-stall game against 3 Hard computers.'),
 
   // 7. Market League and online
+  // PLAN-118: twelve stages (the gold tier was "all six"; a player who earned it keeps it).
   { id: 'league', group: 'league', title: 'Market League', pic: { kind: 'event', id: 'bakeOff' }, unit: 'stages cleared', value: (s) => s.league,
-    steps: [step('league_2', 'bronze', 2, 'Clear stage 2 of the Market League.'), step('league_4', 'silver', 4, 'Clear stage 4 of the Market League.'), step('league', 'gold', 6, 'Clear all six stages of the Market League.')] },
-  // PLAN-115: the campaign's mastery goals, one star each (stored in the set "stars").
-  { id: 'league_stars', group: 'league', title: 'League stars', pic: { kind: 'event', id: 'festival' }, unit: 'stars', value: (s) => sizeOf(s, 'stars', STAR_IDS),
+    steps: [step('league_2', 'bronze', 2, 'Clear stage 2 of the Market League.'), step('league_4', 'silver', 4, 'Clear stage 4 of the Market League.'), step('league', 'gold', LEAGUE.length, `Clear all ${LEAGUE.length} stages of the Market League.`)] },
+  // PLAN-115: the campaign's goals, one star each (stored in the set "stars"); PLAN-118: with each stage's clear star.
+  { id: 'league_stars', group: 'league', title: 'League stars', pic: { kind: 'event', id: 'festival' }, unit: 'stars', value: (s) => heldStars(s.sets.stars ?? [], s.league).length,
     steps: [step('stars_6', 'bronze', 6, 'Earn 6 stars in the Market League.'), step('stars_12', 'silver', 12, 'Earn 12 stars in the Market League.'), step('stars_18', 'gold', STAR_COUNT, `Earn all ${STAR_COUNT} stars in the Market League.`)] },
+  // PLAN-118: the mastery trophies, each counted in the stars of the stages about one skill.
+  ...MASTERY_CARDS,
   { id: 'online_games', group: 'league', title: 'Online games', pic: { kind: 'event', id: 'durian' }, unit: 'online games finished', value: (s) => sizeOf(s, 'online'),
     steps: [step('online_1', 'bronze', 1, 'Finish an online game.'), step('online_10', 'silver', 10, 'Finish 10 online games.'), step('online_50', 'gold', 50, 'Finish 50 online games.')] },
   { id: 'online_wins', group: 'league', title: 'Online wins', pic: { kind: 'event', id: 'glut' }, unit: 'online wins', value: (s) => n(s, 'onlineWins'),

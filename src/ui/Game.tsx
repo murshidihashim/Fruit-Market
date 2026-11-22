@@ -1,5 +1,6 @@
 // The game table: lays out the street, the stalls and the market, and the panels for each phase.
 // State and turn logic live in game/useGameController; animations in game/animator.
+import { traitPicker } from './game/turn';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { FAVOURS } from '../engine/data';
 import { buyLimit, canBuy, eveningChoice, nightOutlook, publicView, type GameState } from '../engine/game';
@@ -42,13 +43,17 @@ interface Props {
   onExit: () => void;
   onChange: (s: GameState) => void;
   onRematch: () => void;
+  /** PLAN-118: plays the same Market League stage again. */
+  onRetry?: () => void;
   /** Online play: the server owns the game; this screen sends actions and animates the states it receives. */
   online?: OnlineClient;
   /** The results' second button: the same table again with the person as this shopkeeper (PLAN-086). */
   onPlayAs?: (avatar: string) => void;
+  /** PLAN-119: starts today's Sprint from a cleared Market League stage's results. */
+  onSprint?: () => void;
 }
 
-export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, onRetry, online, onPlayAs, onSprint }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
@@ -138,7 +143,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   if (s.phase === 'over') {
     return (
       <div class="game tkt sbk-over">
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs} onRetry={online ? undefined : onRetry} onSprint={online ? undefined : onSprint}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online}
@@ -152,9 +157,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   const myBuyTurn = s.phase === 'buy' && activeHuman && !busy;
   const bidder = online ? viewer : active;
   // On the first morning each person picks a merchant trait (online: only your own seat).
-  const picker = s.phase !== 'morning' || s.day !== 1 ? -1
-    : online ? (s.players[viewer]?.traitOffer && !s.players[viewer].trait ? viewer : -1)
-    : s.players.findIndex((x) => x.kind === 'human' && x.traitOffer && !x.trait);
+  const picker = traitPicker(s, viewer, !!online);
   // PLAN-113: while the guided first sale is on, it does the coach's Day 1 job.
   const coach = online || busy || c.guided ? null : tipFor(s, {
     // (not at the standing-order bid: the "Secret prices" tip is about pricing fruit, and lay over the bid's stepper)

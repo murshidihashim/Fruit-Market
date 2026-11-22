@@ -16,26 +16,26 @@
     {
       "id": "T1",
       "text": "npm run verify with stage-option, goal and old-save tests",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (4cb4dad): 104 test files, 1199 passed, 1 skipped (as before); tests/league-pilot.test.ts: every stage option ignored outside the League and in the Daily and Sprint, part-way openings valid, lesson player clears and naive player fails each new stage, old progress carried in every combination, road and expert gating, mastery tiers and stamps"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e with a short stage from its starting phase",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8820 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. League stage 1 cleared; League stage 7 Read the Rival played from its opening to \"cleared, stage 8 next\"; one phone 3 hand-overs; online match finished, rematch, leaver taken over, 0 leaks in 50 pricing frames; public room 4/4 reactions, 0 leaks; Sprint with the Play menu groups, Try again and the weekly line; four players; 5 reconnects; speed check OK"
     },
     {
       "id": "T3",
       "text": "Balance run for each new stage",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "scripts/league-balance.ts 500 seeds, clear rate Easy/Normal/Hard: 7 Read the Rival 16/51/66%, 8 Sell Before It Spoils 14/36/55%, 9 Time the Mangoes 20/60/74%, 10 The Right Contract 6/29/58%, 11 Rescue the Stall 11/23/51%, 12 Village Finale 11/30/60%, E1 11/66/71%, E2 29/55/72%; on each fixed seed the lesson player clears and the naive player fails; best play differs stage to stage (lesson notes in the report). Stages 1 to 6 unchanged"
     },
     {
       "id": "T4",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568: League top, road, experts, picked stage, stage 7 opening, missed-goal results (scratchpad p118); reviewed the road and a missed-goal result"
     },
     {
       "id": "T5",
@@ -49,20 +49,36 @@
     "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
     "date": "2026-11-22"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "not started",
+  "delivery": "implemented",
+  "release": "1.28.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge with PLAN-119, verified at 4cb4dad",
   "reports": [
-    "REP-134"
+    "REP-134",
+    "REP-135"
   ],
   "decisions": [
     "DEC-127"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Six new League stages (Read the Rival, Sell Before It Spoils, Time the Mangoes, The Right Contract, Rescue the Stall, Village Finale) and two expert stages opened by stars",
+      "League road for Chapter 1 with the next stage, best stars and the next trophy",
+      "Mastery trophies Contract Trader, Night Market Regular and Market Reader with existing Wardrobe items and titles",
+      "League-only stage options in the engine: starting cash and stock, opening day and step, 1 to 6 days, rule parts off, rival habits, goals"
+    ],
+    "changed": [
+      "3 stars a stage: 1 for the clear and 2 optional; earned stars carried over",
+      "Results name the missed goal and offer Retry"
+    ],
+    "fixed": [
+      "League stages 8, 9 and 11 no longer stop on the first morning",
+      "Rosa Reads Back compares with Rosa only; an expert stage's first clear says cleared; Pak Din speaks for The Eager Bidder; expert stages named by title"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "Market League Chapter 1: 12 stages, each a new market problem, from 1-day puzzles to a 6-day finale",
+    "A League road shows your next stage, your stars and the next trophy; two expert stages open with stars",
+    "New mastery trophies: Contract Trader, Night Market Regular and Market Reader"
+  ]
 }

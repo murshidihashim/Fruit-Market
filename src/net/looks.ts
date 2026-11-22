@@ -21,7 +21,11 @@ export type Source =
   | { kind: 'free' }
   | { kind: 'pack'; id: string };
 
-export interface Look { id: string; title: string; kind: LookKind; slot: Slot; from: Source; shows: Place[] }
+export interface Look {
+  id: string; title: string; kind: LookKind; slot: Slot; from: Source; shows: Place[];
+  /** PLAN-118: trophy tiers that also earn this look (a League mastery trophy hands over an item already drawn). */
+  also?: string[];
+}
 
 const PUBLIC: Place[] = ['table', 'home', 'lobby', 'results', 'wardrobe'];
 const SIGN: Place[] = ['home', 'lobby', 'results', 'wardrobe'];
@@ -72,7 +76,7 @@ export const LOOKS: Look[] = [
   item('party_hat', 'Gazette Paper Hat', 'hat', by('festival_rush')),
   item('laurel', 'Brass Laurel', 'hat', by('streak7')),
   item('gold_crown', 'Chairman\'s Top Hat', 'hat', by('league')),
-  item('monocle', 'Brass Loupe', 'face', by('sky_high')),
+  { ...item('monocle', 'Brass Loupe', 'face', by('sky_high')), also: ['reader_2'] },
   item('bow_tie', 'Banknote Bow Tie', 'neck', by('red_carpet')),
   item('scarf', 'Ticker-Tape Scarf', 'neck', by('no_waste')),
   item('apron', 'Trader\'s Waistcoat', 'neck', by('fully_fitted')),
@@ -80,7 +84,7 @@ export const LOOKS: Look[] = [
   item('medal', 'Exchange Medal', 'badge', by('played_200')),
   // The Great Fruit Exchange unlockables (PLAN-053).
   item('trader_visor', 'Trader\'s Visor', 'hat', by('full_price')),
-  item('pencil_slip', 'Pencil and Order Slip', 'face', by('sole_five')),
+  { ...item('pencil_slip', 'Pencil and Order Slip', 'face', by('sole_five')), also: ['contract_2'] },
   item('ticker_garland', 'Ticker-Tape Garland', 'neck', by('tie_breaker')),
   item('pocket_watch', 'Pocket Watch', 'badge', by('comeback')),
   item('member_badge', 'Member\'s Badge', 'badge', by('beat_hard')),
@@ -93,7 +97,7 @@ export const LOOKS: Look[] = [
   item('roof_stars', 'Starry Roof', 'roof', by('big_day')),
   item('roof_fruit', 'Fruit-Print Roof', 'roof', by('sold_500')),
   item('trim_bunting', 'Bunting', 'trim', by('streak3')),
-  item('trim_lanterns', 'Paper Lanterns', 'trim', by('worth_wait')),
+  { ...item('trim_lanterns', 'Paper Lanterns', 'trim', by('worth_wait')), also: ['night_2'] },
   item('trim_tassels', 'Tassels', 'trim', by('town_36')),
   item('prop_blackboard', 'Chalk Board', 'prop', by('jam_session')),
   item('prop_scale', 'Brass Scales', 'prop', by('penny_under')),
@@ -123,6 +127,10 @@ export const LOOKS: Look[] = [
   item('title_baron', 'Fruit Baron', 'title', by('sold_2000')),
   item('title_daily', 'Thirty Markets', 'title', by('daily_30')),
   item('title_streak', 'Month of Markets', 'title', by('streak30')),
+  // PLAN-118: the League's mastery trophies (their Gold tiers).
+  item('title_contract', 'Contract Trader', 'title', by('contract_6')),
+  item('title_night', 'Night Market Regular', 'title', by('night_6')),
+  item('title_reader', 'Market Reader', 'title', by('reader_6')),
 
   item('tag_ticket', 'Ticket', 'tag', FREE),
   item('tag_chalk', 'Chalk slate', 'tag', at(2)),

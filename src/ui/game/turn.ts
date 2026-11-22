@@ -84,3 +84,14 @@ export function awaitsHandOver(s: GameState, handedTo: number | null): boolean {
   const p = activePlayer(s);
   return p >= 0 && s.players[p].kind === 'human' && handedTo !== p;
 }
+
+/**
+ * Who picks a perk on the first morning (online: only your own seat), or -1. REP-135 RA-01: an empty offer (perks off in a
+ * League stage, or the Daily's Basic game) is no offer, so the morning goes on to Start buying instead of waiting for a
+ * perk that cannot be picked.
+ */
+export function traitPicker(s: GameState, viewer: number, online: boolean): number {
+  if (s.phase !== 'morning' || s.day !== 1) return -1;
+  if (online) return s.players[viewer]?.traitOffer?.length && !s.players[viewer].trait ? viewer : -1;
+  return s.players.findIndex((x) => x.kind === 'human' && !!x.traitOffer?.length && !x.trait);
+}

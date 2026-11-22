@@ -241,7 +241,7 @@ describe('the one reason on the Sprint results', () => {
     const s = withHistory([{ customerId: 1, name: 'Zara', fruit: 'mango', want: 2, max: 7, offers: [offer(0, 6, 0), offer(2, 4, 2)] }], [20, 30, 40, 25]);
     const r = sprintReason(s, 0)!;
     expect(r.kind).toBe('undercut');
-    expect(r.text).toMatch(new RegExp(`^Day 2: ${s.players[2].name}'s \\$4 sold first to .+; yours was \\$6\\.$`));
+    expect(r.text).toMatch(new RegExp(`^Day 2: ${s.players[2].name}'s \\$4 sold first to .+; yours was \\$6\\. That cost you \\$12\\.$`));
     expect(r.text).not.toContain('!');
   });
 
@@ -252,13 +252,15 @@ describe('the one reason on the Sprint results', () => {
     ], [60, 30, 40, 25]);
     const r = sprintReason(s, 0)!;
     expect(r).toMatchObject({ kind: 'top', good: true });
-    expect(r.text).toMatch(/^Day 2: you sold 2 watermelons to .+ at \$7, the top price\.$/);
+    expect(r.text).toMatch(/^Day 2: you sold 2 watermelons to .+ at \$7, the top price\. That sale brought in \$14\.$/);
   });
 
-  it('otherwise names fruit left at the end, or your best sale', () => {
+  // PLAN-119: a sale is a moment of the Rush, so it is named before fruit left at the end (which moved no cash).
+  it('otherwise names your best sale, or fruit left at the end', () => {
     const s = withHistory([{ customerId: 1, name: 'Ida', fruit: 'apple', want: 3, max: 5, offers: [offer(0, 4, 3)] }], [10, 30, 40, 25]);
-    expect(sprintReason(s, 0)!.text).toMatch(/^Day 2: you sold 3 apples to .+ at \$4; the top price was \$5\.$/);
-    const left = { ...s, players: s.players.map((p, i) => (i === 0 ? { ...p, stock: { ...p.stock, apple: [2, 0, 0] } } : p)) };
+    expect(sprintReason(s, 0)!.text).toMatch(/^Day 2: you sold 3 apples to .+ at \$4; the top price was \$5\. That sale brought in \$12\.$/);
+    const unsold = withHistory([{ customerId: 1, name: 'Ida', fruit: 'apple', want: 3, max: 5, offers: [offer(0, 6, 0)] }], [10, 30, 40, 25]);
+    const left = { ...unsold, players: unsold.players.map((p, i) => (i === 0 ? { ...p, stock: { ...p.stock, apple: [2, 0, 0] } } : p)) };
     expect(sprintReason(left, 0)).toMatchObject({ kind: 'left', text: '2 fruit were left on your shelf at the end, worth $0.' });
   });
 

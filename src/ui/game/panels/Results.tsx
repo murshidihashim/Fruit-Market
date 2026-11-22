@@ -16,6 +16,7 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
+import { stageLabel } from '../../campaign';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -24,6 +25,7 @@ import { Ticket } from '../../ticket';
 import { StageEnd } from '../../StageMoment';
 import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
+import { LEAGUE_TO_SPRINT } from '../../playMenu';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
 function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
@@ -294,12 +296,16 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
-export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs, react }: {
+export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, rematchSent, online, onPlayAs, react, onSprint }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
+  /** PLAN-118: a Market League stage again, the same stage (offered beside Next stage when the stage was cleared). */
+  onRetry?: () => void;
   /** PLAN-116 (REP-133 B-11): online, the reaction button, in the row of buttons at the foot (over the header it hid words). */
   react?: ComponentChildren;
   /** Starts the same table again with the person as another shopkeeper (offered beside the "close" line about them). */
   onPlayAs?: (avatar: string) => void;
+  /** PLAN-119: today's Sprint, offered under a cleared Market League stage (the League's link to the Sprint). */
+  onSprint?: () => void;
 }) {
   // Counted once when the results first show (progress.ts finishGame). On a shared phone only the phone's owner counts:
   // the first person at the table, whoever played last. The whole page then speaks to the owner (PLAN-091): "You",
@@ -332,7 +338,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
   const headline = win || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
-  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, stage ${league + 1}` : online ? ' · Online' : '';
+  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, ${stageLabel(league)}` : online ? ' · Online' : '';
   const share = async () => {
     const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
     try {
@@ -344,7 +350,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
   // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : 'Try again') : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
+  // PLAN-118: a League stage's results offer Retry for the same stage; Next stage comes first when it was cleared.
+  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
   // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
   const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
@@ -381,6 +389,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
         </ol>
 
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
+        {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
 
         {sprint && <SprintResult s={s} />}
 
@@ -417,6 +426,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
+            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry} aria-label={retry}>Retry</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>

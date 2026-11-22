@@ -17,8 +17,9 @@ const step = (name, cmd, env) => { try { run(cmd, env); } catch { failures.push(
 
 run('npx vite build --mode single');
 step('solo playthrough', `node scripts/smoke.cjs dist-single/index.html ${out} 3`);
-// PLAN-115: the Market League's first stage played to its goal, from the League screen to stage 2.
-step('league stage 1', `node scripts/e2e-league.cjs dist-single/index.html ${out}`);
+// PLAN-115: the Market League's first stage played to its goal, from the League screen to stage 2. PLAN-118: then a
+// one-day stage played from the step it opens at to its result, and the League road after it.
+step('league stage 1 and a short stage', `node scripts/e2e-league.cjs dist-single/index.html ${out}`);
 // PLAN-116 (REP-133 A-01): one phone, two people: a double tap on Done and a tap on the market across a hand-over act
 // for nobody; the next person's turn waits for their "Pass the phone".
 step('one phone hand-over', `node scripts/e2e-phone.cjs dist-single/index.html ${out}`);

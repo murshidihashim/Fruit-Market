@@ -77,7 +77,7 @@ describe('the Play menu and the wait (playMenu.ts)', () => {
   it('names the league stage with its real rivals and length', () => {
     expect(leagueLine(0)).toBe(`Stage 1 of ${LEAGUE.length} · ${LEAGUE[0].title} · ${LEAGUE[0].days} days vs ${RIVALS[LEAGUE[0].rivals[0].idx].name}`);
     expect(leagueLine(LEAGUE.length - 1)).toMatch(/ vs .+ and .+$/);
-    expect(leagueLine(LEAGUE.length)).toMatch(/^All 6 stages cleared/);
+    expect(leagueLine(LEAGUE.length)).toMatch(/^All 12 stages cleared/);
   });
 
   it('the clock counts minutes and seconds', () => {

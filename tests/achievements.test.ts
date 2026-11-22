@@ -33,16 +33,16 @@ const OLD_IDS = ['first_win', 'first_sale', 'explorer', 'no_waste', 'jam_session
   'sold_100', 'sold_500', 'sold_2000', 'played_10', 'played_50', 'played_200'];
 
 describe('the catalogue', () => {
-  it('has 49 cards and 112 tiers in eight groups, each code name once (PLAN-115 added League stars)', () => {
+  it('has 52 cards and 121 tiers in eight groups, each code name once (PLAN-115 added League stars, PLAN-118 three mastery trophies)', () => {
     const ids = ACHIEVEMENTS.map((a) => a.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(CARDS.length).toBe(49);
-    expect(ids.length).toBe(112);
-    expect(TIER_COUNT).toBe(112);
+    expect(CARDS.length).toBe(52);
+    expect(ids.length).toBe(121);
+    expect(TIER_COUNT).toBe(121);
     expect(new Set(CARDS.map((c) => c.id)).size).toBe(CARDS.length);
     for (const c of CARDS) expect(GROUPS.some((g) => g.id === c.group), c.id).toBe(true);
     for (const g of GROUPS) expect(CARDS.some((c) => c.group === g.id), g.id).toBe(true);
-    expect(GROUPS.map((g) => CARDS.filter((c) => c.group === g.id).length)).toEqual([3, 10, 10, 3, 3, 14, 4, 2]);
+    expect(GROUPS.map((g) => CARDS.filter((c) => c.group === g.id).length)).toEqual([3, 10, 10, 3, 3, 14, 7, 2]);
   });
 
   it('keeps every trophy of the live game under its code name, so what was earned stays earned', () => {
@@ -345,6 +345,8 @@ describe('earnable under rules 18', () => {
   const LATER: Record<string, string> = {
     // PLAN-115: stars come only from the Market League campaign's mastery goals, never from a game of this sample.
     stars_6: 'earned on Market League stages only', stars_12: 'earned on Market League stages only', stars_18: 'earned on Market League stages only',
+    // PLAN-118: the mastery trophies count League stars too.
+    ...Object.fromEntries(['contract', 'night', 'reader'].flatMap((k) => [2, 4, 6].map((n) => [`${k}_${n}`, 'earned on Market League stages only']))),
     // Rules 19 (PLAN-095): this sample's games changed with the standing-order numbers and no longer show these two.
     juice_regular: 'reached: 6 of 460 computer stalls in 120 games earned $20 or more from a Juice Bar (2026-11-13); one seat in 30 games may miss it',
     // Rules 20 (PLAN-108): without Closing Day's $1 these games end differently; the long run still earns all three.
@@ -397,7 +399,7 @@ describe('earnable under rules 18', () => {
     const traits = ['haggler', 'basket', 'charmer', 'nestegg', 'bargain', 'favourite', 'keeper', 'earful'];
     const at = (k: number): Snapshot => snap({
       stats: { played: 200 - k, totalSold: 2000 - k, wins: 0 },
-      league: 6 - k,
+      league: 12 - k,
       daily: Object.fromEntries(Array.from({ length: 30 - k }, (_, i) => [`2026-09-${String(i + 1).padStart(2, '0')}`, 50])),
       counts: { ...Object.fromEntries(traits.map((t) => [`win_${t}`, 6 - k])), fruit_blueberry: 1000 - k, fruit_watermelon: 1000 - k, fruit_apple: 1000 - k, fruit_mango: 1000 - k, onlineWins: 25 - k },
       sets: {

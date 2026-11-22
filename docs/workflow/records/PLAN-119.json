@@ -14,20 +14,20 @@
     {
       "id": "T1",
       "text": "npm run verify with capped-ranking tests",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (4cb4dad): 104 test files, 1199 passed, 1 skipped (as before); tests/mode-jobs.test.ts: menu words, best-5 cap, missed days, ties, old week entries, the decisive moment against 24 real Sprints, the League line on the Daily card"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e: Play menu groups and a Sprint with the weekly ranking",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8820 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. League stage 1 cleared; League stage 7 Read the Rival played from its opening to \"cleared, stage 8 next\"; one phone 3 hand-overs; online match finished, rematch, leaver taken over, 0 leaks in 50 pricing frames; public room 4/4 reactions, 0 leaks; Sprint with the Play menu groups, Try again and the weekly line; four players; 5 reconnects; speed check OK"
     },
     {
       "id": "T3",
       "text": "Screens at 390, 360 and 320",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568: Play menu, Home Daily card, League results link, Sprint results (scratchpad p119); text at least 12 px, tap targets at least 48 px; reviewed the Play menu"
     },
     {
       "id": "T4",
@@ -41,20 +41,34 @@
     "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
     "date": "2026-11-22"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "not started",
+  "delivery": "implemented",
+  "release": "1.28.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 3b16043, verified at 4cb4dad",
   "reports": [
-    "REP-134"
+    "REP-134",
+    "REP-135"
   ],
   "decisions": [
     "DEC-127"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
+    "added": [
+      "Sprint results name the decisive moment of the Rush",
+      "Try today's Sprint after a cleared League stage; the Daily card says when today repeats something met in the League"
+    ],
+    "changed": [
+      "Play menu: a Normal game group, then League, Daily market and Sprint with their reasons",
+      "The weekly Sprint ranking counts each player's best 5 days"
+    ],
+    "fixed": [
+      "The Play menu says \"1 day\" for a 1-day stage",
+      "The Sprint's decisive moment never claims a loss on fruit that sold anyway"
+    ],
     "removed": []
   },
-  "playerNotes": []
+  "playerNotes": [
+    "A clearer Play menu: Normal game, Market League, Daily market and Sprint, each with what it is for",
+    "The weekly Sprint ranking counts your best 5 days",
+    "Sprint results name the moment that decided your run"
+  ]
 }

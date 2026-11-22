@@ -3028,7 +3028,8 @@
       "reports": [
         "REP-128",
         "REP-130",
-        "REP-132"
+        "REP-132",
+        "REP-135"
       ]
     },
     {
@@ -3055,7 +3056,8 @@
       "reports": [
         "REP-129",
         "REP-130",
-        "REP-132"
+        "REP-132",
+        "REP-135"
       ]
     },
     {
@@ -3081,7 +3083,8 @@
       "reviewTrigger": "Two weeks after 1.27.0 is live: Sprint plays, retries and next-day returns from the anonymous counters.",
       "reports": [
         "REP-131",
-        "REP-132"
+        "REP-132",
+        "REP-135"
       ]
     },
     {
@@ -3106,7 +3109,8 @@
       "plan": "PLAN-116",
       "reviewTrigger": "After the owner tries the fixed build on the preview.",
       "reports": [
-        "REP-133"
+        "REP-133",
+        "REP-135"
       ]
     },
     {
@@ -3131,7 +3135,8 @@
       "plan": "PLAN-117",
       "reviewTrigger": "Win shares over 1,000 dates in the balance run, and two weeks of daily board scores after release.",
       "reports": [
-        "REP-133"
+        "REP-133",
+        "REP-135"
       ]
     },
     {
@@ -3152,11 +3157,12 @@
         "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
         "date": "2026-11-22"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-118",
       "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
       "reports": [
-        "REP-134"
+        "REP-134",
+        "REP-135"
       ]
     }
   ],
@@ -4564,6 +4570,18 @@
     {
       "at": "2026-11-22 15:41",
       "text": "Owner approved DEC-127, PLAN-118 and PLAN-119 with the recommended answers: \"approve plan 118 and 119, use your picks\". Stars: 1 for the clear plus 2 optional per stage, earned stars kept; the Sprint week counts the best 5 days; 1.27.0 is published first after the owner's preview test and the pilot follows as 1.28.0. So PLAN-116 and PLAN-117 join release candidate 1.27.0 and go to the preview for that test. Delivery in progress."
+    },
+    {
+      "at": "2026-11-22 16:31",
+      "text": "1.27.0 with PLAN-116 and PLAN-117 on the preview: pull request #24 merged as fa9bae1 after CI passed; main CI run 164 passed and updated the preview. The preview answers rules 20 and its code carries the fixes (\"Invite 1 more friend\", \"The Resort Order\"). The owner's preview test and the word to publish 1.27.0 are next."
+    },
+    {
+      "at": "2026-11-22 17:10",
+      "text": "PLAN-118 and PLAN-119 implemented and merged (verified at 4cb4dad); T1 to T4 of PLAN-118 and T1 to T3 of PLAN-119 PASS; the owner on the preview not run. Merging the two parts kept both new results props (Retry, Try today's Sprint); the Play menu now says \"1 day\" for a 1-day stage. Differences from the brief: Read the Rival opens at the buying step; a lorry stage option; the Market League gold tier now needs all 12 stages (held tiers kept). For release 1.28.0 after 1.27.0 is published."
+    },
+    {
+      "at": "2026-11-22 18:27",
+      "text": "Owner: \"audit for any bugs or errors or inconsistency and then push everything live, inclusive of 1.28\". Two reviewers audited c553fc9 (REP-135): one Blocker (an empty perk offer held the first morning in League stages 8, 9 and 11 and on the Daily's Basic game days; the Daily part is also in live 1.25.0) and Majors (Rosa Reads Back compared with every stall, the Sprint's decisive moment could claim a loss on fruit that sold anyway, The Eager Bidder spoken by the wrong rival, the release still named 1.27.0). Fixed in 2670dd9 and 1b322b8 with tests; minors and balance (expert difficulty, Ah Chen's Sprint edge) left for later. 1.27.0 was never published, so it is folded into release candidate 1.28.0 (PLAN-112 to PLAN-119). The owner gave the word to publish after the audit."
     }
   ]
 }

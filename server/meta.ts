@@ -3,7 +3,7 @@
 // Pure logic, so it runs in tests without Cloudflare.
 import { aiStep } from '../src/engine/ai';
 import { applyAction, beginBuying, finishReveal, newGame, RuleError, type Action, type GameState } from '../src/engine/game';
-import { dailyConfig, isoWeek, sprintConfig } from '../src/engine/daily';
+import { dailyConfig, isoWeek, sprintConfig, SPRINT_WEEK_DAYS } from '../src/engine/daily';
 import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
 import { safeName, squash } from './names';
 
@@ -183,11 +183,22 @@ export function boardView(board: { name: string; cash: number; sold: number; own
 /** One device's week of Sprints: its latest name and its best score of each day. */
 export interface WeekEntry { owner: string; name: string; best: Record<string, { cash: number; sold: number }>; at: number }
 
-/** A week entry with its totals, ranked: the sum of the device's best Sprint of each day. */
+/** PLAN-119: how many of a device's Sprint days count toward its week (its best ones), so missing two days does not hurt. */
+export { SPRINT_WEEK_DAYS };
+
+/** A day's best, the better first: more cash, then more fruit sold (the boards' own order). */
+const betterDay = (a: { cash: number; sold: number }, b: { cash: number; sold: number }) => b.cash - a.cash || b.sold - a.sold;
+
+/**
+ * A week entry with its totals, ranked: the sum of the device's best SPRINT_WEEK_DAYS Sprint days (each day's best
+ * Sprint). `days` is still how many days of the week it has a Sprint. The stored entries are unchanged (PLAN-119): a
+ * week stored before the cap is simply counted this way.
+ */
 export function weekTotals(week: WeekEntry[]): { name: string; cash: number; sold: number; days: number; owner: string; at: number }[] {
   return week.map((w) => {
     const days = Object.values(w.best);
-    return { name: w.name, owner: w.owner, at: w.at, days: days.length, cash: days.reduce((a, d) => a + d.cash, 0), sold: days.reduce((a, d) => a + d.sold, 0) };
+    const counted = [...days].sort(betterDay).slice(0, SPRINT_WEEK_DAYS);
+    return { name: w.name, owner: w.owner, at: w.at, days: days.length, cash: counted.reduce((a, d) => a + d.cash, 0), sold: counted.reduce((a, d) => a + d.sold, 0) };
   }).sort(better);
 }
 

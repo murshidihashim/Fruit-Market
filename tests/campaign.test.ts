@@ -3,12 +3,12 @@
 // in a Market League game, and leaves every other game exactly as it was. Stars come from the finished game's record.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
-import { aiStep, autoplay, planPrices } from '../src/engine/ai';
-import { CUSTOMER_CARDS, EVENT_CARDS, ORDER_CARDS, RIVALS } from '../src/engine/data';
+import { aiStep, autoplay, openStage, planPrices } from '../src/engine/ai';
+import { CUSTOMER_CARDS, EVENT_CARDS, FARMER_CARDS, ORDER_CARDS, RIVALS } from '../src/engine/data';
 import {
   beginBuying, finishReveal, minPrice, newGame, rowCustomers, winners, type GameConfig, type GameState, type Level, type StageSetup,
 } from '../src/engine/game';
-import { STAR_COUNT, STAR_IDS, afterLine, starsEarned, stageStars } from '../src/ui/campaign';
+import { ALL_STAGES, STAR_COUNT, STAR_IDS, afterLine, starGoals, starsEarned, stageStars } from '../src/ui/campaign';
 import { toStaticHtml } from '../src/ui/cards';
 import { LEAGUE, finishGame, leagueConfig, leagueStage, loadSets, myStars, saveLeagueStage, snapshot } from '../src/ui/progress';
 import { stampsOf } from '../src/ui/stamps';
@@ -27,9 +27,9 @@ beforeEach(() => {
 
 /** One step of a game where every seat is a computer. */
 const step = (s: GameState): GameState => (s.phase === 'morning' ? beginBuying(s) : s.phase === 'reveal' ? finishReveal(s) : aiStep(s)!);
-/** A stage played by the computer for the person too (at `level`). */
+/** A stage played by the computer for the person too (at `level`), from where the stage opens. */
 function played(stage: number, level: Level = 'normal', seed?: number): GameState {
-  const s = newGame(leagueConfig(stage, 'You', '', seed));
+  const s = openStage(newGame(leagueConfig(stage, 'You', '', seed)));
   s.players[0] = { ...s.players[0], kind: 'ai', level };
   return autoplay(s);
 }
@@ -57,23 +57,27 @@ describe('the stage set-up is ignored outside the Market League', () => {
   });
 });
 
-describe('the six stages', () => {
-  it('only name cards, customers and orders the game already has', () => {
+describe('the stages', () => {
+  it('only name cards, customers, orders and lorries the game already has; each has a clear star and two optional stars', () => {
     const events = new Set<string>(EVENT_CARDS.map((e) => e.id));
-    for (const st of LEAGUE) {
+    for (const st of ALL_STAGES) {
       for (const id of Object.values(st.setup.events ?? {})) expect(events.has(id), id).toBe(true);
       for (const n of Object.values(st.setup.orders ?? {})) expect(ORDER_CARDS.some((o) => o.name === n), n).toBe(true);
       for (const ns of Object.values(st.setup.crowd ?? {})) for (const n of ns) expect(CUSTOMER_CARDS.some((c) => c.name === n), n).toBe(true);
-      expect(st.mastery.length).toBe(3);
+      for (const n of Object.values(st.setup.lorry ?? {})) expect(FARMER_CARDS.some((c) => c.name === n), n).toBe(true);
+      expect(st.mastery.length).toBe(2);
+      expect(starGoals(st).length).toBe(3);
       for (const r of st.rivals) expect(RIVALS[r.idx]).toBeDefined();
     }
     expect(new Set(STAR_IDS).size).toBe(STAR_COUNT);
-    expect(STAR_COUNT).toBe(18);
+    // PLAN-118: twelve stages and two expert stages, three stars each
+    expect(STAR_COUNT).toBe(42);
   });
 
-  it('follow the approved order: undercut, Pasar Malam, the resort\'s order, Heatwave, Glut, premium buyers', () => {
+  it('follow the approved order: undercut, Pasar Malam, the resort\'s order, Heatwave, Glut, premium buyers, then the pilot\'s six', () => {
     // REP-133 A-12: stage 3 is named after its Beach Resort order (it was "The Hotel Order").
-    expect(LEAGUE.map((s) => s.title)).toEqual(['Village Square', 'Pasar Malam', 'The Resort Order', 'Heatwave', 'Glut', 'Premium Buyers']);
+    expect(LEAGUE.map((s) => s.title)).toEqual(['Village Square', 'Pasar Malam', 'The Resort Order', 'Heatwave', 'Glut', 'Premium Buyers',
+      'Read the Rival', 'Sell Before It Spoils', 'Time the Mangoes', 'The Right Contract', 'Rescue the Stall', 'Village Finale']);
     expect(LEAGUE[0].setup.undercut).toEqual([1]);
     expect(Object.values(LEAGUE[1].setup.events!)).toContain('pasarMalam');
     expect(LEAGUE[2].setup.orders).toEqual({ 3: 'Beach Resort' });
@@ -149,8 +153,9 @@ describe('the six stages', () => {
 });
 
 describe('clearing a stage', () => {
-  it('on its own seed: a careful player (the Normal computer) clears every stage, a careless one (Easy) does not', () => {
-    for (let i = 0; i < LEAGUE.length; i++) {
+  // PLAN-118: the pilot's new stages are checked by scripted players instead (tests/league-pilot.test.ts).
+  it('on its own seed: a careful player (the Normal computer) clears each of the first six stages, a careless one (Easy) does not', () => {
+    for (let i = 0; i < 6; i++) {
       expect(winners(played(i, 'normal')).includes(0), `stage ${i + 1}, Normal`).toBe(true);
       expect(winners(played(i, 'easy')).includes(0), `stage ${i + 1}, Easy`).toBe(false);
     }
@@ -162,7 +167,7 @@ describe('stars', () => {
     for (let i = 0; i < LEAGUE.length; i++) {
       const g = played(i, 'hard');
       const got = starsEarned(g, 0);
-      for (const id of got) expect(LEAGUE[i].mastery.map((m) => m.id)).toContain(id);
+      for (const id of got) expect(starGoals(LEAGUE[i]).map((m) => m.id)).toContain(id);
     }
     const g = played(0);
     expect(starsEarned({ ...g, config: { ...g.config, stage: undefined } }, 0)).toEqual([]);
@@ -175,9 +180,10 @@ describe('stars', () => {
     const line = { customerId: 1, name: 'Ravi', fruit: 'apple' as const, want: 1, max: 8, offers: [{ player: 0, qty: 1, price: 6, sold: 1, freshness: 0 }, { player: 1, qty: 1, price: 7, sold: 0, freshness: 0 }] };
     const top = { ...line, customerId: 2, offers: [{ player: 0, qty: 1, price: 8, sold: 1, freshness: 0 }] };
     const made = (lines: typeof line[], cash: number[]): GameState => ({ ...g, history: [{ day: 1, lines, income: [0, 0], cash }], players: g.players.map((p, i) => ({ ...p, cash: cash[i] })) });
+    // PLAN-118: the stage keeps "$1 under Rosa" and "$10 ahead"; "the top price" was retired
     const vs = LEAGUE[0].mastery;
-    expect(vs.map((m) => m.met(made([line], [20, 15]), 0))).toEqual([true, false, false]);
-    expect(vs.map((m) => m.met(made([top], [30, 20]), 0))).toEqual([false, true, true]);
+    expect(vs.map((m) => m.met(made([line], [20, 15]), 0))).toEqual([true, false]);
+    expect(vs.map((m) => m.met(made([top], [30, 20]), 0))).toEqual([false, true]);
   });
 
   it('are kept on the phone and counted by the League stars trophy; a normal game adds none', () => {
@@ -198,19 +204,22 @@ describe('stars', () => {
 
   it('a phone with no stars stored (an old save) has none, and its saved stage still opens the same stage', () => {
     expect(myStars()).toEqual([]);
+    // PLAN-118: "vs_top" was retired; the star it was is kept as one of the stage's optional stars
     store.set('fm.prog', JSON.stringify({ stars: ['vs_top', 'not_a_star', 3] }));
-    expect(myStars()).toEqual(['vs_top']);
+    expect(myStars()).toEqual(['vs_under']);
     saveLeagueStage(3);
     expect(leagueStage()).toBe(3);
     expect(leagueConfig(leagueStage(), 'You', '').league).toBe(3);
     expect(LEAGUE[leagueStage()].title).toBe('Heatwave');
+    // and the three stages passed bring their clear stars
+    expect(myStars()).toEqual(['vs_clear', 'vs_under', 'pm_clear', 'ho_clear']);
   });
 });
 
 describe('on screen', () => {
   it('the stars list says each goal and which are earned, without an exclamation mark', () => {
-    const html = toStaticHtml(h(MasteryList, { stage: 2, have: ['ho_win'], fresh: ['ho_win'] }));
-    for (const m of LEAGUE[2].mastery) expect(html).toContain(m.text);
+    const html = toStaticHtml(h(MasteryList, { stage: 2, have: ['ho_full'], fresh: ['ho_full'] }));
+    for (const m of starGoals(LEAGUE[2])) expect(html).toContain(m.text);
     expect(html).toContain('earned this game');
     expect(html).not.toContain('!');
   });
