@@ -91,7 +91,7 @@ async function playSprint(page, shot, tag) {
   // Home's three mode cards, in order; the Daily card's Sprint opens the Daily intro on the Sprint, whose Start starts it.
   const cards = await page.locator('.jh-row > .jh-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-card')));
   if (cards.join() !== 'play,league,daily') return fail(`Home's cards are ${cards.join()}`);
-  await page.click('.jh-nav .jh-dot[aria-label="Daily market"]');
+  await page.click('.jh-nav .jh-dot[aria-label="Show the Daily market card"]');
   await page.waitForSelector('[data-a="sprint-row"]');
   await page.click('[data-a="sprint-row"] [data-a="sprint"]');
   await page.waitForSelector('[data-a="intro-sprint"]');
