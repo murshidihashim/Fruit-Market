@@ -4564,6 +4564,10 @@
     {
       "at": "2026-11-22 15:41",
       "text": "Owner approved DEC-127, PLAN-118 and PLAN-119 with the recommended answers: \"approve plan 118 and 119, use your picks\". Stars: 1 for the clear plus 2 optional per stage, earned stars kept; the Sprint week counts the best 5 days; 1.27.0 is published first after the owner's preview test and the pilot follows as 1.28.0. So PLAN-116 and PLAN-117 join release candidate 1.27.0 and go to the preview for that test. Delivery in progress."
+    },
+    {
+      "at": "2026-11-22 16:31",
+      "text": "1.27.0 with PLAN-116 and PLAN-117 on the preview: pull request #24 merged as fa9bae1 after CI passed; main CI run 164 passed and updated the preview. The preview answers rules 20 and its code carries the fixes (\"Invite 1 more friend\", \"The Resort Order\"). The owner's preview test and the word to publish 1.27.0 are next."
     }
   ]
 }
