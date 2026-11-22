@@ -72,24 +72,25 @@ export function trophyWhere(card: (typeof CARDS)[number]): string {
 /**
  * The next League trophy tier within reach, with its progress: of the League stars card and the three mastery cards
  * (all counted in stars), the tier still to earn. PLAN-123 (preview finding 8): a trophy the stage you are on can add
- * stars to comes first (a mastery trophy counts the stars of two named stages only, so "Contract Trader" no longer shows
- * while you learn to undercut Rosa); then the one nearest to done. `at`: the stage you are on. Null when every tier is held.
+ * stars to comes first: the mastery trophy about this stage's skill, then the League stars trophy (every star counts);
+ * a mastery trophy counts the stars of two named stages only, so "Contract Trader" no longer shows while you learn to
+ * undercut Rosa. Then the one nearest to done. `at`: the stage you are on. Null when every tier is held.
  */
 export function nextTrophy(at = leagueStage()): NextTrophy | null {
   const snap = snapshot();
   const have = myStars();
   const here = stageByNo(Math.min(at, LEAGUE.length - 1));
   const open = here ? starGoals(here).some((m) => !have.includes(m.id)) : false;
-  const helps = (card: (typeof CARDS)[number]): boolean => {
-    if (!open) return false;
+  const helps = (card: (typeof CARDS)[number]): number => {
+    if (!open) return 0;
     const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
-    return k ? MASTERY_STAGES[k].includes(Math.min(at, LEAGUE.length - 1)) : true;
+    return k ? (MASTERY_STAGES[k].includes(Math.min(at, LEAGUE.length - 1)) ? 2 : 0) : 1;
   };
   const cands = CARDS.filter((c) => c.group === 'league' && c.unit === 'stars').flatMap((card) => {
     const st = nextStep(card, snap);
     return st ? [{ card, title: card.title, got: Math.min(stepValue(card, st, snap), st.goal), goal: st.goal, where: trophyWhere(card), helps: helps(card) }] : [];
   });
-  const best = cands.sort((a, b) => Number(b.helps) - Number(a.helps) || b.got / b.goal - a.got / a.goal || a.goal - b.goal)[0];
+  const best = cands.sort((a, b) => b.helps - a.helps || b.got / b.goal - a.got / a.goal || a.goal - b.goal)[0];
   return best ? { card: best.card, title: best.title, got: best.got, goal: best.goal, where: best.where } : null;
 }
 
