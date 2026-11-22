@@ -234,7 +234,7 @@ function Main() {
     />
   ) : (
     <Shopfront
-      resume={waiting ? `Day ${waiting.day}/${waiting.days}` : null}
+      resume={waiting ? `${waiting.mode} · Day ${waiting.day}/${waiting.days}` : null}
       cash={waiting ? waiting.cash : null}
       table={waiting ? game : null}
       leagueLine={league >= LEAGUE.length ? 'All stages cleared · replay for stars' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
@@ -261,14 +261,14 @@ function Main() {
       {popup === 'phone' && <Popup title="One phone" onClose={close}><Setup days={days} friend onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'continue' && waiting && (
         <Popup title="Continue" onClose={close}>
-          <ContinueBody day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash}
+          <ContinueBody mode={waiting.mode} day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash}
             onResume={() => { close(); go('game'); }}
             onStartOver={() => { saveGame(null); setGame(null); close(); go('play'); }} />
         </Popup>
       )}
       {swap && waiting && (
         <Popup title="Game in progress" onClose={() => setSwap(null)}>
-          <ReplaceBody day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash} what={swap.what}
+          <ReplaceBody mode={waiting.mode} day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash} what={swap.what}
             onKeep={() => { fx.tap(); setSwap(null); }}
             onStart={() => { const { go: yes } = swap; setSwap(null); yes(); }} />
         </Popup>

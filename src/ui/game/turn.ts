@@ -72,3 +72,15 @@ export function waitsForPerson(s: GameState, seat: number | null): boolean {
   if (s.phase === 'evening') return eveningOpen(s, seat);
   return activePlayer(s) === seat;
 }
+
+/**
+ * A shared phone (REP-133 A-01): the turn has passed to a person the phone has not yet been handed to. From that moment
+ * until they tap the hand-over nothing on the table may act: not a tap still on its way from the last person (a double
+ * tap on Done, or on a piece of fruit), and not a tap kept back while a piece was landing. The hand-over screen itself
+ * waits for the last beat to finish playing; this does not. Offline only (online each phone is one person's).
+ */
+export function awaitsHandOver(s: GameState, handedTo: number | null): boolean {
+  if (s.players.filter((p) => p.kind === 'human').length < 2) return false;
+  const p = activePlayer(s);
+  return p >= 0 && s.players[p].kind === 'human' && handedTo !== p;
+}

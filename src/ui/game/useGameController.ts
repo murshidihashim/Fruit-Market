@@ -8,6 +8,7 @@ import type { FavourId, FruitId } from '../../engine/data';
 import { activePlayer, canPlayFavour, count, eveningOpen, winners, RuleError, type Action, type Crate, type Customer, type GameState, publicView } from '../../engine/game';
 import { overnightJuice, overnightLines, overnightLoss, tonightLine, type NightJuice } from '../../engine/story';
 import { daySoldLine } from '../panel';
+import { orderLine } from './panels/SalesSummary';
 import type { OnlineClient } from '../../net/client';
 import type { RoomView } from '../../net/protocol';
 import { trackOnce } from '../../net/telemetry';
@@ -21,7 +22,7 @@ import { loadSettings, loadUndo, saveUndo } from '../store';
 import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
-import { playLocal, undoPoint, waitsForPerson, type UndoPoint } from './turn';
+import { awaitsHandOver, playLocal, undoPoint, waitsForPerson, type UndoPoint } from './turn';
 import type { ShowState } from './rush';
 import { endFirstSale, firstSaleGame, firstSaleSeen, guideSetsUp, guidedStep, soloSeat, spotlight } from '../tutorial';
 import { hasFinishedGame } from '../FirstTime';
@@ -39,6 +40,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   /** Scout: the favour card being played while the player taps a face-down walk-in to look at. */
   const [scout, setScout] = useState<number | null>(null);
   const [handedTo, setHandedTo] = useState<number | null>(null);
+  /** handedTo as of the latest hand-over, for taps handled between drawings (REP-133 A-01). */
+  const handedRef = useRef<number | null>(null);
+  handedRef.current = handedTo;
   const [menu, setMenu] = useState(false);
   const [night, setNight] = useState(false);
   // The night panel's slide, set by the night's own script so both run on one clock (PLAN-081).
@@ -124,6 +128,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const point = turnStart.current;
   useEffect(() => { if (!online) saveUndo(point); }, [point]);
   const needHandoff = !online && multi && activeHuman && handedTo !== active && !busy;
+  // REP-133 A-01: on a shared phone, from the moment the turn passes to someone not yet handed the phone (while the last
+  // beat still plays, before the hand-over screen comes up) until they tap it, no tap on the table acts. A tap kept back
+  // while a piece was landing (buyQueue, endQueued) is dropped too: it was the last person's.
+  const handoffDue = !online && awaitsHandOver(s, handedTo);
+  const handOverPending = () => !online && awaitsHandOver(sRef.current, handedRef.current);
   // Online: whose secret prices are still missing, and who still has to press continue.
   const myBidTurn = online ? secret && !!meta && !meta.submitted[viewer] : secret && activeHuman;
   const waitingFor = (idxs: number[]) => idxs.map((i) => s.players[i]?.name).filter(Boolean).join(' and ');
@@ -227,7 +236,9 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (rush && next.results && !online && multi) {
         for (const p of humans) {
           const night = tonightLine(next, p);
-          ownDays.current[p] = { day: next.day, line: daySoldLine(next, p, false), won: next.results.favours.filter((x) => x.player === p).map((x) => x.favour), night: night ? [night] : [] };
+          // REP-133 A-07: a standing order this person missed today, and the stake it cost them, is said here too.
+          const order = orderLine(next.results, p);
+          ownDays.current[p] = { day: next.day, line: daySoldLine(next, p, false), won: next.results.favours.filter((x) => x.player === p).map((x) => x.favour), order: next.results.order?.short ? order : null, night: night ? [night] : [] };
         }
       }
       sRef.current = next;
@@ -279,7 +290,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // Taps made while the piece was on its way: the next piece to buy, then Done (PLAN-085).
       const cur = sRef.current;
       const me = activePlayer(cur);
-      const mine = cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human' && (!online || me === seat);
+      const mine = cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human' && (!online || me === seat) && !handOverPending();
       const q = mine ? buyQueue.current.shift() : undefined;
       if (!mine) { buyQueue.current = []; endQueued.current = false; }
       else if (q) window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
@@ -291,7 +302,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
 
   /** Ends this person's buying turn (the table must be free). */
   const sendEndBuy = () => {
-    if (busyRef.current) return;
+    if (busyRef.current || handOverPending()) return;
     if (online) { if (!sending.current && online.act({ kind: 'endBuy' })) sending.current = true; return; }
     const cur = sRef.current;
     const me = activePlayer(cur);
@@ -381,6 +392,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       if (a.kind === 'stall' && a.crate && online.seat !== null) sentCrate.current = { day: sRef.current.day, seat: online.seat, crate: a.crate };
       return;
     }
+    if (handOverPending()) return;
     const who = seat ?? (a.kind === 'stall' || a.kind === 'prices' ? activePlayer(sRef.current) : active);
     attempt(() => playLocal(sRef.current, who, a));
   };
@@ -468,6 +480,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   }, [s.phase, s.day]);
 
   const pickMarket = (f: FruitId, pos: number) => {
+    if (handOverPending()) return;
     if (freeFruit !== null) {
       act({ kind: 'favour', idx: freeFruit, args: { fruit: f, pos } });
       setFreeFruit(null);
@@ -478,6 +491,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   };
 
   const playCard = (idx: number) => {
+    if (handOverPending()) return;
     const id = s.players[actor]?.favours[idx];
     if (!id) return;
     setCardInfo(idx);
@@ -532,7 +546,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     // The pieces travel back to their boxes (PLAN-085): the turn's first state (or the one just after the last favour
     // card played, which stays played) is shown like any other step.
     const t = turnStart.current?.at;
-    if (busyRef.current) return;
+    if (busyRef.current || handOverPending()) return;
     buyQueue.current = [];
     endQueued.current = false;
     if (t && t !== sRef.current) void apply(t);
@@ -545,11 +559,13 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   /** The phone has been passed to `p`: their own day has been seen. */
   const handTo = (p: number) => {
     delete ownDays.current[p];
+    handedRef.current = p;
     setHandedTo(p);
   };
 
   /** Done buying: at once, or as soon as the piece on its way has landed. */
   const endBuy = () => {
+    if (handOverPending()) return;
     setFreeFruit(null);
     if (busyRef.current) { endQueued.current = true; return; }
     sendEndBuy();
@@ -558,7 +574,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   return {
     s, busy, busyRef, toast, rival, setRival, menu, setMenu, eventInfo, setEventInfo, pulseInfo, setPulseInfo, freeFruit, setFreeFruit, scout: s.phase === 'buy' ? scout : null, pickWalkIn, handedTo, setHandedTo, night, nightSlide, hurry, bell, orderShow, banner, revealDone,
     cardInfo, setCardInfo, tip, setTip, setTipTick, show, lastNight, lastJuice, turnStart, meta, conn, layerRef,
-    humans, active, actor, activeHuman, viewer, needHandoff, myBidTurn, waitingFor, humansMissingBids, eveningWaits, votedMe,
+    humans, active, actor, activeHuman, viewer, needHandoff, handoffDue, myBidTurn, waitingFor, humansMissingBids, eveningWaits, votedMe,
     humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay, ownCrate, ownDay, handTo,
     /** PLAN-113: the guided first sale is on in this game, and is setting up the person's stall now. */
     guided, guiding, endGuide,
@@ -576,6 +592,8 @@ export interface OwnDay {
   line: string;
   /** Favour cards won in the rush. */
   won: FavourId[];
+  /** A standing order they held today and did not deliver in full: how many and the stake lost (null: none). */
+  order: string | null;
   /** What the night does, or did, to their shelf. */
   night: string[];
 }

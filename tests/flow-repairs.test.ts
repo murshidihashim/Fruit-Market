@@ -309,7 +309,8 @@ describe('a paused game is not replaced without asking', () => {
   const paused = playTo((s) => s.phase === 'buy' && s.day === 4);
 
   it('knows which game is waiting: the day, the length, the stalls and your cash', () => {
-    expect(waitingGame(paused)).toEqual({ day: 4, days: 10, stalls: 4, cash: paused.players[0].cash });
+    // REP-133 A-13: and which mode it is.
+    expect(waitingGame(paused)).toEqual({ mode: 'Computer game', day: 4, days: 10, stalls: 4, cash: paused.players[0].cash });
     expect(waitingGame(null)).toBeNull();
     // A finished game is not waiting.
     expect(waitingGame({ ...paused, phase: 'over' })).toBeNull();
@@ -317,6 +318,7 @@ describe('a paused game is not replaced without asking', () => {
     const shared = structuredClone(paused);
     shared.players[1].kind = 'human';
     expect(waitingGame(shared)?.cash).toBeNull();
+    expect(waitingGame(shared)?.mode).toBe('One phone game');
   });
 
   it('asks first when a game is waiting, and starts at once when none is', () => {
