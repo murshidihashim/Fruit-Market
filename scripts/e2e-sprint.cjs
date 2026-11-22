@@ -1,7 +1,9 @@
 // PLAN-114: the Market Sprint in a phone-sized browser against the local server. Starts today's Sprint from Home, plays
 // it to the results, checks the Sprint box (best today, a place on the day's board, one reason, the weekly ranking),
 // taps Try again and checks that the same Sprint starts at once (Day 1 of 3, the same lorry), plays it through again
-// and checks that the device still has one line on the board.
+// and checks that the device still has one line on the board. PLAN-119: first opens the Play menu and checks its groups
+// ("Normal game", then the League, the Daily market and the Sprint with their reasons); on the results, checks the
+// decisive moment and the weekly ranking's line ("Your best 5 days count.").
 // Usage: node scripts/e2e-sprint.cjs <base-url> <outdir>
 //   PACE=human   plays with simple human-like pauses and the normal animation speed, and prints how long each Sprint
 //                took (the run-time measure); by default it plays at test speed.
@@ -70,6 +72,25 @@ async function playSprint(page, shot, tag) {
   const shot = (n) => page.screenshot({ path: `${out}/sprint-${n}.png` });
   const fail = async (msg) => { await shot('stuck'); console.error(`Sprint e2e FAILED: ${msg} (errors: ${JSON.stringify(errors)})`); await browser.close(); process.exit(1); };
 
+  // PLAN-119: the Play menu gives each mode its job.
+  await page.click('[data-a="play"]');
+  await page.waitForSelector('[data-a="normal-game"]');
+  const group = page.locator('[data-a="normal-game"]');
+  if (!/normal game/i.test(await group.locator('h2').innerText())) return fail('the Play menu has no "Normal game" heading');
+  for (const a of ['quick', 'room', 'join', 'computer', 'phone', 'public']) {
+    if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Normal game group`);
+  }
+  if ((await group.locator('.jp-len button').count()) !== 3) return fail('the game length choice is not in the Normal game group');
+  const modes = await page.locator('.jp-in > .jp-mode').evaluateAll((els) => els.map((e) => e.getAttribute('data-a')));
+  if (modes.join() !== 'league,daily,sprint') return fail(`the modes after the group are ${modes.join()}`);
+  const reasons = { league: 'What will the next market throw at you', daily: 'How you rank in today\'s full market', sprint: 'A few minutes. Beat your best.' };
+  for (const [a, why] of Object.entries(reasons)) {
+    const t = await page.locator(`.jp-in > [data-a="${a}"] .jp-why`).innerText();
+    if (t.trim() !== why) return fail(`the ${a} tile's reason is "${t}"`);
+  }
+  await shot('play-menu');
+  console.log(`Play menu: Normal game group, then ${modes.join(', ')}`);
+  await page.click('.jp-bar .icon-btn');
   await page.waitForSelector('[data-a="sprint-row"]');
   await page.click('[data-a="sprint-row"] [data-a="sprint"]');
   // The same Sprint is the same seed: the same perks on offer on the first morning.
@@ -88,10 +109,14 @@ async function playSprint(page, shot, tag) {
     const head = await page.locator('.jp-head small').innerText().catch(() => '');
     const main = await page.locator('.jp-main').innerText();
     const week = await page.locator('.sp-sec').nth(1).innerText().catch(() => '');
+    const weekNote = await page.locator('[data-a="sprint-week-note"]').innerText().catch(() => '');
+    const moment = await page.locator('[data-a="sprint-moment"]').innerText().catch(() => '');
     console.log(`run ${r}: ${secs.toFixed(0)} s · ${head} · ${place} · reason: ${why} · main button: ${main}`);
     if (!/Place \d+(st|nd|rd|th) of \d+/.test(place)) return fail(`no place on the board (${place})`);
     if (!why) return fail('no reason line');
     if (!/This week/i.test(week)) return fail('no weekly ranking');
+    if (weekNote.trim() !== 'Your best 5 days count.') return fail(`the weekly ranking's line is "${weekNote}"`);
+    if (!/Decisive moment/i.test(moment) || !/\$\d+/.test(why)) return fail(`no decisive moment with its dollars (${moment})`);
     if (!/Day 3 of 3 · Sprint/i.test(head)) return fail(`wrong header (${head})`);
     if (!/Try again/i.test(main)) return fail(`main button is "${main}"`);
     await page.locator('[data-a="sprint-result"]').scrollIntoViewIfNeeded();
