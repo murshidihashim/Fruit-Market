@@ -23,7 +23,7 @@ const path = require('path');
   await page.goto('file://' + path.resolve(file));
   const shot = (n) => page.screenshot({ path: `${out}/phone-${n}.png` });
   const has = async (t) => (await page.locator(t).count()) > 0;
-  const game = () => page.evaluate(() => { const e = JSON.parse(localStorage.getItem('fm.save') || 'null'); return e && e.game; });
+  const game = () => page.evaluate(() => { const e = JSON.parse(localStorage.getItem('fm.save.play') || 'null'); return e && e.game; }); // PLAN-120: the Play slot
   const fail = async (why) => { await shot('stuck'); console.error(`One phone FAILED: ${why}. Errors: ${errors.join(' | ')}`); await browser.close(); process.exit(1); };
 
   await page.click('[data-a="play"]');

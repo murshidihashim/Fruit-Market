@@ -1,7 +1,7 @@
 // Anonymous usage counters and crash lines, sent to our own server in small batches.
 // No IDs, names or device details: only event names like "game_end:win" and short error messages.
 // Players can switch it off in Settings ("Share anonymous stats").
-import { loadSettings } from '../ui/store';
+import { anySave, loadSettings } from '../ui/store';
 import { serverBase } from './client';
 import { activeBucket, dayKey, daysBetween, isoWeek } from './cohort';
 
@@ -40,7 +40,7 @@ export function trackCohort(today = dayKey()) {
   try {
     let install = localStorage.getItem('fm.install');
     if (!install) {
-      const veteran = localStorage.getItem('fm.stats') !== null || localStorage.getItem('fm.save') !== null;
+      const veteran = localStorage.getItem('fm.stats') !== null || anySave(); // PLAN-120: a save in any mode's slot, or the old single save
       install = veteran ? 'legacy' : today;
       localStorage.setItem('fm.install', install);
       if (!veteran) track('install_week', isoWeek(today));

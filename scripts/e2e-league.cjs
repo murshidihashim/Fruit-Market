@@ -1,5 +1,5 @@
 // PLAN-115: the Market League's first stage, Village Square, played to its goal in a phone-sized browser. Home's
-// Market League tile opens the League screen; its Play button starts stage 1 (a fixed seed, so the same market every
+// Market League card (PLAN-120; a tile before) opens the League screen; its Play button starts stage 1 (a fixed seed, so the same market every
 // time). The player plays plainly: takes the first perk; buys ripe pieces of the fruit most wanted today, up to what is
 // wanted; puts out every piece; keeps a Favoured Trade card; and asks $1 under Rosa: $2 under each fruit's best price. It must win, see "Village Square cleared" and the stage's
 // stars on the results, and find stage 2 open on the League screen. Exits with a failure otherwise.
@@ -28,8 +28,8 @@ const path = require('path');
   const has = async (t) => (await page.locator(t).count()) > 0;
   const fail = async (why) => { await shot('stuck'); console.error(`League stage FAILED: ${why}. Errors: ${errors.join(' | ')}`); await browser.close(); process.exit(1); };
 
-  // Home's League tile opens the League screen
-  const openLeague = async () => { await page.click('.jh-tiles button:has-text("League")'); await page.waitForSelector('.jp-league'); };
+  // Home's League card opens the League screen
+  const openLeague = async () => { await page.click('.jh-card-league [data-a="league"]'); await page.waitForSelector('.jp-league'); };
   await openLeague();
   if (!(await page.locator('.jp-lg-now h2').innerText()).includes('Village Square')) await fail('the League screen does not open on Village Square');
   await shot('01-screen');
@@ -123,7 +123,7 @@ const path = require('path');
   const has2 = async (t) => (await short.locator(t).count()) > 0;
   const shot2 = (n) => short.screenshot({ path: `${out}/league-short-${n}.png` });
   const fail2 = async (why) => { await shot2('stuck'); console.error(`League short stage FAILED: ${why}. Errors: ${errors.join(' | ')}`); await browser.close(); process.exit(1); };
-  await short.click('.jh-tiles button:has-text("League")');
+  await short.click('.jh-card-league [data-a="league"]');
   await short.waitForSelector('.jp-league');
   if (!(await short.locator('.jp-lg-now h2').innerText()).includes('Read the Rival')) await fail2('the League screen does not open on Read the Rival');
   if (!(await has2('.lg-stop.now'))) await fail2('the road does not mark the next stage');
@@ -190,7 +190,7 @@ const path = require('path');
   if ((await short.locator('.jp-main').innerText()).trim().toLowerCase() !== 'next stage') await fail2('Next stage is not the first button');
   console.log('short stage results:', end2.replace(/\s+/g, ' ').slice(0, 200));
   await short.click('.jp-acts button:has-text("Home")');
-  await short.click('.jh-tiles button:has-text("League")');
+  await short.click('.jh-card-league [data-a="league"]');
   await short.waitForSelector('.jp-league');
   if (!(await short.locator('.lg-stop.now').innerText()).includes('Sell Before It Spoils')) await fail2('the road does not show stage 8 next');
   await shot2('03-road');

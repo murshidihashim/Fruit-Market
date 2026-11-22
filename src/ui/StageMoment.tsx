@@ -9,7 +9,7 @@ import { customerArt, eventArt, shopScene } from './deckArt';
 import { myStars } from './progress';
 import './league.css';
 
-const picSrc = (p: StagePic): string | null => (p.kind === 'event' ? eventArt(p.id) : p.kind === 'keeper' ? shopScene(p.id) : customerArt(p.id));
+export const picSrc = (p: StagePic): string | null => (p.kind === 'event' ? eventArt(p.id) : p.kind === 'keeper' ? shopScene(p.id) : customerArt(p.id));
 
 /** One star, filled when earned. */
 export function Star({ on, size = 18 }: { on: boolean; size?: number }) {

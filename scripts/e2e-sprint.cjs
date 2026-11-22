@@ -1,9 +1,10 @@
 // PLAN-114: the Market Sprint in a phone-sized browser against the local server. Starts today's Sprint from Home, plays
 // it to the results, checks the Sprint box (best today, a place on the day's board, one reason, the weekly ranking),
 // taps Try again and checks that the same Sprint starts at once (Day 1 of 3, the same lorry), plays it through again
-// and checks that the device still has one line on the board. PLAN-119: first opens the Play menu and checks its groups
-// ("Normal game", then the League, the Daily market and the Sprint with their reasons); on the results, checks the
-// decisive moment and the weekly ranking's line ("Your best 5 days count.").
+// and checks that the device still has one line on the board. PLAN-119: first opens the Play menu and checks its
+// "Normal game" group; on the results, checks the decisive moment and the weekly ranking's line ("Your best 5 days
+// count."). PLAN-120: the Play menu holds the Normal game group only; Home has the three mode cards (Play, League,
+// Daily market); the Sprint opens from the Daily card through the Daily intro, which explains it before Start.
 // Usage: node scripts/e2e-sprint.cjs <base-url> <outdir>
 //   PACE=human   plays with simple human-like pauses and the normal animation speed, and prints how long each Sprint
 //                took (the run-time measure); by default it plays at test speed.
@@ -81,18 +82,26 @@ async function playSprint(page, shot, tag) {
     if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Normal game group`);
   }
   if ((await group.locator('.jp-len button').count()) !== 3) return fail('the game length choice is not in the Normal game group');
-  const modes = await page.locator('.jp-in > .jp-mode').evaluateAll((els) => els.map((e) => e.getAttribute('data-a')));
-  if (modes.join() !== 'league,daily,sprint') return fail(`the modes after the group are ${modes.join()}`);
-  const reasons = { league: 'What will the next market throw at you', daily: 'How you rank in today\'s full market', sprint: 'A few minutes. Beat your best.' };
-  for (const [a, why] of Object.entries(reasons)) {
-    const t = await page.locator(`.jp-in > [data-a="${a}"] .jp-why`).innerText();
-    if (t.trim() !== why) return fail(`the ${a} tile's reason is "${t}"`);
-  }
+  // PLAN-120: the League, the Daily market and the Sprint left the Play page for cards of their own on Home.
+  const left = await page.locator('.jp-in [data-a="league"], .jp-in [data-a="daily"], .jp-in [data-a="sprint"]').count();
+  if (left) return fail('the Play page still has the League, the Daily market or the Sprint');
   await shot('play-menu');
-  console.log(`Play menu: Normal game group, then ${modes.join(', ')}`);
+  console.log('Play menu: the Normal game group only');
   await page.click('.jp-bar .icon-btn');
+  // Home's three mode cards, in order; the Daily card's Sprint opens the Daily intro on the Sprint, whose Start starts it.
+  const cards = await page.locator('.jh-row > .jh-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-card')));
+  if (cards.join() !== 'play,league,daily') return fail(`Home's cards are ${cards.join()}`);
+  await page.click('.jh-nav .jh-dot[aria-label="Daily market"]');
   await page.waitForSelector('[data-a="sprint-row"]');
   await page.click('[data-a="sprint-row"] [data-a="sprint"]');
+  await page.waitForSelector('[data-a="intro-sprint"]');
+  const intro = (await page.locator('[data-a="intro-sprint"]').innerText()).replace(/\s+/g, ' ');
+  for (const t of ['3 days · 4 stalls', 'A few minutes. Beat your best.', 'Retry as often as you like.', 'The week counts your best 5 days.', 'Ranked by final cash, then by fruit sold.']) {
+    if (!intro.toLowerCase().includes(t.toLowerCase())) return fail(`the Sprint intro does not say "${t}"`);
+  }
+  await shot('sprint-intro');
+  console.log('Sprint intro: the goal, how it works, the ranking and retries');
+  await page.click('[data-a="intro-start"]');
   // The same Sprint is the same seed: the same perks on offer on the first morning.
   const perks = async () => { await page.waitForSelector('.trait-card', { timeout: 15000 }).catch(() => {}); return (await page.locator('.trait-card').allInnerTexts()).join(' | '); };
   const offer1 = await perks();

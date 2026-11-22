@@ -7,6 +7,7 @@ import { dailyConfig, sprintConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
 import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront } from './Home';
+import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
 import { LENGTHS, vsComputerConfig } from './playMenu';
 import { asShopkeeper } from './playAs';
@@ -31,11 +32,11 @@ import { LeagueScreen } from './League';
 import { BackArrow } from './stampCard';
 import { Toggle } from './Toggle';
 import {
-  consumeSaveNotice, loadGame, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
-  saveSettings, todayKey, type Settings,
+  clearGame, consumeSaveNotice, loadGames, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
+  saveSettings, slotOf, todayKey, type SaveSlot, type Settings,
 } from './store';
 
-type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league';
+type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league' | 'intro';
 type PopupKind = 'new' | 'phone' | 'continue' | 'account';
 
 /**
@@ -89,8 +90,16 @@ export function App() {
 function Main() {
   const [invite, setInvite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
-  const [game, setGame] = useState<GameState | null>(() => loadGame());
+  // PLAN-120: a saved game per mode (store.ts), and the mode of the game on screen. Starting a game fills its own mode's
+  // slot only, so a game in one mode never replaces a game in another.
+  const [games, setGames] = useState<Partial<Record<SaveSlot, GameState>>>(() => loadGames());
+  const [active, setActive] = useState<SaveSlot | null>(null);
+  const game = active ? games[active] ?? null : null;
+  const putGame = (slot: SaveSlot, g: GameState | null) => setGames((gs) => { const n = { ...gs }; if (g) n[slot] = g; else delete n[slot]; return n; });
   const [saveNotice] = useState(() => consumeSaveNotice());
+  // PLAN-120: which Daily format the intro screen explains, and which mode's game the Continue question is about.
+  const [introKind, setIntroKind] = useState<DailyKind>('daily');
+  const [contSlot, setContSlot] = useState<SaveSlot>('play');
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
   const [lastConfig, setLastConfig] = useState<GameConfig | null>(null);
@@ -101,7 +110,7 @@ function Main() {
   const [popup, setPopup] = useState<PopupKind | null>(null);
   // A game is waiting and something that would replace it was tapped: the question on screen, with what to start
   // if the player says "Start anyway" (PLAN-081).
-  const [swap, setSwap] = useState<{ what: string; go: () => void } | null>(null);
+  const [swap, setSwap] = useState<{ slot: SaveSlot; what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
   // PLAN-113: the Play menu's game length (for a computer or one-phone game), and which online screen it opened.
   const [days, setDays] = useState(10);
@@ -146,20 +155,25 @@ function Main() {
     track('players', cfg.players.length);
     // PLAN-118: a League stage that opens part-way is brought there by real game actions (nothing else changes).
     const g = openStage(newGame(cfg));
+    const slot = slotOf(cfg);
     setLastConfig(cfg);
     setRuns((n) => n + 1);
-    setGame(g);
+    putGame(slot, g);
+    setActive(slot);
     saveGame(g);
     setScreen('game');
   };
 
   const onChange = (g: GameState) => {
-    setGame(g);
+    const slot = slotOf(g.config);
+    putGame(slot, g);
     if (g.phase !== 'over') return saveGame(g);
     // The finished game is counted once by the results (progress.ts finishGame): games, wins, pieces sold, the Daily
-    // market's date, trophies and stamps. Online games are counted there too.
-    saveGame(null);
+    // market's date, trophies and stamps. Online games are counted there too. Only its own mode's slot is emptied.
+    clearGame(slot);
   };
+  /** Leaves a finished game: it is no longer kept for its card. */
+  const dropFinished = () => { if (active && game?.phase === 'over') putGame(active, null); };
 
   const startDaily = () => start(dailyConfig(todayKey(), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
   // PLAN-114: the day's Market Sprint. Its results' Try again starts the same Sprint (the same date) at once.
@@ -171,15 +185,15 @@ function Main() {
         key={`${game.config.seed}-${game.config.daily ?? ''}-${runs}`}
         initial={game}
         onChange={onChange}
-        onExit={() => { if (game.phase !== 'over') track('quit_day', game.day); setScreen('home'); if (game.phase === 'over') setGame(null); }}
+        onExit={() => { if (game.phase !== 'over') track('quit_day', game.day); setScreen('home'); dropFinished(); }}
         onRematch={() => {
           const cfg = lastConfig ?? game.config;
           if (cfg.sprint && cfg.daily) { track('sprint_retry'); startSprint(cfg.daily); return; }
-          if (cfg.daily) { setGame(null); setScreen('home'); return; }
+          if (cfg.daily) { dropFinished(); setScreen('home'); return; }
           if (cfg.league !== undefined) {
             // PLAN-115: "Next stage" after the stage was cleared; otherwise "Retry" plays the same stage.
             const cleared = finishGame(game, 0)?.cleared ?? false;
-            if (cleared && leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
+            if (cleared && leagueStage() >= LEAGUE.length) { dropFinished(); setScreen('trophies'); return; }
             start(leagueConfig(cleared ? leagueStage() : cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
             return;
           }
@@ -187,8 +201,13 @@ function Main() {
         }}
         onRetry={() => { const cfg = lastConfig ?? game.config; if (cfg.league !== undefined) start(leagueConfig(cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0])); }}
         onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
-        // PLAN-119: a cleared League stage's results link to today's Sprint (the finished game is not waiting, so no question).
-        onSprint={game.config.league !== undefined ? () => { track('sprint_from_league'); startSprint(); } : undefined}
+        // PLAN-119: a cleared League stage's results link to today's Sprint. PLAN-120: when a Sprint is waiting in its own
+        // slot, the Sprint's intro opens instead (its Continue), so the link never replaces that game.
+        onSprint={game.config.league !== undefined ? () => {
+          track('sprint_from_league');
+          dropFinished();
+          if (waitingGame(games.sprint ?? null)) { setIntroKind('sprint'); setScreen('intro'); } else startSprint();
+        } : undefined}
       />
     );
   }
@@ -201,7 +220,7 @@ function Main() {
     return (
       <Online quick onExit={() => go(from)} onComputer={(avatar) => {
         const go2 = () => start(vsComputerConfig(nameOrDefault(loadName()), avatar, (Math.random() * 2 ** 31) >>> 0));
-        if (waitingGame(game)) { setScreen('home'); setSwap({ what: 'a game against the computer', go: go2 }); } else go2();
+        if (waitingGame(games.play ?? null)) { setScreen('home'); setSwap({ slot: 'play', what: 'a game against the computer', go: go2 }); } else go2();
       }} />
     );
   }
@@ -209,20 +228,29 @@ function Main() {
   if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;
 
   const today = todayKey();
-  const waiting = waitingGame(game);
   const league = leagueStage();
   // PLAN-115: the screen plays the stage you are on, or a cleared stage again for its stars.
   const startLeague = (stage = Math.min(league, LEAGUE.length - 1)) => start(leagueConfig(stage, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
   const close = () => setPopup(null);
-  // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
-  // replaced without a word by the Daily market, the Market League and New game.
-  const orAsk = (what: string, go: () => void) => () => startOrAsk(waiting, go, (yes) => { fx.tap(); setSwap({ what, go: yes }); });
+  // Starting another game of a mode saves over that mode's waiting game, so the player is asked first (PLAN-081). PLAN-120:
+  // only a game of the same mode is replaced; the other modes' games wait on their own cards.
+  const orAsk = (slot: SaveSlot, what: string, go: () => void) => () => startOrAsk(waitingGame(games[slot] ?? null), go, (yes) => { fx.tap(); setSwap({ slot, what, go: yes }); });
+  const openIntro = (kind: DailyKind) => { setIntroKind(kind); go('intro'); };
+  const resume = (slot: SaveSlot) => { setActive(slot); go('game'); };
+  const continuing = waitingGame(games[contSlot] ?? null);
+  const swapping = swap ? waitingGame(games[swap.slot] ?? null) : null;
   // PLAN-113: Home and the Play menu share the pop-ups in front of them (the set-up, Continue, the question before a
   // waiting game is replaced, the account).
   const toOnline = (mode: 'room' | 'public', code?: string) => { setOnlineMode(mode); setJoinCode(code); setFrom('play'); go('online'); };
   // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
   // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
-  const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('a Market League game', () => startLeague(stage))()} /> : screen === 'play' ? (
+  const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('league', 'a Market League game', () => startLeague(stage))()} /> : screen === 'intro' ? (
+    <DailyIntro kind={introKind} today={today} waiting={games[introKind] ?? null}
+      onBack={() => go('home')}
+      onSwitch={(k) => { fx.tap(); setIntroKind(k); }}
+      onContinue={() => resume(introKind)}
+      onStart={introKind === 'sprint' ? orAsk('sprint', 'the Sprint', () => startSprint()) : orAsk('daily', 'the Daily market', startDaily)} />
+  ) : screen === 'play' ? (
     <PlayMenu
       days={days}
       onDays={(d) => { fx.tap(); setDays(d); }}
@@ -231,24 +259,18 @@ function Main() {
       onRoom={() => toOnline('room')}
       onPublic={() => toOnline('public')}
       onJoin={(code) => toOnline('room', code)}
-      onComputer={orAsk('a new game', () => open('new'))}
-      onOnePhone={orAsk('a new game', () => open('phone'))}
-      onDaily={orAsk('the Daily market', startDaily)}
-      onSprint={orAsk('the Sprint', () => startSprint())}
-      onLeague={() => go('league')}
+      onComputer={orAsk('play', 'a new game', () => open('new'))}
+      onOnePhone={orAsk('play', 'a new game', () => open('phone'))}
     />
   ) : (
     <Shopfront
-      resume={waiting ? `${waiting.mode} · Day ${waiting.day}/${waiting.days}` : null}
-      cash={waiting ? waiting.cash : null}
-      table={waiting ? game : null}
-      leagueLine={league >= LEAGUE.length ? 'All stages cleared · replay for stars' : `Stage ${league + 1} of ${LEAGUE.length} · ${LEAGUE[league].title}`}
+      games={games}
       today={today}
       notice={saveNotice}
-      onContinue={() => open('continue')}
+      onContinue={(slot) => { setContSlot(slot); open('continue'); }}
       onPlay={() => go('play')}
-      onDaily={orAsk('the Daily market', startDaily)}
-      onSprint={orAsk('the Sprint', () => startSprint())}
+      onDaily={() => openIntro('daily')}
+      onSprint={() => openIntro('sprint')}
       onLeague={() => go('league')}
       onWardrobe={() => go('wardrobe')}
       onAccount={() => open('account')}
@@ -264,16 +286,21 @@ function Main() {
       {body}
       {popup === 'new' && <Popup title="New game" onClose={close}><Setup days={days} onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'phone' && <Popup title="One phone" onClose={close}><Setup days={days} friend onStart={(c) => { close(); start(c); }} /></Popup>}
-      {popup === 'continue' && waiting && (
+      {popup === 'continue' && continuing && (
         <Popup title="Continue" onClose={close}>
-          <ContinueBody mode={waiting.mode} day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash}
-            onResume={() => { close(); go('game'); }}
-            onStartOver={() => { saveGame(null); setGame(null); close(); go('play'); }} />
+          <ContinueBody mode={continuing.mode} day={continuing.day} days={continuing.days} stalls={continuing.stalls} cash={continuing.cash}
+            onResume={() => { close(); resume(contSlot); }}
+            onStartOver={() => {
+              // PLAN-120: only this mode's game ends; then the place that starts a game of this mode.
+              clearGame(contSlot); putGame(contSlot, null); close();
+              if (contSlot === 'daily' || contSlot === 'sprint') openIntro(contSlot);
+              else go(contSlot === 'league' ? 'league' : 'play');
+            }} />
         </Popup>
       )}
-      {swap && waiting && (
+      {swap && swapping && (
         <Popup title="Game in progress" onClose={() => setSwap(null)}>
-          <ReplaceBody mode={waiting.mode} day={waiting.day} days={waiting.days} stalls={waiting.stalls} cash={waiting.cash} what={swap.what}
+          <ReplaceBody mode={swapping.mode} day={swapping.day} days={swapping.days} stalls={swapping.stalls} cash={swapping.cash} what={swap.what}
             onKeep={() => { fx.tap(); setSwap(null); }}
             onStart={() => { const { go: yes } = swap; setSwap(null); yes(); }} />
         </Popup>
