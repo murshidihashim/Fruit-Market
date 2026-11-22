@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
-import { CUSTOMER_CARDS, RIVALS } from '../engine/data';
+import { CUSTOMER_CARDS, RIVALS, lookOf } from '../engine/data';
 import { CHARACTER_AVATARS, COMPUTERS_AFTER_MS, DEFAULT_CONFIG, MAX_SEATS, NAME_MAX, type PublicRoom, type PublicSeat, type RoomConfig, type RoomView } from '../net/protocol';
 import { Face } from './art';
 import { CharacterPick } from './CharacterPick';
@@ -16,8 +16,9 @@ import { loadName, saveName } from './store';
 import { titleOf } from '../net/looks';
 import { BackArrow, FramedFace, awningColour } from './stampCard';
 import { StallSign, TradingCard } from './cards';
+import { CardZoom } from './cardZoom';
 import { crateUrl } from './marketArt';
-import { clock, lengthWord, waitLine } from './playMenu';
+import { LENGTHS, clock, lengthWord, waitLine } from './playMenu';
 import { practiceQuestion, practiceRound, practiceVerdict } from './practice';
 import { Awning } from './table';
 import './journey-online.css';
@@ -315,6 +316,12 @@ export function startLabel(v: RoomView): string {
   return away.length ? `Waiting for ${away.map((x) => x.name).join(' and ')} to come back` : 'Waiting for everyone to be ready…';
 }
 
+/** PLAN-116 (REP-133 B-05): the invite box's line counts the stalls still free (people and computers both take one). */
+export function inviteLine(free: number): string {
+  if (free <= 0) return 'All stalls taken';
+  return free === 1 ? 'Invite 1 more friend' : `Invite up to ${free} friends`;
+}
+
 /** PLAN-113: a seat's chip in the private lobby. */
 export function seatChip(x: PublicSeat): string {
   if (x.left) return 'Left';
@@ -349,7 +356,6 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const now = useNow(away.some((x) => x.takeoverAt !== undefined));
   // Computer shops take seats too, so they count toward the six.
   const openSeats = Math.max(0, MAX_SEATS - v.seats.length - v.config.ai);
-  const friendsAllowed = Math.max(1, MAX_SEATS - v.config.ai - 1);
   const set = (patch: Partial<RoomConfig>) => client.config({ ...v.config, ...patch });
   // PLAN-112: once the room has waited a minute with seats free, the host may start with computers in them.
   const computers = computersOffer(v, client.openedAt, useNow(host && openSeats > 0 && !v.quick));
@@ -377,7 +383,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
       <section class="jl-invite invite">
         <div class="jl-code">
-          <span class="jl-lb">{friendsAllowed === 1 ? 'Invite a friend' : `Invite up to ${friendsAllowed} friends`}</span>
+          <span class="jl-lb">{inviteLine(openSeats)}</span>
           <div class="room-code" aria-label={`Room code ${v.code}`}>{v.code.split('').map((c) => <span>{c}</span>)}</div>
           <input id="invite-link" class="jl-link" readOnly value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
         </div>
@@ -446,8 +452,8 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         <section class="panel">
           <h3>Game length</h3>
           <div class="seg">
-            {([[8, 'Quick'], [10, 'Standard'], [14, 'Long']] as const).map(([d, l]) => (
-              <button class={v.config.days === d ? 'on' : ''} onClick={() => set({ days: d })}>{l}<small>{d} days</small></button>
+            {LENGTHS.map((l) => (
+              <button class={v.config.days === l.days ? 'on' : ''} onClick={() => set({ days: l.days })}>{l.word}<small>{l.days} days</small></button>
             ))}
           </div>
         </section>
@@ -484,7 +490,10 @@ function QuickWait({ v, onExit, onChange, onComputer }: { v: RoomView; onExit: (
   return (
     <Shell title="Quick match" onBack={onExit}>
       <div class="jw-vs">
-        <div class="jw-card">{avatar ? <StallSign avatar={avatar} eager /> : <Face who="computer" size={80} />}</div>
+        {/* PLAN-116 (REP-133 B-08): the small cards here open whole on a tap */}
+        {avatar
+          ? <CardZoom class="jw-card" wide title={RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Your shopkeeper'}><StallSign avatar={avatar} eager /></CardZoom>
+          : <div class="jw-card"><Face who="computer" size={80} /></div>}
         <div class="jw-r"><span class="jw-vsw" aria-hidden="true">vs</span><div class="jw-empty" role="status"><span aria-hidden="true">?</span><small>Looking for a stall</small></div></div>
       </div>
       <div class="jw-t"><b aria-label={`Waited ${clock(now - since)}`}>{clock(now - since)}</b><span>{waitLine(v.config.days, avatar)}</span></div>
@@ -510,7 +519,7 @@ function PricePractice({ mine }: { mine: string }) {
     <section class="jw-pp" aria-label="Price practice">
       <span class="jl-lb">While you wait · price practice</span>
       <div class="jw-pp-in">
-        <div class="jw-pp-card">{card && <TradingCard who={card.name} wants={card.wants} eager />}</div>
+        {card && <CardZoom class="jw-pp-card" title={lookOf(card.name).title}><TradingCard who={card.name} wants={card.wants} eager /></CardZoom>}
         <div class="jw-pp-r">
           <p class="jw-q">{practiceQuestion(r)}</p>
           <div class="jw-opts" role="group" aria-label="Your price">

@@ -3,6 +3,7 @@
 // cannot (Apple only allows it from the Home Screen), so there the button shows how to add the game to the Home Screen,
 // which then opens with no browser bars.
 import { useEffect, useState } from 'preact/hooks';
+import { TrapBox } from './focusTrap';
 import { fx } from './fx';
 import { fullscreenAvailable, fullscreenSupported, isFullscreen, onFullscreenChange, stopAskingFullscreen, toggleFullscreen } from './fullscreen';
 
@@ -30,11 +31,11 @@ export function HomeScreenSteps() {
 function StepsSheet({ onClose }: { onClose: () => void }) {
   return (
     <div class="modal-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div class="modal center fs-ask" role="dialog" aria-modal="true" aria-label="Full screen on iPhone">
+      <TrapBox class="modal center fs-ask" role="dialog" aria-modal="true" aria-label="Full screen on iPhone">
         <h3>Full screen on iPhone</h3>
         <HomeScreenSteps />
         <button type="button" class="btn primary wide" onClick={() => { fx.tap(); onClose(); }}>Got it</button>
-      </div>
+      </TrapBox>
     </div>
   );
 }
@@ -65,7 +66,7 @@ export function FullscreenPrompt({ onClose }: { onClose: () => void }) {
   };
   return (
     <div class="modal-bg fs-ask-bg" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div class="modal center fs-ask" role="dialog" aria-modal="true" aria-label="Play full screen?">
+      <TrapBox class="modal center fs-ask" role="dialog" aria-modal="true" aria-label="Play full screen?">
         <h3>Play full screen?</h3>
         {steps && <HomeScreenSteps />}
         {steps
@@ -73,7 +74,7 @@ export function FullscreenPrompt({ onClose }: { onClose: () => void }) {
           : <button type="button" class="btn primary wide" onClick={go}>Full screen</button>}
         {!steps && <button type="button" class="btn wide" onClick={() => { fx.tap(); onClose(); }}>Not now</button>}
         <button type="button" class="link-btn" onClick={() => { stopAskingFullscreen(); onClose(); }}>Don’t ask again</button>
-      </div>
+      </TrapBox>
     </div>
   );
 }

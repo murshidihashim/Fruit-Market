@@ -298,7 +298,7 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .seat-tile .st-k { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.86rem; font-weight: 800; }
 .seat-tile .st-l { font-size: 0.76rem; font-weight: 600; }
 .seat-tile .st-l { color: var(--muted); }
-.seat-tile.lv-easy .st-k { color: var(--x-green); }
+.seat-tile.lv-easy .st-k { color: var(--c-0a7443); }
 .seat-tile.lv-hard .st-k { color: var(--x-red-d); }
 .seat-tile.friend { background: var(--surface-2); }
 .seat-tile.on { box-shadow: 0 0 0 3px var(--x-mustard); }
@@ -931,7 +931,7 @@ b, strong { font-weight: 700; }
 /* ---------- results, daily result, trophies, league ---------- */
 .results h2 { font-size: 2.1rem; color: var(--x-ink); text-shadow: none; }
 .recap { background: var(--x-paper); border: 2px solid var(--x-ink); }
-.rematch-note { font-family: var(--f-display); color: var(--x-green); }
+.rematch-note { font-family: var(--f-display); color: var(--c-0a7443); }
 .dr-rank b { color: var(--x-red-d); }
 .board li { background: var(--x-paper); border: 1.5px solid var(--x-ink); font-family: var(--f-label); }
 .page .stats small, .page .small, .page small { color: var(--x-slate); }

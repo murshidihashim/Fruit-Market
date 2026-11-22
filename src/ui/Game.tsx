@@ -141,8 +141,8 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
         <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
-          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online} /></main>
-        {online && <ReactButton class="rx-over" onOpen={() => setReacting(true)} />}
+          rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online}
+          react={online && <ReactButton class="rx-over" onOpen={() => setReacting(true)} />} /></main>
         {reactions}
       </div>
     );
@@ -292,8 +292,10 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
       <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} hidden={together} />
       {/* PLAN-112: the reaction button sits on your shelf's top corner (it shares the shelf's place in the layout).
           PLAN-113: not while stocking and pricing (phase 'stall'): there it stood over the last row's + button of the
-          sheet above the shelf, which could then not be pressed (found by the online browser test on day 8). */}
-      {online && s.phase !== 'stall' && <ReactButton class="rx-game" onOpen={() => setReacting(true)} />}
+          sheet above the shelf, which could then not be pressed (found by the online browser test on day 8).
+          PLAN-116 (REP-133 B-02): inside the shelf now; and not while a sheet with its own buttons lies over the shelf
+          (the standing order's bid, a tie, the evening's choices), where it stood over the bid's + button. */}
+      {online && s.phase !== 'stall' && !orderUp && !tying && !evSheet && <ReactButton class="rx-game" onOpen={() => setReacting(true)} />}
 
       {/* While stocking, bidding for a standing order or deciding the evening, the panel's own buttons (.pp-lock) take
           the action bar's place; while the round table is up, its own foot does. */}

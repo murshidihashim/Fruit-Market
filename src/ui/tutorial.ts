@@ -6,6 +6,7 @@ import {
   activePlayer, applyAction, canBuy, canPlayFavour, canUpgrade, capFor, effectiveMax, forSale, maxPrice, minPrice, rowCustomers,
   type Customer, type GameState, type Post,
 } from '../engine/game';
+import { TIE_ORDER_CARD } from './rulesText';
 
 const KEY = 'fm.tutorial';
 
@@ -19,7 +20,7 @@ export const TIPS: Tip[] = [
   { id: 'bought', title: 'On your shelf', text: 'It\'s on your shelf. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Fill your crate', text: 'Tap + beside a row to put that piece in your crate. Only pieces in your crate can sell today. Rivals see how many, not which fruit.' },
   { id: 'bid', title: 'Secret prices', text: 'Set a price for each fruit with − and +. You see how many pieces each rival has in their crate, not which fruit. Prices and crates open at the bell. The cheapest stall sells first.' },
-  { id: 'reveal', title: 'The rush', text: 'Each customer bought from the cheapest stall with fruit fresh enough for their price. Ties go to Favoured Trade, then fresher fruit, then the Haggler, then whoever bought earlier today.' },
+  { id: 'reveal', title: 'The rush', text: `Each customer bought from the cheapest stall with fruit fresh enough for their price. Ties: ${TIE_ORDER_CARD} in today's buying.` },
   // The words for a stall that is not known; tipFor says what this evening offers the stall deciding (eveningTip).
   { id: 'evening', title: 'Evening', text: 'If you can, play a favour card or build an upgrade. Then tap Lights out, and night falls.' },
   { id: 'day2', title: 'From Day 2', text: 'From now on the poorest stall buys first, then the others clockwise. Most cash after the last day wins.' },

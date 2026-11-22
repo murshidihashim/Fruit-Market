@@ -339,7 +339,8 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
     expect(rush).toContain("#app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }");
     // the pricing sheet's one-line forms
     const panel = read('src/ui/panel.tsx');
-    expect(panel).toContain('Ties: fresher, then the Haggler, then earlier.');
+    // (PLAN-116, REP-133 B-17: the words are one constant now, rulesText.ts TIE_ORDER; tieOrderLine's test above reads them)
+    expect(panel).toContain('return `Ties: ${TIE_ORDER}.');
     expect(panel).toContain('You hold Favoured Trade. If you tie, you\'ll be asked after the prices flip.');
   });
 });
