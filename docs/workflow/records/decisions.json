@@ -3237,6 +3237,29 @@
       "plan": "PLAN-122",
       "reviewTrigger": "After the owner sees it.",
       "reports": []
+    },
+    {
+      "id": "DEC-131",
+      "title": "A release-quality bug-fix and polish pass before the next release",
+      "question": "What should the next release fix and polish?",
+      "choice": "The eight preview findings first (misleading state, counters, save and reward issues), then journey polish, then animation and sound; rules, balance and saves unchanged; the Sprint perk choice is kept and explained.",
+      "rationale": "The owner wants the current game to feel finished, including the League, Daily, Sprint and Normal game.",
+      "impact": {
+        "player": "Clearer buying, stocking, Rush and results; no flicker of wrong numbers; quicker Skip.",
+        "technical": "UI files under src/ui; engine untouched.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
+        "date": "2026-11-23"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-123",
+      "reviewTrigger": "After the owner sees it on the preview.",
+      "reports": []
     }
   ],
   "history": [
@@ -4691,6 +4714,10 @@
     {
       "at": "2026-11-23 00:31",
       "text": "DEC-130 and PLAN-122 approved by the owner (\"make it so that its more centred and the level 6 box opens up to the stamp box\") and implemented on the branch: npm run verify PASS, Home still fits one screen at 412x915 to 360x640, the Level box opens the Stamp book. Not yet on the preview or the live game."
+    },
+    {
+      "at": "2026-11-23 07:35",
+      "text": "DEC-131 and PLAN-123 approved by the owner (a release-quality bug-fix and polish pass on the preview). The preview serves commit 897e581 (bundle index-77KkSaxV.js, the same as a local build of main). Assumptions: no rule, balance or save change; the Sprint perk stays and is explained; publishing to the live game needs a separate word."
     }
   ]
 }

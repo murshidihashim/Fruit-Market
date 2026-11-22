@@ -1,0 +1,67 @@
+{
+  "id": "PLAN-123",
+  "title": "Release-quality bug-fix and polish pass on the preview build",
+  "problem": "A play-through of the preview (commit 897e581) found misleading game state, out-of-sync counters, ambiguous Rush and results words, a Skip that passes through live controls, a reward that flickers, unclear Sprint and League messages, and journey, animation and sound rough edges.",
+  "scope": [
+    "Fix the eight preview findings: wholesale looks sold out while rivals buy; purchase counters out of step; stocking counts one fruit twice; Rush words; Skip to the end; Sprint stamps flicker; Sprint same-start and twist words; League trophy and star words",
+    "Journey polish: Home and menus (Continue labels, Back and cancel, fullscreen prompt), one clear action per phase, freshness labels, results and progression",
+    "Animation and sound audit: lorry, buying and stocking, Bell, Rush, stars and rewards; Fast and Reduced motion; mute persists; no stale effects after background, resume or skip",
+    "Regression tests for every confirmed bug; full verification list run where this machine can"
+  ],
+  "exclusions": [
+    "No rule, balance, protocol or save-format change; the Sprint perk choice stays and is explained (a messaging fix)",
+    "No publishing to the live game without the owner's separate word",
+    "Art stays: cards, portraits, fruit, lorry, crates, shutters"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Each of the eight findings reproduced before and checked fixed after, with screens",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "Play-throughs: guided sale, Normal computer game, League clear and retry, Daily, three-day Sprint with reload, One phone hand-over",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T5",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
+    "date": "2026-11-23"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-131"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
