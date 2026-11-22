@@ -15,13 +15,29 @@
 .jh .tb-awn, .jp .tb-awn { display: block; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
 .jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 
-/* ---------- the title and the level ---------- */
-.home.hm.jh .jh-top { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 12px 16px 6px; }
-.home.hm.jh h1.hm-name { font-size: 2.5rem; line-height: 0.92; }
-.home.hm.jh .jh-lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin-top: 4px; padding: 7px 10px; background: var(--j-ink); color: var(--j-paper); }
+/* ---------- the band, the title and the level ----------
+   PLAN-121: Home fits one phone screen. On a phone under 760 px high the band is lower, the title is one line and the
+   gaps are smaller; a taller phone keeps the two-line title. (The opening measures the band, so it folds into either.) */
+.home.hm.jh .hm-lanes { height: 32px; }
+.home.hm.jh .hm-lane i { width: 24px; height: 24px; }
+.home.hm.jh .hm-lane i .x-fruit { width: 20px; height: 20px; }
+.home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 16px 2px; }
+.home.hm.jh h1.hm-name { font-size: 2rem; line-height: 0.92; white-space: nowrap; }
+.home.hm.jh h1.hm-name br { display: none; }
+.home.hm.jh .jh-lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; padding: 5px 8px; background: var(--j-ink); color: var(--j-paper); }
 .home.hm.jh .jh-lvl b { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--j-yel); }
 .home.hm.jh .jh-lvl small { font: 700 0.75rem/1.1 var(--f-label); }
-.home.hm.jh .hm-rest { gap: 12px; }
+.home.hm.jh .hm-rest { gap: 8px; }
+@media (min-height: 760px) {
+  .home.hm.jh .hm-lanes { height: 47px; }
+  .home.hm.jh .hm-lane i { width: 34px; height: 34px; }
+  .home.hm.jh .hm-lane i .x-fruit { width: 28px; height: 28px; }
+  .home.hm.jh .jh-top { align-items: flex-start; padding: 12px 16px 6px; }
+  .home.hm.jh h1.hm-name { font-size: 2.5rem; }
+  .home.hm.jh h1.hm-name br { display: inline; }
+  .home.hm.jh .jh-lvl { margin-top: 4px; padding: 7px 10px; }
+  .home.hm.jh .hm-rest { gap: 12px; }
+}
 
 /* ---------- Play, and the room an online match waits in (PLAN-120: the stall and the mode cards are in
    home-cards.css) ---------- */
@@ -54,43 +70,22 @@
 .home.hm.jh .jh-dgo svg { flex: none; width: 16px; height: 16px; }
 .home.hm.jh .jh-dgo:active { transform: translateY(2px); }
 
-/* ---------- your next goals ---------- */
-.home.hm.jh .jh-goals { flex: none; margin: 0 16px; display: flex; flex-direction: column; gap: 6px; }
-.home.hm.jh .jh-h { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; }
-.home.hm.jh .jh-goal { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 10px; box-shadow: inset 0 0 0 2px var(--j-ink); }
-.home.hm.jh .jh-gpic { flex: none; width: 52px; height: 40px; display: grid; place-items: center; overflow: hidden; }
-.home.hm.jh .jh-gpic.awn { align-content: center; }
-.home.hm.jh .jh-gpic.awn .tb-awn { width: 52px; }
-.home.hm.jh .jh-gpic img.sbk-art { width: 40px; height: 40px; object-fit: cover; box-shadow: inset 0 0 0 2px var(--j-ink); }
-.home.hm.jh .jh-gpic .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
-.home.hm.jh .jh-gt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.home.hm.jh .jh-gt b { font: 800 0.9375rem/1.15 var(--f-label); }
-.home.hm.jh .jh-gt small { font: 600 0.75rem/1.2 var(--f-label); color: var(--j-slate); }
-.home.hm.jh .jh-gp { flex: none; font: 400 1.125rem/1 var(--f-display); }
-
-/* ---------- the stamp book and the Wardrobe (PLAN-120: the League has its card) ---------- */
-.home.hm.jh .jh-tiles { flex: none; margin: 0 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.home.hm.jh .jh-tiles button {
-  min-height: 64px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 9px; text-align: left; box-shadow: inset 0 0 0 2px var(--j-ink);
-  font: 600 0.75rem/1.2 var(--f-label); overflow-wrap: anywhere;
+/* ---------- How to play, Settings and the account (PLAN-121: the stamp book and the Wardrobe are on your stall) ---------- */
+.home.hm.jh .jh-foot {
+  margin-top: auto; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(0, 1fr);
+  padding-top: 5px; padding-bottom: max(6px, env(safe-area-inset-bottom));
 }
-.home.hm.jh .jh-tiles b { font: 800 0.875rem/1.1 var(--f-label); }
-.home.hm.jh .jh-tiles button:active { transform: translateY(2px); }
-.home.hm.jh .jh-tface .sbk-face { border-width: 2px; padding: 0; }
-.home.hm.jh .jh-foot { margin-top: auto; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(0, 1fr); }
+.home.hm.jh .jh-foot button { min-height: 44px; }
 .home.hm.jh .jh-acct { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 @media (max-width: 379px) {
-  .home.hm.jh h1.hm-name { font-size: 2.125rem; }
-  .home.hm.jh .jh-goals, .home.hm.jh .jh-tiles, .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
-  .home.hm.jh .jh-dcard { --card-w: 108px; }
-  .home.hm.jh .jh-db { gap: 8px; padding: 8px 6px 6px; }
-  .home.hm.jh .jh-tiles { gap: 6px; }
-  .home.hm.jh .jh-tiles button { padding: 7px; font-size: 0.75rem; }
+  .home.hm.jh h1.hm-name { font-size: 1.625rem; }
+  @media (min-height: 760px) { .home.hm.jh h1.hm-name { font-size: 2.125rem; } }
+  .home.hm.jh .jh-top { padding-left: 12px; padding-right: 12px; }
+  .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
 }
 @media (max-width: 339px) {
-  .home.hm.jh .jh-db { flex-direction: column; align-items: stretch; }
-  .home.hm.jh .jh-dcard { align-self: center; --card-w: 128px; }
+  .home.hm.jh h1.hm-name { font-size: 1.375rem; }
 }
 
 /* ---------- the Play menu ---------- */
