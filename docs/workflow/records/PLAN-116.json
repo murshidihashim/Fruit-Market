@@ -1,0 +1,63 @@
+{
+  "id": "PLAN-116",
+  "title": "Fixes from the 1.27.0 review",
+  "problem": "The 1.27.0 review found a one-phone hand-over gap, wrong prices on the Daily card on Fixed prices days, and words and screens that disagree with the game.",
+  "scope": [
+    "A-01 one-phone hand-over: block input until the hand-over is tapped",
+    "A-02 the Daily card's prices on Fixed prices days",
+    "A-03 to A-08 League lines, names, the $9 star becomes $8, the level per rival; Best day as the net change; missed order on the one-phone note",
+    "B-01 to B-05, B-07, B-08 lobby names, reaction button placement and size, dialog focus, free-seat invite words, contrast, text size",
+    "Polish A-10 to A-14 and B-09 to B-17"
+  ],
+  "exclusions": [
+    "No rule, balance or protocol change",
+    "Balance (Uncle Benny's level) and the owner's first-time text (B-06): the owner's decision"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with tests for the fixed findings",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e plus a one-phone double-tap step; 0 leaks",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "proposed",
+    "evidence": "",
+    "date": ""
+  },
+  "delivery": "not started",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [
+    "REP-133"
+  ],
+  "decisions": [
+    "DEC-125"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

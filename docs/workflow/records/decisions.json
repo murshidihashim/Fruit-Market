@@ -3083,6 +3083,31 @@
         "REP-131",
         "REP-132"
       ]
+    },
+    {
+      "id": "DEC-125",
+      "title": "Fixes from the 1.27.0 review",
+      "question": "Which problems found in the 1.27.0 review should be fixed before it goes live?",
+      "choice": "Proposed: fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the \\$9 League star becomes \\$8. Balance (Uncle Benny in the Daily and Sprint) and the owner's first-time text are left for the owner.",
+      "rationale": "A review of 1.27.0 found no Blocker, but two Majors players would meet, and several words and screens that disagree with the game.",
+      "impact": {
+        "player": "One-phone turns cannot be taken by mistake; correct prices and lines; clearer screens and larger tap targets.",
+        "technical": "UI, words and small game-flow guards; no engine rule changes.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "proposed",
+        "evidence": "",
+        "date": ""
+      },
+      "delivery": "not started",
+      "plan": "PLAN-116",
+      "reviewTrigger": "After the owner tries the fixed build on the preview.",
+      "reports": [
+        "REP-133"
+      ]
     }
   ],
   "history": [
@@ -4469,6 +4494,10 @@
     {
       "at": "2026-11-21 22:52",
       "text": "1.27.0 on the preview: pull request #23 merged as 3edfa16 after CI passed; main CI run 162 passed (verify:full) and the preview job updated the preview Worker. The preview answers rules 20 and serves the 1.27.0 build (the Sprint and the League stars found in its code). The owner's test on the preview (PLAN-112 T5, PLAN-113 T4, PLAN-114 and PLAN-115 T5) and the word to publish are next."
+    },
+    {
+      "at": "2026-11-22 12:10",
+      "text": "Owner: \"go through the game for fixes\". Two reviewers checked 1.27.0 at 7b98915 (play and rules; screens, online and polish): no Blocker; 2 Major, 15 Minor, 10 Polish, and balance notes (Uncle Benny in the Daily and Sprint; Ah Chen's perk explains her edge over Rosa). Proposed as DEC-125 / PLAN-116 in REP-133."
     }
   ]
 }
