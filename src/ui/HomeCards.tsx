@@ -292,7 +292,7 @@ function LeagueCard(p: ModeCardProps) {
       <div class="jh-ch"><span>Market League</span><small>{done ? `All ${LEAGUE.length} stages cleared` : `Stage ${sel + 1} of ${LEAGUE.length}`}</small></div>
       <div class="jh-cb">
         <span class="jh-why">{MODE_REASON.league}</span>
-        <div class="jh-lgpic">
+        <div class={`jh-lgpic ${w ? 'jh-lgw' : ''}`}>
           <CardArt class="jh-lgart" src={picSrc(st.pic)} alt={picName(st.pic)} w={300} h={170} eager />
           <span class="jh-lgvs" aria-hidden="true">
             <FramedFace who={myAvatar()} size={28} look={worn()} /><i>vs</i>
@@ -300,9 +300,9 @@ function LeagueCard(p: ModeCardProps) {
           </span>
         </div>
         <b class="jh-lgt">{st.title}</b>
-        <span class="jh-lgg">{stageGoal(st)}</span>
-        <span class="jh-lgs"><Stars got={got} total={starGoals(st).length} size={16} /><small>{stars.length} stars in all</small></span>
-        {trophy && <span class="jh-lgtr jh-x"><b>Next trophy</b> {trophy.title} · {trophy.got} of {trophy.goal} stars</span>}
+        {!w && <span class="jh-lgg">{stageGoal(st)}</span>}
+        <span class={`jh-lgs ${w ? 'jh-x' : ''}`}><Stars got={got} total={starGoals(st).length} size={16} /><small>{stars.length} stars in all</small></span>
+        {trophy && !w && <span class="jh-lgtr jh-x"><b>Next trophy</b> {trophy.title} · {trophy.got} of {trophy.goal} stars</span>}
         {w && g ? (
           <div class="jh-wait">
             <ContinueButton slot="league" w={w} label={`Continue ${w.mode.replace(/^League /, '')}`} onContinue={p.onContinue} />

@@ -38,7 +38,7 @@
   max-width: 100%; box-sizing: border-box; padding: 4px 7px; background: var(--j-paper); box-shadow: inset 0 0 0 2.5px var(--j-ink);
   display: flex; flex-direction: column; gap: 1px;
 }
-.home.hm.jh .jh-sign b { font: 400 0.875rem/1.05 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
+.home.hm.jh .jh-sign b { font: 400 0.875rem/1.05 var(--f-display); text-transform: uppercase; display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home.hm.jh .jh-sign small { font: 700 0.75rem/1.1 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-counter { position: relative; display: flex; align-items: flex-end; gap: 4px; padding-bottom: 8px; }
 .home.hm.jh .jh-crate { position: relative; display: flex; flex-direction: column; align-items: center; }
@@ -103,7 +103,7 @@
 .home.hm.jh .jh-cplay { margin-bottom: 5px; min-height: 56px; font-size: 1.75rem; }
 .home.hm.jh .jh-wait { display: flex; flex-direction: column; gap: 6px; }
 .home.hm.jh .jh-cgo {
-  min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 4px 12px; background: var(--j-yel); color: var(--j-ink);
+  min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 4px 12px; background: var(--j-yel); color: var(--j-ink);
   box-shadow: inset 0 0 0 3px var(--j-ink), 0 3px 0 var(--j-ink); margin-bottom: 3px; text-align: left;
 }
 .home.hm.jh .jh-cgo span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -192,6 +192,11 @@
   .home.hm.jh .jh-cgo b { font-size: 1.25rem; }
   .home.hm.jh .jh-ib { width: 80px; min-height: 52px; }
   .home.hm.jh .jh-next2 { margin: 0 7px 8px; padding: 6px 9px; font-size: 0.8125rem; white-space: normal; }
+}
+/* PLAN-121: with less height, the waiting game's table row is left out (Continue still names the day and your cash). */
+@media (max-height: 759px) {
+  .home.hm.jh .jh-wait .jh-trow { display: none; }
+  .home.hm.jh .jh-lgw .jh-lgart, .home.hm.jh .jh-lgw .jh-lgart img { height: 44px; }
 }
 /* The smallest phones (under 600 px high): a lower band, no faces on the Play card (the Play page has them) and a
    shorter League picture. */
