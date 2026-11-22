@@ -424,18 +424,28 @@ Everyone in the world plays the same shuffled decks each day: you against Rosa, 
 
 ## Market League
 
-Six short stages, one after another, each against one or two computer shopkeepers (PLAN-115). Win a stage to move on to the next; a shared win counts. Every stage lasts 6 days, has no upgrades, and has a fixed seed, so the same lorries and customers come every time it is played. Each stage says which of the game's own cards come on which day; the rules themselves do not change. You play as yourself, and your perk is dealt as in the Daily market: 3 of the perks no rival holds, and you keep one.
+Chapter 1, Village Square: twelve short stages, one after another, each against one to three computer shopkeepers (PLAN-115; PLAN-118, the pilot). Every stage has a fixed seed, so the same lorries and customers come every time it is played, and no upgrades. A stage only chooses among the game's own cards and sets how it starts; the rules themselves do not change. You play as yourself; where a stage has perks, yours is dealt as in the Daily market: 3 of the perks no rival holds, and you keep one.
 
-| Stage | Rivals | What it is about |
-|---|---|---|
-| 1. Village Square | Rosa (Easy) | Rosa always asks $1 under the most a customer will pay for her fruit (so $2 under the card for an Okay piece). Go $1 under her. No event cards. |
-| 2. Pasar Malam | Saleh (Normal) | A Pasar Malam on days 2, 4 and 6: the night hawker pays $3 for 1 of each fruit left in your crate. No other event. |
-| 3. The Resort Order | Uncle Benny (Easy), Ah Chen (Normal) | Market Days are on: on day 3 the Beach Resort's standing order for watermelons is turned over, due on day 5. No event cards. |
-| 4. Heatwave | Raj (Normal), Kiki (Easy) | A Heatwave on days 3 and 5. No other event. |
-| 5. Glut | Pak Din (Normal), Farah (Normal) | A Blueberry Glut on days 2 and 4. No other event. |
-| 6. Premium Buyers | Uncle Benny (Normal), Ah Chen (Normal) | On day 5 Ravi Rocket, Miss Cha-Cha and Anna the Artist come for Fresh mangoes, and only on day 5. No event cards. |
+A stage can set: which event, standing order, customers and lorry come on which day; each stall's cash and shelf when it opens; who holds the first-player token; the day and step it opens at (the days before are played out by the computer for every stall, and the stage's record starts there); its length (1 to 6 days); which rule parts are in play (favour cards, perks, standing orders, upgrades); and a rival's habit, which uses only what that rival can see: always $1 under the most a customer pays, always buying 3 of one fruit first, or always bidding the same price for an order.
 
-**Stars.** Each stage also has three optional goals, one star each (18 in all), read from the finished game: for example "Sell a fruit $1 under Rosa's price" or, on stage 3, "Win the order at $8 a piece or more". Play a cleared stage again for the stars you missed. Your progress is kept by stage number.
+| Stage | Days | Rivals | What it is about |
+|---|---|---|---|
+| 1. Village Square | 6 | Rosa (Easy) | Rosa always asks $1 under the most a customer will pay for her fruit (so $2 under the card for an Okay piece). Go $1 under her. No event cards. |
+| 2. Pasar Malam | 6 | Saleh (Normal) | A Pasar Malam on days 2, 4 and 6: the night hawker pays $3 for 1 of each fruit left in your crate. No other event. |
+| 3. The Resort Order | 6 | Uncle Benny (Easy), Ah Chen (Normal) | Market Days are on: on day 3 the Beach Resort's standing order for watermelons is turned over, due on day 5. No event cards. |
+| 4. Heatwave | 6 | Raj (Normal), Kiki (Easy) | A Heatwave on days 3 and 5. No other event. |
+| 5. Glut | 6 | Pak Din (Normal), Farah (Normal) | A Blueberry Glut on days 2 and 4. No other event. |
+| 6. Premium Buyers | 6 | Uncle Benny (Normal), Ah Chen (Normal) | On day 5 Ravi Rocket, Miss Cha-Cha and Anna the Artist come for Fresh mangoes, and only on day 5. No event cards. |
+| 7. Read the Rival | 1 | Rosa (Normal), Pak Din (Easy) | Opens at buying, with Rosa's purchases made: she always buys 3 watermelons first, and Firefighter Osman wants 2. |
+| 8. Sell Before It Spoils | 2 | Saleh (Normal) | You start with $6, 2 Soft blueberries and an Okay watermelon. Bargain buyers take Soft fruit. |
+| 9. Time the Mangoes | 3 | Uncle Benny (Normal), Kiki (Normal) | You buy first, with $12. Premium mango buyers come on day 3; a green mango bought on day 1 is Fresh then. |
+| 10. The Right Contract | 3 | Uncle Benny (Normal), Pak Din (Normal) | Opens on day 3 at the bid for the Pie Factory's apples, every stall with $16 and an empty shelf. |
+| 11. Rescue the Stall | 4 | Raj (Normal), Farah (Normal) | You start with $5 and ageing apples and watermelons; your rivals with $16. A Pasar Malam on day 2. |
+| 12. Village Finale | 6 | Rosa (Normal), Saleh (Normal), Ah Chen (Easy) | Four stalls. Rosa undercuts; a Pasar Malam on day 2; the Company Picnic's order for watermelons is due on day 5, a Heatwave day when walk-ins want watermelons too. |
+
+Stages 7 to 11 have no favour cards and no perks. **Expert stages** are harder variants that open with stars: Rosa Reads Back (stage 7 with a Hard Rosa who buys apples and undercuts; 12 stars) and The Eager Bidder (stage 10 with Pak Din bidding $5 for every order; 24 stars). They are off the ladder.
+
+**Stars.** Each stage has three stars: one for its clear goal (on stages 1 to 6 and 9, 11 and 12 a win, where a shared win counts; on the others a goal of its own, for example "End the day $8 ahead of Rosa") and two optional goals read from the finished game, for example "Sell a fruit $1 under Rosa's price". Meet the clear goal of the stage you are on to move up. Play a cleared stage again for the stars you missed. Your progress is kept by stage number; stars earned before the pilot are kept (a stage's retired goal counts as one of its optional stars).
 
 ## What changed from the paper draft
 

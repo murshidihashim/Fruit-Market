@@ -1,7 +1,6 @@
 // The Market League campaign's pieces on screen (PLAN-115): a stage's moment (its picture from the game's own card art
 // and what its host shopkeeper says), its three goals with their stars (PLAN-118: the clear goal and two optional
 // goals), and a row of stars. Words and pictures come from campaign.ts and the card art; nothing here is animated.
-import type { ComponentChildren } from 'preact';
 import type { GameState } from '../engine/game';
 import { Face } from './art';
 import { LEAGUE, afterLine, isExpert, missedGoals, picName, stageByNo, stageCleared, stageHost, starGoals, starsEarned, type Stage, type StagePic } from './campaign';
@@ -69,10 +68,9 @@ export function MasteryList({ stage, have, fresh = [] }: { stage: number; have: 
  * A league game's end on the results: whether the stage was cleared (PLAN-118: when it was not, the exact goal that
  * was missed), then (on a campaign stage) its host's line after the game (when the stage was cleared, its after-game
  * line chosen by the stars this game earned, so it never claims what you did not do; when it was not, its line before
- * the game and the stage's lesson) and the stage's stars, the ones this game earned first marked New. `children`: a
- * link the results add under it.
+ * the game and the stage's lesson) and the stage's stars, the ones this game earned first marked New.
  */
-export function StageEnd({ s, owner, cleared, fresh, children }: { s: GameState; owner: number; cleared: boolean; fresh: readonly string[]; children?: ComponentChildren }) {
+export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: number; cleared: boolean; fresh: readonly string[] }) {
   const at = s.config.league;
   const st = stageByNo(at);
   if (at === undefined || !st) return null;
@@ -93,7 +91,6 @@ export function StageEnd({ s, owner, cleared, fresh, children }: { s: GameState;
           <MasteryList stage={at} have={myStars()} fresh={fresh} />
         </>
       )}
-      {children}
     </div>
   );
 }
