@@ -40,7 +40,7 @@
 /* ---------- shared parts: the stamp card, pips, the awning strip, the signboard ---------- */
 .sbk .sbk-card { border: 2px solid var(--k-ink); display: flex; flex-direction: column; background: var(--k-paper); }
 .sbk .sbk-ch { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--k-ink); color: var(--k-paper); padding: 7px 9px; font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
-.sbk .sbk-ch b { color: var(--k-yel); }
+.sbk .sbk-ch b { flex: none; white-space: nowrap; color: var(--k-yel); }
 .sbk .sbk-perf { height: 0; border-top: 2px dashed var(--k-ink); margin: 0 9px; }
 .sbk .sbk-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
 .sbk .sbk-cell, .sbk-fly { aspect-ratio: 1; border: 1.5px dashed var(--k-stone); border-radius: 50%; box-sizing: border-box; display: block; }

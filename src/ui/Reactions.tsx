@@ -62,6 +62,9 @@ export const reactionsOn = () => loadSettings().reactions !== false;
 // ---------- the bubbles ----------
 
 interface Bubble { seat: number; r: ReactionId; key: number }
+/** Where a bubble stands when its seat is not to be seen: centred on the game's bar of the day's steps, under the top
+ *  bar, clear of a sheet's own heading and figures below it. */
+const TOP_Y = 56;
 let bubbleKey = 0;
 
 /**
@@ -70,8 +73,8 @@ let bubbleKey = 0;
  * the screen); on a row of a list (`onRow`) it sits on the row's right-hand side, so it cannot be read as the next
  * row's. A bubble that has no seat on screen to sit over stands at the top of the screen. Your own shelf in the game
  * (section.my-stall) takes the bubble inside it, in its middle: above it, the bubble covered the figures of the sheet
- * over the shelf (the standing order's, PLAN-116, REP-133 B-10). While a sheet lies over the shelf, or the shelf is
- * scrolled out of sight, the bubble stands at the top of the screen.
+ * over the shelf (the standing order's, PLAN-116, REP-133 B-10). While a sheet lies over a seat (the standing order's
+ * sheet covers the stalls on a small phone), or the seat is scrolled out of sight, its bubble stands at the top.
  */
 export function ReactionBubbles({ client, anchor, name, onRow }: { client: OnlineClient; anchor: (seat: number) => Element | null; name: (seat: number) => string; onRow?: boolean }) {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
@@ -95,15 +98,15 @@ export function ReactionBubbles({ client, anchor, name, onRow }: { client: Onlin
       {bubbles.map((b) => {
         const el = anchor(b.seat);
         const box = el?.getBoundingClientRect();
-        const shelf = !!el?.classList.contains('my-stall');
-        // Your shelf counts as on screen only where it can be seen: not scrolled away, nor under a sheet.
-        const there = !!box && box.width > 0 && (!shelf || !!el?.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)));
-        const inside = there && shelf;
-        const row = there && (!!onRow || inside);
+        // A seat counts as on screen only where it can be seen: not scrolled away, nor under a sheet (PLAN-116 B-10).
+        const there = !!box && box.width > 0 && !!el?.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2));
+        const inside = there && !!el?.classList.contains('my-stall');
+        // A bubble with no seat to be seen stands centred on TOP_Y, without its tail, as one on a row does.
+        const row = !there || !!onRow || inside;
         const x = there ? Math.max(56, Math.min(w - 56, box.left + box.width * (row && !inside ? 0.7 : 0.5))) : w / 2;
         // Over the seat; under it when the seat is at the very top of the screen.
-        const below = !row && (!there || box.top < 52);
-        const y = !there ? 56 : row ? box.top + box.height / 2 : below ? box.bottom + 4 : box.top - 4;
+        const below = !row && box.top < 52;
+        const y = !there ? TOP_Y : row ? box.top + box.height / 2 : below ? box.bottom + 4 : box.top - 4;
         const re = reactionOf(b.r);
         return (
           <button type="button" key={b.key} class={`rx-bubble ${isEmoji(b.r) ? 'emoji' : 'line'} ${below ? 'below' : ''} ${row ? 'on-row' : ''}`}
