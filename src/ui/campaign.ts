@@ -25,11 +25,18 @@ export interface Stage {
   lesson: string;
   /** The picture of the stage's moment. */
   pic: StagePic;
-  /** What the rival who hosts the stage (the first rival) says before it, and after it is cleared. */
+  /** What the rival who hosts the stage (the first rival) says before it. */
   before: string;
-  after: string;
+  /**
+   * What the host says after a win, chosen by what the game shows you did (REP-133, A-03): the first line whose stars
+   * this game all earned; the last line names no star, so it is always true.
+   */
+  after: AfterLine[];
   mastery: Mastery[];
 }
+
+/** One of the host's lines after a win: said only when this game earned every star in `stars` (none: always). */
+export interface AfterLine { stars?: string[]; text: string }
 
 // ---------- reading the game's record ----------
 
@@ -56,6 +63,7 @@ const RESORT_TITLE = ORDER_CARDS.find((o) => o.name === RESORT)?.title ?? RESORT
 const PREMIUM_DAY = 5;
 /** The premium buyers of the last stage: customers whose card wants Fresh mangoes. */
 const PREMIUM = ['Ravi', 'Lina', 'Anna'];
+const and = (xs: string[]): string => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 // ---------- the six stages ----------
 
@@ -63,10 +71,15 @@ export const LEAGUE: Stage[] = [
   {
     title: 'Village Square', rivals: [{ idx: 0, level: 'easy' }], days: 6, seed: 58, marketDays: false,
     setup: { events: {}, undercut: [1] },
-    lesson: 'Rosa always asks $1 under the top price. Go $1 under her and the customer comes to you.',
+    // REP-133 A-10: Rosa asks $1 under the most a customer will pay for her piece: with an Okay piece that is $2 under
+    // the card (Okay fruit sells for $1 less), so the lesson does not say "the top price".
+    lesson: 'Rosa always asks $1 under the most a customer will pay for her fruit. Go $1 under her and the customer comes to you.',
     pic: { kind: 'keeper', id: RIVALS[0].avatar },
-    before: 'I always ask a dollar under the top price. Every day.',
-    after: 'A dollar under me. I should have seen that coming.',
+    before: 'I always ask a dollar under the most my fruit can fetch. Every day.',
+    after: [
+      { stars: ['vs_under'], text: 'A dollar under me. I should have seen that coming.' },
+      { text: 'You beat me this time. Well played.' },
+    ],
     mastery: [
       { id: 'vs_under', text: 'Sell a fruit $1 under Rosa\'s price', met: (g, me) => lines(g).some((l) => soldOn(l, me) > 0 && offerOf(l, 1)?.price === (offerOf(l, me)?.price ?? 0) + 1) },
       { id: 'vs_top', text: 'Sell a piece at a customer\'s top price', met: (g, me) => lines(g).some((l) => soldOn(l, me) > 0 && offerOf(l, me)?.price === l.max) },
@@ -79,7 +92,10 @@ export const LEAGUE: Stage[] = [
     lesson: 'On a Pasar Malam night the hawker pays $3 for 1 of each fruit left in your crate. Never sell for less.',
     pic: { kind: 'event', id: 'pasarMalam' },
     before: 'The night market is on days 2, 4 and 6. The hawker pays $3 for leftovers.',
-    after: 'You kept your price above the hawker\'s. Well sold.',
+    after: [
+      { stars: ['pm_floor'], text: 'You kept your price above the hawker\'s. Well sold.' },
+      { text: 'You beat me at the night market this time. Well played.' },
+    ],
     mastery: [
       { id: 'pm_floor', text: 'On Pasar Malam days, price nothing under $3', met: (g, me) => {
         const mine = lines(g, onEvent('pasarMalam')).map((l) => offerOf(l, me)).filter((o) => !!o);
@@ -94,16 +110,22 @@ export const LEAGUE: Stage[] = [
     ],
   },
   {
-    title: 'The Hotel Order', rivals: [{ idx: 1, level: 'easy' }, { idx: 2, level: 'normal' }], days: 6, seed: 1, marketDays: true,
+    // REP-133 A-12: named after its order, the Beach Resort's (it was "The Hotel Order"). Progress is kept by number.
+    title: 'The Resort Order', rivals: [{ idx: 1, level: 'easy' }, { idx: 2, level: 'normal' }], days: 6, seed: 1, marketDays: true,
     setup: { events: {}, orders: { 3: RESORT } },
     lesson: 'On day 3 the Beach Resort orders watermelons for day 5. Bid low enough to win it, high enough to profit.',
     pic: { kind: 'order', id: RESORT },
     before: 'The Beach Resort wants watermelons on day 5. The lowest bid wins.',
-    after: 'The resort paid on time. A good order is steady money.',
+    after: [
+      { stars: ['ho_full'], text: 'The resort paid on time. A good order is steady money.' },
+      { text: 'You beat us both this time. Well played.' },
+    ],
     mastery: [
       { id: 'ho_win', text: `Win the ${RESORT}'s order`, met: (g, me) => orderWon(g, me, RESORT_TITLE) !== null },
       { id: 'ho_full', text: 'Deliver every piece of the order', met: (g, me) => lines(g).some((l) => l.name === RESORT && soldOn(l, me) > 0 && soldOn(l, me) >= l.want) },
-      { id: 'ho_bid', text: 'Win the order at $9 a piece or more', met: (g, me) => (orderWon(g, me, RESORT_TITLE) ?? 0) >= 9 },
+      // REP-133 A-05: $8, not $9: on the stage's set-up both rivals bid $9 and a tie goes to the poorer stall, so $9
+      // could not be won. A goal change only.
+      { id: 'ho_bid', text: 'Win the order at $8 a piece or more', met: (g, me) => (orderWon(g, me, RESORT_TITLE) ?? 0) >= 8 },
     ],
   },
   {
@@ -112,7 +134,11 @@ export const LEAGUE: Stage[] = [
     lesson: 'A Heatwave pays $2 more for watermelons, and that night every fruit ages two steps. Sell, do not store.',
     pic: { kind: 'event', id: 'heatwave' },
     before: 'Heatwaves on days 3 and 5. Watermelons sell high, and fruit goes soft fast.',
-    after: 'You sold in the heat and kept nothing to rot. Smart.',
+    after: [
+      { stars: ['hw_melon', 'hw_waste'], text: 'You sold in the heat and kept nothing to rot. Smart.' },
+      { stars: ['hw_waste'], text: 'You kept nothing to rot in the heat. Smart.' },
+      { text: 'You beat the heat this time. Well played.' },
+    ],
     mastery: [
       { id: 'hw_melon', text: 'Sell 3 watermelons on Heatwave days', met: (g, me) => soldFruit(g, me, 'watermelon', onEvent('heatwave')) >= 3 },
       { id: 'hw_nine', text: 'Sell a watermelon for $9 or more', met: (g, me) => lines(g).some((l) => l.fruit === 'watermelon' && soldOn(l, me) > 0 && (offerOf(l, me)?.price ?? 0) >= 9) },
@@ -125,7 +151,10 @@ export const LEAGUE: Stage[] = [
     lesson: 'A Blueberry Glut brings more blueberries and lower prices. Buy them cheap, but sell them before they soften.',
     pic: { kind: 'event', id: 'glut' },
     before: 'Blueberry Gluts on days 2 and 4. Everyone will have blueberries.',
-    after: 'When everyone has blueberries, the other fruit is where the money is.',
+    after: [
+      { stars: ['gl_other'], text: 'When everyone has blueberries, the other fruit is where the money is.' },
+      { text: 'You beat us both this time. Well played.' },
+    ],
     mastery: [
       { id: 'gl_other', text: 'On Glut days, sell more of other fruit than blueberries', met: (g, me) => {
         const glut = onEvent('glut');
@@ -142,8 +171,12 @@ export const LEAGUE: Stage[] = [
     setup: { events: {}, crowd: { [PREMIUM_DAY]: PREMIUM } },
     lesson: `On day ${PREMIUM_DAY} premium buyers come for mangoes, Fresh only. Mangoes arrive green and need two nights.`,
     pic: { kind: 'customer', id: 'Ravi' },
-    before: `${PREMIUM.slice(0, -1).join(', ')} and ${PREMIUM[PREMIUM.length - 1]} come on day ${PREMIUM_DAY}. They buy Fresh fruit only.`,
-    after: 'Fresh mangoes on the right day. The premium buyers will be back.',
+    // REP-133 A-04: the names on their cards ("Miss Cha-Cha", not "Lina").
+    before: `${and(PREMIUM.map((n) => lookOf(n).title))} come on day ${PREMIUM_DAY}. They buy Fresh fruit only.`,
+    after: [
+      { stars: ['pb_mango'], text: 'Fresh mangoes on the right day. The premium buyers will be back.' },
+      { text: 'You beat us both this time. The premium buyers will be back.' },
+    ],
     mastery: [
       { id: 'pb_two', text: 'Sell to 2 premium buyers', met: (g, me) => new Set(lines(g).filter((l) => prefOf(l.name) === 'premium' && soldOn(l, me) > 0).map((l) => `${l.day}.${l.customerId}`)).size >= 2 },
       { id: 'pb_mango', text: 'Sell 3 mangoes to premium buyers', met: (g, me) => lines(g).filter((l) => l.fruit === 'mango' && prefOf(l.name) === 'premium').reduce((a, l) => a + soldOn(l, me), 0) >= 3 },
@@ -176,6 +209,12 @@ export function picName(p: StagePic): string {
   if (p.kind === 'order') return ORDER_CARDS.find((o) => o.name === p.id)?.title ?? p.id;
   if (p.kind === 'keeper') return RIVALS.find((r) => r.avatar === p.id)?.name ?? p.id;
   return lookOf(p.id).title;
+}
+
+/** What the host says after a win: the first line whose stars the game earned (REP-133, A-03). */
+export function afterLine(st: Stage, earned: readonly string[]): string {
+  const line = st.after.find((x) => (x.stars ?? []).every((id) => earned.includes(id)));
+  return (line ?? st.after[st.after.length - 1]).text;
 }
 
 /** The host of a stage: its first rival. */

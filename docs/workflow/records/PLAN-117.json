@@ -1,0 +1,65 @@
+{
+  "id": "PLAN-117",
+  "title": "Uncle Benny at Normal in the Daily market and the Sprint",
+  "problem": "Uncle Benny (Hard) wins 57 to 66 percent of Daily markets and 37 percent of Sprints (REP-133, A-09).",
+  "scope": [
+    "All three rivals at Normal in dailyConfig and sprintConfig",
+    "Old and new Daily and Sprint scores kept on separate boards; old phones asked to update before sending a score",
+    "Balance runs before and after: win shares over 1,000 dates for the Daily and the Sprint",
+    "The Daily card and RULES.md name the rivals' level"
+  ],
+  "exclusions": [
+    "No rule change; other modes keep their levels"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with tests for the new set-ups, board keys and replay",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (9cfe292): 102 test files, 1152 passed, 1 skipped (as before); new tests review-127-a (18) and review-133-b; meta, sprint and rules tests: Normal rivals in the Daily and Sprint replay, version-7 scores refused, new board keys (a8)"
+    },
+    {
+      "id": "T2",
+      "text": "Balance: Daily and Sprint win shares before and after over 1,000 dates",
+      "result": "PASS",
+      "evidence": "Balance over 1,000 dates, your seat played by a Normal computer, before -> after. Daily: you 14.3 -> 25.0%, Rosa 8.7 -> 24.3%, Uncle Benny 65.9 (Hard) -> 23.7%, Ah Chen 11.1 -> 27.0%. Sprint: you 21.6 -> 26.1%, Rosa 11.7 -> 16.9%, Uncle Benny 36.9 (Hard) -> 15.3%, Ah Chen 29.9 -> 41.7% (Charmer perk; needs its own plan)"
+    },
+    {
+      "id": "T3",
+      "text": "npm run test:e2e (Daily and Sprint submitted and shown)",
+      "result": "PASS",
+      "evidence": "PORT=8819 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo with the guided first sale; League stage 1 cleared; one phone: 3 hand-overs checked with double taps (new step); online match finished, rematch, leaver taken over, 0 leaks in 66 pricing frames; public room 4/4 reactions, 0 leaks, pop-up focus and Escape, reaction button clear of the market; Sprint and Try again; four players with \"Invite\" words; 5 reconnects. Speed check failed once (319 ms, shared machine) and passed on the retry; Daily and Sprint scores accepted by the local server's replay with Normal rivals"
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+    "date": "2026-11-22"
+  },
+  "delivery": "implemented",
+  "release": "1.27.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merge 8b1e3f2, verified at 9cfe292",
+  "reports": [
+    "REP-133"
+  ],
+  "decisions": [
+    "DEC-126"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [
+      "Daily market and Sprint rivals all play at Normal; computer-player version 8, so old and new scores are on separate boards and old phones are asked to update before sending a score"
+    ],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": [
+    "Daily market and Sprint: all three rivals now play at Normal; scores start on a fresh board"
+  ]
+}

@@ -28,13 +28,19 @@ export function extras(r: NonNullable<GameState['results']>, viewer: number): st
   if (tips.length) out.push(`Sharp Ears: ${tips.length} walk-in${tips.length === 1 ? '' : 's'} you had seen tipped you $${tips.reduce((a, x) => a + x.tip, 0)}.`);
   const jar = (r.tipJar ?? []).filter((x) => x.player === viewer);
   if (jar.length) out.push(`Tip Jar: ${jar.length} customer${jar.length === 1 ? '' : 's'} left with their whole order and tipped you $${jar.reduce((a, x) => a + x.tip, 0)}.`);
-  if (r.order && r.order.holder === viewer) {
-    const o = r.order;
-    out.push(o.short === 0
-      ? `Standing order: you delivered all ${o.qty}${o.stake ? ` and got your $${o.stake} stake back` : ''}.`
-      : `Standing order: you delivered ${o.qty - o.short} of ${o.qty}${o.stake ? ` and lost your $${o.stake} stake` : ''}.`);
-  }
+  const order = orderLine(r, viewer);
+  if (order) out.push(order);
   return out;
+}
+
+/** What became of the standing order this stall held today ("Standing order: you delivered 1 of 3 and lost your $6
+ *  stake."), or null when it held none due today. */
+export function orderLine(r: NonNullable<GameState['results']>, viewer: number): string | null {
+  const o = r.order;
+  if (!o || o.holder !== viewer) return null;
+  return o.short === 0
+    ? `Standing order: you delivered all ${o.qty}${o.stake ? ` and got your $${o.stake} stake back` : ''}.`
+    : `Standing order: you delivered ${o.qty - o.short} of ${o.qty}${o.stake ? ` and lost your $${o.stake} stake` : ''}.`;
 }
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
@@ -110,7 +116,9 @@ export function stallRows(s: GameState, viewer: number): StallRow[] {
   });
 }
 
-/** Today's customers in the order they were served, and whether each bought anything (the portraits on the strip). */
+/** Today's customers in the order they were served, and whether each bought anything (the portraits on the strip).
+ *  The strip counts them as "4 of 5 bought": a customer who bought part of an order counts (REP-133 A-11: it used to
+ *  say "served", which read as whole orders). */
 export function rushOver(s: GameState): { id: number; name: string; guest: boolean; served: boolean }[] {
   const r = s.results;
   if (!r) return [];
@@ -218,7 +226,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
     <div class="sales-card" ref={root}>
       {crowd.length > 0 && (
         <div class="tg-strip">
-          <b class="tk-label"><span>The rush is over</span> · <span>{crowd.filter((x) => x.served).length} of {crowd.length} served</span></b>
+          <b class="tk-label"><span>The rush is over</span> · <span>{crowd.filter((x) => x.served).length} of {crowd.length} bought</span></b>
           <span class={`tg-queue ${crowd.length > 5 ? 'many' : ''}`} aria-hidden="true">
             {crowd.map((x) => (
               <i class={`tg-face ${x.served ? '' : 'no'}`}>

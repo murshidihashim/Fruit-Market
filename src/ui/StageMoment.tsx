@@ -3,7 +3,7 @@
 // come from campaign.ts and the card art; nothing here is animated.
 import { winners, type GameState } from '../engine/game';
 import { Face } from './art';
-import { LEAGUE, picName, stageHost, type Stage, type StagePic } from './campaign';
+import { LEAGUE, afterLine, picName, stageHost, starsEarned, type Stage, type StagePic } from './campaign';
 import { CardArt } from './cards';
 import { customerArt, eventArt, shopScene } from './deckArt';
 import { myStars } from './progress';
@@ -65,7 +65,8 @@ export function MasteryList({ stage, have, fresh = [] }: { stage: number; have: 
 
 /**
  * A league game's end on the results: whether the stage was cleared, then (on a campaign stage) its host's line after
- * the game (the "after" line when you won; when you did not, its line before the game and the stage's lesson) and the stage's stars, the ones
+ * the game (when you won, its after-game line chosen by the stars this game earned, so it never claims what you did not
+ * do; when you did not, its line before the game and the stage's lesson) and the stage's stars, the ones
  * this game earned first marked New.
  */
 export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: number; cleared: boolean; fresh: readonly string[] }) {
@@ -80,7 +81,7 @@ export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: nu
       <p class={`sbk-note ${cleared ? 'good' : ''}`}>{note}</p>
       {s.config.stage && (
         <>
-          <StageMoment st={st} words={won ? st.after : st.before} />
+          <StageMoment st={st} words={won ? afterLine(st, starsEarned(s, owner)) : st.before} />
           {!won && <p class="sbk-sub">{st.lesson}</p>}
           <span class="sbk-lab">Stars for this stage</span>
           <MasteryList stage={at} have={myStars()} fresh={fresh} />

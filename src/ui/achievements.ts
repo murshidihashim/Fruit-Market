@@ -124,8 +124,9 @@ export const CARDS: Card[] = [
     steps: [step('first_sale', 'bronze', 1, 'Sell a piece of fruit.')] },
   { id: 'first_win', group: 'first', title: 'Open for Business', pic: { kind: 'event', id: 'festival' }, unit: '', value: (s) => Math.max(done('first_win')(s), (s.stats.wins ?? 0) > 0 ? 1 : 0),
     steps: [step('first_win', 'bronze', 1, 'Win a game.')] },
+  // PLAN-116 (REP-133 B-17): the words name today's modes; the counting is unchanged (a Sprint counts as a Daily game).
   { id: 'explorer', group: 'first', title: 'Every mode', pic: { kind: 'event', id: 'touristBus' }, unit: 'modes', value: (s) => sizeOf(s, 'modes', ['new', 'daily', 'league', 'online']),
-    steps: [step('explorer', 'silver', 4, 'Finish a game in each mode: New game, Daily market, Market League and online.')] },
+    steps: [step('explorer', 'silver', 4, 'Finish a game in each mode: against the computer or on one phone, the Daily market or Sprint, the Market League, and online.')] },
 
   // 2. Shopkeepers
   ...KEEPER_CARDS,

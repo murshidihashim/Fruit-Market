@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { GameState } from '../../../engine/game';
 import { fetchDaily, shareText, submitDaily, type BoardResult } from '../../../net/daily';
+import { ownerHash } from '../../../net/sprint';
+import { boardName, shortDate } from '../../dailyCard';
 import { track } from '../../../net/telemetry';
 import { worn } from '../../looks';
 import { unlockAchievement } from '../../progress';
@@ -13,7 +15,8 @@ export function DailyResult({ s }: { s: GameState }) {
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     let alive = true;
-    void (s.moves ? submitDaily(s) : fetchDaily(s.config.daily!)).then((r) => {
+    // Opened again (no moves to send), the board is read with this phone's owner hash so your own line is still known.
+    void (s.moves ? submitDaily(s) : ownerHash().then((me) => fetchDaily(s.config.daily!, me))).then((r) => {
       if (r.rank && r.rank <= 10) unlockAchievement('daily_top10');
       if (alive) setRes(r);
     });
@@ -31,12 +34,13 @@ export function DailyResult({ s }: { s: GameState }) {
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
   return (
     <div class="sbk-box daily-result">
-      <div class="sbk-row"><span class="sbk-lab">Daily market {s.config.daily}</span>{res?.rank && <span class="dr-rank">You're <b>#{res.rank}</b> today</span>}</div>
+      <div class="sbk-row"><span class="sbk-lab">Daily market · {shortDate(s.config.daily ?? '')}</span>{res?.rank && <span class="dr-rank">You're <b>#{res.rank}</b> today</span>}</div>
       {!res ? <span class="sbk-sub">Checking the leaderboard…</span>
         : res.error ? <span class="sbk-sub">{res.error}</span>
         : (
           <ol class="sbk-board board">
-            {res.top.slice(0, 5).map((e, i) => <li class={res.rank === i + 1 ? 'me' : ''}><b>{i + 1}.</b>{res.rank === i + 1 && mine}<span>{e.name}</span><b>${e.cash}</b></li>)}
+            {/* REP-133 B-13: your own line reads "You" on your phone, whatever name the board keeps for it. */}
+            {res.top.slice(0, 5).map((e, i) => <li class={res.rank === i + 1 ? 'me' : ''}><b>{i + 1}.</b>{res.rank === i + 1 && mine}<span>{boardName(e.name, i + 1, res.rank)}</span><b>${e.cash}</b></li>)}
             {res.rank && res.rank > 5 && me >= 0 && <li class="me"><b>{res.rank}.</b>{mine}<span>You</span><b>${s.players[me].cash}</b></li>}
           </ol>
         )}

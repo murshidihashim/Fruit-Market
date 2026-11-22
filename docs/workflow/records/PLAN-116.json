@@ -1,0 +1,81 @@
+{
+  "id": "PLAN-116",
+  "title": "Fixes from the 1.27.0 review",
+  "problem": "The 1.27.0 review found a one-phone hand-over gap, wrong prices on the Daily card on Fixed prices days, and words and screens that disagree with the game.",
+  "scope": [
+    "A-01 one-phone hand-over: block input until the hand-over is tapped",
+    "A-02 the Daily card's prices on Fixed prices days",
+    "A-03 to A-08 League lines, names, the $9 star becomes $8, the level per rival; Best day as the net change; missed order on the one-phone note",
+    "B-01 to B-05, B-07, B-08 lobby names, reaction button placement and size, dialog focus, free-seat invite words, contrast, text size",
+    "Polish A-10 to A-14 and B-09 to B-17",
+    "B-06 the online \"First time? How to play\" text: no exclamation marks, and the first buyer worded as the game's own tip (owner: \"yes to 2\")"
+  ],
+  "exclusions": [
+    "No rule, balance or protocol change (Uncle Benny's level is PLAN-117)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify with tests for the fixed findings",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch (9cfe292): 102 test files, 1152 passed, 1 skipped (as before); new tests review-127-a (18) and review-133-b"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e plus a one-phone double-tap step; 0 leaks",
+      "result": "PASS",
+      "evidence": "PORT=8819 E2E_MINUTES=15 npm run test:e2e on the merged branch: E2E OK. Solo with the guided first sale; League stage 1 cleared; one phone: 3 hand-overs checked with double taps (new step); online match finished, rematch, leaver taken over, 0 leaks in 66 pricing frames; public room 4/4 reactions, 0 leaks, pop-up focus and Escape, reaction button clear of the market; Sprint and Try again; four players with \"Invite\" words; 5 reconnects. Speed check failed once (319 ms, shared machine) and passed on the retry"
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320",
+      "result": "PASS",
+      "evidence": "Screens at 390x844, 360x640 and 320x568 (scratchpad p116-a/shots, p116-b menus, home, online, quick, each with contrast, clipping and touch-area reports); reviewed the online buying screen at 320 (reaction button clear of the market)"
+    },
+    {
+      "id": "T4",
+      "text": "The owner on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+    "date": "2026-11-22"
+  },
+  "delivery": "implemented",
+  "release": "1.27.0",
+  "build": "branch ccr-d8bcd65d-gblqqb, merges 8b1e3f2 (part A) and part B, fix 9cfe292",
+  "reports": [
+    "REP-133"
+  ],
+  "decisions": [
+    "DEC-125"
+  ],
+  "changes": {
+    "added": [
+      "Tap a small customer card on Home, set-up or the Quick match wait to see the whole card"
+    ],
+    "changed": [
+      "League: true host lines, card names, $8 resort-order star, each rival with its level, stage 3 renamed The Resort Order",
+      "Continue names the mode; dates read like 22 Nov; your row on the boards reads You",
+      "One set of words: Stamp book, the tie order, game lengths Quick, Standard, Long",
+      "The online first-time text without exclamation marks"
+    ],
+    "fixed": [
+      "One phone: nothing can be tapped for the next person until the hand-over",
+      "Daily card shows the prices the game will use on Fixed prices days",
+      "Best day matches the day's takings; a missed standing order shows on the one-phone note",
+      "Private room: long names wrap; the invite line counts free seats",
+      "Reaction button clear of prices and headers, 44 px touch areas; pop-ups keep keyboard focus; contrast and text size raised"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "One phone: the next person's turn cannot be tapped by mistake before the hand-over",
+    "The Daily card shows the real prices on Fixed prices days",
+    "League: host lines match what you did, and the resort-order star is $8",
+    "Clearer screens: tap a small card to see it whole, long names fit, bigger tap targets"
+  ]
+}

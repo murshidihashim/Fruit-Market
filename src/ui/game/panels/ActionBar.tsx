@@ -15,7 +15,8 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   const { s, busy, night, active, activeHuman, votedMe, waitingFor, humansNotVoted, humansMissingBids, eveningWaits, freeFruit, turnStart } = c;
   // Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so its player was never asked.
   const nothingRipe = !!s.players[c.viewer] && count(s.players[c.viewer].stock, undefined, true) === 0;
-  const myBuy = s.phase === 'buy' && activeHuman && !!pl;
+  // REP-133 A-01: on a shared phone the next person's buttons wait for their hand-over (the bar keeps its room).
+  const myBuy = s.phase === 'buy' && activeHuman && !!pl && !c.handoffDue;
   const rivalBuy = s.phase === 'buy' && !activeHuman;
   // The lorry is unloading: buying has just started and nobody has bought yet.
   const unloading = busy && s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0);
@@ -58,6 +59,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
           <button class="btn primary big" onClick={() => { fx.tap(); c.endBuy(); }}>{bought ? 'Done buying' : 'Skip buying'} <small class="btn-sub">{freeFruit !== null ? 'pick a free piece' : room === 0 ? 'shelf full' : `${more} more allowed`}</small></button>
         </>
       )}
+      {c.handoffDue && s.phase === 'buy' && <div class="hint-bar" />}
       {quiet && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
       {quiet && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Your bid is in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
       {quiet && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}

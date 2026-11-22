@@ -249,6 +249,7 @@ describe('rules version 9', () => {
   it('keeps daily boards for each rules and computer-player version apart', () => {
     // Rules 20 (PLAN-108): rules 19 to 20 and computer players 6 to 7 (no jam value), so a new Daily board.
     expect(RULES_VERSION).toBe(20);
-    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r20:a7');
+    // PLAN-117: computer players 7 to 8 (the Daily's rivals all at Normal), so a new Daily board again.
+    expect(dailyBoardKey('2026-11-01')).toBe('daily:2026-11-01:r20:a8');
   });
 });

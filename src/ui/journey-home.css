@@ -13,7 +13,7 @@
 .jh .f-mango, .jp .f-mango { --lane: var(--j-mango); }
 .jh .f-apple, .jp .f-apple { --lane: var(--j-apple); }
 .jh .tb-awn, .jp .tb-awn { display: block; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
-.jh-lb { font: 800 0.625rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
+.jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 
 /* ---------- the title and the level ---------- */
 .home.hm.jh .jh-top { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 12px 16px 6px; }
@@ -50,10 +50,11 @@
 .home.hm.jh .jh-daily { flex: none; margin: 0 16px; box-shadow: inset 0 0 0 3px var(--j-ink); padding: 3px; }
 .home.hm.jh .jh-dh {
   min-height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 10px; background: var(--j-ink); color: var(--j-paper);
-  font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase;
 }
-.home.hm.jh .jh-dh span { overflow: hidden; text-overflow: ellipsis; }
-.home.hm.jh .jh-dh small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); }
+/* PLAN-116 (REP-133 B-15): the date is never cut off; on a narrow phone the label may take two lines. */
+.home.hm.jh .jh-dh span { min-width: 0; padding: 5px 0; overflow-wrap: anywhere; }
+.home.hm.jh .jh-dh small { flex: none; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-tint); white-space: nowrap; }
 .home.hm.jh .jh-db { display: flex; gap: 10px; padding: 10px 8px 8px; }
 .home.hm.jh .jh-dcard { flex: none; --card-w: 128px; }
 .home.hm.jh .jh-dr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
@@ -106,7 +107,8 @@
   .home.hm.jh .jh-dcard { --card-w: 108px; }
   .home.hm.jh .jh-db { gap: 8px; padding: 8px 6px 6px; }
   .home.hm.jh .jh-tiles { gap: 6px; }
-  .home.hm.jh .jh-tiles button { padding: 7px; font-size: 0.6875rem; }
+  .home.hm.jh .jh-tiles button { padding: 7px; font-size: 0.75rem; }
+  .home.hm.jh .jh-dh { letter-spacing: 0.05em; }
 }
 @media (max-width: 339px) {
   .home.hm.jh .jh-db { flex-direction: column; align-items: stretch; }

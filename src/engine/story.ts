@@ -6,7 +6,7 @@
 
 import { FRUIT, JUICE_VALUE, lookOf, prefOf, type FruitId, type Pref, type Stage } from './data';
 import {
-  count, eligible, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
+  count, dayNet, eligible, places, rowCount, rowStock, minPrice, nightOutlook, ranking, servingCustomers,
   type GameState, type LineResult, type NightOutlook, type Offer,
 } from './game';
 
@@ -585,7 +585,8 @@ export function gameRecap(s: GameState, viewer: number): Recap {
   let miss: { lost: number; day: number; who: string; gap: number } | null = null;
   const h2h = new Map<number, { won: number; lost: number }>();
   for (const d of hist) {
-    const v = d.income[viewer];
+    // REP-133 A-06: the day's net change, as that day's takings showed it (a record from before it: the sales).
+    const v = d.net?.[viewer] ?? d.income[viewer];
     if (!bestDay || v > bestDay.v) bestDay = { day: d.day, v };
     for (const l of d.lines) {
       const mine = l.offers.find((o) => o.player === viewer);
@@ -688,5 +689,5 @@ export function dayLedger(s: GameState, viewer: number): DayLedger {
   const topUp = s.dayTopUps?.[viewer] ?? 0;
   const start = s.dayStartCash?.[viewer];
   const change = start === undefined ? null : s.players[viewer].cash - start;
-  return { sales, bought, fine, topUp, other: change === null ? 0 : change - sales + bought, net: change === null ? null : change - fine + topUp };
+  return { sales, bought, fine, topUp, other: change === null ? 0 : change - sales + bought, net: dayNet(s, viewer) };
 }

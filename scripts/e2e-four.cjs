@@ -53,13 +53,18 @@ const expect = (ok, what) => { if (!ok) throw new Error(`expected ${what}`); };
       await settle();
       l = await lobby();
       expect(/^stalls · 3 of 6$/i.test(l.heading) && l.open === 3, `3 of 6 with 3 open seats after +1 computer, got ${JSON.stringify(l)}`);
-      expect(await host.page.locator('text=/Invite up to 4 friends/i').count() === 1, '"Invite up to 4 friends" with one computer shop');
+      // PLAN-116 (REP-133 B-05): the invite line counts the stalls still free, not the friends a room could ever hold.
+      expect(await host.page.locator('text=/Invite up to 3 friends/i').count() === 1, '"Invite up to 3 friends" with two people and one computer shop');
       await host.page.click('.ai-seat button:has-text("Remove")');
       await settle();
     }
   }
   await settle();
-  for (let i = 0; i < 2; i++) { await host.page.locator('.open-seat button:has-text("Computer")').first().click(); await settle(); }
+  for (let i = 0; i < 2; i++) {
+    await host.page.locator('.open-seat button:has-text("Computer")').first().click(); await settle();
+    // Four people and one computer: one stall is free.
+    if (i === 0) expect(await host.page.locator('text=/Invite 1 more friend/i').count() === 1, '"Invite 1 more friend" at 5 of 6');
+  }
   l = await lobby();
   expect(/^stalls · 6 of 6$/i.test(l.heading) && l.open === 0 && l.full === 1, `6 of 6, no open seats, "Room full", got ${JSON.stringify(l)}`);
   await host.page.screenshot({ path: `${out}/four-2-full.png`, fullPage: true });

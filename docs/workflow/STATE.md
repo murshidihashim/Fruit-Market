@@ -1,14 +1,16 @@
 # Current state · Fruit Market
 
-Updated 2026-11-21 01:52 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-22 10:50 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live and preview:** 1.25.0, rules version 20, protocol 4 (fee19d8, tagged v1.25.0, published 2026-11-20; REP-127): PLAN-107 to PLAN-111.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, pushed. PLAN-112 (public lobby, start with computers after 60 s, 12 preset reactions, protocol 5) merged as d0cc64b plus a list-server fix; records 09ed394.
-- **Active package:** PLAN-112 (DEC-122, REP-128, approved 2026-11-20): implemented. T1 verify PASS (1045 tests), T2 e2e PASS (0 leaks; speed check passed on retry), T3 screens PASS, T4 protocol-4 hello refused with the update message PASS (simulated, not a real 1.25.0 phone), T5 owner on the preview NOT RUN.
-- **Next:** on the owner's word "push to preview": bump to 1.26.0, releases candidate, REP, pull request to main. Publishing needs a separate word.
-- **Commits:** author Murshidi Hashim, committer Claude (set per commit with GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL).
-- **Waiting on the owner:** (1) preview of 1.26.0 and a two-phone test; (2) fix the lobby layout issues found in PLAN-112 (computer buttons overflow at 390 and below, seat names wrap at 320/360, HOST tag unreadable, a rival's bubble over the morning card); (3) trophy name ("Sold out" clashes with the level-10 stamp; recommended "Clean shelf"); (4) fruit pieces for the table set (3D style A, B or C, or wooden cubes) and the print order; PLAN-111 T4 (small table test) and T5; (5) Android Play upload (his step); (6) PLAN-003 capacity test and the Cloudflare plan tier (unknown); (7) older: iPhone price-tag fix on a real iPhone, REP-118 name choices, REP-112 section 3.
+- **Live:** 1.25.0, rules version 20, protocol 4 (fee19d8, tagged v1.25.0).
+- **Preview:** 1.27.0 candidate (main 3edfa16, REP-132): PLAN-112 (public rooms, reactions, protocol 5), PLAN-113 (redesigned journey), PLAN-114 (Market Sprint and boards), PLAN-115 (League campaign). 1.26.0 was folded in, never published.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, pushed, level with main plus records.
+- **Active packages:** PLAN-112 to PLAN-115 implemented; each waits for the owner on the preview (T4/T5), then the owner's word to publish 1.27.0 (deploy-web.yml, PUBLISH), then mark the release published.
+- **Cancelled by the owner (not recorded as a plan):** shelf fruit not ageing (2026-11-21).
+- **Commits:** author Murshidi Hashim, committer Claude (GIT_AUTHOR_NAME/GIT_AUTHOR_EMAIL per commit).
+- **Waiting on the owner:** (1) try 1.27.0 on the preview and say whether to publish; (2) the gameplay screens of the redesign (Buying to Day Close, canvas v3) not approved for building; (3) Sprint length: about 3 minutes measured, target was 5 to 8; (4) Zara-style card wording "S -$2" on Everyday cards; (5) fruit pieces for the print kit and the small table test (PLAN-111 T4); (6) Android Play upload; (7) PLAN-003 capacity test, PLAN-018 insights (proposed); Cloudflare plan tier unknown; (8) making the repo private: Actions minutes (~2,500/month) and the Play privacy URL.
+- **Known issues:** Uncle Benny (Hard) wins 37% of Sprints; Rosa wins less than Ah Chen at the same level (cause unknown); Settings "forget games" does not clear fm.sprint; Sprint counts as "daily" for the Every mode trophy.
 - Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 
 ## How work is done now

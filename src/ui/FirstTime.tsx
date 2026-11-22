@@ -19,6 +19,7 @@ import { crateUrl, type FruitKind } from './marketArt';
 import { loadStats } from './store';
 import { Awning, seats } from './table';
 import { Lamp as TicketLamp, STAGE_LETTER } from './ticket';
+import { useFocusTrap } from './focusTrap';
 import { firstSalePosts, guideLine, piecesWord, startPrice, type Spotlight } from './tutorial';
 import './firstTime.css';
 
@@ -55,11 +56,11 @@ export const nthWord = (n: number) => NTH[n] ?? `${n}th`;
 /** The owner's six steps. `beat`: the name of that step on the bar along the top of the game. */
 const STEPS: { lead: string; text?: string; beat?: string }[] = [
   { lead: '1. Check the market.', text: "Read today's news and see who's shopping.", beat: BEATS[0] },
-  { lead: '2. Buy fruit.', text: `Poorest stall goes first, then clockwise. Buy up to ${BASE_BUY} pieces.`, beat: BEATS[1] },
+  { lead: '2. Buy fruit.', text: `From Day 2 the poorest stall buys first, then the others clockwise. Buy up to ${BASE_BUY} pieces.`, beat: BEATS[1] },
   { lead: '3. Stock your stall.', text: 'Choose what to sell. Rivals see how many pieces, but not which fruit.', beat: BEATS[2] },
-  { lead: '4. Set secret prices.', text: 'Set one price per fruit. Reveal fruit and prices together at the bell!', beat: BEATS[3] },
+  { lead: '4. Set secret prices.', text: 'Set one price per fruit. Reveal fruit and prices together at the bell.', beat: BEATS[3] },
   { lead: '5. The Rush.', text: 'Customers buy from the cheapest qualifying stall, then the next cheapest until their order is filled or no suitable fruit remains.', beat: BEATS[4] },
-  { lead: '6. Repeat!' },
+  { lead: '6. Repeat.' },
 ];
 
 function Lamp({ stage }: { stage: Stage }) {
@@ -72,7 +73,7 @@ export function FirstTimeText() {
     <div class="ft-text">
       <section class="ft-part ft-intro">
         <h4>RUN YOUR STALL.</h4>
-        <p>Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win!</p>
+        <p>Buy fruit at the Wholesale Market and sell to customers. Finish with the most cash to win.</p>
       </section>
 
       <section class="ft-part">
@@ -125,9 +126,11 @@ export function FirstTimePopup({ onRules, onDone }: { onRules: () => void; onDon
     el.dataset.tight = '0';
     while (step < FT_TIGHTEST && el.scrollHeight > el.clientHeight + 1) { step += 1; el.dataset.tight = String(step); }
   }, []);
+  // Keyboard focus stays inside the box while it is open (PLAN-116).
+  useFocusTrap(box);
   return (
     <div class="ft-pop" role="dialog" aria-modal="true" aria-labelledby="ft-title" onClick={(e) => e.stopPropagation()}>
-      <div class="ft-box" ref={box}>
+      <div class="ft-box" ref={box} tabIndex={-1}>
         <h3 id="ft-title">First time? How to play</h3>
         <FirstTimeText />
         <div class="ft-actions">

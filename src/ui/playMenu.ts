@@ -2,11 +2,12 @@
 // Nothing here changes a rule: the player counts and lengths are the game's own (MAX_SEATS, DEFAULT_CONFIG, LEAGUE).
 import { RIVALS } from '../engine/data';
 import type { GameConfig } from '../engine/game';
-import { DEFAULT_CONFIG, MAX_SEATS } from '../net/protocol';
+import { DEFAULT_CONFIG, MAX_SEATS, type RoomConfig } from '../net/protocol';
 import { LEAGUE } from './progress';
 
-/** The game lengths a new game offers (the set-up screen's and the room's). */
-export const LENGTHS: { days: number; word: string }[] = [{ days: 10, word: 'Standard' }, { days: 8, word: 'Quick' }, { days: 14, word: 'Long' }];
+/** The game lengths a new game offers (the Play menu's, the set-up screen's and the room's), shortest first everywhere
+ *  (PLAN-116, REP-133 B-14: the Play menu put Standard first, the other two Quick). */
+export const LENGTHS: { days: RoomConfig['days']; word: string }[] = [{ days: 8, word: 'Quick' }, { days: 10, word: 'Standard' }, { days: 14, word: 'Long' }];
 export const lengthWord = (days: number): string => LENGTHS.find((l) => l.days === days)?.word ?? `${days} days`;
 
 /** A quick match: always two stalls, at the room's standard length. */

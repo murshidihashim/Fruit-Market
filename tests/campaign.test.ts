@@ -8,7 +8,7 @@ import { CUSTOMER_CARDS, EVENT_CARDS, ORDER_CARDS, RIVALS } from '../src/engine/
 import {
   beginBuying, finishReveal, minPrice, newGame, rowCustomers, winners, type GameConfig, type GameState, type Level, type StageSetup,
 } from '../src/engine/game';
-import { STAR_COUNT, STAR_IDS, starsEarned, stageStars } from '../src/ui/campaign';
+import { STAR_COUNT, STAR_IDS, afterLine, starsEarned, stageStars } from '../src/ui/campaign';
 import { toStaticHtml } from '../src/ui/cards';
 import { LEAGUE, finishGame, leagueConfig, leagueStage, loadSets, myStars, saveLeagueStage, snapshot } from '../src/ui/progress';
 import { stampsOf } from '../src/ui/stamps';
@@ -71,8 +71,9 @@ describe('the six stages', () => {
     expect(STAR_COUNT).toBe(18);
   });
 
-  it('follow the approved order: undercut, Pasar Malam, a hotel order, Heatwave, Glut, premium buyers', () => {
-    expect(LEAGUE.map((s) => s.title)).toEqual(['Village Square', 'Pasar Malam', 'The Hotel Order', 'Heatwave', 'Glut', 'Premium Buyers']);
+  it('follow the approved order: undercut, Pasar Malam, the resort\'s order, Heatwave, Glut, premium buyers', () => {
+    // REP-133 A-12: stage 3 is named after its Beach Resort order (it was "The Hotel Order").
+    expect(LEAGUE.map((s) => s.title)).toEqual(['Village Square', 'Pasar Malam', 'The Resort Order', 'Heatwave', 'Glut', 'Premium Buyers']);
     expect(LEAGUE[0].setup.undercut).toEqual([1]);
     expect(Object.values(LEAGUE[1].setup.events!)).toContain('pasarMalam');
     expect(LEAGUE[2].setup.orders).toEqual({ 3: 'Beach Resort' });
@@ -93,7 +94,7 @@ describe('the six stages', () => {
     expect(plain(played(3))).toBe(plain(played(3)));
   });
 
-  it('The Hotel Order announces the Beach Resort\'s order on day 3, due on day 5', () => {
+  it('The Resort Order announces the Beach Resort\'s order on day 3, due on day 5', () => {
     let s = newGame(allAi(leagueConfig(2, 'You', '')));
     while (!(s.day === 3 && s.phase === 'morning')) s = step(s);
     expect(ORDER_CARDS[s.standing!.card].name).toBe('Beach Resort');
@@ -217,7 +218,7 @@ describe('on screen', () => {
     const g = played(0, 'normal');
     const html = toStaticHtml(h(StageEnd, { s: g, owner: 0, cleared: true, fresh: [] }));
     expect(html).toContain('Village Square cleared. Next: Pasar Malam');
-    expect(html).toContain(LEAGUE[0].after);
+    expect(html).toContain(afterLine(LEAGUE[0], starsEarned(g, 0)));
     expect(html).toContain('Stars for this stage');
   });
 });

@@ -44,7 +44,7 @@
 /* ---------- New game ---------- */
 #app .setup-body .panel { padding: 12px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
 #app .setup-body .panel h3 {
-  display: block; margin: 0 0 8px; padding: 0; border: 0; background: none; font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.1em;
+  display: block; margin: 0 0 8px; padding: 0; border: 0; background: none; font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--x-ink);
 }
 #app .setup-body .panel h3::before, #app .setup-body .panel h3::after { display: none; }
@@ -53,11 +53,19 @@
   border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink);
   font: 800 0.8125rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
 }
-#app .setup-body .seg button small { display: block; margin-top: 3px; font: 600 0.6875rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
+#app .setup-body .seg button small { display: block; margin-top: 3px; font: 600 0.75rem/1 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
 #app .setup-body .seg button.on { box-shadow: none; background: var(--x-ink); color: var(--x-mustard); }
 #app .setup-body .seg button.on small { color: var(--x-paper); }
-#app .setup-body .seat-tile .st-n { color: var(--x-slate); }
-#app .setup-body .seat-tile .st-k { font: 400 0.9375rem/1.1 var(--f-display); }
+#app .setup-body .seat-tile .st-n { color: var(--x-slate); font-size: 0.75rem; }
+/* PLAN-116 (REP-133 B-15, B-07): a long name or level takes two lines rather than being cut off; Easy in a darker
+   green (5.7:1 on the paper; the bright green was 3.5:1). */
+#app .setup-body .seat-tile .st-k { font: 400 0.9375rem/1.1 var(--f-display); white-space: normal; overflow-wrap: anywhere; text-align: center; }
+#app .setup-body .seat-tile.lv-easy .st-k { color: var(--c-0a7443); }
+@media (max-width: 379px) {
+  #app .setup-body .seat-tile { padding: 6px 2px; letter-spacing: 0.02em; }
+  #app .setup-body .seat-tile .st-k { font-size: 0.8125rem; }
+  #app .setup-body .seat-tile .st-l { max-width: 100%; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
+}
 #app .setup-body .seat-tile .st-l { font-weight: 700; letter-spacing: 0.04em; color: var(--x-slate); }
 #app .setup-body .seat-tile.on { background: var(--x-mustard); }
 #app .setup-body .seat-tile.add { box-shadow: inset 0 0 0 2px var(--x-slate); color: var(--x-slate); background: transparent; }
@@ -135,13 +143,15 @@
 #app .tk-page > .topbar .icon-btn:active { transform: none; }
 #app .tk-page > .topbar .day b { font: 400 1.125rem/1 var(--f-display); letter-spacing: 0; text-transform: uppercase; color: var(--x-paper); }
 #app .tk-page > .topbar > .muted {
-  margin-left: auto; padding: 6px 8px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.08em;
+  margin-left: auto; padding: 6px 8px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.08em;
 }
 #app .tk-page .panel { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
 #app .tk-page .panel h3 {
   display: block; margin: 0 0 8px; padding: 0 0 6px; border: 0; border-bottom: 2px solid var(--x-ink); background: none; text-shadow: none;
-  font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink);
+  font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink);
 }
+/* PLAN-116 (REP-133 B-08): labels on these pages are 12 px or more */
+#app .tk-page .stats small, #app .tk-page .slide-part { font-size: 0.75rem; }
 #app .tk-page .panel h3::before, #app .tk-page .panel h3::after { display: none; }
 #app .tk-page .muted, #app .tk-page small, #app .tk-page .stats small { color: var(--x-slate); }
 #app .tk-page .btn {
@@ -162,7 +172,7 @@
 #app .tk-page .toggle span b, #app .modal .toggle span b { font: 400 1rem/1.15 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
 /* How to play: the slide is a square ticket; the dots are squares; Back and Next are square buttons */
 #app .howto.tk-page .slide h2 { font: 400 1.5rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); }
-#app .howto.tk-page .slide-part { font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.1em; color: var(--x-ink); }
+#app .howto.tk-page .slide-part { font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.1em; color: var(--x-ink); }
 #app .tk-page .dots span { width: 10px; height: 10px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
 #app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
 #app .howto.tk-page .day-strip li, #app .howto.tk-page .demo-ex { border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); }

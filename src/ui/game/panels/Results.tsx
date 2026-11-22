@@ -3,6 +3,7 @@
 // this game earned landing on your card; then a reward earned this game on your stall with "Wear it" (or the next
 // reward, drawn as it will look); the "close" lines, and a large Rematch. Further down: the Daily market board, the
 // cash day by day and your best moments.
+import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CUSTOMER_CARDS, JUICE_VALUE, lookOf } from '../../../engine/data';
 import { places, ranking, winners, type GameState } from '../../../engine/game';
@@ -293,8 +294,10 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
-export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs }: {
+export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs, react }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
+  /** PLAN-116 (REP-133 B-11): online, the reaction button, in the row of buttons at the foot (over the header it hid words). */
+  react?: ComponentChildren;
   /** Starts the same table again with the person as another shopkeeper (offered beside the "close" line about them). */
   onPlayAs?: (avatar: string) => void;
 }) {
@@ -341,7 +344,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
   // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'See your trophies' : 'Next stage') : 'Try again') : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : 'Try again') : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
   // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
   const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
@@ -415,6 +418,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
+            {react}
           </div>
         </div>
       </div>

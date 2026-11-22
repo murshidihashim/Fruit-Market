@@ -206,6 +206,22 @@ export interface DayRecord {
   day: number; lines: LineResult[]; income: number[]; cash: number[];
   /** The event card of the day, if any (for achievements and recaps). */
   event?: string;
+  /**
+   * Each stall's net change of cash on the day, as its takings show it (dayNet; REP-133 A-06: the results' "Best day"
+   * used to count sales only). Records saved before 1.27.1 have none.
+   */
+  net?: number[];
+}
+
+/**
+ * A stall's net change of cash today, as of now: its cash against the day's start, with the dawn's Health Inspector
+ * fine and out-of-cash top-up counted in (they come before the day's start is noted). Null before a day has started.
+ * The takings' "up $X today" (story.ts dayLedger) and the day's record use this one sum.
+ */
+export function dayNet(s: GameState, p: number): number | null {
+  const start = s.dayStartCash?.[p];
+  if (start === undefined || !s.players[p]) return null;
+  return s.players[p].cash - start - (s.dayFines?.[p] ?? 0) + (s.dayTopUps?.[p] ?? 0);
 }
 
 /** 'tie' (rules 18): prices and crates have flipped, and stalls holding Favoured Trade with a tied price decide, one
@@ -1590,7 +1606,8 @@ export function finishReveal(state: GameState): GameState {
   if (state.phase !== 'reveal') throw new RuleError('Nothing to reveal');
   const s = clone(state);
   if (s.results) {
-    s.history = [...(s.history ?? []), { day: s.day, lines: s.results.lines, income: s.results.income, cash: s.players.map((p) => p.cash), event: s.event?.id }];
+    const income = s.results.income;
+    s.history = [...(s.history ?? []), { day: s.day, lines: s.results.lines, income, cash: s.players.map((p) => p.cash), event: s.event?.id, net: s.players.map((_, p) => dayNet(s, p) ?? income[p]) }];
   }
   s.secondMarket = [];
   s.firstMarket = [];

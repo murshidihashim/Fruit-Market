@@ -3083,6 +3083,81 @@
         "REP-131",
         "REP-132"
       ]
+    },
+    {
+      "id": "DEC-125",
+      "title": "Fixes from the 1.27.0 review",
+      "question": "Which problems found in the 1.27.0 review should be fixed before it goes live?",
+      "choice": "fix the two Major findings (the one-phone hand-over gap, the Daily card's prices on Fixed prices days), 14 Minor findings and the Polish items (REP-133, PLAN-116), with no rule, balance or protocol change; the $9 League star becomes $8. Balance (Uncle Benny in the Daily and Sprint) is PLAN-117; the owner's first-time text is tidied (B-06).",
+      "rationale": "A review of 1.27.0 found no Blocker, but two Majors players would meet, and several words and screens that disagree with the game.",
+      "impact": {
+        "player": "One-phone turns cannot be taken by mistake; correct prices and lines; clearer screens and larger tap targets.",
+        "technical": "UI, words and small game-flow guards; no engine rule changes.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+        "date": "2026-11-22"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-116",
+      "reviewTrigger": "After the owner tries the fixed build on the preview.",
+      "reports": [
+        "REP-133"
+      ]
+    },
+    {
+      "id": "DEC-126",
+      "title": "Uncle Benny plays at Normal in the Daily market and the Sprint",
+      "question": "Uncle Benny (Hard) wins 57 to 66 percent of Daily markets and 37 percent of Sprints (REP-133). Should he play at Normal there?",
+      "choice": "Yes: in the Daily market and the Market Sprint all three rivals play at Normal. The Daily's seed and boards are kept apart from the old set-up so old and new scores never mix, and old phones are asked to update before sending a Daily or Sprint score.",
+      "rationale": "One rival winning most shared games makes the daily boards feel unwinnable; the owner chose a fairer field.",
+      "impact": {
+        "player": "Daily market and Sprint rivals are all Normal; scores from before the change are on a separate board.",
+        "technical": "dailyConfig and sprintConfig rival levels; a new board key or version so replays match; balance runs.",
+        "data": "New daily board keys; the old boards are left as they are."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 116, yes to 2, yes to 3\"",
+        "date": "2026-11-22"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-117",
+      "reviewTrigger": "Win shares over 1,000 dates in the balance run, and two weeks of daily board scores after release.",
+      "reports": [
+        "REP-133"
+      ]
+    },
+    {
+      "id": "DEC-127",
+      "title": "The Market League as a 120-stage campaign with a trophy road, and a clear job for each mode",
+      "question": "How should the League grow into a long campaign whose stages each pose a new problem, with trophies that show mastery, while each mode keeps a distinct job?",
+      "choice": "a data-driven stage format on the same engine (starting stock, cash, phase, 1 to 6 days, rule parts, goals); a 12-stage pilot chapter with a League road, 3 stars a stage and three mastery trophies (PLAN-118, 1.28.0); the Play menu grouped by mode, a Sprint week of the best 5 days and League-to-Daily/Sprint links (PLAN-119); later chapters of ten as their own plans, measured before committing to 120 (REP-134).",
+      "rationale": "The owner's brief: each stage should change what you are trying to do, the climb should be visible, and trophies should say something about how you play.",
+      "impact": {
+        "player": "A League that teaches a new decision each stage, a visible road and mastery trophies; clearer modes.",
+        "technical": "New stage set-up options in the engine (League only), goal checks, the League road screen, the Play menu, the weekly Sprint count.",
+        "data": "League stars move to the new numbering, keeping what was earned; the Sprint week counts the same data differently."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"approve plan 118 and 119, use your picks\" (1 clear star plus 2 optional per stage, earned stars kept; Sprint week counts the best 5 days; publish 1.27.0 first after the owner's preview test, the pilot as 1.28.0)",
+        "date": "2026-11-22"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-118",
+      "reviewTrigger": "After the pilot: stage completion, retries for stars and next-chapter starts from the anonymous counters, and the time it took to write and balance the chapter.",
+      "reports": [
+        "REP-134"
+      ]
     }
   ],
   "history": [
@@ -4465,6 +4540,30 @@
     {
       "at": "2026-11-21 22:02",
       "text": "Owner: \"push to preview\". 1.26.0 was on the preview but never published (live is 1.25.0), so its candidate is withdrawn and PLAN-112 and PLAN-113 join PLAN-114 and PLAN-115 in release candidate 1.27.0 (rules version 20, protocol 5; REP-132). Pull request to main for the preview; publishing still needs the owner's word."
+    },
+    {
+      "at": "2026-11-21 22:52",
+      "text": "1.27.0 on the preview: pull request #23 merged as 3edfa16 after CI passed; main CI run 162 passed (verify:full) and the preview job updated the preview Worker. The preview answers rules 20 and serves the 1.27.0 build (the Sprint and the League stars found in its code). The owner's test on the preview (PLAN-112 T5, PLAN-113 T4, PLAN-114 and PLAN-115 T5) and the word to publish are next."
+    },
+    {
+      "at": "2026-11-22 12:10",
+      "text": "Owner: \"go through the game for fixes\". Two reviewers checked 1.27.0 at 7b98915 (play and rules; screens, online and polish): no Blocker; 2 Major, 15 Minor, 10 Polish, and balance notes (Uncle Benny in the Daily and Sprint; Ah Chen's perk explains her edge over Rosa). Proposed as DEC-125 / PLAN-116 in REP-133."
+    },
+    {
+      "at": "2026-11-22 13:37",
+      "text": "Owner approved PLAN-116 (the 1.27.0 review fixes, DEC-125), the tidy of the online first-time text (B-06), and a balance change: \"approve plan 116, yes to 2, yes to 3\". The balance change is recorded as DEC-126 / PLAN-117: Uncle Benny plays at Normal in the Daily market and the Sprint. Delivery in progress for both."
+    },
+    {
+      "at": "2026-11-22 15:21",
+      "text": "PLAN-116 and PLAN-117 implemented and merged (verified at 9cfe292); T1 to T3 PASS, T4 (the owner on the preview) not run. Merging the two parts left Home without one import; added and verified. Daily market now even (each stall about a quarter of wins); in the Sprint Ah Chen wins 41.7% (Charmer perk), left for its own plan. Not done here: game-table labels at 10 to 11 px, the 320 px action bar over the last market row, the print kit's tie wording, 16 empty level rewards (levels 12 to 30)."
+    },
+    {
+      "at": "2026-11-22 15:33",
+      "text": "Owner brief: the Market League as a 120-stage campaign with its own trophy road; a job for each mode; build a 12-stage pilot first. Proposed as DEC-127 with PLAN-118 (pilot, road, mastery trophies, 1.28.0) and PLAN-119 (mode jobs, Sprint week of best 5 days, League links) in REP-134; later chapters of ten as their own plans. Three questions to the owner. Awaiting approval."
+    },
+    {
+      "at": "2026-11-22 15:41",
+      "text": "Owner approved DEC-127, PLAN-118 and PLAN-119 with the recommended answers: \"approve plan 118 and 119, use your picks\". Stars: 1 for the clear plus 2 optional per stage, earned stars kept; the Sprint week counts the best 5 days; 1.27.0 is published first after the owner's preview test and the pilot follows as 1.28.0. So PLAN-116 and PLAN-117 join release candidate 1.27.0 and go to the preview for that test. Delivery in progress."
     }
   ]
 }

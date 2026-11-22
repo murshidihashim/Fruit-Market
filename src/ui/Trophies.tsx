@@ -12,6 +12,7 @@ import { ALL_GUESTS, CARDS, GROUPS, TIER_COUNT, TIER_NAME, customersServed, even
 import { Gazette, TradingCard } from './cards';
 import { customerArt, eventArt, eventFocus, focusCss, guestArt, guestFocus } from './deckArt';
 import { fx } from './fx';
+import { useFocusTrap } from './focusTrap';
 import { myAvatar, syncLooks, worn } from './looks';
 import { snapshot, syncTiers } from './progress';
 import { RoofBand } from './icons';
@@ -178,13 +179,8 @@ export type CollectionPage = { kind: 'customer' | 'guest'; who: string } | { kin
  */
 export function FullCard({ page, onClose }: { page: CollectionPage; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const back = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    ref.current?.focus();
-    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', key);
-    return () => { window.removeEventListener('keydown', key); back?.focus(); };
-  }, []);
+  // Focus moves onto the card, stays there while it is open, goes back when it closes; Escape closes it (PLAN-116).
+  useFocusTrap(ref, onClose);
   const card = cardOf(page);
   if (!card) return null;
   return (
@@ -262,10 +258,10 @@ export function TrophyScreen({ tab: first = 'book', onBack, onLook }: { tab?: Tr
     <div class="sbk jp-page">
       <header class="jp-bar">
         <button class="jp-back sbk-back" onClick={onBack} aria-label="Back"><BackArrow /></button>
-        <h1>{TABS.find((t) => t.id === tab)?.head ?? 'Trophies'}</h1>
+        <h1>{TABS.find((t) => t.id === tab)?.head ?? 'Stamp book'}</h1>
         <span class="jp-lv">Level {place.level}</span>
       </header>
-      <nav class="sbk-tabs jp-tabs" aria-label="Trophies pages">
+      <nav class="sbk-tabs jp-tabs" aria-label="Stamp book pages">
         {TABS.map((t) => <button type="button" class={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={() => { fx.tap(); setTab(t.id); }}>{t.title}</button>)}
       </nav>
       <main class="sbk-scroll" ref={scroller}>
