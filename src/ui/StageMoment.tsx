@@ -78,6 +78,8 @@ export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: nu
   const missed = met ? [] : missedGoals(s, owner).filter((m) => m.id === st.clear.id);
   const last = at + 1 >= LEAGUE.length;
   const note = cleared ? (last ? `${st.title} cleared. Chapter 1 is yours.` : `${st.title} cleared. Next: ${LEAGUE[at + 1].title}`)
+    // REP-135 RA-04: an expert stage never moves you up, so its first clear is the one whose clear star is new.
+    : met && isExpert(at) && fresh.includes(st.clear.id) ? `${st.title} cleared.`
     : met ? `${st.title}: cleared again.` : isExpert(at) ? `${st.title}: not cleared yet.` : `Market League: clear ${st.title} to move up.`;
   return (
     <div class="jp-stage-end">

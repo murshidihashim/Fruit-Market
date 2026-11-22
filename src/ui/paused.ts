@@ -2,6 +2,7 @@
 // (PLAN-081). Starting the Daily market, a Market League game or a new game saves over the waiting game, so the home
 // screen asks first. Pure helpers, kept apart from the screens so they can be unit tested.
 import type { GameState } from '../engine/game';
+import { stageLabel } from './campaign';
 
 /** What the home screen says about the waiting game. */
 export interface WaitingGame {
@@ -28,7 +29,7 @@ export function modeOf(game: GameState): string {
   const c = game.config;
   if (c.sprint) return 'Sprint';
   if (c.daily) return 'Daily market';
-  if (c.league !== undefined) return `League stage ${c.league + 1}`;
+  if (c.league !== undefined) return `League ${stageLabel(c.league)}`;
   return game.players.filter((pl) => pl.kind === 'human').length > 1 ? 'One phone game' : 'Computer game';
 }
 

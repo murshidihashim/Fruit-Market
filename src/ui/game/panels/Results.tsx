@@ -16,6 +16,7 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
+import { stageLabel } from '../../campaign';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -337,7 +338,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
   const headline = win || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
-  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, stage ${league + 1}` : online ? ' · Online' : '';
+  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, ${stageLabel(league)}` : online ? ' · Online' : '';
   const share = async () => {
     const text = `Fruit Market: ${words.mine} with $${s.players[owner].cash} after ${s.config.days} days.`;
     try {

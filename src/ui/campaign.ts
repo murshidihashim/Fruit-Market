@@ -32,6 +32,8 @@ export interface Stage {
   lesson: string;
   /** The picture of the stage's moment. */
   pic: StagePic;
+  /** The rival (RIVALS index) who speaks for the stage when it is not the first rival. */
+  host?: number;
   /** What the rival who hosts the stage (the first rival) says before it. */
   before: string;
   /**
@@ -297,7 +299,7 @@ const NEXT_SIX: Stage[] = [
     setup: CONTRACT_SETUP,
     lesson: 'Bid under your rivals to win the order, but stay well above what the apples cost you.',
     pic: { kind: 'order', id: PIES },
-    before: `It is day 3 and ${PIES_TITLE} wants apples on day 5. Bid now. The lowest bid wins.`,
+    before: `It is day 3 and ${PIES_TITLE.replace(/^The /, 'the ')} wants apples on day 5. Bid now. The lowest bid wins.`,
     after: [
       { stars: ['rc_margin'], text: 'Won at a good price and delivered in full. That is a contract.' },
       { text: 'You delivered the order in full. Well played.' },
@@ -369,9 +371,9 @@ export const EXPERTS: Stage[] = [
     expert: { of: 6, stars: 12 },
   },
   {
-    title: 'The Eager Bidder', rivals: [{ idx: 1, level: 'normal' }, { idx: 6, level: 'normal' }], days: 3, seed: 21, marketDays: true,
+    title: 'The Eager Bidder', rivals: [{ idx: 1, level: 'normal' }, { idx: 6, level: 'normal' }], host: 6, days: 3, seed: 21, marketDays: true,
     setup: { ...CONTRACT_SETUP, bidLow: [{ seat: 2, price: 5 }] },
-    lesson: 'Pak Din bids $5 for every order. Under that, the apples cost more than the order pays. Let him have it.',
+    lesson: 'Pak Din bids $5 for every order. Under that, there is little left after the apples. Let him have it.',
     pic: { kind: 'keeper', id: RIVALS[6].avatar },
     before: `I bid $5 a piece for every order. Always. ${PIES_TITLE} will be mine.`,
     after: [
@@ -485,4 +487,10 @@ export function afterLine(st: Stage, earned: readonly string[]): string {
 }
 
 /** The host of a stage: its first rival. */
-export const stageHost = (st: Stage) => RIVALS[st.rivals[0].idx % RIVALS.length];
+/** The rival who speaks for a stage: its `host` when set (REP-135 RA-05), else its first rival. */
+export const stageHost = (st: Stage) => RIVALS[(st.host ?? st.rivals[0].idx) % RIVALS.length];
+
+/** How a stage is named in a line ("League stage 3", or an expert stage by its title), REP-135 RA-08. */
+export function stageLabel(no: number): string {
+  return no >= LEAGUE.length ? `expert stage ${ALL_STAGES[no]?.title ?? ''}`.trim() : `stage ${no + 1}`;
+}

@@ -90,7 +90,7 @@ const and = (xs: string[]): string => (xs.length <= 1 ? xs.join('') : `${xs.slic
 export function stageGoal(st: Stage): string {
   const n = stageLength(st);
   const days = `${n} ${n === 1 ? 'day' : 'days'}`;
-  if (st.clear.win) return `Beat ${and(stageRivals(st).map((r) => r.name))} over ${days} to move up`;
+  if (st.clear.win) return `Beat ${and(stageRivals(st).map((r) => r.name))} over ${days}${st.expert ? '' : ' to move up'}`;
   return `${days}: ${st.clear.text.charAt(0).toLowerCase()}${st.clear.text.slice(1)}`;
 }
 
