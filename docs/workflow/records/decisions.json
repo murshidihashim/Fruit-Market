@@ -3189,6 +3189,29 @@
       "reports": [
         "REP-136"
       ]
+    },
+    {
+      "id": "DEC-129",
+      "title": "Home on one screen: the stall and the goals swipe together, Stamp book and Wardrobe as icons on the stall",
+      "question": "How can Home fit on one phone screen?",
+      "choice": "The stall and Your next goals become two swipeable cards in one row; the Stamp book and Wardrobe tiles become icon buttons on the stall card; the mode cards are made compact so that Home fits one screen without scrolling.",
+      "rationale": "The owner wants everything on one page.",
+      "impact": {
+        "player": "Home without scrolling: stall or goals at the top, the mode cards below, Stamp book and Wardrobe one tap from the stall.",
+        "technical": "HomeCards.tsx, Home.tsx and home-cards.css only.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-22: \"remove the your next goals, create it into a swipeable card which swipes with the stall, remove stamp book and wardrobe but make it into a button icon at the stall card so player can easily access the item; point of this exercise is to make everything fit into one page\"",
+        "date": "2026-11-22"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-121",
+      "reviewTrigger": "After the owner sees it.",
+      "reports": []
     }
   ],
   "history": [
@@ -4619,6 +4642,10 @@
     {
       "at": "2026-11-22 21:31",
       "text": "Owner approved the three PLAN-120 mock-ups (\"go ahead\"), then: \"audit for bugs and fix and then push it lvie\". PLAN-120 merged (c34e167); the audit (REP-136) found one Major (results buttons used the last started game, so a Sprint's Try again could replace a waiting computer game) and minors; fixed in 36c78de with tests (R120-01, 03, 06, 07); R120-02, 04, 05, 08 left for later. Release candidate 1.29.0 (PLAN-120) prepared for publishing on the owner's word."
+    },
+    {
+      "at": "2026-11-22 22:29",
+      "text": "Owner direction on the 1.29.0 Home: goals as a card that swipes with the stall, Stamp book and Wardrobe as icon buttons on the stall, everything on one page. Recorded as approved DEC-129 / PLAN-121."
     }
   ]
 }

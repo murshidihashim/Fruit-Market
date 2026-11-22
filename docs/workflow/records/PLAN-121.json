@@ -1,0 +1,59 @@
+{
+  "id": "PLAN-121",
+  "title": "Home on one screen",
+  "problem": "Home scrolls: the stall, the mode cards, the goals and the Stamp book and Wardrobe tiles do not fit one phone screen.",
+  "scope": [
+    "The stall card and a Your next goals card swipe together in one row (dots, arrows or swipe)",
+    "Stamp book and Wardrobe become labelled icon buttons on the stall card; their tiles are removed",
+    "The mode cards (Play, Market League, Daily market) are made compact so the whole Home fits 390x844 and 360x640 without scrolling; at 320x568 as close as possible",
+    "How to play, Settings and Account stay reachable"
+  ],
+  "exclusions": [
+    "No rule, save or mode change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390, 360 and 320: no vertical scroll at 390 and 360",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-22: \"remove the your next goals, create it into a swipeable card which swipes with the stall, remove stamp book and wardrobe but make it into a button icon at the stall card so player can easily access the item; point of this exercise is to make everything fit into one page\"",
+    "date": "2026-11-22"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "not started",
+  "reports": [],
+  "decisions": [
+    "DEC-129"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
