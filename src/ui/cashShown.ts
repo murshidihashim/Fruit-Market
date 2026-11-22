@@ -49,6 +49,14 @@ export async function takeCash(player: number, amount: number): Promise<void> {
   }
 }
 
+/** PLAN-123: a purchase (or one taken back) changes a stall's shown total at once, in the same frame as the market box,
+ *  the shelf and the purchases allowed, so the counters never disagree. */
+export function shiftCash(player: number, by: number): void {
+  if (!held || held[player] === undefined || !by) return;
+  held[player] += by;
+  changed();
+}
+
 /** Redraws the calling component whenever the shown totals change. */
 export function useCashShown(): void {
   const [, set] = useState(0);

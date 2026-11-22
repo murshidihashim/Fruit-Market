@@ -5,7 +5,7 @@ import { boxOf } from './anim';
 import { believe, planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, FRUITS, MAX_UPGRADES, UPGRADES, acceptsStage, lookOf, stageAt, type FavourId, type FruitId, type TraitId, type UpgradeId } from '../engine/data';
 import {
-  canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, rowCount, shadePick,
+  canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, rowCount, shadePick, shelfSize,
   validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
 import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
@@ -21,7 +21,7 @@ import { Icon, type IconName } from './icons';
 import { FavourMini } from './phoneCards';
 import { TIE_ORDER, TIE_ORDER_CARD } from './rulesText';
 import { nth, pricingTable } from './game/pricingTable';
-import { nightSteps, tonightWord } from './game/tonight';
+import { freshWarn, nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
 import { priorityNote } from './game/evening';
 import { drawCloser, useReach, type Holding } from './game/reach';
@@ -99,7 +99,8 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
   const night = tonightWord(s, p, f, pos);
   if (stage === 'unripe') {
     const nights = pos - FRUIT[f].ripe.length + 1;
-    return night.text === 'ripe tomorrow' ? 'Still green · ripe tomorrow' : nightSteps(s, p, f) === 1 ? `Still green · ripe in ${nights} nights` : 'Still green';
+    const g = `Still ${STAGE_WORD.unripe}`;
+    return night.text === 'ripe tomorrow' ? `${g} · ripe tomorrow` : nightSteps(s, p, f) === 1 ? `${g} · ripe in ${nights} nights` : g;
   }
   const drop = FRUIT[f].drop[pos] ?? 0;
   const best = Math.max(0, ...buyersFor(s, f).map((x) => x.max));
@@ -110,8 +111,27 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
   return [
     stallWantText(s, p, f, pos),
     drop ? (customers || !forOrder ? `${STAGE_WORD[stage]} sells $${drop} less` : '') : customers ? `best price $${best}` : '',
-    night.text === 'spoils tonight' || night.text === 'juice tonight' ? night.text : '',
+    night.text === 'juice tonight' ? night.text : '',
   ].filter(Boolean).join(' · ');
+}
+
+/**
+ * PLAN-123 (finding 3): a shelf row's count in the same words on screen and in its spoken label. The crate is filled
+ * from the shelf, so a piece in the crate is still one you own: "1 owned · 1 in crate" (the − and + say the crate's
+ * part), never "1 on shelf" beside "1 in crate" for one piece. `k`: how many are in the crate (null: green, not for sale).
+ */
+export function ownedLine(n: number, k: number | null): string {
+  return k === null ? `${n} owned · not ripe` : k > 0 ? `${n} owned · ${n - k} stay on shelf` : `${n} owned`;
+}
+export function rowWords(f: FruitId, word: string, n: number, k: number | null): string {
+  return `${FRUIT[f].name}, ${word}: ${n} owned${k === null ? ', not ripe yet' : `, ${k} in your crate, ${n - k} stay on your shelf`}`;
+}
+
+/** PLAN-123: what tonight costs a row, as a tag that stands out: it spoils tonight, or (a Fresh piece) it is Okay
+ *  tomorrow and Premium customers stop buying it. Null when neither. */
+export function rowWarn(s: GameState, p: number, f: FruitId, pos: number) {
+  const w = freshWarn(s, p, f, pos);
+  return w ? <em class={`ds-warn ${w.bad ? 'bad' : ''}`}>{w.text}</em> : null;
 }
 
 /**
@@ -138,7 +158,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
     <div class={`ds-stock stall-panel ${waiting ? 'waiting' : ''}`}>
       {/* The heading and your crate stay in view while a long shelf scrolls under them. */}
       <div class="ds-stick">
-        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} in your crate</span></div>
+        <div class="ds-lab-row"><b class="ds-lab">Fill your crate</b><span>{total} of {ripe} ripe in your crate</span></div>
         <div class="ds-crate" id="my-crate" aria-label={`Your crate: ${total} in it`}>
           <i class="ds-sw" aria-hidden="true" /><span class="ds-lab">Your crate</span>
           <span class="ds-pcs">
@@ -155,10 +175,10 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
           const sell = stage !== 'unripe';
           const word = STAGE_WORD[stage];
           return (
-            <div class={`ds-srow ${f} ${sell ? '' : 'off'} ${k ? 'in' : ''}`} data-box={boxKey(f, pos)} aria-label={`${FRUIT[f].name}, ${word}: ${n} on your shelf${sell ? `, ${k} in your crate` : ''}`}>
+            <div class={`ds-srow ${f} ${sell ? '' : 'off'} ${k ? 'in' : ''}`} data-box={boxKey(f, pos)} aria-label={rowWords(f, word, n, sell ? k : null)}>
               <div class="ds-info-cell">
                 <i class={`ds-lamp lg st-${stage}`} aria-hidden="true">{STAGE_LETTER[stage]}</i><Fruit id={f} size={26} stage={stage} />
-                <span class="ds-txt"><b>{n} on shelf</b><span>{shelfRowText(s, p, f, pos)}</span></span>
+                <span class="ds-txt"><b>{ownedLine(n, sell ? k : null)}</b><span>{shelfRowText(s, p, f, pos)}</span>{rowWarn(s, p, f, pos)}</span>
               </div>
               {sell && !waiting && (
                 <span class="mini-step">
@@ -174,6 +194,7 @@ export function StallPanelView({ s, p, crate, landed, waiting, onStep }: {
       </div>
       <div class="ds-note">
         <b class="ds-lab">Only the crate sells today</b>
+        <span>Your crate is filled from your shelf. Pieces in it still take their shelf space ({count(pl.stock)} of {shelfSize(pl)} used).</span>
         <span>Rivals see how many pieces are in your crate, but not which fruit or your price.</span>
       </div>
     </div>
@@ -191,7 +212,8 @@ export function StallBar({ total, onSubmit, onAuto, stake }: { total: number; on
           <button type="button" class="btn ghost tk-auto" disabled={!onAuto} onClick={onAuto ?? undefined}>Auto load <small class="btn-sub">what's wanted</small></button>
         )}
         <button type="button" class="btn primary big wide tk-go" onClick={onSubmit}>
-          {total ? <>Open my stall <small class="btn-sub">{total} out</small></>
+          {/* PLAN-123: the step this button leads to is secret pricing, so it says so (it said "Open my stall") */}
+          {total ? <>Set secret prices <small class="btn-sub">{total} out</small></>
             : stake !== undefined ? <>Deliver nothing today <small class="btn-sub">${stake} stake lost</small></>
             : 'Sell nothing today'}
         </button>

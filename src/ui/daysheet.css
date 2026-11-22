@@ -79,6 +79,9 @@
 #app .tkt .ds-srow .ds-info-cell { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-left: 8px solid var(--lane); }
 #app .tkt .ds-txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 #app .tkt .ds-txt b { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
+/* PLAN-123: what tonight costs a row, as a tag: "Spoils tonight" in red, "Loses Premium tomorrow" in mustard */
+#app .tkt .ds-txt .ds-warn { align-self: flex-start; padding: 2px 5px; font: 800 0.625rem/1.1 var(--tk-txt); font-style: normal; letter-spacing: 0.04em; text-transform: uppercase; background: var(--tk-yel); color: var(--tk-ink); }
+#app .tkt .ds-txt .ds-warn.bad { background: var(--tk-red-d); color: var(--tk-paper); }
 #app .tkt .sh-day .mini-step { all: unset; flex: none; display: flex; align-items: stretch; }
 #app .tkt .sh-day .ds-amt {
   all: unset; flex: none; width: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;

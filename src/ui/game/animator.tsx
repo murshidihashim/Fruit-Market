@@ -6,7 +6,7 @@ import { leavingTonight, marketCost, nightOutlook, type GameState } from '../../
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { laneClass } from '../cards';
-import { holdCash, payCash, shownCash, takeCash } from '../cashShown';
+import { holdCash, payCash, shiftCash, shownCash } from '../cashShown';
 import { landPiece, liftPiece, lineShown, payShown, releaseRush, serveLine, showFavour } from '../rushShown';
 import { releaseStock, sellStock, stockHeld } from '../stockShown';
 import { deliveryBoxes } from '../tableModel';
@@ -93,13 +93,14 @@ export function shareOut(sum: number, weights: number[]): number[] {
 
 /**
  * What changed between two states, as travel (PLAN-085; flow study D3). Buying: each piece lifts out of its box and
- * travels in a low arc to that fruit's place on the buyer's stall (your shelf, or a rival's box); the box's number
- * drops as it lifts, and the shelf's, the "bought today" marks and the cash change as it lands. A rival's whole turn
- * arrives as one step and is one beat: its pieces leave a little apart. Pieces taken back travel the other way.
+ * travels in a low arc to that fruit's place on the buyer's stall (your shelf, or a rival's box). PLAN-123 (finding 2):
+ * everything a piece changes is committed together as it lifts off: the box's number, the shelf, the "bought today"
+ * marks (and so the purchases still allowed) and the cash. The piece's travel then shows where it went, and the place
+ * it lands on swells. A rival's whole turn arrives as one step and is one beat: its pieces leave a little apart, and
+ * each one's numbers change as it leaves. Pieces taken back travel the other way, their numbers likewise at lift-off.
  */
 export async function moves(prev: GameState, next: GameState, viewer = -1) {
   const jobs: Promise<void>[] = [];
-  const counting: Promise<void>[] = [];
   const p = buyerOf(prev, next);
   const deals = p >= 0 ? dealsOf(prev, next) : [];
   const pieces = deals.flatMap((d) => {
@@ -117,23 +118,17 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
       const box = [`m-${f}-${pos}`, `mk-${f}`];
       const place = [`p${p}-${f}`, `p${p}`];
       const o = { delay: i * gap, duration: A.FEEL.travel, path: 'low' as const };
-      if (x.d.n > 0) {
-        jobs.push(A.fly(box, place, node, {
-          ...o,
-          onLift: () => shiftMarket(f, pos, -x.carries),
-          onLand: () => {
-            shiftBought(p, f, x.carries);
-            if (p === viewer) shiftShelf(p, f, pos, x.carries);
-            if (paid > 0 && shares[i]) { counting.push(takeCash(p, shares[i])); if (p === viewer) A.floatText(`p${p}-cash`, `−$${shares[i]}`); }
-          },
-        }));
-      } else {
-        jobs.push(A.fly(place, box, node, {
-          ...o,
-          onLift: () => { shiftBought(p, f, -x.carries); if (p === viewer) shiftShelf(p, f, pos, -x.carries); },
-          onLand: () => { shiftMarket(f, pos, x.carries); if (paid < 0 && shares[i]) counting.push(payCash(p, shares[i])); },
-        }));
-      }
+      const take = x.d.n > 0;
+      const by = take ? x.carries : -x.carries;
+      // One commit for the piece: every number it changes, in the same frame.
+      const commit = () => {
+        shiftMarket(f, pos, -by);
+        shiftBought(p, f, by);
+        if (p === viewer) shiftShelf(p, f, pos, by);
+        if (shares[i]) shiftCash(p, paid > 0 ? -shares[i] : shares[i]);
+        if (take && paid > 0 && shares[i] && p === viewer) A.floatText(`p${p}-cash`, `−$${shares[i]}`);
+      };
+      jobs.push(take ? A.fly(box, place, node, { ...o, onLift: commit }) : A.fly(place, box, node, { ...o, onLift: commit }));
     });
     fx.buy();
   }
@@ -169,8 +164,6 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
   // earlier in today's line-up takes it there).
   if (firstMoved(prev, next)) jobs.push(firstInLine(next, next.priorityNext!));
   await Promise.all(jobs);
-  // The cash is still counting down as the last piece lands: the beat ends when it has.
-  await Promise.all(counting);
 }
 
 // ---------- the customers arrive ----------
