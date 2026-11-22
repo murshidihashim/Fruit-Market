@@ -66,6 +66,8 @@
 .home.hm.jh .jh-lorry b { font: 400 1.125rem/1 var(--f-display); }
 .home.hm.jh .jh-dt { margin: 0; font: 600 0.8125rem/1.3 var(--f-label); color: var(--j-slate); }
 .home.hm.jh .jh-ds { margin: 0; font: 700 0.75rem/1.3 var(--f-label); }
+/* PLAN-119: the line naming what today's Daily uses that you met in the Market League. */
+.home.hm.jh .jh-decho { margin: 0; padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.75rem/1.3 var(--f-label); color: var(--j-ink); }
 .home.hm.jh .jh-ds b { color: var(--j-red); font-weight: 800; }
 .home.hm.jh .jh-dgo {
   margin-top: auto; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; background: var(--j-yel);
@@ -161,11 +163,19 @@
 }
 #app .jp .jp-len button small { font: 600 0.75rem/1 var(--f-label); color: inherit; }
 #app .jp .jp-len button.on { background: var(--j-ink); color: var(--j-paper); }
+/* PLAN-119: each mode's job. The "Normal game" group holds the ways to play a full market your way; the League, the
+   Daily market and the Sprint follow, each with its one-line reason over its details. */
+#app .jp .jp-grp { display: flex; flex-direction: column; gap: 10px; padding: 10px 10px 12px; margin-bottom: 6px; background: var(--j-tint); box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+#app .jp .jp-gh { margin: 2px 0 0; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.02em; color: var(--j-ink); }
+#app .jp .jp-mode { min-height: 84px; }
+#app .jp .jp-mode .jp-why { font: 700 0.9375rem/1.25 var(--f-label); }
 @media (max-width: 379px) {
   #app .jp .jp-tile { padding: 10px; font-size: 0.75rem; }
   #app .jp .jp-tile b { font-size: 0.9375rem; }
   #app .jp .jp-tile.big b { font-size: 1.25rem; }
   #app .jp .jp-two { gap: 8px; }
+  #app .jp .jp-grp { padding: 8px 8px 10px; gap: 8px; }
+  #app .jp .jp-mode .jp-why { font-size: 0.875rem; }
   #app .jp .jp-vs .xf { width: 36px !important; height: 36px !important; }
   #app .jp .jp-q { width: 36px; height: 36px; }
 }

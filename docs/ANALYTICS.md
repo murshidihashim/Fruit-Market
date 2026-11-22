@@ -25,6 +25,7 @@ Read them with: `curl -H "x-stats-key: $STATS_KEY" https://<your-worker>/api/sta
 | `reaction` | — | A preset reaction sent in an online room (PLAN-112). A count only: never which reaction, by whom or in which room |
 | `daily_share` | — | Sharing the daily result |
 | `sprint_retry` | — | Try again on the Market Sprint's results (PLAN-114). The day and end counters count a Sprint once per day, however often it is retried |
+| `sprint_from_league` | — | "Try today's Sprint" tapped on a cleared Market League stage's results (PLAN-119). A count only |
 
 Error lines: the message and first stack frame, deduplicated, at most 5 per batch.
 

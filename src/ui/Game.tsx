@@ -46,9 +46,11 @@ interface Props {
   online?: OnlineClient;
   /** The results' second button: the same table again with the person as this shopkeeper (PLAN-086). */
   onPlayAs?: (avatar: string) => void;
+  /** PLAN-119: starts today's Sprint from a cleared Market League stage's results. */
+  onSprint?: () => void;
 }
 
-export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }: Props) {
+export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs, onSprint }: Props) {
   const c = useGameController(initial, onChange, online);
   // Your shelf dock drops as each customer is served in the rush (stockShown.ts), so the table redraws then.
   useStockShown();
@@ -138,7 +140,7 @@ export function Game({ initial, onExit, onChange, onRematch, online, onPlayAs }:
   if (s.phase === 'over') {
     return (
       <div class="game tkt sbk-over">
-        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs}
+        <main class="scroll"><Results s={s} viewer={viewer} onExit={onExit} onPlayAs={onPlayAs} onSprint={online ? undefined : onSprint}
           onRematch={online ? () => { fx.tap(); online.rematch(); } : onRematch}
           rematchNote={online && meta ? rematchLine(meta, viewer) : undefined}
           rematchSent={!!online && !!meta && meta.rematch.includes(viewer)} online={!!online}

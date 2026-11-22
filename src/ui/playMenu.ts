@@ -1,9 +1,10 @@
 // PLAN-113: the words and set-ups behind the Play menu and the Quick match wait. Pure, so they can be unit tested.
 // Nothing here changes a rule: the player counts and lengths are the game's own (MAX_SEATS, DEFAULT_CONFIG, LEAGUE).
-import { RIVALS } from '../engine/data';
+import { MARKET_DAY_EVERY, ORDER_LEAD, RIVALS, lookOf, prefOf } from '../engine/data';
 import type { GameConfig } from '../engine/game';
 import { DEFAULT_CONFIG, MAX_SEATS, type RoomConfig } from '../net/protocol';
 import { LEAGUE } from './progress';
+import type { Stage } from './campaign';
 
 /** The game lengths a new game offers (the Play menu's, the set-up screen's and the room's), shortest first everywhere
  *  (PLAN-116, REP-133 B-14: the Play menu put Standard first, the other two Quick). */
@@ -16,6 +17,50 @@ export const quickLine = (): string => `A stranger online · ${QUICK_STALLS} sta
 export const roomLine = (): string => `Invite 1 to ${MAX_SEATS - 1} friends by link or code · 2 to ${MAX_SEATS} stalls`;
 export const computerLine = (): string => `2 to ${MAX_SEATS} stalls · Easy, Normal, Hard`;
 export const phoneLine = (): string => `Pass and play · 2 to ${MAX_SEATS} people`;
+
+/**
+ * PLAN-119: each mode's one-line reason, under its name in the Play menu. The owner's words (REP-134, section 2).
+ * The Play menu groups the ways to play a full market of your own under NORMAL_HEADING; the three modes follow.
+ */
+export const NORMAL_HEADING = 'Normal game';
+export const MODE_REASON = {
+  league: 'What will the next market throw at you',
+  daily: 'How you rank in today\'s full market',
+  sprint: 'A few minutes. Beat your best.',
+} as const;
+
+/** PLAN-119: the link from a cleared Market League stage's results to today's Sprint. */
+export const LEAGUE_TO_SPRINT = 'Try today\'s Sprint';
+
+/** Does a game with this set-up announce a standing order? The engine's own test (game.ts drawStanding): not in the
+ *  Basic game, and on a Market Day before the last day whose order falls due inside the game. */
+export function hasStandingOrders(cfg: GameConfig): boolean {
+  if (cfg.core || cfg.marketDays === false) return false;
+  for (let d = MARKET_DAY_EVERY; d < cfg.days; d += MARKET_DAY_EVERY) if (d + ORDER_LEAD <= cfg.days) return true;
+  return false;
+}
+
+const premiumIn = (st: Stage): boolean => Object.values(st.setup.crowd ?? {}).some((names) => names.some((n) => prefOf(n) === 'premium'));
+const ordersIn = (st: Stage): boolean => Object.keys(st.setup.orders ?? {}).length > 0;
+
+/**
+ * PLAN-119: the Daily card's line when today's Daily market uses something you met in the Market League, chosen only
+ * from what the Daily already shows on its card: its set-up (the weekly twist decides whether standing orders come)
+ * and its first customer. `cleared` is how many League stages you have cleared (progress.ts leagueStage); a stage
+ * counts once cleared. Null when nothing matches. Nothing here changes the Daily's set-up or seed.
+ */
+export function leagueEcho(cfg: GameConfig, firstName: string | null, cleared: number): string | null {
+  const done = LEAGUE.slice(0, Math.max(0, cleared));
+  if (firstName && prefOf(firstName) === 'premium') {
+    const st = done.find(premiumIn);
+    if (st) return `Met in the League: ${lookOf(firstName).title} buys Fresh fruit only, as in ${st.title}.`;
+  }
+  if (hasStandingOrders(cfg)) {
+    const st = done.find(ordersIn);
+    if (st) return `Met in the League: a standing order to bid on, as in ${st.title}.`;
+  }
+  return null;
+}
 
 /** "Stage 1 of 6 · Village Square · 6 days vs Rosa", or the replay line once every stage is cleared. */
 export function leagueLine(stage: number): string {
