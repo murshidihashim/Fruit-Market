@@ -36,7 +36,8 @@
 #app .tkt .dw-n { flex: none; min-width: 34px; font: 400 1.25rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
 /* tomorrow's lorry in one line */
 #app .tkt .mt-next { flex: none; display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: var(--tk-kraft); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
-#app .tkt .mt-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* (a long lorry name, "Berries and Melons", takes two lines on a narrow phone rather than being cut: PLAN-116 B-16) */
+#app .tkt .mt-name { min-width: 0; overflow-wrap: anywhere; }
 #app .tkt .mt-load { flex: none; margin-left: auto; display: flex; align-items: center; gap: 6px; }
 #app .tkt .mt-load span { display: inline-flex; align-items: center; gap: 3px; }
 /* A morning with more to say than its sheet holds is drawn closer, a step at a time (MorningCard.tsx writes the step

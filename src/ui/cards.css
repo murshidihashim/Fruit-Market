@@ -129,6 +129,8 @@
 .cd-blk { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 3); padding: calc(var(--u) * 7) calc(var(--u) * 8); color: var(--x-paper); }
 .cd-blk b { font: 400 calc(var(--u) * 20) / 1 var(--f-display); }
 .cd-blk small { font: 800 calc(var(--u) * 8) / 1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; }
+/* (a page's own grey for small words must not reach the card: "Perk" on the mustard block was 3.9:1; PLAN-116 B-07) */
+.cd .cd-blk small { color: inherit; }
 .cd-blk-k { background: var(--x-ink); }
 .cd-blk-k b { color: var(--x-mustard); }
 .cd-blk-y { background: var(--x-mustard); color: var(--x-ink); }
@@ -223,7 +225,7 @@
 .cd.is-taken > :not(.cd-taken) { filter: grayscale(0.75) brightness(0.92); }
 .cd-taken {
   position: absolute; left: 50%; top: 44%; z-index: 2; max-width: calc(var(--u) * 210); padding: calc(var(--u) * 4) calc(var(--u) * 8); transform: translate(-50%, -50%) rotate(-9deg);
-  background: var(--x-paper); border: calc(var(--u) * 2.5) solid var(--x-red); color: var(--x-red);
+  background: var(--x-paper); border: calc(var(--u) * 2.5) solid var(--x-red); color: var(--x-red-d); /* 6.2:1 (PLAN-116, REP-133 B-07) */
   font: 400 calc(var(--u) * 15) / 1.15 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -431,6 +433,6 @@
    tap (cardZoom.tsx). Over the whole screen, above a pop-up; a shopkeeper's card is drawn wider than a customer's. */
 .card-zoom { cursor: zoom-in; }
 .card-zoom:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 3px; }
-.cd-pop.zoom-pop { position: fixed; z-index: 60; }
+.cd-pop.zoom-pop { position: fixed; z-index: 60; background: color-mix(in srgb, var(--x-ink) 88%, transparent); }
 .cd-pop.zoom-pop:focus { outline: none; }
 .cd-pop.zoom-pop.wide .cd-pop-in { width: 320px; --card-w: min(320px, calc(100vw - 32px)); }

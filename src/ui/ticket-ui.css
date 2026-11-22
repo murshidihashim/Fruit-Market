@@ -64,6 +64,7 @@
 @media (max-width: 379px) {
   #app .setup-body .seat-tile { padding: 6px 2px; letter-spacing: 0.02em; }
   #app .setup-body .seat-tile .st-k { font-size: 0.8125rem; }
+  #app .setup-body .seat-tile .st-l { max-width: 100%; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
 }
 #app .setup-body .seat-tile .st-l { font-weight: 700; letter-spacing: 0.04em; color: var(--x-slate); }
 #app .setup-body .seat-tile.on { background: var(--x-mustard); }

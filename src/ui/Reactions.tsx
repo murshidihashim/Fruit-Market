@@ -69,8 +69,9 @@ let bubbleKey = 0;
  * player's name now. Over a stall a bubble stands above it with its tail pointing down at it (under it, at the top of
  * the screen); on a row of a list (`onRow`) it sits on the row's right-hand side, so it cannot be read as the next
  * row's. A bubble that has no seat on screen to sit over stands at the top of the screen. Your own shelf in the game
- * (section.my-stall) takes the bubble inside it, in its middle: above it, the bubble covered the figures of the sheet over the shelf (the
- * standing order's, PLAN-116, REP-133 B-10).
+ * (section.my-stall) takes the bubble inside it, in its middle: above it, the bubble covered the figures of the sheet
+ * over the shelf (the standing order's, PLAN-116, REP-133 B-10). While a sheet lies over the shelf, or the shelf is
+ * scrolled out of sight, the bubble stands at the top of the screen.
  */
 export function ReactionBubbles({ client, anchor, name, onRow }: { client: OnlineClient; anchor: (seat: number) => Element | null; name: (seat: number) => string; onRow?: boolean }) {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
@@ -94,8 +95,10 @@ export function ReactionBubbles({ client, anchor, name, onRow }: { client: Onlin
       {bubbles.map((b) => {
         const el = anchor(b.seat);
         const box = el?.getBoundingClientRect();
-        const there = !!box && box.width > 0;
-        const inside = there && !!el?.classList.contains('my-stall');
+        const shelf = !!el?.classList.contains('my-stall');
+        // Your shelf counts as on screen only where it can be seen: not scrolled away, nor under a sheet.
+        const there = !!box && box.width > 0 && (!shelf || !!el?.contains(document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)));
+        const inside = there && shelf;
         const row = there && (!!onRow || inside);
         const x = there ? Math.max(56, Math.min(w - 56, box.left + box.width * (row && !inside ? 0.7 : 0.5))) : w / 2;
         // Over the seat; under it when the seat is at the very top of the screen.

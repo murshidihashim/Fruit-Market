@@ -64,6 +64,17 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await A.page.waitForSelector('.rx-bubble[aria-label="Ben: Clap"]', { timeout: 5000 });
   console.log('lobby reactions: both seen');
 
+  // PLAN-116 (REP-133 B-04): keyboard focus stays inside a pop-up (here the reactions); Escape closes it.
+  await A.page.waitForTimeout(2100);
+  await A.page.click('[data-a="react"]');
+  for (let i = 0; i < 16; i++) {
+    await A.page.keyboard.press(i < 12 ? 'Tab' : 'Shift+Tab');
+    if (!(await A.page.evaluate(() => !!document.activeElement?.closest('.popup')))) throw new Error(`focus left the reaction pop-up after ${i + 1} key presses`);
+  }
+  await A.page.keyboard.press('Escape');
+  await A.page.waitForSelector('.rx-pick', { state: 'detached', timeout: 2000 });
+  console.log('reaction pop-up keeps focus; Escape closes it');
+
   // Once started, the room leaves the list.
   await A.page.click(`button:has-text("I'm ready")`);
   await B.page.click(`button:has-text("I'm ready")`);
@@ -83,6 +94,24 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   await A.page.waitForSelector('.rx-bubble[aria-label="Ben: Well played"]', { timeout: 5000 });
   await shot(A, 'p4-game-bubble');
   console.log('game reactions: both seen');
+
+  // PLAN-116 (REP-133 B-02, B-03): in the game the reaction button covers no box of the market and takes 44 px of taps;
+  // (B-09) "Stay in the match" closes the menu at once.
+  const rx = await A.page.evaluate(() => {
+    const el = document.querySelector('[data-a="react"]');
+    if (!el) return null;
+    const b = el.getBoundingClientRect();
+    const covers = [...document.querySelectorAll('.tb-box, .tb-lh')].filter((e) => { const r = e.getBoundingClientRect(); return r.left < b.right && b.left < r.right && r.top < b.bottom && b.top < r.bottom; }).length;
+    const x = b.left + b.width / 2, y = b.top + b.height / 2;
+    const on = (dx, dy) => { const t = document.elementFromPoint(x + dx, y + dy); return !!t && (t === el || el.contains(t)); };
+    return { covers, wide: on(-22, 0) && on(21, 0), tall: on(0, -22) && on(0, 21) };
+  });
+  if (rx && (rx.covers || !rx.wide || !rx.tall)) throw new Error(`the reaction button in the game: ${JSON.stringify(rx)}`);
+  await A.page.click('.tk-menu');
+  await A.page.click('.game-menu button:has-text("Home")');
+  await A.page.click('.game-menu button:has-text("Stay in the match")');
+  await A.page.waitForSelector('.game-menu', { state: 'detached', timeout: 2000 });
+  console.log(`game reaction button clear of the market (${rx ? 'checked' : 'not shown at this step'}); Stay in the match closes the menu`);
 
   // What travelled: a reaction message carries its id only, and comes back as {t, seat, r} only.
   const parse = (list) => list.map((f) => { try { return JSON.parse(f); } catch { return null; } }).filter(Boolean);

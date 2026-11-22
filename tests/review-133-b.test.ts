@@ -11,6 +11,7 @@ import { LENGTHS, lengthWord } from '../src/ui/playMenu';
 import { practiceRound, practiceVerdict } from '../src/ui/practice';
 import { TIE_ORDER, TIE_ORDER_CARD } from '../src/ui/rulesText';
 import { TIPS } from '../src/ui/tutorial';
+import { dailyConfig } from '../src/engine/daily';
 import { newGame } from '../src/engine/game';
 import { MAX_SEATS } from '../src/net/protocol';
 
@@ -68,7 +69,7 @@ describe('B-17: one set of words', () => {
   it('the tie rule reads as the pricing panel words it, with Favoured Trade first where the card is in play', () => {
     expect(TIE_ORDER).toBe('fresher, then the Haggler, then earlier');
     expect(TIE_ORDER_CARD).toBe('Favoured Trade, then fresher, then the Haggler, then earlier');
-    const g = newGame({ players: [{ name: 'You', kind: 'human', avatar: 'rosa' }, { name: 'Ben', kind: 'ai', avatar: 'benny' }], days: 8, seed: 3 });
+    const g = newGame(dailyConfig('2026-11-22', 'You'));
     expect(tieOrderLine(g, 9)).toBe(`Ties: ${TIE_ORDER}.`);
     expect(toStaticHtml(h(BellNotice, { onClose: () => undefined }))).toContain(`Ties: ${TIE_ORDER_CARD}.`);
     expect(TIPS.find((t) => t.id === 'reveal')?.text).toContain(`Ties: ${TIE_ORDER_CARD} in today's buying.`);
