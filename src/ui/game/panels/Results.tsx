@@ -294,8 +294,10 @@ function RewardBox({ fresh, sum, avatar, show }: { fresh: Look[]; sum: GameSumma
   );
 }
 
-export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent, online, onPlayAs, react }: {
+export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, rematchSent, online, onPlayAs, react }: {
   s: GameState; viewer: number; onExit: () => void; onRematch: () => void; rematchNote?: string; rematchSent?: boolean; online?: boolean;
+  /** PLAN-118: a Market League stage again, the same stage (offered beside Next stage when the stage was cleared). */
+  onRetry?: () => void;
   /** PLAN-116 (REP-133 B-11): online, the reaction button, in the row of buttons at the foot (over the header it hid words). */
   react?: ComponentChildren;
   /** Starts the same table again with the person as another shopkeeper (offered beside the "close" line about them). */
@@ -344,7 +346,9 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
   const hurry = (e: MouseEvent) => { if (!landed && !(e.target as Element).closest?.('button')) A.hurryUp(); };
   // The board's words (PLAN-091): "Rematch"; and "Home" (the owner, 2026-11-13; the board said "Main menu"). The Daily market is played once a day, so its main button
   // goes back to the main menu.
-  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : 'Try again') : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
+  // PLAN-118: a League stage's results offer Retry for the same stage; Next stage comes first when it was cleared.
+  const retry = league !== undefined && league < LEAGUE.length ? `Retry stage ${league + 1}` : 'Retry';
+  const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
   // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
   const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
@@ -417,6 +421,7 @@ export function Results({ s, viewer, onExit, onRematch, rematchNote, rematchSent
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
+            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry}>{retry}</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>

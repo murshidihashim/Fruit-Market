@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
 import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
+import { openStage } from '../engine/ai';
 import { dailyConfig, sprintConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
@@ -143,7 +144,8 @@ function Main() {
     const cfg = first >= 0 && Object.keys(look).length ? { ...cfg0, players: cfg0.players.map((p, i) => (i === first ? { ...p, look } : p)) } : cfg0;
     track('game_start', cfg.sprint ? 'sprint' : cfg.daily ? 'daily' : cfg.players.filter((p) => p.kind === 'human').length > 1 ? 'pass_and_play' : 'solo');
     track('players', cfg.players.length);
-    const g = newGame(cfg);
+    // PLAN-118: a League stage that opens part-way is brought there by real game actions (nothing else changes).
+    const g = openStage(newGame(cfg));
     setLastConfig(cfg);
     setRuns((n) => n + 1);
     setGame(g);
@@ -175,7 +177,7 @@ function Main() {
           if (cfg.sprint && cfg.daily) { track('sprint_retry'); startSprint(cfg.daily); return; }
           if (cfg.daily) { setGame(null); setScreen('home'); return; }
           if (cfg.league !== undefined) {
-            // PLAN-115: "Next stage" after the stage was cleared; otherwise "Try again" plays the same stage.
+            // PLAN-115: "Next stage" after the stage was cleared; otherwise "Retry" plays the same stage.
             const cleared = finishGame(game, 0)?.cleared ?? false;
             if (cleared && leagueStage() >= LEAGUE.length) { setGame(null); setScreen('trophies'); return; }
             start(leagueConfig(cleared ? leagueStage() : cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
@@ -183,6 +185,7 @@ function Main() {
           }
           start({ ...cfg, seed: (Math.random() * 2 ** 31) >>> 0 });
         }}
+        onRetry={() => { const cfg = lastConfig ?? game.config; if (cfg.league !== undefined) start(leagueConfig(cfg.league, nameOrDefault(loadName()), HUMAN_AVATARS[0])); }}
         onPlayAs={(avatar) => start({ ...asShopkeeper(lastConfig ?? game.config, avatar), seed: (Math.random() * 2 ** 31) >>> 0 })}
       />
     );
@@ -207,7 +210,7 @@ function Main() {
   const waiting = waitingGame(game);
   const league = leagueStage();
   // PLAN-115: the screen plays the stage you are on, or a cleared stage again for its stars.
-  const startLeague = (stage = league) => start(leagueConfig(Math.min(stage, LEAGUE.length - 1), nameOrDefault(loadName()), HUMAN_AVATARS[0]));
+  const startLeague = (stage = Math.min(league, LEAGUE.length - 1)) => start(leagueConfig(stage, nameOrDefault(loadName()), HUMAN_AVATARS[0]));
   const close = () => setPopup(null);
   // Starting another game saves over the one that is waiting, so the player is asked first (PLAN-081). It used to be
   // replaced without a word by the Daily market, the Market League and New game.

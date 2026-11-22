@@ -109,13 +109,15 @@ describe('the Market League screen', () => {
     for (const st of LEAGUE) expect(stageRivals(st).map((r) => r.name)).toEqual(st.rivals.map((r) => RIVALS[r.idx % RIVALS.length].name));
   });
 
-  it('opens on the stage the player is on, with its Play button, and lists all six', () => {
+  it('opens on the stage the player is on, with its Play button, and draws all twelve on the road', () => {
     saveLeagueStage(2);
     const html = toStaticHtml(h(LeagueView, { onBack: () => {}, onPlay: () => {}, sel: 2, onPick: () => {} }));
     expect(html).toContain(`Stage 3 of ${LEAGUE.length}`);
     expect(html).toContain('Play stage 3');
     for (const st of LEAGUE) expect(html).toContain(st.title);
-    expect((html.match(/class="jp-lg done"/g) ?? []).length).toBe(2);
+    // PLAN-118: the road's stops (was a list of rows "jp-lg"): two cleared, the third next
+    expect((html.match(/class="lg-stop done/g) ?? []).length).toBe(2);
+    expect((html.match(/class="lg-stop now/g) ?? []).length).toBe(1);
     expect(html).not.toContain('!');
   });
 

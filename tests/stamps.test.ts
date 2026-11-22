@@ -25,11 +25,11 @@ describe('what earns stamps (C2)', () => {
     expect(tierStamps('hard_sweep')).toBe(10);
     expect(tierStamps('not_a_trophy')).toBe(0);
   });
-  it('the catalogue holds 596 stamps in its 112 tiers (579 in 109 before PLAN-115 added League stars)', () => {
+  it('the catalogue holds 647 stamps in its 121 tiers (579 in 109 before PLAN-115 added League stars; PLAN-118 adds 3 mastery trophies of 17 each)', () => {
     const by = { bronze: 0, silver: 0, gold: 0 };
     for (const a of ACHIEVEMENTS) by[a.tier]++;
-    expect(by).toEqual({ bronze: 38, silver: 44, gold: 30 });
-    expect(ACHIEVEMENTS.reduce((a, t) => a + tierStamps(t.id), 0)).toBe(596);
+    expect(by).toEqual({ bronze: 41, silver: 47, gold: 33 });
+    expect(ACHIEVEMENTS.reduce((a, t) => a + tierStamps(t.id), 0)).toBe(647);
   });
   it('adds up a stall\'s stamps from what is stored: games by length, wins, Daily market dates, tiers', () => {
     const s = snap({
