@@ -45,10 +45,11 @@
     "date": "2026-11-22"
   },
   "delivery": "implemented",
-  "release": "1.27.0",
+  "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merges 8b1e3f2 (part A) and part B, fix 9cfe292",
   "reports": [
-    "REP-133"
+    "REP-133",
+    "REP-135"
   ],
   "decisions": [
     "DEC-125"
@@ -68,7 +69,8 @@
       "Daily card shows the prices the game will use on Fixed prices days",
       "Best day matches the day's takings; a missed standing order shows on the one-phone note",
       "Private room: long names wrap; the invite line counts free seats",
-      "Reaction button clear of prices and headers, 44 px touch areas; pop-ups keep keyboard focus; contrast and text size raised"
+      "Reaction button clear of prices and headers, 44 px touch areas; pop-ups keep keyboard focus; contrast and text size raised",
+      "The Daily market on Basic game days no longer stops on the first morning"
     ],
     "removed": []
   },

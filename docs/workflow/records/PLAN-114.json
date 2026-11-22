@@ -51,11 +51,12 @@
     "date": "2026-11-21"
   },
   "delivery": "implemented",
-  "release": "1.27.0",
+  "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge fc24a2b and fix (neutral board name), verified at cc75e1c",
   "reports": [
     "REP-131",
-    "REP-132"
+    "REP-132",
+    "REP-135"
   ],
   "decisions": [
     "DEC-124"

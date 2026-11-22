@@ -50,10 +50,11 @@
     "date": "2026-11-22"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge with PLAN-119, verified at 4cb4dad",
   "reports": [
-    "REP-134"
+    "REP-134",
+    "REP-135"
   ],
   "decisions": [
     "DEC-127"
@@ -69,7 +70,10 @@
       "3 stars a stage: 1 for the clear and 2 optional; earned stars carried over",
       "Results name the missed goal and offer Retry"
     ],
-    "fixed": [],
+    "fixed": [
+      "League stages 8, 9 and 11 no longer stop on the first morning",
+      "Rosa Reads Back compares with Rosa only; an expert stage's first clear says cleared; Pak Din speaks for The Eager Bidder; expert stages named by title"
+    ],
     "removed": []
   },
   "playerNotes": [

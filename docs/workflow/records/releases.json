@@ -632,7 +632,7 @@
       "tagged": true
     },
     {
-      "version": "1.27.0",
+      "version": "1.28.0",
       "status": "candidate",
       "plans": [
         "PLAN-112",
@@ -640,7 +640,9 @@
         "PLAN-114",
         "PLAN-115",
         "PLAN-116",
-        "PLAN-117"
+        "PLAN-117",
+        "PLAN-118",
+        "PLAN-119"
       ],
       "notes": [
         "Online: start a public room and anyone can find it in the new Public rooms list and join",
@@ -661,9 +663,16 @@
         "The Daily card shows the real prices on Fixed prices days",
         "League: host lines match what you did, and the resort-order star is $8",
         "Clearer screens: tap a small card to see it whole, long names fit, bigger tap targets",
-        "Daily market and Sprint: all three rivals now play at Normal; scores start on a fresh board"
+        "Daily market and Sprint: all three rivals now play at Normal; scores start on a fresh board",
+        "Market League Chapter 1: 12 stages, each a new market problem, from 1-day puzzles to a 6-day finale",
+        "A League road shows your next stage, your stars and the next trophy; two expert stages open with stars",
+        "New mastery trophies: Contract Trader, Night Market Regular and Market Reader",
+        "A clearer Play menu: Normal game, Market League, Daily market and Sprint, each with what it is for",
+        "The weekly Sprint ranking counts your best 5 days",
+        "Sprint results name the moment that decided your run",
+        "The Daily market on Basic game days no longer stops on the first morning"
       ],
-      "date": "2026-11-21",
+      "date": "2026-11-22",
       "commit": "",
       "tagged": false
     }

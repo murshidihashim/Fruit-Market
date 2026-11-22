@@ -42,10 +42,11 @@
     "date": "2026-11-22"
   },
   "delivery": "implemented",
-  "release": "unreleased",
+  "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge 3b16043, verified at 4cb4dad",
   "reports": [
-    "REP-134"
+    "REP-134",
+    "REP-135"
   ],
   "decisions": [
     "DEC-127"
@@ -60,7 +61,8 @@
       "The weekly Sprint ranking counts each player's best 5 days"
     ],
     "fixed": [
-      "The Play menu says \"1 day\" for a 1-day stage"
+      "The Play menu says \"1 day\" for a 1-day stage",
+      "The Sprint's decisive moment never claims a loss on fruit that sold anyway"
     ],
     "removed": []
   },

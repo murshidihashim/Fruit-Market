@@ -52,12 +52,13 @@
     "date": "2026-11-20"
   },
   "delivery": "implemented",
-  "release": "1.27.0",
+  "release": "1.28.0",
   "build": "branch ccr-d8bcd65d-gblqqb, merge d0cc64b",
   "reports": [
     "REP-128",
     "REP-130",
-    "REP-132"
+    "REP-132",
+    "REP-135"
   ],
   "decisions": [
     "DEC-122"
