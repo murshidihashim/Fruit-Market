@@ -143,7 +143,7 @@ describe('rules 20 and saved games', () => {
     const g = structuredClone(newGame({ players: [{ name: 'A', kind: 'human', avatar: '🦊' }, { name: 'B', kind: 'ai', level: 'normal', avatar: '🐸' }], days: 8, unripe: true, upgrades: true, events: true, seed: 5 }));
     g.day = 8;
     expect(RULES_VERSION).toBe(20);
-    expect(AI_VERSION).toBe(7);
+    expect(AI_VERSION).toBe(8);
     mem.set('fm.save', JSON.stringify({ v: SAVE_VERSION, rules: 19, ai: 6, game: g }));
     expect(loadGame()).toBeNull();
     expect(consumeSaveNotice()).toBe('Your unfinished game used older rules and could not be continued.');

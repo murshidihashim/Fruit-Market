@@ -113,9 +113,10 @@ function dueDay(g: GameState, stock: Record<number, number[]>): GameState {
 // ---------------------------------------------------------------------------------------------------------------------
 
 describe('J. versions', () => {
-  it('rules version 20 (rules 18, the standing-order numbers of PLAN-095 and no Closing Day), computer players version 7', () => {
+  it('rules version 20 (rules 18, the standing-order numbers of PLAN-095 and no Closing Day), computer players version 8', () => {
     expect(RULES_VERSION).toBe(20);
-    expect(AI_VERSION).toBe(7);
+    // 8 since PLAN-117: the same computer players, the Daily's rivals all at Normal.
+    expect(AI_VERSION).toBe(8);
   });
 });
 

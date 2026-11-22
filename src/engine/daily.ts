@@ -24,13 +24,21 @@ export function dailyTwist(date: string): Twist {
   return TWISTS[((day % TWISTS.length) + TWISTS.length) % TWISTS.length];
 }
 
+/**
+ * PLAN-117: the level the Daily's three computer rivals play at (Daily market and Sprint alike). Uncle Benny played at
+ * Hard until 1.27.0 and won about two Daily markets in three (REP-133, A-09). The level is part of what the server
+ * replays, so a change here comes with a new computer-player version (AI_VERSION, src/net/protocol.ts): scores from
+ * the old and the new set-up are kept on separate boards, and an old phone is asked to update before it sends one.
+ */
+export const DAILY_LEVEL = 'normal' as const;
+
 export function dailyConfig(date: string, name: string, avatar = DAILY_AVATAR): GameConfig {
   return {
     players: [
       { name, kind: 'human', avatar },
-      { ...RIVALS[0], kind: 'ai', level: 'normal' },
-      { ...RIVALS[1], kind: 'ai', level: 'hard' },
-      { ...RIVALS[2], kind: 'ai', level: 'normal' },
+      { ...RIVALS[0], kind: 'ai', level: DAILY_LEVEL },
+      { ...RIVALS[1], kind: 'ai', level: DAILY_LEVEL },
+      { ...RIVALS[2], kind: 'ai', level: DAILY_LEVEL },
     ],
     days: 10, unripe: true, upgrades: true, events: true,
     seed: seedFromString(`fruit-market-daily-r13-${date}`), daily: date,

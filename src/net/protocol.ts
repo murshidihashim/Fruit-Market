@@ -11,9 +11,12 @@ export const RULES_VERSION = 20;
  * replaying the game with the server's computer players (server/meta.ts verifyDaily), so a daily must be submitted and
  * replayed with the same version, and each version has its own daily board. Online rooms don't need it: their computer
  * players run only on the room server. 1 = up to 1.8.0; 2 = Closing Day jam value and the real tie order (PLAN-051);
- * 7 = rules 20 (PLAN-108): no jam value, so on the last day fruit left over is worth $0 to them.
+ * 7 = rules 20 (PLAN-108): no jam value, so on the last day fruit left over is worth $0 to them; 8 = PLAN-117: the
+ * Daily market's and the Sprint's three rivals all play at Normal (Uncle Benny was Hard). The computer players
+ * themselves did not change, but the games the server replays did: a version bump gives the new set-up its own Daily
+ * and Sprint boards (their keys carry this number), and a phone still on 7 is sent UPDATE_MSG when it sends a score.
  */
-export const AI_VERSION = 7;
+export const AI_VERSION = 8;
 /** Bump whenever the messages between phones and the room server change, so old and new builds never share a room
  *  (3, PLAN-023: undo and rename; 4, PLAN-102: shopkeepers are chosen after the host starts a private room; 5, PLAN-112:
  *  public rooms, starting with computers after a wait, and preset reactions). */

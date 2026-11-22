@@ -416,7 +416,9 @@ Rules version 5 (PLAN-020, REP-049 and REP-050). Rules version 4 (REP-031 to REP
 
 Each day has a small twist, the same for everyone, rotating through seven: the usual game, a quick 8-day game, no upgrades, fixed prices, no events, a long 14-day game, and the basic game.
 
-Everyone in the world plays the same shuffled decks each day: you against Rosa (Normal), Uncle Benny (Hard) and Ah Chen (Normal) over 10 days (8 days on a quick game day, 14 on a long game day). On a fixed prices day generous customers still pay $2 more, as in the playtest option above. A basic game day has no perks, favour cards, upgrades or standing orders. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
+Everyone in the world plays the same shuffled decks each day: you against Rosa, Uncle Benny and Ah Chen, all three Normal computers, over 10 days (8 days on a quick game day, 14 on a long game day). (PLAN-117: until 1.27.0 Uncle Benny played at Hard and won about two Daily markets in three; at Normal each of the four stalls wins about a quarter. Scores from then are on boards of their own.) On a fixed prices day generous customers still pay $2 more, as in the playtest option above. A basic game day has no perks, favour cards, upgrades or standing orders. Scores are kept per rules version, and per version of the app's computer players (scores are checked by replaying the game with them).
+
+**The Sprint.** A second Daily format: 3 days, the same three rivals at Normal, its own shuffled decks each day (never the Daily market's), no upgrades and no twist. Your perk is dealt as below.
 
 **Your perk.** You play as yourself, not as a shopkeeper. On the first morning you are dealt 3 of the perks no rival holds and keep one: here 3 of the 5 that Rosa (Haggler), Uncle Benny (Big Basket) and Ah Chen (Charmer) do not hold. If fewer than 3 were free, you would be dealt those that are. (Rules 20. Before, the 3 came from all 8, so a rival's perk could be offered and two stalls could hold the same one.) On a Basic game day there are no perks.
 
