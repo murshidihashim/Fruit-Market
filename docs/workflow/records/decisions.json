@@ -3256,10 +3256,12 @@
         "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
         "date": "2026-11-23"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-123",
       "reviewTrigger": "After the owner sees it on the preview.",
-      "reports": []
+      "reports": [
+        "REP-138"
+      ]
     }
   ],
   "history": [
@@ -4718,6 +4720,10 @@
     {
       "at": "2026-11-23 07:35",
       "text": "DEC-131 and PLAN-123 approved by the owner (a release-quality bug-fix and polish pass on the preview). The preview serves commit 897e581 (bundle index-77KkSaxV.js, the same as a local build of main). Assumptions: no rule, balance or save change; the Sprint perk stays and is explained; publishing to the live game needs a separate word."
+    },
+    {
+      "at": "2026-11-23 10:19",
+      "text": "PLAN-123 implemented on the branch (REP-138): the eight preview findings reproduced and fixed, journey, animation and settings polish; npm run verify PASS (1263); browser run E2E OK with 0 leaks; extra play-throughs PASS. Not run: real phones; online flows by hand. Next: the preview for the owner's review."
     }
   ]
 }
