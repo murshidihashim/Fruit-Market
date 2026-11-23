@@ -4786,6 +4786,10 @@
     {
       "at": "2026-11-23 20:02",
       "text": "PLAN-125 implemented on the branch: four modes, Quick Match 2/4/6 with computer fill (server queue per size, old apps get 2), the one-page set-up in design B, the Private Room page and pick screen. verify PASS (1295); browser run PASS except the performance budget, which the previous build also fails on this machine (CI passed it); 33 merged helper folders removed to free disk."
+    },
+    {
+      "at": "2026-11-23 20:58",
+      "text": "PLAN-124 follow-up on the owner's question (\"why is it so thin?\" on a computer screen): on screens 760 px wide or more, Home uses a 720 px column and the hero card, mode tabs and Play button sit together in the middle instead of the card stretching down a tall window. Phones unchanged. No scrolling at 1061x1279, 1280x800, 820x1180, 390x844 and 360x640 on every tab."
     }
   ]
 }

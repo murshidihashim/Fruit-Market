@@ -323,3 +323,21 @@
 .ji-cont { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
 .ji-cont small { font: 700 0.8rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; }
 
+
+/* PLAN-125 follow-up: on a tablet or computer screen Home uses a wider column, and the hero card keeps its own height
+   (centred between the title and the bottom bar) instead of stretching down a tall window. Phones are unchanged. */
+@media (min-width: 760px) {
+  .home.hm.jh .hm-in { max-width: 720px; }
+  #app .jh-nav3 { padding-left: max(env(safe-area-inset-left), calc((100% - 720px) / 2)); padding-right: max(env(safe-area-inset-right), calc((100% - 720px) / 2)); }
+  .home.hm.jh .hm-rest { justify-content: center; }
+  .home.hm.jh .jh-panel { flex: 0 0 auto; margin: 0; }
+  .home.hm.jh .jh-hero, .home.hm.jh .jh-hb { flex: 0 0 auto; }
+  .home.hm.jh .jh-hb { gap: 14px; padding: 14px; }
+  .home.hm.jh .jh-lgpic { flex: 0 0 auto; height: 240px; max-height: none; }
+  .home.hm.jh .jh-hhd h2 { font-size: 1.75rem; }
+  .home.hm.jh .jh-hhd small { font-size: 0.9375rem; }
+}
+@media (min-width: 760px) and (max-height: 900px) {
+  .home.hm.jh .jh-hb { gap: 8px; padding: 10px; }
+  .home.hm.jh .jh-lgpic { height: 120px; }
+}
