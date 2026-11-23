@@ -117,11 +117,12 @@ export function shelfRowText(s: GameState, p: number, f: FruitId, pos: number): 
 
 /**
  * PLAN-123 (finding 3): a shelf row's count in the same words on screen and in its spoken label. The crate is filled
- * from the shelf, so a piece in the crate is still one you own: "1 owned · 1 in crate" (the − and + say the crate's
- * part), never "1 on shelf" beside "1 in crate" for one piece. `k`: how many are in the crate (null: green, not for sale).
+ * from the shelf, so a piece in the crate is still one you own: "1 owned" beside "1 in crate" (the − and + say the
+ * crate's part; the spoken label also says how many stay on the shelf), never "1 on shelf" beside "1 in crate" for one
+ * piece. `k`: how many are in the crate (null: green, not for sale).
  */
 export function ownedLine(n: number, k: number | null): string {
-  return k === null ? `${n} owned · not ripe` : k > 0 ? `${n} owned · ${n - k} stay on shelf` : `${n} owned`;
+  return k === null ? `${n} owned · not ripe` : `${n} owned`;
 }
 export function rowWords(f: FruitId, word: string, n: number, k: number | null): string {
   return `${FRUIT[f].name}, ${word}: ${n} owned${k === null ? ', not ripe yet' : `, ${k} in your crate, ${n - k} stay on your shelf`}`;

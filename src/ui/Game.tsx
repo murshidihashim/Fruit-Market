@@ -287,6 +287,7 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, evP) : undefined}
           onPick={s.phase === 'buy' && activeHuman && !c.guiding && !c.handoffDue && (!busy || c.ownBeat) ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
+          why={s.phase === 'buy' && !c.handoffDue && s.players[viewer]?.kind === 'human' ? (f, pos) => canBuy(s, viewer, f, pos) : undefined}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
         {/* where the picture of a panel that has just left slides off (sheet.ts) */}
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />

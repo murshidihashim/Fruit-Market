@@ -82,6 +82,19 @@ describe('finding 1: the lanes before the lorry has landed', () => {
   });
 });
 
+describe('a box that cannot be bought from says why', () => {
+  it('the reason is said with the box (and shown on hover), only for a box that holds fruit', () => {
+    const s = playTo(game(3), (x) => x.phase === 'buy' && x.day === 1 && x.order[x.turn] !== 0);
+    const html = toStaticHtml(h(Market, { s, p: 0, why: (f, pos) => canBuy(s, 0, f, pos) }));
+    const full = FRUITS.flatMap((f) => s.market[f].map((n, pos) => ({ f, pos, n }))).find((x) => x.n > 0)!;
+    const box = html.split(`data-a="m-${full.f}-${full.pos}"`)[1].split('>')[0];
+    expect(box).toContain('. Not your turn"');
+    expect(html).toContain('title="Not your turn"');
+    const empty = FRUITS.flatMap((f) => s.market[f].map((n, pos) => ({ f, pos, n }))).find((x) => x.n === 0)!;
+    expect(html.split(`data-a="m-${empty.f}-${empty.pos}"`)[1].split('>')[0]).not.toContain('Not your turn');
+  });
+});
+
 describe('finding 2: a purchase changes every number in the same frame', () => {
   function purchase() {
     const prev = playTo(game(2, 2), (x) => x.phase === 'buy' && x.day === 2);

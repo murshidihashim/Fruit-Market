@@ -60,12 +60,15 @@ export interface NightLanes { steps: number; go: boolean; rest: boolean }
  * is drawn as an empty box. `market`: the pieces to draw (held back while a piece is on its way). `night`: every piece
  * slides along its lane and a piece leaving the last box tips off (the night's own script says when).
  */
-export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night, due }: {
+export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night, due, why }: {
   s: GameState; p: number; market: Stock; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void; night?: NightLanes;
   /** PLAN-123 (finding 1): pieces on today's lorry that have not landed yet, by box. Such a box is drawn with a faint
    *  piece and says it is coming, never as an empty, sold-out box. */
   due?: Stock;
+  /** PLAN-123: why a box that holds fruit cannot be bought from now ("Not your turn", "Not enough cash"), said with
+   *  the box (null: nothing to say). */
+  why?: (f: FruitId, pos: number) => string | null;
 }) {
   const pz = pulse(s);
   const view = market === s.market ? s : { ...s, market };
@@ -90,10 +93,11 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night, due
               const has = !slide ? n > 0 : night.rest ? after > 0 : n > 0 && after > 0;
               const coming = night ? 0 : due?.[f]?.[pos] ?? 0;
               const left = coming ? (n ? `${n} here, ${coming} more on today's lorry` : `${coming} on today's lorry`) : `${n} left`;
+              const no = !ok && n > 0 && !night ? why?.(f, pos) ?? null : null;
               return (
                 <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${has ? 'has' : ''} ${coming ? 'due' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${left}`}>
+                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${left}${no ? `. ${no}` : ''}`} title={no ?? undefined}>
                   <Lamp stage={stage} on={has || coming > 0} size={14} />
                   {/* not landed yet: a faint piece with how many are coming */}
                   {!n && coming > 0 && <span class="tb-pc tb-due" aria-hidden="true"><i class="tb-tkn"><Fruit id={f} size={17} stage={stage} /></i>{coming > 1 && <b class="tb-n">×{coming}</b>}</span>}
@@ -122,7 +126,7 @@ export const laneRows = (s: GameState): number => Math.max(...FRUITS.map((f) => 
  * lanes show the market as it stood before the lorry (tableModel.marketBefore), and a box's number drops as a piece
  * lifts out of it (tableShown.ts).
  */
-export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover }: {
+export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover, why }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
   /** A line under the market's label (the evening's warning: what spoils tonight). */
@@ -131,6 +135,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover }: {
   lorry?: boolean;
   /** PLAN-123: the stall whose purchases are travelling now (the game has already moved on to the next stall). */
   mover?: number | null;
+  /** PLAN-123: why a box cannot be bought from now (MarketLanes). */
+  why?: (f: FruitId, pos: number) => string | null;
 }) {
   // The lorry's load is in the game from dawn; on the table it is unloaded as buying starts.
   const market = s.phase === 'morning' || s.phase === 'order' ? marketBefore(s) : shownMarket(s.market);
@@ -160,7 +166,8 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover }: {
           : lorryLine ? <span class="tk-side">{lorryLine}</span>
           : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
       </div>
-      <MarketLanes s={s} p={p} market={market} onPick={onPick} canPick={canPick} onPulse={onPulse} due={due ?? undefined} />
+      <MarketLanes s={s} p={p} market={market} onPick={onPick} canPick={canPick} onPulse={onPulse} due={due ?? undefined}
+        why={why && !tokenOnItsWay() ? why : undefined} />
       {/* Shown where the lanes leave room for it (table.css): the letters, and tomorrow's lorry. */}
       <div class="tb-mk-foot">
         <div class="tk-legend" role="note" aria-label="The letters on the boxes: G is green and not ripe yet, F is fresh, O is okay, S is soft">
