@@ -20,7 +20,8 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // PLAN-123 (finding 1): while a rival's purchases are still travelling the game has already passed the turn on, so
   // the bar says whose purchases they are, and this stall's buttons come once they have landed.
   const rivalBeat = busy && s.phase === 'buy' && c.mover !== null && !c.ownBeat;
-  const myBuy = s.phase === 'buy' && activeHuman && !!pl && !c.handoffDue && !rivalBeat;
+  // (and only once the market can be bought from: not while the lorry or the First token's beat still plays)
+  const myBuy = s.phase === 'buy' && activeHuman && !!pl && !c.handoffDue && !rivalBeat && (!busy || c.ownBeat);
   const rivalBuy = s.phase === 'buy' && (!activeHuman || rivalBeat);
   const buyer = rivalBeat && c.mover !== null ? s.players[c.mover] : pl;
   // The lorry is unloading: buying has just started and a crate has not landed yet (PLAN-123: read from the lanes as
