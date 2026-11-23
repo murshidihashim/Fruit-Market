@@ -48,7 +48,7 @@ function play(cfg: GameConfig): GameState {
 }
 
 describe('the results as they first show', () => {
-  it('the stamps header says they are being added up, not +0; the Sprint box comes first with the table place, the board, Try again and the perk', () => {
+  it('the stamps header says they are being added up, not +0; the Sprint box comes first with the table place, the board and the perk', () => {
     const s = play(sprintConfig('2026-11-22', 'Tester'));
     const html = toStaticHtml(h(Results, { s, viewer: 0, onExit: () => {}, onRematch: () => {} }));
     const total = /data-a="stamps-total"[^>]*>([^<]*)</.exec(html)?.[1];
@@ -58,7 +58,8 @@ describe('the results as they first show', () => {
     expect(html.indexOf('data-a="sprint-result"')).toBeLessThan(html.indexOf('jp-pods'));
     expect(html).toMatch(/\d+(st|nd|rd|th) at this table/);
     expect(html).toContain('Checking the board');
-    expect(html).toContain('data-a="sprint-try-top"');
+    // Try again is the footer's main button (always in view), with its line
+    expect(html).toContain('Try again: the same Sprint from the start.');
     expect(html).toContain('Your perk: ');
   });
 });

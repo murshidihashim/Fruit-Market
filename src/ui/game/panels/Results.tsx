@@ -16,7 +16,7 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
-import { stageLabel } from '../../campaign';
+import { stageByNo, stageLabel } from '../../campaign';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -88,6 +88,17 @@ async function flyStamp(from: Element, to: Element): Promise<void> {
     el.animate([{ transform: at(a, 0.5) }, { transform: at(b, 1.25), offset: 0.7 }, { transform: at(b, 1) }], { duration: length, easing: A.EASE.travel, fill: 'forwards' });
     await A.timer(length + A.FRAME);
   } finally { el.remove(); }
+}
+
+/**
+ * PLAN-123: the line over a League stage's main button: what it starts and what that stage asks of you ("Next stage:
+ * Pasar Malam. Sell 6 ..."), or, when the stage was not cleared, the goal that clears it.
+ */
+export function leagueNext(league: number, cleared: boolean): string {
+  const next = cleared ? LEAGUE[league + 1] : stageByNo(league);
+  if (cleared && !next) return 'Chapter 1 is cleared. Your stamp book has the rewards.';
+  if (!next) return '';
+  return cleared ? `Next stage: ${next.title}. To clear it: ${next.clear.text.replace(/\.$/, '')}.` : `To clear this stage: ${next.clear.text.replace(/\.$/, '')}.`;
 }
 
 /** PLAN-123: what the stamps header says while the stamps are still landing. */
@@ -362,7 +373,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
   // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
-  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
+  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
   const myLook = lookOfSeat(owner);
   const cols = order.length <= 4 ? order.length : 3;
   return (
@@ -375,7 +386,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
         </div>
 
         {/* PLAN-123: the Sprint's box (this run, your best, the board and Try again) comes first, under the headline. */}
-        {sprint && <SprintResult s={s} onRetry={onRematch} />}
+        {sprint && <SprintResult s={s} />}
 
         <ol class="jp-pods podium" style={{ '--n': cols }}>
           {order.map((i) => {
@@ -398,7 +409,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           })}
         </ol>
 
-        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} onMain={onRematch} onRetry={cleared ? onRetry : undefined} />}
+        {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
 
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
@@ -434,7 +445,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
-            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry} aria-label={retry}>Retry</button>}
+            {league !== undefined && cleared && onRetry && <button class="jp-sec" data-a="stage-retry" onClick={onRetry}>{retry}</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>

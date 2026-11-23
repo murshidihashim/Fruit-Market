@@ -102,17 +102,10 @@ export function MasteryList({ stage, have, fresh = [], met }: { stage: number; h
  * was missed), then (on a campaign stage) its host's line after the game (when the stage was cleared, its after-game
  * line chosen by the stars this game earned, so it never claims what you did not do; when it was not, its line before
  * the game and the stage's lesson) and the stage's stars, each saying what this game did about it.
- * PLAN-123: the next action sits right under the stars: Next stage (with its name) when the stage was cleared, Retry
- * otherwise; and the stars this game earned first are revealed one after another once the result is shown (at once
- * with reduced motion; a tap on the page hurries it).
+ * PLAN-123: the stars this game earned first are revealed one after another once the result is shown (at once with
+ * reduced motion). The next action (Next stage or Retry, with the goal it asks for) is the results' own footer.
  */
-export function StageEnd({ s, owner, cleared, fresh, onMain, onRetry }: {
-  s: GameState; owner: number; cleared: boolean; fresh: readonly string[];
-  /** The results' main action: Next stage when cleared (the stamp book after the last stage), else Retry. */
-  onMain?: () => void;
-  /** Retry the same stage, offered beside Next stage when the stage was cleared. */
-  onRetry?: () => void;
-}) {
+export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: number; cleared: boolean; fresh: readonly string[] }) {
   const at = s.config.league;
   const st = stageByNo(at);
   if (at === undefined || !st) return null;
@@ -124,8 +117,6 @@ export function StageEnd({ s, owner, cleared, fresh, onMain, onRetry }: {
     // REP-135 RA-04: an expert stage never moves you up, so its first clear is the one whose clear star is new.
     : met && expert && fresh.includes(st.clear.id) ? `${st.title} cleared.`
     : met ? `${st.title}: cleared again.` : expert ? `${st.title}: not cleared yet.` : `Market League: clear ${st.title} to move up.`;
-  const retryWord = expert ? 'Retry this expert stage' : `Retry stage ${at + 1}`;
-  const main = cleared ? (last ? 'Open your stamp book' : `Next stage: ${LEAGUE[at + 1].title}`) : retryWord;
   return (
     <div class="jp-stage-end" ref={revealStars}>
       <p class={`sbk-note ${cleared || met ? 'good' : ''}`}>{note}</p>
@@ -137,12 +128,6 @@ export function StageEnd({ s, owner, cleared, fresh, onMain, onRetry }: {
           <span class="sbk-lab">Stars for this stage</span>
           <MasteryList stage={at} have={myStars()} fresh={fresh} met={starsEarned(s, owner)} />
         </>
-      )}
-      {onMain && (
-        <div class="jp-stage-acts" data-a="stage-actions">
-          <button type="button" class="sbk-btn jp-stage-go" data-a="stage-main" onClick={onMain}>{main}</button>
-          {cleared && onRetry && <button type="button" class="sbk-btn gh" data-a="stage-retry" onClick={onRetry}>{retryWord}</button>}
-        </div>
       )}
     </div>
   );

@@ -17,6 +17,7 @@ import { STAR_WORD, starState } from '../src/ui/StageMoment';
 import { loadSprintBest } from '../src/ui/sprintStore';
 import { loadSettings, loadStats, saveSettings } from '../src/ui/store';
 import { fx } from '../src/ui/fx';
+import { leagueNext } from '../src/ui/game/panels/Results';
 
 const store = new Map<string, string>();
 beforeEach(() => {
@@ -154,6 +155,14 @@ describe('finding 8: the League\'s next trophy, star totals and closed stages', 
     expect(starState('a', ['a'], [], [])).toBe('held');
     expect(starState('a', [], [], [])).toBe('missed');
     expect(Object.values(STAR_WORD)).toEqual(['New', 'Met again', 'Earned before', 'Missed']);
+  });
+});
+
+describe('League results: the next action says what it asks of you', () => {
+  it('cleared: the next stage by name and its clear goal; not cleared: the goal that clears this stage', () => {
+    expect(leagueNext(0, true)).toBe(`Next stage: ${LEAGUE[1].title}. To clear it: ${LEAGUE[1].clear.text.replace(/\.$/, '')}.`);
+    expect(leagueNext(0, false)).toBe('To clear this stage: Win the stage. A shared win counts.');
+    expect(leagueNext(LEAGUE.length - 1, true)).toBe('Chapter 1 is cleared. Your stamp book has the rewards.');
   });
 });
 

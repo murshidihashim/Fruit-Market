@@ -44,10 +44,8 @@
 .sbk .jp-missed b { color: var(--k-red-d); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.75rem; }
 .sbk .lg-trophy-tx small { font: 600 0.75rem/1.25 var(--f-label); color: var(--k-ink); }
 
-/* PLAN-123: on the results, each star says what this game did about it; the stage's next action sits under its stars. */
+/* PLAN-123: on the results, each star says what this game did about it. */
 .sbk .jp-ms-tag { flex: none; margin-left: auto; padding: 2px 5px; font: 800 0.625rem/1 var(--f-label); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; border: 1.5px solid var(--k-ink); }
 .sbk .jp-ms-tag.new { background: var(--k-yel); }
 .sbk .jp-ms-tag.again, .sbk .jp-ms-tag.held { background: var(--k-pale); }
 .sbk .jp-ms-tag.missed { border-color: var(--k-red-d); color: var(--k-red-d); }
-.sbk .jp-stage-acts { display: flex; flex-direction: column; gap: 6px; margin: 4px 12px 0; }
-.sbk .jp-stage-acts .sbk-btn { flex: none; width: 100%; }

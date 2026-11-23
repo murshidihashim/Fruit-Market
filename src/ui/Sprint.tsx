@@ -91,11 +91,11 @@ export function runLine(s: GameState, me: number): { text: string; good: boolean
 /**
  * The Sprint on the results: sends the finished game to be checked (or, opened again, reads the boards), then shows
  * this run (its cash and your place at this table), your best today, your place on today's board (PLAN-123: the table
- * and the board are told apart), Try again near the top, the perk you played with, one moment from this game, and the
- * boards. Checking again never counts the run's stamps a second time: they are counted once, by the results
+ * and the board are told apart; Try again is the results' footer, always in view), the perk you played with, one
+ * moment from this game, and the boards. Checking again never counts the run's stamps a second time: they are counted once, by the results
  * (progress.ts finishGame), and the board keeps one line per phone.
  */
-export function SprintResult({ s, onRetry }: { s: GameState; onRetry?: () => void }) {
+export function SprintResult({ s }: { s: GameState }) {
   const date = s.config.daily ?? '';
   const [res, setRes] = useState<SprintBoards | null>(null);
   const [tries, setTries] = useState(0);
@@ -124,7 +124,6 @@ export function SprintResult({ s, onRetry }: { s: GameState; onRetry?: () => voi
         <span>{board.place ? <>Today's board <b>{board.place}</b></> : board.text}</span>
         {board.retry && <button type="button" class="sp-again" data-a="sprint-board-retry" onClick={() => setTries((n) => n + 1)}>Check again</button>}
       </div>
-      {onRetry && <button type="button" class="sbk-btn sp-try" data-a="sprint-try-top" onClick={onRetry}>Try again</button>}
       {perk && <span class="sbk-sub sp-perk" data-a="sprint-perk">{perk}</span>}
       {line && (
         <div class="sp-moment" data-a="sprint-moment">
