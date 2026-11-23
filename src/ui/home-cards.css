@@ -341,3 +341,16 @@
   .home.hm.jh .jh-hb { gap: 8px; padding: 10px; }
   .home.hm.jh .jh-lgpic { height: 120px; }
 }
+
+/* Owner, 2026-11-23 ("still doesn't work on my phone"): on a phone the Custom card no longer leaves an empty band of
+   green. Its four ways grow to share the spare height, with bigger words, and the faces sit just under them. */
+@media (max-width: 759px) {
+  .home.hm.jh .jh-hero-custom .jh-hb { justify-content: flex-start; }
+  .home.hm.jh .jh-hero-custom .jh-ways2 { flex: 1 1 auto; grid-auto-rows: 1fr; }
+  .home.hm.jh .jh-hero-custom .jh-way { justify-content: center; }
+}
+@media (max-width: 759px) and (min-height: 760px) {
+  .home.hm.jh .jh-hero-custom .jh-way { gap: 6px; padding: 10px 12px; }
+  .home.hm.jh .jh-hero-custom .jh-way b { font-size: 1.25rem; }
+  .home.hm.jh .jh-hero-custom .jh-way span { font-size: 0.875rem; }
+}

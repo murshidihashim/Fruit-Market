@@ -4790,6 +4790,10 @@
     {
       "at": "2026-11-23 20:58",
       "text": "PLAN-124 follow-up on the owner's question (\"why is it so thin?\" on a computer screen): on screens 760 px wide or more, Home uses a 720 px column and the hero card, mode tabs and Play button sit together in the middle instead of the card stretching down a tall window. Phones unchanged. No scrolling at 1061x1279, 1280x800, 820x1180, 390x844 and 360x640 on every tab."
+    },
+    {
+      "at": "2026-11-24 00:38",
+      "text": "Owner: \"no it still doesnt work on my phone\". The preview at 412x915 still showed the Custom card stretched with an empty green band under the four ways (the earlier fix was for wide screens only). Fixed: on phones the four ways grow to share the spare height with bigger words; no scrolling at 412x915, 390x844, 360x640 and 1061x1279."
     }
   ]
 }
