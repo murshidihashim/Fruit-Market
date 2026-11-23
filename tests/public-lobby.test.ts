@@ -63,7 +63,7 @@ describe('the host\'s offer to start with computers', () => {
   });
   it('is not made to a guest, in a quick match, or when no seat is free', () => {
     expect(computersOffer(room([seat(0), seat(1)], { you: 1 }), t0, t0 + COMPUTERS_AFTER_MS)).toBeNull();
-    expect(computersOffer(room([seat(0)], { quick: true }), t0, t0 + COMPUTERS_AFTER_MS)).toBeNull();
+    expect(computersOffer(room([seat(0)], { quick: { stalls: 2 } }), t0, t0 + COMPUTERS_AFTER_MS)).toBeNull();
     expect(computersOffer(room([seat(0), seat(1)], { config: { ...DEFAULT_CONFIG, ai: 4 } }), t0, t0 + COMPUTERS_AFTER_MS)).toBeNull();
   });
 });
