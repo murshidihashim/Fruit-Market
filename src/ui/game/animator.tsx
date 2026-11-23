@@ -7,7 +7,7 @@ import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { laneClass } from '../cards';
 import { holdCash, payCash, shownCash, takeCash } from '../cashShown';
-import { landPiece, liftPiece, lineShown, payShown, releaseRush, serveLine, showFavour } from '../rushShown';
+import { landPiece, liftPiece, payShown, releaseRush, serveLine, showFavour } from '../rushShown';
 import { releaseStock, sellStock, stockHeld } from '../stockShown';
 import { deliveryBoxes } from '../tableModel';
 import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
@@ -230,6 +230,10 @@ export async function arrive(ids: number[]) {
 
 /** Pays a stall on the table (cashShown.ts: its total counts up), and keeps the count so the rush can wait for it to end. */
 type Pay = (player: number, amount: number) => void;
+/** True the first time it is asked about a payment (by its name), false after: each payment of the rush is shown once,
+ *  whether its coin lands or Skip settles it first (PLAN-123: a coin still in the air as Skip settles its customer must
+ *  not pay the stall a second time). */
+type Once = (key: string) => boolean;
 
 /** A thing on the round table (panels/RushTable.tsx), or null when it is not on the screen. */
 const onTable = (sel: string): Element | null => document.querySelector(`.rush-table ${sel}`);
@@ -243,7 +247,7 @@ const crateOf = (player: number) => `rt-crate-${player}`;
  * customer fills as it lands; the stall's cash counts up, its shelf drops and its crate says what it was paid as its
  * first coin lands. When everything has landed the fruit's offers are marked (rushShown.ts).
  */
-async function sellBlock(card: RushCard, b: RushBlock, viewer: number, pay: Pay) {
+async function sellBlock(card: RushCard, b: RushBlock, viewer: number, pay: Pay, once: Once) {
   const r = A.BEAT.rush;
   const jobs: Promise<void>[] = [];
   const want = `.rt-cust .rt-w.${laneClass(b.fruit)}`;
@@ -271,8 +275,16 @@ async function sellBlock(card: RushCard, b: RushBlock, viewer: number, pay: Pay)
     for (let k = 0; k < Math.min(row.sold, MAX_COINS); k++) {
       jobs.push(A.fly(to, cash, <Coin size={k ? 20 : 24} />, {
         delay: last + A.FEEL.travel + k * r.coinGap, duration: A.FEEL.coin, path: 'low',
-        // This customer's payment lands now, so the stall's total climbs here and not before, and the pieces leave its shelf.
-        onLand: k ? undefined : () => { fx.coin(); pay(row.player, row.paid); sellStock(row.player, b.fruit, row.sold); payShown(card.customerId, b.fruit, row.player); },
+        // This customer's payment lands now, so the stall's total climbs here and not before, and the pieces leave its
+        // shelf; your own cash says what came in, as it says what a purchase cost (PLAN-123).
+        onLand: k ? undefined : () => {
+          if (!once(saleKey(card, b, row.player))) return;
+          fx.coin();
+          pay(row.player, row.paid);
+          if (row.player === viewer) A.floatText(cash, `+$${row.paid}`);
+          sellStock(row.player, b.fruit, row.sold);
+          payShown(card.customerId, b.fruit, row.player);
+        },
       }));
     }
   }
@@ -285,10 +297,10 @@ async function sellBlock(card: RushCard, b: RushBlock, viewer: number, pay: Pay)
  * as a coin from the customer to the stall, and a favour card won for serving the whole order alone, which slides from
  * the customer's picture to the crate of the stall that won it (face up to this stall, face down to every other).
  */
-async function gifts(card: RushCard, viewer: number, pay: Pay) {
+async function gifts(card: RushCard, viewer: number, pay: Pay, once: Once) {
   const from = onTable('.rt-cust .rt-pic') ?? 'rs-card';
-  const jobs = card.extras.map((x) => A.fly(from, x.player === viewer ? `p${viewer}-cash` : crateOf(x.player), <Coin size={24} />, {
-    duration: A.FEEL.coin, path: 'low', onLand: () => { fx.coin(); pay(x.player, x.amount); },
+  const jobs = card.extras.map((x, i) => A.fly(from, x.player === viewer ? `p${viewer}-cash` : crateOf(x.player), <Coin size={24} />, {
+    duration: A.FEEL.coin, path: 'low', onLand: () => { if (once(extraKey(card, i))) { fx.coin(); pay(x.player, x.amount); } },
   }));
   const f = card.favour;
   if (f) {
@@ -299,10 +311,14 @@ async function gifts(card: RushCard, viewer: number, pay: Pay) {
   await Promise.all(jobs);
 }
 
+/** The names of a rush's payments (Once): a stall's money for one fruit of a customer, and money that comes with the customer. */
+const saleKey = (card: RushCard, b: RushBlock, player: number) => `${card.customerId}:${b.fruit}:${player}`;
+const extraKey = (card: RushCard, i: number) => `${card.customerId}:extra:${i}`;
+
 /** One fruit whose sale is not played (Skip, reduced motion): every stall that sold is simply paid and the sale is shown. */
-function settleBlock(card: RushCard, b: RushBlock, pay: Pay) {
+function settleBlock(card: RushCard, b: RushBlock, pay: Pay, once: Once) {
   for (const row of b.rows) {
-    if (!row.sold) continue;
+    if (!row.sold || !once(saleKey(card, b, row.player))) continue;
     pay(row.player, row.paid);
     sellStock(row.player, b.fruit, row.sold);
     payShown(card.customerId, b.fruit, row.player);
@@ -312,10 +328,38 @@ function settleBlock(card: RushCard, b: RushBlock, pay: Pay) {
 
 /** A customer whose sales are not played (Skip, reduced motion): every fruit not shown yet is settled, and what comes
  *  with the customer is paid. `favour`: the favour card won is shown as well (false: the caller shows it). */
-function settle(card: RushCard, pay: Pay, favour = true) {
-  for (const b of card.blocks) if (!lineShown(card.customerId, b.fruit)) settleBlock(card, b, pay);
-  for (const x of card.extras) pay(x.player, x.amount);
-  if (favour && card.favour) showFavour(card.customerId, card.favour.player);
+function settle(card: RushCard, pay: Pay, once: Once) {
+  for (const b of card.blocks) settleBlock(card, b, pay, once);
+  card.extras.forEach((x, i) => { if (once(extraKey(card, i))) pay(x.player, x.amount); });
+  if (card.favour) showFavour(card.customerId, card.favour.player);
+}
+
+/** The rush now playing on this screen (each reveal takes the next number) and how to cut it short. */
+let rushRun = 0;
+let cutRush: (() => void) | null = null;
+
+/**
+ * "Skip to the end" (PLAN-123), and the last customer's "End of Day" button: the rush settles at once into its end.
+ * The customer in the middle and every customer still to come are paid and shown served in the same moment, the
+ * customer leaves the middle, and the buttons go with them, so nothing can be pressed twice while it settles. The
+ * pieces and coins still in the air fade out where they are. It only changes what this screen draws: the game paid
+ * every sale at the bell.
+ */
+export function skipRush() {
+  A.hurryUp();
+  releaseStock();
+  cutRush?.();
+  if (typeof document !== 'undefined' && typeof document.querySelectorAll === 'function') {
+    document.querySelectorAll<HTMLElement>('.sprite.mv').forEach((el) => { el.style.opacity = '0'; });
+  }
+}
+
+/** The game table is left (Home, another mode) while a rush plays: that rush stops where it stands and changes
+ *  nothing more on any screen, so the next table does not see its labels, sounds or totals (PLAN-123). */
+export function stopRush() {
+  rushRun++;
+  cutRush?.();
+  cutRush = null;
 }
 
 /** How long "No sales today" stays up, in ms at normal speed. */
@@ -415,89 +459,109 @@ export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
   }
 }
 
-/** `rung`: the bell has already rung today (the Favoured Trade step came between), so it is not shown again. */
-export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (open: BellShow) => void, rung = false) {
+/** `rung`: the bell has already rung today (the Favoured Trade step came between), so it is not shown again. `shared`:
+ *  several people share this phone, so the result lines name every stall and say "You" to nobody. */
+export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (open: BellShow) => void, rung = false, shared = false): Promise<number[]> {
   const r = g.results!;
+  // What each stall was shown being paid by the customers, returned when the rush ends (tests hold it to the day's
+  // income at every speed, with a tap, with Skip and with reduced motion).
+  const out = g.players.map(() => 0);
+  // This rush's number: a later rush, or the table being left, makes it stale, and a stale rush draws nothing more.
+  const run = ++rushRun;
+  const live = () => run === rushRun;
   if (!r.lines.some((l) => l.offers.length > 0)) {
     const t = A.tag('street', 'No sales today', 'big');
     // A pause to read, so it is kept with reduced motion (PLAN-081: it used to shrink to a twentieth of a second).
     await A.hold(NO_SALES_READ);
     t.remove();
-    return;
+    return out;
   }
   // The bell (rules 15): every row opens with its prices, stall by stall, and stays long enough to read; then the
   // rush starts.
   if (!rung) await bellRings(g, setBell);
+  if (!live()) return out;
   setBell?.(null);
   // A tap on the table ends the bell and nothing more: the rush then starts at its own pace. Skip hurries the whole
   // rush; it also lets the shelves go, which tells the two apart.
   if (A.hurried() && stockHeld()) A.resetHurry();
   // The round table (DEC-109): each customer in the order they are served comes from the row to the middle, every
   // stall's crate turns its price tag to the fruit they want, fruit by fruit, the sales travel, the result is read for
-  // about a second and the customer goes back. A tap moves on to the next customer at once; Skip settles the rest
-  // without showing them.
-  const cards = rushCards(g, viewer);
+  // about a second and the customer goes back. A tap moves on to the next customer at once; Skip settles the customer
+  // in the middle and the rest at once, without showing them (skipRush).
+  const cards = rushCards(g, viewer, shared);
   const served: number[] = [];
-  const late: RushCard[] = [];
   // Every payment's count, so that what is left over at the end is worked out once all of them have been counted.
   const counting: Promise<void>[] = [];
-  const pay: Pay = (player, amount) => { counting.push(payCash(player, amount)); };
-  for (let i = 0; i < cards.length; i++) {
-    const card = cards[i];
-    if (A.hurried()) {
-      // Skip shows the final shelves at once (the cash still climbs as the stalls are paid).
-      releaseStock();
-      settle(card, pay, false);
-      if (card.favour) late.push(card);
-      continue;
-    }
-    A.resetStep();
-    const base = { card, n: i + 1, of: cards.length, served: [...served] };
+  const pay: Pay = (player, amount) => { if (!live()) return; out[player] += amount; counting.push(payCash(player, amount)); };
+  const paid = new Set<string>();
+  const once: Once = (key) => live() && !paid.has(key) && !!paid.add(key);
+  let cut = false;
+  const skipped = new Promise<void>((done) => { cutRush = () => { cut = true; done(); }; });
+  // What the rush shows, while it is not cut short (a customer's steps still running after Skip draw nothing).
+  const show = (a: ShowState | null) => { if (!cut && live()) setShow(a); };
+  const going = () => !cut && live();
+
+  /** One customer at the table, from the row to the middle and back. */
+  const serve = async (card: RushCard, base: Omit<ShowState, 'stage' | 'at'>) => {
     const last = Math.max(0, card.blocks.length - 1);
     // With reduced motion nothing travels: each fruit's tags are shown with its result and held to be read, then the
     // customer with their result.
     const still = A.isReduced();
     if (still) {
-      for (let k = 0; k < last; k++) {
-        settleBlock(card, card.blocks[k], pay);
-        setShow({ ...base, stage: 'rows', at: k });
+      for (let k = 0; k < last && going(); k++) {
+        settleBlock(card, card.blocks[k], pay, once);
+        show({ ...base, stage: 'rows', at: k });
         await A.hold(A.BEAT.rush.read);
       }
-      settle(card, pay);
+      if (!going()) return;
+      settle(card, pay, once);
     } else {
-      setShow({ ...base, stage: 'in', at: 0 });
+      show({ ...base, stage: 'in', at: 0 });
       fx.card();
       await A.wait(A.BEAT.rush.cardIn);
-      for (let k = 0; k <= last; k++) {
-        setShow({ ...base, stage: 'rows', at: k });
+      for (let k = 0; k <= last && going(); k++) {
+        show({ ...base, stage: 'rows', at: k });
         fx.tap();
         await A.wait(k ? A.BEAT.rush.fruit : A.BEAT.rush.rows);
-        if (card.blocks[k]) await sellBlock(card, card.blocks[k], viewer, pay);
+        if (card.blocks[k] && going()) await sellBlock(card, card.blocks[k], viewer, pay, once);
       }
     }
-    setShow({ ...base, stage: 'result', at: last });
+    if (!going()) return;
+    show({ ...base, stage: 'result', at: last });
     await A.frame();
-    await Promise.all([still ? null : gifts(card, viewer, pay), A.hold(A.BEAT.rush.read)]);
+    if (!going()) return;
+    await Promise.all([still ? null : gifts(card, viewer, pay, once), A.hold(A.BEAT.rush.read)]);
+    if (!going()) return;
     served.push(card.customerId);
-    setShow({ ...base, stage: 'out', at: last, served: [...served] });
+    show({ ...base, stage: 'out', at: last, served: [...served] });
     // The customer's way back to the row, and one frame more so that its last frame is drawn before they are taken away.
     await A.wait(A.BEAT.rush.cardOut);
     await A.frame();
+  };
+
+  for (let i = 0; i < cards.length; i++) {
+    const card = cards[i];
+    if (!live()) return out;
+    if (cut || A.hurried()) {
+      // Skip shows the final shelves at once (the cash still climbs as the stalls are paid).
+      releaseStock();
+      settle(card, pay, once);
+      continue;
+    }
+    A.resetStep();
+    await Promise.race([serve(card, { card, n: i + 1, of: cards.length, served: [...served] }), skipped]);
+    // Skipped while this customer was at the table: they are settled now, with everything still in the air.
+    if (cut) settle(card, pay, once);
   }
+  if (!live()) return out;
+  cutRush = null;
   setShow(null);
   releaseStock();
-  // Favour cards won by customers whose cards were skipped: a label over the stall, as before.
-  for (const card of late) {
-    const t = A.tag(`p${card.favour!.player}`, '+1 favour card', 'favour');
-    fx.card();
-    await A.hold(A.BEAT.label.favourWon);
-    t.remove();
-    showFavour(card.customerId, card.favour!.player);
-  }
   // Money that was not paid customer by customer (Pasar Malam's night hawker) lands last, then the real totals show
   // again. Every customer's payment has been counted by then (after Skip or a tap the counts may still be running), so
   // nothing a customer paid is taken for it.
   await Promise.all(counting);
+  if (!live()) return out;
   let tipped = false;
   g.players.forEach((pl, p) => {
     const tip = pl.cash - shownCash(p, pl.cash);
@@ -507,8 +571,10 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
     void payCash(p, tip);
   });
   if (tipped) { fx.coin(); await A.hold(A.BEAT.label.bonus); }
+  if (!live()) return out;
   holdCash(null);
   releaseRush();
+  return out;
 }
 
 /**

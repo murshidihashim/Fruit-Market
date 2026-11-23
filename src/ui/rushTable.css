@@ -44,6 +44,8 @@
 #app .tkt .street > .cust.rush-away > * { visibility: hidden; }
 #app .tkt .street > .cust.rush-away::after {
   content: var(--rt-at, "") "\A at the stalls"; white-space: pre-line;
+  /* PLAN-123: drawn, not read aloud: the table itself is announced as "The rush: customer 1 of 2" (it was said twice) */
+  content: var(--rt-at, "") "\A at the stalls" / "";
   position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; text-align: center;
   border: 2px dashed var(--x-lamp-off); color: var(--tk-slate); font: 800 0.5rem/1.3 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase;
 }

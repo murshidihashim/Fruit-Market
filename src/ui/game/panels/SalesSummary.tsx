@@ -116,17 +116,27 @@ export function stallRows(s: GameState, viewer: number): StallRow[] {
   });
 }
 
-/** Today's customers in the order they were served, and whether each bought anything (the portraits on the strip).
- *  The strip counts them as "4 of 5 bought": a customer who bought part of an order counts (REP-133 A-11: it used to
- *  say "served", which read as whole orders). */
-export function rushOver(s: GameState): { id: number; name: string; guest: boolean; served: boolean }[] {
+/** Today's customers in the order they were served, whether each bought anything (the portraits on the strip), and
+ *  whether they got all they came for (`full`). The strip counts them as "4 of 5 customers bought something" and the
+ *  whole orders apart, "1 full order" (PLAN-123: "2 of 2 bought" read as two orders filled when neither was; REP-133
+ *  A-11 before it: "served"). */
+export function rushOver(s: GameState): { id: number; name: string; guest: boolean; served: boolean; full: boolean }[] {
   const r = s.results;
   if (!r) return [];
   return servingCustomers(s).flatMap((c) => {
     const lines = r.lines.filter((l) => l.customerId === c.id);
     if (!lines.length) return [];
-    return [{ id: c.id, name: c.name, guest: !c.order && !!GUEST_EVENT[c.name], served: lines.some((l) => l.offers.some((o) => o.sold > 0)) }];
+    const got = (l: (typeof lines)[number]) => l.offers.reduce((a, o) => a + o.sold, 0);
+    return [{ id: c.id, name: c.name, guest: !c.order && !!GUEST_EVENT[c.name], served: lines.some((l) => got(l) > 0), full: lines.every((l) => got(l) >= l.want) }];
   });
+}
+
+/** The strip's count: "2 of 2 customers bought something", and the whole orders apart ("1 full order", "no full
+ *  orders"). */
+export function rushCount(crowd: { served: boolean; full: boolean }[]): [string, string] {
+  const n = crowd.filter((x) => x.served).length;
+  const full = crowd.filter((x) => x.full).length;
+  return [`${n} of ${crowd.length} customer${crowd.length === 1 ? '' : 's'} bought something`, full ? `${full} full order${full === 1 ? '' : 's'}` : 'no full orders'];
 }
 
 /** The pieces of one fruit and one freshness on a shelf, and what tonight does to them. */
@@ -210,6 +220,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
   const rows = takingsRows(s, viewer);
   const { net } = dayLedger(s, viewer);
   const crowd = rushOver(s);
+  const [bought, full] = rushCount(crowd);
   const stalls = stallRows(s, viewer);
   const st = standing(s, viewer);
   const won = r.favours.filter((x) => x.player === viewer);
@@ -226,7 +237,7 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
     <div class="sales-card" ref={root}>
       {crowd.length > 0 && (
         <div class="tg-strip">
-          <b class="tk-label"><span>The rush is over</span> · <span>{crowd.filter((x) => x.served).length} of {crowd.length} bought</span></b>
+          <b class="tk-label"><span>The rush is over</span> · <span>{bought}</span> · <span>{full}</span></b>
           <span class={`tg-queue ${crowd.length > 5 ? 'many' : ''}`} aria-hidden="true">
             {crowd.map((x) => (
               <i class={`tg-face ${x.served ? '' : 'no'}`}>
