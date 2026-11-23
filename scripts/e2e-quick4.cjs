@@ -37,8 +37,10 @@ const asked = {};
     await p.click('[data-a="quick"]');
     // PLAN-125's set-up page: choose 4 stalls and look for a match (the earlier page starts looking at once).
     const four = p.getByRole('button', { name: /4 stalls/i });
+    await four.first().waitFor({ timeout: 5000 }).catch(() => {});
     if (await four.count().catch(() => 0)) await four.first().click();
     const find = p.getByRole('button', { name: /Find a match/i });
+    await find.first().waitFor({ timeout: 5000 }).catch(() => {});
     if (await find.count().catch(() => 0)) await find.first().click();
     return P;
   };

@@ -26,6 +26,7 @@ const pages = [];
   const look = async (P) => {
     await P.page.click('[data-a="quick"]');
     const find = P.page.getByRole('button', { name: /Find a match/i });
+    await find.first().waitFor({ timeout: 5000 }).catch(() => {});
     if (await find.count().catch(() => 0)) await find.first().click();
   };
   const views = (P) => P.frames.map((f) => { try { return JSON.parse(f); } catch { return null; } }).filter((m) => m && m.t === 'room');
