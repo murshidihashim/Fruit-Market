@@ -8,7 +8,7 @@ import { toStaticHtml } from '../src/ui/cards';
 import { holdCash, shownCash } from '../src/ui/cashShown';
 import { shownStock } from '../src/ui/stockShown';
 import { Market, boughtToday, lorryDue, waitLine } from '../src/ui/table';
-import { deliveryBoxes, marketBefore } from '../src/ui/tableModel';
+import { buyState, deliveryBoxes, marketBefore } from '../src/ui/tableModel';
 import { releaseTable, shownMarket } from '../src/ui/tableShown';
 import { keepTap } from '../src/ui/game/turn';
 
@@ -74,6 +74,11 @@ describe('finding 1: the lanes before the lorry has landed', () => {
     // drawn with the travelling stall, not the game's next stall
     const html = toStaticHtml(h(Market, { s, p: me, mover: rival }));
     expect(html).toContain(`${s.players[rival].name}'s turn`);
+    // and the stalls' row draws the travelling stall as buying, not the game's next stall (tableShown.ts heldBuyer)
+    const next = s.order[s.turn];
+    expect(buyState(s, next)).toBe('now');
+    if (next !== rival) expect(buyState(s, next, rival)).not.toBe('now');
+    expect(buyState(s, rival, rival)).toBe('now');
   });
 });
 

@@ -139,10 +139,12 @@ export function tonightHead(s: GameState, p: number): string | null {
 
 /** Where a stall is in today's buying: it has bought, it is buying now, or it is waiting for its turn. */
 export type BuyState = 'done' | 'now' | 'waiting';
-export function buyState(s: GameState, p: number): BuyState {
-  if (s.phase !== 'buy') return 'waiting';
+export function buyState(s: GameState, p: number, buyer?: number): BuyState {
+  // PLAN-123: `buyer`, a stall whose purchases are still travelling, is drawn as buying until they have landed.
+  const turn = buyer !== undefined && s.order.includes(buyer) ? s.order.indexOf(buyer) : s.turn;
+  if (s.phase !== 'buy' && buyer === undefined) return 'waiting';
   const at = s.order.indexOf(p);
-  return at < s.turn ? 'done' : at === s.turn ? 'now' : 'waiting';
+  return at < turn ? 'done' : at === turn ? 'now' : 'waiting';
 }
 
 // ---------- the customer row ----------

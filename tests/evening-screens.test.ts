@@ -88,7 +88,8 @@ describe('online: everyone at once', () => {
     expect(rivalNote(done1, 1, false)).toBe('closed');
     expect(rivalNote(done1, 2, true)).toBe('deciding…');
     const src = read('src/ui/table.tsx');
-    expect(src).toContain("const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;");
+    // (PLAN-123: while a stall's purchases travel it is the one drawn as buying, tableShown.ts heldBuyer)
+    expect(src).toContain("const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;");
   });
 
   it('a person is waited for until they say Lights out, whoever else is deciding', () => {

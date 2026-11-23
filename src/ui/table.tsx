@@ -19,7 +19,7 @@ import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type Ticket
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
 import { shownFavours, shownWants } from './rushShown';
-import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
+import { cardShown, heldBuyer, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, wantText, LANES } from './boardModel';
 import { buyState, deliveryBoxes, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
@@ -141,7 +141,7 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover }: {
   // S13 (PLAN-110): on a narrow phone, or beside a price chip, "bought" is left out (the Done button says the rest).
   // PLAN-123 (finding 1): whose turn it is, from the stall whose pieces are travelling while they travel, and on a
   // rival's turn why this stall cannot buy now: when its own turn comes, or that it has bought.
-  const now = mover ?? (buyer ? s.order[s.turn] : null);
+  const now = mover ?? heldBuyer() ?? (buyer ? s.order[s.turn] : null);
   const turn = now === null || tokenOnItsWay() ? null
     : now === p ? <>Your turn · {shownBoughtCount(p, me.boughtToday)} of {buyLimit(me)}<span class="tk-side-w"> bought</span></>
     : waitLine(s, p, now);
@@ -312,8 +312,8 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief, fir
   const pl = s.players[p];
   const cash = shownCash(p, pl.cash);
   const buying = inBuyingOrder(s);
-  const state = buyState(s, p);
-  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
+  const state = buyState(s, p, heldBuyer());
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;
   const base = rivalNote(s, p, active);
   // Stocking: only whether a stall has opened is public. Pricing: how many pieces it put out.
   const note = s.phase === 'stall' && board ? (board.state === 'thinking' ? 'filling…' : 'ready') : base;
@@ -353,7 +353,7 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief, fir
 function MyBox({ s, p, compact, brief, first }: { s: GameState; p: number; compact: boolean; brief: boolean; first?: string | null }) {
   useCashShown();
   const pl = s.players[p];
-  const state = buyState(s, p);
+  const state = buyState(s, p, heldBuyer());
   const buys = shownBuys(s, p);
   const got = s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
   const cash = shownCash(p, pl.cash);
@@ -506,7 +506,7 @@ export function MyStall({ s, p, onCard, flashCards, night, hidden }: { s: GameSt
   // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
-  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;
   const cap = shelfSize(pl);
   // The last day: fruit left on the shelf tonight is worth nothing ("Unsold = $0").
   const closing = closingNote(s, p)?.chip;

@@ -16,10 +16,10 @@ import * as A from '../anim';
 import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
 import { holdRush, releaseRush } from '../rushShown';
-import { releaseTable } from '../tableShown';
+import { holdBuyer, releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings, loadUndo, saveUndo } from '../store';
-import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
+import { arrive, arriving, bellRings, dealsOf, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
 import { awaitsHandOver, keepTap, playLocal, undoPoint, waitsForPerson, type KeptTap, type UndoPoint } from './turn';
@@ -243,6 +243,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // its beat (rowAppears is a case of toBuy).
       holdFirstToken(prev, next);
       holdDeals(prev, next, viewer);
+      // PLAN-123: the stall whose purchases this beat shows is drawn as buying until they have landed.
+      if (buyer >= 0 && next.day === prev.day && (next.phase === 'buy' || dealsOf(prev, next).length > 0)) holdBuyer(buyer);
       const walkIns = arriving(prev, next, viewer);
       holdArrival(walkIns);
       // S8: the takings on a shared phone show nobody's own day; each person's is kept for their next hand-over.
