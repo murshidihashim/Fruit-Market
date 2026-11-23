@@ -1576,7 +1576,11 @@ describe('quick match tables of 2, 4 and 6 stalls', () => {
   it('keeps a seat for each person the queue sends, and no more than the table has', async () => {
     const h = new Harness();
     const fillAt = quickRoom(h, 4);
-    expect(await h.room.claimSeat()).toBe(false); // nobody waiting yet: the queue opens a room of its own instead
+    // The room's own first person is still connecting: their seat is kept, and others may be sent at the same time.
+    expect([await h.room.claimSeat(), await h.room.claimSeat(), await h.room.claimSeat()]).toEqual([true, true, true]);
+    expect(await h.room.claimSeat()).toBe(false); // 0 here + 4 on the way = 4
+    h.t += CLAIM_MS + 1; // none of them came: nobody is waiting, so the queue opens a room of its own instead
+    expect(await h.room.claimSeat()).toBe(false);
     const a = h.connect('A');
     await a.say(hi('Ann', '🦊'));
     expect([await h.room.claimSeat(), await h.room.claimSeat(), await h.room.claimSeat()]).toEqual([true, true, true]);
@@ -1587,7 +1591,7 @@ describe('quick match tables of 2, 4 and 6 stalls', () => {
     h.t += CLAIM_MS + 1; // the other two never came
     expect(await h.room.claimSeat()).toBe(true);
     // Too close to the fill time: nobody more is sent.
-    h.t = fillAt - CLAIM_BEFORE_FILL_MS;
+    h.t = Math.max(h.t, fillAt - CLAIM_BEFORE_FILL_MS);
     expect(await h.room.claimSeat()).toBe(false);
   });
 

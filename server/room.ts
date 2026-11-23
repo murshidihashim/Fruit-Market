@@ -144,7 +144,9 @@ export function freshRoom(code: string, now: number, quick = false, pub = false,
     game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
     // A quick match is never listed: it already finds a stranger on its own.
     ...(pub && !quick ? { public: true } : {}),
-    ...(quick ? { stalls, fillAt: now + fillMs } : {}),
+    // The person the queue made this room for is still connecting: their seat is kept like any other promise, so a
+    // second person looking at the same moment is sent here too.
+    ...(quick ? { stalls, fillAt: now + fillMs, claims: [now + CLAIM_MS] } : {}),
   };
 }
 
@@ -854,12 +856,15 @@ export class Room {
     return d.claims ?? [];
   }
 
-  /** A waiting quick room with someone in it, a seat nobody has or was promised, and time left to arrive before it fills. */
+  /** A waiting quick room with someone in it or on the way, a seat nobody has or was promised, and time left to arrive
+   *  before it fills. */
   waitingForMore(): boolean {
     const d = this.d;
-    if (!d.quick || d.status !== 'lobby' || !d.seats.length || !this.online().size) return false;
+    if (!d.quick || d.status !== 'lobby') return false;
+    const claims = this.liveClaims().length;
+    if (!this.online().size && !claims) return false;
     if (d.fillAt !== undefined && this.io.now() >= d.fillAt - CLAIM_BEFORE_FILL_MS) return false;
-    return d.seats.length + this.liveClaims().length < this.stalls();
+    return d.seats.length + claims < this.stalls();
   }
 
   /** The queue asks for a seat for the next person: kept for CLAIM_MS. False when this room should not get them. */
