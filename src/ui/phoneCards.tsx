@@ -10,7 +10,7 @@ import {
 import { Coin } from './art';
 import { LANES } from './boardModel';
 import {
-  ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, PayBadge, SOFT_LESS, byLane, customerNumber, eventCardText, laneClass, lorryNotes, lorryRow, prefClass,
+  ART_SIZE, CardArt, FAVOUR_WHEN, OKAY_LESS, PayBadge, SOFT_LESS, byLane, customerNumber, eventCardText, laneClass, lorryNotes, lorryRow, prefClass, prefWords,
   type CardLine,
 } from './cards';
 import {
@@ -158,7 +158,7 @@ export function CustomerWide({ who, lines, now, order }: { who: string; lines: (
           ))}
         </div>
       </div>
-      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
+      <div class="wc-leg" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : prefWords(pref)}>
         <i class="wc-lamp">F</i>
         <i class={cx('wc-lamp', !okay && 'off')}>O</i>{!order && <span class={okay ? '' : 'no'}>{`−$${OKAY_LESS}`}</span>}
         <i class={cx('wc-lamp', !soft && 'off')}>S</i>{!order && <span class={soft ? '' : 'no'}>{`−$${SOFT_LESS}`}</span>}

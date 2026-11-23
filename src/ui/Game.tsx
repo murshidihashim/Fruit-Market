@@ -283,10 +283,11 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
         mute={online ? (p) => (s.players[p]?.kind === 'human' && reactionsOn() ? { on: mutes.muted(p, s.players[p].name), toggle: () => mutes.toggle(p, s.players[p].name) } : null) : undefined} />}
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
-        <Market s={s} p={viewer} lorry={lorryHere}
+        <Market s={s} p={viewer} lorry={lorryHere} mover={busy ? c.mover : null}
           note={s.phase === 'evening' && activeHuman && !eveningChoices ? eveningNote(s, evP) : undefined}
-          onPick={s.phase === 'buy' && activeHuman && !c.guiding && !c.handoffDue ? c.pickMarket : undefined}
+          onPick={s.phase === 'buy' && activeHuman && !c.guiding && !c.handoffDue && (!busy || c.ownBeat) ? c.pickMarket : undefined}
           canPick={(f, pos) => freeFruit !== null || !canBuy(s, active, f, pos)}
+          why={s.phase === 'buy' && !c.handoffDue && s.players[viewer]?.kind === 'human' ? (f, pos) => canBuy(s, viewer, f, pos) : undefined}
           onPulse={() => c.setPulseInfo(!c.pulseInfo)} />
         {/* where the picture of a panel that has just left slides off (sheet.ts) */}
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />

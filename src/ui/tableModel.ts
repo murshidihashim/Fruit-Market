@@ -3,6 +3,7 @@
 import { FRUIT, JUICE_CAP, TRAITS, deliveryPos, freshPos, stageAt, type FruitId, type Stage } from '../engine/data';
 import { shadePick, type Customer, type GameState, type Stock } from '../engine/game';
 import { LANES, todaysLorry } from './boardModel';
+import { STAGE_WORD } from './stageWords';
 
 // ---------- the lorry ----------
 
@@ -57,7 +58,7 @@ export function shadeOf(s: GameState, p: number): FruitId | null {
 /** Does a night follow today? Not after the final day. */
 export const nightFollows = (s: GameState): boolean => s.phase !== 'over' && s.day < s.config.days;
 
-const WORD: Record<Stage, string> = { unripe: 'green', fresh: 'Fresh', okay: 'Okay', notso: 'Soft' };
+const WORD: Record<Stage, string> = STAGE_WORD;
 
 /** How a chip is tinted: plain, good news (ripe tomorrow, juice), a warning (spoils tonight). */
 export type ChipTone = 'plain' | 'good' | 'warn';
@@ -138,10 +139,12 @@ export function tonightHead(s: GameState, p: number): string | null {
 
 /** Where a stall is in today's buying: it has bought, it is buying now, or it is waiting for its turn. */
 export type BuyState = 'done' | 'now' | 'waiting';
-export function buyState(s: GameState, p: number): BuyState {
-  if (s.phase !== 'buy') return 'waiting';
+export function buyState(s: GameState, p: number, buyer?: number): BuyState {
+  // PLAN-123: `buyer`, a stall whose purchases are still travelling, is drawn as buying until they have landed.
+  const turn = buyer !== undefined && s.order.includes(buyer) ? s.order.indexOf(buyer) : s.turn;
+  if (s.phase !== 'buy' && buyer === undefined) return 'waiting';
   const at = s.order.indexOf(p);
-  return at < s.turn ? 'done' : at === s.turn ? 'now' : 'waiting';
+  return at < turn ? 'done' : at === turn ? 'now' : 'waiting';
 }
 
 // ---------- the customer row ----------

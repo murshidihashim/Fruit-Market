@@ -64,13 +64,13 @@ describe('the lengths are named in one place (motion.ts)', () => {
     // filling your crate: a piece slides between its shelf row and the crate in 260 ms (PLAN-085; flow study D3)
     expect(BEAT.stock.fly).toBe(260);
     expect([BEAT.label.read, BEAT.label.favourWon, BEAT.label.bonus, BEAT.label.float, BEAT.label.toast]).toEqual([1100, 800, 500, 1300, 2000]);
-    // the bell (PLAN-085; flow study D3): it swings, each stall's row opens 180 ms after the one before, then 1.2 s to
-    // read: about 2.6 s at four stalls; "No sales today" 1.1 s
-    expect(BEAT.bell).toMatchObject({ swing: 300, gap: 180, lid: 220, read: 1200 });
+    // the bell (PLAN-085; flow study D3; PLAN-123): it swings, every stall's crate opens at the same moment, then 1.2 s
+    // to read: two seconds at any number of stalls; "No sales today" 1.1 s
+    expect(BEAT.bell).toMatchObject({ swing: 300, lid: 220, read: 1200 });
     expect(BEAT.price.seal).toBe(200);
-    expect(bellOpening(4)).toBe(300 + 3 * 180 + 220 + 280);
-    expect(bellLength(4)).toBe(2540);
-    expect(bellLength(6)).toBe(2900);
+    expect(bellOpening(4)).toBe(300 + 220 + 280);
+    expect(bellLength(4)).toBe(2000);
+    expect(bellLength(6)).toBe(2000);
     expect(BEAT.tie).toEqual({ ask: 600, stamp: 180, pause: 600 });
     expect(NO_SALES_READ).toBe(1100);
     // the round table before the rush (PLAN-099): the crates travel to their seats as the table forms, as a piece

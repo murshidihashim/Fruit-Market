@@ -1,12 +1,33 @@
 // Pure turn rules used by the game screen, kept apart from Preact so they can be unit tested.
-import type { FavourId } from '../../engine/data';
-import { activePlayer, applyAction, eveningOpen, type Action, type GameState } from '../../engine/game';
+import type { FavourId, FruitId } from '../../engine/data';
+import { RuleError, activePlayer, applyAction, eveningOpen, type Action, type GameState } from '../../engine/game';
 
 /** Applies one local move. In a daily challenge the move is also logged, so the leaderboard can replay it. */
 export function playLocal(before: GameState, who: number, a: Action): GameState {
   const next = applyAction(before, who, a);
   if (before.config.daily && a.kind !== 'begin' && a.kind !== 'finish') next.moves = [...(before.moves ?? []), a];
   return next;
+}
+
+/** A market box tapped while the last purchase is still on its way. */
+export interface KeptTap { f: FruitId; pos: number }
+
+/**
+ * PLAN-123 (finding 2): a tap on a market box while a piece is still on its way is kept and bought as soon as the
+ * table is free. It is kept only if it would still be a purchase the rules allow after the taps already kept (the
+ * same box tapped once too often, the day's limit, the shelf's room or the cash), so a quick double tap can never
+ * buy a piece twice or fail later with an error. `s` is the game as it is now (the last purchase already made).
+ */
+export function keepTap(s: GameState, who: number, kept: KeptTap[], tap: KeptTap): boolean {
+  if (s.phase !== 'buy' || activePlayer(s) !== who) return false;
+  try {
+    let x = s;
+    for (const k of [...kept, tap]) x = applyAction(x, who, { kind: 'buy', fruit: k.f, pos: k.pos });
+    return true;
+  } catch (e) {
+    if (e instanceof RuleError) return false;
+    throw e;
+  }
 }
 
 /** Where Undo goes back to on a buying turn. */

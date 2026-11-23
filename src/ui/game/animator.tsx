@@ -6,7 +6,7 @@ import { leavingTonight, marketCost, nightOutlook, type GameState } from '../../
 import { Coin, Fruit } from '../art';
 import * as A from '../anim';
 import { laneClass } from '../cards';
-import { holdCash, payCash, shownCash, takeCash } from '../cashShown';
+import { holdCash, payCash, shiftCash, shownCash } from '../cashShown';
 import { landPiece, liftPiece, payShown, releaseRush, serveLine, showFavour } from '../rushShown';
 import { releaseStock, sellStock, stockHeld } from '../stockShown';
 import { deliveryBoxes } from '../tableModel';
@@ -93,13 +93,14 @@ export function shareOut(sum: number, weights: number[]): number[] {
 
 /**
  * What changed between two states, as travel (PLAN-085; flow study D3). Buying: each piece lifts out of its box and
- * travels in a low arc to that fruit's place on the buyer's stall (your shelf, or a rival's box); the box's number
- * drops as it lifts, and the shelf's, the "bought today" marks and the cash change as it lands. A rival's whole turn
- * arrives as one step and is one beat: its pieces leave a little apart. Pieces taken back travel the other way.
+ * travels in a low arc to that fruit's place on the buyer's stall (your shelf, or a rival's box). PLAN-123 (finding 2):
+ * everything a piece changes is committed together as it lifts off: the box's number, the shelf, the "bought today"
+ * marks (and so the purchases still allowed) and the cash. The piece's travel then shows where it went, and the place
+ * it lands on swells. A rival's whole turn arrives as one step and is one beat: its pieces leave a little apart, and
+ * each one's numbers change as it leaves. Pieces taken back travel the other way, their numbers likewise at lift-off.
  */
 export async function moves(prev: GameState, next: GameState, viewer = -1) {
   const jobs: Promise<void>[] = [];
-  const counting: Promise<void>[] = [];
   const p = buyerOf(prev, next);
   const deals = p >= 0 ? dealsOf(prev, next) : [];
   const pieces = deals.flatMap((d) => {
@@ -117,23 +118,17 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
       const box = [`m-${f}-${pos}`, `mk-${f}`];
       const place = [`p${p}-${f}`, `p${p}`];
       const o = { delay: i * gap, duration: A.FEEL.travel, path: 'low' as const };
-      if (x.d.n > 0) {
-        jobs.push(A.fly(box, place, node, {
-          ...o,
-          onLift: () => shiftMarket(f, pos, -x.carries),
-          onLand: () => {
-            shiftBought(p, f, x.carries);
-            if (p === viewer) shiftShelf(p, f, pos, x.carries);
-            if (paid > 0 && shares[i]) { counting.push(takeCash(p, shares[i])); if (p === viewer) A.floatText(`p${p}-cash`, `−$${shares[i]}`); }
-          },
-        }));
-      } else {
-        jobs.push(A.fly(place, box, node, {
-          ...o,
-          onLift: () => { shiftBought(p, f, -x.carries); if (p === viewer) shiftShelf(p, f, pos, -x.carries); },
-          onLand: () => { shiftMarket(f, pos, x.carries); if (paid < 0 && shares[i]) counting.push(payCash(p, shares[i])); },
-        }));
-      }
+      const take = x.d.n > 0;
+      const by = take ? x.carries : -x.carries;
+      // One commit for the piece: every number it changes, in the same frame.
+      const commit = () => {
+        shiftMarket(f, pos, -by);
+        shiftBought(p, f, by);
+        if (p === viewer) shiftShelf(p, f, pos, by);
+        if (shares[i]) shiftCash(p, paid > 0 ? -shares[i] : shares[i]);
+        if (take && paid > 0 && shares[i] && p === viewer) A.floatText(`p${p}-cash`, `−$${shares[i]}`);
+      };
+      jobs.push(take ? A.fly(box, place, node, { ...o, onLift: commit }) : A.fly(place, box, node, { ...o, onLift: commit }));
     });
     fx.buy();
   }
@@ -169,8 +164,6 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
   // earlier in today's line-up takes it there).
   if (firstMoved(prev, next)) jobs.push(firstInLine(next, next.priorityNext!));
   await Promise.all(jobs);
-  // The cash is still counting down as the last piece lands: the beat ends when it has.
-  await Promise.all(counting);
 }
 
 // ---------- the customers arrive ----------
@@ -364,10 +357,11 @@ export function stopRush() {
 
 /** How long "No sales today" stays up, in ms at normal speed. */
 export const NO_SALES_READ = A.BEAT.bell.noSales;
-/** The bell's travel (flow study D3; PLAN-099): the bell swings in the middle of the round table, then seat by seat a
- *  crate's lid lifts, its pieces and its price tags turn face up. */
-export const bellOpening = (stalls: number) => A.BEAT.bell.swing + Math.max(0, stalls - 1) * A.BEAT.bell.gap + A.BEAT.bell.lid + A.FEEL.turn;
-/** The whole bell untouched, in ms at normal speed: the travel and the pause to read. About 2.6 s at four stalls. */
+/** The bell's travel (flow study D3; PLAN-099; PLAN-123): the bell swings in the middle of the round table, then every
+ *  crate's lid lifts at the same moment and every piece and price tag turns face up together. The same length at any
+ *  number of stalls (`_stalls` is kept so callers need not change). */
+export const bellOpening = (_stalls: number) => A.BEAT.bell.swing + A.BEAT.bell.lid + A.FEEL.turn;
+/** The whole bell untouched, in ms at normal speed: the travel and the pause to read. Two seconds. */
 export const bellLength = (stalls: number) => bellOpening(stalls) + A.BEAT.bell.read;
 
 /** The bell while it rings: how many seats have opened so far, clockwise from this stall's (0 while it swings); null
@@ -376,8 +370,9 @@ export type BellShow = number | null;
 
 /**
  * The bell (rules 15; PLAN-085; at the round table, PLAN-099): the bell swings and sounds in the middle of the table,
- * then seat by seat, clockwise from this stall's, each crate opens: its lid lifts, its face-down squares turn into its
- * pieces and its price tags turn face up (panels/RushTable.tsx draws them), then a pause to read. The sound is one:
+ * then (PLAN-123: the signature moment, every price revealed at once, as the rules have it) every crate opens together:
+ * its lid lifts, its face-down squares turn into its pieces and its price tags turn face up (panels/RushTable.tsx
+ * draws them), then a pause to read with every offer still and open. The sound is one:
  * the player's own bell, rung by the game table as the bell first shows (useGameController.ts setBell; PLAN-091), so
  * nothing here makes a sound. With reduced motion nothing travels: every crate is open at once and the reading pause
  * is kept. A tap ends the bell where it stands: every crate is shown open and the pause is over.
@@ -393,10 +388,6 @@ export async function bellRings(g: GameState, setBell?: (open: BellShow) => void
   }
   setBell?.(0);
   await A.wait(A.BEAT.bell.swing);
-  for (let k = 1; k <= n && !A.hurried(); k++) {
-    setBell?.(k);
-    if (k < n) await A.wait(A.BEAT.bell.gap);
-  }
   setBell?.(n);
   if (A.hurried()) return;
   await A.wait(A.BEAT.bell.lid + A.FEEL.turn);

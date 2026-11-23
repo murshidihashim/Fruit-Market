@@ -65,9 +65,10 @@ export const BEAT = {
    *  its face-down squares (BEAT.bell.lid). */
   table: { form: 320, glide: 240 },
   /** The bell (flow study D3; at the round table, PLAN-099): the bell comes into the middle of the table
-   *  (FEEL.sheetIn) and swings and sounds (`swing`); then seat by seat, clockwise from yours, `gap` apart, a crate's lid
-   *  lifts (`lid`), its squares turn into its pieces and its price tags turn face up (FEEL.turn); then a pause to read.
-   *  About 2.6 s at four stalls. "No sales today"; the older crate's turn (motion.css). */
+   *  (FEEL.sheetIn) and swings and sounds (`swing`); then (PLAN-123) every crate's lid lifts at once (`lid`), its
+   *  squares turn into its pieces and its price tags turn face up together (FEEL.turn); then a pause to read. Two
+   *  seconds at any number of stalls. `gap` is no longer used by the bell (it opened seat by seat before PLAN-123).
+   *  "No sales today"; the older crate's turn (motion.css). */
   bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100 },
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */

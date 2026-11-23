@@ -19,10 +19,11 @@ import { Lamp, STAGE_LETTER, STAGE_WORD, Swatch, Ticket, TicketBack, type Ticket
 import { shownCash, useCashShown } from './cashShown';
 import { shownSold, shownStock, useStockShown } from './stockShown';
 import { shownFavours, shownWants } from './rushShown';
-import { cardShown, shownBought, shownBoughtCount, shownMarket } from './tableShown';
+import { cardShown, heldBuyer, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, wantText, LANES } from './boardModel';
-import { buyState, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
+import { buyState, deliveryBoxes, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
+import { nth } from './game/pricingTable';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite, RoofBand } from './icons';
@@ -59,9 +60,15 @@ export interface NightLanes { steps: number; go: boolean; rest: boolean }
  * is drawn as an empty box. `market`: the pieces to draw (held back while a piece is on its way). `night`: every piece
  * slides along its lane and a piece leaving the last box tips off (the night's own script says when).
  */
-export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
+export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night, due, why }: {
   s: GameState; p: number; market: Stock; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void; night?: NightLanes;
+  /** PLAN-123 (finding 1): pieces on today's lorry that have not landed yet, by box. Such a box is drawn with a faint
+   *  piece and says it is coming, never as an empty, sold-out box. */
+  due?: Stock;
+  /** PLAN-123: why a box that holds fruit cannot be bought from now ("Not your turn", "Not enough cash"), said with
+   *  the box (null: nothing to say). */
+  why?: (f: FruitId, pos: number) => string | null;
 }) {
   const pz = pulse(s);
   const view = market === s.market ? s : { ...s, market };
@@ -84,15 +91,20 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night }: {
               // has arrived in it (a box that loses one piece and gets another stays filled all through).
               const after = slide ? market[f][pos + night.steps] ?? 0 : n;
               const has = !slide ? n > 0 : night.rest ? after > 0 : n > 0 && after > 0;
+              const coming = night ? 0 : due?.[f]?.[pos] ?? 0;
+              const left = coming ? (n ? `${n} here, ${coming} more on today's lorry` : `${coming} on today's lorry`) : `${n} left`;
+              const no = !ok && n > 0 && !night ? why?.(f, pos) ?? null : null;
               return (
-                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${has ? 'has' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
+                <button type="button" class={`mk-cell tk-box tb-box st-${stage} ${ok ? 'pick' : ''} ${has ? 'has' : ''} ${coming ? 'due' : ''} ${trackSlots(f).find((t) => t.pos === pos)?.entry ? 'entry' : ''}`}
                   data-a={`m-${f}-${pos}`} disabled={!ok} onClick={() => ok && onPick!(f, pos)}
-                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${n} left`}>
-                  <Lamp stage={stage} on={has} size={14} />
+                  aria-label={`${FRUIT[f].name}, ${STAGE_WORD[stage]}, $${cost}, ${left}${no ? `. ${no}` : ''}`} title={no ?? undefined}>
+                  <Lamp stage={stage} on={has || coming > 0} size={14} />
+                  {/* not landed yet: a faint piece with how many are coming */}
+                  {!n && coming > 0 && <span class="tb-pc tb-due" aria-hidden="true"><i class="tb-tkn"><Fruit id={f} size={17} stage={stage} /></i>{coming > 1 && <b class="tb-n">×{coming}</b>}</span>}
                   {n > 0 && (
                     <span class={`tb-pc ${night ? `ns-piece ${slide ? 'moved' : ''} ${slide && pos - night.steps < 0 ? 'gone' : ''} ${night.rest ? 'rest' : ''}` : ''}`}
                       style={night ? `--steps:${Math.min(night.steps, pos + 1)}` : undefined}>
-                      <i class="tb-tkn"><Fruit id={f} size={17} stage={stage} /></i>{n > 1 && <b class="tb-n">×{n}</b>}
+                      <i class="tb-tkn"><Fruit id={f} size={17} stage={stage} /></i>{n > 1 && <b class="tb-n">×{n}</b>}{coming > 0 && <b class="tb-n tb-due-n" aria-hidden="true">+{coming}</b>}
                     </span>
                   )}
                   <span class="price">${cost}</span>
@@ -114,21 +126,32 @@ export const laneRows = (s: GameState): number => Math.max(...FRUITS.map((f) => 
  * lanes show the market as it stood before the lorry (tableModel.marketBefore), and a box's number drops as a piece
  * lifts out of it (tableShown.ts).
  */
-export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
+export function Market({ s, p, onPick, canPick, onPulse, lorry, note, mover, why }: {
   s: GameState; p: number; onPick?: (f: FruitId, pos: number) => void; canPick?: (f: FruitId, pos: number) => boolean;
   onPulse?: () => void;
   /** A line under the market's label (the evening's warning: what spoils tonight). */
   note?: { text: string; good: boolean };
   /** The lorry stands beside the market's label from the delivery until the last stall has bought. */
   lorry?: boolean;
+  /** PLAN-123: the stall whose purchases are travelling now (the game has already moved on to the next stall). */
+  mover?: number | null;
+  /** PLAN-123: why a box cannot be bought from now (MarketLanes). */
+  why?: (f: FruitId, pos: number) => string | null;
 }) {
   // The lorry's load is in the game from dawn; on the table it is unloaded as buying starts.
   const market = s.phase === 'morning' || s.phase === 'order' ? marketBefore(s) : shownMarket(s.market);
+  const due = lorryDue(s, market);
   const buyer = s.phase === 'buy' ? s.players[s.order[s.turn]] : null;
   const me = s.players[p];
   // PLAN-104: not while the First token is on its way (it would give away where it lands).
   // S13 (PLAN-110): on a narrow phone, or beside a price chip, "bought" is left out (the Done button says the rest).
-  const turn = !buyer || tokenOnItsWay() ? null : s.order[s.turn] === p ? <>Your turn · {shownBoughtCount(p, me.boughtToday)} of {buyLimit(me)}<span class="tk-side-w"> bought</span></> : null;
+  // PLAN-123 (finding 1): whose turn it is, from the stall whose pieces are travelling while they travel, and on a
+  // rival's turn why this stall cannot buy now: when its own turn comes, or that it has bought.
+  const now = mover ?? heldBuyer() ?? (buyer ? s.order[s.turn] : null);
+  const turn = now === null || tokenOnItsWay() ? null
+    : now === p ? <>Your turn · {shownBoughtCount(p, me.boughtToday)} of {buyLimit(me)}<span class="tk-side-w"> bought</span></>
+    : waitLine(s, p, now);
+  const lorryLine = (s.phase === 'morning' || s.phase === 'order') && due ? 'Lorry unloads as buying starts' : null;
   return (
     <div class="market-stall tk-market tb-market" style={{ '--rows': laneRows(s) }}>
       <div class="tk-label-row tb-mk-head">
@@ -139,9 +162,12 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
           <span class={`tk-chip ${c.up ? 'warn' : 'good'}`}><PayBadge pay="market" />{c.text}{c.fruit && <FruitSvg class="tk-chip-f" id={c.fruit} size={12} alt={marketChipFruit(c.fruit)} />}</span>
         ))}
         {/* beside the label, so the lanes keep their place: whose turn it is, or the evening's warning */}
-        {turn ? <span class="tk-side">{turn}</span> : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
+        {turn ? <span class="tk-side" role="status">{turn}</span>
+          : lorryLine ? <span class="tk-side">{lorryLine}</span>
+          : note && <span class={`tk-side ${note.good ? 'good' : 'warn'}`} role="status">{note.text}</span>}
       </div>
-      <MarketLanes s={s} p={p} market={market} onPick={onPick} canPick={canPick} onPulse={onPulse} />
+      <MarketLanes s={s} p={p} market={market} onPick={onPick} canPick={canPick} onPulse={onPulse} due={due ?? undefined}
+        why={why && !tokenOnItsWay() ? why : undefined} />
       {/* Shown where the lanes leave room for it (table.css): the letters, and tomorrow's lorry. */}
       <div class="tb-mk-foot">
         <div class="tk-legend" role="note" aria-label="The letters on the boxes: G is green and not ripe yet, F is fresh, O is okay, S is soft">
@@ -151,6 +177,31 @@ export function Market({ s, p, onPick, canPick, onPulse, lorry, note }: {
       </div>
     </div>
   );
+}
+
+/**
+ * PLAN-123 (finding 1): today's lorry pieces not yet drawn in the lanes, by box (null: none). From the morning until
+ * its crates have landed, a box the lorry fills is drawn as coming, not as empty. Public: everyone sees the lorry.
+ */
+export function lorryDue(s: GameState, shown: Stock): Stock | null {
+  const early = s.phase === 'morning' || s.phase === 'order' || (s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0));
+  if (!early) return null;
+  const out = Object.fromEntries(LANES.map((f) => [f, s.market[f].map(() => 0)])) as Stock;
+  let any = false;
+  for (const c of deliveryBoxes(s)) {
+    const k = Math.max(0, Math.min(c.n, (s.market[c.f][c.pos] ?? 0) - (shown[c.f][c.pos] ?? 0)));
+    if (k > 0) { out[c.f][c.pos] += k; any = true; }
+  }
+  return any ? out : null;
+}
+
+/** On a rival's buying turn, why this stall cannot buy now: "Rosa's turn · you buy next" (PLAN-123). */
+export function waitLine(s: GameState, p: number, now: number): string {
+  const who = s.players[now]?.name ?? 'A rival';
+  const at = s.order.indexOf(p);
+  const nowAt = s.order.indexOf(now);
+  const mine = at < 0 ? '' : at < nowAt ? 'you have bought' : at === nowAt + 1 ? 'you buy next' : `you buy ${nth(at + 1)}`;
+  return mine ? `${who}'s turn · ${mine}` : `${who}'s turn`;
 }
 
 /** What tomorrow's lorry brings (public: everyone sees the same). */
@@ -268,8 +319,8 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief, fir
   const pl = s.players[p];
   const cash = shownCash(p, pl.cash);
   const buying = inBuyingOrder(s);
-  const state = buyState(s, p);
-  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
+  const state = buyState(s, p, heldBuyer());
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;
   const base = rivalNote(s, p, active);
   // Stocking: only whether a stall has opened is public. Pricing: how many pieces it put out.
   const note = s.phase === 'stall' && board ? (board.state === 'thinking' ? 'filling…' : 'ready') : base;
@@ -309,7 +360,7 @@ export function RivalStall({ s, p, open, onOpen, board, off, compact, brief, fir
 function MyBox({ s, p, compact, brief, first }: { s: GameState; p: number; compact: boolean; brief: boolean; first?: string | null }) {
   useCashShown();
   const pl = s.players[p];
-  const state = buyState(s, p);
+  const state = buyState(s, p, heldBuyer());
   const buys = shownBuys(s, p);
   const got = s.phase !== 'buy' || state === 'waiting' ? 'waiting' : state === 'now' ? (brief ? 'buying' : 'buying now') : buys.length ? '' : 'nothing';
   const cash = shownCash(p, pl.cash);
@@ -462,7 +513,7 @@ export function MyStall({ s, p, onCard, flashCards, night, hidden }: { s: GameSt
   // During the rush the shelf drops as each customer is served, and while a bought piece is on its way it is not on
   // the shelf yet (stockShown.ts); otherwise this is the real shelf.
   const shelf = shownStock(p, pl.stock);
-  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && s.order[s.turn] === p;
+  const active = s.phase === 'evening' ? eveningOpen(s, p) : s.phase === 'buy' && (heldBuyer() ?? s.order[s.turn]) === p;
   const cap = shelfSize(pl);
   // The last day: fruit left on the shelf tonight is worth nothing ("Unsold = $0").
   const closing = closingNote(s, p)?.chip;

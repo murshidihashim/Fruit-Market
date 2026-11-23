@@ -1,16 +1,16 @@
 // Market Ticket pieces shared by the game screen (PLAN-072): the freshness letters, the stall patterns and the
 // customer ticket. They are the printed game's own marks (the board's F, O, S, G boxes, the six stall-sheet patterns,
 // the customer card's rows), so the phone and the table read the same way. Drawing only: nothing here changes a rule.
-import { FRUIT, PREF_INFO, lookOf, prefOf, type FruitId, type Stage } from '../engine/data';
+import { FRUIT, lookOf, prefOf, type FruitId, type Stage } from '../engine/data';
 import { partsOf, type LookSet } from '../net/looks';
 import { Face, Fruit } from './art';
 import { LANES } from './boardModel';
-import { OKAY_LESS, SOFT_LESS, byLane, customerNumber, laneClass, prefClass } from './cards';
+import { byLane, customerNumber, laneClass, prefClass, prefWords } from './cards';
 import { GUEST_EVENT, customerArt, customerFocus, focusCss, guestArt, guestFocus } from './deckArt';
 
 /** The letters printed on the board's boxes. */
 export const STAGE_LETTER: Record<Stage, string> = { unripe: 'G', fresh: 'F', okay: 'O', notso: 'S' };
-export const STAGE_WORD: Record<Stage, string> = { unripe: 'green', fresh: 'fresh', okay: 'okay', notso: 'soft' };
+export { STAGE_WORD } from './stageWords';
 
 /** A freshness letter in a round lamp: filled when it applies, hollow when it does not. */
 export function Lamp({ stage, on = true, size = 16 }: { stage: Stage; on?: boolean; size?: number }) {
@@ -81,7 +81,7 @@ export function Ticket({ who, lines, class: cls, order }: { who: string; lines: 
           <b>${x.max}</b>
         </div>
       ))}
-      <footer class="tkc-bd" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : `${PREF_INFO[pref].title}: ${PREF_INFO[pref].text} Okay fruit pays $${OKAY_LESS} less, Soft fruit $${SOFT_LESS} less.`}>
+      <footer class="tkc-bd" role="img" aria-label={order ? 'Takes Fresh or Okay fruit at its price' : prefWords(pref)}>
         <i class="tkc-lamp">F</i>
         <i class={cx('tkc-lamp', pref === 'premium' && 'off')}>O</i>
         <i class={cx('tkc-lamp', pref !== 'bargain' && 'off')}>S</i>

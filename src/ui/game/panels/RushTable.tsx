@@ -209,8 +209,7 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
     wasStep.current = step;
     if (was === 'price' && step === 'sealed' && root.current) tagsSealed(root.current);
   }, [step]);
-  // The bell: it comes into the middle and swings, then seat by seat, clockwise from yours, a crate opens
-  // (animator.tsx bellRings counts the seats).
+  // The bell: it comes into the middle and swings, then every crate opens at once (animator.tsx bellRings; PLAN-123).
   const wasOpen = useRef<number | null>(null);
   useLayoutEffect(() => {
     const was = wasOpen.current;

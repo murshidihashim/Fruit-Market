@@ -41,6 +41,9 @@ const path = require('path');
     try {
       if (await has('.trait-card')) { await page.locator('.trait-card').first().click(); continue; }
       if (await has('button:has-text("Start buying")')) { bought = {}; await page.click('button:has-text("Start buying")'); continue; }
+      // PLAN-123: a tip lying over the market is read and closed first, as a person would (it can cover the box the
+      // player wants, and a click on the box then waited behind it)
+      if (await has('.coach .btn:not(.skip)')) { await page.click('.coach .btn:not(.skip)'); continue; }
       if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
         // A ripe piece of the fruit most wanted today that it has not bought enough of yet, the freshest box first.
         const pick = await page.evaluate((bought) => {
