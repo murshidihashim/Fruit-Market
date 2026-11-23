@@ -67,7 +67,7 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
     const ctrl = read('src/ui/game/useGameController.ts');
     expect(ctrl).toContain("const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';");
-    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');");
+    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie', !online && multi);");
     expect(read('src/ui/game/animator.tsx')).toContain('if (!rung) await bellRings(g, setBell);');
   });
 

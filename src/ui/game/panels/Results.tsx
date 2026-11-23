@@ -26,6 +26,7 @@ import { StageEnd } from '../../StageMoment';
 import { DailyResult } from './DailyResult';
 import { SprintResult } from '../../Sprint';
 import { LEAGUE_TO_SPRINT } from '../../playMenu';
+import { decisiveMoment, noSalesLine } from '../resultsWords';
 
 /** Every stall's cash at the end of each day, so you can see where the game was won. */
 function CashChart({ s, viewer }: { s: GameState; viewer: number }) {
@@ -227,6 +228,23 @@ function BestSaleBox({ s, owner, tag }: { s: GameState; owner: number; tag: stri
   );
 }
 
+/**
+ * PLAN-123: the game in one moment, from the sales the game kept: the day the winner took the lead for good and the sale
+ * that day; and, for a person who sold nothing all game, that plainly ("You ended with your starting cash and made no
+ * sales."), where the best sale would otherwise be.
+ */
+function MomentBox({ s, owner }: { s: GameState; owner: number }) {
+  const m = decisiveMoment(s, owner);
+  const none = noSalesLine(s, owner);
+  if (!m && !none) return null;
+  return (
+    <div class="jp-box jp-moment" data-a="moment">
+      {m && <><span class="sbk-lab">The deciding moment</span><span class="jp-moment-tx">{m.text}</span></>}
+      {none && <><span class="sbk-lab">Your sales</span><span class="jp-moment-tx" data-a="no-sales">{none}</span></>}
+    </div>
+  );
+}
+
 /** How a look was earned, in a few words: "Bronze · First Sale: Sell a piece of fruit." or "Stall level 3". */
 function earnedBy(l: Look): string {
   if (l.from.kind === 'level') return `Stall level ${l.from.level}`;
@@ -388,7 +406,9 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
         {/* PLAN-123: the Sprint's box (this run, your best, the board and Try again) comes first, under the headline. */}
         {sprint && <SprintResult s={s} />}
 
-        <ol class="jp-pods podium" style={{ '--n': cols }}>
+        {/* PLAN-123: the places at this table, apart from any board's (the Daily market and the Sprint have their own) */}
+        {order.length > 1 && <span class="sbk-lab jp-pods-lab">Places at this table</span>}
+        <ol class="jp-pods podium" style={{ '--n': cols }} aria-label="Places at this table">
           {order.map((i) => {
             const pl = s.players[i];
             const look = lookOfSeat(i);
@@ -412,6 +432,8 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
 
+        {/* The Sprint's box has its own deciding moment. */}
+        {!sprint && <MomentBox s={s} owner={owner} />}
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
 
         {sum && <div class="sbk-sec"><StampsEarned sum={sum} onDone={() => setLanded(true)} /></div>}

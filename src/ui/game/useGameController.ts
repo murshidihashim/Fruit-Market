@@ -19,7 +19,7 @@ import { holdRush, releaseRush } from '../rushShown';
 import { releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings, loadUndo, saveUndo } from '../store';
-import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
+import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, stopRush, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
 import { awaitsHandOver, playLocal, undoPoint, waitsForPerson, type UndoPoint } from './turn';
@@ -158,8 +158,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     return () => A.setLayer(null);
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
-  // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseToken(); releaseStock(); releaseRush(); releaseTable(); }; }, []);
+  // table (a game left while a rival was playing) does not carry over to this one either. PLAN-123: the rush still
+  // playing stops where it stands (animator.tsx stopRush), and this table's last beat, which still runs to its end,
+  // no longer lets go of what the next table holds back (`mounted`).
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    A.resetHurry();
+    return () => { mounted.current = false; stopRush(); holdCash(null); releaseToken(); releaseStock(); releaseRush(); releaseTable(); };
+  }, []);
   // PLAN-104: once the day's line-up is on show at rest (buying has begun, and no beat holds the First token), this
   // phone remembers it: the beat is not played again, and tomorrow's token slides from here.
   useEffect(() => { if (!beforeBuying(s) && s.order.length && !tokenHeld()) noteSeen(s); }, [s.day, s.phase]);
@@ -264,7 +271,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await arrive(walkIns);
         // A card just played slides to its price tag and stamps it; the bell is not shown a second time.
         if (tied?.played) await tiePlayed(tied.p, cardFrom);
-        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');
+        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie', !online && multi);
         setBell(null);
         setRevealDone(true);
       } else if (tied) {
@@ -275,11 +282,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await arrive(walkIns);
       }
     } finally {
-      holdCash(null);
-      releaseToken();
-      releaseStock();
-      releaseRush();
-      releaseTable();
+      // A table that has been left lets go of nothing here: it did so as it was left, and what is held back now
+      // belongs to the next table (PLAN-123).
+      if (mounted.current) {
+        holdCash(null);
+        releaseToken();
+        releaseStock();
+        releaseRush();
+        releaseTable();
+      }
       setOrderShow(null);
       busyRef.current = false;
       setBusy(false);

@@ -188,7 +188,9 @@ describe('one speed for scripts and stylesheets', () => {
   it('the labels over a stall are pauses to read, so reduced motion keeps them (they used to shrink to a twentieth)', () => {
     const src = read('src/ui/game/animator.tsx');
     expect(src).toContain('A.hold(A.BEAT.label.read)');
-    expect(src).toContain('A.hold(A.BEAT.label.favourWon)');
+    // PLAN-123: Skip no longer holds a "+1 favour card" label per skipped customer before the takings; each favour card
+    // is shown on its stall at once as Skip settles the rush.
+    expect(src).not.toContain('+1 favour card');
     expect(src).toContain('A.hold(A.BEAT.label.bonus)');
     expect(src).not.toMatch(/A\.wait\(A\.BEAT\.label/);
   });

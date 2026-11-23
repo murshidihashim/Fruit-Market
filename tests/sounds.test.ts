@@ -134,7 +134,8 @@ describe('the sounds a player chose', () => {
     expect(src.match(/\bshowBell\(/g)?.length).toBe(1);
     // and the coins of the rush land with fx.coin (animator.tsx), the sound the player chose
     const anim = readFileSync('src/ui/game/animator.tsx', 'utf8');
-    expect(anim).toContain("onLand: k ? undefined : () => { fx.coin(); pay(row.player, row.paid);");
+    // PLAN-123: once a payment has been shown (by its coin, or by Skip first) it is not shown again, sound included
+    expect(anim).toMatch(/onLand: k \? undefined : \(\) => \{\s*if \(!once\(saleKey\(card, b, row\.player\)\)\) return;\s*fx\.coin\(\);\s*pay\(row\.player, row\.paid\);/);
   });
 });
 
