@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { planPrices, planStall } from '../src/engine/ai';
 import { FRUITS, type FavourId } from '../src/engine/data';
 import { activePlayer, canBuy, emptyStock, eveningOpen, newGame, type GameState } from '../src/engine/game';
-import { CHARACTER_AVATARS, PROTOCOL_VERSION, REACT_GAP_MS, REACTIONS, RULES_VERSION, UPDATE_MSG, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
+import { CHARACTER_AVATARS, PROTOCOL_VERSION, QUICK_FILL_MS, REACT_GAP_MS, REACTIONS, RULES_VERSION, UPDATE_MSG, type ClientMsg, type RoomView, type ServerMsg } from '../src/net/protocol';
 import type { Listing } from '../server/lobby';
-import { freshRoom, GRACE_MS, redact, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
+import { CLAIM_BEFORE_FILL_MS, CLAIM_MS, freshRoom, GRACE_MS, redact, Room, roomGoneMsg, ROOM_TTL_MS, type Conn, type RoomIO } from '../server/room';
 
 class Client implements Conn {
   seat: number | null = null;
@@ -248,7 +248,7 @@ describe('online room', () => {
     expect(b.view!.status).toBe('lobby');
     expect(b.view!.seats.map((x) => x.name)).toEqual(['Here']);
     expect(b.view!.seats[0].host).toBe(true);
-    expect(h.room.waitingForOpponent()).toBe(true);
+    expect(h.room.waitingForMore()).toBe(true);
     const c = h.connect('C');
     await c.say({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name: 'New', avatar: '🦸' });
     expect(c.view!.status).toBe('playing');
@@ -1453,5 +1453,190 @@ describe('PLAN-112: public rooms, starting with computers, and reactions', () =>
     // Its later messages, a reaction among them, are refused without being passed on.
     await old.say({ t: 'react', r: 'smile' });
     expect(old.inbox.map((r) => JSON.parse(r).t)).toEqual(['error', 'error']);
+  });
+});
+
+// PLAN-125: Quick Match at 2, 4 or 6 stalls. A quick room starts when it is full, or QUICK_FILL_MS after it opened with
+// Normal computers in the empty seats; the queue claims a seat before it sends anyone.
+describe('quick match tables of 2, 4 and 6 stalls', () => {
+  const hi = (name: string, avatar: string): ClientMsg => ({ t: 'hello', rv: RULES_VERSION, pv: PROTOCOL_VERSION, name, avatar });
+  const quickRoom = (h: Harness, stalls: 2 | 4 | 6) => { h.room = new Room(freshRoom('QUICKS', h.t, true, false, stalls), h); return h.t + QUICK_FILL_MS; };
+
+  it('tells the wait screen the table size and when computers fill, and a private room nothing', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    expect(a.view!.quick).toEqual({ stalls: 4, fillAt });
+    expect(h.alarmAt).toBe(fillAt);
+    const p = new Harness();
+    const { a: host } = await lobbyOf2(p);
+    expect(host.view!.quick).toBeUndefined();
+  });
+
+  it('starts a full table at once, with every person and no computer', async () => {
+    const h = new Harness();
+    quickRoom(h, 4);
+    const cs = ['A', 'B', 'C', 'D'].map((x) => h.connect(x));
+    for (const [i, c] of cs.entries()) {
+      await c.say(hi(`P${i}`, CHARACTER_AVATARS[i]));
+      expect(c.view!.status).toBe(i < 3 ? 'lobby' : 'playing');
+    }
+    const g = h.room.d.game!;
+    expect(g.players.map((x) => x.kind)).toEqual(['human', 'human', 'human', 'human']);
+    expect(cs[0].view!.quick).toEqual({ stalls: 4 }); // no fill time once it has started
+    // Nobody else gets in.
+    const e = h.connect('E');
+    await e.say(hi('Late', '🦊'));
+    expect(e.errors.slice(-1)[0]).toContain('already started');
+  });
+
+  it('fills the empty seats with Normal computers at the fill time, with shopkeepers nobody has', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 6);
+    const a = h.connect('A'), b = h.connect('B');
+    await a.say(hi('Ann', '🦊'));
+    await b.say(hi('Ben', '🐻'));
+    h.t = fillAt - 1;
+    await h.room.alarm();
+    expect(a.view!.status).toBe('lobby');
+    h.t = fillAt;
+    await h.room.alarm();
+    expect(a.view!.status).toBe('playing');
+    const g = h.room.d.game!;
+    expect(g.players.length).toBe(6);
+    expect(g.players.slice(0, 2).map((x) => [x.name, x.kind, x.avatar])).toEqual([['Ann', 'human', '🦊'], ['Ben', 'human', '🐻']]);
+    expect(g.players.slice(2).every((x) => x.kind === 'ai' && x.level === 'normal')).toBe(true);
+    expect(new Set(g.players.map((x) => x.avatar)).size).toBe(6);
+    expect(h.room.d.config.ai).toBe(4);
+  });
+
+  it('a two-stall room starts at once with two people, and with one computer after the wait when alone', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 2);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    expect(a.view!.status).toBe('lobby');
+    h.t = fillAt;
+    await h.room.alarm();
+    expect(h.room.d.game!.players.map((x) => x.kind)).toEqual(['human', 'ai']);
+  });
+
+  it('gives the later of two people who chose the same shopkeeper another free one', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    const a = h.connect('A'), b = h.connect('B');
+    await a.say(hi('Ann', '🐼'));
+    await b.say(hi('Ben', '🐼'));
+    expect(b.view!.seats[0].avatar).toBe('🐼');
+    expect(b.view!.seats[1].avatar).not.toBe('🐼');
+    expect(CHARACTER_AVATARS).toContain(b.view!.seats[1].avatar);
+    h.t = fillAt;
+    await h.room.alarm();
+    expect(new Set(h.room.d.game!.players.map((x) => x.avatar)).size).toBe(4);
+  });
+
+  it('frees the seat of a person who leaves while waiting, and the rest still start', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    const a = h.connect('A'), b = h.connect('B'), c = h.connect('C');
+    await a.say(hi('Ann', '🦊'));
+    await b.say(hi('Ben', '🐻'));
+    await c.say(hi('Cat', '🐼'));
+    await a.say({ t: 'leave' }); // the first one, who had the host tag
+    expect(c.view!.seats.map((x) => x.name)).toEqual(['Ben', 'Cat']);
+    b.close(); // closed the app
+    expect(c.view!.seats.map((x) => x.name)).toEqual(['Cat']);
+    expect(h.room.waitingForMore()).toBe(true);
+    // A new person takes a freed seat; the room is still not full.
+    const d = h.connect('D');
+    await d.say(hi('Dan', '🐵'));
+    expect(d.view!.status).toBe('lobby');
+    h.t = fillAt;
+    await h.room.alarm();
+    expect(h.room.d.game!.players.map((x) => x.kind)).toEqual(['human', 'human', 'ai', 'ai']);
+    expect(h.room.d.game!.players.slice(0, 2).map((x) => x.name)).toEqual(['Cat', 'Dan']);
+  });
+
+  it('starts nothing when everyone has gone, and does not keep waking', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    a.close();
+    expect(h.room.d.seats.length).toBe(0);
+    expect(h.alarmAt).toBeGreaterThan(fillAt); // only the day-long expiry
+    h.t = fillAt + 1;
+    await h.room.alarm();
+    expect(h.room.d.status).toBe('lobby');
+    expect(h.alarmAt).toBeGreaterThan(h.t + 60_000);
+    expect(h.room.waitingForMore()).toBe(false);
+  });
+
+  it('keeps a seat for each person the queue sends, and no more than the table has', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    expect(await h.room.claimSeat()).toBe(false); // nobody waiting yet: the queue opens a room of its own instead
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    expect([await h.room.claimSeat(), await h.room.claimSeat(), await h.room.claimSeat()]).toEqual([true, true, true]);
+    expect(await h.room.claimSeat()).toBe(false); // 1 here + 3 on the way = 4
+    const b = h.connect('B');
+    await b.say(hi('Ben', '🐻'));
+    expect(await h.room.claimSeat()).toBe(false); // Ben used one of the kept seats
+    h.t += CLAIM_MS + 1; // the other two never came
+    expect(await h.room.claimSeat()).toBe(true);
+    // Too close to the fill time: nobody more is sent.
+    h.t = fillAt - CLAIM_BEFORE_FILL_MS;
+    expect(await h.room.claimSeat()).toBe(false);
+  });
+
+  it('waits at the fill time for a person still on the way, then starts when they arrive', async () => {
+    const h = new Harness();
+    const fillAt = quickRoom(h, 4);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    h.t = fillAt - CLAIM_BEFORE_FILL_MS - 1;
+    expect(await h.room.claimSeat()).toBe(true);
+    h.t = fillAt;
+    await h.room.alarm();
+    expect(h.room.d.status).toBe('lobby');
+    expect(h.alarmAt).toBe(fillAt - CLAIM_BEFORE_FILL_MS - 1 + CLAIM_MS);
+    const b = h.connect('B');
+    await b.say(hi('Ben', '🐻'));
+    expect(b.view!.status).toBe('playing');
+    expect(h.room.d.game!.players.map((x) => x.kind)).toEqual(['human', 'human', 'ai', 'ai']);
+  });
+
+  it('never gives a quick room a host lobby: no settings, no start', async () => {
+    const h = new Harness();
+    quickRoom(h, 4);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    expect(a.view!.seats[0].host).toBe(true);
+    await a.say({ t: 'config', config: { days: 8, ai: 3, unripe: true, upgrades: true, events: true } });
+    await a.say({ t: 'start', computers: true });
+    expect(a.errors.slice(-2)).toEqual(['A quick match starts by itself.', 'A quick match starts by itself.']);
+    expect(h.room.d.status).toBe('lobby');
+    expect(h.room.d.config.ai).toBe(0);
+  });
+
+  it('a quick room stored before PLAN-125 is a two-stall room that waits for a second person, as it did', async () => {
+    const h = new Harness();
+    const d = freshRoom('OLDQK2', h.t, true);
+    delete d.stalls;
+    delete d.fillAt;
+    h.room = new Room(d, h);
+    const a = h.connect('A');
+    await a.say(hi('Ann', '🦊'));
+    expect(a.view!.quick).toEqual({ stalls: 2 });
+    h.t += 10 * QUICK_FILL_MS;
+    await h.room.alarm();
+    expect(a.view!.status).toBe('lobby');
+    expect(h.room.waitingForMore()).toBe(true);
+    const b = h.connect('B');
+    await b.say(hi('Ben', '🐻'));
+    expect(b.view!.status).toBe('playing');
+    expect(h.room.d.game!.players.length).toBe(2);
   });
 });

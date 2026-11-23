@@ -30,9 +30,10 @@ export async function createRoom(pub = false): Promise<string> {
   return body.code;
 }
 
-/** Joins a stranger who is waiting, or opens a room to wait in. */
-export async function quickMatch(): Promise<string> {
-  const res = await fetch(`${serverBase()}/api/quick`, { method: 'POST' });
+/** Joins strangers who are waiting at a table of `stalls` (PLAN-125: 2, 4 or 6), or opens a room to wait in. The room
+ *  starts when it is full, or after QUICK_FILL_MS with Normal computers in the empty seats. Returns the room code. */
+export async function quickMatch(stalls: 2 | 4 | 6 = 2): Promise<string> {
+  const res = await fetch(`${serverBase()}/api/quick`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ stalls }) });
   const body = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
   if (!res.ok || !body.code) throw new Error(body.error ?? 'Could not find a game. Try again.');
   return body.code;

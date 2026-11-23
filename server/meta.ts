@@ -4,7 +4,7 @@
 import { aiStep } from '../src/engine/ai';
 import { applyAction, beginBuying, finishReveal, newGame, RuleError, type Action, type GameState } from '../src/engine/game';
 import { dailyConfig, isoWeek, sprintConfig, SPRINT_WEEK_DAYS } from '../src/engine/daily';
-import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
+import { AI_VERSION, QUICK_FILL_MS, quickStalls, RULES_VERSION, UPDATE_MSG, type QuickStalls } from '../src/net/protocol';
 import { safeName, squash } from './names';
 
 // ---------- usage counters ----------
@@ -224,18 +224,35 @@ export function weekView(week: WeekEntry[], owner?: string): BoardView {
 
 // ---------- quick match ----------
 
-export const QUICK_WAIT_MS = 10 * 60_000;
 export interface QuickState { code: string | null; since: number }
+/** PLAN-125: one waiting room per table size. */
+export type QuickQueues = Record<QuickStalls, QuickState>;
+
+/** PLAN-125: the queues as stored, from the stored per-size queues, or (from before) the one queue, which was for 2. */
+export function loadQueues(saved: unknown, old: unknown): QuickQueues {
+  const state = (x: unknown): QuickState => {
+    const q = x as Partial<QuickState> | null | undefined;
+    return q && typeof q === 'object' && typeof q.code === 'string' && typeof q.since === 'number' ? { code: q.code, since: q.since } : { code: null, since: 0 };
+  };
+  const s = saved && typeof saved === 'object' ? (saved as Record<string, unknown>) : null;
+  return { 2: state(s ? s[2] : old), 4: state(s?.[4]), 6: state(s?.[6]) };
+}
+
+/** PLAN-125: the table size asked for in a quick-match request (a missing body or an unknown size means 2). */
+export function quickSize(body: unknown): QuickStalls {
+  return quickStalls(body && typeof body === 'object' ? (body as { stalls?: unknown }).stalls : undefined);
+}
 
 /**
- * Returns the room to join: the last quick room if someone is still waiting in it, or a new room
- * (made by `create`) to wait in. `waiting(code)` asks the room itself, so a player who gave up and
- * closed the app is never matched.
+ * Returns the room to join: the size's last quick room if it is still waiting and keeps a seat for this person, or a
+ * new room (made by `create`) to wait in. `claim(code)` asks the room itself (it says no once it is full, has started,
+ * is about to fill with computers, or everyone in it gave up), so nobody is sent to a room without a seat. A room older
+ * than `maxAge` (its fill time) is not asked.
  */
 export async function quickMatch(
-  q: QuickState, now: number, create: () => Promise<string>, waiting: (code: string) => Promise<boolean>,
+  q: QuickState, now: number, create: () => Promise<string>, claim: (code: string) => Promise<boolean>, maxAge = QUICK_FILL_MS,
 ): Promise<{ code: string; host: boolean; q: QuickState }> {
-  if (q.code && now - q.since < QUICK_WAIT_MS && (await waiting(q.code))) return { code: q.code, host: false, q };
+  if (q.code && now - q.since < maxAge && (await claim(q.code))) return { code: q.code, host: false, q };
   const code = await create();
   return { code, host: true, q: { code, since: now } };
 }
