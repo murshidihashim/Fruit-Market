@@ -75,14 +75,15 @@ const MAX_RIVALS = 5;
 const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
 
 // The market opening plays once, when the game is first opened. Automated browser tests skip it. Right after it, the
-// game asks to go full screen (PLAN-062), unless it already is or the player said not to ask.
+// game asks to go full screen (PLAN-062; PLAN-123: on Home, once the player is back from a game), unless it already
+// is or the player said not to ask.
 export function App() {
   // PLAN-123: the game's own Reduced motion setting is in force before anything moves (the opening included).
   useState(() => setStill(loadSettings().still));
   const [opening, setOpening] = useState(() => !navigator.webdriver);
   const [ask, setAsk] = useState(false);
-  // PLAN-123: the question waits for Home: it is never asked over the League, an intro or a game the player opened
-  // while the opening played (it used to cover the first League-map opening).
+  // PLAN-123: the question no longer comes as the game opens, over the menus the player is browsing (it covered the first
+  // League-map opening). It waits until the player comes back to Home from a game, and is never asked over anything else.
   return (
     <>
       <Main askFullscreen={ask && !opening} onAsked={() => setAsk(false)} />
@@ -169,6 +170,9 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   }, [screen, popup, swap, from]);
 
   // PLAN-123: the browser's Back (see backNav). A screen away from Home holds one history entry; Home gives it back.
+  // PLAN-123: a game was opened in this visit (the fullscreen question waits for the way back to Home from one).
+  const [played, setPlayed] = useState(false);
+  useEffect(() => { if (screen === 'game') setPlayed(true); }, [screen]);
   const away = screen !== 'home' || !!popup || !!swap;
   useEffect(() => {
     if (away) pushAway();
@@ -351,7 +355,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
         </Popup>
       )}
       {popup === 'account' && <Popup title="Account" onClose={close}><AccountPanel onChange={() => refresh((n) => n + 1)} /></Popup>}
-      {askFullscreen && screen === 'home' && !popup && !swap && <FullscreenPrompt onClose={onAsked} />}
+      {askFullscreen && played && screen === 'home' && !popup && !swap && <FullscreenPrompt onClose={onAsked} />}
     </>
   );
 }
