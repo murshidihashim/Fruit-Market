@@ -121,7 +121,8 @@ async function playSprint(page, shot, tag) {
     const weekNote = await page.locator('[data-a="sprint-week-note"]').innerText().catch(() => '');
     const moment = await page.locator('[data-a="sprint-moment"]').innerText().catch(() => '');
     console.log(`run ${r}: ${secs.toFixed(0)} s · ${head} · ${place} · reason: ${why} · main button: ${main}`);
-    if (!/Place \d+(st|nd|rd|th) of \d+/.test(place)) return fail(`no place on the board (${place})`);
+    // PLAN-123: the board's place is named apart from the table's ("Today's board 3rd of 12").
+    if (!/Today's board \d+(st|nd|rd|th) of \d+/.test(place)) return fail(`no place on the board (${place})`);
     if (!why) return fail('no reason line');
     if (!/This week/i.test(week)) return fail('no weekly ranking');
     if (weekNote.trim() !== 'Your best 5 days count.') return fail(`the weekly ranking's line is "${weekNote}"`);

@@ -48,7 +48,9 @@ export async function fetchSprint(date: string): Promise<SprintBoards> {
   try {
     const me = await ownerHash();
     const res = await fetch(`${serverBase()}/api/sprint?date=${date}${me ? `&me=${me}` : ''}`);
-    return (await res.json()) as SprintBoards;
+    const body = (await res.json()) as SprintBoards;
+    // PLAN-123: a server error is said as one (it used to read as "not on the board yet").
+    return res.ok ? body : { error: body.error ?? 'The board could not be read. Try again later.' };
   } catch {
     return { error: OFFLINE };
   }

@@ -16,7 +16,7 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
-import { stageLabel } from '../../campaign';
+import { stageByNo, stageLabel } from '../../campaign';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -91,6 +91,20 @@ async function flyStamp(from: Element, to: Element): Promise<void> {
 }
 
 /**
+ * PLAN-123: the line over a League stage's main button: what it starts and what that stage asks of you ("Next stage:
+ * Pasar Malam. Sell 6 ..."), or, when the stage was not cleared, the goal that clears it.
+ */
+export function leagueNext(league: number, cleared: boolean): string {
+  const next = cleared ? LEAGUE[league + 1] : stageByNo(league);
+  if (cleared && !next) return 'Chapter 1 is cleared. Your stamp book has the rewards.';
+  if (!next) return '';
+  return cleared ? `Next stage: ${next.title}. To clear it: ${next.clear.text.replace(/\.$/, '')}.` : `To clear this stage: ${next.clear.text.replace(/\.$/, '')}.`;
+}
+
+/** PLAN-123: what the stamps header says while the stamps are still landing. */
+export const STAMPS_PENDING = 'Adding up…';
+
+/**
  * "Stamps earned": each line appears in its turn and its stamps travel to the card one after another; a full card
  * turns over to the next. Nothing is shown before its moment, a tap hurries it, and with reduced motion the end is
  * shown at once. `onDone` is called when everything has landed.
@@ -102,6 +116,9 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const [shown, setShown] = useState(still ? end : start);
   const [line, setLine] = useState(still ? sum.lines.length : -1);
   const [level, setLevel] = useState(still ? sum.after.level : sum.before.level);
+  // PLAN-123 (preview finding 6): the total is said once every stamp has landed; until then the header says the stamps
+  // are being added up, so it never reads "+0" and then changes.
+  const [settled, setSettled] = useState(still);
   const grid = useRef<HTMLDivElement>(null);
   const rows = useRef<(HTMLElement | null)[]>([]);
 
@@ -153,6 +170,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
       setLine(sum.lines.length);
       setShown(end);
       setLevel(sum.after.level);
+      setSettled(true);
       A.resetHurry();
       onDone();
     })();
@@ -165,7 +183,7 @@ function StampsEarned({ sum, onDone }: { sum: GameSummary; onDone: () => void })
   const fresh = Math.max(0, Math.min(filled, shown - Math.max(start, base)));
   return (
     <div class="sbk-card" data-a="stamps">
-      <div class="sbk-ch"><span>Stamps earned</span><b aria-live="polite">+{shown - start}</b></div>
+      <div class="sbk-ch"><span>Stamps earned</span><b aria-live="polite" data-a="stamps-total">{settled ? `+${end - start}` : STAMPS_PENDING}</b></div>
       <div style="padding: 4px 0">
         {sum.lines.map((l, i) => (
           <div class={`sbk-earn ${i > line ? 'wait' : ''}`} ref={(el) => { rows.current[i] = el; }}>
@@ -355,7 +373,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   const main = league !== undefined ? (cleared ? (league + 1 >= LEAGUE.length ? 'Open your stamp book' : 'Next stage') : retry) : sprint ? 'Try again' : s.config.daily ? 'Home' : 'Rematch';
   // PLAN-113: one line over the big button says what it starts (online, the room's own line about who is waiting).
   // PLAN-114: the Sprint's Try again plays the same Sprint from the start; the best score of the day counts.
-  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? '' : 'Rematch: same stalls, same length, a new market';
+  const what = online ? 'Rematch: the same room, a new market' : sprint ? 'Try again: the same Sprint from the start. Your best today counts.' : s.config.daily ? 'A new Daily market opens tomorrow' : league !== undefined ? leagueNext(league, cleared) : 'Rematch: same stalls, same length, a new market';
   const myLook = lookOfSeat(owner);
   const cols = order.length <= 4 ? order.length : 3;
   return (
@@ -366,6 +384,9 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           <h2>{headline}</h2>
           {order.length > 1 && <span>{margin}</span>}
         </div>
+
+        {/* PLAN-123: the Sprint's box (this run, your best, the board and Try again) comes first, under the headline. */}
+        {sprint && <SprintResult s={s} />}
 
         <ol class="jp-pods podium" style={{ '--n': cols }}>
           {order.map((i) => {
@@ -390,8 +411,6 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
 
         {league !== undefined && <StageEnd s={s} owner={owner} cleared={cleared} fresh={sum?.stars ?? []} />}
         {league !== undefined && cleared && onSprint && <button type="button" class="jp-sec jp-to-sprint" data-a="league-sprint" onClick={onSprint}>{LEAGUE_TO_SPRINT}</button>}
-
-        {sprint && <SprintResult s={s} />}
 
         <BestSaleBox s={s} owner={owner} tag={tagOfLook(myLook)} />
 
@@ -426,7 +445,7 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
           <button class="sbk-btn jp-main" disabled={rematchSent} onClick={onRematch}>{main}</button>
           <div class="jp-two">
             <button class="jp-sec" onClick={share}>Share</button>
-            {league !== undefined && cleared && onRetry && <button class="jp-sec" onClick={onRetry} aria-label={retry}>Retry</button>}
+            {league !== undefined && cleared && onRetry && <button class="jp-sec" data-a="stage-retry" onClick={onRetry} aria-label={retry}>Retry</button>}
             {(!s.config.daily || sprint) && <button class="jp-sec" onClick={onExit}>Home</button>}
             {react}
           </div>

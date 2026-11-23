@@ -25,6 +25,11 @@ import './home-cards.css';
 
 export type DailyKind = 'daily' | 'sprint';
 
+/** PLAN-123: the Sprint's perk choice in words (the same offer for everyone; the one you pick changes your start). */
+export const SPRINT_PERK_LINE = 'You pick one perk from the same offer as everyone. Some change your start, such as more cash.';
+/** PLAN-123: "no twist" is the Daily's weekly twist; the regular event cards still come up in the Sprint. */
+export const SPRINT_EVENTS_LINE = 'No upgrades and no daily twist. The regular event cards still come up.';
+
 export interface DailyIntroProps {
   kind: DailyKind;
   today: string;
@@ -45,8 +50,10 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
   if (kind === 'sprint') {
     return {
       title: 'Sprint', length: `${cfg.days} days · ${stalls} stalls`,
-      goal: `A short market: end ${cfg.days} days with the most cash. Everyone gets the same start today.`,
-      how: [`${cfg.days} days, ${stalls} stalls. ${rivalsLine(cfg)}`, 'No upgrades and no twist: the same start for everyone.'],
+      // PLAN-123 (preview finding 7): the perk you pick changes your start (Nest Egg is $5 more), so the words say what is
+      // the same for everyone: the market and the perks on offer; and that "no twist" still has the regular event cards.
+      goal: `A short market: end ${cfg.days} days with the most cash. Everyone gets the same market today and the same perks to pick from.`,
+      how: [`${cfg.days} days, ${stalls} stalls. ${rivalsLine(cfg)}`, SPRINT_PERK_LINE, SPRINT_EVENTS_LINE],
       score: ['Ranked by final cash, then by fruit sold.', 'Your best today counts on today\'s board.', `The week counts your best ${SPRINT_WEEK_DAYS} days.`],
       retry: 'Retry as often as you like.',
     };

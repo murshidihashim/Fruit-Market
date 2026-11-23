@@ -10,7 +10,7 @@
 // and bigger pictures for a phone with room to spare).
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import { dailyConfig, dailyTwist } from '../engine/daily';
+import { SPRINT_DAYS, dailyConfig, dailyTwist } from '../engine/daily';
 import { FRUIT, RIVALS, lookOf, type FruitId } from '../engine/data';
 import { newGame, type GameState } from '../engine/game';
 import { fetchDaily, type BoardResult } from '../net/daily';
@@ -116,8 +116,10 @@ const lastCard: Record<string, number> = {};
  * under it (and the arrows, with `arrows`) move it and say which card is in view. The arrow keys move it from the nav,
  * and moving focus into a card brings that card into view. With reduced motion the row moves at once.
  */
-function SwipeRow({ name, label, cards, cls, arrows, start }: {
+function SwipeRow({ name, label, cards, cls, arrows, start, chips }: {
   name: string; label: string; cards: SwipeCard[]; cls: { box: string; row: string; card: string; nav: string }; arrows?: boolean; start?: number;
+  /** PLAN-123: labelled chips in place of the dots, each showing its card (two chips may show the same card). */
+  chips?: ModeChip[];
 }) {
   const row = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState(start ?? lastCard[name] ?? 0);
@@ -174,11 +176,22 @@ function SwipeRow({ name, label, cards, cls, arrows, start }: {
             <svg width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><path d="M8 1 1 8l7 7M1 8h17" stroke="currentColor" stroke-width="2.5" fill="none" /></svg>
           </button>
         )}
-        <div class="jh-dots" role="group" aria-label="Cards">
-          {cards.map((c, i) => (
-            <button class={`jh-dot ${i === at ? 'on' : ''}`} aria-label={c.dot} aria-current={i === at ? 'true' : undefined} onClick={() => show(i)}><i /></button>
-          ))}
-        </div>
+        {chips ? (
+          <div class="jh-dots jh-chips" role="group" aria-label="Modes">
+            {chips.map((c) => (
+              <button class={`jh-dot jh-chip ${c.card === at ? 'on' : ''} ${c.wait ? 'wait' : ''}`} data-chip={c.id} aria-label={c.aria}
+                aria-current={c.card === at ? 'true' : undefined} onClick={() => show(c.card)}>
+                <b>{c.label}</b><small>{c.sub}</small>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div class="jh-dots" role="group" aria-label="Cards">
+            {cards.map((c, i) => (
+              <button class={`jh-dot ${i === at ? 'on' : ''}`} aria-label={c.dot} aria-current={i === at ? 'true' : undefined} onClick={() => show(i)}><i /></button>
+            ))}
+          </div>
+        )}
         {arrows && (
           <button class="jh-arr" aria-label="Next card" disabled={at === n - 1} onClick={() => show(at + 1)}>
             <svg width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><path d="M10 1l7 7-7 7M17 8H0" stroke="currentColor" stroke-width="2.5" fill="none" /></svg>
@@ -202,12 +215,36 @@ export function StallRow({ next, buttons, goals }: { next: string | null; button
 }
 
 /** A card's Continue: the waiting game's day and cash, opening the Continue question (Resume or Start over). */
-function ContinueButton({ slot, w, label, onContinue }: { slot: SaveSlot; w: WaitingGame; label?: string; onContinue: (slot: SaveSlot) => void }) {
+function ContinueButton({ slot, w, label, bare, onContinue }: { slot: SaveSlot; w: WaitingGame; label?: string; bare?: boolean; onContinue: (slot: SaveSlot) => void }) {
   return (
     <button class="jh-cgo" data-a={`continue-${slot}`} onClick={() => onContinue(slot)}>
-      <PlayIcon /><span><b>{label ?? 'Continue'}</b><small>{waitWords(w)}</small></span>
+      <PlayIcon /><span><b>{label ?? 'Continue'}</b><small>{bare ? waitWords(w) : continueWords(w)}</small></span>
     </button>
   );
+}
+
+/** PLAN-123: what Continue says about the waiting game: its mode (with the League stage), its day and your cash:
+ *  "League stage 3 · Day 2 of 6 · $14". (`bare` leaves the mode out where the row already names it, as the Sprint's.) */
+export const continueWords = (w: WaitingGame): string => `${w.mode} · ${waitWords(w)}`;
+
+/** PLAN-123: one labelled chip under the mode cards: the mode's name, a short line, and the card it shows. */
+export interface ModeChip { id: string; label: string; sub: string; aria: string; card: number; wait: boolean }
+
+/**
+ * PLAN-123: the chips under the mode cards, so Play, the League, the Daily market and the Sprint are each one tap from
+ * the first view (the Sprint lives on the Daily card). A mode with a game waiting says its day, in the Continue colour.
+ */
+export function modeChips(p: Pick<ModeCardProps, 'games' | 'today'>, at = leagueStage()): ModeChip[] {
+  const chip = (id: SaveSlot, label: string, idle: string, card: number, dot: string): ModeChip => {
+    const w = waitingGame(p.games[id] ?? null);
+    return { id, label, card, wait: !!w, sub: w ? `Day ${w.day} of ${w.days}` : idle, aria: w ? `${dot}, ${w.mode} waiting on day ${w.day}` : dot };
+  };
+  return [
+    chip('play', 'Play', 'Your way', 0, 'Show the Play card'),
+    chip('league', 'League', at >= LEAGUE.length ? 'Cleared' : `Stage ${at + 1}`, 1, 'Show the Market League card'),
+    chip('daily', 'Daily', shortDate(p.today), 2, 'Show the Daily market card'),
+    chip('sprint', 'Sprint', `${SPRINT_DAYS} days`, 2, 'Show the Sprint on the Daily market card'),
+  ];
 }
 
 /** The waiting game's table in one row: every stall's face and cash (the table shows them to all). */
@@ -305,7 +342,7 @@ function LeagueCard(p: ModeCardProps) {
         {trophy && !w && <span class="jh-lgtr jh-x"><b>Next trophy</b> {trophy.title} · {trophy.got} of {trophy.goal} stars</span>}
         {w && g ? (
           <div class="jh-wait">
-            <ContinueButton slot="league" w={w} label={`Continue ${w.mode.replace(/^League /, '')}`} onContinue={p.onContinue} />
+            <ContinueButton slot="league" w={w} onContinue={p.onContinue} />
             <button class="jh-go2 jh-c2" data-a="league" onClick={p.onLeague}>Open the League</button>
           </div>
         ) : <button class="jh-dgo jh-cmain" data-a="league" onClick={p.onLeague}><PlayIcon />Open the League</button>}
@@ -357,7 +394,7 @@ function DailyModeCard(p: ModeCardProps) {
           : <button class="jh-dgo jh-cmain" data-a="daily" onClick={p.onDaily}><PlayIcon />Play the Daily market</button>}
         <div class="jh-sp2" data-a="sprint-row">
           <span class="jh-sp2-tx"><b>{SPRINT_TITLE}</b><small>{sprintMine ?? (sprint?.day?.players ? `${sprint.day.players} played · best so far $${sprint.day.top[0]?.cash ?? 0}` : MODE_REASON.sprint)}</small></span>
-          {ws ? <ContinueButton slot="sprint" w={ws} onContinue={p.onContinue} />
+          {ws ? <ContinueButton slot="sprint" w={ws} bare onContinue={p.onContinue} />
             : <button class="jh-dgo jh-sp2-go" data-a="sprint" onClick={p.onSprint}><PlayIcon />Play the Sprint</button>}
         </div>
       </div>
@@ -377,7 +414,7 @@ const CARDS: { id: 'play' | 'league' | 'daily'; name: string; draw: (p: ModeCard
  */
 export function ModeCards(p: ModeCardProps & { start?: number }) {
   return (
-    <SwipeRow name="modes" label="Ways to play" start={p.start} arrows cls={{ box: 'jh-modes', row: 'jh-row', card: 'jh-card', nav: 'jh-nav' }}
+    <SwipeRow name="modes" label="Ways to play" start={p.start} chips={modeChips(p)} cls={{ box: 'jh-modes', row: 'jh-row', card: 'jh-card', nav: 'jh-nav' }}
       cards={CARDS.map((c) => ({ id: c.id, name: c.name, dot: `Show the ${c.name} card`, draw: () => c.draw(p) }))} />
   );
 }

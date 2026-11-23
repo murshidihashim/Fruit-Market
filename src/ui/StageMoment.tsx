@@ -2,6 +2,7 @@
 // and what its host shopkeeper says), its three goals with their stars (PLAN-118: the clear goal and two optional
 // goals), and a row of stars. Words and pictures come from campaign.ts and the card art; nothing here is animated.
 import type { GameState } from '../engine/game';
+import { EASE, FEEL, held, isReduced, ms } from './motion';
 import { Face } from './art';
 import { LEAGUE, afterLine, isExpert, missedGoals, picName, stageByNo, stageCleared, stageHost, starGoals, starsEarned, type Stage, type StagePic } from './campaign';
 import { CardArt } from './cards';
@@ -43,20 +44,52 @@ export function StageMoment({ st, words }: { st: Stage; words: string }) {
   );
 }
 
-/** A stage's three goals, each with its star: the clear goal first. `have`: the ids held. `fresh`: the ids just earned. */
-export function MasteryList({ stage, have, fresh = [] }: { stage: number; have: readonly string[]; fresh?: readonly string[] }) {
+/** The results already shown, so a redraw never plays the stars' reveal again. */
+const revealed = new WeakSet<Element>();
+/**
+ * PLAN-123: the stars a League game earned for the first time are revealed one after another once the result is shown
+ * (size and fade only; they end by themselves). With reduced motion they are simply there. Called as the box's ref.
+ */
+function revealStars(box: HTMLElement | null): void {
+  if (!box || revealed.has(box) || isReduced() || typeof box.animate !== 'function') return;
+  revealed.add(box);
+  const stars = [...box.querySelectorAll<HTMLElement>('.jp-st-new .jp-star, .jp-st-new .jp-ms-tag')];
+  stars.forEach((el, i) => el.animate(
+    [{ opacity: 0, transform: 'scale(0.4)' }, { opacity: 1, transform: 'scale(1.25)', offset: 0.7 }, { opacity: 1, transform: 'none' }],
+    { duration: ms(FEEL.sheetIn), delay: held(400) + Math.floor(i / 2) * held(260), easing: EASE.sheet, fill: 'backwards' },
+  ));
+}
+
+/** PLAN-123: one star's state on the results, in words: earned for the first time, met again, held from an earlier game, or missed. */
+export type StarState = 'new' | 'again' | 'held' | 'missed';
+export const STAR_WORD: Record<StarState, string> = { new: 'New', again: 'Met again', held: 'Earned before', missed: 'Missed' };
+export function starState(id: string, have: readonly string[], fresh: readonly string[], met: readonly string[]): StarState {
+  if (fresh.includes(id)) return 'new';
+  if (met.includes(id)) return 'again';
+  return have.includes(id) ? 'held' : 'missed';
+}
+
+/**
+ * A stage's three goals, each with its star: the clear goal first. `have`: the ids held. `fresh`: the ids just earned.
+ * PLAN-123: on the results (`met`, the stars this game met), each goal says what this game did about it, in words as
+ * well as by its star: New, Met again, Earned before or Missed.
+ */
+export function MasteryList({ stage, have, fresh = [], met }: { stage: number; have: readonly string[]; fresh?: readonly string[]; met?: readonly string[] }) {
   const st = stageByNo(stage);
   if (!st) return null;
   return (
     <ul class="jp-ms" aria-label="Stars for this stage">
       {starGoals(st).map((m) => {
         const on = have.includes(m.id);
+        const state = met ? starState(m.id, have, fresh, met) : null;
         return (
-          <li class={on ? 'on' : ''}>
+          <li class={`${on ? 'on' : ''}${state ? ` jp-st-${state}` : ''}`} data-star={m.id}>
             <Star on={on} />
             <span>{m.text}</span>
-            <span class="jp-sr">{on ? (fresh.includes(m.id) ? ': earned this game' : ': earned') : ': not yet'}</span>
-            {fresh.includes(m.id) && <i class="jp-ms-new" aria-hidden="true">New</i>}
+            {state
+              ? <i class={`jp-ms-tag ${state}`}>{STAR_WORD[state]}</i>
+              : <span class="jp-sr">{on ? (fresh.includes(m.id) ? ': earned this game' : ': earned') : ': not yet'}</span>}
+            {!state && fresh.includes(m.id) && <i class="jp-ms-new" aria-hidden="true">New</i>}
           </li>
         );
       })}
@@ -68,7 +101,9 @@ export function MasteryList({ stage, have, fresh = [] }: { stage: number; have: 
  * A league game's end on the results: whether the stage was cleared (PLAN-118: when it was not, the exact goal that
  * was missed), then (on a campaign stage) its host's line after the game (when the stage was cleared, its after-game
  * line chosen by the stars this game earned, so it never claims what you did not do; when it was not, its line before
- * the game and the stage's lesson) and the stage's stars, the ones this game earned first marked New.
+ * the game and the stage's lesson) and the stage's stars, each saying what this game did about it.
+ * PLAN-123: the stars this game earned first are revealed one after another once the result is shown (at once with
+ * reduced motion). The next action (Next stage or Retry, with the goal it asks for) is the results' own footer.
  */
 export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: number; cleared: boolean; fresh: readonly string[] }) {
   const at = s.config.league;
@@ -77,12 +112,13 @@ export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: nu
   const met = stageCleared(s, owner);
   const missed = met ? [] : missedGoals(s, owner).filter((m) => m.id === st.clear.id);
   const last = at + 1 >= LEAGUE.length;
+  const expert = isExpert(at);
   const note = cleared ? (last ? `${st.title} cleared. Chapter 1 is yours.` : `${st.title} cleared. Next: ${LEAGUE[at + 1].title}`)
     // REP-135 RA-04: an expert stage never moves you up, so its first clear is the one whose clear star is new.
-    : met && isExpert(at) && fresh.includes(st.clear.id) ? `${st.title} cleared.`
-    : met ? `${st.title}: cleared again.` : isExpert(at) ? `${st.title}: not cleared yet.` : `Market League: clear ${st.title} to move up.`;
+    : met && expert && fresh.includes(st.clear.id) ? `${st.title} cleared.`
+    : met ? `${st.title}: cleared again.` : expert ? `${st.title}: not cleared yet.` : `Market League: clear ${st.title} to move up.`;
   return (
-    <div class="jp-stage-end">
+    <div class="jp-stage-end" ref={revealStars}>
       <p class={`sbk-note ${cleared || met ? 'good' : ''}`}>{note}</p>
       {missed.map((m) => <p class="jp-missed"><b>Missed</b>{` ${m.text}`}</p>)}
       {s.config.stage && (
@@ -90,7 +126,7 @@ export function StageEnd({ s, owner, cleared, fresh }: { s: GameState; owner: nu
           <StageMoment st={st} words={met ? afterLine(st, starsEarned(s, owner)) : st.before} />
           {!met && <p class="sbk-sub">{st.lesson}</p>}
           <span class="sbk-lab">Stars for this stage</span>
-          <MasteryList stage={at} have={myStars()} fresh={fresh} />
+          <MasteryList stage={at} have={myStars()} fresh={fresh} met={starsEarned(s, owner)} />
         </>
       )}
     </div>

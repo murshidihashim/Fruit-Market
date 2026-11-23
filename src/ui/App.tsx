@@ -22,6 +22,7 @@ import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
 import { fx, setMusic } from './fx';
+import { setStill } from './motion';
 import { FullScreenButton, FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { resetTutorial } from './tutorial';
@@ -74,20 +75,43 @@ const MAX_RIVALS = 5;
 const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
 
 // The market opening plays once, when the game is first opened. Automated browser tests skip it. Right after it, the
-// game asks to go full screen (PLAN-062), unless it already is or the player said not to ask.
+// game asks to go full screen (PLAN-062; PLAN-123: on Home, once the player is back from a game), unless it already
+// is or the player said not to ask.
 export function App() {
+  // PLAN-123: the game's own Reduced motion setting is in force before anything moves (the opening included).
+  useState(() => setStill(loadSettings().still));
   const [opening, setOpening] = useState(() => !navigator.webdriver);
   const [ask, setAsk] = useState(false);
+  // PLAN-123: the question no longer comes as the game opens, over the menus the player is browsing (it covered the first
+  // League-map opening). It waits until the player comes back to Home from a game, and is never asked over anything else.
   return (
     <>
-      <Main />
+      <Main askFullscreen={ask && !opening} onAsked={() => setAsk(false)} />
       {opening && <Opening onDone={() => { setOpening(false); setAsk(shouldAskFullscreen()); }} />}
-      {ask && <FullscreenPrompt onClose={() => setAsk(false)} />}
     </>
   );
 }
 
-function Main() {
+/**
+ * PLAN-123: the browser's Back button (and a phone's back gesture in the browser) moves inside the game, as Android's
+ * back button does: it closes a pop-up, leaves a screen for Home (or the online screens for where they were opened
+ * from) and leaves a game for Home, where the game waits in its own slot. One history entry stands for "away from
+ * Home": it is added when a screen other than Home opens and taken off again when Home comes back, so Back on Home
+ * leaves the game as before.
+ */
+export const backNav = { pushed: false, skip: false };
+function pushAway() {
+  if (backNav.pushed) return;
+  try { history.pushState({ fm: 'away' }, ''); backNav.pushed = true; } catch { /* no history here: Back leaves the page */ }
+}
+function popAway() {
+  if (!backNav.pushed) return;
+  backNav.pushed = false;
+  backNav.skip = true;
+  try { history.back(); } catch { backNav.skip = false; }
+}
+
+function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () => void }) {
   const [invite, setInvite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
   // PLAN-120: a saved game per mode (store.ts), and the mode of the game on screen. Starting a game fills its own mode's
@@ -144,6 +168,31 @@ function Main() {
     });
     return () => { sub.then((h) => h.remove()); };
   }, [screen, popup, swap, from]);
+
+  // PLAN-123: the browser's Back (see backNav). A screen away from Home holds one history entry; Home gives it back.
+  // PLAN-123: a game was opened in this visit (the fullscreen question waits for the way back to Home from one).
+  const [played, setPlayed] = useState(false);
+  useEffect(() => { if (screen === 'game') setPlayed(true); }, [screen]);
+  const away = screen !== 'home' || !!popup || !!swap;
+  useEffect(() => {
+    if (away) pushAway();
+    else popAway();
+  }, [screen, popup, swap]);
+  useEffect(() => {
+    const onPop = () => {
+      if (backNav.skip) { backNav.skip = false; return; }
+      backNav.pushed = false;
+      if (swap) setSwap(null);
+      else if (popup) setPopup(null);
+      else if (screen === 'online' || screen === 'quick') setScreen(from);
+      else if (screen === 'game') { if (game && game.phase !== 'over') track('quit_day', game.day); setScreen('home'); if (active && game?.phase === 'over') putGame(active, null); }
+      else if (screen !== 'home') setScreen('home');
+      // Still away from Home afterwards (a pop-up closed over a screen, or back to the Play page): the effect above
+      // adds the entry again for the next Back.
+    };
+    addEventListener('popstate', onPop);
+    return () => removeEventListener('popstate', onPop);
+  }, [screen, popup, swap, from, game, active]);
 
   const start = (cfg0: GameConfig) => {
     // The person holding the phone wears their looks in every offline game (the first human seat).
@@ -306,6 +355,7 @@ function Main() {
         </Popup>
       )}
       {popup === 'account' && <Popup title="Account" onClose={close}><AccountPanel onChange={() => refresh((n) => n + 1)} /></Popup>}
+      {askFullscreen && played && screen === 'home' && !popup && !swap && <FullscreenPrompt onClose={onAsked} />}
     </>
   );
 }
@@ -448,6 +498,8 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
   // S19 (PLAN-110): "Replay the tutorial next game" says that it worked.
   const [replay, setReplay] = useState(false);
   const stats = loadStats();
+  // The phone's own reduced-motion setting: then the game's switch shows on (the phone's setting wins).
+  const phoneStill = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const upd = (p: Partial<Settings>) => {
     const n = { ...st, ...p };
     setSt(n);
@@ -461,7 +513,11 @@ function SettingsScreen({ onBack }: { onBack: () => void }) {
         <section class="panel">
           <Toggle on={st.sound} set={(v) => upd({ sound: v })} title="Sound" text="Coins, cards and cheers." />
           <Toggle on={st.haptics} set={(v) => upd({ haptics: v })} title="Vibration" text="A small buzz when you buy." />
-          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast rivals" text="Computer stalls move faster." />
+          {/* PLAN-123: "Fast" speeds up every move on the table and the computers' turns (motion.ts setBaseSpeed), so it
+              is named for what it does; Reduced motion is the game's own switch beside the phone's setting. */}
+          <Toggle on={st.fast} set={(v) => upd({ fast: v })} title="Fast play" text="Moves and computer turns go quicker." />
+          <Toggle on={st.still || phoneStill} set={(v) => { upd({ still: v }); setStill(v); }} title="Reduced motion"
+            text={phoneStill ? 'On in your phone\'s settings: nothing slides across the table.' : 'Nothing slides across the table: each change shows at once.'} />
           <Toggle on={st.music} set={(v) => { upd({ music: v }); setMusic(v); }} title="Music" text="A gentle market tune." />
           <Toggle on={st.reactions} set={(v) => upd({ reactions: v })} title="Show reactions" text="Emoji and short lines other players send in online games." />
           <Toggle on={st.analytics} set={(v) => upd({ analytics: v })} title="Share anonymous stats" text="Helps fix crashes and balance the game. No names or IDs are sent." />
