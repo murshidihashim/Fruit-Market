@@ -79,10 +79,10 @@ async function playSprint(page, shot, tag) {
   await page.waitForSelector('[data-a="normal-game"]');
   const group = page.locator('[data-a="normal-game"]');
   if (!/custom match/i.test(await group.locator('h2').innerText())) return fail('the Play menu has no "Custom match" heading');
-  for (const a of ['quick', 'room', 'join', 'computer', 'phone', 'public']) {
+  // PLAN-125 (DEC-133): the four ways; joining with a code, the Public rooms and the game length are on their pages.
+  for (const a of ['quick', 'room', 'computer', 'phone']) {
     if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Custom match group`);
   }
-  if ((await group.locator('.jp-len button').count()) !== 3) return fail('the game length choice is not in the Custom match group');
   // PLAN-120: the League, the Daily market and the Sprint left the Play page for cards of their own on Home.
   const left = await page.locator('.jp-in [data-a="league"], .jp-in [data-a="daily"], .jp-in [data-a="sprint"]').count();
   if (left) return fail('the Play page still has the League, the Daily market or the Sprint');

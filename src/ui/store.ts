@@ -53,7 +53,7 @@ interface SaveEnvelope { v: number; rules: number; ai?: number; game: GameState 
 
 /**
  * PLAN-120: a saved game per mode, so a game in one mode never replaces a game in another. `play` holds a game against
- * computers or on one phone; `league` a Market League stage; `daily` the Daily market; `sprint` the Market Sprint.
+ * computers or in Pass & Play; `league` a Market League stage; `daily` the Daily market; `sprint` the Market Sprint.
  * Online matches have no slot: their room keeps them ("Back to room"). Each slot holds the same envelope the single save
  * held (SaveEnvelope), under its own key.
  */
@@ -133,10 +133,10 @@ export function loadGame(slot: SaveSlot): GameState | null {
   let data: unknown;
   try { data = JSON.parse(raw); } catch { data = null; }
   const env = data as SaveEnvelope | null;
-  // REP-136 R120-03: a Play save names its kind, a computer game or a one phone game, from its own players.
+  // REP-136 R120-03: a Play save names its kind, a computer game or a Pass & Play game (PLAN-125), from its own players.
   const inner = env && typeof env === 'object' && 'game' in env ? env.game : data;
   const humans = looksLikeGame(inner) && inner.config ? inner.config.players.filter((p) => p.kind === 'human').length : 0;
-  const what = slot === 'play' && humans > 0 ? (humans > 1 ? 'one phone game' : 'computer game') : SLOT_WORDS[slot];
+  const what = slot === 'play' && humans > 0 ? (humans > 1 ? 'Pass & Play game' : 'computer game') : SLOT_WORDS[slot];
   if (env && typeof env === 'object' && 'game' in env && typeof env.v === 'number') {
     const game = looksLikeGame(env.game) && env.game.config ? env.game : null;
     // A game that is not this slot's mode (never written so) cannot be read here.

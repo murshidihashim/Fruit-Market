@@ -7,7 +7,7 @@ import { stageLabel } from './campaign';
 /** What the home screen says about the waiting game. */
 export interface WaitingGame {
   /** Which kind of game is waiting (REP-133 A-13): "Daily market", "Sprint", "League stage 3", "Computer game" or
-   *  "One phone game". */
+   *  "Pass & Play game" (PLAN-125; it was "One phone game"). */
   mode: string;
   day: number;
   /** The game's length in days. */
@@ -30,7 +30,7 @@ export function modeOf(game: GameState): string {
   if (c.sprint) return 'Sprint';
   if (c.daily) return 'Daily market';
   if (c.league !== undefined) return `League ${stageLabel(c.league)}`;
-  return game.players.filter((pl) => pl.kind === 'human').length > 1 ? 'One phone game' : 'Computer game';
+  return game.players.filter((pl) => pl.kind === 'human').length > 1 ? 'Pass & Play game' : 'Computer game';
 }
 
 /**

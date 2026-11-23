@@ -1,0 +1,248 @@
+/* =====================================================================
+   PLAN-125 (DEC-133), design B, "the deck" (Setup.tsx): the one-page set-up for Computer, Pass & Play and Quick Match,
+   and the Private Room, the pick screen and the Quick Match wait (Online.tsx). The Home's look (PLAN-124): ink edges,
+   paper, mustard actions, square corners; the cards are the game's cards (cards.css), the small ones built from the
+   same parts. Only position, size and fade move (the deck sliding); with reduced motion it shows the end at once.
+   The set-up fits one phone screen: the deck's card is sized from the screen's height (--dk-w).
+   ===================================================================== */
+
+#app .page.sb {
+  --dk-w: clamp(112px, min(46vw, 23vh), 186px);
+  height: 100%; display: flex; flex-direction: column; background: var(--x-paper); color: var(--x-ink); font-family: var(--f-label);
+}
+.sb-lanes { flex: none; display: flex; height: 12px; border-bottom: 3px solid var(--x-ink); }
+.sb-lanes i { flex: 1; background: var(--lane); }
+
+/* the header: a square back button, the mode's name and its line */
+.sb-hd { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 14px 4px; }
+.sb-back {
+  flex: none; width: 44px; height: 44px; margin: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 0;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); cursor: pointer;
+}
+.sb-back:active { transform: translateY(2px); }
+.sb-tt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sb-tt h1 { margin: 0; font: 400 1.5625rem/0.95 var(--f-display); text-transform: uppercase; color: var(--x-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-tt small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-slate); }
+
+.sb-main {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 8px; padding: 2px 14px max(12px, env(safe-area-inset-bottom));
+}
+.sb-sec { flex: none; display: flex; flex-direction: column; }
+.sb-lb { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 16px; margin: 0 0 5px; }
+.sb-lb > span { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--x-slate); }
+.sb-note { margin: 5px 0 0; font: 500 0.75rem/1.3 var(--f-label); color: var(--x-slate); }
+.sb-link {
+  margin: 0; padding: 4px 0; border: 0; background: none; color: var(--x-ink); cursor: pointer;
+  font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px;
+}
+.sb-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.sb-warn { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); color: var(--x-red); }
+
+/* the segmented choice (game length, table size): the chosen part is ink with yellow words */
+.sb-seg { display: flex; border: 3px solid var(--x-ink); background: var(--x-paper); }
+.sb-seg button {
+  flex: 1 1 0; min-width: 0; min-height: 44px; margin: 0; padding: 6px 3px; border: 0; border-left: 3px solid var(--x-ink); border-radius: 0;
+  background: none; color: var(--x-ink); cursor: pointer; text-align: center;
+  font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.sb-seg button:first-child { border-left: 0; }
+.sb-seg button small { display: block; font: 500 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
+.sb-seg button.on { background: var(--x-ink); color: var(--x-mustard); }
+.sb-seg button.on small { color: var(--x-paper); }
+.sb-seg button:disabled { cursor: default; }
+.sb-seg button:focus-visible, .sb-go:focus-visible, .sb-back:focus-visible, .sb-arrow:focus-visible, .sb-cin:focus-visible,
+.sb-add:focus-visible, .sb-x:focus-visible, .sb-btn:focus-visible, .sb-link:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: 2px; }
+
+/* the big button at the foot */
+.sb-foot { flex: none; margin-top: auto; padding-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+.sb-go {
+  width: 100%; min-height: 58px; margin: 0 0 5px; padding: 0 12px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 0;
+  background: var(--x-mustard); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink), 0 5px 0 var(--x-ink); cursor: pointer;
+  font: 400 1.6875rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; text-align: center;
+}
+.sb-go:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--x-ink), 0 2px 0 var(--x-ink); }
+.sb-go:disabled { background: var(--c-efe9df); color: var(--x-slate); cursor: default; }
+.sb-go.small { min-height: 48px; font-size: 1.25rem; }
+/* a plain button beside it: ink edge, paper */
+.sb-btn {
+  width: 100%; min-height: 46px; margin: 0; padding: 0 12px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 3px var(--x-ink); cursor: pointer; font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.sb-btn:active:not(:disabled) { transform: translateY(2px); }
+.sb-btn:disabled { color: var(--x-slate); cursor: default; }
+.sb-btn small { display: block; margin-top: 3px; font: 500 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--x-slate); }
+
+/* ---------- the deck ---------- */
+.sb-deckbox { flex: none; display: flex; flex-direction: column; gap: 4px; }
+.sb-deck {
+  position: relative; height: calc(var(--dk-w) * 352 / 252 + 10px); margin: 0 -14px; overflow: hidden; touch-action: pan-y;
+  user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.sb-deck:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: -3px; }
+.sb-dcard {
+  --card-w: var(--dk-w);
+  position: absolute; left: 50%; top: 5px; width: var(--dk-w); margin-left: calc(var(--dk-w) / -2); pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease; opacity: 0.55;
+}
+.sb-dcard.on { opacity: 1; }
+.sb-dcard.far { opacity: 0; }
+.sb-dcard img { -webkit-user-drag: none; }
+@media (prefers-reduced-motion: reduce) { .sb-dcard { transition: none; } }
+
+/* the row under the deck: ‹, the name and "swipe to choose", › */
+.sb-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sb-arrow {
+  flex: none; width: 44px; height: 40px; margin: 0; padding: 0; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 3px var(--x-ink); cursor: pointer; font: 400 1.25rem/1 var(--f-display);
+}
+.sb-arrow:active { transform: translateY(2px); }
+.sb-nm { flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; justify-content: center; white-space: nowrap; font: 800 0.9375rem/1.2 var(--f-label); }
+.sb-nm > b { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 800; }
+.sb-nm > span { flex: none; }
+.sb-name {
+  min-width: 4ch; max-width: 60%; margin: 0; padding: 4px 3px; border: 0; border-bottom: 2.5px dashed var(--x-ink); border-radius: 0; background: none;
+  color: var(--x-ink); font: 800 0.9375rem/1.2 var(--f-label); text-align: right; user-select: text; -webkit-user-select: text;
+}
+.sb-name::placeholder { color: var(--x-slate); }
+.sb-name:focus { outline: none; border-bottom-style: solid; background: var(--c-efe9df); }
+
+/* ---------- the small cards at the table ---------- */
+.sb-row { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 6px; }
+.sb-row.wrap { row-gap: 8px; }
+.sb-card { position: relative; min-width: 0; display: flex; }
+.sb-cin {
+  flex: 1 1 auto; min-width: 0; margin: 0; padding: 5px clamp(4px, 1.4vw, 6px) 6px; display: flex; flex-direction: column; border: 0; border-radius: 0;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2.5px var(--x-ink); text-align: left; font: inherit; overflow: hidden;
+}
+button.sb-cin { cursor: pointer; }
+button.sb-cin:active { transform: translateY(2px); }
+.sb-card.on .sb-cin { box-shadow: inset 0 0 0 2.5px var(--x-ink), 0 0 0 3px var(--x-mustard); }
+.sb-ctop { display: block; font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.sb-crule { flex: none; display: block; height: 3px; margin: 3px 0 4px; background: var(--x-ink); }
+.sb-cttl { display: block; font: 400 0.8125rem/1.05 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cpic {
+  flex: none; display: block; height: clamp(28px, 5.4vh, 44px); margin: 4px -6px 0; overflow: hidden;
+  border-top: 2px solid var(--x-ink); border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); line-height: 0;
+}
+.sb-cpic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sb-cface { height: 100%; display: grid; place-items: center; }
+.sb-cface .sbk-face { border-width: 2px; padding: 0; }
+.sb-cband { flex: none; display: flex; flex-direction: column; gap: 1px; margin-top: auto; padding: 3px 4px; min-width: 0; }
+.sb-cpic { margin-bottom: 5px; }
+.sb-cband small { font: 800 0.5rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband b { font: 400 clamp(0.625rem, 3.4vw, 0.75rem)/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband.b-y { background: var(--x-mustard); color: var(--x-ink); }
+.sb-cband.b-b { background: var(--x-sky); color: var(--x-paper); }
+.sb-cband.b-k { background: var(--x-ink); color: var(--x-paper); }
+.sb-cband.b-k b { color: var(--x-mustard); }
+.sb-x {
+  position: absolute; top: -6px; right: -6px; z-index: 1; width: 24px; height: 24px; margin: 0; padding: 0; border: 0; border-radius: 50%;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); cursor: pointer; font: 800 0.875rem/1 var(--f-label);
+}
+/* a 44 px target round the small mark */
+.sb-x::before { content: ''; position: absolute; inset: -10px; }
+/* an open stall: dashed, on kraft */
+.sb-card.open .sb-cin { background: var(--x-kraft); box-shadow: none; border: 2.5px dashed var(--x-ink); padding: 3px 4px 5px; align-items: stretch; }
+.sb-obig { display: block; margin-top: 4px; text-align: center; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
+.sb-osm { display: block; margin-top: 4px; text-align: center; font: 700 0.6875rem/1.2 var(--f-label); color: var(--x-ink); }
+.sb-two { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-top: 2px; }
+.sb-card.open.pick .sb-obig, .sb-card.open.pick .sb-osm { display: none; }
+.sb-add {
+  min-height: 26px; margin: 0; padding: 0 2px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
+  cursor: pointer; font: 800 clamp(0.5625rem, 2.9vw, 0.625rem)/1 var(--f-label); letter-spacing: 0; text-transform: uppercase;
+}
+.sb-add.go { background: var(--x-mustard); }
+.sb-card.off .sb-cin { opacity: 0.6; }
+
+/* ---------- the room code ---------- */
+.sb-code { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 6px 6px 10px; background: var(--x-paper); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.sb-code .sb-lb { margin: 0 0 2px; }
+.sb-code .room-code { display: flex; gap: 2px; font: 400 1.5rem/1 var(--f-display); letter-spacing: 0.08em; }
+.sb-code .room-code span { min-width: 0; }
+.sb-code .sb-share { display: flex; flex-direction: column; gap: 5px; }
+.sb-code .sb-share button {
+  min-height: 34px; margin: 0; padding: 0 9px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
+  cursor: pointer; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.sb-code .sb-share button.go { background: var(--x-mustard); }
+.sb-me { display: flex; align-items: center; gap: 8px; font: 700 0.875rem/1.2 var(--f-label); }
+.sb-me .seat-name { display: flex; align-items: center; gap: 6px; }
+.sb-me .seat-rename { margin: 0; padding: 4px 8px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
+.sb-me .seat-edit { width: 12ch; padding: 4px 6px; border: 2px solid var(--x-ink); border-radius: 0; font: 700 0.875rem/1.2 var(--f-label); }
+.sb-input { width: 100%; box-sizing: border-box; min-height: 44px; margin: 0; padding: 8px 10px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-paper); color: var(--x-ink); font: 800 1rem/1.2 var(--f-label); user-select: text; -webkit-user-select: text; }
+.sb-join { display: flex; gap: 8px; }
+.sb-join .sb-input { flex: 1 1 auto; min-width: 0; letter-spacing: 0.12em; text-transform: uppercase; }
+.sb-join .sb-btn { flex: none; width: auto; min-width: 88px; }
+
+/* ---------- the Quick Match wait: your card, the seats filling in ---------- */
+.sb-me-card { flex: none; display: flex; justify-content: center; padding-top: 4px; }
+.sb-me-card .cd { --card-w: calc(var(--dk-w) * 0.9); }
+.sb-found { display: flex; align-items: baseline; justify-content: center; gap: 8px; font: 800 0.9375rem/1.2 var(--f-label); text-align: center; }
+
+/* a phone shorter than 700 px: a smaller header and button */
+@media (max-height: 699px) {
+  .sb-lanes { height: 8px; }
+  .sb-hd { padding: 6px 14px 2px; }
+  .sb-tt h1 { font-size: 1.375rem; }
+  .sb-main { gap: 6px; }
+  .sb-go { min-height: 52px; font-size: 1.5rem; }
+  .sb-seg button { min-height: 40px; padding: 4px 3px; }
+}
+/* a phone shorter than 600 px: the smallest sizes that still read */
+@media (max-height: 599px) {
+  .sb-hd { padding: 4px 12px 0; gap: 8px; }
+  .sb-back { width: 40px; height: 40px; }
+  .sb-tt h1 { font-size: 1.25rem; }
+  .sb-tt small { font-size: 0.625rem; }
+  .sb-main { gap: 5px; padding-left: 12px; padding-right: 12px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+  .sb-deck { margin: 0 -12px; }
+  .sb-arrow { height: 36px; }
+  .sb-go { min-height: 48px; font-size: 1.375rem; }
+  .sb-seg button { min-height: 38px; }
+  .sb-seg button small { font-size: 0.6875rem; }
+  .sb-cpic { height: 26px; }
+  .sb-note { margin-top: 3px; font-size: 0.6875rem; }
+  #app .page.sb { --dk-w: clamp(104px, min(46vw, 21vh), 186px); }
+}
+
+/* small parts of the online pages */
+.sb-h3 { margin: 4px 0 2px; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
+.sb-note.sb-first { margin-top: 0; }
+.sb-clock { font: 800 0.75rem/1 var(--f-label); font-variant-numeric: tabular-nums; color: var(--x-slate); }
+.sb-inv { text-align: left; margin-top: 3px; color: var(--x-slate); }
+.sb .pr-list { display: flex; flex-direction: column; gap: 6px; }
+.sb .pr-row { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 10px; box-shadow: inset 0 0 0 2.5px var(--x-ink); }
+.sb .pr-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sb .pr-who b { font: 800 0.9375rem/1.2 var(--f-label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb .pr-who small, .sb .pr-n { font: 600 0.75rem/1.2 var(--f-label); color: var(--x-slate); }
+.sb .pr-join { width: auto; min-width: 72px; }
+.sb .sb-lb .rx-btn { width: 44px; height: 36px; }
+.sb .seat-mute { margin-top: 6px; }
+.sb .net-strip { margin: 0 -14px; }
+/* a seat card is also the anchor of its person's reaction bubble (.seat-row, Reactions.tsx): none of the old row's look */
+#app .sb .sb-card.seat-row { display: flex; align-items: stretch; gap: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+#app .sb .sb-card.seat-row.on .sb-cin { box-shadow: inset 0 0 0 2.5px var(--x-ink), 0 0 0 3px var(--x-mustard); }
+/* the host's Start names who the room waits for: a long line, so a smaller size */
+.sb-go.jl-start { min-height: 52px; font-size: 1.25rem; line-height: 1.05; padding: 6px 12px; }
+/* after the foot: what can wait under the buttons (the price practice) */
+.sb-after { flex: none; padding-top: 6px; }
+.sb-go.sb-go-s { min-height: 52px; font-size: 1.25rem; }
+.sb-go-row { display: flex; gap: 8px; align-items: stretch; }
+.sb-go-row > * { flex: 1 1 0; min-width: 0; }
+.sb-go-row.two > .jl-ready { flex: 0 0 38%; }
+.sb-go-row .sb-btn { min-height: 52px; margin-bottom: 5px; }
+.sb-me { justify-content: space-between; }
+.sb-me .jl-look { width: auto; min-height: 36px; padding: 0 12px; flex: none; }
+.sb .sb-lb .rx-btn { height: 32px; }
+/* the room's open seats: the host's card holds its "+ Computer" button instead of the line */
+.sb-card.open.host .sb-osm { display: none; }
+.sb-card.open .sb-two .sb-add { min-height: 32px; }
+.sb-go.jl-start { font-size: 1.0625rem; }
+@media (max-height: 599px) {
+  .sb-lobby .sb-cpic { display: none; }
+  .sb-lobby .sb-obig { margin-top: 2px; font-size: 1rem; }
+  .sb-lobby .sb-code .room-code { font-size: 1.25rem; }
+  .sb-lobby .sb-code { padding-top: 4px; padding-bottom: 4px; }
+}
+@media (max-height: 599px) { .sb-pick .sb-row.wrap .sb-cpic { display: none; } }

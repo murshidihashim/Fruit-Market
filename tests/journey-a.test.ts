@@ -68,9 +68,10 @@ describe('the price practice (practice.ts)', () => {
 });
 
 describe('the Play menu and the wait (playMenu.ts)', () => {
-  it('quick match is two stalls at the room\'s standard length', () => {
-    expect(quickLine()).toBe(`A stranger online · 2 stalls · ${DEFAULT_CONFIG.days} days`);
-    expect(waitLine(10, RIVALS[0].avatar)).toBe(`Quick match is 2 stalls, 10 days. You play as ${RIVALS[0].name}.`);
+  it('quick match is 2, 4 or 6 stalls at the room\'s standard length (PLAN-125)', () => {
+    expect(quickLine()).toBe(`Strangers online · 2, 4 or 6 stalls · ${DEFAULT_CONFIG.days} days`);
+    expect(waitLine(10, RIVALS[0].avatar)).toBe(`Quick Match is 2 stalls, 10 days. You play as ${RIVALS[0].name}.`);
+    expect(waitLine(10, RIVALS[0].avatar, 4)).toBe(`Quick Match is 4 stalls, 10 days. You play as ${RIVALS[0].name}.`);
     expect(MAX_SEATS).toBe(6);
   });
 

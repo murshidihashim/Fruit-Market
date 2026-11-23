@@ -5,7 +5,7 @@
 //   big Play button for that mode (Continue when its game is waiting). The pieces are in HomeCards.tsx.
 // - Stall: your stall drawn with every look you wear, the stamp book and the Wardrobe, your next goals and the account.
 // - Rules: How to play (HowTo.tsx) inside the tab.
-// Custom match's Play opens the Play menu (PlayMenu, below): every way to start a normal game on one screen.
+// Custom match's Play opens the Play menu (PlayMenu, below): the four ways to start a normal game (PLAN-125).
 // The look is the game table's (Market Ticket): booth.css for the parts the opening animates, journey-home.css and
 // home-cards.css for the rest. The opening (Opening.tsx, "Lane Drop") plays on the Market tab: "hm-intro" on <html>
 // animates the title and everything under the band into place (".hm-title", ".hm-rest").
@@ -14,7 +14,6 @@ import type { ComponentChildren } from 'preact';
 import { RIVALS, type FruitId } from '../engine/data';
 import type { GameState } from '../engine/game';
 import { LOOKS, type Look } from '../net/looks';
-import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { accountsAvailable, signedInAs } from './account';
 import { Face } from './art';
 import { useFocusTrap } from './focusTrap';
@@ -24,7 +23,7 @@ import { HeroCard, ModeTabs, PlayButton, PlayIcon, YourStall, saveMode, startMod
 import { HowTo } from './HowTo';
 import { PropSprite, RoofBand } from './icons';
 import { chosenColour, myAvatar, syncLooks, worn } from './looks';
-import { LENGTHS, NORMAL_HEADING, computerLine, phoneLine, quickLine, roomLine } from './playMenu';
+import { NORMAL_HEADING, WAYS, computerLine, phoneLine, quickLine, roomLine, type PlayWay } from './playMenu';
 import { myPlace, snapshot, syncTiers } from './progress';
 import { BackArrow, FramedFace, TrophyPic } from './stampCard';
 import { goals, nextReward, type Goal } from './stamps';
@@ -237,31 +236,25 @@ export function Shopfront(p: ShopProps) {
 }
 
 export interface PlayMenuProps {
-  /** The game length chosen for a game against computers or on one phone. */
-  days: number;
-  onDays: (days: number) => void;
   onBack: () => void;
   onQuick: () => void;
   onRoom: () => void;
-  onPublic: () => void;
-  onJoin: (code: string) => void;
   onComputer: () => void;
   onOnePhone: () => void;
 }
 
 /**
- * PLAN-113: the Play menu, every way to start a normal game on one screen: the "Custom match" group (PLAN-119; PLAN-124 renamed it from "Normal game"; a full
- * market your way: Quick match, a private room, joining with a code, a game against computers, one phone passed round,
- * the public rooms, and the length for a computer or one-phone game). Each says its real player count and length.
- * PLAN-120: the Market League, the Daily market and the Sprint left this page for cards of their own on Home.
+ * PLAN-113: the Play page, every way to start a normal game on one screen: the "Custom match" group (PLAN-119; PLAN-124
+ * renamed it from "Normal game"). PLAN-125 (DEC-133): the four ways, as on Home's Custom card: Quick Match (Public
+ * rooms are on its page), Private Room (joining with a code is on its page), Computer and Pass & Play. Each says its real
+ * player count; the game length is chosen on each way's own page. PLAN-120: the Market League, the Daily market and the
+ * Sprint have cards of their own on Home.
  */
 export function PlayMenu(p: PlayMenuProps) {
   const avatar = myAvatar();
-  const [joining, setJoining] = useState(false);
-  const [code, setCode] = useState('');
-  const clean = normaliseCode(code);
-  const ok = clean.length === CODE_LENGTH;
   const rivals = RIVALS.filter((r) => r.avatar !== avatar).slice(0, 3);
+  const go: Record<PlayWay, () => void> = { quick: p.onQuick, room: p.onRoom, computer: p.onComputer, phone: p.onOnePhone };
+  const line: Record<PlayWay, string> = { quick: quickLine(), room: roomLine(), computer: computerLine(), phone: phoneLine() };
   return (
     <div class="page tk-page jp">
       <header class="topbar jp-bar">
@@ -272,36 +265,13 @@ export function PlayMenu(p: PlayMenuProps) {
       <main class="scroll jp-in">
         <section class="jp-grp" data-a="normal-game" aria-labelledby="jp-normal">
           <h2 class="jp-gh" id="jp-normal">{NORMAL_HEADING}</h2>
-          <button class="jp-tile big" data-a="quick" onClick={p.onQuick}>
-            <span class="jp-tt"><b>Quick match</b><span>{quickLine()}</span></span>
-            <span class="jp-vs" aria-hidden="true"><Face who={avatar} size={44} /><i>vs</i><span class="jp-q">?</span></span>
-          </button>
-          <div class="jp-two">
-            <button class="jp-tile" data-a="room" onClick={p.onRoom}><b>Private room</b><span>{roomLine()}</span></button>
-            <button class="jp-tile" data-a="join" aria-expanded={joining} onClick={() => setJoining(!joining)}><b>Join with a code</b><span>{CODE_LENGTH} letters from a friend</span></button>
-          </div>
-          {joining && (
-            <div class="jp-join">
-              <label for="join-code">Room code</label>
-              <div class="join-row">
-                <input id="join-code" class="input" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
-                  placeholder="ABC123" onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())} />
-                <button class="btn" disabled={!ok} onClick={() => p.onJoin(clean)}>Join</button>
-              </div>
-            </div>
-          )}
-          <div class="jp-two">
-            <button class="jp-tile" data-a="computer" onClick={p.onComputer}>
-              <b>Computer</b><span>{computerLine()}</span>
-              <span class="jp-faces" aria-hidden="true">{rivals.map((r) => <Face who={r.avatar} size={26} />)}</span>
+          {WAYS.map((w) => (
+            <button class={`jp-tile wide jp-way jp-${w.id}`} data-a={w.id} onClick={go[w.id]}>
+              <span class="jp-tt"><b>{w.name}</b><span>{line[w.id]}</span></span>
+              {w.id === 'quick' && <span class="jp-vs" aria-hidden="true"><Face who={avatar} size={40} /><i>vs</i><span class="jp-q">?</span></span>}
+              {w.id === 'computer' && <span class="jp-faces" aria-hidden="true">{rivals.map((r) => <Face who={r.avatar} size={26} />)}</span>}
             </button>
-            <button class="jp-tile" data-a="phone" onClick={p.onOnePhone}><b>One phone</b><span>{phoneLine()}</span></button>
-          </div>
-          <div class="jp-len" role="group" aria-label="Game length for a computer or one-phone game">
-            <span class="jh-lb">Game length</span>
-            {LENGTHS.map((l) => <button class={p.days === l.days ? 'on' : ''} aria-pressed={p.days === l.days} onClick={() => p.onDays(l.days)}>{l.word} <small>{l.days} days</small></button>)}
-          </div>
-          <button class="jp-tile wide" data-a="public" onClick={p.onPublic}><b>Public rooms</b><span>Join a room that is waiting for players, or open one</span></button>
+          ))}
         </section>
       </main>
     </div>

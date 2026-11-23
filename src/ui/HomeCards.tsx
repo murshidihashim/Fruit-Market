@@ -28,7 +28,7 @@ import { myAvatar, worn } from './looks';
 import { crateUrl } from './marketArt';
 import { C } from './palette';
 import { nextTrophy } from './League';
-import { MODE_REASON, leagueEcho } from './playMenu';
+import { MODE_REASON, WAYS, leagueEcho } from './playMenu';
 import { leagueStage, myStars } from './progress';
 import { stageGoal, stageRivals } from './progressView';
 import { waitingGame, type WaitingGame } from './paused';
@@ -243,10 +243,12 @@ function CustomCard(p: HeroProps) {
   return (
     <Frame mode="custom" sub="your market, your way">
       <div class="jh-ways2">
-        <button class="jh-way" data-a="way-quick" onClick={p.onQuick}><b>Quick match</b><span>A stranger online</span></button>
-        <button class="jh-way" data-a="way-room" onClick={p.onRoom}><b>Private room</b><span>Friends, by link or code</span></button>
-        <button class="jh-way" data-a="way-computer" onClick={p.onComputer}><b>Computer</b><span>Easy, Normal or Hard</span></button>
-        <button class="jh-way" data-a="way-phone" onClick={p.onOnePhone}><b>One phone</b><span>Pass and play</span></button>
+        {/* PLAN-125 (DEC-133): the four ways, with the names and lines of the approved mockup B */}
+        {WAYS.map((w) => (
+          <button class="jh-way" data-a={`way-${w.id}`} onClick={{ quick: p.onQuick, room: p.onRoom, computer: p.onComputer, phone: p.onOnePhone }[w.id]}>
+            <b>{w.name}</b><span>{w.line}</span>
+          </button>
+        ))}
       </div>
       {w && g ? (
         <div class="jh-hwait"><span class="jh-lb">Your game · {w.mode}</span><TableRow g={g} /></div>

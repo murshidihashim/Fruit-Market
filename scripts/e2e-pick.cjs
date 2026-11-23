@@ -10,7 +10,7 @@ async function pickShopkeeper(P, timeout = 20000) {
     if (await confirm.count()) { await confirm.click({ timeout: 2000 }).catch(() => {}); await p.waitForTimeout(150); continue; }
     const choose = p.locator('.pick-choose');
     if (await choose.count()) {
-      if (await choose.isDisabled().catch(() => false)) await p.click('.cp-arrow[aria-label="Next shopkeeper"]', { timeout: 2000 }).catch(() => {});
+      if (await choose.isDisabled().catch(() => false)) await p.click('.sb-arrow[aria-label="Next shopkeeper"]', { timeout: 2000 }).catch(() => {});
       // Short timeouts: someone else may take the one shown between the check and the click.
       else await choose.click({ timeout: 2000 }).catch(() => {});
       await p.waitForTimeout(150);

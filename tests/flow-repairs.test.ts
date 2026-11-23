@@ -318,7 +318,7 @@ describe('a paused game is not replaced without asking', () => {
     const shared = structuredClone(paused);
     shared.players[1].kind = 'human';
     expect(waitingGame(shared)?.cash).toBeNull();
-    expect(waitingGame(shared)?.mode).toBe('One phone game');
+    expect(waitingGame(shared)?.mode).toBe('Pass & Play game');
   });
 
   it('asks first when a game is waiting, and starts at once when none is', () => {
