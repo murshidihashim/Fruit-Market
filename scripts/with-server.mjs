@@ -1,13 +1,15 @@
 // Starts the local room server (wrangler dev), runs one command against it, then stops the server.
 // The server's output is kept in <out>/server.log as evidence when something fails.
 // Usage: node scripts/with-server.mjs <command…>   (env: E2E_OUT, default e2e-output; PORT, default 8787)
+// `vars` (PLAN-125): test-only settings for the server, passed to wrangler dev as --var NAME:value.
 import { spawn, execSync } from 'node:child_process';
 import { mkdirSync, openSync } from 'node:fs';
 
-export async function startServer(out = process.env.E2E_OUT ?? 'e2e-output', port = process.env.PORT ?? '8787') {
+export async function startServer(out = process.env.E2E_OUT ?? 'e2e-output', port = process.env.PORT ?? '8787', vars = {}) {
   mkdirSync(out, { recursive: true });
   const log = openSync(`${out}/server.log`, 'a');
-  const server = spawn('npx', ['wrangler', 'dev', '--port', port, '--ip', '127.0.0.1'], { stdio: ['ignore', log, log], detached: true });
+  const extra = Object.entries(vars).flatMap(([k, v]) => ['--var', `${k}:${v}`]);
+  const server = spawn('npx', ['wrangler', 'dev', '--port', String(port), '--ip', '127.0.0.1', ...extra], { stdio: ['ignore', log, log], detached: true });
   const base = `http://127.0.0.1:${port}`;
   for (let i = 0; i < 60; i++) {
     try { if ((await fetch(base)).ok) return { base, stop: () => { try { process.kill(-server.pid, 'SIGKILL'); } catch { /* gone */ } } }; } catch { /* not yet */ }

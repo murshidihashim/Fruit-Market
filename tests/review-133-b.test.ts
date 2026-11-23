@@ -57,9 +57,11 @@ describe('B-14: game lengths in one order everywhere', () => {
     expect([8, 10, 14].map(lengthWord)).toEqual(['Quick', 'Standard', 'Long']);
   });
   it('the set-up screen and the room draw the same list', () => {
-    for (const f of ['src/ui/App.tsx', 'src/ui/Online.tsx', 'src/ui/Home.tsx']) {
+    // PLAN-125: the set-up pages and the room draw one segment (Setup.tsx LengthSeg); the Play page has no length.
+    expect(readFileSync('src/ui/Online.tsx', 'utf8')).toContain('<LengthSeg ');
+    for (const f of ['src/ui/Setup.tsx', 'src/ui/Online.tsx', 'src/ui/App.tsx', 'src/ui/Home.tsx']) {
       const src = readFileSync(f, 'utf8');
-      expect(src).toContain('LENGTHS.map(');
+      if (f === 'src/ui/Setup.tsx') expect(src).toContain('LENGTHS.map(');
       expect(src).not.toMatch(/\[\[8, 'Quick'\]|\[\[10, 'Standard'\]/);
     }
   });
@@ -93,7 +95,7 @@ describe('B-17: one set of words', () => {
 
   it('"Every mode" names today\'s modes', () => {
     const card = CARDS.find((c) => c.id === 'explorer')!;
-    expect(card.steps[0].text).toBe('Finish a game in each mode: against the computer or on one phone, the Daily market or Sprint, the Market League, and online.');
+    expect(card.steps[0].text).toBe('Finish a game in each mode: against the computer or in Pass & Play, the Daily market or Sprint, the Market League, and online.');
     expect(card.steps[0].text).not.toContain('New game');
   });
 

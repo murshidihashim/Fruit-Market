@@ -29,6 +29,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     await page.goto(base);
     await page.click('[data-tab="custom"]'); // PLAN-124: Home's Custom tab, then its Play
     await page.click('[data-a="play"]');
+    // PLAN-125: the Public rooms are on the Quick Match page
+    await page.click('[data-a="quick"]');
     await page.click('[data-a="public"]');
     return P;
   };
@@ -40,9 +42,8 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 
   // A makes a public room.
   const A = await mk('A', 'Aisha');
-  // The Play menu's Public rooms opens with Public chosen (PLAN-113).
-  await A.page.click('.room-kind button[aria-pressed="true"]:has-text("Public")');
-  await A.page.click('button:has-text("Create room")');
+  // PLAN-125: the Public rooms page opens a public room.
+  await A.page.click('[data-a="open-public"]');
   await A.page.waitForSelector('.public-note');
   const code = (await A.page.locator('.room-code').innerText()).replace(/\s/g, '');
   await shot(A, 'p1-public-lobby');

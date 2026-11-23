@@ -1,6 +1,7 @@
 // Cloudflare Worker: serves the web build and hosts the online services.
 //   POST /api/rooms        -> { code }        creates a private room (?public=1: a public one, PLAN-112)
-//   POST /api/quick        -> { code, host }  quick match: join a stranger's room or wait in a new one
+//   POST /api/quick        -> { code, host }  quick match: join a stranger's room or wait in a new one. PLAN-125: the
+//                             body { stalls: 2 | 4 | 6 } picks the table size (missing or unknown: 2)
 //   GET  /api/public       -> { rooms }       the public rooms still waiting for players (PLAN-112)
 //   GET  /ws/:code         -> WebSocket       joins a room
 //   POST /api/t            -> 204             anonymous usage counters and error lines
@@ -13,10 +14,10 @@
 //   anything else          -> the static game (dist/)
 // Write endpoints are rate-limited per IP (server/limits.ts); over the limit they answer 429.
 import { DurableObject } from 'cloudflare:workers';
-import { CODE_ALPHABET, CODE_LENGTH, RULES_VERSION, normaliseCode } from '../src/net/protocol';
+import { CODE_ALPHABET, CODE_LENGTH, QUICK_FILL_MS, quickStalls, RULES_VERSION, normaliseCode, type QuickStalls } from '../src/net/protocol';
 import {
   addEntry, addSprintEntry, addWeekScore, boardView, cleanIngest, dailyBoardKey, KEEP_DAYS, OWNER_RE, ownerOf, placeOf, publicBoard,
-  quickMatch, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily, weekView, type BoardView, type DailyEntry, type QuickState, type WeekEntry,
+  loadQueues, quickMatch, quickSize, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily, weekView, type BoardView, type DailyEntry, type WeekEntry,
 } from './meta';
 import { isoWeek } from '../src/engine/daily';
 import { allowed, ROUTE_LIMITER, type LimitedRoute, type Limiter } from './limits';
@@ -39,6 +40,15 @@ interface Env {
   RL_DAILY?: Limiter;
   RL_EVENTS?: Limiter;
   RL_ACCOUNT?: Limiter;
+  /** PLAN-125: a shorter quick-match fill time in ms, for the browser tests only. Set on the `wrangler dev` command line
+   *  by scripts/e2e.mjs, never in wrangler.jsonc, so the live game and the preview always wait QUICK_FILL_MS. */
+  QUICK_FILL_MS?: string;
+}
+
+/** The quick-match fill time: QUICK_FILL_MS, or a shorter test value (it can never be made longer). */
+function quickFillMs(env: Env): number {
+  const n = Math.floor(Number(env.QUICK_FILL_MS));
+  return Number.isFinite(n) && n >= 1000 && n < QUICK_FILL_MS ? n : QUICK_FILL_MS;
 }
 
 /** null when the request may go ahead, or a 429 response. */
@@ -59,11 +69,11 @@ function randomCode(): string {
   return Array.from(bytes, (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join('');
 }
 
-async function newRoom(env: Env, quick = false, pub = false): Promise<string | null> {
+async function newRoom(env: Env, quick = false, pub = false, stalls: QuickStalls = 2): Promise<string | null> {
   for (let i = 0; i < 5; i++) {
     const code = randomCode();
     const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
-    const res = await stub.fetch(`https://room/init?code=${code}${quick ? '&quick=1' : ''}${pub ? '&public=1' : ''}`, { method: 'POST' });
+    const res = await stub.fetch(`https://room/init?code=${code}${quick ? `&quick=1&stalls=${stalls}` : ''}${pub ? '&public=1' : ''}`, { method: 'POST' });
     if (res.status === 201) return code;
   }
   return null;
@@ -97,7 +107,10 @@ export default {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
       const stop = await limited(req, env, 'quick');
       if (stop) return stop;
-      return env.MATCH.get(env.MATCH.idFromName('global')).fetch('https://match/quick', { method: 'POST' });
+      // PLAN-125: apps before 1.31 send no body, so they keep finding two-stall games.
+      let body: unknown = null;
+      try { body = await readBody(req); } catch { /* no body or not JSON: the default size */ }
+      return env.MATCH.get(env.MATCH.idFromName('global')).fetch(`https://match/quick?stalls=${quickSize(body)}`, { method: 'POST' });
     }
     if (url.pathname === '/api/t') {
       if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
@@ -212,7 +225,8 @@ export class RoomDO extends DurableObject<Env> {
     const url = new URL(req.url);
     if (url.pathname === '/init' && req.method === 'POST') {
       if (this.data) return new Response('Exists', { status: 409 });
-      this.data = freshRoom(url.searchParams.get('code') ?? '', Date.now(), url.searchParams.get('quick') === '1', url.searchParams.get('public') === '1');
+      this.data = freshRoom(url.searchParams.get('code') ?? '', Date.now(), url.searchParams.get('quick') === '1', url.searchParams.get('public') === '1',
+        quickStalls(Number(url.searchParams.get('stalls'))), quickFillMs(this.env));
       await this.ctx.storage.put('room', this.data);
       await this.ctx.storage.setAlarm(Date.now() + ROOM_TTL_MS);
       return new Response('Created', { status: 201 });
@@ -221,10 +235,9 @@ export class RoomDO extends DurableObject<Env> {
     // be told so: its hello is answered with a message that stops it (webSocketMessage). A refused connection (404)
     // looked like a network fault, and every app retried it for ever. Nothing is stored for such a code.
     if (!this.data && !url.pathname.startsWith('/ws/')) return new Response('Unknown room', { status: 404 });
-    if (url.pathname === '/status') {
-      // Used by quick match: is someone still sitting alone in this lobby, waiting for an opponent?
-      const room = this.room()!;
-      return json({ waiting: room.waitingForOpponent() });
+    if (url.pathname === '/claim' && req.method === 'POST') {
+      // Used by quick match (PLAN-125): may one more person be sent here? If so, the room keeps them a seat.
+      return json({ ok: await this.room()!.claimSeat() });
     }
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
@@ -432,21 +445,28 @@ export class LobbyDO extends DurableObject<Env> {
 // ---------- quick match ----------
 
 export class MatchDO extends DurableObject<Env> {
-  async fetch(): Promise<Response> {
-    const q = (await this.ctx.storage.get<QuickState>('q')) ?? { code: null, since: 0 };
-    try {
-      const r = await quickMatch(q, Date.now(), async () => {
-        const code = await newRoom(this.env, true);
-        if (!code) throw new Error('no room');
-        return code;
-      }, async (code) => {
-        const res = await this.env.ROOMS.get(this.env.ROOMS.idFromName(code)).fetch('https://room/status');
-        return res.ok && ((await res.json()) as { waiting?: boolean }).waiting === true;
-      });
-      await this.ctx.storage.put('q', r.q);
-      return json({ code: r.code, host: r.host });
-    } catch {
-      return json({ error: 'Could not find a game. Try again.' }, 503);
-    }
+  async fetch(req: Request): Promise<Response> {
+    const size = quickStalls(Number(new URL(req.url).searchParams.get('stalls')));
+    // PLAN-125: one request at a time, so two people looking at once never both open a room of the same size.
+    return this.ctx.blockConcurrencyWhile(async () => {
+      // One waiting room per size; the single queue from before is the two-stall one.
+      const queues = loadQueues(await this.ctx.storage.get('queues'), await this.ctx.storage.get('q'));
+      try {
+        const r = await quickMatch(queues[size], Date.now(), async () => {
+          const code = await newRoom(this.env, true, false, size);
+          if (!code) throw new Error('no room');
+          return code;
+        }, async (code) => {
+          const res = await this.env.ROOMS.get(this.env.ROOMS.idFromName(code)).fetch('https://room/claim', { method: 'POST' });
+          return res.ok && ((await res.json()) as { ok?: boolean }).ok === true;
+        }, quickFillMs(this.env));
+        queues[size] = r.q;
+        await this.ctx.storage.put('queues', queues);
+        await this.ctx.storage.delete('q');
+        return json({ code: r.code, host: r.host, stalls: size });
+      } catch {
+        return json({ error: 'Could not find a game. Try again.' }, 503);
+      }
+    });
   }
 }

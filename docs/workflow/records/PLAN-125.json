@@ -1,0 +1,73 @@
+{
+  "id": "PLAN-125",
+  "title": "Four game modes and a one-page set-up in the card style (design B, the deck)",
+  "problem": "The Play page has six entries and the set-up is a scrolling pop-up; Quick Match is always two stalls.",
+  "scope": [
+    "Four modes: Quick Match, Private Room, Computer, Pass & Play. Join with a code moves into Private Room; Public rooms into Quick Match",
+    "One-page set-up in design B (your shopkeeper card centred with neighbours peeking, seats as small cards, length, one big button) for Quick Match, Computer and Pass & Play",
+    "Private Room: the room page shows the code, the seats as cards and the length; shopkeepers are chosen after everyone has joined, on a pick screen in the same deck style",
+    "Quick Match chooses 2, 4 or 6 stalls; strangers are matched for up to 30 seconds and empty seats get Normal computers"
+  ],
+  "exclusions": [
+    "No rule or balance change; secret prices stay secret (leak check 0)",
+    "Saves unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch: 1295 passed, 1 skipped (as before)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks), including Quick Match at 4 stalls with two people and computers",
+      "result": "FAIL",
+      "evidence": "test:e2e on the merge: every step PASS (online leaks 0, quick match 2, Quick Match at 4 with 2 computers filling, 50 frames 0 leaks, public 0 leaks, sprint, four, reconnect 5 cycles) except the performance budget (206 to 271 ms against 200 ms). The PLAN-124 build 37b2f0a fails the same check on this machine (226, 240 ms; it passed in CI), so it is not from this package; CI decides"
+    },
+    {
+      "id": "T3",
+      "text": "Screens of each mode's set-up, the private room and the pick screen at 390x844, 360x640, 320x568: one page",
+      "result": "PASS",
+      "evidence": "Screens in the session scratchpad p125/U at 390x844 and 360x640 fit for every page; at 320x568 the room page scrolls 12 px; side-by-side with mockup B"
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
+    "date": "2026-11-23"
+  },
+  "delivery": "implemented",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-133"
+  ],
+  "changes": {
+    "added": [
+      "Quick Match with 2, 4 or 6 stalls; computers fill after 30 seconds",
+      "A one-page set-up in the card style for Quick Match, Computer and Pass & Play",
+      "Private Room page with the table as cards; shopkeepers chosen after everyone joins"
+    ],
+    "changed": [
+      "Four modes: Quick Match, Private Room, Computer, Pass & Play",
+      "Join with a code is inside Private Room; Public rooms inside Quick Match",
+      "One phone is now called Pass & Play"
+    ],
+    "fixed": [],
+    "removed": [
+      "The set-up pop-up"
+    ]
+  },
+  "playerNotes": [
+    "Quick Match can now fill a table of 4 or 6 stalls",
+    "A new one-page set-up with your shopkeeper card in the middle"
+  ]
+}

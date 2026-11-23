@@ -1,7 +1,7 @@
 // PLAN-113: the words and set-ups behind the Play menu and the Quick match wait. Pure, so they can be unit tested.
 // Nothing here changes a rule: the player counts and lengths are the game's own (MAX_SEATS, DEFAULT_CONFIG, LEAGUE).
 import { MARKET_DAY_EVERY, ORDER_LEAD, RIVALS, lookOf, prefOf } from '../engine/data';
-import type { GameConfig } from '../engine/game';
+import type { GameConfig, PlayerConfig } from '../engine/game';
 import { DEFAULT_CONFIG, MAX_SEATS, type RoomConfig } from '../net/protocol';
 import { LEAGUE } from './progress';
 import type { Stage } from './campaign';
@@ -11,12 +11,58 @@ import type { Stage } from './campaign';
 export const LENGTHS: { days: RoomConfig['days']; word: string }[] = [{ days: 8, word: 'Quick' }, { days: 10, word: 'Standard' }, { days: 14, word: 'Long' }];
 export const lengthWord = (days: number): string => LENGTHS.find((l) => l.days === days)?.word ?? `${days} days`;
 
-/** A quick match: always two stalls, at the room's standard length. */
-export const QUICK_STALLS = 2;
-export const quickLine = (): string => `A stranger online · ${QUICK_STALLS} stalls · ${DEFAULT_CONFIG.days} days`;
-export const roomLine = (): string => `Invite 1 to ${MAX_SEATS - 1} friends by link or code · 2 to ${MAX_SEATS} stalls`;
-export const computerLine = (): string => `2 to ${MAX_SEATS} stalls · Easy, Normal, Hard`;
-export const phoneLine = (): string => `Pass and play · 2 to ${MAX_SEATS} people`;
+/** PLAN-125 (DEC-133): the four ways to play a Custom match, in this order everywhere (Home's card, the Play page),
+ *  with the names the owner chose and the short line under each (from the approved mockup B). */
+export type PlayWay = 'quick' | 'room' | 'computer' | 'phone';
+export const WAYS: { id: PlayWay; name: string; line: string }[] = [
+  { id: 'quick', name: 'Quick Match', line: 'Strangers online' },
+  { id: 'room', name: 'Private Room', line: 'Friends by link or code' },
+  { id: 'computer', name: 'Computer', line: 'On this phone' },
+  { id: 'phone', name: 'Pass & Play', line: 'Take turns on this phone' },
+];
+const way = (id: PlayWay) => WAYS.find((w) => w.id === id) ?? WAYS[0];
+export const wayName = (id: PlayWay): string => way(id).name;
+export const wayLine = (id: PlayWay): string => way(id).line;
+
+/** PLAN-125: a Quick Match is for 2, 4 or 6 stalls (2 is the default). Strangers are looked for up to 30 seconds, then
+ *  Normal computers take the empty seats (the room server decides; this is only what the screen says). It is played at
+ *  the room's standard length. */
+export type QuickStalls = 2 | 4 | 6;
+export const QUICK_STALLS: QuickStalls = 2;
+export const QUICK_SIZES: { stalls: QuickStalls; word: string; small: string }[] = [
+  { stalls: 2, word: '2 stalls', small: '1 v 1' },
+  { stalls: 4, word: '4 stalls', small: 'up to 4' },
+  { stalls: 6, word: '6 stalls', small: 'up to 6' },
+];
+export const QUICK_NOTE = 'Up to 30 seconds to find strangers; empty seats get Normal computers.';
+/** The length a quick match is played at, beside its table size ("10 days"). */
+export const DEFAULT_LENGTH_NOTE = `${DEFAULT_CONFIG.days} days`;
+export const isQuickStalls = (n: unknown): n is QuickStalls => n === 2 || n === 4 || n === 6;
+
+/** The Play page's line under each way: what it is, and its real player count. */
+export const quickLine = (): string => `Strangers online · 2, 4 or ${MAX_SEATS} stalls · ${DEFAULT_CONFIG.days} days`;
+export const roomLine = (): string => `Friends by link or code · 2 to ${MAX_SEATS} stalls`;
+export const computerLine = (): string => `On this phone · Easy, Normal, Hard`;
+export const phoneLine = (): string => `Take turns on this phone · 2 to ${MAX_SEATS} people`;
+
+/**
+ * PLAN-125: a quick room's size and when its computers fill the empty seats (server time), read from the room view. The
+ * view's `quick` is `{ stalls, fillAt }` from a server that knows table sizes, and `true` from one that does not (a
+ * quick match of 2 stalls, no fill time). Null for a room that is not a quick match.
+ */
+export function quickOf(q: unknown): { stalls: QuickStalls; fillAt?: number } | null {
+  if (!q) return null;
+  if (typeof q !== 'object') return { stalls: QUICK_STALLS };
+  const stalls = 'stalls' in q && isQuickStalls(q.stalls) ? q.stalls : QUICK_STALLS;
+  const fillAt = 'fillAt' in q && typeof q.fillAt === 'number' && Number.isFinite(q.fillAt) ? q.fillAt : undefined;
+  return fillAt === undefined ? { stalls } : { stalls, fillAt };
+}
+
+/** The wait's line: "2 of 4 found · computers fill in 0:18"; without a fill time, "2 of 4 found". */
+export function foundLine(found: number, stalls: number, msLeft?: number): string {
+  const head = `${Math.min(found, stalls)} of ${stalls} found`;
+  return msLeft === undefined ? head : `${head} · computers fill in ${clock(msLeft)}`;
+}
 
 /**
  * PLAN-119: each mode's one-line reason. The owner's words (REP-134, section 2). The Play menu groups the ways to play
@@ -78,22 +124,27 @@ export function clock(ms: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-/** "Quick match is 2 stalls, 10 days. You play as Rosa." */
-export function waitLine(days: number, avatar: string): string {
+/** "Quick Match is 4 stalls, 10 days. You play as Rosa." */
+export function waitLine(days: number, avatar: string, stalls: number = QUICK_STALLS): string {
   const who = RIVALS.find((r) => r.avatar === avatar)?.name;
-  return `Quick match is ${QUICK_STALLS} stalls, ${days} days.${who ? ` You play as ${who}.` : ''}`;
+  return `Quick Match is ${stalls} stalls, ${days} days.${who ? ` You play as ${who}.` : ''}`;
 }
 
 /**
- * "Play the computer now" from the Quick match wait: the same two stalls and length as the quick match, on this phone,
- * against one Normal computer that is not your shopkeeper, with the full game (as a new game always is). `pick`
- * chooses the rival among those left (random in the game, fixed in tests).
+ * "Play the computer now" from the Quick Match wait: the same stalls and length as the quick match, on this phone,
+ * against Normal computers that are not your shopkeeper, with the full game (as a new game always is). `pick` chooses
+ * each rival among those left (random in the game, fixed in tests). PLAN-125: `stalls` is the table size the wait was
+ * for (2 by default).
  */
-export function vsComputerConfig(name: string, avatar: string, seed: number, pick: (n: number) => number = (n) => Math.floor(Math.random() * n)): GameConfig {
+export function vsComputerConfig(name: string, avatar: string, seed: number, pick: (n: number) => number = (n) => Math.floor(Math.random() * n), stalls: number = QUICK_STALLS): GameConfig {
   const pool = RIVALS.filter((r) => r.avatar !== avatar);
-  const r = pool[Math.max(0, Math.min(pool.length - 1, pick(pool.length)))];
+  const rivals: PlayerConfig[] = [];
+  for (let k = 1; k < Math.max(2, Math.min(MAX_SEATS, stalls)) && pool.length; k++) {
+    const [r] = pool.splice(Math.max(0, Math.min(pool.length - 1, pick(pool.length))), 1);
+    rivals.push({ name: r.name, kind: 'ai', level: 'normal', avatar: r.avatar, quip: r.quip });
+  }
   return {
-    players: [{ name, kind: 'human', avatar }, { name: r.name, kind: 'ai', level: 'normal', avatar: r.avatar, quip: r.quip }],
+    players: [{ name, kind: 'human', avatar }, ...rivals],
     days: DEFAULT_CONFIG.days, unripe: true, upgrades: true, events: true, marketDays: true, core: false, street: false, pulse: false, seed,
   };
 }

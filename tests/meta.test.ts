@@ -4,7 +4,8 @@ import { aiStep, planPrices, planStall } from '../src/engine/ai';
 import { FRUITS } from '../src/engine/data';
 import { dailyConfig, sprintConfig } from '../src/engine/daily';
 import { applyAction, beginBuying, canBuy, finishReveal, newGame, type Action, type GameState } from '../src/engine/game';
-import { addEntry, cleanIngest, dailyBoardKey, NAME_TAKEN, ownerOf, publicBoard, quickMatch, QUICK_WAIT_MS, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily } from '../server/meta';
+import { QUICK_FILL_MS } from '../src/net/protocol';
+import { addEntry, cleanIngest, dailyBoardKey, NAME_TAKEN, ownerOf, publicBoard, loadQueues, quickMatch, quickSize, sprintBoardKey, sprintWeekKey, utcDay, verifyDaily } from '../server/meta';
 import { AI_VERSION, RULES_VERSION, UPDATE_MSG } from '../src/net/protocol';
 
 const NOW = Date.UTC(2026, 9, 25, 12);
@@ -169,7 +170,37 @@ describe('quick match', () => {
     // The waiting player closed the app: the room reports nobody waiting.
     const next = await quickMatch(first.q, 1000, create, async () => false);
     expect(next).toMatchObject({ code: 'ROOM2', host: true });
-    const stale = await quickMatch(next.q, 1000 + QUICK_WAIT_MS + 1, create, async () => true);
+    // PLAN-125: a room past its fill time has started (or nobody was there): it is not asked.
+    const stale = await quickMatch(next.q, 1000 + QUICK_FILL_MS, create, async () => true);
     expect(stale.code).toBe('ROOM3');
+    const short = await quickMatch(stale.q, 1000 + QUICK_FILL_MS + 5000, create, async () => true, 4000);
+    expect(short.code).toBe('ROOM4');
+  });
+
+  it('reads the table size asked for; anything else is a two-stall table (PLAN-125)', () => {
+    expect([4, 6, 2].map((stalls) => quickSize({ stalls }))).toEqual([4, 6, 2]);
+    for (const bad of [null, undefined, {}, { stalls: '4' }, { stalls: 3 }, { stalls: 8 }, { stalls: -4 }, { stalls: 4.5 }, [], 'stalls']) {
+      expect(quickSize(bad)).toBe(2);
+    }
+  });
+
+  it('keeps one queue per size, and the queue from before becomes the two-stall one (PLAN-125)', () => {
+    const none = { code: null, since: 0 };
+    expect(loadQueues(undefined, undefined)).toEqual({ 2: none, 4: none, 6: none });
+    expect(loadQueues(undefined, { code: 'OLD234', since: 5 })).toEqual({ 2: { code: 'OLD234', since: 5 }, 4: none, 6: none });
+    const saved = { 2: { code: 'TWO234', since: 1 }, 4: { code: 'FOUR23', since: 2 }, 6: { code: 7, since: 'x' } };
+    expect(loadQueues(saved, { code: 'OLD234', since: 5 })).toEqual({ 2: { code: 'TWO234', since: 1 }, 4: { code: 'FOUR23', since: 2 }, 6: none });
+  });
+
+  it('each size waits on its own room (PLAN-125)', async () => {
+    let n = 0;
+    const create = async () => `ROOM${++n}`;
+    const q = loadQueues(undefined, undefined);
+    const four = await quickMatch(q[4], 0, create, async () => true);
+    const two = await quickMatch(q[2], 0, create, async () => true);
+    q[4] = four.q; q[2] = two.q;
+    expect([four.code, two.code]).toEqual(['ROOM1', 'ROOM2']);
+    expect((await quickMatch(q[4], 1000, create, async (c) => c === 'ROOM1')).code).toBe('ROOM1');
+    expect(await quickMatch(q[6], 1000, create, async () => true)).toMatchObject({ code: 'ROOM3', host: true });
   });
 });

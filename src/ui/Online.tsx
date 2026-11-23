@@ -1,26 +1,29 @@
 // Online multiplayer screens: create or join a room, the lobby, choosing shopkeepers (PLAN-102), then the shared
-// match. A quick match picks its shopkeeper before searching and starts at once. PLAN-112: a room can be public, and
-// the online screen lists the public rooms still waiting for players; after a wait the host may start with computers;
-// everyone in a room can send preset reactions (Reactions.tsx).
+// match. A quick match picks its shopkeeper before searching and starts as soon as its table is full. PLAN-112: a room
+// can be public, and the Public rooms page lists the public rooms still waiting for players; after a wait the host may
+// start with computers; everyone in a room can send preset reactions (Reactions.tsx).
+// PLAN-125 (DEC-133), design B: every page here is drawn as the set-up is (Setup.tsx): Quick Match's set-up (the deck,
+// the "?" seats, the table size) and its wait, the Private Room page (open a room, join with a code), the room (its code,
+// the seats as small cards, the length) and the pick screen (the deck; the seats' status as small cards).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { ComponentChildren } from 'preact';
 import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
-import { CUSTOMER_CARDS, RIVALS, lookOf } from '../engine/data';
-import { CHARACTER_AVATARS, COMPUTERS_AFTER_MS, DEFAULT_CONFIG, MAX_SEATS, NAME_MAX, type PublicRoom, type PublicSeat, type RoomConfig, type RoomView } from '../net/protocol';
-import { Face } from './art';
-import { CharacterPick } from './CharacterPick';
+import { CUSTOMER_CARDS, lookOf } from '../engine/data';
+import {
+  CHARACTER_AVATARS, CODE_LENGTH, COMPUTERS_AFTER_MS, MAX_SEATS, NAME_MAX, normaliseCode, type PublicRoom, type PublicSeat, type RoomConfig,
+  type RoomView,
+} from '../net/protocol';
 import { fx } from './fx';
 import { Game } from './Game';
 import { loadName, saveName } from './store';
-import { titleOf } from '../net/looks';
-import { BackArrow, FramedFace, awningColour } from './stampCard';
 import { StallSign, TradingCard } from './cards';
 import { CardZoom } from './cardZoom';
-import { crateUrl } from './marketArt';
-import { LENGTHS, clock, lengthWord, waitLine } from './playMenu';
+import {
+  DEFAULT_LENGTH_NOTE, QUICK_NOTE, QUICK_SIZES, QUICK_STALLS, clock, foundLine, isQuickStalls, lengthWord, quickOf, waitLine, wayLine, wayName,
+  type QuickStalls,
+} from './playMenu';
 import { practiceQuestion, practiceRound, practiceVerdict } from './practice';
-import { Awning } from './table';
+import { Deck, LengthSeg, OpenCard, SbGo, SbLabel, SbPage, SeatCard, Seg, TableRow, keeperName } from './Setup';
 import './journey-online.css';
 import { syncLooks, worn } from './looks';
 import { syncTiers } from './progress';
@@ -52,7 +55,7 @@ function useNow(on: boolean): number {
 }
 
 /** Your own name in the lobby: shown as text; tap Rename to change it. The new name is sent when you finish typing. */
-function MyName({ name, host, onRename }: { name: string; host: boolean; onRename: (n: string) => void }) {
+function MyName({ name, onRename }: { name: string; onRename: (n: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
   const box = useRef<HTMLInputElement>(null);
@@ -61,7 +64,7 @@ function MyName({ name, host, onRename }: { name: string; host: boolean; onRenam
   if (!editing) {
     return (
       <span class="seat-name">
-        {name} (you){host && <small class="host-tag">HOST</small>}
+        {name} (you)
         <button type="button" class="seat-rename" onClick={() => { setDraft(name); setEditing(true); }}>Rename</button>
       </span>
     );
@@ -75,23 +78,33 @@ function MyName({ name, host, onRename }: { name: string; host: boolean; onRenam
   );
 }
 
-/** `typed`: the code was typed in the Play menu (ON-15: "Room X", not an invitation). PLAN-113: `mode` is the Play
- *  menu's entry this screen was opened for (a private room, or the public rooms); `quick` is Quick match, which starts
- *  looking at once when a name is already saved, and whose wait offers `onComputer`: a game against the computer now. */
+/** PLAN-125: the Quick Match table size chosen last on this phone. */
+const QUICK_KEY = 'fm.quick.stalls';
+
+/** `typed`: the code was typed (ON-15: "Room X", not an invitation). PLAN-113: `mode` is the way this screen was
+ *  opened for (a private room, or the public rooms); `quick` is Quick Match, whose wait offers `onComputer`: a game
+ *  against the computer now, at the table size the wait was for. PLAN-125 (DEC-133): Quick Match opens on its set-up
+ *  page (your shopkeeper, the table size, Find a match), which links to the Public rooms; the Private Room page opens a
+ *  room or joins one by its code. */
 export function Online({ initialCode, typed, quick, mode = 'room', onExit, onComputer }: {
-  initialCode?: string; typed?: boolean; quick?: boolean; mode?: 'room' | 'public'; onExit: () => void; onComputer?: (avatar: string) => void;
+  initialCode?: string; typed?: boolean; quick?: boolean; mode?: 'room' | 'public'; onExit: () => void; onComputer?: (avatar: string, stalls: QuickStalls) => void;
 }) {
   const [client, setClient] = useState<OnlineClient | null>(null);
   const [name, setName] = useState(loadName());
-  const nameRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
-  // Quick match: the character you ask for when you enter; if the other player already has it, you get a free one.
-  // A private room chooses shopkeepers after the host starts (PLAN-102); this is then only where the browsing starts.
+  // Quick Match: the character you ask for when you enter; if another player already has it, you get a free one.
+  // A private room chooses shopkeepers after everyone has joined (PLAN-102).
   const [avatar, setAvatar] = useState(() => {
     try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
   });
-  // The room this screen was opened for (an invite link, or a code typed into the Play menu). PLAN-107 (ON-03): once
-  // joining it has failed, Back forgets it and shows the online menu.
+  // PLAN-125: the page shown before a room is open: Quick Match's set-up, the Private Room, or the Public rooms.
+  const [page, setPage] = useState<'quick' | 'room' | 'public'>(quick ? 'quick' : mode);
+  // PLAN-125: Quick Match's table size, as chosen last on this phone.
+  const [stalls, setStalls] = useState<QuickStalls>(() => {
+    try { const n = Number(localStorage.getItem(QUICK_KEY)); return isQuickStalls(n) ? n : QUICK_STALLS; } catch { return QUICK_STALLS; }
+  });
+  const [code, setCode] = useState('');
+  // The room this screen was opened for (an invite link, or a room to go back to). PLAN-107 (ON-03): once joining it
+  // has failed, Back forgets it and shows the online page.
   const [invited, setInvited] = useState(initialCode);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -126,9 +139,8 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     try { history.replaceState(null, '', `?room=${c}`); } catch { /* ignore */ }
   };
 
-  // PLAN-112: a new room is private unless Public is chosen.
-  const [pub, setPub] = useState(mode === 'public');
-  const create = async (asPublic = pub) => {
+  // PLAN-112: a room is private unless it is opened from the Public rooms page.
+  const create = async (asPublic: boolean) => {
     fx.tap();
     setBusy(true);
     track('online', asPublic ? 'public' : 'create');
@@ -139,16 +151,23 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
     track('online', 'list_join');
     begin(c);
   };
+  const clean = normaliseCode(code);
+  const joinTyped = () => {
+    if (clean.length !== CODE_LENGTH) return;
+    fx.tap();
+    begin(clean);
+  };
 
   const findMatch = async () => {
     fx.tap();
     setBusy(true);
     track('online', 'quick');
-    try { begin(await quickMatch()); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    try { localStorage.setItem(QUICK_KEY, String(stalls)); } catch { /* no storage: 2 stalls next time */ }
+    // PLAN-125: the table size goes with the request (client.ts quickMatch(stalls)). It is called through a type that
+    // takes the size either way, so this screen also works with a client that does not take one yet (2 stalls then).
+    const ask: (n?: QuickStalls) => Promise<string> = quickMatch;
+    try { begin(await ask(stalls)); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
-  // PLAN-113: Quick match from the Play menu looks at once with your saved name and last shopkeeper. With no name yet,
-  // or after "Change shopkeeper", this screen asks first.
-  useEffect(() => { if (quick && !initialCode && loadName().trim() && onlineAvailable()) void findMatch(); }, []);
 
   const exit = () => {
     // ON-08: said before Home is drawn, so its "Back to room" ticket is there at once.
@@ -160,6 +179,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
 
   if (client) {
     const v = client.view;
+    const title = quick ? wayName('quick') : v?.public ? 'Public room' : wayName('room');
     if (client.conn === 'failed') {
       const back = () => {
         fx.tap();
@@ -168,78 +188,124 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
         try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ }
       };
       return (
-        <Shell title="Online" onBack={exit}>
-          <section class="panel center-text"><h3>Couldn't join</h3><p>{client.error}</p></section>
-          <button class="btn primary wide" onClick={back}>Back</button>
-        </Shell>
+        <SbPage title={title} sub="Couldn't join" onBack={exit} class="jo" foot={<SbGo onClick={back}>Back</SbGo>}>
+          <section class="sb-sec"><h3 class="sb-h3">Couldn't join</h3><p class="sb-warn" role="alert">{client.error}</p></section>
+        </SbPage>
       );
     }
-    if (!v) return <Shell title={quick ? 'Quick match' : 'Online'} onBack={exit}><div class="waiting-dots big-wait">{quick ? 'Looking for a stall' : `Connecting to room ${client.code}`}</div></Shell>;
+    if (!v) {
+      return (
+        <SbPage title={title} sub={quick ? 'Finding strangers' : `Room ${client.code}`} onBack={exit} class="jo">
+          <div class="waiting-dots big-wait">{quick ? 'Looking for a stall' : `Connecting to room ${client.code}`}</div>
+        </SbPage>
+      );
+    }
     if (v.status === 'picking') return <Picking client={client} v={v} onExit={() => { client.leave(); exit(); }} />;
     if (v.game && v.status !== 'lobby') {
       return <Game key={v.game.config.seed} initial={v.game} online={client} onExit={exit} onChange={() => {}} onRematch={() => client.rematch()} />;
     }
     if (v.quick) {
-      // PLAN-113: the wait. "Change shopkeeper" stops looking and comes back here to choose; the computer game leaves
-      // the queue first.
+      // PLAN-113: the wait. Cancel stops looking and comes back to the set-up; the computer game leaves the queue first.
       const stop = () => { client.leave(); client.stop(); setClient(null); try { history.replaceState(null, '', location.pathname); } catch { /* ignore */ } };
       return (
-        <QuickWait v={v} onExit={() => { client.leave(); exit(); }}
-          onChange={() => { fx.tap(); stop(); }}
-          onComputer={onComputer && ((a) => { fx.tap(); client.leave(); exit(); onComputer(a); })} />
+        <QuickWait v={v} stalls={stalls} onExit={() => { client.leave(); exit(); }}
+          onCancel={() => { fx.tap(); stop(); }}
+          onComputer={onComputer && ((a, n) => { fx.tap(); client.leave(); exit(); onComputer(a, n); })} />
       );
     }
     return <Lobby client={client} v={v} onExit={() => { client.leave(); exit(); }} />;
   }
 
   const available = onlineAvailable();
-  const you = (
-    <section class="panel">
-      <h3>Your name</h3>
-      <input ref={nameRef} id="online-name" class="input" value={name} maxLength={14} placeholder="Your name" onInput={(e) => setName((e.target as HTMLInputElement).value)} />
+  const offline = !available && <p class="sb-warn">Online play isn't available in this version.</p>;
+  const nameBox = (
+    <section class="sb-sec">
+      <SbLabel>Your name</SbLabel>
+      <input id="online-name" class="sb-input" aria-label="Your name" value={name} maxLength={NAME_MAX} placeholder="Your name" autocomplete="off" spellcheck={false}
+        onInput={(e) => setName((e.target as HTMLInputElement).value)} />
     </section>
   );
-  if (quick && !invited) {
-    // A quick match starts the moment a stranger is found, so its shopkeeper is chosen before looking (PLAN-102).
+  const error = err && <p class="sb-warn" role="alert">{err}</p>;
+
+  if (page === 'quick' && !invited) {
+    // PLAN-125: Quick Match's one-page set-up. A quick match starts as soon as its table is full, so its shopkeeper is
+    // chosen before looking (PLAN-102).
     return (
-      <Shell title="Quick match" onBack={exit}>
-        {!available && <section class="panel"><p class="warn-text">Online play isn't available in this version.</p></section>}
-        {you}
-        <section class="panel">
-          <h3>Your shopkeeper</h3>
-          <p class="small muted">{waitLine(DEFAULT_CONFIG.days, '')} One perk for the whole game. If the other player has yours, you get another one.</p>
-          <CharacterPick value={avatar} onPick={setAvatar} />
-          <button class="btn primary big wide" disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a player'}</button>
+      <SbPage title={wayName('quick')} sub={wayLine('quick')} onBack={exit} class="jo sb-quick"
+        foot={<SbGo a="find" disabled={busy || !available} onClick={findMatch}>{busy ? 'Looking…' : 'Find a match'}</SbGo>}>
+        {offline}
+        <Deck value={avatar} onPick={setAvatar} name={name} onName={setName} />
+        <section class="sb-sec">
+          <SbLabel right={<button type="button" class="sb-link" data-a="public" onClick={() => { fx.tap(); setErr(null); setPage('public'); }}>Public rooms</button>}>The table</SbLabel>
+          <TableRow count={stalls - 1}>
+            {Array.from({ length: stalls - 1 }, (_, i) => <OpenCard top={`Seat ${i + 2}`} big="?" small={i === stalls - 2 ? 'Stranger or computer' : 'A stranger'} />)}
+          </TableRow>
         </section>
-        {err && <p class="error center-text">{err}</p>}
-      </Shell>
+        <section class="sb-sec">
+          <SbLabel>{`Table size · ${DEFAULT_LENGTH_NOTE}`}</SbLabel>
+          <Seg label="Table size" items={QUICK_SIZES.map((q) => ({ v: q.stalls, word: q.word, small: q.small }))} value={stalls} onPick={setStalls} />
+          <p class="sb-note">{QUICK_NOTE}</p>
+        </section>
+        {error}
+      </SbPage>
     );
   }
-  const listPanel = <PublicRooms disabled={busy || !available} onJoin={joinListed} onCreate={() => create(true)} />;
-  const startPanel = (
-    <section class="panel">
-      <h3>Start a room</h3>
-      <div class="seg small room-kind" role="group" aria-label="Who can join">
-        <button class={pub ? '' : 'on'} aria-pressed={!pub} onClick={() => { fx.tap(); setPub(false); }}>Private<small>by link or code</small></button>
-        <button class={pub ? 'on' : ''} aria-pressed={pub} onClick={() => { fx.tap(); setPub(true); }}>Public<small>anyone can join</small></button>
-      </div>
-      <p class="small muted">{pub ? PUBLIC_WORDS : 'You\'ll get a link to send to up to 5 friends, anywhere.'} 2 to 6 players. {PICK_LATER}</p>
-      <button class="btn primary big wide" disabled={busy || !available} onClick={() => create()}>{busy ? 'Creating…' : 'Create room'}</button>
-    </section>
-  );
+  if (page === 'public' && !invited) {
+    // PLAN-112: the public rooms still waiting for players, and a public room of your own. PLAN-125: reached from the
+    // Quick Match page, and its back arrow returns there.
+    return (
+      <SbPage title="Public rooms" sub="Rooms waiting for players" onBack={quick ? () => { fx.tap(); setErr(null); setPage('quick'); } : exit} class="jo sb-public"
+        foot={<SbGo a="open-public" disabled={busy || !available} onClick={() => create(true)}>{busy ? 'Opening…' : 'Open a public room'}</SbGo>}>
+        {offline}
+        {nameBox}
+        <PublicRooms disabled={busy || !available} onJoin={joinListed} />
+        <p class="sb-note">{PUBLIC_WORDS} 2 to {MAX_SEATS} players. {PICK_LATER}</p>
+        {error}
+      </SbPage>
+    );
+  }
+  if (invited) {
+    return (
+      <SbPage title={wayName('room')} sub={typed ? `Room ${invited}` : `Invited to room ${invited}`} onBack={exit} class="jo sb-room"
+        foot={<SbGo a="join-room" disabled={!available} onClick={() => begin(invited)}>Join the game</SbGo>}>
+        {offline}
+        {nameBox}
+        <p class="sb-note">{PICK_LATER}</p>
+        {error}
+      </SbPage>
+    );
+  }
+  // PLAN-125: the Private Room page: join a room with its code, or open one for friends. The table is drawn as the room
+  // will be (you, then open seats); nobody chooses a shopkeeper until everyone has joined.
   return (
-    <Shell title={invited ? 'Online' : mode === 'public' ? 'Public rooms' : 'Private room'} onBack={exit}>
-      {!available && <section class="panel"><p class="warn-text">Online play isn't available in this version.</p></section>}
-      {you}
-      {invited ? (
-        <section class="panel">
-          <h3>{typed ? `Room ${invited}` : `Invited to room ${invited}`}</h3>
-          <p class="small muted">{PICK_LATER}</p>
-          <button class="btn primary big wide" onClick={() => begin(invited)}>Join the game</button>
-        </section>
-      ) : mode === 'public' ? <>{listPanel}{startPanel}</> : <>{startPanel}{listPanel}</>}
-      {err && <p class="error center-text">{err}</p>}
-    </Shell>
+    <SbPage title={wayName('room')} sub={wayLine('room')} onBack={exit} class="jo sb-room"
+      foot={(
+        <>
+          <p class="sb-note">You get a link and a code to send to up to {MAX_SEATS - 1} friends, anywhere. {PICK_LATER}</p>
+          <SbGo a="open-room" disabled={busy || !available} onClick={() => create(false)}>{busy ? 'Opening…' : 'Open a room'}</SbGo>
+        </>
+      )}>
+      {offline}
+      {nameBox}
+      <section class="sb-sec">
+        <SbLabel>{`The table · 2 to ${MAX_SEATS} stalls`}</SbLabel>
+        <TableRow count={4}>
+          <SeatCard top="Host" title={name.trim() || 'You'} face="" look={worn()} band="y" small="You" big="Host" selected />
+          {[2, 3, 4].map((n) => <OpenCard top={`Seat ${n}`} big="Open" small="Waiting for a friend" />)}
+        </TableRow>
+      </section>
+      <section class="sb-sec">
+        <SbLabel>Join with a code</SbLabel>
+        <div class="sb-join">
+          <input id="join-code" class="sb-input" aria-label="Room code" value={code} maxLength={CODE_LENGTH} autocapitalize="characters" autocomplete="off" spellcheck={false}
+            placeholder="ABC123" onInput={(e) => setCode((e.target as HTMLInputElement).value.toUpperCase())}
+            onKeyDown={(e) => { if (e.key === 'Enter') joinTyped(); }} />
+          <button type="button" class="sb-btn" data-a="join" disabled={clean.length !== CODE_LENGTH || !available} onClick={joinTyped}>Join</button>
+        </div>
+        <p class="sb-note">{CODE_LENGTH} letters from a friend.</p>
+      </section>
+      {error}
+    </SbPage>
   );
 }
 
@@ -256,9 +322,9 @@ export function waitedWords(ms: number): string {
   return min < 1 ? 'Just opened' : `Waiting ${min} min`;
 }
 
-/** PLAN-112: the public rooms still waiting for players, read again every few seconds while this panel is on screen.
+/** PLAN-112: the public rooms still waiting for players, read again every few seconds while this list is on screen.
  *  Join joins by code, exactly as typing the code does. */
-function PublicRooms({ disabled, onJoin, onCreate }: { disabled: boolean; onJoin: (code: string) => void; onCreate: () => void }) {
+function PublicRooms({ disabled, onJoin }: { disabled: boolean; onJoin: (code: string) => void }) {
   const [rooms, setRooms] = useState<PublicRoom[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -273,37 +339,24 @@ function PublicRooms({ disabled, onJoin, onCreate }: { disabled: boolean; onJoin
     return () => { alive = false; window.clearInterval(t); };
   }, []);
   return (
-    <section class="panel public-rooms" aria-live="polite">
-      <h3>Public rooms</h3>
+    <section class="sb-sec public-rooms" aria-live="polite">
+      <SbLabel>Waiting for players</SbLabel>
       {rooms === null ? (
-        <p class="small muted">{failed ? 'Could not load the public rooms. Trying again.' : 'Looking for rooms…'}</p>
+        <p class="sb-note sb-first">{failed ? 'Could not load the public rooms. Trying again.' : 'Looking for rooms…'}</p>
       ) : rooms.length === 0 ? (
-        <>
-          <p class="small muted">No public rooms are waiting right now. Make one, or go back for Quick match.</p>
-          <button class="btn wide" disabled={disabled} onClick={onCreate}>Create a public room</button>
-        </>
+        <p class="sb-note sb-first">No public rooms are waiting right now. Open one, or go back for Quick Match.</p>
       ) : (
         <div class="pr-list">
           {rooms.map((r) => (
             <div class="pr-row" data-code={r.code}>
               <span class="pr-who"><b>{r.host}</b><small>{r.days} days · {waitedWords(r.waited)}</small></span>
               <span class="pr-n">{r.taken} of {MAX_SEATS}</span>
-              <button class="btn pr-join" disabled={disabled} aria-label={`Join ${r.host}'s room`} onClick={() => onJoin(r.code)}>Join</button>
+              <button class="sb-btn pr-join" disabled={disabled} aria-label={`Join ${r.host}'s room`} onClick={() => onJoin(r.code)}>Join</button>
             </div>
           ))}
         </div>
       )}
     </section>
-  );
-}
-
-/** PLAN-113: the online screens' frame: a paper bar with a round back arrow and the title, in the Market Ticket look. */
-function Shell({ title, onBack, children }: { title: string; onBack: () => void; children: ComponentChildren }) {
-  return (
-    <div class="page tk-page jo">
-      <header class="topbar"><button class="icon-btn" onClick={onBack} aria-label="Back"><BackArrow /></button><div class="day"><b class="day-label">{title}</b></div><span /></header>
-      <main class="scroll pad">{children}</main>
-    </div>
   );
 }
 
@@ -322,7 +375,7 @@ export function inviteLine(free: number): string {
   return free === 1 ? 'Invite 1 more friend' : `Invite up to ${free} friends`;
 }
 
-/** PLAN-113: a seat's chip in the private lobby. */
+/** PLAN-113: a seat's state in the private lobby (the words a screen reader hears for its card). */
 export function seatChip(x: PublicSeat): string {
   if (x.left) return 'Left';
   if (!x.connected) return 'Away';
@@ -330,18 +383,18 @@ export function seatChip(x: PublicSeat): string {
   return x.host ? `Host · ${r}` : r;
 }
 
-/** An empty crate, as on the table: the stall has nothing in it yet. */
-function EmptyCrate() {
-  const w = 84, h = 30;
-  const c = crateUrl('melon', w, h);
-  const k = w / c.vw;
-  return <span class="jl-crate" style={{ height: `${Math.round((h + 2) * k)}px` }} aria-hidden="true"><img src={c.url} width={w} alt="" style={{ marginTop: `${-Math.round(c.top * k)}px` }} /></span>;
+/** PLAN-125: the big word on a person's card in the room ("Friend · Joined", "You · Ready"). */
+export function seatBand(x: PublicSeat): string {
+  if (x.left) return 'Left';
+  if (!x.connected) return 'Away';
+  return x.ready ? 'Ready' : 'Joined';
 }
 
 /**
- * The private room (PLAN-113, the lobby as stalls): the code and the invite link on top; then each seat as a stall with
- * its awning (the player's colour and roof), face and name, and whether they are ready; computer stalls; and the empty
- * stalls, where the host can seat a computer. Then the game length, your look, Ready and Start.
+ * The private room (PLAN-113; PLAN-125 in design B): the room code with Share link; your name; the table, each seat as
+ * a small card (you, the friends with a blue band, the computers with their level, the open seats dashed, where the
+ * host can seat a computer); then the game length, your look, Ready and the host's Start. No shopkeepers yet: they are
+ * chosen once everyone has joined (PLAN-102), so each person's card shows their frame and looks round a plain face.
  */
 function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
   const me = v.seats[v.you];
@@ -378,132 +431,131 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   if (wardrobe) return <Wardrobe onBack={() => setWardrobe(false)} onChange={(l) => client.wear(l)} />;
 
   const taken = v.seats.length + v.config.ai;
+  const muting = muteOpen !== null ? v.seats.find((x) => x.seat === muteOpen) : undefined;
   return (
-    <Shell title={`Room ${v.code}`} onBack={onExit}>
+    <SbPage title={v.public ? 'Public room' : wayName('room')} sub={v.public ? 'Anyone can join' : wayLine('room')} onBack={onExit} class="jo sb-lobby"
+      foot={(
+        <>
+          {/* Ready first; the host's Start beside it (it names who the room is waiting for) */}
+          <div class={`sb-go-row ${host ? 'two' : ''}`}>
+            <button type="button" class={`${me?.ready ? 'sb-btn' : 'sb-go sb-go-s'} jl-ready`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
+            {host && <SbGo class="jl-start" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>{startLabel(v)}</SbGo>}
+          </div>
+          {computers && (computers.ready
+            ? <button type="button" class="sb-btn start-computers" disabled={!computers.othersReady} onClick={() => { fx.card(); track('online', 'computers'); client.startWithComputers(); }}>{computers.label}</button>
+            : <p class="sb-note center-text start-computers-wait">{computers.label}</p>)}
+          {away.map((x) => (x.takeoverAt === undefined ? null
+            : <p class="sb-warn center-text">{x.name} disconnected. Their seat is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
+          {!host && <p class="sb-note center-text">The host starts the game when everyone is ready.</p>}
+        </>
+      )}>
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
-      <section class="jl-invite invite">
-        <div class="jl-code">
-          <span class="jl-lb">{inviteLine(openSeats)}</span>
+      <section class="sb-code invite">
+        <div>
+          <SbLabel>Room code</SbLabel>
           <div class="room-code" aria-label={`Room code ${v.code}`}>{v.code.split('').map((c) => <span>{c}</span>)}</div>
-          <input id="invite-link" class="jl-link" readOnly value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
+          <small class="sb-osm sb-inv">{inviteLine(openSeats)}</small>
         </div>
-        <div class="jl-share">
-          {canShare && <button class="jl-go" onClick={share}>Share link</button>}
-          <button class={canShare ? 'jl-b' : 'jl-go'} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</button>
+        <div class="sb-share">
+          {canShare && <button type="button" class="go" onClick={share}>Share link</button>}
+          <button type="button" class={canShare ? '' : 'go'} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</button>
         </div>
+        <input id="invite-link" class="sb-sr" readOnly tabIndex={-1} value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
       </section>
-      {v.public && <p class="small muted public-note">Public room. People looking for a game can see it and join.</p>}
-
-      <div class="jl-head players-head">
-        <h3>Stalls · {taken} of {MAX_SEATS}</h3>
-        <span class="jl-len">{lengthWord(v.config.days)} · {v.config.days} days</span>
-        <ReactButton onOpen={() => setReacting(true)} />
-      </div>
-      <div class="jl-seats">
-        {v.seats.map((x) => {
-          const mine = x.seat === v.you;
-          const tap = showReactions && !mine;
-          return (
-            // PLAN-112: a tap on another person's stall offers to mute their reactions on this phone.
-            <div class={`jl-seat seat-row ${mine ? 'me' : ''} ${tap ? 'can-mute' : ''} ${!x.connected || x.left ? 'off' : ''}`} data-seat={x.seat}
-              {...(tap ? {
-                role: 'button', tabIndex: 0, 'aria-expanded': muteOpen === x.seat, 'aria-label': `${x.name}: mute or unmute their reactions`,
-                onClick: () => setMuteOpen(muteOpen === x.seat ? null : x.seat),
-                onKeyDown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMuteOpen(muteOpen === x.seat ? null : x.seat); } },
-              } : {})}>
-              {/* What each player has on (PLAN-086): the awning (colour and roof), the signboard frame, the looks and the title. */}
-              <Awning p={x.seat} look={x.look} />
-              <FramedFace who={x.avatar} size={44} look={x.look} />
-              {mine ? <MyName name={x.name} host={false} onRename={(n) => client.rename(n)} /> : <span class="seat-name">{x.name}</span>}
-              {titleOf(x.look) && <small class="sbk-seat-title">{titleOf(x.look)}</small>}
-              <span class={`jl-chip ${x.ready && x.connected && !x.left ? 'yes' : ''} ${!x.connected || x.left ? 'away' : ''}`}>{seatChip(x)}</span>
-              {showReactions && !mine && mutes.muted(x.seat, x.name) && <small class="muted-tag">Muted</small>}
-              <EmptyCrate />
-              {showReactions && muteOpen === x.seat && !mine && (
-                <div class="seat-mute"><MuteButton on={mutes.muted(x.seat, x.name)} name={x.name} toggle={() => { mutes.toggle(x.seat, x.name); setMuteOpen(null); }} /></div>
-              )}
-            </div>
-          );
-        })}
-        {/* Shopkeepers are chosen after the host starts (PLAN-102): until then each seat shows its frame and looks round
-            a plain face, and computer stalls a plain badge. */}
-        {Array.from({ length: v.config.ai }, (_, i) => (
-          <div class="jl-seat ai-seat">
-            <Awning p={v.seats.length + i} />
-            <span class="jl-cface"><Face who="computer" size={40} /></span>
-            <span class="seat-name">Computer {i + 1}</span>
-            <span class="jl-chip yes">Ready</span>
-            {host ? <button class="jl-add" onClick={() => { fx.tap(); set({ ai: v.config.ai - 1 }); }} aria-label={`Remove computer ${i + 1}`}>Remove</button> : <EmptyCrate />}
-          </div>
-        ))}
-        {Array.from({ length: openSeats }, () => (
-          <div class="jl-seat empty open-seat">
-            <span class="jl-plus" aria-hidden="true">+</span>
-            <b>Empty stall</b>
-            <span class="jl-wait">Waiting for a friend</span>
-            {host && <button class="jl-add" onClick={() => { fx.tap(); set({ ai: v.config.ai + 1 }); }}>+ Computer</button>}
-          </div>
-        ))}
-      </div>
-      {openSeats === 0 && <p class="small room-full">Room full · start when everyone is ready</p>}
-      <p class="jl-say">{PICK_LATER}{openSeats > 0 ? (host ? ' An empty stall can go to a computer.' : ' The host can seat a computer in an empty stall.') : ''}</p>
-
-      {host && (
-        <section class="panel">
-          <h3>Game length</h3>
-          <div class="seg">
-            {LENGTHS.map((l) => (
-              <button class={v.config.days === l.days ? 'on' : ''} onClick={() => set({ days: l.days })}>{l.word}<small>{l.days} days</small></button>
-            ))}
-          </div>
-        </section>
+      {v.public && <p class="sb-note public-note">Public room. People looking for a game can see it and join.</p>}
+      {me && (
+        <div class="sb-me">
+          <MyName name={me.name} onRename={(n) => client.rename(n)} />
+          <button type="button" class="sb-btn jl-look" aria-label="Your look: colour, roof, frame and title. Everyone here sees it." onClick={() => { fx.tap(); setWardrobe(true); }}>Your look</button>
+        </div>
       )}
-      <button class="btn wide jl-look" onClick={() => { fx.tap(); setWardrobe(true); }}>Your look<small>Colour, roof, frame and title. Everyone here sees it.</small></button>
 
-      <button class={`btn big wide ${me?.ready ? '' : 'primary'}`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
-      {host && (
-        <button class="btn primary big wide jl-start" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>
-          {startLabel(v)}
-        </button>
-      )}
-      {computers && (computers.ready
-        ? <button class="btn big wide start-computers" disabled={!computers.othersReady} onClick={() => { fx.card(); track('online', 'computers'); client.startWithComputers(); }}>{computers.label}</button>
-        : <p class="center-text muted small start-computers-wait">{computers.label}</p>)}
-      {away.map((x) => (x.takeoverAt === undefined ? null
-        : <p class="center-text small warn-text">{x.name} disconnected. Their seat is freed in {Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.</p>))}
-      {!host && <p class="center-text muted small">The host starts the game when everyone is ready.</p>}
+      <section class="sb-sec">
+        <SbLabel right={<ReactButton onOpen={() => setReacting(true)} />}><span class="jl-stalls">{`The table · ${taken} of ${MAX_SEATS}`}</span></SbLabel>
+        <TableRow count={MAX_SEATS} wrap>
+          {v.seats.map((x) => {
+            const mine = x.seat === v.you;
+            const tap = showReactions && !mine;
+            const muted = showReactions && !mine && mutes.muted(x.seat, x.name);
+            // PLAN-112: a tap on another person's card offers to mute their reactions on this phone.
+            return (
+              <SeatCard seat={x.seat} class={`seat-row ${mine ? 'me' : ''} ${!x.connected || x.left ? 'off' : ''}`} selected={mine}
+                top={x.host ? 'Host' : `Seat ${x.seat + 1}`} title={x.name} face={x.avatar} look={x.look}
+                band={mine ? 'y' : 'b'} small={mine ? 'You' : muted ? 'Friend · Muted' : 'Friend'} big={seatBand(x)}
+                label={`${x.name}${mine ? ' (you)' : ''}: ${seatChip(x)}${tap ? '. Mute or unmute their reactions' : ''}`}
+                onClick={tap ? () => setMuteOpen(muteOpen === x.seat ? null : x.seat) : undefined} pressed={tap ? muteOpen === x.seat : undefined} />
+            );
+          })}
+          {Array.from({ length: v.config.ai }, (_, i) => (
+            <SeatCard class="ai-seat" top={`Seat ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="y" small="Computer" big="Normal"
+              label={`Computer ${i + 1}, Normal`} onRemove={host ? () => set({ ai: v.config.ai - 1 }) : undefined} removeLabel={`Remove computer ${i + 1}`} />
+          ))}
+          {Array.from({ length: openSeats }, (_, i) => (
+            <OpenCard class={`open-seat ${host ? 'host' : ''}`} top={`Seat ${taken + i + 1}`} big="Open" small="Waiting for a friend">
+              {host && <span class="sb-two"><button type="button" class="sb-add" aria-label="Seat a computer here" onClick={() => { fx.tap(); set({ ai: v.config.ai + 1 }); }}>+ Computer</button></span>}
+            </OpenCard>
+          ))}
+        </TableRow>
+        {muting && showReactions && (
+          <div class="seat-mute"><MuteButton on={mutes.muted(muting.seat, muting.name)} name={muting.name} toggle={() => { mutes.toggle(muting.seat, muting.name); setMuteOpen(null); }} /></div>
+        )}
+        {openSeats === 0 && <p class="sb-note room-full">Room full · start when everyone is ready</p>}
+        <p class="sb-note jl-say">{PICK_LATER}{openSeats > 0 && !host ? ' The host can seat a computer in an open seat.' : ''}</p>
+      </section>
+
+      {host
+        ? <LengthSeg days={v.config.days} onDays={(d) => set({ days: d })} />
+        : <section class="sb-sec"><SbLabel>Game length</SbLabel><p class="sb-note sb-first">{lengthWord(v.config.days)} · {v.config.days} days</p></section>}
       <ReactionBubbles client={client} name={(seat) => v.seats[seat]?.name ?? ''} anchor={seatRow} onRow />
       {reacting && <ReactPicker client={client} onClose={() => setReacting(false)} />}
-    </Shell>
+    </SbPage>
   );
 }
 
 /**
- * PLAN-113: the Quick match wait. Your shopkeeper's card against an empty stall, how long you have waited, what the match
- * will be, a price practice while you wait, and three ways out: a game against the computer now, another shopkeeper,
- * or stop looking. The game starts the moment a stranger is found (the room sends it; this screen then gives way).
+ * PLAN-113: the Quick Match wait. PLAN-125 (design B): your shopkeeper's card; how many are found and, when the room
+ * says, when computers fill the empty seats; the table, the strangers found as cards and the seats still looked for;
+ * then two ways out (a game against the computer now, or Cancel back to the set-up) and a price practice while you
+ * wait. The game starts as soon as the table is full (the room sends it; this screen then gives way).
  */
-function QuickWait({ v, onExit, onChange, onComputer }: { v: RoomView; onExit: () => void; onChange: () => void; onComputer?: (avatar: string) => void }) {
+function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
+  v: RoomView; stalls: QuickStalls; onExit: () => void; onCancel: () => void; onComputer?: (avatar: string, stalls: QuickStalls) => void;
+}) {
   const avatar = v.seats[v.you]?.avatar ?? '';
+  const q = quickOf(v.quick);
+  // A room that does not say its size is a 2-stall quick match (a server without table sizes).
+  const stalls = q?.stalls ?? chosen;
   const [since] = useState(() => Date.now());
   const now = useNow(true);
+  const others = v.seats.filter((x) => x.seat !== v.you);
+  const left = q?.fillAt !== undefined ? Math.max(0, q.fillAt - now) : undefined;
   return (
-    <Shell title="Quick match" onBack={onExit}>
-      <div class="jw-vs">
-        {/* PLAN-116 (REP-133 B-08): the small cards here open whole on a tap */}
-        {avatar
-          ? <CardZoom class="jw-card" wide title={RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Your shopkeeper'}><StallSign avatar={avatar} eager /></CardZoom>
-          : <div class="jw-card"><Face who="computer" size={80} /></div>}
-        <div class="jw-r"><span class="jw-vsw" aria-hidden="true">vs</span><div class="jw-empty" role="status"><span aria-hidden="true">?</span><small>Looking for a stall</small></div></div>
+    <SbPage title={wayName('quick')} sub="Finding strangers" onBack={onExit} class="jo sb-wait" after={<PricePractice mine={avatar} />}
+      foot={(
+        <>
+          {onComputer && avatar && <SbGo a="computer-now" class="sb-go-s" onClick={() => onComputer(avatar, stalls)}>Play the computer now</SbGo>}
+          <button type="button" class="sb-btn" data-a="cancel" onClick={onCancel}>Cancel</button>
+        </>
+      )}>
+      <div class="sb-me-card">
+        {/* PLAN-116 (REP-133 B-08): the card opens whole on a tap */}
+        {avatar && <CardZoom class="jw-card" wide title={keeperName(avatar)}><StallSign avatar={avatar} selected eager /></CardZoom>}
       </div>
-      <div class="jw-t"><b aria-label={`Waited ${clock(now - since)}`}>{clock(now - since)}</b><span>{waitLine(v.config.days, avatar)}</span></div>
-      <PricePractice mine={avatar} />
-      <div class="jw-foot">
-        {onComputer && avatar && <button class="btn primary big wide" onClick={() => onComputer(avatar)}>Play the computer now</button>}
-        <button class="btn wide" onClick={onChange}>Change shopkeeper</button>
-        <button class="btn wide" onClick={onExit}>Stop looking</button>
-      </div>
-    </Shell>
+      <p class="sb-found" role="status"><b>{foundLine(v.seats.length, stalls, left)}</b></p>
+      <section class="sb-sec">
+        <SbLabel right={<span class="sb-clock" aria-label={`Waited ${clock(now - since)}`}>{clock(now - since)}</span>}>The table</SbLabel>
+        <TableRow count={stalls - 1}>
+          {others.slice(0, stalls - 1).map((x, k) => (
+            <SeatCard top={`Seat ${k + 2}`} title={keeperName(x.avatar)} avatar={x.avatar || undefined} face={x.avatar} look={x.look} band="b" small="Found" big={x.name}
+              label={`Seat ${k + 2}: ${x.name}, ${keeperName(x.avatar)}`} />
+          ))}
+          {Array.from({ length: Math.max(0, stalls - 1 - others.length) }, (_, i) => (
+            <OpenCard top={`Seat ${others.length + i + 2}`} big="?" small="Looking for a stall" />
+          ))}
+        </TableRow>
+        <p class="sb-note">{waitLine(v.config.days, avatar, stalls)}</p>
+      </section>
+    </SbPage>
   );
 }
 
@@ -536,7 +588,7 @@ function PricePractice({ mine }: { mine: string }) {
   );
 }
 
-/** PLAN-112: where a seat's row is on the lobby or choosing screen, for its reaction's bubble. */
+/** PLAN-112: where a seat's card is on the room or pick screen, for its reaction's bubble. */
 const seatRow = (seat: number) => (typeof document === 'undefined' ? null : document.querySelector(`.seat-row[data-seat="${seat}"]`));
 
 /** PLAN-112: mute or unmute a person's reactions, on this phone, for this room. */
@@ -563,8 +615,6 @@ export function computersOffer(v: RoomView, openedAt: number, now: number): { re
   return { ready: true, othersReady, label: `Start with ${n} computer${n === 1 ? '' : 's'}` };
 }
 
-const keeperName = (avatar: string) => RIVALS.find((r) => r.avatar === avatar)?.name ?? 'Shopkeeper';
-
 /** ON-07 (PLAN-110): the choosing step's line for a person who dropped out before confirming. */
 export function pickAwayLine(x: PublicSeat, now: number): string {
   if (x.left) return `${x.name} left. A computer chooses for them.`;
@@ -572,9 +622,15 @@ export function pickAwayLine(x: PublicSeat, now: number): string {
   return `${x.name} disconnected. A computer chooses for them in ${Math.max(0, Math.ceil((x.takeoverAt - now) / 1000))}s.`;
 }
 
+/** PLAN-125: a seat's state on the pick screen. */
+export function pickState(x: PublicSeat): string {
+  return x.left ? 'Left' : x.confirmed ? 'Confirmed' : x.connected ? 'Choosing' : 'Away';
+}
+
 /** PLAN-102: after the host starts a private room, everyone chooses a shopkeeper at the same time. Looking at a card
  *  does not take it; "Choose" asks the room for it (first come), and it can be changed until "Confirm". The match
- *  begins when every person has confirmed; the computers then take shopkeepers from those left. */
+ *  begins when every person has confirmed; the computers then take shopkeepers from those left. PLAN-125 (design B):
+ *  the deck, your card in the middle and the cards others took marked "Taken by …"; every seat's state as a small card. */
 function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExit: () => void }) {
   const me = v.seats[v.you];
   const mine = me?.avatar ?? '';
@@ -598,16 +654,16 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   // ON-09: the back arrow here leaves the game for good, so it asks first.
   const [leaving, setLeaving] = useState(false);
   const [reacting, setReacting] = useState(false);
+  const title = v.public ? 'Public room' : wayName('room');
   if (leaving) {
     return (
-      <Shell title={`Room ${v.code}`} onBack={() => setLeaving(false)}>
-        <section class="panel center-text">
-          <h3>Leave the game?</h3>
-          <p>A computer will play for you, and you cannot come back to this game.</p>
+      <SbPage title={title} sub={`Room ${v.code}`} onBack={() => setLeaving(false)} class="jo"
+        foot={<><SbGo onClick={() => { fx.tap(); setLeaving(false); }}>Stay</SbGo><button type="button" class="sb-btn" onClick={onExit}>Leave</button></>}>
+        <section class="sb-sec">
+          <h3 class="sb-h3">Leave the game?</h3>
+          <p class="sb-note">A computer will play for you, and you cannot come back to this game.</p>
         </section>
-        <button class="btn primary big wide" onClick={() => { fx.tap(); setLeaving(false); }}>Stay</button>
-        <button class="btn big wide" onClick={onExit}>Leave</button>
-      </Shell>
+      </SbPage>
     );
   }
 
@@ -620,41 +676,33 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const confirm = () => { fx.card(); setErr(null); client.confirm(); };
 
   return (
-    <Shell title={`Room ${v.code}`} onBack={() => { fx.tap(); setLeaving(true); }}>
+    <SbPage title={title} sub="Choose your shopkeeper" onBack={() => { fx.tap(); setLeaving(true); }} class="jo sb-pick"
+      foot={done
+        ? <p class="sb-found pick-wait">{left ? (away.length ? 'Confirmed.' : 'Confirmed. Waiting for the others.') : 'Confirmed. The game is starting.'}</p>
+        : shown === mine
+          ? <SbGo class="pick-confirm" onClick={confirm}>{`Confirm ${keeperName(mine)}`}</SbGo>
+          : <SbGo class="pick-choose" disabled={!!takenBy} onClick={choose}>{takenBy ? `Taken by ${takenBy}` : `Choose ${keeperName(shown)}`}</SbGo>}>
       {client.conn !== 'open' && <div class="net-strip bad">Reconnecting…</div>}
-      <section class="panel">
-        <h3>Choose your shopkeeper</h3>
-        <p class="small muted">Pick one nobody has taken. Each shopkeeper has one perk for the whole game.</p>
-        <CharacterPick value={shown} taken={taken} chosen={mine} fixed={done} onPick={(a) => { setErr(null); setLook(a); }} />
-        {done
-          ? <p class="center-text small pick-wait">{left ? (away.length ? 'Confirmed.' : 'Confirmed. Waiting for the others.') : 'Confirmed. The game is starting.'}</p>
-          : shown === mine
-            ? <button class="btn primary big wide pick-confirm" onClick={confirm}>Confirm {keeperName(mine)}</button>
-            : <button class="btn primary big wide pick-choose" disabled={!!takenBy} onClick={choose}>{takenBy ? `Taken by ${takenBy}` : `Choose ${keeperName(shown)}`}</button>}
-        {!done && mine && shown !== mine && <p class="center-text muted small">You have {keeperName(mine)}. You can change until you confirm.</p>}
-        {away.map((x) => <p class="center-text small warn-text pick-away">{pickAwayLine(x, now)}</p>)}
-        {err && <p class="error center-text">{err}</p>}
-      </section>
-
-      <section class="panel">
-        <div class="players-head"><h3>Players</h3><ReactButton onOpen={() => setReacting(true)} /></div>
-        <div class="seat-list">
+      <Deck value={shown} taken={taken} chosen={mine} fixed={done} onPick={(a) => { setErr(null); setLook(a); }} name={me?.name ?? ''} />
+      {!done && mine && shown !== mine && <p class="sb-note center-text">You have {keeperName(mine)}. You can change until you confirm.</p>}
+      <section class="sb-sec">
+        <SbLabel right={<ReactButton onOpen={() => setReacting(true)} />}>The table</SbLabel>
+        <TableRow count={v.seats.length + v.config.ai} min={3} wrapOver={4}>
           {v.seats.map((x) => (
-            <div class={`seat-row ${x.seat === v.you ? 'me' : ''}`} data-seat={x.seat}>
-              <i class="sbk-seat-awn" style={{ background: awningColour(x.look, x.seat) }} aria-hidden="true" />
-              <FramedFace who={x.avatar} size={32} look={x.look} />
-              <span class="seat-name">{x.name}{x.seat === v.you && ' (you)'}</span>
-              {x.avatar && <small class="sbk-seat-title">{keeperName(x.avatar)}</small>}
-              <span class={`dot ${x.connected ? 'on' : 'off'}`} title={x.connected ? 'Online' : 'Offline'} />
-              <span class={`ready-tag ${x.confirmed ? 'yes' : ''}`}>{x.left ? 'left' : x.confirmed ? 'CONFIRMED' : x.connected ? 'choosing' : 'away'}</span>
-            </div>
+            <SeatCard seat={x.seat} class={`seat-row ${x.seat === v.you ? 'me' : ''} ${!x.connected || x.left ? 'off' : ''}`} selected={x.seat === v.you}
+              top={x.seat === v.you ? 'You' : `Seat ${x.seat + 1}`} title={x.avatar ? keeperName(x.avatar) : x.name} avatar={x.avatar || undefined} face={x.avatar} look={x.look}
+              band={x.confirmed ? 'y' : 'b'} small={x.name} big={pickState(x)} label={`${x.name}${x.seat === v.you ? ' (you)' : ''}: ${x.avatar ? keeperName(x.avatar) : 'no shopkeeper yet'}, ${pickState(x)}`} />
           ))}
-          {Array.from({ length: v.config.ai }, (_, i) => <div class="seat-row ai"><Face who="computer" size={34} /><span class="seat-name">Computer {i + 1}</span></div>)}
-        </div>
-        {v.config.ai > 0 && <p class="small muted">The computers take shopkeepers from those left.</p>}
+          {Array.from({ length: v.config.ai }, (_, i) => (
+            <SeatCard top={`Seat ${v.seats.length + i + 1}`} title={`Computer ${i + 1}`} face="computer" band="k" small="Computer" big="Normal" label={`Computer ${i + 1}`} />
+          ))}
+        </TableRow>
+        {v.config.ai > 0 && <p class="sb-note">The computers take shopkeepers from those left.</p>}
       </section>
+      {away.map((x) => <p class="sb-warn center-text pick-away">{pickAwayLine(x, now)}</p>)}
+      {err && <p class="sb-warn center-text" role="alert">{err}</p>}
       <ReactionBubbles client={client} name={(seat) => v.seats[seat]?.name ?? ''} anchor={seatRow} onRow />
       {reacting && <ReactPicker client={client} onClose={() => setReacting(false)} />}
-    </Shell>
+    </SbPage>
   );
 }

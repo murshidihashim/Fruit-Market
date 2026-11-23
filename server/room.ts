@@ -29,6 +29,10 @@
 //   it is taken off when it starts, fills or closes. Once a room has waited COMPUTERS_AFTER_MS, its host may start with
 //   computers in the empty seats, even alone. Anyone in a room may send a preset reaction: only its id is checked and
 //   passed on to everyone, as {seat, id}, at most one every REACT_GAP_MS per seat (sooner ones are dropped quietly).
+// - PLAN-125: a quick room has 2, 4 or 6 stalls. People are seated with the shopkeeper they chose (or a free one) and
+//   the match starts as soon as every stall has a person, or once the room has been open QUICK_FILL_MS with someone
+//   still in it: Normal computers then take the empty seats and free shopkeepers. The quick-match queue asks the room
+//   for a seat first (claimSeat), so it never sends more people than there are seats. There is never a host lobby.
 
 import { aiActFor, aiStep, computersEvening, planOrderBid } from '../src/engine/ai';
 import { safeName } from './names';
@@ -40,14 +44,18 @@ import { bidOrder, canBidOrder, eveningOpen,
 } from '../src/engine/game';
 import { LIST_REFRESH_MS, type Listing } from './lobby';
 import {
-  CHARACTER_AVATARS, COMPUTERS_AFTER_MS, DEFAULT_CONFIG, isReaction, MAX_SEATS, PROTOCOL_VERSION, REACT_GAP_MS, RULES_VERSION, UPDATE_MSG,
-  type ClientMsg, type PublicSeat, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
+  CHARACTER_AVATARS, COMPUTERS_AFTER_MS, DEFAULT_CONFIG, isReaction, MAX_SEATS, PROTOCOL_VERSION, QUICK_FILL_MS, REACT_GAP_MS, RULES_VERSION,
+  UPDATE_MSG, type ClientMsg, type PublicSeat, type QuickStalls, type RoomConfig, type RoomStatus, type RoomView, type ServerMsg,
 } from '../src/net/protocol';
 
 export const ROOM_TTL_MS = 24 * 60 * 60 * 1000;
 /** How long a dropped player has to reconnect before a computer takes over their seat. */
 export const GRACE_MS = 75_000;
 const MAX_MSG = 16_000;
+/** PLAN-125: how long a seat the quick-match queue promised stays kept for a person who is still connecting. */
+export const CLAIM_MS = 10_000;
+/** PLAN-125: the queue sends nobody to a quick room this close to its fill time, so they arrive before it starts. */
+export const CLAIM_BEFORE_FILL_MS = 3_000;
 
 export interface SeatData {
   name: string; avatar: string; token: string; ready: boolean; host: boolean;
@@ -78,8 +86,15 @@ export interface RoomData {
   rematch: number[];
   seen: string[][];
   aiNames: { name: string; avatar: string; quip: string }[];
-  /** A quick-match room: strangers are seated ready and the match starts as soon as two are in. */
+  /** A quick-match room: strangers are seated ready and the match starts as soon as its stalls are full. */
   quick?: boolean;
+  /** PLAN-125: a quick room's number of stalls (unset in a room from before: 2). */
+  stalls?: QuickStalls;
+  /** PLAN-125: when a waiting quick room starts with computers in the empty seats (unset in a room from before: it
+   *  waits for a second person, as it always did). */
+  fillAt?: number;
+  /** PLAN-125: seats the quick-match queue promised to people still connecting, as the time each promise runs out. */
+  claims?: number[];
   /** The state a person's buying turn began in, or just after the last favour card they played on it (DEC-120), so
    *  they can take their purchases back (never sent to anyone). */
   undo?: { seat: number; day: number; game: GameState };
@@ -120,7 +135,8 @@ export interface RoomIO {
   listRoom?(code: string, entry: Listing | null): Promise<void>;
 }
 
-export function freshRoom(code: string, now: number, quick = false, pub = false): RoomData {
+/** `stalls` and `fillMs` (PLAN-125) are used by a quick room only. */
+export function freshRoom(code: string, now: number, quick = false, pub = false, stalls: QuickStalls = 2, fillMs = QUICK_FILL_MS): RoomData {
   return {
     // Every room starts with the default settings. A quick match keeps upgrades (DEC-120, 2026-11-16, the owner's
     // choice): it always played with them, as its settings are the defaults when the match starts (see hello).
@@ -128,6 +144,9 @@ export function freshRoom(code: string, now: number, quick = false, pub = false)
     game: null, version: 0, pending: [], votes: [], rematch: [], seen: [], aiNames: [], quick,
     // A quick match is never listed: it already finds a stranger on its own.
     ...(pub && !quick ? { public: true } : {}),
+    // The person the queue made this room for is still connecting: their seat is kept like any other promise, so a
+    // second person looking at the same moment is sent here too.
+    ...(quick ? { stalls, fillAt: now + fillMs, claims: [now + CLAIM_MS] } : {}),
   };
 }
 
@@ -188,6 +207,8 @@ export function redact(g: GameState, seat: number, pending?: readonly unknown[])
 }
 
 const clean = safeName;
+/** PLAN-125: a quick room has no host lobby, so nobody can change its settings or start it. */
+const QUICK_STARTS = 'A quick match starts by itself.';
 
 /** Rules 19: the actions a stall takes in the evening, at the same time as the others. */
 const EVENING_ACTIONS = new Set<Action['kind']>(['upgrade', 'favour', 'shade', 'endEvening']);
@@ -248,6 +269,7 @@ export class Room {
     }
     this.takeOverDropped();
     this.freeLobbySeats();
+    this.startQuick();
     this.schedule();
     // A listed room says again that it is still waiting, so the list keeps it.
     await this.announce(true);
@@ -302,6 +324,13 @@ export class Room {
       for (const x of d.seats) if (x.offlineSince !== undefined && !x.bot) at = Math.min(at, x.offlineSince + GRACE_MS);
     }
     if (this.listing()) at = Math.min(at, this.io.now() + LIST_REFRESH_MS);
+    // PLAN-125: a waiting quick room with someone in it wakes at its fill time, or, past it, when the last person the
+    // queue promised a seat should have arrived.
+    if (d.quick && d.status === 'lobby' && d.fillAt !== undefined && this.online().size) {
+      const claims = this.liveClaims();
+      if (this.io.now() < d.fillAt) at = Math.min(at, d.fillAt);
+      else if (claims.length) at = Math.min(at, ...claims);
+    }
     this.io.setAlarm(at);
   }
 
@@ -366,7 +395,7 @@ export class Room {
     if (seat < 0) {
       // ON-15 (PLAN-110): a newcomer to a finished room is told so, not that it has started.
       if (d.status !== 'lobby') return conn.send({ t: 'error', msg: d.status === 'finished' ? 'This game has finished.' : 'This game has already started.', fatal: true });
-      if (d.seats.length >= MAX_SEATS - d.config.ai) return conn.send({ t: 'error', msg: 'This room is full.', fatal: true });
+      if (d.seats.length >= (d.quick ? this.stalls() : MAX_SEATS - d.config.ai)) return conn.send({ t: 'error', msg: 'This room is full.', fatal: true });
       // Quick match: each seat gets its own character, the one asked for if it is free, otherwise the first free one.
       // A private room (PLAN-102): nobody has a shopkeeper until the choosing step after the host starts.
       const taken = new Set(d.seats.map((x) => x.avatar));
@@ -376,6 +405,8 @@ export class Room {
       d.seats.push({ name: clean(m.name, `Player ${d.seats.length + 1}`), avatar, token: this.io.randomHex(24), ready: false, host: d.seats.length === 0, ...(Object.keys(look).length ? { look } : {}) });
       d.seen.push([]);
       seat = d.seats.length - 1;
+      // PLAN-125: the seat the queue kept for this person is now taken.
+      if (d.quick) { this.liveClaims(); d.claims?.shift(); }
     }
     // One live connection per seat: a newer tab replaces the older one.
     for (const c of this.io.conns()) {
@@ -398,14 +429,7 @@ export class Room {
     conn.send({ t: 'welcome', seat, token: d.seats[seat].token, code: d.code });
     if (d.quick && d.status === 'lobby') {
       d.seats.forEach((x) => { x.ready = true; });
-      const online = this.online();
-      // Only start when both strangers are actually here.
-      if (d.seats.length >= 2 && d.seats.every((_, i) => online.has(i))) {
-        d.config = { ...DEFAULT_CONFIG };
-        d.aiNames = [];
-        this.newMatch();
-        return;
-      }
+      if (this.startQuick()) return;
     }
     this.broadcast();
   }
@@ -450,6 +474,7 @@ export class Room {
         me.ready = !!m.ready;
         return this.broadcast();
       case 'config': {
+        if (d.quick) throw new RuleError(QUICK_STARTS);
         if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can change settings');
         const c = m.config ?? ({} as RoomConfig);
         const days = ([8, 10, 14] as const).includes(c.days) ? c.days : d.config.days;
@@ -481,6 +506,7 @@ export class Room {
         return this.broadcast();
       }
       case 'start': {
+        if (d.quick) throw new RuleError(QUICK_STARTS);
         if (d.status !== 'lobby' || !me.host) throw new RuleError('Only the host can start');
         // PLAN-112: after the wait, the host may fill every empty seat with a computer and start, even alone. Their own
         // tap counts as ready; everyone else in the room must still be ready and here.
@@ -814,10 +840,60 @@ export class Room {
     return g.phase === 'order';
   }
 
-  /** A quick-match lobby with exactly one connected player in it. */
-  waitingForOpponent(): boolean {
+  // ---------- quick match (PLAN-125) ----------
+
+  private stalls(): QuickStalls {
+    return this.d.stalls ?? 2;
+  }
+
+  /** The queue's promises that have not run out (the ones that have are dropped). */
+  private liveClaims(): number[] {
     const d = this.d;
-    return !!d.quick && d.status === 'lobby' && d.seats.length === 1 && this.online().has(0);
+    if (!d.claims) return [];
+    const now = this.io.now();
+    d.claims = d.claims.filter((t) => t > now);
+    if (!d.claims.length) delete d.claims;
+    return d.claims ?? [];
+  }
+
+  /** A waiting quick room with someone in it or on the way, a seat nobody has or was promised, and time left to arrive
+   *  before it fills. */
+  waitingForMore(): boolean {
+    const d = this.d;
+    if (!d.quick || d.status !== 'lobby') return false;
+    const claims = this.liveClaims().length;
+    if (!this.online().size && !claims) return false;
+    if (d.fillAt !== undefined && this.io.now() >= d.fillAt - CLAIM_BEFORE_FILL_MS) return false;
+    return d.seats.length + claims < this.stalls();
+  }
+
+  /** The queue asks for a seat for the next person: kept for CLAIM_MS. False when this room should not get them. */
+  async claimSeat(): Promise<boolean> {
+    if (!this.waitingForMore()) return false;
+    (this.d.claims ??= []).push(this.io.now() + CLAIM_MS);
+    this.schedule();
+    await this.io.persist(this.d);
+    return true;
+  }
+
+  /** A waiting quick room starts when every stall has a person here, or at its fill time with someone here and nobody
+   *  the queue sent still on the way: Normal computers take the empty seats, with shopkeepers nobody has. */
+  private startQuick(): boolean {
+    const d = this.d;
+    if (!d.quick || d.status !== 'lobby' || !d.seats.length) return false;
+    const online = this.online();
+    if (!d.seats.every((_, i) => online.has(i))) return false;
+    const full = d.seats.length >= this.stalls();
+    const due = d.fillAt !== undefined && this.io.now() >= d.fillAt && !this.liveClaims().length;
+    if (!full && !due) return false;
+    const ai = Math.max(0, this.stalls() - d.seats.length);
+    const used = new Set(d.seats.map((x) => x.avatar));
+    const pool = RIVALS.filter((r) => !used.has(r.avatar));
+    d.config = { ...DEFAULT_CONFIG, ai };
+    d.aiNames = Array.from({ length: ai }, () => pool.splice(this.io.randomInt(pool.length), 1)[0]);
+    delete d.claims;
+    this.newMatch();
+    return true;
   }
 
   // ---------- views ----------
@@ -839,7 +915,8 @@ export class Room {
       : [];
     return {
       t: 'room', code: d.code, status: d.status, you: seat, seats, config: d.config, version: d.version,
-      game: g ? redact(g, seat, d.pending) : null, submitted, votes: [...d.votes], rematch: [...d.rematch], quick: !!d.quick,
+      game: g ? redact(g, seat, d.pending) : null, submitted, votes: [...d.votes], rematch: [...d.rematch],
+      ...(d.quick ? { quick: { stalls: this.stalls(), ...(d.status === 'lobby' && d.fillAt !== undefined ? { fillAt: d.fillAt } : {}) } } : {}),
       ...(d.lastUndo ? { undone: d.lastUndo } : {}),
       ...(d.public ? { public: true } : {}),
       ...(d.status === 'lobby' ? { waited: Math.max(0, this.io.now() - d.createdAt) } : {}),

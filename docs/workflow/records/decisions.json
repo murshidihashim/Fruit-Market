@@ -3285,6 +3285,29 @@
       "plan": "PLAN-124",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
+    },
+    {
+      "id": "DEC-133",
+      "title": "Four game modes; Quick Match up to 6 stalls; the set-up as one page in the card style (design B)",
+      "question": "Which game modes, and how should the set-up look?",
+      "choice": "Quick Match (2, 4 or 6 stalls, computers fill after 30 seconds), Private Room (with join by code; shopkeepers chosen after everyone joins), Computer, Pass & Play; the set-up uses mockup B, the deck, on one page.",
+      "rationale": "The owner's choice from three mockups; Quick Match should not be only one against one.",
+      "impact": {
+        "player": "Fewer, clearer modes; bigger Quick Matches; a set-up that fits one screen.",
+        "technical": "Online server quick-match queue by size and computer fill; set-up and room screens.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
+        "date": "2026-11-23"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-125",
+      "reviewTrigger": "After the owner sees it on the preview.",
+      "reports": []
     }
   ],
   "history": [
@@ -4755,6 +4778,14 @@
     {
       "at": "2026-11-23 14:08",
       "text": "PLAN-124 implemented (merge 28a40be): Market, Stall and Rules tabs, profile chip, one hero card, mode tabs and one Play button, as in the owner's mockup; Custom match names the normal game. npm run verify PASS (1272); browser run E2E OK with 0 leaks; Market fits one screen down to 320x568. Next: the preview, with PLAN-123."
+    },
+    {
+      "at": "2026-11-23 17:25",
+      "text": "DEC-133 and PLAN-125 approved: four modes, Quick Match 2/4/6 stalls with computer fill, the one-page set-up in design B; private rooms choose shopkeepers after everyone joins. Assumed (stated to the owner): Join with a code moves into Private Room and Public rooms into Quick Match."
+    },
+    {
+      "at": "2026-11-23 20:02",
+      "text": "PLAN-125 implemented on the branch: four modes, Quick Match 2/4/6 with computer fill (server queue per size, old apps get 2), the one-page set-up in design B, the Private Room page and pick screen. verify PASS (1295); browser run PASS except the performance budget, which the previous build also fails on this machine (CI passed it); 33 merged helper folders removed to free disk."
     }
   ]
 }

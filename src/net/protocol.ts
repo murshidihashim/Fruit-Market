@@ -54,6 +54,15 @@ export const REACT_GAP_MS = 2000;
 /** PLAN-112: once a room has waited this long since it opened, its host may start with computers in the empty seats. */
 export const COMPUTERS_AFTER_MS = 60_000;
 
+/** PLAN-125: Quick Match tables of 2, 4 or 6 stalls. A missing or unknown size means 2, so older apps keep working. */
+export const QUICK_STALLS = [2, 4, 6] as const;
+export type QuickStalls = (typeof QUICK_STALLS)[number];
+export function quickStalls(x: unknown): QuickStalls {
+  return QUICK_STALLS.find((n) => n === x) ?? 2;
+}
+/** PLAN-125: a quick room starts this long after it opened, with Normal computers in the seats nobody took. */
+export const QUICK_FILL_MS = 30_000;
+
 /** PLAN-112: one public room still waiting for players, as the Public rooms list shows it. `waited`: ms since it opened. */
 export interface PublicRoom { code: string; host: string; taken: number; days: 8 | 10 | 14; waited: number }
 
@@ -96,8 +105,10 @@ export interface RoomView {
   /** Player indexes who pressed continue in the morning or after sales. */
   votes: number[];
   rematch: number[];
-  /** A quick-match room with a stranger: no lobby settings, it starts when two are in. */
-  quick?: boolean;
+  /** A quick-match room with strangers: no lobby settings, it starts when its stalls are full. PLAN-125: `stalls`, the
+   *  table size; `fillAt`, while it waits, the server time when computers take the empty seats and it starts. (Until
+   *  1.30 this was `true`; apps only ever test it for being set, so the object needs no new protocol version.) */
+  quick?: { stalls: QuickStalls; fillAt?: number };
   /** Set after someone takes back their purchases; n counts how many times, so every phone can tell it is new. */
   undone?: { seat: number; n: number };
   /** PLAN-112: a public room, listed for people looking for a game while it waits in the lobby. */
