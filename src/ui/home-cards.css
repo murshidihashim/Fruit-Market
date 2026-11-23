@@ -13,7 +13,8 @@
 #app .jh-shell > .page { flex: 1 1 auto; min-height: 0; height: auto; }
 #app .jh-nav3 {
   flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--c-efe9df); border-top: 2px solid var(--x-ink);
-  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* on a wide screen the three tabs stay under the 520 px column, the bar itself runs edge to edge */
+  padding: 0 max(env(safe-area-inset-right), calc((100% - 520px) / 2)) env(safe-area-inset-bottom) max(env(safe-area-inset-left), calc((100% - 520px) / 2));
 }
 #app .jh-nav3 button {
   min-height: 54px; margin: 0; padding: 6px 4px 5px; border: 0; border-radius: 0; background: none; color: var(--x-slate); cursor: pointer;
