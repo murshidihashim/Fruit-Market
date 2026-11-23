@@ -1,0 +1,61 @@
+{
+  "id": "PLAN-124",
+  "title": "Home as Shopfront and Board: one hero card, mode tabs, one Play button, bottom navigation",
+  "problem": "Home holds the stall, goals, three swiping mode cards and four mode buttons; the owner wants one focused card and one Play button, with the stall and the rules on their own tabs.",
+  "scope": [
+    "MARKET tab (Home): title, a profile chip (face, name, level, rank, a settings gear), one hero card for the chosen mode, mode tabs Custom, League, Daily, Sprint, and one Play button for the chosen mode (Continue when that mode has a saved game)",
+    "Custom is today's Play (normal game: quick match, private room, computer, one phone)",
+    "STALL tab: the player's stall with its looks, Stamp book, Wardrobe, next goals and the account",
+    "RULES tab: How to play",
+    "Bottom navigation: Stall, Market, Rules"
+  ],
+  "exclusions": [
+    "No rule, save or mode change",
+    "Illustrated art stays (League stage pictures, Daily customer card, faces)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390x844, 360x640, 320x568 and 1280x800 match the mockup; Market fits one screen",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
+    "date": "2026-11-23"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-132"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
