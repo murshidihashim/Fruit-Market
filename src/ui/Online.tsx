@@ -275,15 +275,24 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
       </SbPage>
     );
   }
-  // PLAN-125: the Private Room page: open a room for friends, or join one with its code.
+  // PLAN-125: the Private Room page: join a room with its code, or open one for friends. The table is drawn as the room
+  // will be (you, then open seats); nobody chooses a shopkeeper until everyone has joined.
   return (
     <SbPage title={wayName('room')} sub={wayLine('room')} onBack={exit} class="jo sb-room"
-      foot={<SbGo a="open-room" disabled={busy || !available} onClick={() => create(false)}>{busy ? 'Opening…' : 'Open a room'}</SbGo>}>
+      foot={(
+        <>
+          <p class="sb-note">You get a link and a code to send to up to {MAX_SEATS - 1} friends, anywhere. {PICK_LATER}</p>
+          <SbGo a="open-room" disabled={busy || !available} onClick={() => create(false)}>{busy ? 'Opening…' : 'Open a room'}</SbGo>
+        </>
+      )}>
       {offline}
       {nameBox}
       <section class="sb-sec">
-        <SbLabel>Open a room</SbLabel>
-        <p class="sb-note sb-first">You get a link and a code to send to up to {MAX_SEATS - 1} friends, anywhere. 2 to {MAX_SEATS} stalls. {PICK_LATER}</p>
+        <SbLabel>{`The table · 2 to ${MAX_SEATS} stalls`}</SbLabel>
+        <TableRow count={4}>
+          <SeatCard top="Host" title={name.trim() || 'You'} face="" look={worn()} band="y" small="You" big="Host" selected />
+          {[2, 3, 4].map((n) => <OpenCard top={`Seat ${n}`} big="Open" small="Waiting for a friend" />)}
+        </TableRow>
       </section>
       <section class="sb-sec">
         <SbLabel>Join with a code</SbLabel>
