@@ -8,11 +8,12 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 
-/** Sets the number of rival stalls on the set-up screen's seat tiles (PLAN-058): + Add, or open the last tile and remove it. */
+/** Sets the number of rival stalls on the set-up page's table (PLAN-125: small cards): the open card adds a computer,
+ *  the last card's × removes it. */
 async function setRivals(page, n) {
-  const tiles = page.locator('.seat-tile:not(.add)');
-  while (await tiles.count() < Number(n)) await page.click('.seat-tile.add');
-  while (await tiles.count() > Number(n)) { await tiles.last().click(); await page.click('.seat-remove'); }
+  const tiles = page.locator('.sb-row .sb-card:not(.open)');
+  while (await tiles.count() < Number(n)) await page.click('.sb-row .sb-card.open .sb-cin');
+  while (await tiles.count() > Number(n)) await tiles.last().locator('.sb-x').click();
 }
 const path = require('path');
 (async () => {

@@ -424,11 +424,14 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
   const taken = v.seats.length + v.config.ai;
   const muting = muteOpen !== null ? v.seats.find((x) => x.seat === muteOpen) : undefined;
   return (
-    <SbPage title={v.public ? 'Public room' : wayName('room')} sub={`Room ${v.code}`} onBack={onExit} class="jo sb-lobby"
+    <SbPage title={v.public ? 'Public room' : wayName('room')} sub={v.public ? 'Anyone can join' : wayLine('room')} onBack={onExit} class="jo sb-lobby"
       foot={(
         <>
-          <button type="button" class={`${me?.ready ? 'sb-btn' : 'sb-go small'} jl-ready`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
-          {host && <SbGo class="jl-start" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>{startLabel(v)}</SbGo>}
+          {/* Ready first; the host's Start beside it (it names who the room is waiting for) */}
+          <div class={`sb-go-row ${host ? 'two' : ''}`}>
+            <button type="button" class={`${me?.ready ? 'sb-btn' : 'sb-go sb-go-s'} jl-ready`} onClick={() => { fx.tap(); client.ready(!me?.ready); }}>{me?.ready ? "I'm not ready" : "I'm ready"}</button>
+            {host && <SbGo class="jl-start" disabled={!allReady} onClick={() => { fx.card(); client.start(); }}>{startLabel(v)}</SbGo>}
+          </div>
           {computers && (computers.ready
             ? <button type="button" class="sb-btn start-computers" disabled={!computers.othersReady} onClick={() => { fx.card(); track('online', 'computers'); client.startWithComputers(); }}>{computers.label}</button>
             : <p class="sb-note center-text start-computers-wait">{computers.label}</p>)}
@@ -451,7 +454,12 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
         <input id="invite-link" class="sb-sr" readOnly tabIndex={-1} value={link} aria-label="Invite link" onFocus={(e) => (e.target as HTMLInputElement).select()} />
       </section>
       {v.public && <p class="sb-note public-note">Public room. People looking for a game can see it and join.</p>}
-      {me && <div class="sb-me"><MyName name={me.name} onRename={(n) => client.rename(n)} /></div>}
+      {me && (
+        <div class="sb-me">
+          <MyName name={me.name} onRename={(n) => client.rename(n)} />
+          <button type="button" class="sb-btn jl-look" aria-label="Your look: colour, roof, frame and title. Everyone here sees it." onClick={() => { fx.tap(); setWardrobe(true); }}>Your look</button>
+        </div>
+      )}
 
       <section class="sb-sec">
         <SbLabel right={<ReactButton onOpen={() => setReacting(true)} />}><span class="jl-stalls">{`The table · ${taken} of ${MAX_SEATS}`}</span></SbLabel>
@@ -474,7 +482,7 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
               label={`Computer ${i + 1}, Normal`} onRemove={host ? () => set({ ai: v.config.ai - 1 }) : undefined} removeLabel={`Remove computer ${i + 1}`} />
           ))}
           {Array.from({ length: openSeats }, (_, i) => (
-            <OpenCard class="open-seat" top={`Seat ${taken + i + 1}`} big="Open" small="Waiting for a friend">
+            <OpenCard class={`open-seat ${host ? 'host' : ''}`} top={`Seat ${taken + i + 1}`} big="Open" small="Waiting for a friend">
               {host && <span class="sb-two"><button type="button" class="sb-add" aria-label="Seat a computer here" onClick={() => { fx.tap(); set({ ai: v.config.ai + 1 }); }}>+ Computer</button></span>}
             </OpenCard>
           ))}
@@ -483,13 +491,12 @@ function Lobby({ client, v, onExit }: { client: OnlineClient; v: RoomView; onExi
           <div class="seat-mute"><MuteButton on={mutes.muted(muting.seat, muting.name)} name={muting.name} toggle={() => { mutes.toggle(muting.seat, muting.name); setMuteOpen(null); }} /></div>
         )}
         {openSeats === 0 && <p class="sb-note room-full">Room full · start when everyone is ready</p>}
-        <p class="sb-note jl-say">{PICK_LATER}{openSeats > 0 ? (host ? ' An open seat can go to a computer.' : ' The host can seat a computer in an open seat.') : ''}</p>
+        <p class="sb-note jl-say">{PICK_LATER}{openSeats > 0 && !host ? ' The host can seat a computer in an open seat.' : ''}</p>
       </section>
 
       {host
         ? <LengthSeg days={v.config.days} onDays={(d) => set({ days: d })} />
         : <section class="sb-sec"><SbLabel>Game length</SbLabel><p class="sb-note sb-first">{lengthWord(v.config.days)} · {v.config.days} days</p></section>}
-      <button type="button" class="sb-btn jl-look" onClick={() => { fx.tap(); setWardrobe(true); }}>Your look<small>Colour, roof, frame and title. Everyone here sees it.</small></button>
       <ReactionBubbles client={client} name={(seat) => v.seats[seat]?.name ?? ''} anchor={seatRow} onRow />
       {reacting && <ReactPicker client={client} onClose={() => setReacting(false)} />}
     </SbPage>
@@ -514,10 +521,10 @@ function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
   const others = v.seats.filter((x) => x.seat !== v.you);
   const left = q?.fillAt !== undefined ? Math.max(0, q.fillAt - now) : undefined;
   return (
-    <SbPage title={wayName('quick')} sub="Finding strangers" onBack={onExit} class="jo sb-wait"
+    <SbPage title={wayName('quick')} sub="Finding strangers" onBack={onExit} class="jo sb-wait" after={<PricePractice mine={avatar} />}
       foot={(
         <>
-          {onComputer && avatar && <SbGo a="computer-now" onClick={() => onComputer(avatar, stalls)}>Play the computer now</SbGo>}
+          {onComputer && avatar && <SbGo a="computer-now" class="sb-go-s" onClick={() => onComputer(avatar, stalls)}>Play the computer now</SbGo>}
           <button type="button" class="sb-btn" data-a="cancel" onClick={onCancel}>Cancel</button>
         </>
       )}>
@@ -539,7 +546,6 @@ function QuickWait({ v, stalls: chosen, onExit, onCancel, onComputer }: {
         </TableRow>
         <p class="sb-note">{waitLine(v.config.days, avatar, stalls)}</p>
       </section>
-      <PricePractice mine={avatar} />
     </SbPage>
   );
 }
@@ -672,7 +678,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
       {!done && mine && shown !== mine && <p class="sb-note center-text">You have {keeperName(mine)}. You can change until you confirm.</p>}
       <section class="sb-sec">
         <SbLabel right={<ReactButton onOpen={() => setReacting(true)} />}>The table</SbLabel>
-        <TableRow count={v.seats.length + v.config.ai}>
+        <TableRow count={v.seats.length + v.config.ai} min={3} wrapOver={4}>
           {v.seats.map((x) => (
             <SeatCard seat={x.seat} class={`seat-row ${x.seat === v.you ? 'me' : ''} ${!x.connected || x.left ? 'off' : ''}`} selected={x.seat === v.you}
               top={x.seat === v.you ? 'You' : `Seat ${x.seat + 1}`} title={x.avatar ? keeperName(x.avatar) : x.name} avatar={x.avatar || undefined} face={x.avatar} look={x.look}

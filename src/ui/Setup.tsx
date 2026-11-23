@@ -34,9 +34,11 @@ function Lanes() {
   return <div class="sb-lanes" aria-hidden="true"><i class="ln-blueberry" /><i class="ln-watermelon" /><i class="ln-mango" /><i class="ln-apple" /></div>;
 }
 
-/** A design B page: the lanes, the header and the body. `foot` stays at the foot of the page (the big button). */
-export function SbPage({ title, sub, onBack, backLabel = 'Back', right, foot, class: cls, children }: {
-  title: string; sub?: string; onBack: () => void; backLabel?: string; right?: ComponentChildren; foot?: ComponentChildren; class?: string; children: ComponentChildren;
+/** A design B page: the lanes, the header and the body. `foot` stays at the foot of the page (the big button); `after`
+ *  comes under it, for what can wait below the buttons. */
+export function SbPage({ title, sub, onBack, backLabel = 'Back', right, foot, after, class: cls, children }: {
+  title: string; sub?: string; onBack: () => void; backLabel?: string; right?: ComponentChildren; foot?: ComponentChildren; after?: ComponentChildren; class?: string;
+  children: ComponentChildren;
 }) {
   return (
     <div class={cx('page', 'sb', cls)}>
@@ -49,6 +51,7 @@ export function SbPage({ title, sub, onBack, backLabel = 'Back', right, foot, cl
       <main class="sb-main">
         {children}
         {foot && <div class="sb-foot">{foot}</div>}
+        {after && <div class="sb-after">{after}</div>}
       </main>
     </div>
   );
@@ -150,10 +153,10 @@ export function Deck({ value, taken = {}, chosen, fixed, onPick, name, onName, n
         <div class="sb-nm">
           {onName
             ? <input class="sb-name" aria-label={nameLabel} value={name} maxLength={14} placeholder="Your name" autocomplete="off" spellcheck={false}
-                style={{ width: `${Math.max(5, Math.min(14, (name || 'Your name').length + 1))}ch` }}
+                style={{ width: `${Math.max(5, Math.min(16, (name || 'Your name').length + 2))}ch` }}
                 onInput={(e) => onName((e.target as HTMLInputElement).value)} />
             : <b>{name}</b>}
-          <span>{fixed ? ' · chosen' : ' · swipe to choose'}</span>
+          <span>{fixed ? '\u00a0· chosen' : '\u00a0· swipe to choose'}</span>
         </div>
         {!fixed && <button type="button" class="sb-arrow" aria-label="Next shopkeeper" onClick={() => go(1)}>›</button>}
       </div>
@@ -213,9 +216,11 @@ export function OpenCard({ top, big, small, onClick, label, children, class: cls
   );
 }
 
-/** The row of small cards: at least four columns, so the cards keep their size whatever the count. */
-export function TableRow({ count, children, wrap }: { count: number; children: ComponentChildren; wrap?: boolean }) {
-  return <div class={cx('sb-row', wrap && 'wrap')} style={{ '--n': wrap ? 3 : Math.max(4, count) }}>{children}</div>;
+/** The row of small cards: at least `min` columns (4), so the cards keep their size whatever the count. `wrap`: three
+ *  to a row, on as many rows as it takes (the room's six seats); `wrapOver`: wrap once there are more cards than that. */
+export function TableRow({ count, children, wrap, min = 4, wrapOver }: { count: number; children: ComponentChildren; wrap?: boolean; min?: number; wrapOver?: number }) {
+  const w = wrap || (wrapOver !== undefined && count > wrapOver);
+  return <div class={cx('sb-row', w && 'wrap')} style={{ '--n': w ? 3 : Math.max(min, count) }}>{children}</div>;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -331,7 +336,7 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
                 onRemove={seats.length > 1 ? () => remove(i) : undefined} removeLabel={`Remove stall ${i + 2}`} />))}
           {open && (phone
             ? (
-              <OpenCard top={`Stall ${stall}`} big="+" small="Person or computer">
+              <OpenCard top={`Stall ${stall}`} big="+" small="Person or computer" class="pick">
                 <span class="sb-two">
                   <button type="button" class="sb-add" aria-label={`Add a person at stall ${stall}`} onClick={() => add('human')}>Person</button>
                   <button type="button" class="sb-add" aria-label={`Add a computer at stall ${stall}`} onClick={() => add('ai')}>Computer</button>
@@ -340,7 +345,7 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
             )
             : <OpenCard top={`Stall ${stall}`} big="+" small="Add a computer" label={`Add a computer at stall ${stall}`} onClick={() => add('ai')} />)}
         </TableRow>
-        {phone && <p class="sb-note">{people ? 'Tap a person to choose their name and shopkeeper. Secrets stay hidden between turns.' : 'Add a person to pass the phone round.'}</p>}
+        {phone && <p class="sb-note">{people ? 'Tap a person to set their name and shopkeeper.' : 'Add a person to pass the phone round.'}</p>}
       </section>
       <LengthSeg days={days} onDays={setDays} />
     </SbPage>

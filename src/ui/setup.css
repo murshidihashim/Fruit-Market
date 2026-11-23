@@ -112,7 +112,7 @@
 .sb-row.wrap { row-gap: 8px; }
 .sb-card { position: relative; min-width: 0; display: flex; }
 .sb-cin {
-  flex: 1 1 auto; min-width: 0; margin: 0; padding: 5px 6px 6px; display: flex; flex-direction: column; border: 0; border-radius: 0;
+  flex: 1 1 auto; min-width: 0; margin: 0; padding: 5px clamp(4px, 1.4vw, 6px) 6px; display: flex; flex-direction: column; border: 0; border-radius: 0;
   background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2.5px var(--x-ink); text-align: left; font: inherit; overflow: hidden;
 }
 button.sb-cin { cursor: pointer; }
@@ -128,26 +128,29 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-cpic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sb-cface { height: 100%; display: grid; place-items: center; }
 .sb-cface .sbk-face { border-width: 2px; padding: 0; }
-.sb-cband { flex: none; display: flex; flex-direction: column; gap: 1px; margin-top: auto; padding: 3px 5px; min-width: 0; }
-.sb-cpic + .sb-cband { margin-top: 5px; }
-.sb-cband small { font: 800 0.5rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
-.sb-cband b { font: 400 0.75rem/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband { flex: none; display: flex; flex-direction: column; gap: 1px; margin-top: auto; padding: 3px 4px; min-width: 0; }
+.sb-cpic { margin-bottom: 5px; }
+.sb-cband small { font: 800 0.5rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband b { font: 400 clamp(0.625rem, 3.4vw, 0.75rem)/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-cband.b-y { background: var(--x-mustard); color: var(--x-ink); }
 .sb-cband.b-b { background: var(--x-sky); color: var(--x-paper); }
 .sb-cband.b-k { background: var(--x-ink); color: var(--x-paper); }
 .sb-cband.b-k b { color: var(--x-mustard); }
 .sb-x {
-  position: absolute; top: -7px; right: -7px; z-index: 1; width: 26px; height: 26px; margin: 0; padding: 0; border: 0; border-radius: 50%;
-  background: var(--x-ink); color: var(--x-paper); cursor: pointer; font: 800 1rem/1 var(--f-label);
+  position: absolute; top: -6px; right: -6px; z-index: 1; width: 24px; height: 24px; margin: 0; padding: 0; border: 0; border-radius: 50%;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); cursor: pointer; font: 800 0.875rem/1 var(--f-label);
 }
+/* a 44 px target round the small mark */
+.sb-x::before { content: ''; position: absolute; inset: -10px; }
 /* an open stall: dashed, on kraft */
 .sb-card.open .sb-cin { background: var(--x-kraft); box-shadow: none; border: 2.5px dashed var(--x-ink); padding: 3px 4px 5px; align-items: stretch; }
 .sb-obig { display: block; margin-top: 4px; text-align: center; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
 .sb-osm { display: block; margin-top: 4px; text-align: center; font: 700 0.6875rem/1.2 var(--f-label); color: var(--x-ink); }
-.sb-two { display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 4px; }
+.sb-two { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-top: 2px; }
+.sb-card.open.pick .sb-obig, .sb-card.open.pick .sb-osm { display: none; }
 .sb-add {
   min-height: 26px; margin: 0; padding: 0 2px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
-  cursor: pointer; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase;
+  cursor: pointer; font: 800 clamp(0.5625rem, 2.9vw, 0.625rem)/1 var(--f-label); letter-spacing: 0; text-transform: uppercase;
 }
 .sb-add.go { background: var(--x-mustard); }
 .sb-card.off .sb-cin { opacity: 0.6; }
@@ -192,7 +195,7 @@ button.sb-cin:active { transform: translateY(2px); }
   .sb-back { width: 40px; height: 40px; }
   .sb-tt h1 { font-size: 1.25rem; }
   .sb-tt small { font-size: 0.625rem; }
-  .sb-main { gap: 5px; padding-left: 12px; padding-right: 12px; }
+  .sb-main { gap: 5px; padding-left: 12px; padding-right: 12px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
   .sb-deck { margin: 0 -12px; }
   .sb-arrow { height: 36px; }
   .sb-go { min-height: 48px; font-size: 1.375rem; }
@@ -200,6 +203,7 @@ button.sb-cin:active { transform: translateY(2px); }
   .sb-seg button small { font-size: 0.6875rem; }
   .sb-cpic { height: 26px; }
   .sb-note { margin-top: 3px; font-size: 0.6875rem; }
+  #app .page.sb { --dk-w: clamp(104px, min(46vw, 21vh), 186px); }
 }
 
 /* small parts of the online pages */
@@ -216,3 +220,29 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb .sb-lb .rx-btn { width: 44px; height: 36px; }
 .sb .seat-mute { margin-top: 6px; }
 .sb .net-strip { margin: 0 -14px; }
+/* a seat card is also the anchor of its person's reaction bubble (.seat-row, Reactions.tsx): none of the old row's look */
+#app .sb .sb-card.seat-row { display: flex; align-items: stretch; gap: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+#app .sb .sb-card.seat-row.on .sb-cin { box-shadow: inset 0 0 0 2.5px var(--x-ink), 0 0 0 3px var(--x-mustard); }
+/* the host's Start names who the room waits for: a long line, so a smaller size */
+.sb-go.jl-start { min-height: 52px; font-size: 1.25rem; line-height: 1.05; padding: 6px 12px; }
+/* after the foot: what can wait under the buttons (the price practice) */
+.sb-after { flex: none; padding-top: 6px; }
+.sb-go.sb-go-s { min-height: 52px; font-size: 1.25rem; }
+.sb-go-row { display: flex; gap: 8px; align-items: stretch; }
+.sb-go-row > * { flex: 1 1 0; min-width: 0; }
+.sb-go-row.two > .jl-ready { flex: 0 0 38%; }
+.sb-go-row .sb-btn { min-height: 52px; margin-bottom: 5px; }
+.sb-me { justify-content: space-between; }
+.sb-me .jl-look { width: auto; min-height: 36px; padding: 0 12px; flex: none; }
+.sb .sb-lb .rx-btn { height: 32px; }
+/* the room's open seats: the host's card holds its "+ Computer" button instead of the line */
+.sb-card.open.host .sb-osm { display: none; }
+.sb-card.open .sb-two .sb-add { min-height: 32px; }
+.sb-go.jl-start { font-size: 1.0625rem; }
+@media (max-height: 599px) {
+  .sb-lobby .sb-cpic { display: none; }
+  .sb-lobby .sb-obig { margin-top: 2px; font-size: 1rem; }
+  .sb-lobby .sb-code .room-code { font-size: 1.25rem; }
+  .sb-lobby .sb-code { padding-top: 4px; padding-bottom: 4px; }
+}
+@media (max-height: 599px) { .sb-pick .sb-row.wrap .sb-cpic { display: none; } }
