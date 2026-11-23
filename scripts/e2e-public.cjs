@@ -27,6 +27,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     });
     players.push(P);
     await page.goto(base);
+    await page.click('[data-tab="custom"]'); // PLAN-124: Home's Custom tab, then its Play
     await page.click('[data-a="play"]');
     await page.click('[data-a="public"]');
     return P;

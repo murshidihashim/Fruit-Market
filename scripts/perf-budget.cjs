@@ -64,7 +64,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   const cdp = await ctx.newCDPSession(p);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   await p.goto('file://' + file);
-  await p.waitForSelector('[data-a="play"]');
+  await p.waitForSelector('[data-tab="custom"]');
 
   // A control whose box is under MIN_TAP is listed with its box and its touch area: how far from its middle a tap still
   // lands on it (or on something inside it), found by asking the page what lies under each point. The touch area counts
@@ -90,7 +90,7 @@ const MAX_SLOW_FRAMES = Number(process.env.MAX_SLOW_FRAMES ?? 2);
   }, MIN_TAP);
   const domCount = () => p.evaluate(() => document.querySelectorAll('*').length);
 
-  await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-113: Home's Play, then Computer
+  await p.click('[data-tab="custom"]'); await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play, then Computer
   await p.waitForTimeout(1500); // a player spends a moment choosing options on the setup screen
   await p.evaluate(() => { window.__entry = performance.now(); });
   await p.click('text=Start game');

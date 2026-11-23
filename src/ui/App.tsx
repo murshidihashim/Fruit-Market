@@ -6,7 +6,7 @@ import { openStage } from '../engine/ai';
 import { dailyConfig, sprintConfig } from '../engine/daily';
 import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
 import { CharacterPick } from './CharacterPick';
-import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront } from './Home';
+import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront, type HomeTab } from './Home';
 import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
 import { LENGTHS, vsComputerConfig } from './playMenu';
@@ -14,7 +14,6 @@ import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
-import { HowTo } from './HowTo';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
 import { myAvatar, worn } from './looks';
@@ -37,7 +36,7 @@ import {
   saveSettings, slotOf, todayKey, type SaveSlot, type Settings,
 } from './store';
 
-type Screen = 'home' | 'play' | 'game' | 'howto' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league' | 'intro';
+type Screen = 'home' | 'play' | 'game' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league' | 'intro';
 type PopupKind = 'new' | 'phone' | 'continue' | 'account';
 
 /**
@@ -114,6 +113,8 @@ function popAway() {
 function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () => void }) {
   const [invite, setInvite] = useState(roomFromUrl);
   const [screen, setScreen] = useState<Screen>(invite ? 'online' : 'home');
+  // PLAN-124: Home's tab (the bottom bar: Stall, Market, Rules). It stays while another screen is open over Home.
+  const [homeTab, setHomeTab] = useState<HomeTab>('market');
   // PLAN-120: a saved game per mode (store.ts), and the mode of the game on screen. Starting a game fills its own mode's
   // slot only, so a game in one mode never replaces a game in another.
   const [games, setGames] = useState<Partial<Record<SaveSlot, GameState>>>(() => loadGames());
@@ -162,22 +163,24 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
     const sub = CapApp.addListener('backButton', () => {
       if (swap) setSwap(null);
       else if (popup) setPopup(null);
+      else if (screen === 'home' && homeTab !== 'market') setHomeTab('market');
       else if (screen === 'home') CapApp.exitApp();
       else if (screen === 'online' || screen === 'quick') setScreen(from);
       else setScreen('home');
     });
     return () => { sub.then((h) => h.remove()); };
-  }, [screen, popup, swap, from]);
+  }, [screen, popup, swap, from, homeTab]);
 
   // PLAN-123: the browser's Back (see backNav). A screen away from Home holds one history entry; Home gives it back.
   // PLAN-123: a game was opened in this visit (the fullscreen question waits for the way back to Home from one).
   const [played, setPlayed] = useState(false);
   useEffect(() => { if (screen === 'game') setPlayed(true); }, [screen]);
-  const away = screen !== 'home' || !!popup || !!swap;
+  // PLAN-124: the Stall and Rules tabs count as away from Home too, so Back from them returns to Market.
+  const away = screen !== 'home' || homeTab !== 'market' || !!popup || !!swap;
   useEffect(() => {
     if (away) pushAway();
     else popAway();
-  }, [screen, popup, swap]);
+  }, [screen, popup, swap, homeTab]);
   useEffect(() => {
     const onPop = () => {
       if (backNav.skip) { backNav.skip = false; return; }
@@ -187,12 +190,13 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       else if (screen === 'online' || screen === 'quick') setScreen(from);
       else if (screen === 'game') { if (game && game.phase !== 'over') track('quit_day', game.day); setScreen('home'); if (active && game?.phase === 'over') putGame(active, null); }
       else if (screen !== 'home') setScreen('home');
+      else if (homeTab !== 'market') setHomeTab('market');
       // Still away from Home afterwards (a pop-up closed over a screen, or back to the Play page): the effect above
       // adds the entry again for the next Back.
     };
     addEventListener('popstate', onPop);
     return () => removeEventListener('popstate', onPop);
-  }, [screen, popup, swap, from, game, active]);
+  }, [screen, popup, swap, from, game, active, homeTab]);
 
   const start = (cfg0: GameConfig) => {
     // The person holding the phone wears their looks in every offline game (the first human seat).
@@ -260,7 +264,6 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       />
     );
   }
-  if (screen === 'howto') return <HowTo onDone={() => go('home')} />;
   if (screen === 'settings') return <SettingsScreen onBack={() => go('home')} />;
   // PLAN-113: the online screens go back to where they were opened from: the Play menu, or Home (an invite link, or
   // "Back to room").
@@ -290,7 +293,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   const swapping = swap ? waitingGame(games[swap.slot] ?? null) : null;
   // PLAN-113: Home and the Play menu share the pop-ups in front of them (the set-up, Continue, the question before a
   // waiting game is replaced, the account).
-  const toOnline = (mode: 'room' | 'public', code?: string) => { setOnlineMode(mode); setJoinCode(code); setFrom('play'); go('online'); };
+  const toOnline = (mode: 'room' | 'public', code?: string, back: Screen = 'play') => { setOnlineMode(mode); setJoinCode(code); setFrom(back); go('online'); };
   // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
   // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
   const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('league', 'a Market League game', () => startLeague(stage))()} /> : screen === 'intro' ? (
@@ -316,15 +319,21 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       games={games}
       today={today}
       notice={saveNotice}
+      tab={homeTab}
+      onTab={(t) => { if (t !== homeTab) fx.tap(); setHomeTab(t); }}
       onContinue={(slot) => { setContSlot(slot); open('continue'); }}
       onPlay={() => go('play')}
+      // PLAN-124: the Custom match card's ways start as the Play page's do, and the online screens come back to Home.
+      onQuick={() => { setFrom('home'); go('quick'); }}
+      onPrivate={() => toOnline('room', undefined, 'home')}
+      onComputer={orAsk('play', 'a new game', () => open('new'))}
+      onOnePhone={orAsk('play', 'a new game', () => open('phone'))}
       onDaily={() => openIntro('daily')}
       onSprint={() => openIntro('sprint')}
       onLeague={() => go('league')}
       onWardrobe={() => go('wardrobe')}
       onAccount={() => open('account')}
       onTrophies={() => go('trophies')}
-      onHowTo={() => go('howto')}
       onSettings={() => go('settings')}
       room={openMatch()}
       onRoom={(code) => { setOnlineMode('room'); setJoinCode(code); setFrom('home'); go('online'); }}

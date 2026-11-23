@@ -47,7 +47,8 @@ function play(cfg: GameConfig, perk = 1): { s: GameState; orders: boolean } {
 
 describe('the Play menu: a job for each mode', () => {
   it('says each mode\'s reason in the owner\'s words, plainly', () => {
-    expect(NORMAL_HEADING).toBe('Normal game');
+    // PLAN-124: the owner's name for the normal game, as on Home's Custom match card and tab
+    expect(NORMAL_HEADING).toBe('Custom match');
     expect(MODE_REASON).toEqual({
       league: 'What will the next market throw at you',
       daily: 'How you rank in today\'s full market',
