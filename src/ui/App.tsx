@@ -1,22 +1,21 @@
 // Screens: home, new-game setup, how to play, settings/stats, and the game itself.
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { App as CapApp } from '@capacitor/app';
-import { newGame, type GameConfig, type GameState, type Level, type PlayerConfig } from '../engine/game';
+import { newGame, type GameConfig, type GameState } from '../engine/game';
 import { openStage } from '../engine/ai';
 import { dailyConfig, sprintConfig } from '../engine/daily';
-import { CHARACTER_AVATARS, RIVALS } from '../engine/data';
-import { CharacterPick } from './CharacterPick';
 import { ContinueBody, PlayMenu, Popup, ReplaceBody, Shopfront, type HomeTab } from './Home';
 import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
-import { LENGTHS, vsComputerConfig } from './playMenu';
+import { vsComputerConfig } from './playMenu';
+import { LocalSetup } from './Setup';
 import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
 import { Game } from './Game';
 import { Opening } from './Opening';
 import { AccountPanel } from './AccountPanel';
 import { Wardrobe } from './Wardrobe';
-import { myAvatar, worn } from './looks';
+import { worn } from './looks';
 import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
@@ -32,12 +31,14 @@ import { LeagueScreen } from './League';
 import { BackArrow } from './stampCard';
 import { Toggle } from './Toggle';
 import {
-  clearGame, consumeSaveNotice, loadGames, loadName, loadSettings, loadStats, nameOrDefault, saveGame, saveName,
+  clearGame, consumeSaveNotice, loadGames, loadName, loadSettings, loadStats, nameOrDefault, saveGame,
   saveSettings, slotOf, todayKey, type SaveSlot, type Settings,
 } from './store';
 
-type Screen = 'home' | 'play' | 'game' | 'settings' | 'online' | 'quick' | 'trophies' | 'wardrobe' | 'league' | 'intro';
-type PopupKind = 'new' | 'phone' | 'continue' | 'account';
+// PLAN-125: 'setup' is the one-page set-up for Computer or Pass & Play (Setup.tsx); 'quick' the Quick Match set-up and
+// wait, 'online' the Private Room (Online.tsx).
+type Screen = 'home' | 'play' | 'game' | 'settings' | 'online' | 'quick' | 'setup' | 'trophies' | 'wardrobe' | 'league' | 'intro';
+type PopupKind = 'continue' | 'account';
 
 /**
  * The room in an invite link. PLAN-107 (ON-02): it is read once, as the app opens, and taken out of the address, so it
@@ -67,11 +68,6 @@ function dropRoomFromAddress() {
 
 // The shopkeeper drawing used in the daily challenge and the league (the person there still picks a perk).
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵']; // emoji-ok: avatar keys, never shown
-
-interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
-/** Rival stalls on the set-up screen: up to 5, so 6 stalls with you (rules 11). */
-const MAX_RIVALS = 5;
-const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
 
 // The market opening plays once, when the game is first opened. Automated browser tests skip it. Right after it, the
 // game asks to go full screen (PLAN-062; PLAN-123: on Home, once the player is back from a game), unless it already
@@ -136,9 +132,11 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   // if the player says "Start anyway" (PLAN-081).
   const [swap, setSwap] = useState<{ slot: SaveSlot; what: string; go: () => void } | null>(null);
   const [joinCode, setJoinCode] = useState<string | undefined>();
-  // PLAN-113: the Play menu's game length (for a computer or one-phone game), and which online screen it opened.
+  // PLAN-113: the game length chosen last (PLAN-125: on the set-up page), and which online screen was opened. PLAN-125:
+  // which set-up page is open, Computer or Pass & Play.
   const [days, setDays] = useState(10);
   const [onlineMode, setOnlineMode] = useState<'room' | 'public'>('room');
+  const [setupMode, setSetupMode] = useState<'computer' | 'phone'>('computer');
   const [from, setFrom] = useState<Screen>('home');
   // PLAN-107 (ON-02): an invite, or a code typed into the friend menu, is for one visit to the online screen. However
   // the screen is left (its ←, Home from a game, Android's back button), the next visit starts from the online menu.
@@ -165,7 +163,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       else if (popup) setPopup(null);
       else if (screen === 'home' && homeTab !== 'market') setHomeTab('market');
       else if (screen === 'home') CapApp.exitApp();
-      else if (screen === 'online' || screen === 'quick') setScreen(from);
+      else if (screen === 'online' || screen === 'quick' || screen === 'setup') setScreen(from);
       else setScreen('home');
     });
     return () => { sub.then((h) => h.remove()); };
@@ -187,7 +185,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       backNav.pushed = false;
       if (swap) setSwap(null);
       else if (popup) setPopup(null);
-      else if (screen === 'online' || screen === 'quick') setScreen(from);
+      else if (screen === 'online' || screen === 'quick' || screen === 'setup') setScreen(from);
       else if (screen === 'game') { if (game && game.phase !== 'over') track('quit_day', game.day); setScreen('home'); if (active && game?.phase === 'over') putGame(active, null); }
       else if (screen !== 'home') setScreen('home');
       else if (homeTab !== 'market') setHomeTab('market');
@@ -270,11 +268,15 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   if (screen === 'online') return <Online initialCode={joinCode ?? invite} typed={!!joinCode} mode={onlineMode} onExit={() => go(from)} />;
   if (screen === 'quick') {
     return (
-      <Online quick onExit={() => go(from)} onComputer={(avatar) => {
-        const go2 = () => start(vsComputerConfig(nameOrDefault(loadName()), avatar, (Math.random() * 2 ** 31) >>> 0));
+      <Online quick onExit={() => go(from)} onComputer={(avatar, stalls) => {
+        const go2 = () => start(vsComputerConfig(nameOrDefault(loadName()), avatar, (Math.random() * 2 ** 31) >>> 0, undefined, stalls));
         if (waitingGame(games.play ?? null)) { setScreen('home'); setSwap({ slot: 'play', what: 'a game against the computer', go: go2 }); } else go2();
       }} />
     );
+  }
+  // PLAN-125: the one-page set-up for Computer or Pass & Play; its back arrow returns to where it was opened from.
+  if (screen === 'setup') {
+    return <LocalSetup key={setupMode} mode={setupMode} days={days} onBack={() => go(from)} onStart={(c, d) => { setDays(d); start(c); }} />;
   }
   if (screen === 'trophies') return <TrophyScreen onBack={() => go('home')} />;
   if (screen === 'wardrobe') return <Wardrobe onBack={() => go('home')} />;
@@ -291,9 +293,11 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   const resume = (slot: SaveSlot) => { setActive(slot); go('game'); };
   const continuing = waitingGame(games[contSlot] ?? null);
   const swapping = swap ? waitingGame(games[swap.slot] ?? null) : null;
-  // PLAN-113: Home and the Play menu share the pop-ups in front of them (the set-up, Continue, the question before a
-  // waiting game is replaced, the account).
+  // PLAN-113: Home and the Play menu share the pop-ups in front of them (Continue, the question before a waiting game is
+  // replaced, the account).
   const toOnline = (mode: 'room' | 'public', code?: string, back: Screen = 'play') => { setOnlineMode(mode); setJoinCode(code); setFrom(back); go('online'); };
+  // PLAN-125: Computer and Pass & Play open their set-up page (asking first when a game against the computer waits).
+  const toSetup = (mode: 'computer' | 'phone', back: Screen) => orAsk('play', 'a new game', () => { setSetupMode(mode); setFrom(back); go('setup'); });
   // PLAN-113: the Market League has a screen of its own (the stage you are on and the six stages); its Play button
   // starts the stage, asking first when a game is waiting. Its question is drawn over it, as over Home.
   const body = screen === 'league' ? <LeagueScreen onBack={() => go('home')} onPlay={(stage) => orAsk('league', 'a Market League game', () => startLeague(stage))()} /> : screen === 'intro' ? (
@@ -304,15 +308,11 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       onStart={introKind === 'sprint' ? orAsk('sprint', 'the Sprint', () => startSprint()) : orAsk('daily', 'the Daily market', startDaily)} />
   ) : screen === 'play' ? (
     <PlayMenu
-      days={days}
-      onDays={(d) => { fx.tap(); setDays(d); }}
       onBack={() => go('home')}
       onQuick={() => { setFrom('play'); go('quick'); }}
       onRoom={() => toOnline('room')}
-      onPublic={() => toOnline('public')}
-      onJoin={(code) => toOnline('room', code)}
-      onComputer={orAsk('play', 'a new game', () => open('new'))}
-      onOnePhone={orAsk('play', 'a new game', () => open('phone'))}
+      onComputer={toSetup('computer', 'play')}
+      onOnePhone={toSetup('phone', 'play')}
     />
   ) : (
     <Shopfront
@@ -326,8 +326,8 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       // PLAN-124: the Custom match card's ways start as the Play page's do, and the online screens come back to Home.
       onQuick={() => { setFrom('home'); go('quick'); }}
       onPrivate={() => toOnline('room', undefined, 'home')}
-      onComputer={orAsk('play', 'a new game', () => open('new'))}
-      onOnePhone={orAsk('play', 'a new game', () => open('phone'))}
+      onComputer={toSetup('computer', 'home')}
+      onOnePhone={toSetup('phone', 'home')}
       onDaily={() => openIntro('daily')}
       onSprint={() => openIntro('sprint')}
       onLeague={() => go('league')}
@@ -342,8 +342,6 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   return (
     <>
       {body}
-      {popup === 'new' && <Popup title="New game" onClose={close}><Setup days={days} onStart={(c) => { close(); start(c); }} /></Popup>}
-      {popup === 'phone' && <Popup title="One phone" onClose={close}><Setup days={days} friend onStart={(c) => { close(); start(c); }} /></Popup>}
       {popup === 'continue' && continuing && (
         <Popup title="Continue" onClose={close}>
           <ContinueBody mode={continuing.mode} day={continuing.day} days={continuing.days} stalls={continuing.stalls} cash={continuing.cash}
@@ -367,139 +365,6 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
       {askFullscreen && played && screen === 'home' && !popup && !swap && <FullscreenPrompt onClose={onAsked} />}
     </>
   );
-}
-
-/** The set-up for a game on this phone. PLAN-113: `days` is the length chosen in the Play menu; `friend` (One phone)
- *  starts with a friend at stall 2 instead of computers. */
-function Setup({ onStart, days: days0 = 10, friend }: { onStart: (c: GameConfig) => void; days?: number; friend?: boolean }) {
-  const [name, setName] = useState(loadName());
-  const nameRef = useRef<HTMLInputElement>(null);
-  // A blank name field takes focus so the keyboard opens (best effort: some phones only allow it from a tap).
-  useEffect(() => { if (!name) nameRef.current?.focus(); }, []);
-  const [myChar, setMyChar] = useState<string>(myAvatar);
-  const [seats, setSeats] = useState<Seat[]>([
-    friend ? { kind: 'human', level: 'normal', name: 'Player 2' } : { kind: 'ai', level: 'easy', name: 'Player 2' },
-    { kind: 'ai', level: 'normal', name: 'Player 3' },
-    { kind: 'ai', level: 'normal', name: 'Player 4' },
-    { kind: 'ai', level: 'normal', name: 'Player 5' },
-    { kind: 'ai', level: 'normal', name: 'Player 6' },
-  ]);
-  const [rivals, setRivals] = useState(friend ? 1 : 3);
-  const [days, setDays] = useState(days0);
-  // The full game, always (owner, PLAN-063): event cards, stall upgrades, unripe fruit and Market Days on; the beginner
-  // and expert playtest options (PLAN-015: basic game, fixed prices, price drift) off. The screen no longer shows them.
-  const unripe = true, upgrades = true, events = true, marketDays = true;
-  const core = false, street = false, pulseRule = false;
-
-  const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
-  // Seat tiles (option C, PLAN-058): one tile per rival stall; tapping a tile opens its editor underneath.
-  const [open, setOpen] = useState<number | null>(null);
-  const addSeat = () => { if (rivals < MAX_RIVALS) { setOpen(rivals); setRivals(rivals + 1); } };
-  const removeSeat = (i: number) => {
-    if (rivals <= 1) return;
-    setSeats((ss) => [...ss.slice(0, i), ...ss.slice(i + 1), { kind: 'ai', level: 'normal', name: '' } as Seat]
-      .map((x, k) => (!x.name || /^Player \d+$/.test(x.name) ? { ...x, name: `Player ${k + 2}` } : x)));
-    setRivals(rivals - 1);
-    setOpen(null);
-  };
-
-  // Character cards: you and each friend pick a different character; a friend who has not picked gets the first free one.
-  const humanSeats = seats.slice(0, rivals).map((st, i) => ({ st, i })).filter(({ st }) => st.kind === 'human');
-  const picks: Record<number, string> = {};
-  const usedChars = new Set<string>([myChar]);
-  for (const { st, i } of humanSeats) {
-    const a = st.avatar && CHARACTER_AVATARS.includes(st.avatar) && !usedChars.has(st.avatar) ? st.avatar : CHARACTER_AVATARS.find((c) => !usedChars.has(c))!;
-    picks[i] = a;
-    usedChars.add(a);
-  }
-  const seatName = (i: number) => seats[i].name.trim() || `Player ${i + 2}`;
-  // S8 (PLAN-110): with friends on this phone a blank name is "Player 1", as the friends' are "Player 2" and on (it was
-  // "You", which read "Pass the phone to You"). Alone, the person is "You" as before.
-  const myName = () => name.trim() || (humanSeats.length > 0 ? 'Player 1' : 'You');
-  const takenForMe: Record<string, string> = Object.fromEntries(humanSeats.map(({ i }) => [picks[i], seatName(i)]));
-  const takenFor = (i: number): Record<string, string> => ({
-    [myChar]: myName(),
-    ...Object.fromEntries(humanSeats.filter((h) => h.i !== i).map((h) => [picks[h.i], seatName(h.i)])),
-  });
-
-  const begin = () => {
-    saveName(name.trim());
-    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the same key the online screens keep).
-    try { localStorage.setItem('fm.avatar', myChar); } catch { /* no storage: Home shows the first shopkeeper */ }
-    // Computer shops take the characters the people did not pick.
-    const pool = RIVALS.filter((r) => !usedChars.has(r.avatar)).sort(() => Math.random() - 0.5);
-    const players: PlayerConfig[] = [
-      { name: myName(), kind: 'human', avatar: myChar },
-      ...seats.slice(0, rivals).map((st, i): PlayerConfig => {
-        if (st.kind === 'human') return { name: seatName(i), kind: 'human', avatar: picks[i] };
-        const r = pool.shift()!;
-        return { name: r.name, kind: 'ai', level: st.level, avatar: r.avatar, quip: r.quip };
-      }),
-    ];
-    onStart({ players, days, unripe, upgrades: upgrades && !core, events, marketDays, core, street, pulse: pulseRule, seed: (Math.random() * 2 ** 31) >>> 0 });
-  };
-
-  return (
-    <div class="setup-body">
-        <section class="panel">
-          <h3 class="tight">Your name</h3>
-          <input ref={nameRef} class="input tight" aria-label="Your name" value={name} maxLength={14} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Your name" />
-          <h3 class="tight next">Your shopkeeper</h3>
-          <CharacterPick value={myChar} taken={takenForMe} seat={0} onPick={setMyChar} />
-        </section>
-        <section class="panel">
-          <h3>Rival stalls</h3>
-          <div class="seat-tiles">
-            {seats.slice(0, rivals).map((st, i) => (
-              <button type="button" class={`seat-tile ${st.kind === 'human' ? 'friend' : `lv-${st.level}`} ${open === i ? 'on' : ''}`} aria-expanded={open === i}
-                aria-label={`Stall ${i + 2}: ${st.kind === 'human' ? `friend, ${seatName(i)}` : `computer, ${LEVEL_WORD[st.level]}`}. Change`} onClick={() => setOpen(open === i ? null : i)}>
-                <span class="st-n">Stall {i + 2}</span>
-                <b class="st-k">{st.kind === 'human' ? seatName(i) : LEVEL_WORD[st.level]}</b>
-                <span class="st-l">{st.kind === 'human' ? 'Friend' : 'Computer'}</span>
-              </button>
-            ))}
-            {rivals < MAX_RIVALS && <button type="button" class="seat-tile add" onClick={addSeat}><b class="st-k">+ Add</b></button>}
-          </div>
-          {open !== null && open < rivals && (() => {
-            const i = open;
-            const st = seats[i];
-            return (
-              <div class="seat-sheet">
-                <div class="seat-sheet-head"><b>Stall {i + 2}</b><button type="button" class="seat-done" onClick={() => setOpen(null)}>Done</button></div>
-                <div class="seg small">
-                  {(['easy', 'normal', 'hard'] as Level[]).map((l) => <button class={st.kind === 'ai' && st.level === l ? 'on' : ''} onClick={() => setSeat(i, { kind: 'ai', level: l })}>{LEVEL_WORD[l]}</button>)}
-                  <button class={st.kind === 'human' ? 'on' : ''} onClick={() => setSeat(i, { kind: 'human' })}>Friend</button>
-                </div>
-                {st.kind === 'human' && (
-                  <>
-                    <input class="input" aria-label={`Name for stall ${i + 2}`} value={st.name} maxLength={14} onInput={(e) => setSeat(i, { name: (e.target as HTMLInputElement).value })} />
-                    <CharacterPick value={picks[i]} taken={takenFor(i)} seat={i + 1} onPick={(a) => setSeat(i, { avatar: a })} />
-                  </>
-                )}
-                {rivals > 1 && <button type="button" class="seat-remove" onClick={() => removeSeat(i)}>Remove stall {i + 2}</button>}
-              </div>
-            );
-          })()}
-          <p class="small shop-total">{shopTotal(seats.slice(0, rivals))}</p>
-          {seats.slice(0, rivals).some((s) => s.kind === 'human') && <p class="small muted">Friends take turns on this phone. Each player's secrets stay hidden between turns.</p>}
-        </section>
-        <section class="panel">
-          <h3>Game length</h3>
-          <div class="seg">
-            {LENGTHS.map((l) => <button class={days === l.days ? 'on' : ''} onClick={() => setDays(l.days)}>{l.word}<small>{l.days} days</small></button>)}
-          </div>
-        </section>
-        <div class="sticky-start"><button class="btn primary big wide" onClick={begin}>Start game</button></div>
-    </div>
-  );
-}
-
-/** "4 shops: you, 2 friends, 1 computer" for the new-game screen. */
-function shopTotal(rivals: { kind: 'human' | 'ai' }[]): string {
-  const friends = rivals.filter((s) => s.kind === 'human').length;
-  const computers = rivals.length - friends;
-  const part = (n: number, word: string) => (n ? `, ${n} ${word}${n > 1 ? 's' : ''}` : '');
-  return `${rivals.length + 1} stalls: you${part(friends, 'friend')}${part(computers, 'computer')}`;
 }
 
 function SettingsScreen({ onBack }: { onBack: () => void }) {

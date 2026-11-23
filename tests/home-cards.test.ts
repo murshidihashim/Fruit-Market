@@ -90,11 +90,17 @@ describe('the Daily intro says what the mode is, from the configs', () => {
 });
 
 describe('the Play page keeps the Normal game group only', () => {
-  it('has Quick match, Private room, Join, Computer, One phone, game length and Public rooms, and no League, Daily or Sprint', () => {
-    const html = toStaticHtml(h(PlayMenu, { days: 10, onDays: noop, onBack: noop, onQuick: noop, onRoom: noop, onPublic: noop, onJoin: noop, onComputer: noop, onOnePhone: noop }));
-    for (const a of ['normal-game', 'quick', 'room', 'join', 'computer', 'phone', 'public']) expect(html).toContain(`data-a="${a}"`);
+  // PLAN-125 (DEC-133): the four ways, in order; joining with a code is on the Private Room page, the Public rooms on
+  // the Quick Match page, and the game length on each way's own page.
+  it('has Quick Match, Private Room, Computer and Pass & Play, and no League, Daily or Sprint', () => {
+    const html = toStaticHtml(h(PlayMenu, { onBack: noop, onQuick: noop, onRoom: noop, onComputer: noop, onOnePhone: noop }));
+    expect([...html.matchAll(/data-a="(quick|room|computer|phone|join|public)"/g)].map((m) => m[1])).toEqual(['quick', 'room', 'computer', 'phone']);
+    expect(html).toContain('data-a="normal-game"');
+    for (const t of ['Quick Match', 'Private Room', 'Computer', 'Pass &amp; Play']) expect(html).toContain(`<b>${t}</b>`);
     for (const a of ['league', 'daily', 'sprint']) expect(html).not.toContain(`data-a="${a}"`);
     expect(html).not.toContain('jp-mode');
+    expect(html).not.toContain('jp-len');
+    expect(html).not.toMatch(/One phone/i);
   });
 });
 
@@ -112,7 +118,9 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
     expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual(['custom']);
     expect(html).toContain('<h2>Custom match</h2><small>your market, your way</small>');
     for (const w of ['quick', 'room', 'computer', 'phone']) expect(html).toContain(`data-a="way-${w}"`);
-    for (const t of ['Quick match', 'A stranger online', 'Private room', 'Friends, by link or code', 'Computer', 'Easy, Normal or Hard', 'One phone', 'Pass and play']) expect(html).toContain(t);
+    // PLAN-125: the four ways' names and lines from the approved mockup B; "Pass & Play" replaces "One phone"
+    for (const t of ['Quick Match', 'Strangers online', 'Private Room', 'Friends by link or code', 'Computer', 'On this phone', 'Pass &amp; Play', 'Take turns on this phone']) expect(html).toContain(t);
+    expect(html).not.toMatch(/One phone/i);
     expect(html).toContain('<i>vs</i>');
     expect(html).toMatch(/<span class="jh-next3"><b>Next:<\/b> .+<\/span>/);
     // the mode tabs: a tablist, Custom chosen, the card is its panel

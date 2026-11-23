@@ -259,7 +259,7 @@ describe('A-13: Continue names the mode that is waiting', () => {
     expect(modeOf(newGame(leagueConfig(2, 'You', '')))).toBe('League stage 3');
     expect(modeOf(newGame({ ...dailyConfig('2026-11-22', 'You'), daily: undefined }))).toBe('Computer game');
     const two = newGame({ ...dailyConfig('2026-11-22', 'You'), daily: undefined, players: dailyConfig('2026-11-22', 'You').players.map((p, i) => (i === 1 ? { ...p, kind: 'human' as const } : p)) });
-    expect(modeOf(two)).toBe('One phone game');
+    expect(modeOf(two)).toBe('Pass & Play game');
     expect(waitingGame(base)?.mode).toBe('Daily market');
   });
 });
