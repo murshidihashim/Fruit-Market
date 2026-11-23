@@ -216,3 +216,8 @@
 
 /* words for a screen reader only (the results tiles say their place, name, title and cash in one line) */
 .jp-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* PLAN-123: the results' places at this table (apart from a board's), and the game's deciding moment */
+.sbk .jp-pods-lab { display: block; margin: 14px 12px 0; }
+.sbk .jp-pods-lab + .jp-pods { padding-top: 16px; }
+.sbk .jp-moment-tx { font-size: 0.8125rem; font-weight: 600; line-height: 1.35; }
