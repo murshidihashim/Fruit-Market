@@ -1,0 +1,60 @@
+{
+  "id": "PLAN-125",
+  "title": "Four game modes and a one-page set-up in the card style (design B, the deck)",
+  "problem": "The Play page has six entries and the set-up is a scrolling pop-up; Quick Match is always two stalls.",
+  "scope": [
+    "Four modes: Quick Match, Private Room, Computer, Pass & Play. Join with a code moves into Private Room; Public rooms into Quick Match",
+    "One-page set-up in design B (your shopkeeper card centred with neighbours peeking, seats as small cards, length, one big button) for Quick Match, Computer and Pass & Play",
+    "Private Room: the room page shows the code, the seats as cards and the length; shopkeepers are chosen after everyone has joined, on a pick screen in the same deck style",
+    "Quick Match chooses 2, 4 or 6 stalls; strangers are matched for up to 30 seconds and empty seats get Normal computers"
+  ],
+  "exclusions": [
+    "No rule or balance change; secret prices stay secret (leak check 0)",
+    "Saves unchanged"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks), including Quick Match at 4 stalls with two people and computers",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens of each mode's set-up, the private room and the pick screen at 390x844, 360x640, 320x568: one page",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
+    "date": "2026-11-23"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-133"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
