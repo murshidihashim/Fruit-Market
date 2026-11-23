@@ -3304,7 +3304,7 @@
         "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
         "date": "2026-11-23"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-125",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
@@ -4782,6 +4782,10 @@
     {
       "at": "2026-11-23 17:25",
       "text": "DEC-133 and PLAN-125 approved: four modes, Quick Match 2/4/6 stalls with computer fill, the one-page set-up in design B; private rooms choose shopkeepers after everyone joins. Assumed (stated to the owner): Join with a code moves into Private Room and Public rooms into Quick Match."
+    },
+    {
+      "at": "2026-11-23 20:02",
+      "text": "PLAN-125 implemented on the branch: four modes, Quick Match 2/4/6 with computer fill (server queue per size, old apps get 2), the one-page set-up in design B, the Private Room page and pick screen. verify PASS (1295); browser run PASS except the performance budget, which the previous build also fails on this machine (CI passed it); 33 merged helper folders removed to free disk."
     }
   ]
 }
