@@ -211,10 +211,11 @@ describe('C-14, S16: the evening tip', () => {
 
 describe('C-13, C-16: the Daily market', () => {
   it('Home calls it the Daily market', () => {
-    // PLAN-120: the Daily market has its own card on Home (HomeCards.tsx).
+    // PLAN-120: the Daily market has its own card on Home (HomeCards.tsx). PLAN-124: its card and its Play are named
+    // from the mode list ("Daily market"; the tab says "Daily").
     const home = read('src/ui/HomeCards.tsx').split(/\r?\n/).filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
-    expect(home).toContain('<span>Daily market · {shortDate(p.today)}</span>');
-    expect(home).toContain('<PlayIcon />Play the Daily market</button>');
+    expect(home).toContain("{ id: 'daily', slot: 'daily', tab: 'Daily', name: 'Daily market' }");
+    expect(home).toContain('<Frame mode="daily" sub={`${shortDate(p.today)}');
     expect(home).not.toMatch(/today['’]s market/i);
   });
 

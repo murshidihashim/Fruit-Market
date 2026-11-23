@@ -6,7 +6,7 @@ import { FRUITS, TRAITS } from '../src/engine/data';
 import { sprintConfig } from '../src/engine/daily';
 import { applyAction, beginBuying, canBuy, finishReveal, newGame, type Action, type GameConfig, type GameState } from '../src/engine/game';
 import { introWords, SPRINT_EVENTS_LINE, SPRINT_PERK_LINE } from '../src/ui/DailyIntro';
-import { continueWords, modeChips } from '../src/ui/HomeCards';
+import { MODES, continueWords } from '../src/ui/HomeCards';
 import { nextTrophy, opensWhen, starsFoot, trophyWhere } from '../src/ui/League';
 import { EXPERTS, LEAGUE, STAR_COUNT } from '../src/ui/campaign';
 import { isReduced, setStill } from '../src/ui/motion';
@@ -167,14 +167,8 @@ describe('League results: the next action says what it asks of you', () => {
 });
 
 describe('Home: every mode one tap from the first view, and Continue names the game', () => {
-  it('four chips, the Sprint on the Daily card; a waiting game shows its day', () => {
-    const daily = newGame(sprintConfig(DATE, 'You'));
-    const chips = modeChips({ today: DATE, games: { sprint: { ...daily, day: 2 } } }, 0);
-    expect(chips.map((c) => [c.label, c.card])).toEqual([['Play', 0], ['League', 1], ['Daily', 2], ['Sprint', 2]]);
-    expect(chips.find((c) => c.id === 'sprint')).toMatchObject({ wait: true, sub: 'Day 2 of 3' });
-    expect(chips.find((c) => c.id === 'league')).toMatchObject({ wait: false, sub: 'Stage 1' });
-    // the names a test or a screen reader finds them by
-    expect(chips.find((c) => c.id === 'daily')!.aria).toBe('Show the Daily market card');
+  it('four mode tabs, each with its own save slot (PLAN-124: the tabs replace the four chips; tests/home-cards.test.ts draws them)', () => {
+    expect(MODES.map((m) => [m.tab, m.slot])).toEqual([['Custom', 'play'], ['League', 'league'], ['Daily', 'daily'], ['Sprint', 'sprint']]);
   });
   it('Continue says the mode (with the League stage), the day and the cash', () => {
     const w = waitingGame({ ...newGame(sprintConfig(DATE, 'You')), day: 2 })!;

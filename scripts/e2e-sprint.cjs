@@ -73,27 +73,30 @@ async function playSprint(page, shot, tag) {
   const shot = (n) => page.screenshot({ path: `${out}/sprint-${n}.png` });
   const fail = async (msg) => { await shot('stuck'); console.error(`Sprint e2e FAILED: ${msg} (errors: ${JSON.stringify(errors)})`); await browser.close(); process.exit(1); };
 
-  // PLAN-119: the Play menu gives each mode its job.
+  // PLAN-119: the Play menu gives each mode its job. PLAN-124: Home's Custom tab, then its Play.
+  await page.click('[data-tab="custom"]');
   await page.click('[data-a="play"]');
   await page.waitForSelector('[data-a="normal-game"]');
   const group = page.locator('[data-a="normal-game"]');
-  if (!/normal game/i.test(await group.locator('h2').innerText())) return fail('the Play menu has no "Normal game" heading');
+  if (!/custom match/i.test(await group.locator('h2').innerText())) return fail('the Play menu has no "Custom match" heading');
   for (const a of ['quick', 'room', 'join', 'computer', 'phone', 'public']) {
-    if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Normal game group`);
+    if ((await group.locator(`[data-a="${a}"]`).count()) !== 1) return fail(`"${a}" is not in the Custom match group`);
   }
-  if ((await group.locator('.jp-len button').count()) !== 3) return fail('the game length choice is not in the Normal game group');
+  if ((await group.locator('.jp-len button').count()) !== 3) return fail('the game length choice is not in the Custom match group');
   // PLAN-120: the League, the Daily market and the Sprint left the Play page for cards of their own on Home.
   const left = await page.locator('.jp-in [data-a="league"], .jp-in [data-a="daily"], .jp-in [data-a="sprint"]').count();
   if (left) return fail('the Play page still has the League, the Daily market or the Sprint');
   await shot('play-menu');
-  console.log('Play menu: the Normal game group only');
+  console.log('Play menu: the Custom match group only');
   await page.click('.jp-bar .icon-btn');
-  // Home's three mode cards, in order; the Daily card's Sprint opens the Daily intro on the Sprint, whose Start starts it.
-  const cards = await page.locator('.jh-row > .jh-card').evaluateAll((els) => els.map((e) => e.getAttribute('data-card')));
-  if (cards.join() !== 'play,league,daily') return fail(`Home's cards are ${cards.join()}`);
-  await page.click('.jh-nav .jh-dot[aria-label="Show the Daily market card"]');
-  await page.waitForSelector('[data-a="sprint-row"]');
-  await page.click('[data-a="sprint-row"] [data-a="sprint"]');
+  // PLAN-124: Home's four mode tabs, in order; the Sprint tab's card, then its Play, opens the Daily intro on the Sprint,
+  // whose Start starts it.
+  const tabs = await page.locator('[role="tablist"] [role="tab"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-tab')));
+  if (tabs.join() !== 'custom,league,daily,sprint') return fail(`Home's mode tabs are ${tabs.join()}`);
+  await page.click('[data-tab="sprint"]');
+  await page.waitForSelector('[data-card="sprint"]');
+  if ((await page.getAttribute('[data-tab="sprint"]', 'aria-selected')) !== 'true') return fail('the Sprint tab is not marked chosen');
+  await page.click('[data-a="sprint"]');
   await page.waitForSelector('[data-a="intro-sprint"]');
   const intro = (await page.locator('[data-a="intro-sprint"]').innerText()).replace(/\s+/g, ' ');
   for (const t of ['3 days · 4 stalls', 'A few minutes. Beat your best.', 'Retry as often as you like.', 'The week counts your best 5 days.', 'Ranked by final cash, then by fruit sold.']) {
