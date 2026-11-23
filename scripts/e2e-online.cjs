@@ -26,7 +26,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   const shot = (p, n) => p.page.screenshot({ path: `${out}/${n}.png` });
 
   await A.page.goto(base);
-  await A.page.click('[data-a="play"]'); await A.page.click('[data-a="room"]');
+  await A.page.click('[data-tab="custom"]'); await A.page.click('[data-a="play"]'); await A.page.click('[data-a="room"]'); // PLAN-124: Home's Custom tab and Play
   await A.page.fill('#online-name', 'Murshidi');
   await A.page.click('button:has-text("Create room")');
   await A.page.waitForSelector('#invite-link');

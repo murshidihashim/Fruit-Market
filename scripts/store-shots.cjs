@@ -27,7 +27,7 @@ const path = require('path');
   await p.waitForTimeout(400);
   const shot = (name) => p.screenshot({ path: `${out}/${name}.png` });
   await shot('1-home');
-  await p.click('[data-a="play"]'); await p.click('[data-a="computer"]');
+  await p.click('[data-tab="custom"]'); await p.click('[data-a="play"]'); await p.click('[data-a="computer"]'); // PLAN-124: Home's Custom tab and Play
   await setRivals(p, 2);
   await p.click('button:has-text("Start game")');
   // A merchant trait is picked only when the game offers one (the Daily market, the Market League); a new game goes
@@ -71,7 +71,7 @@ const path = require('path');
   }
   await p.goto('file://' + path.resolve(file));
   await p.waitForTimeout(300);
-  await p.click('button:has-text("Stamp book")');
+  await p.click('[data-nav="stall"]'); await p.click('[data-a="stamp-book"]'); // PLAN-124: the stamp book is on the Stall tab
   await p.waitForTimeout(300);
   await shot('7-trophies');
   console.log('saved', [...done].join(', '));

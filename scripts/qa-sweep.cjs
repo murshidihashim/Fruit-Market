@@ -122,16 +122,19 @@ function audit() {
     const has = async (t) => (await page.locator(t).count()) > 0;
     try {
       await check('home');
-      await page.click('button:has-text("How to play")');
+      // PLAN-124: How to play is Home's Rules tab, Settings the gear on the profile chip, the stamp book on the Stall tab.
+      await page.click('[data-nav="rules"]');
       await check('howto-1');
       for (let i = 2; i <= 9 && (await has('button.btn.primary:has-text("Next")')); i++) { await page.click('button.btn.primary:has-text("Next")'); await check(`howto-${i}`); }
+      await page.click('[data-nav="market"]');
+      await page.click('[data-a="settings"]'); await check('settings');
       await page.click('.icon-btn');
-      await page.click('button:has-text("Settings")'); await check('settings');
-      await page.click('.icon-btn');
-      await page.click('button:has-text("Stamp book")'); await check('trophies');
+      await page.click('[data-nav="stall"]'); await check('stall');
+      await page.click('[data-a="stamp-book"]'); await check('trophies');
       // Trophies has the stamp book's own back arrow (PLAN-086)
       await page.click('.sbk-back');
-      await page.click('[data-a="play"]'); await check('play'); await page.click('[data-a="computer"]'); await check('setup');
+      await page.click('[data-nav="market"]');
+      await page.click('[data-tab="custom"]'); await page.click('[data-a="play"]'); await check('play'); await page.click('[data-a="computer"]'); await check('setup');
       await page.click('button:has-text("Start game")');
       const seen = new Set();
       const once = (k) => (seen.has(k) ? false : (seen.add(k), true));

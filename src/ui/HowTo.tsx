@@ -151,12 +151,13 @@ const SLIDES = [
   },
 ];
 
-export function HowTo({ onDone }: { onDone: () => void }) {
+/** How to play. PLAN-124: `inTab` draws it as Home's Rules tab (the bottom bar leaves it, so it has no Close). */
+export function HowTo({ onDone, inTab }: { onDone: () => void; inTab?: boolean }) {
   const [i, setI] = useState(0);
   const s = SLIDES[i];
   return (
-    <div class="page howto tk-page">
-      <header class="topbar"><button class="icon-btn" onClick={onDone} aria-label="Close">✕</button><div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
+    <div class={`page howto tk-page${inTab ? ' howto-tab' : ''}`}>
+      <header class="topbar">{!inTab && <button class="icon-btn" onClick={onDone} aria-label="Close">✕</button>}<div class="day"><b>How to play</b></div><span class="muted">{i + 1}/{SLIDES.length}</span></header>
       <main class="scroll pad">
         <section class="panel slide" key={i}>
           <small class="slide-part">{s.part}</small>

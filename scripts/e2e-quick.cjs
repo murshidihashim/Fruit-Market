@@ -15,7 +15,7 @@ const pages = [];
     p.on('console', (m) => P.consoleLog.push(`${m.type()}: ${m.text()}`));
     p.on('websocket', (ws) => ws.on('framereceived', (f) => P.frames.push(typeof f.payload === 'string' ? f.payload : '')));
     await p.addInitScript((n) => { localStorage.setItem('fm.name', n); localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false })); }, name);
-    pages.push(P); await p.goto(base); await p.click('[data-a="play"]'); return p;
+    pages.push(P); await p.goto(base); await p.click('[data-tab="custom"]'); await p.click('[data-a="play"]'); return p; // PLAN-124: Home's Custom tab and Play
   };
   // PLAN-113: with a saved name, Quick match in the Play menu starts looking at once.
   const A = await mk('Alice'); await A.click('[data-a="quick"]');

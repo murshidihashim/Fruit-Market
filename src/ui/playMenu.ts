@@ -20,10 +20,10 @@ export const phoneLine = (): string => `Pass and play · 2 to ${MAX_SEATS} peopl
 
 /**
  * PLAN-119: each mode's one-line reason. The owner's words (REP-134, section 2). The Play menu groups the ways to play
- * a full market of your own under NORMAL_HEADING. PLAN-120: the three modes moved to Home's cards, where each reason
+ * a full market of your own under NORMAL_HEADING (PLAN-124: "Custom match", the name on Home). PLAN-120: the three modes moved to Home's cards, where each reason
  * heads its card (the Sprint's in its row), and the Daily intro shows the Daily market's or the Sprint's.
  */
-export const NORMAL_HEADING = 'Normal game';
+export const NORMAL_HEADING = 'Custom match';
 export const MODE_REASON = {
   league: 'What will the next market throw at you',
   daily: 'How you rank in today\'s full market',

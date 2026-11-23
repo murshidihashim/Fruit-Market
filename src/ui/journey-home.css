@@ -15,82 +15,35 @@
 .jh .tb-awn, .jp .tb-awn { display: block; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
 .jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 
-/* ---------- the band, the title and the level ----------
-   PLAN-121: Home fits one phone screen. On a phone under 760 px high the band is lower, the title is one line and the
-   gaps are smaller; a taller phone keeps the two-line title. (The opening measures the band, so it folds into either.) */
+/* ---------- the band and the title (PLAN-124: your profile chip beside it, in home-cards.css) ----------
+   The Market tab fits one phone screen. On a phone under 760 px high the band is lower and the two-line title smaller;
+   a taller phone gets the bigger band and title. (The opening measures the band, so it folds into either.) */
 .home.hm.jh .hm-lanes { height: 32px; }
 .home.hm.jh .hm-lane i { width: 24px; height: 24px; }
 .home.hm.jh .hm-lane i .x-fruit { width: 20px; height: 20px; }
-.home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 16px 0; }
-.home.hm.jh h1.hm-name { font-size: 2rem; line-height: 0.92; white-space: nowrap; }
-.home.hm.jh h1.hm-name br { display: none; }
-.home.hm.jh .jh-lvl { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; padding: 5px 8px; background: var(--j-ink); color: var(--j-paper); }
-.home.hm.jh button.jh-lvl { min-height: 44px; border: 0; border-radius: 0; font: inherit; cursor: pointer; text-align: right; justify-content: center; }
-.home.hm.jh button.jh-lvl:active { transform: translateY(2px); }
-.home.hm.jh button.jh-lvl:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
-.home.hm.jh .jh-mid { margin: auto 0; display: flex; flex-direction: column; gap: inherit; }
-.home.hm.jh .jh-mid + .jh-foot { margin-top: 0; }
-.home.hm.jh .jh-lvl b { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--j-yel); }
-.home.hm.jh .jh-lvl small { font: 700 0.75rem/1.1 var(--f-label); }
+.home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px 2px; }
+.home.hm.jh h1.hm-name { flex: none; font-size: min(1.75rem, 7.2vw); line-height: 0.92; white-space: nowrap; }
 .home.hm.jh .hm-rest { gap: 8px; }
 @media (min-height: 760px) {
   .home.hm.jh .hm-lanes { height: 47px; }
   .home.hm.jh .hm-lane i { width: 34px; height: 34px; }
   .home.hm.jh .hm-lane i .x-fruit { width: 28px; height: 28px; }
-  .home.hm.jh .jh-top { align-items: flex-start; padding: 12px 16px 6px; }
-  .home.hm.jh h1.hm-name { font-size: 2.5rem; }
-  .home.hm.jh h1.hm-name br { display: inline; }
-  .home.hm.jh .jh-lvl { margin-top: 4px; padding: 7px 10px; }
+  .home.hm.jh .jh-top { padding: 16px 16px 8px; }
+  .home.hm.jh h1.hm-name { font-size: min(2.5rem, 7.6vw); }
   .home.hm.jh .hm-rest { gap: 12px; }
 }
 
-/* ---------- Play, and the room an online match waits in (PLAN-120: the stall and the mode cards are in
-   home-cards.css) ---------- */
-.home.hm.jh .jh-room { margin: 0 16px; }
+/* ---------- Play, and the room an online match waits in ---------- */
 .home.hm.jh .jh-go {
   min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--j-yel); color: var(--j-ink);
   box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 5px;
 }
-.home.hm.jh .jh-go small { font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.06em; }
 .home.hm.jh .jh-go:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
 .home.hm.jh .jh-go2 { min-height: 48px; box-shadow: inset 0 0 0 3px var(--j-ink); font: 800 0.875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .home.hm.jh .jh-go2:active { transform: translateY(2px); }
 
-/* ---------- the Daily market: the first customer and the lorry (on its mode card) ---------- */
-.home.hm.jh .jh-db { display: flex; gap: 10px; padding: 10px 8px 8px; }
-.home.hm.jh .jh-dcard { flex: none; --card-w: 128px; }
-.home.hm.jh .jh-dr { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
-.home.hm.jh .jh-lorry { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-.home.hm.jh .jh-lorry span {
-  min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: var(--j-paper);
-  box-shadow: inset 0 0 0 2px var(--j-ink), inset 0 -6px 0 var(--lane); padding-bottom: 4px; box-sizing: border-box;
-}
-.home.hm.jh .jh-lorry b { font: 400 1.125rem/1 var(--f-display); }
-/* PLAN-119: the line naming what today's Daily uses that you met in the Market League. */
-.home.hm.jh .jh-decho { margin: 0; padding: 2px 0 2px 8px; border-left: 4px solid var(--j-yel); font: 700 0.75rem/1.3 var(--f-label); color: var(--j-ink); }
-.home.hm.jh .jh-dgo {
-  margin-top: auto; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; background: var(--j-yel);
-  box-shadow: inset 0 0 0 2px var(--j-ink); font: 800 0.75rem/1.15 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
-}
-.home.hm.jh .jh-dgo svg { flex: none; width: 16px; height: 16px; }
-.home.hm.jh .jh-dgo:active { transform: translateY(2px); }
-
-/* ---------- How to play, Settings and the account (PLAN-121: the stamp book and the Wardrobe are on your stall) ---------- */
-.home.hm.jh .jh-foot {
-  margin-top: auto; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(0, 1fr);
-  padding-top: 5px; padding-bottom: max(6px, env(safe-area-inset-bottom));
-}
-.home.hm.jh .jh-foot button { min-height: 44px; }
-.home.hm.jh .jh-acct { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
 @media (max-width: 379px) {
-  .home.hm.jh h1.hm-name { font-size: 1.625rem; }
-  @media (min-height: 760px) { .home.hm.jh h1.hm-name { font-size: 2.125rem; } }
   .home.hm.jh .jh-top { padding-left: 12px; padding-right: 12px; }
-  .home.hm.jh .jh-room { margin-left: 12px; margin-right: 12px; }
-}
-@media (max-width: 339px) {
-  .home.hm.jh h1.hm-name { font-size: 1.375rem; }
 }
 
 /* ---------- the Play menu ---------- */

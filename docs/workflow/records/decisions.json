@@ -3262,6 +3262,29 @@
       "reports": [
         "REP-138"
       ]
+    },
+    {
+      "id": "DEC-132",
+      "title": "Home becomes Shopfront and Board: one hero card, mode tabs, one Play button, bottom navigation",
+      "question": "How should Home be laid out?",
+      "choice": "The owner's mockup: a Market tab with a profile chip, one hero card for the chosen mode, mode tabs (Custom, League, Daily, Sprint) and one Play button; the stall, Stamp book, Wardrobe and goals on a Stall tab; How to play on a Rules tab.",
+      "rationale": "One focused card and one Play button; stall management and rules out of the way.",
+      "impact": {
+        "player": "Pick a mode with a tab and press Play; the stall and the rules are one tap away at the bottom.",
+        "technical": "Home, HomeCards and their styles; App navigation for the tabs.",
+        "data": "None (the chosen tab may be remembered in settings)."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
+        "date": "2026-11-23"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-124",
+      "reviewTrigger": "After the owner sees it on the preview.",
+      "reports": []
     }
   ],
   "history": [
@@ -4724,6 +4747,14 @@
     {
       "at": "2026-11-23 10:19",
       "text": "PLAN-123 implemented on the branch (REP-138): the eight preview findings reproduced and fixed, journey, animation and settings polish; npm run verify PASS (1263); browser run E2E OK with 0 leaks; extra play-throughs PASS. Not run: real phones; online flows by hand. Next: the preview for the owner's review."
+    },
+    {
+      "at": "2026-11-23 13:21",
+      "text": "DEC-132 and PLAN-124 approved by the owner with a mockup (Home as Shopfront and Board: Market, Stall and Rules tabs; one hero card, mode tabs and one Play button). PLAN-123 is on the preview (bundle index-BU3yzWGk.js) awaiting the owner's review; PLAN-124 builds on it."
+    },
+    {
+      "at": "2026-11-23 14:08",
+      "text": "PLAN-124 implemented (merge 28a40be): Market, Stall and Rules tabs, profile chip, one hero card, mode tabs and one Play button, as in the owner's mockup; Custom match names the normal game. npm run verify PASS (1272); browser run E2E OK with 0 leaks; Market fits one screen down to 320x568. Next: the preview, with PLAN-123."
     }
   ]
 }

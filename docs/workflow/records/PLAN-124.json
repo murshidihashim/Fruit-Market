@@ -1,0 +1,73 @@
+{
+  "id": "PLAN-124",
+  "title": "Home as Shopfront and Board: one hero card, mode tabs, one Play button, bottom navigation",
+  "problem": "Home holds the stall, goals, three swiping mode cards and four mode buttons; the owner wants one focused card and one Play button, with the stall and the rules on their own tabs.",
+  "scope": [
+    "MARKET tab (Home): title, a profile chip (face, name, level, rank, a settings gear), one hero card for the chosen mode, mode tabs Custom, League, Daily, Sprint, and one Play button for the chosen mode (Continue when that mode has a saved game)",
+    "Custom is today's Play (normal game: quick match, private room, computer, one phone)",
+    "STALL tab: the player's stall with its looks, Stamp book, Wardrobe, next goals and the account",
+    "RULES tab: How to play",
+    "Bottom navigation: Stall, Market, Rules"
+  ],
+  "exclusions": [
+    "No rule, save or mode change",
+    "Illustrated art stays (League stage pictures, Daily customer card, faces)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "npm run verify on the merge 28a40be: 1272 passed, 1 skipped (as before)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "PASS",
+      "evidence": "PORT=8884 E2E_MINUTES=15 npm run test:e2e on dee0acf: E2E OK, online leaks 0 and 0 (the next commit only changes the bar on wide screens; CI runs the full set again)"
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390x844, 360x640, 320x568 and 1280x800 match the mockup; Market fits one screen",
+      "result": "PASS",
+      "evidence": "Screens in the session scratchpad p124 at 390x844, 360x640, 320x568 and 1280x800 for every tab, with and without saved games, a side-by-side with the mockup; Market fits with 0 px overflow at 412x915, 390x844, 360x640, 320x568, 375x667 and 393x852"
+    },
+    {
+      "id": "T4",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
+    "date": "2026-11-23"
+  },
+  "delivery": "implemented",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-132"
+  ],
+  "changes": {
+    "added": [
+      "Market, Stall and Rules tabs at the bottom",
+      "Profile chip with name, level, rank and a Settings gear",
+      "Mode tabs Custom, League, Daily, Sprint with one Play or Continue button"
+    ],
+    "changed": [
+      "Home shows one card for the chosen mode",
+      "The normal game is called Custom match",
+      "Stamp book, Wardrobe, goals and the account moved to the Stall tab; How to play to the Rules tab"
+    ],
+    "fixed": [],
+    "removed": [
+      "The swiping stall and mode cards, the mode chips and the footer strip"
+    ]
+  },
+  "playerNotes": [
+    "A new Home: pick Custom, League, Daily or Sprint and press Play; your stall and the rules have their own tabs at the bottom"
+  ]
+}
