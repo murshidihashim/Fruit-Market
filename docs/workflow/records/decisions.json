@@ -3281,7 +3281,7 @@
         "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
         "date": "2026-11-23"
       },
-      "delivery": "in progress",
+      "delivery": "implemented",
       "plan": "PLAN-124",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
@@ -4751,6 +4751,10 @@
     {
       "at": "2026-11-23 13:21",
       "text": "DEC-132 and PLAN-124 approved by the owner with a mockup (Home as Shopfront and Board: Market, Stall and Rules tabs; one hero card, mode tabs and one Play button). PLAN-123 is on the preview (bundle index-BU3yzWGk.js) awaiting the owner's review; PLAN-124 builds on it."
+    },
+    {
+      "at": "2026-11-23 14:08",
+      "text": "PLAN-124 implemented (merge 28a40be): Market, Stall and Rules tabs, profile chip, one hero card, mode tabs and one Play button, as in the owner's mockup; Custom match names the normal game. npm run verify PASS (1272); browser run E2E OK with 0 leaks; Market fits one screen down to 320x568. Next: the preview, with PLAN-123."
     }
   ]
 }
