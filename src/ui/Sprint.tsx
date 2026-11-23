@@ -7,8 +7,10 @@ import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { SPRINT_DAYS, SPRINT_WEEK_DAYS } from '../engine/daily';
 import type { GameState } from '../engine/game';
+import { TRAITS } from '../engine/data';
+import { places } from '../engine/game';
 import { sprintReason } from '../engine/sprint';
-import { fetchSprint, placeWords, submitSprint, type BoardView, type PlacedEntry, type SprintBoards } from '../net/sprint';
+import { fetchSprint, ordinal, placeWords, submitSprint, type BoardView, type PlacedEntry, type SprintBoards } from '../net/sprint';
 import { worn } from './looks';
 import { FramedFace, shownAvatar } from './stampCard';
 import { loadSprintBest } from './sprintStore';
@@ -59,38 +61,76 @@ function Board({ v, mine }: { v: BoardView; mine: ComponentChildren }) {
 }
 
 /**
+ * PLAN-123 (preview finding 6): the day's board as the results show it, in each of its states: still checking, your
+ * place, on the board with no place for you, nobody on it yet, or why it could not be reached (with a way to try again).
+ */
+export function boardWords(res: SprintBoards | null): { text: string; place: string | null; retry: boolean; busy: boolean } {
+  if (!res) return { text: 'Checking the board…', place: null, retry: false, busy: true };
+  if (res.error) return { text: res.error, place: null, retry: true, busy: false };
+  const place = placeWords(res.day);
+  if (place) return { text: `Today's board: ${place}`, place, retry: false, busy: false };
+  if (!res.day || res.day.players === 0) return { text: 'Nobody is on today\'s board yet.', place: null, retry: true, busy: false };
+  return { text: 'Not on today\'s board yet.', place: null, retry: true, busy: false };
+}
+
+/** PLAN-123 (preview finding 7): the perk this run was played with, in words ("Your perk: Nest Egg. Start with $15 instead of $10. …"). */
+export function perkWords(s: GameState, me: number): string | null {
+  const t = s.players[me]?.trait;
+  return t ? `Your perk: ${TRAITS[t].title}. ${TRAITS[t].text}` : null;
+}
+
+/** PLAN-123: the one line from this run's record: its decisive moment, or, with no sale at all, what that left. */
+export function runLine(s: GameState, me: number): { text: string; good: boolean } | null {
+  const p = s.players[me];
+  if (!p) return null;
+  const reason = sprintReason(s, me);
+  if (p.stats.sold === 0) return { text: `You made no sales and ended with $${p.cash}.${reason && !reason.good ? ` ${reason.text}` : ''}`, good: false };
+  return reason ? { text: reason.text, good: reason.good } : null;
+}
+
+/**
  * The Sprint on the results: sends the finished game to be checked (or, opened again, reads the boards), then shows
- * your best today and its place, one reason from this game, and the boards.
+ * this run (its cash and your place at this table), your best today, your place on today's board (PLAN-123: the table
+ * and the board are told apart; Try again is the results' footer, always in view), the perk you played with, one
+ * moment from this game, and the boards. Checking again never counts the run's stamps a second time: they are counted once, by the results
+ * (progress.ts finishGame), and the board keeps one line per phone.
  */
 export function SprintResult({ s }: { s: GameState }) {
   const date = s.config.daily ?? '';
   const [res, setRes] = useState<SprintBoards | null>(null);
+  const [tries, setTries] = useState(0);
   useEffect(() => {
     let alive = true;
+    setRes(null);
     void (s.moves ? submitSprint(s) : fetchSprint(date)).then((r) => { if (alive) setRes(r); });
     return () => { alive = false; };
-  }, []);
+  }, [tries]);
   const me = s.players.findIndex((p) => p.kind === 'human');
-  const reason = me >= 0 ? sprintReason(s, me) : null;
+  const line = me >= 0 ? runLine(s, me) : null;
   const best = loadSprintBest()[date]?.cash ?? (me >= 0 ? s.players[me].cash : undefined);
   const run = me >= 0 ? s.players[me].cash : undefined;
-  const place = placeWords(res?.day);
+  const table = me >= 0 ? places(s)[me] : 0;
+  const board = boardWords(res);
+  const perk = me >= 0 ? perkWords(s, me) : null;
   const mine = <FramedFace who={shownAvatar(s.players, me)} size={20} look={worn()} />;
   return (
     <div class="sbk-sec sp-res" data-a="sprint-result">
       <div class="sbk-row"><span class="sbk-lab">{SPRINT_TITLE} · {shortDate(date)}</span></div>
       <div class="sp-best">
-        <span>Best today <b>${best}</b></span>
-        {run !== undefined && run !== best && <span class="sp-run">This run <b>${run}</b></span>}
-        <span class="sp-place">{place ? <>Place <b>{place}</b></> : res && !res.error ? 'Not on the board yet' : res ? '' : 'Checking the board…'}</span>
+        {run !== undefined && <span class="sp-run" data-a="sprint-run">This run <b>${run}</b><small>{ordinal(table)} at this table</small></span>}
+        <span class="sp-top" data-a="sprint-best">Best today <b>${best}</b>{run === best && <small>This run</small>}</span>
       </div>
-      {reason && (
+      <div class={`sp-place ${board.busy ? 'busy' : ''}`} data-a="sprint-board-state" aria-live="polite">
+        <span>{board.place ? <>Today's board <b>{board.place}</b></> : board.text}</span>
+        {board.retry && <button type="button" class="sp-again" data-a="sprint-board-retry" onClick={() => setTries((n) => n + 1)}>Check again</button>}
+      </div>
+      {perk && <span class="sbk-sub sp-perk" data-a="sprint-perk">{perk}</span>}
+      {line && (
         <div class="sp-moment" data-a="sprint-moment">
           <span class="sbk-lab">{MOMENT_LABEL}</span>
-          <p class={`sp-why ${reason.good ? 'good' : ''}`}>{reason.text}</p>
+          <p class={`sp-why ${line.good ? 'good' : ''}`}>{line.text}</p>
         </div>
       )}
-      {res?.error && <span class="sbk-sub">{res.error}</span>}
       {res?.day && res.day.top.length > 0 && (
         <div class="sp-sec">
           <div class="sbk-row"><span class="sbk-lab">Today's top 10</span><span class="sp-wk">{res.day.players} played</span></div>

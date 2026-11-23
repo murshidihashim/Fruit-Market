@@ -4,7 +4,7 @@
 // Everything shown comes from the day's results and the open crates, which are public once the bell has rung.
 import { FAVOURS, FRUIT, FRUITS, TRAITS, lookOf, stageAt, type FavourId, type FruitId, type Stage } from '../../engine/data';
 import { crateStock, eligible, servingCustomers, type Customer, type GameState, type LineResult, type Offer, type Stock } from '../../engine/game';
-import { rushLine } from '../../engine/story';
+import { noSaleReason, rushLine, type LineStory } from '../../engine/story';
 import { LANES } from '../boardModel';
 import { GUEST_EVENT } from '../deckArt';
 import { BEAT, FEEL } from '../motion';
@@ -95,6 +95,8 @@ export interface RushCard {
 }
 
 const fruitWord = (f: FruitId, n: number) => (n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase();
+/** "1 apple", "3 apples". */
+const piecesOf = (f: FruitId, n: number) => `${n} ${fruitWord(f, n)}`;
 const copy = (s: Stock): Stock => Object.fromEntries(FRUITS.map((f) => [f, [...s[f]]])) as Stock;
 
 /**
@@ -178,17 +180,18 @@ function rowResult(o: Offer, me: boolean, paid: number, tag: string): string {
   return me ? `Sold ${o.sold} · +$${paid}` : `Sold ${o.sold}`;
 }
 
-function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, used: (number[] | null)[] | undefined, crates: (number[] | null)[] | undefined): RushBlock {
+function blockOf(s: GameState, told: GameState, c: Customer, l: LineResult, viewer: number, me: number, used: (number[] | null)[] | undefined, crates: (number[] | null)[] | undefined, had: boolean | null): RushBlock {
+  // The reasons on the crates are the same for every stall at the table (the stalls' own names).
   const story = rushLine(s, l);
   let rank = 0;
   const rows = l.offers.map((o, i): RushRow => {
-    const me = o.player === viewer;
+    const mine = o.player === viewer;
     const paid = o.sold * o.price + (o.juice ?? 0);
     const u = used?.[i] ?? null;
     return {
-      i, player: o.player, me, price: o.price, qty: o.qty, freshest: o.tooOld ? null : stageAt(l.fruit, o.freshness),
+      i, player: o.player, me: mine, price: o.price, qty: o.qty, freshest: o.tooOld ? null : stageAt(l.fruit, o.freshness),
       pieces: u && u.map((pos) => stageAt(l.fruit, pos)), used: u, qualified: !o.tooOld, rank: o.tooOld ? 0 : ++rank,
-      sold: o.sold, paid, result: rowResult(o, me, paid, story.tags[i] ?? ''),
+      sold: o.sold, paid, result: rowResult(o, mine, paid, story.tags[i] ?? ''),
     };
   });
   return {
@@ -196,25 +199,97 @@ function blockOf(s: GameState, c: Customer, l: LineResult, viewer: number, used:
     heading: `Wants ${l.want} ${fruitWord(l.fruit, l.want)} · ${c.order ? 'Fresh or Okay' : 'cheapest first'}`,
     got: rows.reduce((a, x) => a + x.sold, 0),
     none: l.offers.length ? null : story.headline,
-    story: [story.headline, story.detail].filter(Boolean).join(' '),
+    story: saleWords(told, l, me, rushLine(told, l), had),
     crates: crates ?? s.players.map(() => null),
   };
 }
 
 /**
+ * How one fruit went, for the line under the table (PLAN-123): each stall that sold, the fruit named ("You sold 1 apple
+ * for $4."); when this stall offered some and sold none, one reason the rules give ("Your apples did not sell: Rosa was
+ * $1 cheaper."); when it had none out while a stall offered some, that ("You had no apples out."). `told`: the game with
+ * this stall's name as "You" (not on a shared phone: `me` is -1 then and every stall is named). `had`: whether this
+ * stall's crate held the fruit when the bell rang (null: not known). A standing order and a fruit nobody offered keep
+ * the table's own words (story.ts rushLine).
+ */
+export function saleWords(told: GameState, l: LineResult, me: number, story: LineStory, had: boolean | null): string {
+  const whole = [story.headline, story.detail].filter(Boolean).join(' ');
+  const order = !!told.results?.order && told.results.order.name === l.name;
+  if (order || !l.offers.length) return whole;
+  const cust = lookOf(l.name).title;
+  const f = l.fruit;
+  const plural = FRUIT[f].plural.toLowerCase();
+  const winners = l.offers.filter((o) => o.sold > 0);
+  const sold = winners.reduce((a, o) => a + o.sold, 0);
+  const mine = me >= 0 ? l.offers.find((o) => o.player === me) : undefined;
+  const out: string[] = [];
+  // this stall's sale first, then the others in the rules' order (cheapest first)
+  for (const o of [...winners.filter((x) => x === mine), ...winners.filter((x) => x !== mine)]) {
+    out.push(`${o === mine ? 'You' : told.players[o.player].name} sold ${piecesOf(f, o.sold)} for $${o.sold * o.price}.`);
+  }
+  if (!winners.length) {
+    const allPrice = l.offers.every((o) => o.tooOld && noSaleReason(told, l, o, me).kind === 'price');
+    out.push(allPrice ? `${cust} bought no ${plural}: every price was over the top price.` : `${cust} bought no ${plural}.`);
+  }
+  if (sold > 0 && sold < l.want) out.push(`${l.want - sold} more wanted.`);
+  if (mine && mine.sold === 0) out.push(`Your ${plural} did not sell: ${missedWhy(told, l, mine, me)}.`);
+  else if (me >= 0 && !mine && had !== null) out.push(had ? `You had no ${plural} left.` : `You had no ${plural} out.`);
+  return out.join(' ');
+}
+
+/** The few words of a reason a tie was lost (story.ts offerTag's "lost tie: ..."). */
+const TIE_WHY: Record<string, string> = { 'fresher fruit': 'fresher fruit', 'Favoured Trade': 'Favoured Trade', Haggler: 'the Haggler', 'bought later': 'bought earlier today' };
+
+/** One reason the rules give for an offer that sold nothing, in a few words ("Rosa was $1 cheaper"). */
+function missedWhy(told: GameState, l: LineResult, o: Offer, me: number): string {
+  const cust = lookOf(l.name).title;
+  if (o.tooOld) {
+    const why = noSaleReason(told, l, o, me);
+    if (why.kind === 'price') return `${cust} pays at most ${why.tag.replace(/^over /, '')}`;
+    if (why.kind === 'freshOnly') return `${cust} buys Fresh only`;
+    if (why.kind === 'noTired') return `${cust} will not take Soft`;
+    return `too old to sell at $${o.price}`;
+  }
+  const winners = l.offers.filter((w) => w.sold > 0);
+  const cheaper = winners.filter((w) => w.price < o.price);
+  if (cheaper.length) {
+    const best = cheaper.reduce((a, w) => (w.price > a.price ? w : a));
+    return `${told.players[best.player].name} was $${o.price - best.price} cheaper`;
+  }
+  const tie = winners.find((w) => w.price === o.price);
+  if (tie) {
+    const by = (rushLine(told, l).tags[l.offers.indexOf(o)] ?? '').replace(/^lost tie: /, '');
+    return `${told.players[tie.player].name} won the $${o.price} tie (${TIE_WHY[by] ?? by})`;
+  }
+  return `${cust} had already bought all ${l.want}`;
+}
+
+/** The game with stall `p`'s name as "You", so that the table's sentences speak to this stall (story.ts reads "You" as
+ *  the person: "You win", "beat you"). */
+function withYou(s: GameState, p: number): GameState {
+  if (p < 0 || !s.players[p]) return s;
+  return { ...s, players: s.players.map((pl, i) => (i === p ? { ...pl, name: 'You' } : pl)) };
+}
+
+/**
  * The cards of today's rush, in the order the customers are served: one for every customer in the row, also one that
  * no stall could serve. `viewer`: the stall this screen belongs to (its rows are marked, and the result line says what
- * it earned).
+ * it earned and speaks to it as "You"). `shared`: several people share this phone, so the line names every stall.
  */
-export function rushCards(s: GameState, viewer: number): RushCard[] {
+export function rushCards(s: GameState, viewer: number, shared = false): RushCard[] {
   const r = s.results;
   if (!r) return [];
   const played = replay(s);
+  const me = shared || !s.players[viewer] ? -1 : viewer;
+  const named = withYou(s, me);
+  // What this stall put out at the bell, by fruit (null: not known).
+  const open = me >= 0 && s.crates?.[me] ? crateStock(s, me) : null;
+  const hadOut = (f: FruitId): boolean | null => (open ? open[f].some((n, pos) => n > 0 && pos < FRUIT[f].ripe.length) : null);
   const favours = [...r.favours];
   return servingCustomers(s).flatMap((c): RushCard[] => {
     const lines = r.lines.filter((l) => l.customerId === c.id);
     if (!lines.length) return [];
-    const blocks = [...lines].sort((a, b) => LANES.indexOf(a.fruit) - LANES.indexOf(b.fruit)).map((l) => blockOf(s, c, l, viewer, played.used.get(l), played.before.get(l)));
+    const blocks = [...lines].sort((a, b) => LANES.indexOf(a.fruit) - LANES.indexOf(b.fruit)).map((l) => blockOf(s, named, c, l, viewer, me, played.used.get(l), played.before.get(l), hadOut(l.fruit)));
     const tips = [
       ...(r.earful ?? []).filter((x) => x.customer === c.name).map((x) => ({ ...x, trait: 'earful' as const })),
       ...(r.tipJar ?? []).filter((x) => x.customer === c.name).map((x) => ({ ...x, trait: 'favourite' as const })),

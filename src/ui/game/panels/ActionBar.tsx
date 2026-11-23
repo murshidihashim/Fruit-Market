@@ -5,7 +5,8 @@ import { FAVOURS } from '../../../engine/data';
 import { count, shelfSize, type Player } from '../../../engine/game';
 import { Face } from '../../art';
 import { fx } from '../../fx';
-import { shownBoughtCount } from '../../tableShown';
+import { shownBoughtCount, shownMarket } from '../../tableShown';
+import { lorryDue } from '../../table';
 import { tokenOnItsWay } from '../../firstShown';
 import { eveningWaitLine } from '../evening';
 import { canUndo } from '../turn';
@@ -16,10 +17,16 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // Rules 18: a stall with no ripe fruit takes no stocking or pricing turn, so its player was never asked.
   const nothingRipe = !!s.players[c.viewer] && count(s.players[c.viewer].stock, undefined, true) === 0;
   // REP-133 A-01: on a shared phone the next person's buttons wait for their hand-over (the bar keeps its room).
-  const myBuy = s.phase === 'buy' && activeHuman && !!pl && !c.handoffDue;
-  const rivalBuy = s.phase === 'buy' && !activeHuman;
-  // The lorry is unloading: buying has just started and nobody has bought yet.
-  const unloading = busy && s.phase === 'buy' && s.turn === 0 && !s.players.some((x) => x.boughtToday > 0);
+  // PLAN-123 (finding 1): while a rival's purchases are still travelling the game has already passed the turn on, so
+  // the bar says whose purchases they are, and this stall's buttons come once they have landed.
+  const rivalBeat = busy && s.phase === 'buy' && c.mover !== null && !c.ownBeat;
+  // (and only once the market can be bought from: not while the lorry or the First token's beat still plays)
+  const myBuy = s.phase === 'buy' && activeHuman && !!pl && !c.handoffDue && !rivalBeat && (!busy || c.ownBeat);
+  const rivalBuy = s.phase === 'buy' && (!activeHuman || rivalBeat);
+  const buyer = rivalBeat && c.mover !== null ? s.players[c.mover] : pl;
+  // The lorry is unloading: buying has just started and a crate has not landed yet (PLAN-123: read from the lanes as
+  // drawn, so the words go as the last crate lands).
+  const unloading = busy && s.phase === 'buy' && !!lorryDue(s, shownMarket(s.market));
   // From the moment this stall opens to the end of the rush the round table lies over this bar with a foot of its own
   // (PLAN-099; panels/RushTable.tsx), and the game table does not draw the bar then.
   // A beat that plays by itself says what it is ('': a beat that has nothing to add here, and no other hint shows
@@ -27,11 +34,13 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
   // PLAN-104: while the First token goes round the seats or slides to today's first buyer, the bar does not give away
   // where it lands: it keeps its room, empty, and your buying buttons wait too, until the token is there.
   const drawing = tokenOnItsWay();
-  const beat = drawing ? ''
-    : !busy || myBuy ? null
+  // PLAN-123: the lorry unloads while the token goes round (useGameController), so the bar says what is happening then
+  // too, in words that do not give away where the token lands.
+  const beat = drawing ? (unloading ? 'The lorry unloads · who buys first…' : '')
+    : !busy || (myBuy && !unloading) ? null
     // The night's own heading says it (the text audit, entry 391): the bar is empty, and no other hint shows then.
     : night ? ''
-    : s.phase === 'morning' || unloading ? 'The lorry arrives…'
+    : s.phase === 'morning' || unloading ? 'The lorry unloads…'
     // The bell rings before the rush, and at the flip before a Favoured Trade question; a card just played travels to
     // its tag under the open rows (PLAN-085).
     : s.phase === 'reveal' || s.phase === 'tie' ? ''
@@ -49,7 +58,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         ? <div class="hint-bar waiting-dots">Waiting for {waitingFor(humansNotVoted)}</div>
         : picker >= 0 ? <div class="hint-bar">Pick a perk to start buying</div>
         : <button class="btn primary wide big" onClick={c.proceed}>Start buying</button>)}
-      {myBuy && pl && !drawing && (
+      {myBuy && pl && !drawing && !unloading && (
         <>
           {/* S3 (DEC-120): Undo takes back purchases only. After a favour card it says so: it goes back to just after the
               card, which stays played. */}
@@ -60,7 +69,7 @@ export function ActionBar({ c, pl, limit, picker, online }: { c: GameController;
         </>
       )}
       {c.handoffDue && s.phase === 'buy' && <div class="hint-bar" />}
-      {quiet && rivalBuy && <div class="hint-bar">{pl && <Face who={pl.avatar} size={22} />} {pl?.name} is buying…</div>}
+      {quiet && rivalBuy && <div class="hint-bar">{buyer && <Face who={buyer.avatar} size={22} />} {buyer?.name} is buying…</div>}
       {quiet && s.phase === 'order' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Your bid is in. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are bidding for the standing order…'}</div>}
       {quiet && s.phase === 'stall' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `${nothingRipe ? 'Nothing ripe to sell' : 'Stall open'}. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are filling their crates…'}</div>}
       {quiet && s.phase === 'bid' && <div class={`hint-bar ${online ? 'waiting-dots' : ''}`}>{online ? `Prices sealed. Waiting for ${waitingFor(humansMissingBids) || 'the others'}` : 'Rivals are setting secret prices…'}</div>}

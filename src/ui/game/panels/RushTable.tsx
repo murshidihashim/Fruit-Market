@@ -28,7 +28,6 @@ import { shownAvatar } from '../../looks';
 import { tagOf, type LookSet } from '../../../net/looks';
 import { PriceBar, PriceSheetView, bellOpensOnStart, postsOf, startingPrices } from '../../panel';
 import { favourShown, lineShown, paidShown, piecesLanded, piecesLifted, useRushCard } from '../../rushShown';
-import { releaseStock } from '../../stockShown';
 import { LANES } from '../../boardModel';
 import { Awning } from '../../table';
 import { STAGE_LETTER, STAGE_WORD } from '../../ticket';
@@ -38,6 +37,7 @@ import { cratesOpen, questionIn, tableForms, tagsSealed } from '../tableBeats';
 import { cratesLeft, middleOf, seatOrder, tableLay, tableMin, type Place, type RushBlock, type RushCard, type RushStage, type ShowState, type TableLay } from '../rush';
 import { MAX_SHOWN, SMALL_TAGS, crateFit, openTags, preTable, seatWords, tableStep, type PreTable, type SeatTag, type TableSeat } from '../tableNow';
 import type { GameController } from '../useGameController';
+import { skipRush } from '../animator';
 import { dayNow } from './DaySheet';
 import { TieBar, TieCard, TieWhy } from './PricingTable';
 
@@ -209,8 +209,7 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
     wasStep.current = step;
     if (was === 'price' && step === 'sealed' && root.current) tagsSealed(root.current);
   }, [step]);
-  // The bell: it comes into the middle and swings, then seat by seat, clockwise from yours, a crate opens
-  // (animator.tsx bellRings counts the seats).
+  // The bell: it comes into the middle and swings, then every crate opens at once (animator.tsx bellRings; PLAN-123).
   const wasOpen = useRef<number | null>(null);
   useLayoutEffect(() => {
     const was = wasOpen.current;
@@ -242,9 +241,11 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
     <TableView s={s} viewer={viewer} shared={shared} lay={lay} size={[w, hFull]} area={area} measured={!!size} leaving={leaving} el={root} stage={stage} card={card}
       a={drawn.a} pre={drawn.pre} ask={asking ? { ...asking, leaving: askGoing } : null} sheet={sheet} busy={c.busy && s.phase === 'reveal'}
       foot={drawn.pre?.mine ? <TieBar onDecide={(play) => { fx.card(); c.act({ kind: 'tie', play }); }} /> : null}
-      onNext={(e) => { e.stopPropagation(); A.speedStep(); }}
-      // Skip hurries the whole rush and shows the final shelves at once.
-      onSkip={(e) => { e.stopPropagation(); A.hurryUp(); releaseStock(); }} />
+      // Next customer: this customer finishes quickly. On the last customer the button says "End of Day", and it ends
+      // the rush as Skip does (PLAN-123: it used to play the last customer out first).
+      onNext={(e) => { e.stopPropagation(); if (drawn.a && drawn.a.n >= drawn.a.of) skipRush(); else A.speedStep(); }}
+      // Skip settles the rush at once: the customer in the middle and every one still to come (animator.tsx skipRush).
+      onSkip={(e) => { e.stopPropagation(); skipRush(); }} />
   );
 }
 

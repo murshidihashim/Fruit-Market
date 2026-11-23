@@ -69,14 +69,14 @@ describe('reduced motion keeps the reading pauses at the bell', () => {
     return { shown: off - on, rows };
   }
 
-  it('the rows open stall by stall and are then read; with reduced motion every row is open at once and the pause to read is kept', async () => {
+  it('every row opens at the same moment and is then read; with reduced motion every row is open at once and the pause to read is kept', async () => {
     const n = atBell.players.length;
-    expect(bellLength(n)).toBe(300 + 3 * 180 + 220 + 280 + 1200);
+    expect(bellLength(n)).toBe(300 + 220 + 280 + 1200);
     fakeClock(false);
     const full = await bellShown();
     expect(full.shown).toBe(bellLength(n));
-    // the bell swings for 300 ms, then a row opens every 180 ms, in today's line-up
-    expect(full.rows).toEqual([300, 480, 660, 840]);
+    // PLAN-123: the bell swings for 300 ms, then every row opens together (the prices are revealed at once)
+    expect(full.rows).toEqual([300, 300, 300, 300]);
     fakeClock(true);
     expect(A.isReduced()).toBe(true);
     const still = await bellShown();

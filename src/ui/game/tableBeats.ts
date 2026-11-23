@@ -31,8 +31,8 @@ export function tagsSealed(root: Element): void {
 }
 
 /**
- * The bell: as it first shows it swings in the middle (`from` null); then seat by seat, clockwise from yours, a crate
- * opens: its word lifts off like a lid (rushTable.css) while its squares turn over into its pieces where they lie, and
+ * The bell: as it first shows it swings in the middle (`from` null); then every crate opens at once (PLAN-123; seat by
+ * seat before): its word lifts off like a lid (rushTable.css) while its squares turn over into its pieces where they lie, and
  * its price tags turn face up once the lid is off. Your own pieces are face up already: only your tags turn.
  * `from`..`to`: the seats opening now.
  */

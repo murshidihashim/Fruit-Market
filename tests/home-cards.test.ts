@@ -82,15 +82,17 @@ describe('the Play page keeps the Normal game group only', () => {
 });
 
 describe('Home: the stall and the three mode cards, each with its own waiting game', () => {
-  it('draws the stall and goals row, then Play, Market League and Daily market cards with arrows and dots', () => {
+  it('draws the stall and goals row, then Play, Market League and Daily market cards with the mode chips', () => {
     const html = home({});
     expect(html).toContain('jh-stall2');
     // PLAN-121: your stall and your next goals swipe in one row with two dots; the three mode cards follow with theirs
     expect([...html.matchAll(/data-card="(\w+)"/g)].map((m) => m[1])).toEqual(['stall', 'goals', 'play', 'league', 'daily']);
-    expect(html).toContain('aria-label="Previous card"');
-    expect(html).toContain('aria-label="Next card"');
-    expect((html.match(/<button class="jh-dot/g) ?? []).length).toBe(5);
-    for (const d of ['Show your stall', 'Show your next goals', 'Show the Play card', 'Show the Market League card', 'Show the Daily market card']) {
+    // PLAN-123: the mode cards' arrows and dots became four labelled chips (Play, League, Daily, Sprint); the stall row
+    // keeps its two dots
+    expect(html).not.toContain('aria-label="Previous card"');
+    expect((html.match(/<button class="jh-dot /g) ?? []).length).toBe(6);
+    expect((html.match(/<button class="jh-dot jh-chip/g) ?? []).length).toBe(4);
+    for (const d of ['Show your stall', 'Show your next goals', 'Show the Play card', 'Show the Market League card', 'Show the Daily market card', 'Show the Sprint on the Daily market card']) {
       expect(html).toContain(`aria-label="${d}"`);
     }
     expect(html.indexOf('jh-stallrow')).toBeLessThan(html.indexOf('jh-modes'));
@@ -151,7 +153,8 @@ describe('Home: the stall and the three mode cards, each with its own waiting ga
     // a League stage and a Sprint waiting too
     const all = home({ play, daily, league: at(newGame(leagueConfig(2, 'A', '')), 2, 14), sprint: at(newGame(sprintConfig(DATE, 'A')), 2, 12) });
     for (const s of ['play', 'league', 'daily', 'sprint']) expect(all).toContain(`data-a="continue-${s}"`);
-    expect(all).toContain('Continue stage 3');
+    // PLAN-123: Continue names the mode with the League stage ("League stage 3 · Day 2 of 6 · $14")
+    expect(all).toContain('League stage 3 · Day 2 of');
     expect(all).toContain('Day 2 of 3 · $12');
   });
 

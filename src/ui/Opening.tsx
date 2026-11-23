@@ -6,6 +6,7 @@
 // "Tap to skip". Decoration only: tap anywhere to skip; it ends on its own after about 2.45 seconds.
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { LaneBand } from './Home';
+import { isReduced } from './motion';
 
 // Timing (DEC-048: about 2 to 3 seconds). The scene waits (briefly) for its pictures and fonts before it plays, so
 // nothing pops in half way, then hands over with a short fade of this overlay (the home under it is already final).
@@ -15,7 +16,8 @@ const FADE_MS = 280; // the overlay's fade (CSS .op-leave), and the home's fade-
 const START_WAIT_MS = 1200; // longest wait for the pictures and fonts on a slow connection
 const CLASSES = ['hm-intro', 'hm-hold', 'hm-skip'];
 
-const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// PLAN-123: the phone's setting or the game's own Reduced motion setting (motion.ts).
+const reducedMotion = isReduced;
 
 /** Waits until the fonts have loaded and these pictures are decoded, or `ms` has passed, whichever is first.
  *  A picture that fails to load is shown as it is (its failure is not an error here, so it is ignored). */

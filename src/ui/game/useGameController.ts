@@ -16,13 +16,13 @@ import * as A from '../anim';
 import { holdCash } from '../cashShown';
 import { holdStock, releaseStock } from '../stockShown';
 import { holdRush, releaseRush } from '../rushShown';
-import { releaseTable } from '../tableShown';
+import { holdBuyer, releaseTable } from '../tableShown';
 import { fx } from '../fx';
 import { loadSettings, loadUndo, saveUndo } from '../store';
-import { arrive, arriving, bellRings, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
+import { arrive, arriving, bellRings, dealsOf, delivery, holdArrival, holdDeals, holdDelivery, moves, nightfall, reveal, stopRush, tieAnswer, tieFrom, tiePlayed, type BellShow, type NightSlide } from './animator';
 import { bidsTurned, firstToken, holdBack, holdFirstToken, rowAppears, type OrderShow } from './dayBeats';
 import { beforeBuying, noteSeen, releaseToken, tokenHeld } from '../firstShown';
-import { awaitsHandOver, playLocal, undoPoint, waitsForPerson, type UndoPoint } from './turn';
+import { awaitsHandOver, keepTap, playLocal, undoPoint, waitsForPerson, type KeptTap, type UndoPoint } from './turn';
 import type { ShowState } from './rush';
 import { endFirstSale, firstSaleGame, firstSaleSeen, guideSetsUp, guidedStep, soloSeat, spotlight } from '../tutorial';
 import { hasFinishedGame } from '../FirstTime';
@@ -86,9 +86,16 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   const sending = useRef(false);
   const layerRef = useRef<HTMLDivElement>(null);
   /** Fruit tapped while the last purchase was still animating (offline); bought in order as soon as the table is free. */
-  const buyQueue = useRef<{ f: FruitId; pos: number }[]>([]);
+  const buyQueue = useRef<KeptTap[]>([]);
   /** Done was tapped while a piece was still on its way: buying ends as soon as the table is free (PLAN-085). */
   const endQueued = useRef(false);
+  /** PLAN-123: Undo was tapped while a piece was still on its way: it is done as soon as the table is free. */
+  const undoQueued = useRef(false);
+  /** PLAN-123 (finding 1): the stall whose purchases the beat now playing shows (null: none). The market says whose
+   *  turn it is from this while the pieces travel, not from the game, which has already moved on to the next stall. */
+  const [mover, setMover] = useState<number | null>(null);
+  /** The beat now playing is this phone's own purchase or Undo, so a tap on the market is kept for when it ends. */
+  const [ownBeat, setOwnBeat] = useState(false);
   /** Online: the crate this screen sent as its stall opened (the room sends it back only once every stall is open). */
   const sentCrate = useRef<{ day: number; seat: number; crate: Crate } | null>(null);
   /** This stall's crate as it opened it today: the game's, or online the one this screen sent while the room keeps
@@ -158,8 +165,15 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     return () => A.setLayer(null);
   });
   // Leaving the table mid-rush must not leave held-back totals behind for the next game. A hurry asked for at another
-  // table (a game left while a rival was playing) does not carry over to this one either.
-  useEffect(() => { A.resetHurry(); return () => { holdCash(null); releaseToken(); releaseStock(); releaseRush(); releaseTable(); }; }, []);
+  // table (a game left while a rival was playing) does not carry over to this one either. PLAN-123: the rush still
+  // playing stops where it stands (animator.tsx stopRush), and this table's last beat, which still runs to its end,
+  // no longer lets go of what the next table holds back (`mounted`).
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    A.resetHurry();
+    return () => { mounted.current = false; stopRush(); holdCash(null); releaseToken(); releaseStock(); releaseRush(); releaseTable(); };
+  }, []);
   // PLAN-104: once the day's line-up is on show at rest (buying has begun, and no beat holds the First token), this
   // phone remembers it: the beat is not played again, and tomorrow's token slides from here.
   useEffect(() => { if (!beforeBuying(s) && s.order.length && !tokenHeld()) noteSeen(s); }, [s.day, s.phase]);
@@ -184,6 +198,12 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     // again before the rush.
     const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';
     if (rush || flip) A.resetHurry();
+    // Whose purchases this beat shows, and whether they are this phone's own (PLAN-123).
+    const buyer = prev.phase === 'buy' && next.day === prev.day ? prev.order[prev.turn] ?? -1 : -1;
+    const own = buyer >= 0 && next.phase === 'buy' && next.order[next.turn] === buyer && prev.players[buyer]?.kind === 'human'
+      && (!online || buyer === seat);
+    setMover(buyer >= 0 ? buyer : null);
+    setOwnBeat(own);
     try {
       if (next.day !== prev.day) {
         // The night is drawn from this stall's own view: what spoils behind a rival's shutter is not shown (rules 15).
@@ -230,6 +250,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       // its beat (rowAppears is a case of toBuy).
       holdFirstToken(prev, next);
       holdDeals(prev, next, viewer);
+      // PLAN-123: the stall whose purchases this beat shows is drawn as buying until they have landed.
+      if (buyer >= 0 && next.day === prev.day && (next.phase === 'buy' || dealsOf(prev, next).length > 0)) holdBuyer(buyer);
       const walkIns = arriving(prev, next, viewer);
       holdArrival(walkIns);
       // S8: the takings on a shared phone show nobody's own day; each person's is kept for their next hand-over.
@@ -251,9 +273,10 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       } else if (toBuy) {
         // The bids turned over together, the winner shown and its stake put on the order's card (PLAN-084).
         if (turned) await bidsTurned(turned, viewer, setOrderShow);
-        // Who buys first, and why: on Day 1 the token is drawn at random round the seats (PLAN-104).
-        if (rowAppears(prev, next)) await firstToken(next);
-        await delivery(next);
+        // PLAN-123 (finding 1): the lorry unloads at once, while the First token goes round the seats (who buys first,
+        // and why: on Day 1 it is drawn at random, PLAN-104), so the lanes are full before anyone can buy and are never
+        // drawn empty while the token decides.
+        await Promise.all([delivery(next), rowAppears(prev, next) ? firstToken(next) : null]);
         await moves(prev, next, viewer);
       } else if (flip) {
         await bellRings(next, setBell);
@@ -264,7 +287,7 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await arrive(walkIns);
         // A card just played slides to its price tag and stamps it; the bell is not shown a second time.
         if (tied?.played) await tiePlayed(tied.p, cardFrom);
-        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');
+        await reveal(next, viewer, setShow, setBell, prev.phase === 'tie', !online && multi);
         setBell(null);
         setRevealDone(true);
       } else if (tied) {
@@ -275,12 +298,18 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
         await arrive(walkIns);
       }
     } finally {
-      holdCash(null);
-      releaseToken();
-      releaseStock();
-      releaseRush();
-      releaseTable();
+      // A table that has been left lets go of nothing here: it did so as it was left, and what is held back now
+      // belongs to the next table (PLAN-123).
+      if (mounted.current) {
+        holdCash(null);
+        releaseToken();
+        releaseStock();
+        releaseRush();
+        releaseTable();
+      }
       setOrderShow(null);
+      setMover(null);
+      setOwnBeat(false);
       busyRef.current = false;
       setBusy(false);
       // The hurry ends where the player decides something again. Online it also lasts through the states still waiting
@@ -292,7 +321,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       const me = activePlayer(cur);
       const mine = cur.phase === 'buy' && me >= 0 && cur.players[me].kind === 'human' && (!online || me === seat) && !handOverPending();
       const q = mine ? buyQueue.current.shift() : undefined;
-      if (!mine) { buyQueue.current = []; endQueued.current = false; }
+      if (!mine) { buyQueue.current = []; endQueued.current = false; undoQueued.current = false; }
+      else if (undoQueued.current) { undoQueued.current = false; buyQueue.current = []; endQueued.current = false; window.setTimeout(undo, 0); }
       else if (q) window.setTimeout(() => attempt(() => playLocal(sRef.current, activePlayer(sRef.current), { kind: 'buy', fruit: q.f, pos: q.pos })), 0);
       else if (endQueued.current) { endQueued.current = false; window.setTimeout(sendEndBuy, 0); }
     }
@@ -486,7 +516,14 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
       setFreeFruit(null);
       return;
     }
-    if (busyRef.current && !online && s.phase === 'buy' && buyQueue.current.length < 3) { buyQueue.current.push({ f, pos }); return; }
+    // PLAN-123: a tap while this phone's own piece is on its way is kept for when it lands, if it will still be a
+    // purchase the rules allow then (turn.ts keepTap); any other tap while a beat plays is not taken.
+    if (busyRef.current) {
+      const cur = sRef.current;
+      const me = activePlayer(cur);
+      if (!online && cur.phase === 'buy' && !undoQueued.current && buyQueue.current.length < 3 && keepTap(cur, me, buyQueue.current, { f, pos })) buyQueue.current.push({ f, pos });
+      return;
+    }
     act({ kind: 'buy', fruit: f, pos });
   };
 
@@ -546,9 +583,11 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     // The pieces travel back to their boxes (PLAN-085): the turn's first state (or the one just after the last favour
     // card played, which stays played) is shown like any other step.
     const t = turnStart.current?.at;
-    if (busyRef.current || handOverPending()) return;
+    if (handOverPending()) return;
     buyQueue.current = [];
     endQueued.current = false;
+    // PLAN-123: Undo while a piece is on its way drops the taps kept back and is done as soon as the piece has landed.
+    if (busyRef.current) { undoQueued.current = true; return; }
     if (t && t !== sRef.current) void apply(t);
     setFreeFruit(null);
     setScout(null);
@@ -578,6 +617,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
     humansNotVoted, offline, nowTick, say, act, proceed, undo, endBuy, pickMarket, playCard, reallyPlay, ownCrate, ownDay, handTo,
     /** PLAN-113: the guided first sale is on in this game, and is setting up the person's stall now. */
     guided, guiding, endGuide,
+    /** PLAN-123: the stall whose purchases are being shown, and whether the beat is this phone's own purchase. */
+    mover, ownBeat,
     /** The bell has rung on this table today (the Favoured Trade question follows it). */
     rung: (s.phase === 'tie' ? (rangOn.current = s.day) : rangOn.current) === s.day,
   };

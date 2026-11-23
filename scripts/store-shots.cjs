@@ -53,7 +53,7 @@ const path = require('path');
       if (await p.locator('.bell-notice').count()) { await p.click('.bell-notice .btn'); continue; }
       // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
       if (await p.locator('button[aria-label^="One more"]:not([disabled])').count()) { await p.locator('button[aria-label^="One more"]:not([disabled])').first().click(); await p.waitForTimeout(300); continue; }
-      if (await p.locator('button:has-text("Open my stall")').count()) { await p.click('button:has-text("Open my stall")'); continue; }
+      if (await p.locator('button.tk-go').count()) { await p.click('button.tk-go'); continue; }
       if (await p.locator('.pp-lock .btn:not([disabled])').count()) {
         if ((await p.locator('.rt-sheet .ps-row').count()) >= 1 && once('price')) { await p.waitForTimeout(1500); await shot('4-pricing'); }
         await p.click('.pp-lock .btn:not([disabled])'); await p.waitForTimeout(1800);

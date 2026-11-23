@@ -65,9 +65,10 @@ export const BEAT = {
    *  its face-down squares (BEAT.bell.lid). */
   table: { form: 320, glide: 240 },
   /** The bell (flow study D3; at the round table, PLAN-099): the bell comes into the middle of the table
-   *  (FEEL.sheetIn) and swings and sounds (`swing`); then seat by seat, clockwise from yours, `gap` apart, a crate's lid
-   *  lifts (`lid`), its squares turn into its pieces and its price tags turn face up (FEEL.turn); then a pause to read.
-   *  About 2.6 s at four stalls. "No sales today"; the older crate's turn (motion.css). */
+   *  (FEEL.sheetIn) and swings and sounds (`swing`); then (PLAN-123) every crate's lid lifts at once (`lid`), its
+   *  squares turn into its pieces and its price tags turn face up together (FEEL.turn); then a pause to read. Two
+   *  seconds at any number of stalls. `gap` is no longer used by the bell (it opened seat by seat before PLAN-123).
+   *  "No sales today"; the older crate's turn (motion.css). */
   bell: { swing: 300, gap: 180, lid: 220, read: 1200, noSales: 1100 },
   /** Favoured Trade (flow study D3): a rival's question stays up `ask` before its answer shows; a card played slides
    *  to the tied price tag (FEEL.travel) and stamps it (`stamp`), then a pause. */
@@ -123,8 +124,18 @@ const waiting = new Set<() => void>();
 const endWaits = () => { for (const done of [...waiting]) done(); };
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
-/** The player asked for less motion: nothing travels, the state is shown at once, and reading pauses are kept. */
-export const isReduced = () => typeof matchMedia !== 'undefined' && matchMedia(REDUCE).matches;
+/** PLAN-123: the game's own Reduced motion setting (Settings), beside the phone's. */
+let still = false;
+/** The player asked for less motion (the phone's setting or the game's): nothing travels, the state is shown at once,
+ *  and reading pauses are kept. */
+export const isReduced = () => still || (typeof matchMedia !== 'undefined' && matchMedia(REDUCE).matches);
+/** PLAN-123: turns the game's Reduced motion setting on or off. The page is marked (html.fm-still) so the stylesheets
+ *  stop every animation as they do for the phone's setting (motion.css). */
+export function setStill(on: boolean) {
+  still = on;
+  try { document.documentElement.classList.toggle('fm-still', on); } catch { /* no page (tests) */ }
+  publish();
+}
 
 /** The one speed (1 normal, lower is quicker). It only changes how fast this screen draws: never the game. */
 export const speed = () => base * hurry * step;

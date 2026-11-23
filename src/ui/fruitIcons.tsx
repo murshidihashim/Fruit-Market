@@ -4,6 +4,7 @@
 // with spots, Unripe is green.
 import { FRUIT, type FruitId, type Stage } from '../engine/data';
 import { C } from './palette';
+import { STAGE_WORD } from './stageWords';
 
 type Shape = ['path' | 'circle' | 'ellipse', Record<string, string | number>];
 
@@ -107,7 +108,7 @@ export function fruitSvgUrl(id: FruitId, stage: Stage = 'fresh'): string {
   return u;
 }
 
-const STAGE_WORD: Record<Stage, string> = { fresh: 'Fresh', okay: 'Okay', notso: 'Soft', unripe: 'Unripe' };
+
 
 /** A flat deck-art fruit. One element; CSS may resize it (it scales cleanly). `alt=""` when a label beside it already names the fruit. */
 export function FruitSvg({ id, stage = 'fresh', size = 24, alt, class: cls, x, y }: {

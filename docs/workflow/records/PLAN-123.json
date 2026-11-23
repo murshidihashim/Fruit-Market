@@ -1,0 +1,93 @@
+{
+  "id": "PLAN-123",
+  "title": "Release-quality bug-fix and polish pass on the preview build",
+  "problem": "A play-through of the preview (commit 897e581) found misleading game state, out-of-sync counters, ambiguous Rush and results words, a Skip that passes through live controls, a reward that flickers, unclear Sprint and League messages, and journey, animation and sound rough edges.",
+  "scope": [
+    "Fix the eight preview findings: wholesale looks sold out while rivals buy; purchase counters out of step; stocking counts one fruit twice; Rush words; Skip to the end; Sprint stamps flicker; Sprint same-start and twist words; League trophy and star words",
+    "Journey polish: Home and menus (Continue labels, Back and cancel, fullscreen prompt), one clear action per phase, freshness labels, results and progression",
+    "Animation and sound audit: lorry, buying and stocking, Bell, Rush, stars and rewards; Fast and Reduced motion; mute persists; no stale effects after background, resume or skip",
+    "Regression tests for every confirmed bug; full verification list run where this machine can"
+  ],
+  "exclusions": [
+    "No rule, balance, protocol or save-format change; the Sprint perk choice stays and is explained (a messaging fix)",
+    "No publishing to the live game without the owner's separate word",
+    "Art stays: cards, portraits, fruit, lorry, crates, shutters"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "npm run verify on the merged branch: 1263 passed, 1 skipped (as before)"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "PASS",
+      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on the merged build: E2E OK; online leaks 0 and 0; one phone 3 hand-overs; six stalls; reconnect 5 cycles"
+    },
+    {
+      "id": "T3",
+      "text": "Each of the eight findings reproduced before and checked fixed after, with screens",
+      "result": "PASS",
+      "evidence": "REP-138 section 1 and img/REP-138: findings 1-3 and 5-8 reproduced before and fixed after; finding 4 partly reproduced (the doubled line only for screen readers) and fixed"
+    },
+    {
+      "id": "T4",
+      "text": "Play-throughs: guided sale, Normal computer game, League clear and retry, Daily, three-day Sprint with reload, One phone hand-over",
+      "result": "PASS",
+      "evidence": "Browser run: guided first sale and full solo game, League clear, short stage, One phone, Sprint; extra: six stalls at 360x640 with Skip (4 runs), Daily at 1280x800 with reduced motion, Sprint reload, League Retry after a loss. Real phones NOT RUN"
+    },
+    {
+      "id": "T5",
+      "text": "The owner sees it on the preview",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
+    "date": "2026-11-23"
+  },
+  "delivery": "implemented",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-138"
+  ],
+  "decisions": [
+    "DEC-131"
+  ],
+  "changes": {
+    "added": [
+      "Four labelled mode buttons under Home's cards",
+      "Reduced motion switch in Settings",
+      "Places at this table, the deciding moment and a no-sales recap on results",
+      "Spoils tonight and Loses Premium tomorrow tags on stocking rows"
+    ],
+    "changed": [
+      "Lorry unloads while the First token spins; the turn is named while rivals buy",
+      "Bell opens every crate together",
+      "Rush words name you and the fruit, with one reason for a missed sale",
+      "Stocking button reads Set secret prices",
+      "Continue names the mode, day and cash",
+      "Sprint intro explains perks and events; results show your perk",
+      "League trophy follows the current stage's skill"
+    ],
+    "fixed": [
+      "Wholesale no longer looks sold out while rivals buy",
+      "Purchase counters change together; rapid taps and Undo stay in step",
+      "Stocking no longer counts one fruit twice",
+      "Skip to the end settles at once with no live Rush buttons",
+      "Sprint stamps no longer show +0 first",
+      "Browser Back keeps the save; the fullscreen question no longer interrupts the League map"
+    ],
+    "removed": []
+  },
+  "playerNotes": [
+    "Buying is clearer: the market never looks sold out while a rival buys, and every counter changes together",
+    "Skip to the end now jumps straight to the day's recap",
+    "Clearer Rush, Sprint and League words, and four mode buttons on Home"
+  ]
+}

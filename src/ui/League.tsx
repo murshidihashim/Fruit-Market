@@ -8,7 +8,7 @@
 import { useState } from 'preact/hooks';
 import { Face } from './art';
 import { CARDS, nextStep, stepValue } from './achievements';
-import { ALL_STAGES, EXPERTS, LEAGUE, STAR_COUNT, expertOpen, stageByNo, stageStars, starGoals, type Stage } from './campaign';
+import { ALL_STAGES, EXPERTS, LEAGUE, MASTERY_STAGES, STAR_COUNT, expertOpen, stageByNo, stageStars, starGoals, type Stage } from './campaign';
 import { fx } from './fx';
 import { worn } from './looks';
 import { isReduced } from './motion';
@@ -57,17 +57,41 @@ export function roadState(i: number, at: number, stars: readonly string[]): Road
   return i < at ? 'done' : i === at ? 'now' : 'later';
 }
 
+/** The next League trophy tier, with its progress and where its stars come from. */
+export interface NextTrophy { title: string; got: number; goal: number; card: (typeof CARDS)[number]; where: string }
+
+/** "stage 1, Village Square, and stage 7, Read the Rival": the stages a mastery trophy counts, by number and name. */
+const stagesWords = (nos: readonly number[]): string => nos.map((n) => `stage ${n + 1}, ${LEAGUE[n]?.title ?? ''}`).join(', and ');
+
+/** Where a League trophy's stars come from, in words (PLAN-123: the mastery trophies count two named stages only). */
+export function trophyWhere(card: (typeof CARDS)[number]): string {
+  const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
+  return k ? `Counts the stars of ${stagesWords(MASTERY_STAGES[k])}.` : 'Counts every League star.';
+}
+
 /**
  * The next League trophy tier within reach, with its progress: of the League stars card and the three mastery cards
- * (all counted in stars), the tier still to earn that is nearest to done. Null when every tier is held.
+ * (all counted in stars), the tier still to earn. PLAN-123 (preview finding 8): a trophy the stage you are on can add
+ * stars to comes first: the mastery trophy about this stage's skill, then the League stars trophy (every star counts);
+ * a mastery trophy counts the stars of two named stages only, so "Contract Trader" no longer shows while you learn to
+ * undercut Rosa. Then the one nearest to done. `at`: the stage you are on. Null when every tier is held.
  */
-export function nextTrophy(): { title: string; got: number; goal: number; card: (typeof CARDS)[number] } | null {
+export function nextTrophy(at = leagueStage()): NextTrophy | null {
   const snap = snapshot();
+  const have = myStars();
+  const here = stageByNo(Math.min(at, LEAGUE.length - 1));
+  const open = here ? starGoals(here).some((m) => !have.includes(m.id)) : false;
+  const helps = (card: (typeof CARDS)[number]): number => {
+    if (!open) return 0;
+    const k = (Object.keys(MASTERY_STAGES) as (keyof typeof MASTERY_STAGES)[]).find((x) => card.id === `mastery_${x}`);
+    return k ? (MASTERY_STAGES[k].includes(Math.min(at, LEAGUE.length - 1)) ? 2 : 0) : 1;
+  };
   const cands = CARDS.filter((c) => c.group === 'league' && c.unit === 'stars').flatMap((card) => {
     const st = nextStep(card, snap);
-    return st ? [{ card, title: card.title, got: Math.min(stepValue(card, st, snap), st.goal), goal: st.goal }] : [];
+    return st ? [{ card, title: card.title, got: Math.min(stepValue(card, st, snap), st.goal), goal: st.goal, where: trophyWhere(card), helps: helps(card) }] : [];
   });
-  return cands.sort((a, b) => b.got / b.goal - a.got / a.goal || a.goal - b.goal)[0] ?? null;
+  const best = cands.sort((a, b) => b.helps - a.helps || b.got / b.goal - a.got / a.goal || a.goal - b.goal)[0];
+  return best ? { card: best.card, title: best.title, got: best.got, goal: best.goal, where: best.where } : null;
 }
 
 /** "Opens at 12 stars · you have 9" */
@@ -116,7 +140,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
             <MasteryList stage={sel} have={stars} />
             {playable
               ? <button type="button" class="jp-go" onClick={() => { fx.tap(); onPlay(sel); }}>{play}</button>
-              : <p class="lg-closed">{opensAt(st, stars.length)}</p>}
+              : <p class="lg-closed">{opensWhen(sel, stars)}</p>}
           </section>
 
           {trophy && (
@@ -125,6 +149,7 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
               <span class="lg-trophy-tx">
                 <span class="sbk-lab">Next trophy</span>
                 <b>{`${trophy.title} · ${trophy.got} of ${trophy.goal} stars`}</b>
+                <small data-a="trophy-where">{trophy.where}</small>
               </span>
             </div>
           )}
@@ -147,17 +172,31 @@ export function LeagueView({ onBack, onPlay, sel, onPick }: Props & { sel: numbe
             <div class="lg-ch-sign">
               <span class="sbk-lab">Expert stages</span>
               <h2 id="lg-ex">Harder markets</h2>
-              <span class="sbk-sub">Each opens with stars from Chapter 1.</span>
+              <span class="sbk-sub">{`${stageStarsIn(EXPERTS, stars)} of ${EXPERTS.length * 3} stars · each opens once you hold enough stars`}</span>
             </div>
             <ol class="lg-road lg-road-ex" aria-label="The expert stages">
               {EXPERTS.map((x, k) => <RoadStop st={x} n={LEAGUE.length + k} state={roadState(LEAGUE.length + k, at, stars)} sel={sel} stars={stars} onPick={onPick} />)}
             </ol>
           </section>
-          <p class="sbk-sub jp-lg-foot">{`Clear a stage's goal to move up. Stars: ${stars.length} of ${STAR_COUNT}. Play a cleared stage again for the stars you missed.`}</p>
+          <p class="sbk-sub jp-lg-foot" data-a="league-foot">{starsFoot(stars)}</p>
         </div>
       </main>
     </div>
   );
+}
+
+/**
+ * PLAN-123 (preview finding 8): the foot's words, with the two parts of the total named: "Stars: 3 of 42 in all, 36 in
+ * Chapter 1 and 6 on the expert stages." The chapter's sign and the experts' sign count their own parts.
+ */
+export function starsFoot(stars: readonly string[]): string {
+  return `Clear a stage's goal to move up. Stars: ${stars.length} of ${STAR_COUNT} in all, ${LEAGUE.length * 3} in Chapter 1 and ${EXPERTS.length * 3} on the expert stages. Play a cleared stage again for the stars you missed.`;
+}
+
+/** What a stage not open yet waits for (PLAN-123): the stage to clear first, or the stars an expert stage needs. */
+export function opensWhen(n: number, stars: readonly string[]): string {
+  const st = ALL_STAGES[n];
+  return st?.expert ? opensAt(st, stars.length) : `Opens when you clear stage ${n}, ${LEAGUE[n - 1]?.title ?? ''}`;
 }
 
 /** Stars held on a list of stages. */
@@ -168,7 +207,7 @@ function RoadStop({ st, n, state, sel, stars, onPick }: { st: Stage; n: number; 
   const got = stageStars(n, stars).length;
   // An expert stage's marker: E1, E2 (a lock while it is closed).
   const mark = state === 'done' ? <Tick /> : state === 'later' && st.expert ? <Lock /> : st.expert ? `E${n - LEAGUE.length + 1}` : n + 1;
-  const sub = state === 'later' && st.expert ? opensAt(st, stars.length) : stageLine(st);
+  const sub = state === 'later' ? opensWhen(n, stars) : stageLine(st);
   const body = (
     <>
       <i class="lg-mark" aria-hidden={typeof mark !== 'object'}>{mark}</i>

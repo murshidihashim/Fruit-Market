@@ -176,7 +176,10 @@ describe('customer cards (the Main board)', () => {
     expect(premium.match(/cd-lamp off/g)).toHaveLength(2);
     expect(everyday.match(/cd-lamp off/g)).toHaveLength(1);
     expect(bargain).not.toContain('cd-lamp off');
-    expect(everyday).toContain('Everyday: Buys Fresh or Okay fruit.');
+    // PLAN-123: the spoken legend says what the lamps show (a Premium card takes no Okay fruit, so it does not say Okay pays less)
+    expect(everyday).toContain('Everyday: Fresh, or Okay for $1 less. No Soft.');
+    expect(premium).toContain('Premium: Fresh only.');
+    expect(bargain).toContain('Bargain: Fresh, Okay for $1 less, or Soft for $2 less.');
   });
 
   it('the top and bottom bars take the customer type\'s colour (PLAN-106): the card, the rush\'s card and the row\'s ticket, a guest too; never a face-down card or a standing order', () => {

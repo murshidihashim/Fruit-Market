@@ -86,7 +86,11 @@ describe('one card for each customer', () => {
     // an offer that sold nothing carries the rules' own reason, the same words for every stall at the table
     const tags = rushLine(s, b.line).tags;
     for (const r of b.rows.filter((x) => x.sold === 0)) expect(r.result).toBe(tags[r.i]);
-    expect(c.text).toContain(rushLine(s, b.line).headline);
+    // PLAN-123: the line speaks to this stall as "You" and names the fruit and the money of each sale
+    const word = (n: number) => (n === 1 ? FRUIT[b.fruit].name : FRUIT[b.fruit].plural).toLowerCase();
+    expect(c.text).toContain(`You sold ${mine.sold} ${word(mine.sold)} for $${mine.sold * mine.price}.`);
+    expect(c.text).toContain(`${s.players[rival.player].name} sold ${rival.sold} ${word(rival.sold)} for $${rival.sold * rival.price}.`);
+    expect(c.text).not.toContain(s.players[0].name);
   });
 
   it('what a stall is paid on the cards adds up to its income of the day (the night hawker apart)', () => {

@@ -5,7 +5,7 @@ import { AI_VERSION, RULES_VERSION } from '../net/protocol';
 import { profileChanged } from './changed';
 
 /** `reactions` (PLAN-112): show the preset reactions other players send in an online room (off: none are shown). */
-export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; reactions: boolean }
+export interface Settings { sound: boolean; haptics: boolean; fast: boolean; tips: boolean; music: boolean; analytics: boolean; reactions: boolean; still: boolean }
 export interface Stats { played: number; wins: number; bestCash: number; totalSold: number }
 export interface DailyRecord { [date: string]: number }
 
@@ -35,7 +35,7 @@ function write(key: string, value: unknown) {
  * saved before "Show reactions" load with it on (each missing field takes its default).
  */
 export function loadSettings(): Settings {
-  const st: Settings & { patterns?: boolean } = read<Settings & { patterns?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, reactions: true });
+  const st: Settings & { patterns?: boolean } = read<Settings & { patterns?: boolean }>(K.settings, { sound: true, haptics: true, fast: false, tips: true, music: false, analytics: true, reactions: true, still: false });
   delete st.patterns;
   return st;
 }

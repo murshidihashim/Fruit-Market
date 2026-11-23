@@ -16,7 +16,7 @@ import { TieCard } from '../src/ui/game/panels/PricingTable';
 import { PreView } from '../src/ui/game/panels/RushTable';
 import { preTable, tableSeats, tableStep, type TableFacts } from '../src/ui/game/tableNow';
 import { tieStory } from '../src/ui/game/tieStory';
-import { nightSteps, tonightWord } from '../src/ui/game/tonight';
+import { freshWarn, nightSteps, tonightWord } from '../src/ui/game/tonight';
 import { shelfRowText, tieOrderLine } from '../src/ui/panel';
 
 const read = (f: string) => readFileSync(f, 'utf8');
@@ -67,7 +67,7 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
     const ctrl = read('src/ui/game/useGameController.ts');
     expect(ctrl).toContain("const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';");
-    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie');");
+    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie', !online && multi);");
     expect(read('src/ui/game/animator.tsx')).toContain('if (!rung) await bellRings(g, setBell);');
   });
 
@@ -283,9 +283,14 @@ describe('stocking and pricing say what the game knows (panel.tsx, tonight.ts)',
     expect(nightSteps(s, 0, 'apple')).toBe(1);
     expect(tonightWord(s, 0, 'apple', soft)).toEqual({ text: 'spoils tonight', bad: true });
     expect(tonightWord(s, 0, 'apple', FRESH('apple')).bad).toBe(false);
-    expect(shelfRowText(s, 0, 'apple', soft)).toMatch(/soft sells \$2 less · spoils tonight$/);
-    expect(shelfRowText(s, 0, 'mango', FRUIT.mango.ripe.length)).toBe('Still green · ripe tomorrow');
-    if (green > FRUIT.mango.ripe.length) expect(shelfRowText(s, 0, 'mango', green)).toBe(`Still green · ripe in ${green - FRUIT.mango.ripe.length + 1} nights`);
+    // PLAN-123: "spoils tonight" is a tag of its own beside the row's words (freshWarn), in the one set of freshness words
+    expect(shelfRowText(s, 0, 'apple', soft)).toMatch(/Soft sells \$2 less$/);
+    expect(freshWarn(s, 0, 'apple', soft)).toEqual({ text: 'Spoils tonight', bad: true });
+    const edge = FRUIT.apple.ripe.indexOf('fresh');
+    expect(freshWarn(s, 0, 'apple', edge)).toEqual({ text: 'Loses Premium tomorrow', bad: false });
+    if (FRESH('apple') > edge) expect(freshWarn(s, 0, 'apple', FRESH('apple'))).toBeNull();
+    expect(shelfRowText(s, 0, 'mango', FRUIT.mango.ripe.length)).toBe('Still Green · ripe tomorrow');
+    if (green > FRUIT.mango.ripe.length) expect(shelfRowText(s, 0, 'mango', green)).toBe(`Still Green · ripe in ${green - FRUIT.mango.ripe.length + 1} nights`);
     // a Heatwave ages two boxes; no night follows the last day
     const heat = EVENT_CARDS.find((e) => (e.ageExtra ?? 0) > 0)!;
     expect(nightSteps({ ...s, event: heat }, 0, 'apple')).toBe(1 + heat.ageExtra!);

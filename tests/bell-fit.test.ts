@@ -142,14 +142,15 @@ describe('the bell\'s script and the flip', () => {
     await done;
     expect(seen).toEqual([s.players.length]);
     expect(Date.now() - t0).toBe(A.BEAT.bell.read);
-    // at the usual pace the rows start shut and open one at a time
+    // at the usual pace the rows start shut while the bell swings, then all open together (PLAN-123: the prices are
+    // revealed at the same moment, never seat by seat)
     fakeClock(false);
     const steps: (number | null)[] = [];
     const ring = bellRings(s, (open) => steps.push(open));
     expect(steps).toEqual([0]);
     await vi.runAllTimersAsync();
     await ring;
-    expect([...new Set(steps)]).toEqual(Array.from({ length: s.players.length + 1 }, (_, i) => i));
+    expect([...new Set(steps)]).toEqual([0, s.players.length]);
   });
 
   it('makes one sound: the player\'s own bell, rung once by the game table as the bell first shows (PLAN-091)', async () => {

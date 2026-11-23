@@ -20,6 +20,8 @@ interface Hold {
   bought: Map<number, Offsets>;
   /** Walk-ins that are arriving: 'down' until the card's turn, 'out' while its back turns away, 'up' once its face shows. */
   cards: Map<number, 'down' | 'out' | 'up'>;
+  /** PLAN-123: the stall whose purchases are travelling: drawn as buying until they have landed. */
+  buyer?: number;
 }
 
 let held: Hold | null = null;
@@ -40,6 +42,18 @@ export function releaseTable(): void {
 
 /** Whether anything on the table is being held back now. */
 export const tableHeld = (): boolean => held !== null;
+
+// ---------- whose turn it is ----------
+
+/** PLAN-123 (finding 1): this stall's purchases are being shown, so the stalls' row and the market say it is buying,
+ *  although the game has already passed the turn on. Let go with the rest of the table as the beat ends. */
+export function holdBuyer(p: number): void {
+  hold().buyer = p;
+  changed();
+}
+
+/** The stall drawn as buying now (undefined: as the game says). */
+export const heldBuyer = (): number | undefined => held?.buyer;
 
 // ---------- the lanes ----------
 

@@ -206,7 +206,11 @@ describe('the takings as drawn', () => {
       const crowd = rushOver(s);
       expect(crowd.map((x) => x.id)).toEqual(servingCustomers(s).map((c) => c.id));
       for (const x of crowd) expect(x.served).toBe(s.results!.lines.some((l) => l.customerId === x.id && l.offers.some((o) => o.sold > 0)));
-      expect(view(s)).toContain(`<span>The rush is over</span> · <span>${crowd.filter((x) => x.served).length} of ${crowd.length} bought</span>`);
+      // PLAN-123: customers who bought something, and whole orders apart ("2 of 2 bought" read as two orders filled)
+      const n = crowd.filter((x) => x.served).length;
+      const full = crowd.filter((x) => x.full).length;
+      for (const x of crowd) expect(x.full).toBe(s.results!.lines.filter((l) => l.customerId === x.id).every((l) => l.offers.reduce((a, o) => a + o.sold, 0) >= l.want));
+      expect(view(s)).toContain(`<span>The rush is over</span> · <span>${n} of ${crowd.length} customer${crowd.length === 1 ? '' : 's'} bought something</span> · <span>${full ? `${full} full order${full === 1 ? '' : 's'}` : 'no full orders'}</span>`);
     }
     expect(all.some(({ s }) => rushOver(s).some((x) => !x.served))).toBe(true);
   });
@@ -297,7 +301,7 @@ describe('what tonight does to the shelf', () => {
       for (const c of chips) if (c.bad) expect(c.next).toBeNull();
     }
     // these nights say all of these
-    for (const w of ['ripe tomorrow', 'Okay tomorrow', 'Soft tomorrow', 'spoils tonight', 'still green tomorrow']) expect(words, w).toContain(w);
+    for (const w of ['ripe tomorrow', 'Okay tomorrow', 'Soft tomorrow', 'spoils tonight', 'still Green tomorrow']) expect(words, w).toContain(w);
   });
 
   it('the card says it: the shelf\'s count, the chips and the night\'s own sentence', () => {

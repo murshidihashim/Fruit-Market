@@ -1,15 +1,15 @@
 # Current state · Fruit Market
 
-Updated 2026-11-22 19:23 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
+Updated 2026-11-23 10:19 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live and preview:** 1.28.0, rules version 20, protocol 5, computer-player version 8 (main 9b8ee6c, tagged v1.28.0, published 2026-11-22; REP-135). PLAN-112 to PLAN-119 released: public rooms and reactions, the redesigned journey, the Market Sprint and boards, the League campaign pilot (12 stages, 2 experts, road, mastery trophies), the 1.27 review fixes, Daily and Sprint rivals at Normal, a job for each mode.
-- **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus records.
-- **Active package:** none in progress.
+- **Live:** 1.30.0 (main 9bf3072, tagged v1.30.0, published 2026-11-22). **Preview:** 897e581 (1.30.0 plus PLAN-122, Home centred and the Level box opens the Stamp book). Rules version 20, protocol 5, computer-player version 8.
+- **Working branch:** `ccr-d8bcd65d-gblqqb`, main plus PLAN-123.
+- **Active package:** PLAN-123 (DEC-131), the release-quality bug-fix and polish pass: implemented on the branch (REP-138), going to the preview for the owner's review. Live needs the owner's separate word; publishing needs a version bump and a releases.json candidate first.
 - **Left for later (REP-135 section 4):** expert stages easier than their base stages (RA-07); Ah Chen wins 42% of Sprints through the Charmer perk (RA-14); 16 empty stall-level rewards (levels 12 to 30); host lines after shared wins, stage 10 day count, Perk label contrast, Play menu punctuation, the Daily card's League line too frequent, weekly line "7 days" when 5 count, old-version message wording, reaction button below the fold at 320, small text in Wardrobe and Stamp book, How to play without the League or Sprint; game-table labels at 10 to 11 px; the print kit's tie wording.
 - **Next chapters:** League chapters of ten, each its own plan (REP-134 section 5).
 - **Commits:** author Murshidi Hashim, committer Claude, set per commit; run web checks and commits as separate commands.
-- **Waiting on the owner:** play 1.28.0; which later items to plan; the gameplay screen redesign (canvas v3) is not approved; Android Play upload; print pieces and table test; PLAN-003 capacity and backup, PLAN-018 insights (proposed); Cloudflare plan tier unknown.
+- **Waiting on the owner:** review PLAN-123 on the preview, then the word to publish; which later items to plan; the gameplay screen redesign (canvas v3) is not approved; Android Play upload; print pieces and table test; PLAN-003 capacity and backup, PLAN-018 insights (proposed); Cloudflare plan tier unknown.
 - Weekly Player numbers report runs Mondays 09:07 (PLAN-101).
 
 ## How work is done now
