@@ -270,11 +270,12 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
         </div>
       )}
 
-      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css). */}
+      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css).
+          PLAN-127: tomorrow's strip first, right under the top bar, then today's customers. */}
       <section class="street-wrap" data-a="street" style={show ? `--rt-at:"Customer ${show.n} of ${show.of}"` : undefined}>
+        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
           away={show?.card.customerId} served={show?.served} />
-        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
       {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}

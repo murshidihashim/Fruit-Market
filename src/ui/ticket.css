@@ -105,7 +105,7 @@
 #app .tkt .tk-beats li.done { background: var(--tk-ink); color: var(--tk-paper); }
 
 /* ---------- today's customers: tickets on a kraft band ---------- */
-#app .tkt > .street-wrap { all: unset; grid-area: street; display: block; box-sizing: border-box; min-width: 0; padding: 6px 12px; overflow: hidden; background: var(--tk-kraft); }
+#app .tkt > .street-wrap { all: unset; grid-area: street; display: block; box-sizing: border-box; min-width: 0; padding: 7px 12px 6px; overflow: hidden; background: var(--tk-kraft); }
 #app .tkt > .street-wrap::after { display: none; }
 #app .tkt .street { all: unset; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 #app .tkt .street::-webkit-scrollbar { display: none; }
@@ -124,8 +124,8 @@
   all: unset; position: absolute; left: 50%; top: 50%; z-index: 2; width: 30px; height: 30px; margin: -15px 0 0 -15px; display: grid; place-items: center; border-radius: 50%;
   background: var(--tk-ink); color: var(--tk-yel); font: 800 1rem/1 var(--tk-txt);
 }
-/* tomorrow's customers and the standing order, on the same band */
-#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-top: 6px; overflow: hidden; }
+/* tomorrow's customers on the same band, above today's (PLAN-127), and the standing order under them */
+#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-bottom: 7px; overflow: hidden; }
 #app .tkt .tomorrow .tm-k { all: unset; flex: none; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-chip { all: unset; flex: none; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px 0 3px; background: var(--tk-paper); color: var(--tk-ink); font: 400 0.75rem/1 var(--tk-disp); cursor: pointer; }
 #app .tkt .tomorrow .tm-chip.tm-back { padding: 0 5px; cursor: default; background: repeating-linear-gradient(135deg, var(--tk-paper) 0 5px, var(--tk-tint) 5px 10px); }

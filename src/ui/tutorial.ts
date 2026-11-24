@@ -15,7 +15,7 @@ export interface Tip { id: string; title: string; text: string }
 // The wording follows the glossary (DEC-087) and rules 20. There is no tip for picking a perk: the picker's own card
 // says the same sentence (ids already kept on a phone, 'trait' among them, are harmless).
 export const TIPS: Tip[] = [
-  { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top. Tap Start buying.' },
+  { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top, under tomorrow’s. Tap Start buying.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a fruit to buy, freshest at the top. Buy what the customers want. Fresher costs more, but customers pay more for it.' },
   { id: 'bought', title: 'On your shelf', text: 'It\'s on your shelf. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Fill your crate', text: 'Tap + beside a row to put that piece in your crate. Only pieces in your crate can sell today. Rivals see how many, not which fruit.' },
