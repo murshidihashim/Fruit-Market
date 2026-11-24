@@ -4880,6 +4880,10 @@
     {
       "at": "2026-11-24 21:44",
       "text": "PLAN-127 implemented on the branch: centred header with the D{day} pill and ticks, no phase bar, Tomorrow strip first, no stall-row labels. verify PASS (1302); browser run E2E OK with 0 leaks; 69 screens fit without scrolling and the event is centred. Not yet on the preview or live."
+    },
+    {
+      "at": "2026-11-24 21:58",
+      "text": "PLAN-127 follow-up on the owner's word: \"Your turn · 0 of 5\" (and a rival's turn line) moves from beside the market's label, where it clashed with today's price chip, to the market's bottom left under the first (shortest) lane, using room that was empty. verify PASS (1302); no scroll at 390x844, 412x915 and 360x640 with 6 stalls."
     }
   ]
 }

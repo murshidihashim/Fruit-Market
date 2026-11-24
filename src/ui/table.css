@@ -374,3 +374,8 @@
   /* five or six stalls: a smaller face, so the cash beside it is whole */
   #app .tkt .tb-stall.compact .tk-swatch.tb-face { --s: 16px; }
 }
+
+/* Owner, 2026-11-24: whose turn it is sits under the first (shortest) lane, at the market's bottom left. */
+#app .tkt .tb-lane .tb-turn { display: block; max-width: 100%; margin: 2px 0 0; white-space: normal; overflow: visible; text-overflow: clip; font: 700 0.75rem/1.15 var(--tk-txt); color: var(--tk-ink); overflow-wrap: anywhere; }
+#app .tkt .tb-lane .tb-turn .tk-side-w { display: none; }
+#app .tkt .tb-lane .tb-turn .tb-nw { white-space: nowrap; }

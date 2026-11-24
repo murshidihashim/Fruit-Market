@@ -205,7 +205,8 @@ describe('nothing gives away where the token lands while it is on its way', () =
     const buy = playTo(game(4, 2), (x) => x.phase === 'buy');
     const me = buy.order[0];
     const row = () => toStaticHtml(h(Stalls, { s: buy, viewer: me, boards: {}, open: null, onOpen: () => undefined, onClose: () => undefined, off: [] }));
-    const market = () => toStaticHtml(h(Market, { s: buy, p: me }));
+    // The words as read (the turn line keeps "0 of 4" together in its own span, under the first lane).
+    const market = () => toStaticHtml(h(Market, { s: buy, p: me })).replace(/<[^>]+>/g, '');
     expect(market()).toContain('Your turn · 0 of');
     expect(row()).not.toContain('tb-drawing');
     try {
