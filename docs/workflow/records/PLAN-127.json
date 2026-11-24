@@ -3,6 +3,8 @@
   "title": "Rules page redesign: six illustrated pages and a Try a sale reveal",
   "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
   "scope": [
+    "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
+    "A new second page, Today's customers: today's row, the Tomorrow strip and the lorry, in three designs for the owner to choose from (A board map, B day by day, C front and back); A shows until the owner chooses",
     "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
     "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
     "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
@@ -30,7 +32,7 @@
     },
     {
       "id": "T3",
-      "text": "The six pages at 390x844 and 360 wide: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
+      "text": "The pages at 390x844 and 360 wide: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
       "result": "PASS",
       "evidence": "Playwright screenshots of all six pages at 390 and 360 wide: page width equals the screen; Ring the bell, Advance one night (blueberry and mango), Reveal sale (B $3, then A 2 at $4, C Order full; Fresh only: A 2 at $4, C 1 at $5) and Running out of cash / Price ties rows checked"
     },
@@ -39,6 +41,12 @@
       "text": "Wording checked against RULES.md (rules 20), which the live game plays",
       "result": "PASS",
       "evidence": "Fixed on 3d08b9f: Market Day bid before buying, tomorrow's customers in view while buying, customers face up at Stocking, no Green fruit in a crate, demand spills to the next cheapest stall, Heatwave and Monsoon nights, no favour card when two stalls serve, oldest fresh-enough piece sells first"
+    },
+    {
+      "id": "T5",
+      "text": "Owner's first-page changes and the three Today's customers designs, rendered at 390 wide",
+      "result": "PASS",
+      "evidence": "Playwright at 390x844 (dev, ?rules=a|b|c): page 1 and designs A, B (Buying, Stocking, Next morning) and C drawn; page width 390 in each; no page errors"
     }
   ],
   "approval": {
@@ -46,7 +54,7 @@
     "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
     "date": "2026-11-24"
   },
-  "delivery": "implemented",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [],

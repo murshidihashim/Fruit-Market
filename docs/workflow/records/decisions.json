@@ -4853,6 +4853,10 @@
     {
       "at": "2026-11-24 23:23",
       "text": "PLAN-127 implemented on branch ccr-608a8c5d-g7t4ma: verify and e2e PASS on 3d08b9f; the wording was checked against RULES.md (rules 20) at the owner's request. Not merged to main or published."
+    },
+    {
+      "at": "2026-11-24 23:49",
+      "text": "Owner, on PLAN-127: first page renamed How to play with three wording changes, and a new page on today's customers, the Tomorrow strip and the lorry, in three designs to choose from. Added to PLAN-127; the choice of design is pending."
     }
   ]
 }

@@ -179,3 +179,55 @@
 .ht-receipt b { font-size: 1rem; }
 .ht-receipt .win { background: var(--x-mustard); padding: 4px 4px; margin: 0 -4px; }
 .ht-receipt .ht-rc-f { display: block; border: 0; padding-top: 6px; font-size: 0.75rem; color: var(--x-slate); }
+
+/* ---------- 2 today's customers, tomorrow's and the lorry (three designs: map, day by day, front and back) ---------- */
+.ht-length { font-weight: 700; }
+.ht-board { position: relative; display: flex; flex-direction: column; gap: 8px; margin: 8px 0; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-row { display: flex; gap: 6px; align-items: stretch; }
+.ht-row > .tkc { flex: 1 1 0; min-width: 0; }
+.ht-row .tkc.back { background: var(--x-ink); }
+.ht-flip { animation: ht-flip calc(var(--mk, 1) * 420ms) ease-out both; }
+@keyframes ht-flip { from { transform: rotateY(90deg); } to { transform: none; } }
+.ht-slide { animation: ht-up calc(var(--mk, 1) * 420ms) ease-out both; }
+@keyframes ht-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.ht-tmr { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-height: 34px; }
+.ht-tmr::-webkit-scrollbar { display: none; }
+.ht-tmr-k { flex: none; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink); }
+.ht-tmr-chip { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 30px; padding: 0 6px 0 2px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.75rem/1 var(--f-label); }
+.ht-tmr-chip.back { padding: 0 8px; background: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-mustard); }
+.ht-tmr-w { display: inline-flex; align-items: center; gap: 1px; }
+.ht-tmr-lorry { flex: none; margin-left: auto; padding-left: 4px; font: 700 0.75rem/1 var(--f-label); color: var(--x-slate); white-space: nowrap; }
+.ht-tmr-new { font-size: 0.8125rem; color: var(--x-slate); font-style: italic; }
+.ht-new { animation: ht-up calc(var(--mk, 1) * 420ms) ease-out both; }
+.ht-mkt { display: flex; flex-direction: column; gap: 6px; }
+.ht-mkt-h { display: flex; align-items: center; gap: 8px; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
+.ht-mkt .ht-lorry.go { animation: ht-drive calc(var(--mk, 1) * 700ms) ease-out both; }
+@keyframes ht-drive { from { transform: translateX(120px); } to { transform: none; } }
+.ht-lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.ht-lane { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 30px; padding-left: 4px; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 5px 0 0 var(--lane), inset 0 0 0 1.5px var(--x-ink); font: 800 0.8125rem/1 var(--f-label); }
+.ht-lane small { font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 0.02em; color: var(--x-slate); }
+@media (max-width: 380px) { .ht-lane small { display: none; } }
+.ht-pin {
+  align-self: flex-start; margin-bottom: -4px; width: 22px; height: 22px; display: grid; place-items: center;
+  background: var(--x-red-d); color: var(--x-paper); font: 800 0.75rem/1 var(--f-label);
+}
+.ht-key { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ht-key li { display: flex; gap: 10px; align-items: flex-start; }
+.ht-key li > div { display: flex; flex-direction: column; min-width: 0; }
+.ht-key small { font-size: 0.8125rem; line-height: 1.35; color: var(--x-slate); }
+#app .howto.tk-page .ht-key .beat-n { background: var(--x-red-d); color: var(--x-paper); }
+.ht-zone { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.ht-steps { margin: 6px 0; }
+.ht-steps-nav { display: flex; justify-content: space-between; gap: 8px; margin: 6px 0; }
+.ht-fb { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+.ht-fb figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ht-fb-card { --card-w: min(140px, 38vw); display: block; }
+.ht-fb figcaption { font-size: 0.8125rem; line-height: 1.35; text-align: center; }
+.ht-fb figcaption b { display: block; font: 800 0.875rem/1.2 var(--f-label); }
+.ht-cap { margin: -2px 0 10px; font-size: 0.875rem; line-height: 1.4; }
+.ht-lorrycard { display: flex; align-items: center; gap: 10px; margin: 8px 0; padding: 8px 10px; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-lorrycard > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ht-lorrycard b { font: 800 0.875rem/1.2 var(--f-label); }
+.ht-lorrycard small { font-size: 0.75rem; color: var(--x-slate); }
+.ht-lorry-load { display: flex; flex-wrap: wrap; gap: 8px; font: 800 0.8125rem/1 var(--f-label); }
+.ht-lorry-load > span { display: inline-flex; align-items: center; gap: 2px; }

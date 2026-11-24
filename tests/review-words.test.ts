@@ -52,9 +52,9 @@ describe('C-02: a standing order only when it can be collected', () => {
     }
   });
 
-  it('How to play says so on the overview and the Market Days slide', () => {
+  it('How to play says so on the Market Days page', () => {
     const src = read('src/ui/HowTo.tsx');
-    expect(src).toContain("`Days ${MARKET_DAY_LIST}: a standing order to bid for (if it can be collected by the last day), and an upgrade to build that evening.`");
+    // PLAN-127: the first page no longer lists the game's phases (owner, 2026-11-24); the Market Days entry says it.
     expect(src).toContain('It comes only if it can be collected by the last day, so there is none on {NO_ORDER_DAYS}.');
   });
 });
