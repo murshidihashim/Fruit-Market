@@ -138,8 +138,9 @@ async function playSprint(page, shot, tag) {
     await page.click('.jp-main');
     await page.waitForSelector('.results', { state: 'detached', timeout: 10000 }).catch(() => {});
     if (await page.locator('.results').count()) return fail('Try again did not start a new Sprint');
-    const again = await page.locator('.game, #app').first().innerText().catch(() => '');
-    if (!/Day 1/i.test(again)) return fail('Try again did not start on Day 1');
+    // PLAN-127: the top bar shows "D1"; its day pill's name is "Day 1 of 3, …"
+    const again = await page.locator('.game .tk-top .tk-day').getAttribute('aria-label', { timeout: 10000 }).catch(() => '');
+    if (!/^Day 1 of 3\b/.test(again ?? '')) return fail(`Try again did not start on Day 1 (${again})`);
     const offer2 = await perks();
     if (!offer1 || offer2 !== offer1) return fail(`Try again offered other perks (${offer1} / ${offer2})`);
     console.log('Try again: the same Sprint started at once');

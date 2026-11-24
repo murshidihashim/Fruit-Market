@@ -44,7 +44,9 @@ describe('what a stall bought today is drawn only while stalls buy', () => {
       const view = publicView(s, 0);
       const buyer = view.players.findIndex((_, i) => i > 0 && boughtToday(view, i).length > 0);
       expect(buyer).toBeGreaterThan(0);
-      expect(row(view)).toContain('>What each bought today<');
+      // PLAN-127: no heading on the screen; the row's name says it is in buying order
+      expect(row(view)).toContain('aria-label="Stalls in buying order"');
+      expect(row(view)).not.toContain('What each bought today');
       expect(row(view)).toContain('bought today: ');
       expect(row(view)).toContain('tb-buys');
       expect(row(view)).not.toBe(row(nobodyBought(view)));
@@ -79,11 +81,13 @@ describe('what a stall bought today is drawn only while stalls buy', () => {
     });
   }
 
-  it('while crates are shut a rival\'s box keeps its cash and its word, and the row its heading', () => {
+  it('while crates are shut a rival\'s box keeps its cash and its word, and the row its spoken name', () => {
     const s = playTo(game(4, 5), (x) => x.phase === 'bid' && x.day === 2);
     const view = publicView(s, 0);
     const html = row(view);
-    expect(html).toContain('>Rival crates · shut until the bell<');
+    // PLAN-127: the row's heading is no longer drawn; its name says the crates are shut
+    expect(html).toContain('aria-label="Rival crates, shut until the bell"');
+    expect(html).not.toContain('tb-row-head');
     expect(html).not.toContain('tb-side');
     for (let p = 1; p < 4; p++) {
       expect(html).toContain(`data-a="p${p}-cash">$${view.players[p].cash}<`);

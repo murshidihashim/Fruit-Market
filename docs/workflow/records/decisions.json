@@ -3327,9 +3327,32 @@
         "evidence": "Owner, 2026-11-24: \"use this as the icon\" (the price-tag design, sent as fruit-market-icon-1024.png) \"but enhance\", \"fix Pak din players not being able to see their inventory when using their power\", \"remove the guided quicksale\" and \"push it live\"",
         "date": "2026-11-24"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-126",
       "reviewTrigger": "After the owner sees it live.",
+      "reports": []
+    },
+    {
+      "id": "DEC-135",
+      "title": "A calmer game HUD: centred header, no phase bar, Tomorrow first",
+      "question": "How should the game screen's top be laid out?",
+      "choice": "The owner's spec: day pill with ticks, centred event, compact rank and cash; no phase bar; Tomorrow strip above today's customers; no stall-row labels.",
+      "rationale": "Reclaim height and cut text for casual players.",
+      "impact": {
+        "player": "More room for the market; the day and event read at a glance.",
+        "technical": "TopBar, the table's top rows and their styles.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
+        "date": "2026-11-24"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-127",
+      "reviewTrigger": "After the owner sees it.",
       "reports": []
     }
   ],
@@ -4845,6 +4868,30 @@
     {
       "at": "2026-11-24 14:29",
       "text": "DEC-134 and PLAN-126 approved (icon, Shade Cloth stock, no guided first sale) with the word to publish. The uploaded zip did not arrive; the owner then sent the 1024 px picture, redrawn as a vector. Release candidate 1.31.2."
+    },
+    {
+      "at": "2026-11-24 15:16",
+      "text": "1.31.2 published on the owner's word: pull request #36 passed CI and merged as 93f8572; Deploy LIVE game run 50 passed and tagged v1.31.2; the live game serves 1.31.2 with the new icons. PLAN-126 released."
+    },
+    {
+      "at": "2026-11-24 20:41",
+      "text": "DEC-135 and PLAN-127 approved: the game HUD refactor from the owner's spec (centred header with day pill, no phase bar, Tomorrow first, quieter stall row). Live is 1.31.2."
+    },
+    {
+      "at": "2026-11-24 21:44",
+      "text": "PLAN-127 implemented on the branch: centred header with the D{day} pill and ticks, no phase bar, Tomorrow strip first, no stall-row labels. verify PASS (1302); browser run E2E OK with 0 leaks; 69 screens fit without scrolling and the event is centred. Not yet on the preview or live."
+    },
+    {
+      "at": "2026-11-24 21:58",
+      "text": "PLAN-127 follow-up on the owner's word: \"Your turn · 0 of 5\" (and a rival's turn line) moves from beside the market's label, where it clashed with today's price chip, to the market's bottom left under the first (shortest) lane, using room that was empty. verify PASS (1302); no scroll at 390x844, 412x915 and 360x640 with 6 stalls."
+    },
+    {
+      "at": "2026-11-24 22:02",
+      "text": "Owner: \"just remove the text actually\". The turn line is no longer shown on the market; it is kept for screen readers only. The stall row's \"buying\" and the action bar still show whose turn it is."
+    },
+    {
+      "at": "2026-11-24 22:05",
+      "text": "Owner: \"push it live\". Release candidate 1.31.3: PLAN-127 (centred header with the day pill, no phase bar, Tomorrow first, no stall-row labels, the turn line read by screen readers only)."
     }
   ]
 }
