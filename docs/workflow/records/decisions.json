@@ -4802,6 +4802,10 @@
     {
       "at": "2026-11-24 09:44",
       "text": "1.31.0 published to the live game on the owner's word (\"push to live\"). Pull request #34 passed CI and merged as dd89d36; Deploy LIVE game run 48 passed and tagged v1.31.0. The live game serves the 1.31.0 build (index-LfH4VRQr.js). PLAN-122 to PLAN-125 released. Not run: a real Android phone by the team."
+    },
+    {
+      "at": "2026-11-24 10:24",
+      "text": "Owner, on live 1.31.0: \"please fix the layout back to fitting phone's screen\". Cause: the owner's phone browser is in Desktop site mode (reports about 980 px wide), so the wide-screen Home applied and everything was drawn small; the same mode explains the earlier 'thin' screenshot. Fix on the branch: a touch screen held upright that is far taller than wide is zoomed to a 412 px phone width (src/ui/phoneFit.ts, test phone-fit), and the wide-screen rules apply only to devices with a mouse (hover: hover). verify PASS (1297). Not yet on the preview or live."
     }
   ]
 }
