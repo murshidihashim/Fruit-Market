@@ -1,0 +1,54 @@
+{
+  "id": "PLAN-127",
+  "title": "Game HUD: centred header with day pill, no phase bar, Tomorrow first, quieter stall row",
+  "problem": "The game screen's header and phase bar take height and text; the owner wants a calmer HUD.",
+  "scope": [
+    "Header as a 3-column grid: menu and a D{day} pill with day ticks on the left, the event badge dead centre, rank and cash on the right",
+    "The phase bar (Morning, Buying, Stocking, Bell, Rush) removed",
+    "The Tomorrow strip above today's customers",
+    "The stall row's two header labels removed"
+  ],
+  "exclusions": [
+    "No change to the wholesale market, your shelf, the action bar or game mechanics",
+    "No rule, balance or save change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens at 390x844, 360x640 and 412x915 in every phase; header centring measured",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
+    "date": "2026-11-24"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-135"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}

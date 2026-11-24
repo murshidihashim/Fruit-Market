@@ -3331,6 +3331,29 @@
       "plan": "PLAN-126",
       "reviewTrigger": "After the owner sees it live.",
       "reports": []
+    },
+    {
+      "id": "DEC-135",
+      "title": "A calmer game HUD: centred header, no phase bar, Tomorrow first",
+      "question": "How should the game screen's top be laid out?",
+      "choice": "The owner's spec: day pill with ticks, centred event, compact rank and cash; no phase bar; Tomorrow strip above today's customers; no stall-row labels.",
+      "rationale": "Reclaim height and cut text for casual players.",
+      "impact": {
+        "player": "More room for the market; the day and event read at a glance.",
+        "technical": "TopBar, the table's top rows and their styles.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
+        "date": "2026-11-24"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-127",
+      "reviewTrigger": "After the owner sees it.",
+      "reports": []
     }
   ],
   "history": [
@@ -4849,6 +4872,10 @@
     {
       "at": "2026-11-24 15:16",
       "text": "1.31.2 published on the owner's word: pull request #36 passed CI and merged as 93f8572; Deploy LIVE game run 50 passed and tagged v1.31.2; the live game serves 1.31.2 with the new icons. PLAN-126 released."
+    },
+    {
+      "at": "2026-11-24 20:41",
+      "text": "DEC-135 and PLAN-127 approved: the game HUD refactor from the owner's spec (centred header with day pill, no phase bar, Tomorrow first, quieter stall row). Live is 1.31.2."
     }
   ]
 }
