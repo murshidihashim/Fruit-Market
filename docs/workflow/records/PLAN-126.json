@@ -20,8 +20,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on af071fd: E2E OK; solo game to results, budget OK, online leaks 0 and 0, reconnect 5 cycles, Quick Match at 4 stalls 0 leaks"
     },
     {
       "id": "T3",
