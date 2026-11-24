@@ -207,7 +207,8 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
   // (the morning brief, stocking, pricing, the showdowns, the day's takings, the evening). Today's customers
-  // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout).
+  // above it and your shelf below it stay in view on a phone (the owner-approved "Phone A" layout); the stalls' row
+  // lies between it and your shelf (PLAN-128).
   // The evening (PLAN-076): the Wholesale Market stays in view until you tap Lights out. The evening sheet covers it
   // only when there is something to decide (an upgrade you can build after a Market Day, Shade Cloth's fruit, an
   // evening favour you can play: the game's own rule, PLAN-084); tonight's warning sits on the market instead. The
@@ -279,10 +280,6 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
           away={show?.card.customerId} served={show?.served} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
-      {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}
-      {rivals.length > 0 && <Stalls s={s} viewer={viewer} boards={boards} open={openRival} off={offSeats}
-        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)}
-        mute={online ? (p) => (s.players[p]?.kind === 'human' && reactionsOn() ? { on: mutes.muted(p, s.players[p].name), toggle: () => mutes.toggle(p, s.players[p].name) } : null) : undefined} />}
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>
         {/* The farmer's lorry parks at the market's sign from the morning delivery until buying ends. */}
         <Market s={s} p={viewer} lorry={lorryHere} mover={busy ? c.mover : null}
@@ -295,6 +292,11 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
         <div class="tk-sheet" ref={sheet.host} aria-hidden="true" />
         {mid}
       </div>
+      {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). PLAN-128
+          (the owner): under the Wholesale Market, above your shelf, in the page's order as on the screen. */}
+      {rivals.length > 0 && <Stalls s={s} viewer={viewer} boards={boards} open={openRival} off={offSeats}
+        onOpen={(p) => c.setRival(openRival === p ? null : p)} onClose={() => c.setRival(null)}
+        mute={online ? (p) => (s.players[p]?.kind === 'human' && reactionsOn() ? { on: mutes.muted(p, s.players[p].name), toggle: () => mutes.toggle(p, s.players[p].name) } : null) : undefined} />}
       <MyStall s={s} p={viewer} night={c.night ? c.nightSlide : undefined} onCard={activeHuman ? c.playCard : undefined} flashCards={freeFruit !== null} hidden={together} />
       {/* PLAN-112: the reaction button sits on your shelf's top corner (it shares the shelf's place in the layout).
           PLAN-113: not while stocking and pricing (phase 'stall'): there it stood over the last row's + button of the

@@ -1,8 +1,9 @@
 /* =====================================================================
    Fruit Market · the table itself (PLAN-085; table.tsx, game/panels/NightShift.tsx), drawn to the approved Buying
    screen (docs/studio/review-18/mockups, Buying; Pricing for the rival boxes while crates are shut; Wardrobe for the
-   awning strips). Top to bottom: today's customers, the stalls in buying order, the Wholesale Market as the board's
-   lanes of 3, 4, 5 and 6 boxes, your shelf with what tonight does to each piece, and the bottom bar.
+   awning strips). Top to bottom: today's customers, the Wholesale Market as the board's lanes of 3, 4, 5 and 6 boxes,
+   the stalls in buying order (under the market since PLAN-128, the owner's swap), your shelf with what tonight does
+   to each piece, and the bottom bar.
    The rows keep their places from the morning to the night: the customer row is as tall as its tallest ticket all
    day, the stalls' boxes and the shelf have one height, and at night the rows stay, dimmed.
    Loaded by table.tsx, so after ticket.css and the other table stylesheets: a rule here wins over theirs. Every rule
@@ -42,7 +43,9 @@
 #app .tkt .tomorrow .tm-lorry { flex: 0 1 auto; min-width: 0; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1 var(--tk-txt); color: var(--c-2f3a3e); }
 
 /* ---------- the stalls ---------- */
-#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 0; }
+/* PLAN-128 (the owner): the row lies under the Wholesale Market and over your shelf, with a little room above the
+   shelf's awning */
+#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 6px; }
 #app .tkt .tb-side { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1.1 var(--tk-txt); color: var(--tk-slate); }
 #app .tkt .tb-stall-row { --g: 5px; position: relative; flex: none; display: flex; gap: var(--g); min-width: 0; }
 /* PLAN-104: while the First token is on its way the row does not give away where it lands: no box is marked as buying
@@ -91,7 +94,9 @@
 #app .tkt .tb-stall.compact .tk-seat-name { grid-column: 1 / -1; grid-row: 3; display: block; text-overflow: ellipsis; white-space: nowrap; font: 600 0.59rem/1.1 var(--tk-txt); letter-spacing: -0.01em; }
 #app .tkt .tb-stall.compact .tb-got { grid-column: 1 / -1; grid-row: 4; height: 13px; gap: 2px; font-size: 0.5625rem; }
 #app .tkt .tb-stall.compact .tb-buys .x-fruit { width: 10px; height: 10px; }
-#app .tkt .seats.tb-stalls .rival-drop { top: calc(100% + 2px); }
+/* a rival's stall opens upwards, over the lanes (PLAN-128: the row is under them, and your shelf and the bottom bar stay
+   in view under it) */
+#app .tkt .seats.tb-stalls .rival-drop { top: auto; bottom: calc(100% + 2px); }
 
 /* ---------- the Wholesale Market: the board's lanes ---------- */
 #app .tkt > .centre > .market-stall.tb-market { gap: 5px; padding: 10px 12px 6px; overflow: hidden; }
@@ -234,7 +239,7 @@
    form, and a slimmer bottom bar leave the lanes their six boxes. */
 @media (max-height: 779px) {
   #app .tkt .street { --pic: 26px; }
-  #app .tkt > .seats.tb-stalls { padding-top: 5px; }
+  #app .tkt > .seats.tb-stalls { padding-top: 5px; padding-bottom: 4px; }
   #app .tkt .tb-stall { height: 58px; row-gap: 2px; }
   #app .tkt .tb-stall:not(.compact) .tk-swatch.tb-face { width: 22px; height: 22px; }
   #app .tkt .tb-stall .tk-seat-name { line-height: 1.1; }
