@@ -28,8 +28,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "To run on the final build (last PASS was on 3d08b9f)"
+      "result": "PASS",
+      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on f3d3e83: E2E OK; budget failed once (232 ms, a known near-limit on this machine, STATE Known issues) and passed on the script's retry; pricing leaks 0, reactions 0, room 0, page errors 0"
     },
     {
       "id": "T3",
@@ -55,7 +55,7 @@
     "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
     "date": "2026-11-24"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [],

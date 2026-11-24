@@ -280,7 +280,7 @@ Approval status and delivery status are separate. Only the owner's explicit word
 | PLAN-124 | Home as Shopfront and Board: one hero card, mode tabs, one Play button, bottom navigation | Approved (owner, 2026-11-23) | Released | 1.31.0 |
 | PLAN-125 | Four game modes and a one-page set-up in the card style (design B, the deck) | Approved (owner, 2026-11-23) | Released | 1.31.0 |
 | PLAN-126 | Price-tag app icon, Shade Cloth shows your stock, guided first sale removed | Approved (owner, 2026-11-24) | Implemented | 1.31.2 |
-| PLAN-127 | Rules page redesign: eight illustrated pages, Try a sale, Customer and Lorry pages | Approved (owner, 2026-11-24) | In progress | Unreleased |
+| PLAN-127 | Rules page redesign: eight illustrated pages, Try a sale, Customer and Lorry pages | Approved (owner, 2026-11-24) | Implemented | Unreleased |
 
 ## Decision details
 
