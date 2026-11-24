@@ -3,7 +3,7 @@
 Updated 2026-11-23 10:19 (Asia/Kuala_Lumpur), session checkpoint. Only what is needed to resume; the story is in `records/decisions.json` (history), `DECISIONS.md`, the reports and Git.
 
 ## Where we are
-- **Live and preview:** 1.31.0 (main dd89d36, tagged v1.31.0, published 2026-11-24; REP-139): the PLAN-123 polish pass, the Shopfront Home (PLAN-124), four modes with Quick Match up to 6 stalls and the one-page set-up (PLAN-125). Rules version 20, protocol 5, computer-player version 8.
+- **Live and preview:** 1.31.1 (main 1aad18d, tagged v1.31.1, published 2026-11-24: a note on Home for phones in Desktop site mode), on top of 1.31.0 (REP-139): the PLAN-123 polish pass, the Shopfront Home (PLAN-124), four modes with Quick Match up to 6 stalls and the one-page set-up (PLAN-125). Rules version 20, protocol 5, computer-player version 8.
 - **Working branch:** `ccr-d8bcd65d-gblqqb`, level with main plus records.
 - **Active package:** none in progress.
 - **Left for later (REP-135 section 4):** expert stages easier than their base stages (RA-07); Ah Chen wins 42% of Sprints through the Charmer perk (RA-14); 16 empty stall-level rewards (levels 12 to 30); host lines after shared wins, stage 10 day count, Perk label contrast, Play menu punctuation, the Daily card's League line too frequent, weekly line "7 days" when 5 count, old-version message wording, reaction button below the fold at 320, small text in Wardrobe and Stamp book, How to play without the League or Sprint; game-table labels at 10 to 11 px; the print kit's tie wording.

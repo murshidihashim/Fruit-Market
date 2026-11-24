@@ -531,18 +531,40 @@ export function EveningPanel({ s, p, onCard, onShade, pick = null, onPick, onOpe
 function ShadePick({ s, p, onShade }: { s: GameState; p: number; onShade: (f: FruitId | null) => void }) {
   const pl = s.players[p];
   const chosen = pl.shade === undefined ? shadePick(s, p) : pl.shade;
+  // The evening sheet covers the shelf, so each fruit's button says what you hold of it (owner, 2026-11-24).
+  const hold = (f: FruitId) => shadeHold(s, p, f);
   return (
     <section class="ev-sec ev-shade">
       <div class="ev-lab"><b class="tk-label">Shade Cloth</b></div>
       <p class="ev-hint">Pick a fruit: your pieces of it don't age tonight.{pl.shade === undefined && chosen ? ` Suggested: ${FRUIT[chosen].plural.toLowerCase()}.` : ''}</p>
       <div class="seg small shade-pick" role="radiogroup" aria-label="Fruit to keep from ageing tonight">
         {LANES.map((f) => (
-          <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={FRUIT[f].plural} onClick={() => onShade(f)}><Fruit id={f} size={20} /></button>
+          <button type="button" role="radio" aria-checked={chosen === f} class={chosen === f ? 'on' : ''} aria-label={`${FRUIT[f].plural}: ${hold(f).said}`} onClick={() => onShade(f)}>
+            <Fruit id={f} size={20} /><b>{hold(f).count}</b><small class={hold(f).spoil ? 'bad' : ''}>{hold(f).note}</small>
+          </button>
         ))}
         <button type="button" role="radio" aria-checked={chosen === null} class={chosen === null ? 'on' : ''} onClick={() => onShade(null)}>None</button>
       </div>
     </section>
   );
+}
+
+/**
+ * What this stall holds of a fruit tonight, for the Shade Cloth buttons: the pieces, and what the night would do to
+ * them without the cloth (how many spoil, or the freshest word they keep). Uses the night's own step (one, more in a
+ * Heatwave, none in a Monsoon), as tonight.ts does for a fruit that is not shaded.
+ */
+export function shadeHold(s: GameState, p: number, f: FruitId): { count: number; spoil: number; note: string; said: string } {
+  const pl = s.players[p];
+  const steps = Math.max(0, 1 + (s.event?.ageExtra ?? 0));
+  const ripe = FRUIT[f].ripe.length;
+  let count = 0, spoil = 0;
+  pl.stock[f].forEach((c, i) => { if (!c) return; count += c; if (i < ripe && i - steps < 0) spoil += c; });
+  if (!count) return { count, spoil, note: 'none', said: 'none held' };
+  if (spoil) return { count, spoil, note: `${spoil} spoil`, said: `${count} held, ${spoil} spoil tonight without the cloth` };
+  const best = pl.stock[f].reduce((b, c, i) => (c && (b < 0 || i > b) ? i : b), -1);
+  const word = STAGE_WORD[stageAt(f, best)];
+  return { count, spoil, note: word, said: `${count} held, the freshest ${word}` };
 }
 
 /** What the evening sheet keeps while it is away for a moment (the table is busy for a frame or two after a choice,

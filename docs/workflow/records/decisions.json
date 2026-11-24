@@ -3308,6 +3308,29 @@
       "plan": "PLAN-125",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
+    },
+    {
+      "id": "DEC-134",
+      "title": "Price-tag app icon; Shade Cloth shows your stock; no guided first sale",
+      "question": "Which icon, and what to fix before the next release?",
+      "choice": "The owner's price-tag icon, enhanced; Shade Cloth buttons show the stock; the guided first sale switched off.",
+      "rationale": "The owner's choice and two problems the owner found.",
+      "impact": {
+        "player": "A new icon; Pak Din can choose with the stock in view; a first game starts at the morning as any other.",
+        "technical": "Icons, panel.tsx, tutorial.ts.",
+        "data": "None."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-24: \"use this as the icon\" (the price-tag design, sent as fruit-market-icon-1024.png) \"but enhance\", \"fix Pak din players not being able to see their inventory when using their power\", \"remove the guided quicksale\" and \"push it live\"",
+        "date": "2026-11-24"
+      },
+      "delivery": "implemented",
+      "plan": "PLAN-126",
+      "reviewTrigger": "After the owner sees it live.",
+      "reports": []
     }
   ],
   "history": [
@@ -4814,6 +4837,14 @@
     {
       "at": "2026-11-24 11:13",
       "text": "Owner: \"push it live\" for the Desktop site note. Release candidate 1.31.1 (PLAN-124 follow-up): the note on Home for phones in Desktop site mode; no other change."
+    },
+    {
+      "at": "2026-11-24 11:44",
+      "text": "1.31.1 published on the owner's word (\"push it live\"): pull request #35 passed CI and merged as 1aad18d; Deploy LIVE game run 49 passed and tagged v1.31.1; the live game serves 1.31.1 (index-B9gzl0nK.js)."
+    },
+    {
+      "at": "2026-11-24 14:29",
+      "text": "DEC-134 and PLAN-126 approved (icon, Shade Cloth stock, no guided first sale) with the word to publish. The uploaded zip did not arrive; the owner then sent the 1024 px picture, redrawn as a vector. Release candidate 1.31.2."
     }
   ]
 }

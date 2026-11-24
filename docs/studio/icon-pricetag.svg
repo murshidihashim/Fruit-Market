@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Fruit Market app icon (owner's price-tag design, enhanced): the watermelon slice and the price tag of the game,
+       ink outlines, kept inside the centre 80% so phone icon masks never cut them. -->
+  <rect width="1024" height="1024" fill="#3558a2"/>
+  <!-- soft light behind -->
+  <circle cx="512" cy="540" r="390" fill="#3f66b5"/>
+  <!-- watermelon slice: a half disc tipped a little -->
+  <g transform="rotate(-10 430 610)">
+    <path d="M150 600 A280 280 0 0 0 710 600 Z" fill="#0e9a58" stroke="#1f272a" stroke-width="26" stroke-linejoin="round"/>
+    <path d="M196 600 A234 234 0 0 0 664 600 Z" fill="#fffcf5"/>
+    <path d="M226 600 A204 204 0 0 0 634 600 Z" fill="#f26b6b"/>
+    <g fill="#1f272a">
+      <ellipse cx="300" cy="650" rx="15" ry="24" transform="rotate(30 300 650)"/>
+      <ellipse cx="380" cy="700" rx="15" ry="24" transform="rotate(10 380 700)"/>
+      <ellipse cx="470" cy="690" rx="15" ry="24" transform="rotate(-10 470 690)"/>
+      <ellipse cx="545" cy="645" rx="15" ry="24" transform="rotate(-30 545 645)"/>
+      <ellipse cx="420" cy="630" rx="13" ry="21"/>
+    </g>
+    <path d="M150 600 H710" stroke="#1f272a" stroke-width="26" stroke-linecap="round"/>
+  </g>
+  <!-- price tag with a drop shadow, string and a dollar -->
+  <g transform="rotate(-14 610 420)">
+    <path d="M378 470 L470 330 H860 V610 H470 Z" fill="#1f272a" transform="translate(18 20)"/>
+    <path d="M378 470 L470 330 H860 V610 H470 Z" fill="#fec400" stroke="#1f272a" stroke-width="26" stroke-linejoin="round"/>
+    <circle cx="478" cy="470" r="30" fill="#3f66b5" stroke="#1f272a" stroke-width="20"/>
+    <text x="690" y="545" text-anchor="middle" font-family="Archivo Black, Arial Black, sans-serif" font-weight="900" font-size="230" fill="#1f272a">$</text>
+  </g>
+  <path d="M493 497 C 430 400, 330 300, 262 330 C 222 348, 226 382, 246 398" fill="none" stroke="#fffcf5" stroke-width="20" stroke-linecap="round"/>
+</svg>

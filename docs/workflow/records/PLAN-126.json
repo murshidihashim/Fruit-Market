@@ -1,0 +1,64 @@
+{
+  "id": "PLAN-126",
+  "title": "Price-tag app icon, Shade Cloth shows your stock, guided first sale removed",
+  "problem": "The app icon predates the current art; Pak Din players choose the Shade Cloth fruit on a sheet that covers their shelf; the owner wants the guided first sale gone.",
+  "scope": [
+    "The owner's price-tag icon, redrawn as a clean vector: web icons (192, 512, maskable) and the Android launcher icons",
+    "Shade Cloth: each fruit's button shows how many pieces you hold and how many spoil tonight without the cloth (or the freshest word)",
+    "The guided first sale is switched off: a first game is played by hand with the usual tips"
+  ],
+  "exclusions": [
+    "No rule, balance or save change"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "PASS",
+      "evidence": "1301 passed, 1 skipped (as before); new tests shade-hold and the updated first-sale test"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "PASS",
+      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on af071fd: E2E OK; solo game to results, budget OK, online leaks 0 and 0, reconnect 5 cycles, Quick Match at 4 stalls 0 leaks"
+    },
+    {
+      "id": "T3",
+      "text": "The icon at every size; the Shade Cloth buttons rendered",
+      "result": "PASS",
+      "evidence": "icon source docs/studio/icon-pricetag.svg; web 192/512/maskable and Android mipmaps regenerated; Shade Cloth buttons render counts and notes (0 none, 3 Fresh, 3 · 2 spoil)"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-24: \"use this as the icon\" (the price-tag design, sent as fruit-market-icon-1024.png) \"but enhance\", \"fix Pak din players not being able to see their inventory when using their power\", \"remove the guided quicksale\" and \"push it live\"",
+    "date": "2026-11-24"
+  },
+  "delivery": "implemented",
+  "release": "1.31.2",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-134"
+  ],
+  "changes": {
+    "added": [
+      "A new app icon: the watermelon and the price tag"
+    ],
+    "changed": [
+      "Shade Cloth shows what you hold of each fruit"
+    ],
+    "fixed": [
+      "Pak Din players can see their stock when choosing the Shade Cloth fruit"
+    ],
+    "removed": [
+      "The guided first sale"
+    ]
+  },
+  "playerNotes": [
+    "A new app icon",
+    "Pak Din's Shade Cloth now shows how many of each fruit you hold and what spoils tonight",
+    "Your first game is played by hand, with the usual tips"
+  ]
+}

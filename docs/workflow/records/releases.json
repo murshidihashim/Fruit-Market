@@ -725,12 +725,27 @@
     },
     {
       "version": "1.31.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-124"
       ],
       "notes": [
         "On a phone whose browser shows the desktop site, Home now says how to switch back so the game fills the screen"
+      ],
+      "date": "2026-11-24",
+      "commit": "1aad18d",
+      "tagged": true
+    },
+    {
+      "version": "1.31.2",
+      "status": "candidate",
+      "plans": [
+        "PLAN-126"
+      ],
+      "notes": [
+        "A new app icon",
+        "Pak Din's Shade Cloth now shows how many of each fruit you hold and what spoils tonight",
+        "Your first game is played by hand, with the usual tips"
       ],
       "date": "2026-11-24",
       "commit": "",

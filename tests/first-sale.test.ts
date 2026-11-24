@@ -9,7 +9,7 @@ import { aiActFor, aiStep } from '../src/engine/ai';
 import { RIVALS } from '../src/engine/data';
 import { activePlayer, beginBuying, forSale, newGame, publicView, validatePrices, type GameState } from '../src/engine/game';
 import {
-  FIRST_SALE_DONE, FIRST_SALE_SKIPPED, TIPS, endFirstSale, expectedBuy, firstSaleGame, firstSalePosts, firstSaleSeen, guideLine, guideSetsUp, guidedStep,
+  FIRST_SALE_DONE, FIRST_SALE_SKIPPED, GUIDED_FIRST_SALE, TIPS, endFirstSale, expectedBuy, firstSaleGame, firstSalePosts, firstSaleSeen, guideLine, guideSetsUp, guidedStep,
   markSeen, piecesWord, skipTutorial, soloSeat, spotlight, startPrice, tipFor,
 } from '../src/ui/tutorial';
 
@@ -61,11 +61,12 @@ function stepsOf(s: GameState, me: number): GameState {
 }
 
 describe('guided first sale: which games', () => {
-  it('a first-time player\'s solo game on Day 1, before the bell', () => {
+  it('is off (owner, 2026-11-24): even a first-time player\'s solo game on Day 1 is played by hand', () => {
     const g = solo(3);
-    expect(firstSaleGame(g, false, true)).toBe(true);
-    expect(firstSaleGame({ ...g, phase: 'buy' }, false, true)).toBe(true);
-    expect(firstSaleGame({ ...g, phase: 'bid' }, false, true)).toBe(true);
+    expect(GUIDED_FIRST_SALE).toBe(false);
+    expect(firstSaleGame(g, false, true)).toBe(false);
+    expect(firstSaleGame({ ...g, phase: 'buy' }, false, true)).toBe(false);
+    expect(firstSaleGame({ ...g, phase: 'bid' }, false, true)).toBe(false);
   });
 
   it('not online, not the Daily market, not pass-and-play, not after Day 1 or the bell, not for a player who has played', () => {

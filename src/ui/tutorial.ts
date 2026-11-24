@@ -115,7 +115,11 @@ export function endFirstSale(skipped: boolean) {
  * not the Daily market (its moves are replayed for the leaderboard, so the person plays it alone), still on Day 1
  * before the bell. `firstTime`: the player has never finished a game and has not had the guided first sale.
  */
+/** The owner removed the guided first sale (2026-11-24): a first game is played by hand, with the usual tips. */
+export const GUIDED_FIRST_SALE = false;
+
 export function firstSaleGame(s: GameState, online: boolean, firstTime: boolean): boolean {
+  if (!GUIDED_FIRST_SALE) return false;
   if (online || !firstTime || s.config.daily) return false;
   if (s.players.filter((p) => p.kind === 'human').length !== 1) return false;
   return s.day === 1 && (s.phase === 'morning' || s.phase === 'buy' || s.phase === 'stall' || s.phase === 'bid');
