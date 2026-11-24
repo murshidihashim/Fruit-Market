@@ -118,7 +118,7 @@ const path = require('path');
     // A phone that has played before: its saved stage is 7, and it has had the guided first sale.
     if (!sessionStorage.getItem('seeded')) {
       localStorage.setItem('fm.ladder', JSON.stringify(6));
-      localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
+      localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip', 'marketday']));
       sessionStorage.setItem('seeded', '1');
     }
   });

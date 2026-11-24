@@ -21,7 +21,7 @@ const path = require('path');
     Math.random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 2 ** 32; };
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, analytics: false }));
     // Every tip seen, and the guided first sale had (PLAN-113): the store pictures show the game as it is played after it.
-    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip']));
+    localStorage.setItem('fm.tutorial', JSON.stringify(['trait', 'morning', 'buy', 'bought', 'stall', 'bid', 'reveal', 'evening', 'day2', 'firstsale-skip', 'marketday']));
     localStorage.setItem('fm.name', 'You');
   });
   await p.goto('file://' + path.resolve(file));
