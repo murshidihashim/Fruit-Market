@@ -750,6 +750,19 @@
       "date": "2026-11-24",
       "commit": "93f8572",
       "tagged": true
+    },
+    {
+      "version": "1.31.3",
+      "status": "candidate",
+      "plans": [
+        "PLAN-127"
+      ],
+      "notes": [
+        "A calmer game screen: the day as a small pill with a tick per day, the event in the middle, tomorrow's customers first, and no phase bar"
+      ],
+      "date": "2026-11-24",
+      "commit": "",
+      "tagged": false
     }
   ]
 }

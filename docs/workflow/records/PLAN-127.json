@@ -38,7 +38,7 @@
     "date": "2026-11-24"
   },
   "delivery": "implemented",
-  "release": "",
+  "release": "1.31.3",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
   "decisions": [
