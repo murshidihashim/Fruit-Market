@@ -725,7 +725,7 @@
     },
     {
       "version": "1.31.1",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-124"
       ],
@@ -733,8 +733,8 @@
         "On a phone whose browser shows the desktop site, Home now says how to switch back so the game fills the screen"
       ],
       "date": "2026-11-24",
-      "commit": "",
-      "tagged": false
+      "commit": "1aad18d",
+      "tagged": true
     }
   ]
 }

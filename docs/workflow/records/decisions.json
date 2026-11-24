@@ -4814,6 +4814,10 @@
     {
       "at": "2026-11-24 11:13",
       "text": "Owner: \"push it live\" for the Desktop site note. Release candidate 1.31.1 (PLAN-124 follow-up): the note on Home for phones in Desktop site mode; no other change."
+    },
+    {
+      "at": "2026-11-24 11:44",
+      "text": "1.31.1 published on the owner's word (\"push it live\"): pull request #35 passed CI and merged as 1aad18d; Deploy LIVE game run 49 passed and tagged v1.31.1; the live game serves 1.31.1 (index-B9gzl0nK.js)."
     }
   ]
 }
