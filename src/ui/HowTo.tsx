@@ -200,13 +200,13 @@ function MarketDay() {
       <ol class="ht-day">
         <li>
           <span class="beat-n">1</span>
-          <div><b>Morning</b><small>From Day 2 an event card is turned over. The lorry unloads at the Wholesale Market.</small></div>
+          <div><b>Morning</b><small>From Day 2 an event card is turned over. The lorry unloads at the Wholesale Market. On a Market Day, bid for the standing order before anyone buys.</small></div>
           <span class="ht-vis ht-lorry" aria-hidden="true"><LorrySprite /></span>
         </li>
         <li>
           <span class="beat-n">2</span>
           <div>
-            <b>Buying</b><small>{`Each stall buys up to ${BASE_BUY} pieces. The poorest stall goes first, then the others clockwise.`}</small>
+            <b>Buying</b><small>{`Each stall buys up to ${BASE_BUY} pieces. The poorest stall goes first, then the others clockwise. Tomorrow's customers are already in view: the regular face up, the walk-ins face down.`}</small>
             <More title="Running out of cash">
               <p>{`From Day 2, a stall with an empty shelf and less than $${TOP_UP} at dawn is topped up to $${TOP_UP}. Nobody is out of the game.`}</p>
             </More>
@@ -216,7 +216,7 @@ function MarketDay() {
         <li>
           <span class="beat-n">3</span>
           <div>
-            <b>Stocking</b><small>Put the pieces you want to sell in your crate. Only those can sell today. Rivals see how many, not which fruit.</small>
+            <b>Stocking</b><small>Today's customers turn face up. Put the pieces you want to sell in your crate. Only those can sell today, and Green fruit can't go in. Rivals see how many, not which fruit.</small>
             <Tip>Watch what rivals take while they buy. It is not shown again after buying. If you remember what they hold, you can guess which fruit is in their crate.</Tip>
           </div>
         </li>
@@ -227,7 +227,7 @@ function MarketDay() {
         <li class="ht-wide"><CrateReveal /></li>
         <li>
           <span class="beat-n">5</span>
-          <div><b>The rush</b><small>Customers buy from the cheapest stall first. You are paid at once.</small></div>
+          <div><b>The rush</b><small>For each fruit, a customer buys from the cheapest stall with fruit fresh enough; what is still wanted goes to the next cheapest. You are paid at once.</small></div>
           <span class="ht-vis" aria-hidden="true"><PriceTag fruit="blueberry" price={3} tone="sold" /></span>
         </li>
         <li>
@@ -237,7 +237,7 @@ function MarketDay() {
         </li>
         <li>
           <span class="beat-n" />
-          <div><b>Night</b><small>All fruit ages one step. A Soft piece that ages spoils and is thrown away.</small></div>
+          <div><b>Night</b><small>All fruit ages one step (two after a Heatwave, none after a Monsoon Downpour). A Soft piece that ages spoils and is thrown away.</small></div>
           <span class="ht-vis ht-age" aria-hidden="true"><Piece f="apple" stage="fresh" size={16} />›<Piece f="apple" stage="okay" size={16} /></span>
         </li>
       </ol>
@@ -373,8 +373,8 @@ function TrySale() {
         <div class="ht-verdict" role="status">
           {guess && <p><b>{guess === first ? 'Right!' : 'Not quite.'}</b>{` Stall ${first} sold first: it was the cheapest stall ${BOBBY.name} would buy from.`}</p>}
           <p>{freshOnly
-            ? 'Fresh only: B\'s Okay blueberry is not taken, even at $3. A sells 2 at $4, then C sells 1 at $5.'
-            : 'B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was Fresh.'}</p>
+            ? 'Fresh only: B\'s Okay blueberry is not taken, even at $3. A sells 2 at $4, then C sells 1 at $5. Two stalls served him, so nobody draws a favour card.'
+            : 'B sells 1 at $3. A sells the other 2 at $4. His order is full, so C sells nothing, even though its fruit was Fresh. Two stalls served him, so nobody draws a favour card.'}</p>
           {!freshOnly && <button type="button" class="btn ht-btn" onClick={() => reset(true)}>Now try Fresh only</button>}
         </div>
       )}
@@ -382,7 +382,7 @@ function TrySale() {
         <p>If two stalls set the same price, a stall holding Favoured Trade can play it after the prices flip to win the tie. Otherwise ties go: {TIE_ORDER} in today's buying.</p>
       </More>
       <Tip>If no rival is selling a fruit, charge the most customers will pay for it.</Tip>
-      <p class="muted">Nobody waits overnight: a customer who doesn't get everything leaves at the end of the day.</p>
+      <p class="muted">When you sell, the oldest piece in your crate that is fresh enough for your price goes first. Nobody waits overnight: a customer who doesn't get everything leaves at the end of the day.</p>
     </>
   );
 }
@@ -460,7 +460,7 @@ function Finish() {
             <span class="ht-dlab">Day {bidDay}</span>
             <CardZoom class="ht-mini ht-mini-o" title={ORDER.title}><OrderCard card={ORDER} qty={ORDER_N} bid={BID} stake={ORDER.stake} /></CardZoom>
             <b class="ht-ord-t">{ORDER.title}</b>
-            <small>{`Wants ${ORDER_N} ${FRUIT[ORDER.fruit].plural.toLowerCase()}. You bid $${BID} a piece and win. Put down the $${ORDER.stake} stake.`}</small>
+            <small>{`At 2 or 3 stalls it wants ${ORDER_N} ${FRUIT[ORDER.fruit].plural.toLowerCase()}. You bid $${BID} a piece and win. Put down the $${ORDER.stake} stake.`}</small>
           </div>
           <span class="ht-arrow" aria-hidden="true">→</span>
           <div class="ht-strip-d">
