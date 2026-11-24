@@ -14,7 +14,7 @@ import { cardChips, marketChipFruit, marketChips, newsChips } from '../src/ui/ev
 import { LENGTHS } from '../src/ui/playMenu';
 import { GAME_LENGTHS, NO_ORDER_DAYS, marketDaysWithoutOrder } from '../src/ui/rulesText';
 import { Market } from '../src/ui/table';
-import { TIPS, eveningTip, tipFor } from '../src/ui/tutorial';
+import { TIPS, eveningTip, marketDayRead, tipFor } from '../src/ui/tutorial';
 import { endBuying, passEvening } from './stall-step';
 
 const read = (f: string) => readFileSync(f, 'utf8');
@@ -203,7 +203,11 @@ describe('C-14, S16: the evening tip', () => {
   it('is the coach\'s evening tip for the person deciding', () => {
     const s = evening(3, (g) => { g.players[0].upgradeOffer = ['ripening']; });
     expect(activePlayer(s)).toBe(0);
-    const tip = tipFor(s, { myBuyTurn: false, boughtToday: 0, pricing: false, picker: false, evening: true });
+    const ctx = { myBuyTurn: false, boughtToday: 0, pricing: false, picker: false, evening: true };
+    // PLAN-128: on the first Market Day evening the Market Day pop-up comes first, and the tip once it has been read
+    expect(tipFor(s, ctx)).toBeNull();
+    marketDayRead();
+    const tip = tipFor(s, ctx);
     expect(tip?.id).toBe('evening');
     expect(tip?.text).toBe(eveningTip(s, 0));
   });

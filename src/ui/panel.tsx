@@ -26,6 +26,8 @@ import { noteOffer } from './game/dayBeats';
 import { priorityNote } from './game/evening';
 import { drawCloser, useReach, type Holding } from './game/reach';
 import { takingsRows, type TakingsRow } from './game/panels/SalesSummary';
+import { MarketDayPopup } from './FirstTime';
+import { marketDayIntro, marketDayRead } from './tutorial';
 
 // ---------- favour cards ----------
 
@@ -631,6 +633,8 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   }, []);
   // Drawn compact (the closest step), an offer shows one line of its text: choosing it opens its whole card.
   const [open, setOpen] = useState<UpgradeId | null>(null);
+  // PLAN-128: the first Market Day evening on this phone opens with a pop-up that explains it (FirstTime.tsx).
+  const [intro, setIntro] = useState(() => marketDayIntro(s, p));
   const choose = (u: UpgradeId | null) => {
     setPick(u);
     keep(u);
@@ -660,6 +664,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
           </>
         ) : <button type="button" class="btn primary wide big" onClick={onDone}>Lights out <small class="btn-sub">next day</small></button>}
       </div>
+      {intro && <MarketDayPopup s={s} p={p} offers={isDraftNight(s) ? offersTonight(s, p) : []} onDone={() => { marketDayRead(); setIntro(false); }} />}
       {/* The whole card of a compact offer, opened over the table like a favour card: a tap beside it closes it too. */}
       {open && (
         <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={() => setOpen(null)}>

@@ -40,6 +40,8 @@ async function playSprint(page, shot, tag) {
       const add = page.locator('.stall-panel .mini-step button:last-child:not([disabled])');
       if (await add.count()) { await think(page, 700); await add.first().click(); continue; }
       if (await has('[data-a="tie-note"]') && await has('.pp-lock .btn.ghost')) { await think(page, 2500); await page.click('.pp-lock .btn.primary'); continue; }
+      // PLAN-128: the first Market Day evening opens with a pop-up over the evening sheet: read it, then Got it.
+      if (await has('.md-pop')) { await page.click('.md-pop button:has-text("Got it")'); continue; }
       const lock = page.locator('.pp-lock .btn:not([disabled])');
       if (await lock.count()) { if (once('bid')) await shot(`${tag}-02-pricing`); await think(page, 6000); await lock.click(); continue; }
       if (await has('button:has-text("Lights out")')) { await think(page, 2000); await page.click('button:has-text("Lights out")'); continue; }

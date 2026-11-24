@@ -436,3 +436,14 @@
 .cd-pop.zoom-pop { position: fixed; z-index: 60; background: color-mix(in srgb, var(--x-ink) 88%, transparent); }
 .cd-pop.zoom-pop:focus { outline: none; }
 .cd-pop.zoom-pop.wide .cd-pop-in { width: 320px; --card-w: min(320px, calc(100vw - 32px)); }
+
+/* PLAN-128: today's event, opened from the badge in the top bar (Popovers.tsx EventPop). The card is drawn from the
+   badge face down and turns over in the middle of the screen; the table shows through a translucent backdrop, as under
+   every other card opened over the table (.cd-pop). The card turns on the table's clock (--t-turn, --mk), so it is
+   quick with Fast play and shown at once with reduced motion. */
+#app .tkt .event-sheet.ev-pop { background: color-mix(in srgb, var(--x-ink) 62%, transparent); cursor: pointer; }
+#app .tkt .ev-pop > *, #app .tkt .ev-pop .morning-card > * { cursor: default; }
+#app .tkt .ev-pop .wc-flip-back, #app .tkt .ev-pop .wc-flip-face { transition-duration: calc(var(--mk, 1) * var(--t-turn, 280ms)); }
+#app .tkt .ev-pop.drawing .wc-flip .wc-flip-back { transform: none; }
+#app .tkt .ev-pop.drawing .wc-flip .wc-flip-face { transform: rotateY(180deg); }
+#app .tkt .ev-pop:focus { outline: none; }

@@ -5,10 +5,15 @@
 // marked; a favour card won today; what tonight does to the fruit left on your shelf.
 // Everything shown is public once the rush is over (the day's results and every stall's cash) or this stall's own:
 // nothing is read from a rival's shelf. Styles: takings.css.
+// PLAN-128: a tap on any stall's row (yours or a rival's) opens that stall's sales for the day (StallRecap): which
+// fruit, to which customer, at what price. The sales are public once the rush is over, like the list itself.
 import type { Ref } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import { FAVOURS, FRUIT, ORDER_LEAD, TRAITS, lookOf, stageAt, type FruitId, type Stage } from '../../../engine/data';
 import { count, places, ranking, servingCustomers, shelfSize, type GameState } from '../../../engine/game';
+import { useFocusTrap } from '../../focusTrap';
+import { usePopFrom } from '../popMotion';
+import { offeredPieces } from '../rush';
 import { dayLedger, standing, tonightLine } from '../../../engine/story';
 import { Face, Fruit } from '../../art';
 import { LANES, spoilsTonight } from '../../boardModel';
@@ -139,6 +144,83 @@ export function rushCount(crowd: { served: boolean; full: boolean }[]): [string,
   return [`${n} of ${crowd.length} customer${crowd.length === 1 ? '' : 's'} bought something`, full ? `${full} full order${full === 1 ? '' : 's'}` : 'no full orders'];
 }
 
+/** Freshness from the freshest down, the order a sale's pieces are listed in. */
+const FRESHEST: Stage[] = ['fresh', 'okay', 'notso', 'unripe'];
+
+/** One line of a stall's sales for the day (PLAN-128). */
+export interface StallSale {
+  /** A customer or guest in the rush, the standing order, the night hawker (Pasar Malam), or a tip. */
+  kind: 'sale' | 'order' | 'hawker' | 'tip';
+  /** The customer's name as the game keeps it (lookOf names them), or null (the night hawker, a Sharp Ears tip). */
+  who: string | null;
+  /** A guest of today's event (a guest card's picture, not a customer's). */
+  guest: boolean;
+  /** The fruit sold (null for a tip). */
+  fruit: FruitId | null;
+  /** The freshness of each piece sold, freshest first; null when it cannot be worked out. */
+  pieces: Stage[] | null;
+  /** Pieces sold (0 for a tip). */
+  n: number;
+  /** The price of each piece. */
+  price: number;
+  /** A Juice Bar's money on older pieces sold. */
+  juice: number;
+  /** All the stall was paid for this line. */
+  paid: number;
+  /** A tip's name ("Tip Jar tip"). */
+  label?: string;
+}
+
+/**
+ * Stall `p`'s sales today, from the day's results (the lines the rush plays, which the day's history keeps): each sale
+ * in the order the customers were served (the fruit, how fresh each piece was, the customer, the price and how many),
+ * then the night hawker's pieces and any tips. `total` is the day's income for the stall (results.income), so it
+ * agrees with the sales total of its takings. Sales are public once the rush is over; a Sharp Ears tip does not say
+ * which walk-in the stall had seen. tests/stall-recap.test.ts holds the lines against the income.
+ */
+export function stallSales(s: GameState, p: number): { sales: StallSale[]; total: number } {
+  const r = s.results;
+  if (!r) return { sales: [], total: 0 };
+  const pieces = offeredPieces(s);
+  const customers = new Map(servingCustomers(s).map((c) => [c.id, c]));
+  const sales: StallSale[] = [];
+  for (const l of r.lines) {
+    l.offers.forEach((o, i) => {
+      if (o.player !== p || o.sold <= 0) return;
+      const c = customers.get(l.customerId);
+      const order = !!c?.order || (!!r.order && r.order.name === l.name && !c);
+      const got = pieces.get(l)?.[i]?.slice(0, o.sold) ?? null;
+      const juice = o.juice ?? 0;
+      sales.push({
+        kind: order ? 'order' : 'sale', who: l.name, guest: !order && !!GUEST_EVENT[l.name], fruit: l.fruit,
+        pieces: got && [...got].sort((a, b) => FRESHEST.indexOf(a) - FRESHEST.indexOf(b)), n: o.sold, price: o.price, juice, paid: o.sold * o.price + juice,
+      });
+    });
+  }
+  for (const x of (r.hawker ?? []).filter((h) => h.player === p)) {
+    const same = sales.find((y) => y.kind === 'hawker' && y.fruit === x.fruit && y.price === x.price);
+    if (same) { same.n += 1; same.paid += x.price; }
+    else sales.push({ kind: 'hawker', who: null, guest: false, fruit: x.fruit, pieces: null, n: 1, price: x.price, juice: 0, paid: x.price });
+  }
+  for (const x of (r.earful ?? []).filter((t) => t.player === p)) {
+    sales.push({ kind: 'tip', who: null, guest: false, fruit: null, pieces: null, n: 0, price: 0, juice: 0, paid: x.tip, label: `${TRAITS.earful.title} tip` });
+  }
+  for (const x of (r.tipJar ?? []).filter((t) => t.player === p)) {
+    sales.push({ kind: 'tip', who: x.customer, guest: false, fruit: null, pieces: null, n: 0, price: 0, juice: 0, paid: x.tip, label: `${TRAITS.favourite.title} tip` });
+  }
+  return { sales, total: r.income[p] ?? sum(sales.map((x) => x.paid)) };
+}
+
+/** What a line of the sales says to a screen reader: "Professor Pebble bought 2 fresh apples at $4 each: $8." */
+export function saleSaid(x: StallSale): string {
+  if (x.kind === 'tip') return `${x.label}${x.who ? ` from ${lookOf(x.who).title}` : ''}: $${x.paid}.`;
+  const f = x.fruit!;
+  const kinds = x.pieces ? [...new Set(x.pieces)].map((st) => STAGE_WORD[st]).join(' and ') : '';
+  const what = `${x.n} ${kinds ? `${kinds} ` : ''}${(x.n === 1 ? FRUIT[f].name : FRUIT[f].plural).toLowerCase()}`;
+  const who = x.kind === 'hawker' ? 'The night hawker' : `${lookOf(x.who!).title}${x.kind === 'order' ? ' (standing order)' : ''}`;
+  return `${who} bought ${what} at $${x.price} each: $${x.paid}${x.juice ? `, with $${x.juice} juice money` : ''}.`;
+}
+
 /** The pieces of one fruit and one freshness on a shelf, and what tonight does to them. */
 export interface ShelfChip {
   fruit: FruitId; stage: Stage; n: number;
@@ -209,11 +291,20 @@ function closerOnceSeen(el: HTMLElement): void {
 export function SalesSummary({ s, viewer, shared }: { s: GameState; viewer: number; shared?: boolean }) {
   const root = useRef<HTMLDivElement>(null);
   useReach(root, 'street', true, true, closerOnceSeen);
-  return <TakingsView s={s} viewer={viewer} shared={shared} root={root} />;
+  // PLAN-128: the stall whose sales are open (null: none).
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <>
+      <TakingsView s={s} viewer={viewer} shared={shared} root={root} onStall={setOpen} />
+      {open !== null && s.players[open] && <StallRecap key={open} s={s} p={open} viewer={viewer} shared={shared} onClose={() => setOpen(null)} />}
+    </>
+  );
 }
 
 /** The takings themselves, without hooks (so tests can render them to a string). */
-export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer: number; shared?: boolean; root?: Ref<HTMLDivElement> }) {
+export function TakingsView({ s, viewer, shared, root, onStall }: { s: GameState; viewer: number; shared?: boolean; root?: Ref<HTMLDivElement>;
+  /** PLAN-128: a stall's row was tapped: open its sales. */
+  onStall?: (p: number) => void }) {
   const r = s.results!;
   const pl = s.players[viewer];
   const rem = s.config.days - s.day;
@@ -263,15 +354,21 @@ export function TakingsView({ s, viewer, shared, root }: { s: GameState; viewer:
         {net !== null && <div class="tg-net">{net > 0 ? 'Up today' : net < 0 ? 'Down today' : 'Broke even'} <b class={net > 0 ? 'good' : net < 0 ? 'bad' : 'flat'}>{money(net)}</b></div>}
       </div>}
       <div class="tg-stalls">
-        <div class="tg-lab"><b class="tk-label">The stalls after Day {s.day}</b><span>Cash</span></div>
+        <div class="tg-lab"><b class="tk-label">The stalls after Day {s.day}</b><span>Tap a stall for its sales · Cash</span></div>
         <ol class="tg-list">
+          {/* PLAN-128: each row is a button that opens the stall's sales (StallRecap). */}
           {stalls.map((x) => (
-            <li class={`tg-stall ${x.me ? 'me' : ''}`}>
-              <i class="tg-pl">{x.place}</i>
-              <Face who={x.avatar} size={26} />
-              <span class="tg-name">{x.me && !shared ? 'You' : x.name}</span>
-              {x.today !== null && <span class="tg-td">{x.today < 0 ? '−' : '+'}${Math.abs(x.today)} today</span>}
-              <b class="tg-cash">${x.cash}</b>
+            <li class="tg-li">
+              <button type="button" class={`tg-stall ${x.me ? 'me' : ''}`} data-stall={x.p} aria-haspopup="dialog"
+                aria-label={`${x.me && !shared ? 'You' : x.name}, place ${x.place}${x.today !== null ? `, ${x.today < 0 ? 'down' : 'up'} $${Math.abs(x.today)} today` : ''}, cash $${x.cash}. See the sales`}
+                onClick={(e) => { e.stopPropagation(); onStall?.(x.p); }}>
+                <i class="tg-pl">{x.place}</i>
+                <Face who={x.avatar} size={26} />
+                <span class="tg-name">{x.me && !shared ? 'You' : x.name}</span>
+                {x.today !== null && <span class="tg-td">{x.today < 0 ? '−' : '+'}${Math.abs(x.today)} today</span>}
+                <b class="tg-cash">${x.cash}</b>
+                <i class="tg-more" aria-hidden="true" />
+              </button>
             </li>
           ))}
         </ol>
@@ -314,5 +411,81 @@ function TakingsFruits({ fruits }: { fruits: FruitId[] }) {
         ? fruits.map((f) => <Fruit id={f} size={16} />)
         : LANES.filter((f) => fruits.includes(f)).map((f) => <span><Fruit id={f} size={16} />×{fruits.filter((x) => x === f).length}</span>)}
     </span>
+  );
+}
+
+/** Under the ticket, Close rises into place once the ticket has come (the ticket itself comes whole). */
+const UNDER_RECAP = ':scope .cd-pop-btns';
+
+/**
+ * PLAN-128: one stall's sales for the day, opened from its row on the takings: a ticket with the stall's name and
+ * the day, a line for each sale (the customer's portrait and name, as on their card; the fruit with a freshness letter
+ * for each piece; how many at what price; what it paid) and the total. "Sold nothing today" when it sold nothing. It
+ * opens from the row and goes back to it (popMotion.ts). Close, a tap beside the ticket or Escape closes it.
+ */
+export function StallRecap({ s, p, viewer, shared, onClose }: { s: GameState; p: number; viewer: number; shared?: boolean; onClose: () => void }) {
+  const root = useRef<HTMLDivElement>(null);
+  const pop = usePopFrom(root, '.sr-card', UNDER_RECAP, () => document.querySelector(`.tg-stall[data-stall="${p}"]`), onClose);
+  useFocusTrap(root, pop.close);
+  return (
+    <div ref={root} tabIndex={-1} class="cd-pop sr-pop" role="dialog" aria-modal="true" aria-labelledby="sr-title"
+      onClick={(e) => { e.stopPropagation(); if (pop.step === 'draw') pop.hurry(); else if (!(e.target as Element).closest?.('.sr-card')) pop.close(); }}>
+      <div class="cd-pop-in sr-in">
+        <RecapView s={s} p={p} viewer={viewer} shared={shared} />
+        <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={(e) => { e.stopPropagation(); pop.close(); }}>Close</button></div>
+      </div>
+    </div>
+  );
+}
+
+/** A stall's sales drawn as a ticket (without hooks, so tests can render them to a string). */
+export function RecapView({ s, p, viewer, shared }: { s: GameState; p: number; viewer: number; shared?: boolean }) {
+  const pl = s.players[p];
+  const me = p === viewer && !shared;
+  const { sales, total } = stallSales(s, p);
+  const pieces = sum(sales.map((x) => x.n));
+  return (
+    <article class={`sr-card ${p === viewer ? 'me' : ''}`}>
+      <header class="sr-hd">
+        <Face who={pl.avatar} size={30} />
+        <div class="sr-who">
+          <h3 id="sr-title">{me ? 'Your sales' : `${pl.name}'s sales`}</h3>
+          <span>{`Day ${s.day}${pieces ? ` · ${pieces} piece${pieces === 1 ? '' : 's'}` : ''}`}</span>
+        </div>
+      </header>
+      {sales.length === 0
+        ? <p class="sr-none">Sold nothing today</p>
+        : (
+          <ul class="sr-rows">
+            {sales.map((x) => (
+              <li class={`sr-row sr-${x.kind}`} aria-label={saleSaid(x)}>
+                <span class="sr-face" aria-hidden="true">
+                  {x.who
+                    ? <CardArt src={x.guest ? guestArt(x.who) : customerArt(x.who)} alt="" w={ART_SIZE.customer[0]} h={ART_SIZE.customer[1]} eager
+                        focus={x.guest ? guestFocus(x.who) : customerFocus(x.who)} />
+                    : x.fruit ? <Fruit id={x.fruit} size={22} /> : <i class="sr-coin">$</i>}
+                </span>
+                <span class="sr-what" aria-hidden="true">
+                  <b class="sr-name">{x.kind === 'tip' ? x.label : x.kind === 'hawker' ? 'Night hawker' : lookOf(x.who!).title}</b>
+                  <span class="sr-line">
+                    {x.kind === 'order' && <i class="sr-tag">Standing order</i>}
+                    {x.kind === 'tip' && x.who && <span>{`from ${lookOf(x.who).title}`}</span>}
+                    {x.fruit && (
+                      <span class="sr-fruit">
+                        <Fruit id={x.fruit} size={16} />
+                        {x.pieces ? x.pieces.map((st) => <Lamp stage={st} on={false} size={13} />) : null}
+                        <span>{`×${x.n} at $${x.price}`}</span>
+                      </span>
+                    )}
+                    {x.juice > 0 && <span class="sr-juice">{`+$${x.juice} juice`}</span>}
+                  </span>
+                </span>
+                <b class="sr-paid" aria-hidden="true">{`$${x.paid}`}</b>
+              </li>
+            ))}
+          </ul>
+        )}
+      <div class="sr-total"><span>{me ? 'Your total' : 'Total'}</span><b>{`$${total}`}</b></div>
+    </article>
   );
 }

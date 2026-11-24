@@ -137,3 +137,49 @@
 
 /* S8 (PLAN-110): on a phone several people share, the takings are everybody's: a note in the ledger's place */
 #app .tkt .tg-led.tg-shared .tg-note { margin: 0; padding: 8px 9px; font: 600 0.8125rem/1.3 var(--tk-txt); }
+
+/* ---------- PLAN-128: a stall's sales, opened from its row ----------
+   Each stall's row is a button (SalesSummary.tsx): at least 44px tall at every step, with a small arrow at its end.
+   The sales open over the table as a ticket in the takings' own dress: the ink head with the stall's face and name,
+   a line for each sale on dashed rules (the customer's portrait as on the strip, the fruit with a freshness letter
+   for each piece, how many at what price, what it paid), the mustard total, then Close. The ticket's moves are in
+   popMotion.ts: nothing here moves by itself. */
+#app .tkt .tg-li { all: unset; display: block; }
+#app .tkt .tg-list .tg-stall { box-sizing: border-box; width: 100%; height: auto; min-height: max(44px, var(--sh)); cursor: pointer; }
+#app .tkt .tg-list .tg-stall:focus-visible { outline: 3px solid var(--tk-ink); outline-offset: 2px; }
+#app .tkt .tg-more { flex: none; width: 7px; height: 7px; margin: 0 2px 0 -1px; border-right: 2px solid var(--tk-ink); border-bottom: 2px solid var(--tk-ink); transform: rotate(-45deg); }
+
+#app .tkt .cd-pop.sr-pop { position: fixed; z-index: 60; }
+#app .tkt .sr-pop:focus { outline: none; }
+#app .tkt .sr-pop .sr-in { width: 340px; }
+#app .tkt .sr-card {
+  display: flex; flex-direction: column; max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain;
+  border: 3px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); text-align: left;
+}
+#app .tkt .sr-card *, #app .tkt .sr-card *::before, #app .tkt .sr-card *::after { box-sizing: border-box; }
+#app .tkt .sr-card :where(i, em) { font-style: normal; }
+#app .tkt .sr-hd { flex: none; display: flex; align-items: center; gap: 10px; padding: 9px 11px; background: var(--tk-ink); color: var(--tk-paper); }
+#app .tkt .sr-hd .xf { flex: none; border: 1.5px solid var(--tk-paper); border-radius: 0; overflow: hidden; background: var(--tk-paper); }
+#app .tkt .sr-who { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+#app .tkt .sr-who h3 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--tk-yel); font: 400 1.125rem/1.05 var(--tk-disp); letter-spacing: 0.02em; text-transform: uppercase; }
+#app .tkt .sr-who span { font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
+#app .tkt .sr-rows { list-style: none; margin: 0; padding: 0 11px; }
+#app .tkt .sr-row { display: flex; align-items: center; gap: 9px; min-height: 50px; padding: 7px 0; border-bottom: 1.5px dashed var(--tk-ink); }
+#app .tkt .sr-face { flex: none; width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
+#app .tkt .sr-face .x-art { width: 100%; height: 100%; }
+#app .tkt .sr-coin { font: 400 1.125rem/1 var(--tk-disp); }
+#app .tkt .sr-what { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+#app .tkt .sr-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 800 0.8125rem/1.2 var(--tk-txt); }
+#app .tkt .sr-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; }
+#app .tkt .sr-fruit { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
+#app .tkt .sr-fruit > span { margin-left: 2px; }
+#app .tkt .sr-fruit .tk-lamp { border-width: 1px; background: var(--tk-paper); }
+#app .tkt .sr-tag { padding: 3px 5px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
+#app .tkt .sr-juice { color: var(--c-0a7443); font-weight: 800; }
+#app .tkt .sr-paid { flex: none; font: 400 1.0625rem/1 var(--tk-disp); font-variant-numeric: tabular-nums; }
+#app .tkt .sr-none { margin: 0; padding: 22px 12px; text-align: center; color: var(--tk-slate); font: 800 0.875rem/1.3 var(--tk-txt); }
+#app .tkt .sr-total {
+  flex: none; display: flex; align-items: center; gap: 8px; padding: 9px 11px; margin-top: auto; background: var(--tk-yel);
+  font: 400 0.8125rem/1 var(--tk-disp); letter-spacing: 0.04em; text-transform: uppercase;
+}
+#app .tkt .sr-total > b { margin-left: auto; font: 400 1.625rem/1 var(--tk-disp); letter-spacing: 0; font-variant-numeric: tabular-nums; }

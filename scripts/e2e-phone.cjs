@@ -85,6 +85,8 @@ const path = require('path');
       if (await lock.count()) { await lock.first().click(); continue; }
       const stall = page.locator('.sb-go:not([disabled]), button:has-text("Open stall"):not([disabled])');
       if (await stall.count()) { await stall.first().click(); continue; }
+      // PLAN-128: the first Market Day evening opens with a pop-up over the evening sheet: read it, then Got it.
+      if (await has('.md-pop')) { await page.click('.md-pop button:has-text("Got it")'); continue; }
       const ring = page.locator('button:has-text("Ring the bell"):not([disabled]), button:has-text("Seal"):not([disabled])');
       if (await ring.count()) { await ring.first().click(); continue; }
       const tie = page.locator('button:has-text("Keep"):not([disabled])');

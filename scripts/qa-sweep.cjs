@@ -168,6 +168,8 @@ function audit() {
             answers.push(`${label}: ${play ? 'played' : 'kept'}`);
             continue;
           }
+          // PLAN-128: the first Market Day evening opens with a pop-up over the evening sheet: read it, then Got it.
+          if (await has('.md-pop')) { if (once('market-day')) await check('market-day'); await page.click('.md-pop button:has-text("Got it")'); continue; }
           const lock = page.locator('.pp-lock .btn:not([disabled])');
           if (await lock.count()) { if (once('pricing')) await check('pricing'); await lock.click(); if (once('reveal')) { await page.waitForTimeout(2600); await check('reveal'); } continue; }
           if (await has('button:has-text("Lights out")')) { if (once('evening')) await check('evening'); await page.click('button:has-text("Lights out")'); continue; }
