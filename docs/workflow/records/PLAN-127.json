@@ -16,20 +16,20 @@
     {
       "id": "T1",
       "text": "npm run verify",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run verify on the merge: 1302 passed, 1 skipped (as before)"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "PORT=8887 E2E_MINUTES=15 npm run test:e2e on 5dbcbe8 (same code as the merge): E2E OK, leaks 0 (pricing 88 frames, reactions, quick match 50 frames); the performance budget passed on its built-in second try (first 285 ms on a shared machine)"
     },
     {
       "id": "T3",
       "text": "Screens at 390x844, 360x640 and 412x915 in every phase; header centring measured",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "69 screens in the session scratchpad p127 at 390x844, 360x640 and 412x915: every phase, 5 and 6 stalls, League stages, Sprint, last day; page scroll 0 on all; event centred within 0.01 px on all (centring.json); side-by-side with the mockup"
     }
   ],
   "approval": {
@@ -37,7 +37,7 @@
     "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
     "date": "2026-11-24"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
@@ -45,10 +45,22 @@
     "DEC-135"
   ],
   "changes": {
-    "added": [],
-    "changed": [],
-    "fixed": [],
-    "removed": []
+    "added": [
+      "A D{day} pill with one tick per day"
+    ],
+    "changed": [
+      "The header is a centred 3-column bar with the event in the middle",
+      "Tomorrow's strip sits above today's customers"
+    ],
+    "fixed": [
+      "The event badge was up to 23 px off centre"
+    ],
+    "removed": [
+      "The phase bar",
+      "The stall row's labels and the header's days-left text"
+    ]
   },
-  "playerNotes": []
+  "playerNotes": [
+    "A calmer game screen: the day as a small pill, the event in the middle, tomorrow's customers first, and no phase bar"
+  ]
 }
