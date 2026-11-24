@@ -5,6 +5,7 @@
   "scope": [
     "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
     "Owner (second round): the first page's shopkeeper section replaced by the day's turns (buy in turn; stock and price at once, in secret; the rush) as picture tiles of shopkeepers and a customer; page 2 is Customer (design C, reworded), with buttons that point a moving ring at fruit, quantity, top price and freshness on a face-up and a face-down card, and Buying/Stocking/Next morning buttons on the board; page 3, The lorry, with the lorry card, the deck back, an unloading lorry and tomorrow's lorry",
+    "Owner (third round): page 1's turns flow down a winding path with pictures (the market board for Buy, fruit into a crate for Stock, Rosa pricing in secret for Price, two customer characters cut from their cards for Rush); Customer: the pointing is done from linked words in the description, and the board ends with the Tomorrow strip; Lorry: renamed, reworded, the market first, the lorry card and the deck back, then the lorry arriving at the Wholesale Market",
     "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
     "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
     "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
@@ -46,7 +47,7 @@
       "id": "T5",
       "text": "Owner's page 1, Customer and Lorry pages rendered at 390 wide; the pointing buttons on both cards",
       "result": "PASS",
-      "evidence": "Playwright at 390x844: pages 1 to 3 drawn, page width 390, no page errors; Fruit, Quantity, Top price and Freshness each ring the right part of the face-up card and the face-down card (or say it is hidden)"
+      "evidence": "Playwright at 390x844: pages 1 to 3 drawn, page width 390, no page errors; the four linked phrases ring the right part of the face-up card and the face-down card (or say it is hidden); the lorry arrives and unloads"
     }
   ],
   "approval": {

@@ -16,7 +16,7 @@ import { LANES } from './boardModel';
 import { ART_SIZE, CardArt, DeckBack, FavourCard, TradingCard, TradingCardBack, UpgradeCard, LorryCard, FAVOUR_WHEN, OrderCard } from './cards';
 import { CardPop, CardZoom } from './cardZoom';
 import { fx } from './fx';
-import { customerArt, customerFocus, favourArt, favourFocus, shopFocus, shopScene, upgradeArt, upgradeFocus } from './deckArt';
+import { customerArt, favourArt, favourFocus, shopScene, upgradeArt, upgradeFocus } from './deckArt';
 import { LorrySprite } from './icons';
 import { crateUrl } from './marketArt';
 import { held, moveMs } from './motion';
@@ -129,34 +129,74 @@ function NightTrack({ f, label }: { f: FruitId; label: string }) {
 
 /** The four things every stall does each day, each drawn with a shopkeeper or customer from the cards. Buying goes in
  *  turns (poorest stall first, then clockwise); stocking and pricing are done by every stall at once, in secret. */
-const DAY_TURNS: { verb: string; who: string; line: string; pic: () => ComponentChildren; badge: () => ComponentChildren }[] = [
-  {
-    verb: 'Buy', who: RIVALS[1].avatar, line: `In turn, poorest stall first: up to ${BASE_BUY} pieces from the Wholesale Market.`,
-    pic: () => <KeeperPic avatar={RIVALS[1].avatar} />,
-    badge: () => <span class="ht-turn-b"><Fruit id="apple" size={18} /><Fruit id="watermelon" size={18} /><Fruit id="blueberry" size={18} /></span>,
-  },
-  {
-    verb: 'Stock', who: RIVALS[2].avatar, line: 'Everyone at once, in secret: put the pieces you want to sell in your crate.',
-    pic: () => <KeeperPic avatar={RIVALS[2].avatar} />,
-    badge: () => <span class="ht-turn-b"><Hidden /><Hidden /><Hidden /></span>,
-  },
-  {
-    verb: 'Price', who: RIVALS[5].avatar, line: 'Everyone at once, in secret: one price for each fruit in your crate. Then the bell rings.',
-    pic: () => <KeeperPic avatar={RIVALS[5].avatar} />,
-    badge: () => <span class="ht-turn-b"><PriceTag fruit="apple" price={5} tone="mine" /></span>,
-  },
-  {
-    verb: 'Rush', who: 'Robert', line: 'Crates and prices open. Customers buy from the cheapest stall first, and you are paid at once.',
-    pic: () => <CardArt src={customerArt('Robert')} alt="" w={ART_SIZE.customer[0]} h={ART_SIZE.customer[1]} focus={customerFocus('Robert')} />,
-    badge: () => <span class="ht-turn-b"><Coin size={18} /><b>+$8</b></span>,
-  },
-];
-
-function KeeperPic({ avatar }: { avatar: string }) {
-  return <CardArt src={shopScene(avatar)} alt="" w={ART_SIZE.scene[0]} h={ART_SIZE.scene[1]} focus={shopFocus(avatar)} />;
+/** A customer from their card's picture, cut to the cream circle the character stands in (every customer picture has
+ *  it, centred at 300,196 with radius 172 on the 600 x 400 drawing), so only the character shows. */
+function CustomerCut({ who, size = 64 }: { who: string; size?: number }) {
+  const src = customerArt(who);
+  return <span class="ht-cut" style={{ width: `${size}px`, height: `${size}px`, backgroundImage: src ? `url("${src}")` : undefined }} aria-hidden="true" />;
 }
 
-/** The day's four turns as picture tiles; "Play a day" lights them one after another, a tap picks one. */
+/** A small Wholesale Market board: a lane per fruit, its freshest boxes with a piece and its price. */
+function MiniMarket() {
+  const rows: Stage[] = ['fresh', 'okay'];
+  return (
+    <span class="ht-mm" aria-hidden="true">
+      {LANES.map((f) => (
+        <span class={`ht-mm-l ln-${f}`}>
+          <i class="ht-mm-h"><Fruit id={f} size={14} /></i>
+          {(f === 'mango' ? ['unripe', 'okay'] as Stage[] : rows).map((st) => (
+            <i class={`ht-mm-b st-${st}`}><span class="ht-lamp ht-lamp-c">{STAGE_LETTER[st]}</span><Fruit id={f} size={14} stage={st} /><b>${FRUIT[f].cost[st]}</b></i>
+          ))}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** Fruit dropping into a crate. */
+function Stocking() {
+  return (
+    <span class="ht-stock" aria-hidden="true">
+      <span class="ht-fall"><Fruit id="apple" size={18} /><Fruit id="blueberry" size={18} /><Fruit id="watermelon" size={18} /></span>
+      <Crate w={104}><Fruit id="apple" size={18} /><Fruit id="watermelon" size={18} /></Crate>
+    </span>
+  );
+}
+
+/** Rosa at her stall with a price tag, and a tag kept face down: prices are set in secret. */
+function SecretPrice() {
+  const r = RIVALS[0];
+  return (
+    <span class="ht-secret" aria-hidden="true">
+      <span class="ht-secret-pic" style={{ backgroundImage: `url("${shopScene(r.avatar) ?? ''}")` }} />
+      <span class="ht-secret-tag">$ ?</span>
+      <span class="ht-shh">Shh</span>
+    </span>
+  );
+}
+
+/** Two customers buying: the characters from their cards, with a sold tag and a coin. */
+function RushPic() {
+  return (
+    <span class="ht-rushpic" aria-hidden="true">
+      <CustomerCut who="Farid" size={66} />
+      <CustomerCut who="Anna" size={58} />
+      <span class="ht-rush-coin"><Coin size={18} /><b>+$8</b></span>
+      <span class="ht-rush-tag"><PriceTag fruit="apple" price={4} tone="sold" /></span>
+    </span>
+  );
+}
+
+/** The four things every stall does each day. Buying goes in turns (poorest stall first, then clockwise); stocking
+ *  and pricing are done by every stall at once, in secret; then the rush. */
+const DAY_TURNS: { verb: string; line: string; pic: () => ComponentChildren }[] = [
+  { verb: 'Buy', line: `In turn, poorest stall first: up to ${BASE_BUY} pieces from the Wholesale Market.`, pic: () => <MiniMarket /> },
+  { verb: 'Stock', line: 'Everyone at once, in secret: put the pieces you want to sell in your crate.', pic: () => <Stocking /> },
+  { verb: 'Price', line: 'Everyone at once, in secret: one price for each fruit in your crate. Then the bell rings.', pic: () => <SecretPrice /> },
+  { verb: 'Rush', line: 'Crates and prices open. Customers buy from the cheapest stall first, and you are paid at once.', pic: () => <RushPic /> },
+];
+
+/** The day's four turns along a winding path; "Play a day" lights them one after another, a tap picks one. */
 function DayTurns() {
   const [on, setOn] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -164,23 +204,21 @@ function DayTurns() {
   useEffect(() => () => window.clearTimeout(timer.current), []);
   useEffect(() => {
     if (!playing) return undefined;
-    timer.current = window.setTimeout(() => (on < DAY_TURNS.length - 1 ? setOn(on + 1) : setPlaying(false)), held(1400));
+    timer.current = window.setTimeout(() => (on < DAY_TURNS.length - 1 ? setOn(on + 1) : setPlaying(false)), held(1600));
     return () => window.clearTimeout(timer.current);
   }, [on, playing]);
-  const t = DAY_TURNS[on];
   return (
-    <section class="ht-turns" aria-label="A day at the stall">
-      <div class="ht-turn-grid">
+    <section class="ht-flow" aria-label="A day at the stall">
+      <ol>
         {DAY_TURNS.map((x, i) => (
-          <button type="button" class={`ht-turn ${i === on ? 'on' : ''}`} aria-pressed={i === on} onClick={() => { setPlaying(false); setOn(i); }}>
-            <span class="ht-turn-pic" aria-hidden="true">{x.pic()}</span>
-            <span class="ht-turn-n" aria-hidden="true">{i + 1}</span>
-            {x.badge()}
-            <b>{x.verb}</b>
-          </button>
+          <li class={`ht-step ${i % 2 ? 'r' : ''} ${i === on ? 'on' : ''}`}>
+            <button type="button" aria-pressed={i === on} onClick={() => { setPlaying(false); setOn(i); }}>
+              <span class="ht-step-pic">{x.pic()}</span>
+              <span class="ht-step-t"><span class="ht-step-n">{i + 1}</span><b>{x.verb}</b><small>{x.line}</small></span>
+            </button>
+          </li>
         ))}
-      </div>
-      <p class="ht-turn-say" role="status"><b>{`${on + 1}. ${t.verb}. `}</b>{t.line}</p>
+      </ol>
       <button type="button" class="btn ht-btn" onClick={() => { setOn(0); setPlaying(true); }}>{playing ? 'Playing…' : 'Play a day'}</button>
     </section>
   );
@@ -241,25 +279,6 @@ function TomorrowStrip({ lorry }: { lorry?: string }) {
   );
 }
 
-/** How many of each fruit today's customers want, as on top of each market lane: face-up cards count, a face-down
- *  walk-in that wants the fruit adds "+" (or "?" when only walk-ins want it). */
-function wanted(up: boolean): { f: FruitId; t: string }[] {
-  return LANES.map((f) => {
-    const shown = [TODAY_REG, ...(up ? TODAY_WALK : [])].flatMap((c) => c.wants).filter((w) => w.fruit === f).reduce((a, w) => a + w.qty, 0);
-    const more = !up && TODAY_WALK.some((c) => c.wants.some((w) => w.fruit === f));
-    return { f, t: shown ? `${shown}${more ? '+' : ''}` : more ? '?' : '0' };
-  });
-}
-
-function WantedLanes({ up = false }: { up?: boolean }) {
-  return (
-    <div class="ht-mkt">
-      <div class="ht-mkt-h"><b>Wholesale Market · wanted today</b></div>
-      <div class="ht-lanes">{wanted(up).map(({ f, t }) => <span class={`ht-lane ln-${f}`}><Fruit id={f} size={14} /><b>{t}</b><small>wanted</small></span>)}</div>
-    </div>
-  );
-}
-
 /** The four things a customer card tells you, and where each is on the card face up and face down. */
 type Point = 'fruit' | 'qty' | 'price' | 'fresh';
 const POINTS: { id: Point; label: string; up: string; down: string | null; say: (c: typeof TODAY_REG) => string; back: string }[] = [
@@ -293,11 +312,17 @@ function PointCard({ sel, note, children }: { sel: string | null | undefined; no
   );
 }
 
-const BOARD_STEPS = [
-  { t: 'Buying', say: 'While stalls buy, the regular is face up and the walk-ins show only their fruit. Tomorrow\'s customers are already drawn below. Each lane counts the pieces wanted; "+" or "?" means a face-down walk-in wants some too.' },
-  { t: 'Stocking', say: 'The walk-ins turn face up: now you see what each one wants and pays, and the lanes count every piece.' },
-  { t: 'Next morning', say: 'Customers who did not get everything leave. Tomorrow\'s customers move up and become today\'s row, and a new Tomorrow is drawn.' },
-];
+const BOARD_STEPS = ['Buying', 'Stocking', 'Next morning'];
+
+/** A phrase that points at a part of the cards: underlined in mustard, filled when it is the one shown. */
+function PointLink({ id, on, set, children }: { id: Point; on: Point | null; set: (p: Point | null) => void; children: ComponentChildren }) {
+  // a span, not a button, so the phrase stays part of the sentence and its highlight wraps with the words
+  const go = () => set(on === id ? null : id);
+  return (
+    <span class={`ht-link ${on === id ? 'on' : ''}`} role="button" tabIndex={0} aria-pressed={on === id} onClick={go}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }}>{children}</span>
+  );
+}
 
 function Customers() {
   const [pt, setPt] = useState<Point | null>(null);
@@ -316,14 +341,14 @@ function Customers() {
           <figcaption><b>Walk-in</b>Face down; turns face up at Stocking</figcaption>
         </figure>
       </div>
-      <div class="ht-seg ht-points" role="group" aria-label="Show on the cards">
-        {POINTS.map((x) => <button type="button" class={pt === x.id ? 'on' : ''} aria-pressed={pt === x.id} onClick={() => setPt(pt === x.id ? null : x.id)}>{x.label}</button>)}
-      </div>
-      <p class="ht-night-say ht-pt-say" role="status">{p ? `Regular: ${p.say(TODAY_REG)} Walk-in: ${p.back}` : 'Tap a button to see where to look on each card.'}</p>
-      <p>Customers arrive every morning. Each one wants certain fruit: how many, the most it pays for each piece, and the freshness it will take.</p>
+      <p class="ht-desc">
+        Customers arrive every morning. Each one wants certain <PointLink id="fruit" on={pt} set={setPt}>fruit</PointLink>: <PointLink id="qty" on={pt} set={setPt}>how many</PointLink>,
+        {' '}<PointLink id="price" on={pt} set={setPt}>the most it pays for each piece</PointLink>, and <PointLink id="fresh" on={pt} set={setPt}>the freshness it will take</PointLink>.
+      </p>
+      {p && <p class="ht-night-say ht-pt-say" role="status">{`Regular: ${p.say(TODAY_REG)} Walk-in: ${p.back}`}</p>}
       <h3 class="ht-h3">On the board</h3>
       <div class="ht-seg ht-steps" role="group" aria-label="Moment of the day">
-        {BOARD_STEPS.map((x, i) => <button type="button" class={i === k ? 'on' : ''} aria-pressed={i === k} onClick={() => setK(i)}>{x.t}</button>)}
+        {BOARD_STEPS.map((t, i) => <button type="button" class={i === k ? 'on' : ''} aria-pressed={i === k} onClick={() => setK(i)}>{t}</button>)}
       </div>
       <div class="ht-board" key={k}>
         <span class="ht-zone">{k === 2 ? 'Today (was tomorrow)' : 'Today'}</span>
@@ -331,10 +356,7 @@ function Customers() {
           ? <div class="ht-row ht-slide"><Ticket who={TOMORROW_REG.who} lines={TOMORROW_REG.wants} />{TOMORROW_WALK.map((fs) => <TicketBack fruits={fs} label="Walk-in" />)}</div>
           : <TodayRow up={k === 1} />}
         {k < 2 ? <TomorrowStrip /> : <div class="ht-tmr ht-new"><span class="ht-tmr-k">Tomorrow</span><span class="ht-tmr-new">A new crowd is drawn</span></div>}
-        <WantedLanes up={k === 1} />
       </div>
-      <p class="ht-night-say" role="status">{BOARD_STEPS[k].say}</p>
-      <Tip>Tomorrow's regular is face up while you buy. Buy fruit that keeps for them too.</Tip>
     </>
   );
 }
@@ -345,20 +367,33 @@ const LORRY = FARMER_CARDS[0];
 const LORRY_STALLS = 3;
 
 /** The lorry drives up and unloads at the Wholesale Market, a crate into each fruit's lane. */
-function Unload() {
-  const [n, setN] = useState(0); // the run, so the lorry and its crates play again
+function MarketAfter() {
   const load = LANES.map((f) => ({ f, n: LORRY.table[LORRY_STALLS][f] }));
   return (
-    <div class="ht-board ht-unload" key={n}>
-      <div class="ht-mkt-h"><b>Wholesale Market</b><span class="ht-vis ht-lorry go" aria-hidden="true"><LorrySprite /></span></div>
+    <div class="ht-board">
+      <div class="ht-mkt-h"><b>Wholesale Market</b><span class="ht-vis ht-lorry" aria-hidden="true"><LorrySprite /></span></div>
       <div class="ht-lanes ht-lanes-tall">
-        {load.map(({ f, n: k }, i) => (
-          <span class={`ht-lane ln-${f}`} style={{ '--i': i }} aria-label={`${k} ${FRUIT[f].plural.toLowerCase()}${f === 'mango' ? ', Green' : ', Fresh'}`}>
-            <span class="ht-drop"><Piece f={f} stage={f === 'mango' ? 'unripe' : 'fresh'} size={20} /></span><b>×{k}</b>
+        {load.map(({ f, n }) => (
+          <span class={`ht-lane ln-${f}`} aria-label={`${n} ${FRUIT[f].plural.toLowerCase()}${f === 'mango' ? ', Green' : ', Fresh'}`}>
+            <Piece f={f} stage={f === 'mango' ? 'unripe' : 'fresh'} size={20} /><b>×{n}</b>
           </span>
         ))}
       </div>
-      <button type="button" class="btn ht-btn" onClick={() => setN(n + 1)}>Unload again</button>
+    </div>
+  );
+}
+
+/** The lorry drives up the road to the Wholesale Market and its crates go in, over and over. */
+function LorryArrives() {
+  return (
+    <div class="ht-road" role="img" aria-label="The lorry arrives at the Wholesale Market and unloads its crates">
+      <span class="ht-mkt-bld"><span class="ht-mkt-awn" /><b>Wholesale Market</b></span>
+      <span class="ht-crates">{(['berry', 'melon', 'apple', 'mango'] as const).map((k, i) => {
+        const c = crateUrl(k, 40, 14);
+        return <img class="ht-crate-go" style={{ '--i': i }} src={c.url} width={40} alt="" draggable={false} />;
+      })}</span>
+      <span class="ht-truck"><LorrySprite /></span>
+      <span class="ht-ground" />
     </div>
   );
 }
@@ -366,27 +401,16 @@ function Unload() {
 function Lorry() {
   return (
     <>
-      <p>Every morning a lorry unloads fruit at the Wholesale Market. That is the only fruit any stall can buy that day.</p>
-      <Unload />
-      <p class="ht-cap">{`The ${LORRY.name} at ${LORRY_STALLS} stalls. Fruit arrives in its freshest box. Every mango arrives Green and ripens in ${FRUIT.mango.unripeSlots} nights.`}</p>
-      <h3 class="ht-h3">The lorry card</h3>
+      <p>The lorry unloads fruit at the Wholesale Market every morning.</p>
+      <MarketAfter />
       <div class="ht-lorry-cards">
         <CardZoom class="ht-lorry-card" title={LORRY.name}><LorryCard card={LORRY} stalls={LORRY_STALLS} /></CardZoom>
         <div class="ht-lorry-t">
-          <p>Each lorry card shows what it brings for 2 to 6 stalls. Read the row for your table.</p>
+          <p>Each lorry card shows what it brings for 2 to 6 stalls. Tomorrow's lorry is also turned face up for players to plan ahead.</p>
           <span class="ht-mini ht-mini-l" aria-hidden="true"><DeckBack deck="lorry" /></span>
-          <small>Tap the card to see it whole.</small>
         </div>
       </div>
-      <h3 class="ht-h3">Tomorrow's lorry</h3>
-      <div class="ht-board"><TomorrowStrip lorry={LORRY.name} /></div>
-      <p class="ht-cap">Tomorrow's lorry is turned over a day early. Its name stands at the end of the Tomorrow strip, so you can plan before you buy.</p>
-      <ul class="ht-facts">
-        <li>The Seconds Lorry brings its fruit Okay, so Fresh-only customers won't buy it.</li>
-        <li>On a Lorry Breakdown day no lorry comes. Fruit already at the market stays.</li>
-        <li>Fruit at the market ages every night too.</li>
-      </ul>
-      <Tip>If tomorrow's lorry brings plenty of a fruit, you don't need to stock up on it today.</Tip>
+      <LorryArrives />
     </>
   );
 }
@@ -710,7 +734,7 @@ function Finish() {
 const PAGES: { part: string; title: string; body: (go: (page: number) => void) => ComponentChildren }[] = [
   { part: '', title: 'How to play', body: () => <QuickStart /> },
   { part: '', title: 'Customer', body: () => <Customers /> },
-  { part: 'The day', title: 'The lorry', body: () => <Lorry /> },
+  { part: '', title: 'Lorry', body: () => <Lorry /> },
   { part: 'The day', title: 'One market day', body: () => <MarketDay /> },
   { part: 'The day', title: 'Fruit & freshness', body: () => <Freshness /> },
   { part: 'The day', title: 'Try a sale', body: () => <TrySale /> },

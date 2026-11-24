@@ -18,7 +18,7 @@ describe('How to play pages', () => {
   it('has the eight pages, in order, with no page of tips', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
     const titles = [...src.matchAll(/\{ part: '[^']*', title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    expect(titles).toEqual(['How to play', 'Customer', 'The lorry', 'One market day', 'Fruit & freshness', 'Try a sale', 'Favours & closing', 'Market Days & the end']);
+    expect(titles).toEqual(['How to play', 'Customer', 'Lorry', 'One market day', 'Fruit & freshness', 'Try a sale', 'Favours & closing', 'Market Days & the end']);
     expect(titles).not.toContain('Tips');
   });
 

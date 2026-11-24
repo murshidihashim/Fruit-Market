@@ -232,26 +232,98 @@
 .ht-lorry-load { display: flex; flex-wrap: wrap; gap: 8px; font: 800 0.8125rem/1 var(--f-label); }
 .ht-lorry-load > span { display: inline-flex; align-items: center; gap: 2px; }
 
-/* ---------- 1 every day, every stall: four picture tiles ---------- */
-.ht-turns { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 10px; }
-.ht-turn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.ht-turn {
-  position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; border: 0; border-radius: 0; cursor: pointer; text-align: left;
-  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit; overflow: hidden;
-  transition: transform calc(var(--mk, 1) * 200ms), box-shadow calc(var(--mk, 1) * 200ms);
+/* ---------- 1 every day, every stall: the four turns along a winding path ---------- */
+.ht-flow { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 10px; }
+.ht-flow ol { position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+/* the path: a dashed line winding down behind the steps */
+.ht-flow ol::before {
+  content: ''; position: absolute; left: 50%; top: 30px; bottom: 30px; width: 2px; margin-left: -1px;
+  background: repeating-linear-gradient(to bottom, var(--x-ink) 0 6px, transparent 6px 12px);
 }
-.ht-turn-pic { display: block; height: 78px; overflow: hidden; border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); }
-.ht-turn-pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7); transition: filter calc(var(--mk, 1) * 200ms); }
-.ht-turn > b { padding: 6px 8px; font: 800 0.9375rem/1 var(--f-label); text-transform: uppercase; letter-spacing: 0.04em; }
-.ht-turn-n { position: absolute; left: 0; top: 0; width: 24px; height: 24px; display: grid; place-items: center; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1 var(--f-label); }
-.ht-turn-b { position: absolute; right: 6px; top: 50px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 5px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.75rem/1 var(--f-label); }
-.ht-turn-b .ht-hid { width: 16px; height: 16px; font-size: 0.625rem; }
-.ht-turn-b .jp-tag { transform: scale(0.85); }
-.ht-turn.on { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 3px var(--x-mustard); transform: translateY(-2px); }
-.ht-turn.on .ht-turn-pic img { filter: none; }
-.ht-turn.on > b { background: var(--x-mustard); }
-.ht-turn-say { margin: 0; min-height: 3.9em; font-size: 0.875rem; line-height: 1.4; }
-.ht-turns > .ht-btn { align-self: flex-start; }
+.ht-step button {
+  position: relative; width: 100%; display: flex; align-items: center; gap: 12px; padding: 6px 0; border: 0; background: none; color: var(--x-ink);
+  font: inherit; text-align: left; cursor: pointer;
+}
+.ht-step.r button { flex-direction: row-reverse; text-align: right; }
+.ht-step-pic { flex: 0 0 48%; display: flex; justify-content: center; align-items: center; min-height: 96px; transition: transform calc(var(--mk, 1) * 300ms) cubic-bezier(.3, .7, .3, 1), filter calc(var(--mk, 1) * 300ms); filter: saturate(0.55) opacity(0.8); }
+.ht-step-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.ht-step.r .ht-step-t { align-items: flex-end; }
+.ht-step-t b { font: 800 1rem/1 var(--f-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.ht-step-t small { font-size: 0.8125rem; line-height: 1.35; color: var(--x-slate); }
+.ht-step-n {
+  width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.75rem/1 var(--f-label); transition: background calc(var(--mk, 1) * 300ms);
+}
+.ht-step.on .ht-step-pic { filter: none; transform: scale(1.06); }
+.ht-step.on .ht-step-n { background: var(--x-mustard); }
+.ht-step.on .ht-step-t small { color: var(--x-ink); }
+.ht-flow > .ht-btn { align-self: center; }
+
+/* buy: a small Wholesale Market board */
+.ht-mm { display: grid; grid-template-columns: repeat(4, 36px); gap: 3px; padding: 4px; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-mm-l { display: flex; flex-direction: column; gap: 3px; }
+.ht-mm-h { display: grid; place-items: center; height: 16px; background: var(--lane); }
+.ht-mm-b { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 0 2px; box-shadow: inset 0 0 0 1.5px var(--x-ink); font-style: normal; }
+.ht-mm-b b { font: 800 0.5625rem/1 var(--f-label); }
+.ht-mm-b .ht-pc .ht-lamp { display: none; }
+.ht-mm-b > .ht-lamp-c { position: absolute; left: 2px; top: 2px; width: 10px; height: 10px; font-size: 6px; }
+.ht-mm-b { padding-top: 5px; }
+/* stock: fruit dropping into the crate */
+.ht-stock { display: flex; flex-direction: column; align-items: center; }
+.ht-fall { display: flex; gap: 8px; margin-bottom: 2px; }
+.ht-step.on .ht-fall > * { animation: ht-fall calc(var(--mk, 1) * 900ms) ease-in both; }
+.ht-step.on .ht-fall > :nth-child(2) { animation-delay: calc(var(--mk, 1) * 150ms); }
+.ht-step.on .ht-fall > :nth-child(3) { animation-delay: calc(var(--mk, 1) * 300ms); }
+@keyframes ht-fall { 0% { transform: translateY(-14px); opacity: 0; } 60% { opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
+/* price: Rosa with her price tag, kept secret */
+.ht-secret { position: relative; display: block; width: 150px; height: 100px; }
+.ht-secret-pic {
+  position: absolute; inset: 0; border-radius: 50% 50% 46% 54% / 55% 50% 50% 45%; overflow: hidden;
+  background-repeat: no-repeat; background-size: 205% auto; background-position: 28% 40%; box-shadow: inset 0 0 0 2px var(--x-ink);
+}
+.ht-secret-tag {
+  position: absolute; right: -4px; bottom: 2px; padding: 4px 8px 4px 14px; background: var(--x-ink); color: var(--x-mustard); font: 400 1rem/1 var(--f-display);
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); transform: rotate(-8deg);
+}
+.ht-shh { position: absolute; left: -2px; top: 0; padding: 2px 6px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); border-radius: 10px; font: 800 0.6875rem/1.2 var(--f-label); }
+.ht-step.on .ht-secret-tag { animation: ht-wiggle calc(var(--mk, 1) * 600ms) ease-in-out 2; }
+@keyframes ht-wiggle { 50% { transform: rotate(4deg); } }
+/* rush: two customers, a coin and a sold tag */
+.ht-rushpic { position: relative; display: block; width: 150px; height: 96px; }
+.ht-cut {
+  position: absolute; display: block; border-radius: 50%; background-color: var(--x-cream); background-repeat: no-repeat;
+  background-size: 174.4% auto; background-position: 50% 42.9%; box-shadow: 0 0 0 2px var(--x-ink);
+}
+.ht-rushpic .ht-cut:nth-child(1) { left: 8px; top: 18px; }
+.ht-rushpic .ht-cut:nth-child(2) { left: 72px; top: 30px; }
+.ht-rush-coin { position: absolute; right: 0; top: 0; display: inline-flex; align-items: center; gap: 2px; font: 800 0.75rem/1 var(--f-label); }
+.ht-rush-tag { position: absolute; left: 0; bottom: -2px; transform: scale(0.8); transform-origin: left bottom; }
+.ht-step.on .ht-rush-coin { animation: ht-coin calc(var(--mk, 1) * 700ms) ease-out both; }
+@keyframes ht-coin { from { transform: translate(-50px, 40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* customer: the phrases that point at the cards */
+.ht-desc { line-height: 1.6; }
+.howto .ht-link {
+  display: inline; margin: 0; padding: 0; border: 0; border-radius: 0; color: inherit; font: inherit; line-height: inherit; vertical-align: baseline; cursor: pointer;
+  background: linear-gradient(transparent 62%, var(--x-mustard) 62%); -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.howto .ht-link.on { background: var(--x-mustard); }
+.howto .ht-link:focus-visible { outline: 2px solid var(--x-ink); outline-offset: 1px; }
+
+/* lorry: the lorry drives up to the Wholesale Market, again and again */
+.ht-road { position: relative; height: 112px; margin: 12px 0 4px; overflow: hidden; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: var(--x-kraft); border-top: 2px solid var(--x-ink); }
+.ht-ground::after { content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 2px; background: repeating-linear-gradient(to right, var(--x-paper) 0 14px, transparent 14px 28px); }
+.ht-mkt-bld { position: absolute; left: 10px; bottom: 18px; width: 120px; height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 14px; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-mkt-awn { position: absolute; left: -4px; right: -4px; top: -8px; height: 16px; background: repeating-linear-gradient(to right, var(--x-red) 0 12px, var(--x-paper) 12px 24px); box-shadow: inset 0 0 0 2px var(--x-ink); border-radius: 0 0 8px 8px; }
+.ht-mkt-bld b { font: 800 0.5625rem/1.1 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
+.ht-truck { position: absolute; left: 140px; bottom: 16px; width: 104px; height: 60px; animation: ht-truck calc(var(--mk, 1) * 4800ms) ease-out infinite; }
+.ht-truck img { position: absolute; left: 0; bottom: 0; width: 104px; height: auto; }
+.ht-truck img.b { display: none; }
+@keyframes ht-truck { 0% { transform: translateX(260px); } 30%, 80% { transform: none; } 100% { transform: translateX(-30px); opacity: 0; } }
+.ht-crates { position: absolute; left: 26px; bottom: 22px; display: flex; gap: 2px; }
+.ht-crate-go { display: block; width: 24px; height: auto; opacity: 0; animation: ht-crate calc(var(--mk, 1) * 4800ms) ease-out infinite; animation-delay: calc(var(--mk, 1) * var(--i, 0) * 120ms); }
+@keyframes ht-crate { 0%, 32% { opacity: 0; transform: translateX(130px); } 48%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: none; } }
 
 /* ---------- 2 customer: a ring that glides to the part of the card being explained ---------- */
 .ht-pt { position: relative; display: inline-block; overflow: hidden; }
@@ -263,16 +335,10 @@
 .ht-pt.on .ht-ring { opacity: 1; animation: ht-ping calc(var(--mk, 1) * 1200ms) ease-in-out infinite; }
 @keyframes ht-ping { 50% { border-color: var(--x-mustard); } }
 .ht-pt-note { position: absolute; left: 8px; right: 8px; top: 45%; padding: 6px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); text-align: center; }
-.ht-points { margin: 4px 0; }
-.ht-points button { font-size: 0.6875rem; padding: 0 4px; }
-.ht-pt-say { min-height: 2.8em; font-weight: 600; }
+.ht-pt-say { font-weight: 600; margin-bottom: 12px; }
 
 /* ---------- 3 the lorry ---------- */
-.ht-unload .ht-lorry.go { animation: ht-drive calc(var(--mk, 1) * 800ms) ease-out both; }
 .ht-lanes-tall .ht-lane { min-height: 44px; gap: 4px; }
-.ht-drop { display: inline-flex; animation: ht-drop calc(var(--mk, 1) * 450ms) ease-out both; animation-delay: calc(var(--mk, 1) * (700ms + var(--i, 0) * 180ms)); }
-@keyframes ht-drop { from { opacity: 0; transform: translate(40px, -30px) scale(0.5); } to { opacity: 1; transform: none; } }
-.ht-unload > .ht-btn { align-self: flex-start; }
 .ht-lorry-cards { display: flex; gap: 12px; align-items: flex-start; }
 .ht-lorry-card { flex: none; --card-w: 136px; }
 .ht-lorry-t { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
