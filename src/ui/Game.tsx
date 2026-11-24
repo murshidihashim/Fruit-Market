@@ -275,9 +275,10 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
       {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css).
           PLAN-127: tomorrow's strip first, right under the top bar, then today's customers. */}
       <section class="street-wrap" data-a="street" style={show ? `--rt-at:"Customer ${show.n} of ${show.of}"` : undefined}>
-        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
+        {/* PLAN-128: at night tomorrow's cards walk from the strip into today's row, on the night's own clock */}
+        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} night={c.night ? c.nightSlide : undefined} />
         <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
-          away={show?.card.customerId} served={show?.served} />
+          away={show?.card.customerId} served={show?.served} night={c.night ? c.nightSlide : undefined} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
       <div class={`centre ${mid ? 'covered' : ''}`} ref={sheet.centre}>

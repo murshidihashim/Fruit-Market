@@ -229,6 +229,13 @@
 #app .tkt .tb-pc.ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + var(--bg)))); }
 #app .tkt .tb-pc.ns-piece.moved.gone { transform: translate(16px, calc(var(--steps) * (var(--bh) + var(--bg)) - var(--bh) * 0.5)); opacity: 0; }
 #app .tkt .tb-pc.ns-piece.rest { transition: none; }
+/* PLAN-128: tomorrow's cards walk into today's row on the same slide (table.tsx Street moves each card from its chip,
+   with the curve above, tableModel.NIGHT_EASE): the chip fades over the first part of the way, as its card fades in */
+#app .tkt .tomorrow .tm-chip.tm-gone { opacity: 0; transition: opacity calc(var(--ns-ms, 0ms) * 0.3) ease; }
+/* while they walk the customer band lights up again, so the cards arrive as the morning shows them */
+#app .game.gx.tkt.is-night > .street-wrap:has(.tb-walk) { opacity: 1; }
+/* today's customers still in the row at night fade away as dusk falls, before tomorrow's walk in */
+#app .tkt .street > .cust.tb-gone { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-dusk)) ease; }
 /* on your shelf: a chip whose pieces spoil or are juiced tips off as the slide ends */
 #app .tkt .tb-dock.night .tb-chip { transition: transform var(--ns-ms, 0ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 0ms) * 0.33) ease calc(var(--ns-ms, 0ms) * 0.67); }
 #app .tkt .tb-dock.night .tb-chip.gone { transform: translate(10px, 14px); opacity: 0; }

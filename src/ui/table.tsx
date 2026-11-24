@@ -1,5 +1,6 @@
-// The visual table (PLAN-085, drawn to the approved Buying screen): today's customers at the top, the stalls in
-// buying order, the Wholesale Market as the board's lanes of 3, 4, 5 and 6 boxes in the middle, your shelf under it.
+// The visual table (PLAN-085, drawn to the approved Buying screen): today's customers at the top, the Wholesale
+// Market as the board's lanes of 3, 4, 5 and 6 boxes in the middle, the stalls in buying order under it (PLAN-128),
+// your shelf under them.
 // data-a attributes are animation anchors (see anim.ts). What is drawn of a piece on its way is held back until it
 // lifts off or lands (tableShown.ts). Styles: table.css (loaded here, so after the older table styles).
 import { useEffect, useRef, useState } from 'preact/hooks';
@@ -22,12 +23,12 @@ import { shownFavours, shownWants } from './rushShown';
 import { cardShown, heldBuyer, shownBought, shownBoughtCount, shownMarket } from './tableShown';
 import { TRAIT_ICON, UP_ICON } from './panel';
 import { SEEN_WALK_IN, marketDayTomorrow, nextLorry, nextLorryName, pulse, shownColumn, wantText, LANES } from './boardModel';
-import { buyState, deliveryBoxes, marketBefore, shelfChips, ticketLines, tonightHead } from './tableModel';
+import { NIGHT_EASE, buyState, deliveryBoxes, marketBefore, shelfChips, ticketLines, tonightHead, walkFrames, walkMs, walkTable, walkers } from './tableModel';
 import { nth } from './game/pricingTable';
 import { closingNote } from '../engine/story';
 import { C } from './palette';
 import { Icon, LorrySprite, RoofBand } from './icons';
-import { BEAT, FRAME, moveMs } from './motion';
+import { BEAT, FRAME, isReduced, moveMs } from './motion';
 import { firstSaid, seatNo } from './firstBuyer';
 import { shownToken, tokenOnItsWay } from './firstShown';
 import './table.css';
@@ -600,8 +601,12 @@ export function face(name: string) {
 
 type Kind = 'waiting' | 'new' | 'today' | 'tomorrow' | 'mystery';
 
-export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, turn }: {
+export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, turn, walk, gone }: {
   s: GameState; c?: Customer | null; kind: Kind; onTip?: (c: Customer) => void; later?: boolean; heard?: boolean; onPick?: () => void;
+  /** PLAN-128: the card walks in from its chip in the Tomorrow strip at night, over this many ms (the night's slide). */
+  walk?: number | null;
+  /** PLAN-128: the card fades away at dusk (today's customer, leaving the row to tomorrow's). */
+  gone?: boolean;
   /** In the rush: 'away' while the card is up in the pop-up, 'served' once it is back with a tick. */
   rush?: 'away' | 'served';
   /** The card is being turned face up as the customers arrive: its back turns away ('out'), then its face shows
@@ -613,7 +618,8 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     // portrait, and no picture is requested until the card is face up for this player.
     const backs = c ? [...new Set(c.wants.map((w) => w.fruit))] : [];
     return (
-      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-c={c ? c.id : undefined} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
+      <div class={`cust mystery ${later ? 'tomorrow' : ''} ${onPick ? 'pickable' : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}`} data-c={c ? c.id : undefined} data-walk={walk !== undefined && c ? c.id : undefined}
+        data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined} aria-label={backs.length ? `Walk-in, wants ${backs.map((f) => FRUIT[f].plural).join(' and ')}` : 'Walk-in'}
         role={onPick ? 'button' : undefined} onClick={onPick ? (e) => { e.stopPropagation(); onPick(); } : undefined}>
         <TicketBack fruits={backs} label={later ? 'Tomorrow' : 'Walk-in'} />
       </div>
@@ -635,7 +641,8 @@ export function CustomerChar({ s, c, kind, onTip, later, heard, onPick, rush, tu
     return { fruit: w.fruit, qty: w.qty <= 0 ? c.original?.[i]?.qty ?? 0 : w.qty, max, done: w.qty <= 0, move: max > w.max ? 'up' : max < w.max ? 'down' : undefined };
   });
   return (
-    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
+    <div class={`cust ${kind} ${done ? 'happy' : ''} ${special ? 'special' : ''} ${heard ? 'heard' : ''}${left ? ` rush-${left}` : ''}${turn ? ` tb-turn-${turn}` : ''}${walk !== undefined ? ' tb-walk' : ''}${gone ? ' tb-gone' : ''}`} data-a={c.id > 0 ? `c${c.id}` : undefined} data-c={c.id}
+      data-walk={walk !== undefined ? c.id : undefined} data-walk-ms={walk ?? undefined} ref={walk !== undefined ? walkIn : undefined}
       onClick={(e) => { e.stopPropagation(); onTip?.(wants === c.wants ? c : { ...c, wants }); }}
       title={`${c.pref ? `${PREF_INFO[c.pref].title}: ${PREF_INFO[c.pref].text}\n` : ''}${wants.map((w, i) => `${FRUIT[w.fruit].name}: ${w.qty <= 0 ? 'done' : `wants ${w.qty}, pays up to $${lines[i].max} each when Fresh`}`).join('\n')}`}>
       <Ticket who={c.name} lines={lines} order={!!c.order} />
@@ -670,12 +677,21 @@ export const beforeArrival = (s: GameState): boolean => s.phase === 'morning' ||
  * grow when the walk-ins turn face up. Before they arrive the cards stand in the order they will arrive in. As they
  * arrive each walk-in stays face down until its card is turned (tableShown.ts; the arrival's script turns them one
  * after another), and the standing order's card is dealt to the front.
+ * PLAN-128 (the owner): at night, as the fruit ages, tomorrow's cards walk from the Tomorrow strip into the places the
+ * morning gives them (the expected customer face up, each walk-in face down unless this stall has seen it), on the
+ * night's own clock (`night`, the same slide as the lanes): they set off with the slide and are in place as it ends.
  */
-export function Street({ s, viewer, onTip, onScout, away, served }: {
+export function Street({ s, viewer, onTip, onScout, away, served, night }: {
   s: GameState; viewer: number; onTip?: (c: Customer) => void; onScout?: (id: number) => void;
   /** The rush pop-up: the customer whose card is up in the middle, and those already served. */
   away?: number; served?: number[];
+  /** The night's slide (animator.tsx nightfall): undefined by day, null at dusk, its length while it plays, 'done'. */
+  night?: ShelfNight;
 }) {
+  // Tomorrow's cards are in the row from the moment the slide starts (and stay there, at rest, until the morning). Each
+  // sets off from its chip as it is put in the row (walkIn), over the slide's length.
+  const walking = night !== undefined && night !== null ? walkers(s, viewer) : [];
+  const ms = walkMs(night);
   const rush = (c: Customer) => (c.id === away ? 'away' : served?.includes(c.id) ? 'served' : undefined);
   const before = beforeArrival(s);
   const extra = s.event?.extra;
@@ -691,19 +707,53 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
     return <CustomerChar key={c.id} s={s} c={c} kind="new" onTip={onTip} rush={rush(c)} turn={st === 'up' ? 'in' : arriving && c.order ? 'deal' : undefined} />;
   };
   const guest: Customer | null = before && extra ? { id: -1, name: extra.name, wants: extra.wants, original: extra.wants, pref: prefOf(extra.name) } : null;
-  const n = s.secondMarket.length + s.firstMarket.length + (before ? 1 + (extra ? 1 : 0) + s.queue.length : 0);
-  const lines = ticketLines([...s.secondMarket, ...s.firstMarket, ...(before ? [s.forecast, guest, ...s.queue] : [])]);
+  // Today's customers, where they are still in the row at night (a night that follows the rush with no evening held),
+  // fade away at dusk and have left by the time tomorrow's walk in, so tomorrow's take the places the morning gives them.
+  const second = walking.length ? [] : s.secondMarket;
+  const first = walking.length ? [] : s.firstMarket;
+  const fading = night === null;
+  const n = second.length + first.length + (before ? 1 + (extra ? 1 : 0) + s.queue.length : 0) + walking.length;
+  const lines = ticketLines([...second, ...first, ...(before ? [s.forecast, guest, ...s.queue] : []), ...walking.map((w) => w.c)]);
+  // (a walking card is drawn as the morning draws it, from tonight's table without today's event: walkTable)
+  const tonight = walking.length ? walkTable(s) : s;
   // Five cards fit across a phone; with more, the row scrolls sideways and the next card shows cut off at the edge
   // as a hint. On a desktop the cards stand two by two in the left column (--pairs rows), sized to fit its height.
   return (
     <div class={`street ${n > 5 ? 'many' : ''}`} style={{ '--pairs': Math.max(1, Math.ceil(n / 2)), '--lines': lines }} aria-label="Today's customers">
-      {s.secondMarket.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} rush={rush(c)} />)}
-      {s.firstMarket.map(arrived)}
+      {second.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="waiting" onTip={onTip} rush={rush(c)} gone={fading} />)}
+      {fading ? first.map((c) => <CustomerChar key={c.id} s={s} c={c} kind="new" rush={rush(c)} gone />) : first.map(arrived)}
       {before && <CustomerChar key={s.forecast?.id} s={s} c={s.forecast} kind="today" onTip={onTip} />}
       {before && s.queue.map(walkIn)}
       {guest && <CustomerChar key="extra" s={s} c={guest} kind="today" onTip={onTip} />}
+      {walking.map(({ c, up }) => (up
+        ? <CustomerChar key={c.id} s={tonight} c={c} kind="today" heard={c !== s.forecast} walk={ms} />
+        : <CustomerChar key={c.id} s={tonight} c={c} kind="mystery" walk={ms} />))}
     </div>
   );
+}
+
+/**
+ * PLAN-128: a card walking into today's row sets off from its chip in the Tomorrow strip the moment it is put in the
+ * row, which is the moment the night's slide starts. It is measured where it stands and where its chip lies before the
+ * first frame is painted, and drawn from the chip to its place over the slide's length (its data-walk-ms), on the
+ * slide's curve; the chip fades as it goes (table.css). With reduced motion it is simply in its place. A stable
+ * function, so a card that is drawn again is not sent off again; the night's script ends the walk with the slide
+ * (endWalk).
+ */
+function walkIn(el: HTMLElement | null): void {
+  if (!el || typeof document === 'undefined' || isReduced()) return;
+  const ms = Number(el.dataset.walkMs);
+  const chip = document.querySelector(`[data-tm="${el.dataset.walk}"]`)?.getBoundingClientRect();
+  const card = el.getBoundingClientRect();
+  if (!(ms > 0) || !chip || !chip.width || !card.width || typeof el.animate !== 'function') return;
+  el.animate(walkFrames(chip, card), { duration: ms, easing: NIGHT_EASE, fill: 'backwards' });
+}
+
+/** PLAN-128: the night's slide is over (or a tap ended it): every walking card is in its place at once. */
+export function endWalk(): void {
+  // (no page, or a stand-in for one in tests: nothing is walking)
+  if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-walk]')) for (const a of el.getAnimations?.() ?? []) a.finish();
 }
 
 /**
@@ -712,13 +762,16 @@ export function Street({ s, viewer, onTip, onScout, away, served }: {
  * in the morning, so the strip shows while stalls buy too (from nextForecast and nextQueue, then forecast and queue).
  * At its end: the name of tomorrow's lorry (the approved Buying screen).
  */
-export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; onTip?: (c: Customer) => void }) {
+export function Tomorrow({ s, viewer, onTip, night }: { s: GameState; viewer: number; onTip?: (c: Customer) => void;
+  /** PLAN-128: the night's slide. As it starts the chips' cards walk into today's row (Street), and the chips fade. */
+  night?: ShelfNight }) {
   const before = beforeArrival(s);
+  const left = night !== undefined && night !== null && walkers(s, viewer).length > 0;
   const forecast = before ? s.nextForecast : s.forecast;
   const queue = before ? s.nextQueue ?? [] : s.queue;
   if (s.phase === 'over' || (!forecast && !queue.length)) return null;
   const front = (c: Customer, heard: boolean) => (
-    <button type="button" key={c.id} class={`tm-chip ${heard ? 'heard' : ''}`} onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
+    <button type="button" key={c.id} class={`tm-chip ${heard ? 'heard' : ''}${left ? ' tm-gone' : ''}`} data-tm={c.id} onClick={(e) => { e.stopPropagation(); onTip?.(c); }}
       aria-label={`Tomorrow: ${lookOf(c.name).title}, wants ${c.wants.map((w) => `${w.qty} ${FRUIT[w.fruit].plural}`).join(' and ')}`}>
       <Face who={c.name} size={24} />
       {c.wants.map((w) => <span class="tm-w"><Fruit id={w.fruit} size={16} />{w.qty}</span>)}
@@ -729,7 +782,7 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   // PLAN-127: five chips or more (five or six stalls) are drawn closer on a phone, so the strip fits its width
   const many = (forecast ? 1 : 0) + queue.length + (s.priorityNext !== null ? 1 : 0) >= 5;
   return (
-    <div class={`tomorrow ${many ? 'tm-many' : ''}`} aria-label="Tomorrow's customers">
+    <div class={`tomorrow ${many ? 'tm-many' : ''}`} aria-label="Tomorrow's customers" style={typeof night === 'number' ? `--ns-ms:${Math.round(night)}ms` : undefined}>
       <span class="tm-k">Tomorrow</span>
       {/* Priority played this evening (PLAN-084): that stall's mark stands at the front of tomorrow's line. */}
       {s.priorityNext !== null && s.players[s.priorityNext] && (
@@ -742,7 +795,7 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
         if (c.seenBy?.includes(viewer)) return front(c, true);
         const fruits = [...new Set(c.wants.map((w) => w.fruit))];
         return (
-          <span key={c.id} class="tm-chip tm-back" role="img" aria-label={`Tomorrow: a walk-in, face down${fruits.length ? `, wants ${fruits.map((f) => FRUIT[f].plural).join(' and ')}` : ''}`}>
+          <span key={c.id} class={`tm-chip tm-back${left ? ' tm-gone' : ''}`} data-tm={c.id} role="img" aria-label={`Tomorrow: a walk-in, face down${fruits.length ? `, wants ${fruits.map((f) => FRUIT[f].plural).join(' and ')}` : ''}`}>
             {fruits.map((f) => <Fruit id={f} size={16} />)}
           </span>
         );

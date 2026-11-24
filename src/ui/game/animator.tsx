@@ -12,6 +12,7 @@ import { releaseStock, sellStock, stockHeld } from '../stockShown';
 import { deliveryBoxes } from '../tableModel';
 import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard } from '../tableShown';
 import { fx } from '../fx';
+import { endWalk } from '../table';
 import { FavourMark } from './panels/RushTable';
 import { built, firstInLine, firstMoved, fitTag, playedFavours } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, rushCards, type RushBlock, type RushCard, type ShowState } from './rush';
@@ -589,9 +590,13 @@ export async function nightfall(g: GameState, setNight: (on: boolean) => void, s
   // here and this script waits that long (and a beat more), whatever the speed, so the slide always ends before dawn.
   // A tap ends the pause, and the pieces are then shown in their new boxes at once. With reduced motion nothing
   // slides (the stylesheet turns the move off) and the pause is kept, to read the lanes.
+  // PLAN-128 (the owner): on the same slide, tomorrow's cards walk from the Tomorrow strip into today's row (table.tsx
+  // Street, walkIn): they set off as the slide is given its length and take exactly that length, so they are in their
+  // places as the pieces settle; a tap that ends the slide puts them there at once (endWalk).
   await A.wait(NIGHT.dusk);
   setSlide(A.held(NIGHT.slide));
   await A.hold(NIGHT.slide + NIGHT.settle);
+  endWalk();
   setSlide('done');
   // On your own shelf (a rival's is never drawn) the pieces that leave are shown while the lanes are read: a Juice
   // Bar's pieces become coins that travel to the cash (one coin for each piece), and the rest tip off the shelf.
