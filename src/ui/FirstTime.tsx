@@ -53,7 +53,7 @@ const NTH: Record<number, string> = { 2: 'second', 3: 'third', 4: 'fourth', 5: '
 /** "third" for a Market Day every 3 days. */
 export const nthWord = (n: number) => NTH[n] ?? `${n}th`;
 
-/** The owner's six steps. `beat`: the name of that step on the bar along the top of the game. */
+/** The owner's six steps. `beat`: the name of that step on the table board and in the rules (BEATS). */
 const STEPS: { lead: string; text?: string; beat?: string }[] = [
   { lead: '1. Check the market.', text: "Read today's news and see who's shopping.", beat: BEATS[0] },
   { lead: '2. Buy fruit.', text: `From Day 2 the poorest stall buys first, then the others clockwise. Buy up to ${BASE_BUY} pieces.`, beat: BEATS[1] },

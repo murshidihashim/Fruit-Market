@@ -622,7 +622,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   // the step. A night that still scrolls says so at its foot (data-more) until its end is in view.
   const canBuild = isDraftNight(s) && offersTonight(s, p).some((u) => canUpgrade(s, p, u) === null);
   const more = () => { const el = root.current; if (el) el.toggleAttribute('data-more', el.scrollHeight - el.scrollTop - el.clientHeight > 4); };
-  useReach(root, 'beats', true, true, (el) => { drawCloser(el, eveningHolds(el), EVENING_STEPS, canBuild && !chosen ? TWO_BUTTONS : 0); more(); });
+  useReach(root, 'bar', true, true, (el) => { drawCloser(el, eveningHolds(el), EVENING_STEPS, canBuild && !chosen ? TWO_BUTTONS : 0); more(); });
   useLayoutEffect(more, [chosen]);
   const keep = (next: UpgradeId | null) => { kept = eveningKept(kept, key, next, root.current); };
   useLayoutEffect(() => {

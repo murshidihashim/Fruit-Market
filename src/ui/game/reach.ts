@@ -9,9 +9,10 @@
 import { useLayoutEffect, useRef, type MutableRef } from 'preact/hooks';
 import { FEEL, FRAME, moveMs } from '../motion';
 
-/** Where a sheet's top edge lies: under the customers' tickets ('row', over tomorrow's strip, the order strip and the
- *  rivals), at the top of the customer band ('street'), or over the day's five beats too ('beats'). */
-export type ReachUp = 'row' | 'street' | 'beats';
+/** Where a sheet's top edge lies: under the customers' tickets ('row', over the order strip and the rivals), at the top
+ *  of the customer band ('street', over tomorrow's strip too), or right under the top bar ('bar'; PLAN-127: the day's
+ *  five steps used to lie between the two). */
+export type ReachUp = 'row' | 'street' | 'bar';
 
 /** The kraft band's own padding under the tickets, in px (ticket.css, the street's padding): it stays in view. */
 const BAND_PAD = 6;
@@ -22,10 +23,10 @@ export interface Reach { rise: number; drop: number }
 export interface ReachBoxes {
   /** The middle cell (the Wholesale Market fills it). */
   mid: { top: number; bottom: number };
-  /** The row of customer tickets, the whole customer band, the day's beats, your shelf: null when not on the screen. */
+  /** The row of customer tickets, the whole customer band, the top bar, your shelf: null when not on the screen. */
   row: { bottom: number } | null;
   street: { top: number } | null;
-  beats: { top: number } | null;
+  bar: { bottom: number } | null;
   dock: { bottom: number } | null;
   /** A notice lies between the top bar and the customers (online: someone is reconnecting). It must stay in view. */
   notice: boolean;
@@ -33,11 +34,12 @@ export interface ReachBoxes {
 
 /**
  * The rule: how far above the middle cell the sheet starts and how far below it ends, in px (never negative).
- * A sheet that would reach over the beats stops at the customer band while a notice is up, so the notice stays in view.
+ * A sheet that would reach up to the top bar stops at the customer band while a notice is up, so the notice stays in
+ * view.
  */
 export function reachFrom(b: ReachBoxes, up: ReachUp, down: boolean): Reach {
   const top = up === 'row' ? (b.row ? b.row.bottom + BAND_PAD : null)
-    : up === 'beats' && !b.notice && b.beats ? b.beats.top
+    : up === 'bar' && !b.notice && b.bar ? b.bar.bottom
     : b.street ? b.street.top : null;
   return {
     rise: Math.max(0, Math.round(b.mid.top - (top ?? b.mid.top))),
@@ -54,7 +56,7 @@ function measure(game: Element): ReachBoxes | null {
     return el && el.getClientRects().length ? el.getBoundingClientRect() : null;
   };
   return {
-    mid, row: box(':scope > .street-wrap > .street'), street: box(':scope > .street-wrap'), beats: box(':scope > .tk-top .tk-beats'),
+    mid, row: box(':scope > .street-wrap > .street'), street: box(':scope > .street-wrap'), bar: box(':scope > .tk-top'),
     dock: box(':scope > .my-stall'), notice: !!box(':scope > .net'),
   };
 }

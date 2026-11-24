@@ -431,18 +431,18 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
 });
 
 describe('a sheet reaches over the rows of the table without moving them (reach.ts, sheets.css)', () => {
-  // A phone 390 by 844: the top bar and beats to 82, the customer band to 300 (tickets to 230), the rivals to 356,
-  // the lanes to 713, your shelf to 772.
-  const boxes: ReachBoxes = { mid: { top: 356, bottom: 713 }, row: { bottom: 230 }, street: { top: 82 }, beats: { top: 52 }, dock: { bottom: 772 }, notice: false };
+  // A phone 390 by 844 (PLAN-127: no strip of the day's steps): the top bar to 52, the customer band to 300 (tickets to
+  // 230), the rivals to 356, the lanes to 713, your shelf to 772. A notice would lie between the top bar and the band.
+  const boxes: ReachBoxes = { mid: { top: 356, bottom: 713 }, row: { bottom: 230 }, street: { top: 52 }, bar: { bottom: 52 }, dock: { bottom: 772 }, notice: false };
 
-  it('the morning starts under the customers\' tickets, the bid at the customer band, the evening over the beats', () => {
+  it('the morning starts under the customers\' tickets, the bid at the customer band, the evening right under the top bar', () => {
     expect(reachFrom(boxes, 'row', false)).toEqual({ rise: 356 - 236, drop: 0 });
-    expect(reachFrom(boxes, 'street', true)).toEqual({ rise: 356 - 82, drop: 772 - 713 });
-    expect(reachFrom(boxes, 'beats', true)).toEqual({ rise: 356 - 52, drop: 59 });
+    expect(reachFrom(boxes, 'street', true)).toEqual({ rise: 356 - 52, drop: 772 - 713 });
+    expect(reachFrom(boxes, 'bar', true)).toEqual({ rise: 356 - 52, drop: 59 });
   });
 
   it('a notice between the top bar and the customers (someone is reconnecting) stays in view', () => {
-    expect(reachFrom({ ...boxes, notice: true, street: { top: 112 } }, 'beats', true).rise).toBe(356 - 112);
+    expect(reachFrom({ ...boxes, notice: true, street: { top: 82 } }, 'bar', true).rise).toBe(356 - 82);
   });
 
   it('a row that is not on the screen is simply not reached over, and the reach is never negative', () => {

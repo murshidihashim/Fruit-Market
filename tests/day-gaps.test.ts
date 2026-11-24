@@ -1,5 +1,5 @@
-// The known gaps on the day's sheets (PLAN-090): the strip of the day's steps, when the takings show, and the
-// bottom bar's leftovers.
+// The known gaps on the day's sheets (PLAN-090): the day's step in the top bar (PLAN-127: said, no longer drawn as a
+// strip), when the takings show, and the bottom bar's leftovers.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
@@ -13,24 +13,36 @@ import { covers } from '../src/ui/game/underSheet';
 import { PreView } from '../src/ui/game/panels/RushTable';
 import { preTable } from '../src/ui/game/tableNow';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
-import { stripStep } from '../src/ui/game/panels/TopBar';
+import { dayName, stepSaid } from '../src/ui/game/panels/TopBar';
 
 const read = (f: string) => readFileSync(f, 'utf8');
 
-describe('the strip of the day\'s steps follows what is on the table (TopBar.tsx)', () => {
-  it('marks the bell while it rings before the rush, and the morning while the standing order\'s bids are turned over', () => {
+describe('the day\'s step said with the day follows what is on the table (TopBar.tsx)', () => {
+  // PLAN-127: the strip of the day's steps is gone; the top bar's day pill says the step with the day to a screen
+  // reader, and it still follows what is on the table (PLAN-090).
+  it('says the bell while it rings before the rush, and the standing order while its bids are turned over', () => {
     // where the game is, when nothing else is on the table
-    expect((['morning', 'order', 'buy', 'stall', 'bid', 'tie', 'reveal'] as const).map((p) => stripStep(p, false).beat)).toEqual([0, 0, 1, 2, 3, 3, 4]);
-    // the game is already at the rush and the bell is still ringing: "4 Bell", as on the approved screen
-    expect(stripStep('reveal', false, 'bell')).toEqual({ beat: 3, said: 'The bell' });
+    expect((['morning', 'order', 'buy', 'stall', 'bid', 'tie', 'reveal', 'evening'] as const).map((p) => stepSaid(p, false)))
+      .toEqual(['Morning', 'The standing order', 'Buying', 'Stocking', 'The bell', 'The bell', 'The rush', 'Evening']);
+    // the game is already at the rush and the bell is still ringing
+    expect(stepSaid('reveal', false, 'bell')).toBe('The bell');
     // the game is already at buying and the bids are being turned over
-    expect(stripStep('buy', false, 'order')).toEqual({ beat: 0, said: 'The standing order' });
-    // at night every step of the day is done
-    expect(stripStep('reveal', true).beat).toBe(5);
+    expect(stepSaid('buy', false, 'order')).toBe('The standing order');
+    // at night
+    expect(stepSaid('reveal', true)).toBe('Night');
     const game = read('src/ui/Game.tsx');
     expect(game).toContain("const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;");
     expect(game).toContain('if (show) rushDay.current = s.day;');
     expect(game).toContain('<TopBar s={s} viewer={viewer} night={c.night} on={onTable} ');
+  });
+
+  it('the day pill\'s name: the day, the game\'s length, the last days, and the step', () => {
+    expect(dayName(2, 14, 'Buying')).toBe('Day 2 of 14, Buying');
+    expect(dayName(12, 14, 'Morning')).toBe('Day 12 of 14, 3 days left, Morning');
+    expect(dayName(14, 14, 'The rush')).toBe('Day 14 of 14, last day, The rush');
+    // a three-day Sprint and a one-day League stage
+    expect(dayName(1, 3, 'Morning')).toBe('Day 1 of 3, 3 days left, Morning');
+    expect(dayName(1, 1, 'Morning')).toBe('Day 1 of 1, last day, Morning');
   });
 });
 

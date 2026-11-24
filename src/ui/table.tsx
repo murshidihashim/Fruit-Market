@@ -384,12 +384,13 @@ function MyBox({ s, p, compact, brief, first }: { s: GameState; p: number; compa
 }
 
 /**
- * The stalls' row (the approved Buying and Pricing screens). While stalls buy: "Stalls · in buying order", every
- * stall with its place in the order, you among them, and what each bought today. While crates are shut: "Rival crates
- * · shut until the bell", your rivals with how many pieces each put out, and no purchases. The rest of the day: your
- * rivals and their cash. The row keeps its place and its height all day. While stalls buy each box's corner holds its
- * seat round the table, so the clockwise order from the first buyer can be read, and the First token lies on the first
- * buyer's box (PLAN-104; who buys first and why is said to a screen reader there, not written on the screen). 2 to 6
+ * The stalls' row (the approved Buying and Pricing screens). While stalls buy: every stall with its place in the order,
+ * you among them, and what each bought today. While crates are shut: your rivals with how many pieces each put out, and
+ * no purchases. The rest of the day: your rivals and their cash. PLAN-127: the row has no heading on the screen (the
+ * First token, the turn numbers, the cash and the fruit carry it); its name says it to a screen reader ("Stalls in
+ * buying order", "Rival crates, shut until the bell", "Your rivals"). The row keeps its place and its height all day.
+ * While stalls buy each box's corner holds its seat round the table, so the clockwise order from the first buyer can be
+ * read, and the First token lies on the first buyer's box (PLAN-104; who buys first and why is said to a screen reader there, not written on the screen). 2 to 6
  * stalls: five or six stand closer, in smaller boxes.
  */
 export function Stalls({ s, viewer, boards, open, onOpen, onClose, off, mute }: {
@@ -408,12 +409,7 @@ export function Stalls({ s, viewer, boards, open, onOpen, onClose, off, mute }: 
   const said = token?.landed ? firstSaid(s, viewer) : null;
   const first = (p: number) => (p === s.order[0] ? said : null);
   return (
-    <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''} ${buying ? 'buying' : ''} ${token && !token.landed ? 'tb-drawing' : ''}`} role="group" aria-label={buying ? 'The stalls, in buying order' : 'Your rivals'}>
-      <div class="tb-row-head">
-        <b class="tk-label">{buying ? 'Stalls · in buying order' : shut ? 'Rival crates · shut until the bell' : 'Rival stalls'}</b>
-        {/* today's purchases are on show only while stalls buy (boughtToday), and so is the label that names them */}
-        {s.phase === 'buy' && <span class="tb-side">What each bought today</span>}
-      </div>
+    <div class={`seats tb-stalls n${list.length} ${compact ? 'compact' : ''} ${buying ? 'buying' : ''} ${token && !token.landed ? 'tb-drawing' : ''}`} role="group" aria-label={buying ? 'Stalls in buying order' : shut ? 'Rival crates, shut until the bell' : 'Your rivals'}>
       <div class="tb-stall-row" style={`--n:${list.length}`}>
         {list.map((p) => (p === viewer
           ? <MyBox key={p} s={s} p={p} compact={compact} brief={list.length > 3} first={first(p)} />
@@ -726,8 +722,10 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   );
   const lorry = nextLorryName(s);
   const load = nextLorry(s);
+  // PLAN-127: five chips or more (five or six stalls) are drawn closer on a phone, so the strip fits its width
+  const many = (forecast ? 1 : 0) + queue.length + (s.priorityNext !== null ? 1 : 0) >= 5;
   return (
-    <div class="tomorrow" aria-label="Tomorrow's customers">
+    <div class={`tomorrow ${many ? 'tm-many' : ''}`} aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
       {/* Priority played this evening (PLAN-084): that stall's mark stands at the front of tomorrow's line. */}
       {s.priorityNext !== null && s.players[s.priorityNext] && (

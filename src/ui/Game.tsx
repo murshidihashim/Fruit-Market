@@ -200,8 +200,9 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
   const tableOn = !!show || tableStep(dayStep(dayNow(s, viewer, c, !!online))) !== null;
   if (tableOn && !tableWas.current) crateFrom.current = A.boxOf(typeof document === 'undefined' ? null : document.getElementById('my-crate'));
   tableWas.current = tableOn;
-  // The strip of the day's steps follows what is on the table (PLAN-090): the standing order while its bids are turned
-  // over (the game is at buying by then), and the bell until the first customer's card is up (the game is at the rush).
+  // The day's step said with the day in the top bar follows what is on the table (PLAN-090, PLAN-127): the standing
+  // order while its bids are turned over (the game is at buying by then), and the bell until the first customer's card
+  // is up (the game is at the rush).
   const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it
@@ -270,11 +271,12 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
         </div>
       )}
 
-      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css). */}
+      {/* In the rush the customer at the stalls has left their ticket's place, which says so (rushTable.css).
+          PLAN-127: tomorrow's strip first, right under the top bar, then today's customers. */}
       <section class="street-wrap" data-a="street" style={show ? `--rt-at:"Customer ${show.n} of ${show.of}"` : undefined}>
+        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <Street s={s} viewer={viewer} onTip={(t) => c.setTip(t)} onScout={c.scout !== null && activeHuman ? c.pickWalkIn : undefined}
           away={show?.card.customerId} served={show?.served} />
-        <Tomorrow s={s} viewer={viewer} onTip={(t) => c.setTip(t)} />
         <OrderStrip s={s} viewer={viewer} />
       </section>
       {/* The stalls: in buying order while they buy (you among them), your rivals the rest of the day (PLAN-085). */}
