@@ -1,0 +1,59 @@
+{
+  "id": "PLAN-127",
+  "title": "Rules page redesign: six illustrated pages and a Try a sale reveal",
+  "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
+  "scope": [
+    "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
+    "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
+    "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
+    "Try a sale: Bobby Books's card and three small stalls; pick who sells first, then the sale is revealed piece by piece; then Fresh only; price ties in a row that opens",
+    "Favours & closing: a whole order earning a face-down favour card; the favour cards grouped by when they are played, with their own pictures; Lights out links to the freshness example",
+    "Market Days & the end: a Day 3 bid to Day 5 delivery strip with the stake; the upgrade cards in a row; a final count showing cash first and fruit sold as the tiebreak",
+    "The tips move beside their rules; a row of page names at the top"
+  ],
+  "exclusions": [
+    "No rule, balance, save or online change; the rules words are kept as they are",
+    "Not published: the live game changes only on the owner's word"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "The six pages at 390x844 and 360x640: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
+    "date": "2026-11-24"
+  },
+  "delivery": "in progress",
+  "release": "unreleased",
+  "build": "branch ccr-608a8c5d-g7t4ma",
+  "reports": [],
+  "decisions": [],
+  "changes": {
+    "added": [
+      "Try a sale: pick who sells first and watch the sale play out",
+      "Advance one night on the freshness track, and a mango's Green-to-Fresh example"
+    ],
+    "changed": [
+      "How to play is six illustrated pages, with each tip beside its rule"
+    ],
+    "fixed": [],
+    "removed": [
+      "The separate Tips page (its tips now stand beside their rules)"
+    ]
+  },
+  "playerNotes": [
+    "A new How to play: six illustrated pages with the game's own cards and pieces",
+    "Try a sale: guess who sells first, then watch Bobby Books buy his blueberries"
+  ]
+}

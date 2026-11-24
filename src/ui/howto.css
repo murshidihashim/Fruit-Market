@@ -1,0 +1,181 @@
+/* How to play (PLAN-127, HowTo.tsx): the six rules pages drawn with the table's own pieces. Colours from the palette
+   (exchange.css --x-..., styles.css --fresh/--okay/--notso). Phone first: everything fits 320 px without sideways
+   scrolling; the card rows scroll inside themselves. */
+
+/* the page list across the top: a tap goes straight to a page */
+.howto .ht-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 10px; margin: 0 0 4px; scrollbar-width: none; }
+.howto .ht-tabs::-webkit-scrollbar { display: none; }
+.howto .ht-tabs button {
+  flex: none; min-height: 34px; padding: 0 12px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+}
+.howto .ht-tabs button.on { background: var(--x-ink); color: var(--x-mustard); }
+
+.howto .ht-h3 { margin: 14px 0 6px; font: 800 0.8125rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); }
+.howto .ht-btn { min-height: 40px; padding: 0 14px; font-size: 0.875rem; }
+.howto .muted { color: var(--x-slate); }
+
+/* a freshness letter and a piece */
+.ht-lamp {
+  flex: none; width: 15px; height: 15px; border-radius: 50%; display: inline-grid; place-items: center; box-sizing: border-box;
+  background: var(--x-ink); color: var(--x-paper); font: 800 9px/1 var(--f-label); font-style: normal;
+}
+.ht-lamp.off { background: none; color: var(--x-slate); box-shadow: inset 0 0 0 1.5px var(--x-slate); }
+.ht-pc { position: relative; display: inline-flex; flex: none; transition: opacity calc(var(--mk, 1) * 300ms), transform calc(var(--mk, 1) * 300ms); }
+.ht-pc .ht-lamp { position: absolute; right: -4px; bottom: -4px; width: 13px; height: 13px; font-size: 8px; box-shadow: 0 0 0 1.5px var(--x-paper); }
+.ht-pc.gone { opacity: 0.15; transform: translateY(-8px); }
+.ht-pc.ht-in { animation: ht-in calc(var(--mk, 1) * 360ms) ease-out both; }
+@keyframes ht-in { from { opacity: 0; transform: translateY(10px) scale(0.6); } to { opacity: 1; transform: none; } }
+.ht-hid {
+  width: 20px; height: 20px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--x-kraft);
+  box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.75rem/1 var(--f-label); color: var(--x-ink);
+}
+
+/* a tip beside its rule */
+.ht-tip { margin: 8px 0; padding: 8px 10px; background: var(--x-cream); box-shadow: inset 3px 0 0 var(--x-mustard); font-size: 0.875rem; line-height: 1.4; }
+.ht-tip b { display: inline-block; margin-right: 6px; padding: 1px 5px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.6875rem/1.3 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* a row that opens in place */
+.ht-more { margin: 6px 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
+.ht-more summary { min-height: 40px; display: flex; align-items: center; padding: 0 10px; cursor: pointer; font: 800 0.8125rem/1.2 var(--f-label); list-style: none; }
+.ht-more summary::-webkit-details-marker { display: none; }
+.ht-more summary::after { content: '+'; margin-left: auto; font-size: 1.1rem; }
+.ht-more[open] summary::after { content: '−'; }
+.ht-more > div { padding: 0 10px 8px; font-size: 0.875rem; line-height: 1.4; }
+.ht-more p { margin: 0; }
+
+/* ---------- 1 quick start ---------- */
+.ht-hero { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
+.ht-hero .jp-stall { flex: 1 1 auto; min-width: 0; max-width: 190px; }
+.ht-hero-cash { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.ht-cash { display: inline-flex; align-items: center; gap: 6px; }
+.ht-cash b { font: 400 2.2rem/1 var(--f-display); color: var(--x-ink); }
+.ht-hero-cash small { color: var(--x-slate); font-size: 0.8125rem; }
+.ht-win { margin-top: 4px; padding: 6px 8px; background: var(--x-ink); color: var(--x-mustard); font: 800 0.8125rem/1.2 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; }
+.ht-keeper { display: flex; gap: 12px; align-items: flex-start; }
+.ht-keeper-card { flex: none; --card-w: 128px; }
+.ht-keeper-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ht-keeper-t > b { font: 800 1.05rem/1.2 var(--f-label); }
+.ht-perk { align-self: flex-start; padding: 2px 6px; background: var(--x-mustard); font: 800 0.75rem/1.3 var(--f-label); }
+.ht-keeper-t small { font-size: 0.875rem; line-height: 1.35; color: var(--x-ink); }
+.ht-keeper-nav { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.8125rem; color: var(--x-slate); }
+.ht-keeper-nav .ht-btn { min-width: 44px; padding: 0; font-size: 1.2rem; }
+
+/* ---------- 2 one market day ---------- */
+.ht-day { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ht-day > li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); color: var(--x-ink); }
+.ht-day > li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ht-day small { color: var(--x-slate); font-size: 0.8125rem; line-height: 1.35; }
+.ht-day .ht-tip, .ht-day .ht-more { margin: 6px 0 0; }
+.ht-day .beat-n:empty { background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-day > li.ht-wide { display: block; background: var(--x-cream); }
+.ht-vis { flex: none; display: inline-flex; align-items: center; gap: 4px; align-self: center; }
+.ht-lorry { position: relative; width: 52px; height: 30px; }
+.ht-lorry img { position: absolute; left: 0; bottom: 0; width: 52px; height: auto; }
+.ht-lorry img.b { display: none; }
+.ht-box { padding: 4px 6px; background: var(--fresh); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.8125rem/1 var(--f-label); gap: 8px; }
+.ht-age { font-weight: 800; }
+.ht-mini { --card-w: 34px; display: inline-flex; }
+.ht-mini-l { --card-w: 56px; }
+.ht-reveal { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ht-reveal-row { align-self: stretch; display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
+.ht-awn { flex: none; width: 18px; height: 12px; box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ht-count { margin-left: auto; padding: 2px 6px; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1.3 var(--f-label); }
+.ht-crate { position: relative; display: flex; flex-direction: column; align-items: center; }
+.ht-crate-fruit { display: flex; gap: 6px; justify-content: center; min-height: 24px; margin-bottom: -6px; position: relative; z-index: 1; }
+.ht-crate-box { display: block; overflow: hidden; width: 100%; }
+.ht-crate-box img { display: block; }
+.ht-tags { display: flex; gap: 10px; }
+
+/* ---------- 3 fruit and freshness ---------- */
+.ht-track { gap: 4px; }
+.howto .ht-track i {
+  position: relative; width: 38px; height: 34px; border-radius: 0; box-shadow: inset 0 0 0 1.5px var(--x-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.howto .ht-track i > .ht-lamp { position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; font-size: 7px; }
+.howto .ht-track i small { position: absolute; right: 3px; bottom: 3px; font: 800 0.625rem/1 var(--f-label); color: var(--x-ink); white-space: nowrap; }
+.howto .ht-track i.here { box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-tkn { margin: 8px 0 0 6px; display: inline-flex; animation: ht-in calc(var(--mk, 1) * 300ms) ease-out both; }
+.ht-night { margin: 10px 0; padding: 10px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); display: flex; flex-direction: column; gap: 6px; }
+.ht-night-h { display: flex; justify-content: space-between; gap: 8px; font-size: 0.875rem; }
+.ht-night-h span { color: var(--x-slate); }
+.ht-night-say { margin: 0; font-size: 0.875rem; font-weight: 700; }
+.ht-night .ht-btn { align-self: flex-start; }
+.ht-accept { width: 100%; border-collapse: collapse; font-size: 0.8125rem; table-layout: fixed; }
+.ht-accept th, .ht-accept td { padding: 6px 4px; border: 1.5px solid var(--x-ink); text-align: center; vertical-align: middle; }
+.ht-accept thead th { background: var(--x-ink); color: var(--x-paper); font: 800 0.75rem/1.2 var(--f-label); }
+.ht-accept thead .ht-lamp { background: var(--x-paper); color: var(--x-ink); display: inline-grid; }
+.ht-accept tbody th { text-align: left; background: var(--bar); color: var(--bar-ink); }
+.ht-accept tbody th b { color: inherit; }
+.ht-accept td.yes { background: var(--x-paper); font-weight: 700; }
+.ht-accept td.no { background: var(--x-kraft); color: var(--x-slate); }
+
+/* ---------- 4 try a sale ---------- */
+.ht-sale-top { display: flex; gap: 10px; align-items: flex-start; }
+.ht-cust { flex: none; --card-w: 118px; }
+.ht-sale-want { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ht-sale-want > b { font: 800 1rem/1.2 var(--f-label); }
+.ht-sale-want > small { font-size: 0.8125rem; line-height: 1.35; color: var(--x-slate); }
+.ht-seg { display: flex; }
+.ht-seg button {
+  flex: 1; min-height: 40px; padding: 0 6px; border: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
+  font: 800 0.75rem/1.1 var(--f-label); cursor: pointer;
+}
+.ht-seg button + button { margin-left: -2px; }
+.ht-seg button.on { background: var(--x-ink); color: var(--x-mustard); }
+.ht-got { font: 800 0.875rem/1.2 var(--f-label); }
+.ht-basket { display: flex; gap: 8px; min-height: 22px; }
+.ht-ask { margin: 10px 0 6px; font-weight: 700; }
+.ht-stalls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ht-stall {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 4px 6px; min-width: 0; border: 0; border-radius: 0; cursor: pointer;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit;
+}
+.ht-stall .ht-awn { align-self: stretch; width: auto; height: 10px; }
+.ht-stall > b { font: 800 0.8125rem/1 var(--f-label); }
+.ht-stall.picked { box-shadow: inset 0 0 0 4px var(--x-mustard), inset 0 0 0 6px var(--x-ink); }
+.ht-stall.out { background: var(--x-kraft); }
+.ht-stall:disabled { cursor: default; opacity: 1; }
+.ht-st-pcs { display: flex; gap: 6px; min-height: 22px; }
+.ht-st-note { min-height: 1.2em; font: 800 0.6875rem/1.2 var(--f-label); text-align: center; }
+.ht-stall.out .ht-st-note { color: var(--x-red-d); }
+.ht-go { display: block; width: 100%; margin: 8px 0; }
+.ht-verdict { padding: 8px 10px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); font-size: 0.875rem; line-height: 1.4; }
+.ht-verdict p { margin: 0 0 6px; }
+
+/* ---------- 5 favours and closing ---------- */
+.ht-earn { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px 0; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-earn-ord { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 150px; }
+.ht-earn-ord small { flex-basis: 100%; font-size: 0.75rem; font-weight: 700; }
+.ht-arrow { font: 800 1.4rem/1 var(--f-label); }
+.ht-favs { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.ht-fav {
+  display: flex; flex-direction: column; gap: 4px; padding: 0 0 8px; min-width: 0; border: 0; border-radius: 0; text-align: left; cursor: zoom-in;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit;
+}
+.ht-fav-pic { display: block; height: 64px; overflow: hidden; border-bottom: 2px solid var(--x-ink); }
+.ht-fav-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ht-fav b, .ht-fav small { padding: 0 8px; }
+.ht-fav b { font: 800 0.875rem/1.2 var(--f-label); }
+.ht-fav small { font-size: 0.75rem; line-height: 1.35; color: var(--x-ink); }
+
+/* ---------- 6 Market Days and the end ---------- */
+.ht-ref { margin: 4px 0 12px; }
+.ht-strip { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.ht-strip-d { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); text-align: center; }
+.ht-strip-d small { font-size: 0.75rem; line-height: 1.35; }
+.ht-strip-d .ht-lose { color: var(--x-red-d); }
+.ht-strip .ht-dlab { padding: 2px 8px; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1.3 var(--f-label); text-transform: uppercase; }
+.ht-strip-pcs { display: flex; gap: 6px; min-height: 24px; align-items: center; }
+.ht-mini-o { --card-w: 96px; height: 70px; overflow: hidden; align-items: flex-start; box-shadow: 0 2px 0 var(--x-ink); }
+.ht-ups { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x mandatory; }
+.ht-ups .ht-up { flex: none; width: 148px; scroll-snap-align: start; }
+.ht-ord-t { font: 800 0.8125rem/1.2 var(--f-label); }
+.ht-receipt { max-width: 300px; margin: 8px auto; padding: 10px 12px; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); font: 700 0.875rem/1.3 var(--f-label); }
+.ht-receipt > div { display: grid; grid-template-columns: 1fr 60px 84px; gap: 6px; padding: 4px 0; border-bottom: 1.5px dashed var(--x-ink); }
+.ht-receipt > div > :not(:first-child) { text-align: right; }
+.ht-receipt .ht-rc-h { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--x-slate); }
+.ht-receipt b { font-size: 1rem; }
+.ht-receipt .win { background: var(--x-mustard); padding: 4px 4px; margin: 0 -4px; }
+.ht-receipt .ht-rc-f { display: block; border: 0; padding-top: 6px; font-size: 0.75rem; color: var(--x-slate); }
