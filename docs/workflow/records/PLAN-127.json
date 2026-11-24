@@ -19,14 +19,26 @@
     {
       "id": "T1",
       "text": "npm run verify",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "On 3d08b9f: records OK, palette, lint, types, 1306 passed and 1 skipped (115 files, 5 new in tests/howto-pages.test.ts), build OK"
     },
     {
       "id": "T2",
-      "text": "The six pages at 390x844 and 360x640: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
-      "result": "NOT RUN",
-      "evidence": ""
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "PASS",
+      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on 3d08b9f: E2E OK; budget OK first try; pricing leaks 0, reactions 0, room 0, page errors 0. An earlier run on 42a43a8 also ended E2E OK after one budget retry (208 ms, with other work running)"
+    },
+    {
+      "id": "T3",
+      "text": "The six pages at 390x844 and 360 wide: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
+      "result": "PASS",
+      "evidence": "Playwright screenshots of all six pages at 390 and 360 wide: page width equals the screen; Ring the bell, Advance one night (blueberry and mango), Reveal sale (B $3, then A 2 at $4, C Order full; Fresh only: A 2 at $4, C 1 at $5) and Running out of cash / Price ties rows checked"
+    },
+    {
+      "id": "T4",
+      "text": "Wording checked against RULES.md (rules 20), which the live game plays",
+      "result": "PASS",
+      "evidence": "Fixed on 3d08b9f: Market Day bid before buying, tomorrow's customers in view while buying, customers face up at Stocking, no Green fruit in a crate, demand spills to the next cheapest stall, Heatwave and Monsoon nights, no favour card when two stalls serve, oldest fresh-enough piece sells first"
     }
   ],
   "approval": {
@@ -34,7 +46,7 @@
     "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
     "date": "2026-11-24"
   },
-  "delivery": "in progress",
+  "delivery": "implemented",
   "release": "unreleased",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [],

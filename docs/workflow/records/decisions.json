@@ -4849,6 +4849,10 @@
     {
       "at": "2026-11-24 22:39",
       "text": "PLAN-127 approved by the owner's word (\"redesign the rulepage per below's remark\"): How to play becomes six illustrated pages with a Try a sale reveal, the tips beside their rules. No rule change; not published."
+    },
+    {
+      "at": "2026-11-24 23:23",
+      "text": "PLAN-127 implemented on branch ccr-608a8c5d-g7t4ma: verify and e2e PASS on 3d08b9f; the wording was checked against RULES.md (rules 20) at the owner's request. Not merged to main or published."
     }
   ]
 }
