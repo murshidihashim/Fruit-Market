@@ -153,3 +153,60 @@ export function buyState(s: GameState, p: number, buyer?: number): BuyState {
 export function ticketLines(cards: (Pick<Customer, 'wants'> | null | undefined)[]): number {
   return Math.max(2, ...cards.map((c) => c?.wants.length ?? 0));
 }
+
+// ---------- the night: tomorrow's customers walk into today's places (PLAN-128) ----------
+
+/** One of tomorrow's customers walking into today's row at night: face up (the expected customer, or a walk-in this
+ *  stall has seen with Gossip, Scout or Sharp Ears), or face down (only the fruit on its back shows). */
+export interface Walker { c: Customer; up: boolean }
+
+/**
+ * Who walks from the Tomorrow strip into today's row as the night ages the fruit (PLAN-128, the owner): the cards the
+ * strip holds at night, in the order the next morning stands them (the expected customer, then the walk-ins). Only
+ * what the strip already shows this stall is shown: a walk-in it has not seen stays face down. Nobody walks before
+ * today's crowd has arrived (the strip then holds the day after tomorrow's) or once the market has closed.
+ */
+export function walkers(s: GameState, viewer: number): Walker[] {
+  if (s.phase === 'over' || s.phase === 'morning' || s.phase === 'order' || s.phase === 'buy') return [];
+  return [
+    ...(s.forecast ? [{ c: s.forecast, up: true }] : []),
+    ...s.queue.map((c) => ({ c, up: !!c.seenBy?.includes(viewer) })),
+  ];
+}
+
+/**
+ * The table a walking card is drawn from: tonight's, without today's event. Today's event lasts until night and
+ * tomorrow's is not known until it is turned over in the morning, so a ticket shows its printed price (with the
+ * market's demand, which the rush has already set for tomorrow) and no event's mark; the morning then changes the price
+ * where its event does, as it always has.
+ */
+export const walkTable = (s: GameState): GameState => (s.event ? { ...s, event: null } : s);
+
+/** The curve of the night's slide: the lanes' pieces, your shelf's chips and the walking cards share it (table.css). */
+export const NIGHT_EASE = 'cubic-bezier(0.45, 0, 0.3, 1)';
+
+/**
+ * How long the walk takes, from the night's slide as its script sets it (animator.tsx nightfall): exactly the slide's
+ * length, so the cards reach their places as the fruit settles in its new boxes (null: nothing moves now, at dusk and
+ * once the pieces rest).
+ */
+export const walkMs = (slide: number | 'done' | null | undefined): number | null => (typeof slide === 'number' ? slide : null);
+
+/** A box on the screen. */
+export interface WalkBox { left: number; top: number; width: number; height: number }
+
+/**
+ * Where a walking card starts: over its chip in the Tomorrow strip, as small as the chip (one scale, so the card's
+ * picture is not stretched), drawn as a transform of the card in its place in today's row.
+ */
+export function walkFrom(chip: WalkBox, card: WalkBox): string {
+  const dx = chip.left + chip.width / 2 - (card.left + card.width / 2);
+  const dy = chip.top + chip.height / 2 - (card.top + card.height / 2);
+  const k = Math.min(1, chip.width / card.width, chip.height / card.height);
+  return `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})`;
+}
+
+/** The walk's frames: from the chip to the place, fading in over the first part of the way while the chip fades out. */
+export function walkFrames(chip: WalkBox, card: WalkBox): Keyframe[] {
+  return [{ transform: walkFrom(chip, card), opacity: 0 }, { opacity: 1, offset: 0.3 }, { transform: 'none', opacity: 1 }];
+}

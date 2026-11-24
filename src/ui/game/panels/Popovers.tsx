@@ -9,10 +9,11 @@ import { markSeen, skipTutorial, type Tip } from '../../tutorial';
 import { MorningCard } from './MorningCard';
 import { priorityNote, priorityWouldReturn } from '../evening';
 import { FullScreenButton } from '../../FullScreenButton';
-import { TrapBox } from '../../focusTrap';
+import { TrapBox, useFocusTrap } from '../../focusTrap';
 import { Wardrobe } from '../../Wardrobe';
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import type { GameState } from '../../../engine/game';
+import { usePopFrom } from '../popMotion';
 import { loadSettings, saveSettings } from '../../store';
 import { Toggle } from '../../Toggle';
 import type { GameController } from '../useGameController';
@@ -20,12 +21,36 @@ import type { GameController } from '../useGameController';
 /** S3 (DEC-120): said on a favour card about to be played on a buying turn. */
 export const UNDO_AFTER_CARD = 'Once played, it stays played. Undo then takes back only what you buy after it.';
 
+/** The badge in the top bar that today's event card is drawn from and put back to. */
+const EVENT_BADGE = '.tk-top .tk-event';
+/** The parts of the sheet under the event card (dawn's money, the lorry, tomorrow, Close): they rise into place once
+ *  the card has been drawn, and fade as it goes back. */
+const UNDER_EVENT = ':scope > .morning-card > :not(.wc-flip), :scope > .btn';
+
+/**
+ * Today's event, opened from the badge in the top bar (PLAN-128, the owner: "drawing a card"). The card leaves the
+ * badge face down, travels to the middle of the screen as it grows, and turns over there (FEEL.turn, cards.css); the
+ * lorry, tomorrow and Close then rise into place under it (popMotion.ts). The table stays where it is, dimmed under a
+ * translucent backdrop. A tap beside the cards, Close or Escape puts it back: it travels back to the badge and the
+ * backdrop fades. A tap while it is being drawn ends the move at once. With reduced motion the card is simply there,
+ * face up, and goes at once.
+ */
 export function EventPop({ c, viewer, shared }: { c: GameController; viewer: number; shared?: boolean }) {
-  // Fills the screen like the morning card (PLAN-013); tap anywhere or the button to go back.
+  const root = useRef<HTMLDivElement>(null);
+  const pop = usePopFrom(root, '.wc-flip', UNDER_EVENT, () => document.querySelector(EVENT_BADGE), () => c.setEventInfo(false));
+  // Keyboard focus stays in the pop-up while it is open; Escape puts the card back.
+  useFocusTrap(root, pop.close);
+  // A tap while the card is on its way ends the move at once; once it is open, a tap beside the cards puts it back.
+  const tap = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (pop.step === 'draw') pop.hurry();
+    else if (!(e.target as Element).closest?.('.wc-flip, .tk-unload, .mt-next, .dw, .mc-loss')) pop.close();
+  };
   return (
-    <div class="full-sheet event-sheet" role="dialog" aria-label="Today and tomorrow" onClick={() => c.setEventInfo(false)}>
+    <div ref={root} tabIndex={-1} class={`full-sheet event-sheet ev-pop ${pop.step === 'draw' ? 'drawing' : ''}`} role="dialog" aria-modal="true"
+      aria-label="Today and tomorrow" onClick={tap}>
       <MorningCard s={c.s} viewer={viewer} lost={0} shared={shared} />
-      <button type="button" class="btn primary big wide" onClick={() => c.setEventInfo(false)}>Back</button>
+      <button type="button" class="btn primary big wide" onClick={(e) => { e.stopPropagation(); pop.close(); }}>Close</button>
     </div>
   );
 }

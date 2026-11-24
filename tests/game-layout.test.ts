@@ -10,7 +10,7 @@ import { MyStall, Street, Tomorrow } from '../src/ui/table';
 import { TIPS } from '../src/ui/tutorial';
 
 // The game screen layout the owner approved ("Phone A"): today's customers in one row, a slim Tomorrow strip,
-// the rivals strip, the market in the middle and your shelf docked above the action bar.
+// the market in the middle, the stalls' row under it (PLAN-128) and your shelf docked above the action bar.
 const game = (): GameState => newGame({
   players: RIVALS.slice(0, 4).map((r, i) => ({ name: i ? r.name : 'Me', kind: i ? 'ai' as const : 'human' as const, avatar: r.avatar })),
   days: 8, unripe: true, upgrades: true, events: true, seed: 11,
@@ -92,9 +92,19 @@ describe('today and tomorrow (table.tsx Street, Tomorrow)', () => {
 
 describe('the game screen grid (styles.css)', () => {
   const css = readFileSync('src/ui/styles.css', 'utf8');
-  it('phones stack top bar, customers, rivals, market, shelf and action bar, with only the market flexible', () => {
-    expect(css).toContain('grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";');
-    expect(css).toContain('grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;');
+  it('phones stack top bar, customers, market, stalls (PLAN-128: under the market), shelf and action bar, with only the market flexible', () => {
+    expect(css).toContain('grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";');
+    expect(css).toContain('grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;');
+  });
+  it('PLAN-128: the game table itself (ticket.css) has the same order, and the round table still lies from the market down', () => {
+    const tkt = readFileSync('src/ui/ticket.css', 'utf8');
+    expect(tkt).toContain('grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";');
+    expect(tkt).toContain('grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;');
+    expect(readFileSync('src/ui/rushTable.css', 'utf8')).toContain('grid-row: mid / act;');
+    // in the page too, the stalls come after the middle of the table and before your shelf
+    const page = readFileSync('src/ui/Game.tsx', 'utf8');
+    expect(page.indexOf('<Stalls ')).toBeGreaterThan(page.indexOf('<div class={`centre'));
+    expect(page.indexOf('<Stalls ')).toBeLessThan(page.indexOf('<MyStall '));
   });
   it('desktop has three columns: customers | market | rivals, shelf and the main button', () => {
     expect(css).toContain('grid-template-areas: "top top top" "net net net" "street mid rivals" "street mid dock" "street mid act";');
