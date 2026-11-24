@@ -296,3 +296,9 @@
 @media (prefers-reduced-motion: reduce) {
   #app .tkt .ob-status.open li { animation: none; }
 }
+
+/* Shade Cloth (owner, 2026-11-24): each fruit's button says what you hold of it, since the sheet covers the shelf. */
+#app .tkt .shade-pick button { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 6px 2px; }
+#app .tkt .shade-pick button b { font: 800 0.875rem/1 var(--tk-txt); }
+#app .tkt .shade-pick button small { font: 700 0.6875rem/1.1 var(--tk-txt); color: var(--tk-slate); }
+#app .tkt .shade-pick button small.bad { color: var(--tk-red-d); }

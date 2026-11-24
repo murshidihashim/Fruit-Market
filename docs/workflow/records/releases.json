@@ -735,6 +735,21 @@
       "date": "2026-11-24",
       "commit": "1aad18d",
       "tagged": true
+    },
+    {
+      "version": "1.31.2",
+      "status": "candidate",
+      "plans": [
+        "PLAN-126"
+      ],
+      "notes": [
+        "A new app icon",
+        "Pak Din's Shade Cloth now shows how many of each fruit you hold and what spoils tonight",
+        "Your first game is played by hand, with the usual tips"
+      ],
+      "date": "2026-11-24",
+      "commit": "",
+      "tagged": false
     }
   ]
 }
