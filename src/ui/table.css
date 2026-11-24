@@ -318,8 +318,8 @@
 }
 
 /* ---------- S12 and S13 (PLAN-110): short and narrow phones ----------
-   Where the table is taller than the screen (a 320 x 568 phone: 785 px of table), the top bar (day, cash, today's
-   event and the day's steps) and the bottom bar (the main button) stay in place and the table moves between them. On a
+   Where the table is taller than the screen (a 320 x 568 phone: 785 px of table), the top bar (day, cash and today's
+   event) and the bottom bar (the main button) stay in place and the table moves between them. On a
    screen the table fits, nothing moves. */
 #app .game.tkt > .tk-top { position: sticky; top: 0; }
 #app .game.tkt > .actionbar, #app .game.tkt > .centre > .pp-lock { position: sticky; bottom: 0; }
@@ -362,8 +362,6 @@
   #app .tkt .tb-box .tb-tkn .x-fruit { width: 13px; height: 13px; }
   #app .tkt .tb-n { font-size: 0.6875rem; }
   #app .tkt .tb-box .price { font-size: 0.625rem; margin-left: auto; }
-  /* the day's steps share the bar by the length of their words ("3 Stocking" was cut) */
-  #app .tkt .tk-beats li { flex: 1 1 auto; padding: 0 2px; font-size: 0.6rem; letter-spacing: 0; }
   /* five or six stalls: a smaller face, so the cash beside it is whole */
   #app .tkt .tb-stall.compact .tk-swatch.tb-face { --s: 16px; }
 }

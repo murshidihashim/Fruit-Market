@@ -200,8 +200,9 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
   const tableOn = !!show || tableStep(dayStep(dayNow(s, viewer, c, !!online))) !== null;
   if (tableOn && !tableWas.current) crateFrom.current = A.boxOf(typeof document === 'undefined' ? null : document.getElementById('my-crate'));
   tableWas.current = tableOn;
-  // The strip of the day's steps follows what is on the table (PLAN-090): the standing order while its bids are turned
-  // over (the game is at buying by then), and the bell until the first customer's card is up (the game is at the rush).
+  // The day's step said with the day in the top bar follows what is on the table (PLAN-090, PLAN-127): the standing
+  // order while its bids are turned over (the game is at buying by then), and the bell until the first customer's card
+  // is up (the game is at the rush).
   const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;
 
   // The middle of the table: the Wholesale Market, with the card or decision of the moment on top of it

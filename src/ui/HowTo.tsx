@@ -18,7 +18,7 @@ const GAME_PHASES = [
   ['The end', 'Most cash wins.'],
 ];
 
-/** The five steps of a day, then evening and night (the top bar and the rules count five steps). */
+/** The five steps of a day, then evening and night (the rules and the table board count five steps). */
 const DAY_STEPS = 5;
 const DAY_BEATS = [
   ['Morning', 'From Day 2 an event card is turned over. The lorry unloads at the Wholesale Market.'],

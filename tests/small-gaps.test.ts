@@ -178,7 +178,7 @@ describe('faint labels are dark enough to read (4.5:1 for small words, 3:1 for a
       ['a − or + that cannot be pressed (stocking)', css('daysheet.css', '#app .tkt .sh-day .ds-st:disabled').color, css('daysheet.css', '#app .tkt .sh-day .ds-st:disabled').background],
       ['a good chip', paper, css('ticket.css', '#app .tkt .tk-chip.good').background],
       ['a warning chip', paper, css('ticket.css', '#app .tkt .tk-chip.warn').background],
-      ['"Last day"', paper, css('ticket.css', '#app .tkt .tk-left.last').background],
+      ['the last day\'s day pill (PLAN-127)', css('ticket.css', '#app .tkt .tk-day.last .tk-pill').color, css('ticket.css', '#app .tkt .tk-day.last .tk-pill').background],
       ['a standing order due today: "Order"', css('ticket.css', '#app .tkt .order-strip.due .os-k').color, mustard],
       ['a standing order due today: its stake', css('ticket.css', '#app .tkt .order-strip.due .os-fine').color, mustard],
       ['a raised price on a customer\'s ticket', css('cards.css', '.tkc-rw.up > b').color, paper],
