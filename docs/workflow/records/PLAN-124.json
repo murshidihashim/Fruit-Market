@@ -35,8 +35,8 @@
     {
       "id": "T4",
       "text": "The owner sees it on the preview",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner reviewed it on the preview and asked to publish (2026-11-24)"
     }
   ],
   "approval": {
@@ -44,7 +44,7 @@
     "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
     "date": "2026-11-23"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

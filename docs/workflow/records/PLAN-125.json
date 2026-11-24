@@ -34,8 +34,8 @@
     {
       "id": "T4",
       "text": "The owner sees it on the preview",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner reviewed it on the preview and asked to publish (2026-11-24)"
     }
   ],
   "approval": {
@@ -43,7 +43,7 @@
     "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
     "date": "2026-11-23"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

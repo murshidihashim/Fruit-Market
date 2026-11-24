@@ -706,7 +706,7 @@
     },
     {
       "version": "1.31.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-122",
         "PLAN-123",
@@ -718,6 +718,19 @@
         "Four ways to play: Quick Match (now up to 6 stalls), Private Room, Computer and Pass & Play, with a one-page set-up",
         "Buying is clearer: the market never looks sold out while a rival buys, and every counter changes together",
         "Skip to the end goes straight to the day's recap, and the Rush, Sprint and League words are clearer"
+      ],
+      "date": "2026-11-24",
+      "commit": "dd89d36",
+      "tagged": true
+    },
+    {
+      "version": "1.31.1",
+      "status": "candidate",
+      "plans": [
+        "PLAN-124"
+      ],
+      "notes": [
+        "On a phone whose browser shows the desktop site, Home now says how to switch back so the game fills the screen"
       ],
       "date": "2026-11-24",
       "commit": "",
