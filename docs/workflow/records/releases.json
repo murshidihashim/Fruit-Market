@@ -738,7 +738,7 @@
     },
     {
       "version": "1.31.2",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-126"
       ],
@@ -748,8 +748,8 @@
         "Your first game is played by hand, with the usual tips"
       ],
       "date": "2026-11-24",
-      "commit": "",
-      "tagged": false
+      "commit": "93f8572",
+      "tagged": true
     }
   ]
 }

@@ -3327,7 +3327,7 @@
         "evidence": "Owner, 2026-11-24: \"use this as the icon\" (the price-tag design, sent as fruit-market-icon-1024.png) \"but enhance\", \"fix Pak din players not being able to see their inventory when using their power\", \"remove the guided quicksale\" and \"push it live\"",
         "date": "2026-11-24"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-126",
       "reviewTrigger": "After the owner sees it live.",
       "reports": []
@@ -4845,6 +4845,10 @@
     {
       "at": "2026-11-24 14:29",
       "text": "DEC-134 and PLAN-126 approved (icon, Shade Cloth stock, no guided first sale) with the word to publish. The uploaded zip did not arrive; the owner then sent the 1024 px picture, redrawn as a vector. Release candidate 1.31.2."
+    },
+    {
+      "at": "2026-11-24 15:16",
+      "text": "1.31.2 published on the owner's word: pull request #36 passed CI and merged as 93f8572; Deploy LIVE game run 50 passed and tagged v1.31.2; the live game serves 1.31.2 with the new icons. PLAN-126 released."
     }
   ]
 }
