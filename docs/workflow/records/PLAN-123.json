@@ -41,8 +41,8 @@
     {
       "id": "T5",
       "text": "The owner sees it on the preview",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner reviewed it on the preview and asked to publish (2026-11-24)"
     }
   ],
   "approval": {
@@ -50,7 +50,7 @@
     "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
     "date": "2026-11-23"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [

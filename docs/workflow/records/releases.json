@@ -706,7 +706,7 @@
     },
     {
       "version": "1.31.0",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-122",
         "PLAN-123",
@@ -720,8 +720,8 @@
         "Skip to the end goes straight to the day's recap, and the Rush, Sprint and League words are clearer"
       ],
       "date": "2026-11-24",
-      "commit": "",
-      "tagged": false
+      "commit": "dd89d36",
+      "tagged": true
     }
   ]
 }

@@ -31,8 +31,8 @@
     {
       "id": "T4",
       "text": "The owner sees it",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "The owner reviewed it on the preview and asked to publish (2026-11-24)"
     }
   ],
   "approval": {
@@ -40,7 +40,7 @@
     "evidence": "Owner, 2026-11-23 (with a screenshot of Home at Level 6): \"make it so that its more centred and the level 6 box opens up to the stamp box\"",
     "date": "2026-11-23"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.0",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],

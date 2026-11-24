@@ -3233,7 +3233,7 @@
         "evidence": "Owner, 2026-11-23 (with a screenshot of Home at Level 6): \"make it so that its more centred and the level 6 box opens up to the stamp box\"",
         "date": "2026-11-23"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-122",
       "reviewTrigger": "After the owner sees it.",
       "reports": []
@@ -3256,7 +3256,7 @@
         "evidence": "Owner, 2026-11-23: \"Do a release-quality bug-fix and polish pass on Fruit Market staging ... fix issues in the repo, and verify the fixes ... Stage the changes for review before promoting them to production.\" (eight staging findings, journey polish, animation and sound audit, full verification list)",
         "date": "2026-11-23"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-123",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": [
@@ -3281,7 +3281,7 @@
         "evidence": "Owner, 2026-11-23, with a mockup: \"The Shopfront & Board (Tabbed Bottom Navigation): separates your personal stall management (STALL) and rulebook (RULES) into a clean bottom navigation bar, leaving one focused hero card and a unified PLAY button on the main MARKET screen. reword the home screen as attached\"",
         "date": "2026-11-23"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-124",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
@@ -3304,7 +3304,7 @@
         "evidence": "Owner, 2026-11-23: \"game modes should be Quick Match (dont just limit to 1v1), Private Room, Computer, and Pass & Play\" and \"rework the attached screen (applicable to all game modes), it needs to be a one pager\"; then, after three card-style mockups: \"go with B, but remember for private room, characters are selected after everyone has joined, build the design as well\"",
         "date": "2026-11-23"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-125",
       "reviewTrigger": "After the owner sees it on the preview.",
       "reports": []
@@ -4798,6 +4798,10 @@
     {
       "at": "2026-11-24 09:05",
       "text": "Owner: \"push to live\". Release candidate 1.31.0 (REP-139): PLAN-122 to PLAN-125. The preview served the same build (index-Cie31v_B.js, main 3f73128) and the owner reviewed it there."
+    },
+    {
+      "at": "2026-11-24 09:44",
+      "text": "1.31.0 published to the live game on the owner's word (\"push to live\"). Pull request #34 passed CI and merged as dd89d36; Deploy LIVE game run 48 passed and tagged v1.31.0. The live game serves the 1.31.0 build (index-LfH4VRQr.js). PLAN-122 to PLAN-125 released. Not run: a real Android phone by the team."
     }
   ]
 }
