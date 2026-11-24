@@ -1,7 +1,8 @@
 // How far a sheet reaches over the table (PLAN-084). The table's rows keep their places all day: the customers, the
-// rivals, the lanes, your shelf. A sheet lies in the middle cell, where every middle panel lies, and reaches over the
-// rows above and below it as the approved screens show: the morning's news over the rivals, the standing-order bid
-// over the customers, the rivals and your shelf, the evening over everything under the top bar.
+// lanes, the stalls (under the lanes since PLAN-128), your shelf. A sheet lies in the middle cell, where every middle
+// panel lies, and reaches over the rows above and below it as the approved screens show: the morning's news over the
+// stalls, the standing-order bid over the customers, the stalls and your shelf, the evening over everything under the
+// top bar.
 //
 // Nothing is moved and no row is resized: the sheet stays a child of the middle cell and is drawn larger than the cell
 // by a negative margin (sheets.css), measured here from the rows themselves. The measure is written on the sheet's own
@@ -28,6 +29,8 @@ export interface ReachBoxes {
   street: { top: number } | null;
   bar: { bottom: number } | null;
   dock: { bottom: number } | null;
+  /** PLAN-128: the stalls' row, under the middle cell (null: not on the screen, as with no rivals). */
+  seats?: { bottom: number } | null;
   /** A notice lies between the top bar and the customers (online: someone is reconnecting). It must stay in view. */
   notice: boolean;
 }
@@ -35,7 +38,8 @@ export interface ReachBoxes {
 /**
  * The rule: how far above the middle cell the sheet starts and how far below it ends, in px (never negative).
  * A sheet that would reach up to the top bar stops at the customer band while a notice is up, so the notice stays in
- * view.
+ * view. `down`: the sheet ends at the foot of your shelf; otherwise at the top of your shelf, so it lies over the
+ * stalls' row under the middle cell (PLAN-128: the row it lay over when the stalls stood above the lanes).
  */
 export function reachFrom(b: ReachBoxes, up: ReachUp, down: boolean): Reach {
   const top = up === 'row' ? (b.row ? b.row.bottom + BAND_PAD : null)
@@ -43,7 +47,7 @@ export function reachFrom(b: ReachBoxes, up: ReachUp, down: boolean): Reach {
     : b.street ? b.street.top : null;
   return {
     rise: Math.max(0, Math.round(b.mid.top - (top ?? b.mid.top))),
-    drop: Math.max(0, Math.round((down && b.dock ? b.dock.bottom : b.mid.bottom) - b.mid.bottom)),
+    drop: Math.max(0, Math.round((down && b.dock ? b.dock.bottom : !down && b.seats ? b.seats.bottom : b.mid.bottom) - b.mid.bottom)),
   };
 }
 
@@ -57,7 +61,7 @@ function measure(game: Element): ReachBoxes | null {
   };
   return {
     mid, row: box(':scope > .street-wrap > .street'), street: box(':scope > .street-wrap'), bar: box(':scope > .tk-top'),
-    dock: box(':scope > .my-stall'), notice: !!box(':scope > .net'),
+    dock: box(':scope > .my-stall'), seats: box(':scope > .seats'), notice: !!box(':scope > .net'),
   };
 }
 

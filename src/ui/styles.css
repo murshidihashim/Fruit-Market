@@ -1003,16 +1003,16 @@ b, strong { font-weight: 700; }
 /* =====================================================================
    The game screen layout (owner-approved "Phone A"): on a phone nothing scrolls while you buy, stock and
    price, and your shelf and every one of today's customers stay in view. One grid, top to bottom: the top
-   bar, today's customers (and a Tomorrow strip after buying), the rivals strip, the middle of the table
-   (the Wholesale Market, or the card or decision of the moment on top of it), your shelf dock and the
-   action bar. Desktop: three columns, customers | market | rivals, shelf and the main button.
+   bar, today's customers (and a Tomorrow strip after buying), the middle of the table (the Wholesale
+   Market, or the card or decision of the moment on top of it), the stalls' row under it (PLAN-128), your
+   shelf dock and the action bar. Desktop: three columns, customers | market | rivals, shelf and the main button.
    Classes keep their old names (scripts and tests rely on them); `.gx` marks the game table.
    ===================================================================== */
 .game.gx {
   --gx-pad: 8px; --pz-h: 40px;
   display: grid; grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";
   /* clip, not hidden: a focused button near the edge must not scroll the whole table sideways */
   height: 100%; overflow: hidden; overflow: clip;
 }
@@ -1193,7 +1193,7 @@ b, strong { font-weight: 700; }
 /* stocking and pricing: the tip gets a row of its own above the panel (phone), so it pushes the panel down a little and
    never covers the shelf, the stall box or the crates it talks about (PLAN-064) */
 @media not all and (min-width: 900px) and (min-height: 560px) {
-  .game.gx.coach-row { grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto auto; grid-template-areas: "top" "net" "street" "rivals" "coach" "mid" "dock" "act"; }
+  .game.gx.coach-row { grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto auto; grid-template-areas: "top" "net" "street" "coach" "mid" "rivals" "dock" "act"; }
   .game.gx.coach-row > .coach, .game.gx.coach-row > .coach.top { grid-area: coach; align-self: stretch; margin: 6px auto 4px; }
 }
 /* phones: a tighter note, so it hides less of the market or the panel it explains */

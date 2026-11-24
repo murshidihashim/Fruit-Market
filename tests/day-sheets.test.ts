@@ -431,22 +431,28 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
 });
 
 describe('a sheet reaches over the rows of the table without moving them (reach.ts, sheets.css)', () => {
-  // A phone 390 by 844 (PLAN-127: no strip of the day's steps): the top bar to 52, the customer band to 300 (tickets to
-  // 230), the rivals to 356, the lanes to 713, your shelf to 772. A notice would lie between the top bar and the band.
-  const boxes: ReachBoxes = { mid: { top: 356, bottom: 713 }, row: { bottom: 230 }, street: { top: 52 }, bar: { bottom: 52 }, dock: { bottom: 772 }, notice: false };
+  // A phone 390 by 844 (PLAN-127: no strip of the day's steps; PLAN-128: the stalls under the lanes): the top bar to
+  // 52, the customer band to 300 (tickets to 230), the lanes to 657, the stalls to 713, your shelf to 772. A notice
+  // would lie between the top bar and the band.
+  const boxes: ReachBoxes = { mid: { top: 300, bottom: 657 }, row: { bottom: 230 }, street: { top: 52 }, bar: { bottom: 52 }, seats: { bottom: 713 }, dock: { bottom: 772 }, notice: false };
 
   it('the morning starts under the customers\' tickets, the bid at the customer band, the evening right under the top bar', () => {
-    expect(reachFrom(boxes, 'row', false)).toEqual({ rise: 356 - 236, drop: 0 });
-    expect(reachFrom(boxes, 'street', true)).toEqual({ rise: 356 - 52, drop: 772 - 713 });
-    expect(reachFrom(boxes, 'bar', true)).toEqual({ rise: 356 - 52, drop: 59 });
+    expect(reachFrom(boxes, 'row', false)).toEqual({ rise: 300 - 236, drop: 713 - 657 });
+    expect(reachFrom(boxes, 'street', true)).toEqual({ rise: 300 - 52, drop: 772 - 657 });
+    expect(reachFrom(boxes, 'bar', true)).toEqual({ rise: 300 - 52, drop: 115 });
+  });
+
+  it('PLAN-128: a sheet that stops at your shelf still lies over the stalls\' row, now under the lanes, as it did above them', () => {
+    expect(reachFrom(boxes, 'row', false).drop).toBe(713 - 657);
+    expect(reachFrom({ ...boxes, seats: null }, 'row', false).drop).toBe(0);
   });
 
   it('a notice between the top bar and the customers (someone is reconnecting) stays in view', () => {
-    expect(reachFrom({ ...boxes, notice: true, street: { top: 82 } }, 'bar', true).rise).toBe(356 - 82);
+    expect(reachFrom({ ...boxes, notice: true, street: { top: 82 } }, 'bar', true).rise).toBe(300 - 82);
   });
 
   it('a row that is not on the screen is simply not reached over, and the reach is never negative', () => {
-    expect(reachFrom({ ...boxes, row: null }, 'row', false)).toEqual({ rise: 0, drop: 0 });
+    expect(reachFrom({ ...boxes, row: null, seats: null }, 'row', false)).toEqual({ rise: 0, drop: 0 });
     expect(reachFrom({ ...boxes, dock: null }, 'street', true).drop).toBe(0);
     expect(reachFrom({ ...boxes, street: { top: 400 } }, 'street', false).rise).toBe(0);
   });

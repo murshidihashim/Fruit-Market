@@ -19,15 +19,15 @@
 
 /* ---------- the table: one column on every screen ---------- */
 #app .game.gx.tkt {
-  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";
   width: 100%; max-width: 520px; margin: 0 auto; background: var(--tk-paper); color: var(--tk-ink); font-family: var(--tk-txt);
 }
 #app .game.gx.tkt.is-night { background: var(--tk-ink); }
 #app .tkt.is-night::after { display: none; }
 #app .tkt.is-night > .street-wrap, #app .tkt.is-night > .seats { display: none; }
 @media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
-  #app .game.gx.tkt { grid-template-rows: auto auto auto auto minmax(380px, auto) auto auto; }
+  #app .game.gx.tkt { grid-template-rows: auto auto auto minmax(380px, auto) auto auto auto; }
 }
 
 /* ---------- shared marks ---------- */
