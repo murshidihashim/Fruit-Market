@@ -3350,7 +3350,7 @@
         "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
         "date": "2026-11-24"
       },
-      "delivery": "implemented",
+      "delivery": "released",
       "plan": "PLAN-127",
       "reviewTrigger": "After the owner sees it.",
       "reports": []
@@ -4892,6 +4892,10 @@
     {
       "at": "2026-11-24 22:05",
       "text": "Owner: \"push it live\". Release candidate 1.31.3: PLAN-127 (centred header with the day pill, no phase bar, Tomorrow first, no stall-row labels, the turn line read by screen readers only)."
+    },
+    {
+      "at": "2026-11-24 22:44",
+      "text": "1.31.3 published on the owner's word: pull request #37 passed CI and merged as 65c645d; Deploy LIVE game run 51 passed and tagged v1.31.3; the live game serves 1.31.3 (index-YoD-C4oc.js). PLAN-127 released."
     }
   ]
 }

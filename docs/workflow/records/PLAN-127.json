@@ -37,7 +37,7 @@
     "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
     "date": "2026-11-24"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.3",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
