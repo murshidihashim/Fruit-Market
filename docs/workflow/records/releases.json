@@ -763,6 +763,23 @@
       "date": "2026-11-24",
       "commit": "65c645d",
       "tagged": true
+    },
+    {
+      "version": "1.31.4",
+      "status": "candidate",
+      "plans": [
+        "PLAN-128"
+      ],
+      "notes": [
+        "The wholesale market now sits above the stalls",
+        "Today's event card is drawn from the deck",
+        "At night, tomorrow's customers walk into today's places",
+        "Tap any stall on the takings to see who bought what, and for how much",
+        "A guide on your first Market Day evening"
+      ],
+      "date": "2026-11-25",
+      "commit": "",
+      "tagged": false
     }
   ]
 }
