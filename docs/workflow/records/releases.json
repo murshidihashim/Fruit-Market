@@ -766,7 +766,7 @@
     },
     {
       "version": "1.31.4",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-128"
       ],
@@ -778,8 +778,8 @@
         "A guide on your first Market Day evening"
       ],
       "date": "2026-11-25",
-      "commit": "",
-      "tagged": false
+      "commit": "cc2342a",
+      "tagged": true
     }
   ]
 }

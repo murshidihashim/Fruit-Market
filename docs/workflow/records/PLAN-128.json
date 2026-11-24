@@ -22,8 +22,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": ""
+      "result": "PASS",
+      "evidence": "npm run test:e2e on the merged build 7a6556f: E2E OK, leaks 0 (84 pricing frames, reactions, 38 room frames), budget OK, reconnect 5 cycles"
     },
     {
       "id": "T3",
@@ -37,7 +37,7 @@
     "evidence": "Owner, 2026-11-24: \"swap position between rival stalls and wholesale market board; make the animation when clicking the today's event button to be drawing a card, and when the card is fully shown, show a translucent-ish background instead of the current white background; tomorrow customer cards should be animated to enter the today's customer slot when fruit is aging, time it to be in sync; show the results after demand has been fulfilled when your takings is being shown ... make it so that players can tap on each stalls (inclusive of rival) to see this, this results should show info on type of fruit, to which character and what price, keep the design consistent; design a popup for first time players entering the market day page, explain to the players on what is different, what cards are there, and what can they build\"",
     "date": "2026-11-24"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.4",
   "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
