@@ -265,6 +265,15 @@
   /* a line of words in the bar is as tall as its button, so your shelf does not move between the two */
   #app .tkt > .actionbar .hint-bar { min-height: 48px; }
 }
+/* PLAN-127: tomorrow's strip with five chips or more (five or six stalls) on a phone: the chips stand closer and a face-down
+   card's fruit overlap a little, so the whole strip fits under the top bar */
+@media (max-width: 419px) {
+  #app .tkt .tomorrow.tm-many { gap: 3px; }
+  #app .tkt .tomorrow.tm-many .tm-k { letter-spacing: 0.04em; }
+  #app .tkt .tomorrow.tm-many .tm-chip { gap: 2px; padding-right: 4px; }
+  #app .tkt .tomorrow.tm-many .tm-chip.tm-back { padding: 0 3px; }
+  #app .tkt .tomorrow.tm-many .tm-chip.tm-back > * + * { margin-left: -6px; }
+}
 @media (max-width: 379px) {
   #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
   #app .tkt .tb-dock-head, #app .tkt .tb-chips { padding-left: 8px; padding-right: 8px; }

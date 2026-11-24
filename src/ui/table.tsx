@@ -722,8 +722,10 @@ export function Tomorrow({ s, viewer, onTip }: { s: GameState; viewer: number; o
   );
   const lorry = nextLorryName(s);
   const load = nextLorry(s);
+  // PLAN-127: five chips or more (five or six stalls) are drawn closer on a phone, so the strip fits its width
+  const many = (forecast ? 1 : 0) + queue.length + (s.priorityNext !== null ? 1 : 0) >= 5;
   return (
-    <div class="tomorrow" aria-label="Tomorrow's customers">
+    <div class={`tomorrow ${many ? 'tm-many' : ''}`} aria-label="Tomorrow's customers">
       <span class="tm-k">Tomorrow</span>
       {/* Priority played this evening (PLAN-084): that stall's mark stands at the front of tomorrow's line. */}
       {s.priorityNext !== null && s.players[s.priorityNext] && (
