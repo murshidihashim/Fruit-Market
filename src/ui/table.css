@@ -375,7 +375,6 @@
   #app .tkt .tb-stall.compact .tk-swatch.tb-face { --s: 16px; }
 }
 
-/* Owner, 2026-11-24: whose turn it is sits under the first (shortest) lane, at the market's bottom left. */
-#app .tkt .tb-lane .tb-turn { display: block; max-width: 100%; margin: 2px 0 0; white-space: normal; overflow: visible; text-overflow: clip; font: 700 0.75rem/1.15 var(--tk-txt); color: var(--tk-ink); overflow-wrap: anywhere; }
-#app .tkt .tb-lane .tb-turn .tk-side-w { display: none; }
-#app .tkt .tb-lane .tb-turn .tb-nw { white-space: nowrap; }
+/* Owner, 2026-11-24: whose turn it is is no longer shown on the market (the stall row's "buying" and the action bar
+   say it); it stays for screen readers only, under the first lane. */
+#app .tkt .tb-lane .tb-turn { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

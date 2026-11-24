@@ -4884,6 +4884,10 @@
     {
       "at": "2026-11-24 21:58",
       "text": "PLAN-127 follow-up on the owner's word: \"Your turn · 0 of 5\" (and a rival's turn line) moves from beside the market's label, where it clashed with today's price chip, to the market's bottom left under the first (shortest) lane, using room that was empty. verify PASS (1302); no scroll at 390x844, 412x915 and 360x640 with 6 stalls."
+    },
+    {
+      "at": "2026-11-24 22:02",
+      "text": "Owner: \"just remove the text actually\". The turn line is no longer shown on the market; it is kept for screen readers only. The stall row's \"buying\" and the action bar still show whose turn it is."
     }
   ]
 }

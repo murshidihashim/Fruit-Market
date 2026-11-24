@@ -69,7 +69,7 @@ export function MarketLanes({ s, p, market, onPick, canPick, onPulse, night, due
   /** PLAN-123: why a box that holds fruit cannot be bought from now ("Not your turn", "Not enough cash"), said with
    *  the box (null: nothing to say). */
   why?: (f: FruitId, pos: number) => string | null;
-  /** Owner, 2026-11-24: whose turn it is, under the first lane (the shortest, so the room under it is otherwise empty),
+  /** Whose turn it is, under the first lane: read by screen readers only since the owner asked for the words to go (2026-11-24),
    *  instead of beside the market's label where it clashed with today's price chip. */
   foot?: preact.ComponentChildren;
 }) {
