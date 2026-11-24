@@ -4794,6 +4794,10 @@
     {
       "at": "2026-11-24 00:38",
       "text": "Owner: \"no it still doesnt work on my phone\". The preview at 412x915 still showed the Custom card stretched with an empty green band under the four ways (the earlier fix was for wide screens only). Fixed: on phones the four ways grow to share the spare height with bigger words; no scrolling at 412x915, 390x844, 360x640 and 1061x1279."
+    },
+    {
+      "at": "2026-11-24 09:05",
+      "text": "Owner: \"push to live\". Release candidate 1.31.0 (REP-139): PLAN-122 to PLAN-125. The preview served the same build (index-Cie31v_B.js, main 3f73128) and the owner reviewed it there."
     }
   ]
 }

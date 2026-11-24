@@ -703,6 +703,25 @@
       "date": "2026-11-22",
       "commit": "9bf3072",
       "tagged": true
+    },
+    {
+      "version": "1.31.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-122",
+        "PLAN-123",
+        "PLAN-124",
+        "PLAN-125"
+      ],
+      "notes": [
+        "A new Home: pick Custom, League, Daily or Sprint and press Play; your stall and the rules have their own tabs",
+        "Four ways to play: Quick Match (now up to 6 stalls), Private Room, Computer and Pass & Play, with a one-page set-up",
+        "Buying is clearer: the market never looks sold out while a rival buys, and every counter changes together",
+        "Skip to the end goes straight to the day's recap, and the Rush, Sprint and League words are clearer"
+      ],
+      "date": "2026-11-24",
+      "commit": "",
+      "tagged": false
     }
   ]
 }
