@@ -15,16 +15,18 @@ vi.mock('preact/hooks', () => ({
 // the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
 
 describe('How to play pages', () => {
-  it('has the seven pages, in order, with no page of tips', () => {
+  it('has the eight pages, in order, with no page of tips', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
     const titles = [...src.matchAll(/\{ part: '[^']*', title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    expect(titles).toEqual(['How to play', "Today's customers", 'One market day', 'Fruit & freshness', 'Try a sale', 'Favours & closing', 'Market Days & the end']);
+    expect(titles).toEqual(['How to play', 'Customer', 'The lorry', 'One market day', 'Fruit & freshness', 'Try a sale', 'Favours & closing', 'Market Days & the end']);
     expect(titles).not.toContain('Tips');
   });
 
   it('opens on How to play with the starting cash and "Most cash wins."', () => {
     const html = toStaticHtml(h(HowTo, { onDone: () => undefined, inTab: true }));
-    expect(html).toContain('1/7');
+    expect(html).toContain('1/8');
+    expect(html).toContain('Every day, every stall');
+    expect(html).not.toContain('Pick a shopkeeper');
     expect(html).toContain('Each stall starts with');
     expect(html).toContain('against rival stalls.');
     expect(html).not.toContain('1 to 5 rival');

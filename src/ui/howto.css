@@ -231,3 +231,53 @@
 .ht-lorrycard small { font-size: 0.75rem; color: var(--x-slate); }
 .ht-lorry-load { display: flex; flex-wrap: wrap; gap: 8px; font: 800 0.8125rem/1 var(--f-label); }
 .ht-lorry-load > span { display: inline-flex; align-items: center; gap: 2px; }
+
+/* ---------- 1 every day, every stall: four picture tiles ---------- */
+.ht-turns { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 10px; }
+.ht-turn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ht-turn {
+  position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; border: 0; border-radius: 0; cursor: pointer; text-align: left;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit; overflow: hidden;
+  transition: transform calc(var(--mk, 1) * 200ms), box-shadow calc(var(--mk, 1) * 200ms);
+}
+.ht-turn-pic { display: block; height: 78px; overflow: hidden; border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); }
+.ht-turn-pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7); transition: filter calc(var(--mk, 1) * 200ms); }
+.ht-turn > b { padding: 6px 8px; font: 800 0.9375rem/1 var(--f-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.ht-turn-n { position: absolute; left: 0; top: 0; width: 24px; height: 24px; display: grid; place-items: center; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1 var(--f-label); }
+.ht-turn-b { position: absolute; right: 6px; top: 50px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 5px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.75rem/1 var(--f-label); }
+.ht-turn-b .ht-hid { width: 16px; height: 16px; font-size: 0.625rem; }
+.ht-turn-b .jp-tag { transform: scale(0.85); }
+.ht-turn.on { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 3px var(--x-mustard); transform: translateY(-2px); }
+.ht-turn.on .ht-turn-pic img { filter: none; }
+.ht-turn.on > b { background: var(--x-mustard); }
+.ht-turn-say { margin: 0; min-height: 3.9em; font-size: 0.875rem; line-height: 1.4; }
+.ht-turns > .ht-btn { align-self: flex-start; }
+
+/* ---------- 2 customer: a ring that glides to the part of the card being explained ---------- */
+.ht-pt { position: relative; display: inline-block; overflow: hidden; }
+.ht-ring {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; opacity: 0; box-sizing: border-box;
+  border: 3px solid var(--x-red-d); box-shadow: 0 0 0 999px color-mix(in srgb, var(--x-ink) 45%, transparent);
+  transition: transform calc(var(--mk, 1) * 450ms) cubic-bezier(.3, .7, .3, 1), width calc(var(--mk, 1) * 450ms), height calc(var(--mk, 1) * 450ms), opacity calc(var(--mk, 1) * 250ms);
+}
+.ht-pt.on .ht-ring { opacity: 1; animation: ht-ping calc(var(--mk, 1) * 1200ms) ease-in-out infinite; }
+@keyframes ht-ping { 50% { border-color: var(--x-mustard); } }
+.ht-pt-note { position: absolute; left: 8px; right: 8px; top: 45%; padding: 6px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); text-align: center; }
+.ht-points { margin: 4px 0; }
+.ht-points button { font-size: 0.6875rem; padding: 0 4px; }
+.ht-pt-say { min-height: 2.8em; font-weight: 600; }
+
+/* ---------- 3 the lorry ---------- */
+.ht-unload .ht-lorry.go { animation: ht-drive calc(var(--mk, 1) * 800ms) ease-out both; }
+.ht-lanes-tall .ht-lane { min-height: 44px; gap: 4px; }
+.ht-drop { display: inline-flex; animation: ht-drop calc(var(--mk, 1) * 450ms) ease-out both; animation-delay: calc(var(--mk, 1) * (700ms + var(--i, 0) * 180ms)); }
+@keyframes ht-drop { from { opacity: 0; transform: translate(40px, -30px) scale(0.5); } to { opacity: 1; transform: none; } }
+.ht-unload > .ht-btn { align-self: flex-start; }
+.ht-lorry-cards { display: flex; gap: 12px; align-items: flex-start; }
+.ht-lorry-card { flex: none; --card-w: 136px; }
+.ht-lorry-t { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ht-lorry-t p { margin: 0; font-size: 0.875rem; line-height: 1.4; }
+.ht-lorry-t small { color: var(--x-slate); font-size: 0.75rem; }
+.ht-facts { margin: 8px 0; padding-left: 18px; font-size: 0.875rem; line-height: 1.45; }
+/* styles.css sets every <b> on this page in ink; a customer card's price tag is mustard on ink */
+.howto .cd-tag { color: var(--x-mustard); }

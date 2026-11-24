@@ -1,10 +1,10 @@
 {
   "id": "PLAN-127",
-  "title": "Rules page redesign: six illustrated pages and a Try a sale reveal",
+  "title": "Rules page redesign: eight illustrated pages, Try a sale, Customer and Lorry pages",
   "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
   "scope": [
     "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
-    "A new second page, Today's customers: today's row, the Tomorrow strip and the lorry, in three designs for the owner to choose from (A board map, B day by day, C front and back); A shows until the owner chooses",
+    "Owner (second round): the first page's shopkeeper section replaced by the day's turns (buy in turn; stock and price at once, in secret; the rush) as picture tiles of shopkeepers and a customer; page 2 is Customer (design C, reworded), with buttons that point a moving ring at fruit, quantity, top price and freshness on a face-up and a face-down card, and Buying/Stocking/Next morning buttons on the board; page 3, The lorry, with the lorry card, the deck back, an unloading lorry and tomorrow's lorry",
     "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
     "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
     "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
@@ -27,8 +27,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "PASS",
-      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on 3d08b9f: E2E OK; budget OK first try; pricing leaks 0, reactions 0, room 0, page errors 0. An earlier run on 42a43a8 also ended E2E OK after one budget retry (208 ms, with other work running)"
+      "result": "NOT RUN",
+      "evidence": "To run on the final build (last PASS was on 3d08b9f)"
     },
     {
       "id": "T3",
@@ -44,9 +44,9 @@
     },
     {
       "id": "T5",
-      "text": "Owner's first-page changes and the three Today's customers designs, rendered at 390 wide",
+      "text": "Owner's page 1, Customer and Lorry pages rendered at 390 wide; the pointing buttons on both cards",
       "result": "PASS",
-      "evidence": "Playwright at 390x844 (dev, ?rules=a|b|c): page 1 and designs A, B (Buying, Stocking, Next morning) and C drawn; page width 390 in each; no page errors"
+      "evidence": "Playwright at 390x844: pages 1 to 3 drawn, page width 390, no page errors; Fruit, Quantity, Top price and Freshness each ring the right part of the face-up card and the face-down card (or say it is hidden)"
     }
   ],
   "approval": {
