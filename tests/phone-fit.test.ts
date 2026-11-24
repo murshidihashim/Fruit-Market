@@ -1,18 +1,20 @@
-// The owner's phone in desktop mode (980 px wide, portrait) is drawn at an ordinary phone width.
+// A phone in Desktop site mode (980 px wide, held upright, touch) is recognised so Home can say how to fix it.
 import { describe, expect, it } from 'vitest';
-import { PHONE_WIDTH, phoneZoom } from '../src/ui/phoneFit';
+import { DESKTOP_MODE_NOTE, desktopModePhone } from '../src/ui/phoneFit';
 
-describe('phoneZoom', () => {
-  it('a phone in desktop mode (980 x 2117, touch) is zoomed back to a phone width', () => {
-    const z = phoneZoom(980, 2117, true);
-    expect(z).toBeGreaterThan(2);
-    expect(Math.round(980 / z)).toBeLessThanOrEqual(PHONE_WIDTH + 2);
+describe('desktopModePhone', () => {
+  it('the owner\'s phone in desktop mode (980 x 2117, touch) is recognised', () => {
+    expect(desktopModePhone(980, 2117, true)).toBe(true);
   });
-  it('an ordinary phone, a tablet and a computer are left alone', () => {
-    expect(phoneZoom(412, 915, true)).toBe(1);
-    expect(phoneZoom(820, 1180, true)).toBe(1);
-    expect(phoneZoom(768, 1024, true)).toBe(1);
-    expect(phoneZoom(1280, 800, false)).toBe(1);
-    expect(phoneZoom(1061, 1279, false)).toBe(1);
+  it('an ordinary phone, a tablet and a computer are not', () => {
+    expect(desktopModePhone(412, 915, true)).toBe(false);
+    expect(desktopModePhone(820, 1180, true)).toBe(false);
+    expect(desktopModePhone(768, 1024, true)).toBe(false);
+    expect(desktopModePhone(1280, 800, false)).toBe(false);
+    expect(desktopModePhone(1061, 1279, false)).toBe(false);
+  });
+  it('the note names the setting and has no exclamation mark', () => {
+    expect(DESKTOP_MODE_NOTE).toMatch(/Desktop site/);
+    expect(DESKTOP_MODE_NOTE).not.toMatch(/!/);
   });
 });

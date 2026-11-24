@@ -19,6 +19,7 @@ import { Face } from './art';
 import { useFocusTrap } from './focusTrap';
 import { FruitSvg } from './fruitIcons';
 import { fx } from './fx';
+import { DESKTOP_MODE_NOTE, inDesktopMode } from './phoneFit';
 import { HeroCard, ModeTabs, PlayButton, PlayIcon, YourStall, saveMode, startMode, type HomeMode } from './HomeCards';
 import { HowTo } from './HowTo';
 import { PropSprite, RoofBand } from './icons';
@@ -184,6 +185,7 @@ function MarketTab(p: ShopProps) {
           <h1 class="hm-name">Fruit<br /> Market</h1>
           <ProfileChip onStall={() => p.onTab('stall')} onSettings={p.onSettings} />
         </div>
+        {inDesktopMode() && <p class="save-notice jh-desk" role="status">{DESKTOP_MODE_NOTE}</p>}
         <div class="hm-rest">
           {p.notice && <p class="save-notice" role="status">{p.notice}</p>}
           {p.room && p.onRoom && (

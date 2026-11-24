@@ -12,9 +12,7 @@ import './ui/reactions.css';
 import { App } from './ui/App';
 import { installTelemetry } from './net/telemetry';
 import { startAccountSync } from './ui/account';
-import { fitPhone } from './ui/phoneFit';
 
-fitPhone();
 installTelemetry();
 startAccountSync();
 

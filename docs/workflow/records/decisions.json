@@ -4806,6 +4806,10 @@
     {
       "at": "2026-11-24 10:24",
       "text": "Owner, on live 1.31.0: \"please fix the layout back to fitting phone's screen\". Cause: the owner's phone browser is in Desktop site mode (reports about 980 px wide), so the wide-screen Home applied and everything was drawn small; the same mode explains the earlier 'thin' screenshot. Fix on the branch: a touch screen held upright that is far taller than wide is zoomed to a 412 px phone width (src/ui/phoneFit.ts, test phone-fit), and the wide-screen rules apply only to devices with a mouse (hover: hover). verify PASS (1297). Not yet on the preview or live."
+    },
+    {
+      "at": "2026-11-24 10:56",
+      "text": "Correction to the previous line: the page zoom for phones in Desktop site mode was dropped before release. A full game in that mode broke at the standing-order bid (its buttons fell below the screen), because parts of the game measure the screen in ways a page zoom does not keep in step. Instead Home shows a note under the title on such a phone: turn off Desktop site in the browser menu. The layout rules are back to screen width only. verify PASS (1298)."
     }
   ]
 }
