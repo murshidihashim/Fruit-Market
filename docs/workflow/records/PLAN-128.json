@@ -1,0 +1,54 @@
+{
+  "id": "PLAN-128",
+  "title": "Table polish: market above the stalls, event card drawn, tomorrow walks in at night, stall sales recap, Market Day intro",
+  "problem": "Owner requests for the game table: layout order, the event card's opening, the night hand-over of customers, a recap of who sold what, and a first Market Day explanation.",
+  "scope": [
+    "Wholesale market board above the stall row (swapped)",
+    "Tapping today's event draws the card like a card from a deck; once shown, a translucent backdrop instead of white",
+    "At night, tomorrow's customer cards move into today's customer slots in step with the fruit ageing",
+    "On the takings screen, tap any stall (yours or a rival's) to see its sales: which fruit, to which customer, at what price; the same card style",
+    "A first-time pop-up on the first Market Day: what is different, which cards there are, what can be built"
+  ],
+  "exclusions": [
+    "No rule, balance or save change; nothing secret is shown before the rules make it public (sales are public after the rush)"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": ""
+    },
+    {
+      "id": "T3",
+      "text": "Screens and short frame sequences for each change at 390x844 and 360x640; reduced motion",
+      "result": "NOT RUN",
+      "evidence": ""
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-24: \"swap position between rival stalls and wholesale market board; make the animation when clicking the today's event button to be drawing a card, and when the card is fully shown, show a translucent-ish background instead of the current white background; tomorrow customer cards should be animated to enter the today's customer slot when fruit is aging, time it to be in sync; show the results after demand has been fulfilled when your takings is being shown ... make it so that players can tap on each stalls (inclusive of rival) to see this, this results should show info on type of fruit, to which character and what price, keep the design consistent; design a popup for first time players entering the market day page, explain to the players on what is different, what cards are there, and what can they build\"",
+    "date": "2026-11-24"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [],
+  "decisions": [
+    "DEC-136"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
