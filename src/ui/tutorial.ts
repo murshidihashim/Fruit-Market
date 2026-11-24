@@ -81,6 +81,8 @@ export function tipFor(s: GameState, ctx: { myBuyTurn: boolean; boughtToday: num
   if (s.phase === 'reveal' && s.day === 1) return pick('reveal');
   if (ctx.evening) {
     // The coach is offline only, where the evening's active stall is the person deciding now (Game.tsx).
+    // PLAN-128: on the first Market Day evening the Market Day pop-up comes first; this tip follows once it is read.
+    if (marketDayIntro(s, activePlayer(s))) return null;
     const tip = pick('evening');
     return tip && { ...tip, text: eveningTip(s, activePlayer(s)) };
   }

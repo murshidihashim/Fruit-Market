@@ -10,7 +10,7 @@ import { isDraftNight, newGame, type GameState } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
 import { MarketDayView, marketDayWords } from '../src/ui/FirstTime';
 import { offersTonight } from '../src/ui/panel';
-import { MARKET_DAY_SEEN, marketDayIntro, marketDayRead, markSeen, resetTutorial, skipTutorial } from '../src/ui/tutorial';
+import { MARKET_DAY_SEEN, marketDayIntro, marketDayRead, markSeen, resetTutorial, skipTutorial, tipFor } from '../src/ui/tutorial';
 
 const mem = new Map<string, string>();
 beforeEach(() => {
@@ -55,6 +55,14 @@ describe('the Market Day pop-up', () => {
     // Replay the tutorial (Settings) brings it back for the next game
     resetTutorial();
     expect(marketDayIntro(draft[1], 2)).toBe(true);
+  });
+
+  it('comes before the evening tip, which follows once it is read', () => {
+    const s = draft[0];
+    const ctx = { myBuyTurn: false, boughtToday: 0, pricing: false, picker: false, evening: true };
+    expect(tipFor(s, ctx)).toBeNull();
+    marketDayRead();
+    expect(tipFor(s, ctx)?.id).toBe('evening');
   });
 
   it('never shows with the tips off, nor outside the evening', () => {
