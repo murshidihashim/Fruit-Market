@@ -4927,6 +4927,18 @@
     {
       "at": "2026-11-25 01:19",
       "text": "PLAN-128 implemented (parts T and P merged as 7a6556f; verify PASS 1327; each part's browser run E2E OK with 0 leaks). Owner: \"push live\". Release candidate 1.31.4."
+    },
+    {
+      "at": "2026-11-25 13:49",
+      "text": "1.31.4 published on the owner's word: pull request #38 merged as cc2342a; Deploy LIVE game run 52 passed and tagged v1.31.4. PLAN-128 released."
+    },
+    {
+      "at": "2026-11-25 13:49",
+      "text": "PLAN-129, the Rules page redesign (planned on branch ccr-608a8c5d-g7t4ma as PLAN-127 while another session used that number for the game HUD, renumbered here). Approved 2026-11-24 on the owner's word \"redesign the rulepage per below's remark\", then five rounds of the owner's changes: seven one-screen pages (How to play, Fruit & freshness, Lorry & event, Customer, Favour, Market Day, Try a sale), fruit cards, a real lorry's delivery on the board, who buys what behind an (i), every lorry, event and favour card to swipe. Each round: verify PASS; E2E OK on 78a2eca, 0 leaks."
+    },
+    {
+      "at": "2026-11-25 13:49",
+      "text": "Owner: \"push it live\" for PLAN-129. Release candidate 1.31.5."
     }
   ]
 }

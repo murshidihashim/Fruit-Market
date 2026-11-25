@@ -181,7 +181,6 @@ describe('the rules, How to play and the screens say it', () => {
       // (a code comment may say what rules 20 removed)
       expect(read(f).split(/\r?\n/).filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n'), f).not.toMatch(OLD);
     }
-    expect(read('src/ui/HowTo.tsx')).toContain('The last day is an ordinary day.');
   });
 
   it('no text the game shows mentions them (comments aside)', () => {

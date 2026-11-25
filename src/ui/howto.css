@@ -1,0 +1,250 @@
+/* How to play (PLAN-129, HowTo.tsx): seven pages, each sized to fit one phone screen (390 x 844, under the top bar
+   and above Home's bottom bar), drawn with the table's own pieces. Colours from the palette (exchange.css --x-...,
+   styles.css --fresh/--okay/--notso/--unripe). Wider rows (cards, upgrades) scroll inside themselves. */
+
+/* the frame: the page list across the top, a tight slide, Back and Next */
+.howto .ht-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px; margin: 0; scrollbar-width: none; }
+.howto .ht-tabs::-webkit-scrollbar { display: none; }
+.howto .ht-tabs button {
+  flex: none; min-height: 32px; padding: 0 10px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink);
+  box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer;
+}
+.howto .ht-tabs button.on { background: var(--x-ink); color: var(--x-mustard); }
+#app .howto.tk-page .slide { padding: 12px 14px; }
+#app .howto.tk-page .slide h2 { margin: 0 0 6px; font-size: 1.375rem; }
+#app .howto.tk-page .slide > p { margin: 0 0 8px; font-size: 0.9375rem; line-height: 1.4; }
+#app .howto.tk-page .row2 { margin-top: 10px; }
+
+.howto .ht-h3 { margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); }
+.howto .ht-btn { min-height: 38px; padding: 0 12px; font-size: 0.8125rem; }
+#app .howto.tk-page .btn.ht-btn-s { min-height: 28px; padding: 0 8px; font-size: 0.6875rem; letter-spacing: 0.04em; }
+#app .howto.tk-page .slide > .ht-small { font-size: 0.8125rem; color: var(--x-slate); }
+/* styles.css sets every <b> on this page in ink; on a card a <b> takes its block's own colour (a customer card's price
+   tag is mustard on ink) */
+.howto .cd b:not(.cd-tag), .howto .tkc b { color: inherit; }
+/* ticket-ui.css greys every <small> on a page; on a card a <small> keeps its block's colour */
+#app .howto.tk-page .cd small, #app .howto.tk-page .tkc small { color: inherit; }
+.howto .cd-tag { color: var(--x-mustard); }
+
+/* a freshness letter and a piece */
+.ht-lamp {
+  flex: none; width: 15px; height: 15px; border-radius: 50%; display: inline-grid; place-items: center; box-sizing: border-box;
+  background: var(--x-ink); color: var(--x-paper); font: 800 9px/1 var(--f-label); font-style: normal;
+}
+.ht-pc { position: relative; display: inline-flex; flex: none; transition: opacity calc(var(--mk, 1) * 300ms), transform calc(var(--mk, 1) * 300ms); }
+.ht-pc .ht-lamp { position: absolute; right: -4px; bottom: -4px; width: 13px; height: 13px; font-size: 8px; box-shadow: 0 0 0 1.5px var(--x-paper); }
+.ht-pc.gone { opacity: 0.15; transform: translateY(-8px); }
+.ht-pc.ht-in { animation: ht-in calc(var(--mk, 1) * 360ms) ease-out both; }
+@keyframes ht-in { from { opacity: 0; transform: translateY(10px) scale(0.6); } to { opacity: 1; transform: none; } }
+.ht-hid {
+  width: 16px; height: 16px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--x-kraft);
+  box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.625rem/1 var(--f-label); color: var(--x-ink);
+}
+
+/* a row that opens in place */
+.ht-more { margin: 8px 0 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper); }
+.ht-more summary { min-height: 36px; display: flex; align-items: center; padding: 0 10px; cursor: pointer; font: 800 0.8125rem/1.2 var(--f-label); list-style: none; }
+.ht-more summary::-webkit-details-marker { display: none; }
+.ht-more summary::after { content: '+'; margin-left: auto; font-size: 1.1rem; }
+.ht-more[open] summary::after { content: '−'; }
+.ht-more > div { padding: 0 10px 8px; font-size: 0.8125rem; line-height: 1.4; }
+#app .howto.tk-page .ht-more > div > p { margin: 0; font-size: 0.8125rem; }
+
+/* a card's picture, name and words (upgrades) */
+.ht-tile {
+  display: flex; flex-direction: column; gap: 3px; padding: 0 0 6px; min-width: 0; border: 0; border-radius: 0; text-align: left; cursor: zoom-in;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit;
+}
+.ht-tile-pic { display: block; height: 54px; overflow: hidden; border-bottom: 2px solid var(--x-ink); }
+.ht-tile-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ht-tile b, .ht-tile small { padding: 0 8px; }
+.ht-tile b { font: 800 0.8125rem/1.2 var(--f-label); }
+#app .howto.tk-page .ht-tile small { font-size: 0.6875rem; line-height: 1.3; color: var(--x-ink); }
+
+/* ---------- 1 how to play ---------- */
+.ht-hero { display: flex; gap: 10px; align-items: center; margin: 4px 0; }
+.ht-hero-stall { flex: 0 0 auto; width: 140px; height: 142px; overflow: hidden; }
+.ht-hero-stall .jp-stall { width: 210px; transform: scale(0.6667); transform-origin: top left; }
+.ht-hero-cash { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.ht-hero-cash small { color: var(--x-slate); font-size: 0.8125rem; }
+.ht-cash { display: inline-flex; align-items: center; gap: 6px; }
+.ht-cash b { font: 400 2rem/1 var(--f-display); color: var(--x-ink); }
+.ht-win { margin-top: 2px; padding: 5px 8px; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1.2 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; }
+.ht-turns { display: flex; flex-direction: column; gap: 6px; }
+.ht-turn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ht-turn {
+  position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0; border: 0; border-radius: 0; cursor: pointer; text-align: left;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit; overflow: hidden;
+  transition: transform calc(var(--mk, 1) * 200ms), box-shadow calc(var(--mk, 1) * 200ms);
+}
+.ht-turn-pic { display: block; height: 58px; overflow: hidden; border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); }
+.ht-turn-pic img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7); transition: filter calc(var(--mk, 1) * 200ms); }
+.ht-turn > b { padding: 5px 8px; font: 800 0.875rem/1 var(--f-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.ht-turn-n { position: absolute; left: 0; top: 0; width: 22px; height: 22px; display: grid; place-items: center; background: var(--x-ink); color: var(--x-mustard); font: 800 0.75rem/1 var(--f-label); }
+.ht-turn-b { position: absolute; right: 5px; top: 34px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 5px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.75rem/1 var(--f-label); }
+.ht-turn-tag { background: var(--x-ink); color: var(--x-mustard); box-shadow: none; }
+.ht-turn.on { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 3px var(--x-mustard); transform: translateY(-2px); }
+.ht-turn.on .ht-turn-pic img { filter: none; }
+.ht-turn.on > b { background: var(--x-mustard); }
+#app .howto.tk-page .slide .ht-turns > .ht-turn-say { margin: 0; min-height: 2.7em; font-size: 0.8125rem; line-height: 1.35; }
+#app .howto.tk-page .slide > .ht-length { margin: 10px 0 0; font-weight: 700; text-align: center; }
+
+/* ---------- 2 fruit and freshness: the Wholesale Market board, freshest box at the top ---------- */
+.ht-mkt-v { margin: 4px 0 10px; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); display: flex; flex-direction: column; gap: 6px; }
+.ht-mkt-v-h { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; align-items: center; font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.ht-mkt-v-h b { min-width: 0; }
+.ht-mkt-v-h span { grid-row: 2; color: var(--x-slate); letter-spacing: 0; text-transform: none; font-weight: 600; font-size: 0.75rem; }
+.ht-mkt-v-h .ht-btn { grid-column: 2; grid-row: 1 / 3; }
+.ht-lanes-v { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: start; }
+.ht-lane-v { display: flex; flex-direction: column; gap: 3px; }
+.ht-lane-h { position: relative; display: grid; place-items: center; height: 30px; padding: 0; border: 0; border-radius: 0; background: var(--lane); box-shadow: inset 0 0 0 1.5px var(--x-ink); cursor: pointer; }
+.ht-lane-h > i { position: absolute; right: 3px; top: 3px; width: 13px; height: 13px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 9px/1 var(--f-label); font-style: italic; }
+.ht-lane-h:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 1px; }
+.howto .ht-box {
+  position: relative; height: 27px; display: flex; align-items: center; justify-content: center; font-style: normal; box-shadow: inset 0 0 0 1.5px var(--x-ink);
+}
+.howto .ht-box > .ht-lamp { position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; font-size: 7px; }
+.howto .ht-box small { position: absolute; right: 4px; bottom: 4px; font: 800 0.625rem/1 var(--f-label); color: var(--x-ink); }
+.howto .ht-box.here { box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-tkn > b { margin-left: 1px; font: 800 0.6875rem/1 var(--f-label); }
+.ht-tkn { display: inline-flex; align-items: center; animation: ht-down calc(var(--mk, 1) * 350ms) ease-out both; }
+@keyframes ht-down { from { transform: translateY(-14px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+.ht-accept { width: 100%; border-collapse: collapse; font-size: 0.75rem; table-layout: fixed; }
+.ht-accept th, .ht-accept td { padding: 6px 3px; border: 1.5px solid var(--x-ink); text-align: center; vertical-align: middle; }
+.ht-accept thead th { background: var(--x-ink); color: var(--x-paper); font: 800 0.6875rem/1.2 var(--f-label); }
+.ht-accept thead th:first-child { text-align: left; }
+.ht-accept thead .ht-lamp { background: var(--x-paper); color: var(--x-ink); }
+.ht-accept tbody th { text-align: left; background: var(--bar); color: var(--bar-ink); }
+.ht-accept tbody th b { color: inherit; }
+.ht-accept td.yes { background: var(--x-paper); font-weight: 700; }
+.ht-accept td.no { background: var(--x-kraft); color: var(--x-slate); }
+
+/* ---------- 3 customer: a ring that glides to the part of the card the words name ---------- */
+.ht-fb { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 6px; }
+.ht-fb figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.ht-fb-card { --card-w: min(100px, 27vw); display: block; }
+.ht-fb figcaption { font-size: 0.6875rem; line-height: 1.3; text-align: center; }
+.ht-fb figcaption b { font: 800 0.8125rem/1.2 var(--f-label); }
+.ht-pt { position: relative; display: inline-block; overflow: hidden; }
+.ht-ring {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; opacity: 0; box-sizing: border-box;
+  border: 3px solid var(--x-red-d); box-shadow: 0 0 0 999px color-mix(in srgb, var(--x-ink) 45%, transparent);
+  transition: transform calc(var(--mk, 1) * 450ms) cubic-bezier(.3, .7, .3, 1), width calc(var(--mk, 1) * 450ms), height calc(var(--mk, 1) * 450ms), opacity calc(var(--mk, 1) * 250ms);
+}
+.ht-pt.on .ht-ring { opacity: 1; animation: ht-ping calc(var(--mk, 1) * 1200ms) ease-in-out infinite; }
+@keyframes ht-ping { 50% { border-color: var(--x-mustard); } }
+.ht-pt-note { position: absolute; left: 6px; right: 6px; top: 42%; padding: 5px; background: var(--x-mustard); color: var(--x-ink); font: 800 0.6875rem/1.2 var(--f-label); text-align: center; }
+#app .howto.tk-page .slide > .ht-desc { margin-bottom: 4px; font-size: 0.8125rem; line-height: 1.5; }
+.howto .ht-link {
+  display: inline; margin: 0; padding: 0; border: 0; border-radius: 0; color: inherit; font: inherit; line-height: inherit; cursor: pointer;
+  background: linear-gradient(transparent 62%, var(--x-mustard) 62%); -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.howto .ht-link.on { background: var(--x-mustard); }
+.howto .ht-link:focus-visible { outline: 2px solid var(--x-ink); outline-offset: 1px; }
+.ht-seg { display: flex; }
+.ht-seg button {
+  flex: 1; min-height: 36px; padding: 0 6px; border: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
+  font: 800 0.75rem/1.1 var(--f-label); cursor: pointer; transition: background calc(var(--mk, 1) * 200ms), color calc(var(--mk, 1) * 200ms);
+}
+.ht-seg button + button { margin-left: -2px; }
+.ht-seg button.on { background: var(--x-ink); color: var(--x-mustard); }
+.ht-board { position: relative; display: flex; flex-direction: column; gap: 6px; margin: 6px 0 0; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); overflow: hidden; }
+.ht-zone { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+/* every ticket the same size at every step */
+.ht-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; height: 118px; }
+.ht-row > .tkc { min-width: 0; height: 118px; overflow: hidden; }
+.ht-row .tkc-pc { height: 44px; }
+.ht-row > .tkc.back { background: var(--x-ink); }
+.ht-flip { animation: ht-flip calc(var(--mk, 1) * 420ms) ease-out both; }
+@keyframes ht-flip { from { transform: rotateY(90deg); } to { transform: none; } }
+/* Stocking to Next morning: today's customers leave upwards, tomorrow's rise from the strip into the row */
+.ht-board.moving .ht-row > * { animation: ht-leave calc(var(--mk, 1) * 380ms) ease-in both; }
+.ht-board.moving .ht-row > :nth-child(2) { animation-delay: calc(var(--mk, 1) * 60ms); }
+.ht-board.moving .ht-row > :nth-child(3) { animation-delay: calc(var(--mk, 1) * 120ms); }
+@keyframes ht-leave { to { transform: translateY(-40px); opacity: 0; } }
+.ht-board.moving .ht-tmr-chip { animation: ht-rise calc(var(--mk, 1) * 520ms) cubic-bezier(.4, 0, .2, 1) both; animation-delay: calc(var(--mk, 1) * 200ms); }
+@keyframes ht-rise { to { transform: translateY(-110px) scale(1.25); opacity: 0.2; } }
+.ht-arrive > * { animation: ht-arrive calc(var(--mk, 1) * 420ms) ease-out both; }
+.ht-arrive > :nth-child(2) { animation-delay: calc(var(--mk, 1) * 70ms); }
+.ht-arrive > :nth-child(3) { animation-delay: calc(var(--mk, 1) * 140ms); }
+@keyframes ht-arrive { from { transform: translateY(70px) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.ht-tmr { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-height: 30px; }
+.ht-tmr-k { flex: none; font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--x-ink); }
+.ht-tmr-chip { flex: none; display: inline-flex; align-items: center; gap: 3px; height: 28px; padding: 0 6px 0 2px; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 0.75rem/1 var(--f-label); }
+.ht-tmr-chip.back { padding: 0 8px; background: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-mustard); }
+.ht-tmr-w { display: inline-flex; align-items: center; gap: 1px; }
+.ht-tmr-new { font-size: 0.8125rem; color: var(--x-slate); font-style: italic; animation: ht-arrive calc(var(--mk, 1) * 420ms) ease-out both; }
+
+/* ---------- 4 favour: earn one, then swipe through the cards ---------- */
+.ht-earn { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 8px; padding: 6px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); }
+.ht-earn-ord { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 150px; }
+.ht-earn-ord small { flex-basis: 100%; font-size: 0.75rem; font-weight: 700; }
+.ht-arrow { font: 800 1.3rem/1 var(--f-label); }
+.ht-mini { --card-w: 44px; display: inline-flex; }
+#app .howto.tk-page .slide > .ht-swipe-h { margin: 0 0 6px; font-size: 0.8125rem; font-weight: 700; }
+.ht-swipe { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; margin: 0 -14px; padding-inline: 14px; scroll-snap-type: x mandatory; scroll-padding-inline: 14px; }
+.ht-swipe-c { flex: none; scroll-snap-align: start; --card-w: 186px; }
+
+/* ---------- lorry and event: two rows of cards to swipe ---------- */
+.ht-swipe-s { margin-bottom: 0; padding-bottom: 4px; }
+#app .howto.tk-page .slide > h2 + .ht-h3 { margin-top: 2px; }
+#app .howto.tk-page .slide > .ht-h3 + .ht-small { margin-bottom: 6px; line-height: 1.35; }
+.ht-swipe-s .ht-swipe-c { --card-w: 110px; }
+
+/* ---------- 7 Market Day ---------- */
+.ht-order { display: flex; gap: 10px; align-items: flex-start; }
+.ht-order-c { flex: none; --card-w: 110px; }
+.ht-order-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+#app .howto.tk-page .ht-order-steps li { font-size: 0.8125rem; line-height: 1.35; }
+.ht-ups { display: flex; gap: 8px; overflow-x: auto; margin: 0 -14px; padding: 2px 14px 6px; scroll-snap-type: x mandatory; scroll-padding-inline: 14px; }
+.ht-ups .ht-up { flex: none; width: 150px; scroll-snap-align: start; }
+
+/* ---------- 8 try a sale ---------- */
+.ht-sale-top { display: flex; gap: 10px; align-items: flex-start; }
+.ht-cust { flex: none; --card-w: 100px; }
+.ht-sale-want { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.ht-sale-want > b { font: 800 0.9375rem/1.2 var(--f-label); }
+.ht-sale-want > small { font-size: 0.75rem; line-height: 1.3; color: var(--x-slate); }
+.ht-got { font: 800 0.8125rem/1.2 var(--f-label); }
+.ht-basket { display: flex; gap: 8px; min-height: 20px; }
+#app .howto.tk-page .slide > .ht-ask { margin: 8px 0 6px; min-height: 2.7em; font-size: 0.8125rem; font-weight: 700; line-height: 1.35; }
+#app .howto.tk-page .slide > .ht-ask.done { font-weight: 600; }
+.ht-stalls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ht-stall {
+  display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 4px 5px; min-width: 0; border: 0; border-radius: 0; cursor: pointer;
+  background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: inherit;
+}
+.ht-awn { flex: none; height: 10px; box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ht-stall .ht-awn { align-self: stretch; }
+.ht-stall > b { font: 800 0.8125rem/1 var(--f-label); }
+.ht-stall.picked { box-shadow: inset 0 0 0 4px var(--x-mustard), inset 0 0 0 6px var(--x-ink); }
+.ht-stall.out { background: var(--x-kraft); }
+.ht-stall:disabled { cursor: default; opacity: 1; }
+.ht-st-pcs { display: flex; gap: 6px; min-height: 22px; }
+.ht-st-note { min-height: 1.2em; font: 800 0.6875rem/1.2 var(--f-label); text-align: center; }
+.ht-stall.out .ht-st-note { color: var(--x-red-d); }
+.ht-go { display: block; width: 100%; margin: 8px 0 0; }
+
+/* the (i) at a page's top right, and the cards it and the fruit lanes open */
+#app .howto.tk-page .slide { position: relative; }
+.howto .ht-info {
+  position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: var(--x-mustard); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 italic 1rem/1 var(--f-label);
+}
+.howto .ht-info:focus-visible { outline: 3px solid var(--x-ink); outline-offset: 2px; }
+.ht-fruitcard, .ht-infocard { display: flex; flex-direction: column; gap: 8px; padding: 0 0 12px; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-fruitcard header, .ht-infocard header { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 8px; background: var(--lane, var(--x-ink)); color: var(--lane-ink, var(--x-paper)); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-fruitcard header span, .ht-infocard header span { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.ht-fruitcard header b, .ht-infocard header b { font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; color: inherit; }
+.ht-fruitcard-pic { display: grid; place-items: center; padding: 4px 0; }
+.ht-fruitcard p, .ht-infocard p { margin: 0 12px; font-size: 0.875rem; line-height: 1.4; }
+.ht-fruitcard table { margin: 0 12px; border-collapse: collapse; font-size: 0.8125rem; }
+.ht-fruitcard th, .ht-fruitcard td { padding: 5px 4px; border-bottom: 1.5px solid var(--x-ink); text-align: left; }
+.ht-fruitcard thead th { font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.ht-fruitcard tbody th { display: flex; align-items: center; gap: 5px; font-weight: 700; }
+.ht-fruitcard td { font-variant-numeric: tabular-nums; }
+.ht-fruitcard footer { margin: 0 12px; padding: 6px 8px; background: var(--x-cream); font: 700 0.8125rem/1.35 var(--f-label); }
+.ht-infocard .ht-accept { margin: 0 12px; width: calc(100% - 24px); }
+.ht-lane-ico { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ht-infocard .ht-accept { table-layout: auto; font-size: 0.6875rem; }
+.ht-infocard .ht-accept th, .ht-infocard .ht-accept td { padding: 6px 4px; }

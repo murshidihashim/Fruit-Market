@@ -52,11 +52,6 @@ describe('C-02: a standing order only when it can be collected', () => {
     }
   });
 
-  it('How to play says so on the overview and the Market Days slide', () => {
-    const src = read('src/ui/HowTo.tsx');
-    expect(src).toContain("`Days ${MARKET_DAY_LIST}: a standing order to bid for (if it can be collected by the last day), and an upgrade to build that evening.`");
-    expect(src).toContain('It comes only if it can be collected by the last day, so there is none on {NO_ORDER_DAYS}.');
-  });
 });
 
 describe('C-05, C-06, S20: event figures', () => {
@@ -134,7 +129,6 @@ describe('C-09: fruit sold, the tie-break', () => {
   it('RULES.md, How to play, the guidebook and the counter say what counts', () => {
     const counts = 'a customer, a guest, a standing order or the night hawker';
     expect(read('RULES.md')).toContain(`Ties go to whoever sold more fruit: every piece a stall sold to ${counts} counts`);
-    expect(read('src/ui/HowTo.tsx')).toContain(`If stalls tie, the one that sold more fruit wins: every piece sold to ${counts} counts.`);
     const update = read('scripts/print-update.ts');
     expect(update).toContain(`every piece sold to ${counts} counts`);
     // PLAN-111: the Fruit sold row moved from the counter to the stall sheet (scripts/print-table.ts)
