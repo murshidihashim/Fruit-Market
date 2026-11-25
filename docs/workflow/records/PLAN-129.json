@@ -30,8 +30,8 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "To run on this build (E2E OK on 78a2eca, the round before)"
+      "result": "PASS",
+      "evidence": "CI on pull request #39 (head 6ac6139): checks job (verify:full, browser tests) passed; Deploy LIVE game run 53 ran verify and its smoke test"
     },
     {
       "id": "T3",
@@ -57,7 +57,7 @@
     "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
     "date": "2026-11-24"
   },
-  "delivery": "implemented",
+  "delivery": "released",
   "release": "1.31.5",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [],

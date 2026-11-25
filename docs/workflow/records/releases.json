@@ -783,7 +783,7 @@
     },
     {
       "version": "1.31.5",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-129"
       ],
@@ -793,8 +793,8 @@
         "Swipe through every lorry, event and favour card, and try a sale with Bobby Books"
       ],
       "date": "2026-11-25",
-      "commit": "",
-      "tagged": false
+      "commit": "eb2d1ae",
+      "tagged": true
     }
   ]
 }
