@@ -3,7 +3,7 @@
 import { aiActFor, planPrices } from '../engine/ai';
 import { FAVOURS, FRUIT, PREF_INFO, acceptsStage, prefOf, stageAt, type FruitId, type Pref } from '../engine/data';
 import {
-  activePlayer, applyAction, canBuy, canPlayFavour, canUpgrade, capFor, effectiveMax, forSale, maxPrice, minPrice, rowCustomers,
+  activePlayer, applyAction, canBuy, canPlayFavour, canUpgrade, capFor, effectiveMax, forSale, isDraftNight, maxPrice, minPrice, rowCustomers,
   type Customer, type GameState, type Post,
 } from '../engine/game';
 import { TIE_ORDER_CARD } from './rulesText';
@@ -15,7 +15,7 @@ export interface Tip { id: string; title: string; text: string }
 // The wording follows the glossary (DEC-087) and rules 20. There is no tip for picking a perk: the picker's own card
 // says the same sentence (ids already kept on a phone, 'trait' among them, are harmless).
 export const TIPS: Tip[] = [
-  { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top. Tap Start buying.' },
+  { id: 'morning', title: 'Morning', text: 'Each morning starts with today’s news and the lorry. Today’s customers are at the top, under tomorrow’s. Tap Start buying.' },
   { id: 'buy', title: 'Your turn to buy', text: 'Tap a fruit to buy, freshest at the top. Buy what the customers want. Fresher costs more, but customers pay more for it.' },
   { id: 'bought', title: 'On your shelf', text: 'It\'s on your shelf. Tap Done buying when you\'re finished.' },
   { id: 'stall', title: 'Fill your crate', text: 'Tap + beside a row to put that piece in your crate. Only pieces in your crate can sell today. Rivals see how many, not which fruit.' },
@@ -81,12 +81,34 @@ export function tipFor(s: GameState, ctx: { myBuyTurn: boolean; boughtToday: num
   if (s.phase === 'reveal' && s.day === 1) return pick('reveal');
   if (ctx.evening) {
     // The coach is offline only, where the evening's active stall is the person deciding now (Game.tsx).
+    // PLAN-128: on the first Market Day evening the Market Day pop-up comes first; this tip follows once it is read.
+    if (marketDayIntro(s, activePlayer(s))) return null;
     const tip = pick('evening');
     return tip && { ...tip, text: eveningTip(s, activePlayer(s)) };
   }
   if (s.day >= 2 && s.phase === 'morning') return pick('day2');
   return null;
 }
+
+// ---------- PLAN-128: the first Market Day evening ----------
+
+/** The mark kept with the tips once the Market Day pop-up has been read: it does not show again on this phone. */
+export const MARKET_DAY_SEEN = 'marketday';
+
+/**
+ * Is this the moment for the Market Day pop-up (FirstTime.tsx MarketDayPopup)? Stall `p`'s own evening after a Market
+ * Day (the evening upgrades are offered: isDraftNight), the first on this phone, with the tips on (Skip tutorial turns
+ * them off: the 'off' mark). The caller asks only while `p`'s evening sheet is up, so online it never holds up anyone
+ * else: every stall decides its evening at the same time.
+ */
+export function marketDayIntro(s: GameState, p: number): boolean {
+  if (s.phase !== 'evening' || !s.players[p] || !isDraftNight(s)) return false;
+  const seen = load();
+  return !seen.includes('off') && !seen.includes(MARKET_DAY_SEEN);
+}
+
+/** The Market Day pop-up has been read. */
+export const marketDayRead = () => markSeen(MARKET_DAY_SEEN);
 
 // ---------- PLAN-113: the guided first sale ----------
 // A first-time player's first solo game opens with one decision on Day 1: their price for one customer, on the day's

@@ -4,6 +4,8 @@ const { chromium } = require('playwright');
 const { saveDiagnostics } = require('./e2e-diagnostics.cjs');
 const { pickShopkeeper } = require('./e2e-pick.cjs');
 const players = [];
+/** The day as the top bar's day pill names it ("Day 2 of 8, Buying"; PLAN-127), or '' when it is not on screen. */
+const dayOf = (page) => page.locator('.topbar .tk-day').getAttribute('aria-label', { timeout: 2000 }).catch(() => '');
 const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
 (async () => {
   const browser = await chromium.launch();
@@ -88,11 +90,12 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     const [ra, rb] = [await step(A).catch(() => 'err'), await step(B).catch(() => 'err')];
     if (ra === 'done' && rb === 'done') { done = 1; break; }
     // Mid-game refresh on device A: the match must come back.
-    if (!refreshed && (await A.page.locator('.topbar .day-label').textContent().catch(() => '') || '').toUpperCase().includes('DAY 2')) {
+    // PLAN-127: the day is read from the top bar's day pill, whose name is "Day 2 of 8, Buying" (it shows "D2").
+    if (!refreshed && ((await dayOf(A.page)) || '').startsWith('Day 2 ')) {
       refreshed = true;
       await A.page.reload();
       await A.page.waitForSelector('.market-stall', { timeout: 20000 });
-      console.log('A refreshed and is back at', await A.page.locator('.topbar .day-label').textContent());
+      console.log('A refreshed and is back at', await dayOf(A.page));
       await shot(A, '05-after-refresh');
     }
     if (process.env.E2E_DEBUG && Date.now() - lastShot > 30000) { lastShot = Date.now(); await shot(A, `dbg-A-${lastShot}`); await shot(B, `dbg-B-${lastShot}`); }
@@ -124,7 +127,7 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
     await B.page.waitForSelector('.rematch-note:has-text("wants a rematch")');
     await B.page.click('button:has-text("Rematch")');
     await Promise.all([A.page.waitForSelector('.market-stall'), B.page.waitForSelector('.market-stall')]);
-    console.log('rematch started: A', await A.page.locator('.topbar .day-label').textContent(), 'B', await B.page.locator('.topbar .day-label').textContent());
+    console.log('rematch started: A', await dayOf(A.page), 'B', await dayOf(B.page));
 
     // B closes the app mid-match. A must see a countdown, then a computer takes B's seat and A can finish.
     if (!process.env.E2E_SKIP_ABANDON) {

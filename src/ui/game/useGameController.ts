@@ -500,7 +500,8 @@ export function useGameController(initial: GameState, onChange: (s: GameState) =
   useEffect(() => {
     if (s.phase === 'over') (winners(s).includes(viewer) ? fx.win : fx.lose)();
     const rem = s.config.days - s.day + 1;
-    // The beat strip under the top bar says where the day is (PLAN-072); the stamp is kept for the countdown alone.
+    // The table shows where the day is (PLAN-127: the strip of the day's steps is gone); the stamp is kept for the
+    // countdown alone.
     // PLAN-114: not on the first morning of a three-day game (the Market Sprint): all three days are left, not the last.
     const text = s.phase === 'morning' ? (rem === 1 ? 'LAST DAY' : rem === 3 && s.day > 1 ? 'LAST 3 DAYS' : '') : '';
     if (!text) return;

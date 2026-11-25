@@ -1,8 +1,9 @@
 /* =====================================================================
    Fruit Market · the table itself (PLAN-085; table.tsx, game/panels/NightShift.tsx), drawn to the approved Buying
    screen (docs/studio/review-18/mockups, Buying; Pricing for the rival boxes while crates are shut; Wardrobe for the
-   awning strips). Top to bottom: today's customers, the stalls in buying order, the Wholesale Market as the board's
-   lanes of 3, 4, 5 and 6 boxes, your shelf with what tonight does to each piece, and the bottom bar.
+   awning strips). Top to bottom: today's customers, the Wholesale Market as the board's lanes of 3, 4, 5 and 6 boxes,
+   the stalls in buying order (under the market since PLAN-128, the owner's swap), your shelf with what tonight does
+   to each piece, and the bottom bar.
    The rows keep their places from the morning to the night: the customer row is as tall as its tallest ticket all
    day, the stalls' boxes and the shelf have one height, and at night the rows stay, dimmed.
    Loaded by table.tsx, so after ticket.css and the other table stylesheets: a rule here wins over theirs. Every rule
@@ -42,9 +43,9 @@
 #app .tkt .tomorrow .tm-lorry { flex: 0 1 auto; min-width: 0; margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1 var(--tk-txt); color: var(--c-2f3a3e); }
 
 /* ---------- the stalls ---------- */
-#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 0; }
-#app .tkt .tb-row-head { flex: none; height: 13px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-#app .tkt .tb-row-head .tk-label { font-size: 0.625rem; line-height: 1.3; white-space: nowrap; }
+/* PLAN-128 (the owner): the row lies under the Wholesale Market and over your shelf, with a little room above the
+   shelf's awning */
+#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 6px; }
 #app .tkt .tb-side { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 0.75rem/1.1 var(--tk-txt); color: var(--tk-slate); }
 #app .tkt .tb-stall-row { --g: 5px; position: relative; flex: none; display: flex; gap: var(--g); min-width: 0; }
 /* PLAN-104: while the First token is on its way the row does not give away where it lands: no box is marked as buying
@@ -93,7 +94,9 @@
 #app .tkt .tb-stall.compact .tk-seat-name { grid-column: 1 / -1; grid-row: 3; display: block; text-overflow: ellipsis; white-space: nowrap; font: 600 0.59rem/1.1 var(--tk-txt); letter-spacing: -0.01em; }
 #app .tkt .tb-stall.compact .tb-got { grid-column: 1 / -1; grid-row: 4; height: 13px; gap: 2px; font-size: 0.5625rem; }
 #app .tkt .tb-stall.compact .tb-buys .x-fruit { width: 10px; height: 10px; }
-#app .tkt .seats.tb-stalls .rival-drop { top: calc(100% + 2px); }
+/* a rival's stall opens upwards, over the lanes (PLAN-128: the row is under them, and your shelf and the bottom bar stay
+   in view under it) */
+#app .tkt .seats.tb-stalls .rival-drop { top: auto; bottom: calc(100% + 2px); }
 
 /* ---------- the Wholesale Market: the board's lanes ---------- */
 #app .tkt > .centre > .market-stall.tb-market { gap: 5px; padding: 10px 12px 6px; overflow: hidden; }
@@ -226,6 +229,13 @@
 #app .tkt .tb-pc.ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + var(--bg)))); }
 #app .tkt .tb-pc.ns-piece.moved.gone { transform: translate(16px, calc(var(--steps) * (var(--bh) + var(--bg)) - var(--bh) * 0.5)); opacity: 0; }
 #app .tkt .tb-pc.ns-piece.rest { transition: none; }
+/* PLAN-128: tomorrow's cards walk into today's row on the same slide (table.tsx Street moves each card from its chip,
+   with the curve above, tableModel.NIGHT_EASE): the chip fades over the first part of the way, as its card fades in */
+#app .tkt .tomorrow .tm-chip.tm-gone { opacity: 0; transition: opacity calc(var(--ns-ms, 0ms) * 0.3) ease; }
+/* while they walk the customer band lights up again, so the cards arrive as the morning shows them */
+#app .game.gx.tkt.is-night > .street-wrap:has(.tb-walk) { opacity: 1; }
+/* today's customers still in the row at night fade away as dusk falls, before tomorrow's walk in */
+#app .tkt .street > .cust.tb-gone { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-dusk)) ease; }
 /* on your shelf: a chip whose pieces spoil or are juiced tips off as the slide ends */
 #app .tkt .tb-dock.night .tb-chip { transition: transform var(--ns-ms, 0ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 0ms) * 0.33) ease calc(var(--ns-ms, 0ms) * 0.67); }
 #app .tkt .tb-dock.night .tb-chip.gone { transform: translate(10px, 14px); opacity: 0; }
@@ -236,10 +246,7 @@
    form, and a slimmer bottom bar leave the lanes their six boxes. */
 @media (max-height: 779px) {
   #app .tkt .street { --pic: 26px; }
-  #app .tkt .tomorrow { margin-top: 4px; }
-  #app .tkt .tomorrow .tm-chip { height: 22px; }
-  #app .tkt > .seats.tb-stalls { padding-top: 5px; }
-  #app .tkt .tb-row-head { display: none; }
+  #app .tkt > .seats.tb-stalls { padding-top: 5px; padding-bottom: 4px; }
   #app .tkt .tb-stall { height: 58px; row-gap: 2px; }
   #app .tkt .tb-stall:not(.compact) .tk-swatch.tb-face { width: 22px; height: 22px; }
   #app .tkt .tb-stall .tk-seat-name { line-height: 1.1; }
@@ -270,6 +277,15 @@
   /* a line of words in the bar is as tall as its button, so your shelf does not move between the two */
   #app .tkt > .actionbar .hint-bar { min-height: 48px; }
 }
+/* PLAN-127: tomorrow's strip with five chips or more (five or six stalls) on a phone: the chips stand closer and a face-down
+   card's fruit overlap a little, so the whole strip fits under the top bar */
+@media (max-width: 419px) {
+  #app .tkt .tomorrow.tm-many { gap: 3px; }
+  #app .tkt .tomorrow.tm-many .tm-k { letter-spacing: 0.04em; }
+  #app .tkt .tomorrow.tm-many .tm-chip { gap: 2px; padding-right: 4px; }
+  #app .tkt .tomorrow.tm-many .tm-chip.tm-back { padding: 0 3px; }
+  #app .tkt .tomorrow.tm-many .tm-chip.tm-back > * + * { margin-left: -6px; }
+}
 @media (max-width: 379px) {
   #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market, #app .tkt > .centre > .tk-night.tb-night { padding-left: 8px; padding-right: 8px; }
   #app .tkt .tb-dock-head, #app .tkt .tb-chips { padding-left: 8px; padding-right: 8px; }
@@ -293,17 +309,16 @@
 /* a box you can buy from: the boxes of a lane stand 3 px apart, so its area can only reach half-way to the next one
    (a larger area would take the next box's taps); it stays as tall as the box and the gap */
 #app .game.tkt .tb-box.pick::before { content: ''; position: absolute; inset: -3.5px -4.5px; }
-/* tomorrow's customer (26 px, 22 on a short phone): up to the tickets and down to the band's edge */
+/* tomorrow's customer (26 px): up to the band's top edge and down to the tickets (PLAN-127: the strip is above them) */
 #app .game.tkt .tomorrow { overflow: visible; }
 #app .game.tkt .tomorrow .tm-chip:not(.tm-back) { position: relative; }
-#app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { content: ''; position: absolute; inset: -8px -2px -6px; }
+#app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { content: ''; position: absolute; inset: -7px -2px; }
 /* a favour card on your shelf (26 px): 7 px above and below, and to each side where it is only a picture */
 #app .game.tkt .tb-chips { overflow: clip; overflow-clip-margin: 7px; }
 #app .game.tkt .tb-chips .favchip { position: relative; }
 #app .game.tkt .tb-chips .favchip::before { content: ''; position: absolute; inset: -7px 0; }
 #app .game.tkt .tb-dock.c8 .tb-chips .favchip::before { inset: -7px; }
 @media (max-height: 779px) {
-  #app .game.tkt .tomorrow .tm-chip:not(.tm-back)::before { inset: -12px -2px -6px; }
   #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chips .favchip::before { inset: -7px; }
 }
 
@@ -324,8 +339,8 @@
 }
 
 /* ---------- S12 and S13 (PLAN-110): short and narrow phones ----------
-   Where the table is taller than the screen (a 320 x 568 phone: 785 px of table), the top bar (day, cash, today's
-   event and the day's steps) and the bottom bar (the main button) stay in place and the table moves between them. On a
+   Where the table is taller than the screen (a 320 x 568 phone: 785 px of table), the top bar (day, cash and today's
+   event) and the bottom bar (the main button) stay in place and the table moves between them. On a
    screen the table fits, nothing moves. */
 #app .game.tkt > .tk-top { position: sticky; top: 0; }
 #app .game.tkt > .actionbar, #app .game.tkt > .centre > .pp-lock { position: sticky; bottom: 0; }
@@ -368,8 +383,10 @@
   #app .tkt .tb-box .tb-tkn .x-fruit { width: 13px; height: 13px; }
   #app .tkt .tb-n { font-size: 0.6875rem; }
   #app .tkt .tb-box .price { font-size: 0.625rem; margin-left: auto; }
-  /* the day's steps share the bar by the length of their words ("3 Stocking" was cut) */
-  #app .tkt .tk-beats li { flex: 1 1 auto; padding: 0 2px; font-size: 0.6rem; letter-spacing: 0; }
   /* five or six stalls: a smaller face, so the cash beside it is whole */
   #app .tkt .tb-stall.compact .tk-swatch.tb-face { --s: 16px; }
 }
+
+/* Owner, 2026-11-24: whose turn it is is no longer shown on the market (the stall row's "buying" and the action bar
+   say it); it stays for screen readers only, under the first lane. */
+#app .tkt .tb-lane .tb-turn { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

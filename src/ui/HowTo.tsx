@@ -1,4 +1,4 @@
-// How to play (PLAN-127): eight pages, one screen each, built round the game's own pictures (the shopkeeper and
+// How to play (PLAN-129): seven pages, one screen each, built round the game's own pictures (the shopkeeper and
 // customer cards, the Wholesale Market board, fruit pieces, freshness letters, the lorry, event, favour, standing
 // order and upgrade cards), so players recognise them at the table. The order is the owner's: how to play, fruit and
 // freshness, customer, favour, lorry, event, Market Day, try a sale. The wording follows RULES.md (rules 20) and the

@@ -102,7 +102,7 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     const reach = () => {
       const m = mid.getBoundingClientRect();
       if (!m.width || !street.getClientRects().length) return;
-      const rise = `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), beats: null, dock: null, notice: false }, 'street', false).rise}px`;
+      const rise = `${reachFrom({ mid: m, row: null, street: street.getBoundingClientRect(), bar: null, dock: null, notice: false }, 'street', false).rise}px`;
       if (el.style.getPropertyValue('--rise-full') === rise) return;
       el.style.setProperty('--rise-full', rise);
       if (fitting.current && el.hasAttribute('data-top')) fit(el);

@@ -11,7 +11,7 @@ vi.mock('preact/hooks', () => ({
   useRef: (v: unknown) => ({ current: v }), useMemo: (f: () => unknown) => f(), useCallback: (f: unknown) => f,
 }));
 
-// PLAN-127: the Rules page redesign. Eight pages in the owner's order, one screen each, and the Try a sale reveal worked
+// PLAN-129: the Rules page redesign. Seven pages in the owner's order, one screen each, and the Try a sale reveal worked
 // out by the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
 
 describe('How to play pages', () => {

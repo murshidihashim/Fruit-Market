@@ -62,8 +62,9 @@ export const reactionsOn = () => loadSettings().reactions !== false;
 // ---------- the bubbles ----------
 
 interface Bubble { seat: number; r: ReactionId; key: number }
-/** Where a bubble stands when its seat is not to be seen: centred on the game's bar of the day's steps, under the top
- *  bar, clear of a sheet's own heading and figures below it. */
+/** Where a bubble stands when its seat is not to be seen: near the top of the screen, on the game's top bar's foot and
+ *  tomorrow's strip under it (PLAN-127; the strip of the day's steps used to lie there), clear of a sheet's own heading
+ *  and figures below it. */
 const TOP_Y = 56;
 let bubbleKey = 0;
 

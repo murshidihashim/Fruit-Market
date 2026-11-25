@@ -90,6 +90,8 @@ const path = require('path');
       console.log('favoured trade step:', ties % 2 ? 'played' : 'kept');
       continue;
     }
+    // PLAN-128: the first Market Day evening opens with a pop-up over the evening sheet: read it, then Got it.
+    if (await has('.md-pop')) { if (once('market-day')) await shot('08b-market-day'); await page.click('.md-pop button:has-text("Got it")'); continue; }
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
       if (once('bid')) await shot('05-pricing');

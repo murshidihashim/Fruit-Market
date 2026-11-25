@@ -1,82 +1,66 @@
 {
   "id": "PLAN-127",
-  "title": "Rules page redesign: seven one-screen illustrated pages",
-  "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
+  "title": "Game HUD: centred header with day pill, no phase bar, Tomorrow first, quieter stall row",
+  "problem": "The game screen's header and phase bar take height and text; the owner wants a calmer HUD.",
   "scope": [
-    "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
-    "Owner (second round): the first page's shopkeeper section replaced by the day's turns (buy in turn; stock and price at once, in secret; the rush) as picture tiles of shopkeepers and a customer; page 2 is Customer (design C, reworded), with buttons that point a moving ring at fruit, quantity, top price and freshness on a face-up and a face-down card, and Buying/Stocking/Next morning buttons on the board; page 3, The lorry, with the lorry card, the deck back, an unloading lorry and tomorrow's lorry",
-    "Owner (third round): page 1's turns flow down a winding path with pictures (the market board for Buy, fruit into a crate for Stock, Rosa pricing in secret for Price, two customer characters cut from their cards for Rush); Customer: the pointing is done from linked words in the description, and the board ends with the Tomorrow strip; Lorry: renamed, reworded, the market first, the lorry card and the deck back, then the lorry arriving at the Wholesale Market",
-    "Owner (fourth round): pages in the owner's order (How to play, Fruit & freshness, Customer, Favour, Lorry, Event, Market Day, Try a sale), each fitting one phone screen; How to play back to the four picture tiles; Fruit & freshness as the market board, freshest at the top, then who buys what; Customer: one customer's card face up and face down, the favour sentence, same-size cards and a moving Next morning; Favour cards to swipe; Lorry: the card and the lorry arriving; a new Event page in the same shape; Market Day: the standing order and upgrades in plain words; One market day and the tips removed",
-    "Owner (fifth round): no Play a day; the game length centred; Fruit & freshness names the four fruits, fills the board from a real lorry card (Mixed Basket at 3 stalls), opens a card per fruit (what it is like, costs by freshness, what customers usually pay, how long it keeps), with a smaller Advance 1 night; who buys what moves behind an (i) on the Customer page; Lorry and Event become one page of the two decks to swipe, after Fruit & freshness",
-    "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
-    "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
-    "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
-    "Try a sale: Bobby Books's card and three small stalls; pick who sells first, then the sale is revealed piece by piece; then Fresh only; price ties in a row that opens",
-    "Favours & closing: a whole order earning a face-down favour card; the favour cards grouped by when they are played, with their own pictures; Lights out links to the freshness example",
-    "Market Days & the end: a Day 3 bid to Day 5 delivery strip with the stake; the upgrade cards in a row; a final count showing cash first and fruit sold as the tiebreak",
-    "The tips move beside their rules; a row of page names at the top"
+    "Header as a 3-column grid: menu and a D{day} pill with day ticks on the left, the event badge dead centre, rank and cash on the right",
+    "The phase bar (Morning, Buying, Stocking, Bell, Rush) removed",
+    "The Tomorrow strip above today's customers",
+    "The stall row's two header labels removed"
   ],
   "exclusions": [
-    "No rule, balance, save or online change; the rules words are kept as they are",
-    "Not published: the live game changes only on the owner's word"
+    "No change to the wholesale market, your shelf, the action bar or game mechanics",
+    "No rule, balance or save change"
   ],
   "acceptance": [
     {
       "id": "T1",
       "text": "npm run verify",
       "result": "PASS",
-      "evidence": "On 3d08b9f: records OK, palette, lint, types, 1306 passed and 1 skipped (115 files, 5 new in tests/howto-pages.test.ts), build OK"
+      "evidence": "npm run verify on the merge: 1302 passed, 1 skipped (as before)"
     },
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "NOT RUN",
-      "evidence": "To run on this build (E2E OK on 78a2eca, the round before)"
+      "result": "PASS",
+      "evidence": "PORT=8887 E2E_MINUTES=15 npm run test:e2e on 5dbcbe8 (same code as the merge): E2E OK, leaks 0 (pricing 88 frames, reactions, quick match 50 frames); the performance budget passed on its built-in second try (first 285 ms on a shared machine)"
     },
     {
       "id": "T3",
-      "text": "The pages at 390x844: each fits one screen inside the Rules tab, no sideways scrolling",
+      "text": "Screens at 390x844, 360x640 and 412x915 in every phase; header centring measured",
       "result": "PASS",
-      "evidence": "Playwright at 390x844 in the Rules tab: all 7 pages fit (scroll height equals the frame, within 1 px); page width 390; fruit cards and the who-buys-what card open and close"
-    },
-    {
-      "id": "T4",
-      "text": "Wording checked against RULES.md (rules 20), which the live game plays",
-      "result": "PASS",
-      "evidence": "Fixed on 3d08b9f: Market Day bid before buying, tomorrow's customers in view while buying, customers face up at Stocking, no Green fruit in a crate, demand spills to the next cheapest stall, Heatwave and Monsoon nights, no favour card when two stalls serve, oldest fresh-enough piece sells first"
-    },
-    {
-      "id": "T5",
-      "text": "Owner's page 1, Customer and Lorry pages rendered at 390 wide; the pointing buttons on both cards",
-      "result": "PASS",
-      "evidence": "Playwright at 390x844: pages 1 to 3 drawn, page width 390, no page errors; the four linked phrases ring the right part of the face-up card and the face-down card (or say it is hidden); the lorry arrives and unloads"
+      "evidence": "69 screens in the session scratchpad p127 at 390x844, 360x640 and 412x915: every phase, 5 and 6 stalls, League stages, Sprint, last day; page scroll 0 on all; event centred within 0.01 px on all (centring.json); side-by-side with the mockup"
     }
   ],
   "approval": {
     "status": "approved",
-    "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
+    "evidence": "Owner, 2026-11-24: \"Refactor the main game HUD and screen layout ... (1) minimal and truly centered top header bar: day pill D{n} with a progress bar of day ticks, event badge dead centre, rank and cash compact; (2) remove the phase navigation bar; (3) Tomorrow strip first, today's customers second; (4) remove the STALLS IN BUYING ORDER and What each bought today labels. Do not alter the wholesale market, your shelf, the action bar or the mechanics.\"",
     "date": "2026-11-24"
   },
-  "delivery": "in progress",
-  "release": "unreleased",
-  "build": "branch ccr-608a8c5d-g7t4ma",
+  "delivery": "released",
+  "release": "1.31.3",
+  "build": "branch ccr-d8bcd65d-gblqqb",
   "reports": [],
-  "decisions": [],
+  "decisions": [
+    "DEC-135"
+  ],
   "changes": {
     "added": [
-      "Try a sale: pick who sells first and watch the sale play out",
-      "Advance one night on the freshness track, and a mango's Green-to-Fresh example"
+      "A D{day} pill with one tick per day"
     ],
     "changed": [
-      "How to play is six illustrated pages, with each tip beside its rule"
+      "The header is a centred 3-column bar with the event in the middle",
+      "Tomorrow's strip sits above today's customers"
     ],
-    "fixed": [],
+    "fixed": [
+      "The event badge was up to 23 px off centre"
+    ],
     "removed": [
-      "The separate Tips page (its tips now stand beside their rules)"
+      "The phase bar",
+      "The stall row's labels and the header's days-left text"
     ]
   },
   "playerNotes": [
-    "A new How to play: six illustrated pages with the game's own cards and pieces",
-    "Try a sale: guess who sells first, then watch Bobby Books buy his blueberries"
+    "A calmer game screen: the day as a small pill, the event in the middle, tomorrow's customers first, and no phase bar"
   ]
 }

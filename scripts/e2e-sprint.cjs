@@ -40,6 +40,8 @@ async function playSprint(page, shot, tag) {
       const add = page.locator('.stall-panel .mini-step button:last-child:not([disabled])');
       if (await add.count()) { await think(page, 700); await add.first().click(); continue; }
       if (await has('[data-a="tie-note"]') && await has('.pp-lock .btn.ghost')) { await think(page, 2500); await page.click('.pp-lock .btn.primary'); continue; }
+      // PLAN-128: the first Market Day evening opens with a pop-up over the evening sheet: read it, then Got it.
+      if (await has('.md-pop')) { await page.click('.md-pop button:has-text("Got it")'); continue; }
       const lock = page.locator('.pp-lock .btn:not([disabled])');
       if (await lock.count()) { if (once('bid')) await shot(`${tag}-02-pricing`); await think(page, 6000); await lock.click(); continue; }
       if (await has('button:has-text("Lights out")')) { await think(page, 2000); await page.click('button:has-text("Lights out")'); continue; }
@@ -138,8 +140,9 @@ async function playSprint(page, shot, tag) {
     await page.click('.jp-main');
     await page.waitForSelector('.results', { state: 'detached', timeout: 10000 }).catch(() => {});
     if (await page.locator('.results').count()) return fail('Try again did not start a new Sprint');
-    const again = await page.locator('.game, #app').first().innerText().catch(() => '');
-    if (!/Day 1/i.test(again)) return fail('Try again did not start on Day 1');
+    // PLAN-127: the top bar shows "D1"; its day pill's name is "Day 1 of 3, …"
+    const again = await page.locator('.game .tk-top .tk-day').getAttribute('aria-label', { timeout: 10000 }).catch(() => '');
+    if (!/^Day 1 of 3\b/.test(again ?? '')) return fail(`Try again did not start on Day 1 (${again})`);
     const offer2 = await perks();
     if (!offer1 || offer2 !== offer1) return fail(`Try again offered other perks (${offer1} / ${offer2})`);
     console.log('Try again: the same Sprint started at once');

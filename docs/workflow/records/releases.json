@@ -738,7 +738,7 @@
     },
     {
       "version": "1.31.2",
-      "status": "candidate",
+      "status": "published",
       "plans": [
         "PLAN-126"
       ],
@@ -748,6 +748,51 @@
         "Your first game is played by hand, with the usual tips"
       ],
       "date": "2026-11-24",
+      "commit": "93f8572",
+      "tagged": true
+    },
+    {
+      "version": "1.31.3",
+      "status": "published",
+      "plans": [
+        "PLAN-127"
+      ],
+      "notes": [
+        "A calmer game screen: the day as a small pill with a tick per day, the event in the middle, tomorrow's customers first, and no phase bar"
+      ],
+      "date": "2026-11-24",
+      "commit": "65c645d",
+      "tagged": true
+    },
+    {
+      "version": "1.31.4",
+      "status": "published",
+      "plans": [
+        "PLAN-128"
+      ],
+      "notes": [
+        "The wholesale market now sits above the stalls",
+        "Today's event card is drawn from the deck",
+        "At night, tomorrow's customers walk into today's places",
+        "Tap any stall on the takings to see who bought what, and for how much",
+        "A guide on your first Market Day evening"
+      ],
+      "date": "2026-11-25",
+      "commit": "cc2342a",
+      "tagged": true
+    },
+    {
+      "version": "1.31.5",
+      "status": "candidate",
+      "plans": [
+        "PLAN-129"
+      ],
+      "notes": [
+        "A new How to play: seven one-screen pages drawn with the game's own cards, market board and pieces",
+        "Tap a fruit on the market board to see its card: what it costs, what customers pay and how long it keeps",
+        "Swipe through every lorry, event and favour card, and try a sale with Bobby Books"
+      ],
+      "date": "2026-11-25",
       "commit": "",
       "tagged": false
     }

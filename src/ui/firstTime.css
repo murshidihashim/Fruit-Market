@@ -52,6 +52,21 @@
 .ft-box:is([data-tight='2'], [data-tight='3']) .ft-steps li { padding: 3px 5px; }
 .ft-box:is([data-tight='2'], [data-tight='3']) .ft-actions .btn { min-height: 40px; }
 
+/* PLAN-128: the first Market Day evening (FirstTime.tsx MarketDayPopup), in the same box as "First time? How to play":
+   tonight's offers as a list of small cards with their cost, one that cannot be built now greyed with its reason. One
+   button, so it spans the box. It slides up and away on the clock (popMotion's lengths, set in the script). */
+.md-box:focus { outline: none; }
+.md-offers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.md-offer { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 4px 6px; border: 1.5px solid var(--x-ink); border-radius: 8px; background: var(--x-paper); }
+.md-offer .md-pic { flex: none; width: 44px; height: 28px; border: 1.5px solid var(--x-ink); }
+.md-nm { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.md-nm b { font-weight: 800; }
+.md-nm small { color: var(--x-red-d); font: 700 0.6875rem/1.2 var(--f-label); }
+.md-offer.no .md-pic { opacity: 0.5; }
+.md-cost { flex: none; font: 400 1.0625rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.md-actions { grid-template-columns: 1fr; }
+.ft-box[data-tight='3'] .md-offer { padding: 2px 5px; }
+
 /* All the rules, opened from the pop-up, over the whole game */
 .ft-rules { position: fixed; inset: 0; z-index: 61; background: var(--x-cream); }
 

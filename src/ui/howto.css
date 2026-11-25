@@ -1,4 +1,4 @@
-/* How to play (PLAN-127, HowTo.tsx): eight pages, each sized to fit one phone screen (390 x 844, under the top bar
+/* How to play (PLAN-129, HowTo.tsx): seven pages, each sized to fit one phone screen (390 x 844, under the top bar
    and above Home's bottom bar), drawn with the table's own pieces. Colours from the palette (exchange.css --x-...,
    styles.css --fresh/--okay/--notso/--unripe). Wider rows (cards, upgrades) scroll inside themselves. */
 

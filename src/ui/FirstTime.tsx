@@ -7,12 +7,12 @@
 // order comes only if it can be delivered by the last day (none on Day 9 of a 10-day game).
 import type { Ref } from 'preact';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { BASE_BUY, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, MARKET_DAY_EVERY, lookOf, stageAt, type FruitId, type Stage } from '../engine/data';
-import { effectiveMax, forSale, validatePrices, type GameState, type Post } from '../engine/game';
+import { BASE_BUY, FAVOURS, FAVOUR_HAND_LIMIT, FRUIT, FRUITS, MARKET_DAY_EVERY, MAX_UPGRADES, UPGRADES, lookOf, stageAt, type FruitId, type Stage, type UpgradeId } from '../engine/data';
+import { canUpgrade, effectiveMax, forSale, marketDaysOn, validatePrices, type GameState, type Post } from '../engine/game';
 import { partsOf } from '../net/looks';
 import { Face } from './art';
-import { DeckBack, OKAY_LESS, SOFT_LESS, TradingCard } from './cards';
-import { GUEST_EVENT } from './deckArt';
+import { ART_SIZE, CardArt, DeckBack, FAVOUR_WHEN, OKAY_LESS, SOFT_LESS, TradingCard } from './cards';
+import { GUEST_EVENT, upgradeArt, upgradeFocus } from './deckArt';
 import { FruitSvg } from './fruitIcons';
 import { BEATS } from './game/panels/TopBar';
 import { crateUrl, type FruitKind } from './marketArt';
@@ -20,6 +20,8 @@ import { loadStats } from './store';
 import { Awning, seats } from './table';
 import { Lamp as TicketLamp, STAGE_LETTER } from './ticket';
 import { useFocusTrap } from './focusTrap';
+import { EASE, FEEL, FRAME, isReduced, moveMs, ms, timer } from './motion';
+import { SHEET_IN, SHEET_OUT } from './sheet';
 import { firstSalePosts, guideLine, piecesWord, startPrice, type Spotlight } from './tutorial';
 import './firstTime.css';
 
@@ -53,7 +55,7 @@ const NTH: Record<number, string> = { 2: 'second', 3: 'third', 4: 'fourth', 5: '
 /** "third" for a Market Day every 3 days. */
 export const nthWord = (n: number) => NTH[n] ?? `${n}th`;
 
-/** The owner's six steps. `beat`: the name of that step on the bar along the top of the game. */
+/** The owner's six steps. `beat`: the name of that step on the table board and in the rules (BEATS). */
 const STEPS: { lead: string; text?: string; beat?: string }[] = [
   { lead: '1. Check the market.', text: "Read today's news and see who's shopping.", beat: BEATS[0] },
   { lead: '2. Buy fruit.', text: `From Day 2 the poorest stall buys first, then the others clockwise. Buy up to ${BASE_BUY} pieces.`, beat: BEATS[1] },
@@ -135,6 +137,118 @@ export function FirstTimePopup({ onRules, onDone }: { onRules: () => void; onDon
         <FirstTimeText />
         <div class="ft-actions">
           <button type="button" class="btn" onClick={onRules}>All the rules</button>
+          <button type="button" class="btn primary" onClick={onDone}>Got it</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- PLAN-128: the first Market Day evening ----------
+// The first time a player's evening after a Market Day comes (the evening upgrades are offered), one pop-up over the
+// evening sheet says what is different on a Market Day, which cards there are (upgrades, and the favour cards the
+// player holds, which the sheet shows too) and what can be built tonight: tonight's offers with their cost, the cash
+// in hand and the room on a stall. Every number and name is the game's own (UPGRADES, MAX_UPGRADES, MARKET_DAY_EVERY).
+// tutorial.ts decides when (marketDayIntro); "Got it" keeps it from showing again (a mark kept with the tips).
+
+const COUNT = ['no', 'one', 'two', 'three', 'four', 'five'];
+const countWord = (n: number) => COUNT[n] ?? String(n);
+
+/** The pop-up's words, a part at a time (tests read them). `offers`: tonight's offers, in the sheet's order. */
+export function marketDayWords(s: GameState, p: number, offers: UpgradeId[]): { different: string; upgrades: string; favours: string | null; build: string } {
+  const pl = s.players[p];
+  const orders = marketDaysOn(s);
+  const built = pl.upgrades.length;
+  const room = MAX_UPGRADES - built;
+  return {
+    different: `Every ${nthWord(MARKET_DAY_EVERY)} day, except the last, is a Market Day.${orders ? ' In the morning every stall bids in secret for a standing order, if it can be delivered by the last day.' : ''} In the evening each stall may build one upgrade. Other evenings have none.`,
+    upgrades: 'Built once, an upgrade works for your stall until the end of the game. You pay its cost from your cash.',
+    // The favour cards this stall holds, each with when it is played (the card's own words).
+    favours: pl.favours.length > 0
+      ? `Your favour cards are on the evening sheet too. Each is played when its card says: ${[...new Set(pl.favours)].map((f) => `${FAVOURS[f].title}, ${FAVOUR_WHEN[FAVOURS[f].when].toLowerCase()}`).join('; ')}.`
+      : null,
+    build: offers.length === 0
+      ? `Your stall is full: it has room for ${countWord(MAX_UPGRADES)} upgrades.`
+      : `You have $${pl.cash}. Build one tonight, or none: tap a card, then Build. A stall has room for ${countWord(MAX_UPGRADES)} upgrades${built ? `; you have ${countWord(room)} left` : ''}.`,
+  };
+}
+
+/**
+ * The Market Day pop-up over the evening sheet. It slides up as the game's sheets do (popMotion's lengths, on the one
+ * clock); with reduced motion it is simply there. A tap outside its box does nothing: it closes with "Got it" (or
+ * Escape), and slides away.
+ */
+export function MarketDayPopup({ s, p, offers, onDone }: { s: GameState; p: number; offers: UpgradeId[]; onDone: () => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  const going = useRef(false);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    let step = 0;
+    el.dataset.tight = '0';
+    while (step < FT_TIGHTEST && el.scrollHeight > el.clientHeight + 1) { step += 1; el.dataset.tight = String(step); }
+    if (isReduced()) return;
+    pop.current?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: ms(FEEL.sheetIn), easing: EASE.sheet });
+    el.animate(SHEET_IN, { duration: ms(FEEL.sheetIn), easing: EASE.sheet });
+  }, []);
+  const done = () => {
+    if (going.current) return;
+    going.current = true;
+    if (isReduced() || !box.current || !pop.current) { onDone(); return; }
+    box.current.animate(SHEET_OUT, { duration: ms(FEEL.sheetOut), easing: EASE.leave, fill: 'forwards' });
+    pop.current.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms(FEEL.sheetOut), easing: EASE.leave, fill: 'forwards' });
+    void timer(moveMs(FEEL.sheetOut) + FRAME).then(onDone);
+  };
+  useFocusTrap(box, done);
+  return <MarketDayView s={s} p={p} offers={offers} box={box} pop={pop} onDone={done} />;
+}
+
+/** The Market Day pop-up drawn (without hooks, so tests can render it to a string). */
+export function MarketDayView({ s, p, offers, box, pop, onDone }: { s: GameState; p: number; offers: UpgradeId[]; box?: Ref<HTMLDivElement>; pop?: Ref<HTMLDivElement>; onDone: () => void }) {
+  const w = marketDayWords(s, p, offers);
+  return (
+    <div class="ft-pop md-pop" ref={pop} role="dialog" aria-modal="true" aria-labelledby="md-title" onClick={(e) => e.stopPropagation()}>
+      <div class="ft-box md-box" ref={box} tabIndex={-1}>
+        <h3 id="md-title">Market Day evening</h3>
+        <div class="ft-text">
+          <section class="ft-part">
+            <h4>WHAT IS DIFFERENT</h4>
+            <p>{w.different}</p>
+          </section>
+          <section class="ft-part">
+            <h4>THE CARDS</h4>
+            <div class="ft-favours">
+              <span class="ft-card" aria-hidden="true"><DeckBack deck="upgrade" /></span>
+              <p><b>Upgrades.</b> {w.upgrades}</p>
+            </div>
+            {w.favours && (
+              <div class="ft-favours">
+                <span class="ft-card" aria-hidden="true"><DeckBack deck="favour" /></span>
+                <p><b>Favours.</b> {w.favours}</p>
+              </div>
+            )}
+          </section>
+          <section class="ft-part">
+            <h4>WHAT YOU CAN BUILD TONIGHT</h4>
+            {offers.length > 0 && (
+              <ul class="md-offers">
+                {offers.map((u) => {
+                  const why = canUpgrade(s, p, u);
+                  return (
+                    <li class={`md-offer ${why ? 'no' : ''}`} aria-label={`${UPGRADES[u].title}, $${UPGRADES[u].cost}. ${UPGRADES[u].text}${why ? ` ${why}.` : ''}`}>
+                      <CardArt class="md-pic" src={upgradeArt(u)} alt="" w={ART_SIZE.small[0]} h={ART_SIZE.small[1]} focus={upgradeFocus(u)} />
+                      <span class="md-nm" aria-hidden="true"><b>{UPGRADES[u].title}</b>{why && <small>{why}</small>}</span>
+                      <b class="md-cost" aria-hidden="true">{`$${UPGRADES[u].cost}`}</b>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <p>{w.build}</p>
+          </section>
+        </div>
+        <div class="ft-actions md-actions">
           <button type="button" class="btn primary" onClick={onDone}>Got it</button>
         </div>
       </div>

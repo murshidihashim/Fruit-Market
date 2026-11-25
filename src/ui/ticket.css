@@ -19,15 +19,15 @@
 
 /* ---------- the table: one column on every screen ---------- */
 #app .game.gx.tkt {
-  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "top" "net" "street" "rivals" "mid" "dock" "act";
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "top" "net" "street" "mid" "rivals" "dock" "act";
   width: 100%; max-width: 520px; margin: 0 auto; background: var(--tk-paper); color: var(--tk-ink); font-family: var(--tk-txt);
 }
 #app .game.gx.tkt.is-night { background: var(--tk-ink); }
 #app .tkt.is-night::after { display: none; }
 #app .tkt.is-night > .street-wrap, #app .tkt.is-night > .seats { display: none; }
 @media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
-  #app .game.gx.tkt { grid-template-rows: auto auto auto auto minmax(380px, auto) auto auto; }
+  #app .game.gx.tkt { grid-template-rows: auto auto auto minmax(380px, auto) auto auto auto; }
 }
 
 /* ---------- shared marks ---------- */
@@ -68,16 +68,31 @@
 }
 #app .tkt .tk-swatch .xf { border-radius: 50%; overflow: hidden; background: var(--tk-paper); box-shadow: 0 0 0 2px var(--tk-paper); }
 
-/* ---------- top bar and the five beats ---------- */
+/* ---------- the top bar (PLAN-127) ----------
+   Three columns: the two sides share what the event leaves equally (their contents never set the columns' widths), so
+   the event stands in the middle of the screen whatever is beside it. --side is the room each side keeps: the menu and
+   the day pill on the left, the rank and a cash of three figures on the right; the event is never wider than the rest. */
 #app .tkt .tk-top { all: unset; grid-area: top; position: relative; z-index: 6; display: block; background: var(--tk-ink); color: var(--tk-paper); padding-top: env(safe-area-inset-top); }
 #app .tkt .tk-top::after { display: none; }
-#app .tkt .tk-top-row { height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 4px; }
+#app .tkt .tk-top-row {
+  --side: 126px;
+  height: 52px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; column-gap: 0; padding: 0;
+}
+#app .tkt .tk-top-row > * { min-width: 0; }
+#app .tkt .tk-top-row > .tk-lead { justify-self: start; display: flex; align-items: center; gap: 4px; padding-left: 4px; }
+#app .tkt .tk-top-row > .tk-event { justify-self: center; }
+#app .tkt .tk-top-row > .tk-me { justify-self: end; padding-right: 12px; }
 #app .tkt .tk-menu { all: unset; width: 44px; height: 44px; flex: none; display: grid; place-items: center; cursor: pointer; color: var(--tk-paper); }
-#app .tkt .tk-day { flex: none; display: flex; flex-direction: column; gap: 3px; }
-#app .tkt .tk-day .day-label { all: unset; font: 400 1.25rem/1 var(--tk-disp); text-transform: uppercase; white-space: nowrap; }
-#app .tkt .tk-day .day-label small { all: unset; font: 700 0.8125rem/1 var(--tk-txt); }
-#app .tkt .tk-left { align-self: flex-start; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tk-yel); }
-#app .tkt .tk-left.last { padding: 2px 4px; background: var(--tk-red-d); color: var(--tk-paper); }
+/* the day: "D2" in a pill, and under it a thin tick for each day of the game, filled up to today */
+#app .tkt .tk-day { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+#app .tkt .tk-pill {
+  min-width: 42px; box-sizing: border-box; padding: 3px 9px; border: 2px solid var(--c-8d9396); border-radius: 999px; background: var(--tk-ink);
+  color: var(--tk-paper); font: 400 1.0625rem/1 var(--tk-disp); text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+#app .tkt .tk-day.last .tk-pill { border-color: var(--tk-red-d); background: var(--tk-red-d); color: var(--tk-paper); }
+#app .tkt .tk-ticks { display: flex; gap: 1px; height: 5px; }
+#app .tkt .tk-ticks i { all: unset; display: block; width: 2px; height: 5px; background: var(--x-slate); }
+#app .tkt .tk-ticks i.on { background: var(--tk-paper); }
 /* Today's event: its picture and its name in up to two lines. The name is never cut (PLAN-096): where the name's
    longest word does not fit beside the picture, the picture gives way. The chip is a wrapping row laid out from the
    right (the name first, then the picture to its left); a picture that has no room wraps onto a second line, which
@@ -90,22 +105,16 @@
   /* the yellow is 36 px tall; a clear edge above and below makes the place to tap 40 px tall (PLAN-096) */
   border-block: 2px solid transparent;
 }
+#app .tkt .tk-top-row > .tk-event { max-width: calc(min(100vw, 520px) - 2 * var(--side)); }
 #app .tkt .tk-event::before { content: ''; order: -1; flex: none; width: 0; height: 30px; margin-left: -6px; }
 #app .tkt .tk-event .xev { flex: none; order: 1; border-radius: 0; overflow: hidden; }
 #app .tkt .tk-event > span:last-child { flex: 1 1 0; min-width: min-content; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-#app .tkt .tk-me { margin-left: auto; flex: none; display: flex; align-items: center; gap: 8px; }
+#app .tkt .tk-me { flex: none; display: flex; align-items: center; gap: 8px; }
 #app .tkt .tk-rank { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.08em; color: var(--tk-yel); }
 #app .tkt .tk-cash { padding: 5px 9px; background: var(--tk-paper); color: var(--tk-ink); font: 400 1.25rem/1.15 var(--tk-disp); font-variant-numeric: tabular-nums; }
-#app .tkt .tk-beats { all: unset; display: flex; height: 30px; }
-#app .tkt .tk-beats li {
-  all: unset; flex: 1 1 0; min-width: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; white-space: nowrap;
-  background: var(--tk-paper); color: var(--tk-ink); border-bottom: 3px solid var(--tk-ink); font: 800 0.66rem/1 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase;
-}
-#app .tkt .tk-beats li.now { background: var(--tk-yel); }
-#app .tkt .tk-beats li.done { background: var(--tk-ink); color: var(--tk-paper); }
 
 /* ---------- today's customers: tickets on a kraft band ---------- */
-#app .tkt > .street-wrap { all: unset; grid-area: street; display: block; box-sizing: border-box; min-width: 0; padding: 6px 12px; overflow: hidden; background: var(--tk-kraft); }
+#app .tkt > .street-wrap { all: unset; grid-area: street; display: block; box-sizing: border-box; min-width: 0; padding: 7px 12px 6px; overflow: hidden; background: var(--tk-kraft); }
 #app .tkt > .street-wrap::after { display: none; }
 #app .tkt .street { all: unset; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 #app .tkt .street::-webkit-scrollbar { display: none; }
@@ -124,8 +133,8 @@
   all: unset; position: absolute; left: 50%; top: 50%; z-index: 2; width: 30px; height: 30px; margin: -15px 0 0 -15px; display: grid; place-items: center; border-radius: 50%;
   background: var(--tk-ink); color: var(--tk-yel); font: 800 1rem/1 var(--tk-txt);
 }
-/* tomorrow's customers and the standing order, on the same band */
-#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-top: 6px; overflow: hidden; }
+/* tomorrow's customers on the same band, above today's (PLAN-127), and the standing order under them */
+#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-bottom: 7px; overflow: hidden; }
 #app .tkt .tomorrow .tm-k { all: unset; flex: none; font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-chip { all: unset; flex: none; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px 0 3px; background: var(--tk-paper); color: var(--tk-ink); font: 400 0.75rem/1 var(--tk-disp); cursor: pointer; }
 #app .tkt .tomorrow .tm-chip.tm-back { padding: 0 5px; cursor: default; background: repeating-linear-gradient(135deg, var(--tk-paper) 0 5px, var(--tk-tint) 5px 10px); }
@@ -297,14 +306,18 @@
   #app .tkt .ns-piece { transition: none; }
 }
 
-/* a phone: the event's name a little smaller, so its longest word ("Breakdown") fits beside the last day's date, the
-   rank and a cash of three figures (PLAN-096) */
+/* a phone: the event's name a little smaller, so its longest word ("Breakdown") fits between the day and the rank and
+   a cash of three figures (PLAN-096, PLAN-127) */
 @media (max-width: 419px) {
+  #app .tkt .tk-top-row { --side: 124px; }
   #app .tkt .tk-event { font-size: 0.625rem; letter-spacing: 0.03em; }
 }
 /* a narrow phone: the same table, a little tighter */
 @media (max-width: 379px) {
-  #app .tkt .tk-top-row { gap: 5px; padding-right: 6px; }
+  #app .tkt .tk-top-row { --side: 112px; }
+  #app .tkt .tk-menu { width: 40px; }
+  #app .tkt .tk-pill { padding-left: 7px; padding-right: 7px; }
+  #app .tkt .tk-top-row > .tk-me { padding-right: 6px; }
   #app .tkt .tk-event { padding-right: 6px; }
   #app .tkt .tk-me { gap: 6px; }
   #app .tkt .tk-cash { padding-left: 7px; padding-right: 7px; }
@@ -315,18 +328,17 @@
 }
 /* the narrowest phones (320 px): the top bar's day, rank and cash a little smaller, so the event's name still fits */
 @media (max-width: 339px) {
-  #app .tkt .tk-top-row { gap: 4px; padding-left: 2px; }
-  #app .tkt .tk-menu { width: 40px; }
-  #app .tkt .tk-day .day-label { font-size: 1.0625rem; }
-  #app .tkt .tk-day .day-label small { font-size: 0.6875rem; }
+  #app .tkt .tk-top-row { --side: 102px; }
+  #app .tkt .tk-top-row > .tk-lead { gap: 2px; padding-left: 2px; }
+  #app .tkt .tk-pill { min-width: 38px; padding-left: 6px; padding-right: 6px; font-size: 0.9375rem; }
   #app .tkt .tk-event { padding-left: 3px; padding-right: 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
   #app .tkt .tk-me { gap: 5px; }
   #app .tkt .tk-cash { padding-left: 6px; padding-right: 6px; font-size: 1.0625rem; }
 }
-/* a short phone: smaller portraits and a slimmer bar leave more of the middle */
+/* a short phone: a slimmer bar leaves more of the middle */
 @media (max-height: 760px) {
   #app .tkt .tk-top-row { height: 46px; }
-  #app .tkt .tk-beats { height: 26px; }
+  #app .tkt .tk-pill { padding-top: 2px; padding-bottom: 2px; }
 }
 
 /* ---------- pop-ups over the table, in the same boxes ---------- */
