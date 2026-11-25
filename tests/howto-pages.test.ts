@@ -15,15 +15,16 @@ vi.mock('preact/hooks', () => ({
 // out by the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
 
 describe('How to play pages', () => {
-  it('has the eight pages, in the owner\'s order', () => {
+  it('has the seven pages, in the owner\'s order', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
     const titles = [...src.matchAll(/\{ title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    expect(titles).toEqual(['How to play', 'Fruit & freshness', 'Customer', 'Favour', 'Lorry', 'Event', 'Market Day', 'Try a sale']);
+    expect(titles).toEqual(['How to play', 'Fruit & freshness', 'Lorry & event', 'Customer', 'Favour', 'Market Day', 'Try a sale']);
   });
 
   it('opens on How to play with the starting cash, "Most cash wins." and the day\'s four turns', () => {
     const html = toStaticHtml(h(HowTo, { onDone: () => undefined, inTab: true }));
-    expect(html).toContain('1/8');
+    expect(html).toContain('1/7');
+    expect(html).not.toContain('Play a day');
     expect(html).toContain('Every day, every stall');
     for (const t of ['Buy', 'Stock', 'Price', 'Rush']) expect(html).toContain(`<b>${t}</b>`);
     expect(html).toContain('Each stall starts with');
@@ -37,6 +38,15 @@ describe('How to play pages', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
     expect(src).toContain("Serve a customer's whole order by yourself to gain a Favour card.");
     expect(src).toContain('<TradingCardBack fruits={fruitsOf(TODAY_REG)} />');
+    // who buys what sits behind the (i) on the Customer page, not on Fruit & freshness
+    expect(src).toContain("{ title: 'Customer', body: () => <Customers />, info: { label: 'Who buys what', card: () => <WhoBuys /> } }");
+  });
+
+  it('the market board is filled from a real lorry card, and every fruit has a card to open', () => {
+    const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
+    expect(src).toContain("FARMER_CARDS.find((c) => c.name === 'Mixed Basket')");
+    expect(src).toContain('n={BOARD_LORRY.table[BOARD_STALLS][f]}');
+    expect(src).toContain('There are 4 fruits in the game: blueberry, watermelon, mango and apple.');
   });
 });
 

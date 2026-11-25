@@ -17,6 +17,7 @@
 
 .howto .ht-h3 { margin: 10px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--x-ink); font: 800 0.75rem/1.2 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--x-ink); }
 .howto .ht-btn { min-height: 38px; padding: 0 12px; font-size: 0.8125rem; }
+#app .howto.tk-page .btn.ht-btn-s { min-height: 28px; padding: 0 8px; font-size: 0.6875rem; letter-spacing: 0.04em; }
 #app .howto.tk-page .slide > .ht-small { font-size: 0.8125rem; color: var(--x-slate); }
 /* styles.css sets every <b> on this page in ink; on a card a <b> takes its block's own colour (a customer card's price
    tag is mustard on ink) */
@@ -85,28 +86,29 @@
 .ht-turn.on { box-shadow: inset 0 0 0 3px var(--x-ink), 0 0 0 3px var(--x-mustard); transform: translateY(-2px); }
 .ht-turn.on .ht-turn-pic img { filter: none; }
 .ht-turn.on > b { background: var(--x-mustard); }
-.ht-turn-foot { display: flex; align-items: center; gap: 8px; }
-#app .howto.tk-page .slide .ht-turn-foot > .ht-turn-say { flex: 1; margin: 0; min-height: 3.9em; font-size: 0.8125rem; line-height: 1.3; }
-.ht-turn-foot .ht-btn { flex: none; }
-#app .howto.tk-page .slide > .ht-length { margin: 6px 0 0; font-weight: 700; }
+#app .howto.tk-page .slide .ht-turns > .ht-turn-say { margin: 0; min-height: 2.7em; font-size: 0.8125rem; line-height: 1.35; }
+#app .howto.tk-page .slide > .ht-length { margin: 10px 0 0; font-weight: 700; text-align: center; }
 
 /* ---------- 2 fruit and freshness: the Wholesale Market board, freshest box at the top ---------- */
 .ht-mkt-v { margin: 4px 0 10px; padding: 8px; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); display: flex; flex-direction: column; gap: 6px; }
-.ht-mkt-v-h { display: flex; justify-content: space-between; align-items: baseline; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; }
-.ht-mkt-v-h span { color: var(--x-slate); letter-spacing: 0; text-transform: none; font-weight: 600; font-size: 0.75rem; }
+.ht-mkt-v-h { display: grid; grid-template-columns: 1fr auto; column-gap: 8px; align-items: center; font: 800 0.6875rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.ht-mkt-v-h b { min-width: 0; }
+.ht-mkt-v-h span { grid-row: 2; color: var(--x-slate); letter-spacing: 0; text-transform: none; font-weight: 600; font-size: 0.75rem; }
+.ht-mkt-v-h .ht-btn { grid-column: 2; grid-row: 1 / 3; }
 .ht-lanes-v { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: start; }
 .ht-lane-v { display: flex; flex-direction: column; gap: 3px; }
-.ht-lane-h { display: grid; place-items: center; height: 22px; background: var(--lane); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ht-lane-h { position: relative; display: grid; place-items: center; height: 30px; padding: 0; border: 0; border-radius: 0; background: var(--lane); box-shadow: inset 0 0 0 1.5px var(--x-ink); cursor: pointer; }
+.ht-lane-h > i { position: absolute; right: 3px; top: 3px; width: 13px; height: 13px; border-radius: 50%; display: grid; place-items: center; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 1.5px var(--x-ink); font: 800 9px/1 var(--f-label); font-style: italic; }
+.ht-lane-h:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 1px; }
 .howto .ht-box {
   position: relative; height: 27px; display: flex; align-items: center; justify-content: center; font-style: normal; box-shadow: inset 0 0 0 1.5px var(--x-ink);
 }
 .howto .ht-box > .ht-lamp { position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; font-size: 7px; }
 .howto .ht-box small { position: absolute; right: 4px; bottom: 4px; font: 800 0.625rem/1 var(--f-label); color: var(--x-ink); }
 .howto .ht-box.here { box-shadow: inset 0 0 0 3px var(--x-ink); }
-.ht-tkn { display: inline-flex; animation: ht-down calc(var(--mk, 1) * 350ms) ease-out both; }
+.ht-tkn > b { margin-left: 1px; font: 800 0.6875rem/1 var(--f-label); }
+.ht-tkn { display: inline-flex; align-items: center; animation: ht-down calc(var(--mk, 1) * 350ms) ease-out both; }
 @keyframes ht-down { from { transform: translateY(-14px); opacity: 0.3; } to { transform: none; opacity: 1; } }
-.ht-mkt-v-f { display: flex; align-items: center; gap: 8px; }
-.ht-mkt-v-f small { flex: 1; font-size: 0.75rem; line-height: 1.3; color: var(--x-slate); }
 .ht-accept { width: 100%; border-collapse: collapse; font-size: 0.75rem; table-layout: fixed; }
 .ht-accept th, .ht-accept td { padding: 6px 3px; border: 1.5px solid var(--x-ink); text-align: center; vertical-align: middle; }
 .ht-accept thead th { background: var(--x-ink); color: var(--x-paper); font: 800 0.6875rem/1.2 var(--f-label); }
@@ -183,32 +185,11 @@
 .ht-swipe { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 8px; margin: 0 -14px; padding-inline: 14px; scroll-snap-type: x mandatory; scroll-padding-inline: 14px; }
 .ht-swipe-c { flex: none; scroll-snap-align: start; --card-w: 186px; }
 
-/* ---------- 5 lorry and 6 event: the card beside its words, then a scene ---------- */
-.ht-cardrow { display: flex; gap: 12px; align-items: flex-start; margin: 4px 0 10px; }
-.ht-cardrow-c { flex: none; --card-w: 160px; }
-#app .howto.tk-page .slide .ht-cardrow > p { margin: 0; font-size: 0.875rem; }
-.ht-road { position: relative; height: 112px; overflow: hidden; background: var(--x-cream); box-shadow: inset 0 0 0 2px var(--x-ink); }
-.ht-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: var(--x-kraft); border-top: 2px solid var(--x-ink); }
-.ht-ground::after { content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 2px; background: repeating-linear-gradient(to right, var(--x-paper) 0 14px, transparent 14px 28px); }
-.ht-mkt-bld { position: absolute; left: 10px; bottom: 18px; width: 120px; height: 66px; display: flex; flex-direction: column; align-items: center; padding-top: 14px; box-sizing: border-box; background: var(--x-paper); box-shadow: inset 0 0 0 2px var(--x-ink); }
-.ht-mkt-awn { position: absolute; left: -4px; right: -4px; top: -8px; height: 16px; background: repeating-linear-gradient(to right, var(--x-red) 0 12px, var(--x-paper) 12px 24px); box-shadow: inset 0 0 0 2px var(--x-ink); border-radius: 0 0 8px 8px; }
-.ht-mkt-bld b { font: 800 0.5625rem/1.1 var(--f-label); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
-.ht-truck { position: absolute; left: 140px; bottom: 16px; width: 104px; height: 60px; animation: ht-truck calc(var(--mk, 1) * 4800ms) ease-out infinite; }
-.ht-truck img { position: absolute; left: 0; bottom: 0; width: 104px; height: auto; }
-.ht-truck img.b { display: none; }
-@keyframes ht-truck { 0% { transform: translateX(260px); } 30%, 80% { transform: none; } 100% { transform: translateX(-30px); opacity: 0; } }
-.ht-crates { position: absolute; left: 26px; bottom: 22px; display: flex; gap: 2px; }
-.ht-crate-go { display: block; width: 24px; height: auto; opacity: 0; animation: ht-crate calc(var(--mk, 1) * 4800ms) ease-out infinite; animation-delay: calc(var(--mk, 1) * var(--i, 0) * 120ms); }
-@keyframes ht-crate { 0%, 32% { opacity: 0; transform: translateX(130px); } 48%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; transform: none; } }
-/* the event: dawn, and the card turned over on the market's counter */
-.ht-dawn { height: 132px; }
-.ht-sun { position: absolute; right: 22px; top: 14px; width: 26px; height: 26px; border-radius: 50%; background: var(--x-mustard); box-shadow: 0 0 0 2px var(--x-ink); animation: ht-sun calc(var(--mk, 1) * 4800ms) ease-out infinite; }
-@keyframes ht-sun { 0% { transform: translateY(40px); } 30%, 100% { transform: none; } }
-.ht-ev-flip { position: absolute; left: 160px; bottom: 22px; width: 64px; height: 90px; perspective: 400px; --card-w: 64px; }
-.ht-ev-face { position: absolute; inset: 0; backface-visibility: hidden; animation: ht-turn calc(var(--mk, 1) * 4800ms) ease-in-out infinite; }
-.ht-ev-face.front { animation-name: ht-turn-front; }
-@keyframes ht-turn { 0%, 30% { transform: rotateY(0); } 45%, 92% { transform: rotateY(180deg); } 100% { transform: rotateY(360deg); } }
-@keyframes ht-turn-front { 0%, 30% { transform: rotateY(-180deg); } 45%, 92% { transform: rotateY(0); } 100% { transform: rotateY(180deg); } }
+/* ---------- lorry and event: two rows of cards to swipe ---------- */
+.ht-swipe-s { margin-bottom: 0; padding-bottom: 4px; }
+#app .howto.tk-page .slide > h2 + .ht-h3 { margin-top: 2px; }
+#app .howto.tk-page .slide > .ht-h3 + .ht-small { margin-bottom: 6px; line-height: 1.35; }
+.ht-swipe-s .ht-swipe-c { --card-w: 110px; }
 
 /* ---------- 7 Market Day ---------- */
 .ht-order { display: flex; gap: 10px; align-items: flex-start; }
@@ -243,3 +224,27 @@
 .ht-st-note { min-height: 1.2em; font: 800 0.6875rem/1.2 var(--f-label); text-align: center; }
 .ht-stall.out .ht-st-note { color: var(--x-red-d); }
 .ht-go { display: block; width: 100%; margin: 8px 0 0; }
+
+/* the (i) at a page's top right, and the cards it and the fruit lanes open */
+#app .howto.tk-page .slide { position: relative; }
+.howto .ht-info {
+  position: absolute; right: 12px; top: 12px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: var(--x-mustard); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 italic 1rem/1 var(--f-label);
+}
+.howto .ht-info:focus-visible { outline: 3px solid var(--x-ink); outline-offset: 2px; }
+.ht-fruitcard, .ht-infocard { display: flex; flex-direction: column; gap: 8px; padding: 0 0 12px; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-fruitcard header, .ht-infocard header { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 8px; background: var(--lane, var(--x-ink)); color: var(--lane-ink, var(--x-paper)); box-shadow: inset 0 0 0 3px var(--x-ink); }
+.ht-fruitcard header span, .ht-infocard header span { font: 800 0.625rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.ht-fruitcard header b, .ht-infocard header b { font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; color: inherit; }
+.ht-fruitcard-pic { display: grid; place-items: center; padding: 4px 0; }
+.ht-fruitcard p, .ht-infocard p { margin: 0 12px; font-size: 0.875rem; line-height: 1.4; }
+.ht-fruitcard table { margin: 0 12px; border-collapse: collapse; font-size: 0.8125rem; }
+.ht-fruitcard th, .ht-fruitcard td { padding: 5px 4px; border-bottom: 1.5px solid var(--x-ink); text-align: left; }
+.ht-fruitcard thead th { font: 800 0.625rem/1.2 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.ht-fruitcard tbody th { display: flex; align-items: center; gap: 5px; font-weight: 700; }
+.ht-fruitcard td { font-variant-numeric: tabular-nums; }
+.ht-fruitcard footer { margin: 0 12px; padding: 6px 8px; background: var(--x-cream); font: 700 0.8125rem/1.35 var(--f-label); }
+.ht-infocard .ht-accept { margin: 0 12px; width: calc(100% - 24px); }
+.ht-lane-ico { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--x-paper); box-shadow: inset 0 0 0 1.5px var(--x-ink); }
+.ht-infocard .ht-accept { table-layout: auto; font-size: 0.6875rem; }
+.ht-infocard .ht-accept th, .ht-infocard .ht-accept td { padding: 6px 4px; }

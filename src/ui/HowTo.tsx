@@ -15,13 +15,11 @@ import {
 import { Coin, Face, Fruit } from './art';
 import { LANES } from './boardModel';
 import {
-  ART_SIZE, CardArt, DeckBack, EventBack, FavourCard, Gazette, LorryCard, OrderCard, TradingCard, TradingCardBack, UpgradeCard,
+  ART_SIZE, CardArt, DeckBack, FavourCard, Gazette, LorryCard, OrderCard, TradingCard, TradingCardBack, UpgradeCard,
 } from './cards';
 import { CardPop, CardZoom } from './cardZoom';
 import { customerArt, customerFocus, shopFocus, shopScene, upgradeArt, upgradeFocus } from './deckArt';
 import { fx } from './fx';
-import { LorrySprite } from './icons';
-import { crateUrl } from './marketArt';
 import { held, moveMs } from './motion';
 import { MARKET_DAY_LIST, TIE_ORDER } from './rulesText';
 import { PriceTag, StallPreview } from './stampCard';
@@ -103,23 +101,15 @@ const DAY_TURNS: { verb: string; line: string; pic: () => ComponentChildren; bad
   },
 ];
 
-/** The day's four turns as picture tiles; "Play a day" lights them one after another, a tap picks one. */
+/** The day's four turns as picture tiles; a tap picks one and says what happens. */
 function DayTurns() {
   const [on, setOn] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-  useEffect(() => {
-    if (!playing) return undefined;
-    timer.current = window.setTimeout(() => (on < DAY_TURNS.length - 1 ? setOn(on + 1) : setPlaying(false)), held(1400));
-    return () => window.clearTimeout(timer.current);
-  }, [on, playing]);
   const t = DAY_TURNS[on];
   return (
     <section class="ht-turns" aria-label="A day at the stall">
       <div class="ht-turn-grid">
         {DAY_TURNS.map((x, i) => (
-          <button type="button" class={`ht-turn ${i === on ? 'on' : ''}`} aria-pressed={i === on} onClick={() => { setPlaying(false); setOn(i); }}>
+          <button type="button" class={`ht-turn ${i === on ? 'on' : ''}`} aria-pressed={i === on} onClick={() => setOn(i)}>
             <span class="ht-turn-pic" aria-hidden="true">{x.pic()}</span>
             <span class="ht-turn-n" aria-hidden="true">{i + 1}</span>
             {x.badge()}
@@ -127,10 +117,7 @@ function DayTurns() {
           </button>
         ))}
       </div>
-      <div class="ht-turn-foot">
-        <p class="ht-turn-say" role="status"><b>{`${t.verb}. `}</b>{t.line}</p>
-        <button type="button" class="btn ht-btn" onClick={() => { setOn(0); setPlaying(true); }}>{playing ? 'Playing…' : 'Play a day'}</button>
-      </div>
+      <p class="ht-turn-say" role="status"><b>{`${t.verb}. `}</b>{t.line}</p>
     </section>
   );
 }
@@ -156,22 +143,61 @@ function HowToPlay() {
 
 // ---------- 2 fruit and freshness ----------
 
+/** What each fruit is like, for its pop-up (data.ts's notes on the fruit), and what customers usually pay for a Fresh
+ *  one (the customer cards are spread round these prices: data.ts, the 36 customers). */
+const FRUIT_NOTE: Record<FruitId, string> = {
+  blueberry: 'Cheap to buy, but it goes off fast: sell it quickly.',
+  watermelon: 'The steady middle, with a spare Fresh day.',
+  apple: 'The keeper: four Fresh days. Rarely the best price, rarely a loss.',
+  mango: 'Arrives Green and ripens on your shelf, then sells at a premium for one Fresh day.',
+};
+const USUAL_PRICE: Record<FruitId, number> = { blueberry: 5, watermelon: 7, apple: 6, mango: 11 };
+
+/** A fruit's card in a pop-up: what it is like, what it costs at the Wholesale Market at each freshness, how long it
+ *  keeps, and what customers usually pay. */
+function FruitCard({ f }: { f: FruitId }) {
+  const d = FRUIT[f];
+  const stages: Stage[] = [...(deliveredGreen(f) ? ['unripe' as Stage] : []), 'fresh', 'okay', 'notso'];
+  const fresh = d.ripe.filter((x) => x === 'fresh').length;
+  return (
+    <article class={`ht-fruitcard ln-${f}`}>
+      <header><span>Fruit</span><b>{d.name}</b></header>
+      <span class="ht-fruitcard-pic"><Fruit id={f} size={64} /></span>
+      <p>{FRUIT_NOTE[f]}</p>
+      <table>
+        <thead><tr><th scope="col">Freshness</th><th scope="col">Costs</th><th scope="col">Customers pay</th></tr></thead>
+        <tbody>
+          {stages.map((st) => (
+            <tr>
+              <th scope="row"><Lamp stage={st} /> {STAGE_WORD[st]}</th>
+              <td>${d.cost[st]}</td>
+              <td>{st === 'unripe' ? "Can't sell yet" : st === 'fresh' ? `About $${USUAL_PRICE[f]}` : `$${st === 'okay' ? 1 : 2} less`}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <footer>{deliveredGreen(f) ? `Green for ${d.unripeSlots} nights, then ` : 'Lasts '}{`${d.ripe.length} days: ${fresh === 1 ? 'Fresh' : `${fresh} Fresh`}, then Okay, then Soft.`}</footer>
+    </article>
+  );
+}
+
 /** A fruit's lane on the Wholesale Market board, freshest box at the top as in the game (a fruit some lorry delivers
  *  green has its green boxes above Fresh; the watermelon keeps a green slot in the engine, but no lorry fills it).
- *  Okay and Soft boxes say what customers take off. `at`: the box a piece stands in (-1: it spoiled). */
-export function FruitLane({ f, at }: { f: FruitId; at?: number }) {
+ *  Okay and Soft boxes say what customers take off. `at`: the box the delivered pieces stand in (-1: they spoiled);
+ *  `n`: how many. `onOpen`: the lane's head opens the fruit's card. */
+export function FruitLane({ f, at, n = 1, onOpen }: { f: FruitId; at?: number; n?: number; onOpen?: () => void }) {
   const slots = FRUIT[f].ripe.length + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0);
   const boxes = Array.from({ length: slots }, (_, i) => slots - 1 - i);
   return (
     <div class={`ht-lane-v ln-${f}`} role="img" aria-label={`${FRUIT[f].name}: ${boxes.map((i) => STAGE_WORD[stageAt(f, i)]).join(', ')}, freshest first`}>
-      <span class="ht-lane-h"><Fruit id={f} size={16} /></span>
+      <button type="button" class="ht-lane-h" aria-label={`${FRUIT[f].name}: see its card`} onClick={onOpen}><span class="ht-lane-ico"><Fruit id={f} size={18} /></span><i aria-hidden="true">i</i></button>
       {boxes.map((i) => {
         const st = stageAt(f, i);
         const drop = st === 'unripe' ? 0 : FRUIT[f].drop[i];
         return (
-          <i class={`ht-box st-${st} ${at === i ? 'here' : ''}`} aria-label={st === 'unripe' ? 'green' : undefined}>
+          <i class={`ht-box st-${st} ${at === i && n > 0 ? 'here' : ''}`} aria-label={st === 'unripe' ? 'green' : undefined}>
             <Lamp stage={st} />
-            {at === i ? <span class="ht-tkn"><Fruit id={f} size={18} stage={st} /></span> : drop ? <small>{`−$${drop}`}</small> : null}
+            {at === i && n > 0 ? <span class="ht-tkn"><Fruit id={f} size={18} stage={st} />{n > 1 && <b>×{n}</b>}</span> : drop ? <small>{`−$${drop}`}</small> : null}
           </i>
         );
       })}
@@ -182,25 +208,40 @@ export function FruitLane({ f, at }: { f: FruitId; at?: number }) {
 const PREFS: Pref[] = ['premium', 'everyday', 'bargain'];
 const SOLD_STAGES: Stage[] = ['fresh', 'okay', 'notso'];
 const firstBox = (f: FruitId) => FRUIT[f].ripe.length - 1 + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0);
+/** The delivery on the board: a real lorry card's row at three stalls. */
+const BOARD_LORRY = FARMER_CARDS.find((c) => c.name === 'Mixed Basket') ?? FARMER_CARDS[0];
+const BOARD_STALLS = 3;
 
 function Freshness() {
   const [night, setNight] = useState(0);
+  const [open, setOpen] = useState<FruitId | null>(null);
   const longest = Math.max(...LANES.map(firstBox));
   return (
     <>
+      <p>There are 4 fruits in the game: blueberry, watermelon, mango and apple.</p>
       <p>Every night all fruit ages one step: <b>Fresh</b>, then <b>Okay</b>, then <b>Soft</b>, then it spoils.</p>
       <div class="ht-mkt-v">
-        <div class="ht-mkt-v-h"><b>The four fruits</b><span>{night === 0 ? 'Today' : `After ${night} night${night === 1 ? '' : 's'}`}</span></div>
-        <div class="ht-lanes-v">{LANES.map((f) => <FruitLane f={f} at={firstBox(f) - night} />)}</div>
-        <div class="ht-mkt-v-f">
-          <small>Freshest at the top. Mangoes arrive Green and ripen in {FRUIT.mango.unripeSlots} nights.</small>
+        <div class="ht-mkt-v-h">
+          <b>{`${BOARD_LORRY.name} · ${BOARD_STALLS} stalls`}</b>
+          <span>{night === 0 ? 'Just delivered' : `After ${night} night${night === 1 ? '' : 's'}`}</span>
           {night <= longest
-            ? <button type="button" class="btn ht-btn" onClick={() => setNight(night + 1)}>Advance one night</button>
-            : <button type="button" class="btn ht-btn" onClick={() => setNight(0)}>Start again</button>}
+            ? <button type="button" class="btn ht-btn ht-btn-s" onClick={() => setNight(night + 1)}>Advance 1 night</button>
+            : <button type="button" class="btn ht-btn ht-btn-s" onClick={() => setNight(0)}>Start again</button>}
         </div>
+        <div class="ht-lanes-v">{LANES.map((f) => <FruitLane f={f} at={firstBox(f) - night} n={BOARD_LORRY.table[BOARD_STALLS][f]} onOpen={() => { fx.tap(); setOpen(f); }} />)}</div>
       </div>
+      {open && <CardPop title={FRUIT[open].name} onClose={() => setOpen(null)}><FruitCard f={open} /></CardPop>}
+    </>
+  );
+}
+
+/** Who buys what: each customer type against each freshness (the (i) on the Customer page). */
+function WhoBuys() {
+  return (
+    <article class="ht-infocard">
+      <header><span>Customers</span><b>Who buys what</b></header>
       <table class="ht-accept">
-        <thead><tr><th scope="col">Who buys what</th>{SOLD_STAGES.map((s) => <th scope="col"><Lamp stage={s} /> {STAGE_WORD[s]}</th>)}</tr></thead>
+        <thead><tr><th scope="col">Type</th>{SOLD_STAGES.map((s) => <th scope="col"><Lamp stage={s} /> {STAGE_WORD[s]}</th>)}</tr></thead>
         <tbody>
           {PREFS.map((p) => (
             <tr class={`pref-${p}`}>
@@ -212,7 +253,8 @@ function Freshness() {
           ))}
         </tbody>
       </table>
-    </>
+      <p>A card's colour and its F, O and S marks show the customer's type.</p>
+    </article>
   );
 }
 
@@ -362,67 +404,26 @@ function Favours() {
   );
 }
 
-// ---------- 5 lorry ----------
+// ---------- lorry and event ----------
 
-const LORRY = FARMER_CARDS[0];
-const LORRY_STALLS = 3;
-
-/** The lorry drives up the road to the Wholesale Market and its crates go in, over and over. */
-function LorryArrives() {
-  return (
-    <div class="ht-road" role="img" aria-label="The lorry arrives at the Wholesale Market and unloads its crates">
-      <span class="ht-mkt-bld"><span class="ht-mkt-awn" /><b>Wholesale Market</b></span>
-      <span class="ht-crates">{(['berry', 'melon', 'apple', 'mango'] as const).map((k, i) => {
-        const c = crateUrl(k, 40, 14);
-        return <img class="ht-crate-go" style={{ '--i': i }} src={c.url} width={40} alt="" draggable={false} />;
-      })}</span>
-      <span class="ht-truck"><LorrySprite /></span>
-      <span class="ht-ground" />
-    </div>
-  );
+/** All the cards of a deck in a row to swipe; a tap opens one whole. */
+function CardSwipe({ label, children }: { label: string; children: ComponentChildren[] }) {
+  return <div class="ht-swipe ht-swipe-s" role="list" aria-label={label}>{children.map((c) => <div class="ht-swipe-c" role="listitem">{c}</div>)}</div>;
 }
 
-function Lorry() {
+function LorryEvent() {
   return (
     <>
-      <p>The lorry unloads fruit at the Wholesale Market every morning.</p>
-      <div class="ht-cardrow">
-        <CardZoom class="ht-cardrow-c" title={LORRY.name}><LorryCard card={LORRY} stalls={LORRY_STALLS} /></CardZoom>
-        <p>Each lorry card shows what it brings for 2 to 6 stalls. Tomorrow's lorry is also turned face up for players to plan ahead.</p>
-      </div>
-      <LorryArrives />
-    </>
-  );
-}
-
-// ---------- 6 event ----------
-
-const EVENT = EVENT_CARDS.find((e) => e.id === 'heatwave') ?? EVENT_CARDS[0];
-
-/** The morning: the event card is turned over on the market's counter, over and over. */
-function EventTurns() {
-  return (
-    <div class="ht-road ht-dawn" role="img" aria-label={`Morning: the event card is turned over. Today it is ${EVENT.title}.`}>
-      <span class="ht-sun" aria-hidden="true" />
-      <span class="ht-mkt-bld"><span class="ht-mkt-awn" /><b>Wholesale Market</b></span>
-      <span class="ht-ev-flip" aria-hidden="true">
-        <span class="ht-ev-face back"><EventBack /></span>
-        <span class="ht-ev-face front"><Gazette event={EVENT} /></span>
-      </span>
-      <span class="ht-ground" />
-    </div>
-  );
-}
-
-function Event() {
-  return (
-    <>
-      <p>From Day 2, an event card is turned over every morning.</p>
-      <div class="ht-cardrow">
-        <CardZoom class="ht-cardrow-c" title={EVENT.title}><Gazette event={EVENT} eager /></CardZoom>
-        <p>Each event changes that day: what customers pay, what the lorry brings, or who comes to the market. Nobody knows it until it is turned over.</p>
-      </div>
-      <EventTurns />
+      <h3 class="ht-h3">Lorry</h3>
+      <p class="ht-small">The lorry unloads fruit at the Wholesale Market every morning. Each lorry card shows what it brings for 2 to 6 stalls. Tomorrow's lorry is also turned face up for players to plan ahead.</p>
+      <CardSwipe label={`The ${FARMER_CARDS.length} lorry cards`}>
+        {FARMER_CARDS.map((c) => <CardZoom title={c.name}><LorryCard card={c} /></CardZoom>)}
+      </CardSwipe>
+      <h3 class="ht-h3">Event</h3>
+      <p class="ht-small">From Day 2, an event card is turned over every morning. It changes that day: what customers pay, what the lorry brings, or who comes to the market.</p>
+      <CardSwipe label={`The ${EVENT_CARDS.length} event cards`}>
+        {EVENT_CARDS.map((e) => <CardZoom title={e.title}><Gazette event={e} /></CardZoom>)}
+      </CardSwipe>
     </>
   );
 }
@@ -554,13 +555,13 @@ function TrySale() {
   );
 }
 
-const PAGES: { title: string; body: () => ComponentChildren }[] = [
+/** The pages. `info`: a card behind an (i) at the page's top right. */
+const PAGES: { title: string; body: () => ComponentChildren; info?: { label: string; card: () => ComponentChildren } }[] = [
   { title: 'How to play', body: () => <HowToPlay /> },
   { title: 'Fruit & freshness', body: () => <Freshness /> },
-  { title: 'Customer', body: () => <Customers /> },
+  { title: 'Lorry & event', body: () => <LorryEvent /> },
+  { title: 'Customer', body: () => <Customers />, info: { label: 'Who buys what', card: () => <WhoBuys /> } },
   { title: 'Favour', body: () => <Favours /> },
-  { title: 'Lorry', body: () => <Lorry /> },
-  { title: 'Event', body: () => <Event /> },
   { title: 'Market Day', body: () => <MarketDay /> },
   { title: 'Try a sale', body: () => <TrySale /> },
 ];
@@ -568,8 +569,9 @@ const PAGES: { title: string; body: () => ComponentChildren }[] = [
 /** How to play. PLAN-124: `inTab` draws it as Home's Rules tab (the bottom bar leaves it, so it has no Close). */
 export function HowTo({ onDone, inTab }: { onDone: () => void; inTab?: boolean }) {
   const [i, setI] = useState(0);
+  const [info, setInfo] = useState(false);
   const top = useRef<HTMLElement>(null);
-  const go = (k: number) => { setI(k); top.current?.scrollTo?.({ top: 0 }); };
+  const go = (k: number) => { setI(k); setInfo(false); top.current?.scrollTo?.({ top: 0 }); };
   const s = PAGES[i];
   return (
     <div class={`page howto tk-page${inTab ? ' howto-tab' : ''}`}>
@@ -580,7 +582,9 @@ export function HowTo({ onDone, inTab }: { onDone: () => void; inTab?: boolean }
         </nav>
         <section class="panel slide" key={i}>
           <h2>{s.title}</h2>
+          {s.info && <button type="button" class="ht-info" aria-label={s.info.label} aria-haspopup="dialog" onClick={() => { fx.tap(); setInfo(true); }}>i</button>}
           {s.body()}
+          {s.info && info && <CardPop title={s.info.label} onClose={() => setInfo(false)}>{s.info.card()}</CardPop>}
         </section>
         <div class="row2">
           <button class="btn" disabled={i === 0} onClick={() => go(i - 1)}>← Back</button>

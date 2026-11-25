@@ -4869,6 +4869,10 @@
     {
       "at": "2026-11-25 13:17",
       "text": "Owner, on PLAN-127: eight pages in a new order, one screen each; a new Event page; One market day, the tips and the end-of-game page removed (the end stays in RULES.md and on page 1's \"Most cash wins\"); tests that pinned the removed wording now check RULES.md and the set-up text only."
+    },
+    {
+      "at": "2026-11-25 13:42",
+      "text": "PLAN-127: E2E OK on 78a2eca (budget first try, leaks 0). Owner's fifth round: seven pages (Lorry and Event together, after Fruit & freshness), fruit cards on the board, a real lorry's delivery, who buys what behind an (i) on the Customer page."
     }
   ]
 }

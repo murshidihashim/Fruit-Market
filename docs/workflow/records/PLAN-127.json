@@ -1,12 +1,13 @@
 {
   "id": "PLAN-127",
-  "title": "Rules page redesign: eight one-screen illustrated pages",
+  "title": "Rules page redesign: seven one-screen illustrated pages",
   "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
   "scope": [
     "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
     "Owner (second round): the first page's shopkeeper section replaced by the day's turns (buy in turn; stock and price at once, in secret; the rush) as picture tiles of shopkeepers and a customer; page 2 is Customer (design C, reworded), with buttons that point a moving ring at fruit, quantity, top price and freshness on a face-up and a face-down card, and Buying/Stocking/Next morning buttons on the board; page 3, The lorry, with the lorry card, the deck back, an unloading lorry and tomorrow's lorry",
     "Owner (third round): page 1's turns flow down a winding path with pictures (the market board for Buy, fruit into a crate for Stock, Rosa pricing in secret for Price, two customer characters cut from their cards for Rush); Customer: the pointing is done from linked words in the description, and the board ends with the Tomorrow strip; Lorry: renamed, reworded, the market first, the lorry card and the deck back, then the lorry arriving at the Wholesale Market",
     "Owner (fourth round): pages in the owner's order (How to play, Fruit & freshness, Customer, Favour, Lorry, Event, Market Day, Try a sale), each fitting one phone screen; How to play back to the four picture tiles; Fruit & freshness as the market board, freshest at the top, then who buys what; Customer: one customer's card face up and face down, the favour sentence, same-size cards and a moving Next morning; Favour cards to swipe; Lorry: the card and the lorry arriving; a new Event page in the same shape; Market Day: the standing order and upgrades in plain words; One market day and the tips removed",
+    "Owner (fifth round): no Play a day; the game length centred; Fruit & freshness names the four fruits, fills the board from a real lorry card (Mixed Basket at 3 stalls), opens a card per fruit (what it is like, costs by freshness, what customers usually pay, how long it keeps), with a smaller Advance 1 night; who buys what moves behind an (i) on the Customer page; Lorry and Event become one page of the two decks to swipe, after Fruit & freshness",
     "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
     "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
     "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
@@ -30,13 +31,13 @@
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
       "result": "NOT RUN",
-      "evidence": "To run on this build (last PASS on f3d3e83)"
+      "evidence": "To run on this build (E2E OK on 78a2eca, the round before)"
     },
     {
       "id": "T3",
       "text": "The pages at 390x844: each fits one screen inside the Rules tab, no sideways scrolling",
       "result": "PASS",
-      "evidence": "Playwright at 390x844 in the Rules tab: all 8 pages fit (scroll height equals the frame, within 1 px); page width 390; Customer tickets 118 px at every step"
+      "evidence": "Playwright at 390x844 in the Rules tab: all 7 pages fit (scroll height equals the frame, within 1 px); page width 390; fruit cards and the who-buys-what card open and close"
     },
     {
       "id": "T4",
