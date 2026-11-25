@@ -11,37 +11,32 @@ vi.mock('preact/hooks', () => ({
   useRef: (v: unknown) => ({ current: v }), useMemo: (f: () => unknown) => f(), useCallback: (f: unknown) => f,
 }));
 
-// PLAN-127: the Rules page redesign. Six pages, the tips beside their rules, and the Try a sale reveal worked out by
-// the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
+// PLAN-127: the Rules page redesign. Eight pages in the owner's order, one screen each, and the Try a sale reveal worked
+// out by the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
 
 describe('How to play pages', () => {
-  it('has the eight pages, in order, with no page of tips', () => {
+  it('has the eight pages, in the owner\'s order', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
-    const titles = [...src.matchAll(/\{ part: '[^']*', title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    expect(titles).toEqual(['How to play', 'Customer', 'Lorry', 'One market day', 'Fruit & freshness', 'Try a sale', 'Favours & closing', 'Market Days & the end']);
-    expect(titles).not.toContain('Tips');
+    const titles = [...src.matchAll(/\{ title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
+    expect(titles).toEqual(['How to play', 'Fruit & freshness', 'Customer', 'Favour', 'Lorry', 'Event', 'Market Day', 'Try a sale']);
   });
 
-  it('opens on How to play with the starting cash and "Most cash wins."', () => {
+  it('opens on How to play with the starting cash, "Most cash wins." and the day\'s four turns', () => {
     const html = toStaticHtml(h(HowTo, { onDone: () => undefined, inTab: true }));
     expect(html).toContain('1/8');
     expect(html).toContain('Every day, every stall');
-    expect(html).not.toContain('Pick a shopkeeper');
+    for (const t of ['Buy', 'Stock', 'Price', 'Rush']) expect(html).toContain(`<b>${t}</b>`);
     expect(html).toContain('Each stall starts with');
     expect(html).toContain('against rival stalls.');
-    expect(html).not.toContain('1 to 5 rival');
     expect(html).toContain('$10');
     expect(html).toContain('Most cash wins.');
     expect(html).toContain('class="ht-tabs"');
   });
 
-  it('each tip stands where its decision is made', () => {
+  it('the customer page names the favour card and draws the regular\'s own card face down', () => {
     const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
-    const at = (s: string) => src.indexOf(s);
-    // blueberry spoilage beside freshness, rival-buying memory beside Stocking, the top-up under Running out of cash
-    expect(at('Blueberries are cheap but last only 3 days.')).toBeGreaterThan(at('function Freshness('));
-    expect(at('Watch what rivals take while they buy.')).toBeGreaterThan(at('<b>Stocking</b>'));
-    expect(at('is topped up to $${TOP_UP}')).toBeGreaterThan(at('title="Running out of cash"'));
+    expect(src).toContain("Serve a customer's whole order by yourself to gain a Favour card.");
+    expect(src).toContain('<TradingCardBack fruits={fruitsOf(TODAY_REG)} />');
   });
 });
 

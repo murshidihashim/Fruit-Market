@@ -1,11 +1,12 @@
 {
   "id": "PLAN-127",
-  "title": "Rules page redesign: eight illustrated pages, Try a sale, Customer and Lorry pages",
+  "title": "Rules page redesign: eight one-screen illustrated pages",
   "problem": "The Rules page (How to play) is seven pages of text with small pictures; the tips sit on a page of their own, away from the decisions they are about.",
   "scope": [
     "Owner's changes (2026-11-24): the first page is headed How to play (no Start or Quick start), \"against rival stalls\", \"Each stall starts with\" above the $10, and only \"A game lasts 8, 10 or 14 days.\" under the shopkeeper",
     "Owner (second round): the first page's shopkeeper section replaced by the day's turns (buy in turn; stock and price at once, in secret; the rush) as picture tiles of shopkeepers and a customer; page 2 is Customer (design C, reworded), with buttons that point a moving ring at fruit, quantity, top price and freshness on a face-up and a face-down card, and Buying/Stocking/Next morning buttons on the board; page 3, The lorry, with the lorry card, the deck back, an unloading lorry and tomorrow's lorry",
     "Owner (third round): page 1's turns flow down a winding path with pictures (the market board for Buy, fruit into a crate for Stock, Rosa pricing in secret for Price, two customer characters cut from their cards for Rush); Customer: the pointing is done from linked words in the description, and the board ends with the Tomorrow strip; Lorry: renamed, reworded, the market first, the lorry card and the deck back, then the lorry arriving at the Wholesale Market",
+    "Owner (fourth round): pages in the owner's order (How to play, Fruit & freshness, Customer, Favour, Lorry, Event, Market Day, Try a sale), each fitting one phone screen; How to play back to the four picture tiles; Fruit & freshness as the market board, freshest at the top, then who buys what; Customer: one customer's card face up and face down, the favour sentence, same-size cards and a moving Next morning; Favour cards to swipe; Lorry: the card and the lorry arriving; a new Event page in the same shape; Market Day: the standing order and upgrades in plain words; One market day and the tips removed",
     "Quick start: an illustrated stall, the $10 starting cash and \"Most cash wins.\", with the shopkeeper choice beside a real shopkeeper card",
     "One market day: one action line and one picture per step; a rival crate shown with only its piece count, then opened at the bell",
     "Fruit & freshness: the track with Fresh on the right and Advance one night; who buys what in a three-row table; a mango's two nights from Green to Fresh",
@@ -28,14 +29,14 @@
     {
       "id": "T2",
       "text": "npm run test:e2e (0 leaks)",
-      "result": "PASS",
-      "evidence": "PORT=8890 E2E_MINUTES=15 npm run test:e2e on f3d3e83: E2E OK; budget failed once (232 ms, a known near-limit on this machine, STATE Known issues) and passed on the script's retry; pricing leaks 0, reactions 0, room 0, page errors 0"
+      "result": "NOT RUN",
+      "evidence": "To run on this build (last PASS on f3d3e83)"
     },
     {
       "id": "T3",
-      "text": "The pages at 390x844 and 360 wide: no sideways scrolling; the reveal, the night track, the crate and the card pop-ups work",
+      "text": "The pages at 390x844: each fits one screen inside the Rules tab, no sideways scrolling",
       "result": "PASS",
-      "evidence": "Playwright screenshots of all six pages at 390 and 360 wide: page width equals the screen; Ring the bell, Advance one night (blueberry and mango), Reveal sale (B $3, then A 2 at $4, C Order full; Fresh only: A 2 at $4, C 1 at $5) and Running out of cash / Price ties rows checked"
+      "evidence": "Playwright at 390x844 in the Rules tab: all 8 pages fit (scroll height equals the frame, within 1 px); page width 390; Customer tickets 118 px at every step"
     },
     {
       "id": "T4",
@@ -55,7 +56,7 @@
     "evidence": "Owner, 2026-11-24: \"based on the latest live app game, redesign the rulepage per below's remark\" (the seven-page reorganisation and the first interaction, Bobby Books's sale)",
     "date": "2026-11-24"
   },
-  "delivery": "implemented",
+  "delivery": "in progress",
   "release": "unreleased",
   "build": "branch ccr-608a8c5d-g7t4ma",
   "reports": [],

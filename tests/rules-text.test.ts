@@ -6,7 +6,7 @@ import { beginBuying, newGame } from '../src/engine/game';
 import { SEEN_WALK_IN, marketColumn, shownColumn } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { CustomerChar, Market } from '../src/ui/table';
-import { FruitTrack } from '../src/ui/HowTo';
+import { FruitLane } from '../src/ui/HowTo';
 import { marketDaysSetupText, unripeSetupText } from '../src/ui/rulesText';
 
 // Set-up text and green fruit (REP-089 3.7): since rules 9 only mangoes arrive green, at $4 ($5 on a Price Hike day).
@@ -35,9 +35,9 @@ describe('green fruit', () => {
 
   it('How to play draws green steps only for fruit a lorry delivers green', () => {
     for (const f of FRUITS) {
-      const html = toStaticHtml(h(FruitTrack, { f }));
+      const html = toStaticHtml(h(FruitLane, { f }));
       expect(html.split('st-unripe').length - 1).toBe(deliveredGreen(f) ? FRUIT[f].unripeSlots : 0);
-      expect(html.split('<i ').length - 1).toBe(FRUIT[f].ripe.length + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0));
+      expect(html.split('<i class="ht-box').length - 1).toBe(FRUIT[f].ripe.length + (deliveredGreen(f) ? FRUIT[f].unripeSlots : 0));
     }
   });
 

@@ -4865,6 +4865,10 @@
     {
       "at": "2026-11-25 01:00",
       "text": "Owner, on PLAN-127: page 1's turns as a flowing path of pictures; Customer page pointing from linked words, board ends at the Tomorrow strip; Lorry page renamed, reworded, with the lorry arriving at the market."
+    },
+    {
+      "at": "2026-11-25 13:17",
+      "text": "Owner, on PLAN-127: eight pages in a new order, one screen each; a new Event page; One market day, the tips and the end-of-game page removed (the end stays in RULES.md and on page 1's \"Most cash wins\"); tests that pinned the removed wording now check RULES.md and the set-up text only."
     }
   ]
 }
