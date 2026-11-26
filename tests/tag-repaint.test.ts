@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const src = readFileSync('src/ui/game/panels/RushTable.tsx', 'utf8');
-const css = readFileSync('src/ui/rushTable.css', 'utf8');
 
 describe('a crate\'s price tag shows its new price on iOS', () => {
   it('every list of tags keys each tag by its price, face and marks', () => {
@@ -17,7 +16,6 @@ describe('a crate\'s price tag shows its new price on iOS', () => {
     expect(key?.[1]).toContain('t.up');
     expect(key?.[1]).toContain('t.f');
   });
-  it('the tag is still drawn through a filter (the reason for the key)', () => {
-    expect(css).toMatch(/\.rt-tg \{[^}]*filter: drop-shadow/);
-  });
+  // The tag is still drawn through a filter (the reason for the key): read in the browser at the rush of the solo
+  // playthrough (scripts/layout-check.cjs 'rush', PLAN-130).
 });

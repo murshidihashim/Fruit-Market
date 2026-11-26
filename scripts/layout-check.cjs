@@ -6,7 +6,10 @@
 //           single column; the action bar sits in the act area.
 //   'bar'   the stocking and pricing buttons (.pp-lock) take the action bar's place.
 //   'rush'  the round table lies over the table from the market down to the action bar.
-//   'night' the customer row and the stalls stay on the table at night, dimmed.
+//   'night' the customer row and the stalls stay on the table at night, dimmed; the pieces sliding down the lanes and
+//           your shelf's chips move on one curve, the night's (tableModel.ts NIGHT_EASE), and so do tomorrow's cards
+//           walking into the row while they walk.
+//   'rush'  also: a crate's price tag is drawn through a filter (the reason each tag is keyed by its price, iOS).
 
 const PHONE_AREAS = '"top" "net" "street" "mid" "rivals" "dock" "act"';
 
@@ -60,12 +63,23 @@ async function checkLayout(page, moment) {
   if (moment === 'rush') {
     const t = await style('.game > .rush-table', ['grid-row-start', 'grid-row-end']);
     expect(t && t['grid-row-start'] === 'mid' && t['grid-row-end'] === 'act', `the round table from the market to the action bar (${JSON.stringify(t)})`);
+    const tag = await style('.rt-tg', ['filter']);
+    expect(tag && /drop-shadow/.test(tag.filter), `a crate's price tag is drawn through a filter (${tag && tag.filter})`);
   }
   if (moment === 'night') {
     const row = await style('.game.is-night > .street-wrap', ['display', 'opacity']);
     const seats = await style('.game.is-night > .seats', ['display', 'opacity']);
     expect(row && row.display === 'block' && Number(row.opacity) < 1, `the customer row stays at night, dimmed (${JSON.stringify(row)})`);
     expect(seats && seats.display === 'flex' && Number(seats.opacity) < 1, `the stalls stay at night, dimmed (${JSON.stringify(seats)})`);
+    const curves = await page.evaluate(() => {
+      const first = (el) => (el ? getComputedStyle(el).transitionTimingFunction.replace(/\s+/g, ' ').match(/^[a-z-]+(\([^)]*\))?/)[0] : null);
+      const walk = [...document.querySelectorAll('[data-walk]')].flatMap((e) => e.getAnimations()).map((a) => a.effect.getTiming().easing)[0] ?? null;
+      return { piece: first(document.querySelector('.tb-pc.ns-piece')), chip: first(document.querySelector('.tb-dock.night .tb-chip')), walk };
+    });
+    const NIGHT_EASE = 'cubic-bezier(0.45, 0, 0.3, 1)';
+    expect(curves.piece === NIGHT_EASE, `the lanes' pieces slide on the night's curve (${curves.piece})`);
+    expect(curves.chip === null || curves.chip === NIGHT_EASE, `your shelf's chips slide on the night's curve (${curves.chip})`);
+    expect(curves.walk === null || curves.walk === NIGHT_EASE, `tomorrow's cards walk on the night's curve (${curves.walk})`);
   }
   return fails;
 }
