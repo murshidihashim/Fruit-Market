@@ -5,7 +5,7 @@
 // The event is turned over each morning: it shows the event deck's back until the picture is ready (PLAN-061).
 // On the table the sheet lies over the rivals and the lanes, from under the customers' tickets down to your shelf
 // (reach.ts), so nothing needs a scroll on a phone 844 px tall; on a shorter phone it scrolls inside itself.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { EVENT_CARDS, FRUIT, TOP_UP } from '../../../engine/data';
 import type { GameState } from '../../../engine/game';
 import { closingNote, overnightLines, type NightJuice } from '../../../engine/story';
@@ -159,24 +159,25 @@ export function MorningCard({ s, viewer: holder, lost, juice, table, shared }: {
   useReach(root, 'row', false, !!table, closerOnceSeen);
   // Coins at dawn (PLAN-084): the totals stay as they were before the fine and the top-up until the coins travel,
   // once the news has been turned over. Only for the morning that has just broken on this table.
-  const before = useMemo(() => (table ? takeDawn(s) : null), []);
+  const [before] = useState(() => (table ? takeDawn(s) : null));
   const live = useRef(true);
   useLayoutEffect(() => {
     if (!before) return;
     holdCash(before);
     return () => { live.current = false; holdCash(null); };
-  }, []);
+  }, [before]);
   const coins = useRef(false);
   useEffect(() => {
     if (!before || !ready) return;
     coins.current = true;
     void dawnCoins(s, viewer, () => live.current).then(() => { coins.current = false; if (live.current) holdCash(null); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dawn's coins travel once, as the event's picture is in (from the morning as it broke)
   }, [ready]);
   // A tap on the sheet while dawn's coins are on their way ends their pauses, so they leave at once. The table's pace
   // is put back straight away: this hurry is for the coins only, not for the buying that follows.
   const hurryCoins = () => { if (coins.current) { hurryUp(); resetHurry(); } };
   // Once the event's picture is in, the sheet is looked at again (the page is at rest by then, so this costs nothing).
-  useEffect(() => { if (table && ready && root.current) closer(root.current); }, [ready]);
+  useEffect(() => { if (table && ready && root.current) closer(root.current); }, [ready, table]);
 
   const said = [fineLine(s, viewer), topUpLine(s, viewer)].filter(Boolean).join('. ');
   return (

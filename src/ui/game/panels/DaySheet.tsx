@@ -17,8 +17,11 @@ import { reachFrom, useReach } from '../reach';
 import type { GameController } from '../useGameController';
 import { SalesSummary } from './SalesSummary';
 
+/** What the step rule reads from the game controller. */
+export type DayFacts = Pick<GameController, 'busy' | 'myBidTurn' | 'humans' | 'handedTo' | 'bell' | 'rung' | 'show' | 'revealDone'>;
+
 /** What the step rule needs, read from the game and its screen. */
-export function dayNow(s: GameState, viewer: number, c: GameController, online: boolean): DayNow {
+export function dayNow(s: GameState, viewer: number, c: DayFacts, online: boolean): DayNow {
   return {
     phase: s.phase, busy: c.busy, myTurn: c.myBidTurn,
     opened: online ? !c.myBidTurn : s.stalls[viewer] !== null,
@@ -28,7 +31,7 @@ export function dayNow(s: GameState, viewer: number, c: GameController, online: 
 }
 
 /** Is the day's sheet on the table now? Stocking and the takings (the game table asks; the sheet works out its step). */
-export const daySheetOn = (s: GameState, viewer: number, c: GameController, online: boolean): boolean =>
+export const daySheetOn = (s: GameState, viewer: number, c: DayFacts, online: boolean): boolean =>
   onSheet(dayStep(dayNow(s, viewer, c, online)));
 
 /**
@@ -78,20 +81,12 @@ const withPiece = (c: Crate, f: FruitId, pos: number, n: number, len: number): C
   return { ...c, [f]: t };
 };
 
-export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: number; c: GameController; online: boolean;
-  /** A first-game tip is up over the table. */
-  tip?: boolean }) {
-  const pl = s.players[viewer];
-  const root = useRef<HTMLDivElement>(null);
-  // On a short phone the middle of the table is too low for stocking: there the sheet starts under the customers'
-  // tickets and ends at the foot of your shelf (daysheet.css). The reach is measured from the rows themselves and
-  // written on the sheet (reach.ts); on a taller phone the sheet keeps to the middle cell. Each time the rows have
-  // been measured (they are laid out, or one changed its size) the sheet is fitted again.
-  const fitting = useRef(false);
-  useReach(root, 'row', true, true, (el) => { if (fitting.current) fit(el); });
-  // While a first-game tip is up on a small phone, stocking may lie over the customers' tickets (fit, data-top): how
-  // far the top of the customer band is above the middle is measured from the rows too, whenever one of them changes
-  // its size, and written on the sheet.
+/**
+ * While a first-game tip is up on a small phone, stocking may lie over the customers' tickets (fit, data-top): how far
+ * the top of the customer band is above the middle is measured from the rows too, whenever one of them changes its size,
+ * and written on the sheet.
+ */
+function useRiseFull(root: { current: HTMLDivElement | null }, fitting: { current: boolean }) {
   useLayoutEffect(() => {
     const el = root.current;
     const game = el?.closest('.game');
@@ -110,14 +105,14 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     const watch = new ResizeObserver(reach);
     for (const x of [game, mid, street]) watch.observe(x);
     return () => watch.disconnect();
-  }, []);
-  // The sheet only draws itself while this stall stocks; under the takings it lies plain.
-  const step: DayStep = dayStep(dayNow(s, viewer, c, online)) ?? 'takings';
-  const own = ownStep(step);
-  const lies = own ? 'own' : 'rest';
-  const shared = !online && c.humans.length > 1;
+  }, [root, fitting]);
+}
 
-  // ---------- stocking: your crate, and the pieces on their way to it ----------
+/** Stocking: your crate, the pieces in the air on their way to it (drawn in the crate as they land), a piece moved
+ *  in or out by its row's buttons, and "Auto load" (the owner, 2026-11-13: every piece it adds slides from its shelf
+ *  row into the crate, a moment apart). */
+function useStocking(s: GameState, viewer: number, root: { current: HTMLDivElement | null }) {
+  const pl = s.players[viewer];
   const [crate, setCrate] = useState<Crate>(() => startingCrate(s, viewer));
   /** Pieces in the air on their way to the crate, by the box they came from: drawn in the crate when they land. */
   const [air, setAir] = useState<Record<string, number>>({});
@@ -166,6 +161,28 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
       }
     }
   };
+  return { crate, landed, move, total, loads, autoLoad };
+}
+
+export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: number; c: GameController; online: boolean;
+  /** A first-game tip is up over the table. */
+  tip?: boolean }) {
+  const root = useRef<HTMLDivElement>(null);
+  // On a short phone the middle of the table is too low for stocking: there the sheet starts under the customers'
+  // tickets and ends at the foot of your shelf (daysheet.css). The reach is measured from the rows themselves and
+  // written on the sheet (reach.ts); on a taller phone the sheet keeps to the middle cell. Each time the rows have
+  // been measured (they are laid out, or one changed its size) the sheet is fitted again.
+  const fitting = useRef(false);
+  useReach(root, 'row', true, true, (el) => { if (fitting.current) fit(el); });
+  useRiseFull(root, fitting);
+  // The sheet only draws itself while this stall stocks; under the takings it lies plain.
+  const step: DayStep = dayStep(dayNow(s, viewer, c, online)) ?? 'takings';
+  const own = ownStep(step);
+  const lies = own ? 'own' : 'rest';
+  const shared = !online && c.humans.length > 1;
+
+  // ---------- stocking: your crate, and the pieces on their way to it ----------
+  const { crate, landed, move, total, loads, autoLoad } = useStocking(s, viewer, root);
 
   // ---------- the room: every row, note and button in view before anything scrolls ----------
   fitting.current = own;
@@ -181,7 +198,7 @@ export function DaySheet({ s, viewer, c, online, tip }: { s: GameState; viewer: 
     if (own) fit(el);
     else { delete el.dataset.tight; el.removeAttribute('data-over'); el.removeAttribute('data-up'); el.removeAttribute('data-top'); }
     if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });
-  }, [step, tip]);
+  }, [step, tip, own]);
 
   return (
     <>

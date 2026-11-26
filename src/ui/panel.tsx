@@ -8,7 +8,7 @@ import {
   canPlayFavour, canUpgrade, count, crateCounts, forSale, handLimit, isDraftNight, maxPrice, minPrice, nightOutlook, rowCount, shadePick, shelfSize,
   validatePrices, type Crate, type Customer, type GameState, type Post,
 } from '../engine/game';
-import { closingNote, dayLedger, heatwaveLine, tonightText } from '../engine/story';
+import { closingNote, heatwaveLine, tonightText } from '../engine/story';
 import { tagOf } from '../net/looks';
 import { Coin, Face, Fruit } from './art';
 import {
@@ -25,7 +25,7 @@ import { freshWarn, nightSteps, tonightWord } from './game/tonight';
 import { noteOffer } from './game/dayBeats';
 import { priorityNote } from './game/evening';
 import { drawCloser, useReach, type Holding } from './game/reach';
-import { takingsRows, type TakingsRow } from './game/panels/SalesSummary';
+import { daySoldLine } from './game/dayWords';
 import { MarketDayPopup } from './FirstTime';
 import { marketDayIntro, marketDayRead } from './tutorial';
 
@@ -380,29 +380,6 @@ export const TRAIT_ICON: Record<TraitId, IconName> = { haggler: 'scales', basket
 const WORDS = ['none', 'one', 'two', 'three', 'four', 'five'];
 const inWords = (n: number) => WORDS[n] ?? String(n);
 
-/**
- * The evening's heading: the day's money in one line ("Sold $15 · bought $8 · up $7 today"), from the day's ledger.
- * S5 (PLAN-110): every other line of the takings that moved cash today is named too (a stake put down or back, dawn's
- * top-up or fine, an upgrade built tonight), so the numbers add up to the total.
- */
-export function daySoldLine(s: GameState, p: number, today = true): string {
-  const { sales, bought, fine, topUp, net } = dayLedger(s, p);
-  const rows = takingsRows(s, p);
-  const amount = (k: TakingsRow['key']) => rows.find((x) => x.key === k)?.amount ?? 0;
-  const put = -amount('staked'), back = amount('stake'), other = amount('other');
-  // In the evening, the only cash the ledger cannot name is an upgrade just built.
-  const built = s.phase === 'evening' && isDraftNight(s) && other < 0;
-  return [
-    `Sold $${sales}`, `bought $${bought}`,
-    ...(put > 0 ? [`stake $${put}`] : []),
-    ...(back > 0 ? [`stake back $${back}`] : []),
-    ...(topUp > 0 ? [`top-up $${topUp}`] : []),
-    ...(fine > 0 ? [`fine $${fine}`] : []),
-    ...(other !== 0 ? [built ? `upgrade $${-other}` : `other ${other < 0 ? '−' : '+'}$${Math.abs(other)}`] : []),
-    ...(net === null ? [] : [`${net < 0 ? 'down' : 'up'} $${Math.abs(net)}${today ? ' today' : ''}`]),
-  ].join(' · ');
-}
-
 /** The offers tonight, in the order they are laid out, the cheapest first: every upgrade the stall has not built
  *  (none when it is full). */
 export function offersTonight(s: GameState, p: number): UpgradeId[] {
@@ -627,6 +604,7 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
   useLayoutEffect(() => {
     // Back after a moment away: at the place it was scrolled to.
     if (kept?.key === key && kept.scroll > 0 && root.current) root.current.scrollTop = kept.scroll;
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- scrolled back once, as the sheet comes back to the table
   }, []);
   // Drawn compact (the closest step), an offer shows one line of its text: choosing it opens its whole card.
   const [open, setOpen] = useState<UpgradeId | null>(null);

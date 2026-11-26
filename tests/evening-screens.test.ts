@@ -8,15 +8,16 @@ import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { computersEvening } from '../src/engine/ai';
 import {
-  activePlayer, buyUpgrade, emptyStock, endEvening, finishReveal, newGame, playFavour, publicView,
+  activePlayer, buyUpgrade, canPlayFavour, emptyStock, endEvening, finishReveal, newGame, playFavour, publicView,
   type GameState, type PlayerConfig,
 } from '../src/engine/game';
 import { toStaticHtml } from '../src/ui/cards';
 import { playedFavours } from '../src/ui/game/dayBeats';
 import { eveningWaitLine, priorityBackLine, priorityNote, priorityWouldReturn } from '../src/ui/game/evening';
 import { waitsForPerson } from '../src/ui/game/turn';
-import { eveningAside } from '../src/ui/game/useGameController';
+import { computerStep, eveningAside } from '../src/ui/game/stepKind';
 import { EveningPanel } from '../src/ui/panel';
+import { FavourPopView } from '../src/ui/game/panels/Popovers';
 import { rivalNote } from '../src/ui/table';
 import { passEvening } from './stall-step';
 
@@ -61,11 +62,10 @@ describe('a solo evening: the computers first, together, then the person straigh
     expect(s.day).toBe(4);
   });
 
-  it('the controller takes the computers\' evening without a pause and in one step; the night is a step of its own', () => {
-    const src = read('src/ui/game/useGameController.ts');
-    expect(src).toContain("const next = computersEvening(cur, (p) => cur.players[p].kind === 'ai') ?? aiStep(cur);");
-    // The evening's branch comes before the pause that rivals take in the other steps.
-    expect(src.indexOf("if (s.phase === 'evening') {\n      const cur = sRef.current;")).toBeLessThan(src.indexOf('void A.pause((A.isFast()'));
+  it('the controller takes the computers\' evening in one step; the night is a step of its own', () => {
+    expect(computerStep(open)).toEqual(shown);
+    // (without a pause: controller.test.ts 'the computers decide the evening as it opens, without a pause')
+    expect(computerStep(computerStep(open)!)).toBeNull();
   });
 
   it('each stall has one label: a stall that built and played cards names its cards on the upgrade\'s label', () => {
@@ -101,12 +101,8 @@ describe('online: everyone at once', () => {
   it('the bar names who the evening is still waiting for, only once you have said Lights out', () => {
     expect(eveningWaitLine('Ana and Cy')).toBe('Lights out. Waiting for Ana and Cy');
     expect(eveningWaitLine('')).toBe('Lights out');
-    const bar = read('src/ui/game/panels/ActionBar.tsx');
-    expect(bar).toContain("{quiet && s.phase === 'evening' && !activeHuman && (online");
-    expect(bar).toContain('eveningWaitLine(waitingFor(eveningWaits))');
-    const ctl = read('src/ui/game/useGameController.ts');
-    expect(ctl).toContain("const eveningWaits = s.phase === 'evening' ? live.filter((i) => eveningOpen(s, i)) : [];");
-    expect(ctl).toContain("(s.phase === 'evening' ? seat !== null && eveningOpen(s, seat) : active === seat && !secret)");
+    // the bar itself, and who is waited for: table-layout.test.ts 'once you have said Lights out, the bar names who the
+    // evening is still waiting for' and 'a person decides until they say Lights out'
   });
 
   it('another stall\'s choice is drawn at once while you are still deciding; your own is played as a beat', () => {
@@ -121,10 +117,18 @@ describe('online: everyone at once', () => {
   });
 
   it('the evening sheet and the opened card act for this phone\'s own seat', () => {
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain('const evP = c.actor;');
-    expect(game).toContain('<EveningSheet key={`ev-${s.day}-${evP}`} s={s} p={evP}');
-    expect(read('src/ui/game/panels/Popovers.tsx')).toContain('const why = canPlayFavour(s, actor, cardInfo);');
+    // the sheet: table-layout.test.ts 'the evening sheet is this stall's own'
+    // the card opened from the hand says why it cannot be played for this seat, not for the stall whose turn it is
+    const held = structuredClone(done1);
+    held.players[1].favours = ['priority'];
+    held.players[2].favours = ['priority'];
+    const mine = toStaticHtml(h(FavourPopView, { s: held, actor: 1, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    const why = canPlayFavour(held, 1, 0);
+    expect(why).not.toBeNull();
+    expect(mine).toContain(`<p class="cd-pop-why">${why}</p>`);
+    expect(mine).not.toContain('>Play</button>');
+    const theirs = toStaticHtml(h(FavourPopView, { s: held, actor: 2, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    expect(theirs).toContain('>Play</button>');
   });
 });
 

@@ -15,6 +15,7 @@ import { PreView, RushView } from '../src/ui/game/panels/RushTable';
 import { LOWEST_CRATE, TABLE, middleOf, rushCards, seatOrder, tableLay, tableMin, type Place } from '../src/ui/game/rush';
 import { crateFit, preTable, tableSeats, type PreFacts, type TableFacts, type TableSeat, type TableStep } from '../src/ui/game/tableNow';
 import { holdRush, releaseRush } from '../src/ui/rushShown';
+import { HandOver } from '../src/ui/game/panels/HandOver';
 
 const read = (f: string) => readFileSync(f, 'utf8');
 
@@ -260,6 +261,12 @@ describe('the pricing sheet leaves every seat in view', () => {
   });
 });
 
+/** Two people at one phone, at the stocking step. */
+function handOverGame(): GameState {
+  const s = newGame({ players: [0, 1].map((i) => ({ name: RIVALS[i].name, kind: 'human' as const, avatar: RIVALS[i].avatar })), days: 8, unripe: true, upgrades: true, events: true, seed: 4 });
+  return { ...s, phase: 'buy' };
+}
+
 describe('the hand-over hides the last person\'s crate', () => {
   const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, done: false, ...x });
 
@@ -269,12 +276,12 @@ describe('the hand-over hides the last person\'s crate', () => {
         expect(dayStep(now({ phase, myTurn, busy, opened, mine: false }))).toBeNull();
       }
     }
-    const game = read('src/ui/Game.tsx');
-    const handoff = game.slice(game.indexOf('if (c.needHandoff) {'), game.indexOf("if (s.phase === 'over') {"));
-    expect(handoff).toContain('tableWas.current = false;');
-    expect(handoff).not.toMatch(/RushTable|DaySheet|rt-crate/);
-    expect(handoff).toContain('return (');
+    // the hand-over screen is the whole screen, and holds nothing of the table (no crate, no price tag)
+    const s = handOverGame();
+    const html = toStaticHtml(h(HandOver, { s, p: 1, mine: null, onTap: () => {} }));
+    expect(html.startsWith('<div class="handoff">')).toBe(true);
+    expect(html).not.toMatch(/rt-crate|rush-table|sh-day|rt-tg|\$\d/);
     // the table is drawn for the person who holds the phone: the next person's own crate only once they have taken it
-    expect(read('src/ui/game/useGameController.ts')).toContain('if (!online && activeHuman && (!multi || handedTo === active)) lastViewer.current = active;');
+    // (controller.test.ts 'the table stays drawn for the person holding the phone until it is handed on')
   });
 });

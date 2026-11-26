@@ -453,6 +453,70 @@ export async function tiePlayed(p: number, from: A.Box | null): Promise<void> {
 
 /** `rung`: the bell has already rung today (the Favoured Trade step came between), so it is not shown again. `shared`:
  *  several people share this phone, so the result lines name every stall and say "You" to nobody. */
+/** What one customer's turn at the round table works with: the stall the table is drawn for, how a payment is shown
+ *  (once), what the rush shows while it is not cut short, and the customers served so far. */
+interface RushRun {
+  viewer: number;
+  pay: Pay;
+  once: Once;
+  show: (a: ShowState | null) => void;
+  going: () => boolean;
+  served: number[];
+}
+
+/** One customer at the table, from the row to the middle and back. */
+async function serve(card: RushCard, base: Omit<ShowState, 'stage' | 'at'>, r: RushRun): Promise<void> {
+  const { viewer, pay, once, show, going, served } = r;
+  const last = Math.max(0, card.blocks.length - 1);
+  // With reduced motion nothing travels: each fruit's tags are shown with its result and held to be read, then the
+  // customer with their result.
+  const still = A.isReduced();
+  if (still) {
+    for (let k = 0; k < last && going(); k++) {
+      settleBlock(card, card.blocks[k], pay, once);
+      show({ ...base, stage: 'rows', at: k });
+      await A.hold(A.BEAT.rush.read);
+    }
+    if (!going()) return;
+    settle(card, pay, once);
+  } else {
+    show({ ...base, stage: 'in', at: 0 });
+    fx.card();
+    await A.wait(A.BEAT.rush.cardIn);
+    for (let k = 0; k <= last && going(); k++) {
+      show({ ...base, stage: 'rows', at: k });
+      fx.tap();
+      await A.wait(k ? A.BEAT.rush.fruit : A.BEAT.rush.rows);
+      if (card.blocks[k] && going()) await sellBlock(card, card.blocks[k], viewer, pay, once);
+    }
+  }
+  if (!going()) return;
+  show({ ...base, stage: 'result', at: last });
+  await A.frame();
+  if (!going()) return;
+  await Promise.all([still ? null : gifts(card, viewer, pay, once), A.hold(A.BEAT.rush.read)]);
+  if (!going()) return;
+  served.push(card.customerId);
+  show({ ...base, stage: 'out', at: last, served: [...served] });
+  // The customer's way back to the row, and one frame more so that its last frame is drawn before they are taken away.
+  await A.wait(A.BEAT.rush.cardOut);
+  await A.frame();
+}
+
+/** Money that was not paid customer by customer (Pasar Malam's night hawker) lands last, as a bonus over the stall's
+ *  cash, once every customer's payment has been counted. */
+async function payLeftOver(g: GameState): Promise<void> {
+  let tipped = false;
+  g.players.forEach((pl, p) => {
+    const tip = pl.cash - shownCash(p, pl.cash);
+    if (tip <= 0) return;
+    tipped = true;
+    A.floatText(`p${p}-cash`, `+$${tip} bonus`);
+    void payCash(p, tip);
+  });
+  if (tipped) { fx.coin(); await A.hold(A.BEAT.label.bonus); }
+}
+
 export async function reveal(g: GameState, viewer: number, setShow: (a: ShowState | null) => void, setBell?: (open: BellShow) => void, rung = false, shared = false): Promise<number[]> {
   const r = g.results!;
   // What each stall was shown being paid by the customers, returned when the rush ends (tests hold it to the day's
@@ -493,43 +557,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   const show = (a: ShowState | null) => { if (!cut && live()) setShow(a); };
   const going = () => !cut && live();
 
-  /** One customer at the table, from the row to the middle and back. */
-  const serve = async (card: RushCard, base: Omit<ShowState, 'stage' | 'at'>) => {
-    const last = Math.max(0, card.blocks.length - 1);
-    // With reduced motion nothing travels: each fruit's tags are shown with its result and held to be read, then the
-    // customer with their result.
-    const still = A.isReduced();
-    if (still) {
-      for (let k = 0; k < last && going(); k++) {
-        settleBlock(card, card.blocks[k], pay, once);
-        show({ ...base, stage: 'rows', at: k });
-        await A.hold(A.BEAT.rush.read);
-      }
-      if (!going()) return;
-      settle(card, pay, once);
-    } else {
-      show({ ...base, stage: 'in', at: 0 });
-      fx.card();
-      await A.wait(A.BEAT.rush.cardIn);
-      for (let k = 0; k <= last && going(); k++) {
-        show({ ...base, stage: 'rows', at: k });
-        fx.tap();
-        await A.wait(k ? A.BEAT.rush.fruit : A.BEAT.rush.rows);
-        if (card.blocks[k] && going()) await sellBlock(card, card.blocks[k], viewer, pay, once);
-      }
-    }
-    if (!going()) return;
-    show({ ...base, stage: 'result', at: last });
-    await A.frame();
-    if (!going()) return;
-    await Promise.all([still ? null : gifts(card, viewer, pay, once), A.hold(A.BEAT.rush.read)]);
-    if (!going()) return;
-    served.push(card.customerId);
-    show({ ...base, stage: 'out', at: last, served: [...served] });
-    // The customer's way back to the row, and one frame more so that its last frame is drawn before they are taken away.
-    await A.wait(A.BEAT.rush.cardOut);
-    await A.frame();
-  };
+  const turn: RushRun = { viewer, pay, once, show, going, served };
 
   for (let i = 0; i < cards.length; i++) {
     const card = cards[i];
@@ -541,7 +569,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
       continue;
     }
     A.resetStep();
-    await Promise.race([serve(card, { card, n: i + 1, of: cards.length, served: [...served] }), skipped]);
+    await Promise.race([serve(card, { card, n: i + 1, of: cards.length, served: [...served] }, turn), skipped]);
     // Skipped while this customer was at the table: they are settled now, with everything still in the air.
     if (cut) settle(card, pay, once);
   }
@@ -554,15 +582,7 @@ export async function reveal(g: GameState, viewer: number, setShow: (a: ShowStat
   // nothing a customer paid is taken for it.
   await Promise.all(counting);
   if (!live()) return out;
-  let tipped = false;
-  g.players.forEach((pl, p) => {
-    const tip = pl.cash - shownCash(p, pl.cash);
-    if (tip <= 0) return;
-    tipped = true;
-    A.floatText(`p${p}-cash`, `+$${tip} bonus`);
-    void payCash(p, tip);
-  });
-  if (tipped) { fx.coin(); await A.hold(A.BEAT.label.bonus); }
+  await payLeftOver(g);
   if (!live()) return out;
   holdCash(null);
   releaseRush();

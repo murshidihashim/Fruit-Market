@@ -30,10 +30,8 @@ describe('the day\'s step said with the day follows what is on the table (TopBar
     expect(stepSaid('buy', false, 'order')).toBe('The standing order');
     // at night
     expect(stepSaid('reveal', true)).toBe('Night');
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain("const onTable = c.orderShow ? 'order' as const : s.phase === 'reveal' && !c.revealDone && rushDay.current !== s.day ? 'bell' as const : undefined;");
-    expect(game).toContain('if (show) rushDay.current = s.day;');
-    expect(game).toContain('<TopBar s={s} viewer={viewer} night={c.night} on={onTable} ');
+    // what the table has on it, said here: table-layout.test.ts 'the day's step said in the top bar follows what is on
+    // the table'
   });
 
   it('the day pill\'s name: the day, the game\'s length, the last days, and the step', () => {
@@ -82,24 +80,15 @@ describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
 
 describe('the bottom bar during the rush and the night (ActionBar.tsx)', () => {
   it('no Skip at night, and nothing said from the bell to the takings (PLAN-091)', () => {
-    const bar = read('src/ui/game/panels/ActionBar.tsx');
-    // the night's own heading says "Night falls" (NightShift.tsx): the bar is empty then, and no other hint shows
-    expect(bar).toContain(": night ? ''");
-    expect(bar).not.toContain('Night falls');
-    expect(read('src/ui/game/panels/NightShift.tsx')).toContain('<b class="tk-label">Night falls</b>');
-    // the bell, before the rush and at the flip, and the rush itself: the bar has nothing to add, and no other hint shows
-    expect(bar).toContain(": s.phase === 'reveal' || s.phase === 'tie' ? ''");
-    expect(bar).not.toContain('Selling…');
-    expect(bar).not.toContain('Every price is open');
-    expect(bar).toContain('const quiet = beat === null;');
-    expect(bar).toContain('{!quiet && <div class="hint-bar">{beat}</div>}');
-    expect(bar).not.toMatch(/\{!beat && |\{busy && !beat && /);
-    // From the moment the stall opens to the takings the round table's own foot takes the bar's place, and the bar is
-    // not drawn (PLAN-099): the hidden Skip the performance script once timed the rush by is gone with it; the script
-    // reads the round table instead (it says when it is playing: data-busy).
-    expect(bar).not.toContain('btn skip');
-    expect(read('src/ui/Game.tsx')).toContain('!tableOn && <ActionBar');
-    expect(read('src/ui/game/panels/RushTable.tsx')).toContain("data-busy={busy ? '' : undefined}");
+    // the bar itself: table-layout.test.ts 'the bottom bar during the rush and the night'; it is not drawn while the
+    // round table is up (PLAN-099): table-layout.test.ts 'once the stall has opened the round table takes over'
+    // The round table says when it is playing (data-busy), which the performance script times the rush by.
+    const s = atTakings();
+    const draw = (busy: boolean) => toStaticHtml(h(PreView, { s: { ...s, phase: 'bid' }, viewer: 0, pre: preTable({ ...s, phase: 'bid' }, 0, {
+      step: 'sealed', sent: null, own: null, vals: null, open: null, asked: -1, mine: false, online: false, waiting: '', shared: false, answered: false, left: null,
+    }), busy }));
+    expect(draw(true)).toContain('data-busy=""');
+    expect(draw(false)).not.toContain('data-busy');
     expect(read('scripts/perf-budget.cjs')).toContain("document.querySelector('.rush-table[data-busy]')");
   });
 });
@@ -128,8 +117,7 @@ describe('after a Favoured Trade answer (tableNow.ts, RushTable.tsx)', () => {
 describe('the first-game tip for stocking and pricing covers no control (Game.tsx, DaySheet.tsx, daysheet.css)', () => {
   it('is not shown at the standing-order bid, and at stocking and pricing the sheet keeps room free for it', () => {
     // "Secret prices" is about pricing fruit: it used to come up at the standing-order bid, over the bid's stepper
-    expect(read('src/ui/Game.tsx')).toContain("pricing: c.myBidTurn && s.phase !== 'order',");
-    expect(read('src/ui/Game.tsx')).toContain('tip={!!coach} />');
+    // (table-layout.test.ts 'the "Secret prices" tip is about pricing fruit')
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     expect(sheet).toContain("el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');");
     const css = read('src/ui/daysheet.css');
@@ -166,14 +154,9 @@ describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)
 
 describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
   it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain('if (centre && game) (underSheet.current ??= coverWatch()).update(game, centre, covered.current);');
-    // the round table lies over the market too (PLAN-099)
-    expect(game).toContain('covered.current = !!mid || tableOn;');
+    // when the market is covered (a sheet or the round table): table-layout.test.ts 'stocking draws the day's sheet;
+    // once the stall has opened the round table takes over, the market is out of reach'
     expect(read('src/ui/game/underSheet.ts')).toContain("centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);");
-    // the hooks come before the hand-over and results screens return early
-    expect(game.indexOf('const covered = useRef(false);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
-    expect(game.indexOf('useEffect(() => () => underSheet.current?.stop(), []);')).toBeLessThan(game.indexOf('if (c.needHandoff)'));
   });
 
   it('each row of the table a sheet covers all of is out of reach too, measured where things come to rest (PLAN-091)', () => {

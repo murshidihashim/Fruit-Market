@@ -65,10 +65,9 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     expect(dayStep(now({ phase: 'tie', busy: true, rung: true }))).toBe('tie');
     // after the answer the rush starts with the rows already open: no bell, no sealed prices
     expect(dayStep(now({ phase: 'reveal', busy: true, rung: true }))).toBe('bell');
-    const ctrl = read('src/ui/game/useGameController.ts');
-    expect(ctrl).toContain("const flip = next.day === prev.day && prev.phase === 'bid' && next.phase === 'tie';");
-    expect(ctrl).toContain("await reveal(next, viewer, setShow, setBell, prev.phase === 'tie', !online && multi);");
-    expect(read('src/ui/game/animator.tsx')).toContain('if (!rung) await bellRings(g, setBell);');
+    // the beats themselves: beat-player.test.ts 'at the flip the rows are shut together with the new state' and 'after a
+    // Favoured Trade answer the rush starts with the bell already rung'; the rush's own script: bell-fit.test.ts 'a rush
+    // after the flip does not ring the bell again'
   });
 
   it('a shared phone: nothing of a stall\'s crate or prices is drawn until the phone has been handed to its owner', () => {
@@ -99,11 +98,9 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
 });
 
 describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)', () => {
-  it('the game table draws the day\'s sheet for stocking and the takings, keyed by the day and the stall, and the round table between them', () => {
-    const game = read('src/ui/Game.tsx');
-    expect(game).toContain('if (dayOn) return <DaySheet key={`day-${s.day}-${viewer}`} s={s} viewer={viewer} c={c} online={!!online} tip={!!coach} />;');
-    for (const old of ['<StallPanel', '<PricePanel', '<CratesOpen', '<TiePanel', '<SalesSummary']) expect(game).not.toContain(old);
-    expect(game).toContain('<RushTable s={s} a={show} viewer={viewer} shared={!online && humans.length > 1} c={c} online={!!online} from={crateFrom.current} />');
+  it('the game table draws the day\'s sheet for stocking and the takings, and the round table between them', () => {
+    // which of them is up at each step: table-layout.test.ts 'stocking draws the day's sheet; once the stall has opened
+    // the round table takes over' and 'the takings lie on the day's sheet once the rush is truly over'
     const sheet = read('src/ui/game/panels/DaySheet.tsx');
     // one root element whose class does not change with the step (sheet.ts slides a panel in only when its class changes)
     expect(sheet.match(/<div class=\{`mid-panel sh-day /g)).toHaveLength(1);
