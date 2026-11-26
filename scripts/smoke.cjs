@@ -61,6 +61,10 @@ const path = require('path');
     try {
     if (await page.locator('.results').count()) break;
     const has = async (t) => (await page.locator(t).count()) > 0;
+    // the first price tag on the table
+    if (!seen.has('tags') && await has('.rt-tg')) { once('tags'); layout.push(...await checkLayout(page, 'tags')); }
+    // the first night, read 700 ms after the button that began it (whichever button of the evening's bar that was)
+    const night = async () => { if (seen.has('night')) return; await page.waitForTimeout(700); if (!await has('.game.is-night')) return; once('night'); await shot('09-night'); layout.push(...await checkLayout(page, 'night')); };
     if (await has('.trait-card')) { if (once('trait')) await shot('01b-trait'); await page.click('.trait-card'); continue; }
     if (await has('button:has-text("Start buying")')) { if (once('morning')) await shot('02-morning'); if (await has('text=LAST DAY') && once('finalday')) { await page.waitForTimeout(1300); await shot('02b-final-day'); } await page.click('button:has-text("Start buying")'); continue; }
     if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
@@ -99,15 +103,22 @@ const path = require('path');
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
       if (once('bid')) { await shot('05-pricing'); layout.push(...await checkLayout(page, 'bar')); }
-      if (await has('.rt-sheet') && once('pricing-check')) await look('pricing');
+      const pricing = await has('.rt-sheet'), evening = await has('.ev-lock');
+      if (pricing && once('pricing-check')) await look('pricing');
       await lock.click();
-      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); if (await has('.game > .rush-table')) layout.push(...await checkLayout(page, 'rush')); else layout.push('rush: the round table was not up'); }
+      if (evening) await night();
+      // the round table's layout is read once the first prices are locked in (the first bar pressed may be a standing
+      // order's bid instead, after which there is no rush to read)
+      const first = once('reveal-anim'), rush = pricing && once('rush-check');
+      if (first || rush) await page.waitForTimeout(2900);
+      if (first) await shot('06-reveal-anim');
+      if (rush) { if (await has('.game > .rush-table')) layout.push(...await checkLayout(page, 'rush')); else layout.push('rush: the round table was not up'); }
       continue;
     }
     if (await has('button:has-text("Lights out")')) {
       if (once('evening')) await shot('08-evening');
       await page.click('button:has-text("Lights out")');
-      if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); if (await has('.game.is-night')) layout.push(...await checkLayout(page, 'night')); else layout.push('night: the night was not up'); }
+      await night();
       continue;
     }
     for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); layout.push(...await checkLayout(page, 'takings')); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
@@ -128,6 +139,7 @@ const path = require('path');
   console.log('style checks:', styles.length ? styles : 'all hold');
   // the stocking sheet, the pricing sheet and the takings are reached in every game
   for (const at of ['stocking', 'pricing', 'takings']) if (!looked.includes(at)) broken.push(`the table was not checked at ${at}`);
+  for (const at of ['rush-check', 'tags', 'night']) if (!seen.has(at)) broken.push(`the layout was not checked at ${at}`);
   // PLAN-130 (A-05): the table's layout, from the computed style (scripts/layout-check.cjs)
   broken.push(...layout, ...styles);
   await browser.close();
