@@ -45,7 +45,7 @@ type PopupKind = 'continue' | 'account';
  * never comes back once used (Create a room used to show the old invite again). While a room is open the online screen
  * puts its code back in the address, so a reload returns to it.
  */
-function roomFromUrl(): string | undefined {
+export function roomFromUrl(): string | undefined {
   try {
     const c = normaliseCode(new URLSearchParams(location.search).get('room') ?? '');
     dropRoomFromAddress();
@@ -56,7 +56,7 @@ function roomFromUrl(): string | undefined {
 }
 
 /** Takes `?room=` out of the address, leaving anything else in it. */
-function dropRoomFromAddress() {
+export function dropRoomFromAddress() {
   try {
     const params = new URLSearchParams(location.search);
     if (!params.has('room')) return;
