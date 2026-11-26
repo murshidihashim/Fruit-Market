@@ -1,6 +1,6 @@
 // REP-140 A-10 (PLAN-130): the parts of App.tsx and AccountPanel.tsx that can be checked without a browser. App.tsx's
-// screens, the Back button's history and Opening.tsx's animation need a real page: the browser tests cover them, and
-// unit tests for them wait for the planned split of App.tsx.
+// screens, the Back button's history and Opening.tsx's animation need a real page: the browser tests cover them. Where
+// Back goes, the results' main button and the saved slots are appNav.ts's, tested in app-nav.test.ts.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
 import { toStaticHtml } from '../src/ui/cards';
