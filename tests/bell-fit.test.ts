@@ -239,15 +239,15 @@ describe('the round table before the rush (rushTable.css; the bell\'s rows and b
     expect(read('src/main.tsx')).not.toContain('bell.css');
     const all = read('src/ui/rushTable.css');
     const css = all.slice(all.indexOf('Before the rush (PLAN-099, flow A)')).replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).not.toMatch(/rotate|skew|#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
+    // (by position, size and fade only, never turned or stepped: read in the browser while a game is played,
+    // scripts/table-checks.cjs, PLAN-130; the colours from the palette: palette.test.ts)
+    expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
     // every move at the one speed: a length read from the clock, times --mk
     for (const t of css.match(/(?:transition|animation):[^;]+;/g) ?? []) {
       if (/: none;$/.test(t)) continue;
       expect(t).toMatch(/calc\(var\(--mk, 1\) \* var\(--t-[a-z-]+\)\)/);
       expect(t).not.toMatch(/\b\d+(?:\.\d+)?m?s\b/);
     }
-    // the only frames of its own: the pricing sheet coming up from the table's foot (position only)
-    expect(css.match(/@keyframes [\w-]+ \{[^}]*\}/g)).toEqual(['@keyframes rt-sheet-in { from { transform: translateY(100%); }']);
     // reduced motion: every end state at once (PLAN-130: by the one rule for the whole page in styles.css, which
     // outranks every move; the table's own copy of it never showed)
     expect(read('src/ui/styles.css').replace(/\/\*[\s\S]*?\*\//g, '')).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*, \*::before, \*::after \{ animation: none !important; transition: none !important; \}/);

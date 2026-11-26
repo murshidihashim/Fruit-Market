@@ -548,20 +548,11 @@ describe('no stepped landings or pops', () => {
   it('the landing, the stamp, the old card pop and the results\' places are smooth', () => {
     // (the pieces in the air, the stamps and every move on the table in a whole game, read in the browser: never
     // stepped: scripts/smoke.cjs with scripts/table-checks.cjs)
-    const css = read('src/ui/styles.css');
-    const rule = (sel: string) => css.split('\n').find((l) => l.startsWith(sel))!;
-    expect(rule('.phase-banner {')).not.toMatch(/steps\(/);
-    // PLAN-130 (A-05): the older base rule's animation for the morning and takings cards never showed (the table's own
-    // rules outrank it; the sheet moves them, sheet.ts) and went; no rule that animates them steps
-    const cards = readdirSync('src/ui').filter((f) => f.endsWith('.css')).flatMap((f) => read(`src/ui/${f}`).split('\n'))
-      .filter((l) => /(morning|sales)-card/.test(l) && /animation:/.test(l));
-    for (const l of cards) expect(l).not.toMatch(/steps\(/);
-    expect(rule('.phase-banner {')).toContain('animation: banner var(--t-stamp) ease-out forwards');
-    // The results' places: the first results' ".pod" rule is gone with that screen (PLAN-091); the places of the
-    // results today (stampbook.css, .sbk-pod) are not animated by the stylesheet at all, so nothing there can step.
-    expect(css).not.toMatch(/^\.pod\b/m);
-    const book = read('src/ui/stampbook.css');
-    expect(book).not.toMatch(/animation\s*:/);
+    // PLAN-130 (A-05): the morning and takings cards, the "LAST DAY" stamp (.phase-banner), the pieces in the air and
+    // the results' stamps and places are read in the browser instead of in the style sheets: scripts/table-checks.cjs
+    // (its SMOOTH list) fails the solo playthrough on any stepped move of theirs, CSS animation, transition or script.
+    // What is left here is the script's own curve list.
+    expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
   });
 
   it('with reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible)', () => {
