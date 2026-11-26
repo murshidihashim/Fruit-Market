@@ -69,8 +69,8 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
 }
 
 export function DailyIntro(p: DailyIntroProps) {
-  const cfg = p.kind === 'sprint' ? sprintConfig(p.today, 'You') : dailyConfig(p.today, 'You');
-  const first = useMemo(() => newGame(cfg), [p.kind, p.today]);
+  const cfg = useMemo(() => (p.kind === 'sprint' ? sprintConfig(p.today, 'You') : dailyConfig(p.today, 'You')), [p.kind, p.today]);
+  const first = useMemo(() => newGame(cfg), [cfg]);
   const who = firstCustomer(first);
   const e = first.event;
   const words = introWords(p.kind, p.today);

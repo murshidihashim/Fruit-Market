@@ -82,18 +82,22 @@ export function Opening({ onDone }: { onDone: () => void }) {
     const still = reducedMotion();
     if (!still) html().add('hm-intro', 'hm-hold');
     let live = true;
+    // The list later() adds to: the same array for the opening's whole life
+    const pending = timers.current;
     void settled(homePictures(home), START_WAIT_MS).then(() => {
       if (!live || leaving.current) return;
       if (!still && root.current) setBand(measureBand(home, root.current));
       setPlaying(true);
     });
-    return () => { live = false; timers.current.forEach((t) => clearTimeout(t)); html().remove(...CLASSES); };
+    return () => { live = false; pending.forEach((t) => clearTimeout(t)); html().remove(...CLASSES); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on purpose once: the opening starts as it is drawn
   }, []);
   // Everything starts in the same frame: the home's animations (the hold lifts) and the lanes (just drawn).
   useLayoutEffect(() => {
     if (!playing) return;
     html().remove('hm-hold');
     later(() => leave(false), reducedMotion() ? REDUCED_MS : LENGTH_MS);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on purpose: the timer starts once, when the opening starts playing
   }, [playing]);
   const geo = band && `--lt:${band.top}px;--ll:${band.left}px;--lw:${band.width}px;--lh:${band.height}px;--h0:${band.full}px;top:${band.top}px;left:${band.left}px;width:${band.width}px;height:${band.height}px`;
   return (

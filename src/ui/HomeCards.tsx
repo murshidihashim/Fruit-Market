@@ -297,7 +297,8 @@ export function useDailyBoard(today: string): BoardResult | null {
 
 /** The first morning of a Daily-style game: its first customer as a small card that opens whole on a tap, and the lorry. */
 function FirstMorning({ cfg, children }: { cfg: GameConfig; children: ComponentChildren }) {
-  const first = useMemo(() => newGame(cfg), [cfg.seed, cfg.daily, cfg.sprint]);
+  // The card's set-up is made once a day by its card (DailyCard, SprintCard), so the first morning is too.
+  const first = useMemo(() => newGame(cfg), [cfg]);
   const who = firstCustomer(first);
   const e = first.event;
   return (
