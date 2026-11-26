@@ -81,12 +81,12 @@ export function Game({ initial, onExit, onChange, onRematch, onRetry, online, on
     // The hand-over screen hides the whole table: the last person's crate and price tags go with it (PLAN-099).
     tableWas.current = false;
     // S8 (PLAN-110): the takings on a shared phone are everybody's, so each person's own day waits for them here.
-    return <HandOver s={s} p={c.active} mine={c.ownDay(c.active)} onTap={() => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.handTo(c.active); }} />;
+    // (called, not drawn as a component of its own, so the screen keeps the elements it had before PLAN-130)
+    return HandOver({ s, p: c.active, mine: c.ownDay(c.active), onTap: () => { if (performance.now() - handoffAt.current < BEAT.handoff.guard) return; fx.tap(); c.handTo(c.active); } });
   }
 
   if (s.phase === 'over') {
-    return <GameOver s={s} c={c} online={online} reactions={rx.reactions} onReact={() => rx.setReacting(true)} onExit={onExit} onRematch={onRematch}
-      onRetry={onRetry} onPlayAs={onPlayAs} onSprint={onSprint} />;
+    return GameOver({ s, c, online, reactions: rx.reactions, onReact: () => rx.setReacting(true), onExit, onRematch, onRetry, onPlayAs, onSprint });
   }
 
   const t = layoutOf(s, c, !!online, first.up, rushDay.current);
