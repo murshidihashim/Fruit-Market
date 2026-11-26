@@ -4985,6 +4985,10 @@
     {
       "at": "2026-11-27 05:05",
       "text": "PLAN-130 implemented on branch ccr-d8bcd65d-gblqqb (6b24168), REP-141: wave 2 split the game controller and screens, replaced most source-text tests (about 257 to 34) with behaviour and browser checks, merged the layered styles, and loads rarely used screens on demand (main script 588 to 407 kB). npm run verify PASS (1430); browser run PASS except the performance budget on this machine, leaks 0. An independent random walk found 4 style changes and 1 keyboard-focus change from wave 2; all fixed and walked again clean. Correction to DEC-137's impact (data: none): a signed-in player's saved name is now cleaned as the room server cleans names (A-06); no limit or anti-abuse rule changed. Not on the preview yet."
+    },
+    {
+      "at": "2026-11-27 07:35",
+      "text": "Owner, after REP-141: \"push to live\". Release 1.32.0 prepared (PLAN-130) from branch ccr-d8bcd65d-gblqqb; it goes to main by pull request, CI runs verify:full (including the performance budget), then the live deploy."
     }
   ]
 }

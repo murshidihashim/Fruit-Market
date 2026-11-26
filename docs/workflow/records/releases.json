@@ -795,6 +795,21 @@
       "date": "2026-11-25",
       "commit": "eb2d1ae",
       "tagged": true
+    },
+    {
+      "version": "1.32.0",
+      "status": "candidate",
+      "plans": [
+        "PLAN-130"
+      ],
+      "notes": [
+        "League stage 11's 'Let no fruit spoil' star can now be earned, so every trophy can be won",
+        "Start and Next buttons stay on screen on small phones; the table fits the smallest phones",
+        "Fast play, Reduced motion and How to play are in the in-game menu",
+        "Better for keyboards and screen readers: focus rings, customer cards you can open, larger text and stronger contrast",
+        "Clearer words in Quick Match, Private Room and Pass & Play results",
+        "Less to download before Home appears: the game and rarely used pages load in the background"
+      ]
     }
   ]
 }
