@@ -3377,6 +3377,31 @@
       "plan": "PLAN-128",
       "reviewTrigger": "After the owner sees it.",
       "reports": []
+    },
+    {
+      "id": "DEC-137",
+      "title": "Fix every REP-140 finding that needs no rule change",
+      "question": "Which audit findings should be fixed?",
+      "choice": "All of them except C-02 (Nest Egg in the Sprint), as PLAN-130.",
+      "rationale": "One League star could never be earned, several start screens hide their main button, and the code is hard to change safely; none of the fixes changes the rules.",
+      "impact": {
+        "player": "The stage 11 star can be earned; start buttons in view; clearer words in Pass & Play and the lobbies; better on small phones, keyboards and screen readers; a quicker start.",
+        "technical": "Controller and long screens split, behaviour tests, merged styles, screens loaded on demand, dead code removed.",
+        "data": "None. Saves, online messages and rules unchanged."
+      },
+      "cost": "RM0.",
+      "owner": "Murshidi",
+      "approval": {
+        "status": "approved",
+        "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
+        "date": "2026-11-26"
+      },
+      "delivery": "in progress",
+      "plan": "PLAN-130",
+      "reviewTrigger": "When the fixes are on the preview.",
+      "reports": [
+        "REP-140"
+      ]
     }
   ],
   "history": [
@@ -4947,6 +4972,10 @@
     {
       "at": "2026-11-26 15:48",
       "text": "Audit of live 1.31.5 (REP-140), on the owner's request, findings only: rules engine PASS and every mode reaches its results; no Blocker; Major: a League star that can never be earned (C-01), Nest Egg dominant in the Sprint (C-02, owner decision), main buttons below the fold on several start screens (B-01); code health Majors A-01 and A-02. Live is 1.31.5 (published 2026-11-25 from another session); the records still show it as a candidate (A-11). No change made."
+    },
+    {
+      "at": "2026-11-26 16:10",
+      "text": "Owner approved fixing every REP-140 finding that needs no rule change (DEC-137, PLAN-130). C-02, Nest Egg in the Sprint, stays open for the owner's choice. Records corrected (A-11): 1.31.5 (PLAN-129) was published on 2026-11-25 from main eb2d1ae and tagged v1.31.5."
     }
   ]
 }

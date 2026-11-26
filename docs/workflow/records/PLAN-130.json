@@ -1,0 +1,70 @@
+{
+  "id": "PLAN-130",
+  "title": "Audit fixes (REP-140): everything that needs no rule change",
+  "problem": "The audit of live 1.31.5 (REP-140) found one League star that can never be earned, start buttons below the fold, wrong words in Pass & Play and the online lobbies, small-phone and accessibility gaps, and code that is hard to change safely.",
+  "scope": [
+    "Player fixes: C-01 (stage 11's spoil star made possible by its starting stock), C-03 (order stars by seat, not name), C-05 (pre-1.2 saves get the older-rules notice), C-06 (rulebook example), B-01, B-02, B-04, B-05, B-07, B-12 to B-21",
+    "Accessibility and small phones: B-03, B-06, B-08, B-09, B-10, B-11",
+    "Cleanup with no player change: A-03, A-04, A-07, A-09, A-10, A-11 (records)",
+    "Foundations: A-01 (behaviour tests in place of source-text tests), A-02 (split the controller and the long screen functions), A-05 (merge the layered styles), A-06 (one source for mode names and keys), A-08 (load rarely used screens on demand), C-04 (a faster night)"
+  ],
+  "exclusions": [
+    "C-02, Nest Egg in the Sprint: a balance change to a mode the board replays; left for the owner's choice",
+    "No change to the game rules, RULES_VERSION, the computer players, the online messages or the save envelope; old saves keep loading",
+    "No new dependency",
+    "Not published: the preview and the live game change only on the owner's word"
+  ],
+  "acceptance": [
+    {
+      "id": "T1",
+      "text": "npm run verify",
+      "result": "NOT RUN",
+      "evidence": "To run on the merged build"
+    },
+    {
+      "id": "T2",
+      "text": "npm run test:e2e (0 leaks)",
+      "result": "NOT RUN",
+      "evidence": "To run on the merged build"
+    },
+    {
+      "id": "T3",
+      "text": "Each REP-140 finding in scope checked on screen or by a test at 390x844, 360x640 and 320x568",
+      "result": "NOT RUN",
+      "evidence": "To run on the merged build"
+    },
+    {
+      "id": "T4",
+      "text": "Stage 11's 'Let no fruit spoil' met in computer test games, and no other star lost",
+      "result": "NOT RUN",
+      "evidence": "To run"
+    },
+    {
+      "id": "T5",
+      "text": "Style merge and code split: screens unchanged against the visual baseline",
+      "result": "NOT RUN",
+      "evidence": "To run"
+    }
+  ],
+  "approval": {
+    "status": "approved",
+    "evidence": "Owner, 2026-11-26, after REP-140: \"fix everything which doesnt require a rule change\"",
+    "date": "2026-11-26"
+  },
+  "delivery": "in progress",
+  "release": "",
+  "build": "branch ccr-d8bcd65d-gblqqb",
+  "reports": [
+    "REP-140"
+  ],
+  "decisions": [
+    "DEC-137"
+  ],
+  "changes": {
+    "added": [],
+    "changed": [],
+    "fixed": [],
+    "removed": []
+  },
+  "playerNotes": []
+}
