@@ -2,7 +2,7 @@
 // and the server. Everything here only ever grows when two copies are merged, so signing in on a
 // second phone never loses anything. It never holds a game in progress.
 
-import { NAME_MAX } from './protocol';
+import { tidyName } from './nameText';
 
 export const PROFILE_VERSION = 1;
 
@@ -71,8 +71,8 @@ export function cleanProfile(raw: unknown): Profile {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const out = emptyProfile();
   out.at = num(r.at, 4e12);
-  // REP-140 B-17: the same limit as the room server's (protocol.ts NAME_MAX), so the two never disagree
-  out.name = text(r.name, NAME_MAX);
+  // REP-140 B-17 and A-06: cleaned as the room server cleans a name (nameText.ts), so the two never disagree
+  out.name = tidyName(r.name);
   out.avatar = text(r.avatar, 8);
   out.colour = ID_RE.test(String(r.colour ?? '')) ? String(r.colour) : '';
   out.achievements = ids(r.achievements);

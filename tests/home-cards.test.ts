@@ -167,6 +167,10 @@ describe('PLAN-124 Home, the Market tab: the profile chip, one hero card, the mo
   it('the Daily card: the first customer, the lorry, the twist, your best or "Not played today", you against its rivals', () => {
     mem.set('fm.homeMode', 'daily');
     const html = home({});
+    // C-13 (REP-122): Home calls it the Daily market (its tab says "Daily"), never "today's market"
+    expect(html).toContain('<h2>Daily market</h2>');
+    expect(html).toContain('<b>Daily</b>');
+    expect(html).not.toMatch(/today['’]s market/i);
     expect(html).toContain(`<small>${shortDate(DATE)}</small>`);
     expect(html).toContain('jh-dcard');
     expect(html).toContain('Today\'s lorry brings');

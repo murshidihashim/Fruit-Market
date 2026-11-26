@@ -4,13 +4,12 @@ import { CHARACTER_AVATARS } from '../engine/data';
 import { serverBase } from '../net/client';
 import { cleanProfile, emptyProfile, type Profile } from '../net/profile';
 import { onProfileChange } from './changed';
-import { clearProgress, colourId, leagueStage, loadCounts, loadLooks, loadSets, loadWorn, saveCounts, saveGranted, saveLeagueStage, saveLooks, saveSets, saveUnlocked, saveWorn, unlocked } from './progress';
+import { saveAvatar, storedAvatar } from './looks';
+import { clearProgress, colourId, leagueStage, loadCounts, loadLooks, loadSets, loadWorn, saveColour, saveCounts, saveGranted, saveLeagueStage, saveLooks, saveSets, saveUnlocked, saveWorn, unlocked } from './progress';
 import { clearPlayed, loadDaily, loadName, loadStats, saveDaily, saveName, saveStats } from './store';
 
 const SESSION_KEY = 'fm.acct';
 const AT_KEY = 'fm.profile.at';
-const AVATAR_KEY = 'fm.avatar';
-const COLOUR_KEY = 'fm.colour';
 const NET_ERROR = 'Could not reach the server. Check your connection and try again.';
 
 interface Session { id: string; token: string }
@@ -34,10 +33,8 @@ export const signedInAs = (): string | null => readSession()?.id ?? null;
 
 /** Everything this phone holds that an account keeps. */
 export function localProfile(): Profile {
-  let avatar = '';
-  try { avatar = localStorage.getItem(AVATAR_KEY) ?? ''; } catch { /* storage blocked: no shopkeeper chosen on this phone */ }
   return cleanProfile({
-    ...emptyProfile(), at: readAt(), name: loadName(), avatar, colour: colourId(), achievements: unlocked(), looks: loadLooks(), worn: loadWorn(),
+    ...emptyProfile(), at: readAt(), name: loadName(), avatar: storedAvatar(), colour: colourId(), achievements: unlocked(), looks: loadLooks(), worn: loadWorn(),
     league: leagueStage(), daily: loadDaily(), stats: loadStats(), progress: loadSets(), counts: loadCounts(),
   });
 }
@@ -49,8 +46,8 @@ export function applyProfile(p: Profile): void {
   applying = true;
   try {
     if (p.name) saveName(p.name);
-    if (p.avatar && CHARACTER_AVATARS.includes(p.avatar)) { try { localStorage.setItem(AVATAR_KEY, p.avatar); } catch { /* storage blocked: not kept on this phone; the account still has it */ } }
-    if (p.colour) { try { localStorage.setItem(COLOUR_KEY, JSON.stringify(p.colour)); } catch { /* storage blocked: not kept on this phone; the account still has it */ } }
+    if (p.avatar && CHARACTER_AVATARS.includes(p.avatar)) saveAvatar(p.avatar);
+    if (p.colour) saveColour(p.colour);
     saveUnlocked(p.achievements);
     saveLooks(p.looks);
     saveWorn(p.worn);

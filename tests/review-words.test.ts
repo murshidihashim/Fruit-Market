@@ -208,14 +208,8 @@ describe('C-14, S16: the evening tip', () => {
 });
 
 describe('C-13, C-16: the Daily market', () => {
-  it('Home calls it the Daily market', () => {
-    // PLAN-120: the Daily market has its own card on Home (HomeCards.tsx). PLAN-124: its card and its Play are named
-    // from the mode list ("Daily market"; the tab says "Daily").
-    const home = read('src/ui/HomeCards.tsx').split(/\r?\n/).filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
-    expect(home).toContain("{ id: 'daily', slot: 'daily', tab: 'Daily', name: 'Daily market' }");
-    expect(home).toContain('<Frame mode="daily" sub={`${shortDate(p.today)}');
-    expect(home).not.toMatch(/today['’]s market/i);
-  });
+  // "Home calls it the Daily market" (PLAN-120, PLAN-124) is checked on the drawn Home in home-cards.test.ts ("the Daily
+  // card"), and the mode's names in modes.test.ts (REP-140 A-01: no longer read from the source text).
 
   it('the twists say the whole change: generous customers under fixed prices, no standing orders in the Basic game', () => {
     const dates = Array.from({ length: 7 }, (_, k) => `2026-11-${String(k + 1).padStart(2, '0')}`);

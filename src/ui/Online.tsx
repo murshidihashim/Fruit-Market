@@ -6,7 +6,7 @@
 // the "?" seats, the table size) and its wait, the Private Room page (open a room, join with a code), the room (its code,
 // the seats as small cards, the length) and the pick screen (the deck; the seats' status as small cards).
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { createRoom, forgetMatch, inviteLink, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
+import { createRoom, forgetMatch, hasSeat, inviteLink, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
 import { CUSTOMER_CARDS, lookOf } from '../engine/data';
 import {
@@ -26,7 +26,7 @@ import {
 import { practiceQuestion, practiceRound, practiceVerdict } from './practice';
 import { Deck, LengthSeg, OpenCard, SbGo, SbLabel, SbPage, SeatCard, Seg, TableRow, keeperName } from './Setup';
 import './journey-online.css';
-import { syncLooks, worn } from './looks';
+import { myAvatar, saveAvatar, storedAvatar, syncLooks, worn } from './looks';
 import { syncTiers } from './progress';
 import { Wardrobe } from './Wardrobe';
 import { ReactButton, ReactionBubbles, ReactPicker, reactionsOn, useMutes } from './Reactions';
@@ -95,9 +95,7 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
   const [name, setName] = useState(() => fitName(loadName()));
   // Quick Match: the character you ask for when you enter; if another player already has it, you get a free one.
   // A private room chooses shopkeepers after everyone has joined (PLAN-102).
-  const [avatar, setAvatar] = useState(() => {
-    try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
-  });
+  const [avatar, setAvatar] = useState(myAvatar);
   // PLAN-125: the page shown before a room is open: Quick Match's set-up, the Private Room, or the Public rooms.
   const [page, setPage] = useState<'quick' | 'room' | 'public'>(quick ? 'quick' : mode);
   // PLAN-125: Quick Match's table size, as chosen last on this phone.
@@ -124,14 +122,14 @@ export function Online({ initialCode, typed, quick, mode = 'room', onExit, onCom
   // Refreshing or reopening the link with a seat token on this device goes straight back in.
   useEffect(() => {
     if (!initialCode) return;
-    try { if (localStorage.getItem(`fm.room.${initialCode}`)) begin(initialCode); } catch { /* storage blocked: no seat was kept, so the link is joined afresh */ }
+    if (hasSeat(initialCode)) begin(initialCode);
   }, []);
 
   const begin = (c: string) => {
     forgetMatch();
     const nm = name.trim() || 'Player';
     saveName(name.trim());
-    try { localStorage.setItem('fm.avatar', avatar); } catch { /* storage blocked: the shopkeeper is not remembered for next time */ }
+    saveAvatar(avatar);
     setErr(null);
     // A player who opens an invitation never passes Home: what they have earned (and the first rank's title and frame,
     // which are everyone's) is brought up to date here, before the room is told what they have on.
@@ -643,8 +641,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const taken: Record<string, string> = Object.fromEntries(v.seats.filter((x) => x.seat !== v.you && x.avatar).map((x) => [x.avatar, x.name]));
   // Browsing starts at your own pick, or the shopkeeper you used last, or the first one free.
   const [look, setLook] = useState(() => {
-    let last = '';
-    try { last = localStorage.getItem('fm.avatar') ?? ''; } catch { /* storage blocked: browsing starts at the first free shopkeeper */ }
+    const last = storedAvatar();
     return mine || (CHARACTER_AVATARS.includes(last) && !taken[last] ? last : CHARACTER_AVATARS.find((a) => !taken[a]) ?? CHARACTER_AVATARS[0]);
   });
   const [err, setErr] = useState<string | null>(null);
@@ -676,7 +673,7 @@ function Picking({ client, v, onExit }: { client: OnlineClient; v: RoomView; onE
   const choose = () => {
     fx.tap();
     setErr(null);
-    try { localStorage.setItem('fm.avatar', look); } catch { /* storage blocked: the room still gets the choice; it is not remembered for next time */ }
+    saveAvatar(look);
     client.character(look);
   };
   const confirm = () => { fx.card(); setErr(null); client.confirm(); };

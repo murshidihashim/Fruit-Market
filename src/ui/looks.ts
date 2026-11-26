@@ -13,10 +13,24 @@ import type { Snapshot } from './achievements';
 
 export { LOOKS, SLOTS, lookById, type Look, type LookKind, type Slot } from '../net/looks';
 
+/** REP-140 A-06: the shopkeeper chosen last is kept under this key, read and written only here. */
+const AVATAR_KEY = 'fm.avatar';
+
+/** The shopkeeper key kept on this phone, as it was kept ('' when there is none, or storage is blocked). */
+export const storedAvatar = (): string => {
+  try { return localStorage.getItem(AVATAR_KEY) ?? ''; } catch { return ''; }
+};
+
 /** The shopkeeper this phone's player last chose (the first one until they choose). */
 export const myAvatar = (): string => {
-  try { const a = localStorage.getItem('fm.avatar'); return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0]; } catch { return CHARACTER_AVATARS[0]; }
+  const a = storedAvatar();
+  return a && CHARACTER_AVATARS.includes(a) ? a : CHARACTER_AVATARS[0];
 };
+
+/** Keeps the shopkeeper just chosen (a set-up, an online room or an account), so Home and the next game show it. */
+export function saveAvatar(avatar: string): void {
+  try { localStorage.setItem(AVATAR_KEY, avatar); } catch { /* storage blocked: the shopkeeper is not remembered for next time */ }
+}
 
 /**
  * The picture shown for a seat. In the Daily market and the Market League the person has no shopkeeper (the perk is

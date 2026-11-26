@@ -29,6 +29,7 @@ import { crateUrl } from './marketArt';
 import { C } from './palette';
 import { nextTrophy } from './League';
 import { MODE_REASON, WAYS, leagueEcho } from './playMenu';
+import { HOME_MODES, type HomeMode } from './modes';
 import { leagueConfig, leagueStage, myStars } from './progress';
 import { stageGoal, stageRivals } from './progressView';
 import { waitingGame, type WaitingGame } from './paused';
@@ -112,14 +113,10 @@ export function YourStall({ next, buttons }: { next: string | null; buttons: Sta
 
 /* ---------- the modes: the tabs, the remembered choice ---------- */
 
-/** PLAN-124: the four modes of the Market tab, each with its save slot (Custom match is the "play" slot). */
-export type HomeMode = 'custom' | 'league' | 'daily' | 'sprint';
-export const MODES: { id: HomeMode; slot: SaveSlot; tab: string; name: string }[] = [
-  { id: 'custom', slot: 'play', tab: 'Custom', name: 'Custom match' },
-  { id: 'league', slot: 'league', tab: 'League', name: 'Market League' },
-  { id: 'daily', slot: 'daily', tab: 'Daily', name: 'Daily market' },
-  { id: 'sprint', slot: 'sprint', tab: 'Sprint', name: 'Sprint' },
-];
+/** PLAN-124: the four modes of the Market tab, each with its save slot (Custom match is the "play" slot); their names
+ *  are modes.ts's (REP-140 A-06). */
+export const MODES = HOME_MODES;
+export type { HomeMode };
 const MODE_KEY = 'fm.homeMode';
 const isMode = (v: unknown): v is HomeMode => MODES.some((m) => m.id === v);
 /** The tab chosen in this visit (it outlives Home while another screen is open). */

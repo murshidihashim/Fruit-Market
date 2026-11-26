@@ -20,7 +20,7 @@ import { shopFocus, shopScene } from './deckArt';
 import { fx } from './fx';
 import { LENGTHS, wayLine, wayName, type PlayWay } from './playMenu';
 import { BackArrow, FramedFace } from './stampCard';
-import { myAvatar } from './looks';
+import { myAvatar, saveAvatar } from './looks';
 import { fitName, loadName, saveName } from './store';
 import type { LookSet } from '../net/looks';
 import { NAME_MAX } from '../net/protocol';
@@ -302,8 +302,8 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
 
   const begin = () => {
     saveName(name.trim());
-    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the same key the online screens keep).
-    try { localStorage.setItem('fm.avatar', myChar); } catch { /* no storage: Home shows the first shopkeeper */ }
+    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the one the online screens keep too).
+    saveAvatar(myChar);
     const players: PlayerConfig[] = [
       { name: myName(), kind: 'human', avatar: myChar },
       ...seats.map((st, i): PlayerConfig => {

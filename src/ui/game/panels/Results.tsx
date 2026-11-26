@@ -16,7 +16,8 @@ import { fx, playSound } from '../../fx';
 import { PropSprite, RoofBand } from '../../icons';
 import { achievementFor, syncLooks, toggleLook, worn, wornIn, wornSounds } from '../../looks';
 import { finishGame, LEAGUE, snapshot, type GameSummary } from '../../progress';
-import { stageByNo, stageLabel } from '../../campaign';
+import { stageByNo } from '../../campaign';
+import { resultsLabel } from '../../modes';
 import { bestSale, bestSaleDay, bestSaleWords, shownLook } from '../../progressView';
 import { FramedFace, LookSwatch, Pip, PriceTag, StampGrid, myColour, onWord, shownAvatar } from '../../stampCard';
 import { cardSize, closeLines, nextReward, rankOf, rewardAt, rewardBuilt, stampsToReach, MAX_LEVEL, type CloseLine } from '../../stamps';
@@ -386,7 +387,9 @@ export function Results({ s, viewer, onExit, onRematch, onRetry, rematchNote, re
   // PLAN-113: the headline says where you finished when you did not win ("Kiki wins · You are 3rd").
   const headline = win || named || order.length < 2 ? words.headline : `${words.headline}\u00a0· You are ${placeWord(place[owner])}`;
   const sprint = !!s.config.sprint;
-  const mode = sprint ? ' · Sprint' : s.config.daily ? ' · Daily market' : league !== undefined ? ` · Market League, ${stageLabel(league)}` : online ? ' · Online' : '';
+  // REP-140 A-06: the mode's name is modes.ts's ("Sprint", "Market League, stage 3", "Online").
+  const modeName = resultsLabel(s.config, !!online);
+  const mode = modeName ? ` · ${modeName}` : '';
   // REP-140 B-18: with no share sheet (a computer), the link is copied and the page says so, or says it could not be.
   const [shareSaid, setShareSaid] = useState<string | null>(null);
   const share = async () => {

@@ -22,6 +22,7 @@ import { bestLine, useSprintBoards } from './Sprint';
 import { loadSprintBest } from './sprintStore';
 import { loadDaily } from './store';
 import './home-cards.css';
+import { kindName } from './modes';
 
 export type DailyKind = 'daily' | 'sprint';
 
@@ -49,7 +50,7 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
   const twist = dailyTwist(today);
   if (kind === 'sprint') {
     return {
-      title: 'Sprint', length: `${cfg.days} days · ${stalls} stalls`,
+      title: kindName('sprint'), length: `${cfg.days} days · ${stalls} stalls`,
       // PLAN-123 (preview finding 7): the perk you pick changes your start (Nest Egg is $5 more), so the words say what is
       // the same for everyone: the market and the perks on offer; and that "no twist" still has the regular event cards.
       goal: `A short market: end ${cfg.days} days with the most cash. Everyone gets the same market today and the same perks to pick from.`,
@@ -59,7 +60,7 @@ export function introWords(kind: DailyKind, today: string): { title: string; len
     };
   }
   return {
-    title: 'Daily market', length: `${cfg.days} days · ${stalls} stalls`,
+    title: kindName('daily'), length: `${cfg.days} days · ${stalls} stalls`,
     goal: `The same market for everyone today: the same customers, lorry and events. End ${cfg.days} days with the most cash.`,
     how: [`${cfg.days} days, ${stalls} stalls. ${rivalsLine(cfg)}`, `Today's twist: ${twist.title}. ${twist.text}`],
     score: ['Ranked by final cash, then by fruit sold.', 'Your best today counts on today\'s board.'],

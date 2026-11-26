@@ -8,6 +8,7 @@ import { PlayMenu, Popup, ReplaceBody, Shopfront, StartOverBody, type HomeTab } 
 import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
 import { vsComputerConfig } from './playMenu';
+import { counterMode } from './modes';
 import { LocalSetup } from './Setup';
 import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
@@ -202,7 +203,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
     const look = worn();
     const first = cfg0.players.findIndex((p) => p.kind === 'human');
     const cfg = first >= 0 && Object.keys(look).length ? { ...cfg0, players: cfg0.players.map((p, i) => (i === first ? { ...p, look } : p)) } : cfg0;
-    track('game_start', cfg.sprint ? 'sprint' : cfg.daily ? 'daily' : cfg.players.filter((p) => p.kind === 'human').length > 1 ? 'pass_and_play' : 'solo');
+    track('game_start', counterMode(cfg));
     track('players', cfg.players.length);
     // PLAN-118: a League stage that opens part-way is brought there by real game actions (nothing else changes).
     const g = openStage(newGame(cfg));
