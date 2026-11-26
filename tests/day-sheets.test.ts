@@ -448,19 +448,15 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
   });
 
   it('the sheet stays in the middle cell and is drawn larger by a margin: no row of the table is given a size here', () => {
-    const css = read('src/ui/sheets.css').replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).toContain('#app .tkt > .centre > .fm-sheet { z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
-    // the rows themselves (the customer band, the rivals, the lanes, your shelf, the action bar) are not laid out here
-    expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
-    expect(css).not.toMatch(/\.market-stall|grid-template-rows|grid-area|grid-row/);
+    // In the middle cell, over the rows by its margins, above them: read in the browser (scripts/style-checks.cjs,
+    // "a sheet stays in the middle cell", PLAN-130). The rows themselves (the customer band, the rivals, the lanes, your
+    // shelf, the action bar, the market) are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in
+    // one sheet', and the grid as the page draws it, scripts/layout-check.cjs at the buying turn.
     // the three sheets carry the class, on the element sheet.ts slides
     expect(read('src/ui/game/panels/MorningCard.tsx')).toMatch(/class=\{`morning-card tk-morning \$\{table \? 'fm-sheet sh-morning'/);
     expect(read('src/ui/game/panels/OrderPanel.tsx')).toContain('class="price-panel order-panel mid-panel tk-panel fm-sheet sh-order"');
     expect(read('src/ui/panel.tsx')).toContain('class="mid-panel mid-evening fm-sheet sh-evening"');
-    // sheets.css is loaded after the table's stylesheets and before the motion rules
-    const main = read('src/main.tsx');
-    expect(main.indexOf("'./ui/sheets.css'")).toBeGreaterThan(main.indexOf("'./ui/ticket-ui.css'"));
-    expect(main.indexOf("'./ui/motion.css'")).toBeGreaterThan(main.indexOf("'./ui/sheets.css'"));
+    // (the order the sheets load in: css-layers.test.ts 'the table's sheets load in one order')
   });
 
   it('a morning with more to say than its sheet holds is drawn closer, a step at a time, and no closer than it needs', () => {
@@ -489,9 +485,8 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     const reach = read('src/ui/game/reach.ts');
     expect(reach).not.toMatch(/useLayoutEffect\(fit\)|innerWidth|innerHeight/);
     expect(reach).toContain('new ResizeObserver(fit)');
-    const css = read('src/ui/sheets.css');
-    expect(css).toContain("#app .tkt .sh-morning:is([data-tight='3'], [data-tight='4'], [data-tight='5']) .wc-evpic");
-    expect(css).not.toMatch(/\.tight-\d/);
+    // what the steps draw (the event's picture smaller from step 3), and that no rule keys on the old tight-N classes:
+    // read in the browser (scripts/style-checks.cjs, "the morning is drawn closer" and the page's own rules, PLAN-130)
   });
 
   it('the bid and the evening are drawn closer, a step at a time, before anything scrolls', () => {
@@ -518,23 +513,19 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     // where it is used, and what each step draws
     expect(read('src/ui/game/panels/OrderPanel.tsx')).toContain('drawCloser(root.current, top.current, BID_STEPS)');
     expect(read('src/ui/panel.tsx')).toContain('drawCloser(el, eveningHolds(el), EVENING_STEPS, canBuild && !chosen ? TWO_BUTTONS : 0)');
-    const css = read('src/ui/sheets.css');
-    expect(css).toContain("#app .tkt .sh-order[data-tight]:not([data-tight='1']) .wc-sqpic { width: 48px; height: 48px; }");
-    expect(css).toContain("#app .tkt .sh-order[data-tight='3'] .ob-get { display: none; }");
-    expect(css).toContain("#app .tkt .sh-evening:is([data-tight='3'], [data-tight='4']):not([data-tight='1']) :is(.fav-kind, .fav-pic, .fav-tx) { display: none; }");
-    expect(css).toContain("#app .tkt .sh-evening[data-tight='4']:not([data-tight='1']) .uo-tx { margin: 0 0 0 -56px; padding: 4px 6px; border-top: 2px solid var(--x-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }");
-    expect(css).toContain('#app .tkt > .centre > .ev-card { position: fixed; inset: 0; z-index: 30; margin: 0; }');
+    // What each step draws (the bid's picture and its line of what is won, the favour card's parts, one line of each
+    // offer), the offer's whole card over the screen, and the sign at the foot of a night that still scrolls: read in
+    // the browser (scripts/style-checks.cjs, "the bid is drawn closer", "the evening is drawn closer", "the evening's
+    // foot", PLAN-130).
     // an offer drawn compact shows one line of its text: choosing it opens its whole card, with Close
     expect(read('src/ui/panel.tsx')).toContain('if (u && root.current?.dataset.tight === String(EVENING_STEPS)) setOpen(u);');
     // a night that still scrolls says so at its foot
-    expect(css).toContain('#app .tkt .sh-evening[data-more] .ev-more::before');
     expect(read('src/ui/panel.tsx')).toContain('<i class="ev-more" aria-hidden="true" />');
   });
 
   it('the bottom bar keeps its height when it holds two buttons, so your shelf under the sheet does not move', () => {
-    const css = read('src/ui/sheets.css');
-    expect(css).toContain('#app .tkt > .centre > .ev-lock[data-two] { z-index: 6; margin-top: -54px; }');
-    expect(css).toContain('#app .tkt > .centre > .sh-evening[data-two] { margin-bottom: calc(54px - var(--drop, 0px)); }');
+    // the bar with two buttons rises over the sheet's foot by the second button's height, and the sheet stops that much
+    // higher: read in the browser (scripts/style-checks.cjs, "the evening's foot", PLAN-130)
     // only the main button of each bar is a `.btn`: the browser tests press `.pp-lock .btn`
     for (const f of ['src/ui/game/panels/OrderPanel.tsx', 'src/ui/panel.tsx']) {
       const src = read(f);

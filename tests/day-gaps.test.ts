@@ -113,14 +113,12 @@ describe('after a Favoured Trade answer (tableNow.ts, RushTable.tsx)', () => {
 // of the sheet, which keeps room free for it (and on a small phone lies over the customers' tickets while it is up):
 // checked in the browser as the first game is played (scripts/smoke.cjs with scripts/table-checks.cjs: "the tip covers").
 
-describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)', () => {
+describe('the evening: an upgrade the stall cannot build (panel.tsx)', () => {
   it('can still be opened as its whole card, with the reason; it is never chosen', () => {
     // a tap on it opens the card, with the reason; choosing is for an offer that can be built: table-panels.test.ts
     // 'an offer the stall cannot build can still be opened' and 'its opened card says why'
-    // it is still drawn greyed, and on the smallest phone it still says why under its one line
-    const css = read('src/ui/sheets.css');
-    expect(css).toContain("#app .tkt .uo-pick:is(:disabled, [aria-disabled='true']) > :not(.uo-kind, .uo-ft) { opacity: 0.5; }");
-    expect(css).toContain(".uo-pick:is(:disabled, [aria-disabled='true']) .uo-ft { display: block;");
+    // it is still drawn greyed, and at the evening's closest step it still says why under its one line: read in the
+    // browser (scripts/style-checks.cjs, "the evening is drawn closer a step at a time", PLAN-130)
   });
 });
 
@@ -152,9 +150,8 @@ describe('a six-box shelf on a narrow, tall phone (daySheet.ts fitSheet)', () =>
     // over your shelf is still tried first, and nothing changes where the sheet already lies there (a short phone)
     expect(fitSheet([420, 390, 360, 300], 264, 48, 158)).toEqual({ tight: 3, over: true, up: false });
     expect(fitSheet([500, 470, 440, 420], 370, 0, 0)).toEqual({ tight: 3, over: false, up: false });
-    const css = read('src/ui/daysheet.css');
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-up] { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); }');
-    expect(css).not.toContain('ds-rivals');
+    // how the sheet then lies over the rows above it, and that no rule styles the old rows any more: read in the browser
+    // (scripts/style-checks.cjs, "the day's sheet also lies over the rows above it" and the page's own rules, PLAN-130)
   });
 });
 

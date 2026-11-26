@@ -283,15 +283,9 @@ describe('the night on your shelf: it follows the night as the lanes do (PLAN-09
 describe('table.css is loaded with the table', () => {
   it('the market, the lorry, the card turn and the night follow the one speed', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync('src/ui/table.css', 'utf8');
-    // PLAN-130 (A-05): each part's rules are in the part's own sheet now, so these are looked for in all of them
-    const { readdirSync } = await import('node:fs');
-    const all = readdirSync('src/ui').filter((f) => f.endsWith('.css')).map((f) => readFileSync(`src/ui/${f}`, 'utf8')).join('\n');
-    for (const name of ['turn', 'travel', 'lorry', 'lorry-off', 'sky', 'dusk']) expect(all).toContain(`calc(var(--mk, 1) * var(--t-${name})`);
-    // (at night the customer row and the stalls stay on the table: scripts/layout-check.cjs reads that from the page)
+    // PLAN-130 (A-05): read in the browser from the page's own rules instead (scripts/style-checks.cjs): a move timed
+    // by each of these lengths times --mk, and no keyframe of the table's own moves (tb-...) changes a colour or a
+    // layout property; at night the customer row and the stalls stay on the table: scripts/layout-check.cjs
     expect(readFileSync('src/ui/table.tsx', 'utf8')).toContain("import './table.css';");
-    // only position, size and fade move: no keyframe here changes a colour or a layout property
-    const frames = [...css.matchAll(/@keyframes [\w-]+ \{([^@]*?\})\s*\}/g)].map((m) => m[1]).join(' ');
-    expect(frames).not.toMatch(/(width|height|margin|padding|top|left|background|color)\s*:/);
   });
 });

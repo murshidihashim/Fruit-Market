@@ -8,6 +8,7 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const { checkLayout } = require('./layout-check.cjs');
+const { checkStyles } = require('./style-checks.cjs');
 const table = require('./table-checks.cjs');
 
 /** Sets the number of rival stalls on the set-up page's table (PLAN-125: small cards): the open card adds a computer,
@@ -23,6 +24,8 @@ const path = require('path');
   const save = saveFile ? fs.readFileSync(saveFile, 'utf8') : null;
   fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
+  // PLAN-130 (A-05): the stylesheets, read in the browser on pieces of the table laid on the built page (style-checks.cjs)
+  const styles = await checkStyles(browser, file);
   const page = await browser.newPage({ viewport: { width: 400, height: 820 }, deviceScaleFactor: 2 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -122,10 +125,11 @@ const path = require('path');
   for (const x of await table.report(page)) if (!broken.includes(x)) broken.push(x);
   console.log('table checked at:', looked.join(', '));
   console.log('layout checks:', layout.length ? layout : 'all hold');
+  console.log('style checks:', styles.length ? styles : 'all hold');
   // the stocking sheet, the pricing sheet and the takings are reached in every game
   for (const at of ['stocking', 'pricing', 'takings']) if (!looked.includes(at)) broken.push(`the table was not checked at ${at}`);
   // PLAN-130 (A-05): the table's layout, from the computed style (scripts/layout-check.cjs)
-  broken.push(...layout);
+  broken.push(...layout, ...styles);
   await browser.close();
   if (broken.length) {
     console.error(`Solo playthrough FAILED: the table broke its rules:\n  ${broken.join('\n  ')}`);

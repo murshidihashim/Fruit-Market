@@ -6,7 +6,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 // This test keeps it so (it reads the sheets as text on purpose: it is about how they are written):
 //   - "#app" in front of a selector may not come back (the count of each sheet can only go down);
 //   - a part (a class a rule styles) is styled in one sheet, apart from the ones listed in SPLIT, which may lose
-//     a sheet but not gain one.
+//     a sheet but not gain one;
+//   - the table's sheets load in one order, where the order still decides between two rules.
 // A rule for a part inside another component (.rt-sheet .ds-st) belongs with that component and is not counted.
 
 /** Every style rule: its selectors and the sheet it is in (keyframes and font faces left out). */
@@ -138,5 +139,17 @@ describe('each part\'s styles in one place (PLAN-130, A-05)', () => {
     const split = [...where].filter(([, f]) => f.size > 1).map(([k, f]) => [k, [...f].sort().join(' ')]);
     const extra = split.filter(([k, f]) => !SPLIT[k] || !f.split(' ').every((x) => SPLIT[k].split(' ').includes(x)));
     expect(extra, 'a part styled in a new sheet: put its rule with the part\'s other rules').toEqual([]);
+  });
+
+  it('the table\'s sheets load in one order (main.tsx)', () => {
+    // Where two rules of these sheets reach one element with the same weight, the later sheet wins: about 1,100 pairs
+    // of declarations can (most of them the takings' and the pop-ups' own rules after ticket.css's resets), so the
+    // order is pinned here as one list, in place of the checks of one pair each that the tests used to make. What the
+    // order decides is also read in the browser: scripts/style-checks.cjs (a pop-up's main button on the table) and
+    // scripts/layout-check.cjs (the takings over the rows). bell.css is gone (PLAN-099).
+    const main = readFileSync('src/main.tsx', 'utf8');
+    expect([...main.matchAll(/^import '\.\/ui\/([\w-]+\.css)';$/gm)].map((m) => m[1])).toEqual([
+      'styles.css', 'ticket.css', 'ticket-ui.css', 'stalls.css', 'sheets.css', 'motion.css', 'rushTable.css', 'daysheet.css', 'takings.css', 'reactions.css',
+    ]);
   });
 });

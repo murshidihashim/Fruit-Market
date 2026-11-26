@@ -206,12 +206,8 @@ describe('customer cards (the Main board)', () => {
   });
 
   it('every customer and guest card has the same picture box, whatever the number of fruits it wants (PLAN-106)', () => {
-    const css = readFileSync('src/ui/cards.css', 'utf8');
-    const rule = css.match(/\n\.cd-mpic \{([^}]*)\}/)![1];
-    expect(rule).toMatch(/flex: none; height: calc\(var\(--u\) \* \d+\)/);
-    expect(rule).not.toMatch(/flex: 1|min-height/);
-    // nothing else sizes it
-    expect(css.match(/\.cd-mpic[^{]*\{/g)).toEqual(['.cd-mpic {']);
+    // one height in the card's own unit, never grown or shrunk, and one rule that sizes it: read in the browser on the
+    // built page (scripts/style-checks.cjs, "every customer card has the same picture box", PLAN-130)
   });
 
   it('a special guest is marked as one, has no number and uses its event\'s picture', () => {
@@ -297,12 +293,9 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
         for (const c of chips) expect(s).toContain(`<b>${c.big}</b></span><small>${c.small}</small>`);
       }
     });
-    // The event's picture and its boxes are one size on every card (cards.css): a box is half the row, also alone.
-    const css = readFileSync('src/ui/cards.css', 'utf8');
-    expect(css).toMatch(/\n\.cd-event \.cd-pic \{ flex: none; height: calc\(var\(--u\) \* \d+\); min-height: 0; \}/);
-    expect(css).toMatch(/\n\.cd-fx \.cd-blk \{ flex: 0 0 calc\(\(100% - var\(--u\) \* 5\) \/ 2\); height: calc\(var\(--u\) \* (\d+)\);/);
-    const box = css.match(/\n\.cd-fx \.cd-blk \{[^}]*height: calc\(var\(--u\) \* (\d+)\)/)![1];
-    expect(css).toMatch(new RegExp(`\\n\\.cd-lims \\.cd-blk \\{ height: calc\\(var\\(--u\\) \\* ${box}\\);`));
+    // The event's picture and its boxes are one size on every card, in the card's own unit, and a box is half the row,
+    // also alone: read in the browser on the built page (scripts/style-checks.cjs, "an event card one picture size, one
+    // box height", PLAN-130).
   });
 
   it('an event title is on one line, as large as fits, in a box of one height (PLAN-106)', () => {
@@ -315,7 +308,8 @@ describe('design A cards: shopkeeper, event, lorry, favour, upgrade, standing or
       expect(size, e.id).toBeLessThanOrEqual(31);
     }
     expect(fitTitle('Heatwave', 220, 31, ONE_LINE_MIN)).toEqual({ size: 31, lines: 1 });
-    expect(readFileSync('src/ui/cards.css', 'utf8')).toContain('.cd-event .cd-ttl { height: calc(var(--u) * 29.5); display: flex; align-items: center; white-space: nowrap; }');
+    // its box: one height in the card's unit, the title in its middle on one line (scripts/style-checks.cjs, "a title of
+    // one line", PLAN-130)
   });
 
   it('an event that brings a guest only names it; the guest\'s own card says what it wants (PLAN-106)', () => {

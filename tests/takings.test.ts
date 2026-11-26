@@ -345,16 +345,13 @@ describe('fitting the sheet', () => {
   });
 
   it('the stylesheet has a rule for every step, and the sheet reaches by the table\'s own measure', () => {
-    const css = read('src/ui/takings.css');
+    // four steps, each drawing something on the sheet closer than the step before: read in the browser
+    // (scripts/style-checks.cjs, "the takings drawn closer", which lays out steps 1 to 4, PLAN-130)
     expect(TIGHTEST).toBe(4);
-    for (let step = 1; step <= TIGHTEST; step++) expect(css).toMatch(step === 1 ? /\.sales-card\[data-tight\] / : new RegExp(`\\[data-tight='${step}'\\]`));
     // (over the rows, z-index 6, and no CSS animation or transition of its own: read in the browser at the takings,
-    // scripts/layout-check.cjs, PLAN-130)
+    // scripts/layout-check.cjs, PLAN-130; the z-index is also where the sheet's own rules must win over the table's,
+    // which the order of the sheets decides: css-layers.test.ts 'the table's sheets load in one order')
     const src = read('src/ui/game/panels/SalesSummary.tsx');
     expect(src).toContain("useReach(root, 'street', true, true, closerOnceSeen)");
-    // the stylesheet comes after the table's and the other sheets', so its rules win
-    const main = read('src/main.tsx');
-    expect(main.indexOf("import './ui/takings.css'")).toBeGreaterThan(main.indexOf("import './ui/sheets.css'"));
-    expect(main.indexOf("import './ui/takings.css'")).toBeGreaterThan(main.indexOf("import './ui/ticket.css'"));
   });
 });

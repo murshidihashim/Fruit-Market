@@ -244,9 +244,9 @@ describe('Skip to the end, and every way of watching the rush, give the same day
 });
 
 describe('the customer at the stalls is announced once', () => {
-  it('the place they left in the row is drawn but not read aloud; the table says "The rush: customer 1 of 2"', async () => {
-    const css = (await import('node:fs')).readFileSync('src/ui/rushTable.css', 'utf8');
-    expect(css).toContain('content: var(--rt-at, "") "\\A at the stalls" / "";');
+  it('the place they left in the row is drawn but not read aloud; the table says "The rush: customer 1 of 2"', () => {
+    // (drawn with an empty text for screen readers: read in the browser on the built page, scripts/style-checks.cjs,
+    // "the place a customer left in the row", PLAN-130)
     expect(lookOf('Farid').title.length).toBeGreaterThan(0);
   });
 });

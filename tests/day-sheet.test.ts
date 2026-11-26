@@ -2,7 +2,6 @@
 // that nothing secret is drawn early or for the wrong person, the crates at the bell, the Favoured Trade question,
 // and that the day's sheet and the round table are each one element that stays.
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { aiActFor } from '../src/engine/ai';
 import { EVENT_CARDS, FRUIT, RIVALS, type FruitId } from '../src/engine/data';
@@ -19,7 +18,6 @@ import { tieStory } from '../src/ui/game/tieStory';
 import { freshWarn, nightSteps, tonightWord } from '../src/ui/game/tonight';
 import { shelfRowText, tieOrderLine } from '../src/ui/panel';
 
-const read = (f: string) => readFileSync(f, 'utf8');
 const FRESH = (f: FruitId) => FRUIT[f].ripe.length - 1;
 
 const now = (x: Partial<DayNow>): DayNow => ({ phase: 'stall', busy: false, myTurn: false, opened: false, mine: true, bell: null, rung: false, rush: false, done: false, ...x });
@@ -112,14 +110,11 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)
     // Their scripts hold no lengths of their own: motion.test.ts 'the table's scripts and panels hold no lengths of
     // their own' (DaySheet.tsx, tableBeats.ts and the controller's parts are among its files).
     expect([BEAT.stock.fly, BEAT.price.seal]).toEqual([260, 200]);
-    const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
-    // (no CSS animation of its own, a fade at most: read in the browser at stocking, scripts/layout-check.cjs, PLAN-130)
-    // the rows of the table are not laid out here: the sheet is drawn larger than its cell by a margin
-    expect(css).not.toMatch(/#app \.tkt > \.(street-wrap|seats|my-stall|actionbar|tk-top)\b/);
-    expect(css).not.toMatch(/grid-template/);
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own { z-index: 6; margin-top: calc(-2px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px)); }');
-    const main = read('src/main.tsx');
-    expect(main.indexOf("'./ui/daysheet.css'")).toBeGreaterThan(main.indexOf("'./ui/rushTable.css'"));
+    // Read in the browser instead of in the stylesheet (PLAN-130): no CSS animation of its own, a fade at most
+    // (scripts/layout-check.cjs at stocking); the sheet is drawn larger than its cell by a margin, over the rows above
+    // and below it on a short phone (scripts/style-checks.cjs, "the day's sheet on a short phone"). The rows of the table
+    // are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in one sheet', and the grid as the
+    // page draws it, scripts/layout-check.cjs at the buying turn. The order of the sheets: css-layers.test.ts.
   });
 });
 
@@ -301,14 +296,9 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
   it('the room is measured from the sheet itself, each time the rows are laid out and at each step of the day', () => {
     // In the browser, as a game is played, stocking scrolls only at its closest step, and the pricing sheet at the
     // round table's foot stays on the screen (scripts/smoke.cjs with scripts/table-checks.cjs: "scrolls at step", "runs off the screen").
-    const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
-    // no fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone)
-    expect(css.match(/max-height: \d+px/g)).toEqual(['max-height: 760px', 'max-height: 760px']);
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }');
-    // pricing is the round table's sheet now (PLAN-099): drawn closer a step at a time against the room the seats need
-    // above it, its rows scrolling inside it past the closest step
-    const rush = read('src/ui/rushTable.css');
-    expect(rush).toContain("#app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }");
+    // No fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone), the
+    // sheet lies over your shelf by its margin, and the pricing sheet (the round table's since PLAN-099) leaves out the
+    // Favoured Trade note at its closest step: read in the browser (scripts/style-checks.cjs, PLAN-130).
     // the pricing sheet's one-line forms: tieOrderLine's test above, and table-panels.test.ts 'a stall holding Favoured
     // Trade is told it will be asked after the prices flip if it ties'
   });
