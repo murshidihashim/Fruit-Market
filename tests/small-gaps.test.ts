@@ -1,10 +1,12 @@
 // The small gaps on the phone (PLAN-096): the morning fits a 360x640 phone with six stalls, the event chip shows its
 // whole name, the places to tap are 40 px, and the faint labels are dark enough to read.
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { TIGHTEST, closer, type Fitting } from '../src/ui/game/panels/MorningCard';
 
-const read = (f: string) => readFileSync(f, 'utf8');
+// PLAN-130 (A-05): a rule's place among the others is decided by its own selector now, and the "#app" in front of the
+// older ones is gone where it only won an old fight; these checks read the rules with or without it.
+const read = (f: string) => readFileSync(f, 'utf8').replace(/#app /g, '');
 /** The declarations of the first rule written for exactly this selector (at the start of a line), as a map; with
  *  `last`, of the last such rule (the one that wins when two set the same thing). */
 function rule(css: string, selector: string, last = false): Record<string, string> {
@@ -48,13 +50,13 @@ describe('the morning on a small phone with six stalls (MorningCard.tsx, sheets.
 
   it('every step keeps the steps before it, and the event picture only shrinks: nothing is hidden past step 2', () => {
     const css = read('src/ui/sheets.css');
-    const steps = (from: number) => `#app .tkt .sh-morning:is(${[2, 3, 4, 5].filter((k) => k >= from).map((k) => `[data-tight='${k}']`).join(', ')})`;
+    const steps = (from: number) => `.tkt .sh-morning:is(${[2, 3, 4, 5].filter((k) => k >= from).map((k) => `[data-tight='${k}']`).join(', ')})`;
     // step 2's and step 3's rules carry the later steps too
     for (const part of ['.wc-flavour { display: none; }', '.wc-lt span { height: 16px; }', '.wc-ttl { font-size: 1.125rem; }']) expect(css).toContain(`${steps(2)} ${part}`);
     expect(css).toContain(`${steps(3)} .wc-evpic { width: 104px; height: 76px; }`);
     expect(css).toContain(`${steps(4)} .wc-evpic { width: 80px; height: 58px; }`);
     // step 5: the event's words flow round its picture (no row of the table is laid out here: sheets.css has no grids)
-    expect(css).toContain("#app .tkt .sh-morning[data-tight='5'] .wc-event .wc-evpic { float: left; margin: 0 8px 4px 0; }");
+    expect(css).toContain(".tkt .sh-morning[data-tight='5'] .wc-event .wc-evpic { float: left; margin: 0 8px 4px 0; }");
     // only the tagline is ever put away (from step 2, as before); later steps hide nothing
     const hidden = (css.match(/[^\n]*sh-morning[^\n]*display: none[^\n]*/g) ?? []);
     expect(hidden).toEqual([`${steps(2)} .wc-flavour { display: none; }`]);
@@ -64,17 +66,17 @@ describe('the morning on a small phone with six stalls (MorningCard.tsx, sheets.
 describe('the event chip in the top bar shows its whole name (ticket.css)', () => {
   const css = read('src/ui/ticket.css');
   it('the picture gives way before the name is cut: a wrapping row from the right, the picture last, out of sight below', () => {
-    const chip = rule(css, '#app .tkt .tk-event');
+    const chip = rule(css, '.tkt .tk-event');
     expect(chip['flex-flow']).toBe('row-reverse wrap');
     expect(chip.overflow).toBe('hidden');
     expect(chip.height).toBe('40px');
-    expect(rule(css, '#app .tkt .tk-event .xev').order).toBe('1');
+    expect(rule(css, '.tkt .tk-event .xev').order).toBe('1');
     // the name is never narrower than its longest word, and stays in the middle with or without the picture
-    expect(rule(css, '#app .tkt .tk-event > span:last-child')['min-width']).toBe('min-content');
-    expect(rule(css, '#app .tkt .tk-event::before').height).toBe('30px');
+    expect(rule(css, '.tkt .tk-event > span:last-child')['min-width']).toBe('min-content');
+    expect(rule(css, '.tkt .tk-event::before').height).toBe('30px');
   });
   it('the yellow stays 36 px tall and the place to tap is 40 px', () => {
-    const chip = rule(css, '#app .tkt .tk-event');
+    const chip = rule(css, '.tkt .tk-event');
     expect(chip['border-block']).toBe('2px solid transparent');
     expect(chip.background).toBe('var(--tk-yel) padding-box');
     expect(px(chip.height) - 2 * 2).toBe(36);
@@ -84,12 +86,12 @@ describe('the event chip in the top bar shows its whole name (ticket.css)', () =
 describe('places to tap of at least 40 px (rushTable.css, daysheet.css)', () => {
   it('the pricing sheet\'s − and + at every step, without moving a row', () => {
     const css = read('src/ui/rushTable.css');
-    const sel = "#app .tkt .rt-sheet:is([data-tight='2'], [data-tight='3'])";
+    const sel = ".tkt .rt-sheet:is([data-tight='2'], [data-tight='3'])";
     // the button's own height at each step, and how far its unseen area reaches above and below it
     const steps = [
-      { h: px(rule(css, '#app .tkt .rt-sheet .ds-st')['min-height']), area: rule(css, '#app .tkt .rt-sheet .ds-st::before') },
-      { h: px(rule(css, '#app .tkt .rt-sheet[data-tight] .ds-st')['min-height']), area: rule(css, '#app .tkt .rt-sheet .ds-st::before') },
-      { h: px(rule(css, `${sel} .ds-st`)['min-height']), area: { ...rule(css, '#app .tkt .rt-sheet .ds-st::before'), ...rule(css, `${sel} .ds-st::before`) } },
+      { h: px(rule(css, '.tkt .rt-sheet .ds-st')['min-height']), area: rule(css, '.tkt .rt-sheet .ds-st::before') },
+      { h: px(rule(css, '.tkt .rt-sheet[data-tight] .ds-st')['min-height']), area: rule(css, '.tkt .rt-sheet .ds-st::before') },
+      { h: px(rule(css, `${sel} .ds-st`)['min-height']), area: { ...rule(css, '.tkt .rt-sheet .ds-st::before'), ...rule(css, `${sel} .ds-st::before`) } },
     ];
     expect(steps.map((x) => x.h)).toEqual([40, 36, 34]);
     for (const { h, area } of steps) expect(h - px(area.top) - px(area.bottom)).toBeGreaterThanOrEqual(40);
@@ -99,34 +101,34 @@ describe('places to tap of at least 40 px (rushTable.css, daysheet.css)', () => 
     expect(rule(css, `${sel} .ps-rows`)).toEqual({ 'padding-block': '1px', 'margin-block': '-1px' });
     // across: 38 px on a narrow phone, and 2 px more on the outer side of each
     const narrow = css.slice(css.indexOf('@media (max-width: 379px)', css.indexOf('the sheet that slides up')));
-    expect(px(rule(narrow, '#app .tkt .rt-sheet .ds-st').width)).toBe(38);
-    expect(px(rule(css, '#app .tkt .rt-sheet .ds-dial > .ds-st:first-child::before').left)).toBe(-2);
-    expect(px(rule(css, '#app .tkt .rt-sheet .ds-dial > .ds-st:last-child::before').right)).toBe(-2);
+    expect(px(rule(narrow, '.tkt .rt-sheet .ds-st').width)).toBe(38);
+    expect(px(rule(css, '.tkt .rt-sheet .ds-dial > .ds-st:first-child::before').left)).toBe(-2);
+    expect(px(rule(css, '.tkt .rt-sheet .ds-dial > .ds-st:last-child::before').right)).toBe(-2);
     // the "i" beside the heading
-    const info = rule(css, '#app .tkt .rt-sheet .ps-head .pp-info::before');
+    const info = rule(css, '.tkt .rt-sheet .ps-head .pp-info::before');
     expect(18 - px(info.top) - px(info.bottom)).toBe(40);
     expect(18 - px(info.left) - px(info.right)).toBe(40);
   });
 
   it('the stocking sheet\'s − and + at every step, without moving a row', () => {
     const css = read('src/ui/daysheet.css');
-    const area = rule(css, '#app .tkt .sh-day .ds-st::before');
-    const closest = { ...area, ...rule(css, "#app .tkt .sh-day[data-tight='3'] .ds-st::before") };
+    const area = rule(css, '.tkt .sh-day .ds-st::before');
+    const closest = { ...area, ...rule(css, ".tkt .sh-day[data-tight='3'] .ds-st::before") };
     // the button's own height at each step: 44, 38 and 36, and 34 at the closest
     const heights = [
-      [px(rule(css, '#app .tkt .sh-day .ds-st')['min-height']), area],
-      [px(rule(css, '#app .tkt .sh-day[data-tight] .ds-st')['min-height']), area],
-      [px(rule(css, "#app .tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-st")['min-height']), area],
-      [px(rule(css, "#app .tkt .sh-day[data-tight='3'] .ds-st")['min-height']), closest],
+      [px(rule(css, '.tkt .sh-day .ds-st')['min-height']), area],
+      [px(rule(css, '.tkt .sh-day[data-tight] .ds-st')['min-height']), area],
+      [px(rule(css, ".tkt .sh-day:is([data-tight='2'], [data-tight='3']) .ds-st")['min-height']), area],
+      [px(rule(css, ".tkt .sh-day[data-tight='3'] .ds-st")['min-height']), closest],
     ] as const;
     expect(heights.map(([h]) => h)).toEqual([44, 38, 36, 34]);
     for (const [h, a] of heights) expect(h - px(a.top) - px(a.bottom)).toBeGreaterThanOrEqual(40);
     // at the closest step the rows stand 4 px apart: the areas reach 1 px into the gap from each side
-    expect(css).toContain('#app .tkt .sh-day[data-tight] .ds-rows { gap: 4px; }');
+    expect(css).toContain('.tkt .sh-day[data-tight] .ds-rows { gap: 4px; }');
     expect(px(closest.top)).toBe(-3);
     // across: 40 px on a narrow phone, 2 px more on the outer side
-    expect(px(rule(css.slice(css.indexOf('@media (max-width: 379px)')), '#app .tkt .sh-day .ds-st').width)).toBe(40);
-    expect(px(rule(css, '#app .tkt .sh-day .mini-step > .ds-st:first-child::before').left)).toBe(-2);
+    expect(px(rule(css.slice(css.indexOf('@media (max-width: 379px)')), '.tkt .sh-day .ds-st').width)).toBe(40);
+    expect(px(rule(css, '.tkt .sh-day .mini-step > .ds-st:first-child::before').left)).toBe(-2);
   });
 
 });
@@ -151,34 +153,36 @@ describe('faint labels are dark enough to read (4.5:1 for small words, 3:1 for a
   const ratio = (a: string, b: string) => { const [x, y] = [lum(hex(a)), lum(hex(b))]; return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
   const paper = 'var(--tk-paper)', ink = 'var(--tk-ink)', kraft = 'var(--tk-kraft)', mustard = 'var(--tk-yel)';
   const css = (f: string, sel: string, last = false) => rule(read(`src/ui/${f}`), sel, last);
+  /** A rule wherever it is (PLAN-130: a part's rules are in that part's own sheet). */
+  const anyCss = (sel: string) => rule(readdirSync('src/ui').filter((f) => f.endsWith('.css')).map((f) => read(`src/ui/${f}`)).join('\n'), sel);
 
   it('the day\'s screens: freshness letters, prices, headings, chips and notes', () => {
     const pairs: [string, string, string][] = [
-      ['an empty market box: its freshness letters', css('table.css', '#app .tkt .tb-box:not(.has) .tk-lamp').color, paper],
-      ['an empty market box: its price', css('table.css', '#app .tkt .tb-box:not(.has) .price').color, paper],
-      ['the rush: a freshness the customer will not take', css('rushTable.css', '#app .tkt .rt-lamp.off').color, paper],
-      ['the rush: a sold-out crate\'s tags', css('rushTable.css', '#app .tkt .rt-crate.over .rt-tag').color, paper],
-      ['the rush: what a stall was paid', paper, css('rushTable.css', '#app .tkt .rt-plus').background],
-      ['the watermelon lane\'s heading', paper, css('table.css', '#app .tkt .tb-lane.watermelon .tb-lh').background],
-      ['the apple lane\'s heading', paper, css('table.css', '#app .tkt .tb-lane.apple .tb-lh').background],
-      ['the mango lane\'s heading', css('table.css', '#app .tkt .tb-lane.mango .tb-lh').color, css('table.css', '#app .tkt .tb-lane.mango .tb-lh').background],
-      ['tomorrow\'s lorry', css('table.css', '#app .tkt .tomorrow .tm-lorry').color, kraft],
-      ['an empty crate', css('daysheet.css', '#app .tkt .ds-none').color, kraft],
-      ['the rest of tomorrow, in the evening', css('sheets.css', '#app .tkt .ev-rest').color, kraft],
-      ['a − or + that cannot be pressed (pricing)', css('rushTable.css', '#app .tkt .rt-sheet .ds-st:disabled').color, css('rushTable.css', '#app .tkt .rt-sheet .ds-st:disabled').background],
-      ['a − or + that cannot be pressed (stocking)', css('daysheet.css', '#app .tkt .sh-day .ds-st:disabled').color, css('daysheet.css', '#app .tkt .sh-day .ds-st:disabled').background],
-      ['a good chip', paper, css('ticket.css', '#app .tkt .tk-chip.good').background],
-      ['a warning chip', paper, css('ticket.css', '#app .tkt .tk-chip.warn').background],
-      ['the last day\'s day pill (PLAN-127)', css('ticket.css', '#app .tkt .tk-day.last .tk-pill').color, css('ticket.css', '#app .tkt .tk-day.last .tk-pill').background],
-      ['a standing order due today: "Order"', css('ticket.css', '#app .tkt .order-strip.due .os-k').color, mustard],
-      ['a standing order due today: its stake', css('ticket.css', '#app .tkt .order-strip.due .os-fine').color, mustard],
+      ['an empty market box: its freshness letters', css('table.css', '.tkt .tb-box:not(.has) .tk-lamp').color, paper],
+      ['an empty market box: its price', css('table.css', '.tkt .tb-box:not(.has) .price').color, paper],
+      ['the rush: a freshness the customer will not take', css('rushTable.css', '.tkt .rt-lamp.off').color, paper],
+      ['the rush: a sold-out crate\'s tags', css('rushTable.css', '.tkt .rt-crate.over .rt-tag').color, paper],
+      ['the rush: what a stall was paid', paper, css('rushTable.css', '.tkt .rt-plus').background],
+      ['the watermelon lane\'s heading', paper, css('table.css', '.tkt .tb-lane.watermelon .tb-lh').background],
+      ['the apple lane\'s heading', paper, css('table.css', '.tkt .tb-lane.apple .tb-lh').background],
+      ['the mango lane\'s heading', css('table.css', '.tkt .tb-lane.mango .tb-lh').color, css('table.css', '.tkt .tb-lane.mango .tb-lh').background],
+      ['tomorrow\'s lorry', css('table.css', '.tkt .tomorrow .tm-lorry').color, kraft],
+      ['an empty crate', css('daysheet.css', '.tkt .ds-none').color, kraft],
+      ['the rest of tomorrow, in the evening', css('sheets.css', '.tkt .ev-rest').color, kraft],
+      ['a − or + that cannot be pressed (pricing)', css('rushTable.css', '.tkt .rt-sheet .ds-st:disabled').color, css('rushTable.css', '.tkt .rt-sheet .ds-st:disabled').background],
+      ['a − or + that cannot be pressed (stocking)', css('daysheet.css', '.tkt .sh-day .ds-st:disabled').color, css('daysheet.css', '.tkt .sh-day .ds-st:disabled').background],
+      ['a good chip', paper, anyCss('.tkt .tk-chip.good').background],
+      ['a warning chip', paper, anyCss('.tkt .tk-chip.warn').background],
+      ['the last day\'s day pill (PLAN-127)', css('ticket.css', '.tkt .tk-day.last .tk-pill').color, css('ticket.css', '.tkt .tk-day.last .tk-pill').background],
+      ['a standing order due today: "Order"', css('ticket.css', '.tkt .order-strip.due .os-k').color, mustard],
+      ['a standing order due today: its stake', css('ticket.css', '.tkt .order-strip.due .os-fine').color, mustard],
       ['a raised price on a customer\'s ticket', css('cards.css', '.tkc-rw.up > b').color, paper],
-      ['money made, in the takings', css('takings.css', '#app .tkt .tg-row > b.good').color, paper],
+      ['money made, in the takings', css('takings.css', '.tkt .tg-row > b.good').color, paper],
       ['money that floats up', css('styles.css', '.floattext', true).color, paper],
     ];
     for (const [what, fg, bg] of pairs) expect(ratio(fg, bg), what).toBeGreaterThanOrEqual(4.5);
     // the night keeps its own grey for an empty box, read on the dark table
-    expect(ratio(css('table.css', '#app .tkt .tb-night .tb-box:not(.has) .tk-lamp').color, ink)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(css('table.css', '.tkt .tb-night .tb-box:not(.has) .tk-lamp').color, ink)).toBeGreaterThanOrEqual(4.5);
   });
 
   // (Home's dots are no longer drawn: PLAN-130 took their styles out with the other classes the code never writes.)

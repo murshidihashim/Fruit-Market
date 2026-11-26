@@ -547,10 +547,12 @@ describe('no stepped landings or pops', () => {
     expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
     const css = read('src/ui/styles.css');
     const rule = (sel: string) => css.split('\n').find((l) => l.startsWith(sel))!;
-    for (const sel of ['.morning-card, .sales-card {', '.phase-banner {']) {
-      expect(rule(sel)).toMatch(/animation: /);
-      expect(rule(sel)).not.toMatch(/steps\(/);
-    }
+    expect(rule('.phase-banner {')).not.toMatch(/steps\(/);
+    // PLAN-130 (A-05): the older base rule's animation for the morning and takings cards never showed (the table's own
+    // rules outrank it; the sheet moves them, sheet.ts) and went; no rule that animates them steps
+    const cards = readdirSync('src/ui').filter((f) => f.endsWith('.css')).flatMap((f) => read(`src/ui/${f}`).split('\n'))
+      .filter((l) => /(morning|sales)-card/.test(l) && /animation:/.test(l));
+    for (const l of cards) expect(l).not.toMatch(/steps\(/);
     expect(rule('.phase-banner {')).toContain('animation: banner var(--t-stamp) ease-out forwards');
     // The results' places: the first results' ".pod" rule is gone with that screen (PLAN-091); the places of the
     // results today (stampbook.css, .sbk-pod) are not animated by the stylesheet at all, so nothing there can step.

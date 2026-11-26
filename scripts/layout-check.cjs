@@ -6,6 +6,7 @@
 //           single column; the action bar sits in the act area.
 //   'bar'   the stocking and pricing buttons (.pp-lock) take the action bar's place.
 //   'rush'  the round table lies over the table from the market down to the action bar.
+//   'night' the customer row and the stalls stay on the table at night, dimmed.
 
 const PHONE_AREAS = '"top" "net" "street" "mid" "rivals" "dock" "act"';
 
@@ -59,6 +60,12 @@ async function checkLayout(page, moment) {
   if (moment === 'rush') {
     const t = await style('.game > .rush-table', ['grid-row-start', 'grid-row-end']);
     expect(t && t['grid-row-start'] === 'mid' && t['grid-row-end'] === 'act', `the round table from the market to the action bar (${JSON.stringify(t)})`);
+  }
+  if (moment === 'night') {
+    const row = await style('.game.is-night > .street-wrap', ['display', 'opacity']);
+    const seats = await style('.game.is-night > .seats', ['display', 'opacity']);
+    expect(row && row.display === 'block' && Number(row.opacity) < 1, `the customer row stays at night, dimmed (${JSON.stringify(row)})`);
+    expect(seats && seats.display === 'flex' && Number(seats.opacity) < 1, `the stalls stay at night, dimmed (${JSON.stringify(seats)})`);
   }
   return fails;
 }

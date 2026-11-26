@@ -42,20 +42,11 @@ img.x-fruit { display: inline-block; vertical-align: middle; flex: none; }
 .x-logo .x-title { font-size: 1em; text-transform: uppercase; }
 
 /* ---------- the street: customers as Trading Cards ---------- */
-.game .street-wrap.street-wrap { min-height: 0; }
 .game .street.street { --card-w: 8.25rem; }
-.game .street .cust.cust {
-  justify-content: flex-start;
-}
 .game .street .cust.mystery.pickable { border-radius: 4px; }
 /* status marks over the card's top corner */
-.game .cust-marks { pointer-events: auto; }
-.game .cust-marks i {
-  position: static; border: 2px solid var(--x-ink); font-style: normal; line-height: 0;
-}
 /* The lorry (pixel art, no deck art yet) parks beside the queue instead of over it, so no card hides behind it;
    it is smaller on phones so more customers show. It drives off over the street as before. */
-.game .street.street { position: relative; z-index: 1; }
 .game .street-wrap.lorry-here { display: flex; align-items: flex-end; }
 .game .street-wrap.lorry-here .street.street { flex: 1 1 auto; min-width: 0; padding-right: 26px; }
 .game .street-wrap .lorry.here { position: relative; right: auto; bottom: auto; flex: none; margin: 0 4px 0 -18px; }

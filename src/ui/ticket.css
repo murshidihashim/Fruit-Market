@@ -211,7 +211,6 @@
 #app .tkt .tk-unload { flex: none; display: flex; flex-direction: column; gap: 6px; }
 
 /* stocking and pricing: one row per fruit, in its lane colour, with − and + */
-#app .tkt .mini-step { gap: 6px; }
 #app .tkt .mini-step button {
   all: unset; width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; background: var(--tk-ink); color: var(--tk-paper); font: 400 1.375rem/1 var(--tk-disp);
 }

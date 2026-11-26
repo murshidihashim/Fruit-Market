@@ -88,7 +88,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 }
 .btn:disabled { cursor: default; }
 .btn.wide { width: 100%; }
-.btn-sub { margin-left: 4px; }
 .icon-btn { flex: none; }
 .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; font-size: 0.82rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .chip.cash { color: var(--ink); }
@@ -111,10 +110,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .topbar > .icon-btn { align-self: flex-start; }
 .page .topbar { flex-direction: row; align-items: center; }
 .page .topbar .day { flex: 1; }
-.phase { border-radius: 999px; white-space: nowrap; }
-.left { font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-.left.last { animation: breathe 1.4s steps(2) infinite; }
-.rv-chip { min-height: 32px; white-space: nowrap; }
 .rv-chip b { font-variant-numeric: tabular-nums; }
 .rv-chip.off { opacity: 0.45; }
 .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -141,8 +136,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .game { position: relative; overflow: hidden; }
 .play { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .is-night::after { content: '☾'; position: absolute; top: 12%; left: 50%; transform: translateX(-50%); font-size: 64px; animation: pop 0.5s steps(4); pointer-events: none; z-index: 5; }
-
-.info-card { padding: 12px 14px; font-size: 0.9rem; }
 .info-card.warn { display: flex; flex-direction: column; gap: 4px; }
 
 .st-fresh { background: var(--fresh); }
@@ -152,21 +145,16 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 
 /* pricing */
 .pc-num { text-align: center; }
-.read { padding: 3px 10px; border-radius: 999px; }
-.pp-lock { position: sticky; bottom: 0; padding: 10px 0 max(6px, env(safe-area-inset-bottom)); }
 .error { font-size: 0.88rem; font-weight: 600; }
 
 /* evening */
 .owned-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.8rem; }
 
 /* morning and recap: cards in the panel */
-.morning-card, .sales-card { animation: pop 0.22s ease-out; }
-.morning-card, .sales-card { text-align: center; align-items: center; }
 .mc-day small { font-weight: 400; }
-.mc-loss { font-size: 0.85rem; font-weight: 600; border-radius: 8px; padding: 3px 10px; }
 @keyframes flip { from { transform: scaleX(0); } to { transform: none; } }
-.minprices { display: flex; justify-content: center; gap: 8px; margin-top: 6px; }
-.minprices span { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); border-radius: 6px; padding: 1px 6px; font-weight: 600; }
+.minprices { justify-content: center; margin-top: 6px; }
+.minprices span { color: var(--ink); border-radius: 6px; padding: 1px 6px; font-weight: 600; }
 .takings { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 
 @keyframes stamp { from { transform: scale(1.8) rotate(-6deg); opacity: 0; } }
@@ -177,7 +165,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 @keyframes banner { 0% { opacity: 0; transform: scale(0.9); } 15%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
 
 /* action bar */
-.actionbar { flex: none; }
 .actionbar .btn.ghost, .actionbar .btn.skip { flex: 0 0 auto; min-width: 56px; }
 
 /* popovers, modals */
@@ -240,7 +227,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 /* ---------- desktop: the market and the decisions side by side ---------- */
 @media (min-width: 900px) {
   #app { max-width: 1120px; box-shadow: 0 0 60px rgba(0, 0, 0, 0.5); }
-  .game .actionbar { justify-content: flex-end; }
   .game .actionbar > * { max-width: 456px; }
 }
 
@@ -278,20 +264,12 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 }
 .is-night .table { filter: brightness(0.55) saturate(0.6); }
 /* rivals sit across the table in one row; tapping a seat opens their stall below it */
-.seats { justify-content: center; }
-.seats > .rival-stall { flex: 1 1 0; max-width: 320px; }
 .centre { position: relative; min-width: 0; }
 
 /* farmers market */
 .truck { display: inline-flex; }
 @keyframes drive { from { transform: translateX(80px); opacity: 0; } to { transform: none; opacity: 1; } }
-.mk-cell { width: 100%; outline-offset: -4px; }
-.mk-cell .price { position: absolute; }
-.mk-cell.pick { animation: glow 1.1s steps(2) infinite; }
-.mk-cell.pick:active { transform: translateY(2px); }
 @keyframes glow { 50% { box-shadow: 0 0 0 3px var(--gold); } }
-.next-lorry { justify-content: center; border-radius: 10px; }
-.next-lorry { flex-direction: column; }
 .next-lorry .nl-head { flex-wrap: wrap; justify-content: center; align-items: baseline; }
 .next-lorry .nl-fruits { flex-wrap: wrap; justify-content: center; align-items: center; }
 .nl-f.few { opacity: 0.75; }
@@ -299,28 +277,20 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 /* fruit piles */
 
 /* rival stalls */
-.rival-stall { flex-direction: column; }
 .rival-stall .chip { flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 0 6px; font-size: 0.74rem; background: var(--gold); color: var(--ink); }
-.rival-drop { animation: trayup 0.2s steps(4); }
-.rd-head { flex-wrap: wrap; padding: 6px 50px 8px 0; min-height: 44px; }
 .rd-head .chip { background: var(--gold); color: var(--ink); }
-.rd-close { position: absolute; top: 10px; right: 8px; min-width: 44px; min-height: 44px; }
-.rd-extra { margin-top: 8px; }
 
 /* customers */
 .street-wrap .cust small { color: var(--ink-muted); }
-.cust { flex-direction: column; align-items: center; animation: walkin 0.45s steps(5) backwards; }
 @keyframes walkin { from { opacity: 0; transform: translateX(28px); } }
 .cust small { max-width: 86px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cust.tomorrow { opacity: 0.5; transform: scale(0.9); }
 .cust.mystery .q { font-weight: 600; font-size: 1.1rem; }
 
 /* demand vs supply */
-.pz { width: 100%; border: 0; border-radius: 8px; }
 .pz.none { opacity: 0.5; }
 
 /* your stall */
-.my-stall { flex: none; }
 .my-stall .chip { background: var(--cream-2); color: var(--ink); }
 .my-stall .chip.cash { background: var(--gold); }
 .stk-f { display: inline-flex; flex-wrap: wrap; gap: 5px; }
@@ -345,15 +315,12 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 /* ---------- PLAN-013: full-screen pricing and event sheets, clearer rival status ---------- */
 .full-sheet { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; animation: pop 0.2s steps(3); }
 .full-sheet > * { flex: none; margin: 0 auto; }
-.full-sheet .morning-card { padding: 22px 16px; }
 .full-sheet .next-lorry { font-size: 0.85rem; padding: 8px 10px; }
 
 @keyframes hourglass { 50% { transform: rotate(180deg); } }
 
 /* ---------- rules 4: open stalls, buyer caps, queue backs, ledger (PLAN-015) ---------- */
 .info-card.small { font-size: 0.8rem; padding: 6px 10px; }
-.cust .ear { right: -6px; top: -6px; font-size: 0.8rem; }
-.sc-waste { font-size: 0.8rem; }
 /* good news: fruit the Juice Bar turns into money tonight (the sales card) and overnight (the morning card) */
 .sc-juice { font-size: 0.8rem; font-weight: 600; color: var(--x-green); }
 .mc-loss.good { color: var(--x-green); background: var(--good-bg); }
@@ -362,30 +329,18 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
    Warm cream mat, ink outlines, paper slots, coin-shaped prices, freshness flags. The trays and pop-ups stay as they are until PLAN-033. */
 
 /* the queue and the lorry on its road */
-.game .street-wrap { flex: none; }
 .game .street-wrap::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none; }
 
 /* rival stalls and your stall */
 
 /* the Wholesale Market */
-.game .market-stall { border-radius: 16px; }
-.game .pz { box-shadow: none; }
-.game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe {
-  box-shadow: none; outline: 0; opacity: 0.62; min-height: 36px; justify-content: flex-start; overflow: hidden;
-}
-.game .mk-cell.has { opacity: 1; }
 .game .mk-cell .gh { display: inline-flex; }
 .game .mk-cell::after { content: ''; position: absolute; right: 0; top: 0; width: 0; height: 0; border-style: solid; border-width: 0 13px 13px 0; border-color: transparent; border-top-right-radius: 7px; }
 .game .mk-cell.st-fresh::after { border-right-color: var(--c-9cca86); }
 .game .mk-cell.st-okay::after { border-right-color: var(--c-e6c86f); }
 .game .mk-cell.st-notso::after { border-right-color: var(--c-db8a6c); }
 .game .mk-cell.st-unripe::after { border-right-color: var(--c-b8cf9a); }
-.game .mk-cell.pick { opacity: 1; }
-.game .mk-cell .price { right: 3px; bottom: 2px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; opacity: 1; }
 .game .next-lorry { background: transparent; }
-
-/* buttons in the bar along the bottom */
-.game .actionbar .btn { border-radius: 999px; }
 
 /* ---------- PLAN-033: look D, the other screens (approved design, DEC-045) ---------- */
 .home, .page { color: var(--ink); }
@@ -396,7 +351,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .dots span { width: 12px; height: 12px; box-sizing: border-box; }
 .howto h2, .howto .step h2, .howto .card h2, .howto b { color: var(--ink); }
 .toast { left: 0; right: 0; margin-inline: auto; width: fit-content; transform: none; }
-.info-card { color: var(--ink); }
 .info-card.dim { color: var(--ink-muted); }
 
 /* ---------- PLAN-029: the market opening (design approved, DEC-047) ---------- */
@@ -448,10 +402,10 @@ b, strong { font-weight: 700; }
 }
 
 /* ---------- type roles ---------- */
-.btn, .seg button, .chip, .phase, .left, .rv-chip, .medal, .read, .next-lorry, .mc-loss, .seat-rename, .op-skip, .net-strip, .owned-row, .room-full, .rd-extra .chip, .ptag, .floattext, .mk-cell .price, .dots, label.small {
+.btn, .seg button, .chip, .rv-chip, .medal, .next-lorry, .mc-loss, .seat-rename, .op-skip, .net-strip, .owned-row, .room-full, .rd-extra .chip, .ptag, .floattext, .mk-cell .price, .dots, label.small {
   font-family: var(--f-label);
 }
-.btn, .seg button, .phase, .left, .read, .medal, .net-strip, .nl-title, .room-full, label.small {
+.btn, .seg button, .medal, .net-strip, .nl-title, .room-full, label.small {
   text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1));
 }
 .mc-day, .slide h2, .howto h2, .popup-hd h2, .results h2 { font-family: var(--f-headline); font-weight: 400; letter-spacing: 0.005em; }
@@ -470,9 +424,7 @@ b, strong { font-weight: 700; }
   background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow);
 }
 .btn:active:not(:disabled), .btn.primary:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
-.btn:disabled { box-shadow: none; }
 .btn.big { min-height: 56px; font-size: 1.1rem; }
-.btn-sub { opacity: 0.9; }
 .btn.daily small { font-family: var(--f-serif); text-transform: none; letter-spacing: 0; color: inherit; opacity: 0.9; }
 .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 40px; min-height: 40px; background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: 999px; box-shadow: 0 2px 0 var(--x-ink); font-family: var(--f-label); font-weight: 600; }
 .seg button, .page .seg button { min-height: 44px; background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: 999px; font-weight: 600; font-size: 0.9rem; }
@@ -493,8 +445,6 @@ b, strong { font-weight: 700; }
 .panel h3::after { content: ''; flex: 1 0 100%; height: 0; border-top: 2px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); margin-top: 4px; }
 .input, .panel .input, .page .input { min-height: 48px; background: var(--x-paper); color: var(--x-ink); -webkit-text-fill-color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r); font-family: var(--f-serif); caret-color: var(--x-red-d); }
 .input::placeholder { color: var(--x-slate); -webkit-text-fill-color: var(--x-slate); }
-.info-card { background: var(--x-paper); border: 2px solid var(--x-ink); }
-.info-card.warn { background: var(--bad-bg); color: var(--x-red-d); border-color: var(--x-red-d); }
 .info-card.good { background: var(--good-bg); color: var(--x-green); border-color: var(--x-green); }
 .save-notice { background: var(--x-paper); color: var(--x-ink); border: 2px dashed var(--x-red-d); border-radius: var(--r); font-family: var(--f-serif); }
 .seat, .page .seat { border-top: 1px solid var(--x-edge); }
@@ -504,9 +454,6 @@ b, strong { font-weight: 700; }
 /* ---------- top bar: a Gazette masthead rule ---------- */
 .topbar, .game .topbar, .page .topbar, .finale .topbar { background: var(--x-cream); border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-cream), 0 3px 0 var(--x-ink); color: var(--x-ink); }
 .page .topbar b, .page .topbar .day { font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; }
-.phase, .game .topbar .phase { padding: 2px 9px; border: 2px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); font-size: 0.7rem; font-weight: 600; }
-.left, .game .topbar .left { border: 2px solid var(--x-ink); background: var(--x-mustard); color: var(--x-ink); font-size: 0.7rem; }
-.left.last, .game .topbar .left.last { background: var(--x-red-d); color: var(--x-paper); }
 .rv-chip b { font-weight: 600; }
 
 /* ---------- the action bar ---------- */
@@ -517,7 +464,6 @@ b, strong { font-weight: 700; }
 .game, .game .table { background: var(--x-cream); color: var(--x-ink); }
 .game.is-night .table { background: var(--x-ink-2); filter: none; }
 .is-night::after { color: var(--x-mustard); text-shadow: 0 3px 0 var(--x-ink); }
-.game .centre > .morning-card, .game .centre > .sales-card { border: 2px solid var(--x-ink); box-shadow: 0 4px 0 var(--x-ink), 0 14px 30px rgba(24, 40, 68, 0.35); }
 
 /* the queue: customers on a paper street, the lorry on a wooden road */
 .game .street-wrap::after { background: var(--x-wood); border-top: 2px solid var(--x-ink); }
@@ -526,19 +472,15 @@ b, strong { font-weight: 700; }
 .cust.mystery.pickable { outline-color: var(--x-red); }
 
 /* stalls: paper signs with a navy rule, a mustard band when it is your turn */
-.game .rival-stall, .game .rival-drop, .game .my-stall { border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
 .rival-stall.won, .game .rival-stall.won { box-shadow: 0 0 0 3px var(--x-mustard), 0 0 0 5px var(--x-ink), 0 0 16px 2px rgba(224, 160, 28, 0.7); }
 .game .rd-head .chip, .rd-extra .chip { background: var(--x-paper); border: 1.5px solid var(--x-ink); color: var(--x-ink); }
 .game .rival-stall .chip, .game .rd-head .chip.cash { background: var(--x-mustard); }
-.rd-close { background: var(--x-paper); border: 2px solid var(--x-ink); border-radius: 999px; color: var(--x-ink); }
+.rd-close { background: var(--x-paper); }
 
 /* price boards: wooden when sealed, a chalkboard when shown */
 
 /* the Wholesale Market: a newspaper-ruled board with fruit lanes */
-.game .market-stall { border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
-.game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { border-radius: 4px; }
-.game .mk-cell .price { background: var(--x-mustard); border: 1.5px solid var(--x-ink); color: var(--x-ink); }
-.game .mk-cell.entry { box-shadow: 0 0 0 2px var(--x-mustard); }
+.game .mk-cell .price { background: var(--x-mustard); }
 .pz.good, .game .pz.good { box-shadow: inset 0 0 0 2px var(--x-green); }
 .pz.war, .game .pz.war { box-shadow: inset 0 0 0 2px var(--x-red); }
 .pz.open { box-shadow: inset 0 0 0 2px var(--x-sky-d); }
@@ -547,20 +489,16 @@ b, strong { font-weight: 700; }
 
 /* ---------- trays and sheets ---------- */
 .full-sheet, .full-sheet .muted, .owned-row { color: var(--x-slate); }
-.pp-lock { background: var(--x-cream); box-shadow: 0 -12px 12px -6px var(--x-cream); }
-.morning-card, .sales-card { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
-.read { font-weight: 600; font-size: 0.7rem; }
-.read.war { background: var(--bad-bg); color: var(--x-red-d); }
+.pp-lock { background: var(--x-cream); }
+.morning-card, .sales-card { background: var(--x-paper); }
 
 /* morning: the Gazette front page */
 .mc-day { font-size: 1.4rem; }
 .full-sheet .mc-day { font-size: 1.9rem; }
 .mc-day small { font-family: var(--f-label); font-size: 0.82rem; letter-spacing: calc(0.06em * var(--ls, 1)); color: var(--x-slate); }
-.mc-loss { color: var(--x-red-d); background: var(--bad-bg); }
 .minprices span { background: var(--x-paper); border: 1.5px solid var(--x-ink); font-family: var(--f-label); }
 
 /* sales summary */
-.sc-waste { color: var(--x-red-d); }
 
 /* phase banner: a green ribbon like the cards' "Regular shopper" flag */
 .phase-banner span { padding: 8px 30px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-green); color: var(--x-paper); font-family: var(--f-display); font-weight: 400; font-size: 1.6rem; letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; box-shadow: 0 4px 0 var(--x-ink); }
@@ -622,9 +560,6 @@ b, strong { font-weight: 700; }
 @media (max-width: 899px) {
   .seg button, .rd-close { min-height: 44px; }
   .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 44px; min-height: 44px; }
-  .rv-chip, .game .rv-chip { min-height: 40px; }
-  .pz, .game .pz { min-height: 40px; }
-  .game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { min-height: 40px; }
 }
 
 /* small print inside a button keeps the button's own colour */
@@ -640,9 +575,6 @@ b, strong { font-weight: 700; }
 @media (pointer: coarse) {
   .seg button, .rd-close { min-height: 44px; }
   .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 44px; min-height: 44px; }
-  .rv-chip, .game .rv-chip { min-height: 40px; }
-  .pz, .game .pz { min-height: 40px; }
-  .game .mk-cell, .game .mk-cell.st-fresh, .game .mk-cell.st-okay, .game .mk-cell.st-notso, .game .mk-cell.st-unripe { min-height: 40px; }
 }
 /* an event sheet the player opened sits above the first-game coach note */
 .full-sheet.event-sheet { z-index: 25; }
@@ -673,101 +605,49 @@ b, strong { font-weight: 700; }
 .gx > .topbar { gap: 0; padding: max(4px, env(safe-area-inset-top)) max(var(--gx-pad), env(safe-area-inset-right)) 4px max(var(--gx-pad), env(safe-area-inset-left)); }
 
 /* ---------- today's customers and the Tomorrow strip ---------- */
-.gx > .street-wrap {
-  position: relative; container-type: inline-size;
-  border: 0; border-bottom: 2px solid var(--x-ink); border-radius: 0; box-shadow: none;
-}
 .gx .street.street {
   /* five cards across a phone; more scroll sideways, the last one cut by the edge as a hint */
-  --card-w: clamp(56px, calc((100cqw - 2 * var(--gx-pad) - 4 * 6px) / 5), 104px); align-items: flex-start;
-  -webkit-mask-image: none; mask-image: none; transition: none;
+  --card-w: clamp(56px, calc((100cqw - 2 * var(--gx-pad) - 4 * 6px) / 5), 104px);
+  -webkit-mask-image: none;
 }
-.gx .street > .cust:first-child { margin-left: auto; }
-.gx .street > .cust:last-child { margin-right: auto; }
 /* more than five: the cards narrow a little so about half of the sixth shows at the edge, a clear hint to swipe */
 .gx .street.many {
   --card-w: clamp(52px, calc((100cqw - var(--gx-pad) - 5 * 6px) / 5.45), 104px);
   -webkit-mask-image: linear-gradient(to right, black calc(100% - 12px), transparent); mask-image: linear-gradient(to right, black calc(100% - 12px), transparent);
 }
-.gx .street .cust.cust { width: var(--card-w); gap: 0; }
 /* the served, waiting, guest and gossip marks stand on the card's right edge, below the tag */
-.gx .street .cust-marks { flex-direction: column; }
-.gx .tomorrow { padding: 1px var(--gx-pad) 5px; scrollbar-width: none; }
 .gx .tomorrow::-webkit-scrollbar { display: none; }
-.gx .tm-k { color: var(--x-slate); }
-.gx .tm-chip {
-  position: relative; min-height: 30px;
-  border: 1.5px solid var(--x-ink); border-radius: 999px;
-}
-/* a face-down walk-in: the card back's navy and mustard, only the fruit it wants */
-.gx .tm-chip.tm-back { border-color: var(--x-mustard); box-shadow: 0 0 0 1.5px var(--x-ink); }
-.gx button.tm-chip { min-height: 40px; }
 /* ---------- the rivals strip: one pill per rival ---------- */
 .gx > .seats { background: var(--x-cream); }
-.gx > .seats > .rival-stall.rival-stall {
-  flex: 1 1 0; min-width: 0; max-width: none; min-height: 40px; display: flex; flex-direction: row; align-items: center; gap: 5px;
-  padding: 3px 8px 3px 3px; border: 2px solid var(--x-ink); border-radius: 999px; background: var(--x-paper); color: var(--x-ink);
-  box-shadow: 0 2px 0 var(--x-ink); text-align: left; white-space: nowrap; overflow: visible;
-}
-.gx .seats .rival-stall.active { box-shadow: 0 0 0 3px var(--x-mustard), 0 2px 0 3px var(--x-ink); }
-.gx .seats .rival-stall.open { box-shadow: 0 0 0 3px var(--x-green), 0 2px 0 3px var(--x-ink); }
 .gx .seats .rival-stall.won { box-shadow: 0 0 0 3px var(--x-mustard), 0 0 14px 3px var(--x-mustard); }
 .gx .seats .rival-stall.off { opacity: 0.5; }
-.gx .seats .rival-drop { max-height: 60vh; overflow-y: auto; }
 
 /* ---------- the middle: the market, or the card or decision on top of it ---------- */
 .gx > .centre > * { min-height: 0; min-width: 0; margin: 5px var(--gx-pad); }
-.gx > .centre > .market-stall { height: auto; }
-.gx .market-stall .pz { flex: none; min-height: var(--pz-h); }
 /* every slot the same height, sized so the longest track (--rows slots) fits the space left */
-.gx .market-stall .mk-cell, .gx .market-stall .mk-cell.st-fresh, .gx .market-stall .mk-cell.st-okay, .gx .market-stall .mk-cell.st-notso, .gx .market-stall .mk-cell.st-unripe {
-  flex: none; min-height: 0;
-}
 /* a short market (a small phone with a full shelf): the empty slots below the lowest fruit step aside so the
    rest stay big enough to tap (table.tsx --rows-fit; a slot with fruit is never a .tail) */
-.gx .market-stall .next-lorry { flex: none; margin-top: 3px; padding: 2px 6px; }
 /* cards and decisions over the market */
 .gx > .centre > .morning-card, .gx > .centre > .mid-panel {
-  position: relative; inset: auto; align-self: stretch; -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain; /* a panel scrolls on its own; the board never moves with it */
-  animation: fade 0.2s;
+  -webkit-overflow-scrolling: touch; /* a panel scrolls on its own; the board never moves with it */
 }
 /* the morning card sits on a plain backdrop (as the old full-screen sheet did), centred, as tall as it needs */
 .gx.ph-morning > .centre.covered::before { content: ''; grid-area: mid; z-index: 4; background: var(--x-cream); }
-.gx > .centre > .morning-card { align-self: center; max-height: calc(100% - 10px); justify-content: flex-start; }
-.gx > .centre > .sales-card {
-  position: relative; inset: auto; align-self: start; max-height: calc(100% - 12px);
-  overscroll-behavior: contain;
-}
 /* phones: one upgrade per row (picture, name and text, then the Build button), so every Build button shows */
 @media (max-width: 899px), (max-height: 559px) {
   .gx .mid-evening .owned-row { font-size: 0.78rem; }
   .gx .mid-evening .owned-row .chip { padding: 1px 8px; font-size: 0.74rem; }
 }
 /* the "crates covered" sign sits high on the covered market, clear of the evening panel at its foot */
-.gx > .centre > .mid-evening { align-self: end; max-height: calc(100% - 12px); border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
-.gx > .centre > .mid-panel.price-panel { border: 2px solid var(--x-ink); border-radius: 12px; box-shadow: var(--shadow); }
 /* phones: the title only (the first-game coach explains the step); desktop shows the sentence */
 .gx .mid-panel .info-card.small { padding: 3px 8px; font-size: 0.72rem; line-height: 1.25; }
 .gx .mid-panel .pc-num { min-width: 40px; font-size: 1.3rem; }
 .gx .mid-panel .pc-num small { font-size: 0.68rem; }
-.gx .mid-panel .read {
-  /* the tip wraps to a second line rather than being cut off when the rivals' counts take the room */
-  min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal;
-  padding: 1px 8px; border-radius: 8px; font-size: 0.62rem; line-height: 1.2;
-}
 
 /* ---------- your shelf dock ---------- */
-.gx > .my-stall.dock {
-  margin: 0; overflow: visible;
-  border: 0; border-radius: 0;
-}
 .gx .dock .chip.buys, .gx .dock .ms-prop { display: none; }
 
 /* ---------- the action bar (and the stocking and pricing buttons in its place) ---------- */
-.gx > .actionbar, .gx > .centre > .pp-lock {
-  margin: 0; border-top: 3px solid var(--x-ink); box-shadow: 0 -2px 0 var(--x-cream), 0 -3px 0 var(--x-ink);
-}
 .gx > .centre > .pp-lock .error { text-align: center; font-size: 0.8rem; }
 .gx > .actionbar .btn.ghost, .gx > .actionbar .btn.skip { min-width: 48px; min-height: 48px; }
 .gx > .actionbar .buy-hint { line-height: 1.1; }
@@ -801,7 +681,6 @@ b, strong { font-weight: 700; }
    slimmer rival pills, and a market without its colour key and lorry line so it gives up the room */
 @media not all and (min-width: 900px) and (min-height: 560px) {
   .gx .street.street, .gx .street.many { --card-w: calc((100cqw - 2 * var(--gx-pad) - 6px) / 2.6); }
-  .gx > .seats > .rival-stall.rival-stall { min-height: 32px; padding: 1px 6px 1px 1px; }
   /* while prices are set the table needs the room: the cards are a little smaller (about 1.4x) and tomorrow's strip
      steps aside, so the board, every crate and the price dial fit on the screen */
   .gx.ph-bid .street.street, .gx.ph-bid .street.many { --card-w: calc((100cqw - 2 * var(--gx-pad) - 3 * 6px) / 3.4); }
@@ -819,28 +698,18 @@ b, strong { font-weight: 700; }
     --gx-pad: 12px;
   }
   /* the column is a size container: the cards shrink to fit its height when the crowd is big (--pairs rows) */
-  .gx > .street-wrap { border-bottom: 0; border-right: 2px solid var(--x-ink); container-type: size; }
   .game.gx { --tm-h: 74px; }
   .game.gx.ph-morning, .game.gx.ph-buy { --tm-h: 0px; }
   .gx .street.street {
-    --card-w: min(calc((100cqw - 2 * var(--gx-pad) - 10px) / 2), calc(((100cqh - 32px - var(--tm-h)) / var(--pairs, 3) - 14px) / 1.0675)); grid-template-columns: repeat(2, var(--card-w)); justify-content: center; -webkit-mask-image: none; mask-image: none;
+    --card-w: min(calc((100cqw - 2 * var(--gx-pad) - 10px) / 2), calc(((100cqh - 32px - var(--tm-h)) / var(--pairs, 3) - 14px) / 1.0675)); -webkit-mask-image: none;
   }
-  .gx .street > .cust:first-child, .gx .street > .cust:last-child { margin: 0; }
-  .gx .tomorrow { flex-wrap: wrap; padding: 8px var(--gx-pad) 4px; border-top: 1px dashed var(--x-edge); }
-  .gx > .seats { justify-content: flex-start; overflow-y: auto; border-left: 2px solid var(--x-ink); }
-  .gx > .seats > .rival-stall.rival-stall { flex: none; min-height: 52px; padding: 4px 10px 4px 4px; gap: 8px; }
   /* a rival's stall opens under the pills, in the column (the column scrolls if it has to) */
-  .gx .seats .rival-drop { flex: none; max-height: none; overflow: visible; }
-  .gx > .my-stall.dock { border-left: 2px solid var(--x-ink); }
   .gx .dock .chip.buys, .gx .dock .ms-prop { display: inline-flex; }
   .gx .dock .ms-prop { position: static; width: 26px; height: 26px; }
-  .gx > .actionbar, .gx > .centre > .pp-lock { flex-wrap: wrap; justify-content: stretch; border-left: 2px solid var(--x-ink); }
   .gx > .actionbar > * { max-width: none; }
   .gx > .actionbar .buy-hint { order: -1; flex: 1 1 100%; }
   .gx > .centre > * { margin: 10px var(--gx-pad); }
-  .gx > .centre > .mid-panel.price-panel, .gx > .centre > .morning-card, .gx > .centre > .sales-card, .gx > .centre > .mid-evening { width: min(100% - 2 * var(--gx-pad), 560px); justify-self: center; }
   /* stocking and pricing have room on a desktop: bigger words and buttons */
-  .gx .mid-panel .read { font-size: 0.7rem; }
   .gx .mid-panel .pc-num { min-width: 48px; font-size: 1.5rem; }
   .gx .mid-panel .info-card.small { font-size: 0.8rem; }
 }
@@ -859,25 +728,16 @@ b, strong { font-weight: 700; }
 .rush .rs-card { --card-w: 7rem; transform-origin: 0 0; }
 /* the card back in its row: while it is up in the pop-up its slot closes (the queue slides together, no gap), then it
    comes back ticked (PLAN-065) */
-@media not all and (min-width: 900px) and (min-height: 560px) {
-  .gx .street .cust.cust { transition: width .3s ease, margin .3s ease, opacity .2s ease; }
-  .gx .street .cust.cust.rush-away { width: 0; margin-right: -6px; opacity: 0; overflow: hidden; }
-}
-.game .street .cust .rush-tick {
-  transform: translate(-50%, -50%); border: 2px solid var(--x-ink); animation: stamp 0.26s steps(3);
-}
 @media (min-width: 900px) and (min-height: 560px) {
   .rush .rs-card { --card-w: 8.5rem; }
 }
 /* a rival's opened stall on a desktop: Archivo's wider chips wrap to one more row, so the rows sit a little closer */
 @media (min-width: 900px) and (min-height: 560px) {
   .gx .rival-drop .stk { row-gap: 4px; }
-  .gx .rival-drop .rd-extra { margin-top: 3px; }
 }
 
 /* ---------- pricing at the bell (PLAN-059): the demand board, every stall's crate, the price bubble ---------- */
-.pp-info { flex: none; border: 2px solid var(--x-ink); background: var(--x-paper); color: var(--x-ink); }
-.pp-info:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
+.pp-info { background: var(--x-paper); }
 
 .crates { flex: none; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(60px, 1fr); gap: 12px 8px; padding-top: 8px; }
 .crate { position: relative; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 12px 12px 6px;
@@ -889,13 +749,8 @@ b, strong { font-weight: 700; }
 .crate.me { box-shadow: inset 0 0 0 3px var(--x-wood-d), 0 3px 0 var(--x-ink), 0 0 0 3px var(--x-mustard); }
 
 /* ---------- filling your crate (rules 12, PLAN-060): the shelf drawn like the market, − and + on each space ---------- */
-.crate-piece { border-radius: 50%; animation: piece-in .35s cubic-bezier(.3,1.8,.5,1); }
-.crate-piece.st-notso { border-color: var(--c-db8a6c); background: var(--x-paper); }
 @keyframes piece-in { from { transform: scale(.2); } to { transform: none; } }
-.mini-step { position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%); z-index: 1; border-radius: 999px; background: var(--x-ink); color: var(--x-paper); }
-.mini-step button { border: 0; border-radius: 999px; }
-.mini-step button:focus-visible { outline: 2px solid var(--x-mustard); }
-.mini-step b { min-width: 12px; text-align: center; font: 900 0.74rem/1 var(--f-label); }
+.mini-step { background: var(--x-ink); }
 
 /* the crates land on the table, rivals' lids open when pricing starts, the demand board drops in */
 .crates .crate { animation: crate-drop .55s cubic-bezier(.3,1.5,.5,1) both; }
@@ -908,7 +763,6 @@ b, strong { font-weight: 700; }
 /* flow A: a rival's place stays an empty spot until they open; their crate then drops in straight away */
 .crates.waiting .crate { animation-delay: 0s; }
 /* the pricing table follows straight on from Fill your stall: no fade, so the market never shows through in between */
-.gx > .centre > .mid-panel.price-panel:not(.stall-panel) { animation: none; }
 
 /* "The Bell" notice: a paper notice pinned over the market */
 .bell-notice { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px 16px; animation: fade 0.2s ease-out; }
@@ -937,9 +791,6 @@ b, strong { font-weight: 700; }
 .link-btn { border: 0; background: none; padding: 4px; font: 600 0.85rem/1.2 var(--f-label); color: var(--x-slate); text-decoration: underline; cursor: pointer; }
 
 /* ---------- standing orders (rules 14) ---------- */
-.order-strip { flex-wrap: wrap; margin: 4px 8px 0; border: 1.5px solid var(--x-ink); border-radius: var(--r); }
-.order-strip.due { background: var(--hi-bg); }
-.order-strip.mine { border-width: 2.5px; }
 .os-fine { color: var(--ink-muted); font-weight: 500; }
 
 /* ---------- Market Ticket buttons outside the game table (PLAN-070). The game table itself is drawn in ticket.css

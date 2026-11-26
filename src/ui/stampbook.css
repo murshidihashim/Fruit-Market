@@ -58,13 +58,7 @@
 .sbk .sbk-pg i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--k-ink); }
 
 /* the signboard: your stall's name, your title and your level, in the frame you have on */
-.sbk .sbk-sign { margin: 10px 12px 0; border: 2px solid var(--k-ink); outline: 2px solid var(--k-ink); outline-offset: 3px; display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--k-paper); min-width: 0; }
-.sbk .sbk-sign .sbk-pic { width: 56px; height: 56px; flex: none; border: 2px solid var(--k-ink); box-sizing: border-box; overflow: hidden; background: var(--k-kraft); }
 .sbk .sbk-pic img.sbk-scene { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; display: block; }
-.sbk .sbk-sign-tx { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.sbk .sbk-sign h2 { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; overflow-wrap: anywhere; }
-.sbk .sbk-sign .sbk-lvl { margin-left: auto; text-align: center; flex: none; }
-.sbk .sbk-sign .sbk-lvl b { display: block; font: 400 1.875rem/1 var(--f-display); }
 /* frames (simple line work): the first is a single rule; each rank adds to it */
 .sbk .fr-plain { outline: 0; }
 .sbk .fr-brass { box-shadow: 0 0 0 7px var(--k-ink); }

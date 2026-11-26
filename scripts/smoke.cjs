@@ -94,7 +94,7 @@ const path = require('path');
     if (await has('button:has-text("Lights out")')) {
       if (once('evening')) await shot('08-evening');
       await page.click('button:has-text("Lights out")');
-      if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); }
+      if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); if (await has('.game.is-night')) layout.push(...await checkLayout(page, 'night')); else layout.push('night: the night was not up'); }
       continue;
     }
     for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
