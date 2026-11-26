@@ -348,14 +348,13 @@ describe('fitting the sheet', () => {
     const css = read('src/ui/takings.css');
     expect(TIGHTEST).toBe(4);
     for (let step = 1; step <= TIGHTEST; step++) expect(css).toMatch(step === 1 ? /\.sales-card\[data-tight\] / : new RegExp(`\\[data-tight='${step}'\\]`));
-    expect(css).toContain('#app .tkt > .centre > .sales-card {\n  z-index: 6; margin-top: calc(0px - var(--rise, 0px)); margin-bottom: calc(0px - var(--drop, 0px));');
+    // (over the rows, z-index 6, and no CSS animation or transition of its own: read in the browser at the takings,
+    // scripts/layout-check.cjs, PLAN-130)
     const src = read('src/ui/game/panels/SalesSummary.tsx');
     expect(src).toContain("useReach(root, 'street', true, true, closerOnceSeen)");
     // the stylesheet comes after the table's and the other sheets', so its rules win
     const main = read('src/main.tsx');
     expect(main.indexOf("import './ui/takings.css'")).toBeGreaterThan(main.indexOf("import './ui/sheets.css'"));
     expect(main.indexOf("import './ui/takings.css'")).toBeGreaterThan(main.indexOf("import './ui/ticket.css'"));
-    // only position, size and fade move on the table, and this sheet adds no move of its own
-    expect(css).not.toMatch(/animation|transition|@keyframes/);
   });
 });

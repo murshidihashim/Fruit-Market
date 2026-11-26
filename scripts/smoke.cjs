@@ -81,7 +81,7 @@ const path = require('path');
       await page.click('.coach .btn:not(.skip)'); continue;
     }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
-    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { if (once('stocking-check')) { await page.waitForTimeout(500); await look('stocking'); } await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { if (once('stocking-check')) { await page.waitForTimeout(500); await look('stocking'); layout.push(...await checkLayout(page, 'stocking')); } await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
     // The Favoured Trade step (rules 18): a stall that holds the card and has a tied price is asked after the flip,
     // with two buttons, "Play it" and "Keep it" (PLAN-081: the one-button step below used to stop here for good).
     // Play it the first time and keep it the next, so both answers are played.
@@ -107,7 +107,7 @@ const path = require('path');
       if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); if (await has('.game.is-night')) layout.push(...await checkLayout(page, 'night')); else layout.push('night: the night was not up'); }
       continue;
     }
-    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); layout.push(...await checkLayout(page, 'takings')); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
     } catch {

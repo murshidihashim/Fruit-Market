@@ -10,6 +10,8 @@
 //           your shelf's chips move on one curve, the night's (tableModel.ts NIGHT_EASE), and so do tomorrow's cards
 //           walking into the row while they walk.
 //   'rush'  also: a crate's price tag is drawn through a filter (the reason each tag is keyed by its price, iOS).
+//   'stocking', 'takings'  the day's sheet and the takings add no CSS animation of their own (the sheet moves them,
+//           sheet.ts), the day's sheet fades at most; the takings lie over the table's rows (z-index 6).
 
 const PHONE_AREAS = '"top" "net" "street" "mid" "rivals" "dock" "act"';
 
@@ -80,6 +82,24 @@ async function checkLayout(page, moment) {
     expect(curves.piece === NIGHT_EASE, `the lanes' pieces slide on the night's curve (${curves.piece})`);
     expect(curves.chip === null || curves.chip === NIGHT_EASE, `your shelf's chips slide on the night's curve (${curves.chip})`);
     expect(curves.walk === null || curves.walk === NIGHT_EASE, `tomorrow's cards walk on the night's curve (${curves.walk})`);
+  }
+  if (moment === 'stocking' || moment === 'takings') {
+    const sel = moment === 'stocking' ? '.game > .centre > .sh-day.own' : '.game > .centre > .sales-card';
+    const got = await page.evaluate((sel) => {
+      const card = document.querySelector(sel);
+      if (!card) return null;
+      const cs = getComputedStyle(card);
+      const moving = [card, ...card.querySelectorAll('*')].filter((e) => getComputedStyle(e).animationName.split(', ').some((n) => n !== 'none')).map((e) => `${e.className}`.split(' ')[0]);
+      return { z: cs.zIndex, moving, transition: `${cs.transitionProperty} ${cs.transitionDuration}` };
+    }, sel);
+    expect(got, `${sel} is on the table`);
+    if (got) {
+      // (the day's sheet reaches over the rows only on a short phone; the takings always do)
+      if (moment === 'takings') expect(got.z === '6', `${sel} lies over the rows (z-index ${got.z})`);
+      expect(!got.moving.length, `nothing in ${sel} has a CSS animation of its own (${got.moving.slice(0, 4).join(' ')})`);
+      const fade = /^(all 0s|opacity [\d.]+m?s)$/.test(got.transition);
+      expect(moment === 'stocking' ? fade : got.transition === 'all 0s', `${sel} moves by nothing of its own but a fade (${got.transition})`);
+    }
   }
   return fails;
 }
