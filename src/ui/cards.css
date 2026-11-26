@@ -426,9 +426,6 @@
 .cd-pop .cd-pop-btns .btn.ghost { background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink); }
 .cd-pop-hint { align-self: center; color: var(--x-paper); font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 
-/* picking a shopkeeper: the cards of the carousel are the picker's width (screens.css) */
-.cp-card { --card-w: 14.75rem; }
-
 /* PLAN-116 (REP-133 B-08): a small card off the table (Home, the set-up screen, the Quick match wait) opens whole on a
    tap (cardZoom.tsx). Over the whole screen, above a pop-up; a shopkeeper's card is drawn wider than a customer's. */
 .card-zoom { cursor: zoom-in; }

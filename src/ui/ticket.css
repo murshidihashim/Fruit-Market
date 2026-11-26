@@ -356,6 +356,5 @@
 #app .tkt .event-sheet { justify-content: flex-start; gap: 12px; padding: 16px 12px; background: var(--tk-paper); color: var(--tk-ink); }
 #app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
 /* a customer's own ticket, large (tap a ticket) */
-#app .tkt .tip-pop.tip-card-pop { padding: 12px; gap: 10px; }
 #app .tkt .tk-cust.big { flex: none; width: min(100%, 250px); margin: 0 auto; box-shadow: 0 0 0 3px var(--tk-ink); }
 #app .tkt .coach > b { color: var(--tk-ink); font: 400 1rem/1.1 var(--tk-disp); text-transform: uppercase; }
