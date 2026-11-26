@@ -4955,10 +4955,6 @@
       "text": "PLAN-128 implemented (parts T and P merged as 7a6556f; verify PASS 1327; each part's browser run E2E OK with 0 leaks). Owner: \"push live\". Release candidate 1.31.4."
     },
     {
-      "at": "2026-11-25 02:00",
-      "text": "1.31.4 published on the owner's word: pull request #38 passed CI and merged as cc2342a; Deploy LIVE game run 52 passed and tagged v1.31.4; the live game serves 1.31.4 (index-E-_sWjyy.js). PLAN-128 released."
-    },
-    {
       "at": "2026-11-25 13:49",
       "text": "1.31.4 published on the owner's word: pull request #38 merged as cc2342a; Deploy LIVE game run 52 passed and tagged v1.31.4. PLAN-128 released."
     },
@@ -4989,6 +4985,10 @@
     {
       "at": "2026-11-27 07:35",
       "text": "Owner, after REP-141: \"push to live\". Release 1.32.0 prepared (PLAN-130) from branch ccr-d8bcd65d-gblqqb; it goes to main by pull request, CI runs verify:full (including the performance budget), then the live deploy."
+    },
+    {
+      "at": "2026-11-27 07:45",
+      "text": "Records correction: the branch's line \"2026-11-25 02:00\" (1.31.4 published, live bundle index-E-_sWjyy.js) had been merged into the middle of main's history, which CI's append-only check refused for release 1.32.0. It is moved out; the same publication is recorded in main's line of 2026-11-25 13:49."
     }
   ]
 }
