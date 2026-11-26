@@ -11,6 +11,7 @@ import { toStaticHtml } from '../src/ui/cards';
 import { introWords } from '../src/ui/DailyIntro';
 import { shortDate } from '../src/ui/dailyCard';
 import { PlayMenu, Shopfront, type ShopProps } from '../src/ui/Home';
+import { howTo } from '../src/ui/HowTo';
 import { MODES, resetModeVisit, saveMode, savedMode, startMode, waitWords } from '../src/ui/HomeCards';
 import { waitingGame } from '../src/ui/paused';
 import { leagueConfig } from '../src/ui/progress';
@@ -305,7 +306,9 @@ describe('PLAN-124 Home, the Stall and Rules tabs', () => {
     expect(opened).toEqual(['book', 'wardrobe']);
   });
 
-  it('the Rules tab is How to play, inside the tab (no Close: the bar leaves it)', () => {
+  it('the Rules tab is How to play, inside the tab (no Close: the bar leaves it)', async () => {
+    // REP-140 A-08: How to play is loaded on demand; App opens the tab once its code is here (onDemand.tsx)
+    await howTo.load();
     const html = home({}, { tab: 'rules' });
     expect(html).toContain('class="jh-shell jh-on-rules"');
     expect(html).toContain('class="page howto tk-page howto-tab"');

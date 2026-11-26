@@ -1,7 +1,6 @@
 // PLAN-116, part B (REP-133): the screens, online and polish fixes that have logic or words behind them.
 import { describe, expect, it } from 'vitest';
 import { h } from 'preact';
-import { readFileSync } from 'node:fs';
 import { CARDS } from '../src/ui/achievements';
 import { toStaticHtml } from '../src/ui/cards';
 import { nextFocus } from '../src/ui/focusTrap';
@@ -31,15 +30,9 @@ describe('B-04: Tab and Shift-Tab go round a pop-up', () => {
   it('with nothing to focus, stays on the pop-up', () => {
     expect(nextFocus(0, -1, false)).toBeNull();
   });
-  it('every pop-up keeps focus: Popup, the game menu, the full-screen question, the first-time pop-up, a whole card', () => {
-    const src = (f: string) => readFileSync(f, 'utf8');
-    expect(src('src/ui/Home.tsx')).toMatch(/export function Popup[\s\S]{0,300}useFocusTrap\(box, onClose\)/);
-    expect(src('src/ui/game/panels/Popovers.tsx').match(/<TrapBox class="modal center game-menu"/g)).toHaveLength(2);
-    expect(src('src/ui/FullScreenButton.tsx').match(/<TrapBox class="modal center fs-ask"/g)).toHaveLength(2);
-    expect(src('src/ui/FirstTime.tsx')).toContain('useFocusTrap(box)');
-    expect(src('src/ui/Trophies.tsx')).toContain('useFocusTrap(ref, onClose)');
-    expect(src('src/ui/cardZoom.tsx')).toContain('<TrapBox');
-  });
+  // "Every pop-up keeps focus" (Popup, the first-time and Market Day pop-ups, a stamp book card, a whole card, the
+  // full-screen question) is checked on the drawn pop-ups in popups-and-names.test.ts, and the game menu's two boxes in
+  // a browser by scripts/e2e-public.cjs (REP-140 A-01: no longer read from the source text).
 });
 
 describe('B-05: the invite line counts the stalls still free', () => {
@@ -68,7 +61,7 @@ describe('B-17: one set of words', () => {
     expect(tieOrderLine(g, 9)).toBe(`Ties: ${TIE_ORDER}.`);
     expect(toStaticHtml(h(BellNotice, { onClose: () => undefined }))).toContain(`Ties: ${TIE_ORDER_CARD}.`);
     expect(TIPS.find((t) => t.id === 'reveal')?.text).toContain(`Ties: ${TIE_ORDER_CARD} in today's buying.`);
-    expect(readFileSync('src/ui/HowTo.tsx', 'utf8')).toContain("Otherwise ties go: {TIE_ORDER} in today's buying.");
+    // How to play's Try a sale words it the same way: checked on the drawn page in howto-pages.test.ts ("the tie wording")
     // the price practice: a tie (no favour cards there)
     for (let n = 0; n < 60; n++) {
       const r = practiceRound(n);
@@ -78,13 +71,8 @@ describe('B-17: one set of words', () => {
     throw new Error('no tie among the first 60 practice rounds');
   });
 
-  it('the old wordings are gone from the screens', () => {
-    for (const f of ['src/ui/panel.tsx', 'src/ui/tutorial.ts', 'src/ui/HowTo.tsx', 'src/ui/practice.ts']) {
-      const src = readFileSync(f, 'utf8');
-      expect(src).not.toContain('whoever bought');
-      expect(src).not.toContain('fresher fruit, then');
-    }
-  });
+  // "The old wordings are gone from the screens": checked on what How to play, the tips, the price practice and the bell
+  // card say, in howto-pages.test.ts ("the tie wording"; REP-140 A-01: no longer read from the source text).
 
   it('"Every mode" names today\'s modes', () => {
     const card = CARDS.find((c) => c.id === 'explorer')!;
@@ -92,12 +80,6 @@ describe('B-17: one set of words', () => {
     expect(card.steps[0].text).not.toContain('New game');
   });
 
-  it('the stamp book is called the stamp book', () => {
-    // PLAN-121: an icon button on your stall (HomeCards.tsx), named with its stamps for a screen reader
-    const stall = readFileSync('src/ui/HomeCards.tsx', 'utf8');
-    expect(stall).toContain('aria-label={`Stamp book, ${buttons.filled} of ${buttons.size} stamps`}');
-    expect(stall).toContain('<span>Stamp book</span>');
-    expect(readFileSync('src/ui/game/panels/Results.tsx', 'utf8')).toContain("'Open your stamp book'");
-    expect(readFileSync('src/ui/Trophies.tsx', 'utf8')).toContain("?? 'Stamp book'");
-  });
+  // "The stamp book is called the stamp book" (PLAN-121: the icon button on your stall, named with its stamps; its page;
+  // the last League stage's results) is checked on the drawn screens in popups-and-names.test.ts (REP-140 A-01).
 });

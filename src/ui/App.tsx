@@ -10,26 +10,22 @@ import { DailyIntro, type DailyKind } from './DailyIntro';
 import { startOrAsk, waitingGame } from './paused';
 import { vsComputerConfig } from './playMenu';
 import { counterMode } from './modes';
-import { LocalSetup } from './Setup';
 import { asShopkeeper } from './playAs';
 import { prewarmSprites } from './icons';
-import { Game } from './Game';
 import { Opening } from './Opening';
-import { AccountPanel } from './AccountPanel';
-import { Wardrobe } from './Wardrobe';
 import { worn } from './looks';
-import { Online } from './Online';
 import { CODE_LENGTH, normaliseCode } from '../net/protocol';
 import { openMatch } from '../net/client';
 import { fx } from './fx';
 import { setStill } from './motion';
-import { FullscreenPrompt } from './FullScreenButton';
 import { shouldAskFullscreen } from './fullscreen';
 import { track } from '../net/telemetry';
 import { LEAGUE, finishGame, leagueConfig, leagueStage } from './progress';
-import { TrophyScreen } from './Trophies';
-import { LeagueScreen } from './League';
-import { SettingsScreen } from './Settings';
+import { LocalSetup } from './Setup';
+import { Wardrobe } from './Wardrobe';
+import { accountPanel, fullscreenPrompt, gameScreen, leagueScreen, onlineScreen, settingsScreen, trophyScreen } from './lazyScreens';
+import { howTo } from './HowTo';
+import { preloadWhenIdle, whenReady, type OnDemand } from './onDemand';
 import { androidBack, browserBack, isAway, rematchOf, startOverTo, withGame, type BackStep, type NavState, type PopupKind, type Screen } from './appNav';
 import { clearGame, consumeSaveNotice, loadGames, loadName, loadSettings, nameOrDefault, saveGame, slotOf, todayKey, type SaveSlot } from './store';
 
@@ -62,6 +58,11 @@ export function dropRoomFromAddress() {
 // The shopkeeper drawing used in the daily challenge and the league (the person there still picks a perk).
 const HUMAN_AVATARS = ['🧑‍🍳', '👩‍🍳', '🦸', '🐵']; // emoji-ok: avatar keys, never shown
 const newSeed = () => (Math.random() * 2 ** 31) >>> 0;
+/** REP-140 A-08: the screens loaded on demand (lazyScreens.ts), by the screen that shows them. */
+const ON_DEMAND: Partial<Record<Screen, Pick<OnDemand<never>, 'open'>>> = {
+  game: gameScreen, online: onlineScreen, quick: onlineScreen, league: leagueScreen, trophies: trophyScreen, wardrobe: trophyScreen,
+  settings: settingsScreen,
+};
 const myName = () => nameOrDefault(loadName());
 
 // The market opening plays once, when the game is first opened. Automated browser tests skip it. Right after it, the
@@ -184,10 +185,12 @@ function useNav(first: Screen) {
   // PLAN-123: a game was opened in this visit (the fullscreen question waits for the way back to Home from one).
   const [played, setPlayed] = useState(false);
   useEffect(() => { if (screen === 'game') setPlayed(true); }, [screen]);
-  const go = (sc: Screen) => { fx.tap(); setScreen(sc); };
+  const go = (sc: Screen) => { fx.tap(); show(sc); };
+  /** REP-140 A-08: a screen loaded on demand opens once its code is here (onDemand.tsx whenReady). */
+  const show = (sc: Screen) => whenReady(ON_DEMAND[sc], () => setScreen(sc));
   const open = (p: PopupKind) => { fx.tap(); setPopup(p); };
   const state: NavState = { screen, homeTab, popup, swap: !!swap, from };
-  return { ...state, swapAsk: swap, played, setScreen, setHomeTab, setPopup, setSwap, setFrom, go, open };
+  return { ...state, swapAsk: swap, played, setScreen, setHomeTab, setPopup, setSwap, setFrom, go, show, open };
 }
 type Nav = ReturnType<typeof useNav>;
 type Saves = ReturnType<typeof useSaves>;
@@ -202,7 +205,7 @@ function useRun(nav: Nav, saves: Saves, entry: OnlineEntry) {
   const [introKind, setIntroKind] = useState<DailyKind>('daily');
   const [contSlot, setContSlot] = useState<SaveSlot>('play');
   const { games } = saves;
-  const start = (cfg: GameConfig) => { saves.begin(cfg); nav.setScreen('game'); };
+  const start = (cfg: GameConfig) => { saves.begin(cfg); nav.show('game'); };
   const startDaily = () => start(dailyConfig(todayKey(), myName(), HUMAN_AVATARS[0]));
   // PLAN-114: the day's Market Sprint. Its results' Try again starts the same Sprint (the same date) at once.
   const startSprint = (date = todayKey()) => start(sprintConfig(date, myName(), HUMAN_AVATARS[0]));
@@ -230,7 +233,7 @@ function useRun(nav: Nav, saves: Saves, entry: OnlineEntry) {
     const next = rematchOf(cfg, cleared, leagueStage(), LEAGUE.length);
     if (next.kind === 'sprint') { track('sprint_retry'); startSprint(next.date); }
     else if (next.kind === 'home') { saves.dropFinished(); nav.setScreen('home'); }
-    else if (next.kind === 'trophies') { saves.dropFinished(); nav.setScreen('trophies'); }
+    else if (next.kind === 'trophies') { saves.dropFinished(); nav.show('trophies'); }
     else if (next.kind === 'league') startLeague(next.stage);
     else start({ ...cfg, seed: newSeed() });
   };
@@ -260,6 +263,9 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
   useEffect(() => { if (screen !== 'online') forget(); }, [screen, forget]);
   // Get the common sprites ready while the player is on the home screen.
   useEffect(() => prewarmSprites(), []);
+  // REP-140 A-08: the screens loaded on demand are fetched once the phone is idle, so they are there before a tap.
+  // The game first (a Continue may come at once); a screen that cannot be fetched now says so itself when opened.
+  useEffect(() => { void gameScreen.load().catch(() => undefined); preloadWhenIdle(); }, []);
   useBackButtons(nav, run.back);
   const { game, games } = saves;
   const toHome = () => nav.go('home');
@@ -268,7 +274,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
     case 'game':
       if (!game) break;
       return (
-        <Game
+        <gameScreen.Screen
           key={`${game.config.seed}-${game.config.daily ?? ''}-${saves.runs}`}
           initial={game}
           onChange={saves.onChange}
@@ -281,17 +287,17 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
           onSprint={game.config.league !== undefined ? () => {
             track('sprint_from_league');
             saves.dropFinished();
-            if (waitingGame(games.sprint ?? null)) { run.setIntroKind('sprint'); nav.setScreen('intro'); } else run.startSprint();
+            if (waitingGame(games.sprint ?? null)) { run.setIntroKind('sprint'); nav.show('intro'); } else run.startSprint();
           } : undefined}
         />
       );
-    case 'settings': return <SettingsScreen onBack={toHome} />;
+    case 'settings': return <settingsScreen.Screen onBack={toHome} />;
     // PLAN-113: the online screens go back to where they were opened from: the Play menu, or Home (an invite link, or
     // "Back to room").
-    case 'online': return <Online initialCode={entry.joinCode ?? entry.invite} typed={!!entry.joinCode} mode={entry.mode} onExit={() => nav.go(nav.from)} />;
+    case 'online': return <onlineScreen.Screen initialCode={entry.joinCode ?? entry.invite} typed={!!entry.joinCode} mode={entry.mode} onExit={() => nav.go(nav.from)} />;
     case 'quick':
       return (
-        <Online quick onExit={() => nav.go(nav.from)} onComputer={(avatar, stalls) => {
+        <onlineScreen.Screen quick onExit={() => nav.go(nav.from)} onComputer={(avatar, stalls) => {
           const yes = () => run.start(vsComputerConfig(myName(), avatar, newSeed(), undefined, stalls));
           if (waitingGame(games.play ?? null)) { nav.setScreen('home'); nav.setSwap({ slot: 'play', what: 'a game against the computer', go: yes }); } else yes();
         }} />
@@ -302,7 +308,7 @@ function Main({ askFullscreen, onAsked }: { askFullscreen: boolean; onAsked: () 
         <LocalSetup key={run.setup.mode} mode={run.setup.mode} days={run.setup.days} onBack={() => nav.go(nav.from)}
           onStart={(c, d) => { run.setSetup((s) => ({ ...s, days: d })); run.start(c); }} />
       );
-    case 'trophies': return <TrophyScreen onBack={toHome} />;
+    case 'trophies': return <trophyScreen.Screen onBack={toHome} />;
     case 'wardrobe': return <Wardrobe onBack={toHome} />;
     default: break;
   }
@@ -341,8 +347,8 @@ function OverHome({ nav, saves, run, askFullscreen, onAsked }: { nav: Nav; saves
             onStart={() => { const { go: yes } = swap; nav.setSwap(null); yes(); }} />
         </Popup>
       )}
-      {nav.popup === 'account' && <Popup title="Account" onClose={close}><AccountPanel onChange={() => refresh((n) => n + 1)} /></Popup>}
-      {askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && <FullscreenPrompt onClose={onAsked} />}
+      {nav.popup === 'account' && <Popup title="Account" onClose={close}><accountPanel.Screen onChange={() => refresh((n) => n + 1)} /></Popup>}
+      {askFullscreen && nav.played && nav.screen === 'home' && !nav.popup && !swap && <fullscreenPrompt.Screen onClose={onAsked} />}
     </>
   );
 }
@@ -355,7 +361,7 @@ function HomeBody({ nav, saves, run }: { nav: Nav; saves: Saves; run: Run }) {
   if (nav.screen === 'league') {
     // PLAN-113: the Market League has a screen of its own (the stage you are on and every stage); its Play button
     // starts the stage, asking first when a game is waiting. PLAN-115: a cleared stage can be played again for its stars.
-    return <LeagueScreen onBack={toHome} onPlay={(stage) => run.orAsk('league', 'a Market League game', () => run.startLeague(stage))()} />;
+    return <leagueScreen.Screen onBack={toHome} onPlay={(stage) => run.orAsk('league', 'a Market League game', () => run.startLeague(stage))()} />;
   }
   if (nav.screen === 'intro') {
     const kind = run.introKind;
@@ -376,7 +382,7 @@ function HomeBody({ nav, saves, run }: { nav: Nav; saves: Saves; run: Run }) {
       today={today}
       notice={saves.notice}
       tab={nav.homeTab}
-      onTab={(t) => { if (t !== nav.homeTab) fx.tap(); nav.setHomeTab(t); }}
+      onTab={(t) => { if (t !== nav.homeTab) fx.tap(); whenReady(t === 'rules' ? howTo : undefined, () => nav.setHomeTab(t)); }}
       onContinue={run.resume}
       onNewGame={(slot) => { run.setContSlot(slot); nav.open('newgame'); }}
       onPlay={() => nav.go('play')}
@@ -389,7 +395,7 @@ function HomeBody({ nav, saves, run }: { nav: Nav; saves: Saves; run: Run }) {
       onSprint={() => run.openIntro('sprint')}
       onLeague={() => nav.go('league')}
       onWardrobe={() => nav.go('wardrobe')}
-      onAccount={() => nav.open('account')}
+      onAccount={() => { fx.tap(); whenReady(accountPanel, () => nav.setPopup('account')); }}
       onTrophies={() => nav.go('trophies')}
       onSettings={() => nav.go('settings')}
       room={openMatch()}

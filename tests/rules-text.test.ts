@@ -6,7 +6,7 @@ import { beginBuying, newGame } from '../src/engine/game';
 import { SEEN_WALK_IN, marketColumn, shownColumn } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { CustomerChar, Market } from '../src/ui/table';
-import { FruitLane } from '../src/ui/HowTo';
+import { FruitLane } from '../src/ui/howtoRules';
 import { marketDaysSetupText, unripeSetupText } from '../src/ui/rulesText';
 
 // Set-up text and green fruit (REP-089 3.7): since rules 9 only mangoes arrive green, at $4 ($5 on a Price Hike day).

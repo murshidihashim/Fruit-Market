@@ -18,7 +18,7 @@ import { snapshot, syncTiers } from './progress';
 import { RoofBand } from './icons';
 import { BackArrow, LookSwatch, Pip, StallPic, StampGrid, TrophyPic, myColour, stallName } from './stampCard';
 import { MAX_LEVEL, RANKS, REWARDS, TIER_STAMPS, nextReward, placeOf, progressWords, rewardBuilt, type Place } from './stamps';
-import { WardrobeTab } from './Wardrobe';
+import { WardrobeTab } from './WardrobeTab';
 
 export type TrophyTab = 'book' | 'cards' | 'collection' | 'wardrobe';
 const TABS: { id: TrophyTab; title: string; head: string }[] = [

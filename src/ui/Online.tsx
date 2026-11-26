@@ -6,7 +6,8 @@
 // the "?" seats, the table size) and its wait, the Private Room page (open a room, join with a code), the room (its code,
 // the seats as small cards, the length) and the pick screen (the deck; the seats' status as small cards).
 // REP-140 A-02: the room is OnlineRoom.tsx, the wait OnlineWait.tsx, the pick screen OnlinePick.tsx, the words
-// onlineWords.ts; this file holds the pages before a room is open and the way into the room.
+// onlineWords.ts; this file holds the pages before a room is open and the way into the room. REP-140 A-08: these screens
+// are loaded on demand (lazyScreens.ts, which also holds their styles, journey-online.css).
 import { useEffect, useState } from 'preact/hooks';
 import { createRoom, forgetMatch, hasSeat, OnlineClient, onlineAvailable, publicRooms, quickMatch, rememberMatch } from '../net/client';
 import { track } from '../net/telemetry';
@@ -16,7 +17,6 @@ import { Game } from './Game';
 import { fitName, loadName, saveName } from './store';
 import { DEFAULT_LENGTH_NOTE, QUICK_NOTE, QUICK_SIZES, QUICK_STALLS, isQuickStalls, wayLine, wayName, type QuickStalls } from './playMenu';
 import { Deck, OpenCard, SbGo, SbLabel, SbPage, SeatCard, Seg, TableRow } from './Setup';
-import './journey-online.css';
 import { myAvatar, saveAvatar, syncLooks, worn } from './looks';
 import { syncTiers } from './progress';
 import { Lobby } from './OnlineRoom';

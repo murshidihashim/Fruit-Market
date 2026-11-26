@@ -13,7 +13,7 @@ import { ALL_STAGES } from '../src/ui/campaign';
 import { DailyIntro } from '../src/ui/DailyIntro';
 import { StartOverBody } from '../src/ui/Home';
 import { HeroCard, resetModeVisit } from '../src/ui/HomeCards';
-import { HowTo } from '../src/ui/HowTo';
+import { HowTo } from '../src/ui/HowToBook';
 import { LeagueView } from '../src/ui/League';
 import { setupAvatar, shownAvatar, worn } from '../src/ui/looks';
 import { FramedFace } from '../src/ui/stampCard';
