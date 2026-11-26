@@ -38,7 +38,6 @@
 .rx-btn:focus-visible { outline: 3px solid var(--x-mustard); outline-offset: 2px; }
 
 /* the choices */
-.rx-pick .popup { width: min(360px, calc(100vw - 32px)); }
 .rx-grid { display: grid; gap: 8px; margin-top: 10px; }
 .rx-grid.emoji { grid-template-columns: repeat(4, 1fr); }
 .rx-grid.line { grid-template-columns: repeat(2, 1fr); }
@@ -51,7 +50,6 @@
 .rx-note { margin: 10px 0 0; text-align: center; }
 
 /* the lobby: a tap on another person's row opens their mute switch under it */
-.seat-mute { display: flex; justify-content: flex-end; margin: -2px 0 2px; }
 .rx-mute {
   flex: none; min-height: 44px; padding: 2px 12px; border: 2px solid var(--x-ink); border-radius: 999px; background: var(--x-paper);
   color: var(--x-ink); font: 600 0.75rem/1 var(--f-body); cursor: pointer;
@@ -66,8 +64,7 @@
   grid-area: dock; align-self: start; justify-self: end; position: relative; z-index: 6; margin: 4px 8px 0 0;
   width: 38px; height: 38px; font-size: 1.15rem; box-shadow: 0 2px 0 rgba(24, 40, 68, 0.25);
 }
-#app .game > .rx-btn.rx-game::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
-#app .game:has(> .rx-game) > .my-stall .tb-dock-head, #app .game:has(> .rx-game) > .my-stall .tb-chips { padding-right: 54px; }
+.game > .rx-btn.rx-game::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
 .rd-mute { display: flex; justify-content: flex-end; margin-top: 6px; }
 
 /* the results: the button stands at the end of the row of Share and Home, at the foot (PLAN-116, REP-133 B-11: in the top

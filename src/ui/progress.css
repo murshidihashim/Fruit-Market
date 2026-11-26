@@ -1,3 +1,5 @@
+.sbk .sbk-sub { color: var(--k-slate); }
+
 /* =====================================================================
    The progress screens in the redesigned market style (PLAN-113): the results and Rematch, the Market League, the
    stamp book and the Wardrobe. Loaded after stampbook.css (stampCard.tsx), whose ".sbk" root and colours it builds
@@ -48,17 +50,17 @@
 
 /* round portraits (the results tiles, the league): the signboard frame stays, drawn round the circle */
 .jp-pod .sbk-face, .jp-lg .sbk-face, .jp-stall .sbk-face { border-radius: 50%; padding: 0; border-width: 2px; }
-.jp-pod .sbk-face .xf, .jp-pod .sbk-face .xf-img, .jp-pod .sbk-face .xf-clip,
-.jp-lg .sbk-face .xf, .jp-lg .sbk-face .xf-img, .jp-lg .sbk-face .xf-clip,
-.jp-stall .sbk-face .xf, .jp-stall .sbk-face .xf-img, .jp-stall .sbk-face .xf-clip { border-radius: 50%; }
+.jp-pod .sbk-face .xf, .jp-pod .sbk-face .xf-img, .jp-pod .sbk-face .xf-clip, .jp-lg .sbk-face .xf, .jp-lg .sbk-face .xf-img, .jp-lg .sbk-face .xf-clip, .jp-stall .sbk-face .xf, .jp-stall .sbk-face .xf-img, .jp-stall .sbk-face .xf-clip { border-radius: 50%; }
 .jp-round { display: inline-flex; flex: none; border: 2px solid var(--c-1f272a); border-radius: 50%; background: var(--c-efe9df); line-height: 0; }
 
 /* ---------- the stamp card: rows of eight on the first rank's card, a red stamp with a star ---------- */
-.sbk .sbk-grid.c8 { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
-.sbk .sbk-cell { border: 2px dashed var(--c-5a6266); position: relative; }
-.sbk .sbk-cell.s, .sbk .sbk-cell.n, .sbk-fly { border: 2px solid var(--c-1f272a); background: var(--c-e73c35); }
-.sbk .sbk-cell.n { box-shadow: 0 0 0 2px var(--c-fec400); }
-.sbk .sbk-cell.s::after, .sbk .sbk-cell.n::after, .sbk-fly::after {
+.sbk .sbk-cell {
+  aspect-ratio: 1; border-radius: 50%; box-sizing: border-box; display: block; border: 2px dashed var(--c-5a6266);
+  position: relative;
+}
+.sbk .sbk-cell.s, .sbk .sbk-cell.n { border: 2px solid var(--c-1f272a); background: var(--c-e73c35); }
+.sbk .sbk-cell.n { transform: rotate(-12deg); box-shadow: 0 0 0 2px var(--c-fec400); }
+.sbk .sbk-cell.s::after, .sbk .sbk-cell.n::after {
   content: ""; position: absolute; inset: 22%; background: var(--c-fffcf5);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 14.8 4.4 18.1l1.4-6.3L1 7.5l6.4-.6z'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 1l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L10 14.8 4.4 18.1l1.4-6.3L1 7.5l6.4-.6z'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -76,7 +78,6 @@
 .sbk .jp-bar:has(.jp-lv) { grid-template-columns: 48px 1fr auto; }
 .sbk .jp-tabs { border-bottom: 2px solid var(--k-ink); }
 .sbk .jp-tabs button { min-height: 44px; }
-.sbk .sbk-rk { min-height: 44px; }
 .sbk .jp-tabs button.on { background: var(--k-ink); color: var(--k-yel); }
 .sbk .jp-box { margin: 10px 12px 0; border: 2.5px solid var(--k-ink); padding: 9px 10px; background: var(--k-paper); display: flex; flex-direction: column; gap: 6px; }
 .sbk .jp-yel { color: var(--k-yel); }
@@ -117,10 +118,10 @@
 .sbk .jp-said { margin-top: 2px; text-align: center; font: 700 0.8125rem/1.3 var(--f-label); }
 .sbk .jp-acts .rematch-note { text-align: center; }
 /* the Daily board's share button (DailyResult.tsx sets 40px on the element): a 44px tap target on the results */
-.sbk .daily-result .sbk-btn.gh { min-height: 44px !important; }
 .sbk .jp-main { flex: none; width: 100%; min-height: 58px; background: var(--k-yel); color: var(--k-ink); box-shadow: inset 0 0 0 2.5px var(--k-ink), 0 4px 0 var(--k-ink); font-size: 1.5rem; }
 .sbk .jp-two { display: flex; gap: 8px; }
 .sbk .jp-sec { flex: 1 1 0; min-height: 44px; box-shadow: inset 0 0 0 2.5px var(--k-ink); text-align: center; font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.sbk .jp-sec.jp-to-sprint { flex: none; margin: 10px 12px 0; min-height: 48px; }
 
 /* ---------- the Market League ---------- */
 .sbk .jp-lg-now { margin: 12px 12px 0; padding: 12px 10px 10px; background: var(--k-ink); color: var(--k-paper); display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }

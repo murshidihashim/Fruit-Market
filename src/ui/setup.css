@@ -51,14 +51,13 @@
 .sb-seg button.on { background: var(--x-ink); color: var(--x-mustard); }
 .sb-seg button.on small { color: var(--x-paper); }
 .sb-seg button:disabled { cursor: default; }
-.sb-seg button:focus-visible, .sb-go:focus-visible, .sb-back:focus-visible, .sb-arrow:focus-visible, .sb-cin:focus-visible,
-.sb-add:focus-visible, .sb-x:focus-visible, .sb-btn:focus-visible, .sb-link:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: 2px; }
-
-/* the big button at the foot */
-.sb-foot { flex: none; margin-top: auto; padding-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+.sb-seg button:focus-visible, .sb-go:focus-visible, .sb-back:focus-visible, .sb-arrow:focus-visible, .sb-cin:focus-visible, .sb-add:focus-visible, .sb-x:focus-visible, .sb-btn:focus-visible, .sb-link:focus-visible { outline: 3px solid var(--x-sky-d); outline-offset: 2px; }
 /* REP-140 B-01: when the page is taller than the screen (a full table on a small phone, names on two lines), the big
    button stays at the foot of the screen while the rest scrolls under it */
-.sb-foot { position: sticky; bottom: 0; z-index: 2; background: var(--x-paper); }
+.sb-foot {
+  flex: none; margin-top: auto; padding-top: 4px; display: flex; flex-direction: column; gap: 8px; position: sticky;
+  bottom: 0; z-index: 2; background: var(--x-paper);
+}
 .sb-go {
   width: 100%; min-height: 58px; margin: 0 0 5px; padding: 0 12px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 0;
   background: var(--x-mustard); color: var(--x-ink); box-shadow: inset 0 0 0 3px var(--x-ink), 0 5px 0 var(--x-ink); cursor: pointer;
@@ -132,15 +131,15 @@ button.sb-cin:active { transform: translateY(2px); }
 @media (max-width: 359px) { .sb-row.crowded .sb-cttl { font-size: 0.6875rem; } }
 /* five or more cards in a row: room in every band for a name on two lines, so the pictures line up across the row */
 .sb-row.crowded .sb-cband { min-height: calc(0.76rem + 1px + 2.2 * clamp(0.6875rem, 3.4vw, 0.75rem) + 6px); box-sizing: border-box; }
-.sb-cpic {
-  flex: none; display: block; height: clamp(28px, 5.4vh, 44px); margin: 4px -6px 0; overflow: hidden;
-  border-top: 2px solid var(--x-ink); border-bottom: 2px solid var(--x-ink); background: var(--x-kraft); line-height: 0;
-}
 .sb-cpic img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sb-cface { height: 100%; display: grid; place-items: center; }
 .sb-cface .sbk-face { border-width: 2px; padding: 0; }
 .sb-cband { flex: none; display: flex; flex-direction: column; gap: 1px; margin-top: auto; padding: 3px 4px; min-width: 0; }
-.sb-cpic { margin-bottom: 5px; }
+.sb-cpic {
+  flex: none; display: block; height: clamp(28px, 5.4vh, 44px); margin: 4px -6px 0; overflow: hidden;
+  border-top: 2px solid var(--x-ink); border-bottom: 2px solid var(--x-ink); background: var(--x-kraft);
+  line-height: 0; margin-bottom: 5px;
+}
 .sb-cband small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.02em; text-transform: uppercase; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-cband b { font: 400 clamp(0.6875rem, 3.4vw, 0.75rem)/1.1 var(--f-display); overflow: hidden; text-overflow: ellipsis; }
 .sb-cband.b-y { background: var(--x-mustard); color: var(--x-ink); }
@@ -160,7 +159,7 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-two { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-top: 2px; }
 .sb-card.open.pick .sb-obig, .sb-card.open.pick .sb-osm { display: none; }
 /* B-11 (PLAN-130): on the open seat's kraft the pages' slate for small words is 4.2:1; ink is 11:1 */
-#app .sb-card.open .sb-osm { color: var(--x-ink); }
+.sb-card.open .sb-osm { color: var(--x-ink); }
 .sb-add {
   min-height: 26px; margin: 0; padding: 0 2px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
   cursor: pointer; font: 800 0.6875rem/1 var(--f-label); letter-spacing: -0.02em; text-transform: uppercase;
@@ -179,8 +178,8 @@ button.sb-cin:active { transform: translateY(2px); }
   cursor: pointer; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
 }
 .sb-code .sb-share button.go { background: var(--x-mustard); }
-.sb-me { display: flex; align-items: center; gap: 8px; font: 700 0.875rem/1.2 var(--f-label); }
 .sb-me .seat-name { display: flex; align-items: center; gap: 6px; }
+.seat-rename { text-decoration: underline; }
 .sb-me .seat-rename { margin: 0; padding: 4px 8px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink); font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; }
 .sb-me .seat-edit { width: 12ch; padding: 4px 6px; border: 2px solid var(--x-ink); border-radius: 0; font: 700 0.875rem/1.2 var(--f-label); }
 .sb-input { width: 100%; box-sizing: border-box; min-height: 44px; margin: 0; padding: 8px 10px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-paper); color: var(--x-ink); font: 800 1rem/1.2 var(--f-label); user-select: text; -webkit-user-select: text; }
@@ -224,20 +223,16 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-note.sb-first { margin-top: 0; }
 .sb-clock { font: 800 0.75rem/1 var(--f-label); font-variant-numeric: tabular-nums; color: var(--x-slate); }
 .sb-inv { text-align: left; margin-top: 3px; }
+.pr-list { display: flex; flex-direction: column; gap: 6px; }
 .sb .pr-list { display: flex; flex-direction: column; gap: 6px; }
-.sb .pr-row { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 10px; box-shadow: inset 0 0 0 2.5px var(--x-ink); }
+.pr-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb .pr-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .sb .pr-who b { font: 800 0.9375rem/1.2 var(--f-label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb .pr-who small, .sb .pr-n { font: 600 0.75rem/1.2 var(--f-label); color: var(--x-slate); }
+.sb .pr-who small { font: 600 0.75rem/1.2 var(--f-label); color: var(--x-slate); }
 .sb .pr-join { width: auto; min-width: 72px; }
-.sb .sb-lb .rx-btn { width: 44px; }
-.sb .seat-mute { margin-top: 6px; }
-.sb .net-strip { margin: 0 -14px; }
 /* a seat card is also the anchor of its person's reaction bubble (.seat-row, Reactions.tsx): none of the old row's look */
-#app .sb .sb-card.seat-row { display: flex; align-items: stretch; gap: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.sb .sb-card.seat-row { display: flex; align-items: stretch; gap: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
 #app .sb .sb-card.seat-row.on .sb-cin { box-shadow: inset 0 0 0 2.5px var(--x-ink), 0 0 0 3px var(--x-mustard); }
-/* the host's Start names who the room waits for: a long line, so a smaller size */
-.sb-go.jl-start { min-height: 52px; line-height: 1.05; padding: 6px 12px; }
 /* after the foot: what can wait under the buttons (the price practice) */
 .sb-after { flex: none; padding-top: 6px; }
 .sb-go.sb-go-s { min-height: 52px; font-size: 1.25rem; }
@@ -245,13 +240,15 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-go-row > * { flex: 1 1 0; min-width: 0; }
 .sb-go-row.two > .jl-ready { flex: 0 0 38%; }
 .sb-go-row .sb-btn { min-height: 52px; margin-bottom: 5px; }
-.sb-me { justify-content: space-between; }
+.sb-me {
+  display: flex; align-items: center; gap: 8px; font: 700 0.875rem/1.2 var(--f-label); justify-content: space-between;
+}
 .sb-me .jl-look { width: auto; min-height: 36px; padding: 0 12px; flex: none; }
-.sb .sb-lb .rx-btn { height: 32px; }
+.sb .sb-lb .rx-btn { width: 44px; height: 32px; }
 /* the room's open seats: the host's card holds its "+ Computer" button instead of the line */
 .sb-card.open.host .sb-osm { display: none; }
 .sb-card.open .sb-two .sb-add { min-height: 32px; }
-.sb-go.jl-start { font-size: 1.0625rem; }
+.sb-go.jl-start { min-height: 52px; line-height: 1.05; padding: 6px 12px; font-size: 1.0625rem; }
 @media (max-height: 599px) {
   .sb-lobby .sb-cpic { display: none; }
   .sb-lobby .sb-obig { margin-top: 2px; font-size: 1rem; }
@@ -263,5 +260,5 @@ button.sb-cin:active { transform: translateY(2px); }
 /* REP-140 B-21: on a tablet or computer screen the set-up pages keep Home's column (720px, home-cards.css), centred,
    while the lanes still run edge to edge. Phones are unchanged. */
 @media (min-width: 760px) {
-  #app .page.sb > .sb-hd, #app .page.sb > .sb-main { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+  .page.sb > .sb-hd, .page.sb > .sb-main { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
 }

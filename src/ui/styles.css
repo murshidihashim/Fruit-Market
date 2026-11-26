@@ -15,6 +15,9 @@
 @font-face { font-family: 'Ticket Display'; font-weight: 100 900; font-display: swap; src: url('../../node_modules/@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2') format('woff2'); }
 @font-face { font-family: 'Ticket Strong'; font-weight: 100 649; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff2') format('woff2'); }
 @font-face { font-family: 'Ticket Strong'; font-weight: 650 900; font-display: swap; src: url('../../node_modules/@fontsource/archivo/files/archivo-latin-800-normal.woff2') format('woff2'); }
+.game .street .cust.mystery.pickable { border-radius: 4px; }
+.game .street-wrap.lorry-here { display: flex; align-items: flex-end; }
+.game .street-wrap.lorry-here .street.street { flex: 1 1 auto; min-width: 0; padding-right: 26px; }
 /* =====================================================================
    Fruit Market · "Market Ticket" (PLAN-070), over the Great Fruit Exchange layout
    White ticket stock on a pale kraft page, rich black ink and rules, and the four
@@ -78,7 +81,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 p { margin: 0.4em 0; }
 img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .small { font-size: 0.85rem; }
-.muted, .dim { color: var(--muted); }
+.dim { color: var(--muted); }
 .spacer { flex: 1; }
 .center-text { text-align: center; }
 
@@ -92,11 +95,26 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; font-size: 0.82rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .chip.cash { color: var(--ink); }
 .avatar { display: inline-grid; place-items: center; }
-.avatar.xl { width: 120px; height: 120px; }
+.home.hm {
+  display: flex; flex-direction: column; background: var(--hm-paper); color: var(--hm-ink); color-scheme: light;
+  font-family: var(--f-label);
+}
+.home.hm button {
+  font: inherit; color: inherit; background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0;
+  margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0;
+}
+.home.hm button:focus-visible { outline: 3px solid var(--hm-yel); outline-offset: -3px; }
+/* !important: the hold must outrank each part's own animation, which would set it running */
+.hm-hold .home.hm * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  /* !important: no animation in Home's opening, whatever a part's own rule says */
+  .hm-intro .home.hm * { animation: none !important; }
+}
 
 /* ---------- home ---------- */
 .home { min-height: 100%; display: flex; flex-direction: column; }
 .home h1 { font-size: 2.8rem; color: var(--cream); text-shadow: 0 4px 0 var(--terra-d); letter-spacing: calc(1px * var(--ls, 1)); }
+.home.hm .save-notice { margin: 0 16px; border-radius: 0; }
 .save-notice { margin: 0; padding: 8px 12px; font-size: 0.85rem; }
 .btn.daily { flex-direction: column; gap: 0; }
 .btn.daily small { font-weight: 400; font-size: 0.8rem; }
@@ -104,19 +122,22 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 
 /* ---------- pages ---------- */
 .page, .game { height: 100%; display: flex; flex-direction: column; }
+.page.tk-page { background: var(--x-paper); color: var(--x-ink); }
+.page.jp { background: var(--j-paper); color: var(--j-ink); }
 .topbar {
   flex: none; display: flex; flex-direction: column; position: relative; z-index: 2;
 }
 .topbar > .icon-btn { align-self: flex-start; }
 .page .topbar { flex-direction: row; align-items: center; }
 .page .topbar .day { flex: 1; }
-.rv-chip b { font-variant-numeric: tabular-nums; }
+.jp > .topbar .day, .jo > .topbar .day { text-align: center; min-width: 0; }
 .rv-chip.off { opacity: 0.45; }
 .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 .scroll > * { flex: none; }
 .scroll.pad { padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left)); width: 100%; max-width: 560px; margin: 0 auto; }
-.panel { padding: 14px; }
-.panel h3 { align-items: center; gap: 6px; flex-wrap: wrap; }
+.game.tkt.sbk-over > .scroll { padding: 0; gap: 0; background: var(--c-fffcf5); }
+.howto.tk-page > .scroll.pad { padding-top: 2px; padding-bottom: 14px; }
+.jo .scroll.pad { gap: 12px; }
 .input { width: 100%; padding: 12px; font: inherit; margin-top: 6px; }
 .seg { display: flex; gap: 6px; margin: 6px 0; }
 .seg button { flex: 1; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -125,17 +146,10 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .seg.small button { min-height: 42px; font-size: 0.92rem; }
 .seat { padding-top: 8px; margin-top: 8px; }
 .toggle { display: flex; align-items: center; gap: 10px; padding: 8px 0; position: relative; }
-.toggle span { flex: 1; display: flex; flex-direction: column; }
-.toggle input { position: absolute; opacity: 0; }
-.toggle i { position: relative; flex: none; }
-.toggle i::after { content: ''; position: absolute; transition: left 0.12s; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
-.stats b { display: block; }
 
 /* ---------- the game ---------- */
 .game { position: relative; overflow: hidden; }
-.play { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.is-night::after { content: '☾'; position: absolute; top: 12%; left: 50%; transform: translateX(-50%); font-size: 64px; animation: pop 0.5s steps(4); pointer-events: none; z-index: 5; }
 .info-card.warn { display: flex; flex-direction: column; gap: 4px; }
 
 .st-fresh { background: var(--fresh); }
@@ -151,78 +165,67 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .owned-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.8rem; }
 
 /* morning and recap: cards in the panel */
-.mc-day small { font-weight: 400; }
 @keyframes flip { from { transform: scaleX(0); } to { transform: none; } }
 .minprices { justify-content: center; margin-top: 6px; }
 .minprices span { color: var(--ink); border-radius: 6px; padding: 1px 6px; font-weight: 600; }
-.takings { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 
 @keyframes stamp { from { transform: scale(1.8) rotate(-6deg); opacity: 0; } }
 
 /* phase banner */
 .phase-banner { position: absolute; left: 0; right: 0; top: 22%; z-index: 15; display: flex; justify-content: center; pointer-events: none; opacity: 0; animation: banner var(--t-stamp) ease-out forwards; }
-.phase-banner span { text-align: center; }
 @keyframes banner { 0% { opacity: 0; transform: scale(0.9); } 15%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-8px); } }
 
 /* action bar */
 .actionbar .btn.ghost, .actionbar .btn.skip { flex: 0 0 auto; min-width: 56px; }
 
 /* popovers, modals */
-.tip-pop { position: absolute; left: 12px; right: 12px; top: 96px; z-index: 9; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; font-size: 0.9rem; animation: pop 0.18s steps(3); }
 .modal-bg { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; animation: fade 0.15s; }
+.modal[tabindex="-1"]:focus { outline: none; }
 .modal { width: 100%; max-height: 90%; overflow-y: auto; display: flex; flex-direction: column; animation: pop 0.2s steps(3); }
 .modal.center { align-items: center; text-align: center; }
 .sheet h2 { font-size: 1.2rem; }
 @keyframes pop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @keyframes fade { from { opacity: 0; } }
 @keyframes breathe { 50% { opacity: 0.55; } }
-.toast { position: absolute; bottom: 90px; z-index: 30; max-width: 90%; padding: 9px 16px; border-radius: 999px; font-size: 0.92rem; text-align: center; animation: pop 0.18s steps(3); }
-.handoff { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.net-strip { flex: none; text-align: center; font-size: 0.82rem; padding: 5px 10px; }
-.net-strip.bad { animation: breathe 1.4s steps(2) infinite; }
 .waiting-dots::after { content: ''; display: inline-block; width: 1.4em; text-align: left; animation: dots 1.2s steps(4) infinite; }
 @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 
 /* results */
 .results { gap: 12px; align-items: center; padding-top: 18px; }
 .podium { width: 100%; flex-direction: column; }
-.recap { width: 100%; text-align: left; }
 .rematch-note { margin: 0; }
 
 /* how to play */
 .tips { padding-left: 18px; line-height: 1.5; }
 .dots { display: flex; justify-content: center; gap: 6px; }
 .dots span { border-radius: 50%; }
-
-/* online */
-.big-wait { text-align: center; font-size: 1.1rem; padding: 40px 0; }
 /* PLAN-112: the public rooms still waiting for players, and the choice of a public or private room */
-.pr-list { display: flex; flex-direction: column; gap: 6px; }
 .pr-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 8px 6px 12px; border-radius: 10px; background: var(--surface-2); }
+.sb .pr-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 10px; box-shadow: inset 0 0 0 2.5px var(--x-ink);
+}
 .pr-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.pr-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pr-who small { color: var(--muted); font-size: 0.78rem; }
 .pr-n { flex: none; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+.sb .pr-n { font: 600 0.75rem/1.2 var(--f-label); color: var(--x-slate); }
 .pr-join { flex: none; min-width: 64px; min-height: 40px; }
 .public-rooms .row2 .btn { min-width: 0; }
 .public-note { margin: 0 0 6px; }
 .room-code span { display: grid; place-items: center; }
+.jo .room-code { justify-content: flex-start; gap: 2px; margin: 0; }
 .invite .input { font-size: 0.82rem; }
 .invite .row2 { margin-top: 8px; }
-.seat-row.ghost { justify-content: center; }
 .seat-row.ai { opacity: 0.7; }
 .room-full { margin: 8px 0 0; text-align: center; font-weight: 600; }
 /* Rival stalls as seat tiles (PLAN-058): three to a row; the open tile's editor sits under the grid. */
 .seat-name { flex: 1; }
-.seat-edit { width: 9.5em; max-width: 60%; padding: 4px 8px; font: inherit; }
-.seat-rename { text-decoration: underline; }
+.seat-row .seat-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
 
 /* ---------- animation layer ---------- */
 .fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 12; overflow: hidden; }
 .sprite { position: absolute; left: 0; top: 0; will-change: transform; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.3)); }
-.ptag { position: absolute; transform: translate(-50%, -100%); padding: 3px 10px; border-radius: 999px; font-size: 0.88rem; white-space: nowrap; }
+.fx-layer .sprite.mv { width: 0; height: 0; }
 .ptag.big { font-size: 1.05rem; padding: 6px 14px; }
-.floattext { position: absolute; left: 0; top: 0; font-size: 1.25rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* ---------- desktop: the market and the decisions side by side ---------- */
 @media (min-width: 900px) {
@@ -240,19 +243,17 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 .dr-rank { margin: 0; font-size: 1.05rem; }
 .dr-rank b { font-size: 1.3rem; }
 .board { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 3px; }
-.board li { display: flex; justify-content: space-between; padding: 4px 10px; font-size: 0.88rem; }
 
 /* trait pick (first morning) */
 .muted-ink { font-size: 0.8rem; }
 .trait-list { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .trait-card { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 12px; text-align: left; font: inherit; cursor: pointer; }
-.trait-card:active { transform: translateY(2px); }
 .trait-card span { display: flex; flex-direction: column; line-height: 1.2; }
 .trait-card b { font-size: 1rem; }
 .trait-card small { font-size: 0.8rem; }
 
 /* ---------- the table: market in the middle, a stall on each player's side ---------- */
-.play { position: relative; }
+.play { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
 .table {
   flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
   display: flex; flex-direction: column; gap: 6px;
@@ -272,7 +273,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 @keyframes glow { 50% { box-shadow: 0 0 0 3px var(--gold); } }
 .next-lorry .nl-head { flex-wrap: wrap; justify-content: center; align-items: baseline; }
 .next-lorry .nl-fruits { flex-wrap: wrap; justify-content: center; align-items: center; }
-.nl-f.few { opacity: 0.75; }
 
 /* fruit piles */
 
@@ -285,7 +285,6 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 @keyframes walkin { from { opacity: 0; transform: translateX(28px); } }
 .cust small { max-width: 86px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cust.tomorrow { opacity: 0.5; transform: scale(0.9); }
-.cust.mystery .q { font-weight: 600; font-size: 1.1rem; }
 
 /* demand vs supply */
 .pz.none { opacity: 0.5; }
@@ -309,6 +308,7 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* !important: with the phone's reduced motion nothing moves, whatever a part's own rule says */
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
@@ -322,19 +322,14 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 /* ---------- rules 4: open stalls, buyer caps, queue backs, ledger (PLAN-015) ---------- */
 .info-card.small { font-size: 0.8rem; padding: 6px 10px; }
 /* good news: fruit the Juice Bar turns into money tonight (the sales card) and overnight (the morning card) */
-.sc-juice { font-size: 0.8rem; font-weight: 600; color: var(--x-green); }
 .mc-loss.good { color: var(--x-green); background: var(--good-bg); }
 
 /* ---------- PLAN-030: look D, the table screen (approved design, DEC-034 and DEC-042) ----------
    Warm cream mat, ink outlines, paper slots, coin-shaped prices, freshness flags. The trays and pop-ups stay as they are until PLAN-033. */
 
-/* the queue and the lorry on its road */
-.game .street-wrap::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none; }
-
 /* rival stalls and your stall */
 
 /* the Wholesale Market */
-.game .mk-cell .gh { display: inline-flex; }
 .game .mk-cell::after { content: ''; position: absolute; right: 0; top: 0; width: 0; height: 0; border-style: solid; border-width: 0 13px 13px 0; border-color: transparent; border-top-right-radius: 7px; }
 .game .mk-cell.st-fresh::after { border-right-color: var(--c-9cca86); }
 .game .mk-cell.st-okay::after { border-right-color: var(--c-e6c86f); }
@@ -345,38 +340,32 @@ img.xi { display: inline-block; vertical-align: middle; flex: none; }
 /* ---------- PLAN-033: look D, the other screens (approved design, DEC-045) ---------- */
 .home, .page { color: var(--ink); }
 .page .topbar h1, .page .topbar b, .page .topbar .day { color: var(--ink); }
-.panel .muted, .panel .small.muted, .page .muted { color: var(--ink-muted); }
+.panel .small.muted { color: var(--ink-muted); }
 
 /* ---------- PLAN-033: look D, pop-ups, sheets and trays ---------- */
-.dots span { width: 12px; height: 12px; box-sizing: border-box; }
 .howto h2, .howto .step h2, .howto .card h2, .howto b { color: var(--ink); }
-.toast { left: 0; right: 0; margin-inline: auto; width: fit-content; transform: none; }
 .info-card.dim { color: var(--ink-muted); }
-
-/* ---------- PLAN-029: the market opening (design approved, DEC-047) ---------- */
-.op { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; overflow: hidden; cursor: pointer; }
-.op-skip { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem; }
+.op.op-ld {
+  position: absolute; inset: 0; z-index: 60; display: block; background: transparent; overflow: hidden;
+  cursor: pointer;
+}
+.op.op-ld.op-leave { animation: opx-out 0.28s ease-in-out forwards; }
 
 /* ---------- QA sweep fixes: Trophies and chips were unreadable, a few colours were just under contrast ---------- */
-.cust.mystery.pickable { cursor: pointer; outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 12px; animation: glow 1.1s steps(2) infinite; }
 .acct-field { display: block; margin-top: 8px; }
 .acct-field .input { margin-top: 2px; }
 .acct-delete { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .acct .btn + .btn { margin-top: 8px; }
 .ms-prop { position: absolute; top: 3px; right: 6px; width: 30px; height: 30px; pointer-events: none; }
-.wd-overlay { position: fixed; inset: 0; z-index: 60; overflow: auto; }
 
 /* Polish (REP-086): the pricing hint clears the Seal button, customers fade at the edge, ghost market slots are quieter. */
-.game .mk-cell .gh { opacity: 0.12; }
-.cash-chart { margin: 10px 0; }
+.game .mk-cell .gh { display: inline-flex; opacity: 0.12; }
 
 /* ---------- popups (PLAN-046) ---------- */
 .popup-bg { position: fixed; z-index: 40; }
 .popup { max-width: 440px; max-height: calc(100dvh - 32px); }
-.popup-hd { display: flex; align-items: center; justify-content: space-between; }
+.rx-pick .popup { width: min(360px, calc(100vw - 32px)); }
 .popup .acct > h3 { display: none; }
-.popup-info { padding: 10px 12px; }
-.popup-info b { display: block; font-size: 1.2rem; }
 
 /* =====================================================================
    The Great Fruit Exchange (DEC-066): the deck-art identity for every screen.
@@ -397,30 +386,45 @@ p { line-height: 1.45; }
 b, strong { font-weight: 700; }
 
 /* faint sunburst rays behind the menus, like the deck's illustrations */
-.home, .page, .full-sheet, .handoff {
+.home, .page, .full-sheet {
   background: var(--x-cream) repeating-conic-gradient(from -4deg at 50% -8%, var(--x-cream) 0 5deg, var(--x-card) 5deg 10deg);
 }
 
 /* ---------- type roles ---------- */
-.btn, .seg button, .chip, .rv-chip, .medal, .next-lorry, .mc-loss, .seat-rename, .op-skip, .net-strip, .owned-row, .room-full, .rd-extra .chip, .ptag, .floattext, .mk-cell .price, .dots, label.small {
+.btn { font-family: var(--f-label); }
+.seg button, .chip, .rv-chip, .medal, .next-lorry, .mc-loss, .net-strip, .owned-row, .room-full, .rd-extra .chip, .ptag, .floattext, .mk-cell .price, .dots, label.small {
   font-family: var(--f-label);
 }
-.btn, .seg button, .medal, .net-strip, .nl-title, .room-full, label.small {
+.btn { text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); }
+.seg button, .medal, .net-strip, .nl-title, .room-full, label.small {
   text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1));
 }
 .mc-day, .slide h2, .howto h2, .popup-hd h2, .results h2 { font-family: var(--f-headline); font-weight: 400; letter-spacing: 0.005em; }
-.pc-num, .stats b, .room-code span, .dr-rank b, .rd-head b, .seat-name, .trait-card b, .tip-pop b, .coach b, .buy-hint .move, .big-wait {
+.pc-num, .stats b, .room-code span, .dr-rank b, .seat-name, .trait-card b, .tip-pop b, .coach b, .buy-hint .move, .big-wait {
   font-family: var(--f-display); font-weight: 400;
 }
 .btn-sub, .hint-bar, .error { font-family: var(--f-serif); text-transform: none; letter-spacing: 0; }
+.modal .btn.primary .btn-sub { color: var(--x-paper); }
 
 /* ---------- buttons: solid navy or red, cream capitals, hard navy shadow ---------- */
-.btn, .page .btn, .results .btn, .home .btn, .modal .btn {
+.btn, .page .btn, .home .btn {
   min-height: 48px; padding: 10px 18px; border: 2px solid var(--x-ink); border-radius: 999px;
-  background: var(--x-ink); color: var(--x-paper); box-shadow: var(--shadow); font-weight: 600; font-size: 0.98rem; line-height: 1.15;
+  background: var(--x-ink); color: var(--x-paper); box-shadow: var(--shadow); font-weight: 600; font-size: 0.98rem;
+  line-height: 1.15;
 }
-.btn.primary, .page .btn.primary, .results .btn.primary, .modal .btn.primary, .game .actionbar .btn.primary { background: var(--x-red-d); color: var(--x-paper); box-shadow: var(--shadow); }
-.btn.ghost, .page .btn.ghost, .btn.skip, .actionbar .btn.ghost, .actionbar .btn.skip, .game .actionbar .btn, .game .actionbar .btn.ghost, .game .actionbar .btn.skip {
+.results .btn, .modal .btn {
+  min-height: 48px; padding: 10px 18px; border: 2px solid var(--x-ink); border-radius: 999px;
+  background: var(--x-ink); color: var(--x-paper); box-shadow: var(--shadow); font-weight: 600; font-size: 0.98rem;
+  line-height: 1.15;
+}
+.btn.primary, .page .btn.primary { color: var(--x-paper); }
+.results .btn.primary, .modal .btn.primary, .game .actionbar .btn.primary {
+  background: var(--x-red-d); color: var(--x-paper); box-shadow: var(--shadow);
+}
+.btn.ghost, .page .btn.ghost, .btn.skip {
+  background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow);
+}
+.actionbar .btn.ghost, .actionbar .btn.skip, .game .actionbar .btn, .game .actionbar .btn.ghost, .game .actionbar .btn.skip {
   background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow);
 }
 .btn:active:not(:disabled), .btn.primary:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
@@ -435,26 +439,28 @@ b, strong { font-weight: 700; }
 .chip.cash, .page .chip.cash { background: var(--x-mustard); }
 .chip.warn, .page .chip.warn { background: var(--bad-bg); color: var(--x-red-d); }
 .chip.good, .page .chip.good { background: var(--good-bg); color: var(--x-green); }
-.avatar.xl { background: var(--x-paper); border: 2px solid var(--x-ink); border-radius: var(--r); }
+.avatar.xl {
+  width: 120px; height: 120px; background: var(--x-paper); border: 2px solid var(--x-ink); border-radius: var(--r);
+}
 
 /* ---------- paper cards with thin navy rules ---------- */
 .panel, .modal, .info-card, .recap, .trophy, .popup-info, .cash-chart, .tip-pop, .morning-card, .sales-card, .trait-card, .seat-row, .board li, .rival-stall, .rival-drop, .my-stall, .market-stall, .street-wrap {
   border-radius: var(--r);
 }
 .popup .panel { box-shadow: none; }
-.panel h3::after { content: ''; flex: 1 0 100%; height: 0; border-top: 2px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); margin-top: 4px; }
 .input, .panel .input, .page .input { min-height: 48px; background: var(--x-paper); color: var(--x-ink); -webkit-text-fill-color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r); font-family: var(--f-serif); caret-color: var(--x-red-d); }
 .input::placeholder { color: var(--x-slate); -webkit-text-fill-color: var(--x-slate); }
 .info-card.good { background: var(--good-bg); color: var(--x-green); border-color: var(--x-green); }
 .save-notice { background: var(--x-paper); color: var(--x-ink); border: 2px dashed var(--x-red-d); border-radius: var(--r); font-family: var(--f-serif); }
+.home.hm.jh .hm-rest > .save-notice { margin: 0; }
 .seat, .page .seat { border-top: 1px solid var(--x-edge); }
-.stats b { color: var(--x-ink); }
+.stats b { display: block; color: var(--x-ink); }
 .stats small { font-family: var(--f-label); text-transform: uppercase; letter-spacing: calc(0.08em * var(--ls, 1)); }
 
 /* ---------- top bar: a Gazette masthead rule ---------- */
 .topbar, .game .topbar, .page .topbar, .finale .topbar { background: var(--x-cream); border-bottom: 3px solid var(--x-ink); box-shadow: 0 2px 0 var(--x-cream), 0 3px 0 var(--x-ink); color: var(--x-ink); }
 .page .topbar b, .page .topbar .day { font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; }
-.rv-chip b { font-weight: 600; }
+.rv-chip b { font-variant-numeric: tabular-nums; font-weight: 600; }
 
 /* ---------- the action bar ---------- */
 .buy-hint .move, .game .buy-hint .move { color: var(--x-ink); font-size: 1.02rem; }
@@ -463,13 +469,24 @@ b, strong { font-weight: 700; }
 /* ---------- the table ---------- */
 .game, .game .table { background: var(--x-cream); color: var(--x-ink); }
 .game.is-night .table { background: var(--x-ink-2); filter: none; }
-.is-night::after { color: var(--x-mustard); text-shadow: 0 3px 0 var(--x-ink); }
+.is-night::after {
+  content: '☾'; position: absolute; top: 12%; left: 50%; transform: translateX(-50%); font-size: 64px;
+  animation: pop 0.5s steps(4); pointer-events: none; z-index: 5; color: var(--x-mustard);
+  text-shadow: 0 3px 0 var(--x-ink);
+}
 
 /* the queue: customers on a paper street, the lorry on a wooden road */
-.game .street-wrap::after { background: var(--x-wood); border-top: 2px solid var(--x-ink); }
+.game .street-wrap::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none;
+  background: var(--x-wood); border-top: 2px solid var(--x-ink);
+}
+.tkt > .street-wrap::after { display: none; }
 .cust small, .game .street-wrap .cust small { color: var(--x-ink); font-family: var(--f-label); font-size: 0.7rem; letter-spacing: 0.02em; }
-.cust.mystery .q { font-family: var(--f-display); color: var(--x-ink); }
-.cust.mystery.pickable { outline-color: var(--x-red); }
+.cust.mystery .q { font-weight: 600; font-size: 1.1rem; font-family: var(--f-display); color: var(--x-ink); }
+.cust.mystery.pickable {
+  cursor: pointer; outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 12px;
+  animation: glow 1.1s steps(2) infinite; outline-color: var(--x-red);
+}
 
 /* stalls: paper signs with a navy rule, a mustard band when it is your turn */
 .rival-stall.won, .game .rival-stall.won { box-shadow: 0 0 0 3px var(--x-mustard), 0 0 0 5px var(--x-ink), 0 0 16px 2px rgba(224, 160, 28, 0.7); }
@@ -495,30 +512,63 @@ b, strong { font-weight: 700; }
 /* morning: the Gazette front page */
 .mc-day { font-size: 1.4rem; }
 .full-sheet .mc-day { font-size: 1.9rem; }
-.mc-day small { font-family: var(--f-label); font-size: 0.82rem; letter-spacing: calc(0.06em * var(--ls, 1)); color: var(--x-slate); }
+.mc-day small {
+  font-weight: 400; font-family: var(--f-label); font-size: 0.82rem; letter-spacing: calc(0.06em * var(--ls, 1));
+  color: var(--x-slate);
+}
 .minprices span { background: var(--x-paper); border: 1.5px solid var(--x-ink); font-family: var(--f-label); }
 
 /* sales summary */
 
 /* phase banner: a green ribbon like the cards' "Regular shopper" flag */
-.phase-banner span { padding: 8px 30px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-green); color: var(--x-paper); font-family: var(--f-display); font-weight: 400; font-size: 1.6rem; letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; box-shadow: 0 4px 0 var(--x-ink); }
+.phase-banner span {
+  text-align: center; padding: 8px 30px; border: 3px solid var(--x-ink); border-radius: 0; background: var(--x-green);
+  color: var(--x-paper); font-family: var(--f-display); font-weight: 400; font-size: 1.6rem;
+  letter-spacing: calc(0.08em * var(--ls, 1)); text-transform: uppercase; box-shadow: 0 4px 0 var(--x-ink);
+}
 
 /* ---------- pop-ups, tooltips, toasts ---------- */
 .modal-bg { background: rgba(24, 40, 68, 0.6); }
 .modal, .popup { background: var(--x-paper); color: var(--x-ink); border: 3px solid var(--x-ink); border-radius: 8px; box-shadow: 0 6px 0 var(--x-ink); }
-.popup-hd { box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink); }
+.popup-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 0 var(--x-paper), 0 3px 0 var(--x-ink);
+}
 .popup-hd h2 { font-size: 1.45rem; }
-.popup-info { background: var(--x-card); border: 2px solid var(--x-ink); }
-.popup-info b { font-family: var(--f-display); font-weight: 400; }
-.tip-pop { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r); box-shadow: 0 4px 0 var(--x-ink), 0 10px 24px rgba(24, 40, 68, 0.3); }
+.popup-info { padding: 10px 12px; background: var(--x-card); border: 2px solid var(--x-ink); }
+.popup-info b { display: block; font-size: 1.2rem; font-family: var(--f-display); font-weight: 400; }
+.modal .popup-info { border: 0; border-radius: 0; background: var(--x-wood); }
+.tip-pop {
+  position: absolute; left: 12px; right: 12px; top: 96px; z-index: 9; display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; font-size: 0.9rem; animation: pop 0.18s steps(3); background: var(--x-paper);
+  color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r);
+  box-shadow: 0 4px 0 var(--x-ink), 0 10px 24px rgba(24, 40, 68, 0.3);
+}
 .tip-pop small { color: var(--x-slate); }
-.toast { background: var(--x-ink); color: var(--x-paper); border: 2px solid var(--x-paper); box-shadow: 0 0 0 2px var(--x-ink), 0 8px 20px rgba(24, 40, 68, 0.35); font-family: var(--f-serif); font-weight: 700; }
-.ptag { background: var(--x-paper); color: var(--x-ink); border: 1.5px solid var(--x-ink); font-weight: 600; box-shadow: 0 3px 0 var(--x-ink); }
+.toast {
+  position: absolute; bottom: 90px; z-index: 30; max-width: 90%; padding: 9px 16px; border-radius: 999px;
+  font-size: 0.92rem; text-align: center; animation: pop 0.18s steps(3); left: 0; right: 0; margin-inline: auto;
+  width: fit-content; transform: none; background: var(--x-ink); color: var(--x-paper);
+  border: 2px solid var(--x-paper); box-shadow: 0 0 0 2px var(--x-ink), 0 8px 20px rgba(24, 40, 68, 0.35);
+  font-family: var(--f-serif); font-weight: 700;
+}
+.ptag {
+  position: absolute; transform: translate(-50%, -100%); padding: 3px 10px; border-radius: 999px; font-size: 0.88rem;
+  white-space: nowrap; background: var(--x-paper); color: var(--x-ink); border: 1.5px solid var(--x-ink);
+  font-weight: 600; box-shadow: 0 3px 0 var(--x-ink);
+}
 .ptag.favour { background: var(--x-card); }
 .ptag.upgrade { background: var(--good-bg); }
-.floattext { color: var(--c-0a7443); text-shadow: 0 2px 0 var(--x-paper), 0 -1px 0 var(--x-paper); font-weight: 600; }
-.net-strip { background: var(--x-mustard); color: var(--x-ink); border-bottom: 2px solid var(--x-ink); font-weight: 600; }
-.net-strip.bad { background: var(--x-red-d); color: var(--x-paper); }
+.floattext {
+  position: absolute; left: 0; top: 0; font-size: 1.25rem; white-space: nowrap; font-variant-numeric: tabular-nums;
+  color: var(--c-0a7443); text-shadow: 0 2px 0 var(--x-paper), 0 -1px 0 var(--x-paper); font-weight: 600;
+}
+.net-strip {
+  flex: none; text-align: center; font-size: 0.82rem; padding: 5px 10px; background: var(--x-mustard);
+  color: var(--x-ink); border-bottom: 2px solid var(--x-ink); font-weight: 600;
+}
+.net-strip.bad { animation: breathe 1.4s steps(2) infinite; background: var(--x-red-d); color: var(--x-paper); }
+.sb .net-strip { margin: 0 -14px; }
 .error, .page .error, .warn-text { color: var(--x-red-d); }
 
 /* the first-game coach is a chalkboard note */
@@ -529,32 +579,47 @@ b, strong { font-weight: 700; }
 
 /* ---------- set-up, online lobby, characters ---------- */
 .trait-card { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); box-shadow: var(--shadow); }
-.trait-card:active { box-shadow: none; }
+.trait-card:active { transform: translateY(2px); box-shadow: none; }
 .trait-card small, .muted-ink { color: var(--x-slate); }
-.seat-row.ghost { background: transparent; border: 2px dashed var(--x-edge); color: var(--x-slate); }
-.seat-edit { background: var(--x-paper); color: var(--x-ink); border: 2px solid var(--x-ink); border-radius: var(--r); font-family: var(--f-serif); }
+.seat-row.ghost {
+  justify-content: center; background: transparent; border: 2px dashed var(--x-edge); color: var(--x-slate);
+}
+.seat-edit {
+  width: 9.5em; max-width: 60%; padding: 4px 8px; font: inherit; background: var(--x-paper); color: var(--x-ink);
+  border: 2px solid var(--x-ink); border-radius: var(--r); font-family: var(--f-serif);
+}
 .room-full { color: var(--x-red-d); }
-.big-wait { color: var(--x-ink); }
+.jo .room-full { margin: 0; }
+.big-wait { text-align: center; font-size: 1.1rem; padding: 40px 0; color: var(--x-ink); }
 
 /* ---------- results, daily result, trophies, league ---------- */
-.recap { background: var(--x-paper); }
+.recap { width: 100%; text-align: left; background: var(--x-paper); }
 .rematch-note { font-family: var(--f-display); color: var(--c-0a7443); }
 .dr-rank b { color: var(--x-red-d); }
-.board li { background: var(--x-paper); border: 1.5px solid var(--x-ink); font-family: var(--f-label); }
+.board li {
+  display: flex; justify-content: space-between; padding: 4px 10px; font-size: 0.88rem; background: var(--x-paper);
+  border: 1.5px solid var(--x-ink); font-family: var(--f-label);
+}
 .page .stats small, .page .small, .page small { color: var(--x-slate); }
-.cash-chart { background: var(--x-paper); }
+.tk-page .stats small { font-size: 0.75rem; }
+.tk-page .stats b { font: 400 1.5rem/1.1 var(--f-display); }
+.cash-chart { margin: 10px 0; background: var(--x-paper); }
 
 /* ---------- how to play: Gazette pages ---------- */
-.dots span { background: var(--x-paper); border: 2px solid var(--x-ink); }
+.dots span {
+  width: 12px; height: 12px; box-sizing: border-box; background: var(--x-paper); border: 2px solid var(--x-ink);
+}
 .dots span.on { background: var(--x-ink); }
 
 /* ---------- wardrobe and account ---------- */
-.wd-overlay { background: var(--x-cream); }
+.wd-overlay { position: fixed; inset: 0; z-index: 60; overflow: auto; background: var(--x-cream); }
 .acct-field > label, .acct-field > .small { color: var(--x-slate); }
 
 /* ---------- the market opening ---------- */
-.op { background: var(--x-sky); }
-.op-skip { color: var(--x-ink); }
+.op {
+  position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  background: var(--x-sky);
+}
 
 /* ---------- phones: comfortable tap targets ---------- */
 @media (max-width: 899px) {
@@ -563,7 +628,7 @@ b, strong { font-weight: 700; }
 }
 
 /* small print inside a button keeps the button's own colour */
-.btn small, .page .btn small, .modal .btn small { color: inherit; }
+.btn small, .page .btn small { color: inherit; }
 .panel > .btn { margin-top: 10px; }
 
 /* ---------- Visual QA pass (PLAN-049): deck-art screens on phone and desktop ---------- */
@@ -576,12 +641,9 @@ b, strong { font-weight: 700; }
   .seg button, .rd-close { min-height: 44px; }
   .icon-btn, .game .topbar .icon-btn, .page .topbar .icon-btn { min-width: 44px; min-height: 44px; }
 }
+.tk-page > .topbar .icon-btn:active { transform: none; }
 /* an event sheet the player opened sits above the first-game coach note */
 .full-sheet.event-sheet { z-index: 25; }
-/* the event chip: a long event name is shortened, never tomorrow's picture */
-/* the privacy link in Settings is a full-height tap target, underlined in the deck's red */
-.page .panel a[href$="privacy.html"] { display: inline-flex; align-items: center; min-height: 44px; color: var(--x-red-d); font-weight: 600; text-underline-offset: 3px; }
-
 /* =====================================================================
    The game screen layout (owner-approved "Phone A"): on a phone nothing scrolls while you buy, stock and
    price, and your shelf and every one of today's customers stay in view. One grid, top to bottom: the top
@@ -596,13 +658,23 @@ b, strong { font-weight: 700; }
   /* clip, not hidden: a focused button near the edge must not scroll the whole table sideways */
   height: 100%; overflow: hidden; overflow: clip;
 }
-.gx > .topbar { grid-area: top; }
 .gx > .net { grid-area: net; }
 .gx > .centre { display: contents; }
-.gx > .centre > * { grid-area: mid; }
 
 /* ---------- top bar: one row ---------- */
-.gx > .topbar { gap: 0; padding: max(4px, env(safe-area-inset-top)) max(var(--gx-pad), env(safe-area-inset-right)) 4px max(var(--gx-pad), env(safe-area-inset-left)); }
+.gx > .topbar {
+  grid-area: top; gap: 0;
+  padding: max(4px, env(safe-area-inset-top)) max(var(--gx-pad), env(safe-area-inset-right)) 4px max(var(--gx-pad), env(safe-area-inset-left));
+}
+.game .street.street { --card-w: 8.25rem; }
+@media (min-width: 720px) {
+  .game .street.street { --card-w: 9.5rem; }
+}
+.tk-page > .topbar {
+  min-height: 52px; box-sizing: border-box; gap: 8px; border: 0; box-shadow: none; background: var(--x-ink);
+  color: var(--x-paper);
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+}
 
 /* ---------- today's customers and the Tomorrow strip ---------- */
 .gx .street.street {
@@ -623,7 +695,7 @@ b, strong { font-weight: 700; }
 .gx .seats .rival-stall.off { opacity: 0.5; }
 
 /* ---------- the middle: the market, or the card or decision on top of it ---------- */
-.gx > .centre > * { min-height: 0; min-width: 0; margin: 5px var(--gx-pad); }
+.gx > .centre > * { grid-area: mid; min-height: 0; min-width: 0; margin: 5px var(--gx-pad); }
 /* every slot the same height, sized so the longest track (--rows slots) fits the space left */
 /* a short market (a small phone with a full shelf): the empty slots below the lowest fruit step aside so the
    rest stay big enough to tap (table.tsx --rows-fit; a slot with fruit is never a .tail) */
@@ -676,6 +748,9 @@ b, strong { font-weight: 700; }
   .gx > .coach { gap: 2px; padding: 7px 12px 8px; }
   .gx > .coach span { font-size: 0.86rem; line-height: 1.3; }
 }
+.game.gx.tkt.table-up > .coach, .game.gx.tkt.table-up > .coach.top, .game.gx.tkt.table-up.coach-row > .coach, .game.gx.tkt.table-up.coach-row > .coach.top {
+  grid-column: 1 / -1; grid-row: street; align-self: end; top: auto; bottom: 4px; margin: 0 auto;
+}
 
 /* layout C (owner, PLAN-066), phones: bigger customer cards (about 1.8x: two and a half across, swipe for the rest),
    slimmer rival pills, and a market without its colour key and lorry line so it gives up the room */
@@ -694,11 +769,8 @@ b, strong { font-weight: 700; }
 
 /* ---------- desktop: customers | market | rivals, shelf and the main button ---------- */
 @media (min-width: 900px) and (min-height: 560px) {
-  .game.gx {
-    --gx-pad: 12px;
-  }
   /* the column is a size container: the cards shrink to fit its height when the crowd is big (--pairs rows) */
-  .game.gx { --tm-h: 74px; }
+  .game.gx { --gx-pad: 12px; --tm-h: 74px; }
   .game.gx.ph-morning, .game.gx.ph-buy { --tm-h: 0px; }
   .gx .street.street {
     --card-w: min(calc((100cqw - 2 * var(--gx-pad) - 10px) / 2), calc(((100cqh - 32px - var(--tm-h)) / var(--pairs, 3) - 14px) / 1.0675)); -webkit-mask-image: none;
@@ -713,6 +785,10 @@ b, strong { font-weight: 700; }
   .gx .mid-panel .pc-num { min-width: 48px; font-size: 1.5rem; }
   .gx .mid-panel .info-card.small { font-size: 0.8rem; }
 }
+.game.tkt { --focus: var(--x-sky-d); }
+.game.tkt.is-night { --focus: var(--x-mustard); }
+.tkt .street::-webkit-scrollbar { display: none; }
+.tkt > .centre::before { display: none; }
 
 /* =====================================================================
    Archivo fit (DEC-068): Archivo is wider than the condensed capitals these
@@ -765,16 +841,19 @@ b, strong { font-weight: 700; }
 /* the pricing table follows straight on from Fill your stall: no fade, so the market never shows through in between */
 
 /* "The Bell" notice: a paper notice pinned over the market */
-.bell-notice { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px 16px; animation: fade 0.2s ease-out; }
+.bell-notice {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) 16px 16px; animation: fade 0.2s ease-out;
+  background: color-mix(in srgb, var(--x-ink) 62%, transparent);
+}
 .bn-card { position: relative; width: min(100%, 360px); display: grid; gap: 8px; padding: 32px 14px 14px; border: 2.5px solid var(--x-ink); border-radius: 6px;
   background-color: var(--x-paper); background-image: radial-gradient(var(--x-edge) 1px, transparent 1.2px); background-size: 8px 8px; box-shadow: 0 6px 0 var(--x-ink); color: var(--x-ink); }
 .bn-pin { position: absolute; top: 9px; width: 12px; height: 12px; border-radius: 50%; background: var(--x-red-d); border: 2px solid var(--x-ink); }
 .bn-pin.l { left: 10px; } .bn-pin.r { right: 10px; }
-.bn-ban { position: absolute; top: -18px; left: 50%; transform: translateX(-50%) rotate(-2deg); white-space: nowrap; padding: 4px 20px;
-  background: var(--x-red-d); color: var(--x-paper); border: 2.5px solid var(--x-ink); box-shadow: 0 3px 0 var(--x-ink); font: 900 1rem/1.2 var(--f-label); letter-spacing: 0.12em; }
 .bn-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .bn-rules li { display: grid; grid-template-columns: 27px minmax(0, 1fr); gap: 9px; align-items: center; min-height: 46px; padding: 5px 9px 5px 6px;
   border: 2px solid var(--x-ink); border-radius: 10px; background: var(--x-paper); font: 700 0.86rem/1.25 var(--f-label); }
+.bell-notice .bn-rules { gap: 0; padding: 4px 14px 12px; }
 .bn-badge { width: 27px; height: 27px; border-radius: 50%; border: 2px solid var(--x-ink); background: var(--x-cream); display: grid; place-items: center; }
 
 /* Fill your stall, full scale (PLAN-061): the whole shelf fills the panel like the Wholesale Market, every row the same
@@ -789,11 +868,189 @@ b, strong { font-weight: 700; }
 .hs-steps { margin: 0; padding-left: 1.3em; text-align: left; display: grid; gap: 8px; font-size: 0.95rem; line-height: 1.35; }
 .hs-steps .share-glyph { vertical-align: -3px; color: var(--x-blue, var(--ink)); }
 .link-btn { border: 0; background: none; padding: 4px; font: 600 0.85rem/1.2 var(--f-label); color: var(--x-slate); text-decoration: underline; cursor: pointer; }
-
-/* ---------- standing orders (rules 14) ---------- */
-.os-fine { color: var(--ink-muted); font-weight: 500; }
+.modal .link-btn {
+  min-height: 44px; color: var(--x-ink); font: 700 0.8125rem/1 var(--f-label); text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* ---------- Market Ticket buttons outside the game table (PLAN-070). The game table itself is drawn in ticket.css
    (PLAN-072). Drawing only: nothing here changes a rule. ---------- */
 .btn.primary { box-shadow: 0 4px 0 var(--x-ink); }
 .btn.primary:active:not(:disabled) { box-shadow: 0 1px 0 var(--x-ink); }
+#app .game.gx.tkt.is-night { background: var(--tk-ink); }
+#app .tkt .street > .cust {
+  all: unset; position: relative; flex: 1 1 0; min-width: 62px; max-width: 112px; display: flex; cursor: pointer;
+}
+#app .tkt .street > .cust:is(.rush-served, .happy, .rush-none) :is(.tkc-pc, .tkc-rw .x-fruit, .tkc-dots) {
+  opacity: 0.45;
+}
+#app .tkt .rival-drop .rd-close {
+  all: unset; display: grid; place-items: center; cursor: pointer; box-shadow: inset 0 0 0 2px var(--tk-ink);
+  font: 800 1.125rem/1 var(--tk-txt);
+}
+#app .tkt .tk-market .mk-cell:disabled { pointer-events: none; }
+#app .tkt .next-lorry .nl-head { display: inline-flex; gap: 4px; }
+#app .tkt .next-lorry .nl-fruits { display: inline-flex; gap: 8px; }
+#app .tkt .minprices span { display: inline-flex; align-items: center; gap: 2px; }
+#app .tkt .mini-step button:disabled { opacity: 0.35; cursor: default; }
+#app .tkt.ph-reveal > .actionbar { z-index: 7; }
+#app .tkt > .centre > .pp-lock .error {
+  all: unset; text-align: center; font: 700 0.75rem/1.2 var(--tk-txt); color: var(--tk-red-d);
+}
+#app .tkt > .actionbar .hint-bar {
+  all: unset; flex: 1 1 auto; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  text-align: center; font: 600 0.8125rem/1.25 var(--tk-txt); color: var(--tk-ink);
+}
+#app .tkt .evening-panel .info-card { border-radius: 0; box-shadow: none; }
+#app .tkt .modal h2 { font-family: var(--tk-disp); font-weight: 400; text-transform: uppercase; }
+#app .tkt .fx-layer .ptag {
+  border-radius: 0; border: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel);
+  font: 800 0.8125rem/1.2 var(--tk-txt); padding: 7px 10px;
+}
+#app .tkt .toast { border-radius: 0; background: var(--tk-ink); color: var(--tk-paper); border: 0; }
+#app .tkt .coach > b { color: var(--tk-ink); font: 400 1rem/1.1 var(--tk-disp); text-transform: uppercase; }
+#app .modal-bg { background: color-mix(in srgb, var(--x-ink) 62%, transparent); }
+#app .modal { gap: 10px; padding: 18px 16px 16px; }
+#app .modal h2, #app .modal h3 {
+  margin: 0; font: 400 1.5rem/1.05 var(--f-display); letter-spacing: 0; text-transform: uppercase;
+  color: var(--x-ink); text-shadow: none;
+}
+#app .modal p, #app .modal small { color: var(--x-ink); }
+#app .modal .input {
+  min-height: 48px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink); background: var(--x-paper);
+  color: var(--x-ink); font: 600 1rem/1.2 var(--f-label);
+}
+#app .modal .input:focus { outline: 3px solid var(--x-mustard); outline-offset: 0; }
+#app .popup-hd { padding-bottom: 10px; border-bottom: 3px solid var(--x-ink); }
+#app .fs-ask { max-width: 360px; }
+#app .bell-notice .bn-pin { display: none; }
+#app .bell-notice .bn-rules li:last-child { border-bottom: 0; }
+#app .bell-notice .bn-badge { width: 30px; height: 30px; border: 0; border-radius: 0; background: var(--x-mustard); }
+#app .tk-page > .topbar .icon-btn {
+  width: 44px; height: 44px; min-width: 44px; min-height: 44px; margin-left: -10px; display: grid;
+  place-items: center; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: var(--x-paper);
+  font: 400 1.375rem/1 var(--f-label);
+}
+#app .tk-page > .topbar .day b {
+  font: 400 1.125rem/1 var(--f-display); letter-spacing: 0; text-transform: uppercase; color: var(--x-paper);
+}
+#app .tk-page .dots span {
+  width: 10px; height: 10px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--x-ink);
+  background: var(--x-paper);
+}
+#app .home.hm :is(.hm-ln.f-watermelon, .hm-ln.f-apple) {
+  text-shadow: -1px -1px 0 var(--x-ink), 1px -1px 0 var(--x-ink), -1px 1px 0 var(--x-ink), 1px 1px 0 var(--x-ink);
+}
+#app .game.tkt :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 2px;
+}
+#app .game.tkt :is(button, [tabindex]):is(.tk-menu, .tk-box, .tk-lane-head, .tb-stall):focus-visible {
+  outline-offset: -3px;
+}
+#app .game.tkt :is(button, [tabindex]):is(.tk-event):focus-visible { outline-offset: 0; }
+#app .game.tkt :is(button, [tabindex]):is(.tk-lane-head):focus-visible { outline-color: currentColor; }
+#app .game.tkt :is(button, [tabindex]):is(.rt-sheet .ds-st):focus-visible {
+  outline-color: var(--x-mustard); outline-offset: -3px;
+}
+#app .game.tkt .street-wrap > .street { padding: 5px; margin: -5px; }
+#app .game.tkt :is(.cd-pop, .ev-pop):focus { outline: none; }
+@media not all and (min-width: 900px) and (min-height: 560px) {
+  #app .game.gx.tkt.ph-morning > .coach, #app .game.gx.tkt.ph-buy > .coach[data-tip="buy"] {
+    grid-column: 1 / -1; grid-row: mid-start / dock-end; align-self: end; box-sizing: border-box;
+    max-height: calc(100% - 8px); margin: 0 auto 6px; overflow: hidden;
+  }
+  #app .game.gx.tkt:is(.ph-morning, .ph-buy) > .coach > span {
+    flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  }
+  #app .game.gx.tkt:is(.ph-morning, .ph-buy) > .coach > :not(span) { flex: none; }
+}
+@media (max-height: 639px) and (min-height: 480px) and (max-width: 899px) {
+  #app .game.gx.tkt:has(> .coach[data-tip="buy"]) > .centre > .market-stall.tb-market { padding-bottom: 48px; }
+}
+#app .game.tkt .rival-drop .rd-close { flex: none; width: 40px; height: 40px; }
+#app .tkt:has(> .rush-table) > .street-wrap { position: relative; z-index: 9; }
+#app .tkt .street > .cust.rush-away { visibility: visible; }
+#app .tkt .street > .cust.rush-away > * { visibility: hidden; }
+#app .game.gx.tkt.coach-row:has(.sh-day[data-over]) > .coach { grid-column: 1 / -1; grid-row: mid-start / dock-end; }
+#app .tkt > .centre > .sales-card[data-tight] { --g: 6px; --sh: 34px; }
+#app .tkt .sales-card[data-tight] :is(.tg-stalls, .tg-list) { gap: 4px; }
+#app .tkt > .centre > .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) { --g: 5px; --sh: 28px; }
+#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) :is(.tg-stalls, .tg-list) { gap: 3px; }
+#app .tkt > .centre > .sales-card[data-tight='4'] { --g: 4px; --sh: 21px; }
+@media (max-height: 650px) {
+  #app .tkt .street-wrap .street { --pic: 0px; }
+}
+#app .tkt .street > .cust.tb-turn-out > * {
+  animation: tb-turn-out calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0.4, 0, 1, 1) both;
+}
+#app .tkt .street > .cust.tb-turn-in > * {
+  animation: tb-turn-in calc(var(--mk, 1) * var(--t-turn) / 2) cubic-bezier(0, 0, 0.2, 1) both;
+}
+#app .tkt .street > .cust.tb-turn-deal {
+  animation: tb-deal calc(var(--mk, 1) * var(--t-travel)) cubic-bezier(0.3, 0, 0.2, 1) both;
+}
+#app .tkt > .seats.tb-stalls { flex-direction: column; gap: 5px; padding: 8px 12px 6px; }
+#app .tkt .seats.tb-stalls .rival-drop { top: auto; bottom: calc(100% + 2px); }
+#app .tkt > .centre > .market-stall.tb-market { gap: 5px; padding: 10px 12px 6px; overflow: hidden; }
+#app .tkt > .my-stall.tb-dock {
+  display: flex; flex-direction: column; padding: 0 0 6px; border-top: 2px solid var(--tk-ink); box-shadow: none;
+}
+#app .game.gx.tkt.is-night > .street-wrap { display: block; }
+#app .game.gx.tkt.is-night > .seats { display: flex; }
+#app .game.gx.tkt.is-night > .street-wrap, #app .game.gx.tkt.is-night > .seats { opacity: 0.3; pointer-events: none; }
+#app .game.gx.tkt.is-night > .street-wrap:has(.tb-walk) { opacity: 1; }
+#app .tkt .street > .cust.tb-gone { opacity: 0; transition: opacity calc(var(--mk, 1) * var(--t-dusk)) ease; }
+@media (max-height: 779px) {
+  #app .tkt > .seats.tb-stalls { padding-top: 5px; padding-bottom: 4px; }
+  #app .tkt > .centre > .market-stall.tb-market { gap: 4px; padding-top: 6px; padding-bottom: 5px; }
+  #app .tkt > .my-stall.tb-dock {
+    display: grid; grid-template: "awn awn" auto "head chips" auto / auto minmax(0, 1fr); padding-bottom: 5px;
+  }
+}
+@media (max-width: 419px) {
+  #app .tkt .tomorrow.tm-many { gap: 3px; }
+}
+@media (max-width: 379px) {
+  #app .tkt > .seats.tb-stalls, #app .tkt > .centre > .market-stall.tb-market { padding-left: 8px; padding-right: 8px; }
+}
+#app .game.tkt .tomorrow { overflow: visible; }
+#app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 90px; }
+@media (max-height: 779px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 60px; }
+}
+@media (max-height: 650px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street { --pic: 34px; }
+}
+@media (max-height: 639px) and (min-height: 480px) and (max-width: 899px) {
+  #app .tkt > .seats.tb-stalls { padding-top: 4px; padding-bottom: 3px; }
+  #app .tkt > .centre > .market-stall.tb-market {
+    overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  }
+  .tkt > .centre > .market-stall.tb-market::-webkit-scrollbar { display: none; }
+}
+.howto.tk-page .slide h2 {
+  font: 400 1.5rem/1.05 var(--f-display); text-transform: uppercase; color: var(--x-ink); margin: 0 0 6px;
+  font-size: 1.375rem;
+}
+.howto.tk-page .slide { padding: 12px 14px; position: relative; }
+#app .jp > .topbar.jp-bar, #app .jo > .topbar {
+  min-height: 60px; background: var(--j-paper); color: var(--j-ink); border-bottom: 3px solid var(--j-ink);
+  box-shadow: none; display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center;
+}
+#app .jp > .topbar .icon-btn, #app .jo > .topbar .icon-btn {
+  width: 46px; height: 46px; margin: 0; border-radius: 50%; box-shadow: inset 0 0 0 2.5px var(--j-ink);
+  color: var(--j-ink); background: var(--j-paper);
+}
+#app .jp > .topbar .day b, #app .jo > .topbar .day b {
+  color: var(--j-ink); font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; display: block;
+}
+#app .jo .seg button { border-radius: 0; box-shadow: none; border: 2px solid var(--j-ink); }
+#app .jo .input { border-radius: 0; }
+#app .jo .room-code span {
+  width: auto; height: auto; border: 0; border-radius: 0; box-shadow: none; background: none; color: var(--j-ink);
+  font: 400 1.875rem/1 var(--f-display); letter-spacing: 0.04em;
+}
+@media (max-width: 379px) {
+  #app .jo .room-code span { font-size: 1.5rem; }
+}

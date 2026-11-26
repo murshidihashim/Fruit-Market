@@ -11,14 +11,20 @@
   --hm-red: var(--x-red-d); --hm-slate: var(--x-slate);
   --hm-berry: var(--c-3558a2); --hm-melon: var(--c-0e9a58); --hm-mango: var(--c-fec400); --hm-apple: var(--c-e73c35);
 }
-
-.home.hm { display: flex; flex-direction: column; background: var(--hm-paper); color: var(--hm-ink); color-scheme: light; font-family: var(--f-label); }
 .home.hm .hm-in { flex: 1 0 auto; width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; }
-.home.hm button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; cursor: pointer; text-transform: none; letter-spacing: 0; }
-.home.hm button:focus-visible { outline: 3px solid var(--hm-yel); outline-offset: -3px; }
+@media (min-width: 760px) {
+  .home.hm.jh .hm-in { max-width: 720px; }
+}
 
 /* ---------- the four fruit lanes (also drawn by the opening, outside .home) ---------- */
 .hm-lanes { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 47px; box-sizing: border-box; border-bottom: 3px solid var(--hm-ink); }
+@media (max-height: 599px) {
+  .home.hm.jh .hm-in .hm-lanes { height: 26px; }
+}
+.home.hm.jh .hm-lanes { height: 32px; }
+@media (min-height: 760px) {
+  .home.hm.jh .hm-lanes { height: 47px; }
+}
 .hm-lane { display: grid; place-items: center; min-width: 0; }
 .hm-lane.f-blueberry { background: var(--hm-berry); }
 .hm-lane.f-watermelon { background: var(--hm-melon); }
@@ -30,12 +36,15 @@
 /* ---------- title ---------- */
 .home.hm .hm-title { flex: none; padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 6px; transform-origin: 20% 50%; }
 .home.hm h1.hm-name { margin: 0; font: 400 2.875rem/0.95 var(--f-display); text-transform: uppercase; letter-spacing: -0.01em; color: var(--hm-ink); text-shadow: none; }
+.home.hm.jh h1.hm-name { flex: none; font-size: min(1.75rem, 7.2vw); line-height: 0.92; white-space: nowrap; }
+@media (min-height: 760px) {
+  .home.hm.jh h1.hm-name { font-size: min(2.5rem, 7.6vw); }
+}
 .home.hm .hm-title p { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); }
 .home.hm .hm-title p span { font-style: italic; color: var(--hm-red); }
 
 /* ---------- the swipe row, the black button, the ticket ---------- */
 .home.hm .hm-rest { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; background: transparent; }
-.home.hm .save-notice { margin: 0 16px; border-radius: 0; }
 /* The row that is swiped sideways (DEC-097): today's market, your next goals, and your table first when a game waits.
    It scrolls with the finger and stops on a page; the next page shows at the edge. */
 /* PLAN-116 (REP-133 B-15): "Your table · Day 2 of 8" is never cut off; on a narrow phone it may take two lines. */
@@ -57,13 +66,20 @@
 /* ---------- the opening, "Lane Drop" (Opening.tsx): about 2.45 seconds ---------- */
 .hm-intro .home.hm .hm-title { animation: hm-stamp 0.32s 1.8s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
 .hm-intro .home.hm .hm-rest { animation: hm-rise 0.45s 1.9s ease-out both; }
+.home.hm.jh.jh-stalltab .hm-rest { padding-bottom: 16px; }
+@media (min-width: 760px) {
+  .home.hm.jh .hm-rest { justify-content: center; }
+}
+.home.hm.jh .hm-rest { gap: 8px; }
+@media (min-height: 760px) {
+  .home.hm.jh .hm-rest { gap: 12px; }
+}
 .hm-skip .home.hm .hm-title, .hm-skip .home.hm .hm-rest { animation: hm-show 0.28s ease-out both; }
-.hm-hold .home.hm *, .hm-hold .op-lanes, .hm-hold .op-lanes * { animation-play-state: paused !important; }
+/* !important: the hold must outrank each part's own animation, which would set it running */
+.hm-hold .op-lanes, .hm-hold .op-lanes * { animation-play-state: paused !important; }
 @keyframes hm-stamp { from { opacity: 0; transform: scale(1.4); } to { opacity: 1; transform: none; } }
 @keyframes hm-rise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
 @keyframes hm-show { from { opacity: 0; } to { opacity: 1; } }
-
-.op.op-ld { position: absolute; inset: 0; z-index: 60; display: block; background: transparent; overflow: hidden; cursor: pointer; }
 .op.op-ld .op-cover { position: absolute; inset: 0; background: var(--hm-paper); }
 .op.op-ld:not(.op-wait) .op-cover { animation: hm-gone 0.2s ease-out forwards; }
 .op.op-ld .op-skip {
@@ -73,7 +89,6 @@
 }
 .op.op-ld:not(.op-wait) .op-skip { animation: hm-gone 0.3s 1.7s forwards; }
 .op.op-ld.op-wait .op-skip { visibility: hidden; }
-.op.op-ld.op-leave { animation: opx-out 0.28s ease-in-out forwards; }
 @keyframes hm-gone { to { opacity: 0; } }
 /* The lanes start below the bar, filling the screen, and fold into the band (--lt, --ll, --lw, --lh: the band's place). */
 .op-lanes.hm-lanes { position: absolute; z-index: 2; overflow: hidden; animation: hm-fold 0.55s 1.3s cubic-bezier(0.6, 0, 0.3, 1) both; }
@@ -87,10 +102,22 @@
 @keyframes hm-fruit {
   0%, 27% { transform: scale(0); } 40% { transform: scale(2.6); } 47%, 70% { transform: scale(2.2); } 100% { transform: none; }
 }
+@media (max-height: 599px) {
+  .home.hm.jh .hm-in .hm-lane i { width: 20px; height: 20px; }
+}
+.home.hm.jh .hm-lane i { width: 24px; height: 24px; }
+@media (min-height: 760px) {
+  .home.hm.jh .hm-lane i { width: 34px; height: 34px; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .hm-intro .home.hm *, .op.op-ld .op-skip { animation: none !important; }
+  /* !important: no animation on the opening's "Tap to skip", whatever its own rule says */
+  .op.op-ld .op-skip { animation: none !important; }
   .op-lanes { display: none; }
   /* Nothing fades with reduced motion (styles.css turns every animation off), so the cover that waits for the pictures
      would stay over the finished home until the opening ends. Once the pictures are in, it is simply gone. */
   .op.op-ld:not(.op-wait) .op-cover { display: none; }
+}
+.op-skip {
+  position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem;
+  font-family: var(--f-label); color: var(--x-ink);
 }

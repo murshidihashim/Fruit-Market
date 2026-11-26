@@ -245,7 +245,7 @@ describe('the round table before the rush (rushTable.css; the bell\'s rows and b
     expect(css.match(/@keyframes [\w-]+ \{[^}]*\}/g)).toEqual(['@keyframes rt-sheet-in { from { transform: translateY(100%); }']);
     // reduced motion: every end state at once (PLAN-130: by the one rule for the whole page in styles.css, which
     // outranks every move; the table's own copy of it never showed)
-    expect(read('src/ui/styles.css')).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*, \*::before, \*::after \{ animation: none !important; transition: none !important; \}/);
+    expect(read('src/ui/styles.css').replace(/\/\*[\s\S]*?\*\//g, '')).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*, \*::before, \*::after \{ animation: none !important; transition: none !important; \}/);
     // the rows of the table are not laid out here
     expect(css).not.toMatch(/#app \.tkt > \.(seats|my-stall|actionbar|tk-top)\b/);
     // the old rows, the old question layout and the bell's sheet are gone from the day's sheet

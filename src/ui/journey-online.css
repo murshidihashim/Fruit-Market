@@ -4,53 +4,40 @@
    the colour tokens (--j-*) are in journey-home.css. Colours from palette.css only.
    ===================================================================== */
 #app .page.jo { background: var(--j-paper); color: var(--j-ink); }
-#app .jo .scroll.pad { gap: 12px; }
-#app .jo .tb-awn { display: block; flex: none; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
-#app .jo .jl-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
-#app .jo .seg button { border-radius: 0; box-shadow: none; border: 2px solid var(--j-ink); }
+.jo .jl-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 #app .jo .seg button.on { background: var(--j-ink); color: var(--j-paper); }
-#app .jo .seg button.on small { color: var(--j-paper); }
-#app .jo .input { border-radius: 0; }
-
-/* ---------- the private room: the invite ---------- */
-#app .jo .room-code { justify-content: flex-start; gap: 2px; margin: 0; }
-#app .jo .room-code span {
-  width: auto; height: auto; border: 0; border-radius: 0; box-shadow: none; background: none; color: var(--j-ink);
-  font: 400 1.875rem/1 var(--f-display); letter-spacing: 0.04em;
-}
+.seat-mute { display: flex; justify-content: flex-end; margin: -2px 0 2px; }
+.sb .seat-mute { margin-top: 6px; }
 
 /* ---------- the stalls ---------- */
-#app .jo .seat-mute { align-self: stretch; justify-content: center; margin: 0; }
-#app .jo .jl-say { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
-#app .jo .room-full { margin: 0; }
-#app .jo .jl-look { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.jo .seat-mute { align-self: stretch; justify-content: center; margin: 0; }
+.jo .jl-say { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
+.jo .jl-look { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
 #app .jo .jl-look small { font: 600 0.75rem/1.2 var(--f-label); letter-spacing: 0; text-transform: none; color: var(--j-slate); }
 
 /* ---------- the Quick match wait ---------- */
-#app .jo .jw-card { flex: none; --card-w: 150px; }
-#app .jo .jw-pp { display: flex; flex-direction: column; gap: 8px; padding: 10px; box-shadow: inset 0 0 0 2.5px var(--j-ink); }
-#app .jo .jw-pp-in { display: flex; gap: 10px; align-items: flex-start; }
-#app .jo .jw-pp-card { flex: none; --card-w: 120px; }
-#app .jo .jw-pp-r { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-#app .jo .jw-q { margin: 0; font: 600 0.9375rem/1.3 var(--f-label); }
-#app .jo .jw-opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.jo .jw-card { flex: none; --card-w: 150px; }
+.jo .jw-pp { display: flex; flex-direction: column; gap: 8px; padding: 10px; box-shadow: inset 0 0 0 2.5px var(--j-ink); }
+.jo .jw-pp-in { display: flex; gap: 10px; align-items: flex-start; }
+.jo .jw-pp-card { flex: none; --card-w: 120px; }
+.jo .jw-pp-r { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.jo .jw-q { margin: 0; font: 600 0.9375rem/1.3 var(--f-label); }
+.jo .jw-opts { display: flex; gap: 6px; flex-wrap: wrap; }
 #app .jo .jw-opts button {
   width: 56px; height: 48px; border: 0; border-radius: 0; background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink);
   font: 400 1.25rem/1 var(--f-display); cursor: pointer;
 }
 #app .jo .jw-opts button.on { background: var(--j-ink); color: var(--j-paper); }
 #app .jo .jw-opts button.best { background: var(--j-yel); color: var(--j-ink); }
-#app .jo .jw-said { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
-#app .jo .jw-said.yes { color: var(--j-melon); }
+.jo .jw-said { margin: 0; font: 600 0.8125rem/1.35 var(--f-label); color: var(--j-slate); }
+.jo .jw-said.yes { color: var(--j-melon); }
 #app .jo .jw-next { min-height: 44px; align-self: flex-start; padding: 0 12px; }
 
 @media (max-width: 379px) {
-  #app .jo > .topbar .day b { font-size: 1.125rem; }
-  #app .jo .room-code span { font-size: 1.5rem; }
-  #app .jo .jw-card { --card-w: 128px; }
-  #app .jo .jw-pp-card { --card-w: 100px; }
+  .jo .jw-card { --card-w: 128px; }
+  .jo .jw-pp-card { --card-w: 100px; }
 }
 @media (max-width: 339px) {
-  #app .jo .jw-pp-in { flex-direction: column; align-items: stretch; }
-  #app .jo .jw-pp-card { align-self: center; --card-w: 140px; }
+  .jo .jw-pp-in { flex-direction: column; align-items: stretch; }
+  .jo .jw-pp-card { align-self: center; --card-w: 140px; }
 }
