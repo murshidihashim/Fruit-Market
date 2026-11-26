@@ -440,7 +440,7 @@ A stage can set: which event, standing order, customers and lorry come on which 
 | 8. Sell Before It Spoils | 2 | Saleh (Normal) | You start with $6, 2 Soft blueberries and an Okay watermelon. Bargain buyers take Soft fruit. |
 | 9. Time the Mangoes | 3 | Uncle Benny (Normal), Kiki (Normal) | You buy first, with $12. Premium mango buyers come on day 3; a green mango bought on day 1 is Fresh then. |
 | 10. The Right Contract | 3 | Uncle Benny (Normal), Pak Din (Normal) | Opens on day 3 at the bid for the Pie Factory's apples, every stall with $16 and an empty shelf. |
-| 11. Rescue the Stall | 4 | Raj (Normal), Farah (Normal) | You start with $5 and ageing apples and watermelons; your rivals with $16. A Pasar Malam on day 2. |
+| 11. Rescue the Stall | 4 | Raj (Normal), Farah (Normal) | You start with $5, a Soft apple, 2 Okay apples and an Okay watermelon; your rivals with $16. A Pasar Malam on day 2. |
 | 12. Village Finale | 6 | Rosa (Normal), Saleh (Normal), Ah Chen (Easy) | Four stalls. Rosa undercuts; a Pasar Malam on day 2; the Company Picnic's order for watermelons is due on day 5, a Heatwave day when walk-ins want watermelons too. |
 
 Stages 7 to 11 have no favour cards and no perks. **Expert stages** are harder variants that open with stars: Rosa Reads Back (stage 7 with a Hard Rosa who buys apples and undercuts; 12 stars) and The Eager Bidder (stage 10 with Pak Din bidding $5 for every order; 24 stars). They are off the ladder.
