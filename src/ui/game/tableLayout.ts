@@ -5,8 +5,7 @@ import { buyLimit, eveningChoice, type GameState } from '../../engine/game';
 import { seats, type Board } from '../table';
 import { tipFor, type Tip } from '../tutorial';
 import { dayStep } from './daySheet';
-import { dayNow, type DayFacts } from './panels/DaySheet';
-import { tableStep } from './tableNow';
+import { dayNow, tableStepNow, type DayFacts } from './panels/DaySheet';
 import { traitPicker } from './turn';
 import type { GameController } from './useGameController';
 import { onSheet } from './daySheet';
@@ -81,7 +80,7 @@ export function layoutOf(s: GameState, c: LayoutFacts, online: boolean, firstUp:
   // The day's sheet (PLAN-085): while this stall fills its crate, and for the takings. On a shared phone it is drawn
   // only for the person the phone was handed to (game/daySheet.ts). Between them the round table lies over the table.
   const step = dayStep(dayNow(s, viewer, c, online));
-  const tableOn = !!c.show || tableStep(step) !== null;
+  const tableOn = !!c.show || tableStepNow(s, viewer, c, online) !== null;
   // Rules 19: every stall decides at the same time, so online the sheet is this phone's own seat (offline, the person
   // the phone has been handed to).
   const evP = c.actor;

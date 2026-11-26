@@ -175,7 +175,13 @@ describe('Priority played by several stalls: the screens say so', () => {
   });
 
   it('the opened Priority card says, beside Play, when it would only go back', () => {
-    const pop = read('src/ui/game/panels/Popovers.tsx');
-    expect(pop).toContain("{!why && id === 'priority' && priorityWouldReturn(s, actor) && <p class=\"cd-pop-why\">{priorityNote(s, actor)}</p>}");
+    const s = playFavour(base, 0, 0);
+    const card = (p: number) => toStaticHtml(h(FavourPopView, { s, actor: p, idx: 0, onPlay: () => {}, onClose: () => {} }));
+    // Cy is later in the line-up: playing it now would only send it back
+    expect(priorityWouldReturn(s, 2)).toBe(true);
+    expect(card(2)).toContain(`<p class="cd-pop-why">${priorityNote(s, 2)}</p>`);
+    expect(card(2)).toContain('>Play</button>');
+    // Bo is earlier: it would count, and nothing is said under the card
+    expect(card(1)).not.toContain(priorityNote(s, 1)!);
   });
 });

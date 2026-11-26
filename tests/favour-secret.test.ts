@@ -4,14 +4,13 @@
 // (PLAN-091, item 10).
 import { describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
-import { readFileSync } from 'node:fs';
 import { autoplay } from '../src/engine/ai';
 import { FAVOURS, RIVALS, type FavourId } from '../src/engine/data';
 import { newGame, publicView, type GameState } from '../src/engine/game';
 import { redact } from '../server/room';
 import { toStaticHtml } from '../src/ui/cards';
 import { favourArt } from '../src/ui/deckArt';
-import { playedFavour, playedFavours } from '../src/ui/game/dayBeats';
+import { playedFavour, playedFavours, playedLabel } from '../src/ui/game/dayBeats';
 import { rushCards } from '../src/ui/game/rush';
 import { RushView } from '../src/ui/game/panels/RushTable';
 import { TakingsView } from '../src/ui/game/panels/SalesSummary';
@@ -76,12 +75,18 @@ describe('a favour card played is named as the game says it aloud, not from the 
   });
 
   // Rules 19: the computers' evening is one step, so the label names every card the stall played in it (from the log).
-  it('the label over the stall reads the log (animator.tsx), never the hand', () => {
-    const src = readFileSync('src/ui/game/animator.tsx', 'utf8');
-    expect(src).toContain('const played = fewer ? playedFavours(prev, next, i) : [];');
-    expect(src).toContain("const cards = !fewer ? '' : played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';");
-    expect(src).toContain('const t = A.tag(`p${i}`, cards, \'favour\');');
-    expect(src).not.toContain('before.favours.find(');
+  it('the label over the stall reads the log (dayBeats.tsx playedLabel, drawn by animator.tsx), never the hand', () => {
+    const { a, b, p } = plays[0];
+    expect(playedLabel(a, b, p)).toBe(FAVOURS[playedFavour(a, b, p)!].title);
+    // a hand of stand-ins (online, a rival's) changes nothing: the log names the card
+    const blind = { ...b, players: b.players.map((pl, i) => (i === p ? { ...pl, favours: pl.favours.map(() => 'gossip' as const) } : pl)) };
+    expect(playedLabel(a, blind, p)).toBe(playedLabel(a, b, p));
+    // nothing public names it: only that a card was played; no card played: no label
+    expect(playedLabel(a, { ...b, log: a.log }, p)).toBe('A favour card');
+    expect(playedLabel(a, a, p)).toBe('');
+    // two cards in one step (rules 19), in the order the game said them
+    const who = a.players[p].name;
+    expect(playedLabel(a, { ...b, log: [...a.log, `${who} played Priority`, `${who} played Gossip`] }, p)).toBe(`${FAVOURS.priority.title} · ${FAVOURS.gossip.title}`);
   });
 
   it('rules 19: two cards played by one stall in one step are both named, in the order the game said them', () => {

@@ -31,14 +31,13 @@ import { favourShown, lineShown, paidShown, piecesLanded, piecesLifted, useRushC
 import { LANES } from '../../boardModel';
 import { Awning } from '../../table';
 import { STAGE_LETTER, STAGE_WORD } from '../../ticket';
-import { dayStep } from '../daySheet';
 import { tieStory } from '../tieStory';
 import { crateSound, cratesOpen, questionIn, tableForms, tagsSealed } from '../tableBeats';
 import { cratesLeft, middleOf, seatOrder, tableLay, tableMin, type Place, type RushBlock, type RushCard, type RushStage, type ShowState, type TableLay } from '../rush';
-import { MAX_SHOWN, SMALL_TAGS, crateFit, openTags, preTable, seatWords, tableStep, type PreTable, type SeatTag, type TableSeat, type TableStep } from '../tableNow';
+import { MAX_SHOWN, SMALL_TAGS, afterRush, askedOn, crateFit, openTags, preTable, seatWords, type PreTable, type SeatTag, type TableSeat, type TableStep } from '../tableNow';
 import type { GameController } from '../useGameController';
 import { skipRush } from '../animator';
-import { dayNow } from './DaySheet';
+import { tableStepNow } from './DaySheet';
 import { TieBar, TieCard, TieWhy } from './PricingTable';
 
 /** The stage's size before it has been measured (a test draws it without a page). */
@@ -206,11 +205,11 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   const root = useRef<HTMLElement>(null);
   const sheetEl = useRef<HTMLDivElement>(null);
   const n = s.players.length;
-  const step = tableStep(dayStep(dayNow(s, viewer, c, !!online)));
+  const step = tableStepNow(s, viewer, c, !!online);
   // The rush has been played on this table today: from its last customer until the takings the crates stay open.
   const rushedOn = useRef(-1);
   if (a) rushedOn.current = s.day;
-  const after = !a && step === 'bell' && s.phase === 'reveal' && rushedOn.current === s.day;
+  const after = afterRush(!!a, step, s, rushedOn.current);
 
   // ---------- pricing: your prices, on the sheet at the table's foot ----------
   const { vals, setVals, notice, setNotice, pricing, sheetUp, posts } = usePricing(s, viewer, step);
@@ -220,7 +219,7 @@ export function RushTable({ s, a, viewer, shared, c, online, from }: {
   const tying = asked >= 0 && c.activeHuman && asked === viewer;
   // Once this stall has been asked, the line that says its prices are tied is not shown again today.
   const answered = useRef(-1);
-  if (tying) answered.current = s.day;
+  answered.current = askedOn(answered.current, tying, s.day);
 
   // ---------- what each seat shows ----------
   // After the last customer the crates show what is left in them (with Skip, the customers not shown are settled too).

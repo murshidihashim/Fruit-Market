@@ -330,13 +330,9 @@ describe('the evening: one main button, and what is built travels (PLAN-084)', (
   });
 
   it('the main button is the sheet\'s: "Build <name> · $<cost>" beside "Lights out without building", or "Lights out"', () => {
-    const src = read('src/ui/panel.tsx');
-    expect(src).toContain('>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>');
-    expect(src).toContain('>Lights out without building</button>');
-    expect(src).toContain('>Lights out <small class="btn-sub">next day</small></button>');
-    // Lights out is always a tap: the evening never ends by itself
-    expect(src).not.toMatch(/endEvening/);
-    expect(read('src/ui/Game.tsx')).toContain("onDone={() => { fx.tap(); act({ kind: 'endEvening' }); }}");
+    // table-panels.test.ts 'one main button: "Build <name> · $<cost>" beside "Lights out without building", or "Lights
+    // out"'. Lights out is always a tap: the evening never ends by itself (a whole game through the controller only
+    // moves on as Lights out is said: controller.test.ts 'Day 1 to the results').
   });
 
   it('an offer the stall cannot pay for is greyed and says why', () => {
@@ -530,7 +526,6 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
     expect(css).toContain('#app .tkt > .centre > .ev-card { position: fixed; inset: 0; z-index: 30; margin: 0; }');
     // an offer drawn compact shows one line of its text: choosing it opens its whole card, with Close
     expect(read('src/ui/panel.tsx')).toContain('if (u && root.current?.dataset.tight === String(EVENING_STEPS)) setOpen(u);');
-    expect(read('src/ui/panel.tsx')).toContain('<UpgradeCard id={open} eager />');
     // a night that still scrolls says so at its foot
     expect(css).toContain('#app .tkt .sh-evening[data-more] .ev-more::before');
     expect(read('src/ui/panel.tsx')).toContain('<i class="ev-more" aria-hidden="true" />');
@@ -547,7 +542,7 @@ describe('a sheet reaches over the rows of the table without moving them (reach.
       expect(bar.slice(0, bar.indexOf('</div>')).match(/class="btn /g)!.length).toBeLessThanOrEqual(2);
     }
     expect(read('src/ui/game/panels/OrderPanel.tsx')).toContain('<button type="button" class="ob-pass"');
-    expect(read('src/ui/panel.tsx')).toContain('<button type="button" class="ev-out"');
+    // (the evening's: table-panels.test.ts 'only the main one is a .btn')
   });
 });
 

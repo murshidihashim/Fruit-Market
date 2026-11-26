@@ -14,7 +14,7 @@ import { countMarket, holdCards, shiftBought, shiftMarket, shiftShelf, turnCard 
 import { fx } from '../fx';
 import { endWalk } from '../table';
 import { FavourMark } from './panels/RushTable';
-import { built, firstInLine, firstMoved, fitTag, playedFavours } from './dayBeats';
+import { built, firstInLine, firstMoved, fitTag, playedLabel } from './dayBeats';
 import { MAX_COINS, MAX_PIECES, rushCards, type RushBlock, type RushCard, type ShowState } from './rush';
 
 // ---------- the lorry ----------
@@ -142,8 +142,7 @@ export async function moves(prev: GameState, next: GameState, viewer = -1) {
     // The card played is named as the game says it aloud (its log), not from the hand that held it: online a rival's
     // hand is only stand-ins (PLAN-091). When nothing public names it, the label says only that a card was played.
     const fewer = pl.favours.length < before.favours.length;
-    const played = fewer ? playedFavours(prev, next, i) : [];
-    const cards = !fewer ? '' : played.length ? played.map((id) => FAVOURS[id].title).join(' · ') : 'A favour card';
+    const cards = playedLabel(prev, next, i);
     if (cards) {
       fx.card();
       // A stall that also built names its cards on the upgrade's label (one label for each stall).

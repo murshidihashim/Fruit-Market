@@ -59,12 +59,8 @@ function atTakings(): GameState {
 }
 
 describe('the takings (daySheet.ts, DaySheet.tsx, SalesSummary.tsx)', () => {
-  it('are shown when the rush is truly done, not as the last card leaves', () => {
-    const rule = read('src/ui/game/daySheet.ts');
-    expect(rule).toContain("if (x.done && !x.rush) return 'takings';");
-    expect(rule.match(/return 'takings'/g)).toHaveLength(1);
-    expect(read('src/ui/game/panels/DaySheet.tsx')).toContain("{step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}");
-  });
+  // They are shown when the rush is truly done, not as the last card leaves: day-sheet.test.ts 'stays from stocking to
+  // the takings' (dayStep); drawn over the day's sheet in a game: scripts/smoke.cjs with scripts/table-checks.cjs ("takings").
 
   it('say "You" on your own row on a phone that is not shared, and the stall\'s name on a shared one', () => {
     const s = atTakings();
@@ -108,43 +104,19 @@ describe('after a Favoured Trade answer (tableNow.ts, RushTable.tsx)', () => {
     const quiet = draw(true);
     expect(quiet).not.toContain('Your prices are tied');
     expect(quiet).not.toContain('data-a="bell-ties"');
-    const table = read('src/ui/game/panels/RushTable.tsx');
-    expect(table).toContain('if (tying) answered.current = s.day;');
-    expect(table).toContain('answered: answered.current === s.day');
+    // the round table keeps the day it was asked: table-panels.test.ts 'the Favoured Trade question is asked once a day'
   });
 });
 
-describe('the first-game tip for stocking and pricing covers no control (Game.tsx, DaySheet.tsx, daysheet.css)', () => {
-  it('is not shown at the standing-order bid, and at stocking and pricing the sheet keeps room free for it', () => {
-    // "Secret prices" is about pricing fruit: it used to come up at the standing-order bid, over the bid's stepper
-    // (table-layout.test.ts 'the "Secret prices" tip is about pricing fruit')
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    expect(sheet).toContain("el.style.setProperty('--tip', note ? `${note.offsetHeight + 16}px` : '0px');");
-    const css = read('src/ui/daysheet.css');
-    expect(css).toContain('#app .tkt > .centre > .sh-day.own { padding-bottom: var(--tip, 0px); }');
-  });
-
-  it('on a small phone with a full shelf the sheet lies over the customers\' tickets while the tip is up, and slides back as it closes (PLAN-091)', () => {
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    // only with the tip up, only when the closest step still does not fit, at the roomiest step that fits there
-    expect(sheet).toContain("if (!(parseFloat(el.style.getPropertyValue('--tip')) > 0) || el.scrollHeight <= el.clientHeight + 1) return;");
-    expect(sheet).toContain("el.setAttribute('data-top', '');");
-    expect(sheet).toContain('if (el.scrollHeight <= el.clientHeight) break;');
-    // fitted again once the tickets' reach is measured, and slid back to its place when the tip is closed
-    expect(sheet).toContain("if (fitting.current && el.hasAttribute('data-top')) fit(el);");
-    expect(sheet).toContain("if (was && !el.hasAttribute('data-top')) A.flipFrom(el, was, { duration: A.FEEL.sheetIn, easing: A.EASE.sheet });");
-    expect(read('src/ui/daysheet.css')).toContain('#app .tkt > .centre > .sh-day.own[data-top] { z-index: 6; margin-top: calc(0px - var(--rise-full, 0px)); }');
-  });
-});
+// The first-game tip for stocking and pricing covers no control. It is not shown at the standing-order bid:
+// table-layout.test.ts 'the "Secret prices" tip is about pricing fruit'. At stocking the tip covers no row and no button
+// of the sheet, which keeps room free for it (and on a small phone lies over the customers' tickets while it is up):
+// checked in the browser as the first game is played (scripts/smoke.cjs with scripts/table-checks.cjs: "the tip covers").
 
 describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)', () => {
   it('can still be opened as its whole card, with the reason; it is never chosen', () => {
-    const src = read('src/ui/panel.tsx');
-    // a tap on it opens the card; choosing is for an offer that can be built
-    expect(src).toContain("disabled={why ? !onOpen : !onPick}");
-    expect(src).toContain("aria-disabled={why ? 'true' : undefined} onClick={why ? onOpen : onPick}");
-    expect(src).toContain('pick={chosen} onPick={choose} onOpen={setOpen} />');
-    expect(src).toContain('{canUpgrade(s, p, open) && <p class="cd-pop-why">{canUpgrade(s, p, open)}</p>}');
+    // a tap on it opens the card, with the reason; choosing is for an offer that can be built: table-panels.test.ts
+    // 'an offer the stall cannot build can still be opened' and 'its opened card says why'
     // it is still drawn greyed, and on the smallest phone it still says why under its one line
     const css = read('src/ui/sheets.css');
     expect(css).toContain("#app .tkt .uo-pick:is(:disabled, [aria-disabled='true']) > :not(.uo-kind, .uo-ft) { opacity: 0.5; }");
@@ -155,8 +127,8 @@ describe('the evening: an upgrade the stall cannot build (panel.tsx, sheets.css)
 describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
   it('the market is out of reach of the keyboard and screen readers while a sheet lies over it, and back when it leaves', () => {
     // when the market is covered (a sheet or the round table): table-layout.test.ts 'stocking draws the day's sheet;
-    // once the stall has opened the round table takes over, the market is out of reach'
-    expect(read('src/ui/game/underSheet.ts')).toContain("centre.querySelector(':scope > .market-stall')?.toggleAttribute('inert', sheet);");
+    // once the stall has opened the round table takes over, the market is out of reach'; the market itself in a game:
+    // scripts/smoke.cjs with scripts/table-checks.cjs ("the market is in reach under a sheet", "out of reach with no sheet over it")
   });
 
   it('each row of the table a sheet covers all of is out of reach too, measured where things come to rest (PLAN-091)', () => {
@@ -167,18 +139,8 @@ describe('the table under a sheet (Game.tsx, game/underSheet.ts)', () => {
     expect(covers(sheet, { top: 72, bottom: 170, left: 0, right: 360 })).toBe(false);
     expect(covers(sheet, { top: 560, bottom: 620, left: 0, right: 360 })).toBe(false);
     expect(covers({ ...sheet, left: 8, right: 352 }, { top: 300, bottom: 340, left: 0, right: 360 })).toBe(false);
-    const src = read('src/ui/game/underSheet.ts');
-    // the rows: the street's strips one by one, the stalls row and your shelf; the rush's round table counts too, and
-    // while it is up the customers' row, drawn above the bell's rows, stays in reach (PLAN-092)
-    expect(src).toContain("const ROWS = ':scope > .street-wrap > *, :scope > .seats, :scope > .my-stall';");
-    expect(src).toContain("...game.querySelectorAll<HTMLElement>(':scope > .rush-table:not(.leaving)'),");
-    expect(src).toContain("row.toggleAttribute('inert', !above && b.bottom > b.top && sheets.some((s) => covers(s, b)));");
-    // offsets, not the box on the screen: a sheet sliding in or off is measured where it comes to rest
-    expect(src).toContain('top += e.offsetTop;');
-    // a drawing that changed nothing in the middle measures nothing (the table draws often while things move)
-    expect(src).toContain('if (watch && now.length === was.length && now.every((x, i) => x === was[i])) return;');
-    // measured again whenever a sheet or a row changes its size between drawings
-    expect(src).toContain('const watch = typeof ResizeObserver === \'undefined\' ? null : new ResizeObserver(mark);');
+    // The rows in a game (the street's strips, the stalls' row, your shelf): one the sheet covers all of is out of
+    // reach, one it does not touch is in reach, measured at rest (scripts/smoke.cjs with scripts/table-checks.cjs).
   });
 });
 

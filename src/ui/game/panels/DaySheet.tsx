@@ -14,6 +14,7 @@ import { fx } from '../../fx';
 import { StallBar, StallPanelView, autoCrate, boxKey, stakeAtRisk, startingCrate } from '../../panel';
 import { TIGHTEST, dayStep, fitSheet, onSheet, ownStep, type DayNow, type DayStep } from '../daySheet';
 import { reachFrom, useReach } from '../reach';
+import { tableStep, type TableStep } from '../tableNow';
 import type { GameController } from '../useGameController';
 import { SalesSummary } from './SalesSummary';
 
@@ -29,6 +30,9 @@ export function dayNow(s: GameState, viewer: number, c: DayFacts, online: boolea
     bell: c.bell, rung: c.rung, rush: !!c.show, done: c.revealDone,
   };
 }
+
+/** The round table's step now (null: it is not up), worked out by the same rule as the day's sheet's. */
+export const tableStepNow = (s: GameState, viewer: number, c: DayFacts, online: boolean): TableStep | null => tableStep(dayStep(dayNow(s, viewer, c, online)));
 
 /** Is the day's sheet on the table now? Stocking and the takings (the game table asks; the sheet works out its step). */
 export const daySheetOn = (s: GameState, viewer: number, c: DayFacts, online: boolean): boolean =>

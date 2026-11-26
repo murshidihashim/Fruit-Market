@@ -630,28 +630,41 @@ export function EveningSheet({ s, p, onUpgrade, onCard, onShade, onDone }: {
         <EveningPanel s={s} p={p} onCard={(i) => { keep(chosen); onCard(i); }} onShade={onShade ? (f) => { keep(chosen); onShade(f); } : undefined} pick={chosen} onPick={choose} onOpen={setOpen} />
         <i class="ev-more" aria-hidden="true" />
       </div>
-      {/* Only the main button is a `.btn` (the browser tests press that one). */}
-      <div class="pp-lock ev-lock" data-two={chosen ? '' : undefined}>
-        {chosen ? (
-          <>
-            <button type="button" class="btn primary wide big" onClick={build}>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>
-            <button type="button" class="ev-out" onClick={onDone}>Lights out without building</button>
-          </>
-        ) : <button type="button" class="btn primary wide big" onClick={onDone}>Lights out <small class="btn-sub">next day</small></button>}
-      </div>
+      <EveningBar chosen={chosen} onBuild={build} onDone={onDone} />
       {intro && <MarketDayPopup s={s} p={p} offers={isDraftNight(s) ? offersTonight(s, p) : []} onDone={() => { marketDayRead(); setIntro(false); }} />}
-      {/* The whole card of a compact offer, opened over the table like a favour card: a tap beside it closes it too. */}
-      {open && (
-        <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={() => setOpen(null)}>
-          <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
-            <UpgradeCard id={open} eager />
-            {/* why it cannot be built now, in the game's words (as an opened favour card says why it cannot be played) */}
-            {canUpgrade(s, p, open) && <p class="cd-pop-why">{canUpgrade(s, p, open)}</p>}
-            <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={() => setOpen(null)}>Close</button></div>
-          </div>
-        </div>
-      )}
+      {open && <UpgradeOpen s={s} p={p} open={open} onClose={() => setOpen(null)} />}
     </>
+  );
+}
+
+/** The evening's one main button, in the action bar's place: "Build Order Book · $3" beside "Lights out without
+ *  building" once an upgrade is chosen, otherwise "Lights out". Only the main button is a `.btn` (the browser tests
+ *  press that one). The evening never ends by itself. */
+export function EveningBar({ chosen, onBuild, onDone }: { chosen: UpgradeId | null; onBuild: () => void; onDone: () => void }) {
+  return (
+    <div class="pp-lock ev-lock" data-two={chosen ? '' : undefined}>
+      {chosen ? (
+        <>
+          <button type="button" class="btn primary wide big" onClick={onBuild}>Build {UPGRADES[chosen].title} · ${UPGRADES[chosen].cost}</button>
+          <button type="button" class="ev-out" onClick={onDone}>Lights out without building</button>
+        </>
+      ) : <button type="button" class="btn primary wide big" onClick={onDone}>Lights out <small class="btn-sub">next day</small></button>}
+    </div>
+  );
+}
+
+/** The whole card of a compact offer, opened over the table like a favour card, with why it cannot be built now in the
+ *  game's words (as an opened favour card says why it cannot be played). A tap beside it closes it too. */
+export function UpgradeOpen({ s, p, open, onClose }: { s: GameState; p: number; open: UpgradeId; onClose: () => void }) {
+  const why = canUpgrade(s, p, open);
+  return (
+    <div class="cd-pop ev-card" role="dialog" aria-label={`Upgrade: ${UPGRADES[open].title}`} onClick={onClose}>
+      <div class="cd-pop-in" onClick={(e) => e.stopPropagation()}>
+        <UpgradeCard id={open} eager />
+        {why && <p class="cd-pop-why">{why}</p>}
+        <div class="cd-pop-btns"><button type="button" class="btn ghost" onClick={onClose}>Close</button></div>
+      </div>
+    </div>
   );
 }
 

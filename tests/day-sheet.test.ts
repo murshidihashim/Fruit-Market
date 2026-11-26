@@ -81,10 +81,9 @@ describe('the day\'s sheet: which step it shows (daySheet.ts)', () => {
     // from the flip on everything on the sheet is public
     expect(dayStep(now({ phase: 'tie', mine: false, rung: true }))).toBe('tie');
     expect(dayStep(now({ phase: 'reveal', mine: false, bell: 2, rung: true }))).toBe('bell');
-    // the sheet and the round table work that out from the person the phone was handed to
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    expect(sheet).toContain("mine: s.players[viewer]?.kind === 'human' && (online || c.humans.length === 1 || c.handedTo === viewer),");
-    expect(read('src/ui/game/panels/RushTable.tsx')).toContain('const step = tableStep(dayStep(dayNow(s, viewer, c, !!online)));');
+    // the sheet and the round table work that out from the person the phone was handed to, by one rule
+    // (DaySheet.tsx dayNow, tableStepNow): table-panels.test.ts 'whose stall the day's sheet and the round table are
+    // drawn for'
   });
 
   it('the day\'s sheet draws stocking and lies plain under the takings; every step between is the round table\'s (PLAN-099)', () => {
@@ -101,36 +100,17 @@ describe('one element stays on the table (Game.tsx, DaySheet.tsx, RushTable.tsx)
   it('the game table draws the day\'s sheet for stocking and the takings, and the round table between them', () => {
     // which of them is up at each step: table-layout.test.ts 'stocking draws the day's sheet; once the stall has opened
     // the round table takes over' and 'the takings lie on the day's sheet once the rush is truly over'
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    // one root element whose class does not change with the step (sheet.ts slides a panel in only when its class changes)
-    expect(sheet.match(/<div class=\{`mid-panel sh-day /g)).toHaveLength(1);
-    for (const gone of ['CratesOpen', 'TieCard', 'PricePanelView', 'PriceBar']) expect(sheet).not.toContain(gone);
-    // the takings are their own panel, mounted after the sheet, which stays under them
-    const root = sheet.indexOf('<div class={`mid-panel sh-day ');
-    expect(sheet.indexOf("{step === 'takings' && <SalesSummary s={s} viewer={viewer} shared={shared} />}")).toBeGreaterThan(root);
-    // the round table is one element from the moment the stall opens to the last customer: the same section is drawn
-    // before the rush and in it, so nothing is swapped as the first customer comes in
-    const table = read('src/ui/game/panels/RushTable.tsx');
-    expect(table.match(/<section class=\{`rush-table /g)).toHaveLength(1);
-    expect(table.match(/<TableView /g)?.length).toBe(3);
-    expect(table).toContain("key={`seat-${p}`}");
+    // The day's sheet stays one element through the day and the round table one element from the moment the stall
+    // opens to the last customer; the takings come as their own panel over the day's sheet, which stays plain under
+    // them: checked in the browser as a whole game is played (scripts/smoke.cjs with scripts/table-checks.cjs: "drawn again as a new
+    // element", "takings").
   });
 
   it('the day\'s sheet and the round table move by position, size and fade only, on the table\'s clock, and wait for nothing', () => {
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    expect(sheet).not.toMatch(/setTimeout|setInterval|onAnimationEnd|onTransitionEnd|\.finished/);
-    expect(sheet).not.toMatch(/rotate|skew|steps\(/);
-    // its lengths are named on the table's clock (motion.ts): a piece's slide
-    expect(sheet).toContain('duration: A.BEAT.stock.fly');
-    expect(sheet).not.toMatch(/duration: \d|_MS = \d/);
-    // the round table's moves (tableBeats.ts): the crates travel to their seats, your tags turn face down, the bell
-    // swings and the crates open, the question comes in
-    const beats = read('src/ui/game/tableBeats.ts');
-    expect(beats).toContain("const TURN: Keyframe[] = [{ transform: 'scaleY(0.05)', opacity: 0 }, { transform: 'none', opacity: 1 }];");
-    expect(beats).toContain('duration: A.ms(A.BEAT.price.seal)');
-    expect(beats).toContain('duration: A.BEAT.table.form');
-    expect(beats).not.toMatch(/setTimeout|setInterval|onAnimationEnd|onTransitionEnd|\.finished|rotate|skew|steps\(|duration: \d/);
-    for (const frames of beats.match(/\{ (transform|opacity)[^}]*\}/g) ?? []) expect(frames).not.toMatch(/(?<!transform|opacity|translate\w*|scale\w*): /);
+    // Every move the day's sheet and the round table make in a whole game (element.animate, CSS animations and
+    // transitions) is read in the browser: position, size and fade only, never stepped (scripts/smoke.cjs with scripts/table-checks.cjs).
+    // Their scripts hold no lengths of their own: motion.test.ts 'the table's scripts and panels hold no lengths of
+    // their own' (DaySheet.tsx, tableBeats.ts and the controller's parts are among its files).
     expect([BEAT.stock.fly, BEAT.price.seal]).toEqual([260, 200]);
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
     expect(css).not.toMatch(/@keyframes|animation:/);
@@ -320,29 +300,17 @@ describe('stocking and pricing are drawn closer before anything scrolls (dayShee
   });
 
   it('the room is measured from the sheet itself, each time the rows are laid out and at each step of the day', () => {
-    const sheet = read('src/ui/game/panels/DaySheet.tsx');
-    expect(sheet).toContain('const room = el.clientHeight;');
-    expect(sheet).toContain('needs.push(el.scrollHeight);');
-    expect(sheet).toContain('if (needs[t] <= room + 1) break;');
-    expect(sheet).toContain("useReach(root, 'row', true, true, (el) => { if (fitting.current) fit(el); });");
-    expect(sheet).not.toMatch(/innerHeight|innerWidth|matchMedia/);
-    // the step is written on the sheet: nothing is drawn again for it
-    expect(sheet).not.toMatch(/setTight|useState<number>/);
+    // In the browser, as a game is played, stocking scrolls only at its closest step, and the pricing sheet at the
+    // round table's foot stays on the screen (scripts/smoke.cjs with scripts/table-checks.cjs: "scrolls at step", "runs off the screen").
     const css = read('src/ui/daysheet.css').replace(/\/\*[\s\S]*?\*\//g, '');
     // no fixed screen height decides how close the rows are drawn (only where the sheet lies, on a short phone)
     expect(css.match(/max-height: \d+px/g)).toEqual(['max-height: 760px', 'max-height: 760px']);
     expect(css).toContain('#app .tkt > .centre > .sh-day.own[data-over] { z-index: 6; margin-bottom: calc(0px - var(--drop, 0px)); }');
     // pricing is the round table's sheet now (PLAN-099): drawn closer a step at a time against the room the seats need
-    // above it, measured from the sheet itself, its rows scrolling inside it past the closest step
-    const table = read('src/ui/game/panels/RushTable.tsx');
-    expect(table).toContain('const need = tableMin(n, w, h);');
-    expect(table).toContain('for (let t = 1; t <= 3 && left < need; t++) {');
+    // above it, its rows scrolling inside it past the closest step
     const rush = read('src/ui/rushTable.css');
     expect(rush).toContain("#app .tkt .rt-sheet[data-tight='3'] .ps-note.ps-fav { display: none; }");
-    // the pricing sheet's one-line forms
-    const panel = read('src/ui/panel.tsx');
-    // (PLAN-116, REP-133 B-17: the words are one constant now, rulesText.ts TIE_ORDER; tieOrderLine's test above reads them)
-    expect(panel).toContain('return `Ties: ${TIE_ORDER}.');
-    expect(panel).toContain('You hold Favoured Trade. If you tie, you\'ll be asked after the prices flip.');
+    // the pricing sheet's one-line forms: tieOrderLine's test above, and table-panels.test.ts 'a stall holding Favoured
+    // Trade is told it will be asked after the prices flip if it ties'
   });
 });

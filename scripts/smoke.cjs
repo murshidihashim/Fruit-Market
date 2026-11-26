@@ -7,6 +7,7 @@
 // its mode's slot as it opens (PLAN-120), and continued with its card's Continue.
 const { chromium } = require('playwright');
 const fs = require('fs');
+const table = require('./table-checks.cjs');
 
 /** Sets the number of rival stalls on the set-up page's table (PLAN-125: small cards): the open card adds a computer,
  *  the last card's × removes it. */
@@ -25,6 +26,11 @@ const path = require('path');
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  // PLAN-130: the table's rules, checked as the game is played (table-checks.cjs).
+  await table.install(page);
+  const broken = [];
+  const looked = [];
+  const look = async (at) => { looked.push(at); for (const x of await table.check(page, at)) if (!broken.includes(x)) broken.push(x); };
   await page.addInitScript((save) => {
     localStorage.setItem('fm.settings', JSON.stringify({ sound: false, haptics: false, fast: true, tips: true }));
     if (save && !localStorage.getItem('fm.smoke')) { localStorage.setItem('fm.smoke', '1'); localStorage.setItem('fm.save', save); }
@@ -67,9 +73,12 @@ const path = require('path');
     // "The Bell" pop-up: it opens only from its i button since PLAN-064; close it if it is up.
     if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
     // The first-game tips (tips are on in this test): read and close each one.
-    if (await page.locator('.coach .btn:not(.skip)').count()) { await page.click('.coach .btn:not(.skip)'); continue; }
+    if (await page.locator('.coach .btn:not(.skip)').count()) {
+      if (await has('.stall-panel') && once('stocking-tip-check')) { await page.waitForTimeout(500); await look('stocking-tip'); }
+      await page.click('.coach .btn:not(.skip)'); continue;
+    }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
-    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { if (once('stocking-check')) { await page.waitForTimeout(500); await look('stocking'); } await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
     // The Favoured Trade step (rules 18): a stall that holds the card and has a tied price is asked after the flip,
     // with two buttons, "Play it" and "Keep it" (PLAN-081: the one-button step below used to stop here for good).
     // Play it the first time and keep it the next, so both answers are played.
@@ -84,6 +93,7 @@ const path = require('path');
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
       if (once('bid')) await shot('05-pricing');
+      if (await has('.rt-sheet') && once('pricing-check')) await look('pricing');
       await lock.click();
       if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }
       continue;
@@ -94,7 +104,7 @@ const path = require('path');
       if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); }
       continue;
     }
-    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) await shot('07-summary'); if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
     } catch {
@@ -106,7 +116,15 @@ const path = require('path');
   const reached = await page.locator('.results').count();
   await shot(reached ? '10-results' : '10-stuck');
   console.log('results visible:', reached, 'errors:', errors);
+  for (const x of await table.report(page)) if (!broken.includes(x)) broken.push(x);
+  console.log('table checked at:', looked.join(', '));
+  // the stocking sheet, the pricing sheet and the takings are reached in every game
+  for (const at of ['stocking', 'pricing', 'takings']) if (!looked.includes(at)) broken.push(`the table was not checked at ${at}`);
   await browser.close();
+  if (broken.length) {
+    console.error(`Solo playthrough FAILED: the table broke its rules:\n  ${broken.join('\n  ')}`);
+    process.exit(1);
+  }
   if (!reached) {
     console.error(`Solo playthrough FAILED: the results screen was not reached. The last screen is in ${out}/10-stuck.png`);
     process.exit(1);
