@@ -112,7 +112,22 @@ const [base = 'http://127.0.0.1:8787', out = '.'] = process.argv.slice(2);
   });
   if (rx && (rx.covers || !rx.wide || !rx.tall)) throw new Error(`the reaction button in the game: ${JSON.stringify(rx)}`);
   await A.page.click('.tk-menu');
+  // REP-133 B-04 (REP-140 A-01: checked here in place of a read of Popovers.tsx's text): the game menu and its
+  // "Leave the match?" box each keep keyboard focus inside them.
+  const focused = () => A.page.evaluate(() => { const e = document.activeElement; return e ? `${e.tagName.toLowerCase()}.${String(e.className).trim().split(/\s+/).join('.')}` : 'nothing'; });
+  // Tab and Shift-Tab go round the box's own buttons and never leave it (where focus is as it opens is logged).
+  const keepsFocus = async (what) => {
+    await A.page.waitForTimeout(300);
+    console.log(`${what} open: focus on ${await focused()}`);
+    for (let i = 0; i < 10; i++) {
+      await A.page.keyboard.press(i < 7 ? 'Tab' : 'Shift+Tab');
+      if (!(await A.page.evaluate(() => !!document.activeElement?.closest('.game-menu')))) throw new Error(`focus left ${what} after ${i + 1} key presses: on ${await focused()}`);
+    }
+  };
+  await keepsFocus('the game menu');
   await A.page.click('.game-menu button:has-text("Home")');
+  await keepsFocus('"Leave the match?"');
+  console.log('the game menu and "Leave the match?" keep focus');
   await A.page.click('.game-menu button:has-text("Stay in the match")');
   await A.page.waitForSelector('.game-menu', { state: 'detached', timeout: 2000 });
   console.log(`game reaction button clear of the market (${rx ? 'checked' : 'not shown at this step'}); Stay in the match closes the menu`);

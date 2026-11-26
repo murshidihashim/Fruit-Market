@@ -12,6 +12,7 @@ import {
 import { count, winners, type GameState, type LineResult } from '../engine/game';
 import { LEAGUE, STAR_COUNT, heldStars, masteryStars, starsEarned, type MASTERY_STAGES } from './campaign';
 import { bestStreak } from './streak';
+import { trophyMode } from './modes';
 
 export type Tier = 'bronze' | 'silver' | 'gold';
 export const TIERS: Tier[] = ['bronze', 'silver', 'gold'];
@@ -436,7 +437,7 @@ export function evaluate(g: GameState, me: number, ctx: Context): { got: string[
   const f = gameFacts(g, me);
 
   // Sets that build up across games (joined, so counting a game twice changes nothing).
-  add(sets, 'modes', ctx.online ? 'online' : g.config.daily ? 'daily' : g.config.league !== undefined ? 'league' : 'new');
+  add(sets, 'modes', trophyMode(g.config, !!ctx.online));
   add(sets, 'guests', ...f.guests);
   add(sets, 'customers', ...f.others);
   add(sets, 'clients', ...f.clients);

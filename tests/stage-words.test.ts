@@ -7,7 +7,8 @@ import { CUSTOMER_CARDS, FRUIT, FRUITS, STAGE_WORD, acceptsStage, prefOf, stageA
 import { capAt } from '../src/engine/game';
 import { QUICK_FILL_MS } from '../src/net/protocol';
 import { PrefLegend, prefWords, toStaticHtml } from '../src/ui/cards';
-import { FruitCard, SALE_SAYS, TrySale, WhoBuys, saleOrder } from '../src/ui/HowTo';
+import { SALE_SAYS, TrySale, saleOrder } from '../src/ui/HowToBook';
+import { FruitCard, WhoBuys } from '../src/ui/howtoRules';
 import { QUICK_NOTE } from '../src/ui/playMenu';
 import { topPrice } from '../src/ui/practice';
 import { OKAY_LESS, SOFT_LESS, STAGE_WORD as SCREEN_WORD, stageLess, type Ripe } from '../src/ui/stageWords';

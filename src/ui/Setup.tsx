@@ -9,7 +9,7 @@
 // - A segmented choice (the chosen part ink with yellow words) for the game length and Quick Match's table size, and one
 //   big yellow button at the foot.
 // The look is the Home's (PLAN-124): ink edges, paper, mustard actions, square corners. Styles: setup.css.
-import { useMemo, useRef, useState } from 'preact/hooks';
+import { useMemo, useRef, useState, type Dispatch, type StateUpdater } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { RIVALS } from '../engine/data';
 import type { GameConfig, Level, PlayerConfig } from '../engine/game';
@@ -20,7 +20,7 @@ import { shopFocus, shopScene } from './deckArt';
 import { fx } from './fx';
 import { LENGTHS, wayLine, wayName, type PlayWay } from './playMenu';
 import { BackArrow, FramedFace } from './stampCard';
-import { myAvatar } from './looks';
+import { myAvatar, saveAvatar } from './looks';
 import { fitName, loadName, saveName } from './store';
 import type { LookSet } from '../net/looks';
 import { NAME_MAX } from '../net/protocol';
@@ -232,7 +232,7 @@ export function TableRow({ count, children, wrap, min = 4, wrapOver }: { count: 
 // ---------------------------------------------------------------------------------------------------------------------
 // The set-up for a game on this phone: Computer and Pass & Play.
 
-interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
+export interface Seat { kind: 'human' | 'ai'; level: Level; name: string; avatar?: string }
 /** Rival stalls: up to 5, so 6 stalls with you (rules 11). */
 export const MAX_RIVALS = 5;
 export const LEVEL_WORD: Record<Level, string> = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
@@ -261,6 +261,24 @@ export function seatShopkeepers(mine: string, seats: { kind: 'human' | 'ai'; ava
 export const stallsWord = (n: number) => `${n} stalls`;
 
 /**
+ * The game a local set-up starts: you first, then each stall at the table (a person with their shopkeeper and name, a
+ * computer as its rival with its level). The full game, always (owner, PLAN-063): event cards, stall upgrades, unripe
+ * fruit and Market Days on; the beginner and expert playtest options (PLAN-015: basic game, fixed prices, price drift)
+ * off. Pure, so it can be unit tested (REP-140 A-02).
+ */
+export function localGame(me: { name: string; avatar: string }, seats: Seat[], keepers: string[], names: string[], days: number, seed: number): GameConfig {
+  const players: PlayerConfig[] = [
+    { name: me.name, kind: 'human', avatar: me.avatar },
+    ...seats.map((st, i): PlayerConfig => {
+      if (st.kind === 'human') return { name: names[i], kind: 'human', avatar: keepers[i] };
+      const r = RIVALS.find((x) => x.avatar === keepers[i]) ?? RIVALS[0];
+      return { name: r.name, kind: 'ai', level: st.level, avatar: r.avatar, quip: r.quip };
+    }),
+  ];
+  return { players, days, unripe: true, upgrades: true, events: true, marketDays: true, core: false, street: false, pulse: false, seed };
+}
+
+/**
  * PLAN-125: the set-up for a game on this phone, on one page. `mode` 'computer' starts with three computers; 'phone'
  * (Pass & Play) with a second person. `days` is the length chosen last.
  */
@@ -281,17 +299,6 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
   // S8 (PLAN-110): with people on this phone a blank name is "Player 1", as theirs are "Player 2" and on. Alone, "You".
   const myName = () => name.trim() || (people > 0 ? 'Player 1' : 'You');
   const setSeat = (i: number, patch: Partial<Seat>) => setSeats((ss) => ss.map((x, k) => (k === i ? { ...x, ...patch } : x)));
-  const renumber = (ss: Seat[]) => ss.map((x, k) => (x.kind === 'human' && (!x.name || /^Player \d+$/.test(x.name)) ? { ...x, name: `Player ${k + 2}` } : x));
-  const add = (kind: 'human' | 'ai') => {
-    if (seats.length >= MAX_RIVALS) return;
-    fx.tap();
-    setSeats((ss) => renumber([...ss, { kind, level: 'normal', name: '' }]));
-  };
-  const remove = (i: number) => {
-    if (seats.length <= 1) return;
-    setSeats((ss) => renumber(ss.filter((_, k) => k !== i)));
-    setActive((a) => (a === null || a === i ? null : a > i ? a - 1 : a));
-  };
 
   // The deck shows the shopkeeper of whoever is chosen; the cards the other people have are taken.
   const editing = active !== null && seats[active]?.kind === 'human' ? active : null;
@@ -302,23 +309,11 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
 
   const begin = () => {
     saveName(name.trim());
-    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the same key the online screens keep).
-    try { localStorage.setItem('fm.avatar', myChar); } catch { /* no storage: Home shows the first shopkeeper */ }
-    const players: PlayerConfig[] = [
-      { name: myName(), kind: 'human', avatar: myChar },
-      ...seats.map((st, i): PlayerConfig => {
-        if (st.kind === 'human') return { name: seatName(i), kind: 'human', avatar: keepers[i] };
-        const r = RIVALS.find((x) => x.avatar === keepers[i]) ?? RIVALS[0];
-        return { name: r.name, kind: 'ai', level: st.level, avatar: r.avatar, quip: r.quip };
-      }),
-    ];
-    // The full game, always (owner, PLAN-063): event cards, stall upgrades, unripe fruit and Market Days on; the
-    // beginner and expert playtest options (PLAN-015: basic game, fixed prices, price drift) off.
-    onStart({ players, days, unripe: true, upgrades: true, events: true, marketDays: true, core: false, street: false, pulse: false, seed: (Math.random() * 2 ** 31) >>> 0 }, days);
+    // PLAN-113: the shopkeeper you play is the one Home shows at your stall (the one the online screens keep too).
+    saveAvatar(myChar);
+    onStart(localGame({ name: myName(), avatar: myChar }, seats, keepers, seats.map((_, i) => seatName(i)), days, (Math.random() * 2 ** 31) >>> 0), days);
   };
 
-  const open = seats.length < MAX_RIVALS;
-  const stall = seats.length + 2;
   return (
     <SbPage title={wayName(mode)} sub={wayLine(mode)} onBack={onBack} class={`sb-local sb-${mode}`}
       foot={<SbGo a="start" onClick={() => { fx.card(); begin(); }}>Start game</SbGo>}>
@@ -330,27 +325,7 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
         <SbLabel right={editing !== null ? <button type="button" class="sb-link" onClick={() => { fx.tap(); setActive(null); }}>Back to you</button> : undefined}>
           {`The table · ${stallsWord(seats.length + 1)}`}
         </SbLabel>
-        <TableRow count={seats.length + (open ? 1 : 0)}>
-          {seats.map((st, i) => (st.kind === 'ai'
-            ? <SeatCard top={`Stall ${i + 2}`} title={keeperName(keepers[i])} avatar={keepers[i]} band={phone ? 'k' : 'y'} small={phone ? 'Computer' : 'Level'} big={LEVEL_WORD[st.level]}
-                label={`Stall ${i + 2}: computer, ${keeperName(keepers[i])}, ${LEVEL_WORD[st.level]}. Tap for another level`}
-                onClick={() => { fx.tap(); setSeat(i, { level: NEXT_LEVEL[st.level] }); }}
-                onRemove={seats.length > 1 ? () => remove(i) : undefined} removeLabel={`Remove stall ${i + 2}`} />
-            : <SeatCard top={`Stall ${i + 2}`} title={keeperName(keepers[i])} avatar={keepers[i]} band="b" small="Person" big={seatName(i)} selected={editing === i} pressed={editing === i}
-                label={`Stall ${i + 2}: ${seatName(i)}, ${keeperName(keepers[i])}. Choose their name and shopkeeper`}
-                onClick={() => { fx.tap(); setActive(editing === i ? null : i); }}
-                onRemove={seats.length > 1 ? () => remove(i) : undefined} removeLabel={`Remove stall ${i + 2}`} />))}
-          {open && (phone
-            ? (
-              <OpenCard top={`Stall ${stall}`} big="+" small="Person or computer" class="pick">
-                <span class="sb-two">
-                  <button type="button" class="sb-add" aria-label={`Add a person at stall ${stall}`} onClick={() => add('human')}>Person</button>
-                  <button type="button" class="sb-add" aria-label={`Add a computer at stall ${stall}`} onClick={() => add('ai')}>Computer</button>
-                </span>
-              </OpenCard>
-            )
-            : <OpenCard top={`Stall ${stall}`} big="+" small="Add a computer" label={`Add a computer at stall ${stall}`} onClick={() => add('ai')} />)}
-        </TableRow>
+        <LocalTable phone={phone} seats={seats} keepers={keepers} editing={editing} seatName={seatName} setSeats={setSeats} setSeat={setSeat} setActive={setActive} />
         {phone && <p class="sb-note">{people ? 'Tap a person to set their name and shopkeeper.' : 'Add a person to pass the phone round.'}</p>}
       </section>
       <LengthSeg days={days} onDays={setDays} />
@@ -358,7 +333,50 @@ export function LocalSetup({ mode, days: days0 = 10, onBack, onStart }: { mode: 
   );
 }
 
-/** A shopkeeper's name by avatar key (the deck's and the cards' words). */
+/** The other stalls at a local table: a computer (tap for another level) or a person (tap to choose their name and
+ *  shopkeeper), each with a remove button, then the open stall to add one at. */
+function LocalTable({ phone, seats, keepers, editing, seatName, setSeats, setSeat, setActive }: {
+  phone: boolean; seats: Seat[]; keepers: string[]; editing: number | null; seatName: (i: number) => string;
+  setSeats: Dispatch<StateUpdater<Seat[]>>; setSeat: (i: number, patch: Partial<Seat>) => void; setActive: Dispatch<StateUpdater<number | null>>;
+}) {
+  const renumber = (ss: Seat[]) => ss.map((x, k) => (x.kind === 'human' && (!x.name || /^Player \d+$/.test(x.name)) ? { ...x, name: `Player ${k + 2}` } : x));
+  const add = (kind: 'human' | 'ai') => {
+    if (seats.length >= MAX_RIVALS) return;
+    fx.tap();
+    setSeats((ss) => renumber([...ss, { kind, level: 'normal', name: '' }]));
+  };
+  const remove = (i: number) => {
+    if (seats.length <= 1) return;
+    setSeats((ss) => renumber(ss.filter((_, k) => k !== i)));
+    setActive((a) => (a === null || a === i ? null : a > i ? a - 1 : a));
+  };
+  const open = seats.length < MAX_RIVALS;
+  const stall = seats.length + 2;
+  return (
+    <TableRow count={seats.length + (open ? 1 : 0)}>
+      {seats.map((st, i) => (st.kind === 'ai'
+        ? <SeatCard top={`Stall ${i + 2}`} title={keeperName(keepers[i])} avatar={keepers[i]} band={phone ? 'k' : 'y'} small={phone ? 'Computer' : 'Level'} big={LEVEL_WORD[st.level]}
+            label={`Stall ${i + 2}: computer, ${keeperName(keepers[i])}, ${LEVEL_WORD[st.level]}. Tap for another level`}
+            onClick={() => { fx.tap(); setSeat(i, { level: NEXT_LEVEL[st.level] }); }}
+            onRemove={seats.length > 1 ? () => remove(i) : undefined} removeLabel={`Remove stall ${i + 2}`} />
+        : <SeatCard top={`Stall ${i + 2}`} title={keeperName(keepers[i])} avatar={keepers[i]} band="b" small="Person" big={seatName(i)} selected={editing === i} pressed={editing === i}
+            label={`Stall ${i + 2}: ${seatName(i)}, ${keeperName(keepers[i])}. Choose their name and shopkeeper`}
+            onClick={() => { fx.tap(); setActive(editing === i ? null : i); }}
+            onRemove={seats.length > 1 ? () => remove(i) : undefined} removeLabel={`Remove stall ${i + 2}`} />))}
+      {open && (phone
+        ? (
+          <OpenCard top={`Stall ${stall}`} big="+" small="Person or computer" class="pick">
+            <span class="sb-two">
+              <button type="button" class="sb-add" aria-label={`Add a person at stall ${stall}`} onClick={() => add('human')}>Person</button>
+              <button type="button" class="sb-add" aria-label={`Add a computer at stall ${stall}`} onClick={() => add('ai')}>Computer</button>
+            </span>
+          </OpenCard>
+        )
+        : <OpenCard top={`Stall ${stall}`} big="+" small="Add a computer" label={`Add a computer at stall ${stall}`} onClick={() => add('ai')} />)}
+    </TableRow>
+  );
+}
+
 export { keeperName };
 /** The face picture on a small card before a shopkeeper is chosen (the online room), or a computer's badge. */
 function PlainFace({ who, look }: { who: string; look?: LookSet }) {

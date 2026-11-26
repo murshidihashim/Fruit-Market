@@ -1,9 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { h } from 'preact';
-import { toStaticHtml } from '../src/ui/cards';
-import { CUSTOMER_CARDS, lookOf, prefOf } from '../src/engine/data';
-import { HowTo, SALE_BUYER, saleOrder } from '../src/ui/HowTo';
+import { TradingCardBack, toStaticHtml } from '../src/ui/cards';
+import { CUSTOMER_CARDS, FARMER_CARDS, FRUIT, lookOf, prefOf } from '../src/engine/data';
+import { HowTo, PAGES, SALE_BUYER, TrySale, saleOrder } from '../src/ui/HowToBook';
+import { HowTo as HowToOnDemand, howTo } from '../src/ui/HowTo';
+import { Freshness, WhoBuys } from '../src/ui/howtoRules';
+import { LANES } from '../src/ui/boardModel';
+import { TIE_ORDER, TIE_ORDER_CARD } from '../src/ui/rulesText';
+import { BellNotice, tieOrderLine } from '../src/ui/panel';
+import { TIPS } from '../src/ui/tutorial';
+import { practiceRound, practiceVerdict } from '../src/ui/practice';
+import { dailyConfig } from '../src/engine/daily';
+import { newGame } from '../src/engine/game';
 
 // toStaticHtml draws hook-free trees: the hooks hold their first value here (as tests/home-cards.test.ts does).
 vi.mock('preact/hooks', () => ({
@@ -16,10 +25,11 @@ vi.mock('preact/hooks', () => ({
 // out by the rule (cheapest first, only a freshness the customer buys, until the order is full), not typed in by hand.
 
 describe('How to play pages', () => {
-  it('has the seven pages, in the owner\'s order', () => {
-    const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
-    const titles = [...src.matchAll(/\{ title: '((?:[^'\\]|\\')+)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    expect(titles).toEqual(['How to play', 'Fruit & freshness', 'Lorry & event', 'Customer', 'Favour', 'Market Day', 'Try a sale']);
+  it('has the seven pages, in the owner\'s order, each a tab of the drawn page', () => {
+    const titles = ['How to play', 'Fruit & freshness', 'Lorry & event', 'Customer', 'Favour', 'Market Day', 'Try a sale'];
+    expect(PAGES.map((p) => p.title)).toEqual(titles);
+    const tabs = /class="ht-tabs"[^>]*>([\s\S]*?)<\/nav>/.exec(toStaticHtml(h(HowTo, { onDone: () => undefined, inTab: true })))?.[1] ?? '';
+    expect([...tabs.matchAll(/>([^<>]+)<\/button>/g)].map((m) => m[1].replace(/&amp;/g, '&'))).toEqual(titles);
   });
 
   it('opens on How to play with the starting cash, "Most cash wins." and the day\'s four turns', () => {
@@ -36,18 +46,36 @@ describe('How to play pages', () => {
   });
 
   it('the customer page names the favour card and draws the regular\'s own card face down', () => {
-    const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
-    expect(src).toContain("Serve a customer's whole order by yourself to gain a Favour card.");
-    expect(src).toContain('<TradingCardBack fruits={fruitsOf(TODAY_REG)} />');
+    const page = PAGES.find((p) => p.title === 'Customer')!;
+    const html = toStaticHtml(h('div', null, page.body()));
+    expect(html).toContain("Serve a customer's whole order by yourself to gain a Favour card.");
+    // today's regular (Aisyah, 3 watermelons) is drawn face up, and her card face down shows only the fruit she wants
+    expect(html).toContain(toStaticHtml(h(TradingCardBack, { fruits: ['watermelon'] })));
     // who buys what sits behind the (i) on the Customer page, not on Fruit & freshness
-    expect(src).toContain("{ title: 'Customer', body: () => <Customers />, info: { label: 'Who buys what', card: () => <WhoBuys /> } }");
+    expect(page.info?.label).toBe('Who buys what');
+    expect(toStaticHtml(h('div', null, page.info!.card()))).toBe(toStaticHtml(h('div', null, h(WhoBuys, {}))));
+    expect(PAGES.filter((p) => p.info).map((p) => p.title)).toEqual(['Customer']);
   });
 
-  it('the market board is filled from a real lorry card, and every fruit has a card to open', () => {
-    const src = readFileSync('src/ui/HowTo.tsx', 'utf8');
-    expect(src).toContain("FARMER_CARDS.find((c) => c.name === 'Mixed Basket')");
-    expect(src).toContain('n={BOARD_LORRY.table[BOARD_STALLS][f]}');
-    expect(src).toContain('There are 4 fruits in the game: blueberry, watermelon, mango and apple.');
+  it('the market board is filled from a real lorry card at three stalls, and every fruit has a card to open', () => {
+    const html = toStaticHtml(h(Freshness, {}));
+    expect(html).toContain('There are 4 fruits in the game: blueberry, watermelon, mango and apple.');
+    const card = FARMER_CARDS.find((c) => c.name === 'Mixed Basket')!;
+    expect(html).toContain(`${card.name} · 3 stalls`);
+    const lanes = html.split('class="ht-lane-v ln-').slice(1);
+    expect(lanes.map((l) => l.slice(0, l.indexOf('"')))).toEqual(LANES);
+    LANES.forEach((f, k) => {
+      const n = card.table[3][f];
+      expect(lanes[k], f).toContain(n > 1 ? `<b>×${n}</b>` : 'class="ht-tkn"');
+      expect(lanes[k], f).toContain(`aria-label="${FRUIT[f].name}: see its card"`);
+    });
+  });
+
+  it('is loaded on demand: the way in draws the same page once its code is here (REP-140 A-08)', async () => {
+    await howTo.load();
+    expect(howTo.ready()).toBe(true);
+    const props = { onDone: () => undefined, inTab: true };
+    expect(toStaticHtml(h(HowToOnDemand, props))).toBe(toStaticHtml(h(HowTo, props)));
   });
 });
 
@@ -76,5 +104,25 @@ describe('Try a sale', () => {
 
   it('Fresh only: B\'s Okay piece is skipped, A sells 2 at $4, then C 1 at $5', () => {
     expect(saleOrder('premium').map((p) => [p.stall, p.price])).toEqual([['A', 4], ['A', 4], ['C', 5]]);
+  });
+});
+
+// REP-133 B-17 (moved here from review-133-b.test.ts, which read the source text; REP-140 A-01): one tie wording.
+describe('the tie wording', () => {
+  it('Try a sale words the tie rule as the pricing panel does', () => {
+    expect(toStaticHtml(h(TrySale, {}))).toContain(`Otherwise ties go: ${TIE_ORDER} in today's buying.`);
+  });
+
+  it('the old wordings are gone from what the screens say: How to play, the tips, the price practice and the bell card', () => {
+    const said = [
+      ...PAGES.map((p) => toStaticHtml(h('div', null, p.body(), p.info?.card()))),
+      ...TIPS.map((t) => t.text),
+      ...Array.from({ length: 60 }, (_, n) => { const r = practiceRound(n); return r.options.map((o) => practiceVerdict(r, o).text).join(' '); }),
+      toStaticHtml(h(BellNotice, { onClose: () => undefined })),
+      tieOrderLine(newGame(dailyConfig('2026-11-22', 'You')), 9),
+    ].join('\n');
+    expect(said).toContain(TIE_ORDER_CARD);
+    expect(said).not.toContain('whoever bought');
+    expect(said).not.toContain('fresher fruit, then');
   });
 });

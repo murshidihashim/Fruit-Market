@@ -2,7 +2,7 @@
 // (PLAN-081). Starting the Daily market, a Market League game or a new game saves over the waiting game, so the home
 // screen asks first. Pure helpers, kept apart from the screens so they can be unit tested.
 import type { GameState } from '../engine/game';
-import { stageLabel } from './campaign';
+import { gameLabel } from './modes';
 
 /** What the home screen says about the waiting game. */
 export interface WaitingGame {
@@ -24,13 +24,9 @@ export function waitingGame(game: GameState | null): WaitingGame | null {
   return { mode: modeOf(game), day: game.day, days: game.config.days, stalls: game.players.length, cash: humans.length === 1 ? humans[0].cash : null };
 }
 
-/** The name of a game's mode, as the Play menu names it. */
+/** The name of a game's mode, as Home names the waiting game (modes.ts gameLabel), from the people at its table. */
 export function modeOf(game: GameState): string {
-  const c = game.config;
-  if (c.sprint) return 'Sprint';
-  if (c.daily) return 'Daily market';
-  if (c.league !== undefined) return `League ${stageLabel(c.league)}`;
-  return game.players.filter((pl) => pl.kind === 'human').length > 1 ? 'Pass & Play game' : 'Computer game';
+  return gameLabel({ ...game.config, players: game.players });
 }
 
 /**

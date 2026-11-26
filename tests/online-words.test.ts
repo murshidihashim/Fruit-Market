@@ -7,7 +7,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { h } from 'preact';
 import { DEFAULT_CONFIG, QUICK_FILL_MS, type PublicSeat, type RoomView } from '../src/net/protocol';
 import { toStaticHtml } from '../src/ui/cards';
-import { Online, QuickWait, computersOffer } from '../src/ui/Online';
+import { Online } from '../src/ui/Online';
+import { QuickWait } from '../src/ui/OnlineWait';
+import { computersOffer } from '../src/ui/onlineWords';
 import { QUICK_NOTE } from '../src/ui/playMenu';
 
 vi.mock('preact/hooks', () => ({
