@@ -251,5 +251,5 @@ export function saveGranted(ids: unknown) {
 
 /** Forgets everything an account keeps on this device (used when signing out, so the next person starts fresh). */
 export function clearProgress() {
-  try { for (const k of [ACH_KEY, LADDER_KEY, COLOUR_KEY, LOOKS_KEY, WORN_KEY, SETS_KEY, COUNTS_KEY, GRANTED_KEY]) localStorage.removeItem(k); } catch { /* ignore */ }
+  try { for (const k of [ACH_KEY, LADDER_KEY, COLOUR_KEY, LOOKS_KEY, WORN_KEY, SETS_KEY, COUNTS_KEY, GRANTED_KEY]) localStorage.removeItem(k); } catch { /* storage blocked: nothing was kept on this device to forget */ }
 }

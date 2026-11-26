@@ -27,7 +27,7 @@ function load(): string[] {
 }
 
 export function markSeen(id: string) {
-  try { localStorage.setItem(KEY, JSON.stringify([...new Set([...load(), id])])); } catch { /* ignore */ }
+  try { localStorage.setItem(KEY, JSON.stringify([...new Set([...load(), id])])); } catch { /* storage blocked: the tip may show again next game */ }
 }
 
 /** Turn the coach off for good: every later tip stays hidden until the tutorial is replayed from Settings. */
@@ -39,7 +39,7 @@ export function skipTutorial() {
 }
 
 export function resetTutorial() {
-  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+  try { localStorage.removeItem(KEY); } catch { /* storage blocked: no tip was kept as seen, so every tip shows anyway */ }
 }
 
 /**

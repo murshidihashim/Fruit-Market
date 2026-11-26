@@ -256,7 +256,8 @@ export async function firstToken(next: GameState): Promise<void> {
     const dur = moved ? length : A.FEEL.turn;
     if (el && frames && A.moveMs(dur) > 0) {
       const anim = el.animate(frames, { duration: A.moveMs(dur), easing: moved && next.day === 1 ? 'linear' : A.EASE.travel, fill: 'backwards' });
-      // A tap ends the wait (and so the move); the move ends by itself otherwise.
+      // A tap ends the wait (and so the move); the move ends by itself otherwise. (A cancelled animation rejects
+      // `finished`; the move is finished just below either way, so that is not an error.)
       await Promise.race([anim.finished.catch(() => undefined), A.wait(dur)]);
       anim.finish();
     }

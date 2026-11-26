@@ -131,7 +131,7 @@ export class OnlineClient {
 
   private open() {
     if (this.timer) { clearTimeout(this.timer); this.timer = null; }
-    try { this.ws?.close(); } catch { /* ignore */ }
+    try { this.ws?.close(); } catch { /* the old socket may already be closed or broken; a new one opens next */ }
     const url = `${serverBase().replace(/^http/, 'ws')}/ws/${this.code}`;
     const ws = new WebSocket(url);
     this.ws = ws;
@@ -216,7 +216,7 @@ export class OnlineClient {
 
   leave() {
     this.send({ t: 'leave' });
-    try { localStorage.removeItem(tokenKey(this.code)); } catch { /* ignore */ }
+    try { localStorage.removeItem(tokenKey(this.code)); } catch { /* storage blocked: no seat token was kept to forget */ }
     this.stop();
   }
 
@@ -225,6 +225,6 @@ export class OnlineClient {
     if (this.timer) clearTimeout(this.timer);
     if (this.ping) clearInterval(this.ping);
     if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', this.onVisible);
-    try { this.ws?.close(); } catch { /* ignore */ }
+    try { this.ws?.close(); } catch { /* the socket may already be closed or broken; stopping is all that is wanted */ }
   }
 }

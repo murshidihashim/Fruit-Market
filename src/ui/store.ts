@@ -224,7 +224,7 @@ export function saveName(n: string) {
   try {
     localStorage.setItem(K.name, n);
   } catch {
-    /* ignore */
+    /* storage blocked: the name is not remembered for next time */
   }
   profileChanged();
 }
