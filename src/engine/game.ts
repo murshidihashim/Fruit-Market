@@ -863,9 +863,42 @@ export function pickTrait(state: GameState, p: number, t: TraitId): GameState {
   return s;
 }
 
+/** Dawn of a day: today's event, the standing order, the inspection and top-ups, the lorries and tomorrow's crowd,
+ *  then the buying order. The deck is drawn in this order, so a seed always gives the same day. */
 function startDay(s: GameState) {
   s.phase = 'morning';
   stageDawn(s);
+  drawTodaysEvent(s);
+  drawStanding(s);
+  inspectAndTopUp(s);
+  s.delivery = {};
+  s.deliveryUnripe = null;
+  delete s.deliveryRipe;
+  // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5). PLAN-118: a League
+  // stage may name the lorry of a day.
+  const card = scriptedFarmer(s, s.day) ?? s.nextFarmer ?? drawFarmer(s);
+  s.nextFarmer = s.day < s.config.days ? scriptedFarmer(s, s.day + 1) ?? drawFarmer(s) : null;
+  drawTomorrowsCrowd(s);
+  if (card && !s.event?.noDelivery) unloadLorry(s, card);
+  for (const p of s.players) {
+    p.boughtToday = 0;
+    p.spentToday = 0;
+    p.favouredTrade = false;
+    delete p.shade;
+    delete p.boughtFruit;
+    p.upgradeOffer = [];
+  }
+  s.dayStartCash = s.players.map((p) => p.cash);
+  setBuyingOrder(s);
+  s.turn = 0;
+  s.stalls = s.players.map(() => null);
+  s.crates = s.players.map(() => null);
+  s.bids = s.players.map(() => null);
+  s.results = null;
+}
+
+/** Today's event card: drawn this morning, or named by a League stage; then its walk-in change. */
+function drawTodaysEvent(s: GameState) {
   s.event = null;
   // Rules 13: today's event is drawn this morning and never shown the day before. The Health Inspector is never the
   // last day's event.
@@ -886,7 +919,10 @@ function startDay(s: GameState) {
     }
     eventWalkIns(s);
   }
-  drawStanding(s);
+}
+
+/** The Health Inspector's fines, then the market's top-up of an empty shelf. Both are public. */
+function inspectAndTopUp(s: GameState) {
   // Health Inspector: at the start of the day, before anyone buys or discards, every shop pays for each soft piece.
   s.dayFines = s.players.map(() => 0);
   if (s.event?.inspector) {
@@ -909,54 +945,49 @@ function startDay(s: GameState) {
       s.log.push(`${pl.name} had an empty shelf and less than $${TOP_UP}: topped up to $${TOP_UP}`);
     });
   }
-  s.delivery = {};
-  s.deliveryUnripe = null;
-  delete s.deliveryRipe;
-  // Today's lorry was announced yesterday. The lorry comes every day, Market Days too (rules 5). PLAN-118: a League
-  // stage may name the lorry of a day.
-  const card = scriptedFarmer(s, s.day) ?? s.nextFarmer ?? drawFarmer(s);
-  s.nextFarmer = s.day < s.config.days ? scriptedFarmer(s, s.day + 1) ?? drawFarmer(s) : null;
-  // Rules 16: tomorrow's crowd is drawn this morning (after today's walk-in event), so the Tomorrow strip shows while
-  // stalls buy: one expected customer face up, the walk-ins face down. Tomorrow's event is not known yet (rules 13):
-  // its walk-in change is made on the morning it is drawn.
+}
+
+/**
+ * Rules 16: tomorrow's crowd is drawn this morning (after today's walk-in event), so the Tomorrow strip shows while
+ * stalls buy: one expected customer face up, the walk-ins face down. Tomorrow's event is not known yet (rules 13): its
+ * walk-in change is made on the morning it is drawn.
+ */
+function drawTomorrowsCrowd(s: GameState) {
   s.nextForecast = null;
   s.nextQueue = [];
   if (s.day < s.config.days) {
     s.nextForecast = drawCustomer(s, false, s.day + 1);
     for (let i = 0; i < walkInsOn(s, s.day + 1, null); i++) s.nextQueue.push(drawCustomer(s, true, s.day + 1));
   }
-  if (card && !s.event?.noDelivery) {
-    const e = s.event;
-    const shops = s.players.length;
-    const unripe = s.config.unripe && card.unripe ? card.unripe : null;
-    s.deliveryUnripe = unripe;
-    for (const f of FRUITS) {
-      let n = printedSupply(card, f, shops) + eventSupply(e, f, shops);
-      if (e?.noFruit === f) n = 0;
-      if (e?.supplyMult) n = Math.ceil(n * e.supplyMult);
-      if (n <= 0) continue;
-      s.delivery[f] = n;
-      // Green fruit enters the top of its track; the Seconds Lorry fills each fruit's freshest Okay space.
-      const pos = f === unripe ? s.market[f].length - 1 : deliveryPos(card, f);
-      // Rules 18: an event's extra pieces of a fruit that arrives green come ripe, in the Fresh space (Mango Windfall:
-      // "1 extra ripe mango").
-      const ripe = f === unripe && e?.supplyEach?.[f] ? Math.min(n, eventSupply({ ...e, supplyAll: 0 }, f, shops)) : 0;
-      s.market[f][pos] += n - ripe;
-      if (ripe) {
-        s.market[f][freshPos(f)] += ripe;
-        (s.deliveryRipe ??= {})[f] = ripe;
-      }
+}
+
+/** Today's lorry puts its fruit on the market's tracks, as today's event changes it. */
+function unloadLorry(s: GameState, card: FarmerCard) {
+  const e = s.event;
+  const shops = s.players.length;
+  const unripe = s.config.unripe && card.unripe ? card.unripe : null;
+  s.deliveryUnripe = unripe;
+  for (const f of FRUITS) {
+    let n = printedSupply(card, f, shops) + eventSupply(e, f, shops);
+    if (e?.noFruit === f) n = 0;
+    if (e?.supplyMult) n = Math.ceil(n * e.supplyMult);
+    if (n <= 0) continue;
+    s.delivery[f] = n;
+    // Green fruit enters the top of its track; the Seconds Lorry fills each fruit's freshest Okay space.
+    const pos = f === unripe ? s.market[f].length - 1 : deliveryPos(card, f);
+    // Rules 18: an event's extra pieces of a fruit that arrives green come ripe, in the Fresh space (Mango Windfall:
+    // "1 extra ripe mango").
+    const ripe = f === unripe && e?.supplyEach?.[f] ? Math.min(n, eventSupply({ ...e, supplyAll: 0 }, f, shops)) : 0;
+    s.market[f][pos] += n - ripe;
+    if (ripe) {
+      s.market[f][freshPos(f)] += ripe;
+      (s.deliveryRipe ??= {})[f] = ripe;
     }
   }
-  for (const p of s.players) {
-    p.boughtToday = 0;
-    p.spentToday = 0;
-    p.favouredTrade = false;
-    delete p.shade;
-    delete p.boughtFruit;
-    p.upgradeOffer = [];
-  }
-  s.dayStartCash = s.players.map((p) => p.cash);
+}
+
+/** Today's buying order. */
+function setBuyingOrder(s: GameState) {
   const n = s.players.length;
   // Rules 10: the poorest shop buys first, then the rest follow clockwise from it. Ties for poorest go to the first
   // of them round the table from the first-player token. Day 1 simply starts at the token.
@@ -971,11 +1002,6 @@ function startDay(s: GameState) {
     s.order = [s.priorityNext, ...s.order.filter((i) => i !== s.priorityNext)];
     s.priorityNext = null;
   }
-  s.turn = 0;
-  s.stalls = s.players.map(() => null);
-  s.crates = s.players.map(() => null);
-  s.bids = s.players.map(() => null);
-  s.results = null;
 }
 
 // ---------- morning ----------
@@ -1526,6 +1552,19 @@ export function bestCap(stock: Stock, f: FruitId, max: number, pl?: Player, pref
   return 0;
 }
 
+/** The rush as it is worked out (resolve): today's result so far, each stall's crate and how much of each fruit is
+ *  still in it, and the Sharp Ears stalls that have had today's tip (rules 18: at most one a day). */
+interface Rush {
+  s: GameState;
+  res: DayResult;
+  crates: Stock[];
+  left: Record<FruitId, number>[];
+  earTipped: Set<number>;
+}
+
+/** An offer while the rush is worked out, with the positions (oldest first) it would hand over. */
+type RushOffer = Offer & { used: number[] };
+
 function resolve(s: GameState) {
   const res: DayResult = {
     lines: [], favours: [], happy: [], leftAngry: [], movedToWaiting: [],
@@ -1534,160 +1573,197 @@ function resolve(s: GameState) {
   // Rules 12: each shop sells only the pieces in its crate, oldest of those first.
   const crates = s.players.map((_, p) => crateStock(s, p));
   const left = s.players.map((_, p) => Object.fromEntries(FRUITS.map((f) => [f, crates[p][f].reduce((a, b) => a + b, 0)])) as Record<FruitId, number>);
-  const orderIdx = (p: number) => s.order.indexOf(p);
-  const favoured = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade);
-  const haggler = (a: number, b: number) => Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
-  const earful = s.players.map((pl) => pl.trait === 'earful');
-  /** Sharp Ears stalls that have had today's tip (rules 18: at most one a day). */
-  const earTipped = new Set<number>();
-  const dailyFavours = (p: number) => (s.players[p].trait === 'charmer' ? CHARMER_DAILY_FAVOURS : 1);
-
-  for (const c of servingCustomers(s)) {
-    const suppliers = new Set<number>();
-    let unitsToCustomer = 0;
-    for (const w of c.wants) {
-      if (w.qty <= 0) continue;
-      // Rules 18: a standing order pays its holder the bid for each piece, and $2 more with an Order Book. No event
-      // changes that.
-      const orderPay = c.order ? c.order.price + (s.players[c.order.holder].upgrades.includes('orderbook') ? ORDER_BOOK_BONUS : 0) : 0;
-      const max = c.order ? orderPay : effectiveMax(s, w, c.generous);
-      const offers: (Offer & { used: number[] })[] = [];
-      // Rules 14: a standing order takes Fresh or Okay pieces of its fruit, freshest first. Rules 18: from the holder's
-      // crate only. Rivals' fruit is never taken and rivals are paid nothing; any unfilled part simply leaves.
-      if (c.order) {
-        const p = c.order.holder;
-        const used: number[] = [];
-        const most = Math.min(left[p][w.fruit], w.qty);
-        for (let i = FRUIT[w.fruit].ripe.length - 1; i >= 0 && used.length < most; i--) {
-          if (stageAt(w.fruit, i) === 'notso') continue;
-          for (let k = 0; k < crates[p][w.fruit][i] && used.length < most; k++) used.push(i);
-        }
-        if (used.length > 0) offers.push({ player: p, qty: used.length, price: orderPay, sold: 0, freshness: Math.max(...used), used });
-        else if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price: orderPay, sold: 0, freshness: 0, tooOld: true, used });
-      } else s.players.forEach((pl, p) => {
-        const price = postedPrice(s, p, w.fruit);
-        if (price === null || left[p][w.fruit] <= 0) return;
-        const used = eligible(pl, crates[p], w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref, w.fixed);
-        if (used.length === 0) {
-          if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
-          return;
-        }
-        offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
-      });
-      // Cheapest first. Ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler, then today's buying order
-      // (the order was set at dawn, poorest first).
-      if (!c.order) offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || favoured(a.player, b.player)
-        || b.freshness - a.freshness || haggler(a.player, b.player) || orderIdx(a.player) - orderIdx(b.player));
-      let need = w.qty;
-      for (const o of offers) {
-        if (need <= 0 || o.tooOld) continue;
-        const n = Math.min(need, o.qty);
-        o.sold = n;
-        need -= n;
-        const pl = s.players[o.player];
-        const sold = o.used.slice(0, n);
-        for (const i of sold) { pl.stock[w.fruit][i]--; crates[o.player][w.fruit][i]--; }
-        left[o.player][w.fruit] -= n;
-        // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well. Rules 18: only for sales to
-        // customers and guests in the rush, so not for a standing order's pieces (nor the night hawker).
-        const juice = !c.order && pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
-        if (juice) o.juice = juice;
-        const gain = n * o.price + juice;
-        pl.cash += gain;
-        pl.stats.earned += gain;
-        pl.stats.sold += n;
-        pl.stats.bestSale = Math.max(pl.stats.bestSale, o.price);
-        res.income[o.player] += gain;
-        suppliers.add(o.player);
-        unitsToCustomer += n;
-      }
-      res.lines.push({ customerId: c.id, name: c.name, fruit: w.fruit, want: w.qty, max, offers: offers.map(({ used: _u, ...o }) => o) });
-      w.qty = need;
-    }
-    if (c.order) {
-      // Rules 18: a holder that delivered every piece gets its stake back at once; otherwise the stake is lost. There
-      // is no other fine.
-      const o = c.order, line = res.lines[res.lines.length - 1];
-      const mine = line?.offers.find((x) => x.player === o.holder)?.sold ?? 0;
-      const short = c.original[0].qty - mine;
-      const hp = s.players[o.holder];
-      const back = short === 0 ? o.stake : 0;
-      hp.cash += back;
-      if (!back) hp.stats.spent += o.stake;
-      res.order = {
-        name: c.name, fruit: c.original[0].fruit, qty: c.original[0].qty, holder: o.holder, price: o.price, ceiling: o.ceiling,
-        sales: (line?.offers ?? []).filter((x) => x.sold > 0).map((x) => ({ player: x.player, n: x.sold, price: x.price })), short, stake: o.stake, back,
-      };
-      s.log.push(short === 0 ? `${hp.name} delivered the standing order in full and got the $${o.stake} stake back` : `${hp.name} delivered ${mine} of ${c.original[0].qty} for the standing order and lost the $${o.stake} stake`);
-      continue;
-    }
-    // Sharp Ears: a walk-in this shop has peeked at tips it when the shop sells them anything. Rules 18: at most once a day.
-    if (c.walkIn) {
-      for (const p of suppliers) {
-        if (!earful[p] || earTipped.has(p) || !c.seenBy?.includes(p)) continue;
-        earTipped.add(p);
-        const tip = sharpEarsTip(s.players.length);
-        const pl = s.players[p];
-        pl.cash += tip;
-        pl.stats.earned += tip;
-        res.income[p] += tip;
-        (res.earful ??= []).push({ player: p, customer: c.name, tip });
-      }
-    }
-    const done = c.wants.every((w) => w.qty <= 0);
-    if (done) {
-      res.happy.push(c.name);
-      // Tip Jar (rules 18): a customer who leaves with their whole order tips the Tip Jar stall if it sold them any of
-      // it: LOCAL_FAVOURITE_TIP when it served them alone, SHARED_TIP when other stalls helped.
-      for (const q of suppliers) {
-        const tj = s.players[q];
-        if (tj.trait !== 'favourite') continue;
-        const tip = suppliers.size === 1 ? LOCAL_FAVOURITE_TIP : SHARED_TIP;
-        tj.cash += tip;
-        tj.stats.earned += tip;
-        res.income[q] += tip;
-        (res.tipJar ??= []).push({ player: q, customer: c.name, tip });
-      }
-      if (suppliers.size === 1 && unitsToCustomer > 0) {
-        const p = [...suppliers][0];
-        const pl = s.players[p];
-        // At most one favour card per shop per day, two for a Charmer (none in the core market).
-        if (!s.config.core && partOn(s.config, 'favours') && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < dailyFavours(p)) {
-          const fav = drawFavour(s);
-          if (fav) {
-            pl.favours.push(fav);
-            pl.stats.favours++;
-            res.favours.push({ player: p, customer: c.name, favour: fav });
-          }
-        }
-      }
-    }
-  }
-  // Pasar Malam: after the rush the night hawker buys 1 of each fruit left in each stall's crate (oldest first), any freshness.
-  if (s.event?.hawker) {
-    const price = s.event.hawker;
-    s.players.forEach((pl, p) => {
-      for (const f of FRUITS) {
-        if (left[p][f] <= 0) continue;
-        const i = crates[p][f].findIndex((c, k) => c > 0 && k < FRUIT[f].ripe.length);
-        if (i < 0) continue;
-        pl.stock[f][i]--;
-        crates[p][f][i]--;
-        left[p][f]--;
-        pl.cash += price;
-        pl.stats.earned += price;
-        pl.stats.sold++;
-        res.income[p] += price;
-        (res.hawker ??= []).push({ player: p, fruit: f, price });
-      }
-    });
-  }
+  const rush: Rush = { s, res, crates, left, earTipped: new Set<number>() };
+  for (const c of servingCustomers(s)) serveCustomer(rush, c);
+  if (s.event?.hawker) nightHawker(rush, s.event.hawker);
   if (s.config.pulse) updatePulse(s);
   // Rules 14: nobody waits overnight. A customer who did not get everything leaves.
   for (const c of rowCustomers(s)) if (c.wants.some((w) => w.qty > 0)) res.leftAngry.push(c.name);
   res.movedToWaiting = [];
   s.results = res;
   s.phase = 'reveal';
+}
+
+/** One customer of the rush, want by want: the offers, the sales, then a standing order's stake, or the tips and the
+ *  favour card of a customer who leaves with everything. */
+function serveCustomer(rush: Rush, c: Customer) {
+  const { s, res } = rush;
+  const suppliers = new Set<number>();
+  let unitsToCustomer = 0;
+  for (const w of c.wants) {
+    if (w.qty <= 0) continue;
+    // Rules 18: a standing order pays its holder the bid for each piece, and $2 more with an Order Book. No event
+    // changes that.
+    const orderPay = c.order ? c.order.price + (s.players[c.order.holder].upgrades.includes('orderbook') ? ORDER_BOOK_BONUS : 0) : 0;
+    const max = c.order ? orderPay : effectiveMax(s, w, c.generous);
+    const offers = c.order ? orderOffers(rush, c.order.holder, w, orderPay) : rushOffers(rush, c, w, max);
+    const sold = sell(rush, c, w, offers, suppliers);
+    unitsToCustomer += sold;
+    res.lines.push({ customerId: c.id, name: c.name, fruit: w.fruit, want: w.qty, max, offers: offers.map(({ used: _u, ...o }) => o) });
+    w.qty -= sold;
+  }
+  if (c.order) {
+    settleOrder(rush, c, c.order);
+    return;
+  }
+  // Sharp Ears: a walk-in this shop has peeked at tips it when the shop sells them anything. Rules 18: at most once a day.
+  if (c.walkIn) sharpEarsTips(rush, c, suppliers);
+  if (c.wants.every((w) => w.qty <= 0)) servedWhole(rush, c, suppliers, unitsToCustomer);
+}
+
+/**
+ * Rules 14: a standing order takes Fresh or Okay pieces of its fruit, freshest first. Rules 18: from the holder's crate
+ * only. Rivals' fruit is never taken and rivals are paid nothing; any unfilled part simply leaves.
+ */
+function orderOffers(rush: Rush, p: number, w: Want, pay: number): RushOffer[] {
+  const { crates, left } = rush;
+  const used: number[] = [];
+  const most = Math.min(left[p][w.fruit], w.qty);
+  for (let i = FRUIT[w.fruit].ripe.length - 1; i >= 0 && used.length < most; i--) {
+    if (stageAt(w.fruit, i) === 'notso') continue;
+    for (let k = 0; k < crates[p][w.fruit][i] && used.length < most; k++) used.push(i);
+  }
+  if (used.length > 0) return [{ player: p, qty: used.length, price: pay, sold: 0, freshness: Math.max(...used), used }];
+  if (left[p][w.fruit] > 0) return [{ player: p, qty: 0, price: pay, sold: 0, freshness: 0, tooOld: true, used }];
+  return [];
+}
+
+/** Every stall's offer to a customer for one want: its posted price and the pieces it would hand over, best first. */
+function rushOffers(rush: Rush, c: Customer, w: Want, max: number): RushOffer[] {
+  const { s, crates, left } = rush;
+  const offers: RushOffer[] = [];
+  s.players.forEach((pl, p) => {
+    const price = postedPrice(s, p, w.fruit);
+    if (price === null || left[p][w.fruit] <= 0) return;
+    const used = eligible(pl, crates[p], w.fruit, Math.min(left[p][w.fruit], w.qty), price, max, c.pref, w.fixed);
+    if (used.length === 0) {
+      if (left[p][w.fruit] > 0) offers.push({ player: p, qty: 0, price, sold: 0, freshness: 0, tooOld: true, used });
+      return;
+    }
+    offers.push({ player: p, qty: used.length, price, sold: 0, freshness: Math.max(...used), used });
+  });
+  const orderIdx = (p: number) => s.order.indexOf(p);
+  const favoured = (a: number, b: number) => Number(s.players[b].favouredTrade) - Number(s.players[a].favouredTrade);
+  const haggler = (a: number, b: number) => Number(s.players[b].trait === 'haggler') - Number(s.players[a].trait === 'haggler');
+  // Cheapest first. Ties (rules 11): Favoured Trade, then fresher fruit, then a Haggler, then today's buying order
+  // (the order was set at dawn, poorest first).
+  offers.sort((a, b) => Number(!!a.tooOld) - Number(!!b.tooOld) || a.price - b.price || favoured(a.player, b.player)
+    || b.freshness - a.freshness || haggler(a.player, b.player) || orderIdx(a.player) - orderIdx(b.player));
+  return offers;
+}
+
+/** The offers in turn fill the want: each sale moves the pieces and pays the stall. Returns the pieces sold. */
+function sell(rush: Rush, c: Customer, w: Want, offers: RushOffer[], suppliers: Set<number>): number {
+  const { s, res, crates, left } = rush;
+  let need = w.qty;
+  for (const o of offers) {
+    if (need <= 0 || o.tooOld) continue;
+    const n = Math.min(need, o.qty);
+    o.sold = n;
+    need -= n;
+    const pl = s.players[o.player];
+    const sold = o.used.slice(0, n);
+    for (const i of sold) { pl.stock[w.fruit][i]--; crates[o.player][w.fruit][i]--; }
+    left[o.player][w.fruit] -= n;
+    // Juice Bar: each older fruit sold (okay or not so) earns a juice tip as well. Rules 18: only for sales to
+    // customers and guests in the rush, so not for a standing order's pieces (nor the night hawker).
+    const juice = !c.order && pl.upgrades.includes('juicebar') ? JUICE_TIP * sold.filter((i) => stageAt(w.fruit, i) !== 'fresh').length : 0;
+    if (juice) o.juice = juice;
+    const gain = n * o.price + juice;
+    pl.cash += gain;
+    pl.stats.earned += gain;
+    pl.stats.sold += n;
+    pl.stats.bestSale = Math.max(pl.stats.bestSale, o.price);
+    res.income[o.player] += gain;
+    suppliers.add(o.player);
+  }
+  return w.qty - need;
+}
+
+/** Rules 18: a holder that delivered every piece gets its stake back at once; otherwise the stake is lost. There is no
+ *  other fine. */
+function settleOrder(rush: Rush, c: Customer, o: NonNullable<Customer['order']>) {
+  const { s, res } = rush;
+  const line = res.lines[res.lines.length - 1];
+  const mine = line?.offers.find((x) => x.player === o.holder)?.sold ?? 0;
+  const short = c.original[0].qty - mine;
+  const hp = s.players[o.holder];
+  const back = short === 0 ? o.stake : 0;
+  hp.cash += back;
+  if (!back) hp.stats.spent += o.stake;
+  res.order = {
+    name: c.name, fruit: c.original[0].fruit, qty: c.original[0].qty, holder: o.holder, price: o.price, ceiling: o.ceiling,
+    sales: (line?.offers ?? []).filter((x) => x.sold > 0).map((x) => ({ player: x.player, n: x.sold, price: x.price })), short, stake: o.stake, back,
+  };
+  s.log.push(short === 0 ? `${hp.name} delivered the standing order in full and got the $${o.stake} stake back` : `${hp.name} delivered ${mine} of ${c.original[0].qty} for the standing order and lost the $${o.stake} stake`);
+}
+
+/** Sharp Ears: a walk-in a stall has peeked at tips it once it sells them anything (rules 18: one tip a day). */
+function sharpEarsTips(rush: Rush, c: Customer, suppliers: Set<number>) {
+  const { s, res, earTipped } = rush;
+  for (const p of suppliers) {
+    if (s.players[p].trait !== 'earful' || earTipped.has(p) || !c.seenBy?.includes(p)) continue;
+    earTipped.add(p);
+    const tip = sharpEarsTip(s.players.length);
+    const pl = s.players[p];
+    pl.cash += tip;
+    pl.stats.earned += tip;
+    res.income[p] += tip;
+    (res.earful ??= []).push({ player: p, customer: c.name, tip });
+  }
+}
+
+/** A customer who leaves with their whole order: the Tip Jar's tips, and a favour card for a stall that served them
+ *  alone. */
+function servedWhole(rush: Rush, c: Customer, suppliers: Set<number>, unitsToCustomer: number) {
+  const { s, res } = rush;
+  res.happy.push(c.name);
+  // Tip Jar (rules 18): a customer who leaves with their whole order tips the Tip Jar stall if it sold them any of
+  // it: LOCAL_FAVOURITE_TIP when it served them alone, SHARED_TIP when other stalls helped.
+  for (const q of suppliers) {
+    const tj = s.players[q];
+    if (tj.trait !== 'favourite') continue;
+    const tip = suppliers.size === 1 ? LOCAL_FAVOURITE_TIP : SHARED_TIP;
+    tj.cash += tip;
+    tj.stats.earned += tip;
+    res.income[q] += tip;
+    (res.tipJar ??= []).push({ player: q, customer: c.name, tip });
+  }
+  if (suppliers.size === 1 && unitsToCustomer > 0) {
+    const p = [...suppliers][0];
+    const pl = s.players[p];
+    const daily = pl.trait === 'charmer' ? CHARMER_DAILY_FAVOURS : 1;
+    // At most one favour card per shop per day, two for a Charmer (none in the core market).
+    if (!s.config.core && partOn(s.config, 'favours') && pl.favours.length < handLimit(pl) && res.favours.filter((x) => x.player === p).length < daily) {
+      const fav = drawFavour(s);
+      if (fav) {
+        pl.favours.push(fav);
+        pl.stats.favours++;
+        res.favours.push({ player: p, customer: c.name, favour: fav });
+      }
+    }
+  }
+}
+
+/** Pasar Malam: after the rush the night hawker buys 1 of each fruit left in each stall's crate (oldest first), any
+ *  freshness. */
+function nightHawker(rush: Rush, price: number) {
+  const { s, res, crates, left } = rush;
+  s.players.forEach((pl, p) => {
+    for (const f of FRUITS) {
+      if (left[p][f] <= 0) continue;
+      const i = crates[p][f].findIndex((c, k) => c > 0 && k < FRUIT[f].ripe.length);
+      if (i < 0) continue;
+      pl.stock[f][i]--;
+      crates[p][f][i]--;
+      left[p][f]--;
+      pl.cash += price;
+      pl.stats.earned += price;
+      pl.stats.sold++;
+      res.income[p] += price;
+      (res.hawker ??= []).push({ player: p, fruit: f, price });
+    }
+  });
 }
 
 /** Market pulse: a shortage pushes a fruit's marker up $1, a glut (players + 1 ripe left at the market) down $1, else back toward 0. */
