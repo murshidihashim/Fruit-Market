@@ -125,7 +125,7 @@
 /* the three lines of the stake */
 #app .tkt .ob-lines { all: unset; display: flex; flex-direction: column; gap: 5px; padding: 9px 10px; border: 2px solid var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
 #app .tkt .ob-lines div { display: flex; align-items: baseline; gap: 8px; }
-#app .tkt .ob-lines dt { all: unset; flex: none; width: 84px; font: 800 0.75rem/1.25 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
+#app .tkt .ob-lines dt { all: unset; flex: none; width: 100px; font: 800 0.75rem/1.25 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
 #app .tkt .ob-lines dd { all: unset; min-width: 0; }
 /* once the bids are turned over the result takes the lines' place, in a box of the same size (nothing below jumps) */
 #app .tkt .ob-after { position: relative; }
