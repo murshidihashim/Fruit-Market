@@ -7,6 +7,7 @@
 // its mode's slot as it opens (PLAN-120), and continued with its card's Continue.
 const { chromium } = require('playwright');
 const fs = require('fs');
+const { checkLayout } = require('./layout-check.cjs');
 
 /** Sets the number of rival stalls on the set-up page's table (PLAN-125: small cards): the open card adds a computer,
  *  the last card's × removes it. */
@@ -42,6 +43,8 @@ const path = require('path');
     await page.waitForTimeout(250);
     await shot('01-delivery-anim');
   }
+  // PLAN-130: the table's layout, from the computed style (scripts/layout-check.cjs)
+  const layout = [];
   const seen = new Set();
   const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
   let ties = 0;
@@ -54,7 +57,7 @@ const path = require('path');
     if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
       const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();
-      if (once('buyturn')) await shot('03-my-turn');
+      if (once('buyturn')) { await shot('03-my-turn'); layout.push(...await checkLayout(page, 'buy')); }
       if (n && Math.random() < 0.75) {
         await cells.nth(Math.floor(Math.random() * n)).click();
         if (once('flying')) { await page.waitForTimeout(220); await shot('04-buy-flying'); }
@@ -83,9 +86,9 @@ const path = require('path');
     if (await has('.md-pop')) { if (once('market-day')) await shot('08b-market-day'); await page.click('.md-pop button:has-text("Got it")'); continue; }
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
-      if (once('bid')) await shot('05-pricing');
+      if (once('bid')) { await shot('05-pricing'); layout.push(...await checkLayout(page, 'bar')); }
       await lock.click();
-      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }
+      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); if (await has('.game > .rush-table')) layout.push(...await checkLayout(page, 'rush')); else layout.push('rush: the round table was not up'); }
       continue;
     }
     if (await has('button:has-text("Lights out")')) {
@@ -106,7 +109,12 @@ const path = require('path');
   const reached = await page.locator('.results').count();
   await shot(reached ? '10-results' : '10-stuck');
   console.log('results visible:', reached, 'errors:', errors);
+  console.log('layout checks:', layout.length ? layout : 'all hold');
   await browser.close();
+  if (layout.length) {
+    console.error(`Solo playthrough FAILED: the table's layout is not as it should be:\n  ${layout.join('\n  ')}`);
+    process.exit(1);
+  }
   if (!reached) {
     console.error(`Solo playthrough FAILED: the results screen was not reached. The last screen is in ${out}/10-stuck.png`);
     process.exit(1);

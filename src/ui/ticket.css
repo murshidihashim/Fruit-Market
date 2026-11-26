@@ -26,7 +26,6 @@
 }
 #app .game.gx.tkt.is-night { background: var(--tk-ink); }
 #app .tkt.is-night::after { display: none; }
-#app .tkt.is-night > .street-wrap, #app .tkt.is-night > .seats { display: none; }
 @media (max-height: 479px), (min-width: 900px) and (max-height: 559px) {
   #app .game.gx.tkt { grid-template-rows: auto auto auto minmax(380px, auto) auto auto auto; }
 }
@@ -39,7 +38,7 @@
 #app .tkt .tk-lamp.on { background: var(--tk-ink); color: var(--tk-paper); }
 #app .tkt .tk-label { font: 800 0.75rem/1.2 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
 #app .tkt .tk-label.red { color: var(--tk-red-d); }
-#app .tkt .tk-label-row { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#app .tkt .tk-label-row { display: flex; }
 #app .tkt .tk-side { font: 700 0.75rem/1 var(--tk-txt); white-space: nowrap; }
 #app .tkt .tk-note { all: unset; display: block; font: 500 0.75rem/1.35 var(--tk-txt); }
 #app .tkt .tk-chip { flex: none; padding: 3px 6px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.6875rem/1.1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
@@ -73,7 +72,7 @@
    Three columns: the two sides share what the event leaves equally (their contents never set the columns' widths), so
    the event stands in the middle of the screen whatever is beside it. --side is the room each side keeps: the menu and
    the day pill on the left, the rank and a cash of three figures on the right; the event is never wider than the rest. */
-#app .tkt .tk-top { all: unset; grid-area: top; position: relative; z-index: 6; display: block; background: var(--tk-ink); color: var(--tk-paper); padding-top: env(safe-area-inset-top); }
+#app .tkt .tk-top { all: unset; grid-area: top; z-index: 6; display: block; background: var(--tk-ink); color: var(--tk-paper); padding-top: env(safe-area-inset-top); }
 #app .tkt .tk-top::after { display: none; }
 #app .tkt .tk-top-row {
   --side: 126px;
@@ -136,7 +135,7 @@
   background: var(--tk-ink); color: var(--tk-yel); font: 800 1rem/1 var(--tk-txt);
 }
 /* tomorrow's customers on the same band, above today's (PLAN-127), and the standing order under them */
-#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-bottom: 7px; overflow: hidden; }
+#app .tkt .tomorrow { all: unset; display: flex; align-items: center; gap: 5px; margin-bottom: 7px; }
 #app .tkt .tomorrow .tm-k { all: unset; flex: none; font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-chip { all: unset; flex: none; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px 0 3px; background: var(--tk-paper); color: var(--tk-ink); font: 400 0.75rem/1 var(--tk-disp); cursor: pointer; }
 #app .tkt .tomorrow .tm-chip.tm-back { padding: 0 5px; cursor: default; background: repeating-linear-gradient(135deg, var(--tk-paper) 0 5px, var(--tk-tint) 5px 10px); }
@@ -155,19 +154,19 @@
 #app .tkt .order-strip.due .os-fine { color: var(--c-2f3a3e); }
 
 /* ---------- rivals ---------- */
-#app .tkt > .seats { all: unset; grid-area: rivals; position: relative; z-index: 5; display: flex; gap: 6px; min-width: 0; padding: 6px 12px; }
-#app .tkt .tk-seat-name { font: 800 0.6875rem/1 var(--tk-txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#app .tkt > .seats { all: unset; grid-area: rivals; position: relative; z-index: 5; display: flex; min-width: 0; }
+#app .tkt .tk-seat-name { text-overflow: ellipsis; }
 /* Rules 18: what a rival bought today, as small fruit marks with counts (public until the bell). */
-#app .tkt .tk-seat-buys { display: flex; gap: 4px; min-width: 0; overflow: hidden; font: 800 0.6875rem/1 var(--tk-txt); }
-#app .tkt .tk-seat-buys > span { flex: none; display: inline-flex; align-items: center; gap: 1px; }
+#app .tkt .tk-seat-buys { min-width: 0; overflow: hidden; }
+#app .tkt .tk-seat-buys > span { flex: none; }
 #app .tkt .seats .rival-drop {
-  all: unset; position: absolute; top: calc(100% - 3px); left: 12px; right: 12px; z-index: 8; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px;
+  all: unset; position: absolute; left: 12px; right: 12px; z-index: 8; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 10px;
   background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink);
 }
 #app .tkt .rival-drop .rd-head { all: unset; display: flex; align-items: center; gap: 8px; }
 #app .tkt .rival-drop .rd-head > b { all: unset; flex: 1 1 auto; min-width: 0; font: 400 1rem/1.05 var(--tk-disp); text-transform: uppercase; }
 #app .tkt .rival-drop .tk-cash { background: var(--tk-ink); color: var(--tk-paper); font-size: 1rem; }
-#app .tkt .rival-drop .rd-close { all: unset; width: 34px; height: 34px; display: grid; place-items: center; cursor: pointer; box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 1.125rem/1 var(--tk-txt); }
+#app .tkt .rival-drop .rd-close { all: unset; display: grid; place-items: center; cursor: pointer; box-shadow: inset 0 0 0 2px var(--tk-ink); font: 800 1.125rem/1 var(--tk-txt); }
 #app .tkt .rival-drop .rd-extra { all: unset; display: flex; flex-wrap: wrap; gap: 5px; }
 
 /* ---------- the middle of the table ---------- */
@@ -180,40 +179,31 @@
 #app .tkt > .rush-dim { all: unset; position: absolute; inset: 0; z-index: 5; }
 
 /* the Wholesale Market: four lanes, the freshest box at the top */
-#app .tkt > .centre > .market-stall { container: market / size; overflow-x: hidden; overflow-y: auto; }
+#app .tkt > .centre > .market-stall { container: market / size; }
 #app .tkt .tk-lanes {
   /* a box is as tall as the room allows, between 28 and 40 px; on a very short screen the market scrolls instead of shrinking the boxes further */
-  --bh: clamp(28px, calc((100cqh - 136px - var(--rows, 6) * 4px) / var(--rows, 6)), 40px);
-  position: relative; flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: start;
+  position: relative; flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start;
 }
-#app .tkt .tk-lane { display: flex; flex-direction: column; gap: 4px; padding: 4px; background: var(--lane); }
+#app .tkt .tk-lane { display: flex; flex-direction: column; }
 #app .tkt .tk-lane-head {
-  all: unset; height: 28px; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; cursor: pointer;
-  background: var(--tk-paper); color: var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase;
+  all: unset; display: flex; align-items: center; white-space: nowrap; cursor: pointer; text-transform: uppercase;
 }
 #app .tkt .tk-box {
-  all: unset; position: relative; box-sizing: border-box; min-width: 0; height: var(--bh); display: flex; align-items: center; gap: 2px; padding: 0 3px;
-  background: var(--tk-paper); color: var(--tk-ink); border: 3px solid var(--tk-paper);
+  all: unset; position: relative; box-sizing: border-box; min-width: 0; height: var(--bh); display: flex; align-items: center; color: var(--tk-ink);
 }
 #app .tkt .tk-box::after { display: none; }
-#app .tkt .tk-box:not(.has) { opacity: 0.62; }
-#app .tkt .tk-box.pick { border-color: var(--tk-ink); cursor: pointer; }
+#app .tkt .tk-box.pick { cursor: pointer; }
 /* a box that cannot be bought from (not your turn, empty, too dear) lets a tap through to the table, where it hurries
    what is playing: the lanes count as the table (PLAN-081) */
 #app .tkt .tk-market .mk-cell:disabled { pointer-events: none; }
-#app .tkt .tk-box .x-fruit { width: 19px; height: 19px; }
-#app .tkt .tk-box .price { all: unset; margin-left: auto; font: 700 0.75rem/1 var(--tk-txt); }
+#app .tkt .tk-box .price { all: unset; margin-left: auto; }
 #app .tkt .next-lorry { all: unset; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font: 500 0.75rem/1.3 var(--tk-txt); color: var(--tk-ink); }
 #app .tkt .next-lorry .nl-head { display: inline-flex; gap: 4px; }
 #app .tkt .next-lorry .nl-name { font-weight: 800; }
 #app .tkt .next-lorry .nl-fruits { display: inline-flex; gap: 8px; }
 #app .tkt .next-lorry .nl-f { display: inline-flex; align-items: center; gap: 2px; font: 400 0.8125rem/1 var(--tk-disp); }
-#app .tkt .tk-legend { flex: none; display: flex; flex-wrap: wrap; gap: 4px 14px; font: 700 0.75rem/1 var(--tk-txt); text-transform: capitalize; }
+#app .tkt .tk-legend { flex: none; display: flex; flex-wrap: wrap; font: 700 0.75rem/1 var(--tk-txt); text-transform: capitalize; }
 #app .tkt .tk-legend span { display: inline-flex; align-items: center; gap: 4px; }
-@container market (max-width: 350px) {
-  #app .tkt .tk-box .x-fruit { width: 16px; height: 16px; }
-  #app .tkt .tk-box .tk-lamp { --s: 14px; }
-}
 
 /* the morning: the most a stall may charge today (Price Controls), then what the lorry unloaded */
 #app .tkt .minprices { display: flex; flex-wrap: wrap; gap: 4px 10px; font: 800 0.75rem/1 var(--tk-txt); }
@@ -221,33 +211,26 @@
 #app .tkt .tk-unload { flex: none; display: flex; flex-direction: column; gap: 6px; }
 
 /* stocking and pricing: one row per fruit, in its lane colour, with − and + */
-#app .tkt .mini-step { all: unset; flex: none; display: flex; gap: 6px; }
+#app .tkt .mini-step { gap: 6px; }
 #app .tkt .mini-step button {
   all: unset; width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer; background: var(--tk-ink); color: var(--tk-paper); font: 400 1.375rem/1 var(--tk-disp);
 }
 #app .tkt .mini-step button:disabled { opacity: 0.35; cursor: default; }
 #app .tkt .mini-step > b { all: unset; width: 58px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; background: var(--tk-paper); color: var(--tk-ink); }
-#app .tkt .mini-step > b span { font: 400 1.125rem/1 var(--tk-disp); }
-#app .tkt .mini-step > b small { font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
-#app .tkt .pp-info { all: unset; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--tk-ink); font: italic 800 0.8125rem/1 var(--tk-txt); cursor: pointer; }
+#app .tkt .pp-info { all: unset; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--tk-ink); font: italic 800 0.8125rem/1 var(--tk-txt); cursor: pointer; }
 #app .tkt .tk-drop-crate { display: flex; align-items: center; gap: 10px; }
 
 /* night falls: the lanes again, every piece sliding down a box */
 #app .tkt .ns-piece {
-  position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 1px; font: 400 0.75rem/1 var(--tk-disp);
+  position: relative; z-index: 1; font: 400 0.75rem/1 var(--tk-disp);
   /* The slide is as long as the night's script says (--ns-ms, set on the panel: 1.5 s at normal speed, slow enough to
      watch, PLAN-076), so it ends before the panel goes (PLAN-081). A piece leaving the last box fades over the last part. */
-  transition: transform var(--ns-ms, 1500ms) cubic-bezier(0.45, 0, 0.3, 1), opacity calc(var(--ns-ms, 1500ms) * 0.4) ease calc(var(--ns-ms, 1500ms) * 0.6);
 }
 /* the slide is over (or a tap ended it): every piece rests in its new box at once */
-#app .tkt .ns-piece.rest { transition: none; }
-#app .tkt .ns-piece .x-fruit { width: 16px; height: 16px; }
-#app .tkt .ns-piece.moved { transform: translateY(calc(var(--steps) * (var(--bh) + 2px))); }
 #app .tkt .ns-piece.gone { opacity: 0; }
 
 /* ---------- your shelf ---------- */
-#app .tkt > .my-stall { all: unset; grid-area: dock; position: relative; z-index: 5; display: block; box-sizing: border-box; background: var(--tk-paper); color: var(--tk-ink); border-top: 3px solid var(--tk-ink); }
-#app .tkt > .my-stall.active { box-shadow: inset 0 3px 0 var(--tk-yel); }
+#app .tkt > .my-stall { all: unset; grid-area: dock; position: relative; z-index: 5; box-sizing: border-box; background: var(--tk-paper); color: var(--tk-ink); }
 #app .tkt .tk-shelf { font: 700 0.6875rem/1 var(--tk-txt); text-transform: uppercase; white-space: nowrap; }
 #app .tkt .tk-shelf.full { color: var(--tk-red-d); }
 #app .tkt .tk-dock-marks { display: flex; gap: 4px; height: 13px; }
@@ -255,7 +238,7 @@
 
 /* ---------- the one black button ---------- */
 #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock {
-  all: unset; grid-area: act; position: relative; z-index: 5; box-sizing: border-box; display: flex; align-items: stretch; gap: 8px;
+  all: unset; grid-area: act; z-index: 5; box-sizing: border-box; display: flex; align-items: stretch; gap: 8px;
   padding: 8px 12px max(12px, env(safe-area-inset-bottom)); background: var(--tk-paper); color: var(--tk-ink);
 }
 /* In the rush an unseen tap layer covers the whole table (.rush-dim: a tap is "next customer"). It comes later in the
@@ -313,7 +296,7 @@
   #app .tkt .tk-event { padding-right: 6px; }
   #app .tkt .tk-me { gap: 6px; }
   #app .tkt .tk-cash { padding-left: 7px; padding-right: 7px; }
-  #app .tkt .tk-seat-name { font-size: 0.6875rem; letter-spacing: -0.01em; }
+  #app .tkt .tk-seat-name { letter-spacing: -0.01em; }
   #app .tkt > .street-wrap, #app .tkt > .seats { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .centre > .market-stall, #app .tkt > .centre > .mid-panel, #app .tkt > .centre > .morning-card, #app .tkt > .centre > .sales-card { padding-left: 8px; padding-right: 8px; }
   #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-left: 8px; padding-right: 8px; }
@@ -346,7 +329,7 @@
 #app .tkt .toast { border-radius: 0; background: var(--tk-ink); color: var(--tk-paper); border: 0; }
 /* today's news again, full screen (from the event name in the top bar) */
 #app .tkt .event-sheet { gap: 12px; padding: 16px 12px; background: var(--tk-paper); color: var(--tk-ink); }
-#app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
+#app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; }
 /* a customer's own ticket, large (tap a ticket) */
 #app .tkt .tk-cust.big { flex: none; width: min(100%, 250px); margin: 0 auto; box-shadow: 0 0 0 3px var(--tk-ink); }
 #app .tkt .coach > b { color: var(--tk-ink); font: 400 1rem/1.1 var(--tk-disp); text-transform: uppercase; }

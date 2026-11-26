@@ -57,7 +57,7 @@
 #app .tkt .tg-lab > span { flex: none; color: var(--tk-slate); }
 #app .tkt .tg-list { all: unset; display: flex; flex-direction: column; gap: 5px; }
 #app .tkt .tg-stall {
-  all: unset; height: var(--sh); display: flex; align-items: center; gap: 7px; padding: 0 7px;
+  all: unset; display: flex; align-items: center; gap: 7px; padding: 0 7px;
   border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink);
 }
 #app .tkt .tg-stall.me { background: var(--tk-yel); }

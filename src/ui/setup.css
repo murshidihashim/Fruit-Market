@@ -156,7 +156,7 @@ button.sb-cin:active { transform: translateY(2px); }
 /* an open stall: dashed, on kraft */
 .sb-card.open .sb-cin { background: var(--x-kraft); box-shadow: none; border: 2.5px dashed var(--x-ink); padding: 3px 4px 5px; align-items: stretch; }
 .sb-obig { display: block; margin-top: 4px; text-align: center; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
-.sb-osm { display: block; margin-top: 4px; text-align: center; font: 700 0.6875rem/1.2 var(--f-label); color: var(--x-ink); }
+.sb-osm { display: block; margin-top: 4px; text-align: center; font: 700 0.6875rem/1.2 var(--f-label); }
 .sb-two { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-top: 2px; }
 .sb-card.open.pick .sb-obig, .sb-card.open.pick .sb-osm { display: none; }
 /* B-11 (PLAN-130): on the open seat's kraft the pages' slate for small words is 4.2:1; ink is 11:1 */
@@ -171,7 +171,7 @@ button.sb-cin:active { transform: translateY(2px); }
 /* ---------- the room code ---------- */
 .sb-code { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 6px 6px 10px; background: var(--x-paper); box-shadow: inset 0 0 0 3px var(--x-ink); }
 .sb-code .sb-lb { margin: 0 0 2px; }
-.sb-code .room-code { display: flex; gap: 2px; font: 400 1.5rem/1 var(--f-display); letter-spacing: 0.08em; }
+.sb-code .room-code { display: flex; font: 400 1.5rem/1 var(--f-display); letter-spacing: 0.08em; }
 .sb-code .room-code span { min-width: 0; }
 .sb-code .sb-share { display: flex; flex-direction: column; gap: 5px; }
 .sb-code .sb-share button {
@@ -223,7 +223,7 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-h3 { margin: 4px 0 2px; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
 .sb-note.sb-first { margin-top: 0; }
 .sb-clock { font: 800 0.75rem/1 var(--f-label); font-variant-numeric: tabular-nums; color: var(--x-slate); }
-.sb-inv { text-align: left; margin-top: 3px; color: var(--x-slate); }
+.sb-inv { text-align: left; margin-top: 3px; }
 .sb .pr-list { display: flex; flex-direction: column; gap: 6px; }
 .sb .pr-row { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 10px; box-shadow: inset 0 0 0 2.5px var(--x-ink); }
 .sb .pr-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }

@@ -129,7 +129,7 @@
 .sbk .jp-lg-vs .jp-round { border-color: var(--k-paper); }
 .sbk .jp-vs { font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; }
 .sbk .jp-lg-rivals { display: flex; gap: 4px; }
-.sbk .jp-go { align-self: stretch; min-height: 56px; margin-top: 6px; background: var(--k-yel); color: var(--k-ink); text-align: center; font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; }
+.sbk .jp-go { align-self: stretch; min-height: 56px; background: var(--k-yel); color: var(--k-ink); text-align: center; font: 400 1.5rem/1 var(--f-display); text-transform: uppercase; }
 /* REP-140 B-01: a page's main action at the foot of the screen, outside the part that scrolls (the League, the Daily and
    Sprint intros), in the column's width */
 .sbk .jp-foot {

@@ -47,7 +47,7 @@
 #app .tkt .ds-note { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 8px 9px; background: var(--tk-kraft); }
 #app .tkt .ds-kind { flex: none; padding: 4px 6px; background: var(--tk-ink); color: var(--tk-yel); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 #app .tkt .ds-none { color: var(--c-2f3a3e); }
-#app .tkt .ds-out { display: flex; align-items: center; gap: 5px; }
+#app .tkt .ds-out { display: flex; align-items: center; }
 #app .tkt .ds-out b { font: 800 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 #app .tkt .ds-out em { font: 800 0.6875rem/1 var(--tk-txt); }
 /* − and +, and the number between them */
