@@ -42,7 +42,7 @@ const WHERE: Record<LookKind, string> = {
 };
 /** Slots that can be left empty (their first tile takes off what is on). The rest always have one on. */
 const CAN_BE_EMPTY = new Set<Slot>(['colour', 'roof', 'trim', 'prop', 'hat', 'face', 'neck', 'badge', 'hand', 'stamp']);
-const EMPTY_WORD: Partial<Record<Slot, string>> = { colour: 'Seat colour', roof: 'Plain', trim: 'None', prop: 'None', stamp: 'None' };
+const EMPTY_WORD: Partial<Record<Slot, string>> = { colour: 'Stall colour', roof: 'Plain', trim: 'None', prop: 'None', stamp: 'None' };
 
 /** The Wardrobe page. `onChange` hears what is on show to others after every change. */
 export function WardrobeTab({ look, fresh, snap, onChange }: { look: LookSet; fresh: Look[]; snap: Snapshot; onChange: (look: LookSet) => void }) {
