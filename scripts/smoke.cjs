@@ -64,17 +64,6 @@ const path = require('path');
       await page.click('button:has-text("Done buying"), button:has-text("Skip buying")');
       continue;
     }
-    // PLAN-113: a new player's first solo game sets up Day 1's stall by itself (its strip is up meanwhile), then asks one
-    // price: change it once with − or +, then ring the bell. Later days are played by hand below.
-    if (await has('.fs-strip') && once('first-sale-strip')) await shot('01c-first-sale-strip');
-    if (await has('.fs-pop .fs-go:not([disabled])')) {
-      await shot('04b-first-sale');
-      const step = page.locator('.fs-pop .fs-step:not([disabled])').first();
-      if (await step.count()) await step.click();
-      await page.click('.fs-pop .fs-go');
-      console.log('guided first sale: bell rung');
-      continue;
-    }
     // "The Bell" pop-up opens by itself on Day 1 (PLAN-059): close it before pricing.
     if (await page.locator('.bell-notice').count()) { await page.click('.bell-notice .btn'); continue; }
     // The first-game tips (tips are on in this test): read and close each one.
