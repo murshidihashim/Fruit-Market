@@ -37,7 +37,7 @@
   font: 800 0.75rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px;
 }
 .sb-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.sb-warn { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); color: var(--x-red); }
+.sb-warn { margin: 0; font: 700 0.8125rem/1.3 var(--f-label); color: var(--x-red-d); }
 
 /* the segmented choice (game length, table size): the chosen part is ink with yellow words */
 .sb-seg { display: flex; border: 3px solid var(--x-ink); background: var(--x-paper); }
@@ -118,7 +118,7 @@
 button.sb-cin { cursor: pointer; }
 button.sb-cin:active { transform: translateY(2px); }
 .sb-card.on .sb-cin { box-shadow: inset 0 0 0 2.5px var(--x-ink), 0 0 0 3px var(--x-mustard); }
-.sb-ctop { display: block; font: 800 0.5rem/1 var(--f-label); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.sb-ctop { display: block; font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-crule { flex: none; display: block; height: 3px; margin: 3px 0 4px; background: var(--x-ink); }
 .sb-cttl { display: block; font: 400 0.8125rem/1.05 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-cpic {
@@ -130,8 +130,8 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-cface .sbk-face { border-width: 2px; padding: 0; }
 .sb-cband { flex: none; display: flex; flex-direction: column; gap: 1px; margin-top: auto; padding: 3px 4px; min-width: 0; }
 .sb-cpic { margin-bottom: 5px; }
-.sb-cband small { font: 800 0.5rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb-cband b { font: 400 clamp(0.625rem, 3.4vw, 0.75rem)/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband small { font: 800 0.6875rem/1.1 var(--f-label); letter-spacing: 0.02em; text-transform: uppercase; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-cband b { font: 400 clamp(0.6875rem, 3.4vw, 0.75rem)/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-cband.b-y { background: var(--x-mustard); color: var(--x-ink); }
 .sb-cband.b-b { background: var(--x-sky); color: var(--x-paper); }
 .sb-cband.b-k { background: var(--x-ink); color: var(--x-paper); }
@@ -148,9 +148,11 @@ button.sb-cin:active { transform: translateY(2px); }
 .sb-osm { display: block; margin-top: 4px; text-align: center; font: 700 0.6875rem/1.2 var(--f-label); color: var(--x-ink); }
 .sb-two { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 5px; padding-top: 2px; }
 .sb-card.open.pick .sb-obig, .sb-card.open.pick .sb-osm { display: none; }
+/* B-11 (PLAN-130): on the open seat's kraft the pages' slate for small words is 4.2:1; ink is 11:1 */
+#app .sb-card.open .sb-osm { color: var(--x-ink); }
 .sb-add {
   min-height: 26px; margin: 0; padding: 0 2px; border: 0; border-radius: 0; background: var(--x-paper); color: var(--x-ink); box-shadow: inset 0 0 0 2px var(--x-ink);
-  cursor: pointer; font: 800 clamp(0.5625rem, 2.9vw, 0.625rem)/1 var(--f-label); letter-spacing: 0; text-transform: uppercase;
+  cursor: pointer; font: 800 0.6875rem/1 var(--f-label); letter-spacing: -0.02em; text-transform: uppercase;
 }
 .sb-add.go { background: var(--x-mustard); }
 .sb-card.off .sb-cin { opacity: 0.6; }
@@ -194,7 +196,7 @@ button.sb-cin:active { transform: translateY(2px); }
   .sb-hd { padding: 4px 12px 0; gap: 8px; }
   .sb-back { width: 40px; height: 40px; }
   .sb-tt h1 { font-size: 1.25rem; }
-  .sb-tt small { font-size: 0.625rem; }
+  .sb-tt small { font-size: 0.6875rem; letter-spacing: 0.06em; }
   .sb-main { gap: 5px; padding-left: 12px; padding-right: 12px; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
   .sb-deck { margin: 0 -12px; }
   .sb-arrow { height: 36px; }

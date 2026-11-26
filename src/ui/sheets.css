@@ -102,7 +102,7 @@
 #app .tkt .ob-status .xf { flex: none; box-sizing: border-box; border: 1.5px solid var(--tk-ink); border-radius: 0; overflow: hidden; }
 #app .tkt .ob-who { min-width: 0; display: flex; flex-direction: column; }
 #app .tkt .ob-who b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#app .tkt .ob-who span { margin-top: 2px; font: 800 0.5625rem/1 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+#app .tkt .ob-who span { margin-top: 2px; font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
 /* the bids turned over: every price shows at once (a card turn, at the table's one speed); the winner on mustard */
 #app .tkt .ob-status.open li { background: var(--tk-paper); animation: ob-turn calc(var(--mk, 1) * var(--t-turn)) cubic-bezier(.3, 0, .2, 1) both; }
 #app .tkt .ob-status.open li.st-pass { opacity: 0.55; }
@@ -125,7 +125,7 @@
 /* the three lines of the stake */
 #app .tkt .ob-lines { all: unset; display: flex; flex-direction: column; gap: 5px; padding: 9px 10px; border: 2px solid var(--tk-ink); font: 600 0.75rem/1.3 var(--tk-txt); }
 #app .tkt .ob-lines div { display: flex; align-items: baseline; gap: 8px; }
-#app .tkt .ob-lines dt { all: unset; flex: none; width: 74px; font: 800 0.625rem/1.3 var(--tk-txt); letter-spacing: 0.08em; text-transform: uppercase; }
+#app .tkt .ob-lines dt { all: unset; flex: none; width: 84px; font: 800 0.75rem/1.25 var(--tk-txt); letter-spacing: 0.02em; text-transform: uppercase; }
 #app .tkt .ob-lines dd { all: unset; min-width: 0; }
 /* once the bids are turned over the result takes the lines' place, in a box of the same size (nothing below jumps) */
 #app .tkt .ob-after { position: relative; }
@@ -284,7 +284,7 @@
    when the bids are in. */
 #app .tkt .order-strip { min-height: 28px; }
 /* Priority played: that stall's mark at the front of tomorrow's line */
-#app .tkt .tomorrow .tm-first { flex: none; box-sizing: border-box; height: 26px; display: inline-flex; align-items: center; gap: 4px; padding-right: 5px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.625rem/1 var(--tk-txt); letter-spacing: 0.06em; text-transform: uppercase; }
+#app .tkt .tomorrow .tm-first { flex: none; box-sizing: border-box; height: 26px; display: inline-flex; align-items: center; gap: 4px; padding-right: 5px; background: var(--tk-yel); color: var(--tk-ink); font: 800 0.6875rem/1 var(--tk-txt); letter-spacing: 0.04em; text-transform: uppercase; }
 #app .tkt .tomorrow .tm-first .xf { border-radius: 0; }
 
 /* a narrow phone: the bidders' faces a little smaller, so three still stand in a row with their words in full */

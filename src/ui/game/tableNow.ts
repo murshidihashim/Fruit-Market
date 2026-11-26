@@ -229,8 +229,9 @@ export function crateFit(w: number, h: number, seat: Pick<TableSeat, 'look' | 's
   const chrome = 4 + (low || close ? 5 : 7) + (low || close ? 19 : 20);
   const tagW = (t: SeatTag, small: boolean) => {
     const digits = t.up && t.price !== null ? String(t.price).length + 1 : 2;
-    // measured: "$3" 38 px and "$11" 46 px as drawn; small, about a sixth less
-    return small ? 21 + digits * 6.4 : 22.5 + digits * 7.8;
+    // measured: "$3" 38 px and "$11" 46 px as drawn; small, about a sixth less (B-10, PLAN-130: the small tag's
+    // figures are 11 px now, not 10, so each is a tenth wider)
+    return small ? 21 + digits * 7.1 : 22.5 + digits * 7.8;
   };
   const fits = (step: 0 | 1 | 2): boolean => {
     const cell = step === 0 ? 16 : step === 1 ? 14 : 12;
