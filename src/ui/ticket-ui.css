@@ -223,3 +223,23 @@
 #app :is(.ln-watermelon, .ln-apple):is(.cd-ly-n, .wc-lt-n):is(.nil, .on) { text-shadow: none; }
 #app .home.hm .hm-chip, #app .host-tag, #app .ready-tag.yes, #app .sbk .sbk-note.good, #app .sbk .sbk-rk.done .sbk-n { background: var(--c-0a7443); }
 
+
+/* ---------- B-08 (PLAN-130, REP-140): keyboard focus in the game ----------
+   Most of the table's controls are drawn with "all: unset", which also took away the browser's focus ring. Every control
+   in the game gets the house ring back, for the keyboard only (:focus-visible; a tap or a click shows nothing): 3 px of
+   the set-up screens' blue, 2 px clear of the control. On the black top bar and at night the ring is mustard. The
+   market's boxes and lane heads stand on their lane's colour, the stalls' boxes stand close together and Menu sits in
+   the screen's corner, so their ring is drawn just inside their own edge. The customers' row scrolls sideways, which clips what lies outside it: it gets
+   5 px of room on every side (and gives them back with its margin, so nothing moves) for the cards' rings. */
+#app .game.tkt { --focus: var(--x-sky-d); }
+#app .game.tkt .tk-top, #app .game.tkt.is-night { --focus: var(--x-mustard); }
+#app .game.tkt :is(button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 2px;
+}
+#app .game.tkt :is(button, [tabindex]):is(.tk-menu, .tk-box, .tk-lane-head, .tb-stall):focus-visible { outline-offset: -3px; }
+/* a lane's head is filled with the lane's colour: its ring is the colour of its own words, which stand out on it */
+#app .game.tkt :is(button, [tabindex]):is(.tk-lane-head):focus-visible { outline-color: currentColor; }
+/* the price dial's black − and + sit at the edge of the rows' scrolling box: a mustard ring inside them */
+#app .game.tkt :is(button, [tabindex]):is(.rt-sheet .ds-st):focus-visible { outline-color: var(--x-mustard); outline-offset: -3px; }
+#app .game.tkt .street-wrap > .street { padding: 5px; margin: -5px; }
+#app .game.tkt :is(.cd-pop, .ev-pop):focus { outline: none; }
