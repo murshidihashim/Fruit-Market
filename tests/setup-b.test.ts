@@ -5,8 +5,12 @@ import { h } from 'preact';
 import { RIVALS } from '../src/engine/data';
 import { toStaticHtml } from '../src/ui/cards';
 import { LocalSetup, seatShopkeepers } from '../src/ui/Setup';
-import { Online, pickState, seatBand } from '../src/ui/Online';
-import { QUICK_NOTE, QUICK_SIZES, WAYS, foundLine, quickOf, vsComputerConfig } from '../src/ui/playMenu';
+import { Online } from '../src/ui/Online';
+import { RoomLength } from '../src/ui/OnlineRoom';
+import { PlayMenu } from '../src/ui/Home';
+import { pickState, seatBand } from '../src/ui/onlineWords';
+import { LENGTHS, QUICK_NOTE, QUICK_SIZES, WAYS, foundLine, quickOf, vsComputerConfig } from '../src/ui/playMenu';
+import { unripeSetupText } from '../src/ui/rulesText';
 import type { PublicSeat } from '../src/net/protocol';
 
 // The screens drawn once, as a string: each hook gives its first value; nothing is fetched.
@@ -132,5 +136,29 @@ describe('the Private Room page (Online.tsx)', () => {
     expect(pickState(seat({}))).toBe('Choosing');
     expect(pickState(seat({ confirmed: true }))).toBe('Confirmed');
     expect(pickState(seat({ connected: false }))).toBe('Away');
+  });
+});
+
+describe('the game lengths (REP-122 C-02, REP-133 B-14)', () => {
+  /** The choices of a drawn "Game length" segment, in order. */
+  const lengths = (html: string) => {
+    const seg = /aria-label="Game length">([\s\S]*?)<\/div>/.exec(html)?.[1] ?? '';
+    return [...seg.matchAll(/>([A-Za-z]+)<small>(\d+) days<\/small>/g)].map((m) => `${m[1]} ${m[2]}`);
+  };
+  const LIST = LENGTHS.map((l) => `${l.word} ${l.days}`);
+
+  it('the set-up page and the room offer the Play menu\'s list, shortest first; the Play page has none', () => {
+    expect(LIST).toEqual(['Quick 8', 'Standard 10', 'Long 14']);
+    for (const mode of ['computer', 'phone'] as const) expect(lengths(toStaticHtml(h(LocalSetup, { mode, onBack: noop, onStart: noop }))), mode).toEqual(LIST);
+    expect(lengths(toStaticHtml(h(RoomLength, { days: 10, host: true, onDays: noop })))).toEqual(LIST);
+    // a guest sees the host's choice in words
+    expect(toStaticHtml(h(RoomLength, { days: 14, host: false, onDays: noop }))).toContain('Long · 14 days');
+    expect(toStaticHtml(h(PlayMenu, { onBack: noop, onQuick: noop, onRoom: noop, onComputer: noop, onOnePhone: noop }))).not.toContain('Game length');
+  });
+
+  it('the set-up page has no rules switches (PLAN-063: the full game, always)', () => {
+    const html = toStaticHtml(h(LocalSetup, { mode: 'computer', onBack: noop, onStart: noop }));
+    expect(html).not.toContain(unripeSetupText());
+    expect(html).not.toMatch(/\$1 now|Unripe fruit|Market Days|role="switch"/);
   });
 });

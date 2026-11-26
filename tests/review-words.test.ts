@@ -36,10 +36,9 @@ function morningOf(day: number, extra: Partial<GameConfig> = {}): GameState {
 describe('C-02: a standing order only when it can be collected', () => {
   it('the Market Days without one are worked out as the engine draws them, at every game length', () => {
     expect(GAME_LENGTHS).toEqual([8, 10, 14]);
-    // The set-up page's lengths and the online room's: since PLAN-116 (REP-133 B-14) both draw the Play menu's list
-    // (playMenu.ts LENGTHS), which holds the same three lengths; PLAN-125: through one segment (Setup.tsx LengthSeg).
-    expect(read('src/ui/Setup.tsx')).toContain('LENGTHS.map((l) =>');
-    expect(read('src/ui/Online.tsx')).toContain('<LengthSeg ');
+    // The set-up page's lengths and the online room's are the Play menu's list (playMenu.ts LENGTHS), which holds the
+    // same three lengths; that both screens draw it is checked on the drawn screens in setup-b.test.ts ("the game
+    // lengths"; REP-140 A-01: no longer read from the source text).
     expect(LENGTHS.map((l) => l.days)).toEqual([...GAME_LENGTHS]);
     expect(GAME_LENGTHS.map(marketDaysWithoutOrder)).toEqual([[], [9], []]);
     expect(NO_ORDER_DAYS).toBe('Day 9 of a 10-day game');

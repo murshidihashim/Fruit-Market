@@ -24,8 +24,8 @@ describe('green fruit', () => {
     const t = unripeSetupText();
     expect(t).toBe(`Every lorry brings mangoes green: from $${FRUIT.mango.cost.unripe}, ready to sell after ${FRUIT.mango.unripeSlots} nights.`);
     expect(t).not.toMatch(/\$1 now|watermelon/i);
-    const app = readFileSync('src/ui/App.tsx', 'utf8');
-    expect(app).not.toContain('$1 now'); // the New game screen has no rules switches since PLAN-063
+    // The set-up page has had no rules switches since PLAN-063: checked on the drawn page in setup-b.test.ts (REP-140
+    // A-01: no longer read from App.tsx's text).
   });
 
   it('the Market Days switch says what it turns off, and no longer mentions a Closing Day (rules 20)', () => {

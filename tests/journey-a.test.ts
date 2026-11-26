@@ -4,7 +4,7 @@ import { capAt } from '../src/engine/game';
 import { DEFAULT_CONFIG, MAX_SEATS, type PublicSeat } from '../src/net/protocol';
 import { practiceQuestion, practiceRound, practiceVerdict, sells, type PracticeRound } from '../src/ui/practice';
 import { clock, leagueLine, quickLine, vsComputerConfig, waitLine } from '../src/ui/playMenu';
-import { seatChip } from '../src/ui/Online';
+import { seatChip } from '../src/ui/onlineWords';
 import { LEAGUE } from '../src/ui/progress';
 
 // PLAN-113, part A: the price practice on the Quick match wait, the Play menu's words, and the private room's chips.

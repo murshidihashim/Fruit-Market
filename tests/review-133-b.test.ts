@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { CARDS } from '../src/ui/achievements';
 import { toStaticHtml } from '../src/ui/cards';
 import { nextFocus } from '../src/ui/focusTrap';
-import { inviteLine } from '../src/ui/Online';
+import { inviteLine } from '../src/ui/onlineWords';
 import { BellNotice, tieOrderLine } from '../src/ui/panel';
 import { LENGTHS, lengthWord } from '../src/ui/playMenu';
 import { practiceRound, practiceVerdict } from '../src/ui/practice';
@@ -56,15 +56,8 @@ describe('B-14: game lengths in one order everywhere', () => {
     expect(LENGTHS.map((l) => `${l.word} ${l.days}`)).toEqual(['Quick 8', 'Standard 10', 'Long 14']);
     expect([8, 10, 14].map(lengthWord)).toEqual(['Quick', 'Standard', 'Long']);
   });
-  it('the set-up screen and the room draw the same list', () => {
-    // PLAN-125: the set-up pages and the room draw one segment (Setup.tsx LengthSeg); the Play page has no length.
-    expect(readFileSync('src/ui/Online.tsx', 'utf8')).toContain('<LengthSeg ');
-    for (const f of ['src/ui/Setup.tsx', 'src/ui/Online.tsx', 'src/ui/App.tsx', 'src/ui/Home.tsx']) {
-      const src = readFileSync(f, 'utf8');
-      if (f === 'src/ui/Setup.tsx') expect(src).toContain('LENGTHS.map(');
-      expect(src).not.toMatch(/\[\[8, 'Quick'\]|\[\[10, 'Standard'\]/);
-    }
-  });
+  // "The set-up screen and the room draw the same list" (PLAN-125: one segment, Setup.tsx LengthSeg; the Play page has
+  // no length) is checked on the drawn screens in setup-b.test.ts ("the game lengths"; REP-140 A-01).
 });
 
 describe('B-17: one set of words', () => {

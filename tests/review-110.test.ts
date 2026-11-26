@@ -9,7 +9,7 @@ import { pulse, wantText } from '../src/ui/boardModel';
 import { toStaticHtml } from '../src/ui/cards';
 import { canGetLine, orderResultText } from '../src/ui/game/panels/OrderPanel';
 import { unsentChoice } from '../src/ui/game/panels/Popovers';
-import { pickAwayLine } from '../src/ui/Online';
+import { pickAwayLine } from '../src/ui/onlineWords';
 import { loadSettings, loadUndo, saveSettings, saveUndo } from '../src/ui/store';
 import type { PublicSeat } from '../src/net/protocol';
 import { rushOver, takingsRows } from '../src/ui/game/panels/SalesSummary';

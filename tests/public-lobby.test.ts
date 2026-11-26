@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { COMPUTERS_AFTER_MS, DEFAULT_CONFIG, isReaction, PROTOCOL_VERSION, REACTIONS, RULES_VERSION, AI_VERSION, type PublicSeat, type RoomView } from '../src/net/protocol';
-import { computersOffer, waitedWords } from '../src/ui/Online';
+import { computersOffer, waitedWords } from '../src/ui/onlineWords';
 import { isEmoji, isMuted, toggleMuted } from '../src/ui/Reactions';
 
 // PLAN-112: what the online screens say and decide for public rooms, starting with computers and reactions.
