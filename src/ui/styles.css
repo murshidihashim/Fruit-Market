@@ -1178,8 +1178,9 @@ b, strong { font-weight: 700; }
 .gx > .actionbar .buy-hint small { font-size: 0.72rem; line-height: 1.15; }
 
 /* a phone on its side (or any very short window below the desktop layout): there is no room for the whole table,
-   so the screen scrolls as it used to instead of squeezing the market to nothing (the app itself is portrait-only) */
-@media (max-height: 639px) and (max-width: 899px), (max-height: 559px) {
+   so the screen scrolls as it used to instead of squeezing the market to nothing (the app itself is portrait-only).
+   B-03 (PLAN-130): a phone 480 to 639 px tall no longer scrolls: its table fits the screen (table.css, a short phone) */
+@media (max-height: 479px), (min-width: 900px) and (max-height: 559px) {
   .game.gx { height: auto; min-height: 100%; overflow: visible; grid-template-rows: auto auto auto auto minmax(430px, auto) auto auto; }
   #app:has(> .game.gx) { height: auto; min-height: 100%; }
   /* the main button stays in reach at the foot of the screen while it scrolls */
