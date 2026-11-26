@@ -27,9 +27,12 @@
    say the first word ("okay", "spoils"), three to a row; seven or more show the letter the pieces carry tomorrow. */
 #app .game.tkt .tb-chips { --chip-gap: 5px; gap: var(--chip-gap); }
 #app .game.tkt .tb-chip-s { display: none; }
-#app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-w { display: none; }
 #app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-s { display: inline; }
 #app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-to { display: none; }
+/* eight or more things on the shelf (ten pieces with a Handcart, and favour cards): closer chips, favour cards as pictures */
+#app .game.tkt .tb-dock.c8 .tb-chips { --chip-gap: 4px; }
+#app .game.tkt .tb-dock.c8 .tb-chip { gap: 3px; padding: 0 4px; }
+
 /* ---------- a shorter phone: one row of chips beside the shelf's name ----------
    The row is as wide as the phone less the name, so the chips close up as the shelf fills, and none leaves the screen:
    one chip in full words, two with the first word, three or four as letters (today's and tomorrow's), five or more as
@@ -38,10 +41,9 @@
 @media (max-height: 779px) {
   /* the face's frame is 22 px here: the face is drawn to fit inside it (it was 23 px and lost its right and lower edge) */
   #app .game.tkt .tb-chips { --chip-gap: 4px; min-width: 0; }
-  #app .game.tkt .tb-dock.c2 .tb-chip-w { display: none; }
   #app .game.tkt .tb-dock.c2 .tb-chip-s { display: inline; }
   #app .game.tkt .tb-dock.c2 .tb-chip-to { display: none; }
-  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-w, #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-s { display: none; }
+  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-s { display: none; }
   /* three or four: today's letter and tomorrow's, side by side */
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip-to { display: inline-flex; gap: 2px; font-size: 0; }
   /* (a slim mark between the two letters in place of the arrow, which is twice as wide) */
@@ -52,9 +54,7 @@
 }
 #app .tkt .tb-chip-to { display: none; align-items: center; gap: 3px; font: 800 0.6875rem/1 var(--tk-txt); }
 #app .tkt .tb-chip-to i { font-style: normal; }
-#app .tkt .tb-dock:is(.c7, .c8) .tb-chip-w { display: none; }
 #app .tkt .tb-dock:is(.c7, .c8) .tb-chip-to { display: inline-flex; }
 @media (max-height: 779px) {
-  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-w { display: none; }
   #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-to { display: inline-flex; }
 }

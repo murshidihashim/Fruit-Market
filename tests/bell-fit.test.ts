@@ -234,16 +234,14 @@ describe('the two buttons', () => {
   });
 });
 
-describe('the round table before the rush (the bell\'s rows and bell.css are gone, PLAN-099)', () => {
-  it('moves by position, size and fade only, on the table\'s clock, and takes its colours from the palette', () => {
-    // Read in the browser instead of in the stylesheets (PLAN-130):
-    //   by position, size and fade only, never turned or stepped, as a game is played: scripts/table-checks.cjs;
-    //   every rule of the round table takes its colours from the palette and times each move by a length read from the
-    //   clock, times --mk, and reduced motion shows every end state at once: scripts/style-checks.cjs (the page's own
-    //   rules, and "with reduced motion nothing moves"); hex colours anywhere: palette.test.ts;
-    //   the rows of the table are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in one sheet';
-    //   the old rows and the bell's sheet are gone, and the day's sheet no longer asks the question at a tie:
-    //   scripts/style-checks.cjs (the page's own rules); bell.css is not loaded: css-layers.test.ts 'the table's sheets
-    //   load in one order'.
-  });
-});
+// The round table before the rush (the bell's rows and bell.css are gone, PLAN-099) moves by position, size and fade
+// only, on the table's clock, and takes its colours from the palette. Read in the browser instead of in the
+// stylesheets (PLAN-130):
+//   by position, size and fade only, never turned or stepped, as a game is played: scripts/table-checks.cjs;
+//   every rule of the round table takes its colours from the palette and times each move by a length read from the
+//   clock, times --mk, and reduced motion shows every end state at once: scripts/style-checks.cjs (the page's own
+//   rules, and "with reduced motion nothing moves"); hex colours anywhere: palette.test.ts;
+//   the rows of the table are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in one sheet';
+//   the old rows and the bell's sheet are gone, and the day's sheet no longer asks the question at a tie:
+//   scripts/style-checks.cjs (the page's own rules); bell.css is not loaded: css-layers.test.ts 'the table's sheets
+//   load in one order'.

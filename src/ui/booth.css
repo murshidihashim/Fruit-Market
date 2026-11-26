@@ -11,6 +11,8 @@
   --hm-red: var(--x-red-d); --hm-slate: var(--x-slate);
   --hm-berry: var(--c-3558a2); --hm-melon: var(--c-0e9a58); --hm-mango: var(--c-fec400); --hm-apple: var(--c-e73c35);
 }
+
+.home.hm { min-height: 100%; display: flex; flex-direction: column; background: var(--hm-paper); color: var(--hm-ink); color-scheme: light; font-family: var(--f-label); }
 .home.hm .hm-in { flex: 1 0 auto; width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; }
 @media (min-width: 760px) {
   .home.hm.jh .hm-in { max-width: 720px; }
@@ -118,6 +120,5 @@
   .op.op-ld:not(.op-wait) .op-cover { display: none; }
 }
 .op-skip {
-  position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem;
-  font-family: var(--f-label); color: var(--x-ink);
+  position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 0.78rem; color: var(--x-ink);
 }

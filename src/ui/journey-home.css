@@ -30,7 +30,7 @@
 /* ---------- Play, and the room an online match waits in ---------- */
 .home.hm.jh .jh-go {
   min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--j-yel); color: var(--j-ink);
-  box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase;
+  box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 5px;
 }
 .home.hm.jh .jh-go:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
 .sbk.jh-intro .jh-go2 {
@@ -45,6 +45,7 @@
 }
 
 /* ---------- the Play menu ---------- */
+#app .jp > .topbar .day b, #app .jo > .topbar .day b { color: var(--j-ink); font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .jp .jp-me { justify-self: end; }
 #app .jp .jp-me .sbk-face { border-width: 2px; padding: 0; }
 .jp .jp-in { gap: 10px; padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left)); max-width: 560px; margin: 0 auto; width: 100%; box-sizing: border-box; }
@@ -55,7 +56,7 @@
 .jp .jp-tile b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; }
 .jp .jp-tile:active { transform: translateY(2px); }
 .jp .jp-tile:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
-.jp .jp-tile.big { justify-content: space-between; }
+#app .jp .jp-tile.big { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; background: var(--j-yel); box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); margin-bottom: 4px; }
 .jp .jp-tile.big b { font-size: 1.625rem; }
 .jp .jp-tt { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .jp .jp-vs { flex: none; display: flex; align-items: center; gap: 4px; }
@@ -77,6 +78,7 @@
   font: 800 0.8125rem/1.15 var(--f-label); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
 }
 #app .jp .jp-len button small { font: 600 0.75rem/1 var(--f-label); color: inherit; }
+#app .jp .jp-len button.on { background: var(--j-ink); color: var(--j-paper); }
 /* PLAN-119: each mode's job. The "Normal game" group holds the ways to play a full market your way; the League, the
    Daily market and the Sprint follow, each with its one-line reason over its details. */
 #app .jp .jp-grp { display: flex; flex-direction: column; gap: 10px; padding: 10px 10px 12px; margin-bottom: 6px; background: var(--j-tint); box-shadow: inset 0 0 0 2.5px var(--j-ink); }

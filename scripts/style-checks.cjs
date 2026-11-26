@@ -13,7 +13,9 @@ const path = require('path');
 // where the test is
 //   '='  the computed value is `value`;   '!='  it is not;
 //   'as' it is what the same property computes to on a piece of the same place styled `property: value`;
-//   '>'  a number above `value`;          'right of'  the element lies to the right of the one `value` selects;
+//   '>', '<'  a number above or below `value`;
+//   'starts', 'ends', 'has'  the computed value starts with, ends with or holds `value`;
+//   'right of'  the element lies to the right of the one `value` selects;
 //   'fills'  the element's box is the grid cell `value` (it has no size of its own);
 //   'reach'  the place to tap (the element's min-height, and how far its ::before reaches above and below it, or
 //            across with `value` 'across' and the width) is at least 40 px.
@@ -109,6 +111,14 @@ const PIECES = [
   ['tall', 'the night comes in by its own animation',
     '<div class="centre"><div class="tk-night"><b>n</b></div></div>', [
       ['.tk-night', '', 'animation-name', '=', 'tk-dusk'],
+    ]],
+  ['tall', 'at night the customer row and the stalls stay on the table, dimmed, and the lanes\' pieces and your shelf\'s chips slide on the night\'s curve',
+    `${BARE}<div class="game gx tkt is-night"><div class="street-wrap" data-x="row"><div class="street"></div></div><div class="seats" data-x="seats"></div>`
+      + '<div class="tb-lane"><i class="tb-pc ns-piece" data-x="pc"></i></div><div class="tb-dock night"><i class="tb-chip" data-x="chip"></i></div></div>', [
+      ['[data-x="row"]', '', 'display', '=', 'block'], ['[data-x="row"]', '', 'opacity', '<', 1],
+      ['[data-x="seats"]', '', 'display', '=', 'flex'], ['[data-x="seats"]', '', 'opacity', '<', 1],
+      ['[data-x="pc"]', '', 'transition-timing-function', 'starts', 'cubic-bezier(0.45, 0, 0.3, 1)'],
+      ['[data-x="chip"]', '', 'transition-timing-function', 'starts', 'cubic-bezier(0.45, 0, 0.3, 1)'],
     ]],
   ['reduced', 'with reduced motion nothing moves and the "LAST DAY" stamp is simply there',
     '<div class="centre"><div class="tk-night"><b>n</b></div><div class="phase-banner">LAST DAY</div></div>', [
@@ -270,8 +280,10 @@ function readPieces({ pieces, takings, readable, bare, size }) {
         probe.remove();
         ok = b.height > 0 && ['left', 'top', 'width', 'height'].every((k) => Math.abs(a[k] - b[k]) < 0.5);
         if (!ok) said = `the ${value} cell (${Math.round(b.width)}x${Math.round(b.height)}, the element ${Math.round(a.width)}x${Math.round(a.height)})`;
-      } else if (test === 'ends' || test === 'has') {
-        ok = test === 'ends' ? got.endsWith(value) : got.includes(value);
+      } else if (test === '<') {
+        ok = got !== '' && Number(got) < value;
+      } else if (test === 'ends' || test === 'has' || test === 'starts') {
+        ok = test === 'ends' ? got.endsWith(value) : test === 'starts' ? got.startsWith(value) : got.includes(value);
       } else if (test === 'half row') {
         // half of its row's width less the gap between two boxes (`value` px), with or without a box beside it
         const row = el.parentElement, rs = getComputedStyle(row);

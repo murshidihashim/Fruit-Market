@@ -34,11 +34,10 @@ describe('the morning on a small phone with six stalls (MorningCard.tsx)', () =>
     }
   });
 
-  it('every step keeps the steps before it, and the event picture only shrinks: nothing is hidden past step 2', () => {
-    // scripts/style-checks.cjs: "the morning drawn closer" (the tagline put away, the delivery row and the title
-    // smaller from step 2 on, the event's picture 104 by 76 at step 3 and 80 by 58 after, the words flowing round it at
-    // step 5), and from the page's own rules: only the tagline is ever put away.
-  });
+  // Every step keeps the steps before it, and the event picture only shrinks; nothing is hidden past step 2:
+  // scripts/style-checks.cjs, "the morning drawn closer" (the tagline put away, the delivery row and the title smaller
+  // from step 2 on, the event's picture 104 by 76 at step 3 and 80 by 58 after, the words flowing round it at step 5),
+  // and from the page's own rules: only the tagline is ever put away.
 });
 
 // The event chip in the top bar shows its whole name (the picture gives way first, out of sight below; the name never

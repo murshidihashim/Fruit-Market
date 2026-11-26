@@ -4,7 +4,7 @@
    the colour tokens (--j-*) are in journey-home.css. Colours from palette.css only.
    ===================================================================== */
 #app .page.jo { background: var(--j-paper); color: var(--j-ink); }
-.jo .jl-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
+#app .jo .jl-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 #app .jo .seg button.on { background: var(--j-ink); color: var(--j-paper); }
 .seat-mute { display: flex; justify-content: flex-end; margin: -2px 0 2px; }
 .sb .seat-mute { margin-top: 6px; }
@@ -34,6 +34,7 @@
 #app .jo .jw-next { min-height: 44px; align-self: flex-start; padding: 0 12px; }
 
 @media (max-width: 379px) {
+  #app .jo > .topbar .day b { font-size: 1.125rem; }
   .jo .jw-card { --card-w: 128px; }
   .jo .jw-pp-card { --card-w: 100px; }
 }

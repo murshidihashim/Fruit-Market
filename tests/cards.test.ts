@@ -205,10 +205,9 @@ describe('customer cards (the Main board)', () => {
     expect(html(Ticket, { who: o.name, order: true, lines: [{ fruit: o.fruit, qty: 4, max: 9 }] })).not.toMatch(/pref-/);
   });
 
-  it('every customer and guest card has the same picture box, whatever the number of fruits it wants (PLAN-106)', () => {
-    // one height in the card's own unit, never grown or shrunk, and one rule that sizes it: read in the browser on the
-    // built page (scripts/style-checks.cjs, "every customer card has the same picture box", PLAN-130)
-  });
+  // Every customer and guest card has the same picture box, whatever the number of fruits it wants (PLAN-106): one
+  // height in the card's own unit, never grown or shrunk, and one rule that sizes it. Read in the browser on the built
+  // page (scripts/style-checks.cjs, "every customer card has the same picture box", PLAN-130).
 
   it('a special guest is marked as one, has no number and uses its event\'s picture', () => {
     for (const g of GUESTS) {

@@ -541,10 +541,9 @@ describe('no stepped landings or pops', () => {
     expect(read('src/ui/anim.ts')).not.toMatch(/steps\(\d/);
   });
 
-  it('with reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible)', () => {
-    // read in the browser with reduced motion asked for (scripts/style-checks.cjs, "with reduced motion nothing moves
-    // and the LAST DAY stamp is simply there", PLAN-130)
-  });
+  // With reduced motion the "LAST DAY" stamp is simply there (it used to stay invisible): read in the browser with
+  // reduced motion asked for (scripts/style-checks.cjs, "with reduced motion nothing moves and the LAST DAY stamp is
+  // simply there", PLAN-130).
 });
 
 // ---------- the sheet ----------

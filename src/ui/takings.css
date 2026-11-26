@@ -29,6 +29,8 @@
 #app .tkt .tg-queue { flex: none; margin-left: auto; display: flex; gap: 5px; }
 #app .tkt .tg-face { flex: none; width: 30px; height: 30px; display: block; overflow: hidden; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
 #app .tkt .tg-face.no .x-art { opacity: 0.35; }
+#app .tkt .tg-queue.many { gap: 4px; }
+#app .tkt .tg-queue.many .tg-face { width: 24px; height: 24px; }
 
 /* ---------- the ledger ---------- */
 #app .tkt .tg-led { display: flex; flex-direction: column; margin: var(--g) var(--side) 0; border: 2px solid var(--tk-ink); }
@@ -54,7 +56,7 @@
 #app .tkt .tg-lab > span { flex: none; color: var(--tk-slate); }
 #app .tkt .tg-list { all: unset; display: flex; flex-direction: column; gap: 5px; }
 #app .tkt .tg-stall {
-  all: unset; display: flex; align-items: center; gap: 7px; padding: 0 7px;
+  all: unset; height: var(--sh); display: flex; align-items: center; gap: 7px; padding: 0 7px;
   border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink);
 }
 #app .tkt .tg-stall.me { background: var(--tk-yel); }
@@ -91,6 +93,7 @@
    1: the spacing.  2: smaller rows.  3: without the customers' strip.  4: the stalls as plain lines, no faces. */
 #app .tkt .sales-card[data-tight] .tg-strip { min-height: 38px; padding-top: 5px; padding-bottom: 5px; }
 #app .tkt .sales-card[data-tight] .tg-face { width: 26px; height: 26px; }
+#app .tkt .sales-card[data-tight] .tg-queue.many .tg-face { width: 22px; height: 22px; }
 #app .tkt .sales-card[data-tight] .tg-hd { padding-top: 5px; padding-bottom: 5px; }
 #app .tkt .sales-card[data-tight] .tg-row { min-height: 25px; padding-top: 4px; padding-bottom: 4px; }
 #app .tkt .sales-card[data-tight] .tg-net { padding-top: 6px; padding-bottom: 6px; }

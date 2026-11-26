@@ -4,8 +4,9 @@
 #app .tkt .tk-shelf { font: 700 0.6875rem/1 var(--tk-txt); text-transform: uppercase; white-space: nowrap; }
 #app .tkt .tk-shelf.full { color: var(--tk-red-d); }
 #app .tkt .tk-dock-marks { display: flex; gap: 4px; height: 13px; }
-@media (max-width: 379px) {
-  #app .tkt .tk-seat-name { letter-spacing: -0.01em; }
+#app .tkt > .centre > .tk-night { animation: tk-dusk calc(var(--mk, 1) * var(--t-dusk)) ease-in both; }
+#app .tkt > .centre > .tk-night > * {
+  animation: tk-dusk-in calc(var(--mk, 1) * var(--t-rise)) calc(var(--mk, 1) * var(--t-rise-after)) ease-out both;
 }
 #app .tkt > .centre > .tk-night > :first-child { margin-top: auto; }
 #app .tkt > .centre > .tk-night > :last-child { margin-bottom: auto; }
@@ -17,9 +18,12 @@
   text-transform: uppercase;
 }
 #app .game.tkt .tb-place { margin-right: calc(0px - var(--chip-gap)); }
+#app .game.tkt .tb-dock:is(.c5, .c6) .tb-chip-w { display: none; }
 @media (max-height: 779px) {
   #app .game.tkt .tb-chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
   #app .game.tkt .tb-chip > * { flex: none; }
+  #app .game.tkt .tb-dock.c2 .tb-chip-w { display: none; }
+  #app .game.tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .tb-chip-w { display: none; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip { gap: 2px; padding: 0 3px; }
   #app .game.tkt .tb-dock:is(.c3, .c4) .tb-chip b { font-size: 0.6875rem; }
   #app .game.tkt .tb-dock.c4 .tb-chips { --chip-gap: 3px; }
@@ -57,7 +61,7 @@
 
 /* ---------- the awning strips (DEC-103): over your shelf, and thin on a stall's box ---------- */
 #app .tkt .tb-awn { flex: none; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--tk-ink); }
-#app .tkt .tb-awn.thin { border-bottom-width: 1.5px; }
+#app .tkt .tb-awn.thin { height: 7px; border-bottom-width: 1.5px; }
 
 /* ---------- today's customers: the row keeps one height all day ----------
    A ticket is its heading (26), its picture, a row for each fruit (20), its legend (20) and its border (4). The row is
@@ -80,6 +84,7 @@
 #app .tkt .tb-stall-row { --g: 5px; position: relative; flex: none; display: flex; gap: var(--g); min-width: 0; }
 /* PLAN-104: while the First token is on its way the row does not give away where it lands: no box is marked as buying
    yet (the bottom bar waits too, game/panels/ActionBar.tsx) */
+#app .tkt .tb-stalls.tb-drawing .tb-stall.buy-now { background: var(--tk-paper); }
 #app .tkt .tb-stalls.tb-drawing .tb-got > span:last-child:not(.tb-buys) { visibility: hidden; }
 /* the First token: a small round token on the first buyer's box, over its awning; it lies on the row, so it can
    travel from box to box (the boxes are all one width: box k starts k widths and gaps from the left). C-07 (PLAN-110):
@@ -99,10 +104,10 @@
 #app .tkt .tb-stall.buy-now, #app .tkt .tb-stall.open { background: var(--tk-yel); }
 #app .tkt .tb-stall.b-thinking { border-style: dashed; }
 #app .tkt .tb-stall.b-sealed { background: var(--tk-tint); }
+#app .tkt .tb-stall.off { opacity: 0.5; }
 /* the box's parts are laid out by the box itself: the face beside the name (up to two lines, so "Uncle Benny" reads in
    full at four stalls), then the cash beside what the stall bought today or what it is doing */
 #app .tkt .tb-who, #app .tkt .tb-id { display: contents; }
-.tkt .tk-seat-name { text-overflow: ellipsis; }
 #app .tkt .tb-stall .tk-seat-name {
   grid-column: 2; grid-row: 2; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal;
   font: 600 0.6875rem/1.15 var(--tk-txt);
@@ -191,7 +196,7 @@
 @container market (max-width: 350px) {
   #app .tkt .tb-tkn { width: 20px; height: 20px; }
   #app .tkt .tb-box .tb-tkn .x-fruit { width: 15px; height: 15px; }
-  .tkt .tb-box .tk-lamp { --s: 12px; }
+  #app .tkt .tb-box .tk-lamp { --s: 12px; }
   #app .tkt .tb-n { font-size: 0.6875rem; }
   #app .tkt .tb-box .price { font-size: 0.6875rem; }
 }
@@ -208,12 +213,13 @@
 #app .tkt .tb-crate { width: 28px; height: 24px; box-sizing: border-box; display: grid; place-items: center; border: 2px solid var(--tk-ink); background: var(--tk-kraft); }
 
 /* ---------- your shelf ---------- */
+#app .tkt > .my-stall.tb-dock { display: flex; flex-direction: column; padding: 0 0 6px; border-top: 2px solid var(--tk-ink); box-shadow: none; }
 #app .tkt .tb-dock-head { flex: none; height: 14px; display: flex; align-items: center; gap: 8px; padding: 7px 12px 0; }
 #app .tkt .tb-dock-head .tk-label { flex: none; font-size: 0.75rem; line-height: 1; }
 #app .tkt .tb-dock-head .tk-shelf.full { color: var(--tk-red-d); }
 #app .tkt .tb-dock-head .tb-side, #app .tkt .tb-dock-head .tk-chip { margin-left: auto; }
 #app .tkt .tb-dock-head .tk-chip { padding: 2px 5px; font-size: 0.6875rem; }
-#app .tkt .tb-chips { all: unset; flex: none; height: 57px; display: flex; flex-wrap: wrap; align-content: flex-start; padding: 6px 12px 0; }
+#app .tkt .tb-chips { all: unset; flex: none; height: 57px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; padding: 6px 12px 0; overflow: hidden; }
 #app .tkt .tb-chip {
   all: unset; flex: none; height: 26px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; white-space: nowrap;
   border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink); font: 600 0.6875rem/1 var(--tk-txt);
@@ -223,9 +229,15 @@
 #app .tkt .tb-chip b { font: 400 0.75rem/1 var(--tk-disp); }
 #app .tkt .tb-chip .tk-lamp { border: 0; background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 1px var(--tk-ink); }
 /* a fruit you hold none of still has its place, where a bought piece lands */
-#app .tkt .tb-place { flex: none; width: 0; height: 26px; }
+#app .tkt .tb-place { flex: none; width: 0; height: 26px; margin-right: -5px; }
 #app .tkt .tb-chips .favchip { height: 26px; }
 #app .tkt .tb-chips .favchip .favchip-pic { width: 26px; height: 26px; }
+/* a full shelf: the chips take their short form (the letter the pieces carry tomorrow), so they all stay in view */
+#app .tkt .tb-dock:is(.c7, .c8) .tb-chip-w { display: none; }
+@media (max-width: 379px) {
+  #app .tkt .tb-dock:is(.c5, .c6) .tb-chip-w { display: none; }
+  #app .tkt .tb-dock:is(.c5, .c6) .tb-chip-to { display: inline-flex; }
+}
 
 /* ---------- the night: the rows stay, dimmed; every piece slides one box along its lane ---------- */
 #app .tkt > .street-wrap, #app .tkt > .seats { transition: opacity calc(var(--mk, 1) * var(--t-sky)) ease; }
@@ -271,7 +283,8 @@
   #app .tkt .tb-lh, #app .tkt .tk-night.tb-night .tb-lh { height: 18px; }
   #app .tkt .tb-lh-ico { width: 15px; height: 15px; }
   /* your shelf in one row: its name and count beside the chips */
-  #app .tkt .tb-dock > .tb-awn { grid-area: awn; }
+  #app .tkt > .my-stall.tb-dock { display: grid; grid-template: "awn awn" auto "head chips" auto / auto minmax(0, 1fr); padding-bottom: 5px; }
+  #app .tkt .tb-dock > .tb-awn { grid-area: awn; height: 10px; }
   #app .tkt .tb-dock-head { grid-area: head; height: 26px; box-sizing: content-box; align-items: center; padding: 5px 0 0 12px; }
   #app .tkt .tb-dock-head .tk-label { line-height: 1.2; }
   #app .tkt .tb-dock-head .tk-shelf i { display: none; }
@@ -280,6 +293,7 @@
   #app .tkt .tb-dock-head .tk-dock-marks, #app .tkt .tb-dock-head .tk-chip { position: absolute; right: 8px; top: 0; height: 12px; box-sizing: border-box; padding: 0 3px; background: var(--tk-paper); }
   #app .tkt .tb-dock-head .tk-chip.warn { background: var(--tk-red-d); line-height: 12px; }
   #app .tkt .tb-chips { grid-area: chips; height: 26px; padding: 5px 12px 0 6px; flex-wrap: nowrap; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6) .tb-chip-w { display: none; }
   /* the bottom bar, and the buttons a sheet puts in its place, stay one height, so your shelf does not move between them */
   #app .tkt > .actionbar, #app .tkt > .centre > .pp-lock { padding-top: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
   #app .tkt > .actionbar .btn, #app .tkt > .centre > .pp-lock .btn { min-height: 48px; max-height: 48px; row-gap: 1px; padding: 0 8px; font-size: 0.9375rem; }

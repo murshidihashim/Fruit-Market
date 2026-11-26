@@ -75,14 +75,15 @@ function part(sel: string): string {
   return '';
 }
 
-// "#app" still in front: rules the folding could not free without a risk to a screen the captures never showed, and
-// the app's own looks of a printed card in cards.css and exchange.css (the print sheets read those two files alone, so
-// there "#app" marks what only the app draws).
+// "#app" still in front: rules the folding could not free without a risk to a screen the captures never showed, the
+// rules kept exactly as they were because some of their declarations show only on such screens (pop-ups away from the
+// table, the account panel, How to play's cards...), and the app's own looks of a printed card in cards.css and
+// exchange.css (the print sheets read those two files alone, so there "#app" marks what only the app draws).
 const APP_LEFT: Record<string, number> = {
-  'cards.css': 55, 'daysheet.css': 78, 'home-cards.css': 3, 'howto.css': 10, 'journey-home.css': 16,
-  'journey-online.css': 7, 'motion.css': 3, 'progress.css': 2, 'reactions.css': 1, 'rushTable.css': 218,
-  'screens.css': 1, 'setup.css': 3, 'sheets.css': 180, 'stalls.css': 25, 'styles.css': 92, 'table.css': 222,
-  'takings.css': 114, 'ticket-ui.css': 32, 'ticket.css': 145,
+  'cards.css': 54, 'daysheet.css': 75, 'home-cards.css': 3, 'howto.css': 11, 'journey-home.css': 20,
+  'journey-online.css': 9, 'motion.css': 3, 'progress.css': 2, 'reactions.css': 1, 'rushTable.css': 224,
+  'screens.css': 1, 'setup.css': 3, 'sheets.css': 184, 'stalls.css': 22, 'styles.css': 116, 'table.css': 235,
+  'takings.css': 117, 'ticket-ui.css': 30, 'ticket.css': 150,
 };
 
 // Parts styled in more than one sheet, kept so: each is styled where it was, beside a rule it must stay after or before.
@@ -90,29 +91,31 @@ const SPLIT: Record<string, string> = {
   'actionbar': 'styles.css table.css ticket.css', 'bn-card': 'styles.css ticket-ui.css ticket.css',
   'bn-rules': 'styles.css ticket-ui.css', 'btn': 'cards.css styles.css table.css ticket-ui.css ticket.css',
   'cd': 'cards.css howto.css', 'cd-pop': 'cards.css stampbook.css', 'cd-tag': 'cards.css howto.css',
-  'chip': 'styles.css ticket.css', 'coach': 'daysheet.css styles.css ticket.css', 'cust': 'rushTable.css styles.css',
-  'event-sheet': 'cards.css ticket-ui.css ticket.css', 'ft-box': 'firstTime.css screens.css',
-  'game': 'styles.css table.css ticket-ui.css ticket.css', 'hm-rest': 'booth.css home-cards.css',
-  'icon-btn': 'styles.css ticket-ui.css', 'info-card': 'sheets.css styles.css',
-  'jp-two': 'journey-home.css progress.css', 'jp-vs': 'journey-home.css progress.css',
-  'market-stall': 'styles.css ticket.css', 'mc-loss': 'sheets.css styles.css', 'mini-step': 'styles.css ticket.css',
-  'minprices': 'styles.css ticket.css', 'modal': 'styles.css ticket.css', 'morning-card': 'styles.css ticket.css',
-  'my-stall': 'styles.css ticket.css', 'next-lorry': 'styles.css ticket.css', 'on': 'cards.css journey-online.css',
-  'order-strip': 'sheets.css ticket.css', 'owned-row': 'sheets.css styles.css',
-  'page': 'journey-online.css setup.css styles.css', 'panel': 'styles.css ticket-ui.css',
-  'phase-banner': 'motion.css styles.css', 'pp-info': 'styles.css ticket.css',
+  'chip': 'styles.css ticket.css', 'coach': 'styles.css ticket.css', 'cust-marks': 'screens.css styles.css ticket.css',
+  'day': 'journey-home.css journey-online.css', 'event-sheet': 'cards.css styles.css ticket-ui.css ticket.css',
+  'ft-box': 'firstTime.css screens.css', 'game': 'styles.css table.css ticket-ui.css ticket.css',
+  'handoff': 'styles.css ticket-ui.css', 'hm-rest': 'booth.css home-cards.css', 'home': 'booth.css styles.css',
+  'icon-btn': 'styles.css ticket-ui.css', 'info-card': 'sheets.css styles.css', 'jp-two': 'journey-home.css progress.css',
+  'jp-vs': 'journey-home.css progress.css', 'market-stall': 'styles.css ticket.css', 'mc-loss': 'sheets.css styles.css',
+  'mini-step': 'styles.css ticket.css', 'minprices': 'styles.css ticket.css', 'modal': 'styles.css ticket-ui.css ticket.css',
+  'morning-card': 'styles.css ticket.css', 'muted': 'styles.css ticket-ui.css', 'my-stall': 'styles.css table.css ticket.css',
+  'next-lorry': 'styles.css ticket.css', 'on': 'cards.css journey-online.css', 'op-skip': 'booth.css styles.css',
+  'order-strip': 'sheets.css styles.css ticket.css', 'owned-row': 'sheets.css styles.css',
+  'page': 'journey-online.css setup.css styles.css', 'pp-info': 'styles.css ticket.css',
   'pp-lock': 'styles.css table.css ticket.css', 'pr-join': 'setup.css styles.css', 'pr-who': 'setup.css styles.css',
-  'rush-dim': 'styles.css ticket.css', 'sales-card': 'styles.css takings.css ticket.css',
-  'sbk-face': 'home-cards.css stampbook.css', 'seats': 'styles.css table.css ticket.css',
-  'slide': 'howto.css styles.css', 'sprite': 'motion.css styles.css', 'street': 'styles.css table.css ticket.css',
-  'street-wrap': 'styles.css table.css ticket.css', 'tb-awn': 'stalls.css table.css',
+  'rd-close': 'styles.css ticket.css', 'rd-head': 'styles.css ticket.css', 'rush-dim': 'styles.css ticket.css',
+  'sales-card': 'styles.css takings.css ticket.css', 'sbk-face': 'home-cards.css stampbook.css',
+  'sc-waste': 'styles.css ticket.css', 'seat-row': 'styles.css ticket-ui.css', 'seats': 'styles.css table.css ticket.css',
+  'slide': 'howto.css styles.css', 'stats': 'styles.css ticket-ui.css',
+  'street': 'screens.css styles.css table.css ticket.css', 'street-wrap': 'screens.css styles.css table.css ticket.css',
+  'tb-awn': 'stalls.css table.css', 'tb-chip': 'stalls.css table.css', 'tb-chip-to': 'stalls.css table.css',
   'tb-chips': 'stalls.css table.css', 'tip-pop': 'styles.css ticket.css', 'tk-lamp': 'table.css ticket.css',
-  'tk-night': 'table.css ticket-ui.css', 'tk-unload': 'sheets.css ticket.css', 'tkc': 'cards.css howto.css',
-  'tkt': 'table.css ticket.css', 'toggle': 'styles.css ticket-ui.css', 'tomorrow': 'styles.css table.css ticket.css',
-  'trait-card': 'styles.css ticket.css', 'wc-body': 'cards.css sheets.css', 'wc-chip': 'cards.css sheets.css',
-  'wc-flavour': 'cards.css sheets.css', 'wc-foot': 'cards.css sheets.css', 'wc-kind': 'cards.css sheets.css',
-  'wc-lt': 'cards.css sheets.css', 'wc-main': 'cards.css sheets.css', 'wc-stat': 'cards.css sheets.css',
-  'wc-stats': 'cards.css sheets.css', 'wc-ttl': 'cards.css sheets.css', 'wc-ttl-o': 'cards.css sheets.css',
+  'tk-unload': 'sheets.css ticket.css', 'tkc': 'cards.css howto.css', 'tkt': 'table.css ticket.css',
+  'toggle': 'styles.css ticket-ui.css', 'tomorrow': 'styles.css table.css ticket.css', 'trait-card': 'styles.css ticket.css',
+  'wc-body': 'cards.css sheets.css', 'wc-chip': 'cards.css sheets.css', 'wc-flavour': 'cards.css sheets.css',
+  'wc-foot': 'cards.css sheets.css', 'wc-kind': 'cards.css sheets.css', 'wc-lt': 'cards.css sheets.css',
+  'wc-main': 'cards.css sheets.css', 'wc-stat': 'cards.css sheets.css', 'wc-stats': 'cards.css sheets.css',
+  'wc-ttl': 'cards.css sheets.css', 'wc-ttl-o': 'cards.css sheets.css',
   'x-fruit': 'cards.css home-cards.css journey-home.css screens.css', 'xf': 'screens.css sheets.css',
 };
 
