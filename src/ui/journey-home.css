@@ -8,37 +8,35 @@
   --j-slate: var(--x-slate); --j-red: var(--x-red-d); --j-melon: var(--c-0e9a58);
   --j-berry: var(--c-3558a2); --j-mango: var(--c-fec400); --j-apple: var(--c-e73c35);
 }
+.tkt .f-blueberry { --lane: var(--tk-berry); --lane-ink: var(--tk-paper); }
 .jh .f-blueberry, .jp .f-blueberry { --lane: var(--j-berry); }
+.tkt .f-watermelon { --lane: var(--tk-melon); --lane-ink: var(--tk-paper); }
 .jh .f-watermelon, .jp .f-watermelon { --lane: var(--j-melon); }
+.tkt .f-mango { --lane: var(--tk-mango); --lane-ink: var(--tk-ink); }
 .jh .f-mango, .jp .f-mango { --lane: var(--j-mango); }
+.tkt .f-apple { --lane: var(--tk-apple); --lane-ink: var(--tk-paper); }
 .jh .f-apple, .jp .f-apple { --lane: var(--j-apple); }
-.jh .tb-awn, .jp .tb-awn { display: block; height: 14px; background-repeat: repeat-x; background-position: 0 0; border-bottom: 2px solid var(--j-ink); }
-.jh-lb { font: 800 0.75rem/1.1 var(--f-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--j-ink); }
 
 /* ---------- the band and the title (PLAN-124: your profile chip beside it, in home-cards.css) ----------
    The Market tab fits one phone screen. On a phone under 760 px high the band is lower and the two-line title smaller;
    a taller phone gets the bigger band and title. (The opening measures the band, so it folds into either.) */
-.home.hm.jh .hm-lanes { height: 32px; }
-.home.hm.jh .hm-lane i { width: 24px; height: 24px; }
 .home.hm.jh .hm-lane i .x-fruit { width: 20px; height: 20px; }
 .home.hm.jh .jh-top { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px 2px; }
-.home.hm.jh h1.hm-name { flex: none; font-size: min(1.75rem, 7.2vw); line-height: 0.92; white-space: nowrap; }
-.home.hm.jh .hm-rest { gap: 8px; }
 @media (min-height: 760px) {
-  .home.hm.jh .hm-lanes { height: 47px; }
-  .home.hm.jh .hm-lane i { width: 34px; height: 34px; }
   .home.hm.jh .hm-lane i .x-fruit { width: 28px; height: 28px; }
   .home.hm.jh .jh-top { padding: 16px 16px 8px; }
-  .home.hm.jh h1.hm-name { font-size: min(2.5rem, 7.6vw); }
-  .home.hm.jh .hm-rest { gap: 12px; }
 }
 
 /* ---------- Play, and the room an online match waits in ---------- */
 .home.hm.jh .jh-go {
   min-height: 64px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; background: var(--j-yel); color: var(--j-ink);
-  box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 5px;
+  box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); font: 400 1.75rem/1 var(--f-display); letter-spacing: 0.02em; text-transform: uppercase;
 }
 .home.hm.jh .jh-go:active { transform: translateY(3px); box-shadow: inset 0 0 0 3px var(--j-ink), 0 2px 0 var(--j-ink); }
+.sbk.jh-intro .jh-go2 {
+  min-height: 48px; text-align: center; box-shadow: inset 0 0 0 2.5px var(--k-ink);
+  font: 800 0.8125rem/1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
 .home.hm.jh .jh-go2 { min-height: 48px; box-shadow: inset 0 0 0 3px var(--j-ink); font: 800 0.875rem/1 var(--f-label); letter-spacing: 0.06em; text-transform: uppercase; }
 .home.hm.jh .jh-go2:active { transform: translateY(2px); }
 
@@ -47,63 +45,52 @@
 }
 
 /* ---------- the Play menu ---------- */
-#app .page.jp { background: var(--j-paper); color: var(--j-ink); }
-#app .jp > .topbar.jp-bar, #app .jo > .topbar {
-  min-height: 60px; background: var(--j-paper); color: var(--j-ink); border-bottom: 3px solid var(--j-ink); box-shadow: none;
-  display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center;
-}
-#app .jp > .topbar .icon-btn, #app .jo > .topbar .icon-btn {
-  width: 46px; height: 46px; margin: 0; border-radius: 50%; box-shadow: inset 0 0 0 2.5px var(--j-ink); color: var(--j-ink); background: var(--j-paper);
-}
-#app .jp > .topbar .day, #app .jo > .topbar .day { text-align: center; min-width: 0; }
-#app .jp > .topbar .day b, #app .jo > .topbar .day b { color: var(--j-ink); font: 400 1.375rem/1 var(--f-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-#app .jp .jp-me { justify-self: end; }
+.jp .jp-me { justify-self: end; }
 #app .jp .jp-me .sbk-face { border-width: 2px; padding: 0; }
-#app .jp .jp-in { gap: 10px; padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left)); max-width: 560px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+.jp .jp-in { gap: 10px; padding: 14px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left)); max-width: 560px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 #app .jp .jp-tile {
   min-height: 92px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 12px; margin: 0; border: 0; border-radius: 0;
   background: var(--j-paper); color: var(--j-ink); box-shadow: inset 0 0 0 2.5px var(--j-ink); text-align: left; font: 500 0.8125rem/1.3 var(--f-label); cursor: pointer;
 }
-#app .jp .jp-tile b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; }
-#app .jp .jp-tile:active { transform: translateY(2px); }
-#app .jp .jp-tile:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
-#app .jp .jp-tile.big { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; background: var(--j-yel); box-shadow: inset 0 0 0 3px var(--j-ink), 0 5px 0 var(--j-ink); margin-bottom: 4px; }
-#app .jp .jp-tile.big b { font-size: 1.625rem; }
-#app .jp .jp-tt { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-#app .jp .jp-vs { flex: none; display: flex; align-items: center; gap: 4px; }
+.jp .jp-tile b { font: 400 1.0625rem/1.05 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; }
+.jp .jp-tile:active { transform: translateY(2px); }
+.jp .jp-tile:focus-visible { outline: 3px solid var(--j-yel); outline-offset: 2px; }
+.jp .jp-tile.big { justify-content: space-between; }
+.jp .jp-tile.big b { font-size: 1.625rem; }
+.jp .jp-tt { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.jp .jp-vs { flex: none; display: flex; align-items: center; gap: 4px; }
 #app .jp .jp-vs .xf { border-radius: 50%; box-shadow: 0 0 0 2.5px var(--j-ink); background: var(--j-tint); }
-#app .jp .jp-vs i { font: 400 1rem/1 var(--f-display); font-style: normal; text-transform: uppercase; }
-#app .jp .jp-q { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 2.5px dashed var(--j-ink); box-sizing: border-box; background: var(--j-tint); font: 400 1.375rem/1 var(--f-display); color: var(--j-slate); }
-#app .jp .jp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-#app .jp .jp-faces { display: flex; gap: 2px; margin-top: auto; }
+.jp .jp-vs i { font: 400 1rem/1 var(--f-display); font-style: normal; text-transform: uppercase; }
+.jp .jp-q { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 2.5px dashed var(--j-ink); box-sizing: border-box; background: var(--j-tint); font: 400 1.375rem/1 var(--f-display); color: var(--j-slate); }
+.jp .jp-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.jp .jp-faces { display: flex; gap: 2px; margin-top: auto; }
 #app .jp .jp-faces .xf { border-radius: 50%; box-shadow: 0 0 0 2px var(--j-ink); background: var(--j-tint); }
 #app .jp .jp-tile.wide { min-height: 64px; }
-#app .jp .jp-tile.dark { background: var(--j-ink); color: var(--j-paper); }
 #app .jp .jp-join { padding: 10px 12px 12px; box-shadow: inset 0 0 0 2.5px var(--j-ink); display: flex; flex-direction: column; gap: 6px; }
-#app .jp .jp-join label { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
+.jp .jp-join label { font: 800 0.6875rem/1 var(--f-label); letter-spacing: 0.1em; text-transform: uppercase; }
 #app .jp .jp-join .input { border-radius: 0; min-height: 48px; font: 400 1.25rem/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; }
-#app .jp .jp-join .btn { min-height: 48px; padding: 0 16px; }
+.jp .jp-join .btn { min-height: 48px; padding: 0 16px; }
 #app .jp .jp-len { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-#app .jp .jp-len .jh-lb { grid-column: 1 / -1; }
+.jp .jp-len .jh-lb { grid-column: 1 / -1; }
 #app .jp .jp-len button {
   min-height: 48px; padding: 4px 6px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--j-ink); background: var(--j-paper); color: var(--j-ink);
   font: 800 0.8125rem/1.15 var(--f-label); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
 }
 #app .jp .jp-len button small { font: 600 0.75rem/1 var(--f-label); color: inherit; }
-#app .jp .jp-len button.on { background: var(--j-ink); color: var(--j-paper); }
 /* PLAN-119: each mode's job. The "Normal game" group holds the ways to play a full market your way; the League, the
    Daily market and the Sprint follow, each with its one-line reason over its details. */
 #app .jp .jp-grp { display: flex; flex-direction: column; gap: 10px; padding: 10px 10px 12px; margin-bottom: 6px; background: var(--j-tint); box-shadow: inset 0 0 0 2.5px var(--j-ink); }
-#app .jp .jp-gh { margin: 2px 0 0; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.02em; color: var(--j-ink); }
+.jp .jp-gh { margin: 2px 0 0; font: 400 1.25rem/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.02em; color: var(--j-ink); }
 #app .jp .jp-mode { min-height: 84px; }
 #app .jp .jp-mode .jp-why { font: 700 0.9375rem/1.25 var(--f-label); }
 @media (max-width: 379px) {
   #app .jp .jp-tile { padding: 10px; font-size: 0.75rem; }
-  #app .jp .jp-tile b { font-size: 0.9375rem; }
-  #app .jp .jp-tile.big b { font-size: 1.25rem; }
-  #app .jp .jp-two { gap: 8px; }
+  .jp .jp-tile b { font-size: 0.9375rem; }
+  .jp .jp-tile.big b { font-size: 1.25rem; }
+  .jp .jp-two { gap: 8px; }
   #app .jp .jp-grp { padding: 8px 8px 10px; gap: 8px; }
   #app .jp .jp-mode .jp-why { font-size: 0.875rem; }
-  #app .jp .jp-vs .xf { width: 36px !important; height: 36px !important; }
-  #app .jp .jp-q { width: 36px; height: 36px; }
+  /* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
+  .jp .jp-vs .xf { width: 36px !important; height: 36px !important; }
+  .jp .jp-q { width: 36px; height: 36px; }
 }

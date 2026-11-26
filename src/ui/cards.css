@@ -457,3 +457,73 @@
 #app .tkt .event-sheet.ev-pop .morning-card > .tk-unload { gap: 0; }
 #app .tkt .event-sheet.ev-pop .morning-card > .tk-unload > .tk-note { padding: 6px 9px; }
 #app .tkt .event-sheet.ev-pop .morning-card > .wc-flip + .tk-unload { margin-top: -3px; }
+#app .tkt > .actionbar .btn small, #app .tkt > .centre > .pp-lock .btn small {
+  all: unset; font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.06em; color: var(--tk-paper);
+}
+#app .tkt > .actionbar .btn:disabled, #app .tkt > .centre > .pp-lock .btn:disabled { opacity: 0.45; cursor: default; }
+#app .tkt > .centre > .pp-lock .btn.tk-auto {
+  flex: 0 0 auto; max-width: 42%; padding: 0 10px; background: var(--tk-paper); color: var(--tk-ink);
+  box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
+}
+#app .tkt > .centre > .pp-lock .btn.tk-auto small { color: var(--tk-ink); font-size: 0.75rem; letter-spacing: 0.02em; }
+#app .tkt > .actionbar .btn.ghost, #app .tkt > .actionbar .btn.skip {
+  flex: 0 0 auto; min-width: 52px; background: var(--tk-paper); color: var(--tk-ink);
+  box-shadow: inset 0 0 0 3px var(--tk-ink); font-size: 0.9375rem;
+}
+#app .tkt > .actionbar .btn.ghost.undo-after { flex-direction: column; gap: 3px; padding: 0 10px; line-height: 1; }
+#app .tkt > .actionbar .btn.ghost.undo-after small {
+  font: 700 0.75rem/1 var(--tk-txt); letter-spacing: 0.02em; color: var(--tk-ink); text-transform: none;
+}
+#app .tkt .order-panel .btn.step {
+  border: 0; border-radius: 0; box-shadow: none; background: var(--tk-ink); color: var(--tk-yel);
+  font-family: var(--tk-disp); font-weight: 400; text-transform: uppercase;
+}
+#app .tkt .modal .btn:not(.primary), #app .tkt .coach .btn.skip {
+  background: var(--tk-paper); color: var(--tk-ink); box-shadow: inset 0 0 0 3px var(--tk-ink);
+}
+#app .tkt .event-sheet .morning-card { all: unset; box-sizing: border-box; display: flex; flex-direction: column; }
+#app .modal .btn.primary small { color: var(--x-paper); }
+#app .modal .btn:disabled { opacity: 0.45; }
+#app .modal .btn:active:not(:disabled) { transform: translateY(2px); }
+#app .tk-page .btn {
+  min-height: 52px; border: 0; border-radius: 0; box-shadow: inset 0 0 0 3px var(--x-ink); background: var(--x-paper);
+  color: var(--x-ink); font: 800 0.875rem/1.1 var(--f-label); letter-spacing: 0.08em; text-transform: uppercase;
+}
+#app .tk-page .btn.primary {
+  box-shadow: none; background: var(--x-ink); color: var(--x-mustard); font: 400 1.25rem/1.05 var(--f-display);
+  letter-spacing: 0.02em;
+}
+#app .tk-page .btn:disabled { opacity: 0.45; }
+#app .tk-page .btn:active:not(:disabled) { transform: translateY(2px); }
+#app .tk-page .dots span.on { width: 22px; background: var(--x-ink); }
+@media not all and (min-width: 900px) and (min-height: 560px) {
+  #app .game.gx.tkt > .coach .btn { min-height: 44px; }
+}
+#app .game.tkt .tb-buys.each .x-fruit { width: 11px; height: 11px; }
+#app .game.tkt .tb-buys:not(.each) .x-fruit { width: 10px; height: 10px; }
+#app .game.tkt .tb-dock.c8 .favchip > span { display: none; }
+#app .game.tkt .tb-dock.c8 .favchip { padding: 0; }
+@media (max-width: 379px) {
+  #app .game.tkt .tb-buys.each .x-fruit { width: 10px; height: 10px; }
+}
+@media (max-height: 779px) {
+  #app .game.tkt .tb-dock:is(.c5, .c6, .c7, .c8) .tb-chip .x-fruit { width: 14px; height: 14px; }
+}
+#app .tkt .cd-pop.sr-pop { position: fixed; z-index: 60; }
+#app .tkt .street .tkc-pc { height: var(--pic); }
+@media (max-height: 650px) {
+  #app .tkt .street-wrap .street .tkc-pc { display: none; }
+  #app .tkt .street-wrap .street .tkc-dn { grid-template-columns: repeat(2, 22px); gap: 3px; padding: 4px 0; }
+  #app .tkt .street-wrap .street .tkc-dn span { width: 22px; height: 22px; }
+  #app .tkt .street-wrap .street .tkc-dn .x-fruit { width: 15px; height: 15px; }
+}
+@media (max-height: 779px) {
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip > span { display: none; }
+  #app .tkt .tb-dock:is(.c3, .c4, .c5, .c6, .c7, .c8) .favchip { padding: 0; }
+}
+@media (max-height: 650px) {
+  #app .game.tkt > .street-wrap:not(:has(> .order-strip)) .street .tkc-pc { display: block; }
+}
+#app .howto.tk-page .btn.ht-btn-s { min-height: 28px; padding: 0 8px; font-size: 0.6875rem; letter-spacing: 0.04em; }
+#app .howto.tk-page .cd small, #app .howto.tk-page .tkc small { color: inherit; }
+#app .jo .seg button.on small { color: var(--j-paper); }

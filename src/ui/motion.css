@@ -1,3 +1,5 @@
+#app .tkt > .centre > .tk-sheet[data-over] { z-index: 6; }
+
 /* =====================================================================
    Fruit Market · the table's motion (flow study, review-18, D1 and D2).
    The lengths and the speed are named in motion.ts, which writes them on the page for the stylesheets:
@@ -14,7 +16,6 @@
 /* ---------- the moving copies (anim.ts fly) ----------
    A copy is a point on the layer with its picture centred on it, so only the point's position and size are animated
    and the picture never has to be measured. When many copies are in the air, a new one is drawn without its shadow. */
-.fx-layer .sprite.mv { width: 0; height: 0; }
 .fx-layer .sprite-in { position: absolute; left: 0; top: 0; display: block; line-height: 0; font-style: normal; transform: translate(-50%, -50%); }
 .fx-layer .sprite.plain { filter: none; }
 
@@ -35,7 +36,8 @@
 }
 /* PLAN-123: the game's own Reduced motion setting (Settings; motion.ts setStill) does what the phone's setting does:
    every animation and transition off (as styles.css), the opening's lanes and the crate lids left out, the stamp there. */
+/* !important: the game's own Reduced motion setting outranks every part's animation and transition */
 html.fm-still *, html.fm-still *::before, html.fm-still *::after { animation: none !important; transition: none !important; }
-html.fm-still .op-lanes, html.fm-still .crate-lid { display: none; }
+html.fm-still .op-lanes { display: none; }
 html.fm-still .op.op-ld:not(.op-wait) .op-cover { display: none; }
 html.fm-still .phase-banner { opacity: 1; }

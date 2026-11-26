@@ -219,8 +219,8 @@ describe('the two buttons', () => {
     const html = toStaticHtml(h(TiePanel, { s: publicView(s, asked), viewer: asked, asked, onDecide: () => undefined }));
     expect(html).toMatch(/<div class="pp-lock ds-tie-lock"><button type="button" class="btn primary wide big">Play it<\/button><button type="button" class="btn ghost wide big">Keep it<\/button><\/div>/);
     expect(html).toContain('data-a="tie-note"');
-    // in the round table's foot (PLAN-099)
-    expect(read('src/ui/rushTable.css')).toContain('#app .tkt .rt-foot > .ds-tie-lock { all: unset; flex: 1 1 auto; display: flex; flex-direction: row-reverse;');
+    // in the round table's foot (PLAN-099), drawn the other way round: read in the browser (scripts/style-checks.cjs,
+    // "the question at a tie lies in the round table's foot", PLAN-130)
     // the scripts' own words
     const smoke = read('scripts/smoke.cjs');
     for (const sel of ['[data-a="tie-note"]', '.pp-lock .btn.ghost', '.pp-lock .btn.primary']) expect(smoke).toContain(sel);
@@ -234,25 +234,16 @@ describe('the two buttons', () => {
   });
 });
 
-describe('the round table before the rush (rushTable.css; the bell\'s rows and bell.css are gone, PLAN-099)', () => {
+describe('the round table before the rush (the bell\'s rows and bell.css are gone, PLAN-099)', () => {
   it('moves by position, size and fade only, on the table\'s clock, and takes its colours from the palette', () => {
-    expect(read('src/main.tsx')).not.toContain('bell.css');
-    const all = read('src/ui/rushTable.css');
-    const css = all.slice(all.indexOf('Before the rush (PLAN-099, flow A)')).replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(css).not.toMatch(/rotate|skew|#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(/);
-    // every move at the one speed: a length read from the clock, times --mk
-    for (const t of css.match(/(?:transition|animation):[^;]+;/g) ?? []) {
-      if (/: none;$/.test(t)) continue;
-      expect(t).toMatch(/calc\(var\(--mk, 1\) \* var\(--t-[a-z-]+\)\)/);
-      expect(t).not.toMatch(/\b\d+(?:\.\d+)?m?s\b/);
-    }
-    // the only frames of its own: the pricing sheet coming up from the table's foot (position only)
-    expect(css.match(/@keyframes [\w-]+ \{[^}]*\}/g)).toEqual(['@keyframes rt-sheet-in { from { transform: translateY(100%); }']);
-    // reduced motion: every end state at once
-    expect(css).toContain('@media (prefers-reduced-motion: reduce) {');
-    // the rows of the table are not laid out here
-    expect(css).not.toMatch(/#app \.tkt > \.(seats|my-stall|actionbar|tk-top)\b/);
-    // the old rows, the old question layout and the bell's sheet are gone from the day's sheet
-    expect(read('src/ui/daysheet.css')).not.toMatch(/ds-stall|ds-bell|ds-pz|ds-tie|sh-day\.full|ds-price|ds-brief|ds-rivals/);
+    // Read in the browser instead of in the stylesheets (PLAN-130):
+    //   by position, size and fade only, never turned or stepped, as a game is played: scripts/table-checks.cjs;
+    //   every rule of the round table takes its colours from the palette and times each move by a length read from the
+    //   clock, times --mk, and reduced motion shows every end state at once: scripts/style-checks.cjs (the page's own
+    //   rules, and "with reduced motion nothing moves"); hex colours anywhere: palette.test.ts;
+    //   the rows of the table are laid out by their own sheets alone: css-layers.test.ts 'a part is styled in one sheet';
+    //   the old rows and the bell's sheet are gone, and the day's sheet no longer asks the question at a tie:
+    //   scripts/style-checks.cjs (the page's own rules); bell.css is not loaded: css-layers.test.ts 'the table's sheets
+    //   load in one order'.
   });
 });

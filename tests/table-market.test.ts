@@ -280,17 +280,12 @@ describe('the night on your shelf: it follows the night as the lanes do (PLAN-09
   });
 });
 
-describe('table.css is loaded with the table, after the older table styles', () => {
+describe('table.css is loaded with the table', () => {
   it('the market, the lorry, the card turn and the night follow the one speed', async () => {
     const { readFileSync } = await import('node:fs');
-    const css = readFileSync('src/ui/table.css', 'utf8');
-    for (const name of ['turn', 'travel', 'lorry', 'lorry-off', 'sky', 'dusk']) expect(css).toContain(`calc(var(--mk, 1) * var(--t-${name})`);
-    // at night the customer row and the stalls stay on the table
-    expect(css).toMatch(/\.is-night > \.street-wrap \{ display: block; \}/);
-    expect(css).toMatch(/\.is-night > \.seats \{ display: flex; \}/);
+    // PLAN-130 (A-05): read in the browser from the page's own rules instead (scripts/style-checks.cjs): a move timed
+    // by each of these lengths times --mk, and no keyframe of the table's own moves (tb-...) changes a colour or a
+    // layout property; at night the customer row and the stalls stay on the table: scripts/layout-check.cjs
     expect(readFileSync('src/ui/table.tsx', 'utf8')).toContain("import './table.css';");
-    // only position, size and fade move: no keyframe here changes a colour or a layout property
-    const frames = [...css.matchAll(/@keyframes [\w-]+ \{([^@]*?\})\s*\}/g)].map((m) => m[1]).join(' ');
-    expect(frames).not.toMatch(/(width|height|margin|padding|top|left|background|color)\s*:/);
   });
 });

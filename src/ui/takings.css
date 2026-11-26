@@ -20,7 +20,6 @@
 #app .tkt .sales-card > * { flex: none; }
 #app .tkt .sales-card *, #app .tkt .sales-card *::before, #app .tkt .sales-card *::after { box-sizing: border-box; }
 #app .tkt .sales-card :where(i, em) { font-style: normal; }
-#app .tkt .sales-card .tk-label { font-size: 0.75rem; line-height: 1.2; }
 
 /* ---------- the rush is over: today's customers, the ones who bought nothing faded ---------- */
 #app .tkt .tg-strip { display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 8px var(--side); background: var(--tk-kraft); }
@@ -30,8 +29,6 @@
 #app .tkt .tg-queue { flex: none; margin-left: auto; display: flex; gap: 5px; }
 #app .tkt .tg-face { flex: none; width: 30px; height: 30px; display: block; overflow: hidden; border: 2px solid var(--tk-ink); background: var(--tk-paper); }
 #app .tkt .tg-face.no .x-art { opacity: 0.35; }
-#app .tkt .tg-queue.many { gap: 4px; }
-#app .tkt .tg-queue.many .tg-face { width: 24px; height: 24px; }
 
 /* ---------- the ledger ---------- */
 #app .tkt .tg-led { display: flex; flex-direction: column; margin: var(--g) var(--side) 0; border: 2px solid var(--tk-ink); }
@@ -57,7 +54,7 @@
 #app .tkt .tg-lab > span { flex: none; color: var(--tk-slate); }
 #app .tkt .tg-list { all: unset; display: flex; flex-direction: column; gap: 5px; }
 #app .tkt .tg-stall {
-  all: unset; height: var(--sh); display: flex; align-items: center; gap: 7px; padding: 0 7px;
+  all: unset; display: flex; align-items: center; gap: 7px; padding: 0 7px;
   border: 2px solid var(--tk-ink); background: var(--tk-paper); color: var(--tk-ink);
 }
 #app .tkt .tg-stall.me { background: var(--tk-yel); }
@@ -78,7 +75,7 @@
 
 /* ---------- your shelf after tonight ---------- */
 #app .tkt .tg-shelf { display: flex; flex-direction: column; gap: 5px; margin: var(--g) var(--side) 0; padding: 8px 9px; background: var(--tk-kraft); }
-#app .tkt .tg-won + .tg-shelf { margin-top: 6px; }
+.tkt .tg-won + .tg-shelf { margin-top: 6px; }
 #app .tkt .tg-shelf .tg-lab > span { flex: 0 1 auto; min-width: 0; color: var(--tk-ink); text-align: right; }
 #app .tkt .tg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 #app .tkt .tg-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border: 2px solid var(--tk-ink); background: var(--tk-paper); font-size: 0.6875rem; line-height: 1.3; white-space: nowrap; }
@@ -92,35 +89,29 @@
 
 /* ---------- less room: drawn closer, a step at a time ----------
    1: the spacing.  2: smaller rows.  3: without the customers' strip.  4: the stalls as plain lines, no faces. */
-#app .tkt > .centre > .sales-card[data-tight] { --g: 6px; --sh: 34px; }
 #app .tkt .sales-card[data-tight] .tg-strip { min-height: 38px; padding-top: 5px; padding-bottom: 5px; }
 #app .tkt .sales-card[data-tight] .tg-face { width: 26px; height: 26px; }
-#app .tkt .sales-card[data-tight] .tg-queue.many .tg-face { width: 22px; height: 22px; }
 #app .tkt .sales-card[data-tight] .tg-hd { padding-top: 5px; padding-bottom: 5px; }
 #app .tkt .sales-card[data-tight] .tg-row { min-height: 25px; padding-top: 4px; padding-bottom: 4px; }
 #app .tkt .sales-card[data-tight] .tg-net { padding-top: 6px; padding-bottom: 6px; }
 #app .tkt .sales-card[data-tight] .tg-net > b { font-size: 1.375rem; }
-#app .tkt .sales-card[data-tight] :is(.tg-stalls, .tg-list) { gap: 4px; }
-#app .tkt .sales-card[data-tight] .tg-stall .xf { width: 24px !important; height: 24px !important; }
+/* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
+.tkt .sales-card[data-tight] .tg-stall .xf { width: 24px !important; height: 24px !important; }
 #app .tkt .sales-card[data-tight] .tg-won { padding-top: 4px; padding-bottom: 4px; }
 #app .tkt .sales-card[data-tight] .tg-shelf { gap: 4px; padding-top: 6px; padding-bottom: 6px; }
 #app .tkt .sales-card[data-tight] .tg-chip { padding-top: 2px; padding-bottom: 2px; }
-
-#app .tkt > .centre > .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) { --g: 5px; --sh: 28px; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-row { min-height: 21px; padding-top: 2px; padding-bottom: 2px; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-row > b { font-size: 0.9375rem; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-net { padding-top: 4px; padding-bottom: 4px; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-net > b { font-size: 1.25rem; }
-#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) :is(.tg-stalls, .tg-list) { gap: 3px; }
-#app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-stall .xf { width: 20px !important; height: 20px !important; }
+/* !important: a face carries its size in its own style attribute (art.tsx), which only !important outranks */
+.tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-stall .xf { width: 20px !important; height: 20px !important; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-pl { width: 18px; height: 18px; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-cash { font-size: 0.875rem; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-won .x-art { width: 40px; height: 26px; }
 #app .tkt .sales-card:is([data-tight='2'], [data-tight='3'], [data-tight='4']) .tg-shelf { padding-top: 4px; padding-bottom: 4px; }
 
 #app .tkt .sales-card:is([data-tight='3'], [data-tight='4']) .tg-strip { display: none; }
-
-#app .tkt > .centre > .sales-card[data-tight='4'] { --g: 4px; --sh: 21px; }
 #app .tkt .sales-card[data-tight='4'] :is(.tg-stalls, .tg-list) { gap: 2px; }
 #app .tkt .sales-card[data-tight='4'] .tg-stall { border-width: 1.5px; }
 #app .tkt .sales-card[data-tight='4'] .tg-stall .xf { display: none; }
@@ -148,8 +139,6 @@
 #app .tkt .tg-list .tg-stall { box-sizing: border-box; width: 100%; height: auto; min-height: max(44px, var(--sh)); cursor: pointer; }
 #app .tkt .tg-list .tg-stall:focus-visible { outline: 3px solid var(--tk-ink); outline-offset: 2px; }
 #app .tkt .tg-more { flex: none; width: 7px; height: 7px; margin: 0 2px 0 -1px; border-right: 2px solid var(--tk-ink); border-bottom: 2px solid var(--tk-ink); transform: rotate(-45deg); }
-
-#app .tkt .cd-pop.sr-pop { position: fixed; z-index: 60; }
 #app .tkt .sr-pop:focus { outline: none; }
 /* REP-140 B-02: never wider than the screen less the pop-up's own 12px margins (it ran off a 320px phone) */
 #app .tkt .sr-pop .sr-in { width: min(340px, calc(100vw - 24px)); }

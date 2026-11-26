@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { h } from 'preact';
 import { EVENT_CARDS, RIVALS } from '../src/engine/data';
 import { activePlayer, applyAction, effectiveMax, newGame, publicView, type GameState } from '../src/engine/game';
@@ -7,7 +6,7 @@ import { aiActFor } from '../src/engine/ai';
 import { toStaticHtml } from '../src/ui/cards';
 import { NightShift } from '../src/ui/game/panels/NightShift';
 import { Street, Tomorrow } from '../src/ui/table';
-import { NIGHT_EASE, walkFrames, walkFrom, walkMs, walkTable, walkers } from '../src/ui/tableModel';
+import { walkFrames, walkFrom, walkMs, walkTable, walkers } from '../src/ui/tableModel';
 import * as A from '../src/ui/anim';
 import { NIGHT, nightfall } from '../src/ui/game/animator';
 
@@ -135,11 +134,8 @@ describe('the walk keeps time with the ageing (PLAN-128: one clock)', () => {
     expect(walkMs(undefined)).toBeNull();
   });
 
-  it('on the same curve as the pieces sliding down the lanes and your shelf\'s chips', () => {
-    const css = readFileSync('src/ui/table.css', 'utf8');
-    expect(css).toContain(`.tb-pc.ns-piece { transition: transform var(--ns-ms, 0ms) ${NIGHT_EASE}`);
-    expect(css).toContain(`.tb-dock.night .tb-chip { transition: transform var(--ns-ms, 0ms) ${NIGHT_EASE}`);
-  });
+  // On the same curve as the pieces sliding down the lanes and your shelf's chips: read in the browser at the first
+  // night of the solo playthrough (scripts/layout-check.cjs 'night', PLAN-130), the walk's curve included.
 
   it('a card sets off over its chip, as small as the chip and unstretched, and ends in its place: position, size and fade only', () => {
     const chip = { left: 100, top: 60, width: 40, height: 26 };

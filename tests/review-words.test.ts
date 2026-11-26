@@ -99,9 +99,8 @@ describe('C-05, C-06, S20: event figures', () => {
 
 describe('C-08: the price badges', () => {
   it('neither badge wears a customer type\'s colour, and the market\'s is not the lorry', () => {
-    const css = read('src/ui/cards.css');
-    expect(css).toContain('.cd-pb-customer { --pay: var(--x-ink); }');
-    expect(css).not.toMatch(/\.cd-pb[^{]*\{[^}]*--x-(everyday|premium|bargain)/);
+    // (the customer's badge in the ink, and no badge rule in a customer type's colour: read in the browser on the built
+    // page, scripts/style-checks.cjs, "the customer's price badge" and the page's own rules, PLAN-130)
     const market = toStaticHtml(h(PayBadge, { pay: 'market' }));
     expect(market).toContain('viewBox="0 0 16 16"');
     expect(market).not.toContain('M15 4h4.5'); // the lorry's cab

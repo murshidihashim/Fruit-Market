@@ -208,7 +208,8 @@ describe('S11: the Freshness patterns switch is gone', () => {
   });
 
   it('no screen or style reads it any more', () => {
-    for (const f of ['src/ui/App.tsx', 'src/ui/Game.tsx', 'src/ui/styles.css']) expect(readFileSync(f, 'utf8')).not.toMatch(/patterns/i);
+    for (const f of ['src/ui/App.tsx', 'src/ui/Game.tsx']) expect(readFileSync(f, 'utf8')).not.toMatch(/patterns/i);
+    // (no style rule reads it: from the page's own rules, scripts/style-checks.cjs, PLAN-130)
   });
 });
 

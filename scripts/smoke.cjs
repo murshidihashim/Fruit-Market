@@ -7,6 +7,8 @@
 // its mode's slot as it opens (PLAN-120), and continued with its card's Continue.
 const { chromium } = require('playwright');
 const fs = require('fs');
+const { checkLayout } = require('./layout-check.cjs');
+const { checkStyles } = require('./style-checks.cjs');
 const table = require('./table-checks.cjs');
 
 /** Sets the number of rival stalls on the set-up page's table (PLAN-125: small cards): the open card adds a computer,
@@ -22,6 +24,8 @@ const path = require('path');
   const save = saveFile ? fs.readFileSync(saveFile, 'utf8') : null;
   fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
+  // PLAN-130 (A-05): the stylesheets, read in the browser on pieces of the table laid on the built page (style-checks.cjs)
+  const styles = await checkStyles(browser, file);
   const page = await browser.newPage({ viewport: { width: 400, height: 820 }, deviceScaleFactor: 2 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -48,6 +52,8 @@ const path = require('path');
     await page.waitForTimeout(250);
     await shot('01-delivery-anim');
   }
+  // PLAN-130: the table's layout, from the computed style (scripts/layout-check.cjs)
+  const layout = [];
   const seen = new Set();
   const once = (k) => (seen.has(k) ? false : (seen.add(k), true));
   let ties = 0;
@@ -60,7 +66,7 @@ const path = require('path');
     if (await has('button:has-text("Done buying"), button:has-text("Skip buying")')) {
       const cells = page.locator('.mk-cell.pick');
       const n = await cells.count();
-      if (once('buyturn')) await shot('03-my-turn');
+      if (once('buyturn')) { await shot('03-my-turn'); layout.push(...await checkLayout(page, 'buy')); }
       if (n && Math.random() < 0.75) {
         await cells.nth(Math.floor(Math.random() * n)).click();
         if (once('flying')) { await page.waitForTimeout(220); await shot('04-buy-flying'); }
@@ -78,7 +84,7 @@ const path = require('path');
       await page.click('.coach .btn:not(.skip)'); continue;
     }
     // Fill your stall starts empty (PLAN-061): add every piece you can before opening.
-    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { if (once('stocking-check')) { await page.waitForTimeout(500); await look('stocking'); } await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
+    if (await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').count()) { if (once('stocking-check')) { await page.waitForTimeout(500); await look('stocking'); layout.push(...await checkLayout(page, 'stocking')); } await page.locator('.stall-panel .mini-step button:last-child:not([disabled])').first().click(); continue; }
     // The Favoured Trade step (rules 18): a stall that holds the card and has a tied price is asked after the flip,
     // with two buttons, "Play it" and "Keep it" (PLAN-081: the one-button step below used to stop here for good).
     // Play it the first time and keep it the next, so both answers are played.
@@ -92,19 +98,19 @@ const path = require('path');
     if (await has('.md-pop')) { if (once('market-day')) await shot('08b-market-day'); await page.click('.md-pop button:has-text("Got it")'); continue; }
     const lock = page.locator('.pp-lock .btn:not([disabled])');
     if (await lock.count()) {
-      if (once('bid')) await shot('05-pricing');
+      if (once('bid')) { await shot('05-pricing'); layout.push(...await checkLayout(page, 'bar')); }
       if (await has('.rt-sheet') && once('pricing-check')) await look('pricing');
       await lock.click();
-      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); }
+      if (once('reveal-anim')) { await page.waitForTimeout(2900); await shot('06-reveal-anim'); if (await has('.game > .rush-table')) layout.push(...await checkLayout(page, 'rush')); else layout.push('rush: the round table was not up'); }
       continue;
     }
     if (await has('button:has-text("Lights out")')) {
       if (once('evening')) await shot('08-evening');
       await page.click('button:has-text("Lights out")');
-      if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); }
+      if (once('night')) { await page.waitForTimeout(700); await shot('09-night'); if (await has('.game.is-night')) layout.push(...await checkLayout(page, 'night')); else layout.push('night: the night was not up'); }
       continue;
     }
-    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
+    for (const t of ['Close for the day', 'See results']) if (await has(`button:has-text("${t}")`)) { if (once('summary')) { await shot('07-summary'); await look('takings'); layout.push(...await checkLayout(page, 'takings')); } if (await has('.hl') && once('summary-hl')) await shot('07b-summary-highlight'); await page.click(`button:has-text("${t}")`); break; }
     if (once('rivalturn') && await has('.rival-stall.active')) { await page.waitForTimeout(300); await shot('03b-rival-buying'); }
     await page.waitForTimeout(120);
     } catch {
@@ -118,8 +124,12 @@ const path = require('path');
   console.log('results visible:', reached, 'errors:', errors);
   for (const x of await table.report(page)) if (!broken.includes(x)) broken.push(x);
   console.log('table checked at:', looked.join(', '));
+  console.log('layout checks:', layout.length ? layout : 'all hold');
+  console.log('style checks:', styles.length ? styles : 'all hold');
   // the stocking sheet, the pricing sheet and the takings are reached in every game
   for (const at of ['stocking', 'pricing', 'takings']) if (!looked.includes(at)) broken.push(`the table was not checked at ${at}`);
+  // PLAN-130 (A-05): the table's layout, from the computed style (scripts/layout-check.cjs)
+  broken.push(...layout, ...styles);
   await browser.close();
   if (broken.length) {
     console.error(`Solo playthrough FAILED: the table broke its rules:\n  ${broken.join('\n  ')}`);
